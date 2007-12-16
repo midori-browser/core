@@ -1,0 +1,101 @@
+# Register ourselves to autoconf
+AC_INIT([midori], [0.0.14], [christian@twotoasts.de])
+AC_CONFIG_SRCDIR([src/main.h])
+AC_CONFIG_HEADER([config.h])
+
+AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
+
+# Checks for programs
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+# Checks for header files
+AC_HEADER_STDC
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+# Checks if we want debugging support
+AC_ARG_ENABLE([debug],
+AC_HELP_STRING([--enable-debug=@<:@no/simple/yes@:>@]
+ , [Turn on debugging @<:@default=simple@:>@])
+ , [], [enable_debug=simple])
+AC_MSG_CHECKING([whether to enable debugging support])
+AC_MSG_RESULT([$enable_debug])
+if test x"$enable_debug" = x"simple"; then
+  AC_DEFINE([SOKOKE_DEBUG], 1, [Level of debugging support])
+fi
+if test x"$enable_debug" = x"yes"; then
+  # Check whether the compiler accepts -Wall
+  save_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS -Wall"
+  AC_MSG_CHECKING([whether $CC accepts -Wall])
+  AC_COMPILE_IFELSE(AC_LANG_SOURCE([int x;]), [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_RESULT([no])
+    CFLAGS="$save_CFLAGS"
+  ])
+  AC_DEFINE([SOKOKE_DEBUG], 2, [Level of debugging support])
+fi
+AC_DEFINE_UNQUOTED([SOKOKE_DEBUG_], "$enable_debug", [Debugging?])
+
+# Checks for GTK+2
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.6, have_gtk=true, have_gtk=false)
+if test "x${have_gtk}" = "xfalse" ; then
+    AC_MSG_ERROR([No GTK+2 package information found])
+fi
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+GTK_VER=`pkg-config --modversion gtk+-2.0`
+AC_DEFINE_UNQUOTED([GTK_VER], "$GTK_VER", [GTK+ version])
+
+# Checks for WebKitGtk
+PKG_CHECK_MODULES(WEBKIT, WebKitGtk, have_webkit=true, have_webkit=false)
+if test "x${have_webkit}" = "xfalse" ; then
+    AC_MSG_ERROR([No WebKitGtk package information found])
+fi
+AC_SUBST(WEBKIT_CFLAGS)
+AC_SUBST(WEBKIT_LIBS)
+WEBKIT_VER=`pkg-config --modversion WebKitGtk`
+AC_DEFINE_UNQUOTED([WEBKIT_VER], "$WEBKITGTK_VER", [WebKitGtk version])
+
+# Checks for libsexy
+PKG_CHECK_MODULES(LIBSEXY, libsexy, have_libsexy=true, have_libsexy=false)
+if test "x${have_libsexy}" = "xfalse" ; then
+    AC_MSG_ERROR([No Libsexy package information found])
+fi
+AC_SUBST(LIBSEXY_CFLAGS)
+AC_SUBST(LIBSEXY_LIBS)
+LIBSEXY_VER=`pkg-config --modversion libsexy`
+AC_DEFINE_UNQUOTED([LIBSEXY_VER], "$LIBSEXY_VER", [Libsexy version])
+
+# Checks for LibXML2
+PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= 2.6, have_libxml=true, have_libxml=false)
+if test "x${have_libxml}" = "xfalse" ; then
+    AC_MSG_ERROR([No libXML2 package information found])
+fi
+AC_SUBST(LIBXML_CFLAGS)
+AC_SUBST(LIBXML_LIBS)
+LIBXML_VER=`pkg-config --modversion libxml-2.0`
+AC_DEFINE_UNQUOTED([LIBXML_VER], "$LIBXML_VER", [libXML2 version])
+
+# Here we tell the configure script which files to *create*
+AC_CONFIG_FILES([
+    Makefile     \
+    src/Makefile
+])
+AC_OUTPUT
+
+# Show us what we have
+echo
+echo "    GTK+2        $GTK_VER"
+echo "    WebKit       $WEBKIT_VER"
+echo "    Libsexy      $LIBSEXY_VER"
+echo "    libXML2      $LIBXML_VER"
+echo "    GetText      N/A"
+echo
+echo "    Debugging    $enable_debug"
+echo
+echo "    Prefix       $prefix"

@@ -1,0 +1,133 @@
+v0.0.14:
+ + FIX Reopening a tab from the trash causes a crash
+ + FIX An untitled website keeps the previous title
+ + FIX When switching tabs the location/ title isn't updated correctly
+ + FIX Issues with the preferences dialog
+ + Disable location completion for now
+ + Save tabtrash to file
+ + Restructure some code
+ + Remove color picker and throbber
+ + Change the license to LGPL
+
+v0.0.13:
+ + Adapt WebKit api change, remove engine wrappers, remove dialog hack
+ + Improve XBEL loading and saving
+ + Show dialog and backup files on startup errors
+ + Rearranged and removed some menus
+
+v0.0.12:
+ + FIX Improve flawed window creation
+ + Build with and eliminate all compiler warnings
+ + Implement clipboard handling menus
+ + Allow editing of search engines
+ + Update search engines properly
+ + Implement bookmarks saving
+ + Implement session saving and loading
+ + Cleaned up and revised most code
+ + Remove legacy webi code
+
+v0.0.11:
+ + FIX Back/ forward and initial check menu item states
+ + Remove rather useless debugging helpers
+ + Improvements on the preferences
+ + First attempt at websearch
+ + Preserve typed uri on tab switch
+ + First attempt at bookmarks, readonly for now
+ + Add an animated throbber
+
+v0.0.10:
+ + FIX Can crash on context menu or new protocol
+ + FIX Location isn't updated on tab switch
+ + Remember last window position and size
+ + Implement Open menu item
+ + Allow using location and web search if hidden
+
+v0.0.9:
+ + FIX Close tab not insensitive for only one tab
+ + FIX Debug output is broken
+ + Display uri when hovering a link
+ + Implement link uri related part of context menu
+ + Implement alt/ middle/ shift click link
+ + First attempt at external protocol handlers
+ + Initial download manager integration
+ + Adapt WebKit api prefix change
+ + More code reorganization and cleanup
+
+v0.0.8:
+ + FIX Crash when invoking document context menu via keyboard
+ + FIX Can't build with debug = yes on GTK+2.12
+ + Changes related to icons in the gui
+ + Reorganize code by splitting into several files
+ + Switch from WebkitGdk to WebkitGtk
+
+v0.0.7:
+ + FIX Make settings finally work flawlessly
+ + FIX Can crash when settings are opened
+ + Handle all panels in a general way
+ + Install xdg compliant desktop file
+ + Implement location and web search menu items
+ + Display a loading icon on tabs again
+ + Changed the settings dialog again
+
+v0.0.6:
+ + FIX Closing an individual tab doesn't work correctly.
+ + FIX Doesn't build with gtkwebcore.
+ + Reimplement menus and and navibar with GtkUIManager.
+ + Improve document handling in general.
+ + Finished tab trash menu.
+ + Implement searchbox default text.
+ + Remove some gtkwebcore code.
+ + Use Xfce style dialog in Xfce.
+ + Implement a few settings.
+ + Change the panel's look.
+ + Implement a 'pageholder' panel.
+
+v0.0.5:
+ + Implement a few more signals for WebkitGdk.
+ + Add tooltips to navigation toolbar buttons.
+ + First attempt on a settings dialog.
+ + Reimplemented color picker.
+ + Autocompletion for location and searchbox.
+ + Changed menu items and incremental findbar.
+ + Implement tab switching via keyboard.
+
+v0.0.4:
+ + FIX Midori segfaults when quitting.
+ + FIX Config loading and saving is broken.
+ + Switch WebkitGdk to gtk api and make it the build default.
+ + Register custom stock icons instead of icon theme magic.
+ + Implement dynamic window menu.
+ + First attempt on resizable panels.
+ + Add about dialog.
+
+v0.0.3:
+ + FIX Refresh via menu or shortcut crashes the browser.
+ + FIX Assertions with and visibility of the progressbar.
+ + FIX Tabs are not reorderable.
+ + Package versions in ./configure result and --version output.
+ + Improve view menu and add tools menu.
+ + Replace deprecated functions and macros.
+ + Implement settings saving and loading.
+ + Fill the common context menu with items
+ + Allow multiple homepages, seperated by '|'.
+ + Make code typesafe and C++ friendly.
+ + Initially support WebkitGdk directly.
+ + Urlify location inputs automatically.
+
+v0.0.2:
+ + Dynamic tab trash menu.
+ + Update UI when page is changed.
+ + Enhanced WebkitGtk support.
+ + New function sokoke_dialog_run_modeless.
+ + Finished on_document_request_script_prompt.
+ + One name and version, visible in the user agent.
+ + Changed some accelerators and menu items.
+ + Create and destroy color picker properly.
+ + Ctrl + Wheel resets the zoom level.
+ + Escape in the location entry resets the uri.
+ + Use gtk-webcore prefix instead of osb now.
+ + Save keybindings on quit.
+ + Fancy autotools build setup.
+
+v0.0.1:
+ + Initial release

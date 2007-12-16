@@ -1,0 +1,669 @@
+/*
+ Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ See the file COPYING for the full license text.
+*/
+
+#include "prefs.h"
+
+#include "helpers.h"
+#include "global.h"
+#include "sokoke.h"
+
+#include "string.h"
+
+static gboolean on_prefs_homepage_focus_out(GtkWidget* widget
+ , GdkEventFocus event, CPrefs* prefs)
+{
+    g_free(config->homepage);
+    config->homepage = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    return FALSE;
+}
+
+static void on_prefs_loadonstartup_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    config->startup = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+}
+
+static void on_prefs_newpages_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    config->newPages = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+}
+
+void on_prefs_openTabsInTheBackground_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->openTabsInTheBackground = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+}
+
+static void on_prefs_openPopupsInTabs_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->openPopupsInTabs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+}
+
+static void on_prefs_loadImagesAutomatically_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->loadImagesAutomatically = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    // FIXME: Apply the change to all open webViews
+    g_object_set(get_nth_webView(-1, prefs->browser)
+     , "loads-images-automatically", config->loadImagesAutomatically, NULL);
+}
+
+static void on_prefs_shrinkImagesToFit_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->shrinkImagesToFit = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    // FIXME: Apply the change to all open webViews
+    g_object_set(get_nth_webView(-1, prefs->browser)
+     , "shrinks-standalone-images-to-fit", config->shrinkImagesToFit, NULL);
+}
+
+static void on_prefs_resizableTextAreas_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->resizableTextAreas = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    // FIXME: Apply the change to all open webViews
+    g_object_set(get_nth_webView(-1, prefs->browser)
+     , "text-areas-are-resizable", config->resizableTextAreas, NULL);
+}
+
+static void on_prefs_enableJavaScript_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->enableJavaScript = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    // FIXME: Apply the change to all open webViews
+    g_object_set(get_nth_webView(-1, prefs->browser)
+     , "java-script-enabled", config->enableJavaScript, NULL);
+}
+
+static void on_prefs_enablePlugins_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->enablePlugins = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    // FIXME: Apply the change to all open webViews
+    g_object_set(get_nth_webView(-1, prefs->browser)
+     , "plugins-enabled", config->enablePlugins, NULL);
+}
+
+static void on_prefs_toolbarstyle_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    config->toolbarStyle = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+    gtk_toolbar_set_style(GTK_TOOLBAR(prefs->browser->navibar)
+     , config_to_toolbarstyle(config->toolbarStyle));
+}
+
+static void on_prefs_toolbarSmall_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->toolbarSmall = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    gtk_toolbar_set_icon_size(GTK_TOOLBAR(prefs->browser->navibar)
+     , config_to_toolbariconsize(config->toolbarSmall));
+}
+
+static void on_prefs_closeButtonsOnTabs_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->tabClose = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    GList* items = browsers;
+    do
+    {
+        CBrowser* browser = (CBrowser*)items->data;
+        sokoke_widget_set_visible(browser->webView_close, config->tabClose);
+    }
+    while((items = g_list_next(items)));
+    g_list_free(items);
+}
+
+static void on_prefs_toolbarWebSearch_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->toolbarWebSearch = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    sokoke_widget_set_visible(prefs->browser->webSearch, config->toolbarWebSearch);
+}
+
+static void on_prefs_toolbarNewTab_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->toolbarNewTab = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    sokoke_widget_set_visible(prefs->browser->newTab, config->toolbarNewTab);
+}
+
+static void on_prefs_toolbarClosedTabs_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->toolbarClosedTabs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    sokoke_widget_set_visible(prefs->browser->closedTabs, config->toolbarClosedTabs);
+}
+
+static gboolean on_prefs_locationsearch_focus_out(GtkWidget* widget
+ , GdkEventFocus event, CPrefs* prefs)
+{
+    g_free(config->locationSearch);
+    config->locationSearch = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    return FALSE;
+}
+
+static void on_prefs_protocols_render_icon(GtkTreeViewColumn* column
+ , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter, CPrefs* prefs)
+{
+    gchar* command;
+    gtk_tree_model_get(model, iter, PROTOCOLS_COL_COMMAND, &command, -1);
+
+    // TODO: Would it be better, to not do this on every redraw?
+    // Determine the actual binary to be able to display an icon
+    gchar* binary = NULL;
+    if(command)
+        binary = strtok(command, " ");
+    if(binary)
+    {
+        gchar* path;
+        if((path = g_find_program_in_path(binary)))
+        {
+            GtkIconTheme* icon_theme = get_icon_theme(prefs->treeview);
+            if(g_path_is_absolute(binary))
+            {
+                g_free(path); path = g_path_get_basename(binary);
+            }
+            // TODO: Is it good to just display nothing if there is no icon?
+            if(!gtk_icon_theme_has_icon(icon_theme, binary))
+                binary = NULL;
+            #if GTK_CHECK_VERSION(2, 10, 0)
+            g_object_set(renderer, "icon-name", binary, NULL);
+            #else
+            GdkPixbuf* icon = binary != NULL
+             ? gtk_icon_theme_load_icon(gtk_icon_theme_get_default()
+             , binary, GTK_ICON_SIZE_MENU, 0, NULL) : NULL;
+            g_object_set(renderer, "pixbuf", icon, NULL);
+            if(icon)
+                g_object_unref(icon);
+            #endif
+            g_free(path);
+        }
+        else
+        {
+            #if GTK_CHECK_VERSION(2, 10, 0)
+            g_object_set(renderer, "icon-name", NULL, NULL);
+            #endif
+            g_object_set(renderer, "stock-id", GTK_STOCK_DIALOG_ERROR, NULL);
+        }
+    }
+    else
+    {
+        // We need to reset the icon
+        #if GTK_CHECK_VERSION(2, 10, 0)
+        g_object_set(renderer, "icon-name", NULL, NULL);
+        #else
+        g_object_set(renderer, "stock-id", NULL, NULL);
+        #endif
+    }
+    g_free(command);
+}
+
+static void on_prefs_protocols_edited(GtkCellRendererText* renderer
+ , gchar* path, gchar* textNew, CPrefs* prefs)
+{
+    GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs->treeview));
+    GtkTreeIter iter;
+    gtk_tree_model_get_iter_from_string(model, &iter, path);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter
+     , PROTOCOLS_COL_COMMAND, textNew, -1);
+    gchar* protocol;
+    gtk_tree_model_get(model, &iter, PROTOCOLS_COL_NAME, &protocol, -1);
+    g_datalist_set_data_full(&config->protocols_commands
+     , protocol, g_strdup(textNew), g_free);
+}
+
+static void on_prefs_protocols_add_clicked(GtkWidget* widget, CPrefs* prefs)
+{
+    gchar* protocol = gtk_combo_box_get_active_text(GTK_COMBO_BOX(prefs->combobox));
+    GtkTreeModel* liststore = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs->treeview));
+    gtk_list_store_insert_with_values(GTK_LIST_STORE(liststore), NULL, G_MAXINT
+        , PROTOCOLS_COL_NAME, protocol
+        , PROTOCOLS_COL_COMMAND, "", -1);
+    g_ptr_array_add(config->protocols_names, (gpointer)protocol);
+    g_datalist_set_data_full(&config->protocols_commands
+     , protocol, g_strdup(""), g_free);
+    gtk_widget_set_sensitive(prefs->add, FALSE);
+}
+
+static void on_prefs_protocols_combobox_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    gchar* protocol = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
+    gchar* command = (gchar*)g_datalist_get_data(&config->protocols_commands, protocol);
+    g_free(protocol);
+    gtk_widget_set_sensitive(prefs->add, command == NULL);
+}
+
+GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
+{
+    gchar* dialogTitle = g_strdup_printf("%s Preferences", g_get_application_name());
+    GtkWidget* dialog = gtk_dialog_new_with_buttons(dialogTitle
+        , GTK_WINDOW(browser->window)
+        , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
+        , GTK_STOCK_HELP
+        , GTK_RESPONSE_HELP
+        , GTK_STOCK_CLOSE
+        , GTK_RESPONSE_CLOSE
+        , NULL);
+    gtk_window_set_icon_name(GTK_WINDOW(dialog), GTK_STOCK_PREFERENCES);
+    // TODO: Implement some kind of help function
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_HELP, FALSE); //...
+    g_signal_connect(dialog, "response", G_CALLBACK(gtk_widget_destroy), dialog);
+
+    CPrefs* prefs = g_new0(CPrefs, 1);
+    prefs->browser = browser;
+    //prefs->window = dialog;
+    g_signal_connect(dialog, "response", G_CALLBACK(g_free), prefs);
+
+    // TODO: Do we want tooltips for explainations or can we omit that?
+    // TODO: We need mnemonics
+    // TODO: Take multiple windows into account when applying changes
+    GtkWidget* xfce_heading;
+    if((xfce_heading = sokoke_xfce_header_new(
+     gtk_window_get_icon_name(GTK_WINDOW(browser->window)), dialogTitle)))
+        gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox)
+         , xfce_heading, FALSE, FALSE, 0);
+    g_free(dialogTitle);
+    GtkWidget* notebook = gtk_notebook_new();
+    gtk_container_set_border_width(GTK_CONTAINER(notebook), 6);
+    GtkSizeGroup* sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+    GtkSizeGroup* sizegroup2 = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+    GtkWidget* page; GtkWidget* frame; GtkWidget* table; GtkWidget* align;
+    GtkWidget* button; GtkWidget* checkbutton; GtkWidget* colorbutton;
+    GtkWidget* combobox; GtkWidget* entry; GtkWidget* hbox; GtkWidget* spinbutton;
+    #define PAGE_NEW(__label) page = gtk_vbox_new(FALSE, 0);\
+     gtk_container_set_border_width(GTK_CONTAINER(page), 5);\
+     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, gtk_label_new(__label))
+    #define FRAME_NEW(__label) frame = sokoke_hig_frame_new(__label);\
+     gtk_container_set_border_width(GTK_CONTAINER(frame), 5);\
+     gtk_box_pack_start(GTK_BOX(page), frame, FALSE, FALSE, 0);
+    #define TABLE_NEW(__rows, __cols) table = gtk_table_new(__rows, __cols, FALSE);\
+     gtk_container_set_border_width(GTK_CONTAINER(table), 5);\
+     gtk_container_add(GTK_CONTAINER(frame), table);
+    #define WIDGET_ADD(__widget, __left, __right, __top, __bottom)\
+     gtk_table_attach(GTK_TABLE(table), __widget\
+      , __left, __right, __top, __bottom\
+      , 0, GTK_FILL, 8, 2)
+    #define FILLED_ADD(__widget, __left, __right, __top, __bottom)\
+     gtk_table_attach(GTK_TABLE(table), __widget\
+      , __left, __right, __top, __bottom\
+      , GTK_EXPAND | GTK_FILL, GTK_FILL, 8, 2)
+    #define INDENTED_ADD(__widget, __left, __right, __top, __bottom)\
+     align = gtk_alignment_new(0, 0.5, 0, 0);\
+     gtk_container_add(GTK_CONTAINER(align), __widget);\
+     gtk_size_group_add_widget(sizegroup, align);\
+     WIDGET_ADD(align, __left, __right, __top, __bottom)
+    #define SEMI_INDENTED_ADD(__widget, __left, __right, __top, __bottom)\
+     align = gtk_alignment_new(0, 0.5, 0, 0);\
+     gtk_container_add(GTK_CONTAINER(align), __widget);\
+     gtk_size_group_add_widget(sizegroup2, align);\
+     WIDGET_ADD(align, __left, __right, __top, __bottom)
+    #define SPANNED_ADD(__widget, __left, __right, __top, __bottom)\
+     align = gtk_alignment_new(0, 0.5, 0, 0);\
+     gtk_container_add(GTK_CONTAINER(align), __widget);\
+     FILLED_ADD(align, __left, __right, __top, __bottom)
+    // Page "General"
+    PAGE_NEW("General");
+    FRAME_NEW("Startup");
+    TABLE_NEW(2, 2);
+    INDENTED_ADD(gtk_label_new("Load on startup"), 0, 1, 0, 1);
+    combobox = gtk_combo_box_new_text();
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , "Blank page", "Homepage", "Last open pages", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->startup);
+    g_signal_connect(combobox, "changed"
+     , G_CALLBACK(on_prefs_loadonstartup_changed), prefs);
+    FILLED_ADD(combobox, 1, 2, 0, 1);
+    INDENTED_ADD(gtk_label_new("Homepage"), 0, 1, 1, 2);
+    entry = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(entry), config->homepage);
+    g_signal_connect(entry, "focus-out-event"
+    , G_CALLBACK(on_prefs_homepage_focus_out), prefs);
+    FILLED_ADD(entry, 1, 2, 1, 2);
+    // TODO: We need something like "use current website"
+    FRAME_NEW("Downloads");
+    TABLE_NEW(1, 2);
+    INDENTED_ADD(gtk_label_new("Download folder"), 0, 1, 0, 1);
+    GtkWidget* filebutton = gtk_file_chooser_button_new(
+     "Choose download folder", GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+    // FIXME: The default should probably be ~/Desktop
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filebutton)
+     , g_get_home_dir()); //...
+    gtk_widget_set_sensitive(filebutton, FALSE); //...
+    FILLED_ADD(filebutton, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic
+     ("Show a notification window for finished downloads");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 2, 1, 2);
+    FRAME_NEW("Languages");
+    TABLE_NEW(1, 2);
+    INDENTED_ADD(gtk_label_new("Preferred languages"), 0, 1, 0, 1);
+    entry = gtk_entry_new();
+    // TODO: Make sth like get_browser_languages_default filtering encodings and C out
+    // TODO: Provide a real ui with real language names (iso-codes)
+    const gchar* const* sLanguages = g_get_language_names();
+    gchar* sLanguagesPreferred = g_strjoinv(",", (gchar**)sLanguages);
+    gtk_entry_set_text(GTK_ENTRY(entry), sLanguagesPreferred/*config->sLanguagesPreferred*/);
+    g_free(sLanguagesPreferred);
+    gtk_widget_set_sensitive(entry, FALSE); //...
+    FILLED_ADD(entry, 1, 2, 0, 1);
+
+    // Page "Appearance"
+    PAGE_NEW("Appearance");
+    FRAME_NEW("Font settings");
+    TABLE_NEW(5, 2);
+    INDENTED_ADD(gtk_label_new("Standard font"), 0, 1, 0, 1);
+    button = gtk_font_button_new_with_font("Sans 10"/*config->sFontStandard*/);
+    gtk_widget_set_sensitive(button, FALSE); //...
+    FILLED_ADD(button, 1, 2, 0, 1);
+    INDENTED_ADD(gtk_label_new("Minimum font size"), 0, 1, 1, 2);
+    hbox = gtk_hbox_new(FALSE, 4);
+    spinbutton = gtk_spin_button_new_with_range(5, 12, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 5/*config->iFontSizeMin*/);
+    gtk_widget_set_sensitive(spinbutton, FALSE); //...
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
+    button = gtk_button_new_with_mnemonic("_Advanced");
+    gtk_widget_set_sensitive(button, FALSE); //...
+    gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
+    FILLED_ADD(hbox, 1, 2, 1, 2);
+    INDENTED_ADD(gtk_label_new("Default encoding"), 0, 1, 2, 3);
+    combobox = gtk_combo_box_new_text();
+    const gchar* encoding = NULL; g_get_charset(&encoding);
+    // TODO: Fallback to utf-8 if the encoding is not sane (e.g. when lang=C)
+    gchar* sEncodingDefault = g_strdup_printf("System (%s)", encoding);
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , sEncodingDefault, "Chinese", "Greek", "Japanese (SHIFT_JIS)"
+     , "Korean", "Russian", "Unicode (UTF-8)", "Western (ISO-8859-1)", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0); //...
+    gtk_widget_set_sensitive(combobox, FALSE); //...
+    FILLED_ADD(combobox, 1, 2, 2, 3);
+    button = gtk_button_new_with_label("Advanced settings");
+    gtk_widget_set_sensitive(button, FALSE); //...
+    WIDGET_ADD(button, 1, 2, 2, 3);
+    FRAME_NEW("Default colors");
+    TABLE_NEW(2, 4);
+    SEMI_INDENTED_ADD(gtk_label_new("Text color"), 0, 1, 0, 1);
+    colorbutton = gtk_color_button_new();
+    gtk_widget_set_sensitive(colorbutton, FALSE); //...
+    WIDGET_ADD(colorbutton, 1, 2, 0, 1);
+    SEMI_INDENTED_ADD(gtk_label_new("Background color"), 2, 3, 0, 1);
+    colorbutton = gtk_color_button_new();
+    gtk_widget_set_sensitive(colorbutton, FALSE); //...
+    WIDGET_ADD(colorbutton, 3, 4, 0, 1);
+    SEMI_INDENTED_ADD(gtk_label_new("Normal link color"), 0, 1, 1, 2);
+    colorbutton = gtk_color_button_new();
+    gtk_widget_set_sensitive(colorbutton, FALSE); //...
+    WIDGET_ADD(colorbutton, 1, 2, 1, 2);
+    SEMI_INDENTED_ADD(gtk_label_new("Visited link color"), 2, 3, 1, 2);
+    colorbutton = gtk_color_button_new();
+    gtk_widget_set_sensitive(colorbutton, FALSE); //...
+    WIDGET_ADD(colorbutton, 3, 4, 1, 2);
+
+    // Page "Behavior"
+    PAGE_NEW("Behavior");
+    FRAME_NEW("Browsing");
+    TABLE_NEW(3, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("Open _new pages in"), 0, 1, 0, 1);
+    combobox = gtk_combo_box_new_text();
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , "New tab", "New window", "Current tab", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->newPages);
+    g_signal_connect(combobox, "changed"
+     , G_CALLBACK(on_prefs_newpages_changed), prefs);
+    gtk_widget_set_sensitive(combobox, FALSE); //...
+    FILLED_ADD(combobox, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic("Open tabs in the _background");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openTabsInTheBackground);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_openTabsInTheBackground_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 2, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Open _popups in tabs");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openPopupsInTabs);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_openPopupsInTabs_toggled), prefs);
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 2, 2, 3);
+    FRAME_NEW("Features");
+    TABLE_NEW(3, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Load _images automatically");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->loadImagesAutomatically);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_loadImagesAutomatically_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic("_Shrink images to fit");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->shrinkImagesToFit);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_shrinkImagesToFit_toggled), prefs);
+    SPANNED_ADD(checkbutton, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic("_Resizable textareas");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->resizableTextAreas);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_resizableTextAreas_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Enable java_script");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enableJavaScript);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_enableJavaScript_toggled), prefs);
+    SPANNED_ADD(checkbutton, 1, 2, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Enable _plugins");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enablePlugins);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_enablePlugins_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 2, 3);
+    // For now we check for "plugins-enabled", in case this build has no properties
+    if(!g_object_class_find_property(G_OBJECT_GET_CLASS(browser->webView), "plugins-enabled"))
+        gtk_widget_set_sensitive(frame, FALSE);
+
+    // Page "Interface"
+    PAGE_NEW("Interface");
+    FRAME_NEW("Navigationbar");
+    TABLE_NEW(3, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("_Toolbar style"), 0, 1, 0, 1);
+    combobox = gtk_combo_box_new_text();
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , "Default", "Icons", "Text", "Both", "Both horizontal", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->toolbarStyle);
+    g_signal_connect(combobox, "changed"
+     , G_CALLBACK(on_prefs_toolbarstyle_changed), prefs);
+    FILLED_ADD(combobox, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic("Show small _icons");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarSmall);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_toolbarSmall_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Show web_search");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarWebSearch);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_toolbarWebSearch_toggled), prefs);
+    SPANNED_ADD(checkbutton, 1, 2, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Show _New Tab Button");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarNewTab);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_toolbarNewTab_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 2, 3);
+    checkbutton = gtk_check_button_new_with_mnemonic("Show _closed tabs button");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarClosedTabs);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_toolbarClosedTabs_toggled), prefs);
+    SPANNED_ADD(checkbutton, 1, 2, 2, 3);
+    FRAME_NEW("Miscellaneous");
+    TABLE_NEW(3, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic
+     ("Show close _buttons on tabs");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->tabClose);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_closeButtonsOnTabs_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 2, 0, 1);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("Tabbar _placement"), 0, 1, 1, 2);
+    combobox = gtk_combo_box_new_text();
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , "Left", "Top", "Right", "Bottom", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1); //...
+    gtk_widget_set_sensitive(combobox, FALSE); //...
+    FILLED_ADD(combobox, 1, 2, 1, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("_Location search engine"), 0, 1, 2, 3);
+    entry = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(entry), config->locationSearch);
+    g_signal_connect(entry, "focus-out-event"
+     , G_CALLBACK(on_prefs_locationsearch_focus_out), prefs);
+    FILLED_ADD(entry, 1, 2, 2, 3);
+
+    // Page "Network"
+    PAGE_NEW("Network");
+    FRAME_NEW("Proxy Server");
+    TABLE_NEW(5, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("_Custom proxy server");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 2, 0, 1);
+    hbox = gtk_hbox_new(FALSE, 4);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("_Host/ Port"), 0, 1, 1, 2);
+    entry = gtk_entry_new();
+    gtk_widget_set_sensitive(entry, FALSE); //...
+    gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
+    spinbutton = gtk_spin_button_new_with_range(0, 65535, 1);
+    gtk_widget_set_sensitive(spinbutton, FALSE); //...
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
+    FILLED_ADD(hbox, 1, 2, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic
+     ("Proxy requires authentication");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    // TODO: The proxy user and pass need to be indented further
+    SPANNED_ADD(checkbutton, 0, 2, 2, 3);
+    INDENTED_ADD(gtk_label_new("Username"), 0, 1, 3, 4);
+    entry = gtk_entry_new();
+    gtk_widget_set_sensitive(entry, FALSE); //...
+    FILLED_ADD(entry, 1, 2, 3, 4);
+    INDENTED_ADD(gtk_label_new("Password"), 0, 1, 4, 5);
+    entry = gtk_entry_new();
+    gtk_widget_set_sensitive(entry, FALSE); //...
+    FILLED_ADD(entry, 1, 2, 4, 5);
+    FRAME_NEW("Cache");
+    TABLE_NEW(1, 2);
+    INDENTED_ADD(gtk_label_new("Cache size"), 0, 1, 0, 1);
+    hbox = gtk_hbox_new(FALSE, 4);
+    spinbutton = gtk_spin_button_new_with_range(0, 10000, 10);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 100/*config->iCacheSize*/);
+    gtk_widget_set_sensitive(spinbutton, FALSE); //...
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("MB"), FALSE, FALSE, 0);
+    button = gtk_button_new_with_label("Clear cache");
+    gtk_widget_set_sensitive(button, FALSE); //...
+    gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
+    FILLED_ADD(hbox, 1, 2, 0, 1);
+
+    // Page "Privacy"
+    PAGE_NEW("Privacy");
+    FRAME_NEW("Cookies");
+    TABLE_NEW(3, 2);
+    INDENTED_ADD(gtk_label_new("Accept cookies"), 0, 1, 0, 1);
+    combobox = gtk_combo_box_new_text();
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , "All cookies", "Session cookies", "None", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0); //...
+    gtk_widget_set_sensitive(combobox, FALSE); //...
+    FILLED_ADD(combobox, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic
+     ("Allow cookies from the original website only");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 2, 1, 2);
+    INDENTED_ADD(gtk_label_new("Maximum cookie age"), 0, 1, 2, 3);
+    hbox = gtk_hbox_new(FALSE, 4);
+    spinbutton = gtk_spin_button_new_with_range(0, 360, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 30/*config->iCookieAgeMax*/);
+    gtk_widget_set_sensitive(spinbutton, FALSE); //...
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("days"), FALSE, FALSE, 0);
+    button = gtk_button_new_with_label("View cookies");
+    gtk_widget_set_sensitive(button, FALSE); //...
+    gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
+    FILLED_ADD(hbox, 1, 2, 2, 3);
+    FRAME_NEW("History");
+    TABLE_NEW(3, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Remember my visited pages");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 1, 0, 1);
+    hbox = gtk_hbox_new(FALSE, 4);
+    spinbutton = gtk_spin_button_new_with_range(0, 360, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 30/*config->iHistoryAgeMax*/);
+    gtk_widget_set_sensitive(spinbutton, FALSE); //...
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("days"), FALSE, FALSE, 0);
+    SPANNED_ADD(hbox, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic
+     ("Remember my form inputs");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 2, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic
+     ("Remember my downloaded files");
+    gtk_widget_set_sensitive(checkbutton, FALSE); //...
+    SPANNED_ADD(checkbutton, 0, 2, 2, 3);
+
+    // Page "Programs"
+    PAGE_NEW("Programs");
+    FRAME_NEW("External programs");
+    TABLE_NEW(3, 2);
+    GtkWidget* treeview; GtkTreeViewColumn* column;
+    GtkCellRenderer* renderer_text; GtkCellRenderer* renderer_pixbuf;
+    GtkListStore* liststore = gtk_list_store_new(PROTOCOLS_COL_N
+     , G_TYPE_STRING, G_TYPE_STRING);
+    treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(liststore));
+    prefs->treeview = treeview;
+    renderer_text = gtk_cell_renderer_text_new();
+    renderer_pixbuf = gtk_cell_renderer_pixbuf_new();
+    column = gtk_tree_view_column_new_with_attributes(
+     "Protocol", renderer_text, "text", PROTOCOLS_COL_NAME, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, "Command");
+    gtk_tree_view_column_pack_start(column, renderer_pixbuf, FALSE);
+    gtk_tree_view_column_set_cell_data_func(column, renderer_pixbuf
+     , (GtkTreeCellDataFunc)on_prefs_protocols_render_icon, prefs, NULL);
+    renderer_text = gtk_cell_renderer_text_new();
+    g_object_set(G_OBJECT(renderer_text), "editable", TRUE, NULL);
+    g_signal_connect(GTK_OBJECT(renderer_text), "edited"
+     , G_CALLBACK(on_prefs_protocols_edited), prefs);
+    gtk_tree_view_column_pack_start(column, renderer_text, TRUE);
+    gtk_tree_view_column_add_attribute(column, renderer_text, "text", PROTOCOLS_COL_COMMAND);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+    GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled)
+     , GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_container_add(GTK_CONTAINER(scrolled), treeview);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled), GTK_SHADOW_IN);
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), scrolled, TRUE, TRUE, 5);
+    guint i;
+    for(i = 0; i < config->protocols_names->len; i++)
+    {
+        gchar* protocol = (gchar*)g_ptr_array_index(config->protocols_names, i);
+        // TODO: We might want to determine 'default' programs somehow
+        // TODO: Any way to make it easier to add eg. only a mail client? O_o
+        const gchar* command = g_datalist_get_data(&config->protocols_commands, protocol);
+        gtk_list_store_insert_with_values(GTK_LIST_STORE(liststore), NULL, i
+         , PROTOCOLS_COL_NAME   , protocol
+         , PROTOCOLS_COL_COMMAND, command
+         , -1);
+    }
+    g_object_unref(liststore);
+    GtkWidget* vbox = gtk_vbox_new(FALSE, 4);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 4);
+    combobox = gtk_combo_box_new_text();
+    prefs->combobox = combobox;
+    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
+     , "download", "ed2k", "feed", "ftp", "irc", "mailto"
+     , "news", "tel", "torrent", "view-source", NULL);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
+    gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 0);
+    button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    prefs->add = button;
+    g_signal_connect(combobox, "changed"
+     , G_CALLBACK(on_prefs_protocols_combobox_changed), prefs);
+    g_signal_connect(button, "clicked"
+     , G_CALLBACK(on_prefs_protocols_add_clicked), prefs);
+    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+    button = gtk_label_new(""); // This is an invisible separator
+    gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 12);
+    button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    gtk_widget_set_sensitive(button, FALSE); //...
+    gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+    FILLED_ADD(hbox, 0, 2, 0, 2);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox)
+     , notebook, FALSE, FALSE, 4);
+    gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
+    return dialog;
+}

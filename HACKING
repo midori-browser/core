@@ -1,0 +1,85 @@
+It is 4 spaces, no tabs, preferrably at 80 columns per line.
+
+The preferred coding style is explained by example.
+
+Source file example:
+
+    /*
+       Copyright
+       LICENSE TEXT
+    */
+
+    #include "foo.h"
+
+    #include "bar.h"
+
+    #include <glib.h>
+
+    void foobar(FooEnum bar, const gchar* foo)
+    {
+        if(!foo)
+            return;
+
+        #ifdef BAR_STRICT
+        if(bar == FOO_N)
+        {
+            g_print("illegal value for 'bar'.\n");
+            return;
+        }
+        #endif
+
+        // this is an example
+        gint n;
+        switch(bar)
+        {
+        case FOO_FOO:
+            n = bar + 1;
+            break;
+        case FOO_BAR:
+            n = bar + 10;
+            break;
+        default:
+            n = 1;
+        }
+
+        guint i;
+        for(i = 0; i < n; i++)
+        {
+            g_print("%s\n", foo);
+        }
+    }
+
+Header file example:
+
+    /*
+       Copyright
+       LICENSE TEXT
+    */
+
+    #ifndef __FOO_H__
+    #define __FOO_H__ 1
+
+    #ifdef HAVE_BAR_H
+        #define BAR_STRICT
+    #endif
+
+    // -- Types
+
+    typedef enum
+    {
+        FOO_FOO,
+        FOO_BAR,
+        FOO_N
+    } FooEnum;
+
+    typedef struct
+    {
+        FooEnum fooBar;
+    } FooStruct;
+
+    // -- Declarations
+
+    void
+    foobar(FooEnum, const gchar*);
+
+    #endif /* !__FOO_H__ */
