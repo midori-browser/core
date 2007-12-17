@@ -125,7 +125,7 @@ void on_action_find_activate(GtkAction* action, CBrowser* browser)
 
 void on_action_find_next_activate(GtkAction* action, CBrowser* browser)
 {
-    if(!GTK_WIDGET_VISIBLE(browser->findbox))
+    /*if(!GTK_WIDGET_VISIBLE(browser->findbox))
         ; // FIXME: What if the findbox is hidden?
     const gchar* text = gtk_entry_get_text(GTK_ENTRY(browser->findbox_text));
     const gboolean caseSensitive = gtk_toggle_tool_button_get_active(
@@ -142,12 +142,12 @@ void on_action_find_next_activate(GtkAction* action, CBrowser* browser)
     webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
     const gboolean highlight = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);*/
 }
 
 void on_action_find_previous_activate(GtkAction* action, CBrowser* browser)
 {
-    if(!GTK_WIDGET_VISIBLE(browser->findbox))
+    /*if(!GTK_WIDGET_VISIBLE(browser->findbox))
         ; // FIXME: What if the findbox is hidden?
     const gchar* text = gtk_entry_get_text(GTK_ENTRY(browser->findbox_text));
     const gboolean caseSensitive = gtk_toggle_tool_button_get_active(
@@ -164,14 +164,14 @@ void on_action_find_previous_activate(GtkAction* action, CBrowser* browser)
     webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
     const gboolean highlight = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);*/
 }
 
 void on_findbox_highlight_toggled(GtkToggleToolButton* toolitem, CBrowser* browser)
 {
-    GtkWidget* webView = get_nth_webView(-1, browser);
+    /*GtkWidget* webView = get_nth_webView(-1, browser);
     const gboolean highlight = gtk_toggle_tool_button_get_active(toolitem);
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);*/
 }
 
 void on_action_preferences_activate(GtkAction* action, CBrowser* browser)
