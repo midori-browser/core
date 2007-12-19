@@ -99,7 +99,7 @@ static void on_prefs_toolbarSmall_toggled(GtkWidget* widget, CPrefs* prefs)
      , config_to_toolbariconsize(config->toolbarSmall));
 }
 
-static void on_prefs_closeButtonsOnTabs_toggled(GtkWidget* widget, CPrefs* prefs)
+static void on_prefs_tabClose_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->tabClose = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
     GList* items = browsers;
@@ -107,6 +107,22 @@ static void on_prefs_closeButtonsOnTabs_toggled(GtkWidget* widget, CPrefs* prefs
     {
         CBrowser* browser = (CBrowser*)items->data;
         sokoke_widget_set_visible(browser->webView_close, config->tabClose);
+    }
+    while((items = g_list_next(items)));
+    g_list_free(items);
+}
+
+static void on_prefs_tabSize_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    config->tabSize = gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget));
+    gint w, h;
+    sokoke_widget_get_text_size(prefs->browser->webView_name, "M", &w, &h);
+    GList* items = browsers;
+    do
+    {
+        CBrowser* browser = (CBrowser*)items->data;
+        gtk_widget_set_size_request(GTK_WIDGET(browser->webView_name)
+         , w * config->tabSize, -1);
     }
     while((items = g_list_next(items)));
     g_list_free(items);
@@ -487,8 +503,17 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
      ("Show close _buttons on tabs");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->tabClose);
     g_signal_connect(checkbutton, "toggled"
-     , G_CALLBACK(on_prefs_closeButtonsOnTabs_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 2, 0, 1);
+     , G_CALLBACK(on_prefs_tabClose_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 0, 1);
+    hbox = gtk_hbox_new(FALSE, 4);
+    gtk_box_pack_start(GTK_BOX(hbox)
+     , gtk_label_new_with_mnemonic("Tab Si_ze"), FALSE, FALSE, 0);
+    spinbutton = gtk_spin_button_new_with_range(0, 36, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), config->tabSize);
+    g_signal_connect(spinbutton, "changed"
+     , G_CALLBACK(on_prefs_tabSize_changed), prefs);
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
+    FILLED_ADD(hbox, 1, 2, 0, 1);
     INDENTED_ADD(gtk_label_new_with_mnemonic("Tabbar _placement"), 0, 1, 1, 2);
     combobox = gtk_combo_box_new_text();
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)

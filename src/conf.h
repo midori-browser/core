@@ -28,7 +28,6 @@ typedef struct _CConfig
     gboolean panelShow;
     guint    panelActive;
     gchar*   panelPageholder;
-    // TODO: What about this? Support it or fix tab shrinking and drop it?
     guint    tabSize; // tab size in charcters
     gboolean tabClose;
     gboolean toolbarWebSearch;

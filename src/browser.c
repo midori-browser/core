@@ -1296,7 +1296,6 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     browser->webView_name = gtk_label_new(xbel_item_get_title(browser->sessionItem));
     gtk_misc_set_alignment(GTK_MISC(browser->webView_name), 0.0, 0.5);
     // TODO: make the tab initially look "unvisited" until it's focused
-    // TODO: tabs should shrink when there is not enough space
     // TODO: gtk's tab scrolling is weird?
     gint w, h;
     sokoke_widget_get_text_size(browser->webView_name, "M", &w, &h);
