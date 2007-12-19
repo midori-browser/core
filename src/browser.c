@@ -682,7 +682,7 @@ gboolean on_location_key_down(GtkWidget* widget, GdkEventKey* event, CBrowser* b
     {
         GtkWidget* webView = get_nth_webView(-1, browser);
         WebKitWebFrame* frame = webkit_web_view_get_main_frame(WEBKIT_WEB_VIEW(webView));
-        const gchar* uri = webkit_web_frame_get_location(frame);
+        const gchar* uri = webkit_web_frame_get_uri(frame);
         if(uri && *uri)
             gtk_entry_set_text(GTK_ENTRY(widget), uri);
         return TRUE;
@@ -735,7 +735,7 @@ void on_action_openInPanel_activate(GtkAction* action, CBrowser* browser)
     GtkWidget* webView = get_nth_webView(-1, browser);
     g_free(config->panelPageholder);
     WebKitWebFrame* frame = webkit_web_view_get_main_frame(WEBKIT_WEB_VIEW(webView));
-    const gchar* uri = webkit_web_frame_get_location(frame);
+    const gchar* uri = webkit_web_frame_get_uri(frame);
     config->panelPageholder = g_strdup(uri);
     GtkAction* action_pageholder =
      gtk_action_group_get_action(browser->actiongroup, "PanelPageholder");
@@ -1342,6 +1342,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     DOC_CONNECT  ("title-changed"               , on_webView_title_changed)
     DOC_CONNECT  ("icon-loaded"                 , on_webView_icon_changed)
     DOC_CONNECT  ("load-started"                , on_webView_load_started)
+    DOC_CONNECT  ("load-committed"              , on_webView_load_committed)
     DOC_CONNECT  ("load-progress-changed"       , on_webView_load_changed)
     DOC_CONNECT  ("load-finished"               , on_webView_load_finished)
     DOC_CONNECT  ("status-bar-text-changed"     , on_webView_status_message)

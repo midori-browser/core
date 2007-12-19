@@ -23,16 +23,16 @@ on_webView_navigation_requested(GtkWidget* webView, WebKitWebFrame* frame
  , WebKitNetworkRequest* networkRequest);
 
 void
-on_webView_location_changed(GtkWidget*, const gchar*, CBrowser*);
-
-void
-on_webView_title_changed(GtkWidget*, const gchar*, const gchar*, CBrowser*);
+on_webView_title_changed(GtkWidget*, WebKitWebFrame*, const gchar*, CBrowser*);
 
 void
 on_webView_icon_changed(GtkWidget*, WebKitWebFrame*, CBrowser*);
 
 void
 on_webView_load_started(GtkWidget* , WebKitWebFrame*, CBrowser*);
+
+void
+on_webView_load_committed(GtkWidget* , WebKitWebFrame*, CBrowser*);
 
 void
 on_webView_load_changed(GtkWidget*, gint progress, CBrowser*);

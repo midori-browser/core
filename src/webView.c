@@ -31,28 +31,14 @@ WebKitNavigationResponse on_webView_navigation_requested(GtkWidget* webView
     return response;
 }
 
-void on_webView_location_changed(GtkWidget* webView, const gchar* uri
-, CBrowser* browser)
+void on_webView_title_changed(GtkWidget* webView, WebKitWebFrame* frame
+ , const gchar* title, CBrowser* browser)
 {
-    gchar* newUri = g_strdup(uri ? uri : "");
-    xbel_bookmark_set_href(browser->sessionItem, newUri);
-    if(webView == get_nth_webView(-1, browser))
-    {
-        gtk_entry_set_text(GTK_ENTRY(browser->location), newUri);
-        gtk_label_set_text(GTK_LABEL(browser->webView_name), newUri);
-        update_status_message(NULL, browser);
-        update_gui_state(browser);
-    }
-}
-
-void on_webView_title_changed(GtkWidget* webView, const gchar* title
- , const gchar* uri, CBrowser* browser)
-{
-    // TODO: We emulate location_changed here for now
-    // Shouldn't we have separated title_changed and location_changed signals?
-    on_webView_location_changed(webView, uri, browser);
-    gchar* newTitle;
-    newTitle = g_strdup(title ? title : uri);
+    const gchar* newTitle;
+    if(title)
+        newTitle = title;
+    else
+        newTitle = webkit_web_frame_get_uri(frame);
     xbel_item_set_title(browser->sessionItem, newTitle);
     gtk_label_set_text(GTK_LABEL(browser->webView_name), newTitle);
     sokoke_widget_set_tooltip_text(gtk_widget_get_parent(
@@ -99,6 +85,21 @@ void on_webView_load_started(GtkWidget* webView, WebKitWebFrame* widget
     update_statusbar_text(browser);
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(browser->progress), 0.1);
     gtk_widget_show(browser->progress);
+}
+
+void on_webView_load_committed(GtkWidget* webView, WebKitWebFrame* frame
+ , CBrowser* browser)
+{
+    const gchar* uri = webkit_web_frame_get_uri(frame);
+    gchar* newUri = g_strdup(uri ? uri : "");
+    xbel_bookmark_set_href(browser->sessionItem, newUri);
+    if(webView == get_nth_webView(-1, browser))
+    {
+        gtk_entry_set_text(GTK_ENTRY(browser->location), newUri);
+        gtk_label_set_text(GTK_LABEL(browser->webView_name), newUri);
+        update_status_message(NULL, browser);
+        update_gui_state(browser);
+    }
 }
 
 void on_webView_load_changed(GtkWidget* webView, gint progress, CBrowser* browser)
