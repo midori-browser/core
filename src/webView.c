@@ -77,8 +77,6 @@ void on_webView_load_started(GtkWidget* webView, WebKitWebFrame* widget
  , CBrowser* browser)
 {
     browser->loadedPercent = 0;
-    browser->loadedBytes = 0;
-    browser->loadedBytesMax = 0;
     update_favicon(browser);
     if(webView == get_nth_webView(-1, browser))
         update_gui_state(browser);
@@ -104,8 +102,7 @@ void on_webView_load_committed(GtkWidget* webView, WebKitWebFrame* frame
 
 void on_webView_load_changed(GtkWidget* webView, gint progress, CBrowser* browser)
 {
-    browser->loadedBytes = progress;
-    browser->loadedBytes = 100;
+    browser->loadedPercent = progress;
     if(webView == get_nth_webView(-1, browser))
         update_gui_state(browser);
 }

@@ -68,8 +68,6 @@ typedef struct _CBrowser
     gboolean hasStatusbar;
     gchar* elementUri; // the element the mouse is hovering on
     gint loadedPercent; // -1 means "not loading"
-    gint loadedBytes;
-    gint loadedBytesMax;
     //UNDEFINED favicon;
     guint security;
     gchar* statusMessage; // message from a webView

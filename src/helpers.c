@@ -318,18 +318,12 @@ void update_statusbar_text(CBrowser* browser)
         gtk_statusbar_push(GTK_STATUSBAR(browser->statusbar), 1
          , browser->statusMessage);
     }
-    else
+    sokoke_widget_set_visible(browser->progress, browser->loadedPercent > -1);
+    if(browser->loadedPercent > -1)
     {
-        gchar* message;
-        if(browser->loadedPercent)
-            message = g_strdup_printf("%d%% loaded, %d/%d bytes"
-             , browser->loadedPercent, browser->loadedBytes, browser->loadedBytesMax);
-        else if(browser->loadedBytes)
-            message = g_strdup_printf("%d bytes", browser->loadedBytes);
-        else
-            message = g_strdup(" ");
-     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(browser->progress), message);
-     g_free(message);
+        gchar* message = g_strdup_printf("%d%% loaded", browser->loadedPercent);
+        gtk_progress_bar_set_text(GTK_PROGRESS_BAR(browser->progress), message);
+        g_free(message);
     }
 }
 
@@ -388,22 +382,12 @@ void update_gui_state(CBrowser* browser)
     gtk_image_set_from_stock(GTK_IMAGE(browser->location_icon), GTK_STOCK_FILE
      , GTK_ICON_SIZE_MENU);
 
-    if(browser->loadedBytesMax < 1) // Skip null and negative values
-    {
-        gtk_progress_bar_pulse(GTK_PROGRESS_BAR(browser->progress));
-        update_statusbar_text(browser);
-    }
+    if(browser->loadedPercent > -1)
+        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(browser->progress)
+         , browser->loadedPercent ? browser->loadedPercent / 100.0 : 0);
     else
-    {
-        if(browser->loadedBytes > browser->loadedBytesMax)
-            browser->loadedPercent = 100;
-        else
-            browser->loadedPercent
-             = (browser->loadedBytes * 100) / browser->loadedBytesMax;
-     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(browser->progress)
-      , browser->loadedPercent / 100.0);
-     update_statusbar_text(browser);
-    }
+        gtk_progress_bar_pulse(GTK_PROGRESS_BAR(browser->progress));
+    update_statusbar_text(browser);
 }
 
 void update_feeds(CBrowser* browser)
