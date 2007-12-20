@@ -112,7 +112,14 @@ void on_action_selectAll_activate(GtkAction* action, CBrowser* browser)
 void on_action_find_activate(GtkAction* action, CBrowser* browser)
 {
     if(GTK_WIDGET_VISIBLE(browser->findbox))
+    {
+        GtkWidget* webView = get_nth_webView(-1, browser);
+        webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
+        gtk_entry_set_text(GTK_ENTRY(browser->findbox_text), "");
+        gtk_toggle_tool_button_set_active(
+         GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight), FALSE);
         gtk_widget_hide(browser->findbox);
+    }
     else
     {
         GtkWidget* icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
@@ -125,15 +132,15 @@ void on_action_find_activate(GtkAction* action, CBrowser* browser)
 
 void on_action_find_next_activate(GtkAction* action, CBrowser* browser)
 {
-    /*if(!GTK_WIDGET_VISIBLE(browser->findbox))
-        ; // FIXME: What if the findbox is hidden?
+    if(!GTK_WIDGET_VISIBLE(browser->findbox))
+        return;
     const gchar* text = gtk_entry_get_text(GTK_ENTRY(browser->findbox_text));
     const gboolean caseSensitive = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_case));
     GtkWidget* webView = get_nth_webView(-1, browser);
     GtkWidget* icon;
     webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
-    if(webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView), text, TRUE, caseSensitive, TRUE))
+    if(webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView), text, caseSensitive, TRUE, TRUE))
         icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
     else
         icon = gtk_image_new_from_stock(GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
@@ -142,20 +149,20 @@ void on_action_find_next_activate(GtkAction* action, CBrowser* browser)
     webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
     const gboolean highlight = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);*/
+    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
 }
 
 void on_action_find_previous_activate(GtkAction* action, CBrowser* browser)
 {
-    /*if(!GTK_WIDGET_VISIBLE(browser->findbox))
-        ; // FIXME: What if the findbox is hidden?
+    if(!GTK_WIDGET_VISIBLE(browser->findbox))
+        return;
     const gchar* text = gtk_entry_get_text(GTK_ENTRY(browser->findbox_text));
     const gboolean caseSensitive = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_case));
     GtkWidget* webView = get_nth_webView(-1, browser);
     webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
     GtkWidget* icon;
-    if(webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView), text, FALSE, caseSensitive, TRUE))
+    if(webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView), text, caseSensitive, FALSE, TRUE))
         icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
     else
         icon = gtk_image_new_from_stock(GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
@@ -164,14 +171,14 @@ void on_action_find_previous_activate(GtkAction* action, CBrowser* browser)
     webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
     const gboolean highlight = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);*/
+    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
 }
 
 void on_findbox_highlight_toggled(GtkToggleToolButton* toolitem, CBrowser* browser)
 {
-    /*GtkWidget* webView = get_nth_webView(-1, browser);
+    GtkWidget* webView = get_nth_webView(-1, browser);
     const gboolean highlight = gtk_toggle_tool_button_get_active(toolitem);
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);*/
+    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
 }
 
 void on_action_preferences_activate(GtkAction* action, CBrowser* browser)
