@@ -75,7 +75,7 @@ void
 action_set_visible(const gchar*, gboolean, CBrowser*);
 
 void
-update_statusbar_text(CBrowser*);
+update_statusbar(CBrowser*);
 
 void
 update_edit_items(CBrowser*);
@@ -88,9 +88,6 @@ update_feeds(CBrowser*);
 
 void
 update_search_engines(CBrowser*);
-
-void
-update_status_message(const gchar*, CBrowser*);
 
 void
 update_browser_actions(CBrowser*);

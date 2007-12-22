@@ -813,7 +813,7 @@ void on_notebook_switch_page(GtkWidget* widget, GtkNotebookPage* page
     update_favicon(browser);
     update_security(browser);
     update_gui_state(browser);
-    update_statusbar_text(browser);
+    update_statusbar(browser);
     update_feeds(browser);
     update_search_engines(browser);
 }

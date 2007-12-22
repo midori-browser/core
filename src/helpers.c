@@ -310,17 +310,18 @@ void action_set_visible(const gchar* name, gboolean visible, CBrowser* browser)
     gtk_action_set_visible(action, visible);
 }
 
-void update_statusbar_text(CBrowser* browser)
+void update_statusbar(CBrowser* browser)
 {
-    if(browser->statusMessage)
-    {
-        gtk_statusbar_pop(GTK_STATUSBAR(browser->statusbar), 1);
-        gtk_statusbar_push(GTK_STATUSBAR(browser->statusbar), 1
-         , browser->statusMessage);
-    }
-    sokoke_widget_set_visible(browser->progress, browser->loadedPercent > -1);
+    gtk_statusbar_pop(GTK_STATUSBAR(browser->statusbar), 1);
+    gtk_statusbar_push(GTK_STATUSBAR(browser->statusbar), 1
+     , browser->statusMessage ? browser->statusMessage : "");
     if(browser->loadedPercent > -1)
     {
+        if(browser->loadedPercent > -1)
+            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(browser->progress)
+             , browser->loadedPercent ? browser->loadedPercent / 100.0 : 0);
+        else
+            gtk_progress_bar_pulse(GTK_PROGRESS_BAR(browser->progress));
         gchar* message = g_strdup_printf("%d%% loaded", browser->loadedPercent);
         gtk_progress_bar_set_text(GTK_PROGRESS_BAR(browser->progress), message);
         g_free(message);
@@ -368,26 +369,21 @@ void update_gui_state(CBrowser* browser)
     GtkAction* action = gtk_action_group_get_action(browser->actiongroup, "RefreshStop");
     if(browser->loadedPercent == -1)
     {
-        gtk_widget_hide(browser->throbber);
+        gtk_widget_set_sensitive(browser->throbber, FALSE);
         g_object_set(action, "stock-id", GTK_STOCK_REFRESH, NULL);
         g_object_set(action, "tooltip", "Refresh the current page", NULL);
+        gtk_widget_hide(browser->progress);
     }
     else
     {
-        gtk_widget_show(browser->throbber);
+        gtk_widget_set_sensitive(browser->throbber, TRUE);
         g_object_set(action, "stock-id", GTK_STOCK_STOP, NULL);
         g_object_set(action, "tooltip", "Stop loading the current page", NULL);
+        gtk_widget_show(browser->progress);
     }
 
     gtk_image_set_from_stock(GTK_IMAGE(browser->location_icon), GTK_STOCK_FILE
      , GTK_ICON_SIZE_MENU);
-
-    if(browser->loadedPercent > -1)
-        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(browser->progress)
-         , browser->loadedPercent ? browser->loadedPercent / 100.0 : 0);
-    else
-        gtk_progress_bar_pulse(GTK_PROGRESS_BAR(browser->progress));
-    update_statusbar_text(browser);
 }
 
 void update_feeds(CBrowser* browser)
@@ -400,21 +396,14 @@ void update_search_engines(CBrowser* browser)
     // TODO: Look for available search engines, requires dom access
 }
 
-void update_status_message(const gchar* message, CBrowser* browser)
-{
-    g_free(browser->statusMessage);
-    browser->statusMessage = g_strdup(message ? message : "");
-    update_statusbar_text(browser);
-}
-
 void update_browser_actions(CBrowser* browser)
 {
     gboolean active = gtk_notebook_get_n_pages(GTK_NOTEBOOK(browser->webViews)) > 1;
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(browser->webViews), active);
     action_set_sensitive("TabClose", active, browser);
-    guint n = xbel_folder_get_n_items(tabtrash);
-    action_set_sensitive("UndoTabClose", n, browser);
-    action_set_sensitive("TabsClosed", n, browser);
+    gboolean tabtrashEmpty = xbel_folder_is_empty(tabtrash);
+    action_set_sensitive("UndoTabClose", !tabtrashEmpty, browser);
+    action_set_sensitive("TabsClosed", !tabtrashEmpty, browser);
 }
 
 gchar* magic_uri(const gchar* uri, gboolean search)

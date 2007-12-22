@@ -79,10 +79,10 @@ void on_webView_load_started(GtkWidget* webView, WebKitWebFrame* widget
     browser->loadedPercent = 0;
     update_favicon(browser);
     if(webView == get_nth_webView(-1, browser))
+    {
         update_gui_state(browser);
-    update_statusbar_text(browser);
-    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(browser->progress), 0.1);
-    gtk_widget_show(browser->progress);
+        update_statusbar(browser);
+    }
 }
 
 void on_webView_load_committed(GtkWidget* webView, WebKitWebFrame* frame
@@ -95,8 +95,8 @@ void on_webView_load_committed(GtkWidget* webView, WebKitWebFrame* frame
     {
         gtk_entry_set_text(GTK_ENTRY(browser->location), newUri);
         gtk_label_set_text(GTK_LABEL(browser->webView_name), newUri);
-        update_status_message(NULL, browser);
-        update_gui_state(browser);
+        g_free(browser->statusMessage);
+        browser->statusMessage = NULL;
     }
 }
 
@@ -104,7 +104,7 @@ void on_webView_load_changed(GtkWidget* webView, gint progress, CBrowser* browse
 {
     browser->loadedPercent = progress;
     if(webView == get_nth_webView(-1, browser))
-        update_gui_state(browser);
+        update_statusbar(browser);
 }
 
 void on_webView_load_finished(GtkWidget* webView, WebKitWebFrame* widget
@@ -114,13 +114,13 @@ void on_webView_load_finished(GtkWidget* webView, WebKitWebFrame* widget
     update_favicon(browser);
     if(webView == get_nth_webView(-1, browser))
         update_gui_state(browser);
-    update_statusbar_text(browser);
-    gtk_widget_hide(browser->progress);
 }
 
 void on_webView_status_message(GtkWidget* webView, const gchar* text, CBrowser* browser)
 {
-    update_status_message(text, browser);
+    g_free(browser->statusMessage);
+    browser->statusMessage = g_strdup(text);
+    update_statusbar(browser);
 }
 
 void on_webView_selection_changed(GtkWidget* webView, CBrowser* browser)
@@ -137,7 +137,9 @@ gboolean on_webView_console_message(GtkWidget* webView
 void on_webView_link_hover(GtkWidget* webView, const gchar* tooltip
  , const gchar* uri, CBrowser* browser)
 {
-    update_status_message(uri, browser);
+    g_free(browser->statusMessage);
+    browser->statusMessage = g_strdup(uri);
+    update_statusbar(browser);
     g_free(browser->elementUri);
     browser->elementUri = g_strdup(uri);
 }
@@ -277,7 +279,9 @@ gboolean on_webView_scroll(GtkWidget* webView, GdkEventScroll* event
 
 gboolean on_webView_leave(GtkWidget* webView, GdkEventCrossing* event, CBrowser* browser)
 {
-    update_status_message(NULL, browser);
+    g_free(browser->statusMessage);
+    browser->statusMessage = NULL;
+    update_statusbar(browser);
     return TRUE;
 }
 
