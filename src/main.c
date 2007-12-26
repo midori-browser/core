@@ -215,21 +215,6 @@ int main(int argc, char** argv)
     }
     g_string_free(errorMessages, TRUE);
 
-    if(xbel_folder_is_empty(_session))
-    {
-        XbelItem* item = xbel_bookmark_new();
-        if(config->startup == CONFIG_STARTUP_HOMEPAGE)
-            xbel_bookmark_set_href(item, config->homepage);
-        else
-            xbel_bookmark_set_href(item, "about:blank");
-        xbel_folder_append_item(_session, item);
-    }
-    g_free(configPath);
-
-    accel_group = gtk_accel_group_new();
-    stock_items_init();
-    browsers = NULL;
-
     // TODO: Handle any number of separate uris from argv 
     // Open as many tabs as we have uris, seperated by pipes
     gchar* uri = argc > 1 ? strtok(g_strdup(argv[1]), "|") : NULL;
@@ -243,6 +228,21 @@ int main(int argc, char** argv)
         uri = strtok(NULL, "|");
     }
     g_free(uri);
+
+    if(config->startup != CONFIG_STARTUP_SESSION || xbel_folder_is_empty(_session))
+    {
+        XbelItem* item = xbel_bookmark_new();
+        if(config->startup == CONFIG_STARTUP_BLANK)
+            xbel_bookmark_set_href(item, "about:blank");
+        else
+            xbel_bookmark_set_href(item, config->homepage);
+        xbel_folder_prepend_item(_session, item);
+    }
+    g_free(configPath);
+
+    accel_group = gtk_accel_group_new();
+    stock_items_init();
+    browsers = NULL;
 
     session = xbel_folder_new();
     CBrowser* browser = NULL;
