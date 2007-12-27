@@ -43,9 +43,7 @@ typedef struct _CConfig
     gboolean enableJavaScript;
     gboolean enablePlugins;
 
-    gboolean rememberWinMetrics; // Restore last state upon startup?
-    gint     winLeft;
-    gint     winTop;
+    gboolean rememberWinSize; // Restore window size upon startup?
     gint     winWidth;
     gint     winHeight;
     guint    winPanelPos;

@@ -823,14 +823,6 @@ void on_findbox_button_close_clicked(GtkWidget* widget, CBrowser* browser)
     gtk_widget_hide(browser->findbox);
 }
 
-static gboolean on_window_configure(GtkWidget* widget, GdkEventConfigure* event
- , CBrowser* browser)
-{
-    gtk_window_get_position(GTK_WINDOW(browser->window)
-     , &config->winLeft, &config->winTop);
-    return FALSE;
-}
-
 static void on_window_size_allocate(GtkWidget* widget, GtkAllocation* allocation
  , CBrowser* browser)
 {
@@ -882,24 +874,19 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(browser->window));
     const gint defaultWidth = (gint)gdk_screen_get_width(screen) / 1.7;
     const gint defaultHeight = (gint)gdk_screen_get_height(screen) / 1.7;
-    if(config->rememberWinMetrics)
+    if(config->rememberWinSize)
     {
         if(!config->winWidth && !config->winHeight)
         {
             config->winWidth = defaultWidth;
             config->winHeight = defaultWidth;
         }
-        if(config->winLeft && config->winTop)
-            gtk_window_move(GTK_WINDOW(browser->window)
-             , config->winLeft, config->winTop);
         gtk_window_set_default_size(GTK_WINDOW(browser->window)
          , config->winWidth, config->winHeight);
     }
     else
         gtk_window_set_default_size(GTK_WINDOW(browser->window)
          , defaultWidth, defaultHeight);
-    g_signal_connect(browser->window, "configure-event"
-     , G_CALLBACK(on_window_configure), browser);
     g_signal_connect(browser->window, "size-allocate"
      , G_CALLBACK(on_window_size_allocate), browser);
     // FIXME: Use custom program icon

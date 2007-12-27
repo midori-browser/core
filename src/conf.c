@@ -87,10 +87,8 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     #define GET_STR(var, key, default) \
      var = sokoke_key_file_get_string_default( \
      keyFile, "session", key, default, NULL)
-    GET_INT(config->rememberWinMetrics  , "RememberWinMetrics", TRUE);
-    GET_INT(config->winLeft  , "WinLeft", 0);
-    GET_INT(config->winTop   , "WinTop", 0);
-    GET_INT(config->winWidth , "WinWidth", 0);
+    GET_INT(config->rememberWinSize, "RememberWinSize", TRUE);
+    GET_INT(config->winWidth, "WinWidth", 0);
     GET_INT(config->winHeight, "WinHeight", 0);
     GET_INT(config->winPanelPos, "WinPanelPos", 0);
     GET_INT(config->searchEngine, "SearchEngine", 0);
@@ -149,9 +147,7 @@ gboolean config_to_file(CConfig* config, const gchar* filename, GError** error)
     g_key_file_set_integer(keyFile, "content", "EnableJavaScript", config->enableJavaScript);
     g_key_file_set_integer(keyFile, "content", "EnablePlugins", config->enablePlugins);
 
-    g_key_file_set_integer(keyFile, "session", "RememberWinMetrics", config->rememberWinMetrics);
-    g_key_file_set_integer(keyFile, "session", "WinLeft", config->winLeft);
-    g_key_file_set_integer(keyFile, "session", "WinTop", config->winTop);
+    g_key_file_set_integer(keyFile, "session", "RememberWinSize", config->rememberWinSize);
     g_key_file_set_integer(keyFile, "session", "WinWidth", config->winWidth);
     g_key_file_set_integer(keyFile, "session", "WinHeight", config->winHeight);
     g_key_file_set_integer(keyFile, "session", "WinPanelPos", config->winPanelPos);
