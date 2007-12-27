@@ -103,21 +103,28 @@ void sokoke_widget_popup(GtkWidget* widget, GtkMenu* menu
 
 typedef enum
 {
- SOKOKE_DESKTOP_UNKNOWN,
- SOKOKE_DESKTOP_XFCE
+ SOKOKE_DESKTOP_UNTESTED,
+ SOKOKE_DESKTOP_XFCE,
+ SOKOKE_DESKTOP_UNKNOWN
 } SokokeDesktop;
 
 static SokokeDesktop sokoke_get_desktop(void)
 {
-    // Are we running in Xfce?
-    gint result; gchar* stdout; gchar* stderr;
-    gboolean success = g_spawn_command_line_sync(
-     "xprop -root _DT_SAVE_MODE | grep -q xfce4"
-     , &stdout, &stderr, &result, NULL);
-    if(success && !result)
-        return SOKOKE_DESKTOP_XFCE;
+    static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;
+    if(G_UNLIKELY(desktop == SOKOKE_DESKTOP_UNTESTED))
+    {
+        // Are we running in Xfce?
+        gint result; gchar* out; gchar* err;
+        gboolean success = g_spawn_command_line_sync(
+         "xprop -root _DT_SAVE_MODE | grep -q xfce4"
+         , &out, &err, &result, NULL);
+        if(success && !result)
+            desktop = SOKOKE_DESKTOP_XFCE;
+        else
+            desktop = SOKOKE_DESKTOP_UNKNOWN;
+    }
 
-    return SOKOKE_DESKTOP_UNKNOWN;
+    return desktop;
 }
 
 gpointer sokoke_xfce_header_new(const gchar* icon, const gchar* title)
