@@ -826,8 +826,14 @@ void on_findbox_button_close_clicked(GtkWidget* widget, CBrowser* browser)
 static void on_window_size_allocate(GtkWidget* widget, GtkAllocation* allocation
  , CBrowser* browser)
 {
-    config->winWidth = allocation->width;
-    config->winHeight = allocation->height;
+     if(!GTK_WIDGET_REALIZED(widget))
+         return;
+     if(!(gdk_window_get_state(widget->window)
+      & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
+     {
+         config->winWidth = allocation->width;
+         config->winHeight = allocation->height;
+     }
 }
 
 gboolean on_window_destroy(GtkWidget* widget, GdkEvent* event, CBrowser* browser)
