@@ -20,36 +20,36 @@
 #include <gdk/gdkkeysyms.h>
 
 void sokoke_combo_box_add_strings(GtkComboBox* combobox
- , const gchar* sLabelFirst, ...)
+ , const gchar* labelFirst, ...)
 {
     // Add a number of strings to a combobox, terminated with NULL
     // This works only for text comboboxes
     va_list args;
-    va_start(args, sLabelFirst);
+    va_start(args, labelFirst);
 
-    const gchar* sLabel;
-    for(sLabel = sLabelFirst; sLabel; sLabel = va_arg(args, const gchar*))
-        gtk_combo_box_append_text(combobox, sLabel);
+    const gchar* label;
+    for(label = labelFirst; label; label = va_arg(args, const gchar*))
+        gtk_combo_box_append_text(combobox, label);
 
     va_end(args);
 }
 
 void sokoke_radio_action_set_current_value(GtkRadioAction* action
- , gint current_value)
+ , gint currentValue)
 {
     // Activates the group member with the given value
     #if GTK_CHECK_VERSION(2, 10, 0)
-    gtk_radio_action_set_current_value(action, current_value);
+    gtk_radio_action_set_current_value(action, currentValue);
     #else
     // TODO: Implement this for older gtk
     UNIMPLEMENTED
     #endif
 }
 
-void sokoke_widget_set_visible(GtkWidget* widget, gboolean bVisibility)
+void sokoke_widget_set_visible(GtkWidget* widget, gboolean visible)
 {
     // Show or hide the widget
-    if(bVisibility)
+    if(visible)
         gtk_widget_show(widget);
     else
         gtk_widget_hide(widget);
@@ -61,23 +61,23 @@ void sokoke_container_show_children(GtkContainer* container)
     gtk_container_foreach(container, (GtkCallback)(gtk_widget_show_all), NULL);
 }
 
-void sokoke_widget_set_tooltip_text(GtkWidget* widget, const gchar* sText)
+void sokoke_widget_set_tooltip_text(GtkWidget* widget, const gchar* text)
 {
     #if GTK_CHECK_VERSION(2, 12, 0)
-    gtk_widget_set_tooltip_text(widget, sText);
+    gtk_widget_set_tooltip_text(widget, text);
     #else
     static GtkTooltips* tooltips;
     if(!tooltips)
         tooltips = gtk_tooltips_new();
-    gtk_tooltips_set_tip(tooltips, widget, sText, NULL);
+    gtk_tooltips_set_tip(tooltips, widget, text, NULL);
     #endif
 }
 
-void sokoke_tool_item_set_tooltip_text(GtkToolItem* toolitem, const gchar* sText)
+void sokoke_tool_item_set_tooltip_text(GtkToolItem* toolitem, const gchar* text)
 {
     // TODO: Use 2.12 api if available
     GtkTooltips* tooltips = gtk_tooltips_new();
-    gtk_tool_item_set_tooltip(toolitem, tooltips, sText, NULL);
+    gtk_tool_item_set_tooltip(toolitem, tooltips, text, NULL);
 }
 
 void sokoke_widget_popup(GtkWidget* widget, GtkMenu* menu
@@ -101,49 +101,48 @@ void sokoke_widget_popup(GtkWidget* widget, GtkMenu* menu
     gtk_menu_popup(menu, NULL, NULL, NULL, NULL, button, event_time);
 }
 
-enum
+typedef enum
 {
  SOKOKE_DESKTOP_UNKNOWN,
  SOKOKE_DESKTOP_XFCE
-};
+} SokokeDesktop;
 
-static guint sokoke_get_desktop(void)
+static SokokeDesktop sokoke_get_desktop(void)
 {
     // Are we running in Xfce?
-    gint iResult; gchar* stdout; gchar* stderr;
-    gboolean bSuccess = g_spawn_command_line_sync(
+    gint result; gchar* stdout; gchar* stderr;
+    gboolean success = g_spawn_command_line_sync(
      "xprop -root _DT_SAVE_MODE | grep -q xfce4"
-     , &stdout, &stderr, &iResult, NULL);
-    if(bSuccess && !iResult)
+     , &stdout, &stderr, &result, NULL);
+    if(success && !result)
         return SOKOKE_DESKTOP_XFCE;
 
     return SOKOKE_DESKTOP_UNKNOWN;
 }
 
-gpointer sokoke_xfce_header_new(const gchar* sIcon, const gchar* sTitle)
+gpointer sokoke_xfce_header_new(const gchar* icon, const gchar* title)
 {
-
     // Create an xfce header with icon and title
     // This returns NULL if the desktop is not xfce
     if(sokoke_get_desktop() == SOKOKE_DESKTOP_XFCE)
     {
         GtkWidget* entry = gtk_entry_new();
-        gchar* sMarkup;
+        gchar* markup;
         GtkWidget* xfce_heading = gtk_event_box_new();
         gtk_widget_modify_bg(xfce_heading, GTK_STATE_NORMAL
          , &entry->style->base[GTK_STATE_NORMAL]);
         GtkWidget* hbox = gtk_hbox_new(FALSE, 12);
         gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
-        GtkWidget* icon = gtk_image_new_from_icon_name(sIcon, GTK_ICON_SIZE_DIALOG);
-        gtk_box_pack_start(GTK_BOX(hbox), icon, FALSE, FALSE, 0);
+        GtkWidget* image = gtk_image_new_from_icon_name(icon, GTK_ICON_SIZE_DIALOG);
+        gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, FALSE, 0);
         GtkWidget* label = gtk_label_new(NULL);
         gtk_widget_modify_fg(label, GTK_STATE_NORMAL
          , &entry->style->text[GTK_STATE_NORMAL]);
-        sMarkup = g_strdup_printf("<span size='large' weight='bold'>%s</span>", sTitle);
-        gtk_label_set_markup(GTK_LABEL(label), sMarkup);
+        markup = g_strdup_printf("<span size='large' weight='bold'>%s</span>", title);
+        gtk_label_set_markup(GTK_LABEL(label), markup);
         gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
         gtk_container_add(GTK_CONTAINER(xfce_heading), hbox);
-        g_free(sMarkup);
+        g_free(markup);
         return xfce_heading;
     }
     return NULL;
@@ -170,14 +169,14 @@ gpointer sokoke_superuser_warning_new(void)
     return NULL;
 }
 
-GtkWidget* sokoke_hig_frame_new(const gchar* sLabel)
+GtkWidget* sokoke_hig_frame_new(const gchar* title)
 {
     // Create a frame with no actual frame but a bold label and indentation
     GtkWidget* frame = gtk_frame_new(NULL);
-    gchar* sLabelBold = g_strdup_printf("<b>%s</b>", sLabel);
+    gchar* titleBold = g_strdup_printf("<b>%s</b>", title);
     GtkWidget* label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(label), sLabelBold);
-    g_free(sLabelBold);
+    gtk_label_set_markup(GTK_LABEL(label), titleBold);
+    g_free(titleBold);
     gtk_frame_set_label_widget(GTK_FRAME(frame), label);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
     return frame;
@@ -191,22 +190,22 @@ void sokoke_widget_set_pango_font_style(GtkWidget* widget, PangoStyle style)
         gtk_widget_modify_font(widget, NULL);
     else
     {
-        PangoFontDescription* pangofontdesc = pango_font_description_new();
-        pango_font_description_set_style(pangofontdesc, PANGO_STYLE_ITALIC);
-        gtk_widget_modify_font(widget, pangofontdesc);
-        pango_font_description_free(pangofontdesc);
+        PangoFontDescription* fontDescription = pango_font_description_new();
+        pango_font_description_set_style(fontDescription, PANGO_STYLE_ITALIC);
+        gtk_widget_modify_font(widget, fontDescription);
+        pango_font_description_free(fontDescription);
     }
 }
 
 static gboolean sokoke_on_entry_focus_in_event(GtkEntry* entry, GdkEventFocus *event
  , gpointer userdata)
 {
-    gboolean bDefaultText = (gboolean)g_object_get_data(G_OBJECT(entry)
-     , "sokoke_bDefaultText");
-    if(bDefaultText)
+    gboolean defaultText = (gboolean)g_object_get_data(G_OBJECT(entry)
+     , "sokoke_hasDefaultText");
+    if(defaultText)
     {
         gtk_entry_set_text(entry, "");
-        g_object_set_data(G_OBJECT(entry), "sokoke_bDefaultText", (gpointer)FALSE);
+        g_object_set_data(G_OBJECT(entry), "sokoke_hasDefaultText", (gpointer)FALSE);
         sokoke_widget_set_pango_font_style(GTK_WIDGET(entry), PANGO_STYLE_NORMAL);
     }
     return FALSE;
@@ -215,87 +214,87 @@ static gboolean sokoke_on_entry_focus_in_event(GtkEntry* entry, GdkEventFocus *e
 static gboolean sokoke_on_entry_focus_out_event(GtkEntry* entry, GdkEventFocus* event
  , gpointer userdata)
 {
-    const gchar* sText = gtk_entry_get_text(entry);
-    if(sText[0] == '\0')
+    const gchar* text = gtk_entry_get_text(entry);
+    if(text && !*text)
     {
-        const gchar* sDefaultText = (const gchar*)g_object_get_data(
-         G_OBJECT(entry), "sokoke_sDefaultText");
-        gtk_entry_set_text(entry, sDefaultText);
-        g_object_set_data(G_OBJECT(entry), "sokoke_bDefaultText", (gpointer)TRUE);
+        const gchar* defaultText = (const gchar*)g_object_get_data(
+         G_OBJECT(entry), "sokoke_defaultText");
+        gtk_entry_set_text(entry, defaultText);
+        g_object_set_data(G_OBJECT(entry), "sokoke_hasDefaultText", (gpointer)TRUE);
         sokoke_widget_set_pango_font_style(GTK_WIDGET(entry), PANGO_STYLE_ITALIC);
     }
     return FALSE;
 }
 
-void sokoke_entry_set_default_text(GtkEntry* entry, const gchar* sDefaultText)
+void sokoke_entry_set_default_text(GtkEntry* entry, const gchar* defaultText)
 {
     // Note: The default text initially overwrites any previous text
-    gchar* sOldValue = g_object_get_data(G_OBJECT(entry), "sokoke_sDefaultText");
-    if(!sOldValue)
+    gchar* oldValue = g_object_get_data(G_OBJECT(entry), "sokoke_defaultText");
+    if(!oldValue)
     {
-        g_object_set_data(G_OBJECT(entry), "sokoke_bDefaultText", (gpointer)TRUE);
+        g_object_set_data(G_OBJECT(entry), "sokoke_hasDefaultText", (gpointer)TRUE);
         sokoke_widget_set_pango_font_style(GTK_WIDGET(entry), PANGO_STYLE_ITALIC);
-        gtk_entry_set_text(entry, sDefaultText);
+        gtk_entry_set_text(entry, defaultText);
     }
-    g_object_set_data(G_OBJECT(entry), "sokoke_sDefaultText", (gpointer)sDefaultText);
+    g_object_set_data(G_OBJECT(entry), "sokoke_defaultText", (gpointer)defaultText);
     g_signal_connect(entry, "focus-in-event"
      , G_CALLBACK(sokoke_on_entry_focus_in_event), NULL);
     g_signal_connect(entry, "focus-out-event"
      , G_CALLBACK(sokoke_on_entry_focus_out_event), NULL);
 }
 
-gchar* sokoke_key_file_get_string_default(GKeyFile* key_file
- , const gchar* group_name, const gchar* key, const gchar* def, GError* *error)
+gchar* sokoke_key_file_get_string_default(GKeyFile* keyFile
+ , const gchar* group, const gchar* key, const gchar* defaultValue, GError** error)
 {
-    gchar* value = g_key_file_get_string(key_file, group_name, key, error);
-    return value == NULL ? g_strdup(def) : value;
+    gchar* value = g_key_file_get_string(keyFile, group, key, error);
+    return value == NULL ? g_strdup(defaultValue) : value;
 }
 
-gint sokoke_key_file_get_integer_default(GKeyFile* key_file
- , const gchar* group_name, const gchar* key, const gint def, GError** error)
+gint sokoke_key_file_get_integer_default(GKeyFile* keyFile
+ , const gchar* group, const gchar* key, const gint defaultValue, GError** error)
 {
-    if(!g_key_file_has_key(key_file, group_name, key, NULL))
-        return def;
-    return g_key_file_get_integer(key_file, group_name, key, error);
+    if(!g_key_file_has_key(keyFile, group, key, NULL))
+        return defaultValue;
+    return g_key_file_get_integer(keyFile, group, key, error);
 }
 
-gboolean sokoke_key_file_save_to_file(GKeyFile* key_file
- , const gchar* sFilename, GError** error)
+gboolean sokoke_key_file_save_to_file(GKeyFile* keyFile
+ , const gchar* filename, GError** error)
 {
-    gchar* sData = g_key_file_to_data(key_file, NULL, error);
-    if(!sData)
+    gchar* data = g_key_file_to_data(keyFile, NULL, error);
+    if(!data)
         return FALSE;
     FILE* fp;
-    if(!(fp = fopen(sFilename, "w")))
+    if(!(fp = fopen(filename, "w")))
     {
         *error = g_error_new(G_FILE_ERROR, G_FILE_ERROR_ACCES
          , "Writing failed.");
         return FALSE;
     }
-    fputs(sData, fp);
+    fputs(data, fp);
     fclose(fp);
-    g_free(sData);
+    g_free(data);
     return TRUE;
 }
 
-void sokoke_widget_get_text_size(GtkWidget* widget, const gchar* sText
+void sokoke_widget_get_text_size(GtkWidget* widget, const gchar* text
  , gint* w, gint* h)
 {
-    PangoLayout* layout = gtk_widget_create_pango_layout(widget, sText);
+    PangoLayout* layout = gtk_widget_create_pango_layout(widget, text);
     pango_layout_get_pixel_size(layout, w, h);
     g_object_unref(layout);
 }
 
-void sokoke_menu_item_set_accel(GtkMenuItem* menuitem, const gchar* sPath
- , const gchar* sKey, GdkModifierType accel_mods)
+void sokoke_menu_item_set_accel(GtkMenuItem* menuitem, const gchar* path
+ , const gchar* key, GdkModifierType modifiers)
 {
-    if(sPath && *sPath)
+    if(path && *path)
     {
-        gchar* path = g_strconcat("<", g_get_prgname(), ">/", sPath, NULL);
-        gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menuitem), path);
-        guint keyVal = sKey ? gdk_keyval_from_name(sKey) : 0;
-        gtk_accel_map_add_entry(path, keyVal, accel_mods);
-        g_free(path);
+        gchar* accel = g_strconcat("<", g_get_prgname(), ">/", path, NULL);
+        gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menuitem), accel);
+        guint keyVal = key ? gdk_keyval_from_name(key) : 0;
+        gtk_accel_map_add_entry(accel, keyVal, modifiers);
+        g_free(accel);
     }
 }
 
@@ -344,17 +343,17 @@ static void sokoke_on_undo_entry_populate_popup(GtkEntry* entry, GtkMenu* menu
 {
     // Enhance the entry's menu with undo and redo items.
     GtkWidget* menuitem = gtk_separator_menu_item_new();
-    gtk_menu_shell_prepend((GtkMenuShell*)menu, menuitem);
+    gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);
     menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_REDO, NULL);
     g_signal_connect(menuitem, "activate", G_CALLBACK(sokoke_entry_redo), userdata);
     gtk_widget_set_sensitive(menuitem, sokoke_entry_can_redo(entry));
-    gtk_menu_shell_prepend((GtkMenuShell*)menu, menuitem);
+    gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);
     menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDO, NULL);
     g_signal_connect(menuitem, "activate", G_CALLBACK(sokoke_entry_undo), userdata);
     gtk_widget_set_sensitive(menuitem, sokoke_entry_can_undo(entry));
-    gtk_menu_shell_prepend((GtkMenuShell*)menu, menuitem);
+    gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);
 }
 
@@ -364,9 +363,9 @@ gboolean sokoke_entry_get_can_undo(GtkEntry* entry)
     return FALSE;
 }
 
-void sokoke_entry_set_can_undo(GtkEntry* entry, gboolean bCanUndo)
+void sokoke_entry_set_can_undo(GtkEntry* entry, gboolean canUndo)
 {
-    if(bCanUndo)
+    if(canUndo)
     {
         g_signal_connect(entry, "key-press-event"
          , G_CALLBACK(sokoke_on_undo_entry_key_down), NULL);
