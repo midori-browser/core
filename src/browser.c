@@ -95,7 +95,7 @@ void on_action_delete_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
     if(WEBKIT_IS_WEB_VIEW(widget))
-        ;//webkit_web_view_delete_selection(WEBKIT_WEB_VIEW(widget));
+        webkit_web_view_delete_selection(WEBKIT_WEB_VIEW(widget));
     else if(GTK_IS_EDITABLE(widget))
         gtk_editable_delete_selection(GTK_EDITABLE(widget));
 }

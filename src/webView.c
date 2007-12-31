@@ -162,8 +162,8 @@ void webView_popup(GtkWidget* webView, GdkEventButton* event, CBrowser* browser)
     gboolean isLink = browser->elementUri != NULL; // Did we right-click a link?
     gboolean haveLinks = FALSE; // TODO: Are several links selected?
     gboolean isImage = FALSE; // TODO: Did we right-click an image?
-    gboolean isEditable = FALSE; //webkit_web_view_can_paste_clipboard(WEBKIT_WEB_VIEW(webView)); //...
-    gchar* selection = NULL; //webkit_web_view_get_selected_text(WEBKIT_WEB_VIEW(webView));
+    gboolean isEditable = webkit_web_view_can_paste_clipboard(WEBKIT_WEB_VIEW(webView));
+    gboolean hasSelection = webkit_web_view_has_selection(WEBKIT_WEB_VIEW(webView));
 
     update_edit_items(browser);
 
@@ -180,10 +180,10 @@ void webView_popup(GtkWidget* webView, GdkEventButton* event, CBrowser* browser)
     action_set_visible("LinkCopy", isLink, browser);
     action_set_visible("LinkBookmarkNew", isLink, browser);
 
-    action_set_visible("SelectionLinksNewTabs", haveLinks && selection && *selection, browser);
-    action_set_visible("SelectionTextTabNew", haveLinks && selection && *selection, browser);
-    action_set_visible("SelectionTextTabCurrent", haveLinks && selection && *selection, browser);
-    action_set_visible("SelectionTextWindowNew", haveLinks && selection && *selection, browser);
+    action_set_visible("SelectionLinksNewTabs", haveLinks && hasSelection, browser);
+    action_set_visible("SelectionTextTabNew", haveLinks && hasSelection, browser);
+    action_set_visible("SelectionTextTabCurrent", haveLinks && hasSelection, browser);
+    action_set_visible("SelectionTextWindowNew", haveLinks && hasSelection, browser);
 
     action_set_visible("ImageViewTabNew", isImage, browser);
     action_set_visible("ImageViewTabCurrent", isImage, browser);
@@ -191,16 +191,16 @@ void webView_popup(GtkWidget* webView, GdkEventButton* event, CBrowser* browser)
     action_set_visible("ImageSaveWith", isImage && canDownload, browser);
     action_set_visible("ImageCopy", isImage, browser);
 
-    action_set_visible("Copy_", (selection && *selection) || isEditable, browser);
-    action_set_visible("SelectionSearch", selection && *selection, browser);
-    action_set_visible("SelectionSearchWith", selection && *selection, browser);
-    action_set_visible("SelectionSourceView", selection && *selection, browser);
+    action_set_visible("Copy_", hasSelection || isEditable, browser);
+    action_set_visible("SelectionSearch", hasSelection, browser);
+    action_set_visible("SelectionSearchWith", hasSelection, browser);
+    action_set_visible("SelectionSourceView", hasSelection, browser);
 
-    action_set_visible("SourceView", !selection, browser);
+    action_set_visible("SourceView", !hasSelection, browser);
 
     if(isEditable)
         sokoke_widget_popup(webView, GTK_MENU(browser->popup_editable), event);
-    else if(isLink || isImage || (selection && *selection))
+    else if(isLink || isImage || hasSelection)
         sokoke_widget_popup(webView, GTK_MENU(browser->popup_element), event);
     else
         sokoke_widget_popup(webView, GTK_MENU(browser->popup_webView), event);

@@ -333,20 +333,20 @@ void update_edit_items(CBrowser* browser)
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
     gboolean hasSelection = FALSE;
     gboolean canCut = FALSE; gboolean canCopy = FALSE; gboolean canPaste = FALSE;
-    if(widget && (/*WEBKIT_IS_WEB_VIEW(widget) || */GTK_IS_EDITABLE(widget)))
+    if(widget && (WEBKIT_IS_WEB_VIEW(widget) || GTK_IS_EDITABLE(widget)))
     {
-        hasSelection = /*WEBKIT_IS_WEB_VIEW(widget)
-         ? webkit_web_view_has_selection(WEBKIT_WEB_VIEW(widget), NULL, NULL)
-         : */gtk_editable_get_selection_bounds(GTK_EDITABLE(widget), NULL, NULL);
-        canCut = /*WEBKIT_IS_WEB_VIEW(widget)
+        hasSelection = WEBKIT_IS_WEB_VIEW(widget)
+         ? webkit_web_view_has_selection(WEBKIT_WEB_VIEW(widget))
+         : gtk_editable_get_selection_bounds(GTK_EDITABLE(widget), NULL, NULL);
+        canCut = WEBKIT_IS_WEB_VIEW(widget)
          ? webkit_web_view_can_cut_clipboard(WEBKIT_WEB_VIEW(widget))
-         : */hasSelection && gtk_editable_get_editable(GTK_EDITABLE(widget));
-        canCopy = /*WEBKIT_IS_WEB_VIEW(widget)
+         : hasSelection && gtk_editable_get_editable(GTK_EDITABLE(widget));
+        canCopy = WEBKIT_IS_WEB_VIEW(widget)
          ? webkit_web_view_can_copy_clipboard(WEBKIT_WEB_VIEW(widget))
-         : */hasSelection;
-        canPaste = /*WEBKIT_IS_WEB_VIEW(widget)
+         : hasSelection;
+        canPaste = WEBKIT_IS_WEB_VIEW(widget)
          ? webkit_web_view_can_paste_clipboard(WEBKIT_WEB_VIEW(widget))
-         : */gtk_editable_get_editable(GTK_EDITABLE(widget));
+         : gtk_editable_get_editable(GTK_EDITABLE(widget));
     }
     action_set_sensitive("Cut", canCut, browser);
     action_set_sensitive("Copy", canCopy, browser);
