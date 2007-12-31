@@ -414,8 +414,7 @@ void on_menu_tabsClosed_item_activate(GtkWidget* menuitem, CBrowser* browser)
     const gchar* uri = xbel_bookmark_get_href(item);
     CBrowser* curBrowser = browser_new(browser);
     webView_open(curBrowser->webView, uri);
-    xbel_folder_remove_item(tabtrash, item);
-    xbel_item_free(item);
+    xbel_item_unref(item);
     update_browser_actions(curBrowser);
 }
 
@@ -426,15 +425,14 @@ void on_action_tabsClosed_undo_activate(GtkAction* action, CBrowser* browser)
     const gchar* uri = xbel_bookmark_get_href(item);
     CBrowser* curBrowser = browser_new(browser);
     webView_open(curBrowser->webView, uri);
-    xbel_folder_remove_item(tabtrash, item);
-    xbel_item_free(item);
+    xbel_item_unref(item);
     update_browser_actions(curBrowser);
 }
 
 void on_action_tabsClosed_clear_activate(GtkAction* action, CBrowser* browser)
 {
     // Clear the closed tabs list
-    xbel_item_free(tabtrash);
+    xbel_item_unref(tabtrash);
     tabtrash = xbel_folder_new();
     update_browser_actions(browser);
 }
@@ -494,11 +492,14 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     GtkWidget* entry_title = gtk_entry_new();
     gtk_entry_set_activates_default(GTK_ENTRY(entry_title), TRUE);
     if(!newBookmark)
-        gtk_entry_set_text(GTK_ENTRY(entry_title), xbel_item_get_title(bookmark));
+    {
+        const gchar* title = xbel_item_get_title(bookmark);
+        gtk_entry_set_text(GTK_ENTRY(entry_title), title ? title : "");
+    }
     gtk_box_pack_start(GTK_BOX(hbox), entry_title, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
-    
+
     hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
     label = gtk_label_new_with_mnemonic("_Description:");
@@ -507,36 +508,268 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     GtkWidget* entry_desc = gtk_entry_new();
     gtk_entry_set_activates_default(GTK_ENTRY(entry_desc), TRUE);
     if(!newBookmark)
-        gtk_entry_set_text(GTK_ENTRY(entry_desc), xbel_item_get_desc(bookmark));
+    {
+        const gchar* desc = xbel_item_get_desc(bookmark);
+        gtk_entry_set_text(GTK_ENTRY(entry_desc), desc ? desc : "");
+    }
     gtk_box_pack_start(GTK_BOX(hbox), entry_desc, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
-    
-    hbox = gtk_hbox_new(FALSE, 8);
-    gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-    label = gtk_label_new_with_mnemonic("_Uri:");
-    gtk_size_group_add_widget(sizegroup, label);
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-    GtkWidget* entry_uri = gtk_entry_new();
-    gtk_entry_set_activates_default(GTK_ENTRY(entry_uri), TRUE);
-    if(!newBookmark)
-        gtk_entry_set_text(GTK_ENTRY(entry_uri), xbel_bookmark_get_href(bookmark));
-    gtk_box_pack_start(GTK_BOX(hbox), entry_uri, TRUE, TRUE, 0);
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
-    gtk_widget_show_all(hbox);
+
+    GtkWidget* entry_uri = NULL;
+    if(xbel_item_is_bookmark(bookmark))
+    {
+        hbox = gtk_hbox_new(FALSE, 8);
+        gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
+        label = gtk_label_new_with_mnemonic("_Uri:");
+        gtk_size_group_add_widget(sizegroup, label);
+        gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+        entry_uri = gtk_entry_new();
+        gtk_entry_set_activates_default(GTK_ENTRY(entry_uri), TRUE);
+        if(!newBookmark)
+            gtk_entry_set_text(GTK_ENTRY(entry_uri), xbel_bookmark_get_href(bookmark));
+        gtk_box_pack_start(GTK_BOX(hbox), entry_uri, TRUE, TRUE, 0);
+        gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
+        gtk_widget_show_all(hbox);
+    }
 
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
     if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
     {
         xbel_item_set_title(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_title)));
         xbel_item_set_desc(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_desc)));
-        xbel_bookmark_set_href(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_uri)));
+        if(xbel_item_is_bookmark(bookmark))
+            xbel_bookmark_set_href(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_uri)));
 
         // FIXME: We want to choose a folder
         if(newBookmark)
             xbel_folder_append_item(bookmarks, bookmark);
     }
     gtk_widget_destroy(dialog);
+}
+
+static void on_panel_bookmarks_row_activated(GtkTreeView* treeview
+ , GtkTreePath* path, GtkTreeViewColumn* column, CBrowser* browser)
+{
+    GtkTreeModel* model = gtk_tree_view_get_model(treeview);
+    GtkTreeIter iter;
+    if(gtk_tree_model_get_iter(model, &iter, path))
+    {
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        if(xbel_item_is_bookmark(item))
+            webView_open(get_nth_webView(-1, browser), xbel_bookmark_get_href(item));
+    }
+}
+
+static void panel_bookmarks_popup(GtkWidget* widget, GdkEventButton* event
+ , XbelItem* item, CBrowser* browser)
+{
+    gboolean isBookmark = xbel_item_is_bookmark(item);
+    gboolean isSeparator = xbel_item_is_separator(item);
+
+    action_set_sensitive("BookmarkOpen", isBookmark, browser);
+    action_set_sensitive("BookmarkOpenTab", isBookmark, browser);
+    action_set_sensitive("BookmarkOpenWindow", isBookmark, browser);
+
+    action_set_sensitive("BookmarkEdit", !isSeparator, browser);
+
+    sokoke_widget_popup(widget, GTK_MENU(browser->popup_bookmark), event);
+}
+
+static gboolean on_panel_bookmarks_button_release(GtkWidget* widget
+ , GdkEventButton* event, CBrowser* browser)
+{
+    if(event->button != 2 && event->button != 3)
+        return FALSE;
+
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        if(event->button == 2 && xbel_item_is_bookmark(item))
+        {
+            CBrowser* newBrowser = browser_new(browser);
+            const gchar* uri = xbel_bookmark_get_href(item);
+            webView_open(newBrowser->webView, uri);
+        }
+        else
+            panel_bookmarks_popup(widget, event, item, browser);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void on_panel_bookmarks_popup(GtkWidget* widget, CBrowser* browser)
+{
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        panel_bookmarks_popup(widget, NULL, item, browser);
+    }
+}
+
+void on_action_bookmarkOpen_activate(GtkAction* action, CBrowser* browser)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW(browser->panel_bookmarks);
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(treeview);
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        if(xbel_item_is_bookmark(item))
+            webView_open(get_nth_webView(-1, browser), xbel_bookmark_get_href(item));
+    }
+}
+
+void on_action_bookmarkOpenTab_activate(GtkAction* action, CBrowser* browser)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW(browser->panel_bookmarks);
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(treeview);
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        if(xbel_item_is_bookmark(item))
+        {
+            CBrowser* newBrowser = browser_new(browser);
+            const gchar* uri = xbel_bookmark_get_href(item);
+            webView_open(newBrowser->webView, uri);
+        }
+    }
+}
+
+void on_action_bookmarkOpenWindow_activate(GtkAction* action, CBrowser* browser)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW(browser->panel_bookmarks);
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(treeview);
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        if(xbel_item_is_bookmark(item))
+        {
+            CBrowser* newBrowser = browser_new(NULL);
+            const gchar* uri = xbel_bookmark_get_href(item);
+            webView_open(newBrowser->webView, uri);
+        }
+    }
+}
+
+void on_action_bookmarkEdit_activate(GtkAction* action, CBrowser* browser)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW(browser->panel_bookmarks);
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(treeview);
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        if(!xbel_item_is_separator(item))
+            browser_editBookmark_dialog_new(item, browser);
+    }
+}
+
+void on_action_bookmarkDelete_activate(GtkAction* action, CBrowser* browser)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW(browser->panel_bookmarks);
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(treeview);
+    if(selection)
+    {
+        GtkTreeModel* model;
+        GtkTreeIter iter;
+        gtk_tree_selection_get_selected(selection, &model, &iter);
+        XbelItem* item;
+        gtk_tree_model_get(model, &iter, 0, &item, -1);
+        XbelItem* parent = xbel_item_get_parent(item);
+        xbel_folder_remove_item(parent, item);
+        xbel_item_unref(item);
+    }
+}
+
+static void tree_store_insert_folder(GtkTreeStore* treestore, GtkTreeIter* parent
+ , XbelItem* folder)
+{
+    guint n = xbel_folder_get_n_items(folder);
+    guint i;
+    for(i = 0; i < n; i++)
+    {
+        XbelItem* item = xbel_folder_get_nth_item(folder, i);
+        GtkTreeIter iter;
+        gtk_tree_store_insert_with_values(treestore, &iter, parent, n, 0, item, -1);
+        xbel_item_ref(item);
+        if(xbel_item_is_folder(item))
+            tree_store_insert_folder(treestore, &iter, item);
+    }
+}
+
+static void on_bookmarks_item_render_icon(GtkTreeViewColumn* column
+ , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter
+ , GtkWidget* treeview)
+{
+    XbelItem* item;
+    gtk_tree_model_get(model, iter, 0, &item, -1);
+
+    if(!xbel_item_get_parent(item))
+    {
+        gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
+        xbel_item_unref(item);
+        return;
+    }
+
+    // TODO: Would it be better to not do this on every redraw?
+    GdkPixbuf* pixbuf = NULL;
+    if(xbel_item_is_bookmark(item))
+        pixbuf = gtk_widget_render_icon(treeview, STOCK_BOOKMARK
+         , GTK_ICON_SIZE_MENU, NULL);
+    else if(xbel_item_is_folder(item))
+        pixbuf = gtk_widget_render_icon(treeview, GTK_STOCK_DIRECTORY
+         , GTK_ICON_SIZE_MENU, NULL);
+    g_object_set(renderer, "pixbuf", pixbuf, NULL);
+    if(pixbuf)
+        g_object_unref(pixbuf);
+}
+
+static void on_bookmarks_item_render_text(GtkTreeViewColumn* column
+ , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter
+ , GtkWidget* treeview)
+{
+    XbelItem* item;
+    gtk_tree_model_get(model, iter, 0, &item, -1);
+
+    if(!xbel_item_get_parent(item))
+    {
+        gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
+        xbel_item_unref(item);
+        return;
+    }
+
+    if(xbel_item_is_separator(item))
+        g_object_set(renderer
+         , "markup", "<i>Separator</i>", NULL);
+    else
+        g_object_set(renderer
+         , "markup", NULL, "text", xbel_item_get_title(item), NULL);
 }
 
 static void create_bookmark_menu(XbelItem*, GtkWidget*, CBrowser*);
@@ -972,6 +1205,8 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     menuitem = gtk_separator_menu_item_new();
     gtk_widget_show(menuitem);
     gtk_menu_shell_append(GTK_MENU_SHELL(browser->menu_bookmarks), menuitem);
+    browser->popup_bookmark = gtk_ui_manager_get_widget(ui_manager, "/popup_bookmark");
+    g_object_ref(browser->popup_bookmark);
     browser->menu_window = gtk_menu_item_get_submenu(
      GTK_MENU_ITEM(gtk_ui_manager_get_widget(ui_manager, "/menubar/Window")));
     menuitem = gtk_separator_menu_item_new();
@@ -1142,6 +1377,40 @@ CBrowser* browser_new(CBrowser* oldBrowser)
       // Dummy: This is the "fallback" panel for now
       page = gtk_notebook_append_page(GTK_NOTEBOOK(browser->panels_notebook)
        , gtk_label_new("empty"), NULL);
+      // Bookmarks
+      GtkTreeViewColumn* column;
+      GtkCellRenderer* renderer_text; GtkCellRenderer* renderer_pixbuf;
+      GtkTreeStore* treestore = gtk_tree_store_new(1, G_TYPE_XBEL_ITEM);
+      GtkWidget* treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(treestore));
+      gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+      column = gtk_tree_view_column_new();
+      renderer_pixbuf = gtk_cell_renderer_pixbuf_new();
+      gtk_tree_view_column_pack_start(column, renderer_pixbuf, FALSE);
+      gtk_tree_view_column_set_cell_data_func(column, renderer_pixbuf
+       , (GtkTreeCellDataFunc)on_bookmarks_item_render_icon, treeview, NULL);
+      renderer_text = gtk_cell_renderer_text_new();
+      gtk_tree_view_column_pack_start(column, renderer_text, FALSE);
+      gtk_tree_view_column_set_cell_data_func(column, renderer_text
+       , (GtkTreeCellDataFunc)on_bookmarks_item_render_text, treeview, NULL);
+      gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+      GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled)
+       , GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+      gtk_container_add(GTK_CONTAINER(scrolled), treeview);
+      gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled), GTK_SHADOW_IN);
+      tree_store_insert_folder(GTK_TREE_STORE(treestore), NULL, bookmarks);
+      g_object_unref(treestore);
+      g_signal_connect(treeview, "row-activated"
+       , G_CALLBACK(on_panel_bookmarks_row_activated), browser);
+      g_signal_connect(treeview, "button-release-event"
+       , G_CALLBACK(on_panel_bookmarks_button_release), browser);
+      g_signal_connect(treeview, "popup-menu"
+       , G_CALLBACK(on_panel_bookmarks_popup), browser);
+      browser->panel_bookmarks = treeview;
+      page = gtk_notebook_append_page(GTK_NOTEBOOK(browser->panels_notebook)
+       , scrolled, NULL);
+      action = gtk_action_group_get_action(browser->actiongroup, "PanelBookmarks");
+      g_object_set_data(G_OBJECT(action), "iPage", GINT_TO_POINTER(page));
       // Pageholder
       browser->panel_pageholder = webView_new(&scrolled);
       page = gtk_notebook_append_page(GTK_NOTEBOOK(browser->panels_notebook)
@@ -1242,6 +1511,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     browser->actiongroup = oldBrowser->actiongroup;
     browser->menubar = oldBrowser->menubar;
     browser->menu_bookmarks = oldBrowser->menu_bookmarks;
+    browser->popup_bookmark = oldBrowser->popup_bookmark;
     browser->menu_window = oldBrowser->menu_window;
     browser->popup_webView = oldBrowser->popup_webView;
     browser->popup_element = oldBrowser->popup_element;

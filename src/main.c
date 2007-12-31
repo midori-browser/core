@@ -204,8 +204,8 @@ int main(int argc, char** argv)
         {
             config_free(config);
             search_engines_free(searchEngines);
-            xbel_item_free(bookmarks);
-            xbel_item_free(_session);
+            xbel_item_unref(bookmarks);
+            xbel_item_unref(_session);
             g_string_free(errorMessages, TRUE);
             return 0;
         }
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
         browser = browser_new(browser);
         webView_open(browser->webView, xbel_bookmark_get_href(item));
     }
-    xbel_item_free(_session);
+    xbel_item_unref(_session);
 
     gtk_main();
 
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
         g_warning("Bookmarks couldn't be saved. %s", error->message);
         g_error_free(error);
     }
-    xbel_item_free(bookmarks);
+    xbel_item_unref(bookmarks);
     g_free(configFile);
     configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
     error = NULL;
@@ -286,7 +286,7 @@ int main(int argc, char** argv)
         g_warning("Tabtrash couldn't be saved. %s", error->message);
         g_error_free(error);
     }
-    xbel_item_free(tabtrash);
+    xbel_item_unref(tabtrash);
     g_free(configFile);
     if(config->startup == CONFIG_STARTUP_SESSION)
     {
@@ -299,7 +299,7 @@ int main(int argc, char** argv)
         }
         g_free(configFile);
     }
-    xbel_item_free(session);
+    xbel_item_unref(session);
     configFile = g_build_filename(configPath, "config", NULL);
     error = NULL;
     if(!config_to_file(config, configFile, &error))

@@ -26,6 +26,7 @@ typedef struct _CBrowser
     // menus
     GtkWidget* menubar;
     GtkWidget* menu_bookmarks;
+    GtkWidget* popup_bookmark;
     GtkWidget* menu_window;
     GtkWidget* popup_webView;
     GtkWidget* popup_element;
@@ -42,6 +43,7 @@ typedef struct _CBrowser
     // panels
     GtkWidget* panels;
     GtkWidget* panels_notebook;
+    GtkWidget* panel_bookmarks;
     GtkWidget* panel_pageholder;
     GtkWidget* webViews;
     // findbox
@@ -202,6 +204,21 @@ on_action_link_saveWith_activate(GtkAction*, CBrowser*);
 
 void
 on_action_link_copy_activate(GtkAction*, CBrowser*);
+
+void
+on_action_bookmarkOpen_activate(GtkAction*, CBrowser*);
+
+void
+on_action_bookmarkOpenTab_activate(GtkAction*, CBrowser*);
+
+void
+on_action_bookmarkOpenWindow_activate(GtkAction*, CBrowser*);
+
+void
+on_action_bookmarkEdit_activate(GtkAction*, CBrowser*);
+
+void
+on_action_bookmarkDelete_activate(GtkAction*, CBrowser*);
 
 void
 on_menu_bookmarks_item_activate(GtkWidget*, CBrowser*);
@@ -438,6 +455,21 @@ static const GtkActionEntry entries[] = {
  { "BookmarksManage", STOCK_BOOKMARKS
  , "_Manage Bookmarks", "<Ctrl>b"
  , "hm?", NULL/*G_CALLBACK(on_action_bookmarks_manage_activate)*/ },
+ { "BookmarkOpen", GTK_STOCK_OPEN
+ , NULL, ""
+ , "hm?", G_CALLBACK(on_action_bookmarkOpen_activate) },
+ { "BookmarkOpenTab", STOCK_TAB_NEW
+ , "Open in New _Tab", ""
+ , "hm?", G_CALLBACK(on_action_bookmarkOpenTab_activate) },
+ { "BookmarkOpenWindow", STOCK_WINDOW_NEW
+ , "Open in New _Window", ""
+ , "hm?", G_CALLBACK(on_action_bookmarkOpenWindow_activate) },
+ { "BookmarkEdit", GTK_STOCK_EDIT
+ , NULL, ""
+ , "hm?", G_CALLBACK(on_action_bookmarkEdit_activate) },
+ { "BookmarkDelete", GTK_STOCK_DELETE
+ , NULL, ""
+ , "hm?", G_CALLBACK(on_action_bookmarkDelete_activate) },
 
  { "Tools", NULL, "_Tools" },
 

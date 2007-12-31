@@ -37,6 +37,7 @@ typedef enum
 // Note: This structure is entirely private.
 typedef struct
 {
+    guint refs;
     XbelItemKind kind;
     struct XbelItem* parent;
 
@@ -60,7 +61,10 @@ XbelItem*
 xbel_folder_new(void);
 
 void
-xbel_item_free(XbelItem*);
+xbel_item_ref(XbelItem*);
+
+void
+xbel_item_unref(XbelItem*);
 
 XbelItem*
 xbel_item_copy(XbelItem*);

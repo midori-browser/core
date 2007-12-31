@@ -292,12 +292,18 @@ void on_webView_destroy(GtkWidget* widget, CBrowser* browser)
     browsers = g_list_delete_link(browsers, tmp);
     g_free(browser->elementUri);
     g_free(browser->statusMessage);
-    if(!g_list_length(browsers))
+    // FIXME: Multiple windows are not taken into account
+    if(!g_list_nth(browsers, 0))
     {
         g_object_unref(browser->actiongroup);
+        g_object_unref(browser->popup_bookmark);
         g_object_unref(browser->popup_webView);
         g_object_unref(browser->popup_element);
         g_object_unref(browser->popup_editable);
+        guint i;
+        guint n = xbel_folder_get_n_items(bookmarks);
+        for(i = 0; i < n; i++)
+            xbel_item_unref(xbel_folder_get_nth_item(bookmarks, i));
         gtk_main_quit();
     }
 }
@@ -340,12 +346,11 @@ void webView_close(GtkWidget* webView, CBrowser* browser)
         if(n > 10)
         {
             XbelItem* item = xbel_folder_get_nth_item(tabtrash, n - 1);
-            xbel_folder_remove_item(tabtrash, item);
-            xbel_item_free(item);
+            xbel_item_unref(item);
         }
     }
     else
-        xbel_item_free(browser->sessionItem);
+        xbel_item_unref(browser->sessionItem);
     gtk_widget_destroy(browser->webView_menu);
     gtk_notebook_remove_page(GTK_NOTEBOOK(browser->webViews)
      , get_webView_index(webView, browser));

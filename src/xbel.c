@@ -38,6 +38,7 @@
 static XbelItem* xbel_item_new(XbelItemKind kind)
 {
     XbelItem* item = g_new(XbelItem, 1);
+    item->refs = 1;
     item->parent = NULL;
     item->kind = kind;
     if(kind == XBEL_ITEM_FOLDER)
@@ -220,18 +221,41 @@ static gboolean xbel_folder_from_xmlDocPtr(XbelItem* folder, xmlDocPtr doc)
 }
 
 /**
- * xbel_item_free:
+ * xbel_item_ref:
  * @item: a valid item
  *
- * Free an XbelItem. If @item is a folder all of its children will also
- *  be freed automatically.
+ * Ref an XbelItem.
  *
- * The item must not be contained in a folder or attempting to free it will fail.
+ * Ref means that the reference count is increased by one.
+ *
+ * This has no effect on children of a folder.
  **/
-void xbel_item_free(XbelItem* item)
+void xbel_item_ref(XbelItem* item)
 {
     g_return_if_fail(item);
-    g_return_if_fail(!xbel_item_get_parent(item));
+    item->refs++;
+}
+
+/**
+ * xbel_item_unref:
+ * @item: a valid item
+ *
+ * Unref an XbelItem. If @item is a folder all of its children will also
+ *  be unreffed automatically.
+ *
+ * Unref means that the reference count is decreased. If there are no
+ * references left, the memory will be freed and if needed removed from
+ * its containing folder.
+ **/
+void xbel_item_unref(XbelItem* item)
+{
+    g_return_if_fail(item);
+    item->refs--;
+    if(item->refs)
+        return;
+    XbelItem* parent = xbel_item_get_parent(item);
+    if(parent)
+        xbel_folder_remove_item(parent, item);
     if(xbel_item_is_folder(item))
     {
         guint n = xbel_folder_get_n_items(item);
@@ -240,7 +264,7 @@ void xbel_item_free(XbelItem* item)
         {
             XbelItem* _item = xbel_folder_get_nth_item(item, i);
             _item->parent = NULL;
-            xbel_item_free(_item);
+            xbel_item_unref(_item);
         }
         g_list_free(item->items);
     }
@@ -260,7 +284,7 @@ void xbel_item_free(XbelItem* item)
  *
  * Copy an XbelItem.
  *
- * The returned item must be freed eventually.
+ * The returned item must be unreffed eventually.
  *
  * Return value: a copy of @item
  **/
