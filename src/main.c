@@ -229,7 +229,7 @@ int main(int argc, char** argv)
     }
     g_free(uri);
 
-    if(config->startup != CONFIG_STARTUP_SESSION || xbel_folder_is_empty(_session))
+    if(xbel_folder_is_empty(_session))
     {
         XbelItem* item = xbel_bookmark_new();
         if(config->startup == CONFIG_STARTUP_BLANK)
