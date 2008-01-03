@@ -1629,7 +1629,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
          , "plugins-enabled"                 , config->enablePlugins
          , NULL);
 
-    DOC_CONNECT  ("button-release-event"        , on_webView_button_release)
+    DOC_CONNECT  ("button-press-event"          , on_webView_button_press)
     DOC_CONNECT  ("popup-menu"                  , on_webView_popup);
     DOC_CONNECT  ("scroll-event"                , on_webView_scroll);
     DOC_CONNECT  ("leave-notify-event"          , on_webView_leave)

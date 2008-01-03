@@ -58,7 +58,7 @@ on_webView_window_open(GtkWidget*, const gchar*, CBrowser*);
 */
 
 gboolean
-on_webView_button_release(GtkWidget*, GdkEventButton*, CBrowser*);
+on_webView_button_press(GtkWidget*, GdkEventButton*, CBrowser*);
 
 void
 on_webView_popup(GtkWidget*, CBrowser*);

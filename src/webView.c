@@ -206,7 +206,7 @@ void webView_popup(GtkWidget* webView, GdkEventButton* event, CBrowser* browser)
         sokoke_widget_popup(webView, GTK_MENU(browser->popup_webView), event);
 }
 
-gboolean on_webView_button_release(GtkWidget* webView, GdkEventButton* event
+gboolean on_webView_button_press(GtkWidget* webView, GdkEventButton* event
  , CBrowser* browser)
 {
     GdkModifierType state = (GdkModifierType)0;
