@@ -331,11 +331,10 @@ void update_statusbar(CBrowser* browser)
 void update_edit_items(CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
-    gboolean hasSelection = FALSE;
     gboolean canCut = FALSE; gboolean canCopy = FALSE; gboolean canPaste = FALSE;
     if(widget && (WEBKIT_IS_WEB_VIEW(widget) || GTK_IS_EDITABLE(widget)))
     {
-        hasSelection = WEBKIT_IS_WEB_VIEW(widget)
+        gboolean hasSelection = WEBKIT_IS_WEB_VIEW(widget)
          ? webkit_web_view_has_selection(WEBKIT_WEB_VIEW(widget))
          : gtk_editable_get_selection_bounds(GTK_EDITABLE(widget), NULL, NULL);
         canCut = WEBKIT_IS_WEB_VIEW(widget)
@@ -347,12 +346,14 @@ void update_edit_items(CBrowser* browser)
         canPaste = WEBKIT_IS_WEB_VIEW(widget)
          ? webkit_web_view_can_paste_clipboard(WEBKIT_WEB_VIEW(widget))
          : gtk_editable_get_editable(GTK_EDITABLE(widget));
+        action_set_sensitive("SelectAll", TRUE, browser);
     }
+    else
+        action_set_sensitive("SelectAll", FALSE, browser);
     action_set_sensitive("Cut", canCut, browser);
     action_set_sensitive("Copy", canCopy, browser);
     action_set_sensitive("Paste", canPaste, browser);
     action_set_sensitive("Delete", canCut, browser);
-    action_set_sensitive("SelectAll", !hasSelection, browser);
 }
 
 void update_gui_state(CBrowser* browser)
