@@ -401,6 +401,9 @@ void update_browser_actions(CBrowser* browser)
     gboolean active = gtk_notebook_get_n_pages(GTK_NOTEBOOK(browser->webViews)) > 1;
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(browser->webViews), active);
     action_set_sensitive("TabClose", active, browser);
+    action_set_sensitive("TabPrevious", active, browser);
+    action_set_sensitive("TabNext", active, browser);
+
     gboolean tabtrashEmpty = xbel_folder_is_empty(tabtrash);
     action_set_sensitive("UndoTabClose", !tabtrashEmpty, browser);
     action_set_sensitive("TabsClosed", !tabtrashEmpty, browser);
