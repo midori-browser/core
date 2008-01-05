@@ -18,6 +18,7 @@
 #include "webView.h"
 #include "webSearch.h"
 #include "xbel.h"
+#include "../katze/katze.h"
 
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
@@ -1190,7 +1191,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     browser->menubar = gtk_ui_manager_get_widget(ui_manager, "/menubar");
     GtkWidget* menuitem = gtk_menu_item_new();
     gtk_widget_show(menuitem);
-    browser->throbber = gtk_image_new_from_stock(GTK_STOCK_EXECUTE, GTK_ICON_SIZE_MENU);
+    browser->throbber = katze_throbber_new();
     gtk_widget_show(browser->throbber);
     gtk_container_add(GTK_CONTAINER(menuitem), browser->throbber);
     gtk_widget_set_sensitive(menuitem, FALSE);
@@ -1561,7 +1562,9 @@ CBrowser* browser_new(CBrowser* oldBrowser)
      , G_CALLBACK(on_notebook_tab_mouse_up), browser);
     GtkWidget* hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_add(GTK_CONTAINER(eventbox), GTK_WIDGET(hbox));
-    browser->webView_icon = gtk_image_new_from_stock(GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
+    browser->webView_icon = katze_throbber_new();
+    katze_throbber_set_static_stock_id(KATZE_THROBBER(browser->webView_icon)
+     , GTK_STOCK_FILE);
     gtk_box_pack_start(GTK_BOX(hbox), browser->webView_icon, FALSE, FALSE, 0);
     browser->webView_name = gtk_label_new(xbel_item_get_title(browser->sessionItem));
     gtk_misc_set_alignment(GTK_MISC(browser->webView_name), 0.0, 0.5);

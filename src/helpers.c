@@ -13,6 +13,7 @@
 
 #include "search.h"
 #include "sokoke.h"
+#include "../katze/katze.h"
 
 #include <string.h>
 #include <webkit.h>
@@ -231,14 +232,11 @@ void update_favicon(CBrowser* browser)
             // TODO: Retrieve mime type and load icon; don't forget ftp listings
         }
         else
-            gtk_image_set_from_stock(GTK_IMAGE(browser->webView_icon)
-             , GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
+            katze_throbber_set_static_stock_id(KATZE_THROBBER(browser->webView_icon)
+             , GTK_STOCK_FILE);
     }
-    else
-    {
-        gtk_image_set_from_stock(GTK_IMAGE(browser->webView_icon)
-         , GTK_STOCK_EXECUTE, GTK_ICON_SIZE_MENU);
-    }
+    katze_throbber_set_animated(KATZE_THROBBER(browser->webView_icon)
+     , browser->loadedPercent != -1);
 }
 
 void update_security(CBrowser* browser)
@@ -382,6 +380,8 @@ void update_gui_state(CBrowser* browser)
         g_object_set(action, "tooltip", "Stop loading the current page", NULL);
         gtk_widget_show(browser->progress);
     }
+    katze_throbber_set_animated(KATZE_THROBBER(browser->throbber)
+     , browser->loadedPercent != -1);
 
     gtk_image_set_from_stock(GTK_IMAGE(browser->location_icon), GTK_STOCK_FILE
      , GTK_ICON_SIZE_MENU);

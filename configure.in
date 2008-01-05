@@ -4,6 +4,7 @@ AC_CONFIG_SRCDIR([src/main.h])
 AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
+AM_PROG_LIBTOOL
 
 # Checks for programs
 AC_PROG_CC
@@ -83,7 +84,8 @@ AC_DEFINE_UNQUOTED([LIBXML_VER], "$LIBXML_VER", [libXML2 version])
 
 # Here we tell the configure script which files to *create*
 AC_CONFIG_FILES([
-    Makefile     \
+    Makefile       \
+    katze/Makefile \
     src/Makefile
 ])
 AC_OUTPUT
