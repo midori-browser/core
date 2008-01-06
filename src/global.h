@@ -13,7 +13,7 @@
 #define __GLOBAL_H__ 1
 
 #include "conf.h"
-#include "xbel.h"
+#include "../katze/katze.h"
 
 #include <gtk/gtk.h>
 
@@ -23,9 +23,9 @@ CConfig* config;
 GList* searchEngines; // Items of type 'SearchEngine'
 GList* browsers; // Items of type 'CBrowser'
 GtkAccelGroup* accel_group;
-XbelItem* bookmarks;
-XbelItem* session;
-XbelItem* tabtrash;
+KatzeXbelItem* bookmarks;
+KatzeXbelItem* session;
+KatzeXbelItem* tabtrash;
 
 // Custom stock items
 

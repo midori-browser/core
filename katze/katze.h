@@ -14,5 +14,6 @@
 
 #include "katze-throbber.h"
 #include "katze-utils.h"
+#include "katze-xbel.h"
 
-#endif /* __KATZE_THROBBER_H__ */
+#endif /* __KATZE_H__ */

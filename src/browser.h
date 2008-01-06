@@ -73,7 +73,7 @@ typedef struct _CBrowser
     //UNDEFINED favicon;
     guint security;
     gchar* statusMessage; // message from a webView
-    XbelItem* sessionItem;
+    KatzeXbelItem* sessionItem;
 } CBrowser;
 
 enum

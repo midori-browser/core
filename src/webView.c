@@ -13,7 +13,7 @@
 
 #include "helpers.h"
 #include "sokoke.h"
-#include "xbel.h"
+#include "../katze/katze.h"
 
 #include <string.h>
 
@@ -39,7 +39,7 @@ void on_webView_title_changed(GtkWidget* webView, WebKitWebFrame* frame
         newTitle = title;
     else
         newTitle = webkit_web_frame_get_uri(frame);
-    xbel_item_set_title(browser->sessionItem, newTitle);
+    katze_xbel_item_set_title(browser->sessionItem, newTitle);
     gtk_label_set_text(GTK_LABEL(browser->webView_name), newTitle);
     sokoke_widget_set_tooltip_text(gtk_widget_get_parent(
      gtk_widget_get_parent(browser->webView_name)), newTitle);
@@ -90,7 +90,7 @@ void on_webView_load_committed(GtkWidget* webView, WebKitWebFrame* frame
 {
     const gchar* uri = webkit_web_frame_get_uri(frame);
     gchar* newUri = g_strdup(uri ? uri : "");
-    xbel_bookmark_set_href(browser->sessionItem, newUri);
+    katze_xbel_bookmark_set_href(browser->sessionItem, newUri);
     if(webView == get_nth_webView(-1, browser))
     {
         gtk_entry_set_text(GTK_ENTRY(browser->location), newUri);
@@ -301,9 +301,9 @@ void on_webView_destroy(GtkWidget* widget, CBrowser* browser)
         g_object_unref(browser->popup_element);
         g_object_unref(browser->popup_editable);
         guint i;
-        guint n = xbel_folder_get_n_items(bookmarks);
+        guint n = katze_xbel_folder_get_n_items(bookmarks);
         for(i = 0; i < n; i++)
-            xbel_item_unref(xbel_folder_get_nth_item(bookmarks, i));
+            katze_xbel_item_unref(katze_xbel_folder_get_nth_item(bookmarks, i));
         gtk_main_quit();
     }
 }
@@ -329,28 +329,28 @@ void webView_open(GtkWidget* webView, const gchar* uri)
     CBrowser* browser = get_browser_from_webView(webView);
     if(browser)
     {
-        xbel_bookmark_set_href(browser->sessionItem, uri);
-        xbel_item_set_title(browser->sessionItem, "");
+        katze_xbel_bookmark_set_href(browser->sessionItem, uri);
+        katze_xbel_item_set_title(browser->sessionItem, "");
     }
 }
 
 void webView_close(GtkWidget* webView, CBrowser* browser)
 {
     browser = get_browser_from_webView(webView);
-    const gchar* uri = xbel_bookmark_get_href(browser->sessionItem);
-    xbel_folder_remove_item(session, browser->sessionItem);
+    const gchar* uri = katze_xbel_bookmark_get_href(browser->sessionItem);
+    katze_xbel_folder_remove_item(session, browser->sessionItem);
     if(uri && *uri)
     {
-        xbel_folder_prepend_item(tabtrash, browser->sessionItem);
-        guint n = xbel_folder_get_n_items(tabtrash);
+        katze_xbel_folder_prepend_item(tabtrash, browser->sessionItem);
+        guint n = katze_xbel_folder_get_n_items(tabtrash);
         if(n > 10)
         {
-            XbelItem* item = xbel_folder_get_nth_item(tabtrash, n - 1);
-            xbel_item_unref(item);
+            KatzeXbelItem* item = katze_xbel_folder_get_nth_item(tabtrash, n - 1);
+            katze_xbel_item_unref(item);
         }
     }
     else
-        xbel_item_unref(browser->sessionItem);
+        katze_xbel_item_unref(browser->sessionItem);
     gtk_widget_destroy(browser->webView_menu);
     gtk_notebook_remove_page(GTK_NOTEBOOK(browser->webViews)
      , get_webView_index(webView, browser));

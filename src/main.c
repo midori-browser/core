@@ -17,7 +17,7 @@
 #include "sokoke.h"
 #include "search.h"
 #include "webView.h"
-#include "xbel.h"
+#include "../katze/katze.h"
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -148,9 +148,9 @@ int main(int argc, char** argv)
     }
     g_free(configFile);
     configFile = g_build_filename(configPath, "bookmarks.xbel", NULL);
-    bookmarks = xbel_folder_new();
+    bookmarks = katze_xbel_folder_new();
     error = NULL;
-    if(!xbel_folder_from_file(bookmarks, configFile, &error))
+    if(!katze_xbel_folder_from_file(bookmarks, configFile, &error))
     {
         if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
@@ -158,12 +158,12 @@ int main(int argc, char** argv)
         g_error_free(error);
     }
     g_free(configFile);
-    XbelItem* _session = xbel_folder_new();
+    KatzeXbelItem* _session = katze_xbel_folder_new();
     if(config->startup == CONFIG_STARTUP_SESSION)
     {
         configFile = g_build_filename(configPath, "session.xbel", NULL);
         error = NULL;
-        if(!xbel_folder_from_file(_session, configFile, &error))
+        if(!katze_xbel_folder_from_file(_session, configFile, &error))
         {
             if(error->code != G_FILE_ERROR_NOENT)
                 g_string_append_printf(errorMessages
@@ -173,9 +173,9 @@ int main(int argc, char** argv)
         g_free(configFile);
     }
     configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
-    tabtrash = xbel_folder_new();
+    tabtrash = katze_xbel_folder_new();
     error = NULL;
-    if(!xbel_folder_from_file(tabtrash, configFile, &error))
+    if(!katze_xbel_folder_from_file(tabtrash, configFile, &error))
     {
         if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
@@ -204,8 +204,8 @@ int main(int argc, char** argv)
         {
             config_free(config);
             search_engines_free(searchEngines);
-            xbel_item_unref(bookmarks);
-            xbel_item_unref(_session);
+            katze_xbel_item_unref(bookmarks);
+            katze_xbel_item_unref(_session);
             g_string_free(errorMessages, TRUE);
             return 0;
         }
@@ -220,23 +220,23 @@ int main(int argc, char** argv)
     gchar* uri = argc > 1 ? strtok(g_strdup(argv[1]), "|") : NULL;
     while(uri != NULL)
     {
-        XbelItem* item = xbel_bookmark_new();
+        KatzeXbelItem* item = katze_xbel_bookmark_new();
         gchar* uriReady = magic_uri(uri, FALSE);
-        xbel_bookmark_set_href(item, uriReady);
+        katze_xbel_bookmark_set_href(item, uriReady);
         g_free(uriReady);
-        xbel_folder_append_item(_session, item);
+        katze_xbel_folder_append_item(_session, item);
         uri = strtok(NULL, "|");
     }
     g_free(uri);
 
-    if(xbel_folder_is_empty(_session))
+    if(katze_xbel_folder_is_empty(_session))
     {
-        XbelItem* item = xbel_bookmark_new();
+        KatzeXbelItem* item = katze_xbel_bookmark_new();
         if(config->startup == CONFIG_STARTUP_BLANK)
-            xbel_bookmark_set_href(item, "about:blank");
+            katze_xbel_bookmark_set_href(item, "about:blank");
         else
-            xbel_bookmark_set_href(item, config->homepage);
-        xbel_folder_prepend_item(_session, item);
+            katze_xbel_bookmark_set_href(item, config->homepage);
+        katze_xbel_folder_prepend_item(_session, item);
     }
     g_free(configPath);
 
@@ -244,17 +244,17 @@ int main(int argc, char** argv)
     stock_items_init();
     browsers = NULL;
 
-    session = xbel_folder_new();
+    session = katze_xbel_folder_new();
     CBrowser* browser = NULL;
-    guint n = xbel_folder_get_n_items(_session);
+    guint n = katze_xbel_folder_get_n_items(_session);
     guint i;
     for(i = 0; i < n; i++)
     {
-        XbelItem* item = xbel_folder_get_nth_item(_session, i);
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item(_session, i);
         browser = browser_new(browser);
-        webView_open(browser->webView, xbel_bookmark_get_href(item));
+        webView_open(browser->webView, katze_xbel_bookmark_get_href(item));
     }
-    xbel_item_unref(_session);
+    katze_xbel_item_unref(_session);
 
     gtk_main();
 
@@ -272,34 +272,34 @@ int main(int argc, char** argv)
     g_free(configFile);
     configFile = g_build_filename(configPath, "bookmarks.xbel", NULL);
     error = NULL;
-    if(!xbel_folder_to_file(bookmarks, configFile, &error))
+    if(!katze_xbel_folder_to_file(bookmarks, configFile, &error))
     {
         g_warning("Bookmarks couldn't be saved. %s", error->message);
         g_error_free(error);
     }
-    xbel_item_unref(bookmarks);
+    katze_xbel_item_unref(bookmarks);
     g_free(configFile);
     configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
     error = NULL;
-    if(!xbel_folder_to_file(tabtrash, configFile, &error))
+    if(!katze_xbel_folder_to_file(tabtrash, configFile, &error))
     {
         g_warning("Tabtrash couldn't be saved. %s", error->message);
         g_error_free(error);
     }
-    xbel_item_unref(tabtrash);
+    katze_xbel_item_unref(tabtrash);
     g_free(configFile);
     if(config->startup == CONFIG_STARTUP_SESSION)
     {
         configFile = g_build_filename(configPath, "session.xbel", NULL);
         error = NULL;
-        if(!xbel_folder_to_file(session, configFile, &error))
+        if(!katze_xbel_folder_to_file(session, configFile, &error))
         {
             g_warning("Session couldn't be saved. %s", error->message);
             g_error_free(error);
         }
         g_free(configFile);
     }
-    xbel_item_unref(session);
+    katze_xbel_item_unref(session);
     configFile = g_build_filename(configPath, "config", NULL);
     error = NULL;
     if(!config_to_file(config, configFile, &error))

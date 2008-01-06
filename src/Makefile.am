@@ -1,14 +1,12 @@
 INCLUDES = \
     $(GTK_CFLAGS)     \
     $(WEBKIT_CFLAGS)  \
-    $(LIBXML_CFLAGS)  \
     $(LIBSEXY_CFLAGS) \
     -I../katze
 
 LDADD = \
     $(GTK_LIBS)          \
     $(WEBKIT_LIBS)       \
-    $(LIBXML_LIBS)       \
     $(LIBSEXY_LIBS)      \
     ../katze/libkatze.la
 
@@ -25,7 +23,6 @@ midori_SOURCES = \
     sokoke.c    sokoke.h    \
     conf.c      conf.h      \
     search.c    search.h    \
-    xbel.c      xbel.h      \
     global.h                \
     ui.h                    \
     debug.h

@@ -17,7 +17,6 @@
 #include "ui.h"
 #include "webView.h"
 #include "webSearch.h"
-#include "xbel.h"
 #include "../katze/katze.h"
 
 #include <gdk/gdkkeysyms.h>
@@ -379,20 +378,20 @@ void on_action_webSearch_activate(GtkAction* action, CBrowser* browser)
 void on_menu_tabsClosed_activate(GtkWidget* widget, CBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_new();
-    guint n = xbel_folder_get_n_items(tabtrash);
+    guint n = katze_xbel_folder_get_n_items(tabtrash);
     GtkWidget* menuitem;
     guint i;
     for(i = 0; i < n; i++)
     {
-        XbelItem* item = xbel_folder_get_nth_item(tabtrash, i);
-        const gchar* title = xbel_item_get_title(item);
-        const gchar* uri = xbel_bookmark_get_href(item);
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item(tabtrash, i);
+        const gchar* title = katze_xbel_item_get_title(item);
+        const gchar* uri = katze_xbel_bookmark_get_href(item);
         menuitem = gtk_image_menu_item_new_with_label(title ? title : uri);
         // FIXME: Get the real icon
         GtkWidget* icon = gtk_image_new_from_stock(GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), icon);
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-        g_object_set_data(G_OBJECT(menuitem), "XbelItem", item);
+        g_object_set_data(G_OBJECT(menuitem), "KatzeXbelItem", item);
         g_signal_connect(menuitem, "activate", G_CALLBACK(on_menu_tabsClosed_item_activate), browser);
         gtk_widget_show(menuitem);
     }
@@ -411,30 +410,30 @@ void on_menu_tabsClosed_activate(GtkWidget* widget, CBrowser* browser)
 void on_menu_tabsClosed_item_activate(GtkWidget* menuitem, CBrowser* browser)
 {
     // Create a new webView with an uri which has been closed before
-    XbelItem* item = g_object_get_data(G_OBJECT(menuitem), "XbelItem");
-    const gchar* uri = xbel_bookmark_get_href(item);
+    KatzeXbelItem* item = g_object_get_data(G_OBJECT(menuitem), "KatzeXbelItem");
+    const gchar* uri = katze_xbel_bookmark_get_href(item);
     CBrowser* curBrowser = browser_new(browser);
     webView_open(curBrowser->webView, uri);
-    xbel_item_unref(item);
+    katze_xbel_item_unref(item);
     update_browser_actions(curBrowser);
 }
 
 void on_action_tabsClosed_undo_activate(GtkAction* action, CBrowser* browser)
 {
     // Open the most recent tabtrash item
-    XbelItem* item = xbel_folder_get_nth_item(tabtrash, 0);
-    const gchar* uri = xbel_bookmark_get_href(item);
+    KatzeXbelItem* item = katze_xbel_folder_get_nth_item(tabtrash, 0);
+    const gchar* uri = katze_xbel_bookmark_get_href(item);
     CBrowser* curBrowser = browser_new(browser);
     webView_open(curBrowser->webView, uri);
-    xbel_item_unref(item);
+    katze_xbel_item_unref(item);
     update_browser_actions(curBrowser);
 }
 
 void on_action_tabsClosed_clear_activate(GtkAction* action, CBrowser* browser)
 {
     // Clear the closed tabs list
-    xbel_item_unref(tabtrash);
-    tabtrash = xbel_folder_new();
+    katze_xbel_item_unref(tabtrash);
+    tabtrash = katze_xbel_folder_new();
     update_browser_actions(browser);
 }
 
@@ -466,7 +465,7 @@ void on_action_link_copy_activate(GtkAction* action, CBrowser* browser)
     gtk_clipboard_set_text(clipboard, browser->elementUri, -1);
 }
 
-static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browser)
+static void browser_editBookmark_dialog_new(KatzeXbelItem* bookmark, CBrowser* browser)
 {
     gboolean newBookmark = !bookmark;
     GtkWidget* dialog = gtk_dialog_new_with_buttons(
@@ -483,7 +482,7 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     GtkSizeGroup* sizegroup =  gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
     if(newBookmark)
-        bookmark = xbel_bookmark_new();
+        bookmark = katze_xbel_bookmark_new();
 
     GtkWidget* hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
@@ -494,7 +493,7 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     gtk_entry_set_activates_default(GTK_ENTRY(entry_title), TRUE);
     if(!newBookmark)
     {
-        const gchar* title = xbel_item_get_title(bookmark);
+        const gchar* title = katze_xbel_item_get_title(bookmark);
         gtk_entry_set_text(GTK_ENTRY(entry_title), title ? title : "");
     }
     gtk_box_pack_start(GTK_BOX(hbox), entry_title, TRUE, TRUE, 0);
@@ -510,7 +509,7 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     gtk_entry_set_activates_default(GTK_ENTRY(entry_desc), TRUE);
     if(!newBookmark)
     {
-        const gchar* desc = xbel_item_get_desc(bookmark);
+        const gchar* desc = katze_xbel_item_get_desc(bookmark);
         gtk_entry_set_text(GTK_ENTRY(entry_desc), desc ? desc : "");
     }
     gtk_box_pack_start(GTK_BOX(hbox), entry_desc, TRUE, TRUE, 0);
@@ -518,7 +517,7 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     gtk_widget_show_all(hbox);
 
     GtkWidget* entry_uri = NULL;
-    if(xbel_item_is_bookmark(bookmark))
+    if(katze_xbel_item_is_bookmark(bookmark))
     {
         hbox = gtk_hbox_new(FALSE, 8);
         gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
@@ -528,7 +527,7 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
         entry_uri = gtk_entry_new();
         gtk_entry_set_activates_default(GTK_ENTRY(entry_uri), TRUE);
         if(!newBookmark)
-            gtk_entry_set_text(GTK_ENTRY(entry_uri), xbel_bookmark_get_href(bookmark));
+            gtk_entry_set_text(GTK_ENTRY(entry_uri), katze_xbel_bookmark_get_href(bookmark));
         gtk_box_pack_start(GTK_BOX(hbox), entry_uri, TRUE, TRUE, 0);
         gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
         gtk_widget_show_all(hbox);
@@ -537,14 +536,14 @@ static void browser_editBookmark_dialog_new(XbelItem* bookmark, CBrowser* browse
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
     if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
     {
-        xbel_item_set_title(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_title)));
-        xbel_item_set_desc(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_desc)));
-        if(xbel_item_is_bookmark(bookmark))
-            xbel_bookmark_set_href(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_uri)));
+        katze_xbel_item_set_title(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_title)));
+        katze_xbel_item_set_desc(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_desc)));
+        if(katze_xbel_item_is_bookmark(bookmark))
+            katze_xbel_bookmark_set_href(bookmark, gtk_entry_get_text(GTK_ENTRY(entry_uri)));
 
         // FIXME: We want to choose a folder
         if(newBookmark)
-            xbel_folder_append_item(bookmarks, bookmark);
+            katze_xbel_folder_append_item(bookmarks, bookmark);
     }
     gtk_widget_destroy(dialog);
 }
@@ -556,18 +555,18 @@ static void on_panel_bookmarks_row_activated(GtkTreeView* treeview
     GtkTreeIter iter;
     if(gtk_tree_model_get_iter(model, &iter, path))
     {
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        if(xbel_item_is_bookmark(item))
-            webView_open(get_nth_webView(-1, browser), xbel_bookmark_get_href(item));
+        if(katze_xbel_item_is_bookmark(item))
+            webView_open(get_nth_webView(-1, browser), katze_xbel_bookmark_get_href(item));
     }
 }
 
 static void panel_bookmarks_popup(GtkWidget* widget, GdkEventButton* event
- , XbelItem* item, CBrowser* browser)
+ , KatzeXbelItem* item, CBrowser* browser)
 {
-    gboolean isBookmark = xbel_item_is_bookmark(item);
-    gboolean isSeparator = xbel_item_is_separator(item);
+    gboolean isBookmark = katze_xbel_item_is_bookmark(item);
+    gboolean isSeparator = katze_xbel_item_is_separator(item);
 
     action_set_sensitive("BookmarkOpen", isBookmark, browser);
     action_set_sensitive("BookmarkOpenTab", isBookmark, browser);
@@ -590,12 +589,12 @@ static gboolean on_panel_bookmarks_button_release(GtkWidget* widget
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        if(event->button == 2 && xbel_item_is_bookmark(item))
+        if(event->button == 2 && katze_xbel_item_is_bookmark(item))
         {
             CBrowser* newBrowser = browser_new(browser);
-            const gchar* uri = xbel_bookmark_get_href(item);
+            const gchar* uri = katze_xbel_bookmark_get_href(item);
             webView_open(newBrowser->webView, uri);
         }
         else
@@ -613,7 +612,7 @@ void on_panel_bookmarks_popup(GtkWidget* widget, CBrowser* browser)
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
         panel_bookmarks_popup(widget, NULL, item, browser);
     }
@@ -628,10 +627,10 @@ void on_action_bookmarkOpen_activate(GtkAction* action, CBrowser* browser)
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        if(xbel_item_is_bookmark(item))
-            webView_open(get_nth_webView(-1, browser), xbel_bookmark_get_href(item));
+        if(katze_xbel_item_is_bookmark(item))
+            webView_open(get_nth_webView(-1, browser), katze_xbel_bookmark_get_href(item));
     }
 }
 
@@ -644,12 +643,12 @@ void on_action_bookmarkOpenTab_activate(GtkAction* action, CBrowser* browser)
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        if(xbel_item_is_bookmark(item))
+        if(katze_xbel_item_is_bookmark(item))
         {
             CBrowser* newBrowser = browser_new(browser);
-            const gchar* uri = xbel_bookmark_get_href(item);
+            const gchar* uri = katze_xbel_bookmark_get_href(item);
             webView_open(newBrowser->webView, uri);
         }
     }
@@ -664,12 +663,12 @@ void on_action_bookmarkOpenWindow_activate(GtkAction* action, CBrowser* browser)
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        if(xbel_item_is_bookmark(item))
+        if(katze_xbel_item_is_bookmark(item))
         {
             CBrowser* newBrowser = browser_new(NULL);
-            const gchar* uri = xbel_bookmark_get_href(item);
+            const gchar* uri = katze_xbel_bookmark_get_href(item);
             webView_open(newBrowser->webView, uri);
         }
     }
@@ -684,9 +683,9 @@ void on_action_bookmarkEdit_activate(GtkAction* action, CBrowser* browser)
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        if(!xbel_item_is_separator(item))
+        if(!katze_xbel_item_is_separator(item))
             browser_editBookmark_dialog_new(item, browser);
     }
 }
@@ -700,26 +699,26 @@ void on_action_bookmarkDelete_activate(GtkAction* action, CBrowser* browser)
         GtkTreeModel* model;
         GtkTreeIter iter;
         gtk_tree_selection_get_selected(selection, &model, &iter);
-        XbelItem* item;
+        KatzeXbelItem* item;
         gtk_tree_model_get(model, &iter, 0, &item, -1);
-        XbelItem* parent = xbel_item_get_parent(item);
-        xbel_folder_remove_item(parent, item);
-        xbel_item_unref(item);
+        KatzeXbelItem* parent = katze_xbel_item_get_parent(item);
+        katze_xbel_folder_remove_item(parent, item);
+        katze_xbel_item_unref(item);
     }
 }
 
 static void tree_store_insert_folder(GtkTreeStore* treestore, GtkTreeIter* parent
- , XbelItem* folder)
+ , KatzeXbelItem* folder)
 {
-    guint n = xbel_folder_get_n_items(folder);
+    guint n = katze_xbel_folder_get_n_items(folder);
     guint i;
     for(i = 0; i < n; i++)
     {
-        XbelItem* item = xbel_folder_get_nth_item(folder, i);
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item(folder, i);
         GtkTreeIter iter;
         gtk_tree_store_insert_with_values(treestore, &iter, parent, n, 0, item, -1);
-        xbel_item_ref(item);
-        if(xbel_item_is_folder(item))
+        katze_xbel_item_ref(item);
+        if(katze_xbel_item_is_folder(item))
             tree_store_insert_folder(treestore, &iter, item);
     }
 }
@@ -728,22 +727,22 @@ static void on_bookmarks_item_render_icon(GtkTreeViewColumn* column
  , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter
  , GtkWidget* treeview)
 {
-    XbelItem* item;
+    KatzeXbelItem* item;
     gtk_tree_model_get(model, iter, 0, &item, -1);
 
-    if(!xbel_item_get_parent(item))
+    if(!katze_xbel_item_get_parent(item))
     {
         gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
-        xbel_item_unref(item);
+        katze_xbel_item_unref(item);
         return;
     }
 
     // TODO: Would it be better to not do this on every redraw?
     GdkPixbuf* pixbuf = NULL;
-    if(xbel_item_is_bookmark(item))
+    if(katze_xbel_item_is_bookmark(item))
         pixbuf = gtk_widget_render_icon(treeview, STOCK_BOOKMARK
          , GTK_ICON_SIZE_MENU, NULL);
-    else if(xbel_item_is_folder(item))
+    else if(katze_xbel_item_is_folder(item))
         pixbuf = gtk_widget_render_icon(treeview, GTK_STOCK_DIRECTORY
          , GTK_ICON_SIZE_MENU, NULL);
     g_object_set(renderer, "pixbuf", pixbuf, NULL);
@@ -755,31 +754,31 @@ static void on_bookmarks_item_render_text(GtkTreeViewColumn* column
  , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter
  , GtkWidget* treeview)
 {
-    XbelItem* item;
+    KatzeXbelItem* item;
     gtk_tree_model_get(model, iter, 0, &item, -1);
 
-    if(!xbel_item_get_parent(item))
+    if(!katze_xbel_item_get_parent(item))
     {
         gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
-        xbel_item_unref(item);
+        katze_xbel_item_unref(item);
         return;
     }
 
-    if(xbel_item_is_separator(item))
+    if(katze_xbel_item_is_separator(item))
         g_object_set(renderer
          , "markup", "<i>Separator</i>", NULL);
     else
         g_object_set(renderer
-         , "markup", NULL, "text", xbel_item_get_title(item), NULL);
+         , "markup", NULL, "text", katze_xbel_item_get_title(item), NULL);
 }
 
-static void create_bookmark_menu(XbelItem*, GtkWidget*, CBrowser*);
+static void create_bookmark_menu(KatzeXbelItem*, GtkWidget*, CBrowser*);
 
 static void on_bookmark_menu_folder_activate(GtkWidget* menuitem, CBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuitem));
     gtk_container_foreach(GTK_CONTAINER(menu), (GtkCallback)gtk_widget_destroy, NULL);//...
-    XbelItem* folder = (XbelItem*)g_object_get_data(G_OBJECT(menuitem), "XbelItem");
+    KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data(G_OBJECT(menuitem), "KatzeXbelItem");
     create_bookmark_menu(folder, menu, browser);
     // Remove all menuitems when the menu is hidden.
     // FIXME: We really *want* the line below, but it won't work like that
@@ -790,7 +789,7 @@ static void on_bookmark_menu_folder_activate(GtkWidget* menuitem, CBrowser* brow
 static void on_bookmark_toolbar_folder_activate(GtkToolItem* toolitem, CBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_new();
-    XbelItem* folder = (XbelItem*)g_object_get_data(G_OBJECT(toolitem), "XbelItem");
+    KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data(G_OBJECT(toolitem), "KatzeXbelItem");
     create_bookmark_menu(folder, menu, browser);
     // Remove all menuitems when the menu is hidden.
     // FIXME: We really *should* run the line below, but it won't work like that
@@ -800,24 +799,24 @@ static void on_bookmark_toolbar_folder_activate(GtkToolItem* toolitem, CBrowser*
 
 void on_menu_bookmarks_item_activate(GtkWidget* widget, CBrowser* browser)
 {
-    XbelItem* item = (XbelItem*)g_object_get_data(G_OBJECT(widget), "XbelItem");
-    webView_open(get_nth_webView(-1, browser), xbel_bookmark_get_href(item));
+    KatzeXbelItem* item = (KatzeXbelItem*)g_object_get_data(G_OBJECT(widget), "KatzeXbelItem");
+    webView_open(get_nth_webView(-1, browser), katze_xbel_bookmark_get_href(item));
 }
 
-static void create_bookmark_menu(XbelItem* folder, GtkWidget* menu, CBrowser* browser)
+static void create_bookmark_menu(KatzeXbelItem* folder, GtkWidget* menu, CBrowser* browser)
 {
-    guint n = xbel_folder_get_n_items(folder);
+    guint n = katze_xbel_folder_get_n_items(folder);
     guint i;
     for(i = 0; i < n; i++)
     {
-        XbelItem* item = xbel_folder_get_nth_item(folder, i);
-        const gchar* title = xbel_item_is_separator(item) ? "" : xbel_item_get_title(item);
-        //const gchar* desc = xbel_item_is_separator(item) ? "" : xbel_item_get_desc(item);
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item(folder, i);
+        const gchar* title = katze_xbel_item_is_separator(item) ? "" : katze_xbel_item_get_title(item);
+        //const gchar* desc = katze_xbel_item_is_separator(item) ? "" : katze_xbel_item_get_desc(item);
         GtkWidget* menuitem = NULL;
-        switch(xbel_item_get_kind(item))
+        switch(katze_xbel_item_get_kind(item))
         {
-        case XBEL_ITEM_FOLDER:
-            // FIXME: what about xbel_folder_is_folded?
+        case KATZE_XBEL_ITEM_KIND_FOLDER:
+            // FIXME: what about katze_xbel_folder_is_folded?
             menuitem = gtk_image_menu_item_new_with_label(title);
             gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem)
              , gtk_image_new_from_stock(GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU));
@@ -825,14 +824,14 @@ static void create_bookmark_menu(XbelItem* folder, GtkWidget* menu, CBrowser* br
             gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), _menu);
             g_signal_connect(menuitem, "activate"
              , G_CALLBACK(on_bookmark_menu_folder_activate), browser);
-            g_object_set_data(G_OBJECT(menuitem), "XbelItem", item);
+            g_object_set_data(G_OBJECT(menuitem), "KatzeXbelItem", item);
             break;
-        case XBEL_ITEM_BOOKMARK:
+        case KATZE_XBEL_ITEM_KIND_BOOKMARK:
             menuitem = menu_item_new(title, STOCK_BOOKMARK
              , G_CALLBACK(on_menu_bookmarks_item_activate), TRUE, browser);
-            g_object_set_data(G_OBJECT(menuitem), "XbelItem", item);
+            g_object_set_data(G_OBJECT(menuitem), "KatzeXbelItem", item);
             break;
-        case XBEL_ITEM_SEPARATOR:
+        case KATZE_XBEL_ITEM_KIND_SEPARATOR:
             menuitem = gtk_separator_menu_item_new();
             break;
         default:
@@ -936,7 +935,7 @@ void on_location_changed(GtkWidget* widget, CBrowser* browser)
 {
     // Preserve changes to the uri
     /*const gchar* newUri = gtk_entry_get_text(GTK_ENTRY(widget));
-    xbel_bookmark_set_href(browser->sessionItem, newUri);*/
+    katze_xbel_bookmark_set_href(browser->sessionItem, newUri);*/
     // FIXME: If we want this feature, this is the wrong approach
 }
 
@@ -1037,9 +1036,9 @@ void on_notebook_switch_page(GtkWidget* widget, GtkNotebookPage* page
 {
     GtkWidget* webView = get_nth_webView(page_num, browser);
     browser = get_browser_from_webView(webView);
-    const gchar* uri = xbel_bookmark_get_href(browser->sessionItem);
+    const gchar* uri = katze_xbel_bookmark_get_href(browser->sessionItem);
     gtk_entry_set_text(GTK_ENTRY(browser->location), uri);
-    const gchar* title = xbel_item_get_title(browser->sessionItem);
+    const gchar* title = katze_xbel_item_get_title(browser->sessionItem);
     const gchar* effectiveTitle = title ? title : uri;
     gchar* windowTitle = g_strconcat(effectiveTitle, " - ", PACKAGE_NAME, NULL);
     gtk_window_set_title(GTK_WINDOW(browser->window), windowTitle);
@@ -1098,9 +1097,9 @@ CBrowser* browser_new(CBrowser* oldBrowser)
 {
     CBrowser* browser = g_new0(CBrowser, 1);
     browsers = g_list_prepend(browsers, browser);
-    browser->sessionItem = xbel_bookmark_new();
-    xbel_item_set_title(browser->sessionItem, "about:blank");
-    xbel_folder_append_item(session, browser->sessionItem);
+    browser->sessionItem = katze_xbel_bookmark_new();
+    katze_xbel_item_set_title(browser->sessionItem, "about:blank");
+    katze_xbel_folder_append_item(session, browser->sessionItem);
 
     GtkWidget* scrolled;
 
@@ -1289,26 +1288,26 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     gtk_toolbar_set_icon_size(GTK_TOOLBAR(browser->bookmarkbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style(GTK_TOOLBAR(browser->bookmarkbar), GTK_TOOLBAR_BOTH_HORIZ);
     create_bookmark_menu(bookmarks, browser->menu_bookmarks, browser);
-    for(i = 0; i < xbel_folder_get_n_items(bookmarks); i++)
+    for(i = 0; i < katze_xbel_folder_get_n_items(bookmarks); i++)
     {
-        XbelItem* item = xbel_folder_get_nth_item(bookmarks, i);
-        const gchar* title = xbel_item_is_separator(item)
-         ? "" : xbel_item_get_title(item);
-        const gchar* desc = xbel_item_is_separator(item)
-         ? "" : xbel_item_get_desc(item);
-        switch(xbel_item_get_kind(item))
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item(bookmarks, i);
+        const gchar* title = katze_xbel_item_is_separator(item)
+         ? "" : katze_xbel_item_get_title(item);
+        const gchar* desc = katze_xbel_item_is_separator(item)
+         ? "" : katze_xbel_item_get_desc(item);
+        switch(katze_xbel_item_get_kind(item))
         {
-        case XBEL_ITEM_FOLDER:
+        case KATZE_XBEL_ITEM_KIND_FOLDER:
             toolitem = tool_button_new(title, GTK_STOCK_DIRECTORY, TRUE, TRUE
              , G_CALLBACK(on_bookmark_toolbar_folder_activate), desc, browser);
-            g_object_set_data(G_OBJECT(toolitem), "XbelItem", item);
+            g_object_set_data(G_OBJECT(toolitem), "KatzeXbelItem", item);
             break;
-        case XBEL_ITEM_BOOKMARK:
+        case KATZE_XBEL_ITEM_KIND_BOOKMARK:
             toolitem = tool_button_new(title, STOCK_BOOKMARK, TRUE, TRUE
              , G_CALLBACK(on_menu_bookmarks_item_activate), desc, browser);
-            g_object_set_data(G_OBJECT(toolitem), "XbelItem", item);
+            g_object_set_data(G_OBJECT(toolitem), "KatzeXbelItem", item);
             break;
-        case XBEL_ITEM_SEPARATOR:
+        case KATZE_XBEL_ITEM_KIND_SEPARATOR:
             toolitem = gtk_separator_tool_item_new();
             break;
         default:
@@ -1381,7 +1380,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
       // Bookmarks
       GtkTreeViewColumn* column;
       GtkCellRenderer* renderer_text; GtkCellRenderer* renderer_pixbuf;
-      GtkTreeStore* treestore = gtk_tree_store_new(1, G_TYPE_XBEL_ITEM);
+      GtkTreeStore* treestore = gtk_tree_store_new(1, KATZE_TYPE_XBEL_ITEM);
       GtkWidget* treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(treestore));
       gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
       column = gtk_tree_view_column_new();
@@ -1566,7 +1565,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     katze_throbber_set_static_stock_id(KATZE_THROBBER(browser->webView_icon)
      , GTK_STOCK_FILE);
     gtk_box_pack_start(GTK_BOX(hbox), browser->webView_icon, FALSE, FALSE, 0);
-    browser->webView_name = gtk_label_new(xbel_item_get_title(browser->sessionItem));
+    browser->webView_name = gtk_label_new(katze_xbel_item_get_title(browser->sessionItem));
     gtk_misc_set_alignment(GTK_MISC(browser->webView_name), 0.0, 0.5);
     // TODO: make the tab initially look "unvisited" until it's focused
     // TODO: gtk's tab scrolling is weird?

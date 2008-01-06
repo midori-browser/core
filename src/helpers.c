@@ -241,7 +241,7 @@ void update_favicon(CBrowser* browser)
 
 void update_security(CBrowser* browser)
 {
-    const gchar* uri = xbel_bookmark_get_href(browser->sessionItem);
+    const gchar* uri = katze_xbel_bookmark_get_href(browser->sessionItem);
     // TODO: This check is bogus, until webkit tells us how secure a page is
     if(g_str_has_prefix(uri, "https://"))
     {
@@ -405,7 +405,7 @@ void update_browser_actions(CBrowser* browser)
     action_set_sensitive("TabPrevious", active, browser);
     action_set_sensitive("TabNext", active, browser);
 
-    gboolean tabtrashEmpty = xbel_folder_is_empty(tabtrash);
+    gboolean tabtrashEmpty = katze_xbel_folder_is_empty(tabtrash);
     action_set_sensitive("UndoTabClose", !tabtrashEmpty, browser);
     action_set_sensitive("TabsClosed", !tabtrashEmpty, browser);
 }
