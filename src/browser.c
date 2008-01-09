@@ -76,24 +76,32 @@ void on_action_edit_activate(GtkAction* action, CBrowser* browser)
 void on_action_cut_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
+    if(G_UNLIKELY(!widget))
+        return;
     g_signal_emit_by_name(widget, "cut-clipboard");
 }
 
 void on_action_copy_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
+    if(G_UNLIKELY(!widget))
+        return;
     g_signal_emit_by_name(widget, "copy-clipboard");
 }
 
 void on_action_paste_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
+    if(G_UNLIKELY(!widget))
+        return;
     g_signal_emit_by_name(widget, "paste-clipboard");
 }
 
 void on_action_delete_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
+    if(G_UNLIKELY(!widget))
+        return;
     if(WEBKIT_IS_WEB_VIEW(widget))
         webkit_web_view_delete_selection(WEBKIT_WEB_VIEW(widget));
     else if(GTK_IS_EDITABLE(widget))
@@ -103,6 +111,8 @@ void on_action_delete_activate(GtkAction* action, CBrowser* browser)
 void on_action_selectAll_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
+    if(G_UNLIKELY(!widget))
+        return;
     if(GTK_IS_ENTRY(widget))
         gtk_editable_select_region(GTK_EDITABLE(widget), 0, -1);
     else
