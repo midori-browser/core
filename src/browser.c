@@ -115,7 +115,6 @@ void on_action_find_activate(GtkAction* action, CBrowser* browser)
     {
         GtkWidget* webView = get_nth_webView(-1, browser);
         webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
-        gtk_entry_set_text(GTK_ENTRY(browser->findbox_text), "");
         gtk_toggle_tool_button_set_active(
          GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight), FALSE);
         gtk_widget_hide(browser->findbox);
@@ -125,53 +124,46 @@ void on_action_find_activate(GtkAction* action, CBrowser* browser)
         GtkWidget* icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
         sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(browser->findbox_text)
          , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(icon));
+        gtk_entry_set_text(GTK_ENTRY(browser->findbox_text), "");
         gtk_widget_show(browser->findbox);
         gtk_widget_grab_focus(GTK_WIDGET(browser->findbox_text));
     }
 }
 
-void on_action_find_next_activate(GtkAction* action, CBrowser* browser)
+static void findbox_find(gboolean forward, CBrowser* browser)
 {
-    if(!GTK_WIDGET_VISIBLE(browser->findbox))
-        return;
     const gchar* text = gtk_entry_get_text(GTK_ENTRY(browser->findbox_text));
     const gboolean caseSensitive = gtk_toggle_tool_button_get_active(
      GTK_TOGGLE_TOOL_BUTTON(browser->findbox_case));
     GtkWidget* webView = get_nth_webView(-1, browser);
-    GtkWidget* icon;
-    webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
-    if(webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView), text, caseSensitive, TRUE, TRUE))
-        icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
-    else
-        icon = gtk_image_new_from_stock(GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
-    sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(browser->findbox_text)
-     , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(icon));
-    webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
-    const gboolean highlight = gtk_toggle_tool_button_get_active(
-     GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+    if(GTK_WIDGET_VISIBLE(browser->findbox))
+        webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
+    gboolean found = webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView)
+     , text, caseSensitive, forward, TRUE);
+    if(GTK_WIDGET_VISIBLE(browser->findbox))
+    {
+        GtkWidget* icon;
+        if(found)
+            icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
+        else
+            icon = gtk_image_new_from_stock(GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
+        sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(browser->findbox_text)
+         , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(icon));
+        webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
+        const gboolean highlight = gtk_toggle_tool_button_get_active(
+         GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
+        webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+    }
+}
+
+void on_action_find_next_activate(GtkAction* action, CBrowser* browser)
+{
+    findbox_find(TRUE, browser);
 }
 
 void on_action_find_previous_activate(GtkAction* action, CBrowser* browser)
 {
-    if(!GTK_WIDGET_VISIBLE(browser->findbox))
-        return;
-    const gchar* text = gtk_entry_get_text(GTK_ENTRY(browser->findbox_text));
-    const gboolean caseSensitive = gtk_toggle_tool_button_get_active(
-     GTK_TOGGLE_TOOL_BUTTON(browser->findbox_case));
-    GtkWidget* webView = get_nth_webView(-1, browser);
-    webkit_web_view_unmark_text_matches(WEBKIT_WEB_VIEW(webView));
-    GtkWidget* icon;
-    if(webkit_web_view_search_text(WEBKIT_WEB_VIEW(webView), text, caseSensitive, FALSE, TRUE))
-        icon = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
-    else
-        icon = gtk_image_new_from_stock(GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
-    sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(browser->findbox_text)
-     , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(icon));
-    webkit_web_view_mark_text_matches(WEBKIT_WEB_VIEW(webView), text, caseSensitive, 0);
-    const gboolean highlight = gtk_toggle_tool_button_get_active(
-     GTK_TOGGLE_TOOL_BUTTON(browser->findbox_highlight));
-    webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+    findbox_find(FALSE, browser);
 }
 
 void on_findbox_highlight_toggled(GtkToggleToolButton* toolitem, CBrowser* browser)
@@ -179,6 +171,11 @@ void on_findbox_highlight_toggled(GtkToggleToolButton* toolitem, CBrowser* brows
     GtkWidget* webView = get_nth_webView(-1, browser);
     const gboolean highlight = gtk_toggle_tool_button_get_active(toolitem);
     webkit_web_view_set_highlight_text_matches(WEBKIT_WEB_VIEW(webView), highlight);
+}
+
+void on_findbox_button_close_clicked(GtkWidget* widget, CBrowser* browser)
+{
+    gtk_widget_hide(browser->findbox);
 }
 
 void on_action_preferences_activate(GtkAction* action, CBrowser* browser)
@@ -1049,11 +1046,6 @@ void on_notebook_switch_page(GtkWidget* widget, GtkNotebookPage* page
     update_statusbar(browser);
     update_feeds(browser);
     update_search_engines(browser);
-}
-
-void on_findbox_button_close_clicked(GtkWidget* widget, CBrowser* browser)
-{
-    gtk_widget_hide(browser->findbox);
 }
 
 static void on_window_size_allocate(GtkWidget* widget, GtkAllocation* allocation
