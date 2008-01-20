@@ -451,7 +451,7 @@ static const GtkActionEntry entries[] = {
  { "Bookmarks", NULL, "_Bookmarks" },
  { "BookmarkNew", STOCK_BOOKMARK_NEW
  , NULL, "<Ctrl>d"
- , "hm?", NULL/*G_CALLBACK(on_action_bookmark_new_activate)*/ },
+ , "hm?", G_CALLBACK(on_action_bookmark_new_activate) },
  { "BookmarksManage", STOCK_BOOKMARKS
  , "_Manage Bookmarks", "<Ctrl>b"
  , "hm?", NULL/*G_CALLBACK(on_action_bookmarks_manage_activate)*/ },

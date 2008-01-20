@@ -180,18 +180,18 @@ katze_xbel_folder_from_xmlNodePtr (xmlNodePtr cur)
             KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
             priv->items = g_list_prepend (priv->items, item);
         }
-     else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
-     {
-         KatzeXbelItem* item = katze_xbel_bookmark_from_xmlNodePtr (cur);
-         priv->parent = folder;
-         priv->items = g_list_prepend (priv->items, item);
-     }
-     else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
-     {
-         KatzeXbelItem* item = katze_xbel_separator_new ();
-         priv->parent = folder;
-         priv->items = g_list_prepend (priv->items, item);
-     }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
+        {
+            KatzeXbelItem* item = katze_xbel_bookmark_from_xmlNodePtr (cur);
+            KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
+            priv->items = g_list_prepend (priv->items, item);
+        }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
+        {
+            KatzeXbelItem* item = katze_xbel_separator_new ();
+            KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
+            priv->items = g_list_prepend (priv->items, item);
+        }
         cur = cur->next;
     }
     // Prepending and reversing is faster than appending
