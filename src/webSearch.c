@@ -123,7 +123,7 @@ static void on_webSearch_engines_render_text(GtkTreeViewColumn* column
     gtk_tree_model_get(model, iter, ENGINES_COL_ENGINE, &searchEngine, -1);
     const gchar* name = search_engine_get_short_name(searchEngine);
     const gchar* description = search_engine_get_description(searchEngine);
-    gchar* markup = g_strdup_printf("<b>%s</b>\n%s", name, description);
+    gchar* markup = g_markup_printf_escaped("<b>%s</b>\n%s", name, description);
     g_object_set(renderer, "markup", markup, NULL);
     g_free(markup);
 }
