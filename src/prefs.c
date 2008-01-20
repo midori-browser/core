@@ -20,8 +20,7 @@
 static gboolean on_prefs_homepage_focus_out(GtkWidget* widget
  , GdkEventFocus event, CPrefs* prefs)
 {
-    g_free(config->homepage);
-    config->homepage = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    katze_assign(config->homepage, g_strdup(gtk_entry_get_text(GTK_ENTRY(widget))));
     return FALSE;
 }
 
@@ -149,8 +148,7 @@ static void on_prefs_toolbarClosedTabs_toggled(GtkWidget* widget, CPrefs* prefs)
 static gboolean on_prefs_locationsearch_focus_out(GtkWidget* widget
  , GdkEventFocus event, CPrefs* prefs)
 {
-    g_free(config->locationSearch);
-    config->locationSearch = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+    katze_assign(config->locationSearch, g_strdup(gtk_entry_get_text(GTK_ENTRY(widget))));
     return FALSE;
 }
 
@@ -640,7 +638,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
      , (GtkTreeCellDataFunc)on_prefs_protocols_render_icon, prefs, NULL);
     renderer_text = gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer_text), "editable", TRUE, NULL);
-    g_signal_connect(GTK_OBJECT(renderer_text), "edited"
+    g_signal_connect(renderer_text, "edited"
      , G_CALLBACK(on_prefs_protocols_edited), prefs);
     gtk_tree_view_column_pack_start(column, renderer_text, TRUE);
     gtk_tree_view_column_add_attribute(column, renderer_text, "text", PROTOCOLS_COL_COMMAND);

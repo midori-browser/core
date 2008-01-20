@@ -138,7 +138,8 @@ gboolean spawn_protocol_command(const gchar* protocol, const gchar* res)
         show_error("Could not run external program.", error->message, NULL);
         g_error_free(error);
     }
-    g_free(commandReady); g_free(uriEscaped);
+    g_free(commandReady);
+    g_free(uriEscaped);
     return TRUE;
 }
 
@@ -288,7 +289,6 @@ void action_set_active(const gchar* name, gboolean active, CBrowser* browser)
 {
     // This shortcut toggles activity state by an action name
     GtkAction* action = gtk_action_group_get_action(browser->actiongroup, name);
-    g_return_if_fail(GTK_IS_ACTION(action));
     gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), active);
 }
 
@@ -296,7 +296,6 @@ void action_set_sensitive(const gchar* name, gboolean sensitive, CBrowser* brows
 {
     // This shortcut toggles sensitivity by an action name
     GtkAction* action = gtk_action_group_get_action(browser->actiongroup, name);
-    g_return_if_fail(GTK_IS_ACTION(action));
     gtk_action_set_sensitive(action, sensitive);
 }
 
@@ -304,7 +303,6 @@ void action_set_visible(const gchar* name, gboolean visible, CBrowser* browser)
 {
     // This shortcut toggles visibility by an action name
     GtkAction* action = gtk_action_group_get_action(browser->actiongroup, name);
-    g_return_if_fail(GTK_IS_ACTION(action));
     gtk_action_set_visible(action, visible);
 }
 
@@ -360,7 +358,7 @@ void update_gui_state(CBrowser* browser)
     action_set_sensitive("ZoomIn", FALSE, browser);//webkit_web_view_can_increase_text_size(WEBKIT_WEB_VIEW(webView), browser);
     action_set_sensitive("ZoomOut", FALSE, browser);//webkit_web_view_can_decrease_text_size(WEBKIT_WEB_VIEW(webView)), browser);
     action_set_sensitive("ZoomNormal", FALSE, browser);//webkit_web_view_get_text_size(WEBKIT_WEB_VIEW(webView)) != 1, browser);
-    action_set_sensitive("Back", webkit_web_view_can_go_backward(WEBKIT_WEB_VIEW(webView)), browser);
+    action_set_sensitive("Back", webkit_web_view_can_go_back(WEBKIT_WEB_VIEW(webView)), browser);
     action_set_sensitive("Forward", webkit_web_view_can_go_forward(WEBKIT_WEB_VIEW(webView)), browser);
     action_set_sensitive("Refresh", browser->loadedPercent == -1, browser);
     action_set_sensitive("Stop", browser->loadedPercent != -1, browser);

@@ -12,6 +12,7 @@
 #include "search.h"
 
 #include "sokoke.h"
+#include "../katze/katze.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -86,13 +87,8 @@ gboolean search_engines_to_file(GList* searchEngines, const gchar* filename
 
 SearchEngine* search_engine_new()
 {
-    SearchEngine* engine = g_new(SearchEngine, 1);
+    SearchEngine* engine = g_new0(SearchEngine, 1);
     engine->shortName = g_strdup("");
-    engine->description = NULL;
-    engine->url = NULL;
-    engine->inputEncoding = NULL;
-    engine->icon = NULL;
-    engine->keyword = NULL;
     return engine;
 }
 
@@ -169,41 +165,35 @@ void search_engine_set_short_name(SearchEngine* engine, const gchar* shortName)
 {
     g_return_if_fail(engine);
     g_return_if_fail(shortName);
-    g_free(engine->shortName);
-    engine->shortName = g_strdup(shortName);
+    katze_assign(engine->shortName, g_strdup(shortName));
 }
 
 void search_engine_set_description(SearchEngine* engine, const gchar* description)
 {
     g_return_if_fail(engine);
-    g_free(engine->description);
-    engine->description = g_strdup(description);
+    katze_assign(engine->description, g_strdup(description));
 }
 
 void search_engine_set_url(SearchEngine* engine, const gchar* url)
 {
     g_return_if_fail(engine);
-    g_free(engine->url);
-    engine->url = g_strdup(url);
+    katze_assign(engine->url, g_strdup(url));
 }
 
 void search_engine_set_input_encoding(SearchEngine* engine, const gchar* inputEncoding)
 {
     g_return_if_fail(engine);
-    g_free(engine->inputEncoding);
-    engine->inputEncoding = g_strdup(inputEncoding);
+    katze_assign(engine->inputEncoding, g_strdup(inputEncoding));
 }
 
 void search_engine_set_icon(SearchEngine* engine, const gchar* icon)
 {
     g_return_if_fail(engine);
-    g_free(engine->icon);
-    engine->icon = g_strdup(icon);
+    katze_assign(engine->icon, g_strdup(icon));
 }
 
 void search_engine_set_keyword(SearchEngine* engine, const gchar* keyword)
 {
     g_return_if_fail(engine);
-    g_free(engine->keyword);
-    engine->keyword = g_strdup(keyword);
+    katze_assign(engine->keyword, g_strdup(keyword));
 }

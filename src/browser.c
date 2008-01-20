@@ -76,47 +76,46 @@ void on_action_edit_activate(GtkAction* action, CBrowser* browser)
 void on_action_cut_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
-    if(G_UNLIKELY(!widget))
-        return;
-    g_signal_emit_by_name(widget, "cut-clipboard");
+    if(G_LIKELY(widget))
+        g_signal_emit_by_name(widget, "cut-clipboard");
 }
 
 void on_action_copy_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
-    if(G_UNLIKELY(!widget))
-        return;
-    g_signal_emit_by_name(widget, "copy-clipboard");
+    if(G_LIKELY(widget))
+        g_signal_emit_by_name(widget, "copy-clipboard");
 }
 
 void on_action_paste_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
-    if(G_UNLIKELY(!widget))
-        return;
-    g_signal_emit_by_name(widget, "paste-clipboard");
+    if(G_LIKELY(widget))
+        g_signal_emit_by_name(widget, "paste-clipboard");
 }
 
 void on_action_delete_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
-    if(G_UNLIKELY(!widget))
-        return;
-    if(WEBKIT_IS_WEB_VIEW(widget))
-        webkit_web_view_delete_selection(WEBKIT_WEB_VIEW(widget));
-    else if(GTK_IS_EDITABLE(widget))
-        gtk_editable_delete_selection(GTK_EDITABLE(widget));
+    if(G_LIKELY(widget))
+    {
+        if(WEBKIT_IS_WEB_VIEW(widget))
+            webkit_web_view_delete_selection(WEBKIT_WEB_VIEW(widget));
+        else if(GTK_IS_EDITABLE(widget))
+            gtk_editable_delete_selection(GTK_EDITABLE(widget));
+    }
 }
 
 void on_action_selectAll_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus(GTK_WINDOW(browser->window));
-    if(G_UNLIKELY(!widget))
-        return;
-    if(GTK_IS_ENTRY(widget))
-        gtk_editable_select_region(GTK_EDITABLE(widget), 0, -1);
-    else
-        g_signal_emit_by_name(widget, "select-all");
+    if(G_LIKELY(widget))
+    {
+        if(GTK_IS_ENTRY(widget))
+            gtk_editable_select_region(GTK_EDITABLE(widget), 0, -1);
+        else
+            g_signal_emit_by_name(widget, "select-all");
+    }
 }
 
 void on_action_find_activate(GtkAction* action, CBrowser* browser)
@@ -293,7 +292,7 @@ void on_action_source_view_activate(GtkAction* action, CBrowser* browser)
 
 void on_action_back_activate(GtkAction* action, CBrowser* browser)
 {
-    webkit_web_view_go_backward(WEBKIT_WEB_VIEW(get_nth_webView(-1, browser)));
+    webkit_web_view_go_back(WEBKIT_WEB_VIEW(get_nth_webView(-1, browser)));
 }
 
 void on_action_forward_activate(GtkAction* action, CBrowser* browser)
@@ -980,13 +979,13 @@ void on_action_panel_item_activate(GtkRadioAction* action
 void on_action_openInPanel_activate(GtkAction* action, CBrowser* browser)
 {
     GtkWidget* webView = get_nth_webView(-1, browser);
-    g_free(config->panelPageholder);
     WebKitWebFrame* frame = webkit_web_view_get_main_frame(WEBKIT_WEB_VIEW(webView));
     const gchar* uri = webkit_web_frame_get_uri(frame);
-    config->panelPageholder = g_strdup(uri);
+    katze_assign(config->panelPageholder, g_strdup(uri));
     GtkAction* action_pageholder =
      gtk_action_group_get_action(browser->actiongroup, "PanelPageholder");
-    gint value; g_object_get(G_OBJECT(action_pageholder), "value", &value, NULL);
+    gint value;
+    g_object_get(G_OBJECT(action_pageholder), "value", &value, NULL);
     sokoke_radio_action_set_current_value(GTK_RADIO_ACTION(action_pageholder), value);
     gtk_widget_show(browser->panels);
     webView_open(browser->panel_pageholder, config->panelPageholder);
@@ -1061,13 +1060,14 @@ void on_notebook_switch_page(GtkWidget* widget, GtkNotebookPage* page
 static void on_window_size_allocate(GtkWidget* widget, GtkAllocation* allocation
  , CBrowser* browser)
 {
-     if(!GTK_WIDGET_REALIZED(widget))
-         return;
-     if(!(gdk_window_get_state(widget->window)
-      & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
+     if(GTK_WIDGET_REALIZED(widget))
      {
-         config->winWidth = allocation->width;
-         config->winHeight = allocation->height;
+         if(!(gdk_window_get_state(widget->window)
+          & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
+         {
+             config->winWidth = allocation->width;
+             config->winHeight = allocation->height;
+         }
      }
 }
 
@@ -1602,7 +1602,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     gint page = gtk_notebook_get_current_page(GTK_NOTEBOOK(browser->webViews));
     page = gtk_notebook_insert_page(GTK_NOTEBOOK(browser->webViews)
      , scrolled, GTK_WIDGET(eventbox), page + 1);
-    g_signal_connect_after(GTK_OBJECT(browser->webViews), "switch-page"
+    g_signal_connect_after(browser->webViews, "switch-page"
      , G_CALLBACK(on_notebook_switch_page), browser);
     #if GTK_CHECK_VERSION(2, 10, 0)
     gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(browser->webViews), scrolled, TRUE);

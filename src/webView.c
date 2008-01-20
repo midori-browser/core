@@ -95,8 +95,7 @@ void on_webView_load_committed(GtkWidget* webView, WebKitWebFrame* frame
     {
         gtk_entry_set_text(GTK_ENTRY(browser->location), newUri);
         gtk_label_set_text(GTK_LABEL(browser->webView_name), newUri);
-        g_free(browser->statusMessage);
-        browser->statusMessage = NULL;
+        katze_assign(browser->statusMessage, NULL);
     }
 }
 
@@ -118,8 +117,7 @@ void on_webView_load_finished(GtkWidget* webView, WebKitWebFrame* widget
 
 void on_webView_status_message(GtkWidget* webView, const gchar* text, CBrowser* browser)
 {
-    g_free(browser->statusMessage);
-    browser->statusMessage = g_strdup(text);
+    katze_assign(browser->statusMessage, g_strdup(text));
     update_statusbar(browser);
 }
 
@@ -137,11 +135,9 @@ gboolean on_webView_console_message(GtkWidget* webView
 void on_webView_link_hover(GtkWidget* webView, const gchar* tooltip
  , const gchar* uri, CBrowser* browser)
 {
-    g_free(browser->statusMessage);
-    browser->statusMessage = g_strdup(uri);
+    katze_assign(browser->statusMessage, g_strdup(uri));
     update_statusbar(browser);
-    g_free(browser->elementUri);
-    browser->elementUri = g_strdup(uri);
+    katze_assign(browser->elementUri, g_strdup(uri));
 }
 
 /*
@@ -215,7 +211,8 @@ gboolean on_webView_button_press(GtkWidget* webView, GdkEventButton* event
     switch(event->button)
     {
     case 1:
-        if(!browser->elementUri) return FALSE;
+        if(!browser->elementUri)
+            return FALSE;
         if(state & GDK_SHIFT_MASK)
         {
             // Open link in new window
@@ -239,7 +236,8 @@ gboolean on_webView_button_press(GtkWidget* webView, GdkEventButton* event
         }
         else
         {
-            if(!browser->elementUri) return FALSE;
+            if(!browser->elementUri)
+                return FALSE;
             // Open link in new tab
             CBrowser* curBrowser = browser_new(browser);
             webkit_web_view_open(WEBKIT_WEB_VIEW(curBrowser->webView), browser->elementUri);
@@ -279,8 +277,7 @@ gboolean on_webView_scroll(GtkWidget* webView, GdkEventScroll* event
 
 gboolean on_webView_leave(GtkWidget* webView, GdkEventCrossing* event, CBrowser* browser)
 {
-    g_free(browser->statusMessage);
-    browser->statusMessage = NULL;
+    katze_assign(browser->statusMessage, NULL);
     update_statusbar(browser);
     return TRUE;
 }
@@ -323,7 +320,7 @@ GtkWidget* webView_new(GtkWidget** scrolled)
 
 void webView_open(GtkWidget* webView, const gchar* uri)
 {
-    webkit_web_view_open(WEBKIT_WEB_VIEW(webView), (gchar*)uri);
+    webkit_web_view_open(WEBKIT_WEB_VIEW(webView), uri);
     // We need to check the browser first
     // No browser means this is a panel
     CBrowser* browser = get_browser_from_webView(webView);

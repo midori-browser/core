@@ -381,7 +381,9 @@ void sokoke_entry_set_can_undo(GtkEntry* entry, gboolean canUndo)
     }
     else
     {
-        ; // TODO: disconnect signal
-        UNIMPLEMENTED
+        g_signal_handlers_disconnect_by_func(entry
+         , G_CALLBACK(sokoke_on_undo_entry_key_down), NULL);
+        g_signal_handlers_disconnect_by_func(entry
+         , G_CALLBACK(sokoke_on_undo_entry_populate_popup), NULL);
     }
 }
