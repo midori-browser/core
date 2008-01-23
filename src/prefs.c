@@ -80,6 +80,20 @@ static void on_prefs_enablePlugins_toggled(GtkWidget* widget, CPrefs* prefs)
     g_object_set(webSettings, "enable-plugins", config->enablePlugins, NULL);
 }
 
+static void on_prefs_userStylesheet_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->userStylesheet = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    gtk_widget_set_sensitive(prefs->userStylesheetUri, config->userStylesheet);
+    const gchar* uri = config->userStylesheet ? config->userStylesheetUri : "";
+    g_object_set(webSettings, "user-stylesheet-uri", uri, NULL);
+}
+
+static void on_prefs_userStylesheetUri_file_set(GtkWidget* widget, CPrefs* prefs)
+{
+    katze_assign(config->userStylesheetUri, g_strdup(gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(widget))));
+    g_object_set(webSettings, "user-stylesheet-uri", config->userStylesheetUri, NULL);
+}
+
 static void on_prefs_toolbarstyle_changed(GtkWidget* widget, CPrefs* prefs)
 {
     config->toolbarStyle = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
@@ -422,15 +436,15 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_openTabsInTheBackground_toggled), prefs);
     SPANNED_ADD(checkbutton, 0, 2, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Open _popups in tabs");
+    checkbutton = gtk_check_button_new_with_mnemonic("Open popups in _tabs");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openPopupsInTabs);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_openPopupsInTabs_toggled), prefs);
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 2, 3);
     FRAME_NEW("Features");
-    TABLE_NEW(3, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Load _images automatically");
+    TABLE_NEW(4, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Load _images");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoLoadImages);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_loadImagesAutomatically_toggled), prefs);
@@ -460,6 +474,19 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_enablePlugins_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 2, 3);
+    checkbutton = gtk_check_button_new_with_mnemonic("_User Stylesheet");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->userStylesheet);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_userStylesheet_toggled), prefs);
+    INDENTED_ADD(checkbutton, 0, 1, 3, 4);
+    filebutton = gtk_file_chooser_button_new(
+     "Choose user stylesheet", GTK_FILE_CHOOSER_ACTION_OPEN);
+    prefs->userStylesheetUri = filebutton;
+    gtk_file_chooser_set_uri(GTK_FILE_CHOOSER(filebutton), config->userStylesheetUri);
+    g_signal_connect(filebutton, "file-set"
+     , G_CALLBACK(on_prefs_userStylesheetUri_file_set), prefs);
+    gtk_widget_set_sensitive(filebutton, config->userStylesheet);
+    FILLED_ADD(filebutton, 1, 2, 3, 4);
 
     // Page "Interface"
     PAGE_NEW("Interface");

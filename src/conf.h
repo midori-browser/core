@@ -42,6 +42,7 @@ typedef struct _CConfig
     gboolean autoShrinkImages;
     gboolean printBackgrounds;
     gboolean resizableTextAreas;
+    gboolean userStylesheet;
     gchar* userStylesheetUri;
     gboolean enableScripts;
     gboolean enablePlugins;

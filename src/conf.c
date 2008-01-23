@@ -77,6 +77,7 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     GET_INT(config->autoShrinkImages, "AutoShrinkImages", TRUE);
     GET_INT(config->printBackgrounds, "PrintBackgrounds", FALSE);
     GET_INT(config->resizableTextAreas, "ResizableTextAreas", FALSE);
+    GET_INT(config->userStylesheet, "UserStylesheet", FALSE);
     GET_STR(config->userStylesheetUri, "UserStylesheetUri", "");
     GET_INT(config->enableScripts, "EnableScripts", TRUE);
     GET_INT(config->enablePlugins, "EnablePlugins", TRUE);
@@ -147,6 +148,7 @@ gboolean config_to_file(CConfig* config, const gchar* filename, GError** error)
     g_key_file_set_integer(keyFile, "content", "AutoShrinkImages", config->autoShrinkImages);
     g_key_file_set_integer(keyFile, "content", "PrintBackgrounds", config->printBackgrounds);
     g_key_file_set_integer(keyFile, "content", "ResizableTextAreas", config->resizableTextAreas);
+    g_key_file_set_integer(keyFile, "content", "UserStylesheet", config->userStylesheet);
     g_key_file_set_string (keyFile, "content", "UserStylesheetUri", config->userStylesheetUri);
     g_key_file_set_integer(keyFile, "content", "EnableScripts", config->enableScripts);
     g_key_file_set_integer(keyFile, "content", "EnablePlugins", config->enablePlugins);

@@ -250,7 +250,7 @@ int main(int argc, char** argv)
      , "auto-shrink-images"  , config->autoShrinkImages
      , "print-backgrounds"   , config->printBackgrounds
      , "resizable-text-areas", config->resizableTextAreas
-     , "user-stylesheet-uri" , config->userStylesheetUri
+     , "user-stylesheet-uri" , config->userStylesheet ? config->userStylesheetUri : NULL
      , "enable-scripts"      , config->enableScripts
      , "enable-plugins"      , config->enablePlugins
      , NULL);

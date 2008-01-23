@@ -22,6 +22,7 @@ typedef struct
 {
     CBrowser* browser;
     //GtkWidget* window;
+    GtkWidget* userStylesheetUri;
     GtkWidget* treeview;
     GtkWidget* combobox;
     GtkWidget* add;
