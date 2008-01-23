@@ -16,12 +16,14 @@
 #include "../katze/katze.h"
 
 #include <gtk/gtk.h>
+#include <webkit.h>
 
 // -- globals
 
 CConfig* config;
 GList* searchEngines; // Items of type 'SearchEngine'
 GList* browsers; // Items of type 'CBrowser'
+WebKitWebSettings* webSettings;
 GtkAccelGroup* accel_group;
 KatzeXbelItem* bookmarks;
 KatzeXbelItem* session;

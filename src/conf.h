@@ -37,10 +37,13 @@ typedef struct _CConfig
     gboolean openTabsInTheBackground;
     gboolean openPopupsInTabs;
 
-    gboolean loadImagesAutomatically;
-    gboolean shrinkImagesToFit;
+    
+    gboolean autoLoadImages;
+    gboolean autoShrinkImages;
+    gboolean printBackgrounds;
     gboolean resizableTextAreas;
-    gboolean enableJavaScript;
+    gchar* userStylesheetUri;
+    gboolean enableScripts;
     gboolean enablePlugins;
 
     gboolean rememberWinSize; // Restore window size upon startup?

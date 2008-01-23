@@ -1703,22 +1703,14 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     DOC_CONNECT  ("hovering-over-link"          , on_webView_link_hover)
     DOC_CONNECT  ("console-message"             , on_webView_console_message)
 
-    // For now we check for "plugins-enabled", in case this build has no properties
-    if(g_object_class_find_property(G_OBJECT_GET_CLASS(browser->webView), "plugins-enabled"))
-        g_object_set(G_OBJECT(browser->webView)
-         , "loads-images-automatically"      , config->loadImagesAutomatically
-         , "shrinks-standalone-images-to-fit", config->shrinkImagesToFit
-         , "text-areas-are-resizable"        , config->resizableTextAreas
-         , "java-script-enabled"             , config->enableJavaScript
-         , "plugins-enabled"                 , config->enablePlugins
-         , NULL);
-
     DOC_CONNECT  ("button-press-event"          , on_webView_button_press)
     DOC_CONNECT  ("popup-menu"                  , on_webView_popup);
     DOC_CONNECT  ("scroll-event"                , on_webView_scroll);
     DOC_CONNECT  ("leave-notify-event"          , on_webView_leave)
     DOC_CONNECT  ("destroy"                     , on_webView_destroy)
     #undef DOC_CONNECT
+
+    webkit_web_view_set_settings(WEBKIT_WEB_VIEW(browser->webView), webSettings);
 
     // Eventually pack and display everything
     sokoke_widget_set_visible(browser->navibar, config->toolbarNavigation);

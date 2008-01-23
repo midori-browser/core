@@ -46,42 +46,38 @@ static void on_prefs_openPopupsInTabs_toggled(GtkWidget* widget, CPrefs* prefs)
 
 static void on_prefs_loadImagesAutomatically_toggled(GtkWidget* widget, CPrefs* prefs)
 {
-    config->loadImagesAutomatically = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    // FIXME: Apply the change to all open webViews
-    g_object_set(get_nth_webView(-1, prefs->browser)
-     , "loads-images-automatically", config->loadImagesAutomatically, NULL);
+    config->autoLoadImages = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    g_object_set(webSettings, "auto-load-images", config->autoLoadImages, NULL);
 }
 
 static void on_prefs_shrinkImagesToFit_toggled(GtkWidget* widget, CPrefs* prefs)
 {
-    config->shrinkImagesToFit = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    // FIXME: Apply the change to all open webViews
-    g_object_set(get_nth_webView(-1, prefs->browser)
-     , "shrinks-standalone-images-to-fit", config->shrinkImagesToFit, NULL);
+    config->autoShrinkImages = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    g_object_set(webSettings, "auto-shrink-images", config->autoShrinkImages, NULL);
+}
+
+static void on_prefs_printBackgrounds_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->printBackgrounds = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    g_object_set(webSettings, "print-backgrounds", config->printBackgrounds, NULL);
 }
 
 static void on_prefs_resizableTextAreas_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->resizableTextAreas = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    // FIXME: Apply the change to all open webViews
-    g_object_set(get_nth_webView(-1, prefs->browser)
-     , "text-areas-are-resizable", config->resizableTextAreas, NULL);
+    g_object_set(webSettings, "resizable-text-areas", config->resizableTextAreas, NULL);
 }
 
 static void on_prefs_enableJavaScript_toggled(GtkWidget* widget, CPrefs* prefs)
 {
-    config->enableJavaScript = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    // FIXME: Apply the change to all open webViews
-    g_object_set(get_nth_webView(-1, prefs->browser)
-     , "java-script-enabled", config->enableJavaScript, NULL);
+    config->enableScripts = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    g_object_set(webSettings, "enable-scripts", config->enableScripts, NULL);
 }
 
 static void on_prefs_enablePlugins_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->enablePlugins = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    // FIXME: Apply the change to all open webViews
-    g_object_set(get_nth_webView(-1, prefs->browser)
-     , "plugins-enabled", config->enablePlugins, NULL);
+    g_object_set(webSettings, "enable-plugins", config->enablePlugins, NULL);
 }
 
 static void on_prefs_toolbarstyle_changed(GtkWidget* widget, CPrefs* prefs)
@@ -435,33 +431,35 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     FRAME_NEW("Features");
     TABLE_NEW(3, 2);
     checkbutton = gtk_check_button_new_with_mnemonic("Load _images automatically");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->loadImagesAutomatically);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoLoadImages);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_loadImagesAutomatically_toggled), prefs);
     SPANNED_ADD(checkbutton, 0, 1, 0, 1);
     checkbutton = gtk_check_button_new_with_mnemonic("_Shrink images to fit");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->shrinkImagesToFit);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoShrinkImages);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_shrinkImagesToFit_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic("Print _backgrounds");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->printBackgrounds);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_printBackgrounds_toggled), prefs);
+    SPANNED_ADD(checkbutton, 0, 1, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic("_Resizable textareas");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->resizableTextAreas);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_resizableTextAreas_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Enable java_script");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enableJavaScript);
+    SPANNED_ADD(checkbutton, 1, 2, 1, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Enable _scripts");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enableScripts);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_enableJavaScript_toggled), prefs);
-    SPANNED_ADD(checkbutton, 1, 2, 1, 2);
+    SPANNED_ADD(checkbutton, 0, 1, 2, 3);
     checkbutton = gtk_check_button_new_with_mnemonic("Enable _plugins");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enablePlugins);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_enablePlugins_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 2, 3);
-    // For now we check for "plugins-enabled", in case this build has no properties
-    if(!g_object_class_find_property(G_OBJECT_GET_CLASS(browser->webView), "plugins-enabled"))
-        gtk_widget_set_sensitive(frame, FALSE);
+    SPANNED_ADD(checkbutton, 1, 2, 2, 3);
 
     // Page "Interface"
     PAGE_NEW("Interface");

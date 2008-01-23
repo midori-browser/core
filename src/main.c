@@ -244,6 +244,17 @@ int main(int argc, char** argv)
     stock_items_init();
     browsers = NULL;
 
+    webSettings = webkit_web_settings_new();
+    g_object_set(webSettings
+     , "auto-load-images"    , config->autoLoadImages
+     , "auto-shrink-images"  , config->autoShrinkImages
+     , "print-backgrounds"   , config->printBackgrounds
+     , "resizable-text-areas", config->resizableTextAreas
+     , "user-stylesheet-uri" , config->userStylesheetUri
+     , "enable-scripts"      , config->enableScripts
+     , "enable-plugins"      , config->enablePlugins
+     , NULL);
+
     session = katze_xbel_folder_new();
     CBrowser* browser = NULL;
     guint n = katze_xbel_folder_get_n_items(_session);

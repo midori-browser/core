@@ -73,10 +73,12 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     #define GET_STR(var, key, default) \
      var = sokoke_key_file_get_string_default( \
      keyFile, "content", key, default, NULL)
-    GET_INT(config->loadImagesAutomatically, "LoadImagesAutomatically", TRUE);
-    GET_INT(config->shrinkImagesToFit, "ShrinkImagesTooFit", TRUE);
+    GET_INT(config->autoLoadImages, "AutoLoadImages", TRUE);
+    GET_INT(config->autoShrinkImages, "AutoShrinkImages", TRUE);
+    GET_INT(config->printBackgrounds, "PrintBackgrounds", FALSE);
     GET_INT(config->resizableTextAreas, "ResizableTextAreas", FALSE);
-    GET_INT(config->enableJavaScript, "EnableJavaScript", TRUE);
+    GET_STR(config->userStylesheetUri, "UserStylesheetUri", "");
+    GET_INT(config->enableScripts, "EnableScripts", TRUE);
     GET_INT(config->enablePlugins, "EnablePlugins", TRUE);
     #undef GET_INT
     #undef GET_STR
@@ -141,10 +143,12 @@ gboolean config_to_file(CConfig* config, const gchar* filename, GError** error)
     g_key_file_set_integer(keyFile, "browser", "OpenTabsInTheBackground", config->openTabsInTheBackground);
     g_key_file_set_integer(keyFile, "browser", "OpenPopupsInTabs", config->openPopupsInTabs);
 
-    g_key_file_set_integer(keyFile, "content", "LoadImagesAutomatically", config->loadImagesAutomatically);
-    g_key_file_set_integer(keyFile, "content", "ShrinkImagesToFit", config->shrinkImagesToFit);
+    g_key_file_set_integer(keyFile, "content", "AutoLoadImages", config->autoLoadImages);
+    g_key_file_set_integer(keyFile, "content", "AutoShrinkImages", config->autoShrinkImages);
+    g_key_file_set_integer(keyFile, "content", "PrintBackgrounds", config->printBackgrounds);
     g_key_file_set_integer(keyFile, "content", "ResizableTextAreas", config->resizableTextAreas);
-    g_key_file_set_integer(keyFile, "content", "EnableJavaScript", config->enableJavaScript);
+    g_key_file_set_string (keyFile, "content", "UserStylesheetUri", config->userStylesheetUri);
+    g_key_file_set_integer(keyFile, "content", "EnableScripts", config->enableScripts);
     g_key_file_set_integer(keyFile, "content", "EnablePlugins", config->enablePlugins);
 
     g_key_file_set_integer(keyFile, "session", "RememberWinSize", config->rememberWinSize);
