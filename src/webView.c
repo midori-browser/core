@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -247,6 +247,28 @@ gboolean on_webView_button_press(GtkWidget* webView, GdkEventButton* event
     case 3:
         webView_popup(webView, event, browser);
         return TRUE;
+    }
+    return FALSE;
+}
+
+gboolean on_webView_button_press_after(GtkWidget* webView, GdkEventButton* event
+ , CBrowser* browser)
+{
+    if(event->button == 2 && config->middleClickGoto)
+    {
+        GtkClipboard* clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+        gchar* text = gtk_clipboard_wait_for_text(clipboard);
+        gchar* uri = NULL;
+        if(text && g_regex_match_simple("^[^ ]*$", text
+         , G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+            uri = magic_uri(text, FALSE);
+        g_free(text);
+        if(uri)
+        {
+            webkit_web_view_open(WEBKIT_WEB_VIEW(browser->webView), uri);
+            g_free(uri);
+            return TRUE;
+        }
     }
     return FALSE;
 }

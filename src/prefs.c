@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
 #include "global.h"
 #include "sokoke.h"
 
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
 
 static gboolean on_prefs_homepage_focus_out(GtkWidget* widget
  , GdkEventFocus event, CPrefs* prefs)
@@ -29,9 +30,63 @@ static void on_prefs_loadonstartup_changed(GtkWidget* widget, CPrefs* prefs)
     config->startup = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
 }
 
+static void on_prefs_defaultFont_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    const gchar* font = gtk_font_button_get_font_name(GTK_FONT_BUTTON(widget));
+    gchar** components = g_strsplit(font, " ", 0);
+    guint i, n = g_strv_length(components) - 1;
+    GString* fontName = g_string_new(NULL);
+    for(i = 0; i < n; i++)
+        g_string_append_printf(fontName, "%s ", components[i]);
+    katze_assign(config->defaultFontFamily, g_string_free(fontName, FALSE));
+    config->defaultFontSize = atoi(components[n]);
+    g_strfreev(components);
+    g_object_set(webSettings, "default-font-family", config->defaultFontFamily
+     , "default-font-size", config->defaultFontSize, NULL);
+}
+
+static void on_prefs_minimumFontSize_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    config->minimumFontSize = gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget));
+    g_object_set(webSettings, "minimum-font-size", config->minimumFontSize, NULL);
+}
+
+static void on_prefs_defaultEncoding_changed(GtkWidget* widget, CPrefs* prefs)
+{
+    gchar* encoding;
+    switch(gtk_combo_box_get_active(GTK_COMBO_BOX(widget)))
+    {
+    case 0:
+        encoding = g_strdup("BIG5");
+        break;
+    case 1:
+        encoding = g_strdup("SHIFT_JIS");
+        break;
+    case 2:
+        encoding = g_strdup("KOI8-R");
+        break;
+    case 3:
+        encoding = g_strdup("UTF-8");
+        break;
+    case 4:
+        encoding = g_strdup("ISO-8859-1");
+        break;
+    default:
+        encoding = g_strdup("UTF-8");
+        g_warning("Invalid default encoding");
+    }
+    katze_assign(config->defaultEncoding, encoding);
+    g_object_set(webSettings, "default-encoding", config->defaultEncoding, NULL);
+}
+
 static void on_prefs_newpages_changed(GtkWidget* widget, CPrefs* prefs)
 {
     config->newPages = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
+}
+
+void on_prefs_middleClickGoto_toggled(GtkWidget* widget, CPrefs* prefs)
+{
+    config->middleClickGoto = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 }
 
 void on_prefs_openTabsInTheBackground_toggled(GtkWidget* widget, CPrefs* prefs)
@@ -302,7 +357,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     #define WIDGET_ADD(__widget, __left, __right, __top, __bottom)\
      gtk_table_attach(GTK_TABLE(table), __widget\
       , __left, __right, __top, __bottom\
-      , 0, GTK_FILL, 8, 2)
+      , GTK_FILL, GTK_FILL, 8, 2)
     #define FILLED_ADD(__widget, __left, __right, __top, __bottom)\
      gtk_table_attach(GTK_TABLE(table), __widget\
       , __left, __right, __top, __bottom\
@@ -371,30 +426,42 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     PAGE_NEW("Appearance");
     FRAME_NEW("Font settings");
     TABLE_NEW(5, 2);
-    INDENTED_ADD(gtk_label_new("Standard font"), 0, 1, 0, 1);
-    button = gtk_font_button_new_with_font("Sans 10"/*config->sFontStandard*/);
-    gtk_widget_set_sensitive(button, FALSE); //...
+    INDENTED_ADD(gtk_label_new_with_mnemonic("Default _font"), 0, 1, 0, 1);
+    gchar* defaultFont = g_strdup_printf("%s %d"
+     , config->defaultFontFamily, config->defaultFontSize);
+    button = gtk_font_button_new_with_font(defaultFont);
+    g_free(defaultFont);
+    g_signal_connect(button, "font-set", G_CALLBACK(on_prefs_defaultFont_changed), prefs);
     FILLED_ADD(button, 1, 2, 0, 1);
-    INDENTED_ADD(gtk_label_new("Minimum font size"), 0, 1, 1, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("_Minimum font size"), 0, 1, 1, 2);
     hbox = gtk_hbox_new(FALSE, 4);
-    spinbutton = gtk_spin_button_new_with_range(5, 12, 1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 5/*config->iFontSizeMin*/);
-    gtk_widget_set_sensitive(spinbutton, FALSE); //...
+    spinbutton = gtk_spin_button_new_with_range(1, 5, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), config->minimumFontSize);
+    g_signal_connect(spinbutton, "value-changed"
+     , G_CALLBACK(on_prefs_minimumFontSize_changed), prefs);
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
     button = gtk_button_new_with_mnemonic("_Advanced");
     gtk_widget_set_sensitive(button, FALSE); //...
     gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
     FILLED_ADD(hbox, 1, 2, 1, 2);
-    INDENTED_ADD(gtk_label_new("Default encoding"), 0, 1, 2, 3);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("Default _encoding"), 0, 1, 2, 3);
     combobox = gtk_combo_box_new_text();
-    const gchar* encoding = NULL; g_get_charset(&encoding);
-    // TODO: Fallback to utf-8 if the encoding is not sane (e.g. when lang=C)
-    gchar* sEncodingDefault = g_strdup_printf("System (%s)", encoding);
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , sEncodingDefault, "Chinese", "Greek", "Japanese (SHIFT_JIS)"
-     , "Korean", "Russian", "Unicode (UTF-8)", "Western (ISO-8859-1)", NULL);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0); //...
-    gtk_widget_set_sensitive(combobox, FALSE); //...
+     , "Chinese (BIG5)", "Japanese (SHIFT_JIS)", "Russian (KOI8-R)"
+     , "Unicode (UTF-8)", "Western (ISO-8859-1)", NULL);
+    if(!strcmp(config->defaultEncoding, "BIG5"))
+        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+    else if(!strcmp(config->defaultEncoding, "SHIFT_JIS"))
+        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
+    else if(!strcmp(config->defaultEncoding, "KOI8-R"))
+        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 2);
+    else if(!strcmp(config->defaultEncoding, "UTF-8"))
+        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 3);
+    else if(!strcmp(config->defaultEncoding, "ISO-8859-1"))
+        gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 4);
+    // FIXME: Provide a 'Custom' item
+    g_signal_connect(combobox, "changed"
+     , G_CALLBACK(on_prefs_defaultEncoding_changed), prefs);
     FILLED_ADD(combobox, 1, 2, 2, 3);
     button = gtk_button_new_with_label("Advanced settings");
     gtk_widget_set_sensitive(button, FALSE); //...
@@ -427,15 +494,19 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
      , "New tab", "New window", "Current tab", NULL);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->newPages);
-    g_signal_connect(combobox, "changed"
-     , G_CALLBACK(on_prefs_newpages_changed), prefs);
+    g_signal_connect(combobox, "changed", G_CALLBACK(on_prefs_newpages_changed), prefs);
     gtk_widget_set_sensitive(combobox, FALSE); //...
     FILLED_ADD(combobox, 1, 2, 0, 1);
+    checkbutton = gtk_check_button_new_with_mnemonic("_Middle click goto");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->middleClickGoto);
+    g_signal_connect(checkbutton, "toggled"
+     , G_CALLBACK(on_prefs_middleClickGoto_toggled), prefs);
+    INDENTED_ADD(checkbutton, 0, 1, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic("Open tabs in the _background");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openTabsInTheBackground);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_openTabsInTheBackground_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 2, 1, 2);
+    SPANNED_ADD(checkbutton, 1, 2, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic("Open popups in _tabs");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openPopupsInTabs);
     g_signal_connect(checkbutton, "toggled"
@@ -448,7 +519,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoLoadImages);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_loadImagesAutomatically_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 0, 1);
+    INDENTED_ADD(checkbutton, 0, 1, 0, 1);
     checkbutton = gtk_check_button_new_with_mnemonic("_Shrink images to fit");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoShrinkImages);
     g_signal_connect(checkbutton, "toggled"
@@ -458,7 +529,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->printBackgrounds);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_printBackgrounds_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 1, 2);
+    INDENTED_ADD(checkbutton, 0, 1, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic("_Resizable textareas");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->resizableTextAreas);
     g_signal_connect(checkbutton, "toggled"
@@ -468,7 +539,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enableScripts);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_enableJavaScript_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 2, 3);
+    INDENTED_ADD(checkbutton, 0, 1, 2, 3);
     checkbutton = gtk_check_button_new_with_mnemonic("Enable _plugins");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enablePlugins);
     g_signal_connect(checkbutton, "toggled"
@@ -504,7 +575,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarSmall);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarSmall_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 1, 2);
+    INDENTED_ADD(checkbutton, 0, 1, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic("Show web_search");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarWebSearch);
     g_signal_connect(checkbutton, "toggled"
@@ -514,42 +585,34 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarNewTab);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarNewTab_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 2, 3);
+    INDENTED_ADD(checkbutton, 0, 1, 2, 3);
     checkbutton = gtk_check_button_new_with_mnemonic("Show _closed tabs button");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarClosedTabs);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarClosedTabs_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 2, 3);
     FRAME_NEW("Miscellaneous");
-    TABLE_NEW(3, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic
-     ("Show close _buttons on tabs");
+    TABLE_NEW(2, 2);
+    checkbutton = gtk_check_button_new_with_mnemonic("Close _buttons on tabs");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->tabClose);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_tabClose_toggled), prefs);
-    SPANNED_ADD(checkbutton, 0, 1, 0, 1);
+    INDENTED_ADD(checkbutton, 0, 1, 0, 1);
     hbox = gtk_hbox_new(FALSE, 4);
     gtk_box_pack_start(GTK_BOX(hbox)
-     , gtk_label_new_with_mnemonic("Tab Si_ze"), FALSE, FALSE, 0);
+     , gtk_label_new_with_mnemonic("Tab Si_ze"), FALSE, FALSE, 4);
     spinbutton = gtk_spin_button_new_with_range(0, 36, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), config->tabSize);
     g_signal_connect(spinbutton, "changed"
      , G_CALLBACK(on_prefs_tabSize_changed), prefs);
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
     FILLED_ADD(hbox, 1, 2, 0, 1);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("Tabbar _placement"), 0, 1, 1, 2);
-    combobox = gtk_combo_box_new_text();
-    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "Left", "Top", "Right", "Bottom", NULL);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1); //...
-    gtk_widget_set_sensitive(combobox, FALSE); //...
-    FILLED_ADD(combobox, 1, 2, 1, 2);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("_Location search engine"), 0, 1, 2, 3);
+    INDENTED_ADD(gtk_label_new_with_mnemonic("_Location search engine"), 0, 1, 1, 2);
     entry = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(entry), config->locationSearch);
     g_signal_connect(entry, "focus-out-event"
      , G_CALLBACK(on_prefs_locationsearch_focus_out), prefs);
-    FILLED_ADD(entry, 1, 2, 2, 3);
+    FILLED_ADD(entry, 1, 2, 1, 2);
 
     // Page "Network"
     PAGE_NEW("Network");

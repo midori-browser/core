@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -64,6 +64,7 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     GET_INT(config->newPages, "NewPages", CONFIG_NEWPAGES_TAB_NEW);
     GET_INT(config->openTabsInTheBackground, "OpenTabsInTheBackground", FALSE);
     GET_INT(config->openPopupsInTabs, "OpenPopupsInTabs", FALSE);
+    GET_INT(config->middleClickGoto, "MiddleClickGoto", FALSE);
     #undef GET_INT
     #undef GET_STR
 
@@ -73,6 +74,10 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     #define GET_STR(var, key, default) \
      var = sokoke_key_file_get_string_default( \
      keyFile, "content", key, default, NULL)
+    GET_STR(config->defaultFontFamily, "DefaultFontFamily", "Sans");
+    GET_INT(config->defaultFontSize, "DefaultFontSize", 10);
+    GET_INT(config->minimumFontSize, "MinimumFontSize", 5);
+    GET_STR(config->defaultEncoding, "DefaultEncoding", "UTF-8");
     GET_INT(config->autoLoadImages, "AutoLoadImages", TRUE);
     GET_INT(config->autoShrinkImages, "AutoShrinkImages", TRUE);
     GET_INT(config->printBackgrounds, "PrintBackgrounds", FALSE);
@@ -143,7 +148,12 @@ gboolean config_to_file(CConfig* config, const gchar* filename, GError** error)
     g_key_file_set_integer(keyFile, "browser", "NewPages", config->newPages);
     g_key_file_set_integer(keyFile, "browser", "OpenTabsInTheBackground", config->openTabsInTheBackground);
     g_key_file_set_integer(keyFile, "browser", "OpenPopupsInTabs", config->openPopupsInTabs);
+    g_key_file_set_integer(keyFile, "browser", "MiddleClickGoto", config->middleClickGoto);
 
+    g_key_file_set_string (keyFile, "content", "DefaultFontFamily", config->defaultFontFamily);
+    g_key_file_set_integer(keyFile, "content", "DefaultFontSize", config->defaultFontSize);
+    g_key_file_set_integer(keyFile, "content", "MinimumFontSize", config->minimumFontSize);
+    g_key_file_set_string (keyFile, "content", "DefaultEncoding", config->defaultEncoding);
     g_key_file_set_integer(keyFile, "content", "AutoLoadImages", config->autoLoadImages);
     g_key_file_set_integer(keyFile, "content", "AutoShrinkImages", config->autoShrinkImages);
     g_key_file_set_integer(keyFile, "content", "PrintBackgrounds", config->printBackgrounds);

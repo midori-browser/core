@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -1691,7 +1691,9 @@ CBrowser* browser_new(CBrowser* oldBrowser)
 
     // Connect signals
     #define DOC_CONNECT(__sig, __func) g_signal_connect \
-     (G_OBJECT(browser->webView), __sig, G_CALLBACK(__func), browser);
+     (browser->webView, __sig, G_CALLBACK(__func), browser);
+    #define DOC_CONNECTA(__sig, __func) g_signal_connect_after \
+     (browser->webView, __sig, G_CALLBACK(__func), browser);
     DOC_CONNECT  ("navigation-requested"        , on_webView_navigation_requested)
     DOC_CONNECT  ("title-changed"               , on_webView_title_changed)
     DOC_CONNECT  ("icon-loaded"                 , on_webView_icon_changed)
@@ -1704,11 +1706,13 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     DOC_CONNECT  ("console-message"             , on_webView_console_message)
 
     DOC_CONNECT  ("button-press-event"          , on_webView_button_press)
+    DOC_CONNECTA ("button-press-event"          , on_webView_button_press_after)
     DOC_CONNECT  ("popup-menu"                  , on_webView_popup);
     DOC_CONNECT  ("scroll-event"                , on_webView_scroll);
     DOC_CONNECT  ("leave-notify-event"          , on_webView_leave)
     DOC_CONNECT  ("destroy"                     , on_webView_destroy)
     #undef DOC_CONNECT
+    #undef DOC_CONNECTA
 
     webkit_web_view_set_settings(WEBKIT_WEB_VIEW(browser->webView), webSettings);
 

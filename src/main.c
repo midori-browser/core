@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
+#include <webkit.h>
 
 #include "config.h"
 
@@ -244,8 +245,11 @@ int main(int argc, char** argv)
     stock_items_init();
     browsers = NULL;
 
-    webSettings = webkit_web_settings_new();
-    g_object_set(webSettings
+    webSettings = g_object_new(WEBKIT_TYPE_WEB_SETTINGS
+     , "default-font-family" , config->defaultFontFamily
+     , "default-font-size"   , config->defaultFontSize
+     , "minimum-font-size"   , config->minimumFontSize
+     , "default-encoding"    , config->defaultEncoding
      , "auto-load-images"    , config->autoLoadImages
      , "auto-shrink-images"  , config->autoShrinkImages
      , "print-backgrounds"   , config->printBackgrounds

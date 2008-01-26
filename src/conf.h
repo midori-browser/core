@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -36,8 +36,12 @@ typedef struct _CConfig
     guint    newPages; // where to open new pages
     gboolean openTabsInTheBackground;
     gboolean openPopupsInTabs;
+    gboolean middleClickGoto;
 
-    
+    gchar* defaultFontFamily;
+    guint defaultFontSize;
+    guint minimumFontSize;
+    gchar* defaultEncoding;
     gboolean autoLoadImages;
     gboolean autoShrinkImages;
     gboolean printBackgrounds;
