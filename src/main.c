@@ -59,6 +59,10 @@ static void stock_items_init(void)
         #if !GTK_CHECK_VERSION(2, 10, 0)
         { GTK_STOCK_SELECT_ALL, "Select _All", 0, 0, (gchar*)"gtk20" },
         #endif
+        #if !GTK_CHECK_VERSION(2, 8, 0)
+        { GTK_STOCK_FULLSCREEN, "_Fullscreen", 0, 0, (gchar*)"gtk20" },
+        { GTK_STOCK_FULLSCREEN, "_Leave Fullscreen", 0, 0, (gchar*)"gtk20" },
+        #endif
     };
     GtkIconFactory* factory = gtk_icon_factory_new();
     guint i;

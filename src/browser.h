@@ -39,6 +39,7 @@ typedef struct _CBrowser
     GtkWidget* location;
     GtkWidget* webSearch;
     GtkWidget* closedTabs;
+    GtkWidget* fullscreen;
     GtkWidget* bookmarkbar;
     // panels
     GtkWidget* panels;
@@ -159,6 +160,9 @@ on_action_zoom_normal_activate(GtkAction*, CBrowser*);
 
 void
 on_action_source_view_activate(GtkAction*, CBrowser*);
+
+void
+on_action_fullscreen_activate(GtkAction*, CBrowser*);
 
 void
 on_action_back_activate(GtkAction*, CBrowser*);
@@ -364,6 +368,9 @@ static const GtkActionEntry entries[] = {
  { "Properties", GTK_STOCK_PROPERTIES
  , NULL, ""
  , "hm?", NULL/*G_CALLBACK(on_action_properties_activate)*/ },
+ { "Fullscreen", GTK_STOCK_FULLSCREEN
+ , NULL, "F11"
+ , "Toggle fullscreen view", G_CALLBACK(on_action_fullscreen_activate) },
 
  { "Go", NULL, "_Go" },
  { "Back", GTK_STOCK_GO_BACK

@@ -290,6 +290,15 @@ void on_action_source_view_activate(GtkAction* action, CBrowser* browser)
     g_free(source);*/
 }
 
+void on_action_fullscreen_activate(GtkAction* action, CBrowser* browser)
+{
+    GdkWindowState state = gdk_window_get_state(browser->window->window);
+    if(state & GDK_WINDOW_STATE_FULLSCREEN)
+        gtk_window_unfullscreen(GTK_WINDOW(browser->window));
+    else
+        gtk_window_fullscreen(GTK_WINDOW(browser->window));
+}
+
 void on_action_back_activate(GtkAction* action, CBrowser* browser)
 {
     webkit_web_view_go_back(WEBKIT_WEB_VIEW(get_nth_webView(-1, browser)));
@@ -1125,13 +1134,35 @@ void on_notebook_switch_page(GtkWidget* widget, GtkNotebookPage* page
     update_search_engines(browser);
 }
 
+static void on_window_state_changed(GtkWidget* widget
+ , GdkEventWindowState* event, CBrowser* browser)
+{
+    if(event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
+    {
+        if(event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
+        {
+            gtk_widget_hide(browser->menubar);
+            g_object_set(browser->fullscreen, "stock-id"
+             , GTK_STOCK_LEAVE_FULLSCREEN, NULL);
+            gtk_widget_show(browser->fullscreen);
+        }
+        else
+        {
+            gtk_widget_show(browser->menubar);
+            gtk_widget_hide(browser->fullscreen);
+            g_object_set(browser->fullscreen, "stock-id"
+             , GTK_STOCK_FULLSCREEN, NULL);
+        }
+    }
+}
+
 static void on_window_size_allocate(GtkWidget* widget, GtkAllocation* allocation
  , CBrowser* browser)
 {
      if(GTK_WIDGET_REALIZED(widget))
      {
-         if(!(gdk_window_get_state(widget->window)
-          & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
+         GdkWindowState state = gdk_window_get_state(widget->window);
+         if(!(state & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
          {
              config->winWidth = allocation->width;
              config->winHeight = allocation->height;
@@ -1180,6 +1211,8 @@ CBrowser* browser_new(CBrowser* oldBrowser)
 
     // Setup the window metrics
     browser->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    g_signal_connect(browser->window, "window-state-event"
+     , G_CALLBACK(on_window_state_changed), browser);
     GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(browser->window));
     const gint defaultWidth = (gint)gdk_screen_get_width(screen) / 1.7;
     const gint defaultHeight = (gint)gdk_screen_get_height(screen) / 1.7;
@@ -1351,6 +1384,13 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     gtk_toolbar_insert(GTK_TOOLBAR(browser->navibar)
      , GTK_TOOL_ITEM(browser->closedTabs), -1);
     sokoke_container_show_children(GTK_CONTAINER(browser->navibar));
+    action = gtk_action_group_get_action(browser->actiongroup, "Fullscreen");
+    browser->fullscreen = gtk_action_create_tool_item(action);
+    gtk_widget_hide(browser->fullscreen);
+    g_signal_connect(browser->fullscreen, "clicked"
+     , G_CALLBACK(on_action_fullscreen_activate), browser);
+    gtk_toolbar_insert(GTK_TOOLBAR(browser->navibar)
+     , GTK_TOOL_ITEM(browser->fullscreen), -1);
     action_set_active("ToolbarNavigation", config->toolbarNavigation, browser);
 
     // Bookmarkbar
@@ -1605,6 +1645,7 @@ CBrowser* browser_new(CBrowser* oldBrowser)
     browser->location = oldBrowser->location;
     browser->webSearch = oldBrowser->webSearch;
     browser->closedTabs = oldBrowser->closedTabs;
+    browser->fullscreen = oldBrowser->fullscreen;
     browser->bookmarkbar = oldBrowser->bookmarkbar;
     browser->panels = oldBrowser->panels;
     browser->panels_notebook = oldBrowser->panels_notebook;
