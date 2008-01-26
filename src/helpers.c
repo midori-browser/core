@@ -417,7 +417,7 @@ gchar* magic_uri(const gchar* uri, gboolean search)
     if(!strstr(uri, "://"))
     {
         // Do we have a domain, ip address or localhost?
-        if(strstr(uri, ".") != NULL || !strcmp(uri, "localhost"))
+        if(strchr(uri, '.') != NULL || !strcmp(uri, "localhost"))
             return g_strconcat("http://", uri, NULL);
         // We don't want to search? So return early.
         if(!search)

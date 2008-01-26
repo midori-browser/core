@@ -259,8 +259,7 @@ gboolean on_webView_button_press_after(GtkWidget* webView, GdkEventButton* event
         GtkClipboard* clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
         gchar* text = gtk_clipboard_wait_for_text(clipboard);
         gchar* uri = NULL;
-        if(text && g_regex_match_simple("^[^ ]*$", text
-         , G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+        if(text && strchr(text, '.') && !strchr(text, ' '))
             uri = magic_uri(text, FALSE);
         g_free(text);
         if(uri)
