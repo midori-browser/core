@@ -21,7 +21,7 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
-#include <webkit.h>
+#include <webkit/webkit.h>
 
 #include "config.h"
 

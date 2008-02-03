@@ -16,7 +16,7 @@
 #include "../katze/katze.h"
 
 #include <string.h>
-#include <webkit.h>
+#include <webkit/webkit.h>
 
 GtkIconTheme* get_icon_theme(GtkWidget* widget)
 {

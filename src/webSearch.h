@@ -16,7 +16,7 @@
 
 #include <gtk/gtk.h>
 #include <libsexy/sexy.h>
-#include <webkit.h>
+#include <webkit/webkit.h>
 
 // -- Types
 

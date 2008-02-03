@@ -16,7 +16,7 @@
 #include "browser.h"
 #include "debug.h"
 
-#include <webkit.h>
+#include <webkit/webkit.h>
 
 WebKitNavigationResponse
 on_webView_navigation_requested(GtkWidget* webView, WebKitWebFrame* frame

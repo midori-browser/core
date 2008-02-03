@@ -16,7 +16,7 @@
 #include "../katze/katze.h"
 
 #include <gtk/gtk.h>
-#include <webkit.h>
+#include <webkit/webkit.h>
 
 // -- globals
 
