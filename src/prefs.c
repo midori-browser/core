@@ -435,7 +435,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     FILLED_ADD(button, 1, 2, 0, 1);
     INDENTED_ADD(gtk_label_new_with_mnemonic("_Minimum font size"), 0, 1, 1, 2);
     hbox = gtk_hbox_new(FALSE, 4);
-    spinbutton = gtk_spin_button_new_with_range(1, 5, 1);
+    spinbutton = gtk_spin_button_new_with_range(1, G_MAXINT, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), config->minimumFontSize);
     g_signal_connect(spinbutton, "value-changed"
      , G_CALLBACK(on_prefs_minimumFontSize_changed), prefs);
