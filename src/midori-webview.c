@@ -447,12 +447,12 @@ gtk_widget_scroll_event (MidoriWebView*  web_view,
         return FALSE;
 }
 
-static void
-midori_web_view_menu_new_tab_activate (GtkWidget*     action,
-                                       MidoriBrowser* browser)
+/*static void
+midori_web_view_menu_new_tab_activate (GtkWidget*     widget,
+                                       MidoriWebView* web_view)
 {
     // FIXME: Open a new tab and load the uri
-}
+}*/
 
 static void
 webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
@@ -582,7 +582,7 @@ midori_web_view_init (MidoriWebView* web_view)
                       "signal::scroll-event",
                       gtk_widget_scroll_event, NULL,
                       "signal::populate-popup",
-                      webkit_web_view_populate_popup_cb, browser,
+                      webkit_web_view_populate_popup_cb, NULL,
                       NULL);
     g_object_connect (web_frame,
                       "signal::load-done",

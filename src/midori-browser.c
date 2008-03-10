@@ -371,7 +371,7 @@ static gboolean
 midori_web_view_console_message_cb (GtkWidget*     web_view,
                                     const gchar*   message,
                                     gint           line,
-                                    const gchar*   sourceId,
+                                    const gchar*   source_id,
                                     MidoriBrowser* browser)
 {
     // FIXME: We want this to appear in a panel
@@ -397,7 +397,7 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
     if (!uri && !webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
     {
         // TODO: menu items
-        // undo close tab
+        // UndoTabClose
         // sep
         // BookmarkNew
         // SaveAs
@@ -1777,8 +1777,8 @@ _action_bookmark_edit_activate (GtkAction*     action,
 }
 
 static void
-_action_trash_undo_activate (GtkAction*     action,
-                             MidoriBrowser* browser)
+_action_undo_tab_close_activate (GtkAction*     action,
+                                 MidoriBrowser* browser)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
@@ -1955,6 +1955,9 @@ static const GtkActionEntry entries[] = {
  { "TrashEmpty", GTK_STOCK_CLEAR,
    "Empty Trash", "",
    "hm?", G_CALLBACK (_action_trash_empty_activate) },
+ { "UndoTabClose", GTK_STOCK_UNDELETE,
+   "Undo Close Tab", "",
+   "hm?", G_CALLBACK (_action_undo_tab_close_activate) },
 
  { "Bookmarks", NULL, "_Bookmarks" },
  { "BookmarkNew", STOCK_BOOKMARK_NEW,
