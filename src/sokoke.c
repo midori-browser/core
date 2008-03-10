@@ -34,18 +34,6 @@ void sokoke_combo_box_add_strings(GtkComboBox* combobox
     va_end(args);
 }
 
-void sokoke_radio_action_set_current_value(GtkRadioAction* action
- , gint currentValue)
-{
-    // Activates the group member with the given value
-    #if GTK_CHECK_VERSION(2, 10, 0)
-    gtk_radio_action_set_current_value(action, currentValue);
-    #else
-    // TODO: Implement this for older gtk
-    UNIMPLEMENTED
-    #endif
-}
-
 void sokoke_widget_set_visible(GtkWidget* widget, gboolean visible)
 {
     // Show or hide the widget
@@ -302,88 +290,5 @@ void sokoke_menu_item_set_accel(GtkMenuItem* menuitem, const gchar* path
         guint keyVal = key ? gdk_keyval_from_name(key) : 0;
         gtk_accel_map_add_entry(accel, keyVal, modifiers);
         g_free(accel);
-    }
-}
-
-gboolean sokoke_entry_can_undo(GtkEntry* entry)
-{
-    // TODO: Can we undo the last input?
-    return FALSE;
-}
-
-gboolean sokoke_entry_can_redo(GtkEntry* entry)
-{
-    // TODO: Can we redo the last input?
-    return FALSE;
-}
-
-void sokoke_entry_undo(GtkEntry* entry)
-{
-    // TODO: Implement undo
-    UNIMPLEMENTED
-}
-
-void sokoke_entry_redo(GtkEntry* entry)
-{
-    // TODO: Implement redo
-    UNIMPLEMENTED
-}
-
-static gboolean sokoke_on_undo_entry_key_down(GtkEntry* widget, GdkEventKey* event
- , gpointer userdata)
-{
-    switch(event->keyval)
-    {
-    case GDK_Undo:
-        sokoke_entry_undo(widget);
-        return FALSE;
-    case GDK_Redo:
-        sokoke_entry_redo(widget);
-        return FALSE;
-    default:
-        return FALSE;
-    }
-}
-
-static void sokoke_on_undo_entry_populate_popup(GtkEntry* entry, GtkMenu* menu
- , gpointer userdata)
-{
-    // Enhance the entry's menu with undo and redo items.
-    GtkWidget* menuitem = gtk_separator_menu_item_new();
-    gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);
-    menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_REDO, NULL);
-    g_signal_connect(menuitem, "activate", G_CALLBACK(sokoke_entry_redo), userdata);
-    gtk_widget_set_sensitive(menuitem, sokoke_entry_can_redo(entry));
-    gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);
-    menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDO, NULL);
-    g_signal_connect(menuitem, "activate", G_CALLBACK(sokoke_entry_undo), userdata);
-    gtk_widget_set_sensitive(menuitem, sokoke_entry_can_undo(entry));
-    gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);
-}
-
-gboolean sokoke_entry_get_can_undo(GtkEntry* entry)
-{
-    // TODO: Is this entry undo enabled?
-    return FALSE;
-}
-
-void sokoke_entry_set_can_undo(GtkEntry* entry, gboolean canUndo)
-{
-    if(canUndo)
-    {
-        g_signal_connect(entry, "key-press-event"
-         , G_CALLBACK(sokoke_on_undo_entry_key_down), NULL);
-        g_signal_connect(entry, "populate-popup"
-         , G_CALLBACK(sokoke_on_undo_entry_populate_popup), NULL);
-    }
-    else
-    {
-        g_signal_handlers_disconnect_by_func(entry
-         , G_CALLBACK(sokoke_on_undo_entry_key_down), NULL);
-        g_signal_handlers_disconnect_by_func(entry
-         , G_CALLBACK(sokoke_on_undo_entry_populate_popup), NULL);
     }
 }

@@ -13,21 +13,19 @@
 #define __GLOBAL_H__ 1
 
 #include "conf.h"
+
+#include "midori-websettings.h"
 #include "../katze/katze.h"
 
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
 
-// -- globals
+// FIXME: Remove these globals
 
-CConfig* config;
 GList* searchEngines; // Items of type 'SearchEngine'
-GList* browsers; // Items of type 'CBrowser'
-WebKitWebSettings* webSettings;
-GtkAccelGroup* accel_group;
 KatzeXbelItem* bookmarks;
-KatzeXbelItem* session;
-KatzeXbelItem* tabtrash;
+CConfig* config;
+MidoriWebSettings* webSettings;
 
 // Custom stock items
 
@@ -37,13 +35,7 @@ KatzeXbelItem* tabtrash;
          in order to reduce the amount of warnings :D */
 
 #define STOCK_BOOKMARK           GTK_STOCK_FILE // "stock_bookmark" // "bookmark-web"
-#define STOCK_BOOKMARKS          "bookmark-view"
-#define STOCK_DOWNLOADS          "package" // "download"
-#define STOCK_CONSOLE            "terminal" // "console" // MISSING
-#define STOCK_EXTENSIONS         "extension" // MISSING
 #define STOCK_FORM_FILL          "insert-text" // "form-fill" // MISSING
-#define STOCK_HISTORY            "document-open-recent"
-#define STOCK_HISTORY_           "history-view"
 #define STOCK_LOCATION           "location-entry"
 #define STOCK_NEWSFEED           "gtk-index" // "newsfeed" // MISSING
 #define STOCK_PLUGINS            "plugin" // MISSING

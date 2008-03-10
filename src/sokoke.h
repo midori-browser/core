@@ -21,9 +21,6 @@ void
 sokoke_combo_box_add_strings(GtkComboBox*, const gchar*, ...);
 
 void
-sokoke_radio_action_set_current_value(GtkRadioAction*, gint);
-
-void
 sokoke_widget_set_visible(GtkWidget*, gboolean);
 
 void
@@ -69,23 +66,5 @@ sokoke_widget_get_text_size(GtkWidget*, const gchar*, gint*, gint*);
 
 void
 sokoke_menu_item_set_accel(GtkMenuItem*, const gchar*, const gchar*, GdkModifierType);
-
-gboolean
-sokoke_entry_can_undo(GtkEntry*);
-
-gboolean
-sokoke_entry_can_redo(GtkEntry*);
-
-void
-sokoke_entry_undo(GtkEntry*);
-
-void
-sokoke_entry_redo(GtkEntry*);
-
-gboolean
-sokoke_entry_get_can_undo(GtkEntry*);
-
-void
-sokoke_entry_set_can_undo(GtkEntry*, gboolean);
 
 #endif /* !__SOKOKE_H__ */

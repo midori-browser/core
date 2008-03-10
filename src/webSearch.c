@@ -19,12 +19,12 @@
 #include <string.h>
 #include <gdk/gdkkeysyms.h>
 
-void update_searchEngine(guint index, CBrowser* browser)
+void update_searchEngine(guint index, GtkWidget* search)
 {
     guint n = g_list_length(searchEngines);
     // Display a default icon in case we have no engines
     if(!n)
-        sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(browser->webSearch), SEXY_ICON_ENTRY_PRIMARY
+        sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(search), SEXY_ICON_ENTRY_PRIMARY
          , GTK_IMAGE(gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU)));
     // Change the icon and default text according to the chosen engine
     else
@@ -34,24 +34,24 @@ void update_searchEngine(guint index, CBrowser* browser)
             index = 0;
         SearchEngine* engine = (SearchEngine*)g_list_nth_data(searchEngines, index);
         GdkPixbuf* pixbuf = load_web_icon(search_engine_get_icon(engine)
-         , GTK_ICON_SIZE_MENU, browser->navibar);
-        sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(browser->webSearch)
+         , GTK_ICON_SIZE_MENU, search);
+        sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(search)
          , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(gtk_image_new_from_pixbuf(pixbuf)));
         g_object_unref(pixbuf);
-        sokoke_entry_set_default_text(GTK_ENTRY(browser->webSearch)
+        sokoke_entry_set_default_text(GTK_ENTRY(search)
          , search_engine_get_short_name(engine));
         config->searchEngine = index;
     }
 }
 
-void on_webSearch_engine_activate(GtkWidget* widget, CBrowser* browser)
+void on_webSearch_engine_activate(GtkWidget* widget, MidoriBrowser* browser)
 {
     guint index = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(widget), "engine"));
-    update_searchEngine(index, browser);
+    update_searchEngine(index, widget);
 }
 
 void on_webSearch_icon_released(GtkWidget* widget, SexyIconEntryPosition* pos
- , gint button, CBrowser* browser)
+ , gint button, MidoriBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_new();
     guint n = g_list_length(searchEngines);
@@ -84,14 +84,14 @@ void on_webSearch_icon_released(GtkWidget* widget, SexyIconEntryPosition* pos
         gtk_widget_show(menuitem);
     }
 
-    menuitem = gtk_separator_menu_item_new();
+    /*menuitem = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);
     GtkAction* action = gtk_action_group_get_action(
      browser->actiongroup, "ManageSearchEngines");
     menuitem = gtk_action_create_menu_item(action);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);
+    gtk_widget_show(menuitem);*/
     sokoke_widget_popup(widget, GTK_MENU(menu), NULL);
 }
 
@@ -299,16 +299,16 @@ static void on_webSearch_remove(GtkWidget* widget, CWebSearch* webSearch)
     gtk_list_store_remove(GTK_LIST_STORE(liststore), &iter);
     search_engine_free(searchEngine);
     searchEngines = g_list_remove(searchEngines, searchEngine);
-    update_searchEngine(config->searchEngine, webSearch->browser);
+    //update_searchEngine(config->searchEngine, webSearch->browser);
     webSearch_toggle_edit_buttons(g_list_nth(searchEngines, 0) != NULL, webSearch);
     // FIXME: we want to allow undo of some kind
 }
 
-GtkWidget* webSearch_manageSearchEngines_dialog_new(CBrowser* browser)
+GtkWidget* webSearch_manageSearchEngines_dialog_new(MidoriBrowser* browser)
 {
     const gchar* dialogTitle = "Manage search engines";
     GtkWidget* dialog = gtk_dialog_new_with_buttons(dialogTitle
-        , GTK_WINDOW(browser->window)
+        , GTK_WINDOW(browser)
         , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
         , GTK_STOCK_HELP
         , GTK_RESPONSE_HELP
@@ -394,7 +394,7 @@ GtkWidget* webSearch_manageSearchEngines_dialog_new(CBrowser* browser)
     return dialog;
 }
 
-gboolean on_webSearch_key_down(GtkWidget* widget, GdkEventKey* event, CBrowser* browser)
+gboolean on_webSearch_key_down(GtkWidget* widget, GdkEventKey* event, MidoriBrowser* browser)
 {
     GdkModifierType state = (GdkModifierType)0;
     gint x, y; gdk_window_get_pointer(NULL, &x, &y, &state);
@@ -403,25 +403,25 @@ gboolean on_webSearch_key_down(GtkWidget* widget, GdkEventKey* event, CBrowser* 
     switch(event->keyval)
     {
     case GDK_Up:
-        update_searchEngine(config->searchEngine - 1, browser);
+        //update_searchEngine(config->searchEngine - 1, browser);
         return TRUE;
     case GDK_Down:
-        update_searchEngine(config->searchEngine + 1, browser);
+        //update_searchEngine(config->searchEngine + 1, browser);
         return TRUE;
     }
     return FALSE;
 }
 
-gboolean on_webSearch_scroll(GtkWidget* webView, GdkEventScroll* event, CBrowser* browser)
+gboolean on_webSearch_scroll(GtkWidget* webView, GdkEventScroll* event, MidoriBrowser* browser)
 {
     if(event->direction == GDK_SCROLL_DOWN)
-        update_searchEngine(config->searchEngine + 1, browser);
+        ;//update_searchEngine(config->searchEngine + 1, browser);
     else if(event->direction == GDK_SCROLL_UP)
-        update_searchEngine(config->searchEngine - 1, browser);
+        ;//update_searchEngine(config->searchEngine - 1, browser);
     return TRUE;
 }
 
-void on_webSearch_activate(GtkWidget* widget, CBrowser* browser)
+void on_webSearch_activate(GtkWidget* widget, MidoriBrowser* browser)
 {
     const gchar* keywords = gtk_entry_get_text(GTK_ENTRY(widget));
     gchar* url;
@@ -436,6 +436,7 @@ void on_webSearch_activate(GtkWidget* widget, CBrowser* browser)
     else
      search = g_strconcat(url, " ", keywords, NULL);
     entry_completion_append(GTK_ENTRY(widget), keywords);
-    webkit_web_view_open(WEBKIT_WEB_VIEW(get_nth_webView(-1, browser)), search);
+    GtkWidget* webView = midori_browser_get_current_web_view(browser);
+    webkit_web_view_open(WEBKIT_WEB_VIEW(webView), search);
     g_free(search);
 }

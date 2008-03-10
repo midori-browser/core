@@ -12,7 +12,7 @@
 #ifndef __WEBSEARCH_H__
 #define __WEBSEARCH_H__ 1
 
-#include "browser.h"
+#include "midori-browser.h"
 
 #include <gtk/gtk.h>
 #include <libsexy/sexy.h>
@@ -22,7 +22,7 @@
 
 typedef struct
 {
-    CBrowser* browser;
+    MidoriBrowser* browser;
     GtkWidget* window;
     GtkWidget* treeview;
     GtkWidget* edit;
@@ -38,24 +38,24 @@ enum
 // -- Declarations
 
 void
-update_searchEngine(guint, CBrowser*);
+update_searchEngine(guint, GtkWidget*);
 
 void
-on_webSearch_icon_released(GtkWidget*, SexyIconEntryPosition*, gint, CBrowser*);
+on_webSearch_icon_released(GtkWidget*, SexyIconEntryPosition*, gint, MidoriBrowser*);
 
 void
-on_webSearch_engine_activate(GtkWidget*, CBrowser*);
+on_webSearch_engine_activate(GtkWidget*, MidoriBrowser*);
 
 void
-on_webSearch_activate(GtkWidget*, CBrowser*);
+on_webSearch_activate(GtkWidget*, MidoriBrowser*);
 
 GtkWidget*
-webSearch_manageSearchEngines_dialog_new(CBrowser*);
+webSearch_manageSearchEngines_dialog_new(MidoriBrowser*);
 
 gboolean
-on_webSearch_key_down(GtkWidget*, GdkEventKey*, CBrowser*);
+on_webSearch_key_down(GtkWidget*, GdkEventKey*, MidoriBrowser*);
 
 gboolean
-on_webSearch_scroll(GtkWidget*, GdkEventScroll*, CBrowser*);
+on_webSearch_scroll(GtkWidget*, GdkEventScroll*, MidoriBrowser*);
 
 #endif /* !__WEBSEARCH_H__ */

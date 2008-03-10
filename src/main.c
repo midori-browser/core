@@ -11,17 +11,18 @@
 
 #include "main.h"
 
-#include "browser.h"
 #include "global.h"
 #include "helpers.h"
 #include "sokoke.h"
 #include "search.h"
-#include "webView.h"
-#include "../katze/katze.h"
+
+#include "midori-websettings.h"
+#include "midori-trash.h"
+#include "midori-browser.h"
+#include <katze/katze.h>
 
 #include <string.h>
 #include <gtk/gtk.h>
-#include <webkit/webkit.h>
 
 #include "config.h"
 
@@ -40,12 +41,7 @@ static void stock_items_init(void)
 
         { STOCK_BOOKMARK,       "Bookmark", 0, 0, NULL },
         { STOCK_BOOKMARK_NEW,   "New Bookmark", 0, 0, NULL },
-        { STOCK_BOOKMARKS,      "_Bookmarks", 0, 0, NULL },
-        { STOCK_DOWNLOADS,      "_Downloads", 0, 0, NULL },
-        { STOCK_CONSOLE,        "_Console", 0, 0, NULL },
-        { STOCK_EXTENSIONS,     "_Extensions", 0, 0, NULL },
         { STOCK_FORM_FILL,      "_Form Fill", 0, 0, NULL },
-        { STOCK_HISTORY,        "History", 0, 0, NULL },
         { STOCK_HOMEPAGE,       "Homepage", 0, 0, NULL },
         { STOCK_LOCATION,       "Location Entry", 0, 0, NULL },
         { STOCK_NEWSFEED,       "Newsfeed", 0, 0, NULL },
@@ -81,7 +77,46 @@ static void stock_items_init(void)
     g_object_unref(factory);
 }
 
-// -- main function
+static gboolean
+midori_browser_delete_event_cb (MidoriBrowser* browser,
+                                GdkEvent*      event,
+                                GList*         browsers)
+{
+    browsers = g_list_remove (browsers, browser);
+    if (g_list_nth (browsers, 0))
+        return FALSE;
+    gtk_main_quit ();
+    return TRUE;
+}
+
+static void
+midori_browser_quit_cb (MidoriBrowser* browser,
+                        GdkEvent*      event,
+                        GList*         browsers)
+{
+    gtk_main_quit ();
+}
+
+static void
+midori_browser_new_window_cb (MidoriBrowser* browser,
+                              const gchar*   uri,
+                              GList*         browsers)
+{
+    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
+                                               // "settings", settings,
+                                               // "trash", trash,
+                                               NULL);
+    // gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
+    g_object_connect (new_browser,
+        "signal::new-window", midori_browser_new_window_cb, browsers,
+        "signal::delete-event", midori_browser_delete_event_cb, browsers,
+        "signal::quit", midori_browser_quit_cb, browsers,
+        NULL);
+    browsers = g_list_prepend(browsers, new_browser);
+    gtk_widget_show (GTK_WIDGET (new_browser));
+
+    midori_browser_append_uri (new_browser, uri);
+}
 
 int main(int argc, char** argv)
 {
@@ -105,7 +140,7 @@ int main(int argc, char** argv)
 
     if(version)
     {
-        g_print(PACKAGE_STRING " - Copyright (c) 2007 Christian Dywan\n\n"
+        g_print(PACKAGE_STRING " - Copyright (c) 2007-2008 Christian Dywan\n\n"
          "GTK+2:      " GTK_VER "\n"
          "WebKit:     " WEBKIT_VER "\n"
          "Libsexy:    " LIBSEXY_VER "\n"
@@ -128,7 +163,7 @@ int main(int argc, char** argv)
     g_mkdir_with_parents(configPath, 0755);
     gchar* configFile = g_build_filename(configPath, "config", NULL);
     error = NULL;
-    config = config_new();
+    /*CConfig* */config = config_new();
     if(!config_from_file(config, configFile, &error))
     {
         if(error->code != G_FILE_ERROR_NOENT)
@@ -178,9 +213,9 @@ int main(int argc, char** argv)
         g_free(configFile);
     }
     configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
-    tabtrash = katze_xbel_folder_new();
+    KatzeXbelItem* xbel_trash = katze_xbel_folder_new();
     error = NULL;
-    if(!katze_xbel_folder_from_file(tabtrash, configFile, &error))
+    if(!katze_xbel_folder_from_file(xbel_trash, configFile, &error))
     {
         if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
@@ -211,6 +246,7 @@ int main(int argc, char** argv)
             search_engines_free(searchEngines);
             katze_xbel_item_unref(bookmarks);
             katze_xbel_item_unref(_session);
+            katze_xbel_item_unref(xbel_trash);
             g_string_free(errorMessages, TRUE);
             return 0;
         }
@@ -245,37 +281,68 @@ int main(int argc, char** argv)
     }
     g_free(configPath);
 
-    accel_group = gtk_accel_group_new();
     stock_items_init();
-    browsers = NULL;
 
-    webSettings = g_object_new(WEBKIT_TYPE_WEB_SETTINGS
-     , "default-font-family" , config->defaultFontFamily
-     , "default-font-size"   , config->defaultFontSize
-     , "minimum-font-size"   , config->minimumFontSize
-     , "default-encoding"    , config->defaultEncoding
-     , "auto-load-images"    , config->autoLoadImages
-     , "auto-shrink-images"  , config->autoShrinkImages
-     , "print-backgrounds"   , config->printBackgrounds
-     , "resizable-text-areas", config->resizableTextAreas
-     , "user-stylesheet-uri" , config->userStylesheet ? config->userStylesheetUri : NULL
-     , "enable-scripts"      , config->enableScripts
-     , "enable-plugins"      , config->enablePlugins
-     , NULL);
+    MidoriWebSettings* settings;
+    settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS,
+                             "default-font-family", config->defaultFontFamily,
+                             "default-font-size", config->defaultFontSize,
+                             "minimum-font-size", config->minimumFontSize,
+                             "default-encoding", config->defaultEncoding,
+                             "auto-load-images", config->autoLoadImages,
+                             "auto-shrink-images", config->autoShrinkImages,
+                             "print-backgrounds", config->printBackgrounds,
+                             "resizable-text-areas", config->resizableTextAreas,
+                             "user-stylesheet-uri",
+                             config->userStylesheet ?
+                             config->userStylesheetUri : NULL,
+                             "enable-scripts", config->enableScripts,
+                             "enable-plugins", config->enablePlugins,
+                             "tab-label-size", config->tabSize,
+                             "close-button", config->tabClose,
+                             "middle-click-goto", config->middleClickGoto,
+                             NULL);
+    webSettings = settings;
 
-    session = katze_xbel_folder_new();
-    CBrowser* browser = NULL;
-    guint n = katze_xbel_folder_get_n_items(_session);
+    MidoriTrash* trash = g_object_new (MIDORI_TYPE_TRASH,
+                                       "limit", 10,
+                                       NULL);
     guint i;
-    for(i = 0; i < n; i++)
+    guint n = katze_xbel_folder_get_n_items (xbel_trash);
+    for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = katze_xbel_folder_get_nth_item(_session, i);
-        browser = browser_new(browser);
-        webView_open(browser->webView, katze_xbel_bookmark_get_href(item));
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
+        midori_trash_prepend_xbel_item (trash, item);
     }
-    katze_xbel_item_unref(_session);
 
-    gtk_main();
+    GtkAccelGroup* accel_group = gtk_accel_group_new();
+    GList* browsers = NULL;
+
+    MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
+                                           "settings", settings,
+                                           "trash", trash,
+                                           NULL);
+    gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
+    g_object_connect (browser,
+        "signal::new-window", midori_browser_new_window_cb, browsers,
+        "signal::delete-event", midori_browser_delete_event_cb, browsers,
+        "signal::quit", midori_browser_quit_cb, browsers,
+        NULL);
+    browsers = g_list_prepend(browsers, browser);
+    gtk_widget_show (GTK_WIDGET (browser));
+
+    KatzeXbelItem* session = katze_xbel_folder_new ();
+    n = katze_xbel_folder_get_n_items (_session);
+    for (i = 0; i < n; i++)
+    {
+        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, i);
+        midori_browser_append_xbel_item (browser, item);
+    }
+    katze_xbel_item_unref (_session);
+
+    gtk_main ();
+
+    g_object_unref (accel_group);
 
     // Save configuration files
     configPath = g_build_filename(g_get_user_config_dir(), PACKAGE_NAME, NULL);
@@ -300,13 +367,13 @@ int main(int argc, char** argv)
     g_free(configFile);
     configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
     error = NULL;
-    if(!katze_xbel_folder_to_file(tabtrash, configFile, &error))
+    if (!katze_xbel_folder_to_file (xbel_trash, configFile, &error))
     {
-        g_warning("Tabtrash couldn't be saved. %s", error->message);
-        g_error_free(error);
+        g_warning ("Tabtrash couldn't be saved. %s", error->message);
+        g_error_free (error);
     }
-    katze_xbel_item_unref(tabtrash);
-    g_free(configFile);
+    katze_xbel_item_unref (xbel_trash);
+    g_free (configFile);
     if(config->startup == CONFIG_STARTUP_SESSION)
     {
         configFile = g_build_filename(configPath, "session.xbel", NULL);

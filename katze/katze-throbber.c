@@ -222,11 +222,9 @@ katze_throbber_destroy (GtkObject *object)
     KatzeThrobberPrivate* priv = throbber->priv;
 
     katze_assign (priv->icon_name, NULL);
-    if (priv->pixbuf)
-        katze_object_assign (priv->pixbuf, NULL);
+    katze_object_assign (priv->pixbuf, NULL);
     katze_assign (priv->static_icon_name, NULL);
-    if (priv->static_pixbuf)
-        katze_object_assign (priv->static_pixbuf, NULL);
+    katze_object_assign (priv->static_pixbuf, NULL);
     katze_assign (priv->static_stock_id, NULL);
 
     GTK_OBJECT_CLASS (katze_throbber_parent_class)->destroy (object);

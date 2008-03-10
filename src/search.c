@@ -12,7 +12,7 @@
 #include "search.h"
 
 #include "sokoke.h"
-#include "../katze/katze.h"
+#include <katze/katze.h>
 
 #include <stdio.h>
 #include <string.h>

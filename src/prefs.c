@@ -152,62 +152,45 @@ static void on_prefs_userStylesheetUri_file_set(GtkWidget* widget, CPrefs* prefs
 static void on_prefs_toolbarstyle_changed(GtkWidget* widget, CPrefs* prefs)
 {
     config->toolbarStyle = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
-    gtk_toolbar_set_style(GTK_TOOLBAR(prefs->browser->navibar)
-     , config_to_toolbarstyle(config->toolbarStyle));
+    /*gtk_toolbar_set_style(GTK_TOOLBAR(prefs->browser->navibar)
+     , config_to_toolbarstyle(config->toolbarStyle));*/
 }
 
 static void on_prefs_toolbarSmall_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->toolbarSmall = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    gtk_toolbar_set_icon_size(GTK_TOOLBAR(prefs->browser->navibar)
-     , config_to_toolbariconsize(config->toolbarSmall));
+    /*gtk_toolbar_set_icon_size(GTK_TOOLBAR(prefs->browser->navibar)
+     , config_to_toolbariconsize(config->toolbarSmall));*/
 }
 
 static void on_prefs_tabClose_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->tabClose = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    GList* items = browsers;
-    do
-    {
-        CBrowser* browser = (CBrowser*)items->data;
-        sokoke_widget_set_visible(browser->webView_close, config->tabClose);
-    }
-    while((items = g_list_next(items)));
-    g_list_free(items);
+    g_object_set(webSettings, "close-button", config->tabClose, NULL);
 }
 
 static void on_prefs_tabSize_changed(GtkWidget* widget, CPrefs* prefs)
 {
     config->tabSize = gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget));
-    gint w, h;
-    sokoke_widget_get_text_size(prefs->browser->webView_name, "M", &w, &h);
-    GList* items = browsers;
-    do
-    {
-        CBrowser* browser = (CBrowser*)items->data;
-        gtk_widget_set_size_request(GTK_WIDGET(browser->webView_name)
-         , w * config->tabSize, -1);
-    }
-    while((items = g_list_next(items)));
-    g_list_free(items);
+    g_object_set(webSettings, "tab-label-size", config->tabSize, NULL);
 }
 
 static void on_prefs_toolbarWebSearch_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->toolbarWebSearch = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    sokoke_widget_set_visible(prefs->browser->webSearch, config->toolbarWebSearch);
+    //sokoke_widget_set_visible(prefs->browser->webSearch, config->toolbarWebSearch);
 }
 
 static void on_prefs_toolbarNewTab_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->toolbarNewTab = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    sokoke_widget_set_visible(prefs->browser->newTab, config->toolbarNewTab);
+    //sokoke_widget_set_visible(prefs->browser->newTab, config->toolbarNewTab);
 }
 
 static void on_prefs_toolbarClosedTabs_toggled(GtkWidget* widget, CPrefs* prefs)
 {
     config->toolbarClosedTabs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    sokoke_widget_set_visible(prefs->browser->closedTabs, config->toolbarClosedTabs);
+    //sokoke_widget_set_visible(prefs->browser->closedTabs, config->toolbarClosedTabs);
 }
 
 static gboolean on_prefs_locationsearch_focus_out(GtkWidget* widget
@@ -233,7 +216,10 @@ static void on_prefs_protocols_render_icon(GtkTreeViewColumn* column
         gchar* path;
         if((path = g_find_program_in_path(binary)))
         {
-            GtkIconTheme* icon_theme = get_icon_theme(prefs->treeview);
+            GdkScreen* screen = gtk_widget_get_screen(prefs->treeview);
+            if(!screen)
+                screen = gdk_screen_get_default();
+            GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen(screen);
             if(g_path_is_absolute(binary))
             {
                 g_free(path); path = g_path_get_basename(binary);
@@ -308,16 +294,14 @@ static void on_prefs_protocols_combobox_changed(GtkWidget* widget, CPrefs* prefs
     gtk_widget_set_sensitive(prefs->add, command == NULL);
 }
 
-GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
+GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
 {
     gchar* dialogTitle = g_strdup_printf("%s Preferences", g_get_application_name());
     GtkWidget* dialog = gtk_dialog_new_with_buttons(dialogTitle
-        , GTK_WINDOW(browser->window)
+        , GTK_WINDOW(browser)
         , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
-        , GTK_STOCK_HELP
-        , GTK_RESPONSE_HELP
-        , GTK_STOCK_CLOSE
-        , GTK_RESPONSE_CLOSE
+        , GTK_STOCK_HELP, GTK_RESPONSE_HELP
+        , GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE
         , NULL);
     gtk_window_set_icon_name(GTK_WINDOW(dialog), GTK_STOCK_PREFERENCES);
     // TODO: Implement some kind of help function
@@ -326,7 +310,6 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
 
     CPrefs* prefs = g_new0(CPrefs, 1);
     prefs->browser = browser;
-    //prefs->window = dialog;
     g_signal_connect(dialog, "response", G_CALLBACK(g_free), prefs);
 
     // TODO: Do we want tooltips for explainations or can we omit that?
@@ -334,7 +317,7 @@ GtkWidget* prefs_preferences_dialog_new(CBrowser* browser)
     // TODO: Take multiple windows into account when applying changes
     GtkWidget* xfce_heading;
     if((xfce_heading = sokoke_xfce_header_new(
-     gtk_window_get_icon_name(GTK_WINDOW(browser->window)), dialogTitle)))
+     gtk_window_get_icon_name(GTK_WINDOW(browser)), dialogTitle)))
         gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox)
          , xfce_heading, FALSE, FALSE, 0);
     g_free(dialogTitle);

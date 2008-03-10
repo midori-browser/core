@@ -21,16 +21,16 @@ Source file example:
             return;
 
         #ifdef BAR_STRICT
-        if(bar == FOO_N)
+        if (bar == FOO_N)
         {
-            g_print("illegal value for 'bar'.\n");
+            g_print ("illegal value for 'bar'.\n");
             return;
         }
         #endif
 
         // this is an example
         gint n;
-        switch(bar)
+        switch (bar)
         {
         case FOO_FOO:
             n = bar + 1;
@@ -43,9 +43,9 @@ Source file example:
         }
 
         guint i;
-        for(i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
-            g_print("%s\n", foo);
+            g_print ("%s\n", foo);
         }
     }
 
@@ -74,12 +74,18 @@ Header file example:
 
     typedef struct
     {
-        FooEnum fooBar;
+        FooEnum foo_bar;
     } FooStruct;
 
     // -- Declarations
 
     void
-    foobar(FooEnum, const gchar*);
+    foo_bar           (FooEnum      bar,
+                       const gchar* foo);
+
+    const gchar*
+    foo_foo           (FooStruct foo_struct,
+                       guint     number,
+                       gboolean  flag);
 
     #endif /* !__FOO_H__ */
