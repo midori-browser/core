@@ -172,8 +172,9 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         G_STRUCT_OFFSET (MidoriWebViewClass, new_tab),
         0,
         NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0);
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
 
     signals[NEW_WINDOW] = g_signal_new(
         "new-window",

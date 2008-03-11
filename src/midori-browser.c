@@ -170,7 +170,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         webkit_web_view_get_text_size (WEBKIT_WEB_VIEW (web_view)) != 1);*/
     _action_set_sensitive (browser, "Back",
         webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (web_view)));
-    _action_set_sensitive (browser, "Back",
+    _action_set_sensitive (browser, "Forward",
         webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (web_view)));
     _action_set_sensitive (browser, "Reload", loading);
     _action_set_sensitive (browser, "Stop", !loading);
