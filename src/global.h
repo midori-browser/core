@@ -15,7 +15,7 @@
 #include "conf.h"
 
 #include "midori-websettings.h"
-#include "../katze/katze.h"
+#include <katze/katze.h>
 
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
@@ -34,39 +34,31 @@ MidoriWebSettings* webSettings;
 /* NOTE: Those uncommented were replaced with remotely related icons
          in order to reduce the amount of warnings :D */
 
-#define STOCK_BOOKMARK           GTK_STOCK_FILE // "stock_bookmark" // "bookmark-web"
-#define STOCK_FORM_FILL          "insert-text" // "form-fill" // MISSING
-#define STOCK_LOCATION           "location-entry"
-#define STOCK_NEWSFEED           "gtk-index" // "newsfeed" // MISSING
-#define STOCK_PLUGINS            "plugin" // MISSING
+#define STOCK_BOOKMARK           GTK_STOCK_FILE // "stock_bookmark" "bookmark-web"
+#define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL // "insert-text" "form-fill"
+#define STOCK_LOCATION           GTK_STOCK_BOLD // "location-entry"
+#define STOCK_NEWSFEED           "gtk-index" // "newsfeed"
+#define STOCK_PLUGINS            GTK_STOCK_CONVERT // "plugin"
 #define STOCK_POPUPS_BLOCKED     "popup-hidden"
-#define STOCK_SOURCE_VIEW        "stock_view-html-source" // MISSING
-#define STOCK_TAB_CLOSE          "tab-close" // MISSING
-#define STOCK_WINDOW_CLOSE       "window-close" // MISSING
+#define STOCK_SOURCE_VIEW        "stock_view-html-source" // "view-source"
+#define STOCK_TAB_CLOSE          GTK_STOCK_CLOSE // "tab-close"
+#define STOCK_WINDOW_CLOSE       GTK_STOCK_CLOSE // "window-close"
 
-// We can safely use standard icons
-// Assuming that we have reliable fallback icons
+// We assume that these legacy icon names are usually present
 
-#define STOCK_BOOKMARK_NEW       "bookmark-new"
-#define STOCK_BOOKMARK_NEW_      "stock_add-bookmark"
+#define STOCK_BOOKMARK_NEW       "stock_add-bookmark"
 #define STOCK_HOMEPAGE           GTK_STOCK_HOME
-#define STOCK_IMAGE              "image-x-generic"
-#define STOCK_IMAGE_             "gnome-mime-image"
+#define STOCK_IMAGE              "gnome-mime-image"
 #define STOCK_LOCK_OPEN          "stock_lock-open"
 #define STOCK_LOCK_SECURE        "stock_lock"
 #define STOCK_LOCK_BROKEN        "stock_lock-broken"
-#define STOCK_NETWORK_OFFLINE    "connect_no"
-#define STOCK_NETWORK_OFFLINE_   "network-offline"
+#define STOCK_NETWORK_OFFLINE    "network-offline"
 #define STOCK_SCRIPT             "stock_script"
-#define STOCK_SEND               "mail-send"
-#define STOCK_SEND_              "stock_mail-send"
-#define STOCK_TAB_NEW            "tab-new"
-#define STOCK_TAB_NEW_           "stock_new-tab"
+#define STOCK_SEND               "stock_mail-send"
+#define STOCK_TAB_NEW            "stock_new-tab"
 #define STOCK_THEME              "gnome-settings-theme"
-#define STOCK_USER_TRASH         "user-trash"
-#define STOCK_USER_TRASH_        "gnome-stock-trash"
-#define STOCK_WINDOW_NEW         "window-new"
-#define STOCK_WINDOW_NEW_        "stock_new-window"
+#define STOCK_USER_TRASH         "gnome-stock-trash"
+#define STOCK_WINDOW_NEW         "stock_new-window"
 
 // For backwards compatibility
 

@@ -11,10 +11,15 @@
 
 #include "midori-webview.h"
 
+#include "global.h"
 #include "sokoke.h"
 
 #include <webkit/webkitwebframe.h>
 #include <string.h>
+
+// This is unstable API, so we need to declare it
+gchar*
+webkit_web_view_get_selected_text (WebKitWebView* web_view);
 
 G_DEFINE_TYPE (MidoriWebView, midori_web_view, WEBKIT_TYPE_WEB_VIEW)
 
@@ -448,12 +453,14 @@ gtk_widget_scroll_event (MidoriWebView*  web_view,
         return FALSE;
 }
 
-/*static void
-midori_web_view_menu_new_tab_activate (GtkWidget*     widget,
-                                       MidoriWebView* web_view)
+static void
+midori_web_view_menu_new_tab_activate_cb (GtkWidget*     widget,
+                                          MidoriWebView* web_view)
 {
-    // FIXME: Open a new tab and load the uri
-}*/
+    const gchar* uri = g_object_get_data (G_OBJECT (widget), "uri");
+    g_print ("selected: %s\n", uri);
+    g_signal_emit (web_view, signals[NEW_TAB], 0, uri);
+}
 
 static void
 webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
@@ -462,12 +469,41 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
     const gchar* uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
     if (uri)
     {
-        // new tab
+        GtkWidget* menuitem = gtk_image_menu_item_new_with_mnemonic (
+            "Open Link in New _Tab");
+        GdkScreen* screen = gtk_widget_get_screen (web_view);
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+        if (gtk_icon_theme_has_icon (icon_theme, STOCK_TAB_NEW))
+        {
+            GtkWidget* icon = gtk_image_new_from_stock (STOCK_TAB_NEW,
+                                                        GTK_ICON_SIZE_MENU);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+        }
+        gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 1);
+        g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), web_view);
+        gtk_widget_show (menuitem);
     }
 
-    if (webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
+    if (!uri && webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
     {
-        // selected uri in tab
+        gchar* text = webkit_web_view_get_selected_text (
+            WEBKIT_WEB_VIEW (web_view));
+        if (text && strchr (text, '.') && !strchr (text, ' '))
+        {
+            GtkWidget* menuitem = gtk_image_menu_item_new_with_mnemonic (
+                "Open URL in New _Tab");
+            GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO,
+                                                        GTK_ICON_SIZE_MENU);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+            gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, -1);
+            g_object_set_data (G_OBJECT (menuitem), "uri", text);
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), web_view);
+            gtk_widget_show (menuitem);
+        }
+        // FIXME: We are leaking 'text' which is not const be should be.
     }
 }
 
