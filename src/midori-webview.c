@@ -458,7 +458,6 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*     widget,
                                           MidoriWebView* web_view)
 {
     const gchar* uri = g_object_get_data (G_OBJECT (widget), "uri");
-    g_print ("selected: %s\n", uri);
     g_signal_emit (web_view, signals[NEW_TAB], 0, uri);
 }
 
@@ -503,7 +502,7 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
                 G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), web_view);
             gtk_widget_show (menuitem);
         }
-        // FIXME: We are leaking 'text' which is not const be should be.
+        // FIXME: We are leaking 'text' which is not const but should be.
     }
 }
 
@@ -753,6 +752,20 @@ midori_web_view_new (void)
                                             NULL);
 
     return GTK_WIDGET (web_view);
+}
+
+/**
+ * midori_web_view_set_settings:
+ * @web_view: a #MidoriWebView
+ * @web_settings: a #MidoriWebSettings
+ *
+ * Assigns a settings instance to the web view.
+ **/
+void
+midori_web_view_set_settings (MidoriWebView*     web_view,
+                              MidoriWebSettings* web_settings)
+{
+    g_object_set (web_view, "settings", web_settings, NULL);
 }
 
 /**

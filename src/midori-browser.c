@@ -396,13 +396,24 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
 
     if (!uri && !webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
     {
-        // TODO: menu items
-        // UndoTabClose
-        // sep
-        // BookmarkNew
-        // SaveAs
-        // SourceView
-        // Print
+        GtkAction* action = _action_by_name (browser, "UndoTabClose");
+        GtkWidget* menuitem = gtk_action_create_menu_item (action);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_widget_show (menuitem);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        action = _action_by_name (browser, "BookmarkNew");
+        menuitem = gtk_action_create_menu_item (action);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        action = _action_by_name (browser, "SaveAs");
+        menuitem = gtk_action_create_menu_item (action);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        action = _action_by_name (browser, "SourceView");
+        menuitem = gtk_action_create_menu_item (action);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        action = _action_by_name (browser, "Print");
+        menuitem = gtk_action_create_menu_item (action);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     }
 }
 
@@ -1920,10 +1931,10 @@ static const GtkActionEntry entries[] = {
  { "ZoomNormal", GTK_STOCK_ZOOM_100,
    NULL, "<Ctrl>0",
    "hm?", NULL/*G_CALLBACK (_action_zoom_normal_activate)*/ },
- { "SourceView", STOCK_SOURCE_VIEW,
-   NULL, "",
+ { "SourceView", NULL,
+   "View Source", "",
    "hm?", /*G_CALLBACK (_action_source_view_activate)*/ },
- { "SelectionSourceView", STOCK_SOURCE_VIEW,
+ { "SelectionSourceView", NULL,
    "View Selection Source", "",
    "hm?", NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
@@ -2151,6 +2162,7 @@ static const gchar* ui_markup =
      "<separator/>"
      "<menuitem action='TrashEmpty'/>"
     "</menu>"
+    "<menuitem action='UndoTabClose'/>"
     "<separator/>"
     "<menuitem action='Find'/>"
     "<menuitem action='FindNext'/>"
@@ -2669,7 +2681,9 @@ midori_browser_set_property (GObject*      object,
     case PROP_SETTINGS:
         katze_object_assign (priv->settings, g_value_get_object (value));
         g_object_ref (priv->settings);
-        // FIXME: Assign settings to each web view
+        gtk_container_foreach (GTK_CONTAINER (priv->notebook),
+                               (GtkCallback*) midori_web_view_set_settings,
+                               priv->settings);
         break;
     case PROP_TRASH:
         ; // FIXME: Disconnect handlers

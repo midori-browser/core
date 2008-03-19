@@ -40,7 +40,6 @@ MidoriWebSettings* webSettings;
 #define STOCK_NEWSFEED           "gtk-index" // "newsfeed"
 #define STOCK_PLUGINS            GTK_STOCK_CONVERT // "plugin"
 #define STOCK_POPUPS_BLOCKED     "popup-hidden"
-#define STOCK_SOURCE_VIEW        "stock_view-html-source" // "view-source"
 #define STOCK_TAB_CLOSE          GTK_STOCK_CLOSE // "tab-close"
 #define STOCK_WINDOW_CLOSE       GTK_STOCK_CLOSE // "window-close"
 

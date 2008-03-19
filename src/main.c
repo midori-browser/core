@@ -47,7 +47,6 @@ static void stock_items_init(void)
         { STOCK_NEWSFEED,       "Newsfeed", 0, 0, NULL },
         { STOCK_PLUGINS,        "_Plugins", 0, 0, NULL },
         { STOCK_POPUPS_BLOCKED, "Blocked Popups", 0, 0, NULL },
-        { STOCK_SOURCE_VIEW,    "View Source", 0, 0, NULL },
         { STOCK_TAB_CLOSE,      "C_lose Tab", 0, 0, NULL },
         { STOCK_TAB_NEW,        "New _Tab", 0, 0, NULL },
         { STOCK_WINDOW_CLOSE,   "_Close Window", 0, 0, NULL },
