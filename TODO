@@ -1,62 +1,61 @@
 TODO:
+ . Import and export of the bookmarks file, or using one from a specific path
  . Save files on change as opposed to on quit
- . Position menus properly
- . Use an animated throbber
- . Add a context menu to the pageholder
- . Make tabs autoshrink
+ . Position context menus properly
  . New tabs from a TabNew action should always open in the foreground
  . Middle click toolbuttons or menuitems should open new tabs
- . Implement userscript support
+ . Implement support for (multiple) userscripts/ userstyles
  . Actual multiple window support, some things just ignore this currently
  . Custom context menu actions
- . custom tab names
+ . Create proper submenus in the window's menu instead of popups
+ . Custom tab names
+ . Identify and fix Gtk2.6 compatibility problems
  . Open an auto-vanishing findbox with '.'
  . Support gettext
+ . Implement custom actions, like in Thunar or Epiphany
  . Custom panels, loaded from (x)htm(l) files or websites
- . Drag tabs onto the panel to have it in the sidebar.
+ . Drag tabs onto the panel to add them to the sidebar
  . Save completion stores
- . analogus to blocked popups, blocked scripts moving layers on load
- . per-site blocking of individual elements on a page
- . statusbar icon 'cookies blocked', icon 'popups blocked'
- . per-site settings accessible via statusbar icons, ie. cookies, popups, plugins
- . cookieSafe like, a list of cookies, with type, block, allow
- . support mouse gestures
- . optional internal source view using gtksourceview
- . automatic update checks (browser, extensions)?
- . auto-group tabs by opener, with colors?
- . mark (dogear) a selection so that it isn't cleared implicitly, multiply on one page
- . have an internal uri scheme, eg. 'res:', to reference eg. themed icons
+ . Analogus to blocked popups, blocked scripts moving layers on load (extension)
+ . Per-site blocking of individual elements on a page
+ . Statusbar icon 'cookies blocked', icon 'popups blocked'
+ . Per-site settings accessible via statusbar icons, ie. cookies, popups, plugins
+ . CookieSafe like, a list of cookies, with type, block, allow
+ . Support mouse gestures (extension)
+ . Optional internal source view using gtksourceview?
+ . Automatic update checks (browser, extensions)?
+ . Auto-group tabs by opener, with colors?
+ . Mark (dogear) a selection so that it isn't cleared implicitly, multiply on one page
+ . Have an internal uri scheme, eg. 'res:', to reference eg. themed icons
  . 'about:' uris: about, blank, cache, config, plugins
- . panel of open tabs (with tree-structure), optional thumbnail-view
- . spell check support
- . allow full page zoom (how do we incorporate it in the gui?)
- . check specific bookmarks for updates automatically (as an extension?)
- . mark "new" as well as "actually modified" tabs specially (even over sessions)
- . customizable toolbars, custom buttons (uri, title, icon)
- . searchEngine: "Show in context menu"
- . use libnotify for events, e.g. download finished
- . save screenshot of a document
- . right-click a textbox in a search form and choose 'add to websearch'
- . support extensions written in lua
- . the scrollbar must be exactly at the right (left) edge if maximized: fitt's law
- . detailed css element view, maybe in 'properties'?
- . reuse running instance, probably via libunique
- . respect design principle "no warnings but undo of backups"?
- . support widgets 1.0 spec in tool windows and standalone
- . blank page: several custom links, displayed as thumbnails, like Opera
- . handle downloads, optionally in a downloadbar
- . Implement userstyle support
+ . Panel of open tabs (with tree-structure), optional thumbnail-view
+ . Spell check support
+ . Allow text and full page zoom (how do we incorporate it in the gui?)
+ . Check specific bookmarks for updates automatically (extension)
+ . Mark "new" as well as "actually modified" tabs specially (even over sessions)
+ . Customizable toolbars, custom buttons (uri, title, icon)?
+ . SearchEngine: "Show in context menu"
+ . Use libnotify for events, e.g. download finished
+ . Save screenshot of a document?
+ . Right-click a textbox in a search form and choose 'add to websearch'
+ . Support extensions written in lua, possibly also Python?
+ . Reuse running instance, probably via libunique
+ . Honor design principle "no warnings but undo of backups"?
+ . Support widgets 1.0 spec in tool windows and standalone?
+ . Blank page: several custom links, displayed as thumbnails, like Opera?
+ . Handle downloads, optionally in a downloadbar
  . Protected tabs prompt when attempting to close them
- . provide a 'sleep mode' after a crash where open documents are loaded manually
- . option to run plugins or scripts only on demand, like NoScript, per-site
- . optional http redirection manually or on timeout
- . style: none, compatible (b/w), default, [styles], "media", ["media" styles], ...
- . mouse pointer coordinates in the status bar
- . draw rectangle with the mouse, x/y/x2/y2 in the statusbar
- . formfill (like Opera's magic wand)
- . private browsing mode (no browsing, download or search history)
- . shared bookmarks and config
- . custom-mode, e.g. hide menubar and use help icon to have a help viewer
- . dead tabs: download, aborted page
- . on url load, for big files, ask "Open or save?"
- . middle-click on selection to open <selection>
+ . Provide a 'sleep mode' after a crash where open documents are loaded manually
+ . Option to run plugins or scripts only on demand, like NoScript, per-site
+ . Optional http redirection manually or on timeout
+ . Style: none, compatible (b/w), default, [styles], "media", ["media" styles], ...
+ . Mouse pointer coordinates in the status bar (extension)
+ . Draw rectangle with the mouse, x/y/x2/y2 in the statusbar (extension)
+ . Formfill (like Opera's magic wand)
+ . Private browsing mode (no browsing, download or search history)
+ . Shared bookmarks and config
+ . Custom-mode, e.g. hide menubar and use help icon to have a help viewer
+ . Prevent dead tabs: download, aborted page
+ . On url load, for big files, ask "Open or save?"
+ . Always display the tabbar (extension)
+ . An option to not reuse the current tab when entering an url or searching
