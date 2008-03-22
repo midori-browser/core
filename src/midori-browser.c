@@ -603,8 +603,9 @@ static void
 _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    gtk_widget_destroy (web_view);
+    GtkWidget* widget = midori_browser_get_current_page (browser);
+    GtkWidget* scrolled = _midori_browser_scrolled_for_child (browser, widget);
+    gtk_widget_destroy (scrolled);
 }
 
 static void
@@ -2683,7 +2684,7 @@ midori_browser_set_property (GObject*      object,
         katze_object_assign (priv->settings, g_value_get_object (value));
         g_object_ref (priv->settings);
         gtk_container_foreach (GTK_CONTAINER (priv->notebook),
-                               (GtkCallback*) midori_web_view_set_settings,
+                               (GtkCallback) midori_web_view_set_settings,
                                priv->settings);
         break;
     case PROP_TRASH:
