@@ -12,6 +12,7 @@
 #include "midori-trash.h"
 
 #include "sokoke.h"
+#include <glib/gi18n.h>
 
 G_DEFINE_TYPE (MidoriTrash, midori_trash, G_TYPE_OBJECT)
 
@@ -93,7 +94,7 @@ midori_trash_class_init (MidoriTrashClass* class)
                                      g_param_spec_uint (
                                      "limit",
                                      "Limit",
-                                     "The maximum number of items",
+                                     _("The maximum number of items"),
                                      0, G_MAXUINT, 10,
                                      flags));
 

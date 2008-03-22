@@ -65,7 +65,7 @@ gboolean spawn_protocol_command(const gchar* protocol, const gchar* res)
     if(!g_shell_parse_argv(commandReady, NULL, &argv, &error))
     {
         // FIXME: Should we have a more specific message?
-        show_error("Could not run external program.", error->message, NULL);
+        show_error(_("Could not run external program."), error->message, NULL);
         g_error_free(error);
         g_free(commandReady); g_free(uriEscaped);
         return FALSE;
@@ -81,7 +81,7 @@ gboolean spawn_protocol_command(const gchar* protocol, const gchar* res)
     if(!success)
     {
         // FIXME: Should we have a more specific message?
-        show_error("Could not run external program.", error->message, NULL);
+        show_error(_("Could not run external program."), error->message, NULL);
         g_error_free(error);
     }
     g_free(commandReady);

@@ -18,6 +18,7 @@
     #include <unistd.h>
 #endif
 #include <gdk/gdkkeysyms.h>
+#include <glib/gi18n.h>
 
 void sokoke_combo_box_add_strings(GtkComboBox* combobox
  , const gchar* labelFirst, ...)
@@ -153,7 +154,7 @@ gpointer sokoke_superuser_warning_new(void)
         GtkWidget* hbox = gtk_event_box_new();
         gtk_widget_modify_bg(hbox, GTK_STATE_NORMAL
          , &hbox->style->bg[GTK_STATE_SELECTED]);
-        GtkWidget* label = gtk_label_new("Warning: You are using the superuser account!");
+        GtkWidget* label = gtk_label_new(_("Warning: You are using a superuser account!"));
         gtk_misc_set_padding(GTK_MISC(label), 0, 2);
         gtk_widget_modify_fg(GTK_WIDGET(label), GTK_STATE_NORMAL
          , &GTK_WIDGET(label)->style->fg[GTK_STATE_SELECTED]);
@@ -263,7 +264,7 @@ gboolean sokoke_key_file_save_to_file(GKeyFile* keyFile
     if(!(fp = fopen(filename, "w")))
     {
         *error = g_error_new(G_FILE_ERROR, G_FILE_ERROR_ACCES
-         , "Writing failed.");
+         , _("Writing failed."));
         return FALSE;
     }
     fputs(data, fp);

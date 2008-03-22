@@ -4,10 +4,13 @@ INCLUDES = \
     $(LIBSEXY_CFLAGS) \
     -I../katze
 
+AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
+
 LDADD = \
     $(GTK_LIBS)          \
     $(WEBKIT_LIBS)       \
     $(LIBSEXY_LIBS)      \
+    $(INTLLIBS)          \
     ../katze/libkatze.la
 
 bin_PROGRAMS = \

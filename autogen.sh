@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "no" | glib-gettextize --force --copy
+intltoolize --copy --force --automake
 libtoolize --copy --force
 aclocal
 autoheader

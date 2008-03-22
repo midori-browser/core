@@ -20,6 +20,8 @@
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
 
+#include <glib/gi18n.h>
+
 // FIXME: Remove these globals
 
 GList* searchEngines; // Items of type 'SearchEngine'
@@ -36,12 +38,7 @@ MidoriWebSettings* webSettings;
 
 #define STOCK_BOOKMARK           GTK_STOCK_FILE // "stock_bookmark" "bookmark-web"
 #define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL // "insert-text" "form-fill"
-#define STOCK_LOCATION           GTK_STOCK_BOLD // "location-entry"
-#define STOCK_NEWSFEED           "gtk-index" // "newsfeed"
-#define STOCK_PLUGINS            GTK_STOCK_CONVERT // "plugin"
-#define STOCK_POPUPS_BLOCKED     "popup-hidden"
-#define STOCK_TAB_CLOSE          GTK_STOCK_CLOSE // "tab-close"
-#define STOCK_WINDOW_CLOSE       GTK_STOCK_CLOSE // "window-close"
+#define STOCK_NEWSFEED           GTK_STOCK_INDEX
 
 // We assume that these legacy icon names are usually present
 

@@ -10,6 +10,7 @@ AM_PROG_LIBTOOL
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
+AC_PROG_INTLTOOL
 
 # Checks for header files
 AC_HEADER_STDC
@@ -82,11 +83,26 @@ AC_SUBST(LIBXML_LIBS)
 LIBXML_VER=`pkg-config --modversion libxml-2.0`
 AC_DEFINE_UNQUOTED([LIBXML_VER], "$LIBXML_VER", [libXML2 version])
 
+# i18n
+GETTEXT_PACKAGE=midori
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
+
+ALL_LINGUAS="`sed -e '/^#/d' $srcdir/po/LINGUAS`" # take all languages found in file po/LINGUAS
+
+AM_GLIB_GNU_GETTEXT
+# workaround for intltool bug (http://bugzilla.gnome.org/show_bug.cgi?id=490845)
+if test "x$MSGFMT" = "xno"; then
+    AC_MSG_ERROR([msgfmt not found. Please install the gettext package.])
+fi
+
+
 # Here we tell the configure script which files to *create*
 AC_CONFIG_FILES([
     Makefile       \
     katze/Makefile \
-    src/Makefile
+    src/Makefile   \
+    po/Makefile.in
 ])
 AC_OUTPUT
 
@@ -96,7 +112,6 @@ echo "    GTK+2        $GTK_VER"
 echo "    WebKit       $WEBKIT_VER"
 echo "    Libsexy      $LIBSEXY_VER"
 echo "    libXML2      $LIBXML_VER"
-echo "    GetText      N/A"
 echo
 echo "    Debugging    $enable_debug"
 echo

@@ -182,7 +182,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_set_sensitive (priv->throbber, FALSE);
         g_object_set (action,
                       "stock-id", GTK_STOCK_REFRESH,
-                      "tooltip", "Reload the current page", NULL);
+                      "tooltip", _("Reload the current page"), NULL);
         gtk_widget_hide (priv->progressbar);
     }
     else
@@ -190,7 +190,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_set_sensitive (priv->throbber, TRUE);
         g_object_set (action,
                       "stock-id", GTK_STOCK_STOP,
-                      "tooltip", "Stop loading the current page", NULL);
+                      "tooltip", _("Stop loading the current page"), NULL);
         gtk_widget_show (priv->progressbar);
     }
     katze_throbber_set_animated (KATZE_THROBBER (priv->throbber), loading);
@@ -255,7 +255,7 @@ _midori_browser_update_progress (MidoriBrowser* browser,
     {
         gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progressbar),
                                        progress ? progress / 100.0 : 0);
-        gchar* message = g_strdup_printf ("%d%% loaded", progress);
+        gchar* message = g_strdup_printf (_("%d%% loaded"), progress);
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progressbar),
                                    message);
         g_free (message);
@@ -518,7 +518,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      g_param_spec_object (
                                      "settings",
                                      "Settings",
-                                     "The associated settings",
+                                     _("The associated settings"),
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE));
 
@@ -538,7 +538,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      g_param_spec_string (
                                      "statusbar-text",
                                      "Statusbar Text",
-                                     "The text that is displayed in the statusbar",
+                                     _("The text that is displayed in the statusbar"),
                                      "",
                                      flags));
 
@@ -557,7 +557,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      g_param_spec_object (
                                      "trash",
                                      "Trash",
-                                     "The trash, collecting recently closed tabs and windows",
+                                     _("The trash, collecting recently closed tabs and windows"),
                                      MIDORI_TYPE_TRASH,
                                      G_PARAM_READWRITE));
 
@@ -583,7 +583,7 @@ _action_open_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
     GtkWidget* dialog = gtk_file_chooser_dialog_new (
-        "Open file", GTK_WINDOW (browser),
+        ("Open file"), GTK_WINDOW (browser),
         GTK_FILE_CHOOSER_ACTION_OPEN,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
@@ -1048,7 +1048,7 @@ _action_location_activate (GtkAction*     action,
     {
         // TODO: We should offer all of the location's features here
         GtkWidget* dialog;
-        dialog = gtk_dialog_new_with_buttons ("Open location"
+        dialog = gtk_dialog_new_with_buttons (_("Open location")
             , GTK_WINDOW (browser)
             , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
             , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
@@ -1060,7 +1060,7 @@ _action_location_activate (GtkAction*     action,
             GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
         GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        GtkWidget* label = gtk_label_new_with_mnemonic ("_Location:");
+        GtkWidget* label = gtk_label_new_with_mnemonic (_("_Location:"));
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         GtkWidget* entry = gtk_entry_new ();
         gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
@@ -1094,7 +1094,7 @@ _action_search_activate (GtkAction*     action,
     else
     {
         // TODO: We should offer all of the search's features here
-        GtkWidget* dialog = gtk_dialog_new_with_buttons ("Web search"
+        GtkWidget* dialog = gtk_dialog_new_with_buttons (_("Web search")
             , GTK_WINDOW (browser)
             , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
             , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
@@ -1106,7 +1106,7 @@ _action_search_activate (GtkAction*     action,
             GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
         GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        GtkWidget* label = gtk_label_new_with_mnemonic ("_Location:");
+        GtkWidget* label = gtk_label_new_with_mnemonic (_("_Location:"));
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         GtkWidget* entry = gtk_entry_new ();
         gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
@@ -1133,7 +1133,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
     gboolean new_bookmark = !bookmark;
     GtkWidget* dialog = gtk_dialog_new_with_buttons (
-        new_bookmark ? "New bookmark" : "Edit bookmark",
+        new_bookmark ? _("New bookmark") : _("Edit bookmark"),
         GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1150,7 +1150,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
     GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-    GtkWidget* label = gtk_label_new_with_mnemonic ("_Title:");
+    GtkWidget* label = gtk_label_new_with_mnemonic (_("_Title:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_title = gtk_entry_new ();
@@ -1166,7 +1166,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
     hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-    label = gtk_label_new_with_mnemonic ("_Description:");
+    label = gtk_label_new_with_mnemonic (_("_Description:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_desc = gtk_entry_new ();
@@ -1185,7 +1185,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        label = gtk_label_new_with_mnemonic ("_Uri:");
+        label = gtk_label_new_with_mnemonic (_("_URL:"));
         gtk_size_group_add_widget (sizegroup, label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         entry_uri = gtk_entry_new ();
@@ -1203,11 +1203,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        label = gtk_label_new_with_mnemonic ("_Folder:");
+        label = gtk_label_new_with_mnemonic (_("_Folder:"));
         gtk_size_group_add_widget (sizegroup, label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         combo_folder = gtk_combo_box_new_text ();
-        gtk_combo_box_append_text (GTK_COMBO_BOX (combo_folder), "Root");
+        gtk_combo_box_append_text (GTK_COMBO_BOX (combo_folder), _("Root"));
         gtk_widget_set_sensitive (combo_folder, FALSE);
         gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
@@ -1426,7 +1426,7 @@ midori_browser_bookmarks_item_render_text_cb (GtkTreeViewColumn* column,
     }
 
     if (katze_xbel_item_is_separator (item))
-        g_object_set (renderer, "markup", "<i>Separator</i>", NULL);
+        g_object_set (renderer, "markup", _("<i>Separator</i>"), NULL);
     else
         g_object_set (renderer, "markup", NULL,
                       "text", katze_xbel_item_get_title(item), NULL);
@@ -1612,7 +1612,7 @@ _action_about_activate (GtkAction*     action,
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
         "name", PACKAGE_NAME,
         "version", PACKAGE_VERSION,
-        "comments", "A lightweight web browser.",
+        "comments", _("A lightweight web browser."),
         "copyright", "Copyright © 2007-2008 Christian Dywan",
         "website", "http://software.twotoasts.de",
         "authors", credits_authors,
@@ -1620,7 +1620,7 @@ _action_about_activate (GtkAction*     action,
         "artists", credits_artists,
         "license", license,
         "wrap-license", TRUE,
-        // "translator-credits", _("translator-credits"),
+        "translator-credits", _("translator-credits"),
         NULL);
 }
 
@@ -1835,27 +1835,27 @@ _action_bookmark_delete_activate (GtkAction* action,
 
 // FIXME: Fill in a good description for each 'hm?'
 static const GtkActionEntry entries[] = {
- { "File", NULL, "_File" },
+ { "File", NULL, N_("_File") },
  { "WindowNew", STOCK_WINDOW_NEW,
    NULL, "<Ctrl>n",
-   "Open a new window", G_CALLBACK (_action_window_new_activate) },
+   N_("Open a new window"), G_CALLBACK (_action_window_new_activate) },
  { "TabNew", STOCK_TAB_NEW,
    NULL, "<Ctrl>t",
-   "Open a new tab", G_CALLBACK (_action_tab_new_activate) },
+   N_("Open a new tab"), G_CALLBACK (_action_tab_new_activate) },
  { "Open", GTK_STOCK_OPEN,
    NULL, "<Ctrl>o",
-   "Open a file", G_CALLBACK (_action_open_activate) },
+   N_("Open a file"), G_CALLBACK (_action_open_activate) },
  { "SaveAs", GTK_STOCK_SAVE_AS,
    NULL, "<Ctrl>s",
-   "Save to a file", NULL/*G_CALLBACK (_action_saveas_activate)*/ },
- { "TabClose", STOCK_TAB_CLOSE,
-   NULL, "<Ctrl>w",
-   "Close the current tab", G_CALLBACK (_action_tab_close_activate) },
- { "WindowClose", STOCK_WINDOW_CLOSE,
-   NULL, "<Ctrl><Shift>w",
-   "Close this window", G_CALLBACK (_action_window_close_activate) },
+   N_("Save to a file"), NULL/*G_CALLBACK (_action_saveas_activate)*/ },
+ { "TabClose", NULL,
+   N_("_Close Tab"), "<Ctrl>w",
+   N_("Close the current tab"), G_CALLBACK (_action_tab_close_activate) },
+ { "WindowClose", NULL,
+   N_("C_lose Window"), "<Ctrl><Shift>w",
+   N_("Close this window"), G_CALLBACK (_action_window_close_activate) },
  { "PageSetup", GTK_STOCK_PROPERTIES,
-   "Pa_ge Setup", "",
+   N_("Pa_ge Setup"), "",
    "hm?", NULL/*G_CALLBACK (_action_page_setup_activate)*/ },
  { "PrintPreview", GTK_STOCK_PRINT_PREVIEW,
    NULL, "",
@@ -1865,33 +1865,33 @@ static const GtkActionEntry entries[] = {
    "hm?", NULL/*G_CALLBACK (_action_print_activate)*/ },
  { "Quit", GTK_STOCK_QUIT,
    NULL, "<Ctrl>q",
-   "Quit the application", G_CALLBACK (_action_quit_activate) },
+   N_("Quit the application"), G_CALLBACK (_action_quit_activate) },
 
- { "Edit", NULL, "_Edit", NULL, NULL, G_CALLBACK (_action_edit_activate) },
+ { "Edit", NULL, N_("_Edit"), NULL, NULL, G_CALLBACK (_action_edit_activate) },
  { "Undo", GTK_STOCK_UNDO,
    NULL, "<Ctrl>z",
-   "Undo the last modification", NULL/*G_CALLBACK (_action_undo_activate)*/ },
+   N_("Undo the last modification"), NULL/*G_CALLBACK (_action_undo_activate)*/ },
  { "Redo", GTK_STOCK_REDO,
    NULL, "<Ctrl><Shift>z",
-   "Redo the last modification", NULL/*G_CALLBACK (_action_redo_activate)*/ },
+   N_("Redo the last modification"), NULL/*G_CALLBACK (_action_redo_activate)*/ },
  { "Cut", GTK_STOCK_CUT,
    NULL, "<Ctrl>x",
    "Cut the selected text", G_CALLBACK (_action_cut_activate) },
  { "Copy", GTK_STOCK_COPY,
    NULL, "<Ctrl>c",
-   "Copy the selected text", G_CALLBACK (_action_copy_activate) },
+   N_("Copy the selected text"), G_CALLBACK (_action_copy_activate) },
  { "Copy_", GTK_STOCK_COPY,
    NULL, "<Ctrl>c",
-   "Copy the selected text", G_CALLBACK (_action_copy_activate) },
+   N_("Copy the selected text"), G_CALLBACK (_action_copy_activate) },
  { "Paste", GTK_STOCK_PASTE,
    NULL, "<Ctrl>v",
-   "Paste text from the clipboard", G_CALLBACK (_action_paste_activate) },
+   N_("Paste text from the clipboard"), G_CALLBACK (_action_paste_activate) },
  { "Delete", GTK_STOCK_DELETE,
    NULL, NULL,
-   "Delete the selected text", G_CALLBACK (_action_delete_activate) },
+   N_("Delete the selected text"), G_CALLBACK (_action_delete_activate) },
  { "SelectAll", GTK_STOCK_SELECT_ALL,
    NULL, "<Ctrl>a",
-   "Selected all text", G_CALLBACK (_action_select_all_activate) },
+   N_("Select all text"), G_CALLBACK (_action_select_all_activate) },
  { "FormFill", STOCK_FORM_FILL,
    NULL, "",
    "hm?", NULL/*G_CALLBACK (_action_form_fill_activate)*/ },
@@ -1899,29 +1899,29 @@ static const GtkActionEntry entries[] = {
    NULL, "<Ctrl>f",
    "hm?", G_CALLBACK (_action_find_activate) },
  { "FindNext", GTK_STOCK_GO_FORWARD,
-   "Find _Next", "<Ctrl>g",
+   N_("Find _Next"), "<Ctrl>g",
    "hm?", G_CALLBACK (_action_find_next_activate) },
  { "FindPrevious", GTK_STOCK_GO_BACK,
-   "Find _Previous", "<Ctrl><Shift>g",
+   N_("Find _Previous"), "<Ctrl><Shift>g",
    "hm?", G_CALLBACK (_action_find_previous_activate) },
  { "FindQuick", GTK_STOCK_FIND,
-   "_Quick Find", "period",
+   N_("_Quick Find"), "period",
    "hm?", NULL/*G_CALLBACK (_action_find_quick_activate)*/ },
  { "Preferences", GTK_STOCK_PREFERENCES,
    NULL, "<Ctrl><Alt>p",
    "hm?", G_CALLBACK (_action_preferences_activate) },
 
- { "View", NULL, "_View" },
- { "Toolbars", NULL, "_Toolbars" },
+ { "View", NULL, N_("_View") },
+ { "Toolbars", NULL, N_("_Toolbars") },
  { "Reload", GTK_STOCK_REFRESH,
    NULL, "<Ctrl>r",
-   "Reload the current page", G_CALLBACK (_action_reload_stop_activate) },
+   N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "Stop", GTK_STOCK_REFRESH,
    NULL, "<Ctrl>r",
-   "Stop loading the current page", G_CALLBACK (_action_reload_stop_activate) },
+   N_("Stop loading the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "ReloadStop", GTK_STOCK_STOP,
    NULL, "<Ctrl>r",
-   "Reload the current page", G_CALLBACK (_action_reload_stop_activate) },
+   N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "ZoomIn", GTK_STOCK_ZOOM_IN,
    NULL, "<Ctrl>plus",
    "hm?", NULL/*G_CALLBACK (_action_zoom_in_activate)*/ },
@@ -1932,16 +1932,16 @@ static const GtkActionEntry entries[] = {
    NULL, "<Ctrl>0",
    "hm?", NULL/*G_CALLBACK (_action_zoom_normal_activate)*/ },
  { "SourceView", NULL,
-   "View Source", "",
-   "hm?", /*G_CALLBACK (_action_source_view_activate)*/ },
+   N_("View Source"), "",
+    "hm?", /*G_CALLBACK (_action_source_view_activate)*/ },
  { "SelectionSourceView", NULL,
-   "View Selection Source", "",
-   "hm?", NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
+    N_("View Selection Source"), "",
+    "hm?", NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
    NULL, "F11",
-   "Toggle fullscreen view", G_CALLBACK (_action_fullscreen_activate) },
+   N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
 
- { "Go", NULL, "_Go" },
+ { "Go", NULL, N_("_Go") },
  { "Back", GTK_STOCK_GO_BACK,
    NULL, "<Alt>Left",
    "hm?", G_CALLBACK (_action_back_activate) },
@@ -1952,39 +1952,39 @@ static const GtkActionEntry entries[] = {
    NULL, "<Alt>Home",
    "hm?", G_CALLBACK (_action_home_activate) },
  { "Location", GTK_STOCK_JUMP_TO,
-   "Location...", "<Ctrl>l",
+   N_("Location..."), "<Ctrl>l",
    "hm?", G_CALLBACK (_action_location_activate) },
  { "Search", GTK_STOCK_FIND,
-   "Web Search...", "<Ctrl><Shift>f",
+   N_("Web Search..."), "<Ctrl><Shift>f",
    "hm?", G_CALLBACK (_action_search_activate) },
  { "OpenInPageholder", GTK_STOCK_JUMP_TO,
-   "Open in Page_holder...", "",
+   N_("Open in Page_holder..."), "",
    "hm?", G_CALLBACK (_action_open_in_panel_activate) },
  { "Trash", STOCK_USER_TRASH,
-   "Closed Tabs and Windows", "",
-   "Reopen a previously closed tab or window", NULL },
+   N_("Closed Tabs and Windows"), "",
+   N_("Reopen a previously closed tab or window"), NULL },
  { "TrashEmpty", GTK_STOCK_CLEAR,
-   "Empty Trash", "",
+   N_("Empty Trash"), "",
    "hm?", G_CALLBACK (_action_trash_empty_activate) },
  { "UndoTabClose", GTK_STOCK_UNDELETE,
-   "Undo Close Tab", "",
+   N_("Undo Close Tab"), "",
    "hm?", G_CALLBACK (_action_undo_tab_close_activate) },
 
- { "Bookmarks", NULL, "_Bookmarks" },
+ { "Bookmarks", NULL, N_("_Bookmarks") },
  { "BookmarkNew", STOCK_BOOKMARK_NEW,
    NULL, "<Ctrl>d",
    "hm?", G_CALLBACK (_action_bookmark_new_activate) },
  { "BookmarksManage", NULL,
-   "_Manage Bookmarks", "<Ctrl>b",
+   N_("_Manage Bookmarks"), "<Ctrl>b",
    "hm?", NULL/*G_CALLBACK (_action_bookmarks_manage_activate)*/ },
  { "BookmarkOpen", GTK_STOCK_OPEN,
    NULL, "",
    "hm?", G_CALLBACK (_action_bookmark_open_activate) },
  { "BookmarkOpenTab", STOCK_TAB_NEW,
-   "Open in New _Tab", "",
+   N_("Open in New _Tab"), "",
    "hm?", G_CALLBACK (_action_bookmark_open_tab_activate) },
  { "BookmarkOpenWindow", STOCK_WINDOW_NEW,
-   "Open in New _Window", "",
+   N_("Open in New _Window"), "",
    "hm?", G_CALLBACK (_action_bookmark_open_window_activate) },
  { "BookmarkEdit", GTK_STOCK_EDIT,
    NULL, "",
@@ -1993,26 +1993,26 @@ static const GtkActionEntry entries[] = {
    NULL, "",
    "hm?", G_CALLBACK (_action_bookmark_delete_activate) },
 
- { "Tools", NULL, "_Tools" },
+ { "Tools", NULL, N_("_Tools") },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
-   "_Manage Search Engines", "<Ctrl><Alt>s",
-   "Add, edit and remove search engines...",
+   N_("_Manage Search Engines"), "<Ctrl><Alt>s",
+   N_("Add, edit and remove search engines..."),
    G_CALLBACK (_action_manage_search_engines_activate) },
 
- { "Window", NULL, "_Window" },
+ { "Window", NULL, N_("_Window") },
  { "TabPrevious", GTK_STOCK_GO_BACK,
-   "_Previous Tab", "<Ctrl>Page_Up",
+   N_("_Previous Tab"), "<Ctrl>Page_Up",
    "hm?", G_CALLBACK (_action_tab_previous_activate) },
  { "TabNext", GTK_STOCK_GO_FORWARD,
-   "_Next Tab", "<Ctrl>Page_Down",
+   N_("_Next Tab"), "<Ctrl>Page_Down",
    "hm?", G_CALLBACK (_action_tab_next_activate) },
  { "TabOverview", NULL,
-   "Tab _Overview", "",
+   N_("Tab _Overview"), "",
    "hm?", NULL/*G_CALLBACK (_action_tab_overview_activate)*/ },
 
- { "Help", NULL, "_Help" },
+ { "Help", NULL, N_("_Help") },
  { "HelpContents", GTK_STOCK_HELP,
-   "_Contents", "F1",
+   N_("_Contents"), "F1",
    "hm?", NULL/*G_CALLBACK (_action_help_contents_activate)*/ },
  { "About", GTK_STOCK_ABOUT,
    NULL, "",
@@ -2022,32 +2022,32 @@ static const GtkActionEntry entries[] = {
 
 static const GtkToggleActionEntry toggle_entries[] = {
  { "PrivateBrowsing", NULL,
-   "P_rivate Browsing", "",
+   N_("P_rivate Browsing"), "",
    "hm?", NULL/*G_CALLBACK (_action_private_browsing_activate)*/,
    FALSE },
  { "WorkOffline", GTK_STOCK_DISCONNECT,
-   "_Work Offline", "",
+   N_("_Work Offline"), "",
    "hm?", NULL/*G_CALLBACK (_action_work_offline_activate)*/,
    FALSE },
 
  { "Navigationbar", NULL,
-   "_Navigationbar", "",
+   N_("_Navigationbar"), "",
    "hm?", G_CALLBACK (_action_navigationbar_activate),
    FALSE },
  { "Panel", NULL,
-   "_Panel", "F9",
+   N_("Side_panel"), "F9",
    "hm?", G_CALLBACK (_action_panel_activate),
    FALSE },
  { "Bookmarkbar", NULL,
-   "_Bookmarkbar", "",
+   N_("_Bookmarkbar"), "",
    "hm?", G_CALLBACK (_action_bookmarkbar_activate),
    FALSE },
- { "Downloadbar", NULL,
-   "_Downloadbar", "",
-   "hm?", NULL/*G_CALLBACK (_action_downloadbar_activate)*/,
+ { "Transferbar", NULL,
+   N_("_Transferbar"), "",
+   "hm?", NULL/*G_CALLBACK (_action_transferbar_activate)*/,
    FALSE },
  { "Statusbar", NULL,
-   "_Statusbar", "",
+   N_("_Statusbar"), "",
    "hm?", G_CALLBACK (_action_statusbar_activate),
    FALSE },
  };
@@ -2135,7 +2135,7 @@ static const gchar* ui_markup =
     "<menu action='Toolbars'>"
      "<menuitem action='Navigationbar'/>"
      "<menuitem action='Bookmarkbar'/>"
-     "<menuitem action='Downloadbar'/>"
+     "<menuitem action='Transferbar'/>"
      "<menuitem action='Statusbar'/>"
     "</menu>"
     "<menuitem action='Panel'/>"
@@ -2255,6 +2255,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Let us see some ui manager magic
     priv->action_group = gtk_action_group_new ("Browser");
+    gtk_action_group_set_translation_domain (priv->action_group, GETTEXT_PACKAGE);
     gtk_action_group_add_actions (priv->action_group,
                                   entries, entries_n, browser);
     gtk_action_group_add_toggle_actions (priv->action_group,
@@ -2290,7 +2291,7 @@ midori_browser_init (MidoriBrowser* browser)
         gtk_action_set_sensitive (action, toggle_entries[i].callback != NULL);
     }
 
-    //_action_set_active(browser, "Downloadbar", config->toolbarDownloads);
+    //_action_set_active(browser, "Transferbar", config->toolbarTransfers);
 
     // Create the menubar
     priv->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
@@ -2516,17 +2517,17 @@ midori_browser_init (MidoriBrowser* browser)
     priv->panel_bookmarks = treeview;
     gtk_widget_show_all (box);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              box, "vcard", "Bookmarks");
+                              box, "vcard", _("Bookmarks"));
     action = _action_by_name (browser, "PanelBookmarks");
 
-    // Downloads
+    // Transfers
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
                                            "uri", "about:blank",
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               priv->panel_pageholder,
-                              "package", "Downloads");
+                              "package", _("Transfers"));
 
     // Console
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
@@ -2535,7 +2536,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               priv->panel_pageholder,
-                              "terminal", "Console");
+                              "terminal", _("Console"));
 
     // History
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
@@ -2544,7 +2545,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               priv->panel_pageholder,
-                              "document-open-recent", "History");
+                              "document-open-recent", _("History"));
 
     // Pageholder
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
@@ -2553,7 +2554,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               priv->panel_pageholder,
-                              GTK_STOCK_CONVERT, "Pageholder");
+                              GTK_STOCK_CONVERT, _("Pageholder"));
 
     midori_panel_set_current_page (MIDORI_PANEL (priv->panel),
                                    config->panelActive);
@@ -2575,7 +2576,7 @@ midori_browser_init (MidoriBrowser* browser)
     toolitem = gtk_tool_item_new ();
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_container_add (GTK_CONTAINER (toolitem),
-                       gtk_label_new_with_mnemonic ("_Inline find:"));
+                       gtk_label_new_with_mnemonic (_("_Inline find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (priv->find), toolitem, -1);
     priv->find_text = sexy_icon_entry_new ();
     GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FIND,
@@ -2601,7 +2602,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (priv->find), toolitem, -1);
     priv->find_case = gtk_toggle_tool_button_new_from_stock (
         GTK_STOCK_SPELL_CHECK);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (priv->find_case), "Match Case");
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (priv->find_case), _("Match Case"));
     gtk_tool_item_set_is_important (GTK_TOOL_ITEM (priv->find_case), TRUE);
     gtk_toolbar_insert (GTK_TOOLBAR (priv->find), priv->find_case, -1);
     priv->find_highlight = gtk_toggle_tool_button_new_from_stock (
@@ -2618,7 +2619,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
     gtk_toolbar_insert (GTK_TOOLBAR (priv->find), toolitem, -1);
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), "Close Findbar");
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close Findbar"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_browser_find_button_close_clicked_cb), browser);
     gtk_toolbar_insert (GTK_TOOLBAR (priv->find), toolitem, -1);

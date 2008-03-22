@@ -12,6 +12,7 @@
 #include "midori-webview.h"
 
 #include "sokoke.h"
+#include <glib/gi18n.h>
 
 G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, WEBKIT_TYPE_WEB_SETTINGS)
 
@@ -65,7 +66,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_int (
                                      "tab-label-size",
                                      "Tab Label Size",
-                                     "The desired tab label size",
+                                     _("The desired tab label size"),
                                      0, G_MAXINT, 10,
                                      flags));
 
@@ -74,7 +75,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean (
                                      "close-button",
                                      "Close Button",
-                                     "Whether the associated tab has a close button",
+                                     _("Whether tabs have close buttons"),
                                      FALSE,
                                      flags));
 
@@ -83,7 +84,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean (
                                      "middle-click-goto",
                                      "Middle Click Goto",
-                                     "Load an uri from the selection via middle click",
+                                     _("Load an URL from the selection via middle click"),
                                      FALSE,
                                      flags));
 

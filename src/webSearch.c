@@ -18,6 +18,7 @@
 
 #include <string.h>
 #include <gdk/gdkkeysyms.h>
+#include <glib/gi18n.h>
 
 void update_searchEngine(guint index, GtkWidget* search)
 {
@@ -78,7 +79,7 @@ void on_webSearch_icon_released(GtkWidget* widget, SexyIconEntryPosition* pos
     }
     else
     {
-        menuitem = gtk_image_menu_item_new_with_label("Empty");
+        menuitem = gtk_image_menu_item_new_with_label(_("Empty"));
         gtk_widget_set_sensitive(menuitem, FALSE);
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
         gtk_widget_show(menuitem);
@@ -149,7 +150,7 @@ const gchar* STR_NON_NULL(const gchar* string)
 static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webSearch)
 {
     GtkWidget* dialog = gtk_dialog_new_with_buttons(
-        newEngine ? "Add search engine" : "Edit search engine"
+        newEngine ? _("Add search engine") : _("Edit search engine")
         , GTK_WINDOW(webSearch->window)
         , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
         , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
@@ -179,7 +180,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
 
     GtkWidget* hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-    GtkWidget* label = gtk_label_new_with_mnemonic("_Name:");
+    GtkWidget* label = gtk_label_new_with_mnemonic(_("_Name:"));
     gtk_size_group_add_widget(sizegroup, label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_shortName = gtk_entry_new();
@@ -195,7 +196,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     
     hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-    label = gtk_label_new_with_mnemonic("_Description:");
+    label = gtk_label_new_with_mnemonic(_("_Description:"));
     gtk_size_group_add_widget(sizegroup, label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_description = gtk_entry_new();
@@ -209,7 +210,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     
     hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-    label = gtk_label_new_with_mnemonic("_Url:");
+    label = gtk_label_new_with_mnemonic(_("_URL:"));
     gtk_size_group_add_widget(sizegroup, label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_url = gtk_entry_new();
@@ -223,7 +224,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     
     hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-    label = gtk_label_new_with_mnemonic("_Icon (name or file):");
+    label = gtk_label_new_with_mnemonic(_("_Icon (name or file):"));
     gtk_size_group_add_widget(sizegroup, label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_icon = gtk_entry_new();
@@ -237,7 +238,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     
     hbox = gtk_hbox_new(FALSE, 8);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
-    label = gtk_label_new_with_mnemonic("_Keyword:");
+    label = gtk_label_new_with_mnemonic(_("_Keyword:"));
     gtk_size_group_add_widget(sizegroup, label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_keyword = gtk_entry_new();
@@ -306,7 +307,7 @@ static void on_webSearch_remove(GtkWidget* widget, CWebSearch* webSearch)
 
 GtkWidget* webSearch_manageSearchEngines_dialog_new(MidoriBrowser* browser)
 {
-    const gchar* dialogTitle = "Manage search engines";
+    const gchar* dialogTitle = _("Manage search engines");
     GtkWidget* dialog = gtk_dialog_new_with_buttons(dialogTitle
         , GTK_WINDOW(browser)
         , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR

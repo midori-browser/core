@@ -26,6 +26,13 @@
 
 #include "config.h"
 
+#ifdef ENABLE_NLS
+# include <libintl.h>
+# if HAVE_LOCALE_H
+#  include <locale.h>
+# endif
+#endif
+
 // -- stock icons
 
 static void stock_items_init(void)
@@ -39,24 +46,18 @@ static void stock_items_init(void)
         { STOCK_THEME },
         { STOCK_USER_TRASH },
 
-        { STOCK_BOOKMARK,       "Bookmark", 0, 0, NULL },
-        { STOCK_BOOKMARK_NEW,   "New Bookmark", 0, 0, NULL },
-        { STOCK_FORM_FILL,      "_Form Fill", 0, 0, NULL },
-        { STOCK_HOMEPAGE,       "Homepage", 0, 0, NULL },
-        { STOCK_LOCATION,       "Location Entry", 0, 0, NULL },
-        { STOCK_NEWSFEED,       "Newsfeed", 0, 0, NULL },
-        { STOCK_PLUGINS,        "_Plugins", 0, 0, NULL },
-        { STOCK_POPUPS_BLOCKED, "Blocked Popups", 0, 0, NULL },
-        { STOCK_TAB_CLOSE,      "C_lose Tab", 0, 0, NULL },
-        { STOCK_TAB_NEW,        "New _Tab", 0, 0, NULL },
-        { STOCK_WINDOW_CLOSE,   "_Close Window", 0, 0, NULL },
-        { STOCK_WINDOW_NEW,     "New _Window", 0, 0, NULL },
+        { STOCK_BOOKMARK,       N_("Bookmark"), 0, 0, NULL },
+        { STOCK_BOOKMARK_NEW,   N_("New Bookmark"), 0, 0, NULL },
+        { STOCK_FORM_FILL,      N_("_Form Fill"), 0, 0, NULL },
+        { STOCK_HOMEPAGE,       N_("Homepage"), 0, 0, NULL },
+        { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, NULL },
+        { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, NULL },
         #if !GTK_CHECK_VERSION(2, 10, 0)
-        { GTK_STOCK_SELECT_ALL, "Select _All", 0, 0, (gchar*)"gtk20" },
+        { GTK_STOCK_SELECT_ALL, N_("Select _All", 0, 0, NULL },
         #endif
         #if !GTK_CHECK_VERSION(2, 8, 0)
-        { GTK_STOCK_FULLSCREEN, "_Fullscreen", 0, 0, (gchar*)"gtk20" },
-        { GTK_STOCK_FULLSCREEN, "_Leave Fullscreen", 0, 0, (gchar*)"gtk20" },
+        { GTK_STOCK_FULLSCREEN, N_("_Fullscreen"), 0, 0, NULL },
+        { GTK_STOCK_FULLSCREEN, N_("_Leave Fullscreen"), 0, 0, NULL },
         #endif
     };
     GtkIconFactory* factory = gtk_icon_factory_new();
@@ -117,21 +118,36 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
     midori_browser_append_uri (new_browser, uri);
 }
 
+static void
+locale_init (void)
+{
+#ifdef ENABLE_NLS
+
+#if HAVE_LOCALE_H
+    setlocale (LC_ALL, "");
+#endif
+
+    bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+#endif
+}
+
 int main(int argc, char** argv)
 {
-    g_set_application_name(PACKAGE_NAME);
+    locale_init();
+    g_set_application_name(_("midori"));
 
     // Parse cli options
     gint repeats = 2;
     gboolean version = FALSE;
     GOptionEntry entries[] =
     {
-     { "repeats", 'r', 0, G_OPTION_ARG_INT, &repeats, "An unused value", "N" },
-     { "version", 'v', 0, G_OPTION_ARG_NONE, &version, "Display program version", NULL }
+     { "version", 'v', 0, G_OPTION_ARG_NONE, &version, N_("Display program version"), NULL }
     };
 
     GError* error = NULL;
-    if(!gtk_init_with_args(&argc, &argv, "[URI]", entries, NULL/*GETTEXT_PACKAGE*/, &error))
+    if(!gtk_init_with_args(&argc, &argv, _("[URL]"), entries, GETTEXT_PACKAGE, &error))
     {
         g_error_free(error);
         return 1;
@@ -139,19 +155,26 @@ int main(int argc, char** argv)
 
     if(version)
     {
-        g_print(PACKAGE_STRING " - Copyright (c) 2007-2008 Christian Dywan\n\n"
-         "GTK+2:      " GTK_VER "\n"
-         "WebKit:     " WEBKIT_VER "\n"
-         "Libsexy:    " LIBSEXY_VER "\n"
-         "libXML2:    " LIBXML_VER "\n"
-         "GetText:    N/A\n"
-         "\n"
-         "Debugging:  " SOKOKE_DEBUG_ "\n"
-         "\n"
-         "Please report comments, suggestions and bugs to:\n"
-         "\t" PACKAGE_BUGREPORT "\n"
-         "Check for new versions at:\n"
-         "\thttp://software.twotoasts.de\n");
+        g_print(
+          "%s %s - Copyright (c) 2007-2008 Christian Dywan\n\n"
+          "GTK+2:  \t\t%s\n"
+          "WebKit: \t\t%s\n"
+          "Libsexy:\t\t%s\n"
+          "libXML2:\t\t%s\n"
+          "\n"
+          "%s:\t\t%s\n"
+          "\n"
+          "%s\n"
+          "\t%s\n"
+          "%s\n"
+          "\thttp://software.twotoasts.de\n",
+          _("midori"), PACKAGE_VERSION,
+          GTK_VER, WEBKIT_VER, LIBSEXY_VER, LIBXML_VER,
+          _("Debugging"), SOKOKE_DEBUG_,
+          _("Please report comments, suggestions and bugs to:"),
+          PACKAGE_BUGREPORT,
+          _("Check for new versions at:")
+        );
         return 0;
     }
 
@@ -167,7 +190,7 @@ int main(int argc, char** argv)
     {
         if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
-             , "Configuration was not loaded. %s\n", error->message);
+             , _("The configuration couldn't be loaded. %s\n"), error->message);
         g_error_free(error);
     }
     g_free(configFile);
@@ -182,7 +205,7 @@ int main(int argc, char** argv)
         // FIXME: We may have a "file empty" error, how do we recognize that?
         /*if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
-             , "Notice: No search engines loaded. %s\n", error->message);*/
+             , _("The search engines couldn't be loaded. %s\n"), error->message);*/
         g_error_free(error);
     }
     g_free(configFile);
@@ -193,7 +216,7 @@ int main(int argc, char** argv)
     {
         if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
-             , "Bookmarks couldn't be loaded. %s\n", error->message);
+             , _("The bookmarks couldn't be loaded. %s\n"), error->message);
         g_error_free(error);
     }
     g_free(configFile);
@@ -206,7 +229,7 @@ int main(int argc, char** argv)
         {
             if(error->code != G_FILE_ERROR_NOENT)
                 g_string_append_printf(errorMessages
-                 , "Session couldn't be loaded. %s\n", error->message);
+                 , _("The session couldn't be loaded. %s\n"), error->message);
             g_error_free(error);
         }
         g_free(configFile);
@@ -218,7 +241,7 @@ int main(int argc, char** argv)
     {
         if(error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf(errorMessages
-             , "Tabtrash couldn't be loaded. %s\n", error->message);
+             , _("The trash couldn't be loaded. %s\n"), error->message);
         g_error_free(error);
     }
     g_free(configFile);
@@ -228,7 +251,7 @@ int main(int argc, char** argv)
     {
         GtkWidget* dialog = gtk_message_dialog_new(NULL
          , 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE
-         , "The following errors occured.");
+         , _("The following errors occured:"));
         gtk_window_set_skip_taskbar_hint(GTK_WINDOW(dialog), FALSE);
         gtk_window_set_title(GTK_WINDOW(dialog), g_get_application_name());
         // FIXME: Use custom program icon
@@ -255,7 +278,7 @@ int main(int argc, char** argv)
     }
     g_string_free(errorMessages, TRUE);
 
-    // TODO: Handle any number of separate uris from argv 
+    // TODO: Handle any number of separate uris from argv
     // Open as many tabs as we have uris, seperated by pipes
     gchar* uri = argc > 1 ? strtok(g_strdup(argv[1]), "|") : NULL;
     while(uri != NULL)
@@ -350,7 +373,7 @@ int main(int argc, char** argv)
     error = NULL;
     if(!search_engines_to_file(searchEngines, configFile, &error))
     {
-        g_warning("Search engines couldn't be saved. %s", error->message);
+        g_warning("The search engines couldn't be saved. %s", error->message);
         g_error_free(error);
     }
     search_engines_free(searchEngines);
@@ -359,7 +382,7 @@ int main(int argc, char** argv)
     error = NULL;
     if(!katze_xbel_folder_to_file(bookmarks, configFile, &error))
     {
-        g_warning("Bookmarks couldn't be saved. %s", error->message);
+        g_warning("The bookmarks couldn't be saved. %s", error->message);
         g_error_free(error);
     }
     katze_xbel_item_unref(bookmarks);
@@ -368,7 +391,7 @@ int main(int argc, char** argv)
     error = NULL;
     if (!katze_xbel_folder_to_file (xbel_trash, configFile, &error))
     {
-        g_warning ("Tabtrash couldn't be saved. %s", error->message);
+        g_warning ("The trash couldn't be saved. %s", error->message);
         g_error_free (error);
     }
     katze_xbel_item_unref (xbel_trash);
@@ -379,7 +402,7 @@ int main(int argc, char** argv)
         error = NULL;
         if(!katze_xbel_folder_to_file(session, configFile, &error))
         {
-            g_warning("Session couldn't be saved. %s", error->message);
+            g_warning("The session couldn't be saved. %s", error->message);
             g_error_free(error);
         }
         g_free(configFile);
@@ -389,7 +412,7 @@ int main(int argc, char** argv)
     error = NULL;
     if(!config_to_file(config, configFile, &error))
     {
-        g_warning("Configuration couldn't be saved. %s", error->message);
+        g_warning("The configuration couldn't be saved. %s", error->message);
         g_error_free(error);
     }
     config_free(config);

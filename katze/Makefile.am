@@ -6,7 +6,8 @@ noinst_LTLIBRARIES = \
     libkatze.la
 
 libkatze_la_LIBADD = \
-    $(GTK_LIBS)    \
+    $(GTK_LIBS)      \
+    $(INTLLIBS)      \
     $(LIBXML_LIBS)
 
 libkatze_la_SOURCES = \

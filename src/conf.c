@@ -50,7 +50,7 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     GET_INT(config->toolbarNavigation, "ToolbarNavigation", TRUE);
     GET_INT(config->toolbarBookmarks, "ToolbarBookmarks", FALSE);
     GET_INT(config->toolbarStatus, "ToolbarStatus", TRUE);
-    //GET_INT(config->toolbarDownloads, "ToolbarDownloads", FALSE);
+    //GET_INT(config->toolbarTransfer, "ToolbarTransfer", FALSE);
     GET_INT(config->toolbarStyle, "ToolbarStyle", CONFIG_TOOLBAR_DEFAULT);
     GET_INT(config->toolbarSmall, "ToolbarSmall", FALSE);
     GET_INT(config->toolbarWebSearch, "ToolbarWebSearch", TRUE);
@@ -133,7 +133,7 @@ gboolean config_to_file(CConfig* config, const gchar* filename, GError** error)
     g_key_file_set_string (keyFile, "browser", "LocationSearch", config->locationSearch);
     g_key_file_set_integer(keyFile, "browser", "ToolbarNavigation", config->toolbarNavigation);
     g_key_file_set_integer(keyFile, "browser", "ToolbarBookmarks", config->toolbarBookmarks);
-    //g_key_file_set_integer(keyFile, "browser", "ToolbarDownloads", config->toolbarDownloads);
+    //g_key_file_set_integer(keyFile, "browser", "ToolbarTransfers", config->toolbarTransfers);
     g_key_file_set_integer(keyFile, "browser", "ToolbarStatus", config->toolbarStatus);
     g_key_file_set_integer(keyFile, "browser", "ToolbarStyle", config->toolbarStyle);
     g_key_file_set_integer(keyFile, "browser", "ToolbarSmall", config->toolbarSmall);

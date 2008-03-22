@@ -296,7 +296,7 @@ static void on_prefs_protocols_combobox_changed(GtkWidget* widget, CPrefs* prefs
 
 GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
 {
-    gchar* dialogTitle = g_strdup_printf("%s Preferences", g_get_application_name());
+    gchar* dialogTitle = g_strdup_printf(_("%s Preferences"), g_get_application_name());
     GtkWidget* dialog = gtk_dialog_new_with_buttons(dialogTitle
         , GTK_WINDOW(browser)
         , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
@@ -360,41 +360,41 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
      gtk_container_add(GTK_CONTAINER(align), __widget);\
      FILLED_ADD(align, __left, __right, __top, __bottom)
     // Page "General"
-    PAGE_NEW("General");
-    FRAME_NEW("Startup");
+    PAGE_NEW(_("General"));
+    FRAME_NEW(_("Startup"));
     TABLE_NEW(2, 2);
-    INDENTED_ADD(gtk_label_new("Load on startup"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new(_("Load on startup")), 0, 1, 0, 1);
     combobox = gtk_combo_box_new_text();
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "Blank page", "Homepage", "Last open pages", NULL);
+     , _("Blank page"), _("Homepage"), _("Last open pages"), NULL);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->startup);
     g_signal_connect(combobox, "changed"
      , G_CALLBACK(on_prefs_loadonstartup_changed), prefs);
     FILLED_ADD(combobox, 1, 2, 0, 1);
-    INDENTED_ADD(gtk_label_new("Homepage"), 0, 1, 1, 2);
+    INDENTED_ADD(gtk_label_new(_("Homepage")), 0, 1, 1, 2);
     entry = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(entry), config->homepage);
     g_signal_connect(entry, "focus-out-event"
     , G_CALLBACK(on_prefs_homepage_focus_out), prefs);
     FILLED_ADD(entry, 1, 2, 1, 2);
     // TODO: We need something like "use current website"
-    FRAME_NEW("Downloads");
+    FRAME_NEW(_("Transfers"));
     TABLE_NEW(1, 2);
-    INDENTED_ADD(gtk_label_new("Download folder"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new(_("Download folder")), 0, 1, 0, 1);
     GtkWidget* filebutton = gtk_file_chooser_button_new(
-     "Choose download folder", GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+     _("Choose downloaded files folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
     // FIXME: The default should probably be ~/Desktop
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filebutton)
      , g_get_home_dir()); //...
     gtk_widget_set_sensitive(filebutton, FALSE); //...
     FILLED_ADD(filebutton, 1, 2, 0, 1);
     checkbutton = gtk_check_button_new_with_mnemonic
-     ("Show a notification window for finished downloads");
+     (_("Show a notification window for finished transfers"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 1, 2);
-    FRAME_NEW("Languages");
+    FRAME_NEW(_("Languages"));
     TABLE_NEW(1, 2);
-    INDENTED_ADD(gtk_label_new("Preferred languages"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new(_("Preferred languages")), 0, 1, 0, 1);
     entry = gtk_entry_new();
     // TODO: Make sth like get_browser_languages_default filtering encodings and C out
     // TODO: Provide a real ui with real language names (iso-codes)
@@ -406,32 +406,32 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     FILLED_ADD(entry, 1, 2, 0, 1);
 
     // Page "Appearance"
-    PAGE_NEW("Appearance");
-    FRAME_NEW("Font settings");
+    PAGE_NEW(_("Appearance"));
+    FRAME_NEW(_("Font settings"));
     TABLE_NEW(5, 2);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("Default _font"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("Default _font")), 0, 1, 0, 1);
     gchar* defaultFont = g_strdup_printf("%s %d"
      , config->defaultFontFamily, config->defaultFontSize);
     button = gtk_font_button_new_with_font(defaultFont);
     g_free(defaultFont);
     g_signal_connect(button, "font-set", G_CALLBACK(on_prefs_defaultFont_changed), prefs);
     FILLED_ADD(button, 1, 2, 0, 1);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("_Minimum font size"), 0, 1, 1, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("_Minimum font size")), 0, 1, 1, 2);
     hbox = gtk_hbox_new(FALSE, 4);
     spinbutton = gtk_spin_button_new_with_range(1, G_MAXINT, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), config->minimumFontSize);
     g_signal_connect(spinbutton, "value-changed"
      , G_CALLBACK(on_prefs_minimumFontSize_changed), prefs);
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
-    button = gtk_button_new_with_mnemonic("_Advanced");
+    button = gtk_button_new_with_mnemonic(_("_Advanced"));
     gtk_widget_set_sensitive(button, FALSE); //...
     gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
     FILLED_ADD(hbox, 1, 2, 1, 2);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("Default _encoding"), 0, 1, 2, 3);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("Default _encoding")), 0, 1, 2, 3);
     combobox = gtk_combo_box_new_text();
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "Chinese (BIG5)", "Japanese (SHIFT_JIS)", "Russian (KOI8-R)"
-     , "Unicode (UTF-8)", "Western (ISO-8859-1)", NULL);
+     , _("Chinese (BIG5)"), _("Japanese (SHIFT_JIS)"), _("Russian (KOI8-R)")
+     , _("Unicode (UTF-8)"), _("Western (ISO-8859-1)"), NULL);
     if(!strcmp(config->defaultEncoding, "BIG5"))
         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
     else if(!strcmp(config->defaultEncoding, "SHIFT_JIS"))
@@ -446,95 +446,95 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     g_signal_connect(combobox, "changed"
      , G_CALLBACK(on_prefs_defaultEncoding_changed), prefs);
     FILLED_ADD(combobox, 1, 2, 2, 3);
-    button = gtk_button_new_with_label("Advanced settings");
+    button = gtk_button_new_with_label(_("Advanced settings"));
     gtk_widget_set_sensitive(button, FALSE); //...
     WIDGET_ADD(button, 1, 2, 2, 3);
-    FRAME_NEW("Default colors");
+    FRAME_NEW(_("Default colors"));
     TABLE_NEW(2, 4);
-    SEMI_INDENTED_ADD(gtk_label_new("Text color"), 0, 1, 0, 1);
+    SEMI_INDENTED_ADD(gtk_label_new(_("Text color")), 0, 1, 0, 1);
     colorbutton = gtk_color_button_new();
     gtk_widget_set_sensitive(colorbutton, FALSE); //...
     WIDGET_ADD(colorbutton, 1, 2, 0, 1);
-    SEMI_INDENTED_ADD(gtk_label_new("Background color"), 2, 3, 0, 1);
+    SEMI_INDENTED_ADD(gtk_label_new(_("Background color")), 2, 3, 0, 1);
     colorbutton = gtk_color_button_new();
     gtk_widget_set_sensitive(colorbutton, FALSE); //...
     WIDGET_ADD(colorbutton, 3, 4, 0, 1);
-    SEMI_INDENTED_ADD(gtk_label_new("Normal link color"), 0, 1, 1, 2);
+    SEMI_INDENTED_ADD(gtk_label_new(_("Link color")), 0, 1, 1, 2);
     colorbutton = gtk_color_button_new();
     gtk_widget_set_sensitive(colorbutton, FALSE); //...
     WIDGET_ADD(colorbutton, 1, 2, 1, 2);
-    SEMI_INDENTED_ADD(gtk_label_new("Visited link color"), 2, 3, 1, 2);
+    SEMI_INDENTED_ADD(gtk_label_new(_("Visited link color")), 2, 3, 1, 2);
     colorbutton = gtk_color_button_new();
     gtk_widget_set_sensitive(colorbutton, FALSE); //...
     WIDGET_ADD(colorbutton, 3, 4, 1, 2);
 
     // Page "Behavior"
-    PAGE_NEW("Behavior");
-    FRAME_NEW("Browsing");
+    PAGE_NEW(_("Behavior"));
+    FRAME_NEW(_("Browsing"));
     TABLE_NEW(3, 2);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("Open _new pages in"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("Open _new pages in")), 0, 1, 0, 1);
     combobox = gtk_combo_box_new_text();
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "New tab", "New window", "Current tab", NULL);
+     , _("New tab"), _("New window"), _("Current tab"), NULL);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->newPages);
     g_signal_connect(combobox, "changed", G_CALLBACK(on_prefs_newpages_changed), prefs);
     gtk_widget_set_sensitive(combobox, FALSE); //...
     FILLED_ADD(combobox, 1, 2, 0, 1);
-    checkbutton = gtk_check_button_new_with_mnemonic("_Middle click goto");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("_Middle click opens selection"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->middleClickGoto);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_middleClickGoto_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Open tabs in the _background");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Open tabs in the _background"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openTabsInTheBackground);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_openTabsInTheBackground_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Open popups in _tabs");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Open popups in _tabs"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->openPopupsInTabs);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_openPopupsInTabs_toggled), prefs);
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 2, 3);
-    FRAME_NEW("Features");
+    FRAME_NEW(_("Features"));
     TABLE_NEW(4, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Load _images");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Load _images"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoLoadImages);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_loadImagesAutomatically_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 0, 1);
-    checkbutton = gtk_check_button_new_with_mnemonic("_Shrink images to fit");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("_Shrink images to fit"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->autoShrinkImages);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_shrinkImagesToFit_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 0, 1);
-    checkbutton = gtk_check_button_new_with_mnemonic("Print _backgrounds");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Print _backgrounds"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->printBackgrounds);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_printBackgrounds_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("_Resizable textareas");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("_Resizable textareas"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->resizableTextAreas);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_resizableTextAreas_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Enable _scripts");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Enable _scripts"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enableScripts);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_enableJavaScript_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 2, 3);
-    checkbutton = gtk_check_button_new_with_mnemonic("Enable _plugins");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Enable _plugins"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->enablePlugins);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_enablePlugins_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 2, 3);
-    checkbutton = gtk_check_button_new_with_mnemonic("_User Stylesheet");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("_User Stylesheet"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->userStylesheet);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_userStylesheet_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 3, 4);
     filebutton = gtk_file_chooser_button_new(
-     "Choose user stylesheet", GTK_FILE_CHOOSER_ACTION_OPEN);
+     _("Choose user stylesheet"), GTK_FILE_CHOOSER_ACTION_OPEN);
     prefs->userStylesheetUri = filebutton;
     gtk_file_chooser_set_uri(GTK_FILE_CHOOSER(filebutton), config->userStylesheetUri);
     g_signal_connect(filebutton, "file-set"
@@ -543,54 +543,54 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     FILLED_ADD(filebutton, 1, 2, 3, 4);
 
     // Page "Interface"
-    PAGE_NEW("Interface");
-    FRAME_NEW("Navigationbar");
+    PAGE_NEW(_("Interface"));
+    FRAME_NEW(_("Navigationbar"));
     TABLE_NEW(3, 2);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("_Toolbar style"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("_Toolbar style")), 0, 1, 0, 1);
     combobox = gtk_combo_box_new_text();
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "Default", "Icons", "Text", "Both", "Both horizontal", NULL);
+     , _("Default"), _("Icons"), _("Text"), _("Both"), _("Both horizontal"), NULL);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), config->toolbarStyle);
     g_signal_connect(combobox, "changed"
      , G_CALLBACK(on_prefs_toolbarstyle_changed), prefs);
     FILLED_ADD(combobox, 1, 2, 0, 1);
-    checkbutton = gtk_check_button_new_with_mnemonic("Show small _icons");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Show small _icons"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarSmall);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarSmall_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Show web_search");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Show Web_search"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarWebSearch);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarWebSearch_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 1, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Show _New Tab Button");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Show _New Tab"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarNewTab);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarNewTab_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 2, 3);
-    checkbutton = gtk_check_button_new_with_mnemonic("Show _closed tabs button");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Show _Trash"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->toolbarClosedTabs);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_toolbarClosedTabs_toggled), prefs);
     SPANNED_ADD(checkbutton, 1, 2, 2, 3);
-    FRAME_NEW("Miscellaneous");
+    FRAME_NEW(_("Miscellaneous"));
     TABLE_NEW(2, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Close _buttons on tabs");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Close _buttons on tabs"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), config->tabClose);
     g_signal_connect(checkbutton, "toggled"
      , G_CALLBACK(on_prefs_tabClose_toggled), prefs);
     INDENTED_ADD(checkbutton, 0, 1, 0, 1);
     hbox = gtk_hbox_new(FALSE, 4);
     gtk_box_pack_start(GTK_BOX(hbox)
-     , gtk_label_new_with_mnemonic("Tab Si_ze"), FALSE, FALSE, 4);
+     , gtk_label_new_with_mnemonic(_("Tab Si_ze")), FALSE, FALSE, 4);
     spinbutton = gtk_spin_button_new_with_range(0, 36, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), config->tabSize);
     g_signal_connect(spinbutton, "changed"
      , G_CALLBACK(on_prefs_tabSize_changed), prefs);
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
     FILLED_ADD(hbox, 1, 2, 0, 1);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("_Location search engine"), 0, 1, 1, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("_Location search engine")), 0, 1, 1, 2);
     entry = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(entry), config->locationSearch);
     g_signal_connect(entry, "focus-out-event"
@@ -598,14 +598,14 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     FILLED_ADD(entry, 1, 2, 1, 2);
 
     // Page "Network"
-    PAGE_NEW("Network");
-    FRAME_NEW("Proxy Server");
+    PAGE_NEW(_("Network"));
+    FRAME_NEW(_("Proxy Server"));
     TABLE_NEW(5, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("_Custom proxy server");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("_Custom proxy server"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 0, 1);
     hbox = gtk_hbox_new(FALSE, 4);
-    INDENTED_ADD(gtk_label_new_with_mnemonic("_Host/ Port"), 0, 1, 1, 2);
+    INDENTED_ADD(gtk_label_new_with_mnemonic(_("_Host/ Port")), 0, 1, 1, 2);
     entry = gtk_entry_new();
     gtk_widget_set_sensitive(entry, FALSE); //...
     gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 0);
@@ -614,61 +614,61 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
     FILLED_ADD(hbox, 1, 2, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic
-     ("Proxy requires authentication");
+     (_("Proxy requires authentication"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     // TODO: The proxy user and pass need to be indented further
     SPANNED_ADD(checkbutton, 0, 2, 2, 3);
-    INDENTED_ADD(gtk_label_new("Username"), 0, 1, 3, 4);
+    INDENTED_ADD(gtk_label_new(_("Username")), 0, 1, 3, 4);
     entry = gtk_entry_new();
     gtk_widget_set_sensitive(entry, FALSE); //...
     FILLED_ADD(entry, 1, 2, 3, 4);
-    INDENTED_ADD(gtk_label_new("Password"), 0, 1, 4, 5);
+    INDENTED_ADD(gtk_label_new(_("Password")), 0, 1, 4, 5);
     entry = gtk_entry_new();
     gtk_widget_set_sensitive(entry, FALSE); //...
     FILLED_ADD(entry, 1, 2, 4, 5);
-    FRAME_NEW("Cache");
+    FRAME_NEW(_("Cache"));
     TABLE_NEW(1, 2);
-    INDENTED_ADD(gtk_label_new("Cache size"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new(_("Cache size")), 0, 1, 0, 1);
     hbox = gtk_hbox_new(FALSE, 4);
     spinbutton = gtk_spin_button_new_with_range(0, 10000, 10);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 100/*config->iCacheSize*/);
     gtk_widget_set_sensitive(spinbutton, FALSE); //...
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("MB"), FALSE, FALSE, 0);
-    button = gtk_button_new_with_label("Clear cache");
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("MB")), FALSE, FALSE, 0);
+    button = gtk_button_new_with_label(_("Clear cache"));
     gtk_widget_set_sensitive(button, FALSE); //...
     gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
     FILLED_ADD(hbox, 1, 2, 0, 1);
 
     // Page "Privacy"
-    PAGE_NEW("Privacy");
-    FRAME_NEW("Cookies");
+    PAGE_NEW(_("Privacy"));
+    FRAME_NEW(_("Cookies"));
     TABLE_NEW(3, 2);
-    INDENTED_ADD(gtk_label_new("Accept cookies"), 0, 1, 0, 1);
+    INDENTED_ADD(gtk_label_new(_("Accept cookies")), 0, 1, 0, 1);
     combobox = gtk_combo_box_new_text();
     sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "All cookies", "Session cookies", "None", NULL);
+     , _("All cookies"), _("Session cookies"), _("None"), NULL);
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0); //...
     gtk_widget_set_sensitive(combobox, FALSE); //...
     FILLED_ADD(combobox, 1, 2, 0, 1);
     checkbutton = gtk_check_button_new_with_mnemonic
-     ("Allow cookies from the original website only");
+     (_("Allow cookies from the original website only"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 1, 2);
-    INDENTED_ADD(gtk_label_new("Maximum cookie age"), 0, 1, 2, 3);
+    INDENTED_ADD(gtk_label_new(_("Maximum cookie age")), 0, 1, 2, 3);
     hbox = gtk_hbox_new(FALSE, 4);
     spinbutton = gtk_spin_button_new_with_range(0, 360, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 30/*config->iCookieAgeMax*/);
     gtk_widget_set_sensitive(spinbutton, FALSE); //...
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("days"), FALSE, FALSE, 0);
-    button = gtk_button_new_with_label("View cookies");
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("days")), FALSE, FALSE, 0);
+    button = gtk_button_new_with_label(_("View cookies"));
     gtk_widget_set_sensitive(button, FALSE); //...
     gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 4);
     FILLED_ADD(hbox, 1, 2, 2, 3);
-    FRAME_NEW("History");
+    FRAME_NEW(_("History"));
     TABLE_NEW(3, 2);
-    checkbutton = gtk_check_button_new_with_mnemonic("Remember my visited pages");
+    checkbutton = gtk_check_button_new_with_mnemonic(_("Remember my visited pages"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 1, 0, 1);
     hbox = gtk_hbox_new(FALSE, 4);
@@ -676,20 +676,20 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), 30/*config->iHistoryAgeMax*/);
     gtk_widget_set_sensitive(spinbutton, FALSE); //...
     gtk_box_pack_start(GTK_BOX(hbox), spinbutton, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("days"), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("days")), FALSE, FALSE, 0);
     SPANNED_ADD(hbox, 1, 2, 0, 1);
     checkbutton = gtk_check_button_new_with_mnemonic
-     ("Remember my form inputs");
+     (_("Remember my form inputs"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 1, 2);
     checkbutton = gtk_check_button_new_with_mnemonic
-     ("Remember my downloaded files");
+     (_("Remember my downloaded files"));
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 2, 3);
 
     // Page "Programs"
-    PAGE_NEW("Programs");
-    FRAME_NEW("External programs");
+    PAGE_NEW(_("Programs"));
+    FRAME_NEW(_("External programs"));
     TABLE_NEW(3, 2);
     GtkWidget* treeview; GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text; GtkCellRenderer* renderer_pixbuf;
@@ -700,10 +700,10 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     renderer_text = gtk_cell_renderer_text_new();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new();
     column = gtk_tree_view_column_new_with_attributes(
-     "Protocol", renderer_text, "text", PROTOCOLS_COL_NAME, NULL);
+     _("Protocol"), renderer_text, "text", PROTOCOLS_COL_NAME, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
     column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, "Command");
+    gtk_tree_view_column_set_title(column, _("Command"));
     gtk_tree_view_column_pack_start(column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func(column, renderer_pixbuf
      , (GtkTreeCellDataFunc)on_prefs_protocols_render_icon, prefs, NULL);

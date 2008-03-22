@@ -12,6 +12,7 @@
 #include "midori-panel.h"
 
 #include "sokoke.h"
+#include <glib/gi18n.h>
 
 G_DEFINE_TYPE (MidoriPanel, midori_panel, GTK_TYPE_HBOX)
 
@@ -136,7 +137,7 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      g_param_spec_enum (
                                      "shadow-type",
                                      "Shadow Type",
-                                     "Appearance of the shadow around each panel",
+                                     _("Appearance of the shadow around each panel"),
                                      GTK_TYPE_SHADOW_TYPE,
                                      GTK_SHADOW_NONE,
                                      flags));
@@ -146,7 +147,7 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      g_param_spec_object (
                                      "menu",
                                      "Menu",
-                                     "Menu to hold panel items",
+                                     _("Menu to hold panel items"),
                                      GTK_TYPE_MENU,
                                      G_PARAM_READWRITE));
 
@@ -155,7 +156,7 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      g_param_spec_int (
                                      "page",
                                      "Page",
-                                     "The index of the current page",
+                                     _("The index of the current page"),
                                      -1, G_MAXINT, -1,
                                      flags));
 
@@ -199,8 +200,8 @@ midori_panel_init (MidoriPanel* panel)
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), "Close panel");
-    sokoke_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), "Close panel");
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close panel"));
+    sokoke_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), _("Close panel"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_panel_button_close_clicked_cb), panel);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
@@ -364,7 +365,7 @@ midori_panel_append_page (MidoriPanel* panel,
 
     guint n = midori_panel_page_num (panel, child);
 
-    const gchar* text = label ? label : "Untitled";
+    const gchar* text = label ? label : _("Untitled");
 
     GtkWidget* image;
     GtkToolItem* toolitem = gtk_radio_tool_button_new (priv->group);

@@ -214,7 +214,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      g_param_spec_object (
                                      "icon",
                                      "Icon",
-                                     "The icon of the loaded page",
+                                     _("The icon of the currently loaded page"),
                                      GDK_TYPE_PIXBUF,
                                      G_PARAM_READWRITE));
 
@@ -223,7 +223,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      g_param_spec_string (
                                      "uri",
                                      "Uri",
-                                     "The current uri of the loaded page",
+                                     _("The URI of the currently loaded page"),
                                      "about:blank",
                                      flags));
 
@@ -232,7 +232,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      g_param_spec_string (
                                      "title",
                                      "Title",
-                                     "The current title of the loaded page",
+                                     _("The title of the currently loaded page"),
                                      NULL,
                                      flags));
 
@@ -241,7 +241,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      g_param_spec_string (
                                      "statusbar-text",
                                      "Statusbar Text",
-                                     "The text that is displayed in the statusbar",
+                                     _("The text that is displayed in the statusbar"),
                                      "",
                                      flags));
 
@@ -250,7 +250,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      g_param_spec_object (
                                      "settings",
                                      "Settings",
-                                     "The associated settings",
+                                     _("The associated settings"),
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE));
 
@@ -469,7 +469,7 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
     if (uri)
     {
         GtkWidget* menuitem = gtk_image_menu_item_new_with_mnemonic (
-            "Open Link in New _Tab");
+            _("Open Link in New _Tab"));
         GdkScreen* screen = gtk_widget_get_screen (web_view);
         GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
         if (gtk_icon_theme_has_icon (icon_theme, STOCK_TAB_NEW))
@@ -492,7 +492,7 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
         if (text && strchr (text, '.') && !strchr (text, ' '))
         {
             GtkWidget* menuitem = gtk_image_menu_item_new_with_mnemonic (
-                "Open URL in New _Tab");
+                _("Open URL in New _Tab"));
             GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO,
                                                         GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);

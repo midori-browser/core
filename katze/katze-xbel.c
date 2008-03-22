@@ -24,6 +24,7 @@
 #include <string.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <glib/gi18n.h>
 
 #include "katze-utils.h"
 
@@ -719,7 +720,7 @@ katze_xbel_folder_from_data (KatzeXbelItem* folder,
     {
         // No valid xml or broken encoding
         *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                              "Malformed document.");
+                              _("Malformed document."));
         return FALSE;
     }
     if (!katze_xbel_folder_from_xmlDocPtr (folder, doc))
@@ -727,7 +728,7 @@ katze_xbel_folder_from_data (KatzeXbelItem* folder,
         // Parsing failed
         xmlFreeDoc(doc);
         *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                              "Malformed document.");
+                              _("Malformed document."));
         return FALSE;
     }
     xmlFreeDoc(doc);
@@ -755,7 +756,7 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
     {
         // File doesn't exist
         *error = g_error_new (G_FILE_ERROR, G_FILE_ERROR_NOENT,
-                              "File not found.");
+                              _("File not found."));
         return FALSE;
     }
     xmlDocPtr doc;
@@ -763,7 +764,7 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
     {
         // No valid xml or broken encoding
         *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                              "Malformed document.");
+                              _("Malformed document."));
         return FALSE;
     }
     if (!katze_xbel_folder_from_xmlDocPtr (folder, doc))
@@ -771,7 +772,7 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
         // Parsing failed
         xmlFreeDoc (doc);
         *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                             "Malformed document.");
+                             _("Malformed document."));
         return FALSE;
     }
     xmlFreeDoc (doc);
@@ -800,7 +801,7 @@ katze_xbel_folder_from_data_dirs (KatzeXbelItem* folder,
     // FIXME: Essentially unimplemented
 
     *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                          "Malformed document.");
+                          _("Malformed document."));
     return FALSE;
 }
 
@@ -948,7 +949,7 @@ katze_xbel_folder_to_file (KatzeXbelItem* folder,
     if(!(fp = fopen (file, "w")))
     {
         *error = g_error_new (G_FILE_ERROR, G_FILE_ERROR_ACCES,
-                              "Writing failed.");
+                              _("Writing failed."));
         return FALSE;
     }
     fputs (data, fp);

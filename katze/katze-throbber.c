@@ -12,6 +12,7 @@
 #include "katze-throbber.h"
 
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 
 G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC)
 
@@ -131,7 +132,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_int (
                                      "icon-size",
                                      "Icon size",
-                                     "Symbolic size to use for the animation",
+                                     _("Symbolic size to use for the animation"),
                                      0, G_MAXINT, GTK_ICON_SIZE_MENU,
                                      flags));
 
@@ -140,7 +141,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_string (
                                      "icon-name",
                                      "Icon Name",
-                                     "The name of an icon containing animation frames",
+                                     _("The name of an icon containing animation frames"),
                                      "process-working",
                                      flags));
 
@@ -149,7 +150,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_object (
                                      "pixbuf",
                                      "Pixbuf",
-                                     "A GdkPixbuf containing animation frames",
+                                     _("A GdkPixbuf containing animation frames"),
                                      GDK_TYPE_PIXBUF,
                                      flags));
 
@@ -158,7 +159,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_boolean (
                                      "animated",
                                      "Animated",
-                                     "Whether the throbber should be animated",
+                                     _("Whether the throbber should be animated"),
                                      FALSE,
                                      flags));
 
@@ -167,7 +168,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_string (
                                      "static-icon-name",
                                      "Static Icon Name",
-                                     "The name of an icon to be used as the static image",
+                                     _("The name of an icon to be used as the static image"),
                                      NULL,
                                      flags));
 
@@ -176,7 +177,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_object (
                                      "static-pixbuf",
                                      "Static Pixbuf",
-                                     "A GdkPixbuf to be used as the static image",
+                                     _("A GdkPixbuf to be used as the static image"),
                                      GDK_TYPE_PIXBUF,
                                      flags));
 
@@ -185,7 +186,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      g_param_spec_string (
                                      "static-stock-id",
                                      "Static Stock ID",
-                                     "The stock ID of an icon to be used as the static image",
+                                     _("The stock ID of an icon to be used as the static image"),
                                      NULL,
                                      flags));
 
