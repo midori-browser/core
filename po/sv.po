@@ -1,0 +1,948 @@
+# Swedish translations for midori package.
+# Copyright (C) 2008 THE midori'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the midori package.
+# Mikael Magnusson <mikachu@comhem.se>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: midori 0.0.17\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-03-23 21:04+0100\n"
+"PO-Revision-Date: 2008-03-23 21:05+0100\n"
+"Last-Translator: Mikael Magnusson <mikachu@comhem.se>\n"
+"Language-Team: Swedish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../midori.desktop.in.h:1
+msgid "Lightweight web browser"
+msgstr "Liten webbläsare"
+
+#: ../midori.desktop.in.h:2
+msgid "Midori Web Browser"
+msgstr "Midori Webbläsare"
+
+#: ../midori.desktop.in.h:3
+msgid "Web Browser"
+msgstr "Webbläsare"
+
+#. FIXME: Should we have a more specific message?
+#: ../src/helpers.c:68 ../src/helpers.c:84
+msgid "Could not run external program."
+msgstr "Kunde inte starta externt program."
+
+#: ../src/main.c:49
+msgid "Bookmark"
+msgstr "Bokmärke"
+
+#: ../src/main.c:50
+msgid "New Bookmark"
+msgstr "Nytt Bokmärke"
+
+#: ../src/main.c:51
+msgid "_Form Fill"
+msgstr "Fyll i _formulär"
+
+#: ../src/main.c:52 ../src/prefs.c:369 ../src/prefs.c:374
+msgid "Homepage"
+msgstr "Hemsida"
+
+#: ../src/main.c:53
+msgid "New _Tab"
+msgstr "Ny _tabb"
+
+#: ../src/main.c:54
+msgid "New _Window"
+msgstr "Nytt _fönster"
+
+#: ../src/main.c:59
+msgid "_Fullscreen"
+msgstr "_Fullskärm"
+
+#: ../src/main.c:60
+msgid "_Leave Fullscreen"
+msgstr "_Lämna fullskärm"
+
+#: ../src/main.c:139 ../src/main.c:171
+msgid "midori"
+msgstr "midori"
+
+#: ../src/main.c:146
+msgid "Display program version"
+msgstr "Visa programversion"
+
+#: ../src/main.c:150
+msgid "[URL]"
+msgstr "[URL]"
+
+#: ../src/main.c:173
+msgid "Debugging"
+msgstr "Felsökning"
+
+#: ../src/main.c:174
+msgid "Please report comments, suggestions and bugs to:"
+msgstr "Var god skicka kommentarer, förslag och buggrapporter till:"
+
+#: ../src/main.c:176
+msgid "Check for new versions at:"
+msgstr "Leta efter nya verioner på:"
+
+#: ../src/main.c:193
+#, c-format
+msgid "The configuration couldn't be loaded. %s\n"
+msgstr "Konfigurationsfilen kunde inte laddas. %s\n"
+
+#: ../src/main.c:219
+#, c-format
+msgid "The bookmarks couldn't be loaded. %s\n"
+msgstr "Bokmärkena kunde inte laddas. %s\n"
+
+#: ../src/main.c:232
+#, c-format
+msgid "The session couldn't be loaded. %s\n"
+msgstr "Sessionen kunde inte laddas. %s\n"
+
+#: ../src/main.c:244
+#, c-format
+msgid "The trash couldn't be loaded. %s\n"
+msgstr "Papperskorgen kunde inte laddas. %s\n"
+
+#: ../src/main.c:254
+msgid "The following errors occured:"
+msgstr "Följande fel inträffade:"
+
+#: ../src/main.c:56
+msgid "Select _All"
+msgstr "Välj _alla"
+
+#: ../src/midori-browser.c:185 ../src/midori-browser.c:1919
+#: ../src/midori-browser.c:1925
+msgid "Reload the current page"
+msgstr "Ladda om sidan"
+
+#: ../src/midori-browser.c:193 ../src/midori-browser.c:1922
+msgid "Stop loading the current page"
+msgstr "Sluta ladda sidan"
+
+#: ../src/midori-browser.c:258
+#, c-format
+msgid "%d%% loaded"
+msgstr "%d%% laddat"
+
+#: ../src/midori-browser.c:521 ../src/midori-webview.c:253
+msgid "The associated settings"
+msgstr "De associerade inställningarna"
+
+#: ../src/midori-browser.c:541 ../src/midori-webview.c:244
+msgid "The text that is displayed in the statusbar"
+msgstr "Texten som visas i statusraden"
+
+#: ../src/midori-browser.c:560
+msgid "The trash, collecting recently closed tabs and windows"
+msgstr "Soptunnan, samlar senast stängda tabbar och fönster"
+
+#: ../src/midori-browser.c:1052
+msgid "Open location"
+msgstr "Öppna plats"
+
+#: ../src/midori-browser.c:1064 ../src/midori-browser.c:1110
+msgid "_Location:"
+msgstr "_Plats:"
+
+#. TODO: We should offer all of the search's features here
+#: ../src/midori-browser.c:1098
+msgid "Web search"
+msgstr "Webbsökning"
+
+#: ../src/midori-browser.c:1137
+msgid "New bookmark"
+msgstr "Nytt bokmärke"
+
+#: ../src/midori-browser.c:1137
+msgid "Edit bookmark"
+msgstr "Redigera bokmärke"
+
+#: ../src/midori-browser.c:1154
+msgid "_Title:"
+msgstr "_Titel:"
+
+#: ../src/midori-browser.c:1170 ../src/webSearch.c:199
+msgid "_Description:"
+msgstr "_Beskrivning"
+
+#: ../src/midori-browser.c:1189 ../src/webSearch.c:213
+msgid "_URL:"
+msgstr "_URL:"
+
+#: ../src/midori-browser.c:1207
+msgid "_Folder:"
+msgstr "_Mapp:"
+
+#: ../src/midori-browser.c:1211
+msgid "Root"
+msgstr "Rot"
+
+#: ../src/midori-browser.c:1430
+msgid "<i>Separator</i>"
+msgstr "<i>Avskiljare</i>"
+
+#: ../src/midori-browser.c:1616
+msgid "A lightweight web browser."
+msgstr "En liten webbläsare."
+
+#: ../src/midori-browser.c:1624
+msgid "translator-credits"
+msgstr "Mikael Magnusson <mikachu@comhem.se>"
+
+#: ../src/midori-browser.c:1839
+msgid "_File"
+msgstr "_Fil"
+
+#: ../src/midori-browser.c:1842
+msgid "Open a new window"
+msgstr "Öppna i nytt fönster"
+
+#: ../src/midori-browser.c:1845
+msgid "Open a new tab"
+msgstr "Öppna i ny tabb"
+
+#: ../src/midori-browser.c:1848
+msgid "Open a file"
+msgstr "Öppna en fil"
+
+#: ../src/midori-browser.c:1851
+msgid "Save to a file"
+msgstr "Spara till fil"
+
+#: ../src/midori-browser.c:1853
+msgid "_Close Tab"
+msgstr "_Stäng tabb"
+
+#: ../src/midori-browser.c:1854
+msgid "Close the current tab"
+msgstr "Stäng den här tabben"
+
+#: ../src/midori-browser.c:1856
+msgid "C_lose Window"
+msgstr "S_täng fönster"
+
+#: ../src/midori-browser.c:1857
+msgid "Close this window"
+msgstr "Stäng det här fönstret"
+
+#: ../src/midori-browser.c:1859
+msgid "Pa_ge Setup"
+msgstr "_Sidinställningar"
+
+#: ../src/midori-browser.c:1869
+msgid "Quit the application"
+msgstr "Avsluta programmet"
+
+#: ../src/midori-browser.c:1871
+msgid "_Edit"
+msgstr "_Redigera"
+
+#: ../src/midori-browser.c:1874
+msgid "Undo the last modification"
+msgstr "Ångra senaste ändringen"
+
+#: ../src/midori-browser.c:1877
+msgid "Redo the last modification"
+msgstr "Gör om senaste ändringen"
+
+#: ../src/midori-browser.c:1883 ../src/midori-browser.c:1886
+msgid "Copy the selected text"
+msgstr "Kopiera markerad text"
+
+#: ../src/midori-browser.c:1889
+msgid "Paste text from the clipboard"
+msgstr "Klistra in text från klippbordet"
+
+#: ../src/midori-browser.c:1892
+msgid "Delete the selected text"
+msgstr "Ta bort markerad text"
+
+#: ../src/midori-browser.c:1895
+msgid "Select all text"
+msgstr "Markera all text"
+
+#: ../src/midori-browser.c:1903
+msgid "Find _Next"
+msgstr "Hitta _nästa"
+
+#: ../src/midori-browser.c:1906
+msgid "Find _Previous"
+msgstr "Hitta _förra"
+
+#: ../src/midori-browser.c:1909
+msgid "_Quick Find"
+msgstr "_Snabbsök"
+
+#: ../src/midori-browser.c:1915
+msgid "_View"
+msgstr "_Visa"
+
+#: ../src/midori-browser.c:1916
+msgid "_Toolbars"
+msgstr "_Verktygsfält"
+
+#: ../src/midori-browser.c:1936
+msgid "View Source"
+msgstr "Visa källkod"
+
+#: ../src/midori-browser.c:1939
+msgid "View Selection Source"
+msgstr "Visa källkod för markering"
+
+#: ../src/midori-browser.c:1943
+msgid "Toggle fullscreen view"
+msgstr "Växla fullskärmsläge"
+
+#: ../src/midori-browser.c:1945
+msgid "_Go"
+msgstr "_Gå"
+
+#: ../src/midori-browser.c:1956
+msgid "Location..."
+msgstr "Plats..."
+
+#: ../src/midori-browser.c:1959
+msgid "Web Search..."
+msgstr "Webbsökning..."
+
+#: ../src/midori-browser.c:1962
+msgid "Open in Page_holder..."
+msgstr "Visa i sid_hållare..."
+
+#: ../src/midori-browser.c:1965
+msgid "Closed Tabs and Windows"
+msgstr "Stängda tabbar och fönster"
+
+#: ../src/midori-browser.c:1966
+msgid "Reopen a previously closed tab or window"
+msgstr "Öppna en tidigare stängd tabb eller fönster"
+
+#: ../src/midori-browser.c:1968
+msgid "Empty Trash"
+msgstr "Töm papperskorgen"
+
+#: ../src/midori-browser.c:1971
+msgid "Undo Close Tab"
+msgstr "Ångra stäng tabb"
+
+#: ../src/midori-browser.c:1974
+msgid "_Bookmarks"
+msgstr "_Bokmärken"
+
+#: ../src/midori-browser.c:1979
+msgid "_Manage Bookmarks"
+msgstr "_Hantera bokmärken"
+
+#: ../src/midori-browser.c:1985
+msgid "Open in New _Tab"
+msgstr "Öppna i ny _tabb"
+
+#: ../src/midori-browser.c:1988
+msgid "Open in New _Window"
+msgstr "Öppna i nytt _fönster"
+
+#: ../src/midori-browser.c:1997
+msgid "_Tools"
+msgstr "_Verktyg"
+
+#: ../src/midori-browser.c:1999
+msgid "_Manage Search Engines"
+msgstr "_Hantera sökmotorer"
+
+#: ../src/midori-browser.c:2000
+msgid "Add, edit and remove search engines..."
+msgstr "Lägg till, ändra och ta bort sökmotorer..."
+
+#: ../src/midori-browser.c:2003
+msgid "_Window"
+msgstr "_Fönster"
+
+#: ../src/midori-browser.c:2005
+msgid "_Previous Tab"
+msgstr "_Föregående tabb"
+
+#: ../src/midori-browser.c:2008
+msgid "_Next Tab"
+msgstr "_Nästa tabb"
+
+#: ../src/midori-browser.c:2011
+msgid "Tab _Overview"
+msgstr "Tabbö_versikt"
+
+#. G_CALLBACK (_action_tab_overview_activate)
+#: ../src/midori-browser.c:2014
+msgid "_Help"
+msgstr "_Hjälp"
+
+#: ../src/midori-browser.c:2016
+msgid "_Contents"
+msgstr "_Innehåll"
+
+#: ../src/midori-browser.c:2026
+msgid "P_rivate Browsing"
+msgstr "P_rivat läge"
+
+#: ../src/midori-browser.c:2030
+msgid "_Work Offline"
+msgstr "_Arbeta offline"
+
+#: ../src/midori-browser.c:2035
+msgid "_Navigationbar"
+msgstr "_Navigationsfält"
+
+#: ../src/midori-browser.c:2039
+msgid "Side_panel"
+msgstr "Sido_panel"
+
+#: ../src/midori-browser.c:2043
+msgid "_Bookmarkbar"
+msgstr "_Bokmärkesfält"
+
+#: ../src/midori-browser.c:2047
+msgid "_Transferbar"
+msgstr "Ö_verföringsfält"
+
+#: ../src/midori-browser.c:2051
+msgid "_Statusbar"
+msgstr "_Statusrad"
+
+#: ../src/midori-browser.c:2521
+msgid "Bookmarks"
+msgstr "Bokmärken"
+
+#. TODO: We need something like "use current website"
+#: ../src/midori-browser.c:2531 ../src/prefs.c:381
+msgid "Transfers"
+msgstr "Överföringar"
+
+#: ../src/midori-browser.c:2540
+msgid "Console"
+msgstr "Konsol"
+
+#: ../src/midori-browser.c:2549 ../src/prefs.c:669
+msgid "History"
+msgstr "Historia"
+
+#: ../src/midori-browser.c:2558
+msgid "Pageholder"
+msgstr "Sidhållare"
+
+#: ../src/midori-browser.c:2580
+msgid "_Inline find:"
+msgstr "_Snabbsökning:"
+
+#: ../src/midori-browser.c:2606
+msgid "Match Case"
+msgstr "_Gör skillnad på skiftläge"
+
+#: ../src/midori-browser.c:2623
+msgid "Close Findbar"
+msgstr "Stäng sökfältet"
+
+#: ../src/midori-panel.c:140
+msgid "Appearance of the shadow around each panel"
+msgstr "Utseende på skuggan runt varje panel"
+
+#: ../src/midori-panel.c:150
+msgid "Menu to hold panel items"
+msgstr "Meny för att visa panelföremål"
+
+#: ../src/midori-panel.c:159
+msgid "The index of the current page"
+msgstr "Indexet för nuvarande sida"
+
+#: ../src/midori-panel.c:203 ../src/midori-panel.c:204
+msgid "Close panel"
+msgstr "Stäng panel"
+
+#: ../src/midori-panel.c:368
+msgid "Untitled"
+msgstr "Namnlös"
+
+#: ../src/midori-trash.c:97
+msgid "The maximum number of items"
+msgstr "Maximalt antal föremål"
+
+#: ../src/midori-websettings.c:69
+msgid "The desired tab label size"
+msgstr "Önskad storlek på tabbetikett"
+
+#: ../src/midori-websettings.c:78
+msgid "Whether tabs have close buttons"
+msgstr "Ifall tabbar har stängknappar"
+
+#: ../src/midori-websettings.c:87
+msgid "Load an URL from the selection via middle click"
+msgstr "Ladda en URL från markeringen via mittenklick"
+
+#: ../src/midori-webview.c:217
+msgid "The icon of the currently loaded page"
+msgstr "Ikonen för den laddade sidan"
+
+#: ../src/midori-webview.c:226
+msgid "The URI of the currently loaded page"
+msgstr "URIn för den laddade sidan"
+
+#: ../src/midori-webview.c:235
+msgid "The title of the currently loaded page"
+msgstr "Titeln för den laddade sidan"
+
+#: ../src/midori-webview.c:472
+msgid "Open Link in New _Tab"
+msgstr "Öppna länk i ny _tabb"
+
+#: ../src/midori-webview.c:495
+msgid "Open URL in New _Tab"
+msgstr "Öppna URL i ny _tabb"
+
+#: ../src/prefs.c:299
+#, c-format
+msgid "%s Preferences"
+msgstr "%s inställningar"
+
+#. Page "General"
+#: ../src/prefs.c:363
+msgid "General"
+msgstr "Allmänt"
+
+#: ../src/prefs.c:364
+msgid "Startup"
+msgstr "Uppstart"
+
+#: ../src/prefs.c:366
+msgid "Load on startup"
+msgstr "Ladda vid uppstart"
+
+#: ../src/prefs.c:369
+msgid "Blank page"
+msgstr "Tom sida"
+
+#: ../src/prefs.c:369
+msgid "Last open pages"
+msgstr "Senaste öppna sidor"
+
+#: ../src/prefs.c:383
+msgid "Download folder"
+msgstr "Nedladdningsmapp"
+
+#: ../src/prefs.c:385
+msgid "Choose downloaded files folder"
+msgstr "Välj nedladdningsmapp"
+
+#: ../src/prefs.c:392
+msgid "Show a notification window for finished transfers"
+msgstr "Visa ett notifieringsfönster för avslutade överföringar"
+
+#: ../src/prefs.c:395
+msgid "Languages"
+msgstr "Språk"
+
+#: ../src/prefs.c:397
+msgid "Preferred languages"
+msgstr "Föredragna språk"
+
+#. Page "Appearance"
+#: ../src/prefs.c:409
+msgid "Appearance"
+msgstr "Utseende"
+
+#: ../src/prefs.c:410
+msgid "Font settings"
+msgstr "Typsnittinställningar"
+
+#: ../src/prefs.c:412
+msgid "Default _font"
+msgstr "Standard_typsnitt"
+
+#: ../src/prefs.c:419
+msgid "_Minimum font size"
+msgstr "_Minimal typsnittstorlek"
+
+#: ../src/prefs.c:426
+msgid "_Advanced"
+msgstr "_Avancerat"
+
+#: ../src/prefs.c:430
+msgid "Default _encoding"
+msgstr "Standard_kodning"
+
+#: ../src/prefs.c:433
+msgid "Chinese (BIG5)"
+msgstr "Kinesiska (BIG5)"
+
+#: ../src/prefs.c:433
+msgid "Japanese (SHIFT_JIS)"
+msgstr "Japanska (SHIFT_JIS)"
+
+#: ../src/prefs.c:433
+msgid "Russian (KOI8-R)"
+msgstr "Ryska (KOI8-R)"
+
+#: ../src/prefs.c:434
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+#: ../src/prefs.c:434
+msgid "Western (ISO-8859-1)"
+msgstr "Västerländsk (ISO-8859-1)"
+
+#: ../src/prefs.c:449
+msgid "Advanced settings"
+msgstr "Avancerade inställningar"
+
+#: ../src/prefs.c:452
+msgid "Default colors"
+msgstr "Standardfärger"
+
+#: ../src/prefs.c:454
+msgid "Text color"
+msgstr "Textfärger"
+
+#: ../src/prefs.c:458
+msgid "Background color"
+msgstr "Bakgrundsfärg"
+
+#: ../src/prefs.c:462
+msgid "Link color"
+msgstr "Länkfärg"
+
+#: ../src/prefs.c:466
+msgid "Visited link color"
+msgstr "Färg för besökta länkar"
+
+#. Page "Behavior"
+#: ../src/prefs.c:472
+msgid "Behavior"
+msgstr "Beteende"
+
+#: ../src/prefs.c:473
+msgid "Browsing"
+msgstr "Bläddring"
+
+#: ../src/prefs.c:475
+msgid "Open _new pages in"
+msgstr "Öppna _nya sidor i"
+
+#: ../src/prefs.c:478
+msgid "New tab"
+msgstr "Ny tabb"
+
+#: ../src/prefs.c:478
+msgid "New window"
+msgstr "Nytt fönster"
+
+#: ../src/prefs.c:478
+msgid "Current tab"
+msgstr "Nuvarande tabb"
+
+#: ../src/prefs.c:483
+msgid "_Middle click opens selection"
+msgstr "_Mittenklick öppnar markering"
+
+#: ../src/prefs.c:488
+msgid "Open tabs in the _background"
+msgstr "Öppna tabbar i _bakgrunden"
+
+#: ../src/prefs.c:493
+msgid "Open popups in _tabs"
+msgstr "Öppna popups i _tabbar"
+
+#: ../src/prefs.c:499
+msgid "Features"
+msgstr "Funktioner"
+
+#: ../src/prefs.c:501
+msgid "Load _images"
+msgstr "Ladda b_ilder"
+
+#: ../src/prefs.c:506
+msgid "_Shrink images to fit"
+msgstr "Min_ska bilder för att få plats"
+
+#: ../src/prefs.c:511
+msgid "Print _backgrounds"
+msgstr "Skriv ut _bakgrunder"
+
+#: ../src/prefs.c:516
+msgid "_Resizable textareas"
+msgstr "Sto_rleken går att ändra på textrutor"
+
+#: ../src/prefs.c:521
+msgid "Enable _scripts"
+msgstr "Aktivera _skript"
+
+#: ../src/prefs.c:526
+msgid "Enable _plugins"
+msgstr "Aktivera _insticksmoduler"
+
+#: ../src/prefs.c:531
+msgid "_User Stylesheet"
+msgstr "Användarformatmall"
+
+#: ../src/prefs.c:537
+msgid "Choose user stylesheet"
+msgstr "Välj användarformatmall"
+
+#. Page "Interface"
+#: ../src/prefs.c:546
+msgid "Interface"
+msgstr "Gränssnitt"
+
+#: ../src/prefs.c:547
+msgid "Navigationbar"
+msgstr "Navigeringsfält"
+
+#: ../src/prefs.c:549
+msgid "_Toolbar style"
+msgstr "S_til för verktygsfält"
+
+#: ../src/prefs.c:552
+msgid "Default"
+msgstr "Standard"
+
+#: ../src/prefs.c:552
+msgid "Icons"
+msgstr "Ikoner"
+
+#: ../src/prefs.c:552
+msgid "Text"
+msgstr "Text"
+
+#: ../src/prefs.c:552
+msgid "Both"
+msgstr "Både och"
+
+#: ../src/prefs.c:552
+msgid "Both horizontal"
+msgstr "Båda horisontellt"
+
+#: ../src/prefs.c:557
+msgid "Show small _icons"
+msgstr "Visa små _ikoner"
+
+#: ../src/prefs.c:562
+msgid "Show Web_search"
+msgstr "Visa webb_sökning"
+
+#: ../src/prefs.c:567
+msgid "Show _New Tab"
+msgstr "Visa _ny tabb"
+
+#: ../src/prefs.c:572
+msgid "Show _Trash"
+msgstr "Visa _papperskorgen"
+
+#: ../src/prefs.c:577
+msgid "Miscellaneous"
+msgstr "Diverse"
+
+#: ../src/prefs.c:579
+msgid "Close _buttons on tabs"
+msgstr "Stäng_knappar på tabbar"
+
+#: ../src/prefs.c:586
+msgid "Tab Si_ze"
+msgstr "Ta_bbstorlek"
+
+#: ../src/prefs.c:593
+msgid "_Location search engine"
+msgstr "Sökmotor för _addressfältet"
+
+#. Page "Network"
+#: ../src/prefs.c:601
+msgid "Network"
+msgstr "Nätverk"
+
+#: ../src/prefs.c:602
+msgid "Proxy Server"
+msgstr "Proxyserver"
+
+#: ../src/prefs.c:604
+msgid "_Custom proxy server"
+msgstr "_Anpassad proxyserver"
+
+#: ../src/prefs.c:608
+msgid "_Host/ Port"
+msgstr "_Server/ Port"
+
+#: ../src/prefs.c:617
+msgid "Proxy requires authentication"
+msgstr "Proxy kräver autentisering"
+
+#: ../src/prefs.c:621
+msgid "Username"
+msgstr "Användarnamn"
+
+#: ../src/prefs.c:625
+msgid "Password"
+msgstr "Lösenord"
+
+#: ../src/prefs.c:629
+msgid "Cache"
+msgstr "Cache"
+
+#: ../src/prefs.c:631
+msgid "Cache size"
+msgstr "Cache-storlek"
+
+#: ../src/prefs.c:637
+msgid "MB"
+msgstr "MB"
+
+#: ../src/prefs.c:638
+msgid "Clear cache"
+msgstr "Rensa cache"
+
+#. Page "Privacy"
+#: ../src/prefs.c:644
+msgid "Privacy"
+msgstr "Sekretess"
+
+#: ../src/prefs.c:645
+msgid "Cookies"
+msgstr "Kakor"
+
+#: ../src/prefs.c:647
+msgid "Accept cookies"
+msgstr "Acceptera kakor"
+
+#: ../src/prefs.c:650
+msgid "All cookies"
+msgstr "Alla kakor"
+
+#: ../src/prefs.c:650
+msgid "Session cookies"
+msgstr "Sessionskakor"
+
+#: ../src/prefs.c:650
+msgid "None"
+msgstr "Inga"
+
+#: ../src/prefs.c:655
+msgid "Allow cookies from the original website only"
+msgstr "Tillåt kakor enbart från den ursprungliga webbplatsen"
+
+#: ../src/prefs.c:658
+msgid "Maximum cookie age"
+msgstr "Maximal kakålder"
+
+#: ../src/prefs.c:664 ../src/prefs.c:679
+msgid "days"
+msgstr "dagar"
+
+#: ../src/prefs.c:665
+msgid "View cookies"
+msgstr "Visa kakor"
+
+#: ../src/prefs.c:671
+msgid "Remember my visited pages"
+msgstr "Kom ihåg mina besökta sidor"
+
+#: ../src/prefs.c:682
+msgid "Remember my form inputs"
+msgstr "Kom ihåg vad jag fyllt i fält med"
+
+#: ../src/prefs.c:686
+msgid "Remember my downloaded files"
+msgstr "Kom ihåg mina nerladdade filer"
+
+#. Page "Programs"
+#: ../src/prefs.c:691
+msgid "Programs"
+msgstr "Program"
+
+#: ../src/prefs.c:692
+msgid "External programs"
+msgstr "Externa program"
+
+#: ../src/prefs.c:703
+msgid "Protocol"
+msgstr "Protokoll"
+
+#: ../src/prefs.c:706
+msgid "Command"
+msgstr "Kommando"
+
+#: ../src/sokoke.c:157
+msgid "Warning: You are using a superuser account!"
+msgstr "Varning: Du använder ett administratörskonto!"
+
+#: ../src/sokoke.c:267 ../katze/katze-xbel.c:952
+#, c-format
+msgid "Writing failed."
+msgstr "Kunde inte skriva."
+
+#: ../src/webSearch.c:82
+msgid "Empty"
+msgstr "Tom"
+
+#: ../src/webSearch.c:153
+msgid "Add search engine"
+msgstr "Lägg till sökmotor"
+
+#: ../src/webSearch.c:153
+msgid "Edit search engine"
+msgstr "Redigera sökmotor"
+
+#: ../src/webSearch.c:183
+msgid "_Name:"
+msgstr "_Namn:"
+
+#: ../src/webSearch.c:227
+msgid "_Icon (name or file):"
+msgstr "_Ikon (namn eller fil):"
+
+#: ../src/webSearch.c:241
+msgid "_Keyword:"
+msgstr "_Nyckelord:"
+
+#: ../src/webSearch.c:310
+msgid "Manage search engines"
+msgstr "Hantera sökmotorer"
+
+#: ../katze/katze-throbber.c:135
+msgid "Symbolic size to use for the animation"
+msgstr "Symbolisk storlek för animeringen"
+
+#: ../katze/katze-throbber.c:144
+msgid "The name of an icon containing animation frames"
+msgstr "Namn på en ikon som innehåller animeringsbilder"
+
+#: ../katze/katze-throbber.c:153
+msgid "A GdkPixbuf containing animation frames"
+msgstr "En GdkPixbuf som innehåller animeringbilder"
+
+#: ../katze/katze-throbber.c:162
+msgid "Whether the throbber should be animated"
+msgstr "Ifall aktivitetssymbolen ska animeras"
+
+#: ../katze/katze-throbber.c:171
+msgid "The name of an icon to be used as the static image"
+msgstr "Namn på ikon att använda som statisk bild"
+
+#: ../katze/katze-throbber.c:180
+msgid "A GdkPixbuf to be used as the static image"
+msgstr "En GdkPixbuf att använda som statisk bild"
+
+#: ../katze/katze-throbber.c:189
+msgid "The stock ID of an icon to be used as the static image"
+msgstr "Katalog-ID för en ikon att använda som statisk bild"
+
+#: ../katze/katze-xbel.c:723 ../katze/katze-xbel.c:731
+#: ../katze/katze-xbel.c:767 ../katze/katze-xbel.c:775
+#: ../katze/katze-xbel.c:804
+#, c-format
+msgid "Malformed document."
+msgstr "Felaktigt dokument."
+
+#: ../katze/katze-xbel.c:759
+#, c-format
+msgid "File not found."
+msgstr "Fil saknas."
