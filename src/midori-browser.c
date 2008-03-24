@@ -477,9 +477,9 @@ static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
 
-    signals[QUIT] = g_signal_new(
+    signals[QUIT] = g_signal_new (
         "quit",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         0,
         0,
@@ -487,9 +487,9 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0);
 
-    signals[NEW_WINDOW] = g_signal_new(
+    signals[NEW_WINDOW] = g_signal_new (
         "new-window",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriBrowserClass, new_window),
         0,
@@ -1716,8 +1716,8 @@ _action_bookmark_open_activate (GtkAction*     action,
             KatzeXbelItem* item;
             gtk_tree_model_get (model, &iter, 0, &item, -1);
             if (katze_xbel_item_is_bookmark (item))
-                g_object_set(midori_browser_get_current_web_view (browser),
-                             "uri", katze_xbel_bookmark_get_href(item), NULL);
+                g_object_set (midori_browser_get_current_web_view (browser),
+                              "uri", katze_xbel_bookmark_get_href(item), NULL);
         }
     }
 }
@@ -2019,7 +2019,7 @@ static const GtkActionEntry entries[] = {
    NULL, "",
    "hm?", G_CALLBACK (_action_about_activate) },
  };
- static const guint entries_n = G_N_ELEMENTS(entries);
+ static const guint entries_n = G_N_ELEMENTS (entries);
 
 static const GtkToggleActionEntry toggle_entries[] = {
  { "PrivateBrowsing", NULL,
@@ -2052,7 +2052,7 @@ static const GtkToggleActionEntry toggle_entries[] = {
    "hm?", G_CALLBACK (_action_statusbar_activate),
    FALSE },
  };
- static const guint toggle_entries_n = G_N_ELEMENTS(toggle_entries);
+ static const guint toggle_entries_n = G_N_ELEMENTS (toggle_entries);
 
 static void
 midori_browser_window_state_event_cb (MidoriBrowser*       browser,
