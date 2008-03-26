@@ -52,15 +52,15 @@ static void
 midori_panel_finalize (GObject* object);
 
 static void
-midori_panel_set_property (GObject* object,
-                           guint prop_id,
+midori_panel_set_property (GObject*      object,
+                           guint         prop_id,
                            const GValue* value,
-                           GParamSpec* pspec);
+                           GParamSpec*   pspec);
 
 static void
-midori_panel_get_property (GObject* object,
-                           guint prop_id,
-                           GValue* value,
+midori_panel_get_property (GObject*    object,
+                           guint       prop_id,
+                           GValue*     value,
                            GParamSpec* pspec);
 
 static gboolean
@@ -98,7 +98,8 @@ midori_cclosure_marshal_BOOLEAN__VOID (GClosure*     closure,
         data1 = g_value_peek_pointer (param_values + 0);
         data2 = closure->data;
     }
-    callback = (GMarshalFunc_BOOLEAN__VOID) (marshal_data ? marshal_data : cc->callback);
+    callback = (GMarshalFunc_BOOLEAN__VOID) (marshal_data
+        ? marshal_data : cc->callback);
     v_return = callback (data1, data2);
     g_value_set_boolean (return_value, v_return);
 }
@@ -258,8 +259,7 @@ midori_panel_set_property (GObject*      object,
         // FIXME: Move existing items to the new menu
         break;
     case PROP_PAGE:
-        gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook),
-                                       g_value_get_int (value));
+        midori_panel_set_current_page (panel, g_value_get_int (value));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -286,8 +286,7 @@ midori_panel_get_property (GObject*    object,
         g_value_set_object (value, priv->menu);
         break;
     case PROP_PAGE:
-        g_value_set_int (value,
-            gtk_notebook_get_current_page (GTK_NOTEBOOK (priv->notebook)));
+        g_value_set_int (value, midori_panel_get_current_page (panel));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -372,6 +371,7 @@ midori_panel_append_page (MidoriPanel* panel,
     guint n = midori_panel_page_num (panel, child);
 
     const gchar* text = label ? label : _("Untitled");
+    g_object_set_data (G_OBJECT (child), "label", (gchar*)text);
 
     GtkWidget* image;
     GtkToolItem* toolitem = gtk_radio_tool_button_new (priv->group);
@@ -429,15 +429,25 @@ midori_panel_get_current_page (MidoriPanel* panel)
     return gtk_notebook_get_current_page (GTK_NOTEBOOK (priv->notebook));
 }
 
+static GtkWidget*
+_midori_panel_child_for_scrolled (MidoriPanel* panel,
+                                  GtkWidget*   scrolled)
+{
+    GtkWidget* child = gtk_bin_get_child (GTK_BIN (scrolled));
+    if (GTK_IS_VIEWPORT (child))
+        child = gtk_bin_get_child (GTK_BIN (child));
+    return child;
+}
+
 /**
  * midori_panel_get_nth_page:
  * @panel: a #MidoriPanel
  *
  * Retrieves the child widget of the nth page.
  *
- * If @panel has no children, -1 is returned.
+ * If @panel has no children, %NULL is returned.
  *
- * Return value: the child widget of the new page, or -1
+ * Return value: the child widget of the new page, or %NULL
  **/
 GtkWidget*
 midori_panel_get_nth_page (MidoriPanel* panel,
@@ -447,7 +457,11 @@ midori_panel_get_nth_page (MidoriPanel* panel,
 
     MidoriPanelPrivate* priv = panel->priv;
 
-    return gtk_notebook_get_nth_page (GTK_NOTEBOOK (priv->notebook), page_num);
+    GtkWidget* scrolled = gtk_notebook_get_nth_page (
+        GTK_NOTEBOOK (priv->notebook), page_num);
+    if (scrolled)
+        return _midori_panel_child_for_scrolled (panel, scrolled);
+    return NULL;
 }
 
 /**
@@ -519,4 +533,10 @@ midori_panel_set_current_page (MidoriPanel* panel,
     MidoriPanelPrivate* priv = panel->priv;
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
+    GtkWidget* child = midori_panel_get_nth_page (panel, n);
+    if (child)
+    {
+        const gchar* label = g_object_get_data (G_OBJECT (child), "label");
+        g_object_set (priv->toolbar_label, "label", label, NULL);
+    }
 }
