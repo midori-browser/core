@@ -22,6 +22,7 @@
 #include "sokoke.h"
 #include "midori-webview.h"
 #include "midori-panel.h"
+#include "midori-console.h"
 #include "midori-trash.h"
 
 #include <gdk/gdkkeysyms.h>
@@ -51,6 +52,7 @@ struct _MidoriBrowserPrivate
 
     GtkWidget* panel;
     GtkWidget* panel_bookmarks;
+    GtkWidget* panel_console;
     GtkWidget* panel_pageholder;
     GtkWidget* notebook;
 
@@ -99,15 +101,15 @@ static void
 midori_browser_finalize (GObject* object);
 
 static void
-midori_browser_set_property (GObject* object,
-                             guint prop_id,
+midori_browser_set_property (GObject*      object,
+                             guint         prop_id,
                              const GValue* value,
-                             GParamSpec* pspec);
+                             GParamSpec*   pspec);
 
 static void
-midori_browser_get_property (GObject* object,
-                             guint prop_id,
-                             GValue* value,
+midori_browser_get_property (GObject*    object,
+                             guint       prop_id,
+                             GValue*     value,
                              GParamSpec* pspec);
 
 static GtkAction*
@@ -199,7 +201,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
 }
 
 static GtkWidget*
-_midori_browser_scrolled_for_child (MidoriBrowser* panel,
+_midori_browser_scrolled_for_child (MidoriBrowser* browser,
                                     GtkWidget*     child)
 {
     GtkWidget* scrolled = gtk_widget_get_parent (child);
@@ -209,7 +211,7 @@ _midori_browser_scrolled_for_child (MidoriBrowser* panel,
 }
 
 static GtkWidget*
-_midori_browser_child_for_scrolled (MidoriBrowser* panel,
+_midori_browser_child_for_scrolled (MidoriBrowser* browser,
                                     GtkWidget*     scrolled)
 {
     GtkWidget* child = gtk_bin_get_child (GTK_BIN (scrolled));
@@ -374,8 +376,11 @@ midori_web_view_console_message_cb (GtkWidget*     web_view,
                                     const gchar*   source_id,
                                     MidoriBrowser* browser)
 {
-    // FIXME: We want this to appear in a panel
-    return FALSE;
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    midori_console_add (MIDORI_CONSOLE (priv->panel_console),
+                        message, line, source_id);
+    return TRUE;
 }
 
 static void
@@ -623,8 +628,8 @@ _action_quit_activate (GtkAction*     action,
 }
 
 static void
-_action_edit_activate(GtkAction*     action,
-                      MidoriBrowser* browser)
+_action_edit_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     gboolean can_cut = FALSE, can_copy = FALSE, can_paste = FALSE;
@@ -654,8 +659,8 @@ _action_edit_activate(GtkAction*     action,
 }
 
 static void
-_action_cut_activate(GtkAction*     action,
-                     MidoriBrowser* browser)
+_action_cut_activate (GtkAction*     action,
+                      MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
@@ -663,8 +668,8 @@ _action_cut_activate(GtkAction*     action,
 }
 
 static void
-_action_copy_activate(GtkAction*     action,
-                      MidoriBrowser* browser)
+_action_copy_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
@@ -672,8 +677,8 @@ _action_copy_activate(GtkAction*     action,
 }
 
 static void
-_action_paste_activate(GtkAction*     action,
-                       MidoriBrowser* browser)
+_action_paste_activate (GtkAction*     action,
+                        MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
@@ -681,8 +686,8 @@ _action_paste_activate(GtkAction*     action,
 }
 
 static void
-_action_delete_activate(GtkAction*     action,
-                        MidoriBrowser* browser)
+_action_delete_activate (GtkAction*     action,
+                         MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
@@ -695,13 +700,13 @@ _action_delete_activate(GtkAction*     action,
 }
 
 static void
-_action_select_all_activate(GtkAction*     action,
-                            MidoriBrowser* browser)
+_action_select_all_activate (GtkAction*     action,
+                             MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
     if (G_LIKELY (widget))
     {
-        if (GTK_IS_ENTRY (widget))
+        if (GTK_IS_EDITABLE (widget))
             gtk_editable_select_region (GTK_EDITABLE (widget), 0, -1);
         else
             g_signal_emit_by_name (widget, "select-all");
@@ -1316,22 +1321,23 @@ midori_panel_bookmarks_button_release_event_cb (GtkWidget*      widget,
     if (event->button != 2 && event->button != 3)
         return FALSE;
 
-    GtkTreeSelection* selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+    GtkTreeSelection* selection = gtk_tree_view_get_selection (
+        GTK_TREE_VIEW (widget));
     if (selection)
     {
         GtkTreeModel* model;
         GtkTreeIter iter;
-        if (gtk_tree_selection_get_selected(selection, &model, &iter))
+        if (gtk_tree_selection_get_selected (selection, &model, &iter))
         {
             KatzeXbelItem* item;
-            gtk_tree_model_get(model, &iter, 0, &item, -1);
-            if (event->button == 2 && katze_xbel_item_is_bookmark(item))
+            gtk_tree_model_get (model, &iter, 0, &item, -1);
+            if (event->button == 2 && katze_xbel_item_is_bookmark (item))
             {
-                const gchar* uri = katze_xbel_bookmark_get_href(item);
+                const gchar* uri = katze_xbel_bookmark_get_href (item);
                 midori_browser_append_uri (browser, uri);
             }
             else
-                _midori_panel_bookmarks_popup(widget, event, item, browser);
+                _midori_panel_bookmarks_popup (widget, event, item, browser);
             return TRUE;
         }
     }
@@ -1342,23 +1348,24 @@ static void
 midori_panel_bookmarks_popup_menu_cb (GtkWidget*     widget,
                                       MidoriBrowser* browser)
 {
-    GtkTreeSelection* selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+    GtkTreeSelection* selection = gtk_tree_view_get_selection (
+        GTK_TREE_VIEW (widget));
     if (selection)
     {
         GtkTreeModel* model;
         GtkTreeIter iter;
-        if (gtk_tree_selection_get_selected(selection, &model, &iter))
+        if (gtk_tree_selection_get_selected (selection, &model, &iter))
         {
             KatzeXbelItem* item;
-            gtk_tree_model_get(model, &iter, 0, &item, -1);
-            _midori_panel_bookmarks_popup(widget, NULL, item, browser);
+            gtk_tree_model_get (model, &iter, 0, &item, -1);
+            _midori_panel_bookmarks_popup (widget, NULL, item, browser);
         }
     }
 }
 
 static void
-_tree_store_insert_folder (GtkTreeStore* treestore,
-                           GtkTreeIter* parent,
+_tree_store_insert_folder (GtkTreeStore*  treestore,
+                           GtkTreeIter*   parent,
                            KatzeXbelItem* folder)
 {
     guint n = katze_xbel_folder_get_n_items (folder);
@@ -1430,7 +1437,7 @@ midori_browser_bookmarks_item_render_text_cb (GtkTreeViewColumn* column,
         g_object_set (renderer, "markup", _("<i>Separator</i>"), NULL);
     else
         g_object_set (renderer, "markup", NULL,
-                      "text", katze_xbel_item_get_title(item), NULL);
+                      "text", katze_xbel_item_get_title (item), NULL);
 }
 
 static void
@@ -1443,7 +1450,7 @@ midori_browser_bookmark_menu_folder_activate_cb (GtkWidget*     menuitem,
                                                  MidoriBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (menuitem));
-    gtk_container_foreach(GTK_CONTAINER (menu), (GtkCallback) gtk_widget_destroy, NULL);//...
+    gtk_container_foreach (GTK_CONTAINER (menu), (GtkCallback) gtk_widget_destroy, NULL);//...
     KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data(G_OBJECT (menuitem), "KatzeXbelItem");
     _midori_browser_create_bookmark_menu (browser, folder, menu);
     // Remove all menuitems when the menu is hidden.
@@ -1456,7 +1463,7 @@ static void
 midori_browser_bookmarkbar_folder_activate_cb (GtkToolItem*   toolitem,
                                                MidoriBrowser* browser)
 {
-    GtkWidget* menu = gtk_menu_new();
+    GtkWidget* menu = gtk_menu_new ();
     KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data (
         G_OBJECT (toolitem), "KatzeXbelItem");
     _midori_browser_create_bookmark_menu (browser, folder, menu);
@@ -1471,7 +1478,8 @@ static void
 midori_browser_menu_bookmarks_item_activate_cb (GtkWidget*     widget,
                                                 MidoriBrowser* browser)
 {
-    KatzeXbelItem* item = (KatzeXbelItem*)g_object_get_data(G_OBJECT(widget), "KatzeXbelItem");
+    KatzeXbelItem* item = (KatzeXbelItem*)g_object_get_data (G_OBJECT (widget),
+                                                             "KatzeXbelItem");
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
     g_object_set (web_view, "uri", katze_xbel_bookmark_get_href (item), NULL);
 }
@@ -1813,7 +1821,7 @@ _action_trash_empty_activate (GtkAction*     action,
 
 static void
 _action_bookmark_delete_activate (GtkAction* action,
-                                MidoriBrowser* browser)
+                                  MidoriBrowser* browser)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
@@ -2514,7 +2522,7 @@ midori_browser_init (MidoriBrowser* browser)
                       NULL);
     midori_panel_bookmarks_cursor_or_row_changed_cb (GTK_TREE_VIEW (treeview),
                                                      browser);
-    gtk_box_pack_start (GTK_BOX (box), treeview, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (box), treeview, TRUE, TRUE, 0);
     priv->panel_bookmarks = treeview;
     gtk_widget_show_all (box);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
@@ -2531,12 +2539,10 @@ midori_browser_init (MidoriBrowser* browser)
                               "package", _("Transfers"));
 
     // Console
-    priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                                           "uri", "about:blank",
-                                           NULL);
-    gtk_widget_show (priv->panel_pageholder);
+    priv->panel_console = midori_console_new ();
+    gtk_widget_show (priv->panel_console);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_pageholder,
+                              priv->panel_console,
                               "terminal", _("Console"));
 
     // History
