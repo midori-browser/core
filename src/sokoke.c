@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -69,12 +69,65 @@ void sokoke_tool_item_set_tooltip_text(GtkToolItem* toolitem, const gchar* text)
     gtk_tool_item_set_tooltip(toolitem, tooltips, text, NULL);
 }
 
-void sokoke_widget_popup(GtkWidget* widget, GtkMenu* menu
- , GdkEventButton* event)
+typedef struct
 {
-    // TODO: Provide a GtkMenuPositionFunc in case a keyboard invoked this
+     GtkWidget* widget;
+     SokokeMenuPos position;
+} SokokePopupInfo;
+
+static void
+sokoke_widget_popup_position_menu (GtkMenu*  menu,
+                                   gint*     x,
+                                   gint*     y,
+                                   gboolean* push_in,
+                                   gpointer  user_data)
+{
+    gint wx, wy;
+    gint menu_width;
+    GtkRequisition menu_req;
+    GtkRequisition widget_req;
+    SokokePopupInfo* info = user_data;
+    GtkWidget* widget = info->widget;
+
+    // Retrieve size and position of both widget and menu
+    if (GTK_WIDGET_NO_WINDOW (widget))
+    {
+        gdk_window_get_position (widget->window, &wx, &wy);
+        wx += widget->allocation.x;
+        wy += widget->allocation.y;
+    }
+    else
+        gdk_window_get_origin (widget->window, &wx, &wy);
+    gtk_widget_size_request (GTK_WIDGET (menu), &menu_req);
+    gtk_widget_size_request (widget, &widget_req);
+    menu_width = menu_req.width;
+    gint widget_height = widget_req.height; // Better than allocation.height
+
+    // Calculate menu position
+    if (info->position == SOKOKE_MENU_POSITION_CURSOR)
+        ; // Do nothing?
+    else if (info->position == SOKOKE_MENU_POSITION_RIGHT)
+    {
+        *x = wx + widget->allocation.width - menu_width;
+        *y = wy + widget_height;
+    } else if (info->position == SOKOKE_MENU_POSITION_LEFT)
+    {
+        *x = wx;
+        *y = wy + widget_height;
+    }
+
+    *push_in = TRUE;
+}
+
+
+void
+sokoke_widget_popup (GtkWidget*      widget,
+                     GtkMenu*        menu,
+                     GdkEventButton* event,
+                     SokokeMenuPos   pos)
+{
     int button, event_time;
-    if(event)
+    if (event)
     {
         button = event->button;
         event_time = event->time;
@@ -82,19 +135,28 @@ void sokoke_widget_popup(GtkWidget* widget, GtkMenu* menu
     else
     {
         button = 0;
-        event_time = gtk_get_current_event_time();
+        event_time = gtk_get_current_event_time ();
     }
 
-    if(!gtk_menu_get_attach_widget(menu))
-        gtk_menu_attach_to_widget(menu, widget, NULL);
-    gtk_menu_popup(menu, NULL, NULL, NULL, NULL, button, event_time);
+    if (!gtk_menu_get_attach_widget(menu))
+        gtk_menu_attach_to_widget (menu, widget, NULL);
+
+    if (widget)
+    {
+        SokokePopupInfo info = { widget, pos };
+        gtk_menu_popup (menu, NULL, NULL,
+                        sokoke_widget_popup_position_menu, &info,
+                        button, event_time);
+    }
+    else
+        gtk_menu_popup (menu, NULL, NULL, NULL, NULL, button, event_time);
 }
 
 typedef enum
 {
- SOKOKE_DESKTOP_UNTESTED,
- SOKOKE_DESKTOP_XFCE,
- SOKOKE_DESKTOP_UNKNOWN
+    SOKOKE_DESKTOP_UNTESTED,
+    SOKOKE_DESKTOP_XFCE,
+    SOKOKE_DESKTOP_UNKNOWN
 } SokokeDesktop;
 
 static SokokeDesktop sokoke_get_desktop(void)

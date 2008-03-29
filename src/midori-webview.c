@@ -923,7 +923,7 @@ midori_web_view_get_proxy_tab_label (MidoriWebView* web_view)
         priv->tab_label = gtk_label_new (title);
         gtk_misc_set_alignment (GTK_MISC (priv->tab_label), 0.0, 0.5);
         // TODO: make the tab initially look "unvisited" until it's focused
-        gtk_box_pack_start (GTK_BOX (hbox), priv->tab_label, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), priv->tab_label, FALSE, TRUE, 0);
         priv->proxy_tab_label = event_box;
         _midori_web_view_update_tab_label_size (web_view);
 
@@ -936,7 +936,7 @@ midori_web_view_get_proxy_tab_label (MidoriWebView* web_view)
         GtkWidget* image = gtk_image_new_from_stock (GTK_STOCK_CLOSE,
                                                      GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON(close_button), image);
-        gtk_box_pack_start (GTK_BOX (hbox), close_button, FALSE, FALSE, 0);
+        gtk_box_pack_end (GTK_BOX (hbox), close_button, FALSE, FALSE, 0);
         gtk_widget_show_all (GTK_WIDGET (event_box));
         if (!priv->close_button)
             gtk_widget_hide (close_button);

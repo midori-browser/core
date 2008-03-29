@@ -93,7 +93,8 @@ void on_webSearch_icon_released(GtkWidget* widget, SexyIconEntryPosition* pos
     menuitem = gtk_action_create_menu_item(action);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);*/
-    sokoke_widget_popup(widget, GTK_MENU(menu), NULL);
+    sokoke_widget_popup(widget, GTK_MENU(menu),
+		        NULL, SOKOKE_MENU_POSITION_LEFT);
 }
 
 static void on_webSearch_engines_render_icon(GtkTreeViewColumn* column

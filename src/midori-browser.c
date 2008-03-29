@@ -865,7 +865,8 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
     menuitem = gtk_action_create_menu_item (action);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    sokoke_widget_popup (widget, GTK_MENU (menu), NULL);
+    sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
+                         SOKOKE_MENU_POSITION_RIGHT);
 }
 
 static void
@@ -1310,7 +1311,8 @@ _midori_panel_bookmarks_popup (GtkWidget*      widget,
     _action_set_sensitive (browser, "BookmarkOpenTab", is_bookmark);
     _action_set_sensitive (browser, "BookmarkOpenWindow", is_bookmark);
 
-    sokoke_widget_popup (widget, GTK_MENU (priv->popup_bookmark), event);
+    sokoke_widget_popup (widget, GTK_MENU (priv->popup_bookmark),
+		         event, SOKOKE_MENU_POSITION_CURSOR);
 }
 
 static gboolean
@@ -1471,7 +1473,8 @@ midori_browser_bookmarkbar_folder_activate_cb (GtkToolItem*   toolitem,
     // FIXME: We really *should* run the line below, but it won't work like that
     /*g_signal_connect (menu, "hide", G_CALLBACK (gtk_container_foreach),
                       gtk_widget_destroy);*/
-    sokoke_widget_popup (GTK_WIDGET (toolitem), GTK_MENU (menu), NULL);
+    sokoke_widget_popup (GTK_WIDGET (toolitem), GTK_MENU (menu),
+		         NULL, SOKOKE_MENU_POSITION_LEFT);
 }
 
 static void

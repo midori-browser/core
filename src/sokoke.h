@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -17,6 +17,12 @@
 // Many themes need this hack for small toolbars to work
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
+typedef enum {
+    SOKOKE_MENU_POSITION_CURSOR = 0,
+    SOKOKE_MENU_POSITION_LEFT,
+    SOKOKE_MENU_POSITION_RIGHT
+} SokokeMenuPos;
+
 void
 sokoke_combo_box_add_strings(GtkComboBox*, const gchar*, ...);
 
@@ -33,7 +39,7 @@ void
 sokoke_tool_item_set_tooltip_text(GtkToolItem*, const gchar*);
 
 void
-sokoke_widget_popup(GtkWidget*, GtkMenu*, GdkEventButton*);
+sokoke_widget_popup(GtkWidget*, GtkMenu*, GdkEventButton*, SokokeMenuPos pos);
 
 gpointer
 sokoke_xfce_header_new(const gchar*, const gchar*);
