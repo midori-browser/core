@@ -669,13 +669,15 @@ midori_web_view_set_property (GObject*      object,
                                               priv->icon);
         break;
     case PROP_URI:
-        if (priv->uri && *priv->uri)
+    {
+        const gchar* uri = g_value_get_string (value);
+        if (uri && *uri)
         {
             // FIXME: Autocomplete the uri
-            webkit_web_view_open (WEBKIT_WEB_VIEW (web_view),
-                                  g_value_get_string (value));
+            webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), uri);
         }
         break;
+    }
     case PROP_TITLE:
         katze_assign (priv->title, g_value_dup_string (value));
         const gchar* title = midori_web_view_get_display_title (web_view);
