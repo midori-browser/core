@@ -224,7 +224,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      "uri",
                                      "Uri",
                                      _("The URI of the currently loaded page"),
-                                     "about:blank",
+                                     "",
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -669,9 +669,12 @@ midori_web_view_set_property (GObject*      object,
                                               priv->icon);
         break;
     case PROP_URI:
-        // FIXME: Autocomplete the uri
-        webkit_web_view_open (WEBKIT_WEB_VIEW (web_view),
-                              g_value_get_string (value));
+        if (priv->uri && *priv->uri)
+        {
+            // FIXME: Autocomplete the uri
+            webkit_web_view_open (WEBKIT_WEB_VIEW (web_view),
+                                  g_value_get_string (value));
+        }
         break;
     case PROP_TITLE:
         katze_assign (priv->title, g_value_dup_string (value));
@@ -1030,19 +1033,19 @@ midori_web_view_get_progress (MidoriWebView* web_view)
  * @web_view: a #MidoriWebView
  *
  * Retrieves a string that is suitable for displaying, particularly an
- * empty uri is represented as "about:blank".
+ * empty URI is represented as "".
  *
  * You can assume that the string is not %NULL.
  *
- * Return value: an uri string
+ * Return value: an URI string
  **/
 const gchar*
 midori_web_view_get_display_uri (MidoriWebView* web_view)
 {
-    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), "about:blank");
+    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), "");
 
     MidoriWebViewPrivate* priv = web_view->priv;
-    return priv->uri ? priv->uri : "about:blank";
+    return priv->uri ? priv->uri : "";
 }
 
 /**
@@ -1050,7 +1053,7 @@ midori_web_view_get_display_uri (MidoriWebView* web_view)
  * @web_view: a #MidoriWebView
  *
  * Retrieves a string that is suitable for displaying as a title. Most of the
- * time this will be the title or the current uri.
+ * time this will be the title or the current URI.
  *
  * You can assume that the string is not %NULL.
  *
@@ -1077,7 +1080,7 @@ midori_web_view_get_display_title (MidoriWebView* web_view)
  * Retrieves the uri of the currently focused link, particularly while the
  * mouse hovers a link or a context menu is being opened.
  *
- * Return value: an uri string, or %NULL if there is no link focussed
+ * Return value: an URI string, or %NULL if there is no link focussed
  **/
 const gchar*
 midori_web_view_get_link_uri (MidoriWebView* web_view)

@@ -573,14 +573,14 @@ static void
 _action_window_new_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
-    g_signal_emit (browser, signals[NEW_WINDOW], 0, "about:blank");
+    g_signal_emit (browser, signals[NEW_WINDOW], 0, "");
 }
 
 static void
 _action_tab_new_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    midori_browser_append_uri (browser, "about:blank");
+    midori_browser_append_uri (browser, "");
 }
 
 static void
@@ -2865,7 +2865,10 @@ midori_browser_append_tab (MidoriBrowser* browser,
 
     n = gtk_notebook_page_num (GTK_NOTEBOOK (priv->notebook), scrolled);
     if (!config->openTabsInTheBackground)
+    {
         gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
+        gtk_window_set_focus (GTK_WINDOW (browser), priv->location);
+    }
     return n;
 }
 
