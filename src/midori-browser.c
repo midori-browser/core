@@ -1015,6 +1015,8 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
 {
     switch (event->keyval)
     {
+    case GDK_ISO_Enter:
+    case GDK_KP_Enter:
     case GDK_Return:
     {
         const gchar* uri = gtk_entry_get_text (GTK_ENTRY (widget));
