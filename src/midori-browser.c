@@ -174,8 +174,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (web_view)));
     _action_set_sensitive (browser, "Forward",
         webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (web_view)));
-    _action_set_sensitive (browser, "Reload", loading);
-    _action_set_sensitive (browser, "Stop", !loading);
+    _action_set_sensitive (browser, "Reload", !loading);
+    _action_set_sensitive (browser, "Stop", loading);
 
     GtkAction* action = gtk_action_group_get_action (priv->action_group,
                                                      "ReloadStop");
@@ -1930,8 +1930,8 @@ static const GtkActionEntry entries[] = {
  { "Reload", GTK_STOCK_REFRESH,
    NULL, "<Ctrl>r",
    N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
- { "Stop", GTK_STOCK_REFRESH,
-   NULL, "<Ctrl>r",
+ { "Stop", GTK_STOCK_STOP,
+   NULL, "Escape",
    N_("Stop loading the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "ReloadStop", GTK_STOCK_STOP,
    NULL, "<Ctrl>r",
