@@ -2536,7 +2536,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Transfers
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                                           "uri", "about:blank",
+                                           "uri", "",
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
@@ -2552,7 +2552,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     // History
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                                           "uri", "about:blank",
+                                           "uri", "",
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),

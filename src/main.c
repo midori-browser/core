@@ -296,7 +296,7 @@ int main(int argc, char** argv)
     {
         KatzeXbelItem* item = katze_xbel_bookmark_new();
         if(config->startup == CONFIG_STARTUP_BLANK)
-            katze_xbel_bookmark_set_href(item, "about:blank");
+            katze_xbel_bookmark_set_href(item, "");
         else
             katze_xbel_bookmark_set_href(item, config->homepage);
         katze_xbel_folder_prepend_item(_session, item);
