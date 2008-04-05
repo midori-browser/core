@@ -831,7 +831,12 @@ midori_web_view_get_proxy_tab_icon (MidoriWebView* web_view)
     if (!priv->tab_icon)
     {
         priv->tab_icon = katze_throbber_new ();
-        katze_throbber_set_pixbuf (KATZE_THROBBER(priv->tab_icon), priv->icon);
+        if (priv->icon)
+            katze_throbber_set_static_pixbuf (KATZE_THROBBER(priv->tab_icon),
+                                              priv->icon);
+        else
+            katze_throbber_set_static_stock_id (KATZE_THROBBER(priv->tab_icon),
+                                                GTK_STOCK_FILE);
     }
     return priv->tab_icon;
 }
@@ -916,8 +921,7 @@ midori_web_view_get_proxy_tab_label (MidoriWebView* web_view)
 
     if (!priv->proxy_tab_label)
     {
-        priv->tab_icon = katze_throbber_new ();
-        katze_throbber_set_pixbuf (KATZE_THROBBER(priv->tab_icon), priv->icon);
+        priv->tab_icon = midori_web_view_get_proxy_tab_icon (web_view);
 
         GtkWidget* event_box = gtk_event_box_new ();
         gtk_event_box_set_visible_window(GTK_EVENT_BOX (event_box), FALSE);
