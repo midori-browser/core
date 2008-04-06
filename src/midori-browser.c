@@ -865,8 +865,11 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
     menuitem = gtk_action_create_menu_item (action);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
-                         SOKOKE_MENU_POSITION_RIGHT);
+    if (GTK_IS_MENU_ITEM (widget))
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (widget), menu);
+    else
+        sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
+                             SOKOKE_MENU_POSITION_RIGHT);
 }
 
 static void
@@ -1687,7 +1690,7 @@ static gboolean
 midori_panel_close_cb (MidoriPanel*   panel,
                        MidoriBrowser* browser)
 {
-    config->panelShow = FALSE;
+    _action_set_active (browser, "Panel", FALSE);
     return FALSE;
 }
 
