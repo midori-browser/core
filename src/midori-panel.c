@@ -173,7 +173,8 @@ static void
 midori_panel_button_close_clicked_cb (GtkWidget*   toolitem,
                                       MidoriPanel* panel)
 {
-    g_signal_emit (panel, signals[CLOSE], 0);
+    gboolean return_value;
+    g_signal_emit (panel, signals[CLOSE], 0, &return_value);
 }
 
 static void
