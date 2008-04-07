@@ -396,7 +396,7 @@ gtk_widget_button_press_event (MidoriWebView*  web_view,
         if (state & GDK_CONTROL_MASK)
         {
             // FIXME: Reset font multiplier or zoom level
-            return TRUE;
+            return FALSE; // Allow Ctrl + Middle click
         }
         else
         {
@@ -421,11 +421,15 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
 
     if (event->button == 2 && priv->middle_click_goto)
     {
+        GdkModifierType state = (GdkModifierType) event->state;
         GtkClipboard* clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
         gchar* uri = gtk_clipboard_wait_for_text (clipboard);
         if (uri && strchr (uri, '.') && !strchr (uri, ' '))
         {
-            g_object_set (web_view, "uri", uri, NULL);
+            if (state & GDK_CONTROL_MASK)
+                g_signal_emit (web_view, signals[NEW_TAB], 0, uri);
+            else
+                g_object_set (web_view, "uri", uri, NULL);
             g_free (uri);
             return TRUE;
         }
