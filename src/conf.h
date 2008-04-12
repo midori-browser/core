@@ -56,9 +56,6 @@ typedef struct _CConfig
     gint     winHeight;
     guint    winPanelPos;
     guint    searchEngine; // last selected search engine
-
-    GPtrArray* protocols_names;
-    GData*     protocols_commands;
 } CConfig;
 
 enum

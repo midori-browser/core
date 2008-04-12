@@ -48,47 +48,6 @@ void show_error(const gchar* text, const gchar* text2, MidoriBrowser* browser)
     gtk_widget_destroy(dialog);
 }
 
-gboolean spawn_protocol_command(const gchar* protocol, const gchar* res)
-{
-    const gchar* command = g_datalist_get_data(&config->protocols_commands, protocol);
-    if(!command)
-        return FALSE;
-
-    // Create an argument vector
-    gchar* uriEscaped = g_shell_quote(res);
-    gchar* commandReady;
-    if(strstr(command, "%s"))
-        commandReady = g_strdup_printf(command, uriEscaped);
-    else
-        commandReady = g_strconcat(command, " ", uriEscaped, NULL);
-    gchar** argv; GError* error = NULL;
-    if(!g_shell_parse_argv(commandReady, NULL, &argv, &error))
-    {
-        // FIXME: Should we have a more specific message?
-        show_error(_("Could not run external program."), error->message, NULL);
-        g_error_free(error);
-        g_free(commandReady); g_free(uriEscaped);
-        return FALSE;
-    }
-
-    // Try to run the command
-    error = NULL;
-    gboolean success = g_spawn_async(NULL, argv, NULL
-     , (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD
-     , NULL, NULL, NULL, &error);
-    g_strfreev(argv);
-
-    if(!success)
-    {
-        // FIXME: Should we have a more specific message?
-        show_error(_("Could not run external program."), error->message, NULL);
-        g_error_free(error);
-    }
-    g_free(commandReady);
-    g_free(uriEscaped);
-    return TRUE;
-}
-
 GdkPixbuf* load_web_icon(const gchar* icon, GtkIconSize size, GtkWidget* widget)
 {
     g_return_val_if_fail(GTK_IS_WIDGET(widget), NULL);

@@ -25,9 +25,6 @@ radio_button_new(GtkRadioButton*, const gchar*);
 void
 show_error(const gchar*, const gchar*, MidoriBrowser*);
 
-gboolean
-spawn_protocol_command(const gchar*, const gchar*);
-
 GdkPixbuf*
 load_web_icon(const gchar*, GtkIconSize, GtkWidget*);
 

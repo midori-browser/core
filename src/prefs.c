@@ -259,41 +259,6 @@ static void on_prefs_protocols_render_icon(GtkTreeViewColumn* column
     g_free(command);
 }
 
-static void on_prefs_protocols_edited(GtkCellRendererText* renderer
- , gchar* path, gchar* textNew, CPrefs* prefs)
-{
-    GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs->treeview));
-    GtkTreeIter iter;
-    gtk_tree_model_get_iter_from_string(model, &iter, path);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter
-     , PROTOCOLS_COL_COMMAND, textNew, -1);
-    gchar* protocol;
-    gtk_tree_model_get(model, &iter, PROTOCOLS_COL_NAME, &protocol, -1);
-    g_datalist_set_data_full(&config->protocols_commands
-     , protocol, g_strdup(textNew), g_free);
-}
-
-static void on_prefs_protocols_add_clicked(GtkWidget* widget, CPrefs* prefs)
-{
-    gchar* protocol = gtk_combo_box_get_active_text(GTK_COMBO_BOX(prefs->combobox));
-    GtkTreeModel* liststore = gtk_tree_view_get_model(GTK_TREE_VIEW(prefs->treeview));
-    gtk_list_store_insert_with_values(GTK_LIST_STORE(liststore), NULL, G_MAXINT
-        , PROTOCOLS_COL_NAME, protocol
-        , PROTOCOLS_COL_COMMAND, "", -1);
-    g_ptr_array_add(config->protocols_names, (gpointer)protocol);
-    g_datalist_set_data_full(&config->protocols_commands
-     , protocol, g_strdup(""), g_free);
-    gtk_widget_set_sensitive(prefs->add, FALSE);
-}
-
-static void on_prefs_protocols_combobox_changed(GtkWidget* widget, CPrefs* prefs)
-{
-    gchar* protocol = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
-    gchar* command = (gchar*)g_datalist_get_data(&config->protocols_commands, protocol);
-    g_free(protocol);
-    gtk_widget_set_sensitive(prefs->add, command == NULL);
-}
-
 GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
 {
     gchar* dialogTitle = g_strdup_printf(_("%s Preferences"), g_get_application_name());
@@ -687,75 +652,6 @@ GtkWidget* prefs_preferences_dialog_new(MidoriBrowser* browser)
     gtk_widget_set_sensitive(checkbutton, FALSE); //...
     SPANNED_ADD(checkbutton, 0, 2, 2, 3);
 
-    // Page "Programs"
-    PAGE_NEW(_("Programs"));
-    FRAME_NEW(_("External programs"));
-    TABLE_NEW(3, 2);
-    GtkWidget* treeview; GtkTreeViewColumn* column;
-    GtkCellRenderer* renderer_text; GtkCellRenderer* renderer_pixbuf;
-    GtkListStore* liststore = gtk_list_store_new(PROTOCOLS_COL_N
-     , G_TYPE_STRING, G_TYPE_STRING);
-    treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(liststore));
-    prefs->treeview = treeview;
-    renderer_text = gtk_cell_renderer_text_new();
-    renderer_pixbuf = gtk_cell_renderer_pixbuf_new();
-    column = gtk_tree_view_column_new_with_attributes(
-     _("Protocol"), renderer_text, "text", PROTOCOLS_COL_NAME, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Command"));
-    gtk_tree_view_column_pack_start(column, renderer_pixbuf, FALSE);
-    gtk_tree_view_column_set_cell_data_func(column, renderer_pixbuf
-     , (GtkTreeCellDataFunc)on_prefs_protocols_render_icon, prefs, NULL);
-    renderer_text = gtk_cell_renderer_text_new();
-    g_object_set(G_OBJECT(renderer_text), "editable", TRUE, NULL);
-    g_signal_connect(renderer_text, "edited"
-     , G_CALLBACK(on_prefs_protocols_edited), prefs);
-    gtk_tree_view_column_pack_start(column, renderer_text, TRUE);
-    gtk_tree_view_column_add_attribute(column, renderer_text, "text", PROTOCOLS_COL_COMMAND);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-    GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled)
-     , GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_container_add(GTK_CONTAINER(scrolled), treeview);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled), GTK_SHADOW_IN);
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), scrolled, TRUE, TRUE, 5);
-    guint i;
-    for(i = 0; i < config->protocols_names->len; i++)
-    {
-        gchar* protocol = (gchar*)g_ptr_array_index(config->protocols_names, i);
-        // TODO: We might want to determine 'default' programs somehow
-        // TODO: Any way to make it easier to add eg. only a mail client? O_o
-        const gchar* command = g_datalist_get_data(&config->protocols_commands, protocol);
-        gtk_list_store_insert_with_values(GTK_LIST_STORE(liststore), NULL, i
-         , PROTOCOLS_COL_NAME   , protocol
-         , PROTOCOLS_COL_COMMAND, command
-         , -1);
-    }
-    g_object_unref(liststore);
-    GtkWidget* vbox = gtk_vbox_new(FALSE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 4);
-    combobox = gtk_combo_box_new_text();
-    prefs->combobox = combobox;
-    sokoke_combo_box_add_strings(GTK_COMBO_BOX(combobox)
-     , "download", "ed2k", "feed", "ftp", "irc", "mailto"
-     , "news", "tel", "torrent", "view-source", NULL);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
-    gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 0);
-    button = gtk_button_new_from_stock(GTK_STOCK_ADD);
-    prefs->add = button;
-    g_signal_connect(combobox, "changed"
-     , G_CALLBACK(on_prefs_protocols_combobox_changed), prefs);
-    g_signal_connect(button, "clicked"
-     , G_CALLBACK(on_prefs_protocols_add_clicked), prefs);
-    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    button = gtk_label_new(""); // This is an invisible separator
-    gtk_box_pack_start(GTK_BOX(vbox), button, TRUE, TRUE, 12);
-    button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-    gtk_widget_set_sensitive(button, FALSE); //...
-    gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    FILLED_ADD(hbox, 0, 2, 0, 2);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox)
      , notebook, FALSE, FALSE, 4);
     gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);

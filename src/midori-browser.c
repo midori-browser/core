@@ -220,21 +220,6 @@ _midori_browser_child_for_scrolled (MidoriBrowser* browser,
     return child;
 }
 
-static WebKitNavigationResponse
-midori_web_view_navigation_requested_cb (GtkWidget*            web_view,
-                                         WebKitWebFrame*       web_frame,
-                                         WebKitNetworkRequest* request)
-{
-    WebKitNavigationResponse response = WEBKIT_NAVIGATION_RESPONSE_ACCEPT;
-    // FIXME: This isn't the place for uri scheme handling
-    const gchar* uri = webkit_network_request_get_uri (request);
-    gchar* protocol = strtok (g_strdup (uri), ":");
-    if (spawn_protocol_command (protocol, uri))
-        response = WEBKIT_NAVIGATION_RESPONSE_IGNORE;
-    g_free (protocol);
-    return response;
-}
-
 static void
 _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                                     const gchar*   text)
@@ -2812,8 +2797,6 @@ midori_browser_append_tab (MidoriBrowser* browser,
         }
 
         g_object_connect (widget,
-                          "signal::navigation-requested",
-                          midori_web_view_navigation_requested_cb, browser,
                           "signal::load-started",
                           midori_web_view_load_started_cb, browser,
                           "signal::load-committed",

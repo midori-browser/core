@@ -27,8 +27,6 @@ void config_free(CConfig* config)
     g_free(config->homepage);
     g_free(config->locationSearch);
     g_free(config->panelPageholder);
-    g_datalist_clear(&config->protocols_commands);
-    g_ptr_array_free(config->protocols_names, TRUE);
     g_free(config);
 }
 
@@ -103,23 +101,6 @@ gboolean config_from_file(CConfig* config, const gchar* filename, GError** error
     #undef GET_INT
     #undef GET_STR
 
-    config->protocols_names = g_ptr_array_new();
-    g_datalist_init(&config->protocols_commands);
-    gchar** protocols;
-    if((protocols = g_key_file_get_keys(keyFile, "protocols", NULL, NULL)))
-    {
-        guint i;
-        for(i = 0; protocols[i] != NULL; i++)
-        {
-            gchar* sCommand = g_key_file_get_string(keyFile, "protocols"
-             , protocols[i], NULL);
-            g_ptr_array_add(config->protocols_names, (gpointer)protocols[i]);
-            g_datalist_set_data_full(&config->protocols_commands
-             , protocols[i], sCommand, g_free);
-        }
-        g_free(protocols);
-    }
-
     g_key_file_free(keyFile);
     return !(error && *error);
 }
@@ -168,15 +149,6 @@ gboolean config_to_file(CConfig* config, const gchar* filename, GError** error)
     g_key_file_set_integer(keyFile, "session", "WinHeight", config->winHeight);
     g_key_file_set_integer(keyFile, "session", "WinPanelPos", config->winPanelPos);
     g_key_file_set_integer(keyFile, "session", "SearchEngine", config->searchEngine);
-
-    guint i;
-    for(i = 0; i < config->protocols_names->len; i++)
-    {
-        gchar* protocol = (gchar*)g_ptr_array_index(config->protocols_names, i);
-        gchar* command = g_datalist_get_data(&config->protocols_commands, protocol);
-        g_key_file_set_string(keyFile, "protocols", protocol, command);
-        g_free(protocol);
-    }
 
     gboolean saved = sokoke_key_file_save_to_file(keyFile, filename, error);
     g_key_file_free(keyFile);
