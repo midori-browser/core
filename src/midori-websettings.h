@@ -118,31 +118,7 @@ struct _MidoriWebSettingsClass
 
     /* Signals */
     void
-    (*progress_started)       (MidoriWebSettings*    web_settings,
-                               guint                 progress);
-    void
-    (*progress_changed)       (MidoriWebSettings*    web_settings,
-                               guint                 progress);
-    void
-    (*progress_done)          (MidoriWebSettings*    web_settings,
-                               guint                 progress);
-    void
-    (*load_done)              (MidoriWebSettings*    web_settings,
-                               WebKitWebFrame*       frame);
-    void
-    (*statusbar_text_changed) (MidoriWebSettings*    web_settings,
-                               const gchar*          text);
-    void
-    (*element_motion)         (MidoriWebSettings*    web_settings,
-                               const gchar*          link_uri);
-    void
-    (*close)                  (MidoriWebSettings*    web_settings);
-    void
-    (*new_tab)                (MidoriWebSettings*    web_settings,
-                               const gchar*          uri);
-    void
-    (*new_window)             (MidoriWebSettings*    web_settings,
-                               const gchar*          uri);
+    (*dummy)       (MidoriWebSettings*    web_settings);
 };
 
 GType
