@@ -42,6 +42,76 @@ struct _MidoriWebSettings
     MidoriWebSettingsPrivate* priv;
 };
 
+typedef enum
+{
+    MIDORI_STARTUP_BLANK,
+    MIDORI_STARTUP_HOMEPAGE,
+    MIDORI_STARTUP_LAST_OPEN_PAGES
+} MidoriStartup;
+
+GType
+midori_startup_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_STARTUP \
+    (midori_startup_get_type ())
+
+typedef enum
+{
+    MIDORI_ENCODING_CHINESE,
+    MIDORI_ENCODING_JAPANESE,
+    MIDORI_ENCODING_RUSSIAN,
+    MIDORI_ENCODING_UNICODE,
+    MIDORI_ENCODING_WESTERN,
+    MIDORI_ENCODING_CUSTOM
+} MidoriPreferredEncoding;
+
+GType
+midori_preferred_encoding_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_PREFERRED_ENCODING \
+    (midori_preferred_encoding_get_type ())
+
+typedef enum
+{
+    MIDORI_NEW_PAGE_TAB,
+    MIDORI_NEW_PAGE_WINDOW,
+    MIDORI_NEW_PAGE_CURRENT
+} MidoriNewPage;
+
+GType
+midori_new_page_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_NEW_PAGE \
+    (midori_new_page_get_type ())
+
+typedef enum
+{
+    MIDORI_TOOLBAR_DEFAULT,
+    MIDORI_TOOLBAR_ICONS,
+    MIDORI_TOOLBAR_TEXT,
+    MIDORI_TOOLBAR_BOTH,
+    MIDORI_TOOLBAR_BOTH_HORIZ
+} MidoriToolbarStyle;
+
+GType
+midori_toolbar_style_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_TOOLBAR_STYLE \
+    (midori_toolbar_style_get_type ())
+
+typedef enum
+{
+    MIDORI_ACCEPT_COOKIES_ALL,
+    MIDORI_ACCEPT_COOKIES_SESSION,
+    MIDORI_ACCEPT_COOKIES_NONE
+} MidoriAcceptCookies;
+
+GType
+midori_accept_cookies_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_ACCEPT_COOKIES \
+    (midori_accept_cookies_get_type ())
+
 struct _MidoriWebSettingsClass
 {
     WebKitWebSettingsClass parent_class;

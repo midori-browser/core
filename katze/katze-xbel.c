@@ -719,16 +719,16 @@ katze_xbel_folder_from_data (KatzeXbelItem* folder,
     if((doc = xmlParseMemory (data, strlen (data))) == NULL)
     {
         // No valid xml or broken encoding
-        *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                              _("Malformed document."));
+        *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
+                                      _("Malformed document."));
         return FALSE;
     }
     if (!katze_xbel_folder_from_xmlDocPtr (folder, doc))
     {
         // Parsing failed
         xmlFreeDoc(doc);
-        *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                              _("Malformed document."));
+        *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
+                                      _("Malformed document."));
         return FALSE;
     }
     xmlFreeDoc(doc);
@@ -755,24 +755,24 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
     if (!g_file_test (file, G_FILE_TEST_EXISTS))
     {
         // File doesn't exist
-        *error = g_error_new (G_FILE_ERROR, G_FILE_ERROR_NOENT,
-                              _("File not found."));
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_NOENT,
+                                      _("File not found."));
         return FALSE;
     }
     xmlDocPtr doc;
     if ((doc = xmlParseFile (file)) == NULL)
     {
         // No valid xml or broken encoding
-        *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                              _("Malformed document."));
+        *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
+                                      _("Malformed document."));
         return FALSE;
     }
     if (!katze_xbel_folder_from_xmlDocPtr (folder, doc))
     {
         // Parsing failed
         xmlFreeDoc (doc);
-        *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                             _("Malformed document."));
+        *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
+                                      _("Malformed document."));
         return FALSE;
     }
     xmlFreeDoc (doc);
@@ -800,8 +800,8 @@ katze_xbel_folder_from_data_dirs (KatzeXbelItem* folder,
     g_return_val_if_fail (file, FALSE);
     // FIXME: Essentially unimplemented
 
-    *error = g_error_new (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                          _("Malformed document."));
+    *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
+                                  _("Malformed document."));
     return FALSE;
 }
 
@@ -946,10 +946,10 @@ katze_xbel_folder_to_file (KatzeXbelItem* folder,
     if (!(data = katze_xbel_folder_to_data (folder, NULL, error)))
         return FALSE;
     FILE* fp;
-    if(!(fp = fopen (file, "w")))
+    if (!(fp = fopen (file, "w")))
     {
-        *error = g_error_new (G_FILE_ERROR, G_FILE_ERROR_ACCES,
-                              _("Writing failed."));
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_ACCES,
+                                      _("Writing failed."));
         return FALSE;
     }
     fputs (data, fp);

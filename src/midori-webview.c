@@ -543,8 +543,8 @@ _midori_web_view_update_settings (MidoriWebView* web_view)
 
     g_object_get (G_OBJECT (priv->settings),
                   "tab-label-size", &priv->tab_label_size,
-                  "close-button", &priv->close_button,
-                  "middle-click-goto", &priv->middle_click_goto,
+                  "close-buttons-on-tabs", &priv->close_button,
+                  "middle-click-opens-selection", &priv->middle_click_goto,
                   NULL);
 }
 
@@ -565,13 +565,13 @@ midori_web_view_settings_notify (MidoriWebSettings* web_settings,
         priv->tab_label_size = g_value_get_int (&value);
         _midori_web_view_update_tab_label_size (web_view);
     }
-    else if (name == g_intern_string ("close-button"))
+    else if (name == g_intern_string ("close-buttons-on-tabs"))
     {
         priv->close_button = g_value_get_boolean (&value);
         if (priv->tab_close)
             sokoke_widget_set_visible (priv->tab_close, priv->close_button);
     }
-    else if (name == g_intern_string ("middle-click-goto"))
+    else if (name == g_intern_string ("middle-click-opens-selection"))
         priv->middle_click_goto = g_value_get_boolean (&value);
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                             name))

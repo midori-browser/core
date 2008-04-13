@@ -13,7 +13,7 @@
 #define __KATZE_THROBBER_H__
 
 #include <gdk/gdk.h>
-#include <gtk/gtkmisc.h>
+#include <gtk/gtk.h>
 
 #include "katze-utils.h"
 

@@ -321,8 +321,8 @@ int main(int argc, char** argv)
                              "enable-scripts", config->enableScripts,
                              "enable-plugins", config->enablePlugins,
                              "tab-label-size", config->tabSize,
-                             "close-button", config->tabClose,
-                             "middle-click-goto", config->middleClickGoto,
+                             "close-buttons-on-tabs", config->tabClose,
+                             "middle-click-opens-selection", config->middleClickGoto,
                              NULL);
     webSettings = settings;
 

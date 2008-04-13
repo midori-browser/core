@@ -152,7 +152,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      "Pixbuf",
                                      _("A GdkPixbuf containing animation frames"),
                                      GDK_TYPE_PIXBUF,
-                                     flags));
+                                     G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ANIMATED,
@@ -179,7 +179,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      "Static Pixbuf",
                                      _("A GdkPixbuf to be used as the static image"),
                                      GDK_TYPE_PIXBUF,
-                                     flags));
+                                     G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_STATIC_STOCK_ID,
@@ -205,7 +205,7 @@ katze_throbber_init (KatzeThrobber *throbber)
 }
 
 static void
-katze_throbber_dispose (GObject *object)
+katze_throbber_dispose (GObject* object)
 {
     KatzeThrobber* throbber = KATZE_THROBBER (object);
     KatzeThrobberPrivate* priv = throbber->priv;
@@ -217,7 +217,7 @@ katze_throbber_dispose (GObject *object)
 }
 
 static void
-katze_throbber_destroy (GtkObject *object)
+katze_throbber_destroy (GtkObject* object)
 {
     KatzeThrobber* throbber = KATZE_THROBBER (object);
     KatzeThrobberPrivate* priv = throbber->priv;
