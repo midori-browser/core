@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -12,7 +12,7 @@
 #ifndef __KATZE_UTILS_H__
 #define __KATZE_UTILS_H__
 
-#include <glib-object.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -44,6 +44,15 @@ G_BEGIN_DECLS
             g_object_unref (lvalue); \
         lvalue = rvalue; \
     }
+
+GtkWidget*
+katze_property_proxy                (gpointer     object,
+                                     const gchar* property,
+                                     const gchar* hint);
+
+GtkWidget*
+katze_property_label                (gpointer     object,
+                                     const gchar* property);
 
 G_END_DECLS
 
