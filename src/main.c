@@ -133,17 +133,141 @@ locale_init (void)
 #endif
 }
 
+static MidoriWebSettings*
+settings_new_from_file (const gchar* filename)
+{
+    MidoriWebSettings* settings = midori_web_settings_new ();
+    GKeyFile* key_file = g_key_file_new ();
+    GError* error = NULL;
+    if (!g_key_file_load_from_file (key_file, filename,
+                                   G_KEY_FILE_KEEP_COMMENTS, &error))
+    {
+        if (error->code != G_FILE_ERROR_NOENT)
+            printf (_("The configuration couldn't be loaded. %s\n"),
+                    error->message);
+        g_error_free (error);
+    }
+    GObjectClass* class = G_OBJECT_GET_CLASS (settings);
+    guint i, n_properties;
+    GParamSpec** pspecs = g_object_class_list_properties (class, &n_properties);
+    for (i = 0; i < n_properties; i++)
+    {
+        GParamSpec* pspec = pspecs[i];
+        if (!(pspec->flags & G_PARAM_WRITABLE))
+            continue;
+        GType type = G_PARAM_SPEC_TYPE (pspec);
+        const gchar* property = g_param_spec_get_name (pspec);
+        if (type == G_TYPE_PARAM_STRING)
+        {
+            gchar* string = sokoke_key_file_get_string_default (key_file,
+                "settings", property,
+                G_PARAM_SPEC_STRING (pspec)->default_value, NULL);
+            g_object_set (settings, property, string, NULL);
+            g_free (string);
+        }
+        else if (type == G_TYPE_PARAM_INT)
+        {
+            guint integer = sokoke_key_file_get_integer_default (key_file,
+                "settings", property,
+                G_PARAM_SPEC_INT (pspec)->default_value, NULL);
+            g_object_set (settings, property, integer, NULL);
+        }
+        else if (type == G_TYPE_PARAM_BOOLEAN)
+        {
+            gboolean boolean = sokoke_key_file_get_boolean_default (key_file,
+                "settings", property,
+                G_PARAM_SPEC_BOOLEAN (pspec)->default_value, NULL);
+            g_object_set (settings, property, boolean, NULL);
+        }
+        else if (type == G_TYPE_PARAM_ENUM)
+        {
+            GEnumClass* enum_class = G_ENUM_CLASS (
+                g_type_class_ref (pspec->value_type));
+            GEnumValue* enum_value = g_enum_get_value (enum_class,
+                G_PARAM_SPEC_ENUM (pspec)->default_value);
+            gchar* string = sokoke_key_file_get_string_default (key_file,
+                "settings", property,
+                enum_value->value_name, NULL);
+            enum_value = g_enum_get_value_by_name (enum_class, string);
+            g_object_set (settings, property, enum_value->value, NULL);
+            g_free (string);
+            g_type_class_unref (enum_class);
+        }
+        else
+            g_warning ("Unhandled settings property '%s'", property);
+    }
+    return settings;
+}
+
+static gboolean
+settings_save_to_file (MidoriWebSettings* settings,
+                       const gchar*       filename,
+                       GError**           error)
+{
+    GKeyFile* key_file = g_key_file_new ();
+    GObjectClass* class = G_OBJECT_GET_CLASS (settings);
+    guint i, n_properties;
+    GParamSpec** pspecs = g_object_class_list_properties (class, &n_properties);
+    for (i = 0; i < n_properties; i++)
+    {
+        GParamSpec* pspec = pspecs[i];
+        GType type = G_PARAM_SPEC_TYPE (pspec);
+        const gchar* property = g_param_spec_get_name (pspec);
+        if (!(pspec->flags & G_PARAM_WRITABLE))
+        {
+            gchar* comment = g_strdup_printf ("# %s", property);
+            g_key_file_set_string (key_file, "settings", comment, "");
+            g_free (comment);
+            continue;
+        }
+        if (type == G_TYPE_PARAM_STRING)
+        {
+            const gchar* string;
+            g_object_get (settings, property, &string, NULL);
+            g_key_file_set_string (key_file, "settings", property,
+                                   string ? string : "");
+        }
+        else if (type == G_TYPE_PARAM_INT)
+        {
+            gint integer;
+            g_object_get (settings, property, &integer, NULL);
+            g_key_file_set_integer (key_file, "settings", property, integer);
+        }
+        else if (type == G_TYPE_PARAM_BOOLEAN)
+        {
+            gboolean boolean;
+            g_object_get (settings, property, &boolean, NULL);
+            g_key_file_set_boolean (key_file, "settings", property, boolean);
+        }
+        else if (type == G_TYPE_PARAM_ENUM)
+        {
+            GEnumClass* enum_class = G_ENUM_CLASS (
+                g_type_class_ref (pspec->value_type));
+            gint integer;
+            g_object_get (settings, property, &integer, NULL);
+            GEnumValue* enum_value = g_enum_get_value (enum_class, integer);
+            g_key_file_set_string (key_file, "settings", property,
+                                   enum_value->value_name);
+        }
+        else
+            g_warning ("Unhandled settings property '%s'", property);
+    }
+    gboolean saved = sokoke_key_file_save_to_file (key_file, filename, error);
+    g_key_file_free (key_file);
+    return saved;
+}
+
 int main(int argc, char** argv)
 {
     locale_init();
     g_set_application_name(_("midori"));
 
     // Parse cli options
-    gint repeats = 2;
     gboolean version = FALSE;
     GOptionEntry entries[] =
     {
-     { "version", 'v', 0, G_OPTION_ARG_NONE, &version, N_("Display program version"), NULL }
+     { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
+       N_("Display program version"), NULL }
     };
 
     GError* error = NULL;
@@ -179,75 +303,69 @@ int main(int argc, char** argv)
     }
 
     // Load configuration files
-    GString* errorMessages = g_string_new(NULL);
-    // TODO: What about default config in a global config folder?
-    gchar* configPath = g_build_filename(g_get_user_config_dir(), PACKAGE_NAME, NULL);
-    g_mkdir_with_parents(configPath, 0755);
-    gchar* configFile = g_build_filename(configPath, "config", NULL);
+    GString* error_messages = g_string_new (NULL);
+    gchar* config_path = g_build_filename (g_get_user_config_dir (),
+                                           PACKAGE_NAME, NULL);
+    g_mkdir_with_parents (config_path, 0755);
+    gchar* config_file = g_build_filename (config_path, "config", NULL);
     error = NULL;
-    /*CConfig* */config = config_new();
-    if(!config_from_file(config, configFile, &error))
-    {
-        if(error->code != G_FILE_ERROR_NOENT)
-            g_string_append_printf(errorMessages
-             , _("The configuration couldn't be loaded. %s\n"), error->message);
-        g_error_free(error);
-    }
-    g_free(configFile);
-    configFile = g_build_filename(configPath, "accels", NULL);
-    gtk_accel_map_load(configFile);
-    g_free(configFile);
-    configFile = g_build_filename(configPath, "search", NULL);
+    MidoriWebSettings* settings = settings_new_from_file (config_file);
+    webSettings = settings;
+    katze_assign (config_file, g_build_filename (config_path, "accels", NULL));
+    gtk_accel_map_load (config_file);
+    katze_assign (config_file, g_build_filename (config_path, "search", NULL));
     error = NULL;
-    searchEngines = search_engines_new();
-    if(!search_engines_from_file(&searchEngines, configFile, &error))
+    searchEngines = search_engines_new ();
+    if (!search_engines_from_file (&searchEngines, config_file, &error))
     {
         // FIXME: We may have a "file empty" error, how do we recognize that?
-        /*if(error->code != G_FILE_ERROR_NOENT)
-            g_string_append_printf(errorMessages
-             , _("The search engines couldn't be loaded. %s\n"), error->message);*/
-        g_error_free(error);
+        /*if (error->code != G_FILE_ERROR_NOENT)
+            g_string_append_printf (error_messages,
+                _("The search engines couldn't be loaded. %s\n"),
+                error->message);*/
+        g_error_free (error);
     }
-    g_free(configFile);
-    configFile = g_build_filename(configPath, "bookmarks.xbel", NULL);
+    katze_assign (config_file, g_build_filename (config_path, "bookmarks.xbel",
+                                                 NULL));
     bookmarks = katze_xbel_folder_new();
     error = NULL;
-    if(!katze_xbel_folder_from_file(bookmarks, configFile, &error))
+    if (!katze_xbel_folder_from_file (bookmarks, config_file, &error))
     {
-        if(error->code != G_FILE_ERROR_NOENT)
-            g_string_append_printf(errorMessages
-             , _("The bookmarks couldn't be loaded. %s\n"), error->message);
-        g_error_free(error);
+        if (error->code != G_FILE_ERROR_NOENT)
+            g_string_append_printf (error_messages,
+                _("The bookmarks couldn't be loaded. %s\n"), error->message);
+        g_error_free (error);
     }
-    g_free(configFile);
+    g_free (config_file);
     KatzeXbelItem* _session = katze_xbel_folder_new();
+    config = config_new ();
     if(config->startup == CONFIG_STARTUP_SESSION)
     {
-        configFile = g_build_filename(configPath, "session.xbel", NULL);
+        config_file = g_build_filename (config_path, "session.xbel", NULL);
         error = NULL;
-        if(!katze_xbel_folder_from_file(_session, configFile, &error))
+        if (!katze_xbel_folder_from_file (_session, config_file, &error))
         {
-            if(error->code != G_FILE_ERROR_NOENT)
-                g_string_append_printf(errorMessages
-                 , _("The session couldn't be loaded. %s\n"), error->message);
-            g_error_free(error);
+            if (error->code != G_FILE_ERROR_NOENT)
+                g_string_append_printf (error_messages,
+                    _("The session couldn't be loaded. %s\n"), error->message);
+            g_error_free (error);
         }
-        g_free(configFile);
+        g_free (config_file);
     }
-    configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
-    KatzeXbelItem* xbel_trash = katze_xbel_folder_new();
+    config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
+    KatzeXbelItem* xbel_trash = katze_xbel_folder_new ();
     error = NULL;
-    if(!katze_xbel_folder_from_file(xbel_trash, configFile, &error))
+    if (!katze_xbel_folder_from_file (xbel_trash, config_file, &error))
     {
-        if(error->code != G_FILE_ERROR_NOENT)
-            g_string_append_printf(errorMessages
-             , _("The trash couldn't be loaded. %s\n"), error->message);
-        g_error_free(error);
+        if (error->code != G_FILE_ERROR_NOENT)
+            g_string_append_printf(error_messages,
+                _("The trash couldn't be loaded. %s\n"), error->message);
+        g_error_free (error);
     }
-    g_free(configFile);
+    g_free (config_file);
 
     // In case of errors
-    if(errorMessages->len)
+    if (error_messages->len)
     {
         GtkWidget* dialog = gtk_message_dialog_new(NULL
          , 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE
@@ -257,7 +375,7 @@ int main(int argc, char** argv)
         // FIXME: Use custom program icon
         gtk_window_set_icon_name(GTK_WINDOW(dialog), "web-browser");
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog)
-         , "%s", errorMessages->str);
+         , "%s", error_messages->str);
         gtk_dialog_add_buttons(GTK_DIALOG(dialog)
          , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
          , "_Ignore", GTK_RESPONSE_ACCEPT
@@ -269,14 +387,14 @@ int main(int argc, char** argv)
             katze_xbel_item_unref(bookmarks);
             katze_xbel_item_unref(_session);
             katze_xbel_item_unref(xbel_trash);
-            g_string_free(errorMessages, TRUE);
+            g_string_free(error_messages, TRUE);
             return 0;
         }
         gtk_widget_destroy(dialog);
         /* FIXME: Since we will overwrite files that could not be loaded
                   , would we want to make backups? */
     }
-    g_string_free(errorMessages, TRUE);
+    g_string_free (error_messages, TRUE);
 
     // TODO: Handle any number of separate uris from argv
     // Open as many tabs as we have uris, seperated by pipes
@@ -301,36 +419,15 @@ int main(int argc, char** argv)
             katze_xbel_bookmark_set_href(item, config->homepage);
         katze_xbel_folder_prepend_item(_session, item);
     }
-    g_free(configPath);
+    g_free (config_path);
 
     stock_items_init();
-
-    MidoriWebSettings* settings;
-    settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS,
-                             "default-font-family", config->defaultFontFamily,
-                             "default-font-size", config->defaultFontSize,
-                             "minimum-font-size", config->minimumFontSize,
-                             "default-encoding", config->defaultEncoding,
-                             "auto-load-images", config->autoLoadImages,
-                             "auto-shrink-images", config->autoShrinkImages,
-                             "print-backgrounds", config->printBackgrounds,
-                             "resizable-text-areas", config->resizableTextAreas,
-                             "user-stylesheet-uri",
-                             config->userStylesheet ?
-                             config->userStylesheetUri : NULL,
-                             "enable-scripts", config->enableScripts,
-                             "enable-plugins", config->enablePlugins,
-                             "tab-label-size", config->tabSize,
-                             "close-buttons-on-tabs", config->tabClose,
-                             "middle-click-opens-selection", config->middleClickGoto,
-                             NULL);
-    webSettings = settings;
 
     MidoriTrash* trash = g_object_new (MIDORI_TYPE_TRASH,
                                        "limit", 10,
                                        NULL);
-    guint i;
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
+    guint i;
     for (i = 0; i < n; i++)
     {
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
@@ -367,59 +464,58 @@ int main(int argc, char** argv)
     g_object_unref (accel_group);
 
     // Save configuration files
-    configPath = g_build_filename(g_get_user_config_dir(), PACKAGE_NAME, NULL);
-    g_mkdir_with_parents(configPath, 0755);
-    configFile = g_build_filename(configPath, "search", NULL);
+    config_path = g_build_filename (g_get_user_config_dir(), PACKAGE_NAME,
+                                    NULL);
+    g_mkdir_with_parents (config_path, 0755);
+    config_file = g_build_filename (config_path, "search", NULL);
     error = NULL;
-    if(!search_engines_to_file(searchEngines, configFile, &error))
+    if (!search_engines_to_file (searchEngines, config_file, &error))
     {
         g_warning("The search engines couldn't be saved. %s", error->message);
         g_error_free(error);
     }
     search_engines_free(searchEngines);
-    g_free(configFile);
-    configFile = g_build_filename(configPath, "bookmarks.xbel", NULL);
+    g_free (config_file);
+    config_file = g_build_filename (config_path, "bookmarks.xbel", NULL);
     error = NULL;
-    if(!katze_xbel_folder_to_file(bookmarks, configFile, &error))
+    if (!katze_xbel_folder_to_file (bookmarks, config_file, &error))
     {
         g_warning("The bookmarks couldn't be saved. %s", error->message);
         g_error_free(error);
     }
     katze_xbel_item_unref(bookmarks);
-    g_free(configFile);
-    configFile = g_build_filename(configPath, "tabtrash.xbel", NULL);
+    g_free (config_file);
+    config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
     error = NULL;
-    if (!katze_xbel_folder_to_file (xbel_trash, configFile, &error))
+    if (!katze_xbel_folder_to_file (xbel_trash, config_file, &error))
     {
         g_warning ("The trash couldn't be saved. %s", error->message);
         g_error_free (error);
     }
     katze_xbel_item_unref (xbel_trash);
-    g_free (configFile);
     if(config->startup == CONFIG_STARTUP_SESSION)
     {
-        configFile = g_build_filename(configPath, "session.xbel", NULL);
+        katze_assign (config_file, g_build_filename (config_path,
+                                                     "session.xbel", NULL));
         error = NULL;
-        if(!katze_xbel_folder_to_file(session, configFile, &error))
+        if (!katze_xbel_folder_to_file (session, config_file, &error))
         {
-            g_warning("The session couldn't be saved. %s", error->message);
-            g_error_free(error);
+            g_warning ("The session couldn't be saved. %s", error->message);
+            g_error_free (error);
         }
-        g_free(configFile);
     }
-    katze_xbel_item_unref(session);
-    configFile = g_build_filename(configPath, "config", NULL);
+    katze_xbel_item_unref (session);
+    katze_assign (config_file, g_build_filename (config_path, "config", NULL));
     error = NULL;
-    if(!config_to_file(config, configFile, &error))
+    if (!settings_save_to_file (settings, config_file, &error))
     {
-        g_warning("The configuration couldn't be saved. %s", error->message);
-        g_error_free(error);
+        g_warning ("The configuration couldn't be saved. %s", error->message);
+        g_error_free (error);
     }
-    config_free(config);
-    g_free(configFile);
-    configFile = g_build_filename(configPath, "accels", NULL);
-    gtk_accel_map_save(configFile);
-    g_free(configFile);
-    g_free(configPath);
+    config_free (config);
+    katze_assign (config_file, g_build_filename (config_path, "accels", NULL));
+    gtk_accel_map_save (config_file);
+    g_free (config_file);
+    g_free (config_path);
     return 0;
 }

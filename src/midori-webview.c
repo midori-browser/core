@@ -14,7 +14,7 @@
 #include "global.h"
 #include "sokoke.h"
 
-#include <webkit/webkitwebframe.h>
+#include <webkit/webkit.h>
 #include <string.h>
 
 // This is unstable API, so we need to declare it
@@ -38,7 +38,7 @@ struct _MidoriWebViewPrivate
 
     gint tab_label_size;
     gboolean close_button;
-    gboolean middle_click_goto;
+    gboolean middle_click_opens_selection;
     MidoriWebSettings* settings;
 
     GtkWidget* proxy_menu_item;
@@ -419,7 +419,7 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
 {
     MidoriWebViewPrivate* priv = web_view->priv;
 
-    if (event->button == 2 && priv->middle_click_goto)
+    if (event->button == 2 && priv->middle_click_opens_selection)
     {
         GdkModifierType state = (GdkModifierType) event->state;
         GtkClipboard* clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
@@ -544,7 +544,7 @@ _midori_web_view_update_settings (MidoriWebView* web_view)
     g_object_get (G_OBJECT (priv->settings),
                   "tab-label-size", &priv->tab_label_size,
                   "close-buttons-on-tabs", &priv->close_button,
-                  "middle-click-opens-selection", &priv->middle_click_goto,
+                  "middle-click-opens-selection", &priv->middle_click_opens_selection,
                   NULL);
 }
 
@@ -572,7 +572,7 @@ midori_web_view_settings_notify (MidoriWebSettings* web_settings,
             sokoke_widget_set_visible (priv->tab_close, priv->close_button);
     }
     else if (name == g_intern_string ("middle-click-opens-selection"))
-        priv->middle_click_goto = g_value_get_boolean (&value);
+        priv->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                             name))
         g_warning("Unexpected setting '%s'", name);
@@ -591,7 +591,7 @@ midori_web_view_init (MidoriWebView* web_view)
     priv->settings = midori_web_settings_new ();
     _midori_web_view_update_settings (web_view);
     g_signal_connect (priv->settings, "notify",
-                      G_CALLBACK(midori_web_view_settings_notify), web_view);
+                      G_CALLBACK (midori_web_view_settings_notify), web_view);
 
     WebKitWebFrame* web_frame;
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));

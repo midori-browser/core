@@ -46,21 +46,21 @@ static void
 midori_trash_finalize (GObject* object);
 
 static void
-midori_trash_set_property (GObject* object,
-                           guint prop_id,
+midori_trash_set_property (GObject*      object,
+                           guint         prop_id,
                            const GValue* value,
-                           GParamSpec* pspec);
+                           GParamSpec*   pspec);
 
 static void
-midori_trash_get_property (GObject* object,
-                           guint prop_id,
-                           GValue* value,
+midori_trash_get_property (GObject*    object,
+                           guint       prop_id,
+                           GValue*     value,
                            GParamSpec* pspec);
 
 static void
 midori_trash_class_init (MidoriTrashClass* class)
 {
-    signals[INSERTED] = g_signal_new(
+    signals[INSERTED] = g_signal_new (
         "inserted",
         G_TYPE_FROM_CLASS(class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
@@ -71,7 +71,7 @@ midori_trash_class_init (MidoriTrashClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_UINT);
 
-    signals[REMOVED] = g_signal_new(
+    signals[REMOVED] = g_signal_new (
         "removed",
         G_TYPE_FROM_CLASS(class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
@@ -288,8 +288,8 @@ midori_trash_prepend_xbel_item (MidoriTrash*   trash,
  * Nothing happens if the function fails.
  **/
 void
-midori_trash_remove_nth_item (MidoriTrash*   trash,
-                              guint          n)
+midori_trash_remove_nth_item (MidoriTrash* trash,
+                              guint        n)
 {
     g_return_if_fail (MIDORI_IS_TRASH (trash));
 
@@ -310,7 +310,7 @@ midori_trash_remove_nth_item (MidoriTrash*   trash,
  * Deletes all items currently contained in @trash.
  **/
 void
-midori_trash_empty (MidoriTrash*   trash)
+midori_trash_empty (MidoriTrash* trash)
 {
     g_return_if_fail (MIDORI_IS_TRASH (trash));
 

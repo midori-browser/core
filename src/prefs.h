@@ -12,15 +12,14 @@
 #ifndef __PREFS_H__
 #define __PREFS_H__ 1
 
-#include "midori-browser.h"
-
 #include <gtk/gtk.h>
+
+#include "midori-websettings.h"
 
 // -- Types
 
 typedef struct
 {
-    MidoriBrowser* browser;
     GtkWidget* userStylesheetUri;
     GtkWidget* treeview;
     GtkWidget* combobox;
@@ -37,6 +36,6 @@ enum
 // -- Declarations
 
 GtkWidget*
-prefs_preferences_dialog_new(MidoriBrowser*);
+prefs_preferences_dialog_new(GtkWindow*, MidoriWebSettings*);
 
 #endif /* !__PREFS_H__ */

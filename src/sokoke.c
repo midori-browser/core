@@ -316,6 +316,18 @@ gint sokoke_key_file_get_integer_default(GKeyFile* keyFile
     return g_key_file_get_integer(keyFile, group, key, error);
 }
 
+gboolean
+sokoke_key_file_get_boolean_default (GKeyFile*      key_file,
+                                     const gchar*   group,
+                                     const gchar*   key,
+                                     const gboolean default_value,
+                                     GError**       error)
+{
+    if (!g_key_file_has_key (key_file, group, key, NULL))
+        return default_value;
+    return g_key_file_get_boolean (key_file, group, key, error);
+}
+
 gboolean sokoke_key_file_save_to_file(GKeyFile* keyFile
  , const gchar* filename, GError** error)
 {

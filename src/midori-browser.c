@@ -867,7 +867,10 @@ _action_preferences_activate (GtkAction*     action,
         gtk_window_present (GTK_WINDOW (dialog));
     else
     {
-        dialog = prefs_preferences_dialog_new (browser);
+        MidoriBrowserPrivate* priv = browser->priv;
+
+        dialog = prefs_preferences_dialog_new (GTK_WINDOW (browser),
+                                               priv->settings);
         gtk_widget_show (dialog);
     }
 }

@@ -65,6 +65,13 @@ sokoke_key_file_get_integer_default(GKeyFile*, const gchar*, const gchar*
  , const gint, GError**);
 
 gboolean
+sokoke_key_file_get_boolean_default (GKeyFile*    key_file,
+                                     const gchar* group,
+                                     const gchar* key,
+                                     gboolean     default_value,
+                                     GError**     error);
+
+gboolean
 sokoke_key_file_save_to_file(GKeyFile*, const gchar*, GError**);
 
 void
