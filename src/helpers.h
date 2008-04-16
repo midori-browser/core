@@ -40,10 +40,4 @@ magic_uri(const gchar*, gboolean bSearch);
 gchar*
 get_default_font(void);
 
-GtkToolbarStyle
-config_to_toolbarstyle();
-
-GtkToolbarStyle
-config_to_toolbariconsize(gboolean);
-
 #endif /* !__HELPERS_H__ */

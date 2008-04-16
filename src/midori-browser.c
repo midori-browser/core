@@ -14,7 +14,6 @@
 #include "midori-browser.h"
 
 #include "global.h"
-#include "conf.h"
 #include "helpers.h"
 #include "webSearch.h"
 #include "prefs.h"
@@ -25,6 +24,7 @@
 #include "midori-console.h"
 #include "midori-trash.h"
 
+#include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <libsexy/sexy.h>
@@ -796,10 +796,16 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    if (config->toolbarStyle == CONFIG_TOOLBAR_DEFAULT)
+    MidoriToolbarStyle toolbar_style;
+    GtkToolbarStyle gtk_toolbar_style;
+
+    g_object_get (priv->settings, "toolbar-style", &toolbar_style, NULL);
+    if (toolbar_style == MIDORI_TOOLBAR_DEFAULT)
     {
-        gtk_toolbar_set_style (GTK_TOOLBAR(priv->navigationbar),
-                               config_to_toolbarstyle (config->toolbarStyle));
+        g_object_get (priv->settings,
+                      "gtk-toolbar-style", &gtk_toolbar_style, NULL);
+        gtk_toolbar_set_style (GTK_TOOLBAR (priv->navigationbar),
+                               gtk_toolbar_style);
     }
 }
 
@@ -881,8 +887,9 @@ _action_navigationbar_activate (GtkToggleAction* action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    config->toolbarNavigation = gtk_toggle_action_get_active (action);
-    sokoke_widget_set_visible (priv->navigationbar, config->toolbarNavigation);
+    gboolean active = gtk_toggle_action_get_active (action);
+    g_object_set (priv->settings, "show-navigationbar", active, NULL);
+    sokoke_widget_set_visible (priv->navigationbar, active);
 }
 
 static void
@@ -891,8 +898,9 @@ _action_bookmarkbar_activate (GtkToggleAction* action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    config->toolbarBookmarks = gtk_toggle_action_get_active (action);
-    sokoke_widget_set_visible (priv->bookmarkbar, config->toolbarBookmarks);
+    gboolean active = gtk_toggle_action_get_active (action);
+    g_object_set (priv->settings, "show-bookmarkbar", active, NULL);
+    sokoke_widget_set_visible (priv->bookmarkbar, active);
 }
 
 static void
@@ -901,8 +909,9 @@ _action_statusbar_activate (GtkToggleAction* action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    config->toolbarStatus = gtk_toggle_action_get_active (action);
-    sokoke_widget_set_visible (priv->statusbar, config->toolbarStatus);
+    gboolean active = gtk_toggle_action_get_active (action);
+    g_object_set (priv->settings, "show-statusbar", active, NULL);
+    sokoke_widget_set_visible (priv->statusbar, active);
 }
 
 static void
@@ -995,8 +1004,14 @@ static void
 _action_home_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gchar* homepage;
+
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    g_object_set (web_view, "uri", config->homepage, NULL);
+    g_object_get (priv->settings, "homepage", &homepage, NULL);
+    g_object_set (web_view, "uri", homepage, NULL);
+    g_free (homepage);
 }
 
 static gboolean
@@ -1645,8 +1660,9 @@ _action_panel_activate (GtkToggleAction* action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    config->panelShow = gtk_toggle_action_get_active (action);
-    sokoke_widget_set_visible (priv->panel, config->panelShow);
+    gboolean active = gtk_toggle_action_get_active (action);
+    g_object_set (priv->settings, "show-panel", active, NULL);
+    sokoke_widget_set_visible (priv->panel, active);
 }
 
 static void
@@ -1657,12 +1673,13 @@ _action_open_in_panel_activate (GtkAction*     action,
 
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
     const gchar* uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
-    katze_assign (config->panelPageholder, g_strdup (uri));
+    // FIXME: Don't assign the uri here, update it properly while navigating
+    g_object_set (priv->settings, "last-pageholder-uri", uri, NULL);
     gint n = midori_panel_page_num (MIDORI_PANEL (priv->panel),
                                     priv->panel_pageholder);
     midori_panel_set_current_page (MIDORI_PANEL (priv->panel), n);
     gtk_widget_show (priv->panel);
-    g_object_set (priv->panel_pageholder, "uri", config->panelPageholder, NULL);
+    g_object_set (priv->panel_pageholder, "uri", uri, NULL);
 }
 
 
@@ -1671,7 +1688,10 @@ midori_panel_notify_position_cb (GObject*       object,
                                  GParamSpec*    arg1,
                                  MidoriBrowser* browser)
 {
-    config->winPanelPos = gtk_paned_get_position (GTK_PANED (object));
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gboolean position = gtk_paned_get_position (GTK_PANED (object));
+    g_object_set (priv->settings, "last-panel-position", position, NULL);
 }
 
 static gboolean
@@ -2087,6 +2107,7 @@ static void
 midori_browser_size_allocate_cb (MidoriBrowser* browser,
                                  GtkAllocation* allocation)
 {
+    MidoriBrowserPrivate* priv = browser->priv;
     GtkWidget* widget = GTK_WIDGET (browser);
 
     if (GTK_WIDGET_REALIZED (widget))
@@ -2094,8 +2115,9 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
         GdkWindowState state = gdk_window_get_state (widget->window);
         if (!(state & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
         {
-            config->winWidth = allocation->width;
-            config->winHeight = allocation->height;
+            g_object_set (priv->settings,
+                          "last-window-width", allocation->width,
+                          "last-window-height", allocation->height, NULL);
         }
     }
 }
@@ -2233,22 +2255,6 @@ midori_browser_init (MidoriBrowser* browser)
     // Setup the window metrics
     g_signal_connect (browser, "window-state-event",
                       G_CALLBACK (midori_browser_window_state_event_cb), NULL);
-    GdkScreen* screen = gtk_window_get_screen (GTK_WINDOW (browser));
-    const gint default_width = (gint)gdk_screen_get_width (screen) / 1.7;
-    const gint default_height = (gint)gdk_screen_get_height (screen) / 1.7;
-    if (config->rememberWinSize)
-    {
-        if (!config->winWidth && !config->winHeight)
-        {
-            config->winWidth = default_width;
-            config->winHeight = default_width;
-        }
-        gtk_window_set_default_size (GTK_WINDOW (browser),
-                                     config->winWidth, config->winHeight);
-    }
-    else
-        gtk_window_set_default_size (GTK_WINDOW(browser),
-                                     default_width, default_height);
     g_signal_connect (browser, "size-allocate",
                       G_CALLBACK (midori_browser_size_allocate_cb), NULL);
     // FIXME: Use custom program icon
@@ -2338,14 +2344,11 @@ midori_browser_init (MidoriBrowser* browser)
     // Create the navigationbar
     priv->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
-    gtk_toolbar_set_style (GTK_TOOLBAR (priv->navigationbar),
-                           config_to_toolbarstyle (config->toolbarStyle));
-    GtkSettings* gtk_settings = gtk_widget_get_settings (priv->navigationbar);
-    g_signal_connect (gtk_settings, "notify::gtk-toolbar-style",
-                      G_CALLBACK (midori_browser_navigationbar_notify_style_cb),
-                      browser);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->navigationbar),
-                               config_to_toolbariconsize (config->toolbarSmall));
+    // FIXME: settings should be connected with screen changes
+    GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
+    if (gtk_settings)
+        g_signal_connect (gtk_settings, "notify::gtk-toolbar-style",
+            G_CALLBACK (midori_browser_navigationbar_notify_style_cb), browser);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (priv->navigationbar), TRUE);
     gtk_box_pack_start (GTK_BOX (vbox), priv->navigationbar, FALSE, FALSE, 0);
     priv->button_tab_new = gtk_ui_manager_get_widget (
@@ -2377,7 +2380,6 @@ midori_browser_init (MidoriBrowser* browser)
     // FIXME: The interface is somewhat awkward and ought to be rethought
     // TODO: Display "show in context menu" search engines as "completion actions"
     entry_setup_completion (GTK_ENTRY (priv->search));
-    update_searchEngine (config->searchEngine, priv->search);
     g_object_connect (priv->search,
                       "signal::icon-released",
                       on_webSearch_icon_released, browser,
@@ -2405,7 +2407,6 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (_action_fullscreen_activate), browser);
     gtk_toolbar_insert (GTK_TOOLBAR (priv->navigationbar),
                         GTK_TOOL_ITEM (priv->button_fullscreen), -1);
-    _action_set_active (browser, "Navigationbar", config->toolbarNavigation);
 
     // Bookmarkbar
     priv->bookmarkbar = gtk_toolbar_new ();
@@ -2454,7 +2455,6 @@ midori_browser_init (MidoriBrowser* browser)
     }
     sokoke_container_show_children (GTK_CONTAINER (priv->bookmarkbar));
     gtk_box_pack_start (GTK_BOX (vbox), priv->bookmarkbar, FALSE, FALSE, 0);
-    _action_set_active (browser, "Bookmarkbar", config->toolbarBookmarks);
 
     // Superuser warning
     GtkWidget* hbox;
@@ -2463,7 +2463,6 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Create the panel
     GtkWidget* hpaned = gtk_hpaned_new ();
-    gtk_paned_set_position (GTK_PANED (hpaned), config->winPanelPos);
     g_signal_connect (hpaned, "notify::position",
                       G_CALLBACK (midori_panel_notify_position_cb),
                       browser);
@@ -2476,8 +2475,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (priv->panel, "close",
                       G_CALLBACK (midori_panel_close_cb), browser);
     gtk_paned_pack1 (GTK_PANED (hpaned), priv->panel, FALSE, FALSE);
-    sokoke_widget_set_visible (priv->panel, config->panelShow);
-    _action_set_active (browser, "Panel", config->panelShow);
 
     // Bookmarks
     GtkWidget* box = gtk_vbox_new (FALSE, 0);
@@ -2552,16 +2549,12 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Pageholder
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                                           "uri", config->panelPageholder,
+                                           "uri", "",
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               priv->panel_pageholder,
                               GTK_STOCK_CONVERT, _("Pageholder"));
-
-    midori_panel_set_current_page (MIDORI_PANEL (priv->panel),
-                                   config->panelActive);
-    sokoke_widget_set_visible (priv->panel, config->panelShow);
 
     // Notebook, containing all web_views
     priv->notebook = gtk_notebook_new ();
@@ -2638,13 +2631,8 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_set_size_request (priv->progressbar, -1, 1);
     gtk_box_pack_start (GTK_BOX (priv->statusbar), priv->progressbar,
                         FALSE, FALSE, 3);
-    _action_set_active (browser, "Statusbar", config->toolbarStatus);
 
     g_object_unref (ui_manager);
-
-    sokoke_widget_set_visible (priv->button_tab_new, config->toolbarNewTab);
-    sokoke_widget_set_visible (priv->search, config->toolbarWebSearch);
-    sokoke_widget_set_visible (priv->button_trash, config->toolbarClosedTabs);
 }
 
 static void
@@ -2669,6 +2657,99 @@ midori_browser_finalize (GObject* object)
 }
 
 static void
+_midori_browser_update_settings (MidoriBrowser*     browser)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gboolean remember_last_window_size;
+    gint last_window_width, last_window_height;
+    gint last_panel_position, last_panel_page;
+    gboolean show_navigationbar, show_bookmarkbar, show_panel, show_statusbar;
+    gboolean small_toolbar, show_new_tab, show_web_search, show_trash;
+    MidoriToolbarStyle toolbar_style;
+    gint last_web_search;
+    gchar* last_pageholder_uri;
+    g_object_get (priv->settings,
+                  "remember-last-window-size", &remember_last_window_size,
+                  "last-window-width", &last_window_width,
+                  "last-window-height", &last_window_height,
+                  "last-panel-position", &last_panel_position,
+                  "last-panel-page", &last_panel_page,
+                  "show-navigationbar", &show_navigationbar,
+                  "show-bookmarkbar", &show_bookmarkbar,
+                  "show-panel", &show_panel,
+                  "show-statusbar", &show_statusbar,
+                  "small-toolbar", &small_toolbar,
+                  "show-new-tab", &show_new_tab,
+                  "show-web-search", &show_web_search,
+                  "show-trash", &show_trash,
+                  "toolbar-style", &toolbar_style,
+                  "last-web-search", &last_web_search,
+                  "last-pageholder-uri", &last_pageholder_uri,
+                  NULL);
+
+    GdkScreen* screen = gtk_window_get_screen (GTK_WINDOW (browser));
+    const gint default_width = (gint)gdk_screen_get_width (screen) / 1.7;
+    const gint default_height = (gint)gdk_screen_get_height (screen) / 1.7;
+
+    if (remember_last_window_size)
+    {
+        if (last_window_width && last_window_height)
+            gtk_window_set_default_size (GTK_WINDOW (browser),
+                                         last_window_width, last_window_height);
+        else
+            gtk_window_set_default_size (GTK_WINDOW (browser),
+                                         default_width, default_height);
+    }
+
+    GtkToolbarStyle gtk_toolbar_style;
+    GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
+    if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
+        g_object_get (gtk_settings, "gtk-toolbar-style", &gtk_toolbar_style, NULL);
+    else
+    {
+        switch (toolbar_style)
+        {
+        case MIDORI_TOOLBAR_ICONS:
+            gtk_toolbar_style = GTK_TOOLBAR_ICONS;
+            break;
+        case MIDORI_TOOLBAR_TEXT:
+            gtk_toolbar_style = GTK_TOOLBAR_TEXT;
+            break;
+        case MIDORI_TOOLBAR_BOTH:
+            gtk_toolbar_style = GTK_TOOLBAR_BOTH;
+            break;
+        case MIDORI_TOOLBAR_BOTH_HORIZ:
+        case MIDORI_TOOLBAR_DEFAULT:
+            gtk_toolbar_style = GTK_TOOLBAR_BOTH_HORIZ;
+        }
+    }
+    gtk_toolbar_set_style (GTK_TOOLBAR (priv->navigationbar),
+                           gtk_toolbar_style);
+    gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->navigationbar),
+                               small_toolbar ? GTK_ICON_SIZE_SMALL_TOOLBAR
+                               : GTK_ICON_SIZE_LARGE_TOOLBAR);
+
+    update_searchEngine (last_web_search, priv->search);
+
+    gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (priv->panel)),
+                            last_panel_position);
+    midori_panel_set_current_page (MIDORI_PANEL (priv->panel), last_panel_page);
+    g_object_set (priv->panel_pageholder, "uri", last_pageholder_uri, NULL);
+
+    _action_set_active (browser, "Navigationbar", show_navigationbar);
+    _action_set_active (browser, "Bookmarkbar", show_bookmarkbar);
+    _action_set_active (browser, "Panel", show_panel);
+    _action_set_active (browser, "Statusbar", show_statusbar);
+
+    sokoke_widget_set_visible (priv->button_tab_new, show_new_tab);
+    sokoke_widget_set_visible (priv->search, show_web_search);
+    sokoke_widget_set_visible (priv->button_trash, show_trash);
+
+    g_free (last_pageholder_uri);
+}
+
+static void
 midori_browser_set_property (GObject*      object,
                              guint         prop_id,
                              const GValue* value,
@@ -2685,6 +2766,7 @@ midori_browser_set_property (GObject*      object,
     case PROP_SETTINGS:
         katze_object_assign (priv->settings, g_value_get_object (value));
         g_object_ref (priv->settings);
+        _midori_browser_update_settings (browser);
         gtk_container_foreach (GTK_CONTAINER (priv->notebook),
                                (GtkCallback) midori_web_view_set_settings,
                                priv->settings);
@@ -2855,7 +2937,10 @@ midori_browser_append_tab (MidoriBrowser* browser,
     _midori_browser_update_actions (browser);
 
     n = gtk_notebook_page_num (GTK_NOTEBOOK (priv->notebook), scrolled);
-    if (!config->openTabsInTheBackground)
+    gboolean open_tabs_in_the_background;
+    g_object_get (priv->settings, "open-tabs-in-the-background",
+                  &open_tabs_in_the_background, NULL);
+    if (open_tabs_in_the_background)
     {
         gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
         gtk_window_set_focus (GTK_WINDOW (browser), priv->location);

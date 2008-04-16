@@ -12,8 +12,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__ 1
 
-#include "conf.h"
-
 #include "midori-websettings.h"
 #include <katze/katze.h>
 
@@ -26,8 +24,6 @@
 
 GList* searchEngines; // Items of type 'SearchEngine'
 KatzeXbelItem* bookmarks;
-CConfig* config;
-MidoriWebSettings* webSettings;
 
 // Custom stock items
 

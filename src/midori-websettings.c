@@ -20,18 +20,31 @@ G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, WEBKIT_TYPE_WEB_SETTINGS)
 
 struct _MidoriWebSettingsPrivate
 {
-    MidoriStartup load_on_startup;
-    gchar* homepage;
-    gchar* download_folder;
-    gboolean show_download_notification;
-    gchar* location_entry_search;
-    MidoriPreferredEncoding preferred_encoding;
+    gboolean remember_last_window_size;
+    gint last_window_width;
+    gint last_window_height;
+    gint last_panel_position;
+    gint last_panel_page;
+    gint last_web_search;
+    gchar* last_pageholder_uri;
+
+    gboolean show_navigationbar;
+    gboolean show_bookmarkbar;
+    gboolean show_panel;
+    gboolean show_statusbar;
 
     MidoriToolbarStyle toolbar_style;
     gboolean small_toolbar;
     gboolean show_web_search;
     gboolean show_new_tab;
     gboolean show_trash;
+
+    MidoriStartup load_on_startup;
+    gchar* homepage;
+    gchar* download_folder;
+    gboolean show_download_notification;
+    gchar* location_entry_search;
+    MidoriPreferredEncoding preferred_encoding;
 
     gint tab_label_size;
     gboolean close_buttons_on_tabs;
@@ -61,18 +74,31 @@ enum
 {
     PROP_0,
 
-    PROP_LOAD_ON_STARTUP,
-    PROP_HOMEPAGE,
-    PROP_DOWNLOAD_FOLDER,
-    PROP_SHOW_DOWNLOAD_NOTIFICATION,
-    PROP_LOCATION_ENTRY_SEARCH,
-    PROP_PREFERRED_ENCODING,
+    PROP_REMEMBER_LAST_WINDOW_SIZE,
+    PROP_LAST_WINDOW_WIDTH,
+    PROP_LAST_WINDOW_HEIGHT,
+    PROP_LAST_PANEL_POSITION,
+    PROP_LAST_PANEL_PAGE,
+    PROP_LAST_WEB_SEARCH,
+    PROP_LAST_PAGEHOLDER_URI,
+
+    PROP_SHOW_NAVIGATIONBAR,
+    PROP_SHOW_BOOKMARKBAR,
+    PROP_SHOW_PANEL,
+    PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
     PROP_SMALL_TOOLBAR,
     PROP_SHOW_NEW_TAB,
     PROP_SHOW_WEB_SEARCH,
     PROP_SHOW_TRASH,
+
+    PROP_LOAD_ON_STARTUP,
+    PROP_HOMEPAGE,
+    PROP_DOWNLOAD_FOLDER,
+    PROP_SHOW_DOWNLOAD_NOTIFICATION,
+    PROP_LOCATION_ENTRY_SEARCH,
+    PROP_PREFERRED_ENCODING,
 
     PROP_TAB_LABEL_SIZE,
     PROP_CLOSE_BUTTONS_ON_TABS,
@@ -210,6 +236,156 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     g_object_class_install_property (gobject_class,
+                                     PROP_REMEMBER_LAST_WINDOW_SIZE,
+                                     g_param_spec_boolean (
+                                     "remember-last-window-size",
+                                     _("Remember last window size"),
+                                     _("Whether to save the last window size"),
+                                     TRUE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_WINDOW_WIDTH,
+                                     g_param_spec_int (
+                                     "last-window-width",
+                                     _("Last window width"),
+                                     _("The last saved window width"),
+                                     0, G_MAXINT, 0,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_WINDOW_HEIGHT,
+                                     g_param_spec_int (
+                                     "last-window-height",
+                                     _("Last window height"),
+                                     _("The last saved window height"),
+                                     0, G_MAXINT, 0,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_PANEL_POSITION,
+                                     g_param_spec_int (
+                                     "last-panel-position",
+                                     _("Last panel position"),
+                                     _("The last saved panel position"),
+                                     0, G_MAXINT, 0,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_PANEL_PAGE,
+                                     g_param_spec_int (
+                                     "last-panel-page",
+                                     _("Last panel page"),
+                                     _("The last saved panel page"),
+                                     0, G_MAXINT, 0,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_WEB_SEARCH,
+                                     g_param_spec_int (
+                                     "last-web-search",
+                                     _("Last Web search"),
+                                     _("The last saved Web search"),
+                                     0, G_MAXINT, 0,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_PAGEHOLDER_URI,
+                                     g_param_spec_string (
+                                     "last-pageholder-uri",
+                                     _("Last pageholder URI"),
+                                     _("The URI last opened in the pageholder"),
+                                     "",
+                                     flags));
+
+
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_NAVIGATIONBAR,
+                                     g_param_spec_boolean (
+                                     "show-navigationbar",
+                                     _("Show Navigationbar"),
+                                     _("Whether to show the navigationbar"),
+                                     TRUE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_BOOKMARKBAR,
+                                     g_param_spec_boolean (
+                                     "show-bookmarkbar",
+                                     _("Show Bookmarkbar"),
+                                     _("Whether to show the bookmarkbar"),
+                                     FALSE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_PANEL,
+                                     g_param_spec_boolean (
+                                     "show-panel",
+                                     _("Show Panel"),
+                                     _("Whether to show the panel"),
+                                     FALSE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_STATUSBAR,
+                                     g_param_spec_boolean (
+                                     "show-statusbar",
+                                     _("Show Statusbar"),
+                                     _("Whether to show the statusbar"),
+                                     TRUE,
+                                     flags));
+
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_TOOLBAR_STYLE,
+                                     g_param_spec_enum (
+                                     "toolbar-style",
+                                     _("Toolbar Style"),
+                                     _("The style of the toolbar"),
+                                     MIDORI_TYPE_TOOLBAR_STYLE,
+                                     MIDORI_TOOLBAR_DEFAULT,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SMALL_TOOLBAR,
+                                     g_param_spec_boolean (
+                                     "small-toolbar",
+                                     _("Small toolbar"),
+                                     _("Use small toolbar icons"),
+                                     FALSE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_NEW_TAB,
+                                     g_param_spec_boolean (
+                                     "show-new-tab",
+                                     _("Show New Tab"),
+                                     _("Show the New Tab button in the toolbar"),
+                                     TRUE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_WEB_SEARCH,
+                                     g_param_spec_boolean (
+                                     "show-web-search",
+                                     _("Show Web search"),
+                                     _("Show the Web search entry in the toolbar"),
+                                     TRUE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_TRASH,
+                                     g_param_spec_boolean (
+                                     "show-trash",
+                                     _("Show Trash"),
+                                     _("Show the Trash button in the toolbar"),
+                                     TRUE,
+                                     flags));
+
+
+
+    g_object_class_install_property (gobject_class,
                                      PROP_LOAD_ON_STARTUP,
                                      g_param_spec_enum (
                                      "load-on-startup",
@@ -263,54 +439,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The preferred character encoding"),
                                      MIDORI_TYPE_PREFERRED_ENCODING,
                                      MIDORI_ENCODING_WESTERN,
-                                     flags));
-
-
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_TOOLBAR_STYLE,
-                                     g_param_spec_enum (
-                                     "toolbar-style",
-                                     _("Toolbar Style"),
-                                     _("The style of the toolbar"),
-                                     MIDORI_TYPE_TOOLBAR_STYLE,
-                                     MIDORI_TOOLBAR_DEFAULT,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SMALL_TOOLBAR,
-                                     g_param_spec_boolean (
-                                     "small-toolbar",
-                                     _("Small toolbar"),
-                                     _("Use small toolbar icons"),
-                                     FALSE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_NEW_TAB,
-                                     g_param_spec_boolean (
-                                     "show-new-tab",
-                                     _("Show New Tab"),
-                                     _("Show the New Tab button in the toolbar"),
-                                     TRUE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_WEB_SEARCH,
-                                     g_param_spec_boolean (
-                                     "show-web-search",
-                                     _("Show Web search"),
-                                     _("Show the Web search entry in the toolbar"),
-                                     TRUE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_TRASH,
-                                     g_param_spec_boolean (
-                                     "show-trash",
-                                     _("Show Trash"),
-                                     _("Show the Trash button in the toolbar"),
-                                     TRUE,
                                      flags));
 
 
@@ -511,6 +639,57 @@ midori_web_settings_set_property (GObject*      object,
 
     switch (prop_id)
     {
+    case PROP_REMEMBER_LAST_WINDOW_SIZE:
+        priv->remember_last_window_size = g_value_get_boolean (value);
+        break;
+    case PROP_LAST_WINDOW_WIDTH:
+        priv->last_window_width = g_value_get_int (value);
+        break;
+    case PROP_LAST_WINDOW_HEIGHT:
+        priv->last_window_height = g_value_get_int (value);
+        break;
+    case PROP_LAST_PANEL_POSITION:
+        priv->last_panel_position = g_value_get_int (value);
+        break;
+    case PROP_LAST_PANEL_PAGE:
+        priv->last_panel_page = g_value_get_int (value);
+        break;
+    case PROP_LAST_WEB_SEARCH:
+        priv->last_web_search = g_value_get_int (value);
+        break;
+    case PROP_LAST_PAGEHOLDER_URI:
+        katze_assign (priv->last_pageholder_uri, g_value_dup_string (value));
+        break;
+
+    case PROP_SHOW_NAVIGATIONBAR:
+        priv->show_navigationbar = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_BOOKMARKBAR:
+        priv->show_bookmarkbar = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_PANEL:
+        priv->show_panel = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_STATUSBAR:
+        priv->show_statusbar = g_value_get_boolean (value);
+        break;
+
+    case PROP_TOOLBAR_STYLE:
+        priv->toolbar_style = g_value_get_enum (value);
+        break;
+    case PROP_SMALL_TOOLBAR:
+        priv->small_toolbar = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_NEW_TAB:
+        priv->show_new_tab = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_WEB_SEARCH:
+        priv->show_web_search = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_TRASH:
+        priv->show_trash = g_value_get_boolean (value);
+        break;
+
     case PROP_LOAD_ON_STARTUP:
         priv->load_on_startup = g_value_get_enum (value);
         break;
@@ -548,22 +727,6 @@ midori_web_settings_set_property (GObject*      object,
         case MIDORI_ENCODING_CUSTOM:
             g_object_set (object, "default-encoding", "", NULL);
         }
-        break;
-
-    case PROP_TOOLBAR_STYLE:
-        priv->toolbar_style = g_value_get_enum (value);
-        break;
-    case PROP_SMALL_TOOLBAR:
-        priv->small_toolbar = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_NEW_TAB:
-        priv->show_new_tab = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_WEB_SEARCH:
-        priv->show_web_search = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_TRASH:
-        priv->show_trash = g_value_get_boolean (value);
         break;
 
     case PROP_TAB_LABEL_SIZE:
@@ -632,6 +795,57 @@ midori_web_settings_get_property (GObject*    object,
 
     switch (prop_id)
     {
+    case PROP_REMEMBER_LAST_WINDOW_SIZE:
+        g_value_set_boolean (value, priv->remember_last_window_size);
+        break;
+    case PROP_LAST_WINDOW_WIDTH:
+        g_value_set_int (value, priv->last_window_width);
+        break;
+    case PROP_LAST_WINDOW_HEIGHT:
+        g_value_set_int (value, priv->last_window_height);
+        break;
+    case PROP_LAST_PANEL_POSITION:
+        g_value_set_int (value, priv->last_panel_position);
+        break;
+    case PROP_LAST_PANEL_PAGE:
+        g_value_set_int (value, priv->last_panel_page);
+        break;
+    case PROP_LAST_WEB_SEARCH:
+        g_value_set_int (value, priv->last_web_search);
+        break;
+    case PROP_LAST_PAGEHOLDER_URI:
+        g_value_set_string (value, priv->last_pageholder_uri);
+        break;
+
+    case PROP_SHOW_NAVIGATIONBAR:
+        g_value_set_boolean (value, priv->show_navigationbar);
+        break;
+    case PROP_SHOW_BOOKMARKBAR:
+        g_value_set_boolean (value, priv->show_bookmarkbar);
+        break;
+    case PROP_SHOW_PANEL:
+        g_value_set_boolean (value, priv->show_panel);
+        break;
+    case PROP_SHOW_STATUSBAR:
+        g_value_set_boolean (value, priv->show_statusbar);
+        break;
+
+    case PROP_TOOLBAR_STYLE:
+        g_value_set_enum (value, priv->toolbar_style);
+        break;
+    case PROP_SMALL_TOOLBAR:
+        g_value_set_boolean (value, priv->small_toolbar);
+        break;
+    case PROP_SHOW_NEW_TAB:
+        g_value_set_boolean (value, priv->show_new_tab);
+        break;
+    case PROP_SHOW_WEB_SEARCH:
+        g_value_set_boolean (value, priv->show_web_search);
+        break;
+    case PROP_SHOW_TRASH:
+        g_value_set_boolean (value, priv->show_trash);
+        break;
+
     case PROP_LOAD_ON_STARTUP:
         g_value_set_enum (value, priv->load_on_startup);
         break;
@@ -649,22 +863,6 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_PREFERRED_ENCODING:
         g_value_set_enum (value, priv->preferred_encoding);
-        break;
-
-    case PROP_TOOLBAR_STYLE:
-        g_value_set_enum (value, priv->toolbar_style);
-        break;
-    case PROP_SMALL_TOOLBAR:
-        g_value_set_boolean (value, priv->small_toolbar);
-        break;
-    case PROP_SHOW_NEW_TAB:
-        g_value_set_boolean (value, priv->show_new_tab);
-        break;
-    case PROP_SHOW_WEB_SEARCH:
-        g_value_set_boolean (value, priv->show_web_search);
-        break;
-    case PROP_SHOW_TRASH:
-        g_value_set_boolean (value, priv->show_trash);
         break;
 
     case PROP_TAB_LABEL_SIZE:

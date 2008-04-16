@@ -41,7 +41,7 @@ void update_searchEngine(guint index, GtkWidget* search)
         g_object_unref(pixbuf);
         sokoke_entry_set_default_text(GTK_ENTRY(search)
          , search_engine_get_short_name(engine));
-        config->searchEngine = index;
+        // config->searchEngine = index;
     }
 }
 
@@ -427,11 +427,11 @@ void on_webSearch_activate(GtkWidget* widget, MidoriBrowser* browser)
 {
     const gchar* keywords = gtk_entry_get_text(GTK_ENTRY(widget));
     gchar* url;
-    SearchEngine* searchEngine = (SearchEngine*)g_list_nth_data(searchEngines, config->searchEngine);
+    SearchEngine* searchEngine = (SearchEngine*)g_list_nth_data(searchEngines, 0/*config->searchEngine*/);
     if(searchEngine)
         url = searchEngine->url;
     else // The location search is our fallback
-     url = config->locationSearch;
+     url = "";//config->locationSearch;
     gchar* search;
     if(strstr(url, "%s"))
      search = g_strdup_printf(url, keywords);

@@ -28,7 +28,6 @@ midori_SOURCES = \
     webSearch.c webSearch.h \
     helpers.c   helpers.h   \
     sokoke.c    sokoke.h    \
-    conf.c      conf.h      \
     search.c    search.h    \
     global.h                \
     ui.h                    \

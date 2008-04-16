@@ -259,6 +259,9 @@ settings_save_to_file (MidoriWebSettings* settings,
 
 int main(int argc, char** argv)
 {
+    MidoriStartup load_on_startup;
+    gchar* homepage;
+
     locale_init();
     g_set_application_name(_("midori"));
 
@@ -267,7 +270,8 @@ int main(int argc, char** argv)
     GOptionEntry entries[] =
     {
      { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
-       N_("Display program version"), NULL }
+       N_("Display program version"), NULL },
+     { NULL }
     };
 
     GError* error = NULL;
@@ -310,7 +314,6 @@ int main(int argc, char** argv)
     gchar* config_file = g_build_filename (config_path, "config", NULL);
     error = NULL;
     MidoriWebSettings* settings = settings_new_from_file (config_file);
-    webSettings = settings;
     katze_assign (config_file, g_build_filename (config_path, "accels", NULL));
     gtk_accel_map_load (config_file);
     katze_assign (config_file, g_build_filename (config_path, "search", NULL));
@@ -337,9 +340,9 @@ int main(int argc, char** argv)
         g_error_free (error);
     }
     g_free (config_file);
-    KatzeXbelItem* _session = katze_xbel_folder_new();
-    config = config_new ();
-    if(config->startup == CONFIG_STARTUP_SESSION)
+    KatzeXbelItem* _session = katze_xbel_folder_new ();
+    g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
+    if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         config_file = g_build_filename (config_path, "session.xbel", NULL);
         error = NULL;
@@ -382,7 +385,6 @@ int main(int argc, char** argv)
          , NULL);
         if(gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
         {
-            config_free(config);
             search_engines_free(searchEngines);
             katze_xbel_item_unref(bookmarks);
             katze_xbel_item_unref(_session);
@@ -410,14 +412,18 @@ int main(int argc, char** argv)
     }
     g_free(uri);
 
-    if(katze_xbel_folder_is_empty(_session))
+    if (katze_xbel_folder_is_empty (_session))
     {
-        KatzeXbelItem* item = katze_xbel_bookmark_new();
-        if(config->startup == CONFIG_STARTUP_BLANK)
-            katze_xbel_bookmark_set_href(item, "");
+        KatzeXbelItem* item = katze_xbel_bookmark_new ();
+        if (load_on_startup == MIDORI_STARTUP_BLANK)
+            katze_xbel_bookmark_set_href (item, "");
         else
-            katze_xbel_bookmark_set_href(item, config->homepage);
-        katze_xbel_folder_prepend_item(_session, item);
+        {
+            g_object_get (settings, "homepage", &homepage, NULL);
+            katze_xbel_bookmark_set_href (item, homepage);
+            g_free (homepage);
+        }
+        katze_xbel_folder_prepend_item (_session, item);
     }
     g_free (config_path);
 
@@ -493,7 +499,8 @@ int main(int argc, char** argv)
         g_error_free (error);
     }
     katze_xbel_item_unref (xbel_trash);
-    if(config->startup == CONFIG_STARTUP_SESSION)
+    g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
+    if(load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, g_build_filename (config_path,
                                                      "session.xbel", NULL));
@@ -512,7 +519,6 @@ int main(int argc, char** argv)
         g_warning ("The configuration couldn't be saved. %s", error->message);
         g_error_free (error);
     }
-    config_free (config);
     katze_assign (config_file, g_build_filename (config_path, "accels", NULL));
     gtk_accel_map_save (config_file);
     g_free (config_file);

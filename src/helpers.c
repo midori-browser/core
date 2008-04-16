@@ -130,7 +130,7 @@ gchar* magic_uri(const gchar* uri, gboolean search)
         //g_strfreev(sParts);
         // We only have a word or there is no matching keyowrd, so search for it
         if(searchUrl == NULL)
-            g_snprintf(search, 255, config->locationSearch, uri);
+            g_snprintf(search, 255, ""/*config->locationSearch*/, uri);
         return g_strdup(search);
     }
     return g_strdup(uri);
@@ -142,28 +142,4 @@ gchar* get_default_font(void)
     gchar* defaultFont;
     g_object_get(gtksettings, "gtk-font-name", &defaultFont, NULL);
     return defaultFont;
-}
-
-GtkToolbarStyle config_to_toolbarstyle(guint toolbarStyle)
-{
-    switch(toolbarStyle)
-    {
-    case CONFIG_TOOLBAR_ICONS:
-        return GTK_TOOLBAR_ICONS;
-    case CONFIG_TOOLBAR_TEXT:
-        return GTK_TOOLBAR_TEXT;
-    case CONFIG_TOOLBAR_BOTH:
-        return GTK_TOOLBAR_BOTH;
-    case CONFIG_TOOLBAR_BOTH_HORIZ:
-        return GTK_TOOLBAR_BOTH_HORIZ;
-    }
-    GtkSettings* gtkSettings = gtk_settings_get_default();
-    g_object_get(gtkSettings, "gtk-toolbar-style", &toolbarStyle, NULL);
-    return toolbarStyle;
-}
-
-GtkToolbarStyle config_to_toolbariconsize(gboolean toolbarSmall)
-{
-    return toolbarSmall ? GTK_ICON_SIZE_SMALL_TOOLBAR
-     : GTK_ICON_SIZE_LARGE_TOOLBAR;
 }
