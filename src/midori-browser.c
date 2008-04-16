@@ -1036,6 +1036,7 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
             GtkWidget* web_view = midori_browser_get_current_web_view (browser);
             g_object_set (web_view, "uri", new_uri, NULL);
             g_free (new_uri);
+            gtk_widget_grab_focus (web_view);
         }
         return TRUE;
     }

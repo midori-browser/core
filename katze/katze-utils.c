@@ -121,7 +121,7 @@ katze_property_proxy (gpointer     object,
     if (_hint == g_intern_string ("blurb"))
         nick = g_param_spec_get_blurb (pspec);
     GtkWidget* widget;
-    const gchar* string;
+    gchar* string = NULL;
     if (type == G_TYPE_PARAM_BOOLEAN)
     {
         widget = gtk_check_button_new_with_label (nick);
@@ -209,6 +209,7 @@ katze_property_proxy (gpointer     object,
     }
     else
         widget = gtk_label_new (nick);
+    g_free (string);
 
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
 
