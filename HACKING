@@ -15,7 +15,8 @@ Source file example:
 
     #include <glib.h>
 
-    void foobar(FooEnum bar, const gchar* foo)
+    void
+    foobar (FooEnum bar, const gchar* foo)
     {
         if(!foo)
             return;
