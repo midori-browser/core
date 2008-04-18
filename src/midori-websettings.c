@@ -127,9 +127,9 @@ midori_startup_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_STARTUP_BLANK, "MIDORI_STARTUP_BLANK", "Blank" },
-         { MIDORI_STARTUP_HOMEPAGE, "MIDORI_STARTUP_HOMEPAGE", "Homepage" },
-         { MIDORI_STARTUP_LAST_OPEN_PAGES, "MIDORI_STARTUP_LAST_OPEN_PAGES", "Last open pages" },
+         { MIDORI_STARTUP_BLANK, "MIDORI_STARTUP_BLANK", N_("Blank") },
+         { MIDORI_STARTUP_HOMEPAGE, "MIDORI_STARTUP_HOMEPAGE", N_("Homepage") },
+         { MIDORI_STARTUP_LAST_OPEN_PAGES, "MIDORI_STARTUP_LAST_OPEN_PAGES", N_("Last open pages") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriStartup", values);
@@ -144,12 +144,12 @@ midori_preferred_encoding_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_ENCODING_CHINESE, "MIDORI_ENCODING_CHINESE", "Chinese (BIG5)" },
-         { MIDORI_ENCODING_JAPANESE, "MIDORI_ENCODING_JAPANESE", "Japanese (SHIFT_JIS)" },
-         { MIDORI_ENCODING_RUSSIAN, "MIDORI_ENCODING_RUSSIAN", "Russian (KOI8-R)" },
-         { MIDORI_ENCODING_UNICODE, "MIDORI_ENCODING_UNICODE", "Unicode (UTF-8)" },
-         { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_WESTERN", "Western (ISO-8859-1)" },
-         { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_CUSTOM", "Custom..." },
+         { MIDORI_ENCODING_CHINESE, "MIDORI_ENCODING_CHINESE", N_("Chinese (BIG5)") },
+         { MIDORI_ENCODING_JAPANESE, "MIDORI_ENCODING_JAPANESE", N_("Japanese (SHIFT_JIS)") },
+         { MIDORI_ENCODING_RUSSIAN, "MIDORI_ENCODING_RUSSIAN", N_("Russian (KOI8-R)") },
+         { MIDORI_ENCODING_UNICODE, "MIDORI_ENCODING_UNICODE", N_("Unicode (UTF-8)") },
+         { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_WESTERN", N_("Western (ISO-8859-1)") },
+         { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_CUSTOM", N_("Custom...") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriPreferredEncoding", values);
@@ -164,9 +164,9 @@ midori_new_page_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_NEW_PAGE_TAB, "MIDORI_NEW_PAGE_TAB", "New tab" },
-         { MIDORI_NEW_PAGE_WINDOW, "MIDORI_NEW_PAGE_WINDOW", "New window" },
-         { MIDORI_NEW_PAGE_CURRENT, "MIDORI_NEW_PAGE_CURRENT", "Current tab" },
+         { MIDORI_NEW_PAGE_TAB, "MIDORI_NEW_PAGE_TAB", N_("New tab") },
+         { MIDORI_NEW_PAGE_WINDOW, "MIDORI_NEW_PAGE_WINDOW", N_("New window") },
+         { MIDORI_NEW_PAGE_CURRENT, "MIDORI_NEW_PAGE_CURRENT", N_("Current tab") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriNewPage", values);
@@ -181,11 +181,11 @@ midori_toolbar_style_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_TOOLBAR_DEFAULT, "MIDORI_TOOLBAR_DEFAULT", "Default" },
-         { MIDORI_TOOLBAR_ICONS, "MIDORI_TOOLBAR_ICONS", "Icons" },
-         { MIDORI_TOOLBAR_TEXT, "MIDORI_TOOLBAR_TEXT", "Text" },
-         { MIDORI_TOOLBAR_BOTH, "MIDORI_TOOLBAR_BOTH", "Both" },
-         { MIDORI_TOOLBAR_BOTH_HORIZ, "MIDORI_TOOLBAR_BOTH_HORIZ", "Both horizontal" },
+         { MIDORI_TOOLBAR_DEFAULT, "MIDORI_TOOLBAR_DEFAULT", N_("Default") },
+         { MIDORI_TOOLBAR_ICONS, "MIDORI_TOOLBAR_ICONS", N_("Icons") },
+         { MIDORI_TOOLBAR_TEXT, "MIDORI_TOOLBAR_TEXT", N_("Text") },
+         { MIDORI_TOOLBAR_BOTH, "MIDORI_TOOLBAR_BOTH", N_("Both") },
+         { MIDORI_TOOLBAR_BOTH_HORIZ, "MIDORI_TOOLBAR_BOTH_HORIZ", N_("Both horizontal") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriToolbarStyle", values);
@@ -200,9 +200,9 @@ midori_accept_cookies_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_ACCEPT_COOKIES_ALL, "MIDORI_ACCEPT_COOKIES_ALL", "All cookies" },
-         { MIDORI_ACCEPT_COOKIES_SESSION, "MIDORI_ACCEPT_COOKIES_SESSION", "Session cookies" },
-         { MIDORI_ACCEPT_COOKIES_NONE, "MIDORI_ACCEPT_COOKIES_NONE", "None" },
+         { MIDORI_ACCEPT_COOKIES_ALL, "MIDORI_ACCEPT_COOKIES_ALL", N_("All cookies") },
+         { MIDORI_ACCEPT_COOKIES_SESSION, "MIDORI_ACCEPT_COOKIES_SESSION", N_("Session cookies") },
+         { MIDORI_ACCEPT_COOKIES_NONE, "MIDORI_ACCEPT_COOKIES_NONE", N_("None") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriAcceptCookies", values);

@@ -422,6 +422,7 @@ midori_web_view_new_tab_cb (GtkWidget*     web_view,
                             MidoriBrowser* browser)
 {
     midori_browser_append_uri (browser, uri);
+    gtk_widget_grab_focus (web_view);
 }
 
 static void
@@ -2941,10 +2942,10 @@ midori_browser_append_tab (MidoriBrowser* browser,
     gboolean open_tabs_in_the_background;
     g_object_get (priv->settings, "open-tabs-in-the-background",
                   &open_tabs_in_the_background, NULL);
-    if (open_tabs_in_the_background)
+    if (!open_tabs_in_the_background)
     {
         gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
-        gtk_window_set_focus (GTK_WINDOW (browser), priv->location);
+        gtk_widget_grab_focus (priv->location);
     }
     return n;
 }
@@ -2999,6 +3000,8 @@ midori_browser_append_xbel_item (MidoriBrowser* browser,
 
 /**
  * midori_browser_append_uri:
+ * @browser: a #MidoriBrowser
+ * @uri: an URI
  *
  * Appends an uri in the form of a new tab.
  *

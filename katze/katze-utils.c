@@ -111,7 +111,7 @@ katze_property_proxy (gpointer     object,
     GParamSpec* pspec = g_object_class_find_property (class, property);
     if (!pspec)
     {
-        g_warning ("Property '%s' is invalid for %s",
+        g_warning (_("Property '%s' is invalid for %s"),
                    property, G_OBJECT_CLASS_NAME (class));
         return gtk_label_new (property);
     }
@@ -124,7 +124,7 @@ katze_property_proxy (gpointer     object,
     gchar* string = NULL;
     if (type == G_TYPE_PARAM_BOOLEAN)
     {
-        widget = gtk_check_button_new_with_label (nick);
+        widget = gtk_check_button_new_with_label (gettext (nick));
         gboolean toggled;
         g_object_get (object, property, &toggled, NULL);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggled);
@@ -196,7 +196,7 @@ katze_property_proxy (gpointer     object,
         gint i = 0;
         while (i < enum_class->n_values)
         {
-            const gchar* label = enum_class->values[i].value_nick;
+            const gchar* label = gettext (enum_class->values[i].value_nick);
             gtk_combo_box_append_text (GTK_COMBO_BOX (widget), label);
             i++;
         }
@@ -208,7 +208,7 @@ katze_property_proxy (gpointer     object,
         g_type_class_unref (enum_class);
     }
     else
-        widget = gtk_label_new (nick);
+        widget = gtk_label_new (gettext (nick));
     g_free (string);
 
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
@@ -236,7 +236,7 @@ katze_property_label (gpointer     object,
     GParamSpec* pspec = g_object_class_find_property (class, property);
     if (!pspec)
     {
-        g_warning ("Property '%s' is invalid for %s",
+        g_warning (_("Property '%s' is invalid for %s"),
                    property, G_OBJECT_CLASS_NAME (class));
         return gtk_label_new (property);
     }
