@@ -1,0 +1,1029 @@
+# French translations for midori package.
+# Copyright (C) 2008 THE midori'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the midori package.
+# Christian Dywan <christian@twotoasts.de> 2008
+# Adrien Nader <camaradetux@gmail.com> 2008
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: midori 0.0.17\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-19 12:56+0200\n"
+"PO-Revision-Date: 2008-03-31 17:37+0100\n"
+"Last-Translator: Adrien Nader <camaradetux@gmail.com>\n"
+"Language-Team: French <fr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../midori.desktop.in.h:1
+msgid "Lightweight web browser"
+msgstr "Petit navigateur"
+
+#: ../midori.desktop.in.h:2
+msgid "Midori Web Browser"
+msgstr "Navigateur Midori"
+
+#: ../midori.desktop.in.h:3
+msgid "Web Browser"
+msgstr "Navigateur"
+
+#: ../src/main.c:49
+msgid "Bookmark"
+msgstr "Signet"
+
+#: ../src/main.c:50
+msgid "New Bookmark"
+msgstr "Nouveau Signet"
+
+#: ../src/main.c:51
+msgid "_Form Fill"
+msgstr "Remplissage de _forumlaire"
+
+#: ../src/main.c:52 ../src/midori-websettings.c:131
+#: ../src/midori-websettings.c:402
+msgid "Homepage"
+msgstr "Page d'accueil"
+
+#: ../src/main.c:53
+msgid "New _Tab"
+msgstr "Nouvel _Onglet"
+
+#: ../src/main.c:54
+msgid "New _Window"
+msgstr "Nouvelle _Fenêtre"
+
+#: ../src/main.c:59
+msgid "_Fullscreen"
+msgstr "_Plein écran"
+
+#: ../src/main.c:60
+msgid "_Leave Fullscreen"
+msgstr "_Quitter le plein écran"
+
+#: ../src/main.c:146
+#, c-format
+msgid "The configuration couldn't be loaded. %s\n"
+msgstr "La configuration n'a pu être chargée. %s\n"
+
+#: ../src/main.c:266 ../src/main.c:299
+msgid "midori"
+msgstr "midori"
+
+#: ../src/main.c:273
+msgid "Display program version"
+msgstr "Afficher la version du programme"
+
+#: ../src/main.c:278
+msgid "[URL]"
+msgstr "[URL]"
+
+#: ../src/main.c:301
+msgid "Debugging"
+msgstr "Débogage"
+
+#: ../src/main.c:302
+msgid "Please report comments, suggestions and bugs to:"
+msgstr "Merci d'envoyer vos commentaires, suggestions et problèmes :"
+
+#: ../src/main.c:304
+msgid "Check for new versions at:"
+msgstr "Vérifier l'existence de nouvelles versions sur:"
+
+#: ../src/main.c:339
+#, c-format
+msgid "The bookmarks couldn't be loaded. %s\n"
+msgstr "Les signets n'ont pu être chargés. %s\n"
+
+#: ../src/main.c:353
+#, c-format
+msgid "The session couldn't be loaded. %s\n"
+msgstr "La session n'a pu être chargée. %s\n"
+
+# pas très content
+#: ../src/main.c:365
+#, c-format
+msgid "The trash couldn't be loaded. %s\n"
+msgstr "La corbeille n'a pu être chargée. %s\n"
+
+#: ../src/main.c:375
+msgid "The following errors occured:"
+msgstr "Les erreurs suivantes ont eu lieu:"
+
+#: ../src/main.c:56
+msgid "Select _All"
+msgstr "_Tout sélectionner"
+
+#: ../src/midori-browser.c:187 ../src/midori-browser.c:1945
+#: ../src/midori-browser.c:1951
+msgid "Reload the current page"
+msgstr "Recharger la page"
+
+#: ../src/midori-browser.c:195 ../src/midori-browser.c:1948
+msgid "Stop loading the current page"
+msgstr "Arrêter le chargement de la page"
+
+#: ../src/midori-browser.c:245
+#, c-format
+msgid "%d%% loaded"
+msgstr "%d%% chargés"
+
+#: ../src/midori-browser.c:512 ../src/midori-webview.c:253
+msgid "The associated settings"
+msgstr "Les réglages associés"
+
+#: ../src/midori-browser.c:532 ../src/midori-webview.c:244
+msgid "The text that is displayed in the statusbar"
+msgstr "Le texte affiché dans la barre d'êtat"
+
+#: ../src/midori-browser.c:551
+msgid "The trash, collecting recently closed tabs and windows"
+msgstr "La corbeille, récupérant les onglets et fenêtres récemment fermés"
+
+# Vérifier que ce n'est pas 'ouvrir *un* emplacement'
+#: ../src/midori-browser.c:1068
+msgid "Open location"
+msgstr "Ouvrir l'emplacement"
+
+#: ../src/midori-browser.c:1080 ../src/midori-browser.c:1126
+msgid "_Location:"
+msgstr "_Emplacement"
+
+#. TODO: We should offer all of the search's features here
+#: ../src/midori-browser.c:1114
+msgid "Web search"
+msgstr "Recherche toile"
+
+#: ../src/midori-browser.c:1153
+msgid "New bookmark"
+msgstr "Nouveau signet"
+
+#: ../src/midori-browser.c:1153
+msgid "Edit bookmark"
+msgstr "Éditer le Signet"
+
+#: ../src/midori-browser.c:1170
+msgid "_Title:"
+msgstr "_Titre:"
+
+#: ../src/midori-browser.c:1186 ../src/webSearch.c:200
+msgid "_Description:"
+msgstr "_Description"
+
+#: ../src/midori-browser.c:1205 ../src/webSearch.c:214
+msgid "_URL:"
+msgstr "_URL:"
+
+# manque un raccourcis Alt+X
+#: ../src/midori-browser.c:1223
+msgid "_Folder:"
+msgstr "Dossier"
+
+# racine ?
+#: ../src/midori-browser.c:1227
+msgid "Root"
+msgstr "Racine"
+
+#: ../src/midori-browser.c:1449
+msgid "<i>Separator</i>"
+msgstr "<i>Séparateur</i>"
+
+#: ../src/midori-browser.c:1637
+msgid "A lightweight web browser."
+msgstr "Un navigateur toile léger"
+
+#: ../src/midori-browser.c:1645
+msgid "translator-credits"
+msgstr ""
+"Christian Dywan <christian@twotoasts.de>\n"
+"Adrien Nader <camaradetux@gmail.com>"
+
+#: ../src/midori-browser.c:1865
+msgid "_File"
+msgstr "_Fichier"
+
+#: ../src/midori-browser.c:1868
+msgid "Open a new window"
+msgstr "Ouvrir une nouvelle fenêtre"
+
+#: ../src/midori-browser.c:1871
+msgid "Open a new tab"
+msgstr "Ouvrir un nouvel onglet"
+
+#: ../src/midori-browser.c:1874
+msgid "Open a file"
+msgstr "Ouvrir un fichier"
+
+# un, le ; enregistrer sous ?
+#: ../src/midori-browser.c:1877
+msgid "Save to a file"
+msgstr "Enregistrer dans un fichier"
+
+#: ../src/midori-browser.c:1879
+msgid "_Close Tab"
+msgstr "Fe_rmer l'onglet"
+
+#: ../src/midori-browser.c:1880
+msgid "Close the current tab"
+msgstr "Fermer l'onglet actuel"
+
+#: ../src/midori-browser.c:1882
+msgid "C_lose Window"
+msgstr "_Fermer la fenÃªtre"
+
+#: ../src/midori-browser.c:1883
+msgid "Close this window"
+msgstr "Fermer cette fenêtre"
+
+# setup : organisation ?
+#: ../src/midori-browser.c:1885
+msgid "Pa_ge Setup"
+msgstr "Organisation de la page"
+
+#: ../src/midori-browser.c:1895
+msgid "Quit the application"
+msgstr "Quitter le programme"
+
+#: ../src/midori-browser.c:1897
+msgid "_Edit"
+msgstr "Édit_er"
+
+#: ../src/midori-browser.c:1900
+msgid "Undo the last modification"
+msgstr "Annuler la dernière modification"
+
+#: ../src/midori-browser.c:1903
+msgid "Redo the last modification"
+msgstr "Répéter la dernière modification"
+
+#: ../src/midori-browser.c:1909 ../src/midori-browser.c:1912
+msgid "Copy the selected text"
+msgstr "Copier le texte sélectionné"
+
+#: ../src/midori-browser.c:1915
+msgid "Paste text from the clipboard"
+msgstr "Coller le texte à partir du presse-papiers"
+
+#: ../src/midori-browser.c:1918
+msgid "Delete the selected text"
+msgstr "Supprimer le texte sélectionné"
+
+#: ../src/midori-browser.c:1921
+msgid "Select all text"
+msgstr "Sélectionner tout le texte"
+
+#: ../src/midori-browser.c:1929
+msgid "Find _Next"
+msgstr "Rechercher le _suivant"
+
+#: ../src/midori-browser.c:1932
+msgid "Find _Previous"
+msgstr "Réchercher le _précédant"
+
+#: ../src/midori-browser.c:1935
+msgid "_Quick Find"
+msgstr "Recherche rapide"
+
+#: ../src/midori-browser.c:1941
+msgid "_View"
+msgstr "_Vue"
+
+#: ../src/midori-browser.c:1942
+msgid "_Toolbars"
+msgstr "_Barre d'outils"
+
+#: ../src/midori-browser.c:1962
+msgid "View Source"
+msgstr "Afficher la source"
+
+#: ../src/midori-browser.c:1965
+msgid "View Selection Source"
+msgstr "Afficher la source de la sélection"
+
+# pas de traduction de toggle ?
+#: ../src/midori-browser.c:1969
+msgid "Toggle fullscreen view"
+msgstr "Activer/Désactiver le plein écran"
+
+#: ../src/midori-browser.c:1971
+msgid "_Go"
+msgstr "A_ller"
+
+#: ../src/midori-browser.c:1982
+msgid "Location..."
+msgstr "Emplacement..."
+
+#: ../src/midori-browser.c:1985
+msgid "Web Search..."
+msgstr "Recherche Toile..."
+
+# C'est quoi le page holder ?
+#: ../src/midori-browser.c:1988
+msgid "Open in Page_holder..."
+msgstr ""
+
+#: ../src/midori-browser.c:1991
+msgid "Closed Tabs and Windows"
+msgstr "Onglets et fenêtres fermés"
+
+#: ../src/midori-browser.c:1992
+msgid "Reopen a previously closed tab or window"
+msgstr "Réouvre un onglet ou une fenêtre fermé auparavant"
+
+#: ../src/midori-browser.c:1994
+msgid "Empty Trash"
+msgstr "Vider la corbeille"
+
+#: ../src/midori-browser.c:1997
+msgid "Undo Close Tab"
+msgstr "Annuler la fermeture de l'onglet"
+
+#: ../src/midori-browser.c:2000
+msgid "_Bookmarks"
+msgstr "_Signets"
+
+#: ../src/midori-browser.c:2005
+msgid "_Manage Bookmarks"
+msgstr "_Gérer les Signets"
+
+#: ../src/midori-browser.c:2011
+msgid "Open in New _Tab"
+msgstr "Ouvrir dans un nouvel _onglet"
+
+#: ../src/midori-browser.c:2014
+msgid "Open in New _Window"
+msgstr "Ouvrir dans une nouvelle _Fenêtre"
+
+#: ../src/midori-browser.c:2023
+msgid "_Tools"
+msgstr "_Outils"
+
+#: ../src/midori-browser.c:2025
+msgid "_Manage Search Engines"
+msgstr "_GÃ©rer moteurs de recherche"
+
+#: ../src/midori-browser.c:2026
+msgid "Add, edit and remove search engines..."
+msgstr "Ajouter, modifier et supprimer des moteurs de recherche..."
+
+#: ../src/midori-browser.c:2029
+msgid "_Window"
+msgstr "_Fenêtre"
+
+#: ../src/midori-browser.c:2031
+msgid "_Previous Tab"
+msgstr "Onglet _précedant"
+
+#: ../src/midori-browser.c:2034
+msgid "_Next Tab"
+msgstr "Onglet _suivant"
+
+# fonctionnalité à tester
+#: ../src/midori-browser.c:2037
+msgid "Tab _Overview"
+msgstr "Aperçu des onglets"
+
+#. G_CALLBACK (_action_tab_overview_activate)
+#: ../src/midori-browser.c:2040
+msgid "_Help"
+msgstr "_Aide"
+
+# contenu ?
+#: ../src/midori-browser.c:2042
+msgid "_Contents"
+msgstr "_Contenu"
+
+#: ../src/midori-browser.c:2052
+msgid "P_rivate Browsing"
+msgstr "Navigation en _privé"
+
+#: ../src/midori-browser.c:2056
+msgid "_Work Offline"
+msgstr "Travailler hors ligne"
+
+#: ../src/midori-browser.c:2061
+msgid "_Navigationbar"
+msgstr "Barre de _navigation"
+
+# 'barre' c'est pas gégé ; paneau ?
+#: ../src/midori-browser.c:2065
+msgid "Side_panel"
+msgstr "_Barre latérale"
+
+#: ../src/midori-browser.c:2069
+msgid "_Bookmarkbar"
+msgstr "Barre des _signets"
+
+#: ../src/midori-browser.c:2073
+msgid "_Transferbar"
+msgstr "Barre des _transferts"
+
+#: ../src/midori-browser.c:2077
+msgid "_Statusbar"
+msgstr "Barre d'_Ã©tat"
+
+#: ../src/midori-browser.c:2524
+msgid "Bookmarks"
+msgstr "Signets"
+
+#. TODO: We need something like "use current website"
+#: ../src/midori-browser.c:2534 ../src/prefs.c:101
+msgid "Transfers"
+msgstr "Transferts"
+
+#: ../src/midori-browser.c:2541
+msgid "Console"
+msgstr "Console"
+
+#: ../src/midori-browser.c:2550 ../src/prefs.c:230
+msgid "History"
+msgstr "Historique"
+
+#: ../src/midori-browser.c:2559
+msgid "Pageholder"
+msgstr ""
+
+#: ../src/midori-browser.c:2577
+msgid "_Inline find:"
+msgstr "Recherche rapide:"
+
+#: ../src/midori-browser.c:2603
+msgid "Match Case"
+msgstr "Sensible à la casse"
+
+#: ../src/midori-browser.c:2620
+msgid "Close Findbar"
+msgstr "Fermer la barre de recherche"
+
+# paneau ?
+#: ../src/midori-panel.c:146
+msgid "Appearance of the shadow around each panel"
+msgstr "Aspect des ombres autour de chaque paneau"
+
+# mouai
+#: ../src/midori-panel.c:156
+msgid "Menu to hold panel items"
+msgstr "Menu pour contenir les éléments des paneaux"
+
+# index == numéro ?
+#: ../src/midori-panel.c:165
+msgid "The index of the current page"
+msgstr "Le numéro de la page actuelle"
+
+#: ../src/midori-panel.c:211 ../src/midori-panel.c:212
+msgid "Close panel"
+msgstr "Fermer la barre"
+
+#: ../src/midori-panel.c:374
+msgid "Untitled"
+msgstr "Sans titre"
+
+#: ../src/midori-trash.c:97
+msgid "The maximum number of items"
+msgstr "Le nombre maximal d'éléments"
+
+#: ../src/midori-websettings.c:130
+msgid "Blank page"
+msgstr "Page vierge"
+
+#: ../src/midori-websettings.c:132
+msgid "Last open pages"
+msgstr "Page récemment ouvertes"
+
+#: ../src/midori-websettings.c:147
+msgid "Chinese (BIG5)"
+msgstr "Chinois (BIG5)"
+
+#: ../src/midori-websettings.c:148
+msgid "Japanese (SHIFT_JIS)"
+msgstr "Japonais (SHIFT_JIS)"
+
+#: ../src/midori-websettings.c:149
+msgid "Russian (KOI8-R)"
+msgstr "Russe (KOI8-R)"
+
+#: ../src/midori-websettings.c:150
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+#: ../src/midori-websettings.c:151
+msgid "Western (ISO-8859-1)"
+msgstr "Occidental (ISO-8859-1)"
+
+#: ../src/midori-websettings.c:152
+msgid "Custom..."
+msgstr ""
+
+#: ../src/midori-websettings.c:167
+msgid "New tab"
+msgstr "Nouvel onglet"
+
+#: ../src/midori-websettings.c:168
+msgid "New window"
+msgstr "Nouvelle fenêtre"
+
+#: ../src/midori-websettings.c:169
+msgid "Current tab"
+msgstr "Onglet actuel"
+
+#: ../src/midori-websettings.c:184
+msgid "Default"
+msgstr "Défaut"
+
+#: ../src/midori-websettings.c:185
+msgid "Icons"
+msgstr "Icônes"
+
+#: ../src/midori-websettings.c:186
+msgid "Text"
+msgstr "Texte"
+
+#: ../src/midori-websettings.c:187
+msgid "Both"
+msgstr ""
+
+#: ../src/midori-websettings.c:188
+msgid "Both horizontal"
+msgstr ""
+
+#: ../src/midori-websettings.c:203
+msgid "All cookies"
+msgstr "Tous les cookies"
+
+#: ../src/midori-websettings.c:204
+msgid "Session cookies"
+msgstr "Cookies de session"
+
+#: ../src/midori-websettings.c:205
+msgid "None"
+msgstr "Aucun"
+
+#: ../src/midori-websettings.c:242
+msgid "Remember last window size"
+msgstr "Se rappeler de la taille du fenêtre"
+
+#: ../src/midori-websettings.c:243
+msgid "Whether to save the last window size"
+msgstr ""
+
+#: ../src/midori-websettings.c:251
+msgid "Last window width"
+msgstr "Dernier largeur de fenêtre"
+
+#: ../src/midori-websettings.c:252
+msgid "The last saved window width"
+msgstr ""
+
+#: ../src/midori-websettings.c:260
+msgid "Last window height"
+msgstr "Dernier hauteur de fenêtre"
+
+#: ../src/midori-websettings.c:261
+msgid "The last saved window height"
+msgstr ""
+
+#: ../src/midori-websettings.c:269
+msgid "Last panel position"
+msgstr ""
+
+#: ../src/midori-websettings.c:270
+msgid "The last saved panel position"
+msgstr ""
+
+#: ../src/midori-websettings.c:278
+msgid "Last panel page"
+msgstr "Dernier page de paneau"
+
+#: ../src/midori-websettings.c:279
+msgid "The last saved panel page"
+msgstr ""
+
+#: ../src/midori-websettings.c:287
+msgid "Last Web search"
+msgstr "Dernier recherche toile"
+
+#: ../src/midori-websettings.c:288
+msgid "The last saved Web search"
+msgstr "La dernier recherche toile guardé"
+
+#: ../src/midori-websettings.c:296
+msgid "Last pageholder URI"
+msgstr ""
+
+#: ../src/midori-websettings.c:297
+msgid "The URI last opened in the pageholder"
+msgstr ""
+
+#: ../src/midori-websettings.c:307
+msgid "Show Navigationbar"
+msgstr "Afficher Barre de navigation"
+
+#: ../src/midori-websettings.c:308
+msgid "Whether to show the navigationbar"
+msgstr ""
+
+#: ../src/midori-websettings.c:316
+msgid "Show Bookmarkbar"
+msgstr "Afficher Barre des _signets"
+
+#: ../src/midori-websettings.c:317
+msgid "Whether to show the bookmarkbar"
+msgstr ""
+
+#: ../src/midori-websettings.c:325
+msgid "Show Panel"
+msgstr ""
+
+#: ../src/midori-websettings.c:326
+msgid "Whether to show the panel"
+msgstr ""
+
+#: ../src/midori-websettings.c:334
+msgid "Show Statusbar"
+msgstr "Afficher Barre d'état"
+
+#: ../src/midori-websettings.c:335
+msgid "Whether to show the statusbar"
+msgstr ""
+
+#: ../src/midori-websettings.c:344
+msgid "Toolbar Style"
+msgstr "Style de barre d'outils"
+
+#: ../src/midori-websettings.c:345
+msgid "The style of the toolbar"
+msgstr "Le style de la barre d'outils"
+
+#: ../src/midori-websettings.c:354
+msgid "Small toolbar"
+msgstr "Petit barre d'outils"
+
+#: ../src/midori-websettings.c:355
+msgid "Use small toolbar icons"
+msgstr "Afficher de petites icônes de la barre d'outils"
+
+#: ../src/midori-websettings.c:363
+msgid "Show New Tab"
+msgstr "Nouvel Onglet"
+
+#: ../src/midori-websettings.c:364
+msgid "Show the New Tab button in the toolbar"
+msgstr ""
+
+#: ../src/midori-websettings.c:372
+msgid "Show Web search"
+msgstr "Afficher Recherche toile"
+
+#: ../src/midori-websettings.c:373
+msgid "Show the Web search entry in the toolbar"
+msgstr ""
+
+#: ../src/midori-websettings.c:381
+msgid "Show Trash"
+msgstr "Afficher Corbeille"
+
+#: ../src/midori-websettings.c:382
+msgid "Show the Trash button in the toolbar"
+msgstr ""
+
+#: ../src/midori-websettings.c:392
+msgid "Load on Startup"
+msgstr "Charger au démarrage"
+
+#: ../src/midori-websettings.c:393
+msgid "What to load on startup"
+msgstr "Quoi de charger au démarrage"
+
+#: ../src/midori-websettings.c:403
+msgid "The homepage"
+msgstr "La page d'accueil"
+
+#: ../src/midori-websettings.c:411
+msgid "Download Folder"
+msgstr "Répertoire de téléchargement"
+
+# downloaded files folder vs. download folder précédent ?
+#: ../src/midori-websettings.c:412
+msgid "The folder downloaded files are saved to"
+msgstr "Le répertoire pour guarder des téléchargement"
+
+#: ../src/midori-websettings.c:420
+msgid "Show Download Notification"
+msgstr ""
+
+#: ../src/midori-websettings.c:421
+msgid "Show a notification window for finished downloads"
+msgstr "Afficher une fenêtre de notification à la fin des téléchargements"
+
+#: ../src/midori-websettings.c:429
+msgid "Location entry Search"
+msgstr ""
+
+#: ../src/midori-websettings.c:430
+msgid "The search to perform inside the location entry"
+msgstr ""
+
+#: ../src/midori-websettings.c:438
+msgid "Preferred Encoding"
+msgstr "Encodage préferé"
+
+#: ../src/midori-websettings.c:439
+msgid "The preferred character encoding"
+msgstr "Encodage des charactères préferé"
+
+#: ../src/midori-websettings.c:450
+msgid "Tab Label Size"
+msgstr "Taille des onglets"
+
+#: ../src/midori-websettings.c:451
+msgid "The desired tab label size"
+msgstr "La taille désirée du libellé d'onglet"
+
+#: ../src/midori-websettings.c:459
+msgid "Close Buttons on Tabs"
+msgstr "Bouton fermer sur les onglets"
+
+#: ../src/midori-websettings.c:460
+msgid "Whether tabs have close buttons"
+msgstr "Les onglets ont-ils des boutons de fermeture"
+
+#: ../src/midori-websettings.c:468
+msgid "Open new pages in"
+msgstr "Ouvrir les nouvelles pages dans"
+
+#: ../src/midori-websettings.c:469
+msgid "Where to open new pages"
+msgstr "Óu d'ouvrir les nouvelles pages"
+
+#: ../src/midori-websettings.c:478
+msgid "Middle click opens Selection"
+msgstr "Molette clic charge sélection"
+
+#: ../src/midori-websettings.c:479
+msgid "Load an URL from the selection via middle click"
+msgstr "Charger une URL sélectionnée avec le bouton central de la souris"
+
+#: ../src/midori-websettings.c:487
+msgid "Open tabs in the background"
+msgstr "Ouvrir les onglets en arrière-plan"
+
+#: ../src/midori-websettings.c:488
+msgid "Whether to open new tabs in the background"
+msgstr ""
+
+#: ../src/midori-websettings.c:496
+msgid "Open popups in tabs"
+msgstr ""
+
+#: ../src/midori-websettings.c:497
+msgid "Whether to open popup windows in tabs"
+msgstr ""
+
+#: ../src/midori-websettings.c:507
+msgid "Accept cookies"
+msgstr "Accepter les témoins"
+
+#: ../src/midori-websettings.c:508
+msgid "What type of cookies to accept"
+msgstr ""
+
+#: ../src/midori-websettings.c:517
+msgid "Original cookies only"
+msgstr "Seulement des témoins originales"
+
+#: ../src/midori-websettings.c:518
+msgid "Accept cookies from the original website only"
+msgstr "Accepter les témoins du site d'origine uniquement"
+
+#: ../src/midori-websettings.c:526
+msgid "Maximum cookie age"
+msgstr "Âge maximal des témoins"
+
+#: ../src/midori-websettings.c:527
+msgid "The maximum number of days to save cookies for"
+msgstr "Le nombre maximal de jours de guarder des témoins"
+
+#: ../src/midori-websettings.c:537
+msgid "Remember last visited pages"
+msgstr "Se rappeler des pages visitées"
+
+#: ../src/midori-websettings.c:538
+msgid "Whether the last visited pages are saved"
+msgstr ""
+
+#: ../src/midori-websettings.c:546
+msgid "Maximum history age"
+msgstr "Âge maximal de l'histoire"
+
+#: ../src/midori-websettings.c:547
+msgid "The maximum number of days to save the history for"
+msgstr ""
+
+#: ../src/midori-websettings.c:555
+msgid "Remember last form inputs"
+msgstr "Se rappeler des derniers saisies de formulaires"
+
+#: ../src/midori-websettings.c:556
+msgid "Whether the last form inputs are saved"
+msgstr ""
+
+#: ../src/midori-websettings.c:564
+msgid "Remember last downloaded files"
+msgstr "Se rappeler des derniers fichiers téléchargés"
+
+#: ../src/midori-websettings.c:565
+msgid "Whether the last downloaded files are saved"
+msgstr ""
+
+#: ../src/midori-websettings.c:575
+msgid "HTTP Proxy"
+msgstr ""
+
+#: ../src/midori-websettings.c:576
+msgid "The proxy used for HTTP connections"
+msgstr ""
+
+#: ../src/midori-websettings.c:584
+msgid "Cache size"
+msgstr "Taille du mémoire intermédiaire"
+
+#: ../src/midori-websettings.c:585
+msgid "The allowed size of the cache"
+msgstr ""
+
+#: ../src/midori-webview.c:217
+msgid "The icon of the currently loaded page"
+msgstr "L'icône de la page actuellement chargée"
+
+#: ../src/midori-webview.c:226
+msgid "The URI of the currently loaded page"
+msgstr "L'URI de la page actuellement chargée"
+
+#: ../src/midori-webview.c:235
+msgid "The title of the currently loaded page"
+msgstr "Le titre de la page actuellement chargée"
+
+#: ../src/midori-webview.c:476
+msgid "Open Link in New _Tab"
+msgstr "Ouvrir le lien dans un nouvel _onglet"
+
+#: ../src/midori-webview.c:499
+msgid "Open URL in New _Tab"
+msgstr "Ouvrir l'URL dans un nouvel _onglet"
+
+#: ../src/prefs.c:32
+#, c-format
+msgid "%s Preferences"
+msgstr "%s PrÃ©ferences"
+
+#. Page "General"
+#: ../src/prefs.c:89
+msgid "General"
+msgstr "Général"
+
+#: ../src/prefs.c:90
+msgid "Startup"
+msgstr "Démarrage"
+
+#. Page "Appearance"
+#: ../src/prefs.c:111
+msgid "Appearance"
+msgstr "Aspect"
+
+#: ../src/prefs.c:112
+msgid "Font settings"
+msgstr "Réglages des polices"
+
+#. Page "Behavior"
+#: ../src/prefs.c:133
+msgid "Behavior"
+msgstr "Comportement"
+
+#: ../src/prefs.c:134
+msgid "Features"
+msgstr "Fonctionnalités"
+
+#. Page "Interface"
+#: ../src/prefs.c:166
+msgid "Interface"
+msgstr "Interface"
+
+#: ../src/prefs.c:167
+msgid "Navigationbar"
+msgstr "Barre de navigation"
+
+#: ../src/prefs.c:180
+msgid "Browsing"
+msgstr "Navigation"
+
+#. Page "Network"
+#: ../src/prefs.c:196 ../src/prefs.c:197
+msgid "Network"
+msgstr "Réseau"
+
+#: ../src/prefs.c:208
+msgid "MB"
+msgstr "Mo"
+
+#. Page "Privacy"
+#: ../src/prefs.c:213
+msgid "Privacy"
+msgstr "Confidentialité"
+
+#: ../src/prefs.c:214
+msgid "Cookies"
+msgstr "Cookies"
+
+#: ../src/prefs.c:227 ../src/prefs.c:237
+msgid "days"
+msgstr "jours"
+
+#: ../src/sokoke.c:219
+msgid "Warning: You are using a superuser account!"
+msgstr "Attention: Vous êtes connecté en tant que super-utilisateur!"
+
+#: ../src/sokoke.c:341 ../katze/katze-xbel.c:952
+#, c-format
+msgid "Writing failed."
+msgstr "Échec de l'écriture."
+
+#: ../src/webSearch.c:82
+msgid "Empty"
+msgstr "Vide"
+
+#: ../src/webSearch.c:154
+msgid "Add search engine"
+msgstr "Ajouter un moteur de recherche"
+
+#: ../src/webSearch.c:154
+msgid "Edit search engine"
+msgstr "Éditer le moteur de recherche"
+
+#: ../src/webSearch.c:184
+msgid "_Name:"
+msgstr "_Nom:"
+
+#: ../src/webSearch.c:228
+msgid "_Icon (name or file):"
+msgstr "_Icône (nom ou fichier):"
+
+#: ../src/webSearch.c:242
+msgid "_Keyword:"
+msgstr "Mot-clé:"
+
+#: ../src/webSearch.c:311
+msgid "Manage search engines"
+msgstr "Gérer les moteurs de recherche"
+
+# symbolic ?
+#: ../katze/katze-throbber.c:135
+msgid "Symbolic size to use for the animation"
+msgstr ""
+
+#: ../katze/katze-throbber.c:144
+msgid "The name of an icon containing animation frames"
+msgstr ""
+
+#: ../katze/katze-throbber.c:153
+msgid "A GdkPixbuf containing animation frames"
+msgstr ""
+
+#: ../katze/katze-throbber.c:162
+msgid "Whether the throbber should be animated"
+msgstr ""
+
+#: ../katze/katze-throbber.c:171
+msgid "The name of an icon to be used as the static image"
+msgstr ""
+
+#: ../katze/katze-throbber.c:180
+msgid "A GdkPixbuf to be used as the static image"
+msgstr ""
+
+#: ../katze/katze-throbber.c:189
+msgid "The stock ID of an icon to be used as the static image"
+msgstr ""
+
+#: ../katze/katze-utils.c:114 ../katze/katze-utils.c:239
+#, c-format
+msgid "Property '%s' is invalid for %s"
+msgstr ""
+
+#: ../katze/katze-utils.c:136 ../katze/katze-utils.c:160
+msgid "Choose file"
+msgstr "Choisissez fiche"
+
+#: ../katze/katze-utils.c:148
+msgid "Choose folder"
+msgstr "Choisissez répertoire"
+
+#: ../katze/katze-xbel.c:723 ../katze/katze-xbel.c:731
+#: ../katze/katze-xbel.c:767 ../katze/katze-xbel.c:775
+#: ../katze/katze-xbel.c:804
+msgid "Malformed document."
+msgstr "Document malformé"
+
+#: ../katze/katze-xbel.c:759
+msgid "File not found."
+msgstr "Fichier non trouvé."
