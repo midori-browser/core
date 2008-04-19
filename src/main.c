@@ -415,7 +415,7 @@ int main(int argc, char** argv)
     if (katze_xbel_folder_is_empty (_session))
     {
         KatzeXbelItem* item = katze_xbel_bookmark_new ();
-        if (load_on_startup == MIDORI_STARTUP_BLANK)
+        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
             katze_xbel_bookmark_set_href (item, "");
         else
         {

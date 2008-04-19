@@ -44,7 +44,7 @@ struct _MidoriWebSettings
 
 typedef enum
 {
-    MIDORI_STARTUP_BLANK,
+    MIDORI_STARTUP_BLANK_PAGE,
     MIDORI_STARTUP_HOMEPAGE,
     MIDORI_STARTUP_LAST_OPEN_PAGES
 } MidoriStartup;

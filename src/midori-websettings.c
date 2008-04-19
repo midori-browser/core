@@ -127,7 +127,7 @@ midori_startup_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_STARTUP_BLANK, "MIDORI_STARTUP_BLANK", N_("Blank") },
+         { MIDORI_STARTUP_BLANK_PAGE, "MIDORI_STARTUP_BLANK_PAGE", N_("Blank page") },
          { MIDORI_STARTUP_HOMEPAGE, "MIDORI_STARTUP_HOMEPAGE", N_("Homepage") },
          { MIDORI_STARTUP_LAST_OPEN_PAGES, "MIDORI_STARTUP_LAST_OPEN_PAGES", N_("Last open pages") },
          { 0, NULL, NULL }
