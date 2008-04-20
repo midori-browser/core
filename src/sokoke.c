@@ -11,7 +11,10 @@
 
 #include "sokoke.h"
 
+#include "search.h"
+
 #include "config.h"
+#include "main.h"
 
 #include <string.h>
 #ifdef HAVE_UNISTD_H
@@ -20,6 +23,72 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
+
+gchar*
+sokoke_magic_uri (const gchar* uri, const gchar* default_search_uri)
+{
+    // Add file:// if we have a local path
+    if (g_path_is_absolute (uri))
+        return g_strconcat ("file://", uri, NULL);
+    // Do we need to add a protocol?
+    if (!strstr (uri, "://"))
+    {
+        // Do we have a domain, ip address or localhost?
+        if (strchr (uri, '.') != NULL || !strcmp (uri, "localhost"))
+            return g_strconcat ("http://", uri, NULL);
+        // We don't want to search? So return early.
+        if (!default_search_uri)
+            return g_strdup (uri);
+        gchar* search;
+        const gchar* search_uri = NULL;
+        // Do we have a keyword and a string?
+        gchar** parts = g_strsplit (uri, " ", 2);
+        if (parts[0] && parts[1])
+        {
+            guint n = g_list_length (searchEngines);
+            guint i;
+            for (i = 0; i < n; i++)
+            {
+                SearchEngine* search_engine = (SearchEngine*)g_list_nth_data (
+                    searchEngines, i);
+                if (!strcmp (search_engine_get_keyword (search_engine),
+                                                        parts[0]))
+                    search_uri = search_engine->url;
+            }
+        if (search_uri)
+            search = g_strdup_printf (search_uri, parts[1]);
+        }
+        // We only have a word or there is no matching keyword, so search for it
+        if (!search_uri)
+            search = g_strdup_printf (default_search_uri, uri);
+        return search;
+    }
+    return g_strdup (uri);
+}
+
+void
+sokoke_entry_setup_completion (GtkEntry* entry)
+{
+    /* TODO: The current behavior works only with the beginning of strings
+             But we want to match "localhost" with "loc" and "hos" */
+    GtkEntryCompletion* completion = gtk_entry_completion_new ();
+    gtk_entry_completion_set_model (completion,
+        GTK_TREE_MODEL (gtk_list_store_new (1, G_TYPE_STRING)));
+    gtk_entry_completion_set_text_column (completion, 0);
+    gtk_entry_completion_set_minimum_key_length (completion, 3);
+    gtk_entry_set_completion (entry, completion);
+    gtk_entry_completion_set_popup_completion (completion, FALSE); //...
+}
+
+void
+sokoke_entry_append_completion (GtkEntry* entry, const gchar* text)
+{
+    GtkEntryCompletion* completion = gtk_entry_get_completion (entry);
+    GtkTreeModel* completion_store = gtk_entry_completion_get_model (completion);
+    GtkTreeIter iter;
+    gtk_list_store_insert (GTK_LIST_STORE (completion_store), &iter, 0);
+    gtk_list_store_set (GTK_LIST_STORE (completion_store), &iter, 0, text, -1);
+}
 
 #if SOKOKE_DEBUG > 1
     #define UNIMPLEMENTED g_print(" * Unimplemented: %s\n", G_STRFUNC);

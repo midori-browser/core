@@ -11,8 +11,6 @@
 
 #include "main.h"
 
-#include "global.h"
-#include "helpers.h"
 #include "sokoke.h"
 #include "search.h"
 
@@ -409,7 +407,7 @@ int main(int argc, char** argv)
     while(uri != NULL)
     {
         KatzeXbelItem* item = katze_xbel_bookmark_new();
-        gchar* uriReady = magic_uri(uri, FALSE);
+        gchar* uriReady = sokoke_magic_uri (uri, NULL);
         katze_xbel_bookmark_set_href(item, uriReady);
         g_free(uriReady);
         katze_xbel_folder_append_item(_session, item);

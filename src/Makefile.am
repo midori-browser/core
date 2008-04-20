@@ -26,8 +26,5 @@ midori_SOURCES = \
     midori-websettings.c midori-websettings.h \
     midori-preferences.c midori-preferences.h \
     webSearch.c webSearch.h \
-    helpers.c   helpers.h   \
     sokoke.c    sokoke.h    \
-    search.c    search.h    \
-    global.h                \
-    ui.h
+    search.c    search.h

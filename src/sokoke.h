@@ -17,6 +17,17 @@
 // Many themes need this hack for small toolbars to work
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
+gchar*
+sokoke_magic_uri               (const gchar* uri,
+                                const gchar* search);
+
+void
+sokoke_entry_setup_completion  (GtkEntry* entry);
+
+void
+sokoke_entry_append_completion (GtkEntry* entry,
+                                const gchar* text);
+
 typedef enum {
     SOKOKE_MENU_POSITION_CURSOR = 0,
     SOKOKE_MENU_POSITION_LEFT,

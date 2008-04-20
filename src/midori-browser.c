@@ -13,10 +13,9 @@
 
 #include "midori-browser.h"
 
-#include "global.h"
-#include "helpers.h"
 #include "webSearch.h"
 
+#include "main.h"
 #include "sokoke.h"
 #include "midori-webview.h"
 #include "midori-preferences.h"
@@ -1020,6 +1019,9 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
                                             GdkEventKey*   event,
                                             MidoriBrowser* browser)
 {
+    MidoriBrowserPrivate* priv = browser->priv;
+    gchar* location_entry_search;
+
     switch (event->keyval)
     {
     case GDK_ISO_Enter:
@@ -1029,11 +1031,14 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
         const gchar* uri = gtk_entry_get_text (GTK_ENTRY (widget));
         if (uri)
         {
-            gchar* new_uri = magic_uri (uri, TRUE);
+            g_object_get (priv->settings, "location-entry-search",
+                          &location_entry_search, NULL);
+            gchar* new_uri = sokoke_magic_uri (uri, location_entry_search);
+            g_free (location_entry_search);
             // TODO: Use new_uri intermediately when completion is better
             /* TODO Completion should be generated from history, that is
                     the uri as well as the title. */
-            entry_completion_append (GTK_ENTRY (widget), uri);
+            sokoke_entry_append_completion (GTK_ENTRY (widget), uri);
             GtkWidget* web_view = midori_browser_get_current_web_view (browser);
             g_object_set (web_view, "uri", new_uri, NULL);
             g_free (new_uri);
@@ -2359,7 +2364,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Location
     priv->location = sexy_icon_entry_new();
-    entry_setup_completion (GTK_ENTRY (priv->location));
+    sokoke_entry_setup_completion (GTK_ENTRY (priv->location));
     priv->location_icon = gtk_image_new ();
     sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (priv->location)
      , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (priv->location_icon));
@@ -2381,7 +2386,7 @@ midori_browser_init (MidoriBrowser* browser)
     // TODO: Make this actively resizable or enlarge to fit contents?
     // FIXME: The interface is somewhat awkward and ought to be rethought
     // TODO: Display "show in context menu" search engines as "completion actions"
-    entry_setup_completion (GTK_ENTRY (priv->search));
+    sokoke_entry_setup_completion (GTK_ENTRY (priv->search));
     g_object_connect (priv->search,
                       "signal::icon-released",
                       on_webSearch_icon_released, browser,

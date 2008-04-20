@@ -11,7 +11,7 @@
 
 #include "midori-webview.h"
 
-#include "global.h"
+#include "main.h"
 #include "sokoke.h"
 
 #include <webkit/webkit.h>
@@ -245,14 +245,9 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      "",
                                      flags));
 
-    g_object_class_install_property (gobject_class,
-                                     PROP_SETTINGS,
-                                     g_param_spec_object (
-                                     "settings",
-                                     "Settings",
-                                     _("The associated settings"),
-                                     MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_READWRITE));
+    g_object_class_override_property (gobject_class,
+                                      PROP_SETTINGS,
+                                      "settings");
 
     g_type_class_add_private (class, sizeof (MidoriWebViewPrivate));
 }

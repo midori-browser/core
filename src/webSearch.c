@@ -11,14 +11,47 @@
 
 #include "webSearch.h"
 
-#include "global.h"
-#include "helpers.h"
 #include "search.h"
+
+#include "main.h"
 #include "sokoke.h"
 
 #include <string.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
+
+static GdkPixbuf*
+load_web_icon (const gchar* icon, GtkIconSize size, GtkWidget* widget)
+{
+    g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
+    GdkPixbuf* pixbuf = NULL;
+    if (icon && *icon)
+    {
+        // TODO: We want to allow http as well, maybe also base64?
+        const gchar* icon_ready = g_str_has_prefix (icon, "file://")
+            ? &icon[7] : icon;
+        GtkStockItem stock_id;
+        if (gtk_stock_lookup (icon, &stock_id))
+            pixbuf = gtk_widget_render_icon (widget, icon_ready, size, NULL);
+        else
+        {
+            gint width, height;
+            gtk_icon_size_lookup (size, &width, &height);
+            if (gtk_widget_has_screen (widget))
+            {
+                GdkScreen* screen = gtk_widget_get_screen (widget);
+                pixbuf = gtk_icon_theme_load_icon (
+                    gtk_icon_theme_get_for_screen (screen), icon,
+                    MAX (width, height), GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+            }
+        }
+        if (!pixbuf)
+            pixbuf = gdk_pixbuf_new_from_file_at_size (icon_ready, 16, 16, NULL);
+    }
+    if (!pixbuf)
+        pixbuf = gtk_widget_render_icon (widget, GTK_STOCK_FIND, size, NULL);
+    return pixbuf;
+}
 
 void update_searchEngine(guint index, GtkWidget* search)
 {
@@ -437,7 +470,7 @@ void on_webSearch_activate(GtkWidget* widget, MidoriBrowser* browser)
      search = g_strdup_printf(url, keywords);
     else
      search = g_strconcat(url, " ", keywords, NULL);
-    entry_completion_append(GTK_ENTRY(widget), keywords);
+    sokoke_entry_append_completion(GTK_ENTRY(widget), keywords);
     GtkWidget* webView = midori_browser_get_current_web_view(browser);
     webkit_web_view_open(WEBKIT_WEB_VIEW(webView), search);
     g_free(search);
