@@ -11,7 +11,7 @@
 
 #include "sokoke.h"
 
-#include "debug.h"
+#include "config.h"
 
 #include <string.h>
 #ifdef HAVE_UNISTD_H
@@ -19,6 +19,13 @@
 #endif
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
+#include <glib/gprintf.h>
+
+#if SOKOKE_DEBUG > 1
+    #define UNIMPLEMENTED g_print(" * Unimplemented: %s\n", G_STRFUNC);
+#else
+    #define UNIMPLEMENTED ;
+#endif
 
 void sokoke_combo_box_add_strings(GtkComboBox* combobox
  , const gchar* labelFirst, ...)

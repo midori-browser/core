@@ -30,5 +30,4 @@ midori_SOURCES = \
     sokoke.c    sokoke.h    \
     search.c    search.h    \
     global.h                \
-    ui.h                    \
-    debug.h
+    ui.h
