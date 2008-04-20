@@ -16,10 +16,10 @@
 #include "global.h"
 #include "helpers.h"
 #include "webSearch.h"
-#include "prefs.h"
 
 #include "sokoke.h"
 #include "midori-webview.h"
+#include "midori-preferences.h"
 #include "midori-panel.h"
 #include "midori-console.h"
 #include "midori-trash.h"
@@ -876,8 +876,8 @@ _action_preferences_activate (GtkAction*     action,
     {
         MidoriBrowserPrivate* priv = browser->priv;
 
-        dialog = prefs_preferences_dialog_new (GTK_WINDOW (browser),
-                                               priv->settings);
+        dialog = midori_preferences_new (GTK_WINDOW (browser),
+                                         priv->settings);
         gtk_widget_show (dialog);
     }
 }

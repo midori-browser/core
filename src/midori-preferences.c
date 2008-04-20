@@ -9,14 +9,64 @@
  See the file COPYING for the full license text.
 */
 
-#include "prefs.h"
+#include "midori-preferences.h"
 
-#include "helpers.h"
 #include "sokoke.h"
 
 #include <glib/gi18n.h>
-#include <stdlib.h>
-#include <string.h>
+
+G_DEFINE_TYPE (MidoriPreferences, midori_preferences, GTK_TYPE_DIALOG)
+
+struct _MidoriPreferencesPrivate
+{
+    GtkWidget* notebook;
+};
+
+#define MIDORI_PREFERENCES_GET_PRIVATE(obj) \
+    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
+     MIDORI_TYPE_PREFERENCES, MidoriPreferencesPrivate))
+
+enum
+{
+    PROP_0,
+
+    PROP_SETTINGS
+};
+
+static void
+midori_preferences_finalize (GObject* object);
+
+static void
+midori_preferences_set_property (GObject*      object,
+                                 guint         prop_id,
+                                 const GValue* value,
+                                 GParamSpec*   pspec);
+
+static void
+midori_preferences_get_property (GObject*    object,
+                                 guint       prop_id,
+                                 GValue*     value,
+                                 GParamSpec* pspec);
+
+static void
+midori_preferences_class_init (MidoriPreferencesClass* class)
+{
+    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = midori_preferences_finalize;
+    gobject_class->set_property = midori_preferences_set_property;
+    gobject_class->get_property = midori_preferences_get_property;
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SETTINGS,
+                                     g_param_spec_object (
+                                     "settings",
+                                     "Settings",
+                                     _("Settings instance to provide properties"),
+                                     MIDORI_TYPE_WEB_SETTINGS,
+                                     G_PARAM_WRITABLE));
+
+    g_type_class_add_private (class, sizeof (MidoriPreferencesPrivate));
+}
 
 static void
 clear_button_clicked_cb (GtkWidget* button, GtkWidget* file_chooser)
@@ -26,65 +76,165 @@ clear_button_clicked_cb (GtkWidget* button, GtkWidget* file_chooser)
     g_signal_emit_by_name (file_chooser, "file-set");
 }
 
-GtkWidget* prefs_preferences_dialog_new (GtkWindow* window,
-                                         MidoriWebSettings* settings)
+static void
+midori_preferences_init (MidoriPreferences* preferences)
 {
-    gchar* dialogTitle = g_strdup_printf(_("%s Preferences"), g_get_application_name());
-    GtkWidget* dialog = gtk_dialog_new_with_buttons(dialogTitle
-        , window
-        , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
-        , GTK_STOCK_HELP, GTK_RESPONSE_HELP
-        , GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE
-        , NULL);
-    gtk_window_set_icon_name(GTK_WINDOW(dialog), GTK_STOCK_PREFERENCES);
-    // TODO: Implement some kind of help function
-    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_HELP, FALSE); //...
-    g_signal_connect(dialog, "response", G_CALLBACK(gtk_widget_destroy), dialog);
+    preferences->priv = MIDORI_PREFERENCES_GET_PRIVATE (preferences);
+    MidoriPreferencesPrivate* priv = preferences->priv;
 
-    CPrefs* prefs = g_new0(CPrefs, 1);
-    g_signal_connect(dialog, "response", G_CALLBACK(g_free), prefs);
+    priv->notebook = NULL;
+
+    gchar* dialog_title = g_strdup_printf (_("%s Preferences"),
+                                           g_get_application_name ());
+    g_object_set (preferences,
+                  "icon-name", GTK_STOCK_PREFERENCES,
+                  "title", dialog_title,
+                  "has-separator", FALSE,
+                  NULL);
+    gtk_dialog_add_buttons (GTK_DIALOG (preferences),
+        GTK_STOCK_HELP, GTK_RESPONSE_HELP,
+        GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
+        NULL);
+    // TODO: Implement some kind of help function
+    gtk_dialog_set_response_sensitive (GTK_DIALOG (preferences),
+                                       GTK_RESPONSE_HELP, FALSE); //...
+    g_signal_connect (preferences, "response",
+                      G_CALLBACK (gtk_widget_destroy), preferences);
 
     // TODO: Do we want tooltips for explainations or can we omit that?
-    // TODO: We need mnemonics
-    // TODO: Take multiple windows into account when applying changes
-    GtkWidget* xfce_heading;
-    if((xfce_heading = sokoke_xfce_header_new(
-     gtk_window_get_icon_name(window), dialogTitle)))
-        gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox)
-         , xfce_heading, FALSE, FALSE, 0);
-    g_free(dialogTitle);
-    GtkWidget* notebook = gtk_notebook_new();
-    gtk_container_set_border_width(GTK_CONTAINER(notebook), 6);
-    GtkSizeGroup* sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+    g_free (dialog_title);
+}
+
+static void
+midori_preferences_finalize (GObject* object)
+{
+    G_OBJECT_CLASS (midori_preferences_parent_class)->finalize (object);
+}
+
+static void
+midori_preferences_set_property (GObject*      object,
+                                 guint         prop_id,
+                                 const GValue* value,
+                                 GParamSpec*   pspec)
+{
+    MidoriPreferences* preferences = MIDORI_PREFERENCES (object);
+
+    switch (prop_id)
+    {
+    case PROP_SETTINGS:
+    {
+        GtkWidget* xfce_heading;
+        GtkWindow* parent;
+        g_object_get (object, "transient-for", &parent, NULL);
+        if ((xfce_heading = sokoke_xfce_header_new (
+            gtk_window_get_icon_name (parent),
+            gtk_window_get_title (GTK_WINDOW (object)))))
+                gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+                                    xfce_heading, FALSE, FALSE, 0);
+        midori_preferences_set_settings (preferences,
+                                         g_value_get_object (value));
+        break;
+    }
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
+    }
+}
+
+static void
+midori_preferences_get_property (GObject*    object,
+                                 guint       prop_id,
+                                 GValue*     value,
+                                 GParamSpec* pspec)
+{
+    MidoriPreferences* preferences = MIDORI_PREFERENCES (object);
+    MidoriPreferencesPrivate* priv = preferences->priv;
+
+    switch (prop_id)
+    {
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
+    }
+}
+
+/**
+ * midori_preferences_new:
+ * @parent: the parent window
+ * @settings: the settings
+ *
+ * Creates a new preferences dialog.
+ *
+ * Return value: a new #MidoriPreferences
+ **/
+GtkWidget*
+midori_preferences_new (GtkWindow*         parent,
+                        MidoriWebSettings* settings)
+{
+    g_return_val_if_fail (GTK_IS_WINDOW (parent), NULL);
+    g_return_val_if_fail (MIDORI_IS_WEB_SETTINGS (settings), NULL);
+
+    MidoriPreferences* preferences = g_object_new (MIDORI_TYPE_PREFERENCES,
+                                                   "transient-for", parent,
+                                                   "settings", settings,
+                                                   NULL);
+
+    return GTK_WIDGET (preferences);
+}
+
+/**
+ * midori_preferences_set_settings:
+ * @settings: the settings
+ *
+ * Assigns a settings instance to a preferences dialog.
+ *
+ * Note: This must not be called more than once.
+ **/
+void
+midori_preferences_set_settings (MidoriPreferences* preferences,
+                                 MidoriWebSettings* settings)
+{
+    g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
+    g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
+
+    MidoriPreferencesPrivate* priv = preferences->priv;
+
+    g_return_if_fail (!priv->notebook);
+
+    priv->notebook = gtk_notebook_new ();
+    gtk_container_set_border_width (GTK_CONTAINER (priv->notebook), 6);
+    GtkSizeGroup* sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     GtkWidget* page; GtkWidget* frame; GtkWidget* table; GtkWidget* align;
     GtkWidget* label; GtkWidget* button;
     GtkWidget* entry; GtkWidget* hbox;
-    #define PAGE_NEW(__label) page = gtk_vbox_new(FALSE, 0);\
-     gtk_container_set_border_width(GTK_CONTAINER(page), 5);\
-     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, gtk_label_new(__label))
-    #define FRAME_NEW(__label) frame = sokoke_hig_frame_new(__label);\
-     gtk_container_set_border_width(GTK_CONTAINER(frame), 5);\
-     gtk_box_pack_start(GTK_BOX(page), frame, FALSE, FALSE, 0);
-    #define TABLE_NEW(__rows, __cols) table = gtk_table_new(__rows, __cols, FALSE);\
-     gtk_container_set_border_width(GTK_CONTAINER(table), 5);\
-     gtk_container_add(GTK_CONTAINER(frame), table);
-    #define WIDGET_ADD(__widget, __left, __right, __top, __bottom)\
-     gtk_table_attach(GTK_TABLE(table), __widget\
-      , __left, __right, __top, __bottom\
+    #define PAGE_NEW(__label) page = gtk_vbox_new (FALSE, 0); \
+     gtk_container_set_border_width (GTK_CONTAINER (page), 5); \
+     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook), page, \
+                               gtk_label_new (__label))
+    #define FRAME_NEW(__label) frame = sokoke_hig_frame_new (__label); \
+     gtk_container_set_border_width (GTK_CONTAINER (frame), 5); \
+     gtk_box_pack_start (GTK_BOX (page), frame, FALSE, FALSE, 0);
+    #define TABLE_NEW(__rows, __cols) table = gtk_table_new ( \
+                                       __rows, __cols, FALSE); \
+     gtk_container_set_border_width (GTK_CONTAINER (table), 5); \
+     gtk_container_add (GTK_CONTAINER (frame), table);
+    #define WIDGET_ADD(__widget, __left, __right, __top, __bottom) \
+     gtk_table_attach (GTK_TABLE (table), __widget \
+      , __left, __right, __top, __bottom \
       , GTK_FILL, GTK_FILL, 8, 2)
-    #define FILLED_ADD(__widget, __left, __right, __top, __bottom)\
-     gtk_table_attach(GTK_TABLE(table), __widget\
+    #define FILLED_ADD(__widget, __left, __right, __top, __bottom) \
+     gtk_table_attach (GTK_TABLE (table), __widget \
       , __left, __right, __top, __bottom\
       , GTK_EXPAND | GTK_FILL, GTK_FILL, 8, 2)
-    #define INDENTED_ADD(__widget, __left, __right, __top, __bottom)\
-     align = gtk_alignment_new(0, 0.5, 0, 0);\
-     gtk_container_add(GTK_CONTAINER(align), __widget);\
-     gtk_size_group_add_widget(sizegroup, align);\
-     WIDGET_ADD(align, __left, __right, __top, __bottom)
-    #define SPANNED_ADD(__widget, __left, __right, __top, __bottom)\
-     align = gtk_alignment_new(0, 0.5, 0, 0);\
-     gtk_container_add(GTK_CONTAINER(align), __widget);\
-     FILLED_ADD(align, __left, __right, __top, __bottom)
+    #define INDENTED_ADD(__widget, __left, __right, __top, __bottom) \
+     align = gtk_alignment_new (0, 0.5, 0, 0); \
+     gtk_container_add (GTK_CONTAINER (align), __widget); \
+     gtk_size_group_add_widget (sizegroup, align); \
+     WIDGET_ADD (align, __left, __right, __top, __bottom)
+    #define SPANNED_ADD(__widget, __left, __right, __top, __bottom) \
+     align = gtk_alignment_new (0, 0.5, 0, 0); \
+     gtk_container_add (GTK_CONTAINER (align), __widget); \
+     FILLED_ADD (align, __left, __right, __top, __bottom)
     // Page "General"
     PAGE_NEW (_("General"));
     FRAME_NEW (_("Startup"));
@@ -242,8 +392,7 @@ GtkWidget* prefs_preferences_dialog_new (GtkWindow* window,
     button = katze_property_proxy (settings, "remember-last-downloaded-files", NULL);
     SPANNED_ADD (button, 0, 2, 2, 3);
 
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox)
-     , notebook, FALSE, FALSE, 4);
-    gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
-    return dialog;
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+                        priv->notebook, FALSE, FALSE, 4);
+    gtk_widget_show_all (GTK_DIALOG (preferences)->vbox);
 }

@@ -24,7 +24,7 @@ midori_SOURCES = \
     midori-trash.c       midori-trash.h       \
     midori-webview.c     midori-webview.h     \
     midori-websettings.c midori-websettings.h \
-    prefs.c     prefs.h     \
+    midori-preferences.c midori-preferences.h \
     webSearch.c webSearch.h \
     helpers.c   helpers.h   \
     sokoke.c    sokoke.h    \

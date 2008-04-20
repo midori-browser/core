@@ -37,14 +37,14 @@ typedef struct _MidoriPanelClass           MidoriPanelClass;
 
 struct _MidoriPanel
 {
-    GtkFrame parent_instance;
+    GtkHBox parent_instance;
 
     MidoriPanelPrivate* priv;
 };
 
 struct _MidoriPanelClass
 {
-    GtkFrameClass parent_class;
+    GtkHBoxClass parent_class;
 
     /* Signals */
     gboolean
