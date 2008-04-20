@@ -264,7 +264,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     label = katze_property_label (settings, "default-font-family");
     INDENTED_ADD (label, 0, 1, 0, 1);
     hbox = gtk_hbox_new (FALSE, 4);
-    button = katze_property_proxy (settings, "default-font-family", NULL);
+    button = katze_property_proxy (settings, "default-font-family", "font");
     gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
     entry = katze_property_proxy (settings, "default-font-size", NULL);
     gtk_box_pack_end (GTK_BOX (hbox), entry, FALSE, FALSE, 4);

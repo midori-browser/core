@@ -48,6 +48,15 @@ proxy_uri_file_set_cb (GtkFileChooser* button,
     g_object_set (object, property, file, NULL);
 }
 
+static gchar*
+proxy_combo_box_text_changed_cb (GtkComboBox* button, GObject* object)
+{
+    gchar* text = gtk_combo_box_get_active_text (button);
+    const gchar* property = g_object_get_data (G_OBJECT (button), "property");
+    g_object_set (object, property, text, NULL);
+    return FALSE;
+}
+
 static gboolean
 proxy_entry_focus_out_event_cb (GtkEntry*      entry,
                                 GdkEventFocus* event,
@@ -62,7 +71,7 @@ proxy_entry_focus_out_event_cb (GtkEntry*      entry,
 static gboolean
 proxy_spin_button_changed_cb (GtkSpinButton* button, GObject* object)
 {
-    gdouble value = gtk_spin_button_get_value (button);
+    gint value = gtk_spin_button_get_value_as_int (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, value, NULL);
     return FALSE;
@@ -96,6 +105,8 @@ proxy_combo_box_changed_cb (GtkComboBox* button, GObject* object)
  *         choosing an existing folder.
  *     "uri": the widget created will be particularly suitable for
  *         choosing an existing filename, encoded as an URI.
+ *     "font": the widget created will be particularly suitable for
+ *         choosing a font from installed fonts.
  *
  * Any other values for @hint are silently ignored.
  *
@@ -167,6 +178,27 @@ katze_property_proxy (gpointer     object,
         g_signal_connect (widget, "file-set",
                           G_CALLBACK (proxy_uri_file_set_cb), object);
     }
+    else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("font"))
+    {
+        widget = gtk_combo_box_new_text ();
+        PangoContext* context = gtk_widget_get_pango_context (widget);
+        PangoFontFamily** families;
+        int n_families;
+        pango_context_list_families (context, &families, &n_families);
+        g_object_get (object, property, &string, NULL);
+        gint i = 0;
+        while (i < n_families)
+        {
+            const gchar* font = pango_font_family_get_name (families[i]);
+            gtk_combo_box_append_text (GTK_COMBO_BOX (widget), font);
+            if (string && !strcmp (font, string))
+                gtk_combo_box_set_active (GTK_COMBO_BOX (widget), i);
+            i++;
+        }
+        g_signal_connect (widget, "changed",
+                          G_CALLBACK (proxy_combo_box_text_changed_cb), object);
+        g_free (families);
+    }
     else if (type == G_TYPE_PARAM_STRING)
     {
         widget = gtk_entry_new ();
@@ -182,7 +214,7 @@ katze_property_proxy (gpointer     object,
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_INT (pspec)->minimum,
             G_PARAM_SPEC_INT (pspec)->maximum, 1);
-        gdouble value;
+        gint value;
         g_object_get (object, property, &value, NULL);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
         g_signal_connect (widget, "changed",

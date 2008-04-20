@@ -53,7 +53,7 @@ static void stock_items_init(void)
         { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, NULL },
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, NULL },
         #if !GTK_CHECK_VERSION(2, 10, 0)
-        { GTK_STOCK_SELECT_ALL, N_("Select _All", 0, 0, NULL },
+        { GTK_STOCK_SELECT_ALL, N_("Select _All"), 0, 0, NULL },
         #endif
         #if !GTK_CHECK_VERSION(2, 8, 0)
         { GTK_STOCK_FULLSCREEN, N_("_Fullscreen"), 0, 0, NULL },
