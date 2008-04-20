@@ -189,12 +189,17 @@ settings_new_from_file (const gchar* filename)
                 "settings", property,
                 enum_value->value_name, NULL);
             enum_value = g_enum_get_value_by_name (enum_class, string);
-            g_object_set (settings, property, enum_value->value, NULL);
+            if (enum_value)
+                 g_object_set (settings, property, enum_value->value, NULL);
+             else
+                 g_warning (_("Value '%s' is invalid for %s"),
+                            string, property);
+
             g_free (string);
             g_type_class_unref (enum_class);
         }
         else
-            g_warning ("Unhandled settings property '%s'", property);
+            g_warning (_("Unhandled settings property '%s'"), property);
     }
     return settings;
 }
