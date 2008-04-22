@@ -2664,7 +2664,39 @@ midori_browser_finalize (GObject* object)
 }
 
 static void
-_midori_browser_update_settings (MidoriBrowser*     browser)
+_midori_browser_set_toolbar_style (MidoriBrowser*     browser,
+                                   MidoriToolbarStyle toolbar_style)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    GtkToolbarStyle gtk_toolbar_style;
+    GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
+    if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
+        g_object_get (gtk_settings, "gtk-toolbar-style", &gtk_toolbar_style, NULL);
+    else
+    {
+        switch (toolbar_style)
+        {
+        case MIDORI_TOOLBAR_ICONS:
+            gtk_toolbar_style = GTK_TOOLBAR_ICONS;
+            break;
+        case MIDORI_TOOLBAR_TEXT:
+            gtk_toolbar_style = GTK_TOOLBAR_TEXT;
+            break;
+        case MIDORI_TOOLBAR_BOTH:
+            gtk_toolbar_style = GTK_TOOLBAR_BOTH;
+            break;
+        case MIDORI_TOOLBAR_BOTH_HORIZ:
+        case MIDORI_TOOLBAR_DEFAULT:
+            gtk_toolbar_style = GTK_TOOLBAR_BOTH_HORIZ;
+        }
+    }
+    gtk_toolbar_set_style (GTK_TOOLBAR (priv->navigationbar),
+                           gtk_toolbar_style);
+}
+
+static void
+_midori_browser_update_settings (MidoriBrowser* browser)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
@@ -2709,30 +2741,7 @@ _midori_browser_update_settings (MidoriBrowser*     browser)
                                          default_width, default_height);
     }
 
-    GtkToolbarStyle gtk_toolbar_style;
-    GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
-    if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
-        g_object_get (gtk_settings, "gtk-toolbar-style", &gtk_toolbar_style, NULL);
-    else
-    {
-        switch (toolbar_style)
-        {
-        case MIDORI_TOOLBAR_ICONS:
-            gtk_toolbar_style = GTK_TOOLBAR_ICONS;
-            break;
-        case MIDORI_TOOLBAR_TEXT:
-            gtk_toolbar_style = GTK_TOOLBAR_TEXT;
-            break;
-        case MIDORI_TOOLBAR_BOTH:
-            gtk_toolbar_style = GTK_TOOLBAR_BOTH;
-            break;
-        case MIDORI_TOOLBAR_BOTH_HORIZ:
-        case MIDORI_TOOLBAR_DEFAULT:
-            gtk_toolbar_style = GTK_TOOLBAR_BOTH_HORIZ;
-        }
-    }
-    gtk_toolbar_set_style (GTK_TOOLBAR (priv->navigationbar),
-                           gtk_toolbar_style);
+    _midori_browser_set_toolbar_style (browser, toolbar_style);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->navigationbar),
                                small_toolbar ? GTK_ICON_SIZE_SMALL_TOOLBAR
                                : GTK_ICON_SIZE_LARGE_TOOLBAR);
@@ -2757,6 +2766,40 @@ _midori_browser_update_settings (MidoriBrowser*     browser)
 }
 
 static void
+midori_browser_settings_notify (MidoriWebSettings* web_settings,
+                                GParamSpec*        pspec,
+                                MidoriBrowser*     browser)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    const gchar* name = g_intern_string (pspec->name);
+    GValue value = {0, };
+
+    g_value_init (&value, pspec->value_type);
+    g_object_get_property (G_OBJECT (priv->settings), name, &value);
+
+    if (name == g_intern_string ("toolbar-style"))
+        _midori_browser_set_toolbar_style (browser, g_value_get_enum (&value));
+    else if (name == g_intern_string ("small-toolbar"))
+        gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->navigationbar),
+            g_value_get_boolean (&value) ? GTK_ICON_SIZE_SMALL_TOOLBAR
+            : GTK_ICON_SIZE_LARGE_TOOLBAR);
+    else if (name == g_intern_string ("show-new-tab"))
+        sokoke_widget_set_visible (priv->button_tab_new,
+            g_value_get_boolean (&value));
+    else if (name == g_intern_string ("show-web-search"))
+        sokoke_widget_set_visible (priv->search,
+            g_value_get_boolean (&value));
+    else if (name == g_intern_string ("show-trash"))
+        sokoke_widget_set_visible (priv->button_trash,
+            g_value_get_boolean (&value));
+    else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
+                                             name))
+         g_warning("Unexpected setting '%s'", name);
+    g_value_unset (&value);
+}
+
+static void
 midori_browser_set_property (GObject*      object,
                              guint         prop_id,
                              const GValue* value,
@@ -2771,9 +2814,15 @@ midori_browser_set_property (GObject*      object,
         _midori_browser_set_statusbar_text (browser, g_value_get_string (value));
         break;
     case PROP_SETTINGS:
+        if (priv->settings)
+            g_signal_handlers_disconnect_by_func (priv->settings,
+                                                  midori_browser_settings_notify,
+                                                  browser);
         katze_object_assign (priv->settings, g_value_get_object (value));
         g_object_ref (priv->settings);
         _midori_browser_update_settings (browser);
+        g_signal_connect (priv->settings, "notify",
+                      G_CALLBACK (midori_browser_settings_notify), browser);
         gtk_container_foreach (GTK_CONTAINER (priv->notebook),
                                (GtkCallback) midori_web_view_set_settings,
                                priv->settings);

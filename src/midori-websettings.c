@@ -226,12 +226,17 @@ midori_web_settings_get_property (GObject*    object,
                                   GParamSpec* pspec);
 
 static void
+midori_web_settings_notify       (GObject* object,
+                                  GParamSpec* pspec);
+
+static void
 midori_web_settings_class_init (MidoriWebSettingsClass* class)
 {
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_web_settings_finalize;
     gobject_class->set_property = midori_web_settings_set_property;
     gobject_class->get_property = midori_web_settings_get_property;
+    gobject_class->notify = midori_web_settings_notify;
 
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
@@ -917,6 +922,13 @@ midori_web_settings_get_property (GObject*    object,
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
     }
+}
+
+static void
+midori_web_settings_notify (GObject*    object,
+                            GParamSpec* pspec)
+{
+
 }
 
 /**

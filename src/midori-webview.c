@@ -569,9 +569,9 @@ midori_web_view_settings_notify (MidoriWebSettings* web_settings,
     else if (name == g_intern_string ("middle-click-opens-selection"))
         priv->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
-                                            name))
-        g_warning("Unexpected setting '%s'", name);
-    g_value_unset(&value);
+                                             name))
+         g_warning("Unexpected setting '%s'", name);
+    g_value_unset (&value);
 }
 
 static void
@@ -585,6 +585,7 @@ midori_web_view_init (MidoriWebView* web_view)
 
     priv->settings = midori_web_settings_new ();
     _midori_web_view_update_settings (web_view);
+    g_object_set (web_view, "WebKitWebView::settings", priv->settings, NULL);
     g_signal_connect (priv->settings, "notify",
                       G_CALLBACK (midori_web_view_settings_notify), web_view);
 
@@ -701,6 +702,7 @@ midori_web_view_set_property (GObject*      object,
         katze_object_assign (priv->settings, g_value_get_object (value));
         g_object_ref (priv->settings);
         _midori_web_view_update_settings (web_view);
+        g_object_set (object, "WebKitWebView::settings", priv->settings, NULL);
         g_signal_connect (priv->settings, "notify",
                           G_CALLBACK (midori_web_view_settings_notify), web_view);
         break;
