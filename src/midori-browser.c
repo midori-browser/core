@@ -1064,44 +1064,25 @@ _action_location_activate (GtkAction*     action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    if (GTK_WIDGET_VISIBLE (priv->navigationbar))
-        gtk_widget_grab_focus (priv->location);
-    else
-    {
-        // TODO: We should offer all of the location's features here
-        GtkWidget* dialog;
-        dialog = gtk_dialog_new_with_buttons (_("Open location")
-            , GTK_WINDOW (browser)
-            , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
-            , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
-            , GTK_STOCK_JUMP_TO, GTK_RESPONSE_ACCEPT
-            , NULL);
-        gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_JUMP_TO);
-        gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-        gtk_container_set_border_width (
-            GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
-        GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
-        gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        GtkWidget* label = gtk_label_new_with_mnemonic (_("_Location:"));
-        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-        GtkWidget* entry = gtk_entry_new ();
-        gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-        gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
-        gtk_widget_show_all( hbox);
-        gtk_dialog_set_default_response (GTK_DIALOG (dialog),
-                                         GTK_RESPONSE_ACCEPT);
-        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-        {
-            gtk_entry_set_text (GTK_ENTRY (priv->location)
-             , gtk_entry_get_text (GTK_ENTRY (entry)));
-            GdkEventKey event;
-            event.keyval = GDK_Return;
-            midori_browser_location_key_press_event_cb (priv->location,
-                                                        &event, browser);
-        }
-        gtk_widget_destroy (dialog);
-    }
+    if (!GTK_WIDGET_VISIBLE (priv->navigationbar))
+        gtk_widget_show (priv->navigationbar);
+    gtk_widget_grab_focus (priv->location);
+}
+
+static gboolean
+midori_browser_location_focus_out_event_cb (GtkWidget*     widget,
+                                            GdkEventFocus* event,
+                                            MidoriBrowser* browser)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gboolean show_navigationbar;
+    g_object_get (priv->settings,
+                  "show-navigationbar", &show_navigationbar,
+                  NULL);
+    if (!show_navigationbar)
+        gtk_widget_hide (priv->navigationbar);
+    return FALSE;
 }
 
 static void
@@ -1110,41 +1091,31 @@ _action_search_activate (GtkAction*     action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    if (GTK_WIDGET_VISIBLE (priv->search)
-     && GTK_WIDGET_VISIBLE (priv->navigationbar))
-        gtk_widget_grab_focus (priv->search);
-    else
-    {
-        // TODO: We should offer all of the search's features here
-        GtkWidget* dialog = gtk_dialog_new_with_buttons (_("Web search")
-            , GTK_WINDOW (browser)
-            , GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR
-            , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
-            , GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT
-            , NULL);
-        gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_FIND);
-        gtk_container_set_border_width(GTK_CONTAINER (dialog), 5);
-        gtk_container_set_border_width (
-            GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
-        GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
-        gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        GtkWidget* label = gtk_label_new_with_mnemonic (_("_Location:"));
-        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-        GtkWidget* entry = gtk_entry_new ();
-        gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-        gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
-        gtk_widget_show_all (hbox);
-        gtk_dialog_set_default_response (GTK_DIALOG (dialog),
-                                         GTK_RESPONSE_ACCEPT);
-        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-        {
-            gtk_entry_set_text (GTK_ENTRY (priv->search)
-             , gtk_entry_get_text (GTK_ENTRY (entry)));
-            on_webSearch_activate (priv->search, browser);
-        }
-        gtk_widget_destroy (dialog);
-    }
+    if (!GTK_WIDGET_VISIBLE (priv->search))
+        gtk_widget_show (priv->search);
+    if (!GTK_WIDGET_VISIBLE (priv->navigationbar))
+        gtk_widget_show (priv->navigationbar);
+    gtk_widget_grab_focus (priv->search);
+}
+
+static gboolean
+midori_browser_search_focus_out_event_cb (GtkWidget*     widget,
+                                          GdkEventFocus* event,
+                                          MidoriBrowser* browser)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gboolean show_navigationbar;
+    gboolean show_web_search;
+    g_object_get (priv->settings,
+                  "show-navigationbar", &show_navigationbar,
+                  "show-web-search", &show_web_search,
+                  NULL);
+    if (!show_navigationbar)
+        gtk_widget_hide (priv->navigationbar);
+    if (!show_web_search)
+        gtk_widget_hide (priv->search);
+    return FALSE;
 }
 
 static void
@@ -2369,11 +2340,14 @@ midori_browser_init (MidoriBrowser* browser)
     sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (priv->location)
      , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (priv->location_icon));
     sexy_icon_entry_add_clear_button (SEXY_ICON_ENTRY (priv->location));
-    g_signal_connect (priv->location, "key-press-event",
-                      G_CALLBACK (midori_browser_location_key_press_event_cb),
-                      browser);
-    g_signal_connect (priv->location, "changed",
-                      G_CALLBACK (midori_browser_location_changed_cb), browser);
+    g_object_connect (priv->location,
+                      "signal::key-press-event",
+                      midori_browser_location_key_press_event_cb, browser,
+                      "signal::focus-out-event",
+                      midori_browser_location_focus_out_event_cb, browser,
+                      "signal::changed",
+                      midori_browser_location_changed_cb, browser,
+                      NULL);
     GtkToolItem* toolitem = gtk_tool_item_new ();
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
     gtk_container_add (GTK_CONTAINER(toolitem), priv->location);
@@ -2396,6 +2370,8 @@ midori_browser_init (MidoriBrowser* browser)
                       on_webSearch_scroll, browser,
                       "signal::activate",
                       on_webSearch_activate, browser,
+                      "signal::focus-out-event",
+                      midori_browser_search_focus_out_event_cb, browser,
                       NULL);
     toolitem = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (toolitem), priv->search);
