@@ -148,7 +148,7 @@ katze_property_proxy (gpointer     object,
             GTK_FILE_CHOOSER_ACTION_OPEN);
         g_object_get (object, property, &string, NULL);
         if (!string)
-            string = G_PARAM_SPEC_STRING (pspec)->default_value;
+            string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (widget),
                                        string ? string : "");
         g_signal_connect (widget, "file-set",
@@ -160,7 +160,7 @@ katze_property_proxy (gpointer     object,
             GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
         g_object_get (object, property, &string, NULL);
         if (!string)
-            string = G_PARAM_SPEC_STRING (pspec)->default_value;
+            string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (widget),
                                              string ? string : "");
         g_signal_connect (widget, "file-set",
@@ -172,7 +172,7 @@ katze_property_proxy (gpointer     object,
             GTK_FILE_CHOOSER_ACTION_OPEN);
         g_object_get (object, property, &string, NULL);
         if (!string)
-            string = G_PARAM_SPEC_STRING (pspec)->default_value;
+            string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (widget),
                                   string ? string : "");
         g_signal_connect (widget, "file-set",
@@ -204,7 +204,7 @@ katze_property_proxy (gpointer     object,
         widget = gtk_entry_new ();
         g_object_get (object, property, &string, NULL);
         if (!string)
-            string = G_PARAM_SPEC_STRING (pspec)->default_value;
+            string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_entry_set_text (GTK_ENTRY (widget), string ? string : "");
         g_signal_connect (widget, "focus-out-event",
                           G_CALLBACK (proxy_entry_focus_out_event_cb), object);
