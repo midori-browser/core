@@ -13,6 +13,8 @@
 
 #include <glib/gi18n.h>
 
+#include <string.h>
+
 static void
 proxy_toggle_button_toggled_cb (GtkToggleButton* button, GObject* object)
 {
@@ -186,6 +188,8 @@ katze_property_proxy (gpointer     object,
         int n_families;
         pango_context_list_families (context, &families, &n_families);
         g_object_get (object, property, &string, NULL);
+        if (!string)
+            string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gint i = 0;
         while (i < n_families)
         {

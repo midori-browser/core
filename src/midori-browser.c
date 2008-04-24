@@ -232,6 +232,19 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
 }
 
 static void
+_midori_browser_set_current_page_smartly (MidoriBrowser* browser,
+                                          gint           n)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gboolean open_tabs_in_the_background;
+    g_object_get (priv->settings, "open-tabs-in-the-background",
+                  &open_tabs_in_the_background, NULL);
+    if (!open_tabs_in_the_background)
+        midori_browser_set_current_page (browser, n);
+}
+
+static void
 _midori_browser_update_progress (MidoriBrowser* browser,
                                  gint           progress)
 {
@@ -420,8 +433,8 @@ midori_web_view_new_tab_cb (GtkWidget*     web_view,
                             const gchar*   uri,
                             MidoriBrowser* browser)
 {
-    midori_browser_append_uri (browser, uri);
-    gtk_widget_grab_focus (web_view);
+    gint n = midori_browser_append_uri (browser, uri);
+    _midori_browser_set_current_page_smartly (browser, n);
 }
 
 static void
@@ -565,7 +578,11 @@ static void
 _action_tab_new_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    midori_browser_append_uri (browser, "");
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gint n = midori_browser_append_uri (browser, "");
+    midori_browser_set_current_page (browser, n);
+    gtk_widget_grab_focus (priv->location);
 }
 
 static void
@@ -817,7 +834,8 @@ midori_browser_menu_trash_item_activate_cb (GtkWidget*     menuitem,
     KatzeXbelItem* item = g_object_get_data (G_OBJECT (menuitem),
                                              "KatzeXbelItem");
     const gchar* uri = katze_xbel_bookmark_get_href (item);
-    midori_browser_append_uri (browser, uri);
+    gint n = midori_browser_append_uri (browser, uri);
+    midori_browser_set_current_page (browser, n);
     katze_xbel_item_unref (item);
 }
 
@@ -1322,7 +1340,8 @@ midori_panel_bookmarks_button_release_event_cb (GtkWidget*      widget,
             if (event->button == 2 && katze_xbel_item_is_bookmark (item))
             {
                 const gchar* uri = katze_xbel_bookmark_get_href (item);
-                midori_browser_append_uri (browser, uri);
+                gint n = midori_browser_append_uri (browser, uri);
+                midori_browser_set_current_page (browser, n);
             }
             else
                 _midori_panel_bookmarks_popup (widget, event, item, browser);
@@ -1741,7 +1760,10 @@ _action_bookmark_open_tab_activate (GtkAction*     action,
             KatzeXbelItem* item;
             gtk_tree_model_get (model, &iter, 0, &item, -1);
             if (katze_xbel_item_is_bookmark (item))
-                midori_browser_append_xbel_item (browser, item);
+            {
+                gint n = midori_browser_append_xbel_item (browser, item);
+                _midori_browser_set_current_page_smartly (browser, n);
+            }
         }
     }
 }
@@ -1763,7 +1785,10 @@ _action_bookmark_open_window_activate (GtkAction*     action,
             KatzeXbelItem* item;
             gtk_tree_model_get (model, &iter, 0, &item, -1);
             if (katze_xbel_item_is_bookmark (item))
-                midori_browser_append_xbel_item (browser, item);
+            {
+                gint n = midori_browser_append_xbel_item (browser, item);
+                _midori_browser_set_current_page_smartly (browser, n);
+            }
         }
     }
 }
@@ -1798,7 +1823,8 @@ _action_undo_tab_close_activate (GtkAction*     action,
 
     // Reopen the most recent trash item
     KatzeXbelItem* item = midori_trash_get_nth_xbel_item (priv->trash, 0);
-    midori_browser_append_xbel_item (browser, item);
+    gint n = midori_browser_append_xbel_item (browser, item);
+    midori_browser_set_current_page (browser, n);
     midori_trash_remove_nth_item (priv->trash, 0);
     _midori_browser_update_actions (browser);
 }
@@ -2953,7 +2979,7 @@ midori_browser_append_tab (MidoriBrowser* browser,
     {
         gtk_widget_show (menuitem);
         g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_browser_window_menu_item_activate_cb), browser);
+            G_CALLBACK (midori_browser_window_menu_item_activate_cb), scrolled);
         gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu_window), menuitem);
     }
 
@@ -2969,14 +2995,6 @@ midori_browser_append_tab (MidoriBrowser* browser,
     _midori_browser_update_actions (browser);
 
     n = gtk_notebook_page_num (GTK_NOTEBOOK (priv->notebook), scrolled);
-    gboolean open_tabs_in_the_background;
-    g_object_get (priv->settings, "open-tabs-in-the-background",
-                  &open_tabs_in_the_background, NULL);
-    if (!open_tabs_in_the_background)
-    {
-        gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
-        gtk_widget_grab_focus (priv->location);
-    }
     return n;
 }
 
@@ -3050,6 +3068,27 @@ midori_browser_append_uri (MidoriBrowser* browser,
     gtk_widget_show (web_view);
 
     return midori_browser_append_tab (browser, web_view);
+}
+
+/**
+ * midori_browser_set_current_page:
+ * @browser: a #MidoriBrowser
+ * @n: the index of a page
+ *
+ * Switches to the page with the index @n.
+ *
+ * The widget will also grab the focus automatically.
+ **/
+void
+midori_browser_set_current_page (MidoriBrowser* browser,
+                                 gint           n)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
+    GtkWidget* widget = midori_browser_get_current_page (browser);
+    if (widget)
+        gtk_widget_grab_focus (widget);
 }
 
 /**
