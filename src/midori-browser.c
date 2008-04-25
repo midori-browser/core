@@ -2797,7 +2797,7 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
             g_value_get_boolean (&value));
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                              name))
-         g_warning("Unexpected setting '%s'", name);
+         g_warning (_("Unexpected setting '%s'"), name);
     g_value_unset (&value);
 }
 
@@ -3071,6 +3071,26 @@ midori_browser_append_uri (MidoriBrowser* browser,
 }
 
 /**
+ * midori_browser_activate_action:
+ * @browser: a #MidoriBrowser
+ * @name: name of the action
+ *
+ * Activates the specified action.
+ **/
+void
+midori_browser_activate_action (MidoriBrowser* browser,
+                                const gchar*   name)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    GtkAction* action = _action_by_name (browser, name);
+    if (action)
+        gtk_action_activate (action);
+    else
+        g_warning (_("Unexpected action '%s'."), name);
+}
+
+/**
  * midori_browser_set_current_page:
  * @browser: a #MidoriBrowser
  * @n: the index of a page
@@ -3086,8 +3106,14 @@ midori_browser_set_current_page (MidoriBrowser* browser,
     MidoriBrowserPrivate* priv = browser->priv;
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
-    GtkWidget* widget = midori_browser_get_current_page (browser);
-    if (widget)
+    GtkWidget* scrolled = gtk_notebook_get_nth_page (GTK_NOTEBOOK (priv->notebook), n);
+    GtkWidget* widget = _midori_browser_child_for_scrolled (browser, scrolled);
+    printf ("_nth_page: %s\n", G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (widget)));
+    if (widget && MIDORI_IS_WEB_VIEW (widget)
+        && !strcmp (midori_web_view_get_display_uri (
+        MIDORI_WEB_VIEW (widget)), ""))
+        gtk_widget_grab_focus (priv->location);
+    else
         gtk_widget_grab_focus (widget);
 }
 

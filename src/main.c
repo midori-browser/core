@@ -456,7 +456,7 @@ int main(int argc, char** argv)
         "signal::delete-event", midori_browser_delete_event_cb, browsers,
         "signal::quit", midori_browser_quit_cb, browsers,
         NULL);
-    browsers = g_list_prepend(browsers, browser);
+    browsers = g_list_prepend (browsers, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
     KatzeXbelItem* session = katze_xbel_folder_new ();
@@ -466,6 +466,10 @@ int main(int argc, char** argv)
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, i);
         midori_browser_append_xbel_item (browser, item);
     }
+    // FIXME: Switch to the last active page
+    KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, 0);
+    if (!strcmp (katze_xbel_bookmark_get_href (item), ""))
+        midori_browser_activate_action (browser, "Location");
     katze_xbel_item_unref (_session);
 
     gtk_main ();

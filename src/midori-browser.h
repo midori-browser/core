@@ -77,6 +77,10 @@ midori_browser_append_uri             (MidoriBrowser*     browser,
                                        const gchar*       uri);
 
 void
+midori_browser_activate_action        (MidoriBrowser*     browser,
+                                       const gchar*       name);
+
+void
 midori_browser_set_current_page       (MidoriBrowser*     browser,
                                        gint               n);
 
