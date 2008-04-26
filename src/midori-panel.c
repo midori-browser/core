@@ -21,6 +21,7 @@ struct _MidoriPanelPrivate
     GtkWidget* toolbar;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
+    GtkWidget* toolbook;
     GtkWidget* notebook;
     GSList*    group;
     GtkMenu*   menu;
@@ -216,6 +217,13 @@ midori_panel_init (MidoriPanel* panel)
     gtk_box_pack_start (GTK_BOX (vbox), labelbar, FALSE, FALSE, 0);
     gtk_widget_show_all (vbox);
 
+    // Create the toolbook
+    priv->toolbook = gtk_notebook_new ();
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (priv->toolbook), FALSE);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (priv->toolbook), FALSE);
+    gtk_box_pack_start (GTK_BOX (vbox), priv->toolbook, FALSE, FALSE, 0);
+    gtk_widget_show (priv->toolbook);
+
     // Create the notebook
     priv->notebook = gtk_notebook_new ();
     gtk_notebook_set_show_border (GTK_NOTEBOOK (priv->notebook), FALSE);
@@ -325,10 +333,12 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  * midori_panel_append_page:
  * @panel: a #MidoriPanel
  * @child: the child widget
+ * @toolbar: a toolbar widget, or %NULL
  * @icon: a stock ID or icon name, or %NULL
  * @label: a string to use as the label, or %NULL
  *
- * Appends a new page to the panel.
+ * Appends a new page to the panel. If @toolbar is specified it will
+ * be packaged above @child.
  *
  * If @icon is an icon name, the according image is used as an
  * icon for this page.
@@ -342,11 +352,13 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
 gint
 midori_panel_append_page (MidoriPanel* panel,
                           GtkWidget*   child,
+                          GtkWidget*   toolbar,
                           const gchar* icon,
                           const gchar* label)
 {
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
     g_return_val_if_fail (GTK_IS_WIDGET (child), -1);
+    g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
 
     MidoriPanelPrivate* priv = panel->priv;
 
@@ -368,6 +380,11 @@ midori_panel_append_page (MidoriPanel* panel,
     }
     gtk_container_add (GTK_CONTAINER (scrolled), widget);
     gtk_container_add (GTK_CONTAINER (priv->notebook), scrolled);
+
+    if (!toolbar)
+        toolbar = gtk_event_box_new ();
+    gtk_widget_show (toolbar);
+    gtk_container_add (GTK_CONTAINER (priv->toolbook), toolbar);
 
     guint n = midori_panel_page_num (panel, child);
 
@@ -533,6 +550,7 @@ midori_panel_set_current_page (MidoriPanel* panel,
 
     MidoriPanelPrivate* priv = panel->priv;
 
+    gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->toolbook), n);
     gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
     GtkWidget* child = midori_panel_get_nth_page (panel, n);
     if (child)

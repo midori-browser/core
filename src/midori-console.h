@@ -53,8 +53,11 @@ midori_console_get_type               (void);
 GtkWidget*
 midori_console_new                    (void);
 
+GtkWidget*
+midori_console_get_toolbar            (MidoriConsole*       console);
+
 void
-midori_console_add                    (MidoriConsole*       panel,
+midori_console_add                    (MidoriConsole*       console,
                                        const gchar*         message,
                                        gint                 line,
                                        const gchar*         source_id);

@@ -85,7 +85,8 @@ enum
     PROP_TRASH
 };
 
-enum {
+enum
+{
     NEW_WINDOW,
     STATUSBAR_TEXT_CHANGED,
     ELEMENT_MOTION,
@@ -2487,9 +2488,6 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Bookmarks
     GtkWidget* box = gtk_vbox_new (FALSE, 0);
-    GtkWidget* toolbar = gtk_ui_manager_get_widget (ui_manager, "/toolbar_bookmarks");
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_MENU);
-    gtk_box_pack_start (GTK_BOX (box), toolbar, FALSE, FALSE, 0);
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_pixbuf;
@@ -2527,9 +2525,13 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (box), treeview, TRUE, TRUE, 0);
     priv->panel_bookmarks = treeview;
     gtk_widget_show_all (box);
+    GtkWidget* toolbar = gtk_ui_manager_get_widget (ui_manager,
+                                                    "/toolbar_bookmarks");
+    gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_MENU);
+    gtk_widget_show_all (toolbar);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              box, "vcard", _("Bookmarks"));
-    action = _action_by_name (browser, "PanelBookmarks");
+                              box, toolbar,
+                              "vcard", _("Bookmarks"));
 
     // Transfers
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
@@ -2537,14 +2539,16 @@ midori_browser_init (MidoriBrowser* browser)
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_pageholder,
+                              priv->panel_pageholder, NULL,
                               "package", _("Transfers"));
 
     // Console
     priv->panel_console = midori_console_new ();
     gtk_widget_show (priv->panel_console);
+    toolbar = midori_console_get_toolbar (MIDORI_CONSOLE (priv->panel_console));
+    gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_console,
+                              priv->panel_console, toolbar,
                               "terminal", _("Console"));
 
     // History
@@ -2553,7 +2557,7 @@ midori_browser_init (MidoriBrowser* browser)
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_pageholder,
+                              priv->panel_pageholder, NULL,
                               "document-open-recent", _("History"));
 
     // Pageholder
@@ -2562,7 +2566,7 @@ midori_browser_init (MidoriBrowser* browser)
                                            NULL);
     gtk_widget_show (priv->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_pageholder,
+                              priv->panel_pageholder, NULL,
                               GTK_STOCK_CONVERT, _("Pageholder"));
 
     // Notebook, containing all web_views
@@ -3081,8 +3085,6 @@ void
 midori_browser_activate_action (MidoriBrowser* browser,
                                 const gchar*   name)
 {
-    MidoriBrowserPrivate* priv = browser->priv;
-
     GtkAction* action = _action_by_name (browser, name);
     if (action)
         gtk_action_activate (action);

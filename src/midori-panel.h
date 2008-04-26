@@ -64,6 +64,7 @@ midori_panel_new                    (void);
 gint
 midori_panel_append_page            (MidoriPanel*       panel,
                                      GtkWidget*         child,
+                                     GtkWidget*         toolbar,
                                      const gchar*       icon,
                                      const gchar*       label);
 

@@ -570,7 +570,7 @@ midori_web_view_settings_notify (MidoriWebSettings* web_settings,
         priv->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                              name))
-         g_warning("Unexpected setting '%s'", name);
+         g_warning (_("Unexpected setting '%s'"), name);
     g_value_unset (&value);
 }
 
@@ -1036,7 +1036,7 @@ midori_web_view_get_progress (MidoriWebView* web_view)
 }
 
 /**
- * midori_web_view_get_uri:
+ * midori_web_view_get_display_uri:
  * @web_view: a #MidoriWebView
  *
  * Retrieves a string that is suitable for displaying, particularly an

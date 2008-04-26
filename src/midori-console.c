@@ -100,26 +100,6 @@ midori_console_init (MidoriConsole* console)
 
     MidoriConsolePrivate* priv = console->priv;
 
-    // Create the toolbar
-    GtkWidget* toolbar = gtk_toolbar_new ();
-    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
-    GtkToolItem* toolitem = gtk_tool_item_new ();
-    // TODO: What about a find entry here that filters e.g. by url?
-    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-    toolitem = gtk_separator_tool_item_new ();
-    gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
-                                      FALSE);
-    gtk_tool_item_set_expand (toolitem, TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-    toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLEAR);
-    gtk_tool_item_set_is_important (toolitem, TRUE);
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (midori_console_button_clear_clicked_cb), console);
-    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-    gtk_widget_show_all (toolbar);
-    gtk_box_pack_start (GTK_BOX (console), toolbar, FALSE, FALSE, 0);
-
     // Create the treeview
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
@@ -163,6 +143,49 @@ midori_console_new (void)
                                            NULL);
 
     return GTK_WIDGET (console);
+}
+
+/**
+ * midori_console_get_toolbar:
+ *
+ * Retrieves the toolbar of the console. A new widget is created on
+ * the first call of this function.
+ *
+ * Return value: a new #MidoriConsole
+ **/
+GtkWidget*
+midori_console_get_toolbar (MidoriConsole* console)
+{
+    g_return_if_fail (MIDORI_IS_CONSOLE (console));
+
+    MidoriConsolePrivate* priv = console->priv;
+
+    static GtkWidget* toolbar = NULL;
+
+    if (!toolbar)
+    {
+        toolbar = gtk_toolbar_new ();
+        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
+        gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
+        GtkToolItem* toolitem = gtk_tool_item_new ();
+        // TODO: What about a find entry here that filters e.g. by url?
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (toolitem);
+        toolitem = gtk_separator_tool_item_new ();
+        gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
+                                          FALSE);
+        gtk_tool_item_set_expand (toolitem, TRUE);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (toolitem);
+        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLEAR);
+        gtk_tool_item_set_is_important (toolitem, TRUE);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_console_button_clear_clicked_cb), console);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (toolitem);
+    }
+
+    return toolbar;
 }
 
 /**
