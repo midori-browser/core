@@ -253,20 +253,21 @@ settings_save_to_file (MidoriWebSettings* settings,
                                    enum_value->value_name);
         }
         else
-            g_warning ("Unhandled settings property '%s'", property);
+            g_warning (_("Unhandled settings property '%s'"), property);
     }
     gboolean saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;
 }
 
-int main(int argc, char** argv)
+int
+main (int argc, char** argv)
 {
     MidoriStartup load_on_startup;
     gchar* homepage;
 
-    locale_init();
-    g_set_application_name(_("midori"));
+    locale_init ();
+    g_set_application_name (_("midori"));
 
     // Parse cli options
     gboolean version = FALSE;
@@ -278,15 +279,16 @@ int main(int argc, char** argv)
     };
 
     GError* error = NULL;
-    if(!gtk_init_with_args(&argc, &argv, _("[URL]"), entries, GETTEXT_PACKAGE, &error))
+    if (!gtk_init_with_args (&argc, &argv, _("[URL]"), entries,
+                             GETTEXT_PACKAGE, &error))
     {
-        g_error_free(error);
+        g_error_free (error);
         return 1;
     }
 
-    if(version)
+    if (version)
     {
-        g_print(
+        g_print (
           "%s %s - Copyright (c) 2007-2008 Christian Dywan\n\n"
           "GTK+2:  \t\t%s\n"
           "WebKit: \t\t%s\n"
@@ -403,17 +405,17 @@ int main(int argc, char** argv)
 
     // TODO: Handle any number of separate uris from argv
     // Open as many tabs as we have uris, seperated by pipes
-    gchar* uri = argc > 1 ? strtok(g_strdup(argv[1]), "|") : NULL;
-    while(uri != NULL)
+    gchar* uri = argc > 1 ? strtok (g_strdup(argv[1]), "|") : NULL;
+    while (uri != NULL)
     {
-        KatzeXbelItem* item = katze_xbel_bookmark_new();
-        gchar* uriReady = sokoke_magic_uri (uri, NULL);
-        katze_xbel_bookmark_set_href(item, uriReady);
-        g_free(uriReady);
-        katze_xbel_folder_append_item(_session, item);
-        uri = strtok(NULL, "|");
+        KatzeXbelItem* item = katze_xbel_bookmark_new ();
+        gchar* uri_ready = sokoke_magic_uri (uri, NULL);
+        katze_xbel_bookmark_set_href (item, uri_ready);
+        g_free (uri_ready);
+        katze_xbel_folder_append_item (_session, item);
+        uri = strtok (NULL, "|");
     }
-    g_free(uri);
+    g_free (uri);
 
     if (katze_xbel_folder_is_empty (_session))
     {
@@ -484,8 +486,8 @@ int main(int argc, char** argv)
     error = NULL;
     if (!search_engines_to_file (searchEngines, config_file, &error))
     {
-        g_warning("The search engines couldn't be saved. %s", error->message);
-        g_error_free(error);
+        g_warning (_("The search engines couldn't be saved. %s"), error->message);
+        g_error_free (error);
     }
     search_engines_free(searchEngines);
     g_free (config_file);
@@ -493,8 +495,8 @@ int main(int argc, char** argv)
     error = NULL;
     if (!katze_xbel_folder_to_file (bookmarks, config_file, &error))
     {
-        g_warning("The bookmarks couldn't be saved. %s", error->message);
-        g_error_free(error);
+        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
+        g_error_free (error);
     }
     katze_xbel_item_unref(bookmarks);
     g_free (config_file);
@@ -502,7 +504,7 @@ int main(int argc, char** argv)
     error = NULL;
     if (!katze_xbel_folder_to_file (xbel_trash, config_file, &error))
     {
-        g_warning ("The trash couldn't be saved. %s", error->message);
+        g_warning (_("The trash couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
     katze_xbel_item_unref (xbel_trash);
@@ -514,7 +516,7 @@ int main(int argc, char** argv)
         error = NULL;
         if (!katze_xbel_folder_to_file (session, config_file, &error))
         {
-            g_warning ("The session couldn't be saved. %s", error->message);
+            g_warning (_("The session couldn't be saved. %s"), error->message);
             g_error_free (error);
         }
     }
@@ -523,7 +525,7 @@ int main(int argc, char** argv)
     error = NULL;
     if (!settings_save_to_file (settings, config_file, &error))
     {
-        g_warning ("The configuration couldn't be saved. %s", error->message);
+        g_warning (_("The configuration couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
     katze_assign (config_file, g_build_filename (config_path, "accels", NULL));

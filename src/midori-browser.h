@@ -48,6 +48,17 @@ struct _MidoriBrowserClass
 
     /* Signals */
     void
+    (*window_object_cleared)   (MidoriBrowser*       browser,
+                                WebKitWebFrame*      web_frame,
+                                JSContextRef*        context,
+                                JSObjectRef*         window_object);
+    void
+    (*statusbar_text_changed)  (MidoriBrowser*       browser,
+                                const gchar*         text);
+    void
+    (*element_motion)          (MidoriBrowser*       browser,
+                                const gchar*         link_uri);
+    void
     (*quit)                    (MidoriBrowser*       browser);
     void
     (*new_window)              (MidoriBrowser*       browser,

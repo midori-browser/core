@@ -17,6 +17,15 @@
 G_BEGIN_DECLS
 
 /**
+ * KATZE_OBJECT_NAME:
+ * @object: an object
+ *
+ * Return the name of an object's class structure's type.
+ **/
+#define KATZE_OBJECT_NAME(object) \
+    G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (object))
+
+/**
  * katze_assign:
  * @lvalue: a pointer
  * @rvalue: the new value

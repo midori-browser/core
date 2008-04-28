@@ -20,6 +20,7 @@
 #include "midori-webview.h"
 #include "midori-preferences.h"
 #include "midori-panel.h"
+#include "midori-addons.h"
 #include "midori-console.h"
 #include "midori-trash.h"
 
@@ -87,10 +88,11 @@ enum
 
 enum
 {
-    NEW_WINDOW,
+    WINDOW_OBJECT_CLEARED,
     STATUSBAR_TEXT_CHANGED,
     ELEMENT_MOTION,
     QUIT,
+    NEW_WINDOW,
 
     LAST_SIGNAL
 };
@@ -266,6 +268,17 @@ _midori_browser_update_progress (MidoriBrowser* browser,
             gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progressbar),
                                        NULL);
     }
+}
+
+static void
+midori_web_view_window_object_cleared_cb (GtkWidget*         web_view,
+                                          WebKitWebFrame*    web_frame,
+                                          JSGlobalContextRef js_context,
+                                          JSObjectRef        js_window,
+                                          MidoriBrowser*     browser)
+{
+    g_signal_emit (browser, signals[WINDOW_OBJECT_CLEARED], 0,
+                   web_frame, js_context, js_window);
 }
 
 static void
@@ -478,8 +491,81 @@ midori_web_view_destroy_cb (GtkWidget*     widget,
 }
 
 static void
+midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
+                                                      GValue*       return_value,
+                                                      guint         n_param_values,
+                                                      const GValue* param_values,
+                                                      gpointer      invocation_hint,
+                                                      gpointer      marshal_data)
+{
+    typedef gboolean(*GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (gpointer  data1,
+                                                                  gpointer  arg_1,
+                                                                  gpointer  arg_2,
+                                                                  gpointer  arg_3,
+                                                                  gpointer  data2);
+    register GMarshalFunc_VOID__OBJECT_POINTER_POINTER callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+
+    g_return_if_fail (n_param_values == 4);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (marshal_data
+        ? marshal_data : cc->callback);
+
+    callback (data1,
+              g_value_get_object (param_values + 1),
+              g_value_get_pointer (param_values + 2),
+              g_value_get_pointer (param_values + 3),
+              data2);
+}
+
+static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
+    signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
+        "window-object-cleared",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, window_object_cleared),
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER,
+        G_TYPE_NONE, 3,
+        WEBKIT_TYPE_WEB_FRAME,
+        G_TYPE_POINTER,
+        G_TYPE_POINTER);
+
+    signals[STATUSBAR_TEXT_CHANGED] = g_signal_new (
+        "statusbar-text-changed",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, statusbar_text_changed),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
+
+    signals[ELEMENT_MOTION] = g_signal_new (
+        "element-motion",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, new_window),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
 
     signals[QUIT] = g_signal_new (
         "quit",
@@ -2534,12 +2620,10 @@ midori_browser_init (MidoriBrowser* browser)
                               "vcard", _("Bookmarks"));
 
     // Transfers
-    priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                                           "uri", "",
-                                           NULL);
-    gtk_widget_show (priv->panel_pageholder);
+    GtkWidget* panel = midori_web_view_new ();
+    gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_pageholder, NULL,
+                              panel, NULL,
                               "package", _("Transfers"));
 
     // Console
@@ -2552,12 +2636,10 @@ midori_browser_init (MidoriBrowser* browser)
                               "terminal", _("Console"));
 
     // History
-    priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                                           "uri", "",
-                                           NULL);
-    gtk_widget_show (priv->panel_pageholder);
+    panel = midori_web_view_new ();
+    gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              priv->panel_pageholder, NULL,
+                              panel, NULL,
                               "document-open-recent", _("History"));
 
     // Pageholder
@@ -2568,6 +2650,29 @@ midori_browser_init (MidoriBrowser* browser)
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               priv->panel_pageholder, NULL,
                               GTK_STOCK_CONVERT, _("Pageholder"));
+
+    // Addons
+    /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
+    gtk_widget_show (panel);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (priv->panel),
+                              panel, toolbar,
+                              "", _("Extensions"));*/
+    panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
+    gtk_widget_show (panel);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (priv->panel),
+                              panel, toolbar,
+                              "", _("Userscripts"));
+    /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
+    gtk_widget_show (panel);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (priv->panel),
+                              panel, toolbar,
+                              "", _("Userstyles"));*/
 
     // Notebook, containing all web_views
     priv->notebook = gtk_notebook_new ();
@@ -2944,6 +3049,8 @@ midori_browser_append_tab (MidoriBrowser* browser,
         }
 
         g_object_connect (widget,
+                          "signal::window-object-cleared",
+                          midori_web_view_window_object_cleared_cb, browser,
                           "signal::load-started",
                           midori_web_view_load_started_cb, browser,
                           "signal::load-committed",

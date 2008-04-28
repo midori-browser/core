@@ -17,9 +17,10 @@ bin_PROGRAMS = \
     midori
 
 midori_SOURCES = \
-    main.c      main.h      \
+    main.c               main.h               \
     midori-browser.c     midori-browser.h     \
     midori-panel.c       midori-panel.h       \
+    midori-addons.c      midori-addons.h      \
     midori-console.c     midori-console.h     \
     midori-trash.c       midori-trash.h       \
     midori-webview.c     midori-webview.h     \
