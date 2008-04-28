@@ -59,7 +59,7 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
                                      MidoriAddons* addons)
 {
     GtkWidget* dialog = gtk_message_dialog_new (
-        gtk_widget_get_toplevel (GTK_WIDGET (addons)),
+        GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
         GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
         "Put scripts in the folder ~/.local/share/midori/scripts");
@@ -157,6 +157,29 @@ _js_string_utf8 (JSStringRef js_string)
     gchar* string_utf8 = (gchar*)g_malloc (size_utf8);
     JSStringGetUTF8CString (js_string, string_utf8, size_utf8);
     return string_utf8;
+}
+
+static void
+_js_class_get_property_names_cb (JSContextRef                 js_context,
+                                 JSObjectRef                  js_object,
+                                 JSPropertyNameAccumulatorRef js_properties)
+{
+    GObject* object = JSObjectGetPrivate (js_object);
+    if (object)
+    {
+        guint n_properties;
+        GParamSpec** pspecs = g_object_class_list_properties (
+            G_OBJECT_GET_CLASS (object), &n_properties);
+        gint i;
+        for (i = 0; i < n_properties; i++)
+        {
+            GType type = G_PARAM_SPEC_TYPE (pspecs[i]);
+            const gchar* property = g_param_spec_get_name (pspecs[i]);
+            JSStringRef js_property = JSStringCreateWithUTF8CString (property);
+            JSPropertyNameAccumulatorAddName (js_properties, js_property);
+            JSStringRelease (js_property);
+        }
+    }
 }
 
 static bool
@@ -281,6 +304,7 @@ _js_object_new (JSContextRef js_context,
 {
     JSClassDefinition js_class_def = kJSClassDefinitionEmpty;
     js_class_def.className = g_strdup (KATZE_OBJECT_NAME (object));
+    js_class_def.getPropertyNames = _js_class_get_property_names_cb;
     js_class_def.hasProperty = _js_class_has_property_cb;
     js_class_def.getProperty = _js_class_get_property_cb;
     js_class_def.setProperty = _js_class_set_property_cb;
