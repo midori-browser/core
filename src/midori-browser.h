@@ -95,8 +95,15 @@ void
 midori_browser_set_current_page       (MidoriBrowser*     browser,
                                        gint               n);
 
-GtkWidget*
+gint
 midori_browser_get_current_page       (MidoriBrowser*     browser);
+
+void
+midori_browser_set_current_tab        (MidoriBrowser*     browser,
+                                       GtkWidget*         widget);
+
+GtkWidget*
+midori_browser_get_current_tab        (MidoriBrowser*     browser);
 
 GtkWidget*
 midori_browser_get_current_web_view   (MidoriBrowser*     browser);

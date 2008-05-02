@@ -81,6 +81,10 @@ enum
 {
     PROP_0,
 
+    PROP_MENUBAR,
+    PROP_NAVIGATIONBAR,
+    PROP_TAB,
+    PROP_STATUSBAR,
     PROP_SETTINGS,
     PROP_STATUSBAR_TEXT,
     PROP_TRASH
@@ -596,6 +600,62 @@ midori_browser_class_init (MidoriBrowserClass* class)
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     /**
+    * MidoriBrowser::menubar
+    *
+    * The menubar.
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_MENUBAR,
+                                     g_param_spec_object (
+                                     "menubar",
+                                     _("Menubar"),
+                                     _("The menubar"),
+                                     GTK_TYPE_MENU_BAR,
+                                     G_PARAM_READABLE));
+
+    /**
+    * MidoriBrowser::navigationbar
+    *
+    * The navigationbar.
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_NAVIGATIONBAR,
+                                     g_param_spec_object (
+                                     "navigationbar",
+                                     _("Navigationbar"),
+                                     _("The navigationbar"),
+                                     GTK_TYPE_TOOLBAR,
+                                     G_PARAM_READABLE));
+
+    /**
+    * MidoriBrowser::tab
+    *
+    * The current tab.
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_TAB,
+                                     g_param_spec_object (
+                                     "tab",
+                                     _("Tab"),
+                                     _("The current tab"),
+                                     GTK_TYPE_WIDGET,
+                                     G_PARAM_READWRITE));
+
+    /**
+    * MidoriBrowser::statusbar
+    *
+    * The statusbar.
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_STATUSBAR,
+                                     g_param_spec_object (
+                                     "statusbar",
+                                     _("Statusbar"),
+                                     _("The statusbar"),
+                                     GTK_TYPE_STATUSBAR,
+                                     G_PARAM_READABLE));
+
+    /**
     * MidoriBrowser::settings
     *
     * An associated settings instance that is shared among all web views.
@@ -607,7 +667,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_SETTINGS,
                                      g_param_spec_object (
                                      "settings",
-                                     "Settings",
+                                     _("Settings"),
                                      _("The associated settings"),
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE));
@@ -627,7 +687,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_STATUSBAR_TEXT,
                                      g_param_spec_string (
                                      "statusbar-text",
-                                     "Statusbar Text",
+                                     _("Statusbar Text"),
                                      _("The text that is displayed in the statusbar"),
                                      "",
                                      flags));
@@ -646,7 +706,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_TRASH,
                                      g_param_spec_object (
                                      "trash",
-                                     "Trash",
+                                     _("Trash"),
                                      _("The trash, collecting recently closed tabs and windows"),
                                      MIDORI_TYPE_TRASH,
                                      G_PARAM_READWRITE));
@@ -697,7 +757,7 @@ static void
 _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    GtkWidget* widget = midori_browser_get_current_page (browser);
+    GtkWidget* widget = midori_browser_get_current_tab (browser);
     GtkWidget* scrolled = _midori_browser_scrolled_for_child (browser, widget);
     gtk_widget_destroy (scrolled);
 }
@@ -2651,14 +2711,7 @@ midori_browser_init (MidoriBrowser* browser)
                               priv->panel_pageholder, NULL,
                               GTK_STOCK_CONVERT, _("Pageholder"));
 
-    // Addons
-    /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
-    gtk_widget_show (panel);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
-    gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (priv->panel),
-                              panel, toolbar,
-                              "", _("Extensions"));*/
+    // Userscripts
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
     gtk_widget_show (panel);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
@@ -2666,6 +2719,7 @@ midori_browser_init (MidoriBrowser* browser)
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               panel, toolbar,
                               "", _("Userscripts"));
+    // Userstyles
     /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
     gtk_widget_show (panel);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
@@ -2749,6 +2803,15 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_set_size_request (priv->progressbar, -1, 1);
     gtk_box_pack_start (GTK_BOX (priv->statusbar), priv->progressbar,
                         FALSE, FALSE, 3);
+
+    // Extensions
+    panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
+    gtk_widget_show (panel);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (priv->panel),
+                              panel, toolbar,
+                              "", _("Extensions"));
 
     g_object_unref (ui_manager);
 }
@@ -2921,6 +2984,9 @@ midori_browser_set_property (GObject*      object,
 
     switch (prop_id)
     {
+    case PROP_TAB:
+        midori_browser_set_current_tab (browser, g_value_get_object (value));
+        break;
     case PROP_STATUSBAR_TEXT:
         _midori_browser_set_statusbar_text (browser, g_value_get_string (value));
         break;
@@ -2962,6 +3028,18 @@ midori_browser_get_property (GObject*    object,
 
     switch (prop_id)
     {
+    case PROP_MENUBAR:
+        g_value_set_object (value, priv->menubar);
+        break;
+    case PROP_NAVIGATIONBAR:
+        g_value_set_object (value, priv->navigationbar);
+        break;
+    case PROP_TAB:
+        g_value_set_object (value, midori_browser_get_current_tab (browser));
+        break;
+    case PROP_STATUSBAR:
+        g_value_set_object (value, priv->statusbar);
+        break;
     case PROP_STATUSBAR_TEXT:
         g_value_set_string (value, priv->statusbar_text);
         break;
@@ -3217,7 +3295,6 @@ midori_browser_set_current_page (MidoriBrowser* browser,
     gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
     GtkWidget* scrolled = gtk_notebook_get_nth_page (GTK_NOTEBOOK (priv->notebook), n);
     GtkWidget* widget = _midori_browser_child_for_scrolled (browser, scrolled);
-    printf ("_nth_page: %s\n", G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (widget)));
     if (widget && MIDORI_IS_WEB_VIEW (widget)
         && !strcmp (midori_web_view_get_display_uri (
         MIDORI_WEB_VIEW (widget)), ""))
@@ -3234,19 +3311,70 @@ midori_browser_set_current_page (MidoriBrowser* browser,
  *
  * If there is no page present at all, %NULL is returned.
  *
- * Return value: the selected page, or %NULL
+ * Return value: the selected page, or -1
+ **/
+gint
+midori_browser_get_current_page (MidoriBrowser* browser)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
+
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    return gtk_notebook_get_current_page (GTK_NOTEBOOK (priv->notebook));
+}
+
+/**
+ * midori_browser_set_current_tab:
+ * @browser: a #MidoriBrowser
+ * @widget: a #GtkWidget
+ *
+ * Switches to the page containing @widget.
+ *
+ * The widget will also grab the focus automatically.
+ **/
+void
+midori_browser_set_current_tab (MidoriBrowser* browser,
+                                GtkWidget*     widget)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    GtkWidget* scrolled = _midori_browser_scrolled_for_child (browser, widget);
+    gint n = gtk_notebook_page_num (GTK_NOTEBOOK (priv->notebook), scrolled);
+    gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
+    if (widget && MIDORI_IS_WEB_VIEW (widget)
+        && !strcmp (midori_web_view_get_display_uri (
+        MIDORI_WEB_VIEW (widget)), ""))
+        gtk_widget_grab_focus (priv->location);
+    else
+        gtk_widget_grab_focus (widget);
+}
+
+/**
+ * midori_browser_get_current_tab:
+ * @browser: a #MidoriBrowser
+ *
+ * Retrieves the currently selected tab.
+ *
+ * If there is no tab present at all, %NULL is returned.
+ *
+ * Return value: the selected tab, or %NULL
  **/
 GtkWidget*
-midori_browser_get_current_page (MidoriBrowser* browser)
+midori_browser_get_current_tab (MidoriBrowser* browser)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
     MidoriBrowserPrivate* priv = browser->priv;
 
     gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (priv->notebook));
-    GtkWidget* widget = _midori_browser_child_for_scrolled (browser,
-        gtk_notebook_get_nth_page (GTK_NOTEBOOK (priv->notebook), n));
-    return widget;
+    if (n >= 0)
+    {
+        GtkWidget* widget = _midori_browser_child_for_scrolled (browser,
+            gtk_notebook_get_nth_page (GTK_NOTEBOOK (priv->notebook), n));
+        return widget;
+    }
+    else
+        return NULL;
 }
 
 /**
@@ -3267,7 +3395,7 @@ midori_browser_get_current_web_view (MidoriBrowser* browser)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    GtkWidget* web_view = midori_browser_get_current_page (browser);
+    GtkWidget* web_view = midori_browser_get_current_tab (browser);
     return MIDORI_IS_WEB_VIEW (web_view) ? web_view : NULL;
 }
 

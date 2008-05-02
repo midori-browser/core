@@ -463,7 +463,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "close-buttons-on-tabs",
                                      _("Close Buttons on Tabs"),
                                      _("Whether tabs have close buttons"),
-                                     FALSE,
+                                     TRUE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
