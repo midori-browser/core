@@ -521,8 +521,11 @@ _js_document_load_script_file (JSContextRef js_context,
     GError* error = NULL;
     if (g_file_get_contents (filename, &script, NULL, &error))
     {
-        if (_js_eval (js_context, script, exception))
+        gchar* wrapped_script = g_strdup_printf (
+            "var wrapped = function () { %s }; wrapped ();", script);
+        if (_js_eval (js_context, wrapped_script, exception))
             result = TRUE;
+        g_free (wrapped_script);
         g_free (script);
     }
     else
