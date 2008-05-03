@@ -1637,6 +1637,7 @@ midori_browser_menu_bookmarks_item_activate_cb (GtkWidget*     widget,
                                                              "KatzeXbelItem");
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
     g_object_set (web_view, "uri", katze_xbel_bookmark_get_href (item), NULL);
+    gtk_widget_grab_focus (web_view);
 }
 
 static void
