@@ -361,7 +361,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     // Page "Privacy"
     PAGE_NEW (_("Privacy"));
-    FRAME_NEW (_("Cookies"));
+    FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
     INDENTED_ADD (label, 0, 1, 0, 1);
