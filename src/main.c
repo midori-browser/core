@@ -18,6 +18,7 @@
 #include "midori-trash.h"
 #include "midori-browser.h"
 #include <katze/katze.h>
+#include "gjs.h"
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -311,6 +312,19 @@ main (int argc, char** argv)
         return 0;
     }
 
+    // Standalone gjs support
+    if (argc > 1 && argv[1] && g_str_has_suffix (argv[1], ".js"))
+    {
+        JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);
+        gchar* exception = NULL;
+        gjs_script_from_file (js_context, argv[1], &exception);
+        JSGlobalContextRelease (js_context);
+        if (!exception)
+            return ;
+        printf ("%s - Exception: %s\n", argv[1], exception);
+        return 1;
+    }
+
     // Load configuration files
     GString* error_messages = g_string_new (NULL);
     gchar* config_path = g_build_filename (g_get_user_config_dir (),
@@ -474,8 +488,32 @@ main (int argc, char** argv)
         midori_browser_activate_action (browser, "Location");
     katze_xbel_item_unref (_session);
 
+    // Load extensions
+    JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);
+    // FIXME: We want to honor system installed addons as well
+    gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
+                                          "extensions", NULL);
+    GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
+    if (addon_dir)
+    {
+        const gchar* filename;
+        while ((filename = g_dir_read_name (addon_dir)))
+        {
+            gchar* fullname = g_build_filename (addon_path, filename, NULL);
+            gchar* exception = NULL;
+            gjs_script_from_file (js_context, fullname, &exception);
+            if (exception)
+            // FIXME: Do we want to print this somewhere else?
+            // FIXME Convert the filename to UTF8
+                printf ("%s - Exception: %s\n", filename, exception);
+            g_free (fullname);
+        }
+        g_dir_close (addon_dir);
+    }
+
     gtk_main ();
 
+    JSGlobalContextRelease (js_context);
     g_object_unref (accel_group);
 
     // Save configuration files
