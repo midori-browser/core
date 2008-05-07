@@ -221,7 +221,7 @@ katze_property_proxy (gpointer     object,
         gint value;
         g_object_get (object, property, &value, NULL);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
-        g_signal_connect (widget, "changed",
+        g_signal_connect (widget, "value-changed",
                           G_CALLBACK (proxy_spin_button_changed_cb), object);
     }
     else if (type == G_TYPE_PARAM_ENUM)
