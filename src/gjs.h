@@ -37,10 +37,11 @@ gjs_string_utf8 (JSStringRef js_string);
 
 JSObjectRef
 gjs_object_new (JSContextRef context,
+                const gchar* name,
                 gpointer     instance);
 
-gchar*
-gjs_string_utf8 (JSStringRef       js_string);
+JSGlobalContextRef
+gjs_global_context_new (void);
 
 G_END_DECLS
 

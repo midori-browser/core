@@ -315,7 +315,7 @@ main (int argc, char** argv)
     // Standalone gjs support
     if (argc > 1 && argv[1] && g_str_has_suffix (argv[1], ".js"))
     {
-        JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);
+        JSGlobalContextRef js_context = gjs_global_context_new ();
         gchar* exception = NULL;
         gjs_script_from_file (js_context, argv[1], &exception);
         JSGlobalContextRelease (js_context);
@@ -489,7 +489,7 @@ main (int argc, char** argv)
     katze_xbel_item_unref (_session);
 
     // Load extensions
-    JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);
+    JSGlobalContextRef js_context = gjs_global_context_new ();
     // FIXME: We want to honor system installed addons as well
     gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
                                           "extensions", NULL);
