@@ -43,6 +43,7 @@ struct _MidoriBrowserPrivate
     GtkWidget* throbber;
     GtkWidget* navigationbar;
     GtkWidget* button_tab_new;
+    GtkWidget* button_homepage;
     GtkWidget* location_icon;
     GtkWidget* location;
     GtkWidget* search;
@@ -1199,8 +1200,8 @@ _action_forward_activate (GtkAction*     action,
 }
 
 static void
-_action_home_activate (GtkAction*     action,
-                       MidoriBrowser* browser)
+_action_homepage_activate (GtkAction*     action,
+                           MidoriBrowser* browser)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
@@ -2102,9 +2103,6 @@ static const GtkActionEntry entries[] = {
  { "SelectAll", GTK_STOCK_SELECT_ALL,
    NULL, "<Ctrl>a",
    N_("Select all text"), G_CALLBACK (_action_select_all_activate) },
- { "FormFill", STOCK_FORM_FILL,
-   NULL, "",
-   "hm?", NULL/*G_CALLBACK (_action_form_fill_activate)*/ },
  { "Find", GTK_STOCK_FIND,
    NULL, "<Ctrl>f",
    "hm?", G_CALLBACK (_action_find_activate) },
@@ -2158,9 +2156,9 @@ static const GtkActionEntry entries[] = {
  { "Forward", GTK_STOCK_GO_FORWARD,
    NULL, "<Alt>Right",
    "hm?", G_CALLBACK (_action_forward_activate) },
- { "Home", STOCK_HOMEPAGE,
+ { "Homepage", STOCK_HOMEPAGE,
    NULL, "<Alt>Home",
-   "hm?", G_CALLBACK (_action_home_activate) },
+   "hm?", G_CALLBACK (_action_homepage_activate) },
  { "Location", GTK_STOCK_JUMP_TO,
    N_("Location..."), "<Ctrl>l",
    "hm?", G_CALLBACK (_action_location_activate) },
@@ -2365,7 +2363,7 @@ static const gchar* ui_markup =
    "<menu action='Go'>"
     "<menuitem action='Back'/>"
     "<menuitem action='Forward'/>"
-    "<menuitem action='Home'/>"
+    "<menuitem action='Homepage'/>"
     "<menuitem action='Location'/>"
     "<menuitem action='Search'/>"
     "<menuitem action='OpenInPageholder'/>"
@@ -2379,8 +2377,6 @@ static const gchar* ui_markup =
     "<menuitem action='Find'/>"
     "<menuitem action='FindNext'/>"
     "<menuitem action='FindPrevious'/>"
-    "<separator/>"
-    "<menuitem action='FormFill'/>"
    "</menu>"
    "<menu action='Bookmarks'>"
     "<menuitem action='BookmarkNew'/>"
@@ -2409,8 +2405,7 @@ static const gchar* ui_markup =
    "<toolitem action='Back'/>"
    "<toolitem action='Forward'/>"
    "<toolitem action='ReloadStop'/>"
-   "<toolitem action='Home'/>"
-   "<toolitem action='FormFill'/>"
+   "<toolitem action='Homepage'/>"
    "<placeholder name='Location'/>"
    "<placeholder name='Search'/>"
    "<placeholder name='TabTrash'/>"
@@ -2539,6 +2534,8 @@ midori_browser_init (MidoriBrowser* browser)
     priv->button_tab_new = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation/TabNew");
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
+    priv->button_homepage = gtk_ui_manager_get_widget (
+        ui_manager, "/toolbar_navigation/Homepage");
 
     // Location
     priv->location = sexy_icon_entry_new();
@@ -2912,7 +2909,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gint last_window_width, last_window_height;
     gint last_panel_position, last_panel_page;
     gboolean show_navigationbar, show_bookmarkbar, show_panel, show_statusbar;
-    gboolean small_toolbar, show_new_tab, show_web_search, show_trash;
+    gboolean small_toolbar, show_new_tab, show_homepage,
+        show_web_search, show_trash;
     MidoriToolbarStyle toolbar_style;
     gint last_web_search;
     gchar* last_pageholder_uri;
@@ -2928,6 +2926,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-statusbar", &show_statusbar,
                   "small-toolbar", &small_toolbar,
                   "show-new-tab", &show_new_tab,
+                  "show-homepage", &show_homepage,
                   "show-web-search", &show_web_search,
                   "show-trash", &show_trash,
                   "toolbar-style", &toolbar_style,
@@ -2967,6 +2966,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Statusbar", show_statusbar);
 
     sokoke_widget_set_visible (priv->button_tab_new, show_new_tab);
+    sokoke_widget_set_visible (priv->button_homepage, show_homepage);
     sokoke_widget_set_visible (priv->search, show_web_search);
     sokoke_widget_set_visible (priv->button_trash, show_trash);
 
@@ -2994,6 +2994,9 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
             : GTK_ICON_SIZE_LARGE_TOOLBAR);
     else if (name == g_intern_string ("show-new-tab"))
         sokoke_widget_set_visible (priv->button_tab_new,
+            g_value_get_boolean (&value));
+    else if (name == g_intern_string ("show-homepage"))
+        sokoke_widget_set_visible (priv->button_homepage,
             g_value_get_boolean (&value));
     else if (name == g_intern_string ("show-web-search"))
         sokoke_widget_set_visible (priv->search,

@@ -35,8 +35,9 @@ struct _MidoriWebSettingsPrivate
 
     MidoriToolbarStyle toolbar_style;
     gboolean small_toolbar;
-    gboolean show_web_search;
     gboolean show_new_tab;
+    gboolean show_homepage;
+    gboolean show_web_search;
     gboolean show_trash;
 
     MidoriStartup load_on_startup;
@@ -90,6 +91,7 @@ enum
     PROP_TOOLBAR_STYLE,
     PROP_SMALL_TOOLBAR,
     PROP_SHOW_NEW_TAB,
+    PROP_SHOW_HOMEPAGE,
     PROP_SHOW_WEB_SEARCH,
     PROP_SHOW_TRASH,
 
@@ -367,6 +369,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "show-new-tab",
                                      _("Show New Tab"),
                                      _("Show the New Tab button in the toolbar"),
+                                     TRUE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_HOMEPAGE,
+                                     g_param_spec_boolean (
+                                     "show-homepage",
+                                     _("Show Homepage"),
+                                     _("Show the Homepage button in the toolbar"),
                                      TRUE,
                                      flags));
 
@@ -688,6 +699,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_SHOW_NEW_TAB:
         priv->show_new_tab = g_value_get_boolean (value);
         break;
+    case PROP_SHOW_HOMEPAGE:
+        priv->show_homepage = g_value_get_boolean (value);
+        break;
     case PROP_SHOW_WEB_SEARCH:
         priv->show_web_search = g_value_get_boolean (value);
         break;
@@ -843,6 +857,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_SHOW_NEW_TAB:
         g_value_set_boolean (value, priv->show_new_tab);
+        break;
+    case PROP_SHOW_HOMEPAGE:
+        g_value_set_boolean (value, priv->show_homepage);
         break;
     case PROP_SHOW_WEB_SEARCH:
         g_value_set_boolean (value, priv->show_web_search);
