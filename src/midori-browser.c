@@ -736,6 +736,9 @@ static void
 _action_open_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    static gchar* last_dir = NULL;
+    gchar* uri = NULL;
+    gboolean folder_set = FALSE;
     GtkWidget* dialog = gtk_file_chooser_dialog_new (
         ("Open file"), GTK_WINDOW (browser),
         GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -743,11 +746,41 @@ _action_open_activate (GtkAction*     action,
         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
         NULL);
      gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
+     gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
+
+     // base the start folder on the current web view's uri if it is local
+     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
+     if (web_view)
+         g_object_get (web_view, "uri", &uri, NULL);
+     if (uri)
+     {
+         gchar* filename = g_filename_from_uri (uri, NULL, NULL);
+         if (filename)
+         {
+             gchar* dirname = g_path_get_dirname (filename);
+             if (dirname && g_file_test (dirname, G_FILE_TEST_IS_DIR))
+             {
+                 gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), dirname);
+                 folder_set = TRUE;
+             }
+
+             g_free (dirname);
+             g_free (filename);
+         }
+         g_free (uri);
+     }
+
+     if (!folder_set && last_dir && *last_dir)
+         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
+
      if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
      {
-         gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-         GtkWidget* web_view = midori_browser_get_current_web_view (browser);
+         uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+         gchar* folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
          g_object_set (web_view, "uri", uri, NULL);
+
+         g_free (last_dir);
+         last_dir = folder;
          g_free (uri);
      }
     gtk_widget_destroy (dialog);
