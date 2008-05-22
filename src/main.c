@@ -121,11 +121,6 @@ static void
 locale_init (void)
 {
 #ifdef ENABLE_NLS
-
-#if HAVE_LOCALE_H
-    setlocale (LC_ALL, "");
-#endif
-
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
@@ -320,7 +315,7 @@ main (int argc, char** argv)
         gjs_script_from_file (js_context, argv[1], &exception);
         JSGlobalContextRelease (js_context);
         if (!exception)
-            return ;
+            return 0;
         printf ("%s - Exception: %s\n", argv[1], exception);
         return 1;
     }
