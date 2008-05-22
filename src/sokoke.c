@@ -129,11 +129,17 @@ void sokoke_widget_set_tooltip_text(GtkWidget* widget, const gchar* text)
     #endif
 }
 
-void sokoke_tool_item_set_tooltip_text(GtkToolItem* toolitem, const gchar* text)
+void
+sokoke_tool_item_set_tooltip_text (GtkToolItem* toolitem, const gchar* text)
 {
     // TODO: Use 2.12 api if available
-    GtkTooltips* tooltips = gtk_tooltips_new();
-    gtk_tool_item_set_tooltip(toolitem, tooltips, text, NULL);
+    static GtkTooltips* tooltips = NULL;
+
+    if (G_UNLIKELY (!tooltips))
+        tooltips = gtk_tooltips_new();
+
+    if (text && *text)
+        gtk_tool_item_set_tooltip (toolitem, tooltips, text, NULL);
 }
 
 typedef struct
