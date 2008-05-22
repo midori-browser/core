@@ -14,22 +14,20 @@
 #include "sokoke.h"
 #include "search.h"
 
+#include "midori-app.h"
 #include "midori-websettings.h"
 #include "midori-trash.h"
 #include "midori-browser.h"
-#include <katze/katze.h>
 #include "gjs.h"
 
+#include <katze/katze.h>
 #include <string.h>
 #include <gtk/gtk.h>
 
 #include "config.h"
 
 #ifdef ENABLE_NLS
-# include <libintl.h>
-# if HAVE_LOCALE_H
-#  include <locale.h>
-# endif
+    #include <libintl.h>
 #endif
 
 // -- stock icons
@@ -74,47 +72,6 @@ static void stock_items_init(void)
     gtk_stock_add_static(items, G_N_ELEMENTS(items));
     gtk_icon_factory_add_default(factory);
     g_object_unref(factory);
-}
-
-static gboolean
-midori_browser_delete_event_cb (MidoriBrowser* browser,
-                                GdkEvent*      event,
-                                GList*         browsers)
-{
-    browsers = g_list_remove (browsers, browser);
-    if (g_list_nth (browsers, 0))
-        return FALSE;
-    gtk_main_quit ();
-    return TRUE;
-}
-
-static void
-midori_browser_quit_cb (MidoriBrowser* browser,
-                        GdkEvent*      event,
-                        GList*         browsers)
-{
-    gtk_main_quit ();
-}
-
-static void
-midori_browser_new_window_cb (MidoriBrowser* browser,
-                              const gchar*   uri,
-                              GList*         browsers)
-{
-    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
-                                               // "settings", settings,
-                                               // "trash", trash,
-                                               NULL);
-    // gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
-    g_object_connect (new_browser,
-        "signal::new-window", midori_browser_new_window_cb, browsers,
-        "signal::delete-event", midori_browser_delete_event_cb, browsers,
-        "signal::quit", midori_browser_quit_cb, browsers,
-        NULL);
-    browsers = g_list_prepend(browsers, new_browser);
-    gtk_widget_show (GTK_WIDGET (new_browser));
-
-    midori_browser_append_uri (new_browser, uri);
 }
 
 static void
@@ -441,11 +398,12 @@ main (int argc, char** argv)
     }
     g_free (config_path);
 
-    stock_items_init();
+    stock_items_init ();
 
-    MidoriTrash* trash = g_object_new (MIDORI_TYPE_TRASH,
-                                       "limit", 10,
-                                       NULL);
+    MidoriApp* app = midori_app_new ();
+    g_object_set (app, "settings", settings, NULL);
+
+    MidoriTrash* trash = midori_app_get_trash (app);
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
     guint i;
     for (i = 0; i < n; i++)
@@ -454,20 +412,12 @@ main (int argc, char** argv)
         midori_trash_prepend_xbel_item (trash, item);
     }
 
-    GtkAccelGroup* accel_group = gtk_accel_group_new();
-    GList* browsers = NULL;
-
     MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
                                            "settings", settings,
                                            "trash", trash,
                                            NULL);
-    gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
-    g_object_connect (browser,
-        "signal::new-window", midori_browser_new_window_cb, browsers,
-        "signal::delete-event", midori_browser_delete_event_cb, browsers,
-        "signal::quit", midori_browser_quit_cb, browsers,
-        NULL);
-    browsers = g_list_prepend (browsers, browser);
+    g_signal_emit_by_name (app, "add-browser", browser);
+
     gtk_widget_show (GTK_WIDGET (browser));
 
     KatzeXbelItem* session = katze_xbel_folder_new ();
@@ -509,7 +459,6 @@ main (int argc, char** argv)
     gtk_main ();
 
     JSGlobalContextRelease (js_context);
-    g_object_unref (accel_group);
 
     // Save configuration files
     config_path = g_build_filename (g_get_user_config_dir(), PACKAGE_NAME,

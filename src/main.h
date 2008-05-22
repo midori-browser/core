@@ -12,7 +12,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__ 1
 
-#include "midori-websettings.h"
 #include <katze/katze.h>
 
 #include <gtk/gtk.h>

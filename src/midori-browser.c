@@ -540,7 +540,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
         "window-object-cleared",
         G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriBrowserClass, window_object_cleared),
         0,
         NULL,
@@ -553,7 +553,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     signals[STATUSBAR_TEXT_CHANGED] = g_signal_new (
         "statusbar-text-changed",
         G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriBrowserClass, statusbar_text_changed),
         0,
         NULL,
@@ -564,7 +564,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     signals[ELEMENT_MOTION] = g_signal_new (
         "element-motion",
         G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriBrowserClass, element_motion),
         0,
         NULL,
@@ -585,7 +585,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     signals[NEW_WINDOW] = g_signal_new (
         "new-window",
         G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriBrowserClass, new_window),
         0,
         NULL,
@@ -807,7 +807,7 @@ static void
 _action_quit_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-    gtk_main_quit ();
+    g_signal_emit (browser, signals[QUIT], 0);
 }
 
 static void
@@ -2305,6 +2305,16 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
     }
 }
 
+static void
+midori_browser_destroy_cb (MidoriBrowser* browser)
+{
+    MidoriBrowserPrivate* priv = browser->priv;
+
+    // Destroy tabs first, so widgets can still see window elements on destroy
+    gtk_container_foreach (GTK_CONTAINER (priv->notebook),
+                           G_CALLBACK (gtk_widget_destroy), NULL);
+}
+
 static const gchar* ui_markup =
  "<ui>"
   "<menubar>"
@@ -2437,6 +2447,8 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (midori_browser_window_state_event_cb), NULL);
     g_signal_connect (browser, "size-allocate",
                       G_CALLBACK (midori_browser_size_allocate_cb), NULL);
+    g_signal_connect (browser, "destroy",
+                      G_CALLBACK (midori_browser_destroy_cb), NULL);
     // FIXME: Use custom program icon
     gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
     gtk_window_set_title (GTK_WINDOW (browser), g_get_application_name ());
@@ -3037,6 +3049,8 @@ midori_browser_set_property (GObject*      object,
         _midori_browser_update_settings (browser);
         g_signal_connect (priv->settings, "notify",
                       G_CALLBACK (midori_browser_settings_notify), browser);
+        // FIXME: Assigning settings must be conditional, if web view or not
+        // FIXME: Assign settings only if the same settings object was used
         gtk_container_foreach (GTK_CONTAINER (priv->notebook),
                                (GtkCallback) midori_web_view_set_settings,
                                priv->settings);
@@ -3097,17 +3111,18 @@ midori_browser_get_property (GObject*    object,
  *
  * Creates a new browser widget.
  *
- * A browser is a window with toolbars and one or multiple web views.
+ * A browser is a window with a menubar, toolbars, a notebook, panels
+ * and a statusbar. You should mostly treat it as an opaque widget.
  *
  * Return value: a new #MidoriBrowser
  **/
-GtkWidget*
+MidoriBrowser*
 midori_browser_new (void)
 {
     MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
                                            NULL);
 
-    return GTK_WIDGET (browser);
+    return browser;
 }
 
 /**

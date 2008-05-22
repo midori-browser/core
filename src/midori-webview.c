@@ -108,7 +108,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[PROGRESS_STARTED] = g_signal_new (
         "progress-started",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, progress_started),
         0,
         NULL,
@@ -119,7 +119,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[PROGRESS_CHANGED] = g_signal_new (
         "progress-changed",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, progress_changed),
         0,
         NULL,
@@ -130,7 +130,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[PROGRESS_DONE] = g_signal_new (
         "progress-done",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, progress_done),
         0,
         NULL,
@@ -141,7 +141,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[LOAD_DONE] = g_signal_new (
         "load-done",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, load_done),
         0,
         NULL,
@@ -152,7 +152,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[ELEMENT_MOTION] = g_signal_new(
         "element-motion",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, element_motion),
         0,
         NULL,
@@ -184,7 +184,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[NEW_WINDOW] = g_signal_new(
         "new-window",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, new_window),
         0,
         NULL,

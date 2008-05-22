@@ -122,7 +122,7 @@ midori_panel_class_init (MidoriPanelClass* class)
     signals[SWITCH_PAGE] = g_signal_new (
         "switch-page",
         G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriPanelClass, switch_page),
         0,
         NULL,

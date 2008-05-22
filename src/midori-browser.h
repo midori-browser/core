@@ -68,7 +68,7 @@ struct _MidoriBrowserClass
 GType
 midori_browser_get_type               (void);
 
-GtkWidget*
+MidoriBrowser*
 midori_browser_new                    (void);
 
 gint

@@ -63,7 +63,7 @@ midori_trash_class_init (MidoriTrashClass* class)
     signals[INSERTED] = g_signal_new (
         "inserted",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriTrashClass, inserted),
         0,
         NULL,
@@ -74,7 +74,7 @@ midori_trash_class_init (MidoriTrashClass* class)
     signals[REMOVED] = g_signal_new (
         "removed",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriTrashClass, removed),
         0,
         NULL,
