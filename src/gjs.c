@@ -326,15 +326,11 @@ _js_object_call_as_function_cb (JSContextRef     js_context,
 
     if (!n_arguments)
     {
-        gtk_widget_show (GTK_WIDGET (object));
     }
     else if (n_arguments == 1)
     {
         JSObjectRef js_arg1 = JSValueToObject (
             js_context, js_arguments[0], NULL);
-        GObject* arg1 = JSObjectGetPrivate (js_arg1);
-        if (arg1)
-            gtk_container_add (GTK_CONTAINER (object), GTK_WIDGET (arg1));
     }
 
     return JSValueMakeUndefined (js_context);
@@ -478,7 +474,7 @@ gjs_module_new (JSContextRef js_context,
     js_class_def.hasProperty = _js_module_has_property_cb;
     js_class_def.getProperty = _js_module_get_property_cb;
     JSClassRef js_class = JSClassCreate (&js_class_def);
-    JSObjectRef js_module = JSObjectMake (js_context, js_class, namespace);
+    JSObjectRef js_module = JSObjectMake (js_context, js_class, (gpointer)namespace);
     return js_module;
 }
 

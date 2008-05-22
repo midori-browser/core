@@ -565,7 +565,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
         "element-motion",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-        G_STRUCT_OFFSET (MidoriBrowserClass, new_window),
+        G_STRUCT_OFFSET (MidoriBrowserClass, element_motion),
         0,
         NULL,
         g_cclosure_marshal_VOID__STRING,

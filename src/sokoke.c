@@ -17,9 +17,6 @@
 #include "main.h"
 
 #include <string.h>
-#ifdef HAVE_UNISTD_H
-    #include <unistd.h>
-#endif
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
@@ -89,12 +86,6 @@ sokoke_entry_append_completion (GtkEntry* entry, const gchar* text)
     gtk_list_store_insert (GTK_LIST_STORE (completion_store), &iter, 0);
     gtk_list_store_set (GTK_LIST_STORE (completion_store), &iter, 0, text, -1);
 }
-
-#if SOKOKE_DEBUG > 1
-    #define UNIMPLEMENTED g_print(" * Unimplemented: %s\n", G_STRFUNC);
-#else
-    #define UNIMPLEMENTED ;
-#endif
 
 void sokoke_combo_box_add_strings(GtkComboBox* combobox
  , const gchar* labelFirst, ...)

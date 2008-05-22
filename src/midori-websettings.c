@@ -485,7 +485,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
-                                     flags));
+                                     G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_MIDDLE_CLICK_OPENS_SELECTION,

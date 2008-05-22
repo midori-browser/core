@@ -14,6 +14,7 @@
 #include "midori-addons.h"
 
 #include "sokoke.h"
+#include "gjs.h"
 #include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
