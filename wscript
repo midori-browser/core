@@ -85,12 +85,16 @@ def build (bld):
         install_files ('DATADIR', 'applications', 'midori.desktop')
 
 def shutdown ():
-    dir = Common.path_install('DATADIR', 'icons/hicolor')
-    if Params.g_commands['install']:
-        if not Params.g_options.destdir:
-            # update the pixmap cache directory
-            Params.pprint('YELLOW', "Updating Gtk icon cache.")
+    dir = Common.path_install ('DATADIR', 'icons/hicolor')
+    icon_cache_updated = False
+    if not Params.g_options.destdir:
+        # update the pixmap cache directory
+        try:
             subprocess.call (['gtk-update-icon-cache', '-q', '-f', '-t', dir])
-        else:
-            Params.pprint('YELLOW', "Icon cache not updated. After install, run this:")
-            Params.pprint('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
+            Params.pprint ('YELLOW', "Updated Gtk icon cache.")
+            icon_cache_updated = True
+        except:
+            Params.pprint ('RED', "Failed to update icon cache.")
+    if not icon_cache_updated:
+        Params.pprint ('YELLOW', "Icon cache not updated. After install, run this:")
+        Params.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
