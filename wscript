@@ -2,7 +2,8 @@
 # WAF build script for midori
 
 import Params
-import subprocess
+import pproc as subprocess
+import Common
 
 APPNAME = 'midori'
 VERSION = '0.0.18'
@@ -58,7 +59,7 @@ def configure (conf):
     conf.define ('SOKOKE_DEBUG_', '-')
     conf.write_config_header ('config.h')
 
-def set_options(opt):
+def set_options (opt):
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
 
@@ -82,3 +83,14 @@ def build (bld):
         Params.pprint ('BLUE', "File midori.desktop not generated")
     if bld.env ()['INTLTOOL']:
         install_files ('DATADIR', 'applications', 'midori.desktop')
+
+def shutdown ():
+    dir = Common.path_install('DATADIR', 'icons/hicolor')
+    if Params.g_commands['install']:
+        if not Params.g_options.destdir:
+            # update the pixmap cache directory
+            Params.pprint('YELLOW', "Updating Gtk icon cache.")
+            subprocess.call (['gtk-update-icon-cache', '-q', '-f', '-t', dir])
+        else:
+            Params.pprint('YELLOW', "Icon cache not updated. After install, run this:")
+            Params.pprint('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)

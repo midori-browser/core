@@ -2312,7 +2312,7 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
 
     // Destroy tabs first, so widgets can still see window elements on destroy
     gtk_container_foreach (GTK_CONTAINER (priv->notebook),
-                           G_CALLBACK (gtk_widget_destroy), NULL);
+                           (GtkCallback) gtk_widget_destroy, NULL);
 }
 
 static const gchar* ui_markup =
@@ -2436,6 +2436,20 @@ static const gchar* ui_markup =
  "</ui>";
 
 static void
+midori_browser_realize_cb (GtkStyle* style, MidoriBrowser* browser)
+{
+    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (browser));
+    if (screen)
+    {
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+        if (gtk_icon_theme_has_icon (icon_theme, "midori"))
+            gtk_window_set_icon_name (GTK_WINDOW (browser), "midori");
+        else
+            gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
+    }
+}
+
+static void
 midori_browser_init (MidoriBrowser* browser)
 {
     browser->priv = MIDORI_BROWSER_GET_PRIVATE (browser);
@@ -2443,13 +2457,14 @@ midori_browser_init (MidoriBrowser* browser)
     MidoriBrowserPrivate* priv = browser->priv;
 
     // Setup the window metrics
+    g_signal_connect (browser, "realize",
+                      G_CALLBACK (midori_browser_realize_cb), browser);
     g_signal_connect (browser, "window-state-event",
                       G_CALLBACK (midori_browser_window_state_event_cb), NULL);
     g_signal_connect (browser, "size-allocate",
                       G_CALLBACK (midori_browser_size_allocate_cb), NULL);
     g_signal_connect (browser, "destroy",
                       G_CALLBACK (midori_browser_destroy_cb), NULL);
-    // FIXME: Use custom program icon
     gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
     gtk_window_set_title (GTK_WINDOW (browser), g_get_application_name ());
     GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
