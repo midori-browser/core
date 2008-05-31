@@ -272,7 +272,7 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
                                                "settings", priv->settings,
                                                "trash", priv->trash,
                                                NULL);
-    midori_browser_append_uri (new_browser, uri);
+    midori_browser_add_uri (new_browser, uri);
     gtk_widget_show (GTK_WIDGET (new_browser));
 
     g_signal_emit (app, signals[ADD_BROWSER], 0, new_browser);

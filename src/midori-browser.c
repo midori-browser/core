@@ -96,8 +96,12 @@ enum
     WINDOW_OBJECT_CLEARED,
     STATUSBAR_TEXT_CHANGED,
     ELEMENT_MOTION,
-    QUIT,
     NEW_WINDOW,
+
+    ADD_TAB,
+    ADD_URI,
+    ACTIVATE_ACTION,
+    QUIT,
 
     LAST_SIGNAL
 };
@@ -452,7 +456,7 @@ midori_web_view_new_tab_cb (GtkWidget*     web_view,
                             const gchar*   uri,
                             MidoriBrowser* browser)
 {
-    gint n = midori_browser_append_uri (browser, uri);
+    gint n = midori_browser_add_uri (browser, uri);
     _midori_browser_set_current_page_smartly (browser, n);
 }
 
@@ -535,6 +539,80 @@ midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
 }
 
 static void
+midori_cclosure_marshal_INT__OBJECT (GClosure*     closure,
+                                     GValue*       return_value,
+                                     guint         n_param_values,
+                                     const GValue* param_values,
+                                     gpointer      invocation_hint,
+                                     gpointer      marshal_data)
+{
+    typedef gint(*GMarshalFunc_INT__OBJECT) (gpointer  data1,
+                                             gpointer  arg_1,
+                                             gpointer  data2);
+    register GMarshalFunc_INT__OBJECT callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+    gint v_return;
+
+    g_return_if_fail (return_value != NULL);
+    g_return_if_fail (n_param_values == 2);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_INT__OBJECT) (marshal_data
+        ? marshal_data : cc->callback);
+    v_return = callback (data1,
+                         g_value_get_object (param_values + 1),
+                         data2);
+    g_value_set_int (return_value, v_return);
+}
+
+static void
+midori_cclosure_marshal_INT__STRING (GClosure*     closure,
+                                     GValue*       return_value,
+                                     guint         n_param_values,
+                                     const GValue* param_values,
+                                     gpointer      invocation_hint,
+                                     gpointer      marshal_data)
+{
+    typedef gint(*GMarshalFunc_INT__STRING) (gpointer      data1,
+                                             const gchar*  arg_1,
+                                             gpointer      data2);
+    register GMarshalFunc_INT__STRING callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+    gint v_return;
+
+    g_return_if_fail (return_value != NULL);
+    g_return_if_fail (n_param_values == 2);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_INT__STRING) (marshal_data
+        ? marshal_data : cc->callback);
+    v_return = callback (data1,
+                         g_value_get_string (param_values + 1),
+                         data2);
+    g_value_set_int (return_value, v_return);
+}
+
+static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
     signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
@@ -572,16 +650,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
 
-    signals[QUIT] = g_signal_new (
-        "quit",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-        0,
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__VOID,
-        G_TYPE_NONE, 0);
-
     signals[NEW_WINDOW] = g_signal_new (
         "new-window",
         G_TYPE_FROM_CLASS (class),
@@ -593,6 +661,54 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
 
+    signals[ADD_TAB] = g_signal_new (
+        "add-tab",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, add_tab),
+        0,
+        NULL,
+        midori_cclosure_marshal_INT__OBJECT,
+        G_TYPE_INT, 1,
+        GTK_TYPE_WIDGET);
+
+    signals[ADD_URI] = g_signal_new (
+        "add-uri",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, add_uri),
+        0,
+        NULL,
+        midori_cclosure_marshal_INT__STRING,
+        G_TYPE_INT, 1,
+        G_TYPE_STRING);
+
+    signals[ACTIVATE_ACTION] = g_signal_new (
+        "activate-action",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, activate_action),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
+
+    signals[QUIT] = g_signal_new (
+        "quit",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (MidoriBrowserClass, quit),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0);
+
+    class->add_tab = midori_browser_add_tab;
+    class->add_uri = midori_browser_add_uri;
+    class->activate_action = midori_browser_activate_action;
+    class->quit = midori_browser_quit;
+
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_browser_finalize;
     gobject_class->set_property = midori_browser_set_property;
@@ -600,11 +716,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
 
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
-    /**
-    * MidoriBrowser::menubar
-    *
-    * The menubar.
-    */
     g_object_class_install_property (gobject_class,
                                      PROP_MENUBAR,
                                      g_param_spec_object (
@@ -614,11 +725,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      GTK_TYPE_MENU_BAR,
                                      G_PARAM_READABLE));
 
-    /**
-    * MidoriBrowser::navigationbar
-    *
-    * The navigationbar.
-    */
     g_object_class_install_property (gobject_class,
                                      PROP_NAVIGATIONBAR,
                                      g_param_spec_object (
@@ -628,11 +734,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      GTK_TYPE_TOOLBAR,
                                      G_PARAM_READABLE));
 
-    /**
-    * MidoriBrowser::tab
-    *
-    * The current tab.
-    */
     g_object_class_install_property (gobject_class,
                                      PROP_TAB,
                                      g_param_spec_object (
@@ -642,11 +743,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      GTK_TYPE_WIDGET,
                                      G_PARAM_READWRITE));
 
-    /**
-    * MidoriBrowser::statusbar
-    *
-    * The statusbar.
-    */
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR,
                                      g_param_spec_object (
@@ -657,7 +753,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      G_PARAM_READABLE));
 
     /**
-    * MidoriBrowser::settings
+    * MidoriBrowser:settings:
     *
     * An associated settings instance that is shared among all web views.
     *
@@ -674,7 +770,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      G_PARAM_READWRITE));
 
     /**
-    * MidoriBrowser::statusbar-text
+    * MidoriBrowser:statusbar-text:
     *
     * The text that is displayed in the statusbar.
     *
@@ -694,7 +790,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      flags));
 
     /**
-    * MidoriBrowser::trash
+    * MidoriBrowser:trash:
     *
     * The trash, that collects all closed tabs and windows.
     *
@@ -728,7 +824,7 @@ _action_tab_new_activate (GtkAction*     action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    gint n = midori_browser_append_uri (browser, "");
+    gint n = midori_browser_add_uri (browser, "");
     midori_browser_set_current_page (browser, n);
     gtk_widget_grab_focus (priv->location);
 }
@@ -1015,7 +1111,7 @@ midori_browser_menu_trash_item_activate_cb (GtkWidget*     menuitem,
     KatzeXbelItem* item = g_object_get_data (G_OBJECT (menuitem),
                                              "KatzeXbelItem");
     const gchar* uri = katze_xbel_bookmark_get_href (item);
-    gint n = midori_browser_append_uri (browser, uri);
+    gint n = midori_browser_add_uri (browser, uri);
     midori_browser_set_current_page (browser, n);
     katze_xbel_item_unref (item);
 }
@@ -1521,7 +1617,7 @@ midori_panel_bookmarks_button_release_event_cb (GtkWidget*      widget,
             if (event->button == 2 && katze_xbel_item_is_bookmark (item))
             {
                 const gchar* uri = katze_xbel_bookmark_get_href (item);
-                gint n = midori_browser_append_uri (browser, uri);
+                gint n = midori_browser_add_uri (browser, uri);
                 midori_browser_set_current_page (browser, n);
             }
             else
@@ -1943,7 +2039,7 @@ _action_bookmark_open_tab_activate (GtkAction*     action,
             gtk_tree_model_get (model, &iter, 0, &item, -1);
             if (katze_xbel_item_is_bookmark (item))
             {
-                gint n = midori_browser_append_xbel_item (browser, item);
+                gint n = midori_browser_add_xbel_item (browser, item);
                 _midori_browser_set_current_page_smartly (browser, n);
             }
         }
@@ -1968,7 +2064,7 @@ _action_bookmark_open_window_activate (GtkAction*     action,
             gtk_tree_model_get (model, &iter, 0, &item, -1);
             if (katze_xbel_item_is_bookmark (item))
             {
-                gint n = midori_browser_append_xbel_item (browser, item);
+                gint n = midori_browser_add_xbel_item (browser, item);
                 _midori_browser_set_current_page_smartly (browser, n);
             }
         }
@@ -2005,7 +2101,7 @@ _action_undo_tab_close_activate (GtkAction*     action,
 
     // Reopen the most recent trash item
     KatzeXbelItem* item = midori_trash_get_nth_xbel_item (priv->trash, 0);
-    gint n = midori_browser_append_xbel_item (browser, item);
+    gint n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
     midori_trash_remove_nth_item (priv->trash, 0);
     _midori_browser_update_actions (browser);
@@ -3141,7 +3237,7 @@ midori_browser_new (void)
 }
 
 /**
- * midori_browser_append_tab:
+ * midori_browser_add_tab:
  * @browser: a #MidoriBrowser
  * @widget: a tab
  *
@@ -3151,8 +3247,8 @@ midori_browser_new (void)
  * Return value: the index of the new tab, or -1 in case of an error
  **/
 gint
-midori_browser_append_tab (MidoriBrowser* browser,
-                           GtkWidget*     widget)
+midori_browser_add_tab (MidoriBrowser* browser,
+                        GtkWidget*     widget)
 {
     g_return_val_if_fail (GTK_IS_WIDGET (widget), -1);
 
@@ -3274,7 +3370,7 @@ midori_browser_remove_tab (MidoriBrowser* browser,
 }
 
 /**
- * midori_browser_append_xbel_item:
+ * midori_browser_add_xbel_item:
  * @browser: a #MidoriBrowser
  * @xbel_item: a bookmark
  *
@@ -3283,8 +3379,8 @@ midori_browser_remove_tab (MidoriBrowser* browser,
  * Return value: the index of the new tab, or -1 in case of an error
  **/
 gint
-midori_browser_append_xbel_item (MidoriBrowser* browser,
-                                 KatzeXbelItem* xbel_item)
+midori_browser_add_xbel_item (MidoriBrowser* browser,
+                              KatzeXbelItem* xbel_item)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
@@ -3299,11 +3395,11 @@ midori_browser_append_xbel_item (MidoriBrowser* browser,
                                         NULL);
     gtk_widget_show (web_view);
 
-    return midori_browser_append_tab (browser, web_view);
+    return midori_browser_add_tab (browser, web_view);
 }
 
 /**
- * midori_browser_append_uri:
+ * midori_browser_add_uri:
  * @browser: a #MidoriBrowser
  * @uri: an URI
  *
@@ -3312,8 +3408,8 @@ midori_browser_append_xbel_item (MidoriBrowser* browser,
  * Return value: the index of the new tab, or -1
  **/
 gint
-midori_browser_append_uri (MidoriBrowser* browser,
-                           const gchar*   uri)
+midori_browser_add_uri (MidoriBrowser* browser,
+                        const gchar*   uri)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
@@ -3323,7 +3419,7 @@ midori_browser_append_uri (MidoriBrowser* browser,
                                         NULL);
     gtk_widget_show (web_view);
 
-    return midori_browser_append_tab (browser, web_view);
+    return midori_browser_add_tab (browser, web_view);
 }
 
 /**
@@ -3493,4 +3589,18 @@ midori_browser_get_proxy_xbel_folder (MidoriBrowser* browser)
         // FIXME: Fill in xbel items of all present web views
     }
     return priv->proxy_xbel_folder;
+}
+
+/**
+ * midori_browser_quit:
+ * @browser: a #MidoriBrowser
+ *
+ * Quits the browser, including any other browser windows.
+ **/
+void
+midori_browser_quit (MidoriBrowser* browser)
+{
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+
+    g_signal_emit (browser, signals[QUIT], 0);
 }

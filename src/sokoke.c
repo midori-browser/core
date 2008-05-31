@@ -328,50 +328,64 @@ void sokoke_widget_set_pango_font_style(GtkWidget* widget, PangoStyle style)
     }
 }
 
-static gboolean sokoke_on_entry_focus_in_event(GtkEntry* entry, GdkEventFocus *event
- , gpointer userdata)
+static gboolean
+sokoke_on_entry_focus_in_event (GtkEntry*      entry,
+                                GdkEventFocus* event,
+                                gpointer       userdata)
 {
-    gboolean defaultText = (gboolean)g_object_get_data(G_OBJECT(entry)
-     , "sokoke_hasDefaultText");
-    if(defaultText)
+    gint default_text = GPOINTER_TO_INT (
+        g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));
+    if (default_text)
     {
-        gtk_entry_set_text(entry, "");
-        g_object_set_data(G_OBJECT(entry), "sokoke_hasDefaultText", (gpointer)FALSE);
-        sokoke_widget_set_pango_font_style(GTK_WIDGET(entry), PANGO_STYLE_NORMAL);
+        gtk_entry_set_text (entry, "");
+        g_object_set_data (G_OBJECT(entry), "sokoke_has_default",
+                           GINT_TO_POINTER (0));
+        sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
+                                            PANGO_STYLE_NORMAL);
     }
     return FALSE;
 }
 
-static gboolean sokoke_on_entry_focus_out_event(GtkEntry* entry, GdkEventFocus* event
- , gpointer userdata)
+static gboolean
+sokoke_on_entry_focus_out_event (GtkEntry*      entry,
+                                 GdkEventFocus* event,
+                                 gpointer       userdata)
 {
-    const gchar* text = gtk_entry_get_text(entry);
-    if(text && !*text)
+    const gchar* text = gtk_entry_get_text (entry);
+    if (text && !*text)
     {
-        const gchar* defaultText = (const gchar*)g_object_get_data(
-         G_OBJECT(entry), "sokoke_defaultText");
-        gtk_entry_set_text(entry, defaultText);
-        g_object_set_data(G_OBJECT(entry), "sokoke_hasDefaultText", (gpointer)TRUE);
-        sokoke_widget_set_pango_font_style(GTK_WIDGET(entry), PANGO_STYLE_ITALIC);
+        const gchar* defaultText = (const gchar*)g_object_get_data (
+         G_OBJECT (entry), "sokoke_default_text");
+        gtk_entry_set_text (entry, defaultText);
+        g_object_set_data (G_OBJECT(entry),
+                           "sokoke_has_default", GINT_TO_POINTER (1));
+        sokoke_widget_set_pango_font_style (GTK_WIDGET(entry),
+                                            PANGO_STYLE_ITALIC);
     }
     return FALSE;
 }
 
-void sokoke_entry_set_default_text(GtkEntry* entry, const gchar* defaultText)
+void
+sokoke_entry_set_default_text (GtkEntry*    entry,
+                               const gchar* default_text)
 {
     // Note: The default text initially overwrites any previous text
-    gchar* oldValue = g_object_get_data(G_OBJECT(entry), "sokoke_defaultText");
-    if(!oldValue)
+    gchar* old_value = g_object_get_data (G_OBJECT (entry),
+                                          "sokoke_default_text");
+    if (!old_value)
     {
-        g_object_set_data(G_OBJECT(entry), "sokoke_hasDefaultText", (gpointer)TRUE);
-        sokoke_widget_set_pango_font_style(GTK_WIDGET(entry), PANGO_STYLE_ITALIC);
-        gtk_entry_set_text(entry, defaultText);
+        g_object_set_data (G_OBJECT (entry), "sokoke_has_default",
+                           GINT_TO_POINTER (1));
+        sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
+                                            PANGO_STYLE_ITALIC);
+        gtk_entry_set_text (entry, default_text);
     }
-    g_object_set_data(G_OBJECT(entry), "sokoke_defaultText", (gpointer)defaultText);
-    g_signal_connect(entry, "focus-in-event"
-     , G_CALLBACK(sokoke_on_entry_focus_in_event), NULL);
-    g_signal_connect(entry, "focus-out-event"
-     , G_CALLBACK(sokoke_on_entry_focus_out_event), NULL);
+    g_object_set_data (G_OBJECT (entry), "sokoke_default_text",
+                       (gpointer)default_text);
+    g_signal_connect (entry, "focus-in-event",
+        G_CALLBACK (sokoke_on_entry_focus_in_event), NULL);
+    g_signal_connect (entry, "focus-out-event",
+        G_CALLBACK (sokoke_on_entry_focus_out_event), NULL);
 }
 
 gchar* sokoke_key_file_get_string_default(GKeyFile* keyFile

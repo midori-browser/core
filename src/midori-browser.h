@@ -59,10 +59,20 @@ struct _MidoriBrowserClass
     (*element_motion)          (MidoriBrowser*       browser,
                                 const gchar*         link_uri);
     void
-    (*quit)                    (MidoriBrowser*       browser);
-    void
     (*new_window)              (MidoriBrowser*       browser,
                                 const gchar*         uri);
+
+    void
+    (*add_tab)                 (MidoriBrowser*       browser,
+                                GtkWidget*           widget);
+    void
+    (*add_uri)                 (MidoriBrowser*       browser,
+                                const gchar*         uri);
+    void
+    (*activate_action)         (MidoriBrowser*       browser,
+                                const gchar*         name);
+    void
+    (*quit)                    (MidoriBrowser*       browser);
 };
 
 GType
@@ -72,7 +82,7 @@ MidoriBrowser*
 midori_browser_new                    (void);
 
 gint
-midori_browser_append_tab             (MidoriBrowser*     browser,
+midori_browser_add_tab                (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
 void
@@ -80,11 +90,11 @@ midori_browser_remove_tab             (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
 gint
-midori_browser_append_xbel_item       (MidoriBrowser*     browser,
+midori_browser_add_xbel_item          (MidoriBrowser*     browser,
                                        KatzeXbelItem*     xbel_item);
 
 gint
-midori_browser_append_uri             (MidoriBrowser*     browser,
+midori_browser_add_uri                (MidoriBrowser*     browser,
                                        const gchar*       uri);
 
 void
@@ -110,6 +120,9 @@ midori_browser_get_current_web_view   (MidoriBrowser*     browser);
 
 KatzeXbelItem*
 midori_browser_get_proxy_xbel_folder  (MidoriBrowser*     browser);
+
+void
+midori_browser_quit                   (MidoriBrowser*     browser);
 
 G_END_DECLS
 

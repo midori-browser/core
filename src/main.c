@@ -425,7 +425,7 @@ main (int argc, char** argv)
     for (i = 0; i < n; i++)
     {
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, i);
-        midori_browser_append_xbel_item (browser, item);
+        midori_browser_add_xbel_item (browser, item);
     }
     // FIXME: Switch to the last active page
     KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, 0);

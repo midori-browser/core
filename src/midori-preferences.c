@@ -147,9 +147,6 @@ midori_preferences_get_property (GObject*    object,
                                  GValue*     value,
                                  GParamSpec* pspec)
 {
-    MidoriPreferences* preferences = MIDORI_PREFERENCES (object);
-    MidoriPreferencesPrivate* priv = preferences->priv;
-
     switch (prop_id)
     {
     default:
