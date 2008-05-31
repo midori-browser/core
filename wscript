@@ -66,7 +66,7 @@ def set_options(opt):
         help='Disables native language support', dest='disable_nls')
 
 def build (bld):
-    bld.add_subdirs ('katze src')
+    bld.add_subdirs ('katze src data')
 
     if bld.env ()['INTLTOOL']:
         bld.add_subdirs ('po')
