@@ -75,6 +75,13 @@ gint
 sokoke_key_file_get_integer_default(GKeyFile*, const gchar*, const gchar*
  , const gint, GError**);
 
+gdouble
+sokoke_key_file_get_double_default (GKeyFile*    key_file,
+                                    const gchar* group,
+                                    const gchar* key,
+                                    gdouble      default_value,
+                                    GError**     error);
+
 gboolean
 sokoke_key_file_get_boolean_default (GKeyFile*    key_file,
                                      const gchar* group,

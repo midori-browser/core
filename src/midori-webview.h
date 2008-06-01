@@ -113,6 +113,9 @@ midori_web_view_get_display_title      (MidoriWebView*     web_view);
 const gchar*
 midori_web_view_get_link_uri           (MidoriWebView*     web_view);
 
+gfloat
+midori_web_view_get_zoom_level         (MidoriWebView*     web_view);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_VIEW_H__ */

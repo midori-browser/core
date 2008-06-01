@@ -173,20 +173,26 @@ _midori_browser_update_interface (MidoriBrowser* browser)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
+    gboolean loading = FALSE;
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    gboolean loading = midori_web_view_is_loading (MIDORI_WEB_VIEW (web_view));
-    /*_action_set_sensitive (browser, "ZoomIn",
-        webkit_web_view_can_increase_text_size (WEBKIT_WEB_VIEW (web_view)));
-    _action_set_sensitive (browser, "ZoomOut",
-        webkit_web_view_can_decrease_text_size (WEBKIT_WEB_VIEW (web_view)));
-    _action_set_sensitive (browser, "ZoomNormal",
-        webkit_web_view_get_text_size (WEBKIT_WEB_VIEW (web_view)) != 1);*/
-    _action_set_sensitive (browser, "Back",
-        webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (web_view)));
-    _action_set_sensitive (browser, "Forward",
-        webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (web_view)));
-    _action_set_sensitive (browser, "Reload", !loading);
-    _action_set_sensitive (browser, "Stop", loading);
+    if (web_view)
+    {
+        loading = midori_web_view_is_loading (MIDORI_WEB_VIEW (web_view));
+        _action_set_sensitive (browser, "ZoomNormal",
+            midori_web_view_get_zoom_level (MIDORI_WEB_VIEW (web_view)) != 1.0);
+        if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_view),
+                                           "zoom-level"))
+        {
+            _action_set_sensitive (browser, "ZoomIn", FALSE);
+            _action_set_sensitive (browser, "ZoomOut", FALSE);
+        }
+        _action_set_sensitive (browser, "Back",
+            webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (web_view)));
+        _action_set_sensitive (browser, "Forward",
+            webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (web_view)));
+        _action_set_sensitive (browser, "Reload", !loading);
+        _action_set_sensitive (browser, "Stop", loading);
+    }
 
     GtkAction* action = gtk_action_group_get_action (priv->action_group,
                                                      "ReloadStop");
@@ -1230,33 +1236,49 @@ _action_reload_stop_activate (GtkAction*     action,
     g_free (stock_id);
 }
 
-/*static void
+static void
 _action_zoom_in_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    const gfloat zoom = webkit_web_view_get_text_multiplier (
-        WEBKIT_WEB_VIEW (web_view));
-    webkit_web_view_set_text_multiplier (WEBKIT_WEB_VIEW (web_view), zoom + 0.1);
-}*/
+    if (web_view && g_object_class_find_property (
+        G_OBJECT_GET_CLASS (web_view), "zoom-level"))
+    {
+        MidoriBrowserPrivate* priv = browser->priv;
 
-/*static void
+        gfloat zoom_level, zoom_step;
+        g_object_get (web_view, "zoom-level", &zoom_level, NULL);
+        g_object_get (priv->settings, "zoom-step", &zoom_step, NULL);
+        g_object_set (web_view, "zoom-level", zoom_level + zoom_step, NULL);
+    }
+}
+
+static void
 _action_zoom_out_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    const gfloat zoom = webkit_web_view_get_text_multiplier (
-        WEBKIT_WEB_VIEW (web_view));
-    webkit_web_view_set_text_multiplier (WEBKIT_WEB_VIEW (web_view), zoom - 0.1);
-}*/
+    if (web_view && g_object_class_find_property (
+        G_OBJECT_GET_CLASS (web_view), "zoom-level"))
+    {
+        MidoriBrowserPrivate* priv = browser->priv;
 
-/*static void
+        gfloat zoom_level, zoom_step;
+        g_object_get (web_view, "zoom-level", &zoom_level, NULL);
+        g_object_get (priv->settings, "zoom-step", &zoom_step, NULL);
+        g_object_set (web_view, "zoom-level", zoom_level - zoom_step, NULL);
+    }
+}
+
+static void
 _action_zoom_normal_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    webkit_web_view_set_text_multiplier (WEBKIT_WEB_VIEW (web_View, 1));
-}*/
+    if (web_view && g_object_class_find_property (
+        G_OBJECT_GET_CLASS (web_view), "zoom-level"))
+        g_object_set (web_view, "zoom-level", 1.0, NULL);
+}
 
 /*static void
 _action_source_view_activate (GtkAction*     action,
@@ -2228,13 +2250,13 @@ static const GtkActionEntry entries[] = {
    N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "ZoomIn", GTK_STOCK_ZOOM_IN,
    NULL, "<Ctrl>plus",
-   "hm?", NULL/*G_CALLBACK (_action_zoom_in_activate)*/ },
+   "hm?", G_CALLBACK (_action_zoom_in_activate) },
  { "ZoomOut", GTK_STOCK_ZOOM_OUT,
    NULL, "<Ctrl>minus",
-   "hm?", NULL/*G_CALLBACK (_action_zoom_out_activate)*/ },
+   "hm?", G_CALLBACK (_action_zoom_out_activate) },
  { "ZoomNormal", GTK_STOCK_ZOOM_100,
    NULL, "<Ctrl>0",
-   "hm?", NULL/*G_CALLBACK (_action_zoom_normal_activate)*/ },
+   "hm?", G_CALLBACK (_action_zoom_normal_activate) },
  { "SourceView", NULL,
    N_("View Source"), "",
     "hm?", /*G_CALLBACK (_action_source_view_activate)*/ },
@@ -2609,7 +2631,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     // Create the menubar
     priv->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
-    GtkWidget* menuitem = gtk_menu_item_new();
+    GtkWidget* menuitem = gtk_menu_item_new ();
     gtk_widget_show (menuitem);
     priv->throbber = katze_throbber_new();
     gtk_widget_show(priv->throbber);
@@ -2661,7 +2683,7 @@ midori_browser_init (MidoriBrowser* browser)
         ui_manager, "/toolbar_navigation/Homepage");
 
     // Location
-    priv->location = sexy_icon_entry_new();
+    priv->location = sexy_icon_entry_new ();
     sokoke_entry_setup_completion (GTK_ENTRY (priv->location));
     priv->location_icon = gtk_image_new ();
     sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (priv->location)
@@ -2722,7 +2744,7 @@ midori_browser_init (MidoriBrowser* browser)
     priv->bookmarkbar = gtk_toolbar_new ();
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->bookmarkbar),
                                GTK_ICON_SIZE_MENU);
-    gtk_toolbar_set_style (GTK_TOOLBAR(priv->bookmarkbar),
+    gtk_toolbar_set_style (GTK_TOOLBAR (priv->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
     _midori_browser_create_bookmark_menu (browser, bookmarks,
                                           priv->menu_bookmarks);
