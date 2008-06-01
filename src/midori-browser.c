@@ -192,7 +192,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
             webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (web_view)));
         _action_set_sensitive (browser, "Reload", !loading);
         _action_set_sensitive (browser, "Stop", loading);
+        _action_set_sensitive (browser, "Print", TRUE);
     }
+    else
+        _action_set_sensitive (browser, "Print", FALSE);
 
     GtkAction* action = gtk_action_group_get_action (priv->action_group,
                                                      "ReloadStop");
@@ -903,6 +906,15 @@ _action_window_close_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
     gtk_widget_destroy (GTK_WIDGET (browser));
+}
+
+static void
+_action_print_activate (GtkAction*     action,
+                        MidoriBrowser* browser)
+{
+    GtkWidget* web_view = midori_browser_get_current_tab (browser);
+    if (web_view)
+        webkit_web_view_execute_script (WEBKIT_WEB_VIEW (web_view), "print ();");
 }
 
 static void
@@ -2191,7 +2203,7 @@ static const GtkActionEntry entries[] = {
    "hm?", NULL/*G_CALLBACK (_action_print_preview_activate)*/ },
  { "Print", GTK_STOCK_PRINT,
    NULL, "<Ctrl>p",
-   "hm?", NULL/*G_CALLBACK (_action_print_activate)*/ },
+   "hm?", G_CALLBACK (_action_print_activate) },
  { "Quit", GTK_STOCK_QUIT,
    NULL, "<Ctrl>q",
    N_("Quit the application"), G_CALLBACK (_action_quit_activate) },
