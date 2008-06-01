@@ -24,6 +24,7 @@ def configure (conf):
     if not Params.g_options.disable_nls:
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
+            conf.find_program ('intltool-update', var='INTLTOOL_UPDATE')
             nls = 'yes'
             conf.define ('ENABLE_NLS', 1)
             conf.define ('MIDORI_LOCALEDIR', 'LOCALEDIR', 0)
