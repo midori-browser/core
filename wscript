@@ -23,8 +23,7 @@ def configure (conf):
     conf.check_tool ('compiler_cc')
     if not Params.g_options.disable_nls:
         conf.check_tool ('intltool')
-        # FIXME if we have intltool but not msgfmt the build breaks
-        if conf.env['INTLTOOL']:
+        if conf.env['INTLTOOL'] and conf.env['POCOM']:
             nls = 'yes'
             conf.define ('ENABLE_NLS', 1)
             conf.define ('MIDORI_LOCALEDIR', 'LOCALEDIR', 0)
@@ -69,7 +68,7 @@ def set_options (opt):
         help='Disables native language support', dest='disable_nls')
 
 def build (bld):
-    bld.add_subdirs ('katze src data')
+    bld.add_subdirs ('katze midori data')
 
     if bld.env ()['INTLTOOL']:
         bld.add_subdirs ('po')

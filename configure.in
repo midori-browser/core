@@ -1,6 +1,6 @@
 # Register ourselves to autoconf
 AC_INIT([midori], [0.0.18], [christian@twotoasts.de])
-AC_CONFIG_SRCDIR([src/main.h])
+AC_CONFIG_SRCDIR([midori/main.h])
 AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
@@ -101,19 +101,8 @@ fi
 AC_CONFIG_FILES([
     Makefile       \
     katze/Makefile \
-    src/Makefile   \
+    midori/Makefile   \
     po/Makefile.in \
     data/Makefile
 ])
 AC_OUTPUT
-
-# Show us what we have
-echo
-echo "    GTK+2        $GTK_VER"
-echo "    WebKit       $WEBKIT_VER"
-echo "    Libsexy      $LIBSEXY_VER"
-echo "    libXML2      $LIBXML_VER"
-echo
-echo "    Debugging    $enable_debug"
-echo
-echo "    Prefix       $prefix"
