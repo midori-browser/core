@@ -25,7 +25,7 @@ void
 sokoke_entry_setup_completion  (GtkEntry* entry);
 
 void
-sokoke_entry_append_completion (GtkEntry* entry,
+sokoke_entry_append_completion (GtkEntry*    entry,
                                 const gchar* text);
 
 typedef enum {
@@ -35,45 +35,60 @@ typedef enum {
 } SokokeMenuPos;
 
 void
-sokoke_combo_box_add_strings(GtkComboBox*, const gchar*, ...);
+sokoke_combo_box_add_strings (GtkComboBox* combobox,
+                              const gchar* label_first, ...);
 
 void
-sokoke_widget_set_visible(GtkWidget*, gboolean);
+sokoke_widget_set_visible (GtkWidget* widget,
+                           gboolean   visible);
 
 void
-sokoke_container_show_children(GtkContainer*);
+sokoke_container_show_children (GtkContainer* container);
 
 void
-sokoke_widget_set_tooltip_text(GtkWidget*, const gchar*);
+sokoke_widget_set_tooltip_text (GtkWidget*   widget,
+                                const gchar* text);
 
 void
-sokoke_tool_item_set_tooltip_text(GtkToolItem*, const gchar*);
+sokoke_tool_item_set_tooltip_text (GtkToolItem* toolitem,
+                                   const gchar* text);
 
 void
-sokoke_widget_popup(GtkWidget*, GtkMenu*, GdkEventButton*, SokokeMenuPos pos);
-
-gpointer
-sokoke_xfce_header_new(const gchar*, const gchar*);
-
-gpointer
-sokoke_superuser_warning_new(void);
+sokoke_widget_popup (GtkWidget*      widget,
+                     GtkMenu*        menu,
+                     GdkEventButton* event,
+                     SokokeMenuPos   pos);
 
 GtkWidget*
-sokoke_hig_frame_new(const gchar*);
+sokoke_xfce_header_new (const gchar* icon,
+                        const gchar* title);
+
+GtkWidget*
+sokoke_superuser_warning_new (void);
+
+GtkWidget*
+sokoke_hig_frame_new (const gchar* title);
 
 void
-sokoke_widget_set_pango_font_style(GtkWidget*, PangoStyle);
+sokoke_widget_set_pango_font_style (GtkWidget* widget,
+                                    PangoStyle style);
 
 void
 sokoke_entry_set_default_text(GtkEntry*, const gchar*);
 
 gchar*
-sokoke_key_file_get_string_default(GKeyFile*, const gchar*, const gchar*
- , const gchar*, GError**);
+sokoke_key_file_get_string_default (GKeyFile*    key_file,
+                                    const gchar* group,
+                                    const gchar* key,
+                                    const gchar* default_value,
+                                    GError**     error);
 
 gint
-sokoke_key_file_get_integer_default(GKeyFile*, const gchar*, const gchar*
- , const gint, GError**);
+sokoke_key_file_get_integer_default (GKeyFile*    key_file,
+                                     const gchar* group,
+                                     const gchar* key,
+                                     const gint   default_value,
+                                     GError**     error);
 
 gdouble
 sokoke_key_file_get_double_default (GKeyFile*    key_file,
@@ -90,12 +105,14 @@ sokoke_key_file_get_boolean_default (GKeyFile*    key_file,
                                      GError**     error);
 
 gboolean
-sokoke_key_file_save_to_file(GKeyFile*, const gchar*, GError**);
+sokoke_key_file_save_to_file (GKeyFile*    key_file,
+                              const gchar* filename,
+                              GError**     error);
 
 void
-sokoke_widget_get_text_size(GtkWidget*, const gchar*, gint*, gint*);
-
-void
-sokoke_menu_item_set_accel(GtkMenuItem*, const gchar*, const gchar*, GdkModifierType);
+sokoke_widget_get_text_size (GtkWidget*   widget,
+                             const gchar* text,
+                             gint*        width,
+                             gint*        height);
 
 #endif /* !__SOKOKE_H__ */
