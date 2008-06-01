@@ -16,6 +16,9 @@
 #include "config.h"
 #include "main.h"
 
+#ifdef HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
 #include <string.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
@@ -279,21 +282,25 @@ gpointer sokoke_xfce_header_new(const gchar* icon, const gchar* title)
     return NULL;
 }
 
-gpointer sokoke_superuser_warning_new(void)
+gpointer
+sokoke_superuser_warning_new (void)
 {
     // Create a horizontal bar with a security warning
     // This returns NULL if the user is no superuser
     #ifdef HAVE_UNISTD_H
-    if(G_UNLIKELY(!geteuid())) // effective superuser?
+    if (G_UNLIKELY (!geteuid ())) // effective superuser?
     {
-        GtkWidget* hbox = gtk_event_box_new();
-        gtk_widget_modify_bg(hbox, GTK_STATE_NORMAL
-         , &hbox->style->bg[GTK_STATE_SELECTED]);
-        GtkWidget* label = gtk_label_new(_("Warning: You are using a superuser account!"));
-        gtk_misc_set_padding(GTK_MISC(label), 0, 2);
-        gtk_widget_modify_fg(GTK_WIDGET(label), GTK_STATE_NORMAL
-         , &GTK_WIDGET(label)->style->fg[GTK_STATE_SELECTED]);
-        gtk_container_add(GTK_CONTAINER(hbox), GTK_WIDGET(label));
+        GtkWidget* hbox = gtk_event_box_new ();
+        gtk_widget_modify_bg (hbox, GTK_STATE_NORMAL,
+                              &hbox->style->bg[GTK_STATE_SELECTED]);
+        GtkWidget* label = gtk_label_new (
+            _("Warning: You are using a superuser account!"));
+        gtk_misc_set_padding (GTK_MISC (label), 0, 2);
+        gtk_widget_modify_fg (GTK_WIDGET (label), GTK_STATE_NORMAL,
+            &GTK_WIDGET (label)->style->fg[GTK_STATE_SELECTED]);
+        gtk_widget_show (label);
+        gtk_container_add (GTK_CONTAINER(hbox), GTK_WIDGET (label));
+        gtk_widget_show (hbox);
         return hbox;
     }
     #endif
