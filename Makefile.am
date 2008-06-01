@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = katze src po
+SUBDIRS = katze src po data
 
 desktopdir = $(datadir)/applications
 desktop_in_files = midori.desktop
