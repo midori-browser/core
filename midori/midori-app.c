@@ -251,7 +251,7 @@ midori_app_get_property (GObject*    object,
     }
 }
 
-static void
+static gboolean
 midori_browser_focus_in_event_cb (MidoriBrowser* browser,
                                   GdkEventFocus* event,
                                   MidoriApp*     app)
@@ -259,6 +259,7 @@ midori_browser_focus_in_event_cb (MidoriBrowser* browser,
     MidoriAppPrivate* priv = app->priv;
 
     priv->browser = browser;
+    return FALSE;
 }
 
 static void
