@@ -37,7 +37,7 @@ KatzeXbelItem* bookmarks;
 
 // We assume that these legacy icon names are usually present
 
-#define STOCK_BOOKMARK_NEW       "stock_add-bookmark"
+#define STOCK_BOOKMARK_ADD       "stock_add-bookmark"
 #define STOCK_HOMEPAGE           GTK_STOCK_HOME
 #define STOCK_IMAGE              "gnome-mime-image"
 #define STOCK_LOCK_OPEN          "stock_lock-open"

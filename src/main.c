@@ -44,9 +44,9 @@ static void stock_items_init(void)
         { STOCK_USER_TRASH },
 
         { STOCK_BOOKMARK,       N_("Bookmark"), 0, 0, NULL },
-        { STOCK_BOOKMARK_NEW,   N_("New Bookmark"), 0, 0, NULL },
+        { STOCK_BOOKMARK_ADD,   N_("_Add Bookmark"), 0, 0, NULL },
         { STOCK_FORM_FILL,      N_("_Form Fill"), 0, 0, NULL },
-        { STOCK_HOMEPAGE,       N_("Homepage"), 0, 0, NULL },
+        { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, NULL },
         { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, NULL },
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, NULL },
         #if !GTK_CHECK_VERSION(2, 10, 0)
@@ -54,7 +54,7 @@ static void stock_items_init(void)
         #endif
         #if !GTK_CHECK_VERSION(2, 8, 0)
         { GTK_STOCK_FULLSCREEN, N_("_Fullscreen"), 0, 0, NULL },
-        { GTK_STOCK_FULLSCREEN, N_("_Leave Fullscreen"), 0, 0, NULL },
+        { GTK_STOCK_LEAVE_FULLSCREEN, N_("_Leave Fullscreen"), 0, 0, NULL },
         #endif
     };
     GtkIconFactory* factory = gtk_icon_factory_new();
@@ -157,7 +157,7 @@ settings_new_from_file (const gchar* filename)
             g_type_class_unref (enum_class);
         }
         else
-            g_warning (_("Unhandled settings property '%s'"), property);
+            g_warning (_("Unhandled settings value '%s'"), property);
     }
     return settings;
 }

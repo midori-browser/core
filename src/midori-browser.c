@@ -436,7 +436,7 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
         menuitem = gtk_separator_menu_item_new ();
         gtk_widget_show (menuitem);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        action = _action_by_name (browser, "BookmarkNew");
+        action = _action_by_name (browser, "BookmarkAdd");
         menuitem = gtk_action_create_menu_item (action);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         action = _action_by_name (browser, "SaveAs");
@@ -1858,7 +1858,7 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
 }
 
 static void
-_action_bookmark_new_activate (GtkAction*     action,
+_action_bookmark_add_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
     midori_browser_edit_bookmark_dialog_new (browser, NULL);
@@ -2308,9 +2308,9 @@ static const GtkActionEntry entries[] = {
    N_("Open the last closed tab"), G_CALLBACK (_action_undo_tab_close_activate) },
 
  { "Bookmarks", NULL, N_("_Bookmarks") },
- { "BookmarkNew", STOCK_BOOKMARK_NEW,
+ { "BookmarkAdd", STOCK_BOOKMARK_ADD,
    NULL, "<Ctrl>d",
-   N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_new_activate) },
+   N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_add_activate) },
  { "BookmarksManage", NULL,
    N_("_Manage Bookmarks"), "<Ctrl>b",
    N_("Add, edit and remove bookmarks..."), NULL/*G_CALLBACK (_action_bookmarks_manage_activate)*/ },
@@ -2518,7 +2518,7 @@ static const gchar* ui_markup =
     "<menuitem action='FindPrevious'/>"
    "</menu>"
    "<menu action='Bookmarks'>"
-    "<menuitem action='BookmarkNew'/>"
+    "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='BookmarksManage'/>"
     "<separator/>"
     // Bookmarks shall be appended here
@@ -2550,7 +2550,7 @@ static const gchar* ui_markup =
    "<placeholder name='TabTrash'/>"
   "</toolbar>"
   "<toolbar name='toolbar_bookmarks'>"
-   "<toolitem action='BookmarkNew'/>"
+   "<toolitem action='BookmarkAdd'/>"
    "<toolitem action='BookmarkEdit'/>"
    "<toolitem action='BookmarkDelete'/>"
   "</toolbar>"
