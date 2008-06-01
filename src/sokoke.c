@@ -30,6 +30,14 @@ sokoke_magic_uri (const gchar* uri, const gchar* default_search_uri)
     // Add file:// if we have a local path
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);
+    // Construct an absolute path if the file is relative
+    if (g_file_test (uri, G_FILE_TEST_EXISTS) && g_file_test (uri, G_FILE_TEST_IS_REGULAR))
+    {
+        gchar* current_dir = g_get_current_dir ();
+        gchar* result = g_strconcat ("file://", current_dir, G_DIR_SEPARATOR_S, uri, NULL);
+        g_free (current_dir);
+        return result;
+    }
     // Do we need to add a protocol?
     if (!strstr (uri, "://"))
     {
