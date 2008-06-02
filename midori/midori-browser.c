@@ -1468,7 +1468,17 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkSizeGroup* sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     if (new_bookmark)
+    {
+        GtkWidget* web_view = midori_browser_get_current_web_view (browser);
         bookmark = katze_xbel_bookmark_new ();
+        if (MIDORI_IS_WEB_VIEW (web_view))
+        {
+            katze_xbel_item_set_title (bookmark,
+                midori_web_view_get_display_title (MIDORI_WEB_VIEW (web_view)));
+            katze_xbel_bookmark_set_href (bookmark,
+                midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view)));
+        }
+    }
 
     GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
@@ -1477,11 +1487,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     GtkWidget* entry_title = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_title), TRUE);
-    if (!new_bookmark)
-    {
-        const gchar* title = katze_xbel_item_get_title (bookmark);
-        gtk_entry_set_text (GTK_ENTRY (entry_title), title ? title : "");
-    }
+    const gchar* title = katze_xbel_item_get_title (bookmark);
+    gtk_entry_set_text (GTK_ENTRY (entry_title), title ? title : "");
     gtk_box_pack_start (GTK_BOX (hbox), entry_title, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
     gtk_widget_show_all (hbox);
@@ -1512,9 +1519,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         entry_uri = gtk_entry_new ();
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
-        if (!new_bookmark)
-            gtk_entry_set_text (GTK_ENTRY (entry_uri),
-                                katze_xbel_bookmark_get_href (bookmark));
+        gtk_entry_set_text (GTK_ENTRY (entry_uri),
+                            katze_xbel_bookmark_get_href (bookmark));
         gtk_box_pack_start (GTK_BOX(hbox), entry_uri, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
         gtk_widget_show_all (hbox);
