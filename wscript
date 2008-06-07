@@ -47,18 +47,11 @@ def configure (conf):
         icons = 'no'
     conf.check_message_custom ('icon optimization', 'support', icons)
 
-    # FIXME we need numbers
-    conf.define ('GTK_VER', '-')
-    conf.define ('WEBKIT_VER', '-')
-    conf.define ('LIBXML_VER', '-')
-    conf.define ('LIBSEXY_VER', '-')
-
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
-    conf.define ('PACKAGE_BUGREPORT', 'christian@twotoasts.de')
+    conf.define ('PACKAGE_BUGREPORT', 'http://software.twotoasts.de/bugs')
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
-    conf.define ('SOKOKE_DEBUG_', '-')
     conf.write_config_header ('config.h')
 
 def set_options (opt):

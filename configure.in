@@ -1,5 +1,5 @@
 # Register ourselves to autoconf
-AC_INIT([midori], [0.0.18], [christian@twotoasts.de])
+AC_INIT([midori], [0.0.18], [http://software.twotoasts.de/bugs])
 AC_CONFIG_SRCDIR([midori/main.h])
 AC_CONFIG_HEADER([config.h])
 
@@ -20,14 +20,11 @@ AC_C_CONST
 
 # Checks if we want debugging support
 AC_ARG_ENABLE([debug],
-AC_HELP_STRING([--enable-debug=@<:@no/simple/yes@:>@]
- , [Turn on debugging @<:@default=simple@:>@])
- , [], [enable_debug=simple])
+AC_HELP_STRING([--enable-debug=@<:@no/yes@:>@]
+ , [Enable debugging @<:@default=yes@:>@])
+ , [], [enable_debug=yes])
 AC_MSG_CHECKING([whether to enable debugging support])
 AC_MSG_RESULT([$enable_debug])
-if test x"$enable_debug" = x"simple"; then
-  AC_DEFINE([SOKOKE_DEBUG], 1, [Level of debugging support])
-fi
 if test x"$enable_debug" = x"yes"; then
   # Check whether the compiler accepts -Wall
   save_CFLAGS="$CFLAGS"
@@ -39,9 +36,7 @@ if test x"$enable_debug" = x"yes"; then
     AC_MSG_RESULT([no])
     CFLAGS="$save_CFLAGS"
   ])
-  AC_DEFINE([SOKOKE_DEBUG], 2, [Level of debugging support])
 fi
-AC_DEFINE_UNQUOTED([SOKOKE_DEBUG_], "$enable_debug", [Debugging?])
 
 # Checks for GTK+2
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.6, have_gtk=true, have_gtk=false)
@@ -50,8 +45,6 @@ if test "x${have_gtk}" = "xfalse" ; then
 fi
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
-GTK_VER=`pkg-config --modversion gtk+-2.0`
-AC_DEFINE_UNQUOTED([GTK_VER], "$GTK_VER", [GTK+ version])
 
 # Checks for WebKit
 PKG_CHECK_MODULES(WEBKIT, webkit-1.0, have_webkit=true, have_webkit=false)
@@ -60,8 +53,6 @@ if test "x${have_webkit}" = "xfalse" ; then
 fi
 AC_SUBST(WEBKIT_CFLAGS)
 AC_SUBST(WEBKIT_LIBS)
-WEBKIT_VER=`pkg-config --modversion webkit-1.0`
-AC_DEFINE_UNQUOTED([WEBKIT_VER], "$WEBKIT_VER", [WebKit version])
 
 # Checks for libsexy
 PKG_CHECK_MODULES(LIBSEXY, libsexy, have_libsexy=true, have_libsexy=false)
@@ -70,8 +61,6 @@ if test "x${have_libsexy}" = "xfalse" ; then
 fi
 AC_SUBST(LIBSEXY_CFLAGS)
 AC_SUBST(LIBSEXY_LIBS)
-LIBSEXY_VER=`pkg-config --modversion libsexy`
-AC_DEFINE_UNQUOTED([LIBSEXY_VER], "$LIBSEXY_VER", [Libsexy version])
 
 # Checks for LibXML2
 PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= 2.6, have_libxml=true, have_libxml=false)
@@ -80,8 +69,6 @@ if test "x${have_libxml}" = "xfalse" ; then
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
-LIBXML_VER=`pkg-config --modversion libxml-2.0`
-AC_DEFINE_UNQUOTED([LIBXML_VER], "$LIBXML_VER", [libXML2 version])
 
 # i18n
 GETTEXT_PACKAGE=midori
