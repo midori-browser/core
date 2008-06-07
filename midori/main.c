@@ -219,7 +219,7 @@ settings_save_to_file (MidoriWebSettings* settings,
                                    enum_value->value_name);
         }
         else
-            g_warning (_("Unhandled settings property '%s'"), property);
+            g_warning (_("Unhandled settings value '%s'"), property);
     }
     gboolean saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
@@ -255,21 +255,13 @@ main (int argc, char** argv)
     if (version)
     {
         g_print (
-          "%s %s - Copyright (c) 2007-2008 Christian Dywan\n\n"
-          "GTK+2:  \t\t%s\n"
-          "WebKit: \t\t%s\n"
-          "Libsexy:\t\t%s\n"
-          "libXML2:\t\t%s\n"
-          "\n"
-          "%s:\t\t%s\n"
-          "\n"
+          "%s %s\n\n"
+          "Copyright (c) 2007-2008 Christian Dywan\n\n"
           "%s\n"
-          "\t%s\n"
+          "\t%s\n\n"
           "%s\n"
           "\thttp://software.twotoasts.de\n",
           _("midori"), PACKAGE_VERSION,
-          GTK_VER, WEBKIT_VER, LIBSEXY_VER, LIBXML_VER,
-          _("Debugging"), SOKOKE_DEBUG_,
           _("Please report comments, suggestions and bugs to:"),
           PACKAGE_BUGREPORT,
           _("Check for new versions at:")
