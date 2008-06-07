@@ -76,10 +76,10 @@ def build (bld):
 
     if bld.env ()['INTLTOOL']:
         obj = bld.create_obj ('intltool_in')
-        obj.source  = 'midori.desktop.in'
-        obj.destvar = 'PREFIX'
-        obj.subdir  = 'share/applications'
-        obj.flags   = '-d'
+        obj.source   = 'midori.desktop.in'
+        obj.inst_var = 'DATADIR'
+        obj.inst_dir = 'applications'
+        obj.flags    = '-d'
     else:
         # FIXME: process desktop.in without intltool
         Params.pprint ('BLUE', "File midori.desktop not generated")
