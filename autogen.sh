@@ -7,3 +7,6 @@ aclocal
 autoheader
 autoconf
 automake --add-missing --copy
+
+echo "Now running the configure script"
+./configure $*
