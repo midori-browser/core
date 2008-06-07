@@ -62,10 +62,10 @@ struct _MidoriBrowserClass
     (*new_window)              (MidoriBrowser*       browser,
                                 const gchar*         uri);
 
-    void
+    gint
     (*add_tab)                 (MidoriBrowser*       browser,
                                 GtkWidget*           widget);
-    void
+    gint
     (*add_uri)                 (MidoriBrowser*       browser,
                                 const gchar*         uri);
     void

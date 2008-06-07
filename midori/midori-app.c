@@ -72,18 +72,11 @@ midori_app_get_property (GObject*    object,
                          GParamSpec* pspec);
 
 static void
-midori_app_add_browser (MidoriApp*     app,
-                        MidoriBrowser* browser);
-
-static void
-midori_app_quit (MidoriApp* app);
-
-static void
 midori_app_class_init (MidoriAppClass* class)
 {
     signals[ADD_BROWSER] = g_signal_new (
         "add-browser",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriAppClass, add_browser),
         0,
@@ -94,7 +87,7 @@ midori_app_class_init (MidoriAppClass* class)
 
     signals[QUIT] = g_signal_new (
         "quit",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriAppClass, quit),
         0,
@@ -296,7 +289,7 @@ midori_browser_destroy_cb (MidoriBrowser* browser,
     priv->browsers = g_list_remove (priv->browsers, browser);
     if (g_list_nth (priv->browsers, 0))
         return FALSE;
-    g_signal_emit (app, signals[QUIT], 0);
+    midori_app_quit (app);
     return TRUE;
 }
 
@@ -304,31 +297,7 @@ static void
 midori_browser_quit_cb (MidoriBrowser* browser,
                         MidoriApp*     app)
 {
-    g_signal_emit (app, signals[QUIT], 0);
-}
-
-static void
-midori_app_add_browser (MidoriApp*     app,
-                        MidoriBrowser* browser)
-{
-    MidoriAppPrivate* priv = app->priv;
-
-    gtk_window_add_accel_group (GTK_WINDOW (browser), priv->accel_group);
-    g_object_connect (browser,
-        "signal::focus-in-event", midori_browser_focus_in_event_cb, app,
-        "signal::new-window", midori_browser_new_window_cb, app,
-        "signal::delete-event", midori_browser_delete_event_cb, app,
-        "signal::destroy", midori_browser_destroy_cb, app,
-        "signal::quit", midori_browser_quit_cb, app,
-        NULL);
-
-    priv->browsers = g_list_prepend (priv->browsers, browser);
-}
-
-static void
-midori_app_quit (MidoriApp* app)
-{
-    gtk_main_quit ();
+    midori_app_quit (app);
 }
 
 /**
@@ -350,6 +319,35 @@ midori_app_new (void)
 }
 
 /**
+ * midori_app_add_browser:
+ *
+ * Adds a #MidoriBrowser to the #MidoriApp singleton.
+ *
+ * The app will take care of the browser's new-window and quit signals, as well
+ * as watch window closing so that the last closed window quits the app.
+ * Also the app watches focus changes to indicate the 'current' browser.
+ *
+ * Return value: a new #MidoriApp
+ **/
+void
+midori_app_add_browser (MidoriApp*     app,
+                        MidoriBrowser* browser)
+{
+    MidoriAppPrivate* priv = app->priv;
+
+    gtk_window_add_accel_group (GTK_WINDOW (browser), priv->accel_group);
+    g_object_connect (browser,
+        "signal::focus-in-event", midori_browser_focus_in_event_cb, app,
+        "signal::new-window", midori_browser_new_window_cb, app,
+        "signal::delete-event", midori_browser_delete_event_cb, app,
+        "signal::destroy", midori_browser_destroy_cb, app,
+        "signal::quit", midori_browser_quit_cb, app,
+        NULL);
+
+    priv->browsers = g_list_prepend (priv->browsers, browser);
+}
+
+/**
  * midori_app_get_settings:
  * @app: a #MidoriApp
  *
@@ -368,6 +366,25 @@ midori_app_get_settings (MidoriApp* app)
 }
 
 /**
+ * midori_app_set_settings:
+ * @app: a #MidoriApp
+ *
+ * Assigns the #MidoriWebSettings to the app.
+ *
+ * Return value: the assigned #MidoriWebSettings
+ **/
+void
+midori_app_set_settings (MidoriApp*         app,
+                         MidoriWebSettings* settings)
+{
+    g_return_if_fail (MIDORI_IS_APP (app));
+
+    MidoriAppPrivate* priv = app->priv;
+
+    g_object_set (app, "settings", settings, NULL);
+}
+
+/**
  * midori_app_get_trash:
  * @app: a #MidoriApp
  *
@@ -383,4 +400,18 @@ midori_app_get_trash (MidoriApp* app)
     MidoriAppPrivate* priv = app->priv;
 
     return priv->trash;
+}
+
+/**
+ * midori_app_quit:
+ * @app: a #MidoriApp
+ *
+ * Quits the #MidoriApp singleton.
+ **/
+void
+midori_app_quit (MidoriApp* app)
+{
+    g_return_if_fail (MIDORI_IS_APP (app));
+
+    gtk_main_quit ();
 }

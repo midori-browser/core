@@ -401,7 +401,7 @@ midori_web_view_load_committed_cb (GtkWidget*      web_view,
 static gboolean
 midori_web_view_console_message_cb (GtkWidget*     web_view,
                                     const gchar*   message,
-                                    gint           line,
+                                    guint          line,
                                     const gchar*   source_id,
                                     MidoriBrowser* browser)
 {
@@ -506,6 +506,12 @@ midori_web_view_destroy_cb (GtkWidget*     widget,
 {
     _midori_browser_update_actions (browser);
     return FALSE;
+}
+
+static void
+_midori_browser_will_quit (MidoriBrowser* browser)
+{
+    // Nothing to do
 }
 
 static void
@@ -716,7 +722,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     class->add_tab = midori_browser_add_tab;
     class->add_uri = midori_browser_add_uri;
     class->activate_action = midori_browser_activate_action;
-    class->quit = midori_browser_quit;
+    class->quit = _midori_browser_will_quit;
 
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_browser_finalize;
@@ -1058,7 +1064,7 @@ _midori_browser_find (MidoriBrowser* browser,
         else
             icon = gtk_image_new_from_stock (GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
         sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (priv->find_text),
-            SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(icon));
+            SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (icon));
         webkit_web_view_mark_text_matches (WEBKIT_WEB_VIEW (web_view), text,
                                            case_sensitive, 0);
         const gboolean highlight = gtk_toggle_tool_button_get_active (

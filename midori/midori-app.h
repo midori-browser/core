@@ -62,11 +62,22 @@ midori_app_get_type               (void);
 MidoriApp*
 midori_app_new                    (void);
 
+void
+midori_app_add_browser            (MidoriApp*     app,
+                                   MidoriBrowser* browser);
+
 MidoriWebSettings*
-midori_app_get_web_settings       (MidoriApp* app);
+midori_app_get_settings           (MidoriApp* app);
+
+void
+midori_app_set_settings           (MidoriApp*         app,
+                                   MidoriWebSettings* settings);
 
 MidoriTrash*
 midori_app_get_trash              (MidoriApp* app);
+
+void
+midori_app_quit                   (MidoriApp* app);
 
 G_END_DECLS
 

@@ -406,7 +406,7 @@ main (int argc, char** argv)
     stock_items_init ();
 
     MidoriApp* app = midori_app_new ();
-    g_object_set (app, "settings", settings, NULL);
+    midori_app_set_settings (app, settings);
 
     MidoriTrash* trash = midori_app_get_trash (app);
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
@@ -421,8 +421,7 @@ main (int argc, char** argv)
                                            "settings", settings,
                                            "trash", trash,
                                            NULL);
-    g_signal_emit_by_name (app, "add-browser", browser);
-
+    midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
     KatzeXbelItem* session = katze_xbel_folder_new ();
