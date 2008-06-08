@@ -373,7 +373,7 @@ gtk_widget_button_press_event (MidoriWebView*  web_view,
     case 2:
         if (state & GDK_CONTROL_MASK)
         {
-            // FIXME: Reset font multiplier or zoom level
+            webkit_web_view_set_zoom_level (WEBKIT_WEB_VIEW (web_view), 1.0);
             return FALSE; // Allow Ctrl + Middle click
         }
         else
@@ -424,11 +424,10 @@ gtk_widget_scroll_event (MidoriWebView*  web_view,
     gdk_window_get_pointer (NULL, &x, &y, &state);
     if (state & GDK_CONTROL_MASK)
     {
-        // FIXME: Increase or decrease the font multiplier or zoom level
         if (event->direction == GDK_SCROLL_DOWN)
-            ;
+            webkit_web_view_zoom_out (WEBKIT_WEB_VIEW (web_view));
         else if(event->direction == GDK_SCROLL_UP)
-            ;
+            webkit_web_view_zoom_in (WEBKIT_WEB_VIEW (web_view));
         return TRUE;
     }
     else
