@@ -125,7 +125,7 @@ settings_new_from_file (const gchar* filename)
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
-            gdouble number = sokoke_key_file_get_double_default (key_file,
+            gfloat number = sokoke_key_file_get_double_default (key_file,
                 "settings", property,
                 G_PARAM_SPEC_FLOAT (pspec)->default_value, NULL);
             g_object_set (settings, property, number, NULL);
@@ -198,7 +198,7 @@ settings_save_to_file (MidoriWebSettings* settings,
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
-            gdouble number;
+            gfloat number;
             g_object_get (settings, property, &number, NULL);
             g_key_file_set_double (key_file, "settings", property, number);
         }

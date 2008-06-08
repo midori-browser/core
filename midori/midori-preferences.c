@@ -279,7 +279,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     // Page "Behavior"
     PAGE_NEW (_("Behavior"));
     FRAME_NEW (_("Features"));
-    TABLE_NEW (5, 2);
+    TABLE_NEW (6, 2);
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     INDENTED_ADD (button, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "auto-shrink-images", NULL);
@@ -304,10 +304,28 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
                       G_CALLBACK (clear_button_clicked_cb), entry);
     gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 4);
     FILLED_ADD (hbox, 1, 2, 3, 4);
+    if (g_object_class_find_property (G_OBJECT_GET_CLASS (settings), "zoom-step"))
+    {
+        label = katze_property_label (settings, "zoom-step");
+        INDENTED_ADD (label, 0, 1, 4, 5);
+        hbox = gtk_hbox_new (FALSE, 4);
+        entry = katze_property_proxy (settings, "zoom-step", NULL);
+        gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+        FILLED_ADD (hbox, 1, 2, 4, 5);
+    }
+    else
+    {
+        label = gtk_label_new ("Zoom Stepping Value");
+        INDENTED_ADD (label, 0, 1, 4, 5);
+        hbox = gtk_hbox_new (FALSE, 4);
+        entry = gtk_label_new ("Not available in this WebKit version");
+        gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+        FILLED_ADD (hbox, 1, 2, 4, 5);
+    }
     label = katze_property_label (settings, "location-entry-search");
-    INDENTED_ADD (label, 0, 1, 4, 5);
+    INDENTED_ADD (label, 0, 1, 5, 6);
     entry = katze_property_proxy (settings, "location-entry-search", NULL);
-    FILLED_ADD (entry, 1, 2, 4, 5);
+    FILLED_ADD (entry, 1, 2, 5, 6);
 
     // Page "Interface"
     PAGE_NEW (_("Interface"));

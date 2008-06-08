@@ -73,9 +73,19 @@ proxy_entry_focus_out_event_cb (GtkEntry*      entry,
 static gboolean
 proxy_spin_button_changed_cb (GtkSpinButton* button, GObject* object)
 {
-    gint value = gtk_spin_button_get_value_as_int (button);
+    GObjectClass* class = G_OBJECT_GET_CLASS (object);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
-    g_object_set (object, property, value, NULL);
+    GParamSpec* pspec = g_object_class_find_property (class, property);
+    if (G_PARAM_SPEC_TYPE (pspec) == G_TYPE_PARAM_INT)
+    {
+        gint value = gtk_spin_button_get_value_as_int (button);
+        g_object_set (object, property, value, NULL);
+    }
+    else
+    {
+        gdouble value = gtk_spin_button_get_value (button);
+        g_object_set (object, property, value, NULL);
+    }
     return FALSE;
 }
 
@@ -212,6 +222,18 @@ katze_property_proxy (gpointer     object,
         gtk_entry_set_text (GTK_ENTRY (widget), string ? string : "");
         g_signal_connect (widget, "focus-out-event",
                           G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+    }
+    else if (type == G_TYPE_PARAM_FLOAT)
+    {
+        widget = gtk_spin_button_new_with_range (
+            G_PARAM_SPEC_FLOAT (pspec)->minimum,
+            G_PARAM_SPEC_FLOAT (pspec)->maximum, 1);
+        gtk_spin_button_set_digits (GTK_SPIN_BUTTON (widget), 2);
+        gfloat value;
+        g_object_get (object, property, &value, NULL);
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
+        g_signal_connect (widget, "value-changed",
+                          G_CALLBACK (proxy_spin_button_changed_cb), object);
     }
     else if (type == G_TYPE_PARAM_INT)
     {
