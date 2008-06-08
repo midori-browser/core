@@ -92,16 +92,6 @@ midori_web_view_get_property (GObject* object,
                               GValue* value,
                               GParamSpec* pspec);
 
-/*static WebKitWebView*
-midori_web_view_create_web_view (WebKitWebView* web_view)
-{
-    MidoriWebView* new_web_view = NULL;
-    g_signal_emit (web_view, signals[NEW_WINDOW], 0, &new_web_view);
-    if (new_web_view)
-        return WEBKIT_WEB_VIEW (new_web_view);
-    return WEBKIT_WEB_VIEW (midori_web_view_new ());
-}*/
-
 static void
 midori_web_view_class_init (MidoriWebViewClass* class)
 {
@@ -192,16 +182,6 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
 
-    /*WEBKIT_WEB_VIEW_CLASS (class)->create_web_view = g_signal_new ("create-web-view",
-            G_TYPE_FROM_CLASS(class),
-            (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-            G_STRUCT_OFFSET(MidoriWebViewClass, create_web_view),
-            0,
-            NULL,
-            g_cclosure_marshal_VOID__OBJECT,
-            G_TYPE_NONE, 1,
-            MIDORI_TYPE_WEB_VIEW);*/
-
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_web_view_finalize;
     gobject_class->set_property = midori_web_view_set_property;
@@ -243,7 +223,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      "Statusbar Text",
                                      _("The text that is displayed in the statusbar"),
                                      "",
-                                     flags));
+                                     G_PARAM_READABLE));
 
     g_object_class_override_property (gobject_class,
                                       PROP_SETTINGS,
@@ -260,7 +240,7 @@ webkit_web_view_load_started (MidoriWebView* web_view,
 
     priv->is_loading = TRUE;
     priv->progress = -1;
-    katze_throbber_set_animated(KATZE_THROBBER(priv->tab_icon), TRUE);
+    katze_throbber_set_animated (KATZE_THROBBER (priv->tab_icon), TRUE);
 }*/
 
 static void
@@ -346,7 +326,10 @@ static void
 webkit_web_view_statusbar_text_changed (MidoriWebView*  web_view,
                                         const gchar*    text)
 {
-    g_object_set (web_view, "statusbar-text", text, NULL);
+    MidoriWebViewPrivate* priv = web_view->priv;
+
+    katze_assign (priv->statusbar_text, g_strdup (text));
+    g_object_notify (G_OBJECT (web_view), "statusbar-text");
 }
 
 static void
@@ -692,9 +675,6 @@ midori_web_view_set_property (GObject*      object,
         if (priv->proxy_xbel_item)
             katze_xbel_item_set_title (priv->proxy_xbel_item, title);
         break;
-    case PROP_STATUSBAR_TEXT:
-        katze_assign (priv->statusbar_text, g_value_dup_string (value));
-        break;
     case PROP_SETTINGS:
         g_signal_handlers_disconnect_by_func (priv->settings,
                                               midori_web_view_settings_notify,
@@ -833,10 +813,10 @@ midori_web_view_get_proxy_tab_icon (MidoriWebView* web_view)
     {
         priv->tab_icon = katze_throbber_new ();
         if (priv->icon)
-            katze_throbber_set_static_pixbuf (KATZE_THROBBER(priv->tab_icon),
+            katze_throbber_set_static_pixbuf (KATZE_THROBBER (priv->tab_icon),
                                               priv->icon);
         else
-            katze_throbber_set_static_stock_id (KATZE_THROBBER(priv->tab_icon),
+            katze_throbber_set_static_stock_id (KATZE_THROBBER (priv->tab_icon),
                                                 GTK_STOCK_FILE);
     }
     return priv->tab_icon;
@@ -925,7 +905,7 @@ midori_web_view_get_proxy_tab_label (MidoriWebView* web_view)
         priv->tab_icon = midori_web_view_get_proxy_tab_icon (web_view);
 
         GtkWidget* event_box = gtk_event_box_new ();
-        gtk_event_box_set_visible_window(GTK_EVENT_BOX (event_box), FALSE);
+        gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
         GtkWidget* hbox = gtk_hbox_new (FALSE, 1);
         gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
         gtk_box_pack_start (GTK_BOX (hbox), priv->tab_icon, FALSE, FALSE, 0);
@@ -952,15 +932,18 @@ midori_web_view_get_proxy_tab_label (MidoriWebView* web_view)
             gtk_widget_hide (close_button);
         priv->tab_close = close_button;
 
-        g_signal_connect(priv->proxy_tab_label, "button-release-event",
-                         G_CALLBACK(midori_web_view_tab_label_button_release_event),
-                         web_view);
-        g_signal_connect(priv->tab_close, "style-set",
-                         G_CALLBACK(midori_web_view_tab_close_style_set),
-                         web_view);
-        g_signal_connect(priv->tab_close, "clicked",
-                         G_CALLBACK(midori_web_view_tab_close_clicked),
-                         web_view);
+        g_signal_connect (priv->proxy_tab_label, "button-release-event",
+                          G_CALLBACK (midori_web_view_tab_label_button_release_event),
+                          web_view);
+        g_signal_connect (priv->tab_icon, "destroy",
+                          G_CALLBACK (gtk_widget_destroyed),
+                          &priv->tab_icon);
+        g_signal_connect (priv->tab_close, "style-set",
+                          G_CALLBACK (midori_web_view_tab_close_style_set),
+                          web_view);
+        g_signal_connect (priv->tab_close, "clicked",
+                          G_CALLBACK (midori_web_view_tab_close_clicked),
+                          web_view);
     }
     return priv->proxy_tab_label;
 }

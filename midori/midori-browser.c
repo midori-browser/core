@@ -643,17 +643,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_TYPE_POINTER,
         G_TYPE_POINTER);
 
-    signals[STATUSBAR_TEXT_CHANGED] = g_signal_new (
-        "statusbar-text-changed",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriBrowserClass, statusbar_text_changed),
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__STRING,
-        G_TYPE_NONE, 1,
-        G_TYPE_STRING);
-
     signals[ELEMENT_MOTION] = g_signal_new (
         "element-motion",
         G_TYPE_FROM_CLASS (class),

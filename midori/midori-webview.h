@@ -61,9 +61,6 @@ struct _MidoriWebViewClass
     (*load_done)              (MidoriWebView*        web_view,
                                WebKitWebFrame*       frame);
     void
-    (*statusbar_text_changed) (MidoriWebView*        web_view,
-                               const gchar*          text);
-    void
     (*element_motion)         (MidoriWebView*        web_view,
                                const gchar*          link_uri);
     void
@@ -74,9 +71,6 @@ struct _MidoriWebViewClass
     void
     (*new_window)             (MidoriWebView*        web_view,
                                const gchar*          uri);
-    void
-    (*create_web_view)        (MidoriWebView*        web_view,
-                               MidoriWebView*        new_web_view);
 };
 
 GType
