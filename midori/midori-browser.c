@@ -179,7 +179,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     {
         loading = midori_web_view_is_loading (MIDORI_WEB_VIEW (web_view));
         _action_set_sensitive (browser, "ZoomNormal",
-            midori_web_view_get_zoom_level (MIDORI_WEB_VIEW (web_view)) != 1.0);
+            webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (web_view)) != 1.0);
         if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_view),
                                            "zoom-level"))
         {
@@ -1248,16 +1248,8 @@ _action_zoom_in_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    if (web_view && g_object_class_find_property (
-        G_OBJECT_GET_CLASS (web_view), "zoom-level"))
-    {
-        MidoriBrowserPrivate* priv = browser->priv;
-
-        gfloat zoom_level, zoom_step;
-        g_object_get (web_view, "zoom-level", &zoom_level, NULL);
-        g_object_get (priv->settings, "zoom-step", &zoom_step, NULL);
-        g_object_set (web_view, "zoom-level", zoom_level + zoom_step, NULL);
-    }
+    if (web_view)
+        webkit_web_view_zoom_in (WEBKIT_WEB_VIEW (web_view));
 }
 
 static void
@@ -1265,16 +1257,8 @@ _action_zoom_out_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    if (web_view && g_object_class_find_property (
-        G_OBJECT_GET_CLASS (web_view), "zoom-level"))
-    {
-        MidoriBrowserPrivate* priv = browser->priv;
-
-        gfloat zoom_level, zoom_step;
-        g_object_get (web_view, "zoom-level", &zoom_level, NULL);
-        g_object_get (priv->settings, "zoom-step", &zoom_step, NULL);
-        g_object_set (web_view, "zoom-level", zoom_level - zoom_step, NULL);
-    }
+    if (web_view)
+        webkit_web_view_zoom_out (WEBKIT_WEB_VIEW (web_view));
 }
 
 static void
@@ -1282,9 +1266,8 @@ _action_zoom_normal_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    if (web_view && g_object_class_find_property (
-        G_OBJECT_GET_CLASS (web_view), "zoom-level"))
-        g_object_set (web_view, "zoom-level", 1.0, NULL);
+    if (web_view)
+        webkit_web_view_set_zoom_level (WEBKIT_WEB_VIEW (web_view), 1.0);
 }
 
 /*static void

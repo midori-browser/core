@@ -30,4 +30,5 @@ midori_SOURCES = \
     webSearch.c webSearch.h \
     gjs.c       gjs.h       \
     sokoke.c    sokoke.h    \
-    search.c    search.h
+    search.c    search.h    \
+    compat.c    compat.h

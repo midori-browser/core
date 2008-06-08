@@ -1080,26 +1080,3 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
     MidoriWebViewPrivate* priv = web_view->priv;
     return priv->link_uri;
 }
-
-/**
- * midori_web_view_get_zoom_level:
- * @web_view: a #MidoriWebView
- *
- * Retrieves the current zoom level.
- *
- * Return value: the zoom level, always 1 if not supported
- **/
-gfloat
-midori_web_view_get_zoom_level (MidoriWebView* web_view)
-{
-    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), 1);
-
-    if (g_object_class_find_property (G_OBJECT_GET_CLASS (web_view),
-                                      "zoom-level"))
-    {
-        gfloat zoom_level;
-        g_object_get (web_view, "zoom-level", &zoom_level, NULL);
-        return zoom_level;
-    }
-    return 1;
-}

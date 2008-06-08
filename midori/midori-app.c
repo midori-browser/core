@@ -379,8 +379,6 @@ midori_app_set_settings (MidoriApp*         app,
 {
     g_return_if_fail (MIDORI_IS_APP (app));
 
-    MidoriAppPrivate* priv = app->priv;
-
     g_object_set (app, "settings", settings, NULL);
 }
 
