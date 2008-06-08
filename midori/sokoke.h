@@ -46,14 +46,6 @@ void
 sokoke_container_show_children (GtkContainer* container);
 
 void
-sokoke_widget_set_tooltip_text (GtkWidget*   widget,
-                                const gchar* text);
-
-void
-sokoke_tool_item_set_tooltip_text (GtkToolItem* toolitem,
-                                   const gchar* text);
-
-void
 sokoke_widget_popup (GtkWidget*      widget,
                      GtkMenu*        menu,
                      GdkEventButton* event,

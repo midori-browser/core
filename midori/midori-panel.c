@@ -210,7 +210,7 @@ midori_panel_init (MidoriPanel* panel)
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close panel"));
-    sokoke_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), _("Close panel"));
+    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), _("Close panel"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_panel_button_close_clicked_cb), panel);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);

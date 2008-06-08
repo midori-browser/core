@@ -666,7 +666,7 @@ midori_web_view_set_property (GObject*      object,
         if (priv->tab_label)
         {
             gtk_label_set_text (GTK_LABEL (priv->tab_label), title);
-            sokoke_widget_set_tooltip_text (priv->tab_label, title);
+            gtk_widget_set_tooltip_text (priv->tab_label, title);
         }
         if (priv->proxy_menu_item)
             gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (

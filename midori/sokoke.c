@@ -130,36 +130,6 @@ sokoke_container_show_children (GtkContainer* container)
     gtk_container_foreach (container, (GtkCallback)(gtk_widget_show_all), NULL);
 }
 
-void
-sokoke_widget_set_tooltip_text (GtkWidget* widget, const gchar* text)
-{
-    #if GTK_CHECK_VERSION(2, 12, 0)
-    gtk_widget_set_tooltip_text (widget, text);
-    #else
-    static GtkTooltips* tooltips;
-    if (!tooltips)
-        tooltips = gtk_tooltips_new ();
-    gtk_tooltips_set_tip (tooltips, widget, text, NULL);
-    #endif
-}
-
-void
-sokoke_tool_item_set_tooltip_text (GtkToolItem* toolitem, const gchar* text)
-{
-    if (text && *text)
-    {
-        #if GTK_CHECK_VERSION(2, 12, 0)
-        gtk_tool_item_set_tooltip_text (toolitem, text);
-        #else
-        static GtkTooltips* tooltips = NULL;
-        if (G_UNLIKELY (!tooltips))
-            tooltips = gtk_tooltips_new();
-
-        gtk_tool_item_set_tooltip (toolitem, tooltips, text, NULL);
-        #endif
-    }
-}
-
 typedef struct
 {
      GtkWidget* widget;

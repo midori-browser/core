@@ -16,6 +16,18 @@
 
 G_BEGIN_DECLS
 
+#if !GTK_CHECK_VERSION(2, 12, 0)
+
+void
+gtk_widget_set_tooltip_text            (GtkWidget*         widget,
+                                        const gchar*       text);
+
+void
+gtk_tool_item_set_tooltip_text         (GtkToolItem*       toolitem,
+                                        const gchar*       text);
+
+#endif
+
 #ifndef WEBKIT_CHECK_VERSION
 
 gfloat

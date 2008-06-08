@@ -2759,7 +2759,7 @@ midori_browser_init (MidoriBrowser* browser)
             g_signal_connect (toolitem, "clicked",
                 G_CALLBACK (midori_browser_bookmarkbar_folder_activate_cb),
                 browser);
-            sokoke_tool_item_set_tooltip_text(toolitem, desc);
+            gtk_tool_item_set_tooltip_text (toolitem, desc);
             g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
             break;
         case KATZE_XBEL_ITEM_KIND_BOOKMARK:
@@ -2769,7 +2769,7 @@ midori_browser_init (MidoriBrowser* browser)
             g_signal_connect (toolitem, "clicked",
                 G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
                 browser);
-            sokoke_tool_item_set_tooltip_text(toolitem, desc);
+            gtk_tool_item_set_tooltip_text (toolitem, desc);
             g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
             break;
         case KATZE_XBEL_ITEM_KIND_SEPARATOR:
