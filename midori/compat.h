@@ -34,7 +34,8 @@ gfloat
 webkit_web_view_get_zoom_level         (WebKitWebView*     web_view);
 
 void
-webkit_web_view_set_zoom_level         (WebKitWebView*     web_view);
+webkit_web_view_set_zoom_level         (WebKitWebView*     web_view,
+                                        gfloat             zoom_level);
 
 void
 webkit_web_view_zoom_in                (WebKitWebView*     web_view);

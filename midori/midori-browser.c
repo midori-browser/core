@@ -180,12 +180,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         loading = midori_web_view_is_loading (MIDORI_WEB_VIEW (web_view));
         _action_set_sensitive (browser, "ZoomNormal",
             webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (web_view)) != 1.0);
-        if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_view),
-                                           "zoom-level"))
-        {
-            _action_set_sensitive (browser, "ZoomIn", FALSE);
-            _action_set_sensitive (browser, "ZoomOut", FALSE);
-        }
         _action_set_sensitive (browser, "Back",
             webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (web_view)));
         _action_set_sensitive (browser, "Forward",
@@ -2985,6 +2979,11 @@ midori_browser_init (MidoriBrowser* browser)
                               "", _("Extensions"));
 
     g_object_unref (ui_manager);
+
+    #ifndef WEBKIT_CHECK_VERSION
+    _action_set_sensitive (browser, "ZoomIn", FALSE);
+    _action_set_sensitive (browser, "ZoomOut", FALSE);
+    #endif
 }
 
 static void
