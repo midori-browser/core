@@ -11,7 +11,7 @@
 
 #include "sokoke.h"
 
-#include "search.h"
+#include "midori-webitem.h"
 
 #include "config.h"
 #include "main.h"
@@ -57,11 +57,10 @@ sokoke_magic_uri (const gchar* uri, const gchar* default_search_uri)
             guint i;
             for (i = 0; i < n; i++)
             {
-                SearchEngine* search_engine = (SearchEngine*)g_list_nth_data (
+                MidoriWebItem* web_item = (MidoriWebItem*)g_list_nth_data (
                     searchEngines, i);
-                if (!strcmp (search_engine_get_keyword (search_engine),
-                                                        parts[0]))
-                    search_uri = search_engine->url;
+                if (!strcmp (midori_web_item_get_token (web_item), parts[0]))
+                    search_uri = midori_web_item_get_uri (web_item);
             }
         if (search_uri)
             search = g_strdup_printf (search_uri, parts[1]);

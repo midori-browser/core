@@ -62,7 +62,7 @@ midori_trash_class_init (MidoriTrashClass* class)
 {
     signals[INSERTED] = g_signal_new (
         "inserted",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriTrashClass, inserted),
         0,
@@ -73,7 +73,7 @@ midori_trash_class_init (MidoriTrashClass* class)
 
     signals[REMOVED] = g_signal_new (
         "removed",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriTrashClass, removed),
         0,
@@ -93,7 +93,7 @@ midori_trash_class_init (MidoriTrashClass* class)
                                      PROP_LIMIT,
                                      g_param_spec_uint (
                                      "limit",
-                                     "Limit",
+                                     _("Limit"),
                                      _("The maximum number of items"),
                                      0, G_MAXUINT, 10,
                                      flags));

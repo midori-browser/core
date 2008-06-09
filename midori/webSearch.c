@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -15,6 +15,8 @@
 
 #include "main.h"
 #include "sokoke.h"
+
+#include "midori-webitem.h"
 
 #include <string.h>
 #include <gdk/gdkkeysyms.h>
@@ -66,14 +68,14 @@ void update_searchEngine(guint index, GtkWidget* search)
         // Reset in case the index is out of range
         if(index >= n)
             index = 0;
-        SearchEngine* engine = (SearchEngine*)g_list_nth_data(searchEngines, index);
-        GdkPixbuf* pixbuf = load_web_icon(search_engine_get_icon(engine)
-         , GTK_ICON_SIZE_MENU, search);
+        MidoriWebItem* web_item = (MidoriWebItem*)g_list_nth_data (searchEngines, index);
+        GdkPixbuf* pixbuf = load_web_icon (midori_web_item_get_icon (web_item),
+                                           GTK_ICON_SIZE_MENU, search);
         sexy_icon_entry_set_icon(SEXY_ICON_ENTRY(search)
          , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE(gtk_image_new_from_pixbuf(pixbuf)));
         g_object_unref(pixbuf);
-        sokoke_entry_set_default_text(GTK_ENTRY(search)
-         , search_engine_get_short_name(engine));
+        sokoke_entry_set_default_text (GTK_ENTRY (search),
+                                       midori_web_item_get_name (web_item));
         // config->searchEngine = index;
     }
 }
@@ -95,11 +97,11 @@ void on_webSearch_icon_released(GtkWidget* widget, SexyIconEntryPosition* pos
         guint i;
         for(i = 0; i < n; i++)
         {
-            SearchEngine* engine = (SearchEngine*)g_list_nth_data(searchEngines, i);
-            menuitem = gtk_image_menu_item_new_with_label(
-             search_engine_get_short_name(engine));
-            GdkPixbuf* pixbuf = load_web_icon(search_engine_get_icon(engine)
-             , GTK_ICON_SIZE_MENU, menuitem);
+            MidoriWebItem* web_item = (MidoriWebItem*)g_list_nth_data (searchEngines, i);
+            menuitem = gtk_image_menu_item_new_with_label (
+                midori_web_item_get_name (web_item));
+            GdkPixbuf* pixbuf = load_web_icon (midori_web_item_get_icon (web_item),
+                                               GTK_ICON_SIZE_MENU, menuitem);
             GtkWidget* icon = gtk_image_new_from_pixbuf(pixbuf);
             gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), icon);
             g_object_unref(pixbuf);
@@ -134,12 +136,12 @@ static void on_webSearch_engines_render_icon(GtkTreeViewColumn* column
  , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter
  , GtkWidget* treeview)
 {
-    SearchEngine* searchEngine;
-    gtk_tree_model_get(model, iter, ENGINES_COL_ENGINE, &searchEngine, -1);
+    MidoriWebItem* web_item;
+    gtk_tree_model_get(model, iter, ENGINES_COL_ENGINE, &web_item, -1);
 
     // TODO: Would it be better to not do this on every redraw?
-    const gchar* icon = search_engine_get_icon(searchEngine);
-    if(icon)
+    const gchar* icon = midori_web_item_get_icon (web_item);
+    if (icon)
     {
         GdkPixbuf* pixbuf = load_web_icon(icon, GTK_ICON_SIZE_DND, treeview);
         g_object_set(renderer, "pixbuf", pixbuf, NULL);
@@ -154,10 +156,10 @@ static void on_webSearch_engines_render_text(GtkTreeViewColumn* column
  , GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter
  , GtkWidget* treeview)
 {
-    SearchEngine* searchEngine;
-    gtk_tree_model_get(model, iter, ENGINES_COL_ENGINE, &searchEngine, -1);
-    const gchar* name = search_engine_get_short_name(searchEngine);
-    const gchar* description = search_engine_get_description(searchEngine);
+    MidoriWebItem* web_item;
+    gtk_tree_model_get(model, iter, ENGINES_COL_ENGINE, &web_item, -1);
+    const gchar* name = midori_web_item_get_name (web_item);
+    const gchar* description = midori_web_item_get_description (web_item);
     gchar* markup = g_markup_printf_escaped("<b>%s</b>\n%s", name, description);
     g_object_set(renderer, "markup", markup, NULL);
     g_free(markup);
@@ -196,12 +198,12 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_container_set_border_width(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 5);
     GtkSizeGroup* sizegroup =  gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
-    SearchEngine* searchEngine;
+    MidoriWebItem* web_item;
     GtkTreeModel* liststore;
     GtkTreeIter iter;
     if(newEngine)
     {
-        searchEngine = search_engine_new();
+        web_item = midori_web_item_new ();
         gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog)
          , GTK_RESPONSE_ACCEPT, FALSE);
     }
@@ -209,7 +211,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     {
         GtkTreeSelection* selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(webSearch->treeview));
         gtk_tree_selection_get_selected(selection, &liststore, &iter);
-        gtk_tree_model_get(liststore, &iter, ENGINES_COL_ENGINE, &searchEngine, -1);
+        gtk_tree_model_get(liststore, &iter, ENGINES_COL_ENGINE, &web_item, -1);
     }
 
     GtkWidget* hbox = gtk_hbox_new(FALSE, 8);
@@ -223,7 +225,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_entry_set_activates_default(GTK_ENTRY(entry_shortName), TRUE);
     if(!newEngine)
         gtk_entry_set_text(GTK_ENTRY(entry_shortName)
-         , search_engine_get_short_name(searchEngine));
+         , STR_NON_NULL (midori_web_item_get_name (web_item)));
     gtk_box_pack_start(GTK_BOX(hbox), entry_shortName, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
@@ -237,7 +239,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_entry_set_activates_default(GTK_ENTRY(entry_description), TRUE);
     if(!newEngine)
         gtk_entry_set_text(GTK_ENTRY(entry_description)
-         , STR_NON_NULL(search_engine_get_description(searchEngine)));
+         , STR_NON_NULL (midori_web_item_get_description (web_item)));
     gtk_box_pack_start(GTK_BOX(hbox), entry_description, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
@@ -251,7 +253,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_entry_set_activates_default(GTK_ENTRY(entry_url), TRUE);
     if(!newEngine)
         gtk_entry_set_text(GTK_ENTRY(entry_url)
-         , STR_NON_NULL(search_engine_get_url(searchEngine)));
+         , STR_NON_NULL (midori_web_item_get_uri (web_item)));
     gtk_box_pack_start(GTK_BOX(hbox), entry_url, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
@@ -265,7 +267,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_entry_set_activates_default(GTK_ENTRY(entry_icon), TRUE);
     if(!newEngine)
         gtk_entry_set_text(GTK_ENTRY(entry_icon)
-         , STR_NON_NULL(search_engine_get_icon(searchEngine)));
+         , STR_NON_NULL (midori_web_item_get_icon (web_item)));
     gtk_box_pack_start(GTK_BOX(hbox), entry_icon, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
@@ -279,7 +281,7 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_entry_set_activates_default(GTK_ENTRY(entry_keyword), TRUE);
     if(!newEngine)
         gtk_entry_set_text(GTK_ENTRY(entry_keyword)
-         , STR_NON_NULL(search_engine_get_keyword(searchEngine)));
+         , STR_NON_NULL(midori_web_item_get_token (web_item)));
     gtk_box_pack_start(GTK_BOX(hbox), entry_keyword, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), hbox);
     gtk_widget_show_all(hbox);
@@ -287,27 +289,27 @@ static void webSearch_editEngine_dialog_new(gboolean newEngine, CWebSearch* webS
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
     if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
     {
-        search_engine_set_short_name(searchEngine
+        midori_web_item_set_name (web_item
          , gtk_entry_get_text(GTK_ENTRY(entry_shortName)));
-        search_engine_set_description(searchEngine
+        midori_web_item_set_description (web_item
          , gtk_entry_get_text(GTK_ENTRY(entry_description)));
-        search_engine_set_url(searchEngine
+        midori_web_item_set_uri (web_item
          , gtk_entry_get_text(GTK_ENTRY(entry_url)));
         /*search_engine_set_input_encoding(searchEngine
          , gtk_entry_get_text(GTK_ENTRY(entry_inputEncoding)));*/
-        search_engine_set_icon(searchEngine
+        midori_web_item_set_icon (web_item
          , gtk_entry_get_text(GTK_ENTRY(entry_icon)));
-        search_engine_set_keyword(searchEngine
+        midori_web_item_set_token (web_item
          , gtk_entry_get_text(GTK_ENTRY(entry_keyword)));
 
         if(newEngine)
         {
-            searchEngines = g_list_append(searchEngines, searchEngine);
+            searchEngines = g_list_append(searchEngines, web_item);
             liststore = gtk_tree_view_get_model(GTK_TREE_VIEW(webSearch->treeview));
             gtk_list_store_append(GTK_LIST_STORE(liststore), &iter);
         }
         gtk_list_store_set(GTK_LIST_STORE(liststore), &iter
-             , ENGINES_COL_ENGINE, searchEngine, -1);
+             , ENGINES_COL_ENGINE, web_item, -1);
         webSearch_toggle_edit_buttons(TRUE, webSearch);
     }
     gtk_widget_destroy(dialog);
@@ -329,11 +331,11 @@ static void on_webSearch_remove(GtkWidget* widget, CWebSearch* webSearch)
     GtkTreeModel* liststore;
     GtkTreeIter iter;
     gtk_tree_selection_get_selected(selection, &liststore, &iter);
-    SearchEngine* searchEngine;
-    gtk_tree_model_get(liststore, &iter, ENGINES_COL_ENGINE, &searchEngine, -1);
+    MidoriWebItem* web_item;
+    gtk_tree_model_get(liststore, &iter, ENGINES_COL_ENGINE, &web_item, -1);
     gtk_list_store_remove(GTK_LIST_STORE(liststore), &iter);
-    search_engine_free(searchEngine);
-    searchEngines = g_list_remove(searchEngines, searchEngine);
+    g_object_unref (web_item);
+    searchEngines = g_list_remove (searchEngines, web_item);
     //update_searchEngine(config->searchEngine, webSearch->browser);
     webSearch_toggle_edit_buttons(g_list_nth(searchEngines, 0) != NULL, webSearch);
     // FIXME: we want to allow undo of some kind
@@ -370,7 +372,7 @@ GtkWidget* webSearch_manageSearchEngines_dialog_new(MidoriBrowser* browser)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text; GtkCellRenderer* renderer_pixbuf;
     GtkListStore* liststore = gtk_list_store_new(ENGINES_COL_N
-     , G_TYPE_SEARCH_ENGINE);
+     , MIDORI_TYPE_WEB_ITEM);
     GtkWidget* treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(liststore));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
     column = gtk_tree_view_column_new();
@@ -393,9 +395,9 @@ GtkWidget* webSearch_manageSearchEngines_dialog_new(MidoriBrowser* browser)
     guint i;
     for(i = 0; i < n; i++)
     {
-        SearchEngine* searchEngine = (SearchEngine*)g_list_nth_data(searchEngines, i);
+        MidoriWebItem* web_item = (MidoriWebItem*)g_list_nth_data (searchEngines, i);
         gtk_list_store_insert_with_values(GTK_LIST_STORE(liststore), NULL, i
-         , ENGINES_COL_ENGINE, searchEngine, -1);
+         , ENGINES_COL_ENGINE, web_item, -1);
     }
     g_object_unref(liststore);
     CWebSearch* webSearch = g_new0(CWebSearch, 1);
@@ -459,10 +461,10 @@ gboolean on_webSearch_scroll(GtkWidget* webView, GdkEventScroll* event, MidoriBr
 void on_webSearch_activate(GtkWidget* widget, MidoriBrowser* browser)
 {
     const gchar* keywords = gtk_entry_get_text(GTK_ENTRY(widget));
-    gchar* url;
-    SearchEngine* searchEngine = (SearchEngine*)g_list_nth_data(searchEngines, 0/*config->searchEngine*/);
-    if(searchEngine)
-        url = searchEngine->url;
+    const gchar* url;
+    MidoriWebItem* web_item = (MidoriWebItem*)g_list_nth_data (searchEngines, 0/*config->searchEngine*/);
+    if (web_item)
+        url = midori_web_item_get_uri (web_item);
     else // The location search is our fallback
      url = "";//config->locationSearch;
     gchar* search;
