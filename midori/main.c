@@ -248,6 +248,10 @@ main (int argc, char** argv)
     if (!gtk_init_with_args (&argc, &argv, _("[URL]"), entries,
                              GETTEXT_PACKAGE, &error))
     {
+        if (error->code == G_OPTION_ERROR_UNKNOWN_OPTION)
+            g_print ("%s - %s\n", _("midori"), _("Unknown argument."));
+        else
+            g_print ("%s - %s", _("midori"), _("Failed to setup interface."));
         g_error_free (error);
         return 1;
     }
