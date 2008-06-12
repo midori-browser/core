@@ -36,13 +36,6 @@ typedef struct _KatzeThrobber                KatzeThrobber;
 typedef struct _KatzeThrobberPrivate         KatzeThrobberPrivate;
 typedef struct _KatzeThrobberClass           KatzeThrobberClass;
 
-struct _KatzeThrobber
-{
-    GtkMisc parent_instance;
-
-    KatzeThrobberPrivate* priv;
-};
-
 struct _KatzeThrobberClass
 {
     GtkMiscClass parent_class;

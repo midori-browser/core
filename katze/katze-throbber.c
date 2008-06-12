@@ -14,10 +14,10 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC)
-
-struct _KatzeThrobberPrivate
+struct _KatzeThrobber
 {
+    GtkMisc parent_instance;
+
     GtkIconSize icon_size;
     gchar* icon_name;
     GdkPixbuf* pixbuf;
@@ -33,8 +33,7 @@ struct _KatzeThrobberPrivate
     gint height;
 };
 
-#define KATZE_THROBBER_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), KATZE_TYPE_THROBBER, KatzeThrobberPrivate))
+G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC)
 
 enum
 {
@@ -189,8 +188,6 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      _("The stock ID of an icon to be used as the static image"),
                                      NULL,
                                      flags));
-
-    g_type_class_add_private (object_class, sizeof (KatzeThrobberPrivate));
 }
 
 static void
@@ -198,20 +195,16 @@ katze_throbber_init (KatzeThrobber *throbber)
 {
     GTK_WIDGET_SET_FLAGS (throbber, GTK_NO_WINDOW);
 
-    throbber->priv = KATZE_THROBBER_GET_PRIVATE (throbber);
-
-    KatzeThrobberPrivate* priv = throbber->priv;
-    priv->timer_id = -1;
+    throbber->timer_id = -1;
 }
 
 static void
 katze_throbber_dispose (GObject* object)
 {
     KatzeThrobber* throbber = KATZE_THROBBER (object);
-    KatzeThrobberPrivate* priv = throbber->priv;
 
-    if (G_UNLIKELY (priv->timer_id >= 0))
-        g_source_remove (priv->timer_id);
+    if (G_UNLIKELY (throbber->timer_id >= 0))
+        g_source_remove (throbber->timer_id);
 
     (*G_OBJECT_CLASS (katze_throbber_parent_class)->dispose) (object);
 }
@@ -220,13 +213,12 @@ static void
 katze_throbber_destroy (GtkObject* object)
 {
     KatzeThrobber* throbber = KATZE_THROBBER (object);
-    KatzeThrobberPrivate* priv = throbber->priv;
 
-    katze_assign (priv->icon_name, NULL);
-    katze_object_assign (priv->pixbuf, NULL);
-    katze_assign (priv->static_icon_name, NULL);
-    katze_object_assign (priv->static_pixbuf, NULL);
-    katze_assign (priv->static_stock_id, NULL);
+    katze_assign (throbber->icon_name, NULL);
+    katze_object_assign (throbber->pixbuf, NULL);
+    katze_assign (throbber->static_icon_name, NULL);
+    katze_object_assign (throbber->static_pixbuf, NULL);
+    katze_assign (throbber->static_stock_id, NULL);
 
     GTK_OBJECT_CLASS (katze_throbber_parent_class)->destroy (object);
 }
@@ -335,13 +327,11 @@ katze_throbber_set_icon_size (KatzeThrobber* throbber,
                               GtkIconSize    icon_size)
 {
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
-
-    KatzeThrobberPrivate* priv = throbber->priv;
     g_return_if_fail (gtk_icon_size_lookup (icon_size,
-                                            &priv->width,
-                                            &priv->height));
+                                            &throbber->width,
+                                            &throbber->height));
 
-    priv->icon_size = icon_size;
+    throbber->icon_size = icon_size;
 
     g_object_notify (G_OBJECT (throbber), "icon-size");
 }
@@ -361,8 +351,7 @@ katze_throbber_set_icon_name (KatzeThrobber*  throbber,
 {
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    katze_assign (priv->icon_name, g_strdup (icon_name));
+    katze_assign (throbber->icon_name, g_strdup (icon_name));
 
     if (icon_name)
         icon_theme_changed (throbber);
@@ -388,14 +377,13 @@ katze_throbber_set_pixbuf (KatzeThrobber* throbber,
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
     g_return_if_fail (pixbuf == NULL || GDK_IS_PIXBUF (pixbuf));
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    katze_object_assign (priv->pixbuf, pixbuf);
+    katze_object_assign (throbber->pixbuf, pixbuf);
 
     if (pixbuf)
     {
         g_object_ref (pixbuf);
 
-        katze_assign (priv->icon_name, NULL);
+        katze_assign (throbber->icon_name, NULL);
     }
 
     gtk_widget_queue_draw (GTK_WIDGET (throbber));
@@ -416,14 +404,13 @@ katze_throbber_set_animated (KatzeThrobber*  throbber,
 {
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    if (G_UNLIKELY (priv->animated == animated))
+    if (G_UNLIKELY (throbber->animated == animated))
         return;
 
-    priv->animated = animated;
+    throbber->animated = animated;
 
-    if (animated && (priv->timer_id < 0))
-        priv->timer_id = g_timeout_add_full (
+    if (animated && (throbber->timer_id < 0))
+        throbber->timer_id = g_timeout_add_full (
                          G_PRIORITY_LOW, 50,
                          (GSourceFunc)katze_throbber_timeout,
                          throbber,
@@ -449,12 +436,11 @@ katze_throbber_set_static_icon_name (KatzeThrobber*  throbber,
 {
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    katze_assign (priv->static_icon_name, g_strdup (icon_name));
+    katze_assign (throbber->static_icon_name, g_strdup (icon_name));
 
     if (icon_name)
     {
-        katze_assign (priv->static_stock_id, NULL);
+        katze_assign (throbber->static_stock_id, NULL);
 
         icon_theme_changed (throbber);
     }
@@ -480,15 +466,14 @@ katze_throbber_set_static_pixbuf (KatzeThrobber* throbber,
     g_return_if_fail (KATZE_IS_THROBBER (throbber));
     g_return_if_fail (pixbuf == NULL || GDK_IS_PIXBUF (pixbuf));
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    katze_object_assign (priv->static_pixbuf, pixbuf);
+    katze_object_assign (throbber->static_pixbuf, pixbuf);
 
     if (pixbuf)
     {
         g_object_ref (pixbuf);
 
-        katze_assign (priv->static_icon_name, NULL);
-        katze_assign (priv->static_stock_id, NULL);
+        katze_assign (throbber->static_icon_name, NULL);
+        katze_assign (throbber->static_stock_id, NULL);
     }
 
     g_object_notify (G_OBJECT (throbber), "static-pixbuf");
@@ -515,8 +500,7 @@ katze_throbber_set_static_stock_id (KatzeThrobber*  throbber,
         g_return_if_fail (gtk_stock_lookup (stock_id, &stock_item));
     }
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    katze_assign (priv->static_stock_id, g_strdup (stock_id));
+    katze_assign (throbber->static_stock_id, g_strdup (stock_id));
 
     if (stock_id)
         icon_theme_changed (throbber);
@@ -537,8 +521,7 @@ katze_throbber_get_icon_size (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), GTK_ICON_SIZE_INVALID);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->icon_size;
+    return throbber->icon_size;
 }
 
 /**
@@ -554,8 +537,7 @@ katze_throbber_get_icon_name (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), NULL);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->icon_name;
+    return throbber->icon_name;
 }
 
 /**
@@ -573,8 +555,7 @@ katze_throbber_get_pixbuf (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), NULL);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->pixbuf;
+    return throbber->pixbuf;
 }
 
 /**
@@ -590,8 +571,7 @@ katze_throbber_get_animated (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), FALSE);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->animated;
+    return throbber->animated;
 }
 
 /**
@@ -608,8 +588,7 @@ katze_throbber_get_static_icon_name (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), NULL);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->static_icon_name;
+    return throbber->static_icon_name;
 }
 
 /**
@@ -627,8 +606,7 @@ katze_throbber_get_static_pixbuf (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), NULL);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->static_pixbuf;
+    return throbber->static_pixbuf;
 }
 
 /**
@@ -645,8 +623,7 @@ katze_throbber_get_static_stock_id (KatzeThrobber* throbber)
 {
     g_return_val_if_fail (KATZE_IS_THROBBER (throbber), NULL);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-    return priv->static_stock_id;
+    return throbber->static_stock_id;
 }
 
 static void
@@ -660,12 +637,13 @@ katze_throbber_realize (GtkWidget* widget)
 static void
 katze_throbber_unrealize (GtkWidget* widget)
 {
+    KatzeThrobber* throbber = KATZE_THROBBER (widget);
+
     if (GTK_WIDGET_CLASS (katze_throbber_parent_class)->unrealize)
         GTK_WIDGET_CLASS (katze_throbber_parent_class)->unrealize (widget);
 
-    KatzeThrobberPrivate* priv = KATZE_THROBBER(widget)->priv;
-    katze_object_assign (priv->pixbuf, NULL);
-    katze_object_assign (priv->static_pixbuf, NULL);
+    katze_object_assign (throbber->pixbuf, NULL);
+    katze_object_assign (throbber->static_pixbuf, NULL);
 }
 
 static void
@@ -676,13 +654,11 @@ pixbuf_assign_icon (GdkPixbuf**    pixbuf,
     if (*pixbuf)
         g_object_unref (*pixbuf);
 
-    KatzeThrobberPrivate* priv = throbber->priv;
-
     GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (throbber));
     GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
     *pixbuf = gtk_icon_theme_load_icon (icon_theme,
                                         icon_name,
-                                        MAX (priv->width, priv->height),
+                                        MAX (throbber->width, throbber->height),
                                         (GtkIconLookupFlags) 0,
                                         NULL);
 }
@@ -690,23 +666,21 @@ pixbuf_assign_icon (GdkPixbuf**    pixbuf,
 static void
 icon_theme_changed (KatzeThrobber* throbber)
 {
-    KatzeThrobberPrivate* priv = throbber->priv;
-
-    if (priv->icon_name)
-        pixbuf_assign_icon (&priv->pixbuf, priv->icon_name,
+    if (throbber->icon_name)
+        pixbuf_assign_icon (&throbber->pixbuf, throbber->icon_name,
                             throbber);
 
-    if (priv->static_icon_name)
-        pixbuf_assign_icon (&priv->static_pixbuf, priv->static_icon_name,
+    if (throbber->static_icon_name)
+        pixbuf_assign_icon (&throbber->static_pixbuf, throbber->static_icon_name,
                             throbber);
-    else if (priv->static_stock_id)
+    else if (throbber->static_stock_id)
     {
-        if (priv->static_pixbuf)
-            g_object_unref (priv->static_pixbuf);
+        if (throbber->static_pixbuf)
+            g_object_unref (throbber->static_pixbuf);
 
-        priv->static_pixbuf = gtk_widget_render_icon (GTK_WIDGET (throbber),
-                                                      priv->static_stock_id,
-                                                      priv->icon_size,
+        throbber->static_pixbuf = gtk_widget_render_icon (GTK_WIDGET (throbber),
+                                                      throbber->static_stock_id,
+                                                      throbber->icon_size,
                                                       NULL);
     }
 
@@ -729,21 +703,17 @@ katze_throbber_unmap (GtkWidget* widget)
 static gboolean
 katze_throbber_timeout (KatzeThrobber*  throbber)
 {
-    KatzeThrobberPrivate* priv = throbber->priv;
-
-    priv->index++;
+    throbber->index++;
     gtk_widget_queue_draw (GTK_WIDGET (throbber));
 
-    return priv->animated;
+    return throbber->animated;
 }
 
 static void
 katze_throbber_timeout_destroy (KatzeThrobber*  throbber)
 {
-    KatzeThrobberPrivate* priv = throbber->priv;
-
-    priv->index = 0;
-    priv->timer_id = -1;
+    throbber->index = 0;
+    throbber->timer_id = -1;
 }
 
 static void
@@ -773,10 +743,10 @@ static void
 katze_throbber_size_request (GtkWidget*      widget,
                              GtkRequisition* requisition)
 {
-    KatzeThrobberPrivate* priv = KATZE_THROBBER (widget)->priv;
+    KatzeThrobber* throbber = KATZE_THROBBER (widget);
 
-    requisition->width = priv->width;
-    requisition->height = priv->height;
+    requisition->width = throbber->width;
+    requisition->height = throbber->height;
 
     GTK_WIDGET_CLASS (katze_throbber_parent_class)->size_request (widget,
                                                                   requisition);
@@ -786,92 +756,92 @@ static gboolean
 katze_throbber_expose_event (GtkWidget*      widget,
                              GdkEventExpose* event)
 {
-    KatzeThrobberPrivate* priv = KATZE_THROBBER (widget)->priv;
+    KatzeThrobber* throbber = KATZE_THROBBER (widget);
 
-    if (G_UNLIKELY (!priv->width || !priv->height))
+    if (G_UNLIKELY (!throbber->width || !throbber->height))
         return TRUE;
 
-    if (G_UNLIKELY (!priv->pixbuf && !priv->static_pixbuf))
-        if (priv->animated && !priv->pixbuf && !priv->icon_name)
+    if (G_UNLIKELY (!throbber->pixbuf && !throbber->static_pixbuf))
+        if (throbber->animated && !throbber->pixbuf && !throbber->icon_name)
             return TRUE;
 
-    if (!priv->animated &&
-        (priv->static_pixbuf || priv->static_icon_name || priv->static_stock_id))
+    if (!throbber->animated &&
+        (throbber->static_pixbuf || throbber->static_icon_name || throbber->static_stock_id))
     {
-        if (G_UNLIKELY (!priv->static_pixbuf && priv->static_icon_name))
+        if (G_UNLIKELY (!throbber->static_pixbuf && throbber->static_icon_name))
         {
             icon_theme_changed (KATZE_THROBBER (widget));
 
-            if (!priv->static_pixbuf)
+            if (!throbber->static_pixbuf)
             {
                 g_warning ("Named icon '%s' couldn't be loaded",
-                           priv->static_icon_name);
-                katze_assign (priv->static_icon_name, NULL);
+                           throbber->static_icon_name);
+                katze_assign (throbber->static_icon_name, NULL);
                 return TRUE;
             }
         }
-        else if (G_UNLIKELY (!priv->static_pixbuf && priv->static_stock_id))
+        else if (G_UNLIKELY (!throbber->static_pixbuf && throbber->static_stock_id))
         {
             icon_theme_changed (KATZE_THROBBER (widget));
 
-            if (!priv->static_pixbuf)
+            if (!throbber->static_pixbuf)
             {
                 g_warning ("Stock icon '%s' couldn't be loaded",
-                           priv->static_stock_id);
-                katze_assign (priv->static_stock_id, NULL);
+                           throbber->static_stock_id);
+                katze_assign (throbber->static_stock_id, NULL);
                 return TRUE;
             }
         }
 
-        gdk_draw_pixbuf (event->window, NULL, priv->static_pixbuf,
+        gdk_draw_pixbuf (event->window, NULL, throbber->static_pixbuf,
                          0, 0,
                          widget->allocation.x,
                          widget->allocation.y,
-                         priv->width, priv->height,
+                         throbber->width, throbber->height,
                          GDK_RGB_DITHER_NONE, 0, 0);
     }
     else
     {
-        if (G_UNLIKELY (priv->icon_name && !priv->pixbuf))
+        if (G_UNLIKELY (throbber->icon_name && !throbber->pixbuf))
         {
             icon_theme_changed (KATZE_THROBBER (widget));
 
-            if (!priv->pixbuf)
+            if (!throbber->pixbuf)
             {
-                g_warning ("Icon '%s' couldn't be loaded", priv->icon_name);
-                katze_assign (priv->icon_name, NULL);
+                g_warning ("Icon '%s' couldn't be loaded", throbber->icon_name);
+                katze_assign (throbber->icon_name, NULL);
                 return TRUE;
             }
         }
 
-        if (G_UNLIKELY (!priv->pixbuf))
+        if (G_UNLIKELY (!throbber->pixbuf))
             return TRUE;
 
-        gint cols = gdk_pixbuf_get_width (priv->pixbuf) / priv->width;
-        gint rows = gdk_pixbuf_get_height (priv->pixbuf) / priv->height;
+        gint cols = gdk_pixbuf_get_width (throbber->pixbuf) / throbber->width;
+        gint rows = gdk_pixbuf_get_height (throbber->pixbuf) / throbber->height;
 
         if (G_LIKELY (cols > 0 && rows > 0))
         {
-            gint index = priv->index % (cols * rows);
+            gint index = throbber->index % (cols * rows);
 
-            if (G_LIKELY (priv->timer_id >= 0))
+            if (G_LIKELY (throbber->timer_id >= 0))
                 index = MAX (index, 1);
 
-            guint x = (index % cols) * priv->width;
-            guint y = (index / cols) * priv->height;
+            guint x = (index % cols) * throbber->width;
+            guint y = (index / cols) * throbber->height;
 
-            gdk_draw_pixbuf (event->window, NULL, priv->pixbuf,
+            gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
                              x, y,
                              widget->allocation.x,
                              widget->allocation.y,
-                             priv->width, priv->height,
+                             throbber->width, throbber->height,
                              GDK_RGB_DITHER_NONE, 0, 0);
         }
         else
         {
             g_warning ("Animation frames are broken");
-            katze_assign (priv->icon_name, NULL);
-            katze_object_assign (priv->pixbuf, NULL);
+            katze_assign (throbber->icon_name, NULL);
+            katze_object_assign (throbber->pixbuf, NULL);
         }
     }
 
