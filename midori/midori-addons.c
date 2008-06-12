@@ -19,18 +19,16 @@
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (MidoriAddons, midori_addons, GTK_TYPE_VBOX)
-
-struct _MidoriAddonsPrivate
+struct _MidoriAddons
 {
+    GtkVBox parent_instance;
+
     MidoriAddonKind kind;
     GtkWidget* toolbar;
     GtkWidget* treeview;
 };
 
-#define MIDORI_ADDONS_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-     MIDORI_TYPE_ADDONS, MidoriAddonsPrivate))
+G_DEFINE_TYPE (MidoriAddons, midori_addons, GTK_TYPE_VBOX)
 
 GType
 midori_addon_kind_get_type (void)
@@ -52,7 +50,7 @@ midori_addon_kind_get_type (void)
 static void
 midori_addons_class_init (MidoriAddonsClass* class)
 {
-    g_type_class_add_private (class, sizeof (MidoriAddonsPrivate));
+    /* Nothing to do */
 }
 
 static const
@@ -75,14 +73,12 @@ static void
 midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
                                      MidoriAddons* addons)
 {
-    MidoriAddonsPrivate* priv = addons->priv;
-
     GtkWidget* dialog = gtk_message_dialog_new (
         GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
         GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
         "Put scripts in the folder ~/.local/share/midori/%s",
-        _folder_for_kind (priv->kind));
+        _folder_for_kind (addons->kind));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
 }
@@ -94,12 +90,12 @@ midori_addons_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                        GtkTreeIter*       iter,
                                        GtkWidget*         treeview)
 {
-    // gchar* source_id;
-    // gtk_tree_model_get (model, iter, 2, &source_id, -1);
+    /* gchar* source_id;
+    gtk_tree_model_get (model, iter, 2, &source_id, -1); */
 
     g_object_set (renderer, "stock-id", GTK_STOCK_FILE, NULL);
 
-    // g_free (source_id);
+    /* g_free (source_id); */
 }
 
 static void
@@ -114,7 +110,7 @@ midori_addons_treeview_render_text_cb (GtkTreeViewColumn* column,
     gchar* b;
     gtk_tree_model_get (model, iter, 0, &filename, 1, &a, 2, &b, -1);
 
-    // FIXME: Convert filename to UTF8
+    /* FIXME: Convert filename to UTF8 */
     gchar* text = g_strdup_printf ("%s", filename);
     g_object_set (renderer, "text", text, NULL);
     g_free (text);
@@ -142,32 +138,29 @@ midori_addons_treeview_row_activated_cb (GtkTreeView*       treeview,
 static void
 midori_addons_init (MidoriAddons* addons)
 {
-    addons->priv = MIDORI_ADDONS_GET_PRIVATE (addons);
-
-    MidoriAddonsPrivate* priv = addons->priv;
-
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_pixbuf;
-    priv->treeview = gtk_tree_view_new ();
-    gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
+
+    addons->treeview = gtk_tree_view_new ();
+    gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (addons->treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
         (GtkTreeCellDataFunc)midori_addons_treeview_render_icon_cb,
-        priv->treeview, NULL);
+        addons->treeview, NULL);
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_addons_treeview_render_text_cb,
-        priv->treeview, NULL);
-    gtk_tree_view_append_column (GTK_TREE_VIEW (priv->treeview), column);
-    g_signal_connect (priv->treeview, "row-activated",
+        addons->treeview, NULL);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (addons->treeview), column);
+    g_signal_connect (addons->treeview, "row-activated",
                       G_CALLBACK (midori_addons_treeview_row_activated_cb),
                       addons);
-    gtk_widget_show (priv->treeview);
-    gtk_box_pack_start (GTK_BOX (addons), priv->treeview, TRUE, TRUE, 0);
+    gtk_widget_show (addons->treeview);
+    gtk_box_pack_start (GTK_BOX (addons), addons->treeview, TRUE, TRUE, 0);
 }
 
 static gboolean
@@ -178,9 +171,10 @@ _js_script_from_file (JSContextRef js_context,
     gboolean result = FALSE;
     gchar* script;
     GError* error = NULL;
+
     if (g_file_get_contents (filename, &script, NULL, &error))
     {
-        // Wrap the script to prevent global variables
+        /* Wrap the script to prevent global variables */
         gchar* wrapped_script = g_strdup_printf (
             "var wrapped = function () { %s }; wrapped ();", script);
         if (gjs_script_eval (js_context, wrapped_script, exception))
@@ -203,11 +197,9 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
                                             JSObjectRef        js_window,
                                             MidoriAddons*      addons)
 {
-    MidoriAddonsPrivate* priv = addons->priv;
-
-    // FIXME: We want to honor system installed addons as well
+    /* FIXME: We want to honor system installed addons as well */
     gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
-                                          _folder_for_kind (priv->kind), NULL);
+                                          _folder_for_kind (addons->kind), NULL);
     GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
     if (addon_dir)
     {
@@ -252,12 +244,10 @@ midori_addons_new (GtkWidget*      web_widget,
     g_return_val_if_fail (GTK_IS_WIDGET (web_widget), NULL);
 
     MidoriAddons* addons = g_object_new (MIDORI_TYPE_ADDONS,
-                                         // "kind", kind,
+                                         /* "kind", kind, */
                                          NULL);
 
-    MidoriAddonsPrivate* priv = addons->priv;
-    priv->kind = kind;
-
+    addons->kind = kind;
     if (kind == MIDORI_ADDON_USER_SCRIPTS)
         g_signal_connect (web_widget, "window-object-cleared",
             G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
@@ -265,9 +255,9 @@ midori_addons_new (GtkWidget*      web_widget,
     GtkListStore* liststore = gtk_list_store_new (3, G_TYPE_STRING,
                                                      G_TYPE_INT,
                                                      G_TYPE_STRING);
-    // FIXME: We want to honor system installed addons as well
+    /* FIXME: We want to honor system installed addons as well */
     gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
-                                          _folder_for_kind (priv->kind), NULL);
+                                          _folder_for_kind (addons->kind), NULL);
     GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
     if (addon_dir)
     {
@@ -281,7 +271,7 @@ midori_addons_new (GtkWidget*      web_widget,
         }
         g_dir_close (addon_dir);
     }
-    gtk_tree_view_set_model (GTK_TREE_VIEW (priv->treeview),
+    gtk_tree_view_set_model (GTK_TREE_VIEW (addons->treeview),
                              GTK_TREE_MODEL (liststore));
 
     return GTK_WIDGET (addons);
@@ -298,11 +288,9 @@ midori_addons_new (GtkWidget*      web_widget,
 GtkWidget*
 midori_addons_get_toolbar (MidoriAddons* addons)
 {
-    MidoriAddonsPrivate* priv = addons->priv;
-
     g_return_val_if_fail (MIDORI_IS_ADDONS (addons), NULL);
 
-    if (!priv->toolbar)
+    if (!addons->toolbar)
     {
         GtkWidget* toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
@@ -322,8 +310,8 @@ midori_addons_get_toolbar (MidoriAddons* addons)
             G_CALLBACK (midori_addons_button_add_clicked_cb), addons);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
-        priv->toolbar = toolbar;
+        addons->toolbar = toolbar;
     }
 
-    return priv->toolbar;
+    return addons->toolbar;
 }

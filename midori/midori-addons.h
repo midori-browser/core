@@ -35,13 +35,6 @@ typedef struct _MidoriAddons                MidoriAddons;
 typedef struct _MidoriAddonsPrivate         MidoriAddonsPrivate;
 typedef struct _MidoriAddonsClass           MidoriAddonsClass;
 
-struct _MidoriAddons
-{
-    GtkVBox parent_instance;
-
-    MidoriAddonsPrivate* priv;
-};
-
 struct _MidoriAddonsClass
 {
     GtkVBoxClass parent_class;
