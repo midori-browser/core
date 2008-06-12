@@ -14,12 +14,10 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
-
-static MidoriApp* _midori_app_singleton = NULL;
-
-struct _MidoriAppPrivate
+struct _MidoriApp
 {
+    GObject parent_instance;
+
     GList* browsers;
     MidoriBrowser* browser;
     GtkAccelGroup* accel_group;
@@ -28,9 +26,9 @@ struct _MidoriAppPrivate
     MidoriTrash* trash;
 };
 
-#define MIDORI_APP_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-     MIDORI_TYPE_APP, MidoriAppPrivate))
+G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
+
+static MidoriApp* _midori_app_singleton = NULL;
 
 enum
 {
@@ -140,8 +138,6 @@ midori_app_class_init (MidoriAppClass* class)
                                      _("The current number of browsers"),
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
-
-    g_type_class_add_private (class, sizeof (MidoriAppPrivate));
 }
 
 static GObject*
@@ -163,27 +159,22 @@ midori_app_init (MidoriApp* app)
 
     _midori_app_singleton = app;
 
-    app->priv = MIDORI_APP_GET_PRIVATE (app);
+    app->accel_group = gtk_accel_group_new ();
 
-    MidoriAppPrivate* priv = app->priv;
-
-    priv->accel_group = gtk_accel_group_new ();
-
-    priv->settings = midori_web_settings_new ();
-    priv->trash = midori_trash_new (10);
+    app->settings = midori_web_settings_new ();
+    app->trash = midori_trash_new (10);
 }
 
 static void
 midori_app_finalize (GObject* object)
 {
     MidoriApp* app = MIDORI_APP (object);
-    MidoriAppPrivate* priv = app->priv;
 
-    g_list_free (priv->browsers);
-    g_object_unref (priv->accel_group);
+    g_list_free (app->browsers);
+    g_object_unref (app->accel_group);
 
-    g_object_unref (priv->settings);
-    g_object_unref (priv->trash);
+    g_object_unref (app->settings);
+    g_object_unref (app->trash);
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
 }
@@ -195,19 +186,18 @@ midori_app_set_property (GObject*      object,
                          GParamSpec*   pspec)
 {
     MidoriApp* app = MIDORI_APP (object);
-    MidoriAppPrivate* priv = app->priv;
 
     switch (prop_id)
     {
     case PROP_SETTINGS:
-        katze_object_assign (priv->settings, g_value_get_object (value));
-        g_object_ref (priv->settings);
-        // FIXME: Propagate settings to all browsers
+        katze_object_assign (app->settings, g_value_get_object (value));
+        g_object_ref (app->settings);
+        /* FIXME: Propagate settings to all browsers */
         break;
     case PROP_TRASH:
-        katze_object_assign (priv->trash, g_value_get_object (value));
-        g_object_ref (priv->trash);
-        // FIXME: Propagate trash to all browsers
+        katze_object_assign (app->trash, g_value_get_object (value));
+        g_object_ref (app->trash);
+        /* FIXME: Propagate trash to all browsers */
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -222,21 +212,20 @@ midori_app_get_property (GObject*    object,
                          GParamSpec* pspec)
 {
     MidoriApp* app = MIDORI_APP (object);
-    MidoriAppPrivate* priv = app->priv;
 
     switch (prop_id)
     {
     case PROP_SETTINGS:
-        g_value_set_object (value, priv->settings);
+        g_value_set_object (value, app->settings);
         break;
     case PROP_TRASH:
-        g_value_set_object (value, priv->trash);
+        g_value_set_object (value, app->trash);
         break;
     case PROP_BROWSER:
-        g_value_set_object (value, priv->browser);
+        g_value_set_object (value, app->browser);
         break;
     case PROP_BROWSER_COUNT:
-        g_value_set_uint (value, g_list_length (priv->browsers));
+        g_value_set_uint (value, g_list_length (app->browsers));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -249,9 +238,7 @@ midori_browser_focus_in_event_cb (MidoriBrowser* browser,
                                   GdkEventFocus* event,
                                   MidoriApp*     app)
 {
-    MidoriAppPrivate* priv = app->priv;
-
-    priv->browser = browser;
+    app->browser = browser;
     return FALSE;
 }
 
@@ -260,11 +247,9 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
                               const gchar*   uri,
                               MidoriApp*     app)
 {
-    MidoriAppPrivate* priv = app->priv;
-
     MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
-                                               "settings", priv->settings,
-                                               "trash", priv->trash,
+                                               "settings", app->settings,
+                                               "trash", app->trash,
                                                NULL);
     midori_browser_add_uri (new_browser, uri);
     gtk_widget_show (GTK_WIDGET (new_browser));
@@ -284,10 +269,8 @@ static gboolean
 midori_browser_destroy_cb (MidoriBrowser* browser,
                            MidoriApp*     app)
 {
-    MidoriAppPrivate* priv = app->priv;
-
-    priv->browsers = g_list_remove (priv->browsers, browser);
-    if (g_list_nth (priv->browsers, 0))
+    app->browsers = g_list_remove (app->browsers, browser);
+    if (g_list_nth (app->browsers, 0))
         return FALSE;
     midori_app_quit (app);
     return TRUE;
@@ -333,9 +316,7 @@ void
 midori_app_add_browser (MidoriApp*     app,
                         MidoriBrowser* browser)
 {
-    MidoriAppPrivate* priv = app->priv;
-
-    gtk_window_add_accel_group (GTK_WINDOW (browser), priv->accel_group);
+    gtk_window_add_accel_group (GTK_WINDOW (browser), app->accel_group);
     g_object_connect (browser,
         "signal::focus-in-event", midori_browser_focus_in_event_cb, app,
         "signal::new-window", midori_browser_new_window_cb, app,
@@ -344,7 +325,7 @@ midori_app_add_browser (MidoriApp*     app,
         "signal::quit", midori_browser_quit_cb, app,
         NULL);
 
-    priv->browsers = g_list_prepend (priv->browsers, browser);
+    app->browsers = g_list_prepend (app->browsers, browser);
 }
 
 /**
@@ -360,9 +341,7 @@ midori_app_get_settings (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
 
-    MidoriAppPrivate* priv = app->priv;
-
-    return priv->settings;
+    return app->settings;
 }
 
 /**
@@ -395,9 +374,7 @@ midori_app_get_trash (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
 
-    MidoriAppPrivate* priv = app->priv;
-
-    return priv->trash;
+    return app->trash;
 }
 
 /**

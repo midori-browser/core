@@ -37,13 +37,6 @@ typedef struct _MidoriApp                MidoriApp;
 typedef struct _MidoriAppPrivate         MidoriAppPrivate;
 typedef struct _MidoriAppClass           MidoriAppClass;
 
-struct _MidoriApp
-{
-    GObject parent_instance;
-
-    MidoriAppPrivate* priv;
-};
-
 struct _MidoriAppClass
 {
     GObjectClass parent_class;
