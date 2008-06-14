@@ -18,8 +18,6 @@
 #include <libsexy/sexy.h>
 #include <webkit/webkit.h>
 
-// -- Types
-
 typedef struct
 {
     MidoriBrowser* browser;
@@ -34,8 +32,6 @@ enum
     ENGINES_COL_ENGINE,
     ENGINES_COL_N
 };
-
-// -- Declarations
 
 void
 update_searchEngine(guint, GtkWidget*);

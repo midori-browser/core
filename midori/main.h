@@ -19,23 +19,22 @@
 
 #include <glib/gi18n.h>
 
-// FIXME: Remove these globals
+/* FIXME: Remove these globals */
 
-GList* searchEngines; // Items of type 'SearchEngine'
 KatzeXbelItem* bookmarks;
 
-// Custom stock items
+/* Custom stock items
 
-// We should distribute these
-// Names should match with epiphany and/ or xdg spec
-/* NOTE: Those uncommented were replaced with remotely related icons
-         in order to reduce the amount of warnings :D */
+   We should distribute these
+   Names should match with epiphany and/ or xdg spec
+   NOTE: Those uncommented were replaced with remotely related icons
+         in order to reduce the amount of warnings */
 
-#define STOCK_BOOKMARK           GTK_STOCK_FILE // "stock_bookmark" "bookmark-web"
-#define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL // "insert-text" "form-fill"
+#define STOCK_BOOKMARK           GTK_STOCK_FILE /* "stock_bookmark" "bookmark-web" */
+#define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL /* "insert-text" "form-fill" */
 #define STOCK_NEWSFEED           GTK_STOCK_INDEX
 
-// We assume that these legacy icon names are usually present
+/* We assume that these legacy icon names are usually present */
 
 #define STOCK_BOOKMARK_ADD       "stock_add-bookmark"
 #define STOCK_HOMEPAGE           GTK_STOCK_HOME
@@ -51,7 +50,7 @@ KatzeXbelItem* bookmarks;
 #define STOCK_USER_TRASH         "gnome-stock-trash"
 #define STOCK_WINDOW_NEW         "stock_new-window"
 
-// For backwards compatibility
+/* For backwards compatibility */
 
 #if !GTK_CHECK_VERSION(2, 10, 0)
 #define GTK_STOCK_SELECT_ALL     "gtk-select-all"

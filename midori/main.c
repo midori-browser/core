@@ -12,25 +12,24 @@
 #include "main.h"
 
 #include "sokoke.h"
-#include "search.h"
 
 #include "midori-app.h"
 #include "midori-websettings.h"
 #include "midori-trash.h"
 #include "midori-browser.h"
+#include "midori-weblist.h"
 #include "gjs.h"
 
-#include <katze/katze.h>
 #include <string.h>
 #include <gtk/gtk.h>
 
-#include "config.h"
+#if HAVE_CONFIG_H
+    #include "config.h"
+#endif
 
 #ifdef ENABLE_NLS
     #include <libintl.h>
 #endif
-
-// -- stock icons
 
 static void stock_items_init(void)
 {
@@ -57,21 +56,24 @@ static void stock_items_init(void)
         { GTK_STOCK_LEAVE_FULLSCREEN, N_("_Leave Fullscreen"), 0, 0, NULL },
         #endif
     };
-    GtkIconFactory* factory = gtk_icon_factory_new();
+    GtkIconSource* icon_source;
+    GtkIconSet* icon_set;
+    GtkIconFactory* factory = gtk_icon_factory_new ();
     guint i;
-    for(i = 0; i < (guint)G_N_ELEMENTS(items); i++)
+
+    for (i = 0; i < (guint)G_N_ELEMENTS (items); i++)
     {
-        GtkIconSource* iconSource = gtk_icon_source_new();
-        gtk_icon_source_set_icon_name(iconSource, items[i].stock_id);
-        GtkIconSet* iconSet = gtk_icon_set_new();
-        gtk_icon_set_add_source(iconSet, iconSource);
-        gtk_icon_source_free(iconSource);
-        gtk_icon_factory_add(factory, items[i].stock_id, iconSet);
-        gtk_icon_set_unref(iconSet);
+        icon_source = gtk_icon_source_new ();
+        gtk_icon_source_set_icon_name (icon_source, items[i].stock_id);
+        icon_set = gtk_icon_set_new ();
+        gtk_icon_set_add_source (icon_set, icon_source);
+        gtk_icon_source_free (icon_source);
+        gtk_icon_factory_add (factory, items[i].stock_id, icon_set);
+        gtk_icon_set_unref (icon_set);
     }
-    gtk_stock_add_static(items, G_N_ELEMENTS(items));
-    gtk_icon_factory_add_default(factory);
-    g_object_unref(factory);
+    gtk_stock_add_static (items, G_N_ELEMENTS (items));
+    gtk_icon_factory_add_default (factory);
+    g_object_unref (factory);
 }
 
 static void
@@ -90,6 +92,17 @@ settings_new_from_file (const gchar* filename)
     MidoriWebSettings* settings = midori_web_settings_new ();
     GKeyFile* key_file = g_key_file_new ();
     GError* error = NULL;
+    GObjectClass* class;
+    guint i, n_properties;
+    GParamSpec** pspecs;
+    GParamSpec* pspec;
+    GType type;
+    const gchar* property;
+    gchar* string;
+    gint integer;
+    gfloat number;
+    gboolean boolean;
+
     if (!g_key_file_load_from_file (key_file, filename,
                                    G_KEY_FILE_KEEP_COMMENTS, &error))
     {
@@ -98,19 +111,18 @@ settings_new_from_file (const gchar* filename)
                     error->message);
         g_error_free (error);
     }
-    GObjectClass* class = G_OBJECT_GET_CLASS (settings);
-    guint i, n_properties;
-    GParamSpec** pspecs = g_object_class_list_properties (class, &n_properties);
+    class = G_OBJECT_GET_CLASS (settings);
+    pspecs = g_object_class_list_properties (class, &n_properties);
     for (i = 0; i < n_properties; i++)
     {
-        GParamSpec* pspec = pspecs[i];
+        pspec = pspecs[i];
         if (!(pspec->flags & G_PARAM_WRITABLE))
             continue;
-        GType type = G_PARAM_SPEC_TYPE (pspec);
-        const gchar* property = g_param_spec_get_name (pspec);
+        type = G_PARAM_SPEC_TYPE (pspec);
+        property = g_param_spec_get_name (pspec);
         if (type == G_TYPE_PARAM_STRING)
         {
-            gchar* string = sokoke_key_file_get_string_default (key_file,
+            string = sokoke_key_file_get_string_default (key_file,
                 "settings", property,
                 G_PARAM_SPEC_STRING (pspec)->default_value, NULL);
             g_object_set (settings, property, string, NULL);
@@ -118,21 +130,21 @@ settings_new_from_file (const gchar* filename)
         }
         else if (type == G_TYPE_PARAM_INT)
         {
-            gint integer = sokoke_key_file_get_integer_default (key_file,
+            integer = sokoke_key_file_get_integer_default (key_file,
                 "settings", property,
                 G_PARAM_SPEC_INT (pspec)->default_value, NULL);
             g_object_set (settings, property, integer, NULL);
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
-            gfloat number = sokoke_key_file_get_double_default (key_file,
+            number = sokoke_key_file_get_double_default (key_file,
                 "settings", property,
                 G_PARAM_SPEC_FLOAT (pspec)->default_value, NULL);
             g_object_set (settings, property, number, NULL);
         }
         else if (type == G_TYPE_PARAM_BOOLEAN)
         {
-            gboolean boolean = sokoke_key_file_get_boolean_default (key_file,
+            boolean = sokoke_key_file_get_boolean_default (key_file,
                 "settings", property,
                 G_PARAM_SPEC_BOOLEAN (pspec)->default_value, NULL);
             g_object_set (settings, property, boolean, NULL);
@@ -167,15 +179,22 @@ settings_save_to_file (MidoriWebSettings* settings,
                        const gchar*       filename,
                        GError**           error)
 {
-    GKeyFile* key_file = g_key_file_new ();
-    GObjectClass* class = G_OBJECT_GET_CLASS (settings);
+    GKeyFile* key_file;
+    GObjectClass* class;
     guint i, n_properties;
-    GParamSpec** pspecs = g_object_class_list_properties (class, &n_properties);
+    GParamSpec** pspecs;
+    GParamSpec* pspec;
+    GType type;
+    const gchar* property;
+
+    key_file = g_key_file_new ();
+    class = G_OBJECT_GET_CLASS (settings);
+    pspecs = g_object_class_list_properties (class, &n_properties);
     for (i = 0; i < n_properties; i++)
     {
-        GParamSpec* pspec = pspecs[i];
-        GType type = G_PARAM_SPEC_TYPE (pspec);
-        const gchar* property = g_param_spec_get_name (pspec);
+        pspec = pspecs[i];
+        type = G_PARAM_SPEC_TYPE (pspec);
+        property = g_param_spec_get_name (pspec);
         if (!(pspec->flags & G_PARAM_WRITABLE))
         {
             gchar* comment = g_strdup_printf ("# %s", property);
@@ -226,25 +245,105 @@ settings_save_to_file (MidoriWebSettings* settings,
     return saved;
 }
 
-int
-main (int argc, char** argv)
+static MidoriWebList*
+search_engines_new_from_file (const gchar* filename,
+                              GError**     error)
 {
-    MidoriStartup load_on_startup;
-    gchar* homepage;
+    MidoriWebList* search_engines;
+    GKeyFile* key_file;
+    gchar** engines;
+    guint i, j, n_properties;
+    MidoriWebItem* web_item;
+    GParamSpec** pspecs;
+    const gchar* property;
+    gchar* value;
 
-    locale_init ();
-    g_set_application_name (_("midori"));
+    search_engines = midori_web_list_new ();
+    key_file = g_key_file_new ();
+    g_key_file_load_from_file (key_file, filename,
+                               G_KEY_FILE_KEEP_COMMENTS, error);
+    /*g_key_file_load_from_data_dirs(keyFile, sFilename, NULL
+     , G_KEY_FILE_KEEP_COMMENTS, error);*/
+    engines = g_key_file_get_groups (key_file, NULL);
+    for (i = 0; engines[i] != NULL; i++)
+    {
+        web_item = midori_web_item_new ();
+        pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (web_item),
+	                                         &n_properties);
+        for (j = 0; j < n_properties; j++)
+        {
+            property = g_param_spec_get_name (pspecs[j]);
+            value = g_key_file_get_string (key_file, engines[i],
+	                                   property, NULL);
+            g_object_set (web_item, property, value, NULL);
+            g_free (value);
+        }
+        midori_web_list_add_item (search_engines, web_item);
+    }
+    g_strfreev (engines);
+    g_key_file_free (key_file);
+    return search_engines;
+}
 
-    // Parse cli options
-    gboolean version = FALSE;
+static gboolean
+search_engines_save_to_file (MidoriWebList* search_engines,
+                             const gchar*   filename,
+                             GError**       error)
+{
+    GKeyFile* key_file;
+    guint n, i, j, n_properties;
+    MidoriWebItem* web_item;
+    const gchar* name;
+    GParamSpec** pspecs;
+    const gchar* property;
+    gchar* value;
+    gboolean saved;
+
+    key_file = g_key_file_new ();
+    n = midori_web_list_get_length (search_engines);
+    for (i = 0; i < n; i++)
+    {
+        web_item = midori_web_list_get_nth_item (search_engines, i);
+        name = midori_web_item_get_name (web_item);
+        pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (web_item),
+                                                 &n_properties);
+        for (j = 0; j < n_properties; j++)
+        {
+            property = g_param_spec_get_name (pspecs[j]);
+            g_object_get (web_item, property, &value, NULL);
+            if (value)
+                g_key_file_set_string (key_file, name, property, value);
+            g_free (value);
+        }
+    }
+    saved = sokoke_key_file_save_to_file (key_file, filename, error);
+    g_key_file_free (key_file);
+
+    return saved;
+}
+
+int
+main (int argc,
+      char** argv)
+{
+    gboolean version;
+    GError* error;
     GOptionEntry entries[] =
     {
      { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
      { NULL }
     };
+    MidoriStartup load_on_startup;
+    gchar* homepage;
+    MidoriWebList* search_engines;
 
-    GError* error = NULL;
+    locale_init ();
+    g_set_application_name (_("midori"));
+
+    /* Parse cli options */
+    version = FALSE;
+    error = NULL;
     if (!gtk_init_with_args (&argc, &argv, _("[URL]"), entries,
                              GETTEXT_PACKAGE, &error))
     {
@@ -273,7 +372,7 @@ main (int argc, char** argv)
         return 0;
     }
 
-    // Standalone gjs support
+    /* Standalone gjs support */
     if (argc > 1 && argv[1] && g_str_has_suffix (argv[1], ".js"))
     {
         JSGlobalContextRef js_context = gjs_global_context_new ();
@@ -286,7 +385,7 @@ main (int argc, char** argv)
         return 1;
     }
 
-    // Load configuration files
+    /* Load configuration files */
     GString* error_messages = g_string_new (NULL);
     gchar* config_path = g_build_filename (g_get_user_config_dir (),
                                            PACKAGE_NAME, NULL);
@@ -298,19 +397,19 @@ main (int argc, char** argv)
     gtk_accel_map_load (config_file);
     katze_assign (config_file, g_build_filename (config_path, "search", NULL));
     error = NULL;
-    searchEngines = search_engines_new ();
-    if (!search_engines_from_file (&searchEngines, config_file, &error))
+    search_engines = search_engines_new_from_file (config_file, &error);
+    if (error)
     {
-        // FIXME: We may have a "file empty" error, how do we recognize that?
-        /*if (error->code != G_FILE_ERROR_NOENT)
+        /* FIXME: We may have a "file empty" error, how do we recognize that?
+        if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
                 _("The search engines couldn't be loaded. %s\n"),
-                error->message);*/
+                error->message); */
         g_error_free (error);
     }
     katze_assign (config_file, g_build_filename (config_path, "bookmarks.xbel",
                                                  NULL));
-    bookmarks = katze_xbel_folder_new();
+    bookmarks = katze_xbel_folder_new ();
     error = NULL;
     if (!katze_xbel_folder_from_file (bookmarks, config_file, &error))
     {
@@ -347,40 +446,41 @@ main (int argc, char** argv)
     }
     g_free (config_file);
 
-    // In case of errors
+    /* In case of errors */
     if (error_messages->len)
     {
-        GtkWidget* dialog = gtk_message_dialog_new(NULL
-         , 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE
-         , _("The following errors occured:"));
-        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(dialog), FALSE);
-        gtk_window_set_title(GTK_WINDOW(dialog), g_get_application_name());
-        // FIXME: Use custom program icon
-        gtk_window_set_icon_name(GTK_WINDOW(dialog), "web-browser");
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog)
-         , "%s", error_messages->str);
-        gtk_dialog_add_buttons(GTK_DIALOG(dialog)
-         , GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL
-         , "_Ignore", GTK_RESPONSE_ACCEPT
-         , NULL);
-        if(gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
+        GtkWidget* dialog = gtk_message_dialog_new (
+            NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE,
+            _("The following errors occured:"));
+        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
+        gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
+        /* FIXME: Use custom program icon */
+        gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
+        gtk_message_dialog_format_secondary_text (
+            GTK_MESSAGE_DIALOG (dialog), "%s", error_messages->str);
+        gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+                                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                "_Ignore", GTK_RESPONSE_ACCEPT,
+                                NULL);
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) != GTK_RESPONSE_ACCEPT)
         {
-            search_engines_free(searchEngines);
-            katze_xbel_item_unref(bookmarks);
-            katze_xbel_item_unref(_session);
-            katze_xbel_item_unref(xbel_trash);
-            g_string_free(error_messages, TRUE);
+            g_object_unref (settings);
+            g_object_unref (search_engines);
+            katze_xbel_item_unref (bookmarks);
+            katze_xbel_item_unref (_session);
+            katze_xbel_item_unref (xbel_trash);
+            g_string_free (error_messages, TRUE);
             return 0;
         }
-        gtk_widget_destroy(dialog);
+        gtk_widget_destroy (dialog);
         /* FIXME: Since we will overwrite files that could not be loaded
                   , would we want to make backups? */
     }
     g_string_free (error_messages, TRUE);
 
-    // TODO: Handle any number of separate uris from argv
-    // Open as many tabs as we have uris, seperated by pipes
-    gchar* uri = argc > 1 ? strtok (g_strdup(argv[1]), "|") : NULL;
+    /* TODO: Handle any number of separate uris from argv
+       Open as many tabs as we have uris, seperated by pipes */
+    gchar* uri = argc > 1 ? strtok (g_strdup (argv[1]), "|") : NULL;
     while (uri != NULL)
     {
         KatzeXbelItem* item = katze_xbel_bookmark_new ();
@@ -435,15 +535,15 @@ main (int argc, char** argv)
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, i);
         midori_browser_add_xbel_item (browser, item);
     }
-    // FIXME: Switch to the last active page
+    /* FIXME: Switch to the last active page */
     KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, 0);
     if (!strcmp (katze_xbel_bookmark_get_href (item), ""))
         midori_browser_activate_action (browser, "Location");
     katze_xbel_item_unref (_session);
 
-    // Load extensions
+    /* Load extensions */
     JSGlobalContextRef js_context = gjs_global_context_new ();
-    // FIXME: We want to honor system installed addons as well
+    /* FIXME: We want to honor system installed addons as well */
     gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
                                           "extensions", NULL);
     GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
@@ -456,8 +556,8 @@ main (int argc, char** argv)
             gchar* exception = NULL;
             gjs_script_from_file (js_context, fullname, &exception);
             if (exception)
-            // FIXME: Do we want to print this somewhere else?
-            // FIXME Convert the filename to UTF8
+            /* FIXME: Do we want to print this somewhere else? */
+            /* FIXME Convert the filename to UTF8 */
                 printf ("%s - Exception: %s\n", filename, exception);
             g_free (fullname);
         }
@@ -468,18 +568,19 @@ main (int argc, char** argv)
 
     JSGlobalContextRelease (js_context);
 
-    // Save configuration files
+    /* Save configuration files */
     config_path = g_build_filename (g_get_user_config_dir(), PACKAGE_NAME,
                                     NULL);
     g_mkdir_with_parents (config_path, 0755);
     config_file = g_build_filename (config_path, "search", NULL);
     error = NULL;
-    if (!search_engines_to_file (searchEngines, config_file, &error))
+    if (!search_engines_save_to_file (search_engines, config_file, &error))
     {
-        g_warning (_("The search engines couldn't be saved. %s"), error->message);
+        g_warning (_("The search engines couldn't be saved. %s"),
+                   error->message);
         g_error_free (error);
     }
-    search_engines_free(searchEngines);
+    g_object_unref (search_engines);
     g_free (config_file);
     config_file = g_build_filename (config_path, "bookmarks.xbel", NULL);
     error = NULL;
@@ -499,7 +600,7 @@ main (int argc, char** argv)
     }
     katze_xbel_item_unref (xbel_trash);
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
-    if(load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
+    if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, g_build_filename (config_path,
                                                      "session.xbel", NULL));

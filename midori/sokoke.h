@@ -12,14 +12,16 @@
 #ifndef __SOKOKE_H__
 #define __SOKOKE_H__ 1
 
+#include "midori-weblist.h"
+
 #include <gtk/gtk.h>
 
-// Many themes need this hack for small toolbars to work
+/* Many themes need this hack for small toolbars to work */
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
 gchar*
-sokoke_magic_uri               (const gchar* uri,
-                                const gchar* search);
+sokoke_magic_uri               (const gchar*   uri,
+                                MidoriWebList* search_engines);
 
 void
 sokoke_entry_setup_completion  (GtkEntry* entry);

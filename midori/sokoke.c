@@ -25,49 +25,56 @@
 #include <glib/gprintf.h>
 
 gchar*
-sokoke_magic_uri (const gchar* uri, const gchar* default_search_uri)
+sokoke_magic_uri (const gchar*   uri,
+                  MidoriWebList* search_engines)
 {
-    // Add file:// if we have a local path
+    g_return_val_if_fail (uri, NULL);
+    if (search_engines)
+    {
+        g_return_val_if_fail (MIDORI_IS_WEB_LIST (search_engines), NULL);
+    }
+
+    gchar* current_dir;
+    gchar* result;
+    gchar* search;
+    const gchar* search_uri;
+    gchar** parts;
+    MidoriWebItem* web_item;
+
+    /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);
-    // Construct an absolute path if the file is relative
-    if (g_file_test (uri, G_FILE_TEST_EXISTS) && g_file_test (uri, G_FILE_TEST_IS_REGULAR))
+    /* Construct an absolute path if the file is relative */
+    if (g_file_test (uri, G_FILE_TEST_EXISTS)
+        && g_file_test (uri, G_FILE_TEST_IS_REGULAR))
     {
-        gchar* current_dir = g_get_current_dir ();
-        gchar* result = g_strconcat ("file://", current_dir, G_DIR_SEPARATOR_S, uri, NULL);
+        current_dir = g_get_current_dir ();
+        result = g_strconcat ("file://", current_dir,
+                              G_DIR_SEPARATOR_S, uri, NULL);
         g_free (current_dir);
         return result;
     }
-    // Do we need to add a protocol?
+    /* Do we need to add a protocol? */
     if (!strstr (uri, "://"))
     {
-        // Do we have a domain, ip address or localhost?
+        /* Do we have a domain, ip address or localhost? */
         if (strchr (uri, '.') != NULL || !strcmp (uri, "localhost"))
             return g_strconcat ("http://", uri, NULL);
-        // We don't want to search? So return early.
-        if (!default_search_uri)
+        /* We don't want to search? So return early. */
+        if (!search_engines)
             return g_strdup (uri);
-        gchar* search;
-        const gchar* search_uri = NULL;
-        // Do we have a keyword and a string?
-        gchar** parts = g_strsplit (uri, " ", 2);
+        search = NULL;
+        search_uri = NULL;
+        /* Do we have a keyword and a string? */
+        parts = g_strsplit (uri, " ", 2);
         if (parts[0] && parts[1])
         {
-            guint n = g_list_length (searchEngines);
-            guint i;
-            for (i = 0; i < n; i++)
-            {
-                MidoriWebItem* web_item = (MidoriWebItem*)g_list_nth_data (
-                    searchEngines, i);
-                if (!strcmp (midori_web_item_get_token (web_item), parts[0]))
-                    search_uri = midori_web_item_get_uri (web_item);
-            }
+            web_item = midori_web_list_find_token (search_engines, parts[0]);
+            if (web_item)
+                search_uri = midori_web_item_get_uri (web_item);
+        }
         if (search_uri)
             search = g_strdup_printf (search_uri, parts[1]);
-        }
-        // We only have a word or there is no matching keyword, so search for it
-        if (!search_uri)
-            search = g_strdup_printf (default_search_uri, uri);
         return search;
     }
     return g_strdup (uri);
@@ -84,7 +91,8 @@ sokoke_entry_setup_completion (GtkEntry* entry)
     gtk_entry_completion_set_text_column (completion, 0);
     gtk_entry_completion_set_minimum_key_length (completion, 3);
     gtk_entry_set_completion (entry, completion);
-    gtk_entry_completion_set_popup_completion (completion, FALSE); //...
+    /* FIXME: Completion doesn't work well, so it's disabled */
+    gtk_entry_completion_set_popup_completion (completion, FALSE);
 }
 
 void
@@ -101,8 +109,8 @@ void
 sokoke_combo_box_add_strings (GtkComboBox* combobox,
                               const gchar* label_first, ...)
 {
-    // Add a number of strings to a combobox, terminated with NULL
-    // This works only for text comboboxes
+    /* Add a number of strings to a combobox, terminated with NULL
+       This works only for text comboboxes */
     va_list args;
     va_start (args, label_first);
 
@@ -115,7 +123,7 @@ sokoke_combo_box_add_strings (GtkComboBox* combobox,
 
 void sokoke_widget_set_visible (GtkWidget* widget, gboolean visible)
 {
-    // Show or hide the widget
+    /* Show or hide the widget */
     if (visible)
         gtk_widget_show (widget);
     else
@@ -125,7 +133,7 @@ void sokoke_widget_set_visible (GtkWidget* widget, gboolean visible)
 void
 sokoke_container_show_children (GtkContainer* container)
 {
-    // Show every child but not the container itself
+    /* Show every child but not the container itself */
     gtk_container_foreach (container, (GtkCallback)(gtk_widget_show_all), NULL);
 }
 
@@ -149,7 +157,7 @@ sokoke_widget_popup_position_menu (GtkMenu*  menu,
     SokokePopupInfo* info = user_data;
     GtkWidget* widget = info->widget;
 
-    // Retrieve size and position of both widget and menu
+    /* Retrieve size and position of both widget and menu */
     if (GTK_WIDGET_NO_WINDOW (widget))
     {
         gdk_window_get_position (widget->window, &wx, &wy);
@@ -161,11 +169,11 @@ sokoke_widget_popup_position_menu (GtkMenu*  menu,
     gtk_widget_size_request (GTK_WIDGET (menu), &menu_req);
     gtk_widget_size_request (widget, &widget_req);
     menu_width = menu_req.width;
-    gint widget_height = widget_req.height; // Better than allocation.height
+    gint widget_height = widget_req.height; /* Better than allocation.height */
 
-    // Calculate menu position
+    /* Calculate menu position */
     if (info->position == SOKOKE_MENU_POSITION_CURSOR)
-        ; // Do nothing?
+        ; /* Do nothing? */
     else if (info->position == SOKOKE_MENU_POSITION_RIGHT)
     {
         *x = wx + widget->allocation.width - menu_width;
@@ -225,7 +233,7 @@ sokoke_get_desktop (void)
     static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;
     if (G_UNLIKELY (desktop == SOKOKE_DESKTOP_UNTESTED))
     {
-        // Are we running in Xfce?
+        /* Are we running in Xfce? */
         gint result; gchar* out; gchar* err;
         gboolean success = g_spawn_command_line_sync (
             "xprop -root _DT_SAVE_MODE | grep -q xfce4",
@@ -243,8 +251,8 @@ GtkWidget*
 sokoke_xfce_header_new (const gchar* icon,
                         const gchar* title)
 {
-    // Create an xfce header with icon and title
-    // This returns NULL if the desktop is not xfce
+    /* Create an xfce header with icon and title
+       This returns NULL if the desktop is not xfce */
     if (sokoke_get_desktop () == SOKOKE_DESKTOP_XFCE)
     {
         GtkWidget* entry = gtk_entry_new ();
@@ -274,10 +282,10 @@ sokoke_xfce_header_new (const gchar* icon,
 GtkWidget*
 sokoke_superuser_warning_new (void)
 {
-    // Create a horizontal bar with a security warning
-    // This returns NULL if the user is no superuser
+    /* Create a horizontal bar with a security warning
+       This returns NULL if the user is no superuser */
     #ifdef HAVE_UNISTD_H
-    if (G_UNLIKELY (!geteuid ())) // effective superuser?
+    if (G_UNLIKELY (!geteuid ())) /* effective superuser? */
     {
         GtkWidget* hbox = gtk_event_box_new ();
         gtk_widget_modify_bg (hbox, GTK_STATE_NORMAL,
@@ -299,7 +307,7 @@ sokoke_superuser_warning_new (void)
 GtkWidget*
 sokoke_hig_frame_new (const gchar* title)
 {
-    // Create a frame with no actual frame but a bold label and indentation
+    /* Create a frame with no actual frame but a bold label and indentation */
     GtkWidget* frame = gtk_frame_new (NULL);
     gchar* title_bold = g_strdup_printf ("<b>%s</b>", title);
     GtkWidget* label = gtk_label_new (NULL);
@@ -314,8 +322,8 @@ void
 sokoke_widget_set_pango_font_style (GtkWidget* widget,
                                     PangoStyle style)
 {
-    // Conveniently change the pango font style
-    // For some reason we need to reset if we actually want the normal style
+    /* Conveniently change the pango font style
+       For some reason we need to reset if we actually want the normal style */
     if (style == PANGO_STYLE_NORMAL)
         gtk_widget_modify_font (widget, NULL);
     else
@@ -368,7 +376,7 @@ void
 sokoke_entry_set_default_text (GtkEntry*    entry,
                                const gchar* default_text)
 {
-    // Note: The default text initially overwrites any previous text
+    /* Note: The default text initially overwrites any previous text */
     gchar* old_value = g_object_get_data (G_OBJECT (entry),
                                           "sokoke_default_text");
     if (!old_value)

@@ -414,12 +414,12 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
     const gchar* uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
     if (uri)
     {
-        // TODO: bookmark link
+        /* TODO: bookmark link */
     }
 
     if (webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
     {
-        // TODO: view selection source
+        /* TODO: view selection source */
     }
 
     if (!uri && !webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
@@ -505,7 +505,7 @@ midori_web_view_destroy_cb (GtkWidget*     widget,
 static void
 _midori_browser_will_quit (MidoriBrowser* browser)
 {
-    // Nothing to do
+    /* Nothing to do */
 }
 
 static void
@@ -843,7 +843,7 @@ _action_open_activate (GtkAction*     action,
      gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
      gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
 
-     // base the start folder on the current web view's uri if it is local
+     /* base the start folder on the current web view's uri if it is local */
      GtkWidget* web_view = midori_browser_get_current_web_view (browser);
      if (web_view)
          g_object_get (web_view, "uri", &uri, NULL);
@@ -1114,7 +1114,7 @@ static void
 midori_browser_menu_trash_item_activate_cb (GtkWidget*     menuitem,
                                             MidoriBrowser* browser)
 {
-    // Create a new web view with an uri which has been closed before
+    /* Create a new web view with an uri which has been closed before */
     KatzeXbelItem* item = g_object_get_data (G_OBJECT (menuitem),
                                              "KatzeXbelItem");
     const gchar* uri = katze_xbel_bookmark_get_href (item);
@@ -1139,7 +1139,7 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
         const gchar* title = katze_xbel_item_get_title (item);
         const gchar* uri = katze_xbel_bookmark_get_href (item);
         menuitem = gtk_image_menu_item_new_with_label (title ? title : uri);
-        // FIXME: Get the real icon
+        /* FIXME: Get the real icon */
         GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FILE,
                                                     GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
@@ -1169,7 +1169,7 @@ static void
 _action_preferences_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
-    // Show the preferences dialog. Create it if necessary.
+    /* Show the preferences dialog. Create it if necessary. */
     static GtkWidget* dialog = NULL;
     if (GTK_IS_DIALOG (dialog))
         gtk_window_present (GTK_WINDOW (dialog));
@@ -1223,7 +1223,7 @@ _action_reload_stop_activate (GtkAction*     action,
     gchar* stock_id;
     g_object_get (action, "stock-id", &stock_id, NULL);
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
-    // Refresh or stop, depending on the stock id
+    /* Refresh or stop, depending on the stock id */
     if (!strcmp (stock_id, GTK_STOCK_REFRESH))
     {
         /*GdkModifierType state = (GdkModifierType)0;
@@ -1334,11 +1334,13 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
         {
             g_object_get (priv->settings, "location-entry-search",
                           &location_entry_search, NULL);
-            gchar* new_uri = sokoke_magic_uri (uri, location_entry_search);
+            gchar* new_uri = sokoke_magic_uri (uri, NULL/*search_engines*/);
+            if (!new_uri)
+                new_uri = g_strdup (location_entry_search);
             g_free (location_entry_search);
-            // TODO: Use new_uri intermediately when completion is better
-            /* TODO Completion should be generated from history, that is
-                    the uri as well as the title. */
+            /* TODO: Use new_uri intermediately when completion is better
+               Completion should be generated from history, that is
+               the uri as well as the title. */
             sokoke_entry_append_completion (GTK_ENTRY (widget), uri);
             GtkWidget* web_view = midori_browser_get_current_web_view (browser);
             g_object_set (web_view, "uri", new_uri, NULL);
@@ -1525,7 +1527,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             katze_xbel_bookmark_set_href (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
 
-        // FIXME: We want to choose a folder
+        /* FIXME: We want to choose a folder */
         if (new_bookmark)
         {
             katze_xbel_folder_append_item (bookmarks, bookmark);
@@ -1537,8 +1539,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             katze_xbel_item_ref (bookmark);
         }
 
-        // FIXME: update navigationbar
-        // FIXME: Update panel in other windows
+        /* FIXME: update navigationbar */
+        /* FIXME: Update panel in other windows */
     }
     gtk_widget_destroy (dialog);
 }
@@ -1697,7 +1699,7 @@ midori_browser_bookmarks_item_render_icon_cb (GtkTreeViewColumn* column,
         return;
     }
 
-    // TODO: Would it be better to not do this on every redraw?
+    /* TODO: Would it be better to not do this on every redraw? */
     GdkPixbuf* pixbuf = NULL;
     if (katze_xbel_item_is_bookmark (item))
         pixbuf = gtk_widget_render_icon (treeview, STOCK_BOOKMARK,
@@ -1746,12 +1748,12 @@ midori_browser_bookmark_menu_folder_activate_cb (GtkWidget*     menuitem,
                                                  MidoriBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (menuitem));
-    gtk_container_foreach (GTK_CONTAINER (menu), (GtkCallback) gtk_widget_destroy, NULL);//...
+    gtk_container_foreach (GTK_CONTAINER (menu), (GtkCallback) gtk_widget_destroy, NULL);
     KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data(G_OBJECT (menuitem), "KatzeXbelItem");
     _midori_browser_create_bookmark_menu (browser, folder, menu);
-    // Remove all menuitems when the menu is hidden.
-    // FIXME: We really *want* the line below, but it won't work like that
-    //g_signal_connect_after (menu, "hide", G_CALLBACK (gtk_container_foreach), gtk_widget_destroy);
+    /* Remove all menuitems when the menu is hidden.
+       FIXME: We really *want* the line below, but it won't work like that
+       g_signal_connect_after (menu, "hide", G_CALLBACK (gtk_container_foreach), gtk_widget_destroy); */
     gtk_widget_show (menuitem);
 }
 
@@ -1763,10 +1765,10 @@ midori_browser_bookmarkbar_folder_activate_cb (GtkToolItem*   toolitem,
     KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data (
         G_OBJECT (toolitem), "KatzeXbelItem");
     _midori_browser_create_bookmark_menu (browser, folder, menu);
-    // Remove all menuitems when the menu is hidden.
-    // FIXME: We really *should* run the line below, but it won't work like that
-    /*g_signal_connect (menu, "hide", G_CALLBACK (gtk_container_foreach),
-                      gtk_widget_destroy);*/
+    /* Remove all menuitems when the menu is hidden.
+       FIXME: We really *should* run the line below, but it won't work like that
+       g_signal_connect (menu, "hide", G_CALLBACK (gtk_container_foreach),
+                         gtk_widget_destroy); */
     sokoke_widget_popup (GTK_WIDGET (toolitem), GTK_MENU (menu),
 		         NULL, SOKOKE_MENU_POSITION_LEFT);
 }
@@ -1800,7 +1802,7 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
         switch (katze_xbel_item_get_kind (item))
         {
         case KATZE_XBEL_ITEM_KIND_FOLDER:
-            // FIXME: what about katze_xbel_folder_is_folded?
+            /* FIXME: what about katze_xbel_folder_is_folded? */
             menuitem = gtk_image_menu_item_new_with_label (title);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
                 gtk_image_new_from_stock (GTK_STOCK_DIRECTORY,
@@ -1846,7 +1848,7 @@ static void
 _action_manage_search_engines_activate (GtkAction*     action,
                                         MidoriBrowser* browser)
 {
-    // Show the Manage search engines dialog. Create it if necessary.
+    /* Show the Manage search engines dialog. Create it if necessary. */
     static GtkWidget* dialog;
     if (GTK_IS_DIALOG (dialog))
         gtk_window_present (GTK_WINDOW (dialog));
@@ -1873,7 +1875,7 @@ _action_tab_next_activate (GtkAction*     action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    // Advance one tab or jump to the first one if we are at the last one
+    /* Advance one tab or jump to the first one if we are at the last one */
     gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (priv->notebook));
     if (n == gtk_notebook_get_n_pages (GTK_NOTEBOOK (priv->notebook)) - 1)
         n = -1;
@@ -1935,10 +1937,10 @@ static void
 midori_browser_location_changed_cb (GtkWidget*     widget,
                                     MidoriBrowser* browser)
 {
-    // Preserve changes to the uri
-    /*const gchar* newUri = gtk_entry_get_text(GTK_ENTRY(widget));
-    katze_xbel_bookmark_set_href(browser->sessionItem, newUri);*/
-    // FIXME: If we want this feature, this is the wrong approach
+    /* Preserve changes to the uri
+       const gchar* new_uri = gtk_entry_get_text (GTK_ENTRY (widget));
+       katze_xbel_bookmark_set_href(browser->sessionItem, new_uri);
+       FIXME: If we want this feature, this is the wrong approach */
 }
 
 static void
@@ -1960,7 +1962,7 @@ _action_open_in_panel_activate (GtkAction*     action,
 
     GtkWidget* web_view = midori_browser_get_current_web_view (browser);
     const gchar* uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
-    // FIXME: Don't assign the uri here, update it properly while navigating
+    /* FIXME: Don't assign the uri here, update it properly while navigating */
     g_object_set (priv->settings, "last-pageholder-uri", uri, NULL);
     gint n = midori_panel_page_num (MIDORI_PANEL (priv->panel),
                                     priv->panel_pageholder);
@@ -2111,7 +2113,7 @@ _action_undo_tab_close_activate (GtkAction*     action,
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    // Reopen the most recent trash item
+    /* Reopen the most recent trash item */
     KatzeXbelItem* item = midori_trash_get_nth_xbel_item (priv->trash, 0);
     gint n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
@@ -2417,7 +2419,7 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
 {
     MidoriBrowserPrivate* priv = browser->priv;
 
-    // Destroy tabs first, so widgets can still see window elements on destroy
+    /* Destroy tabs first, so widgets can still see window elements on destroy */
     gtk_container_foreach (GTK_CONTAINER (priv->notebook),
                            (GtkCallback) gtk_widget_destroy, NULL);
 }
@@ -2485,7 +2487,7 @@ static const gchar* ui_markup =
     "<menuitem action='Search'/>"
     "<menuitem action='OpenInPageholder'/>"
     "<menu action='Trash'>"
-    // Closed tabs shall be prepended here
+    /* Closed tabs shall be prepended here */
      "<separator/>"
      "<menuitem action='TrashEmpty'/>"
     "</menu>"
@@ -2499,18 +2501,18 @@ static const gchar* ui_markup =
     "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='BookmarksManage'/>"
     "<separator/>"
-    // Bookmarks shall be appended here
+    /* Bookmarks shall be appended here */
    "</menu>"
    "<menu action='Tools'>"
     "<menuitem action='ManageSearchEngines'/>"
-    // Panel items shall be appended here
+    /* Panel items shall be appended here */
    "</menu>"
    "<menu action='Window'>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
     "<menuitem action='TabOverview'/>"
     "<separator/>"
-    // All open tabs shall be appended here
+    /* All open tabs shall be appended here */
    "</menu>"
    "<menu action='Help'>"
     "<menuitem action='HelpContents'/>"
@@ -2563,7 +2565,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     MidoriBrowserPrivate* priv = browser->priv;
 
-    // Setup the window metrics
+    /* Setup the window metrics */
     g_signal_connect (browser, "realize",
                       G_CALLBACK (midori_browser_realize_cb), browser);
     g_signal_connect (browser, "window-state-event",
@@ -2578,7 +2580,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_container_add (GTK_CONTAINER (browser), vbox);
     gtk_widget_show (vbox);
 
-    // Let us see some ui manager magic
+    /* Let us see some ui manager magic */
     priv->action_group = gtk_action_group_new ("Browser");
     gtk_action_group_set_translation_domain (priv->action_group, GETTEXT_PACKAGE);
     gtk_action_group_add_actions (priv->action_group,
@@ -2593,14 +2595,14 @@ midori_browser_init (MidoriBrowser* browser)
     GError* error = NULL;
     if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_markup, -1, &error))
     {
-        // TODO: Should this be a message dialog? When does this happen?
+        /* TODO: Should this be a message dialog? When does this happen? */
         g_message ("User interface couldn't be created: %s", error->message);
         g_error_free (error);
     }
 
     GtkAction* action;
-    // Make all actions except toplevel menus which lack a callback insensitive
-    // This will vanish once all actions are implemented
+    /* Make all actions except toplevel menus which lack a callback insensitive
+       This will vanish once all actions are implemented */
     guint i;
     for (i = 0; i < entries_n; i++)
     {
@@ -2616,9 +2618,9 @@ midori_browser_init (MidoriBrowser* browser)
         gtk_action_set_sensitive (action, toggle_entries[i].callback != NULL);
     }
 
-    //_action_set_active(browser, "Transferbar", config->toolbarTransfers);
+    /* _action_set_active(browser, "Transferbar", config->toolbarTransfers); */
 
-    // Create the menubar
+    /* Create the menubar */
     priv->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     GtkWidget* menuitem = gtk_menu_item_new ();
     gtk_widget_show (menuitem);
@@ -2655,10 +2657,10 @@ midori_browser_init (MidoriBrowser* browser)
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
     _action_set_sensitive (browser, "WorkOffline", FALSE);
 
-    // Create the navigationbar
+    /* Create the navigationbar */
     priv->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
-    // FIXME: settings should be connected with screen changes
+    /* FIXME: settings should be connected with screen changes */
     GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (gtk_settings)
         g_signal_connect (gtk_settings, "notify::gtk-toolbar-style",
@@ -2671,7 +2673,7 @@ midori_browser_init (MidoriBrowser* browser)
     priv->button_homepage = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation/Homepage");
 
-    // Location
+    /* Location */
     priv->location = sexy_icon_entry_new ();
     sokoke_entry_setup_completion (GTK_ENTRY (priv->location));
     priv->location_icon = gtk_image_new ();
@@ -2691,13 +2693,13 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_container_add (GTK_CONTAINER(toolitem), priv->location);
     gtk_toolbar_insert (GTK_TOOLBAR (priv->navigationbar), toolitem, -1);
 
-    // Search
+    /* Search */
     priv->search = sexy_icon_entry_new ();
     sexy_icon_entry_set_icon_highlight (SEXY_ICON_ENTRY (priv->search),
                                         SEXY_ICON_ENTRY_PRIMARY, TRUE);
-    // TODO: Make this actively resizable or enlarge to fit contents?
-    // FIXME: The interface is somewhat awkward and ought to be rethought
-    // TODO: Display "show in context menu" search engines as "completion actions"
+    /* TODO: Make this actively resizable or enlarge to fit contents?
+             The interface is somewhat awkward and ought to be rethought
+             Display "show in context menu" search engines as "completion actions" */
     sokoke_entry_setup_completion (GTK_ENTRY (priv->search));
     g_object_connect (priv->search,
                       "signal::icon-released",
@@ -2729,7 +2731,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (priv->navigationbar),
                         GTK_TOOL_ITEM (priv->button_fullscreen), -1);
 
-    // Bookmarkbar
+    /* Bookmarkbar */
     priv->bookmarkbar = gtk_toolbar_new ();
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->bookmarkbar),
                                GTK_ICON_SIZE_MENU);
@@ -2777,12 +2779,12 @@ midori_browser_init (MidoriBrowser* browser)
     sokoke_container_show_children (GTK_CONTAINER (priv->bookmarkbar));
     gtk_box_pack_start (GTK_BOX (vbox), priv->bookmarkbar, FALSE, FALSE, 0);
 
-    // Superuser warning
+    /* Superuser warning */
     GtkWidget* hbox;
     if ((hbox = sokoke_superuser_warning_new ()))
         gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-    // Create the panel
+    /* Create the panel */
     GtkWidget* hpaned = gtk_hpaned_new ();
     g_signal_connect (hpaned, "notify::position",
                       G_CALLBACK (midori_panel_notify_position_cb),
@@ -2797,7 +2799,7 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (midori_panel_close_cb), browser);
     gtk_paned_pack1 (GTK_PANED (hpaned), priv->panel, FALSE, FALSE);
 
-    // Bookmarks
+    /* Bookmarks */
     GtkWidget* box = gtk_vbox_new (FALSE, 0);
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
@@ -2844,14 +2846,14 @@ midori_browser_init (MidoriBrowser* browser)
                               box, toolbar,
                               "vcard", _("Bookmarks"));
 
-    // Transfers
+    /* Transfers */
     GtkWidget* panel = midori_web_view_new ();
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               panel, NULL,
                               "package", _("Transfers"));
 
-    // Console
+    /* Console */
     priv->panel_console = midori_console_new ();
     gtk_widget_show (priv->panel_console);
     toolbar = midori_console_get_toolbar (MIDORI_CONSOLE (priv->panel_console));
@@ -2860,14 +2862,14 @@ midori_browser_init (MidoriBrowser* browser)
                               priv->panel_console, toolbar,
                               "terminal", _("Console"));
 
-    // History
+    /* History */
     panel = midori_web_view_new ();
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               panel, NULL,
                               "document-open-recent", _("History"));
 
-    // Pageholder
+    /* Pageholder */
     priv->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
                                            "uri", "",
                                            NULL);
@@ -2876,7 +2878,7 @@ midori_browser_init (MidoriBrowser* browser)
                               priv->panel_pageholder, NULL,
                               GTK_STOCK_CONVERT, _("Pageholder"));
 
-    // Userscripts
+    /* Userscripts */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
     gtk_widget_show (panel);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
@@ -2884,7 +2886,7 @@ midori_browser_init (MidoriBrowser* browser)
     midori_panel_append_page (MIDORI_PANEL (priv->panel),
                               panel, toolbar,
                               "", _("Userscripts"));
-    // Userstyles
+    /* Userstyles */
     /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
     gtk_widget_show (panel);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
@@ -2893,7 +2895,7 @@ midori_browser_init (MidoriBrowser* browser)
                               panel, toolbar,
                               "", _("Userstyles"));*/
 
-    // Notebook, containing all web_views
+    /* Notebook, containing all web_views */
     priv->notebook = gtk_notebook_new ();
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (priv->notebook), TRUE);
     gtk_paned_pack2 (GTK_PANED (hpaned), priv->notebook, FALSE, FALSE);
@@ -2902,7 +2904,7 @@ midori_browser_init (MidoriBrowser* browser)
                             browser);
     gtk_widget_show (priv->notebook);
 
-    // Incremental findbar
+    /* Incremental findbar */
     priv->find = gtk_toolbar_new ();
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->find), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (priv->find), GTK_TOOLBAR_BOTH_HORIZ);
@@ -2959,17 +2961,17 @@ midori_browser_init (MidoriBrowser* browser)
     sokoke_container_show_children (GTK_CONTAINER (priv->find));
     gtk_box_pack_start (GTK_BOX (vbox), priv->find, FALSE, FALSE, 0);
 
-    // Statusbar
-    // TODO: fix children overlapping statusbar border
+    /* Statusbar */
+    /* FIXME: children are overlapping the statusbar border */
     priv->statusbar = gtk_statusbar_new ();
     gtk_box_pack_start (GTK_BOX (vbox), priv->statusbar, FALSE, FALSE, 0);
     priv->progressbar = gtk_progress_bar_new ();
-    // Setting the progressbar's height to 1 makes it fit in the statusbar
+    /* Setting the progressbar's height to 1 makes it fit in the statusbar */
     gtk_widget_set_size_request (priv->progressbar, -1, 1);
     gtk_box_pack_start (GTK_BOX (priv->statusbar), priv->progressbar,
                         FALSE, FALSE, 3);
 
-    // Extensions
+    /* Extensions */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
     gtk_widget_show (panel);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
@@ -3176,17 +3178,17 @@ midori_browser_set_property (GObject*      object,
         _midori_browser_update_settings (browser);
         g_signal_connect (priv->settings, "notify",
                       G_CALLBACK (midori_browser_settings_notify), browser);
-        // FIXME: Assigning settings must be conditional, if web view or not
-        // FIXME: Assign settings only if the same settings object was used
+        /* FIXME: Assigning settings must be conditional, if web view or not */
+        /* FIXME: Assign settings only if the same settings object was used */
         gtk_container_foreach (GTK_CONTAINER (priv->notebook),
                                (GtkCallback) midori_web_view_set_settings,
                                priv->settings);
         break;
     case PROP_TRASH:
-        ; // FIXME: Disconnect handlers
+        ; /* FIXME: Disconnect handlers */
         katze_object_assign (priv->trash, g_value_get_object (value));
         g_object_ref (priv->trash);
-        // FIXME: Connect to updates
+        /* FIXME: Connect to updates */
         _midori_browser_update_actions (browser);
         break;
     default:
@@ -3382,7 +3384,7 @@ midori_browser_remove_tab (MidoriBrowser* browser,
     GtkWidget* scrolled = _midori_browser_scrolled_for_child (browser, widget);
     gtk_container_remove (GTK_CONTAINER (priv->notebook), scrolled);
 
-    // FIXME: Remove the menuitem if this is a web view
+    /* FIXME: Remove the menuitem if this is a web view */
 }
 
 /**
@@ -3602,7 +3604,7 @@ midori_browser_get_proxy_xbel_folder (MidoriBrowser* browser)
     if (!priv->proxy_xbel_folder)
     {
         priv->proxy_xbel_folder = katze_xbel_folder_new ();
-        // FIXME: Fill in xbel items of all present web views
+        /* FIXME: Fill in xbel items of all present web views */
     }
     return priv->proxy_xbel_folder;
 }

@@ -28,7 +28,11 @@ if bld.env ()['CONVERT']:
                                     '-background', 'transparent',
                                     '-geometry', format, '-extent', format,
                                     srcdir + '/data/midori.svg',
-                                    blddir + '/icons/' + format + '/midori.png'])
+                                    blddir + '/icons/' + format + '/midori.png'],
+                                    stderr=subprocess.PIPE)
         if not convert.wait ():
             install_files ('DATADIR', 'icons/hicolor/' + format + '/apps',
                            blddir + '/icons/' + format + '/midori.png')
+        else:
+            Params.pprint ('BLUE', "Optimized icons could not be created.")
+            break

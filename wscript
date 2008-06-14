@@ -21,6 +21,7 @@ blddir = '_build_'
 
 def configure (conf):
     conf.check_tool ('compiler_cc')
+
     if not Params.g_options.disable_nls:
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
@@ -53,6 +54,7 @@ def configure (conf):
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.write_config_header ('config.h')
+    conf.env['CCFLAGS'] += ['-DHAVE_CONFIG_H']
 
 def set_options (opt):
     opt.tool_options ('compiler_cc')
