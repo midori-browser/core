@@ -509,10 +509,7 @@ main (int argc,
 
     stock_items_init ();
 
-    MidoriApp* app = midori_app_new ();
-    midori_app_set_settings (app, settings);
-
-    MidoriTrash* trash = midori_app_get_trash (app);
+    MidoriTrash* trash = midori_trash_new (10);
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
     guint i;
     for (i = 0; i < n; i++)
@@ -521,9 +518,16 @@ main (int argc,
         midori_trash_prepend_xbel_item (trash, item);
     }
 
+    MidoriApp* app = g_object_new (MIDORI_TYPE_APP,
+                                   "settings", settings,
+                                   "trash", trash,
+                                   "search-engines", search_engines,
+                                   NULL);
+
     MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
                                            "settings", settings,
                                            "trash", trash,
+                                           "search-engines", search_engines,
                                            NULL);
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));

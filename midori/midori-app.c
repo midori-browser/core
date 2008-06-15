@@ -11,6 +11,8 @@
 
 #include "midori-app.h"
 
+#include "midori-weblist.h"
+
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
@@ -24,6 +26,7 @@ struct _MidoriApp
 
     MidoriWebSettings* settings;
     MidoriTrash* trash;
+    MidoriWebList* search_engines;
 };
 
 G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
@@ -37,7 +40,8 @@ enum
     PROP_SETTINGS,
     PROP_TRASH,
     PROP_BROWSER,
-    PROP_BROWSER_COUNT
+    PROP_BROWSER_COUNT,
+    PROP_SEARCH_ENGINES
 };
 
 enum {
@@ -138,6 +142,15 @@ midori_app_class_init (MidoriAppClass* class)
                                      _("The current number of browsers"),
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SEARCH_ENGINES,
+                                     g_param_spec_object (
+                                     "search-engines",
+                                     _("Search Engines"),
+                                     _("The list of search engines"),
+                                     MIDORI_TYPE_WEB_LIST,
+                                     G_PARAM_READWRITE));
 }
 
 static GObject*
@@ -163,6 +176,7 @@ midori_app_init (MidoriApp* app)
 
     app->settings = midori_web_settings_new ();
     app->trash = midori_trash_new (10);
+    app->search_engines = midori_web_list_new ();
 }
 
 static void
@@ -199,6 +213,11 @@ midori_app_set_property (GObject*      object,
         g_object_ref (app->trash);
         /* FIXME: Propagate trash to all browsers */
         break;
+    case PROP_SEARCH_ENGINES:
+        katze_object_assign (app->search_engines, g_value_get_object (value));
+        g_object_ref (app->search_engines);
+        /* FIXME: Propagate search engines to all browsers */
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -226,6 +245,9 @@ midori_app_get_property (GObject*    object,
         break;
     case PROP_BROWSER_COUNT:
         g_value_set_uint (value, g_list_length (app->browsers));
+        break;
+    case PROP_SEARCH_ENGINES:
+        g_value_set_object (value, app->search_engines);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

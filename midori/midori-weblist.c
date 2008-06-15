@@ -36,6 +36,21 @@ static void
 midori_web_list_finalize (GObject* object);
 
 static void
+_midori_web_list_add_item (MidoriWebList* web_list,
+                           MidoriWebItem* web_item)
+{
+    g_object_ref (web_item);
+    web_list->items = g_list_append (web_list->items, web_item);
+}
+
+static void
+_midori_web_list_remove_item (MidoriWebList* web_list,
+                              MidoriWebItem* web_item)
+{
+    web_list->items = g_list_remove (web_list->items, web_item);
+}
+
+static void
 midori_web_list_class_init (MidoriWebListClass* class)
 {
     signals[ADD_ITEM] = g_signal_new (
@@ -60,8 +75,8 @@ midori_web_list_class_init (MidoriWebListClass* class)
         G_TYPE_NONE, 1,
         MIDORI_TYPE_WEB_ITEM);
 
-    class->add_item = midori_web_list_add_item;
-    class->remove_item = midori_web_list_remove_item;
+    class->add_item = _midori_web_list_add_item;
+    class->remove_item = _midori_web_list_remove_item;
 
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_web_list_finalize;
@@ -111,8 +126,7 @@ void
 midori_web_list_add_item (MidoriWebList* web_list,
                           MidoriWebItem* web_item)
 {
-    g_object_ref (web_item);
-    web_list->items = g_list_append (web_list->items, web_item);
+    g_signal_emit (web_list, signals[ADD_ITEM], 0, web_item);
 }
 
 /**
@@ -126,7 +140,7 @@ void
 midori_web_list_remove_item (MidoriWebList* web_list,
                              MidoriWebItem* web_item)
 {
-    web_list->items = g_list_remove (web_list->items, web_item);
+    g_signal_emit (web_list, signals[REMOVE_ITEM], 0, web_item);
 }
 
 /**

@@ -29,7 +29,7 @@ midori_SOURCES = \
     midori-webview.c     midori-webview.h     \
     midori-websettings.c midori-websettings.h \
     midori-preferences.c midori-preferences.h \
-    webSearch.c webSearch.h \
+    midori-searchentry.c midori-searchentry.h \
     gjs.c       gjs.h       \
     sokoke.c    sokoke.h    \
     compat.c    compat.h

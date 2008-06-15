@@ -114,12 +114,20 @@ midori_web_item_class_init (MidoriWebItemClass* class)
 static void
 midori_web_item_init (MidoriWebItem* web_item)
 {
-    // Nothing to do here
+    /* Nothing to do here */
 }
 
 static void
 midori_web_item_finalize (GObject* object)
 {
+    MidoriWebItem* web_item = MIDORI_WEB_ITEM (object);
+
+    g_free (web_item->name);
+    g_free (web_item->description);
+    g_free (web_item->uri);
+    g_free (web_item->icon);
+    g_free (web_item->token);
+
     G_OBJECT_CLASS (midori_web_item_parent_class)->finalize (object);
 }
 
