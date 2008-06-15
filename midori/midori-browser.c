@@ -3391,6 +3391,8 @@ midori_browser_set_property (GObject*      object,
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
     MidoriBrowserPrivate* priv = browser->priv;
+    guint last_web_search;
+    MidoriWebItem* web_item;
 
     switch (prop_id)
     {
@@ -3430,7 +3432,14 @@ midori_browser_set_property (GObject*      object,
         g_object_set (priv->search, "search-engines",
                       priv->search_engines, NULL);
         /* FIXME: Connect to updates */
-        _midori_browser_update_actions (browser);
+        if (priv->settings)
+        {
+            g_object_get (priv->settings, "last-web-search",
+                          &last_web_search, NULL);
+            web_item = midori_web_list_get_nth_item (priv->search_engines,
+                                                     last_web_search);
+            g_object_set (priv->search, "current-item", web_item, NULL);
+        }
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

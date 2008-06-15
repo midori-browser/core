@@ -63,6 +63,10 @@ MidoriWebItem*
 midori_web_list_get_nth_item           (MidoriWebList* web_list,
                                         guint          n);
 
+gint
+midori_web_list_get_item_index         (MidoriWebList* web_list,
+                                        MidoriWebItem* web_item);
+
 MidoriWebItem*
 midori_web_list_find_token             (MidoriWebList* web_list,
                                         const gchar*   token);

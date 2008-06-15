@@ -340,9 +340,9 @@ sokoke_on_entry_focus_in_event (GtkEntry*      entry,
                                 GdkEventFocus* event,
                                 gpointer       userdata)
 {
-    gint default_text = GPOINTER_TO_INT (
+    gint has_default = GPOINTER_TO_INT (
         g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));
-    if (default_text)
+    if (has_default)
     {
         gtk_entry_set_text (entry, "");
         g_object_set_data (G_OBJECT(entry), "sokoke_has_default",
@@ -361,9 +361,9 @@ sokoke_on_entry_focus_out_event (GtkEntry*      entry,
     const gchar* text = gtk_entry_get_text (entry);
     if (text && !*text)
     {
-        const gchar* defaultText = (const gchar*)g_object_get_data (
-         G_OBJECT (entry), "sokoke_default_text");
-        gtk_entry_set_text (entry, defaultText);
+        const gchar* default_text = (const gchar*)g_object_get_data (
+            G_OBJECT (entry), "sokoke_default_text");
+        gtk_entry_set_text (entry, default_text);
         g_object_set_data (G_OBJECT(entry),
                            "sokoke_has_default", GINT_TO_POINTER (1));
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
@@ -386,6 +386,17 @@ sokoke_entry_set_default_text (GtkEntry*    entry,
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
                                             PANGO_STYLE_ITALIC);
         gtk_entry_set_text (entry, default_text);
+    }
+    else if (!GTK_WIDGET_HAS_FOCUS (GTK_WIDGET (entry)))
+    {
+        gint has_default = GPOINTER_TO_INT (
+            g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));
+        if (has_default)
+        {
+            gtk_entry_set_text (entry, default_text);
+            sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
+                                                PANGO_STYLE_ITALIC);
+        }
     }
     g_object_set_data (G_OBJECT (entry), "sokoke_default_text",
                        (gpointer)default_text);

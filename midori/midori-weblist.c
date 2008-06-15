@@ -48,6 +48,7 @@ _midori_web_list_remove_item (MidoriWebList* web_list,
                               MidoriWebItem* web_item)
 {
     web_list->items = g_list_remove (web_list->items, web_item);
+    g_object_unref (web_item);
 }
 
 static void
@@ -148,7 +149,7 @@ midori_web_list_remove_item (MidoriWebList* web_list,
  * @web_list: a #MidoriWebList
  * @n: an index in the list
  *
- * Retrieves the item in @web_list at the index @n.
+ * Retrieves the item in @web_list at the position @n.
  *
  * Return value: an item, or %NULL
  **/
@@ -159,6 +160,25 @@ midori_web_list_get_nth_item (MidoriWebList* web_list,
     g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), 0);
 
     return g_list_nth_data (web_list->items, n);
+}
+
+/**
+ * midori_web_list_get_item_position:
+ * @web_list: a #MidoriWebList
+ * @item: an item in the list
+ *
+ * Retrieves the index of the item in @web_list.
+ *
+ * Return value: an item, or -1
+ **/
+gint
+midori_web_list_get_item_index (MidoriWebList* web_list,
+                                MidoriWebItem* web_item)
+{
+    g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), -1);
+    g_return_val_if_fail (MIDORI_IS_WEB_ITEM (web_item), -1);
+
+    return g_list_index (web_list->items, web_item);
 }
 
 /**

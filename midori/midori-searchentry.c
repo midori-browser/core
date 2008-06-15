@@ -159,9 +159,24 @@ midori_search_entry_icon_released_cb (GtkWidget*             widget,
                          NULL, SOKOKE_MENU_POSITION_LEFT);
 }
 
+static void
+_midori_search_entry_move_index (MidoriSearchEntry* search_entry,
+                                 guint              n)
+{
+    gint i;
+    MidoriWebItem* web_item;
+
+    i = midori_web_list_get_item_index (search_entry->search_engines,
+                                        search_entry->current_item);
+    web_item = midori_web_list_get_nth_item (search_entry->search_engines,
+                                             i + n);
+    if (web_item)
+        midori_search_entry_set_current_item (search_entry, web_item);
+}
+
 static gboolean
-midori_search_entry_key_press_event_cb (GtkWidget*   widget,
-                                        GdkEventKey* event)
+midori_search_entry_key_press_event_cb (MidoriSearchEntry* search_entry,
+                                        GdkEventKey*       event)
 {
     GdkModifierType state;
     gint x, y;
@@ -172,24 +187,57 @@ midori_search_entry_key_press_event_cb (GtkWidget*   widget,
     switch (event->keyval)
     {
     case GDK_Up:
-        /* update_searchEngine(config->searchEngine - 1, browser); */
+        _midori_search_entry_move_index (search_entry, - 1);
         return TRUE;
     case GDK_Down:
-        /* update_searchEngine(config->searchEngine + 1, browser); */
+        _midori_search_entry_move_index (search_entry, + 1);
         return TRUE;
     }
     return FALSE;
 }
 
 static gboolean
-midori_search_entry_scroll_event_cb (GtkWidget*      widget,
-                                     GdkEventScroll* event)
+midori_search_entry_scroll_event_cb (MidoriSearchEntry* search_entry,
+                                     GdkEventScroll*    event)
 {
     if (event->direction == GDK_SCROLL_DOWN)
-        ; /* update_searchEngine(config->searchEngine + 1, browser); */
+        _midori_search_entry_move_index (search_entry, + 1);
     else if (event->direction == GDK_SCROLL_UP)
-        ; /* update_searchEngine(config->searchEngine - 1, browser); */
+        _midori_search_entry_move_index (search_entry, - 1);
     return TRUE;
+}
+
+static void
+midori_search_entry_engines_add_item_cb (MidoriWebList*     web_list,
+                                         MidoriWebItem*     item,
+                                         MidoriSearchEntry* search_entry)
+{
+    if (!search_entry->current_item)
+        midori_search_entry_set_current_item (search_entry, item);
+}
+
+static void
+midori_search_entry_engines_remove_item_cb (MidoriWebList*     web_list,
+                                            MidoriWebItem*     item,
+                                            MidoriSearchEntry* search_entry)
+{
+    MidoriWebItem* web_item;
+
+    if (search_entry->current_item == item)
+    {
+        web_item = midori_web_list_get_nth_item (web_list, 0);
+        if (web_item)
+            midori_search_entry_set_current_item (search_entry, web_item);
+        else
+        {
+            sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (search_entry),
+                                      SEXY_ICON_ENTRY_PRIMARY, NULL);
+            sokoke_entry_set_default_text (GTK_ENTRY (search_entry), "");
+
+            katze_object_assign (search_entry->current_item, NULL);
+            g_object_notify (G_OBJECT (search_entry), "current-item");
+        }
+    }
 }
 
 static void
@@ -210,6 +258,13 @@ midori_search_entry_init (MidoriSearchEntry* search_entry)
                       "signal::scroll-event",
                       midori_search_entry_scroll_event_cb, NULL,
                       NULL);
+
+    g_object_connect (search_entry->search_engines,
+        "signal-after::add-item",
+        midori_search_entry_engines_add_item_cb, search_entry,
+        "signal-after::remove-item",
+        midori_search_entry_engines_remove_item_cb, search_entry,
+        NULL);
 }
 
 static void
@@ -218,6 +273,7 @@ midori_search_entry_finalize (GObject* object)
     MidoriSearchEntry* search_entry = MIDORI_SEARCH_ENTRY (object);
 
     g_object_unref (search_entry->search_engines);
+    g_object_unref (search_entry->current_item);
 
     G_OBJECT_CLASS (midori_search_entry_parent_class)->finalize (object);
 }
@@ -233,10 +289,12 @@ midori_search_entry_set_property (GObject*      object,
     switch (prop_id)
     {
     case PROP_SEARCH_ENGINES:
-        search_entry->search_engines = g_value_get_object (value);
+        midori_search_entry_set_search_engines (search_entry,
+                                                g_value_get_object (value));
         break;
     case PROP_CURRENT_ITEM:
-        search_entry->current_item = g_value_get_object (value);
+        midori_search_entry_set_current_item (search_entry,
+                                              g_value_get_object (value));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -316,6 +374,13 @@ midori_search_entry_set_search_engines (MidoriSearchEntry* search_entry,
     g_object_ref (search_engines);
     katze_object_assign (search_entry->search_engines, search_engines);
     g_object_notify (G_OBJECT (search_entry), "search-engines");
+
+    g_object_connect (search_engines,
+        "signal-after::add-item",
+        midori_search_entry_engines_add_item_cb, search_entry,
+        "signal-after::remove-item",
+        midori_search_entry_engines_remove_item_cb, search_entry,
+        NULL);
 }
 
 /**
@@ -345,7 +410,9 @@ midori_search_entry_set_current_item (MidoriSearchEntry* search_entry,
     g_object_unref (pixbuf);
     sokoke_entry_set_default_text (GTK_ENTRY (search_entry),
                                    midori_web_item_get_name (web_item));
-    search_entry->current_item = web_item;
+
+    g_object_ref (web_item);
+    katze_object_assign (search_entry->current_item, web_item);
     g_object_notify (G_OBJECT (search_entry), "current-item");
 }
 
@@ -608,6 +675,20 @@ midori_search_entry_dialog_remove_cb (GtkWidget*         widget,
     /* FIXME: we want to allow undo of some kind */
 }
 
+static void
+midori_search_entry_treeview_selection_cb (GtkWidget*         treeview,
+                                           MidoriSearchEntry* search_entry)
+{
+    GtkTreeSelection* selection;
+    gboolean selected;
+
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (search_entry->treeview));
+    selected = gtk_tree_selection_get_selected (selection, NULL, NULL);
+
+    gtk_widget_set_sensitive (search_entry->edit_button, selected);
+    gtk_widget_set_sensitive (search_entry->remove_button, selected);
+}
+
 /**
  * midori_search_entry_get_dialog:
  * @search_entry: a #MidoriSearchEntry
@@ -670,6 +751,11 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
                                  TRUE, TRUE, 12);
     liststore = gtk_list_store_new (1, MIDORI_TYPE_WEB_ITEM);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
+    /*g_signal_connect (treeview, "cursor-changed",
+        G_CALLBACK (midori_search_entry_treeview_selection_cb), search_entry);*/
+    g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview)),
+        "changed", G_CALLBACK (midori_search_entry_treeview_selection_cb),
+        search_entry);
     search_entry->treeview = treeview;
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
