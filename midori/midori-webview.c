@@ -13,11 +13,12 @@
 
 #include "main.h"
 #include "sokoke.h"
+#include "compat.h"
 
 #include <webkit/webkit.h>
 #include <string.h>
 
-// This is unstable API, so we need to declare it
+/* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
 
@@ -275,7 +276,7 @@ webkit_web_view_load_started (MidoriWebView*  web_view,
 {
     MidoriWebViewPrivate* priv = web_view->priv;
 
-    // FIXME: This is a hack, until signals are fixed upstream
+    /* FIXME: This is a hack, until signals are fixed upstream */
     priv->is_loading = TRUE;
     if (priv->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (priv->tab_icon), TRUE);
@@ -359,13 +360,13 @@ gtk_widget_button_press_event (MidoriWebView*  web_view,
             return FALSE;
         if (state & GDK_SHIFT_MASK)
         {
-            // Open link in new window
+            /* Open link in new window */
             g_signal_emit (web_view, signals[NEW_WINDOW], 0, priv->link_uri);
             return TRUE;
         }
         else if(state & GDK_MOD1_MASK)
         {
-            // Open link in new tab
+            /* Open link in new tab */
             g_signal_emit (web_view, signals[NEW_TAB], 0, priv->link_uri);
             return TRUE;
         }
@@ -374,13 +375,13 @@ gtk_widget_button_press_event (MidoriWebView*  web_view,
         if (state & GDK_CONTROL_MASK)
         {
             webkit_web_view_set_zoom_level (WEBKIT_WEB_VIEW (web_view), 1.0);
-            return FALSE; // Allow Ctrl + Middle click
+            return FALSE; /* Allow Ctrl + Middle click */
         }
         else
         {
             if (!priv->link_uri)
                 return FALSE;
-            // Open link in new tab
+            /* Open link in new tab */
             g_signal_emit (web_view, signals[NEW_TAB], 0, priv->link_uri);
             return TRUE;
         }
@@ -483,7 +484,7 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
                 G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), web_view);
             gtk_widget_show (menuitem);
         }
-        // FIXME: We are leaking 'text' which is not const but should be.
+        /* FIXME: We are leaking 'text' which is not const but should be. */
     }
 }
 
@@ -575,8 +576,8 @@ midori_web_view_init (MidoriWebView* web_view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
 
     g_object_connect (web_view,
-                      //"signal::load-started",
-                      //webkit_web_view_load_started, NULL,
+                      /* "signal::load-started",
+                      webkit_web_view_load_started, NULL, */
                       "signal::load-committed",
                       webkit_web_view_load_committed, NULL,
                       "signal::load-started",
@@ -585,8 +586,8 @@ midori_web_view_init (MidoriWebView* web_view)
                       webkit_web_view_progress_changed, NULL,
                       "signal::load-finished",
                       webkit_web_view_load_finished, NULL,
-                      //"signal::load-done",
-                      //webkit_web_view_load_done, NULL,
+                      /* "signal::load-done",
+                      webkit_web_view_load_done, NULL, */
                       "signal::title-changed",
                       webkit_web_view_title_changed, NULL,
                       "signal::status-bar-text-changed",
@@ -655,7 +656,7 @@ midori_web_view_set_property (GObject*      object,
         const gchar* uri = g_value_get_string (value);
         if (uri && *uri)
         {
-            // FIXME: Autocomplete the uri
+            /* FIXME: Autocomplete the uri */
             webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), uri);
         }
         break;
@@ -830,7 +831,7 @@ midori_web_view_tab_label_button_release_event (GtkWidget* tab_label,
 
     if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
     {
-        // Toggle the label visibility on double click
+        /* Toggle the label visibility on double click */
         GtkWidget* child = gtk_bin_get_child (GTK_BIN (tab_label));
         GList* children = gtk_container_get_children (GTK_CONTAINER (child));
         child = (GtkWidget*)g_list_nth_data (children, 1);
@@ -845,7 +846,7 @@ midori_web_view_tab_label_button_release_event (GtkWidget* tab_label,
     }
     else if (event->button == 2)
     {
-        // Close the web view on middle click
+        /* Close the web view on middle click */
         g_signal_emit (web_view, signals[CLOSE], 0);
         return TRUE;
     }
@@ -911,7 +912,7 @@ midori_web_view_get_proxy_tab_label (MidoriWebView* web_view)
         const gchar* title = midori_web_view_get_display_title (web_view);
         priv->tab_label = gtk_label_new (title);
         gtk_misc_set_alignment (GTK_MISC (priv->tab_label), 0.0, 0.5);
-        // TODO: make the tab initially look "unvisited" until it's focused
+        /* TODO: make the tab initially look "unvisited" until it's focused */
         gtk_box_pack_start (GTK_BOX (hbox), priv->tab_label, FALSE, TRUE, 0);
         priv->proxy_tab_label = event_box;
         _midori_web_view_update_tab_label_size (web_view);
