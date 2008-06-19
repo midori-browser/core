@@ -33,15 +33,7 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_WEB_VIEW, MidoriWebViewClass))
 
 typedef struct _MidoriWebView                MidoriWebView;
-typedef struct _MidoriWebViewPrivate         MidoriWebViewPrivate;
 typedef struct _MidoriWebViewClass           MidoriWebViewClass;
-
-struct _MidoriWebView
-{
-    WebKitWebView parent_instance;
-
-    MidoriWebViewPrivate* priv;
-};
 
 struct _MidoriWebViewClass
 {
