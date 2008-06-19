@@ -32,15 +32,7 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_WEB_SETTINGS, MidoriWebSettingsClass))
 
 typedef struct _MidoriWebSettings                MidoriWebSettings;
-typedef struct _MidoriWebSettingsPrivate         MidoriWebSettingsPrivate;
 typedef struct _MidoriWebSettingsClass           MidoriWebSettingsClass;
-
-struct _MidoriWebSettings
-{
-    WebKitWebSettings parent_instance;
-
-    MidoriWebSettingsPrivate* priv;
-};
 
 typedef enum
 {

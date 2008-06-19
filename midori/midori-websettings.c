@@ -16,10 +16,10 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
-G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, WEBKIT_TYPE_WEB_SETTINGS)
-
-struct _MidoriWebSettingsPrivate
+struct _MidoriWebSettings
 {
+    WebKitWebSettings parent_instance;
+
     gboolean remember_last_window_size;
     gint last_window_width;
     gint last_window_height;
@@ -67,9 +67,7 @@ struct _MidoriWebSettingsPrivate
     gint cache_size;
 };
 
-#define MIDORI_WEB_SETTINGS_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-     MIDORI_TYPE_WEB_SETTINGS, MidoriWebSettingsPrivate))
+G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, WEBKIT_TYPE_WEB_SETTINGS)
 
 enum
 {
@@ -228,17 +226,12 @@ midori_web_settings_get_property (GObject*    object,
                                   GParamSpec* pspec);
 
 static void
-midori_web_settings_notify       (GObject* object,
-                                  GParamSpec* pspec);
-
-static void
 midori_web_settings_class_init (MidoriWebSettingsClass* class)
 {
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_web_settings_finalize;
     gobject_class->set_property = midori_web_settings_set_property;
     gobject_class->get_property = midori_web_settings_get_property;
-    gobject_class->notify = midori_web_settings_notify;
 
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
@@ -601,39 +594,34 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The allowed size of the cache"),
                                      0, G_MAXINT, 100,
                                      G_PARAM_READABLE));
-
-    g_type_class_add_private (class, sizeof (MidoriWebSettingsPrivate));
 }
 
 static void
 notify_default_encoding_cb (GObject* object, GParamSpec* pspec)
 {
     MidoriWebSettings* web_settings = MIDORI_WEB_SETTINGS (object);
-    MidoriWebSettingsPrivate* priv = web_settings->priv;
 
     const gchar* string;
     g_object_get (object, "default-encoding", &string, NULL);
     const gchar* encoding = string ? string : "";
     if (!strcmp (encoding, "BIG5"))
-        priv->preferred_encoding = MIDORI_ENCODING_CHINESE;
+        web_settings->preferred_encoding = MIDORI_ENCODING_CHINESE;
     else if (!strcmp (encoding, "SHIFT_JIS"))
-        priv->preferred_encoding = MIDORI_ENCODING_JAPANESE;
+        web_settings->preferred_encoding = MIDORI_ENCODING_JAPANESE;
     else if (!strcmp (encoding, "KOI8-R"))
-        priv->preferred_encoding = MIDORI_ENCODING_RUSSIAN;
+        web_settings->preferred_encoding = MIDORI_ENCODING_RUSSIAN;
     else if (!strcmp (encoding, "UTF-8"))
-        priv->preferred_encoding = MIDORI_ENCODING_UNICODE;
+        web_settings->preferred_encoding = MIDORI_ENCODING_UNICODE;
     else if (!strcmp (encoding, "ISO-8859-1"))
-        priv->preferred_encoding = MIDORI_ENCODING_WESTERN;
+        web_settings->preferred_encoding = MIDORI_ENCODING_WESTERN;
     else
-        priv->preferred_encoding = MIDORI_ENCODING_CUSTOM;
+        web_settings->preferred_encoding = MIDORI_ENCODING_CUSTOM;
     g_object_notify (object, "preferred-encoding");
 }
 
 static void
 midori_web_settings_init (MidoriWebSettings* web_settings)
 {
-    web_settings->priv = MIDORI_WEB_SETTINGS_GET_PRIVATE (web_settings);
-
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
 }
@@ -651,82 +639,81 @@ midori_web_settings_set_property (GObject*      object,
                                   GParamSpec*   pspec)
 {
     MidoriWebSettings* web_settings = MIDORI_WEB_SETTINGS (object);
-    MidoriWebSettingsPrivate* priv = web_settings->priv;
 
     switch (prop_id)
     {
     case PROP_REMEMBER_LAST_WINDOW_SIZE:
-        priv->remember_last_window_size = g_value_get_boolean (value);
+        web_settings->remember_last_window_size = g_value_get_boolean (value);
         break;
     case PROP_LAST_WINDOW_WIDTH:
-        priv->last_window_width = g_value_get_int (value);
+        web_settings->last_window_width = g_value_get_int (value);
         break;
     case PROP_LAST_WINDOW_HEIGHT:
-        priv->last_window_height = g_value_get_int (value);
+        web_settings->last_window_height = g_value_get_int (value);
         break;
     case PROP_LAST_PANEL_POSITION:
-        priv->last_panel_position = g_value_get_int (value);
+        web_settings->last_panel_position = g_value_get_int (value);
         break;
     case PROP_LAST_PANEL_PAGE:
-        priv->last_panel_page = g_value_get_int (value);
+        web_settings->last_panel_page = g_value_get_int (value);
         break;
     case PROP_LAST_WEB_SEARCH:
-        priv->last_web_search = g_value_get_int (value);
+        web_settings->last_web_search = g_value_get_int (value);
         break;
     case PROP_LAST_PAGEHOLDER_URI:
-        katze_assign (priv->last_pageholder_uri, g_value_dup_string (value));
+        katze_assign (web_settings->last_pageholder_uri, g_value_dup_string (value));
         break;
 
     case PROP_SHOW_NAVIGATIONBAR:
-        priv->show_navigationbar = g_value_get_boolean (value);
+        web_settings->show_navigationbar = g_value_get_boolean (value);
         break;
     case PROP_SHOW_BOOKMARKBAR:
-        priv->show_bookmarkbar = g_value_get_boolean (value);
+        web_settings->show_bookmarkbar = g_value_get_boolean (value);
         break;
     case PROP_SHOW_PANEL:
-        priv->show_panel = g_value_get_boolean (value);
+        web_settings->show_panel = g_value_get_boolean (value);
         break;
     case PROP_SHOW_STATUSBAR:
-        priv->show_statusbar = g_value_get_boolean (value);
+        web_settings->show_statusbar = g_value_get_boolean (value);
         break;
 
     case PROP_TOOLBAR_STYLE:
-        priv->toolbar_style = g_value_get_enum (value);
+        web_settings->toolbar_style = g_value_get_enum (value);
         break;
     case PROP_SMALL_TOOLBAR:
-        priv->small_toolbar = g_value_get_boolean (value);
+        web_settings->small_toolbar = g_value_get_boolean (value);
         break;
     case PROP_SHOW_NEW_TAB:
-        priv->show_new_tab = g_value_get_boolean (value);
+        web_settings->show_new_tab = g_value_get_boolean (value);
         break;
     case PROP_SHOW_HOMEPAGE:
-        priv->show_homepage = g_value_get_boolean (value);
+        web_settings->show_homepage = g_value_get_boolean (value);
         break;
     case PROP_SHOW_WEB_SEARCH:
-        priv->show_web_search = g_value_get_boolean (value);
+        web_settings->show_web_search = g_value_get_boolean (value);
         break;
     case PROP_SHOW_TRASH:
-        priv->show_trash = g_value_get_boolean (value);
+        web_settings->show_trash = g_value_get_boolean (value);
         break;
 
     case PROP_LOAD_ON_STARTUP:
-        priv->load_on_startup = g_value_get_enum (value);
+        web_settings->load_on_startup = g_value_get_enum (value);
         break;
     case PROP_HOMEPAGE:
-        katze_assign (priv->homepage, g_value_dup_string (value));
+        katze_assign (web_settings->homepage, g_value_dup_string (value));
         break;
     case PROP_DOWNLOAD_FOLDER:
-        katze_assign (priv->download_folder, g_value_dup_string (value));
+        katze_assign (web_settings->download_folder, g_value_dup_string (value));
         break;
     case PROP_SHOW_DOWNLOAD_NOTIFICATION:
-        priv->show_download_notification = g_value_get_boolean (value);
+        web_settings->show_download_notification = g_value_get_boolean (value);
         break;
     case PROP_LOCATION_ENTRY_SEARCH:
-        katze_assign (priv->location_entry_search, g_value_dup_string (value));
+        katze_assign (web_settings->location_entry_search, g_value_dup_string (value));
         break;
     case PROP_PREFERRED_ENCODING:
-        priv->preferred_encoding = g_value_get_enum (value);
-        switch (priv->preferred_encoding)
+        web_settings->preferred_encoding = g_value_get_enum (value);
+        switch (web_settings->preferred_encoding)
         {
         case MIDORI_ENCODING_CHINESE:
             g_object_set (object, "default-encoding", "BIG5", NULL);
@@ -749,53 +736,53 @@ midori_web_settings_set_property (GObject*      object,
         break;
 
     case PROP_TAB_LABEL_SIZE:
-        priv->tab_label_size = g_value_get_int (value);
+        web_settings->tab_label_size = g_value_get_int (value);
         break;
     case PROP_CLOSE_BUTTONS_ON_TABS:
-        priv->close_buttons_on_tabs = g_value_get_boolean (value);
+        web_settings->close_buttons_on_tabs = g_value_get_boolean (value);
         break;
     case PROP_OPEN_NEW_PAGES_IN:
-        priv->open_new_pages_in = g_value_get_enum (value);
+        web_settings->open_new_pages_in = g_value_get_enum (value);
         break;
     case PROP_MIDDLE_CLICK_OPENS_SELECTION:
-        priv->middle_click_opens_selection = g_value_get_boolean (value);
+        web_settings->middle_click_opens_selection = g_value_get_boolean (value);
         break;
     case PROP_OPEN_TABS_IN_THE_BACKGROUND:
-        priv->open_tabs_in_the_background = g_value_get_boolean (value);
+        web_settings->open_tabs_in_the_background = g_value_get_boolean (value);
         break;
     case PROP_OPEN_POPUPS_IN_TABS:
-        priv->open_popups_in_tabs = g_value_get_boolean (value);
+        web_settings->open_popups_in_tabs = g_value_get_boolean (value);
         break;
 
     case PROP_ACCEPT_COOKIES:
-        priv->accept_cookies = g_value_get_enum (value);
+        web_settings->accept_cookies = g_value_get_enum (value);
         break;
     case PROP_ORIGINAL_COOKIES_ONLY:
-        priv->original_cookies_only = g_value_get_boolean (value);
+        web_settings->original_cookies_only = g_value_get_boolean (value);
         break;
     case PROP_MAXIMUM_COOKIE_AGE:
-        priv->maximum_cookie_age = g_value_get_int (value);
+        web_settings->maximum_cookie_age = g_value_get_int (value);
         break;
 
     case PROP_REMEMBER_LAST_VISITED_PAGES:
-        priv->remember_last_visited_pages = g_value_get_boolean (value);
+        web_settings->remember_last_visited_pages = g_value_get_boolean (value);
         break;
     case PROP_MAXIMUM_HISTORY_AGE:
-        priv->maximum_history_age = g_value_get_int (value);
+        web_settings->maximum_history_age = g_value_get_int (value);
         break;
     case PROP_REMEMBER_LAST_FORM_INPUTS:
-        priv->remember_last_form_inputs = g_value_get_boolean (value);
+        web_settings->remember_last_form_inputs = g_value_get_boolean (value);
         break;
     case PROP_REMEMBER_LAST_DOWNLOADED_FILES:
-        priv->remember_last_downloaded_files = g_value_get_boolean (value);
+        web_settings->remember_last_downloaded_files = g_value_get_boolean (value);
         break;
 
     case PROP_HTTP_PROXY:
-        katze_assign (priv->http_proxy, g_value_dup_string (value));
-        g_setenv ("http_proxy", priv->http_proxy ? priv->http_proxy : "", TRUE);
+        katze_assign (web_settings->http_proxy, g_value_dup_string (value));
+        g_setenv ("http_proxy", web_settings->http_proxy ? web_settings->http_proxy : "", TRUE);
         break;
     case PROP_CACHE_SIZE:
-        priv->cache_size = g_value_get_int (value);
+        web_settings->cache_size = g_value_get_int (value);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -810,142 +797,134 @@ midori_web_settings_get_property (GObject*    object,
                                   GParamSpec* pspec)
 {
     MidoriWebSettings* web_settings = MIDORI_WEB_SETTINGS (object);
-    MidoriWebSettingsPrivate* priv = web_settings->priv;
 
     switch (prop_id)
     {
     case PROP_REMEMBER_LAST_WINDOW_SIZE:
-        g_value_set_boolean (value, priv->remember_last_window_size);
+        g_value_set_boolean (value, web_settings->remember_last_window_size);
         break;
     case PROP_LAST_WINDOW_WIDTH:
-        g_value_set_int (value, priv->last_window_width);
+        g_value_set_int (value, web_settings->last_window_width);
         break;
     case PROP_LAST_WINDOW_HEIGHT:
-        g_value_set_int (value, priv->last_window_height);
+        g_value_set_int (value, web_settings->last_window_height);
         break;
     case PROP_LAST_PANEL_POSITION:
-        g_value_set_int (value, priv->last_panel_position);
+        g_value_set_int (value, web_settings->last_panel_position);
         break;
     case PROP_LAST_PANEL_PAGE:
-        g_value_set_int (value, priv->last_panel_page);
+        g_value_set_int (value, web_settings->last_panel_page);
         break;
     case PROP_LAST_WEB_SEARCH:
-        g_value_set_int (value, priv->last_web_search);
+        g_value_set_int (value, web_settings->last_web_search);
         break;
     case PROP_LAST_PAGEHOLDER_URI:
-        g_value_set_string (value, priv->last_pageholder_uri);
+        g_value_set_string (value, web_settings->last_pageholder_uri);
         break;
 
     case PROP_SHOW_NAVIGATIONBAR:
-        g_value_set_boolean (value, priv->show_navigationbar);
+        g_value_set_boolean (value, web_settings->show_navigationbar);
         break;
     case PROP_SHOW_BOOKMARKBAR:
-        g_value_set_boolean (value, priv->show_bookmarkbar);
+        g_value_set_boolean (value, web_settings->show_bookmarkbar);
         break;
     case PROP_SHOW_PANEL:
-        g_value_set_boolean (value, priv->show_panel);
+        g_value_set_boolean (value, web_settings->show_panel);
         break;
     case PROP_SHOW_STATUSBAR:
-        g_value_set_boolean (value, priv->show_statusbar);
+        g_value_set_boolean (value, web_settings->show_statusbar);
         break;
 
     case PROP_TOOLBAR_STYLE:
-        g_value_set_enum (value, priv->toolbar_style);
+        g_value_set_enum (value, web_settings->toolbar_style);
         break;
     case PROP_SMALL_TOOLBAR:
-        g_value_set_boolean (value, priv->small_toolbar);
+        g_value_set_boolean (value, web_settings->small_toolbar);
         break;
     case PROP_SHOW_NEW_TAB:
-        g_value_set_boolean (value, priv->show_new_tab);
+        g_value_set_boolean (value, web_settings->show_new_tab);
         break;
     case PROP_SHOW_HOMEPAGE:
-        g_value_set_boolean (value, priv->show_homepage);
+        g_value_set_boolean (value, web_settings->show_homepage);
         break;
     case PROP_SHOW_WEB_SEARCH:
-        g_value_set_boolean (value, priv->show_web_search);
+        g_value_set_boolean (value, web_settings->show_web_search);
         break;
     case PROP_SHOW_TRASH:
-        g_value_set_boolean (value, priv->show_trash);
+        g_value_set_boolean (value, web_settings->show_trash);
         break;
 
     case PROP_LOAD_ON_STARTUP:
-        g_value_set_enum (value, priv->load_on_startup);
+        g_value_set_enum (value, web_settings->load_on_startup);
         break;
     case PROP_HOMEPAGE:
-        g_value_set_string (value, priv->homepage);
+        g_value_set_string (value, web_settings->homepage);
         break;
     case PROP_DOWNLOAD_FOLDER:
-        g_value_set_string (value, priv->download_folder);
+        g_value_set_string (value, web_settings->download_folder);
         break;
     case PROP_SHOW_DOWNLOAD_NOTIFICATION:
-        g_value_set_boolean (value, priv->show_download_notification);
+        g_value_set_boolean (value, web_settings->show_download_notification);
         break;
     case PROP_LOCATION_ENTRY_SEARCH:
-        g_value_set_string (value, priv->location_entry_search);
+        g_value_set_string (value, web_settings->location_entry_search);
         break;
     case PROP_PREFERRED_ENCODING:
-        g_value_set_enum (value, priv->preferred_encoding);
+        g_value_set_enum (value, web_settings->preferred_encoding);
         break;
 
     case PROP_TAB_LABEL_SIZE:
-        g_value_set_int (value, priv->tab_label_size);
+        g_value_set_int (value, web_settings->tab_label_size);
         break;
     case PROP_CLOSE_BUTTONS_ON_TABS:
-        g_value_set_boolean (value, priv->close_buttons_on_tabs);
+        g_value_set_boolean (value, web_settings->close_buttons_on_tabs);
         break;
     case PROP_OPEN_NEW_PAGES_IN:
-        g_value_set_enum (value, priv->open_new_pages_in);
+        g_value_set_enum (value, web_settings->open_new_pages_in);
         break;
     case PROP_MIDDLE_CLICK_OPENS_SELECTION:
-        g_value_set_boolean (value, priv->middle_click_opens_selection);
+        g_value_set_boolean (value, web_settings->middle_click_opens_selection);
         break;
     case PROP_OPEN_TABS_IN_THE_BACKGROUND:
-        g_value_set_boolean (value, priv->open_tabs_in_the_background);
+        g_value_set_boolean (value, web_settings->open_tabs_in_the_background);
         break;
     case PROP_OPEN_POPUPS_IN_TABS:
-        g_value_set_boolean (value, priv->open_popups_in_tabs);
+        g_value_set_boolean (value, web_settings->open_popups_in_tabs);
         break;
 
     case PROP_ACCEPT_COOKIES:
-        g_value_set_enum (value, priv->accept_cookies);
+        g_value_set_enum (value, web_settings->accept_cookies);
         break;
     case PROP_ORIGINAL_COOKIES_ONLY:
-        g_value_set_boolean (value, priv->original_cookies_only);
+        g_value_set_boolean (value, web_settings->original_cookies_only);
         break;
     case PROP_MAXIMUM_COOKIE_AGE:
-        g_value_set_int (value, priv->maximum_cookie_age);
+        g_value_set_int (value, web_settings->maximum_cookie_age);
         break;
 
     case PROP_REMEMBER_LAST_VISITED_PAGES:
-        g_value_set_boolean (value, priv->remember_last_visited_pages);
+        g_value_set_boolean (value, web_settings->remember_last_visited_pages);
         break;
     case PROP_MAXIMUM_HISTORY_AGE:
-        g_value_set_int (value, priv->maximum_history_age);
+        g_value_set_int (value, web_settings->maximum_history_age);
         break;
     case PROP_REMEMBER_LAST_FORM_INPUTS:
-        g_value_set_boolean (value, priv->remember_last_form_inputs);
+        g_value_set_boolean (value, web_settings->remember_last_form_inputs);
         break;
     case PROP_REMEMBER_LAST_DOWNLOADED_FILES:
-        g_value_set_boolean (value, priv->remember_last_downloaded_files);
+        g_value_set_boolean (value, web_settings->remember_last_downloaded_files);
         break;
 
     case PROP_HTTP_PROXY:
-        g_value_set_string (value, priv->http_proxy);
+        g_value_set_string (value, web_settings->http_proxy);
         break;
     case PROP_CACHE_SIZE:
-        g_value_set_int (value, priv->cache_size);
+        g_value_set_int (value, web_settings->cache_size);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
     }
-}
-
-static void
-midori_web_settings_notify (GObject*    object,
-                            GParamSpec* pspec)
-{
-
 }
 
 /**
@@ -978,43 +957,41 @@ midori_web_settings_copy (MidoriWebSettings* web_settings)
 {
     g_return_val_if_fail (MIDORI_IS_WEB_SETTINGS (web_settings), NULL);
 
-    MidoriWebSettingsPrivate* priv = web_settings->priv;
-
     MidoriWebSettings* copy;
     copy = MIDORI_WEB_SETTINGS (webkit_web_settings_copy (
         WEBKIT_WEB_SETTINGS (web_settings)));
     g_object_set (copy,
-                  "load-on-startup", priv->load_on_startup,
-                  "homepage", priv->homepage,
-                  "download-folder", priv->download_folder,
-                  "show-download-notification", priv->show_download_notification,
-                  "location-entry-search", priv->location_entry_search,
-                  "preferred-encoding", priv->preferred_encoding,
+                  "load-on-startup", web_settings->load_on_startup,
+                  "homepage", web_settings->homepage,
+                  "download-folder", web_settings->download_folder,
+                  "show-download-notification", web_settings->show_download_notification,
+                  "location-entry-search", web_settings->location_entry_search,
+                  "preferred-encoding", web_settings->preferred_encoding,
 
-                  "toolbar-style", priv->toolbar_style,
-                  "small-toolbar", priv->small_toolbar,
-                  "show-web-search", priv->show_web_search,
-                  "show-new-tab", priv->show_new_tab,
-                  "show-trash", priv->show_trash,
+                  "toolbar-style", web_settings->toolbar_style,
+                  "small-toolbar", web_settings->small_toolbar,
+                  "show-web-search", web_settings->show_web_search,
+                  "show-new-tab", web_settings->show_new_tab,
+                  "show-trash", web_settings->show_trash,
 
-                  "tab-label-size", priv->tab_label_size,
-                  "close-buttons-on-tabs", priv->close_buttons_on_tabs,
-                  "open-new-pages-in", priv->open_new_pages_in,
-                  "middle-click-opens-selection", priv->middle_click_opens_selection,
-                  "open-tabs-in-the-background", priv->open_tabs_in_the_background,
-                  "open-popups-in-tabs", priv->open_popups_in_tabs,
+                  "tab-label-size", web_settings->tab_label_size,
+                  "close-buttons-on-tabs", web_settings->close_buttons_on_tabs,
+                  "open-new-pages-in", web_settings->open_new_pages_in,
+                  "middle-click-opens-selection", web_settings->middle_click_opens_selection,
+                  "open-tabs-in-the-background", web_settings->open_tabs_in_the_background,
+                  "open-popups-in-tabs", web_settings->open_popups_in_tabs,
 
-                  "accept-cookies", priv->accept_cookies,
-                  "original-cookies-only", priv->original_cookies_only,
-                  "maximum-cookie-age", priv->maximum_cookie_age,
+                  "accept-cookies", web_settings->accept_cookies,
+                  "original-cookies-only", web_settings->original_cookies_only,
+                  "maximum-cookie-age", web_settings->maximum_cookie_age,
 
-                  "remember-last-visited-pages", priv->remember_last_visited_pages,
-                  "maximum-history-age", priv->maximum_history_age,
-                  "remember-last-form-inputs", priv->remember_last_form_inputs,
-                  "remember-last-downloaded-files", priv->remember_last_downloaded_files,
+                  "remember-last-visited-pages", web_settings->remember_last_visited_pages,
+                  "maximum-history-age", web_settings->maximum_history_age,
+                  "remember-last-form-inputs", web_settings->remember_last_form_inputs,
+                  "remember-last-downloaded-files", web_settings->remember_last_downloaded_files,
 
-                  "http-proxy", priv->http_proxy,
-                  "cache-size", priv->cache_size,
+                  "http-proxy", web_settings->http_proxy,
+                  "cache-size", web_settings->cache_size,
                   NULL);
 
     return copy;
