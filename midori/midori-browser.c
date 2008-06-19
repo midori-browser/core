@@ -2653,8 +2653,8 @@ midori_browser_realize_cb (GtkStyle* style, MidoriBrowser* browser)
 }
 
 static void
-midori_browser_search_activate (GtkWidget*     widget,
-                                MidoriBrowser* browser)
+midori_browser_search_activate_cb (GtkWidget*     widget,
+                                   MidoriBrowser* browser)
 {
     MidoriWebList* search_engines;
     const gchar* keywords;
@@ -2688,6 +2688,26 @@ midori_browser_search_activate (GtkWidget*     widget,
     webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), search);
     g_free (search);
     g_free (location_entry_search);
+}
+
+static void
+midori_browser_search_notify_current_item_cb (GObject    *gobject,
+                                              GParamSpec *arg1,
+                                              MidoriBrowser* browser)
+{
+    MidoriSearchEntry* search_entry;
+    MidoriWebItem* web_item;
+    guint index;
+
+    search_entry = MIDORI_SEARCH_ENTRY (browser->search);
+    web_item = midori_search_entry_get_current_item (search_entry);
+    if (web_item)
+        index = midori_web_list_get_item_index (browser->search_engines,
+                                                web_item);
+    else
+        index = 0;
+
+    g_object_set (browser->settings, "last-web-search", index, NULL);
 }
 
 static void
@@ -2827,10 +2847,14 @@ midori_browser_init (MidoriBrowser* browser)
              The interface is somewhat awkward and ought to be rethought
              Display "show in context menu" search engines as "completion actions" */
     sokoke_entry_setup_completion (GTK_ENTRY (browser->search));
-    g_signal_connect (browser->search, "activate",
-        G_CALLBACK (midori_browser_search_activate), browser);
-    g_signal_connect (browser->search, "focus-out-event",
-        G_CALLBACK (midori_browser_search_focus_out_event_cb), browser);
+    g_object_connect (browser->search,
+                      "signal::activate",
+                      midori_browser_search_activate_cb, browser,
+                      "signal::focus-out-event",
+                      midori_browser_search_focus_out_event_cb, browser,
+                      "signal::notify::current-item",
+                      midori_browser_search_notify_current_item_cb, browser,
+                      NULL);
     toolitem = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (toolitem), browser->search);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar), toolitem, -1);
