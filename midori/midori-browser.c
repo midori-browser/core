@@ -2373,7 +2373,7 @@ static const GtkActionEntry entries[] = {
    N_("Location..."), "<Ctrl>l",
    N_("Open a particular location"), G_CALLBACK (_action_location_activate) },
  { "Search", GTK_STOCK_FIND,
-   N_("Web Search..."), "<Ctrl><Shift>f",
+   N_("Web Search..."), "<Ctrl>k",
    N_("Run a web search"), G_CALLBACK (_action_search_activate) },
  { "OpenInPageholder", GTK_STOCK_JUMP_TO,
    N_("Open in Page_holder..."), "",
