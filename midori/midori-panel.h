@@ -32,15 +32,7 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_PANEL, MidoriPanelClass))
 
 typedef struct _MidoriPanel                MidoriPanel;
-typedef struct _MidoriPanelPrivate         MidoriPanelPrivate;
 typedef struct _MidoriPanelClass           MidoriPanelClass;
-
-struct _MidoriPanel
-{
-    GtkHBox parent_instance;
-
-    MidoriPanelPrivate* priv;
-};
 
 struct _MidoriPanelClass
 {

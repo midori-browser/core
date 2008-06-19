@@ -14,10 +14,10 @@
 #include "sokoke.h"
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (MidoriPanel, midori_panel, GTK_TYPE_HBOX)
-
-struct _MidoriPanelPrivate
+struct _MidoriPanel
 {
+    GtkHBox parent_instance;
+
     GtkWidget* toolbar;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
@@ -27,9 +27,7 @@ struct _MidoriPanelPrivate
     GtkMenu*   menu;
 };
 
-#define MIDORI_PANEL_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-     MIDORI_TYPE_PANEL, MidoriPanelPrivate))
+G_DEFINE_TYPE (MidoriPanel, midori_panel, GTK_TYPE_HBOX)
 
 enum
 {
@@ -166,8 +164,6 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      _("The index of the current page"),
                                      -1, G_MAXINT, -1,
                                      flags));
-
-    g_type_class_add_private (class, sizeof (MidoriPanelPrivate));
 }
 
 static void
@@ -181,31 +177,27 @@ midori_panel_button_close_clicked_cb (GtkWidget*   toolitem,
 static void
 midori_panel_init (MidoriPanel* panel)
 {
-    panel->priv = MIDORI_PANEL_GET_PRIVATE (panel);
-
-    MidoriPanelPrivate* priv = panel->priv;
-
-    // Create the sidebar
-    priv->toolbar = gtk_toolbar_new ();
-    gtk_toolbar_set_style (GTK_TOOLBAR (priv->toolbar), GTK_TOOLBAR_BOTH);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (priv->toolbar),
+    /* Create the sidebar */
+    panel->toolbar = gtk_toolbar_new ();
+    gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar), GTK_TOOLBAR_BOTH);
+    gtk_toolbar_set_icon_size (GTK_TOOLBAR (panel->toolbar),
                                GTK_ICON_SIZE_BUTTON);
-    gtk_toolbar_set_orientation (GTK_TOOLBAR (priv->toolbar),
+    gtk_toolbar_set_orientation (GTK_TOOLBAR (panel->toolbar),
                                  GTK_ORIENTATION_VERTICAL);
-    gtk_box_pack_start (GTK_BOX (panel), priv->toolbar, FALSE, FALSE, 0);
-    gtk_widget_show_all (priv->toolbar);
+    gtk_box_pack_start (GTK_BOX (panel), panel->toolbar, FALSE, FALSE, 0);
+    gtk_widget_show_all (panel->toolbar);
     GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (panel), vbox, TRUE, TRUE, 0);
 
-    // Create the titlebar
+    /* Create the titlebar */
     GtkWidget* labelbar = gtk_toolbar_new ();
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (labelbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (labelbar), GTK_TOOLBAR_ICONS);
     GtkToolItem* toolitem = gtk_tool_item_new ();
     gtk_tool_item_set_expand (toolitem, TRUE);
-    priv->toolbar_label = gtk_label_new (NULL);
-    gtk_misc_set_alignment (GTK_MISC (priv->toolbar_label), 0, 0.5);
-    gtk_container_add (GTK_CONTAINER (toolitem), priv->toolbar_label);
+    panel->toolbar_label = gtk_label_new (NULL);
+    gtk_misc_set_alignment (GTK_MISC (panel->toolbar_label), 0, 0.5);
+    gtk_container_add (GTK_CONTAINER (toolitem), panel->toolbar_label);
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
@@ -217,32 +209,31 @@ midori_panel_init (MidoriPanel* panel)
     gtk_box_pack_start (GTK_BOX (vbox), labelbar, FALSE, FALSE, 0);
     gtk_widget_show_all (vbox);
 
-    // Create the toolbook
-    priv->toolbook = gtk_notebook_new ();
-    gtk_notebook_set_show_border (GTK_NOTEBOOK (priv->toolbook), FALSE);
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (priv->toolbook), FALSE);
-    gtk_box_pack_start (GTK_BOX (vbox), priv->toolbook, FALSE, FALSE, 0);
-    gtk_widget_show (priv->toolbook);
+    /* Create the toolbook */
+    panel->toolbook = gtk_notebook_new ();
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (panel->toolbook), FALSE);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (panel->toolbook), FALSE);
+    gtk_box_pack_start (GTK_BOX (vbox), panel->toolbook, FALSE, FALSE, 0);
+    gtk_widget_show (panel->toolbook);
 
-    // Create the notebook
-    priv->notebook = gtk_notebook_new ();
-    gtk_notebook_set_show_border (GTK_NOTEBOOK (priv->notebook), FALSE);
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (priv->notebook), FALSE);
-    priv->frame = gtk_frame_new (NULL);
-    gtk_container_add (GTK_CONTAINER (priv->frame), priv->notebook);
-    gtk_box_pack_start (GTK_BOX (vbox), priv->frame, TRUE, TRUE, 0);
-    gtk_widget_show_all (priv->frame);
+    /* Create the notebook */
+    panel->notebook = gtk_notebook_new ();
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (panel->notebook), FALSE);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (panel->notebook), FALSE);
+    panel->frame = gtk_frame_new (NULL);
+    gtk_container_add (GTK_CONTAINER (panel->frame), panel->notebook);
+    gtk_box_pack_start (GTK_BOX (vbox), panel->frame, TRUE, TRUE, 0);
+    gtk_widget_show_all (panel->frame);
 }
 
 static void
 midori_panel_finalize (GObject* object)
 {
     MidoriPanel* panel = MIDORI_PANEL (object);
-    MidoriPanelPrivate* priv = panel->priv;
 
-    if (priv->menu)
+    if (panel->menu)
     {
-        // FIXME: Remove all menu items
+        /* FIXME: Remove all menu items */
     }
 
     G_OBJECT_CLASS (midori_panel_parent_class)->finalize (object);
@@ -255,17 +246,16 @@ midori_panel_set_property (GObject*      object,
                            GParamSpec*   pspec)
 {
     MidoriPanel* panel = MIDORI_PANEL (object);
-    MidoriPanelPrivate* priv = panel->priv;
 
     switch (prop_id)
     {
     case PROP_SHADOW_TYPE:
-        gtk_frame_set_shadow_type (GTK_FRAME (priv->frame),
+        gtk_frame_set_shadow_type (GTK_FRAME (panel->frame),
                                    g_value_get_enum (value));
         break;
     case PROP_MENU:
-        katze_object_assign (priv->menu, g_value_get_object (value));
-        // FIXME: Move existing items to the new menu
+        katze_object_assign (panel->menu, g_value_get_object (value));
+        /* FIXME: Move existing items to the new menu */
         break;
     case PROP_PAGE:
         midori_panel_set_current_page (panel, g_value_get_int (value));
@@ -283,16 +273,15 @@ midori_panel_get_property (GObject*    object,
                            GParamSpec* pspec)
 {
     MidoriPanel* panel = MIDORI_PANEL (object);
-    MidoriPanelPrivate* priv = panel->priv;
 
     switch (prop_id)
     {
     case PROP_SHADOW_TYPE:
         g_value_set_enum (value,
-            gtk_frame_get_shadow_type (GTK_FRAME (priv->frame)));
+            gtk_frame_get_shadow_type (GTK_FRAME (panel->frame)));
         break;
     case PROP_MENU:
-        g_value_set_object (value, priv->menu);
+        g_value_set_object (value, panel->menu);
         break;
     case PROP_PAGE:
         g_value_set_int (value, midori_panel_get_current_page (panel));
@@ -360,8 +349,6 @@ midori_panel_append_page (MidoriPanel* panel,
     g_return_val_if_fail (GTK_IS_WIDGET (child), -1);
     g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
 
-    MidoriPanelPrivate* priv = panel->priv;
-
     GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
                                     GTK_POLICY_AUTOMATIC,
@@ -379,12 +366,12 @@ midori_panel_append_page (MidoriPanel* panel,
         gtk_container_add (GTK_CONTAINER (widget), child);
     }
     gtk_container_add (GTK_CONTAINER (scrolled), widget);
-    gtk_container_add (GTK_CONTAINER (priv->notebook), scrolled);
+    gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
     if (!toolbar)
         toolbar = gtk_event_box_new ();
     gtk_widget_show (toolbar);
-    gtk_container_add (GTK_CONTAINER (priv->toolbook), toolbar);
+    gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
 
     guint n = midori_panel_page_num (panel, child);
 
@@ -392,8 +379,8 @@ midori_panel_append_page (MidoriPanel* panel,
     g_object_set_data (G_OBJECT (child), "label", (gchar*)text);
 
     GtkWidget* image;
-    GtkToolItem* toolitem = gtk_radio_tool_button_new (priv->group);
-    priv->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
+    GtkToolItem* toolitem = gtk_radio_tool_button_new (panel->group);
+    panel->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
                                                    toolitem));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), text);
     if (icon)
@@ -405,9 +392,9 @@ midori_panel_append_page (MidoriPanel* panel,
     g_signal_connect (toolitem, "clicked",
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
     gtk_widget_show_all (GTK_WIDGET (toolitem));
-    gtk_toolbar_insert (GTK_TOOLBAR (priv->toolbar), toolitem, -1);
+    gtk_toolbar_insert (GTK_TOOLBAR (panel->toolbar), toolitem, -1);
 
-    if (priv->menu)
+    if (panel->menu)
     {
         GtkWidget* menuitem = gtk_image_menu_item_new_with_label (text);
         if (icon)
@@ -421,7 +408,7 @@ midori_panel_append_page (MidoriPanel* panel,
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
                           panel);
-        gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), menuitem);
+        gtk_menu_shell_append (GTK_MENU_SHELL (panel->menu), menuitem);
     }
 
     return n;
@@ -442,9 +429,7 @@ midori_panel_get_current_page (MidoriPanel* panel)
 {
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
 
-    MidoriPanelPrivate* priv = panel->priv;
-
-    return gtk_notebook_get_current_page (GTK_NOTEBOOK (priv->notebook));
+    return gtk_notebook_get_current_page (GTK_NOTEBOOK (panel->notebook));
 }
 
 static GtkWidget*
@@ -473,10 +458,8 @@ midori_panel_get_nth_page (MidoriPanel* panel,
 {
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), NULL);
 
-    MidoriPanelPrivate* priv = panel->priv;
-
     GtkWidget* scrolled = gtk_notebook_get_nth_page (
-        GTK_NOTEBOOK (priv->notebook), page_num);
+        GTK_NOTEBOOK (panel->notebook), page_num);
     if (scrolled)
         return _midori_panel_child_for_scrolled (panel, scrolled);
     return NULL;
@@ -495,9 +478,7 @@ midori_panel_get_n_pages (MidoriPanel* panel)
 {
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), 0);
 
-    MidoriPanelPrivate* priv = panel->priv;
-
-    return gtk_notebook_get_n_pages (GTK_NOTEBOOK (priv->notebook));
+    return gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook));
 }
 
 static GtkWidget*
@@ -526,10 +507,8 @@ midori_panel_page_num (MidoriPanel* panel,
 {
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
 
-    MidoriPanelPrivate* priv = panel->priv;
-
     GtkWidget* scrolled = _midori_panel_scrolled_for_child (panel, child);
-    return gtk_notebook_page_num (GTK_NOTEBOOK (priv->notebook), scrolled);
+    return gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook), scrolled);
 }
 
 /**
@@ -548,14 +527,12 @@ midori_panel_set_current_page (MidoriPanel* panel,
 {
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
-    MidoriPanelPrivate* priv = panel->priv;
-
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->toolbook), n);
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (priv->notebook), n);
+    gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
+    gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
     GtkWidget* child = midori_panel_get_nth_page (panel, n);
     if (child)
     {
         const gchar* label = g_object_get_data (G_OBJECT (child), "label");
-        g_object_set (priv->toolbar_label, "label", label, NULL);
+        g_object_set (panel->toolbar_label, "label", label, NULL);
     }
 }
