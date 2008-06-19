@@ -54,7 +54,7 @@ def configure (conf):
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.write_config_header ('config.h')
-    conf.env['CCFLAGS'] += ['-DHAVE_CONFIG_H']
+    conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
 
 def set_options (opt):
     opt.tool_options ('compiler_cc')
