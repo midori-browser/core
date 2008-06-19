@@ -32,15 +32,7 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_BROWSER, MidoriBrowserClass))
 
 typedef struct _MidoriBrowser                MidoriBrowser;
-typedef struct _MidoriBrowserPrivate         MidoriBrowserPrivate;
 typedef struct _MidoriBrowserClass           MidoriBrowserClass;
-
-struct _MidoriBrowser
-{
-    GtkWindow parent_instance;
-
-    MidoriBrowserPrivate* priv;
-};
 
 struct _MidoriBrowserClass
 {
