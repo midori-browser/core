@@ -32,15 +32,7 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_CONSOLE, MidoriConsoleClass))
 
 typedef struct _MidoriConsole                MidoriConsole;
-typedef struct _MidoriConsolePrivate         MidoriConsolePrivate;
 typedef struct _MidoriConsoleClass           MidoriConsoleClass;
-
-struct _MidoriConsole
-{
-    GtkVBox parent_instance;
-
-    MidoriConsolePrivate* priv;
-};
 
 struct _MidoriConsoleClass
 {

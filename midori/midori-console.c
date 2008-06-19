@@ -14,32 +14,28 @@
 #include "sokoke.h"
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (MidoriConsole, midori_console, GTK_TYPE_VBOX)
-
-struct _MidoriConsolePrivate
+struct _MidoriConsole
 {
+    GtkVBox parent_instance;
+
     GtkWidget* toolbar;
     GtkWidget* treeview;
 };
 
-#define MIDORI_CONSOLE_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-     MIDORI_TYPE_CONSOLE, MidoriConsolePrivate))
+G_DEFINE_TYPE (MidoriConsole, midori_console, GTK_TYPE_VBOX)
 
 static void
 midori_console_class_init (MidoriConsoleClass* class)
 {
-    g_type_class_add_private (class, sizeof (MidoriConsolePrivate));
+    /* Nothing to do */
 }
 
 static void
 midori_console_button_clear_clicked_cb (GtkToolItem*   toolitem,
                                         MidoriConsole* console)
 {
-    MidoriConsolePrivate* priv = console->priv;
-
     GtkTreeModel* model = gtk_tree_view_get_model (
-        GTK_TREE_VIEW (priv->treeview));
+        GTK_TREE_VIEW (console->treeview));
     gtk_tree_store_clear (GTK_TREE_STORE (model));
 }
 
@@ -50,12 +46,12 @@ midori_console_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                         GtkTreeIter*       iter,
                                         GtkWidget*         treeview)
 {
-    // gchar* source_id;
-    // gtk_tree_model_get (model, iter, 2, &source_id, -1);
+    /* gchar* source_id;
+    gtk_tree_model_get (model, iter, 2, &source_id, -1); */
 
     g_object_set (renderer, "stock-id", GTK_STOCK_DIALOG_WARNING, NULL);
 
-    // g_free (source_id);
+    /* g_free (source_id); */
 }
 
 static void
@@ -97,37 +93,33 @@ midori_console_treeview_row_activated_cb (GtkTreeView*       treeview,
 static void
 midori_console_init (MidoriConsole* console)
 {
-    console->priv = MIDORI_CONSOLE_GET_PRIVATE (console);
-
-    MidoriConsolePrivate* priv = console->priv;
-
-    // Create the treeview
+    /* Create the treeview */
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_pixbuf;
     GtkTreeStore* treestore = gtk_tree_store_new (3, G_TYPE_STRING,
                                                      G_TYPE_INT,
                                                      G_TYPE_STRING);
-    priv->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
-    gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
+    console->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
+    gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (console->treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
         (GtkTreeCellDataFunc)midori_console_treeview_render_icon_cb,
-        priv->treeview, NULL);
+        console->treeview, NULL);
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_console_treeview_render_text_cb,
-        priv->treeview, NULL);
-    gtk_tree_view_append_column (GTK_TREE_VIEW (priv->treeview), column);
+        console->treeview, NULL);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (console->treeview), column);
     g_object_unref (treestore);
-    g_signal_connect (priv->treeview, "row-activated",
+    g_signal_connect (console->treeview, "row-activated",
                       G_CALLBACK (midori_console_treeview_row_activated_cb),
                       console);
-    gtk_widget_show (priv->treeview);
-    gtk_box_pack_start (GTK_BOX (console), priv->treeview, TRUE, TRUE, 0);
+    gtk_widget_show (console->treeview);
+    gtk_box_pack_start (GTK_BOX (console), console->treeview, TRUE, TRUE, 0);
 }
 
 /**
@@ -159,15 +151,13 @@ midori_console_get_toolbar (MidoriConsole* console)
 {
     g_return_val_if_fail (MIDORI_IS_CONSOLE (console), NULL);
 
-    MidoriConsolePrivate* priv = console->priv;
-
-    if (!priv->toolbar)
+    if (!console->toolbar)
     {
         GtkWidget* toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         GtkToolItem* toolitem = gtk_tool_item_new ();
-        // TODO: What about a find entry here that filters e.g. by url?
+        /* TODO: What about a find entry here that filters e.g. by url? */
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         toolitem = gtk_separator_tool_item_new ();
@@ -182,10 +172,10 @@ midori_console_get_toolbar (MidoriConsole* console)
             G_CALLBACK (midori_console_button_clear_clicked_cb), console);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
-        priv->toolbar = toolbar;
+        console->toolbar = toolbar;
     }
 
-    return priv->toolbar;
+    return console->toolbar;
 }
 
 /**
@@ -205,9 +195,7 @@ midori_console_add (MidoriConsole* console,
 {
     g_return_if_fail (MIDORI_IS_CONSOLE (console));
 
-    MidoriConsolePrivate* priv = console->priv;
-
-    GtkTreeView* treeview = GTK_TREE_VIEW (priv->treeview);
+    GtkTreeView* treeview = GTK_TREE_VIEW (console->treeview);
     GtkTreeModel* treemodel = gtk_tree_view_get_model (treeview);
     gtk_tree_store_insert_with_values (GTK_TREE_STORE (treemodel),
                                        NULL, NULL, G_MAXINT,
