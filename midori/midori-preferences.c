@@ -15,16 +15,14 @@
 
 #include <glib/gi18n.h>
 
-G_DEFINE_TYPE (MidoriPreferences, midori_preferences, GTK_TYPE_DIALOG)
-
-struct _MidoriPreferencesPrivate
+struct _MidoriPreferences
 {
+    GtkDialog parent_instance;
+
     GtkWidget* notebook;
 };
 
-#define MIDORI_PREFERENCES_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-     MIDORI_TYPE_PREFERENCES, MidoriPreferencesPrivate))
+G_DEFINE_TYPE (MidoriPreferences, midori_preferences, GTK_TYPE_DIALOG)
 
 enum
 {
@@ -64,25 +62,21 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
                                      _("Settings instance to provide properties"),
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_WRITABLE));
-
-    g_type_class_add_private (class, sizeof (MidoriPreferencesPrivate));
 }
 
 static void
 clear_button_clicked_cb (GtkWidget* button, GtkWidget* file_chooser)
 {
     gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (file_chooser), "");
-    // Emit "file-set" manually for Gtk doesn't emit it otherwise
+    /* Emit "file-set" manually for Gtk doesn't emit it otherwise
+    FIXME: file-set is Gtk+ >= 2.12 */
     g_signal_emit_by_name (file_chooser, "file-set");
 }
 
 static void
 midori_preferences_init (MidoriPreferences* preferences)
 {
-    preferences->priv = MIDORI_PREFERENCES_GET_PRIVATE (preferences);
-    MidoriPreferencesPrivate* priv = preferences->priv;
-
-    priv->notebook = NULL;
+    preferences->notebook = NULL;
 
     gchar* dialog_title = g_strdup_printf (_("%s Preferences"),
                                            g_get_application_name ());
@@ -95,13 +89,13 @@ midori_preferences_init (MidoriPreferences* preferences)
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         NULL);
-    // TODO: Implement some kind of help function
+    /* TODO: Implement some kind of help function */
     gtk_dialog_set_response_sensitive (GTK_DIALOG (preferences),
-                                       GTK_RESPONSE_HELP, FALSE); //...
+                                       GTK_RESPONSE_HELP, FALSE);
     g_signal_connect (preferences, "response",
                       G_CALLBACK (gtk_widget_destroy), preferences);
 
-    // TODO: Do we want tooltips for explainations or can we omit that?
+    /* TODO: Do we want tooltips for explainations or can we omit that? */
     g_free (dialog_title);
 }
 
@@ -194,19 +188,17 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
 
-    MidoriPreferencesPrivate* priv = preferences->priv;
+    g_return_if_fail (!preferences->notebook);
 
-    g_return_if_fail (!priv->notebook);
-
-    priv->notebook = gtk_notebook_new ();
-    gtk_container_set_border_width (GTK_CONTAINER (priv->notebook), 6);
+    preferences->notebook = gtk_notebook_new ();
+    gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
     GtkSizeGroup* sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     GtkWidget* page; GtkWidget* frame; GtkWidget* table; GtkWidget* align;
     GtkWidget* label; GtkWidget* button;
     GtkWidget* entry; GtkWidget* hbox;
     #define PAGE_NEW(__label) page = gtk_vbox_new (FALSE, 0); \
      gtk_container_set_border_width (GTK_CONTAINER (page), 5); \
-     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook), page, \
+     gtk_notebook_append_page (GTK_NOTEBOOK (preferences->notebook), page, \
                                gtk_label_new (__label))
     #define FRAME_NEW(__label) frame = sokoke_hig_frame_new (__label); \
      gtk_container_set_border_width (GTK_CONTAINER (frame), 5); \
@@ -232,7 +224,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
      align = gtk_alignment_new (0, 0.5, 0, 0); \
      gtk_container_add (GTK_CONTAINER (align), __widget); \
      FILLED_ADD (align, __left, __right, __top, __bottom)
-    // Page "General"
+    /* Page "General" */
     PAGE_NEW (_("General"));
     FRAME_NEW (_("Startup"));
     TABLE_NEW (2, 2);
@@ -244,7 +236,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 1, 2);
     entry = katze_property_proxy (settings, "homepage", NULL);
     FILLED_ADD (entry, 1, 2, 1, 2);
-    // TODO: We need something like "use current website"
+    /* TODO: We need something like "use current website" */
     FRAME_NEW (_("Transfers"));
     TABLE_NEW (1, 2);
     label = katze_property_label (settings, "download-folder");
@@ -254,7 +246,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "show-download-notification", "blurb");
     SPANNED_ADD (button, 0, 2, 1, 2);
 
-    // Page "Appearance"
+    /* Page "Appearance" */
     PAGE_NEW (_("Appearance"));
     FRAME_NEW (_("Font settings"));
     TABLE_NEW (5, 2);
@@ -276,7 +268,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "preferred-encoding", NULL);
     FILLED_ADD (button, 1, 2, 2, 3);
 
-    // Page "Behavior"
+    /* Page "Behavior" */
     PAGE_NEW (_("Behavior"));
     FRAME_NEW (_("Features"));
     TABLE_NEW (6, 2);
@@ -327,7 +319,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     entry = katze_property_proxy (settings, "location-entry-search", NULL);
     FILLED_ADD (entry, 1, 2, 5, 6);
 
-    // Page "Interface"
+    /* Page "Interface" */
     PAGE_NEW (_("Interface"));
     FRAME_NEW (_("Navigationbar"));
     TABLE_NEW (3, 2);
@@ -357,7 +349,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     SPANNED_ADD (button, 1, 2, 2, 3);
 
-    // Page "Network"
+    /* Page "Network" */
     PAGE_NEW (_("Network"));
     FRAME_NEW (_("Network"));
     TABLE_NEW (2, 2);
@@ -374,7 +366,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
                         FALSE, FALSE, 0);
     FILLED_ADD (hbox, 1, 2, 1, 2);
 
-    // Page "Privacy"
+    /* Page "Privacy" */
     PAGE_NEW (_("Privacy"));
     FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
@@ -408,6 +400,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button, 0, 2, 2, 3);
 
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
-                        priv->notebook, FALSE, FALSE, 4);
+                        preferences->notebook, FALSE, FALSE, 4);
     gtk_widget_show_all (GTK_DIALOG (preferences)->vbox);
 }

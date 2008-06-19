@@ -34,15 +34,7 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_PREFERENCES, MidoriPreferencesClass))
 
 typedef struct _MidoriPreferences                MidoriPreferences;
-typedef struct _MidoriPreferencesPrivate         MidoriPreferencesPrivate;
 typedef struct _MidoriPreferencesClass           MidoriPreferencesClass;
-
-struct _MidoriPreferences
-{
-    GtkDialog parent_instance;
-
-    MidoriPreferencesPrivate* priv;
-};
 
 struct _MidoriPreferencesClass
 {
