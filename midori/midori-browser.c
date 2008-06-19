@@ -1608,7 +1608,9 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
             g_object_get (browser->settings, "location-entry-search",
                           &location_entry_search, NULL);
             gchar* new_uri = sokoke_magic_uri (uri, browser->search_engines);
-            if (!new_uri)
+            if (!new_uri && strstr (location_entry_search, "%s"))
+                new_uri = g_strdup_printf (location_entry_search, uri);
+            else if (!new_uri)
                 new_uri = g_strdup (location_entry_search);
             g_free (location_entry_search);
             /* TODO: Use new_uri intermediately when completion is better

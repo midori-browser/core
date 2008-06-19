@@ -28,18 +28,16 @@ gchar*
 sokoke_magic_uri (const gchar*   uri,
                   MidoriWebList* search_engines)
 {
-    g_return_val_if_fail (uri, NULL);
-    if (search_engines)
-    {
-        g_return_val_if_fail (MIDORI_IS_WEB_LIST (search_engines), NULL);
-    }
-
     gchar* current_dir;
     gchar* result;
     gchar* search;
     const gchar* search_uri;
     gchar** parts;
     MidoriWebItem* web_item;
+
+    g_return_val_if_fail (uri, NULL);
+    if (search_engines)
+        g_return_val_if_fail (MIDORI_IS_WEB_LIST (search_engines), NULL);
 
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
@@ -73,6 +71,7 @@ sokoke_magic_uri (const gchar*   uri,
             if (web_item)
                 search_uri = midori_web_item_get_uri (web_item);
         }
+        g_free (parts);
         if (search_uri)
             search = g_strdup_printf (search_uri, parts[1]);
         return search;
