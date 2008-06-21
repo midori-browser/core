@@ -14,7 +14,7 @@
 #if !GTK_CHECK_VERSION(2, 12, 0)
 
 void
-sokoke_widget_set_tooltip_text (GtkWidget* widget, const gchar* text)
+gtk_widget_set_tooltip_text (GtkWidget* widget, const gchar* text)
 {
     static GtkTooltips* tooltips;
     if (!tooltips)
