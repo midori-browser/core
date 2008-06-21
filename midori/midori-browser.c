@@ -1989,19 +1989,14 @@ static void
 _action_manage_search_engines_activate (GtkAction*     action,
                                         MidoriBrowser* browser)
 {
-    static GtkWidget* dialog = NULL;
+    GtkWidget* dialog;
 
-    /* Show the Manage search engines dialog. Create it if necessary. */
-    if (dialog)
+    dialog = midori_search_entry_get_dialog (
+        MIDORI_SEARCH_ENTRY (browser->search));
+    if (GTK_WIDGET_VISIBLE (dialog))
         gtk_window_present (GTK_WINDOW (dialog));
     else
-    {
-        dialog = midori_search_entry_get_dialog (
-            MIDORI_SEARCH_ENTRY (browser->search));
-        g_signal_connect (dialog, "destroy",
-                          G_CALLBACK (gtk_widget_destroyed), &dialog);
         gtk_widget_show (dialog);
-    }
 }
 
 static void

@@ -21,11 +21,6 @@ struct _MidoriSearchEntry
 {
     SexyIconEntry parent_instance;
 
-    GtkWidget* dialog;
-    GtkWidget* treeview;
-    GtkWidget* edit_button;
-    GtkWidget* remove_button;
-
     MidoriWebList* search_engines;
     MidoriWebItem* current_item;
 };
@@ -103,6 +98,19 @@ midori_search_entry_engine_activate_cb (GtkWidget*         widget,
 }
 
 static void
+midori_search_entry_manage_activate_cb (GtkWidget*         menuitem,
+                                        MidoriSearchEntry* search_entry)
+{
+    GtkWidget* dialog;
+
+    dialog = midori_search_entry_get_dialog (search_entry);
+    if (GTK_WIDGET_VISIBLE (dialog))
+        gtk_window_present (GTK_WINDOW (dialog));
+    else
+        gtk_widget_show (dialog);
+}
+
+static void
 midori_search_entry_icon_released_cb (GtkWidget*             widget,
                                       SexyIconEntryPosition* pos,
                                       gint                   button)
@@ -147,14 +155,16 @@ midori_search_entry_icon_released_cb (GtkWidget*             widget,
         gtk_widget_show (menuitem);
     }
 
-    /*menuitem = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);
-    GtkAction* action = gtk_action_group_get_action(
-     browser->actiongroup, "ManageSearchEngines");
-    menuitem = gtk_action_create_menu_item(action);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-    gtk_widget_show(menuitem);*/
+    menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_image_menu_item_new_with_mnemonic (_("_Manage Search Engines"));
+    icon = gtk_image_new_from_stock (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_search_entry_manage_activate_cb), widget);
+    gtk_widget_show (menuitem);
     sokoke_widget_popup (widget, GTK_MENU (menu),
                          NULL, SOKOKE_MENU_POSITION_LEFT);
 }
@@ -243,8 +253,6 @@ midori_search_entry_engines_remove_item_cb (MidoriWebList*     web_list,
 static void
 midori_search_entry_init (MidoriSearchEntry* search_entry)
 {
-    search_entry->dialog = NULL;
-
     search_entry->search_engines = midori_web_list_new ();
     search_entry->current_item = NULL;
 
@@ -493,11 +501,10 @@ STR_NON_NULL (const gchar* string)
 }
 
 static void
-midori_search_entry_get_editor (MidoriSearchEntry* search_entry,
-                                gboolean           new_engine,
-                                GtkWindow*         transient_for)
+midori_search_entry_get_editor (GtkWidget* treeview,
+                                gboolean   new_engine)
 {
-    MidoriWebList* search_engines;
+    MidoriSearchEntry* search_entry;
     GtkWidget* dialog;
     GtkSizeGroup* sizegroup;
     MidoriWebItem* web_item;
@@ -505,7 +512,6 @@ midori_search_entry_get_editor (MidoriSearchEntry* search_entry,
     GtkWidget* label;
     GtkTreeModel* liststore;
     GtkTreeIter iter;
-    GtkWidget* treeview;
     GtkTreeSelection* selection;
     GtkWidget* entry_name;
     GtkWidget* entry_description;
@@ -513,12 +519,10 @@ midori_search_entry_get_editor (MidoriSearchEntry* search_entry,
     GtkWidget* entry_icon;
     GtkWidget* entry_token;
 
-    search_engines = search_entry->search_engines;
-    treeview = search_entry->treeview;
-
+    GtkWidget* toplevel = gtk_widget_get_toplevel (treeview);
     dialog = gtk_dialog_new_with_buttons (
         new_engine ? _("Add search engine") : _("Edit search engine"),
-        transient_for ? GTK_WINDOW (transient_for) : NULL,
+        toplevel ? GTK_WINDOW (toplevel) : NULL,
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_engine ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -625,68 +629,112 @@ midori_search_entry_get_editor (MidoriSearchEntry* search_entry,
             "token", gtk_entry_get_text (GTK_ENTRY (entry_token)),
             NULL);
 
+        search_entry = g_object_get_data (G_OBJECT (treeview), "search-entry");
         if (new_engine)
-        {
-            midori_web_list_add_item (search_engines, web_item);
-            liststore = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-            gtk_list_store_append (GTK_LIST_STORE (liststore), &iter);
-        }
-        gtk_list_store_set (GTK_LIST_STORE (liststore), &iter,
-                            0, web_item, -1);
+            midori_web_list_add_item (search_entry->search_engines, web_item);
     }
     gtk_widget_destroy (dialog);
 }
 
 static void
-midori_search_entry_dialog_add_cb (GtkWidget*         widget,
-                                   MidoriSearchEntry* search_entry)
+midori_search_entry_dialog_add_cb (GtkWidget* widget,
+                                   GtkWidget* treeview)
 {
-    midori_search_entry_get_editor (search_entry, TRUE,
-                                    GTK_WINDOW (search_entry->dialog));
+    MidoriSearchEntry* search_entry;
+
+    search_entry = g_object_get_data (G_OBJECT (treeview), "search-entry");
+    midori_search_entry_get_editor (treeview, TRUE);
 }
 
 static void
-midori_search_entry_dialog_edit_cb (GtkWidget*         widget,
-                                    MidoriSearchEntry* search_entry)
+midori_search_entry_dialog_edit_cb (GtkWidget* widget,
+                                    GtkWidget* treeview)
 {
-    midori_search_entry_get_editor (search_entry, FALSE,
-                                    GTK_WINDOW (search_entry->dialog));
+    MidoriSearchEntry* search_entry;
+    GtkTreeSelection* selection;
+
+    search_entry = g_object_get_data (G_OBJECT (treeview), "search-entry");
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+    if (gtk_tree_selection_get_selected (selection, NULL, NULL))
+        midori_search_entry_get_editor (treeview, FALSE);
 }
 
 static void
-midori_search_entry_dialog_remove_cb (GtkWidget*         widget,
-                                      MidoriSearchEntry* search_entry)
+midori_search_entry_dialog_remove_cb (GtkWidget* widget,
+                                      GtkWidget* treeview)
 {
-    GtkWidget* treeview;
+    MidoriSearchEntry* search_entry;
     GtkTreeSelection* selection;
     GtkTreeModel* liststore;
     GtkTreeIter iter;
     MidoriWebItem* web_item;
     MidoriWebList* search_engines;
 
-    treeview = search_entry->treeview;
+    search_entry = g_object_get_data (G_OBJECT (treeview), "search-entry");
     search_engines = search_entry->search_engines;
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-    gtk_tree_selection_get_selected (selection, &liststore, &iter);
-    gtk_tree_model_get (liststore, &iter, 0, &web_item, -1);
-    gtk_list_store_remove (GTK_LIST_STORE (liststore), &iter);
-    g_object_unref (web_item);
-    midori_web_list_remove_item (search_engines, web_item);
-    /* FIXME: we want to allow undo of some kind */
+    if (gtk_tree_selection_get_selected (selection, &liststore, &iter))
+    {
+        gtk_tree_model_get (liststore, &iter, 0, &web_item, -1);
+        midori_web_list_remove_item (search_engines, web_item);
+        g_object_unref (web_item);
+        /* FIXME: we want to allow undo of some kind */
+    }
 }
 
 static void
-midori_search_entry_treeview_selection_cb (GtkWidget*         treeview,
-                                           MidoriSearchEntry* search_entry)
+midori_search_entry_treeview_selection_cb (GtkTreeSelection* selection,
+                                           GtkWidget*        treeview)
 {
-    GtkTreeSelection* selection;
     gboolean selected;
+    GtkWidget* edit_button;
+    GtkWidget* remove_button;
 
-    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (search_entry->treeview));
     selected = gtk_tree_selection_get_selected (selection, NULL, NULL);
 
-    gtk_widget_set_sensitive (search_entry->edit_button, selected);
-    gtk_widget_set_sensitive (search_entry->remove_button, selected);
+    edit_button = g_object_get_data (G_OBJECT (treeview), "edit-button");
+    remove_button = g_object_get_data (G_OBJECT (treeview), "remove-button");
+
+    gtk_widget_set_sensitive (edit_button, selected);
+    gtk_widget_set_sensitive (remove_button, selected);
+}
+
+static void
+midori_search_entry_dialog_engines_add_item_cb (MidoriWebList* web_list,
+                                                MidoriWebItem* item,
+                                                GtkWidget*     treeview)
+{
+    GtkTreeModel* liststore;
+    GtkTreeIter iter;
+
+    liststore = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+    gtk_list_store_append (GTK_LIST_STORE (liststore), &iter);
+    gtk_list_store_set (GTK_LIST_STORE (liststore), &iter, 0, item, -1);
+}
+
+static void
+midori_search_entry_dialog_engines_remove_item_cb (MidoriWebList* web_list,
+                                                   MidoriWebItem* item,
+                                                   GtkWidget*     treeview)
+{
+    GtkTreeModel* liststore;
+    GtkTreeIter iter;
+    gboolean valid;
+    MidoriWebItem* web_item;
+
+    liststore = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+    valid = gtk_tree_model_get_iter_first (liststore, &iter);
+    while (valid)
+    {
+        gtk_tree_model_get (liststore, &iter, 0, &web_item, -1);
+        if (web_item == item)
+        {
+            gtk_list_store_remove (GTK_LIST_STORE (liststore), &iter);
+            valid = FALSE;
+        }
+        else
+            valid = gtk_tree_model_iter_next (liststore, &iter);
+    }
 }
 
 /**
@@ -704,9 +752,9 @@ midori_search_entry_treeview_selection_cb (GtkWidget*         treeview,
 GtkWidget*
 midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
 {
+    static GtkWidget* dialog = NULL;
     const gchar* dialog_title;
     GtkWidget* toplevel;
-    GtkWidget* dialog;
     gint width, height;
     GtkWidget* xfce_heading;
     GtkWidget* hbox;
@@ -723,6 +771,10 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
 
     g_return_val_if_fail (MIDORI_IS_SEARCH_ENTRY (search_entry), NULL);
 
+    /* If there is a dialog, use that. We want only one. */
+    if (dialog)
+        return dialog;
+
     dialog_title = _("Manage search engines");
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (search_entry));
     dialog = gtk_dialog_new_with_buttons (dialog_title,
@@ -731,7 +783,8 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         NULL);
-    search_entry->dialog = dialog;
+    g_signal_connect (dialog, "destroy",
+                      G_CALLBACK (gtk_widget_destroyed), &dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
     /* TODO: Implement some kind of help function */
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
@@ -751,12 +804,10 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
                                  TRUE, TRUE, 12);
     liststore = gtk_list_store_new (1, MIDORI_TYPE_WEB_ITEM);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
-    /*g_signal_connect (treeview, "cursor-changed",
-        G_CALLBACK (midori_search_entry_treeview_selection_cb), search_entry);*/
     g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview)),
         "changed", G_CALLBACK (midori_search_entry_treeview_selection_cb),
-        search_entry);
-    search_entry->treeview = treeview;
+        treeview);
+    g_object_set_data (G_OBJECT (treeview), "search-entry", search_entry);
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
@@ -789,22 +840,22 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
     gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 4);
     button = gtk_button_new_from_stock (GTK_STOCK_ADD);
     g_signal_connect (button, "clicked",
-        G_CALLBACK (midori_search_entry_dialog_add_cb), search_entry);
+        G_CALLBACK (midori_search_entry_dialog_add_cb), treeview);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     button = gtk_button_new_from_stock (GTK_STOCK_EDIT);
     g_signal_connect (button, "clicked",
-        G_CALLBACK (midori_search_entry_dialog_edit_cb), search_entry);
-    gtk_box_pack_start (GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    search_entry->edit_button = button;
+        G_CALLBACK (midori_search_entry_dialog_edit_cb), treeview);
+    gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+    g_object_set_data (G_OBJECT (treeview), "edit-button", button);
     if (!n)
         gtk_widget_set_sensitive (button, FALSE);
     button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
     g_signal_connect (button, "clicked",
-        G_CALLBACK (midori_search_entry_dialog_remove_cb), search_entry);
+        G_CALLBACK (midori_search_entry_dialog_remove_cb), treeview);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     if (!n)
         gtk_widget_set_sensitive (button, FALSE);
-    search_entry->remove_button = button;
+    g_object_set_data (G_OBJECT (treeview), "remove-button", button);
     button = gtk_label_new (""); /* This is an invisible separator */
     gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 12);
     button = gtk_button_new_from_stock (GTK_STOCK_GO_DOWN);
@@ -815,7 +866,12 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
     gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
-    /* TODO: Connect to MidoriWebList::add_item and ::remove_item */
+    g_object_connect (search_entry->search_engines,
+        "signal-after::add-item",
+        midori_search_entry_dialog_engines_add_item_cb, treeview,
+        "signal-after::remove-item",
+        midori_search_entry_dialog_engines_remove_item_cb, treeview,
+        NULL);
 
     return dialog;
 }
