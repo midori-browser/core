@@ -3349,7 +3349,8 @@ midori_browser_set_property (GObject*      object,
                           &last_web_search, NULL);
             web_item = midori_web_list_get_nth_item (browser->search_engines,
                                                      last_web_search);
-            g_object_set (browser->search, "current-item", web_item, NULL);
+            if (web_item)
+                g_object_set (browser->search, "current-item", web_item, NULL);
         }
         break;
     default:
