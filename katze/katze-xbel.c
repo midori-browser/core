@@ -28,48 +28,90 @@
 
 #include "katze-utils.h"
 
-struct _KatzeXbelItemPrivate
+struct _KatzeXbelItem
 {
+    GObject parent_instance;
+
     guint refs;
     KatzeXbelItemKind kind;
     KatzeXbelItem* parent;
 
-    GList* items;      // folder
-    gboolean folded;   // foolder
-    gchar* title;      // !separator
-    gchar* desc;       // folder and bookmark
-    gchar* href;       // bookmark
-    //time_t added;    // !separator
-    //time_t modfied;  // bookmark
-    //time_t visited;  // bookmark
-} ;
+    GList* items;
+    gboolean folded;
+    gchar* title;
+    gchar* desc;
+    gchar* href;
+};
 
-#define KATZE_XBEL_ITEM_GET_PRIVATE(item) \
-    item->priv
+G_DEFINE_TYPE (KatzeXbelItem, katze_xbel_item, G_TYPE_OBJECT)
 
-// Private: Create a new item of a certain type
+static void
+katze_xbel_item_finalize (GObject* object);
+
+static void
+katze_xbel_item_class_init (KatzeXbelItemClass* class)
+{
+    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = katze_xbel_item_finalize;
+}
+
+static void
+katze_xbel_item_init (KatzeXbelItem* item)
+{
+    item->parent = NULL;
+}
+
+static void
+katze_xbel_item_finalize (GObject* object)
+{
+    KatzeXbelItem* item = KATZE_XBEL_ITEM (object);
+
+    if (item->parent)
+        katze_xbel_folder_remove_item (item->parent, item);
+
+    if (item->kind == KATZE_XBEL_ITEM_KIND_FOLDER)
+    {
+        guint n = katze_xbel_folder_get_n_items (item);
+        guint i;
+        for (i = 0; i < n; i++)
+        {
+            KatzeXbelItem* _item = katze_xbel_folder_get_nth_item (item, i);
+            _item->parent = NULL;
+            katze_xbel_item_unref (_item);
+        }
+        g_list_free (item->items);
+    }
+    if (item->kind != KATZE_XBEL_ITEM_KIND_SEPARATOR)
+    {
+        g_free (item->title);
+        g_free (item->desc);
+    }
+    if (item->kind == KATZE_XBEL_ITEM_KIND_BOOKMARK)
+        g_free (item->href);
+
+    G_OBJECT_CLASS (katze_xbel_item_parent_class)->finalize (object);
+}
+
+/* Create a new item of a certain type */
 static KatzeXbelItem*
 katze_xbel_item_new (KatzeXbelItemKind kind)
 {
-    KatzeXbelItem* item = g_new (KatzeXbelItem, 1);
-    KATZE_XBEL_ITEM_GET_PRIVATE (item) = g_new (KatzeXbelItemPrivate, 1);
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
+    KatzeXbelItem* item = g_object_new (KATZE_TYPE_XBEL_ITEM, NULL);
 
-    priv->refs = 1;
-    priv->parent = NULL;
-    priv->kind = kind;
+    item->kind = kind;
+
     if (kind == KATZE_XBEL_ITEM_KIND_FOLDER)
     {
-        priv->items = NULL;
-        priv->folded = TRUE;
+        item->items = NULL;
+        item->folded = TRUE;
     }
     if (kind != KATZE_XBEL_ITEM_KIND_SEPARATOR)
     {
-        priv->title = NULL;
-        priv->desc  = NULL;
+        item->title = NULL;
+        item->desc  = NULL;
     }
     if (kind == KATZE_XBEL_ITEM_KIND_BOOKMARK)
-        priv->href = g_strdup ("");
+        item->href = g_strdup ("");
     return item;
 }
 
@@ -142,22 +184,21 @@ katze_xbel_folder_new (void)
     return katze_xbel_item_new (KATZE_XBEL_ITEM_KIND_FOLDER);
 }
 
-// Private: Create a folder from an xmlNodePtr
+/* Create a folder from an xmlNodePtr */
 static KatzeXbelItem*
 katze_xbel_folder_from_xmlNodePtr (xmlNodePtr cur)
 {
     g_return_val_if_fail (cur, NULL);
 
     KatzeXbelItem* folder = katze_xbel_folder_new ();
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
 
     xmlChar* key = xmlGetProp (cur, (xmlChar*)"folded");
     if (key)
     {
         if (!g_ascii_strncasecmp ((gchar*)key, "yes", 3))
-            priv->folded = TRUE;
+            folder->folded = TRUE;
         else if (!g_ascii_strncasecmp ((gchar*)key, "no", 2))
-            priv->folded = FALSE;
+            folder->folded = FALSE;
         else
             g_warning ("XBEL: Unknown value for folded.");
         xmlFree (key);
@@ -168,39 +209,39 @@ katze_xbel_folder_from_xmlNodePtr (xmlNodePtr cur)
         if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
         {
             xmlChar* key = xmlNodeGetContent (cur);
-            katze_assign (priv->title, g_strstrip ((gchar*)key));
+            katze_assign (folder->title, g_strstrip ((gchar*)key));
         }
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
         {
             xmlChar* key = xmlNodeGetContent (cur);
-            katze_assign (priv->desc, g_strstrip ((gchar*)key));
+            katze_assign (folder->desc, g_strstrip ((gchar*)key));
         }
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
         {
             KatzeXbelItem* item = katze_xbel_folder_from_xmlNodePtr (cur);
-            KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
-            priv->items = g_list_prepend (priv->items, item);
+            item->parent = folder;
+            folder->items = g_list_prepend (folder->items, item);
         }
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
         {
             KatzeXbelItem* item = katze_xbel_bookmark_from_xmlNodePtr (cur);
-            KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
-            priv->items = g_list_prepend (priv->items, item);
+            item->parent = folder;
+            folder->items = g_list_prepend (folder->items, item);
         }
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
         {
             KatzeXbelItem* item = katze_xbel_separator_new ();
-            KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
-            priv->items = g_list_prepend (priv->items, item);
+            item->parent = folder;
+            folder->items = g_list_prepend (folder->items, item);
         }
         cur = cur->next;
     }
-    // Prepending and reversing is faster than appending
-    priv->items = g_list_reverse (priv->items);
+    /* Prepending and reversing is faster than appending */
+    folder->items = g_list_reverse (folder->items);
     return folder;
 }
 
-// Private: Loads the contents from an xmlNodePtr into a folder.
+/* Loads the contents from an xmlNodePtr into a folder. */
 static gboolean
 katze_xbel_folder_from_xmlDocPtr (KatzeXbelItem* folder,
                                   xmlDocPtr      doc)
@@ -208,24 +249,22 @@ katze_xbel_folder_from_xmlDocPtr (KatzeXbelItem* folder,
     g_return_val_if_fail (katze_xbel_folder_is_empty (folder), FALSE);
     g_return_val_if_fail (doc, FALSE);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-
     xmlNodePtr cur = xmlDocGetRootElement (doc);
     xmlChar* version = xmlGetProp (cur, (xmlChar*)"version");
     if (xmlStrcmp (version, (xmlChar*)"1.0"))
         g_warning ("XBEL version is not 1.0.");
     xmlFree (version);
 
-    katze_assign (priv->title, (gchar*)xmlGetProp (cur, (xmlChar*)"title"));
-    katze_assign (priv->desc, (gchar*)xmlGetProp (cur, (xmlChar*)"desc"));
+    katze_assign (folder->title, (gchar*)xmlGetProp (cur, (xmlChar*)"title"));
+    katze_assign (folder->desc, (gchar*)xmlGetProp (cur, (xmlChar*)"desc"));
     if ((cur = xmlDocGetRootElement (doc)) == NULL)
     {
-        // Empty document
+        /* Empty document */
         return FALSE;
     }
     if (xmlStrcmp (cur->name, (const xmlChar*)"xbel"))
     {
-        // Wrong document kind
+        /* Wrong document kind */
         return FALSE;
     }
     cur = cur->xmlChildrenNode;
@@ -242,13 +281,13 @@ katze_xbel_folder_from_xmlDocPtr (KatzeXbelItem* folder,
             item = katze_xbel_parse_info (xbel, cur);*/
         if (item)
         {
-            KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
-            priv->items = g_list_prepend (priv->items, item);
+            item->parent = folder;
+            folder->items = g_list_prepend (folder->items, item);
         }
         cur = cur->next;
     }
-    // Prepending and reversing is faster than appending
-    priv->items = g_list_reverse (priv->items);
+    /* Prepending and reversing is faster than appending */
+    folder->items = g_list_reverse (folder->items);
     return TRUE;
 }
 
@@ -265,10 +304,9 @@ katze_xbel_folder_from_xmlDocPtr (KatzeXbelItem* folder,
 void
 katze_xbel_item_ref (KatzeXbelItem* item)
 {
-    g_return_if_fail (item);
+    g_return_if_fail (KATZE_IS_XBEL_ITEM (item));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    priv->refs++;
+    g_object_ref (item);
 }
 
 /**
@@ -285,36 +323,9 @@ katze_xbel_item_ref (KatzeXbelItem* item)
 void
 katze_xbel_item_unref (KatzeXbelItem* item)
 {
-    g_return_if_fail (item);
+    g_return_if_fail (KATZE_IS_XBEL_ITEM (item));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    priv->refs--;
-    if (priv->refs)
-        return;
-
-    if (priv->parent)
-        katze_xbel_folder_remove_item (priv->parent, item);
-
-    if (priv->kind == KATZE_XBEL_ITEM_KIND_FOLDER)
-    {
-        guint n = katze_xbel_folder_get_n_items (item);
-        guint i;
-        for (i = 0; i < n; i++)
-        {
-            KatzeXbelItem* _item = katze_xbel_folder_get_nth_item (item, i);
-            KATZE_XBEL_ITEM_GET_PRIVATE (_item)->parent = NULL;
-            katze_xbel_item_unref (_item);
-        }
-        g_list_free (priv->items);
-    }
-    if (priv->kind != KATZE_XBEL_ITEM_KIND_SEPARATOR)
-    {
-        g_free (priv->title);
-        g_free (priv->desc);
-    }
-    if (priv->kind == KATZE_XBEL_ITEM_KIND_BOOKMARK)
-        g_free (priv->href);
-    g_free (item);
+    g_object_unref (item);
 }
 
 /**
@@ -330,10 +341,9 @@ katze_xbel_item_unref (KatzeXbelItem* item)
 KatzeXbelItem*
 katze_xbel_item_copy (KatzeXbelItem* item)
 {
-    g_return_val_if_fail (item, NULL);
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), NULL);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    KatzeXbelItem* copy = katze_xbel_item_new (priv->kind);
+    KatzeXbelItem* copy = katze_xbel_item_new (item->kind);
 
     if (katze_xbel_item_is_folder (item))
     {
@@ -345,23 +355,14 @@ katze_xbel_item_copy (KatzeXbelItem* item)
             katze_xbel_folder_append_item (copy, katze_xbel_item_copy (_item));
         }
     }
-    if (priv->kind != KATZE_XBEL_ITEM_KIND_SEPARATOR)
+    if (item->kind != KATZE_XBEL_ITEM_KIND_SEPARATOR)
     {
-        katze_xbel_item_set_title (copy, priv->title);
-        katze_xbel_item_set_desc (copy, priv->desc);
+        katze_xbel_item_set_title (copy, item->title);
+        katze_xbel_item_set_desc (copy, item->desc);
     }
-    if (priv->kind == KATZE_XBEL_ITEM_KIND_BOOKMARK)
-        katze_xbel_bookmark_set_href (copy, priv->href);
+    if (item->kind == KATZE_XBEL_ITEM_KIND_BOOKMARK)
+        katze_xbel_bookmark_set_href (copy, item->href);
     return copy;
-}
-
-GType
-katze_xbel_item_get_type (void)
-{
-    static GType type = 0;
-    if (!type)
-        type = g_pointer_type_register_static ("katze_xbel_item");
-    return type;
 }
 
 /**
@@ -381,10 +382,9 @@ katze_xbel_folder_append_item (KatzeXbelItem* folder,
     g_return_if_fail (!katze_xbel_item_get_parent (item));
     g_return_if_fail (katze_xbel_item_is_folder (folder));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    priv->items = g_list_append (priv->items, item);
+    folder->items = g_list_append (folder->items, item);
 
-    KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
+    item->parent = folder;
 }
 
 /**
@@ -404,10 +404,9 @@ katze_xbel_folder_prepend_item (KatzeXbelItem* folder,
     g_return_if_fail (!katze_xbel_item_get_parent (item));
     g_return_if_fail (katze_xbel_item_is_folder (folder));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    priv->items = g_list_prepend (priv->items, item);
+    folder->items = g_list_prepend (folder->items, item);
 
-    KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = folder;
+    item->parent = folder;
 }
 
 /**
@@ -421,14 +420,13 @@ void
 katze_xbel_folder_remove_item (KatzeXbelItem* folder,
                                KatzeXbelItem* item)
 {
-    g_return_if_fail (item);
+    g_return_if_fail (KATZE_IS_XBEL_ITEM (item));
     g_return_if_fail (katze_xbel_item_get_parent(folder) != item);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    // Fortunately we know that items are unique
-    priv->items = g_list_remove (priv->items, item);
+    /* Fortunately we know that items are unique */
+    folder->items = g_list_remove (folder->items, item);
 
-    KATZE_XBEL_ITEM_GET_PRIVATE (item)->parent = NULL;
+    item->parent = NULL;
 }
 
 /**
@@ -444,8 +442,7 @@ katze_xbel_folder_get_n_items (KatzeXbelItem* folder)
 {
     g_return_val_if_fail (katze_xbel_item_is_folder (folder), 0);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    return g_list_length (priv->items);
+    return g_list_length (folder->items);
 }
 
 /**
@@ -463,8 +460,7 @@ katze_xbel_folder_get_nth_item (KatzeXbelItem* folder,
 {
     g_return_val_if_fail (katze_xbel_item_is_folder(folder), NULL);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    return (KatzeXbelItem*) g_list_nth_data (priv->items, n);
+    return (KatzeXbelItem*) g_list_nth_data (folder->items, n);
 }
 
 /**
@@ -498,8 +494,7 @@ katze_xbel_folder_get_folded (KatzeXbelItem* folder)
 {
     g_return_val_if_fail (katze_xbel_item_is_folder (folder), TRUE);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    return priv->folded;
+    return folder->folded;
 }
 
 /**
@@ -513,8 +508,9 @@ katze_xbel_folder_get_folded (KatzeXbelItem* folder)
 KatzeXbelItemKind
 katze_xbel_item_get_kind (KatzeXbelItem* item)
 {
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->kind;
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), KATZE_XBEL_ITEM_KIND_BOOKMARK);
+
+    return item->kind;
 }
 
 /**
@@ -528,10 +524,9 @@ katze_xbel_item_get_kind (KatzeXbelItem* item)
 KatzeXbelItem*
 katze_xbel_item_get_parent (KatzeXbelItem* item)
 {
-    g_return_val_if_fail (item, NULL);
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), NULL);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->parent;
+    return item->parent;
 }
 
 /**
@@ -547,8 +542,7 @@ katze_xbel_item_get_title (KatzeXbelItem* item)
 {
     g_return_val_if_fail (!katze_xbel_item_is_separator (item), NULL);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->title;
+    return item->title;
 }
 
 /**
@@ -564,8 +558,7 @@ katze_xbel_item_get_desc (KatzeXbelItem* item)
 {
     g_return_val_if_fail (!katze_xbel_item_is_separator (item), NULL);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->desc;
+    return item->desc;
 }
 
 /**
@@ -581,8 +574,7 @@ katze_xbel_bookmark_get_href (KatzeXbelItem* bookmark)
 {
     g_return_val_if_fail (katze_xbel_item_is_bookmark (bookmark), NULL);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (bookmark);
-    return priv->href;
+    return bookmark->href;
 }
 
 /**
@@ -596,10 +588,9 @@ katze_xbel_bookmark_get_href (KatzeXbelItem* bookmark)
 gboolean
 katze_xbel_item_is_bookmark (KatzeXbelItem* item)
 {
-    g_return_val_if_fail (item, FALSE);
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), FALSE);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->kind == KATZE_XBEL_ITEM_KIND_BOOKMARK;
+    return item->kind == KATZE_XBEL_ITEM_KIND_BOOKMARK;
 }
 
 /**
@@ -612,10 +603,9 @@ katze_xbel_item_is_bookmark (KatzeXbelItem* item)
  **/
 gboolean katze_xbel_item_is_separator (KatzeXbelItem* item)
 {
-    g_return_val_if_fail (item, FALSE);
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), FALSE);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->kind == KATZE_XBEL_ITEM_KIND_SEPARATOR;
+    return item->kind == KATZE_XBEL_ITEM_KIND_SEPARATOR;
 }
 
 /**
@@ -629,10 +619,9 @@ gboolean katze_xbel_item_is_separator (KatzeXbelItem* item)
 gboolean
 katze_xbel_item_is_folder (KatzeXbelItem* item)
 {
-    g_return_val_if_fail (item, FALSE);
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), FALSE);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    return priv->kind == KATZE_XBEL_ITEM_KIND_FOLDER;
+    return item->kind == KATZE_XBEL_ITEM_KIND_FOLDER;
 }
 
 /**
@@ -648,8 +637,7 @@ katze_xbel_folder_set_folded (KatzeXbelItem* folder,
 {
     g_return_if_fail (katze_xbel_item_is_folder (folder));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-    priv->folded = folded;
+    folder->folded = folded;
 }
 
 /**
@@ -665,8 +653,7 @@ katze_xbel_item_set_title (KatzeXbelItem* item,
 {
     g_return_if_fail (!katze_xbel_item_is_separator (item));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    katze_assign (priv->title, g_strdup (title));
+    katze_assign (item->title, g_strdup (title));
 }
 
 /**
@@ -682,8 +669,7 @@ katze_xbel_item_set_desc (KatzeXbelItem* item,
 {
     g_return_if_fail (!katze_xbel_item_is_separator (item));
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
-    katze_assign (priv->desc, g_strdup (desc));
+    katze_assign (item->desc, g_strdup (desc));
 }
 
 /**
@@ -704,8 +690,7 @@ katze_xbel_bookmark_set_href (KatzeXbelItem* bookmark,
     g_return_if_fail (katze_xbel_item_is_bookmark (bookmark));
     g_return_if_fail (href);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (bookmark);
-    katze_assign (priv->href, g_strdup (href));
+    katze_assign (bookmark->href, g_strdup (href));
 }
 
 gboolean
@@ -718,14 +703,14 @@ katze_xbel_folder_from_data (KatzeXbelItem* folder,
     xmlDocPtr doc;
     if((doc = xmlParseMemory (data, strlen (data))) == NULL)
     {
-        // No valid xml or broken encoding
+        /* No valid xml or broken encoding */
         *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
                                       _("Malformed document."));
         return FALSE;
     }
     if (!katze_xbel_folder_from_xmlDocPtr (folder, doc))
     {
-        // Parsing failed
+        /* Parsing failed */
         xmlFreeDoc(doc);
         *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
                                       _("Malformed document."));
@@ -754,7 +739,7 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
     g_return_val_if_fail (file, FALSE);
     if (!g_file_test (file, G_FILE_TEST_EXISTS))
     {
-        // File doesn't exist
+        /* File doesn't exist */
         *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_NOENT,
                                       _("File not found."));
         return FALSE;
@@ -762,14 +747,14 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
     xmlDocPtr doc;
     if ((doc = xmlParseFile (file)) == NULL)
     {
-        // No valid xml or broken encoding
+        /* No valid xml or broken encoding */
         *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
                                       _("Malformed document."));
         return FALSE;
     }
     if (!katze_xbel_folder_from_xmlDocPtr (folder, doc))
     {
-        // Parsing failed
+        /* Parsing failed */
         xmlFreeDoc (doc);
         *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
                                       _("Malformed document."));
@@ -798,7 +783,7 @@ katze_xbel_folder_from_data_dirs (KatzeXbelItem* folder,
 {
     g_return_val_if_fail (katze_xbel_folder_is_empty (folder), FALSE);
     g_return_val_if_fail (file, FALSE);
-    // FIXME: Essentially unimplemented
+    /* FIXME: Essentially unimplemented */
 
     *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
                                   _("Malformed document."));
@@ -821,12 +806,10 @@ katze_xbel_xml_element (const gchar* name,
 static gchar*
 katze_xbel_item_to_data (KatzeXbelItem* item)
 {
-    g_return_val_if_fail (item, NULL);
-
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (item);
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), NULL);
 
     gchar* markup = NULL;
-    switch (priv->kind)
+    switch (item->kind)
     {
     case KATZE_XBEL_ITEM_KIND_FOLDER:
     {
@@ -840,9 +823,9 @@ katze_xbel_item_to_data (KatzeXbelItem* item)
             g_string_append (_markup, item_markup);
             g_free (item_markup);
         }
-        gchar* folded = priv->folded ? NULL : g_strdup_printf (" folded=\"no\"");
-        gchar* title = katze_xbel_xml_element ("title", priv->title);
-        gchar* desc = katze_xbel_xml_element ("desc", priv->desc);
+        gchar* folded = item->folded ? NULL : g_strdup_printf (" folded=\"no\"");
+        gchar* title = katze_xbel_xml_element ("title", item->title);
+        gchar* desc = katze_xbel_xml_element ("desc", item->desc);
         markup = g_strdup_printf ("<folder%s>\n%s%s%s</folder>\n",
                                   folded ? folded : "",
                                   title, desc,
@@ -854,11 +837,11 @@ katze_xbel_item_to_data (KatzeXbelItem* item)
     }
     case KATZE_XBEL_ITEM_KIND_BOOKMARK:
     {
-        gchar* href_escaped = g_markup_escape_text (priv->href, -1);
+        gchar* href_escaped = g_markup_escape_text (item->href, -1);
         gchar* href = g_strdup_printf (" href=\"%s\"", href_escaped);
         g_free (href_escaped);
-        gchar* title = katze_xbel_xml_element ("title", priv->title);
-        gchar* desc = katze_xbel_xml_element ("desc", priv->desc);
+        gchar* title = katze_xbel_xml_element ("title", item->title);
+        gchar* desc = katze_xbel_xml_element ("desc", item->desc);
         markup = g_strdup_printf ("<bookmark%s>\n%s%s%s</bookmark>\n",
                                   href,
                                   title, desc,
@@ -894,8 +877,6 @@ katze_xbel_folder_to_data (KatzeXbelItem* folder,
 {
     g_return_val_if_fail (katze_xbel_item_is_folder (folder), FALSE);
 
-    KatzeXbelItemPrivate* priv = KATZE_XBEL_ITEM_GET_PRIVATE (folder);
-
     GString* inner_markup = g_string_new (NULL);
     guint n = katze_xbel_folder_get_n_items (folder);
     guint i;
@@ -906,8 +887,8 @@ katze_xbel_folder_to_data (KatzeXbelItem* folder,
         g_string_append (inner_markup, sItem);
         g_free (sItem);
     }
-    gchar* title = katze_xbel_xml_element ("title", priv->title);
-    gchar* desc = katze_xbel_xml_element ("desc", priv->desc);
+    gchar* title = katze_xbel_xml_element ("title", folder->title);
+    gchar* desc = katze_xbel_xml_element ("desc", folder->desc);
     gchar* outer_markup;
     outer_markup = g_strdup_printf (
                    "%s%s<xbel version=\"1.0\">\n%s%s%s</xbel>\n",
@@ -941,7 +922,9 @@ katze_xbel_folder_to_file (KatzeXbelItem* folder,
                            const gchar*   file,
                            GError**       error)
 {
+    g_return_val_if_fail (KATZE_IS_XBEL_ITEM (folder), FALSE);
     g_return_val_if_fail (file, FALSE);
+
     gchar* data;
     if (!(data = katze_xbel_folder_to_data (folder, NULL, error)))
         return FALSE;

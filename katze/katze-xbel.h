@@ -18,19 +18,17 @@ G_BEGIN_DECLS
 
 #define KATZE_TYPE_XBEL_ITEM \
     (katze_xbel_item_get_type ())
+#define KATZE_XBEL_ITEM(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), KATZE_TYPE_XBEL_ITEM, KatzeXbelItem))
+#define KATZE_IS_XBEL_ITEM(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), KATZE_TYPE_XBEL_ITEM))
 
 typedef struct _KatzeXbelItem                KatzeXbelItem;
-typedef struct _KatzeXbelItemPrivate         KatzeXbelItemPrivate;
+typedef struct _KatzeXbelItemClass           KatzeXbelItemClass;
 
-struct _KatzeXbelItem
+struct _KatzeXbelItemClass
 {
-    KatzeXbelItemPrivate* priv;
-
-    /* Padding for future expansion */
-    void (*_katze_reserved1) (void);
-    void (*_katze_reserved2) (void);
-    void (*_katze_reserved3) (void);
-    void (*_katze_reserved4) (void);
+    GObjectClass parent_class;
 };
 
 #define KATZE_XBEL_ERROR g_quark_from_string("KATZE_XBEL_ERROR")
