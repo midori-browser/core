@@ -16,7 +16,6 @@
 
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
-
 #include <glib/gi18n.h>
 
 /* FIXME: Remove these globals */

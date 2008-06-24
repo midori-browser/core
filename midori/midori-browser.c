@@ -20,7 +20,6 @@
 #include "midori-panel.h"
 #include "midori-addons.h"
 #include "midori-console.h"
-#include "midori-trash.h"
 #include "midori-searchentry.h"
 
 #include <glib/gi18n.h>
@@ -70,7 +69,7 @@ struct _MidoriBrowser
     MidoriWebSettings* settings;
 
     KatzeXbelItem* proxy_xbel_folder;
-    MidoriTrash* trash;
+    MidoriWebList* trash;
     MidoriWebList* search_engines;
 };
 
@@ -157,7 +156,7 @@ _midori_browser_update_actions (MidoriBrowser* browser)
 
     if (browser->trash)
     {
-        gboolean trash_empty = midori_trash_is_empty (browser->trash);
+        gboolean trash_empty = midori_web_list_is_empty (browser->trash);
         _action_set_sensitive (browser, "UndoTabClose", !trash_empty);
         _action_set_sensitive (browser, "Trash", !trash_empty);
     }
@@ -620,7 +619,7 @@ midori_web_view_close_cb (GtkWidget*     web_view,
             MIDORI_WEB_VIEW (web_view));
         const gchar* uri = katze_xbel_bookmark_get_href (xbel_item);
         if (browser->trash && uri && *uri)
-            midori_trash_prepend_xbel_item (browser->trash, xbel_item);
+            midori_web_list_add_item (browser->trash, xbel_item);
         katze_xbel_folder_remove_item (browser->proxy_xbel_folder, xbel_item);
         katze_xbel_item_unref (xbel_item);
     }
@@ -1087,7 +1086,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "trash",
                                      _("Trash"),
                                      _("The trash, collecting recently closed tabs and windows"),
-                                     MIDORI_TYPE_TRASH,
+                                     MIDORI_TYPE_WEB_LIST,
                                      G_PARAM_READWRITE));
 
     /**
@@ -1414,12 +1413,12 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
                                        MidoriBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_new ();
-    guint n = midori_trash_get_n_items (browser->trash);
+    guint n = midori_web_list_get_length (browser->trash);
     GtkWidget* menuitem;
     guint i;
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = midori_trash_get_nth_xbel_item (browser->trash, i);
+        KatzeXbelItem* item = midori_web_list_get_nth_item (browser->trash, i);
         const gchar* title = katze_xbel_item_get_title (item);
         const gchar* uri = katze_xbel_bookmark_get_href (item);
         menuitem = gtk_image_menu_item_new_with_label (title ? title : uri);
@@ -2214,10 +2213,11 @@ _action_undo_tab_close_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
     /* Reopen the most recent trash item */
-    KatzeXbelItem* item = midori_trash_get_nth_xbel_item (browser->trash, 0);
+    guint length = midori_web_list_get_length (browser->trash);
+    KatzeXbelItem* item = midori_web_list_get_nth_item (browser->trash, length);
     gint n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
-    midori_trash_remove_nth_item (browser->trash, 0);
+    midori_web_list_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
 }
 
@@ -2225,12 +2225,12 @@ static void
 _action_trash_empty_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
-    midori_trash_empty (browser->trash);
+    midori_web_list_clear (browser->trash);
     _midori_browser_update_actions (browser);
 }
 
 static void
-_action_bookmark_delete_activate (GtkAction* action,
+_action_bookmark_delete_activate (GtkAction*     action,
                                   MidoriBrowser* browser)
 {
     GtkTreeView* treeview = GTK_TREE_VIEW (browser->panel_bookmarks);

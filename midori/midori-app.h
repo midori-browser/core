@@ -16,7 +16,7 @@
 
 #include "midori-browser.h"
 #include "midori-websettings.h"
-#include "midori-trash.h"
+#include "midori-weblist.h"
 
 G_BEGIN_DECLS
 
@@ -34,7 +34,6 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_APP, MidoriAppClass))
 
 typedef struct _MidoriApp                MidoriApp;
-typedef struct _MidoriAppPrivate         MidoriAppPrivate;
 typedef struct _MidoriAppClass           MidoriAppClass;
 
 struct _MidoriAppClass
@@ -56,21 +55,21 @@ MidoriApp*
 midori_app_new                    (void);
 
 void
-midori_app_add_browser            (MidoriApp*     app,
-                                   MidoriBrowser* browser);
+midori_app_add_browser            (MidoriApp*         app,
+                                   MidoriBrowser*     browser);
 
 MidoriWebSettings*
-midori_app_get_settings           (MidoriApp* app);
+midori_app_get_settings           (MidoriApp*         app);
 
 void
 midori_app_set_settings           (MidoriApp*         app,
                                    MidoriWebSettings* settings);
 
-MidoriTrash*
-midori_app_get_trash              (MidoriApp* app);
+MidoriWebList*
+midori_app_get_trash              (MidoriApp*         app);
 
 void
-midori_app_quit                   (MidoriApp* app);
+midori_app_quit                   (MidoriApp*         app);
 
 G_END_DECLS
 

@@ -25,7 +25,6 @@ midori_SOURCES = \
     midori-panel.c       midori-panel.h       \
     midori-addons.c      midori-addons.h      \
     midori-console.c     midori-console.h     \
-    midori-trash.c       midori-trash.h       \
     midori-webview.c     midori-webview.h     \
     midori-websettings.c midori-websettings.h \
     midori-preferences.c midori-preferences.h \

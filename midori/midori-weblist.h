@@ -39,10 +39,10 @@ struct _MidoriWebListClass
     /* Signals */
     void
     (*add_item)               (MidoriWebList* web_list,
-                               MidoriWebItem* web_item);
+                               GObject*       item);
     void
     (*remove_item)            (MidoriWebList* web_list,
-                               MidoriWebItem* web_item);
+                               GObject*       item);
 };
 
 GType
@@ -53,26 +53,32 @@ midori_web_list_new                    (void);
 
 void
 midori_web_list_add_item               (MidoriWebList* web_list,
-                                        MidoriWebItem* web_item);
+                                        gpointer       item);
 
 void
 midori_web_list_remove_item            (MidoriWebList* web_list,
-                                        MidoriWebItem* web_item);
+                                        gpointer       item);
 
-MidoriWebItem*
+gpointer
 midori_web_list_get_nth_item           (MidoriWebList* web_list,
                                         guint          n);
 
+gboolean
+midori_web_list_is_empty               (MidoriWebList* web_list);
+
 gint
 midori_web_list_get_item_index         (MidoriWebList* web_list,
-                                        MidoriWebItem* web_item);
+                                        gpointer       item);
 
-MidoriWebItem*
+gpointer
 midori_web_list_find_token             (MidoriWebList* web_list,
                                         const gchar*   token);
 
 guint
 midori_web_list_get_length             (MidoriWebList* web_list);
+
+void
+midori_web_list_clear                  (MidoriWebList* web_list);
 
 G_END_DECLS
 

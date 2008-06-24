@@ -25,7 +25,7 @@ struct _MidoriApp
     GtkAccelGroup* accel_group;
 
     MidoriWebSettings* settings;
-    MidoriTrash* trash;
+    MidoriWebList* trash;
     MidoriWebList* search_engines;
 };
 
@@ -122,7 +122,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "trash",
                                      _("Trash"),
                                      _("The trash, collecting recently closed tabs and windows"),
-                                     MIDORI_TYPE_TRASH,
+                                     MIDORI_TYPE_WEB_LIST,
                                      G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
@@ -175,7 +175,7 @@ midori_app_init (MidoriApp* app)
     app->accel_group = gtk_accel_group_new ();
 
     app->settings = midori_web_settings_new ();
-    app->trash = midori_trash_new (10);
+    app->trash = midori_web_list_new ();
     app->search_engines = midori_web_list_new ();
 }
 
@@ -387,11 +387,11 @@ midori_app_set_settings (MidoriApp*         app,
  * midori_app_get_trash:
  * @app: a #MidoriApp
  *
- * Retrieves the #MidoriTrash of the app.
+ * Retrieves the trash of the app.
  *
  * Return value: the assigned #MidoriTrash
  **/
-MidoriTrash*
+MidoriWebList*
 midori_app_get_trash (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), NULL);

@@ -14,6 +14,15 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
+/**
+ * SECTION:midori-weblist
+ * @short_description: A versatile object container
+ * @see_also: #MidoriWebItem
+ *
+ * #MidoriWebList is a versatile container for objects with
+ * explicit support for #MidoriWebList and #MidoriWebItem children.
+ */
+
 struct _MidoriWebList
 {
     GObject parent_instance;
@@ -37,18 +46,17 @@ midori_web_list_finalize (GObject* object);
 
 static void
 _midori_web_list_add_item (MidoriWebList* web_list,
-                           MidoriWebItem* web_item)
+                           GObject*       item)
 {
-    g_object_ref (web_item);
-    web_list->items = g_list_append (web_list->items, web_item);
+    web_list->items = g_list_append (web_list->items, item);
 }
 
 static void
 _midori_web_list_remove_item (MidoriWebList* web_list,
-                              MidoriWebItem* web_item)
+                              GObject*       item)
 {
-    web_list->items = g_list_remove (web_list->items, web_item);
-    g_object_unref (web_item);
+    web_list->items = g_list_remove (web_list->items, item);
+    g_object_unref (item);
 }
 
 static void
@@ -63,7 +71,7 @@ midori_web_list_class_init (MidoriWebListClass* class)
         NULL,
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
-        MIDORI_TYPE_WEB_ITEM);
+        G_TYPE_OBJECT);
 
     signals[REMOVE_ITEM] = g_signal_new (
         "remove-item",
@@ -74,7 +82,7 @@ midori_web_list_class_init (MidoriWebListClass* class)
         NULL,
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
-        MIDORI_TYPE_WEB_ITEM);
+        G_TYPE_OBJECT);
 
     class->add_item = _midori_web_list_add_item;
     class->remove_item = _midori_web_list_remove_item;
@@ -94,7 +102,7 @@ midori_web_list_finalize (GObject* object)
 {
     MidoriWebList* web_list = MIDORI_WEB_LIST (object);
 
-    g_list_foreach (web_list->items, (GFunc)g_object_unref, NULL);
+    midori_web_list_clear (web_list);
     g_list_free (web_list->items);
 
     G_OBJECT_CLASS (midori_web_list_parent_class)->finalize (object);
@@ -119,29 +127,33 @@ midori_web_list_new (void)
 /**
  * midori_web_list_add_item:
  * @web_list: a #MidoriWebList
- * @web_item: a #MidoriWebItem
+ * @item: a #GObject
  *
  * Adds an item to the list.
  **/
 void
 midori_web_list_add_item (MidoriWebList* web_list,
-                          MidoriWebItem* web_item)
+                          gpointer       item)
 {
-    g_signal_emit (web_list, signals[ADD_ITEM], 0, web_item);
+    g_return_if_fail (G_IS_OBJECT (item));
+
+    g_signal_emit (web_list, signals[ADD_ITEM], 0, item);
 }
 
 /**
  * midori_web_list_add_item:
  * @web_list: a #MidoriWebList
- * @web_item: a #MidoriWebItem
+ * @item: a #GObject
  *
  * Removes an item from the list.
  **/
 void
 midori_web_list_remove_item (MidoriWebList* web_list,
-                             MidoriWebItem* web_item)
+                             gpointer       item)
 {
-    g_signal_emit (web_list, signals[REMOVE_ITEM], 0, web_item);
+    g_return_if_fail (G_IS_OBJECT (item));
+
+    g_signal_emit (web_list, signals[REMOVE_ITEM], 0, item);
 }
 
 /**
@@ -153,13 +165,29 @@ midori_web_list_remove_item (MidoriWebList* web_list,
  *
  * Return value: an item, or %NULL
  **/
-MidoriWebItem*
+gpointer
 midori_web_list_get_nth_item (MidoriWebList* web_list,
                               guint          n)
 {
-    g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), 0);
+    g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), NULL);
 
     return g_list_nth_data (web_list->items, n);
+}
+
+/**
+ * midori_web_list_is_empty:
+ * @web_list: a #MidoriWebList
+ *
+ * Determines if @web_list is empty.
+ *
+ * Return value: an item, or %NULL
+ **/
+gboolean
+midori_web_list_is_empty (MidoriWebList* web_list)
+{
+    g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), TRUE);
+
+    return !g_list_nth_data (web_list->items, 0);
 }
 
 /**
@@ -173,12 +201,12 @@ midori_web_list_get_nth_item (MidoriWebList* web_list,
  **/
 gint
 midori_web_list_get_item_index (MidoriWebList* web_list,
-                                MidoriWebItem* web_item)
+                                gpointer       item)
 {
     g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), -1);
-    g_return_val_if_fail (MIDORI_IS_WEB_ITEM (web_item), -1);
+    g_return_val_if_fail (G_IS_OBJECT (item), -1);
 
-    return g_list_index (web_list->items, web_item);
+    return g_list_index (web_list->items, item);
 }
 
 /**
@@ -188,15 +216,18 @@ midori_web_list_get_item_index (MidoriWebList* web_list,
  *
  * Looks up an item in the list which has the specified token.
  *
+ * Supported is #MidoriWebItem.
+ *
  * Note that @token is by definition unique to one item.
  *
  * Return value: an item, or %NULL
  **/
-MidoriWebItem*
+gpointer
 midori_web_list_find_token (MidoriWebList* web_list,
                             const gchar*   token)
 {
     guint n, i;
+    GObject* item;
     MidoriWebItem* web_item;
 
     g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), NULL);
@@ -204,9 +235,12 @@ midori_web_list_find_token (MidoriWebList* web_list,
     n = g_list_length (web_list->items);
     for (i = 0; i < n; i++)
     {
-        web_item = (MidoriWebItem*)g_list_nth_data (web_list->items, i);
+        item = (GObject*)g_list_nth_data (web_list->items, i);
+        if (!MIDORI_IS_WEB_ITEM (item))
+            continue;
+        web_item = (MidoriWebItem*)item;
         if (!strcmp (midori_web_item_get_token (web_item), token))
-            return web_item;
+            return item;
     }
     return NULL;
 }
@@ -225,4 +259,24 @@ midori_web_list_get_length (MidoriWebList* web_list)
     g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), 0);
 
     return g_list_length (web_list->items);
+}
+
+/**
+ * midori_web_list_clear:
+ * @web_list: a #MidoriWebList
+ *
+ * Deletes all items currently contained in @web_list.
+ **/
+void
+midori_web_list_clear (MidoriWebList* web_list)
+{
+    g_return_if_fail (MIDORI_IS_WEB_LIST (web_list));
+
+    guint n = g_list_length (web_list->items);
+    guint i;
+    for (i = 0; i < n; i++)
+    {
+        GObject* item = g_list_nth_data (web_list->items, i);
+        midori_web_list_remove_item (web_list, item);
+    }
 }

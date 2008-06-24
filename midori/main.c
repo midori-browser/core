@@ -15,7 +15,6 @@
 
 #include "midori-app.h"
 #include "midori-websettings.h"
-#include "midori-trash.h"
 #include "midori-browser.h"
 #include "midori-weblist.h"
 #include "gjs.h"
@@ -509,13 +508,14 @@ main (int argc,
 
     stock_items_init ();
 
-    MidoriTrash* trash = midori_trash_new (10);
+    // FIXME: Implement 10 item limit for trash
+    MidoriWebList* trash = midori_web_list_new ();
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
     guint i;
     for (i = 0; i < n; i++)
     {
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
-        midori_trash_prepend_xbel_item (trash, item);
+        midori_web_list_add_item (trash, item);
     }
 
     MidoriApp* app = g_object_new (MIDORI_TYPE_APP,
