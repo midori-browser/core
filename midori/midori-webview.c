@@ -592,7 +592,12 @@ midori_web_view_finalize (GObject* object)
         katze_xbel_item_unref (web_view->proxy_xbel_item);
 
     if (web_view->settings)
+    {
+        g_signal_handlers_disconnect_by_func (web_view->settings,
+                                              midori_web_view_settings_notify,
+                                              web_view);
         g_object_unref (web_view->settings);
+    }
 
     G_OBJECT_CLASS (midori_web_view_parent_class)->finalize (object);
 }
