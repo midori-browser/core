@@ -38,6 +38,14 @@ if test x"$enable_debug" = x"yes"; then
   ])
 fi
 
+# Checks for GIO2
+PKG_CHECK_MODULES(GIO, gio-2.0 >= 2.16, have_gio=true, have_gio=false)
+if test "x${have_gio}" = "xfalse" ; then
+    AC_MSG_ERROR([No GIO2 package information found])
+fi
+AC_SUBST(GIO_CFLAGS)
+AC_SUBST(GIO_LIBS)
+
 # Checks for GTK+2
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.6, have_gtk=true, have_gtk=false)
 if test "x${have_gtk}" = "xfalse" ; then

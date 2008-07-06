@@ -1,4 +1,5 @@
 INCLUDES = \
+    $(GIO_CFLAGS)     \
     $(GTK_CFLAGS)     \
     $(WEBKIT_CFLAGS)  \
     $(LIBSEXY_CFLAGS) \
@@ -7,6 +8,7 @@ INCLUDES = \
 AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
 
 LDADD = \
+    $(GIO_LIBS)          \
     $(GTK_LIBS)          \
     $(WEBKIT_LIBS)       \
     $(LIBSEXY_LIBS)      \

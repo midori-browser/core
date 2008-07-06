@@ -12,7 +12,7 @@
 #ifndef __COMPAT_H__
 #define __COMPAT_H__
 
-#include "glib.h"
+#include <glib.h>
 #if GLIB_CHECK_VERSION(2, 16, 0)
 #include <gio/gio.h>
 #endif
@@ -22,10 +22,14 @@ G_BEGIN_DECLS
 
 #if !GTK_CHECK_VERSION(2, 14, 0)
 
+#if GLIB_CHECK_VERSION(2,16, 0)
+
 GdkPixbuf*
 gdk_pixbuf_new_from_stream (GInputStream* stream,
                             GCancellable* cancellable,
                             GError**      error);
+
+#endif
 
 #endif
 

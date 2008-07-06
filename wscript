@@ -35,6 +35,7 @@ def configure (conf):
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
 
+    conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.6.0', mandatory=True)
     conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
     conf.check_pkg ('libxml-2.0', destvar='LIBXML', vnum='2.6', mandatory=True)
