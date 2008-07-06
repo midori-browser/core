@@ -30,7 +30,8 @@
     #include <libintl.h>
 #endif
 
-static void stock_items_init(void)
+static void
+stock_items_init (void)
 {
     static GtkStockItem items[] =
     {
@@ -321,6 +322,18 @@ search_engines_save_to_file (MidoriWebList* search_engines,
     return saved;
 }
 
+static void
+midori_web_list_add_item_cb (MidoriWebList* trash,
+                             GObject*       item)
+{
+    guint n = midori_web_list_get_length (trash);
+    if (n > 10)
+    {
+        GObject* obsolete_item = midori_web_list_get_nth_item (trash, 0);
+        g_object_unref (obsolete_item);
+    }
+}
+
 int
 main (int argc,
       char** argv)
@@ -439,7 +452,7 @@ main (int argc,
     if (!katze_xbel_folder_from_file (xbel_trash, config_file, &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
-            g_string_append_printf(error_messages,
+            g_string_append_printf (error_messages,
                 _("The trash couldn't be loaded. %s\n"), error->message);
         g_error_free (error);
     }
@@ -448,13 +461,22 @@ main (int argc,
     /* In case of errors */
     if (error_messages->len)
     {
+        GdkScreen* screen;
+        GtkIconTheme* icon_theme;
         GtkWidget* dialog = gtk_message_dialog_new (
             NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_NONE,
             _("The following errors occured:"));
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
         gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
-        /* FIXME: Use custom program icon */
-        gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
+        screen = gtk_widget_get_screen (dialog);
+        if (screen)
+        {
+            icon_theme = gtk_icon_theme_get_for_screen (screen);
+            if (gtk_icon_theme_has_icon (icon_theme, "midori"))
+                gtk_window_set_icon_name (GTK_WINDOW (dialog), "midori");
+            else
+                gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
+        }
         gtk_message_dialog_format_secondary_text (
             GTK_MESSAGE_DIALOG (dialog), "%s", error_messages->str);
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
@@ -508,7 +530,6 @@ main (int argc,
 
     stock_items_init ();
 
-    // FIXME: Implement 10 item limit for trash
     MidoriWebList* trash = midori_web_list_new ();
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
     guint i;
@@ -517,6 +538,8 @@ main (int argc,
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
         midori_web_list_add_item (trash, item);
     }
+    g_signal_connect_after (trash, "add-item",
+        G_CALLBACK (midori_web_list_add_item_cb), NULL);
 
     MidoriApp* app = g_object_new (MIDORI_TYPE_APP,
                                    "settings", settings,
