@@ -795,22 +795,7 @@ midori_web_view_tab_label_button_release_event (GtkWidget* tab_label,
                                                 GdkEventButton* event,
                                                 MidoriWebView* web_view)
 {
-    if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
-    {
-        /* Toggle the label visibility on double click */
-        GtkWidget* child = gtk_bin_get_child (GTK_BIN (tab_label));
-        GList* children = gtk_container_get_children (GTK_CONTAINER (child));
-        child = (GtkWidget*)g_list_nth_data (children, 1);
-        gboolean visible = gtk_widget_get_child_visible (GTK_WIDGET (child));
-        gtk_widget_set_child_visible (GTK_WIDGET (child), !visible);
-        gint width, height;
-        sokoke_widget_get_text_size(tab_label, "M", &width, &height);
-        gtk_widget_set_size_request (child, !visible
-         ? width * web_view->tab_label_size : 0, !visible ? -1 : 0);
-        g_list_free (children);
-        return TRUE;
-    }
-    else if (event->button == 2)
+    if (event->button == 2)
     {
         /* Close the web view on middle click */
         g_signal_emit (web_view, signals[CLOSE], 0);
