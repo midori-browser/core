@@ -15,6 +15,9 @@
 #include "sokoke.h"
 #include "compat.h"
 
+#if GLIB_CHECK_VERSION (2, 16, 0)
+#include <gio/gio.h>
+#endif
 #include <webkit/webkit.h>
 #include <string.h>
 
@@ -29,7 +32,6 @@ struct _MidoriWebView
     GtkWidget* tab_icon;
     GtkWidget* tab_label;
     GtkWidget* tab_close;
-    GdkPixbuf* icon;
     gchar* uri;
     gchar* title;
     gboolean is_loading;
@@ -53,7 +55,6 @@ enum
 {
     PROP_0,
 
-    PROP_ICON,
     PROP_URI,
     PROP_TITLE,
     PROP_STATUSBAR_TEXT,
@@ -173,7 +174,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     signals[NEW_WINDOW] = g_signal_new(
         "new-window",
         G_TYPE_FROM_CLASS(class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriWebViewClass, new_window),
         0,
         NULL,
@@ -187,15 +188,6 @@ midori_web_view_class_init (MidoriWebViewClass* class)
     gobject_class->get_property = midori_web_view_get_property;
 
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_ICON,
-                                     g_param_spec_object (
-                                     "icon",
-                                     "Icon",
-                                     _("The icon of the currently loaded page"),
-                                     GDK_TYPE_PIXBUF,
-                                     G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_URI,
@@ -255,9 +247,16 @@ static void
 webkit_web_view_load_committed (MidoriWebView*  web_view,
                                 WebKitWebFrame* web_frame)
 {
+    const gchar* uri;
+    GdkPixbuf* icon;
+
     web_view->progress = 0;
-    const gchar* uri = webkit_web_frame_get_uri (web_frame);
+    uri = webkit_web_frame_get_uri (web_frame);
     _midori_web_view_set_uri (web_view, uri);
+    icon = midori_web_view_get_icon (web_view);
+    katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
+                                      icon);
+    g_object_unref (icon);
 }
 
 static void
@@ -291,10 +290,18 @@ static void
 webkit_web_frame_load_done (WebKitWebFrame* web_frame, gboolean success,
                             MidoriWebView*  web_view)
 {
+    GdkPixbuf* icon;
+
     web_view->is_loading = FALSE;
     web_view->progress = -1;
     if (web_view->tab_icon)
+    {
         katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon), FALSE);
+        icon = midori_web_view_get_icon (web_view);
+        katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
+                                          icon);
+        g_object_unref (icon);
+    }
     g_signal_emit (web_view, signals[LOAD_DONE], 0, web_frame);
 }
 
@@ -372,10 +379,15 @@ static gboolean
 gtk_widget_button_press_event_after (MidoriWebView*  web_view,
                                      GdkEventButton* event)
 {
+    GdkModifierType state;
+    GtkClipboard* clipboard;
+
     if (event->button == 2 && web_view->middle_click_opens_selection)
     {
-        GdkModifierType state = (GdkModifierType) event->state;
-        GtkClipboard* clipboard = gtk_clipboard_get (GDK_SELECTION_PRIMARY);
+        state = (GdkModifierType) event->state;
+        clipboard = gtk_clipboard_get_for_display (
+            gtk_widget_get_display (GTK_WIDGET (web_view)),
+            GDK_SELECTION_PRIMARY);
         gchar* uri = gtk_clipboard_wait_for_text (clipboard);
         if (uri && strchr (uri, '.') && !strchr (uri, ' '))
         {
@@ -579,8 +591,6 @@ midori_web_view_finalize (GObject* object)
 {
     MidoriWebView* web_view = MIDORI_WEB_VIEW (object);
 
-    if (web_view->icon)
-        g_object_unref (web_view->icon);
     g_free (web_view->uri);
     g_free (web_view->title);
     g_free (web_view->statusbar_text);
@@ -612,13 +622,6 @@ midori_web_view_set_property (GObject*      object,
 
     switch (prop_id)
     {
-    case PROP_ICON:
-        katze_object_assign (web_view->icon, g_value_get_object (value));
-        g_object_ref (web_view->icon);
-        if (web_view->tab_icon)
-            katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
-                                              web_view->icon);
-        break;
     case PROP_URI:
     {
         const gchar* uri = g_value_get_string (value);
@@ -670,9 +673,6 @@ midori_web_view_get_property (GObject*    object,
 
     switch (prop_id)
     {
-    case PROP_ICON:
-        g_value_set_object (value, web_view->icon);
-        break;
     case PROP_URI:
         g_value_set_string (value, web_view->uri);
         break;
@@ -738,15 +738,20 @@ midori_web_view_set_settings (MidoriWebView*     web_view,
 GtkWidget*
 midori_web_view_get_proxy_menu_item (MidoriWebView* web_view)
 {
+    const gchar* title;
+    GtkWidget* menu_item;
+    GdkPixbuf* icon;
+
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), FALSE);
 
     if (!web_view->proxy_menu_item)
     {
-        const gchar* title = midori_web_view_get_display_title (web_view);
-        GtkWidget* menu_item = gtk_image_menu_item_new_with_label (title);
-        GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FILE,
-                                                    GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), icon);
+        title = midori_web_view_get_display_title (web_view);
+        menu_item = gtk_image_menu_item_new_with_label (title);
+        icon = midori_web_view_get_icon (web_view);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item),
+            gtk_image_new_from_pixbuf (icon));
+        g_object_unref (icon);
 
         web_view->proxy_menu_item = menu_item;
     }
@@ -770,17 +775,17 @@ midori_web_view_get_proxy_menu_item (MidoriWebView* web_view)
 GtkWidget*
 midori_web_view_get_proxy_tab_icon (MidoriWebView* web_view)
 {
+    GdkPixbuf* icon;
+
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
     if (!web_view->tab_icon)
     {
         web_view->tab_icon = katze_throbber_new ();
-        if (web_view->icon)
-            katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
-                                              web_view->icon);
-        else
-            katze_throbber_set_static_stock_id (KATZE_THROBBER (web_view->tab_icon),
-                                                GTK_STOCK_FILE);
+        icon = midori_web_view_get_icon (web_view);
+        katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
+                                          icon);
+        g_object_unref (icon);
     }
     return web_view->tab_icon;
 }
@@ -1030,4 +1035,49 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
     return web_view->link_uri;
+}
+
+/**
+ * midori_web_view_get_icon:
+ * @web_view: a #MidoriWebView
+ *
+ * Retrieves an icon associated with the currently loaded URI. If no
+ * icon is available a default icon is used.
+ *
+ * Return value: a #GdkPixbuf
+ **/
+GdkPixbuf*
+midori_web_view_get_icon (MidoriWebView* web_view)
+{
+    GFile* file;
+    GFile* icon_file;
+    GIcon* icon;
+    GInputStream* stream;
+    GdkPixbuf* pixbuf;
+
+    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
+
+    #if GLIB_CHECK_VERSION (2, 16, 0)
+    file = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
+    icon_file = g_file_get_child (file, "favicon.ico");
+    icon = g_file_icon_new (icon_file);
+    if (icon)
+        stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
+                                       GTK_ICON_SIZE_MENU,
+                                       NULL, NULL, NULL);
+    else
+        stream = NULL;
+    if (stream)
+    {
+        pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, NULL);
+        g_object_unref (stream);
+    }
+    g_object_unref (icon);
+    g_object_unref (icon_file);
+    g_object_unref (file);
+    if (!stream)
+    #endif
+        pixbuf = gtk_widget_render_icon (GTK_WIDGET (web_view),
+            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    return pixbuf;
 }

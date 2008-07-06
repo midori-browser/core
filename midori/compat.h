@@ -12,9 +12,22 @@
 #ifndef __COMPAT_H__
 #define __COMPAT_H__
 
+#include "glib.h"
+#if GLIB_CHECK_VERSION(2, 16, 0)
+#include <gio/gio.h>
+#endif
 #include <webkit/webkit.h>
 
 G_BEGIN_DECLS
+
+#if !GTK_CHECK_VERSION(2, 14, 0)
+
+GdkPixbuf*
+gdk_pixbuf_new_from_stream (GInputStream* stream,
+                            GCancellable* cancellable,
+                            GError**      error);
+
+#endif
 
 #if !GTK_CHECK_VERSION(2, 12, 0)
 

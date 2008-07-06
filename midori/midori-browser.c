@@ -165,8 +165,12 @@ _midori_browser_update_actions (MidoriBrowser* browser)
 static void
 _midori_browser_update_interface (MidoriBrowser* browser)
 {
-    gboolean loading = FALSE;
-    GtkWidget* web_view = midori_browser_get_current_web_view (browser);
+    gboolean loading;
+    GtkWidget* web_view;
+    GdkPixbuf* pixbuf;
+
+    loading = FALSE;
+    web_view = midori_browser_get_current_web_view (browser);
     if (web_view)
     {
         loading = midori_web_view_is_loading (MIDORI_WEB_VIEW (web_view));
@@ -202,8 +206,15 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_show (browser->progressbar);
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
-    gtk_image_set_from_stock (GTK_IMAGE (browser->location_icon),
-                              GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
+    if (web_view && MIDORI_IS_WEB_VIEW (web_view))
+    {
+        pixbuf = midori_web_view_get_icon (MIDORI_WEB_VIEW (web_view));
+        gtk_image_set_from_pixbuf (GTK_IMAGE (browser->location_icon), pixbuf);
+        g_object_unref (pixbuf);
+    }
+    else
+        gtk_image_set_from_stock (GTK_IMAGE (browser->location_icon),
+                                  GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
 }
 
 static GtkWidget*
