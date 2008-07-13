@@ -79,7 +79,10 @@ GtkWidget*
 midori_web_view_get_proxy_menu_item    (MidoriWebView*     web_view);
 
 GtkWidget*
-midori_web_view_get_proxy_tab_label    (MidoriWebView*     web_view);
+midori_web_view_get_proxy_tab_icon     (MidoriWebView*     web_view);
+
+GtkWidget*
+midori_web_view_get_proxy_tab_title    (MidoriWebView*     web_view);
 
 KatzeXbelItem*
 midori_web_view_get_proxy_xbel_item    (MidoriWebView*     web_view);

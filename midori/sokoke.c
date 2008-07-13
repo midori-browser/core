@@ -503,10 +503,12 @@ sokoke_web_icon (const gchar* icon,
         else
         {
             gint width, height;
-            gtk_icon_size_lookup (size, &width, &height);
             if (gtk_widget_has_screen (widget))
             {
                 GdkScreen* screen = gtk_widget_get_screen (widget);
+                gtk_icon_size_lookup_for_settings (
+                    gtk_settings_get_for_screen (screen),
+                    size, &width, &height);
                 pixbuf = gtk_icon_theme_load_icon (
                     gtk_icon_theme_get_for_screen (screen), icon,
                     MAX (width, height), GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
@@ -518,4 +520,32 @@ sokoke_web_icon (const gchar* icon,
     if (!pixbuf)
         pixbuf = gtk_widget_render_icon (widget, GTK_STOCK_FIND, size, NULL);
     return pixbuf;
+}
+
+gint
+sokoke_object_get_int (gpointer     object,
+                       const gchar* property)
+{
+    gint value;
+
+    g_return_val_if_fail (object != NULL, FALSE);
+    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}
+
+gboolean
+sokoke_object_get_boolean (gpointer     object,
+                           const gchar* property)
+{
+    gboolean value;
+
+    g_return_val_if_fail (object != NULL, FALSE);
+    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
 }
