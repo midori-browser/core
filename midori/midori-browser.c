@@ -29,6 +29,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <libsexy/sexy.h>
+#if HAVE_GTKSOURCEVIEW
+#include <gtksourceview/gtksourceview.h>
+#include <gtksourceview/gtksourcelanguagemanager.h>
+#endif
 #include <string.h>
 
 struct _MidoriBrowser
@@ -1804,10 +1808,22 @@ _action_source_view_activate (GtkAction*     action,
     #if GLIB_CHECK_VERSION (2, 16, 0)
     GFile* file;
     gchar* tag;
+    #ifdef HAVE_GTKSOURCEVIEW
+    GFileInfo* info;
+    const gchar* content_type;
+    #endif
     #endif
     gchar* contents;
     gchar* contents_utf8;
+    #ifdef HAVE_GTKSOURCEVIEW
+    GtkSourceBuffer* buffer;
+    #if GLIB_CHECK_VERSION (2, 16, 0)
+    GtkSourceLanguageManager* language_manager;
+    GtkSourceLanguage* language;
+    #endif
+    #else
     GtkTextBuffer* buffer;
+    #endif
     GtkWidget* text_view;
     gint n;
 
@@ -1822,6 +1838,11 @@ _action_source_view_activate (GtkAction*     action,
     file = g_file_new_for_uri (uri);
     contents = NULL;
     g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL);
+    #ifdef HAVE_GTKSOURCEVIEW
+    info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                              G_FILE_QUERY_INFO_NONE, NULL, NULL);
+    content_type = info ? g_file_info_get_content_type (info) : NULL;
+    #endif
     g_object_unref (file);
     if (contents && !g_utf8_validate (contents, -1, NULL))
     {
@@ -1833,10 +1854,42 @@ _action_source_view_activate (GtkAction*     action,
     #endif
         contents_utf8 = contents;
 
+    #ifdef HAVE_GTKSOURCEVIEW
+    buffer = gtk_source_buffer_new (NULL);
+    gtk_source_buffer_set_highlight_syntax (buffer, TRUE);
+    if (content_type)
+    {
+        language_manager = gtk_source_language_manager_get_default ();
+        if (!strcmp (content_type, "text/html"))
+        {
+            language = gtk_source_language_manager_get_language (
+                language_manager, "html");
+            gtk_source_buffer_set_language (buffer, language);
+        }
+        else if (!strcmp (content_type, "text/css"))
+        {
+            language = gtk_source_language_manager_get_language (
+                language_manager, "css");
+            gtk_source_buffer_set_language (buffer, language);
+        }
+        else if (!strcmp (content_type, "text/javascript"))
+        {
+            language = gtk_source_language_manager_get_language (
+                language_manager, "js");
+            gtk_source_buffer_set_language (buffer, language);
+        }
+    }
+    #else
     buffer = gtk_text_buffer_new (NULL);
+    #endif
     if (contents_utf8)
-        gtk_text_buffer_set_text (buffer, contents_utf8, -1);
+        gtk_text_buffer_set_text (GTK_TEXT_BUFFER (buffer), contents_utf8, -1);
+    #ifdef HAVE_GTKSOURCEVIEW
+    text_view = gtk_source_view_new_with_buffer (buffer);
+    gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW (text_view), TRUE);
+    #else
     text_view = gtk_text_view_new_with_buffer (buffer);
+    #endif
     gtk_text_view_set_editable (GTK_TEXT_VIEW (text_view), FALSE);
     g_object_set_data (G_OBJECT (text_view), "browser-tab-uri",
         g_strconcat ("view-source:", uri, NULL));

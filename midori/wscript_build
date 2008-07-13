@@ -5,5 +5,5 @@ obj = bld.create_obj ('cc', 'program')
 obj.target = 'midori'
 obj.includes = '.. ../katze'
 obj.find_sources_in_dirs ('.')
-obj.uselib = 'GIO GTK WEBKIT LIBXML LIBSEXY'
+obj.uselib = 'GIO GTK LIBSEXY GTKSOURCEVIEW WEBKIT LIBXML'
 obj.uselib_local = 'katze'

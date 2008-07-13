@@ -40,9 +40,6 @@ fi
 
 # Checks for GIO2
 PKG_CHECK_MODULES(GIO, gio-2.0 >= 2.16, have_gio=true, have_gio=false)
-if test "x${have_gio}" = "xfalse" ; then
-    AC_MSG_ERROR([No GIO2 package information found])
-fi
 AC_SUBST(GIO_CFLAGS)
 AC_SUBST(GIO_LIBS)
 
@@ -54,14 +51,6 @@ fi
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
-# Checks for WebKit
-PKG_CHECK_MODULES(WEBKIT, webkit-1.0, have_webkit=true, have_webkit=false)
-if test "x${have_webkit}" = "xfalse" ; then
-    AC_MSG_ERROR([No WebKit package information found])
-fi
-AC_SUBST(WEBKIT_CFLAGS)
-AC_SUBST(WEBKIT_LIBS)
-
 # Checks for libsexy
 PKG_CHECK_MODULES(LIBSEXY, libsexy, have_libsexy=true, have_libsexy=false)
 if test "x${have_libsexy}" = "xfalse" ; then
@@ -69,6 +58,19 @@ if test "x${have_libsexy}" = "xfalse" ; then
 fi
 AC_SUBST(LIBSEXY_CFLAGS)
 AC_SUBST(LIBSEXY_LIBS)
+
+# Checks for gtksourceview
+PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview, have_gtksourceview=true, have_gtksourceview=false)
+AC_SUBST(GTKSOURCEVIEW_CFLAGS)
+AC_SUBST(GTKSOURCEVIEW_LIBS)
+
+# Checks for WebKit
+PKG_CHECK_MODULES(WEBKIT, webkit-1.0, have_webkit=true, have_webkit=false)
+if test "x${have_webkit}" = "xfalse" ; then
+    AC_MSG_ERROR([No WebKit package information found])
+fi
+AC_SUBST(WEBKIT_CFLAGS)
+AC_SUBST(WEBKIT_LIBS)
 
 # Checks for LibXML2
 PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= 2.6, have_libxml=true, have_libxml=false)

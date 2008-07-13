@@ -1,8 +1,9 @@
 INCLUDES = \
-    $(GIO_CFLAGS)     \
-    $(GTK_CFLAGS)     \
-    $(WEBKIT_CFLAGS)  \
-    $(LIBSEXY_CFLAGS) \
+    $(GIO_CFLAGS)           \
+    $(GTK_CFLAGS)           \
+    $(LIBSEXY_CFLAGS)       \
+    $(GTKSOURCEVIEW_CFLAGS) \
+    $(WEBKIT_CFLAGS)        \
     -I../katze
 
 AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
@@ -10,8 +11,9 @@ AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
 LDADD = \
     $(GIO_LIBS)          \
     $(GTK_LIBS)          \
-    $(WEBKIT_LIBS)       \
     $(LIBSEXY_LIBS)      \
+    $(GTKSOURCEVIEW_LIBS)\
+    $(WEBKIT_LIBS)       \
     $(INTLLIBS)          \
     ../katze/libkatze.la
 
