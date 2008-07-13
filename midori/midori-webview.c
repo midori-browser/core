@@ -81,15 +81,15 @@ static void
 midori_web_view_finalize (GObject* object);
 
 static void
-midori_web_view_set_property (GObject* object,
-                              guint prop_id,
+midori_web_view_set_property (GObject*      object,
+                              guint         prop_id,
                               const GValue* value,
-                              GParamSpec* pspec);
+                              GParamSpec*   pspec);
 
 static void
-midori_web_view_get_property (GObject* object,
-                              guint prop_id,
-                              GValue* value,
+midori_web_view_get_property (GObject*    object,
+                              guint       prop_id,
+                              GValue*     value,
                               GParamSpec* pspec);
 
 static void
@@ -97,7 +97,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
 {
     signals[PROGRESS_STARTED] = g_signal_new (
         "progress-started",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, progress_started),
         0,
@@ -108,7 +108,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
 
     signals[PROGRESS_CHANGED] = g_signal_new (
         "progress-changed",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, progress_changed),
         0,
@@ -119,7 +119,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
 
     signals[PROGRESS_DONE] = g_signal_new (
         "progress-done",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, progress_done),
         0,
@@ -130,7 +130,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
 
     signals[LOAD_DONE] = g_signal_new (
         "load-done",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, load_done),
         0,
@@ -139,9 +139,9 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         G_TYPE_NONE, 1,
         WEBKIT_TYPE_WEB_FRAME);
 
-    signals[ELEMENT_MOTION] = g_signal_new(
+    signals[ELEMENT_MOTION] = g_signal_new (
         "element-motion",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
         G_STRUCT_OFFSET (MidoriWebViewClass, element_motion),
         0,
@@ -150,9 +150,9 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
 
-    signals[CLOSE] = g_signal_new(
+    signals[CLOSE] = g_signal_new (
         "close",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriWebViewClass, close),
         0,
@@ -160,9 +160,9 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0);
 
-    signals[NEW_TAB] = g_signal_new(
+    signals[NEW_TAB] = g_signal_new (
         "new-tab",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriWebViewClass, new_tab),
         0,
@@ -171,9 +171,9 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
 
-    signals[NEW_WINDOW] = g_signal_new(
+    signals[NEW_WINDOW] = g_signal_new (
         "new-window",
-        G_TYPE_FROM_CLASS(class),
+        G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriWebViewClass, new_window),
         0,
@@ -253,10 +253,13 @@ webkit_web_view_load_committed (MidoriWebView*  web_view,
     web_view->progress = 0;
     uri = webkit_web_frame_get_uri (web_frame);
     _midori_web_view_set_uri (web_view, uri);
-    icon = midori_web_view_get_icon (web_view);
-    katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
-                                      icon);
-    g_object_unref (icon);
+    if (web_view->tab_icon)
+    {
+        icon = midori_web_view_get_icon (web_view);
+        katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
+                                          icon);
+        g_object_unref (icon);
+    }
 }
 
 static void
@@ -381,6 +384,7 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
 {
     GdkModifierType state;
     GtkClipboard* clipboard;
+    gchar* uri;
 
     if (event->button == 2 && web_view->middle_click_opens_selection)
     {
@@ -388,7 +392,7 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
         clipboard = gtk_clipboard_get_for_display (
             gtk_widget_get_display (GTK_WIDGET (web_view)),
             GDK_SELECTION_PRIMARY);
-        gchar* uri = gtk_clipboard_wait_for_text (clipboard);
+        uri = gtk_clipboard_wait_for_text (clipboard);
         if (uri && strchr (uri, '.') && !strchr (uri, ' '))
         {
             if (state & GDK_CONTROL_MASK)
@@ -408,6 +412,7 @@ gtk_widget_scroll_event (MidoriWebView*  web_view,
 {
     GdkModifierType state = (GdkModifierType)0;
     gint x, y;
+
     gdk_window_get_pointer (NULL, &x, &y, &state);
     if (state & GDK_CONTROL_MASK)
     {
@@ -430,20 +435,35 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*     widget,
 }
 
 static void
+midori_web_view_menu_new_window_activate_cb (GtkWidget*     widget,
+                                             MidoriWebView* web_view)
+{
+    const gchar* uri = g_object_get_data (G_OBJECT (widget), "uri");
+    g_signal_emit (web_view, signals[NEW_WINDOW], 0, uri);
+}
+
+static void
 webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
                                    GtkWidget*     menu)
 {
-    const gchar* uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
+    const gchar* uri;
+    GtkWidget* menuitem;
+    GdkScreen* screen;
+    GtkIconTheme* icon_theme;
+    GtkWidget* icon;
+    gchar* text;
+    GList* items;
+
+    uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
     if (uri)
     {
-        GtkWidget* menuitem = gtk_image_menu_item_new_with_mnemonic (
+        menuitem = gtk_image_menu_item_new_with_mnemonic (
             _("Open Link in New _Tab"));
-        GdkScreen* screen = gtk_widget_get_screen (web_view);
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+        screen = gtk_widget_get_screen (web_view);
+        icon_theme = gtk_icon_theme_get_for_screen (screen);
         if (gtk_icon_theme_has_icon (icon_theme, STOCK_TAB_NEW))
         {
-            GtkWidget* icon = gtk_image_new_from_stock (STOCK_TAB_NEW,
-                                                        GTK_ICON_SIZE_MENU);
+            icon = gtk_image_new_from_stock (STOCK_TAB_NEW, GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
         }
         gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 1);
@@ -451,18 +471,27 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), web_view);
         gtk_widget_show (menuitem);
+        /* hack to implement New Window */
+        items = gtk_container_get_children (GTK_CONTAINER (menu));
+        menuitem = (GtkWidget*)g_list_nth_data (items, 2);
+        g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_web_view_menu_new_window_activate_cb), web_view);
+        menuitem = (GtkWidget*)g_list_nth_data (items, 3);
+        /* hack to disable non-functional Download File */
+        gtk_widget_set_sensitive (menuitem, FALSE);
+        g_list_free (items);
     }
 
     if (!uri && webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
     {
-        gchar* text = webkit_web_view_get_selected_text (
-            WEBKIT_WEB_VIEW (web_view));
+        text = webkit_web_view_get_selected_text (WEBKIT_WEB_VIEW (web_view));
         if (text && strchr (text, '.') && !strchr (text, ' '))
         {
-            GtkWidget* menuitem = gtk_image_menu_item_new_with_mnemonic (
+            menuitem = gtk_image_menu_item_new_with_mnemonic (
                 _("Open URL in New _Tab"));
-            GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO,
-                                                        GTK_ICON_SIZE_MENU);
+            icon = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO,
+                                             GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
             gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, -1);
             g_object_set_data (G_OBJECT (menuitem), "uri", text);
@@ -470,7 +499,8 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
                 G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), web_view);
             gtk_widget_show (menuitem);
         }
-        /* FIXME: We are leaking 'text' which is not const but should be. */
+        /* text should be const, but it is allocated, so we must free it */
+        g_free (text);
     }
 }
 
@@ -828,14 +858,14 @@ midori_web_view_tab_close_clicked (GtkWidget*     tab_close,
  * midori_web_view_get_proxy_tab_label:
  * @web_view: a #MidoriWebView
  *
- * Retrieves a proxy tab label that is typically used as the label of
- * a #GtkNotebook page.
+ * Retrieves a proxy tab label that is typically used as the label
+ * of a #GtkNotebook page.
  *
- * The label is created on the first call and will be updated to reflect
- * changes to the icon and title automatically.
+ * The label is created on the first call and will be updated to
+ * reflect changes to the icon and title automatically.
  *
- * The icon embedded in the label will reflect the loading status of the
- * web view.
+ * The icon embedded in the label will reflect the loading status
+ * of the web view.
  *
  * Note: This fails if a proxy tab icon has been created already.
  *
@@ -1028,6 +1058,8 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
  *
  * Retrieves an icon associated with the currently loaded URI. If no
  * icon is available a default icon is used.
+ *
+ * The pixbuf is newly allocated and should be unreffed after use.
  *
  * Return value: a #GdkPixbuf
  **/
