@@ -22,6 +22,9 @@
 #include "midori-console.h"
 #include "midori-searchentry.h"
 
+#if GLIB_CHECK_VERSION (2, 16, 0)
+#include <gio/gio.h>
+#endif
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
@@ -261,7 +264,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "ZoomOut", web_view != NULL);
     _action_set_sensitive (browser, "ZoomNormal", web_view != NULL
         && webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (web_view)) != 1.0);
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     _action_set_sensitive (browser, "SourceView", web_view != NULL);
+    #endif
     _action_set_sensitive (browser, "FindNext", web_view != NULL);
     _action_set_sensitive (browser, "FindPrevious", web_view != NULL);
     /* _action_set_sensitive (browser, "FindQuick", web_view != NULL); */
@@ -1796,9 +1801,11 @@ _action_source_view_activate (GtkAction*     action,
 {
     GtkWidget* web_view;
     const gchar* uri;
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     GFile* file;
-    gchar* contents;
     gchar* tag;
+    #endif
+    gchar* contents;
     gchar* contents_utf8;
     GtkTextBuffer* buffer;
     GtkWidget* text_view;
@@ -1809,6 +1816,9 @@ _action_source_view_activate (GtkAction*     action,
         return;
 
     uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+    contents = NULL;
+
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     file = g_file_new_for_uri (uri);
     contents = NULL;
     g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL);
@@ -1820,6 +1830,7 @@ _action_source_view_activate (GtkAction*     action,
         g_free (contents);
     }
     else
+    #endif
         contents_utf8 = contents;
 
     buffer = gtk_text_buffer_new (NULL);
@@ -1835,7 +1846,9 @@ _action_source_view_activate (GtkAction*     action,
 
     g_object_unref (buffer);
     g_free (contents_utf8);
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     g_free (tag);
+    #endif
 }
 
 static void
@@ -3412,6 +3425,9 @@ midori_browser_init (MidoriBrowser* browser)
 
     g_object_unref (ui_manager);
 
+    #if !GLIB_CHECK_VERSION (2, 16, 0)
+    _action_set_sensitive (browser, "SourceView", FALSE);
+    #endif
     #ifndef WEBKIT_CHECK_VERSION
     _action_set_sensitive (browser, "ZoomIn", FALSE);
     _action_set_sensitive (browser, "ZoomOut", FALSE);
