@@ -717,9 +717,6 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
         katze_xbel_folder_remove_item (browser->proxy_xbel_folder, xbel_item);
         katze_xbel_item_unref (xbel_item);
     }
-    GtkWidget* scrolled = _midori_browser_scrolled_for_child (browser, widget);
-    guint n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), scrolled);
-    gtk_notebook_remove_page (GTK_NOTEBOOK (browser->notebook), n);
 
     _midori_browser_update_actions (browser);
     return FALSE;
@@ -730,17 +727,13 @@ midori_browser_window_menu_item_activate_cb (GtkWidget* menuitem,
                                              GtkWidget* widget)
 {
     MidoriBrowser* browser;
-    GtkWidget* scrolled;
-    guint n;
 
     g_return_if_fail (GTK_IS_WIDGET (widget));
 
     browser = MIDORI_BROWSER (gtk_widget_get_toplevel (widget));
-    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (browser);
 
-    scrolled = _midori_browser_scrolled_for_child (browser, widget);
-    n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), scrolled);
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
+    midori_browser_set_current_tab (browser, widget);
 }
 
 static void
@@ -955,6 +948,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     /* We want the tab to be removed if the widget is destroyed */
     g_signal_connect_swapped (widget, "destroy",
         G_CALLBACK (gtk_widget_destroy), menuitem);
+    g_signal_connect_swapped (widget, "destroy",
+        G_CALLBACK (gtk_widget_destroy), scrolled);
     g_signal_connect (widget, "destroy",
         G_CALLBACK (midori_browser_tab_destroy_cb), browser);
 
@@ -2179,6 +2174,7 @@ midori_browser_bookmarks_item_render_icon_cb (GtkTreeViewColumn* column,
                                               GtkWidget*         treeview)
 {
     KatzeXbelItem* item;
+
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     if (G_UNLIKELY (!item))
@@ -2211,6 +2207,7 @@ midori_browser_bookmarks_item_render_text_cb (GtkTreeViewColumn* column,
                                               GtkWidget*         treeview)
 {
     KatzeXbelItem* item;
+
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     if (G_UNLIKELY (!item))
