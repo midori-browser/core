@@ -943,10 +943,12 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
 GdkPixbuf*
 midori_web_view_get_icon (MidoriWebView* web_view)
 {
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     GFile* file;
     GFile* icon_file;
     GIcon* icon;
     GInputStream* stream;
+    #endif
     GdkPixbuf* pixbuf;
 
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
@@ -955,23 +957,22 @@ midori_web_view_get_icon (MidoriWebView* web_view)
     file = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
     icon_file = g_file_get_child (file, "favicon.ico");
     icon = g_file_icon_new (icon_file);
-    if (icon)
-        stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
-                                       GTK_ICON_SIZE_MENU,
-                                       NULL, NULL, NULL);
-    else
-        stream = NULL;
-    if (stream)
+    if (icon && (stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
+                                               GTK_ICON_SIZE_MENU,
+                                               NULL, NULL, NULL)))
     {
         pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, NULL);
         g_object_unref (stream);
     }
-    g_object_unref (icon);
-    g_object_unref (icon_file);
-    g_object_unref (file);
-    if (!stream)
+    else
     #endif
         pixbuf = gtk_widget_render_icon (GTK_WIDGET (web_view),
             GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    #if GLIB_CHECK_VERSION (2, 16, 0)
+    if (icon)
+        g_object_unref (icon);
+    g_object_unref (icon_file);
+    g_object_unref (file);
+    #endif
     return pixbuf;
 }
