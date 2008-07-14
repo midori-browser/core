@@ -1827,18 +1827,24 @@ _action_source_view_activate (GtkAction*     action,
         return;
 
     uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+
     contents = NULL;
+    tag = NULL;
 
     #if GLIB_CHECK_VERSION (2, 16, 0)
     file = g_file_new_for_uri (uri);
-    contents = NULL;
-    g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL);
     #ifdef HAVE_GTKSOURCEVIEW
-    info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                              G_FILE_QUERY_INFO_NONE, NULL, NULL);
-    content_type = info ? g_file_info_get_content_type (info) : NULL;
+    content_type = NULL;
     #endif
-    g_object_unref (file);
+    if (g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL))
+    {
+        #ifdef HAVE_GTKSOURCEVIEW
+        info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                  G_FILE_QUERY_INFO_NONE, NULL, NULL);
+        content_type = g_file_info_get_content_type (info);
+        #endif
+        g_object_unref (file);
+    }
     if (contents && !g_utf8_validate (contents, -1, NULL))
     {
         contents_utf8 = g_convert (contents, -1, "UTF-8", "ISO-8859-1",
