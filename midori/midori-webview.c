@@ -282,12 +282,23 @@ webkit_web_frame_load_done (WebKitWebFrame* web_frame, gboolean success,
 
     web_view->is_loading = FALSE;
     web_view->progress = -1;
-    if (web_view->tab_icon)
+    if (web_view->tab_icon || web_view->menu_item)
     {
-        katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon), FALSE);
         icon = midori_web_view_get_icon (web_view);
-        katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
-                                          icon);
+
+        if (web_view->tab_icon)
+        {
+            katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon),
+                                         FALSE);
+            katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
+                                              icon);
+        }
+
+        if (web_view->menu_item)
+            gtk_image_menu_item_set_image (
+                GTK_IMAGE_MENU_ITEM (web_view->menu_item),
+                    gtk_image_new_from_pixbuf (icon));
+
         g_object_unref (icon);
     }
     g_signal_emit (web_view, signals[LOAD_DONE], 0, web_frame);
@@ -945,7 +956,10 @@ midori_web_view_get_icon (MidoriWebView* web_view)
 {
     #if GLIB_CHECK_VERSION (2, 16, 0)
     GFile* file;
+    GFile* parent;
     GFile* icon_file;
+    GFileInfo* info;
+    const gchar* content_type;
     GIcon* icon;
     GInputStream* stream;
     #endif
@@ -954,9 +968,24 @@ midori_web_view_get_icon (MidoriWebView* web_view)
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
     #if GLIB_CHECK_VERSION (2, 16, 0)
-    file = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
-    icon_file = g_file_get_child (file, "favicon.ico");
-    icon = g_file_icon_new (icon_file);
+    parent = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
+    do
+    {
+        file = parent;
+        icon_file = g_file_get_child (file, "favicon.ico");
+        info = g_file_query_info (icon_file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                  G_FILE_QUERY_INFO_NONE, NULL, NULL);
+        if (info)
+        {
+            content_type = g_file_info_get_content_type (info);
+            icon = !strcmp (content_type, "image/x-icon")
+                ? g_file_icon_new (icon_file) : NULL;
+        }
+
+        parent = g_file_get_parent (file);
+    }
+    while (!icon && parent);
+
     if (icon && (stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
                                                GTK_ICON_SIZE_MENU,
                                                NULL, NULL, NULL)))
