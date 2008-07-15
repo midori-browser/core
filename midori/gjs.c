@@ -16,7 +16,6 @@
 
 #define G_OBJECT_NAME(object) G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (object))
 
-// FIXME: Return a GValue
 JSValueRef
 gjs_script_eval (JSContextRef js_context,
                  const gchar* script,
@@ -237,14 +236,14 @@ _js_object_call_as_function_cb (JSContextRef     js_context,
         g_value_init (&values[i + 1], gtype);
         if (query.n_params >= i
             && g_value_type_compatible (gtype, query.param_types[i]))
-            // && g_value_type_transformable (gtype, query.param_types[i])
+            /* && g_value_type_transformable (gtype, query.param_types[i]) */
             g_value_copy (&value, &values[i + 1]);
-            // g_value_transform (&value, &values[i + 1]);
+            /* g_value_transform (&value, &values[i + 1]); */
         else
         {
             gchar* value_type = g_strdup_value_contents (&value);
-            // FIXME: exception
-            printf ("wrong value, expected %s\n", value_type);
+            /* FIXME: exception */
+            g_print ("wrong value, expected %s\n", value_type);
             g_free (value_type);
         }
         g_value_unset (&value);
@@ -256,11 +255,11 @@ _js_object_call_as_function_cb (JSContextRef     js_context,
 
     for (i = 0; i < n_arguments; i++)
         g_value_unset (&values[i]);
-    // FIXME: return value
+    /* FIXME: return value */
     return JSValueMakeUndefined (js_context);
 }
 
-static void
+/*static void
 _js_object_add_function (JSContextRef js_context,
                          JSObjectRef  js_object,
                          const gchar* func)
@@ -270,7 +269,7 @@ _js_object_add_function (JSContextRef js_context,
         js_context, js_func, _js_object_call_as_function_cb);
     JSStringRelease (js_func);
     _js_object_set_property (js_context, js_object, func, js_function);
-}
+}*/
 
 static JSValueRef
 _js_class_get_property_cb (JSContextRef js_context,
@@ -292,8 +291,8 @@ _js_class_get_property_cb (JSContextRef js_context,
         g_signal_query (signal_id, &query);
         if (query.signal_flags & G_SIGNAL_ACTION)
         {
-            // We can't use JSObjectMakeFunctionWithCallback
-            // because it doesn't allocate private data
+            /* We can't use JSObjectMakeFunctionWithCallback
+               because it doesn't allocate private data */
             JSClassDefinition js_class_def = kJSClassDefinitionEmpty;
             js_class_def.className = g_strdup (property);
             js_class_def.callAsFunction = _js_object_call_as_function_cb;
@@ -302,7 +301,7 @@ _js_class_get_property_cb (JSContextRef js_context,
             return js_function;
         }
         g_free (property);
-        return JSValueMakeUndefined (js_context);
+        return JSValueMakeNull (js_context);
     }
     else if (!(pspec = g_object_class_find_property (
         G_OBJECT_GET_CLASS (object), property)))
@@ -364,6 +363,14 @@ _js_class_get_property_cb (JSContextRef js_context,
     return js_result ? js_result : JSValueMakeNull (js_context);
 }
 
+static void
+_js_class_signal_callback (GObject* object, ...)
+{
+    /* FIXME: Support arbitrary signatures */
+
+    /* FIXME: Support arbitrary return values */
+}
+
 static bool
 _js_class_set_property_cb (JSContextRef js_context,
                            JSObjectRef  js_object,
@@ -377,9 +384,17 @@ _js_class_set_property_cb (JSContextRef js_context,
 
     bool result = false;
     gchar* property = gjs_string_utf8 (js_property);
-    GParamSpec* pspec = g_object_class_find_property (
-        G_OBJECT_GET_CLASS (object), property);
-    if (!pspec)
+    guint signal_id;
+    GParamSpec* pspec;
+    if ((signal_id = g_signal_lookup (property, G_OBJECT_TYPE (object))))
+    {
+        g_signal_connect (object, property,
+            G_CALLBACK (_js_class_signal_callback), (gpointer)js_value);
+        g_free (property);
+        return true;
+    }
+    else if (!(pspec = g_object_class_find_property (
+        G_OBJECT_GET_CLASS (object), property)))
     {
         gchar* message = g_strdup_printf (_("%s has no property '%s'"),
             G_OBJECT_NAME (object), property);
@@ -502,13 +517,13 @@ _js_module_has_property_cb (JSContextRef js_context,
         GModule* module = g_module_open (NULL,
             G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
         typedef GType (*gjs_get_type_func)(void);
-        // FIXME: Insert a space between each capital letter
+        /* FIXME: Insert a space between each capital letter */
         gchar* type_func_name = g_strdup_printf ("%s_%s_get_type",
                                                  namespace, property);
         gchar* type_func_name_small = g_utf8_strdown (type_func_name, -1);
         gjs_get_type_func type_func;
         if (g_module_symbol (module,
-            (const gchar*)type_func_name_small, &type_func))
+            (const gchar*)type_func_name_small, (gpointer*)&type_func))
         {
             type = type_func ();
             g_type_class_peek (type);
