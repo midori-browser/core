@@ -969,6 +969,7 @@ midori_web_view_get_icon (MidoriWebView* web_view)
 
     #if GLIB_CHECK_VERSION (2, 16, 0)
     parent = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
+    icon = NULL;
     do
     {
         file = parent;
@@ -987,8 +988,8 @@ midori_web_view_get_icon (MidoriWebView* web_view)
     while (!icon && parent);
 
     if (icon && (stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
-                                               GTK_ICON_SIZE_MENU,
-                                               NULL, NULL, NULL)))
+                                                GTK_ICON_SIZE_MENU,
+                                                NULL, NULL, NULL)))
     {
         pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, NULL);
         g_object_unref (stream);
