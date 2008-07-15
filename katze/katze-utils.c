@@ -163,8 +163,14 @@ katze_property_proxy (gpointer     object,
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (widget),
                                        string ? string : "");
+        #if GTK_CHECK_VERSION (2, 12, 0)
         g_signal_connect (widget, "file-set",
                           G_CALLBACK (proxy_file_file_set_cb), object);
+        #else
+        if (pspec->flags & G_PARAM_WRITABLE)
+            g_signal_connect (widget, "selection-changed",
+                              G_CALLBACK (proxy_file_file_set_cb), object);
+        #endif
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("folder"))
     {
@@ -175,8 +181,14 @@ katze_property_proxy (gpointer     object,
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (widget),
                                              string ? string : "");
+        #if GTK_CHECK_VERSION (2, 12, 0)
         g_signal_connect (widget, "file-set",
                           G_CALLBACK (proxy_folder_file_set_cb), object);
+        #else
+        if (pspec->flags & G_PARAM_WRITABLE)
+            g_signal_connect (widget, "selection-changed",
+                              G_CALLBACK (proxy_folder_file_set_cb), object);
+        #endif
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("uri"))
     {
@@ -187,8 +199,14 @@ katze_property_proxy (gpointer     object,
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (widget),
                                   string ? string : "");
+        #if GTK_CHECK_VERSION (2, 12, 0)
         g_signal_connect (widget, "file-set",
                           G_CALLBACK (proxy_uri_file_set_cb), object);
+        #else
+        if (pspec->flags & G_PARAM_WRITABLE)
+            g_signal_connect (widget, "selection-changed",
+                              G_CALLBACK (proxy_uri_file_set_cb), object);
+        #endif
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("font"))
     {
