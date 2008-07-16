@@ -328,52 +328,6 @@ webkit_web_view_hovering_over_link (MidoriWebView* web_view,
 }
 
 static gboolean
-gtk_widget_button_press_event (MidoriWebView*  web_view,
-                               GdkEventButton* event)
-{
-    GdkModifierType state = (GdkModifierType)0;
-    gint x, y;
-    gdk_window_get_pointer (NULL, &x, &y, &state);
-    switch (event->button)
-    {
-    case 1:
-        if (!web_view->link_uri)
-            return FALSE;
-        if (state & GDK_SHIFT_MASK)
-        {
-            /* Open link in new window */
-            g_signal_emit (web_view, signals[NEW_WINDOW], 0, web_view->link_uri);
-            return TRUE;
-        }
-        else if(state & GDK_MOD1_MASK)
-        {
-            /* Open link in new tab */
-            g_signal_emit (web_view, signals[NEW_TAB], 0, web_view->link_uri);
-            return TRUE;
-        }
-        break;
-    case 2:
-        if (state & GDK_CONTROL_MASK)
-        {
-            webkit_web_view_set_zoom_level (WEBKIT_WEB_VIEW (web_view), 1.0);
-            return FALSE; /* Allow Ctrl + Middle click */
-        }
-        else
-        {
-            if (!web_view->link_uri)
-                return FALSE;
-            /* Open link in new tab */
-            g_signal_emit (web_view, signals[NEW_TAB], 0, web_view->link_uri);
-            return TRUE;
-        }
-        break;
-    case 3:
-        return FALSE;
-    }
-    return FALSE;
-}
-
-static gboolean
 gtk_widget_button_press_event_after (MidoriWebView*  web_view,
                                      GdkEventButton* event)
 {
@@ -392,7 +346,6 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
         uri = gtk_clipboard_wait_for_text (clipboard);
         if (uri && strchr (uri, '.') && !strchr (uri, ' '))
         {
-            g_print ("gtk_widget_button_press_event_after, sokoke_magic_uri\n");
             new_uri = sokoke_magic_uri (uri, NULL);
             if (state & GDK_CONTROL_MASK)
                 g_signal_emit (web_view, signals[NEW_TAB], 0, new_uri);
@@ -552,8 +505,6 @@ midori_web_view_init (MidoriWebView* web_view)
                       "signal::hovering-over-link",
                       webkit_web_view_hovering_over_link, NULL,
                       "signal::button-press-event",
-                      gtk_widget_button_press_event, NULL,
-                      "signal_after::button-press-event",
                       gtk_widget_button_press_event_after, NULL,
                       "signal::button-release-event",
                       gtk_widget_button_release_event, NULL,

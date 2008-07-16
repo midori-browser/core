@@ -335,10 +335,8 @@ static void
 _midori_browser_set_current_page_smartly (MidoriBrowser* browser,
                                           gint           n)
 {
-    gboolean open_tabs_in_the_background;
-    g_object_get (browser->settings, "open-tabs-in-the-background",
-                  &open_tabs_in_the_background, NULL);
-    if (!open_tabs_in_the_background)
+    if (!sokoke_object_get_boolean (browser->settings,
+        "open-tabs-in-the-background"))
         midori_browser_set_current_page (browser, n);
 }
 
@@ -481,6 +479,69 @@ midori_web_view_console_message_cb (GtkWidget*     web_view,
     midori_console_add (MIDORI_CONSOLE (browser->panel_console),
                         message, line, source_id);
     return TRUE;
+}
+
+static gboolean
+midori_web_view_button_press_event_cb (MidoriWebView*  web_view,
+                                       GdkEventButton* event,
+                                       MidoriBrowser*  browser)
+{
+    GdkModifierType state = (GdkModifierType)0;
+    gint x, y;
+    const gchar* link_uri;
+    guint n;
+    gboolean background;
+
+    gdk_window_get_pointer (NULL, &x, &y, &state);
+    link_uri = midori_web_view_get_link_uri (web_view);
+
+    switch (event->button)
+    {
+    case 1:
+        if (!link_uri)
+            return FALSE;
+        if (state & GDK_SHIFT_MASK)
+        {
+            /* Open link in new window */
+            g_signal_emit (browser, signals[NEW_WINDOW], 0, link_uri);
+            return TRUE;
+        }
+        else if (state & GDK_MOD1_MASK)
+        {
+            /* Open link in new tab */
+            n = midori_browser_add_uri (browser, link_uri);
+            background = sokoke_object_get_boolean (browser->settings,
+                "open-tabs-in-the-background");
+            if (state & GDK_CONTROL_MASK)
+                background = !background;
+            if (!background)
+                midori_browser_set_current_page (browser, n);
+            return TRUE;
+        }
+        break;
+    case 2:
+        if (link_uri)
+        {
+            /* Open link in new tab */
+            n = midori_browser_add_uri (browser, link_uri);
+            background = sokoke_object_get_boolean (browser->settings,
+                "open-tabs-in-the-background");
+            if (state & GDK_CONTROL_MASK)
+                background = !background;
+            if (!background)
+                midori_browser_set_current_page (browser, n);
+            return TRUE;
+        }
+        else if (state & GDK_CONTROL_MASK)
+        {
+            webkit_web_view_set_zoom_level (WEBKIT_WEB_VIEW (web_view), 1.0);
+            return FALSE; /* Allow Ctrl + Middle click */
+        }
+        break;
+    case 3:
+        return FALSE;
+    }
+    return FALSE;
 }
 
 static void
@@ -869,6 +930,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                           midori_web_view_new_tab_cb, browser,
                           "signal::new-window",
                           midori_web_view_new_window_cb, browser,
+                          "signal::button-press-event",
+                          midori_web_view_button_press_event_cb, browser,
                           "signal::populate-popup",
                           midori_web_view_populate_popup_cb, browser,
                           NULL);
