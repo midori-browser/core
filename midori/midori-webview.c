@@ -412,6 +412,19 @@ midori_web_view_menu_new_window_activate_cb (GtkWidget*     widget,
 }
 
 static void
+midori_web_view_menu_download_activate_cb (GtkWidget*     widget,
+                                           MidoriWebView* web_view)
+{
+    gchar* program;
+    const gchar* uri;
+
+    g_object_get (web_view->settings, "download-manager", &program, NULL);
+    uri = g_object_get_data (G_OBJECT (widget), "uri");
+    sokoke_spawn_program (program, uri);
+    g_free (program);
+}
+
+static void
 webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
                                    GtkWidget*     menu)
 {
@@ -422,6 +435,7 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
     GtkWidget* icon;
     gchar* text;
     GList* items;
+    gchar* program;
 
     uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
     if (uri)
@@ -450,6 +464,21 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
         /* hack to disable non-functional Download File */
         gtk_widget_set_sensitive (menuitem, FALSE);
         g_list_free (items);
+        g_object_get (MIDORI_WEB_VIEW (web_view)->settings,
+            "download-manager", &program, NULL);
+        if (program && *program)
+        {
+            menuitem = gtk_image_menu_item_new_with_mnemonic (
+                _("Download Link with Download _Manager"));
+            icon = gtk_image_new_from_stock (GTK_STOCK_SAVE_AS,
+                                             GTK_ICON_SIZE_MENU);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+            gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 4);
+            g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_web_view_menu_download_activate_cb), web_view);
+            gtk_widget_show (menuitem);
+        }
     }
 
     if (!uri && webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))

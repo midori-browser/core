@@ -68,9 +68,12 @@ static void
 clear_button_clicked_cb (GtkWidget* button, GtkWidget* file_chooser)
 {
     gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (file_chooser), "");
-    /* Emit "file-set" manually for Gtk doesn't emit it otherwise
-    FIXME: file-set is Gtk+ >= 2.12 */
+    /* Emit signal manually for Gtk doesn't emit it otherwise */
+    #if GTK_CHECK_VERSION (2, 12, 0)
     g_signal_emit_by_name (file_chooser, "file-set");
+    #else
+    g_signal_emit_by_name (file_chooser, "selection-changed");
+    #endif
 }
 
 static void
@@ -173,6 +176,34 @@ midori_preferences_new (GtkWindow*         parent,
     return GTK_WIDGET (preferences);
 }
 
+static gboolean
+proxy_download_manager_icon_cb (GtkWidget*     entry,
+                                GdkEventFocus* event,
+                                GtkImage*      icon)
+{
+    const gchar* program;
+    gchar* path;
+
+    program = gtk_entry_get_text (GTK_ENTRY (entry));
+    path = g_find_program_in_path (program);
+
+    if (path)
+    {
+        if (gtk_icon_theme_has_icon (gtk_icon_theme_get_for_screen (
+            gtk_widget_get_screen (entry)), program))
+            gtk_image_set_from_icon_name (icon, program, GTK_ICON_SIZE_MENU);
+        else
+            gtk_image_set_from_stock (icon, GTK_STOCK_EXECUTE, GTK_ICON_SIZE_MENU);
+        g_free (path);
+    }
+    else if (program && *program)
+        gtk_image_set_from_stock (icon, GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
+    else
+        gtk_image_clear (icon);
+
+    return FALSE;
+}
+
 /**
  * midori_preferences_set_settings:
  * @settings: the settings
@@ -185,6 +216,17 @@ void
 midori_preferences_set_settings (MidoriPreferences* preferences,
                                  MidoriWebSettings* settings)
 {
+    GtkSizeGroup* sizegroup;
+    GtkWidget* page;
+    GtkWidget* frame;
+    GtkWidget* table;
+    GtkWidget* align;
+    GtkWidget* label;
+    GtkWidget* button;
+    GtkWidget* entry;
+    GtkWidget* hbox;
+    gint icon_width, icon_height;
+
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
 
@@ -192,10 +234,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     preferences->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
-    GtkSizeGroup* sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-    GtkWidget* page; GtkWidget* frame; GtkWidget* table; GtkWidget* align;
-    GtkWidget* label; GtkWidget* button;
-    GtkWidget* entry; GtkWidget* hbox;
+    sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     #define PAGE_NEW(__label) page = gtk_vbox_new (FALSE, 0); \
      gtk_container_set_border_width (GTK_CONTAINER (page), 5); \
      gtk_notebook_append_page (GTK_NOTEBOOK (preferences->notebook), page, \
@@ -243,8 +282,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "download-folder", "folder");
     FILLED_ADD (button, 1, 2, 0, 1);
-    button = katze_property_proxy (settings, "show-download-notification", "blurb");
-    SPANNED_ADD (button, 0, 2, 1, 2);
+    label = katze_property_label (settings, "download-manager");
+    INDENTED_ADD (label, 0, 1, 1, 2);
+    hbox = gtk_hbox_new (FALSE, 4);
+    button = gtk_image_new ();
+    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (button),
+        GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+    gtk_widget_set_size_request (button, icon_width, icon_height);
+    gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 4);
+    entry = katze_property_proxy (settings, "download-manager", NULL);
+    gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+    proxy_download_manager_icon_cb (entry, NULL, GTK_IMAGE (button));
+    g_signal_connect (entry, "focus-out-event",
+        G_CALLBACK (proxy_download_manager_icon_cb), button);
+    FILLED_ADD (hbox, 1, 2, 1, 2);
 
     /* Page "Appearance" */
     PAGE_NEW (_("Appearance"));
@@ -260,7 +311,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (hbox, 1, 2, 0, 1);
     label = katze_property_label (settings, "minimum-font-size");
     INDENTED_ADD (label, 0, 1, 1, 2);
-    hbox = gtk_hbox_new (FALSE, 4);
     entry = katze_property_proxy (settings, "minimum-font-size", NULL);
     INDENTED_ADD (entry, 1, 2, 1, 2);
     label = katze_property_label (settings, "preferred-encoding");

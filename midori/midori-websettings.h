@@ -107,10 +107,6 @@ midori_accept_cookies_get_type (void) G_GNUC_CONST;
 struct _MidoriWebSettingsClass
 {
     WebKitWebSettingsClass parent_class;
-
-    /* Signals */
-    void
-    (*dummy)       (MidoriWebSettings*    web_settings);
 };
 
 GType

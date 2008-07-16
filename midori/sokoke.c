@@ -24,6 +24,61 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 
+static void
+error_dialog (const gchar* short_message,
+              const gchar* detailed_message)
+{
+    GtkWidget* dialog = gtk_message_dialog_new (
+            NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, short_message);
+    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                                              "%s", detailed_message);
+    gtk_widget_show (dialog);
+    g_signal_connect_swapped (dialog, "response",
+                              G_CALLBACK (gtk_widget_destroy), dialog);
+
+
+}
+
+gboolean
+sokoke_spawn_program (const gchar* command,
+                      const gchar* argument)
+{
+    gchar* argument_escaped;
+    gchar* command_ready;
+    gchar** argv;
+    GError* error;
+
+    argument_escaped = g_shell_quote (argument);
+    if (strstr (command, "%s"))
+        command_ready = g_strdup_printf (command, argument_escaped);
+    else
+        command_ready = g_strconcat (command, " ", argument_escaped, NULL);
+
+    error = NULL;
+    if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
+    {
+        error_dialog (_("Could not run external program."), error->message);
+        g_error_free (error);
+        g_free (command_ready);
+        g_free (argument_escaped);
+        return FALSE;
+    }
+
+    error = NULL;
+    if (!g_spawn_async (NULL, argv, NULL,
+        (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+        NULL, NULL, NULL, &error))
+    {
+        error_dialog (_("Could not run external program."), error->message);
+        g_error_free (error);
+    }
+
+    g_strfreev (argv);
+    g_free (command_ready);
+    g_free (argument_escaped);
+    return TRUE;
+}
+
 gchar*
 sokoke_magic_uri (const gchar*   uri,
                   MidoriWebList* search_engines)

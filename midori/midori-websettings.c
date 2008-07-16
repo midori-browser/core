@@ -43,7 +43,7 @@ struct _MidoriWebSettings
     MidoriStartup load_on_startup;
     gchar* homepage;
     gchar* download_folder;
-    gboolean show_download_notification;
+    gchar* download_manager;
     gchar* location_entry_search;
     MidoriPreferredEncoding preferred_encoding;
 
@@ -96,7 +96,7 @@ enum
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
     PROP_DOWNLOAD_FOLDER,
-    PROP_SHOW_DOWNLOAD_NOTIFICATION,
+    PROP_DOWNLOAD_MANAGER,
     PROP_LOCATION_ENTRY_SEARCH,
     PROP_PREFERRED_ENCODING,
 
@@ -423,13 +423,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_DOWNLOAD_NOTIFICATION,
-                                     g_param_spec_boolean (
-                                     "show-download-notification",
-                                     _("Show Download Notification"),
-                                     _("Show a notification window for finished downloads"),
-                                     TRUE,
-                                     G_PARAM_READABLE));
+                                     PROP_DOWNLOAD_MANAGER,
+                                     g_param_spec_string (
+                                     "download-manager",
+                                     _("Download Manager"),
+                                     _("An external download manager"),
+                                     NULL,
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LOCATION_ENTRY_SEARCH,
@@ -705,8 +705,8 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_DOWNLOAD_FOLDER:
         katze_assign (web_settings->download_folder, g_value_dup_string (value));
         break;
-    case PROP_SHOW_DOWNLOAD_NOTIFICATION:
-        web_settings->show_download_notification = g_value_get_boolean (value);
+    case PROP_DOWNLOAD_MANAGER:
+        katze_assign (web_settings->download_manager, g_value_dup_string (value));
         break;
     case PROP_LOCATION_ENTRY_SEARCH:
         katze_assign (web_settings->location_entry_search, g_value_dup_string (value));
@@ -863,8 +863,8 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_DOWNLOAD_FOLDER:
         g_value_set_string (value, web_settings->download_folder);
         break;
-    case PROP_SHOW_DOWNLOAD_NOTIFICATION:
-        g_value_set_boolean (value, web_settings->show_download_notification);
+    case PROP_DOWNLOAD_MANAGER:
+        g_value_set_string (value, web_settings->download_manager);
         break;
     case PROP_LOCATION_ENTRY_SEARCH:
         g_value_set_string (value, web_settings->location_entry_search);
@@ -964,7 +964,7 @@ midori_web_settings_copy (MidoriWebSettings* web_settings)
                   "load-on-startup", web_settings->load_on_startup,
                   "homepage", web_settings->homepage,
                   "download-folder", web_settings->download_folder,
-                  "show-download-notification", web_settings->show_download_notification,
+                  "download-manager", web_settings->download_manager,
                   "location-entry-search", web_settings->location_entry_search,
                   "preferred-encoding", web_settings->preferred_encoding,
 
