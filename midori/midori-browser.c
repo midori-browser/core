@@ -21,6 +21,7 @@
 #include "midori-addons.h"
 #include "midori-console.h"
 #include "midori-searchentry.h"
+#include "compat.h"
 
 #if GLIB_CHECK_VERSION (2, 16, 0)
 #include <gio/gio.h>
@@ -2602,6 +2603,8 @@ _action_bookmark_delete_activate (GtkAction*     action,
             gtk_tree_model_get (model, &iter, 0, &item, -1);
             KatzeXbelItem* parent = katze_xbel_item_get_parent (item);
             katze_xbel_folder_remove_item (parent, item);
+            /* This is a preliminary hack, until we fix it properly again */
+            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
             katze_xbel_item_unref (item);
         }
     }
