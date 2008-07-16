@@ -36,7 +36,6 @@ struct _MidoriWebView
     gchar* statusbar_text;
     gchar* link_uri;
 
-    gboolean middle_click_opens_selection;
     MidoriWebSettings* settings;
 
     GtkWidget* menu_item;
@@ -381,8 +380,10 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
     GdkModifierType state;
     GtkClipboard* clipboard;
     gchar* uri;
+    gchar* new_uri;
 
-    if (event->button == 2 && web_view->middle_click_opens_selection)
+    if (event->button == 2 && sokoke_object_get_boolean
+        (web_view->settings, "middle-click-opens-selection"))
     {
         state = (GdkModifierType) event->state;
         clipboard = gtk_clipboard_get_for_display (
@@ -391,14 +392,33 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
         uri = gtk_clipboard_wait_for_text (clipboard);
         if (uri && strchr (uri, '.') && !strchr (uri, ' '))
         {
+            g_print ("gtk_widget_button_press_event_after, sokoke_magic_uri\n");
+            new_uri = sokoke_magic_uri (uri, NULL);
             if (state & GDK_CONTROL_MASK)
-                g_signal_emit (web_view, signals[NEW_TAB], 0, uri);
+                g_signal_emit (web_view, signals[NEW_TAB], 0, new_uri);
             else
-                g_object_set (web_view, "uri", uri, NULL);
+                g_object_set (web_view, "uri", new_uri, NULL);
+            g_free (new_uri);
             g_free (uri);
             return TRUE;
         }
     }
+    return FALSE;
+}
+
+static gboolean
+gtk_widget_button_release_event (MidoriWebView*  web_view,
+                                 GdkEventButton* event)
+{
+    GtkClipboard* clipboard;
+    gchar* text;
+
+    /* Emulate the primary clipboard, which WebKit doesn't support */
+    text = webkit_web_view_get_selected_text (WEBKIT_WEB_VIEW (web_view));
+    clipboard = gtk_clipboard_get_for_display (
+        gtk_widget_get_display (GTK_WIDGET (web_view)), GDK_SELECTION_PRIMARY);
+    gtk_clipboard_set_text (clipboard, text, -1);
+    g_free (text);
     return FALSE;
 }
 
@@ -501,42 +521,13 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
 }
 
 static void
-_midori_web_view_update_settings (MidoriWebView* web_view)
-{
-    g_object_get (G_OBJECT (web_view->settings),
-                  "middle-click-opens-selection", &web_view->middle_click_opens_selection,
-                  NULL);
-}
-
-static void
-midori_web_view_settings_notify (MidoriWebSettings* web_settings,
-                                 GParamSpec*        pspec,
-                                 MidoriWebView*     web_view)
-{
-    const gchar* name = g_intern_string (pspec->name);
-    GValue value = {0, };
-    g_value_init (&value, pspec->value_type);
-    g_object_get_property (G_OBJECT (web_view->settings), name, &value);
-
-    if (name == g_intern_string ("middle-click-opens-selection"))
-        web_view->middle_click_opens_selection = g_value_get_boolean (&value);
-    else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
-                                             name))
-         g_warning (_("Unexpected setting '%s'"), name);
-    g_value_unset (&value);
-}
-
-static void
 midori_web_view_init (MidoriWebView* web_view)
 {
     web_view->is_loading = FALSE;
     web_view->progress = -1;
 
     web_view->settings = midori_web_settings_new ();
-    _midori_web_view_update_settings (web_view);
     g_object_set (web_view, "WebKitWebView::settings", web_view->settings, NULL);
-    g_signal_connect (web_view->settings, "notify",
-                      G_CALLBACK (midori_web_view_settings_notify), web_view);
 
     WebKitWebFrame* web_frame;
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
@@ -564,6 +555,8 @@ midori_web_view_init (MidoriWebView* web_view)
                       gtk_widget_button_press_event, NULL,
                       "signal_after::button-press-event",
                       gtk_widget_button_press_event_after, NULL,
+                      "signal::button-release-event",
+                      gtk_widget_button_release_event, NULL,
                       "signal::scroll-event",
                       gtk_widget_scroll_event, NULL,
                       "signal::populate-popup",
@@ -589,12 +582,7 @@ midori_web_view_finalize (GObject* object)
         katze_xbel_item_unref (web_view->xbel_item);
 
     if (web_view->settings)
-    {
-        g_signal_handlers_disconnect_by_func (web_view->settings,
-                                              midori_web_view_settings_notify,
-                                              web_view);
         g_object_unref (web_view->settings);
-    }
 
     G_OBJECT_CLASS (midori_web_view_parent_class)->finalize (object);
 }
@@ -613,10 +601,7 @@ midori_web_view_set_property (GObject*      object,
     {
         const gchar* uri = g_value_get_string (value);
         if (uri && *uri)
-        {
-            /* FIXME: Autocomplete the uri */
             webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), uri);
-        }
         break;
     }
     case PROP_TITLE:
@@ -634,15 +619,9 @@ midori_web_view_set_property (GObject*      object,
             katze_xbel_item_set_title (web_view->xbel_item, title);
         break;
     case PROP_SETTINGS:
-        g_signal_handlers_disconnect_by_func (web_view->settings,
-                                              midori_web_view_settings_notify,
-                                              web_view);
         katze_object_assign (web_view->settings, g_value_get_object (value));
         g_object_ref (web_view->settings);
-        _midori_web_view_update_settings (web_view);
         g_object_set (object, "WebKitWebView::settings", web_view->settings, NULL);
-        g_signal_connect (web_view->settings, "notify",
-                          G_CALLBACK (midori_web_view_settings_notify), web_view);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
