@@ -51,14 +51,6 @@ fi
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
-# Checks for libsexy
-PKG_CHECK_MODULES(LIBSEXY, libsexy, have_libsexy=true, have_libsexy=false)
-if test "x${have_libsexy}" = "xfalse" ; then
-    AC_MSG_ERROR([No Libsexy package information found])
-fi
-AC_SUBST(LIBSEXY_CFLAGS)
-AC_SUBST(LIBSEXY_LIBS)
-
 # Checks for gtksourceview
 PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview, have_gtksourceview=true, have_gtksourceview=false)
 AC_SUBST(GTKSOURCEVIEW_CFLAGS)

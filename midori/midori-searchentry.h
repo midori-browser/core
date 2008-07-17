@@ -13,9 +13,9 @@
 #define __MIDORI_SEARCH_ENTRY_H__
 
 #include "midori-weblist.h"
+#include "gtkiconentry.h"
 
 #include <gtk/gtk.h>
-#include <libsexy/sexy.h>
 
 G_BEGIN_DECLS
 
@@ -37,7 +37,7 @@ typedef struct _MidoriSearchEntryClass           MidoriSearchEntryClass;
 
 struct _MidoriSearchEntryClass
 {
-    SexyIconEntryClass parent_class;
+    GtkIconEntryClass parent_class;
 };
 
 GType

@@ -19,13 +19,13 @@
 
 struct _MidoriSearchEntry
 {
-    SexyIconEntry parent_instance;
+    GtkIconEntry parent_instance;
 
     MidoriWebList* search_engines;
     MidoriWebItem* current_item;
 };
 
-G_DEFINE_TYPE (MidoriSearchEntry, midori_search_entry, SEXY_TYPE_ICON_ENTRY)
+G_DEFINE_TYPE (MidoriSearchEntry, midori_search_entry, GTK_TYPE_ICON_ENTRY)
 
 enum
 {
@@ -112,7 +112,7 @@ midori_search_entry_manage_activate_cb (GtkWidget*         menuitem,
 
 static void
 midori_search_entry_icon_released_cb (GtkWidget*             widget,
-                                      SexyIconEntryPosition* pos,
+                                      GtkIconEntryPosition* pos,
                                       gint                   button)
 {
     MidoriSearchEntry* search_entry;
@@ -240,8 +240,8 @@ midori_search_entry_engines_remove_item_cb (MidoriWebList*     web_list,
             midori_search_entry_set_current_item (search_entry, web_item);
         else
         {
-            sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (search_entry),
-                                      SEXY_ICON_ENTRY_PRIMARY, NULL);
+            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (search_entry),
+                                                 GTK_ICON_ENTRY_PRIMARY, NULL);
             sokoke_entry_set_default_text (GTK_ENTRY (search_entry), "");
 
             katze_object_assign (search_entry->current_item, NULL);
@@ -256,8 +256,8 @@ midori_search_entry_init (MidoriSearchEntry* search_entry)
     search_entry->search_engines = midori_web_list_new ();
     search_entry->current_item = NULL;
 
-    sexy_icon_entry_set_icon_highlight (SEXY_ICON_ENTRY (search_entry),
-                                        SEXY_ICON_ENTRY_PRIMARY, TRUE);
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (search_entry),
+                                       GTK_ICON_ENTRY_PRIMARY, TRUE);
     g_object_connect (search_entry,
                       "signal::icon-released",
                       midori_search_entry_icon_released_cb, NULL,
@@ -412,9 +412,9 @@ midori_search_entry_set_current_item (MidoriSearchEntry* search_entry,
 
     pixbuf = sokoke_web_icon (midori_web_item_get_icon (web_item),
                               GTK_ICON_SIZE_MENU, GTK_WIDGET (search_entry));
-    sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (search_entry),
-                              SEXY_ICON_ENTRY_PRIMARY,
-                              GTK_IMAGE (gtk_image_new_from_pixbuf (pixbuf)));
+    gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (search_entry),
+                                         GTK_ICON_ENTRY_PRIMARY,
+                                         pixbuf);
     g_object_unref (pixbuf);
     sokoke_entry_set_default_text (GTK_ENTRY (search_entry),
                                    midori_web_item_get_name (web_item));

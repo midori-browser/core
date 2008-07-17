@@ -14,6 +14,7 @@
 #include "midori-browser.h"
 
 #include "main.h"
+#include "gtkiconentry.h"
 #include "sokoke.h"
 #include "midori-webview.h"
 #include "midori-preferences.h"
@@ -21,6 +22,7 @@
 #include "midori-addons.h"
 #include "midori-console.h"
 #include "midori-searchentry.h"
+#include "midori-locationentry.h"
 #include "compat.h"
 
 #if GLIB_CHECK_VERSION (2, 16, 0)
@@ -29,7 +31,6 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
-#include <libsexy/sexy.h>
 #if HAVE_GTKSOURCEVIEW
 #include <gtksourceview/gtksourceview.h>
 #include <gtksourceview/gtksourcelanguagemanager.h>
@@ -50,7 +51,6 @@ struct _MidoriBrowser
     GtkWidget* navigationbar;
     GtkWidget* button_tab_new;
     GtkWidget* button_homepage;
-    GtkWidget* location_icon;
     GtkWidget* location;
     GtkWidget* search;
     GtkWidget* button_trash;
@@ -124,10 +124,17 @@ midori_browser_set_property (GObject*      object,
                              GParamSpec*   pspec);
 
 static void
+midori_browser_location_active_changed_cb (MidoriLocationEntry* location_entry,
+                                           gint                 index,
+                                           MidoriBrowser*       browser);
+
+static void
 midori_browser_get_property (GObject*    object,
                              guint       prop_id,
                              GValue*     value,
                              GParamSpec* pspec);
+
+
 
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
@@ -278,7 +285,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
     icon = katze_throbber_get_static_pixbuf (KATZE_THROBBER (
         g_object_get_data (G_OBJECT (widget), "browser-tab-icon")));
-    gtk_image_set_from_pixbuf (GTK_IMAGE (browser->location_icon), icon);
 }
 
 static GtkWidget*
@@ -411,12 +417,29 @@ midori_web_view_title_changed_cb (GtkWidget*      web_view,
 {
     if (web_view == midori_browser_get_current_web_view (browser))
     {
+        MidoriLocationEntryItem item;
+
         const gchar* title = midori_web_view_get_display_title (
             MIDORI_WEB_VIEW (web_view));
         gchar* window_title = g_strconcat (title, " - ",
             g_get_application_name (), NULL);
         gtk_window_set_title (GTK_WINDOW (browser), window_title);
         g_free (window_title);
+
+        item.favicon = midori_web_view_get_icon (MIDORI_WEB_VIEW (web_view));
+        item.uri = midori_location_entry_get_text (
+            MIDORI_LOCATION_ENTRY (browser->location));
+        item.title = title;
+
+        g_signal_handlers_block_by_func (browser->location,
+            midori_browser_location_active_changed_cb, browser);
+
+        midori_location_entry_add_item (MIDORI_LOCATION_ENTRY
+                                        (browser->location), &item);
+
+        g_signal_handlers_unblock_by_func (browser->location,
+            midori_browser_location_active_changed_cb, browser);
+        g_object_unref (item.favicon);
     }
 }
 
@@ -444,7 +467,7 @@ midori_web_view_load_committed_cb (GtkWidget*      web_view,
     if (web_view == midori_browser_get_current_web_view (browser))
     {
         const gchar* uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
-        gtk_entry_set_text (GTK_ENTRY (browser->location), uri);
+        midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (browser->location), uri);
         _midori_browser_set_statusbar_text (browser, NULL);
     }
 }
@@ -1611,10 +1634,8 @@ _action_find_activate(GtkAction*     action,
     }
     else
     {
-        GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FIND,
-                                                    GTK_ICON_SIZE_MENU);
-        sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (browser->find_text),
-                                  SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (icon));
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
+                                            GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FIND);
         gtk_entry_set_text (GTK_ENTRY (browser->find_text), "");
         gtk_widget_show (browser->find);
         gtk_widget_grab_focus (GTK_WIDGET (browser->find_text));
@@ -1635,13 +1656,9 @@ _midori_browser_find (MidoriBrowser* browser,
         text, case_sensitive, forward);
     if (GTK_WIDGET_VISIBLE (browser->find))
     {
-        GtkWidget* icon;
-        if (found)
-            icon = gtk_image_new_from_stock (GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
-        else
-            icon = gtk_image_new_from_stock (GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
-        sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (browser->find_text),
-            SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (icon));
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
+                                            GTK_ICON_ENTRY_PRIMARY,
+                                            (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
         _midori_browser_tab_mark_text_matches (browser, widget,
                                                text, case_sensitive);
         const gboolean highlight = gtk_toggle_tool_button_get_active (
@@ -1993,6 +2010,22 @@ _action_homepage_activate (GtkAction*     action,
     g_free (homepage);
 }
 
+/* catch the active-changed signal so that we can display the pack
+   when selected from the list */
+static void
+midori_browser_location_active_changed_cb (MidoriLocationEntry* location_entry,
+                                           gint                 index,
+                                           MidoriBrowser*       browser)
+{
+    const gchar* uri;
+
+    if (index > -1)
+    {
+        uri = midori_location_entry_get_text (location_entry);
+        _midori_browser_open_uri (browser, uri);
+    }
+}
+
 static gboolean
 midori_browser_location_key_press_event_cb (GtkWidget*     widget,
                                             GdkEventKey*   event,
@@ -2020,7 +2053,7 @@ midori_browser_location_key_press_event_cb (GtkWidget*     widget,
             /* TODO: Use new_uri intermediately when completion is better
                Completion should be generated from history, that is
                the uri as well as the title. */
-            sokoke_entry_append_completion (GTK_ENTRY (widget), uri);
+            /* sokoke_entry_append_completion (GTK_ENTRY (widget), uri); */
             _midori_browser_open_uri (browser, new_uri);
             g_free (new_uri);
             gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
@@ -2518,7 +2551,14 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
 
     widget = midori_browser_get_current_tab (browser);
     uri = _midori_browser_get_tab_uri (browser, widget);
-    gtk_entry_set_text (GTK_ENTRY (browser->location), uri);
+
+    g_signal_handlers_block_by_func (browser->location,
+        midori_browser_location_active_changed_cb, browser);
+    midori_location_entry_set_item_from_uri (MIDORI_LOCATION_ENTRY
+                                             (browser->location), uri);
+    g_signal_handlers_unblock_by_func (browser->location,
+        midori_browser_location_active_changed_cb, browser);
+
     title = _midori_browser_get_tab_title (browser, widget);
     window_title = g_strconcat (title, " - ",
                                 g_get_application_name (), NULL);
@@ -3096,6 +3136,16 @@ midori_browser_search_activate_cb (GtkWidget*     widget,
 }
 
 static void
+midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
+                                             gint          icon_pos,
+                                             gint          button,
+                                             gpointer      user_data)
+{
+    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+        gtk_entry_set_text (GTK_ENTRY (entry), "");
+}
+
+static void
 midori_browser_search_notify_current_item_cb (GObject    *gobject,
                                               GParamSpec *arg1,
                                               MidoriBrowser* browser)
@@ -3227,13 +3277,12 @@ midori_browser_init (MidoriBrowser* browser)
         ui_manager, "/toolbar_navigation/Homepage");
 
     /* Location */
-    browser->location = sexy_icon_entry_new ();
-    sokoke_entry_setup_completion (GTK_ENTRY (browser->location));
-    browser->location_icon = gtk_image_new ();
-    sexy_icon_entry_set_icon (SEXY_ICON_ENTRY (browser->location)
-     , SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (browser->location_icon));
-    sexy_icon_entry_add_clear_button (SEXY_ICON_ENTRY (browser->location));
+    browser->location = midori_location_entry_new ();
+    /* FIXME: sokoke_entry_setup_completion (GTK_ENTRY (browser->location)); */
     g_object_connect (browser->location,
+                      "signal::active-changed",
+                      midori_browser_location_active_changed_cb, browser, NULL);
+    g_object_connect (gtk_bin_get_child (GTK_BIN (browser->location)),
                       "signal::key-press-event",
                       midori_browser_location_key_press_event_cb, browser,
                       "signal::focus-out-event",
@@ -3243,7 +3292,9 @@ midori_browser_init (MidoriBrowser* browser)
                       NULL);
     GtkToolItem* toolitem = gtk_tool_item_new ();
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-    gtk_container_add (GTK_CONTAINER(toolitem), browser->location);
+    GtkWidget* align = gtk_alignment_new (0, 0.5, 1, 0.1);
+    gtk_container_add (GTK_CONTAINER (align), browser->location);
+    gtk_container_add (GTK_CONTAINER(toolitem), align);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar), toolitem, -1);
 
     /* Search */
@@ -3462,12 +3513,15 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_container_add (GTK_CONTAINER (toolitem),
                        gtk_label_new_with_mnemonic (_("_Inline find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
-    browser->find_text = sexy_icon_entry_new ();
-    GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FIND,
-                                                GTK_ICON_SIZE_MENU);
-    sexy_icon_entry_set_icon (SEXY_ICON_ENTRY(browser->find_text),
-                              SEXY_ICON_ENTRY_PRIMARY, GTK_IMAGE (icon));
-    sexy_icon_entry_add_clear_button (SEXY_ICON_ENTRY (browser->find_text));
+    browser->find_text = gtk_icon_entry_new ();
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY(browser->find_text),
+                                        GTK_ICON_ENTRY_PRIMARY,
+                                        GTK_STOCK_FIND);
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
+                                        GTK_ICON_ENTRY_SECONDARY,
+                                        GTK_STOCK_CLEAR);
+    g_signal_connect (browser->find_text, "icon_released",
+        G_CALLBACK (midori_browser_entry_clear_icon_released_cb), NULL);
     g_signal_connect (browser->find_text, "activate",
         G_CALLBACK (_action_find_next_activate), browser);
     toolitem = gtk_tool_item_new ();
