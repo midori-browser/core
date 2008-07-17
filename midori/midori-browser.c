@@ -188,26 +188,6 @@ _midori_browser_get_tab_title (MidoriBrowser* browser,
     return "untitled";
 }
 
-static GdkPixbuf*
-_midori_browser_get_tab_icon (MidoriBrowser* browser,
-                              GtkWidget*     widget)
-{
-    const gchar* uri;
-    GdkPixbuf* icon;
-
-    if (MIDORI_IS_WEB_VIEW (widget))
-        return midori_web_view_get_icon (MIDORI_WEB_VIEW (widget));
-
-    uri = g_object_get_data (G_OBJECT (widget), "browser-tab-uri");
-    if (g_str_has_prefix (uri, "view-source:"))
-        icon = gtk_widget_render_icon (widget, GTK_STOCK_EDIT,
-                                       GTK_ICON_SIZE_MENU, NULL);
-    else
-        icon = gtk_widget_render_icon (widget, GTK_STOCK_FILE,
-                                       GTK_ICON_SIZE_MENU, NULL);
-    return icon;
-}
-
 static void
 _midori_browser_open_uri (MidoriBrowser* browser,
                           const gchar*   uri)
@@ -296,9 +276,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_show (browser->progressbar);
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
-    icon = _midori_browser_get_tab_icon (browser, widget);
+    icon = katze_throbber_get_static_pixbuf (KATZE_THROBBER (
+        g_object_get_data (G_OBJECT (widget), "browser-tab-icon")));
     gtk_image_set_from_pixbuf (GTK_IMAGE (browser->location_icon), icon);
-    g_object_unref (icon);
 }
 
 static GtkWidget*
@@ -938,7 +918,12 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     }
     else
     {
-        icon = _midori_browser_get_tab_icon (browser, widget);
+        if (GTK_IS_TEXT_VIEW (widget))
+            icon = gtk_widget_render_icon (widget, GTK_STOCK_EDIT,
+                                           GTK_ICON_SIZE_MENU, NULL);
+        else
+            icon = gtk_widget_render_icon (widget, GTK_STOCK_FILE,
+                                           GTK_ICON_SIZE_MENU, NULL);
         tab_icon = gtk_image_new_from_pixbuf (icon);
         title = _midori_browser_get_tab_title (browser, widget);
         tab_title = gtk_label_new (title);
@@ -957,6 +942,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                                            xbel_item);
         }
     }
+    g_object_set_data (G_OBJECT (widget), "browser-tab-icon", tab_icon);
     browser->tab_titles = g_list_prepend (browser->tab_titles, tab_title);
 
     g_signal_connect (widget, "leave-notify-event",

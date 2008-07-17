@@ -29,6 +29,7 @@ struct _MidoriWebView
 {
     WebKitWebView parent_instance;
 
+    GdkPixbuf* icon;
     gchar* uri;
     gchar* title;
     gboolean is_loading;
@@ -239,7 +240,8 @@ webkit_web_view_load_committed (MidoriWebView*  web_view,
     _midori_web_view_set_uri (web_view, uri);
     if (web_view->tab_icon)
     {
-        icon = midori_web_view_get_icon (web_view);
+        icon = gtk_widget_render_icon (GTK_WIDGET (web_view),
+            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
                                           icon);
         g_object_unref (icon);
@@ -281,6 +283,8 @@ webkit_web_frame_load_done (WebKitWebFrame* web_frame, gboolean success,
 
     web_view->is_loading = FALSE;
     web_view->progress = -1;
+    katze_object_assign (web_view->icon, NULL);
+
     if (web_view->tab_icon || web_view->menu_item)
     {
         icon = midori_web_view_get_icon (web_view);
@@ -553,6 +557,8 @@ midori_web_view_finalize (GObject* object)
 {
     MidoriWebView* web_view = MIDORI_WEB_VIEW (object);
 
+    if (web_view->icon)
+        g_object_unref (web_view->icon);
     g_free (web_view->uri);
     g_free (web_view->title);
     g_free (web_view->statusbar_text);
@@ -926,6 +932,9 @@ midori_web_view_get_icon (MidoriWebView* web_view)
 
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
+    if (web_view->icon)
+        return g_object_ref (web_view->icon);
+
     #if GLIB_CHECK_VERSION (2, 16, 0)
     parent = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
     icon = NULL;
@@ -966,5 +975,7 @@ midori_web_view_get_icon (MidoriWebView* web_view)
     g_object_unref (icon_file);
     g_object_unref (file);
     #endif
-    return pixbuf;
+
+    web_view->icon = pixbuf;
+    return g_object_ref (web_view->icon);
 }
