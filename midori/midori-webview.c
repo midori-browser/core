@@ -938,8 +938,8 @@ midori_web_view_get_icon (MidoriWebView* web_view)
         if (info)
         {
             content_type = g_file_info_get_content_type (info);
-            /* favicon.ico can be image/x-ico or image/x-icon */
-            icon = !strcmp (content_type, "image/x-ico")
+            icon = (!strcmp (content_type, "image/x-icon")
+                || !strcmp (content_type, "image/x-ico"))
                 ? g_file_icon_new (icon_file) : NULL;
         }
 
