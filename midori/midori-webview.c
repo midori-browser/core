@@ -939,7 +939,8 @@ midori_web_view_get_icon (MidoriWebView* web_view)
         {
             content_type = g_file_info_get_content_type (info);
             icon = (!strcmp (content_type, "image/x-icon")
-                || !strcmp (content_type, "image/x-ico"))
+                || !strcmp (content_type, "image/x-ico")
+                || !strcmp (content_type, "image/vnd.microsoft.icon"))
                 ? g_file_icon_new (icon_file) : NULL;
         }
 
