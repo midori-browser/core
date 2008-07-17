@@ -945,7 +945,8 @@ midori_web_view_get_icon (MidoriWebView* web_view)
 
         parent = g_file_get_parent (file);
     }
-    while (!icon && parent);
+    while (!icon && parent && !g_file_equal (file, parent));
+    /* We need to check if file equals the parent due to a GIO bug */
 
     if (icon && (stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
                                                 GTK_ICON_SIZE_MENU,
