@@ -12,6 +12,8 @@
 #include "midori-panel.h"
 
 #include "sokoke.h"
+#include "compat.h"
+
 #include <glib/gi18n.h>
 
 struct _MidoriPanel
@@ -312,10 +314,22 @@ static void
 midori_panel_menu_item_activate_cb (GtkWidget*   widget,
                                     MidoriPanel* panel)
 {
-    GtkWidget* child = g_object_get_data (G_OBJECT (widget), "page");
-    guint n = midori_panel_page_num (panel, child);
-    midori_panel_set_current_page (panel, n);
-    g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
+    GtkWidget* child;
+    GtkToolItem* toolitem;
+    guint n;
+
+    child = g_object_get_data (G_OBJECT (widget), "page");
+    toolitem = g_object_get_data (G_OBJECT (widget), "toolitem");
+
+    if (toolitem)
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), TRUE);
+    else
+    {
+        n = midori_panel_page_num (panel, child);
+        midori_panel_set_current_page (panel, n);
+        g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
+        gtk_widget_show (GTK_WIDGET (panel));
+    }
 }
 
 /**
@@ -405,6 +419,7 @@ midori_panel_append_page (MidoriPanel* panel,
         }
         gtk_widget_show_all (menuitem);
         g_object_set_data (G_OBJECT (menuitem), "page", child);
+        g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
                           panel);
