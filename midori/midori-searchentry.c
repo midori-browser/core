@@ -737,6 +737,18 @@ midori_search_entry_dialog_engines_remove_item_cb (MidoriWebList* web_list,
     }
 }
 
+static void
+midori_search_entry_treeview_destroy_cb (GtkWidget* treeview,
+                                         GtkWidget* search_entry)
+{
+    g_signal_handlers_disconnect_by_func (
+        MIDORI_SEARCH_ENTRY (search_entry)->search_engines,
+        midori_search_entry_dialog_engines_add_item_cb, treeview);
+    g_signal_handlers_disconnect_by_func (
+        MIDORI_SEARCH_ENTRY (search_entry)->search_engines,
+        midori_search_entry_dialog_engines_remove_item_cb, treeview);
+}
+
 /**
  * midori_search_entry_get_dialog:
  * @search_entry: a #MidoriSearchEntry
@@ -836,6 +848,8 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
                                            NULL, i, 0, web_item, -1);
     }
     g_object_unref (liststore);
+    g_signal_connect (treeview, "destroy",
+        G_CALLBACK (midori_search_entry_treeview_destroy_cb), search_entry);
     vbox = gtk_vbox_new (FALSE, 4);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 4);
     button = gtk_button_new_from_stock (GTK_STOCK_ADD);
