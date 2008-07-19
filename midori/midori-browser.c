@@ -417,29 +417,12 @@ midori_web_view_title_changed_cb (GtkWidget*      web_view,
 {
     if (web_view == midori_browser_get_current_web_view (browser))
     {
-        MidoriLocationEntryItem item;
-
         const gchar* title = midori_web_view_get_display_title (
             MIDORI_WEB_VIEW (web_view));
         gchar* window_title = g_strconcat (title, " - ",
             g_get_application_name (), NULL);
         gtk_window_set_title (GTK_WINDOW (browser), window_title);
         g_free (window_title);
-
-        item.favicon = midori_web_view_get_icon (MIDORI_WEB_VIEW (web_view));
-        item.uri = midori_location_entry_get_text (
-            MIDORI_LOCATION_ENTRY (browser->location));
-        item.title = title;
-
-        g_signal_handlers_block_by_func (browser->location,
-            midori_browser_location_active_changed_cb, browser);
-
-        midori_location_entry_add_item (MIDORI_LOCATION_ENTRY
-                                        (browser->location), &item);
-
-        g_signal_handlers_unblock_by_func (browser->location,
-            midori_browser_location_active_changed_cb, browser);
-        g_object_unref (item.favicon);
     }
 }
 
@@ -457,6 +440,27 @@ midori_web_view_element_motion_cb (MidoriWebView* web_View,
                                    MidoriBrowser* browser)
 {
     _midori_browser_set_statusbar_text (browser, link_uri);
+}
+
+static void
+midori_web_view_icon_ready_cb (MidoriWebView* web_view,
+                               GdkPixbuf*     icon,
+                               MidoriBrowser* browser)
+{
+    MidoriLocationEntryItem item;
+
+    item.favicon = icon;
+    item.uri = midori_web_view_get_display_uri (web_view);
+    item.title = midori_web_view_get_display_title (web_view);
+
+    g_signal_handlers_block_by_func (browser->location,
+        midori_browser_location_active_changed_cb, browser);
+
+    midori_location_entry_add_item (MIDORI_LOCATION_ENTRY
+                                    (browser->location), &item);
+
+    g_signal_handlers_unblock_by_func (browser->location,
+        midori_browser_location_active_changed_cb, browser);
 }
 
 static void
@@ -913,6 +917,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                           midori_web_view_load_started_cb, browser,
                           "signal::load-committed",
                           midori_web_view_load_committed_cb, browser,
+                          "signal::icon-ready",
+                          midori_web_view_icon_ready_cb, browser,
                           "signal::progress-started",
                           midori_web_view_progress_started_cb, browser,
                           "signal::progress-changed",

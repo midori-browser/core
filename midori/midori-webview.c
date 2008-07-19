@@ -58,7 +58,7 @@ enum
 };
 
 enum {
-    LOAD_STARTED,
+    ICON_READY,
     PROGRESS_STARTED,
     PROGRESS_CHANGED,
     PROGRESS_DONE,
@@ -90,6 +90,17 @@ midori_web_view_get_property (GObject*    object,
 static void
 midori_web_view_class_init (MidoriWebViewClass* class)
 {
+    signals[ICON_READY] = g_signal_new (
+        "icon-ready",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        G_STRUCT_OFFSET (MidoriWebViewClass, icon_ready),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GDK_TYPE_PIXBUF);
+
     signals[PROGRESS_STARTED] = g_signal_new (
         "progress-started",
         G_TYPE_FROM_CLASS (class),
@@ -228,6 +239,124 @@ _midori_web_view_set_uri (MidoriWebView* web_view,
     g_object_set (web_view, "title", NULL, NULL);
 }
 
+#if GLIB_CHECK_VERSION (2, 16, 0)
+void
+loadable_icon_finish_cb (GdkPixbuf*     icon,
+                         GAsyncResult*  res,
+                         MidoriWebView* web_view)
+{
+    GInputStream* stream;
+    GdkPixbuf* pixbuf;
+    GdkPixbuf* pixbuf_scaled;
+    gint icon_width, icon_height;
+
+    pixbuf = NULL;
+    stream = g_loadable_icon_load_finish (G_LOADABLE_ICON (icon),
+                                          res, NULL, NULL);
+    if (stream)
+    {
+        pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, NULL);
+        g_object_unref (stream);
+    }
+    if (!pixbuf)
+        pixbuf = gtk_widget_render_icon (GTK_WIDGET (web_view),
+            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+
+    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
+                                             GDK_INTERP_BILINEAR);
+    g_object_unref (pixbuf);
+    web_view->icon = pixbuf_scaled;
+    g_signal_emit (web_view, signals[ICON_READY], 0, web_view->icon);
+}
+
+void
+file_info_finish_cb (GFile*         icon_file,
+                     GAsyncResult*  res,
+                     MidoriWebView* web_view)
+{
+    GFileInfo* info;
+    const gchar* content_type;
+    GIcon* icon;
+    GFile* parent;
+    GFile* file;
+    GdkPixbuf* pixbuf;
+    gint icon_width, icon_height;
+    GdkPixbuf* pixbuf_scaled;
+
+    info = g_file_query_info_finish (G_FILE (icon_file), res, NULL);
+    if (info)
+    {
+        content_type = g_file_info_get_content_type (info);
+        if (g_str_has_prefix (content_type, "image/"))
+        {
+            icon = g_file_icon_new (icon_file);
+            g_loadable_icon_load_async (G_LOADABLE_ICON (icon),
+            0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, web_view);
+            return;
+        }
+    }
+
+    file = g_file_get_parent (icon_file);
+    parent = g_file_get_parent (file);
+    /* We need to check if file equals the parent due to a GIO bug */
+    if (parent && !g_file_equal (file, parent))
+    {
+        icon_file = g_file_get_child (parent, "favicon.ico");
+        g_file_query_info_async (icon_file,
+            G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+            G_FILE_QUERY_INFO_NONE, 0, NULL,
+            (GAsyncReadyCallback)file_info_finish_cb, web_view);
+        return;
+    }
+
+    pixbuf = gtk_widget_render_icon (GTK_WIDGET (web_view),
+        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
+                                             GDK_INTERP_BILINEAR);
+    g_object_unref (pixbuf);
+
+    web_view->icon = pixbuf_scaled;
+    g_signal_emit (web_view, signals[ICON_READY], 0, web_view->icon);
+}
+#endif
+
+static void
+_midori_web_view_load_icon (MidoriWebView* web_view)
+{
+    #if GLIB_CHECK_VERSION (2, 16, 0)
+    GFile* file;
+    GFile* icon_file;
+    #endif
+    GdkPixbuf* pixbuf;
+    gint icon_width, icon_height;
+    GdkPixbuf* pixbuf_scaled;
+
+    #if GLIB_CHECK_VERSION (2, 16, 0)
+    if (web_view->uri)
+    {
+        file = g_file_new_for_uri (web_view->uri);
+        icon_file = g_file_get_child (file, "favicon.ico");
+        g_file_query_info_async (icon_file,
+            G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+            G_FILE_QUERY_INFO_NONE, 0, NULL,
+            (GAsyncReadyCallback)file_info_finish_cb, web_view);
+        return;
+    }
+    #endif
+
+    pixbuf = gtk_widget_render_icon (GTK_WIDGET (web_view),
+        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
+                                             GDK_INTERP_BILINEAR);
+    g_object_unref (pixbuf);
+
+    web_view->icon = pixbuf_scaled;
+    g_signal_emit (web_view, signals[ICON_READY], 0, web_view->icon);
+}
+
 static void
 webkit_web_view_load_committed (MidoriWebView*  web_view,
                                 WebKitWebFrame* web_frame)
@@ -238,14 +367,33 @@ webkit_web_view_load_committed (MidoriWebView*  web_view,
     web_view->progress = 0;
     uri = webkit_web_frame_get_uri (web_frame);
     _midori_web_view_set_uri (web_view, uri);
+
+    icon = gtk_widget_render_icon (GTK_WIDGET (web_view),
+        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    katze_object_assign (web_view->icon, icon);
+    _midori_web_view_load_icon (web_view);
+
     if (web_view->tab_icon)
-    {
-        icon = gtk_widget_render_icon (GTK_WIDGET (web_view),
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
                                           icon);
-        g_object_unref (icon);
-    }
+
+    if (web_view->menu_item)
+        gtk_image_menu_item_set_image (
+            GTK_IMAGE_MENU_ITEM (web_view->menu_item),
+                gtk_image_new_from_pixbuf (icon));
+}
+
+static void
+webkit_web_view_icon_ready (MidoriWebView* web_view,
+                            GdkPixbuf*     icon)
+{
+    if (web_view->tab_icon)
+        katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
+                                          icon);
+    if (web_view->menu_item)
+            gtk_image_menu_item_set_image (
+                GTK_IMAGE_MENU_ITEM (web_view->menu_item),
+                    gtk_image_new_from_pixbuf (icon));
 }
 
 static void
@@ -276,34 +424,16 @@ webkit_web_view_load_finished (MidoriWebView* web_view)
 }
 
 static void
-webkit_web_frame_load_done (WebKitWebFrame* web_frame, gboolean success,
+webkit_web_frame_load_done (WebKitWebFrame* web_frame,
+                            gboolean        success,
                             MidoriWebView*  web_view)
 {
-    GdkPixbuf* icon;
-
     web_view->is_loading = FALSE;
     web_view->progress = -1;
-    katze_object_assign (web_view->icon, NULL);
 
-    if (web_view->tab_icon || web_view->menu_item)
-    {
-        icon = midori_web_view_get_icon (web_view);
-
-        if (web_view->tab_icon)
-        {
-            katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon),
-                                         FALSE);
-            katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
-                                              icon);
-        }
-
-        if (web_view->menu_item)
-            gtk_image_menu_item_set_image (
-                GTK_IMAGE_MENU_ITEM (web_view->menu_item),
-                    gtk_image_new_from_pixbuf (icon));
-
-        g_object_unref (icon);
-    }
+    if (web_view->tab_icon)
+        katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon),
+                                     FALSE);
     g_signal_emit (web_view, signals[LOAD_DONE], 0, web_frame);
 }
 
@@ -509,6 +639,8 @@ webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
 static void
 midori_web_view_init (MidoriWebView* web_view)
 {
+    web_view->icon = gtk_widget_render_icon (GTK_WIDGET (web_view),
+        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     web_view->is_loading = FALSE;
     web_view->progress = -1;
 
@@ -523,6 +655,8 @@ midori_web_view_init (MidoriWebView* web_view)
                       webkit_web_view_load_started, NULL, */
                       "signal::load-committed",
                       webkit_web_view_load_committed, NULL,
+                      "signal::icon-ready",
+                      webkit_web_view_icon_ready, NULL,
                       "signal::load-started",
                       webkit_web_view_load_started, NULL,
                       "signal::load-progress-changed",
@@ -691,21 +825,19 @@ GtkWidget*
 midori_web_view_get_proxy_menu_item (MidoriWebView* web_view)
 {
     const gchar* title;
-    GtkWidget* menu_item;
-    GdkPixbuf* icon;
 
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), FALSE);
 
     if (!web_view->menu_item)
     {
         title = midori_web_view_get_display_title (web_view);
-        menu_item = gtk_image_menu_item_new_with_label (title);
-        icon = midori_web_view_get_icon (web_view);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item),
-            gtk_image_new_from_pixbuf (icon));
-        g_object_unref (icon);
+        web_view->menu_item = gtk_image_menu_item_new_with_label (title);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (web_view->menu_item),
+            gtk_image_new_from_pixbuf (web_view->icon));
 
-        web_view->menu_item = menu_item;
+        g_signal_connect (web_view->menu_item, "destroy",
+                          G_CALLBACK (gtk_widget_destroyed),
+                          &web_view->menu_item);
     }
     return web_view->menu_item;
 }
@@ -727,17 +859,13 @@ midori_web_view_get_proxy_menu_item (MidoriWebView* web_view)
 GtkWidget*
 midori_web_view_get_proxy_tab_icon (MidoriWebView* web_view)
 {
-    GdkPixbuf* icon;
-
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
     if (!web_view->tab_icon)
     {
         web_view->tab_icon = katze_throbber_new ();
-        icon = midori_web_view_get_icon (web_view);
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (web_view->tab_icon),
-                                          icon);
-        g_object_unref (icon);
+                                          web_view->icon);
 
         g_signal_connect (web_view->tab_icon, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
@@ -903,79 +1031,4 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
     return web_view->link_uri;
-}
-
-/**
- * midori_web_view_get_icon:
- * @web_view: a #MidoriWebView
- *
- * Retrieves an icon associated with the currently loaded URI. If no
- * icon is available a default icon is used.
- *
- * The pixbuf is newly allocated and should be unreffed after use.
- *
- * Return value: a #GdkPixbuf
- **/
-GdkPixbuf*
-midori_web_view_get_icon (MidoriWebView* web_view)
-{
-    #if GLIB_CHECK_VERSION (2, 16, 0)
-    GFile* file;
-    GFile* parent;
-    GFile* icon_file;
-    GFileInfo* info;
-    const gchar* content_type;
-    GIcon* icon;
-    GInputStream* stream;
-    #endif
-    GdkPixbuf* pixbuf;
-
-    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
-
-    if (web_view->icon)
-        return g_object_ref (web_view->icon);
-
-    #if GLIB_CHECK_VERSION (2, 16, 0)
-    parent = g_file_new_for_uri (web_view->uri ? web_view->uri : "");
-    icon = NULL;
-    do
-    {
-        file = parent;
-        icon_file = g_file_get_child (file, "favicon.ico");
-        info = g_file_query_info (icon_file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                  G_FILE_QUERY_INFO_NONE, NULL, NULL);
-        if (info)
-        {
-            content_type = g_file_info_get_content_type (info);
-            icon = (!strcmp (content_type, "image/x-icon")
-                || !strcmp (content_type, "image/x-ico")
-                || !strcmp (content_type, "image/vnd.microsoft.icon"))
-                ? g_file_icon_new (icon_file) : NULL;
-        }
-
-        parent = g_file_get_parent (file);
-    }
-    while (!icon && parent && !g_file_equal (file, parent));
-    /* We need to check if file equals the parent due to a GIO bug */
-
-    if (icon && (stream = g_loadable_icon_load (G_LOADABLE_ICON (icon),
-                                                GTK_ICON_SIZE_MENU,
-                                                NULL, NULL, NULL)))
-    {
-        pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, NULL);
-        g_object_unref (stream);
-    }
-    else
-    #endif
-        pixbuf = gtk_widget_render_icon (GTK_WIDGET (web_view),
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    #if GLIB_CHECK_VERSION (2, 16, 0)
-    if (icon)
-        g_object_unref (icon);
-    g_object_unref (icon_file);
-    g_object_unref (file);
-    #endif
-
-    web_view->icon = pixbuf;
-    return g_object_ref (web_view->icon);
 }

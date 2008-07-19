@@ -12,10 +12,10 @@
 #ifndef __MIDORI_WEB_VIEW_H__
 #define __MIDORI_WEB_VIEW_H__
 
-#include <webkit/webkit.h>
+#include "midori-websettings.h"
 
 #include <katze/katze.h>
-#include "midori-websettings.h"
+#include <webkit/webkit.h>
 
 G_BEGIN_DECLS
 
@@ -40,6 +40,9 @@ struct _MidoriWebViewClass
     WebKitWebViewClass parent_class;
 
     /* Signals */
+    void
+    (*icon_ready)             (MidoriWebView*        web_view,
+                               GdkPixbuf*            icon);
     void
     (*progress_started)       (MidoriWebView*        web_view,
                                guint                 progress);
@@ -101,9 +104,6 @@ midori_web_view_get_display_title      (MidoriWebView*     web_view);
 
 const gchar*
 midori_web_view_get_link_uri           (MidoriWebView*     web_view);
-
-GdkPixbuf*
-midori_web_view_get_icon               (MidoriWebView*     web_view);
 
 G_END_DECLS
 
