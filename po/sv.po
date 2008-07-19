@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.0.17\n"
+"Project-Id-Version: midori 0.0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-04 16:06+0200\n"
+"POT-Creation-Date: 2008-07-19 16:00+0200\n"
 "PO-Revision-Date: 2008-03-23 21:05+0100\n"
 "Last-Translator: Mikael Magnusson <mikachu@comhem.se>\n"
 "Language-Team: Swedish\n"
@@ -20,1126 +20,1362 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "Liten webbläsare"
 
-#: ../midori.desktop.in.h:2
-msgid "Midori Web Browser"
-msgstr "Midori Webbläsare"
+#: ../midori.desktop.in.h:2 ../midori/main.c:354
+msgid "Midori"
+msgstr "Midori"
 
 #: ../midori.desktop.in.h:3
 msgid "Web Browser"
 msgstr "Webbläsare"
 
-#: ../src/main.c:47
+#: ../midori/main.c:45
 msgid "Bookmark"
 msgstr "Bokmärke"
 
-#: ../src/main.c:48
-msgid "New Bookmark"
-msgstr "Nytt Bokmärke"
+#: ../midori/main.c:46
+msgid "_Add Bookmark"
+msgstr ""
 
-#: ../src/main.c:49
+#: ../midori/main.c:47
 msgid "_Form Fill"
 msgstr "Fyll i _formulär"
 
-#: ../src/main.c:50 ../src/midori-websettings.c:131
-#: ../src/midori-websettings.c:407
-msgid "Homepage"
-msgstr "Hemsida"
+#: ../midori/main.c:48
+msgid "_Homepage"
+msgstr "_Hemsida"
 
-#: ../src/main.c:51
+#: ../midori/main.c:49
 msgid "New _Tab"
 msgstr "Ny _tabb"
 
-#: ../src/main.c:52
+#: ../midori/main.c:50
 msgid "New _Window"
 msgstr "Nytt _fönster"
 
-#: ../src/main.c:54
+#: ../midori/main.c:52
 msgid "Select _All"
 msgstr "Välj _alla"
 
-#: ../src/main.c:57
+#: ../midori/main.c:55
 msgid "_Fullscreen"
 msgstr "_Fullskärm"
 
-#: ../src/main.c:58
+#: ../midori/main.c:56
 msgid "_Leave Fullscreen"
 msgstr "_Lämna fullskärm"
 
-#: ../src/main.c:144
+#: ../midori/main.c:110
 #, c-format
 msgid "The configuration couldn't be loaded. %s\n"
 msgstr "Konfigurationsfilen kunde inte laddas. %s\n"
 
-#: ../src/main.c:193
+#: ../midori/main.c:165
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr ""
 
-#: ../src/main.c:200 ../src/main.c:256
+#: ../midori/main.c:172 ../midori/main.c:241
 #, c-format
-msgid "Unhandled settings property '%s'"
+msgid "Unhandled settings value '%s'"
 msgstr ""
 
-#: ../src/main.c:270 ../src/main.c:304
-msgid "midori"
-msgstr "midori"
-
-#: ../src/main.c:277
+#: ../midori/main.c:346
 msgid "Display program version"
 msgstr "Visa programversion"
 
-#: ../src/main.c:282
+#: ../midori/main.c:359
 msgid "[URL]"
 msgstr "[URL]"
 
-#: ../src/main.c:306
-msgid "Debugging"
-msgstr "Felsökning"
+#: ../midori/main.c:363 ../midori/main.c:365 ../midori/main.c:379
+msgid "midori"
+msgstr "midori"
 
-#: ../src/main.c:307
+#: ../midori/main.c:363
+msgid "Unknown argument."
+msgstr ""
+
+#: ../midori/main.c:365
+msgid "Failed to setup interface."
+msgstr ""
+
+#: ../midori/main.c:380
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Var god skicka kommentarer, förslag och buggrapporter till:"
 
-#: ../src/main.c:309
+#: ../midori/main.c:382
 msgid "Check for new versions at:"
 msgstr "Leta efter nya verioner på:"
 
-#: ../src/main.c:344
+#: ../midori/main.c:430
 #, c-format
 msgid "The bookmarks couldn't be loaded. %s\n"
 msgstr "Bokmärkena kunde inte laddas. %s\n"
 
-#: ../src/main.c:358
+#: ../midori/main.c:444
 #, c-format
 msgid "The session couldn't be loaded. %s\n"
 msgstr "Sessionen kunde inte laddas. %s\n"
 
-#: ../src/main.c:370
+#: ../midori/main.c:456
 #, c-format
 msgid "The trash couldn't be loaded. %s\n"
 msgstr "Papperskorgen kunde inte laddas. %s\n"
 
-#: ../src/main.c:380
+#: ../midori/main.c:468
 msgid "The following errors occured:"
 msgstr "Följande fel inträffade:"
 
-#: ../src/main.c:489
-#, fuzzy, c-format
+#: ../midori/main.c:606
+#, c-format
 msgid "The search engines couldn't be saved. %s"
-msgstr "Sessionen kunde inte laddas. %s\n"
+msgstr "Sökmotorer kunde inte sparad. %s"
 
-#: ../src/main.c:498
-#, fuzzy, c-format
+#: ../midori/main.c:616
+#, c-format
 msgid "The bookmarks couldn't be saved. %s"
-msgstr "Bokmärkena kunde inte laddas. %s\n"
+msgstr "Bokmärkena kunde inte sparad. %s"
 
-#: ../src/main.c:507
-#, fuzzy, c-format
+#: ../midori/main.c:625
+#, c-format
 msgid "The trash couldn't be saved. %s"
-msgstr "Papperskorgen kunde inte laddas. %s\n"
+msgstr "Papperskorgen kunde inte sparad. %s"
 
-#: ../src/main.c:519
-#, fuzzy, c-format
+#: ../midori/main.c:637
+#, c-format
 msgid "The session couldn't be saved. %s"
-msgstr "Sessionen kunde inte laddas. %s\n"
+msgstr "Sessionen kunde inte sparad. %s"
 
-#: ../src/main.c:528
-#, fuzzy, c-format
+#: ../midori/main.c:646
+#, c-format
 msgid "The configuration couldn't be saved. %s"
-msgstr "Konfigurationsfilen kunde inte laddas. %s\n"
+msgstr "Konfigurationsfilen kunde inte sparad. %s"
 
-#: ../src/midori-browser.c:193 ../src/midori-browser.c:2095
-#: ../src/midori-browser.c:2101
+#: ../midori/midori-app.c:114 ../midori/midori-browser.c:1327
+msgid "Settings"
+msgstr "Inställningar"
+
+#: ../midori/midori-app.c:115 ../midori/midori-browser.c:1328
+msgid "The associated settings"
+msgstr "De associerade inställningarna"
+
+#: ../midori/midori-app.c:123 ../midori/midori-browser.c:1366
+msgid "Trash"
+msgstr "Papperskorgen"
+
+#: ../midori/midori-app.c:124 ../midori/midori-browser.c:1367
+msgid "The trash, collecting recently closed tabs and windows"
+msgstr "Soptunnan, samlar senast stängda tabbar och fönster"
+
+#: ../midori/midori-app.c:132
+msgid "Browser"
+msgstr "Bläsare"
+
+#: ../midori/midori-app.c:133
+msgid "The current browser"
+msgstr ""
+
+#: ../midori/midori-app.c:141
+msgid "Browser Count"
+msgstr ""
+
+#: ../midori/midori-app.c:142
+msgid "The current number of browsers"
+msgstr ""
+
+#: ../midori/midori-app.c:150 ../midori/midori-browser.c:1380
+#: ../midori/midori-searchentry.c:66
+msgid "Search Engines"
+msgstr "Sökmotorer"
+
+#: ../midori/midori-app.c:151 ../midori/midori-searchentry.c:67
+msgid "The list of search engines"
+msgstr ""
+
+#: ../midori/midori-addons.c:40 ../midori/midori-browser.c:3594
+msgid "Extensions"
+msgstr ""
+
+#: ../midori/midori-addons.c:41 ../midori/midori-browser.c:3494
+msgid "Userscripts"
+msgstr ""
+
+#: ../midori/midori-addons.c:42
+msgid "Userstyles"
+msgstr ""
+
+#: ../midori/midori-browser.c:192
+msgid "Source"
+msgstr "Källkod"
+
+#: ../midori/midori-browser.c:273 ../midori/midori-browser.c:2786
+#: ../midori/midori-browser.c:2792
 msgid "Reload the current page"
 msgstr "Ladda om sidan"
 
-#: ../src/midori-browser.c:201 ../src/midori-browser.c:2098
+#: ../midori/midori-browser.c:282 ../midori/midori-browser.c:2789
 msgid "Stop loading the current page"
 msgstr "Sluta ladda sidan"
 
-#: ../src/midori-browser.c:264
+#: ../midori/midori-browser.c:337
 #, c-format
 msgid "%d%% loaded"
 msgstr "%d%% laddat"
 
-#: ../src/midori-browser.c:611
-msgid "Menubar"
-msgstr ""
-
-#: ../src/midori-browser.c:612
-#, fuzzy
-msgid "The menubar"
-msgstr "Hemsida"
-
-#: ../src/midori-browser.c:625 ../src/midori-preferences.c:317
-msgid "Navigationbar"
-msgstr "Navigeringsfält"
-
-#: ../src/midori-browser.c:626
-#, fuzzy
-msgid "The navigationbar"
-msgstr "Navigeringsfält"
-
-#: ../src/midori-browser.c:639
-msgid "Tab"
-msgstr ""
-
-#: ../src/midori-browser.c:640
-#, fuzzy
-msgid "The current tab"
-msgstr "Stäng den här tabben"
-
-#: ../src/midori-browser.c:653
-#, fuzzy
-msgid "Statusbar"
-msgstr "_Statusrad"
-
-#: ../src/midori-browser.c:654
-#, fuzzy
-msgid "The statusbar"
-msgstr "_Statusrad"
-
-#: ../src/midori-browser.c:670
-#, fuzzy
-msgid "Settings"
-msgstr "Typsnittinställningar"
-
-#: ../src/midori-browser.c:671
-msgid "The associated settings"
-msgstr "De associerade inställningarna"
-
-#: ../src/midori-browser.c:690
-#, fuzzy
-msgid "Statusbar Text"
-msgstr "_Statusrad"
-
-#: ../src/midori-browser.c:691 ../src/midori-webview.c:244
-msgid "The text that is displayed in the statusbar"
-msgstr "Texten som visas i statusraden"
-
-#: ../src/midori-browser.c:709
-#, fuzzy
-msgid "Trash"
-msgstr "Visa _papperskorgen"
-
-#: ../src/midori-browser.c:710
-msgid "The trash, collecting recently closed tabs and windows"
-msgstr "Soptunnan, samlar senast stängda tabbar och fönster"
-
-#: ../src/midori-browser.c:1294
+#: ../midori/midori-browser.c:560
 msgid "New bookmark"
 msgstr "Nytt bokmärke"
 
-#: ../src/midori-browser.c:1294
+#: ../midori/midori-browser.c:560
 msgid "Edit bookmark"
 msgstr "Redigera bokmärke"
 
-#: ../src/midori-browser.c:1311
+#: ../midori/midori-browser.c:584
 msgid "_Title:"
 msgstr "_Titel:"
 
-#: ../src/midori-browser.c:1327 ../src/webSearch.c:233
+#: ../midori/midori-browser.c:597 ../midori/midori-searchentry.c:567
 msgid "_Description:"
 msgstr "_Beskrivning"
 
-#: ../src/midori-browser.c:1346 ../src/webSearch.c:247
+#: ../midori/midori-browser.c:616 ../midori/midori-searchentry.c:581
 msgid "_URL:"
 msgstr "_URL:"
 
-#: ../src/midori-browser.c:1364
+#: ../midori/midori-browser.c:633
 msgid "_Folder:"
 msgstr "_Mapp:"
 
-#: ../src/midori-browser.c:1368
+#: ../midori/midori-browser.c:637
 msgid "Root"
 msgstr "Rot"
 
-#: ../src/midori-browser.c:1591
-msgid "<i>Separator</i>"
-msgstr "<i>Avskiljare</i>"
-
-#: ../src/midori-browser.c:1780
-msgid "A lightweight web browser."
-msgstr "En liten webbläsare."
-
-#: ../src/midori-browser.c:1788
-msgid "translator-credits"
-msgstr "Mikael Magnusson <mikachu@comhem.se>"
-
-#: ../src/midori-browser.c:2015
-msgid "_File"
-msgstr "_Fil"
-
-#: ../src/midori-browser.c:2018
-msgid "Open a new window"
-msgstr "Öppna i nytt fönster"
-
-#: ../src/midori-browser.c:2021
-msgid "Open a new tab"
-msgstr "Öppna i ny tabb"
-
-#: ../src/midori-browser.c:2024
-msgid "Open a file"
-msgstr "Öppna en fil"
-
-#: ../src/midori-browser.c:2027
-msgid "Save to a file"
-msgstr "Spara till fil"
-
-#: ../src/midori-browser.c:2029
-msgid "_Close Tab"
-msgstr "_Stäng tabb"
-
-#: ../src/midori-browser.c:2030
-msgid "Close the current tab"
-msgstr "Stäng den här tabben"
-
-#: ../src/midori-browser.c:2032
-msgid "C_lose Window"
-msgstr "S_täng fönster"
-
-#: ../src/midori-browser.c:2033
-msgid "Close this window"
-msgstr "Stäng det här fönstret"
-
-#: ../src/midori-browser.c:2035
-msgid "Pa_ge Setup"
-msgstr "_Sidinställningar"
-
-#: ../src/midori-browser.c:2045
-msgid "Quit the application"
-msgstr "Avsluta programmet"
-
-#: ../src/midori-browser.c:2047
-msgid "_Edit"
-msgstr "_Redigera"
-
-#: ../src/midori-browser.c:2050
-msgid "Undo the last modification"
-msgstr "Ångra senaste ändringen"
-
-#: ../src/midori-browser.c:2053
-msgid "Redo the last modification"
-msgstr "Gör om senaste ändringen"
-
-#: ../src/midori-browser.c:2059 ../src/midori-browser.c:2062
-msgid "Copy the selected text"
-msgstr "Kopiera markerad text"
-
-#: ../src/midori-browser.c:2065
-msgid "Paste text from the clipboard"
-msgstr "Klistra in text från klippbordet"
-
-#: ../src/midori-browser.c:2068
-msgid "Delete the selected text"
-msgstr "Ta bort markerad text"
-
-#: ../src/midori-browser.c:2071
-msgid "Select all text"
-msgstr "Markera all text"
-
-#: ../src/midori-browser.c:2079
-msgid "Find _Next"
-msgstr "Hitta _nästa"
-
-#: ../src/midori-browser.c:2082
-msgid "Find _Previous"
-msgstr "Hitta _förra"
-
-#: ../src/midori-browser.c:2085
-msgid "_Quick Find"
-msgstr "_Snabbsök"
-
-#: ../src/midori-browser.c:2091
-msgid "_View"
-msgstr "_Visa"
-
-#: ../src/midori-browser.c:2092
-msgid "_Toolbars"
-msgstr "_Verktygsfält"
-
-#: ../src/midori-browser.c:2112
-msgid "View Source"
-msgstr "Visa källkod"
-
-#: ../src/midori-browser.c:2115
-msgid "View Selection Source"
-msgstr "Visa källkod för markering"
-
-#: ../src/midori-browser.c:2119
-msgid "Toggle fullscreen view"
-msgstr "Växla fullskärmsläge"
-
-#: ../src/midori-browser.c:2121
-msgid "_Go"
-msgstr "_Gå"
-
-#: ../src/midori-browser.c:2132
-msgid "Location..."
-msgstr "Plats..."
-
-#: ../src/midori-browser.c:2135
-msgid "Web Search..."
-msgstr "Webbsökning..."
-
-#: ../src/midori-browser.c:2138
-msgid "Open in Page_holder..."
-msgstr "Visa i sid_hållare..."
-
-#: ../src/midori-browser.c:2141
-msgid "Closed Tabs and Windows"
-msgstr "Stängda tabbar och fönster"
-
-#: ../src/midori-browser.c:2142
-msgid "Reopen a previously closed tab or window"
-msgstr "Öppna en tidigare stängd tabb eller fönster"
-
-#: ../src/midori-browser.c:2144
-msgid "Empty Trash"
-msgstr "Töm papperskorgen"
-
-#: ../src/midori-browser.c:2147
-msgid "Undo Close Tab"
-msgstr "Ångra stäng tabb"
-
-#: ../src/midori-browser.c:2150
-msgid "_Bookmarks"
-msgstr "_Bokmärken"
-
-#: ../src/midori-browser.c:2155
-msgid "_Manage Bookmarks"
-msgstr "_Hantera bokmärken"
-
-#: ../src/midori-browser.c:2161
-msgid "Open in New _Tab"
-msgstr "Öppna i ny _tabb"
-
-#: ../src/midori-browser.c:2164
-msgid "Open in New _Window"
-msgstr "Öppna i nytt _fönster"
-
-#: ../src/midori-browser.c:2173
-msgid "_Tools"
-msgstr "_Verktyg"
-
-#: ../src/midori-browser.c:2175
-msgid "_Manage Search Engines"
-msgstr "_Hantera sökmotorer"
-
-#: ../src/midori-browser.c:2176
-msgid "Add, edit and remove search engines..."
-msgstr "Lägg till, ändra och ta bort sökmotorer..."
-
-#: ../src/midori-browser.c:2179
-msgid "_Window"
-msgstr "_Fönster"
-
-#: ../src/midori-browser.c:2181
-msgid "_Previous Tab"
-msgstr "_Föregående tabb"
-
-#: ../src/midori-browser.c:2184
-msgid "_Next Tab"
-msgstr "_Nästa tabb"
-
-#: ../src/midori-browser.c:2187
-msgid "Tab _Overview"
-msgstr "Tabbö_versikt"
-
-#. G_CALLBACK (_action_tab_overview_activate)
-#: ../src/midori-browser.c:2190
-msgid "_Help"
-msgstr "_Hjälp"
-
-#: ../src/midori-browser.c:2192
-msgid "_Contents"
-msgstr "_Innehåll"
-
-#: ../src/midori-browser.c:2202
-msgid "P_rivate Browsing"
-msgstr "P_rivat läge"
-
-#: ../src/midori-browser.c:2206
-msgid "_Work Offline"
-msgstr "_Arbeta offline"
-
-#: ../src/midori-browser.c:2211
-msgid "_Navigationbar"
-msgstr "_Navigationsfält"
-
-#: ../src/midori-browser.c:2215
-msgid "Side_panel"
-msgstr "Sido_panel"
-
-#: ../src/midori-browser.c:2219
-msgid "_Bookmarkbar"
-msgstr "_Bokmärkesfält"
-
-#: ../src/midori-browser.c:2223
-msgid "_Transferbar"
-msgstr "Ö_verföringsfält"
-
-#: ../src/midori-browser.c:2227
-msgid "_Statusbar"
-msgstr "_Statusrad"
-
-#: ../src/midori-browser.c:2681
-msgid "Bookmarks"
-msgstr "Bokmärken"
-
-#. TODO: We need something like "use current website"
-#: ../src/midori-browser.c:2688 ../src/midori-preferences.c:251
-msgid "Transfers"
-msgstr "Överföringar"
-
-#: ../src/midori-browser.c:2697
-msgid "Console"
-msgstr "Konsol"
-
-#: ../src/midori-browser.c:2704 ../src/midori-preferences.c:380
-msgid "History"
-msgstr "Historia"
-
-#: ../src/midori-browser.c:2713
-msgid "Pageholder"
-msgstr "Sidhållare"
-
-#: ../src/midori-browser.c:2722
-#, fuzzy
-msgid "Userscripts"
-msgstr "Aktivera _skript"
-
-#: ../src/midori-browser.c:2748
-msgid "_Inline find:"
-msgstr "_Snabbsökning:"
-
-#: ../src/midori-browser.c:2774
-msgid "Match Case"
-msgstr "_Gör skillnad på skiftläge"
-
-#: ../src/midori-browser.c:2791
-msgid "Close Findbar"
-msgstr "Stäng sökfältet"
-
-#: ../src/midori-browser.c:2815
-msgid "Extensions"
-msgstr ""
-
-#: ../src/midori-browser.c:2973 ../src/midori-webview.c:573
-#, fuzzy, c-format
-msgid "Unexpected setting '%s'"
-msgstr "Avancerade inställningar"
-
-#: ../src/midori-browser.c:3278
+#: ../midori/midori-browser.c:1064
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr ""
 
-#: ../src/midori-panel.c:147
+#: ../midori/midori-browser.c:1283
+msgid "Menubar"
+msgstr ""
+
+#: ../midori/midori-browser.c:1284
+msgid "The menubar"
+msgstr ""
+
+#: ../midori/midori-browser.c:1292 ../midori/midori-preferences.c:374
+msgid "Navigationbar"
+msgstr "Navigeringsfält"
+
+#: ../midori/midori-browser.c:1293
+msgid "The navigationbar"
+msgstr ""
+
+#: ../midori/midori-browser.c:1301
+msgid "Tab"
+msgstr ""
+
+#: ../midori/midori-browser.c:1302
+msgid "The current tab"
+msgstr ""
+
+#: ../midori/midori-browser.c:1310
+msgid "Statusbar"
+msgstr "Statusrad"
+
+#: ../midori/midori-browser.c:1311
+msgid "The statusbar"
+msgstr ""
+
+#: ../midori/midori-browser.c:1347
+msgid "Statusbar Text"
+msgstr ""
+
+#: ../midori/midori-browser.c:1348 ../midori/midori-webview.c:211
+msgid "The text that is displayed in the statusbar"
+msgstr "Texten som visas i statusraden"
+
+#: ../midori/midori-browser.c:1381
+msgid "The list of search engines to be used for web search"
+msgstr ""
+
+#: ../midori/midori-browser.c:2318
+msgid "<i>Separator</i>"
+msgstr "<i>Avskiljare</i>"
+
+#: ../midori/midori-browser.c:2483
+msgid "A lightweight web browser."
+msgstr "En liten webbläsare."
+
+#: ../midori/midori-browser.c:2491
+msgid "translator-credits"
+msgstr "Mikael Magnusson <mikachu@comhem.se>"
+
+#: ../midori/midori-browser.c:2709
+msgid "_File"
+msgstr "_Fil"
+
+#: ../midori/midori-browser.c:2712
+msgid "Open a new window"
+msgstr "Öppna i nytt fönster"
+
+#: ../midori/midori-browser.c:2715
+msgid "Open a new tab"
+msgstr "Öppna i ny tabb"
+
+#: ../midori/midori-browser.c:2718
+msgid "Open a file"
+msgstr "Öppna en fil"
+
+#: ../midori/midori-browser.c:2721
+msgid "Save to a file"
+msgstr "Spara till fil"
+
+#: ../midori/midori-browser.c:2723
+msgid "_Close Tab"
+msgstr "_Stäng tabb"
+
+#: ../midori/midori-browser.c:2724
+msgid "Close the current tab"
+msgstr "Stäng den här tabben"
+
+#: ../midori/midori-browser.c:2726
+msgid "C_lose Window"
+msgstr "S_täng fönster"
+
+#: ../midori/midori-browser.c:2727
+msgid "Close this window"
+msgstr "Stäng det här fönstret"
+
+#: ../midori/midori-browser.c:2729
+msgid "Pa_ge Setup"
+msgstr "_Sidinställningar"
+
+#: ../midori/midori-browser.c:2733
+msgid "Show a preview of the printed page"
+msgstr ""
+
+#: ../midori/midori-browser.c:2736
+msgid "Print the current page"
+msgstr ""
+
+#: ../midori/midori-browser.c:2739
+msgid "Quit the application"
+msgstr "Avsluta programmet"
+
+#: ../midori/midori-browser.c:2741
+msgid "_Edit"
+msgstr "_Redigera"
+
+#: ../midori/midori-browser.c:2744
+msgid "Undo the last modification"
+msgstr "Ångra senaste ändringen"
+
+#: ../midori/midori-browser.c:2747
+msgid "Redo the last modification"
+msgstr "Gör om senaste ändringen"
+
+#: ../midori/midori-browser.c:2750
+msgid "Cut the selected text"
+msgstr "Klippa ut markerad text"
+
+#: ../midori/midori-browser.c:2753 ../midori/midori-browser.c:2756
+msgid "Copy the selected text"
+msgstr "Kopiera markerad text"
+
+#: ../midori/midori-browser.c:2759
+msgid "Paste text from the clipboard"
+msgstr "Klistra in text från klippbordet"
+
+#: ../midori/midori-browser.c:2762
+msgid "Delete the selected text"
+msgstr "Ta bort markerad text"
+
+#: ../midori/midori-browser.c:2765
+msgid "Select all text"
+msgstr "Markera all text"
+
+#: ../midori/midori-browser.c:2768
+msgid "Find a word or phrase in the page"
+msgstr ""
+
+#: ../midori/midori-browser.c:2770
+msgid "Find _Next"
+msgstr "Hitta _nästa"
+
+#: ../midori/midori-browser.c:2771
+msgid "Find the next occurrence of a word or phrase"
+msgstr ""
+
+#: ../midori/midori-browser.c:2773
+msgid "Find _Previous"
+msgstr "Hitta _förra"
+
+#: ../midori/midori-browser.c:2774
+msgid "Find the previous occurrence of a word or phrase"
+msgstr ""
+
+#: ../midori/midori-browser.c:2776
+msgid "_Quick Find"
+msgstr "_Snabbsök"
+
+#: ../midori/midori-browser.c:2777
+msgid "Quickly jump to a word or phrase"
+msgstr ""
+
+#: ../midori/midori-browser.c:2780
+msgid "Configure the application preferences"
+msgstr ""
+
+#: ../midori/midori-browser.c:2782
+msgid "_View"
+msgstr "_Visa"
+
+#: ../midori/midori-browser.c:2783
+msgid "_Toolbars"
+msgstr "_Verktygsfält"
+
+#: ../midori/midori-browser.c:2795
+msgid "Increase the zoom level"
+msgstr ""
+
+#: ../midori/midori-browser.c:2798
+msgid "Decrease the zoom level"
+msgstr ""
+
+#: ../midori/midori-browser.c:2801
+msgid "Reset the zoom level"
+msgstr ""
+
+#: ../midori/midori-browser.c:2803
+msgid "View _Source"
+msgstr "Visa _källkod"
+
+#: ../midori/midori-browser.c:2804
+msgid "View the source code of the page"
+msgstr ""
+
+#: ../midori/midori-browser.c:2806
+msgid "View Selection Source"
+msgstr "Visa källkod för markering"
+
+#: ../midori/midori-browser.c:2807
+msgid "View the source code of the selection"
+msgstr ""
+
+#: ../midori/midori-browser.c:2810
+msgid "Toggle fullscreen view"
+msgstr "Växla fullskärmsläge"
+
+#: ../midori/midori-browser.c:2812
+msgid "_Go"
+msgstr "_Gå"
+
+#: ../midori/midori-browser.c:2815
+msgid "Go back to the previous page"
+msgstr ""
+
+#: ../midori/midori-browser.c:2818
+msgid "Go forward to the next page"
+msgstr ""
+
+#: ../midori/midori-browser.c:2821
+msgid "Go to your homepage"
+msgstr ""
+
+#: ../midori/midori-browser.c:2823
+msgid "Location..."
+msgstr "Plats..."
+
+#: ../midori/midori-browser.c:2824
+msgid "Open a particular location"
+msgstr ""
+
+#: ../midori/midori-browser.c:2826
+msgid "Web Search..."
+msgstr "Webbsökning..."
+
+#: ../midori/midori-browser.c:2827
+msgid "Run a web search"
+msgstr ""
+
+#: ../midori/midori-browser.c:2829
+msgid "Open in Page_holder..."
+msgstr "Visa i sid_hållare..."
+
+#: ../midori/midori-browser.c:2830
+msgid "Open the current page in the pageholder"
+msgstr ""
+
+#: ../midori/midori-browser.c:2832
+msgid "Closed Tabs and Windows"
+msgstr "Stängda tabbar och fönster"
+
+#: ../midori/midori-browser.c:2833
+msgid "Reopen a previously closed tab or window"
+msgstr "Öppna en tidigare stängd tabb eller fönster"
+
+#: ../midori/midori-browser.c:2835
+msgid "Empty Trash"
+msgstr "Töm papperskorgen"
+
+#: ../midori/midori-browser.c:2836
+msgid "Delete the contents of the trash"
+msgstr ""
+
+#: ../midori/midori-browser.c:2838
+msgid "Undo Close Tab"
+msgstr "Ångra stäng tabb"
+
+#: ../midori/midori-browser.c:2839
+msgid "Open the last closed tab"
+msgstr ""
+
+#: ../midori/midori-browser.c:2841
+msgid "_Bookmarks"
+msgstr "_Bokmärken"
+
+#: ../midori/midori-browser.c:2844
+msgid "Add a new bookmark"
+msgstr ""
+
+#: ../midori/midori-browser.c:2846
+msgid "_Manage Bookmarks"
+msgstr "_Hantera bokmärken"
+
+#: ../midori/midori-browser.c:2847
+msgid "Add, edit and remove bookmarks..."
+msgstr "Lägg till, ändra och ta bort bokmärken..."
+
+#: ../midori/midori-browser.c:2850
+msgid "Open the selected bookmark"
+msgstr "Kopiera markerad bokmärke"
+
+#: ../midori/midori-browser.c:2852
+msgid "Open in New _Tab"
+msgstr "Öppna i ny _tabb"
+
+#: ../midori/midori-browser.c:2853
+msgid "Open the selected bookmark in a new tab"
+msgstr ""
+
+#: ../midori/midori-browser.c:2855
+msgid "Open in New _Window"
+msgstr "Öppna i nytt _fönster"
+
+#: ../midori/midori-browser.c:2856
+msgid "Open the selected bookmark in a new window"
+msgstr ""
+
+#: ../midori/midori-browser.c:2859
+msgid "Edit the selected bookmark"
+msgstr ""
+
+#: ../midori/midori-browser.c:2862
+msgid "Delete the selected bookmark"
+msgstr "Ta bort markerad bokmärke"
+
+#: ../midori/midori-browser.c:2864
+msgid "_Tools"
+msgstr "_Verktyg"
+
+#: ../midori/midori-browser.c:2866 ../midori/midori-searchentry.c:161
+msgid "_Manage Search Engines"
+msgstr "_Hantera sökmotorer"
+
+#: ../midori/midori-browser.c:2867
+msgid "Add, edit and remove search engines..."
+msgstr "Lägg till, ändra och ta bort sökmotorer..."
+
+#: ../midori/midori-browser.c:2870
+msgid "_Window"
+msgstr "_Fönster"
+
+#: ../midori/midori-browser.c:2872
+msgid "_Previous Tab"
+msgstr "_Föregående tabb"
+
+#: ../midori/midori-browser.c:2873
+msgid "Switch to the previous tab"
+msgstr ""
+
+#: ../midori/midori-browser.c:2875
+msgid "_Next Tab"
+msgstr "_Nästa tabb"
+
+#: ../midori/midori-browser.c:2876
+msgid "Switch to the next tab"
+msgstr ""
+
+#: ../midori/midori-browser.c:2878
+msgid "Tab _Overview"
+msgstr "Tabbö_versikt"
+
+#: ../midori/midori-browser.c:2879
+msgid "Show an overview of all open tabs"
+msgstr ""
+
+#. G_CALLBACK (_action_tab_overview_activate)
+#: ../midori/midori-browser.c:2881
+msgid "_Help"
+msgstr "_Hjälp"
+
+#: ../midori/midori-browser.c:2883
+msgid "_Contents"
+msgstr "_Innehåll"
+
+#: ../midori/midori-browser.c:2884
+msgid "Show the documentation"
+msgstr ""
+
+#: ../midori/midori-browser.c:2887
+msgid "Show information about the program"
+msgstr ""
+
+#: ../midori/midori-browser.c:2893
+msgid "P_rivate Browsing"
+msgstr "P_rivat läge"
+
+#: ../midori/midori-browser.c:2894
+msgid "Don't save any private data while browsing"
+msgstr ""
+
+#: ../midori/midori-browser.c:2897
+msgid "_Work Offline"
+msgstr "_Arbeta offline"
+
+#: ../midori/midori-browser.c:2898
+msgid "Work without a network connection"
+msgstr ""
+
+#: ../midori/midori-browser.c:2902
+msgid "_Navigationbar"
+msgstr "_Navigationsfält"
+
+#: ../midori/midori-browser.c:2903
+msgid "Show navigationbar"
+msgstr "Visa navigeringsfält"
+
+#: ../midori/midori-browser.c:2906
+msgid "Side_panel"
+msgstr "Sido_panel"
+
+#: ../midori/midori-browser.c:2907
+msgid "Show sidepanel"
+msgstr "Visa sido_panel"
+
+#: ../midori/midori-browser.c:2910
+msgid "_Bookmarkbar"
+msgstr "_Bokmärkesfält"
+
+#: ../midori/midori-browser.c:2911
+msgid "Show bookmarkbar"
+msgstr "Visa bokmärkesfält"
+
+#: ../midori/midori-browser.c:2914
+msgid "_Transferbar"
+msgstr "Ö_verföringsfält"
+
+#: ../midori/midori-browser.c:2915
+msgid "Show transferbar"
+msgstr "Visa statusrad"
+
+#: ../midori/midori-browser.c:2918
+msgid "_Statusbar"
+msgstr "_Statusrad"
+
+#: ../midori/midori-browser.c:2919
+msgid "Show statusbar"
+msgstr "Visa statusrad"
+
+#: ../midori/midori-browser.c:3453
+msgid "Bookmarks"
+msgstr "Bokmärken"
+
+#. TODO: We need something like "use current website"
+#: ../midori/midori-browser.c:3460 ../midori/midori-preferences.c:279
+msgid "Transfers"
+msgstr "Överföringar"
+
+#: ../midori/midori-browser.c:3469
+msgid "Console"
+msgstr "Konsol"
+
+#: ../midori/midori-browser.c:3476 ../midori/midori-preferences.c:437
+msgid "History"
+msgstr "Historia"
+
+#: ../midori/midori-browser.c:3485
+msgid "Pageholder"
+msgstr "Sidhållare"
+
+#: ../midori/midori-browser.c:3520
+msgid "_Inline find:"
+msgstr "_Snabbsökning:"
+
+#: ../midori/midori-browser.c:3553
+msgid "Match Case"
+msgstr "_Gör skillnad på skiftläge"
+
+#: ../midori/midori-browser.c:3570
+msgid "Close Findbar"
+msgstr "Stäng sökfältet"
+
+#: ../midori/midori-browser.c:3807
+#, c-format
+msgid "Unexpected setting '%s'"
+msgstr ""
+
+#: ../midori/midori-panel.c:147
 msgid "Appearance of the shadow around each panel"
 msgstr "Utseende på skuggan runt varje panel"
 
-#: ../src/midori-panel.c:157
+#: ../midori/midori-panel.c:157
 msgid "Menu to hold panel items"
 msgstr "Meny för att visa panelföremål"
 
-#: ../src/midori-panel.c:166
+#: ../midori/midori-panel.c:166
 msgid "The index of the current page"
 msgstr "Indexet för nuvarande sida"
 
-#: ../src/midori-panel.c:212 ../src/midori-panel.c:213
+#: ../midori/midori-panel.c:206 ../midori/midori-panel.c:207
 msgid "Close panel"
 msgstr "Stäng panel"
 
-#: ../src/midori-panel.c:391
+#: ../midori/midori-panel.c:392
 msgid "Untitled"
 msgstr "Namnlös"
 
-#: ../src/midori-trash.c:97
-msgid "The maximum number of items"
-msgstr "Maximalt antal föremål"
-
-#: ../src/midori-websettings.c:130
-#, fuzzy
+#: ../midori/midori-websettings.c:130
 msgid "Blank page"
 msgstr "Tom sida"
 
-#: ../src/midori-websettings.c:132
-#, fuzzy
-msgid "Last open pages"
-msgstr "Senaste öppna sidor"
+#: ../midori/midori-websettings.c:131 ../midori/midori-websettings.c:411
+msgid "Homepage"
+msgstr "Hemsida"
 
-#: ../src/midori-websettings.c:147
+#: ../midori/midori-websettings.c:132
+msgid "Last open pages"
+msgstr ""
+
+#: ../midori/midori-websettings.c:147
 msgid "Chinese (BIG5)"
 msgstr "Kinesiska (BIG5)"
 
-#: ../src/midori-websettings.c:148
+#: ../midori/midori-websettings.c:148
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Japanska (SHIFT_JIS)"
 
-#: ../src/midori-websettings.c:149
+#: ../midori/midori-websettings.c:149
 msgid "Russian (KOI8-R)"
 msgstr "Ryska (KOI8-R)"
 
-#: ../src/midori-websettings.c:150
+#: ../midori/midori-websettings.c:150
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../src/midori-websettings.c:151
+#: ../midori/midori-websettings.c:151
 msgid "Western (ISO-8859-1)"
 msgstr "Västerländsk (ISO-8859-1)"
 
-#: ../src/midori-websettings.c:152
+#: ../midori/midori-websettings.c:152
 msgid "Custom..."
 msgstr ""
 
-#: ../src/midori-websettings.c:167
+#: ../midori/midori-websettings.c:167
 msgid "New tab"
 msgstr "Ny tabb"
 
-#: ../src/midori-websettings.c:168
+#: ../midori/midori-websettings.c:168
 msgid "New window"
 msgstr "Nytt fönster"
 
-#: ../src/midori-websettings.c:169
+#: ../midori/midori-websettings.c:169
 msgid "Current tab"
 msgstr "Nuvarande tabb"
 
-#: ../src/midori-websettings.c:184
+#: ../midori/midori-websettings.c:184
 msgid "Default"
 msgstr "Standard"
 
-#: ../src/midori-websettings.c:185
+#: ../midori/midori-websettings.c:185
 msgid "Icons"
 msgstr "Ikoner"
 
-#: ../src/midori-websettings.c:186
+#: ../midori/midori-websettings.c:186
 msgid "Text"
 msgstr "Text"
 
-#: ../src/midori-websettings.c:187
+#: ../midori/midori-websettings.c:187
 msgid "Both"
 msgstr "Både och"
 
-#: ../src/midori-websettings.c:188
+#: ../midori/midori-websettings.c:188
 msgid "Both horizontal"
 msgstr "Båda horisontellt"
 
-#: ../src/midori-websettings.c:203
+#: ../midori/midori-websettings.c:203
 msgid "All cookies"
 msgstr "Alla kakor"
 
-#: ../src/midori-websettings.c:204
+#: ../midori/midori-websettings.c:204
 msgid "Session cookies"
 msgstr "Sessionskakor"
 
-#: ../src/midori-websettings.c:205
+#: ../midori/midori-websettings.c:205
 msgid "None"
 msgstr "Inga"
 
-#: ../src/midori-websettings.c:247
-#, fuzzy
+#: ../midori/midori-websettings.c:242
 msgid "Remember last window size"
-msgstr "Kom ihåg mina nerladdade filer"
+msgstr ""
 
-#: ../src/midori-websettings.c:248
+#: ../midori/midori-websettings.c:243
 msgid "Whether to save the last window size"
 msgstr ""
 
-#: ../src/midori-websettings.c:256
+#: ../midori/midori-websettings.c:251
 msgid "Last window width"
 msgstr ""
 
-#: ../src/midori-websettings.c:257
+#: ../midori/midori-websettings.c:252
 msgid "The last saved window width"
 msgstr ""
 
-#: ../src/midori-websettings.c:265
+#: ../midori/midori-websettings.c:260
 msgid "Last window height"
 msgstr ""
 
-#: ../src/midori-websettings.c:266
+#: ../midori/midori-websettings.c:261
 msgid "The last saved window height"
 msgstr ""
 
-#: ../src/midori-websettings.c:274
+#: ../midori/midori-websettings.c:269
 msgid "Last panel position"
 msgstr ""
 
-#: ../src/midori-websettings.c:275
+#: ../midori/midori-websettings.c:270
 msgid "The last saved panel position"
 msgstr ""
 
-#: ../src/midori-websettings.c:283
-#, fuzzy
+#: ../midori/midori-websettings.c:278
 msgid "Last panel page"
-msgstr "Senaste öppna sidor"
+msgstr ""
 
-#: ../src/midori-websettings.c:284
+#: ../midori/midori-websettings.c:279
 msgid "The last saved panel page"
 msgstr ""
 
-#: ../src/midori-websettings.c:292
-#, fuzzy
+#: ../midori/midori-websettings.c:287
 msgid "Last Web search"
-msgstr "Webbsökning"
+msgstr ""
 
-#: ../src/midori-websettings.c:293
+#: ../midori/midori-websettings.c:288
 msgid "The last saved Web search"
 msgstr ""
 
-#: ../src/midori-websettings.c:301
-#, fuzzy
+#: ../midori/midori-websettings.c:296
 msgid "Last pageholder URI"
-msgstr "Sidhållare"
+msgstr ""
 
-#: ../src/midori-websettings.c:302
+#: ../midori/midori-websettings.c:297
 msgid "The URI last opened in the pageholder"
 msgstr ""
 
-#: ../src/midori-websettings.c:312
-#, fuzzy
+#: ../midori/midori-websettings.c:307
 msgid "Show Navigationbar"
-msgstr "Navigeringsfält"
+msgstr "Visa Navigeringsfält"
 
-#: ../src/midori-websettings.c:313
+#: ../midori/midori-websettings.c:308
 msgid "Whether to show the navigationbar"
 msgstr ""
 
-#: ../src/midori-websettings.c:321
-#, fuzzy
+#: ../midori/midori-websettings.c:316
 msgid "Show Bookmarkbar"
-msgstr "_Bokmärkesfält"
+msgstr "Visa Bokmärkesfält"
 
-#: ../src/midori-websettings.c:322
+#: ../midori/midori-websettings.c:317
 msgid "Whether to show the bookmarkbar"
 msgstr ""
 
-#: ../src/midori-websettings.c:330
+#: ../midori/midori-websettings.c:325
 msgid "Show Panel"
+msgstr "Visa Sidopanel"
+
+#: ../midori/midori-websettings.c:326
+msgid "Whether to show the panel"
 msgstr ""
 
-#: ../src/midori-websettings.c:331
-#, fuzzy
-msgid "Whether to show the panel"
-msgstr "Ifall aktivitetssymbolen ska animeras"
-
-#: ../src/midori-websettings.c:339
-#, fuzzy
+#: ../midori/midori-websettings.c:334
 msgid "Show Statusbar"
-msgstr "_Statusrad"
+msgstr "Visa Statusrad"
 
-#: ../src/midori-websettings.c:340
-#, fuzzy
+#: ../midori/midori-websettings.c:335
 msgid "Whether to show the statusbar"
-msgstr "Texten som visas i statusraden"
+msgstr ""
 
-#: ../src/midori-websettings.c:349
-#, fuzzy
+#: ../midori/midori-websettings.c:344
 msgid "Toolbar Style"
-msgstr "S_til för verktygsfält"
+msgstr "Stil för verktygsfält"
 
-#: ../src/midori-websettings.c:350
+#: ../midori/midori-websettings.c:345
 msgid "The style of the toolbar"
 msgstr ""
 
-#: ../src/midori-websettings.c:359
+#: ../midori/midori-websettings.c:354
 msgid "Small toolbar"
-msgstr ""
+msgstr "Små verktygsfält"
 
-#: ../src/midori-websettings.c:360
-#, fuzzy
+#: ../midori/midori-websettings.c:355
 msgid "Use small toolbar icons"
-msgstr "Visa små _ikoner"
+msgstr "Visa små ikoner"
 
-#: ../src/midori-websettings.c:368
-#, fuzzy
+#: ../midori/midori-websettings.c:363
 msgid "Show New Tab"
-msgstr "Visa _ny tabb"
+msgstr "Visa Ny tabb"
 
-#: ../src/midori-websettings.c:369
+#: ../midori/midori-websettings.c:364
 msgid "Show the New Tab button in the toolbar"
 msgstr ""
 
-#: ../src/midori-websettings.c:377
-#, fuzzy
-msgid "Show Web search"
-msgstr "Visa webb_sökning"
+#: ../midori/midori-websettings.c:372
+msgid "Show Homepage"
+msgstr "Visa Hemsida"
 
-#: ../src/midori-websettings.c:378
+#: ../midori/midori-websettings.c:373
+msgid "Show the Homepage button in the toolbar"
+msgstr ""
+
+#: ../midori/midori-websettings.c:381
+msgid "Show Web search"
+msgstr "Visa Webbsökning"
+
+#: ../midori/midori-websettings.c:382
 msgid "Show the Web search entry in the toolbar"
 msgstr ""
 
-#: ../src/midori-websettings.c:386
-#, fuzzy
+#: ../midori/midori-websettings.c:390
 msgid "Show Trash"
-msgstr "Visa _papperskorgen"
+msgstr "Visa Papperskorgen"
 
-#: ../src/midori-websettings.c:387
+#: ../midori/midori-websettings.c:391
 msgid "Show the Trash button in the toolbar"
 msgstr ""
 
-#: ../src/midori-websettings.c:397
-#, fuzzy
+#: ../midori/midori-websettings.c:401
 msgid "Load on Startup"
 msgstr "Ladda vid uppstart"
 
-#: ../src/midori-websettings.c:398
-#, fuzzy
+#: ../midori/midori-websettings.c:402
 msgid "What to load on startup"
-msgstr "Ladda vid uppstart"
+msgstr ""
 
-#: ../src/midori-websettings.c:408
-#, fuzzy
+#: ../midori/midori-websettings.c:412
 msgid "The homepage"
-msgstr "Hemsida"
+msgstr ""
 
-#: ../src/midori-websettings.c:416
-#, fuzzy
+#: ../midori/midori-websettings.c:420
 msgid "Download Folder"
 msgstr "Nedladdningsmapp"
 
-#: ../src/midori-websettings.c:417
-#, fuzzy
+#: ../midori/midori-websettings.c:421
 msgid "The folder downloaded files are saved to"
-msgstr "Välj nedladdningsmapp"
-
-#: ../src/midori-websettings.c:425
-msgid "Show Download Notification"
 msgstr ""
 
-#: ../src/midori-websettings.c:426
-#, fuzzy
-msgid "Show a notification window for finished downloads"
-msgstr "Visa ett notifieringsfönster för avslutade överföringar"
+#: ../midori/midori-websettings.c:429
+msgid "Download Manager"
+msgstr ""
 
-#: ../src/midori-websettings.c:434
-#, fuzzy
+#: ../midori/midori-websettings.c:430
+msgid "An external download manager"
+msgstr ""
+
+#: ../midori/midori-websettings.c:438
 msgid "Location entry Search"
-msgstr "Sökmotor för _addressfältet"
+msgstr "Sökmotor för Addressfältet"
 
-#: ../src/midori-websettings.c:435
+#: ../midori/midori-websettings.c:439
 msgid "The search to perform inside the location entry"
 msgstr ""
 
-#: ../src/midori-websettings.c:443
-#, fuzzy
+#: ../midori/midori-websettings.c:447
 msgid "Preferred Encoding"
-msgstr "Föredragna språk"
+msgstr ""
 
-#: ../src/midori-websettings.c:444
+#: ../midori/midori-websettings.c:448
 msgid "The preferred character encoding"
 msgstr ""
 
-#: ../src/midori-websettings.c:455
-#, fuzzy
+#: ../midori/midori-websettings.c:459
 msgid "Tab Label Size"
-msgstr "Ta_bbstorlek"
+msgstr "Tabbstorlek"
 
-#: ../src/midori-websettings.c:456
+#: ../midori/midori-websettings.c:460
 msgid "The desired tab label size"
 msgstr "Önskad storlek på tabbetikett"
 
-#: ../src/midori-websettings.c:464
-#, fuzzy
+#: ../midori/midori-websettings.c:468
 msgid "Close Buttons on Tabs"
-msgstr "Stäng_knappar på tabbar"
+msgstr "Stängknappar på tabbar"
 
-#: ../src/midori-websettings.c:465
+#: ../midori/midori-websettings.c:469
 msgid "Whether tabs have close buttons"
 msgstr "Ifall tabbar har stängknappar"
 
-#: ../src/midori-websettings.c:473
-#, fuzzy
+#: ../midori/midori-websettings.c:477
 msgid "Open new pages in"
-msgstr "Öppna _nya sidor i"
+msgstr "Öppna nya sidor i"
 
-#: ../src/midori-websettings.c:474
-#, fuzzy
+#: ../midori/midori-websettings.c:478
 msgid "Where to open new pages"
-msgstr "Öppna _nya sidor i"
+msgstr ""
 
-#: ../src/midori-websettings.c:483
-#, fuzzy
+#: ../midori/midori-websettings.c:487
 msgid "Middle click opens Selection"
-msgstr "_Mittenklick öppnar markering"
+msgstr "Mittenklick öppnar markering"
 
-#: ../src/midori-websettings.c:484
+#: ../midori/midori-websettings.c:488
 msgid "Load an URL from the selection via middle click"
 msgstr "Ladda en URL från markeringen via mittenklick"
 
-#: ../src/midori-websettings.c:492
-#, fuzzy
+#: ../midori/midori-websettings.c:496
 msgid "Open tabs in the background"
-msgstr "Öppna tabbar i _bakgrunden"
+msgstr "Öppna tabbar i bakgrunden"
 
-#: ../src/midori-websettings.c:493
-#, fuzzy
+#: ../midori/midori-websettings.c:497
 msgid "Whether to open new tabs in the background"
-msgstr "Öppna tabbar i _bakgrunden"
+msgstr ""
 
-#: ../src/midori-websettings.c:501
-#, fuzzy
+#: ../midori/midori-websettings.c:505
 msgid "Open popups in tabs"
-msgstr "Öppna popups i _tabbar"
+msgstr "Öppna popups i tabbar"
 
-#: ../src/midori-websettings.c:502
-#, fuzzy
+#: ../midori/midori-websettings.c:506
 msgid "Whether to open popup windows in tabs"
-msgstr "Öppna popups i _tabbar"
+msgstr ""
 
-#: ../src/midori-websettings.c:512
+#: ../midori/midori-websettings.c:516
 msgid "Accept cookies"
 msgstr "Acceptera kakor"
 
-#: ../src/midori-websettings.c:513
+#: ../midori/midori-websettings.c:517
 msgid "What type of cookies to accept"
 msgstr ""
 
-#: ../src/midori-websettings.c:522
+#: ../midori/midori-websettings.c:526
 msgid "Original cookies only"
 msgstr ""
 
-#: ../src/midori-websettings.c:523
-#, fuzzy
+#: ../midori/midori-websettings.c:527
 msgid "Accept cookies from the original website only"
 msgstr "Tillåt kakor enbart från den ursprungliga webbplatsen"
 
-#: ../src/midori-websettings.c:531
+#: ../midori/midori-websettings.c:535
 msgid "Maximum cookie age"
 msgstr "Maximal kakålder"
 
-#: ../src/midori-websettings.c:532
-#, fuzzy
+#: ../midori/midori-websettings.c:536
 msgid "The maximum number of days to save cookies for"
-msgstr "Maximalt antal föremål"
+msgstr ""
 
-#: ../src/midori-websettings.c:542
-#, fuzzy
+#: ../midori/midori-websettings.c:546
 msgid "Remember last visited pages"
-msgstr "Kom ihåg mina besökta sidor"
+msgstr ""
 
-#: ../src/midori-websettings.c:543
+#: ../midori/midori-websettings.c:547
 msgid "Whether the last visited pages are saved"
 msgstr ""
 
-#: ../src/midori-websettings.c:551
-#, fuzzy
+#: ../midori/midori-websettings.c:555
 msgid "Maximum history age"
-msgstr "Maximal kakålder"
+msgstr ""
 
-#: ../src/midori-websettings.c:552
-#, fuzzy
+#: ../midori/midori-websettings.c:556
 msgid "The maximum number of days to save the history for"
-msgstr "Maximalt antal föremål"
+msgstr ""
 
-#: ../src/midori-websettings.c:560
-#, fuzzy
+#: ../midori/midori-websettings.c:564
 msgid "Remember last form inputs"
-msgstr "Kom ihåg vad jag fyllt i fält med"
+msgstr ""
 
-#: ../src/midori-websettings.c:561
+#: ../midori/midori-websettings.c:565
 msgid "Whether the last form inputs are saved"
 msgstr ""
 
-#: ../src/midori-websettings.c:569
-#, fuzzy
+#: ../midori/midori-websettings.c:573
 msgid "Remember last downloaded files"
-msgstr "Kom ihåg mina nerladdade filer"
+msgstr ""
 
-#: ../src/midori-websettings.c:570
+#: ../midori/midori-websettings.c:574
 msgid "Whether the last downloaded files are saved"
 msgstr ""
 
-#: ../src/midori-websettings.c:580
+#: ../midori/midori-websettings.c:584
 msgid "HTTP Proxy"
 msgstr ""
 
-#: ../src/midori-websettings.c:581
+#: ../midori/midori-websettings.c:585
 msgid "The proxy used for HTTP connections"
 msgstr ""
 
-#: ../src/midori-websettings.c:589
+#: ../midori/midori-websettings.c:593
 msgid "Cache size"
 msgstr "Cache-storlek"
 
-#: ../src/midori-websettings.c:590
+#: ../midori/midori-websettings.c:594
 msgid "The allowed size of the cache"
 msgstr ""
 
-#: ../src/midori-webview.c:217
-msgid "The icon of the currently loaded page"
-msgstr "Ikonen för den laddade sidan"
-
-#: ../src/midori-webview.c:226
+#: ../midori/midori-webview.c:193
 msgid "The URI of the currently loaded page"
 msgstr "URIn för den laddade sidan"
 
-#: ../src/midori-webview.c:235
+#: ../midori/midori-webview.c:202
 msgid "The title of the currently loaded page"
 msgstr "Titeln för den laddade sidan"
 
-#: ../src/midori-webview.c:471
+#: ../midori/midori-webview.c:578
 msgid "Open Link in New _Tab"
 msgstr "Öppna länk i ny _tabb"
 
-#: ../src/midori-webview.c:494
+#: ../midori/midori-webview.c:606
+msgid "Download Link with Download _Manager"
+msgstr ""
+
+#: ../midori/midori-webview.c:624
 msgid "Open URL in New _Tab"
 msgstr "Öppna URL i ny _tabb"
 
-#: ../src/midori-preferences.c:64
+#: ../midori/midori-preferences.c:62
 msgid "Settings instance to provide properties"
 msgstr ""
 
-#: ../src/midori-preferences.c:87
+#: ../midori/midori-preferences.c:84
 #, c-format
 msgid "%s Preferences"
 msgstr "%s inställningar"
 
 #. Page "General"
-#: ../src/midori-preferences.c:239
+#: ../midori/midori-preferences.c:267
 msgid "General"
 msgstr "Allmänt"
 
-#: ../src/midori-preferences.c:240
+#: ../midori/midori-preferences.c:268
 msgid "Startup"
 msgstr "Uppstart"
 
 #. Page "Appearance"
-#: ../src/midori-preferences.c:261
+#: ../midori/midori-preferences.c:301
 msgid "Appearance"
 msgstr "Utseende"
 
-#: ../src/midori-preferences.c:262
+#: ../midori/midori-preferences.c:302
 msgid "Font settings"
 msgstr "Typsnittinställningar"
 
 #. Page "Behavior"
-#: ../src/midori-preferences.c:283
+#: ../midori/midori-preferences.c:322
 msgid "Behavior"
 msgstr "Beteende"
 
-#: ../src/midori-preferences.c:284
+#: ../midori/midori-preferences.c:323
 msgid "Features"
 msgstr "Funktioner"
 
 #. Page "Interface"
-#: ../src/midori-preferences.c:316
+#: ../midori/midori-preferences.c:373
 msgid "Interface"
 msgstr "Gränssnitt"
 
-#: ../src/midori-preferences.c:330
+#: ../midori/midori-preferences.c:387
 msgid "Browsing"
 msgstr "Bläddring"
 
 #. Page "Network"
-#: ../src/midori-preferences.c:346 ../src/midori-preferences.c:347
+#: ../midori/midori-preferences.c:403 ../midori/midori-preferences.c:404
 msgid "Network"
 msgstr "Nätverk"
 
-#: ../src/midori-preferences.c:358
+#: ../midori/midori-preferences.c:415
 msgid "MB"
 msgstr "MB"
 
 #. Page "Privacy"
-#: ../src/midori-preferences.c:363
+#: ../midori/midori-preferences.c:420
 msgid "Privacy"
 msgstr "Sekretess"
 
-#: ../src/midori-preferences.c:364
-#, fuzzy
+#: ../midori/midori-preferences.c:421
 msgid "Web Cookies"
 msgstr "Kakor"
 
-#: ../src/midori-preferences.c:377 ../src/midori-preferences.c:387
+#: ../midori/midori-preferences.c:434 ../midori/midori-preferences.c:444
 msgid "days"
 msgstr "dagar"
 
-#: ../src/sokoke.c:295
+#: ../midori/midori-webitem.c:70
+msgid "Name"
+msgstr "Namn"
+
+#: ../midori/midori-webitem.c:71
+msgid "The name of the web item"
+msgstr ""
+
+#: ../midori/midori-webitem.c:79
+msgid "Description"
+msgstr "Beskrivning"
+
+#: ../midori/midori-webitem.c:80
+msgid "The description of the web item"
+msgstr ""
+
+#: ../midori/midori-webitem.c:88
+msgid "URI"
+msgstr ""
+
+#: ../midori/midori-webitem.c:89
+msgid "The URI of the web item"
+msgstr ""
+
+#: ../midori/midori-webitem.c:97
+msgid "Icon"
+msgstr "Ikone"
+
+#: ../midori/midori-webitem.c:98
+msgid "The icon of the web item"
+msgstr ""
+
+#: ../midori/midori-webitem.c:106
+msgid "Token"
+msgstr ""
+
+#: ../midori/midori-webitem.c:107
+msgid "The token of the web item"
+msgstr ""
+
+#: ../midori/midori-searchentry.c:75
+msgid "Current Item"
+msgstr ""
+
+#: ../midori/midori-searchentry.c:76
+msgid "The currently selected item"
+msgstr ""
+
+#: ../midori/midori-searchentry.c:84
+msgid "Dialog"
+msgstr ""
+
+#: ../midori/midori-searchentry.c:85
+msgid "A dialog to manage search engines"
+msgstr ""
+
+#: ../midori/midori-searchentry.c:152
+msgid "Empty"
+msgstr "Tom"
+
+#: ../midori/midori-searchentry.c:524
+msgid "Add search engine"
+msgstr "Lägg till sökmotor"
+
+#: ../midori/midori-searchentry.c:524
+msgid "Edit search engine"
+msgstr "Redigera sökmotor"
+
+#: ../midori/midori-searchentry.c:551
+msgid "_Name:"
+msgstr "_Namn:"
+
+#: ../midori/midori-searchentry.c:595
+msgid "_Icon (name or file):"
+msgstr "_Ikon (namn eller fil):"
+
+#: ../midori/midori-searchentry.c:609
+msgid "_Token:"
+msgstr ""
+
+#: ../midori/midori-searchentry.c:790
+msgid "Manage search engines"
+msgstr "Hantera sökmotorer"
+
+#: ../midori/sokoke.c:60 ../midori/sokoke.c:72
+msgid "Could not run external program."
+msgstr ""
+
+#: ../midori/sokoke.c:348
 msgid "Warning: You are using a superuser account!"
 msgstr "Varning: Du använder ett administratörskonto!"
 
-#: ../src/sokoke.c:417 ../katze/katze-xbel.c:952
+#: ../midori/sokoke.c:522 ../katze/katze-xbel.c:935
 #, c-format
 msgid "Writing failed."
 msgstr "Kunde inte skriva."
 
-#: ../src/webSearch.c:115
-msgid "Empty"
-msgstr "Tom"
+#: ../midori/gjs.c:89
+msgid "An unknown error occured."
+msgstr ""
 
-#: ../src/webSearch.c:187
-msgid "Add search engine"
-msgstr "Lägg till sökmotor"
+#: ../midori/gjs.c:309 ../midori/gjs.c:399
+#, c-format
+msgid "%s has no property '%s'"
+msgstr ""
 
-#: ../src/webSearch.c:187
-msgid "Edit search engine"
-msgstr "Redigera sökmotor"
+#: ../midori/gjs.c:445
+#, c-format
+msgid "%s cannot be assigned to %s.%s"
+msgstr ""
 
-#: ../src/webSearch.c:217
-msgid "_Name:"
-msgstr "_Namn:"
+#: ../midori/gjs.c:455
+#, c-format
+msgid "%s.%s cannot be accessed"
+msgstr ""
 
-#: ../src/webSearch.c:261
-msgid "_Icon (name or file):"
-msgstr "_Ikon (namn eller fil):"
-
-#: ../src/webSearch.c:275
-msgid "_Keyword:"
-msgstr "_Nyckelord:"
-
-#: ../src/webSearch.c:344
-msgid "Manage search engines"
-msgstr "Hantera sökmotorer"
-
-#: ../katze/katze-throbber.c:135
+#: ../katze/katze-throbber.c:134
 msgid "Symbolic size to use for the animation"
 msgstr "Symbolisk storlek för animeringen"
 
-#: ../katze/katze-throbber.c:144
+#: ../katze/katze-throbber.c:143
 msgid "The name of an icon containing animation frames"
 msgstr "Namn på en ikon som innehåller animeringsbilder"
 
-#: ../katze/katze-throbber.c:153
+#: ../katze/katze-throbber.c:152
 msgid "A GdkPixbuf containing animation frames"
 msgstr "En GdkPixbuf som innehåller animeringbilder"
 
-#: ../katze/katze-throbber.c:162
+#: ../katze/katze-throbber.c:161
 msgid "Whether the throbber should be animated"
 msgstr "Ifall aktivitetssymbolen ska animeras"
 
-#: ../katze/katze-throbber.c:171
+#: ../katze/katze-throbber.c:170
 msgid "The name of an icon to be used as the static image"
 msgstr "Namn på ikon att använda som statisk bild"
 
-#: ../katze/katze-throbber.c:180
+#: ../katze/katze-throbber.c:179
 msgid "A GdkPixbuf to be used as the static image"
 msgstr "En GdkPixbuf att använda som statisk bild"
 
-#: ../katze/katze-throbber.c:189
+#: ../katze/katze-throbber.c:188
 msgid "The stock ID of an icon to be used as the static image"
 msgstr "Katalog-ID för en ikon att använda som statisk bild"
 
-#: ../katze/katze-utils.c:127 ../katze/katze-utils.c:275
+#: ../katze/katze-utils.c:137 ../katze/katze-utils.c:318
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr ""
 
-#: ../katze/katze-utils.c:149 ../katze/katze-utils.c:173
+#: ../katze/katze-utils.c:159 ../katze/katze-utils.c:195
 msgid "Choose file"
 msgstr ""
 
-#: ../katze/katze-utils.c:161
-#, fuzzy
+#: ../katze/katze-utils.c:177
 msgid "Choose folder"
-msgstr "Nedladdningsmapp"
+msgstr ""
 
-#: ../katze/katze-xbel.c:723 ../katze/katze-xbel.c:731
-#: ../katze/katze-xbel.c:767 ../katze/katze-xbel.c:775
-#: ../katze/katze-xbel.c:804
+#: ../katze/katze-xbel.c:708 ../katze/katze-xbel.c:716
+#: ../katze/katze-xbel.c:752 ../katze/katze-xbel.c:760
+#: ../katze/katze-xbel.c:789
 msgid "Malformed document."
 msgstr "Felaktigt dokument."
 
-#: ../katze/katze-xbel.c:759
+#: ../katze/katze-xbel.c:744
 msgid "File not found."
 msgstr "Fil saknas."
