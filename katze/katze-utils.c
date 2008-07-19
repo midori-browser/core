@@ -227,6 +227,9 @@ katze_property_proxy (gpointer     object,
                 gtk_combo_box_set_active (GTK_COMBO_BOX (widget), i);
             i++;
         }
+        gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (
+            gtk_combo_box_get_model (GTK_COMBO_BOX (widget))),
+                                     0, GTK_SORT_ASCENDING);
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_text_changed_cb), object);
         g_free (families);
