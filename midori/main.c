@@ -351,7 +351,7 @@ main (int argc,
     MidoriWebList* search_engines;
 
     locale_init ();
-    g_set_application_name (_("midori"));
+    g_set_application_name (_("Midori"));
 
     /* Parse cli options */
     version = FALSE;
