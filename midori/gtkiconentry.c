@@ -18,10 +18,14 @@
  * Boston, MA  02111-1307, USA.
  */
 
+#include "gtkiconentry.h"
+
 #include <string.h>
 
-#ifndef GTK_IMAGE_GICON
-#define GTK_IMAGE_GICON 8
+#if GTK_CHECK_VERSION (2, 14, 0)
+#define _GTK_IMAGE_GICON GTK_IMAGE_GICON
+#else
+#define _GTK_IMAGE_GICON 8
 #endif
 
 #ifndef GTK_PARAM_READABLE
@@ -37,8 +41,6 @@
 #endif
 
 #define P_(s) (s)
-
-#include "gtkiconentry.h"
 
 #define ICON_MARGIN 2
 #define MAX_ICONS 2
@@ -1103,7 +1105,7 @@ icon_theme_changed (GtkIconEntry *entry)
 	}
 
       #if GLIB_CHECK_VERSION (2, 16, 0)
-      else if (priv->icons[i].storage_type == GTK_IMAGE_GICON)
+      else if (priv->icons[i].storage_type == _GTK_IMAGE_GICON)
 	{
 	  g_object_unref (priv->icons[i].pixbuf);
 	  priv->icons[i].pixbuf = NULL;
@@ -1506,7 +1508,7 @@ gtk_icon_entry_get_gicon (const GtkIconEntry *entry,
   priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
   icon_info = &priv->icons[icon_pos];
 
-  return icon_info->storage_type == GTK_IMAGE_GICON ? icon_info->gicon : NULL;
+  return icon_info->storage_type == _GTK_IMAGE_GICON ? icon_info->gicon : NULL;
 }
 #endif
 
