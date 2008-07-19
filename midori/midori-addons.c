@@ -176,7 +176,7 @@ _js_script_from_file (JSContextRef js_context,
     {
         /* Wrap the script to prevent global variables */
         gchar* wrapped_script = g_strdup_printf (
-            "var wrapped = function () { %s }; wrapped ();", script);
+            "(function () { %s })();", script);
         if (gjs_script_eval (js_context, wrapped_script, exception))
             result = TRUE;
         g_free (wrapped_script);
