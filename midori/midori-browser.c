@@ -414,10 +414,9 @@ midori_web_view_load_done_cb (GtkWidget*      web_view,
 }
 
 static void
-midori_web_view_title_changed_cb (GtkWidget*      web_view,
-                                  WebKitWebFrame* web_frame,
-                                  const gchar*    title,
-                                  MidoriBrowser*  browser)
+midori_web_view_notify_title_cb (GtkWidget*     web_view,
+                                 GParamSpec*    pspec,
+                                 MidoriBrowser* browser)
 {
     if (web_view == midori_browser_get_current_web_view (browser))
     {
@@ -951,8 +950,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                           midori_web_view_progress_done_cb, browser,
                           "signal::load-done",
                           midori_web_view_load_done_cb, browser,
-                          "signal::title-changed",
-                          midori_web_view_title_changed_cb, browser,
+                          "signal::notify::title",
+                          midori_web_view_notify_title_cb, browser,
                           "signal::status-bar-text-changed",
                           midori_web_view_statusbar_text_changed_cb, browser,
                           "signal::element-motion",
