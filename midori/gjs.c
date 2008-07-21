@@ -231,12 +231,44 @@ gjs_value_get_attribute_string (GjsValue*    value,
 }
 
 /**
+ * gjs_value_get_nth_attribute:
+ * @value: a #GjsValue
+ * @n: an index
+ *
+ * Retrieves the indiced attribute at the specified
+ * position. This is particularly faster than looking
+ * up attributes by name.
+ *
+ * This can only be used on object values.
+ *
+ * Return value: a new #GjsValue, or %NULL
+ **/
+GjsValue*
+gjs_value_get_nth_attribute (GjsValue* value,
+                             guint     n)
+{
+    JSObjectRef js_object;
+    JSValueRef js_value;
+
+    g_return_val_if_fail (gjs_value_is_object (value), NULL);
+
+    js_object = JSValueToObject (value->js_context, value->js_value, NULL);
+    js_value = JSObjectGetPropertyAtIndex (value->js_context, js_object, n, NULL);
+    if (JSValueIsUndefined (value->js_context, js_value))
+        return NULL;
+
+    return gjs_value_new (value->js_context, js_value);
+}
+
+/**
  * gjs_value_foreach:
  * @value: a #GjsValue
  * @callback: a callback
  * @user_data: user data
  *
- * Runs the specified callback for each attribute of the value.
+ * Calls the specified callback for each indiced attribute.
+ * This is a particularly fast way of looping through the
+ * elements of an array.
  *
  * This can only be used on object values.
  **/
@@ -244,6 +276,40 @@ void
 gjs_value_foreach (GjsValue*   value,
                    GjsCallback callback,
                    gpointer    user_data)
+{
+    guint i;
+    GjsValue* attribute;
+
+    g_return_if_fail (gjs_value_is_object (value));
+
+    i = 0;
+    do
+    {
+        attribute = gjs_value_get_nth_attribute (value, i);
+        if (attribute)
+        {
+            callback (attribute, user_data);
+            g_object_unref (attribute);
+        }
+        i++;
+    }
+    while (attribute);
+}
+
+/**
+ * gjs_value_forall:
+ * @value: a #GjsValue
+ * @callback: a callback
+ * @user_data: user data
+ *
+ * Calls the specified callback for each attribute.
+ *
+ * This can only be used on object values.
+ **/
+void
+gjs_value_forall (GjsValue*   value,
+                  GjsCallback callback,
+                  gpointer    user_data)
 {
     JSObjectRef js_object;
     JSPropertyNameArrayRef js_properties;

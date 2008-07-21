@@ -66,6 +66,10 @@ const gchar*
 gjs_value_get_attribute_string (GjsValue*    value,
                                 const gchar* name);
 
+GjsValue*
+gjs_value_get_nth_attribute (GjsValue* value,
+                             guint     n);
+
 typedef void
 (*GjsCallback) (GjsValue* value,
                 gpointer  user_data);
@@ -74,6 +78,11 @@ void
 gjs_value_foreach (GjsValue*   value,
                    GjsCallback callback,
                    gpointer    user_data);
+
+void
+gjs_value_forall (GjsValue*   value,
+                  GjsCallback callback,
+                  gpointer    user_data);
 
 GjsValue*
 gjs_value_get_by_name (GjsValue*    value,
