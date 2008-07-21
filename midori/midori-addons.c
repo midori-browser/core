@@ -171,12 +171,14 @@ _js_script_from_file (JSContextRef js_context,
     gboolean result = FALSE;
     gchar* script;
     GError* error = NULL;
+    gchar* wrapped_script;
 
     if (g_file_get_contents (filename, &script, NULL, &error))
     {
         /* Wrap the script to prevent global variables */
-        gchar* wrapped_script = g_strdup_printf (
-            "(function () { %s })();", script);
+        wrapped_script = g_strdup_printf (
+            "window.addEventListener ('DOMContentLoaded',"
+            "function () { %s }, true);", script);
         if (gjs_script_eval (js_context, wrapped_script, exception))
             result = TRUE;
         g_free (wrapped_script);
