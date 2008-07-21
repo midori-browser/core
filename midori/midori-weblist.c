@@ -48,6 +48,7 @@ static void
 _midori_web_list_add_item (MidoriWebList* web_list,
                            GObject*       item)
 {
+    g_object_ref (item);
     web_list->items = g_list_append (web_list->items, item);
 }
 
