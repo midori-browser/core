@@ -14,7 +14,364 @@
 #include <gmodule.h>
 #include <glib/gi18n.h>
 
-#define G_OBJECT_NAME(object) G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (object))
+struct _GjsValue
+{
+    GObject parent_instance;
+
+    JSContextRef js_context;
+    JSValueRef js_value;
+    gchar* string;
+};
+
+G_DEFINE_TYPE (GjsValue, gjs_value, G_TYPE_OBJECT)
+
+static void
+gjs_value_finalize (GObject* object)
+{
+    GjsValue* value = GJS_VALUE (object);
+
+    g_free (value->string);
+
+    G_OBJECT_CLASS (gjs_value_parent_class)->finalize (object);
+}
+
+static void
+gjs_value_class_init (GjsValueClass* class)
+{
+    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = gjs_value_finalize;
+}
+
+static void
+gjs_value_init (GjsValue* value)
+{
+    value->js_context = NULL;
+    value->js_value = NULL;
+    value->string = NULL;
+}
+
+/**
+ * gjs_value_new:
+ * @js_context: a #JSContextRef
+ * @js_value: a #JSValueRef or %NULL
+ *
+ * Creates a new #GjsValue for a #JsValueRef. If @js_value
+ * is %NULL, the new value represents the global object.
+ *
+ * Return value: a new #GjsValue
+ **/
+GjsValue*
+gjs_value_new (JSContextRef js_context,
+               JSValueRef   js_value)
+{
+    GjsValue* value;
+
+    g_return_val_if_fail (js_context, NULL);
+
+    value = g_object_new (GJS_TYPE_VALUE, NULL);
+    value->js_context = js_context;
+    value->js_value = js_value ? js_value : JSContextGetGlobalObject (js_context);
+    return value;
+}
+
+/**
+ * gjs_value_is_valid:
+ * @value: a #GjsValue
+ *
+ * Determines whether the value is valid, with regard to
+ * its internal state. This is primarily useful for API
+ * to ensure that the value is in a defined condition.
+ *
+ * Return value: %TRUE if value is valid
+ **/
+gboolean
+gjs_value_is_valid (GjsValue* value)
+{
+    g_return_val_if_fail (GJS_IS_VALUE (value), FALSE);
+    g_return_val_if_fail (value->js_context, FALSE);
+    g_return_val_if_fail (value->js_value, FALSE);
+
+    return TRUE;
+}
+
+/**
+ * gjs_value_is_object:
+ * @value: a #GjsValue
+ *
+ * Determines whether the value is an object.
+ *
+ * Return value: %TRUE if value is an object
+ **/
+gboolean
+gjs_value_is_object (GjsValue* value)
+{
+    g_return_val_if_fail (gjs_value_is_valid (value), FALSE);
+
+    return JSValueIsObject (value->js_context, value->js_value) == true;
+}
+
+/**
+ * gjs_value_has_attribute:
+ * @value: a #GjsValue
+ * @name: the name of a attribute
+ *
+ * Determines whether the value has the specified attribute.
+ *
+ * This can only be used on object values.
+ *
+ * Return value: %TRUE if the specified attribute exists
+ **/
+gboolean
+gjs_value_has_attribute (GjsValue*    value,
+                         const gchar* name)
+{
+    JSObjectRef js_object;
+    JSStringRef js_name;
+    gboolean result;
+
+    g_return_val_if_fail (gjs_value_is_object (value), FALSE);
+    g_return_val_if_fail (name, FALSE);
+
+    js_object = JSValueToObject (value->js_context, value->js_value, NULL);
+    js_name = JSStringCreateWithUTF8CString (name);
+    result = JSObjectHasProperty (value->js_context, js_object, js_name) == true;
+    JSStringRelease (js_name);
+    return result;
+}
+
+/**
+ * gjs_value_get_attribute:
+ * @value: a #GjsValue
+ * @name: the name of a attribute
+ *
+ * Retrieves the specified attribute.
+ *
+ * This can only be used on object values.
+ *
+ * Return value: a new #GjsValue
+ **/
+GjsValue*
+gjs_value_get_attribute (GjsValue*    value,
+                         const gchar* name)
+{
+    JSObjectRef js_object;
+    JSStringRef js_name;
+    JSValueRef js_value;
+
+    g_return_val_if_fail (gjs_value_has_attribute (value, name), NULL);
+
+    js_object = JSValueToObject (value->js_context, value->js_value, NULL);
+    js_name = JSStringCreateWithUTF8CString (name);
+    js_value = JSObjectGetProperty (value->js_context, js_object, js_name, NULL);
+    JSStringRelease (js_name);
+
+    return gjs_value_new (value->js_context, js_value);
+}
+
+/**
+ * gjs_value_get_string:
+ * @value: a #GjsValue
+ *
+ * Retrieves the value in the form of a string.
+ *
+ * This can only be used on object values.
+ *
+ * Note: The string won't reflect changes to the value.
+ *
+ * Return value: the value as a string
+ **/
+const gchar*
+gjs_value_get_string (GjsValue* value)
+{
+    JSStringRef js_string;
+
+    g_return_val_if_fail (gjs_value_is_valid (value), NULL);
+
+    if (value->string)
+        return value->string;
+
+    js_string = JSValueToStringCopy (value->js_context, value->js_value, NULL);
+    value->string = gjs_string_utf8 (js_string);
+    JSStringRelease (js_string);
+    return value->string;
+}
+
+void
+gjs_value_weak_notify_cb (GjsValue* attribute,
+                          GjsValue* value)
+{
+    g_object_unref (attribute);
+}
+
+/**
+ * gjs_value_get_attribute_string:
+ * @value: a #GjsValue
+ * @name: the name of a attribute
+ *
+ * Retrieves the attribute of the value in the form of a string.
+ *
+ * This can only be used on object values.
+ *
+ * Note: The string won't reflect changes to the value.
+ *
+ * Return value: the value as a string
+ **/
+const gchar*
+gjs_value_get_attribute_string (GjsValue*    value,
+                                const gchar* name)
+{
+    GjsValue* attribute;
+
+    g_return_val_if_fail (gjs_value_has_attribute (value, name), NULL);
+
+    attribute = gjs_value_get_attribute (value, name);
+    g_object_weak_ref (G_OBJECT (value),
+        (GWeakNotify)gjs_value_weak_notify_cb, attribute);
+    return gjs_value_get_string (attribute);
+}
+
+/**
+ * gjs_value_foreach:
+ * @value: a #GjsValue
+ * @callback: a callback
+ * @user_data: user data
+ *
+ * Runs the specified callback for each attribute of the value.
+ *
+ * This can only be used on object values.
+ **/
+void
+gjs_value_foreach (GjsValue*   value,
+                   GjsCallback callback,
+                   gpointer    user_data)
+{
+    JSObjectRef js_object;
+    JSPropertyNameArrayRef js_properties;
+    size_t n_properties;
+    guint i;
+    JSStringRef js_property;
+    gchar* property;
+    GjsValue* attribute;
+
+    g_return_if_fail (gjs_value_is_object (value));
+
+    js_object = JSValueToObject (value->js_context, value->js_value, NULL);
+    js_properties = JSObjectCopyPropertyNames (value->js_context, js_object);
+    n_properties = JSPropertyNameArrayGetCount (js_properties);
+    for (i = 0; i < n_properties; i++)
+    {
+        js_property = JSPropertyNameArrayGetNameAtIndex (js_properties, i);
+        property = gjs_string_utf8 (js_property);
+        if (gjs_value_has_attribute (value, property))
+        {
+            attribute = gjs_value_get_attribute (value, property);
+            callback (attribute, user_data);
+            g_object_unref (attribute);
+        }
+        g_free (property);
+        JSStringRelease (js_property);
+    }
+    JSPropertyNameArrayRelease (js_properties);
+}
+
+/**
+ * gjs_value_get_by_name:
+ * @value: a #GjsValue
+ * @name: the name of an object
+ *
+ * Retrieves a value for the specified name,
+ * for example "document" or "document.body".
+ *
+ * Return value: the value, or %NULL
+ **/
+GjsValue*
+gjs_value_get_by_name (GjsValue*    value,
+                       const gchar* name)
+{
+    gchar* script;
+    GjsValue* elements;
+
+    g_return_val_if_fail (gjs_value_is_valid (value), NULL);
+    g_return_val_if_fail (name, NULL);
+
+    script = g_strdup_printf ("return %s;", name);
+    elements = gjs_value_execute (value, script, NULL);
+    g_free (script);
+    return elements;
+}
+
+/**
+ * gjs_value_get_elements_by_tag_name:
+ * @value: a #GjsValue
+ * @name: the tag name
+ *
+ * Retrieves all children with the specified tag name.
+ *
+ * This can only be used on object values.
+ *
+ * Return value: all matching elements
+ **/
+GjsValue*
+gjs_value_get_elements_by_tag_name (GjsValue*    value,
+                                    const gchar* name)
+{
+    gchar* script;
+    GjsValue* elements;
+
+    g_return_val_if_fail (gjs_value_is_valid (value), NULL);
+    g_return_val_if_fail (name, NULL);
+
+    script = g_strdup_printf ("return this.getElementsByTagName ('%s');", name);
+    elements = gjs_value_execute (value, script, NULL);
+    g_free (script);
+    return elements;
+}
+
+/**
+ * gjs_value_execute:
+ * @value: a #GjsValue
+ * @script: javascript code
+ *
+ * Executes a piece of javascript code. If @value is an object
+ * it can be referred to as 'this' in the code.
+ *
+ * A 'return' statement in the code will yield the result to
+ * the return value of this function.
+ *
+ * Return value: the return value, or %NULL
+ **/
+GjsValue*
+gjs_value_execute (GjsValue*    value,
+                   const gchar* script,
+                   gchar**      exception)
+{
+    JSStringRef js_script;
+    JSObjectRef js_function;
+    JSObjectRef js_object;
+    JSValueRef js_exception;
+    JSValueRef js_value;
+    JSStringRef js_message;
+
+    g_return_val_if_fail (gjs_value_is_valid (value), FALSE);
+    g_return_val_if_fail (script, FALSE);
+
+    js_script = JSStringCreateWithUTF8CString (script);
+    js_function = JSObjectMakeFunction (value->js_context, NULL, 0, NULL,
+                                        js_script, NULL, 1, NULL);
+    JSStringRelease (js_script);
+    js_object = JSValueToObject (value->js_context, value->js_value, NULL);
+    js_exception = NULL;
+    js_value = JSObjectCallAsFunction (value->js_context, js_function,
+                                       js_object, 0, NULL, &js_exception);
+    if (!js_value && exception)
+    {
+        js_message = JSValueToStringCopy (value->js_context, js_exception, NULL);
+        *exception = gjs_string_utf8 (js_message);
+        JSStringRelease (js_message);
+        return NULL;
+    }
+    return gjs_value_new (value->js_context, js_value);
+}
 
 JSValueRef
 gjs_script_eval (JSContextRef js_context,
@@ -93,11 +450,18 @@ gjs_script_from_file (JSContextRef js_context,
 gchar*
 gjs_string_utf8 (JSStringRef js_string)
 {
-    size_t size_utf8 = JSStringGetMaximumUTF8CStringSize (js_string);
-    gchar* string_utf8 = g_new (gchar, size_utf8);
+    size_t size_utf8;
+    gchar* string_utf8;
+
+    g_return_val_if_fail (js_string, NULL);
+
+    size_utf8 = JSStringGetMaximumUTF8CStringSize (js_string);
+    string_utf8 = g_new (gchar, size_utf8);
     JSStringGetUTF8CString (js_string, string_utf8, size_utf8);
     return string_utf8;
 }
+
+#define G_OBJECT_NAME(object) G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (object))
 
 static void
 _js_class_get_property_names_cb (JSContextRef                 js_context,
