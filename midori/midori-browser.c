@@ -430,6 +430,16 @@ midori_web_view_notify_title_cb (GtkWidget*     web_view,
 }
 
 static void
+midori_web_view_notify_zoom_level_cb (GtkWidget*     web_view,
+                                      GParamSpec*    pspec,
+                                      MidoriBrowser* browser)
+{
+    if (web_view == midori_browser_get_current_web_view (browser))
+        _action_set_sensitive (browser, "ZoomNormal",
+            webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (web_view)) != 1.0);
+}
+
+static void
 midori_web_view_statusbar_text_changed_cb (MidoriWebView*  web_view,
                                            const gchar*    text,
                                            MidoriBrowser*  browser)
@@ -952,6 +962,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                           midori_web_view_load_done_cb, browser,
                           "signal::notify::title",
                           midori_web_view_notify_title_cb, browser,
+                          "signal::notify::zoom-level",
+                          midori_web_view_notify_zoom_level_cb, browser,
                           "signal::status-bar-text-changed",
                           midori_web_view_statusbar_text_changed_cb, browser,
                           "signal::element-motion",
