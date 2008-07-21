@@ -44,6 +44,11 @@ struct _MidoriWebViewClass
     (*icon_ready)             (MidoriWebView*        web_view,
                                GdkPixbuf*            icon);
     void
+    (*news_feed_ready)        (MidoriWebView*        web_view,
+                               const gchar*          href,
+                               const gchar*          type,
+                               const gchar*          title);
+    void
     (*progress_started)       (MidoriWebView*        web_view,
                                guint                 progress);
     void

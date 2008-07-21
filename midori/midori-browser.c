@@ -285,6 +285,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
     icon = katze_throbber_get_static_pixbuf (KATZE_THROBBER (
         g_object_get_data (G_OBJECT (widget), "browser-tab-icon")));
+    /* FIXME show news feed icon if feeds are available */
+    /* gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
+            gtk_bin_get_child (GTK_BIN (browser->location))),
+            GTK_ICON_ENTRY_SECONDARY, NULL); */
 }
 
 static GtkWidget*
@@ -443,6 +447,25 @@ midori_web_view_element_motion_cb (MidoriWebView* web_View,
 }
 
 static void
+midori_web_view_load_committed_cb (GtkWidget*      web_view,
+                                   WebKitWebFrame* web_frame,
+                                   MidoriBrowser*  browser)
+{
+    const gchar* uri;
+
+    if (web_view == midori_browser_get_current_web_view (browser))
+    {
+        uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+        midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (
+                                        browser->location), uri);
+        _midori_browser_set_statusbar_text (browser, NULL);
+        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
+            gtk_bin_get_child (GTK_BIN (browser->location))),
+            GTK_ICON_ENTRY_SECONDARY, NULL);
+    }
+}
+
+static void
 midori_web_view_icon_ready_cb (MidoriWebView* web_view,
                                GdkPixbuf*     icon,
                                MidoriBrowser* browser)
@@ -464,16 +487,15 @@ midori_web_view_icon_ready_cb (MidoriWebView* web_view,
 }
 
 static void
-midori_web_view_load_committed_cb (GtkWidget*      web_view,
-                                   WebKitWebFrame* web_frame,
-                                   MidoriBrowser*  browser)
+midori_web_view_news_feed_ready_cb (MidoriWebView* web_view,
+                                    const gchar*   href,
+                                    const gchar*   type,
+                                    const gchar*   title,
+                                    MidoriBrowser* browser)
 {
-    if (web_view == midori_browser_get_current_web_view (browser))
-    {
-        const gchar* uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
-        midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (browser->location), uri);
-        _midori_browser_set_statusbar_text (browser, NULL);
-    }
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
+        gtk_bin_get_child (GTK_BIN (browser->location))),
+        GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INDEX);
 }
 
 static gboolean
@@ -919,6 +941,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                           midori_web_view_load_committed_cb, browser,
                           "signal::icon-ready",
                           midori_web_view_icon_ready_cb, browser,
+                          "signal::news-feed-ready",
+                          midori_web_view_news_feed_ready_cb, browser,
                           "signal::progress-started",
                           midori_web_view_progress_started_cb, browser,
                           "signal::progress-changed",
@@ -3284,6 +3308,13 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Location */
     browser->location = midori_location_entry_new ();
+    /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
+        gtk_bin_get_child (GTK_BIN (browser->location))),
+        GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INDEX);
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (
+        gtk_bin_get_child (GTK_BIN (browser->location))),
+        GTK_ICON_ENTRY_SECONDARY, TRUE);
     /* FIXME: sokoke_entry_setup_completion (GTK_ENTRY (browser->location)); */
     g_object_connect (browser->location,
                       "signal::active-changed",

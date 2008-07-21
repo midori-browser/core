@@ -12,6 +12,7 @@
 #include "midori-webview.h"
 
 #include "main.h"
+#include "gjs.h"
 #include "sokoke.h"
 #include "compat.h"
 
@@ -59,6 +60,7 @@ enum
 
 enum {
     ICON_READY,
+    NEWS_FEED_READY,
     PROGRESS_STARTED,
     PROGRESS_CHANGED,
     PROGRESS_DONE,
@@ -88,6 +90,44 @@ midori_web_view_get_property (GObject*    object,
                               GParamSpec* pspec);
 
 static void
+midori_cclosure_marshal_VOID__STRING_STRING_STRING (GClosure*     closure,
+                                                    GValue*       return_value,
+                                                    guint         n_param_values,
+                                                    const GValue* param_values,
+                                                    gpointer      invocation_hint,
+                                                    gpointer      marshal_data)
+{
+    typedef void(*GMarshalFunc_VOID__STRING_STRING_STRING) (gpointer      data1,
+                                                            const gchar*  arg_1,
+                                                            const gchar*  arg_2,
+                                                            const gchar*  arg_3,
+                                                            gpointer      data2);
+    register GMarshalFunc_VOID__STRING_STRING_STRING callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+
+    g_return_if_fail (n_param_values == 4);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_VOID__STRING_STRING_STRING) (marshal_data
+        ? marshal_data : cc->callback);
+    callback (data1,
+              g_value_get_string (param_values + 1),
+              g_value_get_string (param_values + 2),
+              g_value_get_string (param_values + 3),
+              data2);
+}
+
+static void
 midori_web_view_class_init (MidoriWebViewClass* class)
 {
     signals[ICON_READY] = g_signal_new (
@@ -100,6 +140,19 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
         GDK_TYPE_PIXBUF);
+
+    signals[NEWS_FEED_READY] = g_signal_new (
+        "news-feed-ready",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        G_STRUCT_OFFSET (MidoriWebViewClass, news_feed_ready),
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__STRING_STRING_STRING,
+        G_TYPE_NONE, 3,
+        G_TYPE_STRING,
+        G_TYPE_STRING,
+        G_TYPE_STRING);
 
     signals[PROGRESS_STARTED] = g_signal_new (
         "progress-started",
@@ -424,10 +477,42 @@ webkit_web_view_load_finished (MidoriWebView* web_view)
 }
 
 static void
+gjs_value_links_foreach_cb (GjsValue*      link,
+                            MidoriWebView* web_view)
+{
+    const gchar* type;
+
+    if (gjs_value_is_object (link) && gjs_value_has_attribute (link, "type")
+        && gjs_value_has_attribute (link, "href"))
+    {
+        type = gjs_value_get_attribute_string (link, "type");
+        if (!strcmp (type, "application/rss+xml")
+            || !strcmp (type, "application/x.atom+xml")
+            || !strcmp (type, "application/atom+xml"))
+            g_signal_emit (web_view, signals[NEWS_FEED_READY], 0,
+                gjs_value_get_attribute_string (link, "href"), type,
+                gjs_value_has_attribute (link, "title")
+                ? gjs_value_get_attribute_string (link, "title") : NULL);
+    }
+}
+
+static void
 webkit_web_frame_load_done (WebKitWebFrame* web_frame,
                             gboolean        success,
                             MidoriWebView*  web_view)
 {
+    GjsValue* value;
+    GjsValue* document;
+    GjsValue* links;
+
+    value = gjs_value_new (webkit_web_frame_get_global_context (web_frame), NULL);
+    document = gjs_value_get_by_name (value, "document");
+    links = gjs_value_get_elements_by_tag_name (document, "link");
+    gjs_value_foreach (links, (GjsCallback)gjs_value_links_foreach_cb, web_view);
+    g_object_unref (links);
+    g_object_unref (document);
+    g_object_unref (value);
+
     web_view->is_loading = FALSE;
     web_view->progress = -1;
 

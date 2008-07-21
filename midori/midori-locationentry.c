@@ -80,8 +80,6 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
 
     entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, DEFAULT_ICON);
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_CLEAR);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_SECONDARY, TRUE);
     g_signal_connect (entry, "icon_released", G_CALLBACK (entry_icon_released), NULL);
     g_signal_connect (entry, "key-press-event", G_CALLBACK (entry_key_press_event), location_entry);
 
@@ -139,7 +137,7 @@ entry_icon_released (GtkIconEntry* entry,
                      gpointer      user_data)
 {
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-        gtk_entry_set_text (GTK_ENTRY (entry), "");
+        /* FIXME Show available news feeds */;
 }
 
 static void
