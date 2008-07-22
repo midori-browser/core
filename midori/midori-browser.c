@@ -868,16 +868,16 @@ midori_browser_tab_label_button_release_event (GtkWidget*      tab_label,
 }
 
 static void
-midori_browser_tab_close_style_set (GtkWidget* tab_close,
-                                    GtkStyle*  previous_style)
+midori_browser_tab_icon_style_set (GtkWidget* tab_icon,
+                                   GtkStyle*  previous_style)
 {
     GtkSettings* gtk_settings;
     gint width, height;
 
-    gtk_settings = gtk_widget_get_settings (tab_close);
-    gtk_icon_size_lookup_for_settings (gtk_settings, GTK_ICON_SIZE_BUTTON,
+    gtk_settings = gtk_widget_get_settings (tab_icon);
+    gtk_icon_size_lookup_for_settings (gtk_settings, GTK_ICON_SIZE_MENU,
                                        &width, &height);
-    gtk_widget_set_size_request (tab_close, width + 2, height + 2);
+    gtk_widget_set_size_request (tab_icon, width + 2, height + 2);
 }
 
 static void
@@ -1007,6 +1007,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     g_object_set_data (G_OBJECT (widget), "browser-tab-icon", tab_icon);
     browser->tab_titles = g_list_prepend (browser->tab_titles, tab_title);
 
+    g_signal_connect (tab_icon, "style-set",
+        G_CALLBACK (midori_browser_tab_icon_style_set), NULL);
     g_signal_connect (widget, "leave-notify-event",
         G_CALLBACK (midori_browser_tab_leave_notify_event_cb), browser);
 
@@ -1014,6 +1016,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
     hbox = gtk_hbox_new (FALSE, 1);
     gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
+    gtk_misc_set_alignment (GTK_MISC (tab_icon), 0.0, 0.5);
     gtk_box_pack_start (GTK_BOX (hbox), tab_icon, FALSE, FALSE, 0);
     gtk_misc_set_alignment (GTK_MISC (tab_title), 0.0, 0.5);
     /* TODO: make the tab initially look "unvisited" until it's focused */
@@ -1026,9 +1029,11 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     gtk_button_set_focus_on_click (GTK_BUTTON (close_button), FALSE);
     rcstyle = gtk_rc_style_new ();
     rcstyle->xthickness = rcstyle->ythickness = 0;
-    gtk_widget_modify_style(close_button, rcstyle);
-    image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
+    gtk_widget_modify_style (close_button, rcstyle);
+    image = katze_throbber_new ();
+    katze_throbber_set_static_stock_id (KATZE_THROBBER (image), GTK_STOCK_CLOSE);
     gtk_button_set_image (GTK_BUTTON (close_button), image);
+    gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.0);
     gtk_box_pack_end (GTK_BOX (hbox), close_button, FALSE, FALSE, 0);
     gtk_widget_show_all (GTK_WIDGET (event_box));
     if (!sokoke_object_get_boolean (browser->settings, "close-buttons-on-tabs"))
@@ -1038,7 +1043,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     g_signal_connect (event_box, "button-release-event",
         G_CALLBACK (midori_browser_tab_label_button_release_event), widget);
     g_signal_connect (close_button, "style-set",
-        G_CALLBACK (midori_browser_tab_close_style_set), NULL);
+        G_CALLBACK (midori_browser_tab_icon_style_set), NULL);
     g_signal_connect (close_button, "clicked",
         G_CALLBACK (midori_browser_tab_close_clicked), widget);
 
