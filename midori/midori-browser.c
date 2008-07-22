@@ -237,7 +237,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     gboolean loading;
     GtkWidget* widget;
     GtkWidget* web_view;
-    GdkPixbuf* icon;
 
     widget = midori_browser_get_current_tab (browser);
     web_view = widget && MIDORI_IS_WEB_VIEW (widget) ? widget : NULL;
@@ -283,8 +282,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_show (browser->progressbar);
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
-    icon = katze_throbber_get_static_pixbuf (KATZE_THROBBER (
-        g_object_get_data (G_OBJECT (widget), "browser-tab-icon")));
     /* FIXME show news feed icon if feeds are available */
     /* gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
             gtk_bin_get_child (GTK_BIN (browser->location))),
@@ -988,7 +985,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         else
             icon = gtk_widget_render_icon (widget, GTK_STOCK_FILE,
                                            GTK_ICON_SIZE_MENU, NULL);
-        tab_icon = gtk_image_new_from_pixbuf (icon);
+        tab_icon = katze_throbber_new ();
+        katze_throbber_set_static_pixbuf (KATZE_THROBBER (tab_icon), icon);
         title = _midori_browser_get_tab_title (browser, widget);
         tab_title = gtk_label_new (title);
         menuitem = gtk_image_menu_item_new_with_label (title);
@@ -1930,8 +1928,7 @@ _action_source_view_activate (GtkAction*     action,
     GtkWidget* text_view;
     gint n;
 
-    web_view = midori_browser_get_current_web_view (browser);
-    if (!(web_view && MIDORI_IS_WEB_VIEW (web_view)))
+    if (!(web_view = midori_browser_get_current_web_view (browser)))
         return;
 
     uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
