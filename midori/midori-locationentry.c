@@ -178,9 +178,9 @@ midori_location_entry_set_item (GtkTreeModel*            model,
     gchar* desc = NULL;
 
     if (item->title)
-        desc = g_strdup_printf ("<b>%s</b> - %s", item->uri, item->title);
+        desc = g_markup_printf_escaped ("<b>%s</b> - %s", item->uri, item->title);
     else
-        desc = g_strdup_printf ("<b>%s</b>", item->uri);
+        desc = g_markup_printf_escaped ("<b>%s</b>", item->uri);
 
     gtk_list_store_set (GTK_LIST_STORE (model), iter,
         FAVICON_COL, item->favicon, URI_COL, item->uri, TITLE_COL, desc, -1);
