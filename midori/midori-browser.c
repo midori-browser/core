@@ -912,6 +912,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
     GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
+    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
+                                         GTK_SHADOW_ETCHED_IN);
     gobject_class = G_OBJECT_GET_CLASS (widget);
     if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
         child = widget;
@@ -1015,6 +1017,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     event_box = gtk_event_box_new ();
     gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
     hbox = gtk_hbox_new (FALSE, 1);
+    gtk_container_border_width (GTK_CONTAINER (hbox), 2);
     gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
     gtk_misc_set_alignment (GTK_MISC (tab_icon), 0.0, 0.5);
     gtk_box_pack_start (GTK_BOX (hbox), tab_icon, FALSE, FALSE, 0);
@@ -1030,6 +1033,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     rcstyle = gtk_rc_style_new ();
     rcstyle->xthickness = rcstyle->ythickness = 0;
     gtk_widget_modify_style (close_button, rcstyle);
+    g_object_unref (rcstyle);
     image = katze_throbber_new ();
     katze_throbber_set_static_stock_id (KATZE_THROBBER (image), GTK_STOCK_CLOSE);
     gtk_button_set_image (GTK_BUTTON (close_button), image);
@@ -3211,6 +3215,8 @@ midori_browser_search_notify_current_item_cb (GObject    *gobject,
 static void
 midori_browser_init (MidoriBrowser* browser)
 {
+    GtkRcStyle* rcstyle;
+
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
                       G_CALLBACK (midori_browser_realize_cb), browser);
@@ -3547,6 +3553,11 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Notebook, containing all web_views */
     browser->notebook = gtk_notebook_new ();
+    /* Remove the inner border between scrollbars and the window border */
+    rcstyle = gtk_rc_style_new ();
+    rcstyle->xthickness = rcstyle->ythickness = 0;
+    gtk_widget_modify_style (browser->notebook, rcstyle);
+    g_object_unref (rcstyle);
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
     gtk_paned_pack2 (GTK_PANED (hpaned), browser->notebook, FALSE, FALSE);
     g_signal_connect_after (browser->notebook, "switch-page",
