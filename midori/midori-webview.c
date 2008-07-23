@@ -33,8 +33,8 @@ struct _MidoriWebView
     GdkPixbuf* icon;
     gchar* uri;
     gchar* title;
-    gboolean is_loading;
-    gint progress;
+    gdouble progress;
+    MidoriLoadStatus load_status;
     gchar* statusbar_text;
     gchar* link_uri;
 
@@ -48,12 +48,31 @@ struct _MidoriWebView
 
 G_DEFINE_TYPE (MidoriWebView, midori_web_view, WEBKIT_TYPE_WEB_VIEW)
 
+GType
+midori_load_status_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_LOAD_PROVISIONAL, "MIDORI_LOAD_PROVISIONAL", N_("Load Provisional") },
+         { MIDORI_LOAD_COMMITTED, "MIDORI_LOAD_COMMITTED", N_("Load Committed") },
+         { MIDORI_LOAD_FINISHED, "MIDORI_LOAD_FINISHED", N_("Load Finished") },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriLoadStatus", values);
+    }
+    return type;
+}
+
 enum
 {
     PROP_0,
 
     PROP_URI,
     PROP_TITLE,
+    PROP_PROGRESS,
+    PROP_MLOAD_STATUS,
     PROP_STATUSBAR_TEXT,
     PROP_SETTINGS
 };
@@ -61,10 +80,6 @@ enum
 enum {
     ICON_READY,
     NEWS_FEED_READY,
-    PROGRESS_STARTED,
-    PROGRESS_CHANGED,
-    PROGRESS_DONE,
-    LOAD_DONE,
     ELEMENT_MOTION,
     NEW_TAB,
     NEW_WINDOW,
@@ -154,50 +169,6 @@ midori_web_view_class_init (MidoriWebViewClass* class)
         G_TYPE_STRING,
         G_TYPE_STRING);
 
-    signals[PROGRESS_STARTED] = g_signal_new (
-        "progress-started",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriWebViewClass, progress_started),
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT);
-
-    signals[PROGRESS_CHANGED] = g_signal_new (
-        "progress-changed",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriWebViewClass, progress_changed),
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT);
-
-    signals[PROGRESS_DONE] = g_signal_new (
-        "progress-done",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriWebViewClass, progress_done),
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__INT,
-        G_TYPE_NONE, 1,
-        G_TYPE_INT);
-
-    signals[LOAD_DONE] = g_signal_new (
-        "load-done",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriWebViewClass, load_done),
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__OBJECT,
-        G_TYPE_NONE, 1,
-        WEBKIT_TYPE_WEB_FRAME);
-
     signals[ELEMENT_MOTION] = g_signal_new (
         "element-motion",
         G_TYPE_FROM_CLASS (class),
@@ -238,6 +209,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
 
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
+    if (!g_object_class_find_property (gobject_class, "uri"))
     g_object_class_install_property (gobject_class,
                                      PROP_URI,
                                      g_param_spec_string (
@@ -247,6 +219,7 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      "",
                                      flags));
 
+    if (!g_object_class_find_property (gobject_class, "title"))
     g_object_class_install_property (gobject_class,
                                      PROP_TITLE,
                                      g_param_spec_string (
@@ -256,6 +229,27 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                      NULL,
                                      flags));
 
+    if (!g_object_class_find_property (gobject_class, "progress"))
+    g_object_class_install_property (gobject_class,
+                                     PROP_PROGRESS,
+                                     g_param_spec_double (
+                                     "progress",
+                                     "Progress",
+                                     _("The current loading progress"),
+                                     0.0, 1.0, 0.0,
+                                     G_PARAM_READABLE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_MLOAD_STATUS,
+                                     g_param_spec_enum (
+                                     "mload-status",
+                                     "Load Status",
+                                     _("The current loading status"),
+                                     MIDORI_TYPE_LOAD_STATUS,
+                                     MIDORI_LOAD_FINISHED,
+                                     G_PARAM_READABLE));
+
+    if (!g_object_class_find_property (gobject_class, "statusbar-text"))
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR_TEXT,
                                      g_param_spec_string (
@@ -270,26 +264,17 @@ midori_web_view_class_init (MidoriWebViewClass* class)
                                       "settings");
 }
 
-/*static void
-webkit_web_view_load_started (MidoriWebView* web_view,
+static void
+webkit_web_view_load_started (MidoriWebView*  web_view,
                               WebKitWebFrame* web_frame)
 {
-    web_view->is_loading = TRUE;
-    web_view->progress = -1;
-    katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon), TRUE);
-}*/
+    web_view->load_status = MIDORI_LOAD_PROVISIONAL;
+    g_object_notify (G_OBJECT (web_view), "mload-status");
+    if (web_view->tab_icon)
+        katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon), TRUE);
 
-static void
-_midori_web_view_set_uri (MidoriWebView* web_view,
-                          const gchar*   uri)
-{
-    katze_assign (web_view->uri, g_strdup (uri));
-    if (web_view->xbel_item)
-    {
-        const gchar* uri = midori_web_view_get_display_uri (web_view);
-        katze_xbel_bookmark_set_href (web_view->xbel_item, uri);
-    }
-    g_object_set (web_view, "title", NULL, NULL);
+    web_view->progress = 0.0;
+    g_object_notify (G_OBJECT (web_view), "progress");
 }
 
 #if GLIB_CHECK_VERSION (2, 16, 0)
@@ -417,9 +402,15 @@ webkit_web_view_load_committed (MidoriWebView*  web_view,
     const gchar* uri;
     GdkPixbuf* icon;
 
-    web_view->progress = 0;
     uri = webkit_web_frame_get_uri (web_frame);
-    _midori_web_view_set_uri (web_view, uri);
+    katze_assign (web_view->uri, g_strdup (uri));
+    if (web_view->xbel_item)
+    {
+        uri = midori_web_view_get_display_uri (web_view);
+        katze_xbel_bookmark_set_href (web_view->xbel_item, uri);
+    }
+    g_object_notify (G_OBJECT (web_view), "uri");
+    g_object_set (web_view, "title", NULL, NULL);
 
     icon = gtk_widget_render_icon (GTK_WIDGET (web_view),
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
@@ -434,6 +425,9 @@ webkit_web_view_load_committed (MidoriWebView*  web_view,
         gtk_image_menu_item_set_image (
             GTK_IMAGE_MENU_ITEM (web_view->menu_item),
                 gtk_image_new_from_pixbuf (icon));
+
+    web_view->load_status = MIDORI_LOAD_COMMITTED;
+    g_object_notify (G_OBJECT (web_view), "mload-status");
 }
 
 static void
@@ -450,30 +444,10 @@ webkit_web_view_icon_ready (MidoriWebView* web_view,
 }
 
 static void
-webkit_web_view_load_started (MidoriWebView*  web_view,
-                              WebKitWebFrame* web_frame)
-{
-    /* FIXME: This is a hack, until signals are fixed upstream */
-    web_view->is_loading = TRUE;
-    if (web_view->tab_icon)
-        katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon), TRUE);
-
-    web_view->progress = 0;
-    g_signal_emit (web_view, signals[PROGRESS_STARTED], 0, web_view->progress);
-}
-
-static void
 webkit_web_view_progress_changed (MidoriWebView* web_view, gint progress)
 {
-    web_view->progress = progress;
-    g_signal_emit (web_view, signals[PROGRESS_CHANGED], 0, web_view->progress);
-}
-
-static void
-webkit_web_view_load_finished (MidoriWebView* web_view)
-{
-    web_view->progress = 100;
-    g_signal_emit (web_view, signals[PROGRESS_DONE], 0, web_view->progress);
+    web_view->progress = progress ? progress / 100.0 : 0.0;
+    g_object_notify (G_OBJECT (web_view), "progress");
 }
 
 static void
@@ -513,13 +487,18 @@ webkit_web_frame_load_done (WebKitWebFrame* web_frame,
     g_object_unref (document);
     g_object_unref (value);
 
-    web_view->is_loading = FALSE;
-    web_view->progress = -1;
-
     if (web_view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (web_view->tab_icon),
                                      FALSE);
-    g_signal_emit (web_view, signals[LOAD_DONE], 0, web_frame);
+    web_view->load_status = MIDORI_LOAD_FINISHED;
+    g_object_notify (G_OBJECT (web_view), "mload-status");
+}
+
+static void
+webkit_web_view_load_finished (MidoriWebView* web_view)
+{
+    web_view->progress = 1.0;
+    g_object_notify (G_OBJECT (web_view), "progress");
 }
 
 static void
@@ -726,8 +705,8 @@ midori_web_view_init (MidoriWebView* web_view)
 {
     web_view->icon = gtk_widget_render_icon (GTK_WIDGET (web_view),
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    web_view->is_loading = FALSE;
-    web_view->progress = -1;
+    web_view->progress = 0.0;
+    web_view->load_status = MIDORI_LOAD_FINISHED;
 
     web_view->settings = midori_web_settings_new ();
     g_object_set (web_view, "WebKitWebView::settings", web_view->settings, NULL);
@@ -736,20 +715,16 @@ midori_web_view_init (MidoriWebView* web_view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
 
     g_object_connect (web_view,
-                      /* "signal::load-started",
-                      webkit_web_view_load_started, NULL, */
+                      "signal::load-started",
+                      webkit_web_view_load_started, NULL,
                       "signal::load-committed",
                       webkit_web_view_load_committed, NULL,
                       "signal::icon-ready",
                       webkit_web_view_icon_ready, NULL,
-                      "signal::load-started",
-                      webkit_web_view_load_started, NULL,
                       "signal::load-progress-changed",
                       webkit_web_view_progress_changed, NULL,
                       "signal::load-finished",
                       webkit_web_view_load_finished, NULL,
-                      /* "signal::load-done",
-                      webkit_web_view_load_done, NULL, */
                       "signal::title-changed",
                       webkit_web_view_title_changed, NULL,
                       "signal::status-bar-text-changed",
@@ -849,6 +824,12 @@ midori_web_view_get_property (GObject*    object,
         break;
     case PROP_TITLE:
         g_value_set_string (value, web_view->title);
+        break;
+    case PROP_PROGRESS:
+        g_value_set_double (value, web_view->progress);
+        break;
+    case PROP_MLOAD_STATUS:
+        g_value_set_enum (value, web_view->load_status);
         break;
     case PROP_STATUSBAR_TEXT:
         g_value_set_string (value, web_view->statusbar_text);
@@ -1025,36 +1006,34 @@ midori_web_view_get_proxy_xbel_item (MidoriWebView* web_view)
 }
 
 /**
- * midori_web_view_is_loading:
+ * midori_web_view_load_status:
  * @web_view: a #MidoriWebView
  *
- * Determines whether currently a page is being loaded or not.
+ * Determines the current loading status of a page.
  *
- * Return value: %TRUE if a page is being loaded, %FALSE otherwise
+ * Return value: the current #MidoriLoadStatus
  **/
-gint
-midori_web_view_is_loading (MidoriWebView* web_view)
+MidoriLoadStatus
+midori_web_view_get_load_status (MidoriWebView* web_view)
 {
-    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), -1);
+    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), MIDORI_LOAD_FINISHED);
 
-    return web_view->is_loading;
+    return web_view->load_status;
 }
 
 /**
  * midori_web_view_get_progress:
  * @web_view: a #MidoriWebView
  *
- * Retrieves the current loading progress in percent or -1 if no data
- * has been loaded so far.
+ * Retrieves the current loading progress as
+ * a fraction between 0.0 and 1.0.
  *
- * The value is undefined if no loading is in progress.
- *
- * Return value: the current loading progress or -1
+ * Return value: the current loading progress
  **/
-gint
+gdouble
 midori_web_view_get_progress (MidoriWebView* web_view)
 {
-    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), -1);
+    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), 0.0);
 
     return web_view->progress;
 }

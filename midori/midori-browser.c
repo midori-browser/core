@@ -241,7 +241,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     widget = midori_browser_get_current_tab (browser);
     web_view = widget && MIDORI_IS_WEB_VIEW (widget) ? widget : NULL;
     loading = web_view != NULL
-        && midori_web_view_is_loading (MIDORI_WEB_VIEW (web_view));
+        && midori_web_view_get_load_status (MIDORI_WEB_VIEW (web_view))
+        != MIDORI_LOAD_FINISHED;
 
     _action_set_sensitive (browser, "Reload", web_view != NULL && !loading);
         _action_set_sensitive (browser, "Stop", web_view != NULL && loading);
@@ -329,22 +330,26 @@ _midori_browser_set_current_page_smartly (MidoriBrowser* browser,
 
 static void
 _midori_browser_update_progress (MidoriBrowser* browser,
-                                 gint           progress)
+                                 MidoriWebView* web_view)
 {
-    if (progress > -1)
+    gdouble progress;
+    gchar* message;
+
+    progress = midori_web_view_get_progress (web_view);
+    if (progress > 0.0)
     {
         gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (browser->progressbar),
-                                       progress ? progress / 100.0 : 0);
-        gchar* message = g_strdup_printf (_("%d%% loaded"), progress);
+                                       progress);
+        message = g_strdup_printf (_("%d%% loaded"), (gint)(progress * 100));
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
                                    message);
         g_free (message);
     }
     else
     {
-            gtk_progress_bar_pulse (GTK_PROGRESS_BAR (browser->progressbar));
-            gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
-                                       NULL);
+        gtk_progress_bar_pulse (GTK_PROGRESS_BAR (browser->progressbar));
+        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
+                                   NULL);
     }
 }
 
@@ -360,54 +365,37 @@ midori_web_view_window_object_cleared_cb (GtkWidget*         web_view,
 }
 
 static void
-midori_web_view_load_started_cb (GtkWidget*      web_view,
-                                 WebKitWebFrame* web_frame,
-                                 MidoriBrowser*  browser)
+midori_web_view_notify_load_status_cb (GtkWidget*      web_view,
+                                       GParamSpec*     pspec,
+                                       MidoriBrowser*  browser)
 {
+    const gchar* uri;
+
     if (web_view == midori_browser_get_current_web_view (browser))
     {
+        if (midori_web_view_get_load_status (MIDORI_WEB_VIEW (web_view))
+            == MIDORI_LOAD_COMMITTED)
+        {
+            uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+            midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (
+                                            browser->location), uri);
+            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
+                gtk_bin_get_child (GTK_BIN (browser->location))),
+                GTK_ICON_ENTRY_SECONDARY, NULL);
+        }
+
         _midori_browser_update_interface (browser);
         _midori_browser_set_statusbar_text (browser, NULL);
     }
 }
 
 static void
-midori_web_view_progress_started_cb (GtkWidget*     web_view,
-                                     guint          progress,
-                                     MidoriBrowser* browser)
+midori_web_view_notify_progress_cb (GtkWidget*     web_view,
+                                    GParamSpec*    pspec,
+                                    MidoriBrowser* browser)
 {
     if (web_view == midori_browser_get_current_web_view (browser))
-        _midori_browser_update_progress (browser, progress);
-}
-
-static void
-midori_web_view_progress_changed_cb (GtkWidget*     web_view,
-                                     guint          progress,
-                                     MidoriBrowser* browser)
-{
-    if (web_view == midori_browser_get_current_web_view (browser))
-        _midori_browser_update_progress (browser, progress);
-}
-
-static void
-midori_web_view_progress_done_cb (GtkWidget*     web_view,
-                                  guint          progress,
-                                  MidoriBrowser* browser)
-{
-    if (web_view == midori_browser_get_current_web_view (browser))
-        _midori_browser_update_progress (browser, progress);
-}
-
-static void
-midori_web_view_load_done_cb (GtkWidget*      web_view,
-                              WebKitWebFrame* web_frame,
-                              MidoriBrowser*  browser)
-{
-    if (web_view == midori_browser_get_current_web_view (browser))
-    {
-        _midori_browser_update_interface (browser);
-        _midori_browser_set_statusbar_text (browser, NULL);
-    }
+        _midori_browser_update_progress (browser, MIDORI_WEB_VIEW (web_view));
 }
 
 static void
@@ -450,25 +438,6 @@ midori_web_view_element_motion_cb (MidoriWebView* web_View,
                                    MidoriBrowser* browser)
 {
     _midori_browser_set_statusbar_text (browser, link_uri);
-}
-
-static void
-midori_web_view_load_committed_cb (GtkWidget*      web_view,
-                                   WebKitWebFrame* web_frame,
-                                   MidoriBrowser*  browser)
-{
-    const gchar* uri;
-
-    if (web_view == midori_browser_get_current_web_view (browser))
-    {
-        uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
-        midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (
-                                        browser->location), uri);
-        _midori_browser_set_statusbar_text (browser, NULL);
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
-            gtk_bin_get_child (GTK_BIN (browser->location))),
-            GTK_ICON_ENTRY_SECONDARY, NULL);
-    }
 }
 
 static void
@@ -943,22 +912,14 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         g_object_connect (widget,
                           "signal::window-object-cleared",
                           midori_web_view_window_object_cleared_cb, browser,
-                          "signal::load-started",
-                          midori_web_view_load_started_cb, browser,
-                          "signal::load-committed",
-                          midori_web_view_load_committed_cb, browser,
+                          "signal::notify::progress",
+                          midori_web_view_notify_progress_cb, browser,
+                          "signal::notify::mload-status",
+                          midori_web_view_notify_load_status_cb, browser,
                           "signal::icon-ready",
                           midori_web_view_icon_ready_cb, browser,
                           "signal::news-feed-ready",
                           midori_web_view_news_feed_ready_cb, browser,
-                          "signal::progress-started",
-                          midori_web_view_progress_started_cb, browser,
-                          "signal::progress-changed",
-                          midori_web_view_progress_changed_cb, browser,
-                          "signal::progress-done",
-                          midori_web_view_progress_done_cb, browser,
-                          "signal::load-done",
-                          midori_web_view_load_done_cb, browser,
                           "signal::notify::title",
                           midori_web_view_notify_title_cb, browser,
                           "signal::notify::zoom-level",
@@ -2613,6 +2574,8 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     g_free (window_title);
     _midori_browser_set_statusbar_text (browser, NULL);
     _midori_browser_update_interface (browser);
+    if (MIDORI_IS_WEB_VIEW (widget))
+        _midori_browser_update_progress (browser, MIDORI_WEB_VIEW (widget));
 }
 
 static void

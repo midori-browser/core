@@ -49,15 +49,6 @@ struct _MidoriWebViewClass
                                const gchar*          type,
                                const gchar*          title);
     void
-    (*progress_started)       (MidoriWebView*        web_view,
-                               guint                 progress);
-    void
-    (*progress_changed)       (MidoriWebView*        web_view,
-                               guint                 progress);
-    void
-    (*progress_done)          (MidoriWebView*        web_view,
-                               guint                 progress);
-    void
     (*load_done)              (MidoriWebView*        web_view,
                                WebKitWebFrame*       frame);
     void
@@ -72,6 +63,19 @@ struct _MidoriWebViewClass
     (*new_window)             (MidoriWebView*        web_view,
                                const gchar*          uri);
 };
+
+typedef enum
+{
+    MIDORI_LOAD_PROVISIONAL,
+    MIDORI_LOAD_COMMITTED,
+    MIDORI_LOAD_FINISHED
+} MidoriLoadStatus;
+
+GType
+midori_load_status_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_LOAD_STATUS \
+    (midori_load_status_get_type ())
 
 GType
 midori_web_view_get_type               (void);
@@ -95,11 +99,11 @@ midori_web_view_get_proxy_tab_title    (MidoriWebView*     web_view);
 KatzeXbelItem*
 midori_web_view_get_proxy_xbel_item    (MidoriWebView*     web_view);
 
-gboolean
-midori_web_view_is_loading             (MidoriWebView*     web_view);
-
-gint
+gdouble
 midori_web_view_get_progress           (MidoriWebView*     web_view);
+
+MidoriLoadStatus
+midori_web_view_get_load_status        (MidoriWebView*     web_view);
 
 const gchar*
 midori_web_view_get_display_uri        (MidoriWebView*     web_view);
