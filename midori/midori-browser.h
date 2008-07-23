@@ -54,12 +54,12 @@ struct _MidoriBrowserClass
     (*new_window)              (MidoriBrowser*       browser,
                                 const gchar*         uri);
 
-    gint
+    void
     (*add_tab)                 (MidoriBrowser*       browser,
                                 GtkWidget*           widget);
-    gint
-    (*add_uri)                 (MidoriBrowser*       browser,
-                                const gchar*         uri);
+    void
+    (*remove_tab)              (MidoriBrowser*       browser,
+                                GtkWidget*           widget);
     void
     (*activate_action)         (MidoriBrowser*       browser,
                                 const gchar*         name);
@@ -92,6 +92,9 @@ midori_browser_add_uri                (MidoriBrowser*     browser,
 void
 midori_browser_activate_action        (MidoriBrowser*     browser,
                                        const gchar*       name);
+
+const gchar*
+midori_browser_get_current_uri        (MidoriBrowser*     browser);
 
 void
 midori_browser_set_current_page       (MidoriBrowser*     browser,

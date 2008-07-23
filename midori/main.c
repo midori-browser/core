@@ -334,6 +334,30 @@ midori_web_list_add_item_cb (MidoriWebList* trash,
     }
 }
 
+void
+midori_browser_session_cb (MidoriBrowser* browser,
+                           gpointer       arg1,
+                           KatzeXbelItem* session)
+{
+    gchar* config_path;
+    gchar* config_file;
+    GError* error;
+
+    config_path = g_build_filename (g_get_user_config_dir (),
+                                    PACKAGE_NAME, NULL);
+    g_mkdir_with_parents (config_path, 0755);
+    config_file = g_build_filename (config_path, "session.xbel", NULL);
+    error = NULL;
+    if (!katze_xbel_folder_to_file (session, config_file, &error))
+    {
+        g_warning (_("The session couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+
+    g_free (config_file);
+    g_free (config_path);
+}
+
 int
 main (int argc,
       char** argv)
@@ -555,7 +579,7 @@ main (int argc,
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
-    KatzeXbelItem* session = katze_xbel_folder_new ();
+    KatzeXbelItem* session = midori_browser_get_proxy_xbel_folder (browser);
     n = katze_xbel_folder_get_n_items (_session);
     for (i = 0; i < n; i++)
     {
@@ -567,6 +591,13 @@ main (int argc,
     if (!strcmp (katze_xbel_bookmark_get_href (item), ""))
         midori_browser_activate_action (browser, "Location");
     katze_xbel_item_unref (_session);
+
+    g_signal_connect_after (browser, "notify::uri",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect_after (browser, "add-tab",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect_after (browser, "remove-tab",
+        G_CALLBACK (midori_browser_session_cb), session);
 
     /* Load extensions */
     JSGlobalContextRef js_context = gjs_global_context_new ();
@@ -626,19 +657,6 @@ main (int argc,
         g_error_free (error);
     }
     katze_xbel_item_unref (xbel_trash);
-    g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
-    if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
-    {
-        katze_assign (config_file, g_build_filename (config_path,
-                                                     "session.xbel", NULL));
-        error = NULL;
-        if (!katze_xbel_folder_to_file (session, config_file, &error))
-        {
-            g_warning (_("The session couldn't be saved. %s"), error->message);
-            g_error_free (error);
-        }
-    }
-    katze_xbel_item_unref (session);
     katze_assign (config_file, g_build_filename (config_path, "config", NULL));
     error = NULL;
     if (!settings_save_to_file (settings, config_file, &error))

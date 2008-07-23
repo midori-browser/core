@@ -89,6 +89,7 @@ enum
 
     PROP_MENUBAR,
     PROP_NAVIGATIONBAR,
+    PROP_URI,
     PROP_TAB,
     PROP_STATUSBAR,
     PROP_SETTINGS,
@@ -105,7 +106,7 @@ enum
     NEW_WINDOW,
 
     ADD_TAB,
-    ADD_URI,
+    REMOVE_TAB,
     ACTIVATE_ACTION,
     QUIT,
 
@@ -382,6 +383,7 @@ midori_web_view_notify_load_status_cb (GtkWidget*      web_view,
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
                 gtk_bin_get_child (GTK_BIN (browser->location))),
                 GTK_ICON_ENTRY_SECONDARY, NULL);
+            g_object_notify (G_OBJECT (browser), "uri");
         }
 
         _midori_browser_update_interface (browser);
@@ -856,7 +858,7 @@ midori_browser_tab_close_clicked (GtkWidget* tab_close,
     gtk_widget_destroy (widget);
 }
 
-static gint
+static void
 _midori_browser_add_tab (MidoriBrowser* browser,
                          GtkWidget*     widget)
 {
@@ -1036,24 +1038,13 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         G_CALLBACK (midori_browser_tab_destroy_cb), browser);
 
     _midori_browser_update_actions (browser);
-
-    n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), scrolled);
-    return n;
 }
 
-static gint
-_midori_browser_add_uri (MidoriBrowser* browser,
-                         const gchar*   uri)
+static void
+_midori_browser_remove_tab (MidoriBrowser* browser,
+                            GtkWidget*     widget)
 {
-    GtkWidget* web_view;
-
-    web_view = g_object_new (MIDORI_TYPE_WEB_VIEW,
-                             "uri", uri,
-                             "settings", browser->settings,
-                             NULL);
-    gtk_widget_show (web_view);
-
-    return midori_browser_add_tab (browser, web_view);
+    gtk_widget_destroy (widget);
 }
 
 static void
@@ -1113,80 +1104,6 @@ midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
 }
 
 static void
-midori_cclosure_marshal_INT__OBJECT (GClosure*     closure,
-                                     GValue*       return_value,
-                                     guint         n_param_values,
-                                     const GValue* param_values,
-                                     gpointer      invocation_hint,
-                                     gpointer      marshal_data)
-{
-    typedef gint(*GMarshalFunc_INT__OBJECT) (gpointer  data1,
-                                             gpointer  arg_1,
-                                             gpointer  data2);
-    register GMarshalFunc_INT__OBJECT callback;
-    register GCClosure* cc = (GCClosure*) closure;
-    register gpointer data1, data2;
-    gint v_return;
-
-    g_return_if_fail (return_value != NULL);
-    g_return_if_fail (n_param_values == 2);
-
-    if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-        data1 = closure->data;
-        data2 = g_value_peek_pointer (param_values + 0);
-    }
-    else
-    {
-        data1 = g_value_peek_pointer (param_values + 0);
-        data2 = closure->data;
-    }
-    callback = (GMarshalFunc_INT__OBJECT) (marshal_data
-        ? marshal_data : cc->callback);
-    v_return = callback (data1,
-                         g_value_get_object (param_values + 1),
-                         data2);
-    g_value_set_int (return_value, v_return);
-}
-
-static void
-midori_cclosure_marshal_INT__STRING (GClosure*     closure,
-                                     GValue*       return_value,
-                                     guint         n_param_values,
-                                     const GValue* param_values,
-                                     gpointer      invocation_hint,
-                                     gpointer      marshal_data)
-{
-    typedef gint(*GMarshalFunc_INT__STRING) (gpointer      data1,
-                                             const gchar*  arg_1,
-                                             gpointer      data2);
-    register GMarshalFunc_INT__STRING callback;
-    register GCClosure* cc = (GCClosure*) closure;
-    register gpointer data1, data2;
-    gint v_return;
-
-    g_return_if_fail (return_value != NULL);
-    g_return_if_fail (n_param_values == 2);
-
-    if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-        data1 = closure->data;
-        data2 = g_value_peek_pointer (param_values + 0);
-    }
-    else
-    {
-        data1 = g_value_peek_pointer (param_values + 0);
-        data2 = closure->data;
-    }
-    callback = (GMarshalFunc_INT__STRING) (marshal_data
-        ? marshal_data : cc->callback);
-    v_return = callback (data1,
-                         g_value_get_string (param_values + 1),
-                         data2);
-    g_value_set_int (return_value, v_return);
-}
-
-static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
     signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
@@ -1231,20 +1148,20 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_STRUCT_OFFSET (MidoriBrowserClass, add_tab),
         0,
         NULL,
-        midori_cclosure_marshal_INT__OBJECT,
-        G_TYPE_INT, 1,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
         GTK_TYPE_WIDGET);
 
-    signals[ADD_URI] = g_signal_new (
-        "add-uri",
+    signals[REMOVE_TAB] = g_signal_new (
+        "remove-tab",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-        G_STRUCT_OFFSET (MidoriBrowserClass, add_uri),
+        G_STRUCT_OFFSET (MidoriBrowserClass, remove_tab),
         0,
         NULL,
-        midori_cclosure_marshal_INT__STRING,
-        G_TYPE_INT, 1,
-        G_TYPE_STRING);
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GTK_TYPE_WIDGET);
 
     signals[ACTIVATE_ACTION] = g_signal_new (
         "activate-action",
@@ -1268,7 +1185,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_TYPE_NONE, 0);
 
     class->add_tab = _midori_browser_add_tab;
-    class->add_uri = _midori_browser_add_uri;
+    class->remove_tab = _midori_browser_remove_tab;
     class->activate_action = _midori_browser_activate_action;
     class->quit = _midori_browser_quit;
 
@@ -1296,6 +1213,15 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      _("The navigationbar"),
                                      GTK_TYPE_TOOLBAR,
                                      G_PARAM_READABLE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_URI,
+                                     g_param_spec_string (
+                                     "uri",
+                                     _("URI"),
+                                     _("The current URI"),
+                                     "about:blank",
+                                     G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_TAB,
@@ -2572,6 +2498,9 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
                                 g_get_application_name (), NULL);
     gtk_window_set_title (GTK_WINDOW (browser), window_title);
     g_free (window_title);
+
+    g_object_notify (G_OBJECT (browser), "uri");
+
     _midori_browser_set_statusbar_text (browser, NULL);
     _midori_browser_update_interface (browser);
     if (MIDORI_IS_WEB_VIEW (widget))
@@ -3844,6 +3773,9 @@ midori_browser_set_property (GObject*      object,
 
     switch (prop_id)
     {
+    case PROP_URI:
+        _midori_browser_open_uri (browser, g_value_get_string (value));
+        break;
     case PROP_TAB:
         midori_browser_set_current_tab (browser, g_value_get_object (value));
         break;
@@ -3912,6 +3844,9 @@ midori_browser_get_property (GObject*    object,
     case PROP_NAVIGATIONBAR:
         g_value_set_object (value, browser->navigationbar);
         break;
+    case PROP_URI:
+        g_value_set_string (value, midori_browser_get_current_uri (browser));
+        break;
     case PROP_TAB:
         g_value_set_object (value, midori_browser_get_current_tab (browser));
         break;
@@ -3969,10 +3904,11 @@ gint
 midori_browser_add_tab (MidoriBrowser* browser,
                         GtkWidget*     widget)
 {
-    gint index;
+    GtkWidget* scrolled;
 
-    g_signal_emit (browser, signals[ADD_TAB], 0, widget, &index);
-    return index;
+    g_signal_emit (browser, signals[ADD_TAB], 0, widget);
+    scrolled = _midori_browser_scrolled_for_child (browser, widget);
+    return gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), scrolled);
 }
 
 /**
@@ -3986,10 +3922,7 @@ void
 midori_browser_remove_tab (MidoriBrowser* browser,
                            GtkWidget*     widget)
 {
-    GtkWidget* scrolled = _midori_browser_scrolled_for_child (browser, widget);
-    gtk_container_remove (GTK_CONTAINER (browser->notebook), scrolled);
-
-    /* FIXME: Remove the menuitem if this is a web view */
+    g_signal_emit (browser, signals[REMOVE_TAB], 0, widget);
 }
 
 /**
@@ -4032,10 +3965,15 @@ gint
 midori_browser_add_uri (MidoriBrowser* browser,
                         const gchar*   uri)
 {
-    gint index;
+    GtkWidget* web_view;
 
-    g_signal_emit (browser, signals[ADD_URI], 0, uri, &index);
-    return index;
+    web_view = g_object_new (MIDORI_TYPE_WEB_VIEW,
+                             "uri", uri,
+                             "settings", browser->settings,
+                             NULL);
+    gtk_widget_show (web_view);
+
+    return midori_browser_add_tab (browser, web_view);
 }
 
 /**
@@ -4050,6 +3988,27 @@ midori_browser_activate_action (MidoriBrowser* browser,
                                 const gchar*   name)
 {
     g_signal_emit (browser, signals[ACTIVATE_ACTION], 0, name);
+}
+
+/**
+ * midori_browser_get_current_uri:
+ * @browser: a #MidoriBrowser
+ *
+ * Determines the URI loaded in the current page.
+ *
+ * If there is no page present at all, %NULL is returned.
+ *
+ * Return value: the current URI, or %NULL
+ **/
+const gchar*
+midori_browser_get_current_uri (MidoriBrowser* browser)
+{
+    GtkWidget* widget;
+
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+
+    widget = midori_browser_get_current_web_view (browser);
+    return _midori_browser_get_tab_uri (browser, widget);
 }
 
 /**
