@@ -358,6 +358,15 @@ midori_browser_session_cb (MidoriBrowser* browser,
     g_free (config_path);
 }
 
+void
+midori_browser_weak_notify_cb (MidoriBrowser* browser,
+                               KatzeXbelItem* session)
+{
+    g_object_disconnect (browser, "any-signal",
+                         G_CALLBACK (midori_browser_session_cb), session, NULL);
+}
+
+
 int
 main (int argc,
       char** argv)
@@ -598,6 +607,8 @@ main (int argc,
         G_CALLBACK (midori_browser_session_cb), session);
     g_signal_connect_after (browser, "remove-tab",
         G_CALLBACK (midori_browser_session_cb), session);
+    g_object_weak_ref (G_OBJECT (session),
+        (GWeakNotify)(midori_browser_weak_notify_cb), browser);
 
     /* Load extensions */
     JSGlobalContextRef js_context = gjs_global_context_new ();

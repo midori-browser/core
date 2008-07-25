@@ -116,6 +116,9 @@ enum
 static guint signals[LAST_SIGNAL];
 
 static void
+midori_browser_dispose (GObject* object);
+
+static void
 midori_browser_finalize (GObject* object);
 
 static void
@@ -787,6 +790,13 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     }
 
     _midori_browser_update_actions (browser);
+
+    /* This callback must only be called once, but we need to ensure
+       that "remove-tab" is emitted in any case */
+    g_signal_handlers_disconnect_by_func (widget,
+        midori_browser_tab_destroy_cb, browser);
+
+    g_signal_emit (browser, signals[REMOVE_TAB], 0, widget);
     return FALSE;
 }
 
@@ -1190,6 +1200,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     class->quit = _midori_browser_quit;
 
     GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->dispose = midori_browser_dispose;
     gobject_class->finalize = midori_browser_finalize;
     gobject_class->set_property = midori_browser_set_property;
     gobject_class->get_property = midori_browser_get_property;
@@ -2898,7 +2909,7 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
-    /* Destroy tabs first, so widgets can still see window elements on destroy */
+    /* Destroy tabs first, so child widgets don't need special care */
     gtk_container_foreach (GTK_CONTAINER (browser->notebook),
                            (GtkCallback) gtk_widget_destroy, NULL);
 }
@@ -3561,6 +3572,18 @@ midori_browser_init (MidoriBrowser* browser)
 }
 
 static void
+midori_browser_dispose (GObject* object)
+{
+    MidoriBrowser* browser = MIDORI_BROWSER (object);
+
+    /* We are done, the session mustn't change anymore */
+    if (browser->proxy_xbel_folder)
+        katze_object_assign (browser->proxy_xbel_folder, NULL);
+
+    G_OBJECT_CLASS (midori_browser_parent_class)->dispose (object);
+}
+
+static void
 midori_browser_finalize (GObject* object)
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
@@ -3568,9 +3591,6 @@ midori_browser_finalize (GObject* object)
     g_free (browser->statusbar_text);
     g_list_free (browser->tab_titles);
     g_list_free (browser->close_buttons);
-
-    if (browser->proxy_xbel_folder)
-        katze_xbel_item_unref (browser->proxy_xbel_folder);
 
     if (browser->settings)
         g_object_unref (browser->settings);
@@ -4132,6 +4152,9 @@ midori_browser_get_current_web_view (MidoriBrowser* browser)
  * changes to all items automatically.
  *
  * Note that this implicitly creates proxy xbel items of all web views.
+ *
+ * Note: Calling this function doesn't add a reference and the browser
+ *       may release its reference at some point.
  *
  * Return value: the proxy #KatzeXbelItem
  **/
