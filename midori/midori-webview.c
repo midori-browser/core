@@ -29,6 +29,7 @@ webkit_web_view_get_selected_text (WebKitWebView* web_view);
 struct _MidoriWebView
 {
     WebKitWebView parent_instance;
+    gboolean window_object_cleared;
 
     GdkPixbuf* icon;
     gchar* uri;
@@ -268,6 +269,8 @@ static void
 webkit_web_view_load_started (MidoriWebView*  web_view,
                               WebKitWebFrame* web_frame)
 {
+    web_view->window_object_cleared = FALSE;
+
     web_view->load_status = MIDORI_LOAD_PROVISIONAL;
     g_object_notify (G_OBJECT (web_view), "mload-status");
     if (web_view->tab_icon)
@@ -275,6 +278,15 @@ webkit_web_view_load_started (MidoriWebView*  web_view,
 
     web_view->progress = 0.0;
     g_object_notify (G_OBJECT (web_view), "progress");
+}
+
+static void
+webkit_web_view_window_object_cleared_cb (MidoriWebView*     web_view,
+                                          WebKitWebFrame*    web_frame,
+                                          JSGlobalContextRef js_context,
+                                          JSObjectRef        js_window)
+{
+    web_view->window_object_cleared = TRUE;
 }
 
 #if GLIB_CHECK_VERSION (2, 16, 0)
@@ -475,9 +487,20 @@ webkit_web_frame_load_done (WebKitWebFrame* web_frame,
                             gboolean        success,
                             MidoriWebView*  web_view)
 {
+    JSContextRef js_context;
+    JSValueRef js_window;
     GjsValue* value;
     GjsValue* document;
     GjsValue* links;
+
+    /* If WebKit didn't emit the signal due to a bug, we will */
+    if (!web_view->window_object_cleared)
+    {
+        js_context = webkit_web_frame_get_global_context (web_frame);
+        js_window = JSContextGetGlobalObject (js_context);
+        g_signal_emit_by_name (web_view, "window-object-cleared",
+            web_frame, js_context, js_window);
+    }
 
     value = gjs_value_new (webkit_web_frame_get_global_context (web_frame), NULL);
     document = gjs_value_get_by_name (value, "document");
@@ -717,6 +740,8 @@ midori_web_view_init (MidoriWebView* web_view)
     g_object_connect (web_view,
                       "signal::load-started",
                       webkit_web_view_load_started, NULL,
+                      "signal::window-object-cleared",
+                      webkit_web_view_window_object_cleared_cb, NULL,
                       "signal::load-committed",
                       webkit_web_view_load_committed, NULL,
                       "signal::icon-ready",
