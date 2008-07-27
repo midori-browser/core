@@ -281,7 +281,8 @@ midori_search_entry_finalize (GObject* object)
     MidoriSearchEntry* search_entry = MIDORI_SEARCH_ENTRY (object);
 
     g_object_unref (search_entry->search_engines);
-    g_object_unref (search_entry->current_item);
+    if (search_entry->current_item)
+        g_object_unref (search_entry->current_item);
 
     G_OBJECT_CLASS (midori_search_entry_parent_class)->finalize (object);
 }
