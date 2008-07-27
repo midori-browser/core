@@ -96,6 +96,13 @@ gdk_pixbuf_new_from_stream (GInputStream* stream,
 #if !GTK_CHECK_VERSION(2, 12, 0)
 
 void
+gtk_widget_set_has_tooltip (GtkWidget* widget,
+                            gboolean   has_tooltip)
+{
+    /* Do nothing */
+}
+
+void
 gtk_widget_set_tooltip_text (GtkWidget*   widget,
                              const gchar* text)
 {

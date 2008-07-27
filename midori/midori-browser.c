@@ -1843,10 +1843,10 @@ _action_source_view_activate (GtkAction*     action,
     uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
 
     contents = NULL;
-    tag = NULL;
 
     #if GLIB_CHECK_VERSION (2, 16, 0)
     file = g_file_new_for_uri (uri);
+    tag = NULL;
     #ifdef HAVE_GTKSOURCEVIEW
     content_type = NULL;
     #endif
