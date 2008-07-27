@@ -52,7 +52,7 @@ AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
 # Checks for gtksourceview
-PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview, have_gtksourceview=true, have_gtksourceview=false)
+PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-2.0, have_gtksourceview=true, have_gtksourceview=false)
 AC_SUBST(GTKSOURCEVIEW_CFLAGS)
 AC_SUBST(GTKSOURCEVIEW_LIBS)
 
@@ -92,6 +92,6 @@ AC_CONFIG_FILES([
     katze/Makefile \
     midori/Makefile   \
     po/Makefile.in \
-    data/Makefile
+    icons/Makefile
 ])
 AC_OUTPUT

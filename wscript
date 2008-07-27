@@ -65,7 +65,7 @@ def set_options (opt):
         help='Disables native language support', dest='disable_nls')
 
 def build (bld):
-    bld.add_subdirs ('katze midori data')
+    bld.add_subdirs ('katze midori icons')
 
     if bld.env ()['INTLTOOL']:
         bld.add_subdirs ('po')
@@ -89,9 +89,11 @@ def shutdown ():
         if not Params.g_options.destdir:
             # update the pixmap cache directory
             try:
-                subprocess.call (['gtk-update-icon-cache', '-q', '-f', '-t', dir])
-                Params.pprint ('YELLOW', "Updated Gtk icon cache.")
-                icon_cache_updated = True
+                uic = subprocess.Popen (['gtk-update-icon-cache', '-q', '-f', '-t', dir],
+                                  stderr=subprocess.PIPE)
+                if not uic.wait ():
+                    Params.pprint ('YELLOW', "Updated Gtk icon cache.")
+                    icon_cache_updated = True
             except:
                 Params.pprint ('RED', "Failed to update icon cache.")
         if not icon_cache_updated:

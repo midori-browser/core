@@ -35,6 +35,7 @@ stock_items_init (void)
 {
     static GtkStockItem items[] =
     {
+        { STOCK_NEWS_FEED },
         { STOCK_LOCK_OPEN },
         { STOCK_LOCK_SECURE },
         { STOCK_LOCK_BROKEN },

@@ -71,6 +71,8 @@ struct _MidoriBrowser
     GtkWidget* statusbar;
     GtkWidget* progressbar;
 
+    const gchar* stock_news_feed;
+
     gchar* statusbar_text;
     MidoriWebSettings* settings;
     GList* tab_titles;
@@ -475,7 +477,7 @@ midori_web_view_news_feed_ready_cb (MidoriWebView* web_view,
 {
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
         gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INDEX);
+        GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
 }
 
 static gboolean
@@ -3035,16 +3037,24 @@ static const gchar* ui_markup =
  "</ui>";
 
 static void
-midori_browser_realize_cb (GtkStyle* style, MidoriBrowser* browser)
+midori_browser_realize_cb (GtkStyle*      style,
+                           MidoriBrowser* browser)
 {
-    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (browser));
+    GdkScreen* screen;
+    GtkIconTheme* icon_theme;
+
+    screen = gtk_widget_get_screen (GTK_WIDGET (browser));
     if (screen)
     {
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+        icon_theme = gtk_icon_theme_get_for_screen (screen);
         if (gtk_icon_theme_has_icon (icon_theme, "midori"))
             gtk_window_set_icon_name (GTK_WINDOW (browser), "midori");
         else
             gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
+        if (gtk_icon_theme_has_icon (icon_theme, STOCK_NEWS_FEED))
+            browser->stock_news_feed = STOCK_NEWS_FEED;
+        else
+            browser->stock_news_feed = GTK_STOCK_INDEX;
     }
 }
 
@@ -3119,6 +3129,8 @@ static void
 midori_browser_init (MidoriBrowser* browser)
 {
     GtkRcStyle* rcstyle;
+
+    browser->stock_news_feed = GTK_STOCK_INDEX;
 
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
@@ -3233,7 +3245,7 @@ midori_browser_init (MidoriBrowser* browser)
     /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
         gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INDEX);
+        GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (
         gtk_bin_get_child (GTK_BIN (browser->location))),
         GTK_ICON_ENTRY_SECONDARY, TRUE);

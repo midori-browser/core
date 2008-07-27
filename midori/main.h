@@ -31,7 +31,7 @@ KatzeXbelItem* bookmarks;
 
 #define STOCK_BOOKMARK           GTK_STOCK_FILE /* "stock_bookmark" "bookmark-web" */
 #define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL /* "insert-text" "form-fill" */
-#define STOCK_NEWSFEED           GTK_STOCK_INDEX
+#define STOCK_NEWS_FEED          "news-feed"
 
 /* We assume that these legacy icon names are usually present */
 

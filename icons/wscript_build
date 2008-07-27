@@ -1,0 +1,47 @@
+#! /usr/bin/env python
+# WAF build script for midori
+
+def add_image (bld, install_files, category, name):
+    import os
+    import pproc as subprocess
+
+    srcdir = os.getcwd ()
+    blddir = bld.m_bdir
+
+    def mkdir (path):
+        if not os.access (path, os.F_OK):
+            os.mkdir (path)
+
+    def _install_files (folder, destination, source):
+        try:
+            install_files (folder, destination, source)
+        except:
+            pass
+
+    if bld.env ()['CONVERT']:
+        mkdir (blddir + '/icons')
+
+    for size in [16, 22, 32, 48]:
+        format = str (size) + 'x' + str (size)
+        if os.access (srcdir + '/icons/' + format + '/' + name + '.png', os.F_OK):
+            _install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
+                            srcdir + '/icons/' + format + '/' + name + '.png')
+        elif not bld.env ()['CONVERT']:
+            pass
+        elif os.access (srcdir + '/icons/scalable/' + name + '.svg', os.F_OK):
+            mkdir (blddir + '/icons/' + format)
+            convert = subprocess.Popen (['convert',
+                '-background', 'transparent',
+                '-geometry', format, '-extent', format,
+                srcdir + '/icons/scalable/' + name + '.svg',
+                blddir + '/icons/' + format + '/' + name + '.png'],
+                stderr=subprocess.PIPE)
+            if not convert.wait ():
+                _install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
+                                blddir + '/icons/' + format + '/' + name + '.png')
+            else:
+                Params.pprint ('BLUE', "Optimized icons could not be created.")
+                break
+
+add_image (bld, install_files, 'apps', 'midori')
+add_image (bld, install_files, 'status', 'news-feed')

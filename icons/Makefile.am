@@ -1,5 +1,5 @@
 iconsdir = $(datadir)/icons/hicolor/scalable/apps
-icons_DATA = midori.svg
+icons_DATA = scalable/midori.svg
 
 EXTRA_DIST = $(icons_DATA)
 
