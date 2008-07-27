@@ -18,7 +18,9 @@ Source file example:
     void
     foobar (FooEnum bar, const gchar* foo)
     {
-        if(!foo)
+        gint n, i;
+
+        if (!foo)
             return;
 
         #ifdef BAR_STRICT
@@ -29,8 +31,7 @@ Source file example:
         }
         #endif
 
-        // this is an example
-        gint n;
+        /* this is an example */
         switch (bar)
         {
         case FOO_FOO:
@@ -43,7 +44,6 @@ Source file example:
             n = 1;
         }
 
-        guint i;
         for (i = 0; i < n; i++)
         {
             g_print ("%s\n", foo);
@@ -64,7 +64,7 @@ Header file example:
         #define BAR_STRICT
     #endif
 
-    // -- Types
+    /* Types */
 
     typedef enum
     {
@@ -78,7 +78,7 @@ Header file example:
         FooEnum foo_bar;
     } FooStruct;
 
-    // -- Declarations
+    /* Declarations */
 
     void
     foo_bar           (FooEnum      bar,

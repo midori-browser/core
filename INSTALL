@@ -1,31 +1,32 @@
++++ Installing Midori +++
+
+Building and installing Midori is straightforward.
+
+Make sure you have Python 2.4 or higher installed.
+
+Change to the Midori folder on your hard disk in a terminal.
+
+Run './waf configure'
+
+Run './waf build'
+
+You can now run Midori from _build_/default/midori
+
+You can install it with './waf install'
+
+For further options run './waf --help'
+
++++ The alternative +++
+
+Alternatively, autotools build files are available.
+
 If you checked out from the repository, make sure
-you have *libtool* and *intltool* installed, then run
+you have *libtool* and *intltool* installed.
+Then run './autogen.sh'.
 
-1. ./autogen.sh
+Run './configure'
 
-2. ./configure --enable-debug=yes
+Run 'make'
 
-3. make
-
-If you obtained midori in the form of a release tarball,
-you need to perform the following steps in order to
-build and install the program.
-
-1. Unpack the archive.
-
-2. Check build options with
-      ./configure --help
-
-3. Prepare for build with
-      ./configure
-
-4. Build midori with
-      make
-
-5. To install midori run either
-      (sudo) make install
-   or
-      (sudo) checkinstall
-
-6. For a list of command line options run
-      midori --help
+The usual autotools way works here, please refer to
+according documentation in case of questions.

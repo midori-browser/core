@@ -1,12 +1,15 @@
 TODO:
+ . Revamp bookmarks UI, including creating of bookmark folders
+ . Use an update timeout in KatzePropertyProxy instead of only focus-out
+ . Show a loading mouse pointer
+ . Support bookmarklets
+ . Scroll tabs w/o switching tabs
  . Import and export of the bookmarks file, or using one from a specific path
  . Save files on change as opposed to on quit
  . Middle click toolbuttons or menuitems should open new tabs
  . Implement support for userstyles
- . Actual multiple window support, some things just ignore this currently
  . Custom context menu actions, like in Thunar or Epiphany
  . Custom tab names
- . Identify and fix Gtk2.6 compatibility problems
  . Open an auto-vanishing findbox with '.'
  . Custom panels, loaded from (x)htm(l) files or websites
  . Drag tabs onto the panel to add them to the sidebar
@@ -17,7 +20,6 @@ TODO:
  . Per-site settings accessible via statusbar icons, ie. cookies, popups, plugins
  . CookieSafe like, a list of cookies, with type, block, allow
  . Support mouse gestures (extension)
- . Optional internal source view using gtksourceview?
  . Automatic update checks (browser, extensions)?
  . Auto-group tabs by opener, with colors?
  . Mark (dogear) a selection so that it isn't cleared implicitly, multiply on one page
@@ -25,7 +27,6 @@ TODO:
  . 'about:' uris: about, blank, cache, config, plugins
  . Panel of open tabs (with tree-structure), optional thumbnail-view
  . Spell check support
- . Allow text and full page zoom (how do we incorporate it in the gui?)
  . Check specific bookmarks for updates automatically (extension)
  . Mark "new" as well as "actually modified" tabs specially (even over sessions)
  . Customizable toolbars, custom buttons (uri, title, icon)?
@@ -33,7 +34,6 @@ TODO:
  . Use libnotify for events, e.g. download finished
  . Save screenshot of a document?
  . Right-click a textbox in a search form and choose 'add to websearch'
- . Support extensions written in lua, possibly also Python?
  . Reuse running instance, probably via libunique
  . Honor design principle "no warnings but undo of backups"?
  . Support widgets 1.0 spec in tool windows and standalone?
@@ -52,4 +52,3 @@ TODO:
  . Custom-mode, e.g. hide menubar and use help icon to have a help viewer
  . Prevent dead tabs: download, aborted page
  . On url load, for big files, ask "Open or save?"
- . An option to not reuse the current tab when entering an url or searching
