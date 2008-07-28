@@ -32,7 +32,6 @@ G_BEGIN_DECLS
     (G_TYPE_INSTANCE_GET_CLASS ((obj), MIDORI_TYPE_ADDONS, MidoriAddonsClass))
 
 typedef struct _MidoriAddons                MidoriAddons;
-typedef struct _MidoriAddonsPrivate         MidoriAddonsPrivate;
 typedef struct _MidoriAddonsClass           MidoriAddonsClass;
 
 struct _MidoriAddonsClass
@@ -61,7 +60,7 @@ midori_addons_new                    (GtkWidget*      web_widget,
                                       MidoriAddonKind kind);
 
 GtkWidget*
-midori_addons_get_toolbar            (MidoriAddons*       console);
+midori_addons_get_toolbar            (MidoriAddons*   console);
 
 G_END_DECLS
 

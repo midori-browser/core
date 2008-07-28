@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008 Arnaud Renevier <arenevier@fdn.fr>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -18,6 +19,7 @@
 #include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
+#include <string.h>
 
 struct _MidoriAddons
 {
@@ -163,6 +165,204 @@ midori_addons_init (MidoriAddons* addons)
     gtk_box_pack_start (GTK_BOX (addons), addons->treeview, TRUE, TRUE, 0);
 }
 
+#define HAVE_GREGEX GLIB_CHECK_VERSION (2, 14, 0)
+
+static gboolean
+_include_exclude_from_file (const gchar* filename,
+                            GSList**     includes,
+                            GSList**     excludes)
+{
+    GIOChannel* channel;
+    gchar* line;
+    gboolean found_meta;
+    #if HAVE_GREGEX
+    GRegex* meta_re;
+    GMatchInfo* match_info;
+    #endif
+    gchar* meta_name;
+
+    if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_IS_SYMLINK))
+        return FALSE;
+
+    channel = g_io_channel_new_file (filename, "r", 0);
+    if (!channel)
+        return FALSE;
+
+    found_meta = FALSE;
+    /* FIXME: Implement this without GRegex for Glib < 2.14 */
+    #if HAVE_GREGEX
+    meta_re = g_regex_new (
+        "//[[:space:]]+@([^[:space:]]+)[[:space:]]+([^[:space:]]+)[[:space:]]*",
+        G_REGEX_OPTIMIZE, 0, NULL);
+    #endif
+
+    while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
+           == G_IO_STATUS_NORMAL)
+    {
+        if (g_str_has_prefix (line, "// ==UserScript=="))
+        {
+            found_meta = TRUE;
+            g_free (line);
+            continue;
+        }
+        #if HAVE_GREGEX
+        match_info = NULL;
+        #endif
+        meta_name = NULL;
+        if (found_meta)
+        {
+            if (g_str_has_prefix (line, "// ==/UserScript=="))
+            {
+                found_meta = FALSE;
+                g_free (line);
+                continue;
+            }
+            #if HAVE_GREGEX
+            if (g_regex_match (meta_re, line, 0, &match_info))
+            {
+                meta_name = g_match_info_fetch (match_info, 1);
+                if (!strcmp (meta_name, "require") ||
+                    !strcmp (meta_name, "resource"))
+                {
+                    /* We don't support these, so abort here */
+                    g_match_info_free (match_info);
+                    g_free (meta_name);
+                    g_free (line);
+                    g_io_channel_shutdown (channel, false, 0);
+                    g_regex_unref (meta_re);
+                    g_slist_free (*includes);
+                    g_slist_free (*excludes);
+                    return FALSE;
+                }
+                else if (!strcmp (meta_name, "include"))
+                {
+                    *includes = g_slist_prepend (*includes,
+                    g_match_info_fetch (match_info, 2));
+                }
+                else if (!strcmp (meta_name, "exclude"))
+                {
+                    *excludes = g_slist_prepend (*excludes,
+                    g_match_info_fetch (match_info, 2));
+                }
+            }
+            #endif
+        }
+        #if HAVE_GREGEX
+        g_match_info_free (match_info);
+        #endif
+        g_free (meta_name);
+        g_free (line);
+    }
+    g_io_channel_shutdown (channel, false, 0);
+    g_io_channel_unref (channel);
+    #if HAVE_GREGEX
+    g_regex_unref (meta_re);
+    #endif
+
+    return TRUE;
+}
+
+static gchar*
+_convert_to_simple_regexp (const gchar* pattern)
+{
+    guint len;
+    gchar* dest;
+    guint pos;
+    guint i;
+    gchar c;
+
+    len = strlen (pattern);
+    dest = g_malloc0 (len * 2 + 1);
+    dest[0] = '^';
+    pos = 1;
+
+    for (i = 0; i < len; i++)
+    {
+        c = pattern[i];
+        switch (c)
+        {
+            case '*':
+                dest[pos] = '.';
+                dest[pos + 1] = c;
+                pos++;
+                pos++;
+                break;
+            case '.' :
+            case '?' :
+            case '^' :
+            case '$' :
+            case '+' :
+            case '{' :
+            case '[' :
+            case '|' :
+            case '(' :
+            case ')' :
+            case ']' :
+            case '\\' :
+               dest[pos] = '\\';
+               dest[pos + 1] = c;
+               pos++;
+               pos++;
+               break;
+            case ' ' :
+                break;
+            default:
+               dest[pos] = pattern[i];
+               pos ++;
+        }
+    }
+    return dest;
+}
+
+static gboolean
+_may_load_script (const gchar* uri,
+                  GSList**     includes,
+                  GSList**     excludes)
+{
+    gboolean match;
+    GSList* list;
+    gchar* re;
+
+    if (*includes)
+        match = FALSE;
+    else
+        match = TRUE;
+
+    list = *includes;
+    while (list)
+    {
+        re = _convert_to_simple_regexp (list->data);
+        #if HAVE_GREGEX
+        if (g_regex_match_simple (re, uri, 0, 0))
+        {
+            match = TRUE;
+            break;
+        }
+        #endif
+        g_free (re);
+        list = list->next;
+    }
+    if (!match)
+    {
+        return FALSE;
+    }
+    list = *excludes;
+    while (list)
+    {
+        re = _convert_to_simple_regexp (list->data);
+        #if HAVE_GREGEX
+        if (g_regex_match_simple (re, uri, 0, 0))
+        {
+            match = FALSE;
+            break;
+        }
+        #endif
+        g_free (re);
+        list = list->next;
+    }
+    return match;
+}
+
 static gboolean
 _js_script_from_file (JSContextRef js_context,
                       const gchar* filename,
@@ -199,21 +399,46 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
                                             JSObjectRef        js_window,
                                             MidoriAddons*      addons)
 {
+    gchar* addon_path;
+    GDir* addon_dir;
+    const gchar* filename;
+    gchar* fullname;
+    GSList* includes;
+    GSList* excludes;
+    const gchar* uri;
+    gchar* exception;
+    gchar* message;
+
     /* FIXME: We want to honor system installed addons as well */
-    gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
-                                          _folder_for_kind (addons->kind), NULL);
-    GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
-    if (addon_dir)
+    addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
+                                   _folder_for_kind (addons->kind), NULL);
+    if ((addon_dir = g_dir_open (addon_path, 0, NULL)))
     {
-        const gchar* filename;
         while ((filename = g_dir_read_name (addon_dir)))
         {
-            gchar* fullname = g_build_filename (addon_path, filename, NULL);
-            gchar* exception;
+            fullname = g_build_filename (addon_path, filename, NULL);
+            includes = NULL;
+            excludes = NULL;
+            if (!_include_exclude_from_file (fullname, &includes, &excludes))
+            {
+                g_free (fullname);
+                continue;
+            }
+            if (includes || excludes)
+            {
+                uri = webkit_web_frame_get_uri (web_frame);
+                if (!_may_load_script (uri, &includes, &excludes))
+                {
+                    g_free (fullname);
+                    continue;
+                }
+            }
+            g_slist_free (includes);
+            g_slist_free (excludes);
+            exception = NULL;
             if (!_js_script_from_file (js_context, fullname, &exception))
             {
-                gchar* message = g_strdup_printf ("console.error ('%s');",
-                                                  exception);
+                message = g_strdup_printf ("console.error ('%s');", exception);
                 gjs_script_eval (js_context, message, NULL);
                 g_free (message);
                 g_free (exception);
