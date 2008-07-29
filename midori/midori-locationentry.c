@@ -188,6 +188,33 @@ midori_location_entry_set_item (GtkTreeModel*            model,
     g_free (desc);
 }
 
+static void
+midori_location_entry_set_active_iter (MidoriLocationEntry* location_entry,
+                                       GtkTreeIter*         iter)
+{
+    GdkPixbuf* pixbuf;
+    GtkTreeModel* model;
+    GtkWidget* entry;
+
+    entry = gtk_bin_get_child (GTK_BIN (location_entry));
+
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (location_entry), iter);
+
+    /* When setting the active iter (when adding or setting an item)
+     * The favicon may have change, so we must update the entry favicon.
+     */
+    if (entry)
+    {
+        model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+        gtk_tree_model_get (model, iter, FAVICON_COL, &pixbuf, -1);
+
+        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
+            GTK_ICON_ENTRY_PRIMARY, pixbuf);
+
+        g_object_unref (pixbuf);
+    }
+}
+
 /**
  * midori_location_entry_new:
  *
@@ -202,56 +229,51 @@ midori_location_entry_new (void)
 }
 
 /**
- * midori_location_entry_item_index:
+ * midori_location_entry_item_iter:
  * @location_entry: a #MidoriLocationEntry
  * @uri: a string
+ * @iter: a GtkTreeIter
  *
- * Gets the index of the item matching @uri.
+ * Retrieves the iter of the item matching @uri.
  *
- * Return value: an integer
+ * Return value: %TRUE if @uri was found, %FALSE otherwise
  **/
-gint
-midori_location_entry_item_index (MidoriLocationEntry* location_entry,
-                                  const gchar*         uri)
+gboolean
+midori_location_entry_item_iter (MidoriLocationEntry* location_entry,
+                                 const gchar*         uri,
+                                 GtkTreeIter*         iter)
 {
     GtkTreeModel* model;
-    GtkTreeIter iter;
-    gint index;
     gchar* tmpuri;
-    gint tmpindex;
+    gboolean found;
 
-    g_return_val_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry), -1);
-    g_return_val_if_fail (uri != NULL, -1);
+    g_return_val_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry), FALSE);
+    g_return_val_if_fail (uri != NULL, FALSE);
 
+    found = FALSE;
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
-
-    index = -1;
-    if (gtk_tree_model_get_iter_first (model, &iter))
+    if (gtk_tree_model_get_iter_first (model, iter))
     {
         tmpuri = NULL;
-        tmpindex = 0;
         do
         {
-            gtk_tree_model_get (model, &iter, URI_COL, &tmpuri, -1);
-            if (g_ascii_strcasecmp (uri, tmpuri) == 0)
-            {
-                g_free (tmpuri);
-                index = tmpindex;
-                break;
-            }
+            gtk_tree_model_get (model, iter, URI_COL, &tmpuri, -1);
+            found = !g_ascii_strcasecmp (uri, tmpuri);
             g_free (tmpuri);
-            tmpindex++;
+
+            if (found)
+                break;
         }
-        while (gtk_tree_model_iter_next (model, &iter));
+        while (gtk_tree_model_iter_next (model, iter));
     }
-    return index;
+    return found;
 }
 
 /**
  * midori_location_entry_get_text:
  * @location_entry: a #MidoriLocationEntry
  *
- * Gets the entry text.
+ * Retrieves the text of the embedded entry.
  *
  * Return value: a string
  **/
@@ -322,16 +344,19 @@ void
 midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
                                          const gchar*         uri)
 {
-    gint index;
+    gboolean found;
+    GtkTreeIter iter;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
 
-    index = midori_location_entry_item_index (
-        MIDORI_LOCATION_ENTRY (location_entry), uri);
-    gtk_combo_box_set_active (GTK_COMBO_BOX (location_entry), index);
-
-    if(index == -1)
+    found = midori_location_entry_item_iter (MIDORI_LOCATION_ENTRY (location_entry),
+                                             uri,
+                                             &iter);
+    if(found)
+        midori_location_entry_set_active_iter (location_entry, &iter);
+    else
         midori_location_entry_clear (location_entry);
+
 }
 
 /**
@@ -377,6 +402,6 @@ midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
         gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
 
     midori_location_entry_set_item (model, &iter, item);
-    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (location_entry), &iter);
+    midori_location_entry_set_active_iter (location_entry, &iter);
 }
 
