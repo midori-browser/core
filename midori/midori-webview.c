@@ -342,7 +342,7 @@ file_info_finish_cb (GFile*         icon_file,
         {
             icon = g_file_icon_new (icon_file);
             g_loadable_icon_load_async (G_LOADABLE_ICON (icon),
-            0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, web_view);
+                0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, web_view);
             return;
         }
     }
@@ -467,18 +467,35 @@ gjs_value_links_foreach_cb (GjsValue*      link,
                             MidoriWebView* web_view)
 {
     const gchar* type;
+    const gchar* rel;
+    GFile* icon_file;
+    GIcon* icon;
 
-    if (gjs_value_is_object (link) && gjs_value_has_attribute (link, "type")
-        && gjs_value_has_attribute (link, "href"))
+    if (gjs_value_is_object (link) && gjs_value_has_attribute (link, "href"))
     {
-        type = gjs_value_get_attribute_string (link, "type");
-        if (!strcmp (type, "application/rss+xml")
-            || !strcmp (type, "application/x.atom+xml")
-            || !strcmp (type, "application/atom+xml"))
-            g_signal_emit (web_view, signals[NEWS_FEED_READY], 0,
-                gjs_value_get_attribute_string (link, "href"), type,
-                gjs_value_has_attribute (link, "title")
-                ? gjs_value_get_attribute_string (link, "title") : NULL);
+        if (gjs_value_has_attribute (link, "type"))
+        {
+            type = gjs_value_get_attribute_string (link, "type");
+            if (!strcmp (type, "application/rss+xml")
+                || !strcmp (type, "application/x.atom+xml")
+                || !strcmp (type, "application/atom+xml"))
+                g_signal_emit (web_view, signals[NEWS_FEED_READY], 0,
+                    gjs_value_get_attribute_string (link, "href"), type,
+                    gjs_value_has_attribute (link, "title")
+                    ? gjs_value_get_attribute_string (link, "title") : NULL);
+        }
+        if (gjs_value_has_attribute (link, "rel"))
+        {
+            rel = gjs_value_get_attribute_string (link, "rel");
+            if (!strcmp (rel, "icon") || !strcmp (rel, "shortcut icon"))
+            {
+                icon_file = g_file_new_for_uri (
+                    gjs_value_get_attribute_string (link, "href"));
+                icon = g_file_icon_new (icon_file);
+                g_loadable_icon_load_async (G_LOADABLE_ICON (icon),
+                    0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, web_view);
+            }
+        }
     }
 }
 
