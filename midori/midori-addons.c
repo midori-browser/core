@@ -165,21 +165,15 @@ midori_addons_init (MidoriAddons* addons)
     gtk_box_pack_start (GTK_BOX (addons), addons->treeview, TRUE, TRUE, 0);
 }
 
-#define HAVE_GREGEX GLIB_CHECK_VERSION (2, 14, 0)
-
 static gboolean
 _include_exclude_from_file (const gchar* filename,
                             GSList**     includes,
                             GSList**     excludes)
 {
     GIOChannel* channel;
-    gchar* line;
     gboolean found_meta;
-    #if HAVE_GREGEX
-    GRegex* meta_re;
-    GMatchInfo* match_info;
-    #endif
-    gchar* meta_name;
+    gchar* line;
+    gchar* rest_of_line;
 
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_IS_SYMLINK))
         return FALSE;
@@ -189,79 +183,50 @@ _include_exclude_from_file (const gchar* filename,
         return FALSE;
 
     found_meta = FALSE;
-    /* FIXME: Implement this without GRegex for Glib < 2.14 */
-    #if HAVE_GREGEX
-    meta_re = g_regex_new (
-        "//[[:space:]]+@([^[:space:]]+)[[:space:]]+([^[:space:]]+)[[:space:]]*",
-        G_REGEX_OPTIMIZE, 0, NULL);
-    #endif
 
     while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
            == G_IO_STATUS_NORMAL)
     {
         if (g_str_has_prefix (line, "// ==UserScript=="))
-        {
             found_meta = TRUE;
-            g_free (line);
-            continue;
-        }
-        #if HAVE_GREGEX
-        match_info = NULL;
-        #endif
-        meta_name = NULL;
-        if (found_meta)
+        else if (found_meta)
         {
             if (g_str_has_prefix (line, "// ==/UserScript=="))
-            {
                 found_meta = FALSE;
-                g_free (line);
-                continue;
-            }
-            #if HAVE_GREGEX
-            if (g_regex_match (meta_re, line, 0, &match_info))
+            else if (g_str_has_prefix (line, "// @require") ||
+                g_str_has_prefix (line, "// @resource"))
             {
-                meta_name = g_match_info_fetch (match_info, 1);
-                if (!strcmp (meta_name, "require") ||
-                    !strcmp (meta_name, "resource"))
-                {
                     /* We don't support these, so abort here */
-                    g_match_info_free (match_info);
-                    g_free (meta_name);
                     g_free (line);
                     g_io_channel_shutdown (channel, false, 0);
-                    g_regex_unref (meta_re);
                     g_slist_free (*includes);
                     g_slist_free (*excludes);
                     return FALSE;
-                }
-                else if (!strcmp (meta_name, "include"))
-                {
-                    *includes = g_slist_prepend (*includes,
-                    g_match_info_fetch (match_info, 2));
-                }
-                else if (!strcmp (meta_name, "exclude"))
-                {
-                    *excludes = g_slist_prepend (*excludes,
-                    g_match_info_fetch (match_info, 2));
-                }
-            }
-            #endif
+             }
+             else if (g_str_has_prefix (line, "// @include"))
+             {
+                 rest_of_line = g_strdup (line + strlen ("// @include"));
+                 rest_of_line =  g_strstrip (rest_of_line);
+                 *includes = g_slist_prepend (*includes, rest_of_line);
+             }
+             else if (g_str_has_prefix (line, "// @exclude"))
+             {
+                 rest_of_line = g_strdup (line + strlen ("// @exclude"));
+                 rest_of_line =  g_strstrip (rest_of_line);
+                 *excludes = g_slist_prepend (*excludes, rest_of_line);
+             }
         }
-        #if HAVE_GREGEX
-        g_match_info_free (match_info);
-        #endif
-        g_free (meta_name);
         g_free (line);
     }
     g_io_channel_shutdown (channel, false, 0);
     g_io_channel_unref (channel);
-    #if HAVE_GREGEX
-    g_regex_unref (meta_re);
-    #endif
 
     return TRUE;
 }
 
+#define HAVE_GREGEX GLIB_CHECK_VERSION (2, 14, 0)
+
+#if HAVE_GREGEX
 static gchar*
 _convert_to_simple_regexp (const gchar* pattern)
 {
@@ -313,6 +278,35 @@ _convert_to_simple_regexp (const gchar* pattern)
     }
     return dest;
 }
+#else
+static bool
+_match_with_wildcard (const gchar* str,
+                      const gchar* pattern)
+{
+    gchar** parts;
+    gchar** parts_ref;
+    const gchar* subpart;
+    gchar* newsubpart;
+
+    parts = g_strsplit (pattern, "*", 0);
+    parts_ref = parts;
+    subpart = str;
+    do
+    {
+        newsubpart = g_strstr_len (subpart, strlen (subpart), *parts);
+        if (!newsubpart)
+        {
+            g_strfreev (parts_ref);
+            return FALSE;
+        }
+        subpart = newsubpart + strlen (*parts);
+        parts++;
+    }
+    while (*parts);
+    g_strfreev (parts_ref);
+    return TRUE;
+}
+#endif
 
 static gboolean
 _may_load_script (const gchar* uri,
@@ -321,7 +315,12 @@ _may_load_script (const gchar* uri,
 {
     gboolean match;
     GSList* list;
+    #if HAVE_GREGEX
     gchar* re;
+    #else
+    guint uri_len;
+    guint pattern_len;
+    #endif
 
     if (*includes)
         match = FALSE;
@@ -329,17 +328,32 @@ _may_load_script (const gchar* uri,
         match = TRUE;
 
     list = *includes;
+    #if !HAVE_GREGEX
+    uri_len = strlen (uri);
+    #endif
     while (list)
     {
-        re = _convert_to_simple_regexp (list->data);
         #if HAVE_GREGEX
+        re = _convert_to_simple_regexp (list->data);
         if (g_regex_match_simple (re, uri, 0, 0))
         {
             match = TRUE;
             break;
         }
-        #endif
         g_free (re);
+        #else
+        pattern_len = strlen (list->data);
+        if (!g_ascii_strncasecmp (uri, list->data, MAX (uri_len, pattern_len)))
+        {
+            match = TRUE;
+            break;
+        }
+        else if (_match_with_wildcard (uri, list->data))
+        {
+            match = TRUE;
+            break;
+        }
+        #endif
         list = list->next;
     }
     if (!match)
@@ -349,15 +363,27 @@ _may_load_script (const gchar* uri,
     list = *excludes;
     while (list)
     {
-        re = _convert_to_simple_regexp (list->data);
         #if HAVE_GREGEX
+        re = _convert_to_simple_regexp (list->data);
         if (g_regex_match_simple (re, uri, 0, 0))
         {
             match = FALSE;
             break;
         }
-        #endif
         g_free (re);
+        #else
+        pattern_len = strlen (list->data);
+        if (!g_ascii_strncasecmp (uri, list->data, MAX (uri_len, pattern_len)))
+        {
+            match = FALSE;
+            break;
+        }
+        else if (_match_with_wildcard (uri, list->data))
+        {
+            match = FALSE;
+            break;
+        }
+         #endif
         list = list->next;
     }
     return match;
@@ -409,6 +435,10 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
     gchar* exception;
     gchar* message;
 
+    uri = webkit_web_frame_get_uri (web_frame);
+    if (!uri)
+        return;
+
     /* FIXME: We want to honor system installed addons as well */
     addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
                                    _folder_for_kind (addons->kind), NULL);
@@ -425,14 +455,11 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
                 continue;
             }
             if (includes || excludes)
-            {
-                uri = webkit_web_frame_get_uri (web_frame);
                 if (!_may_load_script (uri, &includes, &excludes))
                 {
                     g_free (fullname);
                     continue;
                 }
-            }
             g_slist_free (includes);
             g_slist_free (excludes);
             exception = NULL;
