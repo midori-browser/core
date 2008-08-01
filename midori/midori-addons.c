@@ -25,12 +25,33 @@ struct _MidoriAddons
 {
     GtkVBox parent_instance;
 
+    GtkWidget* web_widget;
     MidoriAddonKind kind;
     GtkWidget* toolbar;
     GtkWidget* treeview;
 };
 
 G_DEFINE_TYPE (MidoriAddons, midori_addons, GTK_TYPE_VBOX)
+
+enum
+{
+    PROP_0,
+
+    PROP_WEB_WIDGET,
+    PROP_KIND
+};
+
+static void
+midori_addons_set_property (GObject*      object,
+                            guint         prop_id,
+                            const GValue* value,
+                            GParamSpec*   pspec);
+
+static void
+midori_addons_get_property (GObject*    object,
+                            guint       prop_id,
+                            GValue*     value,
+                            GParamSpec* pspec);
 
 GType
 midori_addon_kind_get_type (void)
@@ -39,6 +60,7 @@ midori_addon_kind_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
+         { MIDORI_ADDON_NONE, "MIDORI_ADDON_NONE", N_("None") },
          { MIDORI_ADDON_EXTENSIONS, "MIDORI_ADDON_EXTENSIONS", N_("Extensions") },
          { MIDORI_ADDON_USER_SCRIPTS, "MIDORI_USER_SCRIPTS", N_("Userscripts") },
          { MIDORI_ADDON_USER_STYLES, "MIDORI_USER_STYLES", N_("Userstyles") },
@@ -52,13 +74,83 @@ midori_addon_kind_get_type (void)
 static void
 midori_addons_class_init (MidoriAddonsClass* class)
 {
-    /* Nothing to do */
+    GObjectClass* gobject_class;
+    GParamFlags flags;
+
+    gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->set_property = midori_addons_set_property;
+    gobject_class->get_property = midori_addons_get_property;
+
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_WEB_WIDGET,
+                                     g_param_spec_object (
+                                     "web-widget",
+                                     _("Web Widget"),
+                                     _("The assigned web widget"),
+                                     GTK_TYPE_WIDGET,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_KIND,
+                                     g_param_spec_enum (
+                                     "kind",
+                                     _("Kind"),
+                                     _("The kind of addons"),
+                                     MIDORI_TYPE_ADDON_KIND,
+                                     MIDORI_ADDON_NONE,
+                                     flags));
 }
 
-static const
-gchar* _folder_for_kind (MidoriAddonKind kind)
+static void
+midori_addons_set_property (GObject*      object,
+                            guint         prop_id,
+                            const GValue* value,
+                            GParamSpec*   pspec)
 {
-    switch (kind)
+    MidoriAddons* addons = MIDORI_ADDONS (object);
+
+    switch (prop_id)
+    {
+    case PROP_WEB_WIDGET:
+        midori_addons_set_web_widget (addons, g_value_get_object (value));
+        break;
+    case PROP_KIND:
+        midori_addons_set_kind (addons, g_value_get_enum (value));
+        break;
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
+    }
+}
+
+static void
+midori_addons_get_property (GObject*    object,
+                            guint       prop_id,
+                            GValue*     value,
+                            GParamSpec* pspec)
+{
+    MidoriAddons* addons = MIDORI_ADDONS (object);
+
+    switch (prop_id)
+    {
+    case PROP_WEB_WIDGET:
+        g_value_set_object (value, midori_addons_get_web_widget (addons));
+        break;
+    case PROP_KIND:
+        g_value_set_enum (value, midori_addons_get_kind (addons));
+        break;
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
+    }
+}
+
+static const gchar*
+_addons_get_folder (MidoriAddons* addons)
+{
+    switch (addons->kind)
     {
     case MIDORI_ADDON_EXTENSIONS:
         return "extensions";
@@ -66,6 +158,22 @@ gchar* _folder_for_kind (MidoriAddonKind kind)
         return "scripts";
     case MIDORI_ADDON_USER_STYLES:
         return "styles";
+    default:
+        return NULL;
+    }
+}
+
+static const gchar*
+_addons_get_extension (MidoriAddons* addons)
+{
+    switch (addons->kind)
+    {
+    case MIDORI_ADDON_EXTENSIONS:
+        return ".midori.js";
+    case MIDORI_ADDON_USER_SCRIPTS:
+        return ".user.js";
+    case MIDORI_ADDON_USER_STYLES:
+        return ".user.css";
     default:
         return NULL;
     }
@@ -80,7 +188,7 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
         GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
         "Put scripts in the folder ~/.local/share/midori/%s",
-        _folder_for_kind (addons->kind));
+        _addons_get_folder (addons));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
 }
@@ -143,6 +251,8 @@ midori_addons_init (MidoriAddons* addons)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_pixbuf;
+
+    addons->web_widget = NULL;
 
     addons->treeview = gtk_tree_view_new ();
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (addons->treeview), FALSE);
@@ -441,11 +551,14 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
 
     /* FIXME: We want to honor system installed addons as well */
     addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
-                                   _folder_for_kind (addons->kind), NULL);
+                                   _addons_get_folder (addons), NULL);
     if ((addon_dir = g_dir_open (addon_path, 0, NULL)))
     {
         while ((filename = g_dir_read_name (addon_dir)))
         {
+            if (!g_str_has_suffix (filename, _addons_get_extension (addons)))
+                continue;
+
             fullname = g_build_filename (addon_path, filename, NULL);
             includes = NULL;
             excludes = NULL;
@@ -480,14 +593,11 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
  * midori_addons_new:
  * @web_widget: a web widget
  * @kind: the kind of addon
- * @extension: a file extension mask
  *
  * Creates a new addons widget.
  *
  * @web_widget can be one of the following:
  *     %MidoriBrowser, %MidoriWebView, %WebKitWebView
- *
- * Note: Currently @extension has no effect.
  *
  * Return value: a new #MidoriAddons
  **/
@@ -495,30 +605,101 @@ GtkWidget*
 midori_addons_new (GtkWidget*      web_widget,
                    MidoriAddonKind kind)
 {
+    MidoriAddons* addons;
+
     g_return_val_if_fail (GTK_IS_WIDGET (web_widget), NULL);
 
-    MidoriAddons* addons = g_object_new (MIDORI_TYPE_ADDONS,
-                                         /* "kind", kind, */
-                                         NULL);
+    addons = g_object_new (MIDORI_TYPE_ADDONS,
+                           /* "web-widget", web_widget,
+                           "kind", kind, */ NULL);
+    addons->web_widget = web_widget;
+    midori_addons_set_kind (addons, kind);
+
+    return GTK_WIDGET (addons);
+}
+
+/**
+ * midori_addons_set_web_widget:
+ * @addons: a #MidoriAddons
+ * @web_widget: a web widget
+ *
+ * Sets the assigned web widget. Basically any widget
+ * with a window-object-cleared qualifies as such.
+ *
+ * Note: This may only be set once.
+ **/
+void
+midori_addons_set_web_widget (MidoriAddons* addons,
+                              GtkWidget*    web_widget)
+{
+    g_return_if_fail (MIDORI_IS_ADDONS (addons));
+    g_return_if_fail (GTK_IS_WIDGET (addons));
+    g_return_if_fail (g_signal_lookup ("window-object-cleared", G_TYPE_FROM_INSTANCE (web_widget)));
+
+    /* FIXME: Implement this */
+}
+
+/**
+ * midori_addons_get_web_widget:
+ * @addons: a #MidoriAddons
+ *
+ * Determines the assigned web widget.
+ *
+ * Return value: a web widget
+ **/
+GtkWidget*
+midori_addons_get_web_widget (MidoriAddons* addons)
+{
+    return addons->web_widget;
+}
+
+/**
+ * midori_addons_set_kind:
+ * @addons: a #MidoriAddons
+ * @kind: a #MidoriAddonKind
+ *
+ * Sets the kind of addons.
+ *
+ * Note: This may only be set once.
+ **/
+void
+midori_addons_set_kind (MidoriAddons*   addons,
+                        MidoriAddonKind kind)
+{
+    GtkListStore* liststore;
+    gchar* addon_path;
+    GDir* addon_dir;
+    const gchar* filename;
+    GtkTreeIter iter;
+
+    g_return_if_fail (MIDORI_IS_ADDONS (addons));
+    g_return_if_fail (addons->kind == MIDORI_ADDON_NONE);
+
+    if (kind == MIDORI_ADDON_NONE)
+        return;
+
+    g_return_if_fail (addons->web_widget);
 
     addons->kind = kind;
+
     if (kind == MIDORI_ADDON_USER_SCRIPTS)
-        g_signal_connect (web_widget, "window-object-cleared",
+        g_signal_connect (addons->web_widget, "window-object-cleared",
             G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
 
-    GtkListStore* liststore = gtk_list_store_new (3, G_TYPE_STRING,
-                                                     G_TYPE_INT,
-                                                     G_TYPE_STRING);
+    liststore = gtk_list_store_new (3, G_TYPE_STRING,
+                                    G_TYPE_INT,
+                                    G_TYPE_STRING);
     /* FIXME: We want to honor system installed addons as well */
-    gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
-                                          _folder_for_kind (addons->kind), NULL);
-    GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
+    addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
+                                   _addons_get_folder (addons), NULL);
+    addon_dir = g_dir_open (addon_path, 0, NULL);
     if (addon_dir)
     {
-        const gchar* filename;
         while ((filename = g_dir_read_name (addon_dir)))
         {
-            GtkTreeIter iter;
+            if (!g_str_has_suffix (filename, _addons_get_extension (addons)))
+                continue;
+
             gtk_list_store_append (liststore, &iter);
             gtk_list_store_set (liststore, &iter,
                 0, filename, 1, 0, 2, "", -1);
@@ -528,28 +709,46 @@ midori_addons_new (GtkWidget*      web_widget,
     gtk_tree_view_set_model (GTK_TREE_VIEW (addons->treeview),
                              GTK_TREE_MODEL (liststore));
 
-    return GTK_WIDGET (addons);
+    g_object_notify (G_OBJECT (addons), "kind");
+}
+
+/**
+ * midori_addons_get_kind:
+ * @addons: a #MidoriAddons
+ *
+ * Determines the kind of addons.
+ *
+ * Return value: a #MidoriAddonKind
+ **/
+MidoriAddonKind
+midori_addons_get_kind (MidoriAddons* addons)
+{
+    return addons->kind;
 }
 
 /**
  * midori_addons_get_toolbar:
+ * @addons: a #MidoriAddons
  *
- * Retrieves the toolbar of the addons. A new widget is created on
- * the first call of this function.
+ * Retrieves the toolbar of the addons. A new widget
+ * is created on the first call of this function.
  *
- * Return value: a new #MidoriAddons
+ * Return value: a toolbar widget
  **/
 GtkWidget*
 midori_addons_get_toolbar (MidoriAddons* addons)
 {
+    GtkWidget* toolbar;
+    GtkToolItem* toolitem;
+
     g_return_val_if_fail (MIDORI_IS_ADDONS (addons), NULL);
 
     if (!addons->toolbar)
     {
-        GtkWidget* toolbar = gtk_toolbar_new ();
+        toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
-        GtkToolItem* toolitem = gtk_tool_item_new ();
+        toolitem = gtk_tool_item_new ();
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         toolitem = gtk_separator_tool_item_new ();
@@ -565,6 +764,10 @@ midori_addons_get_toolbar (MidoriAddons* addons)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         addons->toolbar = toolbar;
+
+        g_signal_connect (addons->toolbar, "destroy",
+                          G_CALLBACK (gtk_widget_destroyed),
+                          &addons->toolbar);
     }
 
     return addons->toolbar;

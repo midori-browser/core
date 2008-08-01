@@ -622,6 +622,9 @@ main (int argc,
         const gchar* filename;
         while ((filename = g_dir_read_name (addon_dir)))
         {
+            if (!g_str_has_prefix (filename, ".midori.js"))
+                continue;
+
             gchar* fullname = g_build_filename (addon_path, filename, NULL);
             gchar* exception = NULL;
             gjs_script_from_file (js_context, fullname, &exception);
