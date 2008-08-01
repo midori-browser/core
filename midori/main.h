@@ -30,6 +30,7 @@ KatzeXbelItem* bookmarks;
          in order to reduce the amount of warnings */
 
 #define STOCK_BOOKMARK           GTK_STOCK_FILE /* "stock_bookmark" "bookmark-web" */
+#define STOCK_EXTENSION          GTK_STOCK_EXECUTE /* "extension" */
 #define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL /* "insert-text" "form-fill" */
 #define STOCK_NEWS_FEED          "news-feed"
 
