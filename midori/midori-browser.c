@@ -1679,10 +1679,10 @@ midori_browser_menu_trash_item_activate_cb (GtkWidget*     menuitem,
     /* Create a new web view with an uri which has been closed before */
     KatzeXbelItem* item = g_object_get_data (G_OBJECT (menuitem),
                                              "KatzeXbelItem");
-    const gchar* uri = katze_xbel_bookmark_get_href (item);
-    gint n = midori_browser_add_uri (browser, uri);
+    gint n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
-    katze_xbel_item_unref (item);
+    midori_web_list_remove_item (browser->trash, item);
+    _midori_browser_update_actions (browser);
 }
 
 static void
