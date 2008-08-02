@@ -38,6 +38,7 @@ struct _MidoriWebView
     MidoriLoadStatus load_status;
     gchar* statusbar_text;
     gchar* link_uri;
+    MidoriWebList* news_feeds;
 
     MidoriWebSettings* settings;
 
@@ -479,10 +480,13 @@ gjs_value_links_foreach_cb (GjsValue*      link,
             if (!strcmp (type, "application/rss+xml")
                 || !strcmp (type, "application/x.atom+xml")
                 || !strcmp (type, "application/atom+xml"))
+            {
+                midori_web_list_add_item (web_view->news_feeds, link);
                 g_signal_emit (web_view, signals[NEWS_FEED_READY], 0,
                     gjs_value_get_attribute_string (link, "href"), type,
                     gjs_value_has_attribute (link, "title")
                     ? gjs_value_get_attribute_string (link, "title") : NULL);
+            }
         }
         if (gjs_value_has_attribute (link, "rel"))
         {
@@ -522,6 +526,7 @@ webkit_web_frame_load_done (WebKitWebFrame* web_frame,
     value = gjs_value_new (webkit_web_frame_get_global_context (web_frame), NULL);
     document = gjs_value_get_by_name (value, "document");
     links = gjs_value_get_elements_by_tag_name (document, "link");
+    midori_web_list_clear (web_view->news_feeds);
     gjs_value_foreach (links, (GjsCallback)gjs_value_links_foreach_cb, web_view);
     g_object_unref (links);
     g_object_unref (document);
@@ -663,8 +668,8 @@ midori_web_view_menu_download_activate_cb (GtkWidget*     widget,
 }
 
 static void
-webkit_web_view_populate_popup_cb (GtkWidget*     web_view,
-                                   GtkWidget*     menu)
+webkit_web_view_populate_popup_cb (GtkWidget* web_view,
+                                   GtkWidget* menu)
 {
     const gchar* uri;
     GtkWidget* menuitem;
@@ -747,6 +752,7 @@ midori_web_view_init (MidoriWebView* web_view)
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     web_view->progress = 0.0;
     web_view->load_status = MIDORI_LOAD_FINISHED;
+    web_view->news_feeds = midori_web_list_new ();
 
     web_view->settings = midori_web_settings_new ();
     g_object_set (web_view, "WebKitWebView::settings", web_view->settings, NULL);
@@ -799,12 +805,13 @@ midori_web_view_finalize (GObject* object)
     g_free (web_view->title);
     g_free (web_view->statusbar_text);
     g_free (web_view->link_uri);
-
-    if (web_view->xbel_item)
-        katze_xbel_item_unref (web_view->xbel_item);
+    g_object_unref (web_view->news_feeds);
 
     if (web_view->settings)
         g_object_unref (web_view->settings);
+
+    if (web_view->xbel_item)
+        katze_xbel_item_unref (web_view->xbel_item);
 
     G_OBJECT_CLASS (midori_web_view_parent_class)->finalize (object);
 }
@@ -1137,4 +1144,23 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
     return web_view->link_uri;
+}
+
+/**
+ * midori_web_view_get_news_feeds:
+ * @web_view: a #MidoriWebView
+ *
+ * Retrieves a list of news feeds for the current page
+ * or %NULL if there are no feeds at all.
+ *
+ * Return value: a #MidoriWebList, or %NULL
+ **/
+MidoriWebList*
+midori_web_view_get_news_feeds (MidoriWebView* web_view)
+{
+    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
+
+    if (!midori_web_list_is_empty (web_view->news_feeds))
+        return web_view->news_feeds;
+    return NULL;
 }

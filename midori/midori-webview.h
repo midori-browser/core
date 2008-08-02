@@ -13,6 +13,7 @@
 #define __MIDORI_WEB_VIEW_H__
 
 #include "midori-websettings.h"
+#include "midori-weblist.h"
 
 #include <katze/katze.h>
 #include <webkit/webkit.h>
@@ -113,6 +114,9 @@ midori_web_view_get_display_title      (MidoriWebView*     web_view);
 
 const gchar*
 midori_web_view_get_link_uri           (MidoriWebView*     web_view);
+
+MidoriWebList*
+midori_web_view_get_news_feeds         (MidoriWebView*     web_view);
 
 G_END_DECLS
 

@@ -24,6 +24,7 @@
 #include "midori-searchentry.h"
 #include "midori-locationentry.h"
 #include "compat.h"
+#include "gjs.h"
 
 #if GLIB_CHECK_VERSION (2, 16, 0)
 #include <gio/gio.h>
@@ -289,10 +290,16 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_show (browser->progressbar);
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
-    /* FIXME show news feed icon if feeds are available */
-    /* gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
+
+    /* FIXME: This won't work due to a bug in GtkIconEntry */
+    /* if (web_view && midori_web_view_get_news_feeds (MIDORI_WEB_VIEW (web_view)))
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
             gtk_bin_get_child (GTK_BIN (browser->location))),
-            GTK_ICON_ENTRY_SECONDARY, NULL); */
+            GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
+    else
+        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
+            gtk_bin_get_child (GTK_BIN (browser->location))),
+            GTK_ICON_ENTRY_SECONDARY, NULL);*/
 }
 
 static GtkWidget*
@@ -1696,7 +1703,7 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
         GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FILE,
                                                     GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-        gtk_menu_shell_append(GTK_MENU_SHELL (menu), menuitem);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "KatzeXbelItem", item);
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_browser_menu_trash_item_activate_cb), browser);
@@ -2423,7 +2430,7 @@ _action_about_activate (GtkAction*     action,
         "version", PACKAGE_VERSION,
         "comments", _("A lightweight web browser."),
         "copyright", "Copyright © 2007-2008 Christian Dywan",
-        "website", "http://software.twotoasts.de",
+        "website", "http://www.twotoasts.de",
         "authors", credits_authors,
         "documenters", credits_documenters,
         "artists", credits_artists,
@@ -2441,6 +2448,72 @@ midori_browser_location_changed_cb (GtkWidget*     widget,
        const gchar* new_uri = gtk_entry_get_text (GTK_ENTRY (widget));
        katze_xbel_bookmark_set_href(browser->sessionItem, new_uri);
        FIXME: If we want this feature, this is the wrong approach */
+}
+
+static void
+midori_browser_menu_feed_item_activate_cb (GtkWidget*     widget,
+                                           MidoriBrowser* browser)
+{
+    const gchar* uri;
+
+    uri = g_object_get_data (G_OBJECT (widget), "uri");
+    _midori_browser_open_uri (browser, uri);
+}
+
+static void
+midori_browser_location_icon_released_cb (GtkWidget*     widget,
+                                          gint           icon_pos,
+                                          gint           button,
+                                          MidoriBrowser* browser)
+{
+    MidoriWebView* web_view;
+    MidoriWebList* news_feeds;
+    GtkWidget* menu;
+    guint n, i;
+    GjsValue* feed;
+    const gchar* uri;
+    const gchar* title;
+    GtkWidget* menuitem;
+
+    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+    {
+        web_view = (MidoriWebView*)midori_browser_get_current_web_view (browser);
+        if (web_view)
+        {
+            news_feeds = midori_web_view_get_news_feeds (web_view);
+            n = news_feeds ? midori_web_list_get_length (news_feeds) : 0;
+            if (n)
+            {
+                menu = gtk_menu_new ();
+                for (i = 0; i < n; i++)
+                {
+                    if (!(feed = midori_web_list_get_nth_item (news_feeds, i)))
+                        continue;
+
+                    uri = gjs_value_get_attribute_string (feed, "href");
+                    if (gjs_value_has_attribute (feed, "title"))
+                        title = gjs_value_get_attribute_string (feed, "title");
+                    else
+                        title = uri;
+                    if (!*title)
+                        title = uri;
+                    menuitem = gtk_image_menu_item_new_with_label (title);
+                    /* FIXME: Get the real icon */
+                    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
+                        menuitem), gtk_image_new_from_stock (STOCK_NEWS_FEED,
+                        GTK_ICON_SIZE_MENU));
+                    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                    g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
+                    g_signal_connect (menuitem, "activate",
+                        G_CALLBACK (midori_browser_menu_feed_item_activate_cb),
+                        browser);
+                    gtk_widget_show (menuitem);
+                }
+                sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
+                                     SOKOKE_MENU_POSITION_CURSOR);
+            }
+        }
+    }
 }
 
 static void
@@ -3160,7 +3233,7 @@ midori_browser_init (MidoriBrowser* browser)
                                 gtk_ui_manager_get_accel_group (ui_manager));
 
     GError* error = NULL;
-    if (!gtk_ui_manager_add_ui_from_string(ui_manager, ui_markup, -1, &error))
+    if (!gtk_ui_manager_add_ui_from_string (ui_manager, ui_markup, -1, &error))
     {
         /* TODO: Should this be a message dialog? When does this happen? */
         g_message ("User interface couldn't be created: %s", error->message);
@@ -3173,8 +3246,8 @@ midori_browser_init (MidoriBrowser* browser)
     guint i;
     for (i = 0; i < entries_n; i++)
     {
-        action = gtk_action_group_get_action(browser->action_group,
-                                             entries[i].name);
+        action = gtk_action_group_get_action (browser->action_group,
+                                              entries[i].name);
         gtk_action_set_sensitive (action,
                                   entries[i].callback || !entries[i].tooltip);
     }
@@ -3242,13 +3315,6 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Location */
     browser->location = midori_location_entry_new ();
-    /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
-        gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (
-        gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, TRUE);
     /* FIXME: sokoke_entry_setup_completion (GTK_ENTRY (browser->location)); */
     g_object_connect (browser->location,
                       "signal::active-changed",
@@ -3261,6 +3327,16 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::changed",
                       midori_browser_location_changed_cb, browser,
                       NULL);
+    /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
+        gtk_bin_get_child (GTK_BIN (browser->location))),
+        GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (
+        gtk_bin_get_child (GTK_BIN (browser->location))),
+        GTK_ICON_ENTRY_SECONDARY, TRUE);
+    g_signal_connect (gtk_bin_get_child (GTK_BIN (browser->location)),
+        "icon-released", G_CALLBACK (midori_browser_location_icon_released_cb),
+        browser);
     GtkToolItem* toolitem = gtk_tool_item_new ();
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
     GtkWidget* align = gtk_alignment_new (0, 0.5, 1, 0.1);

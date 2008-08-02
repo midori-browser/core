@@ -35,13 +35,6 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
-
-static void
-entry_icon_released (GtkIconEntry* entry,
-                     gint          icon_pos,
-                     gint          button,
-                     gpointer      user_data);
-
 static gboolean
 entry_key_press_event (GtkWidget*           widget,
                        GdkEventKey*         event,
@@ -80,14 +73,13 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
 
     entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, DEFAULT_ICON);
-    g_signal_connect (entry, "icon_released", G_CALLBACK (entry_icon_released), NULL);
     g_signal_connect (entry, "key-press-event", G_CALLBACK (entry_key_press_event), location_entry);
 
     gtk_widget_show (entry);
     gtk_container_add (GTK_CONTAINER (location_entry), entry);
 
     store = gtk_list_store_new (N_COLS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-    g_object_set (G_OBJECT (location_entry), "model", GTK_TREE_MODEL (store), NULL);
+    g_object_set (G_OBJECT (location_entry), "model", store, NULL);
     g_object_unref(store);
 
     gtk_combo_box_entry_set_text_column (GTK_COMBO_BOX_ENTRY (location_entry), URI_COL);
@@ -128,16 +120,6 @@ entry_key_press_event (GtkWidget*           widget,
     }
 
     return FALSE;
-}
-
-static void
-entry_icon_released (GtkIconEntry* entry,
-                     gint          icon_pos,
-                     gint          button,
-                     gpointer      user_data)
-{
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-        /* FIXME Show available news feeds */;
 }
 
 static void
