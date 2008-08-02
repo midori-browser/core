@@ -102,8 +102,12 @@ static void
 midori_web_list_finalize (GObject* object)
 {
     MidoriWebList* web_list = MIDORI_WEB_LIST (object);
+    guint n, i;
 
-    midori_web_list_clear (web_list);
+    /* Scruffily remove all items, no need for signals */
+    n = g_list_length (web_list->items);
+    for (i = 0; i < n; i++)
+        g_object_unref (g_list_nth_data (web_list->items, i));
     g_list_free (web_list->items);
 
     G_OBJECT_CLASS (midori_web_list_parent_class)->finalize (object);
@@ -136,6 +140,7 @@ void
 midori_web_list_add_item (MidoriWebList* web_list,
                           gpointer       item)
 {
+    g_return_if_fail (MIDORI_IS_WEB_LIST (web_list));
     g_return_if_fail (G_IS_OBJECT (item));
 
     g_signal_emit (web_list, signals[ADD_ITEM], 0, item);
@@ -152,6 +157,7 @@ void
 midori_web_list_remove_item (MidoriWebList* web_list,
                              gpointer       item)
 {
+    g_return_if_fail (MIDORI_IS_WEB_LIST (web_list));
     g_return_if_fail (G_IS_OBJECT (item));
 
     g_signal_emit (web_list, signals[REMOVE_ITEM], 0, item);
@@ -271,13 +277,18 @@ midori_web_list_get_length (MidoriWebList* web_list)
 void
 midori_web_list_clear (MidoriWebList* web_list)
 {
+    guint n;
+    guint i;
+    GObject* item;
+
     g_return_if_fail (MIDORI_IS_WEB_LIST (web_list));
 
-    guint n = g_list_length (web_list->items);
-    guint i;
+    n = g_list_length (web_list->items);
     for (i = 0; i < n; i++)
     {
-        GObject* item = g_list_nth_data (web_list->items, i);
-        midori_web_list_remove_item (web_list, item);
+        if ((item = g_list_nth_data (web_list->items, i)))
+            midori_web_list_remove_item (web_list, item);
     }
+    g_list_free (web_list->items);
+    web_list->items = NULL;
 }
