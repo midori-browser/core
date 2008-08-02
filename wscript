@@ -6,7 +6,7 @@ import pproc as subprocess
 import Common
 
 APPNAME = 'midori'
-VERSION = '0.0.18'
+VERSION = '0.0.19'
 
 try:
     git = subprocess.Popen (['git', 'rev-parse', '--short', 'HEAD'],
