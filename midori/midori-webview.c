@@ -797,7 +797,10 @@ midori_web_view_init (MidoriWebView* web_view)
 static void
 midori_web_view_finalize (GObject* object)
 {
-    MidoriWebView* web_view = MIDORI_WEB_VIEW (object);
+    MidoriWebView* web_view;
+    WebKitWebFrame* web_frame;
+
+    web_view = MIDORI_WEB_VIEW (object);
 
     if (web_view->icon)
         g_object_unref (web_view->icon);
@@ -812,6 +815,10 @@ midori_web_view_finalize (GObject* object)
 
     if (web_view->xbel_item)
         katze_xbel_item_unref (web_view->xbel_item);
+
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    g_signal_handlers_disconnect_by_func (web_frame,
+        webkit_web_frame_load_done, web_view);
 
     G_OBJECT_CLASS (midori_web_view_parent_class)->finalize (object);
 }
