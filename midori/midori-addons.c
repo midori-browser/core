@@ -215,18 +215,13 @@ midori_addons_treeview_render_text_cb (GtkTreeViewColumn* column,
                                        GtkTreeIter*       iter,
                                        GtkWidget*         treeview)
 {
-    gchar* filename;
-    gint   a;
-    gchar* b;
-    gtk_tree_model_get (model, iter, 0, &filename, 1, &a, 2, &b, -1);
+    gchar* displayname;
 
-    /* FIXME: Convert filename to UTF8 */
-    gchar* text = g_strdup_printf ("%s", filename);
-    g_object_set (renderer, "text", text, NULL);
-    g_free (text);
+    gtk_tree_model_get (model, iter, 0, &displayname, -1);
 
-    g_free (filename);
-    g_free (b);
+    g_object_set (renderer, "text", displayname, NULL);
+
+    g_free (displayname);
 }
 
 static void
@@ -276,9 +271,11 @@ midori_addons_init (MidoriAddons* addons)
 }
 
 static gboolean
-_include_exclude_from_file (const gchar* filename,
-                            GSList**     includes,
-                            GSList**     excludes)
+_metadata_from_file (const gchar* filename,
+                     GSList**     includes,
+                     GSList**     excludes,
+                     gchar**      name,
+                     gchar**      description)
 {
     GIOChannel* channel;
     gboolean found_meta;
@@ -303,8 +300,8 @@ _include_exclude_from_file (const gchar* filename,
         {
             if (g_str_has_prefix (line, "// ==/UserScript=="))
                 found_meta = FALSE;
-            else if (g_str_has_prefix (line, "// @require") ||
-                g_str_has_prefix (line, "// @resource"))
+            else if (g_str_has_prefix (line, "// @require ") ||
+                g_str_has_prefix (line, "// @resource "))
             {
                     /* We don't support these, so abort here */
                     g_free (line);
@@ -313,17 +310,29 @@ _include_exclude_from_file (const gchar* filename,
                     g_slist_free (*excludes);
                     return FALSE;
              }
-             else if (g_str_has_prefix (line, "// @include"))
+             else if (includes && g_str_has_prefix (line, "// @include "))
              {
-                 rest_of_line = g_strdup (line + strlen ("// @include"));
+                 rest_of_line = g_strdup (line + strlen ("// @include "));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *includes = g_slist_prepend (*includes, rest_of_line);
              }
-             else if (g_str_has_prefix (line, "// @exclude"))
+             else if (excludes && g_str_has_prefix (line, "// @exclude "))
              {
-                 rest_of_line = g_strdup (line + strlen ("// @exclude"));
+                 rest_of_line = g_strdup (line + strlen ("// @exclude "));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *excludes = g_slist_prepend (*excludes, rest_of_line);
+             }
+             else if (name && g_str_has_prefix (line, "// @name "))
+             {
+                 rest_of_line = g_strdup (line + strlen ("// @name "));
+                 rest_of_line =  g_strstrip (rest_of_line);
+                 *name = rest_of_line;
+             }
+             else if (description && g_str_has_prefix (line, "// @description "))
+             {
+                 rest_of_line = g_strdup (line + strlen ("// @description "));
+                 rest_of_line =  g_strstrip (rest_of_line);
+                 *description = rest_of_line;
              }
         }
         g_free (line);
@@ -562,7 +571,8 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
             fullname = g_build_filename (addon_path, filename, NULL);
             includes = NULL;
             excludes = NULL;
-            if (!_include_exclude_from_file (fullname, &includes, &excludes))
+            if (!_metadata_from_file (fullname,
+                &includes, &excludes, NULL, NULL))
             {
                 g_free (fullname);
                 continue;
@@ -670,6 +680,9 @@ midori_addons_set_kind (MidoriAddons*   addons,
     gchar* addon_path;
     GDir* addon_dir;
     const gchar* filename;
+    const gchar* displayname;
+    gchar* fullname;
+    gchar* name;
     GtkTreeIter iter;
 
     g_return_if_fail (MIDORI_IS_ADDONS (addons));
@@ -700,9 +713,28 @@ midori_addons_set_kind (MidoriAddons*   addons,
             if (!g_str_has_suffix (filename, _addons_get_extension (addons)))
                 continue;
 
+            displayname = g_filename_to_utf8 (filename, -1, NULL, NULL, NULL);
+            if (!displayname)
+                displayname = filename;
+
+            if (kind == MIDORI_ADDON_USER_SCRIPTS)
+            {
+                fullname = g_build_filename (addon_path, filename, NULL);
+                name = NULL;
+                if (!_metadata_from_file (fullname, NULL, NULL,
+                    &name, NULL))
+                {
+                    g_free (fullname);
+                    continue;
+                }
+                if (name)
+                    displayname = name;
+                g_free (fullname);
+            }
+
             gtk_list_store_append (liststore, &iter);
             gtk_list_store_set (liststore, &iter,
-                0, filename, 1, 0, 2, "", -1);
+                0, displayname, 1, 0, 2, "", -1);
         }
         g_dir_close (addon_dir);
     }
