@@ -34,7 +34,6 @@ struct _MidoriWebSettings
     gboolean show_statusbar;
 
     MidoriToolbarStyle toolbar_style;
-    gboolean small_toolbar;
     gboolean show_new_tab;
     gboolean show_homepage;
     gboolean show_web_search;
@@ -87,7 +86,6 @@ enum
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
-    PROP_SMALL_TOOLBAR,
     PROP_SHOW_NEW_TAB,
     PROP_SHOW_HOMEPAGE,
     PROP_SHOW_WEB_SEARCH,
@@ -345,15 +343,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SMALL_TOOLBAR,
-                                     g_param_spec_boolean (
-                                     "small-toolbar",
-                                     _("Small toolbar"),
-                                     _("Use small toolbar icons"),
-                                     FALSE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -680,9 +669,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_STYLE:
         web_settings->toolbar_style = g_value_get_enum (value);
         break;
-    case PROP_SMALL_TOOLBAR:
-        web_settings->small_toolbar = g_value_get_boolean (value);
-        break;
     case PROP_SHOW_NEW_TAB:
         web_settings->show_new_tab = g_value_get_boolean (value);
         break;
@@ -838,9 +824,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_TOOLBAR_STYLE:
         g_value_set_enum (value, web_settings->toolbar_style);
         break;
-    case PROP_SMALL_TOOLBAR:
-        g_value_set_boolean (value, web_settings->small_toolbar);
-        break;
     case PROP_SHOW_NEW_TAB:
         g_value_set_boolean (value, web_settings->show_new_tab);
         break;
@@ -969,7 +952,6 @@ midori_web_settings_copy (MidoriWebSettings* web_settings)
                   "preferred-encoding", web_settings->preferred_encoding,
 
                   "toolbar-style", web_settings->toolbar_style,
-                  "small-toolbar", web_settings->small_toolbar,
                   "show-web-search", web_settings->show_web_search,
                   "show-new-tab", web_settings->show_new_tab,
                   "show-trash", web_settings->show_trash,

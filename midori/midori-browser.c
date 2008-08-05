@@ -3729,8 +3729,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gint last_window_width, last_window_height;
     gint last_panel_position, last_panel_page;
     gboolean show_navigationbar, show_bookmarkbar, show_panel, show_statusbar;
-    gboolean small_toolbar, show_new_tab, show_homepage,
-        show_web_search, show_trash;
+    gboolean show_new_tab, show_homepage, show_web_search, show_trash;
     MidoriToolbarStyle toolbar_style;
     gint last_web_search;
     gchar* last_pageholder_uri;
@@ -3749,7 +3748,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-bookmarkbar", &show_bookmarkbar,
                   "show-panel", &show_panel,
                   "show-statusbar", &show_statusbar,
-                  "small-toolbar", &small_toolbar,
                   "show-new-tab", &show_new_tab,
                   "show-homepage", &show_homepage,
                   "show-web-search", &show_web_search,
@@ -3776,9 +3774,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
 
     _midori_browser_set_toolbar_style (browser, toolbar_style);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->navigationbar),
-                               small_toolbar ? GTK_ICON_SIZE_SMALL_TOOLBAR
-                               : GTK_ICON_SIZE_LARGE_TOOLBAR);
 
     if (browser->search_engines)
     {
@@ -3833,10 +3828,6 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
 
     if (name == g_intern_string ("toolbar-style"))
         _midori_browser_set_toolbar_style (browser, g_value_get_enum (&value));
-    else if (name == g_intern_string ("small-toolbar"))
-        gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->navigationbar),
-            g_value_get_boolean (&value) ? GTK_ICON_SIZE_SMALL_TOOLBAR
-            : GTK_ICON_SIZE_LARGE_TOOLBAR);
     else if (name == g_intern_string ("show-new-tab"))
         sokoke_widget_set_visible (browser->button_tab_new,
             g_value_get_boolean (&value));
