@@ -12,8 +12,9 @@
 #ifndef __MIDORI_SEARCH_ENTRY_H__
 #define __MIDORI_SEARCH_ENTRY_H__
 
-#include "midori-weblist.h"
 #include "gtkiconentry.h"
+
+#include <katze/katze.h>
 
 #include <gtk/gtk.h>
 

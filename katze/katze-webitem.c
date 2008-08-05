@@ -9,10 +9,11 @@
  See the file COPYING for the full license text.
 */
 
-#include "midori-webitem.h"
+#include "katze-webitem.h"
+
+#include "katze-utils.h"
 
 #include <glib/gi18n.h>
-#include <katze/katze.h>
 
 struct _MidoriWebItem
 {
@@ -366,7 +367,7 @@ midori_web_item_get_token (MidoriWebItem* web_item)
  **/
 void
 midori_web_item_set_token (MidoriWebItem* web_item,
-                          const gchar*   token)
+                           const gchar*   token)
 {
     g_return_if_fail (MIDORI_IS_WEB_ITEM (web_item));
 

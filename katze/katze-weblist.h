@@ -12,7 +12,7 @@
 #ifndef __MIDORI_WEB_LIST_H__
 #define __MIDORI_WEB_LIST_H__
 
-#include "midori-webitem.h"
+#include "katze-webitem.h"
 
 G_BEGIN_DECLS
 

@@ -15,8 +15,6 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
-#include "katze-utils.h"
-
 G_BEGIN_DECLS
 
 #define KATZE_TYPE_THROBBER \

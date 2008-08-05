@@ -14,6 +14,8 @@
 
 #include "katze-throbber.h"
 #include "katze-utils.h"
+#include "katze-webitem.h"
+#include "katze-weblist.h"
 #include "katze-xbel.h"
 
 #endif /* __KATZE_H__ */

@@ -9,7 +9,9 @@
  See the file COPYING for the full license text.
 */
 
-#include "midori-weblist.h"
+#include "katze-weblist.h"
+
+#include "katze-utils.h"
 
 #include <glib/gi18n.h>
 #include <string.h>

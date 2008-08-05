@@ -12,7 +12,7 @@
 #ifndef __SOKOKE_H__
 #define __SOKOKE_H__ 1
 
-#include "midori-weblist.h"
+#include <katze/katze.h>
 
 #include <gtk/gtk.h>
 

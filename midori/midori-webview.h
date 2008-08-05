@@ -13,7 +13,6 @@
 #define __MIDORI_WEB_VIEW_H__
 
 #include "midori-websettings.h"
-#include "midori-weblist.h"
 
 #include <katze/katze.h>
 #include <webkit/webkit.h>

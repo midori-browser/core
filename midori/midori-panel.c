@@ -143,7 +143,7 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      PROP_SHADOW_TYPE,
                                      g_param_spec_enum (
                                      "shadow-type",
-                                     "Shadow Type",
+                                     _("Shadow Type"),
                                      _("Appearance of the shadow around each panel"),
                                      GTK_TYPE_SHADOW_TYPE,
                                      GTK_SHADOW_NONE,
@@ -153,7 +153,7 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      PROP_MENU,
                                      g_param_spec_object (
                                      "menu",
-                                     "Menu",
+                                     _("Menu"),
                                      _("Menu to hold panel items"),
                                      GTK_TYPE_MENU,
                                      G_PARAM_READWRITE));
@@ -162,7 +162,7 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      PROP_PAGE,
                                      g_param_spec_int (
                                      "page",
-                                     "Page",
+                                     _("Page"),
                                      _("The index of the current page"),
                                      -1, G_MAXINT, -1,
                                      flags));

@@ -11,6 +11,8 @@
 
 #include "katze-throbber.h"
 
+#include "katze-utils.h"
+
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 

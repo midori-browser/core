@@ -13,7 +13,6 @@
 
 #include "sokoke.h"
 
-#include <katze/katze.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 

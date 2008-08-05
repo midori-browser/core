@@ -16,7 +16,6 @@
 #include "midori-app.h"
 #include "midori-websettings.h"
 #include "midori-browser.h"
-#include "midori-weblist.h"
 #include "gjs.h"
 
 #include <string.h>

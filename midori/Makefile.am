@@ -20,9 +20,7 @@ bin_PROGRAMS = \
 
 midori_SOURCES = \
     main.c                 main.h                 \
-	gtkiconentry.c         gtkiconentry.h	      \
-    midori-webitem.c       midori-webitem.h       \
-    midori-weblist.c       midori-weblist.h       \
+    gtkiconentry.c         gtkiconentry.h         \
     midori-app.c           midori-app.h           \
     midori-browser.c       midori-browser.h       \
     midori-panel.c         midori-panel.h         \

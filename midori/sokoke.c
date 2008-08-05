@@ -11,8 +11,6 @@
 
 #include "sokoke.h"
 
-#include "midori-webitem.h"
-
 #include "config.h"
 #include "main.h"
 

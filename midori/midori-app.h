@@ -16,7 +16,6 @@
 
 #include "midori-browser.h"
 #include "midori-websettings.h"
-#include "midori-weblist.h"
 
 G_BEGIN_DECLS
 
