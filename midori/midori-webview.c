@@ -469,8 +469,10 @@ gjs_value_links_foreach_cb (GjsValue*      link,
 {
     const gchar* type;
     const gchar* rel;
+#if GLIB_CHECK_VERSION (2, 16, 0)
     GFile* icon_file;
     GIcon* icon;
+#endif
 
     if (gjs_value_is_object (link) && gjs_value_has_attribute (link, "href"))
     {
@@ -488,6 +490,7 @@ gjs_value_links_foreach_cb (GjsValue*      link,
                     ? gjs_value_get_attribute_string (link, "title") : NULL);
             }
         }
+#if GLIB_CHECK_VERSION (2, 16, 0)
         if (gjs_value_has_attribute (link, "rel"))
         {
             rel = gjs_value_get_attribute_string (link, "rel");
@@ -500,6 +503,7 @@ gjs_value_links_foreach_cb (GjsValue*      link,
                     0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, web_view);
             }
         }
+#endif
     }
 }
 
