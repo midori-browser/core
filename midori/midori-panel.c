@@ -339,6 +339,7 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  * @toolbar: a toolbar widget, or %NULL
  * @icon: a stock ID or icon name, or %NULL
  * @label: a string to use as the label, or %NULL
+ * @mnemonic: a string to use as a mnemonic, or %NULL
  *
  * Appends a new page to the panel. If @toolbar is specified it will
  * be packaged above @child.
@@ -347,6 +348,9 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  * icon for this page.
  *
  * If @label is given, it is used as the label of this page.
+ *
+ * If @mnemonic is given, it is used in labels with mnemonics
+ * such as menu items. See gtk_label_new_with_mnemonic().
  *
  * In the case of an error, -1 is returned.
  *
@@ -357,20 +361,30 @@ midori_panel_append_page (MidoriPanel* panel,
                           GtkWidget*   child,
                           GtkWidget*   toolbar,
                           const gchar* icon,
-                          const gchar* label)
+                          const gchar* label,
+                          const gchar* mnemonic)
 {
+    GtkWidget* scrolled;
+    GtkWidget* widget;
+    GObjectClass* gobject_class;
+    guint n;
+    const gchar* text;
+    const gchar* text_mnemonic;
+    GtkToolItem* toolitem;
+    GtkWidget* image;
+    GtkWidget* menuitem;
+
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
     g_return_val_if_fail (GTK_IS_WIDGET (child), -1);
     g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
 
-    GtkWidget* scrolled = gtk_scrolled_window_new (NULL, NULL);
+    scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
     GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
     gtk_widget_show (scrolled);
-    GtkWidget* widget;
-    GObjectClass* gobject_class = G_OBJECT_GET_CLASS (child);
+    gobject_class = G_OBJECT_GET_CLASS (child);
     if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
         widget = child;
     else
@@ -387,13 +401,13 @@ midori_panel_append_page (MidoriPanel* panel,
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
 
-    guint n = midori_panel_page_num (panel, child);
+    n = midori_panel_page_num (panel, child);
 
-    const gchar* text = label ? label : _("Untitled");
+    text = label ? label : _("Untitled");
+    text_mnemonic = mnemonic ? mnemonic : _("_Untitled");
     g_object_set_data (G_OBJECT (child), "label", (gchar*)text);
 
-    GtkWidget* image;
-    GtkToolItem* toolitem = gtk_radio_tool_button_new (panel->group);
+    toolitem = gtk_radio_tool_button_new (panel->group);
     panel->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
                                                    toolitem));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), text);
@@ -410,7 +424,7 @@ midori_panel_append_page (MidoriPanel* panel,
 
     if (panel->menu)
     {
-        GtkWidget* menuitem = gtk_image_menu_item_new_with_label (text);
+        menuitem = gtk_image_menu_item_new_with_mnemonic (text_mnemonic);
         if (icon)
         {
             image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);

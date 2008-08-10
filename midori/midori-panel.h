@@ -58,7 +58,8 @@ midori_panel_append_page            (MidoriPanel*       panel,
                                      GtkWidget*         child,
                                      GtkWidget*         toolbar,
                                      const gchar*       icon,
-                                     const gchar*       label);
+                                     const gchar*       label,
+                                     const gchar*       mnemonic);
 
 gint
 midori_panel_get_current_page       (MidoriPanel*       panel);

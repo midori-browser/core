@@ -3491,14 +3491,14 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show_all (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               box, toolbar,
-                              "vcard", _("Bookmarks"));
+                              STOCK_BOOKMARKS, _("Bookmarks"), _("_Bookmarks"));
 
     /* Transfers */
     GtkWidget* panel = midori_web_view_new ();
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, NULL,
-                              "package", _("Transfers"));
+                              STOCK_TRANSFER, _("Transfers"), _("_Transfers"));
 
     /* Console */
     browser->panel_console = midori_console_new ();
@@ -3507,14 +3507,14 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               browser->panel_console, toolbar,
-                              "terminal", _("Console"));
+                              STOCK_CONSOLE, _("Console"), _("_Console"));
 
     /* History */
     panel = midori_web_view_new ();
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, NULL,
-                              "document-open-recent", _("History"));
+                              STOCK_HISTORY, _("History"), _("_History"));
 
     /* Pageholder */
     browser->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
@@ -3523,7 +3523,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (browser->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               browser->panel_pageholder, NULL,
-                              GTK_STOCK_CONVERT, _("Pageholder"));
+                              STOCK_PAGE_HOLDER, _("Pageholder"), _("_Pageholder"));
 
     /* Userscripts */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
@@ -3532,7 +3532,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              STOCK_SCRIPT, _("Userscripts"));
+                              STOCK_SCRIPT, _("Userscripts"), _("_Userscripts"));
     /* Userstyles */
     /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
     gtk_widget_show (panel);
@@ -3540,7 +3540,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              "", _("Userstyles"));*/
+                              STOCK_STYLE, _("Userstyles"), _("_Userstyles"));*/
 
     /* Extensions */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
@@ -3549,7 +3549,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              STOCK_EXTENSION, _("Extensions"));
+                              STOCK_EXTENSION, _("Extensions"), _("_Extensions"));
 
     /* Notebook, containing all web_views */
     browser->notebook = gtk_notebook_new ();

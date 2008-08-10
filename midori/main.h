@@ -30,9 +30,15 @@ KatzeXbelItem* bookmarks;
          in order to reduce the amount of warnings */
 
 #define STOCK_BOOKMARK           GTK_STOCK_FILE /* "stock_bookmark" "bookmark-web" */
+#define STOCK_BOOKMARKS          "vcard"
+#define STOCK_CONSOLE            "terminal"
 #define STOCK_EXTENSION          GTK_STOCK_EXECUTE /* "extension" */
 #define STOCK_FORM_FILL          GTK_STOCK_JUSTIFY_FILL /* "insert-text" "form-fill" */
+#define STOCK_HISTORY            "document-open-recent"
 #define STOCK_NEWS_FEED          "news-feed"
+#define STOCK_PAGE_HOLDER        GTK_STOCK_CONVERT
+#define STOCK_STYLE              "gnome-settings-theme"
+#define STOCK_TRANSFER           "package"
 
 /* We assume that these legacy icon names are usually present */
 
@@ -46,7 +52,6 @@ KatzeXbelItem* bookmarks;
 #define STOCK_SCRIPT             "stock_script"
 #define STOCK_SEND               "stock_mail-send"
 #define STOCK_TAB_NEW            "stock_new-tab"
-#define STOCK_THEME              "gnome-settings-theme"
 #define STOCK_USER_TRASH         "gnome-stock-trash"
 #define STOCK_WINDOW_NEW         "stock_new-window"
 

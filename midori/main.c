@@ -34,16 +34,20 @@ stock_items_init (void)
 {
     static GtkStockItem items[] =
     {
+        { STOCK_BOOKMARKS },
+        { STOCK_CONSOLE },
         { STOCK_EXTENSION },
         { STOCK_NEWS_FEED },
         { STOCK_LOCK_OPEN },
         { STOCK_LOCK_SECURE },
         { STOCK_LOCK_BROKEN },
+        { STOCK_PAGE_HOLDER },
         { STOCK_SCRIPT },
-        { STOCK_THEME },
+        { STOCK_STYLE },
+        { STOCK_TRANSFER },
         { STOCK_USER_TRASH },
 
-        { STOCK_BOOKMARK,       N_("Bookmark"), 0, 0, NULL },
+        { STOCK_BOOKMARK,       N_("_Bookmark"), 0, 0, NULL },
         { STOCK_BOOKMARK_ADD,   N_("_Add Bookmark"), 0, 0, NULL },
         { STOCK_FORM_FILL,      N_("_Form Fill"), 0, 0, NULL },
         { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, NULL },
