@@ -728,7 +728,7 @@ webkit_web_view_populate_popup_cb (GtkWidget* web_view,
         }
     }
 
-    if (!uri && webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
+    if (!uri && midori_web_view_has_selection (MIDORI_WEB_VIEW (web_view)))
     {
         text = webkit_web_view_get_selected_text (WEBKIT_WEB_VIEW (web_view));
         if (text && strchr (text, '.') && !strchr (text, ' '))
@@ -1174,4 +1174,32 @@ midori_web_view_get_news_feeds (MidoriWebView* web_view)
     if (!midori_web_list_is_empty (web_view->news_feeds))
         return web_view->news_feeds;
     return NULL;
+}
+
+/**
+ * midori_web_view_has_selection:
+ * @web_view: a #MidoriWebView
+ *
+ * Determines whether something on the page is selected.
+ *
+ * By contrast to webkit_web_view_has_selection() this
+ * returns %FALSE if there is a selection that
+ * effectively only consists of whitespace.
+ *
+ * Return value: %TRUE if effectively there is a selection
+ **/
+gboolean
+midori_web_view_has_selection (MidoriWebView* web_view)
+{
+    gchar* text;
+
+    g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), FALSE);
+
+    text = webkit_web_view_get_selected_text (WEBKIT_WEB_VIEW (web_view));
+    if (text && *text)
+    {
+        g_free (text);
+        return TRUE;
+    }
+    return FALSE;
 }

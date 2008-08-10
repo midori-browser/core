@@ -701,12 +701,19 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
                                    GtkWidget*     menu,
                                    MidoriBrowser* browser)
 {
+    gboolean has_selection;
     const gchar* uri;
     GtkAction* action;
     GtkWidget* menuitem;
     gchar* stock_id;
     GtkStockItem stockitem;
     GtkWidget* image;
+
+    if (MIDORI_IS_WEB_VIEW (web_view)
+        && midori_web_view_has_selection (MIDORI_WEB_VIEW (web_view)))
+        has_selection = TRUE;
+    else
+        has_selection = FALSE;
 
     uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
     if (uri)
@@ -726,12 +733,12 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     }
 
-    if (webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
+    if (has_selection)
     {
         /* TODO: view selection source */
     }
 
-    if (!uri && !webkit_web_view_has_selection (WEBKIT_WEB_VIEW (web_view)))
+    if (!uri && !has_selection)
     {
         action = _action_by_name (browser, "UndoTabClose");
         menuitem = gtk_action_create_menu_item (action);

@@ -117,6 +117,9 @@ midori_web_view_get_link_uri           (MidoriWebView*     web_view);
 MidoriWebList*
 midori_web_view_get_news_feeds         (MidoriWebView*     web_view);
 
+gboolean
+midori_web_view_has_selection          (MidoriWebView*     web_view);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_VIEW_H__ */
