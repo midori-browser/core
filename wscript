@@ -43,7 +43,7 @@ def configure (conf):
 
     conf.check_header ('unistd.h', 'HAVE_UNISTD_H')
 
-    if conf.find_program ('convert', var='CONVERT'):
+    if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
         icons = 'yes'
     else:
         icons = 'no'

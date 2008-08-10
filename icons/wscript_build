@@ -18,7 +18,9 @@ def add_image (bld, install_files, category, name):
         except:
             pass
 
-    if bld.env ()['CONVERT']:
+    rsvg_convert = bld.env ()['RSVG_CONVERT']
+
+    if rsvg_convert:
         mkdir (blddir + '/icons')
 
     for size in [16, 22, 32, 48]:
@@ -26,15 +28,14 @@ def add_image (bld, install_files, category, name):
         if os.access (srcdir + '/icons/' + format + '/' + name + '.png', os.F_OK):
             _install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
                             srcdir + '/icons/' + format + '/' + name + '.png')
-        elif not bld.env ()['CONVERT']:
+        elif not rsvg_convert:
             pass
         elif os.access (srcdir + '/icons/scalable/' + name + '.svg', os.F_OK):
             mkdir (blddir + '/icons/' + format)
-            convert = subprocess.Popen (['convert',
-                '-background', 'transparent',
-                '-geometry', format, '-extent', format,
-                srcdir + '/icons/scalable/' + name + '.svg',
-                blddir + '/icons/' + format + '/' + name + '.png'],
+            convert = subprocess.Popen ([rsvg_convert,
+                '-w', str (size), '-h', str (size),
+                '-o', blddir + '/icons/' + format + '/' + name + '.png',
+                srcdir + '/icons/scalable/' + name + '.svg'],
                 stderr=subprocess.PIPE)
             if not convert.wait ():
                 _install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
