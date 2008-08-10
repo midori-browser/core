@@ -705,9 +705,6 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
     const gchar* uri;
     GtkAction* action;
     GtkWidget* menuitem;
-    gchar* stock_id;
-    GtkStockItem stockitem;
-    GtkWidget* image;
 
     if (MIDORI_IS_WEB_VIEW (web_view)
         && midori_web_view_has_selection (MIDORI_WEB_VIEW (web_view)))
@@ -718,16 +715,8 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
     uri = midori_web_view_get_link_uri (MIDORI_WEB_VIEW (web_view));
     if (uri)
     {
-        /* Create the menuitem manually instead of from the action
-           because otherwise the menuitem has an accelerator label. */
         action = _action_by_name (browser, "BookmarkAdd");
-        g_object_get (action, "stock-id", &stock_id, NULL);
-        gtk_stock_lookup (stock_id, &stockitem);
-        menuitem = gtk_image_menu_item_new_with_mnemonic (stockitem.label);
-        image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-        g_free (stock_id);
-        gtk_widget_show (menuitem);
+        menuitem = sokoke_action_create_popup_menu_item (action);
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_bookmark_add_cb), web_view);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -741,22 +730,22 @@ midori_web_view_populate_popup_cb (GtkWidget*     web_view,
     if (!uri && !has_selection)
     {
         action = _action_by_name (browser, "UndoTabClose");
-        menuitem = gtk_action_create_menu_item (action);
+        menuitem = sokoke_action_create_popup_menu_item (action);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         menuitem = gtk_separator_menu_item_new ();
         gtk_widget_show (menuitem);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         action = _action_by_name (browser, "BookmarkAdd");
-        menuitem = gtk_action_create_menu_item (action);
+        menuitem = sokoke_action_create_popup_menu_item (action);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         action = _action_by_name (browser, "SaveAs");
-        menuitem = gtk_action_create_menu_item (action);
+        menuitem = sokoke_action_create_popup_menu_item (action);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         action = _action_by_name (browser, "SourceView");
-        menuitem = gtk_action_create_menu_item (action);
+        menuitem = sokoke_action_create_popup_menu_item (action);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         action = _action_by_name (browser, "Print");
-        menuitem = gtk_action_create_menu_item (action);
+        menuitem = sokoke_action_create_popup_menu_item (action);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     }
 }

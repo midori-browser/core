@@ -304,7 +304,7 @@ sokoke_xfce_header_new (const gchar* icon,
                         const gchar* title)
 {
     /* Create an xfce header with icon and title
-       This returns NULL if the desktop is not xfce */
+       This returns NULL if the desktop is not Xfce */
     if (sokoke_get_desktop () == SOKOKE_DESKTOP_XFCE)
     {
         GtkWidget* entry = gtk_entry_new ();
@@ -579,7 +579,7 @@ gint
 sokoke_object_get_int (gpointer     object,
                        const gchar* property)
 {
-    gint value;
+    gint value = 0;
 
     g_return_val_if_fail (object != NULL, FALSE);
     g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
@@ -593,7 +593,7 @@ gboolean
 sokoke_object_get_boolean (gpointer     object,
                            const gchar* property)
 {
-    gboolean value;
+    gboolean value = FALSE;
 
     g_return_val_if_fail (object != NULL, FALSE);
     g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
@@ -601,4 +601,47 @@ sokoke_object_get_boolean (gpointer     object,
 
     g_object_get (object, property, &value, NULL);
     return value;
+}
+
+/**
+ * sokoke_action_create_popup_menu_item:
+ * @action: a #GtkAction
+ *
+ * Creates a menu item from an action, much like
+ * gtk_action_create_menu_item() but it won't
+ * display an accelerator.
+ *
+ * Return value: a new #GtkMenuItem
+ **/
+GtkWidget*
+sokoke_action_create_popup_menu_item (GtkAction* action)
+{
+    gchar* label;
+    gchar* stock_id;
+    gboolean sensitive;
+    GtkStockItem stockitem;
+    GtkWidget* menuitem;
+    GtkWidget* image;
+
+    g_object_get (action, "label", &label,
+        "stock-id", &stock_id, "sensitive", &sensitive, NULL);
+    if (label)
+    {
+        menuitem = gtk_image_menu_item_new_with_mnemonic (label);
+        g_free (label);
+    }
+    else
+    {
+        gtk_stock_lookup (stock_id, &stockitem);
+        menuitem = gtk_image_menu_item_new_with_mnemonic (stockitem.label);
+        gtk_stock_item_free (&stockitem);
+    }
+    gtk_widget_set_sensitive (menuitem, sensitive);
+    image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
+    gtk_widget_show (menuitem);
+
+    g_free (stock_id);
+
+    return menuitem;
 }

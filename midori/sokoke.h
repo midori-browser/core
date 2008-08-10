@@ -128,4 +128,7 @@ gboolean
 sokoke_object_get_boolean            (gpointer       object,
                                       const gchar*   property);
 
+GtkWidget*
+sokoke_action_create_popup_menu_item (GtkAction*     action);
+
 #endif /* !__SOKOKE_H__ */
