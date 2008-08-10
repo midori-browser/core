@@ -3368,6 +3368,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
                         GTK_TOOL_ITEM (browser->button_trash), -1);
     sokoke_container_show_children (GTK_CONTAINER (browser->navigationbar));
+    gtk_widget_hide (browser->navigationbar);
     action = gtk_action_group_get_action (browser->action_group, "Fullscreen");
     browser->button_fullscreen = gtk_action_create_tool_item (action);
     gtk_widget_hide (browser->button_fullscreen);
