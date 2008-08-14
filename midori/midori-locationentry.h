@@ -27,16 +27,6 @@ typedef struct _MidoriLocationEntry         MidoriLocationEntry;
 typedef struct _MidoriLocationEntryClass    MidoriLocationEntryClass;
 typedef struct _MidoriLocationEntryItem     MidoriLocationEntryItem;
 
-struct _MidoriLocationEntry
-{
-    GtkComboBoxEntry parent_instance;
-};
-
-struct _MidoriLocationEntryClass
-{
-    GtkComboBoxEntryClass parent_class;
-};
-
 struct _MidoriLocationEntryItem
 {
     GdkPixbuf* favicon;
@@ -50,9 +40,10 @@ midori_location_entry_get_type (void);
 GtkWidget*
 midori_location_entry_new (void);
 
-gint
-midori_location_entry_item_index        (MidoriLocationEntry* location_entry,
-                                         const gchar*         uri);
+gboolean
+midori_location_entry_item_iter         (MidoriLocationEntry* location_entry,
+                                         const gchar*         uri,
+                                         GtkTreeIter*         iter);
 
 const gchar*
 midori_location_entry_get_text          (MidoriLocationEntry* location_entry);

@@ -9,7 +9,9 @@
  See the file COPYING for the full license text.
 */
 
-#include "config.h"
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
 
 #include "midori-browser.h"
 
@@ -22,7 +24,7 @@
 #include "midori-addons.h"
 #include "midori-console.h"
 #include "midori-searchentry.h"
-#include "midori-locationentry.h"
+#include "midori-locationaction.h"
 #include "compat.h"
 #include "gjs.h"
 
@@ -30,7 +32,6 @@
 #include <gio/gio.h>
 #endif
 #include <glib/gi18n.h>
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #if HAVE_GTKSOURCEVIEW
 #include <gtksourceview/gtksourceview.h>
@@ -52,7 +53,6 @@ struct _MidoriBrowser
     GtkWidget* navigationbar;
     GtkWidget* button_tab_new;
     GtkWidget* button_homepage;
-    GtkWidget* location;
     GtkWidget* search;
     GtkWidget* button_trash;
     GtkWidget* button_fullscreen;
@@ -129,11 +129,6 @@ midori_browser_set_property (GObject*      object,
                              guint         prop_id,
                              const GValue* value,
                              GParamSpec*   pspec);
-
-static void
-midori_browser_location_active_changed_cb (MidoriLocationEntry* location_entry,
-                                           gint                 index,
-                                           MidoriBrowser*       browser);
 
 static void
 midori_browser_get_property (GObject*    object,
@@ -244,6 +239,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     gboolean loading;
     GtkWidget* widget;
     GtkWidget* web_view;
+    GtkAction* action;
 
     widget = midori_browser_get_current_tab (browser);
     web_view = widget && MIDORI_IS_WEB_VIEW (widget) ? widget : NULL;
@@ -270,8 +266,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "FindPrevious", web_view != NULL);
     /* _action_set_sensitive (browser, "FindQuick", web_view != NULL); */
 
-    GtkAction* action = gtk_action_group_get_action (browser->action_group,
-                                                     "ReloadStop");
+    action = gtk_action_group_get_action (browser->action_group, "ReloadStop");
     if (!loading)
     {
         gtk_widget_set_sensitive (browser->throbber, FALSE);
@@ -383,18 +378,25 @@ midori_web_view_notify_load_status_cb (GtkWidget*      web_view,
                                        MidoriBrowser*  browser)
 {
     const gchar* uri;
+    GtkAction* action;
+
+    uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+    action = _action_by_name (browser, "Location");
+
+    if (midori_web_view_get_load_status (MIDORI_WEB_VIEW (web_view))
+        == MIDORI_LOAD_COMMITTED)
+        midori_location_action_add_uri (
+            MIDORI_LOCATION_ACTION (action), uri);
 
     if (web_view == midori_browser_get_current_web_view (browser))
     {
         if (midori_web_view_get_load_status (MIDORI_WEB_VIEW (web_view))
             == MIDORI_LOAD_COMMITTED)
         {
-            uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
-            midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (
-                                            browser->location), uri);
-            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
-                gtk_bin_get_child (GTK_BIN (browser->location))),
-                GTK_ICON_ENTRY_SECONDARY, NULL);
+            midori_location_action_set_uri (
+                MIDORI_LOCATION_ACTION (action), uri);
+            midori_location_action_set_secondary_icon (
+                MIDORI_LOCATION_ACTION (action), NULL);
             g_object_notify (G_OBJECT (browser), "uri");
         }
 
@@ -417,11 +419,20 @@ midori_web_view_notify_title_cb (GtkWidget*     web_view,
                                  GParamSpec*    pspec,
                                  MidoriBrowser* browser)
 {
+    const gchar* uri;
+    const gchar* title;
+    GtkAction* action;
+    gchar* window_title;
+
+    uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+    title = midori_web_view_get_display_title (MIDORI_WEB_VIEW (web_view));
+    action = _action_by_name (browser, "Location");
+    midori_location_action_set_title_for_uri (
+        MIDORI_LOCATION_ACTION (action), title, uri);
+
     if (web_view == midori_browser_get_current_web_view (browser))
     {
-        const gchar* title = midori_web_view_get_display_title (
-            MIDORI_WEB_VIEW (web_view));
-        gchar* window_title = g_strconcat (title, " - ",
+        window_title = g_strconcat (title, " - ",
             g_get_application_name (), NULL);
         gtk_window_set_title (GTK_WINDOW (browser), window_title);
         g_free (window_title);
@@ -459,20 +470,13 @@ midori_web_view_icon_ready_cb (MidoriWebView* web_view,
                                GdkPixbuf*     icon,
                                MidoriBrowser* browser)
 {
-    MidoriLocationEntryItem item;
+    const gchar* uri;
+    GtkAction* action;
 
-    item.favicon = icon;
-    item.uri = midori_web_view_get_display_uri (web_view);
-    item.title = midori_web_view_get_display_title (web_view);
-
-    g_signal_handlers_block_by_func (browser->location,
-        midori_browser_location_active_changed_cb, browser);
-
-    midori_location_entry_add_item (MIDORI_LOCATION_ENTRY
-                                    (browser->location), &item);
-
-    g_signal_handlers_unblock_by_func (browser->location,
-        midori_browser_location_active_changed_cb, browser);
+    uri = midori_web_view_get_display_uri (MIDORI_WEB_VIEW (web_view));
+    action = _action_by_name (browser, "Location");
+    midori_location_action_set_icon_for_uri (
+        MIDORI_LOCATION_ACTION (action), icon, uri);
 }
 
 static void
@@ -482,9 +486,8 @@ midori_web_view_news_feed_ready_cb (MidoriWebView* web_view,
                                     const gchar*   title,
                                     MidoriBrowser* browser)
 {
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
-        gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
+    midori_location_action_set_secondary_icon (MIDORI_LOCATION_ACTION (
+        _action_by_name (browser, "Location")), browser->stock_news_feed);
 }
 
 static gboolean
@@ -1341,7 +1344,7 @@ _action_tab_new_activate (GtkAction*     action,
 {
     gint n = midori_browser_add_uri (browser, "");
     midori_browser_set_current_page (browser, n);
-    gtk_widget_grab_focus (browser->location);
+    gtk_action_activate (_action_by_name (browser, "Location"));
 }
 
 static void
@@ -1960,88 +1963,128 @@ _action_homepage_activate (GtkAction*     action,
     g_free (homepage);
 }
 
-/* catch the active-changed signal so that we can display the pack
-   when selected from the list */
-static void
-midori_browser_location_active_changed_cb (MidoriLocationEntry* location_entry,
-                                           gint                 index,
-                                           MidoriBrowser*       browser)
-{
-    const gchar* uri;
-
-    if (index > -1)
-    {
-        uri = midori_location_entry_get_text (location_entry);
-        _midori_browser_open_uri (browser, uri);
-    }
-}
-
-static gboolean
-midori_browser_location_key_press_event_cb (GtkWidget*     widget,
-                                            GdkEventKey*   event,
-                                            MidoriBrowser* browser)
-{
-    gchar* location_entry_search;
-
-    switch (event->keyval)
-    {
-    case GDK_ISO_Enter:
-    case GDK_KP_Enter:
-    case GDK_Return:
-    {
-        const gchar* uri = gtk_entry_get_text (GTK_ENTRY (widget));
-        if (uri)
-        {
-            g_object_get (browser->settings, "location-entry-search",
-                          &location_entry_search, NULL);
-            gchar* new_uri = sokoke_magic_uri (uri, browser->search_engines);
-            if (!new_uri && strstr (location_entry_search, "%s"))
-                new_uri = g_strdup_printf (location_entry_search, uri);
-            else if (!new_uri)
-                new_uri = g_strdup (location_entry_search);
-            g_free (location_entry_search);
-            /* TODO: Use new_uri intermediately when completion is better
-               Completion should be generated from history, that is
-               the uri as well as the title. */
-            /* sokoke_entry_append_completion (GTK_ENTRY (widget), uri); */
-            _midori_browser_open_uri (browser, new_uri);
-            g_free (new_uri);
-            gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
-        }
-        return TRUE;
-    }
-    case GDK_Escape:
-    {
-        const gchar* uri = _midori_browser_get_tab_uri (
-            browser, midori_browser_get_current_tab (browser));
-        gtk_entry_set_text (GTK_ENTRY (widget), uri);
-        return TRUE;
-    }
-    }
-    return FALSE;
-}
-
 static void
 _action_location_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
     if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
         gtk_widget_show (browser->navigationbar);
-    gtk_widget_grab_focus (browser->location);
 }
 
-static gboolean
-midori_browser_location_focus_out_event_cb (GtkWidget*     widget,
-                                            GdkEventFocus* event,
-                                            MidoriBrowser* browser)
+static void
+_action_location_active_changed (GtkAction*     action,
+                                 gint           index,
+                                 MidoriBrowser* browser)
 {
-    gboolean show_navigationbar;
-    g_object_get (browser->settings,
-                  "show-navigationbar", &show_navigationbar,
-                  NULL);
-    if (!show_navigationbar)
+    const gchar* uri;
+
+    if (index > -1)
+    {
+        uri = midori_location_action_get_uri (MIDORI_LOCATION_ACTION (action));
+        _midori_browser_open_uri (browser, uri);
+    }
+}
+
+static void
+_action_location_focus_out (GtkAction*     action,
+                            MidoriBrowser* browser)
+{
+    if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_hide (browser->navigationbar);
-    return FALSE;
+}
+
+static void
+_action_location_reset_uri (GtkAction*     action,
+                            MidoriBrowser* browser)
+{
+    const gchar* uri;
+
+    uri = _midori_browser_get_tab_uri (browser,
+        midori_browser_get_current_tab (browser));
+    midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+}
+
+static void
+_action_location_submit_uri (GtkAction*     action,
+                             const gchar*   uri,
+                             MidoriBrowser* browser)
+{
+    gchar* location_entry_search;
+    gchar* new_uri;
+
+    g_object_get (browser->settings, "location-entry-search",
+                  &location_entry_search, NULL);
+    new_uri = sokoke_magic_uri (uri, browser->search_engines);
+    if (!new_uri && strstr (location_entry_search, "%s"))
+        new_uri = g_strdup_printf (location_entry_search, uri);
+    else if (!new_uri)
+        new_uri = g_strdup (location_entry_search);
+    g_free (location_entry_search);
+    _midori_browser_open_uri (browser, new_uri);
+    g_free (new_uri);
+    gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
+}
+
+static void
+midori_browser_menu_feed_item_activate_cb (GtkWidget*     widget,
+                                           MidoriBrowser* browser)
+{
+    const gchar* uri;
+
+    uri = g_object_get_data (G_OBJECT (widget), "uri");
+    _midori_browser_open_uri (browser, uri);
+}
+
+static void
+_action_location_secondary_icon_released (GtkAction*     action,
+                                          GtkWidget*     widget,
+                                          MidoriBrowser* browser)
+{
+    MidoriWebView* web_view;
+    MidoriWebList* news_feeds;
+    GtkWidget* menu;
+    guint n, i;
+    GjsValue* feed;
+    const gchar* uri;
+    const gchar* title;
+    GtkWidget* menuitem;
+
+    web_view = (MidoriWebView*)midori_browser_get_current_web_view (browser);
+    if (web_view)
+    {
+        news_feeds = midori_web_view_get_news_feeds (web_view);
+        n = news_feeds ? midori_web_list_get_length (news_feeds) : 0;
+        if (n)
+        {
+            menu = gtk_menu_new ();
+            for (i = 0; i < n; i++)
+            {
+                if (!(feed = midori_web_list_get_nth_item (news_feeds, i)))
+                    continue;
+
+                uri = gjs_value_get_attribute_string (feed, "href");
+                if (gjs_value_has_attribute (feed, "title"))
+                    title = gjs_value_get_attribute_string (feed, "title");
+                else
+                    title = uri;
+                if (!*title)
+                    title = uri;
+                menuitem = gtk_image_menu_item_new_with_label (title);
+                /* FIXME: Get the real icon */
+                gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
+                    menuitem), gtk_image_new_from_stock (browser->stock_news_feed,
+                    GTK_ICON_SIZE_MENU));
+                gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
+                g_signal_connect (menuitem, "activate",
+                    G_CALLBACK (midori_browser_menu_feed_item_activate_cb),
+                    browser);
+                gtk_widget_show (menuitem);
+            }
+            sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
+                                 SOKOKE_MENU_POSITION_CURSOR);
+        }
+    }
 }
 
 static void
@@ -2437,82 +2480,6 @@ _action_about_activate (GtkAction*     action,
 }
 
 static void
-midori_browser_location_changed_cb (GtkWidget*     widget,
-                                    MidoriBrowser* browser)
-{
-    /* Preserve changes to the uri
-       const gchar* new_uri = gtk_entry_get_text (GTK_ENTRY (widget));
-       katze_xbel_bookmark_set_href(browser->sessionItem, new_uri);
-       FIXME: If we want this feature, this is the wrong approach */
-}
-
-static void
-midori_browser_menu_feed_item_activate_cb (GtkWidget*     widget,
-                                           MidoriBrowser* browser)
-{
-    const gchar* uri;
-
-    uri = g_object_get_data (G_OBJECT (widget), "uri");
-    _midori_browser_open_uri (browser, uri);
-}
-
-static void
-midori_browser_location_icon_released_cb (GtkWidget*     widget,
-                                          gint           icon_pos,
-                                          gint           button,
-                                          MidoriBrowser* browser)
-{
-    MidoriWebView* web_view;
-    MidoriWebList* news_feeds;
-    GtkWidget* menu;
-    guint n, i;
-    GjsValue* feed;
-    const gchar* uri;
-    const gchar* title;
-    GtkWidget* menuitem;
-
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-    {
-        web_view = (MidoriWebView*)midori_browser_get_current_web_view (browser);
-        if (web_view)
-        {
-            news_feeds = midori_web_view_get_news_feeds (web_view);
-            n = news_feeds ? midori_web_list_get_length (news_feeds) : 0;
-            if (n)
-            {
-                menu = gtk_menu_new ();
-                for (i = 0; i < n; i++)
-                {
-                    if (!(feed = midori_web_list_get_nth_item (news_feeds, i)))
-                        continue;
-
-                    uri = gjs_value_get_attribute_string (feed, "href");
-                    if (gjs_value_has_attribute (feed, "title"))
-                        title = gjs_value_get_attribute_string (feed, "title");
-                    else
-                        title = uri;
-                    if (!*title)
-                        title = uri;
-                    menuitem = gtk_image_menu_item_new_with_label (title);
-                    /* FIXME: Get the real icon */
-                    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
-                        menuitem), gtk_image_new_from_stock (STOCK_NEWS_FEED,
-                        GTK_ICON_SIZE_MENU));
-                    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-                    g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
-                    g_signal_connect (menuitem, "activate",
-                        G_CALLBACK (midori_browser_menu_feed_item_activate_cb),
-                        browser);
-                    gtk_widget_show (menuitem);
-                }
-                sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
-                                     SOKOKE_MENU_POSITION_CURSOR);
-            }
-        }
-    }
-}
-
-static void
 _action_panel_activate (GtkToggleAction* action,
                         MidoriBrowser*   browser)
 {
@@ -2562,18 +2529,14 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
 {
     GtkWidget* widget;
     const gchar* uri;
+    GtkAction* action;
     const gchar* title;
     gchar* window_title;
 
     widget = midori_browser_get_current_tab (browser);
     uri = _midori_browser_get_tab_uri (browser, widget);
-
-    g_signal_handlers_block_by_func (browser->location,
-        midori_browser_location_active_changed_cb, browser);
-    midori_location_entry_set_item_from_uri (MIDORI_LOCATION_ENTRY
-                                             (browser->location), uri);
-    g_signal_handlers_unblock_by_func (browser->location,
-        midori_browser_location_active_changed_cb, browser);
+    action = _action_by_name (browser, "Location");
+    midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
 
     title = _midori_browser_get_tab_title (browser, widget);
     window_title = g_strconcat (title, " - ",
@@ -2834,18 +2797,16 @@ static const GtkActionEntry entries[] = {
  { "Homepage", STOCK_HOMEPAGE,
    NULL, "<Alt>Home",
    N_("Go to your homepage"), G_CALLBACK (_action_homepage_activate) },
- { "Location", GTK_STOCK_JUMP_TO,
-   N_("Location..."), "<Ctrl>l",
-   N_("Open a particular location"), G_CALLBACK (_action_location_activate) },
  { "Search", GTK_STOCK_FIND,
-   N_("Web Search..."), "<Ctrl>k",
+   N_("_Web Search..."), "<Ctrl>k",
    N_("Run a web search"), G_CALLBACK (_action_search_activate) },
  { "OpenInPageholder", GTK_STOCK_JUMP_TO,
    N_("Open in Page_holder..."), "",
    N_("Open the current page in the pageholder"), G_CALLBACK (_action_open_in_panel_activate) },
  { "Trash", STOCK_USER_TRASH,
    N_("Closed Tabs and Windows"), "",
-   N_("Reopen a previously closed tab or window"), NULL },
+/*  N_("Reopen a previously closed tab or window"), G_CALLBACK (_action_trash_activate) }, */
+   N_("Reopen a previously closed tab or window"), G_CALLBACK (midori_browser_menu_trash_activate_cb) },
  { "TrashEmpty", GTK_STOCK_CLEAR,
    N_("Empty Trash"), "",
    N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
@@ -3086,9 +3047,9 @@ static const gchar* ui_markup =
    "<toolitem action='Forward'/>"
    "<toolitem action='ReloadStop'/>"
    "<toolitem action='Homepage'/>"
-   "<placeholder name='Location'/>"
+   "<toolitem action='Location'/>"
    "<placeholder name='Search'/>"
-   "<placeholder name='TabTrash'/>"
+   "<placeholder name='Trash'/>"
   "</toolbar>"
   "<toolbar name='toolbar_bookmarks'>"
    "<toolitem action='BookmarkAdd'/>"
@@ -3175,8 +3136,8 @@ midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
 }
 
 static void
-midori_browser_search_notify_current_item_cb (GObject    *gobject,
-                                              GParamSpec *arg1,
+midori_browser_search_notify_current_item_cb (GObject*       gobject,
+                                              GParamSpec*    arg1,
                                               MidoriBrowser* browser)
 {
     MidoriSearchEntry* search_entry;
@@ -3197,6 +3158,7 @@ midori_browser_search_notify_current_item_cb (GObject    *gobject,
 static void
 midori_browser_init (MidoriBrowser* browser)
 {
+    GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
 
     browser->stock_news_feed = GTK_STOCK_INDEX;
@@ -3256,6 +3218,32 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* _action_set_active(browser, "Transferbar", config->toolbarTransfers); */
 
+    action = g_object_new (MIDORI_TYPE_LOCATION_ACTION,
+        "name", "Location",
+        "label", _("_Location..."),
+        "stock-id", GTK_STOCK_JUMP_TO,
+        "tooltip", _("Open a particular location"),
+        /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
+        "secondary-icon", browser->stock_news_feed,
+        NULL);
+    g_object_connect (action,
+                      "signal::activate",
+                      _action_location_activate, browser,
+                      "signal::active-changed",
+                      _action_location_active_changed, browser,
+                      "signal::focus-out",
+                      _action_location_focus_out, browser,
+                      "signal::reset-uri",
+                      _action_location_reset_uri, browser,
+                      "signal::submit-uri",
+                      _action_location_submit_uri, browser,
+                      "signal::secondary-icon-released",
+                      _action_location_secondary_icon_released, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group,
+        action, "<Ctrl>L");
+    g_object_unref (action);
+
     /* Create the menubar */
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     GtkWidget* menuitem = gtk_menu_item_new ();
@@ -3308,37 +3296,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
     browser->button_homepage = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation/Homepage");
-
-    /* Location */
-    browser->location = midori_location_entry_new ();
-    /* FIXME: sokoke_entry_setup_completion (GTK_ENTRY (browser->location)); */
-    g_object_connect (browser->location,
-                      "signal::active-changed",
-                      midori_browser_location_active_changed_cb, browser, NULL);
-    g_object_connect (gtk_bin_get_child (GTK_BIN (browser->location)),
-                      "signal::key-press-event",
-                      midori_browser_location_key_press_event_cb, browser,
-                      "signal::focus-out-event",
-                      midori_browser_location_focus_out_event_cb, browser,
-                      "signal::changed",
-                      midori_browser_location_changed_cb, browser,
-                      NULL);
-    /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
-        gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (
-        gtk_bin_get_child (GTK_BIN (browser->location))),
-        GTK_ICON_ENTRY_SECONDARY, TRUE);
-    g_signal_connect (gtk_bin_get_child (GTK_BIN (browser->location)),
-        "icon-released", G_CALLBACK (midori_browser_location_icon_released_cb),
-        browser);
-    GtkToolItem* toolitem = gtk_tool_item_new ();
-    gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-    GtkWidget* align = gtk_alignment_new (0, 0.5, 1, 0.1);
-    gtk_container_add (GTK_CONTAINER (align), browser->location);
-    gtk_container_add (GTK_CONTAINER(toolitem), align);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar), toolitem, -1);
 
     /* Search */
     browser->search = midori_search_entry_new ();
@@ -4124,7 +4081,7 @@ midori_browser_set_current_page (MidoriBrowser* browser,
     GtkWidget* scrolled = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
     GtkWidget* widget = _midori_browser_child_for_scrolled (browser, scrolled);
     if (widget && !strcmp (_midori_browser_get_tab_uri (browser, widget), ""))
-        gtk_widget_grab_focus (browser->location);
+        gtk_action_activate (_action_by_name (browser, "Location"));
     else
         gtk_widget_grab_focus (widget);
 }
@@ -4164,7 +4121,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
     gint n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), scrolled);
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     if (widget && !strcmp (_midori_browser_get_tab_uri (browser, widget), ""))
-        gtk_widget_grab_focus (browser->location);
+        gtk_action_activate (_action_by_name (browser, "Location"));
     else
         gtk_widget_grab_focus (widget);
 }

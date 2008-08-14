@@ -17,6 +17,16 @@
 
 #define DEFAULT_ICON GTK_STOCK_FILE
 
+struct _MidoriLocationEntry
+{
+    GtkComboBoxEntry parent_instance;
+};
+
+struct _MidoriLocationEntryClass
+{
+    GtkComboBoxEntryClass parent_class;
+};
+
 G_DEFINE_TYPE (MidoriLocationEntry, midori_location_entry, GTK_TYPE_COMBO_BOX_ENTRY)
 
 enum
@@ -41,8 +51,8 @@ entry_key_press_event (GtkWidget*           widget,
                        MidoriLocationEntry* location_entry);
 
 static void
-midori_location_entry_active_changed (GtkComboBox* combo_box,
-                                      gpointer     user_data);
+midori_location_entry_changed (GtkComboBox* combo_box,
+                               gpointer     user_data);
 
 static void
 midori_location_entry_class_init (MidoriLocationEntryClass* class)
@@ -100,7 +110,7 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
 
     gtk_combo_box_set_active (GTK_COMBO_BOX (location_entry), -1);
 
-    g_signal_connect (location_entry, "changed", G_CALLBACK (midori_location_entry_active_changed), NULL);
+    g_signal_connect (location_entry, "changed", G_CALLBACK (midori_location_entry_changed), NULL);
 }
 
 static gboolean
@@ -123,8 +133,8 @@ entry_key_press_event (GtkWidget*           widget,
 }
 
 static void
-midori_location_entry_active_changed (GtkComboBox* combo_box,
-                                      gpointer     user_data)
+midori_location_entry_changed (GtkComboBox* combo_box,
+                               gpointer     user_data)
 {
     GtkTreeIter iter;
     GtkIconEntry* entry;
@@ -153,21 +163,48 @@ midori_location_entry_active_changed (GtkComboBox* combo_box,
 }
 
 static void
-midori_location_entry_set_item (GtkTreeModel*            model,
+midori_location_entry_set_item (MidoriLocationEntry*     entry,
                                 GtkTreeIter*             iter,
                                 MidoriLocationEntryItem* item)
 {
-    gchar* desc = NULL;
+    GtkTreeModel* model;
+    gchar* title;
+    gchar* desc;
+    GdkPixbuf* icon;
+    GdkPixbuf* new_icon;
 
+    model = gtk_combo_box_get_model (GTK_COMBO_BOX (entry));
+    gtk_tree_model_get (model, iter, TITLE_COL, &title, -1);
     if (item->title)
         desc = g_markup_printf_escaped ("<b>%s</b> - %s", item->uri, item->title);
-    else
+    else if (!title && !item->title)
         desc = g_markup_printf_escaped ("<b>%s</b>", item->uri);
+    else
+        desc = NULL;
+    if (desc)
+    {
+        gtk_list_store_set (GTK_LIST_STORE (model), iter,
+            TITLE_COL, desc, -1);
+        g_free (desc);
+    }
 
     gtk_list_store_set (GTK_LIST_STORE (model), iter,
-        FAVICON_COL, item->favicon, URI_COL, item->uri, TITLE_COL, desc, -1);
+        URI_COL, item->uri, -1);
 
-    g_free (desc);
+    gtk_tree_model_get (model, iter, FAVICON_COL, &icon, -1);
+    if (item->favicon)
+        new_icon = g_object_ref (item->favicon);
+    else if (!icon && !item->favicon)
+        new_icon = gtk_widget_render_icon (GTK_WIDGET (entry), DEFAULT_ICON,
+                                           GTK_ICON_SIZE_MENU, NULL);
+    else
+        new_icon = NULL;
+    if (new_icon)
+    {
+        gtk_list_store_set (GTK_LIST_STORE (model), iter,
+            FAVICON_COL, new_icon, -1);
+        g_object_unref (new_icon);
+    }
 }
 
 static void
@@ -183,7 +220,7 @@ midori_location_entry_set_active_iter (MidoriLocationEntry* location_entry,
     gtk_combo_box_set_active_iter (GTK_COMBO_BOX (location_entry), iter);
 
     /* When setting the active iter (when adding or setting an item)
-     * The favicon may have change, so we must update the entry favicon.
+     * The favicon may have changed, so we must update the entry favicon.
      */
     if (entry)
     {
@@ -267,7 +304,7 @@ midori_location_entry_get_text (MidoriLocationEntry* location_entry)
     g_return_val_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry), NULL);
 
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
-    g_return_val_if_fail (GTK_IS_ICON_ENTRY (entry), NULL);
+    g_return_val_if_fail (GTK_IS_ENTRY (entry), NULL);
 
     return gtk_entry_get_text (GTK_ENTRY (entry));
 }
@@ -277,20 +314,34 @@ midori_location_entry_get_text (MidoriLocationEntry* location_entry)
  * @location_entry: a #MidoriLocationEntry
  * @text: a string
  *
- * Sets the entry text to @text.
+ * Sets the entry text to @text and, if applicable, updates the icon.
  **/
 void
 midori_location_entry_set_text (MidoriLocationEntry* location_entry,
                                 const gchar*         text)
 {
     GtkWidget* entry;
+    GtkTreeIter iter;
+    GtkTreeModel* model;
+    GdkPixbuf* icon;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
 
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
-    g_return_if_fail (GTK_IS_ICON_ENTRY (entry));
+    g_return_if_fail (GTK_IS_ENTRY (entry));
 
     gtk_entry_set_text (GTK_ENTRY (entry), text);
+    if (midori_location_entry_item_iter (location_entry, text, &iter))
+    {
+        model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+        gtk_tree_model_get (model, &iter, FAVICON_COL, &icon, -1);
+        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
+            GTK_ICON_ENTRY_PRIMARY, icon);
+    }
+    /* FIXME: Due to a bug in GtkIconEntry we can't reset the icon
+    else
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+            GTK_ICON_ENTRY_PRIMARY, DEFAULT_ICON);*/
 }
 
 /**
@@ -334,7 +385,7 @@ midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
     found = midori_location_entry_item_iter (MIDORI_LOCATION_ENTRY (location_entry),
                                              uri,
                                              &iter);
-    if(found)
+    if (found)
         midori_location_entry_set_active_iter (location_entry, &iter);
     else
         midori_location_entry_clear (location_entry);
@@ -347,7 +398,6 @@ midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
  * @item: a MidoriLocationItem
  *
  * Adds @item if it is not already in the list.
- * Sets @item to be active.
  **/
 void
 midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
@@ -360,7 +410,6 @@ midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
     g_return_if_fail (item->uri != NULL);
-    g_return_if_fail (item->favicon != NULL);
 
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
     if (gtk_tree_model_get_iter_first (model, &iter))
@@ -383,7 +432,7 @@ midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
     if (!item_exists)
         gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
 
-    midori_location_entry_set_item (model, &iter, item);
-    midori_location_entry_set_active_iter (location_entry, &iter);
+    midori_location_entry_set_item (location_entry, &iter, item);
+    /*midori_location_entry_set_active_iter (location_entry, &iter);*/
 }
 
