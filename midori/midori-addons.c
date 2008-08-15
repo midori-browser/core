@@ -10,12 +10,15 @@
  See the file COPYING for the full license text.
 */
 
-#include "config.h"
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
 
 #include "midori-addons.h"
 
 #include "sokoke.h"
 #include "gjs.h"
+
 #include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>

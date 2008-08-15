@@ -9,9 +9,11 @@
  See the file COPYING for the full license text.
 */
 
-#include "sokoke.h"
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
 
-#include "config.h"
+#include "sokoke.h"
 #include "main.h"
 
 #ifdef HAVE_UNISTD_H

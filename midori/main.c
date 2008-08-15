@@ -9,6 +9,10 @@
  See the file COPYING for the full license text.
 */
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 #include "main.h"
 
 #include "sokoke.h"
@@ -20,10 +24,6 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
-
-#if HAVE_CONFIG_H
-    #include "config.h"
-#endif
 
 #ifdef ENABLE_NLS
     #include <libintl.h>
@@ -79,16 +79,6 @@ stock_items_init (void)
     gtk_stock_add_static (items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
-}
-
-static void
-locale_init (void)
-{
-#ifdef ENABLE_NLS
-    bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-#endif
 }
 
 static MidoriWebSettings*
@@ -388,7 +378,11 @@ main (int argc,
     gchar* homepage;
     MidoriWebList* search_engines;
 
-    locale_init ();
+    #ifdef ENABLE_NLS
+    bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+    #endif
     g_set_application_name (_("Midori"));
 
     /* Parse cli options */

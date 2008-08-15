@@ -384,7 +384,7 @@ gjs_value_get_elements_by_tag_name (GjsValue*    value,
     gchar* script;
     GjsValue* elements;
 
-    g_return_val_if_fail (gjs_value_is_valid (value), NULL);
+    g_return_val_if_fail (gjs_value_is_object (value), NULL);
     g_return_val_if_fail (name, NULL);
 
     script = g_strdup_printf ("return this.getElementsByTagName ('%s');", name);
