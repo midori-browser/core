@@ -386,15 +386,17 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button, 1, 2, 2, 3);
     FRAME_NEW(_("Browsing"));
     TABLE_NEW (3, 2);
-    label = katze_property_label (settings, "open-new-pages-in");
+    /* label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
-    FILLED_ADD (button, 1, 2, 0, 1);
+    FILLED_ADD (button, 1, 2, 0, 1); */
     button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     INDENTED_ADD (button, 0, 1, 1, 2);
     button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
     SPANNED_ADD (button, 1, 2, 1, 2);
-    button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
+    /* button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
+    SPANNED_ADD (button, 0, 1, 2, 3);*/
+    button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
     SPANNED_ADD (button, 0, 1, 2, 3);
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     SPANNED_ADD (button, 1, 2, 2, 3);
@@ -417,7 +419,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (hbox, 1, 2, 1, 2);
 
     /* Page "Privacy" */
-    PAGE_NEW (_("Privacy"));
+    /* PAGE_NEW (_("Privacy"));
     FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
@@ -447,7 +449,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "remember-last-form-inputs", NULL);
     SPANNED_ADD (button, 0, 2, 1, 2);
     button = katze_property_proxy (settings, "remember-last-downloaded-files", NULL);
-    SPANNED_ADD (button, 0, 2, 2, 3);
+    SPANNED_ADD (button, 0, 2, 2, 3); */
 
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
                         preferences->notebook, FALSE, FALSE, 4);

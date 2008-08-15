@@ -51,6 +51,7 @@ struct _MidoriWebSettings
     MidoriNewPage open_new_pages_in;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
+    gboolean open_tabs_next_to_current;
     gboolean open_popups_in_tabs;
 
     MidoriAcceptCookies accept_cookies;
@@ -103,6 +104,7 @@ enum
     PROP_OPEN_NEW_PAGES_IN,
     PROP_MIDDLE_CLICK_OPENS_SELECTION,
     PROP_OPEN_TABS_IN_THE_BACKGROUND,
+    PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
 
     PROP_ACCEPT_COOKIES,
@@ -488,13 +490,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
     g_object_class_install_property (gobject_class,
+                                     PROP_OPEN_TABS_NEXT_TO_CURRENT,
+                                     g_param_spec_boolean (
+                                     "open-tabs-next-to-current",
+                                     _("Open Tabs next to Current"),
+                                     _("Whether to open new tabs next to the current tab or after the last one"),
+                                     TRUE,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
                                      PROP_OPEN_POPUPS_IN_TABS,
                                      g_param_spec_boolean (
                                      "open-popups-in-tabs",
                                      _("Open popups in tabs"),
                                      _("Whether to open popup windows in tabs"),
                                      TRUE,
-                                     flags));
+                                     G_PARAM_READABLE));
 
 
 
@@ -736,6 +747,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_OPEN_TABS_IN_THE_BACKGROUND:
         web_settings->open_tabs_in_the_background = g_value_get_boolean (value);
         break;
+    case PROP_OPEN_TABS_NEXT_TO_CURRENT:
+        web_settings->open_tabs_next_to_current = g_value_get_boolean (value);
+        break;
     case PROP_OPEN_POPUPS_IN_TABS:
         web_settings->open_popups_in_tabs = g_value_get_boolean (value);
         break;
@@ -870,6 +884,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_OPEN_TABS_IN_THE_BACKGROUND:
         g_value_set_boolean (value, web_settings->open_tabs_in_the_background);
+        break;
+    case PROP_OPEN_TABS_NEXT_TO_CURRENT:
+        g_value_set_boolean (value, web_settings->open_tabs_next_to_current);
         break;
     case PROP_OPEN_POPUPS_IN_TABS:
         g_value_set_boolean (value, web_settings->open_popups_in_tabs);

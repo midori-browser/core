@@ -1032,9 +1032,16 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     g_signal_connect (close_button, "clicked",
         G_CALLBACK (midori_browser_tab_close_clicked), widget);
 
-    n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    gtk_notebook_insert_page (GTK_NOTEBOOK (browser->notebook), scrolled,
-                              event_box, n + 1);
+    if (sokoke_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
+    {
+        n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+        gtk_notebook_insert_page (GTK_NOTEBOOK (browser->notebook), scrolled,
+                                  event_box, n + 1);
+    }
+    else
+        gtk_notebook_append_page (GTK_NOTEBOOK (browser->notebook), scrolled,
+                                  event_box);
+
     #if GTK_CHECK_VERSION(2, 10, 0)
     gtk_notebook_set_tab_reorderable (GTK_NOTEBOOK (browser->notebook),
                                       scrolled, TRUE);
