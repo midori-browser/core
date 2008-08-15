@@ -1201,5 +1201,6 @@ midori_web_view_has_selection (MidoriWebView* web_view)
         g_free (text);
         return TRUE;
     }
+    g_free (text);
     return FALSE;
 }
