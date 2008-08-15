@@ -112,6 +112,8 @@ install:
 	    $WAF install; \\
 	fi;
 
+.PHONY: install
+
 uninstall:
 	@if test -n "\$(DESTDIR)"; then \\
 	    $WAF uninstall --destdir="\$(DESTDIR)"; \\
