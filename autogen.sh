@@ -2,7 +2,7 @@
 
 echo "no" | glib-gettextize --force --copy
 intltoolize --copy --force --automake
-libtoolize --copy --force
+libtoolize --copy --force || glibtoolize --copy --force
 aclocal
 autoheader
 autoconf
