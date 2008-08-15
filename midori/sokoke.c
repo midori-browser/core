@@ -609,7 +609,7 @@ sokoke_object_get_boolean (gpointer     object,
  * sokoke_action_create_popup_menu_item:
  * @action: a #GtkAction
  *
- * Creates a menu item from an action, much like
+ * Creates a menu item from an action, just like
  * gtk_action_create_menu_item() but it won't
  * display an accelerator.
  *
@@ -618,32 +618,10 @@ sokoke_object_get_boolean (gpointer     object,
 GtkWidget*
 sokoke_action_create_popup_menu_item (GtkAction* action)
 {
-    gchar* label;
-    gchar* stock_id;
-    gboolean sensitive;
-    GtkStockItem stockitem;
     GtkWidget* menuitem;
-    GtkWidget* image;
 
-    g_object_get (action, "label", &label,
-        "stock-id", &stock_id, "sensitive", &sensitive, NULL);
-    if (label)
-    {
-        menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-        g_free (label);
-    }
-    else
-    {
-        gtk_stock_lookup (stock_id, &stockitem);
-        menuitem = gtk_image_menu_item_new_with_mnemonic (stockitem.label);
-        gtk_stock_item_free (&stockitem);
-    }
-    gtk_widget_set_sensitive (menuitem, sensitive);
-    image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-    gtk_widget_show (menuitem);
-
-    g_free (stock_id);
+    menuitem = gtk_image_menu_item_new_with_mnemonic ("");
+    gtk_action_connect_proxy (action, menuitem);
 
     return menuitem;
 }
