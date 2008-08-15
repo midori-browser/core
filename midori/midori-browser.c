@@ -1821,7 +1821,7 @@ _action_source_view_activate (GtkAction*     action,
 {
     GtkWidget* web_view;
     const gchar* uri;
-    #if GLIB_CHECK_VERSION (2, 16, 0)
+    #if HAVE_GIO
     GFile* file;
     gchar* tag;
     #ifdef HAVE_GTKSOURCEVIEW
@@ -1833,7 +1833,7 @@ _action_source_view_activate (GtkAction*     action,
     gchar* contents_utf8;
     #ifdef HAVE_GTKSOURCEVIEW
     GtkSourceBuffer* buffer;
-    #if GLIB_CHECK_VERSION (2, 16, 0)
+    #if HAVE_GIO
     GtkSourceLanguageManager* language_manager;
     GtkSourceLanguage* language;
     #endif
@@ -1850,7 +1850,7 @@ _action_source_view_activate (GtkAction*     action,
 
     contents = NULL;
 
-    #if GLIB_CHECK_VERSION (2, 16, 0)
+    #if HAVE_GIO
     file = g_file_new_for_uri (uri);
     tag = NULL;
     #ifdef HAVE_GTKSOURCEVIEW
@@ -1878,6 +1878,7 @@ _action_source_view_activate (GtkAction*     action,
     #ifdef HAVE_GTKSOURCEVIEW
     buffer = gtk_source_buffer_new (NULL);
     gtk_source_buffer_set_highlight_syntax (buffer, TRUE);
+    #ifdef HAVE_GIO
     if (content_type)
     {
         language_manager = gtk_source_language_manager_get_default ();
@@ -1900,6 +1901,7 @@ _action_source_view_activate (GtkAction*     action,
             gtk_source_buffer_set_language (buffer, language);
         }
     }
+    #endif
     #else
     buffer = gtk_text_buffer_new (NULL);
     #endif
@@ -1920,7 +1922,7 @@ _action_source_view_activate (GtkAction*     action,
 
     g_object_unref (buffer);
     g_free (contents_utf8);
-    #if GLIB_CHECK_VERSION (2, 16, 0)
+    #if HAVE_GIO
     g_free (tag);
     #endif
 }
