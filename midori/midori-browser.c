@@ -2806,7 +2806,7 @@ static const GtkActionEntry entries[] = {
  { "Trash", STOCK_USER_TRASH,
    N_("Closed Tabs and Windows"), "",
 /*  N_("Reopen a previously closed tab or window"), G_CALLBACK (_action_trash_activate) }, */
-   N_("Reopen a previously closed tab or window"), G_CALLBACK (midori_browser_menu_trash_activate_cb) },
+   N_("Reopen a previously closed tab or window"), NULL },
  { "TrashEmpty", GTK_STOCK_CLEAR,
    N_("Empty Trash"), "",
    N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
