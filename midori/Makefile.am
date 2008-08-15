@@ -31,6 +31,7 @@ midori_SOURCES = \
     midori-preferences.c   midori-preferences.h   \
     midori-searchentry.c   midori-searchentry.h   \
     midori-locationentry.c midori-locationentry.h \
+    midori-locationaction.c midori-locationaction.h \
     gjs.c       gjs.h       \
     sokoke.c    sokoke.h    \
     compat.c    compat.h
