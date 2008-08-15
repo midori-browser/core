@@ -2820,7 +2820,7 @@ static const GtkActionEntry entries[] = {
    N_("Empty Trash"), "",
    N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
  { "UndoTabClose", GTK_STOCK_UNDELETE,
-   N_("Undo Close Tab"), "",
+   N_("Undo Close Tab"), "<Ctrl><Shift>t",
    N_("Open the last closed tab"), G_CALLBACK (_action_undo_tab_close_activate) },
 
  { "Bookmarks", NULL, N_("_Bookmarks") },
