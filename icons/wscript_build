@@ -44,5 +44,6 @@ def add_image (bld, install_files, category, name):
                 Params.pprint ('BLUE', "Optimized icons could not be created.")
                 break
 
+add_image (bld, install_files, 'categories', 'extension')
 add_image (bld, install_files, 'apps', 'midori')
 add_image (bld, install_files, 'status', 'news-feed')
