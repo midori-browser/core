@@ -3488,13 +3488,13 @@ midori_browser_init (MidoriBrowser* browser)
                               panel, toolbar,
                               STOCK_SCRIPTS, _("Userscripts"));
     /* Userstyles */
-    /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
+    panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
     gtk_widget_show (panel);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              STOCK_STYLES, _("Userstyles"));*/
+                              STOCK_STYLES, _("Userstyles"));
 
     /* Extensions */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);

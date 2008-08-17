@@ -597,6 +597,51 @@ _js_script_from_file (JSContextRef js_context,
     return result;
 }
 
+static gboolean
+_js_style_from_file (JSContextRef js_context,
+                     const gchar* filename,
+                     gchar**      exception)
+{
+    gboolean result = FALSE;
+    gchar* style;
+    GError* error = NULL;
+    guint i, n;
+    gchar* style_script;
+
+    if (g_file_get_contents (filename, &style, NULL, &error))
+    {
+        n = strlen (style);
+        for (i = 0; i < n; i++)
+        {
+            /* Replace line breaks with spaces */
+            if (style[i] == '\n' || style[i] == '\r')
+                style[i] = ' ';
+            /* Change all single quotes to double quotes */
+            if (style[i] == '\'')
+                style[i] = '\"';
+        }
+        style_script = g_strdup_printf (
+            "window.addEventListener ('DOMContentLoaded',"
+            "function () {"
+            "var mystyle = document.createElement(\"style\");"
+            "mystyle.setAttribute(\"type\", \"text/css\");"
+            "mystyle.appendChild(document.createTextNode('%s'));"
+            "document.getElementsByTagName(\"head\")[0].appendChild(mystyle);"
+            "}, true);",
+            style);
+        if (gjs_script_eval (js_context, style_script, exception))
+            result = TRUE;
+        g_free (style_script);
+        g_free (style);
+    }
+    else
+    {
+        *exception = g_strdup (error->message);
+        g_error_free (error);
+    }
+    return result;
+}
+
 static void
 midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
                                             WebKitWebFrame*    web_frame,
@@ -617,28 +662,38 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
     if (!uri)
         return;
 
-    addon_files = _addons_get_files(addons);
+    addon_files = _addons_get_files (addons);
     list = addon_files;
     while (addon_files)
     {
         fullname = addon_files->data;
         includes = NULL;
         excludes = NULL;
-        if (!_metadata_from_file (fullname, &includes, &excludes, NULL, NULL))
+        if (addons->kind == MIDORI_ADDON_USER_SCRIPTS &&
+            !_metadata_from_file (fullname, &includes, &excludes, NULL, NULL))
         {
-            addon_files = addon_files->next;
+            addon_files = g_slist_next (addon_files);
             continue;
         }
         if (includes || excludes)
             if (!_may_load_script (uri, &includes, &excludes))
             {
-                addon_files = addon_files->next;
+                addon_files = g_slist_next (addon_files);
                 continue;
             }
         g_slist_free (includes);
         g_slist_free (excludes);
         exception = NULL;
-        if (!_js_script_from_file (js_context, fullname, &exception))
+        if (addons->kind == MIDORI_ADDON_USER_SCRIPTS &&
+            !_js_script_from_file (js_context, fullname, &exception))
+        {
+            message = g_strdup_printf ("console.error ('%s');", exception);
+            gjs_script_eval (js_context, message, NULL);
+            g_free (message);
+            g_free (exception);
+        }
+        else if (addons->kind == MIDORI_ADDON_USER_STYLES &&
+            !_js_style_from_file (js_context, fullname, &exception))
         {
             message = g_strdup_printf ("console.error ('%s');", exception);
             gjs_script_eval (js_context, message, NULL);
@@ -745,7 +800,8 @@ midori_addons_set_kind (MidoriAddons*   addons,
 
     addons->kind = kind;
 
-    if (kind == MIDORI_ADDON_USER_SCRIPTS)
+    if (kind == MIDORI_ADDON_USER_SCRIPTS
+        || kind == MIDORI_ADDON_USER_STYLES)
         g_signal_connect (addons->web_widget, "window-object-cleared",
             G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
 
