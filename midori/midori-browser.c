@@ -72,8 +72,6 @@ struct _MidoriBrowser
     GtkWidget* statusbar;
     GtkWidget* progressbar;
 
-    const gchar* stock_news_feed;
-
     gchar* statusbar_text;
     MidoriWebSettings* settings;
     GList* tab_titles;
@@ -290,7 +288,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     /* if (web_view && midori_web_view_get_news_feeds (MIDORI_WEB_VIEW (web_view)))
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
             gtk_bin_get_child (GTK_BIN (browser->location))),
-            GTK_ICON_ENTRY_SECONDARY, browser->stock_news_feed);
+            GTK_ICON_ENTRY_SECONDARY, STOCK_NEWS_FEED);
     else
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
             gtk_bin_get_child (GTK_BIN (browser->location))),
@@ -487,7 +485,7 @@ midori_web_view_news_feed_ready_cb (MidoriWebView* web_view,
                                     MidoriBrowser* browser)
 {
     midori_location_action_set_secondary_icon (MIDORI_LOCATION_ACTION (
-        _action_by_name (browser, "Location")), browser->stock_news_feed);
+        _action_by_name (browser, "Location")), STOCK_NEWS_FEED);
 }
 
 static gboolean
@@ -2081,7 +2079,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
                 menuitem = gtk_image_menu_item_new_with_label (title);
                 /* FIXME: Get the real icon */
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
-                    menuitem), gtk_image_new_from_stock (browser->stock_news_feed,
+                    menuitem), gtk_image_new_from_stock (STOCK_NEWS_FEED,
                     GTK_ICON_SIZE_MENU));
                 gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
                 g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
@@ -2813,7 +2811,7 @@ static const GtkActionEntry entries[] = {
    N_("Open in Page_holder..."), "",
    N_("Open the current page in the pageholder"), G_CALLBACK (_action_open_in_panel_activate) },
  { "Trash", STOCK_USER_TRASH,
-   N_("Closed Tabs and Windows"), "",
+   NULL, "",
 /*  N_("Reopen a previously closed tab or window"), G_CALLBACK (_action_trash_activate) }, */
    N_("Reopen a previously closed tab or window"), NULL },
  { "TrashEmpty", GTK_STOCK_CLEAR,
@@ -3090,10 +3088,6 @@ midori_browser_realize_cb (GtkStyle*      style,
             gtk_window_set_icon_name (GTK_WINDOW (browser), "midori");
         else
             gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
-        if (gtk_icon_theme_has_icon (icon_theme, STOCK_NEWS_FEED))
-            browser->stock_news_feed = STOCK_NEWS_FEED;
-        else
-            browser->stock_news_feed = GTK_STOCK_INDEX;
     }
 }
 
@@ -3170,8 +3164,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
 
-    browser->stock_news_feed = GTK_STOCK_INDEX;
-
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
                       G_CALLBACK (midori_browser_realize_cb), browser);
@@ -3233,7 +3225,7 @@ midori_browser_init (MidoriBrowser* browser)
         "stock-id", GTK_STOCK_JUMP_TO,
         "tooltip", _("Open a particular location"),
         /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
-        "secondary-icon", browser->stock_news_feed,
+        "secondary-icon", STOCK_NEWS_FEED,
         NULL);
     g_object_connect (action,
                       "signal::activate",
@@ -3454,14 +3446,14 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show_all (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               box, toolbar,
-                              STOCK_BOOKMARKS, _("Bookmarks"), _("_Bookmarks"));
+                              STOCK_BOOKMARKS, _("Bookmarks"));
 
     /* Transfers */
     GtkWidget* panel = midori_web_view_new ();
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, NULL,
-                              STOCK_TRANSFER, _("Transfers"), _("_Transfers"));
+                              STOCK_TRANSFERS, _("Transfers"));
 
     /* Console */
     browser->panel_console = midori_console_new ();
@@ -3470,14 +3462,14 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               browser->panel_console, toolbar,
-                              STOCK_CONSOLE, _("Console"), _("_Console"));
+                              STOCK_CONSOLE, _("Console"));
 
     /* History */
     panel = midori_web_view_new ();
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, NULL,
-                              STOCK_HISTORY, _("History"), _("_History"));
+                              STOCK_HISTORY, _("History"));
 
     /* Pageholder */
     browser->panel_pageholder = g_object_new (MIDORI_TYPE_WEB_VIEW,
@@ -3486,7 +3478,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (browser->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               browser->panel_pageholder, NULL,
-                              STOCK_PAGE_HOLDER, _("Pageholder"), _("_Pageholder"));
+                              STOCK_PAGE_HOLDER, _("Pageholder"));
 
     /* Userscripts */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
@@ -3495,7 +3487,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              STOCK_SCRIPT, _("Userscripts"), _("_Userscripts"));
+                              STOCK_SCRIPTS, _("Userscripts"));
     /* Userstyles */
     /*panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
     gtk_widget_show (panel);
@@ -3503,7 +3495,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              STOCK_STYLE, _("Userstyles"), _("_Userstyles"));*/
+                              STOCK_STYLES, _("Userstyles"));*/
 
     /* Extensions */
     panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
@@ -3512,7 +3504,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, toolbar,
-                              STOCK_EXTENSION, _("Extensions"), _("_Extensions"));
+                              STOCK_EXTENSIONS, _("Extensions"));
 
     /* Notebook, containing all web_views */
     browser->notebook = gtk_notebook_new ();

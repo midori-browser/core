@@ -32,27 +32,37 @@
 static void
 stock_items_init (void)
 {
-    static GtkStockItem items[] =
+    typedef struct
     {
-        { STOCK_BOOKMARKS },
-        { STOCK_CONSOLE },
-        { STOCK_EXTENSION },
-        { STOCK_NEWS_FEED },
-        { STOCK_LOCK_OPEN },
-        { STOCK_LOCK_SECURE },
-        { STOCK_LOCK_BROKEN },
-        { STOCK_PAGE_HOLDER },
-        { STOCK_SCRIPT },
-        { STOCK_STYLE },
-        { STOCK_TRANSFER },
-        { STOCK_USER_TRASH },
+        gchar* stock_id;
+        gchar* label;
+        GdkModifierType modifier;
+        guint keyval;
+        gchar* fallback;
+    } FatStockItem;
 
-        { STOCK_BOOKMARK,       N_("_Bookmark"), 0, 0, NULL },
-        { STOCK_BOOKMARK_ADD,   N_("_Add Bookmark"), 0, 0, NULL },
-        { STOCK_FORM_FILL,      N_("_Form Fill"), 0, 0, NULL },
-        { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, NULL },
-        { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, NULL },
-        { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, NULL },
+    static FatStockItem items[] =
+    {
+        { STOCK_EXTENSION, NULL, 0, 0, GTK_STOCK_CONVERT },
+        { STOCK_NEWS_FEED, NULL, 0, 0, GTK_STOCK_INDEX },
+        { STOCK_SCRIPT, NULL, 0, 0, GTK_STOCK_EXECUTE },
+        { STOCK_STYLE, NULL, 0, 0, GTK_STOCK_SELECT_COLOR },
+        { STOCK_TRANSFER, NULL, 0, 0, GTK_STOCK_SAVE },
+
+        { STOCK_BOOKMARK,       N_("_Bookmark"), 0, 0, GTK_STOCK_FILE },
+        { STOCK_BOOKMARKS,      N_("_Bookmarks"), 0, 0, GTK_STOCK_DIRECTORY },
+        { STOCK_BOOKMARK_ADD,   N_("_Add Bookmark"), 0, 0, GTK_STOCK_ADD },
+        { STOCK_CONSOLE,        N_("_Console"), 0, 0, GTK_STOCK_DIALOG_WARNING },
+        { STOCK_EXTENSIONS,     N_("_Extensions"), 0, 0, GTK_STOCK_CONVERT },
+        { STOCK_HISTORY,        N_("_History"), 0, 0, GTK_STOCK_SORT_ASCENDING },
+        { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, GTK_STOCK_HOME },
+        { STOCK_PAGE_HOLDER,    N_("_Pageholder"), 0, 0, GTK_STOCK_ORIENTATION_PORTRAIT },
+        { STOCK_SCRIPTS,        N_("_Userscripts"), 0, 0, GTK_STOCK_EXECUTE },
+        { STOCK_STYLES,         N_("User_styles"), 0, 0, GTK_STOCK_SELECT_COLOR },
+        { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, GTK_STOCK_ADD },
+        { STOCK_TRANSFERS,      N_("_Transfers"), 0, 0, GTK_STOCK_SAVE },
+        { STOCK_USER_TRASH,     N_("_Closed Tabs and Windows"), 0, 0, "gtk-undo-ltr" },
+        { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
         #if !GTK_CHECK_VERSION(2, 10, 0)
         { GTK_STOCK_SELECT_ALL, N_("Select _All"), 0, 0, NULL },
         #endif
@@ -61,6 +71,7 @@ stock_items_init (void)
         { GTK_STOCK_LEAVE_FULLSCREEN, N_("_Leave Fullscreen"), 0, 0, NULL },
         #endif
     };
+
     GtkIconSource* icon_source;
     GtkIconSet* icon_set;
     GtkIconFactory* factory = gtk_icon_factory_new ();
@@ -68,15 +79,21 @@ stock_items_init (void)
 
     for (i = 0; i < (guint)G_N_ELEMENTS (items); i++)
     {
-        icon_source = gtk_icon_source_new ();
-        gtk_icon_source_set_icon_name (icon_source, items[i].stock_id);
         icon_set = gtk_icon_set_new ();
+        icon_source = gtk_icon_source_new ();
+        if (items[i].fallback)
+        {
+            gtk_icon_source_set_icon_name (icon_source, items[i].fallback);
+            items[i].fallback = NULL;
+            gtk_icon_set_add_source (icon_set, icon_source);
+        }
+        gtk_icon_source_set_icon_name (icon_source, items[i].stock_id);
         gtk_icon_set_add_source (icon_set, icon_source);
         gtk_icon_source_free (icon_source);
         gtk_icon_factory_add (factory, items[i].stock_id, icon_set);
         gtk_icon_set_unref (icon_set);
     }
-    gtk_stock_add_static (items, G_N_ELEMENTS (items));
+    gtk_stock_add ((GtkStockItem*)items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
 }

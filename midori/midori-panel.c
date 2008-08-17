@@ -337,20 +337,11 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  * @panel: a #MidoriPanel
  * @child: the child widget
  * @toolbar: a toolbar widget, or %NULL
- * @icon: a stock ID or icon name, or %NULL
- * @label: a string to use as the label, or %NULL
- * @mnemonic: a string to use as a mnemonic, or %NULL
+ * @stock_id: a stock ID
+ * @label: a string to use as the label
  *
  * Appends a new page to the panel. If @toolbar is specified it will
  * be packaged above @child.
- *
- * If @icon is an icon name, the according image is used as an
- * icon for this page.
- *
- * If @label is given, it is used as the label of this page.
- *
- * If @mnemonic is given, it is used in labels with mnemonics
- * such as menu items. See gtk_label_new_with_mnemonic().
  *
  * In the case of an error, -1 is returned.
  *
@@ -360,16 +351,13 @@ gint
 midori_panel_append_page (MidoriPanel* panel,
                           GtkWidget*   child,
                           GtkWidget*   toolbar,
-                          const gchar* icon,
-                          const gchar* label,
-                          const gchar* mnemonic)
+                          const gchar* stock_id,
+                          const gchar* label)
 {
     GtkWidget* scrolled;
     GtkWidget* widget;
     GObjectClass* gobject_class;
     guint n;
-    const gchar* text;
-    const gchar* text_mnemonic;
     GtkToolItem* toolitem;
     GtkWidget* image;
     GtkWidget* menuitem;
@@ -377,6 +365,8 @@ midori_panel_append_page (MidoriPanel* panel,
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
     g_return_val_if_fail (GTK_IS_WIDGET (child), -1);
     g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
+    g_return_val_if_fail (stock_id != NULL, -1);
+    g_return_val_if_fail (label != NULL, -1);
 
     scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
@@ -403,19 +393,14 @@ midori_panel_append_page (MidoriPanel* panel,
 
     n = midori_panel_page_num (panel, child);
 
-    text = label ? label : _("Untitled");
-    text_mnemonic = mnemonic ? mnemonic : _("_Untitled");
-    g_object_set_data (G_OBJECT (child), "label", (gchar*)text);
+    g_object_set_data (G_OBJECT (child), "label", (gchar*)label);
 
     toolitem = gtk_radio_tool_button_new (panel->group);
     panel->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
                                                    toolitem));
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), text);
-    if (icon)
-    {
-        image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_BUTTON);
-        gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
-    }
+    image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_BUTTON);
+    gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), label);
     g_object_set_data (G_OBJECT (toolitem), "page", child);
     g_signal_connect (toolitem, "clicked",
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
@@ -424,14 +409,8 @@ midori_panel_append_page (MidoriPanel* panel,
 
     if (panel->menu)
     {
-        menuitem = gtk_image_menu_item_new_with_mnemonic (text_mnemonic);
-        if (icon)
-        {
-            image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
-                                           image);
-        }
-        gtk_widget_show_all (menuitem);
+        menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
+        gtk_widget_show (menuitem);
         g_object_set_data (G_OBJECT (menuitem), "page", child);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
         g_signal_connect (menuitem, "activate",
