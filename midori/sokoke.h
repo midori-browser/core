@@ -131,4 +131,7 @@ sokoke_object_get_boolean            (gpointer       object,
 GtkWidget*
 sokoke_action_create_popup_menu_item (GtkAction*     action);
 
+gboolean
+sokoke_gio_supports_http             (void                 );
+
 #endif /* !__SOKOKE_H__ */
