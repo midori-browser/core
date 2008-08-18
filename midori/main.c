@@ -409,9 +409,9 @@ main (int argc,
                              GETTEXT_PACKAGE, &error))
     {
         if (error->code == G_OPTION_ERROR_UNKNOWN_OPTION)
-            g_print ("%s - %s\n", _("midori"), _("Unknown argument."));
+            g_print ("%s - %s\n", _("Midori"), _("Unknown argument."));
         else
-            g_print ("%s - %s", _("midori"), _("Failed to setup interface."));
+            g_print ("%s - %s", _("Midori"), _("Failed to setup interface."));
         g_error_free (error);
         return 1;
     }
