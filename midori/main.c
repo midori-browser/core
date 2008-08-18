@@ -424,7 +424,7 @@ main (int argc,
           "%s\n"
           "\t%s\n\n"
           "%s\n"
-          "\thttp://software.twotoasts.de\n",
+          "\thttp://www.twotoasts.de\n",
           _("Midori"), PACKAGE_VERSION,
           _("Please report comments, suggestions and bugs to:"),
           PACKAGE_BUGREPORT,
