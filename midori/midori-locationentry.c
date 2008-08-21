@@ -377,15 +377,11 @@ void
 midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
                                          const gchar*         uri)
 {
-    gboolean found;
     GtkTreeIter iter;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
 
-    found = midori_location_entry_item_iter (MIDORI_LOCATION_ENTRY (location_entry),
-                                             uri,
-                                             &iter);
-    if (found)
+    if (midori_location_entry_item_iter (location_entry, uri, &iter))
         midori_location_entry_set_active_iter (location_entry, &iter);
     else
         midori_location_entry_clear (location_entry);
@@ -405,34 +401,15 @@ midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    gboolean item_exists = FALSE;
-    gchar* uri;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
     g_return_if_fail (item->uri != NULL);
 
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
-    if (gtk_tree_model_get_iter_first (model, &iter))
-    {
-        uri = NULL;
-        do
-        {
-            gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
-            if (g_ascii_strcasecmp (item->uri, uri) == 0)
-            {
-                item_exists = TRUE;
-                g_free (uri);
-                break;
-            }
-            g_free (uri);
-        }
-        while (gtk_tree_model_iter_next (model, &iter));
-    }
 
-    if (!item_exists)
+    if (!midori_location_entry_item_iter (location_entry, item->uri, &iter))
         gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
 
     midori_location_entry_set_item (location_entry, &iter, item);
-    /*midori_location_entry_set_active_iter (location_entry, &iter);*/
 }
 

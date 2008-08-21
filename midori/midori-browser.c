@@ -483,8 +483,9 @@ midori_web_view_news_feed_ready_cb (MidoriWebView* web_view,
                                     const gchar*   title,
                                     MidoriBrowser* browser)
 {
-    midori_location_action_set_secondary_icon (MIDORI_LOCATION_ACTION (
-        _action_by_name (browser, "Location")), STOCK_NEWS_FEED);
+    if (web_view == (MidoriWebView*)midori_browser_get_current_web_view (browser))
+        midori_location_action_set_secondary_icon (MIDORI_LOCATION_ACTION (
+            _action_by_name (browser, "Location")), STOCK_NEWS_FEED);
 }
 
 static gboolean

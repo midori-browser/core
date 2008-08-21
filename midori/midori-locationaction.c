@@ -398,8 +398,6 @@ midori_location_action_add_uri (MidoriLocationAction* location_action,
         alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
         entry = gtk_bin_get_child (GTK_BIN (alignment));
 
-        midori_location_entry_set_text (MIDORI_LOCATION_ENTRY (entry), uri);
-
         item.favicon = NULL;
         item.uri = uri;
         item.title = NULL;
