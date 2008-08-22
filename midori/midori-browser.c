@@ -28,7 +28,7 @@
 #include "compat.h"
 #include "gjs.h"
 
-#if GLIB_CHECK_VERSION (2, 16, 0)
+#ifdef HAVE_GIO
 #include <gio/gio.h>
 #endif
 #include <glib/gi18n.h>
