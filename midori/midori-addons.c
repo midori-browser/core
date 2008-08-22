@@ -626,7 +626,9 @@ _js_style_from_file (JSContextRef js_context,
             "var mystyle = document.createElement(\"style\");"
             "mystyle.setAttribute(\"type\", \"text/css\");"
             "mystyle.appendChild(document.createTextNode('%s'));"
-            "document.getElementsByTagName(\"head\")[0].appendChild(mystyle);"
+            "var head = document.getElementsByTagName(\"head\")[0];"
+            "if (head) head.appendChild(mystyle);"
+            "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
             "}, true);",
             style);
         if (gjs_script_eval (js_context, style_script, exception))
