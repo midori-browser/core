@@ -9,10 +9,19 @@
  See the file COPYING for the full license text.
 */
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 #include "midori-app.h"
 
+#include <string.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+
+#ifdef HAVE_UNIQUE
+    #include <unique/unique.h>
+#endif
 
 struct _MidoriApp
 {
@@ -25,6 +34,8 @@ struct _MidoriApp
     MidoriWebSettings* settings;
     MidoriWebList* trash;
     MidoriWebList* search_engines;
+
+    gpointer instance;
 };
 
 G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
@@ -163,9 +174,63 @@ midori_app_constructor (GType                  type,
             type, n_construct_properties, construct_properties);
 }
 
+#ifdef HAVE_UNIQUE
+static UniqueResponse
+midori_browser_message_received_cb (UniqueApp*         instance,
+                                    UniqueCommand      command,
+                                    UniqueMessageData* message,
+                                    guint              time,
+                                    MidoriApp*         app)
+{
+  UniqueResponse response;
+  gchar** uris;
+
+  switch (command)
+  {
+  case UNIQUE_ACTIVATE:
+      g_print("activate\n");
+      gtk_window_set_screen (GTK_WINDOW (app->browser),
+                             unique_message_data_get_screen (message));
+      gtk_window_present (GTK_WINDOW (app->browser));
+      response = UNIQUE_RESPONSE_OK;
+      break;
+  case UNIQUE_OPEN:
+      g_print("open\n");
+      uris = unique_message_data_get_uris (message);
+      if (!uris)
+          response = UNIQUE_RESPONSE_FAIL;
+      else
+      {
+          g_print("open uris\n");
+          while (*uris)
+          {
+              midori_browser_add_uri (app->browser, *uris);
+              g_print ("uri: %s\n", *uris);
+              uris++;
+          }
+          /* g_strfreev (uris); */
+          response = UNIQUE_RESPONSE_OK;
+      }
+      break;
+  default:
+      g_print("fail\n");
+      response = UNIQUE_RESPONSE_FAIL;
+      break;
+  }
+
+  return response;
+}
+#endif
+
 static void
 midori_app_init (MidoriApp* app)
 {
+    #ifdef HAVE_UNIQUE
+    gchar* display_name;
+    gchar* instance_name;
+    guint i, n;
+    #endif
+
     g_assert (!_midori_app_singleton);
 
     _midori_app_singleton = app;
@@ -175,6 +240,22 @@ midori_app_init (MidoriApp* app)
     app->settings = midori_web_settings_new ();
     app->trash = midori_web_list_new ();
     app->search_engines = midori_web_list_new ();
+
+    #ifdef HAVE_UNIQUE
+    display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
+    n = strlen (display_name);
+    for (i = 0; i < n; i++)
+        if (display_name[i] == ':' || display_name[i] == '.')
+            display_name[i] = '_';
+    instance_name = g_strdup_printf ("de.twotoasts.midori_%s", display_name);
+    app->instance = unique_app_new (instance_name, NULL);
+    g_free (instance_name);
+    g_free (display_name);
+    g_signal_connect (app->instance, "message-received",
+                      G_CALLBACK (midori_browser_message_received_cb), app);
+    #else
+    app->instance = NULL;
+    #endif
 }
 
 static void
@@ -187,6 +268,9 @@ midori_app_finalize (GObject* object)
 
     g_object_unref (app->settings);
     g_object_unref (app->trash);
+
+    if (app->instance)
+        g_object_unref (app->instance);
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
 }
@@ -322,7 +406,98 @@ midori_app_new (void)
 }
 
 /**
+ * midori_app_instance_is_running:
+ * @app: a #MidoriApp
+ *
+ * Determines whether an instance of Midori is
+ * already running on the default display.
+ *
+ * If Midori was built without single instance support
+ * this function will always return %FALSE.
+ *
+ * Return value: %TRUE if an instance is already running
+ **/
+gboolean
+midori_app_instance_is_running (MidoriApp* app)
+{
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+
+    #ifdef HAVE_UNIQUE
+    return unique_app_is_running (app->instance);
+    #else
+    return FALSE;
+    #endif
+}
+
+/**
+ * midori_app_instance_send_activate:
+ * @app: a #MidoriApp
+ *
+ * Sends a message to an instance of Midori already
+ * running on the default display, asking to activate it.
+ *
+ * Practically the current browser will be focussed.
+ *
+ * Return value: %TRUE if the message was sent successfully
+ **/
+gboolean
+midori_app_instance_send_activate (MidoriApp* app)
+{
+    #ifdef HAVE_UNIQUE
+    UniqueResponse response;
+    #endif
+
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+    g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
+
+    #ifdef HAVE_UNIQUE
+    response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
+    if (response == UNIQUE_RESPONSE_OK)
+        return TRUE;
+    #endif
+    return FALSE;
+}
+
+/**
+ * midori_app_instance_send_uris:
+ * @app: a #MidoriApp
+ * @uris: a string vector of URIs
+ *
+ * Sends a message to an instance of Midori already
+ * running on the default display, asking to open @uris.
+ *
+ * The strings in @uris will each be opened in a new tab.
+ *
+ * Return value: %TRUE if the message was sent successfully
+ **/
+gboolean
+midori_app_instance_send_uris (MidoriApp* app,
+                               gchar**    uris)
+{
+    #ifdef HAVE_UNIQUE
+    UniqueMessageData* message;
+    UniqueResponse response;
+    #endif
+
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+    g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
+    g_return_val_if_fail (uris != NULL, FALSE);
+
+    #ifdef HAVE_UNIQUE
+    message = unique_message_data_new ();
+    unique_message_data_set_uris (message, uris);
+    response = unique_app_send_message (app->instance, UNIQUE_OPEN, message);
+    unique_message_data_free (message);
+    if (response == UNIQUE_RESPONSE_OK)
+        return TRUE;
+    #endif
+    return FALSE;
+}
+
+/**
  * midori_app_add_browser:
+ * @app: a #MidoriApp
+ * @browser: a #MidoriBrowser
  *
  * Adds a #MidoriBrowser to the #MidoriApp singleton.
  *
@@ -336,6 +511,9 @@ void
 midori_app_add_browser (MidoriApp*     app,
                         MidoriBrowser* browser)
 {
+    g_return_if_fail (MIDORI_IS_APP (app));
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+
     gtk_window_add_accel_group (GTK_WINDOW (browser), app->accel_group);
     g_object_connect (browser,
         "signal::focus-in-event", midori_browser_focus_in_event_cb, app,
@@ -346,6 +524,11 @@ midori_app_add_browser (MidoriApp*     app,
         NULL);
 
     app->browsers = g_list_prepend (app->browsers, browser);
+
+    #ifdef HAVE_UNIQUE
+    if (app->instance)
+        unique_app_watch_window (app->instance, GTK_WINDOW (browser));
+    #endif
 }
 
 /**

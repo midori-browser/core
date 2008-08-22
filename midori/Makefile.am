@@ -1,4 +1,5 @@
 INCLUDES = \
+    $(UNIQUE_CFLAGS)        \
     $(GIO_CFLAGS)           \
     $(GTK_CFLAGS)           \
     $(GTKSOURCEVIEW_CFLAGS) \
@@ -8,6 +9,7 @@ INCLUDES = \
 AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
 
 LDADD = \
+    $(UNIQUE_LIBS)       \
     $(GIO_LIBS)          \
     $(GTK_LIBS)          \
     $(GTKSOURCEVIEW_LIBS)\

@@ -53,6 +53,16 @@ midori_app_get_type               (void);
 MidoriApp*
 midori_app_new                    (void);
 
+gboolean
+midori_app_instance_is_running    (MidoriApp*         app);
+
+gboolean
+midori_app_instance_send_activate (MidoriApp*         app);
+
+gboolean
+midori_app_instance_send_uris     (MidoriApp*         app,
+                                   gchar**            uris);
+
 void
 midori_app_add_browser            (MidoriApp*         app,
                                    MidoriBrowser*     browser);

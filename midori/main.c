@@ -384,6 +384,8 @@ main (int argc,
       char** argv)
 {
     gboolean version;
+    MidoriApp* app;
+    gboolean result;
     GError* error;
     GOptionEntry entries[] =
     {
@@ -443,6 +445,23 @@ main (int argc,
         if (!exception)
             return 0;
         printf ("%s - Exception: %s\n", argv[1], exception);
+        return 1;
+    }
+
+    app = midori_app_new ();
+    if (midori_app_instance_is_running (app))
+    {
+        /* TODO: Open as many tabs as we have uris, seperated by pipes */
+        if (argc > 1)
+            result = midori_app_instance_send_uris (app, argv+1);
+        else
+            result = midori_app_instance_send_activate (app);
+
+        if (result)
+            return 0;
+
+        /* FIXME: Do we want a graphical error message? */
+        g_print (_("An instance of Midori is already running but not responding.\n"));
         return 1;
     }
 
@@ -590,11 +609,10 @@ main (int argc,
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_web_list_add_item_cb), NULL);
 
-    MidoriApp* app = g_object_new (MIDORI_TYPE_APP,
-                                   "settings", settings,
-                                   "trash", trash,
-                                   "search-engines", search_engines,
-                                   NULL);
+    g_object_set (app, "settings", settings,
+                       "trash", trash,
+                       "search-engines", search_engines,
+                       NULL);
 
     MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
                                            "settings", settings,

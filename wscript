@@ -35,6 +35,10 @@ def configure (conf):
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
 
+    conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
+    single_instance = ['no','yes'][conf.env['HAVE_UNIQUE'] == 1]
+    conf.check_message_custom ('single instance', 'support', single_instance)
+
     conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.6.0', mandatory=True)
     conf.check_pkg ('gtksourceview-2.0', destvar='GTKSOURCEVIEW', vnum='2.0', mandatory=False)
@@ -51,7 +55,7 @@ def configure (conf):
 
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
-    conf.define ('PACKAGE_BUGREPORT', 'http://software.twotoasts.de/bugs')
+    conf.define ('PACKAGE_BUGREPORT', 'http://www.twotoasts.de/bugs')
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.write_config_header ('config.h')

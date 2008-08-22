@@ -38,6 +38,11 @@ if test x"$enable_debug" = x"yes"; then
   ])
 fi
 
+# Checks for UNIQUE
+PKG_CHECK_MODULES(UNIQUE, unique-1.0 >= 0.9, have_unique=true, have_unique=false)
+AC_SUBST(UNIQUE_CFLAGS)
+AC_SUBST(UNIQUE_LIBS)
+
 # Checks for GIO2
 PKG_CHECK_MODULES(GIO, gio-2.0 >= 2.16, have_gio=true, have_gio=false)
 AC_SUBST(GIO_CFLAGS)
