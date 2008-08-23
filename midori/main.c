@@ -25,7 +25,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-#ifdef ENABLE_NLS
+#if ENABLE_NLS
     #include <libintl.h>
 #endif
 
@@ -397,7 +397,7 @@ main (int argc,
     gchar* homepage;
     MidoriWebList* search_engines;
 
-    #ifdef ENABLE_NLS
+    #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);

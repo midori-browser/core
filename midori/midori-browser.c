@@ -28,7 +28,7 @@
 #include "compat.h"
 #include "gjs.h"
 
-#ifdef HAVE_GIO
+#if HAVE_GIO
 #include <gio/gio.h>
 #endif
 #include <glib/gi18n.h>
@@ -1829,14 +1829,14 @@ _action_source_view_activate (GtkAction*     action,
     #if HAVE_GIO
     GFile* file;
     gchar* tag;
-    #ifdef HAVE_GTKSOURCEVIEW
+    #if HAVE_GTKSOURCEVIEW
     GFileInfo* info;
     const gchar* content_type;
     #endif
     #endif
     gchar* contents;
     gchar* contents_utf8;
-    #ifdef HAVE_GTKSOURCEVIEW
+    #if HAVE_GTKSOURCEVIEW
     GtkSourceBuffer* buffer;
     #if HAVE_GIO
     GtkSourceLanguageManager* language_manager;
@@ -1858,12 +1858,12 @@ _action_source_view_activate (GtkAction*     action,
     #if HAVE_GIO
     file = g_file_new_for_uri (uri);
     tag = NULL;
-    #ifdef HAVE_GTKSOURCEVIEW
+    #if HAVE_GTKSOURCEVIEW
     content_type = NULL;
     #endif
     if (g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL))
     {
-        #ifdef HAVE_GTKSOURCEVIEW
+        #if HAVE_GTKSOURCEVIEW
         info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
                                   G_FILE_QUERY_INFO_NONE, NULL, NULL);
         content_type = g_file_info_get_content_type (info);
@@ -1880,10 +1880,10 @@ _action_source_view_activate (GtkAction*     action,
     #endif
         contents_utf8 = contents;
 
-    #ifdef HAVE_GTKSOURCEVIEW
+    #if HAVE_GTKSOURCEVIEW
     buffer = gtk_source_buffer_new (NULL);
     gtk_source_buffer_set_highlight_syntax (buffer, TRUE);
-    #ifdef HAVE_GIO
+    #if HAVE_GIO
     if (content_type)
     {
         language_manager = gtk_source_language_manager_get_default ();
@@ -1912,7 +1912,7 @@ _action_source_view_activate (GtkAction*     action,
     #endif
     if (contents_utf8)
         gtk_text_buffer_set_text (GTK_TEXT_BUFFER (buffer), contents_utf8, -1);
-    #ifdef HAVE_GTKSOURCEVIEW
+    #if HAVE_GTKSOURCEVIEW
     text_view = gtk_source_view_new_with_buffer (buffer);
     gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW (text_view), TRUE);
     #else

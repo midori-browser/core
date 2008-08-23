@@ -20,7 +20,7 @@
 #include "sokoke.h"
 #include "compat.h"
 
-#ifdef HAVE_GIO
+#if HAVE_GIO
 #include <gio/gio.h>
 #endif
 #include <webkit/webkit.h>
@@ -294,7 +294,7 @@ webkit_web_view_window_object_cleared_cb (MidoriWebView*     web_view,
     web_view->window_object_cleared = TRUE;
 }
 
-#ifdef HAVE_GIO
+#if HAVE_GIO
 void
 loadable_icon_finish_cb (GdkPixbuf*     icon,
                          GAsyncResult*  res,
@@ -380,7 +380,7 @@ file_info_finish_cb (GFile*         icon_file,
 static void
 _midori_web_view_load_icon (MidoriWebView* web_view)
 {
-    #ifdef HAVE_GIO
+    #if HAVE_GIO
     GFile* file;
     GFile* icon_file;
     #endif
@@ -388,7 +388,7 @@ _midori_web_view_load_icon (MidoriWebView* web_view)
     gint icon_width, icon_height;
     GdkPixbuf* pixbuf_scaled;
 
-    #ifdef HAVE_GIO
+    #if HAVE_GIO
     if (web_view->uri)
     {
         file = g_file_new_for_uri (web_view->uri);
@@ -473,7 +473,7 @@ gjs_value_links_foreach_cb (GjsValue*      link,
 {
     const gchar* type;
     const gchar* rel;
-#ifdef HAVE_GIO
+#if HAVE_GIO
     GFile* icon_file;
     GIcon* icon;
 #endif
@@ -494,7 +494,7 @@ gjs_value_links_foreach_cb (GjsValue*      link,
                     ? gjs_value_get_attribute_string (link, "title") : NULL);
             }
         }
-#ifdef HAVE_GIO
+#if HAVE_GIO
         if (gjs_value_has_attribute (link, "rel"))
         {
             rel = gjs_value_get_attribute_string (link, "rel");

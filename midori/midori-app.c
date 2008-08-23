@@ -19,7 +19,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
-#ifdef HAVE_UNIQUE
+#if HAVE_UNIQUE
     #include <unique/unique.h>
 #endif
 
@@ -174,7 +174,7 @@ midori_app_constructor (GType                  type,
             type, n_construct_properties, construct_properties);
 }
 
-#ifdef HAVE_UNIQUE
+#if HAVE_UNIQUE
 static UniqueResponse
 midori_browser_message_received_cb (UniqueApp*         instance,
                                     UniqueCommand      command,
@@ -225,7 +225,7 @@ midori_browser_message_received_cb (UniqueApp*         instance,
 static void
 midori_app_init (MidoriApp* app)
 {
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     gchar* display_name;
     gchar* instance_name;
     guint i, n;
@@ -241,7 +241,7 @@ midori_app_init (MidoriApp* app)
     app->trash = midori_web_list_new ();
     app->search_engines = midori_web_list_new ();
 
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
     n = strlen (display_name);
     for (i = 0; i < n; i++)
@@ -422,7 +422,7 @@ midori_app_instance_is_running (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
 
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     return unique_app_is_running (app->instance);
     #else
     return FALSE;
@@ -443,14 +443,14 @@ midori_app_instance_is_running (MidoriApp* app)
 gboolean
 midori_app_instance_send_activate (MidoriApp* app)
 {
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     UniqueResponse response;
     #endif
 
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
     if (response == UNIQUE_RESPONSE_OK)
         return TRUE;
@@ -474,7 +474,7 @@ gboolean
 midori_app_instance_send_uris (MidoriApp* app,
                                gchar**    uris)
 {
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     UniqueMessageData* message;
     UniqueResponse response;
     #endif
@@ -483,7 +483,7 @@ midori_app_instance_send_uris (MidoriApp* app,
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
     g_return_val_if_fail (uris != NULL, FALSE);
 
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     message = unique_message_data_new ();
     unique_message_data_set_uris (message, uris);
     response = unique_app_send_message (app->instance, UNIQUE_OPEN, message);
@@ -525,7 +525,7 @@ midori_app_add_browser (MidoriApp*     app,
 
     app->browsers = g_list_prepend (app->browsers, browser);
 
-    #ifdef HAVE_UNIQUE
+    #if HAVE_UNIQUE
     if (app->instance)
         unique_app_watch_window (app->instance, GTK_WINDOW (browser));
     #endif

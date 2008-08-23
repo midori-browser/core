@@ -16,7 +16,7 @@
 #include "sokoke.h"
 #include "main.h"
 
-#ifdef HAVE_UNISTD_H
+#if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
 #include <string.h>
@@ -338,7 +338,7 @@ sokoke_superuser_warning_new (void)
 {
     /* Create a horizontal bar with a security warning
        This returns NULL if the user is no superuser */
-    #ifdef HAVE_UNISTD_H
+    #if HAVE_UNISTD_H
     if (G_UNLIKELY (!geteuid ())) /* effective superuser? */
     {
         GtkWidget* hbox = gtk_event_box_new ();
