@@ -54,12 +54,12 @@ void
 midori_search_entry_set_search_engines     (MidoriSearchEntry*  search_entry,
                                             MidoriWebList*      name);
 
-MidoriWebItem*
+KatzeItem*
 midori_search_entry_get_current_item       (MidoriSearchEntry*  search_entry);
 
 void
 midori_search_entry_set_current_item       (MidoriSearchEntry*  search_entry,
-                                            MidoriWebItem*      name);
+                                            KatzeItem*      name);
 
 GtkWidget*
 midori_search_entry_get_dialog             (MidoriSearchEntry*  search_entry);

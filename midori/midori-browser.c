@@ -3098,18 +3098,19 @@ midori_browser_search_activate_cb (GtkWidget*     widget,
     MidoriWebList* search_engines;
     const gchar* keywords;
     guint last_web_search;
-    MidoriWebItem* web_item;
+    KatzeItem* item;
     const gchar* url;
     gchar* location_entry_search;
+    gchar* search;
 
     search_engines = browser->search_engines;
     keywords = gtk_entry_get_text (GTK_ENTRY (widget));
     g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
-    web_item = midori_web_list_get_nth_item (search_engines, last_web_search);
-    if (web_item)
+    item = midori_web_list_get_nth_item (search_engines, last_web_search);
+    if (item)
     {
         location_entry_search = NULL;
-        url = midori_web_item_get_uri (web_item);
+        url = katze_item_get_uri (item);
     }
     else /* The location entry search is our fallback */
     {
@@ -3117,7 +3118,6 @@ midori_browser_search_activate_cb (GtkWidget*     widget,
                       &location_entry_search, NULL);
         url = location_entry_search;
     }
-    gchar* search;
     if (strstr (url, "%s"))
         search = g_strdup_printf (url, keywords);
     else
@@ -3144,14 +3144,13 @@ midori_browser_search_notify_current_item_cb (GObject*       gobject,
                                               MidoriBrowser* browser)
 {
     MidoriSearchEntry* search_entry;
-    MidoriWebItem* web_item;
+    KatzeItem* item;
     guint index;
 
     search_entry = MIDORI_SEARCH_ENTRY (browser->search);
-    web_item = midori_search_entry_get_current_item (search_entry);
-    if (web_item)
-        index = midori_web_list_get_item_index (browser->search_engines,
-                                                web_item);
+    item = midori_search_entry_get_current_item (search_entry);
+    if (item)
+        index = midori_web_list_get_item_index (browser->search_engines, item);
     else
         index = 0;
 
@@ -3677,7 +3676,7 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
 static void
 _midori_browser_update_settings (MidoriBrowser* browser)
 {
-    MidoriWebItem* web_item;
+    KatzeItem* item;
 
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
@@ -3731,11 +3730,11 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     if (browser->search_engines)
     {
-        web_item = midori_web_list_get_nth_item (browser->search_engines,
-                                                 last_web_search);
-        if (web_item)
-            midori_search_entry_set_current_item (MIDORI_SEARCH_ENTRY (browser->search),
-                                                  web_item);
+        item = midori_web_list_get_nth_item (browser->search_engines,
+                                             last_web_search);
+        if (item)
+            midori_search_entry_set_current_item (
+                MIDORI_SEARCH_ENTRY (browser->search), item);
     }
 
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
@@ -3822,7 +3821,7 @@ midori_browser_set_property (GObject*      object,
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
     guint last_web_search;
-    MidoriWebItem* web_item;
+    KatzeItem* item;
 
     switch (prop_id)
     {
@@ -3869,10 +3868,10 @@ midori_browser_set_property (GObject*      object,
         {
             g_object_get (browser->settings, "last-web-search",
                           &last_web_search, NULL);
-            web_item = midori_web_list_get_nth_item (browser->search_engines,
-                                                     last_web_search);
-            if (web_item)
-                g_object_set (browser->search, "current-item", web_item, NULL);
+            item = midori_web_list_get_nth_item (browser->search_engines,
+                                                 last_web_search);
+            if (item)
+                g_object_set (browser->search, "current-item", item, NULL);
         }
         break;
     default:

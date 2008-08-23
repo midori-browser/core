@@ -12,7 +12,7 @@
 #ifndef __MIDORI_WEB_LIST_H__
 #define __MIDORI_WEB_LIST_H__
 
-#include "katze-webitem.h"
+#include "katze-item.h"
 
 G_BEGIN_DECLS
 
@@ -31,19 +31,6 @@ G_BEGIN_DECLS
 
 typedef struct _MidoriWebList                MidoriWebList;
 typedef struct _MidoriWebListClass           MidoriWebListClass;
-
-struct _MidoriWebListClass
-{
-    GObjectClass parent_class;
-
-    /* Signals */
-    void
-    (*add_item)               (MidoriWebList* web_list,
-                               GObject*       item);
-    void
-    (*remove_item)            (MidoriWebList* web_list,
-                               GObject*       item);
-};
 
 GType
 midori_web_list_get_type               (void);

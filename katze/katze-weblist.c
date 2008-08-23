@@ -19,20 +19,32 @@
 /**
  * SECTION:midori-weblist
  * @short_description: A versatile object container
- * @see_also: #MidoriWebItem
+ * @see_also: #KatzeItem
  *
- * #MidoriWebList is a versatile container for objects with
- * explicit support for #MidoriWebList and #MidoriWebItem children.
+ * #MidoriWebList is a versatile container for objects.
  */
 
 struct _MidoriWebList
 {
-    GObject parent_instance;
+    KatzeItem parent_instance;
 
     GList* items;
 };
 
-G_DEFINE_TYPE (MidoriWebList, midori_web_list, G_TYPE_OBJECT)
+struct _MidoriWebListClass
+{
+    KatzeItemClass parent_class;
+
+    /* Signals */
+    void
+    (*add_item)               (MidoriWebList* web_list,
+                               GObject*       item);
+    void
+    (*remove_item)            (MidoriWebList* web_list,
+                               GObject*       item);
+};
+
+G_DEFINE_TYPE (MidoriWebList, midori_web_list, KATZE_TYPE_ITEM)
 
 enum {
     ADD_ITEM,
@@ -225,7 +237,7 @@ midori_web_list_get_item_index (MidoriWebList* web_list,
  *
  * Looks up an item in the list which has the specified token.
  *
- * Supported is #MidoriWebItem.
+ * Currently only #KatzeItem is supported.
  *
  * Note that @token is by definition unique to one item.
  *
@@ -236,19 +248,19 @@ midori_web_list_find_token (MidoriWebList* web_list,
                             const gchar*   token)
 {
     guint n, i;
-    GObject* item;
-    MidoriWebItem* web_item;
+    gpointer item;
+    const gchar* found_token;
 
     g_return_val_if_fail (MIDORI_IS_WEB_LIST (web_list), NULL);
 
     n = g_list_length (web_list->items);
     for (i = 0; i < n; i++)
     {
-        item = (GObject*)g_list_nth_data (web_list->items, i);
-        if (!MIDORI_IS_WEB_ITEM (item))
+        item = g_list_nth_data (web_list->items, i);
+        if (!KATZE_IS_ITEM (item))
             continue;
-        web_item = (MidoriWebItem*)item;
-        if (!strcmp (midori_web_item_get_token (web_item), token))
+        found_token = katze_item_get_token ((KatzeItem*)item);
+        if (found_token && !strcmp (found_token, token))
             return item;
     }
     return NULL;

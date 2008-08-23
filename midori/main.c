@@ -265,7 +265,7 @@ search_engines_new_from_file (const gchar* filename,
     GKeyFile* key_file;
     gchar** engines;
     guint i, j, n_properties;
-    MidoriWebItem* web_item;
+    KatzeItem* item;
     GParamSpec** pspecs;
     const gchar* property;
     gchar* value;
@@ -277,20 +277,20 @@ search_engines_new_from_file (const gchar* filename,
     /*g_key_file_load_from_data_dirs(keyFile, sFilename, NULL
      , G_KEY_FILE_KEEP_COMMENTS, error);*/
     engines = g_key_file_get_groups (key_file, NULL);
+    pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
+	                                     &n_properties);
     for (i = 0; engines[i] != NULL; i++)
     {
-        web_item = midori_web_item_new ();
-        pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (web_item),
-	                                         &n_properties);
+        item = katze_item_new ();
         for (j = 0; j < n_properties; j++)
         {
             property = g_param_spec_get_name (pspecs[j]);
             value = g_key_file_get_string (key_file, engines[i],
 	                                   property, NULL);
-            g_object_set (web_item, property, value, NULL);
+            g_object_set (item, property, value, NULL);
             g_free (value);
         }
-        midori_web_list_add_item (search_engines, web_item);
+        midori_web_list_add_item (search_engines, item);
     }
     g_strfreev (engines);
     g_key_file_free (key_file);
@@ -304,7 +304,7 @@ search_engines_save_to_file (MidoriWebList* search_engines,
 {
     GKeyFile* key_file;
     guint n, i, j, n_properties;
-    MidoriWebItem* web_item;
+    KatzeItem* item;
     const gchar* name;
     GParamSpec** pspecs;
     const gchar* property;
@@ -313,16 +313,16 @@ search_engines_save_to_file (MidoriWebList* search_engines,
 
     key_file = g_key_file_new ();
     n = midori_web_list_get_length (search_engines);
+    pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
+                                             &n_properties);
     for (i = 0; i < n; i++)
     {
-        web_item = midori_web_list_get_nth_item (search_engines, i);
-        name = midori_web_item_get_name (web_item);
-        pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (web_item),
-                                                 &n_properties);
+        item = midori_web_list_get_nth_item (search_engines, i);
+        name = katze_item_get_name (item);
         for (j = 0; j < n_properties; j++)
         {
             property = g_param_spec_get_name (pspecs[j]);
-            g_object_get (web_item, property, &value, NULL);
+            g_object_get (item, property, &value, NULL);
             if (value)
                 g_key_file_set_string (key_file, name, property, value);
             g_free (value);

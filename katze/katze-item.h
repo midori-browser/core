@@ -1,0 +1,94 @@
+/*
+ Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ See the file COPYING for the full license text.
+*/
+
+#ifndef __MIDORI_WEB_ITEM_H__
+#define __MIDORI_WEB_ITEM_H__
+
+#include <glib-object.h>
+
+G_BEGIN_DECLS
+
+#define KATZE_TYPE_ITEM \
+    (katze_item_get_type ())
+#define KATZE_ITEM(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), KATZE_TYPE_ITEM, KatzeItem))
+#define KATZE_ITEM_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), KATZE_TYPE_ITEM, KatzeItemClass))
+#define KATZE_IS_ITEM(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), KATZE_TYPE_ITEM))
+#define KATZE_IS_ITEM_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), KATZE_TYPE_ITEM))
+#define KATZE_ITEM_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), KATZE_TYPE_ITEM, KatzeItemClass))
+
+typedef struct _KatzeItem                KatzeItem;
+typedef struct _KatzeItemClass           KatzeItemClass;
+
+struct _KatzeItem
+{
+    GObject parent_instance;
+
+    gchar* name;
+    gchar* text;
+    gchar* uri;
+    gchar* icon;
+    gchar* token;
+};
+
+struct _KatzeItemClass
+{
+    GObjectClass parent_class;
+};
+
+GType
+katze_item_get_type               (void);
+
+KatzeItem*
+katze_item_new                    (void);
+
+const gchar*
+katze_item_get_name               (KatzeItem*      item);
+
+void
+katze_item_set_name               (KatzeItem*      item,
+                                   const gchar*    name);
+
+const gchar*
+katze_item_get_text               (KatzeItem*      item);
+
+void
+katze_item_set_text               (KatzeItem*      item,
+                                   const gchar*    text);
+
+const gchar*
+katze_item_get_uri                (KatzeItem*      item);
+
+void
+katze_item_set_uri                (KatzeItem*      item,
+                                   const gchar*    uri);
+
+const gchar*
+katze_item_get_icon               (KatzeItem*      item);
+
+void
+katze_item_set_icon               (KatzeItem*      item,
+                                   const gchar*    icon);
+
+const gchar*
+katze_item_get_token              (KatzeItem*      item);
+
+void
+katze_item_set_token              (KatzeItem*      item,
+                                   const gchar*    token);
+
+G_END_DECLS
+
+#endif /* __MIDORI_WEB_ITEM_H__ */

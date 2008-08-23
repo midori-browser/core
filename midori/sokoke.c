@@ -88,7 +88,7 @@ sokoke_magic_uri (const gchar*   uri,
     gchar* search;
     const gchar* search_uri;
     gchar** parts;
-    MidoriWebItem* web_item;
+    KatzeItem* item;
 
     g_return_val_if_fail (uri, NULL);
     if (search_engines)
@@ -122,9 +122,9 @@ sokoke_magic_uri (const gchar*   uri,
         parts = g_strsplit (uri, " ", 2);
         if (parts[0] && parts[1])
         {
-            web_item = midori_web_list_find_token (search_engines, parts[0]);
-            if (web_item)
-                search_uri = midori_web_item_get_uri (web_item);
+            item = midori_web_list_find_token (search_engines, parts[0]);
+            if (item)
+                search_uri = katze_item_get_uri (item);
         }
         g_free (parts);
         if (search_uri)
