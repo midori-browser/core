@@ -77,6 +77,9 @@ midori_addons_get_kind               (MidoriAddons*   addons);
 GtkWidget*
 midori_addons_get_toolbar            (MidoriAddons*   addons);
 
+void
+midori_addons_update_elements        (MidoriAddons*   addons);
+
 G_END_DECLS
 
 #endif /* __MIDORI_ADDONS_H__ */

@@ -23,6 +23,9 @@
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
 #include <string.h>
+#if HAVE_GIO
+    #include <gio/gio.h>
+#endif
 
 struct _MidoriAddons
 {
@@ -32,6 +35,19 @@ struct _MidoriAddons
     MidoriAddonKind kind;
     GtkWidget* toolbar;
     GtkWidget* treeview;
+
+    GSList* elements;
+};
+
+struct AddonElement
+{
+    gchar *fullpath;
+    gchar *name;
+    gchar *description;
+    gboolean enabled;
+
+    GSList* includes;
+    GSList* excludes;
 };
 
 G_DEFINE_TYPE (MidoriAddons, midori_addons, GTK_TYPE_VBOX)
@@ -43,6 +59,9 @@ enum
     PROP_WEB_WIDGET,
     PROP_KIND
 };
+
+static void
+midori_addons_finalize (GObject* object);
 
 static void
 midori_addons_set_property (GObject*      object,
@@ -81,6 +100,7 @@ midori_addons_class_init (MidoriAddonsClass* class)
     GParamFlags flags;
 
     gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = midori_addons_finalize;
     gobject_class->set_property = midori_addons_set_property;
     gobject_class->get_property = midori_addons_get_property;
 
@@ -183,31 +203,60 @@ _addons_get_extension (MidoriAddons* addons)
 }
 
 static GSList*
-_addons_get_files (MidoriAddons* addons)
+_addons_get_directories (MidoriAddons* addons)
 {
-    GSList* files;
-    GDir* addon_dir;
-    const gchar* addons_name;
-    const gchar* addons_extension;
-    const char* const *datadirs;
-    const gchar* filename;
-    gchar *dirname;
-    gchar *fullname;
+    GSList *directories;
+    const char* const* datadirs;
+    const gchar* folder;
+    gchar* path;
 
-    files = NULL;
-    addons_name = _addons_get_folder (addons);
-    addons_extension = _addons_get_extension (addons);
+    folder = _addons_get_folder (addons);
+
+    /* user data dir */
+    path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+                         PACKAGE_NAME, folder, NULL);
+    directories = g_slist_prepend (NULL, path);
 
     /* system data dirs */
     datadirs = g_get_system_data_dirs ();
     while (*datadirs)
     {
-        dirname = g_build_filename (*datadirs, PACKAGE_NAME, addons_name, NULL);
+        path = g_build_path (G_DIR_SEPARATOR_S, *datadirs,
+                             PACKAGE_NAME, folder, NULL);
+        directories = g_slist_prepend (directories, path);
+        datadirs++;
+    }
+
+    return directories;
+}
+
+static GSList*
+_addons_get_files (MidoriAddons* addons)
+{
+    GSList* files;
+    GDir* addon_dir;
+    const gchar* folder;
+    const gchar* extension;
+    GSList* list;
+    GSList* directories;
+    const gchar* filename;
+    gchar* dirname;
+    gchar* fullname;
+
+    files = NULL;
+    folder = _addons_get_folder (addons);
+    extension = _addons_get_extension (addons);
+
+    directories = _addons_get_directories (addons);
+    list = directories;
+    while (directories)
+    {
+        dirname = directories->data;
         if ((addon_dir = g_dir_open (dirname, 0, NULL)))
         {
             while ((filename = g_dir_read_name (addon_dir)))
             {
-                if (g_str_has_suffix (filename, addons_extension))
+                if (g_str_has_suffix (filename, extension))
                 {
                     fullname = g_build_filename (dirname, filename, NULL);
                     files = g_slist_prepend (files, fullname);
@@ -216,28 +265,24 @@ _addons_get_files (MidoriAddons* addons)
             g_dir_close (addon_dir);
         }
         g_free (dirname);
-        datadirs++;
+        directories = g_slist_next (directories);
     }
-
-    /* user data dir */
-    dirname = g_build_filename (g_get_user_data_dir () , PACKAGE_NAME,
-                                addons_name, NULL);
-    if ((addon_dir = g_dir_open (dirname, 0, NULL)))
-    {
-        while ((filename = g_dir_read_name (addon_dir)))
-        {
-            if (g_str_has_suffix (filename, addons_extension))
-            {
-                fullname = g_build_filename (dirname, filename, NULL);
-                files = g_slist_prepend (files, fullname);
-            }
-        }
-        g_dir_close (addon_dir);
-    }
-    g_free (dirname);
+    g_slist_free (list);
 
     return files;
 }
+
+#if HAVE_GIO
+static void
+midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
+                                         GFile*            child,
+                                         GFile*            other_file,
+                                         GFileMonitorEvent flags,
+                                         MidoriAddons*     addons)
+{
+    midori_addons_update_elements (addons);
+}
+#endif
 
 static void
 midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
@@ -251,6 +296,11 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
         _addons_get_folder (addons));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
+#if !HAVE_GIO
+    /* FIXME: Without GIO clicking this button is the only
+              way to update the list */
+    midori_addons_update_elements (addons);
+#endif
 }
 
 static void
@@ -275,13 +325,13 @@ midori_addons_treeview_render_text_cb (GtkTreeViewColumn* column,
                                        GtkTreeIter*       iter,
                                        GtkWidget*         treeview)
 {
-    gchar* displayname;
+    gchar* name;
 
-    gtk_tree_model_get (model, iter, 0, &displayname, -1);
+    gtk_tree_model_get (model, iter, 0, &name, -1);
 
-    g_object_set (renderer, "text", displayname, NULL);
+    g_object_set (renderer, "text", name, NULL);
 
-    g_free (displayname);
+    g_free (name);
 }
 
 static void
@@ -308,6 +358,7 @@ midori_addons_init (MidoriAddons* addons)
     GtkCellRenderer* renderer_pixbuf;
 
     addons->web_widget = NULL;
+    addons->elements = NULL;
 
     addons->treeview = gtk_tree_view_new ();
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (addons->treeview), FALSE);
@@ -328,6 +379,13 @@ midori_addons_init (MidoriAddons* addons)
                       addons);
     gtk_widget_show (addons->treeview);
     gtk_box_pack_start (GTK_BOX (addons), addons->treeview, TRUE, TRUE, 0);
+}
+
+static void
+midori_addons_finalize (GObject* object)
+{
+    MidoriAddons* addons = MIDORI_ADDONS (object);
+    g_slist_free (addons->elements);
 }
 
 static gboolean
@@ -457,7 +515,9 @@ _convert_to_simple_regexp (const gchar* pattern)
     }
     return dest;
 }
+
 #else
+
 static bool
 _match_with_wildcard (const gchar* str,
                       const gchar* pattern)
@@ -563,7 +623,7 @@ _may_load_script (const gchar* uri,
             break;
         }
          #endif
-        list = list->next;
+        list = g_slist_next (list);
     }
     return match;
 }
@@ -602,12 +662,14 @@ _js_style_from_file (JSContextRef js_context,
                      const gchar* filename,
                      gchar**      exception)
 {
-    gboolean result = FALSE;
+    gboolean result;
     gchar* style;
-    GError* error = NULL;
+    GError* error;
     guint i, n;
     gchar* style_script;
 
+    result = FALSE;
+    error = NULL;
     if (g_file_get_contents (filename, &style, NULL, &error))
     {
         n = strlen (style);
@@ -651,40 +713,29 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
                                             JSObjectRef        js_window,
                                             MidoriAddons*      addons)
 {
-    gchar* fullname;
-    GSList* includes;
-    GSList* excludes;
     const gchar* uri;
+    GSList* elements;
+    struct AddonElement* element;
+    gchar* fullname;
     gchar* exception;
     gchar* message;
-    GSList* addon_files;
-    GSList* list;
 
     uri = webkit_web_frame_get_uri (web_frame);
     if (!uri)
         return;
 
-    addon_files = _addons_get_files (addons);
-    list = addon_files;
-    while (addon_files)
+    elements = addons->elements;
+    while (elements)
     {
-        fullname = addon_files->data;
-        includes = NULL;
-        excludes = NULL;
-        if (addons->kind == MIDORI_ADDON_USER_SCRIPTS &&
-            !_metadata_from_file (fullname, &includes, &excludes, NULL, NULL))
-        {
-            addon_files = g_slist_next (addon_files);
-            continue;
-        }
-        if (includes || excludes)
-            if (!_may_load_script (uri, &includes, &excludes))
+        element = elements->data;
+        fullname = element->fullpath;
+
+        if (element->includes || element->excludes)
+            if (!_may_load_script (uri, &element->includes, &element->excludes))
             {
-                addon_files = g_slist_next (addon_files);
+                elements = g_slist_next (elements);
                 continue;
             }
-        g_slist_free (includes);
-        g_slist_free (excludes);
         exception = NULL;
         if (addons->kind == MIDORI_ADDON_USER_SCRIPTS &&
             !_js_script_from_file (js_context, fullname, &exception))
@@ -702,9 +753,9 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
             g_free (message);
             g_free (exception);
         }
-        addon_files = addon_files->next;
+
+        elements = g_slist_next (elements);
     }
-    g_slist_free (list);
 }
 
 /**
@@ -724,6 +775,13 @@ midori_addons_new (GtkWidget*      web_widget,
                    MidoriAddonKind kind)
 {
     MidoriAddons* addons;
+    #if HAVE_GIO
+    GSList* directories;
+    GSList* list;
+    GFile* directory;
+    GError* error;
+    GFileMonitor* monitor;
+    #endif
 
     g_return_val_if_fail (GTK_IS_WIDGET (web_widget), NULL);
 
@@ -732,6 +790,30 @@ midori_addons_new (GtkWidget*      web_widget,
                            "kind", kind, */ NULL);
     addons->web_widget = web_widget;
     midori_addons_set_kind (addons, kind);
+    midori_addons_update_elements (addons);
+
+    #if HAVE_GIO
+    directories = _addons_get_directories (addons);
+    list = directories;
+    while (directories)
+    {
+        directory = g_file_new_for_path (directories->data);
+        directories = directories->next;
+        error = NULL;
+        monitor = g_file_monitor_directory (directory,
+                                            G_FILE_MONITOR_NONE,
+                                            NULL, &error);
+        if (!monitor)
+        {
+            g_warning ("could not monitor %s: %s", g_file_get_parse_name (directory),
+                       error->message);
+            g_error_free (error);
+        }
+        g_signal_connect (monitor, "changed",
+            G_CALLBACK (midori_addons_directory_monitor_changed), addons);
+    }
+    g_slist_free (list);
+#endif
 
     return GTK_WIDGET (addons);
 }
@@ -784,14 +866,6 @@ void
 midori_addons_set_kind (MidoriAddons*   addons,
                         MidoriAddonKind kind)
 {
-    GtkListStore* liststore;
-    gchar* fullname;
-    gchar* displayname;
-    gchar* name;
-    GtkTreeIter iter;
-    GSList* addon_files;
-    GSList* list;
-
     g_return_if_fail (MIDORI_IS_ADDONS (addons));
     g_return_if_fail (addons->kind == MIDORI_ADDON_NONE);
 
@@ -807,38 +881,6 @@ midori_addons_set_kind (MidoriAddons*   addons,
         g_signal_connect (addons->web_widget, "window-object-cleared",
             G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
 
-    liststore = gtk_list_store_new (3, G_TYPE_STRING,
-                                    G_TYPE_INT,
-                                    G_TYPE_STRING);
-
-    addon_files = _addons_get_files (addons);
-    list = addon_files;
-    while (addon_files)
-    {
-        fullname = addon_files->data;
-        displayname =  g_filename_display_basename (fullname);
-
-        if (kind == MIDORI_ADDON_USER_SCRIPTS)
-        {
-            name = NULL;
-            if (!_metadata_from_file (fullname, NULL, NULL, &name, NULL))
-                continue;
-            if (name)
-            {
-                g_free (displayname);
-                displayname = name;
-            }
-        }
-
-        gtk_list_store_append (liststore, &iter);
-        gtk_list_store_set (liststore, &iter, 0, displayname, 1, 0, 2, "", -1);
-        addon_files = addon_files->next;
-    }
-
-    g_slist_free (list);
-
-    gtk_tree_view_set_model (GTK_TREE_VIEW (addons->treeview),
-                             GTK_TREE_MODEL (liststore));
     g_object_notify (G_OBJECT (addons), "kind");
 }
 
@@ -901,4 +943,80 @@ midori_addons_get_toolbar (MidoriAddons* addons)
     }
 
     return addons->toolbar;
+}
+
+/**
+ * midori_addons_update_elements:
+ * @addons: a #MidoriAddons
+ *
+ * Updates all addons elements (file paths and metadata).
+ *
+ **/
+void
+midori_addons_update_elements (MidoriAddons* addons)
+{
+    gchar* fullname;
+    gchar* displayname;
+    gchar* name;
+    gchar* description;
+    GSList* includes;
+    GSList* excludes;
+    GtkListStore* liststore;
+    GtkTreeIter iter;
+    GSList* addon_files;
+    GSList* list;
+    struct AddonElement* element;
+
+    g_return_if_fail (addons->kind != MIDORI_ADDON_NONE);
+
+    g_slist_free (addons->elements);
+    addons->elements = NULL;
+
+    liststore = gtk_list_store_new (3, G_TYPE_STRING,
+                                    G_TYPE_INT,
+                                    G_TYPE_STRING);
+
+    addon_files = _addons_get_files (addons);
+    list = addon_files;
+    while (addon_files)
+    {
+        fullname = addon_files->data;
+        displayname =  g_filename_display_basename (fullname);
+        description = NULL;
+        includes = NULL;
+        excludes = NULL;
+
+        if (addons->kind == MIDORI_ADDON_USER_SCRIPTS)
+        {
+            name = NULL;
+            if (!_metadata_from_file (fullname, &includes, &excludes, &name,
+                                      &description))
+                continue;
+            if (name)
+            {
+                g_free (displayname);
+                displayname = name;
+            }
+        }
+
+        gtk_list_store_append (liststore, &iter);
+        gtk_list_store_set (liststore, &iter,
+                            0, g_strdup (displayname), 1, 0, 2, "", -1);
+
+        element = g_new (struct AddonElement, 1);
+        element->name = displayname;
+        element->description = description;
+        element->fullpath = fullname;
+        element->enabled = TRUE;
+        element->includes = includes;
+        element->excludes = excludes;
+        addons->elements = g_slist_prepend (addons->elements, element);
+        addon_files = g_slist_next (addon_files);
+    }
+    addons->elements = g_slist_reverse (addons->elements);
+
+    g_slist_free (list);
+
+    gtk_tree_view_set_model (GTK_TREE_VIEW (addons->treeview),
+                             GTK_TREE_MODEL (liststore));
 }
