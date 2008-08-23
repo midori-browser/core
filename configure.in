@@ -38,51 +38,58 @@ if test x"$enable_debug" = x"yes"; then
   ])
 fi
 
-# Checks for UNIQUE
-PKG_CHECK_MODULES(UNIQUE, unique-1.0 >= 0.9, have_unique=true, have_unique=false)
+# Checks for Unique
+PKG_CHECK_MODULES(UNIQUE, unique-1.0 >= 0.9, have_unique=1, have_unique=0)
 AC_SUBST(UNIQUE_CFLAGS)
 AC_SUBST(UNIQUE_LIBS)
+AC_DEFINE_UNQUOTED(HAVE_UNIQUE,$have_unique, [Whether Unique is available])
 
 # Checks for GIO2
-PKG_CHECK_MODULES(GIO, gio-2.0 >= 2.16, have_gio=true, have_gio=false)
+PKG_CHECK_MODULES(GIO, gio-2.0 >= 2.16, have_gio=1, have_gio=0)
 AC_SUBST(GIO_CFLAGS)
 AC_SUBST(GIO_LIBS)
+AC_DEFINE_UNQUOTED(HAVE_GIO,$have_gio, [Whether GIO is available])
 
-# Checks for GTK+2
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.6, have_gtk=true, have_gtk=false)
+# Checks for Gtk+2
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.6, have_gtk=1, have_gtk=0)
 if test "x${have_gtk}" = "xfalse" ; then
-    AC_MSG_ERROR([No GTK+2 package information found])
+    AC_MSG_ERROR([No Gtk+2 package information found])
 fi
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
+AC_DEFINE_UNQUOTED(HAVE_GTK,$have_gtk, [Whether Gtk is available])
 
-# Checks for gtksourceview
-PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-2.0, have_gtksourceview=true, have_gtksourceview=false)
+# Checks for GtkSourceView
+PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-2.0, have_gtksourceview=1, have_gtksourceview=0)
 AC_SUBST(GTKSOURCEVIEW_CFLAGS)
 AC_SUBST(GTKSOURCEVIEW_LIBS)
+AC_DEFINE_UNQUOTED(HAVE_GTKSOURCEVIEW,$have_gtksourceview, [Whether GtkSourceView is available])
 
 # Checks for WebKit
-PKG_CHECK_MODULES(WEBKIT, webkit-1.0, have_webkit=true, have_webkit=false)
+PKG_CHECK_MODULES(WEBKIT, webkit-1.0, have_webkit=1, have_webkit=0)
 if test "x${have_webkit}" = "xfalse" ; then
     AC_MSG_ERROR([No WebKit package information found])
 fi
 AC_SUBST(WEBKIT_CFLAGS)
 AC_SUBST(WEBKIT_LIBS)
+AC_DEFINE_UNQUOTED(HAVE_WEBKIT,$have_webkit, [Whether WebKit is available])
 
 # Checks for LibXML2
-PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= 2.6, have_libxml=true, have_libxml=false)
+PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= 2.6, have_libxml=1, have_libxml=0)
 if test "x${have_libxml}" = "xfalse" ; then
     AC_MSG_ERROR([No libXML2 package information found])
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
+AC_DEFINE_UNQUOTED(HAVE_LIBXML,$have_libxml, [Whether LibXML is available])
 
 # i18n
 GETTEXT_PACKAGE=midori
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
-ALL_LINGUAS="`sed -e '/^#/d' $srcdir/po/LINGUAS`" # take all languages found in file po/LINGUAS
+# take all languages found in file po/LINGUAS
+ALL_LINGUAS="`sed -e '/^#/d' $srcdir/po/LINGUAS`"
 
 AM_GLIB_GNU_GETTEXT
 # workaround for intltool bug (http://bugzilla.gnome.org/show_bug.cgi?id=490845)
