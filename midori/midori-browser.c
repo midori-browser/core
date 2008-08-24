@@ -2650,10 +2650,14 @@ static void
 _action_undo_tab_close_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
+    guint last;
+    KatzeXbelItem* item;
+    guint n;
+
     /* Reopen the most recent trash item */
-    guint length = midori_web_list_get_length (browser->trash);
-    KatzeXbelItem* item = midori_web_list_get_nth_item (browser->trash, length);
-    gint n = midori_browser_add_xbel_item (browser, item);
+    last = midori_web_list_get_length (browser->trash) - 1;
+    item = midori_web_list_get_nth_item (browser->trash, last);
+    n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
     midori_web_list_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
