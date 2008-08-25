@@ -42,7 +42,7 @@ struct _MidoriWebView
     MidoriLoadStatus load_status;
     gchar* statusbar_text;
     gchar* link_uri;
-    MidoriWebList* news_feeds;
+    KatzeArray* news_feeds;
 
     MidoriWebSettings* settings;
 
@@ -487,7 +487,7 @@ gjs_value_links_foreach_cb (GjsValue*      link,
                 || !strcmp (type, "application/x.atom+xml")
                 || !strcmp (type, "application/atom+xml"))
             {
-                midori_web_list_add_item (web_view->news_feeds, link);
+                katze_array_add_item (web_view->news_feeds, link);
                 g_signal_emit (web_view, signals[NEWS_FEED_READY], 0,
                     gjs_value_get_attribute_string (link, "href"), type,
                     gjs_value_has_attribute (link, "title")
@@ -534,7 +534,7 @@ webkit_web_frame_load_done (WebKitWebFrame* web_frame,
     value = gjs_value_new (webkit_web_frame_get_global_context (web_frame), NULL);
     document = gjs_value_get_by_name (value, "document");
     links = gjs_value_get_elements_by_tag_name (document, "link");
-    midori_web_list_clear (web_view->news_feeds);
+    katze_array_clear (web_view->news_feeds);
     gjs_value_foreach (links, (GjsCallback)gjs_value_links_foreach_cb, web_view);
     g_object_unref (links);
     g_object_unref (document);
@@ -760,7 +760,7 @@ midori_web_view_init (MidoriWebView* web_view)
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     web_view->progress = 0.0;
     web_view->load_status = MIDORI_LOAD_FINISHED;
-    web_view->news_feeds = midori_web_list_new ();
+    web_view->news_feeds = katze_array_new (GJS_TYPE_VALUE);
 
     web_view->settings = midori_web_settings_new ();
     g_object_set (web_view, "WebKitWebView::settings", web_view->settings, NULL);
@@ -1168,14 +1168,14 @@ midori_web_view_get_link_uri (MidoriWebView* web_view)
  * Retrieves a list of news feeds for the current page
  * or %NULL if there are no feeds at all.
  *
- * Return value: a #MidoriWebList, or %NULL
+ * Return value: a #KatzeArray, or %NULL
  **/
-MidoriWebList*
+KatzeArray*
 midori_web_view_get_news_feeds (MidoriWebView* web_view)
 {
     g_return_val_if_fail (MIDORI_IS_WEB_VIEW (web_view), NULL);
 
-    if (!midori_web_list_is_empty (web_view->news_feeds))
+    if (!katze_array_is_empty (web_view->news_feeds))
         return web_view->news_feeds;
     return NULL;
 }

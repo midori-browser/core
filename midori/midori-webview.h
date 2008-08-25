@@ -114,7 +114,7 @@ midori_web_view_get_display_title      (MidoriWebView*     web_view);
 const gchar*
 midori_web_view_get_link_uri           (MidoriWebView*     web_view);
 
-MidoriWebList*
+KatzeArray*
 midori_web_view_get_news_feeds         (MidoriWebView*     web_view);
 
 gboolean

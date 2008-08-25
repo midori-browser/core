@@ -9,8 +9,8 @@
  See the file COPYING for the full license text.
 */
 
-#ifndef __MIDORI_WEB_ITEM_H__
-#define __MIDORI_WEB_ITEM_H__
+#ifndef __KATZE_ITEM_H__
+#define __KATZE_ITEM_H__
 
 #include <glib-object.h>
 

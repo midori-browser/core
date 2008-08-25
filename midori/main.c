@@ -257,11 +257,11 @@ settings_save_to_file (MidoriWebSettings* settings,
     return saved;
 }
 
-static MidoriWebList*
+static KatzeArray*
 search_engines_new_from_file (const gchar* filename,
                               GError**     error)
 {
-    MidoriWebList* search_engines;
+    KatzeArray* search_engines;
     GKeyFile* key_file;
     gchar** engines;
     guint i, j, n_properties;
@@ -270,7 +270,7 @@ search_engines_new_from_file (const gchar* filename,
     const gchar* property;
     gchar* value;
 
-    search_engines = midori_web_list_new ();
+    search_engines = katze_array_new (KATZE_TYPE_ITEM);
     key_file = g_key_file_new ();
     g_key_file_load_from_file (key_file, filename,
                                G_KEY_FILE_KEEP_COMMENTS, error);
@@ -290,7 +290,7 @@ search_engines_new_from_file (const gchar* filename,
             g_object_set (item, property, value, NULL);
             g_free (value);
         }
-        midori_web_list_add_item (search_engines, item);
+        katze_array_add_item (search_engines, item);
     }
     g_strfreev (engines);
     g_key_file_free (key_file);
@@ -298,9 +298,9 @@ search_engines_new_from_file (const gchar* filename,
 }
 
 static gboolean
-search_engines_save_to_file (MidoriWebList* search_engines,
-                             const gchar*   filename,
-                             GError**       error)
+search_engines_save_to_file (KatzeArray*  search_engines,
+                             const gchar* filename,
+                             GError**     error)
 {
     GKeyFile* key_file;
     guint n, i, j, n_properties;
@@ -312,12 +312,12 @@ search_engines_save_to_file (MidoriWebList* search_engines,
     gboolean saved;
 
     key_file = g_key_file_new ();
-    n = midori_web_list_get_length (search_engines);
+    n = katze_array_get_length (search_engines);
     pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
                                              &n_properties);
     for (i = 0; i < n; i++)
     {
-        item = midori_web_list_get_nth_item (search_engines, i);
+        item = katze_array_get_nth_item (search_engines, i);
         name = katze_item_get_name (item);
         for (j = 0; j < n_properties; j++)
         {
@@ -335,13 +335,16 @@ search_engines_save_to_file (MidoriWebList* search_engines,
 }
 
 static void
-midori_web_list_add_item_cb (MidoriWebList* trash,
-                             GObject*       item)
+midori_web_list_add_item_cb (KatzeArray* trash,
+                             GObject*    item)
 {
-    guint n = midori_web_list_get_length (trash);
+    guint n;
+    GObject* obsolete_item;
+
+    n = katze_array_get_length (trash);
     if (n > 10)
     {
-        GObject* obsolete_item = midori_web_list_get_nth_item (trash, 0);
+        obsolete_item = katze_array_get_nth_item (trash, 0);
         g_object_unref (obsolete_item);
     }
 }
@@ -380,7 +383,7 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
 
 
 int
-main (int argc,
+main (int    argc,
       char** argv)
 {
     gboolean version;
@@ -395,7 +398,7 @@ main (int argc,
     };
     MidoriStartup load_on_startup;
     gchar* homepage;
-    MidoriWebList* search_engines;
+    KatzeArray* search_engines;
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
@@ -598,13 +601,13 @@ main (int argc,
 
     stock_items_init ();
 
-    MidoriWebList* trash = midori_web_list_new ();
+    KatzeArray* trash = katze_array_new (KATZE_TYPE_XBEL_ITEM);
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
     guint i;
     for (i = 0; i < n; i++)
     {
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
-        midori_web_list_add_item (trash, item);
+        katze_array_add_item (trash, item);
     }
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_web_list_add_item_cb), NULL);

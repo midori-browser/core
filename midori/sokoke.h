@@ -25,7 +25,7 @@ sokoke_spawn_program                (const gchar* command,
 
 gchar*
 sokoke_magic_uri                    (const gchar*    uri,
-                                     MidoriWebList*  search_engines);
+                                     KatzeArray*     search_engines);
 
 void
 sokoke_entry_setup_completion       (GtkEntry*       entry);

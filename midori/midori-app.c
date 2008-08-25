@@ -32,8 +32,8 @@ struct _MidoriApp
     GtkAccelGroup* accel_group;
 
     MidoriWebSettings* settings;
-    MidoriWebList* trash;
-    MidoriWebList* search_engines;
+    KatzeArray* trash;
+    KatzeArray* search_engines;
 
     gpointer instance;
 };
@@ -131,7 +131,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "trash",
                                      _("Trash"),
                                      _("The trash, collecting recently closed tabs and windows"),
-                                     MIDORI_TYPE_WEB_LIST,
+                                     KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
@@ -158,7 +158,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "search-engines",
                                      _("Search Engines"),
                                      _("The list of search engines"),
-                                     MIDORI_TYPE_WEB_LIST,
+                                     KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 }
 
@@ -188,24 +188,20 @@ midori_browser_message_received_cb (UniqueApp*         instance,
   switch (command)
   {
   case UNIQUE_ACTIVATE:
-      g_print("activate\n");
       gtk_window_set_screen (GTK_WINDOW (app->browser),
                              unique_message_data_get_screen (message));
       gtk_window_present (GTK_WINDOW (app->browser));
       response = UNIQUE_RESPONSE_OK;
       break;
   case UNIQUE_OPEN:
-      g_print("open\n");
       uris = unique_message_data_get_uris (message);
       if (!uris)
           response = UNIQUE_RESPONSE_FAIL;
       else
       {
-          g_print("open uris\n");
           while (*uris)
           {
               midori_browser_add_uri (app->browser, *uris);
-              g_print ("uri: %s\n", *uris);
               uris++;
           }
           /* g_strfreev (uris); */
@@ -213,7 +209,6 @@ midori_browser_message_received_cb (UniqueApp*         instance,
       }
       break;
   default:
-      g_print("fail\n");
       response = UNIQUE_RESPONSE_FAIL;
       break;
   }
@@ -238,8 +233,8 @@ midori_app_init (MidoriApp* app)
     app->accel_group = gtk_accel_group_new ();
 
     app->settings = midori_web_settings_new ();
-    app->trash = midori_web_list_new ();
-    app->search_engines = midori_web_list_new ();
+    app->trash = katze_array_new (KATZE_TYPE_XBEL_ITEM);
+    app->search_engines = katze_array_new (KATZE_TYPE_ITEM);
 
     #if HAVE_UNIQUE
     display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
@@ -572,7 +567,7 @@ midori_app_set_settings (MidoriApp*         app,
  *
  * Return value: the assigned #MidoriTrash
  **/
-MidoriWebList*
+KatzeArray*
 midori_app_get_trash (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), NULL);

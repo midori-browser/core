@@ -18,7 +18,7 @@
 /**
  * SECTION:katze-item
  * @short_description: A useful item
- * @see_also: #MidoriWebList
+ * @see_also: #KatzeArray
  *
  * #KatzeItem is a particularly useful item that provides
  * several commonly needed properties.

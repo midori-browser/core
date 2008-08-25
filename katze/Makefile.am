@@ -15,5 +15,6 @@ libkatze_la_SOURCES = \
     katze-throbber.c katze-throbber.h \
     katze-utils.c    katze-utils.h    \
     katze-item.c     katze-item.h     \
-    katze-weblist.c  katze-weblist.h  \
+    katze-list.c     katze-list.h     \
+    katze-array.c    katze-array.h    \
     katze-xbel.c     katze-xbel.h

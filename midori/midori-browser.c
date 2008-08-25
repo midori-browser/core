@@ -78,8 +78,8 @@ struct _MidoriBrowser
     GList* close_buttons;
 
     KatzeXbelItem* proxy_xbel_folder;
-    MidoriWebList* trash;
-    MidoriWebList* search_engines;
+    KatzeArray* trash;
+    KatzeArray* search_engines;
 };
 
 G_DEFINE_TYPE (MidoriBrowser, midori_browser, GTK_TYPE_WINDOW)
@@ -216,6 +216,7 @@ static void
 _midori_browser_update_actions (MidoriBrowser* browser)
 {
     guint n;
+    gboolean trash_empty;
 
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), n > 1);
@@ -225,7 +226,7 @@ _midori_browser_update_actions (MidoriBrowser* browser)
 
     if (browser->trash)
     {
-        gboolean trash_empty = midori_web_list_is_empty (browser->trash);
+        trash_empty = katze_array_is_empty (browser->trash);
         _action_set_sensitive (browser, "UndoTabClose", !trash_empty);
         _action_set_sensitive (browser, "Trash", !trash_empty);
     }
@@ -790,7 +791,7 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
             MIDORI_WEB_VIEW (widget));
         uri = katze_xbel_bookmark_get_href (xbel_item);
         if (browser->trash && uri && *uri)
-            midori_web_list_add_item (browser->trash, xbel_item);
+            katze_array_add_item (browser->trash, xbel_item);
         katze_xbel_folder_remove_item (browser->proxy_xbel_folder, xbel_item);
         katze_xbel_item_unref (xbel_item);
     }
@@ -1318,7 +1319,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "trash",
                                      _("Trash"),
                                      _("The trash, collecting recently closed tabs and windows"),
-                                     MIDORI_TYPE_WEB_LIST,
+                                     KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
     /**
@@ -1332,7 +1333,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "search-engines",
                                      _("Search Engines"),
                                      _("The list of search engines to be used for web search"),
-                                     MIDORI_TYPE_WEB_LIST,
+                                     KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 }
 
@@ -1685,7 +1686,7 @@ midori_browser_menu_trash_item_activate_cb (GtkWidget*     menuitem,
                                              "KatzeXbelItem");
     gint n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
-    midori_web_list_remove_item (browser->trash, item);
+    katze_array_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
 }
 
@@ -1694,12 +1695,12 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
                                        MidoriBrowser* browser)
 {
     GtkWidget* menu = gtk_menu_new ();
-    guint n = midori_web_list_get_length (browser->trash);
+    guint n = katze_array_get_length (browser->trash);
     GtkWidget* menuitem;
     guint i;
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = midori_web_list_get_nth_item (browser->trash, i);
+        KatzeXbelItem* item = katze_array_get_nth_item (browser->trash, i);
         const gchar* title = katze_xbel_item_get_title (item);
         const gchar* uri = katze_xbel_bookmark_get_href (item);
         menuitem = gtk_image_menu_item_new_with_label (title ? title : uri);
@@ -2048,7 +2049,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
                                           MidoriBrowser* browser)
 {
     MidoriWebView* web_view;
-    MidoriWebList* news_feeds;
+    KatzeArray* news_feeds;
     GtkWidget* menu;
     guint n, i;
     GjsValue* feed;
@@ -2060,13 +2061,13 @@ _action_location_secondary_icon_released (GtkAction*     action,
     if (web_view)
     {
         news_feeds = midori_web_view_get_news_feeds (web_view);
-        n = news_feeds ? midori_web_list_get_length (news_feeds) : 0;
+        n = news_feeds ? katze_array_get_length (news_feeds) : 0;
         if (n)
         {
             menu = gtk_menu_new ();
             for (i = 0; i < n; i++)
             {
-                if (!(feed = midori_web_list_get_nth_item (news_feeds, i)))
+                if (!(feed = katze_array_get_nth_item (news_feeds, i)))
                     continue;
 
                 uri = gjs_value_get_attribute_string (feed, "href");
@@ -2655,11 +2656,11 @@ _action_undo_tab_close_activate (GtkAction*     action,
     guint n;
 
     /* Reopen the most recent trash item */
-    last = midori_web_list_get_length (browser->trash) - 1;
-    item = midori_web_list_get_nth_item (browser->trash, last);
+    last = katze_array_get_length (browser->trash) - 1;
+    item = katze_array_get_nth_item (browser->trash, last);
     n = midori_browser_add_xbel_item (browser, item);
     midori_browser_set_current_page (browser, n);
-    midori_web_list_remove_item (browser->trash, item);
+    katze_array_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
 }
 
@@ -2667,7 +2668,7 @@ static void
 _action_trash_empty_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
-    midori_web_list_clear (browser->trash);
+    katze_array_clear (browser->trash);
     _midori_browser_update_actions (browser);
 }
 
@@ -3099,7 +3100,7 @@ static void
 midori_browser_search_activate_cb (GtkWidget*     widget,
                                    MidoriBrowser* browser)
 {
-    MidoriWebList* search_engines;
+    KatzeArray* search_engines;
     const gchar* keywords;
     guint last_web_search;
     KatzeItem* item;
@@ -3110,7 +3111,7 @@ midori_browser_search_activate_cb (GtkWidget*     widget,
     search_engines = browser->search_engines;
     keywords = gtk_entry_get_text (GTK_ENTRY (widget));
     g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
-    item = midori_web_list_get_nth_item (search_engines, last_web_search);
+    item = katze_array_get_nth_item (search_engines, last_web_search);
     if (item)
     {
         location_entry_search = NULL;
@@ -3154,7 +3155,7 @@ midori_browser_search_notify_current_item_cb (GObject*       gobject,
     search_entry = MIDORI_SEARCH_ENTRY (browser->search);
     item = midori_search_entry_get_current_item (search_entry);
     if (item)
-        index = midori_web_list_get_item_index (browser->search_engines, item);
+        index = katze_array_get_item_index (browser->search_engines, item);
     else
         index = 0;
 
@@ -3273,12 +3274,12 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_ref (browser->popup_bookmark);
     browser->menu_tools = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
         gtk_ui_manager_get_widget (ui_manager, "/menubar/Tools")));
-    menuitem = gtk_separator_menu_item_new();
+    menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
     browser->menu_window = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
         gtk_ui_manager_get_widget (ui_manager, "/menubar/Window")));
-    menuitem = gtk_separator_menu_item_new();
+    menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_window), menuitem);
     gtk_widget_show (browser->menubar);
@@ -3734,8 +3735,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     if (browser->search_engines)
     {
-        item = midori_web_list_get_nth_item (browser->search_engines,
-                                             last_web_search);
+        item = katze_array_get_nth_item (browser->search_engines,
+                                         last_web_search);
         if (item)
             midori_search_entry_set_current_item (
                 MIDORI_SEARCH_ENTRY (browser->search), item);
@@ -3872,8 +3873,8 @@ midori_browser_set_property (GObject*      object,
         {
             g_object_get (browser->settings, "last-web-search",
                           &last_web_search, NULL);
-            item = midori_web_list_get_nth_item (browser->search_engines,
-                                                 last_web_search);
+            item = katze_array_get_nth_item (browser->search_engines,
+                                             last_web_search);
             if (item)
                 g_object_set (browser->search, "current-item", item, NULL);
         }

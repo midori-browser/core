@@ -47,12 +47,12 @@ midori_search_entry_get_type               (void);
 GtkWidget*
 midori_search_entry_new                    (void);
 
-MidoriWebList*
+KatzeArray*
 midori_search_entry_get_search_engines     (MidoriSearchEntry*  search_entry);
 
 void
 midori_search_entry_set_search_engines     (MidoriSearchEntry*  search_entry,
-                                            MidoriWebList*      name);
+                                            KatzeArray*         name);
 
 KatzeItem*
 midori_search_entry_get_current_item       (MidoriSearchEntry*  search_entry);

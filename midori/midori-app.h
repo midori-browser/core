@@ -44,7 +44,7 @@ struct _MidoriAppClass
     (*add_browser)            (MidoriApp*     app,
                                MidoriBrowser* browser);
     void
-    (*quit)                   (MidoriApp* app);
+    (*quit)                   (MidoriApp*     app);
 };
 
 GType
@@ -74,7 +74,7 @@ void
 midori_app_set_settings           (MidoriApp*         app,
                                    MidoriWebSettings* settings);
 
-MidoriWebList*
+KatzeArray*
 midori_app_get_trash              (MidoriApp*         app);
 
 void

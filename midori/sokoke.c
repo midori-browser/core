@@ -80,8 +80,8 @@ sokoke_spawn_program (const gchar* command,
 }
 
 gchar*
-sokoke_magic_uri (const gchar*   uri,
-                  MidoriWebList* search_engines)
+sokoke_magic_uri (const gchar* uri,
+                  KatzeArray*  search_engines)
 {
     gchar* current_dir;
     gchar* result;
@@ -92,7 +92,7 @@ sokoke_magic_uri (const gchar*   uri,
 
     g_return_val_if_fail (uri, NULL);
     if (search_engines)
-        g_return_val_if_fail (MIDORI_IS_WEB_LIST (search_engines), NULL);
+        g_return_val_if_fail (katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
 
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
@@ -122,7 +122,7 @@ sokoke_magic_uri (const gchar*   uri,
         parts = g_strsplit (uri, " ", 2);
         if (parts[0] && parts[1])
         {
-            item = midori_web_list_find_token (search_engines, parts[0]);
+            item = katze_array_find_token (search_engines, parts[0]);
             if (item)
                 search_uri = katze_item_get_uri (item);
         }
