@@ -3534,7 +3534,7 @@ midori_browser_init (MidoriBrowser* browser)
                        gtk_label_new_with_mnemonic (_("_Inline find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_text = gtk_icon_entry_new ();
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY(browser->find_text),
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
                                         GTK_ICON_ENTRY_PRIMARY,
                                         GTK_STOCK_FIND);
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
@@ -3549,7 +3549,7 @@ midori_browser_init (MidoriBrowser* browser)
     toolitem = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (toolitem), browser->find_text);
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR(browser->find), toolitem, -1);
+    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     toolitem = (GtkToolItem*)gtk_action_create_tool_item
         (_action_by_name (browser, "FindPrevious"));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), NULL);
@@ -3875,8 +3875,7 @@ midori_browser_set_property (GObject*      object,
                           &last_web_search, NULL);
             item = katze_array_get_nth_item (browser->search_engines,
                                              last_web_search);
-            if (item)
-                g_object_set (browser->search, "current-item", item, NULL);
+            g_object_set (browser->search, "current-item", item, NULL);
         }
         break;
     default:

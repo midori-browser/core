@@ -234,17 +234,7 @@ midori_search_entry_engines_remove_item_cb (KatzeArray*        list,
     if (search_entry->current_item == item)
     {
         found_item = katze_array_get_nth_item (list, 0);
-        if (found_item)
-            midori_search_entry_set_current_item (search_entry, found_item);
-        else
-        {
-            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (search_entry),
-                                                 GTK_ICON_ENTRY_PRIMARY, NULL);
-            sokoke_entry_set_default_text (GTK_ENTRY (search_entry), "");
-
-            katze_object_assign (search_entry->current_item, NULL);
-            g_object_notify (G_OBJECT (search_entry), "current-item");
-        }
+        midori_search_entry_set_current_item (search_entry, found_item);
     }
 }
 
@@ -394,10 +384,12 @@ midori_search_entry_set_search_engines (MidoriSearchEntry* search_entry,
 /**
  * midori_search_entry_set_current_item:
  * @search_entry: a #MidoriSearchEntry
- * @item: a #KatzeItem
+ * @item: a #KatzeItem, or %NULL
  *
  * Looks up the specified item in the list of search engines and makes
  * it the currently selected item.
+ *
+ * Pass %NULL for @item in order to unset the item.
  *
  * This function fails if @item is not in the current list.
  **/
@@ -408,18 +400,27 @@ midori_search_entry_set_current_item (MidoriSearchEntry* search_entry,
     GdkPixbuf* pixbuf;
 
     g_return_if_fail (MIDORI_IS_SEARCH_ENTRY (search_entry));
-    g_return_if_fail (KATZE_IS_ITEM (item));
+    g_return_if_fail (!item || KATZE_IS_ITEM (item));
 
-    pixbuf = sokoke_web_icon (katze_item_get_icon (item),
+    pixbuf = sokoke_web_icon (item ? katze_item_get_icon (item) : NULL,
                               GTK_ICON_SIZE_MENU, GTK_WIDGET (search_entry));
     gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (search_entry),
                                          GTK_ICON_ENTRY_PRIMARY,
                                          pixbuf);
     g_object_unref (pixbuf);
-    sokoke_entry_set_default_text (GTK_ENTRY (search_entry),
-                                   katze_item_get_name (item));
 
-    katze_object_assign (search_entry->current_item, g_object_ref (item));
+    if (item)
+    {
+        katze_object_assign (search_entry->current_item, g_object_ref (item));
+        sokoke_entry_set_default_text (GTK_ENTRY (search_entry),
+                                       katze_item_get_name (item));
+    }
+    else
+    {
+        katze_object_assign (search_entry->current_item, NULL);
+        sokoke_entry_set_default_text (GTK_ENTRY (search_entry), "");
+    }
+
     g_object_notify (G_OBJECT (search_entry), "current-item");
 }
 
