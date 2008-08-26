@@ -35,11 +35,20 @@ def configure (conf):
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
 
-    conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
-    single_instance = ['no','yes'][conf.env['HAVE_UNIQUE'] == 1]
+    if not Params.g_options.disable_unique:
+        conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
+        single_instance = ['not available','yes'][conf.env['HAVE_UNIQUE'] == 1]
+    else:
+        single_instance = 'no'
     conf.check_message_custom ('single instance', 'support', single_instance)
 
-    conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
+    if not Params.g_options.disable_gio:
+        conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
+        gio = ['not available','yes'][conf.env['HAVE_GIO'] == 1]
+    else:
+        gio = 'no'
+    conf.check_message_custom ('GIO', 'support', gio)
+
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.6.0', mandatory=True)
     conf.check_pkg ('gtksourceview-2.0', destvar='GTKSOURCEVIEW', vnum='2.0', mandatory=False)
     conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
@@ -67,6 +76,11 @@ def set_options (opt):
 
     opt.add_option ('--disable-nls', action='store_true', default=False,
         help='Disables native language support', dest='disable_nls')
+
+    opt.add_option ('--disable-unique', action='store_true', default=False,
+        help='Disables Unique support', dest='disable_unique')
+    opt.add_option ('--disable-gio', action='store_true', default=False,
+        help='Disables GIO support', dest='disable_gio')
 
 def build (bld):
     bld.add_subdirs ('katze midori icons')
