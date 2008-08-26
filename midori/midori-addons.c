@@ -876,8 +876,7 @@ midori_addons_set_kind (MidoriAddons*   addons,
 
     addons->kind = kind;
 
-    if (kind == MIDORI_ADDON_USER_SCRIPTS
-        || kind == MIDORI_ADDON_USER_STYLES)
+    if (kind == MIDORI_ADDON_USER_SCRIPTS || kind == MIDORI_ADDON_USER_STYLES)
         g_signal_connect (addons->web_widget, "window-object-cleared",
             G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
 
@@ -989,9 +988,13 @@ midori_addons_update_elements (MidoriAddons* addons)
         if (addons->kind == MIDORI_ADDON_USER_SCRIPTS)
         {
             name = NULL;
-            if (!_metadata_from_file (fullname, &includes, &excludes, &name,
-                                      &description))
+            if (!_metadata_from_file (fullname, &includes, &excludes,
+                                      &name, &description))
+            {
+                addon_files = g_slist_next (addon_files);
                 continue;
+            }
+
             if (name)
             {
                 g_free (displayname);
