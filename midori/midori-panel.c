@@ -322,7 +322,12 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
     toolitem = g_object_get_data (G_OBJECT (widget), "toolitem");
 
     if (toolitem)
+    {
+        /* Unset the button before setting it ensures that
+           it will emit signals even if it was active before */
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), FALSE);
         gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), TRUE);
+    }
     else
     {
         n = midori_panel_page_num (panel, child);
@@ -341,7 +346,7 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  * @label: a string to use as the label
  *
  * Appends a new page to the panel. If @toolbar is specified it will
- * be packaged above @child.
+ * be packed above @child.
  *
  * In the case of an error, -1 is returned.
  *
