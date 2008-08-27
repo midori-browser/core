@@ -258,8 +258,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "ZoomOut", web_view != NULL);
     _action_set_sensitive (browser, "ZoomNormal", web_view != NULL
         && webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (web_view)) != 1.0);
-    if (sokoke_gio_supports_http ())
-        _action_set_sensitive (browser, "SourceView", web_view != NULL);
+    #if HAVE_GIO
+    _action_set_sensitive (browser, "SourceView", web_view != NULL);
+    #endif
     _action_set_sensitive (browser, "FindNext", web_view != NULL);
     _action_set_sensitive (browser, "FindPrevious", web_view != NULL);
     /* _action_set_sensitive (browser, "FindQuick", web_view != NULL); */
@@ -3606,7 +3607,9 @@ midori_browser_init (MidoriBrowser* browser)
 
     g_object_unref (ui_manager);
 
-    _action_set_sensitive (browser, "SourceView", sokoke_gio_supports_http ());
+    #if !HAVE_GIO
+    _action_set_sensitive (browser, "SourceView", FALSE);
+    #endif
 
     #ifndef WEBKIT_CHECK_VERSION
     _action_set_sensitive (browser, "ZoomIn", FALSE);

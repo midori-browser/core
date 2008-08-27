@@ -21,9 +21,6 @@
 #endif
 #include <string.h>
 
-#if HAVE_GIO
-    #include <gio/gio.h>
-#endif
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
@@ -628,27 +625,4 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
     gtk_action_connect_proxy (action, menuitem);
 
     return menuitem;
-}
-
-gboolean
-sokoke_gio_supports_http (void)
-{
-    #if HAVE_GIO
-    static gboolean supports_http;
-    static gboolean tested;
-    const gchar* const* schemes = g_vfs_get_supported_uri_schemes (g_vfs_get_default ());
-
-    if (tested)
-        return supports_http;
-    while (*schemes)
-    {
-        if (!strcmp (*schemes, "http"))
-            supports_http = TRUE;
-        schemes++;
-    }
-    tested = TRUE;
-    return supports_http;
-    #else
-    return FALSE;
-    #endif
 }
