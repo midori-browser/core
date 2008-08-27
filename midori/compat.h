@@ -12,8 +12,12 @@
 #ifndef __COMPAT_H__
 #define __COMPAT_H__
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 #include <glib.h>
-#if GLIB_CHECK_VERSION(2, 16, 0)
+#if HAVE_GIO
 #include <gio/gio.h>
 #endif
 #include <webkit/webkit.h>
@@ -22,7 +26,7 @@ G_BEGIN_DECLS
 
 #if !GTK_CHECK_VERSION(2, 14, 0)
 
-#if GLIB_CHECK_VERSION(2,16, 0)
+#if HAVE_GIO
 
 GdkPixbuf*
 gdk_pixbuf_new_from_stream (GInputStream* stream,

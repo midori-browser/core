@@ -13,7 +13,7 @@
 
 #if !GTK_CHECK_VERSION(2, 14, 0)
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
+#if HAVE_GIO
 
 /* GTK+/ GdkPixbuf internal helper function
    Copyright (C) 2008 Matthias Clasen <mclasen@redhat.com>
@@ -120,7 +120,7 @@ gtk_tool_item_set_tooltip_text (GtkToolItem* toolitem,
     {
         static GtkTooltips* tooltips = NULL;
         if (G_UNLIKELY (!tooltips))
-            tooltips = gtk_tooltips_new();
+            tooltips = gtk_tooltips_new ();
 
         gtk_tool_item_set_tooltip (toolitem, tooltips, text, NULL);
     }
