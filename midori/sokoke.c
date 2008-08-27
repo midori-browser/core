@@ -20,6 +20,10 @@
     #include <unistd.h>
 #endif
 #include <string.h>
+
+#if HAVE_GIO
+    #include <gio/gio.h>
+#endif
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
