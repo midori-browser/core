@@ -131,4 +131,9 @@ sokoke_object_get_boolean            (gpointer       object,
 GtkWidget*
 sokoke_action_create_popup_menu_item (GtkAction*     action);
 
+gboolean
+sokoke_tree_view_get_selected_iter   (GtkTreeView*   tree_view,
+                                      GtkTreeModel** model,
+                                      GtkTreeIter*   iter);
+
 #endif /* !__SOKOKE_H__ */

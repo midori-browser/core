@@ -611,7 +611,7 @@ sokoke_object_get_boolean (gpointer     object,
  * @action: a #GtkAction
  *
  * Creates a menu item from an action, just like
- * gtk_action_create_menu_item() but it won't
+ * gtk_action_create_menu_item(), but it won't
  * display an accelerator.
  *
  * Return value: a new #GtkMenuItem
@@ -621,8 +621,43 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
 {
     GtkWidget* menuitem;
 
-    menuitem = gtk_image_menu_item_new_with_mnemonic ("");
+    g_return_val_if_fail (GTK_IS_ACTION (action), NULL);
+
+    menuitem = gtk_image_menu_item_new ();
     gtk_action_connect_proxy (action, menuitem);
 
     return menuitem;
+}
+
+/**
+ * sokoke_tree_view_get_selected_iter:
+ * @tree_view: a #GtkTreeView
+ * @model: a pointer to store the model, or %NULL
+ * @iter: a pointer to store the iter, or %NULL
+ *
+ * Determines whether there is a selection in the tree view
+ * and sets the @iter to the current selection.
+ *
+ * If there is a selection and @model is not %NULL, it is
+ * set to the model, mainly for convenience.
+ *
+ * Either @model or @iter or both can be %NULL in which case
+ * no value will be assigned in any case.
+ *
+ * Return value: %TRUE if there is a selection
+ **/
+gboolean
+sokoke_tree_view_get_selected_iter (GtkTreeView*   tree_view,
+                                    GtkTreeModel** model,
+                                    GtkTreeIter*   iter)
+{
+    GtkTreeSelection* selection;
+
+    g_return_val_if_fail (GTK_IS_TREE_VIEW (tree_view), FALSE);
+
+    selection = gtk_tree_view_get_selection (tree_view);
+    if (selection)
+        if (gtk_tree_selection_get_selected (selection, model, iter))
+            return TRUE;
+    return FALSE;
 }
