@@ -21,7 +21,7 @@
 #include "compat.h"
 
 #if HAVE_GIO
-#include <gio/gio.h>
+    #include <gio/gio.h>
 #endif
 #include <webkit/webkit.h>
 #include <string.h>
@@ -472,8 +472,8 @@ gjs_value_links_foreach_cb (GjsValue*      link,
                             MidoriWebView* web_view)
 {
     const gchar* type;
-    const gchar* rel;
 #if HAVE_GIO
+    const gchar* rel;
     GFile* icon_file;
     GIcon* icon;
 #endif
@@ -601,7 +601,10 @@ gtk_widget_button_press_event_after (MidoriWebView*  web_view,
             if (state & GDK_CONTROL_MASK)
                 g_signal_emit (web_view, signals[NEW_TAB], 0, new_uri);
             else
+            {
                 g_object_set (web_view, "uri", new_uri, NULL);
+                gtk_widget_grab_focus (GTK_WIDGET (web_view));
+            }
             g_free (new_uri);
             g_free (uri);
             return TRUE;
