@@ -4,6 +4,7 @@
 import Params
 import pproc as subprocess
 import Common
+import platform
 
 APPNAME = 'midori'
 VERSION = '0.0.20'
@@ -48,6 +49,13 @@ def configure (conf):
     else:
         gio = 'no'
     conf.check_message_custom ('GIO', 'support', gio)
+
+    if gio == 'yes':
+        if platform.system () != 'Windows':
+            if not conf.find_program ('gvfs-open'):
+                print '\tNote: There doesn\'t seem to be GVfs installed.'
+                print '\t      The HTTP backend of GVfs is recommended for'
+                print '\t      viewing source code and loading favicons.'
 
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.6.0', mandatory=True)
     conf.check_pkg ('gtksourceview-2.0', destvar='GTKSOURCEVIEW', vnum='2.0', mandatory=False)
