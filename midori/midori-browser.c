@@ -2030,10 +2030,12 @@ _action_location_reset_uri (GtkAction*     action,
 static void
 _action_location_submit_uri (GtkAction*     action,
                              const gchar*   uri,
+                             gboolean       new_tab,
                              MidoriBrowser* browser)
 {
     gchar* location_entry_search;
     gchar* new_uri;
+    gint n;
 
     g_object_get (browser->settings, "location-entry-search",
                   &location_entry_search, NULL);
@@ -2043,7 +2045,13 @@ _action_location_submit_uri (GtkAction*     action,
     else if (!new_uri)
         new_uri = g_strdup (location_entry_search);
     g_free (location_entry_search);
-    _midori_browser_open_uri (browser, new_uri);
+    if (new_tab)
+    {
+        n = midori_browser_add_uri (browser, new_uri);
+        midori_browser_set_current_page (browser, n);
+    }
+    else
+        _midori_browser_open_uri (browser, new_uri);
     g_free (new_uri);
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
