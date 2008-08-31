@@ -15,6 +15,7 @@
 #endif
 
 #include "midori-addons.h"
+#include "main.h"
 
 #include "sokoke.h"
 #include "gjs.h"
@@ -45,6 +46,7 @@ struct AddonElement
     gchar *name;
     gchar *description;
     gboolean enabled;
+    gboolean broken;
 
     GSList* includes;
     GSList* excludes;
@@ -272,6 +274,45 @@ _addons_get_files (MidoriAddons* addons)
     return files;
 }
 
+GtkTreePath*
+_treeview_first_selected_path (GtkTreeView *treeview)
+{
+    GtkTreeSelection* selection;
+    GList* tree_paths;
+
+    selection = gtk_tree_view_get_selection (treeview);
+    if (!selection)
+        return NULL;
+
+    if (gtk_tree_selection_get_selected (selection, NULL, NULL))
+    {
+        tree_paths = gtk_tree_selection_get_selected_rows (selection, NULL);
+        return g_list_nth_data (tree_paths, 0);
+    }
+    else
+        return NULL;
+}
+
+static void
+_addons_toggle_enable_button (MidoriAddons* addons,
+                              gboolean      sensitive)
+{
+    GtkToolItem* button;
+
+    button = gtk_toolbar_get_nth_item (GTK_TOOLBAR (addons->toolbar), 1);
+    gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
+}
+
+static void
+_addons_toggle_disable_button (MidoriAddons* addons,
+                               gboolean      sensitive)
+{
+    GtkToolItem* button;
+
+    button = gtk_toolbar_get_nth_item (GTK_TOOLBAR (addons->toolbar), 2);
+    gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
+}
+
 #if HAVE_GIO
 static void
 midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
@@ -285,6 +326,67 @@ midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
 #endif
 
 static void
+midori_addons_treeview_cursor_changed (GtkTreeView*  treeview,
+                                       MidoriAddons* addons)
+{
+    struct AddonElement* element;
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    GtkTreePath *path;
+
+    path = _treeview_first_selected_path (treeview);
+
+    model = gtk_tree_view_get_model (treeview);
+    if (gtk_tree_model_get_iter (model, &iter, path))
+    {
+        gtk_tree_model_get (model, &iter, 0, &element, -1);
+        if (element->broken)
+        {
+            _addons_toggle_enable_button (addons, FALSE);
+            _addons_toggle_disable_button (addons, FALSE);
+        } else
+        {
+            _addons_toggle_enable_button (addons, !element->enabled);
+            _addons_toggle_disable_button (addons, element->enabled);
+        }
+    }
+}
+
+static void
+midori_addons_button_status_clicked_cb (GtkToolItem*  toolitem,
+                                        MidoriAddons* addons)
+{
+    GtkTreeView* treeview;
+    struct AddonElement* element;
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    GtkTreePath* path;
+
+    treeview = GTK_TREE_VIEW (addons->treeview);
+
+    path = _treeview_first_selected_path (treeview);
+    model = gtk_tree_view_get_model (treeview);
+    if (gtk_tree_model_get_iter (model, &iter, path))
+    {
+        gtk_tree_model_get (model, &iter, 0, &element, -1);
+        if (toolitem == gtk_toolbar_get_nth_item (
+            GTK_TOOLBAR (addons->toolbar), 2)) /* disable button */
+            element->enabled = FALSE;
+        else if (toolitem ==  gtk_toolbar_get_nth_item (
+                 GTK_TOOLBAR (addons->toolbar), 1)) /* enable button */
+            element->enabled = TRUE;
+
+        _addons_toggle_enable_button (addons, !element->enabled);
+        _addons_toggle_disable_button (addons, element->enabled);
+
+        /* After enabling or disabling an element, the tree view
+           is not updated automatically; we need to notify tree model
+           in order to take the modification into account */
+        gtk_tree_model_row_changed (model, path, &iter);
+    }
+}
+
+static void
 midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
                                      MidoriAddons* addons)
 {
@@ -296,11 +398,11 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
         _addons_get_folder (addons));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
-#if !HAVE_GIO
+    #if !HAVE_GIO
     /* FIXME: Without GIO clicking this button is the only
               way to update the list */
     midori_addons_update_elements (addons);
-#endif
+    #endif
 }
 
 static void
@@ -310,12 +412,14 @@ midori_addons_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                        GtkTreeIter*       iter,
                                        GtkWidget*         treeview)
 {
-    /* gchar* source_id;
-    gtk_tree_model_get (model, iter, 2, &source_id, -1); */
+    struct AddonElement *element;
 
-    g_object_set (renderer, "stock-id", GTK_STOCK_FILE, NULL);
+    gtk_tree_model_get (model, iter, 0, &element, -1);
 
-    /* g_free (source_id); */
+    if (element->broken)
+        g_object_set (renderer, "stock-id", GTK_STOCK_STOP, NULL);
+    else
+        g_object_set (renderer, "stock-id", GTK_STOCK_FILE, NULL);
 }
 
 static void
@@ -325,13 +429,15 @@ midori_addons_treeview_render_text_cb (GtkTreeViewColumn* column,
                                        GtkTreeIter*       iter,
                                        GtkWidget*         treeview)
 {
-    gchar* name;
+    struct AddonElement *element;
 
-    gtk_tree_model_get (model, iter, 0, &name, -1);
+    gtk_tree_model_get (model, iter, 0, &element, -1);
 
-    g_object_set (renderer, "text", name, NULL);
-
-    g_free (name);
+    g_object_set (renderer, "text", element->name, NULL);
+    if (!element->enabled)
+        g_object_set (renderer, "sensitive", false, NULL);
+    else
+        g_object_set (renderer, "sensitive", true, NULL);
 }
 
 static void
@@ -426,6 +532,8 @@ _metadata_from_file (const gchar* filename,
                     g_io_channel_shutdown (channel, false, 0);
                     g_slist_free (*includes);
                     g_slist_free (*excludes);
+                    *includes = NULL;
+                    *excludes = NULL;
                     return FALSE;
              }
              else if (includes && g_str_has_prefix (line, "// @include "))
@@ -593,7 +701,7 @@ _may_load_script (const gchar* uri,
             break;
         }
         #endif
-        list = list->next;
+        list = g_slist_next (list);
     }
     if (!match)
     {
@@ -728,6 +836,12 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
     while (elements)
     {
         element = elements->data;
+        if (!element->enabled || element->broken)
+        {
+            elements = g_slist_next (elements);
+            continue;
+        }
+
         fullname = element->fullpath;
 
         if (element->includes || element->excludes)
@@ -736,6 +850,7 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
                 elements = g_slist_next (elements);
                 continue;
             }
+
         exception = NULL;
         if (addons->kind == MIDORI_ADDON_USER_SCRIPTS &&
             !_js_script_from_file (js_context, fullname, &exception))
@@ -798,7 +913,7 @@ midori_addons_new (GtkWidget*      web_widget,
     while (directories)
     {
         directory = g_file_new_for_path (directories->data);
-        directories = directories->next;
+        directories = g_slist_next (directories);
         error = NULL;
         monitor = g_file_monitor_directory (directory,
                                             G_FILE_MONITOR_NONE,
@@ -922,12 +1037,34 @@ midori_addons_get_toolbar (MidoriAddons* addons)
         toolitem = gtk_tool_item_new ();
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
+
+        /* enable button */
+        toolitem = gtk_tool_button_new_from_stock (STOCK_ENABLE);
+        gtk_tool_item_set_is_important (toolitem, TRUE);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_addons_button_status_clicked_cb), addons);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
+        gtk_widget_show (GTK_WIDGET (toolitem));
+
+        /* disable button */
+        toolitem = gtk_tool_button_new_from_stock (STOCK_DISABLE);
+        gtk_tool_item_set_is_important (toolitem, TRUE);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_addons_button_status_clicked_cb), addons);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
+        gtk_widget_show (GTK_WIDGET (toolitem));
+
+        /* separator */
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
                                           FALSE);
         gtk_tool_item_set_expand (toolitem, TRUE);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
+
+        /* add button */
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
         gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
@@ -935,6 +1072,10 @@ midori_addons_get_toolbar (MidoriAddons* addons)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         addons->toolbar = toolbar;
+
+        g_signal_connect (addons->treeview, "cursor-changed",
+                          G_CALLBACK (midori_addons_treeview_cursor_changed),
+                          addons);
 
         g_signal_connect (addons->toolbar, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
@@ -954,6 +1095,9 @@ midori_addons_get_toolbar (MidoriAddons* addons)
 void
 midori_addons_update_elements (MidoriAddons* addons)
 {
+    GTree* disabled;
+    GSList* elements;
+    gboolean broken;
     gchar* fullname;
     gchar* displayname;
     gchar* name;
@@ -968,10 +1112,21 @@ midori_addons_update_elements (MidoriAddons* addons)
 
     g_return_if_fail (addons->kind != MIDORI_ADDON_NONE);
 
+    /* FIXME: would GHashTable be better? */
+    disabled = g_tree_new ((GCompareFunc)strcmp);
+    elements = addons->elements;
+    while (elements)
+    {
+        element = elements->data;
+        if (!element->enabled)
+            g_tree_insert (disabled, element->fullpath, NULL);
+        elements = g_slist_next (elements);
+    }
+
     g_slist_free (addons->elements);
     addons->elements = NULL;
 
-    liststore = gtk_list_store_new (3, G_TYPE_STRING,
+    liststore = gtk_list_store_new (3, G_TYPE_POINTER,
                                     G_TYPE_INT,
                                     G_TYPE_STRING);
 
@@ -984,16 +1139,14 @@ midori_addons_update_elements (MidoriAddons* addons)
         description = NULL;
         includes = NULL;
         excludes = NULL;
+        broken = FALSE;
 
         if (addons->kind == MIDORI_ADDON_USER_SCRIPTS)
         {
             name = NULL;
             if (!_metadata_from_file (fullname, &includes, &excludes,
                                       &name, &description))
-            {
-                addon_files = g_slist_next (addon_files);
-                continue;
-            }
+                broken = TRUE;
 
             if (name)
             {
@@ -1002,24 +1155,40 @@ midori_addons_update_elements (MidoriAddons* addons)
             }
         }
 
-        gtk_list_store_append (liststore, &iter);
-        gtk_list_store_set (liststore, &iter,
-                            0, g_strdup (displayname), 1, 0, 2, "", -1);
-
         element = g_new (struct AddonElement, 1);
         element->name = displayname;
         element->description = description;
         element->fullpath = fullname;
-        element->enabled = TRUE;
+
+        if (g_tree_lookup_extended (disabled, fullname, NULL, NULL))
+            element->enabled = FALSE;
+        else
+            element->enabled = TRUE;
+        element->broken = broken;
         element->includes = includes;
         element->excludes = excludes;
         addons->elements = g_slist_prepend (addons->elements, element);
+
+        gtk_list_store_append (liststore, &iter);
+        gtk_list_store_set (liststore, &iter,
+                            0, element, 1, 0, 2, "", -1);
+
         addon_files = g_slist_next (addon_files);
     }
     addons->elements = g_slist_reverse (addons->elements);
 
+    g_tree_destroy (disabled);
     g_slist_free (list);
 
     gtk_tree_view_set_model (GTK_TREE_VIEW (addons->treeview),
                              GTK_TREE_MODEL (liststore));
+
+    /* In case a row was selected, that selection will be cancelled
+       when calling gtk_tree_view_set_model. So, we need to make sure
+       that the buttons are insensitive. */
+    if (addons->toolbar)
+    {
+        _addons_toggle_enable_button (addons, FALSE);
+        _addons_toggle_disable_button (addons, FALSE);
+    }
 }
