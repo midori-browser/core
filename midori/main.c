@@ -349,7 +349,7 @@ midori_web_list_add_item_cb (KatzeArray* trash,
     }
 }
 
-void
+static void
 midori_browser_session_cb (MidoriBrowser* browser,
                            gpointer       arg1,
                            KatzeXbelItem* session)
@@ -373,7 +373,7 @@ midori_browser_session_cb (MidoriBrowser* browser,
     g_free (config_path);
 }
 
-void
+static void
 midori_browser_weak_notify_cb (MidoriBrowser* browser,
                                KatzeXbelItem* session)
 {
@@ -381,6 +381,86 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
+static gchar*
+_simple_xml_element (const gchar* name,
+                     const gchar* value)
+{
+    gchar* value_escaped;
+    gchar* markup;
+
+    if (!value)
+        return g_strdup ("");
+    value_escaped = g_markup_escape_text (value, -1);
+    markup = g_strdup_printf ("<%s>%s</%s>\n", name, value_escaped, name);
+    g_free (value_escaped);
+    return markup;
+}
+
+static gchar*
+katze_xbel_array_to_xml (KatzeArray* array,
+                         GError**    error)
+{
+    GString* inner_markup;
+    guint i, n;
+    KatzeXbelItem* item;
+    gchar* item_xml;
+    gchar* title;
+    gchar* desc;
+    gchar* outer_markup;
+
+    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_XBEL_ITEM), NULL);
+
+    inner_markup = g_string_new (NULL);
+    n = katze_array_get_length (array);
+    for (i = 0; i < n; i++)
+    {
+        item = katze_array_get_nth_item (array, i);
+        item_xml = katze_xbel_item_to_data (item);
+        g_string_append (inner_markup, item_xml);
+        g_free (item_xml);
+    }
+
+    title = _simple_xml_element ("title", katze_item_get_name (KATZE_ITEM (array)));
+    desc = _simple_xml_element ("desc", katze_item_get_text (KATZE_ITEM (array)));
+    outer_markup = g_strdup_printf (
+                   "%s%s<xbel version=\"1.0\">\n%s%s%s</xbel>\n",
+                   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+                   "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
+                   "XML Bookmark Exchange Language 1.0//EN//XML\" "
+                   "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n",
+                   title,
+                   desc,
+                   g_string_free (inner_markup, FALSE));
+    g_free (title);
+    g_free (desc);
+
+    return outer_markup;
+}
+
+static gboolean
+katze_array_to_file (KatzeArray*  array,
+                     const gchar* filename,
+                     GError**     error)
+{
+    gchar* data;
+    FILE* fp;
+
+    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_XBEL_ITEM), FALSE);
+    g_return_val_if_fail (filename, FALSE);
+
+    if (!(data = katze_xbel_array_to_xml (array, error)))
+        return FALSE;
+    if (!(fp = fopen (filename, "w")))
+    {
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_ACCES,
+                                      _("Writing failed."));
+        return FALSE;
+    }
+    fputs (data, fp);
+    fclose (fp);
+    g_free (data);
+    return TRUE;
+}
 
 int
 main (int    argc,
@@ -609,6 +689,7 @@ main (int    argc,
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
         katze_array_add_item (trash, item);
     }
+    katze_xbel_item_unref (xbel_trash);
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_web_list_add_item_cb), NULL);
 
@@ -678,7 +759,7 @@ main (int    argc,
     JSGlobalContextRelease (js_context);
 
     /* Save configuration files */
-    config_path = g_build_filename (g_get_user_config_dir(), PACKAGE_NAME,
+    config_path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME,
                                     NULL);
     g_mkdir_with_parents (config_path, 0755);
     config_file = g_build_filename (config_path, "search", NULL);
@@ -698,16 +779,16 @@ main (int    argc,
         g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
-    katze_xbel_item_unref(bookmarks);
+    katze_xbel_item_unref (bookmarks);
     g_free (config_file);
     config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
     error = NULL;
-    if (!katze_xbel_folder_to_file (xbel_trash, config_file, &error))
+    if (!katze_array_to_file (trash, config_file, &error))
     {
         g_warning (_("The trash couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
-    katze_xbel_item_unref (xbel_trash);
+    g_object_unref (trash);
     katze_assign (config_file, g_build_filename (config_path, "config", NULL));
     error = NULL;
     if (!settings_save_to_file (settings, config_file, &error))

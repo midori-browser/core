@@ -803,7 +803,7 @@ katze_xbel_xml_element (const gchar* name,
     return markup;
 }
 
-static gchar*
+gchar*
 katze_xbel_item_to_data (KatzeXbelItem* item)
 {
     g_return_val_if_fail (KATZE_IS_XBEL_ITEM (item), NULL);

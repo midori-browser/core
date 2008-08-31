@@ -162,6 +162,9 @@ katze_xbel_folder_from_data_dirs (KatzeXbelItem*   folder,
                                   GError**         error);
 
 gchar*
+katze_xbel_item_to_data          (KatzeXbelItem*   item);
+
+gchar*
 katze_xbel_folder_to_data        (KatzeXbelItem*   folder,
                                   gsize*           length,
                                   GError**         error);
