@@ -63,6 +63,13 @@ void
 midori_location_entry_add_item          (MidoriLocationEntry* location_entry,
                                          MidoriLocationEntryItem* item);
 
+gdouble
+midori_location_entry_get_progress      (MidoriLocationEntry* location_entry);
+
+void
+midori_location_entry_set_progress      (MidoriLocationEntry* location_entry,
+                                         gdouble              progress);
+
 G_END_DECLS
 
 #endif /* __MIDORI_LOCATION_ENTRY_H__ */

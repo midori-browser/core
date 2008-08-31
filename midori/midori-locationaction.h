@@ -53,6 +53,13 @@ midori_location_action_set_title_for_uri  (MidoriLocationAction* location_action
                                            const gchar*          title,
                                            const gchar*          text);
 
+gdouble
+midori_location_action_get_progress       (MidoriLocationAction* location_action);
+
+void
+midori_location_action_set_progress       (MidoriLocationAction* location_action,
+                                           gdouble               progress);
+
 void
 midori_location_action_set_secondary_icon (MidoriLocationAction* location_action,
                                            const gchar*          stock_id);

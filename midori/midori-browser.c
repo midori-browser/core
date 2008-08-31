@@ -271,9 +271,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         gtk_widget_set_sensitive (browser->throbber, FALSE);
         g_object_set (action,
                       "stock-id", GTK_STOCK_REFRESH,
-                      "tooltip", _("Reload the current page"), NULL);
+                      "tooltip", _("Reload the current page"),
+                      "sensitive", web_view != NULL, NULL);
         gtk_widget_hide (browser->progressbar);
-        gtk_action_set_sensitive (action, web_view != NULL);
     }
     else
     {
@@ -282,6 +282,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
         gtk_widget_show (browser->progressbar);
+        if (!GTK_WIDGET_VISIBLE (browser->statusbar))
+            g_object_set (_action_by_name (browser, "Location"), "progress",
+                midori_web_view_get_progress (MIDORI_WEB_VIEW (web_view)), NULL);
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
@@ -339,10 +342,15 @@ static void
 _midori_browser_update_progress (MidoriBrowser* browser,
                                  MidoriWebView* web_view)
 {
+    MidoriLocationAction* action;
     gdouble progress;
     gchar* message;
 
+    action = MIDORI_LOCATION_ACTION (_action_by_name (browser, "Location"));
     progress = midori_web_view_get_progress (web_view);
+    /* When we are finished, we don't want to *see* progress anymore */
+    if (midori_web_view_get_load_status (web_view) == MIDORI_LOAD_FINISHED)
+        progress = 0.0;
     if (progress > 0.0)
     {
         gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (browser->progressbar),
@@ -351,12 +359,15 @@ _midori_browser_update_progress (MidoriBrowser* browser,
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
                                    message);
         g_free (message);
+        if (!GTK_WIDGET_VISIBLE (browser->statusbar))
+            midori_location_action_set_progress (action, progress);
     }
     else
     {
         gtk_progress_bar_pulse (GTK_PROGRESS_BAR (browser->progressbar));
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
                                    NULL);
+        midori_location_action_set_progress (action, 0.0);
     }
 }
 
@@ -634,7 +645,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
         gtk_entry_set_text (GTK_ENTRY (entry_uri),
                             katze_xbel_bookmark_get_href (bookmark));
-        gtk_box_pack_start (GTK_BOX(hbox), entry_uri, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
         gtk_widget_show_all (hbox);
     }
@@ -661,7 +672,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         katze_xbel_item_set_title (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
         katze_xbel_item_set_desc (bookmark,
-            gtk_entry_get_text(GTK_ENTRY(entry_desc)));
+            gtk_entry_get_text (GTK_ENTRY (entry_desc)));
         if (katze_xbel_item_is_bookmark (bookmark))
             katze_xbel_bookmark_set_href (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
@@ -1582,8 +1593,8 @@ _midori_browser_tab_set_highlight_text_matches (MidoriBrowser* browser,
 }
 
 static void
-_action_find_activate(GtkAction*     action,
-                      MidoriBrowser* browser)
+_action_find_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
 {
     if (GTK_WIDGET_VISIBLE (browser->find))
     {
@@ -1609,7 +1620,7 @@ _midori_browser_find (MidoriBrowser* browser,
 {
     const gchar* text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
     const gboolean case_sensitive = gtk_toggle_tool_button_get_active (
-        GTK_TOGGLE_TOOL_BUTTON(browser->find_case));
+        GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
     GtkWidget* widget = midori_browser_get_current_tab (browser);
     if (GTK_WIDGET_VISIBLE (browser->find))
         _midori_browser_tab_unmark_text_matches (browser, widget);
@@ -1772,6 +1783,9 @@ _action_statusbar_activate (GtkToggleAction* action,
     gboolean active = gtk_toggle_action_get_active (action);
     g_object_set (browser->settings, "show-statusbar", active, NULL);
     sokoke_widget_set_visible (browser->statusbar, active);
+    if (active)
+        g_object_set (_action_by_name (browser, "Location"),
+                      "progress", 0.0, NULL);
 }
 
 static void
@@ -3237,8 +3251,8 @@ midori_browser_init (MidoriBrowser* browser)
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     GtkWidget* menuitem = gtk_menu_item_new ();
     gtk_widget_show (menuitem);
-    browser->throbber = katze_throbber_new();
-    gtk_widget_show(browser->throbber);
+    browser->throbber = katze_throbber_new ();
+    gtk_widget_show (browser->throbber);
     gtk_container_add (GTK_CONTAINER (menuitem), browser->throbber);
     gtk_widget_set_sensitive (menuitem, FALSE);
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);

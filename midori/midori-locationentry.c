@@ -20,6 +20,8 @@
 struct _MidoriLocationEntry
 {
     GtkComboBoxEntry parent_instance;
+
+    gdouble progress;
 };
 
 struct _MidoriLocationEntryClass
@@ -68,6 +70,263 @@ midori_location_entry_class_init (MidoriLocationEntryClass* class)
                                             G_TYPE_INT);
 }
 
+#define HAVE_ENTRY_PROGRESS GTK_CHECK_VERSION (2, 10, 0)
+
+#ifdef HAVE_ENTRY_PROGRESS
+
+/* GTK+/ GtkEntry internal helper function
+   Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+   Modified by the GTK+ Team and others 1997-2000
+   Copied from Gtk+ 2.13, whitespace adjusted */
+static void
+gtk_entry_get_pixel_ranges (GtkEntry  *entry,
+                            gint     **ranges,
+                            gint      *n_ranges)
+{
+  gint start_char, end_char;
+
+  if (gtk_editable_get_selection_bounds (GTK_EDITABLE (entry), &start_char, &end_char))
+    {
+      PangoLayout *layout = gtk_entry_get_layout (entry);
+      PangoLayoutLine *line = pango_layout_get_lines (layout)->data;
+      const char *text = pango_layout_get_text (layout);
+      gint start_index = g_utf8_offset_to_pointer (text, start_char) - text;
+      gint end_index = g_utf8_offset_to_pointer (text, end_char) - text;
+      gint real_n_ranges, i;
+
+      pango_layout_line_get_x_ranges (line, start_index, end_index, ranges, &real_n_ranges);
+
+      if (ranges)
+        {
+          gint *r = *ranges;
+
+          for (i = 0; i < real_n_ranges; ++i)
+            {
+              r[2 * i + 1] = (r[2 * i + 1] - r[2 * i]) / PANGO_SCALE;
+              r[2 * i] = r[2 * i] / PANGO_SCALE;
+            }
+        }
+
+      if (n_ranges)
+        *n_ranges = real_n_ranges;
+    }
+  else
+    {
+      if (n_ranges)
+        *n_ranges = 0;
+      if (ranges)
+        *ranges = NULL;
+    }
+}
+
+/* GTK+/ GtkEntry internal helper function
+   Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+   Modified by the GTK+ Team and others 1997-2000
+   Copied from Gtk+ 2.13, whitespace adjusted
+   Code adjusted to not rely on internal qdata */
+static void
+_gtk_entry_effective_inner_border (GtkEntry  *entry,
+                                   GtkBorder *border)
+{
+  static const GtkBorder default_inner_border = { 2, 2, 2, 2 };
+  GtkBorder *tmp_border;
+
+  tmp_border = (GtkBorder*) gtk_entry_get_inner_border (entry);
+
+  if (tmp_border)
+    {
+      *border = *tmp_border;
+      return;
+    }
+
+  gtk_widget_style_get (GTK_WIDGET (entry), "inner-border", &tmp_border, NULL);
+
+  if (tmp_border)
+    {
+      *border = *tmp_border;
+      gtk_border_free (tmp_border);
+      return;
+    }
+
+  *border = default_inner_border;
+}
+
+/* GTK+/ GtkEntry internal helper function
+   Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+   Modified by the GTK+ Team and others 1997-2000
+   Copied from Gtk+ 2.13, whitespace adjusted */
+static void
+get_layout_position (GtkEntry *entry,
+                     gint     *x,
+                     gint     *y)
+{
+  PangoLayout *layout;
+  PangoRectangle logical_rect;
+  gint area_width, area_height;
+  GtkBorder inner_border;
+  gint y_pos;
+  PangoLayoutLine *line;
+
+  layout = gtk_entry_get_layout (entry);
+
+  GTK_ENTRY_CLASS (G_OBJECT_GET_CLASS (entry))->get_text_area_size (entry, NULL, NULL, &area_width, &area_height);
+  _gtk_entry_effective_inner_border (entry, &inner_border);
+
+  area_height = PANGO_SCALE * (area_height - inner_border.top - inner_border.bottom);
+
+  line = pango_layout_get_lines (layout)->data;
+  pango_layout_line_get_extents (line, NULL, &logical_rect);
+
+  /* Align primarily for locale's ascent/descent */
+  y_pos = ((area_height - entry->ascent - entry->descent) / 2 +
+           entry->ascent + logical_rect.y);
+
+  /* Now see if we need to adjust to fit in actual drawn string */
+  if (logical_rect.height > area_height)
+    y_pos = (area_height - logical_rect.height) / 2;
+  else if (y_pos < 0)
+    y_pos = 0;
+  else if (y_pos + logical_rect.height > area_height)
+    y_pos = area_height - logical_rect.height;
+
+  y_pos = inner_border.top + y_pos / PANGO_SCALE;
+
+  if (x)
+    *x = inner_border.left - entry->scroll_offset;
+
+  if (y)
+    *y = y_pos;
+}
+
+/* GTK+/ GtkEntry internal helper function
+   Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+   Modified by the GTK+ Team and others 1997-2000
+   Copied from Gtk+ 2.13, whitespace adjusted
+   Code adjusted to not rely on internal _gtk_entry_ensure_layout */
+static void
+gtk_entry_draw_text (GtkEntry *entry)
+{
+  GtkWidget *widget;
+
+  if (!entry->visible && entry->invisible_char == 0)
+    return;
+
+  if (GTK_WIDGET_DRAWABLE (entry))
+    {
+      PangoLayout *layout = gtk_entry_get_layout (entry);
+      cairo_t *cr;
+      gint x, y;
+      gint start_pos, end_pos;
+
+      widget = GTK_WIDGET (entry);
+
+      get_layout_position (entry, &x, &y);
+
+      cr = gdk_cairo_create (entry->text_area);
+
+      cairo_move_to (cr, x, y);
+      gdk_cairo_set_source_color (cr, &widget->style->text [widget->state]);
+      pango_cairo_show_layout (cr, layout);
+
+      if (gtk_editable_get_selection_bounds (GTK_EDITABLE (entry), &start_pos, &end_pos))
+        {
+          gint *ranges;
+          gint n_ranges, i;
+          PangoRectangle logical_rect;
+          GdkColor *selection_color, *text_color;
+          GtkBorder inner_border;
+
+          pango_layout_get_pixel_extents (layout, NULL, &logical_rect);
+          gtk_entry_get_pixel_ranges (entry, &ranges, &n_ranges);
+
+          if (GTK_WIDGET_HAS_FOCUS (entry))
+            {
+              selection_color = &widget->style->base [GTK_STATE_SELECTED];
+              text_color = &widget->style->text [GTK_STATE_SELECTED];
+            }
+          else
+            {
+              selection_color = &widget->style->base [GTK_STATE_ACTIVE];
+              text_color = &widget->style->text [GTK_STATE_ACTIVE];
+            }
+
+          _gtk_entry_effective_inner_border (entry, &inner_border);
+
+          for (i = 0; i < n_ranges; ++i)
+            cairo_rectangle (cr,
+                             inner_border.left - entry->scroll_offset + ranges[2 * i],
+                             y,
+                             ranges[2 * i + 1],
+                             logical_rect.height);
+
+          cairo_clip (cr);
+
+          gdk_cairo_set_source_color (cr, selection_color);
+          cairo_paint (cr);
+
+          cairo_move_to (cr, x, y);
+          gdk_cairo_set_source_color (cr, text_color);
+          pango_cairo_show_layout (cr, layout);
+
+          g_free (ranges);
+        }
+
+      cairo_destroy (cr);
+    }
+}
+
+static gboolean
+entry_expose_event (GtkWidget*           entry,
+                    GdkEventExpose*      event,
+                    MidoriLocationEntry* location_entry)
+{
+  GdkWindow* text_area;
+  gint width, height;
+
+  text_area = GTK_ENTRY (entry)->text_area;
+
+  gdk_drawable_get_size (text_area, &width, &height);
+
+  if (location_entry->progress > 0.0/* && location_entry->progress < 1.0*/)
+  {
+      gtk_paint_box (entry->style, text_area,
+                     GTK_STATE_SELECTED, GTK_SHADOW_OUT,
+                     &event->area, entry, "bar",
+                     0, 0, location_entry->progress * width, height);
+      gtk_entry_draw_text (GTK_ENTRY (entry));
+  }
+  return FALSE;
+}
+
+#endif
+
+gdouble
+midori_location_entry_get_progress (MidoriLocationEntry* location_entry)
+{
+    g_return_val_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry), 0.0);
+
+    return location_entry->progress;
+}
+
+void
+midori_location_entry_set_progress (MidoriLocationEntry* location_entry,
+                                    gdouble              progress)
+{
+    #ifdef HAVE_ENTRY_PROGRESS
+    GtkWidget* child;
+    #endif
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
+
+    location_entry->progress = CLAMP (progress, 0.0, 1.0);
+
+    #ifdef HAVE_ENTRY_PROGRESS
+    child = gtk_bin_get_child (GTK_BIN (location_entry));
+    if (GTK_ENTRY (child)->text_area)
+        gdk_window_invalidate_rect (GTK_ENTRY (child)->text_area, NULL, FALSE);
+    #endif
+}
+
 static void
 midori_location_entry_init (MidoriLocationEntry* location_entry)
 {
@@ -81,16 +340,22 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
                          "widget_class \"*MidoriLocationEntry\" "
                          "style \"midori-location-entry-style\"\n");
 
+    location_entry->progress = 0.0;
+
     entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_PRIMARY, DEFAULT_ICON);
     g_signal_connect (entry, "key-press-event", G_CALLBACK (entry_key_press_event), location_entry);
+    #ifdef HAVE_ENTRY_PROGRESS
+    g_signal_connect_after (entry, "expose-event",
+        G_CALLBACK (entry_expose_event), location_entry);
+    #endif
 
     gtk_widget_show (entry);
     gtk_container_add (GTK_CONTAINER (location_entry), entry);
 
     store = gtk_list_store_new (N_COLS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
     g_object_set (G_OBJECT (location_entry), "model", store, NULL);
-    g_object_unref(store);
+    g_object_unref (store);
 
     gtk_combo_box_entry_set_text_column (GTK_COMBO_BOX_ENTRY (location_entry), URI_COL);
     gtk_cell_layout_clear (GTK_CELL_LAYOUT (location_entry));

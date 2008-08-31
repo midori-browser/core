@@ -23,6 +23,7 @@ struct _MidoriLocationAction
     GtkAction parent_instance;
 
     gchar* uri;
+    gdouble progress;
 };
 
 struct _MidoriLocationActionClass
@@ -36,6 +37,7 @@ enum
 {
     PROP_0,
 
+    PROP_PROGRESS,
     PROP_SECONDARY_ICON
 };
 
@@ -139,10 +141,19 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
     action_class->disconnect_proxy = midori_location_action_disconnect_proxy;
 
     g_object_class_install_property (gobject_class,
+                                     PROP_PROGRESS,
+                                     g_param_spec_double (
+                                     "progress",
+                                     _("Progress"),
+                                     _("The current progress of the action"),
+                                     0.0, 1.0, 0.0,
+                                     G_PARAM_WRITABLE));
+
+    g_object_class_install_property (gobject_class,
                                      PROP_SECONDARY_ICON,
                                      g_param_spec_string (
                                      "secondary-icon",
-                                     "Secondary",
+                                     _("Secondary"),
                                      _("The stock ID of the secondary icon"),
                                      NULL,
                                      G_PARAM_WRITABLE));
@@ -152,6 +163,7 @@ static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
     location_action->uri = NULL;
+    location_action->progress = 0.0;
 }
 
 static void
@@ -174,6 +186,12 @@ midori_location_action_set_property (GObject*      object,
 
     switch (prop_id)
     {
+    case PROP_PROGRESS:
+    {
+        midori_location_action_set_progress (location_action,
+            g_value_get_double (value));
+        break;
+    }
     case PROP_SECONDARY_ICON:
     {
         midori_location_action_set_secondary_icon (location_action,
@@ -223,6 +241,8 @@ midori_location_action_create_tool_item (GtkAction* action)
     toolitem = GTK_WIDGET (gtk_tool_item_new ());
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
     entry = midori_location_entry_new ();
+    midori_location_entry_set_progress (MIDORI_LOCATION_ENTRY (entry),
+        MIDORI_LOCATION_ACTION (action)->progress);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (
         gtk_bin_get_child (GTK_BIN (entry))),
         GTK_ICON_ENTRY_SECONDARY, TRUE);
@@ -355,7 +375,6 @@ midori_location_action_set_uri (MidoriLocationAction* location_action,
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
 
-
     katze_assign (location_action->uri, g_strdup (uri));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
@@ -474,6 +493,42 @@ midori_location_action_set_title_for_uri (MidoriLocationAction* location_action,
         item.title = item.uri;
         midori_location_entry_add_item (
             MIDORI_LOCATION_ENTRY (entry), &item);
+    }
+    while ((proxies = g_slist_next (proxies)));
+}
+
+gdouble
+midori_location_action_get_progress (MidoriLocationAction* location_action)
+{
+    g_return_val_if_fail (MIDORI_IS_LOCATION_ACTION (location_action), 0.0);
+
+    return location_action->progress;
+}
+
+void
+midori_location_action_set_progress (MidoriLocationAction* location_action,
+                                     gdouble               progress)
+{
+    GSList* proxies;
+    GtkWidget* alignment;
+    GtkWidget* entry;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+
+    location_action->progress = CLAMP (progress, 0.0, 1.0);
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    if (!proxies)
+        return;
+
+    do
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
+        entry = gtk_bin_get_child (GTK_BIN (alignment));
+
+        midori_location_entry_set_progress (MIDORI_LOCATION_ENTRY (entry),
+                                            location_action->progress);
     }
     while ((proxies = g_slist_next (proxies)));
 }
