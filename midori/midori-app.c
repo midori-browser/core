@@ -349,6 +349,7 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
     MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
                                                "settings", app->settings,
                                                "trash", app->trash,
+                                               "search-engines", app->search_engines,
                                                NULL);
     midori_browser_add_uri (new_browser, uri);
     gtk_widget_show (GTK_WIDGET (new_browser));
