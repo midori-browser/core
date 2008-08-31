@@ -151,6 +151,78 @@ _gtk_entry_effective_inner_border (GtkEntry  *entry,
   *border = default_inner_border;
 }
 
+void
+gtk_entry_borders (GtkEntry* entry,
+                   gint*     xborder,
+                   gint*     yborder,
+                   gboolean* interior_focus,
+                   gint*     focus_width)
+{
+  GtkWidget *widget = GTK_WIDGET (entry);
+
+  if (entry->has_frame)
+    {
+      *xborder = widget->style->xthickness;
+      *yborder = widget->style->ythickness;
+    }
+  else
+    {
+      *xborder = 0;
+      *yborder = 0;
+    }
+
+  gtk_widget_style_get (widget, "interior-focus", interior_focus,
+                        "focus-line-width", focus_width, NULL);
+
+  if (interior_focus)
+    {
+      *xborder += *focus_width;
+      *yborder += *focus_width;
+    }
+}
+
+/* GTK+/ GtkEntry internal helper function
+   Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+   Modified by the GTK+ Team and others 1997-2000
+   Copied from Gtk+ 2.13, whitespace adjusted */
+static void
+gtk_entry_get_text_area_size (GtkEntry *entry,
+                              gint     *x,
+                              gint     *y,
+                              gint     *width,
+                              gint     *height)
+{
+  gint frame_height;
+  gint xborder, yborder;
+  gboolean interior_focus;
+  gint focus_width;
+  GtkRequisition requisition;
+  GtkWidget *widget = GTK_WIDGET (entry);
+
+  gtk_widget_get_child_requisition (widget, &requisition);
+  gtk_entry_borders (entry, &xborder, &yborder, &interior_focus, &focus_width);
+
+  if (GTK_WIDGET_REALIZED (widget))
+    gdk_drawable_get_size (widget->window, NULL, &frame_height);
+  else
+    frame_height = requisition.height;
+
+  if (GTK_WIDGET_HAS_FOCUS (widget) && interior_focus)
+      frame_height -= 2 * focus_width;
+
+  if (x)
+    *x = xborder;
+
+  if (y)
+    *y = frame_height / 2 - (requisition.height - yborder * 2) / 2;
+
+  if (width)
+    *width = GTK_WIDGET (entry)->allocation.width - xborder * 2;
+
+  if (height)
+    *height = requisition.height - yborder * 2;
+}
+
 /* GTK+/ GtkEntry internal helper function
    Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
    Modified by the GTK+ Team and others 1997-2000
@@ -169,7 +241,7 @@ get_layout_position (GtkEntry *entry,
 
   layout = gtk_entry_get_layout (entry);
 
-  GTK_ENTRY_CLASS (G_OBJECT_GET_CLASS (entry))->get_text_area_size (entry, NULL, NULL, &area_width, &area_height);
+  gtk_entry_get_text_area_size (entry, NULL, NULL, &area_width, &area_height);
   _gtk_entry_effective_inner_border (entry, &inner_border);
 
   area_height = PANGO_SCALE * (area_height - inner_border.top - inner_border.bottom);
