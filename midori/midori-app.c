@@ -32,6 +32,7 @@ struct _MidoriApp
     GtkAccelGroup* accel_group;
 
     MidoriWebSettings* settings;
+    KatzeXbelItem* bookmarks;
     KatzeArray* trash;
     KatzeArray* search_engines;
 
@@ -47,10 +48,11 @@ enum
     PROP_0,
 
     PROP_SETTINGS,
+    PROP_BOOKMARKS,
     PROP_TRASH,
+    PROP_SEARCH_ENGINES,
     PROP_BROWSER,
-    PROP_BROWSER_COUNT,
-    PROP_SEARCH_ENGINES
+    PROP_BROWSER_COUNT
 };
 
 enum {
@@ -85,6 +87,8 @@ midori_app_get_property (GObject*    object,
 static void
 midori_app_class_init (MidoriAppClass* class)
 {
+    GObjectClass* gobject_class;
+
     signals[ADD_BROWSER] = g_signal_new (
         "add-browser",
         G_TYPE_FROM_CLASS (class),
@@ -106,15 +110,14 @@ midori_app_class_init (MidoriAppClass* class)
         g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0);
 
-    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class = G_OBJECT_CLASS (class);
     gobject_class->constructor = midori_app_constructor;
     gobject_class->finalize = midori_app_finalize;
     gobject_class->set_property = midori_app_set_property;
     gobject_class->get_property = midori_app_get_property;
 
-    MidoriAppClass* midoriapp_class = MIDORI_APP_CLASS (class);
-    midoriapp_class->add_browser = midori_app_add_browser;
-    midoriapp_class->quit = midori_app_quit;
+    class->add_browser = midori_app_add_browser;
+    class->quit = midori_app_quit;
 
     g_object_class_install_property (gobject_class,
                                      PROP_SETTINGS,
@@ -126,11 +129,29 @@ midori_app_class_init (MidoriAppClass* class)
                                      G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
+                                     PROP_BOOKMARKS,
+                                     g_param_spec_object (
+                                     "bookmarks",
+                                     _("Bookmarks"),
+                                     _("The bookmarks folder, containing all bookmarks"),
+                                     KATZE_TYPE_XBEL_ITEM,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
                                      PROP_TRASH,
                                      g_param_spec_object (
                                      "trash",
                                      _("Trash"),
                                      _("The trash, collecting recently closed tabs and windows"),
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_SEARCH_ENGINES,
+                                     g_param_spec_object (
+                                     "search-engines",
+                                     _("Search Engines"),
+                                     _("The list of search engines"),
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -151,15 +172,6 @@ midori_app_class_init (MidoriAppClass* class)
                                      _("The current number of browsers"),
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SEARCH_ENGINES,
-                                     g_param_spec_object (
-                                     "search-engines",
-                                     _("Search Engines"),
-                                     _("The list of search engines"),
-                                     KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
 }
 
 static GObject*
@@ -233,8 +245,9 @@ midori_app_init (MidoriApp* app)
     app->accel_group = gtk_accel_group_new ();
 
     app->settings = midori_web_settings_new ();
-    app->trash = katze_array_new (KATZE_TYPE_XBEL_ITEM);
-    app->search_engines = katze_array_new (KATZE_TYPE_ITEM);
+    app->bookmarks = NULL;
+    app->trash = NULL;
+    app->search_engines = NULL;
 
     #if HAVE_UNIQUE
     display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
@@ -261,8 +274,14 @@ midori_app_finalize (GObject* object)
     g_list_free (app->browsers);
     g_object_unref (app->accel_group);
 
-    g_object_unref (app->settings);
-    g_object_unref (app->trash);
+    if (app->settings)
+        g_object_unref (app->settings);
+    if (app->bookmarks)
+        g_object_unref (app->bookmarks);
+    if (app->trash)
+        g_object_unref (app->trash);
+    if (app->search_engines)
+        g_object_unref (app->search_engines);
 
     if (app->instance)
         g_object_unref (app->instance);
@@ -284,6 +303,11 @@ midori_app_set_property (GObject*      object,
         katze_object_assign (app->settings, g_value_get_object (value));
         g_object_ref (app->settings);
         /* FIXME: Propagate settings to all browsers */
+        break;
+    case PROP_BOOKMARKS:
+        katze_object_assign (app->bookmarks, g_value_get_object (value));
+        g_object_ref (app->bookmarks);
+        /* FIXME: Propagate bookmarks to all browsers */
         break;
     case PROP_TRASH:
         katze_object_assign (app->trash, g_value_get_object (value));
@@ -314,17 +338,20 @@ midori_app_get_property (GObject*    object,
     case PROP_SETTINGS:
         g_value_set_object (value, app->settings);
         break;
+    case PROP_BOOKMARKS:
+        g_value_set_object (value, app->bookmarks);
+        break;
     case PROP_TRASH:
         g_value_set_object (value, app->trash);
+        break;
+    case PROP_SEARCH_ENGINES:
+        g_value_set_object (value, app->search_engines);
         break;
     case PROP_BROWSER:
         g_value_set_object (value, app->browser);
         break;
     case PROP_BROWSER_COUNT:
         g_value_set_uint (value, g_list_length (app->browsers));
-        break;
-    case PROP_SEARCH_ENGINES:
-        g_value_set_object (value, app->search_engines);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -338,6 +365,7 @@ midori_browser_focus_in_event_cb (MidoriBrowser* browser,
                                   MidoriApp*     app)
 {
     app->browser = browser;
+    g_object_notify (G_OBJECT (app), "browser");
     return FALSE;
 }
 
@@ -348,6 +376,7 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
 {
     MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
                                                "settings", app->settings,
+                                               "bookmarks", app->bookmarks,
                                                "trash", app->trash,
                                                "search-engines", app->search_engines,
                                                NULL);

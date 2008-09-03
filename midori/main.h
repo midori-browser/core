@@ -12,15 +12,7 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__ 1
 
-#include <katze/katze.h>
-
 #include <gtk/gtk.h>
-#include <webkit/webkit.h>
-#include <glib/gi18n.h>
-
-/* FIXME: Remove these globals */
-
-KatzeXbelItem* bookmarks;
 
 /* Custom stock items
 

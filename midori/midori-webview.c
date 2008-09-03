@@ -20,11 +20,12 @@
 #include "sokoke.h"
 #include "compat.h"
 
+#include <string.h>
 #if HAVE_GIO
     #include <gio/gio.h>
 #endif
+#include <glib/gi18n.h>
 #include <webkit/webkit.h>
-#include <string.h>
 
 /* This is unstable API, so we need to declare it */
 gchar*

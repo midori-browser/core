@@ -74,6 +74,7 @@ struct _MidoriBrowser
 
     gchar* statusbar_text;
     MidoriWebSettings* settings;
+    KatzeXbelItem* bookmarks;
     GList* tab_titles;
     GList* close_buttons;
 
@@ -93,8 +94,9 @@ enum
     PROP_URI,
     PROP_TAB,
     PROP_STATUSBAR,
-    PROP_SETTINGS,
     PROP_STATUSBAR_TEXT,
+    PROP_SETTINGS,
+    PROP_BOOKMARKS,
     PROP_TRASH,
     PROP_SEARCH_ENGINES
 };
@@ -680,7 +682,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         /* FIXME: We want to choose a folder */
         if (new_bookmark)
         {
-            katze_xbel_folder_append_item (bookmarks, bookmark);
+            katze_xbel_folder_append_item (browser->bookmarks, bookmark);
             GtkTreeView* treeview = GTK_TREE_VIEW (browser->panel_bookmarks);
             GtkTreeModel* treemodel = gtk_tree_view_get_model (treeview);
             GtkTreeIter iter;
@@ -1279,23 +1281,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      G_PARAM_READABLE));
 
     /**
-    * MidoriBrowser:settings:
-    *
-    * An associated settings instance that is shared among all web views.
-    *
-    * Setting this value is propagated to every present web view. Also
-    * every newly created web view will use this instance automatically.
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_SETTINGS,
-                                     g_param_spec_object (
-                                     "settings",
-                                     _("Settings"),
-                                     _("The associated settings"),
-                                     MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_READWRITE));
-
-    /**
     * MidoriBrowser:statusbar-text:
     *
     * The text that is displayed in the statusbar.
@@ -1314,6 +1299,42 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      _("The text that is displayed in the statusbar"),
                                      "",
                                      flags));
+
+    /**
+    * MidoriBrowser:settings:
+    *
+    * An associated settings instance that is shared among all web views.
+    *
+    * Setting this value is propagated to every present web view. Also
+    * every newly created web view will use this instance automatically.
+    *
+    * If no settings are specified a default will be used.
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SETTINGS,
+                                     g_param_spec_object (
+                                     "settings",
+                                     _("Settings"),
+                                     _("The associated settings"),
+                                     MIDORI_TYPE_WEB_SETTINGS,
+                                     G_PARAM_READWRITE));
+
+    /**
+    * MidoriBrowser:bookmarks:
+    *
+    * The bookmarks folder, containing all bookmarks.
+    *
+    * This is actually a reference to a bookmarks instance,
+    * so if bookmarks should be used it must be initially set.
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_BOOKMARKS,
+                                     g_param_spec_object (
+                                     "bookmarks",
+                                     _("Bookmarks"),
+                                     _("The bookmarks folder, containing all bookmarks"),
+                                     KATZE_TYPE_XBEL_ITEM,
+                                     G_PARAM_READWRITE));
 
     /**
     * MidoriBrowser:trash:
@@ -1338,6 +1359,9 @@ midori_browser_class_init (MidoriBrowserClass* class)
     * MidoriBrowser:search-engines:
     *
     * The list of search engines to be used for web search.
+    *
+    * This is actually a reference to a search engines instance,
+    * so if search engines should be used it must be initially set.
     */
     g_object_class_install_property (gobject_class,
                                      PROP_SEARCH_ENGINES,
@@ -3174,6 +3198,11 @@ midori_browser_init (MidoriBrowser* browser)
     GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
 
+    browser->settings = midori_web_settings_new ();
+    browser->bookmarks = NULL;
+    browser->trash = NULL;
+    browser->search_engines = NULL;
+
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
                       G_CALLBACK (midori_browser_realize_cb), browser);
@@ -3347,48 +3376,6 @@ midori_browser_init (MidoriBrowser* browser)
                                GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
-    _midori_browser_create_bookmark_menu (browser, bookmarks,
-                                          browser->menu_bookmarks);
-    for (i = 0; i < katze_xbel_folder_get_n_items (bookmarks); i++)
-    {
-        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (bookmarks, i);
-        const gchar* title = katze_xbel_item_is_separator (item)
-         ? "" : katze_xbel_item_get_title (item);
-        const gchar* desc = katze_xbel_item_is_separator (item)
-         ? "" : katze_xbel_item_get_desc (item);
-        switch (katze_xbel_item_get_kind (item))
-        {
-        case KATZE_XBEL_ITEM_KIND_FOLDER:
-            toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
-            gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
-            gtk_tool_item_set_is_important(toolitem, TRUE);
-            g_signal_connect (toolitem, "clicked",
-                G_CALLBACK (midori_browser_bookmarkbar_folder_activate_cb),
-                browser);
-            if (desc && *desc)
-                gtk_tool_item_set_tooltip_text (toolitem, desc);
-            g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
-            break;
-        case KATZE_XBEL_ITEM_KIND_BOOKMARK:
-            toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK);
-            gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
-            gtk_tool_item_set_is_important(toolitem, TRUE);
-            g_signal_connect (toolitem, "clicked",
-                G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
-                browser);
-            if (desc && *desc)
-                gtk_tool_item_set_tooltip_text (toolitem, desc);
-            g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
-            break;
-        case KATZE_XBEL_ITEM_KIND_SEPARATOR:
-            toolitem = gtk_separator_tool_item_new ();
-            break;
-        default:
-            g_warning ("Unknown item kind");
-        }
-        gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), toolitem, -1);
-    }
-    sokoke_container_show_children (GTK_CONTAINER (browser->bookmarkbar));
     gtk_box_pack_start (GTK_BOX (vbox), browser->bookmarkbar, FALSE, FALSE, 0);
 
     /* Superuser warning */
@@ -3431,7 +3418,6 @@ midori_browser_init (MidoriBrowser* browser)
         (GtkTreeCellDataFunc)midori_browser_bookmarks_item_render_text_cb,
         treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
-    _tree_store_insert_folder (GTK_TREE_STORE (treestore), NULL, bookmarks);
     g_object_unref (treestore);
     g_object_connect (treeview,
                       "signal::row-activated",
@@ -3452,6 +3438,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show_all (box);
     GtkWidget* toolbar = gtk_ui_manager_get_widget (ui_manager,
                                                     "/toolbar_bookmarks");
+    _action_set_sensitive (browser, "BookmarkAdd", FALSE);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_MENU);
     gtk_widget_show_all (toolbar);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
@@ -3648,6 +3635,8 @@ midori_browser_finalize (GObject* object)
 
     if (browser->settings)
         g_object_unref (browser->settings);
+    if (browser->bookmarks)
+        g_object_unref (browser->bookmarks);
     if (browser->trash)
         g_object_unref (browser->trash);
     if (browser->search_engines)
@@ -3827,6 +3816,78 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
 }
 
 static void
+midori_browser_load_bookmarks (MidoriBrowser* browser)
+{
+    guint i, n;
+    KatzeXbelItem* item;
+    const gchar* title;
+    const gchar* desc;
+    GtkToolItem* toolitem;
+    GtkTreeModel* treestore;
+
+    // FIXME: Clear bookmarks menu
+    // FIXME: Clear bookmarkbar
+    // FIXME: Clear bookmark panel
+
+    _action_set_sensitive (browser, "BookmarkAdd", FALSE);
+
+    if (!browser->bookmarks)
+        return;
+
+    _midori_browser_create_bookmark_menu (browser, browser->bookmarks,
+                                          browser->menu_bookmarks);
+    n = katze_xbel_folder_get_n_items (browser->bookmarks);
+    for (i = 0; i < n; i++)
+    {
+        item = katze_xbel_folder_get_nth_item (browser->bookmarks, i);
+        title = katze_xbel_item_is_separator (item)
+         ? "" : katze_xbel_item_get_title (item);
+        desc = katze_xbel_item_is_separator (item)
+         ? "" : katze_xbel_item_get_desc (item);
+        switch (katze_xbel_item_get_kind (item))
+        {
+        case KATZE_XBEL_ITEM_KIND_FOLDER:
+            toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
+            gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
+            gtk_tool_item_set_is_important (toolitem, TRUE);
+            g_signal_connect (toolitem, "clicked",
+                G_CALLBACK (midori_browser_bookmarkbar_folder_activate_cb),
+                browser);
+            if (desc && *desc)
+                gtk_tool_item_set_tooltip_text (toolitem, desc);
+            g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
+            break;
+        case KATZE_XBEL_ITEM_KIND_BOOKMARK:
+            toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK);
+            gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
+            gtk_tool_item_set_is_important (toolitem, TRUE);
+            g_signal_connect (toolitem, "clicked",
+                G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
+                browser);
+            if (desc && *desc)
+                gtk_tool_item_set_tooltip_text (toolitem, desc);
+            g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
+            break;
+        case KATZE_XBEL_ITEM_KIND_SEPARATOR:
+            toolitem = gtk_separator_tool_item_new ();
+            break;
+        default:
+            g_warning ("Unknown item kind");
+        }
+        gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), toolitem, -1);
+    }
+    sokoke_container_show_children (GTK_CONTAINER (browser->bookmarkbar));
+
+    treestore = gtk_tree_view_get_model (GTK_TREE_VIEW (browser->panel_bookmarks));
+    _tree_store_insert_folder (GTK_TREE_STORE (treestore),
+                               NULL, browser->bookmarks);
+    midori_panel_bookmarks_cursor_or_row_changed_cb (
+        GTK_TREE_VIEW (browser->panel_bookmarks), browser);
+
+    _action_set_sensitive (browser, "BookmarkAdd", TRUE);
+}
+
+static void
 midori_browser_set_property (GObject*      object,
                              guint         prop_id,
                              const GValue* value,
@@ -3862,6 +3923,13 @@ midori_browser_set_property (GObject*      object,
         gtk_container_foreach (GTK_CONTAINER (browser->notebook),
                                (GtkCallback) midori_web_view_set_settings,
                                browser->settings);
+        break;
+    case PROP_BOOKMARKS:
+        ; /* FIXME: Disconnect handlers */
+        katze_object_assign (browser->bookmarks, g_value_get_object (value));
+        g_object_ref (browser->bookmarks);
+        midori_browser_load_bookmarks (browser);
+        /* FIXME: Connect to updates */
         break;
     case PROP_TRASH:
         ; /* FIXME: Disconnect handlers */
@@ -3922,6 +3990,9 @@ midori_browser_get_property (GObject*    object,
         break;
     case PROP_SETTINGS:
         g_value_set_object (value, browser->settings);
+        break;
+    case PROP_BOOKMARKS:
+        g_value_set_object (value, browser->bookmarks);
         break;
     case PROP_TRASH:
         g_value_set_object (value, browser->trash);

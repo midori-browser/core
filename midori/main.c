@@ -23,6 +23,7 @@
 #include "gjs.h"
 
 #include <string.h>
+#include <glib/gi18n.h>
 #include <gtk/gtk.h>
 
 #if ENABLE_NLS
@@ -481,6 +482,7 @@ main (int    argc,
     MidoriStartup load_on_startup;
     gchar* homepage;
     KatzeArray* search_engines;
+    KatzeXbelItem* bookmarks;
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
@@ -696,12 +698,14 @@ main (int    argc,
         G_CALLBACK (midori_web_list_add_item_cb), NULL);
 
     g_object_set (app, "settings", settings,
+                       "bookmarks", bookmarks,
                        "trash", trash,
                        "search-engines", search_engines,
                        NULL);
 
     MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
                                            "settings", settings,
+                                           "bookmarks", bookmarks,
                                            "trash", trash,
                                            "search-engines", search_engines,
                                            NULL);
