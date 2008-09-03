@@ -26,7 +26,6 @@ def configure (conf):
     if not Params.g_options.disable_nls:
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
-            conf.find_program ('intltool-update', var='INTLTOOL_UPDATE')
             nls = 'yes'
             conf.define ('ENABLE_NLS', 1)
             conf.define ('MIDORI_LOCALEDIR', 'LOCALEDIR', 0)
@@ -35,6 +34,16 @@ def configure (conf):
     else:
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
+
+    if Params.g_options.enable_update_po:
+        conf.find_program ('intltool-update', var='INTLTOOL_UPDATE')
+        if conf.env['INTLTOOL_UPDATE']:
+            update_po = 'yes'
+        else:
+            update_po = 'not available'
+    else:
+        update_po = 'no'
+    conf.check_message_custom ('localization file', 'updates', update_po)
 
     if not Params.g_options.disable_unique:
         conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
@@ -89,6 +98,9 @@ def set_options (opt):
         help='Disables Unique support', dest='disable_unique')
     opt.add_option ('--disable-gio', action='store_true', default=False,
         help='Disables GIO support', dest='disable_gio')
+
+    opt.add_option ('--enable-update-po', action='store_true', default=False,
+        help='Enables localization file updates', dest='enable_update_po')
 
 def build (bld):
     bld.add_subdirs ('katze midori icons')
