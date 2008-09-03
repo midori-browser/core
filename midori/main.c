@@ -13,13 +13,12 @@
     #include <config.h>
 #endif
 
-#include "main.h"
-
-#include "sokoke.h"
-
 #include "midori-app.h"
 #include "midori-websettings.h"
 #include "midori-browser.h"
+#include "midori-stock.h"
+
+#include "sokoke.h"
 #include "gjs.h"
 
 #include <string.h>

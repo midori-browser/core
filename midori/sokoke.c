@@ -14,7 +14,6 @@
 #endif
 
 #include "sokoke.h"
-#include "main.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>

@@ -9,8 +9,8 @@
  See the file COPYING for the full license text.
 */
 
-#ifndef __MAIN_H__
-#define __MAIN_H__ 1
+#ifndef __MIDORI_STOCK_H__
+#define __MIDORI_STOCK_H__ 1
 
 #include <gtk/gtk.h>
 
@@ -57,4 +57,4 @@
 #define GTK_STOCK_LEAVE_FULLSCREEN "gtk-leave-fullscreen"
 #endif
 
-#endif /* !__MAIN_H__ */
+#endif /* !__MIDORI_STOCK_H__ */

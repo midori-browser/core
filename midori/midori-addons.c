@@ -15,7 +15,7 @@
 #endif
 
 #include "midori-addons.h"
-#include "main.h"
+#include "midori-stock.h"
 
 #include "sokoke.h"
 #include "gjs.h"

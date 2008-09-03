@@ -15,9 +15,6 @@
 
 #include "midori-browser.h"
 
-#include "main.h"
-#include "gtkiconentry.h"
-#include "sokoke.h"
 #include "midori-webview.h"
 #include "midori-preferences.h"
 #include "midori-panel.h"
@@ -25,7 +22,11 @@
 #include "midori-console.h"
 #include "midori-searchentry.h"
 #include "midori-locationaction.h"
+#include "midori-stock.h"
+
+#include "gtkiconentry.h"
 #include "compat.h"
+#include "sokoke.h"
 #include "gjs.h"
 
 #if HAVE_GIO

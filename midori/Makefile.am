@@ -21,7 +21,7 @@ bin_PROGRAMS = \
     midori
 
 midori_SOURCES = \
-    main.c                 main.h                 \
+    main.c                 midori-stock.h         \
     gtkiconentry.c         gtkiconentry.h         \
     midori-app.c           midori-app.h           \
     midori-browser.c       midori-browser.h       \

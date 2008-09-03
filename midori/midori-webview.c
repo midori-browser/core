@@ -14,11 +14,11 @@
 #endif
 
 #include "midori-webview.h"
+#include "midori-stock.h"
 
-#include "main.h"
-#include "gjs.h"
-#include "sokoke.h"
 #include "compat.h"
+#include "sokoke.h"
+#include "gjs.h"
 
 #include <string.h>
 #if HAVE_GIO

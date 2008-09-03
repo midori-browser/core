@@ -11,10 +11,10 @@
 
 #include "midori-locationaction.h"
 
-#include "main.h"
 #include "gtkiconentry.h"
 
 #include <katze/katze.h>
+#include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
