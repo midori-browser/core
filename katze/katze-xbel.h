@@ -155,19 +155,8 @@ katze_xbel_folder_from_file      (KatzeXbelItem*   folder,
                                   const gchar*     file,
                                   GError**         error);
 
-gboolean
-katze_xbel_folder_from_data_dirs (KatzeXbelItem*   folder,
-                                  const gchar*     file,
-                                  gchar**          full_path,
-                                  GError**         error);
-
 gchar*
 katze_xbel_item_to_data          (KatzeXbelItem*   item);
-
-gchar*
-katze_xbel_folder_to_data        (KatzeXbelItem*   folder,
-                                  gsize*           length,
-                                  GError**         error);
 
 gboolean
 katze_xbel_folder_to_file        (KatzeXbelItem*   folder,

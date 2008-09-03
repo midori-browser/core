@@ -113,8 +113,8 @@ midori_browser_get_current_tab        (MidoriBrowser*     browser);
 GtkWidget*
 midori_browser_get_current_web_view   (MidoriBrowser*     browser);
 
-KatzeXbelItem*
-midori_browser_get_proxy_xbel_folder  (MidoriBrowser*     browser);
+KatzeArray*
+midori_browser_get_proxy_xbel_array   (MidoriBrowser*     browser);
 
 void
 midori_browser_quit                   (MidoriBrowser*     browser);

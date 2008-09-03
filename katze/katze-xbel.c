@@ -764,32 +764,6 @@ katze_xbel_folder_from_file (KatzeXbelItem* folder,
     return TRUE;
 }
 
-/**
- * katze_xbel_folder_from_data_dirs:
- * @folder: An empty folder.
- * @file: A relative path to a file.
- * @full_path: return location for the full path of the file or %NULL
- * @error: return location for a GError or %NULL
- *
- * Tries to load @file from the user data dir or any of the system data dirs.
- *
- * Return value: %TRUE on success or %FALSE when an error occured.
- **/
-gboolean
-katze_xbel_folder_from_data_dirs (KatzeXbelItem* folder,
-                                  const gchar*   file,
-                                  gchar**        full_path,
-                                  GError**       error)
-{
-    g_return_val_if_fail (katze_xbel_folder_is_empty (folder), FALSE);
-    g_return_val_if_fail (file, FALSE);
-    /* FIXME: Essentially unimplemented */
-
-    *error = g_error_new_literal (KATZE_XBEL_ERROR, KATZE_XBEL_ERROR_READ,
-                                  _("Malformed document."));
-    return FALSE;
-}
-
 static gchar*
 katze_xbel_xml_element (const gchar* name,
                         const gchar* value)
@@ -860,17 +834,7 @@ katze_xbel_item_to_data (KatzeXbelItem* item)
     return markup;
 }
 
-/**
- * katze_xbel_folder_to_data:
- * @folder: A folder.
- * @length: return location for the length of the created string or %NULL
- * @error: return location for a GError or %NULL
- *
- * Retrieve the contents of @folder as a string.
- *
- * Return value: %TRUE on success or %FALSE when an error occured.
- **/
-gchar*
+static gchar*
 katze_xbel_folder_to_data (KatzeXbelItem* folder,
                            gsize*         length,
                            GError**       error)

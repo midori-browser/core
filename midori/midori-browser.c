@@ -79,7 +79,7 @@ struct _MidoriBrowser
     GList* tab_titles;
     GList* close_buttons;
 
-    KatzeXbelItem* proxy_xbel_folder;
+    KatzeArray* proxy_xbel_array;
     KatzeArray* trash;
     KatzeArray* search_engines;
 };
@@ -800,14 +800,14 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     KatzeXbelItem* xbel_item;
     const gchar* uri;
 
-    if (browser->proxy_xbel_folder && MIDORI_IS_WEB_VIEW (widget))
+    if (browser->proxy_xbel_array && MIDORI_IS_WEB_VIEW (widget))
     {
         xbel_item = midori_web_view_get_proxy_xbel_item (
             MIDORI_WEB_VIEW (widget));
         uri = katze_xbel_bookmark_get_href (xbel_item);
         if (browser->trash && uri && *uri)
             katze_array_add_item (browser->trash, xbel_item);
-        katze_xbel_folder_remove_item (browser->proxy_xbel_folder, xbel_item);
+        katze_array_remove_item (browser->proxy_xbel_array, xbel_item);
         katze_xbel_item_unref (xbel_item);
     }
 
@@ -935,12 +935,12 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         tab_title = midori_web_view_get_proxy_tab_title (MIDORI_WEB_VIEW (widget));
         menuitem = midori_web_view_get_proxy_menu_item (MIDORI_WEB_VIEW (widget));
 
-        if (browser->proxy_xbel_folder)
+        if (browser->proxy_xbel_array)
         {
             xbel_item = midori_web_view_get_proxy_xbel_item (
                 MIDORI_WEB_VIEW (widget));
             katze_xbel_item_ref (xbel_item);
-            katze_xbel_folder_append_item (browser->proxy_xbel_folder, xbel_item);
+            katze_array_add_item (browser->proxy_xbel_array, xbel_item);
         }
 
         g_object_connect (widget,
@@ -991,14 +991,13 @@ _midori_browser_add_tab (MidoriBrowser* browser,
             gtk_image_new_from_pixbuf (icon));
         g_object_unref (icon);
 
-        if (browser->proxy_xbel_folder)
+        if (browser->proxy_xbel_array)
         {
             xbel_item = katze_xbel_bookmark_new ();
             katze_xbel_item_set_title (xbel_item, title);
             katze_xbel_bookmark_set_href (xbel_item,
                 _midori_browser_get_tab_uri (browser, widget));
-            katze_xbel_folder_append_item (browser->proxy_xbel_folder,
-                                           xbel_item);
+            katze_array_add_item (browser->proxy_xbel_array, xbel_item);
         }
     }
     g_object_set_data (G_OBJECT (widget), "browser-tab-icon", tab_icon);
@@ -3619,8 +3618,8 @@ midori_browser_dispose (GObject* object)
     MidoriBrowser* browser = MIDORI_BROWSER (object);
 
     /* We are done, the session mustn't change anymore */
-    if (browser->proxy_xbel_folder)
-        katze_object_assign (browser->proxy_xbel_folder, NULL);
+    if (browser->proxy_xbel_array)
+        katze_object_assign (browser->proxy_xbel_array, NULL);
 
     G_OBJECT_CLASS (midori_browser_parent_class)->dispose (object);
 }
@@ -4258,10 +4257,10 @@ midori_browser_get_current_web_view (MidoriBrowser* browser)
 }
 
 /**
- * midori_browser_get_proxy_xbel_folder:
+ * midori_browser_get_proxy_xbel_array:
  * @browser: a #MidoriBrowser
  *
- * Retrieves a proxy xbel folder representing the respective proxy xbel items
+ * Retrieves a proxy xbel array representing the respective proxy xbel items
  * of the present web views that can be used for session management.
  *
  * The folder is created on the first call and will be updated to reflect
@@ -4272,19 +4271,19 @@ midori_browser_get_current_web_view (MidoriBrowser* browser)
  * Note: Calling this function doesn't add a reference and the browser
  *       may release its reference at some point.
  *
- * Return value: the proxy #KatzeXbelItem
+ * Return value: the proxy #KatzeArray
  **/
-KatzeXbelItem*
-midori_browser_get_proxy_xbel_folder (MidoriBrowser* browser)
+KatzeArray*
+midori_browser_get_proxy_xbel_array (MidoriBrowser* browser)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    if (!browser->proxy_xbel_folder)
+    if (!browser->proxy_xbel_array)
     {
-        browser->proxy_xbel_folder = katze_xbel_folder_new ();
+        browser->proxy_xbel_array = katze_array_new (KATZE_TYPE_XBEL_ITEM);
         /* FIXME: Fill in xbel items of all present web views */
     }
-    return browser->proxy_xbel_folder;
+    return browser->proxy_xbel_array;
 }
 
 /**

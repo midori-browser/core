@@ -351,38 +351,6 @@ midori_web_list_add_item_cb (KatzeArray* trash,
     }
 }
 
-static void
-midori_browser_session_cb (MidoriBrowser* browser,
-                           gpointer       arg1,
-                           KatzeXbelItem* session)
-{
-    gchar* config_path;
-    gchar* config_file;
-    GError* error;
-
-    config_path = g_build_filename (g_get_user_config_dir (),
-                                    PACKAGE_NAME, NULL);
-    g_mkdir_with_parents (config_path, 0755);
-    config_file = g_build_filename (config_path, "session.xbel", NULL);
-    error = NULL;
-    if (!katze_xbel_folder_to_file (session, config_file, &error))
-    {
-        g_warning (_("The session couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-
-    g_free (config_file);
-    g_free (config_path);
-}
-
-static void
-midori_browser_weak_notify_cb (MidoriBrowser* browser,
-                               KatzeXbelItem* session)
-{
-    g_object_disconnect (browser, "any-signal",
-                         G_CALLBACK (midori_browser_session_cb), session, NULL);
-}
-
 static gchar*
 _simple_xml_element (const gchar* name,
                      const gchar* value)
@@ -462,6 +430,38 @@ katze_array_to_file (KatzeArray*  array,
     fclose (fp);
     g_free (data);
     return TRUE;
+}
+
+static void
+midori_browser_session_cb (MidoriBrowser* browser,
+                           gpointer       arg1,
+                           KatzeArray*    session)
+{
+    gchar* config_path;
+    gchar* config_file;
+    GError* error;
+
+    config_path = g_build_filename (g_get_user_config_dir (),
+                                    PACKAGE_NAME, NULL);
+    g_mkdir_with_parents (config_path, 0755);
+    config_file = g_build_filename (config_path, "session.xbel", NULL);
+    error = NULL;
+    if (!katze_array_to_file (session, config_file, &error))
+    {
+        g_warning (_("The session couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+
+    g_free (config_file);
+    g_free (config_path);
+}
+
+static void
+midori_browser_weak_notify_cb (MidoriBrowser* browser,
+                               KatzeXbelItem* session)
+{
+    g_object_disconnect (browser, "any-signal",
+                         G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
 int
@@ -711,7 +711,7 @@ main (int    argc,
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
-    KatzeXbelItem* session = midori_browser_get_proxy_xbel_folder (browser);
+    KatzeArray* session = midori_browser_get_proxy_xbel_array (browser);
     n = katze_xbel_folder_get_n_items (_session);
     for (i = 0; i < n; i++)
     {
