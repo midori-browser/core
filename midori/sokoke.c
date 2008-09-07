@@ -613,17 +613,55 @@ sokoke_object_get_boolean (gpointer     object,
  * gtk_action_create_menu_item(), but it won't
  * display an accelerator.
  *
+ * Note: This menu item is not a proxy and will
+ *       not reflect any changes to the action.
+ *
  * Return value: a new #GtkMenuItem
  **/
 GtkWidget*
 sokoke_action_create_popup_menu_item (GtkAction* action)
 {
     GtkWidget* menuitem;
+    GtkWidget* icon;
+    gchar* label;
+    gchar* stock_id;
+    gchar* icon_name;
+    gboolean sensitive;
+    gboolean visible;
 
     g_return_val_if_fail (GTK_IS_ACTION (action), NULL);
 
-    menuitem = gtk_image_menu_item_new ();
-    gtk_action_connect_proxy (action, menuitem);
+    g_object_get (action,
+                  "label", &label,
+                  "stock-id", &stock_id,
+                  "icon-name", &icon_name,
+                  "sensitive", &sensitive,
+                  "visible", &visible,
+                  NULL);
+    if (stock_id)
+    {
+        if (label)
+        {
+            menuitem = gtk_image_menu_item_new_with_mnemonic (label);
+            icon = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+        }
+        else
+            menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
+    }
+    else
+    {
+        menuitem = gtk_image_menu_item_new_with_mnemonic (label);
+        if (icon_name)
+        {
+            icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+        }
+    }
+    gtk_widget_set_sensitive (menuitem, sensitive);
+    sokoke_widget_set_visible (menuitem, visible);
+    g_signal_connect_swapped (menuitem, "activate",
+                              G_CALLBACK (gtk_action_activate), action);
 
     return menuitem;
 }
