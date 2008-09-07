@@ -2533,6 +2533,17 @@ _action_about_activate (GtkAction*     action,
 }
 
 static void
+_action_help_contents_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    const gchar* faq_uri = "http://wiki.xfce.org/_export/xhtml/midori_faq";
+    gint n;
+
+    n = midori_browser_add_uri (browser, faq_uri);
+    midori_browser_set_current_page (browser, n);
+}
+
+static void
 _action_panel_activate (GtkToggleAction* action,
                         MidoriBrowser*   browser)
 {
@@ -2907,7 +2918,7 @@ static const GtkActionEntry entries[] = {
  { "Help", NULL, N_("_Help") },
  { "HelpContents", GTK_STOCK_HELP,
    N_("_Contents"), "F1",
-   N_("Show the documentation"), NULL/*G_CALLBACK (_action_help_contents_activate)*/ },
+   N_("Show the documentation"), G_CALLBACK (_action_help_contents_activate) },
  { "About", GTK_STOCK_ABOUT,
    NULL, "",
    N_("Show information about the program"), G_CALLBACK (_action_about_activate) },
