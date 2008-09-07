@@ -162,7 +162,7 @@ katze_array_add_item (KatzeArray* array,
 }
 
 /**
- * katze_array_add_item:
+ * katze_array_remove_item:
  * @array: a #KatzeArray
  * @item: a #GObject
  *
