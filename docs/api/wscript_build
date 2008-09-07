@@ -1,0 +1,33 @@
+#! /usr/bin/env python
+# WAF build script for midori
+
+import pproc as subprocess
+
+for module in ('midori', 'katze'):
+    try:
+        if not os.access ('_build_', os.F_OK):
+            os.mkdir ('_build_')
+        if not os.access ('_build_/docs', os.F_OK):
+            os.mkdir ('_build_/docs')
+        if not os.access ('_build_/docs/api', os.F_OK):
+            os.mkdir ('_build_/docs/api')
+        subprocess.call (['gtkdoc-scan', '--module=' + module,
+            '--source-dir=' + module, '--output-dir=_build_/docs/api/' + module,
+            '--rebuild-sections', '--rebuild-types'])
+        os.chdir ('_build_/docs/api/' + module)
+        subprocess.call (['gtkdoc-mktmpl', '--module=' + module,
+            '--output-dir=.' + module])
+        subprocess.call (['gtkdoc-mkdb', '--module=' + module,
+            '--source-dir=.', '--output-dir=xml',
+            '--source-suffixes=c,h', '--output-format=xml',
+            '--default-includes=%s/%s.h' % (module, module),
+            '--sgml-mode', '--main-sgml-file=%s.sgml' % module])
+        if not os.access ('html', os.F_OK):
+            os.mkdir ('html')
+            os.chdir ('html')
+        subprocess.call (['gtkdoc-mkhtml', module, '../%s.sgml' % module])
+        Params.pprint ('YELLOW', "Created documentation for %s." % module)
+        os.chdir ('../../../../..')
+    except Exception, msg:
+        print msg
+        Params.pprint ('RED', "Failed to create documentation for %s." % module)

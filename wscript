@@ -45,6 +45,20 @@ def configure (conf):
         update_po = 'no'
     conf.check_message_custom ('localization file', 'updates', update_po)
 
+    if Params.g_options.enable_api_docs:
+        conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
+        conf.find_program ('gtkdoc-mktmpl', var='GTKDOC_MKTMPL')
+        conf.find_program ('gtkdoc-mkdb', var='GTKDOC_MKDB')
+        conf.find_program ('gtkdoc-mkhtml', var='GTKDOC_MKHTML')
+        if conf.env['GTKDOC_SCAN'] and conf.env['GTKDOC_MKTMPL'] \
+            and conf.env['GTKDOC_MKDB'] and conf.env['GTKDOC_MKHTML']:
+            api_docs = 'yes'
+        else:
+            api_docs = 'not available'
+    else:
+        api_docs = 'no'
+    conf.check_message_custom ('generate', 'API documentation', api_docs)
+
     if not Params.g_options.disable_unique:
         conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
         single_instance = ['not available','yes'][conf.env['HAVE_UNIQUE'] == 1]
@@ -101,12 +115,17 @@ def set_options (opt):
 
     opt.add_option ('--enable-update-po', action='store_true', default=False,
         help='Enables localization file updates', dest='enable_update_po')
+    opt.add_option ('--enable-api-docs', action='store_true', default=False,
+        help='Enables API documentation', dest='enable_api_docs')
 
 def build (bld):
     bld.add_subdirs ('katze midori icons')
 
     if bld.env ()['INTLTOOL']:
         bld.add_subdirs ('po')
+
+    if bld.env ()['GTKDOC_SCAN'] and Params.g_commands['build']:
+        bld.add_subdirs ('docs/api')
 
     if bld.env ()['INTLTOOL']:
         obj = bld.create_obj ('intltool_in')
