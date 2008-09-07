@@ -986,7 +986,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (tab_icon), icon);
         title = _midori_browser_get_tab_title (browser, widget);
         tab_title = gtk_label_new (title);
-        menuitem = gtk_image_menu_item_new_with_label (title);
+        menuitem = sokoke_image_menu_item_new_ellipsized (title);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
             gtk_image_new_from_pixbuf (icon));
         g_object_unref (icon);
@@ -1730,19 +1730,25 @@ static void
 midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
                                        MidoriBrowser* browser)
 {
-    GtkWidget* menu = gtk_menu_new ();
-    guint n = katze_array_get_length (browser->trash);
+    GtkWidget* menu;
+    guint i, n;
+    KatzeXbelItem* item;
+    const gchar* title;
+    const gchar* uri;
     GtkWidget* menuitem;
-    guint i;
+    GtkWidget* icon;
+    GtkAction* action;
+
+    menu = gtk_menu_new ();
+    n = katze_array_get_length (browser->trash);
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = katze_array_get_nth_item (browser->trash, i);
-        const gchar* title = katze_xbel_item_get_title (item);
-        const gchar* uri = katze_xbel_bookmark_get_href (item);
-        menuitem = gtk_image_menu_item_new_with_label (title ? title : uri);
+        item = katze_array_get_nth_item (browser->trash, i);
+        title = katze_xbel_item_get_title (item);
+        uri = katze_xbel_bookmark_get_href (item);
+        menuitem = sokoke_image_menu_item_new_ellipsized (title ? title : uri);
         /* FIXME: Get the real icon */
-        GtkWidget* icon = gtk_image_new_from_stock (GTK_STOCK_FILE,
-                                                    GTK_ICON_SIZE_MENU);
+        icon = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "KatzeXbelItem", item);
@@ -1754,8 +1760,7 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    GtkAction* action = gtk_action_group_get_action (browser->action_group,
-                                                     "TrashEmpty");
+    action = gtk_action_group_get_action (browser->action_group, "TrashEmpty");
     menuitem = gtk_action_create_menu_item (action);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -2124,7 +2129,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
                     title = uri;
                 if (!*title)
                     title = uri;
-                menuitem = gtk_image_menu_item_new_with_label (title);
+                menuitem = sokoke_image_menu_item_new_ellipsized (title);
                 /* FIXME: Get the real icon */
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
                     menuitem), gtk_image_new_from_stock (STOCK_NEWS_FEED,
@@ -2403,38 +2408,40 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
                                       KatzeXbelItem* folder,
                                       GtkWidget*     menu)
 {
-    guint n = katze_xbel_folder_get_n_items (folder);
-    guint i;
+    guint i, n;
+    KatzeXbelItem* item;
+    const gchar* title;
+    GtkWidget* menuitem;
+    GtkWidget* submenu;
+    GtkWidget* icon;
+
+    n = katze_xbel_folder_get_n_items (folder);
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (folder, i);
-        const gchar* title = katze_xbel_item_is_separator (item)
+        item = katze_xbel_folder_get_nth_item (folder, i);
+        title = katze_xbel_item_is_separator (item)
             ? "" : katze_xbel_item_get_title (item);
-        /* const gchar* desc = katze_xbel_item_is_separator (item)
-            ? "" : katze_xbel_item_get_desc (item); */
-        GtkWidget* menuitem = NULL;
+
         switch (katze_xbel_item_get_kind (item))
         {
         case KATZE_XBEL_ITEM_KIND_FOLDER:
             /* FIXME: what about katze_xbel_folder_is_folded? */
-            menuitem = gtk_image_menu_item_new_with_label (title);
+            menuitem = sokoke_image_menu_item_new_ellipsized (title);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
                 gtk_image_new_from_stock (GTK_STOCK_DIRECTORY,
                                           GTK_ICON_SIZE_MENU));
-            GtkWidget* _menu = gtk_menu_new ();
-            gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), _menu);
+            submenu = gtk_menu_new ();
+            gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_bookmark_menu_folder_activate_cb),
                 browser);
             g_object_set_data (G_OBJECT (menuitem), "KatzeXbelItem", item);
             break;
         case KATZE_XBEL_ITEM_KIND_BOOKMARK:
-            menuitem = gtk_image_menu_item_new_with_label (title);
-            GtkWidget* image = gtk_image_new_from_stock (STOCK_BOOKMARK,
-                                                         GTK_ICON_SIZE_MENU);
-            gtk_widget_show (image);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
-                                           image);
+            menuitem = sokoke_image_menu_item_new_ellipsized (title);
+            icon = gtk_image_new_from_stock (STOCK_BOOKMARK, GTK_ICON_SIZE_MENU);
+            gtk_widget_show (icon);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
                 browser);
@@ -2444,7 +2451,8 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
             menuitem = gtk_separator_menu_item_new ();
             break;
         default:
-            g_warning ("Unknown xbel item kind");
+            menuitem = NULL;
+            g_warning ("Unknown XBEL item kind");
          }
          gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
          gtk_widget_show (menuitem);
@@ -3567,7 +3575,7 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->find_highlight, "toggled",
                       G_CALLBACK (_find_highlight_toggled), browser);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (browser->find_highlight),
-                               "Highlight Matches");
+                               _("Highlight Matches"));
     gtk_tool_item_set_is_important (GTK_TOOL_ITEM (browser->find_highlight), TRUE);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), browser->find_highlight, -1);
     toolitem = gtk_separator_tool_item_new ();

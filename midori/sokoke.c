@@ -667,6 +667,32 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
 }
 
 /**
+ * sokoke_image_menu_item_new_ellipsized:
+ * @label: the text of the menu item
+ *
+ * Creates a new #GtkImageMenuItem containing an ellipsized label.
+ *
+ * Return value: a new #GtkImageMenuItem
+ **/
+GtkWidget*
+sokoke_image_menu_item_new_ellipsized (const gchar* label)
+{
+    GtkWidget* menuitem;
+    GtkWidget* label_widget;
+
+    menuitem = gtk_image_menu_item_new ();
+    label_widget = gtk_label_new (label);
+    /* FIXME: Should text direction be respected here? */
+    gtk_misc_set_alignment (GTK_MISC (label_widget), 0.0, 0.0);
+    gtk_label_set_max_width_chars (GTK_LABEL (label_widget), 50);
+    gtk_label_set_ellipsize (GTK_LABEL (label_widget), PANGO_ELLIPSIZE_MIDDLE);
+    gtk_widget_show (label_widget);
+    gtk_container_add (GTK_CONTAINER (menuitem), label_widget);
+
+    return menuitem;
+}
+
+/**
  * sokoke_tree_view_get_selected_iter:
  * @tree_view: a #GtkTreeView
  * @model: a pointer to store the model, or %NULL

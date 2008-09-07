@@ -965,7 +965,7 @@ midori_web_view_get_proxy_menu_item (MidoriWebView* web_view)
     if (!web_view->menu_item)
     {
         title = midori_web_view_get_display_title (web_view);
-        web_view->menu_item = gtk_image_menu_item_new_with_label (title);
+        web_view->menu_item = sokoke_image_menu_item_new_ellipsized (title);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (web_view->menu_item),
             gtk_image_new_from_pixbuf (web_view->icon));
 
