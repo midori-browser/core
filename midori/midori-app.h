@@ -60,6 +60,9 @@ gboolean
 midori_app_instance_send_activate (MidoriApp*         app);
 
 gboolean
+midori_app_instance_send_new_browser (MidoriApp*      app);
+
+gboolean
 midori_app_instance_send_uris     (MidoriApp*         app,
                                    gchar**            uris);
 

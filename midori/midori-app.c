@@ -195,6 +195,7 @@ midori_browser_message_received_cb (UniqueApp*         instance,
                                     MidoriApp*         app)
 {
   UniqueResponse response;
+  MidoriBrowser* browser;
   gchar** uris;
 
   switch (command)
@@ -203,6 +204,21 @@ midori_browser_message_received_cb (UniqueApp*         instance,
       gtk_window_set_screen (GTK_WINDOW (app->browser),
                              unique_message_data_get_screen (message));
       gtk_window_present (GTK_WINDOW (app->browser));
+      response = UNIQUE_RESPONSE_OK;
+      break;
+  case UNIQUE_NEW:
+      browser = g_object_new (MIDORI_TYPE_BROWSER,
+                              "settings", app->settings,
+                              "bookmarks", app->bookmarks,
+                              "trash", app->trash,
+                              "search-engines", app->search_engines,
+                              NULL);
+      /* FIXME: Should open the homepage according to settings */
+      midori_browser_add_uri (browser, "about:blank");
+      midori_app_add_browser (app, browser);
+      gtk_window_set_screen (GTK_WINDOW (app->browser),
+                             unique_message_data_get_screen (message));
+      gtk_widget_show (GTK_WIDGET (browser));
       response = UNIQUE_RESPONSE_OK;
       break;
   case UNIQUE_OPEN:
@@ -477,6 +493,33 @@ midori_app_instance_send_activate (MidoriApp* app)
 
     #if HAVE_UNIQUE
     response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
+    if (response == UNIQUE_RESPONSE_OK)
+        return TRUE;
+    #endif
+    return FALSE;
+}
+
+/**
+ * midori_app_instance_send_new_browser:
+ * @app: a #MidoriApp
+ *
+ * Sends a message to an instance of Midori already
+ * running on the default display, asking to open a new browser.
+ *
+ * Return value: %TRUE if the message was sent successfully
+ **/
+gboolean
+midori_app_instance_send_new_browser (MidoriApp* app)
+{
+    #if HAVE_UNIQUE
+    UniqueResponse response;
+    #endif
+
+    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+    g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
+
+    #if HAVE_UNIQUE
+    response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
     if (response == UNIQUE_RESPONSE_OK)
         return TRUE;
     #endif

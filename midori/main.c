@@ -546,10 +546,10 @@ main (int    argc,
     if (midori_app_instance_is_running (app))
     {
         /* TODO: Open as many tabs as we have uris, seperated by pipes */
-        if (argc > 1)
-            result = midori_app_instance_send_uris (app, argv+1);
+        if (uris)
+            result = midori_app_instance_send_uris (app, uris);
         else
-            result = midori_app_instance_send_activate (app);
+            result = midori_app_instance_send_new_browser (app);
 
         if (result)
             return 0;
