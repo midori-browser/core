@@ -469,6 +469,7 @@ main (int    argc,
       char** argv)
 {
     gboolean version;
+    gchar** uris;
     MidoriApp* app;
     gboolean result;
     GError* error;
@@ -476,12 +477,18 @@ main (int    argc,
     {
      { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
+       { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
+       N_("URIs"), NULL },
      { NULL }
     };
     MidoriStartup load_on_startup;
     gchar* homepage;
     KatzeArray* search_engines;
     KatzeXbelItem* bookmarks;
+    guint i;
+    gchar* uri;
+    KatzeXbelItem* item;
+    gchar* uri_ready;
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
@@ -492,8 +499,9 @@ main (int    argc,
 
     /* Parse cli options */
     version = FALSE;
+    uris = NULL;
     error = NULL;
-    if (!gtk_init_with_args (&argc, &argv, _("[URL]"), entries,
+    if (!gtk_init_with_args (&argc, &argv, _("[URIs]"), entries,
                              GETTEXT_PACKAGE, &error))
     {
         if (error->code == G_OPTION_ERROR_UNKNOWN_OPTION)
@@ -653,19 +661,23 @@ main (int    argc,
     }
     g_string_free (error_messages, TRUE);
 
-    /* TODO: Handle any number of separate uris from argv
-       Open as many tabs as we have uris, seperated by pipes */
-    gchar* uri = argc > 1 ? strtok (g_strdup (argv[1]), "|") : NULL;
-    while (uri != NULL)
+    /* Open as many tabs as we have uris, seperated by pipes */
+    i = 0;
+    while (uris && uris[i])
     {
-        KatzeXbelItem* item = katze_xbel_bookmark_new ();
-        gchar* uri_ready = sokoke_magic_uri (uri, NULL);
-        katze_xbel_bookmark_set_href (item, uri_ready);
-        g_free (uri_ready);
-        katze_xbel_folder_append_item (_session, item);
-        uri = strtok (NULL, "|");
+        uri = strtok (g_strdup (uris[i]), "|");
+        while (uri != NULL)
+        {
+            item = katze_xbel_bookmark_new ();
+            uri_ready = sokoke_magic_uri (uri, NULL);
+            katze_xbel_bookmark_set_href (item, uri_ready);
+            g_free (uri_ready);
+            katze_xbel_folder_append_item (_session, item);
+            uri = strtok (NULL, "|");
+        }
+        g_free (uri);
+        i++;
     }
-    g_free (uri);
 
     if (katze_xbel_folder_is_empty (_session))
     {
@@ -686,7 +698,6 @@ main (int    argc,
 
     KatzeArray* trash = katze_array_new (KATZE_TYPE_XBEL_ITEM);
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
-    guint i;
     for (i = 0; i < n; i++)
     {
         KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
@@ -719,7 +730,7 @@ main (int    argc,
         midori_browser_add_xbel_item (browser, item);
     }
     /* FIXME: Switch to the last active page */
-    KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, 0);
+    item = katze_xbel_folder_get_nth_item (_session, 0);
     if (!strcmp (katze_xbel_bookmark_get_href (item), ""))
         midori_browser_activate_action (browser, "Location");
     katze_xbel_item_unref (_session);
