@@ -802,7 +802,7 @@ midori_search_entry_get_dialog (MidoriSearchEntry* search_entry)
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
                                        GTK_RESPONSE_HELP, FALSE);
     sokoke_widget_get_text_size (dialog, "M", &width, &height);
-    gtk_window_set_default_size (GTK_WINDOW (dialog), width * 45, -1);
+    gtk_window_set_default_size (GTK_WINDOW (dialog), width * 42, -1);
     g_signal_connect (dialog, "response",
                       G_CALLBACK (gtk_widget_destroy), dialog);
     /* TODO: Do we want tooltips for explainations or can we omit that?
