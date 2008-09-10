@@ -249,6 +249,8 @@ katze_property_proxy (gpointer     object,
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_FLOAT (pspec)->minimum,
             G_PARAM_SPEC_FLOAT (pspec)->maximum, 1);
+        /* Keep it narrow, 5 + 2 digits are usually fine */
+        gtk_entry_set_width_chars (GTK_ENTRY (widget), 5 + 2);
         gtk_spin_button_set_digits (GTK_SPIN_BUTTON (widget), 2);
         gfloat value;
         g_object_get (object, property, &value, NULL);
@@ -261,6 +263,8 @@ katze_property_proxy (gpointer     object,
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_INT (pspec)->minimum,
             G_PARAM_SPEC_INT (pspec)->maximum, 1);
+        /* Keep it narrow, 5 digits are usually fine */
+        gtk_entry_set_width_chars (GTK_ENTRY (widget), 5);
         gint value;
         g_object_get (object, property, &value, NULL);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
