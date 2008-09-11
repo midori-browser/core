@@ -277,6 +277,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "tooltip", _("Reload the current page"),
                       "sensitive", web_view != NULL, NULL);
         gtk_widget_hide (browser->progressbar);
+        if (!GTK_WIDGET_VISIBLE (browser->statusbar))
+            if (!sokoke_object_get_boolean (browser->settings,
+                "show-navigationbar"))
+                gtk_widget_hide (browser->navigationbar);
     }
     else
     {
@@ -286,8 +290,12 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "tooltip", _("Stop loading the current page"), NULL);
         gtk_widget_show (browser->progressbar);
         if (!GTK_WIDGET_VISIBLE (browser->statusbar))
+        {
+            if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
+                gtk_widget_show (browser->navigationbar);
             g_object_set (_action_by_name (browser, "Location"), "progress",
                 midori_web_view_get_progress (MIDORI_WEB_VIEW (web_view)), NULL);
+        }
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
@@ -2041,7 +2049,8 @@ static void
 _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
+    if (GTK_WIDGET_VISIBLE (browser->statusbar) &&
+        !sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_hide (browser->navigationbar);
 }
 
