@@ -340,7 +340,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_object_get (settings, "user-stylesheet-uri", &user_stylesheet_uri, NULL);
     /* Add the stylesheet uri widget only if there's a value
        Otherwise we prefer to not use it, it is superfluous basically */
-    if (user_stylesheet_uri)
+    if (user_stylesheet_uri && *user_stylesheet_uri)
     {
         label = katze_property_label (settings, "user-stylesheet-uri");
         INDENTED_ADD (label, 0, 1, 3, 4);
