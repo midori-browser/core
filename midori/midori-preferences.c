@@ -357,24 +357,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         FILLED_ADD (hbox, 1, 2, 3, 4);
         g_free (user_stylesheet_uri);
     }
-    if (g_object_class_find_property (G_OBJECT_GET_CLASS (settings), "zoom-step"))
-    {
-        label = katze_property_label (settings, "zoom-step");
-        INDENTED_ADD (label, 0, 1, 4, 5);
-        hbox = gtk_hbox_new (FALSE, 4);
-        entry = katze_property_proxy (settings, "zoom-step", NULL);
-        gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-        FILLED_ADD (hbox, 1, 2, 4, 5);
-    }
-    else
-    {
-        label = gtk_label_new ("Zoom Stepping Value");
-        INDENTED_ADD (label, 0, 1, 4, 5);
-        hbox = gtk_hbox_new (FALSE, 4);
-        entry = gtk_label_new ("Not available in this WebKit version");
-        gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-        FILLED_ADD (hbox, 1, 2, 4, 5);
-    }
     label = katze_property_label (settings, "location-entry-search");
     INDENTED_ADD (label, 0, 1, 5, 6);
     entry = katze_property_proxy (settings, "location-entry-search", NULL);
