@@ -24,6 +24,32 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 
+/**
+ * sokoke_remember_argv0:
+ * @argv0: the contents of argv[0] or %NULL
+ *
+ * Stores or retrieves the value of argv[0].
+ *
+ * Call it with a string for argv0 to store.
+ *
+ * Passing %NULL for argv0 will preserve
+ * a previously stored value.
+ *
+ * Return value: the contents of argv[0] or %NULL
+ **/
+const gchar*
+sokoke_remember_argv0 (const gchar* argv0)
+{
+    static const gchar* remembered_argv0 = NULL;
+
+    if (argv0)
+        remembered_argv0 = argv0;
+
+    g_return_val_if_fail (remembered_argv0 != NULL, NULL);
+
+    return remembered_argv0;
+}
+
 static void
 error_dialog (const gchar* short_message,
               const gchar* detailed_message)
@@ -260,8 +286,9 @@ sokoke_widget_popup (GtkWidget*      widget,
         event_time = gtk_get_current_event_time ();
     }
 
-    if (!gtk_menu_get_attach_widget(menu))
+    if (!gtk_menu_get_attach_widget (menu))
         gtk_menu_attach_to_widget (menu, widget, NULL);
+
 
     if (widget)
     {
@@ -350,7 +377,7 @@ sokoke_superuser_warning_new (void)
         gtk_widget_modify_fg (GTK_WIDGET (label), GTK_STATE_NORMAL,
             &GTK_WIDGET (label)->style->fg[GTK_STATE_SELECTED]);
         gtk_widget_show (label);
-        gtk_container_add (GTK_CONTAINER(hbox), GTK_WIDGET (label));
+        gtk_container_add (GTK_CONTAINER (hbox), GTK_WIDGET (label));
         gtk_widget_show (hbox);
         return hbox;
     }
@@ -399,7 +426,7 @@ sokoke_on_entry_focus_in_event (GtkEntry*      entry,
     if (has_default)
     {
         gtk_entry_set_text (entry, "");
-        g_object_set_data (G_OBJECT(entry), "sokoke_has_default",
+        g_object_set_data (G_OBJECT (entry), "sokoke_has_default",
                            GINT_TO_POINTER (0));
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
                                             PANGO_STYLE_NORMAL);
@@ -418,7 +445,7 @@ sokoke_on_entry_focus_out_event (GtkEntry*      entry,
         const gchar* default_text = (const gchar*)g_object_get_data (
             G_OBJECT (entry), "sokoke_default_text");
         gtk_entry_set_text (entry, default_text);
-        g_object_set_data (G_OBJECT(entry),
+        g_object_set_data (G_OBJECT (entry),
                            "sokoke_has_default", GINT_TO_POINTER (1));
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
                                             PANGO_STYLE_ITALIC);

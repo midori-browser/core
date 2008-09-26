@@ -13,6 +13,7 @@
     #include <config.h>
 #endif
 
+#include "midori-view.h"
 #include "midori-app.h"
 #include "midori-websettings.h"
 #include "midori-browser.h"
@@ -367,25 +368,76 @@ _simple_xml_element (const gchar* name,
 }
 
 static gchar*
-katze_xbel_array_to_xml (KatzeArray* array,
-                         GError**    error)
+katze_item_to_data (KatzeItem* item)
+{
+    gchar* markup;
+
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    markup = NULL;
+    if (KATZE_IS_ARRAY (item))
+    {
+        GString* _markup = g_string_new (NULL);
+        guint n = katze_array_get_length (KATZE_ARRAY (item));
+        guint i;
+        for (i = 0; i < n; i++)
+        {
+            KatzeItem* _item = katze_array_get_nth_item (KATZE_ARRAY (item), i);
+            gchar* item_markup = katze_item_to_data (_item);
+            g_string_append (_markup, item_markup);
+            g_free (item_markup);
+        }
+        /* gchar* folded = item->folded ? NULL : g_strdup_printf (" folded=\"no\""); */
+        gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
+        gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
+        markup = g_strdup_printf ("<folder%s>\n%s%s%s</folder>\n",
+                                  "" /* folded ? folded : "" */,
+                                  title, desc,
+                                  g_string_free (_markup, FALSE));
+        /* g_free (folded); */
+        g_free (title);
+        g_free (desc);
+    }
+    else if (katze_item_get_uri (item))
+    {
+        gchar* href_escaped = g_markup_escape_text (katze_item_get_uri (item), -1);
+        gchar* href = g_strdup_printf (" href=\"%s\"", href_escaped);
+        g_free (href_escaped);
+        gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
+        gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
+        markup = g_strdup_printf ("<bookmark%s>\n%s%s%s</bookmark>\n",
+                                  href,
+                                  title, desc,
+                                  "");
+        g_free (href);
+        g_free (title);
+        g_free (desc);
+    }
+    else
+        markup = g_strdup ("<separator/>\n");
+    return markup;
+}
+
+static gchar*
+katze_array_to_xml (KatzeArray* array,
+                    GError**    error)
 {
     GString* inner_markup;
     guint i, n;
-    KatzeXbelItem* item;
+    KatzeItem* item;
     gchar* item_xml;
     gchar* title;
     gchar* desc;
     gchar* outer_markup;
 
-    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_XBEL_ITEM), NULL);
+    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), NULL);
 
     inner_markup = g_string_new (NULL);
     n = katze_array_get_length (array);
     for (i = 0; i < n; i++)
     {
         item = katze_array_get_nth_item (array, i);
-        item_xml = katze_xbel_item_to_data (item);
+        item_xml = katze_item_to_data (item);
         g_string_append (inner_markup, item_xml);
         g_free (item_xml);
     }
@@ -415,10 +467,10 @@ katze_array_to_file (KatzeArray*  array,
     gchar* data;
     FILE* fp;
 
-    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_XBEL_ITEM), FALSE);
+    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
     g_return_val_if_fail (filename, FALSE);
 
-    if (!(data = katze_xbel_array_to_xml (array, error)))
+    if (!(data = katze_array_to_xml (array, error)))
         return FALSE;
     if (!(fp = fopen (filename, "w")))
     {
@@ -468,6 +520,7 @@ int
 main (int    argc,
       char** argv)
 {
+    guint socket_id;
     gboolean version;
     gchar** uris;
     MidoriApp* app;
@@ -475,12 +528,16 @@ main (int    argc,
     GError* error;
     GOptionEntry entries[] =
     {
-     { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
+       { "id", 'i', 0, G_OPTION_ARG_INT, &socket_id,
+       N_("Internal identifier"), NULL },
+       { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("URIs"), NULL },
      { NULL }
     };
+    GtkWidget* view;
+    GtkWidget* plug;
     MidoriStartup load_on_startup;
     gchar* homepage;
     KatzeArray* search_engines;
@@ -498,6 +555,7 @@ main (int    argc,
     g_set_application_name (_("Midori"));
 
     /* Parse cli options */
+    socket_id = 0;
     version = FALSE;
     uris = NULL;
     error = NULL;
@@ -507,6 +565,22 @@ main (int    argc,
         g_print ("%s - %s\n", _("Midori"), error->message);
         g_error_free (error);
         return 1;
+    }
+
+    stock_items_init ();
+
+    if (socket_id)
+    {
+        /* If an ID was specified we create a view in a plug.
+           This allows us to open views in separate processes. */
+        view = g_object_new (MIDORI_TYPE_VIEW, "socket-id", socket_id, NULL);
+        gtk_widget_show (view);
+        plug = gtk_plug_new (socket_id);
+        gtk_container_add (GTK_CONTAINER (plug), view);
+        g_signal_connect (plug, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+        gtk_widget_show (plug);
+        gtk_main ();
+        return 0;
     }
 
     if (version)
@@ -538,6 +612,8 @@ main (int    argc,
         printf ("%s - Exception: %s\n", argv[1], exception);
         return 1;
     }
+
+    sokoke_remember_argv0 (argv[0]);
 
     app = midori_app_new ();
     if (midori_app_instance_is_running (app))
@@ -691,14 +767,19 @@ main (int    argc,
     }
     g_free (config_path);
 
-    stock_items_init ();
-
-    KatzeArray* trash = katze_array_new (KATZE_TYPE_XBEL_ITEM);
+    KatzeArray* trash = katze_array_new (KATZE_TYPE_ITEM);
     guint n = katze_xbel_folder_get_n_items (xbel_trash);
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (xbel_trash, i);
-        katze_array_add_item (trash, item);
+        KatzeXbelItem* xbel_item = katze_xbel_folder_get_nth_item (xbel_trash, i);
+        if (!katze_xbel_item_is_separator (xbel_item))
+        {
+            KatzeItem* item = g_object_new (KATZE_TYPE_ITEM,
+                "name", katze_xbel_item_get_title (xbel_item),
+                "uri", katze_xbel_bookmark_get_href (xbel_item),
+                NULL);
+            katze_array_add_item (trash, item);
+        }
     }
     katze_xbel_item_unref (xbel_trash);
     g_signal_connect_after (trash, "add-item",
@@ -719,7 +800,7 @@ main (int    argc,
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
-    KatzeArray* session = midori_browser_get_proxy_xbel_array (browser);
+    KatzeArray* session = midori_browser_get_proxy_array (browser);
     n = katze_xbel_folder_get_n_items (_session);
     for (i = 0; i < n; i++)
     {

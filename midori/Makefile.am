@@ -28,7 +28,8 @@ midori_SOURCES = \
     midori-panel.c         midori-panel.h         \
     midori-addons.c        midori-addons.h        \
     midori-console.c       midori-console.h       \
-    midori-webview.c       midori-webview.h       \
+    midori-view.c          midori-view.h          \
+    midori-source.c        midori-source.h        \
     midori-websettings.c   midori-websettings.h   \
     midori-preferences.c   midori-preferences.h   \
     midori-searchentry.c   midori-searchentry.h   \

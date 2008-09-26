@@ -56,10 +56,10 @@ struct _MidoriBrowserClass
 
     void
     (*add_tab)                 (MidoriBrowser*       browser,
-                                GtkWidget*           widget);
+                                GtkWidget*           view);
     void
     (*remove_tab)              (MidoriBrowser*       browser,
-                                GtkWidget*           widget);
+                                GtkWidget*           view);
     void
     (*activate_action)         (MidoriBrowser*       browser,
                                 const gchar*         name);
@@ -86,6 +86,10 @@ midori_browser_add_xbel_item          (MidoriBrowser*     browser,
                                        KatzeXbelItem*     xbel_item);
 
 gint
+midori_browser_add_item               (MidoriBrowser*     browser,
+                                       KatzeItem*         item);
+
+gint
 midori_browser_add_uri                (MidoriBrowser*     browser,
                                        const gchar*       uri);
 
@@ -110,11 +114,8 @@ midori_browser_set_current_tab        (MidoriBrowser*     browser,
 GtkWidget*
 midori_browser_get_current_tab        (MidoriBrowser*     browser);
 
-GtkWidget*
-midori_browser_get_current_web_view   (MidoriBrowser*     browser);
-
 KatzeArray*
-midori_browser_get_proxy_xbel_array   (MidoriBrowser*     browser);
+midori_browser_get_proxy_array        (MidoriBrowser*     browser);
 
 void
 midori_browser_quit                   (MidoriBrowser*     browser);

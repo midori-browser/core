@@ -373,6 +373,10 @@ midori_panel_append_page (MidoriPanel* panel,
     g_return_val_if_fail (stock_id != NULL, -1);
     g_return_val_if_fail (label != NULL, -1);
 
+    if (GTK_IS_SCROLLED_WINDOW (child))
+        scrolled = child;
+    else
+    {
     scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
                                     GTK_POLICY_AUTOMATIC,
@@ -389,6 +393,7 @@ midori_panel_append_page (MidoriPanel* panel,
         gtk_container_add (GTK_CONTAINER (widget), child);
     }
     gtk_container_add (GTK_CONTAINER (scrolled), widget);
+    }
     gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
     if (!toolbar)

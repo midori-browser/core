@@ -19,6 +19,9 @@
 /* Many themes need this hack for small toolbars to work */
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
+const gchar*
+sokoke_remember_argv0               (const gchar* argv0);
+
 gboolean
 sokoke_spawn_program                (const gchar* command,
                                      const gchar* argument);
