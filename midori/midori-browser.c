@@ -2462,9 +2462,6 @@ static const GtkActionEntry entries[] = {
  { "BookmarkAdd", STOCK_BOOKMARK_ADD,
    NULL, "<Ctrl>d",
    N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_add_activate) },
- { "BookmarksManage", NULL,
-   N_("_Manage Bookmarks"), "<Ctrl>b",
-   N_("Add, edit and remove bookmarks..."), NULL/*G_CALLBACK (_action_bookmarks_manage_activate)*/ },
  { "BookmarkOpen", GTK_STOCK_OPEN,
    NULL, "",
    N_("Open the selected bookmark"), G_CALLBACK (_action_bookmark_open_activate) },
@@ -2665,7 +2662,6 @@ static const gchar* ui_markup =
    "</menu>"
    "<menu action='Bookmarks'>"
     "<menuitem action='BookmarkAdd'/>"
-    "<menuitem action='BookmarksManage'/>"
     "<separator/>"
     /* Bookmarks shall be appended here */
    "</menu>"
