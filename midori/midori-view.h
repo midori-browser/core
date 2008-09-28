@@ -156,6 +156,24 @@ midori_view_can_view_source            (MidoriView*        view);
 gboolean
 midori_view_can_find                   (MidoriView*        view);
 
+void
+midori_view_unmark_text_matches        (MidoriView*        view);
+
+void
+midori_view_search_text                (MidoriView*        view,
+                                        const gchar*       text,
+                                        gboolean           case_sensitive,
+                                        gboolean           forward);
+
+void
+midori_view_mark_text_matches          (MidoriView*        view,
+                                        const gchar*       text,
+                                        gboolean           case_sensitive);
+
+void
+midori_view_set_highlight_text_matches (MidoriView*        view,
+                                        gboolean           highlight);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

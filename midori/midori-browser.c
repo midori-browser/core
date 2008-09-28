@@ -225,6 +225,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_can_find (MIDORI_VIEW (view)));
     /* _action_set_sensitive (browser, "FindQuick",
         midori_view_can_find (MIDORI_VIEW (view))); */
+    gtk_widget_set_sensitive (GTK_WIDGET (browser->find_highlight),
+        midori_view_can_find (MIDORI_VIEW (view)));
 
     action = gtk_action_group_get_action (browser->action_group, "ReloadStop");
     if (!loading)
@@ -632,6 +634,29 @@ midori_view_new_window_cb (GtkWidget*     view,
     g_signal_emit (browser, signals[NEW_WINDOW], 0, uri);
 }
 
+static void
+midori_view_search_text_cb (GtkWidget*     view,
+                            gboolean       found,
+                            MidoriBrowser* browser)
+{
+    const gchar* text;
+    gboolean case_sensitive;
+    gboolean highlight;
+
+    if (GTK_WIDGET_VISIBLE (browser->find))
+    {
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
+            GTK_ICON_ENTRY_PRIMARY, (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
+        text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
+        case_sensitive = gtk_toggle_tool_button_get_active (
+            GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
+        midori_view_mark_text_matches (MIDORI_VIEW (view), text, case_sensitive);
+        highlight = gtk_toggle_tool_button_get_active (
+            GTK_TOGGLE_TOOL_BUTTON (browser->find_highlight));
+        midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
+    }
+}
+
 static gboolean
 midori_browser_tab_destroy_cb (GtkWidget*     widget,
                                MidoriBrowser* browser)
@@ -723,6 +748,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_new_tab_cb, browser,
                       "signal::new-window",
                       midori_view_new_window_cb, browser,
+                      "signal::search-text",
+                      midori_view_search_text_cb, browser,
                       "signal::add-bookmark",
                       midori_view_add_bookmark_cb, browser,
                       NULL);
@@ -1236,55 +1263,15 @@ _action_select_all_activate (GtkAction*     action,
 }
 
 static void
-_midori_browser_tab_unmark_text_matches (MidoriBrowser* browser,
-                                         GtkWidget*     widget)
-{
-    if (WEBKIT_IS_WEB_VIEW (widget))
-        webkit_web_view_unmark_text_matches (WEBKIT_WEB_VIEW (widget));
-}
-
-static gboolean
-_midori_browser_tab_search_text (MidoriBrowser* browser,
-                                 GtkWidget*     widget,
-                                 const gchar*   text,
-                                 gboolean       case_sensitive,
-                                 gboolean       forward)
-{
-    if (WEBKIT_IS_WEB_VIEW (widget))
-        return webkit_web_view_search_text (WEBKIT_WEB_VIEW (widget),
-            text, case_sensitive, forward, TRUE);
-    return FALSE;
-}
-
-static void
-_midori_browser_tab_mark_text_matches (MidoriBrowser* browser,
-                                       GtkWidget*     widget,
-                                       const gchar*   text,
-                                       gboolean       case_sensitive)
-{
-    if (WEBKIT_IS_WEB_VIEW (widget))
-        webkit_web_view_mark_text_matches (WEBKIT_WEB_VIEW (widget),
-            text, case_sensitive, 0);
-}
-
-static void
-_midori_browser_tab_set_highlight_text_matches (MidoriBrowser* browser,
-                                                GtkWidget*     widget,
-                                                gboolean       highlight)
-{
-    if (WEBKIT_IS_WEB_VIEW (widget))
-        webkit_web_view_set_highlight_text_matches (
-            WEBKIT_WEB_VIEW (widget), highlight);
-}
-
-static void
 _action_find_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    GtkWidget* view;
+
     if (GTK_WIDGET_VISIBLE (browser->find))
     {
-        GtkWidget* widget = midori_browser_get_current_tab (browser);
-        _midori_browser_tab_unmark_text_matches (browser, widget);
+        view = midori_browser_get_current_tab (browser);
+        midori_view_unmark_text_matches (MIDORI_VIEW (view));
         gtk_toggle_tool_button_set_active (
             GTK_TOGGLE_TOOL_BUTTON (browser->find_highlight), FALSE);
         gtk_widget_hide (browser->find);
@@ -1303,26 +1290,18 @@ static void
 _midori_browser_find (MidoriBrowser* browser,
                       gboolean       forward)
 {
-    const gchar* text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
-    const gboolean case_sensitive = gtk_toggle_tool_button_get_active (
+    const gchar* text;
+    gboolean case_sensitive;
+    GtkWidget* view;
+
+    text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
+    case_sensitive = gtk_toggle_tool_button_get_active (
         GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
-    GtkWidget* widget = midori_browser_get_current_tab (browser);
+    view = midori_browser_get_current_tab (browser);
+
     if (GTK_WIDGET_VISIBLE (browser->find))
-        _midori_browser_tab_unmark_text_matches (browser, widget);
-    gboolean found = _midori_browser_tab_search_text (browser, widget,
-        text, case_sensitive, forward);
-    if (GTK_WIDGET_VISIBLE (browser->find))
-    {
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
-                                            GTK_ICON_ENTRY_PRIMARY,
-                                            (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
-        _midori_browser_tab_mark_text_matches (browser, widget,
-                                               text, case_sensitive);
-        const gboolean highlight = gtk_toggle_tool_button_get_active (
-            GTK_TOGGLE_TOOL_BUTTON (browser->find_highlight));
-        _midori_browser_tab_set_highlight_text_matches (browser, widget,
-                                                        highlight);
-    }
+        midori_view_unmark_text_matches (MIDORI_VIEW (view));
+    midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
 }
 
 static void
@@ -1343,10 +1322,12 @@ static void
 _find_highlight_toggled (GtkToggleToolButton* toolitem,
                          MidoriBrowser*       browser)
 {
-    GtkWidget* widget = midori_browser_get_current_tab (browser);
-    const gboolean highlight = gtk_toggle_tool_button_get_active (toolitem);
-    _midori_browser_tab_set_highlight_text_matches (browser, widget,
-                                                    highlight);
+    GtkWidget* view;
+    gboolean highlight;
+
+    view = midori_browser_get_current_tab (browser);
+    highlight = gtk_toggle_tool_button_get_active (toolitem);
+    midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
 }
 
 static void

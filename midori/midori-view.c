@@ -119,6 +119,7 @@ enum {
     CONSOLE_MESSAGE,
     NEW_TAB,
     NEW_WINDOW,
+    SEARCH_TEXT,
     ADD_BOOKMARK,
 
     LAST_SIGNAL
@@ -230,6 +231,17 @@ midori_view_class_init (MidoriViewClass* class)
         g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
+
+    signals[SEARCH_TEXT] = g_signal_new (
+        "search-text",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__BOOLEAN,
+        G_TYPE_NONE, 1,
+        G_TYPE_BOOLEAN);
 
     signals[ADD_BOOKMARK] = g_signal_new (
         "add-bookmark",
@@ -384,7 +396,6 @@ float_to_str (gfloat in)
     out = g_strdup_printf ("%f", in);
     return out;
 }
-
 
 static void
 send_command (MidoriView*  view,
@@ -643,6 +654,16 @@ midori_view_new_window_cb (MidoriView*  view,
 }
 
 static void
+midori_view_search_text_cb (MidoriView*  view,
+                            gboolean     found)
+{
+    if (!midori_view_is_plug (view))
+        return;
+
+    send_command (view, "search-text", int_to_str (found));
+}
+
+static void
 midori_view_add_bookmark_cb (MidoriView*  view,
                              const gchar* uri)
 {
@@ -708,6 +729,10 @@ receive_status (MidoriView*  view,
     {
         g_signal_emit (view, signals[NEW_WINDOW], 0, &command[11]);
     }
+    else if (!strncmp (command, "search-text ", 12))
+    {
+        g_signal_emit (view, signals[SEARCH_TEXT], 0, atoi (&command[12]));
+    }
     else if (!strncmp (command, "add-bookmark ", 13))
     {
         g_signal_emit (view, signals[ADD_BOOKMARK], 0, &command[13]);
@@ -749,6 +774,18 @@ receive_command (MidoriView*  view,
         midori_view_go_forward (view);
     else if (!strncmp (command, "print", 5))
         midori_view_print (view);
+    else if (!strncmp (command, "unmark-matches", 14))
+        midori_view_unmark_text_matches (view);
+    else if (!strncmp (command, "search-text ", 12))
+        /* (forward, case_sensitive, text) => (text, case_sensitive, forward) */
+        midori_view_search_text (view, &command[16],
+            atoi (&command[14]), atoi (&command[12]));
+    else if (!strncmp (command, "mark-matches ", 13))
+        /* (case_sensitive, text) => (text, case_sensitive) */
+        midori_view_mark_text_matches (view, &command[17],
+            atoi (&command[15]));
+    else if (!strncmp (command, "hl-matches ", 11))
+        midori_view_set_highlight_text_matches (view, atoi (&command[11]));
     else if (!strncmp (command, "download-manager ", 17))
     {
         katze_assign (view->download_manager, g_strdup (&command[17]));
@@ -1520,6 +1557,8 @@ midori_view_init (MidoriView* view)
                       midori_view_new_tab_cb, NULL,
                       "signal::new-window",
                       midori_view_new_window_cb, NULL,
+                      "signal::search-text",
+                      midori_view_search_text_cb, NULL,
                       "signal::add-bookmark",
                       midori_view_add_bookmark_cb, NULL,
                       NULL);
@@ -2497,4 +2536,102 @@ midori_view_print (MidoriView* view)
     else
         webkit_web_view_execute_script (
             WEBKIT_WEB_VIEW (view->web_view), "print();");
+}
+
+/**
+ * midori_view_unmark_text_matches
+ * @view: a #MidoriView
+ *
+ * Unmarks the text matches in the view.
+ **/
+void
+midori_view_unmark_text_matches (MidoriView* view)
+{
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    if (midori_view_is_socket (view))
+        send_command (view, "unmark-matches", NULL);
+    else
+        webkit_web_view_unmark_text_matches (WEBKIT_WEB_VIEW (view->web_view));
+}
+
+/**
+ * midori_view_search_text
+ * @view: a #MidoriView
+ * @text: a string
+ * @case_sensitive: case sensitivity
+ * @forward: whether to search forward
+ *
+ * Searches a text within the view.
+ **/
+void
+midori_view_search_text (MidoriView*  view,
+                         const gchar* text,
+                         gboolean     case_sensitive,
+                         gboolean     forward)
+{
+    gchar* data;
+
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    if (midori_view_is_socket (view))
+    {
+        /* (text, case_sensitive, forward) => (forward, case_sensitive, text) */
+        data = g_strdup_printf ("%d %d %s", forward, case_sensitive, text);
+        send_command (view, "search-text", data);
+        g_free (data);
+    }
+    else
+        g_signal_emit (view, signals[SEARCH_TEXT], 0,
+            webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
+                text, case_sensitive, forward, TRUE));
+}
+
+/**
+ * midori_view_mark_text_matches
+ * @view: a #MidoriView
+ * @text: a string
+ * @case_sensitive: case sensitivity
+ *
+ * Marks all text matches within the view.
+ **/
+void
+midori_view_mark_text_matches (MidoriView*  view,
+                               const gchar* text,
+                               gboolean     case_sensitive)
+{
+    gchar* data;
+
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    if (midori_view_is_socket (view))
+    {
+        /* (text, case_sensitive) => (case_sensitive, text) */
+        data = g_strdup_printf ("%d %s", case_sensitive, text);
+        send_command (view, "mark-matches", data);
+        g_free (data);
+    }
+    else
+        webkit_web_view_mark_text_matches (WEBKIT_WEB_VIEW (view->web_view),
+            text, case_sensitive, 0);
+}
+
+/**
+ * midori_view_set_highlight_text_matches
+ * @view: a #MidoriView
+ * @highlight: whether to highlight matches
+ *
+ * Whether to highlight all matches within the view.
+ **/
+void
+midori_view_set_highlight_text_matches (MidoriView* view,
+                                        gboolean    highlight)
+{
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    if (midori_view_is_socket (view))
+        send_command (view, "hl-matches", int_to_str (highlight));
+    else
+        webkit_web_view_set_highlight_text_matches (
+            WEBKIT_WEB_VIEW (view->web_view), highlight);
 }
