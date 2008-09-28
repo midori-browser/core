@@ -57,6 +57,8 @@ struct _MidoriView
     gboolean can_copy_clipboard;
     gboolean can_paste_clipboard;
     gfloat zoom_level;
+    gboolean can_go_back;
+    gboolean can_go_forward;
     MidoriWebSettings* settings;
     GtkWidget* web_view;
     gboolean window_object_cleared;
@@ -564,7 +566,8 @@ static void
 midori_view_notify_load_status_cb (MidoriView* view,
                                    GParamSpec  pspec)
 {
-    g_object_get (G_OBJECT (view), "load-status", &view->load_status, NULL);
+    view->can_go_back = midori_view_can_go_back (view);
+    view->can_go_forward = midori_view_can_go_forward (view);
 
     if (midori_view_is_socket (view))
     {
@@ -574,7 +577,11 @@ midori_view_notify_load_status_cb (MidoriView* view,
     }
 
     if (midori_view_is_plug (view))
+    {
         send_command (view, "load-status", int_to_str (view->load_status));
+        send_command (view, "can-go-back", int_to_str (view->can_go_back));
+        send_command (view, "can-go-forward", int_to_str (view->can_go_forward));
+    }
 
     if (!midori_view_is_plug (view))
         if (view->load_status == MIDORI_LOAD_COMMITTED)
@@ -585,8 +592,6 @@ static void
 midori_view_notify_progress_cb (MidoriView* view,
                                 GParamSpec  pspec)
 {
-    g_object_get (G_OBJECT (view), "progress", &view->progress, NULL);
-
     if (midori_view_is_plug (view))
         send_command (view, "progress", float_to_str (view->progress));
 }
@@ -674,6 +679,14 @@ receive_status (MidoriView*  view,
     {
         view->zoom_level = atof (&command[11]);
         g_object_notify (G_OBJECT (view), "zoom-level");
+    }
+    else if (!strncmp (command, "can-go-back ", 12))
+    {
+        view->can_go_back = atoi (&command[12]);
+    }
+    else if (!strncmp (command, "can-go-forward ", 15))
+    {
+        view->can_go_forward = atoi (&command[15]);
     }
     else if (!strncmp (command, "statusbar-text ", 15))
     {
@@ -2347,8 +2360,6 @@ midori_view_can_##what (MidoriView* view) \
 can_do (zoom_in)
 can_do (zoom_out)
 can_do (reload)
-can_do (go_back)
-can_do (go_forward)
 can_do (print)
 #if HAVE_GIO
     can_do (view_source)
@@ -2399,6 +2410,25 @@ midori_view_stop_loading (MidoriView* view)
 }
 
 /**
+ * midori_view_can_go_back
+ * @view: a #MidoriView
+ *
+ * Determines whether the view can go back.
+ **/
+gboolean
+midori_view_can_go_back (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
+    if (midori_view_is_socket (view))
+        return view->can_go_back;
+    else if (view->web_view)
+        return webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (view->web_view));
+    else
+        return FALSE;
+}
+
+/**
  * midori_view_go_back
  * @view: a #MidoriView
  *
@@ -2413,6 +2443,25 @@ midori_view_go_back (MidoriView* view)
         send_command (view, "go-back", NULL);
     else
         webkit_web_view_go_back (WEBKIT_WEB_VIEW (view->web_view));
+}
+
+/**
+ * midori_view_can_go_forward
+ * @view: a #MidoriView
+ *
+ * Determines whether the view can go forward.
+ **/
+gboolean
+midori_view_can_go_forward (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
+    if (midori_view_is_socket (view))
+        return view->can_go_forward;
+    else if (view->web_view)
+        return webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (view->web_view));
+    else
+        return FALSE;
 }
 
 /**
