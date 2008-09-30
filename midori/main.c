@@ -538,6 +538,8 @@ main (int    argc,
     };
     GtkWidget* view;
     GtkWidget* plug;
+    JSGlobalContextRef js_context;
+    gchar* exception;
     MidoriStartup load_on_startup;
     gchar* homepage;
     KatzeArray* search_engines;
@@ -601,15 +603,15 @@ main (int    argc,
     }
 
     /* Standalone gjs support */
-    if (argc > 1 && argv[1] && g_str_has_suffix (argv[1], ".js"))
+    if (uris && uris[0] && g_str_has_suffix (uris[0], ".js"))
     {
-        JSGlobalContextRef js_context = gjs_global_context_new ();
-        gchar* exception = NULL;
-        gjs_script_from_file (js_context, argv[1], &exception);
+        js_context = gjs_global_context_new ();
+        exception = NULL;
+        gjs_script_from_file (js_context, uris[0], &exception);
         JSGlobalContextRelease (js_context);
         if (!exception)
             return 0;
-        printf ("%s - Exception: %s\n", argv[1], exception);
+        printf ("%s - Exception: %s\n", uris[0], exception);
         return 1;
     }
 
@@ -823,7 +825,7 @@ main (int    argc,
         (GWeakNotify)(midori_browser_weak_notify_cb), browser);
 
     /* Load extensions */
-    JSGlobalContextRef js_context = gjs_global_context_new ();
+    js_context = gjs_global_context_new ();
     /* FIXME: We want to honor system installed addons as well */
     gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
                                           "extensions", NULL);
