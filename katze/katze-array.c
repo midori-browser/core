@@ -19,7 +19,7 @@
 /**
  * SECTION:katze-array
  * @short_description: A type aware item container
- * @see_also: #KatzeArray
+ * @see_also: #KatzeList
  *
  * #KatzeArray is a type aware container for items.
  */
@@ -46,7 +46,11 @@ _katze_array_add_item (KatzeList* list,
                        gpointer   item)
 {
     if (katze_array_is_a ((KatzeArray*)list, G_TYPE_OBJECT))
+    {
         g_object_ref (item);
+        if (KATZE_IS_ITEM (item))
+            katze_item_set_parent (item, list);
+    }
     KATZE_LIST_CLASS (katze_array_parent_class)->add_item (list, item);
 }
 
@@ -56,7 +60,11 @@ _katze_array_remove_item (KatzeList* list,
 {
     KATZE_LIST_CLASS (katze_array_parent_class)->remove_item (list, item);
     if (katze_array_is_a ((KatzeArray*)list, G_TYPE_OBJECT))
+    {
+        if (KATZE_IS_ITEM (item))
+            katze_item_set_parent (item, NULL);
         g_object_unref (item);
+    }
 }
 
 static void
@@ -149,6 +157,8 @@ katze_array_is_a (KatzeArray* array,
  * @item: a #GObject
  *
  * Adds an item to the array.
+ *
+ * If @item is a #KatzeItem its parent is set accordingly.
  **/
 void
 katze_array_add_item (KatzeArray* array,
@@ -167,6 +177,8 @@ katze_array_add_item (KatzeArray* array,
  * @item: a #GObject
  *
  * Removes an item from the array.
+ *
+ * If @item is a #KatzeItem its parent is unset accordingly.
  **/
 void
 katze_array_remove_item (KatzeArray* array,

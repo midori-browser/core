@@ -82,10 +82,6 @@ midori_browser_remove_tab             (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
 
 gint
-midori_browser_add_xbel_item          (MidoriBrowser*     browser,
-                                       KatzeXbelItem*     xbel_item);
-
-gint
 midori_browser_add_item               (MidoriBrowser*     browser,
                                        KatzeItem*         item);
 

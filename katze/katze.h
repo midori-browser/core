@@ -17,6 +17,5 @@
 #include "katze-item.h"
 #include "katze-list.h"
 #include "katze-array.h"
-#include "katze-xbel.h"
 
 #endif /* __KATZE_H__ */

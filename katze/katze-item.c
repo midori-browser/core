@@ -374,3 +374,41 @@ katze_item_set_token (KatzeItem*   item,
     katze_assign (item->token, g_strdup (token));
     g_object_notify (G_OBJECT (item), "token");
 }
+
+/**
+ * katze_item_get_parent:
+ * @item: a #KatzeItem
+ *
+ * Determines the parent of @item.
+ *
+ * Return value: the parent of the item
+ **/
+gpointer
+katze_item_get_parent (KatzeItem* item)
+{
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    return item->parent;
+}
+
+/**
+ * katze_item_set_parent:
+ * @item: a #KatzeItem
+ * @parent: the new parent
+ *
+ * Sets the parent of @item.
+ *
+ * This is intended for item container implementations and
+ * should not be used otherwise.
+ **/
+void
+katze_item_set_parent (KatzeItem* item,
+                       gpointer   parent)
+{
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    if (parent)
+        g_object_ref (parent);
+    katze_object_assign (item->parent, parent);
+    /* g_object_notify (G_OBJECT (item), "parent"); */
+}

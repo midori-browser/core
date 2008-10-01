@@ -25,6 +25,8 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 #if ENABLE_NLS
     #include <libintl.h>
@@ -352,6 +354,216 @@ midori_web_list_add_item_cb (KatzeArray* trash,
     }
 }
 
+static KatzeItem*
+katze_item_from_xmlNodePtr (xmlNodePtr cur)
+{
+    KatzeItem* item;
+    xmlChar* key;
+
+    item = katze_item_new ();
+    key = xmlGetProp (cur, (xmlChar*)"href");
+    katze_item_set_uri (item, (gchar*)key);
+    g_free (key);
+
+    cur = cur->xmlChildrenNode;
+    while (cur)
+    {
+        if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
+        {
+            key = xmlNodeGetContent (cur);
+            katze_item_set_name (item, g_strstrip ((gchar*)key));
+            g_free (key);
+        }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
+        {
+            key = xmlNodeGetContent (cur);
+            katze_item_set_text (item, g_strstrip ((gchar*)key));
+            g_free (key);
+        }
+        cur = cur->next;
+    }
+    return item;
+}
+
+/* Create an array from an xmlNodePtr */
+static KatzeArray*
+katze_array_from_xmlNodePtr (xmlNodePtr cur)
+{
+    KatzeArray* array;
+    xmlChar* key;
+    KatzeItem* item;
+
+    array = katze_array_new (KATZE_TYPE_ARRAY);
+
+    key = xmlGetProp (cur, (xmlChar*)"folded");
+    if (key)
+    {
+        /* if (!g_ascii_strncasecmp ((gchar*)key, "yes", 3))
+            folder->folded = TRUE;
+        else if (!g_ascii_strncasecmp ((gchar*)key, "no", 2))
+            folder->folded = FALSE;
+        else
+            g_warning ("XBEL: Unknown value for folded."); */
+        xmlFree (key);
+    }
+
+    cur = cur->xmlChildrenNode;
+    while (cur)
+    {
+        if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
+        {
+            key = xmlNodeGetContent (cur);
+            katze_item_set_name (KATZE_ITEM (array), g_strstrip ((gchar*)key));
+        }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
+        {
+            key = xmlNodeGetContent (cur);
+            katze_item_set_text (KATZE_ITEM (array), g_strstrip ((gchar*)key));
+        }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
+        {
+            item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
+            katze_array_add_item (array, item);
+        }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
+        {
+            item = katze_item_from_xmlNodePtr (cur);
+            katze_array_add_item (array, item);
+        }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
+        {
+            item = katze_item_new ();
+            katze_array_add_item (array, item);
+        }
+        cur = cur->next;
+    }
+    return array;
+}
+
+/* Loads the contents from an xmlNodePtr into an array. */
+static gboolean
+katze_array_from_xmlDocPtr (KatzeArray* array,
+                            xmlDocPtr   doc)
+{
+    xmlNodePtr cur;
+    xmlChar* version;
+    gchar* value;
+    KatzeItem* item;
+
+    cur = xmlDocGetRootElement (doc);
+    version = xmlGetProp (cur, (xmlChar*)"version");
+    if (xmlStrcmp (version, (xmlChar*)"1.0"))
+        g_warning ("XBEL version is not 1.0.");
+    xmlFree (version);
+
+    value = (gchar*)xmlGetProp (cur, (xmlChar*)"title");
+    katze_item_set_name (KATZE_ITEM (array), value);
+    g_free (value);
+
+    value = (gchar*)xmlGetProp (cur, (xmlChar*)"desc");
+    katze_item_set_text (KATZE_ITEM (array), value);
+    g_free (value);
+
+    if ((cur = xmlDocGetRootElement (doc)) == NULL)
+    {
+        /* Empty document */
+        return FALSE;
+    }
+    if (xmlStrcmp (cur->name, (const xmlChar*)"xbel"))
+    {
+        /* Wrong document kind */
+        return FALSE;
+    }
+    cur = cur->xmlChildrenNode;
+    while (cur)
+    {
+        item = NULL;
+        if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
+            item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
+            item = katze_item_from_xmlNodePtr (cur);
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
+            item = katze_item_new ();
+        /*else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
+            item = katze_xbel_parse_info (xbel, cur);*/
+        if (item)
+            katze_array_add_item (array, item);
+        cur = cur->next;
+    }
+    return TRUE;
+}
+
+#if 0
+static gboolean
+katze_array_from_data (KatzeArray*  array,
+                       const gchar* data,
+                       GError**     error)
+{
+    xmlDocPtr doc;
+
+    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
+    g_return_val_if_fail (data != NULL, FALSE);
+
+    katze_array_clear (array);
+
+    if((doc = xmlParseMemory (data, strlen (data))) == NULL)
+    {
+        /* No valid xml or broken encoding */
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                      _("Malformed document."));
+        return FALSE;
+    }
+    if (!katze_array_from_xmlDocPtr (array, doc))
+    {
+        /* Parsing failed */
+        xmlFreeDoc (doc);
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                      _("Malformed document."));
+        return FALSE;
+    }
+    xmlFreeDoc (doc);
+    return TRUE;
+}
+#endif
+
+static gboolean
+katze_array_from_file (KatzeArray*  array,
+                       const gchar* filename,
+                       GError**     error)
+{
+    xmlDocPtr doc;
+
+    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
+    g_return_val_if_fail (filename != NULL, FALSE);
+
+    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+    {
+        /* File doesn't exist */
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_NOENT,
+                                      _("File not found."));
+        return FALSE;
+    }
+
+    if ((doc = xmlParseFile (filename)) == NULL)
+    {
+        /* No valid xml or broken encoding */
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                      _("Malformed document."));
+        return FALSE;
+    }
+
+    if (!katze_array_from_xmlDocPtr (array, doc))
+    {
+        /* Parsing failed */
+        xmlFreeDoc (doc);
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                      _("Malformed document."));
+        return FALSE;
+    }
+    xmlFreeDoc (doc);
+    return TRUE;
+}
+
 static gchar*
 _simple_xml_element (const gchar* name,
                      const gchar* value)
@@ -510,7 +722,7 @@ midori_browser_session_cb (MidoriBrowser* browser,
 
 static void
 midori_browser_weak_notify_cb (MidoriBrowser* browser,
-                               KatzeXbelItem* session)
+                               KatzeArray*    session)
 {
     g_object_disconnect (browser, "any-signal",
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
@@ -543,10 +755,14 @@ main (int    argc,
     MidoriStartup load_on_startup;
     gchar* homepage;
     KatzeArray* search_engines;
-    KatzeXbelItem* bookmarks;
-    guint i;
+    KatzeArray* bookmarks;
+    KatzeArray* _session;
+    KatzeArray* trash;
+    MidoriBrowser* browser;
+    KatzeArray* session;
+    guint n, i;
     gchar* uri;
-    KatzeXbelItem* item;
+    KatzeItem* item;
     gchar* uri_ready;
 
     #if ENABLE_NLS
@@ -658,9 +874,9 @@ main (int    argc,
     }
     katze_assign (config_file, g_build_filename (config_path, "bookmarks.xbel",
                                                  NULL));
-    bookmarks = katze_xbel_folder_new ();
+    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     error = NULL;
-    if (!katze_xbel_folder_from_file (bookmarks, config_file, &error))
+    if (!katze_array_from_file (bookmarks, config_file, &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
@@ -668,13 +884,13 @@ main (int    argc,
         g_error_free (error);
     }
     g_free (config_file);
-    KatzeXbelItem* _session = katze_xbel_folder_new ();
+    _session = katze_array_new (KATZE_TYPE_ITEM);
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
     if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         config_file = g_build_filename (config_path, "session.xbel", NULL);
         error = NULL;
-        if (!katze_xbel_folder_from_file (_session, config_file, &error))
+        if (!katze_array_from_file (_session, config_file, &error))
         {
             if (error->code != G_FILE_ERROR_NOENT)
                 g_string_append_printf (error_messages,
@@ -684,9 +900,9 @@ main (int    argc,
         g_free (config_file);
     }
     config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
-    KatzeXbelItem* xbel_trash = katze_xbel_folder_new ();
+    trash = katze_array_new (KATZE_TYPE_ITEM);
     error = NULL;
-    if (!katze_xbel_folder_from_file (xbel_trash, config_file, &error))
+    if (!katze_array_from_file (trash, config_file, &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
@@ -724,9 +940,9 @@ main (int    argc,
         {
             g_object_unref (settings);
             g_object_unref (search_engines);
-            katze_xbel_item_unref (bookmarks);
-            katze_xbel_item_unref (_session);
-            katze_xbel_item_unref (xbel_trash);
+            g_object_unref (bookmarks);
+            g_object_unref (_session);
+            g_object_unref (trash);
             g_string_free (error_messages, TRUE);
             return 0;
         }
@@ -743,47 +959,32 @@ main (int    argc,
         uri = strtok (g_strdup (uris[i]), "|");
         while (uri != NULL)
         {
-            item = katze_xbel_bookmark_new ();
+            item = katze_item_new ();
             uri_ready = sokoke_magic_uri (uri, NULL);
-            katze_xbel_bookmark_set_href (item, uri_ready);
+            katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
-            katze_xbel_folder_append_item (_session, item);
+            katze_array_add_item (_session, item);
             uri = strtok (NULL, "|");
         }
         g_free (uri);
         i++;
     }
 
-    if (katze_xbel_folder_is_empty (_session))
+    if (katze_array_is_empty (_session))
     {
-        KatzeXbelItem* item = katze_xbel_bookmark_new ();
+        item = katze_item_new ();
         if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
-            katze_xbel_bookmark_set_href (item, "");
+            katze_item_set_uri (item, "");
         else
         {
             g_object_get (settings, "homepage", &homepage, NULL);
-            katze_xbel_bookmark_set_href (item, homepage);
+            katze_item_set_uri (item, homepage);
             g_free (homepage);
         }
-        katze_xbel_folder_prepend_item (_session, item);
+        katze_array_add_item (_session, item);
     }
     g_free (config_path);
 
-    KatzeArray* trash = katze_array_new (KATZE_TYPE_ITEM);
-    guint n = katze_xbel_folder_get_n_items (xbel_trash);
-    for (i = 0; i < n; i++)
-    {
-        KatzeXbelItem* xbel_item = katze_xbel_folder_get_nth_item (xbel_trash, i);
-        if (!katze_xbel_item_is_separator (xbel_item))
-        {
-            KatzeItem* item = g_object_new (KATZE_TYPE_ITEM,
-                "name", katze_xbel_item_get_title (xbel_item),
-                "uri", katze_xbel_bookmark_get_href (xbel_item),
-                NULL);
-            katze_array_add_item (trash, item);
-        }
-    }
-    katze_xbel_item_unref (xbel_trash);
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_web_list_add_item_cb), NULL);
 
@@ -793,27 +994,27 @@ main (int    argc,
                        "search-engines", search_engines,
                        NULL);
 
-    MidoriBrowser* browser = g_object_new (MIDORI_TYPE_BROWSER,
-                                           "settings", settings,
-                                           "bookmarks", bookmarks,
-                                           "trash", trash,
-                                           "search-engines", search_engines,
-                                           NULL);
+    browser = g_object_new (MIDORI_TYPE_BROWSER,
+                            "settings", settings,
+                            "bookmarks", bookmarks,
+                            "trash", trash,
+                            "search-engines", search_engines,
+                            NULL);
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
-    KatzeArray* session = midori_browser_get_proxy_array (browser);
-    n = katze_xbel_folder_get_n_items (_session);
+    session = midori_browser_get_proxy_array (browser);
+    n = katze_array_get_length (_session);
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (_session, i);
-        midori_browser_add_xbel_item (browser, item);
+        item = katze_array_get_nth_item (_session, i);
+        midori_browser_add_item (browser, item);
     }
     /* FIXME: Switch to the last active page */
-    item = katze_xbel_folder_get_nth_item (_session, 0);
-    if (!strcmp (katze_xbel_bookmark_get_href (item), ""))
+    item = katze_array_get_nth_item (_session, 0);
+    if (!strcmp (katze_item_get_uri (item), ""))
         midori_browser_activate_action (browser, "Location");
-    katze_xbel_item_unref (_session);
+    g_object_unref (_session);
 
     g_signal_connect_after (browser, "notify::uri",
         G_CALLBACK (midori_browser_session_cb), session);
@@ -870,12 +1071,12 @@ main (int    argc,
     g_free (config_file);
     config_file = g_build_filename (config_path, "bookmarks.xbel", NULL);
     error = NULL;
-    if (!katze_xbel_folder_to_file (bookmarks, config_file, &error))
+    if (!katze_array_to_file (bookmarks, config_file, &error))
     {
         g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
-    katze_xbel_item_unref (bookmarks);
+    g_object_unref (bookmarks);
     g_free (config_file);
     config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
     error = NULL;

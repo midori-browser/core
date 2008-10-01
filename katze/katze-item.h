@@ -41,6 +41,8 @@ struct _KatzeItem
     gchar* uri;
     gchar* icon;
     gchar* token;
+
+    KatzeItem* parent;
 };
 
 struct _KatzeItemClass
@@ -88,6 +90,13 @@ katze_item_get_token              (KatzeItem*      item);
 void
 katze_item_set_token              (KatzeItem*      item,
                                    const gchar*    token);
+
+gpointer
+katze_item_get_parent             (KatzeItem*      item);
+
+void
+katze_item_set_parent             (KatzeItem*      item,
+                                   gpointer        parent);
 
 G_END_DECLS
 

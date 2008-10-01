@@ -32,7 +32,7 @@ struct _MidoriApp
     GtkAccelGroup* accel_group;
 
     MidoriWebSettings* settings;
-    KatzeXbelItem* bookmarks;
+    KatzeArray* bookmarks;
     KatzeArray* trash;
     KatzeArray* search_engines;
 
@@ -134,7 +134,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "bookmarks",
                                      _("Bookmarks"),
                                      _("The bookmarks folder, containing all bookmarks"),
-                                     KATZE_TYPE_XBEL_ITEM,
+                                     KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,

@@ -72,7 +72,7 @@ struct _MidoriBrowser
 
     gchar* statusbar_text;
     MidoriWebSettings* settings;
-    KatzeXbelItem* bookmarks;
+    KatzeArray* bookmarks;
 
     KatzeArray* proxy_array;
     KatzeArray* trash;
@@ -458,10 +458,25 @@ midori_view_notify_statusbar_text_cb (MidoriView*    view,
 
 static void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
-                                         KatzeXbelItem* bookmark)
+                                         KatzeItem*     bookmark)
 {
-    gboolean new_bookmark = !bookmark;
-    GtkWidget* dialog = gtk_dialog_new_with_buttons (
+    gboolean new_bookmark;
+    GtkWidget* dialog;
+    GtkSizeGroup* sizegroup;
+    GtkWidget* view;
+    GtkWidget* hbox;
+    GtkWidget* label;
+    const gchar* value;
+    GtkWidget* entry_title;
+    GtkWidget* entry_desc;
+    GtkWidget* entry_uri;
+    GtkWidget* combo_folder;
+    GtkTreeView* treeview;
+    GtkTreeModel* treemodel;
+    GtkTreeIter iter;
+
+    new_bookmark = bookmark == NULL;
+    dialog = gtk_dialog_new_with_buttons (
         new_bookmark ? _("New bookmark") : _("Edit bookmark"),
         GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
@@ -472,27 +487,25 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
     gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
-    GtkSizeGroup* sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+    sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     if (new_bookmark)
     {
-        GtkWidget* view = midori_browser_get_current_tab (browser);
-        bookmark = katze_xbel_bookmark_new ();
-        katze_xbel_item_set_title (bookmark,
-            midori_view_get_display_title (MIDORI_VIEW (view)));
-        katze_xbel_bookmark_set_href (bookmark,
-            midori_view_get_display_uri (MIDORI_VIEW (view)));
+        view = midori_browser_get_current_tab (browser);
+        bookmark = g_object_new (KATZE_TYPE_ITEM,
+            "uri", midori_view_get_display_uri (MIDORI_VIEW (view)),
+            "name", midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
     }
 
-    GtkWidget* hbox = gtk_hbox_new (FALSE, 8);
+    hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-    GtkWidget* label = gtk_label_new_with_mnemonic (_("_Title:"));
+    label = gtk_label_new_with_mnemonic (_("_Title:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    GtkWidget* entry_title = gtk_entry_new ();
+    entry_title = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_title), TRUE);
-    const gchar* title = katze_xbel_item_get_title (bookmark);
-    gtk_entry_set_text (GTK_ENTRY (entry_title), title ? title : "");
+    value = katze_item_get_name (bookmark);
+    gtk_entry_set_text (GTK_ENTRY (entry_title), value ? value : "");
     gtk_box_pack_start (GTK_BOX (hbox), entry_title, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
     gtk_widget_show_all (hbox);
@@ -502,19 +515,19 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     label = gtk_label_new_with_mnemonic (_("_Description:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    GtkWidget* entry_desc = gtk_entry_new ();
+    entry_desc = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_desc), TRUE);
     if (!new_bookmark)
     {
-        const gchar* desc = katze_xbel_item_get_desc (bookmark);
-        gtk_entry_set_text (GTK_ENTRY (entry_desc), desc ? desc : "");
+        value = katze_item_get_text (bookmark);
+        gtk_entry_set_text (GTK_ENTRY (entry_desc), value ? value : "");
     }
     gtk_box_pack_start (GTK_BOX (hbox), entry_desc, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
     gtk_widget_show_all (hbox);
 
-    GtkWidget* entry_uri = NULL;
-    if (katze_xbel_item_is_bookmark (bookmark))
+    entry_uri = NULL;
+    if (!KATZE_IS_ARRAY (bookmark))
     {
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
@@ -523,14 +536,13 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         entry_uri = gtk_entry_new ();
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
-        gtk_entry_set_text (GTK_ENTRY (entry_uri),
-                            katze_xbel_bookmark_get_href (bookmark));
+        gtk_entry_set_text (GTK_ENTRY (entry_uri), katze_item_get_uri (bookmark));
         gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
         gtk_widget_show_all (hbox);
     }
 
-    GtkWidget* combo_folder = NULL;
+    combo_folder = NULL;
     if (new_bookmark)
     {
         hbox = gtk_hbox_new (FALSE, 8);
@@ -549,27 +561,26 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
-        katze_xbel_item_set_title (bookmark,
+        katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
-        katze_xbel_item_set_desc (bookmark,
+        katze_item_set_text (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_desc)));
-        if (katze_xbel_item_is_bookmark (bookmark))
-            katze_xbel_bookmark_set_href (bookmark,
+        if (!KATZE_IS_ARRAY (bookmark))
+            katze_item_set_uri (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
 
         /* FIXME: We want to choose a folder */
         if (new_bookmark)
         {
-            katze_xbel_folder_append_item (browser->bookmarks, bookmark);
-            GtkTreeView* treeview = GTK_TREE_VIEW (browser->panel_bookmarks);
-            GtkTreeModel* treemodel = gtk_tree_view_get_model (treeview);
-            GtkTreeIter iter;
+            katze_array_add_item (browser->bookmarks, bookmark);
+            treeview = GTK_TREE_VIEW (browser->panel_bookmarks);
+            treemodel = gtk_tree_view_get_model (treeview);
             gtk_tree_store_insert_with_values (GTK_TREE_STORE (treemodel),
                 &iter, NULL, G_MAXINT, 0, bookmark, -1);
-            katze_xbel_item_ref (bookmark);
+            g_object_ref (bookmark);
         }
 
-        /* FIXME: update navigationbar */
+        /* FIXME: Update navigationbar */
         /* FIXME: Update panel in other windows */
     }
     gtk_widget_destroy (dialog);
@@ -580,13 +591,13 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
                              const gchar* uri,
                              GtkWidget*   view)
 {
-    KatzeXbelItem* xbel_item;
+    KatzeItem* item;
     MidoriBrowser* browser;
 
-    xbel_item = katze_xbel_bookmark_new ();
-    katze_xbel_bookmark_set_href (xbel_item, uri);
+    item = katze_item_new ();
+    katze_item_set_uri (item, uri);
     browser = (MidoriBrowser*)gtk_widget_get_toplevel (menuitem);
-    midori_browser_edit_bookmark_dialog_new (browser, xbel_item);
+    midori_browser_edit_bookmark_dialog_new (browser, item);
 }
 
 static gboolean
@@ -1021,7 +1032,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "bookmarks",
                                      _("Bookmarks"),
                                      _("The bookmarks folder, containing all bookmarks"),
-                                     KATZE_TYPE_XBEL_ITEM,
+                                     KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
     /**
@@ -1726,6 +1737,7 @@ midori_browser_search_focus_out_event_cb (GtkWidget*     widget,
 {
     gboolean show_navigationbar;
     gboolean show_web_search;
+
     g_object_get (browser->settings,
                   "show-navigationbar", &show_navigationbar,
                   "show-web-search", &show_web_search,
@@ -1743,17 +1755,19 @@ midori_panel_bookmarks_row_activated_cb (GtkTreeView*       treeview,
                                          GtkTreeViewColumn* column,
                                          MidoriBrowser*     browser)
 {
-    GtkTreeModel* model = gtk_tree_view_get_model (treeview);
+    GtkTreeModel* model;
     GtkTreeIter iter;
+    KatzeItem* item;
+    const gchar* uri;
+
+    model = gtk_tree_view_get_model (treeview);
+
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
-        KatzeXbelItem* item;
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (katze_xbel_item_is_bookmark (item))
-        {
-            const gchar* uri = katze_xbel_bookmark_get_href (item);
+        uri = katze_item_get_uri (item);
+        if (uri && *uri)
             _midori_browser_open_uri (browser, uri);
-        }
     }
 }
 
@@ -1763,14 +1777,14 @@ midori_panel_bookmarks_cursor_or_row_changed_cb (GtkTreeView*   tree_view,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
     gboolean is_separator;
 
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        is_separator = katze_xbel_item_is_separator (item);
+        is_separator = !KATZE_IS_ARRAY (item) && !katze_item_get_uri (item);
         _action_set_sensitive (browser, "BookmarkEdit", !is_separator);
         _action_set_sensitive (browser, "BookmarkDelete", TRUE);
     }
@@ -1784,14 +1798,16 @@ midori_panel_bookmarks_cursor_or_row_changed_cb (GtkTreeView*   tree_view,
 static void
 _midori_panel_bookmarks_popup (GtkWidget*      widget,
                                GdkEventButton* event,
-                               KatzeXbelItem*  item,
+                               KatzeItem*      item,
                                MidoriBrowser*  browser)
 {
-    gboolean is_bookmark = katze_xbel_item_is_bookmark (item);
+    const gchar* uri;
 
-    _action_set_sensitive (browser, "BookmarkOpen", is_bookmark);
-    _action_set_sensitive (browser, "BookmarkOpenTab", is_bookmark);
-    _action_set_sensitive (browser, "BookmarkOpenWindow", is_bookmark);
+    uri = katze_item_get_uri (item);
+
+    _action_set_sensitive (browser, "BookmarkOpen", uri != NULL);
+    _action_set_sensitive (browser, "BookmarkOpenTab", uri != NULL);
+    _action_set_sensitive (browser, "BookmarkOpenWindow", uri != NULL);
 
     sokoke_widget_popup (widget, GTK_MENU (browser->popup_bookmark),
                          event, SOKOKE_MENU_POSITION_CURSOR);
@@ -1804,7 +1820,9 @@ midori_panel_bookmarks_button_release_event_cb (GtkWidget*      widget,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
+    const gchar* uri;
+    gint n;
 
     if (event->button != 2 && event->button != 3)
         return FALSE;
@@ -1812,11 +1830,14 @@ midori_panel_bookmarks_button_release_event_cb (GtkWidget*      widget,
     if (sokoke_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (event->button == 2 && katze_xbel_item_is_bookmark (item))
+        uri = katze_item_get_uri (item);
+        if (event->button == 2)
         {
-            const gchar* uri = katze_xbel_bookmark_get_href (item);
-            gint n = midori_browser_add_uri (browser, uri);
-            midori_browser_set_current_page (browser, n);
+            if (uri && *uri)
+            {
+                n = midori_browser_add_uri (browser, uri);
+                midori_browser_set_current_page (browser, n);
+            }
         }
         else
             _midori_panel_bookmarks_popup (widget, event, item, browser);
@@ -1831,7 +1852,7 @@ midori_panel_bookmarks_popup_menu_cb (GtkWidget*     widget,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
 
     if (sokoke_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
@@ -1841,21 +1862,23 @@ midori_panel_bookmarks_popup_menu_cb (GtkWidget*     widget,
 }
 
 static void
-_tree_store_insert_folder (GtkTreeStore*  treestore,
-                           GtkTreeIter*   parent,
-                           KatzeXbelItem* folder)
+_tree_store_insert_folder (GtkTreeStore* treestore,
+                           GtkTreeIter*  parent,
+                           KatzeArray*   array)
 {
-    guint n = katze_xbel_folder_get_n_items (folder);
-    guint i;
+    guint n, i;
+    KatzeItem* item;
+    GtkTreeIter iter;
+
+    n = katze_array_get_length (array);
     for (i = 0; i < n; i++)
     {
-        KatzeXbelItem* item = katze_xbel_folder_get_nth_item (folder, i);
-        GtkTreeIter iter;
+        item = katze_array_get_nth_item (array, i);
         gtk_tree_store_insert_with_values (treestore, &iter, parent, n,
                                            0, item, -1);
-        katze_xbel_item_ref (item);
-        if (katze_xbel_item_is_folder (item))
-            _tree_store_insert_folder (treestore, &iter, item);
+        g_object_ref (item);
+        if (KATZE_IS_ARRAY (item))
+            _tree_store_insert_folder (treestore, &iter, KATZE_ARRAY (item));
     }
 }
 
@@ -1866,26 +1889,27 @@ midori_browser_bookmarks_item_render_icon_cb (GtkTreeViewColumn* column,
                                               GtkTreeIter*       iter,
                                               GtkWidget*         treeview)
 {
-    KatzeXbelItem* item;
+    KatzeItem* item;
+    GdkPixbuf* pixbuf;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     if (G_UNLIKELY (!item))
         return;
-    if (G_UNLIKELY (!katze_xbel_item_get_parent (item)))
+    if (G_UNLIKELY (!katze_item_get_parent (item)))
     {
         gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
-        katze_xbel_item_unref (item);
+        g_object_unref (item);
         return;
     }
 
     /* TODO: Would it be better to not do this on every redraw? */
-    GdkPixbuf* pixbuf = NULL;
-    if (katze_xbel_item_is_bookmark (item))
-        pixbuf = gtk_widget_render_icon (treeview, STOCK_BOOKMARK,
-                                         GTK_ICON_SIZE_MENU, NULL);
-    else if (katze_xbel_item_is_folder (item))
+    pixbuf = NULL;
+    if (KATZE_IS_ARRAY (item))
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
+                                         GTK_ICON_SIZE_MENU, NULL);
+    else if (katze_item_get_uri (item))
+        pixbuf = gtk_widget_render_icon (treeview, STOCK_BOOKMARK,
                                          GTK_ICON_SIZE_MENU, NULL);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
     if (pixbuf)
@@ -1899,39 +1923,42 @@ midori_browser_bookmarks_item_render_text_cb (GtkTreeViewColumn* column,
                                               GtkTreeIter*       iter,
                                               GtkWidget*         treeview)
 {
-    KatzeXbelItem* item;
+    KatzeItem* item;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     if (G_UNLIKELY (!item))
         return;
-    if (G_UNLIKELY (!katze_xbel_item_get_parent (item)))
+    if (G_UNLIKELY (!katze_item_get_parent (item)))
     {
         gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
-        katze_xbel_item_unref (item);
+        g_object_unref (item);
         return;
     }
 
-    if (katze_xbel_item_is_separator (item))
-        g_object_set (renderer, "markup", _("<i>Separator</i>"), NULL);
-    else
+    if (KATZE_IS_ARRAY (item) || katze_item_get_uri (item))
         g_object_set (renderer, "markup", NULL,
-                      "text", katze_xbel_item_get_title (item), NULL);
+                      "text", katze_item_get_name (item), NULL);
+    else
+        g_object_set (renderer, "markup", _("<i>Separator</i>"), NULL);
 }
 
 static void
 _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
-                                      KatzeXbelItem* folder,
+                                      KatzeArray*    array,
                                       GtkWidget*     menu);
 
 static void
 midori_browser_bookmark_menu_folder_activate_cb (GtkWidget*     menuitem,
                                                  MidoriBrowser* browser)
 {
-    GtkWidget* menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (menuitem));
+    GtkWidget* menu;
+    KatzeArray* array;
+
+    menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (menuitem));
     gtk_container_foreach (GTK_CONTAINER (menu), (GtkCallback) gtk_widget_destroy, NULL);
-    KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data(G_OBJECT (menuitem), "KatzeXbelItem");
-    _midori_browser_create_bookmark_menu (browser, folder, menu);
+    array = (KatzeArray*)g_object_get_data (G_OBJECT (menuitem), "KatzeArray");
+    _midori_browser_create_bookmark_menu (browser, array, menu);
     /* Remove all menuitems when the menu is hidden.
        FIXME: We really *want* the line below, but it won't work like that
        g_signal_connect_after (menu, "hide", G_CALLBACK (gtk_container_foreach), gtk_widget_destroy); */
@@ -1942,10 +1969,12 @@ static void
 midori_browser_bookmarkbar_folder_activate_cb (GtkToolItem*   toolitem,
                                                MidoriBrowser* browser)
 {
-    GtkWidget* menu = gtk_menu_new ();
-    KatzeXbelItem* folder = (KatzeXbelItem*)g_object_get_data (
-        G_OBJECT (toolitem), "KatzeXbelItem");
-    _midori_browser_create_bookmark_menu (browser, folder, menu);
+    GtkWidget* menu;
+    KatzeArray* array;
+
+    menu = gtk_menu_new ();
+    array = (KatzeArray*)g_object_get_data (G_OBJECT (toolitem), "KatzeArray");
+    _midori_browser_create_bookmark_menu (browser, array, menu);
     /* Remove all menuitems when the menu is hidden.
        FIXME: We really *should* run the line below, but it won't work like that
        g_signal_connect (menu, "hide", G_CALLBACK (gtk_container_foreach),
@@ -1958,35 +1987,34 @@ static void
 midori_browser_menu_bookmarks_item_activate_cb (GtkWidget*     widget,
                                                 MidoriBrowser* browser)
 {
-    KatzeXbelItem* item = (KatzeXbelItem*)g_object_get_data (G_OBJECT (widget),
-                                                             "KatzeXbelItem");
-    _midori_browser_open_uri (browser, katze_xbel_bookmark_get_href (item));
+    KatzeItem* item;
+
+    item = (KatzeItem*)g_object_get_data (G_OBJECT (widget), "KatzeItem");
+    _midori_browser_open_uri (browser, katze_item_get_uri (item));
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
 static void
 _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
-                                      KatzeXbelItem* folder,
+                                      KatzeArray*    array,
                                       GtkWidget*     menu)
 {
     guint i, n;
-    KatzeXbelItem* item;
+    KatzeItem* item;
     const gchar* title;
     GtkWidget* menuitem;
     GtkWidget* submenu;
     GtkWidget* icon;
 
-    n = katze_xbel_folder_get_n_items (folder);
+    n = katze_array_get_length (array);
     for (i = 0; i < n; i++)
     {
-        item = katze_xbel_folder_get_nth_item (folder, i);
-        title = katze_xbel_item_is_separator (item)
-            ? "" : katze_xbel_item_get_title (item);
+        item = katze_array_get_nth_item (array, i);
+        title = katze_item_get_name (item);
 
-        switch (katze_xbel_item_get_kind (item))
+        if (KATZE_IS_ARRAY (item))
         {
-        case KATZE_XBEL_ITEM_KIND_FOLDER:
-            /* FIXME: what about katze_xbel_folder_is_folded? */
+            /* FIXME: what about the "folded" status */
             menuitem = sokoke_image_menu_item_new_ellipsized (title);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
                 gtk_image_new_from_stock (GTK_STOCK_DIRECTORY,
@@ -1996,9 +2024,10 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_bookmark_menu_folder_activate_cb),
                 browser);
-            g_object_set_data (G_OBJECT (menuitem), "KatzeXbelItem", item);
-            break;
-        case KATZE_XBEL_ITEM_KIND_BOOKMARK:
+            g_object_set_data (G_OBJECT (menuitem), "KatzeArray", item);
+        }
+        else if (katze_item_get_uri (item))
+        {
             menuitem = sokoke_image_menu_item_new_ellipsized (title);
             icon = gtk_image_new_from_stock (STOCK_BOOKMARK, GTK_ICON_SIZE_MENU);
             gtk_widget_show (icon);
@@ -2006,15 +2035,10 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
                 browser);
-            g_object_set_data (G_OBJECT (menuitem), "KatzeXbelItem", item);
-            break;
-        case KATZE_XBEL_ITEM_KIND_SEPARATOR:
+            g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
+        }
+        else
             menuitem = gtk_separator_menu_item_new ();
-            break;
-        default:
-            menuitem = NULL;
-            g_warning ("Unknown XBEL item kind");
-         }
          gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
          gtk_widget_show (menuitem);
     }
@@ -2187,15 +2211,16 @@ _action_bookmark_open_activate (GtkAction*     action,
     GtkTreeView* tree_view;
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
+    const gchar* uri;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (katze_xbel_item_is_bookmark (item))
-            _midori_browser_open_uri (browser,
-                katze_xbel_bookmark_get_href (item));
+        uri = katze_item_get_uri (item);
+        if (uri && *uri)
+            _midori_browser_open_uri (browser, uri);
     }
 }
 
@@ -2206,16 +2231,18 @@ _action_bookmark_open_tab_activate (GtkAction*     action,
     GtkTreeView* tree_view;
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
+    const gchar* uri;
     gint n;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (katze_xbel_item_is_bookmark (item))
+        uri = katze_item_get_uri (item);
+        if (uri && *uri)
         {
-            n = midori_browser_add_xbel_item (browser, item);
+            n = midori_browser_add_item (browser, item);
             _midori_browser_set_current_page_smartly (browser, n);
         }
     }
@@ -2228,16 +2255,18 @@ _action_bookmark_open_window_activate (GtkAction*     action,
     GtkTreeView* tree_view;
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
+    const gchar* uri;
     gint n;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (katze_xbel_item_is_bookmark (item))
+        uri = katze_item_get_uri (item);
+        if (uri && *uri)
         {
-            n = midori_browser_add_xbel_item (browser, item);
+            n = midori_browser_add_item (browser, item);
             _midori_browser_set_current_page_smartly (browser, n);
         }
     }
@@ -2250,13 +2279,13 @@ _action_bookmark_edit_activate (GtkAction*     action,
     GtkTreeView* tree_view;
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
+    KatzeItem* item;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (!katze_xbel_item_is_separator (item))
+        /* if (katze_item_get_uri (item)) */
             midori_browser_edit_bookmark_dialog_new (browser, item);
     }
 }
@@ -2293,18 +2322,18 @@ _action_bookmark_delete_activate (GtkAction*     action,
     GtkTreeView* tree_view;
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeXbelItem* item;
-    KatzeXbelItem* parent;
+    KatzeItem* item;
+    KatzeArray* parent;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        parent = katze_xbel_item_get_parent (item);
-        katze_xbel_folder_remove_item (parent, item);
-        /* This is a preliminary hack, until we fix it properly again */
+        parent = katze_item_get_parent (item);
+        katze_array_remove_item (parent, item);
+        /* FIXME: This is a preliminary hack, until we fix it properly again */
         gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-        katze_xbel_item_unref (item);
+        g_object_unref (item);
     }
 }
 
@@ -2982,7 +3011,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_pixbuf;
-    GtkTreeStore* treestore = gtk_tree_store_new (1, KATZE_TYPE_XBEL_ITEM);
+    GtkTreeStore* treestore = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
     GtkWidget* treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
@@ -3364,7 +3393,7 @@ static void
 midori_browser_load_bookmarks (MidoriBrowser* browser)
 {
     guint i, n;
-    KatzeXbelItem* item;
+    KatzeItem* item;
     const gchar* title;
     const gchar* desc;
     GtkToolItem* toolitem;
@@ -3381,17 +3410,15 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
 
     _midori_browser_create_bookmark_menu (browser, browser->bookmarks,
                                           browser->menu_bookmarks);
-    n = katze_xbel_folder_get_n_items (browser->bookmarks);
+    n = katze_array_get_length (browser->bookmarks);
     for (i = 0; i < n; i++)
     {
-        item = katze_xbel_folder_get_nth_item (browser->bookmarks, i);
-        title = katze_xbel_item_is_separator (item)
-         ? "" : katze_xbel_item_get_title (item);
-        desc = katze_xbel_item_is_separator (item)
-         ? "" : katze_xbel_item_get_desc (item);
-        switch (katze_xbel_item_get_kind (item))
+        item = katze_array_get_nth_item (browser->bookmarks, i);
+        title = katze_item_get_name (item);
+        desc = katze_item_get_text (item);
+
+        if (KATZE_IS_ARRAY (item))
         {
-        case KATZE_XBEL_ITEM_KIND_FOLDER:
             toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
             gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
             gtk_tool_item_set_is_important (toolitem, TRUE);
@@ -3400,9 +3427,10 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
                 browser);
             if (desc && *desc)
                 gtk_tool_item_set_tooltip_text (toolitem, desc);
-            g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
-            break;
-        case KATZE_XBEL_ITEM_KIND_BOOKMARK:
+            g_object_set_data (G_OBJECT (toolitem), "KatzeArray", item);
+        }
+        else if (katze_item_get_uri (item))
+        {
             toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK);
             gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
             gtk_tool_item_set_is_important (toolitem, TRUE);
@@ -3411,14 +3439,10 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
                 browser);
             if (desc && *desc)
                 gtk_tool_item_set_tooltip_text (toolitem, desc);
-            g_object_set_data (G_OBJECT (toolitem), "KatzeXbelItem", item);
-            break;
-        case KATZE_XBEL_ITEM_KIND_SEPARATOR:
-            toolitem = gtk_separator_tool_item_new ();
-            break;
-        default:
-            g_warning ("Unknown item kind");
+            g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
         }
+        else
+            toolitem = gtk_separator_tool_item_new ();
         gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), toolitem, -1);
     }
     sokoke_container_show_children (GTK_CONTAINER (browser->bookmarkbar));
@@ -3598,39 +3622,6 @@ midori_browser_remove_tab (MidoriBrowser* browser,
                            GtkWidget*     view)
 {
     g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
-}
-
-/**
- * midori_browser_add_item:
- * @browser: a #MidoriBrowser
- * @xbel_item: an XBEL item
- *
- * Appends a new view as described by @item.
- *
- * Note: Currently this will always be a #MidoriWebView.
- *
- * Return value: the index of the new view, or -1 in case of an error
- **/
-gint
-midori_browser_add_xbel_item (MidoriBrowser* browser,
-                              KatzeXbelItem* item)
-{
-    const gchar* uri;
-    const gchar* title;
-    GtkWidget* view;
-
-    g_return_val_if_fail (katze_xbel_item_is_bookmark (item), -1);
-
-    uri = katze_xbel_bookmark_get_href (item);
-    title = katze_xbel_item_get_title (item);
-    view = g_object_new (MIDORI_TYPE_VIEW,
-                         "title", title,
-                         "settings", browser->settings,
-                         NULL);
-    midori_view_set_uri (MIDORI_VIEW (view), uri);
-    gtk_widget_show (view);
-
-    return midori_browser_add_tab (browser, view);
 }
 
 /**
