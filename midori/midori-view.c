@@ -64,8 +64,20 @@ struct _MidoriView
     gboolean window_object_cleared;
 
     gchar* download_manager;
-    gint tab_label_size;
+    gchar* default_font_family;
+    gint default_font_size;
+    gint minimum_font_size;
+    gchar* default_encoding;
+    gboolean auto_load_images;
+    gboolean auto_shrink_images;
+    gboolean print_backgrounds;
+    gboolean resizable_text_areas;
+    gboolean enable_scripts;
+    gboolean enable_plugins;
+    gboolean middle_click_opens_selection;
+    gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
+    gchar* http_proxy;
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
@@ -86,16 +98,15 @@ GType
 midori_load_status_get_type (void)
 {
     static GType type = 0;
-    if (!type)
-    {
-        static const GEnumValue values[] = {
-         { MIDORI_LOAD_PROVISIONAL, "MIDORI_LOAD_PROVISIONAL", N_("Load Provisional") },
-         { MIDORI_LOAD_COMMITTED, "MIDORI_LOAD_COMMITTED", N_("Load Committed") },
-         { MIDORI_LOAD_FINISHED, "MIDORI_LOAD_FINISHED", N_("Load Finished") },
-         { 0, NULL, NULL }
-        };
-        type = g_enum_register_static ("MidoriLoadStatus", values);
-    }
+    if (type)
+        return type;
+    static const GEnumValue values[] = {
+     { MIDORI_LOAD_PROVISIONAL, "MIDORI_LOAD_PROVISIONAL", N_("Load Provisional") },
+     { MIDORI_LOAD_COMMITTED, "MIDORI_LOAD_COMMITTED", N_("Load Committed") },
+     { MIDORI_LOAD_FINISHED, "MIDORI_LOAD_FINISHED", N_("Load Finished") },
+     { 0, NULL, NULL }
+    };
+    type = g_enum_register_static ("MidoriLoadStatus", values);
     return type;
 }
 
@@ -141,6 +152,42 @@ midori_view_get_property (GObject*    object,
                           guint       prop_id,
                           GValue*     value,
                           GParamSpec* pspec);
+
+static void
+midori_cclosure_marshal_VOID__STRING_BOOLEAN (GClosure*     closure,
+                                              GValue*       return_value,
+                                              guint         n_param_values,
+                                              const GValue* param_values,
+                                              gpointer      invocation_hint,
+                                              gpointer      marshal_data)
+{
+    typedef void(*GMarshalFunc_VOID__STRING_BOOLEAN) (gpointer  data1,
+                                                      gpointer  arg_1,
+                                                      gboolean  arg_2,
+                                                      gpointer  data2);
+    register GMarshalFunc_VOID__STRING_BOOLEAN callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+
+    g_return_if_fail (n_param_values == 3);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_VOID__STRING_BOOLEAN) (marshal_data
+        ? marshal_data : cc->callback);
+    callback (data1,
+              (gchar*)g_value_get_string (param_values + 1),
+              g_value_get_boolean (param_values + 2),
+              data2);
+}
 
 static void
 midori_cclosure_marshal_VOID__STRING_INT_STRING (GClosure*     closure,
@@ -217,9 +264,10 @@ midori_view_class_init (MidoriViewClass* class)
         0,
         0,
         NULL,
-        g_cclosure_marshal_VOID__STRING,
-        G_TYPE_NONE, 1,
-        G_TYPE_STRING);
+        midori_cclosure_marshal_VOID__STRING_BOOLEAN,
+        G_TYPE_NONE, 2,
+        G_TYPE_STRING,
+        G_TYPE_BOOLEAN);
 
     signals[NEW_WINDOW] = g_signal_new (
         "new-window",
@@ -334,7 +382,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      g_param_spec_string (
                                      "statusbar-text",
                                      _("Statusbar Text"),
-                                     _("The text that is displayed in the statusbar"),
+                                     _("The text displayed in the statusbar"),
                                      "",
                                      G_PARAM_READWRITE));
 
@@ -635,12 +683,18 @@ midori_view_console_message_cb (MidoriView*  view,
 
 static void
 midori_view_new_tab_cb (MidoriView*  view,
-                        const gchar* uri)
+                        const gchar* uri,
+                        gboolean     background)
 {
+    gchar* argument;
+
     if (midori_view_is_socket (view))
         return;
 
-    send_command (view, "new-tab", uri);
+    /* (uri, background) => (background, uri) */
+    argument = g_strdup_printf ("%d %s", background, uri);
+    send_command (view, "new-tab", argument);
+    g_free (argument);
 }
 
 static void
@@ -723,7 +777,8 @@ receive_status (MidoriView*  view,
     }
     else if (!strncmp (command, "new-tab ", 8))
     {
-        g_signal_emit (view, signals[NEW_TAB], 0, &command[8]);
+        /* (background, uri) => (uri, background) */
+        g_signal_emit (view, signals[NEW_TAB], 0, &command[10], atoi (&command[8]));
     }
     else if (!strncmp (command, "new-window ", 11))
     {
@@ -756,6 +811,11 @@ receive_status (MidoriView*  view,
     }
 }
 
+#define UPDATE_SETTING(name, value) \
+    g_object_set (webkit_web_view_get_settings ( \
+        WEBKIT_WEB_VIEW (view->web_view)), \
+        name, value, NULL)
+
 static void
 receive_command (MidoriView*  view,
                  const gchar* command)
@@ -786,9 +846,72 @@ receive_command (MidoriView*  view,
             atoi (&command[15]));
     else if (!strncmp (command, "hl-matches ", 11))
         midori_view_set_highlight_text_matches (view, atoi (&command[11]));
-    else if (!strncmp (command, "download-manager ", 17))
+    else if (!strncmp (command, "dlmgr ", 6))
     {
-        katze_assign (view->download_manager, g_strdup (&command[17]));
+        katze_assign (view->download_manager, g_strdup (&command[6]));
+    }
+    else if (!strncmp (command, "dffamily ", 9))
+    {
+        katze_assign (view->default_font_family, g_strdup (&command[9]));
+        UPDATE_SETTING ("default-font-family", view->default_font_family);
+    }
+    else if (!strncmp (command, "dfsize ", 7))
+    {
+        view->default_font_size = atoi (&command[7]);
+        UPDATE_SETTING ("default-font-size", view->default_font_size);
+    }
+    else if (!strncmp (command, "mfsize ", 7))
+    {
+        view->minimum_font_size = atoi (&command[7]);
+        UPDATE_SETTING ("minimum-font-size", view->minimum_font_size);
+    }
+    else if (!strncmp (command, "denc ", 5))
+    {
+        katze_assign (view->default_encoding, g_strdup (&command[5]));
+        UPDATE_SETTING ("default-encoding", view->default_encoding);
+    }
+    else if (!strncmp (command, "alimg ", 6))
+    {
+        view->auto_load_images = atoi (&command[6]);
+        UPDATE_SETTING ("auto-load-images", view->auto_load_images);
+    }
+    else if (!strncmp (command, "asimg ", 6))
+    {
+        view->auto_shrink_images = atoi (&command[6]);
+        UPDATE_SETTING ("auto-shrink-images", view->auto_shrink_images);
+    }
+    else if (!strncmp (command, "pbkg ", 5))
+    {
+        view->print_backgrounds = atoi (&command[5]);
+        UPDATE_SETTING ("print-backgrounds", view->print_backgrounds);
+    }
+    else if (!strncmp (command, "rta ", 4))
+    {
+        view->print_backgrounds = atoi (&command[4]);
+        UPDATE_SETTING ("resizable-text-areas", view->resizable_text_areas);
+    }
+    else if (!strncmp (command, "escripts ", 9))
+    {
+        view->enable_scripts = atoi (&command[9]);
+        UPDATE_SETTING ("enable-scripts", view->enable_scripts);
+    }
+    else if (!strncmp (command, "eplugins ", 9))
+    {
+        view->enable_plugins = atoi (&command[9]);
+        UPDATE_SETTING ("enable-plugins", view->enable_plugins);
+    }
+    else if (!strncmp (command, "mclksel ", 8))
+    {
+        view->middle_click_opens_selection = atoi (&command[8]);
+    }
+    else if (!strncmp (command, "tabsbkg ", 8))
+    {
+        view->open_tabs_in_the_background = atoi (&command[8]);
+    }
+    else if (!strncmp (command, "proxy ", 6))
+    {
+        katze_assign (view->http_proxy, g_strdup (&command[6]));
+        g_setenv ("http_proxy", view->http_proxy ? view->http_proxy : "", TRUE);
     }
     else if (g_str_has_prefix (command, "**"))
         g_print ("%s\n", command);
@@ -970,7 +1093,8 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
             web_frame, js_context, js_window);
     }
 
-    /* value = gjs_value_new (webkit_web_frame_get_global_context (web_frame), NULL);
+    /* js_context = webkit_web_frame_get_global_context (web_frame);
+    value = gjs_value_new (js_context, NULL);
     document = gjs_value_get_by_name (value, "document");
     links = gjs_value_get_elements_by_tag_name (document, "link");
     katze_array_clear (web_view->news_feeds);
@@ -1030,6 +1154,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     gchar* uri;
     gchar* new_uri;
     const gchar* link_uri;
+    gboolean background;
 
     gdk_window_get_pointer (NULL, &x, &y, &state);
     link_uri = midori_view_get_link_uri (MIDORI_VIEW (view));
@@ -1048,14 +1173,10 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         else if (state & GDK_MOD1_MASK)
         {
             /* Open link in new tab */
-            g_signal_emit_by_name (view, "new-tab", link_uri);
-            /* FIXME: Open in the background as appropriate */
-            /* background = sokoke_object_get_boolean (browser->settings,
-                "open-tabs-in-the-background");
+            background = view->open_tabs_in_the_background;
             if (state & GDK_CONTROL_MASK)
                 background = !background;
-            if (background)
-                open_tab_in_the_background */
+            g_signal_emit_by_name (view, "new-tab", link_uri, background);
             return TRUE;
         }
         break;
@@ -1063,14 +1184,10 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         if (link_uri)
         {
             /* Open link in new tab */
-            g_signal_emit_by_name (view, "new-tab", link_uri);
-            /* FIXME: Open in the background as appropriate */
-            /* background = sokoke_object_get_boolean (browser->settings,
-                "open-tabs-in-the-background");
+            background = view->open_tabs_in_the_background;
             if (state & GDK_CONTROL_MASK)
                 background = !background;
-            if (background)
-                open_tab_in_the_background */
+            g_signal_emit_by_name (view, "new-tab", link_uri, background);
             return TRUE;
         }
         else if (state & GDK_CONTROL_MASK)
@@ -1078,7 +1195,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0);
             return FALSE; /* Allow Ctrl + Middle click */
         }
-        else if (TRUE /*middle-click-opens-selection*/)
+        else if (view->middle_click_opens_selection)
         {
             state = (GdkModifierType) event->state;
             clipboard = gtk_clipboard_get_for_display (
@@ -1089,7 +1206,12 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             {
                 new_uri = sokoke_magic_uri (uri, NULL);
                 if (state & GDK_CONTROL_MASK)
-                    g_signal_emit_by_name (view, "new-tab", new_uri);
+                {
+                    background = view->open_tabs_in_the_background;
+                    if (state & GDK_CONTROL_MASK)
+                        background = !background;
+                    g_signal_emit_by_name (view, "new-tab", new_uri, background);
+                }
                 else
                 {
                     midori_view_set_uri (MIDORI_VIEW (view), new_uri);
@@ -1148,7 +1270,8 @@ static void
 midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
 {
-    g_signal_emit (view, signals[NEW_TAB], 0, view->link_uri);
+    g_signal_emit (view, signals[NEW_TAB], 0, view->link_uri,
+        view->open_tabs_in_the_background);
 }
 
 static void
@@ -1537,6 +1660,9 @@ midori_view_init (MidoriView* view)
     view->item = NULL;
 
     view->download_manager = NULL;
+    view->default_font_family = NULL;
+    view->default_encoding = NULL;
+    view->http_proxy = NULL;
 
     g_object_connect (view,
                       "signal::notify::uri",
@@ -1588,7 +1714,8 @@ midori_view_finalize (GObject* object)
 
     g_free (view->download_manager);
 
-    /* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    /* web_frame = webkit_web_view_get_main_frame
+        (WEBKIT_WEB_VIEW (view->web_view));
     g_signal_handlers_disconnect_by_func (web_frame,
         webkit_web_frame_load_done, view); */
 
@@ -1761,17 +1888,12 @@ _update_label_size (GtkWidget* label,
 {
     gint width, height;
 
-    if (size > -1)
-    {
-        sokoke_widget_get_text_size (label, "M", &width, &height);
-        gtk_widget_set_size_request (label, width * size, -1);
-        gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
-    }
-    else
-    {
-        gtk_widget_set_size_request (label, -1, -1);
-        gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_NONE);
-    }
+    if (size < 1)
+        size = 10;
+
+    sokoke_widget_get_text_size (label, "M", &width, &height);
+    gtk_widget_set_size_request (label, width * size, -1);
+    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
 }
 
 static void
@@ -1779,11 +1901,41 @@ _midori_view_update_settings (MidoriView* view)
 {
     g_object_get (view->settings,
         "download-manager", &view->download_manager,
+        "default-font-family", &view->default_font_family,
+        "default-font-size", &view->default_font_size,
+        "minimum-font-size", &view->minimum_font_size,
+        "default-encoding", &view->default_encoding,
+        "auto-load-images", &view->auto_load_images,
+        "auto-shrink-images", &view->auto_shrink_images,
+        "print-backgrounds", &view->print_backgrounds,
+        "resizable-text-areas", &view->resizable_text_areas,
+        "enable-scripts", &view->enable_scripts,
+        "enable-plugins", &view->enable_plugins,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
+        "middle-click-opens-selection", &view->middle_click_opens_selection,
+        "open-tabs-in-the-background", &view->open_tabs_in_the_background,
+        "http-proxy", &view->http_proxy,
         NULL);
 
     if (midori_view_is_socket (view))
-        send_command (view, "download-manager", view->download_manager);
+    {
+        send_command (view, "dlmgr", view->download_manager);
+        send_command (view, "dffamily", view->default_font_family);
+        send_command (view, "dfsize", int_to_str (view->default_font_size));
+        send_command (view, "mfsize", int_to_str (view->minimum_font_size));
+        send_command (view, "denc", view->default_encoding);
+        send_command (view, "alimg", int_to_str (view->auto_load_images));
+        send_command (view, "asimg", int_to_str (view->auto_shrink_images));
+        send_command (view, "pbkg", int_to_str (view->print_backgrounds));
+        send_command (view, "rta", int_to_str (view->resizable_text_areas));
+        send_command (view, "escripts", int_to_str (view->enable_scripts));
+        send_command (view, "eplugins", int_to_str (view->enable_plugins));
+        send_command (view, "mclksel",
+            int_to_str (view->middle_click_opens_selection));
+        send_command (view, "tabsbkg",
+            int_to_str (view->open_tabs_in_the_background));
+        send_command (view, "proxy", view->http_proxy);
+    }
 }
 
 static void
@@ -1802,20 +1954,93 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     {
         katze_assign (view->download_manager, g_value_dup_string (&value));
         if (midori_view_is_socket (view))
-            send_command (view, "download-manager", view->download_manager);
+            send_command (view, "dlmgr", view->download_manager);
     }
-    else if (name == g_intern_string ("tab-label-size"))
+    else if (name == g_intern_string ("default-font-family"))
     {
-        view->tab_label_size = g_value_get_int (&value);
-        if (!midori_view_is_plug (view))
-            _update_label_size (view->tab_title,
-                sokoke_object_get_int (view->settings, "tab-label-size"));
+        katze_assign (view->default_font_family, g_value_dup_string (&value));
+        if (midori_view_is_socket (view))
+            send_command (view, "dffamily", view->default_font_family);
+    }
+    else if (name == g_intern_string ("default-font-size"))
+    {
+        view->default_font_size = g_value_get_int (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "dfsize", int_to_str (view->default_font_size));
+    }
+    else if (name == g_intern_string ("minimum-font-size"))
+    {
+        view->minimum_font_size = g_value_get_int (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "mfsize", int_to_str (view->minimum_font_size));
+    }
+    else if (name == g_intern_string ("default-encoding"))
+    {
+        katze_assign (view->default_encoding, g_value_dup_string (&value));
+        if (midori_view_is_socket (view))
+            send_command (view, "denc", view->default_encoding);
+    }
+    else if (name == g_intern_string ("auto-load-images"))
+    {
+        view->auto_load_images = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "alimg", int_to_str (view->auto_load_images));
+    }
+    else if (name == g_intern_string ("auto-shrink-images"))
+    {
+        view->auto_shrink_images = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "asimg", int_to_str (view->auto_shrink_images));
+    }
+    else if (name == g_intern_string ("print-backgrounds"))
+    {
+        view->print_backgrounds = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "pbkg", int_to_str (view->print_backgrounds));
+    }
+    else if (name == g_intern_string ("resizable-text-areas"))
+    {
+        view->resizable_text_areas = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "rta", int_to_str (view->resizable_text_areas));
+    }
+    else if (name == g_intern_string ("enable-scripts"))
+    {
+        view->enable_scripts = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "escripts", int_to_str (view->enable_scripts));
+    }
+    else if (name == g_intern_string ("enable-plugins"))
+    {
+        view->enable_plugins = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "eplugins", int_to_str (view->enable_plugins));
     }
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {
         view->close_buttons_on_tabs = g_value_get_boolean (&value);
         sokoke_widget_set_visible (view->tab_close,
                                    view->close_buttons_on_tabs);
+    }
+    else if (name == g_intern_string ("middle-click-opens-selection"))
+    {
+        view->middle_click_opens_selection = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "mclksel",
+                int_to_str (view->middle_click_opens_selection));
+    }
+    else if (name == g_intern_string ("open-tabs-in-the-background"))
+    {
+        view->open_tabs_in_the_background = g_value_get_boolean (&value);
+        if (midori_view_is_socket (view))
+            send_command (view, "tabsbkg",
+                int_to_str (view->open_tabs_in_the_background));
+    }
+    else if (name == g_intern_string ("http-proxy"))
+    {
+        katze_assign (view->http_proxy, g_value_dup_string (&value));
+        if (midori_view_is_socket (view))
+            send_command (view, "proxy", view->http_proxy);
     }
 
     g_value_unset (&value);
@@ -1836,7 +2061,6 @@ midori_view_set_settings (MidoriView*        view,
         g_signal_handlers_disconnect_by_func (view->settings,
             midori_view_settings_notify_cb, view);
     katze_object_assign (view->settings, g_object_ref (settings));
-    /* FIXME: Propagate settings to the web view */
     _midori_view_update_settings (view);
     g_signal_connect (settings, "notify",
         G_CALLBACK (midori_view_settings_notify_cb), view);
@@ -2278,9 +2502,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         gtk_misc_set_alignment (GTK_MISC (view->tab_title), 0.0, 0.5);
         /* TODO: make the tab initially look "unvisited" until it's focused */
         gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
-        if (view->settings)
-            _update_label_size (view->tab_title,
-                sokoke_object_get_int (view->settings, "tab-label-size"));
+        _update_label_size (view->tab_title, 10);
 
         view->tab_close = gtk_button_new ();
         gtk_button_set_relief (GTK_BUTTON (view->tab_close), GTK_RELIEF_NONE);

@@ -631,10 +631,12 @@ midori_view_console_message_cb (GtkWidget*     view,
 static void
 midori_view_new_tab_cb (GtkWidget*     view,
                         const gchar*   uri,
+                        gboolean       background,
                         MidoriBrowser* browser)
 {
     gint n = midori_browser_add_uri (browser, uri);
-    _midori_browser_set_current_page_smartly (browser, n);
+    if (!background)
+        midori_browser_set_current_page (browser, n);
 }
 
 static void
@@ -3289,7 +3291,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     MidoriToolbarStyle toolbar_style;
     gint last_web_search;
     gchar* last_pageholder_uri;
-    gint tab_label_size;
     gboolean close_buttons_on_tabs;
 
     g_object_get (browser->settings,
@@ -3309,7 +3310,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "toolbar-style", &toolbar_style,
                   "last-web-search", &last_web_search,
                   "last-pageholder-uri", &last_pageholder_uri,
-                  "tab-label-size", &tab_label_size,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   NULL);
 

@@ -46,7 +46,6 @@ struct _MidoriWebSettings
     gchar* location_entry_search;
     MidoriPreferredEncoding preferred_encoding;
 
-    gint tab_label_size;
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
     gboolean middle_click_opens_selection;
@@ -99,7 +98,6 @@ enum
     PROP_LOCATION_ENTRY_SEARCH,
     PROP_PREFERRED_ENCODING,
 
-    PROP_TAB_LABEL_SIZE,
     PROP_CLOSE_BUTTONS_ON_TABS,
     PROP_OPEN_NEW_PAGES_IN,
     PROP_MIDDLE_CLICK_OPENS_SELECTION,
@@ -442,16 +440,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
 
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_TAB_LABEL_SIZE,
-                                     g_param_spec_int (
-                                     "tab-label-size",
-                                     _("Tab Label Size"),
-                                     _("The desired tab label size"),
-                                     0, G_MAXINT, 10,
-                                     flags));
-
     g_object_class_install_property (gobject_class,
                                      PROP_CLOSE_BUTTONS_ON_TABS,
                                      g_param_spec_boolean (
@@ -597,7 +585,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
 }
 
 static void
-notify_default_encoding_cb (GObject* object, GParamSpec* pspec)
+notify_default_encoding_cb (GObject*    object,
+                            GParamSpec* pspec)
 {
     MidoriWebSettings* web_settings = MIDORI_WEB_SETTINGS (object);
 
@@ -732,9 +721,6 @@ midori_web_settings_set_property (GObject*      object,
         }
         break;
 
-    case PROP_TAB_LABEL_SIZE:
-        web_settings->tab_label_size = g_value_get_int (value);
-        break;
     case PROP_CLOSE_BUTTONS_ON_TABS:
         web_settings->close_buttons_on_tabs = g_value_get_boolean (value);
         break;
@@ -870,9 +856,6 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_enum (value, web_settings->preferred_encoding);
         break;
 
-    case PROP_TAB_LABEL_SIZE:
-        g_value_set_int (value, web_settings->tab_label_size);
-        break;
     case PROP_CLOSE_BUTTONS_ON_TABS:
         g_value_set_boolean (value, web_settings->close_buttons_on_tabs);
         break;
@@ -973,7 +956,6 @@ midori_web_settings_copy (MidoriWebSettings* web_settings)
                   "show-new-tab", web_settings->show_new_tab,
                   "show-trash", web_settings->show_trash,
 
-                  "tab-label-size", web_settings->tab_label_size,
                   "close-buttons-on-tabs", web_settings->close_buttons_on_tabs,
                   "open-new-pages-in", web_settings->open_new_pages_in,
                   "middle-click-opens-selection", web_settings->middle_click_opens_selection,
