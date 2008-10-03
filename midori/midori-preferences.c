@@ -58,22 +58,10 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
                                      PROP_SETTINGS,
                                      g_param_spec_object (
                                      "settings",
-                                     "Settings",
+                                     _("Settings"),
                                      _("Settings instance to provide properties"),
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_WRITABLE));
-}
-
-static void
-clear_button_clicked_cb (GtkWidget* button, GtkWidget* file_chooser)
-{
-    gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (file_chooser), "");
-    /* Emit signal manually for Gtk doesn't emit it otherwise */
-    #if GTK_CHECK_VERSION (2, 12, 0)
-    g_signal_emit_by_name (file_chooser, "file-set");
-    #else
-    g_signal_emit_by_name (file_chooser, "selection-changed");
-    #endif
 }
 
 static void
@@ -226,7 +214,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* entry;
     GtkWidget* hbox;
     gint icon_width, icon_height;
-    gchar* user_stylesheet_uri;
 
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
@@ -337,30 +324,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button, 0, 1, 2, 3);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
     SPANNED_ADD (button, 1, 2, 2, 3);
-    g_object_get (settings, "user-stylesheet-uri", &user_stylesheet_uri, NULL);
-    /* Add the stylesheet uri widget only if there's a value
-       Otherwise we prefer to not use it, it is superfluous basically */
-    if (user_stylesheet_uri && *user_stylesheet_uri)
-    {
-        label = katze_property_label (settings, "user-stylesheet-uri");
-        INDENTED_ADD (label, 0, 1, 3, 4);
-        hbox = gtk_hbox_new (FALSE, 4);
-        entry = katze_property_proxy (settings, "user-stylesheet-uri", "uri");
-        gtk_widget_set_sensitive (entry, FALSE);
-        gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-        button = gtk_button_new ();
-        gtk_container_add (GTK_CONTAINER (button),
-            gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU));
-        g_signal_connect (button, "clicked",
-                          G_CALLBACK (clear_button_clicked_cb), entry);
-        gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 4);
-        FILLED_ADD (hbox, 1, 2, 3, 4);
-        g_free (user_stylesheet_uri);
-    }
     label = katze_property_label (settings, "location-entry-search");
-    INDENTED_ADD (label, 0, 1, 5, 6);
+    INDENTED_ADD (label, 0, 1, 3, 4);
     entry = katze_property_proxy (settings, "location-entry-search", NULL);
-    FILLED_ADD (entry, 1, 2, 5, 6);
+    FILLED_ADD (entry, 1, 2, 3, 4);
 
     /* Page "Interface" */
     PAGE_NEW (_("Interface"));
