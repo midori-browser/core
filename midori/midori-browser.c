@@ -168,13 +168,30 @@ _midori_browser_open_uri (MidoriBrowser* browser,
 }
 
 static void
+_toggle_tabbar_smartly (MidoriBrowser* browser)
+{
+    guint n;
+    gboolean always_show_tabbar;
+
+    n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
+    if (n < 2)
+    {
+        g_object_get (browser->settings, "always-show-tabbar",
+            &always_show_tabbar, NULL);
+        if (always_show_tabbar)
+            n++;
+    }
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), n > 1);
+}
+
+static void
 _midori_browser_update_actions (MidoriBrowser* browser)
 {
     guint n;
     gboolean trash_empty;
 
+    _toggle_tabbar_smartly (browser);
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), n > 1);
     _action_set_sensitive (browser, "TabClose", n > 1);
     _action_set_sensitive (browser, "TabPrevious", n > 1);
     _action_set_sensitive (browser, "TabNext", n > 1);
@@ -695,6 +712,11 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
         midori_browser_tab_destroy_cb, browser);
 
     g_signal_emit (browser, signals[REMOVE_TAB], 0, widget);
+
+    /* We don't ever want to be in a situation with no tabs,
+       so just create an empty one if the last one is closed. */
+    if (!midori_browser_get_current_tab (browser))
+        midori_browser_add_uri (browser, "");
     return FALSE;
 }
 
@@ -3369,6 +3391,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
 
     _midori_browser_set_toolbar_style (browser, toolbar_style);
+    _toggle_tabbar_smartly (browser);
 
     if (browser->search_engines)
     {
@@ -3412,6 +3435,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
 
     if (name == g_intern_string ("toolbar-style"))
         _midori_browser_set_toolbar_style (browser, g_value_get_enum (&value));
+    else if (name == g_intern_string ("always-show-tabbar"))
+        _toggle_tabbar_smartly (browser);
     else if (name == g_intern_string ("show-new-tab"))
         sokoke_widget_set_visible (browser->button_tab_new,
             g_value_get_boolean (&value));

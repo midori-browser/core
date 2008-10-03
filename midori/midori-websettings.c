@@ -34,6 +34,7 @@ struct _MidoriWebSettings
     gboolean show_statusbar;
 
     MidoriToolbarStyle toolbar_style;
+    gboolean always_show_tabbar;
     gboolean show_new_tab;
     gboolean show_homepage;
     gboolean show_web_search;
@@ -86,6 +87,7 @@ enum
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
+    PROP_ALWAYS_SHOW_TABBAR,
     PROP_SHOW_NEW_TAB,
     PROP_SHOW_HOMEPAGE,
     PROP_SHOW_WEB_SEARCH,
@@ -343,6 +345,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_ALWAYS_SHOW_TABBAR,
+                                     g_param_spec_boolean (
+                                     "always-show-tabbar",
+                                     _("Always Show Tabbar"),
+                                     _("Always show the tabbar"),
+                                     FALSE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -669,6 +680,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_STYLE:
         web_settings->toolbar_style = g_value_get_enum (value);
         break;
+    case PROP_ALWAYS_SHOW_TABBAR:
+        web_settings->always_show_tabbar = g_value_get_boolean (value);
+        break;
     case PROP_SHOW_NEW_TAB:
         web_settings->show_new_tab = g_value_get_boolean (value);
         break;
@@ -823,6 +837,9 @@ midori_web_settings_get_property (GObject*    object,
 
     case PROP_TOOLBAR_STYLE:
         g_value_set_enum (value, web_settings->toolbar_style);
+        break;
+    case PROP_ALWAYS_SHOW_TABBAR:
+        g_value_set_boolean (value, web_settings->always_show_tabbar);
         break;
     case PROP_SHOW_NEW_TAB:
         g_value_set_boolean (value, web_settings->show_new_tab);

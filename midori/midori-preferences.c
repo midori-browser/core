@@ -339,18 +339,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Interface" */
     PAGE_NEW (_("Interface"));
     FRAME_NEW (_("Navigationbar"));
-    TABLE_NEW (3, 2);
+    TABLE_NEW (4, 2);
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"), 0, 1, 0, 1);
     button = katze_property_proxy (settings, "toolbar-style", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
-    button = katze_property_proxy (settings, "show-new-tab", NULL);
+    button = katze_property_proxy (settings, "always-show-tabbar", NULL);
     INDENTED_ADD (button, 0, 1, 1, 2);
-    button = katze_property_proxy (settings, "show-web-search", NULL);
-    SPANNED_ADD (button, 1, 2, 1, 2);
-    button = katze_property_proxy (settings, "show-homepage", NULL);
+    button = katze_property_proxy (settings, "show-new-tab", NULL);
     INDENTED_ADD (button, 0, 1, 2, 3);
-    button = katze_property_proxy (settings, "show-trash", NULL);
+    button = katze_property_proxy (settings, "show-web-search", NULL);
     SPANNED_ADD (button, 1, 2, 2, 3);
+    button = katze_property_proxy (settings, "show-homepage", NULL);
+    INDENTED_ADD (button, 0, 1, 3, 4);
+    button = katze_property_proxy (settings, "show-trash", NULL);
+    SPANNED_ADD (button, 1, 2, 3, 4);
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (3, 2);
     /* label = katze_property_label (settings, "open-new-pages-in");
