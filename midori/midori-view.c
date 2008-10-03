@@ -1229,23 +1229,6 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
 }
 
 static gboolean
-gtk_widget_button_release_event_cb (WebKitWebView*  web_view,
-                                    GdkEventButton* event,
-                                    MidoriView*     view)
-{
-    GtkClipboard* clipboard;
-    gchar* text;
-
-    /* Emulate the primary clipboard, which WebKit doesn't support */
-    text = webkit_web_view_get_selected_text (WEBKIT_WEB_VIEW (web_view));
-    clipboard = gtk_clipboard_get_for_display (
-        gtk_widget_get_display (GTK_WIDGET (web_view)), GDK_SELECTION_PRIMARY);
-    gtk_clipboard_set_text (clipboard, text, -1);
-    g_free (text);
-    return FALSE;
-}
-
-static gboolean
 gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
                             GdkEventScroll* event,
                             MidoriView*     view)
@@ -1505,8 +1488,6 @@ midori_view_realize (MidoriView* view)
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::button-press-event",
                       gtk_widget_button_press_event_cb, view,
-                      "signal::button-release-event",
-                      gtk_widget_button_release_event_cb, view,
                       "signal::scroll-event",
                       gtk_widget_scroll_event_cb, view,
                       "signal::populate-popup",
