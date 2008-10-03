@@ -2161,6 +2161,19 @@ midori_view_set_uri (MidoriView*  view,
                     "</body></html>",
                     view->uri, view->uri, view->uri);
             }
+            else if (!strncmp (uri, "error:nodocs ", 13))
+            {
+                katze_assign (view->uri, g_strdup (&uri[13]));
+                data = g_strdup_printf (
+                    "<html><head><title>No documentation installed</title></head>"
+                    "<body><h1>No documentation installed</h1>"
+                    "<p />There is no documentation installed at %s."
+                    "You may want to ask your distribution or "
+                    "package maintainer for it or if this a custom build "
+                    "verify that the build is setup properly."
+                    "</body></html>",
+                    view->uri);
+            }
             if (data)
             {
                 webkit_web_view_load_html_string (

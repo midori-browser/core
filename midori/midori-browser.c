@@ -2088,8 +2088,8 @@ _action_tab_next_activate (GtkAction*     action,
 
 static const gchar* credits_authors[] = {
     "Christian Dywan <christian@twotoasts.de>", NULL };
-static const gchar* credits_documenters/*[]*/ = /*{
-    */NULL/* }*/;
+static const gchar* credits_documenters[] = {
+    "Christian Dywan <christian@twotoasts.de>" };
 static const gchar* credits_artists[] = {
     "Nancy Runge <nancy@twotoasts.de>", NULL };
 
@@ -2100,9 +2100,34 @@ static const gchar* license =
  "version 2.1 of the License, or (at your option) any later version.\n";
 
 static void
+_action_about_activate_link (GtkAboutDialog* about,
+                             const gchar*    link,
+                             gpointer        user_data)
+{
+    MidoriBrowser* browser;
+    gint n;
+
+    browser = MIDORI_BROWSER (user_data);
+    n = midori_browser_add_uri (browser, link);
+    midori_browser_set_current_page (browser, n);
+}
+
+static void
+_action_about_activate_email (GtkAboutDialog* about,
+                              const gchar*    link,
+                              gpointer        user_data)
+{
+    gchar* command = g_strconcat ("xdg-open ", link, NULL);
+    g_spawn_command_line_async (command, NULL);
+    g_free (command);
+}
+
+static void
 _action_about_activate (GtkAction*     action,
                         MidoriBrowser* browser)
 {
+    gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
+    gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
     gtk_show_about_dialog (GTK_WINDOW (browser),
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
         "name", PACKAGE_NAME,
@@ -2120,15 +2145,39 @@ _action_about_activate (GtkAction*     action,
 }
 
 static void
-_action_help_contents_activate (GtkAction*     action,
-                                MidoriBrowser* browser)
+_action_help_link_activate (GtkAction*     action,
+                            MidoriBrowser* browser)
 {
-    const gchar* faq_uri = "http://wiki.xfce.org/_export/xhtml/midori_faq";
+    const gchar* action_name;
+    const gchar* uri;
     gint n;
 
-    n = midori_browser_add_uri (browser, faq_uri);
-    midori_browser_set_current_page (browser, n);
+    action_name = gtk_action_get_name (action);
+    if  (!strncmp ("HelpContents", action_name, 12))
+    {
+        #ifdef DOCDIR
+        uri = DOCDIR "/midori/user/midori.html";
+        if (!g_file_test (uri, G_FILE_TEST_EXISTS))
+            uri = "error:nodocs " DOCDIR "/midori/user/midori.html";
+        #else
+        uri = "error:nodocs " DATADIR "/doc/midori/user/midori.html";
+        #endif
+    }
+    else if  (!strncmp ("HelpFAQ", action_name, 7))
+        uri = "http://wiki.xfce.org/_export/xhtml/midori_faq";
+    else if  (!strncmp ("HelpBugs", action_name, 8))
+        uri = "http://www.twotoasts.de/bugs/";
+    else
+        uri = NULL;
+
+    if (uri)
+    {
+        n = midori_browser_add_uri (browser, uri);
+        midori_browser_set_current_page (browser, n);
+    }
+
 }
+
 
 static void
 _action_panel_activate (GtkToggleAction* action,
@@ -2495,7 +2544,13 @@ static const GtkActionEntry entries[] = {
  { "Help", NULL, N_("_Help") },
  { "HelpContents", GTK_STOCK_HELP,
    N_("_Contents"), "F1",
-   N_("Show the documentation"), G_CALLBACK (_action_help_contents_activate) },
+   N_("Show the documentation"), G_CALLBACK (_action_help_link_activate) },
+ { "HelpFAQ", NULL,
+   N_("_Frequent questions"), NULL,
+   N_("Show the Frequently Asked Questions"), G_CALLBACK (_action_help_link_activate) },
+ { "HelpBugs", NULL,
+   N_("_Report a bug"), NULL,
+   N_("Open Midori's bug tracker"), G_CALLBACK (_action_help_link_activate) },
  { "About", GTK_STOCK_ABOUT,
    NULL, "",
    N_("Show information about the program"), G_CALLBACK (_action_about_activate) },
@@ -2663,6 +2718,9 @@ static const gchar* ui_markup =
    "</menu>"
    "<menu action='Help'>"
     "<menuitem action='HelpContents'/>"
+    "<menuitem action='HelpFAQ'/>"
+    "<menuitem action='HelpBugs'/>"
+    "<separator/>"
     "<menuitem action='About'/>"
    "</menu>"
   "</menubar>"
