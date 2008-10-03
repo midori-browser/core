@@ -1,0 +1,202 @@
+.. |(version)| replace:: 0.0.21
+
+'''''''
+ Midori
+'''''''
+
+-----------------------------------------
+ A lightweight, portable GTK+ web browser
+-----------------------------------------
+
+:Authors: Christian Dywan
+:Date: $Date: 2008-08-03 20:30:35 +0100 (Sat, 28 Sep 2008) $
+:Version: |(version)|
+
+Copyright © 2008
+
+This documentation is distributed under the terms of the
+`GNU Lesser General Public License`_; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+
+.. contents::
+
+
+
+Introduction
+''''''''''''
+
+
+What is Midori
+--------------
+
+Midori is a lightweight and portable web browser based on Gtk+. The
+interface is designed to be intuitive yet powerful.
+
+* Full integration with GTK+2.
+* Fast rendering with WebKit.
+* Tabs, windows and session management.
+* Flexibly configurable Web Search.
+* User scripts and user styles support.
+* Straightforward bookmark management.
+* Customizable and extensible interface.
+* Extensible via Javascript.
+* Custom context menu actions.
+
+
+Running Midori
+--------------
+
+
+* If you are using a graphical desktop environment you will usually find
+  Midori in the menu under Network.
+
+* You can also run Midori from a console or a Run dialog.
+  See also `Command line usage`.
+
+  $ midori
+
+A browser window appears where you can start navigating the web right away.
+
+
+The main interface
+--------------------------
+
+
+The main browser window consists of a few basic elements:
+
+
+* The menubar. It's pretty much standardized and gives you access to
+  allmost all features, many of the items have a keyboard shortcut by default.
+  See also `Keyboard shortcuts`_.
+
+* The navigationbar. It lets you open tabs, go back and forward, enter
+  addresses, search the web and reopen closed tabs.
+  See also `The navigationbar`.
+
+* The sidepanel. It takes a pretty central role in the functionality it provides,
+  yet it can be hidden and resized to not distract you.
+  See also `The sidepanel`.
+
+* The statusbar. It displays informational text when hovering something
+  with a pointer. That's it.
+
+
+Taking a closer look
+''''''''''''''''''''
+
+
+Command line usage
+------------------
+
+
+Running Midori normally works as follows:
+
+
+* $ midori
+
+  Just run a new instance of Midori. If an instance of Midori is already
+  running a new window in that instance will be opened.
+
+* $ midori [URIs]
+
+  You can supply any number of URIs to open as arguments. If you have a
+  saved session or a running instance they will be added to the last
+  active window.
+
+* $ midori [URI1]|[URI2]|...
+
+  You can separate URIS by a pipe (|) as well. They are handled as if you
+  provided all URIs as separate arguments.
+
+* $ midori [JAVASCRIPT]
+
+  If you pass a filename ending with ".js" Midori will attempt to run
+  the contents of the file as javascript code.
+
+
+Note that support for opening tabs in an existing instance depends on
+your build and may not be available on some platforms.
+
+
+The following arguments are supported if you call Midori from a command line.
+
+
++--------------+--------------+------------------------------------------------+
+| Short option | Long option  | Function                                       |
++==============+==============+================================================+
+| -i           | --id         | This is an internal identifier. It is used to  |
+|              |              | spawn child processes for new tabs. Do not use |
+|              |              | it unless you know what you are doing.         |
++--------------+--------------+------------------------------------------------+
+| -v           | --version    |  Show version information and exit.            |
++--------------+--------------+------------------------------------------------+
+
+
+Keyboard shortcuts
+------------------
+
+
+...
+
+
+The navigationbar
+-----------------
+
+
+...
+
+
+
+The sidepanel
+-------------
+
+
+...
+
+
+Frequently asked questions
+''''''''''''''''''''''''''
+
+
+How do you pronounce Midori and what does it mean anyway?
+---------------------------------------------------------
+
+Pronounce it "midoɺi", with a Bavarian/ Japanese "r" or "Mee-Doh-Ree"
+in English or read it Italian. The name comes from the Japanese word
+緑 (みどり) for the colour "green".
+
+
+What does the logo mean?
+------------------------
+
+The paw of a green cat. Obviously. Also it resembles the letter "M"
+in "Midori". The curving is supposed to emphasize speed.
+
+
+On which platforms does Midori run currently?
+---------------------------------------------
+
+Midori is basically very portable and should run on all platforms that
+its dependencies support.
+
+
+
+Under which license is Midori distributed?
+------------------------------------------
+
+Midori, documentation and all delivered artwork are licensed under the LGPL2.
+
+
+GNU Lesser General Public License
+'''''''''''''''''''''''''''''''''
+
+::
+
+    GNU LESSER GENERAL PUBLIC LICENSE
+    Version 2.1, February 1999
+
+    FIXME: Provide full license text
+

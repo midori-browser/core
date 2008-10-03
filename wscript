@@ -5,6 +5,7 @@ import Params
 import pproc as subprocess
 import Common
 import platform
+import os
 
 APPNAME = 'midori'
 VERSION = '0.0.21'
@@ -22,6 +23,19 @@ blddir = '_build_'
 
 def configure (conf):
     conf.check_tool ('compiler_cc')
+
+    if not Params.g_options.disable_docs:
+        conf.find_program ('rst2html.py', var='RST2HTML')
+        # debian renames the executable, check that as well :(
+        if not conf.env['RST2HTML']:
+            conf.find_program ('rst2html', var='RST2HTML')
+        if conf.env['RST2HTML']:
+            docs = 'yes'
+        else:
+            docs = 'not available'
+    else:
+        docs = 'no'
+    conf.check_message_custom ('generate', 'user documentation', docs)
 
     if not Params.g_options.disable_nls:
         conf.check_tool ('intltool')
@@ -44,6 +58,20 @@ def configure (conf):
     else:
         update_po = 'no'
     conf.check_message_custom ('localization file', 'updates', update_po)
+
+    # We support building without intltool
+    # Therefore datadir may not have been defined
+    if not conf.is_defined ('DATADIR'):
+        if Params.g_options.datadir != '':
+            conf.define ('DATADIR', Params.g_options.datadir)
+        else:
+            conf.define ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
+
+    if Params.g_options.docdir == '':
+        docdir =  "%s/doc" % conf.env['DATADIR']
+    else:
+        docdir = Params.g_options.docdir
+    conf.define ('DOCDIR', docdir)
 
     if Params.g_options.enable_api_docs:
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
@@ -104,6 +132,10 @@ def configure (conf):
 def set_options (opt):
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
+    opt.add_option ('--docdir', type='string', default='',
+        help='documentation root', dest='docdir')
+    opt.add_option ('--disable-docs', action='store_true', default=False,
+        help='Disables user documentation', dest='disable_docs')
 
     opt.add_option ('--disable-nls', action='store_true', default=False,
         help='Disables native language support', dest='disable_nls')
@@ -120,6 +152,24 @@ def set_options (opt):
 
 def build (bld):
     bld.add_subdirs ('katze midori icons')
+
+    install_files ('DOCDIR', '/midori/', 'AUTHORS ChangeLog COPYING README')
+
+    if bld.env ()['RST2HTML']:
+        # FIXME: Build only if needed
+        if not os.access (blddir, os.F_OK):
+            os.mkdir (blddir)
+        if not os.access (blddir + '/docs', os.F_OK):
+            os.mkdir (blddir + '/docs')
+        if not os.access (blddir + '/docs/user', os.F_OK):
+            os.mkdir (blddir + '/docs/user')
+        os.chdir (blddir + '/docs/user')
+        subprocess.call ([bld.env ()['RST2HTML'], '-stg',
+            '--stylesheet=../../../docs/user/midori.css',
+            '../../../docs/user/midori.txt',
+            'midori.html',])
+        os.chdir ('../../..')
+        install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
 
     if bld.env ()['INTLTOOL']:
         bld.add_subdirs ('po')
