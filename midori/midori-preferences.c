@@ -65,12 +65,22 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
 }
 
 static void
+midori_preferences_response_cb (MidoriPreferences* preferences,
+                                gint               response)
+{
+    if (response == GTK_RESPONSE_CLOSE)
+        gtk_widget_destroy (GTK_WIDGET (preferences));
+}
+
+static void
 midori_preferences_init (MidoriPreferences* preferences)
 {
+    gchar* dialog_title;
+
     preferences->notebook = NULL;
 
-    gchar* dialog_title = g_strdup_printf (_("%s Preferences"),
-                                           g_get_application_name ());
+    dialog_title = g_strdup_printf (_("%s Preferences"),
+                                    g_get_application_name ());
     g_object_set (preferences,
                   "icon-name", GTK_STOCK_PREFERENCES,
                   "title", dialog_title,
@@ -80,11 +90,8 @@ midori_preferences_init (MidoriPreferences* preferences)
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         NULL);
-    /* TODO: Implement some kind of help function */
-    gtk_dialog_set_response_sensitive (GTK_DIALOG (preferences),
-                                       GTK_RESPONSE_HELP, FALSE);
     g_signal_connect (preferences, "response",
-                      G_CALLBACK (gtk_widget_destroy), preferences);
+                      G_CALLBACK (midori_preferences_response_cb), NULL);
 
     /* TODO: Do we want tooltips for explainations or can we omit that? */
     g_free (dialog_title);

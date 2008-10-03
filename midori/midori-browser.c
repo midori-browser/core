@@ -1429,6 +1429,15 @@ midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
 }
 
 static void
+midori_preferences_response_help_cb (GtkWidget*     preferences,
+                                     gint           response,
+                                     MidoriBrowser* browser)
+{
+    if (response == GTK_RESPONSE_HELP)
+        gtk_action_activate (_action_by_name (browser, "HelpContents"));
+}
+
+static void
 _action_preferences_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
@@ -1440,6 +1449,8 @@ _action_preferences_activate (GtkAction*     action,
     {
         dialog = midori_preferences_new (GTK_WINDOW (browser),
                                          browser->settings);
+        g_signal_connect (dialog, "response",
+            G_CALLBACK (midori_preferences_response_help_cb), browser);
         gtk_widget_show (dialog);
     }
 }
