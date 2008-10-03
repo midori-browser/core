@@ -2359,12 +2359,6 @@ static const GtkActionEntry entries[] = {
  { "WindowClose", NULL,
    N_("C_lose Window"), "<Ctrl><Shift>w",
    N_("Close this window"), G_CALLBACK (_action_window_close_activate) },
- { "PageSetup", GTK_STOCK_PROPERTIES,
-   N_("Pa_ge Setup"), "",
-   "Configure your print settings", NULL/*G_CALLBACK (_action_page_setup_activate)*/ },
- { "PrintPreview", GTK_STOCK_PRINT_PREVIEW,
-   NULL, "",
-   N_("Show a preview of the printed page"), NULL/*G_CALLBACK (_action_print_preview_activate)*/ },
  { "Print", GTK_STOCK_PRINT,
    NULL, "<Ctrl>p",
    N_("Print the current page"), G_CALLBACK (_action_print_activate) },
@@ -2373,12 +2367,6 @@ static const GtkActionEntry entries[] = {
    N_("Quit the application"), G_CALLBACK (_action_quit_activate) },
 
  { "Edit", NULL, N_("_Edit"), NULL, NULL, G_CALLBACK (_action_edit_activate) },
- { "Undo", GTK_STOCK_UNDO,
-   NULL, "<Ctrl>z",
-   N_("Undo the last modification"), NULL/*G_CALLBACK (_action_undo_activate)*/ },
- { "Redo", GTK_STOCK_REDO,
-   NULL, "<Ctrl><Shift>z",
-   N_("Redo the last modification"), NULL/*G_CALLBACK (_action_redo_activate)*/ },
  { "Cut", GTK_STOCK_CUT,
    NULL, "<Ctrl>x",
    N_("Cut the selected text"), G_CALLBACK (_action_cut_activate) },
@@ -2503,9 +2491,6 @@ static const GtkActionEntry entries[] = {
  { "TabNext", GTK_STOCK_GO_FORWARD,
    N_("_Next Tab"), "<Ctrl>Page_Down",
    N_("Switch to the next tab"), G_CALLBACK (_action_tab_next_activate) },
- { "TabOverview", NULL,
-   N_("Tab _Overview"), "",
-   N_("Show an overview of all open tabs"), NULL/*G_CALLBACK (_action_tab_overview_activate)*/ },
 
  { "Help", NULL, N_("_Help") },
  { "HelpContents", GTK_STOCK_HELP,
@@ -2521,10 +2506,6 @@ static const GtkToggleActionEntry toggle_entries[] = {
  { "PrivateBrowsing", NULL,
    N_("P_rivate Browsing"), "",
    N_("Don't save any private data while browsing"), NULL/*G_CALLBACK (_action_private_browsing_activate)*/,
-   FALSE },
- { "WorkOffline", GTK_STOCK_DISCONNECT,
-   N_("_Work Offline"), "",
-   N_("Work without a network connection"), NULL/*G_CALLBACK (_action_work_offline_activate)*/,
    FALSE },
 
  { "Navigationbar", NULL,
@@ -2613,19 +2594,12 @@ static const gchar* ui_markup =
     "<menuitem action='TabClose'/>"
     "<menuitem action='WindowClose'/>"
     "<separator/>"
-    "<menuitem action='PageSetup'/>"
-    "<menuitem action='PrintPreview'/>"
     "<menuitem action='Print'/>"
-    "<separator/>"
     "<menuitem action='PrivateBrowsing'/>"
-    "<menuitem action='WorkOffline'/>"
     "<separator/>"
     "<menuitem action='Quit'/>"
    "</menu>"
    "<menu action='Edit'>"
-    "<menuitem action='Undo'/>"
-    "<menuitem action='Redo'/>"
-    "<separator/>"
     "<menuitem action='Cut'/>"
     "<menuitem action='Copy'/>"
     "<menuitem action='Paste'/>"
@@ -2684,7 +2658,6 @@ static const gchar* ui_markup =
    "<menu action='Window'>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
-    "<menuitem action='TabOverview'/>"
     "<separator/>"
     /* All open tabs shall be appended here */
    "</menu>"
@@ -2929,7 +2902,6 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_window), menuitem);
     gtk_widget_show (browser->menubar);
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
-    _action_set_sensitive (browser, "WorkOffline", FALSE);
 
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
