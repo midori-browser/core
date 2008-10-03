@@ -222,6 +222,9 @@ midori_browser_message_received_cb (UniqueApp*         instance,
       response = UNIQUE_RESPONSE_OK;
       break;
   case UNIQUE_OPEN:
+      gtk_window_set_screen (GTK_WINDOW (app->browser),
+                             unique_message_data_get_screen (message));
+      gtk_window_present (GTK_WINDOW (app->browser));
       uris = unique_message_data_get_uris (message);
       if (!uris)
           response = UNIQUE_RESPONSE_FAIL;
