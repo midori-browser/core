@@ -77,7 +77,6 @@ struct _MidoriView
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
-    gchar* http_proxy;
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
@@ -908,11 +907,6 @@ receive_command (MidoriView*  view,
     {
         view->open_tabs_in_the_background = atoi (&command[8]);
     }
-    else if (!strncmp (command, "proxy ", 6))
-    {
-        katze_assign (view->http_proxy, g_strdup (&command[6]));
-        g_setenv ("http_proxy", view->http_proxy ? view->http_proxy : "", TRUE);
-    }
     else if (g_str_has_prefix (command, "**"))
         g_print ("%s\n", command);
     else
@@ -1643,7 +1637,6 @@ midori_view_init (MidoriView* view)
     view->download_manager = NULL;
     view->default_font_family = NULL;
     view->default_encoding = NULL;
-    view->http_proxy = NULL;
 
     g_object_connect (view,
                       "signal::notify::uri",
@@ -1895,7 +1888,6 @@ _midori_view_update_settings (MidoriView* view)
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
-        "http-proxy", &view->http_proxy,
         NULL);
 
     if (midori_view_is_socket (view))
@@ -1915,7 +1907,6 @@ _midori_view_update_settings (MidoriView* view)
             int_to_str (view->middle_click_opens_selection));
         send_command (view, "tabsbkg",
             int_to_str (view->open_tabs_in_the_background));
-        send_command (view, "proxy", view->http_proxy);
     }
 }
 
@@ -2016,12 +2007,6 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         if (midori_view_is_socket (view))
             send_command (view, "tabsbkg",
                 int_to_str (view->open_tabs_in_the_background));
-    }
-    else if (name == g_intern_string ("http-proxy"))
-    {
-        katze_assign (view->http_proxy, g_value_dup_string (&value));
-        if (midori_view_is_socket (view))
-            send_command (view, "proxy", view->http_proxy);
     }
 
     g_value_unset (&value);

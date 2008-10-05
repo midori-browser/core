@@ -582,8 +582,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "http-proxy",
                                      _("HTTP Proxy"),
                                      _("The proxy used for HTTP connections"),
-                                     g_getenv ("http_proxy"),
-                                     flags));
+                                     NULL,
+                                     G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_CACHE_SIZE,
@@ -622,6 +622,8 @@ notify_default_encoding_cb (GObject*    object,
 static void
 midori_web_settings_init (MidoriWebSettings* web_settings)
 {
+    web_settings->http_proxy = NULL;
+
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
 }
@@ -779,7 +781,6 @@ midori_web_settings_set_property (GObject*      object,
 
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
-        g_setenv ("http_proxy", web_settings->http_proxy ? web_settings->http_proxy : "", TRUE);
         break;
     case PROP_CACHE_SIZE:
         web_settings->cache_size = g_value_get_int (value);
@@ -988,7 +989,6 @@ midori_web_settings_copy (MidoriWebSettings* web_settings)
                   "remember-last-form-inputs", web_settings->remember_last_form_inputs,
                   "remember-last-downloaded-files", web_settings->remember_last_downloaded_files,
 
-                  "http-proxy", web_settings->http_proxy,
                   "cache-size", web_settings->cache_size,
                   NULL);
 
