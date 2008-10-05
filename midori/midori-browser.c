@@ -21,8 +21,8 @@
 #include "midori-panel.h"
 #include "midori-addons.h"
 #include "midori-console.h"
-#include "midori-searchentry.h"
 #include "midori-locationaction.h"
+#include "midori-searchaction.h"
 #include "midori-stock.h"
 
 #include "gtkiconentry.h"
@@ -1758,30 +1758,75 @@ static void
 _action_search_activate (GtkAction*     action,
                          MidoriBrowser* browser)
 {
-    if (!GTK_WIDGET_VISIBLE (browser->search))
-        gtk_widget_show (browser->search);
     if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
         gtk_widget_show (browser->navigationbar);
-    gtk_widget_grab_focus (browser->search);
 }
 
-static gboolean
-midori_browser_search_focus_out_event_cb (GtkWidget*     widget,
-                                          GdkEventFocus* event,
-                                          MidoriBrowser* browser)
+static void
+_action_search_submit (GtkAction*     action,
+                       const gchar*   keywords,
+                       gboolean       new_tab,
+                       MidoriBrowser* browser)
 {
-    gboolean show_navigationbar;
-    gboolean show_web_search;
+    guint last_web_search;
+    KatzeItem* item;
+    const gchar* url;
+    gchar* location_entry_search;
+    gchar* search;
 
-    g_object_get (browser->settings,
-                  "show-navigationbar", &show_navigationbar,
-                  "show-web-search", &show_web_search,
-                  NULL);
-    if (!show_navigationbar)
+    g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
+    item = katze_array_get_nth_item (browser->search_engines, last_web_search);
+    if (item)
+    {
+        location_entry_search = NULL;
+        url = katze_item_get_uri (item);
+    }
+    else /* The location entry search is our fallback */
+    {
+        g_object_get (browser->settings, "location-entry-search",
+                      &location_entry_search, NULL);
+        url = location_entry_search;
+    }
+    if (strstr (url, "%s"))
+        search = g_strdup_printf (url, keywords);
+    else
+        search = g_strconcat (url, " ", keywords, NULL);
+
+    if (new_tab)
+        midori_browser_add_uri (browser, search);
+    else
+        _midori_browser_open_uri (browser, search);
+
+    g_free (search);
+    g_free (location_entry_search);
+}
+
+static void
+_action_search_notify_current_item (GtkAction*     action,
+                                    GParamSpec*    pspec,
+                                    MidoriBrowser* browser)
+{
+    MidoriSearchAction* search_action;
+    KatzeItem* item;
+    guint index;
+
+    search_action = MIDORI_SEARCH_ACTION (action);
+    item = midori_search_action_get_current_item (search_action);
+    if (item)
+        index = katze_array_get_item_index (browser->search_engines, item);
+    else
+        index = 0;
+
+    g_object_set (browser->settings, "last-web-search", index, NULL);
+}
+
+static void
+_action_search_focus_out (GtkAction*     action,
+                          MidoriBrowser* browser)
+{
+    if (GTK_WIDGET_VISIBLE (browser->statusbar) &&
+        !sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_hide (browser->navigationbar);
-    if (!show_web_search)
-        gtk_widget_hide (browser->search);
-    return FALSE;
 }
 
 static void
@@ -2092,8 +2137,8 @@ _action_manage_search_engines_activate (GtkAction*     action,
 {
     GtkWidget* dialog;
 
-    dialog = midori_search_entry_get_dialog (
-        MIDORI_SEARCH_ENTRY (browser->search));
+    dialog = midori_search_action_get_dialog (
+        MIDORI_SEARCH_ACTION (_action_by_name (browser, "Search")));
     if (GTK_WIDGET_VISIBLE (dialog))
         gtk_window_present (GTK_WINDOW (dialog));
     else
@@ -2523,9 +2568,6 @@ static const GtkActionEntry entries[] = {
  { "Homepage", STOCK_HOMEPAGE,
    NULL, "<Alt>Home",
    N_("Go to your homepage"), G_CALLBACK (_action_homepage_activate) },
- { "Search", GTK_STOCK_FIND,
-   N_("_Web Search..."), "<Ctrl>k",
-   N_("Run a web search"), G_CALLBACK (_action_search_activate) },
  { "OpenInPageholder", GTK_STOCK_JUMP_TO,
    N_("Open in Page_holder..."), "",
    N_("Open the current page in the pageholder"), G_CALLBACK (_action_open_in_panel_activate) },
@@ -2764,7 +2806,7 @@ static const gchar* ui_markup =
    "<toolitem action='ReloadStop'/>"
    "<toolitem action='Homepage'/>"
    "<toolitem action='Location'/>"
-   "<placeholder name='Search'/>"
+   "<toolitem action='Search'/>"
    "<placeholder name='Trash'/>"
   "</toolbar>"
   "<toolbar name='toolbar_bookmarks'>"
@@ -2801,43 +2843,6 @@ midori_browser_realize_cb (GtkStyle*      style,
 }
 
 static void
-midori_browser_search_activate_cb (GtkWidget*     widget,
-                                   MidoriBrowser* browser)
-{
-    KatzeArray* search_engines;
-    const gchar* keywords;
-    guint last_web_search;
-    KatzeItem* item;
-    const gchar* url;
-    gchar* location_entry_search;
-    gchar* search;
-
-    search_engines = browser->search_engines;
-    keywords = gtk_entry_get_text (GTK_ENTRY (widget));
-    g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
-    item = katze_array_get_nth_item (search_engines, last_web_search);
-    if (item)
-    {
-        location_entry_search = NULL;
-        url = katze_item_get_uri (item);
-    }
-    else /* The location entry search is our fallback */
-    {
-        g_object_get (browser->settings, "location-entry-search",
-                      &location_entry_search, NULL);
-        url = location_entry_search;
-    }
-    if (strstr (url, "%s"))
-        search = g_strdup_printf (url, keywords);
-    else
-        search = g_strconcat (url, " ", keywords, NULL);
-    sokoke_entry_append_completion (GTK_ENTRY (widget), keywords);
-    _midori_browser_open_uri (browser, search);
-    g_free (search);
-    g_free (location_entry_search);
-}
-
-static void
 midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
                                              gint          icon_pos,
                                              gint          button,
@@ -2845,25 +2850,6 @@ midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
 {
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
         gtk_entry_set_text (GTK_ENTRY (entry), "");
-}
-
-static void
-midori_browser_search_notify_current_item_cb (GObject*       gobject,
-                                              GParamSpec*    arg1,
-                                              MidoriBrowser* browser)
-{
-    MidoriSearchEntry* search_entry;
-    KatzeItem* item;
-    guint index;
-
-    search_entry = MIDORI_SEARCH_ENTRY (browser->search);
-    item = midori_search_entry_get_current_item (search_entry);
-    if (item)
-        index = katze_array_get_item_index (browser->search_engines, item);
-    else
-        index = 0;
-
-    g_object_set (browser->settings, "last-web-search", index, NULL);
 }
 
 static void
@@ -2958,6 +2944,26 @@ midori_browser_init (MidoriBrowser* browser)
         action, "<Ctrl>L");
     g_object_unref (action);
 
+    action = g_object_new (MIDORI_TYPE_SEARCH_ACTION,
+        "name", "Search",
+        "label", _("_Web Search..."),
+        "stock-id", GTK_STOCK_FIND,
+        "tooltip", _("Run a web search"),
+        NULL);
+    g_object_connect (action,
+                      "signal::activate",
+                      _action_search_activate, browser,
+                      "signal::submit",
+                      _action_search_submit, browser,
+                      "signal::focus-out",
+                      _action_search_focus_out, browser,
+                      "signal::notify::current-item",
+                      _action_search_notify_current_item, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group,
+        action, "<Ctrl>K");
+    g_object_unref (action);
+
     /* Create the menubar */
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     GtkWidget* menuitem = gtk_menu_item_new ();
@@ -3009,24 +3015,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
     browser->button_homepage = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation/Homepage");
+    browser->search = gtk_ui_manager_get_widget (
+        ui_manager, "/toolbar_navigation/Search");
 
-    /* Search */
-    browser->search = midori_search_entry_new ();
-    /* TODO: Make this actively resizable or enlarge to fit contents?
-             The interface is somewhat awkward and ought to be rethought
-             Display "show in context menu" search engines as "completion actions" */
-    sokoke_entry_setup_completion (GTK_ENTRY (browser->search));
-    g_object_connect (browser->search,
-                      "signal::activate",
-                      midori_browser_search_activate_cb, browser,
-                      "signal::focus-out-event",
-                      midori_browser_search_focus_out_event_cb, browser,
-                      "signal::notify::current-item",
-                      midori_browser_search_notify_current_item_cb, browser,
-                      NULL);
-    toolitem = gtk_tool_item_new ();
-    gtk_container_add (GTK_CONTAINER (toolitem), browser->search);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar), toolitem, -1);
     action = gtk_action_group_get_action (browser->action_group, "Trash");
     browser->button_trash = gtk_action_create_tool_item (action);
     g_signal_connect (browser->button_trash, "clicked",
@@ -3398,8 +3389,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
         item = katze_array_get_nth_item (browser->search_engines,
                                          last_web_search);
         if (item)
-            midori_search_entry_set_current_item (
-                MIDORI_SEARCH_ENTRY (browser->search), item);
+            midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
+                _action_by_name (browser, "Search")), item);
     }
 
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
@@ -3574,8 +3565,8 @@ midori_browser_set_property (GObject*      object,
         ; /* FIXME: Disconnect handlers */
         katze_object_assign (browser->search_engines, g_value_get_object (value));
         g_object_ref (browser->search_engines);
-        g_object_set (browser->search, "search-engines",
-                      browser->search_engines, NULL);
+        midori_search_action_set_search_engines (MIDORI_SEARCH_ACTION (
+            _action_by_name (browser, "Search")), browser->search_engines);
         /* FIXME: Connect to updates */
         if (browser->settings)
         {
@@ -3583,7 +3574,8 @@ midori_browser_set_property (GObject*      object,
                           &last_web_search, NULL);
             item = katze_array_get_nth_item (browser->search_engines,
                                              last_web_search);
-            g_object_set (browser->search, "current-item", item, NULL);
+            midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
+                _action_by_name (browser, "Search")), item);
         }
         break;
     default:

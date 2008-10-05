@@ -32,7 +32,7 @@ midori_SOURCES = \
     midori-source.c        midori-source.h        \
     midori-websettings.c   midori-websettings.h   \
     midori-preferences.c   midori-preferences.h   \
-    midori-searchentry.c   midori-searchentry.h   \
+    midori-searchaction.c  midori-searchaction.h  \
     midori-locationentry.c midori-locationentry.h \
     midori-locationaction.c midori-locationaction.h \
     gjs.c       gjs.h       \
