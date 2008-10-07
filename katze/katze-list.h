@@ -50,6 +50,9 @@ struct _KatzeListClass
     void
     (*remove_item)            (KatzeList* list,
                                gpointer   item);
+    void
+    (*clear)                  (KatzeList* list);
+
 };
 
 GType

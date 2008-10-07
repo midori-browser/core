@@ -34,7 +34,9 @@ enum
     PROP_TEXT,
     PROP_URI,
     PROP_ICON,
-    PROP_TOKEN
+    PROP_TOKEN,
+    PROP_ADDED,
+    PROP_VISITS
 };
 
 static void
@@ -109,6 +111,27 @@ katze_item_class_init (KatzeItemClass* class)
                                      _("The token of the item"),
                                      NULL,
                                      flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_ADDED,
+                                     g_param_spec_string (
+                                     "added",
+                                     _("Added"),
+                                     _("When the item was added"),
+                                     NULL,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_VISITS,
+                                     g_param_spec_int (
+                                     "visits",
+                                     _("Visits"),
+                                     _("The number of visits of the item"),
+                                     G_MININT,
+                                     G_MAXINT,
+                                     0,
+                                     flags));
+
 }
 
 
@@ -129,6 +152,7 @@ katze_item_finalize (GObject* object)
     g_free (item->uri);
     g_free (item->icon);
     g_free (item->token);
+    g_free (item->added);
 
     G_OBJECT_CLASS (katze_item_parent_class)->finalize (object);
 }
@@ -157,6 +181,12 @@ katze_item_set_property (GObject*      object,
         break;
     case PROP_TOKEN:
         item->token = g_value_dup_string (value);
+        break;
+    case PROP_ADDED:
+        item->added = g_value_dup_string (value);
+        break;
+    case PROP_VISITS:
+        item->visits = g_value_get_int (value);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -188,6 +218,12 @@ katze_item_get_property (GObject*    object,
         break;
     case PROP_TOKEN:
         g_value_set_string (value, item->token);
+        break;
+    case PROP_ADDED:
+        g_value_set_string (value, item->added);
+        break;
+    case PROP_VISITS:
+        g_value_set_int (value, item->visits);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -376,6 +412,72 @@ katze_item_set_token (KatzeItem*   item,
 }
 
 /**
+ * katze_item_get_added:
+ * @item: a #KatzeItem
+ *
+ * Determines when @item was added.
+ *
+ * Return value: a timestamp
+ **/
+const gchar*
+katze_item_get_added (KatzeItem* item)
+{
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    return item->added;
+}
+
+/**
+ * katze_item_set_added:
+ * @item: a #KatzeItem
+ * @added: a timestamp
+ *
+ * Sets when @item was added.
+ **/
+void
+katze_item_set_added (KatzeItem*   item,
+                      const gchar* added)
+{
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    katze_assign (item->added, g_strdup (added));
+    g_object_notify (G_OBJECT (item), "added");
+}
+
+/**
+ * katze_item_get_visits:
+ * @item: a #KatzeItem
+ *
+ * Retrieves the number of visits of @item.
+ *
+ * Return value: the number of visits
+ **/
+gint
+katze_item_get_visits (KatzeItem* item)
+{
+    g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
+
+    return item->visits;
+}
+
+/**
+ * katze_item_set_visits:
+ * @item: a #KatzeItem
+ * @visits: an integer
+ *
+ * Sets the number of visits of @item.
+ **/
+void
+katze_item_set_visits (KatzeItem* item,
+                       gint       visits)
+{
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    item->visits = visits;
+    g_object_notify (G_OBJECT (item), "visits");
+}
+
+/**
  * katze_item_get_parent:
  * @item: a #KatzeItem
  *
@@ -412,3 +514,4 @@ katze_item_set_parent (KatzeItem* item,
     katze_object_assign (item->parent, parent);
     /* g_object_notify (G_OBJECT (item), "parent"); */
 }
+

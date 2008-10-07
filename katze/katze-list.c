@@ -29,6 +29,7 @@ G_DEFINE_TYPE (KatzeList, katze_list, KATZE_TYPE_ITEM)
 enum {
     ADD_ITEM,
     REMOVE_ITEM,
+    CLEAR,
 
     LAST_SIGNAL
 };
@@ -50,6 +51,23 @@ _katze_list_remove_item (KatzeList* list,
                          gpointer   item)
 {
     list->items = g_list_remove (list->items, item);
+}
+
+static void
+_katze_list_clear (KatzeList* list)
+{
+    guint n;
+    guint i;
+    GObject* item;
+
+    n = g_list_length (list->items);
+    for (i = 0; i < n; i++)
+    {
+        if ((item = g_list_nth_data (list->items, i)))
+            katze_list_remove_item (list, item);
+    }
+    g_list_free (list->items);
+    list->items = NULL;
 }
 
 static void
@@ -79,11 +97,23 @@ katze_list_class_init (KatzeListClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_POINTER);
 
+    signals[CLEAR] = g_signal_new (
+        "clear",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (KatzeListClass, clear),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0);
+
+
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_list_finalize;
 
     class->add_item = _katze_list_add_item;
     class->remove_item = _katze_list_remove_item;
+    class->clear = _katze_list_clear;
 }
 
 static void
@@ -227,18 +257,7 @@ katze_list_get_length (KatzeList* list)
 void
 katze_list_clear (KatzeList* list)
 {
-    guint n;
-    guint i;
-    GObject* item;
-
     g_return_if_fail (KATZE_IS_LIST (list));
 
-    n = g_list_length (list->items);
-    for (i = 0; i < n; i++)
-    {
-        if ((item = g_list_nth_data (list->items, i)))
-            katze_list_remove_item (list, item);
-    }
-    g_list_free (list->items);
-    list->items = NULL;
+    g_signal_emit (list, signals[CLEAR], 0);
 }

@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -27,10 +28,20 @@
 #include <gtk/gtk.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <sqlite3.h>
 
 #if ENABLE_NLS
     #include <libintl.h>
 #endif
+
+#define MIDORI_HISTORY_ERROR g_quark_from_string("MIDORI_HISTORY_ERROR")
+
+typedef enum
+{
+    MIDORI_HISTORY_ERROR_DB_OPEN,    /* Error opening the database file */
+    MIDORI_HISTORY_ERROR_EXEC_SQL,   /* Error executing SQL statement */
+
+} MidoriHistoryError;
 
 static void
 stock_items_init (void)
@@ -564,6 +575,283 @@ katze_array_from_file (KatzeArray*  array,
     return TRUE;
 }
 
+/* Open database 'dbname' */
+static sqlite3*
+db_open (const char* dbname,
+         GError**    error)
+{
+    sqlite3* db;
+
+    if (sqlite3_open (dbname, &db))
+    {
+        if (error)
+        {
+            *error = g_error_new (MIDORI_HISTORY_ERROR,
+                                  MIDORI_HISTORY_ERROR_DB_OPEN,
+                                  _("Error opening database: %s\n"),
+                                  sqlite3_errmsg (db));
+        }
+        sqlite3_close (db);
+        return NULL;
+    }
+    return (db);
+}
+
+/* Close database 'db' */
+static void
+db_close (sqlite3* db)
+{
+    sqlite3_close (db);
+}
+
+/* Execute an SQL statement and run 'callback' on the result data */
+static gboolean
+db_exec_callback (sqlite3*    db,
+                  const char* sqlcmd,
+                  int         (*callback)(void*, int, char**, char**),
+                  void*       cbarg,
+                  GError**    error)
+{
+    char* errmsg;
+
+    if (sqlite3_exec (db, sqlcmd, callback, cbarg, &errmsg) != SQLITE_OK)
+    {
+        if (error)
+        {
+            *error = g_error_new (MIDORI_HISTORY_ERROR,
+                                  MIDORI_HISTORY_ERROR_EXEC_SQL,
+                                  _("Error opening database: %s\n"),
+                                  errmsg);
+        }
+        sqlite3_free (errmsg);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/* Execute a SQL statement */
+static gboolean
+db_exec (sqlite3*    db,
+         const char* sqlcmd,
+         GError**    error)
+{
+    return (db_exec_callback (db, sqlcmd, NULL, NULL, error));
+}
+
+/* sqlite method for retrieving the date/ time */
+static int
+gettimestr (void*  data,
+            int    argc,
+            char** argv,
+            char** colname)
+{
+    KatzeItem* item = KATZE_ITEM (data);
+    (void) colname;
+
+    g_return_val_if_fail (argc == 1, 1);
+
+    katze_item_set_added (item, argv[0]);
+    return 0;
+}
+
+static void
+midori_history_remove_item_cb (KatzeArray* history,
+                               KatzeItem*  item,
+                               sqlite3*    db)
+{
+    gchar* sqlcmd;
+    gboolean success = TRUE;
+    GError* error = NULL;
+
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    sqlcmd = g_strdup_printf ("DELETE FROM history WHERE uri = '%s' AND"
+                              " title = '%s' AND date = '%s' AND visits = %d",
+                              katze_item_get_uri (item),
+                              katze_item_get_name (item),
+                              katze_item_get_added (item),
+                              katze_item_get_visits (item));
+    success = db_exec (db, sqlcmd, &error);
+    if (!success)
+    {
+        g_printerr (_("Failed to remove history item. %s\n"), error->message);
+        g_error_free (error);
+        return ;
+    }
+    g_free (sqlcmd);
+}
+
+static void
+midori_history_clear_before_cb (KatzeArray* item,
+                                sqlite3*    db)
+{
+    g_signal_handlers_block_by_func (item, midori_history_remove_item_cb, db);
+}
+
+static void
+midori_history_clear_cb (KatzeArray* history,
+                         sqlite3*    db)
+{
+    GError* error = NULL;
+
+    g_return_if_fail (KATZE_IS_ARRAY (history));
+
+    if (!db_exec (db, "DELETE FROM history", &error))
+    {
+        g_printerr (_("Failed to clear history. %s\n"), error->message);
+        g_error_free (error);
+    }
+}
+
+static void
+midori_history_add_item_cb (KatzeArray* array,
+                            KatzeItem*  item,
+                            sqlite3*    db)
+{
+    gchar* sqlcmd;
+    gboolean success = TRUE;
+    GError* error = NULL;
+
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        g_signal_connect_after (item, "add-item",
+                G_CALLBACK (midori_history_add_item_cb), db);
+        g_signal_connect (item, "remove-item",
+                G_CALLBACK (midori_history_remove_item_cb), db);
+        g_signal_connect (item, "clear",
+            G_CALLBACK (midori_history_clear_before_cb), db);
+        return;
+    }
+
+    /* New item, set added to the current date/ time */
+    if (!katze_item_get_added (item))
+    {
+        if (!db_exec_callback (db, "SELECT datetime('now')",
+                               gettimestr, item, &error))
+        {
+            g_printerr (_("Failed to add history item. %s\n"), error->message);
+            g_error_free (error);
+            return;
+        }
+    }
+    sqlcmd = g_strdup_printf ("INSERT INTO history VALUES"
+                              "('%s', '%s', '%s', %d)",
+                              katze_item_get_uri (item),
+                              katze_item_get_name (item),
+                              katze_item_get_added (item),
+                              katze_item_get_visits (item));
+    success = db_exec (db, sqlcmd, &error);
+    g_free (sqlcmd);
+    if (!success)
+    {
+        g_printerr (_("Failed to add history item. %s\n"), error->message);
+        g_error_free (error);
+        return ;
+    }
+}
+
+static int
+midori_history_add_items (void*  data,
+                          int    argc,
+                          char** argv,
+                          char** colname)
+{
+    KatzeItem* item;
+    KatzeArray* parent = NULL;
+    KatzeArray* array = KATZE_ARRAY (data);
+    gchar* newdate;
+    gint i, j, n;
+    gint ncols = 4;
+    gsize len;
+
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), 1);
+
+    /* Test whether have the right number of columns */
+    g_return_val_if_fail (argc % ncols == 0, 1);
+
+    for (i = 0; i <= (argc - ncols); i++)
+    {
+        if (argv[i])
+        {
+            if (colname[i] && g_ascii_strcasecmp (colname[i], "uri") == 0 &&
+                colname[i + 1] && g_ascii_strcasecmp (colname[i + 1], "title") == 0 &&
+                colname[i + 2] && g_ascii_strcasecmp (colname[i + 2], "date") == 0 &&
+                colname[i + 3] && g_ascii_strcasecmp (colname[i + 3], "visits") == 0)
+            {
+                item = katze_item_new ();
+                katze_item_set_uri (item, argv[i]);
+                katze_item_set_name (item, argv[i + 1]);
+                katze_item_set_added (item, argv[i + 2]);
+                katze_item_set_visits (item, atoi (argv[i + 3]));
+
+                len = (g_strrstr (argv[i + 2], " ") - argv[i + 2]);
+                newdate = g_strndup (argv[i + 2], len);
+
+                n = katze_array_get_length (array);
+                for (j = 0; j < n; j++)
+                {
+                    parent = katze_array_get_nth_item (array, j);
+                    if (newdate && g_ascii_strcasecmp
+                                (katze_item_get_added (KATZE_ITEM (parent)), newdate) == 0)
+                        break;
+                }
+                if (j == n)
+                {
+                    parent = katze_array_new (KATZE_TYPE_ARRAY);
+                    katze_item_set_added (KATZE_ITEM (parent), newdate);
+                    katze_array_add_item (array, parent);
+                }
+                g_free (newdate);
+
+                katze_array_add_item (parent, item);
+            }
+        }
+    }
+    return 0;
+}
+
+static sqlite3*
+midori_history_initialize (KatzeArray*  array,
+                           const gchar* filename,
+                           GError**     error)
+{
+    sqlite3* db;
+    KatzeItem* item;
+    gint i, n;
+
+    if ((db = db_open (filename, error)) == NULL)
+        return db;
+
+    if (!db_exec (db,
+                  "CREATE TABLE IF NOT EXISTS "
+                  "history(uri text, title text, date text, visits integer)",
+                  error))
+        return NULL;
+
+    if (!db_exec_callback (db,
+                           "SELECT uri, title, date, visits FROM history "
+                           "ORDER BY strftime('%s', date) ASC",
+                           midori_history_add_items,
+                           array,
+                           error))
+        return NULL;
+
+    n = katze_array_get_length (array);
+    for (i = 0; i < n; i++)
+    {
+        item = katze_array_get_nth_item (array, i);
+        g_signal_connect_after (item, "add-item",
+            G_CALLBACK (midori_history_add_item_cb), db);
+        g_signal_connect (item, "remove-item",
+            G_CALLBACK (midori_history_remove_item_cb), db);
+        g_signal_connect (item, "clear",
+            G_CALLBACK (midori_history_clear_before_cb), db);
+    }
+    return db;
+}
+
 static gchar*
 _simple_xml_element (const gchar* name,
                      const gchar* value)
@@ -756,6 +1044,7 @@ main (int    argc,
     gchar* homepage;
     KatzeArray* search_engines;
     KatzeArray* bookmarks;
+    KatzeArray* history;
     KatzeArray* _session;
     KatzeArray* trash;
     MidoriBrowser* browser;
@@ -764,6 +1053,7 @@ main (int    argc,
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
+    sqlite3* db;
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
@@ -910,6 +1200,16 @@ main (int    argc,
         g_error_free (error);
     }
     g_free (config_file);
+    config_file = g_build_filename (config_path, "history.db", NULL);
+    history = katze_array_new (KATZE_TYPE_ARRAY);
+    error = NULL;
+    if ((db = midori_history_initialize (history, config_file, &error)) == NULL)
+    {
+        g_string_append_printf (error_messages,
+            _("The history couldn't be loaded. %s\n"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
 
     /* In case of errors */
     if (error_messages->len)
@@ -943,6 +1243,7 @@ main (int    argc,
             g_object_unref (bookmarks);
             g_object_unref (_session);
             g_object_unref (trash);
+            g_object_unref (history);
             g_string_free (error_messages, TRUE);
             return 0;
         }
@@ -987,11 +1288,16 @@ main (int    argc,
 
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_web_list_add_item_cb), NULL);
+    g_signal_connect_after (history, "add-item",
+        G_CALLBACK (midori_history_add_item_cb), db);
+    g_signal_connect_after (history, "clear",
+        G_CALLBACK (midori_history_clear_cb), db);
 
     g_object_set (app, "settings", settings,
                        "bookmarks", bookmarks,
                        "trash", trash,
                        "search-engines", search_engines,
+                       "history", history,
                        NULL);
 
     browser = g_object_new (MIDORI_TYPE_BROWSER,
@@ -999,6 +1305,7 @@ main (int    argc,
                             "bookmarks", bookmarks,
                             "trash", trash,
                             "search-engines", search_engines,
+                            "history", history,
                             NULL);
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
@@ -1059,6 +1366,8 @@ main (int    argc,
     config_path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME,
                                     NULL);
     g_mkdir_with_parents (config_path, 0755);
+    g_object_unref (history);
+    db_close (db);
     config_file = g_build_filename (config_path, "search", NULL);
     error = NULL;
     if (!search_engines_save_to_file (search_engines, config_file, &error))

@@ -35,6 +35,7 @@ struct _MidoriApp
     KatzeArray* bookmarks;
     KatzeArray* trash;
     KatzeArray* search_engines;
+    KatzeArray* history;
 
     gpointer instance;
 };
@@ -52,6 +53,7 @@ enum
     PROP_TRASH,
     PROP_SEARCH_ENGINES,
     PROP_BROWSER,
+    PROP_HISTORY,
     PROP_BROWSER_COUNT
 };
 
@@ -172,6 +174,17 @@ midori_app_class_init (MidoriAppClass* class)
                                      _("The current number of browsers"),
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_HISTORY,
+                                     g_param_spec_object (
+                                     "history",
+                                     _("History"),
+                                     _("The list of history items"),
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE));
+
+
 }
 
 static GObject*
@@ -212,6 +225,7 @@ midori_browser_message_received_cb (UniqueApp*         instance,
                               "bookmarks", app->bookmarks,
                               "trash", app->trash,
                               "search-engines", app->search_engines,
+                              "history", app->history,
                               NULL);
       /* FIXME: Should open the homepage according to settings */
       midori_browser_add_uri (browser, "about:blank");
@@ -267,6 +281,7 @@ midori_app_init (MidoriApp* app)
     app->bookmarks = NULL;
     app->trash = NULL;
     app->search_engines = NULL;
+    app->history = NULL;
 
     #if HAVE_UNIQUE
     display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
@@ -301,6 +316,8 @@ midori_app_finalize (GObject* object)
         g_object_unref (app->trash);
     if (app->search_engines)
         g_object_unref (app->search_engines);
+    if (app->history)
+        g_object_unref (app->history);
 
     if (app->instance)
         g_object_unref (app->instance);
@@ -338,6 +355,10 @@ midori_app_set_property (GObject*      object,
         g_object_ref (app->search_engines);
         /* FIXME: Propagate search engines to all browsers */
         break;
+    case PROP_HISTORY:
+        katze_object_assign (app->history, g_value_get_object (value));
+        /* FIXME: Propagate history to all browsers */
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -365,6 +386,9 @@ midori_app_get_property (GObject*    object,
         break;
     case PROP_SEARCH_ENGINES:
         g_value_set_object (value, app->search_engines);
+        break;
+    case PROP_HISTORY:
+        g_value_set_object (value, app->history);
         break;
     case PROP_BROWSER:
         g_value_set_object (value, app->browser);
@@ -398,6 +422,7 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
                                                "bookmarks", app->bookmarks,
                                                "trash", app->trash,
                                                "search-engines", app->search_engines,
+                                               "history", app->history,
                                                NULL);
     midori_browser_add_uri (new_browser, uri);
     gtk_widget_show (GTK_WIDGET (new_browser));
