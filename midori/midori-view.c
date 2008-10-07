@@ -2191,8 +2191,9 @@ midori_view_get_icon (MidoriView* view)
  * midori_view_get_display_uri:
  * @view: a #MidoriView
  *
- * Retrieves a string that is suitable for displaying,
- * particularly an empty URI is represented as "about:blank".
+ * Retrieves a string that is suitable for displaying.
+ *
+ * Note that "about:blank" is represented as "".
  *
  * You can assume that the string is not %NULL.
  *
@@ -2201,11 +2202,16 @@ midori_view_get_icon (MidoriView* view)
 const gchar*
 midori_view_get_display_uri (MidoriView* view)
 {
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), "about:blank");
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), "");
+
+    /* Something in the stack tends to turn "" into "about:blank".
+       Yet for practical purposes we prefer "".  */
+    if (view->uri && !strcmp (view->uri, "about:blank"))
+        return "";
 
     if (view->uri && *view->uri)
         return view->uri;
-    return "about:blank";
+    return "";
 }
 
 /**
@@ -2216,6 +2222,8 @@ midori_view_get_display_uri (MidoriView* view)
  * as a title. Most of the time this will be the title
  * or the current URI.
  *
+ * An empty page is represented as "about:blank".
+ *
  * You can assume that the string is not %NULL.
  *
  * Return value: a title string
@@ -2224,6 +2232,9 @@ const gchar*
 midori_view_get_display_title (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "about:blank");
+
+    if (view->title && !strcmp (view->title, ""))
+        return "about:blank";
 
     if (view->title && *view->title)
         return view->title;

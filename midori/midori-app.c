@@ -228,7 +228,7 @@ midori_browser_message_received_cb (UniqueApp*         instance,
                               "history", app->history,
                               NULL);
       /* FIXME: Should open the homepage according to settings */
-      midori_browser_add_uri (browser, "about:blank");
+      midori_browser_add_uri (browser, "");
       midori_app_add_browser (app, browser);
       gtk_window_set_screen (GTK_WINDOW (app->browser),
                              unique_message_data_get_screen (message));
