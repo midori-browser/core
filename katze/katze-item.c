@@ -168,22 +168,22 @@ katze_item_set_property (GObject*      object,
     switch (prop_id)
     {
     case PROP_NAME:
-        item->name = g_value_dup_string (value);
+        katze_assign (item->name, g_value_dup_string (value));
         break;
     case PROP_TEXT:
-        item->text = g_value_dup_string (value);
+        katze_assign (item->text, g_value_dup_string (value));
         break;
     case PROP_URI:
-        item->uri = g_value_dup_string (value);
+        katze_assign (item->uri, g_value_dup_string (value));
         break;
     case PROP_ICON:
-        item->icon = g_value_dup_string (value);
+        katze_assign (item->icon, g_value_dup_string (value));
         break;
     case PROP_TOKEN:
-        item->token = g_value_dup_string (value);
+        katze_assign (item->token, g_value_dup_string (value));
         break;
     case PROP_ADDED:
-        item->added = g_value_dup_string (value);
+        katze_assign (item->added, g_value_dup_string (value));
         break;
     case PROP_VISITS:
         item->visits = g_value_get_int (value);
