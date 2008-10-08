@@ -1512,8 +1512,8 @@ gtk_socket_realize_cb (GtkWidget*  socket,
     gchar* socket_id;
     GError* error;
     gboolean success;
-    gint stdin;
-    gint stdout;
+    gint stdin_fd;
+    gint stdout_fd;
     gchar* argv[] = { NULL, "--id", NULL, NULL };
 
     /* Sockets are not supported on all platforms,
@@ -1531,7 +1531,7 @@ gtk_socket_realize_cb (GtkWidget*  socket,
     error = NULL;
     success = g_spawn_async_with_pipes (NULL, argv, NULL, G_SPAWN_SEARCH_PATH,
                                         NULL, NULL, NULL,
-                                        &stdin, &stdout, NULL, &error);
+                                        &stdin_fd, &stdout_fd, NULL, &error);
     g_free (socket_id);
 
     if (!success)
@@ -1544,8 +1544,8 @@ gtk_socket_realize_cb (GtkWidget*  socket,
         return;
     }
 
-    view->output = fdopen (stdin, "w");
-    view->input = g_io_channel_unix_new (stdout);
+    view->output = fdopen (stdin_fd, "w");
+    view->input = g_io_channel_unix_new (stdout_fd);
     g_io_channel_set_close_on_unref (view->input, TRUE);
     g_io_add_watch (view->input,
                     G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_NVAL | G_IO_HUP,
