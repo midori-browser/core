@@ -14,10 +14,8 @@
 #include "gtkiconentry.h"
 #include "sokoke.h"
 
-#include <katze/katze.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
 
 struct _MidoriSearchAction
 {
@@ -328,7 +326,7 @@ midori_search_action_create_tool_item (GtkAction* action)
     gtk_widget_show (alignment);
 
     MIDORI_SEARCH_ACTION (action)->last_proxy = GTK_WIDGET (toolitem);
-    return GTK_WIDGET (toolitem);
+    return toolitem;
 }
 
 static void
@@ -666,6 +664,8 @@ midori_search_action_set_current_item (MidoriSearchAction* search_action,
     if (item)
         g_object_ref (item);
     katze_object_assign (search_action->current_item, item);
+
+    g_object_notify (G_OBJECT (search_action), "current-item");
 
     proxies = gtk_action_get_proxies (GTK_ACTION (search_action));
     if (!proxies)
