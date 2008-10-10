@@ -2168,7 +2168,7 @@ midori_view_is_blank (MidoriView*  view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), TRUE);
 
-    return !(view->uri && *view->uri);
+    return midori_view_get_display_uri (view)[0] == '\0';
 }
 
 /**

@@ -714,7 +714,7 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     {
         item = midori_view_get_proxy_item (MIDORI_VIEW (widget));
         uri = katze_item_get_uri (item);
-        if (browser->trash && uri && *uri)
+        if (browser->trash && !midori_view_is_blank (MIDORI_VIEW (widget)))
             katze_array_add_item (browser->trash, item);
         katze_array_remove_item (browser->proxy_array, item);
         g_object_unref (item);
