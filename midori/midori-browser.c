@@ -35,6 +35,7 @@
 #include <gio/gio.h>
 #endif
 #include <glib/gi18n.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <string.h>
 
@@ -2068,6 +2069,58 @@ midori_panel_history_button_release_event_cb (GtkWidget*      widget,
 }
 
 static void
+midori_panel_remove_history_item (GtkTreeView* treeview)
+{
+    GtkTreeModel* treemodel;
+    GtkTreeIter iter;
+    GtkTreeIter child_iter;
+    KatzeItem* item;
+    KatzeItem* child;
+    KatzeArray* parent;
+    gint i, n;
+
+    if (sokoke_tree_view_get_selected_iter (treeview, &treemodel, &iter))
+    {
+        gtk_tree_model_get (treemodel, &iter, 0, &item, -1);
+
+        if (KATZE_IS_ARRAY (item))
+        {
+            n = katze_array_get_length (KATZE_ARRAY (item));
+            for (i = 0; i < n; i++)
+            {
+                child = katze_array_get_nth_item (KATZE_ARRAY (item), 0);
+                katze_array_remove_item (KATZE_ARRAY (item), child);
+            }
+            parent = katze_item_get_parent (item);
+            katze_array_remove_item (parent, item);
+            while (gtk_tree_model_iter_nth_child (treemodel,
+                                                  &child_iter, &iter, 0))
+                gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &child_iter);
+            gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &iter);
+            g_object_unref (item);
+        }
+        else
+        {
+            parent = katze_item_get_parent (item);
+            katze_array_remove_item (parent, item);
+            gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &iter);
+            g_object_unref (item);
+        }
+    }
+}
+
+static gboolean
+midori_panel_history_key_release_event_cb (GtkWidget*     widget,
+                                           GdkEventKey*   event,
+                                           MidoriBrowser* browser)
+{
+    if (event->keyval == GDK_Delete)
+        midori_panel_remove_history_item (GTK_TREE_VIEW (widget));
+
+    return FALSE;
+}
+
+static void
 midori_panel_history_popup_menu_cb (GtkWidget*     widget,
                                     MidoriBrowser* browser)
 {
@@ -2676,55 +2729,30 @@ static void
 _action_history_delete_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
-    GtkTreeView* treeview;
-    GtkTreeModel* treemodel;
-    GtkTreeIter iter;
-    GtkTreeIter childiter;
-    KatzeItem* item;
-    KatzeItem* child;
-    KatzeArray* parent;
-    gint i, n;
-
-    treeview = GTK_TREE_VIEW (browser->panel_history);
-    if (sokoke_tree_view_get_selected_iter (treeview, &treemodel, &iter))
-    {
-        gtk_tree_model_get (treemodel, &iter, 0, &item, -1);
-
-        if (KATZE_IS_ARRAY (item))
-        {
-            n = katze_array_get_length (KATZE_ARRAY (item));
-            for (i = 0; i < n; i++)
-            {
-                child = katze_array_get_nth_item (KATZE_ARRAY (item), 0);
-                katze_array_remove_item (KATZE_ARRAY (item), child);
-            }
-            parent = katze_item_get_parent (item);
-            katze_array_remove_item (parent, item);
-            while (gtk_tree_model_iter_nth_child (treemodel, &childiter, &iter, 0))
-                gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &childiter);
-            gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &iter);
-            g_object_unref (item);
-        }
-        else
-        {
-            parent = katze_item_get_parent (item);
-            katze_array_remove_item (parent, item);
-            gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &iter);
-            g_object_unref (item);
-        }
-    }
+    midori_panel_remove_history_item (GTK_TREE_VIEW (browser->panel_history));
 }
 
 static void
 _action_history_clear_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
+    GtkWidget* dialog;
     GtkTreeView* tree_view;
     GtkTreeStore* store;
     KatzeItem* item;
     gint i, n;
+    gint result;
 
     if (!browser->history)
+        return;
+
+    dialog = gtk_message_dialog_new (GTK_WINDOW (browser),
+        GTK_DIALOG_DESTROY_WITH_PARENT,
+        GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
+        _("Are you sure you want to remove all history items?"));
+    result = gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    if (result != GTK_RESPONSE_YES)
         return;
 
     tree_view = GTK_TREE_VIEW (browser->panel_history);
@@ -3520,6 +3548,8 @@ midori_browser_init (MidoriBrowser* browser)
                       midori_panel_history_row_activated_cb, browser,
                       "signal::button-release-event",
                       midori_panel_history_button_release_event_cb, browser,
+                      "signal::key-release-event",
+                      midori_panel_history_key_release_event_cb, browser,
                       "signal::popup-menu",
                       midori_panel_history_popup_menu_cb, browser,
                       NULL);
