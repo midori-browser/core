@@ -217,88 +217,13 @@ sokoke_container_show_children (GtkContainer* container)
     gtk_container_foreach (container, (GtkCallback)(gtk_widget_show_all), NULL);
 }
 
-typedef struct
-{
-     GtkWidget* widget;
-     SokokeMenuPos position;
-} SokokePopupInfo;
-
-static void
-sokoke_widget_popup_position_menu (GtkMenu*  menu,
-                                   gint*     x,
-                                   gint*     y,
-                                   gboolean* push_in,
-                                   gpointer  user_data)
-{
-    gint wx, wy;
-    gint menu_width;
-    GtkRequisition menu_req;
-    GtkRequisition widget_req;
-    SokokePopupInfo* info = user_data;
-    GtkWidget* widget = info->widget;
-
-    /* Retrieve size and position of both widget and menu */
-    if (GTK_WIDGET_NO_WINDOW (widget))
-    {
-        gdk_window_get_position (widget->window, &wx, &wy);
-        wx += widget->allocation.x;
-        wy += widget->allocation.y;
-    }
-    else
-        gdk_window_get_origin (widget->window, &wx, &wy);
-    gtk_widget_size_request (GTK_WIDGET (menu), &menu_req);
-    gtk_widget_size_request (widget, &widget_req);
-    menu_width = menu_req.width;
-    gint widget_height = widget_req.height; /* Better than allocation.height */
-
-    /* Calculate menu position */
-    if (info->position == SOKOKE_MENU_POSITION_CURSOR)
-        ; /* Do nothing? */
-    else if (info->position == SOKOKE_MENU_POSITION_RIGHT)
-    {
-        *x = wx + widget->allocation.width - menu_width;
-        *y = wy + widget_height;
-    } else if (info->position == SOKOKE_MENU_POSITION_LEFT)
-    {
-        *x = wx;
-        *y = wy + widget_height;
-    }
-
-    *push_in = TRUE;
-}
-
-
 void
 sokoke_widget_popup (GtkWidget*      widget,
                      GtkMenu*        menu,
                      GdkEventButton* event,
                      SokokeMenuPos   pos)
 {
-    int button, event_time;
-    if (event)
-    {
-        button = event->button;
-        event_time = event->time;
-    }
-    else
-    {
-        button = 0;
-        event_time = gtk_get_current_event_time ();
-    }
-
-    if (!gtk_menu_get_attach_widget (menu))
-        gtk_menu_attach_to_widget (menu, widget, NULL);
-
-
-    if (widget)
-    {
-        SokokePopupInfo info = { widget, pos };
-        gtk_menu_popup (menu, NULL, NULL,
-                        sokoke_widget_popup_position_menu, &info,
-                        button, event_time);
-    }
-    else
-        gtk_menu_popup (menu, NULL, NULL, NULL, NULL, button, event_time);
+    katze_widget_popup (widget, menu, event, (KatzeMenuPos)pos);
 }
 
 typedef enum
@@ -704,19 +629,7 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
 GtkWidget*
 sokoke_image_menu_item_new_ellipsized (const gchar* label)
 {
-    GtkWidget* menuitem;
-    GtkWidget* label_widget;
-
-    menuitem = gtk_image_menu_item_new ();
-    label_widget = gtk_label_new (label);
-    /* FIXME: Should text direction be respected here? */
-    gtk_misc_set_alignment (GTK_MISC (label_widget), 0.0, 0.0);
-    gtk_label_set_max_width_chars (GTK_LABEL (label_widget), 50);
-    gtk_label_set_ellipsize (GTK_LABEL (label_widget), PANGO_ELLIPSIZE_MIDDLE);
-    gtk_widget_show (label_widget);
-    gtk_container_add (GTK_CONTAINER (menuitem), label_widget);
-
-    return menuitem;
+    return katze_image_menu_item_new_ellipsized (label);
 }
 
 /**

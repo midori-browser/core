@@ -44,9 +44,7 @@ struct _MidoriBrowser
 
     GtkActionGroup* action_group;
     GtkWidget* menubar;
-    GtkWidget* menu_bookmarks;
     GtkWidget* menu_tools;
-    GtkWidget* menu_window;
     GtkWidget* popup_bookmark;
     GtkWidget* popup_history;
     GtkWidget* throbber;
@@ -72,12 +70,11 @@ struct _MidoriBrowser
 
     GtkWidget* statusbar;
     GtkWidget* progressbar;
-
     gchar* statusbar_text;
-    MidoriWebSettings* settings;
-    KatzeArray* bookmarks;
 
+    MidoriWebSettings* settings;
     KatzeArray* proxy_array;
+    KatzeArray* bookmarks;
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
@@ -733,24 +730,12 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     g_signal_emit (browser, signals[REMOVE_TAB], 0, widget);
 
     /* We don't ever want to be in a situation with no tabs,
-       so just create an empty one if the last one is closed. */
-    if (!midori_browser_get_current_tab (browser))
+       so just create an empty one if the last one is closed.
+       The only exception is when we are closing the window,
+       which is indicated by the proxy array having been unset. */
+    if (browser->proxy_array && !midori_browser_get_current_tab (browser))
         midori_browser_add_uri (browser, "");
     return FALSE;
-}
-
-static void
-midori_browser_window_menu_item_activate_cb (GtkWidget* menuitem,
-                                             GtkWidget* widget)
-{
-    MidoriBrowser* browser;
-
-    g_return_if_fail (GTK_IS_WIDGET (widget));
-
-    browser = MIDORI_BROWSER (gtk_widget_get_toplevel (widget));
-    g_return_if_fail (browser);
-
-    midori_browser_set_current_tab (browser, widget);
 }
 
 static void
@@ -758,7 +743,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                          GtkWidget*     view)
 {
     GtkWidget* tab_label;
-    GtkWidget* menuitem;
     KatzeItem* item;
     guint n;
 
@@ -770,14 +754,10 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                                          GTK_SHADOW_ETCHED_IN);
 
     tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
-    menuitem = midori_view_get_proxy_menu_item (MIDORI_VIEW (view));
 
-    if (browser->proxy_array)
-    {
-        item = midori_view_get_proxy_item (MIDORI_VIEW (view));
-        g_object_ref (item);
-        katze_array_add_item (browser->proxy_array, item);
-    }
+    item = midori_view_get_proxy_item (MIDORI_VIEW (view));
+    g_object_ref (item);
+    katze_array_add_item (browser->proxy_array, item);
 
     g_object_connect (view,
                       "signal::notify::icon",
@@ -828,14 +808,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                                      view, TRUE);
     #endif
 
-    gtk_widget_show (menuitem);
-    g_signal_connect (menuitem, "activate",
-        G_CALLBACK (midori_browser_window_menu_item_activate_cb), view);
-    gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_window), menuitem);
-
     /* We want the tab to be removed if the widget is destroyed */
-    g_signal_connect_swapped (view, "destroy",
-        G_CALLBACK (gtk_widget_destroy), menuitem);
     g_signal_connect (view, "destroy",
         G_CALLBACK (midori_browser_tab_destroy_cb), browser);
 
@@ -1427,63 +1400,105 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
 }
 
 static void
-midori_browser_menu_trash_item_activate_cb (GtkWidget*     menuitem,
-                                            MidoriBrowser* browser)
+_action_trash_populate_popup (GtkAction*     action,
+                              GtkMenu*       menu,
+                              MidoriBrowser* browser)
 {
-    KatzeItem* item;
-    gint n;
+    GtkWidget* menuitem;
 
-    /* Create a new web view with an uri which has been closed before */
-    item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    n = midori_browser_add_item (browser, item);
+    menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "TrashEmpty"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+}
+
+static void
+_action_trash_activate_item (GtkAction*     action,
+                             KatzeItem*     item,
+                             MidoriBrowser* browser)
+{
+    gint n = midori_browser_add_item (browser, item);
     midori_browser_set_current_page (browser, n);
     katze_array_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
 }
 
 static void
-midori_browser_menu_trash_activate_cb (GtkWidget*     widget,
-                                       MidoriBrowser* browser)
+_action_history_populate_popup (GtkAction*     action,
+                                GtkMenu*       menu,
+                                MidoriBrowser* browser)
 {
-    GtkWidget* menu;
-    guint i, n;
-    KatzeItem* item;
-    const gchar* title;
-    const gchar* uri;
-    GtkWidget* menuitem;
-    GtkWidget* icon;
-    GtkAction* action;
+    /* Nothing to do */
+}
 
-    menu = gtk_menu_new ();
-    n = katze_array_get_length (browser->trash);
+static void
+_action_history_activate_item (GtkAction*     action,
+                               KatzeItem*     item,
+                               MidoriBrowser* browser)
+{
+    _midori_browser_open_uri (browser, katze_item_get_uri (item));
+}
+
+static void
+_action_bookmarks_populate_popup (GtkAction*     action,
+                                  GtkMenu*       menu,
+                                  MidoriBrowser* browser)
+{
+    GtkWidget* menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "BookmarkAdd"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+}
+
+static void
+_action_bookmarks_activate_item (GtkAction*     action,
+                                 KatzeItem*     item,
+                                 MidoriBrowser* browser)
+{
+    gint n = midori_browser_add_item (browser, item);
+    midori_browser_set_current_page (browser, n);
+    _midori_browser_update_actions (browser);
+}
+
+static void
+_action_window_populate_popup (GtkAction*     action,
+                               GtkMenu*       menu,
+                               MidoriBrowser* browser)
+{
+    GtkWidget* menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "TabPrevious"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "TabNext"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+}
+
+static void
+_action_window_activate_item (GtkAction*     action,
+                              KatzeItem*     item,
+                              MidoriBrowser* browser)
+{
+    guint i, n;
+    GtkWidget* view;
+
+    n = katze_array_get_length (browser->proxy_array);
     for (i = 0; i < n; i++)
     {
-        item = katze_array_get_nth_item (browser->trash, i);
-        title = katze_item_get_name (item);
-        uri = katze_item_get_uri (item);
-        menuitem = sokoke_image_menu_item_new_ellipsized (title ? title : uri);
-        /* FIXME: Get the real icon */
-        icon = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_browser_menu_trash_item_activate_cb), browser);
-        gtk_widget_show (menuitem);
+        view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), i);
+        if (midori_view_get_proxy_item (MIDORI_VIEW (view)) == item)
+            gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), i);
     }
-
-    menuitem = gtk_separator_menu_item_new ();
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-    action = gtk_action_group_get_action (browser->action_group, "TrashEmpty");
-    menuitem = gtk_action_create_menu_item (action);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-    if (GTK_IS_MENU_ITEM (widget))
-        gtk_menu_item_set_submenu (GTK_MENU_ITEM (widget), menu);
-    else
-        sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
-                             SOKOKE_MENU_POSITION_RIGHT);
 }
 
 static void
@@ -2877,10 +2892,6 @@ static const GtkActionEntry entries[] = {
  { "OpenInPageholder", GTK_STOCK_JUMP_TO,
    N_("Open in Page_holder..."), "",
    N_("Open the current page in the pageholder"), G_CALLBACK (_action_open_in_panel_activate) },
- { "Trash", STOCK_USER_TRASH,
-   NULL, "",
-/*  N_("Reopen a previously closed tab or window"), G_CALLBACK (_action_trash_activate) }, */
-   N_("Reopen a previously closed tab or window"), NULL },
  { "TrashEmpty", GTK_STOCK_CLEAR,
    N_("Empty Trash"), "",
    N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
@@ -2888,7 +2899,6 @@ static const GtkActionEntry entries[] = {
    N_("Undo Close Tab"), "<Ctrl><Shift>t",
    N_("Open the last closed tab"), G_CALLBACK (_action_undo_tab_close_activate) },
 
- { "Bookmarks", NULL, N_("_Bookmarks") },
  { "BookmarkAdd", STOCK_BOOKMARK_ADD,
    NULL, "<Ctrl>d",
    N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_add_activate) },
@@ -2925,7 +2935,6 @@ static const GtkActionEntry entries[] = {
    N_("Add, edit and remove search engines..."),
    G_CALLBACK (_action_manage_search_engines_activate) },
 
- { "Window", NULL, N_("_Window") },
  { "TabPrevious", GTK_STOCK_GO_BACK,
    N_("_Previous Tab"), "<Ctrl>Page_Up",
    N_("Switch to the previous tab"), G_CALLBACK (_action_tab_previous_activate) },
@@ -3086,28 +3095,15 @@ static const gchar* ui_markup =
     "<menuitem action='Location'/>"
     "<menuitem action='Search'/>"
     "<menuitem action='OpenInPageholder'/>"
-    "<menu action='Trash'>"
-    /* Closed tabs shall be prepended here */
-     "<separator/>"
-     "<menuitem action='TrashEmpty'/>"
-    "</menu>"
-    "<menuitem action='UndoTabClose'/>"
+    "<menuitem action='Trash'/>"
+    /* "<menuitem action='RecentlyVisited'/>" */
    "</menu>"
-   "<menu action='Bookmarks'>"
-    "<menuitem action='BookmarkAdd'/>"
-    "<separator/>"
-    /* Bookmarks shall be appended here */
-   "</menu>"
+   "<menuitem action='Bookmarks'/>"
    "<menu action='Tools'>"
     "<menuitem action='ManageSearchEngines'/>"
     /* Panel items shall be appended here */
    "</menu>"
-   "<menu action='Window'>"
-    "<menuitem action='TabPrevious'/>"
-    "<menuitem action='TabNext'/>"
-    "<separator/>"
-    /* All open tabs shall be appended here */
-   "</menu>"
+   "<menuitem action='Window'/>"
    "<menu action='Help'>"
     "<menuitem action='HelpContents'/>"
     "<menuitem action='HelpFAQ'/>"
@@ -3124,7 +3120,7 @@ static const gchar* ui_markup =
    "<toolitem action='Homepage'/>"
    "<toolitem action='Location'/>"
    "<toolitem action='Search'/>"
-   "<placeholder name='Trash'/>"
+   "<toolitem action='Trash'/>"
   "</toolbar>"
   "<toolbar name='toolbar_bookmarks'>"
    "<toolitem action='BookmarkAdd'/>"
@@ -3186,6 +3182,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkRcStyle* rcstyle;
 
     browser->settings = midori_web_settings_new ();
+    browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
     browser->bookmarks = NULL;
     browser->trash = NULL;
     browser->search_engines = NULL;
@@ -3292,6 +3289,70 @@ midori_browser_init (MidoriBrowser* browser)
         action, "<Ctrl>K");
     g_object_unref (action);
 
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "Trash",
+        "stock-id", STOCK_USER_TRASH,
+        "tooltip", _("Reopen a previously closed tab or window"),
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-popup",
+                      _action_trash_populate_popup, browser,
+                      "signal::activate-item",
+                      _action_trash_activate_item, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group,
+        action, "");
+    g_object_unref (action);
+
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "RecentlyVisited",
+        "label", _("_Recently visited pages"),
+        "stock-id", STOCK_HISTORY,
+        "tooltip", _("Revisit pages that you opened before"),
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-popup",
+                      _action_history_populate_popup, browser,
+                      "signal::activate-item",
+                      _action_history_activate_item, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group,
+        action, "");
+    g_object_unref (action);
+
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "Bookmarks",
+        "label", _("_Bookmarks"),
+        "stock-id", STOCK_BOOKMARKS,
+        "tooltip", _("Reopen a previously closed tab or window"),
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-popup",
+                      _action_bookmarks_populate_popup, browser,
+                      "signal::activate-item",
+                      _action_bookmarks_activate_item, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group,
+        action, "");
+    g_object_unref (action);
+
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "Window",
+        "label", _("Window"),
+        "stock-id", GTK_STOCK_INDEX,
+        "tooltip", _("Show a list of all open tabs"),
+        "array", browser->proxy_array,
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-popup",
+                      _action_window_populate_popup, browser,
+                      "signal::activate-item",
+                      _action_window_activate_item, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group,
+        action, "");
+    g_object_unref (action);
+
     /* Create the menubar */
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     GtkWidget* menuitem = gtk_menu_item_new ();
@@ -3303,31 +3364,15 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
     gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
-    menuitem = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Trash");
-    g_signal_connect (menuitem, "activate",
-                      G_CALLBACK (midori_browser_menu_trash_activate_cb),
-                      browser);
-    browser->menu_bookmarks = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
-        gtk_ui_manager_get_widget (ui_manager, "/menubar/Bookmarks")));
-    menuitem = gtk_separator_menu_item_new ();
-    gtk_widget_show (menuitem);
-    gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_bookmarks), menuitem);
-    browser->popup_bookmark = gtk_ui_manager_get_widget (
-        ui_manager, "/popup_bookmark");
-    g_object_ref (browser->popup_bookmark);
-    browser->popup_history = gtk_ui_manager_get_widget (
-        ui_manager, "/popup_history");
-    g_object_ref (browser->popup_history);
+    browser->popup_bookmark = g_object_ref (gtk_ui_manager_get_widget (
+        ui_manager, "/popup_bookmark"));
+    browser->popup_history = g_object_ref (gtk_ui_manager_get_widget (
+        ui_manager, "/popup_history"));
     browser->menu_tools = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
         gtk_ui_manager_get_widget (ui_manager, "/menubar/Tools")));
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
-    browser->menu_window = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
-        gtk_ui_manager_get_widget (ui_manager, "/menubar/Window")));
-    menuitem = gtk_separator_menu_item_new ();
-    gtk_widget_show (menuitem);
-    gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_window), menuitem);
     gtk_widget_show (browser->menubar);
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
 
@@ -3348,13 +3393,9 @@ midori_browser_init (MidoriBrowser* browser)
         ui_manager, "/toolbar_navigation/Homepage");
     browser->search = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation/Search");
+    browser->button_trash = gtk_ui_manager_get_widget (
+        ui_manager, "/toolbar_navigation/Trash");
 
-    action = gtk_action_group_get_action (browser->action_group, "Trash");
-    browser->button_trash = gtk_action_create_tool_item (action);
-    g_signal_connect (browser->button_trash, "clicked",
-                      G_CALLBACK (midori_browser_menu_trash_activate_cb), browser);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                        GTK_TOOL_ITEM (browser->button_trash), -1);
     sokoke_container_show_children (GTK_CONTAINER (browser->navigationbar));
     gtk_widget_hide (browser->navigationbar);
     action = gtk_action_group_get_action (browser->action_group, "Fullscreen");
@@ -3637,8 +3678,7 @@ midori_browser_dispose (GObject* object)
     MidoriBrowser* browser = MIDORI_BROWSER (object);
 
     /* We are done, the session mustn't change anymore */
-    if (browser->proxy_array)
-        katze_object_assign (browser->proxy_array, NULL);
+    katze_object_assign (browser->proxy_array, NULL);
 
     G_OBJECT_CLASS (midori_browser_parent_class)->dispose (object);
 }
@@ -3827,8 +3867,6 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
     if (!browser->bookmarks)
         return;
 
-    _midori_browser_create_bookmark_menu (browser, browser->bookmarks,
-                                          browser->menu_bookmarks);
     n = katze_array_get_length (browser->bookmarks);
     for (i = 0; i < n; i++)
     {
@@ -4022,6 +4060,8 @@ midori_browser_set_property (GObject*      object,
         ; /* FIXME: Disconnect handlers */
         katze_object_assign (browser->bookmarks, g_value_get_object (value));
         g_object_ref (browser->bookmarks);
+        g_object_set (_action_by_name (browser, "Bookmarks"), "array",
+            browser->bookmarks, NULL);
         midori_browser_load_bookmarks (browser);
         /* FIXME: Connect to updates */
         break;
@@ -4029,6 +4069,8 @@ midori_browser_set_property (GObject*      object,
         ; /* FIXME: Disconnect handlers */
         katze_object_assign (browser->trash, g_value_get_object (value));
         g_object_ref (browser->trash);
+        g_object_set (_action_by_name (browser, "Trash"), "array",
+            browser->trash, NULL);
         /* FIXME: Connect to updates */
         _midori_browser_update_actions (browser);
         break;
@@ -4052,7 +4094,10 @@ midori_browser_set_property (GObject*      object,
     case PROP_HISTORY:
         ; /* FIXME: Disconnect handlers */
         katze_object_assign (browser->history, g_value_get_object (value));
+        g_object_ref (browser->history);
         midori_browser_load_history (browser);
+        g_object_set (_action_by_name (browser, "RecentlyVisited"), "array",
+            browser->history, NULL);
         /* FIXME: Connect to updates */
         break;
     default:
@@ -4358,10 +4403,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
  * Retrieves a proxy array representing the respective proxy items
  * of the present views that can be used for session management.
  *
- * The folder is created on the first call and will be updated to reflect
- * changes to all items automatically.
- *
- * Note that this implicitly creates proxy items of all views.
+ * The array is updated automatically.
  *
  * Note: Calling this function doesn't add a reference and the browser
  *       may release its reference at some point.
@@ -4373,11 +4415,6 @@ midori_browser_get_proxy_array (MidoriBrowser* browser)
 {
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    if (!browser->proxy_array)
-    {
-        browser->proxy_array = katze_array_new (KATZE_TYPE_ITEM);
-        /* FIXME: Fill in items of all present views */
-    }
     return browser->proxy_array;
 }
 

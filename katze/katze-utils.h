@@ -63,6 +63,21 @@ GtkWidget*
 katze_property_label                (gpointer     object,
                                      const gchar* property);
 
+typedef enum {
+    KATZE_MENU_POSITION_CURSOR = 0,
+    KATZE_MENU_POSITION_LEFT,
+    KATZE_MENU_POSITION_RIGHT
+} KatzeMenuPos;
+
+void
+katze_widget_popup                   (GtkWidget*      widget,
+                                      GtkMenu*        menu,
+                                      GdkEventButton* event,
+                                      KatzeMenuPos    pos);
+
+GtkWidget*
+katze_image_menu_item_new_ellipsized (const gchar*   label);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */
