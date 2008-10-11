@@ -246,7 +246,8 @@ midori_browser_message_received_cb (UniqueApp*         instance,
       {
           while (*uris)
           {
-              midori_browser_add_uri (app->browser, *uris);
+              midori_browser_set_current_page (app->browser,
+                  midori_browser_add_uri (app->browser, *uris));
               uris++;
           }
           /* g_strfreev (uris); */
