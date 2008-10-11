@@ -361,7 +361,7 @@ midori_web_list_add_item_cb (KatzeArray* trash,
     if (n > 10)
     {
         obsolete_item = katze_array_get_nth_item (trash, 0);
-        g_object_unref (obsolete_item);
+        katze_array_remove_item (trash, obsolete_item);
     }
 }
 
