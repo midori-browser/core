@@ -1,3 +1,5 @@
+# This file is licensed under the terms of the expat license, see the file EXPAT.
+
 INCLUDES = \
     $(UNIQUE_CFLAGS)        \
     $(GIO_CFLAGS)           \

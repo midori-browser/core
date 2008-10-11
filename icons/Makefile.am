@@ -1,3 +1,5 @@
+# This file is licensed under the terms of the expat license, see the file EXPAT.
+
 iconsdir = $(datadir)/icons/hicolor/scalable/apps
 icons_DATA = scalable/midori.svg
 

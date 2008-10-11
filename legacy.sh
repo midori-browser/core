@@ -1,4 +1,5 @@
 #!/bin/sh
+# This file is licensed under the terms of the expat license, see the file EXPAT.
 
 echo "no" | glib-gettextize --force --copy
 intltoolize --copy --force --automake
