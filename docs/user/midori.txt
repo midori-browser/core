@@ -124,15 +124,18 @@ your build and may not be available on some platforms.
 The following arguments are supported if you call Midori from a command line.
 
 
-+--------------+--------------+------------------------------------------------+
-| Short option | Long option  | Function                                       |
-+==============+==============+================================================+
-| -i           | --id         | This is an internal identifier. It is used to  |
-|              |              | spawn child processes for new tabs. Do not use |
-|              |              | it unless you know what you are doing.         |
-+--------------+--------------+------------------------------------------------+
-| -v           | --version    |  Show version information and exit.            |
-+--------------+--------------+------------------------------------------------+
++-------+--------------------+------------------------------------------------+
+| Short | Long option        | Function                                       |
++=======+====================+================================================+
+| -s    | --single-process   | This forces all tabs to be opened inside the   |
+|       |                    | one single browser process.                    |
++-------+--------------------+------------------------------------------------+
+| -i    | --id               | This is an internal identifier. It is used to  |
+|       |                    | spawn child processes for new tabs. Do not use |
+|       |                    | it unless you know what you are doing.         |
++-------+--------------------+------------------------------------------------+
+| -v    | --version          |  Show version information and exit.            |
++-------+--------------------+------------------------------------------------+
 
 
 Keyboard shortcuts

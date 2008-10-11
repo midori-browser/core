@@ -395,6 +395,15 @@ midori_view_class_init (MidoriViewClass* class)
                                      G_PARAM_READWRITE));
 }
 
+gboolean
+midori_view_single_process (gboolean enable)
+{
+    static gboolean single_process = FALSE;
+    if (enable)
+        single_process = TRUE;
+    return single_process;
+}
+
 #define midori_view_is_socket(view) !view->socket_id
 #define midori_view_is_plug(view) view->socket_id > 0
 
@@ -655,8 +664,8 @@ midori_view_notify_progress_cb (MidoriView* view,
 }
 
 static void
-midori_view_action_cb (MidoriView*  view,
-                       const gchar* action)
+midori_view_activate_action_cb (MidoriView*  view,
+                                const gchar* action)
 {
     if (midori_view_is_socket (view))
         return;
@@ -1517,10 +1526,14 @@ gtk_socket_realize_cb (GtkWidget*  socket,
     gchar* argv[] = { NULL, "--id", NULL, NULL };
 
     /* Sockets are not supported on all platforms,
+       or Midori can run in single process mode,
        so fallback to working without any socket or plug. */
-    if (!gtk_socket_get_id (GTK_SOCKET (socket)))
+    if (!gtk_socket_get_id (GTK_SOCKET (socket))
+        || midori_view_single_process (FALSE))
     {
-        gtk_widget_destroy (socket);
+        /* Fallback to operating without a socket */
+        gtk_widget_destroy (gtk_bin_get_child (GTK_BIN (view)));
+        view->socket_id = -1;
         midori_view_realize (view);
         return;
     }
@@ -1537,7 +1550,8 @@ gtk_socket_realize_cb (GtkWidget*  socket,
     if (!success)
     {
         /* Fallback to operating without a socket */
-        view->socket_id = 0;
+        gtk_widget_destroy (gtk_bin_get_child (GTK_BIN (view)));
+        view->socket_id = -1;
         midori_view_realize (view);
 
         g_error_free (error);
@@ -1607,13 +1621,13 @@ midori_view_realize_cb (MidoriView* view)
     else if (midori_view_is_socket (view))
     {
         socket = gtk_socket_new ();
+        gtk_widget_show (socket);
         g_signal_connect (socket, "realize",
                           G_CALLBACK (gtk_socket_realize_cb), view);
         g_signal_connect (socket, "plug-removed",
                           G_CALLBACK (gtk_socket_plug_removed_cb), view);
         gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (view),
                                                GTK_WIDGET (socket));
-        gtk_widget_show (socket);
     }
 }
 
@@ -1650,7 +1664,7 @@ midori_view_init (MidoriView* view)
                       "signal::realize",
                       midori_view_realize_cb, NULL,
                       "signal::activate-action",
-                      midori_view_action_cb, NULL,
+                      midori_view_activate_action_cb, NULL,
                       "signal::console-message",
                       midori_view_console_message_cb, NULL,
                       "signal::new-tab",
@@ -2233,7 +2247,7 @@ midori_view_get_display_title (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "about:blank");
 
-    if (view->title && !strcmp (view->title, ""))
+    if (!view->uri || (view->title && !strcmp (view->title, "")))
         return "about:blank";
 
     if (view->title && *view->title)

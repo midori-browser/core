@@ -1016,10 +1016,14 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
+gboolean
+midori_view_single_process (gboolean enable);
+
 int
 main (int    argc,
       char** argv)
 {
+    gboolean single_process;
     guint socket_id;
     gboolean version;
     gchar** uris;
@@ -1028,6 +1032,8 @@ main (int    argc,
     GError* error;
     GOptionEntry entries[] =
     {
+       { "single-process", 's', 0, G_OPTION_ARG_NONE, &single_process,
+       N_("Run everything in the same process"), NULL },
        { "id", 'i', 0, G_OPTION_ARG_INT, &socket_id,
        N_("Internal identifier"), NULL },
        { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
@@ -1060,7 +1066,6 @@ main (int    argc,
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
     #endif
-    g_set_application_name (_("Midori"));
 
     /* Parse cli options */
     socket_id = 0;
@@ -1081,6 +1086,7 @@ main (int    argc,
     {
         /* If an ID was specified we create a view in a plug.
            This allows us to open views in separate processes. */
+        g_set_application_name ("midori-plug");
         view = g_object_new (MIDORI_TYPE_VIEW, "socket-id", socket_id, NULL);
         gtk_widget_show (view);
         plug = gtk_plug_new (socket_id);
@@ -1091,6 +1097,10 @@ main (int    argc,
         return 0;
     }
 
+    if (single_process)
+        midori_view_single_process (TRUE);
+
+    g_set_application_name (_("Midori"));
     if (version)
     {
         g_print (
