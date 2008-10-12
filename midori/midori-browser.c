@@ -1431,7 +1431,7 @@ _action_trash_populate_popup (GtkAction*     action,
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "TrashEmpty"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -1472,7 +1472,7 @@ _action_bookmarks_populate_popup (GtkAction*     action,
     GtkWidget* menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "BookmarkAdd"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -1496,11 +1496,11 @@ _action_window_populate_popup (GtkAction*     action,
     GtkWidget* menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "TabPrevious"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "TabNext"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -3004,6 +3004,7 @@ static const GtkActionEntry entries[] = {
  { "About", GTK_STOCK_ABOUT,
    NULL, "",
    N_("Show information about the program"), G_CALLBACK (_action_about_activate) },
+ { "Dummy", NULL, "Dummy" },
  };
  static const guint entries_n = G_N_ELEMENTS (entries);
 
@@ -3114,7 +3115,6 @@ static const gchar* ui_markup =
     "<separator/>"
     "<menuitem action='Find'/>"
     "<menuitem action='FindNext'/>"
-    "<menuitem action='FindPrevious'/>"
     "<separator/>"
     "<menuitem action='Preferences'/>"
    "</menu>"
@@ -3159,6 +3159,14 @@ static const gchar* ui_markup =
     "<menuitem action='HelpBugs'/>"
     "<separator/>"
     "<menuitem action='About'/>"
+   "</menu>"
+   /* For accelerators to work all actions need to be used
+     *somewhere* in the UI definition */
+   "<menu action='Dummy'>"
+    "<menuitem action='FindPrevious'/>"
+    "<menuitem action='TabPrevious'/>"
+    "<menuitem action='TabNext'/>"
+    "<menuitem action='TrashEmpty'/>"
    "</menu>"
   "</menubar>"
   "<toolbar name='toolbar_navigation'>"
@@ -3221,6 +3229,7 @@ midori_browser_init (MidoriBrowser* browser)
 {
     GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
+    GtkAction* action;
 
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
@@ -3264,25 +3273,10 @@ midori_browser_init (MidoriBrowser* browser)
         g_error_free (error);
     }
 
-    GtkAction* action;
-    /* Make all actions except toplevel menus which lack a callback insensitive
-       This will vanish once all actions are implemented */
-    guint i;
-    for (i = 0; i < entries_n; i++)
-    {
-        action = gtk_action_group_get_action (browser->action_group,
-                                              entries[i].name);
-        gtk_action_set_sensitive (action,
-                                  entries[i].callback || !entries[i].tooltip);
-    }
-    for (i = 0; i < toggle_entries_n; i++)
-    {
-        action = gtk_action_group_get_action (browser->action_group,
-                                              toggle_entries[i].name);
-        gtk_action_set_sensitive (action, toggle_entries[i].callback != NULL);
-    }
-
     /* _action_set_active(browser, "Transferbar", config->toolbarTransfers); */
+
+    /* Hide the 'Dummy' which only holds otherwise unused actions */
+    g_object_set (_action_by_name (browser, "Dummy"), "visible", FALSE, NULL);
 
     action = g_object_new (MIDORI_TYPE_LOCATION_ACTION,
         "name", "Location",
@@ -3415,7 +3409,11 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
     gtk_widget_show (browser->menubar);
+    _action_set_sensitive (browser, "SaveAs", FALSE);
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
+    _action_set_sensitive (browser, "FindQuick", FALSE);
+    _action_set_sensitive (browser, "Transferbar", FALSE);
+    _action_set_sensitive (browser, "SelectionSourceView", FALSE);
 
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
