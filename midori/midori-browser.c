@@ -50,10 +50,6 @@ struct _MidoriBrowser
     GtkWidget* popup_history;
     GtkWidget* throbber;
     GtkWidget* navigationbar;
-    GtkWidget* button_tab_new;
-    GtkWidget* button_homepage;
-    GtkWidget* search;
-    GtkWidget* button_trash;
     GtkWidget* button_fullscreen;
     GtkWidget* bookmarkbar;
 
@@ -1398,6 +1394,31 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
         gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
                                gtk_toolbar_style);
     }
+}
+
+static gboolean
+midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     toolbar,
+                                              gint           x,
+                                              gint           y,
+                                              gint           button,
+                                              MidoriBrowser* browser)
+{
+    GtkWidget* menu;
+    GtkWidget* menuitem;
+
+    menu = gtk_menu_new ();
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "Navigationbar"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "Bookmarkbar"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+
+    katze_widget_popup (toolbar, GTK_MENU (menu), NULL,
+        button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
+    return TRUE;
 }
 
 static void
@@ -3141,14 +3162,6 @@ static const gchar* ui_markup =
    "</menu>"
   "</menubar>"
   "<toolbar name='toolbar_navigation'>"
-   "<toolitem action='TabNew'/>"
-   "<toolitem action='Back'/>"
-   "<toolitem action='Forward'/>"
-   "<toolitem action='ReloadStop'/>"
-   "<toolitem action='Homepage'/>"
-   "<toolitem action='Location'/>"
-   "<toolitem action='Search'/>"
-   "<toolitem action='Trash'/>"
   "</toolbar>"
   "<toolbar name='toolbar_bookmarks'>"
    "<toolitem action='BookmarkAdd'/>"
@@ -3414,16 +3427,7 @@ midori_browser_init (MidoriBrowser* browser)
             G_CALLBACK (midori_browser_navigationbar_notify_style_cb), browser);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (browser->navigationbar), TRUE);
     gtk_box_pack_start (GTK_BOX (vbox), browser->navigationbar, FALSE, FALSE, 0);
-    browser->button_tab_new = gtk_ui_manager_get_widget (
-        ui_manager, "/toolbar_navigation/TabNew");
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
-    browser->button_homepage = gtk_ui_manager_get_widget (
-        ui_manager, "/toolbar_navigation/Homepage");
-    browser->search = gtk_ui_manager_get_widget (
-        ui_manager, "/toolbar_navigation/Search");
-    browser->button_trash = gtk_ui_manager_get_widget (
-        ui_manager, "/toolbar_navigation/Trash");
-
     sokoke_container_show_children (GTK_CONTAINER (browser->navigationbar));
     gtk_widget_hide (browser->navigationbar);
     action = gtk_action_group_get_action (browser->action_group, "Fullscreen");
@@ -3433,6 +3437,8 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (_action_fullscreen_activate), browser);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
                         GTK_TOOL_ITEM (browser->button_fullscreen), -1);
+    g_signal_connect (browser->navigationbar, "popup-context-menu",
+        G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
 
     /* Bookmarkbar */
     browser->bookmarkbar = gtk_toolbar_new ();
@@ -3441,6 +3447,8 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
     gtk_box_pack_start (GTK_BOX (vbox), browser->bookmarkbar, FALSE, FALSE, 0);
+    g_signal_connect (browser->bookmarkbar, "popup-context-menu",
+        G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
 
     /* Superuser warning */
     GtkWidget* hbox;
@@ -3764,20 +3772,68 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                            gtk_toolbar_style);
 }
 
+static gboolean
+midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
+                                                   GdkEventButton* event,
+                                                   MidoriBrowser*  browser)
+{
+    if (event->button == 3)
+    {
+        midori_browser_toolbar_popup_context_menu_cb (browser->navigationbar,
+            event->x, event->y, event->button, browser);
+
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void
+_midori_browser_set_toolbar_items (MidoriBrowser* browser,
+                                   const gchar*   items)
+{
+    gchar** names;
+    gchar** name;
+    GtkAction* action;
+    GtkWidget* toolitem;
+
+    gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
+        (GtkCallback)gtk_widget_destroy, NULL);
+
+    names = g_strsplit (items ? items : "", ",", 0);
+    name = names;
+    while (*name)
+    {
+        action = _action_by_name (browser, *name);
+        if (action)
+        {
+            toolitem = gtk_action_create_tool_item (action);
+            g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+                "button-press-event",
+                G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+                browser);
+            gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                                GTK_TOOL_ITEM (toolitem), -1);
+        }
+        name++;
+    }
+    g_strfreev (names);
+}
+
 static void
 _midori_browser_update_settings (MidoriBrowser* browser)
 {
-    KatzeItem* item;
-
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
     gint last_panel_position, last_panel_page;
     gboolean show_navigationbar, show_bookmarkbar, show_panel, show_statusbar;
-    gboolean show_new_tab, show_homepage, show_web_search, show_trash;
     MidoriToolbarStyle toolbar_style;
+    gchar* toolbar_items;
     gint last_web_search;
     gchar* last_pageholder_uri;
     gboolean close_buttons_on_tabs;
+    GdkScreen* screen;
+    gint default_width, default_height;
+    KatzeItem* item;
 
     g_object_get (browser->settings,
                   "remember-last-window-size", &remember_last_window_size,
@@ -3789,19 +3845,16 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-bookmarkbar", &show_bookmarkbar,
                   "show-panel", &show_panel,
                   "show-statusbar", &show_statusbar,
-                  "show-new-tab", &show_new_tab,
-                  "show-homepage", &show_homepage,
-                  "show-web-search", &show_web_search,
-                  "show-trash", &show_trash,
                   "toolbar-style", &toolbar_style,
+                  "toolbar-items", &toolbar_items,
                   "last-web-search", &last_web_search,
                   "last-pageholder-uri", &last_pageholder_uri,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   NULL);
 
-    GdkScreen* screen = gtk_window_get_screen (GTK_WINDOW (browser));
-    const gint default_width = (gint)gdk_screen_get_width (screen) / 1.7;
-    const gint default_height = (gint)gdk_screen_get_height (screen) / 1.7;
+    screen = gtk_window_get_screen (GTK_WINDOW (browser));
+    default_width = gdk_screen_get_width (screen) / 1.7;
+    default_height = gdk_screen_get_height (screen) / 1.7;
 
     if (remember_last_window_size)
     {
@@ -3815,6 +3868,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     _midori_browser_set_toolbar_style (browser, toolbar_style);
     _toggle_tabbar_smartly (browser);
+    _midori_browser_set_toolbar_items (browser, toolbar_items);
 
     if (browser->search_engines)
     {
@@ -3836,11 +3890,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Panel", show_panel);
     _action_set_active (browser, "Statusbar", show_statusbar);
 
-    sokoke_widget_set_visible (browser->button_tab_new, show_new_tab);
-    sokoke_widget_set_visible (browser->button_homepage, show_homepage);
-    sokoke_widget_set_visible (browser->search, show_web_search);
-    sokoke_widget_set_visible (browser->button_trash, show_trash);
-
+    g_free (toolbar_items);
     g_free (last_pageholder_uri);
 }
 
@@ -3858,20 +3908,10 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
 
     if (name == g_intern_string ("toolbar-style"))
         _midori_browser_set_toolbar_style (browser, g_value_get_enum (&value));
+    else if (name == g_intern_string ("toolbar-items"))
+        _midori_browser_set_toolbar_items (browser, g_value_get_string (&value));
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser);
-    else if (name == g_intern_string ("show-new-tab"))
-        sokoke_widget_set_visible (browser->button_tab_new,
-            g_value_get_boolean (&value));
-    else if (name == g_intern_string ("show-homepage"))
-        sokoke_widget_set_visible (browser->button_homepage,
-            g_value_get_boolean (&value));
-    else if (name == g_intern_string ("show-web-search"))
-        sokoke_widget_set_visible (browser->search,
-            g_value_get_boolean (&value));
-    else if (name == g_intern_string ("show-trash"))
-        sokoke_widget_set_visible (browser->button_trash,
-            g_value_get_boolean (&value));
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                              name))
          g_warning (_("Unexpected setting '%s'"), name);

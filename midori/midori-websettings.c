@@ -34,6 +34,7 @@ struct _MidoriWebSettings
     gboolean show_statusbar;
 
     MidoriToolbarStyle toolbar_style;
+    gchar* toolbar_items;
     gboolean always_show_tabbar;
     gboolean show_new_tab;
     gboolean show_homepage;
@@ -87,6 +88,7 @@ enum
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
+    PROP_TOOLBAR_ITEMS,
     PROP_ALWAYS_SHOW_TABBAR,
     PROP_SHOW_NEW_TAB,
     PROP_SHOW_HOMEPAGE,
@@ -345,6 +347,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
+                                     flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_TOOLBAR_ITEMS,
+                                     g_param_spec_string (
+                                     "toolbar-items",
+                                     _("Toolbar Items"),
+                                     _("The items to show on the toolbar"),
+                                     "Back,Forward,ReloadStop,Location,Trash",
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -682,6 +693,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_STYLE:
         web_settings->toolbar_style = g_value_get_enum (value);
         break;
+    case PROP_TOOLBAR_ITEMS:
+        katze_assign (web_settings->toolbar_items, g_value_dup_string (value));
+        break;
     case PROP_ALWAYS_SHOW_TABBAR:
         web_settings->always_show_tabbar = g_value_get_boolean (value);
         break;
@@ -839,6 +853,9 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_TOOLBAR_STYLE:
         g_value_set_enum (value, web_settings->toolbar_style);
         break;
+    case PROP_TOOLBAR_ITEMS:
+        g_value_set_string (value, web_settings->toolbar_items);
+        break;
     case PROP_ALWAYS_SHOW_TABBAR:
         g_value_set_boolean (value, web_settings->always_show_tabbar);
         break;
@@ -970,6 +987,7 @@ midori_web_settings_copy (MidoriWebSettings* web_settings)
                   "preferred-encoding", web_settings->preferred_encoding,
 
                   "toolbar-style", web_settings->toolbar_style,
+                  "toolbar-items", web_settings->toolbar_items,
                   "show-web-search", web_settings->show_web_search,
                   "show-new-tab", web_settings->show_new_tab,
                   "show-trash", web_settings->show_trash,
