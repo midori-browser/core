@@ -590,7 +590,13 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
                   "sensitive", &sensitive,
                   "visible", &visible,
                   NULL);
-    if (stock_id)
+    if (GTK_IS_TOGGLE_ACTION (action))
+    {
+        menuitem = gtk_check_menu_item_new_with_mnemonic (label);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
+            gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action)));
+    }
+    else if (stock_id)
     {
         if (label)
         {

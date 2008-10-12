@@ -28,6 +28,7 @@ struct _MidoriWebSettings
     gint last_web_search;
     gchar* last_pageholder_uri;
 
+    gboolean show_menubar;
     gboolean show_navigationbar;
     gboolean show_bookmarkbar;
     gboolean show_panel;
@@ -82,6 +83,7 @@ enum
     PROP_LAST_WEB_SEARCH,
     PROP_LAST_PAGEHOLDER_URI,
 
+    PROP_SHOW_MENUBAR,
     PROP_SHOW_NAVIGATIONBAR,
     PROP_SHOW_BOOKMARKBAR,
     PROP_SHOW_PANEL,
@@ -301,6 +303,14 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
 
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_MENUBAR,
+                                     g_param_spec_boolean (
+                                     "show-menubar",
+                                     _("Show Menubar"),
+                                     _("Whether to show the menubar"),
+                                     TRUE,
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_SHOW_NAVIGATIONBAR,
@@ -677,6 +687,9 @@ midori_web_settings_set_property (GObject*      object,
         katze_assign (web_settings->last_pageholder_uri, g_value_dup_string (value));
         break;
 
+    case PROP_SHOW_MENUBAR:
+        web_settings->show_menubar = g_value_get_boolean (value);
+        break;
     case PROP_SHOW_NAVIGATIONBAR:
         web_settings->show_navigationbar = g_value_get_boolean (value);
         break;
@@ -837,6 +850,9 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_string (value, web_settings->last_pageholder_uri);
         break;
 
+    case PROP_SHOW_MENUBAR:
+        g_value_set_boolean (value, web_settings->show_menubar);
+        break;
     case PROP_SHOW_NAVIGATIONBAR:
         g_value_set_boolean (value, web_settings->show_navigationbar);
         break;
@@ -961,54 +977,4 @@ midori_web_settings_new (void)
                                                     NULL);
 
     return web_settings;
-}
-
-/**
- * midori_web_settings_copy:
- *
- * Copies an existing #MidoriWebSettings instance.
- *
- * Return value: a new #MidoriWebSettings
- **/
-MidoriWebSettings*
-midori_web_settings_copy (MidoriWebSettings* web_settings)
-{
-    g_return_val_if_fail (MIDORI_IS_WEB_SETTINGS (web_settings), NULL);
-
-    MidoriWebSettings* copy;
-    copy = MIDORI_WEB_SETTINGS (webkit_web_settings_copy (
-        WEBKIT_WEB_SETTINGS (web_settings)));
-    g_object_set (copy,
-                  "load-on-startup", web_settings->load_on_startup,
-                  "homepage", web_settings->homepage,
-                  "download-folder", web_settings->download_folder,
-                  "download-manager", web_settings->download_manager,
-                  "location-entry-search", web_settings->location_entry_search,
-                  "preferred-encoding", web_settings->preferred_encoding,
-
-                  "toolbar-style", web_settings->toolbar_style,
-                  "toolbar-items", web_settings->toolbar_items,
-                  "show-web-search", web_settings->show_web_search,
-                  "show-new-tab", web_settings->show_new_tab,
-                  "show-trash", web_settings->show_trash,
-
-                  "close-buttons-on-tabs", web_settings->close_buttons_on_tabs,
-                  "open-new-pages-in", web_settings->open_new_pages_in,
-                  "middle-click-opens-selection", web_settings->middle_click_opens_selection,
-                  "open-tabs-in-the-background", web_settings->open_tabs_in_the_background,
-                  "open-popups-in-tabs", web_settings->open_popups_in_tabs,
-
-                  "accept-cookies", web_settings->accept_cookies,
-                  "original-cookies-only", web_settings->original_cookies_only,
-                  "maximum-cookie-age", web_settings->maximum_cookie_age,
-
-                  "remember-last-visited-pages", web_settings->remember_last_visited_pages,
-                  "maximum-history-age", web_settings->maximum_history_age,
-                  "remember-last-form-inputs", web_settings->remember_last_form_inputs,
-                  "remember-last-downloaded-files", web_settings->remember_last_downloaded_files,
-
-                  "cache-size", web_settings->cache_size,
-                  NULL);
-
-    return copy;
 }

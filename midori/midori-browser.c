@@ -1408,6 +1408,10 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     toolbar,
 
     menu = gtk_menu_new ();
     menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "Menubar"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Navigationbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -1548,6 +1552,15 @@ _action_preferences_activate (GtkAction*     action,
             G_CALLBACK (midori_preferences_response_help_cb), browser);
         gtk_widget_show (dialog);
     }
+}
+
+static void
+_action_menubar_activate (GtkToggleAction* action,
+                          MidoriBrowser*   browser)
+{
+    gboolean active = gtk_toggle_action_get_active (action);
+    g_object_set (browser->settings, "show-menubar", active, NULL);
+    sokoke_widget_set_visible (browser->menubar, active);
 }
 
 static void
@@ -3014,6 +3027,10 @@ static const GtkToggleActionEntry toggle_entries[] = {
    N_("Don't save any private data while browsing"), NULL/*G_CALLBACK (_action_private_browsing_activate)*/,
    FALSE },
 
+ { "Menubar", NULL,
+   N_("_Menubar"), "",
+   N_("Show menubar"), G_CALLBACK (_action_menubar_activate),
+   FALSE },
  { "Navigationbar", NULL,
    N_("_Navigationbar"), "",
    N_("Show navigationbar"), G_CALLBACK (_action_navigationbar_activate),
@@ -3120,6 +3137,7 @@ static const gchar* ui_markup =
    "</menu>"
    "<menu action='View'>"
     "<menu action='Toolbars'>"
+     "<menuitem action='Menubar'/>"
      "<menuitem action='Navigationbar'/>"
      "<menuitem action='Bookmarkbar'/>"
      "<menuitem action='Transferbar'/>"
@@ -3408,7 +3426,8 @@ midori_browser_init (MidoriBrowser* browser)
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
-    gtk_widget_show (browser->menubar);
+    gtk_widget_hide (browser->menubar);
+
     _action_set_sensitive (browser, "SaveAs", FALSE);
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
     _action_set_sensitive (browser, "FindQuick", FALSE);
@@ -3823,7 +3842,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
     gint last_panel_position, last_panel_page;
-    gboolean show_navigationbar, show_bookmarkbar, show_panel, show_statusbar;
+    gboolean show_menubar, show_navigationbar, show_bookmarkbar;
+    gboolean show_panel, show_statusbar;
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gint last_web_search;
@@ -3839,6 +3859,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "last-window-height", &last_window_height,
                   "last-panel-position", &last_panel_position,
                   "last-panel-page", &last_panel_page,
+                  "show-menubar", &show_menubar,
                   "show-navigationbar", &show_navigationbar,
                   "show-bookmarkbar", &show_bookmarkbar,
                   "show-panel", &show_panel,
@@ -3883,6 +3904,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     midori_view_set_uri (MIDORI_VIEW (browser->panel_pageholder),
                          last_pageholder_uri);
 
+    _action_set_active (browser, "Menubar", show_menubar);
     _action_set_active (browser, "Navigationbar", show_navigationbar);
     _action_set_active (browser, "Bookmarkbar", show_bookmarkbar);
     _action_set_active (browser, "Panel", show_panel);

@@ -115,9 +115,6 @@ midori_web_settings_get_type               (void);
 MidoriWebSettings*
 midori_web_settings_new                    (void);
 
-MidoriWebSettings*
-midori_web_settings_copy                   (MidoriWebSettings* web_settings);
-
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_SETTINGS_H__ */
