@@ -2247,7 +2247,7 @@ midori_view_get_display_title (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "about:blank");
 
-    if (!view->uri || (view->title && !strcmp (view->title, "")))
+    if (midori_view_is_blank (view))
         return "about:blank";
 
     if (view->title && *view->title)
