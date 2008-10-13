@@ -13,10 +13,8 @@
 
 #include "gtkiconentry.h"
 
-#include <katze/katze.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
 
 struct _MidoriLocationAction
 {
@@ -289,7 +287,7 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
     gtk_widget_show (alignment);
 
-    return GTK_WIDGET (toolitem);
+    return toolitem;
 }
 
 static void
@@ -387,6 +385,7 @@ static void
 midori_location_action_disconnect_proxy (GtkAction* action,
                                          GtkWidget* proxy)
 {
+    /* FIXME: This is wrong */
     g_signal_handlers_disconnect_by_func (proxy,
         G_CALLBACK (gtk_action_activate), action);
 

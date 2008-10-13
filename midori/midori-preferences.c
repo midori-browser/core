@@ -366,7 +366,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     WIDGET_ADD (button, 1, 2, 2, 3);
 
     /* Page "Network" */
-    PAGE_NEW (_("Network"));
+    /*PAGE_NEW (_("Network"));
     FRAME_NEW (_("Network"));
     TABLE_NEW (2, 2);
     label = katze_property_label (settings, "http-proxy");
@@ -380,11 +380,11 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("MB")),
                         FALSE, FALSE, 0);
-    FILLED_ADD (hbox, 1, 2, 1, 2);
+    FILLED_ADD (hbox, 1, 2, 1, 2);*/
 
     /* Page "Privacy" */
-    /* PAGE_NEW (_("Privacy"));
-    FRAME_NEW (_("Web Cookies"));
+    PAGE_NEW (_("Privacy"));
+    /*FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
     INDENTED_ADD (label, 0, 1, 0, 1);
@@ -399,7 +399,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("days")),
                         FALSE, FALSE, 0);
-    FILLED_ADD (hbox, 1, 2, 2, 3);
+    FILLED_ADD (hbox, 1, 2, 2, 3);*/
     FRAME_NEW (_("History"));
     TABLE_NEW (3, 2);
     button = katze_property_proxy (settings, "remember-last-visited-pages", NULL);
@@ -413,7 +413,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "remember-last-form-inputs", NULL);
     SPANNED_ADD (button, 0, 2, 1, 2);
     button = katze_property_proxy (settings, "remember-last-downloaded-files", NULL);
-    SPANNED_ADD (button, 0, 2, 2, 3); */
+    SPANNED_ADD (button, 0, 2, 2, 3);
 
     g_object_unref (sizegroup);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),

@@ -361,7 +361,8 @@ midori_view_notify_icon_cb (MidoriView*    view,
 
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
-    midori_location_action_set_icon_for_uri (
+    if (sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+        midori_location_action_set_icon_for_uri (
         MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
 }
 
@@ -378,8 +379,11 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
 
     if (midori_view_get_load_status (MIDORI_VIEW (view))
         == MIDORI_LOAD_COMMITTED)
-        midori_location_action_add_uri (
-            MIDORI_LOCATION_ACTION (action), uri);
+    {
+        if (sokoke_object_get_boolean (browser->settings,
+            "remember-last-visited-pages"))
+            midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
+    }
     else if (midori_view_get_load_status (MIDORI_VIEW (view))
         == MIDORI_LOAD_FINISHED)
     {
@@ -441,7 +445,8 @@ midori_view_notify_title_cb (GtkWidget*     view,
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     title = midori_view_get_display_title (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
-    midori_location_action_set_title_for_uri (
+    if (sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+        midori_location_action_set_title_for_uri (
         MIDORI_LOCATION_ACTION (action), title, uri);
     if (midori_view_get_load_status (MIDORI_VIEW (view)) == MIDORI_LOAD_COMMITTED)
     {
@@ -4052,6 +4057,9 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     gchar newdate [70];
     gchar *today;
     gsize len;
+
+    if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+        return;
 
     treeview = GTK_TREE_VIEW (browser->panel_history);
     treemodel = gtk_tree_view_get_model (treeview);

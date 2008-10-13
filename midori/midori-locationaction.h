@@ -18,16 +18,21 @@
 
 G_BEGIN_DECLS
 
-#define MIDORI_TYPE_LOCATION_ACTION            (midori_location_action_get_type ())
-#define MIDORI_LOCATION_ACTION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), MIDORI_TYPE_LOCATION_ACTION, MidoriLocationAction))
-#define MIDORI_LOCATION_ACTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  MIDORI_TYPE_LOCATION_ACTION, MidoriLocationActionClass))
-#define MIDORI_IS_LOCATION_ACTION(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MIDORI_TYPE_LOCATION_ACTION))
-#define MIDORI_IS_LOCATION_ACTION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  MIDORI_TYPE_LOCATION_ACTION))
-#define MIDORI_LOCATION_ACTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  MIDORI_TYPE_LOCATION_ACTION, MidoriLocationActionClass))
+#define MIDORI_TYPE_LOCATION_ACTION \
+    (midori_location_action_get_type ())
+#define MIDORI_LOCATION_ACTION(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), MIDORI_TYPE_LOCATION_ACTION, MidoriLocationAction))
+#define MIDORI_LOCATION_ACTION_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  MIDORI_TYPE_LOCATION_ACTION, MidoriLocationActionClass))
+#define MIDORI_IS_LOCATION_ACTION(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MIDORI_TYPE_LOCATION_ACTION))
+#define MIDORI_IS_LOCATION_ACTION_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  MIDORI_TYPE_LOCATION_ACTION))
+#define MIDORI_LOCATION_ACTION_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  MIDORI_TYPE_LOCATION_ACTION, MidoriLocationActionClass))
 
 typedef struct _MidoriLocationAction         MidoriLocationAction;
 typedef struct _MidoriLocationActionClass    MidoriLocationActionClass;
-typedef struct _MidoriLocationActionItem     MidoriLocationActionItem;
 
 GType
 midori_location_action_get_type           (void);

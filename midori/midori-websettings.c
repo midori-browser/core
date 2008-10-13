@@ -566,7 +566,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Remember last visited pages"),
                                      _("Whether the last visited pages are saved"),
                                      TRUE,
-                                     G_PARAM_READABLE));
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_MAXIMUM_HISTORY_AGE,
