@@ -28,7 +28,12 @@
 #include <gtk/gtk.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include <sqlite3.h>
+
+#if HAVE_SQLITE3_H
+    #include <sqlite3.h>
+#elif HAVE_SQLITE_H
+    #include <sqlite.h>
+#endif
 
 #if ENABLE_NLS
     #include <libintl.h>
@@ -575,6 +580,7 @@ katze_array_from_file (KatzeArray*  array,
     return TRUE;
 }
 
+#ifdef HAVE_SQLITE
 /* Open database 'dbname' */
 static sqlite3*
 db_open (const char* dbname,
@@ -851,6 +857,7 @@ midori_history_initialize (KatzeArray*  array,
     }
     return db;
 }
+#endif
 
 static gchar*
 _simple_xml_element (const gchar* name,
@@ -1059,7 +1066,9 @@ main (int    argc,
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
+    #ifdef HAVE_SQLITE
     sqlite3* db;
+    #endif
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, MIDORI_LOCALEDIR);
@@ -1210,8 +1219,11 @@ main (int    argc,
         g_error_free (error);
     }
     g_free (config_file);
+    #ifdef HAVE_SQLITE
     config_file = g_build_filename (config_path, "history.db", NULL);
+    #endif
     history = katze_array_new (KATZE_TYPE_ARRAY);
+    #ifdef HAVE_SQLITE
     error = NULL;
     if ((db = midori_history_initialize (history, config_file, &error)) == NULL)
     {
@@ -1220,6 +1232,7 @@ main (int    argc,
         g_error_free (error);
     }
     g_free (config_file);
+    #endif
 
     /* In case of errors */
     if (error_messages->len)
@@ -1298,10 +1311,12 @@ main (int    argc,
 
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_web_list_add_item_cb), NULL);
+    #ifdef HAVE_SQLITE
     g_signal_connect_after (history, "add-item",
         G_CALLBACK (midori_history_add_item_cb), db);
     g_signal_connect_after (history, "clear",
         G_CALLBACK (midori_history_clear_cb), db);
+    #endif
 
     g_object_set (app, "settings", settings,
                        "bookmarks", bookmarks,
@@ -1377,7 +1392,9 @@ main (int    argc,
                                     NULL);
     g_mkdir_with_parents (config_path, 0755);
     g_object_unref (history);
+    #ifdef HAVE_SQLITE
     db_close (db);
+    #endif
     config_file = g_build_filename (config_path, "search", NULL);
     error = NULL;
     if (!search_engines_save_to_file (search_engines, config_file, &error))

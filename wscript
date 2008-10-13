@@ -109,9 +109,17 @@ def configure (conf):
                 print '\t      The HTTP backend of GVfs is recommended for'
                 print '\t      viewing source code and loading favicons.'
 
+    if not Params.g_options.disable_sqlite:
+        conf.check_pkg ('sqlite3', destvar='SQLITE', vnum='3.0', mandatory=False)
+        sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
+        if not conf.check_header ('sqlite3.h', 'HAVE_SQLITE3_H'):
+            conf.check_header ('sqlite.h', 'HAVE_SQLITE_H')
+    else:
+        sqlite = 'no'
+    conf.check_message_custom ('history database', 'support', sqlite)
+
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.6.0', mandatory=True)
     conf.check_pkg ('gtksourceview-2.0', destvar='GTKSOURCEVIEW', vnum='2.0', mandatory=False)
-    conf.check_pkg ('sqlite3', destvar='SQLITE', vnum='3.0', mandatory=False)
     conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
     conf.check_pkg ('libxml-2.0', destvar='LIBXML', vnum='2.6', mandatory=True)
 
@@ -146,6 +154,8 @@ def set_options (opt):
         help='Disables Unique support', dest='disable_unique')
     opt.add_option ('--disable-gio', action='store_true', default=False,
         help='Disables GIO support', dest='disable_gio')
+    opt.add_option ('--disable-sqlite', action='store_true', default=False,
+        help='Disables sqlite support', dest='disable_sqlite')
 
     opt.add_option ('--enable-update-po', action='store_true', default=False,
         help='Enables localization file updates', dest='enable_update_po')
