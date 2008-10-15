@@ -344,8 +344,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_URI,
                                      g_param_spec_string (
                                      "uri",
-                                     _("Uri"),
-                                     _("The URI of the currently loaded page"),
+                                     "Uri",
+                                     "The URI of the currently loaded page",
                                      "about:blank",
                                      G_PARAM_READABLE));
 
@@ -353,8 +353,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_TITLE,
                                      g_param_spec_string (
                                      "title",
-                                     _("Title"),
-                                     _("The title of the currently loaded page"),
+                                     "Title",
+                                     "The title of the currently loaded page",
                                      NULL,
                                      G_PARAM_READWRITE));
 
@@ -362,8 +362,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_ICON,
                                      g_param_spec_object (
                                      "icon",
-                                     _("Icon"),
-                                     _("The icon of the view"),
+                                     "Icon",
+                                     "The icon of the view",
                                      GDK_TYPE_PIXBUF,
                                      G_PARAM_READABLE));
 
@@ -371,8 +371,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_LOAD_STATUS,
                                      g_param_spec_enum (
                                      "load-status",
-                                     _("Load Status"),
-                                     _("The current loading status"),
+                                     "Load Status",
+                                     "The current loading status",
                                      MIDORI_TYPE_LOAD_STATUS,
                                      MIDORI_LOAD_FINISHED,
                                      G_PARAM_READABLE));
@@ -381,8 +381,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_PROGRESS,
                                      g_param_spec_double (
                                      "progress",
-                                     _("Progress"),
-                                     _("The current loading progress"),
+                                     "Progress",
+                                     "The current loading progress",
                                      0.0, 1.0, 0.0,
                                      G_PARAM_READABLE));
 
@@ -390,8 +390,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_ZOOM_LEVEL,
                                      g_param_spec_float (
                                      "zoom-level",
-                                     _("Zoom Level"),
-                                     _("The current zoom level"),
+                                     "Zoom Level",
+                                     "The current zoom level",
                                      G_MINFLOAT,
                                      G_MAXFLOAT,
                                      1.0f,
@@ -401,8 +401,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_STATUSBAR_TEXT,
                                      g_param_spec_string (
                                      "statusbar-text",
-                                     _("Statusbar Text"),
-                                     _("The text displayed in the statusbar"),
+                                     "Statusbar Text",
+                                     "The text displayed in the statusbar",
                                      "",
                                      G_PARAM_READWRITE));
 
@@ -410,8 +410,8 @@ midori_view_class_init (MidoriViewClass* class)
                                      PROP_SETTINGS,
                                      g_param_spec_object (
                                      "settings",
-                                     _("Settings"),
-                                     _("The associated settings"),
+                                     "Settings",
+                                     "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE));
 }

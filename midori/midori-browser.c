@@ -963,8 +963,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_MENUBAR,
                                      g_param_spec_object (
                                      "menubar",
-                                     _("Menubar"),
-                                     _("The menubar"),
+                                     "Menubar",
+                                     "The menubar",
                                      GTK_TYPE_MENU_BAR,
                                      G_PARAM_READABLE));
 
@@ -972,8 +972,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_NAVIGATIONBAR,
                                      g_param_spec_object (
                                      "navigationbar",
-                                     _("Navigationbar"),
-                                     _("The navigationbar"),
+                                     "Navigationbar",
+                                     "The navigationbar",
                                      GTK_TYPE_TOOLBAR,
                                      G_PARAM_READABLE));
 
@@ -981,8 +981,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_URI,
                                      g_param_spec_string (
                                      "uri",
-                                     _("URI"),
-                                     _("The current URI"),
+                                     "URI",
+                                     "The current URI",
                                      "about:blank",
                                      G_PARAM_READWRITE));
 
@@ -990,8 +990,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_TAB,
                                      g_param_spec_object (
                                      "tab",
-                                     _("Tab"),
-                                     _("The current tab"),
+                                     "Tab",
+                                     "The current tab",
                                      GTK_TYPE_WIDGET,
                                      G_PARAM_READWRITE));
 
@@ -999,8 +999,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_STATUSBAR,
                                      g_param_spec_object (
                                      "statusbar",
-                                     _("Statusbar"),
-                                     _("The statusbar"),
+                                     "Statusbar",
+                                     "The statusbar",
                                      GTK_TYPE_STATUSBAR,
                                      G_PARAM_READABLE));
 
@@ -1019,8 +1019,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_STATUSBAR_TEXT,
                                      g_param_spec_string (
                                      "statusbar-text",
-                                     _("Statusbar Text"),
-                                     _("The text that is displayed in the statusbar"),
+                                     "Statusbar Text",
+                                     "The text that is displayed in the statusbar",
                                      "",
                                      flags));
 
@@ -1038,8 +1038,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_SETTINGS,
                                      g_param_spec_object (
                                      "settings",
-                                     _("Settings"),
-                                     _("The associated settings"),
+                                     "Settings",
+                                     "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE));
 
@@ -1055,8 +1055,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_BOOKMARKS,
                                      g_param_spec_object (
                                      "bookmarks",
-                                     _("Bookmarks"),
-                                     _("The bookmarks folder, containing all bookmarks"),
+                                     "Bookmarks",
+                                     "The bookmarks folder, containing all bookmarks",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -1074,8 +1074,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_TRASH,
                                      g_param_spec_object (
                                      "trash",
-                                     _("Trash"),
-                                     _("The trash, collecting recently closed tabs and windows"),
+                                     "Trash",
+                                     "The trash, collecting recently closed tabs and windows",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -1091,8 +1091,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_SEARCH_ENGINES,
                                      g_param_spec_object (
                                      "search-engines",
-                                     _("Search Engines"),
-                                     _("The list of search engines to be used for web search"),
+                                     "Search Engines",
+                                     "The list of search engines to be used for web search",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -1108,8 +1108,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      PROP_HISTORY,
                                      g_param_spec_object (
                                      "history",
-                                     _("History"),
-                                     _("The list of history items"),
+                                     "History",
+                                     "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 }
@@ -3048,7 +3048,7 @@ static const GtkToggleActionEntry toggle_entries[] = {
    N_("_Navigationbar"), "",
    N_("Show navigationbar"), G_CALLBACK (_action_navigationbar_activate),
    FALSE },
- { "Panel", NULL,
+ { "Panel", GTK_STOCK_INDENT,
    N_("Side_panel"), "F9",
    N_("Show sidepanel"), G_CALLBACK (_action_panel_activate),
    FALSE },

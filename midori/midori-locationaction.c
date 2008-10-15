@@ -179,8 +179,8 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      PROP_PROGRESS,
                                      g_param_spec_double (
                                      "progress",
-                                     _("Progress"),
-                                     _("The current progress of the action"),
+                                     "Progress",
+                                     "The current progress of the action",
                                      0.0, 1.0, 0.0,
                                      G_PARAM_WRITABLE));
 
@@ -188,8 +188,8 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      PROP_SECONDARY_ICON,
                                      g_param_spec_string (
                                      "secondary-icon",
-                                     _("Secondary"),
-                                     _("The stock ID of the secondary icon"),
+                                     "Secondary",
+                                     "The stock ID of the secondary icon",
                                      NULL,
                                      G_PARAM_WRITABLE));
 }

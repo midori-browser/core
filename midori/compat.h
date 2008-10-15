@@ -16,9 +16,8 @@
     #include <config.h>
 #endif
 
-#include <glib.h>
 #if HAVE_GIO
-#include <gio/gio.h>
+    #include <gio/gio.h>
 #endif
 #include <webkit/webkit.h>
 

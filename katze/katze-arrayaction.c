@@ -120,8 +120,8 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                      PROP_ARRAY,
                                      g_param_spec_object (
                                      "array",
-                                     _("Array"),
-                                     _("The array the action represents"),
+                                     "Array",
+                                     "The array the action represents",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 }

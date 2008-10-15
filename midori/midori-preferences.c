@@ -58,8 +58,8 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
                                      PROP_SETTINGS,
                                      g_param_spec_object (
                                      "settings",
-                                     _("Settings"),
-                                     _("Settings instance to provide properties"),
+                                     "Settings",
+                                     "Settings instance to provide properties",
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_WRITABLE));
 }

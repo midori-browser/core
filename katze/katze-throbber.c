@@ -13,7 +13,6 @@
 
 #include "katze-utils.h"
 
-#include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
 struct _KatzeThrobber
@@ -51,7 +50,7 @@ enum
 };
 
 static void
-katze_throbber_dispose(GObject* object);
+katze_throbber_dispose (GObject* object);
 
 static void
 katze_throbber_set_property (GObject* object,
@@ -132,8 +131,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_ICON_SIZE,
                                      g_param_spec_int (
                                      "icon-size",
-                                     _("Icon size"),
-                                     _("Symbolic size to use for the animation"),
+                                     "Icon size",
+                                     "Symbolic size to use for the animation",
                                      0, G_MAXINT, GTK_ICON_SIZE_MENU,
                                      flags));
 
@@ -141,8 +140,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_ICON_NAME,
                                      g_param_spec_string (
                                      "icon-name",
-                                     _("Icon Name"),
-                                     _("The name of an icon containing animation frames"),
+                                     "Icon Name",
+                                     "The name of an icon containing animation frames",
                                      "process-working",
                                      flags));
 
@@ -150,8 +149,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_PIXBUF,
                                      g_param_spec_object (
                                      "pixbuf",
-                                     _("Pixbuf"),
-                                     _("A GdkPixbuf containing animation frames"),
+                                     "Pixbuf",
+                                     "A GdkPixbuf containing animation frames",
                                      GDK_TYPE_PIXBUF,
                                      G_PARAM_READWRITE));
 
@@ -159,8 +158,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_ANIMATED,
                                      g_param_spec_boolean (
                                      "animated",
-                                     _("Animated"),
-                                     _("Whether the throbber should be animated"),
+                                     "Animated",
+                                     "Whether the throbber should be animated",
                                      FALSE,
                                      flags));
 
@@ -168,8 +167,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_STATIC_ICON_NAME,
                                      g_param_spec_string (
                                      "static-icon-name",
-                                     _("Static Icon Name"),
-                                     _("The name of an icon to be used as the static image"),
+                                     "Static Icon Name",
+                                     "The name of an icon to be used as the static image",
                                      NULL,
                                      flags));
 
@@ -177,8 +176,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_PIXBUF,
                                      g_param_spec_object (
                                      "static-pixbuf",
-                                     _("Static Pixbuf"),
-                                     _("A GdkPixbuf to be used as the static image"),
+                                     "Static Pixbuf",
+                                     "A GdkPixbuf to be used as the static image",
                                      GDK_TYPE_PIXBUF,
                                      G_PARAM_READWRITE));
 
@@ -186,8 +185,8 @@ katze_throbber_class_init (KatzeThrobberClass* class)
                                      PROP_STATIC_STOCK_ID,
                                      g_param_spec_string (
                                      "static-stock-id",
-                                     _("Static Stock ID"),
-                                     _("The stock ID of an icon to be used as the static image"),
+                                     "Static Stock ID",
+                                     "The stock ID of an icon to be used as the static image",
                                      NULL,
                                      flags));
 }

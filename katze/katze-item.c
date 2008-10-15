@@ -71,8 +71,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_NAME,
                                      g_param_spec_string (
                                      "name",
-                                     _("Name"),
-                                     _("The name of the item"),
+                                     "Name",
+                                     "The name of the item",
                                      NULL,
                                      flags));
 
@@ -80,8 +80,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_TEXT,
                                      g_param_spec_string (
                                      "text",
-                                     _("Text"),
-                                     _("The descriptive text of the item"),
+                                     "Text",
+                                     "The descriptive text of the item",
                                      NULL,
                                      flags));
 
@@ -89,8 +89,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_URI,
                                      g_param_spec_string (
                                      "uri",
-                                     _("URI"),
-                                     _("The URI of the item"),
+                                     "URI",
+                                     "The URI of the item",
                                      NULL,
                                      flags));
 
@@ -98,8 +98,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_ICON,
                                      g_param_spec_string (
                                      "icon",
-                                     _("Icon"),
-                                     _("The icon of the item"),
+                                     "Icon",
+                                     "The icon of the item",
                                      NULL,
                                      flags));
 
@@ -107,8 +107,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_TOKEN,
                                      g_param_spec_string (
                                      "token",
-                                     _("Token"),
-                                     _("The token of the item"),
+                                     "Token",
+                                     "The token of the item",
                                      NULL,
                                      flags));
 
@@ -116,8 +116,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_ADDED,
                                      g_param_spec_string (
                                      "added",
-                                     _("Added"),
-                                     _("When the item was added"),
+                                     "Added",
+                                     "When the item was added",
                                      NULL,
                                      flags));
 
@@ -125,8 +125,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      PROP_VISITS,
                                      g_param_spec_int (
                                      "visits",
-                                     _("Visits"),
-                                     _("The number of visits of the item"),
+                                     "Visits",
+                                     "The number of visits of the item",
                                      G_MININT,
                                      G_MAXINT,
                                      0,

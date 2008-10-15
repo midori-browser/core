@@ -125,8 +125,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_SETTINGS,
                                      g_param_spec_object (
                                      "settings",
-                                     _("Settings"),
-                                     _("The associated settings"),
+                                     "Settings",
+                                     "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
                                      G_PARAM_READWRITE));
 
@@ -134,8 +134,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_BOOKMARKS,
                                      g_param_spec_object (
                                      "bookmarks",
-                                     _("Bookmarks"),
-                                     _("The bookmarks folder, containing all bookmarks"),
+                                     "Bookmarks",
+                                     "The bookmarks folder, containing all bookmarks",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -143,8 +143,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_TRASH,
                                      g_param_spec_object (
                                      "trash",
-                                     _("Trash"),
-                                     _("The trash, collecting recently closed tabs and windows"),
+                                     "Trash",
+                                     "The trash, collecting recently closed tabs and windows",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -152,8 +152,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_SEARCH_ENGINES,
                                      g_param_spec_object (
                                      "search-engines",
-                                     _("Search Engines"),
-                                     _("The list of search engines"),
+                                     "Search Engines",
+                                     "The list of search engines",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -161,8 +161,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_BROWSER,
                                      g_param_spec_object (
                                      "browser",
-                                     _("Browser"),
-                                     _("The current browser"),
+                                     "Browser",
+                                     "The current browser",
                                      MIDORI_TYPE_BROWSER,
                                      G_PARAM_READABLE));
 
@@ -170,8 +170,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_BROWSER_COUNT,
                                      g_param_spec_uint (
                                      "browser-count",
-                                     _("Browser Count"),
-                                     _("The current number of browsers"),
+                                     "Browser Count",
+                                     "The current number of browsers",
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
 
@@ -179,8 +179,8 @@ midori_app_class_init (MidoriAppClass* class)
                                      PROP_HISTORY,
                                      g_param_spec_object (
                                      "history",
-                                     _("History"),
-                                     _("The list of history items"),
+                                     "History",
+                                     "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 

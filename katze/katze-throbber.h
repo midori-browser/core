@@ -12,7 +12,6 @@
 #ifndef __KATZE_THROBBER_H__
 #define __KATZE_THROBBER_H__
 
-#include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

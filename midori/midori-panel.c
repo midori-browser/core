@@ -143,8 +143,8 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      PROP_SHADOW_TYPE,
                                      g_param_spec_enum (
                                      "shadow-type",
-                                     _("Shadow Type"),
-                                     _("Appearance of the shadow around each panel"),
+                                     "Shadow Type",
+                                     "Appearance of the shadow around each panel",
                                      GTK_TYPE_SHADOW_TYPE,
                                      GTK_SHADOW_NONE,
                                      flags));
@@ -153,8 +153,8 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      PROP_MENU,
                                      g_param_spec_object (
                                      "menu",
-                                     _("Menu"),
-                                     _("Menu to hold panel items"),
+                                     "Menu",
+                                     "Menu to hold panel items",
                                      GTK_TYPE_MENU,
                                      G_PARAM_READWRITE));
 
@@ -162,8 +162,8 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      PROP_PAGE,
                                      g_param_spec_int (
                                      "page",
-                                     _("Page"),
-                                     _("The index of the current page"),
+                                     "Page",
+                                     "The index of the current page",
                                      -1, G_MAXINT, -1,
                                      flags));
 }
@@ -401,7 +401,7 @@ midori_panel_append_page (MidoriPanel* panel,
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
 
-    n = midori_panel_page_num (panel, child);
+    n = midori_panel_page_num (panel, scrolled);
 
     g_object_set_data (G_OBJECT (child), "label", (gchar*)label);
 
@@ -421,7 +421,7 @@ midori_panel_append_page (MidoriPanel* panel,
     {
         menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
         gtk_widget_show (menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "page", child);
+        g_object_set_data (G_OBJECT (menuitem), "page", scrolled);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),

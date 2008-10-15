@@ -165,8 +165,8 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      PROP_SEARCH_ENGINES,
                                      g_param_spec_object (
                                      "search-engines",
-                                     _("Search Engines"),
-                                     _("The list of search engines"),
+                                     "Search Engines",
+                                     "The list of search engines",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
 
@@ -174,8 +174,8 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      PROP_CURRENT_ITEM,
                                      g_param_spec_object (
                                      "current-item",
-                                     _("Current Item"),
-                                     _("The currently selected item"),
+                                     "Current Item",
+                                     "The currently selected item",
                                      KATZE_TYPE_ITEM,
                                      G_PARAM_READWRITE));
 
@@ -183,8 +183,8 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      PROP_TEXT,
                                      g_param_spec_string (
                                      "text",
-                                     _("Text"),
-                                     _("The current text typed in the entry"),
+                                     "Text",
+                                     "The current text typed in the entry",
                                      NULL,
                                      G_PARAM_READWRITE));
 
@@ -192,8 +192,8 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      PROP_DIALOG,
                                      g_param_spec_object (
                                      "dialog",
-                                     _("Dialog"),
-                                     _("A dialog to manage search engines"),
+                                     "Dialog",
+                                     "A dialog to manage search engines",
                                      GTK_TYPE_DIALOG,
                                      G_PARAM_READABLE));
 }

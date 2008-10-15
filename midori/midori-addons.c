@@ -112,8 +112,8 @@ midori_addons_class_init (MidoriAddonsClass* class)
                                      PROP_WEB_WIDGET,
                                      g_param_spec_object (
                                      "web-widget",
-                                     _("Web Widget"),
-                                     _("The assigned web widget"),
+                                     "Web Widget",
+                                     "The assigned web widget",
                                      GTK_TYPE_WIDGET,
                                      G_PARAM_READWRITE));
 
@@ -121,8 +121,8 @@ midori_addons_class_init (MidoriAddonsClass* class)
                                      PROP_KIND,
                                      g_param_spec_enum (
                                      "kind",
-                                     _("Kind"),
-                                     _("The kind of addons"),
+                                     "Kind",
+                                     "The kind of addons",
                                      MIDORI_TYPE_ADDON_KIND,
                                      MIDORI_ADDON_NONE,
                                      flags));
