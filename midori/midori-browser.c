@@ -384,12 +384,6 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
             "remember-last-visited-pages"))
             midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
     }
-    else if (midori_view_get_load_status (MIDORI_VIEW (view))
-        == MIDORI_LOAD_FINISHED)
-    {
-        /* g_signal_emit (browser, signals[WINDOW_OBJECT_CLEARED], 0,
-                       web_frame, js_context, js_window); */
-    }
 
     if (view == midori_browser_get_current_tab (browser))
     {
@@ -415,6 +409,17 @@ midori_view_notify_progress_cb (GtkWidget*     view,
 {
     if (view == midori_browser_get_current_tab (browser))
         _midori_browser_update_progress (browser, MIDORI_VIEW (view));
+}
+
+static void
+midori_view_window_object_cleared_cb (GtkWidget*      view,
+                                      WebKitWebFrame* web_frame,
+                                      JSContextRef    js_context,
+                                      JSObjectRef     js_window,
+                                      MidoriBrowser*  browser)
+{
+    g_signal_emit (browser, signals[WINDOW_OBJECT_CLEARED], 0,
+                   web_frame, js_context, js_window);
 }
 
 /*
@@ -768,6 +773,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_load_status_cb, browser,
                       "signal::notify::progress",
                       midori_view_notify_progress_cb, browser,
+                      "signal::window-object-cleared",
+                      midori_view_window_object_cleared_cb, browser,
                       /* "signal::news-feed-ready",
                       midori_view_news_feed_ready_cb, browser, */
                       "signal::notify::title",
@@ -1666,7 +1673,8 @@ _action_source_view_activate (GtkAction*     action,
 
     uri = g_strdup_printf ("view-source:%s",
         midori_view_get_display_uri (MIDORI_VIEW (view)));
-    source_view = midori_view_new_with_uri (uri);
+    source_view = midori_view_new ();
+    midori_view_set_uri (MIDORI_VIEW (source_view), uri);
     g_free (uri);
     gtk_widget_show (source_view);
     n = midori_browser_add_tab (browser, source_view);

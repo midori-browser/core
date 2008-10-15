@@ -53,9 +53,6 @@ midori_view_get_type                   (void);
 GtkWidget*
 midori_view_new                        (void);
 
-GtkWidget*
-midori_view_new_with_uri               (const gchar*       uri);
-
 void
 midori_view_set_settings               (MidoriView*        view,
                                         MidoriWebSettings* settings);

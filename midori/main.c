@@ -1030,8 +1030,6 @@ int
 main (int    argc,
       char** argv)
 {
-    gboolean single_process;
-    guint socket_id;
     gboolean version;
     gchar** uris;
     MidoriApp* app;
@@ -1039,18 +1037,12 @@ main (int    argc,
     GError* error;
     GOptionEntry entries[] =
     {
-       { "single-process", 's', 0, G_OPTION_ARG_NONE, &single_process,
-       N_("Run everything in the same process"), NULL },
-       { "id", 'i', 0, G_OPTION_ARG_INT, &socket_id,
-       N_("Internal identifier"), NULL },
        { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("URIs"), NULL },
      { NULL }
     };
-    GtkWidget* view;
-    GtkWidget* plug;
     JSGlobalContextRef js_context;
     gchar* exception;
     MidoriStartup load_on_startup;
@@ -1077,7 +1069,6 @@ main (int    argc,
     #endif
 
     /* Parse cli options */
-    socket_id = 0;
     version = FALSE;
     uris = NULL;
     error = NULL;
@@ -1090,26 +1081,8 @@ main (int    argc,
     }
 
     stock_items_init ();
-
-    if (socket_id)
-    {
-        /* If an ID was specified we create a view in a plug.
-           This allows us to open views in separate processes. */
-        g_set_application_name ("midori-plug");
-        view = g_object_new (MIDORI_TYPE_VIEW, "socket-id", socket_id, NULL);
-        gtk_widget_show (view);
-        plug = gtk_plug_new (socket_id);
-        gtk_container_add (GTK_CONTAINER (plug), view);
-        g_signal_connect (plug, "destroy", G_CALLBACK (gtk_main_quit), NULL);
-        gtk_widget_show (plug);
-        gtk_main ();
-        return 0;
-    }
-
-    if (single_process)
-        midori_view_single_process (TRUE);
-
     g_set_application_name (_("Midori"));
+
     if (version)
     {
         g_print (
@@ -1139,8 +1112,6 @@ main (int    argc,
         printf ("%s - Exception: %s\n", uris[0], exception);
         return 1;
     }
-
-    sokoke_remember_argv0 (argv[0]);
 
     app = midori_app_new ();
     if (midori_app_instance_is_running (app))

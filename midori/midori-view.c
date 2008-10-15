@@ -33,17 +33,13 @@
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
+void
+webkit_web_frame_print (WebKitWebFrame* web_frame);
 
 struct _MidoriView
 {
     GtkScrolledWindow parent_instance;
 
-    gint socket_id;
-    GIOChannel* input;
-    FILE* output;
-
-    gchar* command_cache;
-    gchar* premature_uri;
     gchar* uri;
     gchar* title;
     GdkPixbuf* icon;
@@ -53,27 +49,11 @@ struct _MidoriView
     gchar* link_uri;
     gboolean has_selection;
     gchar* selected_text;
-    gboolean can_cut_clipboard;
-    gboolean can_copy_clipboard;
-    gboolean can_paste_clipboard;
-    gfloat zoom_level;
-    gboolean can_go_back;
-    gboolean can_go_forward;
     MidoriWebSettings* settings;
     GtkWidget* web_view;
     gboolean window_object_cleared;
 
     gchar* download_manager;
-    gchar* default_font_family;
-    gint default_font_size;
-    gint minimum_font_size;
-    gchar* default_encoding;
-    gboolean auto_load_images;
-    gboolean auto_shrink_images;
-    gboolean print_backgrounds;
-    gboolean resizable_text_areas;
-    gboolean enable_scripts;
-    gboolean enable_plugins;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
@@ -113,7 +93,6 @@ enum
 {
     PROP_0,
 
-    PROP_SOCKET_ID,
     PROP_URI,
     PROP_TITLE,
     PROP_ICON,
@@ -127,6 +106,7 @@ enum
 enum {
     ACTIVATE_ACTION,
     CONSOLE_MESSAGE,
+    WINDOW_OBJECT_CLEARED,
     NEW_TAB,
     NEW_WINDOW,
     SEARCH_TEXT,
@@ -227,6 +207,45 @@ midori_cclosure_marshal_VOID__STRING_INT_STRING (GClosure*     closure,
 }
 
 static void
+midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
+                                                      GValue*       return_value,
+                                                      guint         n_param_values,
+                                                      const GValue* param_values,
+                                                      gpointer      invocation_hint,
+                                                      gpointer      marshal_data)
+{
+    typedef gboolean(*GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (gpointer  data1,
+                                                                  gpointer  arg_1,
+                                                                  gpointer  arg_2,
+                                                                  gpointer  arg_3,
+                                                                  gpointer  data2);
+    register GMarshalFunc_VOID__OBJECT_POINTER_POINTER callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+
+    g_return_if_fail (n_param_values == 4);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (marshal_data
+        ? marshal_data : cc->callback);
+
+    callback (data1,
+              g_value_get_object (param_values + 1),
+              g_value_get_pointer (param_values + 2),
+              g_value_get_pointer (param_values + 3),
+              data2);
+}
+
+static void
 midori_view_class_init (MidoriViewClass* class)
 {
     GObjectClass* gobject_class;
@@ -255,6 +274,19 @@ midori_view_class_init (MidoriViewClass* class)
         G_TYPE_STRING,
         G_TYPE_INT,
         G_TYPE_STRING);
+
+    signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
+        "window-object-cleared",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER,
+        G_TYPE_NONE, 3,
+        WEBKIT_TYPE_WEB_FRAME,
+        G_TYPE_POINTER,
+        G_TYPE_POINTER);
 
     signals[NEW_TAB] = g_signal_new (
         "new-tab",
@@ -307,17 +339,6 @@ midori_view_class_init (MidoriViewClass* class)
     gobject_class->get_property = midori_view_get_property;
 
     flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SOCKET_ID,
-                                     g_param_spec_uint (
-                                     "socket-id",
-                                     _("Socket ID"),
-                                     _("The ID of a socket"),
-                                     0,
-                                     G_MAXUINT,
-                                     0,
-                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
     g_object_class_install_property (gobject_class,
                                      PROP_URI,
@@ -395,105 +416,6 @@ midori_view_class_init (MidoriViewClass* class)
                                      G_PARAM_READWRITE));
 }
 
-gboolean
-midori_view_single_process (gboolean enable)
-{
-    static gboolean single_process = FALSE;
-    if (enable)
-        single_process = TRUE;
-    return single_process;
-}
-
-#define midori_view_is_socket(view) !view->socket_id
-#define midori_view_is_plug(view) view->socket_id > 0
-
-#if 0
-    #define midori_debug g_debug
-#else
-    #define midori_debug(...) ;
-#endif
-
-/**
- * int_to_str
- * @in: an integer
- *
- * Converts an integer to a string.
- *
- * The returned string is valid until
- * the next call to this function.
- *
- * Return value: a string
- **/
-static const gchar*
-int_to_str (gint in)
-{
-    static gchar* out = NULL;
-    g_free (out);
-    out = g_strdup_printf ("%d", in);
-    return out;
-}
-
-/**
- * float_to_str
- * @in: a float
- *
- * Converts a float to a string.
- *
- * The returned string is valid until
- * the next call to this function.
- *
- * Return value: a string
- **/
-static const gchar*
-float_to_str (gfloat in)
-{
-    static gchar* out = NULL;
-    g_free (out);
-    out = g_strdup_printf ("%f", in);
-    return out;
-}
-
-static void
-send_command (MidoriView*  view,
-              const gchar* command,
-              const gchar* argument)
-{
-    gchar* data;
-    gchar* cache;
-
-    if (argument)
-        data = g_strdup_printf ("%s %s", command, argument);
-    else
-        data = g_strdup (command);
-
-    if (!view->output)
-    {
-        /* The output is not ready, so we cache for now */
-        cache = g_strdup_printf ("%s\n%s",
-            view->command_cache ? view->command_cache : "", data);
-        katze_assign (view->command_cache, cache);
-        midori_debug ("!view->output, caching command: %s", command);
-        return;
-    }
-
-    fwrite (data, strlen (data) + 1, 1, view->output);
-    fflush (view->output);
-
-    g_free (data);
-}
-
-static void
-midori_view_notify_uri_cb (MidoriView* view,
-                           GParamSpec  pspec)
-{
-    if (midori_view_is_socket (view) && view->item)
-        katze_item_set_uri (view->item, view->uri);
-
-    if (midori_view_is_plug (view))
-        /* We must not send a NULL string here */
-        send_command (view, "uri", view->uri ? view->uri : "");
-}
-
 static void
 midori_view_notify_icon_cb (MidoriView* view,
                             GParamSpec  pspec)
@@ -527,7 +449,7 @@ loadable_icon_finish_cb (GdkPixbuf*    icon,
         error = NULL;
         pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, &error);
         if (error)
-            midori_debug ("Icon couldn't be loaded: %s", error->message);
+            g_warning (_("Icon couldn't be loaded: %s\n"), error->message);
         g_object_unref (stream);
     }
     if (!pixbuf)
@@ -633,336 +555,12 @@ static void
 midori_view_notify_load_status_cb (MidoriView* view,
                                    GParamSpec  pspec)
 {
-    view->can_go_back = midori_view_can_go_back (view);
-    view->can_go_forward = midori_view_can_go_forward (view);
+    if (view->tab_icon)
+        katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
+            view->load_status != MIDORI_LOAD_FINISHED);
 
-    if (midori_view_is_socket (view))
-    {
-        if (view->tab_icon)
-            katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
-                view->load_status != MIDORI_LOAD_FINISHED);
-    }
-
-    if (midori_view_is_plug (view))
-    {
-        send_command (view, "load-status", int_to_str (view->load_status));
-        send_command (view, "can-go-back", int_to_str (view->can_go_back));
-        send_command (view, "can-go-forward", int_to_str (view->can_go_forward));
-    }
-
-    if (!midori_view_is_plug (view))
-        if (view->load_status == MIDORI_LOAD_COMMITTED)
-            _midori_web_view_load_icon (view);
-}
-
-static void
-midori_view_notify_progress_cb (MidoriView* view,
-                                GParamSpec  pspec)
-{
-    if (midori_view_is_plug (view))
-        send_command (view, "progress", float_to_str (view->progress));
-}
-
-static void
-midori_view_activate_action_cb (MidoriView*  view,
-                                const gchar* action)
-{
-    if (midori_view_is_socket (view))
-        return;
-
-    send_command (view, "activate-action", action);
-}
-
-static void
-midori_view_console_message_cb (MidoriView*  view,
-                                const gchar* message,
-                                gint         line,
-                                const gchar* source_id)
-{
-    gchar* argument;
-
-    if (midori_view_is_socket (view))
-        return;
-
-    argument = g_strdup_printf ("%s %d %s", message, line, source_id);
-    send_command (view, "console-message", argument);
-    g_free (argument);
-}
-
-static void
-midori_view_new_tab_cb (MidoriView*  view,
-                        const gchar* uri,
-                        gboolean     background)
-{
-    gchar* argument;
-
-    if (midori_view_is_socket (view))
-        return;
-
-    /* (uri, background) => (background, uri) */
-    argument = g_strdup_printf ("%d %s", background, uri);
-    send_command (view, "new-tab", argument);
-    g_free (argument);
-}
-
-static void
-midori_view_new_window_cb (MidoriView*  view,
-                           const gchar* uri)
-{
-    if (midori_view_is_socket (view))
-        return;
-
-    send_command (view, "new-window", uri);
-}
-
-static void
-midori_view_search_text_cb (MidoriView*  view,
-                            gboolean     found)
-{
-    if (!midori_view_is_plug (view))
-        return;
-
-    send_command (view, "search-text", int_to_str (found));
-}
-
-static void
-midori_view_add_bookmark_cb (MidoriView*  view,
-                             const gchar* uri)
-{
-    if (midori_view_is_socket (view))
-        return;
-
-    send_command (view, "add-bookmark", uri);
-}
-
-static void
-receive_status (MidoriView*  view,
-                const gchar* command)
-{
-    if (!strncmp (command, "uri ", 4))
-    {
-        katze_assign (view->uri, g_strdup (&command[4]));
-        g_object_notify (G_OBJECT (view), "uri");
-    }
-    else if (!strncmp (command, "title ", 6))
-    {
-        g_object_set (view, "title", &command[6], NULL);
-    }
-    else if (!strncmp (command, "load-status ", 12))
-    {
-        view->load_status = (MidoriLoadStatus)atoi (&command[12]);
-        g_object_notify (G_OBJECT (view), "load-status");
-    }
-    else if (!strncmp (command, "progress ", 9))
-    {
-        view->progress = atof (&command[9]);
-        g_object_notify (G_OBJECT (view), "progress");
-    }
-    else if (!strncmp (command, "zoom-level ", 11))
-    {
-        view->zoom_level = atof (&command[11]);
-        g_object_notify (G_OBJECT (view), "zoom-level");
-    }
-    else if (!strncmp (command, "can-go-back ", 12))
-    {
-        view->can_go_back = atoi (&command[12]);
-    }
-    else if (!strncmp (command, "can-go-forward ", 15))
-    {
-        view->can_go_forward = atoi (&command[15]);
-    }
-    else if (!strncmp (command, "statusbar-text ", 15))
-    {
-        g_object_set (view, "statusbar-text", &command[15], NULL);
-    }
-    else if (!strncmp (command, "activate-action ", 16))
-    {
-        g_signal_emit (view, signals[ACTIVATE_ACTION], 0, &command[16]);
-    }
-    else if (!strncmp (command, "console-message ", 16))
-    {
-        /* FIXME: Implement */
-    }
-    else if (!strncmp (command, "new-tab ", 8))
-    {
-        /* (background, uri) => (uri, background) */
-        g_signal_emit (view, signals[NEW_TAB], 0, &command[10], atoi (&command[8]));
-    }
-    else if (!strncmp (command, "new-window ", 11))
-    {
-        g_signal_emit (view, signals[NEW_WINDOW], 0, &command[11]);
-    }
-    else if (!strncmp (command, "search-text ", 12))
-    {
-        g_signal_emit (view, signals[SEARCH_TEXT], 0, atoi (&command[12]));
-    }
-    else if (!strncmp (command, "add-bookmark ", 13))
-    {
-        g_signal_emit (view, signals[ADD_BOOKMARK], 0, &command[13]);
-    }
-    else if (!strncmp (command, "clipboard ", 10))
-    {
-        view->can_cut_clipboard = atof (&command[10]);
-        view->can_copy_clipboard = atof (&command[12]);
-        view->can_paste_clipboard = atof (&command[14]);
-        midori_debug ("clipboards: %s => %d, %d, %d",
-            &command[10],
-            atoi (&command[10]), atoi (&command[12]), atoi (&command[14]));
-    }
-    else if (g_str_has_prefix (command, "**"))
-    {
-        g_print ("%s\n", command);
-    }
-    else
-    {
-        midori_debug ("receive_status: unknown command '%s'", command);
-    }
-}
-
-#define UPDATE_SETTING(name, value) \
-    g_object_set (webkit_web_view_get_settings ( \
-        WEBKIT_WEB_VIEW (view->web_view)), \
-        name, value, NULL)
-
-static void
-receive_command (MidoriView*  view,
-                 const gchar* command)
-{
-    if (!strncmp (command, "set-uri ", 8))
-        midori_view_set_uri (view, &command[8]);
-    else if (!strncmp (command, "set-zoom-level ", 15))
-        midori_view_set_zoom_level (view, atof (&command[15]) / 10);
-    else if (!strncmp (command, "reload ", 7))
-        midori_view_reload (view, atoi (&command[7]));
-    else if (!strncmp (command, "stop-loading", 12))
-        midori_view_stop_loading (view);
-    else if (!strncmp (command, "go-back", 7))
-        midori_view_go_back (view);
-    else if (!strncmp (command, "go-forward", 10))
-        midori_view_go_forward (view);
-    else if (!strncmp (command, "print", 5))
-        midori_view_print (view);
-    else if (!strncmp (command, "unmark-matches", 14))
-        midori_view_unmark_text_matches (view);
-    else if (!strncmp (command, "search-text ", 12))
-        /* (forward, case_sensitive, text) => (text, case_sensitive, forward) */
-        midori_view_search_text (view, &command[16],
-            atoi (&command[14]), atoi (&command[12]));
-    else if (!strncmp (command, "mark-matches ", 13))
-        /* (case_sensitive, text) => (text, case_sensitive) */
-        midori_view_mark_text_matches (view, &command[17],
-            atoi (&command[15]));
-    else if (!strncmp (command, "hl-matches ", 11))
-        midori_view_set_highlight_text_matches (view, atoi (&command[11]));
-    else if (!strncmp (command, "dlmgr ", 6))
-    {
-        katze_assign (view->download_manager, g_strdup (&command[6]));
-    }
-    else if (!strncmp (command, "dffamily ", 9))
-    {
-        katze_assign (view->default_font_family, g_strdup (&command[9]));
-        UPDATE_SETTING ("default-font-family", view->default_font_family);
-    }
-    else if (!strncmp (command, "dfsize ", 7))
-    {
-        view->default_font_size = atoi (&command[7]);
-        UPDATE_SETTING ("default-font-size", view->default_font_size);
-    }
-    else if (!strncmp (command, "mfsize ", 7))
-    {
-        view->minimum_font_size = atoi (&command[7]);
-        UPDATE_SETTING ("minimum-font-size", view->minimum_font_size);
-    }
-    else if (!strncmp (command, "denc ", 5))
-    {
-        katze_assign (view->default_encoding, g_strdup (&command[5]));
-        UPDATE_SETTING ("default-encoding", view->default_encoding);
-    }
-    else if (!strncmp (command, "alimg ", 6))
-    {
-        view->auto_load_images = atoi (&command[6]);
-        UPDATE_SETTING ("auto-load-images", view->auto_load_images);
-    }
-    else if (!strncmp (command, "asimg ", 6))
-    {
-        view->auto_shrink_images = atoi (&command[6]);
-        UPDATE_SETTING ("auto-shrink-images", view->auto_shrink_images);
-    }
-    else if (!strncmp (command, "pbkg ", 5))
-    {
-        view->print_backgrounds = atoi (&command[5]);
-        UPDATE_SETTING ("print-backgrounds", view->print_backgrounds);
-    }
-    else if (!strncmp (command, "rta ", 4))
-    {
-        view->print_backgrounds = atoi (&command[4]);
-        UPDATE_SETTING ("resizable-text-areas", view->resizable_text_areas);
-    }
-    else if (!strncmp (command, "escripts ", 9))
-    {
-        view->enable_scripts = atoi (&command[9]);
-        UPDATE_SETTING ("enable-scripts", view->enable_scripts);
-    }
-    else if (!strncmp (command, "eplugins ", 9))
-    {
-        view->enable_plugins = atoi (&command[9]);
-        UPDATE_SETTING ("enable-plugins", view->enable_plugins);
-    }
-    else if (!strncmp (command, "mclksel ", 8))
-    {
-        view->middle_click_opens_selection = atoi (&command[8]);
-    }
-    else if (!strncmp (command, "tabsbkg ", 8))
-    {
-        view->open_tabs_in_the_background = atoi (&command[8]);
-    }
-    else if (g_str_has_prefix (command, "**"))
-        g_print ("%s\n", command);
-    else
-       midori_debug ("receive_command: unknown command '%s'", command);
-}
-
-static gboolean
-io_input_watch_cb (GIOChannel*  source,
-                   GIOCondition condition,
-                   MidoriView*  view)
-{
-    gchar* buffer;
-    GError* error;
-
-    error = NULL;
-    switch (condition)
-    {
-    case G_IO_PRI:
-    case G_IO_IN:
-        if (g_io_channel_read_line (source,
-            &buffer, NULL, NULL, &error) == G_IO_STATUS_NORMAL)
-        {
-            if (view->socket_id)
-                receive_command (view, buffer);
-            else
-                receive_status (view, buffer);
-            g_free (buffer);
-        }
-        else
-        {
-            g_warning ("Communication error: %s", error->message);
-            g_error_free (error);
-        }
-        break;
-    case G_IO_ERR:
-    case G_IO_NVAL:
-        g_warning ("Invalid operation");
-        return FALSE;
-    case G_IO_HUP:
-        midori_debug ("Tab closed");
-        return FALSE;
-    default:
-        g_warning ("Unexpected condition");
-        return FALSE;
-  }
-
-  return TRUE;
+    if (view->load_status == MIDORI_LOAD_COMMITTED)
+        _midori_web_view_load_icon (view);
 }
 
 static void
@@ -977,16 +575,6 @@ webkit_web_view_load_started_cb (WebKitWebView*  web_view,
 
     view->progress = 0.0;
     g_object_notify (G_OBJECT (view), "progress");
-}
-
-static void
-webkit_web_view_window_object_cleared_cb (WebKitWebView*     web_view,
-                                          WebKitWebFrame*    web_frame,
-                                          JSGlobalContextRef js_context,
-                                          JSObjectRef        js_window,
-                                          MidoriView*        view)
-{
-    view->window_object_cleared = TRUE;
 }
 
 static void
@@ -1072,28 +660,26 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
                                MidoriView*     view)
 {
     gchar* data;
-    JSContextRef js_context;
+    /*JSContextRef js_context;
     JSValueRef js_window;
-    /* GjsValue* value;
+    GjsValue* value;
     GjsValue* document;
     GjsValue* links; */
 
     if (!success)
     {
-        midori_debug ("'%s' not found.", view->uri);
-        data = g_strdup_printf ("error:404 %s ", view->uri ? view->uri : "");
-        midori_view_set_uri (view, data);
+        /* Simply print a 404 error page on the fly. */
+        data = g_strdup_printf (
+            "<html><head><title>Not found - %s</title></head>"
+            "<body><h1>Not found - %s</h1>"
+            "<p />The page you were opening doesn't exist."
+            "<p />Try to <a href=\"%s\">load the page again</a>, "
+            "or move on to another page."
+            "</body></html>",
+            view->uri, view->uri, view->uri);
+        webkit_web_view_load_html_string (
+            WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
         g_free (data);
-        return;
-    }
-
-    /* If WebKit didn't emit the signal due to a bug, we will */
-    if (!view->window_object_cleared)
-    {
-        js_context = webkit_web_frame_get_global_context (web_frame);
-        js_window = JSContextGetGlobalObject (js_context);
-        g_signal_emit_by_name (view->web_view, "window-object-cleared",
-            web_frame, js_context, js_window);
     }
 
     /* js_context = webkit_web_frame_get_global_context (web_frame);
@@ -1409,9 +995,8 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
         gtk_widget_show (menuitem);
-        #if !HAVE_GIO
-        gtk_widget_set_sensitive (menuitem, FALSE);
-        #endif
+        if (!midori_view_can_view_source (view))
+            gtk_widget_set_sensitive (menuitem, FALSE);
         menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_PRINT, NULL);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "action", "Print");
@@ -1431,211 +1016,20 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
     g_signal_emit_by_name (view, "console-message", message, line, source_id);
 }
 
-static gboolean
-gtk_widget_focus_out_event_cb (GtkWidget*     web_view,
-                               GdkEventFocus* event,
-                               MidoriView*    view)
-{
-    gchar* data;
-
-    data = g_strdup_printf ("%d %d %d",
-        midori_view_can_cut_clipboard (view),
-        midori_view_can_copy_clipboard (view),
-        midori_view_can_paste_clipboard (view));
-    send_command (view, "clipboard", data);
-    g_free (data);
-
-    return FALSE;
-}
-
 static void
-midori_view_realize (MidoriView* view)
+webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
+                                          WebKitWebFrame* web_frame,
+                                          JSContextRef    js_context,
+                                          JSObjectRef     js_window,
+                                          MidoriView*     view)
 {
-    WebKitWebFrame* web_frame;
-
-    view->web_view = webkit_web_view_new ();
-    /* Adjustments are not created automatically */
-    g_object_set (view, "hadjustment", NULL, "vadjustment", NULL, NULL);
-
-    /* FIXME: Strictly we should send a command to query
-       the policy or send it as an argument */
-    /* The socket view is not supposed to scroll at all */
-    if (midori_view_is_socket (view))
-        gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (view),
-            GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-    /* The plug view should use the policy of the socket */
-    if (midori_view_is_plug (view))
-        gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (view),
-            GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-
-    gtk_widget_show (view->web_view);
-
-    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-
-    g_object_connect (view->web_view,
-                      "signal::load-started",
-                      webkit_web_view_load_started_cb, view,
-                      "signal::window-object-cleared",
-                      webkit_web_view_window_object_cleared_cb, view,
-                      "signal::load-committed",
-                      webkit_web_view_load_committed_cb, view,
-                      "signal::load-progress-changed",
-                      webkit_web_view_progress_changed_cb, view,
-                      "signal::load-finished",
-                      webkit_web_view_load_finished_cb, view,
-                      "signal::title-changed",
-                      webkit_web_view_title_changed_cb, view,
-                      "signal::status-bar-text-changed",
-                      webkit_web_view_statusbar_text_changed_cb, view,
-                      "signal::hovering-over-link",
-                      webkit_web_view_hovering_over_link_cb, view,
-                      "signal::button-press-event",
-                      gtk_widget_button_press_event_cb, view,
-                      "signal::scroll-event",
-                      gtk_widget_scroll_event_cb, view,
-                      "signal::populate-popup",
-                      webkit_web_view_populate_popup_cb, view,
-                      "signal::console-message",
-                      webkit_web_view_console_message_cb, view,
-                      "signal::focus-out-event",
-                      gtk_widget_focus_out_event_cb, view,
-                      NULL);
-    g_object_connect (web_frame,
-                      "signal::load-done",
-                      webkit_web_frame_load_done_cb, view,
-                      NULL);
-
-    gtk_container_add (GTK_CONTAINER (view), view->web_view);
-    if (view->premature_uri)
-    {
-        midori_debug ("Loading premature uri '%s' now", view->premature_uri);
-        midori_view_set_uri (view, view->premature_uri);
-    }
-    katze_assign (view->premature_uri, NULL);
-}
-
-static void
-gtk_socket_realize_cb (GtkWidget*  socket,
-                       MidoriView* view)
-{
-    gchar* socket_id;
-    GError* error;
-    gboolean success;
-    gint stdin_fd;
-    gint stdout_fd;
-    gchar* argv[] = { NULL, "--id", NULL, NULL };
-
-    /* Sockets are not supported on all platforms,
-       or Midori can run in single process mode,
-       so fallback to working without any socket or plug. */
-    if (!gtk_socket_get_id (GTK_SOCKET (socket))
-        || midori_view_single_process (FALSE))
-    {
-        /* Fallback to operating without a socket */
-        gtk_widget_destroy (gtk_bin_get_child (GTK_BIN (view)));
-        view->socket_id = -1;
-        midori_view_realize (view);
-        return;
-    }
-
-    socket_id = g_strdup_printf ("%d", gtk_socket_get_id (GTK_SOCKET (socket)));
-    argv[0] = (gchar*)sokoke_remember_argv0 (NULL);
-    argv[2] = socket_id;
-    error = NULL;
-    success = g_spawn_async_with_pipes (NULL, argv, NULL, G_SPAWN_SEARCH_PATH,
-                                        NULL, NULL, NULL,
-                                        &stdin_fd, &stdout_fd, NULL, &error);
-    g_free (socket_id);
-
-    if (!success)
-    {
-        /* Fallback to operating without a socket */
-        gtk_widget_destroy (gtk_bin_get_child (GTK_BIN (view)));
-        view->socket_id = -1;
-        midori_view_realize (view);
-
-        g_error_free (error);
-        return;
-    }
-
-    view->output = fdopen (stdin_fd, "w");
-    view->input = g_io_channel_unix_new (stdout_fd);
-    g_io_channel_set_close_on_unref (view->input, TRUE);
-    g_io_add_watch (view->input,
-                    G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_NVAL | G_IO_HUP,
-                    (GIOFunc)io_input_watch_cb, view);
-
-    if (view->command_cache)
-    {
-        /* Send cached commands if any */
-        fwrite (view->command_cache,
-            strlen (view->command_cache) + 1, 1, view->output);
-        katze_assign (view->command_cache, NULL);
-        fflush (view->output);
-    }
-}
-
-static gboolean
-gtk_socket_plug_removed_cb (GtkWidget*  socket,
-                            MidoriView* view)
-{
-    if (view->output)
-    {
-        fclose (view->output);
-        view->output = NULL;
-    }
-
-    if (view->input)
-    {
-        g_io_channel_unref (view->input);
-        view->input = NULL;
-    }
-
-    midori_debug ("'%s' died.", view->uri);
-    send_command (view, "set-uri error:died", view->uri ? view->uri : "");
-    if (GTK_WIDGET_REALIZED (view))
-        gtk_socket_realize_cb (socket, view);
-
-    return TRUE;
-}
-
-static void
-midori_view_realize_cb (MidoriView* view)
-{
-    GtkWidget* plug;
-    GtkWidget* socket;
-
-    if (midori_view_is_plug (view))
-    {
-        plug = gtk_plug_new (view->socket_id);
-        midori_view_realize (view);
-        gtk_widget_show (plug);
-
-        view->input = g_io_channel_unix_new (0); /* 0 is stdin */
-        g_io_channel_set_close_on_unref (view->input, TRUE);
-        g_io_add_watch (view->input,
-                        G_IO_IN | G_IO_ERR | G_IO_NVAL | G_IO_HUP,
-                        (GIOFunc)io_input_watch_cb, view);
-        view->output = fdopen (1, "w"); /* 1 is stdout */
-    }
-    else if (midori_view_is_socket (view))
-    {
-        socket = gtk_socket_new ();
-        gtk_widget_show (socket);
-        g_signal_connect (socket, "realize",
-                          G_CALLBACK (gtk_socket_realize_cb), view);
-        g_signal_connect (socket, "plug-removed",
-                          G_CALLBACK (gtk_socket_plug_removed_cb), view);
-        gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (view),
-                                               GTK_WIDGET (socket));
-    }
+    g_signal_emit (view, signals[WINDOW_OBJECT_CLEARED], 0,
+                   web_frame, js_context, js_window);
 }
 
 static void
 midori_view_init (MidoriView* view)
 {
-    view->command_cache = NULL;
-    view->premature_uri = NULL;
     view->uri = NULL;
     view->title = NULL;
     view->icon = gtk_widget_render_icon (GTK_WIDGET (view), GTK_STOCK_FILE,
@@ -1645,37 +1039,22 @@ midori_view_init (MidoriView* view)
     view->statusbar_text = NULL;
     view->link_uri = NULL;
     view->selected_text = NULL;
-    view->settings = NULL;
+    view->settings = midori_web_settings_new ();
     view->item = NULL;
 
     view->download_manager = NULL;
-    view->default_font_family = NULL;
-    view->default_encoding = NULL;
 
     g_object_connect (view,
-                      "signal::notify::uri",
-                      midori_view_notify_uri_cb, NULL,
                       "signal::notify::icon",
                       midori_view_notify_icon_cb, NULL,
                       "signal::notify::load-status",
                       midori_view_notify_load_status_cb, NULL,
-                      "signal::notify::progress",
-                      midori_view_notify_progress_cb, NULL,
-                      "signal::realize",
-                      midori_view_realize_cb, NULL,
-                      "signal::activate-action",
-                      midori_view_activate_action_cb, NULL,
-                      "signal::console-message",
-                      midori_view_console_message_cb, NULL,
-                      "signal::new-tab",
-                      midori_view_new_tab_cb, NULL,
-                      "signal::new-window",
-                      midori_view_new_window_cb, NULL,
-                      "signal::search-text",
-                      midori_view_search_text_cb, NULL,
-                      "signal::add-bookmark",
-                      midori_view_add_bookmark_cb, NULL,
                       NULL);
+
+    view->web_view = NULL;
+
+    /* Adjustments are not created automatically */
+    g_object_set (view, "hadjustment", NULL, "vadjustment", NULL, NULL);
 }
 
 static void
@@ -1686,8 +1065,6 @@ midori_view_finalize (GObject* object)
 
     view = MIDORI_VIEW (object);
 
-    g_free (view->command_cache);
-    g_free (view->premature_uri);
     g_free (view->uri);
     g_free (view->title);
     if (view->icon)
@@ -1722,41 +1099,26 @@ midori_view_set_property (GObject*      object,
 
     switch (prop_id)
     {
-    case PROP_SOCKET_ID:
-        view->socket_id = g_value_get_uint (value);
-        break;
     case PROP_TITLE:
         katze_assign (view->title, g_value_dup_string (value));
-        if (!midori_view_is_plug (view))
+        #define title midori_view_get_display_title (view)
+        if (view->tab_label)
         {
-            #define title midori_view_get_display_title (view)
-            if (view->tab_label)
-            {
-                gtk_label_set_text (GTK_LABEL (view->tab_title), title);
-                gtk_widget_set_tooltip_text (view->tab_title, title);
-            }
-            if (view->menu_item)
-                gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
-                                    view->menu_item))), title);
-            if (view->item)
-                katze_item_set_name (view->item, title);
-            #undef title
+            gtk_label_set_text (GTK_LABEL (view->tab_title), title);
+            gtk_widget_set_tooltip_text (view->tab_title, title);
         }
-        if (midori_view_is_plug (view))
-            /* We must not send a NULL string here */
-            send_command (view, "title", view->title ? view->title : "");
+        if (view->menu_item)
+            gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
+                                view->menu_item))), title);
+        if (view->item)
+            katze_item_set_name (view->item, title);
+        #undef title
         break;
     case PROP_ZOOM_LEVEL:
         midori_view_set_zoom_level (view, g_value_get_float (value));
-        if (midori_view_is_plug (view))
-            send_command (view, "zoom-level", float_to_str (view->zoom_level));
         break;
     case PROP_STATUSBAR_TEXT:
         katze_assign (view->statusbar_text, g_value_dup_string (value));
-        if (midori_view_is_plug (view))
-            /* We must not send a NULL string here */
-            send_command (view, "statusbar-text",
-                view->statusbar_text ? view->statusbar_text : "");
         break;
     case PROP_SETTINGS:
         midori_view_set_settings (view, g_value_get_object (value));
@@ -1777,9 +1139,6 @@ midori_view_get_property (GObject*    object,
 
     switch (prop_id)
     {
-    case PROP_SOCKET_ID:
-        g_value_set_uint (value, view->socket_id);
-        break;
     case PROP_URI:
         g_value_set_string (value, view->uri);
         break;
@@ -1821,55 +1180,6 @@ midori_view_new (void)
     return g_object_new (MIDORI_TYPE_VIEW, NULL);
 }
 
-/**
- * midori_view_new_with_uri:
- * @view: a #MidoriView
- * @uri: an URI
- *
- * Creates a new view with a particular URI.
- *
- * This constructor supports opaque views and is
- * in fact currently the only way to create them.
- *
- * The only currently supported opaque view is
- * the source view, implementing a #MidoriSource.
- * Pass an URI prefixed with "view-source:" in
- * order to create a source view.
- *
- * Return value: a new #MidoriView
- **/
-GtkWidget*
-midori_view_new_with_uri (const gchar* uri)
-{
-    MidoriView* view;
-    gchar* title;
-    GtkWidget* widget;
-
-    view = g_object_new (MIDORI_TYPE_VIEW, NULL);
-
-    if (uri && g_str_has_prefix (uri, "view-source:"))
-    {
-        view->socket_id = -1;
-        katze_assign (view->uri, g_strdup (uri));
-        g_object_notify (G_OBJECT (view), "uri");
-        title = g_strdup_printf ("%s - %s", _("Source"), &uri[12]);
-        g_object_set (view, "title", title, NULL);
-        g_free (title);
-        katze_object_assign (view->icon,
-            gtk_widget_render_icon (GTK_WIDGET (view),
-                GTK_STOCK_EDIT, GTK_ICON_SIZE_MENU, NULL));
-        widget = midori_source_new (&uri[12]);
-        /* Adjustments are not created automatically */
-        g_object_set (view, "hadjustment", NULL, "vadjustment", NULL, NULL);
-        gtk_container_add (GTK_CONTAINER (view), widget);
-        gtk_widget_show (widget);
-    }
-    else
-        midori_view_set_uri (view, uri);
-
-    return (GtkWidget*)view;
-}
-
 static void
 _update_label_size (GtkWidget* label,
                     gint       size)
@@ -1889,39 +1199,10 @@ _midori_view_update_settings (MidoriView* view)
 {
     g_object_get (view->settings,
         "download-manager", &view->download_manager,
-        "default-font-family", &view->default_font_family,
-        "default-font-size", &view->default_font_size,
-        "minimum-font-size", &view->minimum_font_size,
-        "default-encoding", &view->default_encoding,
-        "auto-load-images", &view->auto_load_images,
-        "auto-shrink-images", &view->auto_shrink_images,
-        "print-backgrounds", &view->print_backgrounds,
-        "resizable-text-areas", &view->resizable_text_areas,
-        "enable-scripts", &view->enable_scripts,
-        "enable-plugins", &view->enable_plugins,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         NULL);
-
-    if (midori_view_is_socket (view))
-    {
-        send_command (view, "dlmgr", view->download_manager);
-        send_command (view, "dffamily", view->default_font_family);
-        send_command (view, "dfsize", int_to_str (view->default_font_size));
-        send_command (view, "mfsize", int_to_str (view->minimum_font_size));
-        send_command (view, "denc", view->default_encoding);
-        send_command (view, "alimg", int_to_str (view->auto_load_images));
-        send_command (view, "asimg", int_to_str (view->auto_shrink_images));
-        send_command (view, "pbkg", int_to_str (view->print_backgrounds));
-        send_command (view, "rta", int_to_str (view->resizable_text_areas));
-        send_command (view, "escripts", int_to_str (view->enable_scripts));
-        send_command (view, "eplugins", int_to_str (view->enable_plugins));
-        send_command (view, "mclksel",
-            int_to_str (view->middle_click_opens_selection));
-        send_command (view, "tabsbkg",
-            int_to_str (view->open_tabs_in_the_background));
-    }
 }
 
 static void
@@ -1939,68 +1220,6 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     if (name == g_intern_string ("download-manager"))
     {
         katze_assign (view->download_manager, g_value_dup_string (&value));
-        if (midori_view_is_socket (view))
-            send_command (view, "dlmgr", view->download_manager);
-    }
-    else if (name == g_intern_string ("default-font-family"))
-    {
-        katze_assign (view->default_font_family, g_value_dup_string (&value));
-        if (midori_view_is_socket (view))
-            send_command (view, "dffamily", view->default_font_family);
-    }
-    else if (name == g_intern_string ("default-font-size"))
-    {
-        view->default_font_size = g_value_get_int (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "dfsize", int_to_str (view->default_font_size));
-    }
-    else if (name == g_intern_string ("minimum-font-size"))
-    {
-        view->minimum_font_size = g_value_get_int (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "mfsize", int_to_str (view->minimum_font_size));
-    }
-    else if (name == g_intern_string ("default-encoding"))
-    {
-        katze_assign (view->default_encoding, g_value_dup_string (&value));
-        if (midori_view_is_socket (view))
-            send_command (view, "denc", view->default_encoding);
-    }
-    else if (name == g_intern_string ("auto-load-images"))
-    {
-        view->auto_load_images = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "alimg", int_to_str (view->auto_load_images));
-    }
-    else if (name == g_intern_string ("auto-shrink-images"))
-    {
-        view->auto_shrink_images = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "asimg", int_to_str (view->auto_shrink_images));
-    }
-    else if (name == g_intern_string ("print-backgrounds"))
-    {
-        view->print_backgrounds = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "pbkg", int_to_str (view->print_backgrounds));
-    }
-    else if (name == g_intern_string ("resizable-text-areas"))
-    {
-        view->resizable_text_areas = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "rta", int_to_str (view->resizable_text_areas));
-    }
-    else if (name == g_intern_string ("enable-scripts"))
-    {
-        view->enable_scripts = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "escripts", int_to_str (view->enable_scripts));
-    }
-    else if (name == g_intern_string ("enable-plugins"))
-    {
-        view->enable_plugins = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "eplugins", int_to_str (view->enable_plugins));
     }
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {
@@ -2011,16 +1230,10 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     else if (name == g_intern_string ("middle-click-opens-selection"))
     {
         view->middle_click_opens_selection = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "mclksel",
-                int_to_str (view->middle_click_opens_selection));
     }
     else if (name == g_intern_string ("open-tabs-in-the-background"))
     {
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
-        if (midori_view_is_socket (view))
-            send_command (view, "tabsbkg",
-                int_to_str (view->open_tabs_in_the_background));
     }
 
     g_value_unset (&value);
@@ -2041,6 +1254,8 @@ midori_view_set_settings (MidoriView*        view,
         g_signal_handlers_disconnect_by_func (view->settings,
             midori_view_settings_notify_cb, view);
     katze_object_assign (view->settings, g_object_ref (settings));
+    if (view->web_view)
+        g_object_set (view->web_view, "settings", view->settings, NULL);
     _midori_view_update_settings (view);
     g_signal_connect (settings, "notify",
         G_CALLBACK (midori_view_settings_notify_cb), view);
@@ -2080,68 +1295,99 @@ midori_view_get_progress (MidoriView* view)
     return view->progress;
 }
 
+static void
+midori_view_construct_web_view (MidoriView* view)
+{
+    WebKitWebFrame* web_frame;
+
+    view->web_view = webkit_web_view_new ();
+
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+
+    g_object_connect (view->web_view,
+                      "signal::load-started",
+                      webkit_web_view_load_started_cb, view,
+                      "signal::load-committed",
+                      webkit_web_view_load_committed_cb, view,
+                      "signal::load-progress-changed",
+                      webkit_web_view_progress_changed_cb, view,
+                      "signal::load-finished",
+                      webkit_web_view_load_finished_cb, view,
+                      "signal::title-changed",
+                      webkit_web_view_title_changed_cb, view,
+                      "signal::status-bar-text-changed",
+                      webkit_web_view_statusbar_text_changed_cb, view,
+                      "signal::hovering-over-link",
+                      webkit_web_view_hovering_over_link_cb, view,
+                      "signal::button-press-event",
+                      gtk_widget_button_press_event_cb, view,
+                      "signal::scroll-event",
+                      gtk_widget_scroll_event_cb, view,
+                      "signal::populate-popup",
+                      webkit_web_view_populate_popup_cb, view,
+                      "signal::console-message",
+                      webkit_web_view_console_message_cb, view,
+                      "signal::window-object-cleared",
+                      webkit_web_view_window_object_cleared_cb, view,
+                      NULL);
+    g_object_connect (web_frame,
+                      "signal::load-done",
+                      webkit_web_frame_load_done_cb, view,
+                      NULL);
+
+    g_object_set (view->web_view, "settings", view->settings, NULL);
+
+    gtk_widget_show (view->web_view);
+    gtk_container_add (GTK_CONTAINER (view), view->web_view);
+}
+
 /**
  * midori_view_set_uri:
  * @view: a #MidoriView
  *
  * Opens the specified URI in the view.
  *
- * FIXME:
- * If the view doesn't allow changing the URI it
- * will automatically request a new tab.
+ * Pass an URI prefixed with "view-source:" in
+ * order to create a source view.
  **/
 void
 midori_view_set_uri (MidoriView*  view,
                      const gchar* uri)
 {
+    GtkWidget* widget;
     gchar* data;
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        /* We must not send a NULL string here */
-        send_command (view, "set-uri", uri ? uri : "");
+    if (!view->web_view && view->uri
+        && g_str_has_prefix (view->uri, "view-source:"))
+    {
+        g_signal_emit (view, signals[NEW_TAB], 0, uri);
+    }
+    else if (!view->web_view && uri && g_str_has_prefix (uri, "view-source:"))
+    {
+        katze_assign (view->uri, g_strdup (uri));
+        g_object_notify (G_OBJECT (view), "uri");
+        data = g_strdup_printf ("%s - %s", _("Source"), &uri[12]);
+        g_object_set (view, "title", data, NULL);
+        g_free (data);
+        katze_object_assign (view->icon,
+            gtk_widget_render_icon (GTK_WIDGET (view),
+                GTK_STOCK_EDIT, GTK_ICON_SIZE_MENU, NULL));
+        widget = midori_source_new (&uri[12]);
+        gtk_container_add (GTK_CONTAINER (view), widget);
+        gtk_widget_show (widget);
+    }
     else
     {
         if (!view->web_view)
-        {
-            /* An URI is requested before the view was realized.
-               We special case this to load it when we are ready. */
-            midori_debug ("Deferring premature uri '%s'", uri);
-            katze_assign (view->premature_uri, g_strdup (uri));
-            return;
-        }
-        midori_debug ("Opening URI: %s", uri);
+            midori_view_construct_web_view (view);
         /* This is not prefectly elegant, but creating an
            error page inline is the simplest solution. */
         if (g_str_has_prefix (uri, "error:"))
         {
             data = NULL;
-            if (!strncmp (uri, "error:died ", 11))
-            {
-                katze_assign (view->uri, g_strdup (&uri[11]));
-                data = g_strdup_printf (
-                    "<html><head><title>Page died - %s</title></head>"
-                    "<body><h1>Page died - %s</h1>"
-                    "<p />The page you were navigating on died."
-                    "<p />Try to <a href=\"%s\">load the page again</a>, "
-                    "or move on to another page."
-                    "</body></html>",
-                    view->uri, view->uri, view->uri);
-            }
-            else if (!strncmp (uri, "error:404 ", 10))
-            {
-                katze_assign (view->uri, g_strdup (&uri[10]));
-                data = g_strdup_printf (
-                    "<html><head><title>Not found - %s</title></head>"
-                    "<body><h1>Not found - %s</h1>"
-                    "<p />The page you were opening doesn't exist."
-                    "<p />Try to <a href=\"%s\">load the page again</a>, "
-                    "or move on to another page."
-                    "</body></html>",
-                    view->uri, view->uri, view->uri);
-            }
-            else if (!strncmp (uri, "error:nodocs ", 13))
+            if (!strncmp (uri, "error:nodocs ", 13))
             {
                 katze_assign (view->uri, g_strdup (&uri[13]));
                 data = g_strdup_printf (
@@ -2289,16 +1535,12 @@ midori_view_has_selection (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_socket (view))
-        return view->has_selection;
-    else
-    {
-        view->selected_text = webkit_web_view_get_selected_text (
+    view->selected_text = webkit_web_view_get_selected_text (
             WEBKIT_WEB_VIEW (view->web_view));
-        if (view->selected_text && *view->selected_text)
-            return TRUE;
+    if (view->selected_text && *view->selected_text)
+        return TRUE;
+    else
         return FALSE;
-    }
 }
 
 /**
@@ -2314,9 +1556,7 @@ midori_view_get_selected_text (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    if (midori_view_is_socket (view))
-        return view->selected_text;
-    else if (midori_view_has_selection (view))
+    if (midori_view_has_selection (view))
         return midori_view_get_selected_text (view);
     else
         return NULL;
@@ -2335,15 +1575,11 @@ midori_view_can_cut_clipboard (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_socket (view))
-        return view->can_cut_clipboard;
-    else if (view->web_view)
-    {
-        view->can_cut_clipboard = webkit_web_view_can_cut_clipboard (
+    if (view->web_view)
+        return webkit_web_view_can_cut_clipboard (
             WEBKIT_WEB_VIEW (view->web_view));
-        return view->can_cut_clipboard;
-    }
-    return FALSE;
+    else
+        return FALSE;
 }
 
 /**
@@ -2359,15 +1595,11 @@ midori_view_can_copy_clipboard (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_socket (view))
-        return view->can_copy_clipboard;
-    else if (view->web_view)
-    {
-        view->can_copy_clipboard = webkit_web_view_can_copy_clipboard (
+    if (view->web_view)
+        return webkit_web_view_can_copy_clipboard (
             WEBKIT_WEB_VIEW (view->web_view));
-        return view->can_copy_clipboard;
-    }
-    return FALSE;
+    else
+        return FALSE;
 }
 
 /**
@@ -2383,15 +1615,11 @@ midori_view_can_paste_clipboard (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_socket (view))
-        return view->can_paste_clipboard;
-    else if (view->web_view)
-    {
-        view->can_paste_clipboard = webkit_web_view_can_paste_clipboard (
+    if (view->web_view)
+        return webkit_web_view_can_paste_clipboard (
             WEBKIT_WEB_VIEW (view->web_view));
-        return view->can_paste_clipboard;
-    }
-    return FALSE;
+    else
+        return FALSE;
 }
 
 /**
@@ -2523,8 +1751,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         gtk_box_pack_end (GTK_BOX (hbox), view->tab_close, FALSE, FALSE, 0);
         gtk_widget_show_all (GTK_WIDGET (event_box));
 
-        if (view->settings &&
-            !sokoke_object_get_boolean (view->settings, "close-buttons-on-tabs"))
+        if (!view->close_buttons_on_tabs)
             gtk_widget_hide (view->tab_close);
 
         g_signal_connect (event_box, "button-release-event",
@@ -2586,10 +1813,10 @@ midori_view_get_zoom_level (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), 1.0);
 
-    if (midori_view_is_socket (view))
-        return view->zoom_level;
-    else if (view->web_view)
+    #ifdef WEBKIT_CHECK_VERSION
+    if (view->web_view != NULL)
         return webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (view->web_view));
+    #endif
     return FALSE;
 }
 
@@ -2606,11 +1833,34 @@ midori_view_set_zoom_level (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "set-zoom-level", float_to_str (zoom_level));
-    else
-        webkit_web_view_set_zoom_level (
-            WEBKIT_WEB_VIEW (view->web_view), zoom_level);
+    #ifdef WEBKIT_CHECK_VERSION
+    webkit_web_view_set_zoom_level (
+        WEBKIT_WEB_VIEW (view->web_view), zoom_level);
+    #endif
+}
+
+gboolean
+midori_view_can_zoom_in (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
+    #ifdef WEBKIT_CHECK_VERSION
+    return view->web_view != NULL;
+    #else
+    return FALSE;
+    #endif
+}
+
+gboolean
+midori_view_can_zoom_out (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
+    #ifdef WEBKIT_CHECK_VERSION
+    return view->web_view != NULL;
+    #else
+    return FALSE;
+    #endif
 }
 
 #define can_do(what) \
@@ -2619,11 +1869,9 @@ midori_view_can_##what (MidoriView* view) \
 { \
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE); \
 \
-    return view->socket_id > -1; \
+    return view->web_view != NULL; \
 }
 
-can_do (zoom_in)
-can_do (zoom_out)
 can_do (reload)
 can_do (print)
 #if HAVE_GIO
@@ -2631,7 +1879,7 @@ can_do (print)
 #else
     gboolean midori_view_can_view_source (MidoriView* view)
     {
-        return FALSE;
+        return view->web_view != NULL;
     }
 #endif
 can_do (find)
@@ -2651,10 +1899,7 @@ midori_view_reload (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "reload", int_to_str (from_cache));
-    else
-        webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
+    webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
@@ -2668,10 +1913,7 @@ midori_view_stop_loading (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "stop-loading", NULL);
-    else
-        webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
+    webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
@@ -2685,9 +1927,7 @@ midori_view_can_go_back (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_socket (view))
-        return view->can_go_back;
-    else if (view->web_view)
+    if (view->web_view)
         return webkit_web_view_can_go_back (WEBKIT_WEB_VIEW (view->web_view));
     else
         return FALSE;
@@ -2704,10 +1944,7 @@ midori_view_go_back (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "go-back", NULL);
-    else
-        webkit_web_view_go_back (WEBKIT_WEB_VIEW (view->web_view));
+    webkit_web_view_go_back (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
@@ -2721,9 +1958,7 @@ midori_view_can_go_forward (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_socket (view))
-        return view->can_go_forward;
-    else if (view->web_view)
+    if (view->web_view)
         return webkit_web_view_can_go_forward (WEBKIT_WEB_VIEW (view->web_view));
     else
         return FALSE;
@@ -2740,10 +1975,7 @@ midori_view_go_forward (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "go-forward", NULL);
-    else
-        webkit_web_view_go_forward (WEBKIT_WEB_VIEW (view->web_view));
+    webkit_web_view_go_forward (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
@@ -2757,11 +1989,13 @@ midori_view_print (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "print", NULL);
-    else
-        webkit_web_view_execute_script (
-            WEBKIT_WEB_VIEW (view->web_view), "print();");
+    #ifdef WEBKIT_CHECK_VERSION
+    webkit_web_frame_print (webkit_web_view_get_main_frame (
+        WEBKIT_WEB_VIEW (view->web_view)));
+    #else
+    webkit_web_view_execute_script (
+        WEBKIT_WEB_VIEW (view->web_view), "print();");
+    #endif
 }
 
 /**
@@ -2775,10 +2009,7 @@ midori_view_unmark_text_matches (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "unmark-matches", NULL);
-    else
-        webkit_web_view_unmark_text_matches (WEBKIT_WEB_VIEW (view->web_view));
+    webkit_web_view_unmark_text_matches (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
@@ -2796,21 +2027,11 @@ midori_view_search_text (MidoriView*  view,
                          gboolean     case_sensitive,
                          gboolean     forward)
 {
-    gchar* data;
-
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-    {
-        /* (text, case_sensitive, forward) => (forward, case_sensitive, text) */
-        data = g_strdup_printf ("%d %d %s", forward, case_sensitive, text);
-        send_command (view, "search-text", data);
-        g_free (data);
-    }
-    else
-        g_signal_emit (view, signals[SEARCH_TEXT], 0,
-            webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
-                text, case_sensitive, forward, TRUE));
+    g_signal_emit (view, signals[SEARCH_TEXT], 0,
+        webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
+            text, case_sensitive, forward, TRUE));
 }
 
 /**
@@ -2826,20 +2047,10 @@ midori_view_mark_text_matches (MidoriView*  view,
                                const gchar* text,
                                gboolean     case_sensitive)
 {
-    gchar* data;
-
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-    {
-        /* (text, case_sensitive) => (case_sensitive, text) */
-        data = g_strdup_printf ("%d %s", case_sensitive, text);
-        send_command (view, "mark-matches", data);
-        g_free (data);
-    }
-    else
-        webkit_web_view_mark_text_matches (WEBKIT_WEB_VIEW (view->web_view),
-            text, case_sensitive, 0);
+    webkit_web_view_mark_text_matches (WEBKIT_WEB_VIEW (view->web_view),
+        text, case_sensitive, 0);
 }
 
 /**
@@ -2855,9 +2066,6 @@ midori_view_set_highlight_text_matches (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (midori_view_is_socket (view))
-        send_command (view, "hl-matches", int_to_str (highlight));
-    else
-        webkit_web_view_set_highlight_text_matches (
-            WEBKIT_WEB_VIEW (view->web_view), highlight);
+    webkit_web_view_set_highlight_text_matches (
+        WEBKIT_WEB_VIEW (view->web_view), highlight);
 }

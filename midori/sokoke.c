@@ -24,32 +24,6 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 
-/**
- * sokoke_remember_argv0:
- * @argv0: the contents of argv[0] or %NULL
- *
- * Stores or retrieves the value of argv[0].
- *
- * Call it with a string for argv0 to store.
- *
- * Passing %NULL for argv0 will preserve
- * a previously stored value.
- *
- * Return value: the contents of argv[0] or %NULL
- **/
-const gchar*
-sokoke_remember_argv0 (const gchar* argv0)
-{
-    static const gchar* remembered_argv0 = NULL;
-
-    if (argv0)
-        remembered_argv0 = argv0;
-
-    g_return_val_if_fail (remembered_argv0 != NULL, NULL);
-
-    return remembered_argv0;
-}
-
 static void
 error_dialog (const gchar* short_message,
               const gchar* detailed_message)
