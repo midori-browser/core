@@ -72,6 +72,10 @@ midori_preferences_response_cb (MidoriPreferences* preferences,
         gtk_widget_destroy (GTK_WIDGET (preferences));
 }
 
+#ifdef GDK_WINDOWING_QUARTZ
+    #define USE_OSX_STYLE
+#endif
+
 static void
 midori_preferences_init (MidoriPreferences* preferences)
 {
@@ -86,10 +90,12 @@ midori_preferences_init (MidoriPreferences* preferences)
                   "title", dialog_title,
                   "has-separator", FALSE,
                   NULL);
+    #ifndef USE_OSX_STYLE
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         NULL);
+    #endif
     g_signal_connect (preferences, "response",
                       G_CALLBACK (midori_preferences_response_cb), NULL);
 
@@ -199,6 +205,42 @@ proxy_download_manager_icon_cb (GtkWidget*     entry,
     return FALSE;
 }
 
+#ifdef USE_OSX_STYLE
+static void
+midori_preferences_help_clicked_cb (GtkWidget* button,
+                                    GtkDialog* dialog)
+{
+    gtk_dialog_response (dialog, GTK_RESPONSE_HELP);
+}
+
+static void
+midori_preferences_toolbutton_clicked_cb (GtkWidget* toolbutton,
+                                          GtkWidget* page)
+{
+    gpointer notebook = g_object_get_data (G_OBJECT (toolbutton), "notebook");
+    guint n = gtk_notebook_page_num (notebook, page);
+    gtk_notebook_set_current_page (notebook, n);
+}
+#endif
+
+static inline void
+midori_preferences_add_toolbutton (GtkWidget*   toolbar,
+                                   GtkWidget**  toolbutton,
+                                   const gchar* icon,
+                                   const gchar* label,
+                                   GtkWidget*   page)
+{
+#ifdef USE_OSX_STYLE
+    *toolbutton = GTK_WIDGET (*toolbutton ? gtk_radio_tool_button_new_from_widget (
+        GTK_RADIO_TOOL_BUTTON (*toolbutton)) : gtk_radio_tool_button_new (NULL));
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (*toolbutton), label);
+    gtk_tool_button_set_stock_id (GTK_TOOL_BUTTON (*toolbutton), icon);
+    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (*toolbutton), -1);
+    g_signal_connect (*toolbutton, "clicked",
+        G_CALLBACK (midori_preferences_toolbutton_clicked_cb), page);
+#endif
+}
+
 /**
  * midori_preferences_set_settings:
  * @settings: the settings
@@ -212,6 +254,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
                                  MidoriWebSettings* settings)
 {
     GtkSizeGroup* sizegroup;
+    GtkWidget* toolbar;
+    GtkWidget* toolbutton;
     GtkWidget* page;
     GtkWidget* frame;
     GtkWidget* table;
@@ -229,8 +273,25 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     preferences->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
+
+    #ifdef USE_OSX_STYLE
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (preferences->notebook), FALSE);
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (preferences->notebook), FALSE);
+    toolbar = gtk_toolbar_new ();
+    gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH);
+    gtk_toolbar_set_show_arrow (GTK_TOOLBAR (toolbar), FALSE);
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+                        toolbar, FALSE, FALSE, 0);
+    #endif
+    toolbutton = NULL;
+
     sizegroup = NULL;
-    #define PAGE_NEW(__label) page = gtk_vbox_new (FALSE, 0); \
+    #define PAGE_NEW(__icon, __label) \
+     page = gtk_vbox_new (FALSE, 0); \
+     midori_preferences_add_toolbutton (toolbar, &toolbutton, \
+         __icon, __label, page); \
+     if (toolbutton) g_object_set_data (G_OBJECT (toolbutton), \
+      "notebook", preferences->notebook); \
      if (sizegroup) g_object_unref (sizegroup); \
      sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL); \
      gtk_container_set_border_width (GTK_CONTAINER (page), 4); \
@@ -261,7 +322,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
      gtk_container_add (GTK_CONTAINER (align), __widget); \
      FILLED_ADD (align, __left, __right, __top, __bottom)
     /* Page "General" */
-    PAGE_NEW (_("General"));
+    PAGE_NEW (GTK_STOCK_HOME, _("General"));
     FRAME_NEW (_("Startup"));
     TABLE_NEW (2, 2);
     label = katze_property_label (settings, "load-on-startup");
@@ -295,7 +356,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (hbox, 1, 2, 1, 2);
 
     /* Page "Appearance" */
-    PAGE_NEW (_("Appearance"));
+    PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Appearance"));
     FRAME_NEW (_("Font settings"));
     TABLE_NEW (5, 2);
     label = katze_property_label (settings, "default-font-family");
@@ -316,7 +377,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (button, 1, 2, 2, 3);
 
     /* Page "Behavior" */
-    PAGE_NEW (_("Behavior"));
+    PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
     FRAME_NEW (_("Features"));
     TABLE_NEW (6, 2);
     button = katze_property_proxy (settings, "auto-load-images", NULL);
@@ -337,7 +398,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (entry, 1, 2, 3, 4);
 
     /* Page "Interface" */
-    PAGE_NEW (_("Interface"));
+    PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
     FRAME_NEW (_("Navigationbar"));
     TABLE_NEW (3, 2);
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"), 0, 1, 0, 1);
@@ -366,7 +427,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     WIDGET_ADD (button, 1, 2, 2, 3);
 
     /* Page "Network" */
-    /*PAGE_NEW (_("Network"));
+    /*PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
     FRAME_NEW (_("Network"));
     TABLE_NEW (2, 2);
     label = katze_property_label (settings, "http-proxy");
@@ -383,7 +444,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (hbox, 1, 2, 1, 2);*/
 
     /* Page "Privacy" */
-    PAGE_NEW (_("Privacy"));
+    PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
     /*FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
@@ -418,5 +479,18 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_object_unref (sizegroup);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
                         preferences->notebook, FALSE, FALSE, 4);
+    #ifdef USE_OSX_STYLE
+    GtkWidget* icon;
+    hbox = gtk_hbox_new (FALSE, 0);
+    button = gtk_button_new ();
+    icon = gtk_image_new_from_stock (GTK_STOCK_HELP, GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_image (GTK_BUTTON (button), icon);
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_preferences_help_clicked_cb), preferences);
+    gtk_box_pack_end (GTK_BOX (hbox),
+        button, FALSE, FALSE, 4);
+    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+        hbox, FALSE, FALSE, 0);
+    #endif
     gtk_widget_show_all (GTK_DIALOG (preferences)->vbox);
 }

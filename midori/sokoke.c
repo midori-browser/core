@@ -210,6 +210,7 @@ typedef enum
 static SokokeDesktop
 sokoke_get_desktop (void)
 {
+    #ifdef GDK_WINDOWING_X11
     static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;
     if (G_UNLIKELY (desktop == SOKOKE_DESKTOP_UNTESTED))
     {
@@ -225,6 +226,9 @@ sokoke_get_desktop (void)
     }
 
     return desktop;
+    #else
+    return SOKOKE_DESKTOP_UNKNOWN;
+    #endif
 }
 
 GtkWidget*
