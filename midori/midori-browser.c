@@ -2418,6 +2418,8 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
                                        GtkWidget*         treeview)
 {
     KatzeItem* item;
+    time_t date;
+    char sdate[50];
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
@@ -2431,7 +2433,11 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
     }
 
     if (KATZE_IS_ARRAY (item))
-        g_object_set (renderer, "text", katze_item_get_added (item), NULL);
+    {
+        date = (time_t)katze_item_get_added (item);
+        strftime (sdate, sizeof (sdate), "%Y-%m-%d", localtime (&date));
+        g_object_set (renderer, "text", sdate, NULL);
+    }
     else
         g_object_set (renderer, "text", katze_item_get_name (item), NULL);
 
@@ -4062,9 +4068,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     gint i;
     gboolean found;
     time_t now;
-    gchar newdate [70];
-    gchar *today;
-    gsize len;
+    gint64 date;
 
     if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         return;
@@ -4073,19 +4077,15 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     treemodel = gtk_tree_view_get_model (treeview);
 
     now = time (NULL);
-    strftime (newdate, sizeof (newdate), "%Y-%m-%d %H:%M:%S", localtime (&now));
-    katze_item_set_added (item, newdate);
-
-    len = (g_strrstr (newdate, " ") - newdate);
-    today = g_strndup (newdate, len);
+    katze_item_set_added (item, now);
 
     found = FALSE;
     i = 0;
     while (gtk_tree_model_iter_nth_child (treemodel, &iter, NULL, i++))
     {
         gtk_tree_model_get (treemodel, &iter, 0, &parent, -1);
-        if (g_ascii_strcasecmp (today,
-            katze_item_get_added (KATZE_ITEM (parent))) == 0)
+        date = katze_item_get_added (KATZE_ITEM (parent));
+        if (sokoke_same_day (&now, &date))
         {
             found = TRUE;
             break;
@@ -4095,7 +4095,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     if (!found)
     {
         parent = katze_array_new (KATZE_TYPE_ARRAY);
-        katze_item_set_added (KATZE_ITEM (parent), today);
+        katze_item_set_added (KATZE_ITEM (parent), now);
         katze_array_add_item (browser->history, parent);
         katze_array_add_item (parent, item);
         _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
@@ -4108,7 +4108,6 @@ midori_browser_new_history_item (MidoriBrowser* browser,
         katze_array_add_item (parent, item);
         g_object_unref (parent);
     }
-    g_free (today);
 
 }
 

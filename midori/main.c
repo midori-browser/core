@@ -656,7 +656,7 @@ gettimestr (void*  data,
 
     g_return_val_if_fail (argc == 1, 1);
 
-    katze_item_set_added (item, argv[0]);
+    katze_item_set_added (item, g_ascii_strtoull (argv[0], NULL, 10));
     return 0;
 }
 
@@ -672,7 +672,7 @@ midori_history_remove_item_cb (KatzeArray* history,
     g_return_if_fail (KATZE_IS_ITEM (item));
 
     sqlcmd = g_strdup_printf ("DELETE FROM history WHERE uri = '%s' AND"
-                              " title = '%s' AND date = '%s' AND visits = %d",
+                              " title = '%s' AND date = %ld AND visits = %d",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
                               katze_item_get_added (item),
@@ -734,7 +734,7 @@ midori_history_add_item_cb (KatzeArray* array,
     /* New item, set added to the current date/ time */
     if (!katze_item_get_added (item))
     {
-        if (!db_exec_callback (db, "SELECT datetime('now')",
+        if (!db_exec_callback (db, "SELECT date('now')",
                                gettimestr, item, &error))
         {
             g_printerr (_("Failed to add history item. %s\n"), error->message);
@@ -743,7 +743,7 @@ midori_history_add_item_cb (KatzeArray* array,
         }
     }
     sqlcmd = g_strdup_printf ("INSERT INTO history VALUES"
-                              "('%s', '%s', '%s', %d)",
+                              "('%s', '%s', %" G_GUINT64_FORMAT ", %d)",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
                               katze_item_get_added (item),
@@ -767,10 +767,10 @@ midori_history_add_items (void*  data,
     KatzeItem* item;
     KatzeArray* parent = NULL;
     KatzeArray* array = KATZE_ARRAY (data);
-    gchar* newdate;
+    gint64 date;
+    time_t newdate;
     gint i, j, n;
     gint ncols = 4;
-    gsize len;
 
     g_return_val_if_fail (KATZE_IS_ARRAY (array), 1);
 
@@ -789,28 +789,24 @@ midori_history_add_items (void*  data,
                 item = katze_item_new ();
                 katze_item_set_uri (item, argv[i]);
                 katze_item_set_name (item, argv[i + 1]);
-                katze_item_set_added (item, argv[i + 2]);
+                date = g_ascii_strtoull (argv[i + 2], NULL, 10);
+                katze_item_set_added (item, date);
                 katze_item_set_visits (item, atoi (argv[i + 3]));
-
-                len = (g_strrstr (argv[i + 2], " ") - argv[i + 2]);
-                newdate = g_strndup (argv[i + 2], len);
 
                 n = katze_array_get_length (array);
                 for (j = 0; j < n; j++)
                 {
                     parent = katze_array_get_nth_item (array, j);
-                    if (newdate && g_ascii_strcasecmp
-                                (katze_item_get_added (KATZE_ITEM (parent)), newdate) == 0)
+                    newdate = katze_item_get_added (KATZE_ITEM (parent));
+                    if (sokoke_same_day (&date, &newdate))
                         break;
                 }
                 if (j == n)
                 {
                     parent = katze_array_new (KATZE_TYPE_ARRAY);
-                    katze_item_set_added (KATZE_ITEM (parent), newdate);
+                    katze_item_set_added (KATZE_ITEM (parent), date);
                     katze_array_add_item (array, parent);
                 }
-                g_free (newdate);
-
                 katze_array_add_item (parent, item);
             }
         }
@@ -832,13 +828,13 @@ midori_history_initialize (KatzeArray*  array,
 
     if (!db_exec (db,
                   "CREATE TABLE IF NOT EXISTS "
-                  "history(uri text, title text, date text, visits integer)",
+                  "history(uri text, title text, date integer, visits integer)",
                   error))
         return NULL;
 
     if (!db_exec_callback (db,
                            "SELECT uri, title, date, visits FROM history "
-                           "ORDER BY strftime('%s', date) ASC",
+                           "ORDER BY date ASC",
                            midori_history_add_items,
                            array,
                            error))
@@ -856,6 +852,29 @@ midori_history_initialize (KatzeArray*  array,
             G_CALLBACK (midori_history_clear_before_cb), db);
     }
     return db;
+}
+
+static void
+midori_history_terminate (sqlite3* db,
+                          gint     max_history_age)
+{
+    gchar* sqlcmd;
+    gboolean success = TRUE;
+    GError* error = NULL;
+
+    sqlcmd = g_strdup_printf (
+        "DELETE FROM history WHERE "
+        "(julianday(date('now')) - julianday(date(date,'unixepoch')))"
+        " >= %d", max_history_age);
+    db_exec (db, sqlcmd, &error);
+    if (!success)
+    {
+        g_printerr (_("Failed to remove old history items. %s\n"), error->message);
+        g_error_free (error);
+        return ;
+    }
+    g_free (sqlcmd);
+    db_close (db);
 }
 #endif
 
@@ -1060,6 +1079,7 @@ main (int    argc,
     gchar* uri_ready;
     #ifdef HAVE_SQLITE
     sqlite3* db;
+    gint max_history_age;
     #endif
 
     #if ENABLE_NLS
@@ -1364,7 +1384,8 @@ main (int    argc,
     g_mkdir_with_parents (config_path, 0755);
     g_object_unref (history);
     #ifdef HAVE_SQLITE
-    db_close (db);
+    g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
+    midori_history_terminate (db, max_history_age);
     #endif
     config_file = g_build_filename (config_path, "search", NULL);
     error = NULL;

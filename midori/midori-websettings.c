@@ -575,7 +575,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Maximum history age"),
                                      _("The maximum number of days to save the history for"),
                                      0, G_MAXINT, 30,
-                                     G_PARAM_READABLE));
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_FORM_INPUTS,

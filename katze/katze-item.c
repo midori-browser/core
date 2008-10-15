@@ -114,11 +114,13 @@ katze_item_class_init (KatzeItemClass* class)
 
     g_object_class_install_property (gobject_class,
                                      PROP_ADDED,
-                                     g_param_spec_string (
+                                     g_param_spec_int64 (
                                      "added",
                                      "Added",
                                      "When the item was added",
-                                     NULL,
+                                     G_MININT64,
+                                     G_MAXINT64,
+                                     0,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -152,7 +154,6 @@ katze_item_finalize (GObject* object)
     g_free (item->uri);
     g_free (item->icon);
     g_free (item->token);
-    g_free (item->added);
 
     G_OBJECT_CLASS (katze_item_parent_class)->finalize (object);
 }
@@ -183,7 +184,7 @@ katze_item_set_property (GObject*      object,
         katze_assign (item->token, g_value_dup_string (value));
         break;
     case PROP_ADDED:
-        katze_assign (item->added, g_value_dup_string (value));
+        item->added = g_value_get_int64 (value);
         break;
     case PROP_VISITS:
         item->visits = g_value_get_int (value);
@@ -220,7 +221,7 @@ katze_item_get_property (GObject*    object,
         g_value_set_string (value, item->token);
         break;
     case PROP_ADDED:
-        g_value_set_string (value, item->added);
+        g_value_set_int64 (value, item->added);
         break;
     case PROP_VISITS:
         g_value_set_int (value, item->visits);
@@ -419,10 +420,10 @@ katze_item_set_token (KatzeItem*   item,
  *
  * Return value: a timestamp
  **/
-const gchar*
+gint64
 katze_item_get_added (KatzeItem* item)
 {
-    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+    g_return_val_if_fail (KATZE_IS_ITEM (item), 0);
 
     return item->added;
 }
@@ -435,12 +436,12 @@ katze_item_get_added (KatzeItem* item)
  * Sets when @item was added.
  **/
 void
-katze_item_set_added (KatzeItem*   item,
-                      const gchar* added)
+katze_item_set_added (KatzeItem* item,
+                      gint64     added)
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
 
-    katze_assign (item->added, g_strdup (added));
+    item->added = added;
     g_object_notify (G_OBJECT (item), "added");
 }
 
