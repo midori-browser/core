@@ -111,9 +111,9 @@ Running Midori normally works as follows:
   You can separate URIS by a pipe (|) as well. They are handled as if you
   provided all URIs as separate arguments.
 
-* $ midori [JAVASCRIPT]
+* $ midori --run [JAVASCRIPT]
 
-  If you pass a filename ending with ".js" Midori will attempt to run
+  If you pass the filename of a javascript Midori will attempt to run
   the contents of the file as javascript code.
 
 
@@ -127,6 +127,8 @@ The following arguments are supported if you call Midori from a command line.
 +-------+--------------------+------------------------------------------------+
 | Short | Long option        | Function                                       |
 +=======+====================+================================================+
+| -r    | --run              | Run the specified filename as javascript       |
++-------+--------------------+------------------------------------------------+
 | -v    | --version          |  Show version information and exit.            |
 +-------+--------------------+------------------------------------------------+
 

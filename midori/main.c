@@ -1049,6 +1049,7 @@ int
 main (int    argc,
       char** argv)
 {
+    gboolean run;
     gboolean version;
     gchar** uris;
     MidoriApp* app;
@@ -1056,6 +1057,8 @@ main (int    argc,
     GError* error;
     GOptionEntry entries[] =
     {
+       { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
+       N_("Run the specified filename as javascript"), NULL },
        { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
@@ -1089,6 +1092,7 @@ main (int    argc,
     #endif
 
     /* Parse cli options */
+    run = FALSE;
     version = FALSE;
     uris = NULL;
     error = NULL;
@@ -1121,16 +1125,24 @@ main (int    argc,
     }
 
     /* Standalone gjs support */
-    if (uris && uris[0] && g_str_has_suffix (uris[0], ".js"))
+    if (run)
     {
-        js_context = gjs_global_context_new ();
-        exception = NULL;
-        gjs_script_from_file (js_context, uris[0], &exception);
-        JSGlobalContextRelease (js_context);
-        if (!exception)
-            return 0;
-        printf ("%s - Exception: %s\n", uris[0], exception);
-        return 1;
+        if (uris && *uris)
+        {
+            js_context = gjs_global_context_new ();
+            exception = NULL;
+            gjs_script_from_file (js_context, *uris, &exception);
+            JSGlobalContextRelease (js_context);
+            if (!exception)
+                return 0;
+            g_print ("%s - Exception: %s\n", *uris, exception);
+            return 1;
+        }
+        else
+        {
+            g_print ("%s - %s\n", _("Midori"), _("No filename specified"));
+            return 1;
+        }
     }
 
     app = midori_app_new ();
