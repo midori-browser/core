@@ -163,6 +163,16 @@ def set_options (opt):
         help='Enables API documentation', dest='enable_api_docs')
 
 def build (bld):
+    def mkdir (path):
+        if not os.access (path, os.F_OK):
+            os.mkdir (path)
+
+    def _install_files (folder, destination, source):
+        try:
+            install_files (folder, destination, source)
+        except:
+            pass
+
     bld.add_subdirs ('katze midori icons')
 
     install_files ('DOCDIR', '/midori/', 'AUTHORS ChangeLog COPYING README')
@@ -200,6 +210,18 @@ def build (bld):
         Params.pprint ('BLUE', "File midori.desktop not generated")
     if bld.env ()['INTLTOOL']:
         install_files ('DATADIR', 'applications', 'midori.desktop')
+
+    if bld.env ()['RSVG_CONVERT']:
+        mkdir (blddir + '/data')
+        convert = subprocess.Popen ([bld.env ()['RSVG_CONVERT'],
+            '-o', blddir + '/data/logo-shade.png',
+            srcdir + '/data/logo-shade.svg'],
+            stderr=subprocess.PIPE)
+        if not convert.wait ():
+            _install_files ('DATADIR', APPNAME,
+                            blddir + '/data/logo-shade.png')
+        else:
+            Params.pprint ('BLUE', "logo-shade could not be rasterized.")
 
 def shutdown ():
     if Params.g_commands['install'] or Params.g_commands['uninstall']:

@@ -672,6 +672,8 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
         data = g_strdup_printf (
             "<html><head><title>Not found - %s</title></head>"
             "<body><h1>Not found - %s</h1>"
+            "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
+            "style=\"position: absolute; right: 15px; bottom: 15px;\">"
             "<p />The page you were opening doesn't exist."
             "<p />Try to <a href=\"%s\">load the page again</a>, "
             "or move on to another page."
@@ -1393,6 +1395,8 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_strdup_printf (
                     "<html><head><title>No documentation installed</title></head>"
                     "<body><h1>No documentation installed</h1>"
+                    "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
+                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
                     "<p />There is no documentation installed at %s."
                     "You may want to ask your distribution or "
                     "package maintainer for it or if this a custom build "
