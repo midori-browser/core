@@ -60,6 +60,16 @@ proxy_combo_box_text_changed_cb (GtkComboBox* button, GObject* object)
 }
 
 static gboolean
+proxy_entry_activate_cb (GtkEntry* entry,
+                         GObject*  object)
+{
+    const gchar* text = gtk_entry_get_text (entry);
+    const gchar* property = g_object_get_data (G_OBJECT (entry), "property");
+    g_object_set (object, property, text, NULL);
+    return FALSE;
+}
+
+static gboolean
 proxy_entry_focus_out_event_cb (GtkEntry*      entry,
                                 GdkEventFocus* event,
                                 GObject*       object)
@@ -241,6 +251,8 @@ katze_property_proxy (gpointer     object,
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_entry_set_text (GTK_ENTRY (widget), string ? string : "");
+        g_signal_connect (widget, "activate",
+                          G_CALLBACK (proxy_entry_activate_cb), object);
         g_signal_connect (widget, "focus-out-event",
                           G_CALLBACK (proxy_entry_focus_out_event_cb), object);
     }
