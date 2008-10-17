@@ -210,27 +210,89 @@ katze_array_action_menu_item_activate_cb (GtkWidget*        proxy,
 }
 
 static void
+katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
+                                        KatzeArrayAction* array_action)
+{
+    guint n, i;
+    GtkWidget* menu;
+    GtkWidget* menuitem;
+    GtkWidget* submenu;
+    KatzeArray* array;
+    KatzeItem* item;
+    GdkPixbuf* pixbuf;
+    GtkWidget* icon;
+
+    menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy));
+    gtk_container_foreach (GTK_CONTAINER (menu),
+        (GtkCallback)(gtk_widget_destroy), NULL);
+
+    array = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
+    n = katze_array_get_length (array);
+    if (n > 0)
+    for (i = 0; i < n; i++)
+    {
+        item = katze_array_get_nth_item (array, i);
+        /* FIXME: The menu item should reflect changes to the item  */
+        if (!KATZE_IS_ARRAY (item) && !katze_item_get_uri (item))
+        {
+            menuitem = gtk_separator_menu_item_new ();
+            gtk_widget_show (menuitem);
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            continue;
+        }
+        menuitem = katze_image_menu_item_new_ellipsized (
+            katze_item_get_name (item));
+        pixbuf = gtk_widget_render_icon (menuitem,
+            KATZE_IS_ARRAY (item) ? GTK_STOCK_DIRECTORY : GTK_STOCK_FILE,
+            GTK_ICON_SIZE_MENU, NULL);
+        icon = gtk_image_new_from_pixbuf (pixbuf);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+        g_object_unref (pixbuf);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
+        if (KATZE_IS_ARRAY (item))
+        {
+            submenu = gtk_menu_new ();
+            gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
+            g_signal_connect (menuitem, "select",
+                G_CALLBACK (katze_array_action_menu_item_select_cb), array_action);
+        }
+        else
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (katze_array_action_menu_item_activate_cb), array_action);
+        gtk_widget_show (menuitem);
+    }
+    else
+    {
+        menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
+        gtk_widget_set_sensitive (menuitem, FALSE);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        gtk_widget_show (menuitem);
+    }
+}
+
+static void
 katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
                                      KatzeArrayAction* array_action)
 {
-    GtkWidget* menu;
     guint n, i;
+    GtkWidget* menu;
     GtkWidget* menuitem;
+    GtkWidget* submenu;
     KatzeItem* item;
     GdkPixbuf* pixbuf;
     GtkWidget* icon;
 
     if (GTK_IS_MENU_ITEM (proxy))
     {
-        if (!(menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy))))
-        {
-            menu = gtk_menu_new ();
-            gtk_menu_item_set_submenu (GTK_MENU_ITEM (proxy), menu);
-        }
-        gtk_container_foreach (GTK_CONTAINER (menu), (GtkCallback)(gtk_widget_destroy), NULL);
+        g_object_set_data (G_OBJECT (proxy), "KatzeItem", array_action->array);
+        katze_array_action_menu_item_select_cb (proxy, array_action);
+        g_signal_emit (array_action, signals[POPULATE_POPUP], 0,
+            gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)));
+        return;
     }
-    else
-        menu = gtk_menu_new ();
+
+    menu = gtk_menu_new ();
 
     n = katze_array_get_length (array_action->array);
     if (n > 0)
@@ -238,18 +300,34 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     {
         item = katze_array_get_nth_item (array_action->array, i);
         /* FIXME: The menu item should reflect changes to the item  */
+        if (!KATZE_IS_ARRAY (item) && !katze_item_get_uri (item))
+        {
+            menuitem = gtk_separator_menu_item_new ();
+            gtk_widget_show (menuitem);
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            continue;
+        }
         menuitem = katze_image_menu_item_new_ellipsized (
             katze_item_get_name (item));
-        pixbuf = gtk_widget_render_icon (menuitem, GTK_STOCK_FILE,
-                                         GTK_ICON_SIZE_MENU, NULL);
+        pixbuf = gtk_widget_render_icon (menuitem,
+            KATZE_IS_ARRAY (item) ? GTK_STOCK_DIRECTORY : GTK_STOCK_FILE,
+            GTK_ICON_SIZE_MENU, NULL);
         icon = gtk_image_new_from_pixbuf (pixbuf);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
         g_object_unref (pixbuf);
+        gtk_widget_show (menuitem);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (katze_array_action_menu_item_activate_cb), array_action);
-        gtk_widget_show (menuitem);
+        if (KATZE_IS_ARRAY (item))
+        {
+            submenu = gtk_menu_new ();
+            gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
+            g_signal_connect (menuitem, "select",
+                G_CALLBACK (katze_array_action_menu_item_select_cb), array_action);
+        }
+        else
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (katze_array_action_menu_item_activate_cb), array_action);
     }
     else
     {
@@ -261,9 +339,8 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
 
     g_signal_emit (array_action, signals[POPULATE_POPUP], 0, menu);
 
-    if (!GTK_IS_MENU_ITEM (proxy))
-        katze_widget_popup (GTK_WIDGET (proxy), GTK_MENU (menu),
-                            NULL, KATZE_MENU_POSITION_LEFT);
+    katze_widget_popup (GTK_WIDGET (proxy), GTK_MENU (menu),
+                        NULL, KATZE_MENU_POSITION_LEFT);
 }
 
 static GtkWidget*
@@ -298,6 +375,7 @@ katze_array_action_connect_proxy (GtkAction* action,
     }
     else if (GTK_IS_MENU_ITEM (proxy))
     {
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (proxy), gtk_menu_new ());
         /* FIXME: 'select' doesn't cover all ways of selection */
         g_signal_connect (proxy, "select",
             G_CALLBACK (katze_array_action_proxy_clicked_cb), action);
