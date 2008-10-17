@@ -3202,6 +3202,7 @@ static const gchar* ui_markup =
     "<menuitem action='FindPrevious'/>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
+    "<menuitem action='UndoTabClose'/>"
     "<menuitem action='TrashEmpty'/>"
    "</menu>"
   "</menubar>"
