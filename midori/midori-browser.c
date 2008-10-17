@@ -3465,13 +3465,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
     sokoke_container_show_children (GTK_CONTAINER (browser->navigationbar));
     gtk_widget_hide (browser->navigationbar);
-    action = gtk_action_group_get_action (browser->action_group, "Fullscreen");
-    browser->button_fullscreen = gtk_action_create_tool_item (action);
-    gtk_widget_hide (browser->button_fullscreen);
-    g_signal_connect (browser->button_fullscreen, "clicked",
-                      G_CALLBACK (_action_fullscreen_activate), browser);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                        GTK_TOOL_ITEM (browser->button_fullscreen), -1);
     g_signal_connect (browser->navigationbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
 
@@ -3852,6 +3845,14 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
         name++;
     }
     g_strfreev (names);
+
+    action = gtk_action_group_get_action (browser->action_group, "Fullscreen");
+    browser->button_fullscreen = gtk_action_create_tool_item (action);
+    gtk_widget_hide (browser->button_fullscreen);
+    g_signal_connect (browser->button_fullscreen, "clicked",
+                      G_CALLBACK (_action_fullscreen_activate), browser);
+    gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                        GTK_TOOL_ITEM (browser->button_fullscreen), -1);
 }
 
 static void
