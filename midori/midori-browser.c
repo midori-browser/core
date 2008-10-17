@@ -1499,9 +1499,8 @@ _action_bookmarks_activate_item (GtkAction*     action,
                                  KatzeItem*     item,
                                  MidoriBrowser* browser)
 {
-    gint n = midori_browser_add_item (browser, item);
-    midori_browser_set_current_page (browser, n);
-    _midori_browser_update_actions (browser);
+    _midori_browser_open_uri (browser, katze_item_get_uri (item));
+    gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
 static void
@@ -3943,7 +3942,7 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
 
     name = g_intern_string (pspec->name);
     g_value_init (&value, pspec->value_type);
-    g_object_get_property (G_OBJECT (browser->settings), name, &value);
+    g_object_get_property (G_OBJECT (web_settings), name, &value);
 
     if (name == g_intern_string ("toolbar-style"))
         _midori_browser_set_toolbar_style (browser, g_value_get_enum (&value));
