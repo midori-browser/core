@@ -671,12 +671,13 @@ midori_history_remove_item_cb (KatzeArray* history,
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
-    sqlcmd = g_strdup_printf ("DELETE FROM history WHERE uri = '%s' AND"
-                              " title = '%s' AND date = %ld AND visits = %d",
-                              katze_item_get_uri (item),
-                              katze_item_get_name (item),
-                              katze_item_get_added (item),
-                              katze_item_get_visits (item));
+    sqlcmd = g_strdup_printf (
+        "DELETE FROM history WHERE uri = '%s' AND"
+        " title = '%s' AND date = %" G_GINT64_FORMAT " AND visits = %d",
+        katze_item_get_uri (item),
+        katze_item_get_name (item),
+        katze_item_get_added (item),
+        katze_item_get_visits (item));
     success = db_exec (db, sqlcmd, &error);
     if (!success)
     {
@@ -781,10 +782,10 @@ midori_history_add_items (void*  data,
     {
         if (argv[i])
         {
-            if (colname[i] && g_ascii_strcasecmp (colname[i], "uri") == 0 &&
-                colname[i + 1] && g_ascii_strcasecmp (colname[i + 1], "title") == 0 &&
-                colname[i + 2] && g_ascii_strcasecmp (colname[i + 2], "date") == 0 &&
-                colname[i + 3] && g_ascii_strcasecmp (colname[i + 3], "visits") == 0)
+            if (colname[i] && !g_ascii_strcasecmp (colname[i], "uri") &&
+                colname[i + 1] && !g_ascii_strcasecmp (colname[i + 1], "title") &&
+                colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "date") &&
+                colname[i + 3] && !g_ascii_strcasecmp (colname[i + 3], "visits"))
             {
                 item = katze_item_new ();
                 katze_item_set_uri (item, argv[i]);
