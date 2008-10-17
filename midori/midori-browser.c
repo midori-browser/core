@@ -3260,6 +3260,11 @@ midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
         gtk_entry_set_text (GTK_ENTRY (entry), "");
 }
 
+static gboolean
+midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
+                                                   GdkEventButton* event,
+                                                   MidoriBrowser*  browser);
+
 static void
 midori_browser_init (MidoriBrowser* browser)
 {
@@ -3445,6 +3450,8 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
     gtk_widget_hide (browser->menubar);
+    g_signal_connect (browser->menubar, "button-press-event",
+        G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
 
     _action_set_sensitive (browser, "SaveAs", FALSE);
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
