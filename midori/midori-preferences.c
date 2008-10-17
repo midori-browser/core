@@ -283,6 +283,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
                         toolbar, FALSE, FALSE, 0);
     #endif
+    toolbar = NULL;
     toolbutton = NULL;
 
     sizegroup = NULL;
