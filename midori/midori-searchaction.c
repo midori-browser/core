@@ -1044,7 +1044,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         NULL);
     g_signal_connect (dialog, "destroy",
-                      G_CALLBACK (gtk_widget_destroyed), &dialog);
+                      G_CALLBACK (gtk_widget_destroyed), &search_action->dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
     /* TODO: Implement some kind of help function */
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
