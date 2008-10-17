@@ -133,6 +133,11 @@ midori_view_get_property (GObject*    object,
                           GParamSpec* pspec);
 
 static void
+midori_view_settings_notify_cb (MidoriWebSettings* settings,
+                                GParamSpec*        pspec,
+                                MidoriView*        view);
+
+static void
 midori_cclosure_marshal_VOID__STRING_BOOLEAN (GClosure*     closure,
                                               GValue*       return_value,
                                               guint         n_param_values,
@@ -1066,6 +1071,9 @@ midori_view_finalize (GObject* object)
     /* WebKitWebFrame* web_frame; */
 
     view = MIDORI_VIEW (object);
+
+    g_signal_handlers_disconnect_by_func (view->settings,
+        midori_view_settings_notify_cb, view);
 
     g_free (view->uri);
     g_free (view->title);
