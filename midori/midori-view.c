@@ -893,6 +893,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
     GList* items;
+    gboolean has_selection;
 
     /* We do not want to modify the Edit menu.
        The only reliable indicator is inspecting the first item. */
@@ -905,6 +906,8 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         if (!strcmp (stock_id, GTK_STOCK_CUT))
             return;
     }
+
+    has_selection = midori_view_has_selection (view);
 
     if (view->link_uri)
     {
@@ -949,7 +952,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         gtk_widget_show (menuitem);
     }
 
-    if (!view->link_uri && midori_view_has_selection (view))
+    if (!view->link_uri && has_selection)
     {
         if (strchr (view->selected_text, '.')
             && !strchr (view->selected_text, ' '))
@@ -968,7 +971,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         /* FIXME: view selection source */
     }
 
-    if (!view->link_uri && !midori_view_has_selection (view))
+    if (!view->link_uri && !has_selection)
     {
         /* FIXME: Make this sensitive only when there is a tab to undo */
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo Close Tab"));
