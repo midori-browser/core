@@ -305,6 +305,8 @@ search_engines_new_from_file (const gchar* filename,
         item = katze_item_new ();
         for (j = 0; j < n_properties; j++)
         {
+            if (!G_IS_PARAM_SPEC_STRING (pspecs[j]))
+                continue;
             property = g_param_spec_get_name (pspecs[j]);
             value = g_key_file_get_string (key_file, engines[i],
 	                                   property, NULL);
@@ -342,6 +344,8 @@ search_engines_save_to_file (KatzeArray*  search_engines,
         name = katze_item_get_name (item);
         for (j = 0; j < n_properties; j++)
         {
+            if (!G_IS_PARAM_SPEC_STRING (pspecs[j]))
+                continue;
             property = g_param_spec_get_name (pspecs[j]);
             g_object_get (item, property, &value, NULL);
             if (value)
