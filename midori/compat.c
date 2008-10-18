@@ -11,6 +11,24 @@
 
 #include "compat.h"
 
+#if !GLIB_CHECK_VERSION(2, 16, 0)
+
+/* Glib string function
+   Copyright (C) 2008 Tim Janik <timj@imendio.com>
+   Copied from Glib 2.16, coding style adjusted */
+gint
+g_strcmp0 (const gchar* string1,
+           const gchar* string2)
+{
+    if (!string1)
+        return -(str1 != str2);
+    if (!string2)
+        return string1 != string2;
+    return strcmp (string1, string2);
+}
+
+#endif
+
 #if !GTK_CHECK_VERSION(2, 14, 0)
 
 #if HAVE_GIO

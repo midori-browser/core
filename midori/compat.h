@@ -23,6 +23,14 @@
 
 G_BEGIN_DECLS
 
+#if !GLIB_CHECK_VERSION(2, 16, 0)
+
+gint
+g_strcmp0 (const gchar* string1,
+           const gchar* string2);
+
+#endif
+
 #if !GTK_CHECK_VERSION(2, 14, 0)
 
 #if HAVE_GIO
