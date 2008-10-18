@@ -494,7 +494,7 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
         item.title = NULL;
         midori_location_entry_add_item (
             MIDORI_LOCATION_ENTRY (entry), &item);
-        if (location_action->uri == uri)
+        if (!g_strcmp0 (location_action->uri, uri))
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (child),
                 GTK_ICON_ENTRY_PRIMARY, icon);
     }
