@@ -9,7 +9,7 @@ import platform
 import os
 
 APPNAME = 'midori'
-VERSION = '0.0.21'
+VERSION = '0.1.0'
 
 try:
     git = subprocess.Popen (['git', 'rev-parse', '--short', 'HEAD'],
