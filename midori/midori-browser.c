@@ -3610,6 +3610,8 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Pageholder */
     browser->panel_pageholder = midori_view_new ();
+    midori_view_set_settings (MIDORI_VIEW (browser->panel_pageholder),
+                              browser->settings);
     gtk_widget_show (browser->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               browser->panel_pageholder, NULL,

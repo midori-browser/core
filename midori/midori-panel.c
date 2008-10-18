@@ -11,6 +11,7 @@
 
 #include "midori-panel.h"
 
+#include "midori-view.h"
 #include "sokoke.h"
 #include "compat.h"
 
@@ -377,22 +378,22 @@ midori_panel_append_page (MidoriPanel* panel,
         scrolled = child;
     else
     {
-    scrolled = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
-    GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
-    gtk_widget_show (scrolled);
-    gobject_class = G_OBJECT_GET_CLASS (child);
-    if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
-        widget = child;
-    else
-    {
-        widget = gtk_viewport_new (NULL, NULL);
-        gtk_widget_show (widget);
-        gtk_container_add (GTK_CONTAINER (widget), child);
-    }
-    gtk_container_add (GTK_CONTAINER (scrolled), widget);
+        scrolled = gtk_scrolled_window_new (NULL, NULL);
+        gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
+                                        GTK_POLICY_AUTOMATIC,
+                                        GTK_POLICY_AUTOMATIC);
+        GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
+        gtk_widget_show (scrolled);
+        gobject_class = G_OBJECT_GET_CLASS (child);
+        if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
+            widget = child;
+        else
+        {
+            widget = gtk_viewport_new (NULL, NULL);
+            gtk_widget_show (widget);
+            gtk_container_add (GTK_CONTAINER (widget), child);
+        }
+        gtk_container_add (GTK_CONTAINER (scrolled), widget);
     }
     gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
@@ -421,7 +422,7 @@ midori_panel_append_page (MidoriPanel* panel,
     {
         menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
         gtk_widget_show (menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "page", scrolled);
+        g_object_set_data (G_OBJECT (menuitem), "page", child);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
@@ -454,7 +455,13 @@ static GtkWidget*
 _midori_panel_child_for_scrolled (MidoriPanel* panel,
                                   GtkWidget*   scrolled)
 {
-    GtkWidget* child = gtk_bin_get_child (GTK_BIN (scrolled));
+    GtkWidget* child;
+
+    /* This is a lazy hack, we should have a way of determining
+       whether the scrolled is the actual child. */
+    if (MIDORI_IS_VIEW (scrolled))
+        return scrolled;
+    child = gtk_bin_get_child (GTK_BIN (scrolled));
     if (GTK_IS_VIEWPORT (child))
         child = gtk_bin_get_child (GTK_BIN (child));
     return child;
@@ -474,9 +481,11 @@ GtkWidget*
 midori_panel_get_nth_page (MidoriPanel* panel,
                            guint        page_num)
 {
+    GtkWidget* scrolled;
+
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), NULL);
 
-    GtkWidget* scrolled = gtk_notebook_get_nth_page (
+    scrolled = gtk_notebook_get_nth_page (
         GTK_NOTEBOOK (panel->notebook), page_num);
     if (scrolled)
         return _midori_panel_child_for_scrolled (panel, scrolled);
@@ -503,7 +512,13 @@ static GtkWidget*
 _midori_panel_scrolled_for_child (MidoriPanel* panel,
                                   GtkWidget*   child)
 {
-    GtkWidget* scrolled = gtk_widget_get_parent (GTK_WIDGET (child));
+    GtkWidget* scrolled;
+
+    /* This is a lazy hack, we should have a way of determining
+       whether the scrolled is the actual child. */
+    if (MIDORI_IS_VIEW (child))
+        return child;
+    scrolled = gtk_widget_get_parent (GTK_WIDGET (child));
     if (GTK_IS_VIEWPORT (scrolled))
         scrolled = gtk_widget_get_parent (scrolled);
     return scrolled;
