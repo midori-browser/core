@@ -895,8 +895,10 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     GList* items;
     gboolean has_selection;
 
-    /* We do not want to modify the Edit menu.
-       The only reliable indicator is inspecting the first item. */
+    has_selection = midori_view_has_selection (view);
+
+    /* Unfortunately inspecting the menu is the only way to
+       determine that the mouse is over a text area or selection. */
     items = gtk_container_get_children (GTK_CONTAINER (menu));
     menuitem = (GtkWidget*)g_list_nth_data (items, 0);
     if (GTK_IS_IMAGE_MENU_ITEM (menuitem))
@@ -905,9 +907,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         gtk_image_get_stock (GTK_IMAGE (icon), &stock_id, NULL);
         if (!strcmp (stock_id, GTK_STOCK_CUT))
             return;
+        if (strcmp (stock_id, GTK_STOCK_FIND))
+            has_selection = FALSE;
     }
-
-    has_selection = midori_view_has_selection (view);
 
     if (view->link_uri)
     {
