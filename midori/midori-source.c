@@ -16,14 +16,19 @@
 #include "midori-source.h"
 
 #include <string.h>
-#if HAVE_GIO
-    #include <gio/gio.h>
-#endif
 #include <glib/gi18n.h>
+
+#if HAVE_LIBSOUP
+    #include <libsoup/soup.h>
+#endif
 
 struct _MidoriSource
 {
     GtkTextView parent_instance;
+
+    #if HAVE_LIBSOUP
+    SoupSession* session;
+    #endif
 };
 
 struct _MidoriSourceClass
@@ -53,11 +58,19 @@ midori_source_init (MidoriSource* source)
     buffer = gtk_text_buffer_new (NULL);
     gtk_text_view_set_buffer (GTK_TEXT_VIEW (source), buffer);
     gtk_text_view_set_editable (GTK_TEXT_VIEW (source), FALSE);
+
+    #if HAVE_LIBSOUP
+    source->session = soup_session_async_new ();
+    #endif
 }
 
 static void
 midori_source_finalize (GObject* object)
 {
+    #if HAVE_LIBSOUP
+    g_object_unref (MIDORI_SOURCE (object)->session);
+    #endif
+
     G_OBJECT_CLASS (midori_source_parent_class)->finalize (object);
 }
 
@@ -80,46 +93,97 @@ midori_source_new (const gchar* uri)
     return GTK_WIDGET (source);
 }
 
+#if HAVE_LIBSOUP
+static void
+midori_source_got_body_cb (SoupMessage*  msg,
+                           MidoriSource* source)
+{
+    const gchar* contents;
+    const gchar* mime;
+    gchar** mimev;
+    gchar* charset;
+    gchar* contents_utf8;
+    GtkTextBuffer* buffer;
+
+    if (msg->response_body->length > 0)
+    {
+        contents = msg->response_body->data;
+        if (contents && !g_utf8_validate (contents, -1, NULL))
+        {
+            charset = NULL;
+            if (msg->response_headers)
+            {
+                mime = soup_message_headers_get (msg->response_headers,
+                                                 "content-type");
+                if (mime)
+                {
+                    mimev = g_strsplit (mime, " ", 2);
+                    if (mimev[0] && mimev[1] &&
+                        g_str_has_prefix (mimev[1], "charset="))
+                        charset = g_strdup (&mimev[1][8]);
+                    g_strfreev (mimev);
+                }
+            }
+            contents_utf8 = g_convert (contents, -1, "UTF-8",
+                charset ? charset : "ISO-8859-1", NULL, NULL, NULL);
+        }
+        else
+            contents_utf8 = (gchar*)contents;
+        buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (source));
+        if (contents_utf8)
+            gtk_text_buffer_set_text (buffer, contents_utf8, -1);
+        g_object_unref (buffer);
+        if (contents != contents_utf8)
+            g_free (contents_utf8);
+    }
+}
+#endif
+
 void
 midori_source_set_uri (MidoriSource* source,
                        const gchar*  uri)
 {
-    #if HAVE_GIO
-    GFile* file;
-    gchar* tag;
-    #endif
     gchar* contents;
     gchar* contents_utf8;
     GtkTextBuffer* buffer;
+    #if HAVE_LIBSOUP
+    SoupMessage* msg;
+    #endif
+    gchar* filename;
 
     g_return_if_fail (MIDORI_IS_SOURCE (source));
+    g_return_if_fail (uri != NULL);
 
     contents = NULL;
 
-    #if HAVE_GIO
-    file = g_file_new_for_uri (uri);
-    tag = NULL;
-    if (g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL))
+    #if HAVE_LIBSOUP
+    if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
     {
-        g_object_unref (file);
+        msg = soup_message_new ("GET", uri);
+        g_signal_connect (msg, "got-body",
+            G_CALLBACK (midori_source_got_body_cb), source);
+        soup_session_queue_message (source->session, msg, NULL, NULL);
+        return;
     }
-    if (contents && !g_utf8_validate (contents, -1, NULL))
+    #endif
+    if (g_str_has_prefix (uri, "file://"))
     {
-        contents_utf8 = g_convert (contents, -1, "UTF-8", "ISO-8859-1",
-                                   NULL, NULL, NULL);
-        g_free (contents);
+        contents = NULL;
+        filename = g_filename_from_uri (uri, NULL, NULL);
+        if (!filename || !g_file_get_contents (filename, &contents, NULL, NULL))
+            return;
+        if (contents && !g_utf8_validate (contents, -1, NULL))
+        {
+            contents_utf8 = g_convert (contents, -1, "UTF-8", "ISO-8859-1",
+                                       NULL, NULL, NULL);
+            g_free (contents);
+        }
+        else
+            contents_utf8 = contents;
+        buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (source));
+        if (contents_utf8)
+            gtk_text_buffer_set_text (buffer, contents_utf8, -1);
+        g_object_unref (buffer);
+        g_free (contents_utf8);
     }
-    else
-    #endif
-        contents_utf8 = contents;
-
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (source));
-    if (contents_utf8)
-        gtk_text_buffer_set_text (GTK_TEXT_BUFFER (buffer), contents_utf8, -1);
-
-    g_object_unref (buffer);
-    g_free (contents_utf8);
-    #if HAVE_GIO
-    g_free (tag);
-    #endif
 }

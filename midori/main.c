@@ -1109,6 +1109,9 @@ main (int    argc,
         return 1;
     }
 
+    #if HAVE_LIBSOUP
+    if (!g_thread_supported ()) g_thread_init (NULL);
+    #endif
     stock_items_init ();
     g_set_application_name (_("Midori"));
 

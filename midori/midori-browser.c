@@ -31,9 +31,6 @@
 #include "sokoke.h"
 #include "gjs.h"
 
-#if HAVE_GIO
-#include <gio/gio.h>
-#endif
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
@@ -3738,10 +3735,6 @@ midori_browser_init (MidoriBrowser* browser)
                         FALSE, FALSE, 3);
 
     g_object_unref (ui_manager);
-
-    #if !HAVE_GIO
-    _action_set_sensitive (browser, "SourceView", FALSE);
-    #endif
 
     #ifndef WEBKIT_CHECK_VERSION
     _action_set_sensitive (browser, "ZoomIn", FALSE);

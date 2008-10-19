@@ -1079,7 +1079,6 @@ midori_view_init (MidoriView* view)
     view->download_manager = NULL;
 
     #if HAVE_LIBSOUP
-    if (!g_thread_supported ()) g_thread_init (NULL);
     view->session = soup_session_async_new ();
     #endif
 
@@ -1911,6 +1910,20 @@ midori_view_can_zoom_out (MidoriView* view)
     #endif
 }
 
+gboolean
+midori_view_can_view_source (MidoriView* view)
+{
+    const gchar* uri = view->uri;
+
+    #if HAVE_LIBSOUP
+    if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
+        return TRUE;
+    #endif
+    if (g_str_has_prefix (uri, "file://"))
+        return TRUE;
+    return FALSE;
+}
+
 #define can_do(what) \
 gboolean \
 midori_view_can_##what (MidoriView* view) \
@@ -1922,14 +1935,6 @@ midori_view_can_##what (MidoriView* view) \
 
 can_do (reload)
 can_do (print)
-#if HAVE_GIO
-    can_do (view_source)
-#else
-    gboolean midori_view_can_view_source (MidoriView* view)
-    {
-        return view->web_view != NULL;
-    }
-#endif
 can_do (find)
 
 /**
