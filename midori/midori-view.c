@@ -24,11 +24,12 @@
 
 #include <string.h>
 #include <stdlib.h>
-#if HAVE_GIO
-    #include <gio/gio.h>
-#endif
 #include <glib/gi18n.h>
 #include <webkit/webkit.h>
+
+#if HAVE_LIBSOUP
+    #include <libsoup/soup.h>
+#endif
 
 /* This is unstable API, so we need to declare it */
 gchar*
@@ -64,6 +65,10 @@ struct _MidoriView
     GtkWidget* tab_title;
     GtkWidget* tab_close;
     KatzeItem* item;
+
+    #if HAVE_LIBSOUP
+    SoupSession* session;
+    #endif
 };
 
 struct _MidoriViewClass
@@ -434,89 +439,87 @@ midori_view_notify_icon_cb (MidoriView* view,
                 gtk_image_new_from_pixbuf (view->icon));
 }
 
-#if HAVE_GIO
-void
-loadable_icon_finish_cb (GdkPixbuf*    icon,
-                         GAsyncResult* res,
-                         MidoriView*   view)
+#if HAVE_LIBSOUP
+static void
+midori_view_got_headers_cb (SoupMessage* msg,
+                            MidoriView*  view)
+{
+    const gchar* mime;
+
+    switch (msg->status_code)
+    {
+    case 200:
+        mime = soup_message_headers_get (msg->response_headers, "content-type");
+        if (!g_str_has_prefix (mime, "image/"))
+            soup_session_cancel_message (view->session, msg, 200);
+        break;
+    case 301:
+        break;
+    default:
+        soup_session_cancel_message (view->session, msg, 200);
+    }
+}
+
+static gchar*
+midori_view_get_cached_icon_file (gchar* uri)
+{
+    gchar* cache_dir;
+    gchar* checksum;
+    gchar* icon_file;
+    gchar* icon_path;
+
+    cache_dir = g_build_filename (g_get_user_cache_dir (),
+                                  PACKAGE_NAME, "icons", NULL);
+    g_mkdir_with_parents (cache_dir, 0755);
+    #if GLIB_CHECK_VERSION(2, 16, 0)
+    checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
+    #else
+    checksum = g_strdup_printf ("%u", g_str_hash (uri));
+    #endif
+    icon_file = g_strdup_printf ("%s.ico", checksum);
+    g_free (checksum);
+    icon_path = g_build_filename (cache_dir, icon_file, NULL);
+    g_free (icon_file);
+    return icon_path;
+}
+
+static void
+midori_view_got_body_cb (SoupMessage* msg,
+                         MidoriView*  view)
 {
     GdkPixbuf* pixbuf;
-    GInputStream* stream;
-    GError* error;
+    SoupURI* soup_uri;
+    gchar* uri;
+    gchar* icon_file;
+    FILE* fp;
     GdkPixbuf* pixbuf_scaled;
     gint icon_width, icon_height;
 
     pixbuf = NULL;
-    stream = g_loadable_icon_load_finish (G_LOADABLE_ICON (icon),
-                                          res, NULL, NULL);
-    if (stream)
+    if (msg->response_body->length > 0)
     {
-        error = NULL;
-        pixbuf = gdk_pixbuf_new_from_stream (stream, NULL, &error);
-        if (error)
-            g_warning (_("Icon couldn't be loaded: %s\n"), error->message);
-        g_object_unref (stream);
+        soup_uri = soup_message_get_uri (msg);
+        uri = soup_uri_to_string (soup_uri, FALSE);
+        icon_file = midori_view_get_cached_icon_file (uri);
+        g_free (uri);
+        if ((fp = fopen (icon_file, "w")))
+        {
+            fwrite (msg->response_body->data,
+                    1, msg->response_body->length, fp);
+            fclose (fp);
+            pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
+        }
+        g_free (icon_file);
     }
     if (!pixbuf)
         pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
             GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-
     gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
                                              GDK_INTERP_BILINEAR);
     g_object_unref (pixbuf);
+
     katze_object_assign (view->icon, pixbuf_scaled);
-    g_object_notify (G_OBJECT (view), "icon");
-}
-
-void
-file_info_finish_cb (GFile*        icon_file,
-                     GAsyncResult* res,
-                     MidoriView*   view)
-{
-    GFileInfo* info;
-    const gchar* content_type;
-    GIcon* icon;
-    GFile* parent;
-    GFile* file;
-    GdkPixbuf* pixbuf;
-    gint icon_width, icon_height;
-    GdkPixbuf* pixbuf_scaled;
-
-    info = g_file_query_info_finish (G_FILE (icon_file), res, NULL);
-    if (info)
-    {
-        content_type = g_file_info_get_content_type (info);
-        if (g_str_has_prefix (content_type, "image/"))
-        {
-            icon = g_file_icon_new (icon_file);
-            g_loadable_icon_load_async (G_LOADABLE_ICON (icon),
-                0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, view);
-            return;
-        }
-    }
-
-    file = g_file_get_parent (icon_file);
-    parent = g_file_get_parent (file);
-    /* We need to check if file equals the parent due to a GIO bug */
-    if (parent && !g_file_equal (file, parent))
-    {
-        icon_file = g_file_get_child (parent, "favicon.ico");
-        g_file_query_info_async (icon_file,
-            G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-            G_FILE_QUERY_INFO_NONE, 0, NULL,
-            (GAsyncReadyCallback)file_info_finish_cb, view);
-        return;
-    }
-
-    pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
-        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
-    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
-                                             GDK_INTERP_BILINEAR);
-    g_object_unref (pixbuf);
-
-    view->icon = pixbuf_scaled;
     g_object_notify (G_OBJECT (view), "icon");
 }
 #endif
@@ -524,29 +527,48 @@ file_info_finish_cb (GFile*        icon_file,
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
-    #if HAVE_GIO
-    GFile* file;
-    GFile* icon_file;
+    #if HAVE_LIBSOUP
+    guint i;
+    gchar* uri;
+    gchar* icon_file;
+    SoupMessage* msg;
     #endif
     GdkPixbuf* pixbuf;
     gint icon_width, icon_height;
     GdkPixbuf* pixbuf_scaled;
 
-    #if HAVE_GIO
-    if (view->uri)
+    pixbuf = NULL;
+    #if HAVE_LIBSOUP
+    if (view->uri && g_str_has_prefix (view->uri, "http://"))
     {
-        file = g_file_new_for_uri (view->uri);
-        icon_file = g_file_get_child (file, "favicon.ico");
-        g_file_query_info_async (icon_file,
-            G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-            G_FILE_QUERY_INFO_NONE, 0, NULL,
-            (GAsyncReadyCallback)file_info_finish_cb, view);
-        return;
+        i = 8;
+        while (view->uri[i] != '\0' && view->uri[i] != '/')
+            i++;
+        if (view->uri[i] == '/')
+        {
+            uri = g_strdup (view->uri);
+            uri[i] = '\0';
+            uri = g_strdup_printf ("%s/favicon.ico", uri);
+            icon_file = midori_view_get_cached_icon_file (uri);
+            if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
+                pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
+            else
+            {
+                msg = soup_message_new ("GET", uri);
+                g_signal_connect (msg, "got-headers",
+                    G_CALLBACK (midori_view_got_headers_cb), view);
+                g_signal_connect (msg, "got-body",
+                    G_CALLBACK (midori_view_got_body_cb), view);
+                soup_session_queue_message (view->session, msg, NULL, NULL);
+            }
+            g_free (uri);
+        }
     }
     #endif
 
-    pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
-        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    if (!pixbuf)
+        pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
+            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
                                              GDK_INTERP_BILINEAR);
@@ -1056,6 +1078,11 @@ midori_view_init (MidoriView* view)
 
     view->download_manager = NULL;
 
+    #if HAVE_LIBSOUP
+    if (!g_thread_supported ()) g_thread_init (NULL);
+    view->session = soup_session_async_new ();
+    #endif
+
     g_object_connect (view,
                       "signal::notify::icon",
                       midori_view_notify_icon_cb, NULL,
@@ -1093,6 +1120,10 @@ midori_view_finalize (GObject* object)
         g_object_unref (view->item);
 
     g_free (view->download_manager);
+
+    #if HAVE_LIBSOUP
+    g_object_unref (view->session);
+    #endif
 
     /* web_frame = webkit_web_view_get_main_frame
         (WEBKIT_WEB_VIEW (view->web_view));

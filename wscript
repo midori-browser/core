@@ -95,6 +95,13 @@ def configure (conf):
         single_instance = 'no'
     conf.check_message_custom ('single instance', 'support', single_instance)
 
+    if not Params.g_options.disable_libsoup:
+        conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP', mandatory=False)
+        libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
+    else:
+        libsoup = 'no'
+    conf.check_message_custom ('libsoup', 'support', libsoup)
+
     if not Params.g_options.disable_gio:
         conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
         gio = ['not available','yes'][conf.env['HAVE_GIO'] == 1]
@@ -152,6 +159,8 @@ def set_options (opt):
 
     opt.add_option ('--disable-unique', action='store_true', default=False,
         help='Disables Unique support', dest='disable_unique')
+    opt.add_option ('--disable-libsoup', action='store_true', default=False,
+        help='Disables libsoup support', dest='disable_libsoup')
     opt.add_option ('--disable-gio', action='store_true', default=False,
         help='Disables GIO support', dest='disable_gio')
     opt.add_option ('--disable-sqlite', action='store_true', default=False,
