@@ -20,30 +20,18 @@
     #include <gio/gio.h>
 #endif
 #include <glib/gi18n.h>
-#if HAVE_GTKSOURCEVIEW
-    #include <gtksourceview/gtksourceview.h>
-    #include <gtksourceview/gtksourcelanguagemanager.h>
-
-    #define MidoriSourceView GtkSourceView
-    #define MidoriSourceViewClass GtkSourceViewClass
-    #define MIDORI_TYPE_SOURCE_VIEW GTK_TYPE_SOURCE_VIEW
-#else
-    #define MidoriSourceView GtkTextView
-    #define MidoriSourceViewClass GtkTextViewClass
-    #define MIDORI_TYPE_SOURCE_VIEW GTK_TYPE_TEXT_VIEW
-#endif
 
 struct _MidoriSource
 {
-    MidoriSourceView parent_instance;
+    GtkTextView parent_instance;
 };
 
 struct _MidoriSourceClass
 {
-    MidoriSourceViewClass parent_class;
+    GtkTextViewClass parent_class;
 };
 
-G_DEFINE_TYPE (MidoriSource, midori_source, MIDORI_TYPE_SOURCE_VIEW);
+G_DEFINE_TYPE (MidoriSource, midori_source, GTK_TYPE_TEXT_VIEW);
 
 static void
 midori_source_finalize (GObject* object);
@@ -60,20 +48,10 @@ midori_source_class_init (MidoriSourceClass* class)
 static void
 midori_source_init (MidoriSource* source)
 {
-    #if HAVE_GTKSOURCEVIEW
-    GtkSourceBuffer* buffer;
-    #else
     GtkTextBuffer* buffer;
-    #endif
 
-    #if HAVE_GTKSOURCEVIEW
-    buffer = gtk_source_buffer_new (NULL);
-    gtk_source_buffer_set_highlight_syntax (buffer, TRUE);
-    gtk_source_view_set_show_line_numbers (GTK_SOURCE_VIEW (source), TRUE);
-    #else
     buffer = gtk_text_buffer_new (NULL);
-    #endif
-    gtk_text_view_set_buffer (GTK_TEXT_VIEW (source), GTK_TEXT_BUFFER (buffer));
+    gtk_text_view_set_buffer (GTK_TEXT_VIEW (source), buffer);
     gtk_text_view_set_editable (GTK_TEXT_VIEW (source), FALSE);
 }
 
@@ -109,20 +87,10 @@ midori_source_set_uri (MidoriSource* source,
     #if HAVE_GIO
     GFile* file;
     gchar* tag;
-    #if HAVE_GTKSOURCEVIEW
-    GFileInfo* info;
-    const gchar* content_type;
-    #endif
     #endif
     gchar* contents;
     gchar* contents_utf8;
     GtkTextBuffer* buffer;
-    #if HAVE_GTKSOURCEVIEW
-    #if HAVE_GIO
-    GtkSourceLanguageManager* language_manager;
-    GtkSourceLanguage* language;
-    #endif
-    #endif
 
     g_return_if_fail (MIDORI_IS_SOURCE (source));
 
@@ -131,16 +99,8 @@ midori_source_set_uri (MidoriSource* source,
     #if HAVE_GIO
     file = g_file_new_for_uri (uri);
     tag = NULL;
-    #if HAVE_GTKSOURCEVIEW
-    content_type = NULL;
-    #endif
     if (g_file_load_contents (file, NULL, &contents, NULL, &tag, NULL))
     {
-        #if HAVE_GTKSOURCEVIEW
-        info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                  G_FILE_QUERY_INFO_NONE, NULL, NULL);
-        content_type = g_file_info_get_content_type (info);
-        #endif
         g_object_unref (file);
     }
     if (contents && !g_utf8_validate (contents, -1, NULL))
@@ -154,32 +114,6 @@ midori_source_set_uri (MidoriSource* source,
         contents_utf8 = contents;
 
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (source));
-    #if HAVE_GTKSOURCEVIEW
-    #if HAVE_GIO
-    if (content_type)
-    {
-        language_manager = gtk_source_language_manager_get_default ();
-        if (!strcmp (content_type, "text/html"))
-        {
-            language = gtk_source_language_manager_get_language (
-                language_manager, "html");
-            gtk_source_buffer_set_language (GTK_SOURCE_BUFFER (buffer), language);
-        }
-        else if (!strcmp (content_type, "text/css"))
-        {
-            language = gtk_source_language_manager_get_language (
-                language_manager, "css");
-            gtk_source_buffer_set_language (GTK_SOURCE_BUFFER (buffer), language);
-        }
-        else if (!strcmp (content_type, "text/javascript"))
-        {
-            language = gtk_source_language_manager_get_language (
-                language_manager, "js");
-            gtk_source_buffer_set_language (GTK_SOURCE_BUFFER (buffer), language);
-        }
-    }
-    #endif
-    #endif
     if (contents_utf8)
         gtk_text_buffer_set_text (GTK_TEXT_BUFFER (buffer), contents_utf8, -1);
 

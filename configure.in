@@ -60,12 +60,6 @@ AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 AC_DEFINE_UNQUOTED(HAVE_GTK,$have_gtk, [Whether Gtk is available])
 
-# Checks for GtkSourceView
-PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-2.0, have_gtksourceview=1, have_gtksourceview=0)
-AC_SUBST(GTKSOURCEVIEW_CFLAGS)
-AC_SUBST(GTKSOURCEVIEW_LIBS)
-AC_DEFINE_UNQUOTED(HAVE_GTKSOURCEVIEW,$have_gtksourceview, [Whether GtkSourceView is available])
-
 # Checks for WebKit
 PKG_CHECK_MODULES(WEBKIT, webkit-1.0, have_webkit=1, have_webkit=0)
 if test "x${have_webkit}" = "xfalse" ; then
