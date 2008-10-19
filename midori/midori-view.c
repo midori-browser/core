@@ -641,7 +641,7 @@ gjs_value_links_foreach_cb (GjsValue*   link,
                             MidoriView* view)
 {
     const gchar* type;
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
     const gchar* rel;
     GFile* icon_file;
     GIcon* icon;
@@ -663,7 +663,7 @@ gjs_value_links_foreach_cb (GjsValue*   link,
                     ? gjs_value_get_attribute_string (link, "title") : NULL);
             }
         }
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
         if (gjs_value_has_attribute (link, "rel"))
         {
             rel = gjs_value_get_attribute_string (link, "rel");

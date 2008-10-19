@@ -102,20 +102,6 @@ def configure (conf):
         libsoup = 'no'
     conf.check_message_custom ('libsoup', 'support', libsoup)
 
-    if not Params.g_options.disable_gio:
-        conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
-        gio = ['not available','yes'][conf.env['HAVE_GIO'] == 1]
-    else:
-        gio = 'no'
-    conf.check_message_custom ('GIO', 'support', gio)
-
-    if gio == 'yes':
-        if platform.system () != 'Windows':
-            if not conf.find_program ('gvfs-open'):
-                print '\tNote: There doesn\'t seem to be GVfs installed.'
-                print '\t      The HTTP backend of GVfs is recommended for'
-                print '\t      viewing source code and loading favicons.'
-
     if not Params.g_options.disable_sqlite:
         conf.check_pkg ('sqlite3', destvar='SQLITE', vnum='3.0', mandatory=False)
         sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
@@ -125,7 +111,7 @@ def configure (conf):
         sqlite = 'no'
     conf.check_message_custom ('history database', 'support', sqlite)
 
-    conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.6.0', mandatory=True)
+    conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.10.0', mandatory=True)
     conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
     conf.check_pkg ('libxml-2.0', destvar='LIBXML', vnum='2.6', mandatory=True)
 
@@ -160,8 +146,6 @@ def set_options (opt):
         help='Disables Unique support', dest='disable_unique')
     opt.add_option ('--disable-libsoup', action='store_true', default=False,
         help='Disables libsoup support', dest='disable_libsoup')
-    opt.add_option ('--disable-gio', action='store_true', default=False,
-        help='Disables GIO support', dest='disable_gio')
     opt.add_option ('--disable-sqlite', action='store_true', default=False,
         help='Disables sqlite support', dest='disable_sqlite')
 

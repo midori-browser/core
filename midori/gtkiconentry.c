@@ -61,7 +61,7 @@ typedef struct
   GdkCursorType cursor_type;
   gboolean custom_cursor;
   GtkImageType storage_type;
-  #if HAVE_GIO
+  #if GLIB_CHECK_VERSION (2, 16, 0)
   GIcon *gicon;
   #endif
   gchar *icon_name;
@@ -274,7 +274,7 @@ gtk_icon_entry_class_init (GtkIconEntryClass *klass)
 							NULL,
 							GTK_PARAM_WRITABLE));
 
-  #if HAVE_GIO
+  #if GLIB_CHECK_VERSION (2, 16, 0)
   g_object_class_install_property (gobject_class,
 				   PROP_GICON_PRIMARY,
 				   g_param_spec_object ("gicon-primary",
@@ -433,7 +433,7 @@ gtk_icon_entry_set_property (GObject      *object,
 					      g_value_get_string (value));
       break;
 
-    #if HAVE_GIO
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     case PROP_GICON_PRIMARY:
       gtk_icon_entry_set_icon_from_gicon (entry,
 					  GTK_ICON_ENTRY_PRIMARY,
@@ -471,7 +471,7 @@ gtk_icon_entry_get_property (GObject      *object,
 						     GTK_ICON_ENTRY_SECONDARY));
       break;
 
-    #if HAVE_GIO
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     case PROP_GICON_PRIMARY:
       g_value_set_object (value,
 			  gtk_icon_entry_get_gicon (entry,
@@ -1104,7 +1104,7 @@ icon_theme_changed (GtkIconEntry *entry)
 	  gtk_icon_entry_set_icon_from_icon_name (entry, i, priv->icons[i].icon_name);
 	}
 
-      #if HAVE_GIO
+      #if GLIB_CHECK_VERSION (2, 16, 0)
       else if (priv->icons[i].storage_type == _GTK_IMAGE_GICON)
 	{
 	  g_object_unref (priv->icons[i].pixbuf);
@@ -1339,7 +1339,7 @@ gtk_icon_entry_set_icon_from_icon_name (GtkIconEntry *entry,
  * appropriately.
  */
 
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 void
 gtk_icon_entry_set_icon_from_gicon (const GtkIconEntry *entry,
 				    GtkIconEntryPosition icon_pos,
@@ -1493,7 +1493,7 @@ gtk_icon_entry_get_pixbuf (const GtkIconEntry *entry,
  */
 
 
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 GIcon *
 gtk_icon_entry_get_gicon (const GtkIconEntry *entry,
 			  GtkIconEntryPosition icon_pos)

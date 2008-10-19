@@ -16,14 +16,15 @@
     #include <config.h>
 #endif
 
-#if HAVE_GIO
+#include <glib.h>
+#if GLIB_CHECK_VERSION (2, 16, 0)
     #include <gio/gio.h>
 #endif
 #include <webkit/webkit.h>
 
 G_BEGIN_DECLS
 
-#if !GLIB_CHECK_VERSION(2, 16, 0)
+#if !GLIB_CHECK_VERSION (2, 16, 0)
 
 gint
 g_strcmp0 (const gchar* string1,
@@ -31,9 +32,9 @@ g_strcmp0 (const gchar* string1,
 
 #endif
 
-#if !GTK_CHECK_VERSION(2, 14, 0)
+#if !GTK_CHECK_VERSION (2, 14, 0)
 
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 
 GdkPixbuf*
 gdk_pixbuf_new_from_stream (GInputStream* stream,

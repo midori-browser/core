@@ -24,7 +24,7 @@
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
 #include <string.h>
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
     #include <gio/gio.h>
 #endif
 
@@ -313,7 +313,7 @@ _addons_toggle_disable_button (MidoriAddons* addons,
     gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 }
 
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 static void
 midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
                                          GFile*            child,
@@ -398,7 +398,7 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
         _addons_get_folder (addons));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
-    #if !HAVE_GIO
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     /* FIXME: Without GIO clicking this button is the only
               way to update the list */
     midori_addons_update_elements (addons);
@@ -890,7 +890,7 @@ midori_addons_new (GtkWidget*      web_widget,
                    MidoriAddonKind kind)
 {
     MidoriAddons* addons;
-    #if HAVE_GIO
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     GSList* directories;
     GSList* list;
     GFile* directory;
@@ -907,7 +907,7 @@ midori_addons_new (GtkWidget*      web_widget,
     midori_addons_set_kind (addons, kind);
     midori_addons_update_elements (addons);
 
-    #if HAVE_GIO
+    #if GLIB_CHECK_VERSION (2, 16, 0)
     directories = _addons_get_directories (addons);
     list = directories;
     while (directories)

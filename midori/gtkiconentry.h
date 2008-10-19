@@ -26,7 +26,7 @@
 #endif
 
 #include <glib.h>
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 #include <gio/gio.h>
 #endif
 #include <gtk/gtk.h>
@@ -86,14 +86,14 @@ void       gtk_icon_entry_set_icon_from_icon_name (GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos,
 						   const gchar *icon_name);
 
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 void       gtk_icon_entry_set_icon_from_gicon     (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos,
 						   GIcon *icon);
 #endif
 GdkPixbuf* gtk_icon_entry_get_pixbuf              (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos);
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 GIcon*     gtk_icon_entry_get_gicon               (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos);
 #endif

@@ -807,12 +807,10 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         gtk_notebook_append_page (GTK_NOTEBOOK (browser->notebook), view,
                                   tab_label);
 
-    #if GTK_CHECK_VERSION(2, 10, 0)
     gtk_notebook_set_tab_reorderable (GTK_NOTEBOOK (browser->notebook),
                                       view, TRUE);
     gtk_notebook_set_tab_detachable (GTK_NOTEBOOK (browser->notebook),
                                      view, TRUE);
-    #endif
 
     /* We want the tab to be removed if the widget is destroyed */
     g_signal_connect (view, "destroy",

@@ -47,14 +47,4 @@
 #define STOCK_USER_TRASH         "gnome-stock-trash"
 #define STOCK_WINDOW_NEW         "stock_new-window"
 
-/* For backwards compatibility */
-
-#if !GTK_CHECK_VERSION(2, 10, 0)
-#define GTK_STOCK_SELECT_ALL     "gtk-select-all"
-#endif
-#if !GTK_CHECK_VERSION(2, 8, 0)
-#define GTK_STOCK_FULLSCREEN "gtk-fullscreen"
-#define GTK_STOCK_LEAVE_FULLSCREEN "gtk-leave-fullscreen"
-#endif
-
 #endif /* !__MIDORI_STOCK_H__ */

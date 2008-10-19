@@ -70,7 +70,7 @@ midori_location_entry_class_init (MidoriLocationEntryClass* class)
                                             G_TYPE_INT);
 }
 
-#define HAVE_ENTRY_PROGRESS GTK_CHECK_VERSION (2, 10, 0)
+#define HAVE_ENTRY_PROGRESS 1
 
 #ifdef HAVE_ENTRY_PROGRESS
 

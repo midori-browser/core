@@ -31,7 +31,7 @@ g_strcmp0 (const gchar* string1,
 
 #if !GTK_CHECK_VERSION(2, 14, 0)
 
-#if HAVE_GIO
+#if GLIB_CHECK_VERSION (2, 16, 0)
 
 /* GTK+/ GdkPixbuf internal helper function
    Copyright (C) 2008 Matthias Clasen <mclasen@redhat.com>

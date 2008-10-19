@@ -2,9 +2,8 @@
 
 INCLUDES = \
     $(UNIQUE_CFLAGS)        \
-    $(GIO_CFLAGS)           \
+    $(SQLITE3_CFLAGS)       \
     $(GTK_CFLAGS)           \
-    $(GTKSOURCEVIEW_CFLAGS) \
     $(WEBKIT_CFLAGS)        \
     -I../katze
 
@@ -12,9 +11,8 @@ AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
 
 LDADD = \
     $(UNIQUE_LIBS)       \
-    $(GIO_LIBS)          \
+    $(SQLITE3_LIBS)      \
     $(GTK_LIBS)          \
-    $(GTKSOURCEVIEW_LIBS)\
     $(WEBKIT_LIBS)       \
     $(INTLLIBS)          \
     ../katze/libkatze.la

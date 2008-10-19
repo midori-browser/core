@@ -84,13 +84,6 @@ stock_items_init (void)
         { STOCK_TRANSFERS,      N_("_Transfers"), 0, 0, GTK_STOCK_SAVE },
         { STOCK_USER_TRASH,     N_("_Closed Tabs and Windows"), 0, 0, "gtk-undo-ltr" },
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
-        #if !GTK_CHECK_VERSION(2, 10, 0)
-        { GTK_STOCK_SELECT_ALL, N_("Select _All"), 0, 0, NULL },
-        #endif
-        #if !GTK_CHECK_VERSION(2, 8, 0)
-        { GTK_STOCK_FULLSCREEN, N_("_Fullscreen"), 0, 0, NULL },
-        { GTK_STOCK_LEAVE_FULLSCREEN, N_("_Leave Fullscreen"), 0, 0, NULL },
-        #endif
     };
 
     GtkIconSource* icon_source;
