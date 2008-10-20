@@ -1739,6 +1739,7 @@ _action_source_view_activate (GtkAction*     action,
         source_view = midori_view_new ();
         midori_view_set_settings (MIDORI_VIEW (source_view), browser->settings);
         midori_view_set_uri (MIDORI_VIEW (source_view), uri);
+        midori_view_notify_icon_cb (source_view, NULL, browser);
         g_free (uri);
         gtk_widget_show (source_view);
         n = midori_browser_add_tab (browser, source_view);
