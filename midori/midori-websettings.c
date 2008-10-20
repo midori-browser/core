@@ -51,6 +51,7 @@ struct _MidoriWebSettings
 
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
+    MidoriNewPage open_external_pages_in;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean open_tabs_next_to_current;
@@ -106,6 +107,7 @@ enum
 
     PROP_CLOSE_BUTTONS_ON_TABS,
     PROP_OPEN_NEW_PAGES_IN,
+    PROP_OPEN_EXTERNAL_PAGES_IN,
     PROP_MIDDLE_CLICK_OPENS_SELECTION,
     PROP_OPEN_TABS_IN_THE_BACKGROUND,
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
@@ -492,6 +494,16 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
+                                     PROP_OPEN_EXTERNAL_PAGES_IN,
+                                     g_param_spec_enum (
+                                     "open-external-pages-in",
+                                     _("Open external pages in"),
+                                     _("Where to open externally opened pages"),
+                                     MIDORI_TYPE_NEW_PAGE,
+                                     MIDORI_NEW_PAGE_TAB,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
                                      PROP_MIDDLE_CLICK_OPENS_SELECTION,
                                      g_param_spec_boolean (
                                      "middle-click-opens-selection",
@@ -770,6 +782,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_OPEN_NEW_PAGES_IN:
         web_settings->open_new_pages_in = g_value_get_enum (value);
         break;
+    case PROP_OPEN_EXTERNAL_PAGES_IN:
+        web_settings->open_external_pages_in = g_value_get_enum (value);
+        break;
     case PROP_MIDDLE_CLICK_OPENS_SELECTION:
         web_settings->middle_click_opens_selection = g_value_get_boolean (value);
         break;
@@ -912,6 +927,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_OPEN_NEW_PAGES_IN:
         g_value_set_enum (value, web_settings->open_new_pages_in);
+        break;
+    case PROP_OPEN_EXTERNAL_PAGES_IN:
+        g_value_set_enum (value, web_settings->open_external_pages_in);
         break;
     case PROP_MIDDLE_CLICK_OPENS_SELECTION:
         g_value_set_boolean (value, web_settings->middle_click_opens_selection);

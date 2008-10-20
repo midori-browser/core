@@ -210,6 +210,8 @@ midori_browser_message_received_cb (UniqueApp*         instance,
   UniqueResponse response;
   MidoriBrowser* browser;
   gchar** uris;
+  MidoriNewPage open_external_pages_in;
+  gboolean first;
 
   switch (command)
   {
@@ -244,10 +246,35 @@ midori_browser_message_received_cb (UniqueApp*         instance,
           response = UNIQUE_RESPONSE_FAIL;
       else
       {
+          g_object_get (app->settings, "open-external-pages-in",
+              &open_external_pages_in, NULL);
+          if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
+          {
+              browser = g_object_new (MIDORI_TYPE_BROWSER,
+                  "settings", app->settings,
+                  "bookmarks", app->bookmarks,
+                  "trash", app->trash,
+                  "search-engines", app->search_engines,
+                  "history", app->history,
+                  NULL);
+              midori_app_add_browser (app, browser);
+              gtk_window_set_screen (GTK_WINDOW (app->browser),
+                                     unique_message_data_get_screen (message));
+              gtk_widget_show (GTK_WIDGET (browser));
+          }
+          else
+              browser = app->browser;
+          first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
           while (*uris)
           {
-              midori_browser_set_current_page (app->browser,
-                  midori_browser_add_uri (app->browser, *uris));
+              if (first)
+              {
+                  midori_browser_set_current_uri (browser, *uris);
+                  first = FALSE;
+              }
+              else
+                  midori_browser_set_current_page (browser,
+                      midori_browser_add_uri (browser, *uris));
               uris++;
           }
           /* g_strfreev (uris); */

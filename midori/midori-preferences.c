@@ -83,7 +83,7 @@ midori_preferences_init (MidoriPreferences* preferences)
 
     preferences->notebook = NULL;
 
-    dialog_title = g_strdup_printf (_("%s Preferences"),
+    dialog_title = g_strdup_printf (_("Preferences for %s"),
                                     g_get_application_name ());
     g_object_set (preferences,
                   "icon-name", GTK_STOCK_PREFERENCES,
@@ -419,6 +419,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button, 0, 1, 3, 4);
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (3, 2);
+    label = katze_property_label (settings, "open-external-pages-in");
+    INDENTED_ADD (label, 0, 1, 0, 1);
+    button = katze_property_proxy (settings, "open-external-pages-in", NULL);
+    FILLED_ADD (button, 1, 2, 0, 1);
     /* label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
