@@ -35,6 +35,13 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <string.h>
+#ifdef HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
+#if HAVE_LIBSOUP
+    #include <libsoup/soup.h>
+#endif
 
 struct _MidoriBrowser
 {
@@ -72,6 +79,10 @@ struct _MidoriBrowser
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
+
+    #if HAVE_LIBSOUP
+    SoupSession* session;
+    #endif
 };
 
 G_DEFINE_TYPE (MidoriBrowser, midori_browser, GTK_TYPE_WINDOW)
@@ -1642,27 +1653,98 @@ _action_zoom_normal_activate (GtkAction*     action,
         midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0f);
 }
 
+#if HAVE_LIBSOUP
+static void
+midori_browser_got_body_cb (SoupMessage*   msg,
+                            MidoriBrowser* browser)
+{
+    SoupURI* soup_uri;
+    gchar* uri;
+    gchar* filename;
+    gchar* unique_filename;
+    gchar* text_editor;
+    gint fd;
+    FILE* fp;
+
+    if (msg->response_body->length > 0)
+    {
+        soup_uri = soup_message_get_uri (msg);
+        uri = soup_uri_to_string (soup_uri, FALSE);
+        filename = g_strdup_printf ("%uXXXXXX", g_str_hash (uri));
+        g_free (uri);
+        if (((fd = g_file_open_tmp (filename, &unique_filename, NULL)) != -1))
+        {
+            if ((fp = fdopen (fd, "w")))
+            {
+                fwrite (msg->response_body->data,
+                    1, msg->response_body->length, fp);
+                fclose (fp);
+                g_object_get (browser->settings,
+                    "text-editor", &text_editor, NULL);
+                sokoke_spawn_program (text_editor, unique_filename);
+                g_free (unique_filename);
+                g_free (text_editor);
+            }
+            close (fd);
+        }
+        g_free (filename);
+    }
+}
+#endif
+
 static void
 _action_source_view_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
+    gchar* text_editor;
+    const gchar* current_uri;
+    #if HAVE_LIBSOUP
+    SoupMessage* msg;
+    #endif
     GtkWidget* view;
     GtkWidget* source_view;
+    gchar* filename;
     gchar* uri;
     gint n;
 
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
 
-    uri = g_strdup_printf ("view-source:%s",
-        midori_view_get_display_uri (MIDORI_VIEW (view)));
-    source_view = midori_view_new ();
-    midori_view_set_settings (MIDORI_VIEW (source_view), browser->settings);
-    midori_view_set_uri (MIDORI_VIEW (source_view), uri);
-    g_free (uri);
-    gtk_widget_show (source_view);
-    n = midori_browser_add_tab (browser, source_view);
-    midori_browser_set_current_page (browser, n);
+    g_object_get (browser->settings, "text-editor", &text_editor, NULL);
+    if (text_editor && *text_editor)
+    {
+        current_uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+        #if HAVE_LIBSOUP
+        if (g_str_has_prefix (current_uri, "http://") ||
+            g_str_has_prefix (current_uri, "https://"))
+        {
+            msg = soup_message_new ("GET", current_uri);
+            g_signal_connect (msg, "got-body",
+                G_CALLBACK (midori_browser_got_body_cb), browser);
+            soup_session_queue_message (browser->session, msg, NULL, NULL);
+            g_free (text_editor);
+            return;
+        }
+        #endif
+        if (g_str_has_prefix (current_uri, "file://"))
+        {
+            filename = g_filename_from_uri (current_uri, NULL, NULL);
+            sokoke_spawn_program (text_editor, filename);
+        }
+    }
+    else
+    {
+        uri = g_strdup_printf ("view-source:%s",
+            midori_view_get_display_uri (MIDORI_VIEW (view)));
+        source_view = midori_view_new ();
+        midori_view_set_settings (MIDORI_VIEW (source_view), browser->settings);
+        midori_view_set_uri (MIDORI_VIEW (source_view), uri);
+        g_free (uri);
+        gtk_widget_show (source_view);
+        n = midori_browser_add_tab (browser, source_view);
+        midori_browser_set_current_page (browser, n);
+    }
+    g_free (text_editor);
 }
 
 static void
@@ -3258,6 +3340,10 @@ midori_browser_init (MidoriBrowser* browser)
     GtkRcStyle* rcstyle;
     GtkAction* action;
 
+    #if HAVE_LIBSOUP
+    browser->session = soup_session_async_new ();
+    #endif
+
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
     browser->bookmarks = NULL;
@@ -3757,6 +3843,10 @@ midori_browser_finalize (GObject* object)
         g_object_unref (browser->search_engines);
     if (browser->history)
         g_object_unref (browser->history);
+
+    #if HAVE_LIBSOUP
+    g_object_unref (browser->session);
+    #endif
 
     G_OBJECT_CLASS (midori_browser_parent_class)->finalize (object);
 }
