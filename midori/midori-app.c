@@ -231,6 +231,7 @@ midori_browser_message_received_cb (UniqueApp*         instance,
                               NULL);
       /* FIXME: Should open the homepage according to settings */
       midori_browser_add_uri (browser, "");
+      midori_browser_activate_action (browser, "Location");
       midori_app_add_browser (app, browser);
       gtk_window_set_screen (GTK_WINDOW (app->browser),
                              unique_message_data_get_screen (message));
