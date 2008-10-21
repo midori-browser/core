@@ -1040,7 +1040,6 @@ midori_addons_get_toolbar (MidoriAddons* addons)
 
         /* enable button */
         toolitem = gtk_tool_button_new_from_stock (STOCK_ENABLE);
-        gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_button_status_clicked_cb), addons);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
@@ -1049,7 +1048,6 @@ midori_addons_get_toolbar (MidoriAddons* addons)
 
         /* disable button */
         toolitem = gtk_tool_button_new_from_stock (STOCK_DISABLE);
-        gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_button_status_clicked_cb), addons);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
