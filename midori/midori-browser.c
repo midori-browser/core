@@ -1422,6 +1422,14 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     toolbar,
         _action_by_name (browser, "Bookmarkbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "Transferbar"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        _action_by_name (browser, "Statusbar"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
 
     katze_widget_popup (toolbar, GTK_MENU (menu), NULL,
         button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
