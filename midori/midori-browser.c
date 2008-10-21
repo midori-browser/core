@@ -252,10 +252,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "tooltip", _("Reload the current page"),
                       "sensitive", can_reload, NULL);
         gtk_widget_hide (browser->progressbar);
-        if (!GTK_WIDGET_VISIBLE (browser->statusbar))
-            if (!sokoke_object_get_boolean (browser->settings,
-                "show-navigationbar"))
-                gtk_widget_hide (browser->navigationbar);
+        if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar")
+            && !sokoke_object_get_boolean (browser->settings, "show-statusbar"))
+            gtk_widget_hide (browser->navigationbar);
     }
     else
     {
@@ -264,13 +263,11 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
         gtk_widget_show (browser->progressbar);
-        if (!GTK_WIDGET_VISIBLE (browser->statusbar))
-        {
-            if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
-                gtk_widget_show (browser->navigationbar);
-            g_object_set (_action_by_name (browser, "Location"), "progress",
-                midori_view_get_progress (MIDORI_VIEW (view)), NULL);
-        }
+        if (!GTK_WIDGET_VISIBLE (browser->statusbar) && !GTK_WIDGET_VISIBLE (browser->navigationbar))
+            gtk_widget_show (browser->navigationbar);
+        action = _action_by_name (browser, "Location");
+        midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action),
+            midori_view_get_progress (MIDORI_VIEW (view)));
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
@@ -325,8 +322,7 @@ _midori_browser_update_progress (MidoriBrowser* browser,
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
                                    message);
         g_free (message);
-        if (!GTK_WIDGET_VISIBLE (browser->statusbar))
-            midori_location_action_set_progress (action, progress);
+        midori_location_action_set_progress (action, progress);
     }
     else
     {
@@ -1594,9 +1590,6 @@ _action_statusbar_activate (GtkToggleAction* action,
     gboolean active = gtk_toggle_action_get_active (action);
     g_object_set (browser->settings, "show-statusbar", active, NULL);
     sokoke_widget_set_visible (browser->statusbar, active);
-    if (active)
-        g_object_set (_action_by_name (browser, "Location"),
-                      "progress", 0.0, NULL);
 }
 
 static void
@@ -1792,7 +1785,7 @@ static void
 _action_location_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
-    if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
+    if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_show (browser->navigationbar);
 }
 
@@ -1814,8 +1807,7 @@ static void
 _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    if (GTK_WIDGET_VISIBLE (browser->statusbar) &&
-        !sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
+    if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_hide (browser->navigationbar);
 }
 
