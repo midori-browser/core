@@ -840,18 +840,26 @@ katze_throbber_expose_event (GtkWidget*      widget,
 
             if (!throbber->pixbuf)
             {
-                g_warning (_("Icon '%s' couldn't be loaded"), throbber->icon_name);
-                katze_assign (throbber->icon_name, NULL);
+                /* Fallback to a stock icon */
+                katze_assign (throbber->icon_name, g_strdup (GTK_STOCK_EXECUTE));
                 g_object_notify (G_OBJECT (throbber), "icon-name");
                 return TRUE;
             }
         }
 
-        if (G_UNLIKELY (!throbber->pixbuf))
-            return TRUE;
-
         gint cols = gdk_pixbuf_get_width (throbber->pixbuf) / throbber->width;
         gint rows = gdk_pixbuf_get_height (throbber->pixbuf) / throbber->height;
+
+        if (G_UNLIKELY (cols == 1 && cols == rows))
+        {
+            gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
+                             0, 0,
+                             widget->allocation.x,
+                             widget->allocation.y,
+                             throbber->width, throbber->height,
+                             GDK_RGB_DITHER_NONE, 0, 0);
+            return TRUE;
+        }
 
         if (G_LIKELY (cols > 0 && rows > 0))
         {
