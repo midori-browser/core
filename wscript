@@ -13,7 +13,7 @@ VERSION = '0.1.0'
 
 try:
     git = subprocess.Popen (['git', 'rev-parse', '--short', 'HEAD'],
-                            stdout=subprocess.PIPE)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if not git.wait ():
         VERSION = (VERSION + '-' + git.stdout.read ()).strip ()
 except:
