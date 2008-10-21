@@ -36,11 +36,7 @@ struct _MidoriWebSettings
 
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
-    gboolean always_show_tabbar;
-    gboolean show_new_tab;
-    gboolean show_homepage;
-    gboolean show_web_search;
-    gboolean show_trash;
+    gboolean compact_sidepanel;
 
     MidoriStartup load_on_startup;
     gchar* homepage;
@@ -50,6 +46,7 @@ struct _MidoriWebSettings
     gchar* location_entry_search;
     MidoriPreferredEncoding preferred_encoding;
 
+    gboolean always_show_tabbar;
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
     MidoriNewPage open_external_pages_in;
@@ -93,11 +90,7 @@ enum
 
     PROP_TOOLBAR_STYLE,
     PROP_TOOLBAR_ITEMS,
-    PROP_ALWAYS_SHOW_TABBAR,
-    PROP_SHOW_NEW_TAB,
-    PROP_SHOW_HOMEPAGE,
-    PROP_SHOW_WEB_SEARCH,
-    PROP_SHOW_TRASH,
+    PROP_COMPACT_SIDEPANEL,
 
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
@@ -107,6 +100,7 @@ enum
     PROP_LOCATION_ENTRY_SEARCH,
     PROP_PREFERRED_ENCODING,
 
+    PROP_ALWAYS_SHOW_TABBAR,
     PROP_CLOSE_BUTTONS_ON_TABS,
     PROP_OPEN_NEW_PAGES_IN,
     PROP_OPEN_EXTERNAL_PAGES_IN,
@@ -373,50 +367,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
     g_object_class_install_property (gobject_class,
-                                     PROP_ALWAYS_SHOW_TABBAR,
+                                     PROP_COMPACT_SIDEPANEL,
                                      g_param_spec_boolean (
-                                     "always-show-tabbar",
-                                     _("Always Show Tabbar"),
-                                     _("Always show the tabbar"),
+                                     "compact-sidepanel",
+                                     _("Compact Sidepanel"),
+                                     _("Whether to make the sidepanel compact"),
                                      FALSE,
                                      flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_NEW_TAB,
-                                     g_param_spec_boolean (
-                                     "show-new-tab",
-                                     _("Show New Tab"),
-                                     _("Show the New Tab button in the toolbar"),
-                                     TRUE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_HOMEPAGE,
-                                     g_param_spec_boolean (
-                                     "show-homepage",
-                                     _("Show Homepage"),
-                                     _("Show the Homepage button in the toolbar"),
-                                     TRUE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_WEB_SEARCH,
-                                     g_param_spec_boolean (
-                                     "show-web-search",
-                                     _("Show Web search"),
-                                     _("Show the Web search entry in the toolbar"),
-                                     TRUE,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_SHOW_TRASH,
-                                     g_param_spec_boolean (
-                                     "show-trash",
-                                     _("Show Trash"),
-                                     _("Show the Trash button in the toolbar"),
-                                     TRUE,
-                                     flags));
-
 
 
     g_object_class_install_property (gobject_class,
@@ -484,6 +441,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_ENCODING_WESTERN,
                                      flags));
 
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_ALWAYS_SHOW_TABBAR,
+                                     g_param_spec_boolean (
+                                     "always-show-tabbar",
+                                     _("Always Show Tabbar"),
+                                     _("Always show the tabbar"),
+                                     FALSE,
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_CLOSE_BUTTONS_ON_TABS,
@@ -732,20 +698,8 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_ITEMS:
         katze_assign (web_settings->toolbar_items, g_value_dup_string (value));
         break;
-    case PROP_ALWAYS_SHOW_TABBAR:
-        web_settings->always_show_tabbar = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_NEW_TAB:
-        web_settings->show_new_tab = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_HOMEPAGE:
-        web_settings->show_homepage = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_WEB_SEARCH:
-        web_settings->show_web_search = g_value_get_boolean (value);
-        break;
-    case PROP_SHOW_TRASH:
-        web_settings->show_trash = g_value_get_boolean (value);
+    case PROP_COMPACT_SIDEPANEL:
+        web_settings->compact_sidepanel = g_value_get_boolean (value);
         break;
 
     case PROP_LOAD_ON_STARTUP:
@@ -790,6 +744,9 @@ midori_web_settings_set_property (GObject*      object,
         }
         break;
 
+    case PROP_ALWAYS_SHOW_TABBAR:
+        web_settings->always_show_tabbar = g_value_get_boolean (value);
+        break;
     case PROP_CLOSE_BUTTONS_ON_TABS:
         web_settings->close_buttons_on_tabs = g_value_get_boolean (value);
         break;
@@ -901,20 +858,8 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_TOOLBAR_ITEMS:
         g_value_set_string (value, web_settings->toolbar_items);
         break;
-    case PROP_ALWAYS_SHOW_TABBAR:
-        g_value_set_boolean (value, web_settings->always_show_tabbar);
-        break;
-    case PROP_SHOW_NEW_TAB:
-        g_value_set_boolean (value, web_settings->show_new_tab);
-        break;
-    case PROP_SHOW_HOMEPAGE:
-        g_value_set_boolean (value, web_settings->show_homepage);
-        break;
-    case PROP_SHOW_WEB_SEARCH:
-        g_value_set_boolean (value, web_settings->show_web_search);
-        break;
-    case PROP_SHOW_TRASH:
-        g_value_set_boolean (value, web_settings->show_trash);
+    case PROP_COMPACT_SIDEPANEL:
+        g_value_set_boolean (value, web_settings->compact_sidepanel);
         break;
 
     case PROP_LOAD_ON_STARTUP:
@@ -939,6 +884,9 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_enum (value, web_settings->preferred_encoding);
         break;
 
+    case PROP_ALWAYS_SHOW_TABBAR:
+        g_value_set_boolean (value, web_settings->always_show_tabbar);
+        break;
     case PROP_CLOSE_BUTTONS_ON_TABS:
         g_value_set_boolean (value, web_settings->close_buttons_on_tabs);
         break;

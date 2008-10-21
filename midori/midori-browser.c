@@ -1739,7 +1739,7 @@ _action_source_view_activate (GtkAction*     action,
         source_view = midori_view_new ();
         midori_view_set_settings (MIDORI_VIEW (source_view), browser->settings);
         midori_view_set_uri (MIDORI_VIEW (source_view), uri);
-        midori_view_notify_icon_cb (source_view, NULL, browser);
+        midori_view_notify_icon_cb (MIDORI_VIEW (source_view), NULL, browser);
         g_free (uri);
         gtk_widget_show (source_view);
         n = midori_browser_add_tab (browser, source_view);
@@ -3809,11 +3809,6 @@ midori_browser_init (MidoriBrowser* browser)
                         FALSE, FALSE, 3);
 
     g_object_unref (ui_manager);
-
-    #ifndef WEBKIT_CHECK_VERSION
-    _action_set_sensitive (browser, "ZoomIn", FALSE);
-    _action_set_sensitive (browser, "ZoomOut", FALSE);
-    #endif
 }
 
 static void
@@ -3942,6 +3937,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 {
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
+    gboolean compact_sidepanel;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_navigationbar, show_bookmarkbar;
     gboolean show_panel, show_statusbar;
@@ -3958,6 +3954,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "remember-last-window-size", &remember_last_window_size,
                   "last-window-width", &last_window_width,
                   "last-window-height", &last_window_height,
+                  "compact-sidepanel", &compact_sidepanel,
                   "last-panel-position", &last_panel_position,
                   "last-panel-page", &last_panel_page,
                   "show-menubar", &show_menubar,
@@ -3999,6 +3996,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                 _action_by_name (browser, "Search")), item);
     }
 
+    midori_panel_set_compact (MIDORI_PANEL (browser->panel), compact_sidepanel);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
     midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);
@@ -4031,6 +4029,9 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         _midori_browser_set_toolbar_style (browser, g_value_get_enum (&value));
     else if (name == g_intern_string ("toolbar-items"))
         _midori_browser_set_toolbar_items (browser, g_value_get_string (&value));
+    else if (name == g_intern_string ("compact-sidepanel"))
+        midori_panel_set_compact (MIDORI_PANEL (browser->panel),
+            g_value_get_boolean (&value));
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser);
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),

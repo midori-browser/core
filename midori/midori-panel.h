@@ -53,6 +53,10 @@ midori_panel_get_type               (void);
 GtkWidget*
 midori_panel_new                    (void);
 
+void
+midori_panel_set_compact            (MidoriPanel*       panel,
+                                     gboolean           compact);
+
 gint
 midori_panel_append_page            (MidoriPanel*       panel,
                                      GtkWidget*         child,

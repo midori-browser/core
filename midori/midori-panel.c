@@ -311,6 +311,22 @@ midori_panel_new (void)
     return GTK_WIDGET (panel);
 }
 
+/**
+ * midori_panel_set_compact:
+ * @compact: %TRUE if the panel should be compact
+ *
+ * Determines if the panel should be compact.
+ **/
+void
+midori_panel_set_compact (MidoriPanel* panel,
+                          gboolean     compact)
+{
+    g_return_if_fail (MIDORI_IS_PANEL (panel));
+
+    gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar),
+        compact ? GTK_TOOLBAR_ICONS : GTK_TOOLBAR_BOTH);
+}
+
 static void
 midori_panel_menu_item_activate_cb (GtkWidget*   widget,
                                     MidoriPanel* panel)
