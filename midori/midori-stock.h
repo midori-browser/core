@@ -28,7 +28,7 @@
 #define STOCK_EXTENSIONS         "extension"
 #define STOCK_HISTORY            "document-open-recent"
 #define STOCK_NEWS_FEED          "news-feed"
-#define STOCK_PAGE_HOLDER        "page-holder"
+#define STOCK_PAGE_HOLDER        GTK_STOCK_ORIENTATION_PORTRAIT
 #define STOCK_STYLE              "gnome-settings-theme"
 #define STOCK_STYLES             "gnome-settings-theme"
 #define STOCK_TRANSFER           "package"
