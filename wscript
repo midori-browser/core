@@ -167,7 +167,7 @@ def build (bld):
 
     bld.add_subdirs ('katze midori icons')
 
-    install_files ('DOCDIR', '/midori/', 'AUTHORS ChangeLog COPYING README')
+    install_files ('DOCDIR', '/midori/', 'AUTHORS ChangeLog COPYING EXPAT README')
 
     if bld.env ()['RST2HTML']:
         # FIXME: Build only if needed
