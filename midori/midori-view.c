@@ -1412,7 +1412,7 @@ midori_view_get_display_title (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "about:blank");
 
     if (midori_view_is_blank (view))
-        return "about:blank";
+        return _("Blank page");
 
     if (view->title && *view->title)
         return view->title;
