@@ -49,10 +49,6 @@ midori_source_class_init (MidoriSourceClass* class)
 static void
 midori_source_init (MidoriSource* source)
 {
-    GtkTextBuffer* buffer;
-
-    buffer = gtk_text_buffer_new (NULL);
-    gtk_text_view_set_buffer (GTK_TEXT_VIEW (source), buffer);
     gtk_text_view_set_editable (GTK_TEXT_VIEW (source), FALSE);
 
     source->net = katze_net_new ();
@@ -115,7 +111,6 @@ midori_source_transfer_cb (KatzeNetRequest* request,
         buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (source));
         if (contents_utf8)
             gtk_text_buffer_set_text (buffer, contents_utf8, -1);
-        g_object_unref (buffer);
         if (contents_utf8 != request->data)
             g_free (contents_utf8);
     }
