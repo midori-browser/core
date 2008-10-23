@@ -6,5 +6,5 @@ obj = bld.create_obj ('cc', 'program')
 obj.target = 'midori'
 obj.includes = '. ..'
 obj.find_sources_in_dirs ('.')
-obj.uselib = 'UNIQUE LIBSOUP GTK GTKSOURCEVIEW SQLITE WEBKIT LIBXML'
+obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
 obj.uselib_local = 'katze'
