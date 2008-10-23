@@ -428,6 +428,7 @@ midori_panel_append_page (MidoriPanel* panel,
     image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_BUTTON);
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), label);
+    gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), label);
     g_object_set_data (G_OBJECT (toolitem), "page", child);
     g_signal_connect (toolitem, "clicked",
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
