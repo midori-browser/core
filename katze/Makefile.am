@@ -19,4 +19,5 @@ libkatze_la_SOURCES = \
     katze-item.c     katze-item.h     \
     katze-list.c     katze-list.h     \
     katze-array.c    katze-array.h \
-    katze-arrayaction.c katze-arrayaction.h
+    katze-arrayaction.c katze-arrayaction.h \
+    katze-net.c         katze-net.h

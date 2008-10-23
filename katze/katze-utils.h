@@ -78,6 +78,12 @@ katze_widget_popup                   (GtkWidget*      widget,
 GtkWidget*
 katze_image_menu_item_new_ellipsized (const gchar*   label);
 
+GdkPixbuf*
+katze_pixbuf_new_from_buffer         (const guchar* buffer,
+                                      gsize         length,
+                                      const gchar*  mime_type,
+                                      GError**      error);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */

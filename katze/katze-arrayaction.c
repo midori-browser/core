@@ -11,6 +11,7 @@
 
 #include "katze-arrayaction.h"
 
+#include "katze-net.h"
 #include "katze-utils.h"
 
 #include <gtk/gtk.h>
@@ -21,6 +22,7 @@ struct _KatzeArrayAction
     GtkAction parent_instance;
 
     KatzeArray* array;
+    KatzeNet* net;
 };
 
 struct _KatzeArrayActionClass
@@ -130,6 +132,7 @@ static void
 katze_array_action_init (KatzeArrayAction* array_action)
 {
     array_action->array = NULL;
+    array_action->net = katze_net_new ();
 }
 
 static void
@@ -137,8 +140,8 @@ katze_array_action_finalize (GObject* object)
 {
     KatzeArrayAction* array_action = KATZE_ARRAY_ACTION (object);
 
-    if (array_action->array)
-        g_object_unref (array_action->array);
+    katze_object_assign (array_action->array, NULL);
+    katze_object_assign (array_action->net, NULL);
 
     G_OBJECT_CLASS (katze_array_action_parent_class)->finalize (object);
 }
@@ -210,6 +213,15 @@ katze_array_action_menu_item_activate_cb (GtkWidget*        proxy,
 }
 
 static void
+katze_array_action_icon_cb (GdkPixbuf* icon,
+                            GtkWidget* menuitem)
+{
+    GtkWidget* image = gtk_image_new_from_pixbuf (icon);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
+    g_object_unref (menuitem);
+}
+
+static void
 katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
                                         KatzeArrayAction* array_action)
 {
@@ -242,9 +254,14 @@ katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
         }
         menuitem = katze_image_menu_item_new_ellipsized (
             katze_item_get_name (item));
-        pixbuf = gtk_widget_render_icon (menuitem,
-            KATZE_IS_ARRAY (item) ? GTK_STOCK_DIRECTORY : GTK_STOCK_FILE,
-            GTK_ICON_SIZE_MENU, NULL);
+        if (KATZE_IS_ARRAY (item))
+            pixbuf = gtk_widget_render_icon (menuitem,
+                GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
+        else
+            pixbuf = katze_net_load_icon (array_action->net,
+                katze_item_get_uri (item),
+                (KatzeNetIconCb)katze_array_action_icon_cb,
+                proxy, g_object_ref (menuitem));
         icon = gtk_image_new_from_pixbuf (pixbuf);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
         g_object_unref (pixbuf);

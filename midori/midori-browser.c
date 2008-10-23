@@ -39,10 +39,6 @@
     #include <unistd.h>
 #endif
 
-#if HAVE_LIBSOUP
-    #include <libsoup/soup.h>
-#endif
-
 struct _MidoriBrowser
 {
     GtkWindow parent_instance;
@@ -80,9 +76,7 @@ struct _MidoriBrowser
     KatzeArray* search_engines;
     KatzeArray* history;
 
-    #if HAVE_LIBSOUP
-    SoupSession* session;
-    #endif
+    KatzeNet* net;
 };
 
 G_DEFINE_TYPE (MidoriBrowser, midori_browser, GTK_TYPE_WINDOW)
@@ -1654,31 +1648,24 @@ _action_zoom_normal_activate (GtkAction*     action,
         midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0f);
 }
 
-#if HAVE_LIBSOUP
 static void
-midori_browser_got_body_cb (SoupMessage*   msg,
-                            MidoriBrowser* browser)
+midori_browser_transfer_cb (KatzeNetRequest* request,
+                            MidoriBrowser*   browser)
 {
-    SoupURI* soup_uri;
-    gchar* uri;
     gchar* filename;
     gchar* unique_filename;
     gchar* text_editor;
     gint fd;
     FILE* fp;
 
-    if (msg->response_body->length > 0)
+    if (request->data)
     {
-        soup_uri = soup_message_get_uri (msg);
-        uri = soup_uri_to_string (soup_uri, FALSE);
-        filename = g_strdup_printf ("%uXXXXXX", g_str_hash (uri));
-        g_free (uri);
+        filename = g_strdup_printf ("%uXXXXXX", g_str_hash (request->uri));
         if (((fd = g_file_open_tmp (filename, &unique_filename, NULL)) != -1))
         {
             if ((fp = fdopen (fd, "w")))
             {
-                fwrite (msg->response_body->data,
-                    1, msg->response_body->length, fp);
+                fwrite (request->data, 1, request->length, fp);
                 fclose (fp);
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
@@ -1691,20 +1678,14 @@ midori_browser_got_body_cb (SoupMessage*   msg,
         g_free (filename);
     }
 }
-#endif
 
 static void
 _action_source_view_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     gchar* text_editor;
-    const gchar* current_uri;
-    #if HAVE_LIBSOUP
-    SoupMessage* msg;
-    #endif
     GtkWidget* view;
     GtkWidget* source_view;
-    gchar* filename;
     gchar* uri;
     gint n;
 
@@ -1714,24 +1695,11 @@ _action_source_view_activate (GtkAction*     action,
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     if (text_editor && *text_editor)
     {
-        current_uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-        #if HAVE_LIBSOUP
-        if (g_str_has_prefix (current_uri, "http://") ||
-            g_str_has_prefix (current_uri, "https://"))
-        {
-            msg = soup_message_new ("GET", current_uri);
-            g_signal_connect (msg, "got-body",
-                G_CALLBACK (midori_browser_got_body_cb), browser);
-            soup_session_queue_message (browser->session, msg, NULL, NULL);
-            g_free (text_editor);
-            return;
-        }
-        #endif
-        if (g_str_has_prefix (current_uri, "file://"))
-        {
-            filename = g_filename_from_uri (current_uri, NULL, NULL);
-            sokoke_spawn_program (text_editor, filename);
-        }
+        katze_net_load_uri (browser->net,
+            midori_view_get_display_uri (MIDORI_VIEW (view)),
+            NULL, (KatzeNetTransferCb)midori_browser_transfer_cb, browser);
+        g_free (text_editor);
+        return;
     }
     else
     {
@@ -2299,8 +2267,10 @@ midori_browser_bookmarks_item_render_icon_cb (GtkTreeViewColumn* column,
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
     else if (katze_item_get_uri (item))
-        pixbuf = gtk_widget_render_icon (treeview, STOCK_BOOKMARK,
-                                         GTK_ICON_SIZE_MENU, NULL);
+    /* FIXME: Implement icon_cb */
+        pixbuf = katze_net_load_icon (
+            MIDORI_BROWSER (gtk_widget_get_toplevel (treeview))->net,
+            katze_item_get_uri (item), NULL, treeview, treeview);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
     if (pixbuf)
         g_object_unref (pixbuf);
@@ -2394,7 +2364,8 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
     const gchar* title;
     GtkWidget* menuitem;
     GtkWidget* submenu;
-    GtkWidget* icon;
+    GtkWidget* image;
+    GdkPixbuf* icon;
 
     n = katze_array_get_length (array);
     for (i = 0; i < n; i++)
@@ -2419,9 +2390,16 @@ _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
         else if (katze_item_get_uri (item))
         {
             menuitem = sokoke_image_menu_item_new_ellipsized (title);
-            icon = gtk_image_new_from_stock (STOCK_BOOKMARK, GTK_ICON_SIZE_MENU);
-            gtk_widget_show (icon);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+            image = gtk_image_new ();
+            /* FIXME: Implement icon_cb */
+            icon = katze_net_load_icon (browser->net,
+                katze_item_get_uri (item),
+                NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
+                GTK_WIDGET (browser), NULL /*g_object_ref (image)*/);
+            gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
+            g_object_unref (icon);
+            gtk_widget_show (image);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
                 browser);
@@ -2466,8 +2444,10 @@ midori_browser_history_render_icon_cb (GtkTreeViewColumn* column,
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
     else
-        pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_FILE,
-                                         GTK_ICON_SIZE_MENU, NULL);
+        /* FIXME: Implement icon_cb */
+        pixbuf = katze_net_load_icon (
+            MIDORI_BROWSER (gtk_widget_get_toplevel (treeview))->net,
+            katze_item_get_uri (item), NULL, treeview, treeview);
 
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
@@ -3341,9 +3321,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkRcStyle* rcstyle;
     GtkAction* action;
 
-    #if HAVE_LIBSOUP
-    browser->session = soup_session_async_new ();
-    #endif
+    browser->net = katze_net_new ();
 
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
@@ -3829,20 +3807,13 @@ midori_browser_finalize (GObject* object)
 
     g_free (browser->statusbar_text);
 
-    if (browser->settings)
-        g_object_unref (browser->settings);
-    if (browser->bookmarks)
-        g_object_unref (browser->bookmarks);
-    if (browser->trash)
-        g_object_unref (browser->trash);
-    if (browser->search_engines)
-        g_object_unref (browser->search_engines);
-    if (browser->history)
-        g_object_unref (browser->history);
+    katze_object_assign (browser->settings, NULL);
+    katze_object_assign (browser->bookmarks, NULL);
+    katze_object_assign (browser->trash, NULL);
+    katze_object_assign (browser->search_engines, NULL);
+    katze_object_assign (browser->history, NULL);
 
-    #if HAVE_LIBSOUP
-    g_object_unref (browser->session);
-    #endif
+    katze_object_assign (browser->net, NULL);
 
     G_OBJECT_CLASS (midori_browser_parent_class)->finalize (object);
 }
@@ -4047,6 +4018,8 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
     KatzeItem* item;
     const gchar* title;
     const gchar* desc;
+    GtkWidget* image;
+    GdkPixbuf* icon;
     GtkToolItem* toolitem;
     GtkTreeModel* treestore;
 
@@ -4080,8 +4053,15 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
         }
         else if (katze_item_get_uri (item))
         {
-            toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK);
-            gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
+            image = gtk_image_new ();
+            /* FIXME: Implement icon_cb */
+            icon = katze_net_load_icon (browser->net,
+                katze_item_get_uri (item),
+                NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
+                GTK_WIDGET (browser), NULL /*g_object_ref (image)*/);
+            gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
+            g_object_unref (icon);
+            toolitem = gtk_tool_button_new (image, title);
             gtk_tool_item_set_is_important (toolitem, TRUE);
             g_signal_connect (toolitem, "clicked",
                 G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
@@ -4152,6 +4132,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     gboolean found;
     time_t now;
     gint64 date;
+    time_t date_;
 
     if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         return;
@@ -4168,7 +4149,8 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     {
         gtk_tree_model_get (treemodel, &iter, 0, &parent, -1);
         date = katze_item_get_added (KATZE_ITEM (parent));
-        if (sokoke_same_day (&now, &date))
+        date_ = (time_t)date;
+        if (sokoke_same_day (&now, &date_))
         {
             found = TRUE;
             break;

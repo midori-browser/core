@@ -25,6 +25,8 @@ struct _MidoriSearchAction
     KatzeItem* current_item;
     gchar* text;
 
+    KatzeNet* net;
+
     GtkWidget* last_proxy;
 
     GtkWidget* dialog;
@@ -205,6 +207,8 @@ midori_search_action_init (MidoriSearchAction* search_action)
     search_action->current_item = NULL;
     search_action->text = NULL;
 
+    search_action->net = katze_net_new ();
+
     search_action->last_proxy = NULL;
 
     search_action->dialog = NULL;
@@ -218,7 +222,9 @@ midori_search_action_finalize (GObject* object)
 {
     MidoriSearchAction* search_action = MIDORI_SEARCH_ACTION (object);
 
-    g_free (search_action->text);
+    katze_assign (search_action->text, NULL);
+
+    katze_object_assign (search_action->net, NULL);
 
     G_OBJECT_CLASS (midori_search_action_parent_class)->finalize (object);
 }
@@ -419,8 +425,8 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     guint n, i;
     GtkWidget* menuitem;
     KatzeItem* item;
-    GdkPixbuf* pixbuf;
-    GtkWidget* icon;
+    GdkPixbuf* icon;
+    GtkWidget* image;
 
     search_engines = MIDORI_SEARCH_ACTION (action)->search_engines;
     menu = gtk_menu_new ();
@@ -432,11 +438,15 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             item = katze_array_get_nth_item (search_engines, i);
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
-            pixbuf = sokoke_web_icon (katze_item_get_icon (item),
-                                      GTK_ICON_SIZE_MENU, menuitem);
-            icon = gtk_image_new_from_pixbuf (pixbuf);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-            g_object_unref (pixbuf);
+            image = gtk_image_new ();
+            /* FIXME: Implement icon_cb */
+            icon = katze_net_load_icon (MIDORI_SEARCH_ACTION (action)->net,
+                katze_item_get_uri (item),
+                NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
+                entry, NULL /*g_object_ref (image)*/);
+            gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
+            g_object_unref (icon);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
             g_object_set_data (G_OBJECT (menuitem), "engine", item);
             g_signal_connect (menuitem, "activate",
@@ -456,8 +466,8 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_image_menu_item_new_with_mnemonic (_("_Manage Search Engines"));
-    icon = gtk_image_new_from_stock (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+    image = gtk_image_new_from_stock (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_search_action_manage_activate_cb), action);
@@ -656,7 +666,7 @@ midori_search_action_set_current_item (MidoriSearchAction* search_action,
     GSList* proxies;
     GtkWidget* alignment;
     GtkWidget* entry;
-    GdkPixbuf* pixbuf;
+    GdkPixbuf* icon;
 
     g_return_if_fail (MIDORI_IS_SEARCH_ACTION (search_action));
     g_return_if_fail (!item || KATZE_IS_ITEM (item));
@@ -677,11 +687,14 @@ midori_search_action_set_current_item (MidoriSearchAction* search_action,
         alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
         entry = gtk_bin_get_child (GTK_BIN (alignment));
 
-        pixbuf = sokoke_web_icon (item ? katze_item_get_icon (item) : NULL,
-                                  GTK_ICON_SIZE_MENU, entry);
+        /* FIXME: Implement icon_cb */
+        icon = katze_net_load_icon (search_action->net,
+            katze_item_get_uri (item),
+            NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
+            entry, NULL /*g_object_ref (entry)*/);
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-                                             GTK_ICON_ENTRY_PRIMARY, pixbuf);
-        g_object_unref (pixbuf);
+                                             GTK_ICON_ENTRY_PRIMARY, icon);
+        g_object_unref (icon);
         if (item)
             sokoke_entry_set_default_text (GTK_ENTRY (entry),
                                            katze_item_get_name (item));
@@ -698,22 +711,21 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
                                             GtkTreeIter*       iter,
                                             GtkWidget*         treeview)
 {
+    KatzeNet* net;
     KatzeItem* item;
-    const gchar* icon;
-    GdkPixbuf* pixbuf;
+    GdkPixbuf* icon;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    icon = katze_item_get_icon (item);
-    if (icon)
-    {
-        pixbuf = sokoke_web_icon (icon, GTK_ICON_SIZE_DND, treeview);
-        g_object_set (renderer, "pixbuf", pixbuf, NULL);
-        if (pixbuf)
-            g_object_unref (pixbuf);
-    }
-    else
-        g_object_set (renderer, "pixbuf", NULL, NULL);
+    /* FIXME: Use the net of the MidoriSearchAction */
+    net = katze_net_new ();
+    /* FIXME: Implement icon_cb */
+    icon = katze_net_load_icon (net, katze_item_get_uri (item),
+        NULL /*(KatzeNetIconCb)midori_search_action_dialog_icon_cb*/,
+        treeview, NULL /*g_object_ref (treeview)*/);
+    g_object_set (renderer, "pixbuf", icon, NULL);
+    g_object_unref (icon);
+    g_object_unref (net);
 }
 
 static void

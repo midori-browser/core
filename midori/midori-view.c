@@ -27,10 +27,6 @@
 #include <glib/gi18n.h>
 #include <webkit/webkit.h>
 
-#if HAVE_LIBSOUP
-    #include <libsoup/soup.h>
-#endif
-
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
@@ -66,9 +62,7 @@ struct _MidoriView
     GtkWidget* tab_close;
     KatzeItem* item;
 
-    #if HAVE_LIBSOUP
-    SoupSession* session;
-    #endif
+    KatzeNet* net;
 };
 
 struct _MidoriViewClass
@@ -439,142 +433,23 @@ midori_view_notify_icon_cb (MidoriView* view,
                 gtk_image_new_from_pixbuf (view->icon));
 }
 
-#if HAVE_LIBSOUP
 static void
-midori_view_got_headers_cb (SoupMessage* msg,
-                            MidoriView*  view)
+midori_view_icon_cb (GdkPixbuf*  icon,
+                     MidoriView* view)
 {
-    const gchar* mime;
-
-    switch (msg->status_code)
-    {
-    case 200:
-        mime = soup_message_headers_get (msg->response_headers, "content-type");
-        if (!g_str_has_prefix (mime, "image/"))
-            soup_session_cancel_message (view->session, msg, 200);
-        break;
-    case 301:
-        break;
-    default:
-        soup_session_cancel_message (view->session, msg, 200);
-    }
-}
-
-static gchar*
-midori_view_get_cached_icon_file (gchar* uri)
-{
-    gchar* cache_dir;
-    gchar* checksum;
-    gchar* icon_file;
-    gchar* icon_path;
-
-    cache_dir = g_build_filename (g_get_user_cache_dir (),
-                                  PACKAGE_NAME, "icons", NULL);
-    g_mkdir_with_parents (cache_dir, 0755);
-    #if GLIB_CHECK_VERSION(2, 16, 0)
-    checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
-    #else
-    checksum = g_strdup_printf ("%u", g_str_hash (uri));
-    #endif
-    icon_file = g_strdup_printf ("%s.ico", checksum);
-    g_free (checksum);
-    icon_path = g_build_filename (cache_dir, icon_file, NULL);
-    g_free (icon_file);
-    return icon_path;
-}
-
-static void
-midori_view_got_body_cb (SoupMessage* msg,
-                         MidoriView*  view)
-{
-    GdkPixbuf* pixbuf;
-    SoupURI* soup_uri;
-    gchar* uri;
-    gchar* icon_file;
-    FILE* fp;
-    GdkPixbuf* pixbuf_scaled;
-    gint icon_width, icon_height;
-
-    pixbuf = NULL;
-    if (msg->response_body->length > 0)
-    {
-        soup_uri = soup_message_get_uri (msg);
-        uri = soup_uri_to_string (soup_uri, FALSE);
-        icon_file = midori_view_get_cached_icon_file (uri);
-        g_free (uri);
-        if ((fp = fopen (icon_file, "w")))
-        {
-            fwrite (msg->response_body->data,
-                    1, msg->response_body->length, fp);
-            fclose (fp);
-            pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
-        }
-        g_free (icon_file);
-    }
-    if (!pixbuf)
-        pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
-    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
-                                             GDK_INTERP_BILINEAR);
-    g_object_unref (pixbuf);
-
-    katze_object_assign (view->icon, pixbuf_scaled);
+    katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
 }
-#endif
 
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
-    #if HAVE_LIBSOUP
-    guint i;
-    gchar* uri;
-    gchar* icon_file;
-    SoupMessage* msg;
-    #endif
     GdkPixbuf* pixbuf;
-    gint icon_width, icon_height;
-    GdkPixbuf* pixbuf_scaled;
 
-    pixbuf = NULL;
-    #if HAVE_LIBSOUP
-    if (view->uri && g_str_has_prefix (view->uri, "http://"))
-    {
-        i = 8;
-        while (view->uri[i] != '\0' && view->uri[i] != '/')
-            i++;
-        if (view->uri[i] == '/')
-        {
-            uri = g_strdup (view->uri);
-            uri[i] = '\0';
-            uri = g_strdup_printf ("%s/favicon.ico", uri);
-            icon_file = midori_view_get_cached_icon_file (uri);
-            if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
-                pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
-            else
-            {
-                msg = soup_message_new ("GET", uri);
-                g_signal_connect (msg, "got-headers",
-                    G_CALLBACK (midori_view_got_headers_cb), view);
-                g_signal_connect (msg, "got-body",
-                    G_CALLBACK (midori_view_got_body_cb), view);
-                soup_session_queue_message (view->session, msg, NULL, NULL);
-            }
-            g_free (uri);
-        }
-    }
-    #endif
+    pixbuf = katze_net_load_icon (view->net, view->uri,
+        (KatzeNetIconCb)midori_view_icon_cb, GTK_WIDGET (view), view);
 
-    if (!pixbuf)
-        pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
-    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
-                                             GDK_INTERP_BILINEAR);
-    g_object_unref (pixbuf);
-
-    view->icon = pixbuf_scaled;
+    katze_object_assign (view->icon, pixbuf);
     g_object_notify (G_OBJECT (view), "icon");
 }
 
@@ -586,7 +461,7 @@ midori_view_notify_load_status_cb (MidoriView* view,
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
             view->load_status != MIDORI_LOAD_FINISHED);
 
-    if (view->load_status == MIDORI_LOAD_COMMITTED)
+    if (view->web_view && view->load_status == MIDORI_LOAD_COMMITTED)
         _midori_web_view_load_icon (view);
 }
 
@@ -1078,9 +953,7 @@ midori_view_init (MidoriView* view)
 
     view->download_manager = NULL;
 
-    #if HAVE_LIBSOUP
-    view->session = soup_session_async_new ();
-    #endif
+    view->net = katze_net_new ();
 
     g_object_connect (view,
                       "signal::notify::icon",
@@ -1120,9 +993,7 @@ midori_view_finalize (GObject* object)
 
     g_free (view->download_manager);
 
-    #if HAVE_LIBSOUP
-    g_object_unref (view->session);
-    #endif
+    g_object_unref (view->net);
 
     /* web_frame = webkit_web_view_get_main_frame
         (WEBKIT_WEB_VIEW (view->web_view));
@@ -1864,7 +1735,7 @@ midori_view_get_zoom_level (MidoriView* view)
     if (view->web_view != NULL)
         return webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (view->web_view));
     #endif
-    return FALSE;
+    return 1.0;
 }
 
 /**

@@ -463,3 +463,56 @@ katze_image_menu_item_new_ellipsized (const gchar* label)
 
     return menuitem;
 }
+
+/**
+ * katze_pixbuf_new_from_buffer:
+ * @buffer: Buffer with image data
+ * @length: Length of the buffer
+ * @mime_type: a MIME type, or %NULL
+ * @error: return location for a #GError, or %NULL
+ *
+ * Creates a new #GdkPixbuf out of the specified buffer.
+ *
+ * You can specify a MIME type if looking at the buffer
+ * is not enough to determine the right type.
+ *
+ * Return value: A newly-allocated #GdkPixbuf
+ **/
+GdkPixbuf*
+katze_pixbuf_new_from_buffer (const guchar* buffer,
+                              gsize         length,
+                              const gchar*  mime_type,
+                              GError**      error)
+{
+    /* Proposed for inclusion in GdkPixbuf
+       See http://bugzilla.gnome.org/show_bug.cgi?id=74291 */
+    GdkPixbufLoader* loader;
+    GdkPixbuf* pixbuf;
+
+    g_return_val_if_fail (buffer != NULL, NULL);
+    g_return_val_if_fail (length > 0, NULL);
+
+    if (mime_type)
+    {
+        loader = gdk_pixbuf_loader_new_with_mime_type (mime_type, error);
+        if (!loader)
+            return NULL;
+    }
+    else
+        loader = gdk_pixbuf_loader_new ();
+    if (!gdk_pixbuf_loader_write (loader, buffer, length, error))
+    {
+        g_object_unref (loader);
+        return NULL;
+    }
+    if (!gdk_pixbuf_loader_close (loader, error))
+    {
+        g_object_unref (loader);
+        return NULL;
+    }
+
+    pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
+    g_object_ref (pixbuf);
+    g_object_unref (loader);
+    return pixbuf;
+}

@@ -18,5 +18,6 @@
 #include "katze-list.h"
 #include "katze-array.h"
 #include "katze-arrayaction.h"
+#include "katze-net.h"
 
 #endif /* __KATZE_H__ */
