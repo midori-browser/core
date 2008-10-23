@@ -1648,11 +1648,51 @@ _action_zoom_normal_activate (GtkAction*     action,
         midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0f);
 }
 
+static gchar*
+midori_browser_get_uri_extension (const gchar* uri)
+{
+    gchar* extension;
+    gchar* slash;
+    gchar* period;
+    gchar* ext_end;
+    gchar* tmp = g_strdup (uri);
+
+    /* Find the last slash in the URI and search for the last period
+       *after* the last slash. This is not completely accurate
+       but should cover most (simple) URIs */
+    slash = strrchr (tmp, '/');
+    /* Huh, URI without slashes? */
+    if (!slash)
+        return g_strdup ("");
+
+    ext_end = period = strrchr (slash, '.');
+    if (!period)
+       return g_strdup ("");
+
+    /* Skip the period */
+    ext_end++;
+    /* If *ext_end is 0 here, the URI ended with a period, so skip */
+    if (!*ext_end)
+       return g_strdup ("");
+
+    /* Find the end of the extension */
+    while (*ext_end && g_ascii_isalnum (*ext_end))
+        ext_end++;
+
+    *ext_end = 0;
+    extension = g_strdup (period);
+
+    g_free (tmp);
+
+    return extension;
+}
+
 static void
 midori_browser_transfer_cb (KatzeNetRequest* request,
                             MidoriBrowser*   browser)
 {
     gchar* filename;
+    gchar* extension;
     gchar* unique_filename;
     gchar* text_editor;
     gint fd;
@@ -1660,7 +1700,10 @@ midori_browser_transfer_cb (KatzeNetRequest* request,
 
     if (request->data)
     {
-        filename = g_strdup_printf ("%uXXXXXX", g_str_hash (request->uri));
+        extension = midori_browser_get_uri_extension (request->uri);
+        filename = g_strdup_printf ("%uXXXXXX%s",
+                                    g_str_hash (request->uri), extension);
+        g_free (extension);
         if (((fd = g_file_open_tmp (filename, &unique_filename, NULL)) != -1))
         {
             if ((fp = fdopen (fd, "w")))
