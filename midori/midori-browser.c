@@ -2508,10 +2508,10 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
                                        GtkWidget*         treeview)
 {
     KatzeItem* item;
-    time_t date;
-    char sdate[50];
+    char* sdate;
+    gint age;
 
-    gtk_tree_model_get (model, iter, 0, &item, -1);
+    gtk_tree_model_get (model, iter, 0, &item, 1, &age, -1);
 
     if (G_UNLIKELY (!item))
         return;
@@ -2524,9 +2524,22 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
 
     if (KATZE_IS_ARRAY (item))
     {
-        date = (time_t)katze_item_get_added (item);
-        strftime (sdate, sizeof (sdate), "%Y-%m-%d", localtime (&date));
-        g_object_set (renderer, "text", sdate, NULL);
+        g_return_if_fail (age >= 0);
+
+        if (age > 1)
+        {
+            sdate = g_strdup_printf (_("%d days ago"), age);
+            g_object_set (renderer, "text", sdate, NULL);
+            g_free (sdate);
+        }
+        else
+        {
+            if (age == 0)
+                sdate = _("Today");
+            else
+                sdate = _("Yesterday");
+            g_object_set (renderer, "text", sdate, NULL);
+        }
     }
     else
         g_object_set (renderer, "text", katze_item_get_name (item), NULL);
@@ -3664,7 +3677,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* History */
     box = gtk_vbox_new (FALSE, 0);
-    treestore = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
+    treestore = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_INT);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
@@ -4137,15 +4150,21 @@ _tree_store_insert_history_item (GtkTreeStore* treestore,
     KatzeItem* child;
     guint i, n;
     GtkTreeIter* piter;
+    time_t now;
+    gint64 date;
+    gint age = -1;
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
     if (KATZE_IS_ARRAY (item))
     {
         piter = parent;
-        if (katze_item_get_added (item))
+        if ((date = katze_item_get_added (item)))
         {
-            gtk_tree_store_insert_with_values (treestore, &iter, parent, 0, 0, item, -1);
+            now = time (NULL);
+            age = sokoke_days_between (&date, &now);
+            gtk_tree_store_insert_with_values (treestore, &iter, parent,
+                                               0, 0, item, 1, age, -1);
             g_object_unref (item);
             piter = &iter;
         }
@@ -4158,7 +4177,8 @@ _tree_store_insert_history_item (GtkTreeStore* treestore,
     }
     else
     {
-        gtk_tree_store_insert_with_values (treestore, &iter, parent, 0, 0, item, -1);
+        gtk_tree_store_insert_with_values (treestore, &iter, parent,
+                                           0, 0, item, 1, age, -1);
         g_object_unref (item);
     }
 }
@@ -4176,6 +4196,8 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     time_t now;
     gint64 date;
     time_t date_;
+    gint age;
+    gint newage;
 
     if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         return;
@@ -4190,14 +4212,20 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     i = 0;
     while (gtk_tree_model_iter_nth_child (treemodel, &iter, NULL, i++))
     {
-        gtk_tree_model_get (treemodel, &iter, 0, &parent, -1);
+        gtk_tree_model_get (treemodel, &iter, 0, &parent, 1, &age, -1);
         date = katze_item_get_added (KATZE_ITEM (parent));
         date_ = (time_t)date;
-        if (sokoke_same_day (&now, &date_))
+        newage = sokoke_days_between (&date, &now);
+        if (newage == 0)
         {
             found = TRUE;
-            break;
+            _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
+                                             &iter, item);
+            katze_array_add_item (parent, item);
         }
+        if (age != newage)
+            gtk_tree_store_set (GTK_TREE_STORE (treemodel),
+                                &iter, 1, newage, -1);
         g_object_unref (parent);
     }
     if (!found)
@@ -4209,14 +4237,6 @@ midori_browser_new_history_item (MidoriBrowser* browser,
         _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
                                          KATZE_ITEM (parent));
     }
-    else
-    {
-        _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
-                                         &iter, item);
-        katze_array_add_item (parent, item);
-        g_object_unref (parent);
-    }
-
 }
 
 static void

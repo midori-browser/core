@@ -679,3 +679,33 @@ sokoke_same_day (const time_t* day1,
     return same;
 }
 
+/**
+ * sokoke_days_between:
+ * @day1: a time_t timestamp value
+ * @day2: a time_t timestamp value
+ *
+ * Calculates the number of days between two timestamps.
+ *
+ * Return value: an integer.
+ **/
+gint
+sokoke_days_between (const time_t* day1,
+                     const time_t* day2)
+{
+    GDate* date1;
+    GDate* date2;
+    gint age;
+
+    date1 = g_date_new ();
+    date2 = g_date_new ();
+
+    g_date_set_time_t (date1, *day1);
+    g_date_set_time_t (date2, *day2);
+
+    age = g_date_days_between (date1, date2);
+
+    g_date_free (date1);
+    g_date_free (date2);
+
+    return age;
+}

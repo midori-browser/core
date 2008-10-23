@@ -143,4 +143,8 @@ gboolean
 sokoke_same_day                      (const time_t*  day1,
                                       const time_t*  day2);
 
+gint
+sokoke_days_between                  (const time_t*  day1,
+                                      const time_t*  day2);
+
 #endif /* !__SOKOKE_H__ */
