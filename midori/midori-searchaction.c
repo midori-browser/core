@@ -489,6 +489,34 @@ midori_search_action_scroll_event_cb (GtkWidget*          entry,
 }
 
 static void
+midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
+                                     GtkWidget*          entry)
+{
+    GdkPixbuf* icon;
+
+    if (search_action->current_item)
+    {
+        /* FIXME: Implement icon_cb */
+        icon = katze_net_load_icon (search_action->net,
+            katze_item_get_uri (search_action->current_item),
+            NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
+            entry, NULL /*g_object_ref (entry)*/);
+        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
+                                             GTK_ICON_ENTRY_PRIMARY, icon);
+        g_object_unref (icon);
+        sokoke_entry_set_default_text (GTK_ENTRY (entry),
+            katze_item_get_name (search_action->current_item));
+    }
+    else
+    {
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+                                            GTK_ICON_ENTRY_PRIMARY,
+                                            GTK_STOCK_FIND);
+        sokoke_entry_set_default_text (GTK_ENTRY (entry), "");
+    }
+}
+
+static void
 midori_search_action_connect_proxy (GtkAction* action,
                                       GtkWidget* proxy)
 {
@@ -503,6 +531,8 @@ midori_search_action_connect_proxy (GtkAction* action,
         alignment = gtk_bin_get_child (GTK_BIN (proxy));
         entry = gtk_bin_get_child (GTK_BIN (alignment));
 
+        midori_search_action_set_entry_icon (MIDORI_SEARCH_ACTION (action),
+                                             entry);
         g_object_connect (entry,
                           "signal::key-press-event",
                           midori_search_action_key_press_event_cb, action,
@@ -666,7 +696,6 @@ midori_search_action_set_current_item (MidoriSearchAction* search_action,
     GSList* proxies;
     GtkWidget* alignment;
     GtkWidget* entry;
-    GdkPixbuf* icon;
 
     g_return_if_fail (MIDORI_IS_SEARCH_ACTION (search_action));
     g_return_if_fail (!item || KATZE_IS_ITEM (item));
@@ -687,19 +716,7 @@ midori_search_action_set_current_item (MidoriSearchAction* search_action,
         alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
         entry = gtk_bin_get_child (GTK_BIN (alignment));
 
-        /* FIXME: Implement icon_cb */
-        icon = katze_net_load_icon (search_action->net,
-            katze_item_get_uri (item),
-            NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
-            entry, NULL /*g_object_ref (entry)*/);
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-                                             GTK_ICON_ENTRY_PRIMARY, icon);
-        g_object_unref (icon);
-        if (item)
-            sokoke_entry_set_default_text (GTK_ENTRY (entry),
-                                           katze_item_get_name (item));
-        else
-            sokoke_entry_set_default_text (GTK_ENTRY (entry), "");
+        midori_search_action_set_entry_icon (search_action, entry);
     }
     while ((proxies = g_slist_next (proxies)));
 }
