@@ -168,7 +168,10 @@ katze_net_got_headers_cb (SoupMessage*  msg,
     }
 
     if (!priv->status_cb (request, priv->user_data))
+    {
+        g_signal_handlers_disconnect_by_func (msg, katze_net_got_headers_cb, priv);
         soup_session_cancel_message (priv->net->session, msg, msg->status_code);
+    }
 }
 
 static void
@@ -202,6 +205,12 @@ katze_net_got_body_cb (SoupMessage*  msg,
     }
 
     priv->transfer_cb (request, priv->user_data);
+}
+
+static void
+katze_net_finished_cb (SoupMessage*  msg,
+                       KatzeNetPriv* priv)
+{
     katze_net_priv_free (priv);
 }
 #endif
@@ -329,6 +338,8 @@ katze_net_load_uri (KatzeNet*          net,
         if (transfer_cb)
             g_signal_connect (msg, "got-body",
                 G_CALLBACK (katze_net_got_body_cb), priv);
+        g_signal_connect (msg, "finished",
+            G_CALLBACK (katze_net_finished_cb), priv);
         soup_session_queue_message (net->session, msg, NULL, NULL);
         return;
     }
