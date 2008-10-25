@@ -489,25 +489,28 @@ katze_net_load_icon (KatzeNet*      net,
             icon_uri = g_strdup (uri);
             icon_uri[i] = '\0';
             icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
-            icon_file = katze_net_get_cached_path (net, icon_uri, "icons");
-
-            if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
-                pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
-            else
-            {
-                priv = g_new0 (KatzeNetIconPriv, 1);
-                priv->net = net;
-                priv->icon_file = icon_file;
-                priv->icon_cb = icon_cb;
-                priv->widget = g_object_ref (widget);
-                priv->user_data = user_data;
-
-                katze_net_load_uri (net, icon_uri,
-                    (KatzeNetStatusCb)katze_net_icon_status_cb,
-                    (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
-            }
-            g_free (icon_uri);
         }
+        else
+            icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
+
+        icon_file = katze_net_get_cached_path (net, icon_uri, "icons");
+
+        if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
+            pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
+        else
+        {
+            priv = g_new0 (KatzeNetIconPriv, 1);
+            priv->net = net;
+            priv->icon_file = icon_file;
+            priv->icon_cb = icon_cb;
+            priv->widget = g_object_ref (widget);
+            priv->user_data = user_data;
+
+            katze_net_load_uri (net, icon_uri,
+                (KatzeNetStatusCb)katze_net_icon_status_cb,
+                (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
+        }
+        g_free (icon_uri);
     }
 
     if (!pixbuf)
