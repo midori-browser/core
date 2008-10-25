@@ -1648,10 +1648,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         gtk_container_border_width (GTK_CONTAINER (hbox), 2);
         gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
         gtk_misc_set_alignment (GTK_MISC (view->tab_icon), 0.0, 0.5);
-        gtk_box_pack_start (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
         gtk_misc_set_alignment (GTK_MISC (view->tab_title), 0.0, 0.5);
         /* TODO: make the tab initially look "unvisited" until it's focused */
-        gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
         _update_label_size (view->tab_title, 10);
 
         view->tab_close = gtk_button_new ();
@@ -1666,7 +1664,16 @@ midori_view_get_proxy_tab_label (MidoriView* view)
                                             GTK_STOCK_CLOSE);
         gtk_button_set_image (GTK_BUTTON (view->tab_close), image);
         gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.0);
+
+        #if HAVE_OSX
+        gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
+        gtk_box_pack_end (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
         gtk_box_pack_end (GTK_BOX (hbox), view->tab_close, FALSE, FALSE, 0);
+        #else
+        gtk_box_pack_start (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), view->tab_close, FALSE, FALSE, 0);
+        #endif
         gtk_widget_show_all (GTK_WIDGET (event_box));
 
         if (!view->close_buttons_on_tabs)

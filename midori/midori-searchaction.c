@@ -1069,8 +1069,10 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     dialog = gtk_dialog_new_with_buttons (dialog_title,
         toplevel ? GTK_WINDOW (toplevel) : NULL,
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+        #ifndef HAVE_OSX
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
+        #endif
         NULL);
     g_signal_connect (dialog, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &search_action->dialog);
@@ -1155,6 +1157,22 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     button = gtk_button_new_from_stock (GTK_STOCK_GO_UP);
     gtk_widget_set_sensitive (button, FALSE);
     gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+
+    #ifdef HAVE_OSX
+    GtkWidget* icon;
+    hbox = gtk_hbox_new (FALSE, 0);
+    button = gtk_button_new ();
+    icon = gtk_image_new_from_stock (GTK_STOCK_HELP, GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_image (GTK_BUTTON (button), icon);
+    /* TODO: Implement some kind of help function */
+    gtk_widget_set_sensitive (button, FALSE);
+    /* g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_search_action_dialog_help_clicked_cb), dialog); */
+    gtk_box_pack_end (GTK_BOX (hbox),
+        button, FALSE, FALSE, 4);
+    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (dialog)->vbox),
+        hbox, FALSE, FALSE, 0);
+    #endif
     gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
     g_object_connect (search_action->search_engines,

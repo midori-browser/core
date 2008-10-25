@@ -11,6 +11,10 @@
 
 #include "midori-preferences.h"
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 #include "sokoke.h"
 
 #include <glib/gi18n.h>
@@ -72,10 +76,6 @@ midori_preferences_response_cb (MidoriPreferences* preferences,
         gtk_widget_destroy (GTK_WIDGET (preferences));
 }
 
-#ifdef GDK_WINDOWING_QUARTZ
-    #define USE_OSX_STYLE
-#endif
-
 static void
 midori_preferences_init (MidoriPreferences* preferences)
 {
@@ -90,7 +90,7 @@ midori_preferences_init (MidoriPreferences* preferences)
                   "title", dialog_title,
                   "has-separator", FALSE,
                   NULL);
-    #ifndef USE_OSX_STYLE
+    #ifndef HAVE_OSX
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
@@ -213,7 +213,7 @@ proxy_download_manager_icon_cb (GtkWidget*     entry,
     return FALSE;
 }
 
-#ifdef USE_OSX_STYLE
+#ifdef HAVE_OSX
 static void
 midori_preferences_help_clicked_cb (GtkWidget* button,
                                     GtkDialog* dialog)
@@ -238,7 +238,7 @@ midori_preferences_add_toolbutton (GtkWidget*   toolbar,
                                    const gchar* label,
                                    GtkWidget*   page)
 {
-#ifdef USE_OSX_STYLE
+#ifdef HAVE_OSX
     *toolbutton = GTK_WIDGET (*toolbutton ? gtk_radio_tool_button_new_from_widget (
         GTK_RADIO_TOOL_BUTTON (*toolbutton)) : gtk_radio_tool_button_new (NULL));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (*toolbutton), label);
@@ -282,7 +282,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     preferences->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
 
-    #ifdef USE_OSX_STYLE
+    #ifdef HAVE_OSX
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (preferences->notebook), FALSE);
     gtk_notebook_set_show_border (GTK_NOTEBOOK (preferences->notebook), FALSE);
     toolbar = gtk_toolbar_new ();
@@ -290,8 +290,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (toolbar), FALSE);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
                         toolbar, FALSE, FALSE, 0);
-    #endif
+    #else
     toolbar = NULL;
+    #endif
     toolbutton = NULL;
 
     sizegroup = NULL;
@@ -515,7 +516,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_object_unref (sizegroup);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
                         preferences->notebook, FALSE, FALSE, 4);
-    #ifdef USE_OSX_STYLE
+    #ifdef HAVE_OSX
     GtkWidget* icon;
     hbox = gtk_hbox_new (FALSE, 0);
     button = gtk_button_new ();

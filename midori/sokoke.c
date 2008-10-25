@@ -9,11 +9,11 @@
  See the file COPYING for the full license text.
 */
 
+#include "sokoke.h"
+
 #if HAVE_CONFIG_H
     #include <config.h>
 #endif
-
-#include "sokoke.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
@@ -47,6 +47,9 @@ sokoke_spawn_program (const gchar* command,
     gchar* command_ready;
     gchar** argv;
     GError* error;
+
+    g_return_val_if_fail (command != NULL, FALSE);
+    g_return_val_if_fail (argument != NULL, FALSE);
 
     argument_escaped = g_shell_quote (argument);
     if (strstr (command, "%s"))
@@ -205,13 +208,16 @@ typedef enum
 {
     SOKOKE_DESKTOP_UNTESTED,
     SOKOKE_DESKTOP_XFCE,
+    SOKOKE_DESKTOP_OSX,
     SOKOKE_DESKTOP_UNKNOWN
 } SokokeDesktop;
 
 static SokokeDesktop
 sokoke_get_desktop (void)
 {
-    #ifdef GDK_WINDOWING_X11
+    #ifdef HAVE_OSX
+    return SOKOKE_DESKTOP_OSX;
+    #else
     static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;
     if (G_UNLIKELY (desktop == SOKOKE_DESKTOP_UNTESTED))
     {
@@ -227,8 +233,6 @@ sokoke_get_desktop (void)
     }
 
     return desktop;
-    #else
-    return SOKOKE_DESKTOP_UNKNOWN;
     #endif
 }
 

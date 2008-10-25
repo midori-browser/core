@@ -208,7 +208,11 @@ midori_panel_init (MidoriPanel* panel)
     gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), _("Close panel"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_panel_button_close_clicked_cb), panel);
+    #if HAVE_OSX
+    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, 0);
+    #else
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
+    #endif
     gtk_box_pack_start (GTK_BOX (vbox), labelbar, FALSE, FALSE, 0);
     gtk_widget_show_all (vbox);
 

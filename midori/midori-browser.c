@@ -864,6 +864,9 @@ midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
 static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
+    GObjectClass* gobject_class;
+    GParamFlags flags;
+
     signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
         "window-object-cleared",
         G_TYPE_FROM_CLASS (class),
@@ -936,13 +939,13 @@ midori_browser_class_init (MidoriBrowserClass* class)
     class->activate_action = _midori_browser_activate_action;
     class->quit = _midori_browser_quit;
 
-    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class = G_OBJECT_CLASS (class);
     gobject_class->dispose = midori_browser_dispose;
     gobject_class->finalize = midori_browser_finalize;
     gobject_class->set_property = midori_browser_set_property;
     gobject_class->get_property = midori_browser_get_property;
 
-    GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     g_object_class_install_property (gobject_class,
                                      PROP_MENUBAR,
@@ -2583,7 +2586,7 @@ _action_tab_next_activate (GtkAction*     action,
 static const gchar* credits_authors[] = {
     "Christian Dywan <christian@twotoasts.de>", NULL };
 static const gchar* credits_documenters[] = {
-    "Christian Dywan <christian@twotoasts.de>" };
+    "Christian Dywan <christian@twotoasts.de>", NULL };
 static const gchar* credits_artists[] = {
     "Nancy Runge <nancy@twotoasts.de>", NULL };
 
@@ -2672,7 +2675,6 @@ _action_help_link_activate (GtkAction*     action,
 
 }
 
-
 static void
 _action_panel_activate (GtkToggleAction* action,
                         MidoriBrowser*   browser)
@@ -2700,7 +2702,6 @@ _action_open_in_panel_activate (GtkAction*     action,
     gtk_widget_show (browser->panel);
     midori_view_set_uri (MIDORI_VIEW (browser->panel_pageholder), uri);
 }
-
 
 static void
 midori_panel_notify_position_cb (GObject*       object,
@@ -3824,7 +3825,11 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close Findbar"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_browser_find_button_close_clicked_cb), browser);
+    #ifdef HAVE_OSX
+    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, 0);
+    #else
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
+    #endif
     sokoke_container_show_children (GTK_CONTAINER (browser->find));
     gtk_box_pack_start (GTK_BOX (vbox), browser->find, FALSE, FALSE, 0);
 

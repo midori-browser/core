@@ -2,15 +2,17 @@
 
 INCLUDES = \
     $(UNIQUE_CFLAGS)        \
+    $(LIBXML_CFLAGS)        \
     $(SQLITE3_CFLAGS)       \
     $(GTK_CFLAGS)           \
     $(WEBKIT_CFLAGS)        \
     -I../katze
 
-AM_CFLAGS = -DMIDORI_LOCALEDIR=\""$(localedir)"\"
+AM_CFLAGS = -DLOCALEDIR=\""$(localedir)"\" -DDATADIR=\""$(datadir)"\"
 
 LDADD = \
     $(UNIQUE_LIBS)       \
+    $(LIBXML_LIBS)      \
     $(SQLITE3_LIBS)      \
     $(GTK_LIBS)          \
     $(WEBKIT_LIBS)       \

@@ -5,7 +5,7 @@
 import Params
 import pproc as subprocess
 import Common
-import platform
+import sys
 import os
 
 APPNAME = 'midori'
@@ -117,6 +117,8 @@ def configure (conf):
     conf.check_pkg ('libxml-2.0', destvar='LIBXML', vnum='2.6', mandatory=True)
 
     conf.check_header ('unistd.h', 'HAVE_UNISTD_H')
+    if sys.platform == 'darwin':
+        conf.define ('HAVE_OSX', 1)
 
     if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
         icons = 'yes'
@@ -168,7 +170,7 @@ def build (bld):
 
     bld.add_subdirs ('katze midori icons')
 
-    install_files ('DOCDIR', '/midori/', 'AUTHORS ChangeLog COPYING EXPAT README')
+    install_files ('DOCDIR', '/' + APPNAME + '/', 'AUTHORS ChangeLog COPYING EXPAT README')
 
     if bld.env ()['RST2HTML']:
         # FIXME: Build only if needed
@@ -194,15 +196,15 @@ def build (bld):
 
     if bld.env ()['INTLTOOL']:
         obj = bld.create_obj ('intltool_in')
-        obj.source   = 'midori.desktop.in'
+        obj.source   = APPNAME + '.desktop.in'
         obj.inst_var = 'DATADIR'
         obj.inst_dir = 'applications'
         obj.flags    = '-d'
     else:
         # FIXME: process desktop.in without intltool
-        Params.pprint ('BLUE', "File midori.desktop not generated")
+        Params.pprint ('BLUE', "File " + APPNAME + ".desktop not generated")
     if bld.env ()['INTLTOOL']:
-        install_files ('DATADIR', 'applications', 'midori.desktop')
+        install_files ('DATADIR', 'applications', APPNAME + '.desktop')
 
     if bld.env ()['RSVG_CONVERT']:
         mkdir (blddir + '/data')
