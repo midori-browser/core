@@ -1600,7 +1600,7 @@ midori_view_tab_icon_style_set (GtkWidget* tab_icon,
     gtk_settings = gtk_widget_get_settings (tab_icon);
     gtk_icon_size_lookup_for_settings (gtk_settings, GTK_ICON_SIZE_MENU,
                                        &width, &height);
-    gtk_widget_set_size_request (tab_icon, width + 2, height + 2);
+    gtk_widget_set_size_request (tab_icon, width + 4, height + 4);
 }
 
 static void
@@ -1659,11 +1659,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         rcstyle->xthickness = rcstyle->ythickness = 0;
         gtk_widget_modify_style (view->tab_close, rcstyle);
         g_object_unref (rcstyle);
-        image = katze_throbber_new ();
-        katze_throbber_set_static_stock_id (KATZE_THROBBER (image),
-                                            GTK_STOCK_CLOSE);
+        image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (view->tab_close), image);
-        gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.0);
 
         #if HAVE_OSX
         gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
