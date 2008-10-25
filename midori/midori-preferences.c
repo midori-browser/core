@@ -182,25 +182,33 @@ proxy_download_manager_icon_cb (GtkWidget*     entry,
                                 GdkEventFocus* event,
                                 GtkImage*      icon)
 {
-    const gchar* program;
+    const gchar* command;
+    gchar* first_space;
+    gchar* first_part;
     gchar* path;
 
-    program = gtk_entry_get_text (GTK_ENTRY (entry));
-    path = g_find_program_in_path (program);
+    command = gtk_entry_get_text (GTK_ENTRY (entry));
+    if ((first_space = strstr (command, " ")))
+        first_part = g_strndup (command, first_space - command);
+    else
+        first_part = g_strdup (command);
+    path = g_find_program_in_path (first_part);
 
     if (path)
     {
         if (gtk_icon_theme_has_icon (gtk_icon_theme_get_for_screen (
-            gtk_widget_get_screen (entry)), program))
-            gtk_image_set_from_icon_name (icon, program, GTK_ICON_SIZE_MENU);
+            gtk_widget_get_screen (entry)), first_part))
+            gtk_image_set_from_icon_name (icon, first_part, GTK_ICON_SIZE_MENU);
         else
             gtk_image_set_from_stock (icon, GTK_STOCK_EXECUTE, GTK_ICON_SIZE_MENU);
         g_free (path);
     }
-    else if (program && *program)
+    else if (first_part && *first_part)
         gtk_image_set_from_stock (icon, GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
     else
         gtk_image_clear (icon);
+
+    g_free (first_part);
 
     return FALSE;
 }
