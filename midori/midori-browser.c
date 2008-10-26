@@ -2494,6 +2494,34 @@ midori_browser_menu_bookmarks_item_activate_cb (GtkWidget*     widget,
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
+static gboolean
+midori_browser_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
+                                                       GdkEventButton* event,
+                                                       MidoriBrowser*  browser)
+{
+    KatzeItem* item;
+    gint n;
+    gboolean open_in_background;
+
+    if (event->button == 2)
+    {
+        g_object_get (browser->settings, "open-tabs-in-the-background",
+            &open_in_background, NULL);
+        item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
+        n = midori_browser_add_uri (browser, katze_item_get_uri (item));
+        if (!open_in_background)
+            midori_browser_set_current_page (browser, n);
+        return TRUE;
+    }
+    else if (event->button == 3)
+    {
+        midori_browser_toolbar_popup_context_menu_cb (browser->navigationbar,
+            event->x, event->y, event->button, browser);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void
 _midori_browser_create_bookmark_menu (MidoriBrowser* browser,
                                       KatzeArray*    array,
@@ -4220,9 +4248,15 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
             g_signal_connect (toolitem, "clicked",
                 G_CALLBACK (midori_browser_menu_bookmarks_item_activate_cb),
                 browser);
+            g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+                "button-press-event",
+                G_CALLBACK (midori_browser_bookmarkbar_item_button_press_event_cb),
+                browser);
             if (desc && *desc)
                 gtk_tool_item_set_tooltip_text (toolitem, desc);
             g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
+            g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
+                "KatzeItem", item);
         }
         else
             toolitem = gtk_separator_tool_item_new ();
