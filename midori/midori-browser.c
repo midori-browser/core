@@ -216,6 +216,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "Forward",
         midori_view_can_go_forward (MIDORI_VIEW (view)));
 
+    /* Currently views that don't support source, don't support
+       saving either. If that changes, we need to thinkof something. */
+    _action_set_sensitive (browser, "SaveAs",
+        midori_view_can_view_source (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "Print",
         midori_view_can_print (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "ZoomIn",
@@ -1172,6 +1176,96 @@ _action_open_activate (GtkAction*     action,
 }
 
 static void
+midori_browser_save_transfer_cb (KatzeNetRequest* request,
+                                 gchar*           filename)
+{
+    FILE* fp;
+
+    if (request->data)
+    {
+        /* FIXME: Show an error message if the file cannot be saved */
+        if ((fp = fopen (filename, "wb")))
+        {
+            fwrite (request->data, 1, request->length, fp);
+            fclose (fp);
+        }
+    }
+    g_free (filename);
+}
+
+static void
+_action_save_as_activate (GtkAction*     action,
+                          MidoriBrowser* browser)
+{
+    static gchar* last_dir = NULL;
+    gchar* uri = NULL;
+    gboolean folder_set = FALSE;
+    GtkWidget* dialog;
+    GtkWidget* view;
+    gchar* filename;
+    gchar* dirname;
+    gchar* last_slash;
+    gchar* folder;
+
+    dialog = gtk_file_chooser_dialog_new (
+        ("Save file as"), GTK_WINDOW (browser),
+        GTK_FILE_CHOOSER_ACTION_SAVE,
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+        NULL);
+    gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_SAVE);
+    gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
+
+    view = midori_browser_get_current_tab (browser);
+    if ((uri = (gchar*)midori_view_get_display_uri (MIDORI_VIEW (view))))
+    {
+        /* Base the start folder on the current view's uri if it is local */
+        filename = g_filename_from_uri (uri, NULL, NULL);
+        if (filename)
+        {
+            dirname = g_path_get_dirname (filename);
+            if (dirname && g_file_test (dirname, G_FILE_TEST_IS_DIR))
+            {
+                gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), dirname);
+                folder_set = TRUE;
+            }
+
+            g_free (dirname);
+            g_free (filename);
+        }
+
+        /* Try to provide a good default filename */
+        filename = g_filename_from_uri (uri, NULL, NULL);
+        if (!filename && (last_slash = g_strrstr (uri, "/")))
+        {
+            if (last_slash[0] == '/')
+                last_slash++;
+            filename = g_strdup (last_slash);
+        }
+        else
+            filename = g_strdup (uri);
+        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
+        g_free (filename);
+    }
+
+    if (!folder_set && last_dir && *last_dir)
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+        folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+        katze_net_load_uri (browser->net, uri, NULL,
+            (KatzeNetTransferCb)midori_browser_save_transfer_cb, filename);
+
+        g_free (last_dir);
+        last_dir = folder;
+        g_free (uri);
+    }
+    gtk_widget_destroy (dialog);
+}
+
+static void
 _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
@@ -1691,8 +1785,8 @@ midori_browser_get_uri_extension (const gchar* uri)
 }
 
 static void
-midori_browser_transfer_cb (KatzeNetRequest* request,
-                            MidoriBrowser*   browser)
+midori_browser_source_transfer_cb (KatzeNetRequest* request,
+                                   MidoriBrowser*   browser)
 {
     gchar* filename;
     gchar* extension;
@@ -1742,8 +1836,8 @@ _action_source_view_activate (GtkAction*     action,
     if (text_editor && *text_editor)
     {
         katze_net_load_uri (browser->net,
-            midori_view_get_display_uri (MIDORI_VIEW (view)),
-            NULL, (KatzeNetTransferCb)midori_browser_transfer_cb, browser);
+            midori_view_get_display_uri (MIDORI_VIEW (view)), NULL,
+            (KatzeNetTransferCb)midori_browser_source_transfer_cb, browser);
         g_free (text_editor);
         return;
     }
@@ -2985,7 +3079,7 @@ static const GtkActionEntry entries[] = {
    N_("Open a file"), G_CALLBACK (_action_open_activate) },
  { "SaveAs", GTK_STOCK_SAVE_AS,
    NULL, "<Ctrl>s",
-   N_("Save to a file"), NULL/*G_CALLBACK (_action_saveas_activate)*/ },
+   N_("Save to a file"), G_CALLBACK (_action_save_as_activate) },
  { "TabClose", NULL,
    N_("_Close Tab"), "<Ctrl>w",
    N_("Close the current tab"), G_CALLBACK (_action_tab_close_activate) },
@@ -3107,7 +3201,7 @@ static const GtkActionEntry entries[] = {
    N_("Delete the selected history item"), G_CALLBACK (_action_history_delete_activate) },
  { "HistoryClear", GTK_STOCK_CLEAR,
    NULL, "",
-   N_("Clear the enitre history"), G_CALLBACK (_action_history_clear_activate) },
+   N_("Clear the entire history"), G_CALLBACK (_action_history_clear_activate) },
  { "HistoryOpen", GTK_STOCK_OPEN,
    NULL, "",
    N_("Open the selected history item"), G_CALLBACK (_action_history_open_activate) },
@@ -3561,7 +3655,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->menubar, "button-press-event",
         G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
 
-    _action_set_sensitive (browser, "SaveAs", FALSE);
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
     _action_set_sensitive (browser, "FindQuick", FALSE);
     _action_set_sensitive (browser, "Transferbar", FALSE);
