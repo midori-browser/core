@@ -14,6 +14,8 @@
 
 #include "katze-array.h"
 
+#include <gtk/gtk.h>
+
 G_BEGIN_DECLS
 
 #define KATZE_TYPE_ARRAY_ACTION \
@@ -41,6 +43,10 @@ katze_array_action_get_array            (KatzeArrayAction* array_action);
 void
 katze_array_action_set_array            (KatzeArrayAction* array_action,
                                          KatzeArray*       array);
+
+GtkToolItem*
+katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
+                                         KatzeItem*        item);
 
 G_END_DECLS
 
