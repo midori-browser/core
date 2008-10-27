@@ -99,7 +99,8 @@ enum
     PROP_PROGRESS,
     PROP_ZOOM_LEVEL,
     PROP_STATUSBAR_TEXT,
-    PROP_SETTINGS
+    PROP_SETTINGS,
+    PROP_NET
 };
 
 enum {
@@ -417,6 +418,15 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Settings",
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_NET,
+                                     g_param_spec_object (
+                                     "net",
+                                     "Net",
+                                     "The associated net",
+                                     KATZE_TYPE_NET,
                                      G_PARAM_READWRITE));
 }
 
@@ -979,21 +989,19 @@ midori_view_finalize (GObject* object)
     g_signal_handlers_disconnect_by_func (view->settings,
         midori_view_settings_notify_cb, view);
 
-    g_free (view->uri);
-    g_free (view->title);
-    if (view->icon)
-        g_object_unref (view->icon);
-    g_free (view->statusbar_text);
-    g_free (view->link_uri);
-    g_free (view->selected_text);
-    if (view->settings)
-        g_object_unref (view->settings);
-    if (view->item)
-        g_object_unref (view->item);
+    katze_assign (view->uri, NULL);
+    katze_assign (view->title, NULL);
+    katze_object_assign (view->icon, NULL);
+    katze_assign (view->statusbar_text, NULL);
+    katze_assign (view->link_uri, NULL);
+    katze_assign (view->selected_text, NULL);
 
-    g_free (view->download_manager);
+    katze_object_assign (view->settings, NULL);
+    katze_object_assign (view->item, NULL);
 
-    g_object_unref (view->net);
+    katze_assign (view->download_manager, NULL);
+
+    katze_object_assign (view->net, NULL);
 
     /* web_frame = webkit_web_view_get_main_frame
         (WEBKIT_WEB_VIEW (view->web_view));
@@ -1039,6 +1047,11 @@ midori_view_set_property (GObject*      object,
     case PROP_SETTINGS:
         midori_view_set_settings (view, g_value_get_object (value));
         break;
+    case PROP_NET:
+        katze_object_assign (view->net, g_value_dup_object (value));
+        if (!view->net)
+            view->net = katze_net_new ();
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1076,6 +1089,9 @@ midori_view_get_property (GObject*    object,
     case PROP_SETTINGS:
         g_value_set_object (value, view->settings);
         break;
+    case PROP_NET:
+        g_value_set_object (value, view->net);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1084,16 +1100,16 @@ midori_view_get_property (GObject*    object,
 
 /**
  * midori_view_new:
- * @view: a #MidoriView
+ * @net: a #KatzeNet
  *
  * Creates a new view.
  *
  * Return value: a new #MidoriView
  **/
 GtkWidget*
-midori_view_new (void)
+midori_view_new (KatzeNet* net)
 {
-    return g_object_new (MIDORI_TYPE_VIEW, NULL);
+    return g_object_new (MIDORI_TYPE_VIEW, "net", net, NULL);
 }
 
 static void

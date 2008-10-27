@@ -51,7 +51,7 @@ GType
 midori_view_get_type                   (void);
 
 GtkWidget*
-midori_view_new                        (void);
+midori_view_new                        (KatzeNet*          net);
 
 void
 midori_view_set_settings               (MidoriView*        view,

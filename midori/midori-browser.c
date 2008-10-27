@@ -1845,7 +1845,7 @@ _action_source_view_activate (GtkAction*     action,
     {
         uri = g_strdup_printf ("view-source:%s",
             midori_view_get_display_uri (MIDORI_VIEW (view)));
-        source_view = midori_view_new ();
+        source_view = midori_view_new (browser->net);
         midori_view_set_settings (MIDORI_VIEW (source_view), browser->settings);
         midori_view_set_uri (MIDORI_VIEW (source_view), uri);
         midori_view_notify_icon_cb (MIDORI_VIEW (source_view), NULL, browser);
@@ -3687,7 +3687,7 @@ midori_browser_init (MidoriBrowser* browser)
                               STOCK_BOOKMARKS, _("Bookmarks"));
 
     /* Transfers */
-    GtkWidget* panel = midori_view_new ();
+    GtkWidget* panel = midori_view_new (browser->net);
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, NULL,
@@ -3741,7 +3741,7 @@ midori_browser_init (MidoriBrowser* browser)
                               STOCK_HISTORY, _("History"));
 
     /* Pageholder */
-    browser->panel_pageholder = midori_view_new ();
+    browser->panel_pageholder = midori_view_new (browser->net);
     midori_view_set_settings (MIDORI_VIEW (browser->panel_pageholder),
                               browser->settings);
     gtk_widget_show (browser->panel_pageholder);
@@ -4357,8 +4357,7 @@ midori_browser_set_property (GObject*      object,
             g_signal_handlers_disconnect_by_func (browser->settings,
                                                   midori_browser_settings_notify,
                                                   browser);
-        katze_object_assign (browser->settings, g_value_get_object (value));
-        g_object_ref (browser->settings);
+        katze_object_assign (browser->settings, g_value_dup_object (value));
         _midori_browser_update_settings (browser);
         g_signal_connect (browser->settings, "notify",
                       G_CALLBACK (midori_browser_settings_notify), browser);
@@ -4367,8 +4366,7 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_BOOKMARKS:
         ; /* FIXME: Disconnect handlers */
-        katze_object_assign (browser->bookmarks, g_value_get_object (value));
-        g_object_ref (browser->bookmarks);
+        katze_object_assign (browser->bookmarks, g_value_dup_object (value));
         g_object_set (_action_by_name (browser, "Bookmarks"), "array",
             browser->bookmarks, NULL);
         midori_browser_load_bookmarks (browser);
@@ -4376,8 +4374,7 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_TRASH:
         ; /* FIXME: Disconnect handlers */
-        katze_object_assign (browser->trash, g_value_get_object (value));
-        g_object_ref (browser->trash);
+        katze_object_assign (browser->trash, g_value_dup_object (value));
         g_object_set (_action_by_name (browser, "Trash"), "array",
             browser->trash, NULL);
         /* FIXME: Connect to updates */
@@ -4385,8 +4382,7 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_SEARCH_ENGINES:
         ; /* FIXME: Disconnect handlers */
-        katze_object_assign (browser->search_engines, g_value_get_object (value));
-        g_object_ref (browser->search_engines);
+        katze_object_assign (browser->search_engines, g_value_dup_object (value));
         midori_search_action_set_search_engines (MIDORI_SEARCH_ACTION (
             _action_by_name (browser, "Search")), browser->search_engines);
         /* FIXME: Connect to updates */
@@ -4402,8 +4398,7 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_HISTORY:
         ; /* FIXME: Disconnect handlers */
-        katze_object_assign (browser->history, g_value_get_object (value));
-        g_object_ref (browser->history);
+        katze_object_assign (browser->history, g_value_dup_object (value));
         midori_browser_load_history (browser);
         g_object_set (_action_by_name (browser, "RecentlyVisited"), "array",
             browser->history, NULL);
