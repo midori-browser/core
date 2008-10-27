@@ -147,8 +147,8 @@ katze_net_get_cached_path (KatzeNet*    net,
     #endif
 
     extension = g_strrstr (uri, ".");
-    cached_filename = g_strdup_printf ("%s%s%s", checksum,
-        extension ? "." : "", extension ? extension : "");
+    cached_filename = g_strdup_printf ("%s%s", checksum,
+                                       extension ? extension : "");
     g_free (checksum);
     cached_path = g_build_filename (cache_path, cached_filename, NULL);
     g_free (cached_filename);
