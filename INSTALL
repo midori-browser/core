@@ -18,6 +18,28 @@ You can install it with './waf install'
 
 For further options run './waf --help'
 
++++ Debugging Midori +++
+
+Run './waf configure -d debug' from the Midori folder.
+
+Run './waf build'
+
+Midori is now built with debugging symbols.
+
+Make sure you have installed 'gdb', the GNU Debugger.
+
+Run Midori as 'gdb _build_/default/midori'.
+
+Try to reproduce a crash that you experienced earlier,
+this time Midori will freeze at the point of the crash.
+Switch to your terminal, type bt ('backtrace') and hit Return.
+What you obtained now is a backtrace that should include
+function names and line numbers.
+
+For further information a tutorial for gdb and
+reading up on how you can install debugging
+symbols for libraries used by Midori are recommended.
+
 +++ Legacy support +++
 
 There are also autotools build files available. This
@@ -33,3 +55,6 @@ Run 'make'
 
 The usual autotools way works here, please refer to
 according documentation in case of questions.
+
+Note that the autotools based build is not a
+full replacement for the recommended system.
