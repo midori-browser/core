@@ -22,6 +22,8 @@ struct _MidoriLocationAction
 
     gchar* uri;
     gdouble progress;
+
+    GtkTreeModel* model;
 };
 
 struct _MidoriLocationActionClass
@@ -199,6 +201,8 @@ midori_location_action_init (MidoriLocationAction* location_action)
 {
     location_action->uri = NULL;
     location_action->progress = 0.0;
+
+    location_action->model = NULL;
 }
 
 static void
@@ -207,6 +211,8 @@ midori_location_action_finalize (GObject* object)
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (object);
 
     g_free (location_action->uri);
+
+    katze_object_assign (location_action->model, NULL);
 
     G_OBJECT_CLASS (midori_location_action_parent_class)->finalize (object);
 }
@@ -359,6 +365,7 @@ midori_location_action_connect_proxy (GtkAction* action,
 {
     GtkWidget* alignment;
     GtkWidget* entry;
+    MidoriLocationAction* location_action;
 
     GTK_ACTION_CLASS (midori_location_action_parent_class)->connect_proxy (
         action, proxy);
@@ -367,6 +374,14 @@ midori_location_action_connect_proxy (GtkAction* action,
     {
         alignment = gtk_bin_get_child (GTK_BIN (proxy));
         entry = gtk_bin_get_child (GTK_BIN (alignment));
+
+        location_action = MIDORI_LOCATION_ACTION (action);
+        if (location_action->model)
+            gtk_combo_box_set_model (GTK_COMBO_BOX (entry),
+                                     location_action->model);
+        else
+            location_action->model = g_object_ref (gtk_combo_box_get_model (
+                                     GTK_COMBO_BOX (entry)));
 
         g_signal_connect (entry, "active-changed",
             G_CALLBACK (midori_location_action_active_changed_cb), action);
