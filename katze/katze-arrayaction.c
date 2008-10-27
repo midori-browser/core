@@ -214,11 +214,16 @@ katze_array_action_menu_item_activate_cb (GtkWidget*        proxy,
 
 static void
 katze_array_action_icon_cb (GdkPixbuf* icon,
-                            GtkWidget* menuitem)
+                            GtkWidget* widget)
 {
     GtkWidget* image = gtk_image_new_from_pixbuf (icon);
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-    g_object_unref (menuitem);
+    g_object_unref (icon);
+    gtk_widget_show (image);
+    if (GTK_IS_IMAGE_MENU_ITEM (widget))
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (widget), image);
+    else
+        gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (widget), image);
+    g_object_unref (widget);
 }
 
 static void
