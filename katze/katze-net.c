@@ -23,6 +23,7 @@ struct _KatzeNet
 {
     GObject parent_instance;
 
+    GHashTable* memory;
     gchar* cache_path;
     guint cache_size;
 
@@ -51,8 +52,17 @@ katze_net_class_init (KatzeNetClass* class)
 }
 
 static void
+katze_net_object_maybe_unref (gpointer object)
+{
+    if (object)
+        g_object_unref (object);
+}
+
+static void
 katze_net_init (KatzeNet* net)
 {
+    net->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                         g_free, katze_net_object_maybe_unref);
     net->cache_path = g_build_filename (g_get_user_cache_dir (),
                                         PACKAGE_NAME, NULL);
 
@@ -66,6 +76,7 @@ katze_net_finalize (GObject* object)
 {
     KatzeNet* net = KATZE_NET (object);
 
+    g_hash_table_destroy (net->memory);
     katze_assign (net->cache_path, NULL);
 
     G_OBJECT_CLASS (katze_net_parent_class)->finalize (object);
@@ -148,6 +159,10 @@ katze_net_get_cached_path (KatzeNet*    net,
 
 #if HAVE_LIBSOUP
 static void
+katze_net_got_body_cb (SoupMessage*  msg,
+                       KatzeNetPriv* priv);
+
+static void
 katze_net_got_headers_cb (SoupMessage*  msg,
                           KatzeNetPriv* priv)
 {
@@ -170,7 +185,8 @@ katze_net_got_headers_cb (SoupMessage*  msg,
     if (!priv->status_cb (request, priv->user_data))
     {
         g_signal_handlers_disconnect_by_func (msg, katze_net_got_headers_cb, priv);
-        soup_session_cancel_message (priv->net->session, msg, msg->status_code);
+        g_signal_handlers_disconnect_by_func (msg, katze_net_got_body_cb, priv);
+        soup_session_cancel_message (priv->net->session, msg, 1);
     }
 }
 
@@ -404,6 +420,9 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     GdkPixbuf* pixbuf_scaled;
     gint icon_width, icon_height;
 
+    if (request->status == KATZE_NET_MOVED)
+        return;
+
     pixbuf = NULL;
     if (request->data)
     {
@@ -413,9 +432,13 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
             fclose (fp);
             pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
         }
-        else if (priv->icon_cb)
+        else
             pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
                 request->length, request->mime_type, NULL);
+        if (pixbuf)
+            g_object_ref (pixbuf);
+        g_hash_table_insert (priv->net->memory,
+            g_strdup (priv->icon_file), pixbuf);
     }
 
     if (!priv->icon_cb)
@@ -460,6 +483,10 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
  * Depending on whether the icon was previously
  * cached or @uri is a local resource, the returned
  * icon may already be the final one.
+ *
+ * Note that both the returned #GdkPixbuf and the
+ * icon passed to @icon_cb are newly allocated and
+ * the caller owns the reference.
  **/
 GdkPixbuf*
 katze_net_load_icon (KatzeNet*      net,
@@ -477,6 +504,7 @@ katze_net_load_icon (KatzeNet*      net,
     GdkPixbuf* pixbuf_scaled;
 
     g_return_val_if_fail (KATZE_IS_NET (net), NULL);
+    g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
 
     pixbuf = NULL;
     if (uri && g_str_has_prefix (uri, "http://"))
@@ -495,7 +523,13 @@ katze_net_load_icon (KatzeNet*      net,
 
         icon_file = katze_net_get_cached_path (net, icon_uri, "icons");
 
-        if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
+        if (g_hash_table_lookup_extended (net->memory,
+                                          icon_file, NULL, (gpointer)&pixbuf))
+        {
+            if (pixbuf)
+                g_object_ref (pixbuf);
+        }
+        else if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
             pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
         else
         {
