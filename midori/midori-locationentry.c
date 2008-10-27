@@ -726,15 +726,15 @@ midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
 }
 
 /**
- * midori_location_entry_add_item:
+ * midori_location_entry_prepend_item:
  * @location_entry: a #MidoriLocationEntry
  * @item: a MidoriLocationItem
  *
- * Adds @item if it is not already in the list.
+ * Prepends @item if it is not already in the list.
  **/
 void
-midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
-                                MidoriLocationEntryItem* item)
+midori_location_entry_prepend_item (MidoriLocationEntry*     location_entry,
+                                    MidoriLocationEntryItem* item)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -746,6 +746,31 @@ midori_location_entry_add_item (MidoriLocationEntry*     location_entry,
 
     if (!midori_location_entry_item_iter (location_entry, item->uri, &iter))
         gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
+
+    midori_location_entry_set_item (location_entry, &iter, item);
+}
+
+/**
+ * midori_location_entry_append_item:
+ * @location_entry: a #MidoriLocationEntry
+ * @item: a MidoriLocationItem
+ *
+ * Appends @item if it is not already in the list.
+ **/
+void
+midori_location_entry_append_item (MidoriLocationEntry*     location_entry,
+                                   MidoriLocationEntryItem* item)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
+    g_return_if_fail (item->uri != NULL);
+
+    model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+
+    if (!midori_location_entry_item_iter (location_entry, item->uri, &iter))
+        gtk_list_store_append (GTK_LIST_STORE (model), &iter);
 
     midori_location_entry_set_item (location_entry, &iter, item);
 }

@@ -60,7 +60,11 @@ midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
                                          const gchar*         uri);
 
 void
-midori_location_entry_add_item          (MidoriLocationEntry* location_entry,
+midori_location_entry_prepend_item      (MidoriLocationEntry* location_entry,
+                                         MidoriLocationEntryItem* item);
+
+void
+midori_location_entry_append_item       (MidoriLocationEntry* location_entry,
                                          MidoriLocationEntryItem* item);
 
 gdouble

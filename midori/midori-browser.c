@@ -4279,10 +4279,42 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 }
 
 static void
+_location_action_insert_history_item (MidoriLocationAction* action,
+                                      MidoriBrowser*        browser,
+                                      KatzeItem*            item)
+{
+    KatzeItem* child;
+    guint i, n;
+    const gchar* uri;
+    GdkPixbuf* pixbuf = NULL;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (action));
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        n = katze_array_get_length (KATZE_ARRAY (item));
+        for (i = n; i > 0; i--)
+        {
+            child = katze_array_get_nth_item (KATZE_ARRAY (item), i - 1);
+            _location_action_insert_history_item (action, browser, child);
+        }
+    }
+    else
+    {
+        uri = katze_item_get_uri (item);
+        pixbuf = katze_net_load_icon (browser->net, katze_item_get_uri (item),
+                                      NULL, GTK_WIDGET (browser), NULL);
+        midori_location_action_add_item (action, uri, pixbuf, katze_item_get_name (item));
+    }
+}
+
+static void
 midori_browser_load_history (MidoriBrowser* browser)
 {
     GtkTreeView* treeview;
     GtkTreeModel* treemodel;
+    GtkAction* action;
 
     if (!browser->history)
         return;
@@ -4292,6 +4324,11 @@ midori_browser_load_history (MidoriBrowser* browser)
 
     _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
                                      NULL, KATZE_ITEM (browser->history));
+
+    action = _action_by_name (browser, "Location");
+    _location_action_insert_history_item (MIDORI_LOCATION_ACTION (action),
+                                          browser,
+                                          KATZE_ITEM (browser->history));
 }
 
 static void
