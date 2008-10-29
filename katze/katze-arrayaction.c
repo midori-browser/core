@@ -14,8 +14,9 @@
 #include "katze-net.h"
 #include "katze-utils.h"
 
-#include <gtk/gtk.h>
+#include <string.h>
 #include <glib/gi18n.h>
+#include <gtk/gtk.h>
 
 struct _KatzeArrayAction
 {
@@ -357,6 +358,25 @@ katze_array_action_create_tool_item (GtkAction* action)
 }
 
 static void
+katze_array_action_label_notify_cb (GtkToolButton* item,
+                                    GParamSpec*    pspec,
+                                    GtkLabel*      label)
+{
+    const gchar* property;
+    const gchar* text;
+
+    if (!G_IS_PARAM_SPEC_STRING (pspec))
+        return;
+
+    property = g_param_spec_get_name (pspec);
+    if (!strcmp (property, "label"))
+    {
+        text = gtk_tool_button_get_label (item);
+        gtk_label_set_text (label, text);
+    }
+}
+
+static void
 katze_array_action_item_notify_cb (KatzeItem*   item,
                                    GParamSpec*  pspec,
                                    GtkToolItem* toolitem)
@@ -404,6 +424,21 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     }
 }
 
+/**
+ * katze_array_action_create_tool_item_for:
+ * @array_action: a #KatzeArrayAction
+ * @item: a #KatzeItem
+ *
+ * Creates a tool item for a particular @item, that also
+ * reflects changes to its properties. In the case of
+ * an array, the item will create a popup menu with
+ * the contained items.
+ *
+ * Note that the label is reasonably ellipsized for you,
+ * much like katze_image_menu_item_new_ellipsized().
+ *
+ * Return value: a new tool item
+ **/
 GtkToolItem*
 katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
                                          KatzeItem*        item)
@@ -414,6 +449,7 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     GtkToolItem* toolitem;
     GdkPixbuf* icon;
     GtkWidget* image;
+    GtkWidget* label;
 
     title = katze_item_get_name (item);
     uri = katze_item_get_uri (item);
@@ -434,6 +470,17 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     g_object_unref (icon);
     gtk_widget_show (image);
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
+    label = gtk_label_new (NULL);
+    /* FIXME: Should text direction be respected here? */
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+    gtk_label_set_max_width_chars (GTK_LABEL (label), 25);
+    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_MIDDLE);
+    gtk_widget_show (label);
+    gtk_tool_button_set_label_widget (GTK_TOOL_BUTTON (toolitem), label);
+    /* GtkToolItem won't update our custom label, so we
+       apply a little bit of 'magic' to fix that.  */
+    g_signal_connect (toolitem, "notify",
+        G_CALLBACK (katze_array_action_label_notify_cb), label);
     if (title)
         gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), title);
     else
