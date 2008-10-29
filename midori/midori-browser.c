@@ -489,9 +489,9 @@ midori_view_notify_statusbar_text_cb (MidoriView*    view,
 
 static void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
-                                         KatzeItem*     bookmark)
+                                         KatzeItem*     bookmark,
+                                         gboolean       new_bookmark)
 {
-    gboolean new_bookmark;
     GtkWidget* dialog;
     GtkSizeGroup* sizegroup;
     GtkWidget* view;
@@ -506,7 +506,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkTreeModel* treemodel;
     GtkTreeIter iter;
 
-    new_bookmark = bookmark == NULL;
     dialog = gtk_dialog_new_with_buttons (
         new_bookmark ? _("New bookmark") : _("Edit bookmark"),
         GTK_WINDOW (browser),
@@ -520,7 +519,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
     sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
-    if (new_bookmark)
+    if (!bookmark)
     {
         view = midori_browser_get_current_tab (browser);
         bookmark = g_object_new (KATZE_TYPE_ITEM,
@@ -548,7 +547,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     entry_desc = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry_desc), TRUE);
-    if (!new_bookmark)
+    if (bookmark)
     {
         value = katze_item_get_text (bookmark);
         gtk_entry_set_text (GTK_ENTRY (entry_desc), value ? value : "");
@@ -628,7 +627,7 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
     item = katze_item_new ();
     katze_item_set_uri (item, uri);
     browser = (MidoriBrowser*)gtk_widget_get_toplevel (menuitem);
-    midori_browser_edit_bookmark_dialog_new (browser, item);
+    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE);
 }
 
 static gboolean
@@ -2249,6 +2248,7 @@ _midori_panel_history_popup (GtkWidget*      widget,
 
     _action_set_sensitive (browser, "HistoryOpen", is_history_item);
     _action_set_sensitive (browser, "HistoryOpenTab", is_history_item);
+    _action_set_sensitive (browser, "HistoryAddBookmark", is_history_item);
 
     sokoke_widget_popup (widget, GTK_MENU (browser->popup_history),
                          event, SOKOKE_MENU_POSITION_CURSOR);
@@ -2296,6 +2296,7 @@ midori_panel_remove_history_item (GtkTreeView* treeview)
     GtkTreeModel* treemodel;
     GtkTreeIter iter;
     GtkTreeIter child_iter;
+    GtkTreeSelection* selection;
     KatzeItem* item;
     KatzeItem* child;
     KatzeArray* parent;
@@ -2325,7 +2326,11 @@ midori_panel_remove_history_item (GtkTreeView* treeview)
         {
             parent = katze_item_get_parent (item);
             katze_array_remove_item (parent, item);
-            gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &iter);
+            if (gtk_tree_store_remove (GTK_TREE_STORE (treemodel), &iter))
+            {
+                selection = gtk_tree_view_get_selection (treeview);
+                gtk_tree_selection_select_iter (selection, &iter);
+            }
             g_object_unref (item);
         }
     }
@@ -2489,7 +2494,7 @@ static void
 _action_bookmark_add_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
-    midori_browser_edit_bookmark_dialog_new (browser, NULL);
+    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE);
 }
 
 static void
@@ -2859,7 +2864,7 @@ _action_bookmark_edit_activate (GtkAction*     action,
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         /* if (katze_item_get_uri (item)) */
-            midori_browser_edit_bookmark_dialog_new (browser, item);
+            midori_browser_edit_bookmark_dialog_new (browser, item, FALSE);
     }
 }
 
@@ -2950,6 +2955,24 @@ _action_history_clear_activate (GtkAction*     action,
         katze_array_clear (KATZE_ARRAY (item));
     }
     katze_array_clear (browser->history);
+}
+
+static void
+_action_history_add_bookmark_activate (GtkAction*     action,
+                                       MidoriBrowser* browser)
+{
+    GtkTreeView* tree_view;
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    KatzeItem* item;
+
+    tree_view = GTK_TREE_VIEW (browser->panel_history);
+    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    {
+        gtk_tree_model_get (model, &iter, 0, &item, -1);
+        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE);
+        g_object_unref (item);
+    }
 }
 
 static void
@@ -3141,6 +3164,9 @@ static const GtkActionEntry entries[] = {
  { "HistoryOpenTab", STOCK_TAB_NEW,
    N_("Open in New _Tab"), "",
    N_("Open the selected history item in a new tab"), G_CALLBACK (_action_history_open_tab_activate) },
+ { "HistoryAddBookmark", STOCK_BOOKMARK_ADD,
+   NULL, "",
+   N_("Add the selected history item as a bookmark"), G_CALLBACK (_action_history_add_bookmark_activate) },
  { "Tools", NULL, N_("_Tools") },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
@@ -3360,6 +3386,8 @@ static const gchar* ui_markup =
   "<popup name='popup_history'>"
    "<menuitem action='HistoryOpen'/>"
    "<menuitem action='HistoryOpenTab'/>"
+   "<separator/>"
+   "<menuitem action='HistoryAddBookmark'/>"
    "<separator/>"
    "<menuitem action='HistoryDelete'/>"
   "</popup>"
