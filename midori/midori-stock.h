@@ -31,10 +31,10 @@
 #define STOCK_PAGE_HOLDER        GTK_STOCK_ORIENTATION_PORTRAIT
 #define STOCK_STYLE              "gnome-settings-theme"
 #define STOCK_STYLES             "gnome-settings-theme"
+#define STOCK_OPEN_IN_TAB        "stock_new-tab"
+#define STOCK_OPEN_IN_WINDOW     "stock_new-tab"
 #define STOCK_TRANSFER           "package"
 #define STOCK_TRANSFERS          "package"
-
-/* We assume that these legacy icon names are usually present */
 
 #define STOCK_BOOKMARK_ADD       "stock_add-bookmark"
 #define STOCK_HOMEPAGE           GTK_STOCK_HOME
