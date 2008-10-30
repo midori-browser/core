@@ -1115,20 +1115,6 @@ midori_view_new (KatzeNet* net)
 }
 
 static void
-_update_label_size (GtkWidget* label,
-                    gint       size)
-{
-    gint width, height;
-
-    if (size < 1)
-        size = 10;
-
-    sokoke_widget_get_text_size (label, "M", &width, &height);
-    gtk_widget_set_size_request (label, width * size, -1);
-    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
-}
-
-static void
 _midori_view_update_settings (MidoriView* view)
 {
     g_object_get (view->settings,
@@ -1617,6 +1603,30 @@ midori_view_tab_close_clicked (GtkWidget* tab_close,
     gtk_widget_destroy (widget);
 }
 
+static void
+midori_view_tab_icon_style_set_cb (GtkWidget* tab_icon,
+                                   GtkStyle*  previous_style)
+{
+    GtkSettings* gtk_settings;
+    gint width, height;
+
+    gtk_settings = gtk_widget_get_settings (tab_icon);
+    gtk_icon_size_lookup_for_settings (gtk_settings, GTK_ICON_SIZE_MENU,
+                                       &width, &height);
+    gtk_widget_set_size_request (tab_icon, width + 4, height + 4);
+}
+
+static void
+midori_view_update_label_size (GtkWidget* label,
+                               gint       size)
+{
+    gint width;
+
+    sokoke_widget_get_text_size (label, "M", &width, NULL);
+    gtk_widget_set_size_request (label, width * size, -1);
+    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+}
+
 /**
  * midori_view_get_proxy_tab_label:
  * @view: a #MidoriView
@@ -1646,15 +1656,16 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         view->tab_icon = katze_throbber_new ();
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (view->tab_icon),
             midori_view_get_icon (view));
+        gtk_misc_set_alignment (GTK_MISC (view->tab_icon), 0.0, 0.5);
 
         view->tab_title = gtk_label_new (midori_view_get_display_title (view));
+        gtk_misc_set_alignment (GTK_MISC (view->tab_title), 0.0, 0.5);
 
         event_box = gtk_event_box_new ();
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
         hbox = gtk_hbox_new (FALSE, 1);
         gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
-        /* TODO: make the tab initially look "unvisited" until it's focused */
-        _update_label_size (view->tab_title, 10);
+        midori_view_update_label_size (view->tab_title, 10);
 
         view->tab_close = gtk_button_new ();
         gtk_button_set_relief (GTK_BUTTON (view->tab_close), GTK_RELIEF_NONE);
@@ -1665,7 +1676,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         g_object_unref (rcstyle);
         image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
         gtk_button_set_image (GTK_BUTTON (view->tab_close), image);
-        gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.0);
+        gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.5);
 
         #if HAVE_OSX
         gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
@@ -1683,6 +1694,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 
         g_signal_connect (event_box, "button-release-event",
             G_CALLBACK (midori_view_tab_label_button_release_event), view);
+        g_signal_connect (view->tab_close, "style-set",
+            G_CALLBACK (midori_view_tab_icon_style_set_cb), NULL);
         g_signal_connect (view->tab_close, "clicked",
             G_CALLBACK (midori_view_tab_close_clicked), view);
 

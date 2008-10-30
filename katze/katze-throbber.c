@@ -14,6 +14,7 @@
 #include "katze-utils.h"
 
 #include <glib/gi18n.h>
+#include <math.h>
 
 struct _KatzeThrobber
 {
@@ -782,10 +783,30 @@ katze_throbber_size_request (GtkWidget*      widget,
                                                                   requisition);
 }
 
+static void
+katze_throbber_aligned_coords (GtkWidget* widget,
+                               gint*      ax,
+                               gint*      ay)
+{
+    gfloat xalign, yalign;
+    gint xpad, ypad;
+
+    gtk_misc_get_alignment (GTK_MISC (widget), &xalign, &yalign);
+    if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
+        xalign = 1.0 - xalign;
+    gtk_misc_get_padding (GTK_MISC (widget), &xpad, &ypad);
+
+    *ax = floor (widget->allocation.x + xpad
+        + ((widget->allocation.width - widget->requisition.width) * xalign));
+    *ay = floor (widget->allocation.y + ypad
+        + ((widget->allocation.height - widget->requisition.height) * yalign));
+}
+
 static gboolean
 katze_throbber_expose_event (GtkWidget*      widget,
                              GdkEventExpose* event)
 {
+    gint ax, ay;
     KatzeThrobber* throbber = KATZE_THROBBER (widget);
 
     if (G_UNLIKELY (!throbber->width || !throbber->height))
@@ -825,10 +846,10 @@ katze_throbber_expose_event (GtkWidget*      widget,
             }
         }
 
+        katze_throbber_aligned_coords (widget, &ax, &ay);
+
         gdk_draw_pixbuf (event->window, NULL, throbber->static_pixbuf,
-                         0, 0,
-                         widget->allocation.x,
-                         widget->allocation.y,
+                         0, 0, ax, ay,
                          throbber->width, throbber->height,
                          GDK_RGB_DITHER_NONE, 0, 0);
     }
@@ -852,29 +873,32 @@ katze_throbber_expose_event (GtkWidget*      widget,
 
         if (G_UNLIKELY (cols == 1 && cols == rows))
         {
-            gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
-                             0, 0,
-                             widget->allocation.x,
-                             widget->allocation.y,
-                             throbber->width, throbber->height,
-                             GDK_RGB_DITHER_NONE, 0, 0);
+            katze_throbber_aligned_coords (widget, &ax, &ay);
+
+            if (throbber->animated)
+                gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
+                                 0, 0, ax, ay,
+                                 throbber->width, throbber->height,
+                                 GDK_RGB_DITHER_NONE, 0, 0);
             return TRUE;
         }
 
         if (G_LIKELY (cols > 0 && rows > 0))
         {
-            gint index = throbber->index % (cols * rows);
+            gint index;
+            guint x, y;
 
+            katze_throbber_aligned_coords (widget, &ax, &ay);
+
+            index = throbber->index % (cols * rows);
             if (G_LIKELY (throbber->timer_id >= 0))
                 index = MAX (index, 1);
 
-            guint x = (index % cols) * throbber->width;
-            guint y = (index / cols) * throbber->height;
+            x = (index % cols) * throbber->width;
+            y = (index / cols) * throbber->height;
 
             gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
-                             x, y,
-                             widget->allocation.x,
-                             widget->allocation.y,
+                             x, y, ax, ay,
                              throbber->width, throbber->height,
                              GDK_RGB_DITHER_NONE, 0, 0);
         }
