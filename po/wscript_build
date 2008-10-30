@@ -6,15 +6,17 @@ import Params
 import pproc as subprocess
 import os
 
+APPNAME = 'midori'
+
 if bld.env ()['INTLTOOL_UPDATE']:
     os.chdir ('./po')
     try:
         try:
-            size_old = os.stat ('midori.pot').st_size
+            size_old = os.stat (APPNAME + '.pot').st_size
         except:
             size_old = 0
         subprocess.call (['intltool-update', '--pot'])
-        size_new = os.stat ('midori.pot').st_size
+        size_new = os.stat (APPNAME + '.pot').st_size
         if size_new <> size_old:
             Params.pprint ('YELLOW', "Updated po template.")
             try:
@@ -29,4 +31,4 @@ if bld.env ()['INTLTOOL_UPDATE']:
     os.chdir ('..')
 
 obj = bld.create_obj ('intltool_po')
-obj.appname = 'midori'
+obj.appname = APPNAME

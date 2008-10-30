@@ -337,19 +337,13 @@ midori_app_finalize (GObject* object)
     g_list_free (app->browsers);
     g_object_unref (app->accel_group);
 
-    if (app->settings)
-        g_object_unref (app->settings);
-    if (app->bookmarks)
-        g_object_unref (app->bookmarks);
-    if (app->trash)
-        g_object_unref (app->trash);
-    if (app->search_engines)
-        g_object_unref (app->search_engines);
-    if (app->history)
-        g_object_unref (app->history);
+    katze_object_assign (app->settings, NULL);
+    katze_object_assign (app->bookmarks, NULL);
+    katze_object_assign (app->trash, NULL);
+    katze_object_assign (app->search_engines, NULL);
+    katze_object_assign (app->history, NULL);
 
-    if (app->instance)
-        g_object_unref (app->instance);
+    katze_object_assign (app->instance, NULL);
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
 }
@@ -365,27 +359,23 @@ midori_app_set_property (GObject*      object,
     switch (prop_id)
     {
     case PROP_SETTINGS:
-        katze_object_assign (app->settings, g_value_get_object (value));
-        g_object_ref (app->settings);
+        katze_object_assign (app->settings, g_value_dup_object (value));
         /* FIXME: Propagate settings to all browsers */
         break;
     case PROP_BOOKMARKS:
-        katze_object_assign (app->bookmarks, g_value_get_object (value));
-        g_object_ref (app->bookmarks);
+        katze_object_assign (app->bookmarks, g_value_dup_object (value));
         /* FIXME: Propagate bookmarks to all browsers */
         break;
     case PROP_TRASH:
-        katze_object_assign (app->trash, g_value_get_object (value));
-        g_object_ref (app->trash);
+        katze_object_assign (app->trash, g_value_dup_object (value));
         /* FIXME: Propagate trash to all browsers */
         break;
     case PROP_SEARCH_ENGINES:
-        katze_object_assign (app->search_engines, g_value_get_object (value));
-        g_object_ref (app->search_engines);
+        katze_object_assign (app->search_engines, g_value_dup_object (value));
         /* FIXME: Propagate search engines to all browsers */
         break;
     case PROP_HISTORY:
-        katze_object_assign (app->history, g_value_get_object (value));
+        katze_object_assign (app->history, g_value_dup_object (value));
         /* FIXME: Propagate history to all browsers */
         break;
     default:

@@ -947,6 +947,14 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
 }
 
 static void
+webkit_web_view_destroy_cb (GtkWidget*      web_view,
+                            WebKitWebFrame* web_frame)
+{
+    g_signal_handlers_disconnect_by_func (web_frame,
+        webkit_web_frame_load_done_cb, gtk_widget_get_parent (web_view));
+}
+
+static void
 midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
@@ -982,7 +990,6 @@ static void
 midori_view_finalize (GObject* object)
 {
     MidoriView* view;
-    /* WebKitWebFrame* web_frame; */
 
     view = MIDORI_VIEW (object);
 
@@ -1002,11 +1009,6 @@ midori_view_finalize (GObject* object)
     katze_assign (view->download_manager, NULL);
 
     katze_object_assign (view->net, NULL);
-
-    /* web_frame = webkit_web_view_get_main_frame
-        (WEBKIT_WEB_VIEW (view->web_view));
-    g_signal_handlers_disconnect_by_func (web_frame,
-        webkit_web_frame_load_done, view); */
 
     G_OBJECT_CLASS (midori_view_parent_class)->finalize (object);
 }
@@ -1045,7 +1047,7 @@ midori_view_set_property (GObject*      object,
         katze_assign (view->statusbar_text, g_value_dup_string (value));
         break;
     case PROP_SETTINGS:
-        midori_view_set_settings (view, g_value_get_object (value));
+        midori_view_set_settings (view, g_value_dup_object (value));
         break;
     case PROP_NET:
         katze_object_assign (view->net, g_value_dup_object (value));
@@ -1261,6 +1263,8 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_console_message_cb, view,
                       "signal::window-object-cleared",
                       webkit_web_view_window_object_cleared_cb, view,
+                      "signal::destroy",
+                      webkit_web_view_destroy_cb, web_frame,
                       NULL);
     g_object_connect (web_frame,
                       "signal::load-done",

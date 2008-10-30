@@ -17,6 +17,7 @@
 
 #include "sokoke.h"
 
+#include <string.h>
 #include <glib/gi18n.h>
 
 struct _MidoriPreferences

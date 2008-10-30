@@ -261,7 +261,7 @@ midori_panel_set_property (GObject*      object,
                                    g_value_get_enum (value));
         break;
     case PROP_MENU:
-        katze_object_assign (panel->menu, g_value_get_object (value));
+        katze_object_assign (panel->menu, g_value_dup_object (value));
         /* FIXME: Move existing items to the new menu */
         break;
     case PROP_PAGE:
