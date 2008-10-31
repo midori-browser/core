@@ -22,8 +22,6 @@
 #define STOCK_BOOKMARK           "stock_bookmark"
 #define STOCK_BOOKMARKS          "vcard"
 #define STOCK_CONSOLE            "terminal"
-#define STOCK_DISABLE            GTK_STOCK_NO
-#define STOCK_ENABLE             GTK_STOCK_YES
 #define STOCK_EXTENSION          "extension"
 #define STOCK_EXTENSIONS         "extension"
 #define STOCK_HISTORY            "document-open-recent"
