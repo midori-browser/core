@@ -851,13 +851,14 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_new_window_activate_cb), view);
         menuitem = (GtkWidget*)g_list_nth_data (items, 3);
-        /* hack to disable non-functional Download File */
-        gtk_widget_set_sensitive (menuitem, FALSE);
         g_list_free (items);
+        /* hack to disable non-functional Download File
+           FIXME: Make sure this really is the right menu item */
+        gtk_widget_hide (menuitem);
         if (view->download_manager && *view->download_manager)
         {
             menuitem = gtk_image_menu_item_new_with_mnemonic (
-                _("Download Link with Download _Manager"));
+                _("_Download Link destination"));
             icon = gtk_image_new_from_stock (GTK_STOCK_SAVE_AS,
                                              GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
