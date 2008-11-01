@@ -106,6 +106,7 @@ enum
 enum {
     ACTIVATE_ACTION,
     CONSOLE_MESSAGE,
+    ATTACH_INSPECTOR,
     WINDOW_OBJECT_CLEARED,
     NEW_TAB,
     NEW_WINDOW,
@@ -279,6 +280,17 @@ midori_view_class_init (MidoriViewClass* class)
         G_TYPE_STRING,
         G_TYPE_INT,
         G_TYPE_STRING);
+
+    signals[ATTACH_INSPECTOR] = g_signal_new (
+        "attach-inspector",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GTK_TYPE_WIDGET);
 
     signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
         "window-object-cleared",
@@ -1215,10 +1227,80 @@ midori_view_get_progress (MidoriView* view)
     return view->progress;
 }
 
+#ifdef WEBKIT_CHECK_VERSION
+#if WEBKIT_CHECK_VERSION (1, 0, 3)
+static WebKitWebView*
+webkit_web_inspector_inspect_web_view_cb (WebKitWebInspector* inspector,
+                                          WebKitWebView*      web_view,
+                                          MidoriView*         view)
+{
+    gchar* title;
+    GtkWidget* window;
+    GtkWidget* toplevel;
+    GdkScreen* screen;
+    gint width, height;
+    GtkIconTheme* icon_theme;
+    GdkPixbuf* icon;
+    GdkPixbuf* gray_icon;
+    GtkWidget* inspector_view;
+
+    title = g_strdup_printf (_("Inspect page - %s"), "");
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (window), title);
+    g_free (title);
+
+    toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
+    if (GTK_WIDGET_TOPLEVEL (toplevel))
+    {
+        gtk_window_set_transient_for (GTK_WINDOW (window), GTK_WINDOW (toplevel));
+        screen = gtk_window_get_screen (GTK_WINDOW (toplevel));
+        width = gdk_screen_get_width (screen) / 1.7;
+        height = gdk_screen_get_height (screen) / 1.7;
+        gtk_window_set_default_size (GTK_WINDOW (window), width, height);
+    }
+
+    /* Attempt to make a gray version of the icon on the fly */
+    icon_theme = gtk_icon_theme_get_for_screen (
+        gtk_widget_get_screen (GTK_WIDGET (view)));
+    icon = gtk_icon_theme_load_icon (icon_theme, "midori", 32,
+        GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+    if (icon)
+    {
+        gray_icon = gdk_pixbuf_copy (icon);
+        if (gray_icon)
+        {
+            gdk_pixbuf_saturate_and_pixelate (gray_icon, gray_icon, 0.1, FALSE);
+            gtk_window_set_icon (GTK_WINDOW (window), gray_icon);
+            g_object_unref (gray_icon);
+        }
+        g_object_unref (icon);
+    }
+    else
+        gtk_window_set_icon_name (GTK_WINDOW (window), "midori");
+    inspector_view = webkit_web_view_new ();
+    gtk_container_add (GTK_CONTAINER (window), inspector_view);
+
+    /* FIXME: Implement web inspector signals properly
+       FIXME: Save and restore window size
+       FIXME: Update window title with URI */
+    gtk_widget_show_all (window);
+    /* inspector_view = webkit_web_view_new ();
+    gtk_widget_show (inspector_view);
+    g_signal_emit (view, signals[ATTACH_INSPECTOR], 0, inspector_view); */
+    return WEBKIT_WEB_VIEW (inspector_view);
+}
+#endif
+#endif
+
 static void
 midori_view_construct_web_view (MidoriView* view)
 {
     WebKitWebFrame* web_frame;
+    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 3)
+    WebKitWebInspector* inspector;
+    #endif
+    #endif
 
     view->web_view = webkit_web_view_new ();
 
@@ -1261,6 +1343,16 @@ midori_view_construct_web_view (MidoriView* view)
 
     gtk_widget_show (view->web_view);
     gtk_container_add (GTK_CONTAINER (view), view->web_view);
+
+    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 3)
+    inspector = webkit_web_view_get_inspector (WEBKIT_WEB_VIEW (view->web_view));
+    g_object_connect (inspector,
+                      "signal::inspect-web-view",
+                      webkit_web_inspector_inspect_web_view_cb, view,
+                      NULL);
+    #endif
+    #endif
 }
 
 /**

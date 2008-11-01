@@ -58,6 +58,9 @@ struct _MidoriBrowser
     GtkWidget* panel_pageholder;
     GtkWidget* notebook;
 
+    GtkWidget* inspector;
+    GtkWidget* inspector_view;
+
     GtkWidget* find;
     GtkWidget* find_text;
     GtkToolItem* find_case;
@@ -259,7 +262,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
         gtk_widget_show (browser->progressbar);
-        if (!GTK_WIDGET_VISIBLE (browser->statusbar) && !GTK_WIDGET_VISIBLE (browser->navigationbar))
+        if (!GTK_WIDGET_VISIBLE (browser->statusbar)
+            && !GTK_WIDGET_VISIBLE (browser->navigationbar))
             gtk_widget_show (browser->navigationbar);
         action = _action_by_name (browser, "Location");
         midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action),
@@ -656,6 +660,17 @@ midori_view_console_message_cb (GtkWidget*     view,
 }
 
 static void
+midori_view_attach_inspector_cb (GtkWidget*     view,
+                                 GtkWidget*     inspector_view,
+                                 MidoriBrowser* browser)
+{
+    GtkWidget* scrolled = gtk_widget_get_parent (browser->inspector_view);
+    gtk_container_remove (GTK_CONTAINER (scrolled), browser->inspector_view);
+    gtk_container_add (GTK_CONTAINER (scrolled), inspector_view);
+    browser->inspector_view = inspector_view;
+}
+
+static void
 midori_view_new_tab_cb (GtkWidget*     view,
                         const gchar*   uri,
                         gboolean       background,
@@ -774,6 +789,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_activate_action_cb, browser,
                       "signal::console-message",
                       midori_view_console_message_cb, browser,
+                      "signal::attach-inspector",
+                      midori_view_attach_inspector_cb, browser,
                       "signal::new-tab",
                       midori_view_new_tab_cb, browser,
                       "signal::new-window",
@@ -3038,7 +3055,8 @@ static const GtkActionEntry entries[] = {
    N_("Find the next occurrence of a word or phrase"), G_CALLBACK (_action_find_next_activate) },
  { "FindPrevious", GTK_STOCK_GO_BACK,
    N_("Find _Previous"), "<Ctrl><Shift>g",
-   N_("Find the previous occurrence of a word or phrase"), G_CALLBACK (_action_find_previous_activate) },
+   N_("Find the previous occurrence of a word or phrase"),
+   G_CALLBACK (_action_find_previous_activate) },
  { "FindQuick", GTK_STOCK_FIND,
    N_("_Quick Find"), "period",
    N_("Quickly jump to a word or phrase"), NULL/*G_CALLBACK (_action_find_quick_activate)*/ },
@@ -3071,7 +3089,8 @@ static const GtkActionEntry entries[] = {
    N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
  { "SelectionSourceView", NULL,
     N_("View Selection Source"), "",
-    N_("View the source code of the selection"), NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
+    N_("View the source code of the selection"),
+    NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
    NULL, "F11",
    N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
@@ -3113,7 +3132,8 @@ static const GtkActionEntry entries[] = {
    N_("Clear the entire history"), G_CALLBACK (_action_history_clear_activate) },
  { "HistoryAddBookmark", STOCK_BOOKMARK_ADD,
    NULL, "",
-   N_("Add the selected history item as a bookmark"), G_CALLBACK (_action_history_add_bookmark_activate) },
+   N_("Add the selected history item as a bookmark"),
+   G_CALLBACK (_action_history_add_bookmark_activate) },
  { "Tools", NULL, N_("_Tools") },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
@@ -3147,7 +3167,8 @@ static const GtkActionEntry entries[] = {
 static const GtkToggleActionEntry toggle_entries[] = {
  { "PrivateBrowsing", NULL,
    N_("P_rivate Browsing"), "",
-   N_("Don't save any private data while browsing"), NULL/*G_CALLBACK (_action_private_browsing_activate)*/,
+   N_("Don't save any private data while browsing"),
+   NULL/*G_CALLBACK (_action_private_browsing_activate)*/,
    FALSE },
 
  { "Menubar", NULL,
@@ -3360,9 +3381,26 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
 static void
 midori_browser_init (MidoriBrowser* browser)
 {
-    GtkToolItem* toolitem;
-    GtkRcStyle* rcstyle;
+    GtkWidget* vbox;
+    GtkUIManager* ui_manager;
+    GError* error;
     GtkAction* action;
+    GtkWidget* menuitem;
+    GtkSettings* gtk_settings;
+    GtkWidget* hbox;
+    GtkWidget* hpaned;
+    GtkWidget* vpaned;
+    GtkWidget* box;
+    GtkTreeViewColumn* column;
+    GtkCellRenderer* renderer_text;
+    GtkCellRenderer* renderer_pixbuf;
+    GtkTreeStore* treestore;
+    GtkWidget* treeview;
+    GtkWidget* toolbar;
+    GtkToolItem* toolitem;
+    GtkWidget* panel;
+    GtkRcStyle* rcstyle;
+    GtkWidget* scrolled;
 
     browser->net = katze_net_new ();
 
@@ -3384,7 +3422,7 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (midori_browser_destroy_cb), NULL);
     gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
     gtk_window_set_title (GTK_WINDOW (browser), g_get_application_name ());
-    GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
+    vbox = gtk_vbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (browser), vbox);
     gtk_widget_show (vbox);
 
@@ -3395,12 +3433,12 @@ midori_browser_init (MidoriBrowser* browser)
                                   entries, entries_n, browser);
     gtk_action_group_add_toggle_actions (browser->action_group,
         toggle_entries, toggle_entries_n, browser);
-    GtkUIManager* ui_manager = gtk_ui_manager_new ();
+    ui_manager = gtk_ui_manager_new ();
     gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
     gtk_window_add_accel_group (GTK_WINDOW (browser),
                                 gtk_ui_manager_get_accel_group (ui_manager));
 
-    GError* error = NULL;
+    error = NULL;
     if (!gtk_ui_manager_add_ui_from_string (ui_manager, ui_markup, -1, &error))
     {
         /* TODO: Should this be a message dialog? When does this happen? */
@@ -3525,7 +3563,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Create the menubar */
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
-    GtkWidget* menuitem = gtk_menu_item_new ();
+    menuitem = gtk_menu_item_new ();
     gtk_widget_show (menuitem);
     browser->throbber = katze_throbber_new ();
     gtk_widget_show (browser->throbber);
@@ -3552,7 +3590,7 @@ midori_browser_init (MidoriBrowser* browser)
     browser->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
     /* FIXME: settings should be connected with screen changes */
-    GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
+    gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (gtk_settings)
         g_signal_connect (gtk_settings, "notify::gtk-toolbar-style",
             G_CALLBACK (midori_browser_navigationbar_notify_style_cb), browser);
@@ -3575,12 +3613,11 @@ midori_browser_init (MidoriBrowser* browser)
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
 
     /* Superuser warning */
-    GtkWidget* hbox;
     if ((hbox = sokoke_superuser_warning_new ()))
         gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
     /* Create the panel */
-    GtkWidget* hpaned = gtk_hpaned_new ();
+    hpaned = gtk_hpaned_new ();
     g_signal_connect (hpaned, "notify::position",
                       G_CALLBACK (midori_panel_notify_position_cb),
                       browser);
@@ -3595,12 +3632,9 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
 
     /* Bookmarks */
-    GtkWidget* box = gtk_vbox_new (FALSE, 0);
-    GtkTreeViewColumn* column;
-    GtkCellRenderer* renderer_text;
-    GtkCellRenderer* renderer_pixbuf;
-    GtkTreeStore* treestore = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
-    GtkWidget* treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
+    box = gtk_vbox_new (FALSE, 0);
+    treestore = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
+    treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
@@ -3632,8 +3666,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (box), treeview, TRUE, TRUE, 0);
     browser->panel_bookmarks = treeview;
     gtk_widget_show_all (box);
-    GtkWidget* toolbar = gtk_ui_manager_get_widget (ui_manager,
-                                                    "/toolbar_bookmarks");
+    toolbar = gtk_ui_manager_get_widget (ui_manager, "/toolbar_bookmarks");
     _action_set_sensitive (browser, "BookmarkAdd", FALSE);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_MENU);
     gtk_widget_show_all (toolbar);
@@ -3642,7 +3675,7 @@ midori_browser_init (MidoriBrowser* browser)
                               STOCK_BOOKMARKS, _("Bookmarks"));
 
     /* Transfers */
-    GtkWidget* panel = midori_view_new (browser->net);
+    panel = midori_view_new (browser->net);
     gtk_widget_show (panel);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               panel, NULL,
@@ -3731,6 +3764,9 @@ midori_browser_init (MidoriBrowser* browser)
                               STOCK_EXTENSIONS, _("Extensions"));
 
     /* Notebook, containing all views */
+    vpaned = gtk_vpaned_new ();
+    gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+    gtk_widget_show (vpaned);
     browser->notebook = gtk_notebook_new ();
     /* Remove the inner border between scrollbars and the window border */
     rcstyle = gtk_rc_style_new ();
@@ -3738,11 +3774,27 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_modify_style (browser->notebook, rcstyle);
     g_object_unref (rcstyle);
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
-    gtk_paned_pack2 (GTK_PANED (hpaned), browser->notebook, FALSE, FALSE);
+    gtk_paned_pack2 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
     g_signal_connect_after (browser->notebook, "switch-page",
                             G_CALLBACK (gtk_notebook_switch_page_cb),
                             browser);
     gtk_widget_show (browser->notebook);
+
+    /* Inspector container */
+    browser->inspector = gtk_vbox_new (FALSE, 0);
+    gtk_paned_pack2 (GTK_PANED (vpaned), browser->inspector, TRUE, TRUE);
+    scrolled = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
+                                    GTK_POLICY_AUTOMATIC,
+                                    GTK_POLICY_AUTOMATIC);
+    GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
+    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
+                                         GTK_SHADOW_ETCHED_IN);
+    gtk_box_pack_start (GTK_BOX (browser->inspector),
+        scrolled, TRUE, TRUE, 0);
+    browser->inspector_view = webkit_web_view_new ();
+    gtk_container_add (GTK_CONTAINER (scrolled), browser->inspector_view);
+    gtk_widget_show_all (browser->inspector);
 
     /* Incremental findbar */
     browser->find = gtk_toolbar_new ();
