@@ -421,7 +421,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     INDENTED_ADD (button, 0, 1, 2, 3);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable plugins"));
     SPANNED_ADD (button, 1, 2, 2, 3);
     #ifdef WEBKIT_CHECK_VERSION
     #if WEBKIT_CHECK_VERSION (1, 0, 3)

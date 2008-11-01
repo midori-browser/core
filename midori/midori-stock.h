@@ -30,7 +30,7 @@
 #define STOCK_STYLE              "gnome-settings-theme"
 #define STOCK_STYLES             "gnome-settings-theme"
 #define STOCK_OPEN_IN_TAB        "stock_new-tab"
-#define STOCK_OPEN_IN_WINDOW     "stock_new-tab"
+#define STOCK_OPEN_IN_WINDOW     "stock_new-window"
 #define STOCK_TRANSFER           "package"
 #define STOCK_TRANSFERS          "package"
 
