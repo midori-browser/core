@@ -75,8 +75,6 @@ stock_items_init (void)
         { STOCK_EXTENSIONS,     N_("_Extensions"), 0, 0, GTK_STOCK_CONVERT },
         { STOCK_HISTORY,        N_("_History"), 0, 0, GTK_STOCK_SORT_ASCENDING },
         { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, GTK_STOCK_HOME },
-        { STOCK_OPEN_IN_TAB,    N_("Open in New _Tab"), 0, 0, GTK_STOCK_ADD },
-        { STOCK_OPEN_IN_WINDOW, N_("Open in New _Window"), 0, 0, GTK_STOCK_ADD },
         { STOCK_PAGE_HOLDER,    N_("_Pageholder"), 0, 0, GTK_STOCK_ORIENTATION_PORTRAIT },
         { STOCK_SCRIPTS,        N_("_Userscripts"), 0, 0, GTK_STOCK_EXECUTE },
         { STOCK_STYLES,         N_("User_styles"), 0, 0, GTK_STOCK_SELECT_COLOR },
@@ -133,7 +131,7 @@ settings_new_from_file (const gchar* filename)
                                    G_KEY_FILE_KEEP_COMMENTS, &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
-            printf (_("The configuration couldn't be loaded. %s\n"),
+            printf (_("The configuration couldn't be loaded: %s\n"),
                     error->message);
         g_error_free (error);
     }
@@ -591,7 +589,7 @@ db_open (const char* dbname,
         {
             *error = g_error_new (MIDORI_HISTORY_ERROR,
                                   MIDORI_HISTORY_ERROR_DB_OPEN,
-                                  _("Error opening database: %s\n"),
+                                  _("Failed to open database: %s\n"),
                                   sqlite3_errmsg (db));
         }
         sqlite3_close (db);
@@ -623,7 +621,7 @@ db_exec_callback (sqlite3*    db,
         {
             *error = g_error_new (MIDORI_HISTORY_ERROR,
                                   MIDORI_HISTORY_ERROR_EXEC_SQL,
-                                  _("Error opening database: %s\n"),
+                                  _("Failed to open database: %s\n"),
                                   errmsg);
         }
         sqlite3_free (errmsg);
@@ -678,7 +676,7 @@ midori_history_remove_item_cb (KatzeArray* history,
     success = db_exec (db, sqlcmd, &error);
     if (!success)
     {
-        g_printerr (_("Failed to remove history item. %s\n"), error->message);
+        g_printerr (_("Failed to remove history item: %s\n"), error->message);
         g_error_free (error);
         return ;
     }
@@ -702,7 +700,7 @@ midori_history_clear_cb (KatzeArray* history,
 
     if (!db_exec (db, "DELETE FROM history", &error))
     {
-        g_printerr (_("Failed to clear history. %s\n"), error->message);
+        g_printerr (_("Failed to clear history: %s\n"), error->message);
         g_error_free (error);
     }
 }
@@ -735,7 +733,7 @@ midori_history_add_item_cb (KatzeArray* array,
         if (!db_exec_callback (db, "SELECT date('now')",
                                gettimestr, item, &error))
         {
-            g_printerr (_("Failed to add history item. %s\n"), error->message);
+            g_printerr (_("Failed to add history item: %s\n"), error->message);
             g_error_free (error);
             return;
         }
@@ -750,7 +748,7 @@ midori_history_add_item_cb (KatzeArray* array,
     g_free (sqlcmd);
     if (!success)
     {
-        g_printerr (_("Failed to add history item. %s\n"), error->message);
+        g_printerr (_("Failed to add history item: %s\n"), error->message);
         g_error_free (error);
         return ;
     }
@@ -867,7 +865,7 @@ midori_history_terminate (sqlite3* db,
     db_exec (db, sqlcmd, &error);
     if (!success)
     {
-        g_printerr (_("Failed to remove old history items. %s\n"), error->message);
+        g_printerr (_("Failed to remove old history items: %s\n"), error->message);
         g_error_free (error);
         return ;
     }
@@ -1193,7 +1191,7 @@ main (int    argc,
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
-                _("The bookmarks couldn't be loaded. %s\n"), error->message);
+                _("The bookmarks couldn't be loaded: %s\n"), error->message);
         g_error_free (error);
     }
     g_free (config_file);
@@ -1207,7 +1205,7 @@ main (int    argc,
         {
             if (error->code != G_FILE_ERROR_NOENT)
                 g_string_append_printf (error_messages,
-                    _("The session couldn't be loaded. %s\n"), error->message);
+                    _("The session couldn't be loaded: %s\n"), error->message);
             g_error_free (error);
         }
         g_free (config_file);
@@ -1219,7 +1217,7 @@ main (int    argc,
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
-                _("The trash couldn't be loaded. %s\n"), error->message);
+                _("The trash couldn't be loaded: %s\n"), error->message);
         g_error_free (error);
     }
     g_free (config_file);
@@ -1232,7 +1230,7 @@ main (int    argc,
     if ((db = midori_history_initialize (history, config_file, &error)) == NULL)
     {
         g_string_append_printf (error_messages,
-            _("The history couldn't be loaded. %s\n"), error->message);
+            _("The history couldn't be loaded: %s\n"), error->message);
         g_error_free (error);
     }
     g_free (config_file);

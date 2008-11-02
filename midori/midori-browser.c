@@ -1145,7 +1145,7 @@ _action_open_activate (GtkAction*     action,
     GtkWidget* dialog;
 
     dialog = gtk_file_chooser_dialog_new (
-        ("Open file"), GTK_WINDOW (browser),
+        _("Open file"), GTK_WINDOW (browser),
         GTK_FILE_CHOOSER_ACTION_OPEN,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
@@ -1221,7 +1221,7 @@ _action_save_as_activate (GtkAction*     action,
     gchar* folder;
 
     dialog = gtk_file_chooser_dialog_new (
-        ("Save file as"), GTK_WINDOW (browser),
+        _("Save file as"), GTK_WINDOW (browser),
         GTK_FILE_CHOOSER_ACTION_SAVE,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -2165,6 +2165,7 @@ midori_panel_bookmarks_cursor_or_row_changed_cb (GtkTreeView*   tree_view,
 static void
 midori_browser_bookmark_popup_item (GtkWidget*     menu,
                                     const gchar*   stock_id,
+                                    const gchar*   label,
                                     KatzeItem*     item,
                                     gpointer       callback,
                                     MidoriBrowser* browser)
@@ -2175,6 +2176,9 @@ midori_browser_bookmark_popup_item (GtkWidget*     menu,
     uri = katze_item_get_uri (item);
 
     menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
+    if (label)
+        gtk_label_set_text_with_mnemonic (GTK_LABEL (gtk_bin_get_child (
+        GTK_BIN (menuitem))), label);
     if (!strcmp (stock_id, GTK_STOCK_EDIT))
         gtk_widget_set_sensitive (menuitem,
             KATZE_IS_ARRAY (item) || uri != NULL);
@@ -2292,22 +2296,22 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN,
+    midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
         item, midori_browser_bookmark_open_activate_cb, browser);
-    midori_browser_bookmark_popup_item (menu, STOCK_OPEN_IN_TAB,
+    midori_browser_bookmark_popup_item (menu, STOCK_TAB_NEW, _("Open in New _Tab"),
         item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
-    midori_browser_bookmark_popup_item (menu, STOCK_OPEN_IN_WINDOW,
+    midori_browser_bookmark_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
         item, midori_browser_bookmark_open_in_window_activate_cb, browser);
     if (history_item && !KATZE_IS_ARRAY (item))
-        midori_browser_bookmark_popup_item (menu, STOCK_BOOKMARK_ADD,
+        midori_browser_bookmark_popup_item (menu, STOCK_BOOKMARK_ADD, NULL,
             item, midori_browser_bookmark_bookmark_activate_cb, browser);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     if (!history_item)
-        midori_browser_bookmark_popup_item (menu, GTK_STOCK_EDIT,
+        midori_browser_bookmark_popup_item (menu, GTK_STOCK_EDIT, NULL,
             item, midori_browser_bookmark_edit_activate_cb, browser);
-    midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE,
+    midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE, NULL,
         item, midori_browser_bookmark_delete_activate_cb, browser);
 
     sokoke_widget_popup (widget, GTK_MENU (menu),
@@ -3132,7 +3136,7 @@ static const GtkActionEntry entries[] = {
    N_("Clear the entire history"), G_CALLBACK (_action_history_clear_activate) },
  { "HistoryAddBookmark", STOCK_BOOKMARK_ADD,
    NULL, "",
-   N_("Add the selected history item as a bookmark"),
+   N_("Bookmark the selected history item"),
    G_CALLBACK (_action_history_add_bookmark_activate) },
  { "Tools", NULL, N_("_Tools") },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
@@ -3516,7 +3520,7 @@ midori_browser_init (MidoriBrowser* browser)
         "name", "RecentlyVisited",
         "label", _("_Recently visited pages"),
         "stock-id", STOCK_HISTORY,
-        "tooltip", _("Revisit pages that you opened before"),
+        "tooltip", _("Reopen pages that you visited earlier"),
         NULL);
     g_object_connect (action,
                       "signal::populate-popup",
@@ -3532,7 +3536,7 @@ midori_browser_init (MidoriBrowser* browser)
         "name", "Bookmarks",
         "label", _("_Bookmarks"),
         "stock-id", STOCK_BOOKMARKS,
-        "tooltip", _("Reopen a previously closed tab or window"),
+        "tooltip", _("Show the saved bookmarks"),
         NULL);
     g_object_connect (action,
                       "signal::populate-popup",
@@ -3546,7 +3550,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Window",
-        "label", _("Window"),
+        "label", _("_Window"),
         "stock-id", GTK_STOCK_INDEX,
         "tooltip", _("Show a list of all open tabs"),
         "array", browser->proxy_array,
