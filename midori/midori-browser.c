@@ -2391,6 +2391,28 @@ midori_panel_history_row_activated_cb (GtkTreeView*       treeview,
 }
 
 static void
+midori_panel_history_cursor_or_row_changed_cb (GtkTreeView*   tree_view,
+                                               MidoriBrowser* browser)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    KatzeItem* item;
+    gboolean is_page;
+
+    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    {
+        gtk_tree_model_get (model, &iter, 0, &item, -1);
+
+        is_page = !KATZE_IS_ARRAY (item) && katze_item_get_uri (item);
+        _action_set_sensitive (browser, "HistoryAddBookmark", is_page);
+    }
+    else
+    {
+        _action_set_sensitive (browser, "HistoryAddBookmark", FALSE);
+    }
+}
+
+static void
 _midori_panel_history_popup (GtkWidget*      widget,
                              GdkEventButton* event,
                              KatzeItem*      item,
@@ -2637,18 +2659,32 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
                                        GtkWidget*         treeview)
 {
     KatzeItem* item;
+    time_t date;
+    gchar datebuf[50];
     char* sdate;
     gint age;
 
     gtk_tree_model_get (model, iter, 0, &item, 1, &age, -1);
 
-     g_assert (KATZE_IS_ITEM (item));
+    g_assert (KATZE_IS_ITEM (item));
 
     if (KATZE_IS_ARRAY (item))
     {
-        g_return_if_fail (age >= 0);
+        g_assert (age >= 0);
 
-        if (age > 1)
+        if (age > 7)
+        {
+            date = (time_t)katze_item_get_added (item);
+            strftime (datebuf, sizeof (datebuf), "%Y-%m-%d", localtime (&date));
+            g_object_set (renderer, "text", datebuf, NULL);
+        }
+        else if (age > 6)
+        {
+            sdate = g_strdup_printf (_("A week ago"));
+            g_object_set (renderer, "text", sdate, NULL);
+            g_free (sdate);
+        }
+        else if (age > 1)
         {
             sdate = g_strdup_printf (_("%d days ago"), age);
             g_object_set (renderer, "text", sdate, NULL);
@@ -2935,7 +2971,8 @@ _action_history_add_bookmark_activate (GtkAction*     action,
     if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE);
+        if (!KATZE_IS_ARRAY (item))
+            midori_browser_edit_bookmark_dialog_new (browser, item, TRUE);
         g_object_unref (item);
     }
 }
@@ -3344,7 +3381,9 @@ static const gchar* ui_markup =
    "<toolitem action='BookmarkDelete'/>"
   "</toolbar>"
   "<toolbar name='toolbar_history'>"
+   "<toolitem action='HistoryAddBookmark'/>"
    "<toolitem action='HistoryDelete'/>"
+   "<separator expand='true' />"
    "<toolitem action='HistoryClear' position='bottom' />"
   "</toolbar>"
  "</ui>";
@@ -3715,6 +3754,10 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_connect (treeview,
                       "signal::row-activated",
                       midori_panel_history_row_activated_cb, browser,
+                      "signal::cursor-changed",
+                      midori_panel_history_cursor_or_row_changed_cb, browser,
+                      "signal::columns-changed",
+                      midori_panel_history_cursor_or_row_changed_cb, browser,
                       "signal::button-release-event",
                       midori_panel_history_button_release_event_cb, browser,
                       "signal::key-release-event",
@@ -3722,6 +3765,8 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::popup-menu",
                       midori_panel_history_popup_menu_cb, browser,
                       NULL);
+    midori_panel_history_cursor_or_row_changed_cb (GTK_TREE_VIEW (treeview),
+                                                   browser);
     gtk_box_pack_start (GTK_BOX (box), treeview, TRUE, TRUE, 0);
     browser->panel_history = treeview;
     gtk_widget_show_all (box);
