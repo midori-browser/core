@@ -13,6 +13,8 @@
 
 #include <gmodule.h>
 #include <glib/gi18n.h>
+/* Needed for versioning macros */
+#include <webkit/webkit.h>
 
 struct _GjsValue
 {
@@ -595,7 +597,7 @@ _js_object_set_property (JSContextRef js_context,
                          JSValueRef   js_value)
 {
     JSStringRef js_name = JSStringCreateWithUTF8CString (name);
-    JSObjectSetProperty(js_context, js_object, js_name, js_value,
+    JSObjectSetProperty (js_context, js_object, js_name, js_value,
                         kJSPropertyAttributeNone, NULL);
     JSStringRelease (js_name);
 }
@@ -727,7 +729,8 @@ _js_class_get_property_cb (JSContextRef js_context,
             js_class_def.className = g_strdup (property);
             js_class_def.callAsFunction = _js_object_call_as_function_cb;
             JSClassRef js_class = JSClassCreate (&js_class_def);
-            JSObjectRef js_function = JSObjectMake (js_context, js_class, property);
+            JSObjectRef js_function = JSObjectMake (js_context,
+                                                    js_class, property);
             return js_function;
         }
         g_free (property);
@@ -1011,14 +1014,21 @@ gjs_module_new (JSContextRef js_context,
     js_class_def.hasProperty = _js_module_has_property_cb;
     js_class_def.getProperty = _js_module_get_property_cb;
     JSClassRef js_class = JSClassCreate (&js_class_def);
-    JSObjectRef js_module = JSObjectMake (js_context, js_class, (gpointer)namespace);
+    JSObjectRef js_module = JSObjectMake (js_context, js_class,
+                                          (gpointer)namespace);
     return js_module;
 }
 
 JSGlobalContextRef
 gjs_global_context_new (void)
 {
+    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 3)
+    JSGlobalContextRef js_context = JSGlobalContextCreateInGroup (NULL, NULL);
+    #else
     JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);
+    #endif
+    #endif
     JSObjectRef js_object = gjs_object_new (js_context, "GJS", NULL);
     _js_object_set_property (js_context, JSContextGetGlobalObject (js_context),
                              "gjs", js_object);
