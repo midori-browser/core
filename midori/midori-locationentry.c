@@ -447,8 +447,7 @@ midori_location_entry_render_pixbuf_cb (GtkCellLayout*   layout,
     gtk_tree_model_get (model, iter, FAVICON_COL, &pixbuf, -1);
     if (pixbuf)
     {
-        g_object_set (renderer, "pixbuf", pixbuf, NULL);
-        g_object_set (renderer, "xpad", 5, "ypad", 5, "yalign", 0.0, NULL);
+        g_object_set (renderer, "pixbuf", pixbuf, "yalign", 0.25, NULL);
         g_object_unref (pixbuf);
     }
 }
@@ -463,20 +462,61 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* uri;
     gchar* title;
     gchar* desc;
+    gchar* desc_uri;
+    gchar* desc_title;
+    GtkWidget* entry;
+    gchar* key;
+    gchar* temp;
+    gchar** parts;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
-    if (title)
-        desc = g_markup_printf_escaped ("%s\n<small>%s</small>", title, uri);
+
+    desc_uri = desc_title = key = NULL;
+    if (data)
+    {
+        entry = gtk_entry_completion_get_entry (GTK_ENTRY_COMPLETION (data));
+        key = g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+    }
+    if (data && uri)
+    {
+        temp = g_utf8_strdown (uri, -1);
+        parts = g_strsplit (temp, key, 2);
+        g_free (temp);
+        if (parts && parts[0] && parts[1])
+            desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                parts[0], key, parts[1]);
+        g_strfreev (parts);
+    }
+    if (uri && !desc_uri)
+        desc_uri = g_markup_escape_text (uri, -1);
+    if (data && title)
+    {
+        temp = g_utf8_strdown (title, -1);
+        parts = g_strsplit (temp, key, 2);
+        g_free (temp);
+        if (parts && parts[0] && parts[1])
+            desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                parts[0], key, parts[1]);
+        g_strfreev (parts);
+    }
+    if (title && !desc_title)
+        desc_title = g_markup_escape_text (title, -1);
+
+    if (desc_title)
+        desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>",
+                                desc_title, desc_uri);
     else
-        desc = g_markup_printf_escaped ("%s", uri);
+        desc = g_strdup_printf ("%s", desc_uri);
 
-    g_object_set (renderer, "markup", desc, NULL);
-    g_object_set (renderer, "ellipsize-set", TRUE,
-                  "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+    g_object_set (renderer, "markup", desc,
+        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
-    katze_assign (uri, NULL);
-    katze_assign (title, NULL);
-    katze_assign (desc, NULL);
+    g_free (uri);
+    g_free (title);
+    g_free (key);
+    g_free (desc);
+    g_free (desc_uri);
+    g_free (desc_title);
 }
 
 static gboolean
@@ -488,12 +528,13 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     GtkTreeModel* model;
     gchar* uri;
     gchar* title;
-    gboolean match = FALSE;
-    gchar *temp;
+    gboolean match;
+    gchar* temp;
 
     model = gtk_entry_completion_get_model (completion);
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
+    match = FALSE;
     if (uri)
     {
         temp = g_utf8_casefold (uri, -1);
@@ -509,6 +550,7 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
             g_free (title);
         }
     }
+
     return match;
 }
 
@@ -537,7 +579,7 @@ midori_location_entry_completion_init (MidoriLocationEntry* location_entry)
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, TRUE);
     gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (completion), renderer,
                                         midori_location_entry_render_text_cb,
-                                        NULL, NULL);
+                                        completion, NULL);
     gtk_entry_completion_set_match_func (completion,
         midori_location_entry_completion_match_cb, NULL, NULL);
 
