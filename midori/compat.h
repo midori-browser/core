@@ -32,19 +32,6 @@ g_strcmp0 (const gchar* string1,
 
 #endif
 
-#if !GTK_CHECK_VERSION (2, 14, 0)
-
-#if GLIB_CHECK_VERSION (2, 16, 0)
-
-GdkPixbuf*
-gdk_pixbuf_new_from_stream (GInputStream* stream,
-                            GCancellable* cancellable,
-                            GError**      error);
-
-#endif
-
-#endif
-
 #if !GTK_CHECK_VERSION(2, 12, 0)
 
 void

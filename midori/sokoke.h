@@ -115,11 +115,6 @@ sokoke_widget_get_text_size          (GtkWidget*     widget,
                                       gint*          width,
                                       gint*          height);
 
-GdkPixbuf*
-sokoke_web_icon                      (const gchar*   icon,
-                                      GtkIconSize    size,
-                                      GtkWidget*     widget);
-
 gint
 sokoke_object_get_int                (gpointer       object,
                                       const gchar*   property);

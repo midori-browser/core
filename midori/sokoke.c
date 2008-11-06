@@ -474,44 +474,6 @@ sokoke_widget_get_text_size (GtkWidget*   widget,
     g_object_unref (layout);
 }
 
-GdkPixbuf*
-sokoke_web_icon (const gchar* icon,
-                 GtkIconSize  size,
-                 GtkWidget*   widget)
-{
-    g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
-
-    GdkPixbuf* pixbuf = NULL;
-    if (icon && *icon)
-    {
-        /* TODO: We want to allow http as well, maybe also base64? */
-        const gchar* icon_ready = g_str_has_prefix (icon, "file://")
-            ? &icon[7] : icon;
-        GtkStockItem stock_id;
-        if (gtk_stock_lookup (icon, &stock_id))
-            pixbuf = gtk_widget_render_icon (widget, icon_ready, size, NULL);
-        else
-        {
-            gint width, height;
-            if (gtk_widget_has_screen (widget))
-            {
-                GdkScreen* screen = gtk_widget_get_screen (widget);
-                gtk_icon_size_lookup_for_settings (
-                    gtk_settings_get_for_screen (screen),
-                    size, &width, &height);
-                pixbuf = gtk_icon_theme_load_icon (
-                    gtk_icon_theme_get_for_screen (screen), icon,
-                    MAX (width, height), GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
-            }
-        }
-        if (!pixbuf)
-            pixbuf = gdk_pixbuf_new_from_file_at_size (icon_ready, 16, 16, NULL);
-    }
-    if (!pixbuf)
-        pixbuf = gtk_widget_render_icon (widget, GTK_STOCK_FIND, size, NULL);
-    return pixbuf;
-}
-
 gint
 sokoke_object_get_int (gpointer     object,
                        const gchar* property)
