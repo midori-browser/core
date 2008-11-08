@@ -29,10 +29,8 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#if HAVE_SQLITE3_H
+#ifdef HAVE_SQLITE
     #include <sqlite3.h>
-#elif HAVE_SQLITE_H
-    #include <sqlite.h>
 #endif
 
 #if ENABLE_NLS

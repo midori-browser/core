@@ -105,8 +105,6 @@ def configure (conf):
     if not Params.g_options.disable_sqlite:
         conf.check_pkg ('sqlite3', destvar='SQLITE', vnum='3.0', mandatory=False)
         sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
-        if not conf.check_header ('sqlite3.h', 'HAVE_SQLITE3_H'):
-            conf.check_header ('sqlite.h', 'HAVE_SQLITE_H')
     else:
         sqlite = 'no'
     conf.check_message_custom ('history database', 'support', sqlite)
