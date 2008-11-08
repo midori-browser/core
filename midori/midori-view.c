@@ -895,7 +895,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (!view->link_uri && !has_selection)
     {
-        /* FIXME: Make this sensitive only when there is a tab to undo */
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo Close Tab"));
         icon = gtk_image_new_from_stock (GTK_STOCK_UNDELETE, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
@@ -903,6 +902,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_object_set_data (G_OBJECT (menuitem), "action", "UndoTabClose");
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
+        /* FIXME: Make this sensitive only when there is a tab to undo */
         gtk_widget_show (menuitem);
         menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);

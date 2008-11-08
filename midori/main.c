@@ -861,6 +861,7 @@ midori_history_terminate (sqlite3* db,
     db_exec (db, sqlcmd, &error);
     if (!success)
     {
+        /* i18n: Couldn't remove items that are older than n days */
         g_printerr (_("Failed to remove old history items: %s\n"), error->message);
         g_error_free (error);
         return ;
@@ -1152,8 +1153,8 @@ main (int    argc,
         if (result)
             return 0;
 
-        /* FIXME: Do we want a graphical error message? */
         g_print (_("An instance of Midori is already running but not responding.\n"));
+        /* FIXME: Do we want a graphical error message? */
         return 1;
     }
 

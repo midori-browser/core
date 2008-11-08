@@ -277,6 +277,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_LAST_PANEL_PAGE,
                                      g_param_spec_int (
                                      "last-panel-page",
+        /* i18n: The internal index of the last opened panel */
                                      _("Last panel page"),
                                      _("The last saved panel page"),
                                      0, G_MAXINT, 0,

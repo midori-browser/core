@@ -342,9 +342,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (button, 1, 2, 0, 1);
     label = katze_property_label (settings, "homepage");
     INDENTED_ADD (label, 0, 1, 1, 2);
+    /* TODO: We need something like "use current website" */
     entry = katze_property_proxy (settings, "homepage", NULL);
     FILLED_ADD (entry, 1, 2, 1, 2);
-    /* TODO: We need something like "use current website" */
     FRAME_NEW (_("Transfers"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "download-folder");

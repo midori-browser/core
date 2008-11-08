@@ -3794,6 +3794,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (browser->panel_pageholder);
     midori_panel_append_page (MIDORI_PANEL (browser->panel),
                               browser->panel_pageholder, NULL,
+        /* i18n: A panel showing a user specified web page */
                               STOCK_PAGE_HOLDER, _("Pageholder"));
 
     /* Userscripts */
@@ -3862,7 +3863,8 @@ midori_browser_init (MidoriBrowser* browser)
     toolitem = gtk_tool_item_new ();
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_container_add (GTK_CONTAINER (toolitem),
-                       gtk_label_new_with_mnemonic (_("_Inline find:")));
+        /* i18n: A panel at the bottom, to search text in pages */
+        gtk_label_new_with_mnemonic (_("_Inline find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_text = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
