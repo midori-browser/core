@@ -531,7 +531,9 @@ katze_net_load_icon (KatzeNet*      net,
         }
         else if (g_file_test (icon_file, G_FILE_TEST_EXISTS))
             pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL);
-        else
+        /* If the called doesn't provide an icon callback,
+           we assume there is no interest in loading an un-cached icon. */
+        else if (icon_cb)
         {
             priv = g_new0 (KatzeNetIconPriv, 1);
             priv->net = net;
