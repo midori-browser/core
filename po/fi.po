@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.0.1\n"
+"Project-Id-Version: midori 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-10-26 14:27+0200\n"
-"PO-Revision-Date: 2008-10-28 21:34+0200\n"
+"PO-Revision-Date: 2008-10-30 21:20+0200\n"
 "Last-Translator: Elias Julkunen <elias.julkunen@gmail.com>\n"
 "Language-Team: Finnish <laatu@lokalisointi.org>\n"
 "MIME-Version: 1.0\n"
@@ -54,7 +54,7 @@ msgstr "_Poista käytöstä"
 
 #: ../midori/main.c:76
 msgid "_Enable"
-msgstr "_Käytä"
+msgstr "_Ota käyttöön"
 
 #: ../midori/main.c:77
 msgid "_Extensions"
@@ -70,7 +70,7 @@ msgstr "_Kotisivu"
 
 #: ../midori/main.c:80
 msgid "_Pageholder"
-msgstr "_Sivun pitäjä"
+msgstr "_Sivupidike"
 
 #: ../midori/main.c:81
 msgid "_Userscripts"
@@ -104,13 +104,13 @@ msgstr "Asetuksia ei voitu ladata. %s\n"
 #: ../midori/main.c:191
 #, c-format
 msgid "Value '%s' is invalid for %s"
-msgstr ""
+msgstr "Arvo ”%s” ei kelpaa kohteelle %s"
 
 #: ../midori/main.c:198
 #: ../midori/main.c:267
 #, c-format
 msgid "Unhandled settings value '%s'"
-msgstr "Käsittämätön asetusarvo \"%s\""
+msgstr "Käsittelemätön asetusarvo ”%s”"
 
 #: ../midori/main.c:526
 #: ../midori/main.c:534
@@ -121,7 +121,7 @@ msgstr "Virheellinen dokumentti."
 
 #: ../midori/main.c:556
 msgid "File not found."
-msgstr "Tiedostoa ei löydy"
+msgstr "Tiedostoa ei löytynyt"
 
 #: ../midori/main.c:594
 #: ../midori/main.c:626
@@ -148,7 +148,7 @@ msgstr "Historiatietuetta ei voitu lisätä. %s\n"
 #: ../midori/main.c:870
 #, c-format
 msgid "Failed to remove old history items. %s\n"
-msgstr "Vanhoja historiatietueita ei voitu poistaa. %s\n"
+msgstr "Vanhoja historiatietueita ei voitfu poistaa. %s\n"
 
 #: ../midori/main.c:1002
 #: ../midori/sokoke.c:457
@@ -171,23 +171,23 @@ msgstr "Näytä sovelluksen versio"
 
 #: ../midori/main.c:1063
 msgid "URIs"
-msgstr "URL-osoitteet"
+msgstr "URI-osoitteet"
 
 #: ../midori/main.c:1097
 msgid "[URIs]"
-msgstr "[URL-osoitteet]"
+msgstr "[URI-osoitteet]"
 
 #: ../midori/main.c:1121
 msgid "Please report comments, suggestions and bugs to:"
-msgstr "Lähetä kommentteja, ehdotuksia ja ohjelmavirheitä osoitteeseen:"
+msgstr "Voit lähettää kommentteja, ehdotuksia ja tietoa ohjelmavirheistä  osoitteeseen:"
 
 #: ../midori/main.c:1123
 msgid "Check for new versions at:"
-msgstr ""
+msgstr "Kaäy katsomassa uusia versioita osoittesta:"
 
 #: ../midori/main.c:1144
 msgid "No filename specified"
-msgstr "Tiedostonimeä ei määritelty"
+msgstr "Tiedostonimeä ei annettu"
 
 #. FIXME: Do we want a graphical error message?
 #: ../midori/main.c:1162
@@ -222,7 +222,7 @@ msgstr "Seuraavat virheet tapahtuivat:"
 #: ../midori/main.c:1407
 #, c-format
 msgid "The search engines couldn't be saved. %s"
-msgstr "Hakumoottoreita ei voitu tallentaa. %s"
+msgstr "Hakukoneita ei voitu tallentaa. %s"
 
 #: ../midori/main.c:1417
 #, c-format
@@ -273,12 +273,12 @@ msgstr "Keskeytä nykyisen sivun lataaminen"
 #: ../midori/midori-browser.c:315
 #, c-format
 msgid "%d%% loaded"
-msgstr "%d%% ladattu"
+msgstr "%d %% ladattu"
 
 #: ../midori/midori-browser.c:338
 #, c-format
 msgid "Unexpected action '%s'."
-msgstr "Odottamaton toimenpide \"%s\"."
+msgstr "Odottamaton toimenpide ”%s”."
 
 #: ../midori/midori-browser.c:507
 msgid "New bookmark"
@@ -308,7 +308,7 @@ msgstr "_Kansio:"
 
 #: ../midori/midori-browser.c:581
 msgid "Root"
-msgstr ""
+msgstr "Juuri"
 
 #: ../midori/midori-browser.c:2349
 msgid "<i>Separator</i>"
@@ -333,7 +333,7 @@ msgstr "Kevyt verkkoselain"
 
 #: ../midori/midori-browser.c:2640
 msgid "translator-credits"
-msgstr "Elias Julkunen, elias.julkunen@gmail.com"
+msgstr "Elias Julkunen, <elias.julkunen@gmail.com>"
 
 #: ../midori/midori-browser.c:2909
 msgid "Are you sure you want to remove all history items?"
@@ -418,7 +418,7 @@ msgstr "Etsi _seuraava"
 
 #: ../midori/midori-browser.c:3026
 msgid "Find the next occurrence of a word or phrase"
-msgstr "Etsii seuraavan sanan tai lauseen esiintymän"
+msgstr "Etsi seuraavan sanan tai lauseen esiintymä"
 
 #: ../midori/midori-browser.c:3028
 msgid "Find _Previous"
@@ -426,7 +426,7 @@ msgstr "Etsi _edellinen"
 
 #: ../midori/midori-browser.c:3029
 msgid "Find the previous occurrence of a word or phrase"
-msgstr "Etsii edellisen sanan tai lauseen esiintymän"
+msgstr "Etsi edellisen sanan tai lauseen esiintymä"
 
 #: ../midori/midori-browser.c:3031
 msgid "_Quick Find"
@@ -471,11 +471,11 @@ msgstr "Näytä sivun lähdekoodi"
 
 #: ../midori/midori-browser.c:3061
 msgid "View Selection Source"
-msgstr "Näytä valinnan lähde"
+msgstr "Näytä valinnan lähdekoodi"
 
 #: ../midori/midori-browser.c:3062
 msgid "View the source code of the selection"
-msgstr "Näytä valinnan lähdekoodin"
+msgstr "Näytä valinnan lähdekoodi"
 
 #: ../midori/midori-browser.c:3065
 msgid "Toggle fullscreen view"
@@ -503,7 +503,7 @@ msgstr "Avaa _sivun pitäjässä"
 
 #: ../midori/midori-browser.c:3079
 msgid "Open the current page in the pageholder"
-msgstr "Avaa nykyisen sivun sivun pitäjä"
+msgstr "Avaa nykyinen sivu sivun pitäjässä"
 
 #: ../midori/midori-browser.c:3081
 msgid "Empty Trash"
@@ -538,7 +538,7 @@ msgstr "Avaa uudessa _välilehdessä"
 
 #: ../midori/midori-browser.c:3095
 msgid "Open the selected bookmark in a new tab"
-msgstr "Avaa valitun kirjanmerkin uudessa välilehdessä"
+msgstr "Avaa valittu kirjanmerkki uudessa välilehdessä"
 
 #: ../midori/midori-browser.c:3097
 msgid "Open in New _Window"
@@ -546,7 +546,7 @@ msgstr "Avaa uudessa _ikkunassa"
 
 #: ../midori/midori-browser.c:3098
 msgid "Open the selected bookmark in a new window"
-msgstr "Avaa valitun kirjanmerkin uudessa ikkunassa"
+msgstr "Avaa valittu kirjanmerkki uudessa ikkunassa"
 
 #: ../midori/midori-browser.c:3101
 msgid "Edit the selected bookmark"
@@ -579,11 +579,11 @@ msgstr "_Työkalut"
 #: ../midori/midori-browser.c:3119
 #: ../midori/midori-searchaction.c:468
 msgid "_Manage Search Engines"
-msgstr "_Hallitse hakumoottoreita"
+msgstr "_Hallitse hakukoneita"
 
 #: ../midori/midori-browser.c:3120
 msgid "Add, edit and remove search engines..."
-msgstr "Lisää, muokkaa ja poista hakumoottoreita..."
+msgstr "Lisää, muokkaa ja poista hakukoneita..."
 
 #: ../midori/midori-browser.c:3124
 msgid "_Previous Tab"
@@ -611,7 +611,7 @@ msgstr "_Sisältö"
 
 #: ../midori/midori-browser.c:3133
 msgid "Show the documentation"
-msgstr "Näyttää dokumentaation"
+msgstr "Näyttä dokumentaatio"
 
 #: ../midori/midori-browser.c:3135
 msgid "_Frequent questions"
@@ -619,7 +619,7 @@ msgstr "_Usein kysytyt kysymykset"
 
 #: ../midori/midori-browser.c:3136
 msgid "Show the Frequently Asked Questions"
-msgstr "Näyttää usein kysytyt kysymykset"
+msgstr "Näytä usein kysytyt kysymykset"
 
 #: ../midori/midori-browser.c:3138
 msgid "_Report a bug"
@@ -627,11 +627,11 @@ msgstr "_Ilmoita ohjelmavirheestä"
 
 #: ../midori/midori-browser.c:3139
 msgid "Open Midori's bug tracker"
-msgstr "Avaa Midorin ohjelmavirhehallinnan"
+msgstr "Avaa Midorin ohjelmavirhehallinta"
 
 #: ../midori/midori-browser.c:3142
 msgid "Show information about the program"
-msgstr "Näyttää tietoja sovelluksesta"
+msgstr "Näytää tietoja sovelluksesta"
 
 #: ../midori/midori-browser.c:3149
 msgid "P_rivate Browsing"
@@ -647,7 +647,7 @@ msgstr "_Valikkopalkki"
 
 #: ../midori/midori-browser.c:3155
 msgid "Show menubar"
-msgstr "Näyttää valikkopalkin"
+msgstr "Näytä valikkopalkki"
 
 #: ../midori/midori-browser.c:3158
 msgid "_Navigationbar"
@@ -655,7 +655,7 @@ msgstr "_Navigointipalkki"
 
 #: ../midori/midori-browser.c:3159
 msgid "Show navigationbar"
-msgstr "Näyttää navigointipalkin"
+msgstr "Näytä navigointipalkki"
 
 #: ../midori/midori-browser.c:3162
 msgid "Side_panel"
@@ -663,7 +663,7 @@ msgstr "_Sivupaneeli"
 
 #: ../midori/midori-browser.c:3163
 msgid "Show sidepanel"
-msgstr "Näyttää sivupaneelin"
+msgstr "Näytä sivupaneeli"
 
 #: ../midori/midori-browser.c:3166
 msgid "_Bookmarkbar"
@@ -671,7 +671,7 @@ msgstr "_Kirjanmerkkipalkki"
 
 #: ../midori/midori-browser.c:3167
 msgid "Show bookmarkbar"
-msgstr "Näyttää kirjanmerkkipalkin"
+msgstr "Näytä kirjanmerkkipalkki"
 
 #: ../midori/midori-browser.c:3170
 msgid "_Transferbar"
@@ -763,7 +763,7 @@ msgstr "Historia"
 
 #: ../midori/midori-browser.c:3724
 msgid "Pageholder"
-msgstr "Sivun pitäjä"
+msgstr "Sivupidike"
 
 #: ../midori/midori-browser.c:3773
 msgid "_Inline find:"
@@ -784,7 +784,7 @@ msgstr "Sulje hakupalkki"
 #: ../midori/midori-browser.c:4071
 #, c-format
 msgid "Unexpected setting '%s'"
-msgstr "Odottamaton asetus \"%s\""
+msgstr "Odottamaton asetus ”%s”"
 
 #: ../midori/midori-panel.c:207
 #: ../midori/midori-panel.c:208
@@ -919,11 +919,11 @@ msgstr "Viimeisin tallennettu verkkohaku"
 
 #: ../midori/midori-websettings.c:298
 msgid "Last pageholder URI"
-msgstr "Viimeisin sivun pitäjän URL-osoite"
+msgstr "Viimeisin sivupidike URL-osoite"
 
 #: ../midori/midori-websettings.c:299
 msgid "The URI last opened in the pageholder"
-msgstr "Viimeisin avoinna ollut URL-osoite sivun pitäjässä"
+msgstr "Viimeisin avoinna ollut URL-osoite sivupipidike"
 
 #: ../midori/midori-websettings.c:308
 msgid "Show Menubar"
@@ -975,7 +975,7 @@ msgstr "Työkalupalkin tyyli"
 
 #: ../midori/midori-websettings.c:364
 msgid "Toolbar Items"
-msgstr "Työjakupalkin painikkeet"
+msgstr "Työkakupalkin painikkeet"
 
 #: ../midori/midori-websettings.c:365
 msgid "The items to show on the toolbar"
@@ -1051,11 +1051,11 @@ msgstr "Näytä aina välilehtipalkki"
 
 #: ../midori/midori-websettings.c:458
 msgid "Close Buttons on Tabs"
-msgstr "Sulje-painikkeet väilehdissä"
+msgstr "Sulkemispainikkeet välilehdissä"
 
 #: ../midori/midori-websettings.c:459
 msgid "Whether tabs have close buttons"
-msgstr "Onko välilehdissä sulje-painikkeet"
+msgstr "Onko välilehdissä sulkemispainikkeet"
 
 #: ../midori/midori-websettings.c:467
 msgid "Open new pages in"
@@ -1095,7 +1095,7 @@ msgstr "Avaa välilehdet nykyisestä seuraavaksi"
 
 #: ../midori/midori-websettings.c:506
 msgid "Whether to open new tabs next to the current tab or after the last one"
-msgstr "Avataanko uudet välilehdet nykyisestä välilehdestä seuraavaksi vai viimeisen jälkeiseksi"
+msgstr "Avataanko uudet välilehdet nykyistä välilehteä seuraavaksi vai viimeiseksi"
 
 #: ../midori/midori-websettings.c:514
 msgid "Open popups in tabs"
@@ -1127,7 +1127,7 @@ msgstr "Evästeiden enimmäisikä"
 
 #: ../midori/midori-websettings.c:545
 msgid "The maximum number of days to save cookies for"
-msgstr "Kuinka monta päivää evästeet säilytetään"
+msgstr "Evästetietojen säilytysaika päivinä"
 
 #: ../midori/midori-websettings.c:555
 msgid "Remember last visited pages"
@@ -1143,7 +1143,7 @@ msgstr "Historian enimmäisikä"
 
 #: ../midori/midori-websettings.c:565
 msgid "The maximum number of days to save the history for"
-msgstr "Kuinka monta päivää historia säilytetään"
+msgstr "Historiatietojen säilytysaika päivinä"
 
 #: ../midori/midori-websettings.c:573
 msgid "Remember last form inputs"
@@ -1203,7 +1203,7 @@ msgstr "Avaa URL-osoite uudessa _välilehdessä"
 
 #: ../midori/midori-view.c:1287
 msgid "Source"
-msgstr "Lähde"
+msgstr "Lähdekoodi"
 
 #: ../midori/midori-preferences.c:86
 #, c-format
@@ -1230,7 +1230,7 @@ msgstr "Kirjasinasetukset"
 
 #: ../midori/midori-preferences.c:386
 msgid "Default Font Family"
-msgstr "Oletuskirjasin"
+msgstr "Oletuskirjasinperhe"
 
 #: ../midori/midori-preferences.c:394
 msgid "Minimum Font Size"
@@ -1312,11 +1312,11 @@ msgstr "Tyhjä"
 
 #: ../midori/midori-searchaction.c:804
 msgid "Add search engine"
-msgstr "Lisää hakumoottori"
+msgstr "Lisää hakukone"
 
 #: ../midori/midori-searchaction.c:804
 msgid "Edit search engine"
-msgstr "Muokkaa hakumoottoria"
+msgstr "Muokkaa hakukonetta"
 
 #: ../midori/midori-searchaction.c:832
 msgid "_Name:"
@@ -1332,7 +1332,7 @@ msgstr "_Merkki:"
 
 #: ../midori/midori-searchaction.c:1067
 msgid "Manage search engines"
-msgstr "Hallitse hakumoottoreita"
+msgstr "Hallitse hakukoneita"
 
 #: ../midori/sokoke.c:63
 #: ../midori/sokoke.c:75
@@ -1351,7 +1351,7 @@ msgstr "Tapahtui tuntematon virhe."
 #: ../midori/gjs.c:829
 #, c-format
 msgid "%s has no property '%s'"
-msgstr "%s:lla ei ole ominaisuutta \"%s\""
+msgstr "Asialla %s ei ole ominaisuutta ”%s”"
 
 #: ../midori/gjs.c:875
 #, c-format
@@ -1366,12 +1366,12 @@ msgstr ""
 #: ../katze/katze-throbber.c:807
 #, c-format
 msgid "Named icon '%s' couldn't be loaded"
-msgstr "Nimettyä kuvaketta \"%s\" ei voitu ladata"
+msgstr "Nimettyä kuvaketta ”%s” ei voitu ladata"
 
 #: ../katze/katze-throbber.c:820
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
-msgstr "Vakiokuvaketta \"%s\" ei voitu ladata"
+msgstr "Vakiokuvaketta ”%s” ei voitu ladata"
 
 #: ../katze/katze-throbber.c:883
 msgid "Animation frames are broken"
@@ -1381,7 +1381,7 @@ msgstr "Animaatiokehykset ovat rikki"
 #: ../katze/katze-utils.c:334
 #, c-format
 msgid "Property '%s' is invalid for %s"
-msgstr "Ominaisuus \"%s\" on epäkelpo kohteelle %s"
+msgstr "Ominaisuus ”%s” on epäkelpo kohteelle %s"
 
 #: ../katze/katze-utils.c:169
 #: ../katze/katze-utils.c:205
@@ -1391,4 +1391,3 @@ msgstr "Valitse tiedosto"
 #: ../katze/katze-utils.c:187
 msgid "Choose folder"
 msgstr "Valitse kansio"
-
