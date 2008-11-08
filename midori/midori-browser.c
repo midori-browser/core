@@ -454,7 +454,6 @@ midori_view_notify_title_cb (GtkWidget*     view,
         item = katze_item_new ();
         katze_item_set_uri (item, uri);
         katze_item_set_name (item, title);
-        katze_item_set_visits (item, -1);
         midori_browser_new_history_item (browser, item);
     }
 
@@ -2491,15 +2490,19 @@ midori_panel_history_key_release_event_cb (GtkWidget*     widget,
     GtkTreeModel* model;
     GtkTreeIter iter;
     KatzeItem* item;
+    GtkAction* location_action;
 
-    if (event->keyval == GDK_Delete)
+    if (event->keyval != GDK_Delete)
+        return FALSE;
+
+    treeview = GTK_TREE_VIEW (widget);
+    if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
     {
-        treeview = GTK_TREE_VIEW (widget);
-        if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
-        {
-            gtk_tree_model_get (model, &iter, 0, &item, -1);
-            midori_browser_model_remove_item (model, item, &iter);
-        }
+        location_action = _action_by_name (browser, "Location");
+        gtk_tree_model_get (model, &iter, 0, &item, -1);
+        midori_browser_model_remove_item (model, item, &iter);
+        midori_location_action_delete_item_from_uri (
+            MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
     }
 
     return FALSE;
@@ -2913,12 +2916,16 @@ _action_history_delete_activate (GtkAction*     action,
     GtkTreeModel* model;
     GtkTreeIter iter;
     KatzeItem* item;
+    GtkAction* location_action;
 
     treeview = GTK_TREE_VIEW (browser->panel_history);
     if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
     {
+        location_action = _action_by_name (browser, "Location");
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         midori_browser_model_remove_item (model, item, &iter);
+        midori_location_action_delete_item_from_uri (
+            MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
     }
 }
 
@@ -2930,6 +2937,7 @@ _action_history_clear_activate (GtkAction*     action,
     GtkTreeView* tree_view;
     GtkTreeStore* store;
     KatzeItem* item;
+    GtkAction* location_action;
     gint i, n;
     gint result;
 
@@ -2945,6 +2953,7 @@ _action_history_clear_activate (GtkAction*     action,
     if (result != GTK_RESPONSE_YES)
         return;
 
+    location_action = _action_by_name (browser, "Location");
     tree_view = GTK_TREE_VIEW (browser->panel_history);
     store = GTK_TREE_STORE (gtk_tree_view_get_model (tree_view));
     gtk_tree_store_clear (store);
@@ -2956,6 +2965,7 @@ _action_history_clear_activate (GtkAction*     action,
         katze_array_clear (KATZE_ARRAY (item));
     }
     katze_array_clear (browser->history);
+    midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
 }
 
 static void

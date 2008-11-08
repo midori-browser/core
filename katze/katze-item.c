@@ -35,8 +35,7 @@ enum
     PROP_URI,
     PROP_ICON,
     PROP_TOKEN,
-    PROP_ADDED,
-    PROP_VISITS
+    PROP_ADDED
 };
 
 static void
@@ -123,17 +122,6 @@ katze_item_class_init (KatzeItemClass* class)
                                      0,
                                      flags));
 
-    g_object_class_install_property (gobject_class,
-                                     PROP_VISITS,
-                                     g_param_spec_int (
-                                     "visits",
-                                     "Visits",
-                                     "The number of visits of the item",
-                                     G_MININT,
-                                     G_MAXINT,
-                                     0,
-                                     flags));
-
 }
 
 
@@ -186,9 +174,6 @@ katze_item_set_property (GObject*      object,
     case PROP_ADDED:
         item->added = g_value_get_int64 (value);
         break;
-    case PROP_VISITS:
-        item->visits = g_value_get_int (value);
-        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -222,9 +207,6 @@ katze_item_get_property (GObject*    object,
         break;
     case PROP_ADDED:
         g_value_set_int64 (value, item->added);
-        break;
-    case PROP_VISITS:
-        g_value_set_int (value, item->visits);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -443,39 +425,6 @@ katze_item_set_added (KatzeItem* item,
 
     item->added = added;
     g_object_notify (G_OBJECT (item), "added");
-}
-
-/**
- * katze_item_get_visits:
- * @item: a #KatzeItem
- *
- * Retrieves the number of visits of @item.
- *
- * Return value: the number of visits
- **/
-gint
-katze_item_get_visits (KatzeItem* item)
-{
-    g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
-
-    return item->visits;
-}
-
-/**
- * katze_item_set_visits:
- * @item: a #KatzeItem
- * @visits: an integer
- *
- * Sets the number of visits of @item.
- **/
-void
-katze_item_set_visits (KatzeItem* item,
-                       gint       visits)
-{
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
-    item->visits = visits;
-    g_object_notify (G_OBJECT (item), "visits");
 }
 
 /**

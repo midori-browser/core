@@ -35,44 +35,51 @@ typedef struct _MidoriLocationAction         MidoriLocationAction;
 typedef struct _MidoriLocationActionClass    MidoriLocationActionClass;
 
 GType
-midori_location_action_get_type           (void);
+midori_location_action_get_type             (void);
 
 const gchar*
-midori_location_action_get_uri            (MidoriLocationAction* action);
+midori_location_action_get_uri              (MidoriLocationAction* action);
 
 void
-midori_location_action_set_uri            (MidoriLocationAction* location_action,
-                                           const gchar*          uri);
+midori_location_action_set_uri              (MidoriLocationAction* location_action,
+                                             const gchar*          uri);
 
 void
-midori_location_action_add_uri            (MidoriLocationAction* location_action,
-                                           const gchar*          uri);
+midori_location_action_add_uri              (MidoriLocationAction* location_action,
+                                             const gchar*          uri);
 
 void
-midori_location_action_add_item           (MidoriLocationAction* location_action,
-                                           const gchar*          uri,
-                                           GdkPixbuf*            icon,
-                                           const gchar*          title);
+midori_location_action_add_item             (MidoriLocationAction* location_action,
+                                             const gchar*          uri,
+                                             GdkPixbuf*            icon,
+                                             const gchar*          title);
 void
-midori_location_action_set_icon_for_uri   (MidoriLocationAction* location_action,
-                                           GdkPixbuf*            icon,
-                                           const gchar*          text);
+midori_location_action_set_icon_for_uri     (MidoriLocationAction* location_action,
+                                             GdkPixbuf*            icon,
+                                             const gchar*          text);
 
 void
-midori_location_action_set_title_for_uri  (MidoriLocationAction* location_action,
-                                           const gchar*          title,
-                                           const gchar*          text);
+midori_location_action_set_title_for_uri    (MidoriLocationAction* location_action,
+                                             const gchar*          title,
+                                             const gchar*          text);
 
 gdouble
-midori_location_action_get_progress       (MidoriLocationAction* location_action);
+midori_location_action_get_progress         (MidoriLocationAction* location_action);
 
 void
-midori_location_action_set_progress       (MidoriLocationAction* location_action,
-                                           gdouble               progress);
+midori_location_action_set_progress         (MidoriLocationAction* location_action,
+                                             gdouble               progress);
 
 void
-midori_location_action_set_secondary_icon (MidoriLocationAction* location_action,
-                                           const gchar*          stock_id);
+midori_location_action_set_secondary_icon   (MidoriLocationAction* location_action,
+                                             const gchar*          stock_id);
+
+void
+midori_location_action_delete_item_from_uri (MidoriLocationAction* location_action,
+                                             const gchar*          uri);
+
+void
+midori_location_action_clear                (MidoriLocationAction* location_action);
 
 G_END_DECLS
 

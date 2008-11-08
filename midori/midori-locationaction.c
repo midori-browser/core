@@ -456,7 +456,6 @@ midori_location_action_add_uri (MidoriLocationAction* location_action,
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
 
-
     katze_assign (location_action->uri, g_strdup (uri));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
@@ -657,6 +656,57 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
         else
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (child),
                 GTK_ICON_ENTRY_SECONDARY, NULL);
+    }
+    while ((proxies = g_slist_next (proxies)));
+}
+
+void
+midori_location_action_delete_item_from_uri (MidoriLocationAction* location_action,
+                                             const gchar*          uri)
+{
+    GSList* proxies;
+    GtkWidget* alignment;
+    GtkWidget* entry;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (uri != NULL);
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    if (!proxies)
+        return;
+
+    do
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
+        entry = gtk_bin_get_child (GTK_BIN (alignment));
+
+        midori_location_entry_delete_item_from_uri
+            (MIDORI_LOCATION_ENTRY (entry), uri);
+    }
+    while ((proxies = g_slist_next (proxies)));
+}
+
+void
+midori_location_action_clear (MidoriLocationAction* location_action)
+{
+    GSList* proxies;
+    GtkWidget* alignment;
+    GtkWidget* entry;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    if (!proxies)
+        return;
+
+    do
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
+        entry = gtk_bin_get_child (GTK_BIN (alignment));
+
+        midori_location_entry_clear (MIDORI_LOCATION_ENTRY (entry));
     }
     while ((proxies = g_slist_next (proxies)));
 }

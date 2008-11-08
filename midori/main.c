@@ -668,11 +668,10 @@ midori_history_remove_item_cb (KatzeArray* history,
 
     sqlcmd = g_strdup_printf (
         "DELETE FROM history WHERE uri = '%s' AND"
-        " title = '%s' AND date = %" G_GINT64_FORMAT " AND visits = %d",
+        " title = '%s' AND date = %" G_GINT64_FORMAT,
         katze_item_get_uri (item),
         katze_item_get_name (item),
-        katze_item_get_added (item),
-        katze_item_get_visits (item));
+        katze_item_get_added (item));
     success = db_exec (db, sqlcmd, &error);
     if (!success)
     {
@@ -739,11 +738,10 @@ midori_history_add_item_cb (KatzeArray* array,
         }
     }
     sqlcmd = g_strdup_printf ("INSERT INTO history VALUES"
-                              "('%s', '%s', %" G_GUINT64_FORMAT ", %d)",
+                              "('%s', '%s', %" G_GUINT64_FORMAT ", -1)",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
-                              katze_item_get_added (item),
-                              katze_item_get_visits (item));
+                              katze_item_get_added (item));
     success = db_exec (db, sqlcmd, &error);
     g_free (sqlcmd);
     if (!success)
@@ -766,7 +764,7 @@ midori_history_add_items (void*  data,
     gint64 date;
     time_t newdate;
     gint i, j, n;
-    gint ncols = 4;
+    gint ncols = 3;
 
     g_return_val_if_fail (KATZE_IS_ARRAY (array), 1);
 
@@ -779,15 +777,13 @@ midori_history_add_items (void*  data,
         {
             if (colname[i] && !g_ascii_strcasecmp (colname[i], "uri") &&
                 colname[i + 1] && !g_ascii_strcasecmp (colname[i + 1], "title") &&
-                colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "date") &&
-                colname[i + 3] && !g_ascii_strcasecmp (colname[i + 3], "visits"))
+                colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "date"))
             {
                 item = katze_item_new ();
                 katze_item_set_uri (item, argv[i]);
                 katze_item_set_name (item, argv[i + 1]);
                 date = g_ascii_strtoull (argv[i + 2], NULL, 10);
                 katze_item_set_added (item, date);
-                katze_item_set_visits (item, atoi (argv[i + 3]));
 
                 n = katze_array_get_length (array);
                 for (j = 0; j < n; j++)
@@ -829,7 +825,7 @@ midori_history_initialize (KatzeArray*  array,
         return NULL;
 
     if (!db_exec_callback (db,
-                           "SELECT uri, title, date, visits FROM history "
+                           "SELECT uri, title, date FROM history "
                            "ORDER BY date ASC",
                            midori_history_add_items,
                            array,

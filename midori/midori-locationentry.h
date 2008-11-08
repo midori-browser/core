@@ -35,44 +35,51 @@ struct _MidoriLocationEntryItem
 };
 
 GType
-midori_location_entry_get_type (void);
+midori_location_entry_get_type             (void);
 
 GtkWidget*
-midori_location_entry_new (void);
+midori_location_entry_new                  (void);
 
 gboolean
-midori_location_entry_item_iter         (MidoriLocationEntry* location_entry,
-                                         const gchar*         uri,
-                                         GtkTreeIter*         iter);
+midori_location_entry_item_iter            (MidoriLocationEntry* location_entry,
+                                            const gchar*         uri,
+                                            GtkTreeIter*         iter);
 
 const gchar*
-midori_location_entry_get_text          (MidoriLocationEntry* location_entry);
+midori_location_entry_get_text             (MidoriLocationEntry* location_entry);
 
 void
-midori_location_entry_set_text          (MidoriLocationEntry* location_entry,
-                                         const gchar*         text);
+midori_location_entry_set_text             (MidoriLocationEntry* location_entry,
+                                            const gchar*         text);
 
 void
-midori_location_entry_clear             (MidoriLocationEntry* location_entry);
+midori_location_entry_reset                (MidoriLocationEntry* location_entry);
 
 void
-midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
-                                         const gchar*         uri);
+midori_location_entry_clear                (MidoriLocationEntry* location_entry);
 
 void
-midori_location_entry_prepend_item      (MidoriLocationEntry* location_entry,
-                                         MidoriLocationEntryItem* item);
+midori_location_entry_set_item_from_uri    (MidoriLocationEntry* location_entry,
+                                            const gchar*         uri);
 
 void
-midori_location_entry_append_item       (MidoriLocationEntry* location_entry,
-                                         MidoriLocationEntryItem* item);
+midori_location_entry_prepend_item         (MidoriLocationEntry* location_entry,
+                                            MidoriLocationEntryItem* item);
+
+void
+midori_location_entry_append_item          (MidoriLocationEntry* location_entry,
+                                            MidoriLocationEntryItem* item);
+
+void
+midori_location_entry_delete_item_from_uri (MidoriLocationEntry* location_entry,
+                                            const gchar*         uri);
 
 gdouble
-midori_location_entry_get_progress      (MidoriLocationEntry* location_entry);
+midori_location_entry_get_progress         (MidoriLocationEntry* location_entry);
 
 void
-midori_location_entry_set_progress      (MidoriLocationEntry* location_entry,
-                                         gdouble              progress);
+midori_location_entry_set_progress         (MidoriLocationEntry* location_entry,
+                                            gdouble              progress);
 
 G_END_DECLS
 

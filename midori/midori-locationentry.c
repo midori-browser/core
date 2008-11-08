@@ -18,6 +18,7 @@
 
 #define DEFAULT_ICON GTK_STOCK_FILE
 #define MAX_ITEMS 25
+/* #define ORDER_BY_VISITS 1 */
 
 struct _MidoriLocationEntry
 {
@@ -31,13 +32,15 @@ struct _MidoriLocationEntryClass
     GtkComboBoxEntryClass parent_class;
 };
 
-G_DEFINE_TYPE (MidoriLocationEntry, midori_location_entry, GTK_TYPE_COMBO_BOX_ENTRY)
+G_DEFINE_TYPE (MidoriLocationEntry,
+    midori_location_entry, GTK_TYPE_COMBO_BOX_ENTRY)
 
 enum
 {
     FAVICON_COL,
     URI_COL,
     TITLE_COL,
+    VISITS_COL,
     VISIBLE_COL,
     N_COLS
 };
@@ -74,16 +77,76 @@ midori_location_entry_class_init (MidoriLocationEntryClass* class)
 }
 
 static GtkTreeModel*
-midori_location_entry_get_model (MidoriLocationEntry* location_entry)
+midori_location_entry_get_filter_model (MidoriLocationEntry* location_entry)
+{
+    return gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+}
+
+static GtkTreeModel*
+midori_location_entry_get_sort_model (MidoriLocationEntry* location_entry)
 {
     GtkTreeModel* model;
     GtkTreeModelFilter* filter_model;
 
-    model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+    model = midori_location_entry_get_filter_model (location_entry);
     filter_model = GTK_TREE_MODEL_FILTER (model);
     g_assert (filter_model);
 
     return gtk_tree_model_filter_get_model (filter_model);
+}
+
+static GtkTreeModel*
+midori_location_entry_get_model (MidoriLocationEntry* location_entry)
+{
+
+    GtkTreeModel* model;
+#ifdef ORDER_BY_VISITS
+    GtkTreeModelSort* sort_model;
+#endif
+
+    model = midori_location_entry_get_sort_model (location_entry);
+
+#ifdef ORDER_BY_VISITS
+    sort_model = GTK_TREE_MODEL_SORT (model);
+    g_assert (sort_model);
+
+    return gtk_tree_model_sort_get_model (sort_model);
+#else
+    return GTK_IS_TREE_MODEL (model) ? model : NULL;
+#endif
+
+}
+
+static gboolean
+midori_location_entry_child_iter_to_iter (MidoriLocationEntry* location_entry,
+                                          GtkTreeIter*         iter,
+                                          GtkTreeIter*         child_iter)
+{
+    GtkTreeModel* filter_model;
+#ifdef ORDER_BY_VISITS
+    GtkTreeModel* sort_model;
+    GtkTreeIter sort_iter;
+#endif
+    GtkTreeIter* temp_iter;
+
+    temp_iter = child_iter;
+
+    filter_model = midori_location_entry_get_filter_model (location_entry);
+
+#ifdef ORDER_BY_VISITS
+    sort_model = midori_location_entry_get_sort_model (location_entry);
+
+    g_return_val_if_fail (GTK_IS_TREE_MODEL_FILTER (filter_model) &&
+                          GTK_IS_TREE_MODEL_SORT (sort_model), FALSE);
+
+    gtk_tree_model_sort_convert_child_iter_to_iter
+        (GTK_TREE_MODEL_SORT (sort_model), &sort_iter, child_iter);
+
+    temp_iter = &sort_iter;
+#endif
+
+    return gtk_tree_model_filter_convert_child_iter_to_iter
+        (GTK_TREE_MODEL_FILTER (filter_model), iter, temp_iter);
 }
 
 #define HAVE_ENTRY_PROGRESS 1
@@ -565,7 +628,7 @@ midori_location_entry_completion_init (MidoriLocationEntry* location_entry)
     completion = gtk_entry_completion_new ();
 
     gtk_entry_completion_set_model (GTK_ENTRY_COMPLETION (completion),
-        midori_location_entry_get_model (location_entry));
+        midori_location_entry_get_sort_model (location_entry));
     gtk_entry_completion_set_text_column (GTK_ENTRY_COMPLETION (completion),
                                           URI_COL);
     gtk_cell_layout_clear (GTK_CELL_LAYOUT (completion));
@@ -597,6 +660,9 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
     GtkListStore* store;
     GtkCellRenderer* renderer;
     GtkTreeModel* filter_model;
+#ifdef ORDER_BY_VISITS
+    GtkTreeModel* sort_model;
+#endif
 
     /* we want the widget to have appears-as-list applied */
     gtk_rc_parse_string ("style \"midori-location-entry-style\" {\n"
@@ -620,8 +686,18 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
     gtk_container_add (GTK_CONTAINER (location_entry), entry);
 
     store = gtk_list_store_new (N_COLS,
-        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
+        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
+        G_TYPE_INT, G_TYPE_BOOLEAN);
+
+#ifdef ORDER_BY_VISITS
+    sort_model = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (store));
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sort_model),
+        VISITS_COL, GTK_SORT_DESCENDING);
+    filter_model = gtk_tree_model_filter_new (GTK_TREE_MODEL (sort_model), NULL);
+#else
     filter_model = gtk_tree_model_filter_new (GTK_TREE_MODEL (store), NULL);
+#endif
+
     gtk_tree_model_filter_set_visible_column (
         GTK_TREE_MODEL_FILTER (filter_model), VISIBLE_COL);
     g_object_set (location_entry, "model", filter_model, NULL);
@@ -687,7 +763,8 @@ midori_location_entry_changed (GtkComboBox* combo_box,
         {
             pixbuf = NULL;
 
-            model = gtk_combo_box_get_model (combo_box);
+            model = midori_location_entry_get_filter_model
+                        (MIDORI_LOCATION_ENTRY (combo_box));
             gtk_tree_model_get (model, &iter, FAVICON_COL, &pixbuf, -1);
 
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
@@ -736,22 +813,19 @@ midori_location_entry_set_active_iter (MidoriLocationEntry* location_entry,
     GdkPixbuf* pixbuf;
     GtkTreeModel* model;
     GtkWidget* entry;
-    GtkTreeModel* filter_model;
-    GtkTreeIter filter_iter;
+    GtkTreeIter parent_iter;
 
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
-
     model = midori_location_entry_get_model (location_entry);
-    filter_model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
 
     /* The filter iter must be set, not the child iter,
      * but the row must first be set as visible to
      * convert to a filter iter without error.
      */
     gtk_list_store_set (GTK_LIST_STORE (model), iter, VISIBLE_COL, TRUE, -1);
-    gtk_tree_model_filter_convert_child_iter_to_iter (
-        GTK_TREE_MODEL_FILTER (filter_model), &filter_iter, iter);
-    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (location_entry), &filter_iter);
+    if (midori_location_entry_child_iter_to_iter (
+        location_entry, &parent_iter, iter))
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (location_entry), &parent_iter);
 
     /* When setting the active iter (when adding or setting an item)
      * the favicon may have changed, so we must update the entry favicon.
@@ -777,7 +851,7 @@ midori_location_entry_set_active_iter (MidoriLocationEntry* location_entry,
 GtkWidget*
 midori_location_entry_new (void)
 {
-    return (g_object_new (MIDORI_TYPE_LOCATION_ENTRY, NULL));
+    return g_object_new (MIDORI_TYPE_LOCATION_ENTRY, NULL);
 }
 
 /**
@@ -878,13 +952,13 @@ midori_location_entry_set_text (MidoriLocationEntry* location_entry,
 }
 
 /**
- * midori_location_entry_clear:
+ * midori_location_entry_reset:
  * @location_entry: a #MidoriLocationEntry
  *
  * Clears the entry text and resets the entry favicon.
  **/
 void
-midori_location_entry_clear (MidoriLocationEntry* location_entry)
+midori_location_entry_reset (MidoriLocationEntry* location_entry)
 {
     GtkWidget* entry;
 
@@ -896,6 +970,23 @@ midori_location_entry_clear (MidoriLocationEntry* location_entry)
     gtk_entry_set_text (GTK_ENTRY (entry), "");
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
         GTK_ICON_ENTRY_PRIMARY, DEFAULT_ICON);
+}
+
+/**
+ * midori_location_entry_clear:
+ * @location_entry: a #MidoriLocationEntry
+ *
+ * Removes all items from @location_entry
+ **/
+void
+midori_location_entry_clear (MidoriLocationEntry* location_entry)
+{
+    GtkTreeModel* model;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
+
+    model = midori_location_entry_get_model (location_entry);
+    gtk_list_store_clear (GTK_LIST_STORE (model));
 }
 
 /**
@@ -917,7 +1008,7 @@ midori_location_entry_set_item_from_uri (MidoriLocationEntry* location_entry,
     if (midori_location_entry_item_iter (location_entry, uri, &iter))
         midori_location_entry_set_active_iter (location_entry, &iter);
     else
-        midori_location_entry_clear (location_entry);
+        midori_location_entry_reset (location_entry);
 
 }
 
@@ -939,22 +1030,23 @@ midori_location_entry_prepend_item (MidoriLocationEntry*     location_entry,
     GtkTreeIter iter;
     GtkTreeIter index;
     gint n;
+    gint visits = 0;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
     g_return_if_fail (item->uri != NULL);
 
-    filter_model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+    filter_model = midori_location_entry_get_filter_model (location_entry);
     model = midori_location_entry_get_model (location_entry);
 
-    if (!midori_location_entry_item_iter (location_entry, item->uri, &iter))
-    {
-        gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
-    }
-    else
+    if (midori_location_entry_item_iter (location_entry, item->uri, &iter))
     {
         gtk_tree_model_get_iter_first (model, &index);
+        gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
         gtk_list_store_move_before (GTK_LIST_STORE (model), &iter, &index);
     }
+    else
+        gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
+
     n = gtk_tree_model_iter_n_children (filter_model, NULL);
     if (n > MAX_ITEMS)
     {
@@ -962,7 +1054,11 @@ midori_location_entry_prepend_item (MidoriLocationEntry*     location_entry,
         gtk_list_store_set (GTK_LIST_STORE (model),
                             &index, VISIBLE_COL, FALSE, -1);
     }
-    gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISIBLE_COL, TRUE, -1);
+
+    /* Only increment the visits when we add the uri */
+    if (!item->title && !item->favicon)
+        gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISITS_COL, ++visits,
+                            VISIBLE_COL, TRUE, -1);
     midori_location_entry_set_item (location_entry, &iter, item);
 }
 
@@ -981,6 +1077,7 @@ midori_location_entry_append_item (MidoriLocationEntry*     location_entry,
     GtkTreeModel* model;
     GtkTreeIter iter;
     gint n;
+    gint visits = 0;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
     g_return_if_fail (item->uri != NULL);
@@ -989,12 +1086,46 @@ midori_location_entry_append_item (MidoriLocationEntry*     location_entry,
 
     if (!midori_location_entry_item_iter (location_entry, item->uri, &iter))
     {
-          gtk_list_store_append (GTK_LIST_STORE (model), &iter);
+        gtk_list_store_append (GTK_LIST_STORE (model), &iter);
 
-          n = gtk_tree_model_iter_n_children (model, NULL);
-          gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISIBLE_COL,
-                              (n <= MAX_ITEMS), -1);
+        n = gtk_tree_model_iter_n_children (model, NULL);
+        gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISIBLE_COL,
+                            (n <= MAX_ITEMS), -1);
     }
+    else
+        gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
+
+    gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISITS_COL, ++visits, -1);
     midori_location_entry_set_item (location_entry, &iter, item);
+}
+
+/**
+ * midori_location_entry_set_item_from_uri:
+ * @location_entry: a #MidoriLocationEntry
+ * @uri: a string
+ *
+ * Finds the item from the list matching @uri
+ * and removes it if it is the last instance.
+ **/
+void
+midori_location_entry_delete_item_from_uri (MidoriLocationEntry* location_entry,
+                                            const gchar*         uri)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    gint visits = 0;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
+
+    model = midori_location_entry_get_model (location_entry);
+    if (midori_location_entry_item_iter (location_entry, uri, &iter))
+    {
+        gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
+        if (visits > 1)
+            gtk_list_store_set (GTK_LIST_STORE (model),
+                &iter, VISITS_COL, --visits, -1);
+        else
+            gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+    }
 }
 
