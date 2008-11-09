@@ -112,6 +112,7 @@ enum {
     NEW_WINDOW,
     SEARCH_TEXT,
     ADD_BOOKMARK,
+    SAVE_AS,
 
     LAST_SIGNAL
 };
@@ -341,6 +342,17 @@ midori_view_class_init (MidoriViewClass* class)
 
     signals[ADD_BOOKMARK] = g_signal_new (
         "add-bookmark",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
+
+    signals[SAVE_AS] = g_signal_new (
+        "save-as",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         0,
@@ -784,6 +796,13 @@ midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
 }
 
 static void
+midori_web_view_menu_save_as_activate_cb (GtkWidget*  widget,
+                                          MidoriView* view)
+{
+    g_signal_emit (view, signals[SAVE_AS], 0, view->link_uri);
+}
+
+static void
 midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
                                            MidoriView* view)
 {
@@ -859,6 +878,12 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         /* hack to disable non-functional Download File
            FIXME: Make sure this really is the right menu item */
         gtk_widget_hide (menuitem);
+        menuitem = gtk_image_menu_item_new_with_mnemonic (
+            _("_Save Link destination"));
+        gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 3);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_web_view_menu_save_as_activate_cb), view);
+        gtk_widget_show (menuitem);
         if (view->download_manager && *view->download_manager)
         {
             menuitem = gtk_image_menu_item_new_with_mnemonic (
@@ -923,8 +948,10 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
         gtk_widget_show (menuitem);
-        /* FIXME: Make this sensitive once it's implemented */
-        gtk_widget_set_sensitive (menuitem, FALSE);
+        /* Currently views that don't support source, don't support
+           saving either. If that changes, we need to think of something. */
+        if (!midori_view_can_view_source (view))
+            gtk_widget_set_sensitive (menuitem, FALSE);
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("View _Source"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "action", "SourceView");
