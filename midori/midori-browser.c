@@ -1115,7 +1115,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "History",
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     flags));
 }
 
 static void
@@ -3432,6 +3432,162 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                    MidoriBrowser*  browser);
 
 static void
+_tree_store_insert_history_item (GtkTreeStore* treestore,
+                                 GtkTreeIter*  parent,
+                                 KatzeItem*    item)
+{
+    GtkTreeIter iter;
+    KatzeItem* child;
+    guint i, n;
+    GtkTreeIter* piter;
+    time_t now;
+    gint64 date;
+    gint age = -1;
+
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        piter = parent;
+        if ((date = katze_item_get_added (item)))
+        {
+            now = time (NULL);
+            age = sokoke_days_between (&date, &now);
+            gtk_tree_store_insert_with_values (treestore, &iter, parent,
+                                               0, 0, item, 1, age, -1);
+            g_object_unref (item);
+            piter = &iter;
+        }
+        n = katze_array_get_length (KATZE_ARRAY (item));
+        for (i = 0; i < n; i++)
+        {
+            child = katze_array_get_nth_item (KATZE_ARRAY (item), i);
+            _tree_store_insert_history_item (treestore, piter, child);
+        }
+    }
+    else
+    {
+        gtk_tree_store_insert_with_values (treestore, &iter, parent,
+                                           0, 0, item, 1, age, -1);
+        g_object_unref (item);
+    }
+}
+
+static void
+midori_browser_new_history_item (MidoriBrowser* browser,
+                                 KatzeItem*     item)
+{
+    GtkTreeView* treeview;
+    GtkTreeModel* treemodel;
+    GtkTreeIter iter;
+    KatzeArray* parent;
+    gint i;
+    gboolean found;
+    time_t now;
+    gint64 date;
+    time_t date_;
+    gint age;
+    gint newage;
+
+    if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+        return;
+
+    treeview = GTK_TREE_VIEW (browser->panel_history);
+    treemodel = gtk_tree_view_get_model (treeview);
+
+    now = time (NULL);
+    katze_item_set_added (item, now);
+
+    found = FALSE;
+    i = 0;
+    while (gtk_tree_model_iter_nth_child (treemodel, &iter, NULL, i++))
+    {
+        gtk_tree_model_get (treemodel, &iter, 0, &parent, 1, &age, -1);
+        date = katze_item_get_added (KATZE_ITEM (parent));
+        date_ = (time_t)date;
+        newage = sokoke_days_between (&date, &now);
+        if (newage == 0)
+        {
+            found = TRUE;
+            _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
+                                             &iter, item);
+            katze_array_add_item (parent, item);
+        }
+        if (age != newage)
+            gtk_tree_store_set (GTK_TREE_STORE (treemodel),
+                                &iter, 1, newage, -1);
+        g_object_unref (parent);
+    }
+    if (!found)
+    {
+        parent = katze_array_new (KATZE_TYPE_ARRAY);
+        katze_item_set_added (KATZE_ITEM (parent), now);
+        katze_array_add_item (browser->history, parent);
+        katze_array_add_item (parent, item);
+        _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
+                                         KATZE_ITEM (parent));
+    }
+}
+
+static void
+_location_action_insert_history_item (MidoriLocationAction* action,
+                                      MidoriBrowser*        browser,
+                                      KatzeItem*            item)
+{
+    KatzeItem* child;
+    guint i, n;
+    const gchar* uri;
+    GdkPixbuf* pixbuf = NULL;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (action));
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        n = katze_array_get_length (KATZE_ARRAY (item));
+        for (i = n; i > 0; i--)
+        {
+            child = katze_array_get_nth_item (KATZE_ARRAY (item), i - 1);
+            _location_action_insert_history_item (action, browser, child);
+        }
+    }
+    else
+    {
+        uri = katze_item_get_uri (item);
+        pixbuf = katze_net_load_icon (browser->net, katze_item_get_uri (item),
+                                      NULL, GTK_WIDGET (browser), NULL);
+        midori_location_action_add_item (action, uri, pixbuf, katze_item_get_name (item));
+    }
+}
+
+static void
+midori_browser_load_history (MidoriBrowser* browser)
+{
+    GtkTreeView* treeview;
+    GtkTreeModel* treemodel;
+    GtkAction* action;
+
+    /* FIXME: Clear current items */
+
+    g_object_set (_action_by_name (browser, "RecentlyVisited"),
+                  "array", browser->history, NULL);
+
+    if (!browser->history)
+        return;
+
+    treeview = GTK_TREE_VIEW (browser->panel_history);
+    treemodel = gtk_tree_view_get_model (treeview);
+
+    _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
+                                     NULL, KATZE_ITEM (browser->history));
+
+    action = _action_by_name (browser, "Location");
+    _location_action_insert_history_item (MIDORI_LOCATION_ACTION (action),
+                                          browser,
+                                          KATZE_ITEM (browser->history));
+}
+
+static void
 midori_browser_init (MidoriBrowser* browser)
 {
     GtkWidget* vbox;
@@ -3462,7 +3618,6 @@ midori_browser_init (MidoriBrowser* browser)
     browser->bookmarks = NULL;
     browser->trash = NULL;
     browser->search_engines = NULL;
-    browser->history = NULL;
 
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
@@ -4288,157 +4443,6 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
 }
 
 static void
-_tree_store_insert_history_item (GtkTreeStore* treestore,
-                                 GtkTreeIter*  parent,
-                                 KatzeItem*    item)
-{
-    GtkTreeIter iter;
-    KatzeItem* child;
-    guint i, n;
-    GtkTreeIter* piter;
-    time_t now;
-    gint64 date;
-    gint age = -1;
-
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        piter = parent;
-        if ((date = katze_item_get_added (item)))
-        {
-            now = time (NULL);
-            age = sokoke_days_between (&date, &now);
-            gtk_tree_store_insert_with_values (treestore, &iter, parent,
-                                               0, 0, item, 1, age, -1);
-            g_object_unref (item);
-            piter = &iter;
-        }
-        n = katze_array_get_length (KATZE_ARRAY (item));
-        for (i = 0; i < n; i++)
-        {
-            child = katze_array_get_nth_item (KATZE_ARRAY (item), i);
-            _tree_store_insert_history_item (treestore, piter, child);
-        }
-    }
-    else
-    {
-        gtk_tree_store_insert_with_values (treestore, &iter, parent,
-                                           0, 0, item, 1, age, -1);
-        g_object_unref (item);
-    }
-}
-
-static void
-midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem*     item)
-{
-    GtkTreeView* treeview;
-    GtkTreeModel* treemodel;
-    GtkTreeIter iter;
-    KatzeArray* parent;
-    gint i;
-    gboolean found;
-    time_t now;
-    gint64 date;
-    time_t date_;
-    gint age;
-    gint newage;
-
-    if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
-        return;
-
-    treeview = GTK_TREE_VIEW (browser->panel_history);
-    treemodel = gtk_tree_view_get_model (treeview);
-
-    now = time (NULL);
-    katze_item_set_added (item, now);
-
-    found = FALSE;
-    i = 0;
-    while (gtk_tree_model_iter_nth_child (treemodel, &iter, NULL, i++))
-    {
-        gtk_tree_model_get (treemodel, &iter, 0, &parent, 1, &age, -1);
-        date = katze_item_get_added (KATZE_ITEM (parent));
-        date_ = (time_t)date;
-        newage = sokoke_days_between (&date, &now);
-        if (newage == 0)
-        {
-            found = TRUE;
-            _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
-                                             &iter, item);
-            katze_array_add_item (parent, item);
-        }
-        if (age != newage)
-            gtk_tree_store_set (GTK_TREE_STORE (treemodel),
-                                &iter, 1, newage, -1);
-        g_object_unref (parent);
-    }
-    if (!found)
-    {
-        parent = katze_array_new (KATZE_TYPE_ARRAY);
-        katze_item_set_added (KATZE_ITEM (parent), now);
-        katze_array_add_item (browser->history, parent);
-        katze_array_add_item (parent, item);
-        _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
-                                         KATZE_ITEM (parent));
-    }
-}
-
-static void
-_location_action_insert_history_item (MidoriLocationAction* action,
-                                      MidoriBrowser*        browser,
-                                      KatzeItem*            item)
-{
-    KatzeItem* child;
-    guint i, n;
-    const gchar* uri;
-    GdkPixbuf* pixbuf = NULL;
-
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (action));
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        n = katze_array_get_length (KATZE_ARRAY (item));
-        for (i = n; i > 0; i--)
-        {
-            child = katze_array_get_nth_item (KATZE_ARRAY (item), i - 1);
-            _location_action_insert_history_item (action, browser, child);
-        }
-    }
-    else
-    {
-        uri = katze_item_get_uri (item);
-        pixbuf = katze_net_load_icon (browser->net, katze_item_get_uri (item),
-                                      NULL, GTK_WIDGET (browser), NULL);
-        midori_location_action_add_item (action, uri, pixbuf, katze_item_get_name (item));
-    }
-}
-
-static void
-midori_browser_load_history (MidoriBrowser* browser)
-{
-    GtkTreeView* treeview;
-    GtkTreeModel* treemodel;
-    GtkAction* action;
-
-    if (!browser->history)
-        return;
-
-    treeview = GTK_TREE_VIEW (browser->panel_history);
-    treemodel = gtk_tree_view_get_model (treeview);
-
-    _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
-                                     NULL, KATZE_ITEM (browser->history));
-
-    action = _action_by_name (browser, "Location");
-    _location_action_insert_history_item (MIDORI_LOCATION_ACTION (action),
-                                          browser,
-                                          KATZE_ITEM (browser->history));
-}
-
-static void
 midori_browser_set_property (GObject*      object,
                              guint         prop_id,
                              const GValue* value,
@@ -4472,7 +4476,7 @@ midori_browser_set_property (GObject*      object,
             (GtkCallback) midori_view_set_settings, browser->settings);
         break;
     case PROP_BOOKMARKS:
-        ; /* FIXME: Disconnect handlers */
+        /* FIXME: Disconnect handlers */
         katze_object_assign (browser->bookmarks, g_value_dup_object (value));
         g_object_set (_action_by_name (browser, "Bookmarks"), "array",
             browser->bookmarks, NULL);
@@ -4480,7 +4484,7 @@ midori_browser_set_property (GObject*      object,
         /* FIXME: Connect to updates */
         break;
     case PROP_TRASH:
-        ; /* FIXME: Disconnect handlers */
+        /* FIXME: Disconnect handlers */
         katze_object_assign (browser->trash, g_value_dup_object (value));
         g_object_set (_action_by_name (browser, "Trash"), "array",
             browser->trash, NULL);
@@ -4488,7 +4492,7 @@ midori_browser_set_property (GObject*      object,
         _midori_browser_update_actions (browser);
         break;
     case PROP_SEARCH_ENGINES:
-        ; /* FIXME: Disconnect handlers */
+        /* FIXME: Disconnect handlers */
         katze_object_assign (browser->search_engines, g_value_dup_object (value));
         midori_search_action_set_search_engines (MIDORI_SEARCH_ACTION (
             _action_by_name (browser, "Search")), browser->search_engines);
@@ -4504,11 +4508,9 @@ midori_browser_set_property (GObject*      object,
         }
         break;
     case PROP_HISTORY:
-        ; /* FIXME: Disconnect handlers */
+        /* FIXME: Disconnect handlers */
         katze_object_assign (browser->history, g_value_dup_object (value));
         midori_browser_load_history (browser);
-        g_object_set (_action_by_name (browser, "RecentlyVisited"), "array",
-            browser->history, NULL);
         /* FIXME: Connect to updates */
         break;
     default:
