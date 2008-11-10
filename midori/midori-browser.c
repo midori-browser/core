@@ -2910,6 +2910,8 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+    midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
+        midori_view_get_icon (MIDORI_VIEW (view)));
 
     title = midori_view_get_display_title (MIDORI_VIEW (view));
     window_title = g_strconcat (title, " - ",

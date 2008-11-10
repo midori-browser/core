@@ -611,7 +611,7 @@ midori_location_action_item_iter (MidoriLocationAction* location_action,
     g_return_val_if_fail (uri != NULL, FALSE);
 
     found = FALSE;
-    model = location_action->model; // filter_model
+    model = location_action->model;
     if (gtk_tree_model_get_iter_first (model, iter))
     {
         tmpuri = NULL;
@@ -860,6 +860,7 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
     GdkPixbuf* icon;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (text != NULL);
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
     if (!proxies)
@@ -875,7 +876,7 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
         gtk_entry_set_text (GTK_ENTRY (entry), text);
         if (midori_location_action_item_iter (location_action, text, &iter))
         {
-            model = location_action->model; // filter_model
+            model = location_action->model;
             gtk_tree_model_get (model, &iter, FAVICON_COL, &icon, -1);
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, icon);
@@ -898,6 +899,35 @@ midori_location_action_set_uri (MidoriLocationAction* location_action,
     katze_assign (location_action->uri, g_strdup (uri));
 
     midori_location_action_set_text (location_action, uri);
+}
+
+void
+midori_location_action_set_icon (MidoriLocationAction* location_action,
+                                 GdkPixbuf*            icon)
+{
+    GSList* proxies;
+    GtkWidget* alignment;
+    GtkWidget* location_entry;
+    GtkWidget* entry;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (icon && GDK_IS_PIXBUF (icon));
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    if (!proxies)
+        return;
+
+    do
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
+        location_entry = gtk_bin_get_child (GTK_BIN (alignment));
+        entry = gtk_bin_get_child (GTK_BIN (location_entry));
+
+        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
+            GTK_ICON_ENTRY_PRIMARY, icon);
+    }
+    while ((proxies = g_slist_next (proxies)));
 }
 
 /**

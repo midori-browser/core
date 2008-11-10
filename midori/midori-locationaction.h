@@ -52,6 +52,10 @@ midori_location_action_set_uri              (MidoriLocationAction* location_acti
                                              const gchar*          uri);
 
 void
+midori_location_action_set_icon             (MidoriLocationAction* location_action,
+                                             GdkPixbuf*            icon);
+
+void
 midori_location_action_add_uri              (MidoriLocationAction* location_action,
                                              const gchar*          uri);
 
