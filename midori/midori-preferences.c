@@ -412,7 +412,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Shrink images automatically"));
     SPANNED_ADD (button, 1, 2, 0, 1);
     button = katze_property_proxy (settings, "print-backgrounds", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Print backgrounds"));
+    gtk_button_set_label (GTK_BUTTON (button), _("Print background images"));
     INDENTED_ADD (button, 0, 1, 1, 2);
     button = katze_property_proxy (settings, "resizable-text-areas", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Resizable text areas"));
