@@ -1824,6 +1824,9 @@ midori_view_get_proxy_tab_label (MidoriView* view)
             G_CALLBACK (midori_view_tab_close_clicked), view);
 
         view->tab_label = event_box;
+        g_signal_connect (view->tab_icon, "destroy",
+                          G_CALLBACK (gtk_widget_destroyed),
+                          &view->tab_icon);
         g_signal_connect (view->tab_label, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
                           &view->tab_label);
