@@ -57,6 +57,10 @@ stock_items_init (void)
         guint keyval;
         gchar* fallback;
     } FatStockItem;
+    GtkIconSource* icon_source;
+    GtkIconSet* icon_set;
+    GtkIconFactory* factory = gtk_icon_factory_new ();
+    gsize i;
 
     static FatStockItem items[] =
     {
@@ -82,12 +86,7 @@ stock_items_init (void)
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
     };
 
-    GtkIconSource* icon_source;
-    GtkIconSet* icon_set;
-    GtkIconFactory* factory = gtk_icon_factory_new ();
-    guint i;
-
-    for (i = 0; i < (guint)G_N_ELEMENTS (items); i++)
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
         icon_set = gtk_icon_set_new ();
         icon_source = gtk_icon_source_new ();
@@ -191,7 +190,7 @@ settings_new_from_file (const gchar* filename)
             g_type_class_unref (enum_class);
         }
         else
-            g_warning (_("Unhandled settings value '%s'"), property);
+            g_warning (_("Invalid configuration value '%s'"), property);
     }
     return settings;
 }
@@ -208,6 +207,7 @@ settings_save_to_file (MidoriWebSettings* settings,
     GParamSpec* pspec;
     GType type;
     const gchar* property;
+    gboolean saved;
 
     key_file = g_key_file_new ();
     class = G_OBJECT_GET_CLASS (settings);
@@ -260,9 +260,9 @@ settings_save_to_file (MidoriWebSettings* settings,
                                    enum_value->value_name);
         }
         else
-            g_warning (_("Unhandled settings value '%s'"), property);
+            g_warning (_("Invalid configuration value '%s'"), property);
     }
-    gboolean saved = sokoke_key_file_save_to_file (key_file, filename, error);
+    saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;
 }

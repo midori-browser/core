@@ -79,9 +79,9 @@ midori_load_status_get_type (void)
     if (type)
         return type;
     static const GEnumValue values[] = {
-     { MIDORI_LOAD_PROVISIONAL, "MIDORI_LOAD_PROVISIONAL", N_("Load Provisional") },
-     { MIDORI_LOAD_COMMITTED, "MIDORI_LOAD_COMMITTED", N_("Load Committed") },
-     { MIDORI_LOAD_FINISHED, "MIDORI_LOAD_FINISHED", N_("Load Finished") },
+     { MIDORI_LOAD_PROVISIONAL, "MIDORI_LOAD_PROVISIONAL", "Load Provisional" },
+     { MIDORI_LOAD_COMMITTED, "MIDORI_LOAD_COMMITTED", "Load Committed" },
+     { MIDORI_LOAD_FINISHED, "MIDORI_LOAD_FINISHED", "Load Finished" },
      { 0, NULL, NULL }
     };
     type = g_enum_register_static ("MidoriLoadStatus", values);

@@ -4,13 +4,18 @@ This file is licensed under the terms of the expat license, see the file EXPAT.
 
 If you want to translate Midori, you need a few preparations.
 
-First enable localization file updates when building:
+First create/ update the localization template:
 
-./waf configure --enable-update-po && ./waf build
+./waf build --update-po
+
+Running this command again will also update all translations
+as needed, according to changes in the template.
 
 If you want to add a new language 'aa', create it like this:
 
-msginit -l aa_CC -o aa.po -i midori.pot && sed -i 's/PACKAGE/midori/g' aa.po
+cd po
+msginit -l aa_CC -o aa.po -i midori.pot
+sed -i 's/PACKAGE/midori/g' aa.po
 
 To check your language 'aa' for errors, do this:
 

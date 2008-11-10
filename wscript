@@ -50,16 +50,6 @@ def configure (conf):
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
 
-    if Params.g_options.enable_update_po:
-        conf.find_program ('intltool-update', var='INTLTOOL_UPDATE')
-        if conf.env['INTLTOOL_UPDATE']:
-            update_po = 'yes'
-        else:
-            update_po = 'not available'
-    else:
-        update_po = 'no'
-    conf.check_message_custom ('localization file', 'updates', update_po)
-
     # We support building without intltool
     # Therefore datadir may not have been defined
     if not conf.is_defined ('DATADIR'):
@@ -150,10 +140,11 @@ def set_options (opt):
     opt.add_option ('--disable-sqlite', action='store_true', default=False,
         help='Disables sqlite support', dest='disable_sqlite')
 
-    opt.add_option ('--enable-update-po', action='store_true', default=False,
-        help='Enables localization file updates', dest='enable_update_po')
     opt.add_option ('--enable-api-docs', action='store_true', default=False,
         help='Enables API documentation', dest='enable_api_docs')
+
+    opt.add_option ('--update-po', action='store_true', default=False,
+        help='Update localization files', dest='update_po')
 
 def build (bld):
     def mkdir (path):
@@ -188,7 +179,9 @@ def build (bld):
         install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
 
     if bld.env ()['INTLTOOL']:
-        bld.add_subdirs ('po')
+        obj = bld.create_obj ('intltool_po')
+        obj.podir = 'po'
+        obj.appname = APPNAME
 
     if bld.env ()['GTKDOC_SCAN'] and Params.g_commands['build']:
         bld.add_subdirs ('docs/api')
@@ -234,3 +227,26 @@ def shutdown ():
         if not icon_cache_updated:
             Params.pprint ('YELLOW', "Icon cache not updated. After install, run this:")
             Params.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
+
+    elif Params.g_options.update_po:
+        os.chdir('./po')
+        try:
+            try:
+                size_old = os.stat (APPNAME + '.pot').st_size
+            except:
+                size_old = 0
+            subprocess.call (['intltool-update', '--pot'])
+            size_new = os.stat (APPNAME + '.pot').st_size
+            if size_new <> size_old:
+                Params.pprint ('YELLOW', "Updated po template.")
+                try:
+                    intltool_update = subprocess.Popen (['intltool-update', '-r'],
+                                                         stderr=subprocess.PIPE)
+                    intltool_update.wait ()
+                    Params.pprint ('YELLOW', "Updated translations.")
+                except:
+                    Params.pprint ('RED', "Failed to update translations.")
+        except:
+            Params.pprint ('RED', "Failed to generate po template.")
+            Params.pprint ('RED', "Make sure intltool is installed.")
+        os.chdir ('..')
