@@ -122,6 +122,20 @@ def configure (conf):
     conf.write_config_header ('config.h')
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
 
+    print
+    if single_instance == 'not available':
+        print "Single instance support is unavailable in this build."
+        print " Install libUnique and reconfigure to enable it."
+        print
+    if libsoup == 'not available':
+        print "Icons, view source and Save as are unavailable in this build."
+        print " Install libSoup and reconfigure to enable these features."
+        print
+    if sqlite == 'not available':
+        print "History storage on disk is unavailable in this build."
+        print " Install sqlite3 and reconfigure to enable it."
+        print
+
 def set_options (opt):
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
