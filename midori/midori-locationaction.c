@@ -326,23 +326,6 @@ midori_location_action_create_tool_item (GtkAction* action)
     return toolitem;
 }
 
-static void
-midori_location_action_active_changed_cb (GtkWidget* location_entry,
-                                          gint       active,
-                                          GtkAction* action)
-{
-    MidoriLocationAction* location_action;
-    GtkWidget* entry;
-    const gchar* text;
-
-    location_action = MIDORI_LOCATION_ACTION (action);
-    entry = gtk_bin_get_child (GTK_BIN (location_entry));
-    text = gtk_entry_get_text (GTK_ENTRY (entry));
-    katze_assign (location_action->uri, g_strdup (text));
-
-    g_signal_emit (action, signals[ACTIVE_CHANGED], 0, active);
-}
-
 static gboolean
 midori_location_action_key_press_event_cb (GtkWidget*   widget,
                                            GdkEventKey* event,
@@ -569,7 +552,7 @@ midori_location_action_set_active_iter (MidoriLocationAction* location_action,
     GtkWidget* entry;
     GtkTreeIter parent_iter;
 
-    model = location_action->filter_model;
+    model = location_action->model;
 
     /* The filter iter must be set, not the child iter,
      * but the row must first be set as visible to
@@ -705,10 +688,10 @@ midori_location_action_set_item_from_uri (MidoriLocationAction* location_action,
 }
 
 static gboolean
-midori_location_entry_completion_selected (GtkEntryCompletion*   completion,
-                                           GtkTreeModel*         model,
-                                           GtkTreeIter*          iter,
-                                           MidoriLocationAction* location_action)
+midori_location_entry_match_selected_cb (GtkEntryCompletion*   completion,
+                                         GtkTreeModel*         model,
+                                         GtkTreeIter*          iter,
+                                         MidoriLocationAction* location_action)
 {
     gchar* uri;
 
@@ -749,7 +732,7 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
 
     gtk_entry_set_completion (GTK_ENTRY (entry), completion);
     g_signal_connect (completion, "match-selected",
-        G_CALLBACK (midori_location_entry_completion_selected), location_entry);
+        G_CALLBACK (midori_location_entry_match_selected_cb), location_action);
 
     g_object_unref (completion);
 }
@@ -762,6 +745,7 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
     GtkIconEntry* entry;
     GtkTreeModel* model;
     GdkPixbuf* pixbuf;
+    gchar* uri;
 
     if (gtk_combo_box_get_active_iter (combo_box, &iter))
     {
@@ -770,14 +754,16 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
             pixbuf = NULL;
 
             model = location_action->filter_model;
-            gtk_tree_model_get (model, &iter, FAVICON_COL, &pixbuf, -1);
+            gtk_tree_model_get (model, &iter, FAVICON_COL, &pixbuf,
+                URI_COL, &uri, -1);
 
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                                                  GTK_ICON_ENTRY_PRIMARY, pixbuf);
             g_object_unref (pixbuf);
+            katze_assign (location_action->uri, uri);
 
-            g_signal_emit (MIDORI_LOCATION_ENTRY (combo_box),
-                signals[ACTIVE_CHANGED], 0, gtk_combo_box_get_active (combo_box));
+            g_signal_emit (location_action, signals[ACTIVE_CHANGED], 0,
+                           gtk_combo_box_get_active (combo_box));
         }
     }
 }
@@ -823,8 +809,6 @@ midori_location_action_connect_proxy (GtkAction* action,
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
 
-        g_signal_connect (location_action, "active-changed",
-            G_CALLBACK (midori_location_action_active_changed_cb), action);
         g_object_connect (gtk_bin_get_child (GTK_BIN (entry)),
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
