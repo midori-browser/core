@@ -702,8 +702,8 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
             if (event->state & GDK_SHIFT_MASK)
-                g_signal_emit_by_name (view, "new-tab", link_uri, background);
-            else g_signal_emit_by_name (view, "new-tab", link_uri, !background);
+                background = !background;
+            g_signal_emit_by_name (view, "new-tab", link_uri, background);
             return TRUE;
         }
         else if (event->state & GDK_SHIFT_MASK)
