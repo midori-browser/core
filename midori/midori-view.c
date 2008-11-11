@@ -691,7 +691,21 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 1:
         if (!link_uri)
             return FALSE;
-        if (state & GDK_SHIFT_MASK)
+        #ifdef HAVE_OSX
+        /* FIXME: Test for Command key */
+        if (0)
+        #else
+        if (state & GDK_CONTROL_MASK)
+        #endif
+        {
+            /* Open link in new tab */
+            background = view->open_tabs_in_the_background;
+            if (state & GDK_SHIFT_MASK)
+                g_signal_emit_by_name (view, "new-tab", link_uri, background);
+            else g_signal_emit_by_name (view, "new-tab", link_uri, !background);
+            return TRUE;
+        }
+        else if (state & GDK_SHIFT_MASK)
         {
             /* Open link in new window */
             g_signal_emit_by_name (view, "new-window", link_uri);
