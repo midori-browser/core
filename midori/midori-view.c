@@ -675,15 +675,12 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                                   GdkEventButton* event,
                                   MidoriView*     view)
 {
-    GdkModifierType state;
-    gint x, y;
     GtkClipboard* clipboard;
     gchar* uri;
     gchar* new_uri;
     const gchar* link_uri;
     gboolean background;
 
-    gdk_window_get_pointer (NULL, &x, &y, &state);
     link_uri = midori_view_get_link_uri (MIDORI_VIEW (view));
 
     switch (event->button)
@@ -695,27 +692,27 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         /* FIXME: Test for Command key */
         if (0)
         #else
-        if (state & GDK_CONTROL_MASK)
+        if (event->state & GDK_CONTROL_MASK)
         #endif
         {
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
-            if (state & GDK_SHIFT_MASK)
+            if (event->state & GDK_SHIFT_MASK)
                 g_signal_emit_by_name (view, "new-tab", link_uri, background);
             else g_signal_emit_by_name (view, "new-tab", link_uri, !background);
             return TRUE;
         }
-        else if (state & GDK_SHIFT_MASK)
+        else if (event->state & GDK_SHIFT_MASK)
         {
             /* Open link in new window */
             g_signal_emit_by_name (view, "new-window", link_uri);
             return TRUE;
         }
-        else if (state & GDK_MOD1_MASK)
+        else if (event->state & GDK_MOD1_MASK)
         {
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
-            if (state & GDK_CONTROL_MASK)
+            if (event->state & GDK_CONTROL_MASK)
                 background = !background;
             g_signal_emit_by_name (view, "new-tab", link_uri, background);
             return TRUE;
@@ -726,19 +723,18 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         {
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
-            if (state & GDK_CONTROL_MASK)
+            if (event->state & GDK_CONTROL_MASK)
                 background = !background;
             g_signal_emit_by_name (view, "new-tab", link_uri, background);
             return TRUE;
         }
-        else if (state & GDK_CONTROL_MASK)
+        else if (event->state & GDK_CONTROL_MASK)
         {
             midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0);
             return FALSE; /* Allow Ctrl + Middle click */
         }
         else if (view->middle_click_opens_selection)
         {
-            state = (GdkModifierType) event->state;
             clipboard = gtk_clipboard_get_for_display (
                 gtk_widget_get_display (GTK_WIDGET (view)),
                 GDK_SELECTION_PRIMARY);
@@ -746,10 +742,10 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             if (uri && strchr (uri, '.') && !strchr (uri, ' '))
             {
                 new_uri = sokoke_magic_uri (uri, NULL);
-                if (state & GDK_CONTROL_MASK)
+                if (event->state & GDK_CONTROL_MASK)
                 {
                     background = view->open_tabs_in_the_background;
-                    if (state & GDK_CONTROL_MASK)
+                    if (event->state & GDK_CONTROL_MASK)
                         background = !background;
                     g_signal_emit_by_name (view, "new-tab", new_uri, background);
                 }
@@ -774,11 +770,7 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
                             GdkEventScroll* event,
                             MidoriView*     view)
 {
-    GdkModifierType state = (GdkModifierType)0;
-    gint x, y;
-
-    gdk_window_get_pointer (NULL, &x, &y, &state);
-    if (state & GDK_CONTROL_MASK)
+    if (event->state & GDK_CONTROL_MASK)
     {
         if (event->direction == GDK_SCROLL_DOWN)
             webkit_web_view_zoom_out (WEBKIT_WEB_VIEW (web_view));
