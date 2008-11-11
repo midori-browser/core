@@ -670,6 +670,9 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
     g_object_set (G_OBJECT (view), "statusbar-text", link_uri, NULL);
 }
 
+#define MIDORI_KEYS_MODIFIER_MASK (GDK_SHIFT_MASK | GDK_CONTROL_MASK \
+    | GDK_MOD1_MASK | GDK_META_MASK | GDK_SUPER_MASK | GDK_HYPER_MASK )
+
 static gboolean
 gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                                   GdkEventButton* event,
@@ -681,6 +684,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     const gchar* link_uri;
     gboolean background;
 
+    event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
     link_uri = midori_view_get_link_uri (MIDORI_VIEW (view));
 
     switch (event->button)
@@ -770,6 +774,8 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
                             GdkEventScroll* event,
                             MidoriView*     view)
 {
+    event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
+
     if (event->state & GDK_CONTROL_MASK)
     {
         if (event->direction == GDK_SCROLL_DOWN)
