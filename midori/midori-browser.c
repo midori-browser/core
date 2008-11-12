@@ -2914,8 +2914,7 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
         midori_view_get_icon (MIDORI_VIEW (view)));
 
     title = midori_view_get_display_title (MIDORI_VIEW (view));
-    window_title = g_strconcat (title, " - ",
-                                g_get_application_name (), NULL);
+    window_title = g_strconcat (title, " - ", g_get_application_name (), NULL);
     gtk_window_set_title (GTK_WINDOW (browser), window_title);
     g_free (window_title);
 
@@ -3470,7 +3469,7 @@ _tree_store_insert_history_item (GtkTreeStore* treestore,
         if ((date = katze_item_get_added (item)))
         {
             now = time (NULL);
-            age = sokoke_days_between (&date, &now);
+            age = sokoke_days_between ((time_t *)&date, (time_t *)&now);
             gtk_tree_store_insert_with_values (treestore, &iter, parent,
                                                0, 0, item, 1, age, -1);
             g_object_unref (item);
@@ -3523,7 +3522,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
         gtk_tree_model_get (treemodel, &iter, 0, &parent, 1, &age, -1);
         date = katze_item_get_added (KATZE_ITEM (parent));
         date_ = (time_t)date;
-        newage = sokoke_days_between (&date, &now);
+        newage = sokoke_days_between ((time_t *)&date, (time_t *)&now);
         if (newage == 0)
         {
             found = TRUE;

@@ -788,7 +788,7 @@ midori_history_add_items (void*  data,
                 {
                     parent = katze_array_get_nth_item (array, j);
                     newdate = katze_item_get_added (KATZE_ITEM (parent));
-                    if (sokoke_same_day (&date, &newdate))
+                    if (sokoke_same_day ((time_t *)&date, (time_t *)&newdate))
                         break;
                 }
                 if (j == n)

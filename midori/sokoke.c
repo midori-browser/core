@@ -29,7 +29,7 @@ error_dialog (const gchar* short_message,
               const gchar* detailed_message)
 {
     GtkWidget* dialog = gtk_message_dialog_new (
-            NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, short_message);
+        NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", short_message);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
                                               "%s", detailed_message);
     gtk_widget_show (dialog);
@@ -94,8 +94,8 @@ sokoke_magic_uri (const gchar* uri,
     KatzeItem* item;
 
     g_return_val_if_fail (uri, NULL);
-    if (search_engines)
-        g_return_val_if_fail (katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
+    g_return_val_if_fail (!search_engines ||
+        katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
 
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
