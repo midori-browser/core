@@ -7,6 +7,7 @@ import pproc as subprocess
 import Common
 import sys
 import os
+import UnitTest
 
 APPNAME = 'midori'
 VERSION = '0.1.0'
@@ -224,6 +225,9 @@ def build (bld):
         else:
             Params.pprint ('BLUE', "logo-shade could not be rasterized.")
 
+    if Params.g_commands['check']:
+        bld.add_subdirs ('tests')
+
 def shutdown ():
     if Params.g_commands['install'] or Params.g_commands['uninstall']:
         dir = Common.path_install ('DATADIR', 'icons/hicolor')
@@ -241,6 +245,14 @@ def shutdown ():
         if not icon_cache_updated:
             Params.pprint ('YELLOW', "Icon cache not updated. After install, run this:")
             Params.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
+
+    elif Params.g_commands['check']:
+        test = UnitTest.unit_test ()
+        test.change_to_testfile_dir = True
+        test.want_to_see_test_output = True
+        test.want_to_see_test_error = True
+        test.run ()
+        test.print_results ()
 
     elif Params.g_options.update_po:
         os.chdir('./po')

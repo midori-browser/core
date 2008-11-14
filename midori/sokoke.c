@@ -88,9 +88,9 @@ sokoke_magic_uri (const gchar* uri,
 {
     gchar* current_dir;
     gchar* result;
+    gchar** parts;
     gchar* search;
     const gchar* search_uri;
-    gchar** parts;
     KatzeItem* item;
 
     g_return_val_if_fail (uri, NULL);
@@ -114,8 +114,17 @@ sokoke_magic_uri (const gchar* uri,
     if (!strstr (uri, "://"))
     {
         /* Do we have a domain, ip address or localhost? */
-        if (strchr (uri, '.') != NULL || strchr (uri, ':')
-            || !strcmp (uri, "localhost"))
+        parts = g_strsplit (uri, ".", 0);
+        if (parts[0] && parts[1])
+        {
+            search = NULL;
+            if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
+                search = g_strconcat ("http://", uri, NULL);
+            g_free (parts);
+            if (search)
+                return search;
+        }
+        if (strchr (uri, ':') || !strcmp (uri, "localhost"))
             return g_strconcat ("http://", uri, NULL);
         /* We don't want to search? So return early. */
         if (!search_engines)
