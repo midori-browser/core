@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+# WAF build script for midori
+# This file is licensed under the terms of the expat license, see the file EXPAT.
+
+obj = bld.create_obj ('cc', 'program')
+obj.target = 'magic-uri'
+obj.includes = '.. ../midori'
+obj.source = 'magic-uri.c ../midori/compat.c ../midori/sokoke.c'
+obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
+obj.uselib_local = 'katze'
+obj.unit_test = 1
