@@ -70,6 +70,8 @@ main (int    argc,
     test_input ("gtk2.0", NULL);
     test_input ("midori0.1.0", NULL);
     test_input ("midori 0.1.0", NULL);
+    test_input ("search:cats", NULL);
+    test_input ("search:twotoasts.de", NULL);
 
     return 0;
 }
