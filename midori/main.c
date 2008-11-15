@@ -1012,7 +1012,7 @@ midori_browser_session_cb (MidoriBrowser* browser,
 
     config_path = g_build_filename (g_get_user_config_dir (),
                                     PACKAGE_NAME, NULL);
-    g_mkdir_with_parents (config_path, 0755);
+    g_mkdir_with_parents (config_path, 0700);
     config_file = g_build_filename (config_path, "session.xbel", NULL);
     error = NULL;
     if (!katze_array_to_file (session, config_file, &error))
@@ -1160,7 +1160,7 @@ main (int    argc,
     GString* error_messages = g_string_new (NULL);
     gchar* config_path = g_build_filename (g_get_user_config_dir (),
                                            PACKAGE_NAME, NULL);
-    g_mkdir_with_parents (config_path, 0755);
+    g_mkdir_with_parents (config_path, 0700);
     gchar* config_file = g_build_filename (config_path, "config", NULL);
     error = NULL;
     MidoriWebSettings* settings = settings_new_from_file (config_file);
@@ -1387,7 +1387,7 @@ main (int    argc,
     /* Save configuration files */
     config_path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME,
                                     NULL);
-    g_mkdir_with_parents (config_path, 0755);
+    g_mkdir_with_parents (config_path, 0700);
     g_object_unref (history);
     #ifdef HAVE_SQLITE
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
