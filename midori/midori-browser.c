@@ -635,14 +635,20 @@ midori_browser_save_transfer_cb (KatzeNetRequest* request,
                                  gchar*           filename)
 {
     FILE* fp;
+    size_t ret;
 
     if (request->data)
     {
         /* FIXME: Show an error message if the file cannot be saved */
         if ((fp = fopen (filename, "wb")))
         {
-            fwrite (request->data, 1, request->length, fp);
+            ret = fwrite (request->data, 1, request->length, fp);
             fclose (fp);
+            if ((ret - request->length) != 0)
+            {
+                /*  FIXME: We need error handling. If this is called,
+                    i means there was a write error */
+            }
         }
     }
     g_free (filename);
@@ -1822,6 +1828,7 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
     gchar* text_editor;
     gint fd;
     FILE* fp;
+    size_t ret;
 
     if (request->data)
     {
@@ -1833,8 +1840,13 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
         {
             if ((fp = fdopen (fd, "w")))
             {
-                fwrite (request->data, 1, request->length, fp);
+                ret = fwrite (request->data, 1, request->length, fp);
                 fclose (fp);
+                if ((ret - request->length) != 0)
+                {
+                    /*  FIXME: We need error handling. If this is called,
+                        it means there was a write error */
+                }
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
                 sokoke_spawn_program (text_editor, unique_filename);

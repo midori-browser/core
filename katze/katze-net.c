@@ -419,6 +419,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     FILE* fp;
     GdkPixbuf* pixbuf_scaled;
     gint icon_width, icon_height;
+    size_t ret;
 
     if (request->status == KATZE_NET_MOVED)
         return;
@@ -428,8 +429,13 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     {
         if ((fp = fopen (priv->icon_file, "wb")))
         {
-            fwrite (request->data, 1, request->length, fp);
+            ret = fwrite (request->data, 1, request->length, fp);
             fclose (fp);
+            if ((ret - request->length) != 0)
+            {
+                /*  FIXME: We need error handling. If this is called,
+                    it means there was a write error */
+            }
             pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
         }
         else
