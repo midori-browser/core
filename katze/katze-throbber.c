@@ -793,7 +793,7 @@ katze_throbber_aligned_coords (GtkWidget* widget,
 
     gtk_misc_get_alignment (GTK_MISC (widget), &xalign, &yalign);
     if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
-        xalign = 1.0 - xalign;
+        xalign = 1.0f - xalign;
     gtk_misc_get_padding (GTK_MISC (widget), &xpad, &ypad);
 
     *ax = floor (widget->allocation.x + xpad

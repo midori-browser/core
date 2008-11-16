@@ -317,7 +317,7 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
     location_entry = midori_location_entry_new ();
 
-    alignment = gtk_alignment_new (0, 0.5, 1, 0.1);
+    alignment = gtk_alignment_new (0.0f, 0.5f, 1.0f, 0.1f);
     gtk_container_add (GTK_CONTAINER (alignment), location_entry);
     gtk_widget_show (location_entry);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
@@ -339,7 +339,7 @@ midori_location_action_key_press_event_cb (GtkWidget*   widget,
     case GDK_KP_Enter:
     case GDK_Return:
     {
-        if ((uri = gtk_entry_get_text (GTK_ENTRY (widget))))
+        if ((uri = gtk_entry_get_text (GTK_ENTRY (widget))) && *uri)
         {
             g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
                 (event->state & GDK_MOD1_MASK) ? TRUE : FALSE);

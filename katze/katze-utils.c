@@ -308,7 +308,8 @@ katze_property_proxy (gpointer     object,
 
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
 
-    g_object_set_data (G_OBJECT (widget), "property", (gchar*)property);
+    g_object_set_data_full (G_OBJECT (widget), "property",
+                            g_strdup (property), g_free);
 
     return widget;
 }

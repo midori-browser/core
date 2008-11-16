@@ -55,7 +55,7 @@ typedef struct
     KatzeNetStatus status;
     gchar* mime_type;
     gchar* data;
-    gsize length;
+    goffset length;
 } KatzeNetRequest;
 
 typedef gboolean (*KatzeNetStatusCb)     (KatzeNetRequest*   request,

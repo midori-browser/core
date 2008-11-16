@@ -1313,7 +1313,7 @@ webkit_web_inspector_inspect_web_view_cb (WebKitWebInspector* inspector,
         gray_icon = gdk_pixbuf_copy (icon);
         if (gray_icon)
         {
-            gdk_pixbuf_saturate_and_pixelate (gray_icon, gray_icon, 0.1, FALSE);
+            gdk_pixbuf_saturate_and_pixelate (gray_icon, gray_icon, 0.1f, FALSE);
             gtk_window_set_icon (GTK_WINDOW (window), gray_icon);
             g_object_unref (gray_icon);
         }

@@ -72,8 +72,8 @@ gtk_entry_get_pixel_ranges (GtkEntry  *entry,
       PangoLayout *layout = gtk_entry_get_layout (entry);
       PangoLayoutLine *line = pango_layout_get_lines (layout)->data;
       const char *text = pango_layout_get_text (layout);
-      gint start_index = g_utf8_offset_to_pointer (text, start_char) - text;
-      gint end_index = g_utf8_offset_to_pointer (text, end_char) - text;
+      gsize start_index = g_utf8_offset_to_pointer (text, start_char) - text;
+      gsize end_index = g_utf8_offset_to_pointer (text, end_char) - text;
       gint real_n_ranges, i;
 
       pango_layout_line_get_x_ranges (line,

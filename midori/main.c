@@ -1369,7 +1369,7 @@ main (int    argc,
                 continue;
 
             gchar* fullname = g_build_filename (addon_path, filename, NULL);
-            gchar* exception = NULL;
+            exception = NULL;
             gjs_script_from_file (js_context, fullname, &exception);
             if (exception)
             /* FIXME: Do we want to print this somewhere else? */

@@ -2056,7 +2056,8 @@ _action_location_secondary_icon_released (GtkAction*     action,
                     menuitem), gtk_image_new_from_stock (STOCK_NEWS_FEED,
                     GTK_ICON_SIZE_MENU));
                 gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-                g_object_set_data (G_OBJECT (menuitem), "uri", (gchar*)uri);
+                g_object_set_data_full (G_OBJECT (menuitem),
+                                        "uri", g_strup ((gchar*)uri), g_free);
                 g_signal_connect (menuitem, "activate",
                     G_CALLBACK (midori_browser_menu_feed_item_activate_cb),
                     browser);
