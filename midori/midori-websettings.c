@@ -230,12 +230,15 @@ midori_web_settings_get_property (GObject*    object,
 static void
 midori_web_settings_class_init (MidoriWebSettingsClass* class)
 {
-    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    GObjectClass* gobject_class;
+    GParamFlags flags;
+
+    gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_web_settings_finalize;
     gobject_class->set_property = midori_web_settings_set_property;
     gobject_class->get_property = midori_web_settings_get_property;
 
-    GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_WINDOW_SIZE,
@@ -610,11 +613,14 @@ static void
 notify_default_encoding_cb (GObject*    object,
                             GParamSpec* pspec)
 {
-    MidoriWebSettings* web_settings = MIDORI_WEB_SETTINGS (object);
-
+    MidoriWebSettings* web_settings;
     const gchar* string;
+    const gchar* encoding;
+
+    web_settings = MIDORI_WEB_SETTINGS (object);
+
     g_object_get (object, "default-encoding", &string, NULL);
-    const gchar* encoding = string ? string : "";
+    encoding = string ? string : "";
     if (!strcmp (encoding, "BIG5"))
         web_settings->preferred_encoding = MIDORI_ENCODING_CHINESE;
     else if (!strcmp (encoding, "SHIFT_JIS"))

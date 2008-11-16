@@ -64,9 +64,11 @@ midori_console_treeview_render_text_cb (GtkTreeViewColumn* column,
     gchar* message;
     gint   line;
     gchar* source_id;
+    gchar* text;
+
     gtk_tree_model_get (model, iter, 0, &message, 1, &line, 2, &source_id, -1);
 
-    gchar* text = g_strdup_printf ("%d @ %s\n%s", line, source_id, message);
+    text = g_strdup_printf ("%d @ %s\n%s", line, source_id, message);
     g_object_set (renderer, "text", text, NULL);
     g_free (text);
 
@@ -153,10 +155,13 @@ midori_console_get_toolbar (MidoriConsole* console)
 
     if (!console->toolbar)
     {
-        GtkWidget* toolbar = gtk_toolbar_new ();
+        GtkWidget* toolbar;
+        GtkToolItem* toolitem;
+
+        toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
-        GtkToolItem* toolitem = gtk_tool_item_new ();
+        toolitem = gtk_tool_item_new ();
         /* TODO: What about a find entry here that filters e.g. by url? */
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));

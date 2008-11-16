@@ -1281,8 +1281,10 @@ _action_open_activate (GtkAction*     action,
 
      if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
      {
+         gchar* folder;
+
+         folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
          uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-         gchar* folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
          midori_browser_set_current_uri (browser, uri);
 
          g_free (last_dir);

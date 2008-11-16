@@ -178,12 +178,13 @@ void
 sokoke_combo_box_add_strings (GtkComboBox* combobox,
                               const gchar* label_first, ...)
 {
+    const gchar* label;
+
     /* Add a number of strings to a combobox, terminated with NULL
        This works only for text comboboxes */
     va_list args;
     va_start (args, label_first);
 
-    const gchar* label;
     for (label = label_first; label; label = va_arg (args, const gchar*))
         gtk_combo_box_append_text (combobox, label);
 
@@ -255,17 +256,22 @@ sokoke_xfce_header_new (const gchar* icon,
        This returns NULL if the desktop is not Xfce */
     if (sokoke_get_desktop () == SOKOKE_DESKTOP_XFCE)
     {
-        GtkWidget* entry = gtk_entry_new ();
+        GtkWidget* entry;
         gchar* markup;
-        GtkWidget* xfce_heading = gtk_event_box_new ();
+        GtkWidget* xfce_heading;
+        GtkWidget* hbox;
+        GtkWidget* image;
+        GtkWidget* label;
+
+        xfce_heading = gtk_event_box_new ();
+        entry = gtk_entry_new ();
         gtk_widget_modify_bg (xfce_heading, GTK_STATE_NORMAL,
             &entry->style->base[GTK_STATE_NORMAL]);
-        GtkWidget* hbox = gtk_hbox_new (FALSE, 12);
+        hbox = gtk_hbox_new (FALSE, 12);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
-        GtkWidget* image = gtk_image_new_from_icon_name (icon,
-                                                         GTK_ICON_SIZE_DIALOG);
+        image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_DIALOG);
         gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
-        GtkWidget* label = gtk_label_new (NULL);
+        label = gtk_label_new (NULL);
         gtk_widget_modify_fg (label, GTK_STATE_NORMAL
          , &entry->style->text[GTK_STATE_NORMAL]);
         markup = g_strdup_printf ("<span size='large' weight='bold'>%s</span>",
@@ -287,11 +293,13 @@ sokoke_superuser_warning_new (void)
     #if HAVE_UNISTD_H
     if (G_UNLIKELY (!geteuid ())) /* effective superuser? */
     {
-        GtkWidget* hbox = gtk_event_box_new ();
+        GtkWidget* hbox;
+        GtkWidget* label;
+
+        hbox = gtk_event_box_new ();
         gtk_widget_modify_bg (hbox, GTK_STATE_NORMAL,
                               &hbox->style->bg[GTK_STATE_SELECTED]);
-        GtkWidget* label = gtk_label_new (
-            _("Warning: You are using a superuser account!"));
+        label = gtk_label_new (_("Warning: You are using a superuser account!"));
         gtk_misc_set_padding (GTK_MISC (label), 0, 2);
         gtk_widget_modify_fg (GTK_WIDGET (label), GTK_STATE_NORMAL,
             &GTK_WIDGET (label)->style->fg[GTK_STATE_SELECTED]);
@@ -458,10 +466,13 @@ sokoke_key_file_save_to_file (GKeyFile*    key_file,
                               const gchar* filename,
                               GError**     error)
 {
-    gchar* data = g_key_file_to_data (key_file, NULL, error);
+    gchar* data;
+    FILE* fp;
+
+    data = g_key_file_to_data (key_file, NULL, error);
     if (!data)
         return FALSE;
-    FILE* fp;
+
     if (!(fp = fopen (filename, "w")))
     {
         *error = g_error_new (G_FILE_ERROR, G_FILE_ERROR_ACCES,

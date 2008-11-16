@@ -167,13 +167,15 @@ GtkWidget*
 midori_preferences_new (GtkWindow*         parent,
                         MidoriWebSettings* settings)
 {
+    MidoriPreferences* preferences;
+
     g_return_val_if_fail (GTK_IS_WINDOW (parent), NULL);
     g_return_val_if_fail (MIDORI_IS_WEB_SETTINGS (settings), NULL);
 
-    MidoriPreferences* preferences = g_object_new (MIDORI_TYPE_PREFERENCES,
-                                                   "transient-for", parent,
-                                                   "settings", settings,
-                                                   NULL);
+    preferences = g_object_new (MIDORI_TYPE_PREFERENCES,
+                                "transient-for", parent,
+                                "settings", settings,
+                                NULL);
 
     return GTK_WIDGET (preferences);
 }

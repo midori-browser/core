@@ -109,6 +109,9 @@ midori_cclosure_marshal_BOOLEAN__VOID (GClosure*     closure,
 static void
 midori_panel_class_init (MidoriPanelClass* class)
 {
+    GObjectClass* gobject_class;
+    GParamFlags flags;
+
 
     signals[CLOSE] = g_signal_new (
         "close",
@@ -133,12 +136,12 @@ midori_panel_class_init (MidoriPanelClass* class)
 
     class->close = midori_panel_close_cb;
 
-    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_panel_finalize;
     gobject_class->set_property = midori_panel_set_property;
     gobject_class->get_property = midori_panel_get_property;
 
-    GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     g_object_class_install_property (gobject_class,
                                      PROP_SHADOW_TYPE,
@@ -180,6 +183,10 @@ midori_panel_button_close_clicked_cb (GtkWidget*   toolitem,
 static void
 midori_panel_init (MidoriPanel* panel)
 {
+    GtkWidget* vbox;
+    GtkWidget* labelbar;
+    GtkToolItem* toolitem;
+
     /* Create the sidebar */
     panel->toolbar = gtk_toolbar_new ();
     gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar), GTK_TOOLBAR_BOTH);
@@ -189,14 +196,14 @@ midori_panel_init (MidoriPanel* panel)
                                  GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start (GTK_BOX (panel), panel->toolbar, FALSE, FALSE, 0);
     gtk_widget_show_all (panel->toolbar);
-    GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
+    vbox = gtk_vbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (panel), vbox, TRUE, TRUE, 0);
 
     /* Create the titlebar */
-    GtkWidget* labelbar = gtk_toolbar_new ();
+    labelbar = gtk_toolbar_new ();
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (labelbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (labelbar), GTK_TOOLBAR_ICONS);
-    GtkToolItem* toolitem = gtk_tool_item_new ();
+    toolitem = gtk_tool_item_new ();
     gtk_tool_item_set_expand (toolitem, TRUE);
     panel->toolbar_label = gtk_label_new (NULL);
     gtk_misc_set_alignment (GTK_MISC (panel->toolbar_label), 0, 0.5);
@@ -559,9 +566,12 @@ gint
 midori_panel_page_num (MidoriPanel* panel,
                        GtkWidget*   child)
 {
-    g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
+    GtkWidget* scrolled;
 
-    GtkWidget* scrolled = _midori_panel_scrolled_for_child (panel, child);
+    g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
+    g_return_val_if_fail (GTK_IS_WIDGET (child), -1);
+
+    scrolled = _midori_panel_scrolled_for_child (panel, child);
     return gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook), scrolled);
 }
 
@@ -579,12 +589,14 @@ void
 midori_panel_set_current_page (MidoriPanel* panel,
                                gint         n)
 {
+    GtkWidget* child;
+
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
     gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
-    GtkWidget* child = midori_panel_get_nth_page (panel, n);
-    if (child)
+
+    if ((child = midori_panel_get_nth_page (panel, n)))
     {
         const gchar* label = g_object_get_data (G_OBJECT (child), "label");
         g_object_set (panel->toolbar_label, "label", label, NULL);
