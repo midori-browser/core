@@ -115,8 +115,10 @@ sokoke_magic_uri (const gchar* uri,
     {
         /* Do we have a domain, ip address or localhost? */
         search = strchr (uri, ':');
-        if ((search && search[0] && !g_ascii_isalpha (search[1]))
-            || !strcmp (uri, "localhost"))
+        if (search && search[0] && !g_ascii_isalpha (search[1]))
+            if (!strchr (search, '.'))
+                return g_strconcat ("http://", uri, NULL);
+        if (!strcmp (uri, "localhost"))
             return g_strconcat ("http://", uri, NULL);
         parts = g_strsplit (uri, ".", 0);
         if (!search && parts[0] && parts[1])

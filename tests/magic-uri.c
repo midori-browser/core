@@ -72,6 +72,9 @@ main (int    argc,
     test_input ("midori 0.1.0", NULL);
     test_input ("search:cats", NULL);
     test_input ("search:twotoasts.de", NULL);
+    test_input ("g cache:127.0.0.1", NULL);
+    test_input ("g cache:127.0.0.1/foo", NULL);
+    test_input ("g cache:twotoats.de/foo", NULL);
 
     return 0;
 }
