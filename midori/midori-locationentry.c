@@ -415,7 +415,7 @@ entry_key_press_event (GtkWidget*           widget,
         case GDK_Down:
         case GDK_Up:
         {
-            if (!sokoke_object_get_boolean (location_entry, "popup-shown"))
+            if (!katze_object_get_boolean (location_entry, "popup-shown"))
                 gtk_combo_box_popup (GTK_COMBO_BOX (location_entry));
             return TRUE;
         }

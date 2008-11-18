@@ -253,8 +253,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "tooltip", _("Reload the current page"),
                       "sensitive", can_reload, NULL);
         gtk_widget_hide (browser->progressbar);
-        if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar")
-            && !sokoke_object_get_boolean (browser->settings, "show-statusbar"))
+        if (!katze_object_get_boolean (browser->settings, "show-navigationbar")
+            && !katze_object_get_boolean (browser->settings, "show-statusbar"))
             gtk_widget_hide (browser->navigationbar);
     }
     else
@@ -298,7 +298,7 @@ static void
 _midori_browser_set_current_page_smartly (MidoriBrowser* browser,
                                           gint           n)
 {
-    if (!sokoke_object_get_boolean (browser->settings,
+    if (!katze_object_get_boolean (browser->settings,
         "open-tabs-in-the-background"))
         midori_browser_set_current_page (browser, n);
 }
@@ -356,7 +356,7 @@ midori_view_notify_icon_cb (MidoriView*    view,
 
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
-    if (sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+    if (katze_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         midori_location_action_set_icon_for_uri (
         MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
 }
@@ -375,7 +375,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
     if (midori_view_get_load_status (MIDORI_VIEW (view))
         == MIDORI_LOAD_COMMITTED)
     {
-        if (sokoke_object_get_boolean (browser->settings,
+        if (katze_object_get_boolean (browser->settings,
             "remember-last-visited-pages"))
             midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
     }
@@ -445,7 +445,7 @@ midori_view_notify_title_cb (GtkWidget*     view,
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     title = midori_view_get_display_title (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
-    if (sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+    if (katze_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         midori_location_action_set_title_for_uri (
         MIDORI_LOCATION_ACTION (action), title, uri);
     if (midori_view_get_load_status (MIDORI_VIEW (view)) == MIDORI_LOAD_COMMITTED)
@@ -910,7 +910,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     g_signal_connect (view, "leave-notify-event",
         G_CALLBACK (midori_browser_tab_leave_notify_event_cb), browser);
 
-    if (sokoke_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
+    if (katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
         n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
         gtk_notebook_insert_page (GTK_NOTEBOOK (browser->notebook), view,
@@ -1963,7 +1963,7 @@ static void
 _action_location_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
-    if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
+    if (!katze_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_show (browser->navigationbar);
 }
 
@@ -1985,7 +1985,7 @@ static void
 _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    if (!sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
+    if (!katze_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_hide (browser->navigationbar);
 }
 
@@ -2162,7 +2162,7 @@ _action_search_focus_out (GtkAction*     action,
                           MidoriBrowser* browser)
 {
     if (GTK_WIDGET_VISIBLE (browser->statusbar) &&
-        !sokoke_object_get_boolean (browser->settings, "show-navigationbar"))
+        !katze_object_get_boolean (browser->settings, "show-navigationbar"))
         gtk_widget_hide (browser->navigationbar);
 }
 
@@ -3541,7 +3541,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     gint age;
     gint newage;
 
-    if (!sokoke_object_get_boolean (browser->settings, "remember-last-visited-pages"))
+    if (!katze_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         return;
 
     treeview = GTK_TREE_VIEW (browser->panel_history);

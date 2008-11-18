@@ -115,14 +115,6 @@ sokoke_widget_get_text_size          (GtkWidget*     widget,
                                       gint*          width,
                                       gint*          height);
 
-gint
-sokoke_object_get_int                (gpointer       object,
-                                      const gchar*   property);
-
-gboolean
-sokoke_object_get_boolean            (gpointer       object,
-                                      const gchar*   property);
-
 GtkWidget*
 sokoke_action_create_popup_menu_item (GtkAction*     action);
 

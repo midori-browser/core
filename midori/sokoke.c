@@ -498,34 +498,6 @@ sokoke_widget_get_text_size (GtkWidget*   widget,
     g_object_unref (layout);
 }
 
-gint
-sokoke_object_get_int (gpointer     object,
-                       const gchar* property)
-{
-    gint value = 0;
-
-    g_return_val_if_fail (object != NULL, FALSE);
-    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
-    /* FIXME: Check value type */
-
-    g_object_get (object, property, &value, NULL);
-    return value;
-}
-
-gboolean
-sokoke_object_get_boolean (gpointer     object,
-                           const gchar* property)
-{
-    gboolean value = FALSE;
-
-    g_return_val_if_fail (object != NULL, FALSE);
-    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
-    /* FIXME: Check value type */
-
-    g_object_get (object, property, &value, NULL);
-    return value;
-}
-
 /**
  * sokoke_action_create_popup_menu_item:
  * @action: a #GtkAction

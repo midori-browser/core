@@ -409,7 +409,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* skey;
     gchar* temp;
     gchar** parts;
-    glong len;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
