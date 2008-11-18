@@ -86,6 +86,84 @@ midori_app_get_property (GObject*    object,
                          GValue*     value,
                          GParamSpec* pspec);
 
+static gboolean
+midori_browser_focus_in_event_cb (MidoriBrowser* browser,
+                                  GdkEventFocus* event,
+                                  MidoriApp*     app)
+{
+    app->browser = browser;
+    g_object_notify (G_OBJECT (app), "browser");
+    return FALSE;
+}
+
+static void
+midori_browser_new_window_cb (MidoriBrowser* browser,
+                              const gchar*   uri,
+                              MidoriApp*     app)
+{
+    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
+                                               "settings", app->settings,
+                                               "bookmarks", app->bookmarks,
+                                               "trash", app->trash,
+                                               "search-engines", app->search_engines,
+                                               "history", app->history,
+                                               NULL);
+    midori_browser_add_uri (new_browser, uri);
+    gtk_widget_show (GTK_WIDGET (new_browser));
+
+    g_signal_emit (app, signals[ADD_BROWSER], 0, new_browser);
+}
+
+static gboolean
+midori_browser_delete_event_cb (MidoriBrowser* browser,
+                                GdkEvent*      event,
+                                MidoriApp*     app)
+{
+    return FALSE;
+}
+
+static gboolean
+midori_browser_destroy_cb (MidoriBrowser* browser,
+                           MidoriApp*     app)
+{
+    app->browsers = g_list_remove (app->browsers, browser);
+    if (g_list_nth (app->browsers, 0))
+        return FALSE;
+    midori_app_quit (app);
+    return TRUE;
+}
+
+static void
+midori_browser_quit_cb (MidoriBrowser* browser,
+                        MidoriApp*     app)
+{
+    midori_app_quit (app);
+}
+
+void
+_midori_app_add_browser (MidoriApp*     app,
+                         MidoriBrowser* browser)
+{
+    g_return_if_fail (MIDORI_IS_APP (app));
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+
+    gtk_window_add_accel_group (GTK_WINDOW (browser), app->accel_group);
+    g_object_connect (browser,
+        "signal::focus-in-event", midori_browser_focus_in_event_cb, app,
+        "signal::new-window", midori_browser_new_window_cb, app,
+        "signal::delete-event", midori_browser_delete_event_cb, app,
+        "signal::destroy", midori_browser_destroy_cb, app,
+        "signal::quit", midori_browser_quit_cb, app,
+        NULL);
+
+    app->browsers = g_list_prepend (app->browsers, browser);
+
+    #if HAVE_UNIQUE
+    if (app->instance)
+        unique_app_watch_window (app->instance, GTK_WINDOW (browser));
+    #endif
+}
+
 static void
 midori_app_class_init (MidoriAppClass* class)
 {
@@ -118,7 +196,7 @@ midori_app_class_init (MidoriAppClass* class)
     gobject_class->set_property = midori_app_set_property;
     gobject_class->get_property = midori_app_get_property;
 
-    class->add_browser = midori_app_add_browser;
+    class->add_browser = _midori_app_add_browser;
     class->quit = midori_app_quit;
 
     g_object_class_install_property (gobject_class,
@@ -183,8 +261,6 @@ midori_app_class_init (MidoriAppClass* class)
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
-
-
 }
 
 static GObject*
@@ -421,60 +497,6 @@ midori_app_get_property (GObject*    object,
     }
 }
 
-static gboolean
-midori_browser_focus_in_event_cb (MidoriBrowser* browser,
-                                  GdkEventFocus* event,
-                                  MidoriApp*     app)
-{
-    app->browser = browser;
-    g_object_notify (G_OBJECT (app), "browser");
-    return FALSE;
-}
-
-static void
-midori_browser_new_window_cb (MidoriBrowser* browser,
-                              const gchar*   uri,
-                              MidoriApp*     app)
-{
-    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
-                                               "settings", app->settings,
-                                               "bookmarks", app->bookmarks,
-                                               "trash", app->trash,
-                                               "search-engines", app->search_engines,
-                                               "history", app->history,
-                                               NULL);
-    midori_browser_add_uri (new_browser, uri);
-    gtk_widget_show (GTK_WIDGET (new_browser));
-
-    g_signal_emit (app, signals[ADD_BROWSER], 0, new_browser);
-}
-
-static gboolean
-midori_browser_delete_event_cb (MidoriBrowser* browser,
-                                GdkEvent*      event,
-                                MidoriApp*     app)
-{
-    return FALSE;
-}
-
-static gboolean
-midori_browser_destroy_cb (MidoriBrowser* browser,
-                           MidoriApp*     app)
-{
-    app->browsers = g_list_remove (app->browsers, browser);
-    if (g_list_nth (app->browsers, 0))
-        return FALSE;
-    midori_app_quit (app);
-    return TRUE;
-}
-
-static void
-midori_browser_quit_cb (MidoriBrowser* browser,
-                        MidoriApp*     app)
-{
-    midori_app_quit (app);
-}
-
 /**
  * midori_app_new:
  *
@@ -629,21 +651,7 @@ midori_app_add_browser (MidoriApp*     app,
     g_return_if_fail (MIDORI_IS_APP (app));
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
 
-    gtk_window_add_accel_group (GTK_WINDOW (browser), app->accel_group);
-    g_object_connect (browser,
-        "signal::focus-in-event", midori_browser_focus_in_event_cb, app,
-        "signal::new-window", midori_browser_new_window_cb, app,
-        "signal::delete-event", midori_browser_delete_event_cb, app,
-        "signal::destroy", midori_browser_destroy_cb, app,
-        "signal::quit", midori_browser_quit_cb, app,
-        NULL);
-
-    app->browsers = g_list_prepend (app->browsers, browser);
-
-    #if HAVE_UNIQUE
-    if (app->instance)
-        unique_app_watch_window (app->instance, GTK_WINDOW (browser));
-    #endif
+    g_signal_emit (app, signals[ADD_BROWSER], 0, browser);
 }
 
 /**
