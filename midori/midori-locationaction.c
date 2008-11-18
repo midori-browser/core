@@ -405,8 +405,11 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* desc_title;
     GtkWidget* entry;
     gchar* key;
+    gchar* start;
+    gchar* skey;
     gchar* temp;
     gchar** parts;
+    glong len;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
@@ -419,24 +422,40 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     if (data && uri)
     {
         temp = g_utf8_strdown (uri, -1);
-        parts = g_strsplit (temp, key, 2);
+        start = strstr (temp, key);
         g_free (temp);
-        if (parts && parts[0] && parts[1])
-            desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                parts[0], key, parts[1]);
-        g_strfreev (parts);
+        if (start)
+        {
+            len = g_utf8_strlen (key, -1);
+            skey = g_malloc0 (len);
+            g_utf8_strncpy (skey, uri + (start - temp), len);
+            parts = g_strsplit (uri, skey, 2);
+            if (parts && parts[0] && parts[1])
+                desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                    parts[0], skey, parts[1]);
+            g_strfreev (parts);
+            g_free (skey);
+        }
     }
     if (uri && !desc_uri)
         desc_uri = g_markup_escape_text (uri, -1);
     if (data && title)
     {
         temp = g_utf8_strdown (title, -1);
-        parts = g_strsplit (temp, key, 2);
+        start = strstr (temp, key);
         g_free (temp);
-        if (parts && parts[0] && parts[1])
-            desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                parts[0], key, parts[1]);
-        g_strfreev (parts);
+        if (start)
+        {
+            len = g_utf8_strlen (key, -1);
+            skey = g_malloc0 (len);
+            g_utf8_strncpy (skey, title + (start - temp), len);
+            parts = g_strsplit (title, skey, 2);
+            if (parts && parts[0] && parts[1])
+                desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                    parts[0], skey, parts[1]);
+            g_strfreev (parts);
+            g_free (skey);
+        }
     }
     if (title && !desc_title)
         desc_title = g_markup_escape_text (title, -1);
