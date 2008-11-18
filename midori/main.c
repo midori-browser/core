@@ -27,8 +27,11 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
+
+#ifdef HAVE_LIBXML
+    #include <libxml/parser.h>
+    #include <libxml/tree.h>
+#endif
 
 #ifdef HAVE_SQLITE
     #include <sqlite3.h>
@@ -364,6 +367,7 @@ midori_web_list_add_item_cb (KatzeArray* trash,
     }
 }
 
+#ifdef HAVE_LIBXML
 static KatzeItem*
 katze_item_from_xmlNodePtr (xmlNodePtr cur)
 {
@@ -503,39 +507,6 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
     return TRUE;
 }
 
-#if 0
-static gboolean
-katze_array_from_data (KatzeArray*  array,
-                       const gchar* data,
-                       GError**     error)
-{
-    xmlDocPtr doc;
-
-    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
-    g_return_val_if_fail (data != NULL, FALSE);
-
-    katze_array_clear (array);
-
-    if((doc = xmlParseMemory (data, strlen (data))) == NULL)
-    {
-        /* No valid xml or broken encoding */
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                      _("Malformed document."));
-        return FALSE;
-    }
-    if (!katze_array_from_xmlDocPtr (array, doc))
-    {
-        /* Parsing failed */
-        xmlFreeDoc (doc);
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                      _("Malformed document."));
-        return FALSE;
-    }
-    xmlFreeDoc (doc);
-    return TRUE;
-}
-#endif
-
 static gboolean
 katze_array_from_file (KatzeArray*  array,
                        const gchar* filename,
@@ -573,6 +544,7 @@ katze_array_from_file (KatzeArray*  array,
     xmlFreeDoc (doc);
     return TRUE;
 }
+#endif
 
 #ifdef HAVE_SQLITE
 /* Open database 'dbname' */
@@ -1176,9 +1148,10 @@ main (int    argc,
                 error->message); */
         g_error_free (error);
     }
+    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
+    #ifdef HAVE_LIBXML
     katze_assign (config_file, g_build_filename (config_path, "bookmarks.xbel",
                                                  NULL));
-    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     error = NULL;
     if (!katze_array_from_file (bookmarks, config_file, &error))
     {
@@ -1188,7 +1161,9 @@ main (int    argc,
         g_error_free (error);
     }
     g_free (config_file);
+    #endif
     _session = katze_array_new (KATZE_TYPE_ITEM);
+    #ifdef HAVE_LIBXML
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
     if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
@@ -1203,8 +1178,10 @@ main (int    argc,
         }
         g_free (config_file);
     }
-    config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
+    #endif
     trash = katze_array_new (KATZE_TYPE_ITEM);
+    #ifdef HAVE_LIBXML
+    config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
     error = NULL;
     if (!katze_array_from_file (trash, config_file, &error))
     {
@@ -1214,6 +1191,7 @@ main (int    argc,
         g_error_free (error);
     }
     g_free (config_file);
+    #endif
     #ifdef HAVE_SQLITE
     config_file = g_build_filename (config_path, "history.db", NULL);
     #endif
