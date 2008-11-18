@@ -423,12 +423,10 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     {
         temp = g_utf8_strdown (uri, -1);
         start = strstr (temp, key);
-        g_free (temp);
         if (start)
         {
-            len = g_utf8_strlen (key, -1);
-            skey = g_malloc0 (len);
-            g_utf8_strncpy (skey, uri + (start - temp), len);
+            skey = g_malloc0 (strlen (key) + 1);
+            g_utf8_strncpy (skey, uri + (start - temp), g_utf8_strlen (key, -1));
             parts = g_strsplit (uri, skey, 2);
             if (parts && parts[0] && parts[1])
                 desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
@@ -436,6 +434,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             g_strfreev (parts);
             g_free (skey);
         }
+        g_free (temp);
     }
     if (uri && !desc_uri)
         desc_uri = g_markup_escape_text (uri, -1);
@@ -443,12 +442,10 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     {
         temp = g_utf8_strdown (title, -1);
         start = strstr (temp, key);
-        g_free (temp);
         if (start)
         {
-            len = g_utf8_strlen (key, -1);
-            skey = g_malloc0 (len);
-            g_utf8_strncpy (skey, title + (start - temp), len);
+            skey = g_malloc0 (strlen (key) + 1);
+            g_utf8_strncpy (skey, title + (start - temp), g_utf8_strlen (key, -1));
             parts = g_strsplit (title, skey, 2);
             if (parts && parts[0] && parts[1])
                 desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
@@ -456,6 +453,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             g_strfreev (parts);
             g_free (skey);
         }
+        g_free (temp);
     }
     if (title && !desc_title)
         desc_title = g_markup_escape_text (title, -1);
