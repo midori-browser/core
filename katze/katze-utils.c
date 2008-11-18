@@ -139,36 +139,47 @@ katze_property_proxy (gpointer     object,
                       const gchar* property,
                       const gchar* hint)
 {
+    GObjectClass* class;
+    GParamSpec* pspec;
+    GType type;
+    const gchar* nick;
+    const gchar* _hint;
+    GtkWidget* widget;
+    gchar* string;
+
     g_return_val_if_fail (G_IS_OBJECT (object), NULL);
-    GObjectClass* class = G_OBJECT_GET_CLASS (object);
-    GParamSpec* pspec = g_object_class_find_property (class, property);
+
+    class = G_OBJECT_GET_CLASS (object);
+    pspec = g_object_class_find_property (class, property);
     if (!pspec)
     {
         g_warning (_("Property '%s' is invalid for %s"),
                    property, G_OBJECT_CLASS_NAME (class));
         return gtk_label_new (property);
     }
-    GType type = G_PARAM_SPEC_TYPE (pspec);
-    const gchar* nick = g_param_spec_get_nick (pspec);
-    const gchar* _hint = g_intern_string (hint);
+
+    type = G_PARAM_SPEC_TYPE (pspec);
+    nick = g_param_spec_get_nick (pspec);
+    _hint = g_intern_string (hint);
     if (_hint == g_intern_string ("blurb"))
         nick = g_param_spec_get_blurb (pspec);
-    GtkWidget* widget;
-    gchar* string = NULL;
+    string = NULL;
     if (type == G_TYPE_PARAM_BOOLEAN)
     {
+        gboolean toggled = katze_object_get_boolean (object, property);
+
         widget = gtk_check_button_new_with_label (gettext (nick));
-        gboolean toggled;
-        g_object_get (object, property, &toggled, NULL);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggled);
         g_signal_connect (widget, "toggled",
                           G_CALLBACK (proxy_toggle_button_toggled_cb), object);
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("file"))
     {
+        string = katze_object_get_string (object, property);
+
         widget = gtk_file_chooser_button_new (_("Choose file"),
             GTK_FILE_CHOOSER_ACTION_OPEN);
-        g_object_get (object, property, &string, NULL);
+
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (widget),
@@ -184,9 +195,10 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("folder"))
     {
+        string = katze_object_get_string (object, property);
+
         widget = gtk_file_chooser_button_new (_("Choose folder"),
             GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-        g_object_get (object, property, &string, NULL);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (widget),
@@ -202,9 +214,10 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("uri"))
     {
+        string = katze_object_get_string (object, property);
+
         widget = gtk_file_chooser_button_new (_("Choose file"),
             GTK_FILE_CHOOSER_ACTION_OPEN);
-        g_object_get (object, property, &string, NULL);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         gtk_file_chooser_set_uri (GTK_FILE_CHOOSER (widget),
@@ -220,22 +233,22 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("font"))
     {
-        widget = gtk_combo_box_new_text ();
-        PangoContext* context = gtk_widget_get_pango_context (widget);
+        int n_families, i;
+        PangoContext* context;
         PangoFontFamily** families;
-        int n_families;
+        string = katze_object_get_string (object, property);
+
+        widget = gtk_combo_box_new_text ();
+        context = gtk_widget_get_pango_context (widget);
         pango_context_list_families (context, &families, &n_families);
-        g_object_get (object, property, &string, NULL);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
-        gint i = 0;
-        while (i < n_families)
+        for (i = 0; i < n_families; i++)
         {
             const gchar* font = pango_font_family_get_name (families[i]);
             gtk_combo_box_append_text (GTK_COMBO_BOX (widget), font);
             if (string && !strcmp (font, string))
                 gtk_combo_box_set_active (GTK_COMBO_BOX (widget), i);
-            i++;
         }
         gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (
             gtk_combo_box_get_model (GTK_COMBO_BOX (widget))),
@@ -258,45 +271,44 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_FLOAT)
     {
+        gfloat value = katze_object_get_float (object, property);
+
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_FLOAT (pspec)->minimum,
             G_PARAM_SPEC_FLOAT (pspec)->maximum, 1);
         /* Keep it narrow, 5 + 2 digits are usually fine */
         gtk_entry_set_width_chars (GTK_ENTRY (widget), 5 + 2);
         gtk_spin_button_set_digits (GTK_SPIN_BUTTON (widget), 2);
-        gfloat value;
-        g_object_get (object, property, &value, NULL);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
         g_signal_connect (widget, "value-changed",
                           G_CALLBACK (proxy_spin_button_changed_cb), object);
     }
     else if (type == G_TYPE_PARAM_INT)
     {
+        gint value = katze_object_get_int (object, property);
+
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_INT (pspec)->minimum,
             G_PARAM_SPEC_INT (pspec)->maximum, 1);
         /* Keep it narrow, 5 digits are usually fine */
         gtk_entry_set_width_chars (GTK_ENTRY (widget), 5);
-        gint value;
-        g_object_get (object, property, &value, NULL);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
         g_signal_connect (widget, "value-changed",
                           G_CALLBACK (proxy_spin_button_changed_cb), object);
     }
     else if (type == G_TYPE_PARAM_ENUM)
     {
+        gint i;
         GEnumClass* enum_class = G_ENUM_CLASS (
             g_type_class_ref (pspec->value_type));
+        gint value = katze_object_get_enum (object, property);
+
         widget = gtk_combo_box_new_text ();
-        gint i = 0;
-        while (i < enum_class->n_values)
+        for (i = 0; i < enum_class->n_values; i++)
         {
             const gchar* label = gettext (enum_class->values[i].value_nick);
             gtk_combo_box_append_text (GTK_COMBO_BOX (widget), label);
-            i++;
         }
-        gint value;
-        g_object_get (object, property, &value, NULL);
         gtk_combo_box_set_active (GTK_COMBO_BOX (widget), value);
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_changed_cb), object);
@@ -519,13 +531,123 @@ katze_pixbuf_new_from_buffer (const guchar* buffer,
 }
 
 /**
+ * katze_object_get_boolean:
+ * @object: a #GObject
+ * @property_name: the name of the property to get
+ *
+ * Retrieve the boolean value of the specified property.
+ *
+ * Return value: a boolean
+ **/
+gboolean
+katze_object_get_boolean (gpointer     object,
+                          const gchar* property)
+{
+    gboolean value = FALSE;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}
+
+/**
+ * katze_object_get_int:
+ * @object: a #GObject
+ * @property_name: the name of the property to get
+ *
+ * Retrieve the integer value of the specified property.
+ *
+ * Return value: an integer
+ **/
+gint
+katze_object_get_int (gpointer     object,
+                      const gchar* property)
+{
+    gint value = -1;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), -1);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}
+
+/**
+ * katze_object_get_float:
+ * @object: a #GObject
+ * @property_name: the name of the property to get
+ *
+ * Retrieve the float value of the specified property.
+ *
+ * Return value: a float
+ **/
+gfloat
+katze_object_get_float (gpointer     object,
+                        const gchar* property)
+{
+    gfloat value = -1.0f;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), -1.0f);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}
+
+/**
+ * katze_object_get_enum:
+ * @object: a #GObject
+ * @property_name: the name of the property to get
+ *
+ * Retrieve the enum value of the specified property.
+ *
+ * Return value: an enum
+ **/
+gint
+katze_object_get_enum (gpointer     object,
+                       const gchar* property)
+{
+    gint value = -1;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), -1);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}
+
+/**
+ * katze_object_get_string:
+ * @object: a #GObject
+ * @property_name: the name of the property to get
+ *
+ * Retrieve the string value of the specified property.
+ *
+ * Return value: a float
+ **/
+gchar*
+katze_object_get_string (gpointer     object,
+                         const gchar* property)
+{
+    gchar* value = NULL;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), NULL);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}
+
+/**
  * katze_object_get_object:
  * @object: a #GObject
  * @property_name: the name of the property to get
  *
  * Retrieve the object value of the specified property.
  *
- * Return value: Return value: an object
+ * Return value: an object
  **/
 gpointer
 katze_object_get_object (gpointer     object,

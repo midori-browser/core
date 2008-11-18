@@ -84,6 +84,26 @@ katze_pixbuf_new_from_buffer         (const guchar* buffer,
                                       const gchar*  mime_type,
                                       GError**      error);
 
+gint
+katze_object_get_boolean             (gpointer     object,
+                                      const gchar* property);
+
+gint
+katze_object_get_int                 (gpointer     object,
+                                      const gchar* property);
+
+gfloat
+katze_object_get_float               (gpointer     object,
+                                      const gchar* property);
+
+gint
+katze_object_get_enum                (gpointer     object,
+                                      const gchar* property);
+
+gchar*
+katze_object_get_string              (gpointer     object,
+                                      const gchar* property);
+
 gpointer
 katze_object_get_object              (gpointer     object,
                                       const gchar* property);
