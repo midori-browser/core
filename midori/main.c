@@ -1093,9 +1093,9 @@ main (int    argc,
         return 1;
     }
 
-    #if HAVE_LIBSOUP
+    /* libSoup uses threads, therefore if WebKit is built with libSoup
+       or Midori is using it, we need to initialize threads. */
     if (!g_thread_supported ()) g_thread_init (NULL);
-    #endif
     stock_items_init ();
     g_set_application_name (_("Midori"));
 
