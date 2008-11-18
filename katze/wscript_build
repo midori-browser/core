@@ -2,12 +2,15 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
+import platform
+
 obj = bld.create_obj ('cc', 'staticlib')
 obj.name = 'katze'
 obj.target = 'katze'
 obj.includes = '.'
 obj.find_sources_in_dirs ('.')
-obj.uselib = 'LIBSOUP GTK LIBXML'
+obj.uselib = 'GMODULE LIBSOUP GTK LIBXML'
 obj.inst_var = 0
 
-# FIXME: Do not install this static lib
+if platform.architecture ()[0] == '64bit':
+    obj.env.append_value ('CCFLAGS', '-fPIC')

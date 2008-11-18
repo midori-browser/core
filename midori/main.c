@@ -19,6 +19,7 @@
 #include "midori-websettings.h"
 #include "midori-browser.h"
 #include "midori-stock.h"
+#include "midori-extension.h"
 
 #include "sokoke.h"
 #include "gjs.h"
@@ -1033,9 +1034,6 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
-gboolean
-midori_view_single_process (gboolean enable);
-
 int
 main (int    argc,
       char** argv)
@@ -1322,6 +1320,45 @@ main (int    argc,
                        "history", history,
                        NULL);
 
+    /* Load extensions */
+    gchar* extension_path;
+    GDir* extension_dir;
+    const gchar* filename;
+
+    extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
+    if (g_module_supported ())
+        extension_dir = g_dir_open (extension_path, 0, NULL);
+    else
+        extension_dir = NULL;
+    if (extension_dir)
+    {
+        while ((filename = g_dir_read_name (extension_dir)))
+        {
+            gchar* fullname;
+            GModule* module;
+            typedef MidoriExtension* (*extension_main_func)(MidoriApp* app);
+            extension_main_func extension_main;
+
+            fullname = g_build_filename (extension_path, filename, NULL);
+            module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
+            g_free (fullname);
+            if (!module)
+            {
+                g_warning ("%s", g_module_error ());
+                continue;
+            }
+            ;
+            if (!g_module_symbol (module, "extension_main",
+                             (gpointer) &extension_main))
+            {
+                g_warning ("%s", g_module_error ());
+                continue;
+            }
+            extension_main (app);
+        }
+        g_dir_close (extension_dir);
+    }
+
     browser = g_object_new (MIDORI_TYPE_BROWSER,
                             "settings", settings,
                             "bookmarks", bookmarks,
@@ -1354,35 +1391,7 @@ main (int    argc,
     g_object_weak_ref (G_OBJECT (session),
         (GWeakNotify)(midori_browser_weak_notify_cb), browser);
 
-    /* Load extensions */
-    js_context = gjs_global_context_new ();
-    /* FIXME: We want to honor system installed addons as well */
-    gchar* addon_path = g_build_filename (g_get_user_data_dir (), PACKAGE_NAME,
-                                          "extensions", NULL);
-    GDir* addon_dir = g_dir_open (addon_path, 0, NULL);
-    if (addon_dir)
-    {
-        const gchar* filename;
-        while ((filename = g_dir_read_name (addon_dir)))
-        {
-            if (!g_str_has_prefix (filename, ".midori.js"))
-                continue;
-
-            gchar* fullname = g_build_filename (addon_path, filename, NULL);
-            exception = NULL;
-            gjs_script_from_file (js_context, fullname, &exception);
-            if (exception)
-            /* FIXME: Do we want to print this somewhere else? */
-            /* FIXME Convert the filename to UTF8 */
-                printf ("%s - Exception: %s\n", filename, exception);
-            g_free (fullname);
-        }
-        g_dir_close (addon_dir);
-    }
-
     gtk_main ();
-
-    JSGlobalContextRelease (js_context);
 
     /* Save configuration files */
     config_path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME,

@@ -1,0 +1,30 @@
+#! /usr/bin/env python
+# WAF build script for midori
+# This file is licensed under the terms of the expat license, see the file EXPAT.
+
+extensions = os.listdir ('extensions')
+for extension in extensions:
+    try:
+        folder = 'extensions' + os.sep + extension
+        files = os.listdir (folder)
+        target = extension
+        source = ''
+        for fila in files:
+            if fila[-2:] == '.c':
+                source += ' ' + extension + os.sep + fila
+        includes = '.' + os.sep + '..'
+    except:
+        if extension[-2:] != '.c':
+            continue
+        target = extension[:-2]
+        source = extension
+        includes = '..'
+
+    obj = bld.create_obj ('cc', 'shlib')
+    obj.target = target
+    obj.includes = includes
+    obj.source = source
+    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
+    obj.uselib_local = 'katze'
+    obj.inst_var = 'LIBDIR'
+    obj.inst_dir = 'midori'

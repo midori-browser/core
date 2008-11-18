@@ -51,6 +51,12 @@ def configure (conf):
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
 
+    if Params.g_options.libdir == '':
+        libdir = os.path.join (conf.env['PREFIX'], 'lib')
+    else:
+        libdir = Params.g_options.libdir
+    conf.define ('LIBDIR', libdir)
+
     # We support building without intltool
     # Therefore datadir may not have been defined
     if not conf.is_defined ('DATADIR'):
@@ -100,6 +106,7 @@ def configure (conf):
         sqlite = 'no'
     conf.check_message_custom ('history database', 'support', sqlite)
 
+    conf.check_pkg ('gmodule-2.0', destvar='GMODULE', vnum='2.8.0', mandatory=False)
     conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.10.0', mandatory=True)
     conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
@@ -141,7 +148,7 @@ def set_options (opt):
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
     opt.add_option ('--docdir', type='string', default='',
-        help='documentation root', dest='docdir')
+        help='Documentation root', dest='docdir')
     opt.add_option ('--disable-docs', action='store_true', default=False,
         help='Disables user documentation', dest='disable_docs')
 
@@ -161,6 +168,11 @@ def set_options (opt):
     opt.add_option ('--update-po', action='store_true', default=False,
         help='Update localization files', dest='update_po')
 
+    opt.add_option ('--libdir', type='string', default='',
+        help='Library root', dest='libdir')
+    opt.add_option ('--disable-extensions', action='store_true', default=False,
+        help='Disables building of extensions', dest='disable_extensions')
+
 def build (bld):
     def mkdir (path):
         if not os.access (path, os.F_OK):
@@ -173,6 +185,9 @@ def build (bld):
             pass
 
     bld.add_subdirs ('katze midori icons')
+
+    if not Params.g_options.disable_extensions:
+        bld.add_subdirs ('extensions')
 
     install_files ('DOCDIR', '/' + APPNAME + '/', \
         'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
