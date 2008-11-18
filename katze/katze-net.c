@@ -433,8 +433,8 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
             fclose (fp);
             if ((ret - request->length) != 0)
             {
-                /*  FIXME: We need error handling. If this is called,
-                    it means there was a write error */
+                g_warning ("Error writing to file %s "
+                           "in katze_net_icon_transfer_cb()", priv->icon_file);
             }
             pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
         }

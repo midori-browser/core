@@ -641,15 +641,16 @@ midori_browser_save_transfer_cb (KatzeNetRequest* request,
 
     if (request->data)
     {
-        /* FIXME: Show an error message if the file cannot be saved */
         if ((fp = fopen (filename, "wb")))
         {
             ret = fwrite (request->data, 1, request->length, fp);
             fclose (fp);
             if ((ret - request->length) != 0)
             {
-                /*  FIXME: We need error handling. If this is called,
-                    i means there was a write error */
+                /* Once we have a download interface this should be
+                   indicated graphically. */
+                g_warning ("Error writing to file %s "
+                           "in midori_browser_save_transfer_cb", filename);
             }
         }
     }
@@ -1866,8 +1867,9 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
                 fclose (fp);
                 if ((ret - request->length) != 0)
                 {
-                    /*  FIXME: We need error handling. If this is called,
-                        it means there was a write error */
+                    /* FIXME: Show an error in the graphical interface */
+                    g_warning ("Error writing to file %s "
+                               "in midori_browser_source_transfer_cb()", filename);
                 }
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
