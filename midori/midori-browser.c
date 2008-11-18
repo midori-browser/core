@@ -88,6 +88,8 @@ enum
 
     PROP_MENUBAR,
     PROP_NAVIGATIONBAR,
+    PROP_NOTEBOOK,
+    PROP_PANEL,
     PROP_URI,
     PROP_TAB,
     PROP_STATUSBAR,
@@ -1084,6 +1086,24 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Navigationbar",
                                      "The navigationbar",
                                      GTK_TYPE_TOOLBAR,
+                                     G_PARAM_READABLE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_NOTEBOOK,
+                                     g_param_spec_object (
+                                     "notebook",
+                                     "Notebook",
+                                     "The notebook containing the views",
+                                     GTK_TYPE_NOTEBOOK,
+                                     G_PARAM_READABLE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_PANEL,
+                                     g_param_spec_object (
+                                     "panel",
+                                     "Panel",
+                                     "The side panel embedded in the browser",
+                                     MIDORI_TYPE_PANEL,
                                      G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
@@ -4566,6 +4586,12 @@ midori_browser_get_property (GObject*    object,
         break;
     case PROP_NAVIGATIONBAR:
         g_value_set_object (value, browser->navigationbar);
+        break;
+    case PROP_NOTEBOOK:
+        g_value_set_object (value, browser->notebook);
+        break;
+    case PROP_PANEL:
+        g_value_set_object (value, browser->panel);
         break;
     case PROP_URI:
         g_value_set_string (value, midori_browser_get_current_uri (browser));
