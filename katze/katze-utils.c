@@ -517,3 +517,25 @@ katze_pixbuf_new_from_buffer (const guchar* buffer,
     g_object_unref (loader);
     return pixbuf;
 }
+
+/**
+ * katze_object_get_object:
+ * @object: a #GObject
+ * @property_name: the name of the property to get
+ *
+ * Retrieve the object value of the specified property.
+ *
+ * Return value: Return value: an object
+ **/
+gpointer
+katze_object_get_object (gpointer     object,
+                         const gchar* property)
+{
+    GObject* value = NULL;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), NULL);
+    /* FIXME: Check value type */
+
+    g_object_get (object, property, &value, NULL);
+    return value;
+}

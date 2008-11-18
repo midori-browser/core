@@ -84,6 +84,10 @@ katze_pixbuf_new_from_buffer         (const guchar* buffer,
                                       const gchar*  mime_type,
                                       GError**      error);
 
+gpointer
+katze_object_get_object              (gpointer     object,
+                                      const gchar* property);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */
