@@ -11,6 +11,8 @@
 
 #include "midori-extension.h"
 
+#include "midori-app.h"
+
 #include <katze/katze.h>
 
 G_DEFINE_TYPE (MidoriExtension, midori_extension, G_TYPE_OBJECT);
@@ -33,6 +35,14 @@ enum
     PROP_AUTHORS
 };
 
+enum {
+    ACTIVATE,
+
+    LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
+
 static void
 midori_extension_finalize (GObject* object);
 
@@ -53,6 +63,17 @@ midori_extension_class_init (MidoriExtensionClass* class)
 {
     GObjectClass* gobject_class;
     GParamFlags flags;
+
+    signals[ACTIVATE] = g_signal_new (
+        "activate",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        MIDORI_TYPE_APP);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_extension_finalize;

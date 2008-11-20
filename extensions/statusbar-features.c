@@ -12,8 +12,8 @@
 #include <midori/midori.h>
 
 void
-realign_tabs_app_add_browser_cb (MidoriApp*     app,
-                                 MidoriBrowser* browser)
+statusbar_features_app_add_browser_cb (MidoriApp*     app,
+                                       MidoriBrowser* browser)
 {
     GtkWidget* statusbar;
     GtkWidget* bbox;
@@ -36,7 +36,16 @@ realign_tabs_app_add_browser_cb (MidoriApp*     app,
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
 }
 
-MidoriExtension* extension_main (MidoriApp* app)
+static void
+statusbar_features_activate_cb (MidoriExtension* extension,
+                                MidoriApp*       app)
+{
+    g_signal_connect (app, "add-browser",
+        G_CALLBACK (statusbar_features_app_add_browser_cb), NULL);
+}
+
+MidoriExtension*
+extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", "Statusbar Features",
@@ -45,8 +54,8 @@ MidoriExtension* extension_main (MidoriApp* app)
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
 
-    g_signal_connect (app, "add-browser",
-        G_CALLBACK (realign_tabs_app_add_browser_cb), NULL);
+    g_signal_connect (extension, "activate",
+        G_CALLBACK (statusbar_features_activate_cb), NULL);
 
     return extension;
 }

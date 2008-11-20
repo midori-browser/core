@@ -13,7 +13,7 @@
 
 #include <midori/midori.h>
 
-void
+static void
 tab_panel_app_add_browser_cb (MidoriApp*     app,
                               MidoriBrowser* browser)
 {
@@ -29,7 +29,16 @@ tab_panel_app_add_browser_cb (MidoriApp*     app,
                               NULL, GTK_STOCK_INDEX, "Tab Panel");
 }
 
-MidoriExtension* extension_main (MidoriApp* app)
+static void
+tab_panel_activate_cb (MidoriExtension* extension,
+                       MidoriApp*       app)
+{
+    g_signal_connect (app, "add-browser",
+        G_CALLBACK (tab_panel_app_add_browser_cb), NULL);
+}
+
+MidoriExtension*
+extension_init (void)
 {
     MidoriExtension* extension = g_object_new (TAB_PANEL_TYPE_EXTENSION,
         "name", "Tab Panel",
@@ -38,8 +47,8 @@ MidoriExtension* extension_main (MidoriApp* app)
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
 
-    g_signal_connect (app, "add-browser",
-        G_CALLBACK (tab_panel_app_add_browser_cb), extension);
+    g_signal_connect (extension, "activate",
+        G_CALLBACK (tab_panel_activate_cb), NULL);
 
     return extension;
 }

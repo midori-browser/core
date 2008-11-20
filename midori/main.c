@@ -1291,18 +1291,14 @@ main (int    argc,
         G_CALLBACK (midori_history_clear_cb), db);
     #endif
 
-    g_object_set (app, "settings", settings,
-                       "bookmarks", bookmarks,
-                       "trash", trash,
-                       "search-engines", search_engines,
-                       "history", history,
-                       NULL);
-
     /* Load extensions */
+    KatzeArray* extensions;
     gchar* extension_path;
     GDir* extension_dir;
     const gchar* filename;
+    MidoriExtension* extension;
 
+    extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
     extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
     if (g_module_supported ())
         extension_dir = g_dir_open (extension_path, 0, NULL);
@@ -1314,8 +1310,8 @@ main (int    argc,
         {
             gchar* fullname;
             GModule* module;
-            typedef MidoriExtension* (*extension_main_func)(MidoriApp* app);
-            extension_main_func extension_main;
+            typedef MidoriExtension* (*extension_init_func)(void);
+            extension_init_func extension_init;
 
             fullname = g_build_filename (extension_path, filename, NULL);
             module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
@@ -1326,15 +1322,31 @@ main (int    argc,
                 continue;
             }
             ;
-            if (!g_module_symbol (module, "extension_main",
-                             (gpointer) &extension_main))
+            if (!g_module_symbol (module, "extension_init",
+                             (gpointer) &extension_init))
             {
                 g_warning ("%s", g_module_error ());
                 continue;
             }
-            extension_main (app);
+            extension = extension_init ();
+            katze_array_add_item (extensions, extension);
         }
         g_dir_close (extension_dir);
+    }
+
+    g_object_set (app, "settings", settings,
+                       "bookmarks", bookmarks,
+                       "trash", trash,
+                       "search-engines", search_engines,
+                       "history", history,
+                       "extensions", extensions,
+                       NULL);
+
+    n = katze_array_get_length (extensions);
+    for (i = 0; i < n; i++)
+    {
+        extension = katze_array_get_nth_item (extensions, i);
+        g_signal_emit_by_name (extension, "activate", app);
     }
 
     browser = g_object_new (MIDORI_TYPE_BROWSER,

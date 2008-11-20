@@ -36,6 +36,7 @@ struct _MidoriApp
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
+    KatzeArray* extensions;
 
     gpointer instance;
 };
@@ -52,8 +53,9 @@ enum
     PROP_BOOKMARKS,
     PROP_TRASH,
     PROP_SEARCH_ENGINES,
-    PROP_BROWSER,
     PROP_HISTORY,
+    PROP_EXTENSIONS,
+    PROP_BROWSER,
     PROP_BROWSER_COUNT
 };
 
@@ -236,6 +238,24 @@ midori_app_class_init (MidoriAppClass* class)
                                      G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
+                                     PROP_HISTORY,
+                                     g_param_spec_object (
+                                     "history",
+                                     "History",
+                                     "The list of history items",
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_EXTENSIONS,
+                                     g_param_spec_object (
+                                     "extensions",
+                                     "Extensions",
+                                     "The list of extensions",
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
                                      PROP_BROWSER,
                                      g_param_spec_object (
                                      "browser",
@@ -252,15 +272,6 @@ midori_app_class_init (MidoriAppClass* class)
                                      "The current number of browsers",
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_HISTORY,
-                                     g_param_spec_object (
-                                     "history",
-                                     "History",
-                                     "The list of history items",
-                                     KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
 }
 
 static GObject*
@@ -387,6 +398,7 @@ midori_app_init (MidoriApp* app)
     app->trash = NULL;
     app->search_engines = NULL;
     app->history = NULL;
+    app->extensions = NULL;
 
     #if HAVE_UNIQUE
     display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
@@ -418,6 +430,7 @@ midori_app_finalize (GObject* object)
     katze_object_assign (app->trash, NULL);
     katze_object_assign (app->search_engines, NULL);
     katze_object_assign (app->history, NULL);
+    katze_object_assign (app->extensions, NULL);
 
     katze_object_assign (app->instance, NULL);
 
@@ -454,6 +467,9 @@ midori_app_set_property (GObject*      object,
         katze_object_assign (app->history, g_value_dup_object (value));
         /* FIXME: Propagate history to all browsers */
         break;
+    case PROP_EXTENSIONS:
+        katze_object_assign (app->extensions, g_value_dup_object (value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -484,6 +500,9 @@ midori_app_get_property (GObject*    object,
         break;
     case PROP_HISTORY:
         g_value_set_object (value, app->history);
+        break;
+    case PROP_EXTENSIONS:
+        g_value_set_object (value, app->extensions);
         break;
     case PROP_BROWSER:
         g_value_set_object (value, app->browser);
@@ -652,55 +671,6 @@ midori_app_add_browser (MidoriApp*     app,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
 
     g_signal_emit (app, signals[ADD_BROWSER], 0, browser);
-}
-
-/**
- * midori_app_get_settings:
- * @app: a #MidoriApp
- *
- * Retrieves the #MidoriWebSettings of the app.
- *
- * Return value: the assigned #MidoriWebSettings
- **/
-MidoriWebSettings*
-midori_app_get_settings (MidoriApp* app)
-{
-    g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
-
-    return app->settings;
-}
-
-/**
- * midori_app_set_settings:
- * @app: a #MidoriApp
- *
- * Assigns the #MidoriWebSettings to the app.
- *
- * Return value: the assigned #MidoriWebSettings
- **/
-void
-midori_app_set_settings (MidoriApp*         app,
-                         MidoriWebSettings* settings)
-{
-    g_return_if_fail (MIDORI_IS_APP (app));
-
-    g_object_set (app, "settings", settings, NULL);
-}
-
-/**
- * midori_app_get_trash:
- * @app: a #MidoriApp
- *
- * Retrieves the trash of the app.
- *
- * Return value: the assigned #MidoriTrash
- **/
-KatzeArray*
-midori_app_get_trash (MidoriApp* app)
-{
-    g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
-
-    return app->trash;
 }
 
 /**

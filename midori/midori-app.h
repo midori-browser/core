@@ -70,16 +70,6 @@ void
 midori_app_add_browser            (MidoriApp*         app,
                                    MidoriBrowser*     browser);
 
-MidoriWebSettings*
-midori_app_get_settings           (MidoriApp*         app);
-
-void
-midori_app_set_settings           (MidoriApp*         app,
-                                   MidoriWebSettings* settings);
-
-KatzeArray*
-midori_app_get_trash              (MidoriApp*         app);
-
 void
 midori_app_quit                   (MidoriApp*         app);
 
