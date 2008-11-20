@@ -20,8 +20,6 @@
 #include "midori-source.h"
 #include "midori-preferences.h"
 #include "midori-panel.h"
-#include "midori-addons.h"
-#include "midori-console.h"
 #include "midori-locationaction.h"
 #include "midori-searchaction.h"
 #include "midori-stock.h"
@@ -54,7 +52,6 @@ struct _MidoriBrowser
     GtkWidget* panel;
     GtkWidget* panel_bookmarks;
     GtkWidget* panel_history;
-    GtkWidget* panel_console;
     GtkWidget* panel_pageholder;
     GtkWidget* notebook;
 
@@ -754,17 +751,6 @@ midori_view_activate_action_cb (GtkWidget*     view,
 }
 
 static void
-midori_view_console_message_cb (GtkWidget*     view,
-                                const gchar*   message,
-                                gint           line,
-                                const gchar*   source_id,
-                                MidoriBrowser* browser)
-{
-    midori_console_add (MIDORI_CONSOLE (browser->panel_console),
-                        message, line, source_id);
-}
-
-static void
 midori_view_attach_inspector_cb (GtkWidget*     view,
                                  GtkWidget*     inspector_view,
                                  MidoriBrowser* browser)
@@ -892,8 +878,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_statusbar_text_cb, browser,
                       "signal::activate-action",
                       midori_view_activate_action_cb, browser,
-                      "signal::console-message",
-                      midori_view_console_message_cb, browser,
                       "signal::attach-inspector",
                       midori_view_attach_inspector_cb, browser,
                       "signal::new-tab",
@@ -3660,7 +3644,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkWidget* treeview;
     GtkWidget* toolbar;
     GtkToolItem* toolitem;
-    GtkWidget* panel;
     GtkRcStyle* rcstyle;
     GtkWidget* scrolled;
 
@@ -3935,22 +3918,6 @@ midori_browser_init (MidoriBrowser* browser)
                               box, toolbar,
                               STOCK_BOOKMARKS, _("Bookmarks"));
 
-    /* Transfers */
-    panel = midori_view_new (browser->net);
-    gtk_widget_show (panel);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              panel, NULL,
-                              STOCK_TRANSFERS, _("Transfers"));
-
-    /* Console */
-    browser->panel_console = midori_console_new ();
-    gtk_widget_show (browser->panel_console);
-    toolbar = midori_console_get_toolbar (MIDORI_CONSOLE (browser->panel_console));
-    gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              browser->panel_console, toolbar,
-                              STOCK_CONSOLE, _("Console"));
-
     /* History */
     box = gtk_vbox_new (FALSE, 0);
     treestore = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_INT);
@@ -4004,32 +3971,6 @@ midori_browser_init (MidoriBrowser* browser)
                               browser->panel_pageholder, NULL,
         /* i18n: A panel showing a user specified web page */
                               STOCK_PAGE_HOLDER, _("Pageholder"));
-
-    /* Userscripts */
-    panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
-    gtk_widget_show (panel);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
-    gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              panel, toolbar,
-                              STOCK_SCRIPTS, _("Userscripts"));
-    /* Userstyles */
-    panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
-    gtk_widget_show (panel);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
-    gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              panel, toolbar,
-                              STOCK_STYLES, _("Userstyles"));
-
-    /* Extensions */
-    panel = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
-    gtk_widget_show (panel);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (panel));
-    gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              panel, toolbar,
-                              STOCK_EXTENSIONS, _("Extensions"));
 
     /* Notebook, containing all views */
     vpaned = gtk_vpaned_new ();

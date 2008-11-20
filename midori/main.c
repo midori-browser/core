@@ -14,12 +14,16 @@
     #include <config.h>
 #endif
 
-#include "midori-view.h"
+#include "midori-addons.h"
 #include "midori-app.h"
-#include "midori-websettings.h"
 #include "midori-browser.h"
-#include "midori-stock.h"
+#include "midori-console.h"
 #include "midori-extension.h"
+#include "midori-panel.h"
+#include "midori-stock.h"
+#include "midori-view.h"
+#include "midori-websettings.h"
+
 
 #include "sokoke.h"
 #include "gjs.h"
@@ -975,6 +979,76 @@ katze_array_to_file (KatzeArray*  array,
 }
 
 static void
+midori_view_console_message_cb (GtkWidget*     view,
+                                const gchar*   message,
+                                gint           line,
+                                const gchar*   source_id,
+                                MidoriConsole* console)
+{
+    midori_console_add (console, message, line, source_id);
+}
+
+static void
+midori_browser_add_tab_cb (MidoriBrowser* browser,
+                           MidoriView*    view,
+                           MidoriConsole* console)
+{
+    g_signal_connect (view, "console-message",
+        G_CALLBACK (midori_view_console_message_cb), console);
+}
+
+static void
+midori_app_add_browser_cb (MidoriApp*     app,
+                           MidoriBrowser* browser,
+                           KatzeNet*      net)
+{
+    GtkWidget* panel;
+    GtkWidget* addon;
+    GtkWidget* toolbar;
+
+    panel = katze_object_get_object (browser, "panel");
+
+    /* Transfers */
+    /* addon = midori_view_new (net);
+    gtk_widget_show (addon);
+    midori_panel_append_page (MIDORI_PANEL (panel), addon, NULL,
+                              STOCK_TRANSFERS, _("Transfers")); */
+
+    /* Console */
+    addon = midori_console_new ();
+    gtk_widget_show (addon);
+    toolbar = midori_console_get_toolbar (MIDORI_CONSOLE (addon));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
+                              STOCK_CONSOLE, _("Console"));
+    g_signal_connect (browser, "add-tab",
+        G_CALLBACK (midori_browser_add_tab_cb), addon);
+
+    /* Userscripts */
+    addon = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
+    gtk_widget_show (addon);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
+                              STOCK_SCRIPTS, _("Userscripts"));
+    /* Userstyles */
+    addon = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
+    gtk_widget_show (addon);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
+                              STOCK_STYLES, _("Userstyles"));
+
+    /* Extensions */
+    addon = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
+    gtk_widget_show (addon);
+    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
+    gtk_widget_show (toolbar);
+    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
+                              STOCK_EXTENSIONS, _("Extensions"));
+}
+
+static void
 midori_browser_session_cb (MidoriBrowser* browser,
                            gpointer       arg1,
                            KatzeArray*    session)
@@ -1341,6 +1415,8 @@ main (int    argc,
                        "history", history,
                        "extensions", extensions,
                        NULL);
+    g_signal_connect (app, "add-browser",
+        G_CALLBACK (midori_app_add_browser_cb), NULL);
 
     n = katze_array_get_length (extensions);
     for (i = 0; i < n; i++)

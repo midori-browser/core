@@ -965,6 +965,8 @@ midori_addons_set_web_widget (MidoriAddons* addons,
 GtkWidget*
 midori_addons_get_web_widget (MidoriAddons* addons)
 {
+    g_return_val_if_fail (MIDORI_IS_ADDONS (addons), NULL);
+
     return addons->web_widget;
 }
 
