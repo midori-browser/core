@@ -43,8 +43,6 @@ struct _MidoriApp
 
 G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
 
-static MidoriApp* _midori_app_singleton = NULL;
-
 enum
 {
     PROP_0,
@@ -67,11 +65,6 @@ enum {
 };
 
 static guint signals[LAST_SIGNAL];
-
-static GObject*
-midori_app_constructor (GType                  type,
-                        guint                  n_construct_properties,
-                        GObjectConstructParam* construct_properties);
 
 static void
 midori_app_finalize (GObject* object);
@@ -193,7 +186,6 @@ midori_app_class_init (MidoriAppClass* class)
         G_TYPE_NONE, 0);
 
     gobject_class = G_OBJECT_CLASS (class);
-    gobject_class->constructor = midori_app_constructor;
     gobject_class->finalize = midori_app_finalize;
     gobject_class->set_property = midori_app_set_property;
     gobject_class->get_property = midori_app_get_property;
@@ -272,18 +264,6 @@ midori_app_class_init (MidoriAppClass* class)
                                      "The current number of browsers",
                                      0, G_MAXUINT, 0,
                                      G_PARAM_READABLE));
-}
-
-static GObject*
-midori_app_constructor (GType                  type,
-                        guint                  n_construct_properties,
-                        GObjectConstructParam* construct_properties)
-{
-    if (_midori_app_singleton)
-        return g_object_ref (_midori_app_singleton);
-    else
-        return G_OBJECT_CLASS (midori_app_parent_class)->constructor (
-            type, n_construct_properties, construct_properties);
 }
 
 #if HAVE_UNIQUE
@@ -386,10 +366,6 @@ midori_app_init (MidoriApp* app)
     gchar* instance_name;
     guint i, n;
     #endif
-
-    g_assert (!_midori_app_singleton);
-
-    _midori_app_singleton = app;
 
     app->accel_group = gtk_accel_group_new ();
 
