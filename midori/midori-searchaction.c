@@ -439,11 +439,8 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
-            /* FIXME: Implement icon_cb */
             icon = katze_net_load_icon (MIDORI_SEARCH_ACTION (action)->net,
-                katze_item_get_uri (item),
-                NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
-                entry, NULL /*g_object_ref (image)*/);
+                katze_item_get_uri (item), NULL, entry, NULL);
             gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
             g_object_unref (icon);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
@@ -496,11 +493,9 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
 
     if (search_action->current_item)
     {
-        /* FIXME: Implement icon_cb */
         icon = katze_net_load_icon (search_action->net,
             katze_item_get_uri (search_action->current_item),
-            NULL /*(KatzeNetIconCb)midori_browser_bookmark_icon_cb*/,
-            entry, NULL /*g_object_ref (entry)*/);
+            NULL, entry, NULL);
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                                              GTK_ICON_ENTRY_PRIMARY, icon);
         g_object_unref (icon);
@@ -736,10 +731,8 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
 
     /* FIXME: Use the net of the MidoriSearchAction */
     net = katze_net_new ();
-    /* FIXME: Implement icon_cb */
     icon = katze_net_load_icon (net, katze_item_get_uri (item),
-        NULL /*(KatzeNetIconCb)midori_search_action_dialog_icon_cb*/,
-        treeview, NULL /*g_object_ref (treeview)*/);
+        NULL, treeview, NULL);
     g_object_set (renderer, "pixbuf", icon, NULL);
     g_object_unref (icon);
     g_object_unref (net);

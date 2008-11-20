@@ -214,20 +214,6 @@ katze_array_action_menu_item_activate_cb (GtkWidget*        proxy,
 }
 
 static void
-katze_array_action_icon_cb (GdkPixbuf* icon,
-                            GtkWidget* widget)
-{
-    GtkWidget* image = gtk_image_new_from_pixbuf (icon);
-    g_object_unref (icon);
-    gtk_widget_show (image);
-    if (GTK_IS_IMAGE_MENU_ITEM (widget))
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (widget), image);
-    else
-        gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (widget), image);
-    g_object_unref (widget);
-}
-
-static void
 katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
                                         KatzeArrayAction* array_action);
 
@@ -264,9 +250,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                 GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
         else
             icon = katze_net_load_icon (array_action->net,
-                katze_item_get_uri (item),
-                (KatzeNetIconCb)katze_array_action_icon_cb,
-                proxy, g_object_ref (menuitem));
+                katze_item_get_uri (item), NULL, proxy, NULL);
         image = gtk_image_new_from_pixbuf (icon);
         g_object_unref (icon);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
@@ -415,8 +399,7 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     else if (!KATZE_IS_ARRAY (item) && !strcmp (property, "uri"))
     {
         icon = katze_net_load_icon (array_action->net, katze_item_get_uri (item),
-            (KatzeNetIconCb)katze_array_action_icon_cb,
-            GTK_WIDGET (toolitem), g_object_ref (toolitem));
+            NULL, GTK_WIDGET (toolitem), NULL);
         image = gtk_image_new_from_pixbuf (icon);
         g_object_unref (icon);
         gtk_widget_show (image);
@@ -464,8 +447,7 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
             GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
     else
         icon = katze_net_load_icon (array_action->net, uri,
-            (KatzeNetIconCb)katze_array_action_icon_cb,
-            GTK_WIDGET (toolitem), g_object_ref (toolitem));
+            NULL, GTK_WIDGET (toolitem), NULL);
     image = gtk_image_new_from_pixbuf (icon);
     g_object_unref (icon);
     gtk_widget_show (image);

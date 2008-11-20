@@ -2598,10 +2598,9 @@ midori_browser_bookmarks_item_render_icon_cb (GtkTreeViewColumn* column,
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
     else if (katze_item_get_uri (item))
-    /* FIXME: Implement icon_cb */
         pixbuf = katze_net_load_icon (
             MIDORI_BROWSER (gtk_widget_get_toplevel (treeview))->net,
-            katze_item_get_uri (item), NULL, treeview, treeview);
+            katze_item_get_uri (item), NULL, treeview, NULL);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
     if (pixbuf)
         g_object_unref (pixbuf);
@@ -2694,10 +2693,9 @@ midori_browser_history_render_icon_cb (GtkTreeViewColumn* column,
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
     else
-        /* FIXME: Implement icon_cb */
         pixbuf = katze_net_load_icon (
             MIDORI_BROWSER (gtk_widget_get_toplevel (treeview))->net,
-            katze_item_get_uri (item), NULL, treeview, treeview);
+            katze_item_get_uri (item), NULL, treeview, NULL);
 
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
@@ -3610,7 +3608,8 @@ _location_action_insert_history_item (MidoriLocationAction* action,
         uri = katze_item_get_uri (item);
         pixbuf = katze_net_load_icon (browser->net, katze_item_get_uri (item),
                                       NULL, GTK_WIDGET (browser), NULL);
-        midori_location_action_add_item (action, uri, pixbuf, katze_item_get_name (item));
+        midori_location_action_add_item (action, uri,
+            pixbuf, katze_item_get_name (item));
     }
 }
 
