@@ -153,31 +153,6 @@ sokoke_magic_uri (const gchar* uri,
 }
 
 void
-sokoke_entry_setup_completion (GtkEntry* entry)
-{
-    /* TODO: The current behavior works only with the beginning of strings
-             But we want to match "localhost" with "loc" and "hos" */
-    GtkEntryCompletion* completion = gtk_entry_completion_new ();
-    gtk_entry_completion_set_model (completion,
-        GTK_TREE_MODEL (gtk_list_store_new (1, G_TYPE_STRING)));
-    gtk_entry_completion_set_text_column (completion, 0);
-    gtk_entry_completion_set_minimum_key_length (completion, 3);
-    gtk_entry_set_completion (entry, completion);
-    /* FIXME: Completion doesn't work well, so it's disabled */
-    gtk_entry_completion_set_popup_completion (completion, FALSE);
-}
-
-void
-sokoke_entry_append_completion (GtkEntry* entry, const gchar* text)
-{
-    GtkEntryCompletion* completion = gtk_entry_get_completion (entry);
-    GtkTreeModel* completion_store = gtk_entry_completion_get_model (completion);
-    GtkTreeIter iter;
-    gtk_list_store_insert (GTK_LIST_STORE (completion_store), &iter, 0);
-    gtk_list_store_set (GTK_LIST_STORE (completion_store), &iter, 0, text, -1);
-}
-
-void
 sokoke_combo_box_add_strings (GtkComboBox* combobox,
                               const gchar* label_first, ...)
 {

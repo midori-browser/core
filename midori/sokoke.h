@@ -27,13 +27,6 @@ gchar*
 sokoke_magic_uri                    (const gchar*    uri,
                                      KatzeArray*     search_engines);
 
-void
-sokoke_entry_setup_completion       (GtkEntry*       entry);
-
-void
-sokoke_entry_append_completion      (GtkEntry*       entry,
-                                     const gchar*    text);
-
 typedef enum {
     SOKOKE_MENU_POSITION_CURSOR = 0,
     SOKOKE_MENU_POSITION_LEFT,
