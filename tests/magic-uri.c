@@ -44,6 +44,7 @@ main (int    argc,
       return 1; \
     } \
   g_free (uri)
+#define SM "http://www.searchmash.com/search/"
 
     test_input ("ftp://ftp.mozilla.org", "ftp://ftp.mozilla.org");
     test_input ("ftp://ftp.mozilla.org/pub", "ftp://ftp.mozilla.org/pub");
@@ -61,8 +62,8 @@ main (int    argc,
     test_input ("localhost:8000", "http://localhost:8000");
     test_input ("192.168.1.1", "http://192.168.1.1");
     test_input ("192.168.1.1:8000", "http://192.168.1.1:8000");
-    test_input ("sm midori", "http://www.searchmash.com/search/midori");
-    test_input ("sm cats dogs", "http://www.searchmash.com/search/cats dogs");
+    test_input ("sm midori", SM "midori");
+    test_input ("sm cats dogs", SM "cats dogs");
     test_input ("dict midori", NULL);
     test_input ("cats", NULL);
     test_input ("cats dogs", NULL);
@@ -74,7 +75,14 @@ main (int    argc,
     test_input ("search:twotoasts.de", NULL);
     test_input ("g cache:127.0.0.1", NULL);
     test_input ("g cache:127.0.0.1/foo", NULL);
-    test_input ("g cache:twotoats.de/foo", NULL);
+    test_input ("g cache:twotoasts.de/foo", NULL);
+    test_input ("sm cache:127.0.0.1", SM "cache:127.0.0.1");
+    test_input ("sm cache:127.0.0.1/foo", SM "cache:127.0.0.1/foo");
+    test_input ("sm cache:twotoasts.de/foo", SM "cache:twotoasts.de/foo");
+    test_input ("de.po verbose", NULL);
+    test_input ("verbose de.po", NULL);
+    test_input ("g de.po verbose", NULL);
+    test_input ("sm de.po verbose", SM "de.po verbose");
 
     return 0;
 }

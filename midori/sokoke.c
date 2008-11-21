@@ -125,7 +125,8 @@ sokoke_magic_uri (const gchar* uri,
         {
             search = NULL;
             if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
-                search = g_strconcat ("http://", uri, NULL);
+                if (!strchr (parts[0], ' ') && !strchr (parts[1], ' '))
+                    search = g_strconcat ("http://", uri, NULL);
             g_free (parts);
             if (search)
                 return search;
