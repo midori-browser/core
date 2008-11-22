@@ -1099,7 +1099,7 @@ main (int    argc,
     {
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
-       { "version", 'v', 0, G_OPTION_ARG_NONE, &version,
+       { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("URIs"), NULL },
