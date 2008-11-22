@@ -42,7 +42,6 @@ struct _MidoriAddonsClass
 typedef enum
 {
     MIDORI_ADDON_NONE,
-    MIDORI_ADDON_EXTENSIONS,
     MIDORI_ADDON_USER_SCRIPTS,
     MIDORI_ADDON_USER_STYLES
 } MidoriAddonKind;
@@ -57,22 +56,8 @@ GType
 midori_addons_get_type               (void);
 
 GtkWidget*
-midori_addons_new                    (GtkWidget*      web_widget,
-                                      MidoriAddonKind kind);
-
-void
-midori_addons_set_web_widget         (MidoriAddons*   addons,
+midori_addons_new                    (MidoriAddonKind kind,
                                       GtkWidget*      web_widget);
-
-GtkWidget*
-midori_addons_get_web_widget         (MidoriAddons*   addons);
-
-void
-midori_addons_set_kind               (MidoriAddons*   addons,
-                                      MidoriAddonKind kind);
-
-MidoriAddonKind
-midori_addons_get_kind               (MidoriAddons*   addons);
 
 GtkWidget*
 midori_addons_get_toolbar            (MidoriAddons*   addons);

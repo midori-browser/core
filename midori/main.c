@@ -1009,10 +1009,12 @@ midori_app_add_browser_cb (MidoriApp*     app,
     panel = katze_object_get_object (browser, "panel");
 
     /* Transfers */
-    /* addon = midori_view_new (net);
+    #if 0
+    addon = midori_view_new (net);
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), addon, NULL,
-                              STOCK_TRANSFERS, _("Transfers")); */
+                              STOCK_TRANSFERS, _("Transfers"));
+    #endif
 
     /* Console */
     addon = midori_console_new ();
@@ -1025,14 +1027,14 @@ midori_app_add_browser_cb (MidoriApp*     app,
         G_CALLBACK (midori_browser_add_tab_cb), addon);
 
     /* Userscripts */
-    addon = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_SCRIPTS);
+    addon = midori_addons_new (MIDORI_ADDON_USER_SCRIPTS, GTK_WIDGET (browser));
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
                               STOCK_SCRIPTS, _("Userscripts"));
     /* Userstyles */
-    addon = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_USER_STYLES);
+    addon = midori_addons_new (MIDORI_ADDON_USER_STYLES, GTK_WIDGET (browser));
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
@@ -1040,12 +1042,15 @@ midori_app_add_browser_cb (MidoriApp*     app,
                               STOCK_STYLES, _("Userstyles"));
 
     /* Extensions */
-    addon = midori_addons_new (GTK_WIDGET (browser), MIDORI_ADDON_EXTENSIONS);
+    #if 0
+    addon = midori_addons_new (MIDORI_ADDON_EXTENSIONS,
+                               katze_object_get_object (app, "extensions"), NULL);
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
                               STOCK_EXTENSIONS, _("Extensions"));
+    #endif
 }
 
 static void

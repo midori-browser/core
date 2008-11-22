@@ -32,8 +32,8 @@ struct _MidoriAddons
 {
     GtkVBox parent_instance;
 
-    GtkWidget* web_widget;
     MidoriAddonKind kind;
+    GtkWidget* web_widget;
     GtkWidget* toolbar;
     GtkWidget* treeview;
 
@@ -58,8 +58,8 @@ enum
 {
     PROP_0,
 
-    PROP_WEB_WIDGET,
-    PROP_KIND
+    PROP_KIND,
+    PROP_WEB_WIDGET
 };
 
 static void
@@ -85,7 +85,6 @@ midori_addon_kind_get_type (void)
     {
         static const GEnumValue values[] = {
          { MIDORI_ADDON_NONE, "MIDORI_ADDON_NONE", N_("None") },
-         { MIDORI_ADDON_EXTENSIONS, "MIDORI_ADDON_EXTENSIONS", N_("Extensions") },
          { MIDORI_ADDON_USER_SCRIPTS, "MIDORI_USER_SCRIPTS", N_("Userscripts") },
          { MIDORI_ADDON_USER_STYLES, "MIDORI_USER_STYLES", N_("Userstyles") },
          { 0, NULL, NULL }
@@ -109,15 +108,6 @@ midori_addons_class_init (MidoriAddonsClass* class)
     flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     g_object_class_install_property (gobject_class,
-                                     PROP_WEB_WIDGET,
-                                     g_param_spec_object (
-                                     "web-widget",
-                                     "Web Widget",
-                                     "The assigned web widget",
-                                     GTK_TYPE_WIDGET,
-                                     G_PARAM_READWRITE));
-
-    g_object_class_install_property (gobject_class,
                                      PROP_KIND,
                                      g_param_spec_enum (
                                      "kind",
@@ -126,6 +116,15 @@ midori_addons_class_init (MidoriAddonsClass* class)
                                      MIDORI_TYPE_ADDON_KIND,
                                      MIDORI_ADDON_NONE,
                                      flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_WEB_WIDGET,
+                                     g_param_spec_object (
+                                     "web-widget",
+                                     "Web Widget",
+                                     "The assigned web widget",
+                                     GTK_TYPE_WIDGET,
+                                     G_PARAM_READWRITE));
 }
 
 static void
@@ -138,11 +137,11 @@ midori_addons_set_property (GObject*      object,
 
     switch (prop_id)
     {
-    case PROP_WEB_WIDGET:
-        midori_addons_set_web_widget (addons, g_value_get_object (value));
-        break;
     case PROP_KIND:
-        midori_addons_set_kind (addons, g_value_get_enum (value));
+        addons->kind = g_value_get_enum (value);
+        break;
+    case PROP_WEB_WIDGET:
+        katze_object_assign (addons->web_widget, g_value_dup_object (value));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -160,11 +159,11 @@ midori_addons_get_property (GObject*    object,
 
     switch (prop_id)
     {
-    case PROP_WEB_WIDGET:
-        g_value_set_object (value, midori_addons_get_web_widget (addons));
-        break;
     case PROP_KIND:
-        g_value_set_enum (value, midori_addons_get_kind (addons));
+        g_value_set_enum (value, addons->kind);
+        break;
+    case PROP_WEB_WIDGET:
+        g_value_set_object (value, addons->web_widget);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -177,8 +176,6 @@ _addons_get_folder (MidoriAddons* addons)
 {
     switch (addons->kind)
     {
-    case MIDORI_ADDON_EXTENSIONS:
-        return "extensions";
     case MIDORI_ADDON_USER_SCRIPTS:
         return "scripts";
     case MIDORI_ADDON_USER_STYLES:
@@ -193,8 +190,6 @@ _addons_get_extension (MidoriAddons* addons)
 {
     switch (addons->kind)
     {
-    case MIDORI_ADDON_EXTENSIONS:
-        return ".midori.js";
     case MIDORI_ADDON_USER_SCRIPTS:
         return ".user.js";
     case MIDORI_ADDON_USER_STYLES:
@@ -491,6 +486,9 @@ static void
 midori_addons_finalize (GObject* object)
 {
     MidoriAddons* addons = MIDORI_ADDONS (object);
+
+    katze_object_assign (addons->web_widget, NULL);
+
     g_slist_free (addons->elements);
 }
 
@@ -875,8 +873,8 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
 
 /**
  * midori_addons_new:
- * @web_widget: a web widget
  * @kind: the kind of addon
+ * @web_widget: a web widget
  *
  * Creates a new addons widget.
  *
@@ -886,8 +884,8 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
  * Return value: a new #MidoriAddons
  **/
 GtkWidget*
-midori_addons_new (GtkWidget*      web_widget,
-                   MidoriAddonKind kind)
+midori_addons_new (MidoriAddonKind kind,
+                   GtkWidget*      web_widget)
 {
     MidoriAddons* addons;
     #if GLIB_CHECK_VERSION (2, 16, 0)
@@ -901,10 +899,14 @@ midori_addons_new (GtkWidget*      web_widget,
     g_return_val_if_fail (GTK_IS_WIDGET (web_widget), NULL);
 
     addons = g_object_new (MIDORI_TYPE_ADDONS,
-                           /* "web-widget", web_widget,
-                           "kind", kind, */ NULL);
-    addons->web_widget = web_widget;
-    midori_addons_set_kind (addons, kind);
+                           "kind", kind,
+                           "web-widget", web_widget,
+                           NULL);
+
+    if (kind == MIDORI_ADDON_USER_SCRIPTS || kind == MIDORI_ADDON_USER_STYLES)
+        g_signal_connect (addons->web_widget, "window-object-cleared",
+            G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
+
     midori_addons_update_elements (addons);
 
     #if GLIB_CHECK_VERSION (2, 16, 0)
@@ -931,87 +933,6 @@ midori_addons_new (GtkWidget*      web_widget,
 #endif
 
     return GTK_WIDGET (addons);
-}
-
-/**
- * midori_addons_set_web_widget:
- * @addons: a #MidoriAddons
- * @web_widget: a web widget
- *
- * Sets the assigned web widget. Basically any widget
- * with a window-object-cleared qualifies as such.
- *
- * Note: This may only be set once.
- **/
-void
-midori_addons_set_web_widget (MidoriAddons* addons,
-                              GtkWidget*    web_widget)
-{
-    g_return_if_fail (MIDORI_IS_ADDONS (addons));
-    g_return_if_fail (GTK_IS_WIDGET (addons));
-    g_return_if_fail (g_signal_lookup ("window-object-cleared", G_TYPE_FROM_INSTANCE (web_widget)));
-
-    /* FIXME: Implement this */
-}
-
-/**
- * midori_addons_get_web_widget:
- * @addons: a #MidoriAddons
- *
- * Determines the assigned web widget.
- *
- * Return value: a web widget
- **/
-GtkWidget*
-midori_addons_get_web_widget (MidoriAddons* addons)
-{
-    g_return_val_if_fail (MIDORI_IS_ADDONS (addons), NULL);
-
-    return addons->web_widget;
-}
-
-/**
- * midori_addons_set_kind:
- * @addons: a #MidoriAddons
- * @kind: a #MidoriAddonKind
- *
- * Sets the kind of addons.
- *
- * Note: This may only be set once.
- **/
-void
-midori_addons_set_kind (MidoriAddons*   addons,
-                        MidoriAddonKind kind)
-{
-    g_return_if_fail (MIDORI_IS_ADDONS (addons));
-    g_return_if_fail (addons->kind == MIDORI_ADDON_NONE);
-
-    if (kind == MIDORI_ADDON_NONE)
-        return;
-
-    g_return_if_fail (addons->web_widget);
-
-    addons->kind = kind;
-
-    if (kind == MIDORI_ADDON_USER_SCRIPTS || kind == MIDORI_ADDON_USER_STYLES)
-        g_signal_connect (addons->web_widget, "window-object-cleared",
-            G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
-
-    g_object_notify (G_OBJECT (addons), "kind");
-}
-
-/**
- * midori_addons_get_kind:
- * @addons: a #MidoriAddons
- *
- * Determines the kind of addons.
- *
- * Return value: a #MidoriAddonKind
- **/
-MidoriAddonKind
-midori_addons_get_kind (MidoriAddons* addons)
-{
-    return addons->kind;
 }
 
 /**
@@ -1112,6 +1033,7 @@ midori_addons_update_elements (MidoriAddons* addons)
     GSList* list;
     struct AddonElement* element;
 
+    g_return_if_fail (MIDORI_IS_ADDONS (addons));
     g_return_if_fail (addons->kind != MIDORI_ADDON_NONE);
 
     /* FIXME: would GHashTable be better? */
