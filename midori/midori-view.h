@@ -171,6 +171,11 @@ void
 midori_view_set_highlight_text_matches (MidoriView*        view,
                                         gboolean           highlight);
 
+gboolean
+midori_view_execute_script             (MidoriView*        view,
+                                        const gchar*       script,
+                                        gchar**            exception);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

@@ -15,12 +15,11 @@
 
 #include "midori-view.h"
 #include "midori-source.h"
-
 #include "midori-stock.h"
 
 #include "compat.h"
 #include "sokoke.h"
-#include "gjs.h"
+/* #include "gjs.h" */
 
 #include <string.h>
 #include <stdlib.h>
@@ -48,7 +47,7 @@ struct _MidoriView
     gchar* selected_text;
     MidoriWebSettings* settings;
     GtkWidget* web_view;
-    gboolean window_object_cleared;
+    /* KatzeArray* news_feeds; */
 
     gchar* download_manager;
     gboolean middle_click_opens_selection;
@@ -100,6 +99,7 @@ enum
     PROP_LOAD_STATUS,
     PROP_PROGRESS,
     PROP_ZOOM_LEVEL,
+    /* PROP_NEWS_FEEDS, */
     PROP_STATUSBAR_TEXT,
     PROP_SETTINGS,
     PROP_NET
@@ -108,8 +108,8 @@ enum
 enum {
     ACTIVATE_ACTION,
     CONSOLE_MESSAGE,
+    CONTEXT_READY,
     ATTACH_INSPECTOR,
-    WINDOW_OBJECT_CLEARED,
     NEW_TAB,
     NEW_WINDOW,
     SEARCH_TEXT,
@@ -216,45 +216,6 @@ midori_cclosure_marshal_VOID__STRING_INT_STRING (GClosure*     closure,
 }
 
 static void
-midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
-                                                      GValue*       return_value,
-                                                      guint         n_param_values,
-                                                      const GValue* param_values,
-                                                      gpointer      invocation_hint,
-                                                      gpointer      marshal_data)
-{
-    typedef gboolean(*GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (gpointer  data1,
-                                                                  gpointer  arg_1,
-                                                                  gpointer  arg_2,
-                                                                  gpointer  arg_3,
-                                                                  gpointer  data2);
-    register GMarshalFunc_VOID__OBJECT_POINTER_POINTER callback;
-    register GCClosure* cc = (GCClosure*) closure;
-    register gpointer data1, data2;
-
-    g_return_if_fail (n_param_values == 4);
-
-    if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-        data1 = closure->data;
-        data2 = g_value_peek_pointer (param_values + 0);
-    }
-    else
-    {
-        data1 = g_value_peek_pointer (param_values + 0);
-        data2 = closure->data;
-    }
-    callback = (GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (marshal_data
-        ? marshal_data : cc->callback);
-
-    callback (data1,
-              g_value_get_object (param_values + 1),
-              g_value_get_pointer (param_values + 2),
-              g_value_get_pointer (param_values + 3),
-              data2);
-}
-
-static void
 midori_view_class_init (MidoriViewClass* class)
 {
     GObjectClass* gobject_class;
@@ -284,6 +245,17 @@ midori_view_class_init (MidoriViewClass* class)
         G_TYPE_INT,
         G_TYPE_STRING);
 
+    signals[CONTEXT_READY] = g_signal_new (
+        "context-ready",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER);
+
     signals[ATTACH_INSPECTOR] = g_signal_new (
         "attach-inspector",
         G_TYPE_FROM_CLASS (class),
@@ -294,19 +266,6 @@ midori_view_class_init (MidoriViewClass* class)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
         GTK_TYPE_WIDGET);
-
-    signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
-        "window-object-cleared",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-        0,
-        0,
-        NULL,
-        midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER,
-        G_TYPE_NONE, 3,
-        WEBKIT_TYPE_WEB_FRAME,
-        G_TYPE_POINTER,
-        G_TYPE_POINTER);
 
     signals[NEW_TAB] = g_signal_new (
         "new-tab",
@@ -428,6 +387,15 @@ midori_view_class_init (MidoriViewClass* class)
                                      1.0f,
                                      G_PARAM_READWRITE));
 
+    /* g_object_class_install_property (gobject_class,
+                                     PROP_NEWS_FEEDS,
+                                     g_param_spec_object (
+                                     "news-feeds",
+                                     "News Feeds",
+                                     "The list of available news feeds",
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE)); */
+
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR_TEXT,
                                      g_param_spec_string (
@@ -506,8 +474,6 @@ webkit_web_view_load_started_cb (WebKitWebView*  web_view,
                                  WebKitWebFrame* web_frame,
                                  MidoriView*     view)
 {
-    view->window_object_cleared = FALSE;
-
     view->load_status = MIDORI_LOAD_PROVISIONAL;
     g_object_notify (G_OBJECT (view), "load-status");
 
@@ -546,17 +512,11 @@ webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
     g_object_notify (G_OBJECT (view), "progress");
 }
 
-/*
-static void
+/*static void
 gjs_value_links_foreach_cb (GjsValue*   link,
                             MidoriView* view)
 {
     const gchar* type;
-#if GLIB_CHECK_VERSION (2, 16, 0)
-    const gchar* rel;
-    GFile* icon_file;
-    GIcon* icon;
-#endif
 
     if (gjs_value_is_object (link) && gjs_value_has_attribute (link, "href"))
     {
@@ -568,29 +528,14 @@ gjs_value_links_foreach_cb (GjsValue*   link,
                 || !strcmp (type, "application/atom+xml"))
             {
                 katze_array_add_item (view->news_feeds, link);
-                g_signal_emit_by_name (view, "news-feed-ready",
+                g_signal_emit (view, signals[NEWS_FEED_READY],
                     gjs_value_get_attribute_string (link, "href"), type,
                     gjs_value_has_attribute (link, "title")
                     ? gjs_value_get_attribute_string (link, "title") : NULL);
             }
         }
-#if GLIB_CHECK_VERSION (2, 16, 0)
-        if (gjs_value_has_attribute (link, "rel"))
-        {
-            rel = gjs_value_get_attribute_string (link, "rel");
-            if (!strcmp (rel, "icon") || !strcmp (rel, "shortcut icon"))
-            {
-                icon_file = g_file_new_for_uri (
-                    gjs_value_get_attribute_string (link, "href"));
-                icon = g_file_icon_new (icon_file);
-                g_loadable_icon_load_async (G_LOADABLE_ICON (icon),
-                    0, NULL, (GAsyncReadyCallback)loadable_icon_finish_cb, view);
-            }
-        }
-#endif
     }
-}
-*/
+}*/
 
 static void
 webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
@@ -598,11 +543,6 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
                                MidoriView*     view)
 {
     gchar* data;
-    /*JSContextRef js_context;
-    JSValueRef js_window;
-    GjsValue* value;
-    GjsValue* document;
-    GjsValue* links; */
 
     if (!success)
     {
@@ -622,16 +562,6 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
         g_free (data);
     }
 
-    /* js_context = webkit_web_frame_get_global_context (web_frame);
-    value = gjs_value_new (js_context, NULL);
-    document = gjs_value_get_by_name (value, "document");
-    links = gjs_value_get_elements_by_tag_name (document, "link");
-    katze_array_clear (web_view->news_feeds);
-    gjs_value_foreach (links, (GjsCallback)gjs_value_links_foreach_cb, web_view);
-    g_object_unref (links);
-    g_object_unref (document);
-    g_object_unref (value); */
-
     view->load_status = MIDORI_LOAD_FINISHED;
     g_object_notify (G_OBJECT (view), "load-status");
 }
@@ -641,8 +571,23 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                                   WebKitWebFrame* web_frame,
                                   MidoriView*     view)
 {
+    /* JSContextRef js_context;
+    GjsValue* value;
+    GjsValue* document;
+    GjsValue* links; */
+
     view->progress = 1.0;
     g_object_notify (G_OBJECT (view), "progress");
+
+    /* js_context = webkit_web_frame_get_global_context (web_frame);
+    value = gjs_value_new (js_context, NULL);
+    document = gjs_value_get_by_name (value, "document");
+    links = gjs_value_get_elements_by_tag_name (document, "link");
+    katze_array_clear (view->news_feeds);
+    gjs_value_foreach (links, (GjsCallback)gjs_value_links_foreach_cb, view);
+    g_object_unref (links);
+    g_object_unref (document);
+    g_object_unref (value); */
 }
 
 static void
@@ -1000,8 +945,7 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
                                           JSObjectRef     js_window,
                                           MidoriView*     view)
 {
-    g_signal_emit (view, signals[WINDOW_OBJECT_CLEARED], 0,
-                   web_frame, js_context, js_window);
+    g_signal_emit (view, signals[CONTEXT_READY], 0, js_context);
 }
 
 static void
@@ -2153,4 +2097,27 @@ midori_view_set_highlight_text_matches (MidoriView* view,
 
     webkit_web_view_set_highlight_text_matches (
         WEBKIT_WEB_VIEW (view->web_view), highlight);
+}
+
+/**
+ * midori_view_execute_script
+ * @view: a #MidoriView
+ * @script: script code
+ * @exception: location to store an exception message
+ *
+ * Execute a script on the view.
+ *
+ * Returns: %TRUE if the script was executed successfully
+ **/
+gboolean
+midori_view_execute_script (MidoriView*  view,
+                            const gchar* script,
+                            gchar**      exception)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+    g_return_val_if_fail (script != NULL, FALSE);
+
+    /* FIXME Actually store exception. */
+    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), script);
+    return TRUE;
 }

@@ -813,11 +813,9 @@ _js_style_from_file (JSContextRef js_context,
 }
 
 static void
-midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
-                                            WebKitWebFrame*    web_frame,
-                                            JSGlobalContextRef js_context,
-                                            JSObjectRef        js_window,
-                                            MidoriAddons*      addons)
+midori_web_widget_context_ready_cb (GtkWidget*         web_widget,
+                                    JSGlobalContextRef js_context,
+                                    MidoriAddons*      addons)
 {
     const gchar* uri;
     GSList* elements;
@@ -826,7 +824,7 @@ midori_web_widget_window_object_cleared_cb (GtkWidget*         web_widget,
     gchar* exception;
     gchar* message;
 
-    uri = webkit_web_frame_get_uri (web_frame);
+    uri = katze_object_get_string (web_widget, "uri");
     if (!uri)
         return;
 
@@ -904,8 +902,8 @@ midori_addons_new (MidoriAddonKind kind,
                            NULL);
 
     if (kind == MIDORI_ADDON_USER_SCRIPTS || kind == MIDORI_ADDON_USER_STYLES)
-        g_signal_connect (addons->web_widget, "window-object-cleared",
-            G_CALLBACK (midori_web_widget_window_object_cleared_cb), addons);
+        g_signal_connect (addons->web_widget, "context-ready",
+            G_CALLBACK (midori_web_widget_context_ready_cb), addons);
 
     midori_addons_update_elements (addons);
 

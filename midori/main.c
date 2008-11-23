@@ -1033,6 +1033,7 @@ midori_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
                               STOCK_SCRIPTS, _("Userscripts"));
+
     /* Userstyles */
     addon = midori_addons_new (MIDORI_ADDON_USER_STYLES, GTK_WIDGET (browser));
     gtk_widget_show (addon);
@@ -1043,8 +1044,7 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
     /* Extensions */
     #if 0
-    addon = midori_addons_new (MIDORI_ADDON_EXTENSIONS,
-                               katze_object_get_object (app, "extensions"), NULL);
+    addon = midori_addons_new (MIDORI_ADDON_EXTENSIONS);
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);

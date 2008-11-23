@@ -89,6 +89,7 @@ enum
     PROP_PANEL,
     PROP_URI,
     PROP_TAB,
+    PROP_LOAD_STATUS,
     PROP_STATUSBAR,
     PROP_STATUSBAR_TEXT,
     PROP_SETTINGS,
@@ -100,12 +101,11 @@ enum
 
 enum
 {
-    WINDOW_OBJECT_CLEARED,
     NEW_WINDOW,
-
     ADD_TAB,
     REMOVE_TAB,
     ACTIVATE_ACTION,
+    CONTEXT_READY,
     QUIT,
 
     LAST_SIGNAL
@@ -392,6 +392,8 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
         _midori_browser_update_interface (browser);
         _midori_browser_set_statusbar_text (browser, NULL);
     }
+
+    g_object_notify (G_OBJECT (browser), "load-status");
 }
 
 static void
@@ -404,14 +406,11 @@ midori_view_notify_progress_cb (GtkWidget*     view,
 }
 
 static void
-midori_view_window_object_cleared_cb (GtkWidget*      view,
-                                      WebKitWebFrame* web_frame,
-                                      JSContextRef    js_context,
-                                      JSObjectRef     js_window,
-                                      MidoriBrowser*  browser)
+midori_view_context_ready_cb (GtkWidget*     view,
+                              JSContextRef   js_context,
+                              MidoriBrowser* browser)
 {
-    g_signal_emit (browser, signals[WINDOW_OBJECT_CLEARED], 0,
-                   web_frame, js_context, js_window);
+    g_signal_emit (browser, signals[CONTEXT_READY], 0, js_context);
 }
 
 /*
@@ -866,8 +865,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_load_status_cb, browser,
                       "signal::notify::progress",
                       midori_view_notify_progress_cb, browser,
-                      "signal::window-object-cleared",
-                      midori_view_window_object_cleared_cb, browser,
+                      "signal::context-ready",
+                      midori_view_context_ready_cb, browser,
                       /* "signal::news-feed-ready",
                       midori_view_news_feed_ready_cb, browser, */
                       "signal::notify::title",
@@ -931,62 +930,10 @@ _midori_browser_quit (MidoriBrowser* browser)
 }
 
 static void
-midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER (GClosure*     closure,
-                                                      GValue*       return_value,
-                                                      guint         n_param_values,
-                                                      const GValue* param_values,
-                                                      gpointer      invocation_hint,
-                                                      gpointer      marshal_data)
-{
-    typedef gboolean(*GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (gpointer  data1,
-                                                                  gpointer  arg_1,
-                                                                  gpointer  arg_2,
-                                                                  gpointer  arg_3,
-                                                                  gpointer  data2);
-    register GMarshalFunc_VOID__OBJECT_POINTER_POINTER callback;
-    register GCClosure* cc = (GCClosure*) closure;
-    register gpointer data1, data2;
-
-    g_return_if_fail (n_param_values == 4);
-
-    if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-        data1 = closure->data;
-        data2 = g_value_peek_pointer (param_values + 0);
-    }
-    else
-    {
-        data1 = g_value_peek_pointer (param_values + 0);
-        data2 = closure->data;
-    }
-    callback = (GMarshalFunc_VOID__OBJECT_POINTER_POINTER) (marshal_data
-        ? marshal_data : cc->callback);
-
-    callback (data1,
-              g_value_get_object (param_values + 1),
-              g_value_get_pointer (param_values + 2),
-              g_value_get_pointer (param_values + 3),
-              data2);
-}
-
-static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
     GObjectClass* gobject_class;
     GParamFlags flags;
-
-    signals[WINDOW_OBJECT_CLEARED] = g_signal_new (
-        "window-object-cleared",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriBrowserClass, window_object_cleared),
-        0,
-        NULL,
-        midori_cclosure_marshal_VOID__OBJECT_POINTER_POINTER,
-        G_TYPE_NONE, 3,
-        WEBKIT_TYPE_WEB_FRAME,
-        G_TYPE_POINTER,
-        G_TYPE_POINTER);
 
     signals[NEW_WINDOW] = g_signal_new (
         "new-window",
@@ -1031,6 +978,17 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
+
+    signals[CONTEXT_READY] = g_signal_new (
+        "context-ready",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER);
 
     signals[QUIT] = g_signal_new (
         "quit",
@@ -1108,6 +1066,16 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "The current tab",
                                      GTK_TYPE_WIDGET,
                                      G_PARAM_READWRITE));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_LOAD_STATUS,
+                                     g_param_spec_enum (
+                                     "load-status",
+                                     "Load Status",
+                                     "The current load status",
+                                     MIDORI_TYPE_LOAD_STATUS,
+                                     MIDORI_LOAD_FINISHED,
+                                     G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR,
