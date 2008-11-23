@@ -26,15 +26,15 @@ statusbar_features_app_add_browser_cb (MidoriApp*     app,
               instead of merely replicating the global preferences. */
 
     statusbar = katze_object_get_object (browser, "statusbar");
-    bbox = gtk_hbutton_box_new ();
+    bbox = gtk_hbox_new (FALSE, 0);
     settings = katze_object_get_object (browser, "settings");
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
-    gtk_container_add (GTK_CONTAINER (bbox), button);
+    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
-    gtk_container_add (GTK_CONTAINER (bbox), button);
+    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);
     gtk_widget_show (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
