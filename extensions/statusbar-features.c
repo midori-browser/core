@@ -11,6 +11,8 @@
 
 #include <midori/midori.h>
 
+#include <glib/gi18n.h>
+
 void
 statusbar_features_app_add_browser_cb (MidoriApp*     app,
                                        MidoriBrowser* browser)
@@ -27,9 +29,11 @@ statusbar_features_app_add_browser_cb (MidoriApp*     app,
     bbox = gtk_hbutton_box_new ();
     settings = katze_object_get_object (browser, "settings");
     button = katze_property_proxy (settings, "auto-load-images", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
     gtk_container_add (GTK_CONTAINER (bbox), button);
     gtk_widget_show (button);
     button = katze_property_proxy (settings, "enable-scripts", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     gtk_container_add (GTK_CONTAINER (bbox), button);
     gtk_widget_show (button);
     gtk_widget_show (bbox);
