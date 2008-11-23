@@ -1345,12 +1345,12 @@ _action_edit_activate (GtkAction*     action,
     gboolean can_cut = FALSE, can_copy = FALSE, can_paste = FALSE;
     gboolean has_selection, can_select_all = FALSE;
 
-    if (MIDORI_IS_VIEW (widget))
+    if (WEBKIT_IS_WEB_VIEW (widget))
     {
-        MidoriView* view = MIDORI_VIEW (widget);
-        can_cut = midori_view_can_cut_clipboard (view);
-        can_copy = midori_view_can_copy_clipboard (view);
-        can_paste = midori_view_can_paste_clipboard (view);
+        WebKitWebView* view = WEBKIT_WEB_VIEW (widget);
+        can_cut = webkit_web_view_can_cut_clipboard (view);
+        can_copy = webkit_web_view_can_copy_clipboard (view);
+        can_paste = webkit_web_view_can_paste_clipboard (view);
         can_select_all = TRUE;
     }
     else if (GTK_IS_EDITABLE (widget))
@@ -3752,8 +3752,7 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::activate-item",
                       _action_trash_activate_item, browser,
                       NULL);
-    gtk_action_group_add_action_with_accel (browser->action_group,
-        action, "");
+    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
@@ -3768,8 +3767,7 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::activate-item",
                       _action_history_activate_item, browser,
                       NULL);
-    gtk_action_group_add_action_with_accel (browser->action_group,
-        action, "");
+    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
@@ -3784,8 +3782,7 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::activate-item",
                       _action_bookmarks_activate_item, browser,
                       NULL);
-    gtk_action_group_add_action_with_accel (browser->action_group,
-        action, "");
+    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
@@ -3801,8 +3798,7 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::activate-item",
                       _action_window_activate_item, browser,
                       NULL);
-    gtk_action_group_add_action_with_accel (browser->action_group,
-        action, "");
+    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
 
     /* Create the menubar */
@@ -3833,7 +3829,7 @@ midori_browser_init (MidoriBrowser* browser)
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
-    /* FIXME: settings should be connected with screen changes */
+    /* FIXME: Settings should be connected with screen changes */
     gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (gtk_settings)
         g_signal_connect (gtk_settings, "notify::gtk-toolbar-style",
@@ -4109,7 +4105,7 @@ midori_browser_finalize (GObject* object)
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
 
-    g_free (browser->statusbar_text);
+    katze_assign (browser->statusbar_text, NULL);
 
     katze_object_assign (browser->settings, NULL);
     katze_object_assign (browser->bookmarks, NULL);
@@ -4601,6 +4597,9 @@ gint
 midori_browser_add_tab (MidoriBrowser* browser,
                         GtkWidget*     view)
 {
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
+    g_return_val_if_fail (GTK_IS_WIDGET (view), -1);
+
     g_signal_emit (browser, signals[ADD_TAB], 0, view);
     return gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
 }
@@ -4617,6 +4616,9 @@ void
 midori_browser_remove_tab (MidoriBrowser* browser,
                            GtkWidget*     view)
 {
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (GTK_IS_WIDGET (view));
+
     g_signal_emit (browser, signals[REMOVE_TAB], 0, view);
 }
 
@@ -4626,8 +4628,6 @@ midori_browser_remove_tab (MidoriBrowser* browser,
  * @item: an item
  *
  * Appends a new view as described by @item.
- *
- * Note: Currently this will always be a #MidoriWebView.
  *
  * Return value: the index of the new tab, or -1 in case of an error
  **/
@@ -4639,6 +4639,7 @@ midori_browser_add_item (MidoriBrowser* browser,
     const gchar* title;
     GtkWidget* view;
 
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
 
     uri = katze_item_get_uri (item);
@@ -4660,8 +4661,6 @@ midori_browser_add_item (MidoriBrowser* browser,
  *
  * Appends an uri in the form of a new view.
  *
- * Note: Currently this will always be a #MidoriView.
- *
  * Return value: the index of the new view, or -1
  **/
 gint
@@ -4669,6 +4668,9 @@ midori_browser_add_uri (MidoriBrowser* browser,
                         const gchar*   uri)
 {
     GtkWidget* view;
+
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
+    g_return_val_if_fail (uri != NULL, -1);
 
     view = g_object_new (MIDORI_TYPE_VIEW,
                          "settings", browser->settings,
@@ -4690,6 +4692,9 @@ void
 midori_browser_activate_action (MidoriBrowser* browser,
                                 const gchar*   name)
 {
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (name != NULL);
+
     g_signal_emit (browser, signals[ACTIVATE_ACTION], 0, name);
 }
 
@@ -4710,7 +4715,7 @@ midori_browser_set_current_uri (MidoriBrowser* browser,
     GtkWidget* view;
 
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
-    g_return_if_fail (uri);
+    g_return_if_fail (uri != NULL);
 
     view = midori_browser_get_current_tab (browser);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
@@ -4825,9 +4830,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 
     n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
     if (n >= 0)
-    {
         return gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
-    }
     else
         return NULL;
 }
