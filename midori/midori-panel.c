@@ -30,6 +30,15 @@ struct _MidoriPanel
     GtkMenu*   menu;
 };
 
+struct _MidoriPanelClass
+{
+    GtkHBoxClass parent_class;
+
+    /* Signals */
+    gboolean
+    (*close)                  (MidoriPanel*   panel);
+};
+
 G_DEFINE_TYPE (MidoriPanel, midori_panel, GTK_TYPE_HBOX)
 
 enum
@@ -66,7 +75,7 @@ midori_panel_get_property (GObject*    object,
                            GParamSpec* pspec);
 
 static gboolean
-midori_panel_close_cb (MidoriPanel* panel)
+midori_panel_close (MidoriPanel* panel)
 {
     gtk_widget_hide (GTK_WIDGET (panel));
     return FALSE;
@@ -127,19 +136,19 @@ midori_panel_class_init (MidoriPanelClass* class)
         "switch-page",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        G_STRUCT_OFFSET (MidoriPanelClass, switch_page),
+        0,
         0,
         NULL,
         g_cclosure_marshal_VOID__INT,
         G_TYPE_NONE, 1,
         G_TYPE_INT);
 
-    class->close = midori_panel_close_cb;
-
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_panel_finalize;
     gobject_class->set_property = midori_panel_set_property;
     gobject_class->get_property = midori_panel_get_property;
+
+    class->close = midori_panel_close;
 
     flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
@@ -343,7 +352,7 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
                                     MidoriPanel* panel)
 {
     GtkWidget* child;
-    GtkToolItem* toolitem;
+    GtkToggleToolButton* toolitem;
     guint n;
 
     child = g_object_get_data (G_OBJECT (widget), "page");
@@ -351,10 +360,10 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
 
     if (toolitem)
     {
-        /* Unset the button before setting it ensures that
+        /* Unsetting the button before setting it ensures that
            it will emit signals even if it was active before */
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), FALSE);
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), TRUE);
+        gtk_toggle_tool_button_set_active (toolitem, FALSE);
+        gtk_toggle_tool_button_set_active (toolitem, TRUE);
     }
     else
     {
@@ -382,27 +391,24 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  **/
 gint
 midori_panel_append_page (MidoriPanel* panel,
-                          GtkWidget*   child,
-                          GtkWidget*   toolbar,
-                          const gchar* stock_id,
-                          const gchar* label)
+                          MidoriPane*  pane)
 {
     GtkWidget* scrolled;
-    GtkWidget* widget;
     GObjectClass* gobject_class;
-    guint n;
+    GtkWidget* widget;
+    GtkWidget* toolbar;
+    const gchar* label;
+    const gchar* stock_id;
     GtkToolItem* toolitem;
     GtkWidget* image;
     GtkWidget* menuitem;
+    guint n;
 
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
-    g_return_val_if_fail (GTK_IS_WIDGET (child), -1);
-    g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
-    g_return_val_if_fail (stock_id != NULL, -1);
-    g_return_val_if_fail (label != NULL, -1);
+    g_return_val_if_fail (MIDORI_IS_PANE (pane), -1);
 
-    if (GTK_IS_SCROLLED_WINDOW (child))
-        scrolled = child;
+    if (GTK_IS_SCROLLED_WINDOW (pane))
+        scrolled = (GtkWidget*)pane;
     else
     {
         scrolled = gtk_scrolled_window_new (NULL, NULL);
@@ -411,36 +417,38 @@ midori_panel_append_page (MidoriPanel* panel,
                                         GTK_POLICY_AUTOMATIC);
         GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
         gtk_widget_show (scrolled);
-        gobject_class = G_OBJECT_GET_CLASS (child);
+        gobject_class = G_OBJECT_GET_CLASS (pane);
         if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
-            widget = child;
+            widget = (GtkWidget*)pane;
         else
         {
             widget = gtk_viewport_new (NULL, NULL);
             gtk_widget_show (widget);
-            gtk_container_add (GTK_CONTAINER (widget), child);
+            gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (pane));
         }
         gtk_container_add (GTK_CONTAINER (scrolled), widget);
     }
     gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
-    if (!toolbar)
-        toolbar = gtk_event_box_new ();
+    toolbar = midori_pane_get_toolbar (pane);
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
 
     n = midori_panel_page_num (panel, scrolled);
+    label = midori_pane_get_label (pane);
+    stock_id = midori_pane_get_stock_id (pane);
 
-    g_object_set_data (G_OBJECT (child), "label", (gchar*)label);
-
-    toolitem = gtk_radio_tool_button_new (panel->group);
+    toolitem = gtk_radio_tool_button_new_from_stock (panel->group, stock_id);
     panel->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
-                                                   toolitem));
+                                                    toolitem));
     image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_BUTTON);
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), label);
-    gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), label);
-    g_object_set_data (G_OBJECT (toolitem), "page", child);
+    if (label)
+    {
+        gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), label);
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), label);
+    }
+    g_object_set_data (G_OBJECT (toolitem), "page", pane);
     g_signal_connect (toolitem, "clicked",
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
     gtk_widget_show_all (GTK_WIDGET (toolitem));
@@ -450,7 +458,7 @@ midori_panel_append_page (MidoriPanel* panel,
     {
         menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
         gtk_widget_show (menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "page", child);
+        g_object_set_data (G_OBJECT (menuitem), "page", pane);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
@@ -589,16 +597,153 @@ void
 midori_panel_set_current_page (MidoriPanel* panel,
                                gint         n)
 {
-    GtkWidget* child;
+    GtkWidget* pane;
 
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
     gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
 
-    if ((child = midori_panel_get_nth_page (panel, n)))
+    if ((pane = midori_panel_get_nth_page (panel, n)))
     {
-        const gchar* label = g_object_get_data (G_OBJECT (child), "label");
+        const gchar* label = midori_pane_get_label (MIDORI_PANE (pane));
         g_object_set (panel->toolbar_label, "label", label, NULL);
     }
+}
+
+typedef struct
+{
+    GtkAlignment parent_instance;
+
+    gchar* label;
+    gchar* stock_id;
+    GtkWidget* toolbar;
+} MidoriDummyPane;
+
+typedef struct
+{
+    GtkAlignmentClass parent_class;
+}  MidoriDummyPaneClass;
+
+#define MIDORI_TYPE_DUMMY_PANE (midori_dummy_pane_get_type ())
+#define MIDORI_DUMMY_PANE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
+    MIDORI_TYPE_DUMMY_PANE, MidoriDummyPane))
+#define MIDORI_IS_DUMMY_PANE(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MIDORI_TYPE_DUMMY_PANE))
+
+static void
+midori_dummy_pane_iface_init (MidoriPaneIface* iface);
+
+static void
+midori_dummy_pane_finalize (GObject* object);
+
+G_DEFINE_TYPE_WITH_CODE (MidoriDummyPane, midori_dummy_pane, GTK_TYPE_ALIGNMENT,
+                         G_IMPLEMENT_INTERFACE (MIDORI_TYPE_PANE,
+                                                midori_dummy_pane_iface_init));
+
+static void
+midori_dummy_pane_class_init (MidoriDummyPaneClass* class)
+{
+    GObjectClass* gobject_class;
+
+    gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = midori_dummy_pane_finalize;
+}
+
+static const gchar*
+midori_dummy_pane_get_label (MidoriPane* pane)
+{
+    return MIDORI_DUMMY_PANE (pane)->label;
+}
+
+static const gchar*
+midori_dummy_pane_get_stock_id (MidoriPane* pane)
+{
+    return MIDORI_DUMMY_PANE (pane)->stock_id;
+}
+
+static GtkWidget*
+midori_dummy_pane_get_toolbar (MidoriPane* pane)
+{
+    return MIDORI_DUMMY_PANE (pane)->toolbar;
+}
+
+static void
+midori_dummy_pane_iface_init (MidoriPaneIface* iface)
+{
+    iface->get_stock_id = midori_dummy_pane_get_stock_id;
+    iface->get_label = midori_dummy_pane_get_label;
+    iface->get_toolbar = midori_dummy_pane_get_toolbar;
+}
+
+static void
+midori_dummy_pane_init (MidoriDummyPane* pane)
+{
+    pane->stock_id = NULL;
+    pane->label = NULL;
+    pane->toolbar = NULL;
+}
+
+static void
+midori_dummy_pane_finalize (GObject* object)
+{
+    MidoriDummyPane* pane = MIDORI_DUMMY_PANE (object);
+
+    katze_assign (pane->stock_id, NULL);
+    katze_assign (pane->label, NULL);
+
+    G_OBJECT_CLASS (midori_dummy_pane_parent_class)->finalize (object);
+}
+
+static GtkWidget*
+midori_dummy_pane_new (const gchar* stock_id,
+                       const gchar* label,
+                       GtkWidget*   toolbar)
+{
+    GtkWidget* pane = g_object_new (MIDORI_TYPE_DUMMY_PANE, NULL);
+
+    MIDORI_DUMMY_PANE (pane)->stock_id = g_strdup (stock_id);
+    MIDORI_DUMMY_PANE (pane)->label = g_strdup (label);
+    MIDORI_DUMMY_PANE (pane)->toolbar = toolbar;
+
+    return pane;
+}
+
+/**
+ * midori_panel_append_widget:
+ * @panel: a #MidoriPanel
+ * @widget: the child widget
+ * @stock_id: a stock ID
+ * @label: a string to use as the label, or %NULL
+ * @toolbar: a toolbar widget, or %NULL
+ *
+ * Appends an arbitrary widget to the panel by wrapping it
+ * in a #MidoriPane created on the fly.
+ *
+ * Actually implementing #MidoriPane instead of using
+ * this convenience is recommended.
+ *
+ * In the case of an error, -1 is returned.
+ *
+ * Return value: the index of the new page, or -1
+ **/
+gint
+midori_panel_append_widget (MidoriPanel* panel,
+                            GtkWidget*   widget,
+                            const gchar* stock_id,
+                            const gchar* label,
+                            GtkWidget*   toolbar)
+{
+    GtkWidget* pane;
+
+    g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
+    g_return_val_if_fail (GTK_IS_WIDGET (widget), -1);
+
+    g_return_val_if_fail (stock_id != NULL, -1);
+    g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
+
+    pane = midori_dummy_pane_new (stock_id, label, toolbar);
+    gtk_widget_show (pane);
+    gtk_container_add (GTK_CONTAINER (pane), widget);
+    return midori_panel_append_page (panel, MIDORI_PANE (pane));
 }

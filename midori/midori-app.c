@@ -41,6 +41,18 @@ struct _MidoriApp
     gpointer instance;
 };
 
+struct _MidoriAppClass
+{
+    GObjectClass parent_class;
+
+    /* Signals */
+    void
+    (*add_browser)            (MidoriApp*     app,
+                               MidoriBrowser* browser);
+    void
+    (*quit)                   (MidoriApp*     app);
+};
+
 G_DEFINE_TYPE (MidoriApp, midori_app, G_TYPE_OBJECT)
 
 enum

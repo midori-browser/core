@@ -32,7 +32,7 @@ tab_panel_extension_class_init (TabPanelExtensionClass* class)
 }
 
 static void
-tab_panel_extension_init (TabPanelExtension* source)
+tab_panel_extension_init (TabPanelExtension* extension)
 {
     /* Nothing to do. */
 }

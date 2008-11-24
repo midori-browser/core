@@ -25,8 +25,8 @@ tab_panel_app_add_browser_cb (MidoriApp*     app,
     panel = katze_object_get_object (browser, "panel");
     child = midori_view_new (NULL);
     gtk_widget_show (child);
-    midori_panel_append_page (MIDORI_PANEL (panel), child,
-                              NULL, GTK_STOCK_INDEX, "Tab Panel");
+    midori_panel_append_widget (MIDORI_PANEL (panel), child,
+                                GTK_STOCK_INDEX, "Tab Panel", NULL);
 }
 
 static void

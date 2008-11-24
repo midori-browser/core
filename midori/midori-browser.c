@@ -3878,9 +3878,8 @@ midori_browser_init (MidoriBrowser* browser)
     _action_set_sensitive (browser, "BookmarkAdd", FALSE);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_MENU);
     gtk_widget_show_all (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              box, toolbar,
-                              STOCK_BOOKMARKS, _("Bookmarks"));
+    midori_panel_append_widget (MIDORI_PANEL (browser->panel),
+                              box, STOCK_BOOKMARKS, _("Bookmarks"), toolbar);
 
     /* History */
     box = gtk_vbox_new (FALSE, 0);
@@ -3922,19 +3921,18 @@ midori_browser_init (MidoriBrowser* browser)
     toolbar = gtk_ui_manager_get_widget (ui_manager, "/toolbar_history");
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_MENU);
     gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              box, toolbar,
-                              STOCK_HISTORY, _("History"));
+    midori_panel_append_widget (MIDORI_PANEL (browser->panel),
+                                box, STOCK_HISTORY, _("History"), toolbar);
 
     /* Pageholder */
     browser->panel_pageholder = midori_view_new (browser->net);
     midori_view_set_settings (MIDORI_VIEW (browser->panel_pageholder),
                               browser->settings);
     gtk_widget_show (browser->panel_pageholder);
-    midori_panel_append_page (MIDORI_PANEL (browser->panel),
-                              browser->panel_pageholder, NULL,
+    midori_panel_append_widget (MIDORI_PANEL (browser->panel),
+                                browser->panel_pageholder,
         /* i18n: A panel showing a user specified web page */
-                              STOCK_PAGE_HOLDER, _("Pageholder"));
+                                STOCK_PAGE_HOLDER, _("Pageholder"), NULL);
 
     /* Notebook, containing all views */
     vpaned = gtk_vpaned_new ();

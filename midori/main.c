@@ -1012,8 +1012,8 @@ midori_app_add_browser_cb (MidoriApp*     app,
     #if 0
     addon = midori_view_new (net);
     gtk_widget_show (addon);
-    midori_panel_append_page (MIDORI_PANEL (panel), addon, NULL,
-                              STOCK_TRANSFERS, _("Transfers"));
+    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
+                                STOCK_TRANSFERS, _("Transfers"), NULL);
     #endif
 
     /* Console */
@@ -1021,8 +1021,8 @@ midori_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (addon);
     toolbar = midori_console_get_toolbar (MIDORI_CONSOLE (addon));
     gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
-                              STOCK_CONSOLE, _("Console"));
+    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
+                                STOCK_CONSOLE, _("Console"), toolbar);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (midori_browser_add_tab_cb), addon);
 
@@ -1031,16 +1031,16 @@ midori_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
-                              STOCK_SCRIPTS, _("Userscripts"));
+    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
+                                STOCK_SCRIPTS, _("Userscripts"), toolbar);
 
     /* Userstyles */
     addon = midori_addons_new (MIDORI_ADDON_USER_STYLES, GTK_WIDGET (browser));
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
-                              STOCK_STYLES, _("Userstyles"));
+    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
+                                STOCK_STYLES, _("Userstyles"), toolbar);
 
     /* Extensions */
     #if 0
@@ -1048,8 +1048,8 @@ midori_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (addon);
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (panel), addon, toolbar,
-                              STOCK_EXTENSIONS, _("Extensions"));
+    midori_panel_append_page (MIDORI_PANEL (panel), addon,
+                              STOCK_EXTENSIONS, _("_Extensions"), toolbar);
     #endif
 }
 

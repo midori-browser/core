@@ -16,6 +16,8 @@
 
 #include <katze/katze.h>
 
+#include "midori-pane.h"
+
 G_BEGIN_DECLS
 
 #define MIDORI_TYPE_PANEL \
@@ -34,19 +36,6 @@ G_BEGIN_DECLS
 typedef struct _MidoriPanel                MidoriPanel;
 typedef struct _MidoriPanelClass           MidoriPanelClass;
 
-struct _MidoriPanelClass
-{
-    GtkHBoxClass parent_class;
-
-    /* Signals */
-    gboolean
-    (*close)                  (MidoriPanel*          panel);
-
-    void
-    (*switch_page)            (MidoriPanel*          panel,
-                               gint                  page);
-};
-
 GType
 midori_panel_get_type               (void);
 
@@ -59,10 +48,7 @@ midori_panel_set_compact            (MidoriPanel*       panel,
 
 gint
 midori_panel_append_page            (MidoriPanel*       panel,
-                                     GtkWidget*         child,
-                                     GtkWidget*         toolbar,
-                                     const gchar*       stock_id,
-                                     const gchar*       label);
+                                     MidoriPane*        pane);
 
 gint
 midori_panel_get_current_page       (MidoriPanel*       panel);
@@ -81,6 +67,13 @@ midori_panel_page_num               (MidoriPanel*       panel,
 void
 midori_panel_set_current_page       (MidoriPanel*       panel,
                                      gint               n);
+
+gint
+midori_panel_append_widget          (MidoriPanel*       panel,
+                                     GtkWidget*         widget,
+                                     const gchar*       stock_id,
+                                     const gchar*       label,
+                                     GtkWidget*         toolbar);
 
 G_END_DECLS
 

@@ -11,8 +11,6 @@
 
 #include <midori/midori.h>
 
-#include <glib/gi18n.h>
-
 void
 statusbar_features_app_add_browser_cb (MidoriApp*     app,
                                        MidoriBrowser* browser)

@@ -35,18 +35,6 @@ G_BEGIN_DECLS
 typedef struct _MidoriApp                MidoriApp;
 typedef struct _MidoriAppClass           MidoriAppClass;
 
-struct _MidoriAppClass
-{
-    GObjectClass parent_class;
-
-    /* Signals */
-    void
-    (*add_browser)            (MidoriApp*     app,
-                               MidoriBrowser* browser);
-    void
-    (*quit)                   (MidoriApp*     app);
-};
-
 GType
 midori_app_get_type               (void);
 
