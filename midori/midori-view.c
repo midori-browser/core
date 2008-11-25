@@ -1699,14 +1699,103 @@ midori_view_tab_icon_style_set_cb (GtkWidget* tab_icon,
 }
 
 static void
-midori_view_update_label_size (GtkWidget* label,
-                               gint       size)
+midori_view_update_tab_title (GtkWidget* label,
+                              gint       size,
+                              gdouble    angle)
 {
     gint width;
 
     sokoke_widget_get_text_size (label, "M", &width, NULL);
-    gtk_widget_set_size_request (label, width * size, -1);
-    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+    if (angle == 0.0 || angle == 360.0)
+    {
+        gtk_widget_set_size_request (label, width * size, -1);
+        gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+    }
+    else
+    {
+        gtk_widget_set_size_request (label, -1, width * size);
+        gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_NONE);
+    }
+    gtk_label_set_angle (GTK_LABEL (label), angle);
+}
+
+static void
+gtk_box_repack (GtkBox*    box,
+                GtkWidget* child)
+{
+    GtkWidget* old_box;
+    gboolean expand, fill;
+    guint padding;
+    GtkPackType pack_type;
+
+    old_box = gtk_widget_get_parent (child);
+    g_return_if_fail (GTK_IS_BOX (old_box));
+
+    gtk_box_query_child_packing (GTK_BOX (old_box), child,
+        &expand, &fill, &padding, &pack_type);
+
+    g_object_ref (child);
+    gtk_container_remove (GTK_CONTAINER (old_box), child);
+    if (pack_type == GTK_PACK_START)
+        gtk_box_pack_start (box, child, expand, fill, padding);
+    else
+        gtk_box_pack_end (box, child, expand, fill, padding);
+    g_object_unref (child);
+}
+
+static void
+midori_view_tab_label_parent_set (GtkWidget*  tab_label,
+                                  GtkObject*  old_parent,
+                                  MidoriView* view)
+{
+    GtkWidget* parent;
+
+    if (old_parent)
+        /* FIXME: Disconnect orientation notification */;
+
+    if (!(parent = gtk_widget_get_parent (tab_label)))
+        return;
+
+    if (GTK_IS_NOTEBOOK (parent))
+    {
+        GtkPositionType pos;
+        gdouble old_angle, angle;
+        GtkWidget* box;
+
+        pos = gtk_notebook_get_tab_pos (GTK_NOTEBOOK (parent));
+        old_angle = gtk_label_get_angle (GTK_LABEL (view->tab_title));
+        switch (pos)
+        {
+        case GTK_POS_LEFT:
+            angle = 90.0;
+            break;
+        case GTK_POS_RIGHT:
+            angle = 270.0;
+            break;
+        default:
+            angle = 0.0;
+        }
+
+        if (old_angle != angle)
+        {
+            if (angle == 0.0)
+                box = gtk_hbox_new (FALSE, 1);
+            else
+                box = gtk_vbox_new (FALSE, 1);
+            gtk_box_repack (GTK_BOX (box), view->tab_icon);
+            gtk_box_repack (GTK_BOX (box), view->tab_title);
+            gtk_box_repack (GTK_BOX (box), view->tab_close);
+
+            gtk_container_remove (GTK_CONTAINER (tab_label),
+                gtk_bin_get_child (GTK_BIN (tab_label)));
+            gtk_container_add (GTK_CONTAINER (tab_label), GTK_WIDGET (box));
+            gtk_widget_show (box);
+        }
+
+        midori_view_update_tab_title (view->tab_title, 10, angle);
+
+        /* FIXME: Connect orientation notification */
+    }
 }
 
 /**
@@ -1715,6 +1804,9 @@ midori_view_update_label_size (GtkWidget* label,
  *
  * Retrieves a proxy tab label that is typically used when
  * adding the view to a notebook.
+ *
+ * Note that the label actually adjusts its orientation
+ * to the according tab position when used in a notebook.
  *
  * The label is created on the first call and will be updated to reflect
  * changes of the loading progress and title.
@@ -1747,7 +1839,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
         hbox = gtk_hbox_new (FALSE, 1);
         gtk_container_add (GTK_CONTAINER (event_box), GTK_WIDGET (hbox));
-        midori_view_update_label_size (view->tab_title, 10);
+        midori_view_update_tab_title (view->tab_title, 10, 0.0);
 
         view->tab_close = gtk_button_new ();
         gtk_button_set_relief (GTK_BUTTON (view->tab_close), GTK_RELIEF_NONE);
@@ -1788,6 +1880,10 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         g_signal_connect (view->tab_label, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
                           &view->tab_label);
+
+        g_signal_connect (view->tab_label, "parent-set",
+                          G_CALLBACK (midori_view_tab_label_parent_set),
+                          view);
     }
     return view->tab_label;
 }
