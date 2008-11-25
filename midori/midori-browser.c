@@ -52,7 +52,6 @@ struct _MidoriBrowser
     GtkWidget* panel;
     GtkWidget* panel_bookmarks;
     GtkWidget* panel_history;
-    GtkWidget* panel_pageholder;
     GtkWidget* notebook;
 
     GtkWidget* inspector;
@@ -2846,25 +2845,6 @@ _action_panel_activate (GtkToggleAction* action,
 }
 
 static void
-_action_open_in_panel_activate (GtkAction*     action,
-                                MidoriBrowser* browser)
-{
-    GtkWidget* view;
-    const gchar* uri;
-    gint n;
-
-    view = midori_browser_get_current_tab (browser);
-    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    /* FIXME: Don't assign the uri here, update it properly while navigating */
-    g_object_set (browser->settings, "last-pageholder-uri", uri, NULL);
-    n = midori_panel_page_num (MIDORI_PANEL (browser->panel),
-                               browser->panel_pageholder);
-    midori_panel_set_current_page (MIDORI_PANEL (browser->panel), n);
-    gtk_widget_show (browser->panel);
-    midori_view_set_uri (MIDORI_VIEW (browser->panel_pageholder), uri);
-}
-
-static void
 midori_panel_notify_position_cb (GObject*       object,
                                  GParamSpec*    arg1,
                                  MidoriBrowser* browser)
@@ -3160,9 +3140,6 @@ static const GtkActionEntry entries[] = {
  { "Homepage", STOCK_HOMEPAGE,
    NULL, "<Alt>Home",
    N_("Go to your homepage"), G_CALLBACK (_action_homepage_activate) },
- { "OpenInPageholder", GTK_STOCK_JUMP_TO,
-   N_("Open in Page_holder..."), "",
-   N_("Open the current page in the pageholder"), G_CALLBACK (_action_open_in_panel_activate) },
  { "TrashEmpty", GTK_STOCK_CLEAR,
    N_("Empty Trash"), "",
    N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
@@ -3360,7 +3337,6 @@ static const gchar* ui_markup =
     "<menuitem action='Homepage'/>"
     "<menuitem action='Location'/>"
     "<menuitem action='Search'/>"
-    "<menuitem action='OpenInPageholder'/>"
     "<menuitem action='Trash'/>"
     /* "<menuitem action='RecentlyVisited'/>" */
    "</menu>"
@@ -3924,16 +3900,6 @@ midori_browser_init (MidoriBrowser* browser)
     midori_panel_append_widget (MIDORI_PANEL (browser->panel),
                                 box, STOCK_HISTORY, _("History"), toolbar);
 
-    /* Pageholder */
-    browser->panel_pageholder = midori_view_new (browser->net);
-    midori_view_set_settings (MIDORI_VIEW (browser->panel_pageholder),
-                              browser->settings);
-    gtk_widget_show (browser->panel_pageholder);
-    midori_panel_append_widget (MIDORI_PANEL (browser->panel),
-                                browser->panel_pageholder,
-        /* i18n: A panel showing a user specified web page */
-                                STOCK_PAGE_HOLDER, _("Pageholder"), NULL);
-
     /* Notebook, containing all views */
     vpaned = gtk_vpaned_new ();
     gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
@@ -4181,7 +4147,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gint last_web_search;
-    gchar* last_pageholder_uri;
     gboolean close_buttons_on_tabs;
     GdkScreen* screen;
     gint default_width, default_height;
@@ -4202,7 +4167,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
                   "last-web-search", &last_web_search,
-                  "last-pageholder-uri", &last_pageholder_uri,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   NULL);
 
@@ -4237,8 +4201,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
     midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);
-    midori_view_set_uri (MIDORI_VIEW (browser->panel_pageholder),
-                         last_pageholder_uri);
 
     _action_set_active (browser, "Menubar", show_menubar);
     _action_set_active (browser, "Navigationbar", show_navigationbar);
@@ -4247,7 +4209,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Statusbar", show_statusbar);
 
     g_free (toolbar_items);
-    g_free (last_pageholder_uri);
 }
 
 static void

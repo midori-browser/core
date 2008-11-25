@@ -85,7 +85,6 @@ stock_items_init (void)
         { STOCK_EXTENSIONS,     N_("_Extensions"), 0, 0, GTK_STOCK_CONVERT },
         { STOCK_HISTORY,        N_("_History"), 0, 0, GTK_STOCK_SORT_ASCENDING },
         { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, GTK_STOCK_HOME },
-        { STOCK_PAGE_HOLDER,    N_("_Pageholder"), 0, 0, GTK_STOCK_ORIENTATION_PORTRAIT },
         { STOCK_SCRIPTS,        N_("_Userscripts"), 0, 0, GTK_STOCK_EXECUTE },
         { STOCK_STYLES,         N_("User_styles"), 0, 0, GTK_STOCK_SELECT_COLOR },
         { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, GTK_STOCK_ADD },
@@ -1049,7 +1048,7 @@ midori_app_add_browser_cb (MidoriApp*     app,
     toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
     gtk_widget_show (toolbar);
     midori_panel_append_page (MIDORI_PANEL (panel), addon,
-                              STOCK_EXTENSIONS, _("_Extensions"), toolbar);
+                              STOCK_EXTENSIONS, _("Extensions"), toolbar);
     #endif
 }
 

@@ -226,7 +226,7 @@ katze_array_is_empty (KatzeArray* array)
 }
 
 /**
- * katze_array_get_item_position:
+ * katze_array_get_item_index:
  * @array: a #KatzeArray
  * @item: an item in the array
  *

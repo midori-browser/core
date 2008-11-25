@@ -26,7 +26,6 @@ struct _MidoriWebSettings
     gint last_panel_position;
     gint last_panel_page;
     gint last_web_search;
-    gchar* last_pageholder_uri;
 
     gboolean show_menubar;
     gboolean show_navigationbar;
@@ -80,7 +79,6 @@ enum
     PROP_LAST_PANEL_POSITION,
     PROP_LAST_PANEL_PAGE,
     PROP_LAST_WEB_SEARCH,
-    PROP_LAST_PAGEHOLDER_URI,
 
     PROP_SHOW_MENUBAR,
     PROP_SHOW_NAVIGATIONBAR,
@@ -293,15 +291,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Last Web search"),
                                      _("The last saved Web search"),
                                      0, G_MAXINT, 0,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_LAST_PAGEHOLDER_URI,
-                                     g_param_spec_string (
-                                     "last-pageholder-uri",
-                                     _("Last pageholder URI"),
-                                     _("The URI last opened in the pageholder"),
-                                     "",
                                      flags));
 
 
@@ -679,9 +668,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_LAST_WEB_SEARCH:
         web_settings->last_web_search = g_value_get_int (value);
         break;
-    case PROP_LAST_PAGEHOLDER_URI:
-        katze_assign (web_settings->last_pageholder_uri, g_value_dup_string (value));
-        break;
 
     case PROP_SHOW_MENUBAR:
         web_settings->show_menubar = g_value_get_boolean (value);
@@ -838,9 +824,6 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_LAST_WEB_SEARCH:
         g_value_set_int (value, web_settings->last_web_search);
-        break;
-    case PROP_LAST_PAGEHOLDER_URI:
-        g_value_set_string (value, web_settings->last_pageholder_uri);
         break;
 
     case PROP_SHOW_MENUBAR:
