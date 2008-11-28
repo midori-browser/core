@@ -48,8 +48,14 @@ struct _MidoriExtensionClass
 GType
 midori_extension_get_type            (void);
 
-/* There is no API for MidoriExtension. Please use the
-   available properties and signals. */
+gboolean
+midori_extension_is_prepared         (MidoriExtension* extension);
+
+void
+midori_extension_deactivate          (MidoriExtension* extension);
+
+const gchar*
+midori_extension_get_config_dir      (MidoriExtension* extension);
 
 G_END_DECLS
 

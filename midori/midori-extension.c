@@ -11,6 +11,10 @@
 
 #include "midori-extension.h"
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 #include "midori-app.h"
 
 #include <katze/katze.h>
@@ -23,6 +27,8 @@ struct _MidoriExtensionPrivate
     gchar* description;
     gchar* version;
     gchar* authors;
+
+    gchar* config_dir;
 };
 
 enum
@@ -37,6 +43,7 @@ enum
 
 enum {
     ACTIVATE,
+    DEACTIVATE,
 
     LAST_SIGNAL
 };
@@ -74,6 +81,17 @@ midori_extension_class_init (MidoriExtensionClass* class)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
         MIDORI_TYPE_APP);
+
+    signals[DEACTIVATE] = g_signal_new (
+        "deactivate",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0,
+        G_TYPE_NONE);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_extension_finalize;
@@ -126,6 +144,8 @@ midori_extension_init (MidoriExtension* extension)
 {
     extension->priv = G_TYPE_INSTANCE_GET_PRIVATE (extension,
         MIDORI_TYPE_EXTENSION, MidoriExtensionPrivate);
+
+    extension->priv->config_dir = NULL;
 }
 
 static void
@@ -137,6 +157,8 @@ midori_extension_finalize (GObject* object)
     katze_assign (extension->priv->description, NULL);
     katze_assign (extension->priv->version, NULL);
     katze_assign (extension->priv->authors, NULL);
+
+    katze_assign (extension->priv->config_dir, NULL);
 }
 
 static void
@@ -193,4 +215,70 @@ midori_extension_get_property (GObject*    object,
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
     }
+}
+
+/**
+ * midori_extension_is_prepared:
+ * @extension: a #MidoriExtension
+ *
+ * Determines if @extension is prepared for use, for instance
+ * by ensuring that all required values are set and that it
+ * is actually activatable.
+ *
+ * Return value: %TRUE if @extension is ready for use
+ **/
+gboolean
+midori_extension_is_prepared (MidoriExtension* extension)
+{
+    g_return_val_if_fail (MIDORI_IS_EXTENSION (extension), FALSE);
+
+    if (extension->priv->name && extension->priv->description
+        && extension->priv->version && extension->priv->authors
+        && g_signal_has_handler_pending (extension, signals[ACTIVATE], 0, FALSE))
+        return TRUE;
+    return FALSE;
+}
+
+/**
+ * midori_extension_deactivate:
+ * @extension: a #MidoriExtension
+ *
+ * Attempts to deactivate @extension in a way that the instance
+ * is actually finished irreversibly.
+ **/
+void
+midori_extension_deactivate (MidoriExtension* extension)
+{
+    g_return_if_fail (MIDORI_IS_EXTENSION (extension));
+
+    g_signal_emit (extension, signals[DEACTIVATE], 0);
+    g_signal_handlers_destroy (extension);
+    g_object_run_dispose (G_OBJECT (extension));
+}
+
+/**
+ * midori_extension_get_config_dir:
+ * @extension: a #MidoriExtension
+ *
+ * Retrieves the path to a directory reserved for configuration
+ * files specific to the extension. For that purpose the 'name'
+ * of the extension is actually part of the path.
+ *
+ * The path is actually created if it doesn't already exist.
+ *
+ * Return value: a path, such as ~/.config/midori/extensions/name
+ **/
+const gchar*
+midori_extension_get_config_dir (MidoriExtension* extension)
+{
+    g_return_val_if_fail (MIDORI_IS_EXTENSION (extension), NULL);
+    g_return_val_if_fail (midori_extension_is_prepared (extension), NULL);
+
+    if (!extension->priv->config_dir)
+        extension->priv->config_dir = g_build_filename (
+            g_get_user_config_dir (), PACKAGE_NAME, "extensions",
+            extension->priv->name, NULL);
+
+    g_mkdir_with_parents (extension->priv->config_dir, 0700);
+    return extension->priv->config_dir;
 }
