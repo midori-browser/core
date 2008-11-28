@@ -100,7 +100,7 @@ midori_preferences_init (MidoriPreferences* preferences)
     g_signal_connect (preferences, "response",
                       G_CALLBACK (midori_preferences_response_cb), NULL);
 
-    /* TODO: Do we want tooltips for explainations or can we omit that? */
+    /* TODO: Do we want tooltips for explanations or can we omit that? */
     g_free (dialog_title);
 }
 

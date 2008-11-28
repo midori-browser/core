@@ -212,14 +212,15 @@ sokoke_get_desktop (void)
     if (G_UNLIKELY (desktop == SOKOKE_DESKTOP_UNTESTED))
     {
         /* Are we running in Xfce? */
-        gint result; gchar* out; gchar* err;
-        gboolean success = g_spawn_command_line_sync (
-            "xprop -root _DT_SAVE_MODE | grep -q xfce4",
-            &out, &err, &result, NULL);
-        if (success && !result)
+        gint result;
+        gchar *out = NULL;
+        gboolean success = g_spawn_command_line_sync ("xprop -root _DT_SAVE_MODE",
+            &out, NULL, &result, NULL);
+        if (success && ! result && out != NULL && strstr(out, "xfce4") != NULL)
             desktop = SOKOKE_DESKTOP_XFCE;
         else
             desktop = SOKOKE_DESKTOP_UNKNOWN;
+        g_free(out);
     }
 
     return desktop;
@@ -258,6 +259,7 @@ sokoke_xfce_header_new (const gchar* icon,
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         gtk_container_add (GTK_CONTAINER (xfce_heading), hbox);
         g_free (markup);
+        gtk_widget_destroy(entry);
         return xfce_heading;
     }
     return NULL;

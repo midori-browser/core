@@ -59,14 +59,13 @@ proxy_combo_box_text_changed_cb (GtkComboBox* button, GObject* object)
     return FALSE;
 }
 
-static gboolean
+static void
 proxy_entry_activate_cb (GtkEntry* entry,
                          GObject*  object)
 {
     const gchar* text = gtk_entry_get_text (entry);
     const gchar* property = g_object_get_data (G_OBJECT (entry), "property");
     g_object_set (object, property, text, NULL);
-    return FALSE;
 }
 
 static gboolean
@@ -99,13 +98,12 @@ proxy_spin_button_changed_cb (GtkSpinButton* button, GObject* object)
     return FALSE;
 }
 
-static gchar*
+static void
 proxy_combo_box_changed_cb (GtkComboBox* button, GObject* object)
 {
     gint value = gtk_combo_box_get_active (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, value, NULL);
-    return FALSE;
 }
 
 /**
