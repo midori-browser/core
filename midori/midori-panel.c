@@ -377,21 +377,21 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
 /**
  * midori_panel_append_page:
  * @panel: a #MidoriPanel
- * @child: the child widget
+ * @viewable: a viewable widget
  * @toolbar: a toolbar widget, or %NULL
  * @stock_id: a stock ID
  * @label: a string to use as the label
  *
  * Appends a new page to the panel. If @toolbar is specified it will
- * be packed above @child.
+ * be packed above @viewable.
  *
  * In the case of an error, -1 is returned.
  *
  * Return value: the index of the new page, or -1
  **/
 gint
-midori_panel_append_page (MidoriPanel* panel,
-                          MidoriPane*  pane)
+midori_panel_append_page (MidoriPanel*    panel,
+                          MidoriViewable* viewable)
 {
     GtkWidget* scrolled;
     GObjectClass* gobject_class;
@@ -405,10 +405,10 @@ midori_panel_append_page (MidoriPanel* panel,
     guint n;
 
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
-    g_return_val_if_fail (MIDORI_IS_PANE (pane), -1);
+    g_return_val_if_fail (MIDORI_IS_VIEWABLE (viewable), -1);
 
-    if (GTK_IS_SCROLLED_WINDOW (pane))
-        scrolled = (GtkWidget*)pane;
+    if (GTK_IS_SCROLLED_WINDOW (viewable))
+        scrolled = (GtkWidget*)viewable;
     else
     {
         scrolled = gtk_scrolled_window_new (NULL, NULL);
@@ -417,26 +417,26 @@ midori_panel_append_page (MidoriPanel* panel,
                                         GTK_POLICY_AUTOMATIC);
         GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
         gtk_widget_show (scrolled);
-        gobject_class = G_OBJECT_GET_CLASS (pane);
+        gobject_class = G_OBJECT_GET_CLASS (viewable);
         if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
-            widget = (GtkWidget*)pane;
+            widget = (GtkWidget*)viewable;
         else
         {
             widget = gtk_viewport_new (NULL, NULL);
             gtk_widget_show (widget);
-            gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (pane));
+            gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (viewable));
         }
         gtk_container_add (GTK_CONTAINER (scrolled), widget);
     }
     gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
-    toolbar = midori_pane_get_toolbar (pane);
+    toolbar = midori_viewable_get_toolbar (viewable);
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
 
     n = midori_panel_page_num (panel, scrolled);
-    label = midori_pane_get_label (pane);
-    stock_id = midori_pane_get_stock_id (pane);
+    label = midori_viewable_get_label (viewable);
+    stock_id = midori_viewable_get_stock_id (viewable);
 
     toolitem = gtk_radio_tool_button_new_from_stock (panel->group, stock_id);
     panel->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
@@ -448,7 +448,7 @@ midori_panel_append_page (MidoriPanel* panel,
         gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), label);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), label);
     }
-    g_object_set_data (G_OBJECT (toolitem), "page", pane);
+    g_object_set_data (G_OBJECT (toolitem), "page", viewable);
     g_signal_connect (toolitem, "clicked",
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
     gtk_widget_show_all (GTK_WIDGET (toolitem));
@@ -458,7 +458,7 @@ midori_panel_append_page (MidoriPanel* panel,
     {
         menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
         gtk_widget_show (menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "page", pane);
+        g_object_set_data (G_OBJECT (menuitem), "page", viewable);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
@@ -597,16 +597,18 @@ void
 midori_panel_set_current_page (MidoriPanel* panel,
                                gint         n)
 {
-    GtkWidget* pane;
+    GtkWidget* viewable;
 
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
     gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
 
-    if ((pane = midori_panel_get_nth_page (panel, n)))
+    if ((viewable = midori_panel_get_nth_page (panel, n)))
     {
-        const gchar* label = midori_pane_get_label (MIDORI_PANE (pane));
+        const gchar* label;
+
+        label = midori_viewable_get_label (MIDORI_VIEWABLE (viewable));
         g_object_set (panel->toolbar_label, "label", label, NULL);
     }
 }
@@ -618,95 +620,96 @@ typedef struct
     gchar* label;
     gchar* stock_id;
     GtkWidget* toolbar;
-} MidoriDummyPane;
+} MidoriDummyViewable;
 
 typedef struct
 {
     GtkAlignmentClass parent_class;
-}  MidoriDummyPaneClass;
+}  MidoriDummyViewableClass;
 
-#define MIDORI_TYPE_DUMMY_PANE (midori_dummy_pane_get_type ())
-#define MIDORI_DUMMY_PANE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-    MIDORI_TYPE_DUMMY_PANE, MidoriDummyPane))
-#define MIDORI_IS_DUMMY_PANE(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MIDORI_TYPE_DUMMY_PANE))
-
-static void
-midori_dummy_pane_iface_init (MidoriPaneIface* iface);
+#define MIDORI_TYPE_DUMMY_VIEWABLE (midori_dummy_viewable_get_type ())
+#define MIDORI_DUMMY_VIEWABLE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
+    MIDORI_TYPE_DUMMY_VIEWABLE, MidoriDummyViewable))
+#define MIDORI_IS_DUMMY_VIEWABLE(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MIDORI_TYPE_DUMMY_VIEWABLE))
 
 static void
-midori_dummy_pane_finalize (GObject* object);
-
-G_DEFINE_TYPE_WITH_CODE (MidoriDummyPane, midori_dummy_pane, GTK_TYPE_ALIGNMENT,
-                         G_IMPLEMENT_INTERFACE (MIDORI_TYPE_PANE,
-                                                midori_dummy_pane_iface_init));
+midori_dummy_viewable_iface_init (MidoriViewableIface* iface);
 
 static void
-midori_dummy_pane_class_init (MidoriDummyPaneClass* class)
+midori_dummy_viewable_finalize (GObject* object);
+
+G_DEFINE_TYPE_WITH_CODE (MidoriDummyViewable, midori_dummy_viewable,
+                         GTK_TYPE_ALIGNMENT,
+                         G_IMPLEMENT_INTERFACE (MIDORI_TYPE_VIEWABLE,
+                                                midori_dummy_viewable_iface_init));
+
+static void
+midori_dummy_viewable_class_init (MidoriDummyViewableClass* class)
 {
     GObjectClass* gobject_class;
 
     gobject_class = G_OBJECT_CLASS (class);
-    gobject_class->finalize = midori_dummy_pane_finalize;
+    gobject_class->finalize = midori_dummy_viewable_finalize;
 }
 
 static const gchar*
-midori_dummy_pane_get_label (MidoriPane* pane)
+midori_dummy_viewable_get_label (MidoriViewable* viewable)
 {
-    return MIDORI_DUMMY_PANE (pane)->label;
+    return MIDORI_DUMMY_VIEWABLE (viewable)->label;
 }
 
 static const gchar*
-midori_dummy_pane_get_stock_id (MidoriPane* pane)
+midori_dummy_viewable_get_stock_id (MidoriViewable* viewable)
 {
-    return MIDORI_DUMMY_PANE (pane)->stock_id;
+    return MIDORI_DUMMY_VIEWABLE (viewable)->stock_id;
 }
 
 static GtkWidget*
-midori_dummy_pane_get_toolbar (MidoriPane* pane)
+midori_dummy_viewable_get_toolbar (MidoriViewable* viewable)
 {
-    return MIDORI_DUMMY_PANE (pane)->toolbar;
+    return MIDORI_DUMMY_VIEWABLE (viewable)->toolbar;
 }
 
 static void
-midori_dummy_pane_iface_init (MidoriPaneIface* iface)
+midori_dummy_viewable_iface_init (MidoriViewableIface* iface)
 {
-    iface->get_stock_id = midori_dummy_pane_get_stock_id;
-    iface->get_label = midori_dummy_pane_get_label;
-    iface->get_toolbar = midori_dummy_pane_get_toolbar;
+    iface->get_stock_id = midori_dummy_viewable_get_stock_id;
+    iface->get_label = midori_dummy_viewable_get_label;
+    iface->get_toolbar = midori_dummy_viewable_get_toolbar;
 }
 
 static void
-midori_dummy_pane_init (MidoriDummyPane* pane)
+midori_dummy_viewable_init (MidoriDummyViewable* viewable)
 {
-    pane->stock_id = NULL;
-    pane->label = NULL;
-    pane->toolbar = NULL;
+    viewable->stock_id = NULL;
+    viewable->label = NULL;
+    viewable->toolbar = NULL;
 }
 
 static void
-midori_dummy_pane_finalize (GObject* object)
+midori_dummy_viewable_finalize (GObject* object)
 {
-    MidoriDummyPane* pane = MIDORI_DUMMY_PANE (object);
+    MidoriDummyViewable* viewable = MIDORI_DUMMY_VIEWABLE (object);
 
-    katze_assign (pane->stock_id, NULL);
-    katze_assign (pane->label, NULL);
+    katze_assign (viewable->stock_id, NULL);
+    katze_assign (viewable->label, NULL);
 
-    G_OBJECT_CLASS (midori_dummy_pane_parent_class)->finalize (object);
+    G_OBJECT_CLASS (midori_dummy_viewable_parent_class)->finalize (object);
 }
 
 static GtkWidget*
-midori_dummy_pane_new (const gchar* stock_id,
+midori_dummy_viewable_new (const gchar* stock_id,
                        const gchar* label,
                        GtkWidget*   toolbar)
 {
-    GtkWidget* pane = g_object_new (MIDORI_TYPE_DUMMY_PANE, NULL);
+    GtkWidget* viewable = g_object_new (MIDORI_TYPE_DUMMY_VIEWABLE, NULL);
 
-    MIDORI_DUMMY_PANE (pane)->stock_id = g_strdup (stock_id);
-    MIDORI_DUMMY_PANE (pane)->label = g_strdup (label);
-    MIDORI_DUMMY_PANE (pane)->toolbar = toolbar;
+    MIDORI_DUMMY_VIEWABLE (viewable)->stock_id = g_strdup (stock_id);
+    MIDORI_DUMMY_VIEWABLE (viewable)->label = g_strdup (label);
+    MIDORI_DUMMY_VIEWABLE (viewable)->toolbar = toolbar;
 
-    return pane;
+    return viewable;
 }
 
 /**
@@ -718,9 +721,9 @@ midori_dummy_pane_new (const gchar* stock_id,
  * @toolbar: a toolbar widget, or %NULL
  *
  * Appends an arbitrary widget to the panel by wrapping it
- * in a #MidoriPane created on the fly.
+ * in a #MidoriViewable created on the fly.
  *
- * Actually implementing #MidoriPane instead of using
+ * Actually implementing #MidoriViewable instead of using
  * this convenience is recommended.
  *
  * In the case of an error, -1 is returned.
@@ -734,7 +737,7 @@ midori_panel_append_widget (MidoriPanel* panel,
                             const gchar* label,
                             GtkWidget*   toolbar)
 {
-    GtkWidget* pane;
+    GtkWidget* viewable;
 
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
     g_return_val_if_fail (GTK_IS_WIDGET (widget), -1);
@@ -742,8 +745,8 @@ midori_panel_append_widget (MidoriPanel* panel,
     g_return_val_if_fail (stock_id != NULL, -1);
     g_return_val_if_fail (!toolbar || GTK_IS_WIDGET (toolbar), -1);
 
-    pane = midori_dummy_pane_new (stock_id, label, toolbar);
-    gtk_widget_show (pane);
-    gtk_container_add (GTK_CONTAINER (pane), widget);
-    return midori_panel_append_page (panel, MIDORI_PANE (pane));
+    viewable = midori_dummy_viewable_new (stock_id, label, toolbar);
+    gtk_widget_show (viewable);
+    gtk_container_add (GTK_CONTAINER (viewable), widget);
+    return midori_panel_append_page (panel, MIDORI_VIEWABLE (viewable));
 }

@@ -16,7 +16,7 @@
 
 #include <katze/katze.h>
 
-#include "midori-pane.h"
+#include "midori-viewable.h"
 
 G_BEGIN_DECLS
 
@@ -48,7 +48,7 @@ midori_panel_set_compact            (MidoriPanel*       panel,
 
 gint
 midori_panel_append_page            (MidoriPanel*       panel,
-                                     MidoriPane*        pane);
+                                     MidoriViewable*    viewable);
 
 gint
 midori_panel_get_current_page       (MidoriPanel*       panel);

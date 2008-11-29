@@ -19,13 +19,13 @@
 #include "midori-extension.h"
 #include "midori-locationaction.h"
 #include "midori-locationentry.h"
-#include "midori-pane.h"
 #include "midori-panel.h"
 #include "midori-preferences.h"
 #include "midori-searchaction.h"
 #include "midori-source.h"
 #include "midori-stock.h"
 #include "midori-view.h"
+#include "midori-viewable.h"
 #include "midori-websettings.h"
 
 /* For convenience, include localization header */
