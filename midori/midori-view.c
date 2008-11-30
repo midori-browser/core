@@ -542,21 +542,24 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
                                gboolean        success,
                                MidoriView*     view)
 {
+    gchar* title;
     gchar* data;
 
     if (!success)
     {
-        /* Simply print a 404 error page on the fly. */
+        /* i18n: The title of the 404 - Not found error page */
+        title = g_strdup_printf (_("Not found - %s"), view->uri);
         data = g_strdup_printf (
-            "<html><head><title>Not found - %s</title></head>"
-            "<body><h1>Not found - %s</h1>"
+            "<html><head><title>%s</title></head>"
+            "<body><h1>%s</h1>"
             "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
             "style=\"position: absolute; right: 15px; bottom: 15px;\">"
             "<p />The page you were opening doesn't exist."
             "<p />Try to <a href=\"%s\">load the page again</a>, "
             "or move on to another page."
             "</body></html>",
-            view->uri, view->uri, view->uri);
+            title, title, view->uri);
+        g_free (title);
         webkit_web_view_load_html_string (
             WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
         g_free (data);
@@ -1393,10 +1396,13 @@ midori_view_set_uri (MidoriView*  view,
             data = NULL;
             if (!strncmp (uri, "error:nodocs ", 13))
             {
+                gchar* title;
+
                 katze_assign (view->uri, g_strdup (&uri[13]));
+                title = g_strdup_printf (_("No documentation installed"));
                 data = g_strdup_printf (
-                    "<html><head><title>No documentation installed</title></head>"
-                    "<body><h1>No documentation installed</h1>"
+                    "<html><head><title>%s</title></head>"
+                    "<body><h1>%s</h1>"
                     "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px;\">"
                     "<p />There is no documentation installed at %s."
@@ -1404,7 +1410,8 @@ midori_view_set_uri (MidoriView*  view,
                     "package maintainer for it or if this a custom build "
                     "verify that the build is setup properly."
                     "</body></html>",
-                    view->uri);
+                    title, title, view->uri);
+                g_free (title);
             }
             if (data)
             {

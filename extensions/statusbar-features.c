@@ -27,11 +27,24 @@ statusbar_features_app_add_browser_cb (MidoriApp*     app,
     bbox = gtk_hbox_new (FALSE, 0);
     settings = katze_object_get_object (browser, "settings");
     button = katze_property_proxy (settings, "auto-load-images", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
+    gtk_button_set_label (GTK_BUTTON (button), _("Images"));
+    #if GTK_CHECK_VERSION(2, 12, 0)
+    gtk_widget_set_tooltip_text (button, _("Load images automatically"));
+    #endif
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);
     button = katze_property_proxy (settings, "enable-scripts", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
+    gtk_button_set_label (GTK_BUTTON (button), _("Scripts"));
+    #if GTK_CHECK_VERSION(2, 12, 0)
+    gtk_widget_set_tooltip_text (button, _("Enable scripts"));
+    #endif
+    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+    gtk_widget_show (button);
+    button = katze_property_proxy (settings, "enable-plugins", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Plugins"));
+    #if GTK_CHECK_VERSION(2, 12, 0)
+    gtk_widget_set_tooltip_text (button, _("Enable plugins"));
+    #endif
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);
     gtk_widget_show (bbox);

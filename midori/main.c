@@ -1308,7 +1308,7 @@ main (int    argc,
             GTK_MESSAGE_DIALOG (dialog), "%s", error_messages->str);
         gtk_dialog_add_buttons (GTK_DIALOG (dialog),
                                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                "_Ignore", GTK_RESPONSE_ACCEPT,
+                                _("_Ignore"), GTK_RESPONSE_ACCEPT,
                                 NULL);
         if (gtk_dialog_run (GTK_DIALOG (dialog)) != GTK_RESPONSE_ACCEPT)
         {
