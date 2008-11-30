@@ -11,7 +11,7 @@ import UnitTest
 
 major = 0
 minor = 1
-micro = 0
+micro = 1
 
 APPNAME = 'midori'
 VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
