@@ -9,8 +9,12 @@ import sys
 import os
 import UnitTest
 
+major = 0
+minor = 1
+micro = 0
+
 APPNAME = 'midori'
-VERSION = '0.1.0'
+VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
 
 try:
     git = subprocess.Popen (['git', 'rev-parse', '--short', 'HEAD'],
@@ -126,6 +130,10 @@ def configure (conf):
     conf.define ('PACKAGE_NAME', APPNAME)
     conf.define ('PACKAGE_BUGREPORT', 'http://www.twotoasts.de/bugs')
     conf.define ('GETTEXT_PACKAGE', APPNAME)
+
+    conf.define ('MIDORI_MAJOR_VERSION', major)
+    conf.define ('MIDORI_MINOR_VERSION', minor)
+    conf.define ('MIDORI_MICRO_VERSION', micro)
 
     conf.write_config_header ('config.h')
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')

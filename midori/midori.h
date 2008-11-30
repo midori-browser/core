@@ -31,4 +31,10 @@
 /* For convenience, include localization header */
 #include <glib/gi18n.h>
 
+#define MIDORI_CHECK_VERSION(major, minor, micro) \
+  (MIDORI_MAJOR_VERSION > (major) || \
+  (MIDORI_MAJOR_VERSION == (major) && MIDORI_MINOR_VERSION > (minor)) || \
+  (MIDORI_MAJOR_VERSION == (major) && MIDORI_MINOR_VERSION == (minor) && \
+  MIDORI_MICRO_VERSION >= (micro)))
+
 #endif /* __MIDORI_H__ */
