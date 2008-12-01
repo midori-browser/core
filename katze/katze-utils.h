@@ -84,6 +84,10 @@ katze_pixbuf_new_from_buffer         (const guchar* buffer,
                                       const gchar*  mime_type,
                                       GError**      error);
 
+gboolean
+katze_object_has_property            (gpointer     object,
+                                      const gchar* property);
+
 gint
 katze_object_get_boolean             (gpointer     object,
                                       const gchar* property);

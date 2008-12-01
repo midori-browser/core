@@ -529,9 +529,32 @@ katze_pixbuf_new_from_buffer (const guchar* buffer,
 }
 
 /**
+ * katze_object_has_property:
+ * @object: a #GObject
+ * @property: the name of the property
+ *
+ * Determine if @object has a property with the specified name.
+ *
+ * Return value: a boolean
+ *
+ * Since: 0.1.2
+ **/
+gboolean
+katze_object_has_property (gpointer     object,
+                           const gchar* property)
+{
+    GObjectClass* class;
+
+    g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
+
+    class = G_OBJECT_GET_CLASS (object);
+    return g_object_class_find_property (class, property) != NULL;
+}
+
+/**
  * katze_object_get_boolean:
  * @object: a #GObject
- * @property_name: the name of the property to get
+ * @property: the name of the property to get
  *
  * Retrieve the boolean value of the specified property.
  *
@@ -553,7 +576,7 @@ katze_object_get_boolean (gpointer     object,
 /**
  * katze_object_get_int:
  * @object: a #GObject
- * @property_name: the name of the property to get
+ * @property: the name of the property to get
  *
  * Retrieve the integer value of the specified property.
  *
@@ -575,7 +598,7 @@ katze_object_get_int (gpointer     object,
 /**
  * katze_object_get_float:
  * @object: a #GObject
- * @property_name: the name of the property to get
+ * @property: the name of the property to get
  *
  * Retrieve the float value of the specified property.
  *
@@ -597,7 +620,7 @@ katze_object_get_float (gpointer     object,
 /**
  * katze_object_get_enum:
  * @object: a #GObject
- * @property_name: the name of the property to get
+ * @property: the name of the property to get
  *
  * Retrieve the enum value of the specified property.
  *
@@ -619,7 +642,7 @@ katze_object_get_enum (gpointer     object,
 /**
  * katze_object_get_string:
  * @object: a #GObject
- * @property_name: the name of the property to get
+ * @property: the name of the property to get
  *
  * Retrieve the string value of the specified property.
  *
@@ -641,7 +664,7 @@ katze_object_get_string (gpointer     object,
 /**
  * katze_object_get_object:
  * @object: a #GObject
- * @property_name: the name of the property to get
+ * @property: the name of the property to get
  *
  * Retrieve the object value of the specified property.
  *
