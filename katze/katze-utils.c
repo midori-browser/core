@@ -316,6 +316,7 @@ katze_property_proxy (gpointer     object,
         widget = gtk_label_new (gettext (nick));
     g_free (string);
 
+    gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
 
     g_object_set_data_full (G_OBJECT (widget), "property",
@@ -337,17 +338,23 @@ GtkWidget*
 katze_property_label (gpointer     object,
                       const gchar* property)
 {
+    GObjectClass* class;
+    GParamSpec* pspec;
+    const gchar* nick;
+    GtkWidget* widget;
+
     g_return_val_if_fail (G_IS_OBJECT (object), NULL);
-    GObjectClass* class = G_OBJECT_GET_CLASS (object);
-    GParamSpec* pspec = g_object_class_find_property (class, property);
+
+    class = G_OBJECT_GET_CLASS (object);
+    pspec = g_object_class_find_property (class, property);
     if (!pspec)
     {
         g_warning (_("Property '%s' is invalid for %s"),
                    property, G_OBJECT_CLASS_NAME (class));
         return gtk_label_new (property);
     }
-    const gchar* nick = g_param_spec_get_nick (pspec);
-    GtkWidget* widget = gtk_label_new (nick);
+    nick = g_param_spec_get_nick (pspec);
+    widget = gtk_label_new (nick);
 
     return widget;
 }
