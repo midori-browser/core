@@ -425,13 +425,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "enable-plugins", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable plugins"));
     SPANNED_ADD (button, 1, 2, 2, 3);
-    #ifdef WEBKIT_CHECK_VERSION
-    #if WEBKIT_CHECK_VERSION (1, 0, 3)
     button = katze_property_proxy (settings, "enable-developer-extras", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable developer tools"));
     SPANNED_ADD (button, 0, 1, 3, 4);
-    #endif
-    #endif
     label = katze_property_label (settings, "location-entry-search");
     INDENTED_ADD (label, 0, 1, 4, 5);
     entry = katze_property_proxy (settings, "location-entry-search", NULL);
@@ -455,29 +451,29 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         "</span>");
     FILLED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Browsing"));
-    TABLE_NEW (4, 2);
-    label = katze_property_label (settings, "open-external-pages-in");
-    INDENTED_ADD (label, 0, 1, 0, 1);
-    button = katze_property_proxy (settings, "open-external-pages-in", NULL);
-    FILLED_ADD (button, 1, 2, 0, 1);
-    /* label = katze_property_label (settings, "open-new-pages-in");
+    TABLE_NEW (5, 2);
+    label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
-    FILLED_ADD (button, 1, 2, 0, 1); */
+    FILLED_ADD (button, 1, 2, 0, 1);
+    label = katze_property_label (settings, "open-external-pages-in");
+    INDENTED_ADD (label, 0, 1, 1, 2);
+    button = katze_property_proxy (settings, "open-external-pages-in", NULL);
+    FILLED_ADD (button, 1, 2, 1, 2);
     button = katze_property_proxy (settings, "always-show-tabbar", NULL);
-    INDENTED_ADD (button, 0, 1, 1, 2);
-    button = katze_property_proxy (settings, "compact-sidepanel", NULL);
-    INDENTED_ADD (button, 1, 2, 1, 2);
-    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     INDENTED_ADD (button, 0, 1, 2, 3);
+    button = katze_property_proxy (settings, "compact-sidepanel", NULL);
+    INDENTED_ADD (button, 1, 2, 2, 3);
+    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
+    INDENTED_ADD (button, 0, 1, 3, 4);
     button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
-    WIDGET_ADD (button, 1, 2, 2, 3);
-    /* button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
-    SPANNED_ADD (button, 0, 1, 2, 3);*/
-    button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
-    WIDGET_ADD (button, 0, 1, 3, 4);
-    button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     WIDGET_ADD (button, 1, 2, 3, 4);
+    /* button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
+    SPANNED_ADD (button, 0, 1, 4, 5);*/
+    button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
+    WIDGET_ADD (button, 0, 1, 5, 6);
+    button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
+    WIDGET_ADD (button, 1, 2, 5, 6);
 
     /* Page "Network" */
     #if 0

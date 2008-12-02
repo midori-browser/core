@@ -107,6 +107,7 @@ enum
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
 
+    PROP_ENABLE_DEVELOPER_EXTRAS,
     PROP_ACCEPT_COOKIES,
     PROP_ORIGINAL_COOKIES_ONLY,
     PROP_MAXIMUM_COOKIE_AGE,
@@ -453,6 +454,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      TRUE,
                                      flags));
 
+    g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_NEW_PAGES_IN,
                                      g_param_spec_enum (
@@ -461,7 +463,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
-                                     G_PARAM_READABLE));
+    g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW)
+        ? G_PARAM_READWRITE : G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_EXTERNAL_PAGES_IN,
@@ -510,6 +513,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE));
 
 
+    if (!g_object_class_find_property (gobject_class, "enable-developer-extras"))
+    /**
+    * MidoriWebSettings:enable-developer-extras:
+    *
+    * Whether to enable extra developer tools.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_DEVELOPER_EXTRAS,
+                                     g_param_spec_boolean (
+                                     "enable-developer-extras",
+                                     "Enable Developer Extras",
+                                     "Whether to enable extra developer tools",
+                                     FALSE,
+                                     G_PARAM_READABLE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ACCEPT_COOKIES,
@@ -899,6 +918,9 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, web_settings->open_popups_in_tabs);
         break;
 
+    case PROP_ENABLE_DEVELOPER_EXTRAS:
+        g_value_set_boolean (value, FALSE);
+        break;
     case PROP_ACCEPT_COOKIES:
         g_value_set_enum (value, web_settings->accept_cookies);
         break;
