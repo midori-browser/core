@@ -16,6 +16,8 @@
 
 #include <katze/katze.h>
 
+#include "midori-viewable.h"
+
 G_BEGIN_DECLS
 
 #define MIDORI_TYPE_CONSOLE \
@@ -34,11 +36,6 @@ G_BEGIN_DECLS
 typedef struct _MidoriConsole                MidoriConsole;
 typedef struct _MidoriConsoleClass           MidoriConsoleClass;
 
-struct _MidoriConsoleClass
-{
-    GtkVBoxClass parent_class;
-};
-
 GType
 midori_console_get_type               (void);
 
@@ -46,7 +43,7 @@ GtkWidget*
 midori_console_new                    (void);
 
 GtkWidget*
-midori_console_get_toolbar            (MidoriConsole*       console);
+midori_console_get_toolbar            (MidoriViewable*      console);
 
 void
 midori_console_add                    (MidoriConsole*       console,
