@@ -53,6 +53,7 @@ struct _MidoriView
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
+    MidoriNewPage open_new_pages_in;
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
@@ -89,6 +90,25 @@ midori_load_status_get_type (void)
     return type;
 }
 
+GType
+midori_new_view_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_NEW_VIEW_TAB, "MIDORI_NEW_VIEW_TAB", "New view in a tab" },
+         { MIDORI_NEW_VIEW_BACKGROUND, "MIDORI_NEW_VIEW_BACKGROUND",
+             "New view in a background tab" },
+         { MIDORI_NEW_VIEW_WINDOW, "MIDORI_NEW_VIEW_WINDOW",
+             "New view in a window" },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriNewView", values);
+    }
+    return type;
+}
+
 enum
 {
     PROP_0,
@@ -112,6 +132,7 @@ enum {
     ATTACH_INSPECTOR,
     NEW_TAB,
     NEW_WINDOW,
+    NEW_VIEW,
     SEARCH_TEXT,
     ADD_BOOKMARK,
     SAVE_AS,
@@ -174,6 +195,42 @@ midori_cclosure_marshal_VOID__STRING_BOOLEAN (GClosure*     closure,
     callback (data1,
               (gchar*)g_value_get_string (param_values + 1),
               g_value_get_boolean (param_values + 2),
+              data2);
+}
+
+static void
+midori_cclosure_marshal_VOID__OBJECT_ENUM (GClosure*     closure,
+                                           GValue*       return_value,
+                                           guint         n_param_values,
+                                           const GValue* param_values,
+                                           gpointer      invocation_hint,
+                                           gpointer      marshal_data)
+{
+    typedef void(*GMarshalFunc_VOID__OBJECT_ENUM) (gpointer  data1,
+                                                   gpointer  arg_1,
+                                                   gint      arg_2,
+                                                   gpointer  data2);
+    register GMarshalFunc_VOID__OBJECT_ENUM callback;
+    register GCClosure* cc = (GCClosure*) closure;
+    register gpointer data1, data2;
+
+    g_return_if_fail (n_param_values == 3);
+
+    if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+        data1 = closure->data;
+        data2 = g_value_peek_pointer (param_values + 0);
+    }
+    else
+    {
+        data1 = g_value_peek_pointer (param_values + 0);
+        data2 = closure->data;
+    }
+    callback = (GMarshalFunc_VOID__OBJECT_ENUM) (marshal_data
+        ? marshal_data : cc->callback);
+    callback (data1,
+              g_value_get_object (param_values + 1),
+              g_value_get_enum (param_values + 2),
               data2);
 }
 
@@ -289,6 +346,30 @@ midori_view_class_init (MidoriViewClass* class)
         g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
+
+    /**
+     * MidoriView::new-view:
+     * @view: the object on which the signal is emitted
+     * @new_view: a newly created view
+     * @where: where to open the view
+     *
+     * Emitted when a new view is created. The value of
+     * @where determines where to open the view according
+     * to how it was opened and user preferences.
+     *
+     * Since: 0.1.2
+     */
+    signals[NEW_VIEW] = g_signal_new (
+        "new-view",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__OBJECT_ENUM,
+        G_TYPE_NONE, 2,
+        MIDORI_TYPE_VIEW,
+        MIDORI_TYPE_NEW_VIEW);
 
     signals[SEARCH_TEXT] = g_signal_new (
         "search-text",
@@ -783,7 +864,7 @@ midori_web_view_menu_action_activate_cb (GtkWidget*  widget,
                                          MidoriView* view)
 {
     const gchar* action = g_object_get_data (G_OBJECT (widget), "action");
-    g_signal_emit_by_name (view, "activate-action", action);
+    g_signal_emit (view, ACTIVATE_ACTION, 0, action);
 }
 
 static void
@@ -931,6 +1012,47 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     }
 }
 
+static gboolean
+webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
+                                   MidoriView* view)
+{
+    GtkWidget* new_view = gtk_widget_get_parent (web_view);
+    MidoriNewView where = MIDORI_NEW_VIEW_TAB;
+    if (view->open_new_pages_in == MIDORI_NEW_PAGE_TAB)
+    {
+        if (view->open_tabs_in_the_background)
+            where = MIDORI_NEW_VIEW_BACKGROUND;
+    }
+    else if (view->open_new_pages_in == MIDORI_NEW_PAGE_WINDOW)
+        where = MIDORI_NEW_VIEW_WINDOW;
+
+    gtk_widget_show (new_view);
+    if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
+    {
+        g_debug ("Opening all pages in current tab not implemented");
+        g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+    }
+    else
+        g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+
+    return TRUE;
+}
+
+static GtkWidget*
+webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
+                                    WebKitWebFrame* web_frame,
+                                    MidoriView*     view)
+{
+    GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
+        "net", view->net,
+        "settings", view->settings,
+        NULL);
+    midori_view_set_uri (MIDORI_VIEW (new_view), "");
+    g_signal_connect (MIDORI_VIEW (new_view)->web_view, "web-view-ready",
+      G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+    return MIDORI_VIEW (new_view)->web_view;
+}
+
 static void
 webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* message,
@@ -938,7 +1060,7 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* source_id,
                                     MidoriView*  view)
 {
-    g_signal_emit_by_name (view, "console-message", message, line, source_id);
+    g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
 }
 
 static void
@@ -1125,6 +1247,7 @@ _midori_view_update_settings (MidoriView* view)
     g_object_get (view->settings,
         "download-manager", &view->download_manager,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
+        "open-new-pages-in", &view->open_new_pages_in,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         NULL);
@@ -1151,6 +1274,10 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         view->close_buttons_on_tabs = g_value_get_boolean (&value);
         sokoke_widget_set_visible (view->tab_close,
                                    view->close_buttons_on_tabs);
+    }
+    else if (name == g_intern_string ("open-new-pages-in"))
+    {
+        view->open_new_pages_in = g_value_get_enum (&value);
     }
     else if (name == g_intern_string ("middle-click-opens-selection"))
     {
@@ -1220,12 +1347,10 @@ midori_view_get_progress (MidoriView* view)
     return view->progress;
 }
 
-#ifdef WEBKIT_CHECK_VERSION
-#if WEBKIT_CHECK_VERSION (1, 0, 3)
 static WebKitWebView*
-webkit_web_inspector_inspect_web_view_cb (WebKitWebInspector* inspector,
-                                          WebKitWebView*      web_view,
-                                          MidoriView*         view)
+webkit_web_inspector_inspect_web_view_cb (gpointer       inspector,
+                                          WebKitWebView* web_view,
+                                          MidoriView*    view)
 {
     gchar* title;
     GtkWidget* window;
@@ -1282,18 +1407,12 @@ webkit_web_inspector_inspect_web_view_cb (WebKitWebInspector* inspector,
     g_signal_emit (view, signals[ATTACH_INSPECTOR], 0, inspector_view); */
     return WEBKIT_WEB_VIEW (inspector_view);
 }
-#endif
-#endif
 
 static void
 midori_view_construct_web_view (MidoriView* view)
 {
     WebKitWebFrame* web_frame;
-    #ifdef WEBKIT_CHECK_VERSION
-    #if WEBKIT_CHECK_VERSION (1, 0, 3)
-    WebKitWebInspector* inspector;
-    #endif
-    #endif
+    gpointer inspector;
 
     view->web_view = webkit_web_view_new ();
 
@@ -1327,6 +1446,13 @@ midori_view_construct_web_view (MidoriView* view)
                       "signal::destroy",
                       webkit_web_view_destroy_cb, web_frame,
                       NULL);
+    if (g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW))
+        g_object_connect (view->web_view,
+                      "signal::create-web-view",
+                      webkit_web_view_create_web_view_cb, view,
+                      /*"signal::web-view-ready",
+                      webkit_web_view_web_view_ready_cb, view,*/
+                      NULL);
     g_object_connect (web_frame,
                       "signal::load-done",
                       webkit_web_frame_load_done_cb, view,
@@ -1337,15 +1463,14 @@ midori_view_construct_web_view (MidoriView* view)
     gtk_widget_show (view->web_view);
     gtk_container_add (GTK_CONTAINER (view), view->web_view);
 
-    #ifdef WEBKIT_CHECK_VERSION
-    #if WEBKIT_CHECK_VERSION (1, 0, 3)
-    inspector = webkit_web_view_get_inspector (WEBKIT_WEB_VIEW (view->web_view));
-    g_object_connect (inspector,
-                      "signal::inspect-web-view",
-                      webkit_web_inspector_inspect_web_view_cb, view,
-                      NULL);
-    #endif
-    #endif
+    if (katze_object_has_property (view->web_view, "web-inspector"))
+    {
+        inspector = katze_object_get_object (view->web_view, "web-inspector");
+        g_object_connect (inspector,
+                          "signal::inspect-web-view",
+                          webkit_web_inspector_inspect_web_view_cb, view,
+                          NULL);
+    }
 }
 
 /**

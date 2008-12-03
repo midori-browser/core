@@ -779,6 +779,29 @@ midori_view_new_window_cb (GtkWidget*     view,
 }
 
 static void
+midori_view_new_view_cb (GtkWidget*     view,
+                         GtkWidget*     new_view,
+                         MidoriNewView  where,
+                         MidoriBrowser* browser)
+{
+    if (where == MIDORI_NEW_VIEW_WINDOW)
+    {
+        /* MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
+            NULL);
+        g_signal_emit (browser, signals[NEW_BROWSER], 0, new_browser); */
+        g_debug ("Opening all pages in new windows not implemented");
+        midori_browser_set_current_page (browser,
+            midori_browser_add_tab (browser, new_view));
+    }
+    else
+    {
+        gint n = midori_browser_add_tab (browser, new_view);
+        if (where != MIDORI_NEW_VIEW_BACKGROUND)
+            midori_browser_set_current_page (browser, n);
+    }
+}
+
+static void
 midori_view_search_text_cb (GtkWidget*     view,
                             gboolean       found,
                             MidoriBrowser* browser)
@@ -882,16 +905,17 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_new_tab_cb, browser,
                       "signal::new-window",
                       midori_view_new_window_cb, browser,
+                      "signal::new-view",
+                      midori_view_new_view_cb, browser,
                       "signal::search-text",
                       midori_view_search_text_cb, browser,
                       "signal::add-bookmark",
                       midori_view_add_bookmark_cb, browser,
                       "signal::save-as",
                       midori_view_save_as_cb, browser,
+                      "signal::leave-notify-event",
+                      midori_browser_tab_leave_notify_event_cb, browser,
                       NULL);
-
-    g_signal_connect (view, "leave-notify-event",
-        G_CALLBACK (midori_browser_tab_leave_notify_event_cb), browser);
 
     if (katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {

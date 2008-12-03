@@ -31,6 +31,19 @@ midori_load_status_get_type (void) G_GNUC_CONST;
 #define MIDORI_TYPE_LOAD_STATUS \
     (midori_load_status_get_type ())
 
+typedef enum
+{
+    MIDORI_NEW_VIEW_TAB,
+    MIDORI_NEW_VIEW_BACKGROUND,
+    MIDORI_NEW_VIEW_WINDOW
+} MidoriNewView;
+
+GType
+midori_new_view_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_NEW_VIEW \
+    (midori_new_view_get_type ())
+
 #define MIDORI_TYPE_VIEW \
     (midori_view_get_type ())
 #define MIDORI_VIEW(obj) \
