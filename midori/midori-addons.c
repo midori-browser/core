@@ -40,6 +40,11 @@ struct _MidoriAddons
     GSList* elements;
 };
 
+struct _MidoriAddonsClass
+{
+    GtkVBoxClass parent_class;
+};
+
 struct AddonElement
 {
     gchar *fullpath;
@@ -52,7 +57,12 @@ struct AddonElement
     GSList* excludes;
 };
 
-G_DEFINE_TYPE (MidoriAddons, midori_addons, GTK_TYPE_VBOX)
+static void
+midori_addons_viewable_iface_init (MidoriViewableIface* iface);
+
+G_DEFINE_TYPE_WITH_CODE (MidoriAddons, midori_addons, GTK_TYPE_VBOX,
+                         G_IMPLEMENT_INTERFACE (MIDORI_TYPE_VIEWABLE,
+                             midori_addons_viewable_iface_init));
 
 enum
 {
@@ -125,6 +135,36 @@ midori_addons_class_init (MidoriAddonsClass* class)
                                      "The assigned web widget",
                                      GTK_TYPE_WIDGET,
                                      G_PARAM_READWRITE));
+}
+
+static const gchar*
+midori_addons_get_label (MidoriViewable* viewable)
+{
+    if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_SCRIPTS)
+        return _("Userscripts");
+    else if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_SCRIPTS)
+        return _("Userstyles");
+    else
+        return NULL;
+}
+
+static const gchar*
+midori_addons_get_stock_id (MidoriViewable* viewable)
+{
+    if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_SCRIPTS)
+        return STOCK_SCRIPTS;
+    else if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_STYLES)
+        return STOCK_STYLES;
+    else
+        return NULL;
+}
+
+static void
+midori_addons_viewable_iface_init (MidoriViewableIface* iface)
+{
+    iface->get_stock_id = midori_addons_get_stock_id;
+    iface->get_label = midori_addons_get_label;
+    iface->get_toolbar = midori_addons_get_toolbar;
 }
 
 static void
@@ -941,16 +981,18 @@ midori_addons_new (MidoriAddonKind kind,
  * is created on the first call of this function.
  *
  * Return value: a toolbar widget
+ *
+ * Deprecated: 0.1.2: Use midori_viewable_get_toolbar() instead.
  **/
 GtkWidget*
-midori_addons_get_toolbar (MidoriAddons* addons)
+midori_addons_get_toolbar (MidoriViewable* addons)
 {
     GtkWidget* toolbar;
     GtkToolItem* toolitem;
 
     g_return_val_if_fail (MIDORI_IS_ADDONS (addons), NULL);
 
-    if (!addons->toolbar)
+    if (!MIDORI_ADDONS (addons)->toolbar)
     {
         toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
@@ -992,18 +1034,18 @@ midori_addons_get_toolbar (MidoriAddons* addons)
             G_CALLBACK (midori_addons_button_add_clicked_cb), addons);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
-        addons->toolbar = toolbar;
+        MIDORI_ADDONS (addons)->toolbar = toolbar;
 
-        g_signal_connect (addons->treeview, "cursor-changed",
+        g_signal_connect (MIDORI_ADDONS (addons)->treeview, "cursor-changed",
                           G_CALLBACK (midori_addons_treeview_cursor_changed),
                           addons);
 
-        g_signal_connect (addons->toolbar, "destroy",
+        g_signal_connect (toolbar, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
-                          &addons->toolbar);
+                          &MIDORI_ADDONS (addons)->toolbar);
     }
 
-    return addons->toolbar;
+    return MIDORI_ADDONS (addons)->toolbar;
 }
 
 /**

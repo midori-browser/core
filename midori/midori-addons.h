@@ -16,6 +16,8 @@
 
 #include <katze/katze.h>
 
+#include "midori-viewable.h"
+
 G_BEGIN_DECLS
 
 #define MIDORI_TYPE_ADDONS \
@@ -33,11 +35,6 @@ G_BEGIN_DECLS
 
 typedef struct _MidoriAddons                MidoriAddons;
 typedef struct _MidoriAddonsClass           MidoriAddonsClass;
-
-struct _MidoriAddonsClass
-{
-    GtkVBoxClass parent_class;
-};
 
 typedef enum
 {
@@ -60,7 +57,7 @@ midori_addons_new                    (MidoriAddonKind kind,
                                       GtkWidget*      web_widget);
 
 GtkWidget*
-midori_addons_get_toolbar            (MidoriAddons*   addons);
+midori_addons_get_toolbar            (MidoriViewable* addons);
 
 void
 midori_addons_update_elements        (MidoriAddons*   addons);
