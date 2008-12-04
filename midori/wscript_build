@@ -4,7 +4,7 @@
 
 obj = bld.create_obj ('cc', 'program')
 obj.target = 'midori'
-obj.includes = '. ..'
-obj.find_sources_in_dirs ('.')
+obj.includes = '. .. ../panels'
+obj.find_sources_in_dirs ('. ../panels')
 obj.uselib = 'UNIQUE LIBSOUP GMODULE GIO GTK SQLITE WEBKIT LIBXML'
 obj.uselib_local = 'katze'
