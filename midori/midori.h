@@ -15,7 +15,6 @@
 #include "midori-addons.h"
 #include "midori-app.h"
 #include "midori-browser.h"
-#include "midori-console.h"
 #include "midori-extension.h"
 #include "midori-locationaction.h"
 #include "midori-locationentry.h"
