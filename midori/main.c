@@ -19,6 +19,7 @@
 #include "midori-browser.h"
 #include "midori-console.h"
 #include "midori-extension.h"
+#include "midori-extensions.h"
 #include "midori-panel.h"
 #include "midori-stock.h"
 #include "midori-view.h"
@@ -978,32 +979,12 @@ katze_array_to_file (KatzeArray*  array,
 }
 
 static void
-midori_view_console_message_cb (GtkWidget*     view,
-                                const gchar*   message,
-                                gint           line,
-                                const gchar*   source_id,
-                                MidoriConsole* console)
-{
-    midori_console_add (console, message, line, source_id);
-}
-
-static void
-midori_browser_add_tab_cb (MidoriBrowser* browser,
-                           MidoriView*    view,
-                           MidoriConsole* console)
-{
-    g_signal_connect (view, "console-message",
-        G_CALLBACK (midori_view_console_message_cb), console);
-}
-
-static void
 midori_app_add_browser_cb (MidoriApp*     app,
                            MidoriBrowser* browser,
                            KatzeNet*      net)
 {
     GtkWidget* panel;
     GtkWidget* addon;
-    GtkWidget* toolbar;
 
     panel = katze_object_get_object (browser, "panel");
 
@@ -1016,40 +997,24 @@ midori_app_add_browser_cb (MidoriApp*     app,
     #endif
 
     /* Console */
-    addon = midori_console_new ();
+    addon = g_object_new (MIDORI_TYPE_CONSOLE, "app", app, NULL);
     gtk_widget_show (addon);
-    toolbar = midori_console_get_toolbar (MIDORI_CONSOLE (addon));
-    gtk_widget_show (toolbar);
-    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
-                                STOCK_CONSOLE, _("Console"), toolbar);
-    g_signal_connect (browser, "add-tab",
-        G_CALLBACK (midori_browser_add_tab_cb), addon);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Userscripts */
     addon = midori_addons_new (MIDORI_ADDON_USER_SCRIPTS, GTK_WIDGET (browser));
     gtk_widget_show (addon);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
-    gtk_widget_show (toolbar);
-    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
-                                STOCK_SCRIPTS, _("Userscripts"), toolbar);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Userstyles */
     addon = midori_addons_new (MIDORI_ADDON_USER_STYLES, GTK_WIDGET (browser));
     gtk_widget_show (addon);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
-    gtk_widget_show (toolbar);
-    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
-                                STOCK_STYLES, _("Userstyles"), toolbar);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Extensions */
-    #if 0
-    addon = midori_addons_new (MIDORI_ADDON_EXTENSIONS);
+    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
     gtk_widget_show (addon);
-    toolbar = midori_addons_get_toolbar (MIDORI_ADDONS (addon));
-    gtk_widget_show (toolbar);
-    midori_panel_append_page (MIDORI_PANEL (panel), addon,
-                              STOCK_EXTENSIONS, _("Extensions"), toolbar);
-    #endif
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 }
 
 static void
