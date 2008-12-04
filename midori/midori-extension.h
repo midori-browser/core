@@ -51,6 +51,9 @@ midori_extension_get_type            (void);
 gboolean
 midori_extension_is_prepared         (MidoriExtension* extension);
 
+gboolean
+midori_extension_is_active           (MidoriExtension* extension);
+
 void
 midori_extension_deactivate          (MidoriExtension* extension);
 

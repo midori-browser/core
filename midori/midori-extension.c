@@ -28,6 +28,7 @@ struct _MidoriExtensionPrivate
     gchar* version;
     gchar* authors;
 
+    gboolean active;
     gchar* config_dir;
 };
 
@@ -139,13 +140,25 @@ midori_extension_class_init (MidoriExtensionClass* class)
     g_type_class_add_private (class, sizeof (MidoriExtensionPrivate));
 }
 
+void
+midori_extension_activate_cb (MidoriExtension* extension,
+                              MidoriApp*       app)
+{
+    extension->priv->active = TRUE;
+    /* FIXME: Disconnect all signal handlers */
+}
+
 static void
 midori_extension_init (MidoriExtension* extension)
 {
     extension->priv = G_TYPE_INSTANCE_GET_PRIVATE (extension,
         MIDORI_TYPE_EXTENSION, MidoriExtensionPrivate);
 
+    extension->priv->active = FALSE;
     extension->priv->config_dir = NULL;
+
+    g_signal_connect (extension, "activate",
+        G_CALLBACK (midori_extension_activate_cb), NULL);
 }
 
 static void
@@ -237,6 +250,24 @@ midori_extension_is_prepared (MidoriExtension* extension)
         && g_signal_has_handler_pending (extension, signals[ACTIVATE], 0, FALSE))
         return TRUE;
     return FALSE;
+}
+
+/**
+ * midori_extension_is_active:
+ * @extension: a #MidoriExtension
+ *
+ * Determines if @extension is active.
+ *
+ * Return value: %TRUE if @extension is active
+ *
+ * Since: 0.1.2
+ **/
+gboolean
+midori_extension_is_active (MidoriExtension* extension)
+{
+    g_return_val_if_fail (MIDORI_IS_EXTENSION (extension), FALSE);
+
+    return extension->priv->active;
 }
 
 /**
