@@ -12,7 +12,6 @@
 #ifndef __MIDORI_H__
 #define __MIDORI_H__
 
-#include "midori-addons.h"
 #include "midori-app.h"
 #include "midori-browser.h"
 #include "midori-extension.h"
