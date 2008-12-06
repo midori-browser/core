@@ -260,15 +260,16 @@ def shutdown ():
         if not Params.g_options.destdir:
             # update the pixmap cache directory
             try:
-                uic = subprocess.Popen (['gtk-update-icon-cache', '-q', '-f', '-t', dir],
-                                  stderr=subprocess.PIPE)
+                uic = subprocess.Popen (['gtk-update-icon-cache',
+                    '-q', '-f', '-t', dir], stderr=subprocess.PIPE)
                 if not uic.wait ():
                     Params.pprint ('YELLOW', "Updated Gtk icon cache.")
                     icon_cache_updated = True
             except:
                 Params.pprint ('RED', "Failed to update icon cache.")
         if not icon_cache_updated:
-            Params.pprint ('YELLOW', "Icon cache not updated. After install, run this:")
+            Params.pprint ('YELLOW', "Icon cache not updated. "
+                                     "After install, run this:")
             Params.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
 
     elif Params.g_commands['check']:
@@ -291,8 +292,8 @@ def shutdown ():
             if size_new <> size_old:
                 Params.pprint ('YELLOW', "Updated po template.")
                 try:
-                    intltool_update = subprocess.Popen (['intltool-update', '-r'],
-                                                         stderr=subprocess.PIPE)
+                    intltool_update = subprocess.Popen (['intltool-update',
+                        '-r', '-g', APPNAME], stderr=subprocess.PIPE)
                     intltool_update.wait ()
                     Params.pprint ('YELLOW', "Updated translations.")
                 except:
