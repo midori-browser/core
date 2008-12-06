@@ -231,9 +231,9 @@ _addons_get_extension (MidoriAddons* addons)
     switch (addons->kind)
     {
     case MIDORI_ADDON_USER_SCRIPTS:
-        return ".user.js";
+        return ".js";
     case MIDORI_ADDON_USER_STYLES:
-        return ".user.css";
+        return ".css";
     default:
         return NULL;
     }
