@@ -286,7 +286,7 @@ def shutdown ():
                 size_old = os.stat (APPNAME + '.pot').st_size
             except:
                 size_old = 0
-            subprocess.call (['intltool-update', '--pot'])
+            subprocess.call (['intltool-update', '-p', '-g', APPNAME])
             size_new = os.stat (APPNAME + '.pot').st_size
             if size_new <> size_old:
                 Params.pprint ('YELLOW', "Updated po template.")
