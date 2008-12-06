@@ -716,13 +716,13 @@ midori_history_add_item_cb (KatzeArray* array,
             return;
         }
     }
-    sqlcmd = g_strdup_printf ("INSERT INTO history VALUES"
-                              "('%s', '%s', %" G_GUINT64_FORMAT ", -1)",
+    sqlcmd = sqlite3_mprintf ("INSERT INTO history VALUES"
+                              "('%q', '%q', %" G_GUINT64_FORMAT ", -1)",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
                               katze_item_get_added (item));
     success = db_exec (db, sqlcmd, &error);
-    g_free (sqlcmd);
+    sqlite3_free (sqlcmd);
     if (!success)
     {
         g_printerr (_("Failed to add history item: %s\n"), error->message);
