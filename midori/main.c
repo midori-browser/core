@@ -42,6 +42,10 @@
     #include <sqlite3.h>
 #endif
 
+#if HAVE_LIBSOUP
+    #include <libsoup/soup.h>
+#endif
+
 #if ENABLE_NLS
     #include <libintl.h>
 #endif
@@ -1049,6 +1053,234 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
+#if HAVE_LIBSOUP_2_25_2
+/* Cookie jar saving to Mozilla format
+   Copyright (C) 2008 Xan Lopez <xan@gnome.org>
+   Copyright (C) 2008 Dan Winship <danw@gnome.org>
+   Mostly copied from libSoup 2.24, coding style adjusted */
+static SoupCookie*
+parse_cookie (gchar* line,
+              time_t now)
+{
+    gchar** result;
+    SoupCookie *cookie = NULL;
+    gboolean http_only;
+    time_t max_age;
+    gchar* host, *is_domain, *path, *secure, *expires, *name, *value;
+
+    if (g_str_has_prefix (line, "#HttpOnly_"))
+    {
+        http_only = TRUE;
+        line += strlen ("#HttpOnly_");
+    }
+    else if (*line == '#' || g_ascii_isspace (*line))
+        return cookie;
+    else
+        http_only = FALSE;
+
+    result = g_strsplit (line, "\t", -1);
+    if (g_strv_length (result) != 7)
+        goto out;
+
+    /* Check this first */
+    expires = result[4];
+    max_age = strtoul (expires, NULL, 10) - now;
+    if (max_age <= 0)
+        goto out;
+
+    host = result[0];
+    is_domain = result[1];
+    path = result[2];
+    secure = result[3];
+
+    name = result[5];
+    value = result[6];
+
+    cookie = soup_cookie_new (name, value, host, path, max_age);
+
+    if (strcmp (secure, "FALSE"))
+        soup_cookie_set_secure (cookie, TRUE);
+    if (http_only)
+        soup_cookie_set_http_only (cookie, TRUE);
+
+    out:
+        g_strfreev (result);
+
+    return cookie;
+}
+
+/* Cookie jar saving to Mozilla format
+   Copyright (C) 2008 Xan Lopez <xan@gnome.org>
+   Copyright (C) 2008 Dan Winship <danw@gnome.org>
+   Mostly copied from libSoup 2.24, coding style adjusted */
+static void
+parse_line (SoupCookieJar* jar,
+            gchar*         line,
+            time_t         now)
+{
+    SoupCookie* cookie;
+
+    if ((cookie = parse_cookie (line, now)))
+        soup_cookie_jar_add_cookie (jar, cookie);
+}
+
+/* Cookie jar saving to Mozilla format
+   Copyright (C) 2008 Xan Lopez <xan@gnome.org>
+   Copyright (C) 2008 Dan Winship <danw@gnome.org>
+   Mostly copied from libSoup 2.24, coding style adjusted */
+static void
+cookie_jar_load (SoupCookieJar* jar,
+                 const gchar*   filename)
+{
+    char* contents = NULL;
+    gchar* line;
+    gchar* p;
+    gsize length = 0;
+    time_t now = time (NULL);
+
+    if (!g_file_get_contents (filename, &contents, &length, NULL))
+        return;
+
+    line = contents;
+    for (p = contents; *p; p++)
+    {
+        /* \r\n comes out as an extra empty line and gets ignored */
+        if (*p == '\r' || *p == '\n')
+        {
+            *p = '\0';
+            parse_line (jar, line, now);
+            line = p + 1;
+        }
+    }
+    parse_line (jar, line, now);
+
+    g_free (contents);
+}
+
+/* Cookie jar saving to Mozilla format
+   Copyright (C) 2008 Xan Lopez <xan@gnome.org>
+   Copyright (C) 2008 Dan Winship <danw@gnome.org>
+   Copied from libSoup 2.24, coding style preserved */
+static void
+write_cookie (FILE *out, SoupCookie *cookie)
+{
+	fseek (out, 0, SEEK_END);
+
+	fprintf (out, "%s%s\t%s\t%s\t%s\t%lu\t%s\t%s\n",
+		 cookie->http_only ? "#HttpOnly_" : "",
+		 cookie->domain,
+		 *cookie->domain == '.' ? "TRUE" : "FALSE",
+		 cookie->path,
+		 cookie->secure ? "TRUE" : "FALSE",
+		 (gulong)soup_date_to_time_t (cookie->expires),
+		 cookie->name,
+		 cookie->value);
+}
+
+/* Cookie jar saving to Mozilla format
+   Copyright (C) 2008 Xan Lopez <xan@gnome.org>
+   Copyright (C) 2008 Dan Winship <danw@gnome.org>
+   Copied from libSoup 2.24, coding style preserved */
+static void
+delete_cookie (const char *filename, SoupCookie *cookie)
+{
+	char *contents = NULL, *line, *p;
+	gsize length = 0;
+	FILE *f;
+	SoupCookie *c;
+	time_t now = time (NULL);
+
+	if (!g_file_get_contents (filename, &contents, &length, NULL))
+		return;
+
+	f = fopen (filename, "w");
+	if (!f) {
+		g_free (contents);
+		return;
+	}
+
+	line = contents;
+	for (p = contents; *p; p++) {
+		/* \r\n comes out as an extra empty line and gets ignored */
+		if (*p == '\r' || *p == '\n') {
+			*p = '\0';
+			c = parse_cookie (line, now);
+			if (!c)
+				continue;
+			if (!soup_cookie_equal (cookie, c))
+				write_cookie (f, c);
+			line = p + 1;
+			soup_cookie_free (c);
+		}
+	}
+	c = parse_cookie (line, now);
+	if (c) {
+		if (!soup_cookie_equal (cookie, c))
+			write_cookie (f, c);
+		soup_cookie_free (c);
+	}
+
+	g_free (contents);
+	fclose (f);
+}
+
+/* Cookie jar saving to Mozilla format
+   Copyright (C) 2008 Xan Lopez <xan@gnome.org>
+   Copyright (C) 2008 Dan Winship <danw@gnome.org>
+   Mostly copied from libSoup 2.24, coding style adjusted */
+static void
+cookie_jar_changed_cb (SoupCookieJar* jar,
+                       SoupCookie*    old_cookie,
+                       SoupCookie*    new_cookie,
+                       gchar*         filename)
+{
+    if (old_cookie)
+        delete_cookie (filename, old_cookie);
+
+    if (new_cookie)
+    {
+        FILE *out;
+
+        out = fopen (filename, "a");
+        if (!out)
+            return;
+
+        if (new_cookie->expires)
+            write_cookie (out, new_cookie);
+
+        if (fclose (out) != 0)
+            return;
+    }
+}
+
+/* The following code hooks up to any created cookie jar in order to
+   load and save cookies. This is *not* a generally advisable technique
+   but merely a preliminary workaround until WebKit exposes its
+   network backend and we can pass our own jar. */
+typedef void (*GObjectConstructed) (GObject*);
+static GObjectConstructed old_jar_constructed_cb;
+void
+cookie_jar_constructed_cb (GObject* object)
+{
+    gchar* config_path;
+    gchar* config_file;
+    SoupCookieJar* jar;
+
+    if (old_jar_constructed_cb)
+        old_jar_constructed_cb (object);
+
+    config_path = g_build_filename (g_get_user_config_dir (),
+                                    PACKAGE_NAME, NULL);
+    g_mkdir_with_parents (config_path, 0700);
+    config_file = g_build_filename (config_path, "cookies.txt", NULL);
+    jar = SOUP_COOKIE_JAR (object);
+    cookie_jar_load (jar, config_file);
+    g_signal_connect_data (jar, "changed",
+        G_CALLBACK (cookie_jar_changed_cb), config_file,
+        (GClosureNotify)g_free, 0);
+}
+#endif
+
 int
 main (int    argc,
       char** argv)
@@ -1113,6 +1345,18 @@ main (int    argc,
     if (!g_thread_supported ()) g_thread_init (NULL);
     stock_items_init ();
     g_set_application_name (_("Midori"));
+
+    #if HAVE_LIBSOUP_2_25_2
+    /* This is a nasty trick that allows us to manipulate cookies
+       even without having a pointer to the jar. */
+    soup_cookie_jar_get_type ();
+    SoupCookieJarClass* jar_class = g_type_class_ref (SOUP_TYPE_COOKIE_JAR);
+    if (jar_class)
+    {
+        old_jar_constructed_cb = G_OBJECT_CLASS (jar_class)->constructed;
+        G_OBJECT_CLASS (jar_class)->constructed = cookie_jar_constructed_cb;
+    }
+    #endif
 
     if (version)
     {

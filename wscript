@@ -98,6 +98,8 @@ def configure (conf):
 
     if not Params.g_options.disable_libsoup:
         conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP', mandatory=False)
+        conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP_2_25_2',
+                        vnum='2.25.2', mandatory=False)
         libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
     else:
         libsoup = 'no'
