@@ -864,7 +864,7 @@ midori_web_view_menu_action_activate_cb (GtkWidget*  widget,
                                          MidoriView* view)
 {
     const gchar* action = g_object_get_data (G_OBJECT (widget), "action");
-    g_signal_emit (view, ACTIVATE_ACTION, 0, action);
+    g_signal_emit (view, signals[ACTIVATE_ACTION], 0, action);
 }
 
 static void
