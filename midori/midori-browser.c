@@ -3269,7 +3269,8 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
         }
         else
         {
-            gtk_widget_show (browser->menubar);
+            if (katze_object_get_boolean (browser->settings, "show-menubar"))
+                gtk_widget_show (browser->menubar);
             gtk_widget_hide (browser->button_fullscreen);
             g_object_set (browser->button_fullscreen,
                           "stock-id", GTK_STOCK_FULLSCREEN, NULL);
