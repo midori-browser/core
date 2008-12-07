@@ -196,12 +196,12 @@ def set_options (opt):
     group = opt.add_option_group ('Directories', '')
     if (opt.parser.get_option ('--prefix')):
         opt.parser.remove_option ('--prefix')
-    group.add_option ('--prefix', type='string', default='/usr/local',
-        help='installation prefix (configuration only)', dest='prefix')
+        group.add_option ('--prefix', type='string', default='/usr/local',
+            help='installation prefix (configuration only)', dest='prefix')
     if (opt.parser.get_option ('--datadir')):
         opt.parser.remove_option ('--datadir')
-    group.add_option ('--datadir', type='string', default='',
-        help='read-only application data', dest='prefix')
+        group.add_option ('--datadir', type='string', default='',
+            help='read-only application data', dest='datadir')
     group.add_option ('--docdir', type='string', default='',
         help='Documentation root', dest='docdir')
     group.add_option ('--libdir', type='string', default='',
@@ -255,7 +255,7 @@ def build (bld):
             '../../../docs/user/midori.txt',
             'midori.html',])
         os.chdir ('../../..')
-        install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
+        _install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
 
     if bld.env ()['INTLTOOL']:
         obj = bld.create_obj ('intltool_po')
@@ -264,6 +264,7 @@ def build (bld):
 
     if bld.env ()['GTKDOC_SCAN'] and Params.g_commands['build']:
         bld.add_subdirs ('docs/api')
+        _install_files ('DOCDIR', '/midori/api/', blddir + '/docs/api/*')
 
     if bld.env ()['INTLTOOL']:
         obj = bld.create_obj ('intltool_in')
@@ -271,7 +272,7 @@ def build (bld):
         obj.inst_var = 'DATADIR'
         obj.inst_dir = 'applications'
         obj.flags    = '-d'
-        install_files ('DATADIR', 'applications', APPNAME + '.desktop')
+        _install_files ('DATADIR', 'applications', APPNAME + '.desktop')
     else:
         folder = os.path.dirname (bld.env ()['waf_config_files'][0])
         desktop = APPNAME + '.desktop'
