@@ -27,29 +27,43 @@ except:
 srcdir = '.'
 blddir = '_build_'
 
+def option_enabled (option):
+    if eval ('Params.g_options.enable_' + option):
+        return True
+    if eval ('Params.g_options.disable_' + option):
+        return False
+    return True
+
 def configure (conf):
+    def option_checkfatal (option, desc):
+        if eval ('Params.g_options.enable_' + option):
+                Params.pprint ('RED', desc + ' not available')
+                sys.exit (1)
+
     conf.check_tool ('compiler_cc')
 
-    if not Params.g_options.disable_docs:
+    if option_enabled ('user_docs'):
         conf.find_program ('rst2html.py', var='RST2HTML')
         # debian renames the executable, check that as well :(
         if not conf.env['RST2HTML']:
             conf.find_program ('rst2html', var='RST2HTML')
         if conf.env['RST2HTML']:
-            docs = 'yes'
+            user_docs = 'yes'
         else:
-            docs = 'not available'
+            option_checkfatal ('user_docs', 'user documentation')
+            user_docs = 'not available'
     else:
-        docs = 'no'
-    conf.check_message_custom ('generate', 'user documentation', docs)
+        user_docs = 'no'
+    conf.check_message_custom ('generate', 'user documentation', user_docs)
 
-    if not Params.g_options.disable_nls:
+    if option_enabled ('nls'):
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
             nls = 'yes'
             conf.define ('ENABLE_NLS', 1)
             conf.define ('MIDORI_LOCALEDIR', 'LOCALEDIR', 0)
         else:
+            option_checkfatal ('nls', 'localization')
             nls = 'not available'
     else:
         nls = 'no'
@@ -75,7 +89,7 @@ def configure (conf):
         docdir = Params.g_options.docdir
     conf.define ('DOCDIR', docdir)
 
-    if Params.g_options.enable_api_docs:
+    if option_enabled ('api_docs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
         conf.find_program ('gtkdoc-mktmpl', var='GTKDOC_MKTMPL')
         conf.find_program ('gtkdoc-mkdb', var='GTKDOC_MKDB')
@@ -84,31 +98,35 @@ def configure (conf):
             and conf.env['GTKDOC_MKDB'] and conf.env['GTKDOC_MKHTML']:
             api_docs = 'yes'
         else:
+            option_checkfatal ('api_docs', 'API documentation')
             api_docs = 'not available'
     else:
         api_docs = 'no'
     conf.check_message_custom ('generate', 'API documentation', api_docs)
 
-    if not Params.g_options.disable_unique:
+    if option_enabled ('unique'):
         conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
         single_instance = ['not available','yes'][conf.env['HAVE_UNIQUE'] == 1]
     else:
+        option_checkfatal ('unique', 'single instance')
         single_instance = 'no'
     conf.check_message_custom ('single instance', 'support', single_instance)
 
-    if not Params.g_options.disable_libsoup:
+    if option_enabled ('libsoup'):
         conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP', mandatory=False)
         conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP_2_25_2',
                         vnum='2.25.2', mandatory=False)
         libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
     else:
+        option_checkfatal ('libsoup', 'libsoup')
         libsoup = 'no'
     conf.check_message_custom ('libsoup', 'support', libsoup)
 
-    if not Params.g_options.disable_sqlite:
+    if option_enabled ('sqlite'):
         conf.check_pkg ('sqlite3', destvar='SQLITE', vnum='3.0', mandatory=False)
         sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
     else:
+        option_checkfatal ('sqlite', 'history database')
         sqlite = 'no'
     conf.check_message_custom ('history database', 'support', sqlite)
 
@@ -155,33 +173,32 @@ def configure (conf):
         print
 
 def set_options (opt):
+    def add_enable_option (option, desc):
+        option_ = option.replace ('-', '_')
+        opt.add_option ('--enable-' + option, action='store_true',
+            default=False, help='Enable ' + desc, dest='enable_' + option_)
+        opt.add_option ('--disable-' + option, action='store_true',
+            default=False, help='Disable ' + desc, dest='disable_' + option_)
+
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
-    opt.add_option ('--docdir', type='string', default='',
-        help='Documentation root', dest='docdir')
-    opt.add_option ('--disable-docs', action='store_true', default=False,
-        help='Disables user documentation', dest='disable_docs')
-
-    opt.add_option ('--disable-nls', action='store_true', default=False,
-        help='Disables native language support', dest='disable_nls')
-
-    opt.add_option ('--disable-unique', action='store_true', default=False,
-        help='Disables Unique support', dest='disable_unique')
-    opt.add_option ('--disable-libsoup', action='store_true', default=False,
-        help='Disables libsoup support', dest='disable_libsoup')
-    opt.add_option ('--disable-sqlite', action='store_true', default=False,
-        help='Disables sqlite support', dest='disable_sqlite')
-
-    opt.add_option ('--enable-api-docs', action='store_true', default=False,
-        help='Enables API documentation', dest='enable_api_docs')
-
+    add_enable_option ('nls', 'native language support')
     opt.add_option ('--update-po', action='store_true', default=False,
         help='Update localization files', dest='update_po')
 
+    opt.add_option ('--docdir', type='string', default='',
+        help='Documentation root', dest='docdir')
+    add_enable_option ('docs', 'informational text files')
+    add_enable_option ('user-docs', 'user documentation')
+    add_enable_option ('api-docs', 'API documentation')
+
+    add_enable_option ('unique', 'single instance support')
+    add_enable_option ('libsoup', 'libSoup support')
+    add_enable_option ('sqlite', 'history database support')
+
     opt.add_option ('--libdir', type='string', default='',
         help='Library root', dest='libdir')
-    opt.add_option ('--disable-extensions', action='store_true', default=False,
-        help='Disables building of extensions', dest='disable_extensions')
+    add_enable_option ('extensions', 'building of extensions')
 
 def build (bld):
     def mkdir (path):
@@ -196,11 +213,12 @@ def build (bld):
 
     bld.add_subdirs ('katze midori icons')
 
-    if not Params.g_options.disable_extensions:
+    if option_enabled ('extensions'):
         bld.add_subdirs ('extensions')
 
-    install_files ('DOCDIR', '/' + APPNAME + '/', \
-        'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
+    if option_enabled ('docs'):
+        install_files ('DOCDIR', '/' + APPNAME + '/', \
+            'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
 
     if bld.env ()['RST2HTML']:
         # FIXME: Build only if needed
