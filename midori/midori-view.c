@@ -502,7 +502,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Net",
                                      "The associated net",
                                      KATZE_TYPE_NET,
-                                     G_PARAM_READWRITE));
+                                     flags));
 }
 
 static void
@@ -1097,8 +1097,6 @@ midori_view_init (MidoriView* view)
     view->item = NULL;
 
     view->download_manager = NULL;
-
-    view->net = katze_net_new ();
 
     g_object_connect (view,
                       "signal::notify::icon",

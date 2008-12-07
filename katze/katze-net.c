@@ -61,13 +61,19 @@ katze_net_object_maybe_unref (gpointer object)
 static void
 katze_net_init (KatzeNet* net)
 {
+    #if HAVE_LIBSOUP
+    static SoupSession* session = NULL;
+    #endif
+
     net->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
                                          g_free, katze_net_object_maybe_unref);
     net->cache_path = g_build_filename (g_get_user_cache_dir (),
                                         PACKAGE_NAME, NULL);
 
     #if HAVE_LIBSOUP
-    net->session = soup_session_async_new ();
+    if (!session)
+        session = soup_session_async_new ();
+    net->session = session;
     #endif
 }
 
@@ -85,17 +91,19 @@ katze_net_finalize (GObject* object)
 /**
  * katze_net_new:
  *
- * Instantiates a new #KatzeNet singleton.
- *
- * Subsequent calls will ref the initial instance.
+ * Instantiates a new #KatzeNet instance.
  *
  * Return value: a new #KatzeNet
  **/
 KatzeNet*
 katze_net_new (void)
 {
-    KatzeNet* net = g_object_new (KATZE_TYPE_NET,
-                                  NULL);
+    static KatzeNet* net = NULL;
+
+    if (!net)
+        net = g_object_new (KATZE_TYPE_NET, NULL);
+    else
+        g_object_ref (net);
 
     return net;
 }
