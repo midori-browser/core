@@ -42,7 +42,7 @@ def configure (conf):
 
     conf.check_tool ('compiler_cc')
 
-    if option_enabled ('user_docs'):
+    if option_enabled ('userdocs'):
         conf.find_program ('rst2html.py', var='RST2HTML')
         # debian renames the executable, check that as well :(
         if not conf.env['RST2HTML']:
@@ -50,7 +50,7 @@ def configure (conf):
         if conf.env['RST2HTML']:
             user_docs = 'yes'
         else:
-            option_checkfatal ('user_docs', 'user documentation')
+            option_checkfatal ('userdocs', 'user documentation')
             user_docs = 'not available'
     else:
         user_docs = 'no'
@@ -89,7 +89,7 @@ def configure (conf):
         docdir = Params.g_options.docdir
     conf.define ('DOCDIR', docdir)
 
-    if option_enabled ('api_docs'):
+    if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
         conf.find_program ('gtkdoc-mktmpl', var='GTKDOC_MKTMPL')
         conf.find_program ('gtkdoc-mkdb', var='GTKDOC_MKDB')
@@ -98,7 +98,7 @@ def configure (conf):
             and conf.env['GTKDOC_MKDB'] and conf.env['GTKDOC_MKHTML']:
             api_docs = 'yes'
         else:
-            option_checkfatal ('api_docs', 'API documentation')
+            option_checkfatal ('apidocs', 'API documentation')
             api_docs = 'not available'
     else:
         api_docs = 'no'
@@ -171,34 +171,55 @@ def configure (conf):
         print "History storage on disk is unavailable in this build."
         print " Install sqlite3 and reconfigure to enable it."
         print
+    if user_docs == 'not available':
+        print "User documentation is unavailable in this build."
+        print " Install docutils and reconfigure to enable it."
+        print
+    if api_docs == 'not available':
+        print "API documentation is unavailable in this build."
+        print " Install gtk-doc and reconfigure to enable it."
+        print
 
 def set_options (opt):
-    def add_enable_option (option, desc):
+    def add_enable_option (option, desc, group=None, disable=False):
+        if group == None:
+            group = opt
         option_ = option.replace ('-', '_')
-        opt.add_option ('--enable-' + option, action='store_true',
+        group.add_option ('--enable-' + option, action='store_true',
             default=False, help='Enable ' + desc, dest='enable_' + option_)
-        opt.add_option ('--disable-' + option, action='store_true',
-            default=False, help='Disable ' + desc, dest='disable_' + option_)
+        group.add_option ('--disable-' + option, action='store_true',
+            default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
-    add_enable_option ('nls', 'native language support')
-    opt.add_option ('--update-po', action='store_true', default=False,
-        help='Update localization files', dest='update_po')
 
-    opt.add_option ('--docdir', type='string', default='',
+    group = opt.add_option_group ('Directories', '')
+    if (opt.parser.get_option ('--prefix')):
+        opt.parser.remove_option ('--prefix')
+    group.add_option ('--prefix', type='string', default='/usr/local',
+        help='installation prefix (configuration only)', dest='prefix')
+    if (opt.parser.get_option ('--datadir')):
+        opt.parser.remove_option ('--datadir')
+    group.add_option ('--datadir', type='string', default='',
+        help='read-only application data', dest='prefix')
+    group.add_option ('--docdir', type='string', default='',
         help='Documentation root', dest='docdir')
-    add_enable_option ('docs', 'informational text files')
-    add_enable_option ('user-docs', 'user documentation')
-    add_enable_option ('api-docs', 'API documentation')
-
-    add_enable_option ('unique', 'single instance support')
-    add_enable_option ('libsoup', 'libSoup support')
-    add_enable_option ('sqlite', 'history database support')
-
-    opt.add_option ('--libdir', type='string', default='',
+    group.add_option ('--libdir', type='string', default='',
         help='Library root', dest='libdir')
-    add_enable_option ('extensions', 'building of extensions')
+
+    group = opt.add_option_group ('Localization and documentation', '')
+    add_enable_option ('nls', 'native language support', group)
+    group.add_option ('--update-po', action='store_true', default=False,
+        help='Update localization files', dest='update_po')
+    add_enable_option ('docs', 'informational text files', group)
+    add_enable_option ('userdocs', 'user documentation', group)
+    add_enable_option ('apidocs', 'API documentation', group, disable=True)
+
+    group = opt.add_option_group ('Optional features', '')
+    add_enable_option ('unique', 'single instance support', group)
+    add_enable_option ('libsoup', 'libSoup support', group)
+    add_enable_option ('sqlite', 'history database support', group)
+    add_enable_option ('addons', 'building of extensions', group)
 
 def build (bld):
     def mkdir (path):
@@ -213,7 +234,7 @@ def build (bld):
 
     bld.add_subdirs ('katze midori icons')
 
-    if option_enabled ('extensions'):
+    if option_enabled ('addons'):
         bld.add_subdirs ('extensions')
 
     if option_enabled ('docs'):
