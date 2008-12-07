@@ -271,11 +271,26 @@ def build (bld):
         obj.inst_var = 'DATADIR'
         obj.inst_dir = 'applications'
         obj.flags    = '-d'
-    else:
-        # FIXME: process desktop.in without intltool
-        Params.pprint ('BLUE', "File " + APPNAME + ".desktop not generated")
-    if bld.env ()['INTLTOOL']:
         install_files ('DATADIR', 'applications', APPNAME + '.desktop')
+    else:
+        folder = os.path.dirname (bld.env ()['waf_config_files'][0])
+        desktop = APPNAME + '.desktop'
+        pre = open (desktop + '.in')
+        after = open (folder + '/' + desktop, 'w')
+        try:
+            for line in pre:
+                if line != '':
+                    if line[0] == '_':
+                        after.write (line[1:])
+                    else:
+                        after.write (line)
+            after.close ()
+            Params.pprint ('BLUE', desktop + '.in -> ' + desktop)
+            _install_files ('DATADIR', 'applications', folder + '/' + desktop)
+        except:
+            Params.pprint ('BLUE', 'File ' + desktop + ' not generated')
+        finally:
+            pre.close ()
 
     if bld.env ()['RSVG_CONVERT']:
         mkdir (blddir + '/data')
