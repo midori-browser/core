@@ -1053,6 +1053,8 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
+typedef void (*GObjectConstructed) (GObject*);
+
 #if HAVE_LIBSOUP_2_25_2
 /* Cookie jar saving to Mozilla format
    Copyright (C) 2008 Xan Lopez <xan@gnome.org>
@@ -1277,9 +1279,8 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
    load and save cookies. This is *not* a generally advisable technique
    but merely a preliminary workaround until WebKit exposes its
    network backend and we can pass our own jar. */
-typedef void (*GObjectConstructed) (GObject*);
 static GObjectConstructed old_jar_constructed_cb;
-void
+static void
 cookie_jar_constructed_cb (GObject* object)
 {
     gchar* config_path;
@@ -1300,6 +1301,148 @@ cookie_jar_constructed_cb (GObject* object)
     g_signal_connect_data (jar, "changed",
         G_CALLBACK (cookie_jar_changed_cb), config_file,
         (GClosureNotify)g_free, 0);
+}
+#endif
+
+#if HAVE_LIBSOUP
+static void
+authentication_dialog_response_cb (GtkWidget* dialog,
+                                   gint       response,
+                                   SoupAuth*  auth)
+{
+    GtkWidget* username;
+    GtkWidget* password;
+    SoupSession* session;
+    SoupMessage* msg;
+
+    if (response == GTK_RESPONSE_OK)
+    {
+
+        username = g_object_get_data (G_OBJECT (dialog), "username");
+        password = g_object_get_data (G_OBJECT (dialog), "password");
+
+        soup_auth_authenticate (auth,
+            gtk_entry_get_text (GTK_ENTRY (username)),
+            gtk_entry_get_text (GTK_ENTRY (password)));
+    }
+
+    session = g_object_get_data (G_OBJECT (dialog), "session");
+    msg = g_object_get_data (G_OBJECT (dialog), "msg");
+    gtk_widget_destroy (dialog);
+    if (g_object_get_data (G_OBJECT (msg), "paused"))
+        soup_session_unpause_message (session, msg);
+    g_object_unref (auth);
+}
+
+static void
+soup_session_authenticate_cb (SoupSession* session,
+                              SoupMessage* msg,
+                              SoupAuth*    auth,
+                              gboolean     retrying,
+                              MidoriApp*   app)
+{
+    GtkWidget* dialog;
+    GtkSizeGroup* sizegroup;
+    GtkWidget* hbox;
+    GtkWidget* image;
+    GtkWidget* label;
+    GtkWidget* align;
+    GtkWidget* entry;
+
+    /* We want to ask for authentication exactly once, so we
+       enforce this with a tag. There might be a better way. */
+    if (!retrying && g_object_get_data (G_OBJECT (msg), "midori-session-tag"))
+        return;
+
+    if (soup_message_is_keepalive (msg))
+    {
+        /* We use another tag to indicate whether a message is paused.
+           There doesn't seem to be API in libSoup to find that out. */
+        soup_session_pause_message (session, msg);
+        g_object_set_data (G_OBJECT (msg), "paused", (void*)1);
+    }
+    g_object_set_data (G_OBJECT (msg), "midori-session-tag", (void*)1);
+
+    dialog = gtk_dialog_new_with_buttons (_("Authentication Required"),
+        katze_object_get_object (app, "browser"),
+        GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        GTK_STOCK_OK, GTK_RESPONSE_OK,
+        NULL);
+    gtk_window_set_icon_name (GTK_WINDOW (dialog),
+        GTK_STOCK_DIALOG_AUTHENTICATION);
+    gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+
+    gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 5);
+    hbox = gtk_hbox_new (FALSE, 6);
+    image = gtk_image_new_from_stock (GTK_STOCK_DIALOG_AUTHENTICATION,
+                                      GTK_ICON_SIZE_DIALOG);
+    gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
+    label = gtk_label_new (_("A username and a password are required\n"
+                             "to open this location:"));
+    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    label = gtk_label_new (soup_auth_get_host (auth));
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), label);
+    /* If the realm is merely the host, omit the realm label */
+    if (g_strcmp0 (soup_auth_get_host (auth), soup_auth_get_realm (auth)))
+    {
+        label = gtk_label_new (soup_auth_get_realm (auth));
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), label);
+    }
+    sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+    hbox = gtk_hbox_new (FALSE, 6);
+    label = gtk_label_new (_("Username"));
+    align = gtk_alignment_new (0, 0.5, 0, 0);
+    gtk_container_add (GTK_CONTAINER (align), label);
+    gtk_size_group_add_widget (sizegroup, align);
+    gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
+    entry = gtk_entry_new ();
+    gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+    g_object_set_data (G_OBJECT (dialog), "username", entry);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    hbox = gtk_hbox_new (FALSE, 6);
+    label = gtk_label_new (_("Password"));
+    align = gtk_alignment_new (0, 0.5, 0, 0);
+    gtk_container_add (GTK_CONTAINER (align), label);
+    gtk_size_group_add_widget (sizegroup, align);
+    gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
+    entry = gtk_entry_new_with_max_length (32);
+    gtk_entry_set_visibility (GTK_ENTRY (entry), FALSE);
+    gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+    g_object_set_data (G_OBJECT (dialog), "password", entry);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+    gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
+
+    g_object_set_data (G_OBJECT (dialog), "session", session);
+    g_object_set_data (G_OBJECT (dialog), "msg", msg);
+    g_signal_connect (dialog, "response",
+        G_CALLBACK (authentication_dialog_response_cb), g_object_ref (auth));
+    gtk_widget_show (dialog);
+}
+
+/* The following code hooks up to any created soup session in order to
+   modify preferences. This is *not* a generally advisable technique
+   but merely a preliminary workaround until WebKit exposes its session. */
+static GObjectConstructed old_session_constructed_cb;
+static void
+soup_session_constructed_cb (GObject* object)
+{
+    MidoriApp* app;
+    SoupSession* session;
+
+    if (old_session_constructed_cb)
+        old_session_constructed_cb (object);
+    app = g_type_get_qdata (SOUP_TYPE_SESSION,
+        g_quark_from_static_string ("midori-app"));
+
+    session = SOUP_SESSION (object);
+    g_signal_connect (session, "authenticate",
+        G_CALLBACK (soup_session_authenticate_cb), app);
 }
 #endif
 
@@ -1434,6 +1577,19 @@ main (int    argc,
                           g_quark_from_static_string ("midori-app"), app);
         old_jar_constructed_cb = G_OBJECT_CLASS (jar_class)->constructed;
         G_OBJECT_CLASS (jar_class)->constructed = cookie_jar_constructed_cb;
+    }
+    #endif
+    #if HAVE_LIBSOUP
+    /* This is a nasty trick that allows us to manipulate preferences
+       even without having a pointer to the session. */
+    soup_session_get_type ();
+    SoupSessionClass* session_class = g_type_class_ref (SOUP_TYPE_SESSION);
+    if (session_class)
+    {
+        g_type_set_qdata (SOUP_TYPE_SESSION,
+                          g_quark_from_static_string ("midori-app"), app);
+        old_session_constructed_cb = G_OBJECT_CLASS (session_class)->constructed;
+        G_OBJECT_CLASS (session_class)->constructed = soup_session_constructed_cb;
     }
     #endif
 
