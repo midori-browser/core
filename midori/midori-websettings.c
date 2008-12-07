@@ -538,7 +538,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("What type of cookies to accept"),
                                      MIDORI_TYPE_ACCEPT_COOKIES,
                                      MIDORI_ACCEPT_COOKIES_ALL,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READWRITE));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ORIGINAL_COOKIES_ONLY,
@@ -556,7 +556,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Maximum cookie age"),
                                      _("The maximum number of days to save cookies for"),
                                      0, G_MAXINT, 30,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READWRITE));
 
 
 

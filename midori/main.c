@@ -1234,6 +1234,10 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
                        SoupCookie*    new_cookie,
                        gchar*         filename)
 {
+    MidoriApp* app;
+    MidoriWebSettings* settings;
+    MidoriAcceptCookies accept_cookies;
+
     if (old_cookie)
         delete_cookie (filename, old_cookie);
 
@@ -1241,15 +1245,31 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
     {
         FILE *out;
 
-        out = fopen (filename, "a");
-        if (!out)
-            return;
+        app = g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+            g_quark_from_static_string ("midori-app"));
+        settings = katze_object_get_object (G_OBJECT (app), "settings");
+        accept_cookies = katze_object_get_enum (settings, "accept-cookies");
+        if (accept_cookies == MIDORI_ACCEPT_COOKIES_NONE)
+        {
+            soup_cookie_jar_delete_cookie (jar, new_cookie);
+        }
+        else if (accept_cookies == MIDORI_ACCEPT_COOKIES_SESSION
+            && new_cookie->expires)
+        {
+            soup_cookie_jar_delete_cookie (jar, new_cookie);
+        }
+        else if (new_cookie->expires)
+        {
+            gint age = katze_object_get_int (settings, "maximum-cookie-age");
+            soup_cookie_set_max_age (new_cookie,
+                age * SOUP_COOKIE_MAX_AGE_ONE_DAY);
 
-        if (new_cookie->expires)
+            if (!(out = fopen (filename, "a")))
+                return;
             write_cookie (out, new_cookie);
-
-        if (fclose (out) != 0)
-            return;
+            if (fclose (out) != 0)
+                return;
+        }
     }
 }
 
@@ -1268,6 +1288,8 @@ cookie_jar_constructed_cb (GObject* object)
 
     if (old_jar_constructed_cb)
         old_jar_constructed_cb (object);
+    g_type_set_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_quark_from_static_string ("midori-has-jar"), (void*)1);
 
     config_path = g_build_filename (g_get_user_config_dir (),
                                     PACKAGE_NAME, NULL);
@@ -1346,18 +1368,6 @@ main (int    argc,
     stock_items_init ();
     g_set_application_name (_("Midori"));
 
-    #if HAVE_LIBSOUP_2_25_2
-    /* This is a nasty trick that allows us to manipulate cookies
-       even without having a pointer to the jar. */
-    soup_cookie_jar_get_type ();
-    SoupCookieJarClass* jar_class = g_type_class_ref (SOUP_TYPE_COOKIE_JAR);
-    if (jar_class)
-    {
-        old_jar_constructed_cb = G_OBJECT_CLASS (jar_class)->constructed;
-        G_OBJECT_CLASS (jar_class)->constructed = cookie_jar_constructed_cb;
-    }
-    #endif
-
     if (version)
     {
         g_print (
@@ -1412,6 +1422,20 @@ main (int    argc,
         /* FIXME: Do we want a graphical error message? */
         return 1;
     }
+
+    #if HAVE_LIBSOUP_2_25_2
+    /* This is a nasty trick that allows us to manipulate cookies
+       even without having a pointer to the jar. */
+    soup_cookie_jar_get_type ();
+    SoupCookieJarClass* jar_class = g_type_class_ref (SOUP_TYPE_COOKIE_JAR);
+    if (jar_class)
+    {
+        g_type_set_qdata (SOUP_TYPE_COOKIE_JAR,
+                          g_quark_from_static_string ("midori-app"), app);
+        old_jar_constructed_cb = G_OBJECT_CLASS (jar_class)->constructed;
+        G_OBJECT_CLASS (jar_class)->constructed = cookie_jar_constructed_cb;
+    }
+    #endif
 
     /* Load configuration files */
     GString* error_messages = g_string_new (NULL);

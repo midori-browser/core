@@ -20,6 +20,10 @@
 #include <string.h>
 #include <glib/gi18n.h>
 
+#if HAVE_LIBSOUP
+    #include <libsoup/soup.h>
+#endif
+
 struct _MidoriPreferences
 {
     GtkDialog parent_instance;
@@ -496,12 +500,15 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
-    #if 0
+    #if HAVE_LIBSOUP_2_25_2
     FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "accept-cookies", NULL);
+    /* If a cookie jar was created, WebKit is using Soup */
+    gtk_widget_set_sensitive (button, g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_quark_from_static_string ("midori-has-jar")) != NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
     button = katze_property_proxy (settings, "original-cookies-only", "blurb");
     SPANNED_ADD (button, 0, 2, 1, 2);
@@ -509,6 +516,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 2, 3);
     hbox = gtk_hbox_new (FALSE, 4);
     entry = katze_property_proxy (settings, "maximum-cookie-age", NULL);
+    /* If a cookie jar was created, WebKit is using Soup */
+    gtk_widget_set_sensitive (entry, g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_quark_from_static_string ("midori-has-jar")) != NULL);
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("days")),
                         FALSE, FALSE, 0);
