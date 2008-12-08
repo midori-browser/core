@@ -795,6 +795,12 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             }
         }
         break;
+    case 8:
+        midori_view_go_back (view);
+        return TRUE;
+    case 9:
+        midori_view_go_forward (view);
+        return TRUE;
     }
 
     return FALSE;
