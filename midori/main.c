@@ -1441,6 +1441,7 @@ soup_session_constructed_cb (GObject* object)
     MidoriApp* app;
     MidoriWebSettings* settings;
     SoupSession* session;
+    gchar* http_proxy;
     SoupURI* proxy_uri;
 
     if (old_session_constructed_cb)
@@ -1448,7 +1449,10 @@ soup_session_constructed_cb (GObject* object)
     app = g_type_get_qdata (SOUP_TYPE_SESSION,
         g_quark_from_static_string ("midori-app"));
     settings = katze_object_get_object (app, "settings");
-    proxy_uri = soup_uri_new (katze_object_get_string (settings, "http-proxy"));
+    http_proxy = katze_object_get_string (settings, "http-proxy");
+    /* soup_uri_new expects a non-NULL string */
+    proxy_uri = soup_uri_new (http_proxy ? http_proxy : "");
+    g_free (http_proxy);
     g_object_set (object,
         "user-agent", katze_object_get_string (settings, "ident-string"),
         "proxy-uri", proxy_uri,
