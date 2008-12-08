@@ -131,6 +131,7 @@ def configure (conf):
     conf.check_message_custom ('history database', 'support', sqlite)
 
     conf.check_pkg ('gmodule-2.0', destvar='GMODULE', vnum='2.8.0', mandatory=False)
+    conf.check_pkg ('gthread-2.0', destvar='GTHREAD', vnum='2.8.0', mandatory=False)
     conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
     conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.10.0', mandatory=True)
     conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
