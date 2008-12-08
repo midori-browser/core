@@ -1551,6 +1551,10 @@ midori_view_set_uri (MidoriView*  view,
                 return;
             }
         }
+        else if (g_str_has_prefix (uri, "javascript:"))
+        {
+            midori_view_execute_script (view, &uri[11], NULL);
+        }
         else
         {
             katze_assign (view->uri, g_strdup (uri));

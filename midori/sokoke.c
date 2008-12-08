@@ -97,6 +97,9 @@ sokoke_magic_uri (const gchar* uri,
     g_return_val_if_fail (!search_engines ||
         katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
 
+    /* Just return if it's a javascript: uri */
+    if (g_str_has_prefix (uri, "javascript:"))
+        return g_strdup (uri);
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);

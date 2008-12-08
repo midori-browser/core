@@ -83,6 +83,7 @@ main (int    argc,
     test_input ("verbose de.po", NULL);
     test_input ("g de.po verbose", NULL);
     test_input ("sm de.po verbose", SM "de.po verbose");
+    test_input ("javascript:alert(1)", "javascript:alert(1)");
 
     return 0;
 }
