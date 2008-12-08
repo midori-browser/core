@@ -1431,6 +1431,31 @@ soup_session_authenticate_cb (SoupSession* session,
     gtk_widget_show (dialog);
 }
 
+static void
+soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
+                                            GParamSpec*        pspec,
+                                            SoupSession*       session)
+{
+    gchar* http_proxy;
+    SoupURI* proxy_uri;
+
+    http_proxy = katze_object_get_string (settings, "http-proxy");
+    /* soup_uri_new expects a non-NULL string */
+    proxy_uri = soup_uri_new (http_proxy ? http_proxy : "");
+    g_free (http_proxy);
+    g_object_set (session, "proxy-uri", proxy_uri, NULL);
+}
+
+static void
+soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
+                                              GParamSpec*        pspec,
+                                              SoupSession*       session)
+{
+    gchar* ident_string = katze_object_get_string (settings, "ident-string");
+    g_object_set (session, "user-agent", ident_string, NULL);
+    g_free (ident_string);
+}
+
 /* The following code hooks up to any created soup session in order to
    modify preferences. This is *not* a generally advisable technique
    but merely a preliminary workaround until WebKit exposes its session. */
@@ -1441,26 +1466,21 @@ soup_session_constructed_cb (GObject* object)
     MidoriApp* app;
     MidoriWebSettings* settings;
     SoupSession* session;
-    gchar* http_proxy;
-    SoupURI* proxy_uri;
 
     if (old_session_constructed_cb)
         old_session_constructed_cb (object);
     app = g_type_get_qdata (SOUP_TYPE_SESSION,
         g_quark_from_static_string ("midori-app"));
     settings = katze_object_get_object (app, "settings");
-    http_proxy = katze_object_get_string (settings, "http-proxy");
-    /* soup_uri_new expects a non-NULL string */
-    proxy_uri = soup_uri_new (http_proxy ? http_proxy : "");
-    g_free (http_proxy);
-    g_object_set (object,
-        "user-agent", katze_object_get_string (settings, "ident-string"),
-        "proxy-uri", proxy_uri,
-        NULL);
-    if (proxy_uri)
-        soup_uri_free (proxy_uri);
-
     session = SOUP_SESSION (object);
+
+    soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
+    soup_session_settings_notify_ident_string_cb (settings, NULL, session);
+    g_signal_connect (settings, "notify::http-proxy",
+        G_CALLBACK (soup_session_settings_notify_http_proxy_cb), object);
+    g_signal_connect (settings, "notify::ident-string",
+        G_CALLBACK (soup_session_settings_notify_ident_string_cb), object);
+
     g_signal_connect (session, "authenticate",
         G_CALLBACK (soup_session_authenticate_cb), app);
 }
