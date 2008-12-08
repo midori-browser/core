@@ -220,6 +220,16 @@ proxy_download_manager_icon_cb (GtkWidget*     entry,
     return FALSE;
 }
 
+static void
+midori_preferences_notify_identify_as_cb (MidoriWebSettings* settings,
+                                          GParamSpec*        pspec,
+                                          GtkWidget*         entry)
+{
+    MidoriIdentity identify_as = katze_object_get_enum (settings, "identify-as");
+
+    gtk_widget_set_sensitive (entry, identify_as == MIDORI_IDENT_CUSTOM);
+}
+
 #ifdef HAVE_OSX
 static void
 midori_preferences_help_clicked_cb (GtkWidget* button,
@@ -480,35 +490,52 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     WIDGET_ADD (button, 1, 2, 5, 6);
 
     /* Page "Network" */
-    #if 0
+    #if HAVE_LIBSOUP
+    /* If a cookie jar was created, WebKit is using Soup */
+    if (g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_quark_from_static_string ("midori-has-jar")))
+    {
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
     FRAME_NEW (_("Network"));
-    TABLE_NEW (2, 2);
+    TABLE_NEW (4, 2);
     label = katze_property_label (settings, "http-proxy");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "http-proxy", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
-    label = katze_property_label (settings, "cache-size");
+    label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label, 0, 1, 1, 2);
+    button = katze_property_proxy (settings, "identify-as", NULL);
+    FILLED_ADD (button, 1, 2, 1, 2);
+    label = katze_property_label (settings, "ident-string");
+    INDENTED_ADD (label, 0, 1, 2, 3);
+    entry = katze_property_proxy (settings, "ident-string", NULL);
+    g_signal_connect (settings, "notify::identify-as",
+        G_CALLBACK (midori_preferences_notify_identify_as_cb), entry);
+    midori_preferences_notify_identify_as_cb (settings, NULL, entry);
+    FILLED_ADD (entry, 1, 2, 2, 3);
+    label = katze_property_label (settings, "cache-size");
+    INDENTED_ADD (label, 0, 1, 3, 4);
     hbox = gtk_hbox_new (FALSE, 4);
     entry = katze_property_proxy (settings, "cache-size", NULL);
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("MB")),
                         FALSE, FALSE, 0);
-    FILLED_ADD (hbox, 1, 2, 1, 2);
+    FILLED_ADD (hbox, 1, 2, 3, 4);
+    }
     #endif
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
     #if HAVE_LIBSOUP_2_25_2
+    /* If a cookie jar was created, WebKit is using Soup */
+    if (g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_quark_from_static_string ("midori-has-jar")))
+    {
     FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "accept-cookies", NULL);
-    /* If a cookie jar was created, WebKit is using Soup */
-    gtk_widget_set_sensitive (button, g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
-        g_quark_from_static_string ("midori-has-jar")) != NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
     button = katze_property_proxy (settings, "original-cookies-only", "blurb");
     SPANNED_ADD (button, 0, 2, 1, 2);
@@ -516,13 +543,11 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 2, 3);
     hbox = gtk_hbox_new (FALSE, 4);
     entry = katze_property_proxy (settings, "maximum-cookie-age", NULL);
-    /* If a cookie jar was created, WebKit is using Soup */
-    gtk_widget_set_sensitive (entry, g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
-        g_quark_from_static_string ("midori-has-jar")) != NULL);
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("days")),
                         FALSE, FALSE, 0);
     FILLED_ADD (hbox, 1, 2, 2, 3);
+    }
     #endif
     FRAME_NEW (_("History"));
     TABLE_NEW (3, 2);

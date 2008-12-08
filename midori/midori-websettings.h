@@ -104,10 +104,20 @@ midori_accept_cookies_get_type (void) G_GNUC_CONST;
 #define MIDORI_TYPE_ACCEPT_COOKIES \
     (midori_accept_cookies_get_type ())
 
-struct _MidoriWebSettingsClass
+typedef enum
 {
-    WebKitWebSettingsClass parent_class;
-};
+    MIDORI_IDENT_MIDORI,
+    MIDORI_IDENT_SAFARI,
+    MIDORI_IDENT_FIREFOX,
+    MIDORI_IDENT_EXPLORER,
+    MIDORI_IDENT_CUSTOM
+} MidoriIdentity;
+
+GType
+midori_identity_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_IDENTITY \
+    (midori_identity_get_type ())
 
 GType
 midori_web_settings_get_type               (void);

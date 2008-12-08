@@ -16,6 +16,10 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 struct _MidoriWebSettings
 {
     WebKitWebSettings parent_instance;
@@ -64,7 +68,14 @@ struct _MidoriWebSettings
     gboolean remember_last_downloaded_files;
 
     gchar* http_proxy;
+    MidoriIdentity identify_as;
+    gchar* ident_string;
     gint cache_size;
+};
+
+struct _MidoriWebSettingsClass
+{
+    WebKitWebSettingsClass parent_class;
 };
 
 G_DEFINE_TYPE (MidoriWebSettings, midori_web_settings, WEBKIT_TYPE_WEB_SETTINGS)
@@ -118,6 +129,8 @@ enum
     PROP_REMEMBER_LAST_DOWNLOADED_FILES,
 
     PROP_HTTP_PROXY,
+    PROP_IDENTIFY_AS,
+    PROP_IDENT_STRING,
     PROP_CACHE_SIZE
 };
 
@@ -150,7 +163,7 @@ midori_preferred_encoding_get_type (void)
          { MIDORI_ENCODING_RUSSIAN, "MIDORI_ENCODING_RUSSIAN", N_("Russian (KOI8-R)") },
          { MIDORI_ENCODING_UNICODE, "MIDORI_ENCODING_UNICODE", N_("Unicode (UTF-8)") },
          { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_WESTERN", N_("Western (ISO-8859-1)") },
-         { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_CUSTOM", N_("Custom...") },
+         { MIDORI_ENCODING_CUSTOM, "MIDORI_ENCODING_CUSTOM", N_("Custom...") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriPreferredEncoding", values);
@@ -207,6 +220,25 @@ midori_accept_cookies_get_type (void)
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriAcceptCookies", values);
+    }
+    return type;
+}
+
+GType
+midori_identity_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_IDENT_MIDORI, "MIDORI_IDENT_MIDORI", N_("Midori") },
+         { MIDORI_IDENT_SAFARI, "MIDORI_IDENT_SAFARI", N_("Safari") },
+         { MIDORI_IDENT_FIREFOX, "MIDORI_IDENT_FIREFOX", N_("Firefox") },
+         { MIDORI_IDENT_EXPLORER, "MIDORI_IDENT_EXPLORER", N_("Internet Explorer") },
+         { MIDORI_IDENT_CUSTOM, "MIDORI_IDENT_CUSTOM", N_("Custom...") },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriIdentity", values);
     }
     return type;
 }
@@ -538,7 +570,11 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("What type of cookies to accept"),
                                      MIDORI_TYPE_ACCEPT_COOKIES,
                                      MIDORI_ACCEPT_COOKIES_ALL,
+                                     #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE));
+                                     #else
+                                     G_PARAM_READABLE));
+                                     #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_ORIGINAL_COOKIES_ONLY,
@@ -605,7 +641,52 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("HTTP Proxy"),
                                      _("The proxy used for HTTP connections"),
                                      NULL,
+                                     #if HAVE_LIBSOUP
+                                     G_PARAM_READWRITE));
+                                     #else
                                      G_PARAM_READABLE));
+                                     #endif
+
+    /**
+    * MidoriWebSettings:identify-as:
+    *
+    * What to identify as to web pages.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_IDENTIFY_AS,
+                                     g_param_spec_enum (
+                                     "identify-as",
+                                     _("Identify as"),
+                                     _("What to identify as to web pages"),
+                                     MIDORI_TYPE_IDENTITY,
+                                     MIDORI_IDENT_MIDORI,
+                                     #if HAVE_LIBSOUP
+                                     G_PARAM_READWRITE));
+                                     #else
+                                     G_PARAM_READABLE));
+                                     #endif
+
+    /**
+    * MidoriWebSettings:ident-string:
+    *
+    * The browser identification string.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_IDENT_STRING,
+                                     g_param_spec_string (
+                                     "ident-string",
+                                     _("Identification string"),
+                                     _("The application identification string"),
+                                     NULL,
+                                     #if HAVE_LIBSOUP
+                                     G_PARAM_READWRITE));
+                                     #else
+                                     G_PARAM_READABLE));
+                                     #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_CACHE_SIZE,
@@ -657,6 +738,69 @@ static void
 midori_web_settings_finalize (GObject* object)
 {
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
+}
+
+static gchar*
+generate_ident_string (MidoriIdentity identify_as)
+{
+    const gchar* platform =
+    #ifdef GDK_WINDOWING_X11
+    "X11";
+    #elif defined(GDK_WINDOWING_WIN32)
+    "Windows";
+    #elif defined(GDK_WINDOWING_QUARTZ)
+    "Macintosh";
+    #elif defined(GDK_WINDOWING_DIRECTFB)
+    "DirectFB";
+    #else
+    "Unknown";
+    #endif
+
+    const gchar* os =
+    #if defined (HAVE_OSX)
+    /* #if defined (HAVE_X86) */
+    "Intel Mac OS X";
+    /* #else
+    "PPC Mac OS X";
+    #endif */
+    #elif defined (G_OS_UNIX)
+    /* struct utsname name;
+    if (uname (&name) != -1)
+        String::format ("%s %s", name.sysname, name.machine);
+    else
+        "Unknown";*/
+    "Linux";
+    #elif defined (G_OS_WIN32)
+    // FIXME: Windows NT version
+    "Windows";
+    #else
+    "Unknown";
+    #endif
+
+    const gchar* appname = "Midori/" PACKAGE_VERSION;
+
+    const gchar* lang = pango_language_to_string ( gtk_get_default_language ());
+
+    switch (identify_as)
+    {
+    case MIDORI_IDENT_MIDORI:
+        return g_strdup_printf ("%s (%s; %s; U; %s) WebKit/532+",
+                                appname, platform, os, lang);
+    case MIDORI_IDENT_SAFARI:
+        return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
+            "AppleWebKit/532+ (KHTML, like Gecko) Safari/419.3 %s",
+                                platform, os, lang, appname);
+    case MIDORI_IDENT_FIREFOX:
+        return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s; rv:1.8.1) "
+            "Gecko/20061010 Firefox/2.0 %s",
+                                platform, os, lang, appname);
+    case MIDORI_IDENT_EXPLORER:
+        return g_strdup_printf ("Mozilla/4.0 (compatible; "
+            "MSIE 6.0; Windows NT 5.1; %s) %s",
+                                lang, appname);
+    default:
+        return g_strdup_printf ("%s", appname);
+    }
 }
 
 static void
@@ -807,6 +951,18 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
         break;
+    case PROP_IDENTIFY_AS:
+        web_settings->identify_as = g_value_get_enum (value);
+        if (web_settings->identify_as != MIDORI_IDENT_CUSTOM)
+        {
+            gchar* string = generate_ident_string (web_settings->identify_as);
+            g_object_set (object, "ident-string", string, NULL);
+            g_free (string);
+        }
+        break;
+    case PROP_IDENT_STRING:
+        katze_assign (web_settings->ident_string, g_value_dup_string (value));
+        break;
     case PROP_CACHE_SIZE:
         web_settings->cache_size = g_value_get_int (value);
         break;
@@ -946,6 +1102,12 @@ midori_web_settings_get_property (GObject*    object,
 
     case PROP_HTTP_PROXY:
         g_value_set_string (value, web_settings->http_proxy);
+        break;
+    case PROP_IDENTIFY_AS:
+        g_value_set_enum (value, web_settings->identify_as);
+        break;
+    case PROP_IDENT_STRING:
+        g_value_set_string (value, web_settings->ident_string);
         break;
     case PROP_CACHE_SIZE:
         g_value_set_int (value, web_settings->cache_size);
