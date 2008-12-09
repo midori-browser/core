@@ -16,7 +16,8 @@
 #include <string.h>
 
 static void
-proxy_toggle_button_toggled_cb (GtkToggleButton* button, GObject* object)
+proxy_toggle_button_toggled_cb (GtkToggleButton* button,
+                                GObject*         object)
 {
     gboolean toggled = gtk_toggle_button_get_active (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
@@ -51,7 +52,8 @@ proxy_uri_file_set_cb (GtkFileChooser* button,
 }
 
 static gchar*
-proxy_combo_box_text_changed_cb (GtkComboBox* button, GObject* object)
+proxy_combo_box_text_changed_cb (GtkComboBox* button,
+                                 GObject*     object)
 {
     gchar* text = gtk_combo_box_get_active_text (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
@@ -80,7 +82,8 @@ proxy_entry_focus_out_event_cb (GtkEntry*      entry,
 }
 
 static gboolean
-proxy_spin_button_changed_cb (GtkSpinButton* button, GObject* object)
+proxy_spin_button_changed_cb (GtkSpinButton* button,
+                              GObject*       object)
 {
     GObjectClass* class = G_OBJECT_GET_CLASS (object);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
@@ -99,11 +102,33 @@ proxy_spin_button_changed_cb (GtkSpinButton* button, GObject* object)
 }
 
 static void
-proxy_combo_box_changed_cb (GtkComboBox* button, GObject* object)
+proxy_combo_box_changed_cb (GtkComboBox* button,
+                            GObject*     object)
 {
     gint value = gtk_combo_box_get_active (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, value, NULL);
+}
+
+static void
+proxy_object_notify_boolean_cb (GObject*    object,
+                                GParamSpec* pspec,
+                                GtkWidget*  proxy)
+{
+    const gchar* property = g_object_get_data (G_OBJECT (proxy), "property");
+    gboolean value = katze_object_get_boolean (object, property);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (proxy), value);
+}
+
+static void
+proxy_object_notify_string_cb (GObject*    object,
+                               GParamSpec* pspec,
+                               GtkWidget*  proxy)
+{
+    const gchar* property = g_object_get_data (G_OBJECT (proxy), "property");
+    gchar* value = katze_object_get_string (object, property);
+    gtk_entry_set_text (GTK_ENTRY (proxy), value);
+    g_free (value);
 }
 
 /**
@@ -129,6 +154,9 @@ proxy_combo_box_changed_cb (GtkComboBox* button, GObject* object)
  *         choosing a font from installed fonts.
  *
  * Any other values for @hint are silently ignored.
+ *
+ * Since 0.1.2 strings without hints and booleans are truly synchronous
+ * including property changes causing the proxy to be updated.
  *
  * Return value: a new widget
  **/
@@ -164,12 +192,17 @@ katze_property_proxy (gpointer     object,
     string = NULL;
     if (type == G_TYPE_PARAM_BOOLEAN)
     {
+        gchar* notify_property;
         gboolean toggled = katze_object_get_boolean (object, property);
 
         widget = gtk_check_button_new_with_label (gettext (nick));
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggled);
         g_signal_connect (widget, "toggled",
                           G_CALLBACK (proxy_toggle_button_toggled_cb), object);
+        notify_property = g_strdup_printf ("notify::%s", property);
+        g_signal_connect (object, notify_property,
+            G_CALLBACK (proxy_object_notify_boolean_cb), widget);
+        g_free (notify_property);
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("file"))
     {
@@ -257,6 +290,8 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_STRING)
     {
+        gchar* notify_property;
+
         widget = gtk_entry_new ();
         g_object_get (object, property, &string, NULL);
         if (!string)
@@ -266,6 +301,10 @@ katze_property_proxy (gpointer     object,
                           G_CALLBACK (proxy_entry_activate_cb), object);
         g_signal_connect (widget, "focus-out-event",
                           G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+        notify_property = g_strdup_printf ("notify::%s", property);
+        g_signal_connect (object, notify_property,
+            G_CALLBACK (proxy_object_notify_string_cb), widget);
+        g_free (notify_property);
     }
     else if (type == G_TYPE_PARAM_FLOAT)
     {
