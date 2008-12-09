@@ -114,6 +114,8 @@ def configure (conf):
 
     if option_enabled ('libsoup'):
         conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP', mandatory=False)
+        conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP_2_23_1',
+                        vnum='2.23.1', mandatory=False)
         conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP_2_25_2',
                         vnum='2.25.2', mandatory=False)
         libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]

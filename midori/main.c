@@ -1276,7 +1276,7 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
 }
 #endif
 
-#if HAVE_LIBSOUP
+#if HAVE_LIBSOUP_2_23_1
 /* The following code hooks up to any created cookie jar in order to
    load and save cookies. This is *not* a generally advisable technique
    but merely a preliminary workaround until WebKit exposes its
@@ -1606,7 +1606,7 @@ main (int    argc,
         return 1;
     }
 
-    #if HAVE_LIBSOUP
+    #if HAVE_LIBSOUP_2_23_1
     /* This is a nasty trick that allows us to manipulate cookies
        even without having a pointer to the jar. */
     soup_cookie_jar_get_type ();
@@ -1618,6 +1618,8 @@ main (int    argc,
         old_jar_constructed_cb = G_OBJECT_CLASS (jar_class)->constructed;
         G_OBJECT_CLASS (jar_class)->constructed = cookie_jar_constructed_cb;
     }
+    #endif
+    #if HAVE_LIBSOUP
     /* This is a nasty trick that allows us to manipulate preferences
        even without having a pointer to the session. */
     soup_session_get_type ();
