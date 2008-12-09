@@ -777,9 +777,12 @@ generate_ident_string (MidoriIdentity identify_as)
     "Unknown";
     #endif
 
-    const gchar* appname = "Midori/" PACKAGE_VERSION;
+    const gchar* appname = "Midori/"
+        G_STRINGIFY (MIDORI_MAJOR_VERSION) "."
+        G_STRINGIFY (MIDORI_MINOR_VERSION) "."
+        G_STRINGIFY (MIDORI_MICRO_VERSION);
 
-    const gchar* lang = pango_language_to_string ( gtk_get_default_language ());
+    const gchar* lang = pango_language_to_string (gtk_get_default_language ());
 
     switch (identify_as)
     {
