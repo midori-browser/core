@@ -44,8 +44,14 @@ struct _MidoriLocationEntryItem
 GType
 midori_location_action_get_type             (void);
 
+void
+midori_location_action_freeze              (MidoriLocationAction* location_action);
+
+void
+midori_location_action_thaw                (MidoriLocationAction* location_action);
+
 const gchar*
-midori_location_action_get_uri              (MidoriLocationAction* action);
+midori_location_action_get_uri              (MidoriLocationAction* location_action);
 
 void
 midori_location_action_set_uri              (MidoriLocationAction* location_action,
@@ -64,6 +70,7 @@ midori_location_action_add_item             (MidoriLocationAction* location_acti
                                              const gchar*          uri,
                                              GdkPixbuf*            icon,
                                              const gchar*          title);
+
 void
 midori_location_action_set_icon_for_uri     (MidoriLocationAction* location_action,
                                              GdkPixbuf*            icon,

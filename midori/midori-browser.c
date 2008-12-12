@@ -3544,9 +3544,6 @@ _location_action_insert_history_item (MidoriLocationAction* action,
     const gchar* uri;
     GdkPixbuf* pixbuf = NULL;
 
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (action));
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
     if (KATZE_IS_ARRAY (item))
     {
         n = katze_array_get_length (KATZE_ARRAY (item));
@@ -3588,9 +3585,10 @@ midori_browser_load_history (MidoriBrowser* browser)
                                      NULL, KATZE_ITEM (browser->history));
 
     action = _action_by_name (browser, "Location");
+    midori_location_action_freeze (MIDORI_LOCATION_ACTION (action));
     _location_action_insert_history_item (MIDORI_LOCATION_ACTION (action),
-                                          browser,
-                                          KATZE_ITEM (browser->history));
+        browser, KATZE_ITEM (browser->history));
+    midori_location_action_thaw (MIDORI_LOCATION_ACTION (action));
 }
 
 static void

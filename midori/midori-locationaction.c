@@ -32,6 +32,7 @@ struct _MidoriLocationAction
     GtkTreeModel* filter_model;
     GtkTreeModel* sort_model;
     GdkPixbuf* default_icon;
+    GHashTable* items;
 };
 
 struct _MidoriLocationActionClass
@@ -215,29 +216,110 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
 }
 
 static void
-midori_location_action_init (MidoriLocationAction* location_action)
+midori_location_action_set_model (MidoriLocationAction* location_action,
+                                  GtkTreeModel*         model)
 {
-    GtkTreeModel* liststore;
+    GSList* proxies;
+    GtkWidget* alignment;
+    GtkWidget* location_entry;
+    GtkWidget* entry;
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    if (!proxies)
+        return;
+
+    do
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
+        location_entry = gtk_bin_get_child (GTK_BIN (alignment));
+        entry = gtk_bin_get_child (GTK_BIN (location_entry));
+
+        g_object_set (location_entry, "model", model, NULL);
+        g_object_set (gtk_entry_get_completion (GTK_ENTRY (entry)),
+            "model", model ? location_action->sort_model : NULL, NULL);
+    }
+    while ((proxies = g_slist_next (proxies)));
+}
+
+static gboolean
+midori_location_action_is_frozen (MidoriLocationAction* location_action)
+{
+    return location_action->filter_model == NULL;
+}
+
+/**
+ * midori_location_action_freeze:
+ * @location_action: a #MidoriLocationAction
+ *
+ * Freezes the action, which essentially means disconnecting models
+ * from proxies and skipping updates of the current state.
+ *
+ * Freezing is recommended if you need to insert a large amount
+ * of items at once, which is faster in the frozen state.
+ *
+ * Use midori_location_action_thaw() to go back to normal operation.
+ *
+ * Since: 0.1.2
+ **/
+void
+midori_location_action_freeze (MidoriLocationAction* location_action)
+{
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (!midori_location_action_is_frozen (location_action));
+
+    katze_object_assign (location_action->sort_model, NULL);
+    katze_object_assign (location_action->filter_model, NULL);
+    midori_location_action_set_model (location_action, NULL);
+}
+
+/**
+ * midori_location_action_thaw:
+ * @location_action: a #MidoriLocationAction
+ *
+ * Thaws the action, ie. after freezing it.
+ *
+ * Since: 0.1.2
+ **/
+void
+midori_location_action_thaw (MidoriLocationAction* location_action)
+{
     GtkTreeModel* sort_model;
     GtkTreeModel* filter_model;
 
-    location_action->uri = NULL;
-    location_action->progress = 0.0;
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (midori_location_action_is_frozen (location_action));
 
-    liststore = (GtkTreeModel*)gtk_list_store_new (N_COLS,
-        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-        G_TYPE_INT, G_TYPE_BOOLEAN);
-    sort_model = (GtkTreeModel*)gtk_tree_model_sort_new_with_model (liststore);
+    sort_model = (GtkTreeModel*)gtk_tree_model_sort_new_with_model (
+        location_action->model);
     gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sort_model),
         VISITS_COL, GTK_SORT_DESCENDING);
     filter_model = gtk_tree_model_filter_new (sort_model, NULL);
     gtk_tree_model_filter_set_visible_column (
         GTK_TREE_MODEL_FILTER (filter_model), VISIBLE_COL);
+    midori_location_action_set_model (location_action, location_action->model);
 
-    location_action->model = liststore;
     location_action->filter_model = filter_model;
     location_action->sort_model = sort_model;
+}
+
+static void
+midori_location_action_init (MidoriLocationAction* location_action)
+{
+    location_action->uri = NULL;
+    location_action->progress = 0.0;
     location_action->default_icon = NULL;
+
+    location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
+        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
+        G_TYPE_INT, G_TYPE_BOOLEAN);
+
+    location_action->filter_model = NULL;
+    location_action->sort_model = NULL;
+    midori_location_action_thaw (location_action);
+
+    location_action->items = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                    g_free, g_free);
 }
 
 static void
@@ -251,6 +333,8 @@ midori_location_action_finalize (GObject* object)
     katze_object_assign (location_action->sort_model, NULL);
     katze_object_assign (location_action->filter_model, NULL);
     katze_object_assign (location_action->default_icon, NULL);
+
+    g_hash_table_destroy (location_action->items);
 
     G_OBJECT_CLASS (midori_location_action_parent_class)->finalize (object);
 }
@@ -525,7 +609,7 @@ midori_location_action_set_item (MidoriLocationAction*    location_action,
     gtk_tree_model_get (model, iter, FAVICON_COL, &icon, -1);
     if (item->favicon)
         new_icon = item->favicon;
-    else if (!icon && !item->favicon)
+    else if (!icon)
         new_icon = location_action->default_icon;
     else
         new_icon = NULL;
@@ -619,12 +703,19 @@ midori_location_action_item_iter (MidoriLocationAction* location_action,
                                   const gchar*          uri,
                                   GtkTreeIter*          iter)
 {
+    gchar* path;
     GtkTreeModel* model;
     gchar* tmpuri;
     gboolean found;
 
-    g_return_val_if_fail (MIDORI_IS_LOCATION_ACTION (location_action), FALSE);
-    g_return_val_if_fail (uri != NULL, FALSE);
+    if ((path = g_hash_table_lookup (location_action->items, uri)))
+    {
+        if (gtk_tree_model_get_iter_from_string (location_action->model,
+                                                 iter, path))
+            return TRUE;
+        else
+            g_hash_table_remove (location_action->items, uri);
+    }
 
     found = FALSE;
     model = location_action->model;
@@ -636,11 +727,14 @@ midori_location_action_item_iter (MidoriLocationAction* location_action,
             gtk_tree_model_get (model, iter, URI_COL, &tmpuri, -1);
             found = !g_ascii_strcasecmp (uri, tmpuri);
             katze_assign (tmpuri, NULL);
-
-            if (found)
-                break;
         }
-        while (gtk_tree_model_iter_next (model, iter));
+        while (!found && gtk_tree_model_iter_next (model, iter));
+        if (found)
+        {
+            path = gtk_tree_model_get_string_from_iter (location_action->model,
+                                                        iter);
+            g_hash_table_insert (location_action->items, g_strdup (uri), path);
+        }
     }
     return found;
 }
@@ -1013,9 +1107,6 @@ midori_location_action_append_item (MidoriLocationAction*    location_action,
     gint n;
     gint visits = 0;
 
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (item->uri != NULL);
-
     model = location_action->model;
 
     if (!midori_location_action_item_iter (location_action, item->uri, &iter))
@@ -1023,13 +1114,12 @@ midori_location_action_append_item (MidoriLocationAction*    location_action,
         gtk_list_store_append (GTK_LIST_STORE (model), &iter);
 
         n = gtk_tree_model_iter_n_children (model, NULL);
-        gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISIBLE_COL,
-                            (n <= MAX_ITEMS), -1);
     }
     else
         gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
 
-    gtk_list_store_set (GTK_LIST_STORE (model), &iter, VISITS_COL, ++visits, -1);
+    gtk_list_store_set (GTK_LIST_STORE (model), &iter,
+                        VISITS_COL, ++visits, VISIBLE_COL, n <= MAX_ITEMS, -1);
     midori_location_action_set_item (location_action, &iter, item);
 }
 
@@ -1067,12 +1157,15 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
     g_return_if_fail (title != NULL);
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
 
-    katze_assign (location_action->uri, g_strdup (uri));
-
     item.favicon = icon;
     item.uri = uri;
     item.title = title;
     midori_location_action_append_item (location_action, &item);
+
+    if (midori_location_action_is_frozen (location_action))
+        return;
+
+    katze_assign (location_action->uri, g_strdup (uri));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
     if (!proxies)
@@ -1080,7 +1173,7 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
 
     do
     if (GTK_IS_TOOL_ITEM (proxies->data) &&
-        !g_strcmp0 (location_action->uri, uri))
+        !strcmp (location_action->uri, uri))
     {
         alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
         location_entry = gtk_bin_get_child (GTK_BIN (alignment));
