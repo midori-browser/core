@@ -95,6 +95,7 @@ midori_preferences_init (MidoriPreferences* preferences)
                   "title", dialog_title,
                   "has-separator", FALSE,
                   NULL);
+    g_free (dialog_title);
     #ifndef HAVE_OSX
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
@@ -103,9 +104,6 @@ midori_preferences_init (MidoriPreferences* preferences)
     #endif
     g_signal_connect (preferences, "response",
                       G_CALLBACK (midori_preferences_response_cb), NULL);
-
-    /* TODO: Do we want tooltips for explanations or can we omit that? */
-    g_free (dialog_title);
 }
 
 static void
@@ -126,14 +124,6 @@ midori_preferences_set_property (GObject*      object,
     {
     case PROP_SETTINGS:
     {
-        GtkWidget* xfce_heading;
-        GtkWindow* parent;
-        g_object_get (object, "transient-for", &parent, NULL);
-        if ((xfce_heading = sokoke_xfce_header_new (
-            gtk_window_get_icon_name (parent),
-            gtk_window_get_title (GTK_WINDOW (object)))))
-                gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
-                                    xfce_heading, FALSE, FALSE, 0);
         midori_preferences_set_settings (preferences,
                                          g_value_get_object (value));
         break;
@@ -165,6 +155,8 @@ midori_preferences_get_property (GObject*    object,
  *
  * Creates a new preferences dialog.
  *
+ * Since 0.1.2 @parent may be %NULL.
+ *
  * Return value: a new #MidoriPreferences
  **/
 GtkWidget*
@@ -173,7 +165,7 @@ midori_preferences_new (GtkWindow*         parent,
 {
     MidoriPreferences* preferences;
 
-    g_return_val_if_fail (GTK_IS_WINDOW (parent), NULL);
+    g_return_val_if_fail (!parent || GTK_IS_WINDOW (parent), NULL);
     g_return_val_if_fail (MIDORI_IS_WEB_SETTINGS (settings), NULL);
 
     preferences = g_object_new (MIDORI_TYPE_PREFERENCES,
@@ -286,11 +278,16 @@ midori_preferences_add_toolbutton (GtkWidget*   toolbar,
  * Assigns a settings instance to a preferences dialog.
  *
  * Note: This must not be called more than once.
+ *
+ * Since 0.1.2 this is equal to setting #MidoriPreferences:settings:.
  **/
 void
 midori_preferences_set_settings (MidoriPreferences* preferences,
                                  MidoriWebSettings* settings)
 {
+    GtkWidget* header;
+    GtkWindow* parent;
+    const gchar* icon_name;
     GtkSizeGroup* sizegroup;
     GtkWidget* toolbar;
     GtkWidget* toolbutton;
@@ -308,6 +305,13 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
 
     g_return_if_fail (!preferences->notebook);
+
+    g_object_get (preferences, "transient-for", &parent, NULL);
+    icon_name = parent ? gtk_window_get_icon_name (parent) : NULL;
+    if ((header = sokoke_xfce_header_new (icon_name,
+        gtk_window_get_title (GTK_WINDOW (preferences)))))
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+            header, FALSE, FALSE, 0);
 
     preferences->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
