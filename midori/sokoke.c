@@ -219,21 +219,34 @@ sokoke_get_desktop (void)
         gchar *out = NULL;
         gboolean success = g_spawn_command_line_sync ("xprop -root _DT_SAVE_MODE",
             &out, NULL, &result, NULL);
-        if (success && ! result && out != NULL && strstr(out, "xfce4") != NULL)
+        if (success && ! result && out != NULL && strstr (out, "xfce4") != NULL)
             desktop = SOKOKE_DESKTOP_XFCE;
         else
             desktop = SOKOKE_DESKTOP_UNKNOWN;
-        g_free(out);
+        g_free (out);
     }
 
     return desktop;
     #endif
 }
 
+/**
+ * sokoke_xfce_header_new:
+ * @icon: an icon name
+ * @title: the title of the header
+ *
+ * Creates an Xfce style header *if* Xfce is running.
+ *
+ * Return value: A #GtkWidget or %NULL
+ *
+ * Since 0.1.2 @icon may be NULL, and a default is used.
+ **/
 GtkWidget*
 sokoke_xfce_header_new (const gchar* icon,
                         const gchar* title)
 {
+    g_return_val_if_fail (title, NULL);
+
     /* Create an xfce header with icon and title
        This returns NULL if the desktop is not Xfce */
     if (sokoke_get_desktop () == SOKOKE_DESKTOP_XFCE)
@@ -251,7 +264,11 @@ sokoke_xfce_header_new (const gchar* icon,
             &entry->style->base[GTK_STATE_NORMAL]);
         hbox = gtk_hbox_new (FALSE, 12);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
-        image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_DIALOG);
+        if (icon)
+            image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_DIALOG);
+        else
+            image = gtk_image_new_from_stock (GTK_STOCK_PREFERENCES,
+                GTK_ICON_SIZE_DIALOG);
         gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
         label = gtk_label_new (NULL);
         gtk_widget_modify_fg (label, GTK_STATE_NORMAL
@@ -262,7 +279,7 @@ sokoke_xfce_header_new (const gchar* icon,
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         gtk_container_add (GTK_CONTAINER (xfce_heading), hbox);
         g_free (markup);
-        gtk_widget_destroy(entry);
+        gtk_widget_destroy (entry);
         return xfce_heading;
     }
     return NULL;
