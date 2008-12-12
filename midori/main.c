@@ -21,16 +21,17 @@
 #include "midori-extension.h"
 #include "midori-extensions.h"
 #include "midori-panel.h"
+#include "midori-preferences.h"
 #include "midori-stock.h"
 #include "midori-view.h"
 #include "midori-websettings.h"
-
 
 #include "sokoke.h"
 #include "gjs.h"
 
 #include <string.h>
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <gtk/gtk.h>
 
 #ifdef HAVE_LIBXML
@@ -117,6 +118,17 @@ stock_items_init (void)
     gtk_stock_add ((GtkStockItem*)items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
+}
+
+static gchar*
+build_config_filename (const gchar* filename)
+{
+    static gchar* path = NULL;
+
+    if (!path)
+        path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME, NULL);
+    g_mkdir_with_parents (path, 0700);
+    return g_build_filename (path, filename, NULL);
 }
 
 static MidoriWebSettings*
@@ -358,21 +370,6 @@ search_engines_save_to_file (KatzeArray*  search_engines,
     g_key_file_free (key_file);
 
     return saved;
-}
-
-static void
-midori_web_list_add_item_cb (KatzeArray* trash,
-                             GObject*    item)
-{
-    guint n;
-    GObject* obsolete_item;
-
-    n = katze_array_get_length (trash);
-    if (n > 10)
-    {
-        obsolete_item = katze_array_get_nth_item (trash, 0);
-        katze_array_remove_item (trash, obsolete_item);
-    }
 }
 
 #ifdef HAVE_LIBXML
@@ -850,6 +847,78 @@ midori_history_terminate (sqlite3* db,
 }
 #endif
 
+static void
+midori_app_quit_cb (MidoriApp* app)
+{
+    gchar* config_file = build_config_filename ("running");
+    g_unlink (config_file);
+    g_free (config_file);
+}
+
+static void
+settings_notify_cb (MidoriWebSettings* settings,
+                    GParamSpec*        pspec)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("config");
+    error = NULL;
+    if (!settings_save_to_file (settings, config_file, &error))
+    {
+        g_warning (_("The configuration couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
+static void
+accel_map_changed_cb (GtkAccelMap*    accel_map,
+                      gchar*          accel_path,
+                      guint           accel_key,
+                      GdkModifierType accel_mods)
+{
+    gchar* config_file = build_config_filename ("accels");
+    gtk_accel_map_save (config_file);
+    g_free (config_file);
+}
+
+static void
+midori_search_engines_add_item_cb (KatzeArray* search_engines,
+                                   GObject*    item)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("search");
+    error = NULL;
+    if (!search_engines_save_to_file (search_engines, config_file, &error))
+    {
+        g_warning (_("The search engines couldn't be saved. %s"),
+                   error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
+static void
+midori_search_engines_remove_item_cb (KatzeArray* search_engines,
+                                      GObject*    item)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("search");
+    error = NULL;
+    if (!search_engines_save_to_file (search_engines, config_file, &error))
+    {
+        g_warning (_("The search engines couldn't be saved. %s"),
+                   error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
 static gchar*
 _simple_xml_element (const gchar* name,
                      const gchar* value)
@@ -983,6 +1052,83 @@ katze_array_to_file (KatzeArray*  array,
 }
 
 static void
+midori_bookmarks_add_item_cb (KatzeArray* bookmarks,
+                              GObject*    item)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("bookmarks.xbel");
+    error = NULL;
+    if (!katze_array_to_file (bookmarks, config_file, &error))
+    {
+        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
+static void
+midori_bookmarks_remove_item_cb (KatzeArray* bookmarks,
+                                 GObject*    item)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("bookmarks.xbel");
+    error = NULL;
+    if (!katze_array_to_file (bookmarks, config_file, &error))
+    {
+        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
+static void
+midori_trash_add_item_cb (KatzeArray* trash,
+                          GObject*    item)
+{
+    gchar* config_file;
+    GError* error;
+    guint n;
+    GObject* obsolete_item;
+
+    config_file = build_config_filename ("tabtrash.xbel");
+    error = NULL;
+    if (!katze_array_to_file (trash, config_file, &error))
+    {
+        g_warning (_("The trash couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+
+    n = katze_array_get_length (trash);
+    if (n > 10)
+    {
+        obsolete_item = katze_array_get_nth_item (trash, 0);
+        katze_array_remove_item (trash, obsolete_item);
+    }
+}
+
+static void
+midori_trash_remove_item_cb (KatzeArray* trash,
+                             GObject*    item)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("tabtrash.xbel");
+    error = NULL;
+    if (!katze_array_to_file (trash, config_file, &error))
+    {
+        g_warning (_("The trash couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
+static void
 midori_app_add_browser_cb (MidoriApp*     app,
                            MidoriBrowser* browser,
                            KatzeNet*      net)
@@ -1023,26 +1169,20 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
 static void
 midori_browser_session_cb (MidoriBrowser* browser,
-                           gpointer       arg1,
+                           gpointer       pspec,
                            KatzeArray*    session)
 {
-    gchar* config_path;
     gchar* config_file;
     GError* error;
 
-    config_path = g_build_filename (g_get_user_config_dir (),
-                                    PACKAGE_NAME, NULL);
-    g_mkdir_with_parents (config_path, 0700);
-    config_file = g_build_filename (config_path, "session.xbel", NULL);
+    config_file = build_config_filename ("session.xbel");
     error = NULL;
     if (!katze_array_to_file (session, config_file, &error))
     {
         g_warning (_("The session couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
-
     g_free (config_file);
-    g_free (config_path);
 }
 
 static void
@@ -1286,7 +1426,6 @@ static void
 cookie_jar_constructed_cb (GObject* object)
 {
     #if HAVE_LIBSOUP_2_25_2
-    gchar* config_path;
     gchar* config_file;
     SoupCookieJar* jar;
     #endif
@@ -1297,10 +1436,7 @@ cookie_jar_constructed_cb (GObject* object)
         g_quark_from_static_string ("midori-has-jar"), (void*)1);
 
     #if HAVE_LIBSOUP_2_25_2
-    config_path = g_build_filename (g_get_user_config_dir (),
-                                    PACKAGE_NAME, NULL);
-    g_mkdir_with_parents (config_path, 0700);
-    config_file = g_build_filename (config_path, "cookies.txt", NULL);
+    config_file = build_config_filename ("cookies.txt");
     jar = SOUP_COOKIE_JAR (object);
     cookie_jar_load (jar, config_file);
     g_signal_connect_data (jar, "changed",
@@ -1486,6 +1622,22 @@ soup_session_constructed_cb (GObject* object)
 }
 #endif
 
+static void
+button_modify_preferences_clicked_cb (GtkWidget*         button,
+                                      MidoriWebSettings* settings)
+{
+    GtkWidget* dialog = midori_preferences_new (NULL, settings);
+    gtk_dialog_run (GTK_DIALOG (dialog));
+}
+
+static void
+button_reset_session_clicked_cb (GtkWidget*  button,
+                                 KatzeArray* session)
+{
+    katze_array_clear (session);
+    gtk_widget_set_sensitive (button, FALSE);
+}
+
 int
 main (int    argc,
       char** argv)
@@ -1508,6 +1660,9 @@ main (int    argc,
     };
     JSGlobalContextRef js_context;
     gchar* exception;
+    GString* error_messages;
+    MidoriWebSettings* settings;
+    gchar* config_file;
     MidoriStartup load_on_startup;
     gchar* homepage;
     KatzeArray* search_engines;
@@ -1525,6 +1680,11 @@ main (int    argc,
     sqlite3* db;
     gint max_history_age;
     #endif
+    KatzeArray* extensions;
+    gchar* extension_path;
+    GDir* extension_dir;
+    const gchar* filename;
+    MidoriExtension* extension;
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -1590,6 +1750,8 @@ main (int    argc,
     }
 
     app = midori_app_new ();
+    /* FIXME: The app might be 'running' but actually showing a dialog
+              after a crash, so running a new window isn't a good idea. */
     if (midori_app_instance_is_running (app))
     {
         /* TODO: Open as many tabs as we have uris, seperated by pipes */
@@ -1602,7 +1764,7 @@ main (int    argc,
             return 0;
 
         g_print (_("An instance of Midori is already running but not responding.\n"));
-        /* FIXME: Do we want a graphical error message? */
+        /* FIXME: Show a dialog which allows killing the existing instance */
         return 1;
     }
 
@@ -1634,16 +1796,13 @@ main (int    argc,
     #endif
 
     /* Load configuration files */
-    GString* error_messages = g_string_new (NULL);
-    gchar* config_path = g_build_filename (g_get_user_config_dir (),
-                                           PACKAGE_NAME, NULL);
-    g_mkdir_with_parents (config_path, 0700);
-    gchar* config_file = g_build_filename (config_path, "config", NULL);
+    error_messages = g_string_new (NULL);
+    config_file = build_config_filename ("config");
     error = NULL;
-    MidoriWebSettings* settings = settings_new_from_file (config_file);
-    katze_assign (config_file, g_build_filename (config_path, "accels", NULL));
+    settings = settings_new_from_file (config_file);
+    katze_assign (config_file, build_config_filename ("accels"));
     gtk_accel_map_load (config_file);
-    katze_assign (config_file, g_build_filename (config_path, "search", NULL));
+    katze_assign (config_file, build_config_filename ("search"));
     error = NULL;
     search_engines = search_engines_new_from_file (config_file, &error);
     if (error)
@@ -1657,8 +1816,7 @@ main (int    argc,
     }
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     #ifdef HAVE_LIBXML
-    katze_assign (config_file, g_build_filename (config_path, "bookmarks.xbel",
-                                                 NULL));
+    katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
     error = NULL;
     if (!katze_array_from_file (bookmarks, config_file, &error))
     {
@@ -1667,14 +1825,13 @@ main (int    argc,
                 _("The bookmarks couldn't be loaded: %s\n"), error->message);
         g_error_free (error);
     }
-    g_free (config_file);
     #endif
     _session = katze_array_new (KATZE_TYPE_ITEM);
     #ifdef HAVE_LIBXML
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
     if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
-        config_file = g_build_filename (config_path, "session.xbel", NULL);
+        katze_assign (config_file, build_config_filename ("session.xbel"));
         error = NULL;
         if (!katze_array_from_file (_session, config_file, &error))
         {
@@ -1683,12 +1840,11 @@ main (int    argc,
                     _("The session couldn't be loaded: %s\n"), error->message);
             g_error_free (error);
         }
-        g_free (config_file);
     }
     #endif
     trash = katze_array_new (KATZE_TYPE_ITEM);
     #ifdef HAVE_LIBXML
-    config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
+    katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
     error = NULL;
     if (!katze_array_from_file (trash, config_file, &error))
     {
@@ -1697,10 +1853,9 @@ main (int    argc,
                 _("The trash couldn't be loaded: %s\n"), error->message);
         g_error_free (error);
     }
-    g_free (config_file);
     #endif
     #ifdef HAVE_SQLITE
-    config_file = g_build_filename (config_path, "history.db", NULL);
+    katze_assign (config_file, build_config_filename ("history.db"));
     #endif
     history = katze_array_new (KATZE_TYPE_ARRAY);
     #ifdef HAVE_SQLITE
@@ -1711,7 +1866,6 @@ main (int    argc,
             _("The history couldn't be loaded: %s\n"), error->message);
         g_error_free (error);
     }
-    g_free (config_file);
     #endif
 
     /* In case of errors */
@@ -1774,23 +1928,22 @@ main (int    argc,
         i++;
     }
 
-    if (katze_array_is_empty (_session))
-    {
-        item = katze_item_new ();
-        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
-            katze_item_set_uri (item, "");
-        else
-        {
-            g_object_get (settings, "homepage", &homepage, NULL);
-            katze_item_set_uri (item, homepage);
-            g_free (homepage);
-        }
-        katze_array_add_item (_session, item);
-    }
-    g_free (config_path);
-
+    g_signal_connect_after (settings, "notify",
+        G_CALLBACK (settings_notify_cb), NULL);
+    g_signal_connect_after (gtk_accel_map_get (), "changed",
+        G_CALLBACK (accel_map_changed_cb), NULL);
+    g_signal_connect_after (search_engines, "add-item",
+        G_CALLBACK (midori_search_engines_add_item_cb), NULL);
+    g_signal_connect_after (search_engines, "remove-item",
+        G_CALLBACK (midori_search_engines_remove_item_cb), NULL);
+    g_signal_connect_after (bookmarks, "add-item",
+        G_CALLBACK (midori_bookmarks_add_item_cb), NULL);
+    g_signal_connect_after (bookmarks, "remove-item",
+        G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
     g_signal_connect_after (trash, "add-item",
-        G_CALLBACK (midori_web_list_add_item_cb), NULL);
+        G_CALLBACK (midori_trash_add_item_cb), NULL);
+    g_signal_connect_after (trash, "remove-item",
+        G_CALLBACK (midori_trash_remove_item_cb), NULL);
     #ifdef HAVE_SQLITE
     g_signal_connect_after (history, "add-item",
         G_CALLBACK (midori_history_add_item_cb), db);
@@ -1798,13 +1951,57 @@ main (int    argc,
         G_CALLBACK (midori_history_clear_cb), db);
     #endif
 
-    /* Load extensions */
-    KatzeArray* extensions;
-    gchar* extension_path;
-    GDir* extension_dir;
-    const gchar* filename;
-    MidoriExtension* extension;
+    /* We test for the presence of a dummy file which is created once
+       and deleted during normal runtime, but persists in case of a crash. */
+    katze_assign (config_file, build_config_filename ("running"));
+    if (g_file_test (config_file, G_FILE_TEST_EXISTS))
+    {
+        GdkScreen* screen;
+        GtkIconTheme* icon_theme;
+        GtkWidget* dialog;
+        GtkWidget* box;
+        GtkWidget* button;
 
+        dialog = gtk_message_dialog_new (
+            NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
+            _("Midori seems to have crashed after it was opened for the last "
+              "time. If this happend repeatedly, try one of the "
+              "following options to solve the problem."));
+        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
+        gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
+        screen = gtk_widget_get_screen (dialog);
+        if (screen)
+        {
+            icon_theme = gtk_icon_theme_get_for_screen (screen);
+            if (gtk_icon_theme_has_icon (icon_theme, "midori"))
+                gtk_window_set_icon_name (GTK_WINDOW (dialog), "midori");
+            else
+                gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
+        }
+        box = gtk_hbox_new (FALSE, 0);
+        button = gtk_button_new_with_mnemonic (_("Modify _preferences"));
+        g_signal_connect (button, "clicked",
+            G_CALLBACK (button_modify_preferences_clicked_cb), settings);
+        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+        button = gtk_button_new_with_mnemonic (_("Reset the last _session"));
+        g_signal_connect (button, "clicked",
+            G_CALLBACK (button_reset_session_clicked_cb), _session);
+        gtk_widget_set_sensitive (button, !katze_array_is_empty (_session));
+        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+        button = gtk_button_new_with_mnemonic (_("Disable all _extensions"));
+        gtk_widget_set_sensitive (button, FALSE);
+        /* FIXME: Disable all extensions */
+        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+        gtk_widget_show_all (box);
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
+        gtk_dialog_run (GTK_DIALOG (dialog));
+        gtk_widget_destroy (dialog);
+    }
+    else
+        g_file_set_contents (config_file, "RUNNING", -1, NULL);
+    g_signal_connect (app, "quit", G_CALLBACK (midori_app_quit_cb), NULL);
+
+    /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
     extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
     if (g_module_supported ())
@@ -1868,6 +2065,20 @@ main (int    argc,
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
+    if (katze_array_is_empty (_session))
+    {
+        item = katze_item_new ();
+        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
+            katze_item_set_uri (item, "");
+        else
+        {
+            g_object_get (settings, "homepage", &homepage, NULL);
+            katze_item_set_uri (item, homepage);
+            g_free (homepage);
+        }
+        katze_array_add_item (_session, item);
+    }
+
     session = midori_browser_get_proxy_array (browser);
     n = katze_array_get_length (_session);
     for (i = 0; i < n; i++)
@@ -1893,51 +2104,15 @@ main (int    argc,
     gtk_main ();
 
     /* Save configuration files */
-    config_path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME,
-                                    NULL);
-    g_mkdir_with_parents (config_path, 0700);
     g_object_unref (history);
     #ifdef HAVE_SQLITE
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (db, max_history_age);
     #endif
-    config_file = g_build_filename (config_path, "search", NULL);
-    error = NULL;
-    if (!search_engines_save_to_file (search_engines, config_file, &error))
-    {
-        g_warning (_("The search engines couldn't be saved. %s"),
-                   error->message);
-        g_error_free (error);
-    }
     g_object_unref (search_engines);
-    g_free (config_file);
-    config_file = g_build_filename (config_path, "bookmarks.xbel", NULL);
-    error = NULL;
-    if (!katze_array_to_file (bookmarks, config_file, &error))
-    {
-        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
     g_object_unref (bookmarks);
-    g_free (config_file);
-    config_file = g_build_filename (config_path, "tabtrash.xbel", NULL);
-    error = NULL;
-    if (!katze_array_to_file (trash, config_file, &error))
-    {
-        g_warning (_("The trash couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
     g_object_unref (trash);
-    katze_assign (config_file, g_build_filename (config_path, "config", NULL));
-    error = NULL;
-    if (!settings_save_to_file (settings, config_file, &error))
-    {
-        g_warning (_("The configuration couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    katze_assign (config_file, g_build_filename (config_path, "accels", NULL));
-    gtk_accel_map_save (config_file);
+    g_object_unref (settings);
     g_free (config_file);
-    g_free (config_path);
     return 0;
 }
