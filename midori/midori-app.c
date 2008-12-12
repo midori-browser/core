@@ -171,6 +171,12 @@ _midori_app_add_browser (MidoriApp*     app,
     #endif
 }
 
+void
+_midori_app_quit (MidoriApp* app)
+{
+    gtk_main_quit ();
+}
+
 static void
 midori_app_class_init (MidoriAppClass* class)
 {
@@ -203,7 +209,7 @@ midori_app_class_init (MidoriAppClass* class)
     gobject_class->get_property = midori_app_get_property;
 
     class->add_browser = _midori_app_add_browser;
-    class->quit = midori_app_quit;
+    class->quit = _midori_app_quit;
 
     g_object_class_install_property (gobject_class,
                                      PROP_SETTINGS,
@@ -666,11 +672,13 @@ midori_app_add_browser (MidoriApp*     app,
  * @app: a #MidoriApp
  *
  * Quits the #MidoriApp singleton.
+ *
+ * Since 0.1.2 the "quit" signal is always emitted before quitting.
  **/
 void
 midori_app_quit (MidoriApp* app)
 {
     g_return_if_fail (MIDORI_IS_APP (app));
 
-    gtk_main_quit ();
+    g_signal_emit (app, signals[QUIT], 0);
 }
