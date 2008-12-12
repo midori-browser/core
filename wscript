@@ -195,6 +195,8 @@ def set_options (opt):
 
     opt.tool_options ('compiler_cc')
     opt.tool_options ('intltool')
+    opt.add_option ('--run', action='store_true', default=False,
+        help='Run application after building it', dest='run')
 
     group = opt.add_option_group ('Directories', '')
     if (opt.parser.get_option ('--prefix')):
@@ -360,3 +362,12 @@ def shutdown ():
             Params.pprint ('RED', "Failed to generate po template.")
             Params.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
+    elif Params.g_options.run:
+        folder = os.path.dirname (Params.g_build.env ()['waf_config_files'][0])
+        try:
+            application = subprocess.Popen ([
+                folder + os.sep + APPNAME + os.sep + APPNAME],
+                stderr=subprocess.PIPE)
+            application.wait ()
+        except:
+            Params.pprint ('RED', "Failed to run application.")
