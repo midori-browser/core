@@ -411,6 +411,37 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
         gtk_widget_show (dialog);
 }
 
+static GdkPixbuf*
+midori_search_action_get_icon (MidoriSearchAction* search_action,
+                               KatzeItem*          item,
+                               GtkWidget*          widget)
+{
+    const gchar* icon;
+
+    if ((icon = katze_item_get_icon (item)) && *icon)
+    {
+        GdkScreen* screen;
+        GtkIconTheme* icon_theme;
+        gint width, height;
+
+        if (G_UNLIKELY (!(screen = gtk_widget_get_screen (widget))))
+            return gtk_widget_render_icon (widget, GTK_STOCK_FILE,
+                                           GTK_ICON_SIZE_MENU, NULL);
+        icon_theme = gtk_icon_theme_get_for_screen (screen);
+        gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (widget),
+            GTK_ICON_SIZE_MENU, &width, &height);
+        return gtk_icon_theme_load_icon (icon_theme, icon, MAX (width, height),
+                                         GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+    }
+
+    if ((icon = katze_item_get_uri (item)) && strstr (icon, "://"))
+        return katze_net_load_icon (search_action->net,
+            icon, NULL, widget, NULL);
+
+    return gtk_widget_render_icon (widget, GTK_STOCK_FILE,
+                                   GTK_ICON_SIZE_MENU, NULL);
+}
+
 static void
 midori_search_action_icon_released_cb (GtkWidget*           entry,
                                        GtkIconEntryPosition icon_pos,
@@ -439,8 +470,8 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
-            icon = katze_net_load_icon (MIDORI_SEARCH_ACTION (action)->net,
-                katze_item_get_uri (item), NULL, entry, NULL);
+            icon = midori_search_action_get_icon (MIDORI_SEARCH_ACTION (action),
+                                                  item, entry);
             gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
             g_object_unref (icon);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
@@ -493,9 +524,8 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
 
     if (search_action->current_item)
     {
-        icon = katze_net_load_icon (search_action->net,
-            katze_item_get_uri (search_action->current_item),
-            NULL, entry, NULL);
+        icon = midori_search_action_get_icon (search_action,
+            search_action->current_item, entry);
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                                              GTK_ICON_ENTRY_PRIMARY, icon);
         g_object_unref (icon);
@@ -723,19 +753,16 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
                                             GtkTreeIter*       iter,
                                             GtkWidget*         treeview)
 {
-    KatzeNet* net;
     KatzeItem* item;
+    MidoriSearchAction* search_action;
     GdkPixbuf* icon;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    /* FIXME: Use the net of the MidoriSearchAction */
-    net = katze_net_new ();
-    icon = katze_net_load_icon (net, katze_item_get_uri (item),
-        NULL, treeview, NULL);
+    search_action = g_object_get_data (G_OBJECT (treeview), "search-action");
+    icon = midori_search_action_get_icon (search_action, item, treeview);
     g_object_set (renderer, "pixbuf", icon, NULL);
     g_object_unref (icon);
-    g_object_unref (net);
 }
 
 static void
@@ -1096,6 +1123,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
+    g_object_set_data (G_OBJECT (treeview), "search-action", search_action);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
         (GtkTreeCellDataFunc)midori_search_action_dialog_render_icon_cb,
         treeview, NULL);
