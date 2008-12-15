@@ -2491,6 +2491,7 @@ midori_browser_model_remove_item (GtkTreeModel* model,
 {
     GtkTreeIter child_iter;
     KatzeItem* child;
+    KatzeArray* parent;
     gint i, n;
 
     if (KATZE_IS_ARRAY (item))
@@ -2503,6 +2504,11 @@ midori_browser_model_remove_item (GtkTreeModel* model,
         }
         while (gtk_tree_model_iter_nth_child (model, &child_iter, iter, 0))
             gtk_tree_store_remove (GTK_TREE_STORE (model), &child_iter);
+    }
+    else
+    {
+        parent = katze_item_get_parent (item);
+        katze_array_remove_item (parent, item);
     }
 
     gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
