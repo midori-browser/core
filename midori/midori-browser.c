@@ -2505,14 +2505,12 @@ midori_browser_model_remove_item (GtkTreeModel* model,
         while (gtk_tree_model_iter_nth_child (model, &child_iter, iter, 0))
             gtk_tree_store_remove (GTK_TREE_STORE (model), &child_iter);
     }
-    else
-    {
-        parent = katze_item_get_parent (item);
-        katze_array_remove_item (parent, item);
-    }
 
     gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
     g_object_unref (item);
+
+    parent = katze_item_get_parent (item);
+    katze_array_remove_item (parent, item);
 }
 
 static gboolean
@@ -2534,9 +2532,9 @@ midori_panel_history_key_release_event_cb (GtkWidget*     widget,
     {
         location_action = _action_by_name (browser, "Location");
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        midori_browser_model_remove_item (model, item, &iter);
         midori_location_action_delete_item_from_uri (
             MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
+        midori_browser_model_remove_item (model, item, &iter);
     }
 
     return FALSE;
@@ -2937,9 +2935,9 @@ _action_history_delete_activate (GtkAction*     action,
     {
         location_action = _action_by_name (browser, "Location");
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        midori_browser_model_remove_item (model, item, &iter);
         midori_location_action_delete_item_from_uri (
             MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
+        midori_browser_model_remove_item (model, item, &iter);
     }
 }
 
@@ -3060,9 +3058,6 @@ _action_bookmark_delete_activate (GtkAction*     action,
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         parent = katze_item_get_parent (item);
         katze_array_remove_item (parent, item);
-        /* FIXME: This is a preliminary hack, until we fix it properly again */
-        gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-        g_object_unref (item);
     }
 }
 
