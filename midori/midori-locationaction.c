@@ -689,54 +689,67 @@ midori_location_action_set_active_iter (MidoriLocationAction* location_action,
 }
 
 /**
- * midori_location_action_item_iter:
+ * midori_location_action_iter_lookup:
  * @location_action: a #MidoriLocationAction
  * @uri: a string
- * @iter: a GtkTreeIter
+ * @iter: a #GtkTreeIter
  *
- * Retrieves the iter of the item matching @uri.
+ * Retrieves the iter of the item matching @uri if it was
+ * inserted with midori_location_action_iter_insert().
  *
  * Return value: %TRUE if @uri was found, %FALSE otherwise
  **/
 static gboolean
-midori_location_action_item_iter (MidoriLocationAction* location_action,
-                                  const gchar*          uri,
-                                  GtkTreeIter*          iter)
+midori_location_action_iter_lookup (MidoriLocationAction* location_action,
+                                    const gchar*          uri,
+                                    GtkTreeIter*          iter)
 {
     gchar* path;
-    GtkTreeModel* model;
-    gchar* tmpuri;
-    gboolean found;
 
     if ((path = g_hash_table_lookup (location_action->items, uri)))
     {
         if (gtk_tree_model_get_iter_from_string (location_action->model,
                                                  iter, path))
             return TRUE;
-        else
-            g_hash_table_remove (location_action->items, uri);
+
+        g_hash_table_remove (location_action->items, uri);
     }
 
-    found = FALSE;
-    model = location_action->model;
-    if (gtk_tree_model_get_iter_first (model, iter))
+    return FALSE;
+}
+
+/**
+ * midori_location_action_iter_insert:
+ * @location_action: a #MidoriLocationAction
+ * @uri: a string
+ * @iter: a #GtkTreeIter
+ * @position: position to insert the new row
+ *
+ * Creates a new row for @uri if it doesn't exist, or sets @iter
+ * to the existing iter for @uri.
+ *
+ * Return value: %TRUE if @uri was found, %FALSE otherwise
+ **/
+static gboolean
+midori_location_action_iter_insert (MidoriLocationAction* location_action,
+                                    const gchar*          uri,
+                                    GtkTreeIter*          iter,
+                                    gint                  position)
+{
+    if (!midori_location_action_iter_lookup (location_action, uri, iter))
     {
-        tmpuri = NULL;
-        do
-        {
-            gtk_tree_model_get (model, iter, URI_COL, &tmpuri, -1);
-            found = !g_ascii_strcasecmp (uri, tmpuri);
-            katze_assign (tmpuri, NULL);
-        }
-        while (!found && gtk_tree_model_iter_next (model, iter));
-        if (found)
-        {
-            path = gtk_tree_model_get_string_from_iter (location_action->model,
-                                                        iter);
-            g_hash_table_insert (location_action->items, g_strdup (uri), path);
-        }
+        GtkTreeModel* model;
+        gchar* path;
+
+        model = location_action->model;
+        gtk_list_store_insert (GTK_LIST_STORE (model), iter, position);
+        path = gtk_tree_model_get_string_from_iter (model,  iter);
+        g_hash_table_insert (location_action->items, g_strdup (uri), path);
+
+        return FALSE;
     }
-    return found;
+
+    return TRUE;
 }
 
 /**
@@ -790,7 +803,7 @@ midori_location_action_set_item_from_uri (MidoriLocationAction* location_action,
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
-    if (midori_location_action_item_iter (location_action, uri, &iter))
+    if (midori_location_action_iter_lookup (location_action, uri, &iter))
         midori_location_action_set_active_iter (location_action, &iter);
     else
         midori_location_action_reset (location_action);
@@ -984,7 +997,7 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
         gtk_entry_set_text (GTK_ENTRY (entry), text);
-        if (midori_location_action_item_iter (location_action, text, &iter))
+        if (midori_location_action_iter_lookup (location_action, text, &iter))
         {
             model = location_action->model;
             gtk_tree_model_get (model, &iter, FAVICON_COL, &icon, -1);
@@ -1066,14 +1079,13 @@ midori_location_action_prepend_item (MidoriLocationAction*    location_action,
     filter_model = location_action->filter_model;
     model = location_action->model;
 
-    if (midori_location_action_item_iter (location_action, item->uri, &iter))
+    if (midori_location_action_iter_insert (location_action,
+        item->uri, &iter, 0))
     {
         gtk_tree_model_get_iter_first (model, &index);
         gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
         gtk_list_store_move_before (GTK_LIST_STORE (model), &iter, &index);
     }
-    else
-        gtk_list_store_prepend (GTK_LIST_STORE (model), &iter);
 
     n = gtk_tree_model_iter_n_children (filter_model, NULL);
     if (n > MAX_ITEMS)
@@ -1109,12 +1121,9 @@ midori_location_action_append_item (MidoriLocationAction*    location_action,
 
     model = location_action->model;
 
-    if (!midori_location_action_item_iter (location_action, item->uri, &iter))
-    {
-        gtk_list_store_append (GTK_LIST_STORE (model), &iter);
-
+    if (!midori_location_action_iter_insert (location_action,
+        item->uri, &iter, G_MAXINT))
         n = gtk_tree_model_iter_n_children (model, NULL);
-    }
     else
         gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
 
@@ -1330,7 +1339,7 @@ midori_location_action_delete_item_from_uri (MidoriLocationAction* location_acti
     g_return_if_fail (uri != NULL);
 
     model = location_action->model;
-    if (midori_location_action_item_iter (location_action, uri, &iter))
+    if (midori_location_action_iter_lookup (location_action, uri, &iter))
     {
         gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
         if (visits > 1)
