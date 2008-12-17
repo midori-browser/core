@@ -4146,6 +4146,13 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
             gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
                                 GTK_TOOL_ITEM (toolitem), -1);
         }
+        else if (!strcmp (*name, "Separator"))
+        {
+            toolitem = GTK_WIDGET (gtk_separator_tool_item_new ());
+            gtk_widget_show (toolitem);
+            gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                                GTK_TOOL_ITEM (toolitem), -1);
+        }
         name++;
     }
     g_strfreev (names);
