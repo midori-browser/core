@@ -521,7 +521,8 @@ katze_net_load_icon (KatzeNet*      net,
     g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
 
     pixbuf = NULL;
-    if (uri && g_str_has_prefix (uri, "http://"))
+    if (uri && (g_str_has_prefix (uri, "http://") ||
+        g_str_has_prefix (uri, "https://")))
     {
         i = 8;
         while (uri[i] != '\0' && uri[i] != '/')
