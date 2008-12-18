@@ -489,6 +489,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         "Separator, TabNew, Open, Print, Find, Location, Preferences, Window, Bookmarks\n"
         "ReloadStop, ZoomIn, ZoomOut, Back, Forward, Homepage, Search, Trash"
         "</span>");
+    gtk_label_set_selectable (GTK_LABEL (button), TRUE);
     FILLED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (5, 2);
