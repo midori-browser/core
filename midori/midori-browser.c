@@ -3541,14 +3541,13 @@ _location_action_insert_history_item (MidoriLocationAction* action,
                                       KatzeItem*            item)
 {
     KatzeItem* child;
-    guint i, n;
+    guint i;
     const gchar* uri;
     GdkPixbuf* pixbuf = NULL;
 
     if (KATZE_IS_ARRAY (item))
     {
-        n = katze_array_get_length (KATZE_ARRAY (item));
-        for (i = n; i > 0; i--)
+        for (i = katze_array_get_length (KATZE_ARRAY (item)); i > 0; i--)
         {
             child = katze_array_get_nth_item (KATZE_ARRAY (item), i - 1);
             _location_action_insert_history_item (action, browser, child);
@@ -3561,6 +3560,7 @@ _location_action_insert_history_item (MidoriLocationAction* action,
                                       NULL, GTK_WIDGET (browser), NULL);
         midori_location_action_add_item (action, uri,
             pixbuf, katze_item_get_name (item));
+        g_object_unref (pixbuf);
     }
 }
 
@@ -3988,15 +3988,11 @@ midori_browser_init (MidoriBrowser* browser)
         (_action_by_name (browser, "FindPrevious"));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), NULL);
     gtk_tool_item_set_is_important (toolitem, TRUE);
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (_action_find_previous_activate), browser);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     toolitem = (GtkToolItem*)gtk_action_create_tool_item
         (_action_by_name (browser, "FindNext"));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), NULL);
     gtk_tool_item_set_is_important (toolitem, TRUE);
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (_action_find_next_activate), browser);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_case = gtk_toggle_tool_button_new_from_stock (
         GTK_STOCK_SPELL_CHECK);
