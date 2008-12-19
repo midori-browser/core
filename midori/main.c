@@ -2020,20 +2020,17 @@ main (int    argc,
             fullname = g_build_filename (extension_path, filename, NULL);
             module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
             g_free (fullname);
-            if (!module)
-            {
-                g_warning ("%s", g_module_error ());
-                continue;
-            }
-            ;
-            if (!g_module_symbol (module, "extension_init",
-                             (gpointer) &extension_init))
-            {
-                g_warning ("%s", g_module_error ());
-                continue;
-            }
-            extension = extension_init ();
+
+            if (module && g_module_symbol (module, "extension_init",
+                                            (gpointer) &extension_init))
+                extension = extension_init ();
+            else
+                extension = g_object_new (MIDORI_TYPE_EXTENSION,
+                                          "name", filename,
+                                          "description", g_module_error (),
+                                          NULL);
             katze_array_add_item (extensions, extension);
+            g_object_unref (extension);
         }
         g_dir_close (extension_dir);
     }
