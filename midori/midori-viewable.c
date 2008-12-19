@@ -110,13 +110,11 @@ midori_viewable_new_from_uri (const gchar* uri)
 
     g_return_val_if_fail (uri != NULL, NULL);
 
-    g_debug ("size: %d", g_hash_table_size (iface->p));
     if (!g_hash_table_size (iface->p))
         return NULL;
 
     if ((parts = g_strsplit (uri, "://", 2)))
     {
-        g_debug ("%s, %s", parts[0], uri);
         if (!(type_name = g_hash_table_lookup (iface->p, parts[0])))
         {
             /* FIXME: Support midori://dummy/foo */
@@ -134,7 +132,6 @@ midori_viewable_new_from_uri (const gchar* uri)
     }
     else if ((parts = g_strsplit_set (uri, ":", 2)))
     {
-        g_debug (parts[0]);
         type_name = g_hash_table_lookup (iface->p, parts[0]);
         g_strfreev (parts);
         if (type_name)
