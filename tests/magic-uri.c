@@ -60,6 +60,7 @@ main (int    argc,
     g_free (b);
     test_input ("localhost", "http://localhost");
     test_input ("localhost:8000", "http://localhost:8000");
+    test_input ("localhost/rss", "http://localhost/rss");
     test_input ("192.168.1.1", "http://192.168.1.1");
     test_input ("192.168.1.1:8000", "http://192.168.1.1:8000");
     test_input ("sm midori", SM "midori");

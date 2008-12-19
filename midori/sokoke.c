@@ -121,7 +121,7 @@ sokoke_magic_uri (const gchar* uri,
         if (search && search[0] && !g_ascii_isalpha (search[1]))
             if (!strchr (search, '.'))
                 return g_strconcat ("http://", uri, NULL);
-        if (!strcmp (uri, "localhost"))
+        if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
             return g_strconcat ("http://", uri, NULL);
         parts = g_strsplit (uri, ".", 0);
         if (!search && parts[0] && parts[1])
