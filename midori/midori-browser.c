@@ -3586,8 +3586,6 @@ midori_browser_set_history (MidoriBrowser* browser,
     if (history)
         g_object_ref (history);
     katze_object_assign (browser->history, history);
-    g_signal_connect (browser->history, "clear",
-                      G_CALLBACK (midori_browser_history_clear_cb), browser);
 
     midori_browser_history_clear_cb (browser->history, browser);
 
@@ -3596,6 +3594,9 @@ midori_browser_set_history (MidoriBrowser* browser,
 
     if (!browser->history)
         return;
+
+    g_signal_connect (browser->history, "clear",
+                      G_CALLBACK (midori_browser_history_clear_cb), browser);
 
     treeview = GTK_TREE_VIEW (browser->panel_history);
     treemodel = gtk_tree_view_get_model (treeview);
@@ -4370,13 +4371,41 @@ bookmarks_model_insert_folder (GtkTreeStore* treestore,
 }
 
 static void
-midori_browser_load_bookmarks (MidoriBrowser* browser)
+midori_browser_bookmarks_clear_cb (KatzeArray*    bookmarks,
+                                   MidoriBrowser* browser)
+{
+    GtkTreeView* treeview;
+    GtkTreeStore* store;
+    GtkAction* location_action;
+
+    treeview = GTK_TREE_VIEW (browser->panel_bookmarks);
+    store = GTK_TREE_STORE (gtk_tree_view_get_model (treeview));
+    gtk_tree_store_clear (store);
+}
+
+static void
+midori_browser_set_bookmarks (MidoriBrowser* browser,
+                              KatzeArray*    bookmarks)
 {
     guint i, n;
     KatzeItem* item;
     GtkTreeModel* treestore;
 
-    // FIXME: Clear bookmark panel
+    if (browser->bookmarks == bookmarks)
+        return;
+
+    if (browser->bookmarks)
+        g_signal_handlers_disconnect_by_func (browser->bookmarks,
+                                              midori_browser_bookmarks_clear_cb,
+                                              browser);
+    if (bookmarks)
+        g_object_ref (bookmarks);
+    katze_object_assign (browser->bookmarks, bookmarks);
+
+    midori_browser_bookmarks_clear_cb (browser->bookmarks, browser);
+
+    g_object_set (_action_by_name (browser, "Bookmarks"), "array",
+                  browser->bookmarks, NULL);
 
     _action_set_sensitive (browser, "BookmarkAdd", FALSE);
 
@@ -4393,6 +4422,8 @@ midori_browser_load_bookmarks (MidoriBrowser* browser)
         G_CALLBACK (browser_bookmarks_add_item_cb), browser);
     g_signal_connect (browser->bookmarks, "remove-item",
         G_CALLBACK (browser_bookmarks_remove_item_cb), browser);
+    g_signal_connect (browser->bookmarks, "clear",
+                      G_CALLBACK (midori_browser_bookmarks_clear_cb), browser);
 
     treestore = gtk_tree_view_get_model (GTK_TREE_VIEW (browser->panel_bookmarks));
     bookmarks_model_insert_folder (GTK_TREE_STORE (treestore),
@@ -4437,12 +4468,7 @@ midori_browser_set_property (GObject*      object,
             (GtkCallback) midori_view_set_settings, browser->settings);
         break;
     case PROP_BOOKMARKS:
-        /* FIXME: Disconnect handlers */
-        katze_object_assign (browser->bookmarks, g_value_dup_object (value));
-        g_object_set (_action_by_name (browser, "Bookmarks"), "array",
-            browser->bookmarks, NULL);
-        midori_browser_load_bookmarks (browser);
-        /* FIXME: Connect to updates */
+        midori_browser_set_bookmarks (browser, g_value_get_object (value));
         break;
     case PROP_TRASH:
         /* FIXME: Disconnect handlers */
@@ -4469,9 +4495,7 @@ midori_browser_set_property (GObject*      object,
         }
         break;
     case PROP_HISTORY:
-        /* FIXME: Disconnect handlers */
         midori_browser_set_history (browser, g_value_get_object (value));
-        /* FIXME: Connect to updates */
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
