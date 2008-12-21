@@ -506,9 +506,15 @@ midori_view_class_init (MidoriViewClass* class)
 }
 
 static void
-midori_view_notify_icon_cb (MidoriView* view,
-                            GParamSpec  pspec)
+midori_view_update_icon (MidoriView* view,
+                         GdkPixbuf*  icon)
 {
+    if (!icon)
+        icon = gtk_widget_render_icon (GTK_WIDGET (view),
+            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    katze_object_assign (view->icon, icon);
+    g_object_notify (G_OBJECT (view), "icon");
+
     if (view->tab_icon)
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (view->tab_icon),
                                           view->icon);
@@ -522,26 +528,28 @@ static void
 midori_view_icon_cb (GdkPixbuf*  icon,
                      MidoriView* view)
 {
-    katze_object_assign (view->icon, icon);
-    g_object_notify (G_OBJECT (view), "icon");
+    midori_view_update_icon (view, icon);
 }
 
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
-    GdkPixbuf* pixbuf;
-
-    pixbuf = katze_net_load_icon (view->net, view->uri,
+    GdkPixbuf* pixbuf = katze_net_load_icon (view->net, view->uri,
         (KatzeNetIconCb)midori_view_icon_cb, GTK_WIDGET (view), view);
 
-    katze_object_assign (view->icon, pixbuf);
-    g_object_notify (G_OBJECT (view), "icon");
+    midori_view_update_icon (view, pixbuf);
 }
 
 static void
-midori_view_notify_load_status_cb (MidoriView* view,
-                                   GParamSpec  pspec)
+midori_view_update_load_status (MidoriView*      view,
+                                MidoriLoadStatus load_status)
 {
+    if (view->load_status == load_status)
+        return;
+
+    view->load_status = load_status;
+    g_object_notify (G_OBJECT (view), "load-status");
+
     if (view->tab_icon)
         katze_throbber_set_animated (KATZE_THROBBER (view->tab_icon),
             view->load_status != MIDORI_LOAD_FINISHED);
@@ -555,11 +563,13 @@ webkit_web_view_load_started_cb (WebKitWebView*  web_view,
                                  WebKitWebFrame* web_frame,
                                  MidoriView*     view)
 {
-    view->load_status = MIDORI_LOAD_PROVISIONAL;
-    g_object_notify (G_OBJECT (view), "load-status");
+    g_object_freeze_notify (G_OBJECT (view));
 
+    midori_view_update_load_status (view, MIDORI_LOAD_PROVISIONAL);
     view->progress = 0.0;
     g_object_notify (G_OBJECT (view), "progress");
+
+    g_object_thaw_notify (G_OBJECT (view));
 }
 
 static void
@@ -568,20 +578,19 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
                                    MidoriView*     view)
 {
     const gchar* uri;
-    GdkPixbuf* icon;
+
+    g_object_freeze_notify (G_OBJECT (view));
 
     uri = webkit_web_frame_get_uri (web_frame);
     katze_assign (view->uri, g_strdup (uri));
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
 
-    icon = gtk_widget_render_icon (GTK_WIDGET (view),
-        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    katze_object_assign (view->icon, icon);
-    g_object_notify (G_OBJECT (view), "icon");
+    midori_view_update_icon (view, NULL);
 
-    view->load_status = MIDORI_LOAD_COMMITTED;
-    g_object_notify (G_OBJECT (view), "load-status");
+    midori_view_update_load_status (view, MIDORI_LOAD_COMMITTED);
+
+    g_object_thaw_notify (G_OBJECT (view));
 }
 
 static void
@@ -646,8 +655,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
         g_free (data);
     }
 
-    view->load_status = MIDORI_LOAD_FINISHED;
-    g_object_notify (G_OBJECT (view), "load-status");
+    midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 }
 
 static void
@@ -660,8 +668,13 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     GjsValue* document;
     GjsValue* links; */
 
+    g_object_freeze_notify (G_OBJECT (view));
+
     view->progress = 1.0;
     g_object_notify (G_OBJECT (view), "progress");
+    midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
+
+    g_object_thaw_notify (G_OBJECT (view));
 
     /* js_context = webkit_web_frame_get_global_context (web_frame);
     value = gjs_value_new (js_context, NULL);
@@ -1103,14 +1116,6 @@ midori_view_init (MidoriView* view)
     view->item = NULL;
 
     view->download_manager = NULL;
-
-    g_object_connect (view,
-                      "signal::notify::icon",
-                      midori_view_notify_icon_cb, NULL,
-                      "signal::notify::load-status",
-                      midori_view_notify_load_status_cb, NULL,
-                      NULL);
-
     view->web_view = NULL;
 
     /* Adjustments are not created automatically */
@@ -1178,7 +1183,7 @@ midori_view_set_property (GObject*      object,
         katze_assign (view->statusbar_text, g_value_dup_string (value));
         break;
     case PROP_SETTINGS:
-        midori_view_set_settings (view, g_value_dup_object (value));
+        midori_view_set_settings (view, g_value_get_object (value));
         break;
     case PROP_NET:
         katze_object_assign (view->net, g_value_dup_object (value));
@@ -1242,6 +1247,8 @@ midori_view_get_property (GObject*    object,
 GtkWidget*
 midori_view_new (KatzeNet* net)
 {
+    g_return_val_if_fail (!net || KATZE_IS_NET (net), NULL);
+
     return g_object_new (MIDORI_TYPE_VIEW, "net", net, NULL);
 }
 
@@ -1306,6 +1313,12 @@ void
 midori_view_set_settings (MidoriView*        view,
                           MidoriWebSettings* settings)
 {
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+    g_return_if_fail (!settings || MIDORI_IS_WEB_SETTINGS (settings));
+
+    if (view->settings == settings)
+        return;
+
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
             midori_view_settings_notify_cb, view);
@@ -1495,12 +1508,14 @@ midori_view_set_uri (MidoriView*  view,
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
+    if (!uri) uri = "";
+
     if (!view->web_view && view->uri
         && g_str_has_prefix (view->uri, "view-source:"))
     {
         g_signal_emit (view, signals[NEW_TAB], 0, uri);
     }
-    else if (!view->web_view && uri && g_str_has_prefix (uri, "view-source:"))
+    else if (!view->web_view && g_str_has_prefix (uri, "view-source:"))
     {
         katze_assign (view->uri, g_strdup (uri));
         g_object_notify (G_OBJECT (view), "uri");
