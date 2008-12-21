@@ -1203,5 +1203,5 @@ midori_location_action_clear (MidoriLocationAction* location_action)
 {
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
-    gtk_list_store_clear (GTK_LIST_STORE (location_action->filter_model));
+    gtk_list_store_clear (GTK_LIST_STORE (location_action->model));
 }

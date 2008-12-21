@@ -2965,19 +2965,7 @@ _action_history_clear_activate (GtkAction*     action,
     if (result != GTK_RESPONSE_YES)
         return;
 
-    location_action = _action_by_name (browser, "Location");
-    tree_view = GTK_TREE_VIEW (browser->panel_history);
-    store = GTK_TREE_STORE (gtk_tree_view_get_model (tree_view));
-    gtk_tree_store_clear (store);
-
-    n = katze_array_get_length (browser->history);
-    for (i = 0; i < n; i++)
-    {
-        item = katze_array_get_nth_item (browser->history, i);
-        katze_array_clear (KATZE_ARRAY (item));
-    }
     katze_array_clear (browser->history);
-    midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
 }
 
 static void
@@ -3565,13 +3553,43 @@ _location_action_insert_history_item (MidoriLocationAction* action,
 }
 
 static void
-midori_browser_load_history (MidoriBrowser* browser)
+midori_browser_history_clear_cb (KatzeArray*    history,
+                                 MidoriBrowser* browser)
+{
+    GtkTreeView* treeview;
+    GtkTreeStore* store;
+    GtkAction* location_action;
+
+    treeview = GTK_TREE_VIEW (browser->panel_history);
+    store = GTK_TREE_STORE (gtk_tree_view_get_model (treeview));
+    gtk_tree_store_clear (store);
+
+    location_action = _action_by_name (browser, "Location");
+    midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
+}
+
+static void
+midori_browser_set_history (MidoriBrowser* browser,
+                            KatzeArray*    history)
 {
     GtkTreeView* treeview;
     GtkTreeModel* treemodel;
     GtkAction* action;
 
-    /* FIXME: Clear current items */
+    if (browser->history == history)
+        return;
+
+    if (browser->history)
+        g_signal_handlers_disconnect_by_func (browser->history,
+                                              midori_browser_history_clear_cb,
+                                              browser);
+    if (history)
+        g_object_ref (history);
+    katze_object_assign (browser->history, history);
+    g_signal_connect (browser->history, "clear",
+                      G_CALLBACK (midori_browser_history_clear_cb), browser);
+
+    midori_browser_history_clear_cb (browser->history, browser);
 
     g_object_set (_action_by_name (browser, "RecentlyVisited"),
                   "array", browser->history, NULL);
@@ -3581,7 +3599,6 @@ midori_browser_load_history (MidoriBrowser* browser)
 
     treeview = GTK_TREE_VIEW (browser->panel_history);
     treemodel = gtk_tree_view_get_model (treeview);
-
     _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
                                      NULL, KATZE_ITEM (browser->history));
 
@@ -4453,8 +4470,7 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_HISTORY:
         /* FIXME: Disconnect handlers */
-        katze_object_assign (browser->history, g_value_dup_object (value));
-        midori_browser_load_history (browser);
+        midori_browser_set_history (browser, g_value_get_object (value));
         /* FIXME: Connect to updates */
         break;
     default:
