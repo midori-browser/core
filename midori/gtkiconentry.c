@@ -185,8 +185,9 @@ gtk_icon_entry_class_init (GtkIconEntryClass *klass)
    *
    * The ::icon-pressed signal is emitted when an icon is clicked.
    */
+  if (!(signals[ICON_PRESSED] = g_signal_lookup ("icon-pressed", GTK_TYPE_ENTRY)))
   signals[ICON_PRESSED] =
-    g_signal_new ("icon_pressed",
+    g_signal_new ("icon-pressed",
 		  G_TYPE_FROM_CLASS (gobject_class),
 		  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
 		  G_STRUCT_OFFSET (GtkIconEntryClass, icon_pressed),
@@ -205,8 +206,9 @@ gtk_icon_entry_class_init (GtkIconEntryClass *klass)
    * The ::icon-released signal is emitted on the button release from a
    * mouse click.
    */
+  if (!(signals[ICON_RELEASED] = g_signal_lookup ("icon-released", GTK_TYPE_ENTRY)))
   signals[ICON_RELEASED] =
-    g_signal_new ("icon_released",
+    g_signal_new ("icon-released",
 		  G_TYPE_FROM_CLASS (gobject_class),
 		  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
 		  G_STRUCT_OFFSET (GtkIconEntryClass, icon_released),
