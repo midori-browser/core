@@ -468,6 +468,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "enable-developer-extras", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable developer tools"));
     SPANNED_ADD (button, 0, 1, 3, 4);
+    button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 DPI"));
+    SPANNED_ADD (button, 1, 2, 3, 4);
     label = katze_property_label (settings, "location-entry-search");
     INDENTED_ADD (label, 0, 1, 4, 5);
     entry = katze_property_proxy (settings, "location-entry-search", NULL);

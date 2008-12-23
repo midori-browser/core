@@ -118,6 +118,7 @@ enum
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
 
+    PROP_ENFORCE_96_DPI,
     PROP_ENABLE_DEVELOPER_EXTRAS,
     PROP_ACCEPT_COOKIES,
     PROP_ORIGINAL_COOKIES_ONLY,
@@ -544,6 +545,23 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      TRUE,
                                      G_PARAM_READABLE));
 
+
+    if (!g_object_class_find_property (gobject_class, "enforce-96-dpi"))
+    /**
+    * MidoriWebSettings:enforce-96-dpi:
+    *
+    * Whether to enforce a resolution of 96 DPI.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENFORCE_96_DPI,
+                                     g_param_spec_boolean (
+                                     "enforce-96-dpi",
+                                     "Enforce 96 DPI",
+                                     "Whether to enforce a resolution of 96 DPI",
+                                     FALSE,
+                                     G_PARAM_READABLE));
 
     if (!g_object_class_find_property (gobject_class, "enable-developer-extras"))
     /**
@@ -1077,6 +1095,9 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, web_settings->open_popups_in_tabs);
         break;
 
+    case PROP_ENFORCE_96_DPI:
+        g_value_set_boolean (value, FALSE);
+        break;
     case PROP_ENABLE_DEVELOPER_EXTRAS:
         g_value_set_boolean (value, FALSE);
         break;
