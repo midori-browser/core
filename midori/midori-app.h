@@ -58,6 +58,9 @@ void
 midori_app_add_browser            (MidoriApp*         app,
                                    MidoriBrowser*     browser);
 
+MidoriBrowser*
+midori_app_create_browser         (MidoriApp*         app);
+
 void
 midori_app_quit                   (MidoriApp*         app);
 

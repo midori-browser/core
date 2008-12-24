@@ -108,17 +108,11 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
                               const gchar*   uri,
                               MidoriApp*     app)
 {
-    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
-                                               "settings", app->settings,
-                                               "bookmarks", app->bookmarks,
-                                               "trash", app->trash,
-                                               "search-engines", app->search_engines,
-                                               "history", app->history,
-                                               NULL);
+    MidoriBrowser* new_browser = midori_app_create_browser (app);
+    midori_app_add_browser (app, new_browser);
+
     midori_browser_add_uri (new_browser, uri);
     gtk_widget_show (GTK_WIDGET (new_browser));
-
-    g_signal_emit (app, signals[ADD_BROWSER], 0, new_browser);
 }
 
 static gboolean
@@ -307,17 +301,11 @@ midori_browser_message_received_cb (UniqueApp*         instance,
       response = UNIQUE_RESPONSE_OK;
       break;
   case UNIQUE_NEW:
-      browser = g_object_new (MIDORI_TYPE_BROWSER,
-                              "settings", app->settings,
-                              "bookmarks", app->bookmarks,
-                              "trash", app->trash,
-                              "search-engines", app->search_engines,
-                              "history", app->history,
-                              NULL);
+      browser = midori_app_create_browser (app);
+      midori_app_add_browser (app, browser);
       /* FIXME: Should open the homepage according to settings */
       midori_browser_add_uri (browser, "");
       midori_browser_activate_action (browser, "Location");
-      midori_app_add_browser (app, browser);
       gtk_window_set_screen (GTK_WINDOW (app->browser),
                              unique_message_data_get_screen (message));
       gtk_widget_show (GTK_WIDGET (browser));
@@ -336,13 +324,7 @@ midori_browser_message_received_cb (UniqueApp*         instance,
               &open_external_pages_in, NULL);
           if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
           {
-              browser = g_object_new (MIDORI_TYPE_BROWSER,
-                  "settings", app->settings,
-                  "bookmarks", app->bookmarks,
-                  "trash", app->trash,
-                  "search-engines", app->search_engines,
-                  "history", app->history,
-                  NULL);
+              browser = midori_app_create_browser (app);
               midori_app_add_browser (app, browser);
               gtk_window_set_screen (GTK_WINDOW (app->browser),
                                      unique_message_data_get_screen (message));
@@ -649,7 +631,7 @@ midori_app_instance_send_uris (MidoriApp* app,
  * @app: a #MidoriApp
  * @browser: a #MidoriBrowser
  *
- * Adds a #MidoriBrowser to the #MidoriApp singleton.
+ * Adds a #MidoriBrowser to the #MidoriApp.
  *
  * The app will take care of the browser's new-window and quit signals, as well
  * as watch window closing so that the last closed window quits the app.
@@ -665,6 +647,31 @@ midori_app_add_browser (MidoriApp*     app,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
 
     g_signal_emit (app, signals[ADD_BROWSER], 0, browser);
+}
+
+/**
+ * midori_app_create_browser:
+ * @app: a #MidoriApp
+ *
+ * Creates a #MidoriBrowser which inherits its settings,
+ * bookmarks, trash, search engines and history from  @app.
+ *
+ * Return value: a new #MidoriBrowser
+ *
+ * Since: 1.0.2
+ **/
+MidoriBrowser*
+midori_app_create_browser (MidoriApp* app)
+{
+    g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
+
+    return g_object_new (MIDORI_TYPE_BROWSER,
+                         "settings", app->settings,
+                         "bookmarks", app->bookmarks,
+                         "trash", app->trash,
+                         "search-engines", app->search_engines,
+                         "history", app->history,
+                         NULL);
 }
 
 /**
