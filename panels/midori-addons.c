@@ -18,7 +18,6 @@
 #include "midori-stock.h"
 
 #include "sokoke.h"
-#include "gjs.h"
 
 #include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
@@ -790,7 +789,7 @@ _js_script_from_file (JSContextRef js_context,
         wrapped_script = g_strdup_printf (
             "window.addEventListener ('DOMContentLoaded',"
             "function () { %s }, true);", script);
-        if (gjs_script_eval (js_context, wrapped_script, exception))
+        if (sokoke_js_script_eval (js_context, wrapped_script, exception))
             result = TRUE;
         g_free (wrapped_script);
         g_free (script);
@@ -839,7 +838,7 @@ _js_style_from_file (JSContextRef js_context,
             "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
             "}, true);",
             style);
-        if (gjs_script_eval (js_context, style_script, exception))
+        if (sokoke_js_script_eval (js_context, style_script, exception))
             result = TRUE;
         g_free (style_script);
         g_free (style);
@@ -892,7 +891,7 @@ midori_web_widget_context_ready_cb (GtkWidget*         web_widget,
             !_js_script_from_file (js_context, fullname, &exception))
         {
             message = g_strdup_printf ("console.error ('%s');", exception);
-            gjs_script_eval (js_context, message, NULL);
+            sokoke_js_script_eval (js_context, message, NULL);
             g_free (message);
             g_free (exception);
         }
@@ -900,7 +899,7 @@ midori_web_widget_context_ready_cb (GtkWidget*         web_widget,
             !_js_style_from_file (js_context, fullname, &exception))
         {
             message = g_strdup_printf ("console.error ('%s');", exception);
-            gjs_script_eval (js_context, message, NULL);
+            sokoke_js_script_eval (js_context, message, NULL);
             g_free (message);
             g_free (exception);
         }
