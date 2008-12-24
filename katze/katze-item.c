@@ -35,7 +35,8 @@ enum
     PROP_URI,
     PROP_ICON,
     PROP_TOKEN,
-    PROP_ADDED
+    PROP_ADDED,
+    PROP_PARENT
 };
 
 static void
@@ -122,6 +123,21 @@ katze_item_class_init (KatzeItemClass* class)
                                      0,
                                      flags));
 
+    /**
+    * KatzeItem:parent:
+    *
+    * The parent of the item.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PARENT,
+                                     g_param_spec_object (
+                                     "parent",
+                                     "Parent",
+                                     "The parent of the item",
+                                     G_TYPE_OBJECT,
+                                     flags));
 }
 
 
@@ -174,6 +190,9 @@ katze_item_set_property (GObject*      object,
     case PROP_ADDED:
         item->added = g_value_get_int64 (value);
         break;
+    case PROP_PARENT:
+        katze_item_set_parent (item, g_value_get_object (value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -207,6 +226,9 @@ katze_item_get_property (GObject*    object,
         break;
     case PROP_ADDED:
         g_value_set_int64 (value, item->added);
+        break;
+    case PROP_PARENT:
+        g_value_set_object (value, item->parent);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -433,6 +455,8 @@ katze_item_set_added (KatzeItem* item,
  *
  * Determines the parent of @item.
  *
+ * Since 0.1.2 you can monitor the "parent" property.
+ *
  * Return value: the parent of the item
  **/
 gpointer
@@ -450,18 +474,21 @@ katze_item_get_parent (KatzeItem* item)
  *
  * Sets the parent of @item.
  *
- * This is intended for item container implementations and
- * should not be used otherwise.
+ * This is intended for item container implementations. Notably
+ * the new parent will not be notified of the change.
+ *
+ * Since 0.1.2 you can monitor the "parent" property, so unsetting
+ * the parent is actually safe if the parent supports it.
  **/
 void
 katze_item_set_parent (KatzeItem* item,
                        gpointer   parent)
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
+    g_return_if_fail (!parent || G_IS_OBJECT (parent));
 
     if (parent)
         g_object_ref (parent);
     katze_object_assign (item->parent, parent);
-    /* g_object_notify (G_OBJECT (item), "parent"); */
+    g_object_notify (G_OBJECT (item), "parent");
 }
-
