@@ -27,12 +27,12 @@
 #include "midori-websettings.h"
 
 #include "sokoke.h"
-#include "gjs.h"
 
 #include <string.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
+#include <JavaScriptCore/JavaScript.h>
 
 #ifdef HAVE_LIBXML
     #include <libxml/parser.h>
@@ -1638,6 +1638,211 @@ button_reset_session_clicked_cb (GtkWidget*  button,
     gtk_widget_set_sensitive (button, FALSE);
 }
 
+static GtkWidget*
+midori_create_diagnostic_dialog (MidoriWebSettings* settings,
+                                 KatzeArray*        _session)
+{
+    GtkWidget* dialog;
+    GdkScreen* screen;
+    GtkIconTheme* icon_theme;
+    GtkWidget* box;
+    GtkWidget* button;
+
+    dialog = gtk_message_dialog_new (
+        NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
+        _("Midori seems to have crashed after it was opened "
+          "for the last time. If this happend repeatedly, "
+          "try one of the following options to solve the problem."));
+    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
+    gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
+    screen = gtk_widget_get_screen (dialog);
+    if (screen)
+    {
+        icon_theme = gtk_icon_theme_get_for_screen (screen);
+        if (gtk_icon_theme_has_icon (icon_theme, "midori"))
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), "midori");
+        else
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
+    }
+    box = gtk_hbox_new (FALSE, 0);
+    button = gtk_button_new_with_mnemonic (_("Modify _preferences"));
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (button_modify_preferences_clicked_cb), settings);
+    gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+    button = gtk_button_new_with_mnemonic (_("Reset the last _session"));
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (button_reset_session_clicked_cb), _session);
+    gtk_widget_set_sensitive (button, !katze_array_is_empty (_session));
+    gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+    button = gtk_button_new_with_mnemonic (_("Disable all _extensions"));
+    gtk_widget_set_sensitive (button, FALSE);
+    /* FIXME: Disable all extensions */
+    gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
+    gtk_widget_show_all (box);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
+    return dialog;
+}
+
+static gboolean
+midori_load_extensions (gpointer data)
+{
+    MidoriApp* app = MIDORI_APP (data);
+    KatzeArray* extensions;
+    gchar* extension_path;
+    GDir* extension_dir;
+    const gchar* filename;
+    MidoriExtension* extension;
+    guint n, i;
+
+    /* Load extensions */
+    extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
+    extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
+    if (g_module_supported ())
+        extension_dir = g_dir_open (extension_path, 0, NULL);
+    else
+        extension_dir = NULL;
+    if (extension_dir)
+    {
+        while ((filename = g_dir_read_name (extension_dir)))
+        {
+            gchar* fullname;
+            GModule* module;
+            typedef MidoriExtension* (*extension_init_func)(void);
+            extension_init_func extension_init;
+
+            fullname = g_build_filename (extension_path, filename, NULL);
+            module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
+            g_free (fullname);
+
+            if (module && g_module_symbol (module, "extension_init",
+                                            (gpointer) &extension_init))
+                extension = extension_init ();
+            else
+                extension = g_object_new (MIDORI_TYPE_EXTENSION,
+                                          "name", filename,
+                                          "description", g_module_error (),
+                                          NULL);
+            g_warning ("%s", g_module_error ());
+            katze_array_add_item (extensions, extension);
+            g_object_unref (extension);
+        }
+        g_dir_close (extension_dir);
+    }
+
+    g_object_set (app, "extensions", extensions, NULL);
+
+    n = katze_array_get_length (extensions);
+    for (i = 0; i < n; i++)
+    {
+        extension = katze_array_get_nth_item (extensions, i);
+        g_signal_emit_by_name (extension, "activate", app);
+    }
+
+    return FALSE;
+}
+
+static gboolean
+midori_load_session (gpointer data)
+{
+    KatzeArray* _session = KATZE_ARRAY (data);
+    MidoriBrowser* browser;
+    MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
+    KatzeArray* session;
+    KatzeItem* item;
+    guint n, i;
+
+    browser = midori_app_create_browser (app);
+    midori_app_add_browser (app, browser);
+    gtk_widget_show (GTK_WIDGET (browser));
+
+    if (katze_array_is_empty (_session))
+    {
+        MidoriWebSettings* settings = katze_object_get_object (app, "settings");
+        MidoriStartup load_on_startup;
+        gchar* homepage;
+        item = katze_item_new ();
+
+        g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
+        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
+            katze_item_set_uri (item, "");
+        else
+        {
+            g_object_get (settings, "homepage", &homepage, NULL);
+            katze_item_set_uri (item, homepage);
+            g_free (homepage);
+        }
+        katze_array_add_item (_session, item);
+    }
+
+    session = midori_browser_get_proxy_array (browser);
+    n = katze_array_get_length (_session);
+    for (i = 0; i < n; i++)
+    {
+        item = katze_array_get_nth_item (_session, i);
+        midori_browser_add_item (browser, item);
+    }
+    /* FIXME: Switch to the last active page */
+    item = katze_array_get_nth_item (_session, 0);
+    if (!strcmp (katze_item_get_uri (item), ""))
+        midori_browser_activate_action (browser, "Location");
+    g_object_unref (_session);
+
+    g_signal_connect_after (browser, "notify::uri",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect_after (browser, "add-tab",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect_after (browser, "remove-tab",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_object_weak_ref (G_OBJECT (session),
+        (GWeakNotify)(midori_browser_weak_notify_cb), browser);
+
+    return FALSE;
+}
+
+static gint
+midori_run_script (const gchar* filename)
+{
+    if (!(filename))
+    {
+        g_print ("%s - %s\n", _("Midori"), _("No filename specified"));
+        return 1;
+    }
+
+    JSGlobalContextRef js_context;
+    gchar* exception;
+    gchar* script;
+    GError* error = NULL;
+
+    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 3)
+    js_context = JSGlobalContextCreateInGroup (NULL, NULL);
+    #else
+    js_context = JSGlobalContextCreate (NULL);
+    #endif
+    #endif
+
+    if (g_file_get_contents (filename, &script, NULL, &error))
+    {
+        if (sokoke_js_script_eval (js_context, script, &exception))
+            exception = NULL;
+        g_free (script);
+    }
+    else if (error)
+    {
+        exception = g_strdup (error->message);
+        g_error_free (error);
+    }
+    else
+        exception = g_strdup (_("An unknown error occured."));
+
+    JSGlobalContextRelease (js_context);
+    if (!exception)
+        return 0;
+
+    g_print ("%s - Exception: %s\n", filename, exception);
+    return 1;
+}
+
 int
 main (int    argc,
       char** argv)
@@ -1658,21 +1863,16 @@ main (int    argc,
        N_("URIs"), NULL },
      { NULL }
     };
-    JSGlobalContextRef js_context;
-    gchar* exception;
     GString* error_messages;
     MidoriWebSettings* settings;
     gchar* config_file;
     MidoriStartup load_on_startup;
-    gchar* homepage;
     KatzeArray* search_engines;
     KatzeArray* bookmarks;
     KatzeArray* history;
     KatzeArray* _session;
     KatzeArray* trash;
-    MidoriBrowser* browser;
-    KatzeArray* session;
-    guint n, i;
+    guint i;
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
@@ -1680,11 +1880,6 @@ main (int    argc,
     sqlite3* db;
     gint max_history_age;
     #endif
-    KatzeArray* extensions;
-    gchar* extension_path;
-    GDir* extension_dir;
-    const gchar* filename;
-    MidoriExtension* extension;
 
     #if ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -1728,26 +1923,9 @@ main (int    argc,
         return 0;
     }
 
-    /* Standalone gjs support */
+    /* Standalone javascript support */
     if (run)
-    {
-        if (uris && *uris)
-        {
-            js_context = gjs_global_context_new ();
-            exception = NULL;
-            gjs_script_from_file (js_context, *uris, &exception);
-            JSGlobalContextRelease (js_context);
-            if (!exception)
-                return 0;
-            g_print ("%s - Exception: %s\n", *uris, exception);
-            return 1;
-        }
-        else
-        {
-            g_print ("%s - %s\n", _("Midori"), _("No filename specified"));
-            return 1;
-        }
-    }
+        return midori_run_script (uris ? *uris : NULL);
 
     app = midori_app_new ();
     /* FIXME: The app might be 'running' but actually showing a dialog
@@ -1956,44 +2134,7 @@ main (int    argc,
     katze_assign (config_file, build_config_filename ("running"));
     if (g_file_test (config_file, G_FILE_TEST_EXISTS))
     {
-        GdkScreen* screen;
-        GtkIconTheme* icon_theme;
-        GtkWidget* dialog;
-        GtkWidget* box;
-        GtkWidget* button;
-
-        dialog = gtk_message_dialog_new (
-            NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
-            _("Midori seems to have crashed after it was opened for the last "
-              "time. If this happend repeatedly, try one of the "
-              "following options to solve the problem."));
-        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
-        gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
-        screen = gtk_widget_get_screen (dialog);
-        if (screen)
-        {
-            icon_theme = gtk_icon_theme_get_for_screen (screen);
-            if (gtk_icon_theme_has_icon (icon_theme, "midori"))
-                gtk_window_set_icon_name (GTK_WINDOW (dialog), "midori");
-            else
-                gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
-        }
-        box = gtk_hbox_new (FALSE, 0);
-        button = gtk_button_new_with_mnemonic (_("Modify _preferences"));
-        g_signal_connect (button, "clicked",
-            G_CALLBACK (button_modify_preferences_clicked_cb), settings);
-        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
-        button = gtk_button_new_with_mnemonic (_("Reset the last _session"));
-        g_signal_connect (button, "clicked",
-            G_CALLBACK (button_reset_session_clicked_cb), _session);
-        gtk_widget_set_sensitive (button, !katze_array_is_empty (_session));
-        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
-        button = gtk_button_new_with_mnemonic (_("Disable all _extensions"));
-        gtk_widget_set_sensitive (button, FALSE);
-        /* FIXME: Disable all extensions */
-        gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
-        gtk_widget_show_all (box);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
+        GtkWidget* dialog = midori_create_diagnostic_dialog (settings, _session);
         gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (dialog);
     }
@@ -2001,115 +2142,32 @@ main (int    argc,
         g_file_set_contents (config_file, "RUNNING", -1, NULL);
     g_signal_connect (app, "quit", G_CALLBACK (midori_app_quit_cb), NULL);
 
-    /* Load extensions */
-    extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
-    extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
-    if (g_module_supported ())
-        extension_dir = g_dir_open (extension_path, 0, NULL);
-    else
-        extension_dir = NULL;
-    if (extension_dir)
-    {
-        while ((filename = g_dir_read_name (extension_dir)))
-        {
-            gchar* fullname;
-            GModule* module;
-            typedef MidoriExtension* (*extension_init_func)(void);
-            extension_init_func extension_init;
-
-            fullname = g_build_filename (extension_path, filename, NULL);
-            module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
-            g_free (fullname);
-
-            if (module && g_module_symbol (module, "extension_init",
-                                            (gpointer) &extension_init))
-                extension = extension_init ();
-            else
-                extension = g_object_new (MIDORI_TYPE_EXTENSION,
-                                          "name", filename,
-                                          "description", g_module_error (),
-                                          NULL);
-            katze_array_add_item (extensions, extension);
-            g_object_unref (extension);
-        }
-        g_dir_close (extension_dir);
-    }
-
     g_object_set (app, "settings", settings,
                        "bookmarks", bookmarks,
                        "trash", trash,
                        "search-engines", search_engines,
                        "history", history,
-                       "extensions", extensions,
                        NULL);
-    g_signal_connect (app, "add-browser",
-        G_CALLBACK (midori_app_add_browser_cb), NULL);
-
-    n = katze_array_get_length (extensions);
-    for (i = 0; i < n; i++)
-    {
-        extension = katze_array_get_nth_item (extensions, i);
-        g_signal_emit_by_name (extension, "activate", app);
-    }
-
-    browser = g_object_new (MIDORI_TYPE_BROWSER,
-                            "settings", settings,
-                            "bookmarks", bookmarks,
-                            "trash", trash,
-                            "search-engines", search_engines,
-                            "history", history,
-                            NULL);
-    midori_app_add_browser (app, browser);
-    gtk_widget_show (GTK_WIDGET (browser));
-
-    if (katze_array_is_empty (_session))
-    {
-        item = katze_item_new ();
-        if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
-            katze_item_set_uri (item, "");
-        else
-        {
-            g_object_get (settings, "homepage", &homepage, NULL);
-            katze_item_set_uri (item, homepage);
-            g_free (homepage);
-        }
-        katze_array_add_item (_session, item);
-    }
-
-    session = midori_browser_get_proxy_array (browser);
-    n = katze_array_get_length (_session);
-    for (i = 0; i < n; i++)
-    {
-        item = katze_array_get_nth_item (_session, i);
-        midori_browser_add_item (browser, item);
-    }
-    /* FIXME: Switch to the last active page */
-    item = katze_array_get_nth_item (_session, 0);
-    if (!strcmp (katze_item_get_uri (item), ""))
-        midori_browser_activate_action (browser, "Location");
-    g_object_unref (_session);
-
-    g_signal_connect_after (browser, "notify::uri",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_signal_connect_after (browser, "add-tab",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_signal_connect_after (browser, "remove-tab",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_object_weak_ref (G_OBJECT (session),
-        (GWeakNotify)(midori_browser_weak_notify_cb), browser);
-
-    gtk_main ();
-
-    /* Save configuration files */
     g_object_unref (history);
-    #ifdef HAVE_SQLITE
-    g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
-    midori_history_terminate (db, max_history_age);
-    #endif
     g_object_unref (search_engines);
     g_object_unref (bookmarks);
     g_object_unref (trash);
     g_object_unref (settings);
+    g_signal_connect (app, "add-browser",
+        G_CALLBACK (midori_app_add_browser_cb), NULL);
+
+    g_idle_add (midori_load_extensions, app);
+    katze_item_set_parent (KATZE_ITEM (_session), app);
+    g_idle_add (midori_load_session, _session);
+
+    gtk_main ();
+
+    #ifdef HAVE_SQLITE
+    settings = katze_object_get_object (app, "settings");
+    g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
+    midori_history_terminate (db, max_history_age);
+    #endif
+    g_object_unref (app);
     g_free (config_file);
     return 0;
 }

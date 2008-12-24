@@ -24,6 +24,44 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 
+static gchar*
+sokoke_js_string_utf8 (JSStringRef js_string)
+{
+    size_t size_utf8;
+    gchar* string_utf8;
+
+    g_return_val_if_fail (js_string, NULL);
+
+    size_utf8 = JSStringGetMaximumUTF8CStringSize (js_string);
+    string_utf8 = g_new (gchar, size_utf8);
+    JSStringGetUTF8CString (js_string, string_utf8, size_utf8);
+    return string_utf8;
+}
+
+JSValueRef
+sokoke_js_script_eval (JSContextRef js_context,
+                       const gchar* script,
+                       gchar**      exception)
+{
+    g_return_val_if_fail (js_context, FALSE);
+    g_return_val_if_fail (script, FALSE);
+
+    JSStringRef js_script = JSStringCreateWithUTF8CString (script);
+    JSValueRef js_exception = NULL;
+    JSValueRef js_value = JSEvaluateScript (js_context, js_script,
+        JSContextGetGlobalObject (js_context), NULL, 0, &js_exception);
+    if (!js_value && exception)
+    {
+        JSStringRef js_message = JSValueToStringCopy (js_context,
+                                                      js_exception, NULL);
+        *exception = sokoke_js_string_utf8 (js_message);
+        JSStringRelease (js_message);
+        js_value = JSValueMakeNull (js_context);
+    }
+    JSStringRelease (js_script);
+    return js_value;
+}
+
 static void
 error_dialog (const gchar* short_message,
               const gchar* detailed_message)

@@ -16,6 +16,13 @@
 
 #include <gtk/gtk.h>
 
+#include <JavaScriptCore/JavaScript.h>
+
+JSValueRef
+sokoke_js_script_eval (JSContextRef js_context,
+                       const gchar* script,
+                       gchar**      exception);
+
 /* Many themes need this hack for small toolbars to work */
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
