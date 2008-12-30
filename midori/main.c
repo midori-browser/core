@@ -1052,8 +1052,18 @@ katze_array_to_file (KatzeArray*  array,
 }
 
 static void
-midori_bookmarks_add_item_cb (KatzeArray* bookmarks,
-                              GObject*    item)
+midori_bookmarks_add_item_cb (KatzeArray* folder,
+                              GObject*    item,
+                              KatzeArray* bookmarks);
+
+static void
+midori_bookmarks_remove_item_cb (KatzeArray* bookmarks,
+                                 GObject*    item);
+
+static void
+midori_bookmarks_add_item_cb (KatzeArray* folder,
+                              GObject*    item,
+                              KatzeArray* bookmarks)
 {
     gchar* config_file;
     GError* error;
@@ -1066,6 +1076,14 @@ midori_bookmarks_add_item_cb (KatzeArray* bookmarks,
         g_error_free (error);
     }
     g_free (config_file);
+
+    if (folder == bookmarks && KATZE_IS_ARRAY (item))
+    {
+        g_signal_connect_after (item, "add-item",
+            G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
+        g_signal_connect_after (item, "remove-item",
+            G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+    }
 }
 
 static void
@@ -1083,6 +1101,10 @@ midori_bookmarks_remove_item_cb (KatzeArray* bookmarks,
         g_error_free (error);
     }
     g_free (config_file);
+
+    if (KATZE_IS_ARRAY (item))
+        g_signal_handlers_disconnect_by_func (item,
+            midori_bookmarks_add_item_cb, bookmarks);
 }
 
 static void
@@ -2114,9 +2136,25 @@ main (int    argc,
     g_signal_connect_after (search_engines, "remove-item",
         G_CALLBACK (midori_search_engines_remove_item_cb), NULL);
     g_signal_connect_after (bookmarks, "add-item",
-        G_CALLBACK (midori_bookmarks_add_item_cb), NULL);
+        G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
     g_signal_connect_after (bookmarks, "remove-item",
         G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+    if (!katze_array_is_empty (bookmarks))
+    {
+        guint i, n;
+        n = katze_array_get_length (bookmarks);
+        for (i = 0; i < n; i++)
+        {
+            KatzeItem* item = katze_array_get_nth_item (bookmarks, i);
+            if (KATZE_IS_ARRAY (item))
+            {
+                g_signal_connect_after (item, "add-item",
+                    G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
+                g_signal_connect_after (item, "remove-item",
+                    G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+            }
+        }
+    }
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_trash_add_item_cb), NULL);
     g_signal_connect_after (trash, "remove-item",
