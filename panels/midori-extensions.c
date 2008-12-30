@@ -177,10 +177,11 @@ midori_extensions_add_item_cb (KatzeArray*       array,
                                MidoriExtensions* extensions)
 {
     GtkTreeIter iter;
-    GtkListStore* liststore = GTK_LIST_STORE (gtk_tree_view_get_model (
-        GTK_TREE_VIEW (extensions->treeview)));
-    gtk_list_store_append (liststore, &iter);
-        gtk_list_store_set (liststore, &iter, 0, extension, -1);
+    GtkTreeModel* model;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (extensions->treeview));
+    gtk_list_store_append (GTK_LIST_STORE (model), &iter);
+    gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, extension, -1);
 }
 
 static void
@@ -198,6 +199,7 @@ midori_extensions_set_property (GObject*      object,
         KatzeArray* array;
         guint i, n;
 
+        /* FIXME: Handle NULL and subsequent assignments */
         extensions->app = g_value_get_object (value);
         array = katze_object_get_object (extensions->app, "extensions");
         g_signal_connect (array, "add-item",

@@ -1208,7 +1208,7 @@ parse_cookie (gchar* line,
     SoupCookie *cookie = NULL;
     gboolean http_only;
     time_t max_age;
-    gchar* host, *is_domain, *path, *secure, *expires, *name, *value;
+    gchar* host/*, *is_domain*/, *path, *secure, *expires, *name, *value;
 
     if (g_str_has_prefix (line, "#HttpOnly_"))
     {
@@ -1231,7 +1231,7 @@ parse_cookie (gchar* line,
         goto out;
 
     host = result[0];
-    is_domain = result[1];
+    /* is_domain = result[1]; */
     path = result[2];
     secure = result[3];
 
@@ -1689,7 +1689,6 @@ midori_load_extensions (gpointer data)
     MidoriApp* app = MIDORI_APP (data);
     KatzeArray* extensions;
     gchar* extension_path;
-    GDir* extension_dir;
     const gchar* filename;
     MidoriExtension* extension;
     guint n, i;
@@ -1698,11 +1697,9 @@ midori_load_extensions (gpointer data)
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
     extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
     if (g_module_supported ())
-        extension_dir = g_dir_open (extension_path, 0, NULL);
-    else
-        extension_dir = NULL;
-    if (extension_dir)
     {
+        GDir* extension_dir = g_dir_open (extension_path, 0, NULL);
+
         while ((filename = g_dir_read_name (extension_dir)))
         {
             gchar* fullname;
@@ -1715,14 +1712,16 @@ midori_load_extensions (gpointer data)
             g_free (fullname);
 
             if (module && g_module_symbol (module, "extension_init",
-                                            (gpointer) &extension_init))
+                                           (gpointer) &extension_init))
                 extension = extension_init ();
             else
+            {
                 extension = g_object_new (MIDORI_TYPE_EXTENSION,
                                           "name", filename,
                                           "description", g_module_error (),
                                           NULL);
-            g_warning ("%s", g_module_error ());
+                g_warning ("%s", g_module_error ());
+            }
             katze_array_add_item (extensions, extension);
             g_object_unref (extension);
         }

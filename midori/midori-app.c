@@ -160,8 +160,7 @@ _midori_app_add_browser (MidoriApp*     app,
     app->browsers = g_list_prepend (app->browsers, browser);
 
     #if HAVE_UNIQUE
-    if (app->instance)
-        unique_app_watch_window (app->instance, GTK_WINDOW (browser));
+    unique_app_watch_window (app->instance, GTK_WINDOW (browser));
     #endif
 }
 
@@ -369,7 +368,7 @@ midori_app_init (MidoriApp* app)
 
     app->accel_group = gtk_accel_group_new ();
 
-    app->settings = midori_web_settings_new ();
+    app->settings = NULL;
     app->bookmarks = NULL;
     app->trash = NULL;
     app->search_engines = NULL;
@@ -552,7 +551,7 @@ midori_app_instance_send_activate (MidoriApp* app)
     UniqueResponse response;
     #endif
 
-    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     #if HAVE_UNIQUE
@@ -579,7 +578,7 @@ midori_app_instance_send_new_browser (MidoriApp* app)
     UniqueResponse response;
     #endif
 
-    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     #if HAVE_UNIQUE
@@ -611,7 +610,7 @@ midori_app_instance_send_uris (MidoriApp* app,
     UniqueResponse response;
     #endif
 
-    g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
+    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
     g_return_val_if_fail (uris != NULL, FALSE);
 
