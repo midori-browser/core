@@ -27,7 +27,6 @@
 #include "gtkiconentry.h"
 #include "compat.h"
 #include "sokoke.h"
-#include "gjs.h"
 
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
@@ -2068,7 +2067,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
     KatzeArray* news_feeds;
     GtkWidget* menu;
     guint n, i;
-    GjsValue* feed;
+    KatzeItem* feed;
     const gchar* uri;
     const gchar* title;
     GtkWidget* menuitem;
@@ -2086,12 +2085,9 @@ _action_location_secondary_icon_released (GtkAction*     action,
                 if (!(feed = katze_array_get_nth_item (news_feeds, i)))
                     continue;
 
-                uri = gjs_value_get_attribute_string (feed, "href");
-                if (gjs_value_has_attribute (feed, "title"))
-                    title = gjs_value_get_attribute_string (feed, "title");
-                else
-                    title = uri;
-                if (!*title)
+                uri = katze_item_get_uri (feed);
+                title = katze_item_get_name (feed);
+                if (!(title && *title))
                     title = uri;
                 menuitem = sokoke_image_menu_item_new_ellipsized (title);
                 /* FIXME: Get the real icon */
