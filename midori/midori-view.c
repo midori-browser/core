@@ -19,7 +19,6 @@
 
 #include "compat.h"
 #include "sokoke.h"
-/* #include "gjs.h" */
 
 #include <string.h>
 #include <stdlib.h>
@@ -38,6 +37,7 @@ struct _MidoriView
 
     gchar* uri;
     gchar* title;
+    gchar* mime_type;
     GdkPixbuf* icon;
     gdouble progress;
     MidoriLoadStatus load_status;
@@ -115,6 +115,7 @@ enum
 
     PROP_URI,
     PROP_TITLE,
+    PROP_MIME_TYPE,
     PROP_ICON,
     PROP_LOAD_STATUS,
     PROP_PROGRESS,
@@ -429,6 +430,22 @@ midori_view_class_init (MidoriViewClass* class)
                                      NULL,
                                      G_PARAM_READWRITE));
 
+    /**
+    * MidoriView:mime-type:
+    *
+    * The MIME type of the currently loaded page.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_MIME_TYPE,
+                                     g_param_spec_string (
+                                     "mime-type",
+                                     "MIME Type",
+                                     "The MIME type of the currently loaded page",
+                                     "text/html",
+                                     G_PARAM_READABLE));
+
     g_object_class_install_property (gobject_class,
                                      PROP_ICON,
                                      g_param_spec_object (
@@ -493,7 +510,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Settings",
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_READWRITE));
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_NET,
@@ -505,13 +522,56 @@ midori_view_class_init (MidoriViewClass* class)
                                      flags));
 }
 
+static GdkPixbuf*
+midori_view_mime_icon (GtkIconTheme* icon_theme,
+                       const gchar*  format,
+                       const gchar*  part1,
+                       const gchar*  part2)
+{
+    gchar* name;
+    GdkPixbuf* icon;
+
+    name = part2 ? g_strdup_printf (format, part1, part2)
+        : g_strdup_printf (format, part1);
+    icon = gtk_icon_theme_load_icon (icon_theme, name, 16, 0, NULL);
+    g_free (name);
+    return icon ? g_object_ref (icon) : NULL;
+}
+
 static void
 midori_view_update_icon (MidoriView* view,
                          GdkPixbuf*  icon)
 {
     if (!icon)
-        icon = gtk_widget_render_icon (GTK_WIDGET (view),
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    {
+        GdkScreen* screen;
+        GtkIconTheme* icon_theme;
+        gchar** parts;
+
+        if ((screen = gtk_widget_get_screen (GTK_WIDGET (view))))
+        {
+            icon_theme = gtk_icon_theme_get_for_screen (screen);
+            parts = g_strsplit (view->mime_type, "/", 2);
+        }
+        else
+            parts = NULL;
+
+        if (parts && parts[0] && parts[1])
+            icon = midori_view_mime_icon (icon_theme, "%s-%s",
+                                          parts[0], parts[1]);
+        if (!icon && parts && parts[0] && parts[1])
+            icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-%s",
+                                          parts[0], parts[1]);
+        if (!icon && parts && parts[0])
+            icon = midori_view_mime_icon (icon_theme, "%s-x-generic",
+                                          parts[0], NULL);
+        if (!icon && parts && parts[0])
+            icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-x-generic",
+                                          parts[0], NULL);
+        if (!icon)
+            icon = gtk_widget_render_icon (GTK_WIDGET (view),
+                GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    }
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
 
@@ -535,7 +595,7 @@ static void
 _midori_web_view_load_icon (MidoriView* view)
 {
     GdkPixbuf* pixbuf = katze_net_load_icon (view->net, view->uri,
-        (KatzeNetIconCb)midori_view_icon_cb, GTK_WIDGET (view), view);
+        (KatzeNetIconCb)midori_view_icon_cb, NULL, view);
 
     midori_view_update_icon (view, pixbuf);
 }
@@ -1072,6 +1132,27 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
     return MIDORI_VIEW (new_view)->web_view;
 }
 
+static gboolean
+webkit_web_view_mime_type_decision_cb (GtkWidget*      web_view,
+                                       WebKitWebFrame* web_frame,
+                                       gpointer        request,
+                                       const gchar*    mime_type,
+                                       gpointer        decision,
+                                       MidoriView*     view)
+{
+    if (web_frame != webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
+        return FALSE;
+
+    katze_assign (view->mime_type, g_strdup (mime_type));
+    midori_view_update_icon (view, NULL);
+    g_object_notify (G_OBJECT (view), "mime-type");
+
+    /* TODO: Display contents with a Viewable if WebKit can't do it */
+    /* TODO: Offer to download file if it cannot be displayed at all */
+
+    return TRUE;
+}
+
 static void
 webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* message,
@@ -1105,6 +1186,7 @@ midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
     view->title = NULL;
+    view->mime_type = g_strdup ("text/html");
     view->icon = gtk_widget_render_icon (GTK_WIDGET (view), GTK_STOCK_FILE,
                                          GTK_ICON_SIZE_MENU, NULL);
     view->progress = 0.0;
@@ -1112,7 +1194,6 @@ midori_view_init (MidoriView* view)
     view->statusbar_text = NULL;
     view->link_uri = NULL;
     view->selected_text = NULL;
-    view->settings = midori_web_settings_new ();
     view->item = NULL;
 
     view->download_manager = NULL;
@@ -1467,8 +1548,11 @@ midori_view_construct_web_view (MidoriView* view)
         g_object_connect (view->web_view,
                       "signal::create-web-view",
                       webkit_web_view_create_web_view_cb, view,
-                      /*"signal::web-view-ready",
-                      webkit_web_view_web_view_ready_cb, view,*/
+                      NULL);
+    if (g_signal_lookup ("mime-type-policy-decision-requested", WEBKIT_TYPE_WEB_VIEW))
+        g_object_connect (view->web_view,
+                      "signal::mime-type-policy-decision-requested",
+                      webkit_web_view_mime_type_decision_cb, view,
                       NULL);
     g_object_connect (web_frame,
                       "signal::load-done",
@@ -2140,7 +2224,14 @@ midori_view_can_zoom_out (MidoriView* view)
 gboolean
 midori_view_can_view_source (MidoriView* view)
 {
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
     const gchar* uri = view->uri;
+
+    /* FIXME: Consider other types that are also text */
+    if (!g_str_has_prefix (view->mime_type, "text/")
+        && !g_strrstr (view->mime_type, "xml"))
+        return FALSE;
 
     #if HAVE_LIBSOUP
     if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
