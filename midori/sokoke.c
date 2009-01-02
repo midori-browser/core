@@ -187,7 +187,12 @@ sokoke_magic_uri (const gchar* uri,
         }
         g_free (parts);
         if (search_uri)
-            search = g_strdup_printf (search_uri, parts[1]);
+        {
+            if (strstr (search_uri, "%s"))
+                search = g_strdup_printf (search_uri, parts[1]);
+            else
+                search = g_strdup_printf ("%s%s", search_uri, parts[1]);
+        }
         return search;
     }
     return g_strdup (uri);

@@ -32,6 +32,12 @@ main (int    argc,
                          "uri", "http://www.searchmash.com/search/%s",
                          "token", "sm", NULL);
     katze_array_add_item (search_engines, item);
+    g_object_unref (item);
+    item = g_object_new (KATZE_TYPE_ITEM,
+                         "uri", "http://www.searchmash.com/search/",
+                         "token", "se", NULL);
+    katze_array_add_item (search_engines, item);
+    g_object_unref (item);
 
 #define test_input(input, expected) \
   uri = sokoke_magic_uri (input, search_engines); \
@@ -65,6 +71,7 @@ main (int    argc,
     test_input ("192.168.1.1:8000", "http://192.168.1.1:8000");
     test_input ("sm midori", SM "midori");
     test_input ("sm cats dogs", SM "cats dogs");
+    test_input ("se cats dogs", SM "cats dogs");
     test_input ("dict midori", NULL);
     test_input ("cats", NULL);
     test_input ("cats dogs", NULL);
