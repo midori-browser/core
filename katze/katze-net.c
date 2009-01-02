@@ -391,7 +391,8 @@ static void
 katze_net_icon_priv_free (KatzeNetIconPriv* priv)
 {
     g_free (priv->icon_file);
-    g_object_unref (priv->widget);
+    if (priv->widget)
+        g_object_unref (priv->widget);
     g_free (priv);
 }
 
@@ -462,8 +463,16 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     }
 
     if (!pixbuf)
-        pixbuf = gtk_widget_render_icon (priv->widget,
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    {
+        if (priv->widget)
+            pixbuf = gtk_widget_render_icon (priv->widget,
+                GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+        else
+        {
+            priv->icon_cb (NULL, priv->user_data);
+            katze_net_icon_priv_free (priv);
+        }
+    }
     gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
                                              GDK_INTERP_BILINEAR);
@@ -478,7 +487,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
  * @net: a #KatzeNet
  * @uri: an URI string, or %NULL
  * @icon_cb: function to call upon completion
- * @widget: a related #GtkWidget
+ * @widget: a related #GtkWidget, or %NULL
  * @user_data: data to pass to the callback
  *
  * Requests a transfer of an icon for @uri. This is
@@ -489,7 +498,9 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
  * the same over multiple requests, plus it may
  * be scaled to fit the menu icon size.
  *
- * The @widget is needed for theming information.
+ * Pass a valid #GtkWidget to @widget if you want
+ * a themed default icon in case of a missing icon,
+ * otherwise %NULL will be returned in that case.
  *
  * The caller is expected to use the returned icon
  * and update it if @icon_cb is called.
@@ -501,6 +512,10 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
  * Note that both the returned #GdkPixbuf and the
  * icon passed to @icon_cb are newly allocated and
  * the caller owns the reference.
+ *
+ * Since 0.1.2 @widget can be %NULL.
+ *
+ * Return value: a #GdkPixbuf, or %NULL
  **/
 GdkPixbuf*
 katze_net_load_icon (KatzeNet*      net,
@@ -518,7 +533,7 @@ katze_net_load_icon (KatzeNet*      net,
     GdkPixbuf* pixbuf_scaled;
 
     g_return_val_if_fail (KATZE_IS_NET (net), NULL);
-    g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
+    g_return_val_if_fail (!widget || GTK_IS_WIDGET (widget), NULL);
 
     pixbuf = NULL;
     if (uri && (g_str_has_prefix (uri, "http://") ||
@@ -554,7 +569,7 @@ katze_net_load_icon (KatzeNet*      net,
             priv->net = net;
             priv->icon_file = icon_file;
             priv->icon_cb = icon_cb;
-            priv->widget = g_object_ref (widget);
+            priv->widget = widget ? g_object_ref (widget) : NULL;
             priv->user_data = user_data;
 
             katze_net_load_uri (net, icon_uri,
@@ -565,8 +580,13 @@ katze_net_load_icon (KatzeNet*      net,
     }
 
     if (!pixbuf)
-        pixbuf = gtk_widget_render_icon (widget,
-            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    {
+        if (widget)
+            pixbuf = gtk_widget_render_icon (widget,
+                GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+        else
+            return NULL;
+    }
     gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
                                              GDK_INTERP_BILINEAR);
