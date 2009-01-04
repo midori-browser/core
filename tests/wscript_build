@@ -2,7 +2,7 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
-obj = bld.create_obj ('cc', 'program')
+obj = bld.new_task_gen ('cc', 'program')
 obj.target = 'magic-uri'
 obj.includes = '.. ../midori'
 obj.source = 'magic-uri.c ../midori/compat.c ../midori/sokoke.c'

@@ -20,11 +20,10 @@ for extension in extensions:
         source = extension
         includes = '..'
 
-    obj = bld.create_obj ('cc', 'shlib')
+    obj = bld.new_task_gen ('cc', 'shlib')
     obj.target = target
     obj.includes = includes
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
     obj.uselib_local = 'katze'
-    obj.inst_var = 'LIBDIR'
-    obj.inst_dir = 'midori'
+    obj.install_path = '${LIBDIR}/midori'

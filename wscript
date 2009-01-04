@@ -2,9 +2,10 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
-import Params
+import Build
+import Options
+import Utils
 import pproc as subprocess
-import Common
 import sys
 import os
 import UnitTest
@@ -28,17 +29,25 @@ srcdir = '.'
 blddir = '_build_'
 
 def option_enabled (option):
-    if eval ('Params.g_options.enable_' + option):
+    if eval ('Options.options.enable_' + option):
         return True
-    if eval ('Params.g_options.disable_' + option):
+    if eval ('Options.options.disable_' + option):
         return False
     return True
 
 def configure (conf):
     def option_checkfatal (option, desc):
-        if eval ('Params.g_options.enable_' + option):
-                Params.pprint ('RED', desc + ' not available')
+        if eval ('Options.options.enable_' + option):
+                Utils.pprint ('RED', desc + ' not available')
                 sys.exit (1)
+
+    def dirname_default (dirname, default):
+        if eval ('Options.options.' + dirname) == '':
+            dirvalue = default
+        else:
+            dirvalue = eval ('Options.options.' + dirname)
+        conf.define (dirname, dirvalue)
+        return dirvalue
 
     conf.check_tool ('compiler_cc')
 
@@ -69,25 +78,9 @@ def configure (conf):
         nls = 'no'
     conf.check_message_custom ('localization', 'support', nls)
 
-    if Params.g_options.libdir == '':
-        libdir = os.path.join (conf.env['PREFIX'], 'lib')
-    else:
-        libdir = Params.g_options.libdir
-    conf.define ('LIBDIR', libdir)
-
-    # We support building without intltool
-    # Therefore datadir may not have been defined
-    if not conf.is_defined ('DATADIR'):
-        if Params.g_options.datadir != '':
-            conf.define ('DATADIR', Params.g_options.datadir)
-        else:
-            conf.define ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
-
-    if Params.g_options.docdir == '':
-        docdir =  "%s/doc" % conf.env['DATADIR']
-    else:
-        docdir = Params.g_options.docdir
-    conf.define ('DOCDIR', docdir)
+    dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
+    dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
+    dirname_default ('DOCDIR', os.path.join (conf.env['DATADIR'], 'doc'))
 
     if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
@@ -104,8 +97,14 @@ def configure (conf):
         api_docs = 'no'
     conf.check_message_custom ('generate', 'API documentation', api_docs)
 
+    def check_pkg (name, version='', mandatory=True, var=None):
+        if not var:
+            var = name.split ('-')[0].upper ()
+        conf.check_cfg (package=name, uselib_store=var, args='--cflags --libs',
+            atleast_version=version, mandatory=mandatory)
+
     if option_enabled ('unique'):
-        conf.check_pkg ('unique-1.0', destvar='UNIQUE', vnum='0.9', mandatory=False)
+        check_pkg ('unique-1.0', '0.9', False)
         single_instance = ['not available','yes'][conf.env['HAVE_UNIQUE'] == 1]
     else:
         option_checkfatal ('unique', 'single instance')
@@ -113,11 +112,9 @@ def configure (conf):
     conf.check_message_custom ('single instance', 'support', single_instance)
 
     if option_enabled ('libsoup'):
-        conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP', mandatory=False)
-        conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP_2_23_1',
-                        vnum='2.23.1', mandatory=False)
-        conf.check_pkg ('libsoup-2.4', destvar='LIBSOUP_2_25_2',
-                        vnum='2.25.2', mandatory=False)
+        check_pkg ('libsoup-2.4', '2.23.0', False)
+        check_pkg ('libsoup-2.4', '2.23.1', False, var='LIBSOUP_2_23_1')
+        check_pkg ('libsoup-2.4', '2.25.2', False, var='LIBSOUP_2_25_2')
         libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
     else:
         option_checkfatal ('libsoup', 'libsoup')
@@ -125,21 +122,21 @@ def configure (conf):
     conf.check_message_custom ('libsoup', 'support', libsoup)
 
     if option_enabled ('sqlite'):
-        conf.check_pkg ('sqlite3', destvar='SQLITE', vnum='3.0', mandatory=False)
+        check_pkg ('sqlite3', '3.0', False, var='SQLITE')
         sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
     else:
         option_checkfatal ('sqlite', 'history database')
         sqlite = 'no'
     conf.check_message_custom ('history database', 'support', sqlite)
 
-    conf.check_pkg ('gmodule-2.0', destvar='GMODULE', vnum='2.8.0', mandatory=False)
-    conf.check_pkg ('gthread-2.0', destvar='GTHREAD', vnum='2.8.0', mandatory=False)
-    conf.check_pkg ('gio-2.0', destvar='GIO', vnum='2.16.0', mandatory=False)
-    conf.check_pkg ('gtk+-2.0', destvar='GTK', vnum='2.10.0', mandatory=True)
-    conf.check_pkg ('webkit-1.0', destvar='WEBKIT', vnum='0.1', mandatory=True)
-    conf.check_pkg ('libxml-2.0', destvar='LIBXML', vnum='2.6', mandatory=True)
+    check_pkg ('gmodule-2.0', '2.8.0', False)
+    check_pkg ('gthread-2.0', '2.8.0', False)
+    check_pkg ('gio-2.0', '2.16.0', False)
+    check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
+    check_pkg ('webkit-1.0', '0.1')
+    check_pkg ('libxml-2.0', '2.6')
 
-    conf.check_header ('unistd.h', 'HAVE_UNISTD_H')
+    conf.check (header_name='unistd.h')
     if sys.platform == 'darwin':
         conf.define ('HAVE_OSX', 1)
 
@@ -160,6 +157,17 @@ def configure (conf):
 
     conf.write_config_header ('config.h')
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
+    debug_level = Options.options.debug_level
+    if debug_level != '':
+        compiler = conf.env['CC_NAME']
+        if compiler == 'gcc':
+            if debug_level == 'debug':
+                conf.env.append_value ('CCFLAGS', '-Wall -O0 -g')
+            else:
+                conf.env.append_value ('CCFLAGS', '-O2')
+        else:
+            Utils.pprint ('RED', 'No debugging level support for ' + compiler)
+            sys.exit (1)
 
     print
     if single_instance == 'not available':
@@ -194,23 +202,19 @@ def set_options (opt):
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
     opt.tool_options ('compiler_cc')
+    opt.get_option_group ('--check-c-compiler').add_option('-d', '--debug-level',
+        action = 'store', default = '',
+        help = 'Specify the debugging level. [\'debug\', \'release\']',
+        choices = ['', 'debug', 'release'], dest = 'debug_level')
+    opt.tool_options ('gnu_dirs')
+    opt.parser.remove_option ('--oldincludedir')
+    opt.parser.remove_option ('--htmldir')
+    opt.parser.remove_option ('--dvidir')
+    opt.parser.remove_option ('--pdfdir')
+    opt.parser.remove_option ('--psdir')
     opt.tool_options ('intltool')
     opt.add_option ('--run', action='store_true', default=False,
         help='Run application after building it', dest='run')
-
-    group = opt.add_option_group ('Directories', '')
-    if (opt.parser.get_option ('--prefix')):
-        opt.parser.remove_option ('--prefix')
-        group.add_option ('--prefix', type='string', default='/usr/local',
-            help='installation prefix (configuration only)', dest='prefix')
-    if (opt.parser.get_option ('--datadir')):
-        opt.parser.remove_option ('--datadir')
-        group.add_option ('--datadir', type='string', default='',
-            help='read-only application data', dest='datadir')
-    group.add_option ('--docdir', type='string', default='',
-        help='Documentation root', dest='docdir')
-    group.add_option ('--libdir', type='string', default='',
-        help='Library root', dest='libdir')
 
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
@@ -222,7 +226,7 @@ def set_options (opt):
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group)
-    add_enable_option ('libsoup', 'libSoup support', group)
+    add_enable_option ('libsoup', 'icon and view source support', group)
     add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('addons', 'building of extensions', group)
 
@@ -231,9 +235,9 @@ def build (bld):
         if not os.access (path, os.F_OK):
             os.mkdir (path)
 
-    def _install_files (folder, destination, source):
+    def install_files (folder, destination, source):
         try:
-            install_files (folder, destination, source)
+            bld.install_files (folder, destination, source)
         except:
             pass
 
@@ -246,7 +250,7 @@ def build (bld):
         install_files ('DOCDIR', '/' + APPNAME + '/', \
             'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
 
-    if bld.env ()['RST2HTML']:
+    if bld.env['RST2HTML']:
         # FIXME: Build only if needed
         if not os.access (blddir, os.F_OK):
             os.mkdir (blddir)
@@ -255,31 +259,30 @@ def build (bld):
         if not os.access (blddir + '/docs/user', os.F_OK):
             os.mkdir (blddir + '/docs/user')
         os.chdir (blddir + '/docs/user')
-        subprocess.call ([bld.env ()['RST2HTML'], '-stg',
-            '--stylesheet=../../../docs/user/midori.css',
-            '../../../docs/user/midori.txt',
-            'midori.html',])
+        command = bld.env['RST2HTML'] + ' -stg ' + \
+            '--stylesheet=../../../docs/user/midori.css ' + \
+            '../../../docs/user/midori.txt ' + 'midori.html'
+        Utils.exec_command (command)
         os.chdir ('../../..')
-        _install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
+        install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
 
-    if bld.env ()['INTLTOOL']:
-        obj = bld.create_obj ('intltool_po')
+    if bld.env['INTLTOOL']:
+        obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
         obj.appname = APPNAME
 
-    if bld.env ()['GTKDOC_SCAN'] and Params.g_commands['build']:
+    if bld.env['GTKDOC_SCAN'] and Options.commands['build']:
         bld.add_subdirs ('docs/api')
-        _install_files ('DOCDIR', '/midori/api/', blddir + '/docs/api/*')
+        install_files ('DOCDIR', '/midori/api/', blddir + '/docs/api/*')
 
-    if bld.env ()['INTLTOOL']:
-        obj = bld.create_obj ('intltool_in')
+    if bld.env['INTLTOOL']:
+        obj = bld.new_task_gen ('intltool_in')
         obj.source   = APPNAME + '.desktop.in'
-        obj.inst_var = 'DATADIR'
-        obj.inst_dir = 'applications'
+        obj.install_path = '${DATADIR}/applications'
         obj.flags    = '-d'
-        _install_files ('DATADIR', 'applications', APPNAME + '.desktop')
+        install_files ('DATADIR', 'applications', APPNAME + '.desktop')
     else:
-        folder = os.path.dirname (bld.env ()['waf_config_files'][0])
+        folder = os.path.dirname (bld.env['waf_config_files'][0])
         desktop = APPNAME + '.desktop'
         pre = open (desktop + '.in')
         after = open (folder + '/' + desktop, 'w')
@@ -291,48 +294,45 @@ def build (bld):
                     else:
                         after.write (line)
             after.close ()
-            Params.pprint ('BLUE', desktop + '.in -> ' + desktop)
-            _install_files ('DATADIR', 'applications', folder + '/' + desktop)
+            Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
+            install_files ('DATADIR', 'applications', folder + '/' + desktop)
         except:
-            Params.pprint ('BLUE', 'File ' + desktop + ' not generated')
+            Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
         finally:
             pre.close ()
 
-    if bld.env ()['RSVG_CONVERT']:
+    if bld.env['RSVG_CONVERT']:
         mkdir (blddir + '/data')
-        convert = subprocess.Popen ([bld.env ()['RSVG_CONVERT'],
-            '-o', blddir + '/data/logo-shade.png',
-            srcdir + '/data/logo-shade.svg'],
-            stderr=subprocess.PIPE)
-        if not convert.wait ():
-            _install_files ('DATADIR', APPNAME,
-                            blddir + '/data/logo-shade.png')
+        command = bld.env['RSVG_CONVERT'] + \
+            ' -o ' + blddir + '/data/logo-shade.png ' + \
+            srcdir + '/data/logo-shade.svg'
+        if not Utils.exec_command (command):
+            install_files ('DATADIR', APPNAME, blddir + '/data/logo-shade.png')
         else:
-            Params.pprint ('BLUE', "logo-shade could not be rasterized.")
+            Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 
-    if Params.g_commands['check']:
+    if Options.commands['check']:
         bld.add_subdirs ('tests')
 
 def shutdown ():
-    if Params.g_commands['install'] or Params.g_commands['uninstall']:
-        dir = Common.path_install ('DATADIR', 'icons/hicolor')
+    if Options.commands['install'] or Options.commands['uninstall']:
+        dir = Build.bld.get_install_path ('${DATADIR}/icons/hicolor')
         icon_cache_updated = False
-        if not Params.g_options.destdir:
+        if not Options.options.destdir:
             # update the pixmap cache directory
             try:
-                uic = subprocess.Popen (['gtk-update-icon-cache',
-                    '-q', '-f', '-t', dir], stderr=subprocess.PIPE)
-                if not uic.wait ():
-                    Params.pprint ('YELLOW', "Updated Gtk icon cache.")
+                command = 'gtk-update-icon-cache -q -f -t %s' % dir
+                if not Utils.exec_command (command):
+                    Utils.pprint ('YELLOW', "Updated Gtk icon cache.")
                     icon_cache_updated = True
             except:
-                Params.pprint ('RED', "Failed to update icon cache.")
+                Utils.pprint ('RED', "Failed to update icon cache.")
         if not icon_cache_updated:
-            Params.pprint ('YELLOW', "Icon cache not updated. "
+            Utils.pprint ('YELLOW', "Icon cache not updated. "
                                      "After install, run this:")
-            Params.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
+            Utils.pprint ('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
 
-    elif Params.g_commands['check']:
+    elif Options.commands['check']:
         test = UnitTest.unit_test ()
         test.change_to_testfile_dir = True
         test.want_to_see_test_output = True
@@ -340,7 +340,7 @@ def shutdown ():
         test.run ()
         test.print_results ()
 
-    elif Params.g_options.update_po:
+    elif Options.options.update_po:
         os.chdir('./po')
         try:
             try:
@@ -350,24 +350,21 @@ def shutdown ():
             subprocess.call (['intltool-update', '-p', '-g', APPNAME])
             size_new = os.stat (APPNAME + '.pot').st_size
             if size_new <> size_old:
-                Params.pprint ('YELLOW', "Updated po template.")
+                Utils.pprint ('YELLOW', "Updated po template.")
                 try:
-                    intltool_update = subprocess.Popen (['intltool-update',
-                        '-r', '-g', APPNAME], stderr=subprocess.PIPE)
-                    intltool_update.wait ()
-                    Params.pprint ('YELLOW', "Updated translations.")
+                    command = 'intltool-update -r -g %s' % APPNAME
+                    Utils.exec_command (command)
+                    Utils.pprint ('YELLOW', "Updated translations.")
                 except:
-                    Params.pprint ('RED', "Failed to update translations.")
+                    Utils.pprint ('RED', "Failed to update translations.")
         except:
-            Params.pprint ('RED', "Failed to generate po template.")
-            Params.pprint ('RED', "Make sure intltool is installed.")
+            Utils.pprint ('RED', "Failed to generate po template.")
+            Utils.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
-    elif Params.g_options.run:
-        folder = os.path.dirname (Params.g_build.env ()['waf_config_files'][0])
+    elif Options.options.run:
+        folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
         try:
-            application = subprocess.Popen ([
-                folder + os.sep + APPNAME + os.sep + APPNAME],
-                stderr=subprocess.PIPE)
-            application.wait ()
+            command = folder + os.sep + APPNAME + os.sep + APPNAME
+            Utils.exec_command (command)
         except:
-            Params.pprint ('RED', "Failed to run application.")
+            Utils.pprint ('RED', "Failed to run application.")

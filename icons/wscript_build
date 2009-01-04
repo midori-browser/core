@@ -2,24 +2,22 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
-def add_image (bld, install_files, category, name):
-    import os
-    import pproc as subprocess
+def add_image (bld, category, name):
 
     srcdir = os.getcwd ()
-    blddir = bld.m_bdir
+    blddir = bld.bdir
 
     def mkdir (path):
         if not os.access (path, os.F_OK):
             os.mkdir (path)
 
-    def _install_files (folder, destination, source):
+    def install_files (folder, destination, source):
         try:
-            install_files (folder, destination, source)
+            bld.install_files (folder, destination, source)
         except:
             pass
 
-    rsvg_convert = bld.env ()['RSVG_CONVERT']
+    rsvg_convert = bld.env['RSVG_CONVERT']
 
     if rsvg_convert:
         mkdir (blddir + '/icons')
@@ -27,24 +25,23 @@ def add_image (bld, install_files, category, name):
     for size in [16, 22, 32, 48]:
         format = str (size) + 'x' + str (size)
         if os.access (srcdir + '/icons/' + format + '/' + name + '.png', os.F_OK):
-            _install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
-                            srcdir + '/icons/' + format + '/' + name + '.png')
+            install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
+                           srcdir + '/icons/' + format + '/' + name + '.png')
         elif not rsvg_convert:
             pass
         elif os.access (srcdir + '/icons/scalable/' + name + '.svg', os.F_OK):
             mkdir (blddir + '/icons/' + format)
-            convert = subprocess.Popen ([rsvg_convert,
-                '-w', str (size), '-h', str (size),
-                '-o', blddir + '/icons/' + format + '/' + name + '.png',
-                srcdir + '/icons/scalable/' + name + '.svg'],
-                stderr=subprocess.PIPE)
-            if not convert.wait ():
-                _install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
-                                blddir + '/icons/' + format + '/' + name + '.png')
+            command = rsvg_convert + ' -w ' + str(size) + \
+                ' -h ' + str(size) + \
+                ' -o ' + blddir + '/icons/' + format + '/' + name + '.png' + \
+                ' ' + srcdir + '/icons/scalable/' + name + '.svg'
+            if not Utils.exec_command (command):
+                install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
+                               blddir + '/icons/' + format + '/' + name + '.png')
             else:
-                Params.pprint ('BLUE', "Optimized icons could not be created.")
+                Utils.pprint ('BLUE', "Optimized icons could not be created.")
                 break
 
-add_image (bld, install_files, 'categories', 'extension')
-add_image (bld, install_files, 'apps', 'midori')
-add_image (bld, install_files, 'status', 'news-feed')
+add_image (bld, 'categories', 'extension')
+add_image (bld, 'apps', 'midori')
+add_image (bld, 'status', 'news-feed')
