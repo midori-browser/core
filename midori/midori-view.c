@@ -1210,8 +1210,9 @@ midori_view_finalize (GObject* object)
 
     view = MIDORI_VIEW (object);
 
-    g_signal_handlers_disconnect_by_func (view->settings,
-        midori_view_settings_notify_cb, view);
+    if (view->settings)
+        g_signal_handlers_disconnect_by_func (view->settings,
+            midori_view_settings_notify_cb, view);
 
     katze_assign (view->uri, NULL);
     katze_assign (view->title, NULL);
@@ -1401,14 +1402,17 @@ midori_view_set_settings (MidoriView*        view,
         return;
 
     if (view->settings)
+    {
         g_signal_handlers_disconnect_by_func (view->settings,
             midori_view_settings_notify_cb, view);
-    katze_object_assign (view->settings, g_object_ref (settings));
-    if (view->web_view)
-        g_object_set (view->web_view, "settings", view->settings, NULL);
-    _midori_view_update_settings (view);
-    g_signal_connect (settings, "notify",
-        G_CALLBACK (midori_view_settings_notify_cb), view);
+        g_object_ref (settings);
+        if (view->web_view)
+            g_object_set (view->web_view, "settings", view->settings, NULL);
+        _midori_view_update_settings (view);
+        g_signal_connect (settings, "notify",
+            G_CALLBACK (midori_view_settings_notify_cb), view);
+    }
+    katze_object_assign (view->settings, settings);
     g_object_notify (G_OBJECT (view), "settings");
 }
 
