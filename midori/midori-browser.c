@@ -557,7 +557,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-        label = gtk_label_new_with_mnemonic (_("_URL:"));
+        label = gtk_label_new_with_mnemonic (_("_Address:"));
         gtk_size_group_add_widget (sizegroup, label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         entry_uri = gtk_entry_new ();
@@ -579,7 +579,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_size_group_add_widget (sizegroup, label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         combo_folder = gtk_combo_box_new_text ();
-        gtk_combo_box_append_text (GTK_COMBO_BOX (combo_folder), _("Root"));
+        gtk_combo_box_append_text (GTK_COMBO_BOX (combo_folder),
+                                   _("Toplevel folder"));
         gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), 0);
         if ((n = katze_array_get_length (browser->bookmarks)))
         for (i = 0; i < n; i++)
@@ -615,7 +616,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
 
         selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
-        if (g_strcmp0 (selected, _("Root")))
+        if (g_strcmp0 (selected, _("Toplevel folder")))
         {
             treeview = GTK_TREE_VIEW (browser->panel_bookmarks);
             treemodel = gtk_tree_view_get_model (treeview);

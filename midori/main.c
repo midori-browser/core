@@ -1881,7 +1881,7 @@ main (int    argc,
        { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
-       N_("URIs"), NULL },
+       N_("Addresses"), NULL },
      { NULL }
     };
     GString* error_messages;
@@ -1913,7 +1913,7 @@ main (int    argc,
     version = FALSE;
     uris = NULL;
     error = NULL;
-    if (!gtk_init_with_args (&argc, &argv, _("[URIs]"), entries,
+    if (!gtk_init_with_args (&argc, &argv, _("[Addresses]"), entries,
                              GETTEXT_PACKAGE, &error))
     {
         g_print ("%s - %s\n", _("Midori"), error->message);

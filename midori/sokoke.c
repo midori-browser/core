@@ -342,6 +342,7 @@ sokoke_superuser_warning_new (void)
         hbox = gtk_event_box_new ();
         gtk_widget_modify_bg (hbox, GTK_STATE_NORMAL,
                               &hbox->style->bg[GTK_STATE_SELECTED]);
+        /* i18n: A superuser, or system administrator, may not be 'root' */
         label = gtk_label_new (_("Warning: You are using a superuser account!"));
         gtk_misc_set_padding (GTK_MISC (label), 0, 2);
         gtk_widget_modify_fg (GTK_WIDGET (label), GTK_STATE_NORMAL,

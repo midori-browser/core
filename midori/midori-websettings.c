@@ -514,7 +514,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean (
                                      "middle-click-opens-selection",
                                      _("Middle click opens Selection"),
-                                     _("Load an URL from the selection via middle click"),
+                                     _("Load an address from the selection via middle click"),
                                      FALSE,
                                      flags));
 
@@ -656,8 +656,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_HTTP_PROXY,
                                      g_param_spec_string (
                                      "http-proxy",
-                                     _("HTTP Proxy"),
-                                     _("The proxy used for HTTP connections"),
+                                     _("Proxy Server"),
+                                     _("The proxy server used for HTTP connections"),
                                      NULL,
                                      #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE));
@@ -676,6 +676,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_IDENTIFY_AS,
                                      g_param_spec_enum (
                                      "identify-as",
+        /* i18n: This refers to an application, not the 'user agent' string */
                                      _("Identify as"),
                                      _("What to identify as to web pages"),
                                      MIDORI_TYPE_IDENTITY,

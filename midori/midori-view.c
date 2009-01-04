@@ -1031,7 +1031,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             && !strchr (view->selected_text, ' '))
         {
             menuitem = gtk_image_menu_item_new_with_mnemonic (
-                _("Open URL in New _Tab"));
+                _("Open Address in New _Tab"));
             icon = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO,
                                              GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
