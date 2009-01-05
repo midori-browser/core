@@ -7,7 +7,7 @@ import platform
 obj = bld.new_task_gen ('cc', 'staticlib')
 obj.name = 'katze'
 obj.target = 'katze'
-obj.includes = '.'
+obj.includes = '. ../.'
 obj.find_sources_in_dirs ('.')
 obj.uselib = 'GMODULE LIBSOUP GTK LIBXML'
 obj.install_path = None

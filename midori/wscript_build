@@ -3,8 +3,6 @@
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
 obj = bld.new_task_gen ('cc', 'program')
-# After waf 1.4.4 this additional link flag is needed for extensions
-obj.env.append_value ('LINKFLAGS', '-Wl,--export-dynamic')
 obj.target = 'midori'
 obj.includes = '. .. ../panels'
 obj.find_sources_in_dirs ('. ../panels')
