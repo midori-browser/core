@@ -287,17 +287,18 @@ def build (bld):
         pre = open (desktop + '.in')
         after = open (folder + '/' + desktop, 'w')
         try:
-            for line in pre:
-                if line != '':
-                    if line[0] == '_':
-                        after.write (line[1:])
-                    else:
-                        after.write (line)
-            after.close ()
-            Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
-            install_files ('DATADIR', 'applications', folder + '/' + desktop)
-        except:
-            Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
+            try:
+                for line in pre:
+                    if line != '':
+                        if line[0] == '_':
+                            after.write (line[1:])
+                        else:
+                            after.write (line)
+                after.close ()
+                Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
+                install_files ('DATADIR', 'applications', folder + '/' + desktop)
+            except:
+                Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
         finally:
             pre.close ()
 
