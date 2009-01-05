@@ -471,6 +471,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
         {
             priv->icon_cb (NULL, priv->user_data);
             katze_net_icon_priv_free (priv);
+            return;
         }
     }
     gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
