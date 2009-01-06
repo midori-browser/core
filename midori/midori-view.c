@@ -526,15 +526,15 @@ static GdkPixbuf*
 midori_view_mime_icon (GtkIconTheme* icon_theme,
                        const gchar*  format,
                        const gchar*  part1,
-                       const gchar*  part2)
+                       const gchar*  part2,
+                       gchar**       name)
 {
-    gchar* name;
     GdkPixbuf* icon;
 
-    name = part2 ? g_strdup_printf (format, part1, part2)
+    *name = part2 ? g_strdup_printf (format, part1, part2)
         : g_strdup_printf (format, part1);
-    icon = gtk_icon_theme_load_icon (icon_theme, name, 16, 0, NULL);
-    g_free (name);
+    if (!(icon = gtk_icon_theme_load_icon (icon_theme, *name, 16, 0, NULL)))
+        g_free (*name);
     return icon ? g_object_ref (icon) : NULL;
 }
 
@@ -547,31 +547,36 @@ midori_view_update_icon (MidoriView* view,
         GdkScreen* screen;
         GtkIconTheme* icon_theme;
         gchar** parts;
+        gchar* icon_name;
 
         if ((screen = gtk_widget_get_screen (GTK_WIDGET (view))))
         {
             icon_theme = gtk_icon_theme_get_for_screen (screen);
-            parts = g_strsplit (view->mime_type, "/", 2);
+            if ((parts = g_strsplit (view->mime_type, "/", 2)))
+                parts = (parts[0] && parts[1]) ? parts : NULL;
         }
         else
             parts = NULL;
 
-        if (parts && parts[0] && parts[1])
+        if (parts)
             icon = midori_view_mime_icon (icon_theme, "%s-%s",
-                                          parts[0], parts[1]);
-        if (!icon && parts && parts[0] && parts[1])
+                                          parts[0], parts[1], &icon_name);
+        if (!icon && parts)
             icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-%s",
-                                          parts[0], parts[1]);
-        if (!icon && parts && parts[0])
+                                          parts[0], parts[1], &icon_name);
+        if (!icon && parts)
             icon = midori_view_mime_icon (icon_theme, "%s-x-generic",
-                                          parts[0], NULL);
-        if (!icon && parts && parts[0])
+                                          parts[0], NULL, &icon_name);
+        if (!icon && parts)
             icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-x-generic",
-                                          parts[0], NULL);
+                                          parts[0], NULL, &icon_name);
+        katze_item_set_icon (view->item, icon && view->item ? icon_name : NULL);
         if (!icon)
             icon = gtk_widget_render_icon (GTK_WIDGET (view),
                 GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     }
+    else
+        katze_item_set_icon (view->item, NULL);
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
 

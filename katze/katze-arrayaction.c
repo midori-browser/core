@@ -226,6 +226,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     guint n, i;
     KatzeItem* item;
     GtkWidget* menuitem;
+    const gchar* icon_name;
     GdkPixbuf* icon;
     GtkWidget* image;
     GtkWidget* submenu;
@@ -245,14 +246,19 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         }
         menuitem = katze_image_menu_item_new_ellipsized (
             katze_item_get_name (item));
-        if (KATZE_IS_ARRAY (item))
-            icon = gtk_widget_render_icon (menuitem,
-                GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
+        if ((icon_name = katze_item_get_icon (item)) && *icon_name)
+            image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
         else
-            icon = katze_net_load_icon (array_action->net,
-                katze_item_get_uri (item), NULL, proxy, NULL);
-        image = gtk_image_new_from_pixbuf (icon);
-        g_object_unref (icon);
+        {
+            if (KATZE_IS_ARRAY (item))
+                icon = gtk_widget_render_icon (menuitem,
+                    GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
+            else
+                icon = katze_net_load_icon (array_action->net,
+                    katze_item_get_uri (item), NULL, proxy, NULL);
+            image = gtk_image_new_from_pixbuf (icon);
+            g_object_unref (icon);
+        }
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
@@ -402,6 +408,13 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
             NULL, GTK_WIDGET (toolitem), NULL);
         image = gtk_image_new_from_pixbuf (icon);
         g_object_unref (icon);
+        gtk_widget_show (image);
+        gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
+    }
+    else if (!strcmp (property, "icon"))
+    {
+        image = gtk_image_new_from_icon_name (katze_item_get_icon (item),
+                                              GTK_ICON_SIZE_MENU);
         gtk_widget_show (image);
         gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     }
