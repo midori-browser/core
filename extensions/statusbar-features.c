@@ -11,9 +11,17 @@
 
 #include <midori/midori.h>
 
-void
-statusbar_features_app_add_browser_cb (MidoriApp*     app,
-                                       MidoriBrowser* browser)
+static void
+statusbar_features_deactivate_cb (MidoriExtension* extension,
+                                  GtkWidget*       bbox)
+{
+    gtk_widget_destroy (bbox);
+}
+
+static void
+statusbar_features_app_add_browser_cb (MidoriApp*       app,
+                                       MidoriBrowser*   browser,
+                                       MidoriExtension* extension)
 {
     GtkWidget* statusbar;
     GtkWidget* bbox;
@@ -49,6 +57,9 @@ statusbar_features_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (button);
     gtk_widget_show (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
+
+    g_signal_connect (extension, "deactivate",
+        G_CALLBACK (statusbar_features_deactivate_cb), bbox);
 }
 
 static void
@@ -56,7 +67,7 @@ statusbar_features_activate_cb (MidoriExtension* extension,
                                 MidoriApp*       app)
 {
     g_signal_connect (app, "add-browser",
-        G_CALLBACK (statusbar_features_app_add_browser_cb), NULL);
+        G_CALLBACK (statusbar_features_app_add_browser_cb), extension);
 }
 
 MidoriExtension*
