@@ -223,7 +223,7 @@ midori_preferences_notify_preferred_encoding_cb (MidoriWebSettings* settings,
     gtk_widget_set_sensitive (entry, preferred_encoding == MIDORI_ENCODING_CUSTOM);
 }
 
-#if HAVE_LIBSOUP_2_23_1
+#if HAVE_LIBSOUP
 static void
 midori_preferences_notify_identify_as_cb (MidoriWebSettings* settings,
                                           GParamSpec*        pspec,
@@ -530,7 +530,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     WIDGET_ADD (button, 1, 2, 5, 6);
 
     /* Page "Network" */
-    #if HAVE_LIBSOUP_2_23_1
+    #if HAVE_LIBSOUP
     /* If a cookie jar was created, WebKit is using Soup */
     if (g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
         g_quark_from_static_string ("midori-has-jar")))

@@ -116,8 +116,7 @@ def configure (conf):
     conf.check_message_custom ('single instance', 'support', single_instance)
 
     if option_enabled ('libsoup'):
-        check_pkg ('libsoup-2.4', '2.23.0', False)
-        check_pkg ('libsoup-2.4', '2.23.1', False, var='LIBSOUP_2_23_1')
+        check_pkg ('libsoup-2.4', '2.23.1', False)
         check_pkg ('libsoup-2.4', '2.25.2', False, var='LIBSOUP_2_25_2')
         libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
     else:

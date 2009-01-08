@@ -1438,7 +1438,7 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
 }
 #endif
 
-#if HAVE_LIBSOUP_2_23_1
+#if HAVE_LIBSOUP
 /* The following code hooks up to any created cookie jar in order to
    load and save cookies. This is *not* a generally advisable technique
    but merely a preliminary workaround until WebKit exposes its
@@ -1967,7 +1967,7 @@ main (int    argc,
         return 1;
     }
 
-    #if HAVE_LIBSOUP_2_23_1
+    #if HAVE_LIBSOUP
     /* This is a nasty trick that allows us to manipulate cookies
        even without having a pointer to the jar. */
     soup_cookie_jar_get_type ();
