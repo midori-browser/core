@@ -105,7 +105,11 @@ def configure (conf):
 
     if option_enabled ('unique'):
         check_pkg ('unique-1.0', '0.9', False)
-        single_instance = ['not available','yes'][conf.env['HAVE_UNIQUE'] == 1]
+        single_instance = ['not available', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
+        if single_instance == 'yes':
+            if conf.check_cfg (modversion='unique-1.0') == '1.0.4':
+                Utils.pprint ('RED', 'unique 1.0.4 has a fatal bug.')
+                Utils.pprint ('RED', 'Please use an older or newer version.')
     else:
         option_checkfatal ('unique', 'single instance')
         single_instance = 'no'
