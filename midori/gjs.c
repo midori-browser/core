@@ -1024,10 +1024,13 @@ gjs_global_context_new (void)
 {
     #ifdef WEBKIT_CHECK_VERSION
     #if WEBKIT_CHECK_VERSION (1, 0, 3)
+    #define HAVE_JSCONTEXTGROUP 1
+    #endif
+    #endif
+    #if HAVE_JSCONTEXTGROUP
     JSGlobalContextRef js_context = JSGlobalContextCreateInGroup (NULL, NULL);
     #else
     JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);
-    #endif
     #endif
     JSObjectRef js_object = gjs_object_new (js_context, "GJS", NULL);
     _js_object_set_property (js_context, JSContextGetGlobalObject (js_context),
