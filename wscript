@@ -50,6 +50,7 @@ def configure (conf):
         return dirvalue
 
     conf.check_tool ('compiler_cc')
+    conf.check_tool ('glib2')
 
     if option_enabled ('userdocs'):
         conf.find_program ('rst2html.py', var='RST2HTML')
