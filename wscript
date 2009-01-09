@@ -161,8 +161,13 @@ def configure (conf):
     conf.write_config_header ('config.h')
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
     debug_level = Options.options.debug_level
-    if debug_level != 'no':
-        compiler = conf.env['CC_NAME']
+    compiler = conf.env['CC_NAME']
+    if debug_level == '':
+        if compiler == 'gcc':
+            debug_level = 'debug'
+        else:
+            debug_level = 'none'
+    if debug_level != 'none':
         if compiler == 'gcc':
             if debug_level == 'debug':
                 conf.env.append_value ('CCFLAGS', '-Wall -O0 -g')
@@ -221,9 +226,9 @@ def set_options (opt):
 
     opt.tool_options ('compiler_cc')
     opt.get_option_group ('--check-c-compiler').add_option('-d', '--debug-level',
-        action = 'store', default = 'debug',
-        help = 'Specify the debugging level. [\'no\', \'debug\', \'full\']',
-        choices = ['no', 'debug', 'full'], dest = 'debug_level')
+        action = 'store', default = '',
+        help = 'Specify the debugging level. [\'none\', \'debug\', \'full\']',
+        choices = ['', 'none', 'debug', 'full'], dest = 'debug_level')
     opt.tool_options ('gnu_dirs')
     opt.parser.remove_option ('--oldincludedir')
     opt.parser.remove_option ('--htmldir')
