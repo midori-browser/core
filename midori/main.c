@@ -1717,37 +1717,40 @@ midori_load_extensions (gpointer data)
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
-    extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
     if (g_module_supported ())
     {
+        extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
         GDir* extension_dir = g_dir_open (extension_path, 0, NULL);
-
-        while ((filename = g_dir_read_name (extension_dir)))
+        if (extension_dir != NULL)
         {
-            gchar* fullname;
-            GModule* module;
-            typedef MidoriExtension* (*extension_init_func)(void);
-            extension_init_func extension_init;
-
-            fullname = g_build_filename (extension_path, filename, NULL);
-            module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
-            g_free (fullname);
-
-            if (module && g_module_symbol (module, "extension_init",
-                                           (gpointer) &extension_init))
-                extension = extension_init ();
-            else
+            while ((filename = g_dir_read_name (extension_dir)))
             {
-                extension = g_object_new (MIDORI_TYPE_EXTENSION,
-                                          "name", filename,
-                                          "description", g_module_error (),
-                                          NULL);
-                g_warning ("%s", g_module_error ());
+                gchar* fullname;
+                GModule* module;
+                typedef MidoriExtension* (*extension_init_func)(void);
+                extension_init_func extension_init;
+
+                fullname = g_build_filename (extension_path, filename, NULL);
+                module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
+                g_free (fullname);
+
+                if (module && g_module_symbol (module, "extension_init",
+                                               (gpointer) &extension_init))
+                    extension = extension_init ();
+                else
+                {
+                    extension = g_object_new (MIDORI_TYPE_EXTENSION,
+                                              "name", filename,
+                                              "description", g_module_error (),
+                                              NULL);
+                    g_warning ("%s", g_module_error ());
+                }
+                katze_array_add_item (extensions, extension);
+                g_object_unref (extension);
             }
-            katze_array_add_item (extensions, extension);
-            g_object_unref (extension);
+            g_dir_close (extension_dir);
         }
-        g_dir_close (extension_dir);
+        g_free (extension_path);
     }
 
     g_object_set (app, "extensions", extensions, NULL);
