@@ -894,7 +894,7 @@ midori_location_action_prepend_item (MidoriLocationAction*    location_action,
     GtkTreeModel* filter_model;
     GtkTreeModel* model;
     GtkTreeIter iter;
-    GtkTreeIter index;
+    GtkTreeIter idx;
     gint n;
     gint visits = 0;
 
@@ -904,17 +904,17 @@ midori_location_action_prepend_item (MidoriLocationAction*    location_action,
     if (midori_location_action_iter_insert (location_action,
         item->uri, &iter, 0))
     {
-        gtk_tree_model_get_iter_first (model, &index);
+        gtk_tree_model_get_iter_first (model, &idx);
         gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
-        gtk_list_store_move_before (GTK_LIST_STORE (model), &iter, &index);
+        gtk_list_store_move_before (GTK_LIST_STORE (model), &iter, &idx);
     }
 
     n = gtk_tree_model_iter_n_children (filter_model, NULL);
     if (n > MAX_ITEMS)
     {
-        gtk_tree_model_iter_nth_child (model, &index, NULL, n - 1);
+        gtk_tree_model_iter_nth_child (model, &idx, NULL, n - 1);
         gtk_list_store_set (GTK_LIST_STORE (model),
-                            &index, VISIBLE_COL, FALSE, -1);
+                            &idx, VISIBLE_COL, FALSE, -1);
     }
 
     /* Only increment the visits when we add the uri */

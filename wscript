@@ -141,8 +141,7 @@ def configure (conf):
     check_pkg ('libxml-2.0', '2.6')
 
     conf.check (header_name='unistd.h')
-    if sys.platform == 'darwin':
-        conf.define ('HAVE_OSX', 1)
+    conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
 
     if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
         icons = 'yes'
@@ -162,11 +161,26 @@ def configure (conf):
     conf.write_config_header ('config.h')
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
     debug_level = Options.options.debug_level
-    if debug_level != '':
+    if debug_level != 'no':
         compiler = conf.env['CC_NAME']
         if compiler == 'gcc':
             if debug_level == 'debug':
                 conf.env.append_value ('CCFLAGS', '-Wall -O0 -g')
+            elif debug_level == 'full':
+                # -Wdeclaration-after-statement
+                # -Wmissing-declarations -Wmissing-prototypes
+                # -Wwrite-strings
+                conf.env.append_value ('CCFLAGS',
+                    '-Wall -Wextra -O1 -g '
+                    '-Waggregate-return -Wno-unused-parameter '
+                    '-Wno-missing-field-initializers '
+                    '-Wunsafe-loop-optimizations '
+                    '-Wredundant-decls -Wmissing-noreturn '
+                    '-Wshadow -Wpointer-arith -Wcast-align '
+                    '-Winline -Wformat-security '
+                    '-Winit-self -Wmissing-include-dirs -Wundef '
+                    '-Wmissing-format-attribute -Wnested-externs '
+                    '-DG_ENABLE_DEBUG')
             else:
                 conf.env.append_value ('CCFLAGS', '-O2')
         else:
@@ -207,9 +221,9 @@ def set_options (opt):
 
     opt.tool_options ('compiler_cc')
     opt.get_option_group ('--check-c-compiler').add_option('-d', '--debug-level',
-        action = 'store', default = '',
-        help = 'Specify the debugging level. [\'debug\', \'release\']',
-        choices = ['', 'debug', 'release'], dest = 'debug_level')
+        action = 'store', default = 'debug',
+        help = 'Specify the debugging level. [\'no\', \'debug\', \'full\']',
+        choices = ['no', 'debug', 'full'], dest = 'debug_level')
     opt.tool_options ('gnu_dirs')
     opt.parser.remove_option ('--oldincludedir')
     opt.parser.remove_option ('--htmldir')

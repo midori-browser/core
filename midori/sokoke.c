@@ -251,7 +251,7 @@ typedef enum
 static SokokeDesktop
 sokoke_get_desktop (void)
 {
-    #ifdef HAVE_OSX
+    #if HAVE_OSX
     return SOKOKE_DESKTOP_OSX;
     #else
     static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;

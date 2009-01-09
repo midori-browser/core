@@ -335,7 +335,7 @@ katze_property_proxy (gpointer     object,
     }
     else if (type == G_TYPE_PARAM_ENUM)
     {
-        gint i;
+        guint i;
         GEnumClass* enum_class = G_ENUM_CLASS (
             g_type_class_ref (pspec->value_type));
         gint value = katze_object_get_enum (object, property);

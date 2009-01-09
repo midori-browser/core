@@ -308,7 +308,7 @@ _addons_get_files (MidoriAddons* addons)
     return files;
 }
 
-GtkTreePath*
+static GtkTreePath*
 _treeview_first_selected_path (GtkTreeView *treeview)
 {
     GtkTreeSelection* selection;

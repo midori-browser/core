@@ -65,11 +65,11 @@ stock_items_init (void)
 {
     typedef struct
     {
-        gchar* stock_id;
-        gchar* label;
+        const gchar* stock_id;
+        const gchar* label;
         GdkModifierType modifier;
         guint keyval;
-        gchar* fallback;
+        const gchar* fallback;
     } FatStockItem;
     GtkIconSource* icon_source;
     GtkIconSet* icon_set;
@@ -143,7 +143,7 @@ settings_new_from_file (const gchar* filename)
     GParamSpec* pspec;
     GType type;
     const gchar* property;
-    gchar* string;
+    gchar* str;
     gint integer;
     gfloat number;
     gboolean boolean;
@@ -167,11 +167,11 @@ settings_new_from_file (const gchar* filename)
         property = g_param_spec_get_name (pspec);
         if (type == G_TYPE_PARAM_STRING)
         {
-            string = sokoke_key_file_get_string_default (key_file,
+            str = sokoke_key_file_get_string_default (key_file,
                 "settings", property,
                 G_PARAM_SPEC_STRING (pspec)->default_value, NULL);
-            g_object_set (settings, property, string, NULL);
-            g_free (string);
+            g_object_set (settings, property, str, NULL);
+            g_free (str);
         }
         else if (type == G_TYPE_PARAM_INT)
         {
@@ -200,17 +200,17 @@ settings_new_from_file (const gchar* filename)
                 g_type_class_ref (pspec->value_type));
             GEnumValue* enum_value = g_enum_get_value (enum_class,
                 G_PARAM_SPEC_ENUM (pspec)->default_value);
-            gchar* string = sokoke_key_file_get_string_default (key_file,
+            str = sokoke_key_file_get_string_default (key_file,
                 "settings", property,
                 enum_value->value_name, NULL);
-            enum_value = g_enum_get_value_by_name (enum_class, string);
+            enum_value = g_enum_get_value_by_name (enum_class, str);
             if (enum_value)
                  g_object_set (settings, property, enum_value->value, NULL);
              else
                  g_warning (_("Value '%s' is invalid for %s"),
-                            string, property);
+                            str, property);
 
-            g_free (string);
+            g_free (str);
             g_type_class_unref (enum_class);
         }
         else
@@ -243,9 +243,9 @@ settings_save_to_file (MidoriWebSettings* settings,
         property = g_param_spec_get_name (pspec);
         if (!(pspec->flags & G_PARAM_WRITABLE))
         {
-            gchar* comment = g_strdup_printf ("# %s", property);
-            g_key_file_set_string (key_file, "settings", comment, "");
-            g_free (comment);
+            gchar* prop_comment = g_strdup_printf ("# %s", property);
+            g_key_file_set_string (key_file, "settings", prop_comment, "");
+            g_free (prop_comment);
             continue;
         }
         if (type == G_TYPE_PARAM_STRING)
@@ -747,7 +747,7 @@ midori_history_add_items (void*  data,
     /* Test whether have the right number of columns */
     g_return_val_if_fail (argc % ncols == 0, 1);
 
-    for (i = 0; i <= (argc - ncols); i++)
+    for (i = 0; i < (argc - ncols) + 1; i++)
     {
         if (argv[i])
         {
@@ -2141,11 +2141,11 @@ main (int    argc,
         G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
     if (!katze_array_is_empty (bookmarks))
     {
-        guint i, n;
+        guint n;
         n = katze_array_get_length (bookmarks);
         for (i = 0; i < n; i++)
         {
-            KatzeItem* item = katze_array_get_nth_item (bookmarks, i);
+            item = katze_array_get_nth_item (bookmarks, i);
             if (KATZE_IS_ARRAY (item))
             {
                 g_signal_connect_after (item, "add-item",

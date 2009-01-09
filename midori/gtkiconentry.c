@@ -97,9 +97,7 @@ enum
   PROP_SENSITIVITY_SECONDARY
 };
 
-static void gtk_icon_entry_class_init        (GtkIconEntryClass    *klass);
 static void gtk_icon_entry_editable_init     (GtkEditableClass     *iface);
-static void gtk_icon_entry_init              (GtkIconEntry         *entry);
 static void gtk_icon_entry_finalize          (GObject              *obj);
 static void gtk_icon_entry_dispose           (GObject              *obj);
 static void gtk_icon_entry_map               (GtkWidget            *widget);

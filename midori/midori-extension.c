@@ -140,7 +140,7 @@ midori_extension_class_init (MidoriExtensionClass* class)
     g_type_class_add_private (class, sizeof (MidoriExtensionPrivate));
 }
 
-void
+static void
 midori_extension_activate_cb (MidoriExtension* extension,
                               MidoriApp*       app)
 {

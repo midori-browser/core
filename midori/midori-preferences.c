@@ -235,7 +235,7 @@ midori_preferences_notify_identify_as_cb (MidoriWebSettings* settings,
 }
 #endif
 
-#ifdef HAVE_OSX
+#if HAVE_OSX
 static void
 midori_preferences_help_clicked_cb (GtkWidget* button,
                                     GtkDialog* dialog)
@@ -260,7 +260,7 @@ midori_preferences_add_toolbutton (GtkWidget*   toolbar,
                                    const gchar* label,
                                    GtkWidget*   page)
 {
-#ifdef HAVE_OSX
+#if HAVE_OSX
     *toolbutton = GTK_WIDGET (*toolbutton ? gtk_radio_tool_button_new_from_widget (
         GTK_RADIO_TOOL_BUTTON (*toolbutton)) : gtk_radio_tool_button_new (NULL));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (*toolbutton), label);
@@ -316,7 +316,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     preferences->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
 
-    #ifdef HAVE_OSX
+    #if HAVE_OSX
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (preferences->notebook), FALSE);
     gtk_notebook_set_show_border (GTK_NOTEBOOK (preferences->notebook), FALSE);
     toolbar = gtk_toolbar_new ();
@@ -607,7 +607,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_object_unref (sizegroup);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
                         preferences->notebook, FALSE, FALSE, 4);
-    #ifdef HAVE_OSX
+    #if HAVE_OSX
     GtkWidget* icon;
     hbox = gtk_hbox_new (FALSE, 0);
     button = gtk_button_new ();

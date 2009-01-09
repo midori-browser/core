@@ -595,6 +595,7 @@ typedef struct
     GtkAlignmentClass parent_class;
 }  MidoriDummyViewableClass;
 
+GType midori_dummy_viewable_get_type (void) G_GNUC_CONST;
 #define MIDORI_TYPE_DUMMY_VIEWABLE (midori_dummy_viewable_get_type ())
 #define MIDORI_DUMMY_VIEWABLE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
     MIDORI_TYPE_DUMMY_VIEWABLE, MidoriDummyViewable))

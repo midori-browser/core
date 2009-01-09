@@ -141,7 +141,7 @@ midori_browser_quit_cb (MidoriBrowser* browser,
     midori_app_quit (app);
 }
 
-void
+static void
 _midori_app_add_browser (MidoriApp*     app,
                          MidoriBrowser* browser)
 {
@@ -164,7 +164,7 @@ _midori_app_add_browser (MidoriApp*     app,
     #endif
 }
 
-void
+static void
 _midori_app_quit (MidoriApp* app)
 {
     gtk_main_quit ();
@@ -282,7 +282,7 @@ static UniqueResponse
 midori_browser_message_received_cb (UniqueApp*         instance,
                                     UniqueCommand      command,
                                     UniqueMessageData* message,
-                                    guint              time,
+                                    guint              timestamp,
                                     MidoriApp*         app)
 {
   UniqueResponse response;

@@ -692,7 +692,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 1:
         if (!link_uri)
             return FALSE;
-        #ifdef HAVE_OSX
+        #if HAVE_OSX
         /* FIXME: Test for Command key */
         if (0)
         #else
@@ -1891,8 +1891,9 @@ midori_view_tab_label_parent_set (GtkWidget*  tab_label,
 {
     GtkWidget* parent;
 
+    /* FIXME: Disconnect orientation notification
     if (old_parent)
-        /* FIXME: Disconnect orientation notification */;
+        ; */
 
     if (!(parent = gtk_widget_get_parent (tab_label)))
         return;

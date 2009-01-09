@@ -239,7 +239,7 @@ katze_net_finished_cb (SoupMessage*  msg,
 }
 #endif
 
-gboolean
+static gboolean
 katze_net_local_cb (KatzeNetPriv* priv)
 {
     KatzeNetRequest* request;
@@ -288,7 +288,7 @@ katze_net_local_cb (KatzeNetPriv* priv)
     return FALSE;
 }
 
-gboolean
+static gboolean
 katze_net_default_cb (KatzeNetPriv* priv)
 {
     KatzeNetRequest* request;

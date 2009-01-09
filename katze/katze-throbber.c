@@ -885,17 +885,17 @@ katze_throbber_expose_event (GtkWidget*      widget,
 
         if (G_LIKELY (cols > 0 && rows > 0))
         {
-            gint index;
+            gint idx;
             guint x, y;
 
             katze_throbber_aligned_coords (widget, &ax, &ay);
 
-            index = throbber->index % (cols * rows);
+            idx = throbber->index % (cols * rows);
             if (G_LIKELY (throbber->timer_id >= 0))
-                index = MAX (index, 1);
+                idx = MAX (idx, 1);
 
-            x = (index % cols) * throbber->width;
-            y = (index / cols) * throbber->height;
+            x = (idx % cols) * throbber->width;
+            y = (idx / cols) * throbber->height;
 
             gdk_draw_pixbuf (event->window, NULL, throbber->pixbuf,
                              x, y, ax, ay,

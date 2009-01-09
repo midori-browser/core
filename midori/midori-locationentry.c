@@ -134,7 +134,7 @@ _gtk_entry_effective_inner_border (GtkEntry  *entry,
   *border = default_inner_border;
 }
 
-void
+static void
 gtk_entry_borders (GtkEntry* entry,
                    gint*     xborder,
                    gint*     yborder,

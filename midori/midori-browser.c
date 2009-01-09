@@ -1990,12 +1990,12 @@ _action_location_activate (GtkAction*     action,
 
 static void
 _action_location_active_changed (GtkAction*     action,
-                                 gint           index,
+                                 gint           idx,
                                  MidoriBrowser* browser)
 {
     const gchar* uri;
 
-    if (index > -1)
+    if (idx > -1)
     {
         uri = midori_location_action_get_uri (MIDORI_LOCATION_ACTION (action));
         midori_browser_set_current_uri (browser, uri);
@@ -2163,16 +2163,16 @@ _action_search_notify_current_item (GtkAction*     action,
 {
     MidoriSearchAction* search_action;
     KatzeItem* item;
-    guint index;
+    guint idx;
 
     search_action = MIDORI_SEARCH_ACTION (action);
     item = midori_search_action_get_current_item (search_action);
     if (item)
-        index = katze_array_get_item_index (browser->search_engines, item);
+        idx = katze_array_get_item_index (browser->search_engines, item);
     else
-        index = 0;
+        idx = 0;
 
-    g_object_set (browser->settings, "last-web-search", index, NULL);
+    g_object_set (browser->settings, "last-web-search", idx, NULL);
 }
 
 static void
@@ -2827,23 +2827,23 @@ static const gchar* license =
 
 static void
 _action_about_activate_link (GtkAboutDialog* about,
-                             const gchar*    link,
+                             const gchar*    uri,
                              gpointer        user_data)
 {
     MidoriBrowser* browser;
     gint n;
 
     browser = MIDORI_BROWSER (user_data);
-    n = midori_browser_add_uri (browser, link);
+    n = midori_browser_add_uri (browser, uri);
     midori_browser_set_current_page (browser, n);
 }
 
 static void
 _action_about_activate_email (GtkAboutDialog* about,
-                              const gchar*    link,
+                              const gchar*    uri,
                               gpointer        user_data)
 {
-    gchar* command = g_strconcat ("xdg-open ", link, NULL);
+    gchar* command = g_strconcat ("xdg-open ", uri, NULL);
     g_spawn_command_line_async (command, NULL);
     g_free (command);
 }
@@ -4070,7 +4070,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close Findbar"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_browser_find_button_close_clicked_cb), browser);
-    #ifdef HAVE_OSX
+    #if HAVE_OSX
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, 0);
     #else
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);

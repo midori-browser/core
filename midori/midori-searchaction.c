@@ -1144,7 +1144,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_widget_set_sensitive (button, FALSE);
     gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
 
-    #ifdef HAVE_OSX
+    #if HAVE_OSX
     GtkWidget* icon;
     hbox = gtk_hbox_new (FALSE, 0);
     button = gtk_button_new ();

@@ -198,7 +198,7 @@ gjs_value_get_string (GjsValue* value)
     return value->string;
 }
 
-void
+static void
 gjs_value_weak_notify_cb (GjsValue* attribute,
                           GjsValue* value)
 {
@@ -542,7 +542,7 @@ _js_class_get_property_names_cb (JSContextRef                 js_context,
         guint n;
         GParamSpec** pspecs = g_object_class_list_properties (
             G_OBJECT_GET_CLASS (object), &n);
-        gint i;
+        guint i;
         for (i = 0; i < n; i++)
         {
             const gchar* property = g_param_spec_get_name (pspecs[i]);
@@ -556,8 +556,8 @@ _js_class_get_property_names_cb (JSContextRef                 js_context,
             guint* signals = g_signal_list_ids (type, &n);
             for (i = 0; i < n; i++)
             {
-                const gchar* signal = g_signal_name (signals[i]);
-                JSStringRef js_signal = JSStringCreateWithUTF8CString (signal);
+                const gchar* signal_ = g_signal_name (signals[i]);
+                JSStringRef js_signal = JSStringCreateWithUTF8CString (signal_);
                 JSPropertyNameAccumulatorAddName (js_properties, js_signal);
                 JSStringRelease (js_signal);
             }
@@ -622,7 +622,7 @@ _js_object_call_as_function_cb (JSContextRef     js_context,
     GValue* values = g_new0 (GValue, n_arguments + 1);
     g_value_init (&values[0], G_OBJECT_TYPE (object));
     g_value_set_instance (&values[0], object);
-    gint i;
+    guint i;
     for (i = 0; i < n_arguments; i++)
     {
         GValue value = {0, };
@@ -1002,7 +1002,7 @@ _js_module_get_property_cb (JSContextRef js_context,
     return result;
 }
 
-JSObjectRef
+static JSObjectRef
 gjs_module_new (JSContextRef js_context,
                 const gchar* namespace)
 {
