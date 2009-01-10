@@ -96,7 +96,7 @@ midori_preferences_init (MidoriPreferences* preferences)
                   "has-separator", FALSE,
                   NULL);
     g_free (dialog_title);
-    #ifndef HAVE_OSX
+    #if !HAVE_OSX
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,

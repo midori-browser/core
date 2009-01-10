@@ -1839,10 +1839,13 @@ midori_run_script (const gchar* filename)
 
     #ifdef WEBKIT_CHECK_VERSION
     #if WEBKIT_CHECK_VERSION (1, 0, 3)
+    #define HAVE_JSCONTEXTGROUP 1
+    #endif
+    #endif
+    #if HAVE_JSCONTEXTGROUP
     js_context = JSGlobalContextCreateInGroup (NULL, NULL);
     #else
     js_context = JSGlobalContextCreate (NULL);
-    #endif
     #endif
 
     if (g_file_get_contents (filename, &script, NULL, &error))

@@ -1054,7 +1054,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     dialog = gtk_dialog_new_with_buttons (dialog_title,
         toplevel ? GTK_WINDOW (toplevel) : NULL,
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-        #ifndef HAVE_OSX
+        #if !HAVE_OSX
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif

@@ -776,7 +776,7 @@ generate_ident_string (MidoriIdentity identify_as)
     #endif
 
     const gchar* os =
-    #if defined (HAVE_OSX)
+    #if HAVE_OSX
     /* #if defined (HAVE_X86) */
     "Intel Mac OS X";
     /* #else
