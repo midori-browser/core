@@ -461,12 +461,13 @@ midori_view_update_icon (MidoriView* view,
         if (!icon && parts)
             icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-x-generic",
                                           parts[0], NULL, &icon_name);
-        katze_item_set_icon (view->item, icon && view->item ? icon_name : NULL);
+        if (view->item)
+            katze_item_set_icon (view->item, icon ? icon_name : NULL);
         if (!icon)
             icon = gtk_widget_render_icon (GTK_WIDGET (view),
                 GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     }
-    else
+    else if (view->item)
         katze_item_set_icon (view->item, NULL);
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
