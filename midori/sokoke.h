@@ -126,10 +126,6 @@ sokoke_tree_view_get_selected_iter   (GtkTreeView*   tree_view,
                                       GtkTreeModel** model,
                                       GtkTreeIter*   iter);
 
-gboolean
-sokoke_same_day                      (const time_t*  day1,
-                                      const time_t*  day2);
-
 gint
 sokoke_days_between                  (const time_t*  day1,
                                       const time_t*  day2);

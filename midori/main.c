@@ -597,7 +597,7 @@ db_exec_callback (sqlite3*    db,
         {
             *error = g_error_new (MIDORI_HISTORY_ERROR,
                                   MIDORI_HISTORY_ERROR_EXEC_SQL,
-                                  _("Failed to open database: %s\n"),
+                                  _("Failed to execute SQL statement: %s\n"),
                                   errmsg);
         }
         sqlite3_free (errmsg);
@@ -642,9 +642,9 @@ midori_history_remove_item_cb (KatzeArray* history,
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
-    sqlcmd = g_strdup_printf (
-        "DELETE FROM history WHERE uri = '%s' AND"
-        " title = '%s' AND date = %" G_GINT64_FORMAT,
+    sqlcmd = sqlite3_mprintf (
+        "DELETE FROM history WHERE uri = '%q' AND"
+        " title = '%q' AND date = %" G_GINT64_FORMAT,
         katze_item_get_uri (item),
         katze_item_get_name (item),
         katze_item_get_added (item));
@@ -655,7 +655,7 @@ midori_history_remove_item_cb (KatzeArray* history,
         g_error_free (error);
         return ;
     }
-    g_free (sqlcmd);
+    sqlite3_free (sqlcmd);
 }
 
 static void
@@ -738,9 +738,9 @@ midori_history_add_items (void*  data,
     KatzeArray* parent = NULL;
     KatzeArray* array = KATZE_ARRAY (data);
     gint64 date;
-    time_t newdate;
-    gint i, j, n;
+    gint i;
     gint ncols = 3;
+    gchar token[50];
 
     g_return_val_if_fail (KATZE_IS_ARRAY (array), 1);
 
@@ -761,18 +761,15 @@ midori_history_add_items (void*  data,
                 date = g_ascii_strtoull (argv[i + 2], NULL, 10);
                 katze_item_set_added (item, date);
 
-                n = katze_array_get_length (array);
-                for (j = 0; j < n; j++)
-                {
-                    parent = katze_array_get_nth_item (array, j);
-                    newdate = katze_item_get_added (KATZE_ITEM (parent));
-                    if (sokoke_same_day ((time_t *)&date, (time_t *)&newdate))
-                        break;
-                }
-                if (j == n)
+                strftime (token, sizeof (token), "%Y-%m-%d",
+                          localtime ((time_t *)&date));
+                parent = katze_array_find_token (array, token);
+
+                if (!parent)
                 {
                     parent = katze_array_new (KATZE_TYPE_ARRAY);
                     katze_item_set_added (KATZE_ITEM (parent), date);
+                    katze_item_set_token (KATZE_ITEM (parent), token);
                     katze_array_add_item (array, parent);
                 }
                 katze_array_add_item (parent, item);

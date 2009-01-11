@@ -664,35 +664,6 @@ sokoke_tree_view_get_selected_iter (GtkTreeView*   tree_view,
 }
 
 /**
- * sokoke_same_day:
- * @day1: a time_t timestamp value
- * @day2: a time_t timestamp value
- *
- * Compares two timestamps to see if their values are on the
- * same day.
- *
- * Return value: %TRUE if the day of the timestamps match.
- **/
-gboolean
-sokoke_same_day (const time_t* day1,
-                 const time_t* day2)
-{
-    struct tm* tm1;
-    struct tm* tm2;
-    gboolean same;
-
-    tm2 = localtime (day1);
-    tm1 = (struct tm*) g_memdup (tm2, sizeof (struct tm));
-    tm2 = localtime (day2);
-
-    same = (tm1->tm_year == tm2->tm_year &&
-            tm1->tm_mon == tm2->tm_mon &&
-            tm1->tm_mday == tm2->tm_mday) ? TRUE : FALSE;
-    g_free (tm1);
-    return same;
-}
-
-/**
  * sokoke_days_between:
  * @day1: a time_t timestamp value
  * @day2: a time_t timestamp value

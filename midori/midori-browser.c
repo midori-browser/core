@@ -2333,6 +2333,62 @@ midori_browser_bookmark_edit_activate_cb (GtkWidget*     menuitem,
 }
 
 static void
+midori_browser_model_remove_item (GtkTreeModel* model,
+                                  KatzeItem*    item,
+                                  GtkTreeIter*  iter)
+{
+    GtkTreeIter child_iter;
+    KatzeItem* child;
+    KatzeArray* parent;
+    gint i, n;
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        n = katze_array_get_length (KATZE_ARRAY (item));
+        for (i = 0; i < n; i++)
+        {
+            child = katze_array_get_nth_item (KATZE_ARRAY (item), 0);
+            katze_array_remove_item (KATZE_ARRAY (item), child);
+        }
+        while (gtk_tree_model_iter_nth_child (model, &child_iter, iter, 0))
+            gtk_tree_store_remove (GTK_TREE_STORE (model), &child_iter);
+    }
+
+    gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
+    g_object_unref (item);
+
+    parent = katze_item_get_parent (item);
+    katze_array_remove_item (parent, item);
+}
+
+static void
+midori_browser_history_delete (MidoriBrowser* browser)
+{
+    GtkTreeView* treeview;
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    KatzeItem* item;
+    GtkAction* location_action;
+
+    treeview = GTK_TREE_VIEW (browser->panel_history);
+    if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
+    {
+        location_action = _action_by_name (browser, "Location");
+        gtk_tree_model_get (model, &iter, 0, &item, -1);
+        midori_browser_model_remove_item (model, item, &iter);
+        midori_location_action_delete_item_from_uri (
+            MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
+    }
+}
+
+static void
+midori_browser_history_delete_activate_cb (GtkWidget*     menuitem,
+                                           MidoriBrowser* browser)
+{
+    midori_browser_history_delete (browser);
+}
+
+static void
 midori_browser_bookmark_delete_activate_cb (GtkWidget*     menuitem,
                                             MidoriBrowser* browser)
 {
@@ -2377,10 +2433,15 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     if (!history_item)
+    {
         midori_browser_bookmark_popup_item (menu, GTK_STOCK_EDIT, NULL,
             item, midori_browser_bookmark_edit_activate_cb, browser);
-    midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE, NULL,
-        item, midori_browser_bookmark_delete_activate_cb, browser);
+        midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE, NULL,
+            item, midori_browser_bookmark_delete_activate_cb, browser);
+    }
+    else
+        midori_browser_bookmark_popup_item (menu, GTK_STOCK_DELETE, NULL,
+            item, midori_browser_history_delete_activate_cb, browser);
 
     sokoke_widget_popup (widget, GTK_MENU (menu),
                          event, SOKOKE_MENU_POSITION_CURSOR);
@@ -2523,35 +2584,6 @@ midori_panel_history_button_release_event_cb (GtkWidget*      widget,
         return TRUE;
     }
     return FALSE;
-}
-
-static void
-midori_browser_model_remove_item (GtkTreeModel* model,
-                                  KatzeItem*    item,
-                                  GtkTreeIter*  iter)
-{
-    GtkTreeIter child_iter;
-    KatzeItem* child;
-    KatzeArray* parent;
-    gint i, n;
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        n = katze_array_get_length (KATZE_ARRAY (item));
-        for (i = 0; i < n; i++)
-        {
-            child = katze_array_get_nth_item (KATZE_ARRAY (item), 0);
-            katze_array_remove_item (KATZE_ARRAY (item), child);
-        }
-        while (gtk_tree_model_iter_nth_child (model, &child_iter, iter, 0))
-            gtk_tree_store_remove (GTK_TREE_STORE (model), &child_iter);
-    }
-
-    gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
-    g_object_unref (item);
-
-    parent = katze_item_get_parent (item);
-    katze_array_remove_item (parent, item);
 }
 
 static gboolean
@@ -2733,8 +2765,6 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
                                        GtkWidget*         treeview)
 {
     KatzeItem* item;
-    time_t date;
-    gchar datebuf[50];
     char* sdate;
     gint age;
 
@@ -2748,9 +2778,7 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
 
         if (age > 7)
         {
-            date = (time_t)katze_item_get_added (item);
-            strftime (datebuf, sizeof (datebuf), "%Y-%m-%d", localtime (&date));
-            g_object_set (renderer, "text", datebuf, NULL);
+            g_object_set (renderer, "text", katze_item_get_token (item), NULL);
         }
         else if (age > 6)
         {
@@ -2965,21 +2993,7 @@ static void
 _action_history_delete_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
-    GtkTreeView* treeview;
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-    KatzeItem* item;
-    GtkAction* location_action;
-
-    treeview = GTK_TREE_VIEW (browser->panel_history);
-    if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
-    {
-        location_action = _action_by_name (browser, "Location");
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-        midori_location_action_delete_item_from_uri (
-            MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
-        midori_browser_model_remove_item (model, item, &iter);
-    }
+    midori_browser_history_delete (browser);
 }
 
 static void
@@ -3518,6 +3532,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     time_t date_;
     gint age;
     gint newage;
+    gchar token[50];
 
     if (!katze_object_get_boolean (browser->settings, "remember-last-visited-pages"))
         return;
@@ -3550,8 +3565,10 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     }
     if (!found)
     {
+        strftime (token, sizeof (token), "%Y-%m-%d", localtime (&now));
         parent = katze_array_new (KATZE_TYPE_ARRAY);
         katze_item_set_added (KATZE_ITEM (parent), now);
+        katze_item_set_token (KATZE_ITEM (parent), token);
         katze_array_add_item (browser->history, parent);
         katze_array_add_item (parent, item);
         _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
