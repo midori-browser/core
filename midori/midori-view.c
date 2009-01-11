@@ -26,6 +26,10 @@
 #include <glib/gi18n.h>
 #include <webkit/webkit.h>
 
+#ifndef WEBKIT_CHECK_VERSION
+    #define WEBKIT_CHECK_VERSION(a,b,c) 0
+#endif
+
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
@@ -1037,6 +1041,10 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*      web_view,
                                        gpointer        decision,
                                        MidoriView*     view)
 {
+    #if WEBKIT_CHECK_VERSION (1, 0, 0)
+    gchar* uri;
+    #endif
+
     if (web_frame != webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
         return FALSE;
 
@@ -1045,7 +1053,25 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*      web_view,
     g_object_notify (G_OBJECT (view), "mime-type");
 
     /* TODO: Display contents with a Viewable if WebKit can't do it */
-    /* TODO: Offer to download file if it cannot be displayed at all */
+    /* TODO: Offer downloading file if it cannot be displayed at all */
+
+    #if WEBKIT_CHECK_VERSION (1, 1, 0)
+    if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
+    #else
+    if (g_str_has_prefix (mime_type, "image/") ||
+        g_strrstr (mime_type, "script") ||
+        g_str_has_prefix (mime_type, "text/") || g_strrstr (mime_type, "xml"))
+    #endif
+        return TRUE;
+
+    #if WEBKIT_CHECK_VERSION (1, 0, 0)
+    uri = g_strdup_printf ("error:nodisplay %s",
+        webkit_network_request_get_uri (request));
+    midori_view_set_uri (view, uri);
+    g_free (uri);
+    #else
+    midori_view_set_uri (view, "error:nodisplay ");
+    #endif
 
     return TRUE;
 }
@@ -1525,7 +1551,23 @@ midori_view_set_uri (MidoriView*  view,
         if (g_str_has_prefix (uri, "error:"))
         {
             data = NULL;
-            if (!strncmp (uri, "error:nodocs ", 13))
+            if (!strncmp (uri, "error:nodisplay ", 16))
+            {
+                gchar* title;
+
+                katze_assign (view->uri, g_strdup (&uri[16]));
+                title = g_strdup_printf (_("Document cannot be displayed"));
+                data = g_strdup_printf (
+                    "<html><head><title>%s</title></head>"
+                    "<body><h1>%s</h1>"
+                    "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
+                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "<p />The document %s cannot be displayed."
+                    "</body></html>",
+                    title, title, view->uri);
+                g_free (title);
+            }
+            else if (!strncmp (uri, "error:nodocs ", 13))
             {
                 gchar* title;
 
