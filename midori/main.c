@@ -1958,6 +1958,8 @@ main (int    argc,
               after a crash, so running a new window isn't a good idea. */
     if (midori_app_instance_is_running (app))
     {
+        GtkWidget* dialog;
+
         /* TODO: Open as many tabs as we have uris, seperated by pipes */
         if (uris)
             result = midori_app_instance_send_uris (app, uris);
@@ -1967,8 +1969,12 @@ main (int    argc,
         if (result)
             return 0;
 
-        g_print (_("An instance of Midori is already running but not responding.\n"));
-        /* FIXME: Show a dialog which allows killing the existing instance */
+        dialog = gtk_message_dialog_new (NULL,
+            0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s",
+            _("An instance of Midori is already running but not responding.\n"));
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_DELETE_EVENT)
+            gtk_widget_destroy (dialog);
+        /* FIXME: Allow killing the existing instance */
         return 1;
     }
 
