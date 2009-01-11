@@ -1645,8 +1645,10 @@ static void
 button_modify_preferences_clicked_cb (GtkWidget*         button,
                                       MidoriWebSettings* settings)
 {
-    GtkWidget* dialog = midori_preferences_new (NULL, settings);
-    gtk_dialog_run (GTK_DIALOG (dialog));
+    GtkWidget* dialog = midori_preferences_new (
+        GTK_WINDOW (gtk_widget_get_toplevel (button)), settings);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_DELETE_EVENT)
+        gtk_widget_destroy (dialog);
 }
 
 static void
