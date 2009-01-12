@@ -51,14 +51,13 @@ proxy_uri_file_set_cb (GtkFileChooser* button,
     g_object_set (object, property, file, NULL);
 }
 
-static gchar*
+static void
 proxy_combo_box_text_changed_cb (GtkComboBox* button,
                                  GObject*     object)
 {
     gchar* text = gtk_combo_box_get_active_text (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, text, NULL);
-    return FALSE;
 }
 
 static void
@@ -81,7 +80,7 @@ proxy_entry_focus_out_event_cb (GtkEntry*      entry,
     return FALSE;
 }
 
-static gboolean
+static void
 proxy_spin_button_changed_cb (GtkSpinButton* button,
                               GObject*       object)
 {
@@ -98,7 +97,6 @@ proxy_spin_button_changed_cb (GtkSpinButton* button,
         gdouble value = gtk_spin_button_get_value (button);
         g_object_set (object, property, value, NULL);
     }
-    return FALSE;
 }
 
 static void
