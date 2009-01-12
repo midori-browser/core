@@ -113,6 +113,7 @@ def configure (conf):
                 Utils.pprint ('RED', 'Please use an older or newer version.')
     else:
         option_checkfatal ('unique', 'single instance')
+        conf.define ('HAVE_UNIQUE', 0)
         single_instance = 'no'
     conf.check_message_custom ('single instance', 'support', single_instance)
 
@@ -122,6 +123,8 @@ def configure (conf):
         libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
     else:
         option_checkfatal ('libsoup', 'libsoup')
+        conf.define ('HAVE_LIBSOUP', 0)
+        conf.define ('HAVE_LIBSOUP_2_25_2', 0)
         libsoup = 'no'
     conf.check_message_custom ('libsoup', 'support', libsoup)
 
@@ -130,6 +133,7 @@ def configure (conf):
         sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
     else:
         option_checkfatal ('sqlite', 'history database')
+        conf.define ('HAVE_SQLITE', 0)
         sqlite = 'no'
     conf.check_message_custom ('history database', 'support', sqlite)
 
