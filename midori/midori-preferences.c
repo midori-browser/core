@@ -368,7 +368,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "General" */
     PAGE_NEW (GTK_STOCK_HOME, _("General"));
     FRAME_NEW (_("Startup"));
-    TABLE_NEW (2, 2);
+    TABLE_NEW (3, 2);
     label = katze_property_label (settings, "load-on-startup");
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "load-on-startup", NULL);
@@ -378,6 +378,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* TODO: We need something like "use current website" */
     entry = katze_property_proxy (settings, "homepage", NULL);
     FILLED_ADD (entry, 1, 2, 1, 2);
+    button = katze_property_proxy (settings, "show-crash-dialog", "blurb");
+    SPANNED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Transfers"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "download-folder");

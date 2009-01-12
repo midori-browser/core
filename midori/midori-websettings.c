@@ -43,6 +43,7 @@ struct _MidoriWebSettings
 
     MidoriStartup load_on_startup;
     gchar* homepage;
+    gboolean show_crash_dialog;
     gchar* download_folder;
     gchar* download_manager;
     gchar* text_editor;
@@ -103,6 +104,7 @@ enum
 
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
+    PROP_SHOW_CRASH_DIALOG,
     PROP_DOWNLOAD_FOLDER,
     PROP_DOWNLOAD_MANAGER,
     PROP_TEXT_EDITOR,
@@ -420,6 +422,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Homepage"),
                                      _("The homepage"),
                                      "http://www.google.com",
+                                     flags));
+
+    /**
+    * MidoriWebSettings:show-crash-dialog:
+    *
+    * Show a dialog after Midori crashed.
+    *
+    * Since: 0.1.2
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_CRASH_DIALOG,
+                                     g_param_spec_boolean (
+                                     "show-crash-dialog",
+                                     _("Show crash dialog"),
+                                     _("Show a dialog after Midori crashed"),
+                                     TRUE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -886,6 +904,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_HOMEPAGE:
         katze_assign (web_settings->homepage, g_value_dup_string (value));
         break;
+    case PROP_SHOW_CRASH_DIALOG:
+        web_settings->show_crash_dialog = g_value_get_boolean (value);
+        break;
     case PROP_DOWNLOAD_FOLDER:
         katze_assign (web_settings->download_folder, g_value_dup_string (value));
         break;
@@ -1054,6 +1075,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_HOMEPAGE:
         g_value_set_string (value, web_settings->homepage);
+        break;
+    case PROP_SHOW_CRASH_DIALOG:
+        g_value_set_boolean (value, web_settings->show_crash_dialog);
         break;
     case PROP_DOWNLOAD_FOLDER:
         g_value_set_string (value, web_settings->download_folder);

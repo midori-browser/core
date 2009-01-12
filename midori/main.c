@@ -2180,7 +2180,8 @@ main (int    argc,
     /* We test for the presence of a dummy file which is created once
        and deleted during normal runtime, but persists in case of a crash. */
     katze_assign (config_file, build_config_filename ("running"));
-    if (g_file_test (config_file, G_FILE_TEST_EXISTS))
+    if (katze_object_get_boolean (settings, "show-crash-dialog")
+        && g_file_test (config_file, G_FILE_TEST_EXISTS))
     {
         GtkWidget* dialog = midori_create_diagnostic_dialog (settings, _session);
         gtk_dialog_run (GTK_DIALOG (dialog));
