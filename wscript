@@ -262,19 +262,13 @@ def build (bld):
         if not os.access (path, os.F_OK):
             os.mkdir (path)
 
-    def install_files (folder, destination, source):
-        try:
-            bld.install_files (folder, destination, source)
-        except:
-            pass
-
     bld.add_subdirs ('katze midori icons')
 
     if option_enabled ('addons'):
         bld.add_subdirs ('extensions')
 
     if option_enabled ('docs'):
-        install_files ('DOCDIR', '/' + APPNAME + '/', \
+        bld.install_files ('${DOCDIR}/' + APPNAME + '/', \
             'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
 
     if bld.env['RST2HTML']:
@@ -291,7 +285,7 @@ def build (bld):
             '../../../docs/user/midori.txt ' + 'midori.html'
         Utils.exec_command (command)
         os.chdir ('../../..')
-        install_files ('DOCDIR', '/midori/user/', blddir + '/docs/user/midori.html')
+        bld.install_files ('${DOCDIR}/midori/user/', blddir + '/docs/user/midori.html')
 
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
@@ -300,14 +294,14 @@ def build (bld):
 
     if bld.env['GTKDOC_SCAN'] and Options.commands['build']:
         bld.add_subdirs ('docs/api')
-        install_files ('DOCDIR', '/midori/api/', blddir + '/docs/api/*')
+        bld.install_files ('${DOCDIR}/midori/api/', blddir + '/docs/api/*')
 
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_in')
         obj.source   = APPNAME + '.desktop.in'
         obj.install_path = '${DATADIR}/applications'
         obj.flags    = '-d'
-        install_files ('DATADIR', 'applications', APPNAME + '.desktop')
+        bld.install_files ('${DATADIR}/applications', APPNAME + '.desktop')
     else:
         folder = os.path.dirname (bld.env['waf_config_files'][0])
         desktop = APPNAME + '.desktop'
@@ -323,7 +317,7 @@ def build (bld):
                             after.write (line)
                 after.close ()
                 Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
-                install_files ('DATADIR', 'applications', folder + '/' + desktop)
+                bld.install_files ('${DATADIR}/applications', folder + '/' + desktop)
             except:
                 Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
         finally:
@@ -335,7 +329,7 @@ def build (bld):
             ' -o ' + blddir + '/data/logo-shade.png ' + \
             srcdir + '/data/logo-shade.svg'
         if not Utils.exec_command (command):
-            install_files ('DATADIR', APPNAME, blddir + '/data/logo-shade.png')
+            bld.install_files ('${DATADIR}/' + APPNAME, blddir + '/data/logo-shade.png')
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 

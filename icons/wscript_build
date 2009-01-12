@@ -11,12 +11,6 @@ def add_image (bld, category, name):
         if not os.access (path, os.F_OK):
             os.mkdir (path)
 
-    def install_files (folder, destination, source):
-        try:
-            bld.install_files (folder, destination, source)
-        except:
-            pass
-
     rsvg_convert = bld.env['RSVG_CONVERT']
 
     if rsvg_convert:
@@ -25,8 +19,8 @@ def add_image (bld, category, name):
     for size in [16, 22, 32, 48]:
         format = str (size) + 'x' + str (size)
         if os.access (srcdir + '/icons/' + format + '/' + name + '.png', os.F_OK):
-            install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
-                           srcdir + '/icons/' + format + '/' + name + '.png')
+            bld.install_files ('${DATADIR}/icons/hicolor/' + format + '/' + category,
+                               srcdir + '/icons/' + format + '/' + name + '.png')
         elif not rsvg_convert:
             pass
         elif os.access (srcdir + '/icons/scalable/' + name + '.svg', os.F_OK):
@@ -36,8 +30,8 @@ def add_image (bld, category, name):
                 ' -o ' + blddir + '/icons/' + format + '/' + name + '.png' + \
                 ' ' + srcdir + '/icons/scalable/' + name + '.svg'
             if not Utils.exec_command (command):
-                install_files ('DATADIR', 'icons/hicolor/' + format + '/' + category,
-                               blddir + '/icons/' + format + '/' + name + '.png')
+                bld.install_files ('${DATADIR}/icons/hicolor/' + format + '/' + category,
+                                   blddir + '/icons/' + format + '/' + name + '.png')
             else:
                 Utils.pprint ('BLUE', "Optimized icons could not be created.")
                 break
