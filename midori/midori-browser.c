@@ -1261,6 +1261,15 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      flags));
+
+    /* Add 2px space between tool buttons */
+    gtk_rc_parse_string (
+        "style \"tool-button-style\"\n {\n"
+        "GtkToolButton::icon-spacing = 2\n }\n"
+        "widget \"MidoriBrowser.*.MidoriBookmarkbar.Gtk*ToolButton\" "
+        "style \"tool-button-style\"\n"
+        "widget \"MidoriBrowser.*.MidoriFindbar.Gtk*ToolButton\" "
+        "style \"tool-button-style\"\n");
 }
 
 static void
@@ -3883,6 +3892,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Bookmarkbar */
     browser->bookmarkbar = gtk_toolbar_new ();
+    gtk_widget_set_name (browser->bookmarkbar, "MidoriBookmarkbar");
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->bookmarkbar),
                                GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
@@ -4030,6 +4040,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Incremental findbar */
     browser->find = gtk_toolbar_new ();
+    gtk_widget_set_name (browser->find, "MidoriFindbar");
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->find), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->find), GTK_TOOLBAR_BOTH_HORIZ);
     toolitem = gtk_tool_item_new ();
