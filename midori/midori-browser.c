@@ -2998,6 +2998,24 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     _midori_browser_update_progress (browser, MIDORI_VIEW (view));
 }
 
+static gboolean
+gtk_notebook_button_press_event_cb (GtkNotebook*    notebook,
+                                    GdkEventButton* event,
+                                    MidoriBrowser*  browser)
+{
+    /* Open a new tab on double click or middle mouse click */
+    if (event->window == notebook->event_window
+        && ((event->type == GDK_2BUTTON_PRESS && event->button == 1)
+        || (event->type == GDK_BUTTON_PRESS && event->button == 2)))
+    {
+       gtk_action_activate (_action_by_name (browser, "TabNew"));
+
+       return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 _action_history_delete_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
@@ -4020,6 +4038,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect_after (browser->notebook, "switch-page",
                             G_CALLBACK (gtk_notebook_switch_page_cb),
                             browser);
+    g_signal_connect (browser->notebook, "button-press-event",
+                      G_CALLBACK (gtk_notebook_button_press_event_cb),
+                      browser);
     gtk_widget_show (browser->notebook);
 
     /* Inspector container */
