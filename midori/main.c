@@ -1117,6 +1117,7 @@ midori_trash_add_item_cb (KatzeArray* trash,
     error = NULL;
     if (!katze_array_to_file (trash, config_file, &error))
     {
+        /* i18n: Trash, or wastebin, containing closed tabs */
         g_warning (_("The trash couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
