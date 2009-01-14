@@ -525,7 +525,11 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open externally opened pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
+    #if HAVE_UNIQUE
                                      G_PARAM_READWRITE));
+    #else
+                                     G_PARAM_READABLE));
+    #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_MIDDLE_CLICK_OPENS_SELECTION,
