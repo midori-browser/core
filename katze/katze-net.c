@@ -101,11 +101,36 @@ katze_net_new (void)
     static KatzeNet* net = NULL;
 
     if (!net)
+    {
         net = g_object_new (KATZE_TYPE_NET, NULL);
+        /* Since this is a "singleton", keep an extra reference */
+        g_object_ref (net);
+    }
     else
         g_object_ref (net);
 
     return net;
+}
+
+/**
+ * katze_net_get_session:
+ *
+ * Retrieves the session of the net.
+ *
+ * Return value: a session, or %NULL
+ *
+ * Since: 0.1.3
+ **/
+gpointer
+katze_net_get_session (KatzeNet* net)
+{
+    g_return_val_if_fail (KATZE_IS_NET (net), NULL);
+
+    #if HAVE_LIBSOUP
+    return net->session;
+    #else
+    return NULL;
+    #endif
 }
 
 typedef struct

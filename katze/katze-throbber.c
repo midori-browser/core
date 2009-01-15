@@ -35,7 +35,7 @@ struct _KatzeThrobber
     gint height;
 };
 
-G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC)
+G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC);
 
 enum
 {

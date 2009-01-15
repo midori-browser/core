@@ -40,6 +40,9 @@ katze_net_get_type                       (void);
 KatzeNet*
 katze_net_new                            (void);
 
+gpointer
+katze_net_get_session                    (KatzeNet*          net);
+
 typedef enum
 {
     KATZE_NET_VERIFIED,
