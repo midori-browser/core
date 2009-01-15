@@ -1906,6 +1906,9 @@ main (int    argc,
     KatzeNet* net;
     SoupSession* s_session;
     #endif
+    #if HAVE_LIBSOUP_2_25_2
+    SoupCookieJar* jar;
+    #endif
     #ifdef HAVE_SQLITE
     sqlite3* db;
     gint max_history_age;
@@ -2132,6 +2135,12 @@ main (int    argc,
     {
         net = katze_net_new ();
         s_session = katze_net_get_session (net);
+        #if HAVE_LIBSOUP_2_25_2
+        katze_assign (config_file, build_config_filename ("cookies.txt"));
+        jar = soup_cookie_jar_text_new (config_file, FALSE);
+        soup_session_add_feature (s_session, SOUP_SESSION_FEATURE (jar));
+        g_object_unref (jar);
+        #endif
         soup_session_settings_notify_http_proxy_cb (settings, NULL, s_session);
         soup_session_settings_notify_ident_string_cb (settings, NULL, s_session);
         g_signal_connect (settings, "notify::http-proxy",
