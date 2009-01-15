@@ -1442,6 +1442,9 @@ midori_view_construct_web_view (MidoriView* view)
     gpointer inspector;
 
     view->web_view = webkit_web_view_new ();
+    if (g_object_class_find_property (G_OBJECT_GET_CLASS (view->web_view), "session"))
+        g_object_set (view->web_view, "session",
+                      katze_net_get_session (view->net), NULL);
 
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
 

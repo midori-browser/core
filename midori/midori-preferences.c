@@ -300,6 +300,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* entry;
     GtkWidget* hbox;
     gint icon_width, icon_height;
+    #if HAVE_LIBSOUP
+    GObjectClass* webkit_class;
+    #endif
 
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
@@ -535,8 +538,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Network" */
     #if HAVE_LIBSOUP
+    webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
+    if (g_object_class_find_property (webkit_class, "session") ||
     /* If a cookie jar was created, WebKit is using Soup */
-    if (g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
         g_quark_from_static_string ("midori-has-jar")))
     {
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
@@ -571,8 +576,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
     #if HAVE_LIBSOUP_2_25_2
+    if (g_object_class_find_property (webkit_class, "session") ||
     /* If a cookie jar was created, WebKit is using Soup */
-    if (g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
+        g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
         g_quark_from_static_string ("midori-has-jar")))
     {
     FRAME_NEW (_("Web Cookies"));

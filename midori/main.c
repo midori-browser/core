@@ -1464,9 +1464,7 @@ cookie_jar_constructed_cb (GObject* object)
         (GClosureNotify)g_free, 0);
     #endif
 }
-#endif
 
-#if HAVE_LIBSOUP
 static void
 authentication_dialog_response_cb (GtkWidget* dialog,
                                    gint       response,
@@ -1903,6 +1901,11 @@ main (int    argc,
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
+    #if HAVE_LIBSOUP
+    GObjectClass* webkit_class;
+    KatzeNet* net;
+    SoupSession* s_session;
+    #endif
     #ifdef HAVE_SQLITE
     sqlite3* db;
     gint max_history_age;
@@ -1980,6 +1983,9 @@ main (int    argc,
     }
 
     #if HAVE_LIBSOUP
+    webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
+    if (!g_object_class_find_property (webkit_class, "session"))
+    {
     /* This is a nasty trick that allows us to manipulate cookies
        even without having a pointer to the jar. */
     soup_cookie_jar_get_type ();
@@ -1991,8 +1997,6 @@ main (int    argc,
         old_jar_constructed_cb = G_OBJECT_CLASS (jar_class)->constructed;
         G_OBJECT_CLASS (jar_class)->constructed = cookie_jar_constructed_cb;
     }
-    #endif
-    #if HAVE_LIBSOUP
     /* This is a nasty trick that allows us to manipulate preferences
        even without having a pointer to the session. */
     soup_session_get_type ();
@@ -2003,6 +2007,7 @@ main (int    argc,
                           g_quark_from_static_string ("midori-app"), app);
         old_session_constructed_cb = G_OBJECT_CLASS (session_class)->constructed;
         G_OBJECT_CLASS (session_class)->constructed = soup_session_constructed_cb;
+    }
     }
     #endif
 
@@ -2120,6 +2125,24 @@ main (int    argc,
                   , would we want to make backups? */
     }
     g_string_free (error_messages, TRUE);
+
+    #if HAVE_LIBSOUP
+    webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
+    if (g_object_class_find_property (webkit_class, "session"))
+    {
+        net = katze_net_new ();
+        s_session = katze_net_get_session (net);
+        soup_session_settings_notify_http_proxy_cb (settings, NULL, s_session);
+        soup_session_settings_notify_ident_string_cb (settings, NULL, s_session);
+        g_signal_connect (settings, "notify::http-proxy",
+            G_CALLBACK (soup_session_settings_notify_http_proxy_cb), s_session);
+        g_signal_connect (settings, "notify::ident-string",
+            G_CALLBACK (soup_session_settings_notify_ident_string_cb), s_session);
+        g_signal_connect (s_session, "authenticate",
+            G_CALLBACK (soup_session_authenticate_cb), app);
+        g_object_unref (net);
+    }
+    #endif
 
     /* Open as many tabs as we have uris, seperated by pipes */
     i = 0;
