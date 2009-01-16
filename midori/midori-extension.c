@@ -99,7 +99,7 @@ midori_extension_class_init (MidoriExtensionClass* class)
     gobject_class->set_property = midori_extension_set_property;
     gobject_class->get_property = midori_extension_get_property;
 
-    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
     g_object_class_install_property (gobject_class,
                                      PROP_NAME,

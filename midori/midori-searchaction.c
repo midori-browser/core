@@ -136,7 +136,7 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      "Search Engines",
                                      "The list of search engines",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_CURRENT_ITEM,
@@ -145,7 +145,7 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      "Current Item",
                                      "The currently selected item",
                                      KATZE_TYPE_ITEM,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_TEXT,
@@ -154,7 +154,7 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      "Text",
                                      "The current text typed in the entry",
                                      NULL,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_DIALOG,
@@ -163,7 +163,7 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      "Dialog",
                                      "A dialog to manage search engines",
                                      GTK_TYPE_DIALOG,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void

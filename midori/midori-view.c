@@ -305,7 +305,7 @@ midori_view_class_init (MidoriViewClass* class)
     gobject_class->set_property = midori_view_set_property;
     gobject_class->get_property = midori_view_get_property;
 
-    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
     g_object_class_install_property (gobject_class,
                                      PROP_URI,
@@ -314,7 +314,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Uri",
                                      "The URI of the currently loaded page",
                                      "about:blank",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_TITLE,
@@ -323,7 +323,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Title",
                                      "The title of the currently loaded page",
                                      NULL,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriView:mime-type:
@@ -339,7 +339,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "MIME Type",
                                      "The MIME type of the currently loaded page",
                                      "text/html",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ICON,
@@ -348,7 +348,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Icon",
                                      "The icon of the view",
                                      GDK_TYPE_PIXBUF,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LOAD_STATUS,
@@ -358,7 +358,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "The current loading status",
                                      MIDORI_TYPE_LOAD_STATUS,
                                      MIDORI_LOAD_FINISHED,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_PROGRESS,
@@ -367,7 +367,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Progress",
                                      "The current loading progress",
                                      0.0, 1.0, 0.0,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ZOOM_LEVEL,
@@ -378,7 +378,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      G_MINFLOAT,
                                      G_MAXFLOAT,
                                      1.0f,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /* g_object_class_install_property (gobject_class,
                                      PROP_NEWS_FEEDS,
@@ -387,7 +387,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "News Feeds",
                                      "The list of available news feeds",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE)); */
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)); */
 
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR_TEXT,
@@ -396,7 +396,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Statusbar Text",
                                      "The text displayed in the statusbar",
                                      "",
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_SETTINGS,

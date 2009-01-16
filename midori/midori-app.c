@@ -211,7 +211,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Settings",
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_BOOKMARKS,
@@ -220,7 +220,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Bookmarks",
                                      "The bookmarks folder, containing all bookmarks",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_TRASH,
@@ -229,7 +229,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Trash",
                                      "The trash, collecting recently closed tabs and windows",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_SEARCH_ENGINES,
@@ -238,7 +238,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Search Engines",
                                      "The list of search engines",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_HISTORY,
@@ -247,7 +247,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "History",
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_EXTENSIONS,
@@ -256,7 +256,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Extensions",
                                      "The list of extensions",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_BROWSER,
@@ -265,7 +265,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Browser",
                                      "The current browser",
                                      MIDORI_TYPE_BROWSER,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_BROWSER_COUNT,
@@ -274,7 +274,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Browser Count",
                                      "The current number of browsers",
                                      0, G_MAXUINT, 0,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
 
 #if HAVE_UNIQUE

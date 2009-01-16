@@ -70,7 +70,7 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
                                      "Settings",
                                      "Settings instance to provide properties",
                                      MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void

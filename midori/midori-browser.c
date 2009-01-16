@@ -1078,7 +1078,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
     gobject_class->set_property = midori_browser_set_property;
     gobject_class->get_property = midori_browser_get_property;
 
-    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
     g_object_class_install_property (gobject_class,
                                      PROP_MENUBAR,
@@ -1087,7 +1087,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Menubar",
                                      "The menubar",
                                      GTK_TYPE_MENU_BAR,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_NAVIGATIONBAR,
@@ -1096,7 +1096,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Navigationbar",
                                      "The navigationbar",
                                      GTK_TYPE_TOOLBAR,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_NOTEBOOK,
@@ -1105,7 +1105,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Notebook",
                                      "The notebook containing the views",
                                      GTK_TYPE_NOTEBOOK,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_PANEL,
@@ -1114,7 +1114,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Panel",
                                      "The side panel embedded in the browser",
                                      MIDORI_TYPE_PANEL,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_URI,
@@ -1123,7 +1123,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "URI",
                                      "The current URI",
                                      "about:blank",
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_TAB,
@@ -1132,7 +1132,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Tab",
                                      "The current tab",
                                      GTK_TYPE_WIDGET,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LOAD_STATUS,
@@ -1142,7 +1142,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "The current load status",
                                      MIDORI_TYPE_LOAD_STATUS,
                                      MIDORI_LOAD_FINISHED,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR,
@@ -1151,7 +1151,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Statusbar",
                                      "The statusbar",
                                      GTK_TYPE_STATUSBAR,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriBrowser:statusbar-text:
@@ -1190,7 +1190,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Settings",
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriBrowser:bookmarks:
@@ -1207,7 +1207,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Bookmarks",
                                      "The bookmarks folder, containing all bookmarks",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriBrowser:trash:
@@ -1226,7 +1226,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Trash",
                                      "The trash, collecting recently closed tabs and windows",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriBrowser:search-engines:
@@ -1243,7 +1243,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "Search Engines",
                                      "The list of search engines to be used for web search",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriBrowser:history:

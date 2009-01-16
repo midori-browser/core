@@ -17,6 +17,12 @@
 #endif
 
 #include <glib.h>
+
+#if !GLIB_CHECK_VERSION (2, 14, 0)
+    #define G_PARAM_STATIC_STRINGS \
+    (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
+#endif
+
 #if GLIB_CHECK_VERSION (2, 16, 0)
     #include <gio/gio.h>
 #endif

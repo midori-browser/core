@@ -168,7 +168,7 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "Progress",
                                      "The current progress of the action",
                                      0.0, 1.0, 0.0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_SECONDARY_ICON,
@@ -177,7 +177,7 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "Secondary",
                                      "The stock ID of the secondary icon",
                                      NULL,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void

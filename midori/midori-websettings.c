@@ -274,7 +274,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     gobject_class->set_property = midori_web_settings_set_property;
     gobject_class->get_property = midori_web_settings_get_property;
 
-    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
     g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_WINDOW_SIZE,
@@ -516,8 +516,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
-    g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW)
-        ? G_PARAM_READWRITE : G_PARAM_READABLE));
+    (g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW)
+        ? G_PARAM_READWRITE : G_PARAM_READABLE) | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_EXTERNAL_PAGES_IN,
@@ -528,9 +528,9 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
     #if HAVE_UNIQUE
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
     #else
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     #endif
 
     g_object_class_install_property (gobject_class,
@@ -567,7 +567,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Open popups in tabs"),
                                      _("Whether to open popup windows in tabs"),
                                      TRUE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
 
     if (!g_object_class_find_property (gobject_class, "enforce-96-dpi"))
@@ -585,7 +585,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Enforce 96 DPI",
                                      "Whether to enforce a resolution of 96 DPI",
                                      FALSE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     if (!g_object_class_find_property (gobject_class, "enable-developer-extras"))
     /**
@@ -602,7 +602,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Enable Developer Extras",
                                      "Whether to enable extra developer tools",
                                      FALSE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     if (!g_object_class_find_property (gobject_class, "zoom-text-and-images"))
     /**
@@ -619,8 +619,9 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Zoom Text and Images"),
                                      _("Whether to zoom text and images"),
                                      FALSE,
-    g_object_class_find_property (g_type_class_ref (WEBKIT_TYPE_WEB_VIEW),
-        "full-content-zoom") ? G_PARAM_READWRITE : G_PARAM_READABLE));
+    (g_object_class_find_property (g_type_class_ref (WEBKIT_TYPE_WEB_VIEW),
+        "full-content-zoom") ? G_PARAM_READWRITE : G_PARAM_READABLE)
+        | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ACCEPT_COOKIES,
@@ -631,9 +632,9 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_TYPE_ACCEPT_COOKIES,
                                      MIDORI_ACCEPT_COOKIES_ALL,
                                      #if HAVE_LIBSOUP
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
                                      #else
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
                                      #endif
 
     g_object_class_install_property (gobject_class,
@@ -643,7 +644,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Original cookies only"),
                                      _("Accept cookies from the original website only"),
                                      FALSE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_MAXIMUM_COOKIE_AGE,
@@ -652,7 +653,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Maximum cookie age"),
                                      _("The maximum number of days to save cookies for"),
                                      0, G_MAXINT, 30,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 
 
@@ -681,7 +682,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Remember last form inputs"),
                                      _("Whether the last form inputs are saved"),
                                      TRUE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_DOWNLOADED_FILES,
@@ -690,7 +691,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Remember last downloaded files"),
                                      _("Whether the last downloaded files are saved"),
                                      TRUE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
 
 
@@ -702,9 +703,9 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The proxy server used for HTTP connections"),
                                      NULL,
                                      #if HAVE_LIBSOUP
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
                                      #else
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
                                      #endif
 
     /**
@@ -724,9 +725,9 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_TYPE_IDENTITY,
                                      MIDORI_IDENT_MIDORI,
                                      #if HAVE_LIBSOUP
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
                                      #else
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
                                      #endif
 
     /**
@@ -744,9 +745,9 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The application identification string"),
                                      NULL,
                                      #if HAVE_LIBSOUP
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
                                      #else
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
                                      #endif
 
     g_object_class_install_property (gobject_class,
@@ -756,7 +757,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Cache size"),
                                      _("The allowed size of the cache"),
                                      0, G_MAXINT, 100,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
