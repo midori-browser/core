@@ -3274,10 +3274,10 @@ static const GtkActionEntry entries[] = {
    N_("_Contents"), "F1",
    N_("Show the documentation"), G_CALLBACK (_action_help_link_activate) },
  { "HelpFAQ", NULL,
-   N_("_Frequent questions"), NULL,
+   N_("_Frequent Questions"), NULL,
    N_("Show the Frequently Asked Questions"), G_CALLBACK (_action_help_link_activate) },
  { "HelpBugs", NULL,
-   N_("_Report a bug"), NULL,
+   N_("_Report a Bug"), NULL,
    N_("Open Midori's bug tracker"), G_CALLBACK (_action_help_link_activate) },
  { "About", GTK_STOCK_ABOUT,
    NULL, "",
@@ -4068,7 +4068,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_container_add (GTK_CONTAINER (toolitem),
         /* i18n: A panel at the bottom, to search text in pages */
-        gtk_label_new_with_mnemonic (_("_Inline find:")));
+        gtk_label_new_with_mnemonic (_("_Inline Find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_text = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
@@ -4089,12 +4089,12 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     toolitem = (GtkToolItem*)gtk_action_create_tool_item
         (_action_by_name (browser, "FindPrevious"));
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), NULL);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Previous"));
     gtk_tool_item_set_is_important (toolitem, TRUE);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     toolitem = (GtkToolItem*)gtk_action_create_tool_item
         (_action_by_name (browser, "FindNext"));
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), NULL);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Next"));
     gtk_tool_item_set_is_important (toolitem, TRUE);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_case = gtk_toggle_tool_button_new_from_stock (
