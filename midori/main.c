@@ -1729,7 +1729,6 @@ midori_load_extensions (gpointer data)
 {
     MidoriApp* app = MIDORI_APP (data);
     KatzeArray* extensions;
-    gchar* extension_path;
     const gchar* filename;
     MidoriExtension* extension;
     guint n, i;
@@ -1738,8 +1737,13 @@ midori_load_extensions (gpointer data)
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
     if (g_module_supported ())
     {
-        extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
-        GDir* extension_dir = g_dir_open (extension_path, 0, NULL);
+        /* FIXME: Read extensions from system data dirs */
+        gchar* extension_path;
+        GDir* extension_dir;
+
+        if (!(extension_path = g_strdup (g_getenv ("MIDORI_EXTENSION_PATH"))))
+            extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
+        extension_dir = g_dir_open (extension_path, 0, NULL);
         if (extension_dir != NULL)
         {
             while ((filename = g_dir_read_name (extension_dir)))
@@ -1748,6 +1752,10 @@ midori_load_extensions (gpointer data)
                 GModule* module;
                 typedef MidoriExtension* (*extension_init_func)(void);
                 extension_init_func extension_init;
+
+                /* Ignore files which don't have the correct suffix */
+                if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
+                    continue;
 
                 fullname = g_build_filename (extension_path, filename, NULL);
                 module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
