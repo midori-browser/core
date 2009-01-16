@@ -387,6 +387,7 @@ def shutdown ():
         folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
         try:
             command = folder + os.sep + APPNAME + os.sep + APPNAME
-            Utils.exec_command (command)
+            Utils.exec_command ('MIDORI_EXTENSION_PATH=' + folder + \
+                os.sep + 'extensions' + ' ' + command)
         except:
             Utils.pprint ('RED', "Failed to run application.")
