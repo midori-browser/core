@@ -1260,13 +1260,20 @@ midori_view_new (KatzeNet* net)
 static void
 _midori_view_update_settings (MidoriView* view)
 {
+    gboolean zoom_text_and_images;
+
     g_object_get (view->settings,
         "download-manager", &view->download_manager,
+        "zoom-text-and-images", &zoom_text_and_images,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         NULL);
+
+    if (view->web_view)
+        g_object_set (view->web_view, "full-content-zoom",
+                      zoom_text_and_images, NULL);
 }
 
 static void
@@ -1284,6 +1291,12 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     if (name == g_intern_string ("download-manager"))
     {
         katze_assign (view->download_manager, g_value_dup_string (&value));
+    }
+    else if (name == g_intern_string ("zoom-text-and-images"))
+    {
+        if (view->web_view)
+            g_object_set (view->web_view, "full-content-zoom",
+                          g_value_get_boolean (&value), NULL);
     }
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {
@@ -1492,6 +1505,9 @@ midori_view_construct_web_view (MidoriView* view)
                       NULL);
 
     g_object_set (view->web_view, "settings", view->settings, NULL);
+    if (katze_object_has_property (view->web_view, "full-content-zoom"))
+        g_object_set (view->web_view, "full-content-zoom",
+        katze_object_get_boolean (view->settings, "zoom-text-and-images"), NULL);
 
     gtk_widget_show (view->web_view);
     gtk_container_add (GTK_CONTAINER (view), view->web_view);
