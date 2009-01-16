@@ -1049,6 +1049,24 @@ katze_array_to_file (KatzeArray*  array,
 }
 
 static void
+midori_bookmarks_notify_item_cb (KatzeArray* folder,
+                                 GParamSpec* pspec,
+                                 KatzeArray* bookmarks)
+{
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("bookmarks.xbel");
+    error = NULL;
+    if (!katze_array_to_file (bookmarks, config_file, &error))
+    {
+        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
+}
+
+static void
 midori_bookmarks_add_item_cb (KatzeArray* folder,
                               GObject*    item,
                               KatzeArray* bookmarks);
@@ -1081,6 +1099,9 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
         g_signal_connect_after (item, "remove-item",
             G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
     }
+
+    g_signal_connect_after (item, "notify",
+        G_CALLBACK (midori_bookmarks_notify_item_cb), NULL);
 }
 
 static void
@@ -2197,6 +2218,8 @@ main (int    argc,
                 g_signal_connect_after (item, "remove-item",
                     G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
             }
+            g_signal_connect_after (item, "notify",
+                G_CALLBACK (midori_bookmarks_notify_item_cb), bookmarks);
         }
     }
     g_signal_connect_after (trash, "add-item",
