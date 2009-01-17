@@ -543,6 +543,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     g_object_freeze_notify (G_OBJECT (view));
 
     uri = webkit_web_frame_get_uri (web_frame);
+    g_return_if_fail (uri != NULL);
     katze_assign (view->uri, g_strdup (uri));
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
@@ -1621,6 +1622,7 @@ midori_view_set_uri (MidoriView*  view,
         else
         {
             katze_assign (view->uri, g_strdup (uri));
+            g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
