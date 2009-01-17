@@ -1575,8 +1575,24 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
     }
 }
 
+static void
+midori_browser_toolbar_add_item_cb (GtkWidget*     menuitem,
+                                    MidoriBrowser* browser)
+{
+    /* FIXME: Implement adding widgets */
+}
+
+static void
+midori_browser_toolbar_remove_item_cb (GtkWidget*     menuitem,
+                                       MidoriBrowser* browser)
+{
+    GtkWidget* widget = g_object_get_data (G_OBJECT (menuitem), "widget");
+    gtk_container_remove (GTK_CONTAINER (browser->navigationbar), widget);
+    /* FIXME: Save the new list of items */
+}
+
 static gboolean
-midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     toolbar,
+midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
                                               gint           x,
                                               gint           y,
                                               gint           button,
@@ -1589,25 +1605,76 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     toolbar,
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Menubar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Navigationbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Bookmarkbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Transferbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
 
-    katze_widget_popup (toolbar, GTK_MENU (menu), NULL,
+    if (widget == browser->navigationbar ||
+        gtk_widget_is_ancestor (widget, browser->navigationbar))
+    {
+        GtkAction* widget_action = gtk_widget_get_action (widget);
+        const gchar* actions[] = { "TabNew", "Open", "Print", "Find",
+            "Preferences", "Window", "Bookmarks", "ReloadStop", "ZoomIn",
+            "ZoomOut", "Back", "Forward", "Homepage", "Trash", "Search" };
+        GtkWidget* submenu;
+        gsize i;
+
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        submenu = gtk_menu_new ();
+        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ADD, NULL);
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_REMOVE, NULL);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        if (widget_action &&
+            strcmp (gtk_action_get_name (widget_action), "Location"))
+        {
+            g_object_set_data (G_OBJECT (menuitem), "widget", widget);
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_browser_toolbar_remove_item_cb), browser);
+        }
+        else
+            gtk_widget_set_sensitive (menuitem, FALSE);
+
+        for (i = 0; i < G_N_ELEMENTS (actions); i++)
+        {
+            GtkAction* action = _action_by_name (browser, actions[i]);
+            gchar* stock_id = katze_object_get_string (action, "stock-id");
+            gchar* label = katze_object_get_string (action, "label");
+
+            if (stock_id && label)
+            {
+                GtkWidget* icon;
+
+                menuitem = gtk_image_menu_item_new_with_mnemonic (label);
+                icon = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
+                gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+            }
+            else if (stock_id)
+                menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
+            else
+                menuitem = gtk_image_menu_item_new_with_mnemonic (label);
+            gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
+            g_object_set_data (G_OBJECT (menuitem), "widget", widget);
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_browser_toolbar_add_item_cb), browser);
+            /* FIXME: Implement adding widgets */
+            gtk_widget_set_sensitive (menuitem, FALSE);
+        }
+    }
+
+    sokoke_container_show_children (GTK_CONTAINER (menu));
+    katze_widget_popup (widget, GTK_MENU (menu), NULL,
         button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
     return TRUE;
 }
@@ -3903,7 +3970,6 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (browser->navigationbar), TRUE);
     gtk_box_pack_start (GTK_BOX (vbox), browser->navigationbar, FALSE, FALSE, 0);
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
-    sokoke_container_show_children (GTK_CONTAINER (browser->navigationbar));
     gtk_widget_hide (browser->navigationbar);
     g_signal_connect (browser->navigationbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
@@ -4210,7 +4276,8 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
 {
     if (event->button == 3)
     {
-        midori_browser_toolbar_popup_context_menu_cb (browser->navigationbar,
+        midori_browser_toolbar_popup_context_menu_cb (
+            gtk_widget_get_parent (toolitem),
             event->x, event->y, event->button, browser);
 
         return TRUE;
@@ -4728,6 +4795,7 @@ midori_browser_add_item (MidoriBrowser* browser,
     view = g_object_new (MIDORI_TYPE_VIEW,
                          "title", title,
                          "settings", browser->settings,
+                         "net", browser->net,
                          NULL);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
     gtk_widget_show (view);
