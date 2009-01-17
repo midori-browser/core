@@ -5,7 +5,7 @@
 obj = bld.new_task_gen ('cc', 'program')
 obj.target = 'magic-uri'
 obj.includes = '.. ../midori'
-obj.source = 'magic-uri.c ../midori/compat.c ../midori/sokoke.c'
+obj.source = 'magic-uri.c'
 obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
-obj.uselib_local = 'katze'
+obj.uselib_local = 'midori'
 obj.unit_test = 1
