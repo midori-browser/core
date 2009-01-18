@@ -1575,11 +1575,33 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
     }
 }
 
+static gboolean
+midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
+                                                   GdkEventButton* event,
+                                                   MidoriBrowser*  browser);
+
 static void
 midori_browser_toolbar_add_item_cb (GtkWidget*     menuitem,
                                     MidoriBrowser* browser)
 {
-    /* FIXME: Implement adding widgets */
+    GtkWidget* widget = g_object_get_data (G_OBJECT (menuitem), "widget");
+    GtkAction* action = g_object_get_data (G_OBJECT (menuitem), "action");
+    GtkWidget* toolitem = gtk_action_create_tool_item (action);
+    if (widget)
+    {
+        gint i = gtk_toolbar_get_item_index (GTK_TOOLBAR (browser->navigationbar),
+                                             GTK_TOOL_ITEM (widget));
+        gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                            GTK_TOOL_ITEM (toolitem), i ? i : 0);
+    }
+    else
+        gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                            GTK_TOOL_ITEM (toolitem), 0);
+    g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+                "button-press-event",
+                G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+                browser);
+    /* FIXME: Save the new list of items */
 }
 
 static void
@@ -1665,11 +1687,11 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
             else
                 menuitem = gtk_image_menu_item_new_with_mnemonic (label);
             gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
-            g_object_set_data (G_OBJECT (menuitem), "widget", widget);
+            if (widget_action)
+                g_object_set_data (G_OBJECT (menuitem), "widget", widget);
+            g_object_set_data (G_OBJECT (menuitem), "action", action);
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_toolbar_add_item_cb), browser);
-            /* FIXME: Implement adding widgets */
-            gtk_widget_set_sensitive (menuitem, FALSE);
         }
     }
 
@@ -3563,11 +3585,6 @@ midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
         gtk_entry_set_text (GTK_ENTRY (entry), "");
 }
-
-static gboolean
-midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
-                                                   GdkEventButton* event,
-                                                   MidoriBrowser*  browser);
 
 static void
 _tree_store_insert_history_item (GtkTreeStore* treestore,
