@@ -22,6 +22,7 @@
 #include "midori-extensions.h"
 #include "midori-panel.h"
 #include "midori-preferences.h"
+#include "midori-plugins.h"
 #include "midori-stock.h"
 #include "midori-view.h"
 #include "midori-websettings.h"
@@ -1199,6 +1200,11 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
     /* Userstyles */
     addon = midori_addons_new (MIDORI_ADDON_USER_STYLES, GTK_WIDGET (browser));
+    gtk_widget_show (addon);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
+
+    /* Plugins */
+    addon = g_object_new (MIDORI_TYPE_PLUGINS, "app", app, NULL);
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
