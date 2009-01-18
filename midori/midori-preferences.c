@@ -496,21 +496,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
     FRAME_NEW (_("Navigationbar"));
-    TABLE_NEW (3, 2);
+    TABLE_NEW (1, 2);
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"), 0, 1, 0, 1);
     button = katze_property_proxy (settings, "toolbar-style", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
-    INDENTED_ADD (katze_property_label (settings, "toolbar-items"), 0, 1, 1, 2);
-    button = katze_property_proxy (settings, "toolbar-items", NULL);
-    FILLED_ADD (button, 1, 2, 1, 2);
-    button = gtk_label_new (NULL);
-    gtk_label_set_markup (GTK_LABEL (button),
-        "<span size='smaller'>"
-        "Separator, TabNew, Open, Print, Find, Location, Preferences, Window, Bookmarks\n"
-        "ReloadStop, ZoomIn, ZoomOut, Back, Forward, Homepage, Search, Trash"
-        "</span>");
-    gtk_label_set_selectable (GTK_LABEL (button), TRUE);
-    FILLED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (5, 2);
     label = katze_property_label (settings, "open-new-pages-in");

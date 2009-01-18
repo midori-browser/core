@@ -1581,12 +1581,35 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                    MidoriBrowser*  browser);
 
 static void
+_midori_browser_save_toolbar_items (MidoriBrowser* browser)
+{
+    GString* toolbar_items;
+    GList* children;
+    gchar* items;
+
+    toolbar_items = g_string_new (NULL);
+    children = gtk_container_get_children (GTK_CONTAINER (browser->navigationbar));
+    for (; children != NULL; children = g_list_next (children))
+    {
+        GtkAction* action = gtk_widget_get_action (GTK_WIDGET (children->data));
+        if (strcmp (gtk_action_get_name (action), "Fullscreen"))
+        {
+            g_string_append (toolbar_items, gtk_action_get_name (action));
+            g_string_append (toolbar_items, ",");
+        }
+    }
+    items = g_string_free (toolbar_items, FALSE);
+    g_object_set (browser->settings, "toolbar-items", items, NULL);
+    g_free (items);
+}
+
+static void
 midori_browser_toolbar_add_item_cb (GtkWidget*     menuitem,
                                     MidoriBrowser* browser)
 {
     GtkWidget* widget = g_object_get_data (G_OBJECT (menuitem), "widget");
-    GtkAction* action = g_object_get_data (G_OBJECT (menuitem), "action");
-    GtkWidget* toolitem = gtk_action_create_tool_item (action);
+    GtkAction* widget_action = g_object_get_data (G_OBJECT (menuitem), "action");
+    GtkWidget* toolitem = gtk_action_create_tool_item (widget_action);
     if (widget)
     {
         gint i = gtk_toolbar_get_item_index (GTK_TOOLBAR (browser->navigationbar),
@@ -1601,7 +1624,7 @@ midori_browser_toolbar_add_item_cb (GtkWidget*     menuitem,
                 "button-press-event",
                 G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
                 browser);
-    /* FIXME: Save the new list of items */
+    _midori_browser_save_toolbar_items (browser);
 }
 
 static void
@@ -1610,7 +1633,7 @@ midori_browser_toolbar_remove_item_cb (GtkWidget*     menuitem,
 {
     GtkWidget* widget = g_object_get_data (G_OBJECT (menuitem), "widget");
     gtk_container_remove (GTK_CONTAINER (browser->navigationbar), widget);
-    /* FIXME: Save the new list of items */
+    _midori_browser_save_toolbar_items (browser);
 }
 
 static gboolean
@@ -1644,7 +1667,7 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
         gtk_widget_is_ancestor (widget, browser->navigationbar))
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
-        const gchar* actions[] = { "TabNew", "Open", "Print", "Find",
+        const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
             "Preferences", "Window", "Bookmarks", "ReloadStop", "ZoomIn",
             "ZoomOut", "Back", "Forward", "Homepage", "Trash", "Search" };
         GtkWidget* submenu;
