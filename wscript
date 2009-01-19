@@ -2,11 +2,21 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
+import sys
+
+# Waf version check, for global waf installs
+try:
+    from Constants import WAFVERSION
+except:
+    WAFVERSION='1.0.0'
+if WAFVERSION[:3] != '1.5':
+    print 'Incompatible Waf, use 1.5'
+    sys.exit (1)
+
 import Build
 import Options
 import Utils
 import pproc as subprocess
-import sys
 import os
 import UnitTest
 
