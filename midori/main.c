@@ -598,7 +598,7 @@ db_exec_callback (sqlite3*    db,
         {
             *error = g_error_new (MIDORI_HISTORY_ERROR,
                                   MIDORI_HISTORY_ERROR_EXEC_SQL,
-                                  _("Failed to execute SQL statement: %s\n"),
+                                  _("Failed to execute database statement: %s\n"),
                                   errmsg);
         }
         sqlite3_free (errmsg);
