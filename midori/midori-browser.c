@@ -3436,6 +3436,15 @@ static void
 midori_browser_window_state_event_cb (MidoriBrowser*       browser,
                                       GdkEventWindowState* event)
 {
+    MidoriWindowState window_state = MIDORI_WINDOW_NORMAL;
+    if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED)
+        window_state = MIDORI_WINDOW_MINIMIZED;
+    else if (event->new_window_state & GDK_WINDOW_STATE_MAXIMIZED)
+        window_state = MIDORI_WINDOW_MAXIMIZED;
+    else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
+        window_state = MIDORI_WINDOW_FULLSCREEN;
+    g_object_set (browser->settings, "last-window-state", window_state, NULL);
+
     if (event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
     {
         if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
@@ -4379,6 +4388,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 {
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
+    MidoriWindowState last_window_state;
     gboolean compact_sidepanel;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_navigationbar, show_bookmarkbar;
@@ -4395,6 +4405,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "remember-last-window-size", &remember_last_window_size,
                   "last-window-width", &last_window_width,
                   "last-window-height", &last_window_height,
+                  "last-window-state", &last_window_state,
                   "compact-sidepanel", &compact_sidepanel,
                   "last-panel-position", &last_panel_position,
                   "last-panel-page", &last_panel_page,
@@ -4421,6 +4432,20 @@ _midori_browser_update_settings (MidoriBrowser* browser)
         else
             gtk_window_set_default_size (GTK_WINDOW (browser),
                                          default_width, default_height);
+        switch (last_window_state)
+        {
+            case MIDORI_WINDOW_MINIMIZED:
+                gtk_window_iconify (GTK_WINDOW (browser));
+                break;
+            case MIDORI_WINDOW_MAXIMIZED:
+                gtk_window_maximize (GTK_WINDOW (browser));
+                break;
+            case MIDORI_WINDOW_FULLSCREEN:
+                gtk_window_fullscreen (GTK_WINDOW (browser));
+                break;
+            default:
+                ;/* Do nothing. */
+        }
     }
 
     _midori_browser_set_toolbar_style (browser, toolbar_style);

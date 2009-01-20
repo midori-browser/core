@@ -36,6 +36,20 @@ typedef struct _MidoriWebSettingsClass           MidoriWebSettingsClass;
 
 typedef enum
 {
+    MIDORI_WINDOW_NORMAL,
+    MIDORI_WINDOW_MINIMIZED,
+    MIDORI_WINDOW_MAXIMIZED,
+    MIDORI_WINDOW_FULLSCREEN,
+} MidoriWindowState;
+
+GType
+midori_window_state_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_WINDOW_STATE \
+    (midori_startup_get_type ())
+
+typedef enum
+{
     MIDORI_STARTUP_BLANK_PAGE,
     MIDORI_STARTUP_HOMEPAGE,
     MIDORI_STARTUP_LAST_OPEN_PAGES

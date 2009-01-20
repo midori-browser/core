@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@ struct _MidoriWebSettings
     gboolean remember_last_window_size;
     gint last_window_width;
     gint last_window_height;
+    MidoriWindowState last_window_state;
     gint last_panel_position;
     gint last_panel_page;
     gint last_web_search;
@@ -89,6 +90,7 @@ enum
     PROP_REMEMBER_LAST_WINDOW_SIZE,
     PROP_LAST_WINDOW_WIDTH,
     PROP_LAST_WINDOW_HEIGHT,
+    PROP_LAST_WINDOW_STATE,
     PROP_LAST_PANEL_POSITION,
     PROP_LAST_PANEL_PAGE,
     PROP_LAST_WEB_SEARCH,
@@ -138,6 +140,24 @@ enum
     PROP_IDENT_STRING,
     PROP_CACHE_SIZE
 };
+
+GType
+midori_window_state_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_WINDOW_NORMAL, "MIDORI_WINDOW_NORMAL", "Normal" },
+         { MIDORI_WINDOW_MINIMIZED, "MIDORI_WINDOW_MINIMIZED", "Minimized" },
+         { MIDORI_WINDOW_MAXIMIZED, "MIDORI_WINDOW_MAXIMIZED", "Maximized" },
+         { MIDORI_WINDOW_FULLSCREEN, "MIDORI_WINDOW_FULLSCREEN", "Fullscreen" },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriWindowState", values);
+    }
+    return type;
+}
 
 GType
 midori_startup_get_type (void)
@@ -301,6 +321,23 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Last window height"),
                                      _("The last saved window height"),
                                      0, G_MAXINT, 0,
+                                     flags));
+
+    /**
+    * MidoriWebSettings:last-window-state:
+    *
+    * The last saved window state.
+    *
+    * Since: 0.1.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_LAST_WINDOW_STATE,
+                                     g_param_spec_enum (
+                                     "last-window-state",
+                                     "Last window state",
+                                     "The last saved window state",
+                                     MIDORI_TYPE_WINDOW_STATE,
+                                     MIDORI_WINDOW_NORMAL,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -887,6 +924,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_LAST_WINDOW_HEIGHT:
         web_settings->last_window_height = g_value_get_int (value);
         break;
+    case PROP_LAST_WINDOW_STATE:
+        web_settings->last_window_state = g_value_get_enum (value);
+        break;
     case PROP_LAST_PANEL_POSITION:
         web_settings->last_panel_position = g_value_get_int (value);
         break;
@@ -1061,6 +1101,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_LAST_WINDOW_HEIGHT:
         g_value_set_int (value, web_settings->last_window_height);
+        break;
+    case PROP_LAST_WINDOW_STATE:
+        g_value_set_enum (value, web_settings->last_window_state);
         break;
     case PROP_LAST_PANEL_POSITION:
         g_value_set_int (value, web_settings->last_panel_position);
