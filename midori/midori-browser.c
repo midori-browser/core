@@ -3477,7 +3477,9 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
-    /* Destroy tabs first, so child widgets don't need special care */
+    /* Destroy panel first, so panels don't need special care */
+    gtk_widget_destroy (browser->panel);
+    /* Destroy tabs second, so child widgets don't need special care */
     gtk_container_foreach (GTK_CONTAINER (browser->notebook),
                            (GtkCallback) gtk_widget_destroy, NULL);
 }

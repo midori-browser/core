@@ -65,6 +65,13 @@ page_holder_button_add_clicked_cb (GtkWidget* button,
 }
 
 static void
+page_holder_deactivate_cb (MidoriExtension* extension,
+                           GtkWidget*       notebook)
+{
+    gtk_widget_destroy (notebook);
+}
+
+static void
 page_holder_app_add_browser_cb (MidoriApp*       app,
                                 MidoriBrowser*   browser,
                                 MidoriExtension* extension)
@@ -107,6 +114,8 @@ page_holder_app_add_browser_cb (MidoriApp*       app,
     midori_panel_append_widget (MIDORI_PANEL (panel), notebook,
         /* i18n: A panel showing a user specified web page */
                                 STOCK_PAGE_HOLDER, _("Pageholder"), toolbar);
+    g_signal_connect (extension, "deactivate",
+        G_CALLBACK (page_holder_deactivate_cb), notebook);
 }
 
 static void

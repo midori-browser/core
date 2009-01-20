@@ -158,6 +158,14 @@ midori_panel_button_close_clicked_cb (GtkWidget*   toolitem,
 }
 
 static void
+midori_panel_destroy_cb (MidoriPanel* panel)
+{
+    /* Destroy pages first, so they don't need special care */
+    gtk_container_foreach (GTK_CONTAINER (panel->notebook),
+                           (GtkCallback) gtk_widget_destroy, NULL);
+}
+
+static void
 midori_panel_init (MidoriPanel* panel)
 {
     GtkWidget* vbox;
@@ -215,18 +223,14 @@ midori_panel_init (MidoriPanel* panel)
     gtk_container_add (GTK_CONTAINER (panel->frame), panel->notebook);
     gtk_box_pack_start (GTK_BOX (vbox), panel->frame, TRUE, TRUE, 0);
     gtk_widget_show_all (panel->frame);
+
+    g_signal_connect (panel, "destroy",
+                      G_CALLBACK (midori_panel_destroy_cb), NULL);
 }
 
 static void
 midori_panel_finalize (GObject* object)
 {
-    MidoriPanel* panel = MIDORI_PANEL (object);
-
-    if (panel->menu)
-    {
-        /* FIXME: Remove all menu items */
-    }
-
     G_OBJECT_CLASS (midori_panel_parent_class)->finalize (object);
 }
 
@@ -342,6 +346,26 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
     }
 }
 
+static void
+midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
+                                  MidoriPanel* panel)
+{
+    gint i = gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook), viewable);
+    if (i > -1)
+    gtk_notebook_remove_page (GTK_NOTEBOOK (panel->notebook), i);
+    g_signal_handlers_disconnect_by_func (
+        viewable, midori_panel_viewable_destroy_cb, panel);
+}
+
+static void
+midori_panel_widget_destroy_cb (GtkWidget* viewable,
+                                GtkWidget* widget)
+{
+    gtk_widget_destroy (widget);
+    g_signal_handlers_disconnect_by_func (
+        viewable, midori_panel_widget_destroy_cb, widget);
+}
+
 /**
  * midori_panel_append_page:
  * @panel: a #MidoriPanel
@@ -352,6 +376,9 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
  *
  * Appends a new page to the panel. If @toolbar is specified it will
  * be packed above @viewable.
+ *
+ * Since 0.1.3 destroying the @viewable implicitly removes
+ * the page including the menu and eventual toolbar.
  *
  * In the case of an error, -1 is returned.
  *
@@ -401,6 +428,8 @@ midori_panel_append_page (MidoriPanel*    panel,
     toolbar = midori_viewable_get_toolbar (viewable);
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
+    g_signal_connect (viewable, "destroy",
+                      G_CALLBACK (midori_panel_widget_destroy_cb), toolbar);
 
     n = midori_panel_page_num (panel, scrolled);
     label = midori_viewable_get_label (viewable);
@@ -421,6 +450,8 @@ midori_panel_append_page (MidoriPanel*    panel,
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
     gtk_widget_show_all (GTK_WIDGET (toolitem));
     gtk_toolbar_insert (GTK_TOOLBAR (panel->toolbar), toolitem, -1);
+    g_signal_connect (viewable, "destroy",
+                      G_CALLBACK (midori_panel_widget_destroy_cb), toolitem);
 
     if (panel->menu)
     {
@@ -432,7 +463,12 @@ midori_panel_append_page (MidoriPanel*    panel,
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
                           panel);
         gtk_menu_shell_append (GTK_MENU_SHELL (panel->menu), menuitem);
+        g_signal_connect (viewable, "destroy",
+                          G_CALLBACK (midori_panel_widget_destroy_cb), menuitem);
     }
+
+    g_signal_connect (viewable, "destroy",
+                      G_CALLBACK (midori_panel_viewable_destroy_cb), panel);
 
     return n;
 }
@@ -669,8 +705,8 @@ midori_dummy_viewable_finalize (GObject* object)
 
 static GtkWidget*
 midori_dummy_viewable_new (const gchar* stock_id,
-                       const gchar* label,
-                       GtkWidget*   toolbar)
+                           const gchar* label,
+                           GtkWidget*   toolbar)
 {
     GtkWidget* viewable = g_object_new (MIDORI_TYPE_DUMMY_VIEWABLE, NULL);
 
@@ -695,6 +731,9 @@ midori_dummy_viewable_new (const gchar* stock_id,
  * Actually implementing #MidoriViewable instead of using
  * this convenience is recommended.
  *
+ * Since 0.1.3 destroying the @widget implicitly removes
+ * the page including the menu and eventual toolbar.
+ *
  * In the case of an error, -1 is returned.
  *
  * Return value: the index of the new page, or -1
@@ -717,5 +756,7 @@ midori_panel_append_widget (MidoriPanel* panel,
     viewable = midori_dummy_viewable_new (stock_id, label, toolbar);
     gtk_widget_show (viewable);
     gtk_container_add (GTK_CONTAINER (viewable), widget);
+    g_signal_connect (widget, "destroy",
+                      G_CALLBACK (midori_panel_widget_destroy_cb), viewable);
     return midori_panel_append_page (panel, MIDORI_VIEWABLE (viewable));
 }
