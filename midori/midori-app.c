@@ -27,7 +27,6 @@ struct _MidoriApp
 {
     GObject parent_instance;
 
-    GList* browsers;
     MidoriBrowser* browser;
     GtkAccelGroup* accel_group;
 
@@ -37,6 +36,7 @@ struct _MidoriApp
     KatzeArray* search_engines;
     KatzeArray* history;
     KatzeArray* extensions;
+    KatzeArray* browsers;
 
     gpointer instance;
 };
@@ -65,6 +65,7 @@ enum
     PROP_SEARCH_ENGINES,
     PROP_HISTORY,
     PROP_EXTENSIONS,
+    PROP_BROWSERS,
     PROP_BROWSER,
     PROP_BROWSER_COUNT
 };
@@ -127,8 +128,8 @@ static gboolean
 midori_browser_destroy_cb (MidoriBrowser* browser,
                            MidoriApp*     app)
 {
-    app->browsers = g_list_remove (app->browsers, browser);
-    if (g_list_nth (app->browsers, 0))
+    katze_array_remove_item (app->browsers, browser);
+    if (!katze_array_is_empty (app->browsers))
         return FALSE;
     midori_app_quit (app);
     return TRUE;
@@ -157,7 +158,7 @@ _midori_app_add_browser (MidoriApp*     app,
         "signal::quit", midori_browser_quit_cb, app,
         NULL);
 
-    app->browsers = g_list_prepend (app->browsers, browser);
+    katze_array_add_item (app->browsers, browser);
 
     #if HAVE_UNIQUE
     unique_app_watch_window (app->instance, GTK_WINDOW (browser));
@@ -258,6 +259,29 @@ midori_app_class_init (MidoriAppClass* class)
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+    /**
+    * MidoriApp:browsers:
+    *
+    * The list of browsers.
+    *
+    * Since: 0.1.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_BROWSERS,
+                                     g_param_spec_object (
+                                     "browsers",
+                                     "Browsers",
+                                     "The list of browsers",
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+    /**
+    * MidoriApp:browser:
+    *
+    * The current browser, that is the one that was last used.
+    *
+    * Since: 0.1.3
+    */
     g_object_class_install_property (gobject_class,
                                      PROP_BROWSER,
                                      g_param_spec_object (
@@ -267,6 +291,13 @@ midori_app_class_init (MidoriAppClass* class)
                                      MIDORI_TYPE_BROWSER,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
+    /**
+    * MidoriApp:browser-count:
+    *
+    * The number of browsers.
+    *
+    * Deprecated: 0.1.3 Use MidoriApp:browsers instead.
+    */
     g_object_class_install_property (gobject_class,
                                      PROP_BROWSER_COUNT,
                                      g_param_spec_uint (
@@ -374,6 +405,7 @@ midori_app_init (MidoriApp* app)
     app->search_engines = NULL;
     app->history = NULL;
     app->extensions = NULL;
+    app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
     #if HAVE_UNIQUE
     display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
@@ -397,7 +429,6 @@ midori_app_finalize (GObject* object)
 {
     MidoriApp* app = MIDORI_APP (object);
 
-    g_list_free (app->browsers);
     g_object_unref (app->accel_group);
 
     katze_object_assign (app->settings, NULL);
@@ -406,6 +437,7 @@ midori_app_finalize (GObject* object)
     katze_object_assign (app->search_engines, NULL);
     katze_object_assign (app->history, NULL);
     katze_object_assign (app->extensions, NULL);
+    katze_object_assign (app->browsers, NULL);
 
     katze_object_assign (app->instance, NULL);
 
@@ -479,11 +511,14 @@ midori_app_get_property (GObject*    object,
     case PROP_EXTENSIONS:
         g_value_set_object (value, app->extensions);
         break;
+    case PROP_BROWSERS:
+        g_value_set_object (value, app->browsers);
+        break;
     case PROP_BROWSER:
         g_value_set_object (value, app->browser);
         break;
     case PROP_BROWSER_COUNT:
-        g_value_set_uint (value, g_list_length (app->browsers));
+        g_value_set_uint (value, katze_array_get_length (app->browsers));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
