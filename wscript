@@ -48,7 +48,7 @@ def option_enabled (option):
 def configure (conf):
     def option_checkfatal (option, desc):
         if eval ('Options.options.enable_' + option):
-                Utils.pprint ('RED', desc + ' not available')
+                Utils.pprint ('RED', desc + ' N/A')
                 sys.exit (1)
 
     def dirname_default (dirname, default):
@@ -71,10 +71,9 @@ def configure (conf):
             user_docs = 'yes'
         else:
             option_checkfatal ('userdocs', 'user documentation')
-            user_docs = 'not available'
+            user_docs = 'N/A'
     else:
-        user_docs = 'no'
-    conf.check_message_custom ('generate', 'user documentation', user_docs)
+        user_docs = 'no '
 
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
@@ -84,10 +83,9 @@ def configure (conf):
             conf.define ('MIDORI_LOCALEDIR', 'LOCALEDIR', 0)
         else:
             option_checkfatal ('nls', 'localization')
-            nls = 'not available'
+            nls = 'N/A'
     else:
-        nls = 'no'
-    conf.check_message_custom ('localization', 'support', nls)
+        nls = 'no '
 
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
@@ -103,10 +101,9 @@ def configure (conf):
             api_docs = 'yes'
         else:
             option_checkfatal ('apidocs', 'API documentation')
-            api_docs = 'not available'
+            api_docs = 'N/A'
     else:
-        api_docs = 'no'
-    conf.check_message_custom ('generate', 'API documentation', api_docs)
+        api_docs = 'no '
 
     def check_pkg (name, version='', mandatory=True, var=None):
         if not var:
@@ -116,36 +113,31 @@ def configure (conf):
 
     if option_enabled ('unique'):
         check_pkg ('unique-1.0', '0.9', False)
-        single_instance = ['not available', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
-        if single_instance == 'yes':
-            if conf.check_cfg (modversion='unique-1.0') == '1.0.4':
-                Utils.pprint ('RED', 'unique 1.0.4 has a fatal bug.')
-                Utils.pprint ('RED', 'Please use an older or newer version.')
+        unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
     else:
         option_checkfatal ('unique', 'single instance')
         conf.define ('HAVE_UNIQUE', 0)
-        single_instance = 'no'
-    conf.check_message_custom ('single instance', 'support', single_instance)
+        unique = 'no '
 
     if option_enabled ('libsoup'):
         check_pkg ('libsoup-2.4', '2.23.1', False)
         check_pkg ('libsoup-2.4', '2.25.2', False, var='LIBSOUP_2_25_2')
-        libsoup = ['not available','yes'][conf.env['HAVE_LIBSOUP'] == 1]
+        libsoup = ['N/A','yes'][conf.env['HAVE_LIBSOUP'] == 1]
+        libsoup_25_2 = ['N/A','yes'][conf.env['HAVE_LIBSOUP_2_25_2'] == 1]
     else:
         option_checkfatal ('libsoup', 'libsoup')
         conf.define ('HAVE_LIBSOUP', 0)
         conf.define ('HAVE_LIBSOUP_2_25_2', 0)
-        libsoup = 'no'
-    conf.check_message_custom ('libsoup', 'support', libsoup)
+        libsoup = 'no '
+        libsoup_25_2 = 'no '
 
     if option_enabled ('sqlite'):
         check_pkg ('sqlite3', '3.0', False, var='SQLITE')
-        sqlite = ['not available','yes'][conf.env['HAVE_SQLITE'] == 1]
+        sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
     else:
         option_checkfatal ('sqlite', 'history database')
         conf.define ('HAVE_SQLITE', 0)
-        sqlite = 'no'
-    conf.check_message_custom ('history database', 'support', sqlite)
+        sqlite = 'no '
 
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
@@ -160,8 +152,7 @@ def configure (conf):
     if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
         icons = 'yes'
     else:
-        icons = 'no'
-    conf.check_message_custom ('icon optimization', 'support', icons)
+        icons = 'no '
 
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
@@ -207,26 +198,24 @@ def configure (conf):
             sys.exit (1)
 
     print
-    if single_instance == 'not available':
-        print "Single instance support is unavailable in this build."
-        print " Install libUnique and reconfigure to enable it."
-        print
-    if libsoup == 'not available':
-        print "Icons, view source and Save as are unavailable in this build."
-        print " Install libSoup and reconfigure to enable these features."
-        print
-    if sqlite == 'not available':
-        print "History storage on disk is unavailable in this build."
-        print " Install sqlite3 and reconfigure to enable it."
-        print
-    if user_docs == 'not available':
-        print "User documentation is unavailable in this build."
-        print " Install docutils and reconfigure to enable it."
-        print
-    if api_docs == 'not available':
-        print "API documentation is unavailable in this build."
-        print " Install gtk-doc and reconfigure to enable it."
-        print
+    print "Optional build time dependencies:"
+    print "Localization:        " + nls + " (intltool)"
+    print "Icon optimizations:  " + icons + " (rsvg-convert)"
+    print "User documentation:  " + user_docs + " (docutils)"
+    print "API documentation:   " + api_docs + " (gtk-doc)"
+    print
+    print "Optional run time dependencies:"
+    print "Single instance:     " + unique + " (unique)"
+    if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
+            Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
+            Utils.pprint ('RED', 'Please use an older or newer version.')
+    print "Icons, Source, Save: " + libsoup + " (libSoup 2.23.1)"
+    print "Persistent cookies:  " + libsoup_25_2 + " (libSoup 2.25.2)"
+    if 'soup-2.4' in conf.env['LIB_WEBKIT']:
+        Utils.pprint ('GREEN', 'WebKit was built with libsoup')
+    else:
+        Utils.pprint ('RED', 'WebKit was NOT built with libsoup')
+    print "Persistent history:  " + sqlite + " (sqlite3)"
 
 def set_options (opt):
     def add_enable_option (option, desc, group=None, disable=False):
