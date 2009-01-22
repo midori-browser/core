@@ -21,20 +21,19 @@ To check your language 'aa' for errors, do this:
 
 msgfmt -c --check-accelerators=_ aa.po
 
-To test your changes, make sure you install Midori:
+To test your changes, run Midori like so:
 
-./waf install
+./waf build --run
 
-And of course you can uninstall it again after testing:
-
-./waf uninstall
+This is a convenience command that will setup localization in
+the build folder so you don't need to install translations.
 
 To run Midori in a particular language, run it like this:
 
-LANG=fr_FR.utf8 midori
+LANG=fr_FR.utf8 ./waf build --run
 
 As a general rule, your localization should be based off of the
-current state of the git repository.
+current git repository or the latest midori.pot in git.
 
 Some strings have comments, starting with 'i18n', which are meant
 to describe the role of a string to translators.

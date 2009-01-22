@@ -1950,7 +1950,11 @@ main (int    argc,
     #endif
 
     #if ENABLE_NLS
-    bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+    setlocale (LC_ALL, "");
+    if (g_getenv ("NLSPATH"))
+        bindtextdomain (GETTEXT_PACKAGE, g_getenv ("NLSPATH"));
+    else
+        bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
     #endif

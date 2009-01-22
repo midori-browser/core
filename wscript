@@ -80,7 +80,6 @@ def configure (conf):
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
             nls = 'yes'
             conf.define ('ENABLE_NLS', 1)
-            conf.define ('MIDORI_LOCALEDIR', 'LOCALEDIR', 0)
         else:
             option_checkfatal ('nls', 'localization')
             nls = 'N/A'
@@ -383,10 +382,31 @@ def shutdown ():
             Utils.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
     elif Options.options.run:
+        def mkdir (path):
+            if not os.access (path, os.F_OK):
+                os.mkdir (path)
+
         folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
         try:
+            ext = 'MIDORI_EXTENSION_PATH=' + folder + os.sep + 'extensions'
+            nls = 'NLSPATH=' + folder + os.sep + 'po'
+            lang = os.environ['LANG']
+            try:
+                for lang in os.listdir (folder + os.sep + 'po'):
+                    if lang[3:] == 'mo':
+                        lang = lang[:-3]
+                    else:
+                        continue
+                    mkdir (folder + os.sep + 'po' + os.sep + lang)
+                    mkdir (folder + os.sep + 'po' + os.sep + lang + \
+                        os.sep + 'LC_MESSAGES')
+                    os.symlink (folder + os.sep + 'po' + os.sep + lang + '.mo',
+                        folder + os.sep + 'po' + os.sep + lang + os.sep + \
+                        'LC_MESSAGES' + os.sep + APPNAME + '.mo')
+            except:
+                pass
             command = folder + os.sep + APPNAME + os.sep + APPNAME
-            Utils.exec_command ('MIDORI_EXTENSION_PATH=' + folder + \
-                os.sep + 'extensions' + ' ' + command)
+            print ext + ' ' + nls + ' ' + command
+            Utils.exec_command (ext + ' ' + nls + ' ' + command)
         except:
             Utils.pprint ('RED', "Failed to run application.")
