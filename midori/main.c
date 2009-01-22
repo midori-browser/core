@@ -50,6 +50,7 @@
 
 #if ENABLE_NLS
     #include <libintl.h>
+    #include <locale.h>
 #endif
 
 #define MIDORI_HISTORY_ERROR g_quark_from_string("MIDORI_HISTORY_ERROR")
