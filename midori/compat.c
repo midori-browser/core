@@ -11,6 +11,8 @@
 
 #include "compat.h"
 
+#include <string.h>
+
 #if !GLIB_CHECK_VERSION(2, 16, 0)
 
 /* Glib string function
@@ -21,7 +23,7 @@ g_strcmp0 (const gchar* string1,
            const gchar* string2)
 {
     if (!string1)
-        return -(str1 != str2);
+        return -(string1 != string2);
     if (!string2)
         return string1 != string2;
     return strcmp (string1, string2);
