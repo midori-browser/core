@@ -668,7 +668,7 @@ katze_object_get_float (gpointer     object,
  *
  * Retrieve the enum value of the specified property.
  *
- * Return value: an enum
+ * Return value: an enumeration
  **/
 gint
 katze_object_get_enum (gpointer     object,
@@ -690,7 +690,7 @@ katze_object_get_enum (gpointer     object,
  *
  * Retrieve the string value of the specified property.
  *
- * Return value: a float
+ * Return value: a newly allocated string
  **/
 gchar*
 katze_object_get_string (gpointer     object,
