@@ -126,8 +126,7 @@ sokoke_tree_view_get_selected_iter   (GtkTreeView*   tree_view,
                                       GtkTreeModel** model,
                                       GtkTreeIter*   iter);
 
-gint
-sokoke_days_between                  (const time_t*  day1,
-                                      const time_t*  day2);
+gint64
+sokoke_time_t_to_julian              (const time_t*  timestamp);
 
 #endif /* !__SOKOKE_H__ */

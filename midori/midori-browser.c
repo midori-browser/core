@@ -3623,25 +3623,24 @@ midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
 static void
 _tree_store_insert_history_item (GtkTreeStore* treestore,
                                  GtkTreeIter*  parent,
-                                 KatzeItem*    item)
+                                 KatzeItem*    item,
+                                 gint64        day)
 {
     GtkTreeIter iter;
     KatzeItem* child;
     guint i, n;
     GtkTreeIter* piter;
-    time_t now;
-    gint64 date;
-    gint age = -1;
+    gint64 pday;
+    gint64 age = -1;
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
     if (KATZE_IS_ARRAY (item))
     {
         piter = parent;
-        if ((date = katze_item_get_added (item)))
+        if ((pday = katze_item_get_added (item)))
         {
-            now = time (NULL);
-            age = sokoke_days_between ((time_t *)&date, (time_t *)&now);
+            age = day - pday;
             gtk_tree_store_insert_with_values (treestore, &iter, parent,
                                                0, 0, item, 1, age, -1);
             g_object_unref (item);
@@ -3651,7 +3650,7 @@ _tree_store_insert_history_item (GtkTreeStore* treestore,
         for (i = 0; i < n; i++)
         {
             child = katze_array_get_nth_item (KATZE_ARRAY (item), i);
-            _tree_store_insert_history_item (treestore, piter, child);
+            _tree_store_insert_history_item (treestore, piter, child, day);
         }
     }
     else
@@ -3673,10 +3672,10 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     gint i;
     gboolean found;
     time_t now;
-    gint64 date;
-    time_t date_;
-    gint age;
-    gint newage;
+    gint64 day;
+    gint64 pday;
+    gint64 age;
+    gint64 newage;
     gchar token[50];
 
     if (!katze_object_get_boolean (browser->settings, "remember-last-visited-pages"))
@@ -3687,20 +3686,20 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 
     now = time (NULL);
     katze_item_set_added (item, now);
+    day = sokoke_time_t_to_julian (&now);
 
     found = FALSE;
     i = 0;
     while (gtk_tree_model_iter_nth_child (treemodel, &iter, NULL, i++))
     {
         gtk_tree_model_get (treemodel, &iter, 0, &parent, 1, &age, -1);
-        date = katze_item_get_added (KATZE_ITEM (parent));
-        date_ = (time_t)date;
-        newage = sokoke_days_between ((time_t *)&date, (time_t *)&now);
+        pday = katze_item_get_added (KATZE_ITEM (parent));
+        newage = day - pday;
         if (newage == 0)
         {
             found = TRUE;
             _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
-                                             &iter, item);
+                                             &iter, item, day);
             katze_array_add_item (parent, item);
         }
         if (age != newage)
@@ -3712,12 +3711,12 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     {
         strftime (token, sizeof (token), "%Y-%m-%d", localtime (&now));
         parent = katze_array_new (KATZE_TYPE_ARRAY);
-        katze_item_set_added (KATZE_ITEM (parent), now);
+        katze_item_set_added (KATZE_ITEM (parent), day);
         katze_item_set_token (KATZE_ITEM (parent), token);
         katze_array_add_item (browser->history, parent);
         katze_array_add_item (parent, item);
         _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
-                                         KATZE_ITEM (parent));
+                                         KATZE_ITEM (parent), day);
     }
 }
 
@@ -3773,6 +3772,8 @@ midori_browser_set_history (MidoriBrowser* browser,
     GtkTreeView* treeview;
     GtkTreeModel* treemodel;
     GtkAction* action;
+    time_t now;
+    gint64 day;
 
     if (browser->history == history)
         return;
@@ -3796,10 +3797,13 @@ midori_browser_set_history (MidoriBrowser* browser,
     g_signal_connect (browser->history, "clear",
                       G_CALLBACK (midori_browser_history_clear_cb), browser);
 
+    now = time (NULL);
+    day = sokoke_time_t_to_julian (&now);
+
     treeview = GTK_TREE_VIEW (browser->panel_history);
     treemodel = gtk_tree_view_get_model (treeview);
-    _tree_store_insert_history_item (GTK_TREE_STORE (treemodel),
-                                     NULL, KATZE_ITEM (browser->history));
+    _tree_store_insert_history_item (GTK_TREE_STORE (treemodel), NULL,
+                                     KATZE_ITEM (browser->history), day);
 
     action = _action_by_name (browser, "Location");
     midori_location_action_freeze (MIDORI_LOCATION_ACTION (action));

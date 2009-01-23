@@ -663,32 +663,25 @@ sokoke_tree_view_get_selected_iter (GtkTreeView*   tree_view,
 }
 
 /**
- * sokoke_days_between:
- * @day1: a time_t timestamp value
- * @day2: a time_t timestamp value
+ * sokoke_time_t_to_julian:
+ * @timestamp: a time_t timestamp value
  *
- * Calculates the number of days between two timestamps.
+ * Calculates a unix timestamp to a julian day value.
  *
  * Return value: an integer.
  **/
-gint
-sokoke_days_between (const time_t* day1,
-                     const time_t* day2)
+gint64
+sokoke_time_t_to_julian (const time_t* timestamp)
 {
-    GDate* date1;
-    GDate* date2;
-    gint age;
+    GDate* date;
+    gint64 julian;
 
-    date1 = g_date_new ();
-    date2 = g_date_new ();
+    date = g_date_new ();
 
-    g_date_set_time_t (date1, *day1);
-    g_date_set_time_t (date2, *day2);
+    g_date_set_time_t (date, *timestamp);
+    julian = (gint64)g_date_get_julian (date);
 
-    age = g_date_days_between (date1, date2);
+    g_date_free (date);
 
-    g_date_free (date1);
-    g_date_free (date2);
-
-    return age;
+    return julian;
 }

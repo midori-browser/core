@@ -716,10 +716,11 @@ midori_history_add_item_cb (KatzeArray* array,
         }
     }
     sqlcmd = sqlite3_mprintf ("INSERT INTO history VALUES"
-                              "('%q', '%q', %" G_GUINT64_FORMAT ", -1)",
+                              "('%q', '%q', %" G_GUINT64_FORMAT ", %" G_GUINT64_FORMAT ")",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
-                              katze_item_get_added (item));
+                              katze_item_get_added (item),
+                              katze_item_get_added (KATZE_ITEM (array)));
     success = db_exec (db, sqlcmd, &error);
     sqlite3_free (sqlcmd);
     if (!success)
@@ -737,13 +738,17 @@ midori_history_add_items (void*  data,
                           char** colname)
 {
     KatzeItem* item;
-    KatzeArray* parent = NULL;
-    KatzeArray* array = KATZE_ARRAY (data);
+    KatzeArray* parent;
+    KatzeArray* array;
     gint64 date;
+    gint64 day;
     gint i;
-    gint ncols = 3;
+    gint j;
+    gint n;
+    gint ncols = 4;
     gchar token[50];
 
+    array = KATZE_ARRAY (data);
     g_return_val_if_fail (KATZE_IS_ARRAY (array), 1);
 
     /* Test whether have the right number of columns */
@@ -755,22 +760,29 @@ midori_history_add_items (void*  data,
         {
             if (colname[i] && !g_ascii_strcasecmp (colname[i], "uri") &&
                 colname[i + 1] && !g_ascii_strcasecmp (colname[i + 1], "title") &&
-                colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "date"))
+                colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "date") &&
+                colname[i + 3] && !g_ascii_strcasecmp (colname[i + 3], "day"))
             {
                 item = katze_item_new ();
                 katze_item_set_uri (item, argv[i]);
                 katze_item_set_name (item, argv[i + 1]);
                 date = g_ascii_strtoull (argv[i + 2], NULL, 10);
+                day = g_ascii_strtoull (argv[i + 3], NULL, 10);
                 katze_item_set_added (item, date);
 
-                strftime (token, sizeof (token), "%Y-%m-%d",
-                          localtime ((time_t *)&date));
-                parent = katze_array_find_token (array, token);
-
-                if (!parent)
+                n = katze_array_get_length (array);
+                for (j = n - 1; j >= 0; j--)
+                {
+                    parent = katze_array_get_nth_item (array, j);
+                    if (day == katze_item_get_added (KATZE_ITEM (parent)))
+                        break;
+                }
+                if (j < 0)
                 {
                     parent = katze_array_new (KATZE_TYPE_ARRAY);
-                    katze_item_set_added (KATZE_ITEM (parent), date);
+                    katze_item_set_added (KATZE_ITEM (parent), day);
+                    strftime (token, sizeof (token), "%Y-%m-%d",
+                          localtime ((time_t *)&date));
                     katze_item_set_token (KATZE_ITEM (parent), token);
                     katze_array_add_item (array, parent);
                 }
@@ -778,6 +790,31 @@ midori_history_add_items (void*  data,
             }
         }
     }
+    return 0;
+}
+
+static int
+midori_history_test_day_column (void*  data,
+                                int    argc,
+                                char** argv,
+                                char** colname)
+{
+    gint i;
+    gboolean* has_day;
+
+    has_day = (gboolean*)data;
+
+    for (i = 0; i < argc; i++)
+    {
+        if (argv[i] &&
+            !g_ascii_strcasecmp (colname[i], "name") &&
+            !g_ascii_strcasecmp (argv[i], "day"))
+        {
+            *has_day = TRUE;
+            break;
+        }
+    }
+
     return 0;
 }
 
@@ -789,18 +826,45 @@ midori_history_initialize (KatzeArray*  array,
     sqlite3* db;
     KatzeItem* item;
     gint i, n;
+    gboolean has_day;
+
+    has_day = FALSE;
 
     if ((db = db_open (filename, error)) == NULL)
         return db;
 
     if (!db_exec (db,
                   "CREATE TABLE IF NOT EXISTS "
-                  "history(uri text, title text, date integer, visits integer)",
+                  "history(uri text, title text, date integer, day integer)",
                   error))
         return NULL;
 
     if (!db_exec_callback (db,
-                           "SELECT uri, title, date FROM history "
+                           "PRAGMA table_info(history)",
+                           midori_history_test_day_column,
+                           &has_day, error))
+        return NULL;
+
+    if (!has_day)
+    {
+        if (!db_exec (db,
+                      "BEGIN TRANSACTION;"
+                      "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
+                      "INSERT INTO backup SELECT uri,title,date FROM history;"
+                      "DROP TABLE history;"
+                      "CREATE TABLE history (uri text, title text, date integer, day integer);"
+                      "INSERT INTO history SELECT uri,title,date,"
+                      "julianday(date(date,'unixepoch','start of day','+1 day'))"
+                      " - julianday('0001-01-01','start of day')"
+                      "FROM backup;"
+                      "DROP TABLE backup;"
+                      "COMMIT;",
+                      error))
+        return NULL;
+    }
+
+    if (!db_exec_callback (db,
+                           "SELECT uri, title, date, day FROM history "
                            "ORDER BY date ASC",
                            midori_history_add_items,
                            array,
