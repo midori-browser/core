@@ -4,25 +4,26 @@
 
 extensions = os.listdir ('extensions')
 for extension in extensions:
-    try:
-        folder = 'extensions' + os.sep + extension
+    folder = 'extensions' + os.sep + extension
+    if os.path.isdir (folder):
         files = os.listdir (folder)
         target = extension
         source = ''
         for fila in files:
             if fila[-2:] == '.c':
                 source += ' ' + extension + os.sep + fila
-        includes = '.' + os.sep + '..'
-    except:
+        if not source:
+            Utils.pprint ('RED', folder + ': No source files found')
+            continue
+    else:
         if extension[-2:] != '.c':
             continue
         target = extension[:-2]
         source = extension
-        includes = '..'
 
     obj = bld.new_task_gen ('cc', 'shlib')
     obj.target = target
-    obj.includes = includes
+    obj.includes = '..'
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
     obj.uselib_local = 'katze'

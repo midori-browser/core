@@ -2,10 +2,29 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
-obj = bld.new_task_gen ('cc', 'program')
-obj.target = 'magic-uri'
-obj.includes = '.. ../midori'
-obj.source = 'magic-uri.c'
-obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
-obj.uselib_local = 'midori'
-obj.unit_test = 1
+tests = os.listdir ('tests')
+for test in tests:
+    folder = 'tests' + os.sep + test
+    if os.path.isdir (folder):
+        files = os.listdir (folder)
+        target = test
+        source = ''
+        for fila in files:
+            if fila[-2:] == '.c':
+                source += ' ' + test + os.sep + fila
+        if not source:
+            Utils.pprint ('RED', folder + ': No source files found')
+            continue
+    else:
+        if test[-2:] != '.c':
+            continue
+        target = test[:-2]
+        source = test
+
+    obj = bld.new_task_gen ('cc', 'program')
+    obj.target = 'test-' + target
+    obj.includes = '.. ../midori'
+    obj.source = source
+    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
+    obj.uselib_local = 'midori'
+    obj.unit_test = 1
