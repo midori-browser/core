@@ -142,8 +142,7 @@ sokoke_magic_uri (const gchar* uri,
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);
     /* Construct an absolute path if the file is relative */
-    if (g_file_test (uri, G_FILE_TEST_EXISTS)
-        && g_file_test (uri, G_FILE_TEST_IS_REGULAR))
+    if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
     {
         current_dir = g_get_current_dir ();
         result = g_strconcat ("file://", current_dir,
