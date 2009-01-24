@@ -1509,9 +1509,6 @@ _midori_browser_find (MidoriBrowser* browser,
     case_sensitive = gtk_toggle_tool_button_get_active (
         GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
     view = midori_browser_get_current_tab (browser);
-
-    if (GTK_WIDGET_VISIBLE (browser->find))
-        midori_view_unmark_text_matches (MIDORI_VIEW (view));
     midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
 }
 
@@ -1542,11 +1539,14 @@ _find_highlight_toggled (GtkToggleToolButton* toolitem,
 }
 
 static gboolean
-midori_browser_find_key_press_event_cb (GtkWidget*   toolbar,
-                                        GdkEventKey* event)
+midori_browser_find_key_press_event_cb (GtkWidget*     toolbar,
+                                        GdkEventKey*   event,
+                                        MidoriBrowser* browser)
 {
     if (event->keyval == GDK_Escape)
     {
+        GtkWidget* view = midori_browser_get_current_tab (browser);
+        midori_view_unmark_text_matches (MIDORI_VIEW (view));
         gtk_widget_hide (toolbar);
         return TRUE;
     }
@@ -4190,7 +4190,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->find), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->find), GTK_TOOLBAR_BOTH_HORIZ);
     g_signal_connect (browser->find, "key-press-event",
-                      G_CALLBACK (midori_browser_find_key_press_event_cb), NULL);
+        G_CALLBACK (midori_browser_find_key_press_event_cb), browser);
     toolitem = gtk_tool_item_new ();
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_container_add (GTK_CONTAINER (toolitem),
