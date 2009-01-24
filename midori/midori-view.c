@@ -545,6 +545,8 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     uri = webkit_web_frame_get_uri (web_frame);
     g_return_if_fail (uri != NULL);
     katze_assign (view->uri, g_strdup (uri));
+    if (view->item)
+        katze_item_set_uri (view->item, uri);
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
 
@@ -1552,6 +1554,8 @@ midori_view_set_uri (MidoriView*  view,
     {
         katze_assign (view->uri, g_strdup (uri));
         g_object_notify (G_OBJECT (view), "uri");
+        if (view->item)
+            katze_item_set_uri (view->item, uri);
         data = g_strdup_printf ("%s - %s", _("Source"), &uri[12]);
         g_object_set (view, "title", data, NULL);
         g_free (data);
@@ -1612,6 +1616,8 @@ midori_view_set_uri (MidoriView*  view,
                     WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
                 g_free (data);
                 g_object_notify (G_OBJECT (view), "uri");
+                if (view->item)
+                    katze_item_set_uri (view->item, uri);
                 return;
             }
         }
@@ -1623,6 +1629,8 @@ midori_view_set_uri (MidoriView*  view,
         {
             katze_assign (view->uri, g_strdup (uri));
             g_object_notify (G_OBJECT (view), "uri");
+            if (view->item)
+                katze_item_set_uri (view->item, uri);
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
