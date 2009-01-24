@@ -2887,7 +2887,7 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
 {
     KatzeItem* item;
     char* sdate;
-    gint age;
+    gint64 age;
 
     gtk_tree_model_get (model, iter, 0, &item, 1, &age, -1);
 
@@ -2909,7 +2909,7 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
         }
         else if (age > 1)
         {
-            sdate = g_strdup_printf (_("%d days ago"), age);
+            sdate = g_strdup_printf (_("%" G_GINT64_FORMAT " days ago"), age);
             g_object_set (renderer, "text", sdate, NULL);
             g_free (sdate);
         }
@@ -4103,7 +4103,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* History */
     box = gtk_vbox_new (FALSE, 0);
-    treestore = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_INT);
+    treestore = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_INT64);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
