@@ -1486,24 +1486,15 @@ static void
 _action_find_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-    GtkWidget* view;
-
-    if (GTK_WIDGET_VISIBLE (browser->find))
-    {
-        view = midori_browser_get_current_tab (browser);
-        midori_view_unmark_text_matches (MIDORI_VIEW (view));
-        gtk_toggle_tool_button_set_active (
-            GTK_TOGGLE_TOOL_BUTTON (browser->find_highlight), FALSE);
-        gtk_widget_hide (browser->find);
-    }
-    else
+    if (!GTK_WIDGET_VISIBLE (browser->find))
     {
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
                                             GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FIND);
         gtk_entry_set_text (GTK_ENTRY (browser->find_text), "");
         gtk_widget_show (browser->find);
-        gtk_widget_grab_focus (GTK_WIDGET (browser->find_text));
     }
+
+    gtk_widget_grab_focus (GTK_WIDGET (browser->find_text));
 }
 
 static void
@@ -1548,6 +1539,19 @@ _find_highlight_toggled (GtkToggleToolButton* toolitem,
     view = midori_browser_get_current_tab (browser);
     highlight = gtk_toggle_tool_button_get_active (toolitem);
     midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
+}
+
+static gboolean
+midori_browser_find_key_press_event_cb (GtkWidget*   toolbar,
+                                        GdkEventKey* event)
+{
+    if (event->keyval == GDK_Escape)
+    {
+        gtk_widget_hide (toolbar);
+        return TRUE;
+    }
+
+    return FALSE;
 }
 
 static void
@@ -4185,6 +4189,8 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_set_name (browser->find, "MidoriFindbar");
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->find), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->find), GTK_TOOLBAR_BOTH_HORIZ);
+    g_signal_connect (browser->find, "key-press-event",
+                      G_CALLBACK (midori_browser_find_key_press_event_cb), NULL);
     toolitem = gtk_tool_item_new ();
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_container_add (GTK_CONTAINER (toolitem),
