@@ -1877,6 +1877,9 @@ midori_load_session (gpointer data)
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
+    g_signal_connect_after (gtk_accel_map_get (), "changed",
+        G_CALLBACK (accel_map_changed_cb), NULL);
+
     if (katze_array_is_empty (_session))
     {
         MidoriWebSettings* settings = katze_object_get_object (app, "settings");
@@ -2277,8 +2280,6 @@ main (int    argc,
 
     g_signal_connect_after (settings, "notify",
         G_CALLBACK (settings_notify_cb), NULL);
-    g_signal_connect_after (gtk_accel_map_get (), "changed",
-        G_CALLBACK (accel_map_changed_cb), NULL);
     g_signal_connect_after (search_engines, "add-item",
         G_CALLBACK (midori_search_engines_add_item_cb), NULL);
     g_signal_connect_after (search_engines, "remove-item",
