@@ -65,6 +65,9 @@ struct _MidoriBrowser
     GtkWidget* progressbar;
     gchar* statusbar_text;
 
+    guint alloc_timeout;
+    guint panel_timeout;
+
     MidoriWebSettings* settings;
     KatzeArray* proxy_array;
     KatzeArray* bookmarks;
@@ -3066,13 +3069,24 @@ _action_panel_activate (GtkToggleAction* action,
     sokoke_widget_set_visible (browser->panel, active);
 }
 
+static gboolean
+midori_browser_panel_timeout (GtkWidget* hpaned)
+{
+    gboolean position = gtk_paned_get_position (GTK_PANED (hpaned));
+    MidoriBrowser* browser = MIDORI_BROWSER (gtk_widget_get_toplevel (hpaned));
+    g_object_set (browser->settings, "last-panel-position", position, NULL);
+    browser->panel_timeout = 0;
+    return FALSE;
+}
+
 static void
-midori_panel_notify_position_cb (GObject*       object,
-                                 GParamSpec*    arg1,
+midori_panel_notify_position_cb (GObject*       hpaned,
+                                 GParamSpec*    pspec,
                                  MidoriBrowser* browser)
 {
-    gboolean position = gtk_paned_get_position (GTK_PANED (object));
-    g_object_set (browser->settings, "last-panel-position", position, NULL);
+    if (!browser->panel_timeout)
+        browser->panel_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
+            (GSourceFunc)midori_browser_panel_timeout, hpaned, NULL);
 }
 
 static gboolean
@@ -3469,6 +3483,16 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
     }
 }
 
+static gboolean
+midori_browser_alloc_timeout (MidoriBrowser* browser)
+{
+    g_object_set (browser->settings,
+        "last-window-width", GTK_WIDGET (browser)->allocation.width,
+        "last-window-height", GTK_WIDGET (browser)->allocation.height, NULL);
+    browser->alloc_timeout = 0;
+    return FALSE;
+}
+
 static void
 midori_browser_size_allocate_cb (MidoriBrowser* browser,
                                  GtkAllocation* allocation)
@@ -3478,11 +3502,12 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
     if (GTK_WIDGET_REALIZED (widget))
     {
         GdkWindowState state = gdk_window_get_state (widget->window);
-        if (!(state & (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
+        if (!(state &
+            (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN))
+            && !browser->alloc_timeout)
         {
-            g_object_set (browser->settings,
-                          "last-window-width", allocation->width,
-                          "last-window-height", allocation->height, NULL);
+            browser->alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
+                (GSourceFunc)midori_browser_alloc_timeout, browser, NULL);
         }
     }
 }
