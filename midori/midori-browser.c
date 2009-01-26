@@ -437,7 +437,6 @@ midori_view_notify_title_cb (GtkWidget*     view,
     const gchar* title;
     GtkAction* action;
     gchar* window_title;
-    KatzeItem* item;
 
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     title = midori_view_get_display_title (MIDORI_VIEW (view));
@@ -447,13 +446,23 @@ midori_view_notify_title_cb (GtkWidget*     view,
         MIDORI_LOCATION_ACTION (action), title, uri);
     if (midori_view_get_load_status (MIDORI_VIEW (view)) == MIDORI_LOAD_COMMITTED)
     {
+        KatzeItem* item;
+        KatzeItem* proxy;
+
         if (!browser->history)
             return;
 
-        item = katze_item_new ();
-        katze_item_set_uri (item, uri);
-        katze_item_set_name (item, title);
-        midori_browser_new_history_item (browser, item);
+        item = g_object_get_data (G_OBJECT (view), "history-item-added");
+        proxy = midori_view_get_proxy_item (MIDORI_VIEW (view));
+        if (item && katze_item_get_added (item) == katze_item_get_added (proxy))
+            katze_item_set_name (item, katze_item_get_name (proxy));
+        else
+        {
+            katze_object_assign (item, katze_item_copy (proxy));
+            midori_browser_new_history_item (browser, g_object_ref (item));
+            g_object_set_data_full (G_OBJECT (view), "history-item-added",
+                                    item, (GDestroyNotify)g_object_unref);
+        }
     }
 
     if (view == midori_browser_get_current_tab (browser))

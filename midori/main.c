@@ -683,6 +683,30 @@ midori_history_clear_cb (KatzeArray* history,
 }
 
 static void
+midori_history_notify_item_cb (KatzeItem*  item,
+                               GParamSpec* pspec,
+                               sqlite3*    db)
+{
+    gchar* sqlcmd;
+    gboolean success = TRUE;
+    GError* error = NULL;
+
+    sqlcmd = sqlite3_mprintf ("UPDATE history SET title='%q' WHERE "
+                              "uri='%q' AND date=%" G_GUINT64_FORMAT,
+                              katze_item_get_name (item),
+                              katze_item_get_uri (item),
+                              katze_item_get_added (item));
+    success = db_exec (db, sqlcmd, &error);
+    sqlite3_free (sqlcmd);
+    if (!success)
+    {
+        g_printerr (_("Failed to add history item: %s\n"), error->message);
+        g_error_free (error);
+        return ;
+    }
+}
+
+static void
 midori_history_add_item_cb (KatzeArray* array,
                             KatzeItem*  item,
                             sqlite3*    db)
@@ -716,7 +740,8 @@ midori_history_add_item_cb (KatzeArray* array,
         }
     }
     sqlcmd = sqlite3_mprintf ("INSERT INTO history VALUES"
-                              "('%q', '%q', %" G_GUINT64_FORMAT ", %" G_GUINT64_FORMAT ")",
+                              "('%q', '%q', %" G_GUINT64_FORMAT ","
+                              " %" G_GUINT64_FORMAT ")",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
                               katze_item_get_added (item),
@@ -729,6 +754,10 @@ midori_history_add_item_cb (KatzeArray* array,
         g_error_free (error);
         return ;
     }
+
+    /* The title is set after the item is added */
+    g_signal_connect_after (item, "notify::name",
+                            G_CALLBACK (midori_history_notify_item_cb), db);
 }
 
 static int

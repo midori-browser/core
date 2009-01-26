@@ -546,7 +546,10 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     g_return_if_fail (uri != NULL);
     katze_assign (view->uri, g_strdup (uri));
     if (view->item)
+    {
         katze_item_set_uri (view->item, uri);
+        katze_item_set_added (view->item, time (NULL));
+    }
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
 
