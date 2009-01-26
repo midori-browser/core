@@ -138,6 +138,8 @@ katze_item_class_init (KatzeItemClass* class)
                                      "The parent of the item",
                                      G_TYPE_OBJECT,
                                      flags));
+
+    class->copy = NULL;
 }
 
 
@@ -491,4 +493,38 @@ katze_item_set_parent (KatzeItem* item,
         g_object_ref (parent);
     katze_object_assign (item->parent, parent);
     g_object_notify (G_OBJECT (item), "parent");
+}
+
+/**
+ * katze_item_copy:
+ * @item: a #KatzeItem
+ *
+ * Creates an exact copy of @item.
+ *
+ * Note that subclass specific features will only
+ * be preserved if the class implements it.
+ *
+ * Return value: a new #KatzeItem
+ *
+ * Since: 0.1.3
+ **/
+KatzeItem*
+katze_item_copy (KatzeItem* item)
+{
+    KatzeItem* copy;
+    KatzeItemClass* class;
+
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    copy = g_object_new (G_OBJECT_TYPE (item),
+        "name", item->name,
+        "text", item->text,
+        "uri", item->uri,
+        "icon", item->icon,
+        "token", item->token,
+        "added", item->added,
+        "parent", item->parent,
+        NULL);
+    class = KATZE_ITEM_GET_CLASS (item);
+    return class->copy ? class->copy (copy) : copy;
 }

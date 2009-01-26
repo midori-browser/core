@@ -49,6 +49,9 @@ struct _KatzeItem
 struct _KatzeItemClass
 {
     GObjectClass parent_class;
+
+    gpointer
+    (*copy)                       (KatzeItem*      item);
 };
 
 GType
@@ -105,6 +108,9 @@ katze_item_get_parent             (KatzeItem*      item);
 void
 katze_item_set_parent             (KatzeItem*      item,
                                    gpointer        parent);
+
+KatzeItem*
+katze_item_copy                   (KatzeItem*      item);
 
 G_END_DECLS
 
