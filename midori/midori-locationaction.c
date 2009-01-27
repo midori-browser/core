@@ -592,17 +592,28 @@ midori_location_action_iter_lookup (MidoriLocationAction* location_action,
                                     GtkTreeIter*          iter)
 {
     gchar* path;
+    gchar* new_uri;
+    gboolean found;
 
-    if ((path = g_hash_table_lookup (location_action->items, uri)))
+    found = FALSE;
+    new_uri = NULL;
+
+    if (!g_str_has_suffix (uri, "/"))
+        new_uri = g_strconcat (uri, "/", NULL);
+
+    if ((path = g_hash_table_lookup (location_action->items,
+                                     new_uri ? new_uri : uri)))
     {
-        if (gtk_tree_model_get_iter_from_string (location_action->model,
-                                                 iter, path))
-            return TRUE;
-
-        g_hash_table_remove (location_action->items, uri);
+        if (!(found = gtk_tree_model_get_iter_from_string (location_action->model,
+                                                           iter, path)))
+        {
+            g_hash_table_remove (location_action->items,
+                                 new_uri ? new_uri : uri);
+        }
     }
+    g_free (new_uri);
 
-    return FALSE;
+    return found;
 }
 
 /**
