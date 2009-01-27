@@ -79,12 +79,12 @@ def configure (conf):
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
             nls = 'yes'
-            conf.define ('ENABLE_NLS', 1)
         else:
             option_checkfatal ('nls', 'localization')
             nls = 'N/A'
     else:
         nls = 'no '
+    conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
 
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
@@ -115,8 +115,8 @@ def configure (conf):
         unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
     else:
         option_checkfatal ('unique', 'single instance')
-        conf.define ('HAVE_UNIQUE', 0)
         unique = 'no '
+    conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
 
     if option_enabled ('libsoup'):
         check_pkg ('libsoup-2.4', '2.23.1', False)
@@ -125,18 +125,18 @@ def configure (conf):
         libsoup_25_2 = ['N/A','yes'][conf.env['HAVE_LIBSOUP_2_25_2'] == 1]
     else:
         option_checkfatal ('libsoup', 'libsoup')
-        conf.define ('HAVE_LIBSOUP', 0)
-        conf.define ('HAVE_LIBSOUP_2_25_2', 0)
         libsoup = 'no '
         libsoup_25_2 = 'no '
+    conf.define ('HAVE_LIBSOUP', [0,1][libsoup == 'yes'])
+    conf.define ('HAVE_LIBSOUP_2_25_2', [0,1][libsoup_25_2 == 'yes'])
 
     if option_enabled ('sqlite'):
         check_pkg ('sqlite3', '3.0', False, var='SQLITE')
         sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
     else:
         option_checkfatal ('sqlite', 'history database')
-        conf.define ('HAVE_SQLITE', 0)
         sqlite = 'no '
+    conf.define ('HAVE_SQLITE', [0,1][sqlite == 'yes'])
 
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
@@ -144,6 +144,14 @@ def configure (conf):
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
     check_pkg ('webkit-1.0', '0.1')
     check_pkg ('libxml-2.0', '2.6')
+
+    if option_enabled ('hildon'):
+        check_pkg ('hildon-1', mandatory=False, var='HILDON')
+        hildon = ['N/A','yes'][conf.env['HAVE_HILDON'] == 1]
+    else:
+        option_checkfatal ('hildon', 'Maemo integration')
+        hildon = 'no '
+    conf.define ('HAVE_HILDON', [0,1][hildon == 'yes'])
 
     conf.check (header_name='unistd.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
@@ -215,6 +223,7 @@ def configure (conf):
     else:
         Utils.pprint ('RED', 'WebKit was NOT built with libsoup')
     print "Persistent history:  " + sqlite + " (sqlite3)"
+    print "Maemo integration:   " + hildon + " (hildon)"
 
 def set_options (opt):
     def add_enable_option (option, desc, group=None, disable=False):
@@ -254,6 +263,7 @@ def set_options (opt):
     add_enable_option ('libsoup', 'icon and view source support', group)
     add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('addons', 'building of extensions', group)
+    add_enable_option ('hildon', 'Maemo integration', group)
 
 def build (bld):
     def mkdir (path):
@@ -294,14 +304,20 @@ def build (bld):
         bld.add_subdirs ('docs/api')
         bld.install_files ('${DOCDIR}/midori/api/', blddir + '/docs/api/*')
 
+    if bld.env['HAVE_HILDON']:
+        appdir = '${DATADIR}/applications/hildon'
+        bld.install_files ('${DATADIR}/dbus-1/services',
+                           'data/com.nokia.' + APPNAME + '.service')
+    else:
+        appdir = '${DATADIR}/applications'
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_in')
-        obj.source   = APPNAME + '.desktop.in'
-        obj.install_path = '${DATADIR}/applications'
-        obj.flags    = '-d'
-        bld.install_files ('${DATADIR}/applications', APPNAME + '.desktop')
+        obj.source = 'data/' + APPNAME + '.desktop.in'
+        obj.install_path = '${DATADIR}/applications/hildon'
+        obj.flags  = '-d'
+        bld.install_files (appdir, 'data/' + APPNAME + '.desktop')
     else:
-        folder = os.path.dirname (bld.env['waf_config_files'][0])
+        folder = os.path.dirname (bld.env['waf_config_files'][0]) + '/data'
         desktop = APPNAME + '.desktop'
         pre = open (desktop + '.in')
         after = open (folder + '/' + desktop, 'w')
@@ -315,7 +331,7 @@ def build (bld):
                             after.write (line)
                 after.close ()
                 Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
-                bld.install_files ('${DATADIR}/applications', folder + '/' + desktop)
+                bld.install_files (appdir, folder + '/' + desktop)
             except:
                 Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
         finally:

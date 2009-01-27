@@ -315,6 +315,9 @@ midori_panel_set_compact (MidoriPanel* panel,
 {
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
+    #if HAVE_HILDON
+    compact = TRUE;
+    #endif
     gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar),
         compact ? GTK_TOOLBAR_ICONS : GTK_TOOLBAR_BOTH);
 }

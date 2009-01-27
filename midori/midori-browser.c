@@ -38,7 +38,11 @@
 
 struct _MidoriBrowser
 {
+    #if HAVE_HILDON
+    HildonWindow parent_instance;
+    #else
     GtkWindow parent_instance;
+    #endif
 
     GtkActionGroup* action_group;
     GtkWidget* menubar;
@@ -78,7 +82,11 @@ struct _MidoriBrowser
     KatzeNet* net;
 };
 
+#if HAVE_HILDON
+G_DEFINE_TYPE (MidoriBrowser, midori_browser, HILDON_TYPE_WINDOW)
+#else
 G_DEFINE_TYPE (MidoriBrowser, midori_browser, GTK_TYPE_WINDOW)
+#endif
 
 enum
 {
@@ -1596,6 +1604,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                    GdkEventButton* event,
                                                    MidoriBrowser*  browser);
 
+#if !HAVE_HILDON
 static void
 _midori_browser_save_toolbar_items (MidoriBrowser* browser)
 {
@@ -1651,6 +1660,7 @@ midori_browser_toolbar_remove_item_cb (GtkWidget*     menuitem,
     gtk_container_remove (GTK_CONTAINER (browser->navigationbar), widget);
     _midori_browser_save_toolbar_items (browser);
 }
+#endif
 
 static gboolean
 midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
@@ -1679,23 +1689,27 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 
+    #if !HAVE_HILDON
     if (widget == browser->navigationbar ||
         gtk_widget_is_ancestor (widget, browser->navigationbar))
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
         const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
             "Preferences", "Window", "Bookmarks", "ReloadStop", "ZoomIn",
-            "ZoomOut", "Back", "Forward", "Homepage", "Trash", "Search" };
+            "ZoomOut", "Back", "Forward", "Homepage", "Panel", "Trash", "Search" };
         GtkWidget* submenu;
         gsize i;
 
         menuitem = gtk_separator_menu_item_new ();
+        gtk_widget_show (menuitem);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         submenu = gtk_menu_new ();
         menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ADD, NULL);
+        gtk_widget_show (menuitem);
         gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_REMOVE, NULL);
+        gtk_widget_show (menuitem);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         if (widget_action &&
             strcmp (gtk_action_get_name (widget_action), "Location"))
@@ -1732,9 +1746,10 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_toolbar_add_item_cb), browser);
         }
+        sokoke_container_show_children (GTK_CONTAINER (submenu));
     }
+    #endif
 
-    sokoke_container_show_children (GTK_CONTAINER (menu));
     katze_widget_popup (widget, GTK_MENU (menu), NULL,
         button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
     return TRUE;
@@ -1874,7 +1889,9 @@ _action_menubar_activate (GtkToggleAction* action,
 {
     gboolean active = gtk_toggle_action_get_active (action);
     g_object_set (browser->settings, "show-menubar", active, NULL);
+    #if !HAVE_HILDON
     sokoke_widget_set_visible (browser->menubar, active);
+    #endif
 }
 
 static void
@@ -1901,7 +1918,9 @@ _action_statusbar_activate (GtkToggleAction* action,
 {
     gboolean active = gtk_toggle_action_get_active (action);
     g_object_set (browser->settings, "show-statusbar", active, NULL);
+    #if !HAVE_HILDON
     sokoke_widget_set_visible (browser->statusbar, active);
+    #endif
 }
 
 static void
@@ -3858,6 +3877,10 @@ midori_browser_init (MidoriBrowser* browser)
     GError* error;
     GtkAction* action;
     GtkWidget* menuitem;
+    #if HAVE_HILDON
+    GtkWidget* menu;
+    GList* children;
+    #endif
     GtkSettings* gtk_settings;
     GtkWidget* hbox;
     GtkWidget* hpaned;
@@ -4029,26 +4052,47 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Create the menubar */
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
+    #if HAVE_HILDON
+    menu = gtk_menu_new ();
+    children = gtk_container_get_children (GTK_CONTAINER (browser->menubar));
+    while (children)
+    {
+        menuitem = GTK_WIDGET (children->data);
+        gtk_widget_reparent (menuitem, menu);
+        children = g_list_next (children);
+    }
+    browser->menubar = menu;
+    hildon_window_set_menu (HILDON_WINDOW (browser), GTK_MENU (browser->menubar));
+    hildon_program_add_window (hildon_program_get_instance (),
+                               HILDON_WINDOW (browser));
+    #else
+    gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
+    gtk_widget_hide (browser->menubar);
+    g_signal_connect (browser->menubar, "button-press-event",
+        G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
+    #endif
     menuitem = gtk_menu_item_new ();
+    #if !HAVE_HILDON
     gtk_widget_show (menuitem);
+    #endif
     browser->throbber = katze_throbber_new ();
     gtk_widget_show (browser->throbber);
     gtk_container_add (GTK_CONTAINER (menuitem), browser->throbber);
     gtk_widget_set_sensitive (menuitem, FALSE);
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
-    gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
     browser->menu_tools = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
         gtk_ui_manager_get_widget (ui_manager, "/menubar/Tools")));
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
-    gtk_widget_hide (browser->menubar);
-    g_signal_connect (browser->menubar, "button-press-event",
-        G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
 
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
     _action_set_sensitive (browser, "FindQuick", FALSE);
+    #if HAVE_HILDON
+    g_object_set (_action_by_name (browser, "Menubar"), "visible", FALSE, NULL);
+    g_object_set (_action_by_name (browser, "Statusbar"), "visible", FALSE, NULL);
+    #endif
     _action_set_sensitive (browser, "Transferbar", FALSE);
     _action_set_sensitive (browser, "SelectionSourceView", FALSE);
 
@@ -4061,11 +4105,16 @@ midori_browser_init (MidoriBrowser* browser)
         g_signal_connect (gtk_settings, "notify::gtk-toolbar-style",
             G_CALLBACK (midori_browser_navigationbar_notify_style_cb), browser);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (browser->navigationbar), TRUE);
-    gtk_box_pack_start (GTK_BOX (vbox), browser->navigationbar, FALSE, FALSE, 0);
     g_object_set (_action_by_name (browser, "Back"), "is-important", TRUE, NULL);
     gtk_widget_hide (browser->navigationbar);
     g_signal_connect (browser->navigationbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
+    #if HAVE_HILDON
+    hildon_window_add_toolbar (HILDON_WINDOW (browser),
+                               GTK_TOOLBAR (browser->navigationbar));
+    #else
+    gtk_box_pack_start (GTK_BOX (vbox), browser->navigationbar, FALSE, FALSE, 0);
+    #endif
 
     /* Bookmarkbar */
     browser->bookmarkbar = gtk_toolbar_new ();
@@ -4074,7 +4123,12 @@ midori_browser_init (MidoriBrowser* browser)
                                GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
+    #if HAVE_HILDON
+    hildon_window_add_toolbar (HILDON_WINDOW (browser),
+                               GTK_TOOLBAR (browser->bookmarkbar));
+    #else
     gtk_box_pack_start (GTK_BOX (vbox), browser->bookmarkbar, FALSE, FALSE, 0);
+    #endif
     g_signal_connect (browser->bookmarkbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
 
@@ -4286,7 +4340,12 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     #endif
     sokoke_container_show_children (GTK_CONTAINER (browser->find));
+    #if HAVE_HILDON
+    hildon_window_add_toolbar (HILDON_WINDOW (browser),
+                               GTK_TOOLBAR (browser->find));
+    #else
     gtk_box_pack_start (GTK_BOX (vbox), browser->find, FALSE, FALSE, 0);
+    #endif
 
     /* Statusbar */
     browser->statusbar = gtk_statusbar_new ();
@@ -4338,6 +4397,9 @@ static void
 _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                    MidoriToolbarStyle toolbar_style)
 {
+    #if HAVE_HILDON
+    GtkToolbarStyle gtk_toolbar_style = GTK_TOOLBAR_ICONS;
+    #else
     GtkToolbarStyle gtk_toolbar_style;
     GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
@@ -4360,6 +4422,7 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
             gtk_toolbar_style = GTK_TOOLBAR_BOTH_HORIZ;
         }
     }
+    #endif
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
                            gtk_toolbar_style);
 }
@@ -4388,6 +4451,10 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
     gchar** name;
     GtkAction* action;
     GtkWidget* toolitem;
+
+    #if HAVE_HILDON
+    items = "Bookmarks,Window,Back,Forward,ReloadStop,Location,Panel,Trash";
+    #endif
 
     gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
         (GtkCallback)gtk_widget_destroy, NULL);

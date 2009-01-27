@@ -495,11 +495,13 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
+    #if !HAVE_HILDON
     FRAME_NEW (_("Navigationbar"));
     TABLE_NEW (1, 2);
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"), 0, 1, 0, 1);
     button = katze_property_proxy (settings, "toolbar-style", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
+    #endif
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (5, 2);
     label = katze_property_label (settings, "open-new-pages-in");
@@ -514,12 +516,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #endif
     button = katze_property_proxy (settings, "always-show-tabbar", NULL);
     INDENTED_ADD (button, 0, 1, 2, 3);
-    button = katze_property_proxy (settings, "compact-sidepanel", NULL);
+    button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
     INDENTED_ADD (button, 1, 2, 2, 3);
+    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     INDENTED_ADD (button, 0, 1, 3, 4);
-    button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
+    button = katze_property_proxy (settings, "compact-sidepanel", NULL);
     WIDGET_ADD (button, 1, 2, 3, 4);
+    #endif
     /* button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
     SPANNED_ADD (button, 0, 1, 4, 5);*/
     button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
