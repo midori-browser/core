@@ -31,7 +31,7 @@ struct _KatzeArrayActionClass
     GtkActionClass parent_class;
 };
 
-G_DEFINE_TYPE (KatzeArrayAction, katze_array_action, GTK_TYPE_ACTION)
+G_DEFINE_TYPE (KatzeArrayAction, katze_array_action, GTK_TYPE_ACTION);
 
 enum
 {
