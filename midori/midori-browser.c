@@ -1617,7 +1617,9 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
     for (; children != NULL; children = g_list_next (children))
     {
         GtkAction* action = gtk_widget_get_action (GTK_WIDGET (children->data));
-        if (strcmp (gtk_action_get_name (action), "Fullscreen"))
+        /* If a widget has no action that is actually a bug, so warn about it */
+        g_warn_if_fail (action != NULL);
+        if (action && strcmp (gtk_action_get_name (action), "Fullscreen"))
         {
             g_string_append (toolbar_items, gtk_action_get_name (action));
             g_string_append (toolbar_items, ",");
@@ -1645,10 +1647,19 @@ midori_browser_toolbar_add_item_cb (GtkWidget*     menuitem,
     else
         gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
                             GTK_TOOL_ITEM (toolitem), 0);
-    g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
-                "button-press-event",
-                G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
-                browser);
+    if (gtk_bin_get_child (GTK_BIN (toolitem)))
+        g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+            "button-press-event",
+            G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+            browser);
+    else
+    {
+        gtk_tool_item_set_use_drag_window (GTK_TOOL_ITEM (toolitem), TRUE);
+        g_signal_connect (toolitem,
+            "button-press-event",
+            G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+            browser);
+    }
     _midori_browser_save_toolbar_items (browser);
 }
 
@@ -1695,7 +1706,7 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
         const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Preferences", "Window", "Bookmarks", "ReloadStop", "ZoomIn",
+            "Preferences", "Window", "Bookmarks", "ReloadStop", "ZoomIn", "Separator",
             "ZoomOut", "Back", "Forward", "Homepage", "Panel", "Trash", "Search" };
         GtkWidget* submenu;
         gsize i;
@@ -2558,11 +2569,8 @@ midori_browser_bookmark_delete_activate_cb (GtkWidget*     menuitem,
     /* FIXME: Even toplevel items should technically have a parent */
     g_return_if_fail (katze_item_get_parent (item));
 
-    if (KATZE_IS_ARRAY (item) || (uri && *uri))
-    {
-        parent = katze_item_get_parent (item);
-        katze_array_remove_item (KATZE_ARRAY (parent), item);
-    }
+    parent = katze_item_get_parent (item);
+    katze_array_remove_item (KATZE_ARRAY (parent), item);
 }
 
 static void
@@ -3944,6 +3952,13 @@ midori_browser_init (MidoriBrowser* browser)
     /* Hide the 'Dummy' which only holds otherwise unused actions */
     g_object_set (_action_by_name (browser, "Dummy"), "visible", FALSE, NULL);
 
+    action = g_object_new (KATZE_TYPE_SEPARATOR_ACTION,
+        "name", "Separator",
+        "label", _("_Separator"),
+        NULL);
+    gtk_action_group_add_action (browser->action_group, action);
+    g_object_unref (action);
+
     action = g_object_new (MIDORI_TYPE_LOCATION_ACTION,
         "name", "Location",
         "label", _("_Location..."),
@@ -4435,7 +4450,8 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
     if (event->button == 3)
     {
         midori_browser_toolbar_popup_context_menu_cb (
-            gtk_widget_get_parent (toolitem),
+            gtk_bin_get_child (GTK_BIN (toolitem)) ?
+                gtk_widget_get_parent (toolitem) : toolitem,
             event->x, event->y, event->button, browser);
 
         return TRUE;
@@ -4467,17 +4483,19 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
         if (action)
         {
             toolitem = gtk_action_create_tool_item (action);
-            g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
-                "button-press-event",
-                G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
-                browser);
-            gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                                GTK_TOOL_ITEM (toolitem), -1);
-        }
-        else if (!strcmp (*name, "Separator"))
-        {
-            toolitem = GTK_WIDGET (gtk_separator_tool_item_new ());
-            gtk_widget_show (toolitem);
+            if (gtk_bin_get_child (GTK_BIN (toolitem)))
+                g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+                    "button-press-event",
+                    G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+                    browser);
+            else
+            {
+                gtk_tool_item_set_use_drag_window (GTK_TOOL_ITEM (toolitem), TRUE);
+                g_signal_connect (toolitem,
+                    "button-press-event",
+                    G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+                    browser);
+            }
             gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
                                 GTK_TOOL_ITEM (toolitem), -1);
         }
@@ -4637,8 +4655,15 @@ browser_bookmarks_add_item_cb (KatzeArray*    array,
         g_object_set_data (G_OBJECT (gtk_bin_get_child (GTK_BIN (toolitem))),
             "KatzeItem", item);
     }
-    /* FIXME: Work around the inability to apply button events
-       to separator tool items */
+    else
+    {
+        gtk_tool_item_set_use_drag_window (toolitem, TRUE);
+        g_signal_connect (toolitem,
+            "button-press-event",
+            G_CALLBACK (midori_browser_bookmarkbar_item_button_press_event_cb),
+            browser);
+        g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
+    }
     gtk_widget_show (GTK_WIDGET (toolitem));
     gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), toolitem, -1);
 }
