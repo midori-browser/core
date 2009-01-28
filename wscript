@@ -313,7 +313,7 @@ def build (bld):
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_in')
         obj.source = 'data/' + APPNAME + '.desktop.in'
-        obj.install_path = '${DATADIR}/applications/hildon'
+        obj.install_path = appdir
         obj.flags  = '-d'
         bld.install_files (appdir, 'data/' + APPNAME + '.desktop')
     else:
