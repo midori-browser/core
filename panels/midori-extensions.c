@@ -104,7 +104,7 @@ midori_extensions_button_status_clicked_cb (GtkToolItem*      toolitem,
 
     treeview = GTK_TREE_VIEW (extensions->treeview);
 
-    if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
+    if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
     {
         GtkToolItem* button_enable = gtk_toolbar_get_nth_item (
             GTK_TOOLBAR (extensions->toolbar), 1);

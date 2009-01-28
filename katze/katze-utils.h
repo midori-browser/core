@@ -85,6 +85,11 @@ katze_pixbuf_new_from_buffer         (const guchar* buffer,
                                       GError**      error);
 
 gboolean
+katze_tree_view_get_selected_iter    (GtkTreeView*    treeview,
+                                      GtkTreeModel**  model,
+                                      GtkTreeIter*    iter);
+
+gboolean
 katze_object_has_property            (gpointer     object,
                                       const gchar* property);
 

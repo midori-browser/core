@@ -2371,7 +2371,7 @@ midori_panel_bookmarks_cursor_or_row_changed_cb (GtkTreeView*   tree_view,
     KatzeItem* item;
     gboolean is_separator;
 
-    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    if (katze_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
@@ -2527,7 +2527,7 @@ midori_browser_history_delete (MidoriBrowser* browser)
     GtkAction* location_action;
 
     treeview = GTK_TREE_VIEW (browser->panel_history);
-    if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
+    if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
     {
         location_action = _action_by_name (browser, "Location");
         gtk_tree_model_get (model, &iter, 0, &item, -1);
@@ -2617,7 +2617,7 @@ midori_panel_bookmarks_button_release_event_cb (GtkWidget*      widget,
     if (event->button != 2 && event->button != 3)
         return FALSE;
 
-    if (sokoke_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         uri = katze_item_get_uri (item);
@@ -2644,7 +2644,7 @@ midori_panel_bookmarks_popup_menu_cb (GtkWidget*     widget,
     GtkTreeIter iter;
     KatzeItem* item;
 
-    if (sokoke_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         midori_browser_bookmark_popup (widget, NULL, item, FALSE, browser);
@@ -2684,7 +2684,7 @@ midori_panel_history_cursor_or_row_changed_cb (GtkTreeView*   tree_view,
     KatzeItem* item;
     gboolean is_page;
 
-    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    if (katze_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
@@ -2720,7 +2720,7 @@ midori_panel_history_button_release_event_cb (GtkWidget*      widget,
     if (event->button != 2 && event->button != 3)
         return FALSE;
 
-    if (sokoke_tree_view_get_selected_iter (GTK_TREE_VIEW (widget),
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget),
                                             &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
@@ -2757,7 +2757,7 @@ midori_panel_history_key_release_event_cb (GtkWidget*     widget,
         return FALSE;
 
     treeview = GTK_TREE_VIEW (widget);
-    if (sokoke_tree_view_get_selected_iter (treeview, &model, &iter))
+    if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
     {
         location_action = _action_by_name (browser, "Location");
         gtk_tree_model_get (model, &iter, 0, &item, -1);
@@ -2777,7 +2777,7 @@ midori_panel_history_popup_menu_cb (GtkWidget*     widget,
     GtkTreeIter iter;
     KatzeItem* item;
 
-    if (sokoke_tree_view_get_selected_iter (GTK_TREE_VIEW (widget),
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget),
                                             &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
@@ -3213,7 +3213,7 @@ _action_history_add_bookmark_activate (GtkAction*     action,
     KatzeItem* item;
 
     tree_view = GTK_TREE_VIEW (browser->panel_history);
-    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    if (katze_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         if (!KATZE_IS_ARRAY (item))
@@ -3257,7 +3257,7 @@ _action_bookmark_edit_activate (GtkAction*     action,
     KatzeItem* item;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
-    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    if (katze_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         if (KATZE_IS_ARRAY (item) || katze_item_get_uri (item))
@@ -3276,7 +3276,7 @@ _action_bookmark_delete_activate (GtkAction*     action,
     KatzeArray* parent;
 
     tree_view = GTK_TREE_VIEW (browser->panel_bookmarks);
-    if (sokoke_tree_view_get_selected_iter (tree_view, &model, &iter))
+    if (katze_tree_view_get_selected_iter (tree_view, &model, &iter))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
         parent = katze_item_get_parent (item);

@@ -573,6 +573,40 @@ katze_pixbuf_new_from_buffer (const guchar* buffer,
 }
 
 /**
+ * katze_tree_view_get_selected_iter:
+ * @treeview: a #GtkTreeView
+ * @model: a pointer to store the model, or %NULL
+ * @iter: a pointer to store the iter, or %NULL
+ *
+ * Determines whether there is a selection in @treeview
+ * and sets the @iter to the current selection.
+ *
+ * If there is a selection and @model is not %NULL, it is
+ * set to the model, mainly for convenience.
+ *
+ * Either @model or @iter or both can be %NULL in which case
+ * no value will be assigned in any case.
+ *
+ * Return value: %TRUE if there is a selection
+ *
+ * Since: 0.1.3
+ **/
+gboolean
+katze_tree_view_get_selected_iter (GtkTreeView*   treeview,
+                                   GtkTreeModel** model,
+                                   GtkTreeIter*   iter)
+{
+    GtkTreeSelection* selection;
+
+    g_return_val_if_fail (GTK_IS_TREE_VIEW (treeview), FALSE);
+
+    if ((selection = gtk_tree_view_get_selection (treeview)))
+        if (gtk_tree_selection_get_selected (selection, model, iter))
+            return TRUE;
+    return FALSE;
+}
+
+/**
  * katze_object_has_property:
  * @object: a #GObject
  * @property: the name of the property

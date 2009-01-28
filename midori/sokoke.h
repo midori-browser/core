@@ -121,11 +121,6 @@ sokoke_action_create_popup_menu_item (GtkAction*     action);
 GtkWidget*
 sokoke_image_menu_item_new_ellipsized (const gchar*  label);
 
-gboolean
-sokoke_tree_view_get_selected_iter   (GtkTreeView*   tree_view,
-                                      GtkTreeModel** model,
-                                      GtkTreeIter*   iter);
-
 gint64
 sokoke_time_t_to_julian              (const time_t*  timestamp);
 
