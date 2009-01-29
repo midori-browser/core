@@ -389,6 +389,7 @@ midori_search_action_get_icon (MidoriSearchAction* search_action,
         GdkScreen* screen;
         GtkIconTheme* icon_theme;
         gint width, height;
+        GdkPixbuf* pixbuf;
 
         if (G_UNLIKELY (!(screen = gtk_widget_get_screen (widget))))
             return gtk_widget_render_icon (widget, GTK_STOCK_FILE,
@@ -396,8 +397,9 @@ midori_search_action_get_icon (MidoriSearchAction* search_action,
         icon_theme = gtk_icon_theme_get_for_screen (screen);
         gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (widget),
             GTK_ICON_SIZE_MENU, &width, &height);
-        return gtk_icon_theme_load_icon (icon_theme, icon, MAX (width, height),
-                                         GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+        if ((pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, MAX (width, height),
+                                           GTK_ICON_LOOKUP_USE_BUILTIN, NULL)))
+            return pixbuf;
     }
 
     if ((icon = katze_item_get_uri (item)) && strstr (icon, "://"))
