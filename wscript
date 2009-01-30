@@ -319,7 +319,7 @@ def build (bld):
     else:
         folder = os.path.dirname (bld.env['waf_config_files'][0]) + '/data'
         desktop = APPNAME + '.desktop'
-        pre = open (desktop + '.in')
+        pre = open ('data/' + desktop + '.in')
         after = open (folder + '/' + desktop, 'w')
         try:
             try:
