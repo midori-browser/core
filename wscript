@@ -218,7 +218,9 @@ def configure (conf):
             Utils.pprint ('RED', 'Please use an older or newer version.')
     print "Icons, Source, Save: " + libsoup + " (libSoup 2.23.1)"
     print "Persistent cookies:  " + libsoup_25_2 + " (libSoup 2.25.2)"
-    if 'soup-2.4' in conf.env['LIB_WEBKIT']:
+    # if 'soup-2.4' in conf.env['LIB_WEBKIT']:
+    wkbin = conf.env['LIBPATH_WEBKIT'][0] + '/libwebkit-1.0.so'
+    if not Utils.exec_command ('ldd ' + wkbin + ' | grep libsoup > /dev/null'):
         Utils.pprint ('GREEN', 'WebKit was built with libsoup')
     else:
         Utils.pprint ('RED', 'WebKit was NOT built with libsoup')
