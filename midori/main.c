@@ -977,26 +977,9 @@ accel_map_changed_cb (GtkAccelMap*    accel_map,
 }
 
 static void
-midori_search_engines_add_item_cb (KatzeArray* search_engines,
-                                   GObject*    item)
-{
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename ("search");
-    error = NULL;
-    if (!search_engines_save_to_file (search_engines, config_file, &error))
-    {
-        g_warning (_("The search engines couldn't be saved. %s"),
-                   error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-}
-
-static void
-midori_search_engines_remove_item_cb (KatzeArray* search_engines,
-                                      GObject*    item)
+midori_search_engines_modify_cb (KatzeArray* array,
+                                 gpointer    item,
+                                 KatzeArray* search_engines)
 {
     gchar* config_file;
     GError* error;
@@ -2166,6 +2149,12 @@ main (int    argc,
     katze_assign (config_file, build_config_filename ("search"));
     error = NULL;
     search_engines = search_engines_new_from_file (config_file, &error);
+    /* We ignore for instance empty files */
+    if (error && error->code == G_KEY_FILE_ERROR_PARSE)
+    {
+        g_error_free (error);
+        error = NULL;
+    }
     if (!error && katze_array_is_empty (search_engines))
     {
         const gchar* const * config_dirs = g_get_system_config_dirs ();
@@ -2337,17 +2326,26 @@ main (int    argc,
     g_signal_connect_after (settings, "notify",
         G_CALLBACK (settings_notify_cb), NULL);
     g_signal_connect_after (search_engines, "add-item",
-        G_CALLBACK (midori_search_engines_add_item_cb), NULL);
+        G_CALLBACK (midori_search_engines_modify_cb), search_engines);
     g_signal_connect_after (search_engines, "remove-item",
-        G_CALLBACK (midori_search_engines_remove_item_cb), NULL);
+        G_CALLBACK (midori_search_engines_modify_cb), search_engines);
+    if (!katze_array_is_empty (search_engines))
+    {
+        guint n = katze_array_get_length (search_engines);
+        for (i = 0; i < n; i++)
+        {
+            item = katze_array_get_nth_item (search_engines, i);
+            g_signal_connect_after (item, "notify",
+                G_CALLBACK (midori_search_engines_modify_cb), search_engines);
+        }
+    }
     g_signal_connect_after (bookmarks, "add-item",
         G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
     g_signal_connect_after (bookmarks, "remove-item",
         G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
     if (!katze_array_is_empty (bookmarks))
     {
-        guint n;
-        n = katze_array_get_length (bookmarks);
+        guint n = katze_array_get_length (bookmarks);
         for (i = 0; i < n; i++)
         {
             item = katze_array_get_nth_item (bookmarks, i);
