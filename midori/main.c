@@ -16,6 +16,7 @@
 
 #include "midori-addons.h"
 #include "midori-app.h"
+#include "midori-bookmarks.h"
 #include "midori-browser.h"
 #include "midori-console.h"
 #include "midori-extension.h"
@@ -1273,6 +1274,11 @@ midori_app_add_browser_cb (MidoriApp*     app,
     GtkWidget* addon;
 
     panel = katze_object_get_object (browser, "panel");
+
+    /* Bookmarks */
+    addon = g_object_new (MIDORI_TYPE_BOOKMARKS, "app", app, NULL);
+    gtk_widget_show (addon);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Transfers */
     #if 0
