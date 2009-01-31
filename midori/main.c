@@ -2166,13 +2166,34 @@ main (int    argc,
     katze_assign (config_file, build_config_filename ("search"));
     error = NULL;
     search_engines = search_engines_new_from_file (config_file, &error);
-    if (error)
+    if (!error && katze_array_is_empty (search_engines))
     {
-        /* FIXME: We may have a "file empty" error, how do we recognize that?
+        const gchar* const * config_dirs = g_get_system_config_dirs ();
+        i = 0;
+        while (config_dirs[i])
+        {
+            g_object_unref (search_engines);
+            katze_assign (config_file,
+                g_build_filename (config_dirs[i], PACKAGE_NAME, "search", NULL));
+            search_engines = search_engines_new_from_file (config_file, NULL);
+            if (!katze_array_is_empty (search_engines))
+                continue;
+            i++;
+        }
+        if (katze_array_is_empty (search_engines))
+        {
+            g_object_unref (search_engines);
+            katze_assign (config_file,
+                g_build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, "search", NULL));
+            search_engines = search_engines_new_from_file (config_file, NULL);
+        }
+    }
+    else if (error)
+    {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
                 _("The search engines couldn't be loaded. %s\n"),
-                error->message); */
+                error->message);
         g_error_free (error);
     }
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);

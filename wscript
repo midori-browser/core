@@ -86,9 +86,10 @@ def configure (conf):
         nls = 'no '
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
 
-    dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
     dirname_default ('DOCDIR', os.path.join (conf.env['DATADIR'], 'doc'))
+    dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
+    dirname_default ('SYSCONFDIR', os.path.join (conf.env['PREFIX'], 'etc'))
 
     if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
@@ -290,6 +291,9 @@ def build (bld):
     if option_enabled ('docs'):
         bld.install_files ('${DOCDIR}/' + APPNAME + '/', \
             'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
+
+    # Install default configuration
+    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + '/', 'data/search')
 
     if bld.env['RST2HTML']:
         # FIXME: Build only if needed
