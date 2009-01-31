@@ -213,8 +213,8 @@ MidoriExtension* extension_init(void)
 {
     MidoriExtension* extension = NULL;
 	extension = g_object_new(MIDORI_TYPE_EXTENSION,
-							 "name", "Mouse gestures",
-							 "description", "Control Midori by moving the mouse",
+							 "name", _("Mouse Gestures"),
+							 "description", _("Control Midori by moving the mouse"),
 							 "version", MOUSE_GESTURES_VERSION,
 							 "authors", "Matthias Kruk <mkruk@matthiaskruk.de>", NULL);
     g_signal_connect(extension, "activate", G_CALLBACK(mouse_gestures_activate), NULL); // connect the callback that's executed on activation
