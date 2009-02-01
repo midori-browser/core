@@ -642,7 +642,11 @@ midori_location_action_iter_insert (MidoriLocationAction* location_action,
         model = location_action->model;
         gtk_list_store_insert (GTK_LIST_STORE (model), iter, position);
         path = gtk_tree_model_get_string_from_iter (model,  iter);
-        g_hash_table_insert (location_action->items, g_strdup (uri), path);
+        g_hash_table_insert (location_action->items,
+                             g_str_has_suffix (uri, "/") ?
+                             g_strdup (uri) :
+                             g_strconcat (uri, "/", NULL),
+                             path);
 
         return FALSE;
     }
