@@ -729,7 +729,7 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
 
     search_action = g_object_get_data (G_OBJECT (treeview), "search-action");
     icon = midori_search_action_get_icon (search_action, item, treeview);
-    g_object_set (renderer, "pixbuf", icon, NULL);
+    g_object_set (renderer, "pixbuf", icon, "yalign", 0.25, NULL);
     g_object_unref (icon);
 }
 
@@ -750,6 +750,24 @@ midori_search_action_dialog_render_text (GtkTreeViewColumn* column,
     text = katze_item_get_text (item);
     markup = g_markup_printf_escaped ("<b>%s</b>\n%s", name, text ? text : "");
     g_object_set (renderer, "markup", markup, NULL);
+    g_free (markup);
+}
+
+static void
+midori_search_action_dialog_render_token (GtkTreeViewColumn* column,
+                                          GtkCellRenderer*   renderer,
+                                          GtkTreeModel*      model,
+                                          GtkTreeIter*       iter,
+                                          GtkWidget*         treeview)
+{
+    KatzeItem* item;
+    const gchar* token;
+    gchar* markup;
+
+    gtk_tree_model_get (model, iter, 0, &item, -1);
+    token = katze_item_get_token (item);
+    markup = g_markup_printf_escaped ("<b>%s</b>", token ? token : "");
+    g_object_set (renderer, "markup", markup, "yalign", 0.0, NULL);
     g_free (markup);
 }
 
@@ -1099,6 +1117,11 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_search_action_dialog_render_text,
+        treeview, NULL);
+    renderer_text = gtk_cell_renderer_text_new ();
+    gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
+    gtk_tree_view_column_set_cell_data_func (column, renderer_text,
+        (GtkTreeCellDataFunc)midori_search_action_dialog_render_token,
         treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     scrolled = gtk_scrolled_window_new (NULL, NULL);
