@@ -2791,7 +2791,7 @@ midori_browser_history_render_text_cb (GtkTreeViewColumn* column,
         }
         else if (age > 1)
         {
-            sdate = g_strdup_printf (_("%" G_GINT64_FORMAT " days ago"), age);
+            sdate = g_strdup_printf (_("%d days ago"), (gint)age);
             g_object_set (renderer, "text", sdate, NULL);
             g_free (sdate);
         }
