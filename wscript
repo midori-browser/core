@@ -89,7 +89,10 @@ def configure (conf):
     dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
     dirname_default ('DOCDIR', os.path.join (conf.env['DATADIR'], 'doc'))
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
-    dirname_default ('SYSCONFDIR', os.path.join (conf.env['PREFIX'], 'etc'))
+    if conf.env['PREFIX'] == '/usr':
+        dirname_default ('SYSCONFDIR', '/etc')
+    else:
+        dirname_default ('SYSCONFDIR', os.path.join (conf.env['PREFIX'], 'etc'))
 
     if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
