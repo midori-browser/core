@@ -60,6 +60,20 @@ midori_extension_deactivate          (MidoriExtension* extension);
 const gchar*
 midori_extension_get_config_dir      (MidoriExtension* extension);
 
+void
+midori_extension_install_string      (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      const gchar*     default_value);
+
+const gchar*
+midori_extension_get_string          (MidoriExtension* extension,
+                                      const gchar*     name);
+
+void
+midori_extension_set_string          (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      const gchar*     value);
+
 G_END_DECLS
 
 #endif /* __MIDORI_EXTENSION_H__ */

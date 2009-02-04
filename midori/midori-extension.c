@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,44 @@ struct _MidoriExtensionPrivate
 
     gboolean active;
     gchar* config_dir;
+    GList* lsettings;
+    GHashTable* settings;
 };
+
+typedef struct
+{
+    gchar* name;
+    GType type;
+    gchar* default_value;
+    gchar* value;
+} MESettingString;
+
+void me_setting_free (gpointer setting)
+{
+    MESettingString* string_setting = (MESettingString*)setting;
+
+    g_free (string_setting->name);
+    if (string_setting->type == G_TYPE_STRING)
+    {
+        g_free (string_setting->default_value);
+        g_free (string_setting->value);
+    }
+}
+
+#define me_setting_install(stype, _name, gtype, _default_value, _value) \
+    setting = g_new (stype, 1); \
+    setting->name = _name; \
+    setting->type = gtype; \
+    setting->default_value = _default_value; \
+    setting->value = _value; \
+    g_hash_table_insert (extension->priv->settings, setting->name, setting); \
+    extension->priv->lsettings = g_list_prepend \
+        (extension->priv->lsettings, setting);
+
+#define me_setting_type(setting, gtype, rreturn) \
+if (setting->type != gtype) { \
+g_critical ("%s: The setting '%s' is not a string.", G_STRFUNC, name); \
+rreturn; }
 
 enum
 {
@@ -144,6 +181,19 @@ static void
 midori_extension_activate_cb (MidoriExtension* extension,
                               MidoriApp*       app)
 {
+    GList* lsettings = g_list_first (extension->priv->lsettings);
+    while (lsettings)
+    {
+        MESettingString* setting = (MESettingString*)lsettings->data;
+
+        if (setting->type == G_TYPE_STRING)
+            setting->value = g_strdup (setting->default_value);
+        else
+            g_assert_not_reached ();
+
+        lsettings = g_list_next (lsettings);
+    }
+
     extension->priv->active = TRUE;
     /* FIXME: Disconnect all signal handlers */
 }
@@ -156,6 +206,9 @@ midori_extension_init (MidoriExtension* extension)
 
     extension->priv->active = FALSE;
     extension->priv->config_dir = NULL;
+    extension->priv->lsettings = NULL;
+    extension->priv->settings = g_hash_table_new_full (g_str_hash, g_str_equal,
+        g_free, me_setting_free);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (midori_extension_activate_cb), NULL);
@@ -172,6 +225,8 @@ midori_extension_finalize (GObject* object)
     katze_assign (extension->priv->authors, NULL);
 
     katze_assign (extension->priv->config_dir, NULL);
+    g_list_free (extension->priv->lsettings);
+    g_hash_table_destroy (extension->priv->settings);
 }
 
 static void
@@ -302,7 +357,6 @@ midori_extension_deactivate (MidoriExtension* extension)
 const gchar*
 midori_extension_get_config_dir (MidoriExtension* extension)
 {
-    g_return_val_if_fail (MIDORI_IS_EXTENSION (extension), NULL);
     g_return_val_if_fail (midori_extension_is_prepared (extension), NULL);
 
     if (!extension->priv->config_dir)
@@ -312,4 +366,99 @@ midori_extension_get_config_dir (MidoriExtension* extension)
 
     g_mkdir_with_parents (extension->priv->config_dir, 0700);
     return extension->priv->config_dir;
+}
+
+/**
+ * midori_extension_install_string:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ * @default_value: the default value
+ *
+ * Installs a string that can be used to conveniently
+ * store user configuration.
+ *
+ * Note that all settings have to be installed before
+ * the extension is activated.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_extension_install_string (MidoriExtension* extension,
+                                 const gchar*     name,
+                                 const gchar*     default_value)
+{
+    MESettingString* setting;
+
+    g_return_if_fail (midori_extension_is_prepared (extension));
+
+    /* This is not strictly a technical requirement but we want
+       to ensure that a running extension is in a reliable state. */
+    if (extension->priv->active)
+    {
+        g_critical ("%s: Settings have to be installed before "
+                    "the extension is activated.", G_STRFUNC);
+        return;
+    }
+
+    if (g_hash_table_lookup (extension->priv->settings, name))
+    {
+        g_critical ("%s: A setting with the name '%s' is already installed.",
+                    G_STRFUNC, name);
+        return;
+    }
+
+    me_setting_install (MESettingString, g_strdup (name), G_TYPE_STRING,
+                        g_strdup (default_value), NULL);
+}
+
+/**
+ * midori_extension_get_string:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ *
+ * Retrieves the value of the specified setting.
+ *
+ * Since: 0.1.3
+ **/
+const gchar*
+midori_extension_get_string (MidoriExtension* extension,
+                             const gchar*     name)
+{
+    MESettingString* setting;
+
+    g_return_val_if_fail (midori_extension_is_prepared (extension), NULL);
+    g_return_val_if_fail (name != NULL, NULL);
+
+    setting = g_hash_table_lookup (extension->priv->settings, name);
+
+    me_setting_type (setting, G_TYPE_STRING, return NULL);
+
+    return setting->value;
+}
+
+/**
+ * midori_extension_set_string:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ * @value: the new value
+ *
+ * Assigns a new value to the specified setting.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_extension_set_string (MidoriExtension* extension,
+                             const gchar*     name,
+                             const gchar*     value)
+{
+    MESettingString* setting;
+
+    g_return_if_fail (midori_extension_is_active (extension));
+    g_return_if_fail (name != NULL);
+
+    setting = g_hash_table_lookup (extension->priv->settings, name);
+
+    me_setting_type (setting, G_TYPE_STRING, return);
+
+    katze_assign (setting->value, g_strdup (value));
 }
