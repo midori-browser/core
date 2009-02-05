@@ -1810,6 +1810,30 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (box);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
+    if (1)
+    {
+        /* GtkLabel can't wrap the text properly. Until some day
+           this works, we implement this hack to do it ourselves. */
+        GtkWidget* content_area;
+        GtkWidget* hbox;
+        GtkWidget* vbox;
+        GtkWidget* label;
+        GList* ch;
+        GtkRequisition req;
+
+        content_area = GTK_DIALOG (dialog)->vbox;
+        ch = gtk_container_get_children (GTK_CONTAINER (content_area));
+        hbox = (GtkWidget*)g_list_nth_data (ch, 0);
+        g_list_free (ch);
+        ch = gtk_container_get_children (GTK_CONTAINER (hbox));
+        vbox = (GtkWidget*)g_list_nth_data (ch, 1);
+        g_list_free (ch);
+        ch = gtk_container_get_children (GTK_CONTAINER (vbox));
+        label = (GtkWidget*)g_list_nth_data (ch, 0);
+        g_list_free (ch);
+        gtk_widget_size_request (content_area, &req);
+        gtk_widget_set_size_request (label, req.width * 0.9, -1);
+    }
     return dialog;
 }
 
