@@ -96,9 +96,16 @@ static const gchar* tlds[] = {
  };
 static const guint tlds_n = 6;
 static const gchar* files[] = {
- "", "/", "/index.html", "/images", "/images/", "/Images", "/IMAGES"
+ "", "/", "/index.html", "/img.png", "/images", "/images/"/*, "/Images", "/IMAGES"*/
  };
-static const guint files_n = 5;
+static const guint files_n = 4; /* 6; */
+
+static const gchar* inputs[] = {
+ "http://www.one.com/index", "http://two.de/images", "http://six.com.au/img"
+ };
+static const gchar* additions[] = {
+ "http://www.one.com/invention", "http://two.de/island", "http://six.com.au/ish"
+ };
 
 static void location_action_fill (MidoriLocationAction* action)
 {
@@ -137,6 +144,12 @@ completion_fill (void)
 
     g_print ("...\n");
 
+    items_added = G_N_ELEMENTS (protocols) * G_N_ELEMENTS (subs)
+        * G_N_ELEMENTS (slds) * G_N_ELEMENTS (tlds) * G_N_ELEMENTS (files);
+    items_added_effective = protocols_n * subs_n * slds_n * tlds_n * files_n;
+    g_print ("Adding %d items, effectively %d items:\n",
+             items_added, items_added_effective);
+
     /* Since adding items when the action is frozen is very fast,
        we run it 10 times and take the average time. */
     elapsed = 0.0;
@@ -149,29 +162,122 @@ completion_fill (void)
         elapsed += g_test_timer_elapsed ();
         midori_location_action_thaw (action);
     }
-    items_added = G_N_ELEMENTS (protocols) * G_N_ELEMENTS (subs)
-        * G_N_ELEMENTS (slds) * G_N_ELEMENTS (tlds) * G_N_ELEMENTS (files);
-    items_added_effective = protocols_n * subs_n * slds_n * tlds_n * files_n;
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
     n = gtk_tree_model_iter_n_children (model, NULL);
     g_assert_cmpint (n, ==, items_added_effective);
-    g_print ("Added %d items, effectively %d items, in %f seconds (frozen)\n",
-             items_added, items_added_effective, elapsed / 10.0);
+    g_print ("%f seconds, the action is frozen\n", elapsed / 10.0);
 
     midori_location_action_clear (action);
     g_test_timer_start ();
     location_action_fill (action);
     elapsed = g_test_timer_elapsed ();
-    items_added = G_N_ELEMENTS (protocols) * G_N_ELEMENTS (subs)
-        * G_N_ELEMENTS (slds) * G_N_ELEMENTS (tlds) * G_N_ELEMENTS (files);
-    items_added_effective = protocols_n * subs_n * slds_n * tlds_n * files_n;
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
     n = gtk_tree_model_iter_n_children (model, NULL);
     g_assert_cmpint (n, ==, items_added_effective);
-    g_print ("Added %d items, effectively %d items, in %f seconds\n",
-             items_added, items_added_effective, elapsed);
+    g_print ("%f seconds, the action updates normally\n", elapsed);
+
+    /* We don't clear the action intentionally in order to see
+       how long adding only duplicates takes. */
+    g_test_timer_start ();
+    location_action_fill (action);
+    elapsed = g_test_timer_elapsed ();
+    model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
+    n = gtk_tree_model_iter_n_children (model, NULL);
+    g_assert_cmpint (n, ==, items_added_effective);
+    g_print ("%f seconds, adding exact duplicates\n", elapsed);
 
     g_print ("...");
+}
+
+static guint matches = 0;
+static guint matches_expected = 0;
+
+static gboolean
+entry_completion_insert_prefix_cb (GtkEntryCompletion*   completion,
+                                   const gchar*          prefix,
+                                   MidoriLocationAction* action)
+{
+    GtkWidget* entry = gtk_entry_completion_get_entry (completion);
+    const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
+
+    if (!g_strrstr (prefix, text))
+        g_print ("Match failed, input: %s, result: %s\n",
+                 text, prefix);
+    g_assert (g_strrstr (prefix, text));
+    midori_location_action_delete_item_from_uri (action, text);
+    midori_location_action_add_uri (action, text);
+
+    matches++;
+
+    return FALSE;
+}
+
+static void
+completion_match (void)
+{
+    MidoriLocationAction* action;
+    GtkWidget* toolitem;
+    GtkWidget* alignment;
+    GtkWidget* location_entry;
+    GtkWidget* entry;
+    GtkEntryCompletion* completion;
+    guint i;
+
+    action = g_object_new (MIDORI_TYPE_LOCATION_ACTION, NULL);
+
+    midori_location_action_freeze (action);
+    location_action_fill (action);
+    midori_location_action_thaw (action);
+
+    toolitem = gtk_action_create_tool_item (GTK_ACTION (action));
+    alignment = gtk_bin_get_child (GTK_BIN (toolitem));
+    location_entry = gtk_bin_get_child (GTK_BIN (alignment));
+    entry = gtk_bin_get_child (GTK_BIN (location_entry));
+    completion = gtk_entry_get_completion (GTK_ENTRY (entry));
+    g_signal_connect (completion, "insert-prefix",
+                      G_CALLBACK (entry_completion_insert_prefix_cb), action);
+    gtk_entry_completion_set_inline_completion (completion, TRUE);
+    gtk_entry_completion_set_popup_single_match (completion, FALSE);
+
+    for (i = 0; i < G_N_ELEMENTS (inputs); i++)
+    {
+        matches_expected++;
+        gtk_entry_set_text (GTK_ENTRY (entry), inputs[i]);
+        gtk_entry_completion_complete (completion);
+        gtk_entry_completion_insert_prefix (completion);
+        if (matches != matches_expected)
+            g_print ("Match failed, input: %s, result: %s\n",
+                inputs[i], gtk_entry_get_text (GTK_ENTRY (entry)));
+        g_assert_cmpint (matches, ==, matches_expected);
+    }
+    for (i = 0; i < G_N_ELEMENTS (additions); i++)
+    {
+        midori_location_action_add_uri (action, additions[i]);
+        midori_location_action_delete_item_from_uri (action, additions[i]);
+        midori_location_action_add_uri (action, additions[i]);
+    }
+    for (i = 0; i < G_N_ELEMENTS (inputs); i++)
+    {
+        matches_expected++;
+        gtk_entry_set_text (GTK_ENTRY (entry), inputs[i]);
+        gtk_entry_completion_complete (completion);
+        gtk_entry_completion_insert_prefix (completion);
+        if (matches != matches_expected)
+            g_print ("Match failed, input: %s, result: %s\n",
+                inputs[i], gtk_entry_get_text (GTK_ENTRY (entry)));
+        g_assert_cmpint (matches, ==, matches_expected);
+    }
+    for (i = 0; i < G_N_ELEMENTS (additions); i++)
+    {
+        matches_expected++;
+        gtk_entry_set_text (GTK_ENTRY (entry), additions[i]);
+        gtk_entry_completion_complete (completion);
+        gtk_entry_completion_insert_prefix (completion);
+        if (matches != matches_expected)
+            g_print ("Match failed, input: %s, result: %s\n",
+                additions[i], gtk_entry_get_text (GTK_ENTRY (entry)));
+        g_assert_cmpint (matches, ==, matches_expected);
+    }
 }
 
 int
@@ -183,6 +289,7 @@ main (int    argc,
 
     g_test_add_func ("/completion/count", completion_count);
     g_test_add_func ("/completion/fill", completion_fill);
+    g_test_add_func ("/completion/match", completion_match);
 
     return g_test_run ();
 }
