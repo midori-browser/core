@@ -92,6 +92,8 @@ main (int    argc,
     test_input ("g de.po verbose", NULL);
     test_input ("sm de.po verbose", SM "de.po verbose");
     test_input ("javascript:alert(1)", "javascript:alert(1)");
+    test_input ("sm warning: configure /dev/net: virtual",
+                SM "warning: configure /dev/net: virtual");
 
     return 0;
 }

@@ -155,7 +155,8 @@ sokoke_magic_uri (const gchar* uri,
     {
         /* Do we have a domain, ip address or localhost? */
         search = strchr (uri, ':');
-        if (search && search[0] && !g_ascii_isalpha (search[1]))
+        if (search && search[0] &&
+            !g_ascii_isalpha (search[1]) && search[1] != ' ')
             if (!strchr (search, '.'))
                 return g_strconcat ("http://", uri, NULL);
         if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
