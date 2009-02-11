@@ -269,12 +269,16 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
         gtk_widget_show (browser->progressbar);
-        if (!GTK_WIDGET_VISIBLE (browser->statusbar)
-            && !GTK_WIDGET_VISIBLE (browser->navigationbar))
+        if (!GTK_WIDGET_VISIBLE (browser->statusbar) &&
+            !GTK_WIDGET_VISIBLE (browser->navigationbar) &&
+            katze_object_get_boolean (browser->settings, "progress-in-location"))
             gtk_widget_show (browser->navigationbar);
-        action = _action_by_name (browser, "Location");
-        midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action),
-            midori_view_get_progress (MIDORI_VIEW (view)));
+        if (katze_object_get_boolean (browser->settings, "progress-in-location"))
+        {
+            action = _action_by_name (browser, "Location");
+            midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action),
+                midori_view_get_progress (MIDORI_VIEW (view)));
+        }
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
@@ -329,6 +333,8 @@ _midori_browser_update_progress (MidoriBrowser* browser,
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
                                    message);
         g_free (message);
+        if (!katze_object_get_boolean (browser->settings, "progress-in-location"))
+            progress = 0.0;
         midori_location_action_set_progress (action, progress);
     }
     else

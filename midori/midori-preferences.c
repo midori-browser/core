@@ -495,13 +495,15 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
-    #if !HAVE_HILDON
     FRAME_NEW (_("Navigationbar"));
-    TABLE_NEW (1, 2);
+    TABLE_NEW (2, 2);
+    #if !HAVE_HILDON
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"), 0, 1, 0, 1);
     button = katze_property_proxy (settings, "toolbar-style", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
     #endif
+    button = katze_property_proxy (settings, "progress-in-location", NULL);
+    FILLED_ADD (button, 1, 2, 1, 2);
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (5, 2);
     label = katze_property_label (settings, "open-new-pages-in");

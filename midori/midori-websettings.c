@@ -39,6 +39,7 @@ struct _MidoriWebSettings
     gboolean show_statusbar;
 
     MidoriToolbarStyle toolbar_style;
+    gboolean progress_in_location;
     gchar* toolbar_items;
     gboolean compact_sidepanel;
 
@@ -102,6 +103,7 @@ enum
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
+    PROP_PROGRESS_IN_LOCATION,
     PROP_TOOLBAR_ITEMS,
     PROP_COMPACT_SIDEPANEL,
 
@@ -423,6 +425,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
+                                     flags));
+
+    /**
+    * MidoriWebSettings:progress-in-location:
+    *
+    * Whether to show loading progress in the location entry.
+    *
+    * Since: 0.1.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PROGRESS_IN_LOCATION,
+                                     g_param_spec_boolean (
+                                     "progress-in-location",
+                                     _("Show progress in location entry"),
+                                     _("Whether to show loading progress in the location entry"),
+                                     TRUE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -956,6 +974,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_STYLE:
         web_settings->toolbar_style = g_value_get_enum (value);
         break;
+    case PROP_PROGRESS_IN_LOCATION:
+        web_settings->progress_in_location = g_value_get_boolean (value);
+        break;
     case PROP_TOOLBAR_ITEMS:
         katze_assign (web_settings->toolbar_items, g_value_dup_string (value));
         break;
@@ -1133,6 +1154,9 @@ midori_web_settings_get_property (GObject*    object,
 
     case PROP_TOOLBAR_STYLE:
         g_value_set_enum (value, web_settings->toolbar_style);
+        break;
+    case PROP_PROGRESS_IN_LOCATION:
+        g_value_set_boolean (value, web_settings->progress_in_location);
         break;
     case PROP_TOOLBAR_ITEMS:
         g_value_set_string (value, web_settings->toolbar_items);
