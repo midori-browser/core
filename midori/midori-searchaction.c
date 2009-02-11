@@ -879,7 +879,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
 
     hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
-    label = gtk_label_new_with_mnemonic (_("_Icon (name or file):"));
+    label = gtk_label_new_with_mnemonic (_("_Icon:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     entry_icon = gtk_entry_new ();
