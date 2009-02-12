@@ -1757,8 +1757,8 @@ midori_view_has_selection (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    view->selected_text = webkit_web_view_get_selected_text (
-            WEBKIT_WEB_VIEW (view->web_view));
+    katze_assign (view->selected_text, webkit_web_view_get_selected_text (
+        WEBKIT_WEB_VIEW (view->web_view)));
     if (view->selected_text && *view->selected_text)
         return TRUE;
     else
