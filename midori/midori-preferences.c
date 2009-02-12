@@ -225,6 +225,17 @@ midori_preferences_notify_preferred_encoding_cb (MidoriWebSettings* settings,
 
 #if HAVE_LIBSOUP
 static void
+midori_preferences_notify_auto_detect_proxy_cb (MidoriWebSettings* settings,
+                                                GParamSpec*        pspec,
+                                                GtkWidget*         entry)
+{
+    MidoriIdentity auto_detect_proxy = katze_object_get_enum (settings,
+                                                              "auto-detect-proxy");
+
+    gtk_widget_set_sensitive (entry, !auto_detect_proxy);
+}
+
+static void
 midori_preferences_notify_identify_as_cb (MidoriWebSettings* settings,
                                           GParamSpec*        pspec,
                                           GtkWidget*         entry)
@@ -543,30 +554,35 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     {
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
     FRAME_NEW (_("Network"));
-    TABLE_NEW (4, 2);
+    TABLE_NEW (5, 2);
     label = katze_property_label (settings, "http-proxy");
     INDENTED_ADD (label, 0, 1, 0, 1);
-    button = katze_property_proxy (settings, "http-proxy", NULL);
-    FILLED_ADD (button, 1, 2, 0, 1);
-    label = katze_property_label (settings, "identify-as");
-    INDENTED_ADD (label, 0, 1, 1, 2);
-    button = katze_property_proxy (settings, "identify-as", NULL);
+    entry = katze_property_proxy (settings, "http-proxy", NULL);
+    FILLED_ADD (entry, 1, 2, 0, 1);
+    button = katze_property_proxy (settings, "auto-detect-proxy", NULL);
     FILLED_ADD (button, 1, 2, 1, 2);
-    label = katze_property_label (settings, "ident-string");
+    g_signal_connect (settings, "notify::auto-detect-proxy",
+        G_CALLBACK (midori_preferences_notify_auto_detect_proxy_cb), entry);
+    midori_preferences_notify_auto_detect_proxy_cb (settings, NULL, entry);
+    label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label, 0, 1, 2, 3);
+    button = katze_property_proxy (settings, "identify-as", NULL);
+    FILLED_ADD (button, 1, 2, 2, 3);
+    label = katze_property_label (settings, "ident-string");
+    INDENTED_ADD (label, 0, 1, 3, 4);
     entry = katze_property_proxy (settings, "ident-string", NULL);
     g_signal_connect (settings, "notify::identify-as",
         G_CALLBACK (midori_preferences_notify_identify_as_cb), entry);
     midori_preferences_notify_identify_as_cb (settings, NULL, entry);
-    FILLED_ADD (entry, 1, 2, 2, 3);
+    FILLED_ADD (entry, 1, 2, 3, 4);
     label = katze_property_label (settings, "cache-size");
-    INDENTED_ADD (label, 0, 1, 3, 4);
+    INDENTED_ADD (label, 0, 1, 4, 5);
     hbox = gtk_hbox_new (FALSE, 4);
     entry = katze_property_proxy (settings, "cache-size", NULL);
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("MB")),
                         FALSE, FALSE, 0);
-    FILLED_ADD (hbox, 1, 2, 3, 4);
+    FILLED_ADD (hbox, 1, 2, 4, 5);
     }
     #endif
 

@@ -72,6 +72,7 @@ struct _MidoriWebSettings
     gboolean remember_last_downloaded_files;
 
     gchar* http_proxy;
+    gboolean auto_detect_proxy;
     MidoriIdentity identify_as;
     gchar* ident_string;
     gint cache_size;
@@ -138,6 +139,7 @@ enum
     PROP_REMEMBER_LAST_DOWNLOADED_FILES,
 
     PROP_HTTP_PROXY,
+    PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
     PROP_IDENT_STRING,
     PROP_CACHE_SIZE
@@ -764,6 +766,26 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      #endif
 
     /**
+    * MidoriWebSettings:auto-detect-proxy:
+    *
+    * Whether to detect the proxy server automatically from the environment
+    *
+    * Since: 0.1.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_AUTO_DETECT_PROXY,
+                                     g_param_spec_boolean (
+                                     "auto-detect-proxy",
+                                     _("Detect proxy server automatically"),
+        _("Whether to detect the proxy server automatically from the environment"),
+                                     TRUE,
+                                     #if HAVE_LIBSOUP
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     #else
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+                                     #endif
+
+    /**
     * MidoriWebSettings:identify-as:
     *
     * What to identify as to web pages.
@@ -1083,6 +1105,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
         break;
+    case PROP_AUTO_DETECT_PROXY:
+        web_settings->auto_detect_proxy = g_value_get_boolean (value);
+        break;
     case PROP_IDENTIFY_AS:
         web_settings->identify_as = g_value_get_enum (value);
         if (web_settings->identify_as != MIDORI_IDENT_CUSTOM)
@@ -1249,6 +1274,9 @@ midori_web_settings_get_property (GObject*    object,
 
     case PROP_HTTP_PROXY:
         g_value_set_string (value, web_settings->http_proxy);
+        break;
+    case PROP_AUTO_DETECT_PROXY:
+        g_value_set_boolean (value, web_settings->auto_detect_proxy);
         break;
     case PROP_IDENTIFY_AS:
         g_value_set_enum (value, web_settings->identify_as);
