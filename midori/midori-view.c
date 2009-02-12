@@ -825,6 +825,29 @@ midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
 }
 
 static void
+midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
+                                             MidoriView* view)
+{
+    gchar* uri;
+    gchar* location_entry_search;
+
+    g_object_get (view->settings, "location-entry-search",
+                  &location_entry_search, NULL);
+    if (strstr (location_entry_search, "%s"))
+    {
+        uri = g_strdup_printf (location_entry_search, view->selected_text);
+        g_free (location_entry_search);
+    }
+    else
+        uri = location_entry_search;
+
+    g_signal_emit (view, signals[NEW_TAB], 0, uri,
+        view->open_tabs_in_the_background);
+
+    g_free (uri);
+}
+
+static void
 midori_web_view_menu_save_as_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
 {
@@ -872,6 +895,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
        determine that the mouse is over a text area or selection. */
     items = gtk_container_get_children (GTK_CONTAINER (menu));
     menuitem = (GtkWidget*)g_list_nth_data (items, 0);
+    g_list_free (items);
     if (GTK_IS_IMAGE_MENU_ITEM (menuitem))
     {
         icon = gtk_image_menu_item_get_image (GTK_IMAGE_MENU_ITEM (menuitem));
@@ -934,6 +958,12 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (!view->link_uri && has_selection)
     {
+        /* hack to implement Search the Web */
+        items = gtk_container_get_children (GTK_CONTAINER (menu));
+        menuitem = (GtkWidget*)g_list_nth_data (items, 0);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
+        g_list_free (items);
         if (strchr (view->selected_text, '.')
             && !strchr (view->selected_text, ' '))
         {
