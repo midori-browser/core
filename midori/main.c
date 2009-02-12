@@ -30,6 +30,12 @@
 
 #include "sokoke.h"
 
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+    #define is_writable(_cfg_filename) !g_access (_cfg_filename, W_OK)
+#else
+    #define is_writable(_cfg_filename) 1
+#endif
 #include <string.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
@@ -1911,6 +1917,7 @@ midori_load_session (gpointer data)
     KatzeArray* _session = KATZE_ARRAY (data);
     MidoriBrowser* browser;
     MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
+    gchar* config_file;
     KatzeArray* session;
     KatzeItem* item;
     guint n, i;
@@ -1919,8 +1926,10 @@ midori_load_session (gpointer data)
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
-    g_signal_connect_after (gtk_accel_map_get (), "changed",
-        G_CALLBACK (accel_map_changed_cb), NULL);
+    config_file = build_config_filename ("accels");
+    if (is_writable (config_file))
+        g_signal_connect_after (gtk_accel_map_get (), "changed",
+            G_CALLBACK (accel_map_changed_cb), NULL);
 
     if (katze_array_is_empty (_session))
     {
@@ -1954,14 +1963,18 @@ midori_load_session (gpointer data)
         midori_browser_activate_action (browser, "Location");
     g_object_unref (_session);
 
-    g_signal_connect_after (browser, "notify::uri",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_signal_connect_after (browser, "add-tab",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_signal_connect_after (browser, "remove-tab",
-        G_CALLBACK (midori_browser_session_cb), session);
-    g_object_weak_ref (G_OBJECT (session),
-        (GWeakNotify)(midori_browser_weak_notify_cb), browser);
+    katze_assign (config_file, build_config_filename ("session.xbel"));
+    if (is_writable (config_file))
+    {
+        g_signal_connect_after (browser, "notify::uri",
+            G_CALLBACK (midori_browser_session_cb), session);
+        g_signal_connect_after (browser, "add-tab",
+            G_CALLBACK (midori_browser_session_cb), session);
+        g_signal_connect_after (browser, "remove-tab",
+            G_CALLBACK (midori_browser_session_cb), session);
+        g_object_weak_ref (G_OBJECT (session),
+            (GWeakNotify)(midori_browser_weak_notify_cb), browser);
+    }
 
     return FALSE;
 }
@@ -2347,52 +2360,71 @@ main (int    argc,
         i++;
     }
 
-    g_signal_connect_after (settings, "notify",
-        G_CALLBACK (settings_notify_cb), NULL);
-    g_signal_connect_after (search_engines, "add-item",
-        G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-    g_signal_connect_after (search_engines, "remove-item",
-        G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-    if (!katze_array_is_empty (search_engines))
+    katze_assign (config_file, build_config_filename ("config"));
+    if (is_writable (config_file))
+        g_signal_connect_after (settings, "notify",
+            G_CALLBACK (settings_notify_cb), NULL);
+
+    katze_assign (config_file, build_config_filename ("search"));
+    if (is_writable (config_file))
     {
-        guint n = katze_array_get_length (search_engines);
-        for (i = 0; i < n; i++)
+        g_signal_connect_after (search_engines, "add-item",
+            G_CALLBACK (midori_search_engines_modify_cb), search_engines);
+        g_signal_connect_after (search_engines, "remove-item",
+            G_CALLBACK (midori_search_engines_modify_cb), search_engines);
+        if (!katze_array_is_empty (search_engines))
         {
-            item = katze_array_get_nth_item (search_engines, i);
-            g_signal_connect_after (item, "notify",
-                G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-        }
-    }
-    g_signal_connect_after (bookmarks, "add-item",
-        G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
-    g_signal_connect_after (bookmarks, "remove-item",
-        G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
-    if (!katze_array_is_empty (bookmarks))
-    {
-        guint n = katze_array_get_length (bookmarks);
-        for (i = 0; i < n; i++)
-        {
-            item = katze_array_get_nth_item (bookmarks, i);
-            if (KATZE_IS_ARRAY (item))
+            guint n = katze_array_get_length (search_engines);
+            for (i = 0; i < n; i++)
             {
-                g_signal_connect_after (item, "add-item",
-                    G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
-                g_signal_connect_after (item, "remove-item",
-                    G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+                item = katze_array_get_nth_item (search_engines, i);
+                g_signal_connect_after (item, "notify",
+                    G_CALLBACK (midori_search_engines_modify_cb), search_engines);
             }
-            g_signal_connect_after (item, "notify",
-                G_CALLBACK (midori_bookmarks_notify_item_cb), bookmarks);
         }
     }
-    g_signal_connect_after (trash, "add-item",
-        G_CALLBACK (midori_trash_add_item_cb), NULL);
-    g_signal_connect_after (trash, "remove-item",
-        G_CALLBACK (midori_trash_remove_item_cb), NULL);
+    katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
+    if (is_writable (config_file))
+    {
+        g_signal_connect_after (bookmarks, "add-item",
+            G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
+        g_signal_connect_after (bookmarks, "remove-item",
+            G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+        if (!katze_array_is_empty (bookmarks))
+        {
+            guint n = katze_array_get_length (bookmarks);
+            for (i = 0; i < n; i++)
+            {
+                item = katze_array_get_nth_item (bookmarks, i);
+                if (KATZE_IS_ARRAY (item))
+                {
+                    g_signal_connect_after (item, "add-item",
+                        G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
+                    g_signal_connect_after (item, "remove-item",
+                        G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+                }
+                g_signal_connect_after (item, "notify",
+                    G_CALLBACK (midori_bookmarks_notify_item_cb), bookmarks);
+            }
+        }
+    }
+    katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
+    if (is_writable (config_file))
+    {
+        g_signal_connect_after (trash, "add-item",
+            G_CALLBACK (midori_trash_add_item_cb), NULL);
+        g_signal_connect_after (trash, "remove-item",
+            G_CALLBACK (midori_trash_remove_item_cb), NULL);
+    }
     #ifdef HAVE_SQLITE
-    g_signal_connect_after (history, "add-item",
-        G_CALLBACK (midori_history_add_item_cb), db);
-    g_signal_connect_after (history, "clear",
-        G_CALLBACK (midori_history_clear_cb), db);
+    katze_assign (config_file, build_config_filename ("history.db"));
+    if (is_writable (config_file))
+    {
+        g_signal_connect_after (history, "add-item",
+            G_CALLBACK (midori_history_add_item_cb), db);
+        g_signal_connect_after (history, "clear",
+            G_CALLBACK (midori_history_clear_cb), db);
+    }
     #endif
 
     /* We test for the presence of a dummy file which is created once
