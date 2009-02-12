@@ -1779,9 +1779,8 @@ midori_view_get_selected_text (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     if (midori_view_has_selection (view))
-        return midori_view_get_selected_text (view);
-    else
-        return NULL;
+        return view->selected_text;
+    return NULL;
 }
 
 /**
