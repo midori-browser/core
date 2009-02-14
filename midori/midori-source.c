@@ -87,6 +87,7 @@ midori_source_transfer_cb (KatzeNetRequest* request,
 {
     gchar** mimev;
     gchar* charset;
+    const gchar* default_charset;
     gchar* contents_utf8;
     GtkTextBuffer* buffer;
 
@@ -103,8 +104,14 @@ midori_source_transfer_cb (KatzeNetRequest* request,
                     charset = g_strdup (&mimev[1][8]);
                 g_strfreev (mimev);
             }
+            g_get_charset (&default_charset);
             contents_utf8 = g_convert (request->data, -1, "UTF-8",
-                charset ? charset : "ISO-8859-1", NULL, NULL, NULL);
+                charset ? charset : default_charset, NULL, NULL, NULL);
+            /* If conversion from the user's locale also failed,
+               try ISO-8859-1 as a last resort */
+            if (!contents_utf8)
+                contents_utf8 = g_convert (request->data, -1, "UTF-8",
+                                           "ISO-8859-1", NULL, NULL, NULL);
         }
         else
             contents_utf8 = (gchar*)request->data;
