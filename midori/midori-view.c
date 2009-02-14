@@ -26,6 +26,14 @@
 #include <glib/gi18n.h>
 #include <webkit/webkit.h>
 
+#if GLIB_CHECK_VERSION (2, 18, 0)
+    #define D_(__domain, __message) g_dgettext (__domain, __message)
+#elif ENABLE_NLS
+    #define D_(__domain, __message) dgettext (__domain, __message)
+#else
+    #define D_(__domain, __message) __message
+#endif
+
 #ifndef WEBKIT_CHECK_VERSION
     #define WEBKIT_CHECK_VERSION(a,b,c) 0
 #endif
@@ -888,6 +896,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     GtkIconTheme* icon_theme;
     GList* items;
     gboolean has_selection;
+    GtkWidget* label;
 
     has_selection = midori_view_has_selection (view);
 
@@ -908,6 +917,11 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (view->link_uri)
     {
+        items = gtk_container_get_children (GTK_CONTAINER (menu));
+        menuitem = (GtkWidget*)g_list_nth_data (items, 0);
+        /* hack to localize menu item */
+        label = gtk_bin_get_child (GTK_BIN (menuitem));
+        gtk_label_set_label (GTK_LABEL (label), _("Open _Link"));
         menuitem = gtk_image_menu_item_new_with_mnemonic (
             _("Open Link in New _Tab"));
         screen = gtk_widget_get_screen (GTK_WIDGET (view));
@@ -921,9 +935,13 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), view);
         gtk_widget_show (menuitem);
-        /* hack to implement New Window */
+        g_list_free (items);
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         menuitem = (GtkWidget*)g_list_nth_data (items, 2);
+        /* hack to localize menu item */
+        label = gtk_bin_get_child (GTK_BIN (menuitem));
+        gtk_label_set_label (GTK_LABEL (label), _("Open Link in New _Window"));
+        /* hack to implement New Window */
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_new_window_activate_cb), view);
         menuitem = (GtkWidget*)g_list_nth_data (items, 3);
@@ -958,9 +976,12 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (!view->link_uri && has_selection)
     {
-        /* hack to implement Search the Web */
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         menuitem = (GtkWidget*)g_list_nth_data (items, 0);
+        /* hack to localize menu item */
+        label = gtk_bin_get_child (GTK_BIN (menuitem));
+        gtk_label_set_label (GTK_LABEL (label), _("_Search the Web"));
+        /* hack to implement Search the Web */
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
         g_list_free (items);
@@ -983,6 +1004,12 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (!view->link_uri && !has_selection)
     {
+        items = gtk_container_get_children (GTK_CONTAINER (menu));
+        menuitem = (GtkWidget*)g_list_nth_data (items, 3);
+        /* hack to localize menu item */
+        label = gtk_bin_get_child (GTK_BIN (menuitem));
+        gtk_label_set_label (GTK_LABEL (label), D_("gtk20", "_Refresh"));
+        g_list_free (items);
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo Close Tab"));
         icon = gtk_image_new_from_stock (GTK_STOCK_UNDELETE, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
