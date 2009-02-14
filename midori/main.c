@@ -1839,7 +1839,7 @@ main (int    argc,
                 g_build_filename (config_dirs[i], PACKAGE_NAME, "search", NULL));
             search_engines = search_engines_new_from_file (config_file, NULL);
             if (!katze_array_is_empty (search_engines))
-                continue;
+                break;
             i++;
         }
         if (katze_array_is_empty (search_engines))
