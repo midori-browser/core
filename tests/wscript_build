@@ -23,8 +23,8 @@ for test in tests:
 
     obj = bld.new_task_gen ('cc', 'program')
     obj.target = 'test-' + target
-    obj.includes = '.. ../midori'
+    obj.includes = '.. ../midori ../panels'
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
-    obj.uselib_local = 'midori'
+    obj.uselib_local = 'panels'
     obj.unit_test = 1
