@@ -32,7 +32,9 @@
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
-    #define is_writable(_cfg_filename) !g_access (_cfg_filename, W_OK)
+    #define is_writable(_cfg_filename) \
+        !g_access (_cfg_filename, W_OK) || \
+        !g_file_test (_cfg_filename, G_FILE_TEST_EXISTS)
 #else
     #define is_writable(_cfg_filename) 1
 #endif
@@ -1823,7 +1825,8 @@ main (int    argc,
     error = NULL;
     search_engines = search_engines_new_from_file (config_file, &error);
     /* We ignore for instance empty files */
-    if (error && error->code == G_KEY_FILE_ERROR_PARSE)
+    if (error && (error->code == G_KEY_FILE_ERROR_PARSE
+        || error->code == G_FILE_ERROR_NOENT))
     {
         g_error_free (error);
         error = NULL;
