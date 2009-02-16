@@ -134,6 +134,14 @@ def configure (conf):
     conf.define ('HAVE_LIBSOUP', [0,1][libsoup == 'yes'])
     conf.define ('HAVE_LIBSOUP_2_25_2', [0,1][libsoup_25_2 == 'yes'])
 
+    if option_enabled ('libidn'):
+        check_pkg ('libidn', '1.0', False)
+        libidn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
+    else:
+        option_checkfatal ('libidn', 'international domain names')
+        libidn = 'no '
+    conf.define ('HAVE_LIBIDN', [0,1][libidn == 'yes'])
+
     if option_enabled ('sqlite'):
         check_pkg ('sqlite3', '3.0', False, var='SQLITE')
         sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
@@ -238,6 +246,7 @@ def configure (conf):
                 Utils.pprint ('RED', 'WebKit was NOT built with libsoup')
     except:
         pass
+    print "IDN support:         " + libidn + " (libidn)"
     print "Persistent history:  " + sqlite + " (sqlite3)"
     print "Maemo integration:   " + hildon + " (hildon)"
 
@@ -277,6 +286,7 @@ def set_options (opt):
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group)
     add_enable_option ('libsoup', 'icon and view source support', group)
+    add_enable_option ('libidn', 'international domain name support', group)
     add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('hildon', 'Maemo integration', group)

@@ -94,6 +94,21 @@ main (int    argc,
     test_input ("javascript:alert(1)", "javascript:alert(1)");
     test_input ("sm warning: configure /dev/net: virtual",
                 SM "warning: configure /dev/net: virtual");
+    #if HAVE_LIBIDN
+    test_input ("http://www.münchhausen.at", "http://www.xn--mnchhausen-9db.at");
+    test_input ("http://www.خداوند.com/", "http://www.xn--mgbndb8il.com/");
+    test_input ("айкидо.com", "http://xn--80aildf0a.com");
+    test_input ("http://東京理科大学.jp", "http://xn--1lq68wkwbj6ugkpigi.jp");
+    test_input ("https://青のネコ",  "https://xn--u9jthzcs263c");
+    #else
+    test_input ("http://www.münchhausen.at", "http://www.münchhausen.at");
+    test_input ("http://www.خداوند.com/", "http://www.خداوند.com/");
+    test_input ("айкидо.com", "http://айкидо.com");
+    test_input ("http://東京理科大学.jp", "http://東京理科大学.jp");
+    test_input ("https://青のネコ.co.jp",  "https://青のネコ.co.jp");
+    #endif
+    test_input ("sm Küchenzubehör", SM "Küchenzubehör");
+    test_input ("sm 東京理科大学", SM "東京理科大学");
 
     return 0;
 }

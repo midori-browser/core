@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -18,11 +18,18 @@
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
+#include <stdlib.h>
 #include <string.h>
 
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
+
+#if HAVE_LIBIDN
+    #include <stringprep.h>
+    #include <punycode.h>
+    #include <idna.h>
+#endif
 
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
@@ -120,6 +127,46 @@ sokoke_spawn_program (const gchar* command,
     return TRUE;
 }
 
+static gchar*
+sokoke_idn_to_punycode (gchar* uri)
+{
+    #if HAVE_LIBIDN
+    gchar* hostname;
+    char *s;
+    uint32_t *q;
+    int rc;
+    gchar *result;
+
+    if (g_str_has_prefix (uri, "http://"))
+        hostname = &uri[7];
+    else if (g_str_has_prefix (uri, "https://"))
+        hostname = &uri[8];
+    else
+        hostname = uri;
+
+    if (!(q = stringprep_utf8_to_ucs4 (hostname, -1, NULL)))
+        return uri;
+
+    rc = idna_to_ascii_4z (q, &s, IDNA_ALLOW_UNASSIGNED);
+    free (q);
+    if (rc != IDNA_SUCCESS)
+        return uri;
+
+    if (g_str_has_prefix (uri, "http://"))
+        result = g_strdup_printf ("http://%s", s);
+    else if (g_str_has_prefix (uri, "https://"))
+        result = g_strdup_printf ("https://%s", s);
+    else
+        result = g_strdup (s);
+    g_free (uri);
+    free (s);
+
+    return result;
+    #else
+    return uri;
+    #endif
+}
+
 gchar*
 sokoke_magic_uri (const gchar* uri,
                   KatzeArray*  search_engines)
@@ -158,7 +205,7 @@ sokoke_magic_uri (const gchar* uri,
         if (search && search[0] &&
             !g_ascii_isalpha (search[1]) && search[1] != ' ')
             if (!strchr (search, '.'))
-                return g_strconcat ("http://", uri, NULL);
+                return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
         if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
             return g_strconcat ("http://", uri, NULL);
         parts = g_strsplit (uri, ".", 0);
@@ -170,7 +217,7 @@ sokoke_magic_uri (const gchar* uri,
                     search = g_strconcat ("http://", uri, NULL);
             g_free (parts);
             if (search)
-                return search;
+                return sokoke_idn_to_punycode (search);
         }
         /* We don't want to search? So return early. */
         if (!search_engines)
@@ -195,7 +242,7 @@ sokoke_magic_uri (const gchar* uri,
         }
         return search;
     }
-    return g_strdup (uri);
+    return sokoke_idn_to_punycode (g_strdup (uri));
 }
 
 void
