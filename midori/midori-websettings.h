@@ -46,7 +46,7 @@ GType
 midori_window_state_get_type (void) G_GNUC_CONST;
 
 #define MIDORI_TYPE_WINDOW_STATE \
-    (midori_startup_get_type ())
+    (midori_window_state_get_type ())
 
 typedef enum
 {
