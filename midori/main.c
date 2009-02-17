@@ -1366,6 +1366,20 @@ soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
     g_free (ident_string);
 }
 
+static void
+midori_soup_session_debug (SoupSession* session)
+{
+    const char* soup_debug = g_getenv ("MIDORI_SOUP_DEBUG");
+
+    if (soup_debug)
+    {
+        gint soup_debug_level = atoi (soup_debug);
+        SoupLogger* logger = soup_logger_new (soup_debug_level, -1);
+        soup_logger_attach (logger, session);
+        g_object_unref (logger);
+    }
+}
+
 /* The following code hooks up to any created soup session in order to
    modify preferences. This is *not* a generally advisable technique
    but merely a preliminary workaround until WebKit exposes its session. */
@@ -1396,6 +1410,7 @@ soup_session_constructed_cb (GObject* object)
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), object);
 
     soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
+    midori_soup_session_debug (session);
 
     feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
     config_file = build_config_filename ("cookies.txt");
@@ -1977,6 +1992,7 @@ main (int    argc,
         g_signal_connect (settings, "notify::ident-string",
             G_CALLBACK (soup_session_settings_notify_ident_string_cb), s_session);
         soup_session_add_feature_by_type (s_session, KATZE_TYPE_HTTP_AUTH);
+        midori_soup_session_debug (s_session);
         g_object_unref (net);
     }
     #endif
