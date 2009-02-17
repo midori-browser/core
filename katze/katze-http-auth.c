@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -39,7 +39,7 @@ katze_http_auth_session_feature_iface_init (SoupSessionFeatureInterface *iface,
 
 G_DEFINE_TYPE_WITH_CODE (KatzeHttpAuth, katze_http_auth, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (SOUP_TYPE_SESSION_FEATURE,
-                         katze_http_auth_session_feature_iface_init))
+                         katze_http_auth_session_feature_iface_init));
 
 static void
 authentication_dialog_response_cb (GtkWidget* dialog,

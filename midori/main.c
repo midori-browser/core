@@ -216,10 +216,10 @@ settings_new_from_file (const gchar* filename)
                 enum_value->value_name, NULL);
             enum_value = g_enum_get_value_by_name (enum_class, str);
             if (enum_value)
-                 g_object_set (settings, property, enum_value->value, NULL);
-             else
-                 g_warning (_("Value '%s' is invalid for %s"),
-                            str, property);
+                g_object_set (settings, property, enum_value->value, NULL);
+            else
+                g_warning (_("Value '%s' is invalid for %s"),
+                           str, property);
 
             g_free (str);
             g_type_class_unref (enum_class);
@@ -1409,7 +1409,10 @@ soup_session_constructed_cb (GObject* object)
     g_signal_connect (settings, "notify::ident-string",
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), object);
 
-    soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
+    /* Only add the Auth feature if WebKit didn't already */
+    if (!g_signal_has_handler_pending (session,
+        g_signal_lookup ("authenticate", SOUP_TYPE_SESSION), 0, FALSE))
+        soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
     midori_soup_session_debug (session);
 
     feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
