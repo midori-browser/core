@@ -28,6 +28,7 @@ struct _MidoriPreferences
 {
     GtkDialog parent_instance;
 
+    MidoriWebSettings* settings;
     GtkWidget* notebook;
 };
 
@@ -70,7 +71,7 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
                                      "Settings",
                                      "Settings instance to provide properties",
                                      MIDORI_TYPE_WEB_SETTINGS,
-                                     G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -86,6 +87,7 @@ midori_preferences_init (MidoriPreferences* preferences)
 {
     gchar* dialog_title;
 
+    preferences->settings = NULL;
     preferences->notebook = NULL;
 
     dialog_title = g_strdup_printf (_("Preferences for %s"),
@@ -123,11 +125,9 @@ midori_preferences_set_property (GObject*      object,
     switch (prop_id)
     {
     case PROP_SETTINGS:
-    {
         midori_preferences_set_settings (preferences,
                                          g_value_get_object (value));
         break;
-    }
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -140,8 +140,13 @@ midori_preferences_get_property (GObject*    object,
                                  GValue*     value,
                                  GParamSpec* pspec)
 {
+    MidoriPreferences* preferences = MIDORI_PREFERENCES (object);
+
     switch (prop_id)
     {
+    case PROP_SETTINGS:
+        g_value_set_object (value, preferences->settings);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -319,6 +324,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
 
     g_return_if_fail (!preferences->notebook);
+
+    katze_assign (preferences->settings, g_object_ref (settings));
 
     g_object_get (preferences, "transient-for", &parent, NULL);
     icon_name = parent ? gtk_window_get_icon_name (parent) : NULL;
