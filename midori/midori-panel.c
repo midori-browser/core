@@ -706,7 +706,7 @@ midori_dummy_viewable_finalize (GObject* object)
     G_OBJECT_CLASS (midori_dummy_viewable_parent_class)->finalize (object);
 }
 
-static GtkWidget*
+/* static */ GtkWidget*
 midori_dummy_viewable_new (const gchar* stock_id,
                            const gchar* label,
                            GtkWidget*   toolbar)
