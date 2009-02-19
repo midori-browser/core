@@ -1070,7 +1070,8 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         return search_action->dialog;
 
     dialog_title = _("Manage Search Engines");
-    toplevel = gtk_widget_get_toplevel (search_action->last_proxy);
+    toplevel = search_action->last_proxy ?
+        gtk_widget_get_toplevel (search_action->last_proxy) : NULL;
     dialog = gtk_dialog_new_with_buttons (dialog_title,
         toplevel ? GTK_WINDOW (toplevel) : NULL,
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
