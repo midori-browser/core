@@ -161,7 +161,8 @@ _midori_app_add_browser (MidoriApp*     app,
     katze_array_add_item (app->browsers, browser);
 
     #if HAVE_UNIQUE
-    unique_app_watch_window (app->instance, GTK_WINDOW (browser));
+    if (app->instance)
+        unique_app_watch_window (app->instance, GTK_WINDOW (browser));
     #endif
 }
 
@@ -392,6 +393,7 @@ static void
 midori_app_init (MidoriApp* app)
 {
     #if HAVE_UNIQUE
+    GdkDisplay* display;
     gchar* display_name;
     gchar* instance_name;
     guint i, n;
@@ -408,7 +410,13 @@ midori_app_init (MidoriApp* app)
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
     #if HAVE_UNIQUE
-    display_name = g_strdup (gdk_display_get_name (gdk_display_get_default ()));
+    if (!(display = gdk_display_get_default ()))
+    {
+        app->instance = NULL;
+        return;
+    }
+
+    display_name = g_strdup (gdk_display_get_name (display));
     n = strlen (display_name);
     for (i = 0; i < n; i++)
         if (display_name[i] == ':' || display_name[i] == '.')
@@ -562,10 +570,10 @@ midori_app_instance_is_running (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
 
     #if HAVE_UNIQUE
-    return unique_app_is_running (app->instance);
-    #else
-    return FALSE;
+    if (app->instance)
+        return unique_app_is_running (app->instance);
     #endif
+    return FALSE;
 }
 
 /**
@@ -590,9 +598,12 @@ midori_app_instance_send_activate (MidoriApp* app)
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     #if HAVE_UNIQUE
-    response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
-    if (response == UNIQUE_RESPONSE_OK)
-        return TRUE;
+    if (app->instance)
+    {
+        response = unique_app_send_message (app->instance, UNIQUE_ACTIVATE, NULL);
+        if (response == UNIQUE_RESPONSE_OK)
+            return TRUE;
+    }
     #endif
     return FALSE;
 }
@@ -617,9 +628,12 @@ midori_app_instance_send_new_browser (MidoriApp* app)
     g_return_val_if_fail (midori_app_instance_is_running (app), FALSE);
 
     #if HAVE_UNIQUE
-    response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
-    if (response == UNIQUE_RESPONSE_OK)
-        return TRUE;
+    if (app->instance)
+    {
+        response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
+        if (response == UNIQUE_RESPONSE_OK)
+            return TRUE;
+    }
     #endif
     return FALSE;
 }
@@ -650,12 +664,15 @@ midori_app_instance_send_uris (MidoriApp* app,
     g_return_val_if_fail (uris != NULL, FALSE);
 
     #if HAVE_UNIQUE
-    message = unique_message_data_new ();
-    unique_message_data_set_uris (message, uris);
-    response = unique_app_send_message (app->instance, UNIQUE_OPEN, message);
-    unique_message_data_free (message);
-    if (response == UNIQUE_RESPONSE_OK)
-        return TRUE;
+    if (app->instance)
+    {
+        message = unique_message_data_new ();
+        unique_message_data_set_uris (message, uris);
+        response = unique_app_send_message (app->instance, UNIQUE_OPEN, message);
+        unique_message_data_free (message);
+        if (response == UNIQUE_RESPONSE_OK)
+            return TRUE;
+    }
     #endif
     return FALSE;
 }
