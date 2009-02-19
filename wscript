@@ -194,7 +194,7 @@ def configure (conf):
     if debug_level != 'none':
         if compiler == 'gcc':
             if debug_level == 'debug':
-                conf.env.append_value ('CCFLAGS', '-Wall -O0 -g')
+                conf.env.append_value ('CCFLAGS', '-Wall -O0 -g'.split ())
             elif debug_level == 'full':
                 # -Wdeclaration-after-statement
                 # -Wmissing-declarations -Wmissing-prototypes
@@ -209,7 +209,7 @@ def configure (conf):
                     '-Winline -Wformat-security '
                     '-Winit-self -Wmissing-include-dirs -Wundef '
                     '-Wmissing-format-attribute -Wnested-externs '
-                    '-DG_ENABLE_DEBUG')
+                    '-DG_ENABLE_DEBUG'.split ())
             else:
                 conf.env.append_value ('CCFLAGS', '-O2')
         else:
