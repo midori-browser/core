@@ -84,9 +84,9 @@ static const gchar* protocols[] = {
  };
 static const guint protocols_n = 3;
 static const gchar* subs[] = {
- "", "www.", "ww2.", "ftp.", "sub."
+ "", "www.", "ww2.", "ftp."
  };
-static const guint subs_n = 5;
+static const guint subs_n = 4;
 static const gchar* slds[] = {
  "one", "two", "four", "six", "seven"/*, "Seven", "SEVEN"*/
  };
@@ -151,9 +151,9 @@ completion_fill (void)
              items_added, items_added_effective);
 
     /* Since adding items when the action is frozen is very fast,
-       we run it 10 times and take the average time. */
+       we run it 5 times and take the average time. */
     elapsed = 0.0;
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 5; i++)
     {
         midori_location_action_clear (action);
         midori_location_action_freeze (action);
@@ -165,7 +165,7 @@ completion_fill (void)
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
     n = gtk_tree_model_iter_n_children (model, NULL);
     g_assert_cmpint (n, ==, items_added_effective);
-    g_print ("%f seconds, the action is frozen\n", elapsed / 10.0);
+    g_print ("%f seconds, the action is frozen\n", elapsed / 5.0);
 
     midori_location_action_clear (action);
     g_test_timer_start ();
