@@ -1280,6 +1280,12 @@ midori_view_get_property (GObject*    object,
     case PROP_TITLE:
         g_value_set_string (value, view->title);
         break;
+    case PROP_MIME_TYPE:
+        g_value_set_string (value, view->mime_type);
+        break;
+    case PROP_ICON:
+        g_value_set_object (value, view->icon);
+        break;
     case PROP_PROGRESS:
         g_value_set_double (value, midori_view_get_progress (view));
         break;
