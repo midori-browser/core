@@ -33,7 +33,7 @@ struct _KatzeHttpCookiesClass
     GObjectClass parent_class;
 };
 
-#if HAVE_LIBSOUP_2_25_2
+#if HAVE_LIBSOUP
 static void
 katze_http_cookies_session_feature_iface_init (SoupSessionFeatureInterface *iface,
                                                gpointer                     data);
@@ -41,6 +41,8 @@ katze_http_cookies_session_feature_iface_init (SoupSessionFeatureInterface *ifac
 G_DEFINE_TYPE_WITH_CODE (KatzeHttpCookies, katze_http_cookies, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (SOUP_TYPE_SESSION_FEATURE,
                          katze_http_cookies_session_feature_iface_init));
+
+#if HAVE_LIBSOUP_2_25_2
 
 /* Cookie jar saving to Mozilla format
    Copyright (C) 2008 Xan Lopez <xan@gnome.org>
@@ -303,13 +305,16 @@ katze_http_cookies_detach (SoupSessionFeature* feature,
     g_signal_handlers_disconnect_by_func (session,
         katze_http_cookies_session_request_queued_cb, feature);
 }
+#endif
 
 static void
 katze_http_cookies_session_feature_iface_init (SoupSessionFeatureInterface *iface,
                                                gpointer                     data)
 {
+    #if HAVE_LIBSOUP_2_25_2
     iface->attach = katze_http_cookies_attach;
     iface->detach = katze_http_cookies_detach;
+    #endif
 }
 #else
 G_DEFINE_TYPE (KatzeHttpCookies, katze_http_cookies, G_TYPE_OBJECT)
