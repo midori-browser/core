@@ -285,7 +285,7 @@ main (int    argc,
       char** argv)
 {
     g_test_init (&argc, &argv, NULL);
-    gtk_init (&argc, &argv);
+    gtk_init_check (&argc, &argv);
 
     g_test_add_func ("/completion/count", completion_count);
     g_test_add_func ("/completion/fill", completion_fill);

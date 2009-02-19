@@ -25,7 +25,7 @@ main (int    argc,
     gchar* uri;
     gchar* a, *b;
 
-    gtk_init (&argc, &argv);
+    gtk_init_check (&argc, &argv);
 
     search_engines = katze_array_new (KATZE_TYPE_ITEM);
     item = g_object_new (KATZE_TYPE_ITEM,

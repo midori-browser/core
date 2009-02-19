@@ -90,7 +90,7 @@ main (int    argc,
       char** argv)
 {
     g_test_init (&argc, &argv, NULL);
-    gtk_init (&argc, &argv);
+    gtk_init_check (&argc, &argv);
 
     g_test_add_func ("/extensions/create", extension_create);
     g_test_add_func ("/extensions/settings", extension_settings);
