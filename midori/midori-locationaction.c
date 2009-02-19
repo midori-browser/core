@@ -28,6 +28,7 @@ struct _MidoriLocationAction
 
     gchar* uri;
     gdouble progress;
+    gchar* secondary_icon;
 
     GtkTreeModel* model;
     GtkTreeModel* filter_model;
@@ -81,6 +82,12 @@ midori_location_action_set_property (GObject*      object,
                                      guint         prop_id,
                                      const GValue* value,
                                      GParamSpec*   pspec);
+
+static void
+midori_location_action_get_property (GObject*    object,
+                                     guint       prop_id,
+                                     GValue*     value,
+                                     GParamSpec* pspec);
 
 static void
 midori_location_action_activate (GtkAction* object);
@@ -154,6 +161,7 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = midori_location_action_finalize;
     gobject_class->set_property = midori_location_action_set_property;
+    gobject_class->get_property = midori_location_action_get_property;
 
     action_class = GTK_ACTION_CLASS (class);
     action_class->activate = midori_location_action_activate;
@@ -168,7 +176,7 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "Progress",
                                      "The current progress of the action",
                                      0.0, 1.0, 0.0,
-                                     G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_SECONDARY_ICON,
@@ -177,7 +185,7 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "Secondary",
                                      "The stock ID of the secondary icon",
                                      NULL,
-                                     G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -285,6 +293,7 @@ midori_location_action_init (MidoriLocationAction* location_action)
 {
     location_action->uri = NULL;
     location_action->progress = 0.0;
+    location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
 
     location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
@@ -333,6 +342,28 @@ midori_location_action_set_property (GObject*      object,
     case PROP_SECONDARY_ICON:
         midori_location_action_set_secondary_icon (location_action,
             g_value_get_string (value));
+        break;
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
+    }
+}
+
+static void
+midori_location_action_get_property (GObject*    object,
+                                     guint       prop_id,
+                                     GValue*     value,
+                                     GParamSpec* pspec)
+{
+    MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (object);
+
+    switch (prop_id)
+    {
+    case PROP_PROGRESS:
+        g_value_set_double (value, location_action->progress);
+        break;
+    case PROP_SECONDARY_ICON:
+        g_value_set_string (value, location_action->secondary_icon);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1183,6 +1214,8 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (!stock_id || gtk_stock_lookup (stock_id, &stock_item));
+
+    katze_assign (location_action->secondary_icon, g_strdup (stock_id));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
