@@ -579,7 +579,6 @@ midori_search_action_set_text (MidoriSearchAction* search_action,
     GtkWidget* entry;
 
     g_return_if_fail (MIDORI_IS_SEARCH_ACTION (search_action));
-    g_return_if_fail (text != NULL);
 
     katze_assign (search_action->text, g_strdup (text));
     g_object_notify (G_OBJECT (search_action), "text");
@@ -594,7 +593,7 @@ midori_search_action_set_text (MidoriSearchAction* search_action,
         alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
         entry = gtk_bin_get_child (GTK_BIN (alignment));
 
-        gtk_entry_set_text (GTK_ENTRY (entry), text);
+        gtk_entry_set_text (GTK_ENTRY (entry), text ? text : "");
         search_action->last_proxy = proxies->data;
     }
     while ((proxies = g_slist_next (proxies)));
