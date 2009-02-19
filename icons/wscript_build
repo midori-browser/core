@@ -2,19 +2,17 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
+import Utils
+
 def add_image (bld, category, name):
 
     srcdir = os.getcwd ()
     blddir = bld.bdir
 
-    def mkdir (path):
-        if not os.access (path, os.F_OK):
-            os.mkdir (path)
-
     rsvg_convert = bld.env['RSVG_CONVERT']
 
     if rsvg_convert:
-        mkdir (blddir + '/icons')
+        Utils.check_dir (blddir + '/icons')
 
     for size in [16, 22, 32, 48]:
         format = str (size) + 'x' + str (size)
@@ -24,7 +22,7 @@ def add_image (bld, category, name):
         elif not rsvg_convert:
             pass
         elif os.access (srcdir + '/icons/scalable/' + name + '.svg', os.F_OK):
-            mkdir (blddir + '/icons/' + format)
+            Utils.check_dir (blddir + '/icons/' + format)
             command = rsvg_convert + ' -w ' + str(size) + \
                 ' -h ' + str(size) + \
                 ' -o ' + blddir + '/icons/' + format + '/' + name + '.png' + \

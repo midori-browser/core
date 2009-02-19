@@ -28,10 +28,8 @@ APPNAME = 'midori'
 VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
 
 try:
-    git = subprocess.Popen (['git', 'rev-parse', '--short', 'HEAD'],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if not git.wait ():
-        VERSION = (VERSION + '-' + git.stdout.read ()).strip ()
+    git = Utils.cmd_output (['git', 'rev-parse', '--short', 'HEAD'], silent=True)
+    VERSION = (VERSION + '-' + git).strip ()
 except:
     pass
 
@@ -233,11 +231,10 @@ def configure (conf):
     # if 'soup-2.4' in conf.env['LIB_WEBKIT']:
     webkit_binary = conf.env.get_flat ('LIBPATH_WEBKIT') + '/libwebkit-1.0.so'
     try:
-        ldd = subprocess.Popen (['ldd', webkit_binary],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if not ldd.wait ():
+        ldd = Utils.cmd_output (['ldd', webkit_binary], silent=True)
+        if ldd != '':
             found = False
-            for library in ldd.stdout.read ().split ('\n'):
+            for library in ldd.split ('\n'):
                 if library[:8] == '\tlibsoup':
                     found = True
             if found:
@@ -292,10 +289,6 @@ def set_options (opt):
     add_enable_option ('hildon', 'Maemo integration', group)
 
 def build (bld):
-    def mkdir (path):
-        if not os.access (path, os.F_OK):
-            os.mkdir (path)
-
     bld.add_subdirs ('katze midori icons')
 
     if option_enabled ('addons'):
@@ -310,12 +303,9 @@ def build (bld):
 
     if bld.env['RST2HTML']:
         # FIXME: Build only if needed
-        if not os.access (blddir, os.F_OK):
-            os.mkdir (blddir)
-        if not os.access (blddir + '/docs', os.F_OK):
-            os.mkdir (blddir + '/docs')
-        if not os.access (blddir + '/docs/user', os.F_OK):
-            os.mkdir (blddir + '/docs/user')
+        Utils.check_dir (blddir)
+        Utils.check_dir (blddir + '/docs')
+        Utils.check_dir (blddir + '/docs/user')
         os.chdir (blddir + '/docs/user')
         command = bld.env['RST2HTML'] + ' -stg ' + \
             '--stylesheet=../../../docs/user/midori.css ' + \
@@ -367,7 +357,7 @@ def build (bld):
             pre.close ()
 
     if bld.env['RSVG_CONVERT']:
-        mkdir (blddir + '/data')
+        Utils.check_dir (blddir + '/data')
         command = bld.env['RSVG_CONVERT'] + \
             ' -o ' + blddir + '/data/logo-shade.png ' + \
             srcdir + '/data/logo-shade.svg'
@@ -427,10 +417,6 @@ def shutdown ():
             Utils.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
     elif Options.options.run:
-        def mkdir (path):
-            if not os.access (path, os.F_OK):
-                os.mkdir (path)
-
         folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
         try:
             ext = 'MIDORI_EXTENSION_PATH=' + folder + os.sep + 'extensions'
@@ -442,8 +428,8 @@ def shutdown ():
                         lang = lang[:-3]
                     else:
                         continue
-                    mkdir (folder + os.sep + 'po' + os.sep + lang)
-                    mkdir (folder + os.sep + 'po' + os.sep + lang + \
+                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang)
+                    Utils.check_dir (folder + os.sep + 'po' + os.sep + lang + \
                         os.sep + 'LC_MESSAGES')
                     os.symlink (folder + os.sep + 'po' + os.sep + lang + '.mo',
                         folder + os.sep + 'po' + os.sep + lang + os.sep + \
