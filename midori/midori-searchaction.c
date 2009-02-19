@@ -1131,7 +1131,8 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
                                          GTK_SHADOW_IN);
     gtk_box_pack_start (GTK_BOX (hbox), scrolled, TRUE, TRUE, 5);
-    n = katze_array_get_length (search_action->search_engines);
+    n = search_action->search_engines ?
+        katze_array_get_length (search_action->search_engines) : 0;
     for (i = 0; i < n; i++)
     {
         item = katze_array_get_nth_item (search_action->search_engines, i);
@@ -1187,12 +1188,13 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     #endif
     gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
-    g_object_connect (search_action->search_engines,
-        "signal-after::add-item",
-        midori_search_action_dialog_engines_add_item_cb, search_action,
-        "signal-after::remove-item",
-        midori_search_action_dialog_engines_remove_item_cb, search_action,
-        NULL);
+    if (search_action->search_engines)
+        g_object_connect (search_action->search_engines,
+            "signal-after::add-item",
+            midori_search_action_dialog_engines_add_item_cb, search_action,
+            "signal-after::remove-item",
+            midori_search_action_dialog_engines_remove_item_cb, search_action,
+            NULL);
 
     search_action->dialog = dialog;
     return dialog;
