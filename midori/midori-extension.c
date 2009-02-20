@@ -38,6 +38,22 @@ typedef struct
 {
     gchar* name;
     GType type;
+    gboolean default_value;
+    gboolean value;
+} MESettingBoolean;
+
+typedef struct
+{
+    gchar* name;
+    GType type;
+    gint default_value;
+    gint value;
+} MESettingInteger;
+
+typedef struct
+{
+    gchar* name;
+    GType type;
     gchar* default_value;
     gchar* value;
 } MESettingString;
@@ -53,6 +69,20 @@ void me_setting_free (gpointer setting)
         g_free (string_setting->value);
     }
 }
+
+#define midori_extension_can_install_setting(extension, name) \
+    if (extension->priv->active) \
+    { \
+        g_critical ("%s: Settings have to be installed before " \
+                    "the extension is activated.", G_STRFUNC); \
+        return; \
+    } \
+    if (g_hash_table_lookup (extension->priv->settings, name)) \
+    { \
+        g_critical ("%s: A setting with the name '%s' is already installed.", \
+                    G_STRFUNC, name); \
+        return; \
+    }
 
 #define me_setting_install(stype, _name, gtype, _default_value, _value) \
     setting = g_new (stype, 1); \
@@ -186,7 +216,17 @@ midori_extension_activate_cb (MidoriExtension* extension,
     {
         MESettingString* setting = (MESettingString*)lsettings->data;
 
-        if (setting->type == G_TYPE_STRING)
+        if (setting->type == G_TYPE_BOOLEAN)
+        {
+            MESettingBoolean* setting_ = (MESettingBoolean*)setting;
+            setting_->value = setting_->default_value;
+        }
+        else if (setting->type == G_TYPE_INT)
+        {
+            MESettingInteger* setting_ = (MESettingInteger*)setting;
+            setting_->value = setting_->default_value;
+        }
+        else if (setting->type == G_TYPE_STRING)
             setting->value = g_strdup (setting->default_value);
         else
             g_assert_not_reached ();
@@ -370,6 +410,166 @@ midori_extension_get_config_dir (MidoriExtension* extension)
 }
 
 /**
+ * midori_extension_install_boolean:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ * @default_value: the default value
+ *
+ * Installs a boolean that can be used to conveniently
+ * store user configuration.
+ *
+ * Note that all settings have to be installed before
+ * the extension is activated.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_extension_install_boolean (MidoriExtension* extension,
+                                  const gchar*     name,
+                                  gboolean         default_value)
+{
+    MESettingBoolean* setting;
+
+    g_return_if_fail (midori_extension_is_prepared (extension));
+    midori_extension_can_install_setting (extension, name);
+
+    me_setting_install (MESettingBoolean, g_strdup (name), G_TYPE_BOOLEAN,
+                        default_value, FALSE);
+}
+
+/**
+ * midori_extension_get_boolean:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ *
+ * Retrieves the value of the specified setting.
+ *
+ * Since: 0.1.3
+ **/
+gboolean
+midori_extension_get_boolean (MidoriExtension* extension,
+                              const gchar*     name)
+{
+    MESettingBoolean* setting;
+
+    g_return_val_if_fail (midori_extension_is_prepared (extension), FALSE);
+    g_return_val_if_fail (name != NULL, FALSE);
+
+    setting = g_hash_table_lookup (extension->priv->settings, name);
+
+    me_setting_type (setting, G_TYPE_BOOLEAN, return FALSE);
+
+    return setting->value;
+}
+
+/**
+ * midori_extension_set_boolean:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ * @value: the new value
+ *
+ * Assigns a new value to the specified setting.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_extension_set_boolean (MidoriExtension* extension,
+                              const gchar*     name,
+                              gboolean         value)
+{
+    MESettingBoolean* setting;
+
+    g_return_if_fail (midori_extension_is_active (extension));
+    g_return_if_fail (name != NULL);
+
+    setting = g_hash_table_lookup (extension->priv->settings, name);
+
+    me_setting_type (setting, G_TYPE_BOOLEAN, return);
+
+    setting->value = value;
+}
+
+/**
+ * midori_extension_install_integer:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ * @default_value: the default value
+ *
+ * Installs an integer that can be used to conveniently
+ * store user configuration.
+ *
+ * Note that all settings have to be installed before
+ * the extension is activated.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_extension_install_integer (MidoriExtension* extension,
+                                  const gchar*     name,
+                                  gint             default_value)
+{
+    MESettingInteger* setting;
+
+    g_return_if_fail (midori_extension_is_prepared (extension));
+    midori_extension_can_install_setting (extension, name);
+
+    me_setting_install (MESettingInteger, g_strdup (name), G_TYPE_INT,
+                        default_value, 0);
+}
+
+/**
+ * midori_extension_get_integer:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ *
+ * Retrieves the value of the specified setting.
+ *
+ * Since: 0.1.3
+ **/
+gint
+midori_extension_get_integer (MidoriExtension* extension,
+                              const gchar*     name)
+{
+    MESettingInteger* setting;
+
+    g_return_val_if_fail (midori_extension_is_prepared (extension), 0);
+    g_return_val_if_fail (name != NULL, 0);
+
+    setting = g_hash_table_lookup (extension->priv->settings, name);
+
+    me_setting_type (setting, G_TYPE_INT, return 0);
+
+    return setting->value;
+}
+
+/**
+ * midori_extension_set_integer:
+ * @extension: a #MidoriExtension
+ * @name: the name of the setting
+ * @value: the new value
+ *
+ * Assigns a new value to the specified setting.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_extension_set_integer (MidoriExtension* extension,
+                              const gchar*     name,
+                              gint             value)
+{
+    MESettingInteger* setting;
+
+    g_return_if_fail (midori_extension_is_active (extension));
+    g_return_if_fail (name != NULL);
+
+    setting = g_hash_table_lookup (extension->priv->settings, name);
+
+    me_setting_type (setting, G_TYPE_INT, return);
+
+    setting->value = value;
+}
+
+/**
  * midori_extension_install_string:
  * @extension: a #MidoriExtension
  * @name: the name of the setting
@@ -391,22 +591,7 @@ midori_extension_install_string (MidoriExtension* extension,
     MESettingString* setting;
 
     g_return_if_fail (midori_extension_is_prepared (extension));
-
-    /* This is not strictly a technical requirement but we want
-       to ensure that a running extension is in a reliable state. */
-    if (extension->priv->active)
-    {
-        g_critical ("%s: Settings have to be installed before "
-                    "the extension is activated.", G_STRFUNC);
-        return;
-    }
-
-    if (g_hash_table_lookup (extension->priv->settings, name))
-    {
-        g_critical ("%s: A setting with the name '%s' is already installed.",
-                    G_STRFUNC, name);
-        return;
-    }
+    midori_extension_can_install_setting (extension, name);
 
     me_setting_install (MESettingString, g_strdup (name), G_TYPE_STRING,
                         g_strdup (default_value), NULL);

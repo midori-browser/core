@@ -61,6 +61,34 @@ const gchar*
 midori_extension_get_config_dir      (MidoriExtension* extension);
 
 void
+midori_extension_install_boolean     (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gboolean         default_value);
+
+gboolean
+midori_extension_get_boolean         (MidoriExtension* extension,
+                                      const gchar*     name);
+
+void
+midori_extension_set_boolean         (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gboolean         value);
+
+void
+midori_extension_install_integer     (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gint             default_value);
+
+gint
+midori_extension_get_integer         (MidoriExtension* extension,
+                                      const gchar*     name);
+
+void
+midori_extension_set_integer         (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gint             value);
+
+void
 midori_extension_install_string      (MidoriExtension* extension,
                                       const gchar*     name,
                                       const gchar*     default_value);
