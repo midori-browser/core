@@ -1188,7 +1188,7 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
     }
 
     g_signal_connect_after (item, "notify",
-        G_CALLBACK (midori_bookmarks_notify_item_cb), NULL);
+        G_CALLBACK (midori_bookmarks_notify_item_cb), bookmarks);
 }
 
 static void
