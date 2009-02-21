@@ -21,6 +21,7 @@
 #include "midori-console.h"
 #include "midori-extension.h"
 #include "midori-extensions.h"
+#include "midori-history.h"
 #include "midori-panel.h"
 #include "midori-preferences.h"
 #include "midori-plugins.h"
@@ -1207,6 +1208,11 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
     /* Bookmarks */
     addon = g_object_new (MIDORI_TYPE_BOOKMARKS, "app", app, NULL);
+    gtk_widget_show (addon);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
+
+    /* History */
+    addon = g_object_new (MIDORI_TYPE_HISTORY, "app", app, NULL);
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
