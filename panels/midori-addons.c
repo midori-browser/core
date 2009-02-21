@@ -141,7 +141,7 @@ midori_addons_get_label (MidoriViewable* viewable)
 {
     if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_SCRIPTS)
         return _("Userscripts");
-    else if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_SCRIPTS)
+    else if (MIDORI_ADDONS (viewable)->kind == MIDORI_ADDON_USER_STYLES)
         return _("Userstyles");
     else
         return NULL;
