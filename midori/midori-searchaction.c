@@ -648,6 +648,8 @@ midori_search_action_set_search_engines (MidoriSearchAction* search_action,
     if (search_engines)
         g_object_ref (search_engines);
     katze_object_assign (search_action->search_engines, search_engines);
+    if (!search_engines)
+        return;
 
     g_object_connect (search_engines,
         "signal-after::add-item",
