@@ -1160,14 +1160,6 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
 }
 
 static void
-webkit_web_view_destroy_cb (GtkWidget*      web_view,
-                            WebKitWebFrame* web_frame)
-{
-    g_signal_handlers_disconnect_by_func (web_frame,
-        webkit_web_frame_load_done_cb, gtk_widget_get_parent (web_view));
-}
-
-static void
 midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
@@ -1557,8 +1549,6 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_console_message_cb, view,
                       "signal::window-object-cleared",
                       webkit_web_view_window_object_cleared_cb, view,
-                      "signal::destroy",
-                      webkit_web_view_destroy_cb, web_frame,
                       NULL);
     if (g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW))
         g_object_connect (view->web_view,
