@@ -124,4 +124,7 @@ sokoke_image_menu_item_new_ellipsized (const gchar*  label);
 gint64
 sokoke_time_t_to_julian              (const time_t*  timestamp);
 
+void
+sokoke_register_stock_items          (void);
+
 #endif /* !__SOKOKE_H__ */
