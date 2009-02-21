@@ -2624,12 +2624,10 @@ _action_help_link_activate (GtkAction*     action,
     if  (!strncmp ("HelpContents", action_name, 12))
     {
         #ifdef DOCDIR
-        uri = DOCDIR "/midori/user/midori.html";
-        if (!g_file_test (uri, G_FILE_TEST_EXISTS))
-            uri = "error:nodocs " DOCDIR "/midori/user/midori.html";
-        #else
-        uri = "error:nodocs " DATADIR "/doc/midori/user/midori.html";
+        uri = "file://" DOCDIR "/midori/user/midori.html";
+        if (!g_file_test (DOCDIR "/midori/user/midori.html", G_FILE_TEST_EXISTS))
         #endif
+            uri = "error:nodocs " DOCDIR "/midori/user/midori.html";
     }
     else if  (!strncmp ("HelpFAQ", action_name, 7))
         uri = "http://wiki.xfce.org/_export/xhtml/midori_faq";
