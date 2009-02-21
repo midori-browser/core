@@ -95,6 +95,9 @@ void me_setting_free (gpointer setting)
         (extension->priv->lsettings, setting);
 
 #define me_setting_type(setting, gtype, rreturn) \
+if (!setting) { \
+g_critical ("%s: There is no setting with the name '%s' installed.", G_STRFUNC, name); \
+rreturn; } \
 if (setting->type != gtype) { \
 g_critical ("%s: The setting '%s' is not a string.", G_STRFUNC, name); \
 rreturn; }
