@@ -173,7 +173,7 @@ _toggle_tabbar_smartly (MidoriBrowser* browser)
     gboolean always_show_tabbar;
 
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    if (n < 2)
+    if (n < 2 && browser->settings)
     {
         g_object_get (browser->settings, "always-show-tabbar",
             &always_show_tabbar, NULL);
