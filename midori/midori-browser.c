@@ -1587,6 +1587,9 @@ midori_browser_find_key_press_event_cb (GtkWidget*     toolbar,
         midori_view_unmark_text_matches (MIDORI_VIEW (view));
         gtk_widget_hide (toolbar);
         browser->find_typing = FALSE;
+        gtk_window_set_focus (GTK_WINDOW (browser),
+            gtk_bin_get_child (GTK_BIN (view)) ?
+            gtk_bin_get_child (GTK_BIN (view)) : view);
         return TRUE;
     }
 
@@ -1597,8 +1600,14 @@ static void
 midori_browser_find_button_close_clicked_cb (GtkWidget*     widget,
                                              MidoriBrowser* browser)
 {
+    GtkWidget* view;
+
     gtk_widget_hide (browser->find);
     browser->find_typing = FALSE;
+    view = midori_browser_get_current_tab (browser);
+    gtk_window_set_focus (GTK_WINDOW (browser),
+        gtk_bin_get_child (GTK_BIN (view)) ?
+        gtk_bin_get_child (GTK_BIN (view)) : view);
 }
 
 static void
