@@ -44,12 +44,12 @@
 #include <gtk/gtk.h>
 #include <JavaScriptCore/JavaScript.h>
 
-#ifdef HAVE_LIBXML
+#if HAVE_LIBXML
     #include <libxml/parser.h>
     #include <libxml/tree.h>
 #endif
 
-#ifdef HAVE_SQLITE
+#if HAVE_SQLITE
     #include <sqlite3.h>
 #endif
 
@@ -323,7 +323,7 @@ search_engines_save_to_file (KatzeArray*  search_engines,
     return saved;
 }
 
-#ifdef HAVE_LIBXML
+#if HAVE_LIBXML
 static KatzeItem*
 katze_item_from_xmlNodePtr (xmlNodePtr cur)
 {
@@ -502,7 +502,7 @@ katze_array_from_file (KatzeArray*  array,
 }
 #endif
 
-#ifdef HAVE_SQLITE
+#if HAVE_SQLITE
 /* Open database 'dbname' */
 static sqlite3*
 db_open (const char* dbname,
@@ -1679,7 +1679,7 @@ main (int    argc,
     #if HAVE_LIBSOUP_2_25_2
     SoupCookieJar* jar;
     #endif
-    #ifdef HAVE_SQLITE
+    #if HAVE_SQLITE
     sqlite3* db;
     gint max_history_age;
     #endif
@@ -1825,7 +1825,7 @@ main (int    argc,
         g_error_free (error);
     }
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    #ifdef HAVE_LIBXML
+    #if HAVE_LIBXML
     katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
     error = NULL;
     if (!katze_array_from_file (bookmarks, config_file, &error))
@@ -1837,7 +1837,7 @@ main (int    argc,
     }
     #endif
     _session = katze_array_new (KATZE_TYPE_ITEM);
-    #ifdef HAVE_LIBXML
+    #if HAVE_LIBXML
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
     if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
@@ -1853,7 +1853,7 @@ main (int    argc,
     }
     #endif
     trash = katze_array_new (KATZE_TYPE_ITEM);
-    #ifdef HAVE_LIBXML
+    #if HAVE_LIBXML
     katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
     error = NULL;
     if (!katze_array_from_file (trash, config_file, &error))
@@ -1864,11 +1864,11 @@ main (int    argc,
         g_error_free (error);
     }
     #endif
-    #ifdef HAVE_SQLITE
+    #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
     #endif
     history = katze_array_new (KATZE_TYPE_ARRAY);
-    #ifdef HAVE_SQLITE
+    #if HAVE_SQLITE
     error = NULL;
     if ((db = midori_history_initialize (history, config_file, &error)) == NULL)
     {
@@ -2019,7 +2019,7 @@ main (int    argc,
         g_signal_connect_after (trash, "remove-item",
             G_CALLBACK (midori_trash_remove_item_cb), NULL);
     }
-    #ifdef HAVE_SQLITE
+    #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
     if (is_writable (config_file))
     {
@@ -2064,7 +2064,7 @@ main (int    argc,
 
     gtk_main ();
 
-    #ifdef HAVE_SQLITE
+    #if HAVE_SQLITE
     settings = katze_object_get_object (app, "settings");
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (db, max_history_age);
