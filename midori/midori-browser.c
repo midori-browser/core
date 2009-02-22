@@ -2744,6 +2744,35 @@ midori_panel_notify_position_cb (GObject*       hpaned,
             (GSourceFunc)midori_browser_panel_timeout, hpaned, NULL);
 }
 
+static void
+midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
+                                      GParamSpec*    pspec,
+                                      MidoriBrowser* browser)
+{
+    gboolean right_aligned = katze_object_get_boolean (panel, "right-aligned");
+    GtkWidget* hpaned = gtk_widget_get_parent (browser->panel);
+    GtkWidget* vpaned = gtk_widget_get_parent (browser->notebook);
+
+    g_object_set (browser->settings, "right-align-sidepanel", right_aligned, NULL);
+
+    g_object_ref (browser->panel);
+    g_object_ref (vpaned);
+    gtk_container_remove (GTK_CONTAINER (hpaned), browser->panel);
+    gtk_container_remove (GTK_CONTAINER (hpaned), vpaned);
+    if (right_aligned)
+    {
+        gtk_paned_pack1 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+        gtk_paned_pack2 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
+    }
+    else
+    {
+        gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
+        gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+    }
+    g_object_unref (browser->panel);
+    g_object_unref (vpaned);
+}
+
 static gboolean
 midori_panel_close_cb (MidoriPanel*   panel,
                        MidoriBrowser* browser)
@@ -3609,9 +3638,11 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), hpaned, TRUE, TRUE, 0);
     gtk_widget_show (hpaned);
     browser->panel = g_object_new (MIDORI_TYPE_PANEL,
-                                "shadow-type", GTK_SHADOW_IN,
-                                "menu", browser->menu_tools,
-                                NULL);
+                                   "shadow-type", GTK_SHADOW_IN,
+                                   "menu", browser->menu_tools,
+                                   NULL);
+    g_signal_connect (browser->panel, "notify::right-aligned",
+                      G_CALLBACK (midori_panel_notify_right_aligned_cb), browser);
     g_signal_connect (browser->panel, "close",
                       G_CALLBACK (midori_panel_close_cb), browser);
     gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
@@ -3889,7 +3920,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gint last_window_width, last_window_height;
     MidoriWindowState last_window_state;
     gboolean compact_sidepanel, right_align_sidepanel;
-    GtkWidget* hpaned, *vpaned;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_navigationbar, show_bookmarkbar;
     gboolean show_panel, show_statusbar;
@@ -3963,24 +3993,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
 
     midori_panel_set_compact (MIDORI_PANEL (browser->panel), compact_sidepanel);
-    hpaned = gtk_widget_get_parent (browser->panel);
-    vpaned = gtk_widget_get_parent (browser->notebook);
-    g_object_ref (browser->panel);
-    g_object_ref (vpaned);
-    gtk_container_remove (GTK_CONTAINER (hpaned), browser->panel);
-    gtk_container_remove (GTK_CONTAINER (hpaned), vpaned);
-    if (right_align_sidepanel)
-    {
-        gtk_paned_pack1 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
-        gtk_paned_pack2 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
-    }
-    else
-    {
-        gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
-        gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
-    }
-    g_object_unref (browser->panel);
-    g_object_unref (vpaned);
     midori_panel_set_right_aligned (MIDORI_PANEL (browser->panel),
                                     right_align_sidepanel);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
