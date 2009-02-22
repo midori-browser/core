@@ -1555,6 +1555,18 @@ _midori_browser_find (MidoriBrowser* browser,
 }
 
 static void
+_midori_browser_find_done (MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    midori_view_unmark_text_matches (MIDORI_VIEW (view));
+    gtk_widget_hide (browser->find);
+    browser->find_typing = FALSE;
+    gtk_window_set_focus (GTK_WINDOW (browser),
+        gtk_bin_get_child (GTK_BIN (view)) ?
+        gtk_bin_get_child (GTK_BIN (view)) : view);
+}
+
+static void
 _action_find_next_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
@@ -1562,11 +1574,21 @@ _action_find_next_activate (GtkAction*     action,
 }
 
 static void
-midori_browser_find_text_changed (GtkWidget*     entry,
-                                  MidoriBrowser* browser)
+midori_browser_find_text_changed_cb (GtkWidget*     entry,
+                                     MidoriBrowser* browser)
 {
     if (browser->find_typing)
         _midori_browser_find (browser, TRUE);
+}
+
+static gboolean
+midori_browser_find_text_focus_out_event_cb (GtkWidget*     entry,
+                                             GdkEventFocus* event,
+                                             MidoriBrowser* browser)
+{
+    if (browser->find_typing)
+        _midori_browser_find_done (browser);
+    return FALSE;
 }
 
 static void
@@ -1595,13 +1617,7 @@ midori_browser_find_key_press_event_cb (GtkWidget*     toolbar,
 {
     if (event->keyval == GDK_Escape)
     {
-        GtkWidget* view = midori_browser_get_current_tab (browser);
-        midori_view_unmark_text_matches (MIDORI_VIEW (view));
-        gtk_widget_hide (toolbar);
-        browser->find_typing = FALSE;
-        gtk_window_set_focus (GTK_WINDOW (browser),
-            gtk_bin_get_child (GTK_BIN (view)) ?
-            gtk_bin_get_child (GTK_BIN (view)) : view);
+        _midori_browser_find_done (browser);
         return TRUE;
     }
 
@@ -1612,14 +1628,7 @@ static void
 midori_browser_find_button_close_clicked_cb (GtkWidget*     widget,
                                              MidoriBrowser* browser)
 {
-    GtkWidget* view;
-
-    gtk_widget_hide (browser->find);
-    browser->find_typing = FALSE;
-    view = midori_browser_get_current_tab (browser);
-    gtk_window_set_focus (GTK_WINDOW (browser),
-        gtk_bin_get_child (GTK_BIN (view)) ?
-        gtk_bin_get_child (GTK_BIN (view)) : view);
+    _midori_browser_find_done (browser);
 }
 
 static void
@@ -3664,7 +3673,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->find_text, "activate",
         G_CALLBACK (_action_find_next_activate), browser);
     g_signal_connect (browser->find_text, "changed",
-        G_CALLBACK (midori_browser_find_text_changed), browser);
+        G_CALLBACK (midori_browser_find_text_changed_cb), browser);
+    g_signal_connect (browser->find_text, "focus-out-event",
+        G_CALLBACK (midori_browser_find_text_focus_out_event_cb), browser);
     toolitem = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (toolitem), browser->find_text);
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
