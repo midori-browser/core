@@ -15,6 +15,7 @@
 
 #include "midori.h"
 #include "midori-bookmarks.h"
+#include "sokoke.h"
 
 #if GLIB_CHECK_VERSION(2, 16, 0)
 
@@ -42,7 +43,31 @@ properties_object_get_set (GObject* object)
             continue;
 
         g_object_get (object, property, &value, NULL);
-        if (type == G_TYPE_PARAM_STRING)
+        if (type == G_TYPE_PARAM_BOOLEAN)
+        {
+            gboolean current_value = value ? TRUE : FALSE;
+            gboolean default_value = G_PARAM_SPEC_BOOLEAN (pspec)->default_value;
+            if (current_value != default_value)
+                g_error ("Set %s.%s to default (%d), but returned '%d'",
+                    G_OBJECT_TYPE_NAME (object), property,
+                    G_PARAM_SPEC_BOOLEAN (pspec)->default_value, current_value);
+            if (pspec_is_writable (pspec))
+            {
+                g_object_set (object, property, !default_value, NULL);
+                g_object_get (object, property, &current_value, NULL);
+                if (current_value == default_value)
+                    g_error ("Set %s.%s to non-default (%d), but returned '%d'",
+                        G_OBJECT_TYPE_NAME (object), property,
+                        !G_PARAM_SPEC_BOOLEAN (pspec)->default_value, current_value);
+                g_object_set (object, property, default_value, NULL);
+                g_object_get (object, property, &current_value, NULL);
+                if (current_value != default_value)
+                    g_error ("Set %s.%s to default again (%d), but returned '%d'",
+                        G_OBJECT_TYPE_NAME (object), property,
+                        G_PARAM_SPEC_BOOLEAN (pspec)->default_value, current_value);
+            }
+        }
+        else if (type == G_TYPE_PARAM_STRING)
         {
             g_free (value);
             if (pspec_is_writable (pspec))
