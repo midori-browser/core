@@ -3975,6 +3975,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
     g_object_unref (browser->panel);
     g_object_unref (vpaned);
+    midori_panel_set_right_aligned (MIDORI_PANEL (browser->panel),
+                                    right_align_sidepanel);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
     midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);

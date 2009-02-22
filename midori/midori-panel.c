@@ -322,6 +322,27 @@ midori_panel_set_compact (MidoriPanel* panel,
         compact ? GTK_TOOLBAR_ICONS : GTK_TOOLBAR_BOTH);
 }
 
+/**
+ * midori_panel_set_right_aligned:
+ * @compact: %TRUE if the panel should be aligned to the right
+ *
+ * Determines if the panel should be right aligned.
+ *
+ * Since: 0.1.3
+ **/
+void
+midori_panel_set_right_aligned (MidoriPanel* panel,
+                                gboolean     right_aligned)
+{
+    GtkWidget* box;
+
+    g_return_if_fail (MIDORI_IS_PANEL (panel));
+
+    box = gtk_widget_get_parent (panel->toolbar);
+    gtk_box_reorder_child (GTK_BOX (box), panel->toolbar,
+        right_aligned ? -1 : 0);
+}
+
 static void
 midori_panel_menu_item_activate_cb (GtkWidget*   widget,
                                     MidoriPanel* panel)

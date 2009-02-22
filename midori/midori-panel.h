@@ -46,6 +46,10 @@ void
 midori_panel_set_compact            (MidoriPanel*       panel,
                                      gboolean           compact);
 
+void
+midori_panel_set_right_aligned      (MidoriPanel*       panel,
+                                     gboolean           right_aligned);
+
 gint
 midori_panel_append_page            (MidoriPanel*       panel,
                                      MidoriViewable*    viewable);
