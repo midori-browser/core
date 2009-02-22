@@ -226,8 +226,18 @@ def configure (conf):
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
             Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
             Utils.pprint ('RED', 'Please use an older or newer version.')
-    print "Icons, Source, Save: " + libsoup + " (libSoup 2.23.1)"
-    print "Persistent cookies:  " + libsoup_25_2 + " (libSoup 2.25.2)"
+    Utils.pprint ('WHITE', 'Icons, Source, Save: ' + libsoup + ' (libSoup ', sep='')
+    if (libsoup == 'yes'):
+        Utils.pprint ('GREEN', conf.check_cfg (modversion='libsoup-2.4'), sep='')
+    else:
+        Utils.pprint ('RED', '2.23.1', sep='')
+    print ")"
+    Utils.pprint ('WHITE', 'Persistent cookies:  ' + libsoup_25_2 + ' (libSoup ', sep='')
+    if (libsoup_25_2 == 'yes'):
+        Utils.pprint ('GREEN', conf.check_cfg (modversion='libsoup-2.4'), sep='')
+    else:
+        Utils.pprint ('RED', '2.25.2', sep='')
+    print ")"
     # if 'soup-2.4' in conf.env['LIB_WEBKIT']:
     webkit_binary = conf.env.get_flat ('LIBPATH_WEBKIT') + '/libwebkit-1.0.so'
     try:
