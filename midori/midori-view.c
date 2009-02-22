@@ -275,6 +275,18 @@ midori_view_class_init (MidoriViewClass* class)
         MIDORI_TYPE_VIEW,
         MIDORI_TYPE_NEW_VIEW);
 
+    /**
+     * MidoriView::search-text:
+     * @view: the object on which the signal is emitted
+     * @found: whether the search was successful
+     * @typing: whether the search was initiated by typing
+     *
+     * Emitted when a search is performed. Either manually
+     * invoked or automatically by typing. The value of typing
+     * is actually the text the user typed.
+     *
+     * Note that in 0.1.3 the argument @typing was introduced.
+     */
     signals[SEARCH_TEXT] = g_signal_new (
         "search-text",
         G_TYPE_FROM_CLASS (class),
@@ -282,9 +294,10 @@ midori_view_class_init (MidoriViewClass* class)
         0,
         0,
         NULL,
-        g_cclosure_marshal_VOID__BOOLEAN,
-        G_TYPE_NONE, 1,
-        G_TYPE_BOOLEAN);
+        midori_cclosure_marshal_VOID__BOOLEAN_STRING,
+        G_TYPE_NONE, 2,
+        G_TYPE_BOOLEAN,
+        G_TYPE_STRING);
 
     signals[ADD_BOOKMARK] = g_signal_new (
         "add-bookmark",
@@ -789,6 +802,27 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 9:
         midori_view_go_forward (view);
         return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gboolean
+gtk_widget_key_press_event_cb (WebKitWebView* web_view,
+                               GdkEventKey*   event,
+                               MidoriView*    view)
+{
+    guint character = gdk_unicode_to_keyval (event->keyval);
+
+    if (!webkit_web_view_can_cut_clipboard (web_view)
+        && !webkit_web_view_can_paste_clipboard (web_view))
+    {
+        gchar* text = g_strdup_printf ("%c", character);
+
+        g_signal_emit (view, signals[SEARCH_TEXT], 0,
+        webkit_web_view_search_text (web_view,
+            text, FALSE, TRUE, TRUE), text);
+        g_free (text);
     }
 
     return FALSE;
@@ -1541,6 +1575,8 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::button-press-event",
                       gtk_widget_button_press_event_cb, view,
+                      "signal::key-press-event",
+                      gtk_widget_key_press_event_cb, view,
                       "signal::scroll-event",
                       gtk_widget_scroll_event_cb, view,
                       "signal::populate-popup",
@@ -2434,7 +2470,7 @@ midori_view_search_text (MidoriView*  view,
 
     g_signal_emit (view, signals[SEARCH_TEXT], 0,
         webkit_web_view_search_text (WEBKIT_WEB_VIEW (view->web_view),
-            text, case_sensitive, forward, TRUE));
+            text, case_sensitive, forward, TRUE), NULL);
 }
 
 /**

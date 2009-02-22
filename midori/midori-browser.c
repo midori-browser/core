@@ -855,12 +855,22 @@ midori_view_new_view_cb (GtkWidget*     view,
 static void
 midori_view_search_text_cb (GtkWidget*     view,
                             gboolean       found,
+                            gchar*         typing,
                             MidoriBrowser* browser)
 {
     const gchar* text;
     gboolean case_sensitive;
     gboolean highlight;
 
+    if (typing)
+    {
+        gint position = -1;
+
+        gtk_widget_show (browser->find);
+        gtk_window_set_focus (GTK_WINDOW (browser), browser->find_text);
+        gtk_editable_insert_text (GTK_EDITABLE (browser->find_text), typing, -1, &position);
+        gtk_editable_set_position (GTK_EDITABLE (browser->find_text), -1);
+    }
     if (GTK_WIDGET_VISIBLE (browser->find))
     {
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
