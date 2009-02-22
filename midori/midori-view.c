@@ -822,9 +822,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     {
         gchar* text = g_strdup_printf ("%c", character);
 
-        g_signal_emit (view, signals[SEARCH_TEXT], 0,
-        webkit_web_view_search_text (web_view,
-            text, FALSE, TRUE, TRUE), text);
+        g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text);
         g_free (text);
     }
 

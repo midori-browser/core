@@ -893,7 +893,7 @@ midori_view_search_text_cb (GtkWidget*     view,
         gtk_editable_insert_text (GTK_EDITABLE (browser->find_text), typing, -1, &position);
         gtk_editable_set_position (GTK_EDITABLE (browser->find_text), -1);
     }
-    if (GTK_WIDGET_VISIBLE (browser->find))
+    if (GTK_WIDGET_VISIBLE (browser->find) && !typing)
     {
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
             GTK_ICON_ENTRY_PRIMARY, (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
@@ -1578,7 +1578,11 @@ midori_browser_find_text_changed_cb (GtkWidget*     entry,
                                      MidoriBrowser* browser)
 {
     if (browser->find_typing)
-        _midori_browser_find (browser, TRUE);
+    {
+        const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
+        if (g_utf8_strlen (text, -1) > 2)
+            _midori_browser_find (browser, TRUE);
+    }
 }
 
 static gboolean
