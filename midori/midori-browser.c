@@ -551,7 +551,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         view = midori_browser_get_current_tab (browser);
         if (is_folder)
         {
-            bookmark = katze_array_new (KATZE_TYPE_ARRAY);
+            bookmark = (KatzeItem*)katze_array_new (KATZE_TYPE_ARRAY);
             katze_item_set_name (bookmark,
                 midori_view_get_display_title (MIDORI_VIEW (view)));
         }
@@ -1161,7 +1161,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "uri",
                                      "URI",
                                      "The current URI",
-                                     "about:blank",
+                                     "",
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -4191,6 +4191,16 @@ midori_browser_get_property (GObject*    object,
     case PROP_TAB:
         g_value_set_object (value, midori_browser_get_current_tab (browser));
         break;
+    case PROP_LOAD_STATUS:
+    {
+        GtkWidget* view = midori_browser_get_current_tab (browser);
+        if (view)
+            g_value_set_enum (value,
+                midori_view_get_load_status (MIDORI_VIEW (view)));
+        else
+            g_value_set_enum (value, MIDORI_LOAD_FINISHED);
+        break;
+    }
     case PROP_STATUSBAR:
         g_value_set_object (value, browser->statusbar);
         break;
@@ -4372,8 +4382,10 @@ midori_browser_set_current_uri (MidoriBrowser* browser,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (uri != NULL);
 
-    view = midori_browser_get_current_tab (browser);
-    midori_view_set_uri (MIDORI_VIEW (view), uri);
+    if ((view = midori_browser_get_current_tab (browser)))
+        midori_view_set_uri (MIDORI_VIEW (view), uri);
+    else
+        midori_browser_add_uri (browser, uri);
 }
 
 /**
@@ -4393,8 +4405,9 @@ midori_browser_get_current_uri (MidoriBrowser* browser)
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
-    view = midori_browser_get_current_tab (browser);
-    return midori_view_get_display_uri (MIDORI_VIEW (view));
+    if ((view = midori_browser_get_current_tab (browser)))
+        return midori_view_get_display_uri (MIDORI_VIEW (view));
+    return NULL;
 }
 
 /**

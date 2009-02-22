@@ -131,11 +131,12 @@ main (int    argc,
     if (!g_thread_supported ()) g_thread_init (NULL);
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
+    sokoke_register_stock_items ();
 
     g_test_add_data_func ("/properties/app",
         (gconstpointer)MIDORI_TYPE_APP, properties_type_test);
-    /* g_test_add_data_func ("/properties/browser",
-        (gconstpointer)MIDORI_TYPE_BROWSER, properties_type_test); */
+    g_test_add_data_func ("/properties/browser",
+        (gconstpointer)MIDORI_TYPE_BROWSER, properties_type_test);
     g_test_add_data_func ("/properties/extension",
         (gconstpointer)MIDORI_TYPE_EXTENSION, properties_type_test);
     g_test_add_data_func ("/properties/location-action",
