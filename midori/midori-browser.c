@@ -62,6 +62,7 @@ struct _MidoriBrowser
     GtkWidget* find_text;
     GtkToolItem* find_case;
     GtkToolItem* find_highlight;
+    gboolean find_typing;
 
     GtkWidget* statusbar;
     GtkWidget* progressbar;
@@ -866,10 +867,13 @@ midori_view_search_text_cb (GtkWidget*     view,
     {
         gint position = -1;
 
+        browser->find_typing = TRUE;
         gtk_widget_show (browser->find);
         gtk_window_set_focus (GTK_WINDOW (browser), browser->find_text);
         gtk_editable_insert_text (GTK_EDITABLE (browser->find_text), typing, -1, &position);
         gtk_editable_set_position (GTK_EDITABLE (browser->find_text), -1);
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (
+            browser->find_highlight), TRUE);
     }
     if (GTK_WIDGET_VISIBLE (browser->find))
     {
@@ -1537,6 +1541,14 @@ _action_find_next_activate (GtkAction*     action,
 }
 
 static void
+midori_browser_find_text_changed (GtkWidget*     entry,
+                                  MidoriBrowser* browser)
+{
+    if (browser->find_typing)
+        _midori_browser_find (browser, TRUE);
+}
+
+static void
 _action_find_previous_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
@@ -1565,6 +1577,7 @@ midori_browser_find_key_press_event_cb (GtkWidget*     toolbar,
         GtkWidget* view = midori_browser_get_current_tab (browser);
         midori_view_unmark_text_matches (MIDORI_VIEW (view));
         gtk_widget_hide (toolbar);
+        browser->find_typing = FALSE;
         return TRUE;
     }
 
@@ -1576,6 +1589,7 @@ midori_browser_find_button_close_clicked_cb (GtkWidget*     widget,
                                              MidoriBrowser* browser)
 {
     gtk_widget_hide (browser->find);
+    browser->find_typing = FALSE;
 }
 
 static void
@@ -3611,6 +3625,8 @@ midori_browser_init (MidoriBrowser* browser)
         G_CALLBACK (midori_browser_entry_clear_icon_released_cb), NULL);
     g_signal_connect (browser->find_text, "activate",
         G_CALLBACK (_action_find_next_activate), browser);
+    g_signal_connect (browser->find_text, "changed",
+        G_CALLBACK (midori_browser_find_text_changed), browser);
     toolitem = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (toolitem), browser->find_text);
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
