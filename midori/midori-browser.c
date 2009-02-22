@@ -1579,7 +1579,9 @@ midori_browser_find_text_changed_cb (GtkWidget*     entry,
 {
     if (browser->find_typing)
     {
+        GtkWidget* view = midori_browser_get_current_tab (browser);
         const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
+        midori_view_unmark_text_matches (MIDORI_VIEW (view));
         if (g_utf8_strlen (text, -1) > 2)
             _midori_browser_find (browser, TRUE);
     }
