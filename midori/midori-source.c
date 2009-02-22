@@ -50,6 +50,7 @@ static void
 midori_source_init (MidoriSource* source)
 {
     gtk_text_view_set_editable (GTK_TEXT_VIEW (source), FALSE);
+    gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (source), TRUE);
 
     source->net = katze_net_new ();
 }
