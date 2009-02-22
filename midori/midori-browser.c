@@ -3865,7 +3865,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
     MidoriWindowState last_window_state;
-    gboolean compact_sidepanel;
+    gboolean compact_sidepanel, right_align_sidepanel;
+    GtkWidget* hpaned, *vpaned;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_navigationbar, show_bookmarkbar;
     gboolean show_panel, show_statusbar;
@@ -3883,6 +3884,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "last-window-height", &last_window_height,
                   "last-window-state", &last_window_state,
                   "compact-sidepanel", &compact_sidepanel,
+                  "right-align-sidepanel", &right_align_sidepanel,
                   "last-panel-position", &last_panel_position,
                   "last-panel-page", &last_panel_page,
                   "show-menubar", &show_menubar,
@@ -3938,6 +3940,24 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
 
     midori_panel_set_compact (MIDORI_PANEL (browser->panel), compact_sidepanel);
+    hpaned = gtk_widget_get_parent (browser->panel);
+    vpaned = gtk_widget_get_parent (browser->notebook);
+    g_object_ref (browser->panel);
+    g_object_ref (vpaned);
+    gtk_container_remove (GTK_CONTAINER (hpaned), browser->panel);
+    gtk_container_remove (GTK_CONTAINER (hpaned), vpaned);
+    if (right_align_sidepanel)
+    {
+        gtk_paned_pack1 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+        gtk_paned_pack2 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
+    }
+    else
+    {
+        gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
+        gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+    }
+    g_object_unref (browser->panel);
+    g_object_unref (vpaned);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
     midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);

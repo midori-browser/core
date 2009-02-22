@@ -42,6 +42,7 @@ struct _MidoriWebSettings
     gboolean progress_in_location;
     gchar* toolbar_items;
     gboolean compact_sidepanel;
+    gboolean right_align_sidepanel;
 
     MidoriStartup load_on_startup;
     gchar* homepage;
@@ -107,6 +108,7 @@ enum
     PROP_PROGRESS_IN_LOCATION,
     PROP_TOOLBAR_ITEMS,
     PROP_COMPACT_SIDEPANEL,
+    PROP_RIGHT_ALIGN_SIDEPANEL,
 
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
@@ -460,6 +462,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "compact-sidepanel",
                                      _("Compact Sidepanel"),
                                      _("Whether to make the sidepanel compact"),
+                                     FALSE,
+                                     flags));
+
+    /**
+    * MidoriWebSettings:right-sidepanel:
+    *
+    * Whether to align the sidepanel on the right.
+    *
+    * Since: 0.1.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_RIGHT_ALIGN_SIDEPANEL,
+                                     g_param_spec_boolean (
+                                     "right-align-sidepanel",
+                                     _("Align sidepanel on the right"),
+                                     _("Whether to align the sidepanel on the right"),
                                      FALSE,
                                      flags));
 
@@ -1005,6 +1023,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_COMPACT_SIDEPANEL:
         web_settings->compact_sidepanel = g_value_get_boolean (value);
         break;
+    case PROP_RIGHT_ALIGN_SIDEPANEL:
+        web_settings->right_align_sidepanel = g_value_get_boolean (value);
+        break;
 
     case PROP_LOAD_ON_STARTUP:
         web_settings->load_on_startup = g_value_get_enum (value);
@@ -1188,6 +1209,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_COMPACT_SIDEPANEL:
         g_value_set_boolean (value, web_settings->compact_sidepanel);
+        break;
+    case PROP_RIGHT_ALIGN_SIDEPANEL:
+        g_value_set_boolean (value, web_settings->right_align_sidepanel);
         break;
 
     case PROP_LOAD_ON_STARTUP:
