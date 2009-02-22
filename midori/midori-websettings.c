@@ -886,6 +886,10 @@ static void
 midori_web_settings_init (MidoriWebSettings* web_settings)
 {
     web_settings->http_proxy = NULL;
+    web_settings->open_popups_in_tabs = TRUE;
+    web_settings->remember_last_form_inputs = TRUE;
+    web_settings->remember_last_downloaded_files = TRUE;
+    web_settings->auto_detect_proxy = TRUE;
 
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
