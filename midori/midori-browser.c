@@ -3025,9 +3025,15 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
 static gboolean
 midori_browser_alloc_timeout (MidoriBrowser* browser)
 {
-    g_object_set (browser->settings,
-        "last-window-width", GTK_WIDGET (browser)->allocation.width,
-        "last-window-height", GTK_WIDGET (browser)->allocation.height, NULL);
+    GtkWidget* widget = GTK_WIDGET (browser);
+    GdkWindowState state = gdk_window_get_state (widget->window);
+
+    if (!(state &
+        (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
+        g_object_set (browser->settings,
+            "last-window-width", widget->allocation.width,
+            "last-window-height", widget->allocation.height, NULL);
+
     browser->alloc_timeout = 0;
     return FALSE;
 }
