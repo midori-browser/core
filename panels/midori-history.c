@@ -28,7 +28,8 @@
 void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
-                                         gboolean       new_bookmark);
+                                         gboolean       new_bookmark,
+                                         gboolean       is_folder);
 
 struct _MidoriHistory
 {
@@ -115,7 +116,7 @@ midori_history_add_clicked_cb (GtkWidget* toolitem)
     GtkWidget* browser = gtk_widget_get_toplevel (toolitem);
     /* FIXME: Take selected folder into account */
     midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser),
-                                             NULL, TRUE);
+                                             NULL, TRUE, FALSE);
 }
 
 static void
@@ -752,7 +753,7 @@ midori_history_bookmark_activate_cb (GtkWidget*     menuitem,
     if (uri && *uri)
     {
         GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
-        midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser), item, TRUE);
+        midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser), item, TRUE, FALSE);
     }
 }
 

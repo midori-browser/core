@@ -28,7 +28,8 @@
 void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
-                                         gboolean       new_bookmark);
+                                         gboolean       new_bookmark,
+                                         gboolean       is_folder);
 
 struct _MidoriBookmarks
 {
@@ -114,7 +115,7 @@ midori_bookmarks_add_clicked_cb (GtkWidget* toolitem)
     GtkWidget* browser = gtk_widget_get_toplevel (toolitem);
     /* FIXME: Take selected folder into account */
     midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser),
-                                             NULL, TRUE);
+                                             NULL, TRUE, FALSE);
 }
 
 static void
@@ -137,7 +138,7 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
         {
             GtkWidget* browser = gtk_widget_get_toplevel (toolitem);
             midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser),
-                                                     item, FALSE);
+                                                     item, FALSE, FALSE);
         }
 
         g_object_unref (item);
@@ -167,6 +168,15 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 
         g_object_unref (item);
     }
+}
+
+static void
+midori_bookmarks_folder_clicked_cb (GtkWidget* toolitem)
+{
+    GtkWidget* browser = gtk_widget_get_toplevel (toolitem);
+    /* FIXME: Take selected folder into account */
+    midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser),
+                                             NULL, TRUE, TRUE);
 }
 
 static void
@@ -237,6 +247,19 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         bookmarks->delete = GTK_WIDGET (toolitem);
+        toolitem = gtk_separator_tool_item_new ();
+        gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem), FALSE);
+        gtk_tool_item_set_expand (toolitem, TRUE);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (GTK_WIDGET (toolitem));
+        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
+                                     _("Add a new folder"));
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_bookmarks_folder_clicked_cb), bookmarks);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (GTK_WIDGET (toolitem));
+
         midori_bookmarks_cursor_or_row_changed_cb (
             GTK_TREE_VIEW (bookmarks->treeview), bookmarks);
         g_signal_connect (bookmarks->edit, "destroy",
@@ -696,7 +719,7 @@ midori_bookmarks_edit_activate_cb (GtkWidget*       menuitem,
     if (!is_separator)
     {
         GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
-        midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser), item, FALSE);
+        midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser), item, FALSE, FALSE);
     }
 }
 

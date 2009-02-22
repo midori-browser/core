@@ -511,12 +511,14 @@ midori_view_notify_statusbar_text_cb (MidoriView*    view,
     g_free (text);
 }
 
-/* Private function, used by MidoriBookmarks */
+/* Private function, used by MidoriBookmarks and MidoriHistory */
 /* static */ void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
-                                         gboolean       new_bookmark)
+                                         gboolean       new_bookmark,
+                                         gboolean       is_folder)
 {
+    const gchar* title;
     GtkWidget* dialog;
     GtkSizeGroup* sizegroup;
     GtkWidget* view;
@@ -528,9 +530,12 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* entry_uri;
     GtkWidget* combo_folder;
 
+    if (is_folder)
+        title = new_bookmark ? _("New folder") : _("Edit folder");
+    else
+        title = new_bookmark ? _("New bookmark") : _("Edit bookmark");
     dialog = gtk_dialog_new_with_buttons (
-        new_bookmark ? _("New bookmark") : _("Edit bookmark"),
-        GTK_WINDOW (browser),
+        title, GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -544,9 +549,16 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     if (!bookmark)
     {
         view = midori_browser_get_current_tab (browser);
-        bookmark = g_object_new (KATZE_TYPE_ITEM,
-            "uri", midori_view_get_display_uri (MIDORI_VIEW (view)),
-            "name", midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
+        if (is_folder)
+        {
+            bookmark = katze_array_new (KATZE_TYPE_ARRAY);
+            katze_item_set_name (bookmark,
+                midori_view_get_display_title (MIDORI_VIEW (view)));
+        }
+        else
+            bookmark = g_object_new (KATZE_TYPE_ITEM,
+                "uri", midori_view_get_display_uri (MIDORI_VIEW (view)),
+                "name", midori_view_get_display_title (MIDORI_VIEW (view)), NULL);
     }
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -677,7 +689,7 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
     item = katze_item_new ();
     katze_item_set_uri (item, uri);
     browser = (MidoriBrowser*)gtk_widget_get_toplevel (menuitem);
-    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE);
+    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
 }
 
 static void
@@ -2464,8 +2476,10 @@ midori_browser_bookmark_edit_activate_cb (GtkWidget*     menuitem,
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     uri = katze_item_get_uri (item);
 
-    if (KATZE_IS_ARRAY (item) || (uri && *uri))
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE);
+    if (KATZE_IS_ARRAY (item))
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE);
+    else if (uri && *uri)
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
 }
 
 static void
@@ -2560,7 +2574,7 @@ static void
 _action_bookmark_add_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
-    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE);
+    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
 }
 
 static void
