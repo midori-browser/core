@@ -813,6 +813,9 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                                MidoriView*    view)
 {
     guint character = gdk_unicode_to_keyval (event->keyval);
+    /* Skip control characters */
+    if (character == (event->keyval | 0x01000000))
+        return FALSE;
 
     if (!webkit_web_view_can_cut_clipboard (web_view)
         && !webkit_web_view_can_paste_clipboard (web_view))
