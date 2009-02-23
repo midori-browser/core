@@ -607,8 +607,9 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     }
 
     combo_folder = NULL;
-    if (new_bookmark)
+    if (1)
     {
+        KatzeItem* item;
         guint i, n;
 
         hbox = gtk_hbox_new (FALSE, 8);
@@ -620,17 +621,21 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_combo_box_append_text (GTK_COMBO_BOX (combo_folder),
                                    _("Toplevel folder"));
         gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), 0);
-        if ((n = katze_array_get_length (browser->bookmarks)))
-        for (i = 0; i < n; i++)
+
+        i = 0;
+        n = 1;
+        while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
         {
-            KatzeItem* item = katze_array_get_nth_item (browser->bookmarks, i);
             if (KATZE_IS_ARRAY (item))
             {
                 const gchar* name = katze_item_get_name (item);
                 gtk_combo_box_append_text (GTK_COMBO_BOX (combo_folder), name);
+                if (katze_item_get_parent (bookmark) == item)
+                    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), n);
+                n++;
             }
         }
-        else
+        if (!i)
             gtk_widget_set_sensitive (combo_folder, FALSE);
         gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
@@ -652,7 +657,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
 
         folder = browser->bookmarks;
-        if (new_bookmark)
+        if (1)
         {
             selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
             if (g_strcmp0 (selected, _("Toplevel folder")))
@@ -672,6 +677,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 }
             }
             g_free (selected);
+            if (!new_bookmark)
+                katze_array_remove_item (katze_item_get_parent (bookmark), bookmark);
             katze_array_add_item (folder, bookmark);
         }
     }
