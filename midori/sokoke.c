@@ -132,16 +132,35 @@ static gchar*
 sokoke_idn_to_punycode (gchar* uri)
 {
     #if HAVE_LIBIDN
+    gchar* proto;
     gchar* hostname;
+    gchar* path;
     char *s;
     uint32_t *q;
     int rc;
     gchar *result;
 
-    if (g_str_has_prefix (uri, "http://"))
-        hostname = &uri[7];
-    else if (g_str_has_prefix (uri, "https://"))
-        hostname = &uri[8];
+    if ((proto = g_utf8_strchr (uri, -1, ':')))
+    {
+        gulong offset = g_utf8_pointer_to_offset (uri, proto);
+        gchar* buffer = g_malloc0 (offset + 1);
+        g_utf8_strncpy (buffer, uri, offset);
+        proto = buffer;
+    }
+
+    path = NULL;
+    if ((hostname = g_utf8_strchr (uri, -1, '/')))
+    {
+        if (hostname[1] == '/')
+            hostname += 2;
+        if ((path = g_utf8_strchr (hostname, -1, '/')))
+        {
+            gulong offset = g_utf8_pointer_to_offset (hostname, path);
+            gchar* buffer = g_malloc0 (offset);
+            g_utf8_strncpy (buffer, hostname, offset);
+            hostname = buffer;
+        }
+    }
     else
         hostname = uri;
 
@@ -153,10 +172,13 @@ sokoke_idn_to_punycode (gchar* uri)
     if (rc != IDNA_SUCCESS)
         return uri;
 
-    if (g_str_has_prefix (uri, "http://"))
-        result = g_strdup_printf ("http://%s", s);
-    else if (g_str_has_prefix (uri, "https://"))
-        result = g_strdup_printf ("https://%s", s);
+    if (proto)
+    {
+        result = g_strdup_printf ("%s://%s%s", proto, s, path ? path : "");
+        g_free (proto);
+        if (path)
+            g_free (hostname);
+    }
     else
         result = g_strdup (s);
     g_free (uri);

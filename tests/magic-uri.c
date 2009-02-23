@@ -107,6 +107,10 @@ main (int    argc,
     test_input ("http://東京理科大学.jp", "http://東京理科大学.jp");
     test_input ("https://青のネコ.co.jp",  "https://青のネコ.co.jp");
     #endif
+    test_input ("http://en.wikipedia.org/wiki/Kölsch_language",
+                "http://en.wikipedia.org/wiki/Kölsch_language");
+    test_input ("en.wikipedia.org/wiki/Kölsch_language",
+                "http://en.wikipedia.org/wiki/Kölsch_language");
     test_input ("sm Küchenzubehör", SM "Küchenzubehör");
     test_input ("sm 東京理科大学", SM "東京理科大学");
 
