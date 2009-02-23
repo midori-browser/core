@@ -29,7 +29,8 @@ VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
 
 try:
     git = Utils.cmd_output (['git', 'rev-parse', '--short', 'HEAD'], silent=True)
-    VERSION = (VERSION + '-' + git).strip ()
+    if git:
+        VERSION = (VERSION + '-' + git).strip ()
 except:
     pass
 
