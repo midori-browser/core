@@ -3111,6 +3111,11 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
+    if (G_UNLIKELY (browser->panel_timeout))
+        g_source_remove (browser->panel_timeout);
+    if (G_UNLIKELY (browser->alloc_timeout))
+        g_source_remove (browser->alloc_timeout);
+
     /* Destroy panel first, so panels don't need special care */
     gtk_widget_destroy (browser->panel);
     /* Destroy tabs second, so child widgets don't need special care */
