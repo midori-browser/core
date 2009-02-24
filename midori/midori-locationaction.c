@@ -762,6 +762,9 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
 
     gtk_entry_completion_set_model (completion, location_action->sort_model);
     gtk_entry_completion_set_text_column (completion, URI_COL);
+    #if GTK_CHECK_VERSION (2, 12, 0)
+    gtk_entry_completion_set_inline_selection (completion, TRUE);
+    #endif
     gtk_cell_layout_clear (GTK_CELL_LAYOUT (completion));
 
     renderer = gtk_cell_renderer_pixbuf_new ();
