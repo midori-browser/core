@@ -237,6 +237,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_can_zoom_out (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "ZoomNormal",
         midori_view_get_zoom_level (MIDORI_VIEW (view)) != 1.0);
+    _action_set_sensitive (browser, "Encoding",
+        midori_view_can_zoom_in (MIDORI_VIEW (view))
+        && g_object_class_find_property (
+        g_type_class_peek (WEBKIT_TYPE_WEB_VIEW), "custom-encoding"));
     _action_set_sensitive (browser, "SourceView",
         midori_view_can_view_source (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "Find",
@@ -2051,6 +2055,40 @@ _action_zoom_normal_activate (GtkAction*     action,
         midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0f);
 }
 
+static void
+_action_view_encoding_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    if (view)
+    {
+        const gchar* name;
+        GtkWidget* web_view;
+
+        name = gtk_action_get_name (action);
+        web_view = gtk_bin_get_child (GTK_BIN (view));
+        if (!strcmp (name, "EncodingAutomatic"))
+            g_object_set (web_view, "custom-encoding", NULL, NULL);
+        else
+        {
+            const gchar* encoding;
+            if (!strcmp (name, "EncodingChinese"))
+                encoding = "BIG5";
+            else if (!strcmp (name, "EncodingJapanese"))
+                encoding = "SHIFT_JIS";
+            else if (!strcmp (name, "EncodingRussian"))
+                encoding = "KOI8-R";
+            else if (!strcmp (name, "EncodingUnicode"))
+                encoding = "UTF-8";
+            else if (!strcmp (name, "EncodingWestern"))
+                encoding = "ISO-8859-1";
+            else
+                g_assert_not_reached ();
+            g_object_set (web_view, "custom-encoding", encoding, NULL);
+        }
+    }
+}
+
 static gchar*
 midori_browser_get_uri_extension (const gchar* uri)
 {
@@ -2970,6 +3008,28 @@ static const GtkActionEntry entries[] = {
  { "ZoomNormal", GTK_STOCK_ZOOM_100,
    NULL, "<Ctrl>0",
    N_("Reset the zoom level"), G_CALLBACK (_action_zoom_normal_activate) },
+ { "Encoding", NULL, N_("_Encoding") },
+ { "EncodingAutomatic", NULL,
+    N_("_Automatic"), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
+ { "EncodingChinese", NULL,
+    N_("Chinese (BIG5)"), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
+ { "EncodingJapanese", NULL,
+    N_("Japanese (SHIFT_JIS)"), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
+ { "EncodingRussian", NULL,
+    N_("Russian (KOI8-R)"), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
+ { "EncodingUnicode", NULL,
+    N_("Unicode (UTF-8)"), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
+ { "EncodingWestern", NULL,
+    N_("Western (ISO-8859-1)"), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
+ { "EncodingCustom", NULL,
+    N_("Custom..."), "",
+    NULL, G_CALLBACK (_action_view_encoding_activate) },
  { "SourceView", NULL,
    N_("View _Source"), "",
    N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
@@ -3197,6 +3257,15 @@ static const gchar* ui_markup =
     "<menuitem action='ZoomOut'/>"
     "<menuitem action='ZoomNormal'/>"
     "<separator/>"
+    "<menu action='Encoding'>"
+     "<menuitem action='EncodingAutomatic'/>"
+     "<menuitem action='EncodingChinese'/>"
+     "<menuitem action='EncodingJapanese'/>"
+     "<menuitem action='EncodingRussian'/>"
+     "<menuitem action='EncodingUnicode'/>"
+     "<menuitem action='EncodingWestern'/>"
+     "<menuitem action='EncodingCustom'/>"
+    "</menu>"
     "<menuitem action='SourceView'/>"
     "<menuitem action='Fullscreen'/>"
    "</menu>"
@@ -3625,6 +3694,7 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_set (_action_by_name (browser, "Statusbar"), "visible", FALSE, NULL);
     #endif
     _action_set_sensitive (browser, "Transferbar", FALSE);
+    _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_sensitive (browser, "SelectionSourceView", FALSE);
 
     /* Create the navigationbar */
