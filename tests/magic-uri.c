@@ -113,6 +113,10 @@ main (int    argc,
                 "http://en.wikipedia.org/wiki/Kölsch_language");
     test_input ("sm Küchenzubehör", SM "Küchenzubehör");
     test_input ("sm 東京理科大学", SM "東京理科大学");
+    test_input ("file:///home/mark/foo/bar.html",
+                "file:///home/mark/foo/bar.html");
+    test_input ("file:///home/mark/frühstück",
+                "file:///home/mark/frühstück");
 
     return 0;
 }
