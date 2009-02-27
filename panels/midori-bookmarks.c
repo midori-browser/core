@@ -640,7 +640,7 @@ midori_bookmarks_popup_item (GtkWidget*       menu,
     if (!strcmp (stock_id, GTK_STOCK_EDIT))
         gtk_widget_set_sensitive (menuitem,
             KATZE_IS_ARRAY (item) || uri != NULL);
-    else if (strcmp (stock_id, GTK_STOCK_DELETE))
+    else if (!KATZE_IS_ARRAY (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
     g_signal_connect (menuitem, "activate", G_CALLBACK (callback), bookmarks);
@@ -674,18 +674,40 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
     guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    uri = katze_item_get_uri (item);
-
-    if (uri && *uri)
+    if (KATZE_IS_ARRAY (item))
     {
-        GtkWidget* browser;
-        MidoriWebSettings* settings;
+        KatzeItem* child;
+        guint i = 0;
 
-        browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
-        n = midori_browser_add_item (MIDORI_BROWSER (browser), item);
-        settings = katze_object_get_object (browser, "settings");
-        if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
-            midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+        while ((child = katze_array_get_nth_item (KATZE_ARRAY (item), i)))
+        {
+            if ((uri = katze_item_get_uri (child)) && *uri)
+            {
+                GtkWidget* browser;
+                MidoriWebSettings* settings;
+
+                browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
+                n = midori_browser_add_item (MIDORI_BROWSER (browser), child);
+                settings = katze_object_get_object (browser, "settings");
+                if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
+                    midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+            }
+            i++;
+        }
+    }
+    else
+    {
+        if ((uri = katze_item_get_uri (item)) && *uri)
+        {
+            GtkWidget* browser;
+            MidoriWebSettings* settings;
+
+            browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
+            n = midori_browser_add_item (MIDORI_BROWSER (browser), item);
+            settings = katze_object_get_object (browser, "settings");
+            if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
+                midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+        }
     }
 }
 
@@ -749,12 +771,19 @@ midori_bookmarks_popup (GtkWidget*       widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    midori_bookmarks_popup_item (menu, GTK_STOCK_OPEN, NULL,
-        item, midori_bookmarks_open_activate_cb, bookmarks);
-    midori_bookmarks_popup_item (menu, STOCK_TAB_NEW, _("Open in New _Tab"),
-        item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
-    midori_bookmarks_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
-        item, midori_bookmarks_open_in_window_activate_cb, bookmarks);
+    if (KATZE_IS_ARRAY (item))
+        midori_bookmarks_popup_item (menu,
+            STOCK_TAB_NEW, _("Open all in _Tabs"),
+            item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
+    else
+    {
+        midori_bookmarks_popup_item (menu, GTK_STOCK_OPEN, NULL,
+            item, midori_bookmarks_open_activate_cb, bookmarks);
+        midori_bookmarks_popup_item (menu, STOCK_TAB_NEW, _("Open in New _Tab"),
+            item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
+        midori_bookmarks_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
+            item, midori_bookmarks_open_in_window_activate_cb, bookmarks);
+    }
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);

@@ -2434,7 +2434,7 @@ midori_browser_bookmark_popup_item (GtkWidget*     menu,
     if (!strcmp (stock_id, GTK_STOCK_EDIT))
         gtk_widget_set_sensitive (menuitem,
             KATZE_IS_ARRAY (item) || uri != NULL);
-    else if (strcmp (stock_id, GTK_STOCK_DELETE))
+    else if (!KATZE_IS_ARRAY (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
     g_signal_connect (menuitem, "activate", G_CALLBACK (callback), browser);
@@ -2465,12 +2465,28 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
     guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    uri = katze_item_get_uri (item);
-
-    if (uri && *uri)
+    if (KATZE_IS_ARRAY (item))
     {
-        n = midori_browser_add_item (browser, item);
-        _midori_browser_set_current_page_smartly (browser, n);
+        KatzeItem* child;
+        guint i = 0;
+
+        while ((child = katze_array_get_nth_item (KATZE_ARRAY (item), i)))
+        {
+            if ((uri = katze_item_get_uri (child)) && *uri)
+            {
+                n = midori_browser_add_item (browser, child);
+                _midori_browser_set_current_page_smartly (browser, n);
+            }
+            i++;
+        }
+    }
+    else
+    {
+        if ((uri = katze_item_get_uri (item)) && *uri)
+        {
+            n = midori_browser_add_item (browser, item);
+            _midori_browser_set_current_page_smartly (browser, n);
+        }
     }
 }
 
@@ -2532,12 +2548,21 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
-        item, midori_browser_bookmark_open_activate_cb, browser);
-    midori_browser_bookmark_popup_item (menu, STOCK_TAB_NEW, _("Open in New _Tab"),
-        item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
-    midori_browser_bookmark_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
-        item, midori_browser_bookmark_open_in_window_activate_cb, browser);
+    if (KATZE_IS_ARRAY (item))
+        midori_browser_bookmark_popup_item (menu,
+            STOCK_TAB_NEW, _("Open all in _Tabs"),
+            item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
+    else
+    {
+        midori_browser_bookmark_popup_item (menu, GTK_STOCK_OPEN, NULL,
+            item, midori_browser_bookmark_open_activate_cb, browser);
+        midori_browser_bookmark_popup_item (menu,
+            STOCK_TAB_NEW, _("Open in New _Tab"),
+            item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
+        midori_browser_bookmark_popup_item (menu,
+            STOCK_WINDOW_NEW, _("Open in New _Window"),
+            item, midori_browser_bookmark_open_in_window_activate_cb, browser);
+    }
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
