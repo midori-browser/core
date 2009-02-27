@@ -142,8 +142,15 @@ sokoke_idn_to_punycode (gchar* uri)
 
     if ((proto = g_utf8_strchr (uri, -1, ':')))
     {
-        gulong offset = g_utf8_pointer_to_offset (uri, proto);
-        gchar* buffer = g_malloc0 (offset + 1);
+        gulong offset;
+        gchar* buffer;
+
+        /* 'file' URIs don't have a hostname */
+        if (!strcmp (proto, "file"))
+            return uri;
+
+        offset = g_utf8_pointer_to_offset (uri, proto);
+        buffer = g_malloc0 (offset + 1);
         g_utf8_strncpy (buffer, uri, offset);
         proto = buffer;
     }
@@ -156,21 +163,29 @@ sokoke_idn_to_punycode (gchar* uri)
         if ((path = g_utf8_strchr (hostname, -1, '/')))
         {
             gulong offset = g_utf8_pointer_to_offset (hostname, path);
-            gchar* buffer = g_malloc0 (offset);
+            gchar* buffer = g_malloc0 (offset + 1);
             g_utf8_strncpy (buffer, hostname, offset);
             hostname = buffer;
         }
     }
     else
-        hostname = uri;
+        hostname = g_strdup (uri);
 
     if (!(q = stringprep_utf8_to_ucs4 (hostname, -1, NULL)))
+    {
+        g_free (proto);
+        g_free (hostname);
         return uri;
+    }
 
     rc = idna_to_ascii_4z (q, &s, IDNA_ALLOW_UNASSIGNED);
     free (q);
     if (rc != IDNA_SUCCESS)
+    {
+        g_free (proto);
+        g_free (hostname);
         return uri;
+    }
 
     if (proto)
     {
