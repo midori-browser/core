@@ -759,7 +759,7 @@ midori_history_add_items (void*  data,
                 {
                     parent = katze_array_new (KATZE_TYPE_ARRAY);
                     katze_item_set_added (KATZE_ITEM (parent), day);
-                    strftime (token, sizeof (token), "%Y-%m-%d",
+                    strftime (token, sizeof (token), "%x",
                           localtime ((time_t *)&date));
                     katze_item_set_token (KATZE_ITEM (parent), token);
                     katze_array_add_item (array, parent);

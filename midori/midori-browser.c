@@ -3428,7 +3428,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     }
     if (!found)
     {
-        strftime (token, sizeof (token), "%Y-%m-%d", localtime (&now));
+        strftime (token, sizeof (token), "%x", localtime (&now));
         parent = katze_array_new (KATZE_TYPE_ARRAY);
         katze_item_set_added (KATZE_ITEM (parent), day);
         katze_item_set_token (KATZE_ITEM (parent), token);
