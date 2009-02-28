@@ -2529,10 +2529,27 @@ midori_view_execute_script (MidoriView*  view,
                             const gchar* script,
                             gchar**      exception)
 {
+    WebKitWebFrame* web_frame;
+    JSContextRef js_context;
+    #if HAVE_LIBSOUP
+    gchar* script_decoded;
+    #endif
+
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
     g_return_val_if_fail (script != NULL, FALSE);
 
     /* FIXME Actually store exception. */
-    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), script);
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    #if HAVE_LIBSOUP
+    if ((script_decoded = soup_uri_decode (script)))
+    {
+        webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view),
+                                        script_decoded);
+        g_free (script_decoded);
+    }
+    else
+    #endif
+        webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), script);
     return TRUE;
 }
