@@ -1024,12 +1024,15 @@ static void
 midori_search_action_treeview_destroy_cb (GtkWidget*          treeview,
                                           MidoriSearchAction* search_action)
 {
-    g_signal_handlers_disconnect_by_func (
-        search_action->search_engines,
-        midori_search_action_dialog_engines_add_item_cb, search_action);
-    g_signal_handlers_disconnect_by_func (
-        search_action->search_engines,
-        midori_search_action_dialog_engines_remove_item_cb, search_action);
+    if (search_action->search_engines)
+    {
+        g_signal_handlers_disconnect_by_func (
+            search_action->search_engines,
+            midori_search_action_dialog_engines_add_item_cb, search_action);
+        g_signal_handlers_disconnect_by_func (
+            search_action->search_engines,
+            midori_search_action_dialog_engines_remove_item_cb, search_action);
+    }
 }
 
 /**
