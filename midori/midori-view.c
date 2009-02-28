@@ -1160,7 +1160,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*      web_view,
         g_strrstr (mime_type, "script") ||
         g_str_has_prefix (mime_type, "text/") || g_strrstr (mime_type, "xml"))
     #endif
-        return TRUE;
+        return FALSE;
 
     #if WEBKIT_CHECK_VERSION (1, 0, 0)
     uri = g_strdup_printf ("error:nodisplay %s",
