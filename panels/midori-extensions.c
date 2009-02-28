@@ -119,7 +119,7 @@ midori_extensions_button_status_clicked_cb (GtkToolItem*      toolitem,
 
         gtk_widget_set_sensitive (GTK_WIDGET (button_enable),
             !midori_extension_is_active (extension));
-        gtk_widget_set_sensitive (GTK_WIDGET (button_enable),
+        gtk_widget_set_sensitive (GTK_WIDGET (button_disable),
             midori_extension_is_active (extension));
     }
 }
@@ -254,13 +254,20 @@ midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
                                            GtkWidget*         treeview)
 {
     MidoriExtension* extension;
+    gchar* name;
+    gchar* version;
+    gchar* desc;
     gchar* text;
 
     gtk_tree_model_get (model, iter, 0, &extension, -1);
 
-    text = g_strdup_printf ("%s\n%s",
-        katze_object_get_string (extension, "name"),
-        katze_object_get_string (extension, "description"));
+    name = katze_object_get_string (extension, "name");
+    version = katze_object_get_string (extension, "version");
+    desc = katze_object_get_string (extension, "description");
+    text = g_strdup_printf ("%s %s\n%s", name, version, desc);
+    g_free (name);
+    g_free (version);
+    g_free (desc);
     g_object_set (renderer, "text", text, NULL);
     g_free (text);
 }
@@ -271,22 +278,62 @@ midori_extensions_treeview_row_activated_cb (GtkTreeView*       treeview,
                                              GtkTreeViewColumn* column,
                                              MidoriExtensions*  extensions)
 {
-    GtkTreeModel* model = gtk_tree_view_get_model (treeview);
+    GtkToolItem* button_enable;
+    GtkToolItem* button_disable;
+    GtkTreeModel* model;
     GtkTreeIter iter;
 
+    model = gtk_tree_view_get_model (treeview);
+    button_enable = gtk_toolbar_get_nth_item (
+        GTK_TOOLBAR (extensions->toolbar), 1);
+    button_disable = gtk_toolbar_get_nth_item (
+        GTK_TOOLBAR (extensions->toolbar), 2);
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
         MidoriExtension* extension;
 
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
         if (midori_extension_is_active (extension))
-        {
             midori_extension_deactivate (extension);
-            gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
-        }
         else
             g_signal_emit_by_name (extension, "activate", extensions->app);
+    gtk_widget_set_sensitive (GTK_WIDGET (button_enable),
+        !midori_extension_is_active (extension));
+    gtk_widget_set_sensitive (GTK_WIDGET (button_disable),
+        midori_extension_is_active (extension));
     }
+}
+
+static void
+midori_extensions_treeview_cursor_changed_cb (GtkTreeView*      treeview,
+                                              MidoriExtensions* extensions)
+{
+    GtkTreeModel* model;
+    GtkTreePath* path;
+    GtkTreeIter iter;
+    GtkToolItem* button_enable;
+    GtkToolItem* button_disable;
+
+    gtk_tree_view_get_cursor (treeview, &path, NULL);
+    model = gtk_tree_view_get_model (treeview);
+    button_enable = gtk_toolbar_get_nth_item (
+        GTK_TOOLBAR (extensions->toolbar), 1);
+    button_disable = gtk_toolbar_get_nth_item (
+        GTK_TOOLBAR (extensions->toolbar), 2);
+    if (gtk_tree_model_get_iter (model, &iter, path))
+    {
+        MidoriExtension* extension;
+
+        if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
+        {
+            gtk_tree_model_get (model, &iter, 0, &extension, -1);
+            gtk_widget_set_sensitive (GTK_WIDGET (button_enable),
+                !midori_extension_is_active (extension));
+            gtk_widget_set_sensitive (GTK_WIDGET (button_disable),
+                midori_extension_is_active (extension));
+        }
+    }
+    return;
 }
 
 static void
@@ -314,6 +361,9 @@ midori_extensions_init (MidoriExtensions* extensions)
     g_object_unref (liststore);
     g_signal_connect (extensions->treeview, "row-activated",
                       G_CALLBACK (midori_extensions_treeview_row_activated_cb),
+                      extensions);
+    g_signal_connect (extensions->treeview, "cursor-changed",
+                      G_CALLBACK (midori_extensions_treeview_cursor_changed_cb),
                       extensions);
     gtk_widget_show (extensions->treeview);
     gtk_box_pack_start (GTK_BOX (extensions), extensions->treeview, TRUE, TRUE, 0);

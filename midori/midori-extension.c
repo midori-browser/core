@@ -382,8 +382,6 @@ midori_extension_deactivate (MidoriExtension* extension)
 
     extension->priv->active = FALSE;
     g_signal_emit (extension, signals[DEACTIVATE], 0);
-    g_signal_handlers_destroy (extension);
-    g_object_run_dispose (G_OBJECT (extension));
 }
 
 /**
