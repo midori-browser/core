@@ -100,6 +100,9 @@ void
 midori_browser_activate_action        (MidoriBrowser*     browser,
                                        const gchar*       name);
 
+GtkActionGroup*
+midori_browser_get_action_group       (MidoriBrowser*     browser);
+
 void
 midori_browser_set_current_uri        (MidoriBrowser*     browser,
                                        const gchar*       uri);

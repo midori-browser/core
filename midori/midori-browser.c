@@ -4508,6 +4508,26 @@ midori_browser_activate_action (MidoriBrowser* browser,
 }
 
 /**
+ * midori_browser_get_action_group:
+ * @browser: a #MidoriBrowser
+ *
+ * Retrieves the action group holding all actions used
+ * by the browser. It allows obtaining individual
+ * actions and adding new actions.
+ *
+ * Return value: the action group of the browser
+ *
+ * Since: 0.1.4
+ **/
+GtkActionGroup*
+midori_browser_get_action_group (MidoriBrowser* browser)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+
+    return browser->action_group;
+}
+
+/**
  * midori_browser_set_current_uri:
  * @browser: a #MidoriBrowser
  * @uri: an URI
