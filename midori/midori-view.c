@@ -1602,10 +1602,14 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_frame_load_done_cb, view,
                       NULL);
 
-    g_object_set (view->web_view, "settings", view->settings, NULL);
-    if (katze_object_has_property (view->web_view, "full-content-zoom"))
-        g_object_set (view->web_view, "full-content-zoom",
-        katze_object_get_boolean (view->settings, "zoom-text-and-images"), NULL);
+    if (view->settings)
+    {
+        g_object_set (view->web_view, "settings", view->settings, NULL);
+        if (katze_object_has_property (view->web_view, "full-content-zoom"))
+            g_object_set (view->web_view, "full-content-zoom",
+                katze_object_get_boolean (view->settings,
+                                          "zoom-text-and-images"), NULL);
+    }
 
     gtk_widget_show (view->web_view);
     gtk_container_add (GTK_CONTAINER (view), view->web_view);
