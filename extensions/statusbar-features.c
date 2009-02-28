@@ -16,6 +16,8 @@ statusbar_features_deactivate_cb (MidoriExtension* extension,
                                   GtkWidget*       bbox)
 {
     gtk_widget_destroy (bbox);
+    g_signal_handlers_disconnect_by_func (
+        extension, statusbar_features_deactivate_cb, bbox);
 }
 
 static void
@@ -66,6 +68,14 @@ static void
 statusbar_features_activate_cb (MidoriExtension* extension,
                                 MidoriApp*       app)
 {
+    KatzeArray* browsers;
+    MidoriBrowser* browser;
+    guint i;
+
+    browsers = katze_object_get_object (app, "browsers");
+    i = 0;
+    while ((browser = katze_array_get_nth_item (browsers, i++)))
+        statusbar_features_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (statusbar_features_app_add_browser_cb), extension);
 }
