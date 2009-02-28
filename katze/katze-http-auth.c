@@ -161,11 +161,28 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
 }
 
 static void
+katze_http_auth_session_request_queued_cb (SoupSession* session,
+                                           SoupMessage* msg,
+                                           gpointer     data)
+{
+    /* WebKit has its own authentication dialog in recent versions.
+       We want only one, and we choose our own to have localization. */
+    GType type = g_type_from_name ("WebKitSoupAuthDialog");
+    if (type)
+        soup_session_remove_feature_by_type (session, type);
+
+    g_signal_connect (session, "authenticate",
+        G_CALLBACK (katze_http_auth_session_authenticate_cb), NULL);
+    g_signal_handlers_disconnect_by_func (session,
+        katze_http_auth_session_request_queued_cb, NULL);
+}
+
+static void
 katze_http_auth_attach (SoupSessionFeature* feature,
                         SoupSession*        session)
 {
-    g_signal_connect (session, "authenticate",
-        G_CALLBACK (katze_http_auth_session_authenticate_cb), NULL);
+    g_signal_connect (session, "request-queued",
+        G_CALLBACK (katze_http_auth_session_request_queued_cb), NULL);
 }
 
 static void
@@ -174,6 +191,8 @@ katze_http_auth_detach (SoupSessionFeature* feature,
 {
     g_signal_handlers_disconnect_by_func (session,
         katze_http_auth_session_authenticate_cb, NULL);
+    g_signal_handlers_disconnect_by_func (session,
+        katze_http_auth_session_request_queued_cb, NULL);
 }
 
 static void

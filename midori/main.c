@@ -1354,10 +1354,7 @@ soup_session_constructed_cb (GObject* object)
     g_signal_connect (settings, "notify::ident-string",
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), object);
 
-    /* Only add the Auth feature if WebKit didn't already */
-    if (!g_signal_has_handler_pending (session,
-        g_signal_lookup ("authenticate", SOUP_TYPE_SESSION), 0, FALSE))
-        soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
+    soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
     midori_soup_session_debug (session);
 
     feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
