@@ -67,6 +67,7 @@ struct _MidoriView
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
+    gboolean find_while_typing;
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
@@ -817,7 +818,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     if (character == (event->keyval | 0x01000000))
         return FALSE;
 
-    if (!webkit_web_view_can_cut_clipboard (web_view)
+    if (view->find_while_typing && !webkit_web_view_can_cut_clipboard (web_view)
         && !webkit_web_view_can_paste_clipboard (web_view))
     {
         gchar* text = g_strdup_printf ("%c", character);
@@ -1365,6 +1366,7 @@ _midori_view_update_settings (MidoriView* view)
         "open-new-pages-in", &view->open_new_pages_in,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
+        "find-while-typing", &view->find_while_typing,
         NULL);
 
     if (view->web_view)
@@ -1411,6 +1413,10 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     else if (name == g_intern_string ("open-tabs-in-the-background"))
     {
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
+    }
+    else if (name == g_intern_string ("find-while-typing"))
+    {
+        view->find_while_typing = g_value_get_boolean (&value);
     }
 
     g_value_unset (&value);

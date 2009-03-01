@@ -506,6 +506,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button, 1, 2, 3, 4);
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     SPANNED_ADD (button, 0, 1, 4, 5);
+    button = katze_property_proxy (settings, "find-while-typing", NULL);
+    SPANNED_ADD (button, 1, 2, 4, 5);
     label = katze_property_label (settings, "location-entry-search");
     INDENTED_ADD (label, 0, 1, 5, 6);
     entry = katze_property_proxy (settings, "location-entry-search", NULL);

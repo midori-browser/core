@@ -63,6 +63,7 @@ struct _MidoriWebSettings
     gboolean open_popups_in_tabs;
 
     gboolean zoom_text_and_images;
+    gboolean find_while_typing;
     MidoriAcceptCookies accept_cookies;
     gboolean original_cookies_only;
     gint maximum_cookie_age;
@@ -131,6 +132,7 @@ enum
     PROP_ENFORCE_96_DPI,
     PROP_ENABLE_DEVELOPER_EXTRAS,
     PROP_ZOOM_TEXT_AND_IMAGES,
+    PROP_FIND_WHILE_TYPING,
     PROP_ACCEPT_COOKIES,
     PROP_ORIGINAL_COOKIES_ONLY,
     PROP_MAXIMUM_COOKIE_AGE,
@@ -698,6 +700,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         "full-content-zoom") ? G_PARAM_READWRITE : G_PARAM_READABLE)
         | G_PARAM_STATIC_STRINGS));
 
+    /**
+    * MidoriWebSettings:find-while-typing:
+    *
+    * Whether to automatically find inline while typing something.
+    *
+    * Since: 0.1.4
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_FIND_WHILE_TYPING,
+                                     g_param_spec_boolean (
+                                     "find-while-typing",
+                                     _("Find inline while typing"),
+                                     _("Whether to automatically find inline while typing"),
+                                     TRUE,
+                                     flags));
+
     g_object_class_install_property (gobject_class,
                                      PROP_ACCEPT_COOKIES,
                                      g_param_spec_enum (
@@ -1104,6 +1122,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_ZOOM_TEXT_AND_IMAGES:
         web_settings->zoom_text_and_images = g_value_get_boolean (value);
         break;
+    case PROP_FIND_WHILE_TYPING:
+        web_settings->find_while_typing = g_value_get_boolean (value);
+        break;
     case PROP_ACCEPT_COOKIES:
         web_settings->accept_cookies = g_value_get_enum (value);
         break;
@@ -1276,6 +1297,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_ZOOM_TEXT_AND_IMAGES:
         g_value_set_boolean (value, web_settings->zoom_text_and_images);
+        break;
+    case PROP_FIND_WHILE_TYPING:
+        g_value_set_boolean (value, web_settings->find_while_typing);
         break;
     case PROP_ACCEPT_COOKIES:
         g_value_set_enum (value, web_settings->accept_cookies);
