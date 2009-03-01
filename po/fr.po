@@ -4,10 +4,11 @@
 # Christian Dywan <christian@twotoasts.de> 2008
 # Adrien Nader <camaradetux@gmail.com> 2008
 # Robert-André Mauchin <zebob.m@pengzone.org> 2008
+# Pascal Gervais <pggervais@yahoo.ca> 2009
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.1.2\n"
+"Project-Id-Version: midori 0.1.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-02-22 19:30+0100\n"
 "PO-Revision-Date: 2009-01-22 03:07+0100\n"
@@ -35,7 +36,7 @@ msgstr "Navigateur toile"
 #: ../midori/main.c:106
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
-msgstr "La configuration n'a pu être chargée: %s\n"
+msgstr "La configuration n'a pu être chargée : %s\n"
 
 #: ../midori/main.c:161
 #, c-format
@@ -53,38 +54,38 @@ msgstr "Fichier non trouvé."
 
 #: ../midori/main.c:488 ../midori/main.c:497
 msgid "Malformed document."
-msgstr "Document mal formé"
+msgstr "Document mal formé."
 
 #: ../midori/main.c:519
 #, c-format
 msgid "Failed to open database: %s\n"
-msgstr "Échec d'ouvrir la banque de données: %s\n"
+msgstr "Impossible d'ouvrir la base de données : %s\n"
 
 #: ../midori/main.c:551
 #, c-format
 msgid "Failed to execute database statement: %s\n"
-msgstr "Échec d'exécuter une intruction de la banque de données: %s\n"
+msgstr "Impossible d'exécuter l'instruction de la base de données : %s\n"
 
 #: ../midori/main.c:605
 #, c-format
 msgid "Failed to remove history item: %s\n"
-msgstr ""
+msgstr "Impossible de supprimer de l'historique l'élément : %s\n"
 
 #: ../midori/main.c:629
 #, c-format
 msgid "Failed to clear history: %s\n"
-msgstr "Échec de vider l'historique: %s\n"
+msgstr "Impossible d'effacer l'historique : %s\n"
 
 #: ../midori/main.c:652 ../midori/main.c:686 ../midori/main.c:702
 #, c-format
 msgid "Failed to add history item: %s\n"
-msgstr ""
+msgstr "Impossible d'ajouter à l'historique l'élément : %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
 #: ../midori/main.c:882
 #, c-format
 msgid "Failed to remove old history items: %s\n"
-msgstr ""
+msgstr "Impossible de supprimer de l'hitorique les anciens éléments : %s\n"
 
 #: ../midori/main.c:910
 #, c-format
@@ -127,6 +128,9 @@ msgid ""
 "Midori seems to have crashed the last time it was opened. If this happend "
 "repeatedly, try one of the following options to solve the problem."
 msgstr ""
+"Midori semble s'être interrompu de façon inattendue lors de la dernière"
+"utilisation. Si cela se produit de façon répétée, essayez l'une des options"
+"suivantes pour résoudre le problème."
 
 #: ../midori/main.c:1416
 msgid "Modify _preferences"
@@ -134,15 +138,15 @@ msgstr "Modifier les _préférences"
 
 #: ../midori/main.c:1420
 msgid "Reset the last _session"
-msgstr "Réinitialiser la dernière session"
+msgstr "Réinitialiser la dernière _session"
 
 #: ../midori/main.c:1425
 msgid "Disable all _extensions"
-msgstr "Désactiver tout les _extensions"
+msgstr "Désactiver toutes les _extensions"
 
 #: ../midori/main.c:1599
 msgid "No filename specified"
-msgstr "Aucun nom de fichier indiqué"
+msgstr "Aucun nom de fichier spécifié"
 
 #: ../midori/main.c:1631 ../midori/gjs.c:514
 msgid "An unknown error occured."
@@ -150,7 +154,7 @@ msgstr "Une erreur inconnu est survenue."
 
 #: ../midori/main.c:1654
 msgid "Run the specified filename as javascript"
-msgstr ""
+msgstr "Exécutez le fichier spécifié en tant que javascript"
 
 #: ../midori/main.c:1656
 msgid "Display program version"
@@ -184,24 +188,24 @@ msgstr "Les moteurs de recherche n'ont pu être chargés. %s\n"
 #: ../midori/main.c:1835
 #, c-format
 msgid "The bookmarks couldn't be loaded: %s\n"
-msgstr "Les signets n'ont pu être chargés: %s\n"
+msgstr "Les signets n'ont pu être chargés : %s\n"
 
 #: ../midori/main.c:1850
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
-msgstr "La session n'a pu être chargée: %s\n"
+msgstr "La session n'a pu être chargée : %s\n"
 
 # pas très content
 #: ../midori/main.c:1863
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr "La corbeille n'a pu être chargée: %s\n"
+msgstr "La corbeille n'a pu être chargée : %s\n"
 
 # pas très content
 #: ../midori/main.c:1876
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr "L'historique n'a pu être chargée. %s\n"
+msgstr "L'historique n'a pu être chargée: %s\n"
 
 #: ../midori/main.c:1888
 msgid "The following errors occured:"
@@ -294,7 +298,8 @@ msgid "translator-credits"
 msgstr ""
 "Christian Dywan <christian@twotoasts.de>\n"
 "Adrien Nader <camaradetux@gmail.com>\n"
-"Robert-André Mauchin <zebob.m@pengzone.org>"
+"Robert-André Mauchin <zebob.m@pengzone.org>\n"
+"Pascal Gervais <pggervais@yahoo.ca>"
 
 #: ../midori/midori-browser.c:2859
 msgid "_File"
@@ -768,7 +773,7 @@ msgstr "Firefox"
 
 #: ../midori/midori-websettings.c:268
 msgid "Internet Explorer"
-msgstr "Explorateur Internet"
+msgstr "Internet Explorer"
 
 #: ../midori/midori-websettings.c:309
 msgid "Remember last window size"
@@ -1271,7 +1276,7 @@ msgstr "Activer scripts"
 
 #: ../midori/midori-preferences.c:493
 msgid "Enable embedded scripting languages"
-msgstr ""
+msgstr "Active la prise en charge interne des scripts"
 
 #: ../midori/midori-preferences.c:496 ../extensions/statusbar-features.c:54
 msgid "Enable plugins"
@@ -1279,7 +1284,7 @@ msgstr "Activer greffons"
 
 #: ../midori/midori-preferences.c:497
 msgid "Enable embedded plugin objects"
-msgstr ""
+msgstr "Active la prise en charge interne des greffons"
 
 #: ../midori/midori-preferences.c:500
 msgid "Enforce 96 dots per inch"
@@ -1287,7 +1292,7 @@ msgstr "Forcer 96 points par pouce"
 
 #: ../midori/midori-preferences.c:501
 msgid "Enforce a video dot density of 96 DPI"
-msgstr "Forcer une résolution de 96 DPI"
+msgstr "Force une densité visuelle de 96 DPI"
 
 #: ../midori/midori-preferences.c:504
 msgid "Enable developer tools"
@@ -1295,7 +1300,7 @@ msgstr "Activer les outils développeur"
 
 #: ../midori/midori-preferences.c:505
 msgid "Enable special extensions for developers"
-msgstr ""
+msgstr "Activer les extensions spécifiques pour les développeurs"
 
 #. Page "Interface"
 #: ../midori/midori-preferences.c:515
@@ -1481,7 +1486,7 @@ msgstr "Extensions"
 
 #: ../panels/midori-history.c:159
 msgid "Are you sure you want to remove all history items?"
-msgstr ""
+msgstr "Ètes-vous certain de vouloir effacer tout l'historique ?"
 
 #: ../panels/midori-history.c:216
 msgid "Bookmark the selected history item"
@@ -1526,6 +1531,8 @@ msgid ""
 "A username and a password are required\n"
 "to open this location:"
 msgstr ""
+"Un nom d'utilisateur et un mot de passe sont requis\n"
+"pour l'ouverture de ce lieu :"
 
 #: ../katze/katze-http-auth.c:131
 msgid "Username"
