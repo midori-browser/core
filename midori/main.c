@@ -1714,7 +1714,7 @@ main (int    argc,
     {
         g_print (
           "%s %s\n\n"
-          "Copyright (c) 2007-2008 Christian Dywan\n\n"
+          "Copyright (c) 2007-2009 Christian Dywan\n\n"
           "%s\n"
           "\t%s\n\n"
           "%s\n"
