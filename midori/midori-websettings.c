@@ -713,7 +713,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "find-while-typing",
                                      _("Find inline while typing"),
                                      _("Whether to automatically find inline while typing"),
-                                     TRUE,
+                                     FALSE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
