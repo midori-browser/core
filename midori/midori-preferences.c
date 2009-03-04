@@ -317,7 +317,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* hbox;
     gint icon_width, icon_height;
     #if HAVE_LIBSOUP
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     GObjectClass* webkit_class;
+    #endif
     #endif
 
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
@@ -555,12 +557,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Network" */
     #if HAVE_LIBSOUP
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
     if (g_object_class_find_property (webkit_class, "session") ||
     /* If a cookie jar was created, WebKit is using Soup */
         g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
         g_quark_from_static_string ("midori-has-jar")))
     {
+    #endif
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
     FRAME_NEW (_("Network"));
     TABLE_NEW (5, 2);
@@ -592,17 +596,21 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("MB")),
                         FALSE, FALSE, 0);
     FILLED_ADD (hbox, 1, 2, 4, 5);
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     }
+    #endif
     #endif
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
     #if HAVE_LIBSOUP_2_25_2
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     if (g_object_class_find_property (webkit_class, "session") ||
     /* If a cookie jar was created, WebKit is using Soup */
         g_type_get_qdata (SOUP_TYPE_COOKIE_JAR,
         g_quark_from_static_string ("midori-has-jar")))
     {
+    #endif
     FRAME_NEW (_("Web Cookies"));
     TABLE_NEW (3, 2);
     label = katze_property_label (settings, "accept-cookies");
@@ -619,7 +627,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("days")),
                         FALSE, FALSE, 0);
     FILLED_ADD (hbox, 1, 2, 2, 3);
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     }
+    #endif
     #endif
     FRAME_NEW (_("History"));
     TABLE_NEW (3, 2);
