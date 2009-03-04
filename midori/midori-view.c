@@ -1563,6 +1563,8 @@ midori_view_construct_web_view (MidoriView* view)
                       katze_net_get_session (view->net), NULL);
     #endif
 
+    /* Load something to avoid a bug where WebKit might not set a main frame */
+    webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), "");
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
 
     g_object_connect (view->web_view,
