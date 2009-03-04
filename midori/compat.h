@@ -73,6 +73,10 @@ webkit_web_view_zoom_out               (WebKitWebView*     web_view);
 
 #endif
 
+#if !WEBKIT_CHECK_VERSION (1, 1, 1)
+    #define webkit_web_view_reload_bypass_cache webkit_web_view_reload
+#endif
+
 G_END_DECLS
 
 #endif /* __COMPAT_H__ */

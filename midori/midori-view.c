@@ -2347,7 +2347,10 @@ midori_view_reload (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
+    if (from_cache)
+        webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
+    else
+        webkit_web_view_reload_bypass_cache (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
