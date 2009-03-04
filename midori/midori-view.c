@@ -34,10 +34,6 @@
     #define D_(__domain, __message) __message
 #endif
 
-#ifndef WEBKIT_CHECK_VERSION
-    #define WEBKIT_CHECK_VERSION(a,b,c) 0
-#endif
-
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);

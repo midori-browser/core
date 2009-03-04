@@ -56,6 +56,8 @@ gtk_tool_item_set_tooltip_text         (GtkToolItem*       toolitem,
 
 #ifndef WEBKIT_CHECK_VERSION
 
+#define WEBKIT_CHECK_VERSION(a,b,c) 0
+
 gfloat
 webkit_web_view_get_zoom_level         (WebKitWebView*     web_view);
 
