@@ -2248,7 +2248,9 @@ midori_view_get_zoom_level (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), 1.0f);
 
-    return webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (view->web_view));
+    if (view->web_view != NULL)
+        return webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (view->web_view));
+    return 1.0f;
 }
 
 /**
