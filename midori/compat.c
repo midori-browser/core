@@ -73,7 +73,7 @@ webkit_web_view_get_zoom_level (WebKitWebView* web_view)
 {
     g_return_val_if_fail (WEBKIT_IS_WEB_VIEW (web_view), 1.0);
 
-    return 1.0;
+    return 1.0f;
 }
 
 void

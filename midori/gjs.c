@@ -15,6 +15,7 @@
 #include <glib/gi18n.h>
 /* Needed for versioning macros */
 #include <webkit/webkit.h>
+#include "compat.h"
 
 struct _GjsValue
 {
@@ -1022,12 +1023,7 @@ gjs_module_new (JSContextRef js_context,
 JSGlobalContextRef
 gjs_global_context_new (void)
 {
-    #ifdef WEBKIT_CHECK_VERSION
     #if WEBKIT_CHECK_VERSION (1, 0, 3)
-    #define HAVE_JSCONTEXTGROUP 1
-    #endif
-    #endif
-    #if HAVE_JSCONTEXTGROUP
     JSGlobalContextRef js_context = JSGlobalContextCreateInGroup (NULL, NULL);
     #else
     JSGlobalContextRef js_context = JSGlobalContextCreate (NULL);

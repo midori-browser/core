@@ -2246,13 +2246,9 @@ midori_view_get_proxy_item (MidoriView* view)
 gfloat
 midori_view_get_zoom_level (MidoriView* view)
 {
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), 1.0);
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), 1.0f);
 
-    #ifdef WEBKIT_CHECK_VERSION
-    if (view->web_view != NULL)
-        return webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (view->web_view));
-    #endif
-    return 1.0;
+    return webkit_web_view_get_zoom_level (WEBKIT_WEB_VIEW (view->web_view));
 }
 
 /**
@@ -2268,10 +2264,9 @@ midori_view_set_zoom_level (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    #ifdef WEBKIT_CHECK_VERSION
     webkit_web_view_set_zoom_level (
         WEBKIT_WEB_VIEW (view->web_view), zoom_level);
-    #endif
+    g_object_notify (G_OBJECT (view), "zoom-level");
 }
 
 gboolean
@@ -2279,7 +2274,7 @@ midori_view_can_zoom_in (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 1)
     return view->web_view != NULL;
     #else
     return FALSE;
@@ -2291,7 +2286,7 @@ midori_view_can_zoom_out (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 1)
     return view->web_view != NULL;
     #else
     return FALSE;
@@ -2440,7 +2435,7 @@ midori_view_print (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    #ifdef WEBKIT_CHECK_VERSION
+    #if WEBKIT_CHECK_VERSION (1, 0, 1)
     webkit_web_frame_print (webkit_web_view_get_main_frame (
         WEBKIT_WEB_VIEW (view->web_view)));
     #else

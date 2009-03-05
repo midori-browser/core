@@ -29,6 +29,7 @@
 #include "midori-websettings.h"
 
 #include "sokoke.h"
+#include "compat.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
@@ -1607,12 +1608,7 @@ midori_run_script (const gchar* filename)
     gchar* script;
     GError* error = NULL;
 
-    #ifdef WEBKIT_CHECK_VERSION
     #if WEBKIT_CHECK_VERSION (1, 0, 3)
-    #define HAVE_JSCONTEXTGROUP 1
-    #endif
-    #endif
-    #if HAVE_JSCONTEXTGROUP
     js_context = JSGlobalContextCreateInGroup (NULL, NULL);
     #else
     js_context = JSGlobalContextCreate (NULL);

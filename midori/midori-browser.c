@@ -252,7 +252,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "ZoomOut",
         midori_view_can_zoom_out (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "ZoomNormal",
-        midori_view_get_zoom_level (MIDORI_VIEW (view)) != 1.0);
+        midori_view_get_zoom_level (MIDORI_VIEW (view)) != 1.0f);
     _action_set_sensitive (browser, "Encoding",
         midori_browser_view_can_set_encoding (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "SourceView",
@@ -511,7 +511,7 @@ midori_view_notify_zoom_level_cb (GtkWidget*     view,
 {
     if (view == midori_browser_get_current_tab (browser))
         _action_set_sensitive (browser, "ZoomNormal",
-            midori_view_get_zoom_level (MIDORI_VIEW (view)) != 1.0);
+            midori_view_get_zoom_level (MIDORI_VIEW (view)) != 1.0f);
 }
 
 static void
