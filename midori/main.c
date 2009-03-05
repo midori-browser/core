@@ -1491,7 +1491,12 @@ midori_load_extensions (gpointer data)
 
                 if (module && g_module_symbol (module, "extension_init",
                                                (gpointer) &extension_init))
+                {
                     extension = extension_init ();
+                    /* FIXME: Validate the extension */
+                    /* Signal that we want the extension to load and save */
+                    midori_extension_get_config_dir (extension);
+                }
                 else
                 {
                     extension = g_object_new (MIDORI_TYPE_EXTENSION,

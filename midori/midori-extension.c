@@ -18,6 +18,8 @@
 #include "midori-app.h"
 
 #include <katze/katze.h>
+#include "sokoke.h"
+#include <glib/gi18n.h>
 
 G_DEFINE_TYPE (MidoriExtension, midori_extension, G_TYPE_OBJECT);
 
@@ -32,6 +34,7 @@ struct _MidoriExtensionPrivate
     gchar* config_dir;
     GList* lsettings;
     GHashTable* settings;
+    GKeyFile* key_file;
 };
 
 typedef struct
@@ -215,6 +218,28 @@ midori_extension_activate_cb (MidoriExtension* extension,
                               MidoriApp*       app)
 {
     GList* lsettings = g_list_first (extension->priv->lsettings);
+
+    /* If a configuration directory was requested before activation we
+       assume we should load and save settings. This is a detail that
+       extension writers shouldn't worry about. */
+    extension->priv->key_file = lsettings && extension->priv->config_dir
+        ? g_key_file_new () :  NULL;
+    if (extension->priv->key_file)
+    {
+        gchar* config_file;
+        GError* error = NULL;
+
+        config_file = g_build_filename (extension->priv->config_dir, "config", NULL);
+        if (!g_key_file_load_from_file (extension->priv->key_file, config_file,
+                                        G_KEY_FILE_KEEP_COMMENTS, &error))
+        {
+            if (error->code != G_FILE_ERROR_NOENT)
+                printf (_("The configuration of the extension '%s' couldn't be loaded: %s\n"),
+                        extension->priv->name, error->message);
+            g_error_free (error);
+        }
+    }
+
     while (lsettings)
     {
         MESettingString* setting = (MESettingString*)lsettings->data;
@@ -222,15 +247,32 @@ midori_extension_activate_cb (MidoriExtension* extension,
         if (setting->type == G_TYPE_BOOLEAN)
         {
             MESettingBoolean* setting_ = (MESettingBoolean*)setting;
-            setting_->value = setting_->default_value;
+            if (extension->priv->key_file)
+                setting_->value = sokoke_key_file_get_boolean_default (
+                    extension->priv->key_file,
+                    "settings", setting->name, setting_->default_value, NULL);
+            else
+                setting_->value = setting_->default_value;
         }
         else if (setting->type == G_TYPE_INT)
         {
             MESettingInteger* setting_ = (MESettingInteger*)setting;
-            setting_->value = setting_->default_value;
+            if (extension->priv->key_file)
+                setting_->value = sokoke_key_file_get_integer_default (
+                    extension->priv->key_file,
+                    "settings", setting->name, setting_->default_value, NULL);
+            else
+                setting_->value = setting_->default_value;
         }
         else if (setting->type == G_TYPE_STRING)
-            setting->value = g_strdup (setting->default_value);
+        {
+            if (extension->priv->key_file)
+                setting->value = sokoke_key_file_get_string_default (
+                    extension->priv->key_file,
+                    "settings", setting->name, setting->default_value, NULL);
+            else
+                setting->value = g_strdup (setting->default_value);
+        }
         else
             g_assert_not_reached ();
 
@@ -252,6 +294,7 @@ midori_extension_init (MidoriExtension* extension)
     extension->priv->lsettings = NULL;
     extension->priv->settings = g_hash_table_new_full (g_str_hash, g_str_equal,
         g_free, me_setting_free);
+    extension->priv->key_file = NULL;
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (midori_extension_activate_cb), NULL);
@@ -270,6 +313,8 @@ midori_extension_finalize (GObject* object)
     katze_assign (extension->priv->config_dir, NULL);
     g_list_free (extension->priv->lsettings);
     g_hash_table_destroy (extension->priv->settings);
+    if (extension->priv->key_file)
+        g_key_file_free (extension->priv->key_file);
 }
 
 static void
@@ -392,7 +437,8 @@ midori_extension_deactivate (MidoriExtension* extension)
  * files specific to the extension. For that purpose the 'name'
  * of the extension is actually part of the path.
  *
- * The path is actually created if it doesn't already exist.
+ * If settings are installed on the extension, they will be
+ * loaded from and saved to a file "config" in this path.
  *
  * Return value: a path, such as ~/.config/midori/extensions/name
  **/
@@ -406,7 +452,6 @@ midori_extension_get_config_dir (MidoriExtension* extension)
             g_get_user_config_dir (), PACKAGE_NAME, "extensions",
             extension->priv->name, NULL);
 
-    g_mkdir_with_parents (extension->priv->config_dir, 0700);
     return extension->priv->config_dir;
 }
 
@@ -488,6 +533,23 @@ midori_extension_set_boolean (MidoriExtension* extension,
     me_setting_type (setting, G_TYPE_BOOLEAN, return);
 
     setting->value = value;
+    if (extension->priv->key_file)
+    {
+        GError* error = NULL;
+        /* FIXME: Handle readonly folder/ file */
+        gchar* config_file = g_build_filename (extension->priv->config_dir,
+                                               "config", NULL);
+        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        g_key_file_set_boolean (extension->priv->key_file,
+                                "settings", name, value);
+        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
+        if (error)
+        {
+            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
+                    extension->priv->name, error->message);
+            g_error_free (error);
+        }
+    }
 }
 
 /**
@@ -568,6 +630,23 @@ midori_extension_set_integer (MidoriExtension* extension,
     me_setting_type (setting, G_TYPE_INT, return);
 
     setting->value = value;
+    if (extension->priv->key_file)
+    {
+        GError* error = NULL;
+        /* FIXME: Handle readonly folder/ file */
+        gchar* config_file = g_build_filename (extension->priv->config_dir,
+                                               "config", NULL);
+        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        g_key_file_set_integer (extension->priv->key_file,
+                                "settings", name, value);
+        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
+        if (error)
+        {
+            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
+                    extension->priv->name, error->message);
+            g_error_free (error);
+        }
+    }
 }
 
 /**
@@ -648,4 +727,21 @@ midori_extension_set_string (MidoriExtension* extension,
     me_setting_type (setting, G_TYPE_STRING, return);
 
     katze_assign (setting->value, g_strdup (value));
+    if (extension->priv->key_file)
+    {
+        GError* error = NULL;
+        /* FIXME: Handle readonly folder/ file */
+        gchar* config_file = g_build_filename (extension->priv->config_dir,
+                                               "config", NULL);
+        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        g_key_file_set_string (extension->priv->key_file,
+                                "settings", name, value);
+        sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
+        if (error)
+        {
+            printf (_("The configuration of the extension '%s' couldn't be saved: %s\n"),
+                    extension->priv->name, error->message);
+            g_error_free (error);
+        }
+    }
 }
