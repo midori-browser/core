@@ -182,6 +182,21 @@ midori_preferences_new (GtkWindow*         parent,
     return GTK_WIDGET (preferences);
 }
 
+static void
+midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
+                                                MidoriWebSettings* settings)
+{
+    GtkWidget* preferences = gtk_widget_get_toplevel (button);
+    GtkWidget* browser = katze_object_get_object (preferences, "transient-for");
+
+    if (GTK_IS_WINDOW (browser))
+    {
+        gchar* uri = katze_object_get_string (browser, "uri");
+        g_object_set (settings, "homepage", uri, NULL);
+        g_free (uri);
+    }
+}
+
 static gboolean
 proxy_download_manager_icon_cb (GtkWidget*     entry,
                                 GdkEventFocus* event,
@@ -399,9 +414,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (button, 1, 2, 0, 1);
     label = katze_property_label (settings, "homepage");
     INDENTED_ADD (label, 0, 1, 1, 2);
-    /* TODO: We need something like "use current website" */
+    hbox = gtk_hbox_new (FALSE, 4);
     entry = katze_property_proxy (settings, "homepage", NULL);
-    FILLED_ADD (entry, 1, 2, 1, 2);
+    gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+    if (parent && katze_object_has_property (parent, "uri"))
+    {
+        button = gtk_button_new ();
+        label = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO, GTK_ICON_SIZE_BUTTON);
+        gtk_button_set_image (GTK_BUTTON (button), label);
+        gtk_widget_set_tooltip_text (button, _("Use current page as homepage"));
+        g_signal_connect (button, "clicked",
+            G_CALLBACK (midori_preferences_homepage_current_clicked_cb), settings);
+        gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+    }
+    FILLED_ADD (hbox, 1, 2, 1, 2);
     button = katze_property_proxy (settings, "show-crash-dialog", "blurb");
     SPANNED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Transfers"));
