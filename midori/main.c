@@ -1326,34 +1326,21 @@ midori_soup_session_debug (SoupSession* session)
     }
 }
 
-/* The following code hooks up to any created soup session in order to
-   modify preferences. This is *not* a generally advisable technique
-   but merely a preliminary workaround until WebKit exposes its session. */
-static GObjectConstructed old_session_constructed_cb;
 static void
-soup_session_constructed_cb (GObject* object)
+midori_soup_session_prepare (SoupSession*       session,
+                             MidoriWebSettings* settings)
 {
-    MidoriApp* app;
-    MidoriWebSettings* settings;
-    SoupSession* session;
     SoupSessionFeature* feature;
     gchar* config_file;
-
-    if (old_session_constructed_cb)
-        old_session_constructed_cb (object);
-    app = g_type_get_qdata (SOUP_TYPE_SESSION,
-        g_quark_from_static_string ("midori-app"));
-    settings = katze_object_get_object (app, "settings");
-    session = SOUP_SESSION (object);
 
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     soup_session_settings_notify_ident_string_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
-        G_CALLBACK (soup_session_settings_notify_http_proxy_cb), object);
+        G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::auto-detect-proxy",
-        G_CALLBACK (soup_session_settings_notify_http_proxy_cb), object);
+        G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::ident-string",
-        G_CALLBACK (soup_session_settings_notify_ident_string_cb), object);
+        G_CALLBACK (soup_session_settings_notify_ident_string_cb), session);
 
     soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
     midori_soup_session_debug (session);
@@ -1364,6 +1351,29 @@ soup_session_constructed_cb (GObject* object)
                             config_file, (GDestroyNotify)g_free);
     soup_session_add_feature (session, feature);
 }
+
+#if !WEBKIT_CHECK_VERSION (1, 1, 1)
+/* The following code hooks up to any created soup session in order to
+   modify preferences. This is *not* a generally advisable technique
+   but merely a preliminary workaround until WebKit exposes its session. */
+static GObjectConstructed old_session_constructed_cb;
+static void
+soup_session_constructed_cb (GObject* object)
+{
+    MidoriApp* app;
+    MidoriWebSettings* settings;
+    SoupSession* session;
+
+    if (old_session_constructed_cb)
+        old_session_constructed_cb (object);
+    app = g_type_get_qdata (SOUP_TYPE_SESSION,
+        g_quark_from_static_string ("midori-app"));
+    settings = katze_object_get_object (app, "settings");
+    session = SOUP_SESSION (object);
+
+    midori_soup_session_prepare (session, settings);
+}
+#endif
 #endif
 
 static void
@@ -1670,7 +1680,9 @@ main (int    argc,
     KatzeItem* item;
     gchar* uri_ready;
     #if HAVE_LIBSOUP
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     GObjectClass* webkit_class;
+    #endif
     KatzeNet* net;
     SoupSession* s_session;
     #endif
@@ -1758,6 +1770,7 @@ main (int    argc,
     }
 
     #if HAVE_LIBSOUP
+    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
     webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
     if (!g_object_class_find_property (webkit_class, "session"))
     {
@@ -1773,6 +1786,7 @@ main (int    argc,
         G_OBJECT_CLASS (session_class)->constructed = soup_session_constructed_cb;
     }
     }
+    #endif
     #endif
 
     /* Load configuration files */
@@ -1918,27 +1932,24 @@ main (int    argc,
     }
     g_string_free (error_messages, TRUE);
 
-    #if HAVE_LIBSOUP
-    webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
-    if (g_object_class_find_property (webkit_class, "session"))
+    #if WEBKIT_CHECK_VERSION (1, 1, 1)
+    if (1)
     {
+        SoupSession* webkit_session = webkit_get_default_session ();
+
         net = katze_net_new ();
         s_session = katze_net_get_session (net);
         #if HAVE_LIBSOUP_2_25_2
+        g_type_set_qdata (SOUP_TYPE_SESSION,
+                          g_quark_from_static_string ("midori-app"), app);
         katze_assign (config_file, build_config_filename ("cookies.txt"));
-        jar = soup_cookie_jar_text_new (config_file, FALSE);
-        /* FIXME: Handle "accept-cookies" preference */
+        jar = soup_cookie_jar_new ();
         soup_session_add_feature (s_session, SOUP_SESSION_FEATURE (jar));
+        soup_session_add_feature (webkit_session, SOUP_SESSION_FEATURE (jar));
         g_object_unref (jar);
         #endif
-        soup_session_settings_notify_http_proxy_cb (settings, NULL, s_session);
-        soup_session_settings_notify_ident_string_cb (settings, NULL, s_session);
-        g_signal_connect (settings, "notify::http-proxy",
-            G_CALLBACK (soup_session_settings_notify_http_proxy_cb), s_session);
-        g_signal_connect (settings, "notify::ident-string",
-            G_CALLBACK (soup_session_settings_notify_ident_string_cb), s_session);
-        soup_session_add_feature_by_type (s_session, KATZE_TYPE_HTTP_AUTH);
-        midori_soup_session_debug (s_session);
+        midori_soup_session_prepare (s_session, settings);
+        midori_soup_session_prepare (webkit_session, settings);
         g_object_unref (net);
     }
     #endif
