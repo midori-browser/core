@@ -223,7 +223,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                                   GtkWidget*        menu,
                                   GtkWidget*        proxy)
 {
-    guint n, i;
+    guint i;
     KatzeItem* item;
     GtkWidget* menuitem;
     const gchar* icon_name;
@@ -231,11 +231,9 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     GtkWidget* image;
     GtkWidget* submenu;
 
-    n = katze_array_get_length (array);
-    if (n > 0)
-    for (i = 0; i < n; i++)
+    i = 0;
+    while ((item = katze_array_get_nth_item (array, i++)))
     {
-        item = katze_array_get_nth_item (array, i);
         /* FIXME: The menu item should reflect changes to the item  */
         if (!KATZE_IS_ARRAY (item) && !katze_item_get_uri (item))
         {
@@ -274,7 +272,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                 G_CALLBACK (katze_array_action_menu_item_activate_cb), array_action);
         gtk_widget_show (menuitem);
     }
-    else
+    if (!i)
     {
         menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
         gtk_widget_set_sensitive (menuitem, FALSE);
@@ -517,6 +515,7 @@ katze_array_action_connect_proxy (GtkAction* action,
         g_signal_connect (proxy, "select",
             G_CALLBACK (katze_array_action_proxy_clicked_cb), action);
     }
+    gtk_widget_set_sensitive (proxy, KATZE_ARRAY_ACTION (action)->array != NULL);
 }
 
 static void
@@ -568,9 +567,8 @@ katze_array_action_set_array (KatzeArrayAction* array_action,
         return;
 
     do
-    if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-
+        gtk_widget_set_sensitive (proxies->data, array != NULL);
     }
     while ((proxies = g_slist_next (proxies)));
 }
