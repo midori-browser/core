@@ -596,7 +596,7 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
 
         if (age > 7)
         {
-            g_object_set (renderer, "text", katze_item_get_token (item), NULL);
+            g_object_set (renderer, "text", katze_item_get_name (item), NULL);
         }
         else if (age > 6)
         {

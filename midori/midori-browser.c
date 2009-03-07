@@ -1796,8 +1796,9 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
         const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Preferences", "Window", "Bookmarks", "ReloadStop", "ZoomIn", "Separator",
-            "ZoomOut", "Back", "Forward", "Homepage", "Panel", "Trash", "Search" };
+            "Preferences", "Window", "Bookmarks", "RecentlyVisited",
+            "ReloadStop", "ZoomIn", "Separator", "ZoomOut", "Back", "Forward",
+            "Homepage", "Panel", "Trash", "Search" };
         GtkWidget* submenu;
         gsize i;
 
@@ -3336,7 +3337,7 @@ static const gchar* ui_markup =
     "<menuitem action='Location'/>"
     "<menuitem action='Search'/>"
     "<menuitem action='Trash'/>"
-    /* "<menuitem action='RecentlyVisited'/>" */
+    "<menuitem action='RecentlyVisited'/>"
    "</menu>"
    "<menuitem action='Bookmarks'/>"
    "<menu action='Tools'>"
@@ -3431,7 +3432,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
         strftime (token, sizeof (token), "%x", localtime (&now));
         parent = katze_array_new (KATZE_TYPE_ARRAY);
         katze_item_set_added (KATZE_ITEM (parent), day);
-        katze_item_set_token (KATZE_ITEM (parent), token);
+        katze_item_set_name (KATZE_ITEM (parent), token);
         katze_array_add_item (browser->history, parent);
         katze_array_add_item (parent, item);
     }
@@ -3442,12 +3443,18 @@ midori_browser_history_remove_item_cb (KatzeArray*    folder,
                                        KatzeItem*     item,
                                        MidoriBrowser* browser)
 {
-    GtkAction* location_action = _action_by_name (browser, "Location");
+    GtkAction* action;
+
+    action = _action_by_name (browser, "Location");
     midori_location_action_delete_item_from_uri (
-        MIDORI_LOCATION_ACTION (location_action), katze_item_get_uri (item));
+        MIDORI_LOCATION_ACTION (action), katze_item_get_uri (item));
     g_signal_handlers_disconnect_by_func (folder,
                                           midori_browser_history_remove_item_cb,
                                           browser);
+
+    action = _action_by_name (browser, "RecentlyVisited");
+    if ((KatzeArray*)item == katze_array_action_get_array (KATZE_ARRAY_ACTION (action)))
+        g_object_set (action, "array", NULL, NULL);
 }
 
 static void
@@ -3487,12 +3494,15 @@ midori_browser_history_clear_cb (KatzeArray*    history,
 {
     GtkAction* location_action = _action_by_name (browser, "Location");
     midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
+    g_object_set (_action_by_name (browser, "RecentlyVisited"),
+                  "array", NULL, NULL);
 }
 
 static void
 midori_browser_set_history (MidoriBrowser* browser,
                             KatzeArray*    history)
 {
+    KatzeItem* recently_visited;
     GtkAction* action;
     time_t now;
     gint64 day;
@@ -3508,12 +3518,17 @@ midori_browser_set_history (MidoriBrowser* browser,
         g_object_ref (history);
     katze_object_assign (browser->history, history);
 
-    midori_browser_history_clear_cb (browser->history, browser);
+    midori_browser_history_clear_cb (history, browser);
 
-    g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                  "array", browser->history, NULL);
+    if (history && ((recently_visited = katze_array_get_nth_item (history,
+        katze_array_get_length (KATZE_ARRAY (history)) - 1))))
+        g_object_set (_action_by_name (browser, "RecentlyVisited"),
+                      "array", recently_visited, NULL);
+    else
+        g_object_set (_action_by_name (browser, "RecentlyVisited"),
+                      "array", NULL, NULL);
 
-    if (!browser->history)
+    if (!history)
         return;
 
     g_signal_connect (browser->history, "clear",

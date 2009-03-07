@@ -762,7 +762,7 @@ midori_history_add_items (void*  data,
                     katze_item_set_added (KATZE_ITEM (parent), day);
                     strftime (token, sizeof (token), "%x",
                           localtime ((time_t *)&date));
-                    katze_item_set_token (KATZE_ITEM (parent), token);
+                    katze_item_set_name (KATZE_ITEM (parent), token);
                     katze_array_add_item (array, parent);
                 }
                 katze_array_add_item (parent, item);
