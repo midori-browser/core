@@ -149,6 +149,7 @@ def configure (conf):
         sqlite = 'no '
     conf.define ('HAVE_SQLITE', [0,1][sqlite == 'yes'])
 
+    conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
     check_pkg ('gio-2.0', '2.16.0', False)
