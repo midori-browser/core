@@ -1689,7 +1689,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<body><h1>%s</h1>"
                     "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px;\">"
-                    "<p />The document %s of type %s cannot be displayed."
+                    "<p />The document %s of type '%s' cannot be displayed."
                     "</body></html>",
                     title, title, view->uri, view->mime_type);
                 g_free (title);
