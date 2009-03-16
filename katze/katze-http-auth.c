@@ -15,10 +15,7 @@
 
 #include "katze-http-auth.h"
 
-#if HAVE_LIBSOUP
-    #include <libsoup/soup.h>
-#endif
-
+#include <libsoup/soup.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
@@ -32,7 +29,6 @@ struct _KatzeHttpAuthClass
     GObjectClass parent_class;
 };
 
-#if HAVE_LIBSOUP
 static void
 katze_http_auth_session_feature_iface_init (SoupSessionFeatureInterface *iface,
                                             gpointer                     data);
@@ -202,9 +198,6 @@ katze_http_auth_session_feature_iface_init (SoupSessionFeatureInterface *iface,
     iface->attach = katze_http_auth_attach;
     iface->detach = katze_http_auth_detach;
 }
-#else
-G_DEFINE_TYPE (KatzeHttpAuth, katze_http_auth, G_TYPE_OBJECT)
-#endif
 
 static void
 katze_http_auth_class_init (KatzeHttpAuthClass* class)
