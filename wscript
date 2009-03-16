@@ -121,18 +121,6 @@ def configure (conf):
         unique = 'no '
     conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
 
-    if option_enabled ('libsoup'):
-        check_pkg ('libsoup-2.4', '2.23.1', False)
-        check_pkg ('libsoup-2.4', '2.25.2', False, var='LIBSOUP_2_25_2')
-        libsoup = ['N/A','yes'][conf.env['HAVE_LIBSOUP'] == 1]
-        libsoup_25_2 = ['N/A','yes'][conf.env['HAVE_LIBSOUP_2_25_2'] == 1]
-    else:
-        option_checkfatal ('libsoup', 'libsoup')
-        libsoup = 'no '
-        libsoup_25_2 = 'no '
-    conf.define ('HAVE_LIBSOUP', [0,1][libsoup == 'yes'])
-    conf.define ('HAVE_LIBSOUP_2_25_2', [0,1][libsoup_25_2 == 'yes'])
-
     if option_enabled ('libidn'):
         check_pkg ('libidn', '1.0', False)
         libidn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
@@ -152,9 +140,11 @@ def configure (conf):
     conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
-    check_pkg ('gio-2.0', '2.16.0', False)
+    check_pkg ('gio-2.0', '2.16.0')
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
-    check_pkg ('webkit-1.0', '0.1')
+    check_pkg ('webkit-1.0', '1.1.1')
+    check_pkg ('libsoup-2.4', '2.25.2')
+    conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     check_pkg ('libxml-2.0', '2.6')
 
     if option_enabled ('hildon'):
@@ -228,34 +218,6 @@ def configure (conf):
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
             Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
             Utils.pprint ('RED', 'Please use an older or newer version.')
-    libsoup_version = conf.check_cfg (modversion='libsoup-2.4')
-    Utils.pprint ('WHITE', 'Icons, Source, Save: ' + libsoup + ' (libSoup', sep='')
-    if (libsoup == 'yes'):
-        Utils.pprint ('GREEN', libsoup_version, sep='')
-    else:
-        Utils.pprint ('RED', '2.23.1', sep='')
-    print ")"
-    Utils.pprint ('WHITE', 'Persistent cookies:  ' + libsoup_25_2 + ' (libSoup', sep='')
-    if (libsoup_25_2 == 'yes'):
-        Utils.pprint ('GREEN', libsoup_version, sep='')
-    else:
-        Utils.pprint ('RED', '2.25.2', sep='')
-    print ")"
-    # if 'soup-2.4' in conf.env['LIB_WEBKIT']:
-    webkit_binary = conf.env.get_flat ('LIBPATH_WEBKIT') + '/libwebkit-1.0.so'
-    try:
-        ldd = Utils.cmd_output (['ldd', webkit_binary], silent=True)
-        if ldd != '':
-            found = False
-            for library in ldd.split ('\n'):
-                if library[:8] == '\tlibsoup':
-                    found = True
-            if found:
-                Utils.pprint ('GREEN', 'WebKit was built with libsoup')
-            else:
-                Utils.pprint ('RED', 'WebKit was NOT built with libsoup')
-    except:
-        pass
     print "IDN support:         " + libidn + " (libidn)"
     print "Persistent history:  " + sqlite + " (sqlite3)"
     print "Maemo integration:   " + hildon + " (hildon)"
@@ -295,7 +257,6 @@ def set_options (opt):
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group)
-    add_enable_option ('libsoup', 'icon and view source support', group)
     add_enable_option ('libidn', 'international domain name support', group)
     add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('addons', 'building of extensions', group)
