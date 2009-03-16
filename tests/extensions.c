@@ -15,8 +15,6 @@
 
 #include "midori.h"
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
-
 const gpointer magic = (gpointer)0xdeadbeef;
 
 static void
@@ -137,5 +135,3 @@ main (int    argc,
 
     return g_test_run ();
 }
-
-#endif

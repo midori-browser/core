@@ -17,8 +17,6 @@
 #include "midori-stock.h"
 #include "sokoke.h"
 
-#if GLIB_CHECK_VERSION (2, 16, 0)
-
 static void
 browser_create (void)
 {
@@ -62,5 +60,3 @@ main (int    argc,
 
     return g_test_run ();
 }
-
-#endif

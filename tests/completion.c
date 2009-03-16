@@ -15,8 +15,6 @@
 
 #include "midori.h"
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
-
 typedef struct
 {
     const gchar* uri;
@@ -293,5 +291,3 @@ main (int    argc,
 
     return g_test_run ();
 }
-
-#endif

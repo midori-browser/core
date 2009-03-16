@@ -16,8 +16,6 @@
 #include "midori.h"
 #include "midori-bookmarks.h"
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
-
 static void
 bookmarks_panel_create (void)
 {
@@ -157,5 +155,3 @@ main (int    argc,
 
     return g_test_run ();
 }
-
-#endif

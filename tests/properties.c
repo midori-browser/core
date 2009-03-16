@@ -17,8 +17,6 @@
 #include "midori-bookmarks.h"
 #include "sokoke.h"
 
-#if GLIB_CHECK_VERSION(2, 16, 0)
-
 #define pspec_is_writable(pspec) (pspec->flags & G_PARAM_WRITABLE \
     && !(pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY)))
 
@@ -185,5 +183,3 @@ main (int    argc,
 
     return g_test_run ();
 }
-
-#endif
