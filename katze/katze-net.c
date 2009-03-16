@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -15,9 +15,7 @@
 
 #include "katze-net.h"
 
-#if HAVE_LIBSOUP
-    #include <libsoup/soup.h>
-#endif
+#include <libsoup/soup.h>
 
 struct _KatzeNet
 {
@@ -27,9 +25,7 @@ struct _KatzeNet
     gchar* cache_path;
     guint cache_size;
 
-    #if HAVE_LIBSOUP
     SoupSession* session;
-    #endif
 };
 
 struct _KatzeNetClass
@@ -61,20 +57,16 @@ katze_net_object_maybe_unref (gpointer object)
 static void
 katze_net_init (KatzeNet* net)
 {
-    #if HAVE_LIBSOUP
     static SoupSession* session = NULL;
-    #endif
 
     net->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
                                          g_free, katze_net_object_maybe_unref);
     net->cache_path = g_build_filename (g_get_user_cache_dir (),
                                         PACKAGE_NAME, NULL);
 
-    #if HAVE_LIBSOUP
     if (!session)
         session = soup_session_async_new ();
     net->session = session;
-    #endif
 }
 
 static void
@@ -126,11 +118,7 @@ katze_net_get_session (KatzeNet* net)
 {
     g_return_val_if_fail (KATZE_IS_NET (net), NULL);
 
-    #if HAVE_LIBSOUP
     return net->session;
-    #else
-    return NULL;
-    #endif
 }
 
 typedef struct
@@ -173,11 +161,7 @@ katze_net_get_cached_path (KatzeNet*    net,
     else
         cache_path = net->cache_path;
     g_mkdir_with_parents (cache_path, 0700);
-    #if GLIB_CHECK_VERSION (2, 16, 0)
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
-    #else
-    checksum = g_strdup_printf ("%u", g_str_hash (uri));
-    #endif
 
     extension = g_strrstr (uri, ".");
     cached_filename = g_strdup_printf ("%s%s", checksum,
@@ -190,7 +174,6 @@ katze_net_get_cached_path (KatzeNet*    net,
     return cached_path;
 }
 
-#if HAVE_LIBSOUP
 static void
 katze_net_got_body_cb (SoupMessage*  msg,
                        KatzeNetPriv* priv);
@@ -262,7 +245,6 @@ katze_net_finished_cb (SoupMessage*  msg,
 {
     katze_net_priv_free (priv);
 }
-#endif
 
 static gboolean
 katze_net_local_cb (KatzeNetPriv* priv)
@@ -355,9 +337,7 @@ katze_net_load_uri (KatzeNet*          net,
 {
     KatzeNetRequest* request;
     KatzeNetPriv* priv;
-    #if HAVE_LIBSOUP
     SoupMessage* msg;
-    #endif
 
     g_return_if_fail (KATZE_IS_NET (net));
     g_return_if_fail (uri != NULL);
@@ -377,7 +357,6 @@ katze_net_load_uri (KatzeNet*          net,
     priv->user_data = user_data;
     priv->request = request;
 
-    #if HAVE_LIBSOUP
     if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
     {
         msg = soup_message_new ("GET", uri);
@@ -392,7 +371,6 @@ katze_net_load_uri (KatzeNet*          net,
         soup_session_queue_message (net->session, msg, NULL, NULL);
         return;
     }
-    #endif
 
     if (g_str_has_prefix (uri, "file://"))
     {
