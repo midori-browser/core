@@ -23,9 +23,7 @@
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
 #include <string.h>
-#if GLIB_CHECK_VERSION (2, 16, 0)
-    #include <gio/gio.h>
-#endif
+#include <gio/gio.h>
 
 struct _MidoriAddons
 {
@@ -347,7 +345,6 @@ _addons_toggle_disable_button (MidoriAddons* addons,
     gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 }
 
-#if GLIB_CHECK_VERSION (2, 16, 0)
 static void
 midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
                                          GFile*            child,
@@ -357,7 +354,6 @@ midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
 {
     midori_addons_update_elements (addons);
 }
-#endif
 
 static void
 midori_addons_treeview_cursor_changed (GtkTreeView*  treeview,
@@ -432,11 +428,6 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
         _addons_get_folder (addons));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
-    #if GLIB_CHECK_VERSION (2, 16, 0)
-    /* FIXME: Without GIO clicking this button is the only
-              way to update the list */
-    midori_addons_update_elements (addons);
-    #endif
 }
 
 static void
@@ -606,9 +597,6 @@ _metadata_from_file (const gchar* filename,
     return TRUE;
 }
 
-#define HAVE_GREGEX GLIB_CHECK_VERSION (2, 14, 0)
-
-#if HAVE_GREGEX
 static gchar*
 _convert_to_simple_regexp (const gchar* pattern)
 {
@@ -661,37 +649,6 @@ _convert_to_simple_regexp (const gchar* pattern)
     return dest;
 }
 
-#else
-
-static bool
-_match_with_wildcard (const gchar* str,
-                      const gchar* pattern)
-{
-    gchar** parts;
-    gchar** parts_ref;
-    const gchar* subpart;
-    gchar* newsubpart;
-
-    parts = g_strsplit (pattern, "*", 0);
-    parts_ref = parts;
-    subpart = str;
-    do
-    {
-        newsubpart = g_strstr_len (subpart, strlen (subpart), *parts);
-        if (!newsubpart)
-        {
-            g_strfreev (parts_ref);
-            return FALSE;
-        }
-        subpart = newsubpart + strlen (*parts);
-        parts++;
-    }
-    while (*parts);
-    g_strfreev (parts_ref);
-    return TRUE;
-}
-#endif
-
 static gboolean
 _may_load_script (const gchar* uri,
                   GSList**     includes,
@@ -699,12 +656,7 @@ _may_load_script (const gchar* uri,
 {
     gboolean match;
     GSList* list;
-    #if HAVE_GREGEX
     gchar* re;
-    #else
-    guint uri_len;
-    guint pattern_len;
-    #endif
 
     if (*includes)
         match = FALSE;
@@ -712,12 +664,8 @@ _may_load_script (const gchar* uri,
         match = TRUE;
 
     list = *includes;
-    #if !HAVE_GREGEX
-    uri_len = strlen (uri);
-    #endif
     while (list)
     {
-        #if HAVE_GREGEX
         re = _convert_to_simple_regexp (list->data);
         if (g_regex_match_simple (re, uri, 0, 0))
         {
@@ -725,19 +673,6 @@ _may_load_script (const gchar* uri,
             break;
         }
         g_free (re);
-        #else
-        pattern_len = strlen (list->data);
-        if (!g_ascii_strncasecmp (uri, list->data, MAX (uri_len, pattern_len)))
-        {
-            match = TRUE;
-            break;
-        }
-        else if (_match_with_wildcard (uri, list->data))
-        {
-            match = TRUE;
-            break;
-        }
-        #endif
         list = g_slist_next (list);
     }
     if (!match)
@@ -747,7 +682,6 @@ _may_load_script (const gchar* uri,
     list = *excludes;
     while (list)
     {
-        #if HAVE_GREGEX
         re = _convert_to_simple_regexp (list->data);
         if (g_regex_match_simple (re, uri, 0, 0))
         {
@@ -755,19 +689,6 @@ _may_load_script (const gchar* uri,
             break;
         }
         g_free (re);
-        #else
-        pattern_len = strlen (list->data);
-        if (!g_ascii_strncasecmp (uri, list->data, MAX (uri_len, pattern_len)))
-        {
-            match = FALSE;
-            break;
-        }
-        else if (_match_with_wildcard (uri, list->data))
-        {
-            match = FALSE;
-            break;
-        }
-         #endif
         list = g_slist_next (list);
     }
     return match;
@@ -925,13 +846,11 @@ midori_addons_new (MidoriAddonKind kind,
                    GtkWidget*      web_widget)
 {
     MidoriAddons* addons;
-    #if GLIB_CHECK_VERSION (2, 16, 0)
     GSList* directories;
     GSList* list;
     GFile* directory;
     GError* error;
     GFileMonitor* monitor;
-    #endif
 
     g_return_val_if_fail (GTK_IS_WIDGET (web_widget), NULL);
 
@@ -946,7 +865,6 @@ midori_addons_new (MidoriAddonKind kind,
 
     midori_addons_update_elements (addons);
 
-    #if GLIB_CHECK_VERSION (2, 16, 0)
     directories = _addons_get_directories (addons);
     list = directories;
     while (directories)
@@ -967,7 +885,6 @@ midori_addons_new (MidoriAddonKind kind,
             G_CALLBACK (midori_addons_directory_monitor_changed), addons);
     }
     g_slist_free (list);
-#endif
 
     return GTK_WIDGET (addons);
 }
