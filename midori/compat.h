@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -16,25 +16,30 @@
     #include <config.h>
 #endif
 
-#include <glib.h>
+#include <webkit/webkit.h>
+
+G_BEGIN_DECLS
 
 #if !GLIB_CHECK_VERSION (2, 14, 0)
     #define G_PARAM_STATIC_STRINGS \
     (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif
 
-#if GLIB_CHECK_VERSION (2, 16, 0)
-    #include <gio/gio.h>
-#endif
-#include <webkit/webkit.h>
-
-G_BEGIN_DECLS
-
 #if !GLIB_CHECK_VERSION (2, 16, 0)
 
 gint
 g_strcmp0 (const gchar* string1,
            const gchar* string2);
+
+#endif
+
+#if !GTK_CHECK_VERSION (2, 14, 0)
+
+gboolean
+gtk_show_uri                           (GdkScreen*         screen,
+                                        const gchar*       uri,
+                                        guint32            timestamp,
+                                        GError**           error);
 
 #endif
 

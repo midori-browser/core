@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,21 @@ g_strcmp0 (const gchar* string1,
     if (!string2)
         return string1 != string2;
     return strcmp (string1, string2);
+}
+
+#endif
+
+#if !GTK_CHECK_VERSION (2, 14, 0)
+
+gboolean
+gtk_show_uri (GdkScreen*   screen,
+              const gchar* uri,
+              guint32      timestamp,
+              GError**     error)
+{
+    g_return_val_if_fail (uri != NULL, FALSE);
+
+    return g_app_info_launch_default_for_uri (uri, NULL, NULL);
 }
 
 #endif

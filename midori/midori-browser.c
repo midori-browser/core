@@ -2777,9 +2777,13 @@ _action_about_activate_email (GtkAboutDialog* about,
                               const gchar*    uri,
                               gpointer        user_data)
 {
-    gchar* command = g_strconcat ("xdg-open ", uri, NULL);
-    g_spawn_command_line_async (command, NULL);
-    g_free (command);
+    if (!gtk_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL))
+    {
+        /* Fallback to Exo for example if GConf isn't setup */
+        gchar* command = g_strconcat ("exo-open ", uri, NULL);
+        g_spawn_command_line_async (command, NULL);
+        g_free (command);
+    }
 }
 
 static void
