@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -1129,16 +1129,14 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
 }
 
 static gboolean
-webkit_web_view_mime_type_decision_cb (GtkWidget*      web_view,
-                                       WebKitWebFrame* web_frame,
-                                       gpointer        request,
-                                       const gchar*    mime_type,
-                                       gpointer        decision,
-                                       MidoriView*     view)
+webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
+                                       WebKitWebFrame*          web_frame,
+                                       WebKitNetworkRequest*    request,
+                                       const gchar*             mime_type,
+                                       WebKitWebPolicyDecision* decision,
+                                       MidoriView*              view)
 {
-    #if WEBKIT_CHECK_VERSION (1, 0, 0)
     gchar* uri;
-    #endif
 
     if (web_frame != webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
         return FALSE;
@@ -1150,23 +1148,13 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*      web_view,
     /* TODO: Display contents with a Viewable if WebKit can't do it */
     /* TODO: Offer downloading file if it cannot be displayed at all */
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 0)
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
-    #else
-    if (g_str_has_prefix (mime_type, "image/") ||
-        g_strrstr (mime_type, "script") ||
-        g_str_has_prefix (mime_type, "text/") || g_strrstr (mime_type, "xml"))
-    #endif
         return FALSE;
 
-    #if WEBKIT_CHECK_VERSION (1, 0, 0)
     uri = g_strdup_printf ("error:nodisplay %s",
         webkit_network_request_get_uri (request));
     midori_view_set_uri (view, uri);
     g_free (uri);
-    #else
-    midori_view_set_uri (view, "error:nodisplay ");
-    #endif
 
     return TRUE;
 }
@@ -1553,11 +1541,6 @@ midori_view_construct_web_view (MidoriView* view)
     gpointer inspector;
 
     view->web_view = webkit_web_view_new ();
-    if (g_object_class_find_property (G_OBJECT_GET_CLASS (view->web_view), "session"))
-    #if HAVE_LIBSOUP
-        g_object_set (view->web_view, "session",
-                      katze_net_get_session (view->net), NULL);
-    #endif
 
     /* Load something to avoid a bug where WebKit might not set a main frame */
     webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), "");
@@ -1590,14 +1573,8 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_console_message_cb, view,
                       "signal::window-object-cleared",
                       webkit_web_view_window_object_cleared_cb, view,
-                      NULL);
-    if (g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW))
-        g_object_connect (view->web_view,
                       "signal::create-web-view",
                       webkit_web_view_create_web_view_cb, view,
-                      NULL);
-    if (g_signal_lookup ("mime-type-policy-decision-requested", WEBKIT_TYPE_WEB_VIEW))
-        g_object_connect (view->web_view,
                       "signal::mime-type-policy-decision-requested",
                       webkit_web_view_mime_type_decision_cb, view,
                       NULL);
@@ -1608,24 +1585,17 @@ midori_view_construct_web_view (MidoriView* view)
 
     if (view->settings)
     {
-        g_object_set (view->web_view, "settings", view->settings, NULL);
-        if (katze_object_has_property (view->web_view, "full-content-zoom"))
-            g_object_set (view->web_view, "full-content-zoom",
-                katze_object_get_boolean (view->settings,
-                                          "zoom-text-and-images"), NULL);
+        g_object_set (view->web_view, "settings", view->settings,
+            "full-content-zoom", katze_object_get_boolean (view->settings,
+                "zoom-text-and-images"), NULL);
     }
 
     gtk_widget_show (view->web_view);
     gtk_container_add (GTK_CONTAINER (view), view->web_view);
 
-    if (katze_object_has_property (view->web_view, "web-inspector"))
-    {
-        inspector = katze_object_get_object (view->web_view, "web-inspector");
-        g_object_connect (inspector,
-                          "signal::inspect-web-view",
-                          webkit_web_inspector_inspect_web_view_cb, view,
-                          NULL);
-    }
+    inspector = katze_object_get_object (view->web_view, "web-inspector");
+    g_object_connect (inspector, "signal::inspect-web-view",
+                      webkit_web_inspector_inspect_web_view_cb, view, NULL);
 }
 
 /**
@@ -2276,11 +2246,7 @@ midori_view_can_zoom_in (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    #if WEBKIT_CHECK_VERSION (1, 0, 1)
     return view->web_view != NULL;
-    #else
-    return FALSE;
-    #endif
 }
 
 gboolean
@@ -2288,11 +2254,7 @@ midori_view_can_zoom_out (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    #if WEBKIT_CHECK_VERSION (1, 0, 1)
     return view->web_view != NULL;
-    #else
-    return FALSE;
-    #endif
 }
 
 gboolean
@@ -2307,10 +2269,8 @@ midori_view_can_view_source (MidoriView* view)
         && !g_strrstr (view->mime_type, "xml"))
         return FALSE;
 
-    #if HAVE_LIBSOUP
     if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
         return TRUE;
-    #endif
     if (g_str_has_prefix (uri, "file://"))
         return TRUE;
     return FALSE;
@@ -2437,13 +2397,8 @@ midori_view_print (MidoriView* view)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    #if WEBKIT_CHECK_VERSION (1, 0, 1)
     webkit_web_frame_print (webkit_web_view_get_main_frame (
         WEBKIT_WEB_VIEW (view->web_view)));
-    #else
-    webkit_web_view_execute_script (
-        WEBKIT_WEB_VIEW (view->web_view), "print();");
-    #endif
 }
 
 /**
@@ -2535,9 +2490,7 @@ midori_view_execute_script (MidoriView*  view,
 {
     WebKitWebFrame* web_frame;
     JSContextRef js_context;
-    #if HAVE_LIBSOUP
     gchar* script_decoded;
-    #endif
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
     g_return_val_if_fail (script != NULL, FALSE);
@@ -2545,7 +2498,6 @@ midori_view_execute_script (MidoriView*  view,
     /* FIXME Actually store exception. */
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
-    #if HAVE_LIBSOUP
     if ((script_decoded = soup_uri_decode (script)))
     {
         webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view),
@@ -2553,7 +2505,6 @@ midori_view_execute_script (MidoriView*  view,
         g_free (script_decoded);
     }
     else
-    #endif
         webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), script);
     return TRUE;
 }
