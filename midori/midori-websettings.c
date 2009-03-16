@@ -593,8 +593,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
-    (g_signal_lookup ("create-web-view", WEBKIT_TYPE_WEB_VIEW)
-        ? G_PARAM_READWRITE : G_PARAM_READABLE) | G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_EXTERNAL_PAGES_IN,
@@ -647,58 +646,21 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
 
-    if (!g_object_class_find_property (gobject_class, "enforce-96-dpi"))
     /**
-    * MidoriWebSettings:enforce-96-dpi:
-    *
-    * Whether to enforce a resolution of 96 DPI.
-    *
-    * Since: 0.1.2
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_ENFORCE_96_DPI,
-                                     g_param_spec_boolean (
-                                     "enforce-96-dpi",
-                                     "Enforce 96 DPI",
-                                     "Whether to enforce a resolution of 96 DPI",
-                                     FALSE,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-    if (!g_object_class_find_property (gobject_class, "enable-developer-extras"))
-    /**
-    * MidoriWebSettings:enable-developer-extras:
-    *
-    * Whether to enable extra developer tools.
-    *
-    * Since: 0.1.2
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_ENABLE_DEVELOPER_EXTRAS,
-                                     g_param_spec_boolean (
-                                     "enable-developer-extras",
-                                     "Enable Developer Extras",
-                                     "Whether to enable extra developer tools",
-                                     FALSE,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-    if (!g_object_class_find_property (gobject_class, "zoom-text-and-images"))
-    /**
-    * MidoriWebSettings:zoom-text-and-images:
-    *
-    * Whether to zoom text and images.
-    *
-    * Since: 0.1.3
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_ZOOM_TEXT_AND_IMAGES,
-                                     g_param_spec_boolean (
-                                     "zoom-text-and-images",
-                                     _("Zoom Text and Images"),
-                                     _("Whether to zoom text and images"),
-                                     FALSE,
-    (g_object_class_find_property (g_type_class_ref (WEBKIT_TYPE_WEB_VIEW),
-        "full-content-zoom") ? G_PARAM_READWRITE : G_PARAM_READABLE)
-        | G_PARAM_STATIC_STRINGS));
+     * MidoriWebSettings:zoom-text-and-images:
+     *
+     * Whether to zoom text and images.
+     *
+     * Since: 0.1.3
+     */
+     g_object_class_install_property (gobject_class,
+                                      PROP_ZOOM_TEXT_AND_IMAGES,
+                                      g_param_spec_boolean (
+                                      "zoom-text-and-images",
+                                      _("Zoom Text and Images"),
+                                      _("Whether to zoom text and images"),
+                                      FALSE,
+                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriWebSettings:find-while-typing:
@@ -724,11 +686,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("What type of cookies to accept"),
                                      MIDORI_TYPE_ACCEPT_COOKIES,
                                      MIDORI_ACCEPT_COOKIES_ALL,
-                                     #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-                                     #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-                                     #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_ORIGINAL_COOKIES_ONLY,
@@ -795,11 +753,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Proxy Server"),
                                      _("The proxy server used for HTTP connections"),
                                      NULL,
-                                     #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-                                     #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-                                     #endif
 
     /**
     * MidoriWebSettings:auto-detect-proxy:
@@ -815,11 +769,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Detect proxy server automatically"),
         _("Whether to detect the proxy server automatically from the environment"),
                                      TRUE,
-                                     #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-                                     #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-                                     #endif
 
     /**
     * MidoriWebSettings:identify-as:
@@ -837,11 +787,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("What to identify as to web pages"),
                                      MIDORI_TYPE_IDENTITY,
                                      MIDORI_IDENT_MIDORI,
-                                     #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-                                     #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-                                     #endif
 
     /**
     * MidoriWebSettings:ident-string:
@@ -857,11 +803,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Identification string"),
                                      _("The application identification string"),
                                      NULL,
-                                     #if HAVE_LIBSOUP
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-                                     #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-                                     #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_CACHE_SIZE,
