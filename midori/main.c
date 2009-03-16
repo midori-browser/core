@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
@@ -42,8 +42,7 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
-#include <gtk/gtk.h>
-#include <JavaScriptCore/JavaScript.h>
+#include <webkit/webkit.h>
 
 #if HAVE_LIBXML
     #include <libxml/parser.h>
@@ -52,10 +51,6 @@
 
 #if HAVE_SQLITE
     #include <sqlite3.h>
-#endif
-
-#if HAVE_LIBSOUP
-    #include <libsoup/soup.h>
 #endif
 
 #if ENABLE_NLS
@@ -1277,9 +1272,6 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
                          G_CALLBACK (midori_browser_session_cb), session, NULL);
 }
 
-#if HAVE_LIBSOUP
-typedef void (*GObjectConstructed) (GObject*);
-
 static void
 soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
                                             GParamSpec*        pspec,
@@ -1351,30 +1343,6 @@ midori_soup_session_prepare (SoupSession*       session,
                             config_file, (GDestroyNotify)g_free);
     soup_session_add_feature (session, feature);
 }
-
-#if !WEBKIT_CHECK_VERSION (1, 1, 1)
-/* The following code hooks up to any created soup session in order to
-   modify preferences. This is *not* a generally advisable technique
-   but merely a preliminary workaround until WebKit exposes its session. */
-static GObjectConstructed old_session_constructed_cb;
-static void
-soup_session_constructed_cb (GObject* object)
-{
-    MidoriApp* app;
-    MidoriWebSettings* settings;
-    SoupSession* session;
-
-    if (old_session_constructed_cb)
-        old_session_constructed_cb (object);
-    app = g_type_get_qdata (SOUP_TYPE_SESSION,
-        g_quark_from_static_string ("midori-app"));
-    settings = katze_object_get_object (app, "settings");
-    session = SOUP_SESSION (object);
-
-    midori_soup_session_prepare (session, settings);
-}
-#endif
-#endif
 
 static void
 button_modify_preferences_clicked_cb (GtkWidget*         button,
@@ -1618,11 +1586,7 @@ midori_run_script (const gchar* filename)
     gchar* script;
     GError* error = NULL;
 
-    #if WEBKIT_CHECK_VERSION (1, 0, 3)
     js_context = JSGlobalContextCreateInGroup (NULL, NULL);
-    #else
-    js_context = JSGlobalContextCreate (NULL);
-    #endif
 
     if (g_file_get_contents (filename, &script, NULL, &error))
     {
@@ -1679,16 +1643,9 @@ main (int    argc,
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
-    #if HAVE_LIBSOUP
-    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
-    GObjectClass* webkit_class;
-    #endif
     KatzeNet* net;
     SoupSession* s_session;
-    #endif
-    #if HAVE_LIBSOUP_2_25_2
     SoupCookieJar* jar;
-    #endif
     #if HAVE_SQLITE
     sqlite3* db;
     gint max_history_age;
@@ -1768,26 +1725,6 @@ main (int    argc,
         /* FIXME: Allow killing the existing instance */
         return 1;
     }
-
-    #if HAVE_LIBSOUP
-    #if !WEBKIT_CHECK_VERSION (1, 1, 1)
-    webkit_class = g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
-    if (!g_object_class_find_property (webkit_class, "session"))
-    {
-    /* This is a nasty trick that allows us to manipulate preferences
-       even without having a pointer to the session. */
-    soup_session_get_type ();
-    SoupSessionClass* session_class = g_type_class_ref (SOUP_TYPE_SESSION);
-    if (session_class)
-    {
-        g_type_set_qdata (SOUP_TYPE_SESSION,
-                          g_quark_from_static_string ("midori-app"), app);
-        old_session_constructed_cb = G_OBJECT_CLASS (session_class)->constructed;
-        G_OBJECT_CLASS (session_class)->constructed = soup_session_constructed_cb;
-    }
-    }
-    #endif
-    #endif
 
     /* Load configuration files */
     error_messages = g_string_new (NULL);
@@ -1932,14 +1869,12 @@ main (int    argc,
     }
     g_string_free (error_messages, TRUE);
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 1)
     if (1)
     {
         SoupSession* webkit_session = webkit_get_default_session ();
 
         net = katze_net_new ();
         s_session = katze_net_get_session (net);
-        #if HAVE_LIBSOUP_2_25_2
         g_type_set_qdata (SOUP_TYPE_SESSION,
                           g_quark_from_static_string ("midori-app"), app);
         katze_assign (config_file, build_config_filename ("cookies.txt"));
@@ -1947,12 +1882,10 @@ main (int    argc,
         soup_session_add_feature (s_session, SOUP_SESSION_FEATURE (jar));
         soup_session_add_feature (webkit_session, SOUP_SESSION_FEATURE (jar));
         g_object_unref (jar);
-        #endif
         midori_soup_session_prepare (s_session, settings);
         midori_soup_session_prepare (webkit_session, settings);
         g_object_unref (net);
     }
-    #endif
 
     /* Open as many tabs as we have uris, seperated by pipes */
     i = 0;
