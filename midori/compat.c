@@ -13,24 +13,6 @@
 
 #include <string.h>
 
-#if !GLIB_CHECK_VERSION(2, 16, 0)
-
-/* Glib string function
-   Copyright (C) 2008 Tim Janik <timj@imendio.com>
-   Copied from Glib 2.16, coding style adjusted */
-gint
-g_strcmp0 (const gchar* string1,
-           const gchar* string2)
-{
-    if (!string1)
-        return -(string1 != string2);
-    if (!string2)
-        return string1 != string2;
-    return strcmp (string1, string2);
-}
-
-#endif
-
 #if !GTK_CHECK_VERSION (2, 14, 0)
 
 gboolean
@@ -77,37 +59,6 @@ gtk_tool_item_set_tooltip_text (GtkToolItem* toolitem,
 
         gtk_tool_item_set_tooltip (toolitem, tooltips, text, NULL);
     }
-}
-
-#endif
-
-#ifndef WEBKIT_CHECK_VERSION
-
-gfloat
-webkit_web_view_get_zoom_level (WebKitWebView* web_view)
-{
-    g_return_val_if_fail (WEBKIT_IS_WEB_VIEW (web_view), 1.0);
-
-    return 1.0f;
-}
-
-void
-webkit_web_view_set_zoom_level (WebKitWebView* web_view,
-                                gfloat         zoom_level)
-{
-    g_return_if_fail (WEBKIT_IS_WEB_VIEW (web_view));
-}
-
-void
-webkit_web_view_zoom_in (WebKitWebView* web_view)
-{
-    g_return_if_fail (WEBKIT_IS_WEB_VIEW (web_view));
-}
-
-void
-webkit_web_view_zoom_out (WebKitWebView* web_view)
-{
-    g_return_if_fail (WEBKIT_IS_WEB_VIEW (web_view));
 }
 
 #endif

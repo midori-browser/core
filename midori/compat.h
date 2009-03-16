@@ -25,14 +25,6 @@ G_BEGIN_DECLS
     (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif
 
-#if !GLIB_CHECK_VERSION (2, 16, 0)
-
-gint
-g_strcmp0 (const gchar* string1,
-           const gchar* string2);
-
-#endif
-
 #if !GTK_CHECK_VERSION (2, 14, 0)
 
 gboolean
@@ -57,29 +49,6 @@ void
 gtk_tool_item_set_tooltip_text         (GtkToolItem*       toolitem,
                                         const gchar*       text);
 
-#endif
-
-#ifndef WEBKIT_CHECK_VERSION
-
-#define WEBKIT_CHECK_VERSION(a,b,c) 0
-
-gfloat
-webkit_web_view_get_zoom_level         (WebKitWebView*     web_view);
-
-void
-webkit_web_view_set_zoom_level         (WebKitWebView*     web_view,
-                                        gfloat             zoom_level);
-
-void
-webkit_web_view_zoom_in                (WebKitWebView*     web_view);
-
-void
-webkit_web_view_zoom_out               (WebKitWebView*     web_view);
-
-#endif
-
-#if !WEBKIT_CHECK_VERSION (1, 1, 1)
-    #define webkit_web_view_reload_bypass_cache webkit_web_view_reload
 #endif
 
 G_END_DECLS
