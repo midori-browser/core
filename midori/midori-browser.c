@@ -17,7 +17,6 @@
 #include "midori-browser.h"
 
 #include "midori-view.h"
-#include "midori-source.h"
 #include "midori-preferences.h"
 #include "midori-panel.h"
 #include "midori-locationaction.h"
@@ -2185,6 +2184,8 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
         {
             if ((fp = fdopen (fd, "w")))
             {
+                gboolean success;
+
                 ret = fwrite (request->data, 1, request->length, fp);
                 fclose (fp);
                 if ((ret - request->length) != 0)
@@ -2195,7 +2196,15 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
                 }
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
-                sokoke_spawn_program (text_editor, unique_filename);
+                if (text_editor && *text_editor)
+                    success = sokoke_spawn_program (text_editor, unique_filename);
+                else
+                {
+                    gchar* command = g_strconcat ("exo-open ", unique_filename, NULL);
+                    success = g_spawn_command_line_async (command, NULL);
+                    g_free (command);
+                }
+
                 g_free (unique_filename);
                 g_free (text_editor);
             }
@@ -2209,11 +2218,9 @@ static void
 _action_source_view_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
-    gchar* text_editor;
     GtkWidget* view;
-    GtkWidget* source_view;
-    gchar* uri;
-    gint n;
+    gchar* text_editor;
+    const gchar* uri;
 
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
@@ -2222,28 +2229,46 @@ _action_source_view_activate (GtkAction*     action,
         g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     else
         text_editor = NULL;
+    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
 
-    if (text_editor && *text_editor)
+    if (!g_strcmp0 (text_editor, ""))
     {
-        katze_net_load_uri (browser->net,
-            midori_view_get_display_uri (MIDORI_VIEW (view)), NULL,
-            (KatzeNetTransferCb)midori_browser_source_transfer_cb, browser);
-        g_free (text_editor);
-        return;
+        GFile* file = g_file_new_for_uri (uri);
+
+        gchar* content_type;
+        GAppInfo* app_info;
+        GList* files;
+        gpointer context;
+
+        #if GLIB_CHECK_VERSION (2, 18, 0)
+        content_type = g_content_type_from_mime_type ("text/plain");
+        #else
+        content_type = g_strdup ("text/plain");
+        #endif
+
+        app_info = g_app_info_get_default_for_type (content_type,
+            !g_str_has_prefix (uri, "file://"));
+        g_free (content_type);
+        files = g_list_prepend (NULL, file);
+        #if GTK_CHECK_VERSION (2, 14, 0)
+        context = gdk_app_launch_context_new ();
+        gdk_app_launch_context_set_screen (context, gtk_widget_get_screen (view));
+        gdk_app_launch_context_set_timestamp (context, gtk_get_current_event_time ());
+        #else
+        context = g_app_launch_context_new ();
+        #endif
+        if (g_app_info_launch (app_info, files, context, NULL))
+        {
+            g_object_unref (app_info);
+            g_list_free (files);
+            g_object_unref (file);
+            g_free (text_editor);
+            return;
+        }
     }
-    else
-    {
-        uri = g_strdup_printf ("view-source:%s",
-            midori_view_get_display_uri (MIDORI_VIEW (view)));
-        source_view = midori_view_new (browser->net);
-        midori_view_set_settings (MIDORI_VIEW (source_view), browser->settings);
-        midori_view_set_uri (MIDORI_VIEW (source_view), uri);
-        midori_view_notify_icon_cb (MIDORI_VIEW (source_view), NULL, browser);
-        g_free (uri);
-        gtk_widget_show (source_view);
-        n = midori_browser_add_tab (browser, source_view);
-        midori_browser_set_current_page (browser, n);
-    }
+
+    katze_net_load_uri (browser->net, uri, NULL,
+        (KatzeNetTransferCb)midori_browser_source_transfer_cb, browser);
     g_free (text_editor);
 }
 

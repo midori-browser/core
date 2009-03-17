@@ -172,8 +172,6 @@ main (int    argc,
         (gconstpointer)MIDORI_TYPE_PREFERENCES, properties_type_test);
     g_test_add_data_func ("/properties/search-action",
         (gconstpointer)MIDORI_TYPE_SEARCH_ACTION, properties_type_test);
-    g_test_add_data_func ("/properties/source",
-        (gconstpointer)MIDORI_TYPE_SOURCE, properties_type_test);
     g_test_add_data_func ("/properties/view",
         (gconstpointer)MIDORI_TYPE_VIEW, properties_type_test);
     g_test_add_data_func ("/properties/viewable",

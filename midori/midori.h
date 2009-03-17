@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 #include "midori-panel.h"
 #include "midori-preferences.h"
 #include "midori-searchaction.h"
-#include "midori-source.h"
 #include "midori-stock.h"
 #include "midori-view.h"
 #include "midori-viewable.h"

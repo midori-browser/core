@@ -14,7 +14,6 @@
 #endif
 
 #include "midori-view.h"
-#include "midori-source.h"
 #include "midori-stock.h"
 
 #include "compat.h"
@@ -1603,43 +1602,18 @@ midori_view_construct_web_view (MidoriView* view)
  * @view: a #MidoriView
  *
  * Opens the specified URI in the view.
- *
- * Pass an URI prefixed with "view-source:" in
- * order to create a source view.
  **/
 void
 midori_view_set_uri (MidoriView*  view,
                      const gchar* uri)
 {
-    GtkWidget* widget;
     gchar* data;
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
     if (!uri) uri = "";
 
-    if (!view->web_view && view->uri
-        && g_str_has_prefix (view->uri, "view-source:"))
-    {
-        g_signal_emit (view, signals[NEW_TAB], 0, uri);
-    }
-    else if (!view->web_view && g_str_has_prefix (uri, "view-source:"))
-    {
-        katze_assign (view->uri, g_strdup (uri));
-        g_object_notify (G_OBJECT (view), "uri");
-        if (view->item)
-            katze_item_set_uri (view->item, uri);
-        data = g_strdup_printf ("%s - %s", _("Source"), &uri[12]);
-        g_object_set (view, "title", data, NULL);
-        g_free (data);
-        katze_object_assign (view->icon,
-            gtk_widget_render_icon (GTK_WIDGET (view),
-                GTK_STOCK_EDIT, GTK_ICON_SIZE_MENU, NULL));
-        widget = midori_source_new (&uri[12]);
-        gtk_container_add (GTK_CONTAINER (view), widget);
-        gtk_widget_show (widget);
-    }
-    else
+    if (1)
     {
         if (!view->web_view)
             midori_view_construct_web_view (view);
@@ -2260,9 +2234,9 @@ midori_view_can_zoom_out (MidoriView* view)
 gboolean
 midori_view_can_view_source (MidoriView* view)
 {
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
-
     const gchar* uri = view->uri;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
     /* FIXME: Consider other types that are also text */
     if (!g_str_has_prefix (view->mime_type, "text/")
