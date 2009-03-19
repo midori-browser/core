@@ -143,6 +143,7 @@ enum {
     NEW_TAB,
     NEW_WINDOW,
     NEW_VIEW,
+    DOWNLOAD_REQUESTED,
     SEARCH_TEXT,
     ADD_BOOKMARK,
     SAVE_AS,
@@ -270,6 +271,36 @@ midori_view_class_init (MidoriViewClass* class)
         G_TYPE_NONE, 2,
         MIDORI_TYPE_VIEW,
         MIDORI_TYPE_NEW_VIEW);
+
+    /**
+     * MidoriView::download-requested:
+     * @view: the object on which the signal is emitted
+     * @download: a new download
+     *
+     * Emitted when a new download is requested, if a
+     * file cannot be displayed or a download was started
+     * from the context menu.
+     *
+     * If the download should be accepted, a callback
+     * has to return %TRUE, and the download will also
+     * be started automatically.
+     *
+     * Note: This requires WebKitGTK 1.1.3.
+     *
+     * Return value: %TRUE if the download was handled
+     *
+     * Since: 0.1.5
+     */
+    signals[DOWNLOAD_REQUESTED] = g_signal_new (
+        "download-requested",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        g_signal_accumulator_true_handled,
+        NULL,
+        midori_cclosure_marshal_BOOLEAN__OBJECT,
+        G_TYPE_BOOLEAN, 1,
+        G_TYPE_OBJECT);
 
     /**
      * MidoriView::search-text:
@@ -619,7 +650,12 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
     gchar* title;
     gchar* data;
 
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    if (!success && webkit_web_view_can_show_mime_type (
+        WEBKIT_WEB_VIEW (view->web_view), view->mime_type))
+    #else
     if (!success)
+    #endif
     {
         /* i18n: The title of the 404 - Not found error page */
         title = g_strdup_printf (_("Not found - %s"), view->uri);
@@ -886,6 +922,7 @@ midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
     g_free (uri);
 }
 
+#if !WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 midori_web_view_menu_save_as_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
@@ -899,6 +936,7 @@ midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
 {
     sokoke_spawn_program (view->download_manager, view->link_uri);
 }
+#endif
 
 static void
 midori_web_view_menu_add_bookmark_activate_cb (GtkWidget*  widget,
@@ -977,6 +1015,11 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             G_CALLBACK (midori_web_view_menu_new_window_activate_cb), view);
         menuitem = (GtkWidget*)g_list_nth_data (items, 3);
         g_list_free (items);
+        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        /* hack to localize menu item */
+        label = gtk_bin_get_child (GTK_BIN (menuitem));
+        gtk_label_set_label (GTK_LABEL (label), _("_Download Link destination"));
+        #else
         /* hack to disable non-functional Download File
            FIXME: Make sure this really is the right menu item */
         gtk_widget_hide (menuitem);
@@ -998,6 +1041,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 G_CALLBACK (midori_web_view_menu_download_activate_cb), view);
             gtk_widget_show (menuitem);
         }
+        #endif
         menuitem = gtk_image_menu_item_new_from_stock (STOCK_BOOKMARK_ADD, NULL);
         gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 5);
         g_signal_connect (menuitem, "activate",
@@ -1144,11 +1188,13 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     midori_view_update_icon (view, NULL);
     g_object_notify (G_OBJECT (view), "mime-type");
 
-    /* TODO: Display contents with a Viewable if WebKit can't do it */
-    /* TODO: Offer downloading file if it cannot be displayed at all */
-
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
         return FALSE;
+
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    webkit_web_policy_decision_download (decision);
+    return TRUE;
+    #endif
 
     uri = g_strdup_printf ("error:nodisplay %s",
         webkit_network_request_get_uri (request));
@@ -1157,6 +1203,18 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 
     return TRUE;
 }
+
+#if WEBKIT_CHECK_VERSION (1, 1, 3)
+static gboolean
+webkit_web_view_download_requested_cb (GtkWidget*      web_view,
+                                       WebKitDownload* download,
+                                       MidoriView*     view)
+{
+    gboolean handled;
+    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    return handled;
+}
+#endif
 
 static void
 webkit_web_view_console_message_cb (GtkWidget*   web_view,
@@ -1576,7 +1634,12 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_create_web_view_cb, view,
                       "signal::mime-type-policy-decision-requested",
                       webkit_web_view_mime_type_decision_cb, view,
+                      #if WEBKIT_CHECK_VERSION (1, 1, 3)
+                      "signal::download-requested",
+                      webkit_web_view_download_requested_cb, view,
+                      #endif
                       NULL);
+
     g_object_connect (web_frame,
                       "signal::load-done",
                       webkit_web_frame_load_done_cb, view,

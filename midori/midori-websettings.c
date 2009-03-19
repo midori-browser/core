@@ -291,6 +291,18 @@ midori_web_settings_get_property (GObject*    object,
                                   GValue*     value,
                                   GParamSpec* pspec);
 
+static const gchar*
+midori_get_download_dir (void)
+{
+    const gchar* dir = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
+    if (dir)
+    {
+        g_mkdir_with_parents (dir, 0700);
+        return dir;
+    }
+    return g_get_home_dir ();
+}
+
 static void
 midori_web_settings_class_init (MidoriWebSettingsClass* class)
 {
@@ -525,8 +537,12 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "download-folder",
                                      _("Download Folder"),
                                      _("The folder downloaded files are saved to"),
-                                     g_get_home_dir (),
-                                     G_PARAM_READABLE));
+                                     midori_get_download_dir (),
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+    #else
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+    #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_DOWNLOAD_MANAGER,
@@ -584,7 +600,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      TRUE,
                                      flags));
 
-    g_type_class_ref (WEBKIT_TYPE_WEB_VIEW);
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_NEW_PAGES_IN,
                                      g_param_spec_enum (
@@ -845,6 +860,7 @@ notify_default_encoding_cb (GObject*    object,
 static void
 midori_web_settings_init (MidoriWebSettings* web_settings)
 {
+    web_settings->download_folder = g_strdup (midori_get_download_dir ());
     web_settings->http_proxy = NULL;
     web_settings->open_popups_in_tabs = TRUE;
     web_settings->remember_last_form_inputs = TRUE;

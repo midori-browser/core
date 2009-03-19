@@ -65,6 +65,7 @@ struct _MidoriBrowser
     gboolean find_typing;
 
     GtkWidget* statusbar;
+    GtkWidget* transferbar;
     GtkWidget* progressbar;
     gchar* statusbar_text;
 
@@ -893,6 +894,117 @@ midori_view_new_view_cb (GtkWidget*     view,
     }
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 3)
+static void
+midori_browser_download_notify_progress_cb (WebKitDownload* download,
+                                            GParamSpec*     pspec,
+                                            GtkWidget*      progress)
+{
+    gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
+        webkit_download_get_progress (download));
+}
+
+static void
+midori_browser_download_notify_status_cb (WebKitDownload* download,
+                                          GParamSpec*     pspec,
+                                          GtkWidget*      button)
+{
+    switch (webkit_download_get_status (download))
+    {
+        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
+        {
+            GtkWidget* icon;
+            icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
+            gtk_button_set_image (GTK_BUTTON (button), icon);
+            /* FIXME: Implement opening of files */
+            gtk_widget_set_sensitive (button, FALSE);
+            break;
+        }
+        case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
+        case WEBKIT_DOWNLOAD_STATUS_ERROR:
+            gtk_widget_set_sensitive (button, FALSE);
+            break;
+        default:
+            break;
+    }
+}
+
+static void
+midori_browser_download_button_clicked_cb (GtkWidget*      button,
+                                           WebKitDownload* download)
+{
+    switch (webkit_download_get_status (download))
+    {
+        case WEBKIT_DOWNLOAD_STATUS_STARTED:
+            webkit_download_cancel (download);
+            break;
+        default:
+            break;
+    }
+}
+
+static void
+midori_browser_add_download_item (MidoriBrowser*  browser,
+                                  WebKitDownload* download)
+{
+    GtkWidget* box;
+    GtkWidget* icon;
+    GtkWidget* button;
+    GtkWidget* progress;
+
+    box = gtk_hbox_new (FALSE, 0);
+    /* icon = gtk_image_new_from_stock (STOCK_TRANSFER, GTK_ICON_SIZE_MENU);
+    gtk_box_pack_start (GTK_BOX (box), icon, FALSE, FALSE, 0); */
+    progress = gtk_progress_bar_new ();
+    gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (progress),
+                                    PANGO_ELLIPSIZE_MIDDLE);
+    gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress),
+        webkit_download_get_suggested_filename (download));
+    /* Avoid a bug in WebKit */
+    if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_CREATED)
+        gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
+            webkit_download_get_progress (download));
+    gtk_box_pack_start (GTK_BOX (box), progress, FALSE, FALSE, 0);
+    icon = gtk_image_new_from_stock (GTK_STOCK_CANCEL, GTK_ICON_SIZE_MENU);
+    button = gtk_button_new ();
+    gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+    gtk_button_set_focus_on_click (GTK_BUTTON (button), FALSE);
+    gtk_container_add (GTK_CONTAINER (button), icon);
+    gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
+    gtk_widget_show_all (box);
+    gtk_box_pack_start (GTK_BOX (browser->transferbar), box,
+                        FALSE, FALSE, 3);
+
+    g_signal_connect (download, "notify::progress",
+        G_CALLBACK (midori_browser_download_notify_progress_cb), progress);
+    g_signal_connect (download, "notify::status",
+        G_CALLBACK (midori_browser_download_notify_status_cb), button);
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_browser_download_button_clicked_cb), download);
+}
+
+static gboolean
+midori_view_download_requested_cb (GtkWidget*      view,
+                                   WebKitDownload* download,
+                                   MidoriBrowser*  browser)
+{
+    if (!webkit_download_get_destination_uri (download))
+    {
+        gchar* folder = katze_object_get_string (browser->settings,
+                                                 "download-folder");
+        gchar* filename = g_build_filename (folder,
+            webkit_download_get_suggested_filename (download), NULL);
+        g_free (folder);
+        gchar* uri = g_filename_to_uri (filename, NULL, NULL);
+        g_free (filename);
+        webkit_download_set_destination_uri (download, uri);
+        g_free (uri);
+    }
+    midori_browser_add_download_item (browser, download);
+    return TRUE;
+}
+#endif
+
 static void
 midori_view_search_text_cb (GtkWidget*     view,
                             gboolean       found,
@@ -1017,6 +1129,10 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_new_window_cb, browser,
                       "signal::new-view",
                       midori_view_new_view_cb, browser,
+                      #if WEBKIT_CHECK_VERSION (1, 1, 3)
+                      "signal::download-requested",
+                      midori_view_download_requested_cb, browser,
+                      #endif
                       "signal::search-text",
                       midori_view_search_text_cb, browser,
                       "signal::add-bookmark",
@@ -1782,9 +1898,9 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Bookmarkbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
+    /*menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Transferbar"));
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem); */
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -3204,10 +3320,10 @@ static const GtkToggleActionEntry toggle_entries[] = {
    N_("_Bookmarkbar"), "",
    N_("Show bookmarkbar"), G_CALLBACK (_action_bookmarkbar_activate),
    FALSE },
- { "Transferbar", NULL,
+ /* { "Transferbar", NULL,
    N_("_Transferbar"), "",
-   N_("Show transferbar"), NULL/*G_CALLBACK (_action_transferbar_activate)*/,
-   FALSE },
+   N_("Show transferbar"), G_CALLBACK (_action_transferbar_activate),
+   FALSE }, */
  { "Statusbar", NULL,
    N_("_Statusbar"), "",
    N_("Show statusbar"), G_CALLBACK (_action_statusbar_activate),
@@ -3335,7 +3451,7 @@ static const gchar* ui_markup =
      "<menuitem action='Menubar'/>"
      "<menuitem action='Navigationbar'/>"
      "<menuitem action='Bookmarkbar'/>"
-     "<menuitem action='Transferbar'/>"
+     /* "<menuitem action='Transferbar'/>" */
      "<menuitem action='Statusbar'/>"
     "</menu>"
     "<menuitem action='Panel'/>"
@@ -3636,8 +3752,6 @@ midori_browser_init (MidoriBrowser* browser)
         g_error_free (error);
     }
 
-    /* _action_set_active(browser, "Transferbar", config->toolbarTransfers); */
-
     /* Hide the 'Dummy' which only holds otherwise unused actions */
     g_object_set (_action_by_name (browser, "Dummy"), "visible", FALSE, NULL);
 
@@ -3797,7 +3911,8 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_set (_action_by_name (browser, "Menubar"), "visible", FALSE, NULL);
     g_object_set (_action_by_name (browser, "Statusbar"), "visible", FALSE, NULL);
     #endif
-    _action_set_sensitive (browser, "Transferbar", FALSE);
+    /* if (!g_signal_lookup ("download-requested", WEBKIT_TYPE_WEB_VIEW))
+        _action_set_sensitive (browser, "Transferbar", FALSE); */
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_sensitive (browser, "SelectionSourceView", FALSE);
 
@@ -3982,11 +4097,17 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_modify_style (browser->statusbar, rcstyle);
     g_object_unref (rcstyle);
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
+
     browser->progressbar = gtk_progress_bar_new ();
     /* Set the progressbar's height to 1 to fit it in the statusbar */
     gtk_widget_set_size_request (browser->progressbar, -1, 1);
     gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->progressbar,
                         FALSE, FALSE, 3);
+
+    browser->transferbar = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->transferbar,
+                        FALSE, FALSE, 3);
+    gtk_widget_show (browser->transferbar);
 
     g_object_unref (ui_manager);
 }
