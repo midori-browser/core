@@ -807,7 +807,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                 gtk_widget_get_display (GTK_WIDGET (view)),
                 GDK_SELECTION_PRIMARY);
             uri = gtk_clipboard_wait_for_text (clipboard);
-            if (uri && strchr (uri, '.') && !strchr (uri, ' '))
+            if (uri && strchr (uri, '.') && !strchr (g_strstrip (uri), ' '))
             {
                 new_uri = sokoke_magic_uri (uri, NULL);
                 if (event->state & GDK_CONTROL_MASK)
