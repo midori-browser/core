@@ -36,6 +36,7 @@ struct _MidoriWebSettings
     gboolean show_navigationbar;
     gboolean show_bookmarkbar;
     gboolean show_panel;
+    gboolean show_transferbar;
     gboolean show_statusbar;
 
     MidoriToolbarStyle toolbar_style;
@@ -103,6 +104,7 @@ enum
     PROP_SHOW_NAVIGATIONBAR,
     PROP_SHOW_BOOKMARKBAR,
     PROP_SHOW_PANEL,
+    PROP_SHOW_TRANSFERBAR,
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
@@ -423,6 +425,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Show Panel"),
                                      _("Whether to show the panel"),
                                      FALSE,
+                                     flags));
+
+    /**
+     * MidoriWebSettings:show-transferbar:
+     *
+     * Whether to show the transferbar.
+     *
+     * Since: 0.1.5
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_TRANSFERBAR,
+                                     g_param_spec_boolean (
+                                     "show-transferbar",
+                                     _("Show Transferbar"),
+                                     _("Whether to show the transferbar"),
+                                     TRUE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -987,6 +1005,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_SHOW_PANEL:
         web_settings->show_panel = g_value_get_boolean (value);
         break;
+    case PROP_SHOW_TRANSFERBAR:
+        web_settings->show_transferbar = g_value_get_boolean (value);
+        break;
     case PROP_SHOW_STATUSBAR:
         web_settings->show_statusbar = g_value_get_boolean (value);
         break;
@@ -1176,6 +1197,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_SHOW_PANEL:
         g_value_set_boolean (value, web_settings->show_panel);
+        break;
+    case PROP_SHOW_TRANSFERBAR:
+        g_value_set_boolean (value, web_settings->show_transferbar);
         break;
     case PROP_SHOW_STATUSBAR:
         g_value_set_boolean (value, web_settings->show_statusbar);

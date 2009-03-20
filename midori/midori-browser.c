@@ -972,8 +972,7 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
     gtk_container_add (GTK_CONTAINER (button), icon);
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
     gtk_widget_show_all (box);
-    gtk_box_pack_start (GTK_BOX (browser->transferbar), box,
-                        FALSE, FALSE, 3);
+    gtk_box_pack_start (GTK_BOX (browser->transferbar), box, FALSE, FALSE, 3);
 
     g_signal_connect (download, "notify::progress",
         G_CALLBACK (midori_browser_download_notify_progress_cb), progress);
@@ -1898,9 +1897,9 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Bookmarkbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    /*menuitem = sokoke_action_create_popup_menu_item (
+    menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Transferbar"));
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem); */
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -2135,6 +2134,16 @@ _action_bookmarkbar_activate (GtkToggleAction* action,
     if (browser->settings)
         g_object_set (browser->settings, "show-bookmarkbar", active, NULL);
     sokoke_widget_set_visible (browser->bookmarkbar, active);
+}
+
+static void
+_action_transferbar_activate (GtkToggleAction* action,
+                              MidoriBrowser*   browser)
+{
+    gboolean active = gtk_toggle_action_get_active (action);
+    if (browser->settings)
+        g_object_set (browser->settings, "show-transferbar", active, NULL);
+    sokoke_widget_set_visible (browser->transferbar, active);
 }
 
 static void
@@ -3320,10 +3329,10 @@ static const GtkToggleActionEntry toggle_entries[] = {
    N_("_Bookmarkbar"), "",
    N_("Show bookmarkbar"), G_CALLBACK (_action_bookmarkbar_activate),
    FALSE },
- /* { "Transferbar", NULL,
+ { "Transferbar", NULL,
    N_("_Transferbar"), "",
    N_("Show transferbar"), G_CALLBACK (_action_transferbar_activate),
-   FALSE }, */
+   FALSE },
  { "Statusbar", NULL,
    N_("_Statusbar"), "",
    N_("Show statusbar"), G_CALLBACK (_action_statusbar_activate),
@@ -3451,7 +3460,7 @@ static const gchar* ui_markup =
      "<menuitem action='Menubar'/>"
      "<menuitem action='Navigationbar'/>"
      "<menuitem action='Bookmarkbar'/>"
-     /* "<menuitem action='Transferbar'/>" */
+     "<menuitem action='Transferbar'/>"
      "<menuitem action='Statusbar'/>"
     "</menu>"
     "<menuitem action='Panel'/>"
@@ -3911,8 +3920,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_set (_action_by_name (browser, "Menubar"), "visible", FALSE, NULL);
     g_object_set (_action_by_name (browser, "Statusbar"), "visible", FALSE, NULL);
     #endif
-    /* if (!g_signal_lookup ("download-requested", WEBKIT_TYPE_WEB_VIEW))
-        _action_set_sensitive (browser, "Transferbar", FALSE); */
+    #if !WEBKIT_CHECK_VERSION (1, 1, 3)
+    _action_set_sensitive (browser, "Transferbar", FALSE);
+    #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_sensitive (browser, "SelectionSourceView", FALSE);
 
@@ -4108,6 +4118,8 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->transferbar,
                         FALSE, FALSE, 3);
     gtk_widget_show (browser->transferbar);
+    g_signal_connect (browser->statusbar, "button-press-event",
+        G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
 
     g_object_unref (ui_manager);
 }
@@ -4254,7 +4266,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean compact_sidepanel, right_align_sidepanel;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
-    gboolean show_panel;
+    gboolean show_panel, show_transferbar;
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gint last_web_search;
@@ -4276,6 +4288,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-navigationbar", &browser->show_navigationbar,
                   "show-bookmarkbar", &show_bookmarkbar,
                   "show-panel", &show_panel,
+                  "show-transferbar", &show_transferbar,
                   "show-statusbar", &browser->show_statusbar,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
@@ -4337,6 +4350,9 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Navigationbar", browser->show_navigationbar);
     _action_set_active (browser, "Bookmarkbar", show_bookmarkbar);
     _action_set_active (browser, "Panel", show_panel);
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    _action_set_active (browser, "Transferbar", show_transferbar);
+    #endif
     _action_set_active (browser, "Statusbar", browser->show_statusbar);
 
     g_free (toolbar_items);
