@@ -939,13 +939,16 @@ midori_browser_download_button_clicked_cb (GtkWidget*      button,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             const gchar* uri = webkit_download_get_destination_uri (download);
-            if (!gtk_show_uri (gtk_widget_get_screen (button),
-                uri, gtk_get_current_event_time (), NULL))
+            gboolean success = gtk_show_uri (gtk_widget_get_screen (button),
+                uri, gtk_get_current_event_time (), NULL);
+            if (!success)
             {
                 gchar* command = g_strconcat ("exo-open ", uri, NULL);
-                g_spawn_command_line_async (command, NULL);
+                success = g_spawn_command_line_async (command, NULL);
                 g_free (command);
             }
+            if (success)
+                gtk_widget_destroy (gtk_widget_get_parent (button));
             break;
         }
         default:
