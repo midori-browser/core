@@ -916,8 +916,6 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
             GtkWidget* icon;
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
-            /* FIXME: Implement opening of files */
-            gtk_widget_set_sensitive (button, FALSE);
             break;
         }
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
@@ -938,6 +936,18 @@ midori_browser_download_button_clicked_cb (GtkWidget*      button,
         case WEBKIT_DOWNLOAD_STATUS_STARTED:
             webkit_download_cancel (download);
             break;
+        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
+        {
+            const gchar* uri = webkit_download_get_destination_uri (download);
+            if (!gtk_show_uri (gtk_widget_get_screen (button),
+                uri, gtk_get_current_event_time (), NULL))
+            {
+                gchar* command = g_strconcat ("exo-open ", uri, NULL);
+                g_spawn_command_line_async (command, NULL);
+                g_free (command);
+            }
+            break;
+        }
         default:
             break;
     }
