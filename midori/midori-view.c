@@ -1272,6 +1272,7 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gboolean handled;
     g_object_set_data (G_OBJECT (download), "open-download",
         g_object_get_data (G_OBJECT (view), "open-download"));
+    g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
 }
