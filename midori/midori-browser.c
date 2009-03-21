@@ -914,9 +914,10 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             GtkWidget* icon;
+
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
-            if (g_object_get_data (G_OBJECT (download), "open"))
+            if (g_object_get_data (G_OBJECT (download), "open-download"))
                 gtk_button_clicked (GTK_BUTTON (button));
             break;
         }
@@ -1002,68 +1003,23 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
-    GtkWidget* dialog;
-    gchar* mime_type;
-    gchar* description;
-    gchar* title;
-    GdkScreen* screen;
-    GtkIconTheme* icon_theme;
-
-    dialog = gtk_message_dialog_new (
-        NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
-        _("Open or download file"));
-    mime_type = katze_object_get_string (view, "mime-type");
-    description = g_content_type_get_description (mime_type);
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-        _("File Type: %s ('%s')"), description, mime_type);
-    g_free (mime_type);
-    g_free (description);
-    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
-    /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"  */
-    title = g_strdup_printf (_("Open %s"),
-        webkit_download_get_suggested_filename (download));
-    gtk_window_set_title (GTK_WINDOW (dialog), title);
-    g_free (title);
-    screen = gtk_widget_get_screen (dialog);
-    if (screen)
+    if (!webkit_download_get_destination_uri (download))
     {
-        icon_theme = gtk_icon_theme_get_for_screen (screen);
-        if (gtk_icon_theme_has_icon (icon_theme, STOCK_TRANSFER))
-            gtk_window_set_icon_name (GTK_WINDOW (dialog), STOCK_TRANSFER);
-        else
-            gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
-    }
-    gtk_dialog_add_buttons (GTK_DIALOG (dialog),
-        GTK_STOCK_SAVE, 1,
-        GTK_STOCK_CANCEL, 2,
-        GTK_STOCK_OPEN, 3,
-        NULL);
-    switch (gtk_dialog_run (GTK_DIALOG (dialog)))
-    {
-        case 3:
-            g_object_set_data (G_OBJECT (download), "open", (gpointer)1);
-        case 1:
-            gtk_widget_destroy (dialog);
-            if (!webkit_download_get_destination_uri (download))
-            {
-                gchar* folder = katze_object_get_string (browser->settings,
-                                                         "download-folder");
-                gchar* filename = g_build_filename (folder,
-                    webkit_download_get_suggested_filename (download), NULL);
-                g_free (folder);
-                gchar* uri = g_filename_to_uri (filename, NULL, NULL);
-                g_free (filename);
-                webkit_download_set_destination_uri (download, uri);
-                g_free (uri);
-            }
-            midori_browser_add_download_item (browser, download);
-            return TRUE;
-        case 2:
-            break;
-    }
+        gchar* folder;
+        gchar* filename;
+        gchar* uri;
 
-    gtk_widget_destroy (dialog);
-    return FALSE;
+        folder = katze_object_get_string (browser->settings, "download-folder");
+        filename = g_build_filename (folder,
+            webkit_download_get_suggested_filename (download), NULL);
+        g_free (folder);
+        uri = g_filename_to_uri (filename, NULL, NULL);
+        g_free (filename);
+        webkit_download_set_destination_uri (download, uri);
+        g_free (uri);
+    }
+    midori_browser_add_download_item (browser, download);
+    return TRUE;
 }
 #endif
 

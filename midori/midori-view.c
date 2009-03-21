@@ -650,12 +650,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
     gchar* title;
     gchar* data;
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
-    if (!success && webkit_web_view_can_show_mime_type (
-        WEBKIT_WEB_VIEW (view->web_view), view->mime_type))
-    #else
     if (!success)
-    #endif
     {
         /* i18n: The title of the 404 - Not found error page */
         title = g_strdup_printf (_("Not found - %s"), view->uri);
@@ -1179,22 +1174,85 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
                                        WebKitWebPolicyDecision* decision,
                                        MidoriView*              view)
 {
-    gchar* uri;
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    GtkWidget* dialog;
+    gchar* content_type;
+    gchar* description;
+    gchar* title;
+    GdkScreen* screen;
+    GtkIconTheme* icon_theme;
+    gint response;
+    #endif
 
     if (web_frame != webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
         return FALSE;
 
-    katze_assign (view->mime_type, g_strdup (mime_type));
-    midori_view_update_icon (view, NULL);
-    g_object_notify (G_OBJECT (view), "mime-type");
-
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
+    {
+        katze_assign (view->mime_type, g_strdup (mime_type));
+        midori_view_update_icon (view, NULL);
+        g_object_notify (G_OBJECT (view), "mime-type");
         return FALSE;
+    }
 
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
-    webkit_web_policy_decision_download (decision);
-    return TRUE;
+    dialog = gtk_message_dialog_new (
+        NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
+        _("Open or download file"));
+    #if GLIB_CHECK_VERSION (2, 18, 0)
+    content_type = g_content_type_from_mime_type (mime_type);
+    #else
+    content_type = g_strdup (mime_type);
     #endif
+    description = g_content_type_get_description (content_type);
+    g_free (content_type);
+    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+        _("File Type: %s ('%s')"), description, mime_type);
+    g_free (description);
+    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
+    /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
+    title = g_strdup_printf (_("Open %s"),
+        webkit_network_request_get_uri (request));
+    gtk_window_set_title (GTK_WINDOW (dialog), title);
+    g_free (title);
+    screen = gtk_widget_get_screen (dialog);
+    if (screen)
+    {
+        icon_theme = gtk_icon_theme_get_for_screen (screen);
+        if (gtk_icon_theme_has_icon (icon_theme, STOCK_TRANSFER))
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), STOCK_TRANSFER);
+        else
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
+    }
+    gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+        GTK_STOCK_SAVE, 1,
+        GTK_STOCK_CANCEL, 2,
+        GTK_STOCK_OPEN, 3,
+        NULL);
+    response = gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
+    switch (response)
+    {
+        case 3:
+            g_object_set_data (G_OBJECT (view), "open-download", (gpointer)1);
+        case 1:
+            webkit_web_policy_decision_download (decision);
+            /* Apparently WebKit will continue loading which ends in an error.
+               It's unclear whether it's a bug or we are doing something wrong. */
+            webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
+            return TRUE;
+        case 2:
+        default:
+            /* Apparently WebKit will continue loading which ends in an error.
+               It's unclear whether it's a bug or we are doing something wrong. */
+            webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
+            return FALSE;
+    }
+    #else
+    katze_assign (view->mime_type, NULL);
+    midori_view_update_icon (view, NULL);
+    g_object_notify (G_OBJECT (view), "mime-type");
 
     uri = g_strdup_printf ("error:nodisplay %s",
         webkit_network_request_get_uri (request));
@@ -1202,6 +1260,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     g_free (uri);
 
     return TRUE;
+    #endif
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 3)
@@ -1211,6 +1270,8 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
                                        MidoriView*     view)
 {
     gboolean handled;
+    g_object_set_data (G_OBJECT (download), "open-download",
+        g_object_get_data (G_OBJECT (view), "open-download"));
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
 }
