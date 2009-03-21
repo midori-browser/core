@@ -909,21 +909,20 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
                                           GParamSpec*     pspec,
                                           GtkWidget*      button)
 {
+    GtkWidget* icon;
+
     switch (webkit_download_get_status (download))
     {
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-        {
-            GtkWidget* icon;
-
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
             if (g_object_get_data (G_OBJECT (download), "open-download"))
                 gtk_button_clicked (GTK_BUTTON (button));
             break;
-        }
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
         case WEBKIT_DOWNLOAD_STATUS_ERROR:
-            gtk_widget_set_sensitive (button, FALSE);
+            icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
+            gtk_button_set_image (GTK_BUTTON (button), icon);
             break;
         default:
             break;
@@ -954,6 +953,8 @@ midori_browser_download_button_clicked_cb (GtkWidget*      button,
                 gtk_widget_destroy (gtk_widget_get_parent (button));
             break;
         }
+        case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
+            gtk_widget_destroy (gtk_widget_get_parent (button));
         default:
             break;
     }
