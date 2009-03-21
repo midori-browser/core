@@ -968,6 +968,7 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
     GtkWidget* icon;
     GtkWidget* button;
     GtkWidget* progress;
+    gint width;
 
     box = gtk_hbox_new (FALSE, 0);
     /* icon = gtk_image_new_from_stock (STOCK_TRANSFER, GTK_ICON_SIZE_MENU);
@@ -977,6 +978,8 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
                                     PANGO_ELLIPSIZE_MIDDLE);
     gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress),
         webkit_download_get_suggested_filename (download));
+    sokoke_widget_get_text_size (progress, "M", &width, NULL);
+    gtk_widget_set_size_request (progress, width * 10, -1);
     /* Avoid a bug in WebKit */
     if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_CREATED)
         gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
@@ -989,7 +992,7 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
     gtk_container_add (GTK_CONTAINER (button), icon);
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
     gtk_widget_show_all (box);
-    gtk_box_pack_start (GTK_BOX (browser->transferbar), box, FALSE, FALSE, 3);
+    gtk_box_pack_start (GTK_BOX (browser->transferbar), box, FALSE, FALSE, 0);
 
     g_signal_connect (download, "notify::progress",
         G_CALLBACK (midori_browser_download_notify_progress_cb), progress);
