@@ -916,6 +916,8 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
             GtkWidget* icon;
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
+            if (g_object_get_data (G_OBJECT (download), "open"))
+                gtk_button_clicked (GTK_BUTTON (button));
             break;
         }
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
@@ -1036,9 +1038,10 @@ midori_view_download_requested_cb (GtkWidget*      view,
         GTK_STOCK_CANCEL, 2,
         GTK_STOCK_OPEN, 3,
         NULL);
-    gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), 3, FALSE);
     switch (gtk_dialog_run (GTK_DIALOG (dialog)))
     {
+        case 3:
+            g_object_set_data (G_OBJECT (download), "open", (gpointer)1);
         case 1:
             gtk_widget_destroy (dialog);
             if (!webkit_download_get_destination_uri (download))
@@ -1057,11 +1060,6 @@ midori_view_download_requested_cb (GtkWidget*      view,
             return TRUE;
         case 2:
             break;
-        case 3:
-        {
-            /* FIXME: Implement open */
-            break;
-        }
     }
 
     gtk_widget_destroy (dialog);
