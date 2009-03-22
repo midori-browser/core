@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -159,6 +159,34 @@ midori_console_get_property (GObject*    object,
 }
 
 static void
+midori_console_button_copy_clicked_cb (GtkToolItem*   toolitem,
+                                       MidoriConsole* console)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (console->treeview),
+                                           &model, &iter))
+    {
+        GdkDisplay* display;
+        GtkClipboard* clipboard;
+        gchar* text;
+        gchar* message;
+        gint line;
+        gchar* source_id;
+
+        display = gtk_widget_get_display (GTK_WIDGET (console));
+        clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
+        gtk_tree_model_get (model, &iter, 0, &message, 1, &line, 2, &source_id, -1);
+        text = g_strdup_printf ("%d @ %s: %s", line, source_id, message);
+        g_free (source_id);
+        g_free (message);
+        gtk_clipboard_set_text (clipboard, text, -1);
+        g_free (text);
+    }
+}
+
+static void
 midori_console_button_clear_clicked_cb (GtkToolItem*   toolitem,
                                         MidoriConsole* console)
 {
@@ -200,22 +228,6 @@ midori_console_treeview_render_text_cb (GtkTreeViewColumn* column,
 }
 
 static void
-midori_console_treeview_row_activated_cb (GtkTreeView*       treeview,
-                                          GtkTreePath*       path,
-                                          GtkTreeViewColumn* column,
-                                          MidoriConsole*     console)
-{
-    /*GtkTreeModel* model = gtk_tree_view_get_model (treeview);
-    GtkTreeIter iter;
-    if (gtk_tree_model_get_iter (model, &iter, path))
-    {
-        gchar* source_id;
-        gtk_tree_model_get (model, &iter, 2, &source_id, -1);
-        g_free (source_id);
-    }*/
-}
-
-static void
 midori_console_hierarchy_changed_cb (MidoriConsole* console,
                                      GtkWidget*     old_parent)
 {
@@ -250,9 +262,6 @@ midori_console_init (MidoriConsole* console)
         console->treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (console->treeview), column);
     g_object_unref (treestore);
-    g_signal_connect (console->treeview, "row-activated",
-                      G_CALLBACK (midori_console_treeview_row_activated_cb),
-                      console);
     gtk_widget_show (console->treeview);
     gtk_box_pack_start (GTK_BOX (console), console->treeview, TRUE, TRUE, 0);
 
@@ -300,10 +309,13 @@ midori_console_get_toolbar (MidoriViewable* console)
         toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
-        toolitem = gtk_tool_item_new ();
-        /* TODO: What about a find entry here that filters e.g. by url? */
+        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_COPY);
+        gtk_tool_item_set_is_important (toolitem, TRUE);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_console_button_copy_clicked_cb), console);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
+        /* TODO: What about a find entry here that filters e.g. by url? */
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
                                           FALSE);
