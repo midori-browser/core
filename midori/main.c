@@ -25,6 +25,7 @@
 #include "midori-panel.h"
 #include "midori-preferences.h"
 #include "midori-plugins.h"
+#include "midori-transfers.h"
 #include "midori-view.h"
 #include "midori-websettings.h"
 
@@ -1213,11 +1214,10 @@ midori_app_add_browser_cb (MidoriApp*     app,
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Transfers */
-    #if 0
-    addon = midori_view_new (net);
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    addon = g_object_new (MIDORI_TYPE_TRANSFERS, "app", app, NULL);
     gtk_widget_show (addon);
-    midori_panel_append_widget (MIDORI_PANEL (panel), addon,
-                                STOCK_TRANSFERS, _("Transfers"), NULL);
+    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
     #endif
 
     /* Console */
