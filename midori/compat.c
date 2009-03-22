@@ -41,10 +41,13 @@ void
 gtk_widget_set_tooltip_text (GtkWidget*   widget,
                              const gchar* text)
 {
-    static GtkTooltips* tooltips;
-    if (!tooltips)
-        tooltips = gtk_tooltips_new ();
-    gtk_tooltips_set_tip (tooltips, widget, text, NULL);
+    if (text && *text)
+    {
+        static GtkTooltips* tooltips = NULL;
+        if (G_UNLIKELY (!tooltips))
+            tooltips = gtk_tooltips_new ();
+        gtk_tooltips_set_tip (tooltips, widget, text, NULL);
+    }
 }
 
 void
