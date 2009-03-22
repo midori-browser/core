@@ -1877,7 +1877,6 @@ main (int    argc,
         s_session = katze_net_get_session (net);
         g_type_set_qdata (SOUP_TYPE_SESSION,
                           g_quark_from_static_string ("midori-app"), app);
-        katze_assign (config_file, build_config_filename ("cookies.txt"));
         jar = soup_cookie_jar_new ();
         soup_session_add_feature (s_session, SOUP_SESSION_FEATURE (jar));
         soup_session_add_feature (webkit_session, SOUP_SESSION_FEATURE (jar));
