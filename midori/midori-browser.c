@@ -120,6 +120,7 @@ enum
     REMOVE_TAB,
     ACTIVATE_ACTION,
     CONTEXT_READY,
+    ADD_DOWNLOAD,
     QUIT,
 
     LAST_SIGNAL
@@ -1007,6 +1008,7 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
+    g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     if (!webkit_download_get_destination_uri (download))
     {
         gchar* folder;
@@ -1261,6 +1263,33 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__POINTER,
         G_TYPE_NONE, 1,
         G_TYPE_POINTER);
+
+    /**
+     * MidoriView::add-download:
+     * @view: the object on which the signal is emitted
+     * @download: a new download
+     *
+     * Emitted when a new download was accepted and is
+     * about to start, before the browser adds items
+     * to the transferbar.
+     *
+     * Emitting this signal manually is equal to a
+     * user initiating and confirming a download
+     *
+     * Note: This requires WebKitGTK 1.1.3.
+     *
+     * Since: 0.1.5
+     */
+    signals[ADD_DOWNLOAD] = g_signal_new (
+        "add-download",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        G_TYPE_OBJECT);
 
     signals[QUIT] = g_signal_new (
         "quit",
