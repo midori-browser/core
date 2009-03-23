@@ -45,22 +45,29 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
        dark, we lighten it up a litte. Finally we make the event box
        visible and modify its background. */
 
-    uri = soup_uri_new (midori_view_get_display_uri (view));
-    hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri->host, -1);
-    soup_uri_free (uri);
-    colorstr = g_strndup (hash, 6 + 1);
-    g_free (hash);
-    colorstr[0] = '#';
-    gdk_color_parse (colorstr, &color);
-    if (color.red < 35000)
-        color.red += 25000 + (color.blue + 1) / 2;
-    if (color.green < 35000)
-        color.green += 25000 + (color.red + 1) / 2;
-    if (color.blue < 35000)
-        color.blue += 25000 + (color.green + 1) / 2;
-    gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), TRUE);
-    gtk_widget_modify_bg (label, GTK_STATE_NORMAL, &color);
-    gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, &color);
+    if ((uri = soup_uri_new (midori_view_get_display_uri (view))))
+    {
+        hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri->host, -1);
+        soup_uri_free (uri);
+        colorstr = g_strndup (hash, 6 + 1);
+        g_free (hash);
+        colorstr[0] = '#';
+        gdk_color_parse (colorstr, &color);
+        if (color.red < 35000)
+            color.red += 25000 + (color.blue + 1) / 2;
+        if (color.green < 35000)
+            color.green += 25000 + (color.red + 1) / 2;
+        if (color.blue < 35000)
+            color.blue += 25000 + (color.green + 1) / 2;
+        gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), TRUE);
+        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, &color);
+        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, &color);
+    }
+    else
+    {
+        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
+        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
+    }
 }
 
 static void
