@@ -1182,6 +1182,8 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
     gint response;
+    #else
+    gchar* uri;
     #endif
 
     if (web_frame != webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
