@@ -27,8 +27,8 @@ for module in ('midori', 'katze'):
             Utils.check_dir ('html')
             os.chdir ('html')
         subprocess.call (['gtkdoc-mkhtml', module, '../%s.sgml' % module])
-        Params.pprint ('YELLOW', "Created documentation for %s." % module)
+        Utils.pprint ('YELLOW', "Created documentation for %s." % module)
         os.chdir ('../../../../..')
     except Exception, msg:
         print msg
-        Params.pprint ('RED', "Failed to create documentation for %s." % module)
+        Utils.pprint ('RED', "Failed to create documentation for %s." % module)
