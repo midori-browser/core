@@ -1320,6 +1320,7 @@ midori_soup_session_debug (SoupSession* session)
 
 static void
 midori_soup_session_prepare (SoupSession*       session,
+                             SoupCookieJar*     cookie_jar,
                              MidoriWebSettings* settings)
 {
     SoupSessionFeature* feature;
@@ -1341,6 +1342,7 @@ midori_soup_session_prepare (SoupSession*       session,
     config_file = build_config_filename ("cookies.txt");
     g_object_set_data_full (G_OBJECT (feature), "filename",
                             config_file, (GDestroyNotify)g_free);
+    soup_session_add_feature (session, SOUP_SESSION_FEATURE (cookie_jar));
     soup_session_add_feature (session, feature);
 }
 
@@ -1644,6 +1646,7 @@ main (int    argc,
     KatzeItem* item;
     gchar* uri_ready;
     KatzeNet* net;
+    SoupSession* webkit_session;
     SoupSession* s_session;
     SoupCookieJar* jar;
     #if HAVE_SQLITE
@@ -1869,22 +1872,15 @@ main (int    argc,
     }
     g_string_free (error_messages, TRUE);
 
-    if (1)
-    {
-        SoupSession* webkit_session = webkit_get_default_session ();
-
-        net = katze_net_new ();
-        s_session = katze_net_get_session (net);
-        g_type_set_qdata (SOUP_TYPE_SESSION,
-                          g_quark_from_static_string ("midori-app"), app);
-        jar = soup_cookie_jar_new ();
-        soup_session_add_feature (s_session, SOUP_SESSION_FEATURE (jar));
-        soup_session_add_feature (webkit_session, SOUP_SESSION_FEATURE (jar));
-        g_object_unref (jar);
-        midori_soup_session_prepare (s_session, settings);
-        midori_soup_session_prepare (webkit_session, settings);
-        g_object_unref (net);
-    }
+    webkit_session = webkit_get_default_session ();
+    net = katze_net_new ();
+    s_session = katze_net_get_session (net);
+    jar = soup_cookie_jar_new ();
+    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
+    midori_soup_session_prepare (s_session, jar, settings);
+    midori_soup_session_prepare (webkit_session, jar, settings);
+    g_object_unref (jar);
+    g_object_unref (net);
 
     /* Open as many tabs as we have uris, seperated by pipes */
     i = 0;

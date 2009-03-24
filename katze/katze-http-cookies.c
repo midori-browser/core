@@ -218,7 +218,6 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
                        SoupCookie*    new_cookie,
                        gchar*         filename)
 {
-    GObject* app;
     GObject* settings;
     guint accept_cookies;
 
@@ -229,10 +228,7 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
     {
         FILE *out;
 
-        /* FIXME: This is really a hack */
-        app = g_type_get_qdata (SOUP_TYPE_SESSION,
-            g_quark_from_static_string ("midori-app"));
-        settings = katze_object_get_object (G_OBJECT (app), "settings");
+        settings = g_object_get_data (G_OBJECT (jar), "midori-settings");
         accept_cookies = katze_object_get_enum (settings, "accept-cookies");
         if (accept_cookies == 2 /* MIDORI_ACCEPT_COOKIES_NONE */)
         {
@@ -259,45 +255,28 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
 }
 
 static void
-katze_http_cookies_session_request_queued_cb (SoupSession*        session,
-                                              SoupMessage*        msg,
-                                              SoupSessionFeature* feature)
+katze_http_cookies_attach (SoupSessionFeature* feature,
+                           SoupSession*        session)
 {
-    const gchar* filename;
     SoupSessionFeature* cookie_jar;
-
-    filename = g_object_get_data (G_OBJECT (feature), "filename");
-    if (!filename)
-        return;
+    gchar* filename;
 
     cookie_jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
-    if (!cookie_jar)
-        return;
-
-    g_type_set_qdata (SOUP_TYPE_COOKIE_JAR,
-        g_quark_from_static_string ("midori-has-jar"), (void*)1);
+    g_return_if_fail (cookie_jar != NULL);
+    filename = g_object_get_data (G_OBJECT (feature), "filename");
+    g_return_if_fail (filename != NULL);
     cookie_jar_load (SOUP_COOKIE_JAR (cookie_jar), filename);
     g_signal_connect_data (cookie_jar, "changed",
         G_CALLBACK (cookie_jar_changed_cb), g_strdup (filename),
         (GClosureNotify)g_free, 0);
-    g_signal_handlers_disconnect_by_func (session,
-        katze_http_cookies_session_request_queued_cb, feature);
-}
 
-static void
-katze_http_cookies_attach (SoupSessionFeature* feature,
-                           SoupSession*        session)
-{
-    g_signal_connect (session, "request-queued",
-        G_CALLBACK (katze_http_cookies_session_request_queued_cb), feature);
 }
 
 static void
 katze_http_cookies_detach (SoupSessionFeature* feature,
                            SoupSession*        session)
 {
-    g_signal_handlers_disconnect_by_func (session,
-        katze_http_cookies_session_request_queued_cb, feature);
+    /* Nothing to do. */
 }
 
 static void
