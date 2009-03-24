@@ -122,6 +122,14 @@ static void
 page_holder_activate_cb (MidoriExtension* extension,
                          MidoriApp*       app)
 {
+    KatzeArray* browsers;
+    MidoriBrowser* browser;
+    guint i;
+
+    browsers = katze_object_get_object (app, "browsers");
+    i = 0;
+    while ((browser = katze_array_get_nth_item (browsers, i++)))
+        page_holder_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (page_holder_app_add_browser_cb), extension);
 }
