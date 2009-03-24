@@ -12,6 +12,7 @@
 #include "katze-array.h"
 
 #include "katze-utils.h"
+#include "marshal.h"
 
 #include <glib/gi18n.h>
 #include <string.h>
@@ -44,6 +45,10 @@ struct _KatzeArrayClass
     (*remove_item)            (KatzeArray* array,
                                gpointer    item);
     void
+    (*move_item)              (KatzeArray* array,
+                               gpointer    item,
+                               gint        index);
+    void
     (*clear)                  (KatzeArray* array);
 };
 
@@ -52,6 +57,7 @@ G_DEFINE_TYPE (KatzeArray, katze_array, KATZE_TYPE_ITEM);
 enum {
     ADD_ITEM,
     REMOVE_ITEM,
+    MOVE_ITEM,
     CLEAR,
 
     LAST_SIGNAL
@@ -91,6 +97,15 @@ _katze_array_remove_item (KatzeArray* array,
             katze_item_set_parent (item, NULL);
         g_object_unref (item);
     }
+}
+
+static void
+_katze_array_move_item (KatzeArray* array,
+                        gpointer    item,
+                        gint        position)
+{
+    array->items = g_list_remove (array->items, item);
+    array->items = g_list_insert (array->items, item, position);
 }
 
 static void
@@ -140,6 +155,28 @@ katze_array_class_init (KatzeArrayClass* class)
         G_TYPE_NONE, 1,
         G_TYPE_POINTER);
 
+    /**
+     * KatzeArray::move-item:
+     * @array: the object on which the signal is emitted
+     * @item: the item being moved
+     * @position: the new position of the item
+     *
+     * An item is moved to a new position.
+     *
+     * Since: 0.1.6
+     **/
+    signals[MOVE_ITEM] = g_signal_new (
+        "move-item",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (KatzeArrayClass, move_item),
+        0,
+        NULL,
+        katze_cclosure_marshal_VOID__POINTER_INT,
+        G_TYPE_NONE, 2,
+        G_TYPE_POINTER,
+        G_TYPE_INT);
+
     signals[CLEAR] = g_signal_new (
         "clear",
         G_TYPE_FROM_CLASS (class),
@@ -155,6 +192,7 @@ katze_array_class_init (KatzeArrayClass* class)
 
     class->add_item = _katze_array_add_item;
     class->remove_item = _katze_array_remove_item;
+    class->move_item = _katze_array_move_item;
     class->clear = _katze_array_clear;
 }
 
@@ -369,6 +407,26 @@ katze_array_get_length (KatzeArray* array)
     g_return_val_if_fail (KATZE_IS_ARRAY (array), 0);
 
     return g_list_length (array->items);
+}
+
+/**
+ * katze_array_move_item:
+ * @array: a #KatzeArray
+ * @item: the item being moved
+ * @position: the new position of the item
+ *
+ * Moves @item to the position @position.
+ *
+ * Since: 0.1.6
+ **/
+void
+katze_array_move_item (KatzeArray* array,
+                       gpointer    item,
+                       gint        position)
+{
+    g_return_if_fail (KATZE_IS_ARRAY (array));
+
+    g_signal_emit (array, signals[MOVE_ITEM], 0, item, position);
 }
 
 /**

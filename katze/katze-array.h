@@ -69,6 +69,11 @@ guint
 katze_array_get_length             (KatzeArray*   array);
 
 void
+katze_array_move_item              (KatzeArray*   array,
+                                    gpointer      item,
+                                    gint          position);
+
+void
 katze_array_clear                  (KatzeArray*   array);
 
 G_END_DECLS
