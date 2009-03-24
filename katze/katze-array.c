@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -26,43 +26,66 @@
 
 struct _KatzeArray
 {
-    KatzeList parent_instance;
+    KatzeItem parent_instance;
 
     GType type;
+    GList* items;
 };
 
 struct _KatzeArrayClass
 {
-    KatzeListClass parent_class;
+    KatzeItemClass parent_class;
+
+    /* Signals */
+    void
+    (*add_item)               (KatzeArray* array,
+                               gpointer    item);
+    void
+    (*remove_item)            (KatzeArray* array,
+                               gpointer    item);
+    void
+    (*clear)                  (KatzeArray* array);
 };
 
-G_DEFINE_TYPE (KatzeArray, katze_array, KATZE_TYPE_LIST)
+G_DEFINE_TYPE (KatzeArray, katze_array, KATZE_TYPE_ITEM);
+
+enum {
+    ADD_ITEM,
+    REMOVE_ITEM,
+    CLEAR,
+
+    LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
 
 static void
 katze_array_finalize (GObject* object);
 
 static void
-_katze_array_add_item (KatzeList* list,
-                       gpointer   item)
+_katze_array_add_item (KatzeArray* array,
+                       gpointer    item)
 {
-    if (katze_array_is_a ((KatzeArray*)list, G_TYPE_OBJECT))
+    if (katze_array_is_a (array, G_TYPE_OBJECT))
     {
         GType type = G_OBJECT_TYPE (item);
 
-        g_return_if_fail (katze_array_is_a ((KatzeArray*)list, type));
+        g_return_if_fail (katze_array_is_a (array, type));
         g_object_ref (item);
         if (g_type_is_a (type, KATZE_TYPE_ITEM))
-            katze_item_set_parent (item, list);
+            katze_item_set_parent (item, array);
     }
-    KATZE_LIST_CLASS (katze_array_parent_class)->add_item (list, item);
+
+    array->items = g_list_append (array->items, item);
 }
 
 static void
-_katze_array_remove_item (KatzeList* list,
+_katze_array_remove_item (KatzeArray* array,
                           gpointer   item)
 {
-    KATZE_LIST_CLASS (katze_array_parent_class)->remove_item (list, item);
-    if (katze_array_is_a ((KatzeArray*)list, G_TYPE_OBJECT))
+    array->items = g_list_remove (array->items, item);
+
+    if (katze_array_is_a (array, G_TYPE_OBJECT))
     {
         if (KATZE_IS_ITEM (item))
             katze_item_set_parent (item, NULL);
@@ -71,23 +94,75 @@ _katze_array_remove_item (KatzeList* list,
 }
 
 static void
+_katze_array_clear (KatzeArray* array)
+{
+    guint n;
+    guint i;
+    GObject* item;
+
+    n = g_list_length (array->items);
+    for (i = 0; i < n; i++)
+    {
+        if ((item = g_list_nth_data (array->items, i)))
+            katze_array_remove_item (array, item);
+    }
+    g_list_free (array->items);
+    array->items = NULL;
+}
+
+static void
 katze_array_class_init (KatzeArrayClass* class)
 {
     GObjectClass* gobject_class;
-    KatzeListClass* katzelist_class;
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_array_finalize;
 
-    katzelist_class = KATZE_LIST_CLASS (class);
-    katzelist_class->add_item = _katze_array_add_item;
-    katzelist_class->remove_item = _katze_array_remove_item;
+    signals[ADD_ITEM] = g_signal_new (
+        "add-item",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (KatzeArrayClass, add_item),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER);
+
+    signals[REMOVE_ITEM] = g_signal_new (
+        "remove-item",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (KatzeArrayClass, remove_item),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1,
+        G_TYPE_POINTER);
+
+    signals[CLEAR] = g_signal_new (
+        "clear",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        G_STRUCT_OFFSET (KatzeArrayClass, clear),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0);
+
+    gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = katze_array_finalize;
+
+    class->add_item = _katze_array_add_item;
+    class->remove_item = _katze_array_remove_item;
+    class->clear = _katze_array_clear;
 }
 
 static void
 katze_array_init (KatzeArray* array)
 {
     array->type = G_TYPE_NONE;
+    array->items = NULL;
 }
 
 static void
@@ -99,10 +174,12 @@ katze_array_finalize (GObject* object)
     array = KATZE_ARRAY (object);
     if (katze_array_is_a (array, G_TYPE_OBJECT))
     {
-        n = katze_list_get_length ((KatzeList*)array);
+        n = g_list_length (array->items);
         for (i = 0; i < n; i++)
-            g_object_unref (katze_list_get_nth_item ((KatzeList*)array, i));
+            g_object_unref (g_list_nth_data (array->items, i));
     }
+
+    g_list_free (array->items);
 
     G_OBJECT_CLASS (katze_array_parent_class)->finalize (object);
 }
@@ -117,12 +194,6 @@ katze_array_finalize (GObject* object)
  * from it to this array *if* @type is an #GObject type.
  * The array will keep a reference on each object until
  * it is removed from the array.
- *
- * If @type is *not* a #GObject type, #KatzeArray behaves
- * pretty much like #KatzeList.
- *
- * Note: Since 0.1.2 you may use #KatzeList accessors to
- * work with #KatzeArray if you want to.
  *
  * Return value: a new #KatzeArray
  **/
@@ -158,7 +229,7 @@ katze_array_is_a (KatzeArray* array,
 /**
  * katze_array_add_item:
  * @array: a #KatzeArray
- * @item: a #GObject
+ * @item: an item
  *
  * Adds an item to the array.
  *
@@ -168,15 +239,15 @@ void
 katze_array_add_item (KatzeArray* array,
                       gpointer    item)
 {
-    /* g_return_if_fail (KATZE_IS_ARRAY (array)); */
+    g_return_if_fail (KATZE_IS_ARRAY (array));
 
-    katze_list_add_item (KATZE_LIST (array), item);
+    g_signal_emit (array, signals[ADD_ITEM], 0, item);
 }
 
 /**
  * katze_array_remove_item:
  * @array: a #KatzeArray
- * @item: a #GObject
+ * @item: an item
  *
  * Removes an item from the array.
  *
@@ -186,9 +257,9 @@ void
 katze_array_remove_item (KatzeArray* array,
                          gpointer    item)
 {
-    /* g_return_if_fail (KATZE_IS_ARRAY (array)); */
+    g_return_if_fail (KATZE_IS_ARRAY (array));
 
-    katze_list_remove_item (KATZE_LIST (array), item);
+    g_signal_emit (array, signals[REMOVE_ITEM], 0, item);
 }
 
 /**
@@ -204,25 +275,25 @@ gpointer
 katze_array_get_nth_item (KatzeArray* array,
                           guint       n)
 {
-    /* g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL); */
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
 
-    return katze_list_get_nth_item (KATZE_LIST (array), n);
+    return g_list_nth_data (array->items, n);
 }
 
 /**
  * katze_array_is_empty:
  * @array: a #KatzeArray
  *
- * Determines if @array is empty.
+ * Determines whether @array is empty.
  *
  * Return value: an item, or %NULL
  **/
 gboolean
 katze_array_is_empty (KatzeArray* array)
 {
-    /* g_return_val_if_fail (KATZE_IS_ARRAY (array), TRUE); */
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), TRUE);
 
-    return katze_list_is_empty (KATZE_LIST (array));
+    return !g_list_nth_data (array->items, 0);
 }
 
 /**
@@ -238,9 +309,9 @@ gint
 katze_array_get_item_index (KatzeArray* array,
                             gpointer    item)
 {
-    /* g_return_val_if_fail (KATZE_IS_ARRAY (array), -1); */
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), -1);
 
-    return katze_list_get_item_index (KATZE_LIST (array), item);
+    return g_list_index (array->items, item);
 }
 
 /**
@@ -271,14 +342,14 @@ katze_array_find_token (KatzeArray*  array,
     if (!katze_array_is_a (array, G_TYPE_OBJECT))
         return NULL;
 
-    n = katze_list_get_length ((KatzeList*)array);
+    n = g_list_length (array->items);
     for (i = 0; i < n; i++)
     {
-        item = katze_list_get_nth_item ((KatzeList*)array, i);
+        item = g_list_nth_data (array->items, i);
         if (!g_type_is_a (G_OBJECT_TYPE (item), KATZE_TYPE_ITEM))
             continue;
         found_token = katze_item_get_token ((KatzeItem*)item);
-        if (found_token && !strcmp (found_token, token))
+        if (!g_strcmp0 (found_token, token))
             return item;
     }
     return NULL;
@@ -295,9 +366,9 @@ katze_array_find_token (KatzeArray*  array,
 guint
 katze_array_get_length (KatzeArray* array)
 {
-    /* g_return_val_if_fail (KATZE_IS_ARRAY (array), 0); */
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), 0);
 
-    return katze_list_get_length (KATZE_LIST (array));
+    return g_list_length (array->items);
 }
 
 /**
@@ -309,7 +380,7 @@ katze_array_get_length (KatzeArray* array)
 void
 katze_array_clear (KatzeArray* array)
 {
-    /* g_return_if_fail (KATZE_IS_ARRAY (array)); */
+    g_return_if_fail (KATZE_IS_ARRAY (array));
 
-    katze_list_clear (KATZE_LIST (array));
+    g_signal_emit (array, signals[CLEAR], 0);
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -12,7 +12,7 @@
 #ifndef __KATZE_ARRAY_H__
 #define __KATZE_ARRAY_H__
 
-#include "katze-list.h"
+#include <katze/katze-item.h>
 
 G_BEGIN_DECLS
 

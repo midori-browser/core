@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,6 @@
 #include "katze-throbber.h"
 #include "katze-utils.h"
 #include "katze-item.h"
-#include "katze-list.h"
 #include "katze-array.h"
 #include "katze-arrayaction.h"
 #include "katze-separatoraction.h"
