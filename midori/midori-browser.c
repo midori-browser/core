@@ -3143,6 +3143,18 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     _midori_browser_update_progress (browser, MIDORI_VIEW (view));
 }
 
+static void
+midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
+                                           MidoriView*    view,
+                                           guint          page_num,
+                                           MidoriBrowser* browser)
+{
+    KatzeItem* item = midori_view_get_proxy_item (view);
+    katze_array_move_item (browser->proxy_array, item, page_num);
+
+    g_object_notify (G_OBJECT (browser), "uri");
+}
+
 static gboolean
 gtk_notebook_button_press_event_cb (GtkNotebook*    notebook,
                                     GdkEventButton* event,
@@ -4050,6 +4062,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect_after (browser->notebook, "switch-page",
                             G_CALLBACK (gtk_notebook_switch_page_cb),
                             browser);
+    g_signal_connect (browser->notebook, "page-reordered",
+                      G_CALLBACK (midori_browser_notebook_page_reordered_cb),
+                      browser);
     g_signal_connect (browser->notebook, "button-press-event",
                       G_CALLBACK (gtk_notebook_button_press_event_cb),
                       browser);
