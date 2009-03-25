@@ -12,12 +12,21 @@
 #include <midori/midori.h>
 
 static void
+statusbar_features_app_add_browser_cb (MidoriApp*       app,
+                                       MidoriBrowser*   browser,
+                                       MidoriExtension* extension);
+
+static void
 statusbar_features_deactivate_cb (MidoriExtension* extension,
                                   GtkWidget*       bbox)
 {
+    MidoriApp* app = midori_extension_get_app (extension);
+
     gtk_widget_destroy (bbox);
     g_signal_handlers_disconnect_by_func (
         extension, statusbar_features_deactivate_cb, bbox);
+    g_signal_handlers_disconnect_by_func (
+        app, statusbar_features_app_add_browser_cb, extension);
 }
 
 static void

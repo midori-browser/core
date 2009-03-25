@@ -13,6 +13,11 @@
 
 #define STOCK_PAGE_HOLDER "page-holder"
 
+static void
+page_holder_app_add_browser_cb (MidoriApp*       app,
+                                MidoriBrowser*   browser,
+                                MidoriExtension* extension);
+
 static gint
 page_holder_notebook_append_view (GtkWidget* notebook)
 {
@@ -68,7 +73,13 @@ static void
 page_holder_deactivate_cb (MidoriExtension* extension,
                            GtkWidget*       notebook)
 {
+    MidoriApp* app = midori_extension_get_app (extension);
+
     gtk_widget_destroy (notebook);
+    g_signal_handlers_disconnect_by_func (
+        extension, page_holder_deactivate_cb, notebook);
+    g_signal_handlers_disconnect_by_func (
+        app, page_holder_app_add_browser_cb, extension);
 }
 
 static void
