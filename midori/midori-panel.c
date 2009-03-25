@@ -29,7 +29,6 @@ struct _MidoriPanel
     GtkWidget* frame;
     GtkWidget* toolbook;
     GtkWidget* notebook;
-    GSList*    group;
     GtkMenu*   menu;
 
     gboolean right_aligned;
@@ -92,7 +91,6 @@ midori_panel_class_init (MidoriPanelClass* class)
 {
     GObjectClass* gobject_class;
     GParamFlags flags;
-
 
     signals[CLOSE] = g_signal_new (
         "close",
@@ -511,9 +509,9 @@ midori_panel_append_page (MidoriPanel*    panel,
     label = midori_viewable_get_label (viewable);
     stock_id = midori_viewable_get_stock_id (viewable);
 
-    toolitem = gtk_radio_tool_button_new_from_stock (panel->group, stock_id);
-    panel->group = gtk_radio_tool_button_get_group (GTK_RADIO_TOOL_BUTTON (
-                                                    toolitem));
+    toolitem = gtk_radio_tool_button_new_from_stock (NULL, stock_id);
+    g_object_set (toolitem, "group",
+        gtk_toolbar_get_nth_item (GTK_TOOLBAR (panel->toolbar), 0), NULL);
     image = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_BUTTON);
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     if (label)
