@@ -33,8 +33,10 @@ extension_deactivate_cb (MidoriExtension* extension)
 static void
 extension_create (void)
 {
+    MidoriApp* app;
     MidoriExtension* extension;
 
+    app = midori_app_new ();
     extension = g_object_new (MIDORI_TYPE_EXTENSION, NULL);
     g_assert (!midori_extension_is_prepared (extension));
     g_object_set (extension, "name", "TestExtension",
@@ -48,8 +50,9 @@ extension_create (void)
                       G_CALLBACK (extension_activate_cb), NULL);
     g_assert (midori_extension_is_prepared (extension));
     g_assert (!midori_extension_is_active (extension));
-    g_signal_emit_by_name (extension, "activate", NULL);
+    g_signal_emit_by_name (extension, "activate", app);
     g_assert (midori_extension_is_active (extension));
+    g_assert (midori_extension_get_app (extension) == app);
     g_assert (g_object_get_data (G_OBJECT (extension), "activated") == magic);
     g_signal_connect (extension, "deactivate",
                       G_CALLBACK (extension_deactivate_cb), NULL);
@@ -75,18 +78,20 @@ extension_mock_object (void)
 static void
 extension_settings (void)
 {
+    MidoriApp* app;
     MidoriExtension* extension;
     gboolean nihilist;
     gint age;
     const gchar* lastname;
 
+    app = midori_app_new ();
     extension = extension_mock_object ();
     midori_extension_install_boolean (extension, "nihilist", TRUE);
     nihilist = midori_extension_get_boolean (extension, "nihilist");
     g_assert (!nihilist);
     g_signal_connect (extension, "activate",
                       G_CALLBACK (extension_activate_cb), NULL);
-    g_signal_emit_by_name (extension, "activate", NULL);
+    g_signal_emit_by_name (extension, "activate", app);
     nihilist = midori_extension_get_boolean (extension, "nihilist");
     g_assert (nihilist);
     midori_extension_set_boolean (extension, "nihilist", FALSE);
@@ -100,7 +105,7 @@ extension_settings (void)
     g_assert_cmpint (age, ==, 0);
     g_signal_connect (extension, "activate",
                       G_CALLBACK (extension_activate_cb), NULL);
-    g_signal_emit_by_name (extension, "activate", NULL);
+    g_signal_emit_by_name (extension, "activate", app);
     age = midori_extension_get_integer (extension, "age");
     g_assert_cmpint (age, ==, 88);
     midori_extension_set_integer (extension, "age", 66);
@@ -114,7 +119,7 @@ extension_settings (void)
     g_assert_cmpstr (lastname, ==, NULL);
     g_signal_connect (extension, "activate",
                       G_CALLBACK (extension_activate_cb), NULL);
-    g_signal_emit_by_name (extension, "activate", NULL);
+    g_signal_emit_by_name (extension, "activate", app);
     lastname = midori_extension_get_string (extension, "lastname");
     g_assert_cmpstr (lastname, ==, "Thomas Mann");
     midori_extension_set_string (extension, "lastname", "Theodor Fontane");
