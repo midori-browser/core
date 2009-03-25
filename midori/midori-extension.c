@@ -15,8 +15,6 @@
     #include <config.h>
 #endif
 
-#include "midori-app.h"
-
 #include <katze/katze.h>
 #include "sokoke.h"
 #include <glib/gi18n.h>
@@ -30,6 +28,7 @@ struct _MidoriExtensionPrivate
     gchar* version;
     gchar* authors;
 
+    MidoriApp* app;
     gboolean active;
     gchar* config_dir;
     GList* lsettings;
@@ -217,7 +216,11 @@ static void
 midori_extension_activate_cb (MidoriExtension* extension,
                               MidoriApp*       app)
 {
-    GList* lsettings = g_list_first (extension->priv->lsettings);
+    GList* lsettings;
+
+    g_return_if_fail (MIDORI_IS_APP (app));
+
+    lsettings = g_list_first (extension->priv->lsettings);
 
     /* If a configuration directory was requested before activation we
        assume we should load and save settings. This is a detail that
@@ -279,6 +282,7 @@ midori_extension_activate_cb (MidoriExtension* extension,
         lsettings = g_list_next (lsettings);
     }
 
+    extension->priv->app = g_object_ref (app);
     extension->priv->active = TRUE;
     /* FIXME: Disconnect all signal handlers */
 }
@@ -289,6 +293,7 @@ midori_extension_init (MidoriExtension* extension)
     extension->priv = G_TYPE_INSTANCE_GET_PRIVATE (extension,
         MIDORI_TYPE_EXTENSION, MidoriExtensionPrivate);
 
+    extension->priv->app = NULL;
     extension->priv->active = FALSE;
     extension->priv->config_dir = NULL;
     extension->priv->lsettings = NULL;
@@ -305,6 +310,7 @@ midori_extension_finalize (GObject* object)
 {
     MidoriExtension* extension = MIDORI_EXTENSION (object);
 
+    katze_object_assign (extension->priv->app, NULL);
     katze_assign (extension->priv->name, NULL);
     katze_assign (extension->priv->description, NULL);
     katze_assign (extension->priv->version, NULL);
@@ -417,16 +423,35 @@ midori_extension_is_active (MidoriExtension* extension)
  * midori_extension_deactivate:
  * @extension: a #MidoriExtension
  *
- * Attempts to deactivate @extension in a way that the instance
- * is actually finished irreversibly.
+ * Attempts to deactivate @extension.
  **/
 void
 midori_extension_deactivate (MidoriExtension* extension)
 {
-    g_return_if_fail (MIDORI_IS_EXTENSION (extension));
+    g_return_if_fail (midori_extension_is_active (extension));
 
-    extension->priv->active = FALSE;
     g_signal_emit (extension, signals[DEACTIVATE], 0);
+    extension->priv->active = FALSE;
+    katze_object_assign (extension->priv->app, NULL);
+}
+
+/**
+ * midori_extension_get_app:
+ * @extension: a #MidoriExtension
+ *
+ * Retrieves the #MidoriApp the extension belongs to. The
+ * extension has to be active.
+ *
+ * Return value: the #MidoriApp instance
+ *
+ * Since 0.1.6
+ **/
+MidoriApp*
+midori_extension_get_app (MidoriExtension* extension)
+{
+    g_return_val_if_fail (midori_extension_is_active (extension), NULL);
+
+    return extension->priv->app;
 }
 
 /**

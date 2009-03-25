@@ -12,7 +12,7 @@
 #ifndef __MIDORI_EXTENSION_H__
 #define __MIDORI_EXTENSION_H__
 
-#include <glib-object.h>
+#include "midori-app.h"
 
 G_BEGIN_DECLS
 
@@ -56,6 +56,9 @@ midori_extension_is_active           (MidoriExtension* extension);
 
 void
 midori_extension_deactivate          (MidoriExtension* extension);
+
+MidoriApp*
+midori_extension_get_app             (MidoriExtension* extension);
 
 const gchar*
 midori_extension_get_config_dir      (MidoriExtension* extension);
