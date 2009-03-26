@@ -1208,8 +1208,12 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     #endif
     description = g_content_type_get_description (content_type);
     g_free (content_type);
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-        _("File Type: %s ('%s')"), description, mime_type);
+    if (g_strrstr (description, mime_type))
+        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+        _("File Type: '%s'"), mime_type);
+    else
+       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+       _("File Type: %s ('%s')"), description, mime_type);
     g_free (description);
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
