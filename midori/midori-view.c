@@ -1178,6 +1178,10 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     GtkWidget* dialog;
     gchar* content_type;
     gchar* description;
+    #if GTK_CHECK_VERSION (2, 14, 0)
+    GIcon* icon;
+    GtkWidget* image;
+    #endif
     gchar* title;
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
@@ -1207,6 +1211,13 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     content_type = g_strdup (mime_type);
     #endif
     description = g_content_type_get_description (content_type);
+    #if GTK_CHECK_VERSION (2, 14, 0)
+    icon = g_content_type_get_icon (content_type);
+    image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_DIALOG);
+    g_object_unref (icon);
+    gtk_widget_show (image);
+    gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG (dialog), image);
+    #endif
     g_free (content_type);
     if (g_strrstr (description, mime_type))
         gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
