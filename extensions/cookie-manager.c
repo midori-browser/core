@@ -477,15 +477,6 @@ static void cm_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, SoupCookie *n
 }
 
 
-static void cm_page_realize_cb(GtkWidget *widget, CMData *cmdata)
-{
-	/* Initially fill the tree view. This gets also called when the alignment of the panel is
-	 * changed but then we don't need to rebuild the tree. */
-	if (cmdata->cookies == NULL)
-		cm_refresh_store(cmdata);
-}
-
-
 static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, MidoriExtension *ext)
 {
 	GtkWidget *panel;
@@ -572,16 +563,25 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	cmdata->jar = SOUP_COOKIE_JAR(soup_session_get_feature(session, soup_cookie_jar_get_type()));
 	g_signal_connect(cmdata->jar, "changed", G_CALLBACK(cm_jar_changed_cb), cmdata);
 
+	cm_refresh_store(cmdata);
+
 	midori_panel_append_widget(MIDORI_PANEL(panel), cmdata->panel_page,
 		STOCK_COOKIE_MANAGER, _("Cookie Manager"), toolbar);
 
-	g_signal_connect(cmdata->panel_page, "realize", G_CALLBACK(cm_page_realize_cb), cmdata);
 	g_signal_connect(ext, "deactivate", G_CALLBACK(cm_deactivate_cb), cmdata);
 }
 
 
 static void cm_activate_cb(MidoriExtension *extension, MidoriApp *app, gpointer data)
 {
+    KatzeArray* browsers;
+    MidoriBrowser* browser;
+    guint i;
+
+    browsers = katze_object_get_object(app, "browsers");
+    i = 0;
+    while ((browser = katze_array_get_nth_item(browsers, i++)))
+        cm_app_add_browser_cb(app, browser, extension);
 	g_signal_connect(app, "add-browser", G_CALLBACK(cm_app_add_browser_cb), extension);
 }
 
