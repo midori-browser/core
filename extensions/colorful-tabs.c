@@ -45,7 +45,7 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
        dark, we lighten it up a litte. Finally we make the event box
        visible and modify its background. */
 
-    if ((uri = soup_uri_new (midori_view_get_display_uri (view))))
+    if ((uri = soup_uri_new (midori_view_get_display_uri (view))) && uri->host)
     {
         hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri->host, -1);
         soup_uri_free (uri);
