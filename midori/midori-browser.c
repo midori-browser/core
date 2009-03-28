@@ -3579,6 +3579,7 @@ static const gchar* ui_markup =
      *somewhere* in the UI definition */
    "<menu action='Dummy'>"
     "<menuitem action='FindPrevious'/>"
+    "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
     "<menuitem action='UndoTabClose'/>"
