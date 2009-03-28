@@ -16,13 +16,11 @@
 #define CM_DEBUG 0
 
 #define STOCK_COOKIE_MANAGER "cookie-manager"
-#define CM_EMPTY_LABEL_TEXT "\n\n\n\n\n"
+#define CM_EMPTY_LABEL_TEXT "\n\n\n\n\n\n"
 
 enum
 {
 	COL_NAME,
-	COL_TOOLTIP,
-	COL_ITEM, /* indicates whether a row is a child (cookie name) or a parent (domain name) */
 	COL_COOKIE,
 	N_COLUMNS
 };
@@ -97,7 +95,6 @@ static void cm_refresh_store(CMData *cmdata)
 	GHashTable *parents;
 	GtkTreeIter iter;
 	GtkTreeIter *parent_iter;
-	gchar *tooltip = NULL;
 	SoupCookie *cookie;
 
 	g_object_ref(cmdata->store);
@@ -125,30 +122,17 @@ static void cm_refresh_store(CMData *cmdata)
 			gtk_tree_store_append(cmdata->store, parent_iter, NULL);
 			gtk_tree_store_set(cmdata->store, parent_iter,
 				COL_NAME, cookie->domain,
-				COL_ITEM, FALSE,
+				COL_COOKIE, NULL,
 				-1);
 
 			g_hash_table_insert(parents, g_strdup(cookie->domain), parent_iter);
 		}
 
-		if (gtk_check_version(2, 12, 0) == NULL)
-			tooltip = g_markup_printf_escaped(
-				_("<b>Host: %s</b>\nPath: %s\nSecure: %s\nName: %s\nValue: %s"),
-				cookie->domain,
-				cookie->path,
-				cookie->secure ? _("Yes") : _("No"),
-				cookie->name,
-				cookie->value);
-
 		gtk_tree_store_append(cmdata->store, &iter, parent_iter);
 		gtk_tree_store_set(cmdata->store, &iter,
 			COL_NAME, cookie->name,
-			COL_TOOLTIP, tooltip,
-			COL_ITEM, TRUE,
 			COL_COOKIE, cookie,
 			-1);
-
-		g_free(tooltip);
 	}
 	g_hash_table_destroy(parents);
 
@@ -157,31 +141,60 @@ static void cm_refresh_store(CMData *cmdata)
 }
 
 
+static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
+{
+	gchar *expires;
+	gchar *text;
+
+	g_return_val_if_fail(cookie != NULL, NULL);
+
+	expires = (cookie->expires != NULL) ?
+		soup_date_to_string(cookie->expires, SOUP_DATE_HTTP) :
+		g_strdup(_("At theend of the session"));
+
+	text = g_markup_printf_escaped(
+			_("<b>Host: %s</b>\n<b>Name: %s</b>\nValue: %s\nPath: %s\nSecure: %s\nExpires: %s"),
+			cookie->domain,
+			cookie->name,
+			cookie->value,
+			cookie->path,
+			cookie->secure ? _("Yes") : _("No"),
+			expires);
+
+	g_free(expires);
+
+	return text;
+}
+
+
 static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CMData *cmdata)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	gchar *text;
-	gboolean is_item;
+	SoupCookie *cookie;
 
 	gtk_tree_selection_get_selected(selection, &model, &iter);
 
-	if (model == NULL || ! gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), &iter))
+	if (model != NULL && gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), &iter))
 	{
-		/* This is a bit hack'ish but we add some empty lines to get a minimum height of the
-		 * label at the bottom without any font size calculation. */
-		gtk_label_set_text(GTK_LABEL(cmdata->desc_label), CM_EMPTY_LABEL_TEXT);
-		gtk_widget_set_sensitive(cmdata->delete_button, FALSE);
-		return;
+		gtk_tree_model_get(model, &iter, COL_COOKIE, &cookie, -1);
+		if (cookie != NULL)
+		{
+			text = cm_get_cookie_description_text(cookie);
+
+			gtk_label_set_markup(GTK_LABEL(cmdata->desc_label), text);
+
+			gtk_widget_set_sensitive(cmdata->delete_button, TRUE);
+
+			g_free(text);
+			return;
+		}
 	}
-
-	gtk_tree_model_get(model, &iter, COL_TOOLTIP, &text, COL_ITEM, &is_item, -1);
-
-	gtk_label_set_markup(GTK_LABEL(cmdata->desc_label), text);
-
-	gtk_widget_set_sensitive(cmdata->delete_button, TRUE);
-
-	g_free(text);
+	/* This is a bit hack'ish but we add some empty lines to get a minimum height of the
+	 * label at the bottom without any font size calculation. */
+	gtk_label_set_text(GTK_LABEL(cmdata->desc_label), CM_EMPTY_LABEL_TEXT);
+	gtk_widget_set_sensitive(cmdata->delete_button, FALSE);
 }
 
 
@@ -218,11 +231,37 @@ static gboolean cm_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton 
 }
 
 
+static void cm_tree_show_popup_menu(GtkWidget *widget, GdkEventButton *event, CMData *cmdata)
+{
+	gint button, event_time;
+
+	if (event != NULL)
+	{
+		button = event->button;
+		event_time = event->time;
+	}
+	else
+	{
+		button = 0;
+		event_time = gtk_get_current_event_time ();
+	}
+
+	gtk_menu_popup(GTK_MENU(cmdata->popup_menu), NULL, NULL, NULL, NULL, button, event_time);
+}
+
+
+static gboolean  cm_tree_popup_menu_cb(GtkWidget *widget, CMData *cmdata)
+{
+	cm_tree_show_popup_menu(widget, NULL, cmdata);
+	return TRUE;
+}
+
+
 static gboolean cm_tree_button_release_event_cb(GtkWidget *widget, GdkEventButton *ev, CMData *cmdata)
 {
 	if (ev->button == 3)
 	{
-		gtk_menu_popup(GTK_MENU(cmdata->popup_menu), NULL, NULL, NULL, NULL, ev->button, ev->time);
+		cm_tree_show_popup_menu(widget, ev, cmdata);
 		return TRUE;
 	}
 	return FALSE;
@@ -346,17 +385,18 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
-	gchar *name, *text;
-	gboolean is_item;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(cmdata->treeview));
 	gtk_tree_selection_get_selected(selection, &model, &iter);
 
 	if (model != NULL && gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), &iter))
 	{
-		gtk_tree_model_get(model, &iter, COL_NAME, &name, COL_ITEM, &is_item, -1);
+		SoupCookie *cookie;
+		gchar *name, *text;
 
-		if (! is_item && name != NULL)
+		gtk_tree_model_get(model, &iter, COL_NAME, &name, COL_COOKIE, &cookie, -1);
+
+		if (cookie == NULL && name != NULL)
 		{
 			/* skip a leading dot */
 			text = (*name == '.') ? name + 1 : name;
@@ -366,6 +406,38 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 		g_free(name);
 	}
 }
+
+
+#if GTK_CHECK_VERSION(2, 12, 0)
+static gboolean cm_tree_query_tooltip(GtkWidget *widget, gint x, gint y, gboolean keyboard_mode,
+									  GtkTooltip *tooltip, CMData *cmdata)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	if (gtk_tree_view_get_tooltip_context(GTK_TREE_VIEW(widget), &x, &y,
+			keyboard_mode, &model, NULL, &iter))
+	{
+		gchar *tooltip_text;
+		SoupCookie *cookie;
+
+		gtk_tree_model_get(model, &iter, COL_COOKIE, &cookie, -1);
+
+		if (cookie == NULL) /* not an item */
+			return FALSE;
+
+		tooltip_text = cm_get_cookie_description_text(cookie);
+
+		gtk_tooltip_set_markup(tooltip, tooltip_text);
+
+		g_free(tooltip_text);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+#endif
 
 
 static void cm_tree_prepare(CMData *cmdata)
@@ -378,8 +450,7 @@ static void cm_tree_prepare(CMData *cmdata)
 	GtkWidget *menu;
 
 	cmdata->treeview = tree = gtk_tree_view_new();
-	cmdata->store = gtk_tree_store_new(N_COLUMNS,
-		G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, SOUP_TYPE_COOKIE);
+	cmdata->store = gtk_tree_store_new(N_COLUMNS, G_TYPE_STRING, SOUP_TYPE_COOKIE);
 
 	renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes(
@@ -394,9 +465,6 @@ static void cm_tree_prepare(CMData *cmdata)
 	gtk_tree_view_set_search_column(GTK_TREE_VIEW(tree), COL_NAME);
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(cmdata->store), COL_NAME, GTK_SORT_ASCENDING);
 
-	if (gtk_check_version(2, 12, 0) == NULL)
-		g_object_set(tree, "tooltip-column", COL_TOOLTIP, NULL);
-
 	/* selection handling */
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
@@ -408,6 +476,13 @@ static void cm_tree_prepare(CMData *cmdata)
 	g_signal_connect(sel, "changed", G_CALLBACK(cm_tree_selection_changed_cb), cmdata);
 	g_signal_connect(tree, "button-press-event", G_CALLBACK(cm_tree_button_press_event_cb), cmdata);
 	g_signal_connect(tree, "button-release-event", G_CALLBACK(cm_tree_button_release_event_cb), cmdata);
+	g_signal_connect(tree, "popup-menu", G_CALLBACK(cm_tree_popup_menu_cb), cmdata);
+
+	/* tooltips */
+#if GTK_CHECK_VERSION(2, 12, 0)
+	gtk_widget_set_has_tooltip(tree, TRUE);
+	g_signal_connect(tree, "query-tooltip", G_CALLBACK(cm_tree_query_tooltip), cmdata);
+#endif
 
 	/* drag'n'drop */
 	gtk_tree_view_enable_model_drag_source(
