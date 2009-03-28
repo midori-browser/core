@@ -2071,9 +2071,14 @@ _action_bookmarks_populate_popup (GtkAction*     action,
                                   GtkMenu*       menu,
                                   MidoriBrowser* browser)
 {
-    GtkWidget* menuitem = gtk_separator_menu_item_new ();
-    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
+    GtkWidget* menuitem;
+
+    if (katze_array_get_nth_item (browser->bookmarks, 0))
+    {
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+        gtk_widget_show (menuitem);
+    }
     menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "BookmarkAdd"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
