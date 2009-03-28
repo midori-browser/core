@@ -1434,6 +1434,28 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
 }
 
 static gboolean
+midori_load_cookie_jar (gpointer data)
+{
+    MidoriWebSettings* settings = MIDORI_WEB_SETTINGS (data);
+    SoupSession* webkit_session;
+    KatzeNet* net;
+    SoupSession* s_session;
+    SoupCookieJar* jar;
+
+    webkit_session = webkit_get_default_session ();
+    net = katze_net_new ();
+    s_session = katze_net_get_session (net);
+    jar = soup_cookie_jar_new ();
+    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
+    midori_soup_session_prepare (s_session, jar, settings);
+    midori_soup_session_prepare (webkit_session, jar, settings);
+    g_object_unref (jar);
+    g_object_unref (net);
+
+    return FALSE;
+}
+
+static gboolean
 midori_load_extensions (gpointer data)
 {
     MidoriApp* app = MIDORI_APP (data);
@@ -1645,10 +1667,6 @@ main (int    argc,
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
-    KatzeNet* net;
-    SoupSession* webkit_session;
-    SoupSession* s_session;
-    SoupCookieJar* jar;
     #if HAVE_SQLITE
     sqlite3* db;
     gint max_history_age;
@@ -1872,16 +1890,6 @@ main (int    argc,
     }
     g_string_free (error_messages, TRUE);
 
-    webkit_session = webkit_get_default_session ();
-    net = katze_net_new ();
-    s_session = katze_net_get_session (net);
-    jar = soup_cookie_jar_new ();
-    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
-    midori_soup_session_prepare (s_session, jar, settings);
-    midori_soup_session_prepare (webkit_session, jar, settings);
-    g_object_unref (jar);
-    g_object_unref (net);
-
     /* Open as many tabs as we have uris, seperated by pipes */
     i = 0;
     while (uris && uris[i])
@@ -1995,6 +2003,7 @@ main (int    argc,
     g_signal_connect (app, "add-browser",
         G_CALLBACK (midori_app_add_browser_cb), NULL);
 
+    g_idle_add (midori_load_cookie_jar, settings);
     g_idle_add (midori_load_extensions, app);
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_idle_add (midori_load_session, _session);
