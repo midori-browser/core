@@ -418,7 +418,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
     }
     FILLED_ADD (hbox, 1, 2, 1, 2);
-    button = katze_property_proxy (settings, "show-crash-dialog", "blurb");
+    button = katze_property_proxy (settings, "show-crash-dialog", NULL);
     SPANNED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Transfers"));
     TABLE_NEW (3, 2);
@@ -616,7 +616,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "accept-cookies", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
-    button = katze_property_proxy (settings, "original-cookies-only", "blurb");
+    button = katze_property_proxy (settings, "original-cookies-only", NULL);
     SPANNED_ADD (button, 0, 2, 1, 2);
     label = katze_property_label (settings, "maximum-cookie-age");
     INDENTED_ADD (label, 0, 1, 2, 3);
