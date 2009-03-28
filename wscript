@@ -181,28 +181,27 @@ def configure (conf):
             debug_level = 'debug'
         else:
             debug_level = 'none'
-    if debug_level != 'none':
-        if compiler == 'gcc':
-            if debug_level == 'debug':
-                conf.env.append_value ('CCFLAGS', '-Wall -O0 -g'.split ())
-            elif debug_level == 'full':
-                # -Wdeclaration-after-statement
-                # -Wmissing-declarations -Wmissing-prototypes
-                # -Wwrite-strings
-                conf.env.append_value ('CCFLAGS',
-                    '-Wall -Wextra -O1 -g '
-                    '-Waggregate-return -Wno-unused-parameter '
-                    '-Wno-missing-field-initializers '
-                    '-Wunsafe-loop-optimizations '
-                    '-Wredundant-decls -Wmissing-noreturn '
-                    '-Wshadow -Wpointer-arith -Wcast-align '
-                    '-Winline -Wformat-security '
-                    '-Winit-self -Wmissing-include-dirs -Wundef '
-                    '-Wmissing-format-attribute -Wnested-externs '
-                    '-DG_ENABLE_DEBUG'.split ())
-            else:
-                conf.env.append_value ('CCFLAGS', '-O2')
+    if compiler == 'gcc':
+        if debug_level == 'debug':
+            conf.env.append_value ('CCFLAGS', '-Wall -O0 -g'.split ())
+        elif debug_level == 'full':
+            # -Wdeclaration-after-statement
+            # -Wmissing-declarations -Wmissing-prototypes
+            # -Wwrite-strings
+            conf.env.append_value ('CCFLAGS',
+                '-Wall -Wextra -O1 -g '
+                '-Waggregate-return -Wno-unused-parameter '
+                '-Wno-missing-field-initializers '
+                '-Wunsafe-loop-optimizations '
+                '-Wredundant-decls -Wmissing-noreturn '
+                '-Wshadow -Wpointer-arith -Wcast-align '
+                '-Winline -Wformat-security '
+                '-Winit-self -Wmissing-include-dirs -Wundef '
+                '-Wmissing-format-attribute -Wnested-externs '
+                '-DG_ENABLE_DEBUG'.split ())
         else:
+            conf.env.append_value ('CCFLAGS', '-O2')
+    elif debug_level != 'none':
             Utils.pprint ('RED', 'No debugging level support for ' + compiler)
             sys.exit (1)
 
