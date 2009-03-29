@@ -26,5 +26,4 @@ for extension in extensions:
     obj.includes = '..'
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
-    obj.uselib_local = 'katze'
     obj.install_path = '${LIBDIR}/midori'
