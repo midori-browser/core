@@ -1377,7 +1377,7 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
         _("Midori seems to have crashed the last time it was opened. "
-          "If this happend repeatedly, try one of the following options "
+          "If this happened repeatedly, try one of the following options "
           "to solve the problem."));
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
