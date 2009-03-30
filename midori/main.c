@@ -1286,8 +1286,17 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         http_proxy = g_strdup (g_getenv ("http_proxy"));
     else
         http_proxy = katze_object_get_string (settings, "http-proxy");
-    /* soup_uri_new expects a non-NULL string */
-    proxy_uri = soup_uri_new (http_proxy ? http_proxy : "");
+    /* soup_uri_new expects a non-NULL string with a protocol */
+    if (http_proxy && g_str_has_prefix (http_proxy, "http://"))
+        proxy_uri = soup_uri_new (http_proxy);
+    else if (http_proxy && *http_proxy)
+    {
+        gchar* fixed_http_proxy = g_strconcat ("http://", http_proxy, NULL);
+        proxy_uri = soup_uri_new (fixed_http_proxy);
+        g_free (fixed_http_proxy);
+    }
+    else
+        proxy_uri = NULL;
     g_free (http_proxy);
     g_object_set (session, "proxy-uri", proxy_uri, NULL);
     if (proxy_uri)
