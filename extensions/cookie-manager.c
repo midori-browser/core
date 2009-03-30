@@ -10,6 +10,7 @@
 */
 
 #include "config.h"
+#include <time.h>
 #include <midori/midori.h>
 #include <webkit/webkit.h>
 
@@ -143,14 +144,25 @@ static void cm_refresh_store(CMData *cmdata)
 
 static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 {
+	static gchar date_fmt[512];
 	gchar *expires;
 	gchar *text;
+	time_t expiration_time;
+	const struct tm *tm;
 
 	g_return_val_if_fail(cookie != NULL, NULL);
 
-	expires = (cookie->expires != NULL) ?
-		soup_date_to_string(cookie->expires, SOUP_DATE_HTTP) :
-		g_strdup(_("At theend of the session"));
+	if (cookie->expires != NULL)
+	{
+		expiration_time = soup_date_to_time_t(cookie->expires);
+		tm = localtime(&expiration_time);
+		/* even if some gcc versions complain about "%c", there is nothing wrong with and here we
+		 * want to use it */
+		strftime(date_fmt, sizeof(date_fmt), "%c", tm);
+		expires = date_fmt;
+	}
+	else
+		expires = _("At the end of the session");
 
 	text = g_markup_printf_escaped(
 			_("<b>Host: %s</b>\n<b>Name: %s</b>\nValue: %s\nPath: %s\nSecure: %s\nExpires: %s"),
@@ -160,8 +172,6 @@ static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 			cookie->path,
 			cookie->secure ? _("Yes") : _("No"),
 			expires);
-
-	g_free(expires);
 
 	return text;
 }
