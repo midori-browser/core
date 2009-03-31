@@ -139,6 +139,24 @@ magic_uri_pseudo (void)
     test_input ("mailto:christian@twotoasts.de", "mailto:christian@twotoasts.de");
 }
 
+static void
+magic_uri_performance (void)
+{
+    gsize i;
+
+    g_test_timer_start ();
+
+    for (i = 0; i < 1000; i++)
+    {
+        magic_uri_uri ();
+        magic_uri_idn ();
+        magic_uri_search ();
+        magic_uri_pseudo ();
+    }
+
+    g_print ("\nTime needed for URI tests: %f ", g_test_timer_elapsed ());
+}
+
 int
 main (int    argc,
       char** argv)
@@ -150,6 +168,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/idn", magic_uri_idn);
     g_test_add_func ("/magic-uri/search", magic_uri_search);
     g_test_add_func ("/magic-uri/pseudo", magic_uri_pseudo);
+    g_test_add_func ("/magic-uri/performance", magic_uri_performance);
 
     return g_test_run ();
 }
