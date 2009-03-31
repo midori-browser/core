@@ -189,7 +189,7 @@ sokoke_idn_to_punycode (gchar* uri)
 
     if (proto)
     {
-        result = g_strdup_printf ("%s://%s%s", proto, s, path ? path : "");
+        result = g_strconcat (proto, "://", s, path ? path : "", NULL);
         g_free (proto);
         if (path)
             g_free (hostname);
@@ -235,52 +235,47 @@ sokoke_magic_uri (const gchar* uri,
         g_free (current_dir);
         return result;
     }
-    /* Do we need to add a protocol? */
-    if (!strstr (uri, "://"))
+    /* Do we have a protocol? */
+    if (g_strstr_len (uri, 8, "://"))
+        return sokoke_idn_to_punycode (g_strdup (uri));
+
+    /* Do we have a domain, ip address or localhost? */
+    if ((search = strchr (uri, ':')) && search[0] &&
+        !g_ascii_isalpha (search[1]) && search[1] != ' ')
+        if (!strchr (search, '.'))
+            return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
+    if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
+        return g_strconcat ("http://", uri, NULL);
+    parts = g_strsplit (uri, ".", 0);
+    if (!search && parts[0] && parts[1])
     {
-        /* Do we have a domain, ip address or localhost? */
-        search = strchr (uri, ':');
-        if (search && search[0] &&
-            !g_ascii_isalpha (search[1]) && search[1] != ' ')
-            if (!strchr (search, '.'))
-                return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
-        if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
-            return g_strconcat ("http://", uri, NULL);
-        parts = g_strsplit (uri, ".", 0);
-        if (!search && parts[0] && parts[1])
+        if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
+            if (!strchr (parts[0], ' ') && !strchr (parts[1], ' '))
+                if ((search = g_strconcat ("http://", uri, NULL)))
+                {
+                    g_strfreev (parts);
+                    return sokoke_idn_to_punycode (search);
+                }
+    }
+    g_strfreev (parts);
+    /* We don't want to search? So return early. */
+    if (!search_engines)
+        return g_strdup (uri);
+    search = NULL;
+    search_uri = NULL;
+    /* Do we have a keyword and a string? */
+    parts = g_strsplit (uri, " ", 2);
+    if (parts[0] && parts[1])
+        if ((item = katze_array_find_token (search_engines, parts[0])))
         {
-            search = NULL;
-            if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
-                if (!strchr (parts[0], ' ') && !strchr (parts[1], ' '))
-                    search = g_strconcat ("http://", uri, NULL);
-            g_free (parts);
-            if (search)
-                return sokoke_idn_to_punycode (search);
-        }
-        /* We don't want to search? So return early. */
-        if (!search_engines)
-            return g_strdup (uri);
-        search = NULL;
-        search_uri = NULL;
-        /* Do we have a keyword and a string? */
-        parts = g_strsplit (uri, " ", 2);
-        if (parts[0] && parts[1])
-        {
-            item = katze_array_find_token (search_engines, parts[0]);
-            if (item)
-                search_uri = katze_item_get_uri (item);
-        }
-        g_free (parts);
-        if (search_uri)
-        {
+            search_uri = katze_item_get_uri (item);
             if (strstr (search_uri, "%s"))
                 search = g_strdup_printf (search_uri, parts[1]);
             else
                 search = g_strdup_printf ("%s%s", search_uri, parts[1]);
         }
-        return search;
-    }
-    return sokoke_idn_to_punycode (g_strdup (uri));
+    g_strfreev (parts);
+    return search;
 }
 
 void
