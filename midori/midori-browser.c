@@ -681,19 +681,15 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
             if (g_strcmp0 (selected, _("Toplevel folder")))
             {
-                guint i, n;
-
-                if ((n = katze_array_get_length (browser->bookmarks)))
-                for (i = 0; i < n; i++)
-                {
-                    KatzeItem* item = katze_array_get_nth_item (browser->bookmarks, i);
+                guint i = 0;
+                KatzeItem* item;
+                while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
                     if (KATZE_IS_ARRAY (item))
                         if (!g_strcmp0 (katze_item_get_name (item), selected))
                         {
                             folder = KATZE_ARRAY (item);
                             break;
                         }
-                }
             }
             g_free (selected);
             if (!new_bookmark)
@@ -4527,7 +4523,7 @@ static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
                               KatzeArray*    bookmarks)
 {
-    guint i, n;
+    guint i;
     KatzeItem* item;
 
     if (browser->bookmarks == bookmarks)
@@ -4545,12 +4541,9 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
     if (!browser->bookmarks)
         return;
 
-    n = katze_array_get_length (browser->bookmarks);
-    for (i = 0; i < n; i++)
-    {
-        item = katze_array_get_nth_item (browser->bookmarks, i);
+    i = 0;
+    while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
         browser_bookmarks_add_item_cb (browser->bookmarks, item, browser);
-    }
     g_signal_connect (browser->bookmarks, "add-item",
         G_CALLBACK (browser_bookmarks_add_item_cb), browser);
     g_signal_connect (browser->bookmarks, "remove-item",
