@@ -498,23 +498,26 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* skey;
     gchar* temp;
     gchar** parts;
+    size_t len;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
     desc_uri = desc_title = key = NULL;
-    if (data)
+    if (G_LIKELY (data))
     {
         entry = gtk_entry_completion_get_entry (GTK_ENTRY_COMPLETION (data));
-        key = g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+        key = title ? g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1)
+            : g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+        len = 0;
     }
-    if (data && uri)
+    if (G_LIKELY (data && uri))
     {
-        temp = g_utf8_strdown (uri, -1);
-        start = strstr (temp, key);
-        if (start)
+        temp = g_ascii_strdown (uri, -1);
+        if ((start = strstr (temp, key)))
         {
-            skey = g_malloc0 (strlen (key) + 1);
-            g_utf8_strncpy (skey, uri + (start - temp), g_utf8_strlen (key, -1));
+            len = strlen (key);
+            skey = g_malloc0 (len + 1);
+            strncpy (skey, uri + (start - temp), len);
             parts = g_strsplit (uri, skey, 2);
             if (parts && parts[0] && parts[1])
                 desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
@@ -526,14 +529,16 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     }
     if (uri && !desc_uri)
         desc_uri = g_markup_escape_text (uri, -1);
-    if (data && title)
+    if (G_LIKELY (data && title))
     {
         temp = g_utf8_strdown (title, -1);
-        start = strstr (temp, key);
-        if (start)
+        if ((start = strstr (temp, key)))
         {
-            skey = g_malloc0 (strlen (key) + 1);
-            g_utf8_strncpy (skey, title + (start - temp), g_utf8_strlen (key, -1));
+            size_t utf8_len = g_utf8_strlen (key, -1);
+            if (!len)
+                len = strlen (key);
+            skey = g_malloc0 (len + 1);
+            g_utf8_strncpy (skey, title + (start - temp), utf8_len);
             parts = g_strsplit (title, skey, 2);
             if (parts && parts[0] && parts[1])
                 desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
@@ -547,10 +552,14 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         desc_title = g_markup_escape_text (title, -1);
 
     if (desc_title)
+    {
         desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>",
                                 desc_title, desc_uri);
+        g_free (desc_uri);
+        g_free (desc_title);
+    }
     else
-        desc = g_strdup_printf ("%s", desc_uri);
+        desc = desc_uri;
 
     g_object_set (renderer, "markup", desc,
         "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
@@ -559,8 +568,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     g_free (title);
     g_free (key);
     g_free (desc);
-    g_free (desc_uri);
-    g_free (desc_title);
 }
 
 static gboolean
@@ -579,14 +586,14 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
     match = FALSE;
-    if (uri)
+    if (G_LIKELY (uri))
     {
         temp = g_utf8_casefold (uri, -1);
         match = (strstr (temp, key) != NULL);
         g_free (temp);
         g_free (uri);
 
-        if (!match && title)
+        if (!match && G_LIKELY (title))
         {
             temp = g_utf8_casefold (title, -1);
             match = (strstr (temp, key) != NULL);
@@ -621,20 +628,6 @@ midori_location_action_set_item (MidoriLocationAction*    location_action,
             FAVICON_COL, new_icon, -1);
 }
 
-static gchar*
-midori_location_action_format_uri (const gchar* uri)
-{
-    gchar* new_uri;
-    size_t len;
-
-    new_uri = g_ascii_strdown (uri, -1);
-    len = strlen (new_uri);
-
-    if (new_uri [len - 1] == '/')
-        new_uri [len - 1] = '\0';
-    return new_uri;
-}
-
 /**
  * midori_location_action_iter_lookup:
  * @location_action: a #MidoriLocationAction
@@ -653,46 +646,34 @@ midori_location_action_iter_lookup (MidoriLocationAction* location_action,
 {
     GtkTreeModel* model;
     gchar* path;
-    gchar* new_uri;
-    gchar* tmp_uri;
-    gboolean found;
 
     model = location_action->model;
-    found = FALSE;
-
-    new_uri = midori_location_action_format_uri (uri);
 
     if (midori_location_action_is_frozen (location_action))
     {
-        if ((path = g_hash_table_lookup (location_action->items, new_uri)))
-        {
+        gboolean found = FALSE;
+        if ((path = g_hash_table_lookup (location_action->items, uri)))
             if (!(found = gtk_tree_model_get_iter_from_string (model, iter, path)))
-            {
-                g_hash_table_remove (location_action->items, new_uri);
-            }
-        }
+                g_hash_table_remove (location_action->items, uri);
+        return found;
     }
-    else
+
+    if (gtk_tree_model_get_iter_first (model, iter))
     {
-        if (gtk_tree_model_get_iter_first (model, iter))
+        gchar* tmp_uri = NULL;
+        do
         {
-            tmp_uri = NULL;
-            do
-            {
-
-                gtk_tree_model_get (model, iter, URI_COL, &tmp_uri, -1);
-                found = !g_ascii_strncasecmp (new_uri, tmp_uri, strlen (new_uri));
-                katze_assign (tmp_uri, NULL);
-
-                if (found)
-                    break;
-            }
-            while (gtk_tree_model_iter_next (model, iter));
+            gint cmp;
+            gtk_tree_model_get (model, iter, URI_COL, &tmp_uri, -1);
+            cmp = strcmp (uri, tmp_uri);
+            g_free (tmp_uri);
+            if (!cmp)
+                return TRUE;
         }
+        while (gtk_tree_model_iter_next (model, iter));
     }
-    g_free (new_uri);
 
-    return found;
+    return FALSE;
 }
 
 /**
@@ -716,15 +697,13 @@ midori_location_action_iter_insert (MidoriLocationAction* location_action,
     if (!midori_location_action_iter_lookup (location_action, uri, iter))
     {
         GtkTreeModel* model;
-        gchar* path;
-        gchar* new_uri;
 
         model = location_action->model;
         gtk_list_store_insert (GTK_LIST_STORE (model), iter, position);
         if (midori_location_action_is_frozen (location_action))
         {
-            new_uri = midori_location_action_format_uri (uri);
-            path = gtk_tree_model_get_string_from_iter (model,  iter);
+            gchar* new_uri = g_strdup (uri);
+            gchar* path = gtk_tree_model_get_string_from_iter (model,  iter);
             g_hash_table_insert (location_action->items, new_uri, path);
         }
         return FALSE;

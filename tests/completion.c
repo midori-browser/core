@@ -28,13 +28,13 @@ static const CompletionItem items[] = {
  { "http://one.com", "One Two" }, /* Duplicate */
  { "http://two.com", "Two" },
  { "http://three.com", "Three" },
- { "http://one.com/one", "One one" },
- { "http://one.com/one/", "One off" }, /* Duplicate */
+ { "http://one.com/one/", "One off" },
  { "http://four.org", "One" },
  { "https://four.org", "Four" },
  { "ftp://four.org/", "Five" },
+ { "http://muenchen.de/weißwürste/", "Münchner Weißwürste" }, /* Umlauts */
  };
-static const guint items_n = 7;
+static const guint items_n = 9;
 
 static void
 completion_count (void)
@@ -94,12 +94,14 @@ static const gchar* tlds[] = {
  };
 static const guint tlds_n = 6;
 static const gchar* files[] = {
- "", "/", "/index.html", "/img.png", "/images", "/images/"/*, "/Images", "/IMAGES"*/
+ "/", "/index.html", "/img.png", /*"/weißwürste",*/ "/images/"
+ /*, "/Images", "/IMAGES/"*/
  };
-static const guint files_n = 4; /* 6; */
+static const guint files_n = 4;
 
 static const gchar* inputs[] = {
- "http://www.one.com/index", "http://two.de/images", "http://six.com.au/img"
+ "http://www.one.com/index", "http://two.de/images", "http://six.com.au/img"/*,
+ "http://muenchen.de/weißwürste/"*/
  };
 static const gchar* additions[] = {
  "http://www.one.com/invention", "http://two.de/island", "http://six.com.au/ish"
