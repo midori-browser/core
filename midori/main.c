@@ -287,7 +287,7 @@ search_engines_save_to_file (KatzeArray*  search_engines,
                              GError**     error)
 {
     GKeyFile* key_file;
-    guint n, i, j, n_properties;
+    guint i, j, n_properties;
     KatzeItem* item;
     const gchar* name;
     GParamSpec** pspecs;
@@ -296,12 +296,11 @@ search_engines_save_to_file (KatzeArray*  search_engines,
     gboolean saved;
 
     key_file = g_key_file_new ();
-    n = katze_array_get_length (search_engines);
     pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
                                              &n_properties);
-    for (i = 0; i < n; i++)
+    i = 0;
+    while ((item = katze_array_get_nth_item (search_engines, i++)))
     {
-        item = katze_array_get_nth_item (search_engines, i);
         name = katze_item_get_name (item);
         for (j = 0; j < n_properties; j++)
         {
@@ -800,7 +799,7 @@ midori_history_initialize (KatzeArray*  array,
 {
     sqlite3* db;
     KatzeItem* item;
-    gint i, n;
+    gint i;
     gboolean has_day;
 
     has_day = FALSE;
@@ -846,10 +845,9 @@ midori_history_initialize (KatzeArray*  array,
                            error))
         return NULL;
 
-    n = katze_array_get_length (array);
-    for (i = 0; i < n; i++)
+    i = 0;
+    while ((item = katze_array_get_nth_item (array, i++)))
     {
-        item = katze_array_get_nth_item (array, i);
         g_signal_connect_after (item, "add-item",
             G_CALLBACK (midori_history_add_item_cb), db);
         g_signal_connect (item, "remove-item",
@@ -966,11 +964,10 @@ katze_item_to_data (KatzeItem* item)
     if (KATZE_IS_ARRAY (item))
     {
         GString* _markup = g_string_new (NULL);
-        guint n = katze_array_get_length (KATZE_ARRAY (item));
-        guint i;
-        for (i = 0; i < n; i++)
+        guint i = 0;
+        KatzeItem* _item;
+        while ((_item = katze_array_get_nth_item (KATZE_ARRAY (item), i++)))
         {
-            KatzeItem* _item = katze_array_get_nth_item (KATZE_ARRAY (item), i);
             gchar* item_markup = katze_item_to_data (_item);
             g_string_append (_markup, item_markup);
             g_free (item_markup);
@@ -1011,7 +1008,7 @@ katze_array_to_xml (KatzeArray* array,
                     GError**    error)
 {
     GString* inner_markup;
-    guint i, n;
+    guint i;
     KatzeItem* item;
     gchar* item_xml;
     gchar* title;
@@ -1021,10 +1018,9 @@ katze_array_to_xml (KatzeArray* array,
     g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), NULL);
 
     inner_markup = g_string_new (NULL);
-    n = katze_array_get_length (array);
-    for (i = 0; i < n; i++)
+    i = 0;
+    while ((item = katze_array_get_nth_item (array, i++)))
     {
-        item = katze_array_get_nth_item (array, i);
         item_xml = katze_item_to_data (item);
         g_string_append (inner_markup, item_xml);
         g_free (item_xml);
@@ -1155,7 +1151,6 @@ midori_trash_add_item_cb (KatzeArray* trash,
 {
     gchar* config_file;
     GError* error;
-    guint n;
     GObject* obsolete_item;
 
     config_file = build_config_filename ("tabtrash.xbel");
@@ -1168,8 +1163,7 @@ midori_trash_add_item_cb (KatzeArray* trash,
     }
     g_free (config_file);
 
-    n = katze_array_get_length (trash);
-    if (n > 10)
+    if (katze_array_get_nth_item (trash, 10))
     {
         obsolete_item = katze_array_get_nth_item (trash, 0);
         katze_array_remove_item (trash, obsolete_item);
@@ -1471,7 +1465,7 @@ midori_load_extensions (gpointer data)
     KatzeArray* extensions;
     const gchar* filename;
     MidoriExtension* extension;
-    guint n, i;
+    guint i;
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
@@ -1527,12 +1521,9 @@ midori_load_extensions (gpointer data)
 
     g_object_set (app, "extensions", extensions, NULL);
 
-    n = katze_array_get_length (extensions);
-    for (i = 0; i < n; i++)
-    {
-        extension = katze_array_get_nth_item (extensions, i);
+    i = 0;
+    while ((extension = katze_array_get_nth_item (extensions, i++)))
         g_signal_emit_by_name (extension, "activate", app);
-    }
 
     return FALSE;
 }
@@ -1546,7 +1537,7 @@ midori_load_session (gpointer data)
     gchar* config_file;
     KatzeArray* session;
     KatzeItem* item;
-    guint n, i;
+    guint i;
 
     browser = midori_app_create_browser (app);
     midori_app_add_browser (app, browser);
@@ -1577,12 +1568,9 @@ midori_load_session (gpointer data)
     }
 
     session = midori_browser_get_proxy_array (browser);
-    n = katze_array_get_length (_session);
-    for (i = 0; i < n; i++)
-    {
-        item = katze_array_get_nth_item (_session, i);
+    i = 0;
+    while ((item = katze_array_get_nth_item (_session, i++)))
         midori_browser_add_item (browser, item);
-    }
     /* FIXME: Switch to the last active page */
     item = katze_array_get_nth_item (_session, 0);
     if (!strcmp (katze_item_get_uri (item), ""))
@@ -1931,13 +1919,10 @@ main (int    argc,
             G_CALLBACK (midori_search_engines_modify_cb), search_engines);
         if (!katze_array_is_empty (search_engines))
         {
-            guint n = katze_array_get_length (search_engines);
-            for (i = 0; i < n; i++)
-            {
-                item = katze_array_get_nth_item (search_engines, i);
+            i = 0;
+            while ((item = katze_array_get_nth_item (search_engines, i++)))
                 g_signal_connect_after (item, "notify",
                     G_CALLBACK (midori_search_engines_modify_cb), search_engines);
-            }
         }
     }
     katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
@@ -1949,10 +1934,9 @@ main (int    argc,
             G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
         if (!katze_array_is_empty (bookmarks))
         {
-            guint n = katze_array_get_length (bookmarks);
-            for (i = 0; i < n; i++)
+            i = 0;
+            while ((item = katze_array_get_nth_item (bookmarks, i++)))
             {
-                item = katze_array_get_nth_item (bookmarks, i);
                 if (KATZE_IS_ARRAY (item))
                 {
                     g_signal_connect_after (item, "add-item",
