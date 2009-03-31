@@ -207,14 +207,15 @@ static void
 katze_array_finalize (GObject* object)
 {
     KatzeArray* array;
-    guint n, i;
+    guint i;
 
     array = KATZE_ARRAY (object);
     if (katze_array_is_a (array, G_TYPE_OBJECT))
     {
-        n = g_list_length (array->items);
-        for (i = 0; i < n; i++)
-            g_object_unref (g_list_nth_data (array->items, i));
+        gpointer item;
+        i = 0;
+        while ((item = g_list_nth_data (array->items, i++)))
+            g_object_unref (item);
     }
 
     g_list_free (array->items);
@@ -371,22 +372,16 @@ gpointer
 katze_array_find_token (KatzeArray*  array,
                         const gchar* token)
 {
-    guint n, i;
+    guint i;
     gpointer item;
-    const gchar* found_token;
-
-    g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
 
     if (!katze_array_is_a (array, G_TYPE_OBJECT))
         return NULL;
 
-    n = g_list_length (array->items);
-    for (i = 0; i < n; i++)
+    i = 0;
+    while ((item = g_list_nth_data (array->items, i++)))
     {
-        item = g_list_nth_data (array->items, i);
-        if (!g_type_is_a (G_OBJECT_TYPE (item), KATZE_TYPE_ITEM))
-            continue;
-        found_token = katze_item_get_token ((KatzeItem*)item);
+        const gchar* found_token = katze_item_get_token ((KatzeItem*)item);
         if (!g_strcmp0 (found_token, token))
             return item;
     }
