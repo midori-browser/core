@@ -1122,19 +1122,13 @@ midori_load_cookie_jar (gpointer data)
 {
     MidoriWebSettings* settings = MIDORI_WEB_SETTINGS (data);
     SoupSession* webkit_session;
-    KatzeNet* net;
-    SoupSession* s_session;
     SoupCookieJar* jar;
 
     webkit_session = webkit_get_default_session ();
-    net = katze_net_new ();
-    s_session = katze_net_get_session (net);
     jar = soup_cookie_jar_new ();
     g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
-    midori_soup_session_prepare (s_session, jar, settings);
     midori_soup_session_prepare (webkit_session, jar, settings);
     g_object_unref (jar);
-    g_object_unref (net);
 
     return FALSE;
 }
@@ -1373,8 +1367,7 @@ main (int    argc,
         return 1;
     }
 
-    /* libSoup uses threads, therefore if WebKit is built with libSoup
-       or Midori is using it, we need to initialize threads. */
+    /* libSoup uses threads, so we need to initialize threads. */
     if (!g_thread_supported ()) g_thread_init (NULL);
     sokoke_register_stock_items ();
     g_set_application_name (_("Midori"));

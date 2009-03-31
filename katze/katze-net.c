@@ -16,6 +16,7 @@
 #include "katze-net.h"
 
 #include <libsoup/soup.h>
+#include <webkit/webkit.h>
 
 struct _KatzeNet
 {
@@ -57,16 +58,12 @@ katze_net_object_maybe_unref (gpointer object)
 static void
 katze_net_init (KatzeNet* net)
 {
-    static SoupSession* session = NULL;
-
     net->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
                                          g_free, katze_net_object_maybe_unref);
     net->cache_path = g_build_filename (g_get_user_cache_dir (),
                                         PACKAGE_NAME, NULL);
 
-    if (!session)
-        session = soup_session_async_new ();
-    net->session = session;
+    net->session = webkit_get_default_session ();
 }
 
 static void
