@@ -14,20 +14,15 @@
     #include <config.h>
 #endif
 
+#include "midori.h"
 #include "midori-addons.h"
-#include "midori-app.h"
+#include "midori-array.h"
 #include "midori-bookmarks.h"
-#include "midori-browser.h"
 #include "midori-console.h"
-#include "midori-extension.h"
 #include "midori-extensions.h"
 #include "midori-history.h"
-#include "midori-panel.h"
-#include "midori-preferences.h"
 #include "midori-plugins.h"
 #include "midori-transfers.h"
-#include "midori-view.h"
-#include "midori-websettings.h"
 
 #include "sokoke.h"
 #include "compat.h"
@@ -40,15 +35,10 @@
 #else
     #define is_writable(_cfg_filename) 1
 #endif
+#include <stdlib.h>
 #include <string.h>
-#include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <webkit/webkit.h>
-
-#if HAVE_LIBXML
-    #include <libxml/parser.h>
-    #include <libxml/tree.h>
-#endif
 
 #if HAVE_SQLITE
     #include <sqlite3.h>
@@ -318,185 +308,6 @@ search_engines_save_to_file (KatzeArray*  search_engines,
 
     return saved;
 }
-
-#if HAVE_LIBXML
-static KatzeItem*
-katze_item_from_xmlNodePtr (xmlNodePtr cur)
-{
-    KatzeItem* item;
-    xmlChar* key;
-
-    item = katze_item_new ();
-    key = xmlGetProp (cur, (xmlChar*)"href");
-    katze_item_set_uri (item, (gchar*)key);
-    g_free (key);
-
-    cur = cur->xmlChildrenNode;
-    while (cur)
-    {
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_name (item, g_strstrip ((gchar*)key));
-            g_free (key);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_text (item, g_strstrip ((gchar*)key));
-            g_free (key);
-        }
-        cur = cur->next;
-    }
-    return item;
-}
-
-/* Create an array from an xmlNodePtr */
-static KatzeArray*
-katze_array_from_xmlNodePtr (xmlNodePtr cur)
-{
-    KatzeArray* array;
-    xmlChar* key;
-    KatzeItem* item;
-
-    array = katze_array_new (KATZE_TYPE_ARRAY);
-
-    key = xmlGetProp (cur, (xmlChar*)"folded");
-    if (key)
-    {
-        /* if (!g_ascii_strncasecmp ((gchar*)key, "yes", 3))
-            folder->folded = TRUE;
-        else if (!g_ascii_strncasecmp ((gchar*)key, "no", 2))
-            folder->folded = FALSE;
-        else
-            g_warning ("XBEL: Unknown value for folded."); */
-        xmlFree (key);
-    }
-
-    cur = cur->xmlChildrenNode;
-    while (cur)
-    {
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_name (KATZE_ITEM (array), g_strstrip ((gchar*)key));
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_text (KATZE_ITEM (array), g_strstrip ((gchar*)key));
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
-        {
-            item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
-            katze_array_add_item (array, item);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
-        {
-            item = katze_item_from_xmlNodePtr (cur);
-            katze_array_add_item (array, item);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
-        {
-            item = katze_item_new ();
-            katze_array_add_item (array, item);
-        }
-        cur = cur->next;
-    }
-    return array;
-}
-
-/* Loads the contents from an xmlNodePtr into an array. */
-static gboolean
-katze_array_from_xmlDocPtr (KatzeArray* array,
-                            xmlDocPtr   doc)
-{
-    xmlNodePtr cur;
-    xmlChar* version;
-    gchar* value;
-    KatzeItem* item;
-
-    cur = xmlDocGetRootElement (doc);
-    version = xmlGetProp (cur, (xmlChar*)"version");
-    if (xmlStrcmp (version, (xmlChar*)"1.0"))
-        g_warning ("XBEL version is not 1.0.");
-    xmlFree (version);
-
-    value = (gchar*)xmlGetProp (cur, (xmlChar*)"title");
-    katze_item_set_name (KATZE_ITEM (array), value);
-    g_free (value);
-
-    value = (gchar*)xmlGetProp (cur, (xmlChar*)"desc");
-    katze_item_set_text (KATZE_ITEM (array), value);
-    g_free (value);
-
-    if ((cur = xmlDocGetRootElement (doc)) == NULL)
-    {
-        /* Empty document */
-        return FALSE;
-    }
-    if (xmlStrcmp (cur->name, (const xmlChar*)"xbel"))
-    {
-        /* Wrong document kind */
-        return FALSE;
-    }
-    cur = cur->xmlChildrenNode;
-    while (cur)
-    {
-        item = NULL;
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
-            item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
-            item = katze_item_from_xmlNodePtr (cur);
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
-            item = katze_item_new ();
-        /*else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
-            item = katze_xbel_parse_info (xbel, cur);*/
-        if (item)
-            katze_array_add_item (array, item);
-        cur = cur->next;
-    }
-    return TRUE;
-}
-
-static gboolean
-katze_array_from_file (KatzeArray*  array,
-                       const gchar* filename,
-                       GError**     error)
-{
-    xmlDocPtr doc;
-
-    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
-    g_return_val_if_fail (filename != NULL, FALSE);
-
-    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
-    {
-        /* File doesn't exist */
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_NOENT,
-                                      _("File not found."));
-        return FALSE;
-    }
-
-    if ((doc = xmlParseFile (filename)) == NULL)
-    {
-        /* No valid xml or broken encoding */
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                      _("Malformed document."));
-        return FALSE;
-    }
-
-    if (!katze_array_from_xmlDocPtr (array, doc))
-    {
-        /* Parsing failed */
-        xmlFreeDoc (doc);
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                      _("Malformed document."));
-        return FALSE;
-    }
-    xmlFreeDoc (doc);
-    return TRUE;
-}
-#endif
 
 #if HAVE_SQLITE
 /* Open database 'dbname' */
@@ -938,136 +749,6 @@ midori_search_engines_modify_cb (KatzeArray* array,
     g_free (config_file);
 }
 
-static gchar*
-_simple_xml_element (const gchar* name,
-                     const gchar* value)
-{
-    gchar* value_escaped;
-    gchar* markup;
-
-    if (!value)
-        return g_strdup ("");
-    value_escaped = g_markup_escape_text (value, -1);
-    markup = g_strdup_printf ("<%s>%s</%s>\n", name, value_escaped, name);
-    g_free (value_escaped);
-    return markup;
-}
-
-static gchar*
-katze_item_to_data (KatzeItem* item)
-{
-    gchar* markup;
-
-    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
-
-    markup = NULL;
-    if (KATZE_IS_ARRAY (item))
-    {
-        GString* _markup = g_string_new (NULL);
-        guint i = 0;
-        KatzeItem* _item;
-        while ((_item = katze_array_get_nth_item (KATZE_ARRAY (item), i++)))
-        {
-            gchar* item_markup = katze_item_to_data (_item);
-            g_string_append (_markup, item_markup);
-            g_free (item_markup);
-        }
-        /* gchar* folded = item->folded ? NULL : g_strdup_printf (" folded=\"no\""); */
-        gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
-        gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
-        markup = g_strdup_printf ("<folder%s>\n%s%s%s</folder>\n",
-                                  "" /* folded ? folded : "" */,
-                                  title, desc,
-                                  g_string_free (_markup, FALSE));
-        /* g_free (folded); */
-        g_free (title);
-        g_free (desc);
-    }
-    else if (katze_item_get_uri (item))
-    {
-        gchar* href_escaped = g_markup_escape_text (katze_item_get_uri (item), -1);
-        gchar* href = g_strdup_printf (" href=\"%s\"", href_escaped);
-        g_free (href_escaped);
-        gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
-        gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
-        markup = g_strdup_printf ("<bookmark%s>\n%s%s%s</bookmark>\n",
-                                  href,
-                                  title, desc,
-                                  "");
-        g_free (href);
-        g_free (title);
-        g_free (desc);
-    }
-    else
-        markup = g_strdup ("<separator/>\n");
-    return markup;
-}
-
-static gchar*
-katze_array_to_xml (KatzeArray* array,
-                    GError**    error)
-{
-    GString* inner_markup;
-    guint i;
-    KatzeItem* item;
-    gchar* item_xml;
-    gchar* title;
-    gchar* desc;
-    gchar* outer_markup;
-
-    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), NULL);
-
-    inner_markup = g_string_new (NULL);
-    i = 0;
-    while ((item = katze_array_get_nth_item (array, i++)))
-    {
-        item_xml = katze_item_to_data (item);
-        g_string_append (inner_markup, item_xml);
-        g_free (item_xml);
-    }
-
-    title = _simple_xml_element ("title", katze_item_get_name (KATZE_ITEM (array)));
-    desc = _simple_xml_element ("desc", katze_item_get_text (KATZE_ITEM (array)));
-    outer_markup = g_strdup_printf (
-                   "%s%s<xbel version=\"1.0\">\n%s%s%s</xbel>\n",
-                   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
-                   "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
-                   "XML Bookmark Exchange Language 1.0//EN//XML\" "
-                   "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n",
-                   title,
-                   desc,
-                   g_string_free (inner_markup, FALSE));
-    g_free (title);
-    g_free (desc);
-
-    return outer_markup;
-}
-
-static gboolean
-katze_array_to_file (KatzeArray*  array,
-                     const gchar* filename,
-                     GError**     error)
-{
-    gchar* data;
-    FILE* fp;
-
-    g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
-    g_return_val_if_fail (filename, FALSE);
-
-    if (!(data = katze_array_to_xml (array, error)))
-        return FALSE;
-    if (!(fp = fopen (filename, "w")))
-    {
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_ACCES,
-                                      _("Writing failed."));
-        return FALSE;
-    }
-    fputs (data, fp);
-    fclose (fp);
-    g_free (data);
-    return TRUE;
-}
-
 static void
 midori_bookmarks_notify_item_cb (KatzeArray* folder,
                                  GParamSpec* pspec,
@@ -1078,7 +759,7 @@ midori_bookmarks_notify_item_cb (KatzeArray* folder,
 
     config_file = build_config_filename ("bookmarks.xbel");
     error = NULL;
-    if (!katze_array_to_file (bookmarks, config_file, &error))
+    if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
     {
         g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
         g_error_free (error);
@@ -1105,7 +786,7 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
 
     config_file = build_config_filename ("bookmarks.xbel");
     error = NULL;
-    if (!katze_array_to_file (bookmarks, config_file, &error))
+    if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
     {
         g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
         g_error_free (error);
@@ -1133,7 +814,7 @@ midori_bookmarks_remove_item_cb (KatzeArray* bookmarks,
 
     config_file = build_config_filename ("bookmarks.xbel");
     error = NULL;
-    if (!katze_array_to_file (bookmarks, config_file, &error))
+    if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
     {
         g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
         g_error_free (error);
@@ -1155,7 +836,7 @@ midori_trash_add_item_cb (KatzeArray* trash,
 
     config_file = build_config_filename ("tabtrash.xbel");
     error = NULL;
-    if (!katze_array_to_file (trash, config_file, &error))
+    if (!midori_array_to_file (trash, config_file, "xbel", &error))
     {
         /* i18n: Trash, or wastebin, containing closed tabs */
         g_warning (_("The trash couldn't be saved. %s"), error->message);
@@ -1179,7 +860,7 @@ midori_trash_remove_item_cb (KatzeArray* trash,
 
     config_file = build_config_filename ("tabtrash.xbel");
     error = NULL;
-    if (!katze_array_to_file (trash, config_file, &error))
+    if (!midori_array_to_file (trash, config_file, "xbel", &error))
     {
         g_warning (_("The trash couldn't be saved. %s"), error->message);
         g_error_free (error);
@@ -1250,7 +931,7 @@ midori_browser_session_cb (MidoriBrowser* browser,
 
     config_file = build_config_filename ("session.xbel");
     error = NULL;
-    if (!katze_array_to_file (session, config_file, &error))
+    if (!midori_array_to_file (session, config_file, "xbel", &error))
     {
         g_warning (_("The session couldn't be saved. %s"), error->message);
         g_error_free (error);
@@ -1795,7 +1476,7 @@ main (int    argc,
     #if HAVE_LIBXML
     katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
     error = NULL;
-    if (!katze_array_from_file (bookmarks, config_file, &error))
+    if (!midori_array_from_file (bookmarks, config_file, "xbel", &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,
@@ -1810,7 +1491,7 @@ main (int    argc,
     {
         katze_assign (config_file, build_config_filename ("session.xbel"));
         error = NULL;
-        if (!katze_array_from_file (_session, config_file, &error))
+        if (!midori_array_from_file (_session, config_file, "xbel", &error))
         {
             if (error->code != G_FILE_ERROR_NOENT)
                 g_string_append_printf (error_messages,
@@ -1823,7 +1504,7 @@ main (int    argc,
     #if HAVE_LIBXML
     katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
     error = NULL;
-    if (!katze_array_from_file (trash, config_file, &error))
+    if (!midori_array_from_file (trash, config_file, "xbel", &error))
     {
         if (error->code != G_FILE_ERROR_NOENT)
             g_string_append_printf (error_messages,

@@ -13,6 +13,7 @@
 #define __MIDORI_H__
 
 #include "midori-app.h"
+#include "midori-array.h"
 #include "midori-browser.h"
 #include "midori-extension.h"
 #include "midori-locationaction.h"
