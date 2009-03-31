@@ -402,7 +402,7 @@ midori_search_action_get_icon (MidoriSearchAction* search_action,
             return pixbuf;
     }
 
-    if ((icon = katze_item_get_uri (item)) && strstr (icon, "://"))
+    if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
         return katze_net_load_icon (search_action->net,
             icon, NULL, widget, NULL);
 
@@ -416,12 +416,13 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
                                        gint                 button,
                                        GtkAction*           action)
 {
+
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
         return;
 
     KatzeArray* search_engines;
     GtkWidget* menu;
-    guint n, i;
+    guint i;
     GtkWidget* menuitem;
     KatzeItem* item;
     GdkPixbuf* icon;
@@ -429,12 +430,11 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
 
     search_engines = MIDORI_SEARCH_ACTION (action)->search_engines;
     menu = gtk_menu_new ();
-    n = katze_array_get_length (search_engines);
-    if (n)
+    i = 0;
+    if ((item = katze_array_get_nth_item (search_engines, i)))
     {
-        for (i = 0; i < n; i++)
+        do
         {
-            item = katze_array_get_nth_item (search_engines, i);
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
@@ -449,6 +449,7 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
                 G_CALLBACK (midori_search_action_engine_activate_cb), action);
             gtk_widget_show (menuitem);
         }
+        while ((item = katze_array_get_nth_item (search_engines, ++i)));
     }
     else
     {
@@ -1063,7 +1064,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     GtkListStore* liststore;
     GtkWidget* treeview;
     GtkWidget* scrolled;
-    guint n, i;
+    guint i;
     KatzeItem* item;
     GtkWidget* vbox;
     GtkWidget* button;
@@ -1136,14 +1137,11 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
                                          GTK_SHADOW_IN);
     gtk_box_pack_start (GTK_BOX (hbox), scrolled, TRUE, TRUE, 5);
-    n = search_action->search_engines ?
-        katze_array_get_length (search_action->search_engines) : 0;
-    for (i = 0; i < n; i++)
-    {
-        item = katze_array_get_nth_item (search_action->search_engines, i);
+    i = 0;
+    if (search_action->search_engines)
+    while ((item = katze_array_get_nth_item (search_action->search_engines, i)))
         gtk_list_store_insert_with_values (GTK_LIST_STORE (liststore),
-                                           NULL, i, 0, item, -1);
-    }
+                                           NULL, i++, 0, item, -1);
     g_object_unref (liststore);
     g_signal_connect (treeview, "destroy",
         G_CALLBACK (midori_search_action_treeview_destroy_cb), search_action);
@@ -1158,14 +1156,14 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     g_signal_connect (button, "clicked",
         G_CALLBACK (midori_search_action_dialog_edit_cb), search_action);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
-    if (!n)
+    if (!i)
         gtk_widget_set_sensitive (button, FALSE);
     button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
     search_action->remove_button = button;
     g_signal_connect (button, "clicked",
         G_CALLBACK (midori_search_action_dialog_remove_cb), search_action);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
-    if (!n)
+    if (!i)
         gtk_widget_set_sensitive (button, FALSE);
     button = gtk_label_new (""); /* This is an invisible separator */
     gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 12);
