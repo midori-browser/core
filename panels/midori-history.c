@@ -441,7 +441,8 @@ midori_history_insert_item (MidoriHistory* history,
     {
         GtkTreeIter* piter;
         gint64 pday;
-        guint i, n;
+        guint i;
+        KatzeItem* child;
 
         g_signal_connect (item, "add-item",
             G_CALLBACK (midori_history_add_item_cb), history);
@@ -459,14 +460,9 @@ midori_history_insert_item (MidoriHistory* history,
             g_object_unref (item);
             piter = &iter;
         }
-        n = katze_array_get_length (KATZE_ARRAY (item));
-        for (i = 0; i < n; i++)
-        {
-            KatzeItem* child;
-
-            child = katze_array_get_nth_item (KATZE_ARRAY (item), i);
+        i = 0;
+        while ((child = katze_array_get_nth_item (KATZE_ARRAY (item), i++)))
             midori_history_insert_item (history, treestore, piter, child, day);
-        }
     }
     else
     {
