@@ -1011,7 +1011,10 @@ midori_view_download_requested_cb (GtkWidget*      view,
         gchar* filename;
         gchar* uri;
 
-        folder = katze_object_get_string (browser->settings, "download-folder");
+        if (g_object_get_data (G_OBJECT (download), "open-download"))
+            folder = g_strdup (g_get_tmp_dir ());
+        else
+            folder = katze_object_get_string (browser->settings, "download-folder");
         filename = g_build_filename (folder,
             webkit_download_get_suggested_filename (download), NULL);
         g_free (folder);
