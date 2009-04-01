@@ -2395,6 +2395,8 @@ midori_view_can_view_source (MidoriView* view)
         && !g_strrstr (view->mime_type, "xml"))
         return FALSE;
 
+    if (!uri)
+        return FALSE;
     if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
         return TRUE;
     if (g_str_has_prefix (uri, "file://"))
