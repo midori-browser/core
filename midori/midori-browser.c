@@ -4043,7 +4043,6 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), hpaned, TRUE, TRUE, 0);
     gtk_widget_show (hpaned);
     browser->panel = g_object_new (MIDORI_TYPE_PANEL,
-                                   "shadow-type", GTK_SHADOW_IN,
                                    "menu", browser->menu_tools,
                                    NULL);
     g_signal_connect (browser->panel, "notify::right-aligned",
