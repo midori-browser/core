@@ -3128,7 +3128,9 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     const gchar* title;
     gchar* window_title;
 
-    view = midori_browser_get_current_tab (browser);
+    if (!(view = midori_browser_get_current_tab (browser)))
+        return;
+
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
