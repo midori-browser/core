@@ -221,7 +221,9 @@ sokoke_magic_uri (const gchar* uri,
         katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
 
     /* Just return if it's a javascript: or mailto: uri */
-    if (g_str_has_prefix (uri, "javascript:") || g_str_has_prefix (uri, "mailto:"))
+    if (g_str_has_prefix (uri, "javascript:")
+     || g_str_has_prefix (uri, "mailto:")
+     || g_str_has_prefix (uri, "data:"))
         return g_strdup (uri);
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))

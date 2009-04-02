@@ -137,6 +137,8 @@ magic_uri_pseudo (void)
 {
     test_input ("javascript:alert(1)", "javascript:alert(1)");
     test_input ("mailto:christian@twotoasts.de", "mailto:christian@twotoasts.de");
+    test_input ("data:text/html;charset=utf-8,<title>Test</title>Test",
+                "data:text/html;charset=utf-8,<title>Test</title>Test");
 }
 
 static void
