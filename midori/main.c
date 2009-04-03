@@ -773,8 +773,9 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
                               KatzeArray* bookmarks);
 
 static void
-midori_bookmarks_remove_item_cb (KatzeArray* bookmarks,
-                                 GObject*    item);
+midori_bookmarks_remove_item_cb (KatzeArray* folder,
+                                 GObject*    item,
+                                 KatzeArray* bookmarks);
 
 static void
 midori_bookmarks_add_item_cb (KatzeArray* folder,
@@ -798,7 +799,7 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
         g_signal_connect_after (item, "add-item",
             G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
         g_signal_connect_after (item, "remove-item",
-            G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+            G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
     }
 
     g_signal_connect_after (item, "notify",
@@ -806,8 +807,9 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
 }
 
 static void
-midori_bookmarks_remove_item_cb (KatzeArray* bookmarks,
-                                 GObject*    item)
+midori_bookmarks_remove_item_cb (KatzeArray* folder,
+                                 GObject*    item,
+                                 KatzeArray* bookmarks)
 {
     gchar* config_file;
     GError* error;
@@ -1605,7 +1607,7 @@ main (int    argc,
         g_signal_connect_after (bookmarks, "add-item",
             G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
         g_signal_connect_after (bookmarks, "remove-item",
-            G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+            G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
         if (!katze_array_is_empty (bookmarks))
         {
             i = 0;
@@ -1616,7 +1618,7 @@ main (int    argc,
                     g_signal_connect_after (item, "add-item",
                         G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
                     g_signal_connect_after (item, "remove-item",
-                        G_CALLBACK (midori_bookmarks_remove_item_cb), NULL);
+                        G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
                 }
                 g_signal_connect_after (item, "notify",
                     G_CALLBACK (midori_bookmarks_notify_item_cb), bookmarks);
