@@ -30,6 +30,7 @@
 #define STOCK_STYLES             "gnome-settings-theme"
 #define STOCK_TRANSFER           "package"
 #define STOCK_TRANSFERS          "package"
+#define STOCK_PLUGINS            GTK_STOCK_CONVERT
 
 #define STOCK_BOOKMARK_ADD       "stock_add-bookmark"
 #define STOCK_HOMEPAGE           GTK_STOCK_HOME

@@ -90,8 +90,7 @@ midori_plugins_get_label (MidoriViewable* viewable)
 static const gchar*
 midori_plugins_get_stock_id (MidoriViewable* viewable)
 {
-    /* FIXME: We need a dedicated stock id */
-    return GTK_STOCK_CONVERT /* STOCK_PLUGINS */;
+    return STOCK_PLUGINS;
 }
 
 static GtkWidget*

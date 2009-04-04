@@ -13,6 +13,8 @@
 
 #include <midori/midori.h>
 
+#define STOCK_TAB_PANEL "tab-panel"
+
 static void
 tab_panel_app_add_browser_cb (MidoriApp*     app,
                               MidoriBrowser* browser)
@@ -26,7 +28,7 @@ tab_panel_app_add_browser_cb (MidoriApp*     app,
     child = midori_view_new (NULL);
     gtk_widget_show (child);
     midori_panel_append_widget (MIDORI_PANEL (panel), child,
-                                GTK_STOCK_INDEX, "Tab Panel", NULL);
+                                STOCK_TAB_PANEL, _("Tab Panel"), NULL);
 }
 
 static void
@@ -40,8 +42,29 @@ tab_panel_activate_cb (MidoriExtension* extension,
 MidoriExtension*
 extension_init (void)
 {
-    MidoriExtension* extension = g_object_new (TAB_PANEL_TYPE_EXTENSION,
-        "name", "Tab Panel",
+    MidoriExtension* extension;
+    GtkIconFactory* factory;
+    GtkIconSource* icon_source;
+    GtkIconSet* icon_set;
+    static GtkStockItem items[] =
+    {
+        { STOCK_TAB_PANEL, N_("T_ab Panel"), 0, 0, NULL },
+    };
+
+    factory = gtk_icon_factory_new ();
+    gtk_stock_add (items, G_N_ELEMENTS (items));
+    icon_set = gtk_icon_set_new ();
+    icon_source = gtk_icon_source_new ();
+    gtk_icon_source_set_icon_name (icon_source, GTK_STOCK_INDEX);
+    gtk_icon_set_add_source (icon_set, icon_source);
+    gtk_icon_source_free (icon_source);
+    gtk_icon_factory_add (factory, STOCK_TAB_PANEL, icon_set);
+    gtk_icon_set_unref (icon_set);
+    gtk_icon_factory_add_default (factory);
+    g_object_unref (factory);
+
+    extension = g_object_new (TAB_PANEL_TYPE_EXTENSION,
+        "name", _("Tab Panel"),
         "description", "",
         "version", "0.1",
         "authors", "Christian Dywan <christian@twotoasts.de>",
