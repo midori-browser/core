@@ -43,6 +43,7 @@ browser_create (void)
     }
     g_list_free (actions);
     gtk_widget_destroy (GTK_WIDGET (browser));
+    g_object_unref (app);
 }
 
 int

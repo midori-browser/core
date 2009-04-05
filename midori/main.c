@@ -154,6 +154,7 @@ settings_new_from_file (const gchar* filename)
         else
             g_warning (_("Invalid configuration value '%s'"), property);
     }
+    g_free (pspecs);
     return settings;
 }
 
@@ -188,10 +189,11 @@ settings_save_to_file (MidoriWebSettings* settings,
         }
         if (type == G_TYPE_PARAM_STRING)
         {
-            const gchar* string;
+            gchar* string;
             g_object_get (settings, property, &string, NULL);
             g_key_file_set_string (key_file, "settings", property,
                                    string ? string : "");
+            g_free (string);
         }
         else if (type == G_TYPE_PARAM_INT)
         {
@@ -224,6 +226,7 @@ settings_save_to_file (MidoriWebSettings* settings,
         else
             g_warning (_("Invalid configuration value '%s'"), property);
     }
+    g_free (pspecs);
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;
@@ -266,6 +269,7 @@ search_engines_new_from_file (const gchar* filename,
         }
         katze_array_add_item (search_engines, item);
     }
+    g_free (pspecs);
     g_strfreev (engines);
     g_key_file_free (key_file);
     return search_engines;
@@ -303,6 +307,7 @@ search_engines_save_to_file (KatzeArray*  search_engines,
             g_free (value);
         }
     }
+    g_free (pspecs);
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
 
@@ -921,6 +926,8 @@ midori_app_add_browser_cb (MidoriApp*     app,
     addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
+
+    g_object_unref (panel);
 }
 
 static void
@@ -1241,7 +1248,9 @@ midori_load_session (gpointer data)
             katze_item_set_uri (item, homepage);
             g_free (homepage);
         }
+        g_object_unref (settings);
         katze_array_add_item (_session, item);
+        g_object_unref (item);
     }
 
     session = midori_browser_get_proxy_array (browser);
@@ -1682,6 +1691,7 @@ main (int    argc,
     #if HAVE_SQLITE
     settings = katze_object_get_object (app, "settings");
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
+    g_object_unref (settings);
     midori_history_terminate (db, max_history_age);
     #endif
     g_object_unref (app);

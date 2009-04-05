@@ -68,6 +68,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     gtk_widget_show (button);
     gtk_widget_show (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
+    g_object_unref (settings);
 
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (statusbar_features_deactivate_cb), bbox);

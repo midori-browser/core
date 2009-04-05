@@ -64,6 +64,9 @@ enum
 };
 
 static void
+midori_bookmarks_finalize     (GObject* object);
+
+static void
 midori_bookmarks_set_property (GObject*      object,
                                guint         prop_id,
                                const GValue* value,
@@ -82,6 +85,7 @@ midori_bookmarks_class_init (MidoriBookmarksClass* class)
     GParamFlags flags;
 
     gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = midori_bookmarks_finalize;
     gobject_class->set_property = midori_bookmarks_set_property;
     gobject_class->get_property = midori_bookmarks_get_property;
 
@@ -691,6 +695,7 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
                 settings = katze_object_get_object (browser, "settings");
                 if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
                     midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+                g_object_unref (settings);
             }
             i++;
         }
@@ -707,6 +712,7 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
             settings = katze_object_get_object (browser, "settings");
             if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
                 midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+            g_object_unref (settings);
         }
     }
 }
@@ -888,7 +894,6 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     GtkCellRenderer* renderer_text;
 
     bookmarks->net = katze_net_new ();
-    /* FIXME: Dereference the net on finalization */
 
     /* Create the treeview */
     model = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
@@ -924,6 +929,16 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (bookmarks), treeview, TRUE, TRUE, 0);
     bookmarks->treeview = treeview;
+}
+
+static void
+midori_bookmarks_finalize (GObject* object)
+{
+    MidoriBookmarks* bookmarks = MIDORI_BOOKMARKS (object);
+
+    if (bookmarks->app)
+        g_object_unref (bookmarks->app);
+    g_object_unref (bookmarks->net);
 }
 
 /**

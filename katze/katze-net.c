@@ -557,11 +557,12 @@ katze_net_load_icon (KatzeNet*      net,
         if (g_hash_table_lookup_extended (net->memory,
                                           icon_file, NULL, (gpointer)&pixbuf))
         {
+            g_free (icon_file);
             if (pixbuf)
                 g_object_ref (pixbuf);
         }
         else if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
-            ;
+            g_free (icon_file);
         /* If the called doesn't provide an icon callback,
            we assume there is no interest in loading an un-cached icon. */
         else if (icon_cb)

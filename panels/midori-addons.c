@@ -883,6 +883,7 @@ midori_addons_new (MidoriAddonKind kind,
         }
         g_signal_connect (monitor, "changed",
             G_CALLBACK (midori_addons_directory_monitor_changed), addons);
+        g_object_unref (directory);
     }
     g_slist_free (list);
 

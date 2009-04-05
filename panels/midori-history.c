@@ -65,6 +65,9 @@ enum
 };
 
 static void
+midori_history_finalize     (GObject*      object);
+
+static void
 midori_history_set_property (GObject*      object,
                              guint         prop_id,
                              const GValue* value,
@@ -83,6 +86,7 @@ midori_history_class_init (MidoriHistoryClass* class)
     GParamFlags flags;
 
     gobject_class = G_OBJECT_CLASS (class);
+    gobject_class->finalize = midori_history_finalize;
     gobject_class->set_property = midori_history_set_property;
     gobject_class->get_property = midori_history_get_property;
 
@@ -495,7 +499,6 @@ midori_history_set_app (MidoriHistory* history,
         time_t now = time (NULL);
         gint64 day = sokoke_time_t_to_julian (&now);
 
-        /* FIXME: Dereference the app on finalization */
         model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
         midori_history_insert_item (history, GTK_TREE_STORE (model),
             NULL, KATZE_ITEM (g_object_ref (history->array)), day);
@@ -721,6 +724,7 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
                 settings = katze_object_get_object (browser, "settings");
                 if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
                     midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+                g_object_unref (settings);
             }
             i++;
         }
@@ -737,6 +741,7 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
             settings = katze_object_get_object (browser, "settings");
             if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
                 midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+            g_object_unref (settings);
         }
     }
 }
@@ -955,6 +960,16 @@ midori_history_init (MidoriHistory* history)
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (history), treeview, TRUE, TRUE, 0);
     history->treeview = treeview;
+}
+
+static void
+midori_history_finalize (GObject* object)
+{
+    MidoriHistory* history = MIDORI_HISTORY (object);
+
+    if (history->app)
+        g_object_unref (history->app);
+    g_object_unref (history->array);
 }
 
 /**

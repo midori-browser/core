@@ -257,7 +257,8 @@ katze_item_to_data (KatzeItem* item)
         markup = g_strdup_printf ("<folder%s>\n%s%s%s</folder>\n",
                                   "" /* folded ? folded : "" */,
                                   title, desc,
-                                  g_string_free (_markup, FALSE));
+                                  _markup->str);
+        g_string_free (_markup, TRUE);
         /* g_free (folded); */
         g_free (title);
         g_free (desc);
@@ -313,7 +314,8 @@ katze_array_to_xbel (KatzeArray* array,
                    "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n",
                    title,
                    desc,
-                   g_string_free (inner_markup, FALSE));
+                   inner_markup->str);
+    g_string_free (inner_markup, TRUE);
     g_free (title);
     g_free (desc);
 
