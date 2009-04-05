@@ -1605,8 +1605,12 @@ static void
 _action_print_activate (GtkAction*     action,
                         MidoriBrowser* browser)
 {
-    GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (view)
+    GtkWidget* view;
+
+    if (!GTK_WIDGET_VISIBLE (browser))
+        return;
+
+    if ((view = midori_browser_get_current_tab (browser)))
         midori_view_print (MIDORI_VIEW (view));
 }
 
