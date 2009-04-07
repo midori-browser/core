@@ -175,7 +175,8 @@ static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 		expires = _("At the end of the session");
 
 	text = g_markup_printf_escaped(
-			_("<b>Host: %s</b>\n<b>Name: %s</b>\nValue: %s\nPath: %s\nSecure: %s\nExpires: %s"),
+			_("<b>Host</b>: %s\n<b>Name</b>: %s\n<b>Value</b>: %s\n<b>Path</b>: %s\n"
+			  "<b>Secure</b>: %s\n<b>Expires</b>: %s"),
 			cookie->domain,
 			cookie->name,
 			cookie->value,
@@ -781,6 +782,7 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	gtk_label_set_line_wrap(GTK_LABEL(cmdata->desc_label), TRUE);
 	gtk_label_set_line_wrap_mode(GTK_LABEL(cmdata->desc_label), PANGO_WRAP_CHAR);
 	gtk_misc_set_alignment(GTK_MISC(cmdata->desc_label), 0, 0);
+	gtk_misc_set_padding(GTK_MISC(cmdata->desc_label), 3, 3);
     gtk_widget_show(cmdata->desc_label);
 
 	desc_swin = gtk_scrolled_window_new(NULL, NULL);
@@ -814,9 +816,9 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	g_signal_connect(cmdata->filter_entry, "changed", G_CALLBACK(cm_filter_entry_changed_cb), cmdata);
 	g_signal_connect(cmdata->filter_entry, "activate", G_CALLBACK(cm_filter_entry_changed_cb), cmdata);
 
-	filter_hbox = gtk_hbox_new(FALSE, 3);
-	gtk_box_pack_start(GTK_BOX(filter_hbox), filter_label, FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(filter_hbox), cmdata->filter_entry, TRUE, TRUE, 0);
+	filter_hbox = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(filter_hbox), filter_label, FALSE, FALSE, 3);
+	gtk_box_pack_start(GTK_BOX(filter_hbox), cmdata->filter_entry, TRUE, TRUE, 3);
     gtk_widget_show(filter_hbox);
 
 	paned = gtk_vpaned_new();
@@ -825,7 +827,7 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
     gtk_widget_show(paned);
 
 	cmdata->panel_page = gtk_vbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(cmdata->panel_page), filter_hbox, FALSE, FALSE, 3);
+	gtk_box_pack_start(GTK_BOX(cmdata->panel_page), filter_hbox, FALSE, FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(cmdata->panel_page), paned, TRUE, TRUE, 0);
 	gtk_widget_show(cmdata->panel_page);
 
@@ -840,6 +842,8 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 		STOCK_COOKIE_MANAGER, _("Cookie Manager"), toolbar);
 
 	g_signal_connect(ext, "deactivate", G_CALLBACK(cm_deactivate_cb), cmdata);
+
+	g_object_unref(panel);
 }
 
 
@@ -853,6 +857,7 @@ static void cm_activate_cb(MidoriExtension *extension, MidoriApp *app, gpointer 
     i = 0;
     while ((browser = katze_array_get_nth_item(browsers, i++)))
         cm_app_add_browser_cb(app, browser, extension);
+	g_object_unref(browsers);
 	g_signal_connect(app, "add-browser", G_CALLBACK(cm_app_add_browser_cb), extension);
 }
 
