@@ -549,14 +549,40 @@ static gboolean cm_tree_query_tooltip(GtkWidget *widget, gint x, gint y, gboolea
 #endif
 
 
+static gboolean cm_filter_match(const gchar *haystack, const gchar *needle)
+{
+	gchar *haystack_lowered, *needle_lowered;
+	gboolean result;
+
+	/* empty strings always match */
+	if (haystack == NULL || needle == NULL || *needle == '\0')
+		return TRUE;
+
+	haystack_lowered = g_utf8_strdown(haystack, -1);
+	needle_lowered = g_utf8_strdown(needle, -1);
+
+	/* if one of both could not be converted into lower case, skip those */
+	if (haystack_lowered == NULL || needle_lowered == NULL)
+		return FALSE;
+
+	result = (strstr(haystack_lowered, needle_lowered) != NULL);
+
+	g_free(haystack_lowered);
+	g_free(needle_lowered);
+
+	return result;
+}
+
+
 static void cm_filter_tree(CMData *cmdata, const gchar *filter_text)
 {
 	GtkTreeIter iter, child;
 	GtkTreeModel *model;
-	gboolean show;
+	gboolean show_child, show_parent;
 	gboolean child_visible;
 	gint i, n;
 	gchar *name;
+	gchar *domain;
 
 	model = GTK_TREE_MODEL(cmdata->store);
 	if (! gtk_tree_model_get_iter_first(model, &iter))
@@ -568,19 +594,22 @@ static void cm_filter_tree(CMData *cmdata, const gchar *filter_text)
 		{
 			child_visible = FALSE;
 
+			gtk_tree_model_get(model, &iter, COL_NAME, &domain, -1);
+			show_parent = cm_filter_match(domain, filter_text);
+			g_free(domain);
 			n = gtk_tree_model_iter_n_children(model, &iter);
 			for (i = 0; i < n; i++)
 			{
 				gtk_tree_model_iter_nth_child(model, &child, &iter, i);
 
 				gtk_tree_model_get(model, &child, COL_NAME, &name, -1);
-				show = filter_text == NULL || *filter_text == '\0' || strstr(name, filter_text);
+				show_child = show_parent || cm_filter_match(name, filter_text);
 				g_free(name);
 
-				if (show)
+				if (show_child)
 					child_visible = TRUE;
 
-				gtk_tree_store_set(cmdata->store, &child, COL_VISIBLE, show, -1);
+				gtk_tree_store_set(cmdata->store, &child, COL_VISIBLE, show_child, -1);
 			}
 			gtk_tree_store_set(cmdata->store, &iter, COL_VISIBLE, child_visible, -1);
 		}
@@ -816,6 +845,9 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	gtk_widget_show(filter_label);
 
 	cmdata->filter_entry = gtk_icon_entry_new();
+	gtk_widget_set_tooltip_text(cmdata->filter_entry,
+		_("Enter a filter string to show only cookies whose name or domain "
+		  "field match the entered filter"));
 	gtk_widget_show(cmdata->filter_entry);
 	gtk_icon_entry_set_icon_from_stock(GTK_ICON_ENTRY(cmdata->filter_entry),
 		GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_CLEAR);
