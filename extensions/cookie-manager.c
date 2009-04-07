@@ -55,6 +55,7 @@ typedef struct _CMData
 } CMData;
 
 static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, MidoriExtension *ext);
+static void cm_filter_tree(CMData *cmdata, const gchar *filter_text);
 
 
 #if CM_DEBUG
@@ -105,6 +106,7 @@ static void cm_refresh_store(CMData *cmdata)
 	GtkTreeIter iter;
 	GtkTreeIter *parent_iter;
 	SoupCookie *cookie;
+	const gchar *filter_text;
 
 	g_object_ref(cmdata->filter);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(cmdata->treeview), NULL);
@@ -149,6 +151,14 @@ static void cm_refresh_store(CMData *cmdata)
 
 	gtk_tree_view_set_model(GTK_TREE_VIEW(cmdata->treeview), GTK_TREE_MODEL(cmdata->filter));
 	g_object_unref(cmdata->filter);
+
+	/* if a filter is set, apply it again */
+	filter_text = gtk_entry_get_text(GTK_ENTRY(cmdata->filter_entry));
+	if (*filter_text != '\0')
+	{
+		cm_filter_tree(cmdata, filter_text);
+		gtk_tree_view_expand_all(GTK_TREE_VIEW(cmdata->treeview));
+	}
 }
 
 
