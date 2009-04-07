@@ -23,12 +23,14 @@ page_holder_notebook_append_view (GtkWidget* notebook)
 {
     GtkWidget* view;
     MidoriBrowser* browser;
+    MidoriWebSettings *settings;
     GtkWidget* label;
 
     view = midori_view_new (NULL);
     browser = MIDORI_BROWSER (gtk_widget_get_toplevel (notebook));
-    midori_view_set_settings (MIDORI_VIEW (view),
-        MIDORI_WEB_SETTINGS (katze_object_get_object (browser, "settings")));
+    settings = katze_object_get_object (browser, "settings");
+    midori_view_set_settings (MIDORI_VIEW (view), settings);
+    g_object_unref (settings);
     gtk_widget_show (view);
     label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
     return gtk_notebook_append_page (GTK_NOTEBOOK (notebook), view, label);
@@ -127,6 +129,8 @@ page_holder_app_add_browser_cb (MidoriApp*       app,
                                 STOCK_PAGE_HOLDER, _("Pageholder"), toolbar);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (page_holder_deactivate_cb), notebook);
+
+    g_object_unref (panel);
 }
 
 static void
@@ -141,6 +145,7 @@ page_holder_activate_cb (MidoriExtension* extension,
     i = 0;
     while ((browser = katze_array_get_nth_item (browsers, i++)))
         page_holder_app_add_browser_cb (app, browser, extension);
+    g_object_unref (browsers);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (page_holder_app_add_browser_cb), extension);
 }
