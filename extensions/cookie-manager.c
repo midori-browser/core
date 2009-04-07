@@ -466,6 +466,7 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CMData *cmdat
 {
 	GtkWidget *dialog;
 	GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(button));
+	const gchar *filter_text;
 
 	dialog = gtk_message_dialog_new(GTK_WINDOW(toplevel),
 		GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -476,6 +477,13 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CMData *cmdat
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Question"));
 	/* steal Midori's icon :) */
 	gtk_window_set_icon_name(GTK_WINDOW(dialog), gtk_window_get_icon_name(GTK_WINDOW(toplevel)));
+
+	filter_text = gtk_entry_get_text(GTK_ENTRY(cmdata->filter_entry));
+	if (*filter_text != '\0')
+	{
+		gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+			_("Only the visible cookies are deleted which match the entered filter string."));
+	}
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_YES)
 		cm_delete_all_cookies_real(cmdata);
@@ -790,6 +798,9 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_DELETE);
 	gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolitem), _("Delete All"));
+	gtk_tool_item_set_tooltip_text(toolitem,
+		_("Deletes all shown cookies. "
+		  "If a filter is set, only those cookies are deleted which match the filter."));
 	gtk_tool_item_set_is_important(toolitem, TRUE);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(cm_button_delete_all_clicked_cb), cmdata);
 	gtk_widget_show(GTK_WIDGET(toolitem));
