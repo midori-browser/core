@@ -49,6 +49,10 @@
     #include <locale.h>
 #endif
 
+#if HAVE_HILDON
+    #include <libosso.h>
+#endif
+
 #define MIDORI_HISTORY_ERROR g_quark_from_string("MIDORI_HISTORY_ERROR")
 
 typedef enum
@@ -1354,6 +1358,9 @@ main (int    argc,
     sqlite3* db;
     gint max_history_age;
     #endif
+    #if HAVE_HILDON
+    osso_context_t* osso_context;
+    #endif
 
     #if ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -1403,6 +1410,16 @@ main (int    argc,
     /* Standalone javascript support */
     if (run)
         return midori_run_script (uris ? *uris : NULL);
+
+    #if HAVE_HILDON
+    osso_context = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
+
+    if (!osso_context)
+    {
+        g_critical ("Error initializing OSSO D-Bus context - Midori");
+        return 1;
+    }
+    #endif
 
     app = midori_app_new ();
     /* FIXME: The app might be 'running' but actually showing a dialog
@@ -1687,6 +1704,10 @@ main (int    argc,
     g_idle_add (midori_load_session, _session);
 
     gtk_main ();
+
+    #if HAVE_HILDON
+    osso_deinitialize (osso_context);
+    #endif
 
     #if HAVE_SQLITE
     settings = katze_object_get_object (app, "settings");
