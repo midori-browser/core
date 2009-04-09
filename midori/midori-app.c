@@ -30,6 +30,7 @@ struct _MidoriApp
     MidoriBrowser* browser;
     GtkAccelGroup* accel_group;
 
+    gchar* name;
     MidoriWebSettings* settings;
     KatzeArray* bookmarks;
     KatzeArray* trash;
@@ -59,6 +60,7 @@ enum
 {
     PROP_0,
 
+    PROP_NAME,
     PROP_SETTINGS,
     PROP_BOOKMARKS,
     PROP_TRASH,
@@ -205,6 +207,23 @@ midori_app_class_init (MidoriAppClass* class)
 
     class->add_browser = _midori_app_add_browser;
     class->quit = _midori_app_quit;
+
+    /**
+     * MidoriApp:name:
+     *
+     * The name of the instance.
+     *
+     * Since: 0.1.6
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_NAME,
+                                     g_param_spec_string (
+                                     "name",
+                                     "Name",
+                                     "The name of the instance",
+                                     "midori",
+                                     G_PARAM_CONSTRUCT_ONLY |
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_SETTINGS,
@@ -389,16 +408,45 @@ midori_browser_message_received_cb (UniqueApp*         instance,
 }
 #endif
 
-static void
-midori_app_init (MidoriApp* app)
+static gpointer
+midori_app_create_instance (MidoriApp*   app,
+                            const gchar* name)
 {
     #if HAVE_UNIQUE
+    gpointer instance;
     GdkDisplay* display;
     gchar* display_name;
     gchar* instance_name;
     guint i, n;
     #endif
 
+    if (!name)
+        name = "midori";
+
+    #if HAVE_UNIQUE
+    if (!(display = gdk_display_get_default ()))
+        return NULL;
+
+    display_name = g_strdup (gdk_display_get_name (display));
+    n = strlen (display_name);
+    for (i = 0; i < n; i++)
+        if (display_name[i] == ':' || display_name[i] == '.')
+            display_name[i] = '_';
+    instance_name = g_strdup_printf ("de.twotoasts.%s_%s", name, display_name);
+    instance = unique_app_new (instance_name, NULL);
+    g_free (instance_name);
+    g_free (display_name);
+    g_signal_connect (instance, "message-received",
+                      G_CALLBACK (midori_browser_message_received_cb), app);
+    return instance;
+    #else
+    return NULL;
+    #endif
+}
+
+static void
+midori_app_init (MidoriApp* app)
+{
     app->accel_group = gtk_accel_group_new ();
 
     app->settings = NULL;
@@ -409,27 +457,7 @@ midori_app_init (MidoriApp* app)
     app->extensions = NULL;
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
-    #if HAVE_UNIQUE
-    if (!(display = gdk_display_get_default ()))
-    {
-        app->instance = NULL;
-        return;
-    }
-
-    display_name = g_strdup (gdk_display_get_name (display));
-    n = strlen (display_name);
-    for (i = 0; i < n; i++)
-        if (display_name[i] == ':' || display_name[i] == '.')
-            display_name[i] = '_';
-    instance_name = g_strdup_printf ("de.twotoasts.midori_%s", display_name);
-    app->instance = unique_app_new (instance_name, NULL);
-    g_free (instance_name);
-    g_free (display_name);
-    g_signal_connect (app->instance, "message-received",
-                      G_CALLBACK (midori_browser_message_received_cb), app);
-    #else
     app->instance = NULL;
-    #endif
 }
 
 static void
@@ -439,6 +467,7 @@ midori_app_finalize (GObject* object)
 
     g_object_unref (app->accel_group);
 
+    katze_assign (app->name, NULL);
     katze_object_assign (app->settings, NULL);
     katze_object_assign (app->bookmarks, NULL);
     katze_object_assign (app->trash, NULL);
@@ -462,6 +491,9 @@ midori_app_set_property (GObject*      object,
 
     switch (prop_id)
     {
+    case PROP_NAME:
+        katze_assign (app->name, g_value_dup_string (value));
+        break;
     case PROP_SETTINGS:
         katze_object_assign (app->settings, g_value_dup_object (value));
         /* FIXME: Propagate settings to all browsers */
@@ -501,6 +533,9 @@ midori_app_get_property (GObject*    object,
 
     switch (prop_id)
     {
+    case PROP_NAME:
+        g_value_set_string (value, app->name);
+        break;
     case PROP_SETTINGS:
         g_value_set_object (value, app->settings);
         break;
@@ -559,6 +594,9 @@ midori_app_new (void)
  * Determines whether an instance of Midori is
  * already running on the default display.
  *
+ * Use the "name" property if you want to run more
+ * than one instance.
+ *
  * If Midori was built without single instance support
  * this function will always return %FALSE.
  *
@@ -570,6 +608,8 @@ midori_app_instance_is_running (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
 
     #if HAVE_UNIQUE
+    if (!app->instance)
+        app->instance = midori_app_create_instance (app, app->name);
     if (app->instance)
         return unique_app_is_running (app->instance);
     #endif

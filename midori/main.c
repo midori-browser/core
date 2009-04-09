@@ -1412,14 +1412,6 @@ main (int    argc,
     if (run)
         return midori_run_script (uris ? *uris : NULL);
 
-    if (config && !g_path_is_absolute (config))
-    {
-        g_critical (_("The specified configuration folder is invalid."));
-        return 1;
-    }
-    sokoke_set_config_dir (config);
-    g_free (config);
-
     #if HAVE_HILDON
     osso_context = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
 
@@ -1430,7 +1422,26 @@ main (int    argc,
     }
     #endif
 
-    app = midori_app_new ();
+    if (config && !g_path_is_absolute (config))
+    {
+        g_critical (_("The specified configuration folder is invalid."));
+        return 1;
+    }
+    sokoke_set_config_dir (config);
+    if (config)
+    {
+        gchar* name_hash;
+        gchar* app_name;
+        name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
+        app_name = g_strconcat ("midori", "_", name_hash, NULL);
+        g_free (name_hash);
+        app = g_object_new (MIDORI_TYPE_APP, "name", app_name, NULL);
+        g_free (app_name);
+    }
+    else
+        app = midori_app_new ();
+    g_free (config);
+
     /* FIXME: The app might be 'running' but actually showing a dialog
               after a crash, so running a new window isn't a good idea. */
     if (midori_app_instance_is_running (app))
