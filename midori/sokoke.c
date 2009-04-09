@@ -801,3 +801,31 @@ sokoke_register_stock_items (void)
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
 }
+
+/**
+ * sokoke_set_config_dir:
+ * @new_config_dir: an absolute path, or %NULL
+ *
+ * Retrieves and/ or sets the base configuration folder.
+ *
+ * Return value: the configuration folder, or %NULL
+ **/
+const gchar*
+sokoke_set_config_dir (const gchar* new_config_dir)
+{
+    static gchar* config_dir = NULL;
+
+    if (config_dir)
+        return config_dir;
+
+    if (!new_config_dir)
+        config_dir = g_build_filename (g_get_user_config_dir (),
+                                       PACKAGE_NAME, NULL);
+    else
+    {
+        g_return_val_if_fail (g_path_is_absolute (new_config_dir), NULL);
+        katze_assign (config_dir, g_strdup (new_config_dir));
+    }
+
+    return config_dir;
+}

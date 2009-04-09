@@ -474,7 +474,7 @@ midori_extension_get_config_dir (MidoriExtension* extension)
 
     if (!extension->priv->config_dir)
         extension->priv->config_dir = g_build_filename (
-            g_get_user_config_dir (), PACKAGE_NAME, "extensions",
+            sokoke_set_config_dir (NULL), "extensions",
             extension->priv->name, NULL);
 
     return extension->priv->config_dir;

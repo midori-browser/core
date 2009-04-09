@@ -65,10 +65,7 @@ typedef enum
 static gchar*
 build_config_filename (const gchar* filename)
 {
-    static gchar* path = NULL;
-
-    if (!path)
-        path = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME, NULL);
+    const gchar* path = sokoke_set_config_dir (NULL);
     g_mkdir_with_parents (path, 0700);
     return g_build_filename (path, filename, NULL);
 }
@@ -1325,6 +1322,7 @@ int
 main (int    argc,
       char** argv)
 {
+    gchar* config;
     gboolean run;
     gboolean version;
     gchar** uris;
@@ -1333,6 +1331,8 @@ main (int    argc,
     GError* error;
     GOptionEntry entries[] =
     {
+       { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
+       N_("Use FOLDER as configuration folder"), N_("FOLDER") },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
        { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
@@ -1373,6 +1373,7 @@ main (int    argc,
     #endif
 
     /* Parse cli options */
+    config = NULL;
     run = FALSE;
     version = FALSE;
     uris = NULL;
@@ -1410,6 +1411,14 @@ main (int    argc,
     /* Standalone javascript support */
     if (run)
         return midori_run_script (uris ? *uris : NULL);
+
+    if (config && !g_path_is_absolute (config))
+    {
+        g_critical (_("The specified configuration folder is invalid."));
+        return 1;
+    }
+    sokoke_set_config_dir (config);
+    g_free (config);
 
     #if HAVE_HILDON
     osso_context = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);

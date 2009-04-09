@@ -127,4 +127,7 @@ sokoke_time_t_to_julian              (const time_t*  timestamp);
 void
 sokoke_register_stock_items          (void);
 
+const gchar*
+sokoke_set_config_dir                (const gchar* new_config_dir);
+
 #endif /* !__SOKOKE_H__ */
