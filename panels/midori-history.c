@@ -189,7 +189,6 @@ midori_history_cursor_or_row_changed_cb (GtkTreeView*   treeview,
         is_page = !KATZE_IS_ARRAY (item) && katze_item_get_uri (item);
         gtk_widget_set_sensitive (history->bookmark, is_page);
         gtk_widget_set_sensitive (history->delete, TRUE);
-        gtk_widget_set_sensitive (history->clear, TRUE);
 
         g_object_unref (item);
     }
@@ -197,7 +196,6 @@ midori_history_cursor_or_row_changed_cb (GtkTreeView*   treeview,
     {
         gtk_widget_set_sensitive (history->bookmark, FALSE);
         gtk_widget_set_sensitive (history->delete, FALSE);
-        gtk_widget_set_sensitive (history->clear, FALSE);
     }
 }
 
