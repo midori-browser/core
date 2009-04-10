@@ -926,6 +926,7 @@ midori_web_view_menu_save_as_activate_cb (GtkWidget*  widget,
 {
     g_signal_emit (view, signals[SAVE_AS], 0, view->link_uri);
 }
+#endif
 
 static void
 midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
@@ -933,7 +934,6 @@ midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
 {
     sokoke_spawn_program (view->download_manager, view->link_uri);
 }
-#endif
 
 static void
 midori_web_view_menu_add_bookmark_activate_cb (GtkWidget*  widget,
@@ -1026,10 +1026,11 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_signal_connect (menuitem, "activate",
             G_CALLBACK (midori_web_view_menu_save_as_activate_cb), view);
         gtk_widget_show (menuitem);
+        #endif
         if (view->download_manager && *view->download_manager)
         {
             menuitem = gtk_image_menu_item_new_with_mnemonic (
-                _("_Download Link destination"));
+                _("Download with Download _Manager"));
             icon = gtk_image_new_from_stock (GTK_STOCK_SAVE_AS,
                                              GTK_ICON_SIZE_MENU);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
@@ -1038,7 +1039,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 G_CALLBACK (midori_web_view_menu_download_activate_cb), view);
             gtk_widget_show (menuitem);
         }
-        #endif
         menuitem = gtk_image_menu_item_new_from_stock (STOCK_BOOKMARK_ADD, NULL);
         gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 5);
         g_signal_connect (menuitem, "activate",
@@ -1079,8 +1079,11 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         menuitem = (GtkWidget*)g_list_nth_data (items, 3);
         /* hack to localize menu item */
-        label = gtk_bin_get_child (GTK_BIN (menuitem));
-        gtk_label_set_label (GTK_LABEL (label), D_("gtk20", "_Refresh"));
+        if (GTK_IS_BIN (menuitem))
+        {
+            label = gtk_bin_get_child (GTK_BIN (menuitem));
+            gtk_label_set_label (GTK_LABEL (label), D_("gtk20", "_Refresh"));
+        }
         g_list_free (items);
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo Close Tab"));
         icon = gtk_image_new_from_stock (GTK_STOCK_UNDELETE, GTK_ICON_SIZE_MENU);

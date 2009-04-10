@@ -427,7 +427,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "download-folder", "folder");
     FILLED_ADD (button, 1, 2, 0, 1);
-    #else
+    #endif
     label = katze_property_label (settings, "download-manager");
     INDENTED_ADD (label, 0, 1, 1, 2);
     hbox = gtk_hbox_new (FALSE, 4);
@@ -442,7 +442,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (entry, "focus-out-event",
         G_CALLBACK (proxy_download_manager_icon_cb), button);
     FILLED_ADD (hbox, 1, 2, 1, 2);
-    #endif
     label = katze_property_label (settings, "text-editor");
     INDENTED_ADD (label, 0, 1, 2, 3);
     hbox = gtk_hbox_new (FALSE, 4);
