@@ -2083,6 +2083,10 @@ _action_bookmarks_populate_popup (GtkAction*     action,
         gtk_widget_show (menuitem);
     }
     menuitem = gtk_action_create_menu_item (
+        _action_by_name (browser, "BookmarkFolderAdd"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "BookmarkAdd"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -2917,6 +2921,13 @@ _action_bookmark_add_activate (GtkAction*     action,
 }
 
 static void
+_action_bookmark_folder_add_activate (GtkAction*     action,
+                                      MidoriBrowser* browser)
+{
+    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE);
+}
+
+static void
 _action_manage_search_engines_activate (GtkAction*     action,
                                         MidoriBrowser* browser)
 {
@@ -3350,6 +3361,9 @@ static const GtkActionEntry entries[] = {
  { "BookmarkAdd", STOCK_BOOKMARK_ADD,
    NULL, "<Ctrl>d",
    N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_add_activate) },
+ { "BookmarkFolderAdd", GTK_STOCK_DIRECTORY,
+   N_("Add a new folder"), "",
+   N_("Add a new bookmark folder"), G_CALLBACK (_action_bookmark_folder_add_activate) },
  { "Tools", NULL, N_("_Tools") },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
@@ -3585,6 +3599,7 @@ static const gchar* ui_markup =
    "<menu action='Dummy'>"
     "<menuitem action='FindPrevious'/>"
     "<menuitem action='BookmarkAdd'/>"
+    "<menuitem action='BookmarkFolderAdd'/>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
     "<menuitem action='UndoTabClose'/>"
@@ -4545,6 +4560,7 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
                   browser->bookmarks, NULL);
 
     _action_set_sensitive (browser, "BookmarkAdd", FALSE);
+    _action_set_sensitive (browser, "BookmarkFolderAdd", FALSE);
 
     if (!browser->bookmarks)
         return;
@@ -4558,6 +4574,7 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
         G_CALLBACK (browser_bookmarks_remove_item_cb), browser);
 
     _action_set_sensitive (browser, "BookmarkAdd", TRUE);
+    _action_set_sensitive (browser, "BookmarkFolderAdd", TRUE);
 }
 
 static void
