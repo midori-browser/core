@@ -75,6 +75,8 @@ magic_uri_uri (void)
     test_input ("192.168.1.1:8000", "http://192.168.1.1:8000");
     test_input ("file:///home/mark/foo/bar.html",
                 "file:///home/mark/foo/bar.html");
+    /* test_input ("foo:123@bar.baz", "foo:123@bar.baz"); */
+    /* test_input ("foo:foo@bar.baz", "foo:foo@bar.baz"); */
 }
 
 static void
@@ -130,6 +132,8 @@ magic_uri_search (void)
     test_input ("sm de.po verbose", SM "de.po verbose");
     test_input ("sm warning: configure /dev/net: virtual",
                 SM "warning: configure /dev/net: virtual");
+    test_input ("g \"ISO 9001:2000 certified\"", NULL);
+    test_input ("g conference \"April 2, 7:00 am\"", NULL);
 }
 
 static void
