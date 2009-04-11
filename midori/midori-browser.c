@@ -2949,6 +2949,125 @@ _action_manage_search_engines_activate (GtkAction*     action,
 }
 
 static void
+midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
+                                               gint           response_id,
+                                               MidoriBrowser* browser)
+{
+    if (response_id == GTK_RESPONSE_ACCEPT)
+    {
+        GtkToggleButton* button;
+
+        button = g_object_get_data (G_OBJECT (dialog), "history");
+        if (gtk_toggle_button_get_active (button))
+            katze_array_clear (browser->history);
+        button = g_object_get_data (G_OBJECT (dialog), "cookies");
+        if (gtk_toggle_button_get_active (button))
+        {
+            SoupSession* session = katze_net_get_session (browser->net);
+            SoupSessionFeature* jar = soup_session_get_feature (session,
+                SOUP_TYPE_COOKIE_JAR);
+            GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
+            SoupCookie* cookie;
+            gsize i = 0;
+            while ((cookie = g_slist_nth_data (cookies, i++)))
+            {
+                soup_cookie_jar_delete_cookie (SOUP_COOKIE_JAR (jar), cookie);
+                soup_cookie_free (cookie);
+            }
+            g_slist_free (cookies);
+        }
+        button = g_object_get_data (G_OBJECT (dialog), "flash-cookies");
+        if (gtk_toggle_button_get_active (button))
+        {
+            gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
+                                             "Flash_Player", NULL);
+            sokoke_remove_path (cache, TRUE);
+            g_free (cache);
+        }
+        button = g_object_get_data (G_OBJECT (dialog), "website-icons");
+        if (gtk_toggle_button_get_active (button))
+        {
+            gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                             PACKAGE_NAME, "icons", NULL);
+            sokoke_remove_path (cache, TRUE);
+            g_free (cache);
+        }
+    }
+    if (response_id != GTK_RESPONSE_DELETE_EVENT)
+        gtk_widget_destroy (dialog);
+}
+
+static void
+_action_clear_private_data_activate (GtkAction*     action,
+                                     MidoriBrowser* browser)
+{
+    static GtkWidget* dialog = NULL;
+
+    if (!GTK_WIDGET_VISIBLE (browser))
+        return;
+
+    if (!dialog)
+    {
+        GdkScreen* screen;
+        GtkIconTheme* icon_theme;
+        GtkSizeGroup* sizegroup;
+        GtkWidget* hbox;
+        GtkWidget* vbox;
+        GtkWidget* icon;
+        GtkWidget* label;
+        GtkWidget* button;
+
+        dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
+            GTK_WINDOW (browser), GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+            _("Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
+        gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
+        screen = gtk_widget_get_screen (GTK_WIDGET (browser));
+        if (screen)
+        {
+            icon_theme = gtk_icon_theme_get_for_screen (screen);
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);
+        }
+        sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+        hbox = gtk_hbox_new (FALSE, 4);
+        icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_DIALOG);
+        gtk_size_group_add_widget (sizegroup, icon);
+        gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
+        label = gtk_label_new (_("Clear the following data:"));
+        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 8);
+        hbox = gtk_hbox_new (FALSE, 4);
+        icon = gtk_image_new ();
+        gtk_size_group_add_widget (sizegroup, icon);
+        gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
+        vbox = gtk_vbox_new (TRUE, 4);
+        button = gtk_check_button_new_with_mnemonic (_("History"));
+        g_object_set_data (G_OBJECT (dialog), "history", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+        button = gtk_check_button_new_with_mnemonic (_("Cookies"));
+        g_object_set_data (G_OBJECT (dialog), "cookies", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+        button = gtk_check_button_new_with_mnemonic (_("'Flash' Cookies"));
+        g_object_set_data (G_OBJECT (dialog), "flash-cookies", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+        button = gtk_check_button_new_with_mnemonic (_("Website icons"));
+        g_object_set_data (G_OBJECT (dialog), "website-icons", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 8);
+        gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
+
+        g_signal_connect (dialog, "response",
+            G_CALLBACK (midori_browser_clear_private_data_response_cb), browser);
+        g_signal_connect (dialog, "destroy",
+            G_CALLBACK (gtk_widget_destroyed), &dialog);
+        gtk_widget_show (dialog);
+    }
+    else
+        gtk_window_present (GTK_WINDOW (dialog));
+}
+
+static void
 _action_tab_previous_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
@@ -3369,6 +3488,10 @@ static const GtkActionEntry entries[] = {
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
    N_("Add, edit and remove search engines..."),
    G_CALLBACK (_action_manage_search_engines_activate) },
+ { "ClearPrivateData", GTK_STOCK_CLEAR,
+   N_("_Clear Private Data"), "<Ctrl><Shift>Delete",
+   N_("Clear private data..."),
+   G_CALLBACK (_action_clear_private_data_activate) },
 
  { "TabPrevious", GTK_STOCK_GO_BACK,
    N_("_Previous Tab"), "<Ctrl>Page_Up",
@@ -3584,6 +3707,7 @@ static const gchar* ui_markup =
    "<menuitem action='Bookmarks'/>"
    "<menu action='Tools'>"
     "<menuitem action='ManageSearchEngines'/>"
+    "<menuitem action='ClearPrivateData'/>"
     /* Panel items shall be appended here */
    "</menu>"
    "<menuitem action='Window'/>"

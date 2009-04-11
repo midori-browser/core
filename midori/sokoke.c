@@ -25,6 +25,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
+#include <glib/gstdio.h>
 
 #if HAVE_LIBIDN
     #include <stringprep.h>
@@ -828,4 +829,43 @@ sokoke_set_config_dir (const gchar* new_config_dir)
     }
 
     return config_dir;
+}
+
+/**
+ * sokoke_remove_path:
+ * @path: an absolute path
+ * @ignore_errors: keep removing even if an error occurred
+ *
+ * Removes the file at @path or the folder including any
+ * child folders and files if @path is a folder.
+ *
+ * If @ignore_errors is %TRUE and @path is a folder with
+ * children, one of which can't be removed, remaining
+ * children will be deleted nevertheless
+ * If @ignore_errors is %FALSE and @path is a folder, the
+ * removal process will cancel immediately.
+ *
+ * Return value: %TRUE on success, %FALSE if an error occurred
+ **/
+gboolean
+sokoke_remove_path (const gchar* path,
+                    gboolean     ignore_errors)
+{
+    GDir* dir = g_dir_open (path, 0, NULL);
+    const gchar* name;
+
+    if (!dir)
+        return g_remove (path) == 0;
+
+    while ((name = g_dir_read_name (dir)))
+    {
+        gchar* sub_path = g_build_filename (path, name, NULL);
+        if (!sokoke_remove_path (sub_path, ignore_errors) && !ignore_errors)
+            return FALSE;
+        g_free (sub_path);
+    }
+
+    g_dir_close (dir);
+    g_rmdir (path);
+    return TRUE;
 }

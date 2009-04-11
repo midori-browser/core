@@ -130,4 +130,8 @@ sokoke_register_stock_items          (void);
 const gchar*
 sokoke_set_config_dir                (const gchar* new_config_dir);
 
+gboolean
+sokoke_remove_path                   (const gchar* path,
+                                      gboolean     ignore_errors);
+
 #endif /* !__SOKOKE_H__ */
