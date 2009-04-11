@@ -51,9 +51,7 @@ midori_location_entry_class_init (MidoriLocationEntryClass* class)
 
 }
 
-#define HAVE_ENTRY_PROGRESS 1
-
-#ifdef HAVE_ENTRY_PROGRESS
+#if !GTK_CHECK_VERSION (2, 16, 0)
 
 /* GTK+/ GtkEntry internal helper function
    Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
@@ -345,7 +343,7 @@ entry_expose_event (GtkWidget*           entry,
 
   gdk_drawable_get_size (text_area, &width, &height);
 
-  if (location_entry->progress > 0.0/* && location_entry->progress < 1.0*/)
+  if (location_entry->progress > 0.0)
   {
       gtk_paint_box (entry->style, text_area,
                      GTK_STATE_SELECTED, GTK_SHADOW_OUT,
@@ -362,18 +360,18 @@ void
 midori_location_entry_set_progress (MidoriLocationEntry* location_entry,
                                     gdouble              progress)
 {
-    #ifdef HAVE_ENTRY_PROGRESS
     GtkWidget* child;
-    #endif
 
     g_return_if_fail (MIDORI_IS_LOCATION_ENTRY (location_entry));
 
     location_entry->progress = CLAMP (progress, 0.0, 1.0);
 
-    #ifdef HAVE_ENTRY_PROGRESS
     child = gtk_bin_get_child (GTK_BIN (location_entry));
+    #if !GTK_CHECK_VERSION (2, 16, 0)
     if (GTK_ENTRY (child)->text_area)
         gdk_window_invalidate_rect (GTK_ENTRY (child)->text_area, NULL, FALSE);
+    #else
+    gtk_entry_set_progress_fraction (GTK_ENTRY (child), progress);
     #endif
 }
 
@@ -397,7 +395,7 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
          GTK_ICON_ENTRY_SECONDARY, TRUE);
     g_signal_connect_after (entry, "key-press-event",
         G_CALLBACK (entry_key_press_event), location_entry);
-    #ifdef HAVE_ENTRY_PROGRESS
+    #if !GTK_CHECK_VERSION (2, 16, 0)
     g_signal_connect_after (entry, "expose-event",
         G_CALLBACK (entry_expose_event), location_entry);
     #endif

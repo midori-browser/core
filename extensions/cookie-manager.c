@@ -864,7 +864,7 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 		GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_CLEAR);
 	gtk_icon_entry_set_icon_highlight(GTK_ICON_ENTRY (cmdata->filter_entry),
 		GTK_ICON_ENTRY_SECONDARY, TRUE);
-	g_signal_connect(cmdata->filter_entry, "icon_released",
+	g_signal_connect(cmdata->filter_entry, "icon-release",
 		G_CALLBACK(cm_filter_entry_clear_icon_released_cb), NULL);
 	g_signal_connect(cmdata->filter_entry, "changed", G_CALLBACK(cm_filter_entry_changed_cb), cmdata);
 	g_signal_connect(cmdata->filter_entry, "activate", G_CALLBACK(cm_filter_entry_changed_cb), cmdata);

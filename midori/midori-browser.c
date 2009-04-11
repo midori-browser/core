@@ -4257,7 +4257,7 @@ midori_browser_init (MidoriBrowser* browser)
                                         GTK_STOCK_CLEAR);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (browser->find_text),
                                        GTK_ICON_ENTRY_SECONDARY, TRUE);
-    g_signal_connect (browser->find_text, "icon_released",
+    g_signal_connect (browser->find_text, "icon-release",
         G_CALLBACK (midori_browser_entry_clear_icon_released_cb), NULL);
     g_signal_connect (browser->find_text, "activate",
         G_CALLBACK (_action_find_next_activate), browser);

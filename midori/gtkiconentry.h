@@ -25,13 +25,26 @@
     #include <config.h>
 #endif
 
-#include <glib.h>
-#if GLIB_CHECK_VERSION (2, 16, 0)
 #include <gio/gio.h>
-#endif
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+#if GTK_CHECK_VERSION (2, 16, 0)
+    #define GtkIconEntry GtkEntry
+    #define GtkIconEntryPosition GtkEntryIconPosition
+    #define GTK_ICON_ENTRY_PRIMARY GTK_ENTRY_ICON_PRIMARY
+    #define GTK_ICON_ENTRY_SECONDARY GTK_ENTRY_ICON_SECONDARY
+    #define GTK_ICON_ENTRY GTK_ENTRY
+    #define GTK_TYPE_ICON_ENTRY GTK_TYPE_ENTRY
+    #define gtk_icon_entry_new gtk_entry_new
+    #define gtk_icon_entry_set_icon_from_stock gtk_entry_set_icon_from_stock
+    void
+    gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
+                                         GtkEntryIconPosition position,
+                                         GdkPixbuf*           pixbuf);
+    #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable
+#else
 
 #define GTK_TYPE_ICON_ENTRY (gtk_icon_entry_get_type())
 #define GTK_ICON_ENTRY(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), GTK_TYPE_ICON_ENTRY, GtkIconEntry))
@@ -86,17 +99,15 @@ void       gtk_icon_entry_set_icon_from_icon_name (GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos,
 						   const gchar *icon_name);
 
-#if GLIB_CHECK_VERSION (2, 16, 0)
 void       gtk_icon_entry_set_icon_from_gicon     (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos,
 						   GIcon *icon);
-#endif
+
 GdkPixbuf* gtk_icon_entry_get_pixbuf              (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos);
-#if GLIB_CHECK_VERSION (2, 16, 0)
+
 GIcon*     gtk_icon_entry_get_gicon               (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos);
-#endif
 
 void       gtk_icon_entry_set_icon_highlight      (const GtkIconEntry *entry,
 						   GtkIconEntryPosition icon_pos,
@@ -116,6 +127,8 @@ void       gtk_icon_entry_set_tooltip             (const GtkIconEntry *icon_entr
 void       gtk_icon_entry_set_icon_sensitive      (const GtkIconEntry *icon_entry,
 						   GtkIconEntryPosition icon_pos,
 						   gboolean sensitive);
+
+#endif
 
 G_END_DECLS
 

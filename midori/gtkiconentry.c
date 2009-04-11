@@ -20,6 +20,24 @@
 
 #include "gtkiconentry.h"
 
+#if GTK_CHECK_VERSION (2, 16, 0)
+
+void
+gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
+                                     GtkEntryIconPosition position,
+                                     GdkPixbuf*           pixbuf)
+{
+    /* Without this ugly hack pixbuf icons don't work */
+    if (pixbuf)
+    {
+        gtk_widget_hide (GTK_WIDGET (entry));
+        gtk_entry_set_icon_from_pixbuf (entry, position, pixbuf);
+        gtk_widget_show (GTK_WIDGET (entry));
+    }
+}
+
+#else
+
 #include <string.h>
 
 #if GTK_CHECK_VERSION (2, 14, 0)
@@ -61,9 +79,7 @@ typedef struct
   GdkCursorType cursor_type;
   gboolean custom_cursor;
   GtkImageType storage_type;
-  #if GLIB_CHECK_VERSION (2, 16, 0)
   GIcon *gicon;
-  #endif
   gchar *icon_name;
   gboolean insensitive;
 } EntryIconInfo;
@@ -196,17 +212,17 @@ gtk_icon_entry_class_init (GtkIconEntryClass *klass)
 		  G_TYPE_INT);
 
   /**
-   * GtkIconEntry::icon-released:
+   * GtkIconEntry::icon-release:
    * @entry: The entry on which the signal is emitted.
    * @icon_pos: The position of the clicked icon.
    * @button: The mouse button clicked.
    *
-   * The ::icon-released signal is emitted on the button release from a
+   * The ::icon-release signal is emitted on the button release from a
    * mouse click.
    */
-  if (!(signals[ICON_RELEASED] = g_signal_lookup ("icon-released", GTK_TYPE_ENTRY)))
+  if (!(signals[ICON_RELEASED] = g_signal_lookup ("icon-release", GTK_TYPE_ENTRY)))
   signals[ICON_RELEASED] =
-    g_signal_new ("icon-released",
+    g_signal_new ("icon-release",
 		  G_TYPE_FROM_CLASS (gobject_class),
 		  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
 		  G_STRUCT_OFFSET (GtkIconEntryClass, icon_released),
@@ -274,7 +290,6 @@ gtk_icon_entry_class_init (GtkIconEntryClass *klass)
 							NULL,
 							GTK_PARAM_WRITABLE));
 
-  #if GLIB_CHECK_VERSION (2, 16, 0)
   g_object_class_install_property (gobject_class,
 				   PROP_GICON_PRIMARY,
 				   g_param_spec_object ("gicon-primary",
@@ -290,7 +305,6 @@ gtk_icon_entry_class_init (GtkIconEntryClass *klass)
 							P_("GIcon for secondary icon"),
 							G_TYPE_ICON,
 							GTK_PARAM_READWRITE));
-  #endif
 
   g_type_class_add_private (klass, sizeof (GtkIconEntryPrivate));
 }
@@ -433,7 +447,6 @@ gtk_icon_entry_set_property (GObject      *object,
 					      g_value_get_string (value));
       break;
 
-    #if GLIB_CHECK_VERSION (2, 16, 0)
     case PROP_GICON_PRIMARY:
       gtk_icon_entry_set_icon_from_gicon (entry,
 					  GTK_ICON_ENTRY_PRIMARY,
@@ -445,7 +458,6 @@ gtk_icon_entry_set_property (GObject      *object,
 					  GTK_ICON_ENTRY_SECONDARY,
 					  g_value_get_object (value));
       break;
-    #endif
     }
 }
 
@@ -471,7 +483,6 @@ gtk_icon_entry_get_property (GObject      *object,
 						     GTK_ICON_ENTRY_SECONDARY));
       break;
 
-    #if GLIB_CHECK_VERSION (2, 16, 0)
     case PROP_GICON_PRIMARY:
       g_value_set_object (value,
 			  gtk_icon_entry_get_gicon (entry,
@@ -482,7 +493,6 @@ gtk_icon_entry_get_property (GObject      *object,
       g_value_set_object (value,
 			  gtk_icon_entry_get_gicon (entry,
 						    GTK_ICON_ENTRY_SECONDARY));
-    #endif
     }
 }
 
@@ -1338,8 +1348,6 @@ gtk_icon_entry_set_icon_from_icon_name (GtkIconEntry *entry,
  * instead.  If the current icon theme is changed, the icon will be updated
  * appropriately.
  */
-
-#if GLIB_CHECK_VERSION (2, 16, 0)
 void
 gtk_icon_entry_set_icon_from_gicon (const GtkIconEntry *entry,
 				    GtkIconEntryPosition icon_pos,
@@ -1390,7 +1398,6 @@ gtk_icon_entry_set_icon_from_gicon (const GtkIconEntry *entry,
 				    icon_pos,
 				    pixbuf);
 }
-#endif
 
 /**
  * gtk_icon_entry_set_cursor
@@ -1491,9 +1498,6 @@ gtk_icon_entry_get_pixbuf (const GtkIconEntry *entry,
  *
  * Returns: A #GIcon, or NULL if no icon is set or if the icon is not a GIcon.
  */
-
-
-#if GLIB_CHECK_VERSION (2, 16, 0)
 GIcon *
 gtk_icon_entry_get_gicon (const GtkIconEntry *entry,
 			  GtkIconEntryPosition icon_pos)
@@ -1510,7 +1514,6 @@ gtk_icon_entry_get_gicon (const GtkIconEntry *entry,
 
   return icon_info->storage_type == _GTK_IMAGE_GICON ? icon_info->gicon : NULL;
 }
-#endif
 
 /**
  * gtk_icon_entry_get_icon_highlight
@@ -1601,3 +1604,5 @@ gtk_icon_entry_set_icon_sensitive (const GtkIconEntry *icon_entry,
       gdk_cursor_unref (cursor);
     }
 }
+
+#endif

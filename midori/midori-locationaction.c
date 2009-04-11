@@ -847,7 +847,7 @@ midori_location_action_connect_proxy (GtkAction* action,
                       midori_location_action_key_press_event_cb, action,
                       "signal::focus-out-event",
                       midori_location_action_focus_out_event_cb, action,
-                      "signal::icon-released",
+                      "signal::icon-release",
                       midori_location_action_icon_released_cb, action,
                       NULL);
     }
