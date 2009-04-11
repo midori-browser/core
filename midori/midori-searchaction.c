@@ -377,10 +377,11 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
         gtk_widget_show (dialog);
 }
 
-static GdkPixbuf*
-midori_search_action_get_icon (MidoriSearchAction* search_action,
-                               KatzeItem*          item,
-                               GtkWidget*          widget)
+/* Private function, used by MidoriView */
+/* static */ GdkPixbuf*
+midori_search_action_get_icon (KatzeNet*  net,
+                               KatzeItem* item,
+                               GtkWidget* widget)
 {
     const gchar* icon;
 
@@ -403,8 +404,7 @@ midori_search_action_get_icon (MidoriSearchAction* search_action,
     }
 
     if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
-        return katze_net_load_icon (search_action->net,
-            icon, NULL, widget, NULL);
+        return katze_net_load_icon (net, icon, NULL, widget, NULL);
 
     return gtk_widget_render_icon (widget, GTK_STOCK_FILE,
                                    GTK_ICON_SIZE_MENU, NULL);
@@ -438,8 +438,8 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
-            icon = midori_search_action_get_icon (MIDORI_SEARCH_ACTION (action),
-                                                  item, entry);
+            icon = midori_search_action_get_icon (
+                MIDORI_SEARCH_ACTION (action)->net, item, entry);
             gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
             g_object_unref (icon);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
@@ -493,7 +493,7 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
 
     if (search_action->current_item)
     {
-        icon = midori_search_action_get_icon (search_action,
+        icon = midori_search_action_get_icon (search_action->net,
             search_action->current_item, entry);
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                                              GTK_ICON_ENTRY_PRIMARY, icon);
@@ -730,7 +730,7 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     search_action = g_object_get_data (G_OBJECT (treeview), "search-action");
-    icon = midori_search_action_get_icon (search_action, item, treeview);
+    icon = midori_search_action_get_icon (search_action->net, item, treeview);
     g_object_set (renderer, "pixbuf", icon, "yalign", 0.25, NULL);
     g_object_unref (icon);
 }

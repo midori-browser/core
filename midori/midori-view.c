@@ -39,6 +39,11 @@ webkit_web_view_get_selected_text (WebKitWebView* web_view);
 void
 webkit_web_frame_print (WebKitWebFrame* web_frame);
 
+GdkPixbuf*
+midori_search_action_get_icon (KatzeNet*  net,
+                               KatzeItem* item,
+                               GtkWidget* widget);
+
 struct _MidoriView
 {
     GtkScrolledWindow parent_instance;
@@ -900,18 +905,21 @@ static void
 midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
+    gchar* search;
     gchar* uri;
-    gchar* location_entry_search;
 
-    g_object_get (view->settings, "location-entry-search",
-                  &location_entry_search, NULL);
-    if (strstr (location_entry_search, "%s"))
+    if ((search = g_object_get_data (G_OBJECT (widget), "search")))
+        search = g_strdup (search);
+    else
+        g_object_get (view->settings, "location-entry-search",
+                      &search, NULL);
+    if (strstr (search, "%s"))
     {
-        uri = g_strdup_printf (location_entry_search, view->selected_text);
-        g_free (location_entry_search);
+        uri = g_strdup_printf (search, view->selected_text);
+        g_free (search);
     }
     else
-        uri = location_entry_search;
+        uri = search;
 
     g_signal_emit (view, signals[NEW_TAB], 0, uri,
         view->open_tabs_in_the_background);
@@ -1048,14 +1056,51 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (!view->link_uri && has_selection)
     {
+        GtkWidget* window;
+        guint i;
+
+        window = gtk_widget_get_toplevel (GTK_WIDGET (web_view));
+        i = 0;
+        if (katze_object_has_property (window, "search-engines"))
+        {
+            KatzeArray* search_engines;
+            KatzeItem* item;
+
+            search_engines = katze_object_get_object (window, "search-engines");
+            while ((item = katze_array_get_nth_item (search_engines, i++)))
+            {
+                GdkPixbuf* pixbuf;
+                gchar* text = g_strdup_printf (_("Search with %s"),
+                    katze_item_get_name (item));
+                menuitem = gtk_image_menu_item_new_with_mnemonic (text);
+                g_free (text);
+                pixbuf = midori_search_action_get_icon (view->net, item,
+                                                        GTK_WIDGET (web_view));
+                icon = gtk_image_new_from_pixbuf (pixbuf);
+                g_object_unref (pixbuf);
+                gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+                gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, i - 1);
+                g_object_set_data (G_OBJECT (menuitem), "search",
+                                   (gchar*)katze_item_get_uri (item));
+                g_signal_connect (menuitem, "activate",
+                    G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
+                gtk_widget_show (menuitem);
+            }
+            g_object_unref (search_engines);
+        }
         items = gtk_container_get_children (GTK_CONTAINER (menu));
-        menuitem = (GtkWidget*)g_list_nth_data (items, 0);
-        /* hack to localize menu item */
-        label = gtk_bin_get_child (GTK_BIN (menuitem));
-        gtk_label_set_label (GTK_LABEL (label), _("_Search the Web"));
-        /* hack to implement Search the Web */
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
+        menuitem = (GtkWidget*)g_list_nth_data (items, i - 1);
+        if (i > 1)
+            gtk_widget_destroy (menuitem);
+        else
+        {
+            /* hack to localize menu item */
+            label = gtk_bin_get_child (GTK_BIN (menuitem));
+            gtk_label_set_label (GTK_LABEL (label), _("_Search the Web"));
+            /* hack to implement Search the Web */
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
+        }
         g_list_free (items);
         if (strchr (view->selected_text, '.')
             && !strchr (view->selected_text, ' '))
