@@ -27,6 +27,7 @@ struct _MidoriLocationAction
     GtkAction parent_instance;
 
     gchar* uri;
+    KatzeArray* search_engines;
     gdouble progress;
     gchar* secondary_icon;
 
@@ -292,6 +293,7 @@ static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
     location_action->uri = NULL;
+    location_action->search_engines = NULL;
     location_action->progress = 0.0;
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
@@ -314,6 +316,7 @@ midori_location_action_finalize (GObject* object)
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (object);
 
     katze_assign (location_action->uri, NULL);
+    katze_assign (location_action->search_engines, NULL);
 
     katze_object_assign (location_action->model, NULL);
     katze_object_assign (location_action->sort_model, NULL);
@@ -729,6 +732,51 @@ midori_location_entry_match_selected_cb (GtkEntryCompletion*   completion,
 }
 
 static void
+midori_location_entry_action_activated_cb (GtkEntryCompletion*   completion,
+                                           gint                  action,
+                                           MidoriLocationAction* location_action)
+{
+    if (location_action->search_engines)
+    {
+        KatzeItem* item = katze_array_get_nth_item (
+            location_action->search_engines, action);
+        GtkWidget* entry = gtk_entry_completion_get_entry (completion);
+        const gchar* keywords = gtk_entry_get_text (GTK_ENTRY (entry));
+        const gchar* uri = katze_item_get_uri (item);
+        gchar* search;
+        if (!item)
+            return;
+        if (strstr (uri, "%s"))
+            search = g_strdup_printf (uri, keywords);
+        else
+            search = g_strconcat (uri, " ", keywords, NULL);
+        midori_location_action_set_uri (location_action, search);
+        g_signal_emit (location_action, signals[SUBMIT_URI], 0, search, FALSE);
+        g_free (search);
+    }
+}
+
+static void
+midori_location_action_add_actions (GtkEntryCompletion* completion,
+                                    KatzeArray*         search_engines)
+{
+    guint i;
+    KatzeItem* item;
+
+    if (!search_engines)
+        return;
+
+    i = 0;
+    while ((item = katze_array_get_nth_item (search_engines, i++)))
+    {
+        gchar* text = g_strdup_printf (_("Search with %s"),
+            katze_item_get_name (item));
+        gtk_entry_completion_insert_action_text (completion, i, text);
+        g_free (text);
+    }
+}
+
+static void
 midori_location_action_completion_init (MidoriLocationAction* location_action,
                                         GtkWidget*            location_entry)
 {
@@ -762,6 +810,11 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
     gtk_entry_set_completion (GTK_ENTRY (entry), completion);
     g_signal_connect (completion, "match-selected",
         G_CALLBACK (midori_location_entry_match_selected_cb), location_action);
+
+    midori_location_action_add_actions (completion,
+                                        location_action->search_engines);
+    g_signal_connect (completion, "action-activated",
+        G_CALLBACK (midori_location_entry_action_activated_cb), location_action);
 
     g_object_unref (completion);
 }
@@ -1151,6 +1204,55 @@ midori_location_action_set_title_for_uri (MidoriLocationAction* location_action,
     midori_location_action_prepend_item (location_action, &item);
 }
 
+/**
+ * midori_location_action_set_search_engines:
+ * @location_action: a #MidoriLocationAction
+ * @search_engines: a #KatzeArray
+ *
+ * Assigns the specified search engines to the location action.
+ * Search engines will appear as actions in the completion.
+ *
+ * Since: 0.1.6
+ **/
+void
+midori_location_action_set_search_engines (MidoriLocationAction* location_action,
+                                           KatzeArray*           search_engines)
+{
+    GSList* proxies;
+    GtkWidget* alignment;
+    GtkWidget* entry;
+    GtkWidget* child;
+    GtkEntryCompletion* completion;
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+
+    if (search_engines)
+        g_object_ref (search_engines);
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        KatzeItem* item;
+        guint i;
+
+        alignment = gtk_bin_get_child (GTK_BIN (proxies->data));
+        entry = gtk_bin_get_child (GTK_BIN (alignment));
+        child = gtk_bin_get_child (GTK_BIN (entry));
+
+        completion = gtk_entry_get_completion (GTK_ENTRY (child));
+        i = 0;
+        if (location_action->search_engines)
+        while ((item = katze_array_get_nth_item (location_action->search_engines, i)))
+            gtk_entry_completion_delete_action (completion, i++);
+        midori_location_action_add_actions (completion, search_engines);
+    }
+
+    katze_object_assign (location_action->search_engines, search_engines);
+    /* FIXME: Take care of adding and removing search engines as needed */
+}
+
 gdouble
 midori_location_action_get_progress (MidoriLocationAction* location_action)
 {
@@ -1218,8 +1320,8 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 }
 
 /**
- * midori_location_entry_set_item_from_uri:
- * @location_entry: a #MidoriLocationEntry
+ * midori_location_action_set_item_from_uri:
+ * @location_action: a #MidoriLocationAction
  * @uri: a string
  *
  * Finds the item from the list matching @uri

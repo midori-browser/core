@@ -4751,6 +4751,8 @@ midori_browser_set_property (GObject*      object,
     case PROP_SEARCH_ENGINES:
         /* FIXME: Disconnect handlers */
         katze_object_assign (browser->search_engines, g_value_dup_object (value));
+        midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
+            _action_by_name (browser, "Location")), browser->search_engines);
         midori_search_action_set_search_engines (MIDORI_SEARCH_ACTION (
             _action_by_name (browser, "Search")), browser->search_engines);
         /* FIXME: Connect to updates */

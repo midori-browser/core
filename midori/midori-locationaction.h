@@ -81,6 +81,10 @@ midori_location_action_set_title_for_uri    (MidoriLocationAction* location_acti
                                              const gchar*          title,
                                              const gchar*          text);
 
+void
+midori_location_action_set_search_engines   (MidoriLocationAction* location_action,
+                                             KatzeArray*           search_engines);
+
 gdouble
 midori_location_action_get_progress         (MidoriLocationAction* location_action);
 
