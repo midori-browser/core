@@ -14,6 +14,7 @@
 #endif
 
 #include "midori-app.h"
+#include "sokoke.h"
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -385,14 +386,16 @@ midori_browser_message_received_cb (UniqueApp*         instance,
           first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
           while (*uris)
           {
+              gchar* fixed_uri = sokoke_magic_uri (*uris, NULL);
               if (first)
               {
-                  midori_browser_set_current_uri (browser, *uris);
+                  midori_browser_set_current_uri (browser, fixed_uri);
                   first = FALSE;
               }
               else
                   midori_browser_set_current_page (browser,
-                      midori_browser_add_uri (browser, *uris));
+                      midori_browser_add_uri (browser, fixed_uri));
+              g_free (fixed_uri);
               uris++;
           }
           /* g_strfreev (uris); */
