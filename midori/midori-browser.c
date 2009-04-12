@@ -287,7 +287,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         g_object_set (action,
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
-        gtk_widget_show (browser->progressbar);
+        if (!browser->progress_in_location || !GTK_WIDGET_VISIBLE (browser->navigationbar))
+            gtk_widget_show (browser->progressbar);
         if (!GTK_WIDGET_VISIBLE (browser->statusbar) &&
             !GTK_WIDGET_VISIBLE (browser->navigationbar) &&
             browser->progress_in_location)
