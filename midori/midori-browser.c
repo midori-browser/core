@@ -4204,7 +4204,7 @@ midori_browser_init (MidoriBrowser* browser)
     browser->notebook = gtk_notebook_new ();
     /* Remove the inner border between scrollbars and the window border */
     rcstyle = gtk_rc_style_new ();
-    rcstyle->xthickness = rcstyle->ythickness = 0;
+    rcstyle->xthickness = 0;
     gtk_widget_modify_style (browser->notebook, rcstyle);
     g_object_unref (rcstyle);
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
