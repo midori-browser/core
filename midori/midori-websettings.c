@@ -1138,8 +1138,8 @@ midori_web_settings_set_property (GObject*      object,
         if (web_settings->identify_as != MIDORI_IDENT_CUSTOM)
         {
             gchar* string = generate_ident_string (web_settings->identify_as);
-            g_object_set (object, "ident-string", string, NULL);
-            g_free (string);
+            katze_assign (web_settings->ident_string, string);
+            g_object_notify (object, "ident-string");
         }
         break;
     case PROP_IDENT_STRING:
@@ -1316,6 +1316,11 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_enum (value, web_settings->identify_as);
         break;
     case PROP_IDENT_STRING:
+        if (!g_strcmp0 (web_settings->ident_string, ""))
+        {
+            gchar* string = generate_ident_string (web_settings->identify_as);
+            katze_assign (web_settings->ident_string, string);
+        }
         g_value_set_string (value, web_settings->ident_string);
         break;
     case PROP_CACHE_SIZE:
