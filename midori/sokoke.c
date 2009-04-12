@@ -244,10 +244,10 @@ sokoke_magic_uri (const gchar* uri,
 
     /* Do we have a domain, ip address or localhost? */
     search = NULL;
-    if (!strchr (uri, ' ') && (search = strchr (uri, ':')) &&
+    if (!strchr (uri, ' ') &&
+        ((search = strchr (uri, ':')) || (search = strchr (uri, '@'))) &&
         search[0] && !g_ascii_isalpha (search[1]))
-        if (!strchr (search, '.'))
-            return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
+        return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
     if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
         return g_strconcat ("http://", uri, NULL);
     parts = g_strsplit (uri, ".", 0);
