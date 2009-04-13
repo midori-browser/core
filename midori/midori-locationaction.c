@@ -541,11 +541,10 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         temp = g_utf8_strdown (title, -1);
         if ((start = strstr (temp, key)))
         {
-            size_t utf8_len = g_utf8_strlen (key, -1);
             if (!len)
                 len = strlen (key);
             skey = g_malloc0 (len + 1);
-            g_utf8_strncpy (skey, title + (start - temp), utf8_len);
+            strncpy (skey, title + (start - temp), len);
             parts = g_strsplit (title, skey, 2);
             if (parts && parts[0] && parts[1])
                 desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",

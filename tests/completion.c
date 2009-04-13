@@ -31,7 +31,7 @@ static const CompletionItem items[] = {
  { "http://one.com/one/", "One off" },
  { "http://four.org", "One" },
  { "https://four.org", "Four" },
- { "ftp://four.org/", "Five" },
+ { "ftp://four.org/", "ごオルゴ" },
  { "http://muenchen.de/weißwürste/", "Münchner Weißwürste" }, /* Umlauts */
  };
 static const guint items_n = 9;
