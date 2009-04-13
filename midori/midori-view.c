@@ -622,31 +622,6 @@ webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
     g_object_notify (G_OBJECT (view), "progress");
 }
 
-/*static void
-gjs_value_links_foreach_cb (GjsValue*   link,
-                            MidoriView* view)
-{
-    const gchar* type;
-
-    if (gjs_value_is_object (link) && gjs_value_has_attribute (link, "href"))
-    {
-        if (gjs_value_has_attribute (link, "type"))
-        {
-            type = gjs_value_get_attribute_string (link, "type");
-            if (!strcmp (type, "application/rss+xml")
-                || !strcmp (type, "application/x.atom+xml")
-                || !strcmp (type, "application/atom+xml"))
-            {
-                katze_array_add_item (view->news_feeds, link);
-                g_signal_emit (view, signals[NEWS_FEED_READY],
-                    gjs_value_get_attribute_string (link, "href"), type,
-                    gjs_value_has_attribute (link, "title")
-                    ? gjs_value_get_attribute_string (link, "title") : NULL);
-            }
-        }
-    }
-}*/
-
 static void
 webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
                                gboolean        success,
@@ -683,28 +658,29 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                                   WebKitWebFrame* web_frame,
                                   MidoriView*     view)
 {
-    /* JSContextRef js_context;
-    GjsValue* value;
-    GjsValue* document;
-    GjsValue* links; */
-
     g_object_freeze_notify (G_OBJECT (view));
 
     view->progress = 1.0;
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 
-    g_object_thaw_notify (G_OBJECT (view));
+    /* FIXME: Do this conditional on whether there's a custom feed reader */
+    if (1)
+    {
+        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+        gchar* value = sokoke_js_script_eval (js_context,
+        "function feeds (l) { var f = new Array (); for (i in l) "
+        "{ var t = l[i].type; "
+        "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
+        "f.push (l[i].href); } return f; }"
+        "feeds (document.getElementsByTagName ('link'))", NULL);
+        g_object_set_data (G_OBJECT (view), "news-feeds",
+                           value && *value ? (void*)1 : (void*)0);
+        /* Ensure load-status is notified again, whether it changed or not */
+        g_object_notify (G_OBJECT (view), "load-status");
+    }
 
-    /* js_context = webkit_web_frame_get_global_context (web_frame);
-    value = gjs_value_new (js_context, NULL);
-    document = gjs_value_get_by_name (value, "document");
-    links = gjs_value_get_elements_by_tag_name (document, "link");
-    katze_array_clear (view->news_feeds);
-    gjs_value_foreach (links, (GjsCallback)gjs_value_links_foreach_cb, view);
-    g_object_unref (links);
-    g_object_unref (document);
-    g_object_unref (value); */
+    g_object_thaw_notify (G_OBJECT (view));
 }
 
 static void

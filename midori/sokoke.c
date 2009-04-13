@@ -47,11 +47,14 @@ sokoke_js_string_utf8 (JSStringRef js_string)
     return string_utf8;
 }
 
-JSValueRef
+gchar*
 sokoke_js_script_eval (JSContextRef js_context,
                        const gchar* script,
                        gchar**      exception)
 {
+    gchar* value;
+    JSStringRef js_value_string;
+
     g_return_val_if_fail (js_context, FALSE);
     g_return_val_if_fail (script, FALSE);
 
@@ -68,7 +71,11 @@ sokoke_js_script_eval (JSContextRef js_context,
         js_value = JSValueMakeNull (js_context);
     }
     JSStringRelease (js_script);
-    return js_value;
+
+    js_value_string = JSValueToStringCopy (js_context, js_value, NULL);
+    value = sokoke_js_string_utf8 (js_value_string);
+    JSStringRelease (js_value_string);
+    return value;
 }
 
 static void

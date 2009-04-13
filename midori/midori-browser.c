@@ -302,15 +302,13 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
-    /* FIXME: This won't work due to a bug in GtkIconEntry */
-    /* if (view && midori_view_get_news_feeds (MIDORI_VIEW (view)))
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (
-            gtk_bin_get_child (GTK_BIN (browser->location))),
-            GTK_ICON_ENTRY_SECONDARY, STOCK_NEWS_FEED);
+    action = _action_by_name (browser, "Location");
+    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
     else
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (
-            gtk_bin_get_child (GTK_BIN (browser->location))),
-            GTK_ICON_ENTRY_SECONDARY, NULL);*/
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), GTK_STOCK_INFO);
 }
 
 static void
@@ -418,7 +416,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
             midori_location_action_set_uri (
                 MIDORI_LOCATION_ACTION (action), uri);
             midori_location_action_set_secondary_icon (
-                MIDORI_LOCATION_ACTION (action), NULL);
+                MIDORI_LOCATION_ACTION (action), GTK_STOCK_INFO);
             g_object_notify (G_OBJECT (browser), "uri");
         }
 
@@ -445,20 +443,6 @@ midori_view_context_ready_cb (GtkWidget*     view,
 {
     g_signal_emit (browser, signals[CONTEXT_READY], 0, js_context);
 }
-
-/*
-static void
-midori_web_view_news_feed_ready_cb (MidoriWebView* web_view,
-                                    const gchar*   href,
-                                    const gchar*   type,
-                                    const gchar*   title,
-                                    MidoriBrowser* browser)
-{
-    if (web_view == (MidoriWebView*)midori_browser_get_current_web_view (browser))
-        midori_location_action_set_secondary_icon (MIDORI_LOCATION_ACTION (
-            _action_by_name (browser, "Location")), STOCK_NEWS_FEED);
-}
-*/
 
 static void
 midori_view_notify_title_cb (GtkWidget*     view,
@@ -1135,8 +1119,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_progress_cb, browser,
                       "signal::context-ready",
                       midori_view_context_ready_cb, browser,
-                      /* "signal::news-feed-ready",
-                      midori_view_news_feed_ready_cb, browser, */
                       "signal::notify::title",
                       midori_view_notify_title_cb, browser,
                       "signal::notify::zoom-level",
@@ -2582,62 +2564,18 @@ _action_location_submit_uri (GtkAction*     action,
 }
 
 static void
-midori_browser_menu_feed_item_activate_cb (GtkWidget*     widget,
-                                           MidoriBrowser* browser)
-{
-    const gchar* uri;
-
-    uri = g_object_get_data (G_OBJECT (widget), "uri");
-    midori_browser_set_current_uri (browser, uri);
-}
-
-static void
 _action_location_secondary_icon_released (GtkAction*     action,
                                           GtkWidget*     widget,
                                           MidoriBrowser* browser)
 {
-    MidoriView* view;
-    KatzeArray* news_feeds;
-    GtkWidget* menu;
-    guint n, i;
-    KatzeItem* feed;
-    const gchar* uri;
-    const gchar* title;
-    GtkWidget* menuitem;
+    GtkWidget* view;
 
-    view = (MidoriView*)midori_browser_get_current_tab (browser);
-    if (view)
+    if ((view = midori_browser_get_current_tab (browser)))
     {
-        news_feeds = NULL /* midori_view_get_news_feeds (view) */;
-        n = news_feeds ? katze_array_get_length (news_feeds) : 0;
-        if (n)
-        {
-            menu = gtk_menu_new ();
-            for (i = 0; i < n; i++)
-            {
-                if (!(feed = katze_array_get_nth_item (news_feeds, i)))
-                    continue;
-
-                uri = katze_item_get_uri (feed);
-                title = katze_item_get_name (feed);
-                if (!(title && *title))
-                    title = uri;
-                menuitem = sokoke_image_menu_item_new_ellipsized (title);
-                /* FIXME: Get the real icon */
-                gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
-                    menuitem), gtk_image_new_from_stock (STOCK_NEWS_FEED,
-                    GTK_ICON_SIZE_MENU));
-                gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-                g_object_set_data_full (G_OBJECT (menuitem),
-                                        "uri", g_strup ((gchar*)uri), g_free);
-                g_signal_connect (menuitem, "activate",
-                    G_CALLBACK (midori_browser_menu_feed_item_activate_cb),
-                    browser);
-                gtk_widget_show (menuitem);
-            }
-            sokoke_widget_popup (widget, GTK_MENU (menu), NULL,
-                                 SOKOKE_MENU_POSITION_CURSOR);
-        }
+        const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+        /* FIXME: Support a user chosen feed reader */
+        if (1)
+            sokoke_spawn_program ("liferea-add-feed", uri);
     }
 }
 

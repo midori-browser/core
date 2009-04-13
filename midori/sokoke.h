@@ -18,7 +18,7 @@
 
 #include <JavaScriptCore/JavaScript.h>
 
-JSValueRef
+gchar*
 sokoke_js_script_eval (JSContextRef js_context,
                        const gchar* script,
                        gchar**      exception);
