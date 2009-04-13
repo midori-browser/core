@@ -521,11 +521,15 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             len = strlen (key);
             skey = g_malloc0 (len + 1);
             strncpy (skey, uri + (start - temp), len);
-            parts = g_strsplit (uri, skey, 2);
-            if (parts && parts[0] && parts[1])
-                desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                    parts[0], skey, parts[1]);
-            g_strfreev (parts);
+            if (skey && *skey && (parts = g_strsplit (uri, skey, 2)))
+            {
+                if (parts[0] && parts[1])
+                {
+                    desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                        parts[0], skey, parts[1]);
+                    g_strfreev (parts);
+                }
+            }
             g_free (skey);
         }
         g_free (temp);
