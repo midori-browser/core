@@ -2963,7 +2963,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
             GTK_WINDOW (browser), GTK_DIALOG_DESTROY_WITH_PARENT,
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            _("Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
+            _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
         screen = gtk_widget_get_screen (GTK_WIDGET (browser));
         if (screen)
