@@ -659,6 +659,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
     {
         /* i18n: The title of the 404 - Not found error page */
         title = g_strdup_printf (_("Not found - %s"), view->uri);
+        katze_assign (view->title, title);
         data = g_strdup_printf (
             "<html><head><title>%s</title></head>"
             "<body><h1>%s</h1>"
@@ -669,7 +670,6 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
             "or move on to another page."
             "</body></html>",
             title, title, view->uri);
-        g_free (title);
         webkit_web_view_load_html_string (
             WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
         g_free (data);
@@ -2484,12 +2484,21 @@ void
 midori_view_reload (MidoriView* view,
                     gboolean    from_cache)
 {
+    gchar* title;
+
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (from_cache)
+    /* Error pages are special, we want to try loading the destination
+       again, not the error page which isn't even a proper page */
+    title = g_strdup_printf (_("Not found - %s"), view->uri);
+    if (view->title && strstr (title, view->title))
+        webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), view->uri);
+    else if (from_cache)
         webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
     else
         webkit_web_view_reload_bypass_cache (WEBKIT_WEB_VIEW (view->web_view));
+
+    g_free (title);
 }
 
 /**
