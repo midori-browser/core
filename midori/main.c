@@ -1322,6 +1322,7 @@ int
 main (int    argc,
       char** argv)
 {
+    gchar* webapp;
     gchar* config;
     gboolean run;
     gboolean version;
@@ -1331,6 +1332,8 @@ main (int    argc,
     GError* error;
     GOptionEntry entries[] =
     {
+       { "app", 'a', 0, G_OPTION_ARG_STRING, &webapp,
+       N_("Run ADDRESS as a web application"), N_("ADDRESS") },
        { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
@@ -1373,6 +1376,7 @@ main (int    argc,
     #endif
 
     /* Parse cli options */
+    webapp = NULL;
     config = NULL;
     run = FALSE;
     version = FALSE;
@@ -1405,6 +1409,29 @@ main (int    argc,
           PACKAGE_BUGREPORT,
           _("Check for new versions at:")
         );
+        return 0;
+    }
+
+    /* Web Application support */
+    if (webapp)
+    {
+        MidoriBrowser* browser = midori_browser_new ();
+        settings = katze_object_get_object (browser, "settings");
+        g_object_set (settings,
+                      "show-menubar", FALSE,
+                      "show-navigationbar", TRUE,
+                      "toolbar-items", "Back,Forward,ReloadStop,Location",
+                      "show-statusbar", TRUE,
+                      NULL);
+        g_object_unref (settings);
+        g_object_set (browser, "settings", settings, NULL);
+        midori_browser_add_uri (browser, webapp);
+        g_object_set_data (G_OBJECT (browser), "locked", (void*)1);
+        g_signal_connect (browser, "destroy",
+            G_CALLBACK (gtk_main_quit), NULL);
+        gtk_widget_show (GTK_WIDGET (browser));
+        midori_browser_activate_action (browser, "Location");
+        gtk_main ();
         return 0;
     }
 
