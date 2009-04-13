@@ -767,13 +767,13 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             background = view->open_tabs_in_the_background;
             if (event->state & GDK_SHIFT_MASK)
                 background = !background;
-            g_signal_emit_by_name (view, "new-tab", link_uri, background);
+            g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
             return TRUE;
         }
         else if (event->state & GDK_SHIFT_MASK)
         {
             /* Open link in new window */
-            g_signal_emit_by_name (view, "new-window", link_uri);
+            g_signal_emit (view, signals[NEW_WINDOW], 0, link_uri);
             return TRUE;
         }
         else if (event->state & GDK_MOD1_MASK)
@@ -782,7 +782,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             background = view->open_tabs_in_the_background;
             if (event->state & GDK_CONTROL_MASK)
                 background = !background;
-            g_signal_emit_by_name (view, "new-tab", link_uri, background);
+            g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
             return TRUE;
         }
         break;
@@ -793,7 +793,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             background = view->open_tabs_in_the_background;
             if (event->state & GDK_CONTROL_MASK)
                 background = !background;
-            g_signal_emit_by_name (view, "new-tab", link_uri, background);
+            g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
             return TRUE;
         }
         else if (event->state & GDK_CONTROL_MASK)
@@ -803,19 +803,23 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         }
         else if (view->middle_click_opens_selection)
         {
+            guint i = 0;
             clipboard = gtk_clipboard_get_for_display (
                 gtk_widget_get_display (GTK_WIDGET (view)),
                 GDK_SELECTION_PRIMARY);
             uri = gtk_clipboard_wait_for_text (clipboard);
-            if (uri && strchr (uri, '.') && !strchr (g_strstrip (uri), ' '))
+            if (uri && strchr (uri, '.'))
             {
-                new_uri = sokoke_magic_uri (uri, NULL);
+                while (uri[i++] != '\0')
+                    if (uri[i] == '\n' || uri[i] == '\r')
+                        uri[i] = ' ';
+                new_uri = sokoke_magic_uri (g_strstrip (uri), NULL);
                 if (event->state & GDK_CONTROL_MASK)
                 {
                     background = view->open_tabs_in_the_background;
                     if (event->state & GDK_CONTROL_MASK)
                         background = !background;
-                    g_signal_emit_by_name (view, "new-tab", new_uri, background);
+                    g_signal_emit (view, signals[NEW_TAB], 0, new_uri, background);
                 }
                 else
                 {
@@ -823,9 +827,9 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                     gtk_widget_grab_focus (GTK_WIDGET (view));
                 }
                 g_free (new_uri);
-                g_free (uri);
                 return TRUE;
             }
+            g_free (uri);
         }
         break;
     case 8:
