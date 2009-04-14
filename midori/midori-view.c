@@ -894,12 +894,10 @@ midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
         g_object_get (view->settings, "location-entry-search",
                       &search, NULL);
     if (strstr (search, "%s"))
-    {
         uri = g_strdup_printf (search, view->selected_text);
-        g_free (search);
-    }
     else
-        uri = search;
+        uri = g_strconcat (search, view->selected_text, NULL);
+    g_free (search);
 
     g_signal_emit (view, signals[NEW_TAB], 0, uri,
         view->open_tabs_in_the_background);
