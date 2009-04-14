@@ -1,4 +1,4 @@
-.. |(version)| replace:: 0.0.21
+.. |(version)| replace:: 0.1.6
 
 '''''''
  Midori
@@ -9,10 +9,10 @@
 -----------------------------------------
 
 :Authors: Christian Dywan
-:Date: $Date: 2008-08-03 20:30:35 +0100 (Sat, 28 Sep 2008) $
+:Date: $Date: 2009-04-14 18:00:35 +0100 (Tue, 14 Apr 2009) $
 :Version: |(version)|
 
-Copyright © 2008
+Copyright © 2008-2009
 
 This documentation is distributed under the terms of the
 `GNU Lesser General Public License`_; you can redistribute it and/or
@@ -42,8 +42,7 @@ interface is designed to be intuitive yet powerful.
 * User scripts and user styles support.
 * Straightforward bookmark management.
 * Customizable and extensible interface.
-* Extensible via Javascript.
-* Custom context menu actions.
+* Extensions written in C.
 
 
 Running Midori
@@ -127,10 +126,56 @@ The following arguments are supported if you call Midori from a command line.
 +-------+--------------------+------------------------------------------------+
 | Short | Long option        | Function                                       |
 +=======+====================+================================================+
+| -a    | --app              | Run ADDRESS as a web application               |
++-------+--------------------+------------------------------------------------+
+| -c    | --config           | Use FOLDER as configuration folder             |
++-------+--------------------+------------------------------------------------+
 | -r    | --run              | Run the specified filename as javascript       |
 +-------+--------------------+------------------------------------------------+
 | -V    | --version          |  Show version information and exit.            |
 +-------+--------------------+------------------------------------------------+
+
+
+Configuration files
+-------------------
+
+
+The configuration files in Midori that save related states are by default
+stored in the folder ~/.config/midori in the home directory. It is possible
+to use a different folder by specifying '--config' on the command line.
+
+The files stored in the primary configuration folder are the following:
+
++----------------+------------------------------------------------------------+
+| Filename       | Contents                                                   |
++================+============================================================+
+| accels         | Keyboard shortcuts, GtkAccelMap resource                   |
++----------------+------------------------------------------------------------+
+| bookmarks.xbel | Bookmarks, XBEL                                            |
++----------------+------------------------------------------------------------+
+| config         | Preferences, text key file                                 |
++----------------+------------------------------------------------------------+
+| cookies.txt    | Cookies, Mozilla text cookies                              |
++----------------+------------------------------------------------------------+
+| history.db     | History, sqlite3                                           |
++----------------+------------------------------------------------------------+
+| running        | A file created to track whether Midori quit cleanly        |
++----------------+------------------------------------------------------------+
+| session.xbel   | The current or last session, ie. open tabs,                |
++----------------+------------------------------------------------------------+
+| tabtrash.xbel  | The 10 last closed tabs                                    |
++----------------+------------------------------------------------------------+
+
+Note that generally manual modifications to these files aren't recommended. As
+an exception, while Midori is *not* running, it is possible to edit or
+replace the 'bookmarks.xbel' as long as it is valid XBEL/ XML.
+
+Currently while Midori is running it will happily overwrite files as needed and
+never read back any changes.
+
+Incidentally if any of the files is readonly Midori will read it and not ever
+write modifications back to disk. This can be useful for kiosk systems where
+particular changes shouldn't be saved.
 
 
 Keyboard shortcuts
@@ -144,12 +189,21 @@ The navigationbar
 -----------------
 
 
-...
-
+The navigationbar is the primary toolbar containing notably back and forward
+buttons, the location entry and a search entry. Except for the location entry
+any item can be removed and others can be added by right-clicking the toolbar
+and using the Add and Remove menu items.
 
 
 The sidepanel
 -------------
+
+
+...
+
+
+Extensions
+----------
 
 
 ...
