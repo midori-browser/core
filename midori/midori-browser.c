@@ -85,6 +85,7 @@ struct _MidoriBrowser
     gboolean show_statusbar;
     gboolean progress_in_location;
     gboolean remember_last_visited_pages;
+    gchar* news_aggregator;
 };
 
 #if HAVE_HILDON
@@ -303,7 +304,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
     action = _action_by_name (browser, "Location");
-    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+    if (browser->news_aggregator && *browser->news_aggregator
+        && g_object_get_data (G_OBJECT (view), "news-feeds"))
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
     else
@@ -2573,9 +2575,8 @@ _action_location_secondary_icon_released (GtkAction*     action,
     if ((view = midori_browser_get_current_tab (browser)))
     {
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-        /* FIXME: Support a user chosen feed reader */
-        if (1)
-            sokoke_spawn_program ("liferea-add-feed", uri);
+        if (browser->news_aggregator && *browser->news_aggregator)
+            sokoke_spawn_program (browser->news_aggregator, uri);
     }
 }
 
@@ -4309,6 +4310,8 @@ midori_browser_finalize (GObject* object)
 
     katze_object_assign (browser->net, NULL);
 
+    katze_assign (browser->news_aggregator, NULL);
+
     G_OBJECT_CLASS (midori_browser_parent_class)->finalize (object);
 }
 
@@ -4434,6 +4437,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gint default_width, default_height;
     KatzeItem* item;
 
+    g_free (browser->news_aggregator);
+
     g_object_get (browser->settings,
                   "remember-last-window-size", &remember_last_window_size,
                   "last-window-width", &last_window_width,
@@ -4455,6 +4460,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   "progress-in-location", &browser->progress_in_location,
                   "remember-last-visited-pages", &browser->remember_last_visited_pages,
+                  "news-aggregator", &browser->news_aggregator,
                   NULL);
 
     screen = gtk_window_get_screen (GTK_WINDOW (browser));
@@ -4546,6 +4552,10 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->progress_in_location = g_value_get_boolean (&value);
     else if (name == g_intern_string ("remember-last-visited-pages"))
         browser->remember_last_visited_pages = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("news-aggregator"))
+    {
+        katze_assign (browser->news_aggregator, g_value_dup_string (&value));
+    }
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                              name))
          g_warning (_("Unexpected setting '%s'"), name);

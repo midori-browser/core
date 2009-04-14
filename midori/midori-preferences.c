@@ -421,7 +421,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "show-crash-dialog", NULL);
     SPANNED_ADD (button, 0, 2, 2, 3);
     FRAME_NEW (_("Transfers"));
-    TABLE_NEW (3, 2);
+    TABLE_NEW (4, 2);
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
     label = katze_property_label (settings, "download-folder");
     INDENTED_ADD (label, 0, 1, 0, 1);
@@ -456,6 +456,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (entry, "focus-out-event",
         G_CALLBACK (proxy_download_manager_icon_cb), button);
     FILLED_ADD (hbox, 1, 2, 2, 3);
+    label = katze_property_label (settings, "news-aggregator");
+    INDENTED_ADD (label, 0, 1, 3, 4);
+    hbox = gtk_hbox_new (FALSE, 4);
+    button = gtk_image_new ();
+    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (button),
+        GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+    gtk_widget_set_size_request (button, icon_width, icon_height);
+    gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 4);
+    entry = katze_property_proxy (settings, "news-aggregator", NULL);
+    gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+    proxy_download_manager_icon_cb (entry, NULL, GTK_IMAGE (button));
+    g_signal_connect (entry, "focus-out-event",
+        G_CALLBACK (proxy_download_manager_icon_cb), button);
+    FILLED_ADD (hbox, 1, 2, 3, 4);
 
     /* Page "Appearance" */
     PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Appearance"));

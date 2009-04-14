@@ -63,6 +63,7 @@ struct _MidoriView
     /* KatzeArray* news_feeds; */
 
     gchar* download_manager;
+    gchar* news_aggregator;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
@@ -664,8 +665,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 
-    /* FIXME: Do this conditional on whether there's a custom feed reader */
-    if (1)
+    if (view->news_aggregator && *view->news_aggregator)
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
         gchar* value = sokoke_js_script_eval (js_context,
@@ -1359,6 +1359,7 @@ midori_view_init (MidoriView* view)
     view->item = NULL;
 
     view->download_manager = NULL;
+    view->news_aggregator = NULL;
     view->web_view = NULL;
 
     /* Adjustments are not created automatically */
@@ -1387,6 +1388,7 @@ midori_view_finalize (GObject* object)
     katze_object_assign (view->item, NULL);
 
     katze_assign (view->download_manager, NULL);
+    katze_assign (view->news_aggregator, NULL);
 
     katze_object_assign (view->net, NULL);
 
@@ -1509,6 +1511,7 @@ _midori_view_update_settings (MidoriView* view)
 
     g_object_get (view->settings,
         "download-manager", &view->download_manager,
+        "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
@@ -1537,6 +1540,10 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     if (name == g_intern_string ("download-manager"))
     {
         katze_assign (view->download_manager, g_value_dup_string (&value));
+    }
+    else if (name == g_intern_string ("news-aggregator"))
+    {
+        katze_assign (view->news_aggregator, g_value_dup_string (&value));
     }
     else if (name == g_intern_string ("zoom-text-and-images"))
     {

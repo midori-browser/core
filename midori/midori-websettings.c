@@ -51,6 +51,7 @@ struct _MidoriWebSettings
     gchar* download_folder;
     gchar* download_manager;
     gchar* text_editor;
+    gchar* news_aggregator;
     gchar* location_entry_search;
     MidoriPreferredEncoding preferred_encoding;
 
@@ -119,6 +120,7 @@ enum
     PROP_DOWNLOAD_FOLDER,
     PROP_DOWNLOAD_MANAGER,
     PROP_TEXT_EDITOR,
+    PROP_NEWS_AGGREGATOR,
     PROP_LOCATION_ENTRY_SEARCH,
     PROP_PREFERRED_ENCODING,
 
@@ -577,6 +579,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "text-editor",
                                      _("Text Editor"),
                                      _("An external text editor"),
+                                     NULL,
+                                     flags));
+
+    /**
+    * MidoriWebSettings:news-aggregator:
+    *
+    * An external news aggregator.
+    *
+    * Since: 0.1.6
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_NEWS_AGGREGATOR,
+                                     g_param_spec_string (
+                                     "news-aggregator",
+                                     _("News Aggregator"),
+                                     _("An external news aggregator"),
                                      NULL,
                                      flags));
 
@@ -1046,6 +1064,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TEXT_EDITOR:
         katze_assign (web_settings->text_editor, g_value_dup_string (value));
         break;
+    case PROP_NEWS_AGGREGATOR:
+        katze_assign (web_settings->news_aggregator, g_value_dup_string (value));
+        break;
     case PROP_LOCATION_ENTRY_SEARCH:
         katze_assign (web_settings->location_entry_search, g_value_dup_string (value));
         break;
@@ -1238,6 +1259,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_TEXT_EDITOR:
         g_value_set_string (value, web_settings->text_editor);
+        break;
+    case PROP_NEWS_AGGREGATOR:
+        g_value_set_string (value, web_settings->news_aggregator);
         break;
     case PROP_LOCATION_ENTRY_SEARCH:
         g_value_set_string (value, web_settings->location_entry_search);
