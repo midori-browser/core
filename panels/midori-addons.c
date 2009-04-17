@@ -318,8 +318,12 @@ _treeview_first_selected_path (GtkTreeView *treeview)
 
     if (gtk_tree_selection_get_selected (selection, NULL, NULL))
     {
+        GtkTreePath* result;
         tree_paths = gtk_tree_selection_get_selected_rows (selection, NULL);
-        return g_list_nth_data (tree_paths, 0);
+        result = gtk_tree_path_copy (g_list_nth_data (tree_paths, 0));
+        g_list_foreach (tree_paths, (GFunc)gtk_tree_path_free, NULL);
+        g_list_free (tree_paths);
+        return result;
     }
     else
         return NULL;
@@ -367,7 +371,7 @@ midori_addons_treeview_cursor_changed (GtkTreeView*  treeview,
     path = _treeview_first_selected_path (treeview);
 
     model = gtk_tree_view_get_model (treeview);
-    if (gtk_tree_model_get_iter (model, &iter, path))
+    if (path && gtk_tree_model_get_iter (model, &iter, path))
     {
         gtk_tree_model_get (model, &iter, 0, &element, -1);
         if (element->broken)
