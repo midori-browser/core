@@ -31,6 +31,8 @@ enum
 typedef struct _CMData
 {
 	MidoriApp *app;
+	MidoriBrowser *browser;
+	MidoriExtension *extension;
 
 	GtkWidget *panel_page;
 	GtkWidget *desc_label;
@@ -56,6 +58,8 @@ typedef struct _CMData
 
 static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, MidoriExtension *ext);
 static void cm_filter_tree(CMData *cmdata, const gchar *filter_text);
+static void cm_deactivate_cb(MidoriExtension *extension, CMData *cmdata);
+static void cm_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, SoupCookie *new, CMData *cmdata);
 
 
 #if CM_DEBUG
@@ -86,16 +90,28 @@ static void cm_free_cookie_list(CMData *cmdata)
 }
 
 
-static void cm_deactivate_cb(MidoriExtension *extension, CMData *cmdata)
+static void cm_browser_close_cb(GtkObject *browser, CMData *cmdata)
 {
-	g_signal_handlers_disconnect_by_func(cmdata->app, cm_app_add_browser_cb, extension);
-	g_signal_handlers_disconnect_by_func(extension, cm_deactivate_cb, cmdata);
+	g_signal_handlers_disconnect_by_func(cmdata->extension, cm_deactivate_cb, cmdata);
+	g_signal_handlers_disconnect_by_func(cmdata->browser, cm_browser_close_cb, cmdata);
+	g_signal_handlers_disconnect_by_func(cmdata->jar, cm_jar_changed_cb, cmdata);
 
 	cm_free_cookie_list(cmdata);
 
-	gtk_widget_destroy(cmdata->panel_page);
+	/* the panel_page widget gets destroyed automatically when a browser is closed but not
+	 * when the extension is deactivated */
+	if (cmdata->panel_page != NULL && GTK_IS_WIDGET(cmdata->panel_page))
+		gtk_widget_destroy(cmdata->panel_page);
+
 	gtk_widget_destroy(cmdata->popup_menu);
 	g_free(cmdata);
+}
+
+
+static void cm_deactivate_cb(MidoriExtension *extension, CMData *cmdata)
+{
+	g_signal_handlers_disconnect_by_func(cmdata->app, cm_app_add_browser_cb, extension);
+	cm_browser_close_cb(NULL, cmdata);
 }
 
 
@@ -781,6 +797,8 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 
 	cmdata = g_new0(CMData, 1);
 	cmdata->app = app;
+	cmdata->extension = ext;
+	cmdata->browser = browser;
 
 	panel = katze_object_get_object(browser, "panel");
 	toolbar = gtk_toolbar_new();
@@ -895,6 +913,7 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 		STOCK_COOKIE_MANAGER, _("Cookie Manager"), toolbar);
 
 	g_signal_connect(ext, "deactivate", G_CALLBACK(cm_deactivate_cb), cmdata);
+	g_signal_connect(browser, "destroy", G_CALLBACK(cm_browser_close_cb), cmdata);
 
 	g_object_unref(panel);
 }
