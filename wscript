@@ -201,8 +201,6 @@ def configure (conf):
                 '-Winit-self -Wmissing-include-dirs -Wundef '
                 '-Wmissing-format-attribute -Wnested-externs '
                 '-DG_ENABLE_DEBUG'.split ())
-        else:
-            conf.env.append_value ('CCFLAGS', '-O2')
     elif debug_level != 'none':
             Utils.pprint ('RED', 'No debugging level support for ' + compiler)
             sys.exit (1)
