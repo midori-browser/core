@@ -38,6 +38,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* bbox;
     MidoriWebSettings* settings;
     GtkWidget* button;
+    GtkWidget* image;
 
     /* FIXME: Monitor each view and modify its settings individually
               instead of merely replicating the global preferences. */
@@ -45,22 +46,28 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     statusbar = katze_object_get_object (browser, "statusbar");
     bbox = gtk_hbox_new (FALSE, 0);
     settings = katze_object_get_object (browser, "settings");
-    button = katze_property_proxy (settings, "auto-load-images", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Images"));
+    button = katze_property_proxy (settings, "auto-load-images", "toggle");
+    image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
+    gtk_widget_show (image);
+    gtk_container_add (GTK_CONTAINER (button), image);
     #if GTK_CHECK_VERSION(2, 12, 0)
     gtk_widget_set_tooltip_text (button, _("Load images automatically"));
     #endif
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);
-    button = katze_property_proxy (settings, "enable-scripts", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Scripts"));
+    button = katze_property_proxy (settings, "enable-scripts", "toggle");
+    image = gtk_image_new_from_stock (STOCK_SCRIPTS, GTK_ICON_SIZE_MENU);
+    gtk_widget_show (image);
+    gtk_container_add (GTK_CONTAINER (button), image);
     #if GTK_CHECK_VERSION(2, 12, 0)
     gtk_widget_set_tooltip_text (button, _("Enable scripts"));
     #endif
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);
-    button = katze_property_proxy (settings, "enable-plugins", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Plugins"));
+    button = katze_property_proxy (settings, "enable-plugins", "toggle");
+    image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
+    gtk_widget_show (image);
+    gtk_container_add (GTK_CONTAINER (button), image);
     #if GTK_CHECK_VERSION(2, 12, 0)
     gtk_widget_set_tooltip_text (button, _("Enable plugins"));
     #endif
