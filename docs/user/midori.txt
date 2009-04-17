@@ -173,8 +173,8 @@ replace the 'bookmarks.xbel' as long as it is valid XBEL/ XML.
 Currently while Midori is running it will happily overwrite files as needed and
 never read back any changes.
 
-Incidentally if any of the files is readonly Midori will read it and not ever
-write modifications back to disk. This can be useful for kiosk systems where
+Incidentally Midori will recognize readonly files and not write modifications
+to readonly files back to disk. This can be useful for kiosk systems where
 particular changes shouldn't be saved.
 
 
