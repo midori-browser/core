@@ -4,6 +4,9 @@
 
 extensions = os.listdir ('extensions')
 for extension in extensions:
+    # Tab Panel isn't useful at this point
+    if extension == 'tab-panel':
+        continue
     folder = 'extensions' + os.sep + extension
     if os.path.isdir (folder):
         files = os.listdir (folder)
