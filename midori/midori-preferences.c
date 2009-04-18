@@ -506,7 +506,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Behavior" */
     PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
     FRAME_NEW (_("Features"));
-    TABLE_NEW (7, 2);
+    TABLE_NEW (6, 2);
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
     gtk_widget_set_tooltip_text (button, _("Load and display images automatically"));
@@ -542,11 +542,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     SPANNED_ADD (button, 0, 1, 4, 5);
     button = katze_property_proxy (settings, "find-while-typing", NULL);
-    SPANNED_ADD (button, 1, 2, 4, 5);
-    label = katze_property_label (settings, "location-entry-search");
-    INDENTED_ADD (label, 0, 1, 5, 6);
-    entry = katze_property_proxy (settings, "location-entry-search", NULL);
-    FILLED_ADD (entry, 1, 2, 5, 6);
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));

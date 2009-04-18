@@ -56,6 +56,13 @@ void
 midori_search_action_set_current_item      (MidoriSearchAction* search_action,
                                             KatzeItem*          item);
 
+KatzeItem*
+midori_search_action_get_default_item      (MidoriSearchAction* search_action);
+
+void
+midori_search_action_set_default_item      (MidoriSearchAction* search_action,
+                                            KatzeItem*          item);
+
 GtkWidget*
 midori_search_action_get_dialog            (MidoriSearchAction* search_action);
 

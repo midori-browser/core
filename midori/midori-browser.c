@@ -85,6 +85,7 @@ struct _MidoriBrowser
     gboolean show_statusbar;
     gboolean progress_in_location;
     gboolean remember_last_visited_pages;
+    gchar* location_entry_search;
     gchar* news_aggregator;
 };
 
@@ -2542,18 +2543,15 @@ _action_location_submit_uri (GtkAction*     action,
                              gboolean       new_tab,
                              MidoriBrowser* browser)
 {
-    gchar* location_entry_search;
     gchar* new_uri;
     gint n;
 
-    g_object_get (browser->settings, "location-entry-search",
-                  &location_entry_search, NULL);
     new_uri = sokoke_magic_uri (uri, browser->search_engines);
-    if (!new_uri && strstr (location_entry_search, "%s"))
-        new_uri = g_strdup_printf (location_entry_search, uri);
+    if (!new_uri && strstr (browser->location_entry_search, "%s"))
+        new_uri = g_strdup_printf (browser->location_entry_search, uri);
     else if (!new_uri)
-        new_uri = g_strdup (location_entry_search);
-    g_free (location_entry_search);
+        new_uri = g_strconcat (browser->location_entry_search, uri, NULL);
+
     if (new_tab)
     {
         n = midori_browser_add_uri (browser, new_uri);
@@ -2597,22 +2595,15 @@ _action_search_submit (GtkAction*     action,
     guint last_web_search;
     KatzeItem* item;
     const gchar* url;
-    gchar* location_entry_search;
     gchar* search;
 
     g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
     item = katze_array_get_nth_item (browser->search_engines, last_web_search);
     if (item)
-    {
-        location_entry_search = NULL;
         url = katze_item_get_uri (item);
-    }
     else /* The location entry search is our fallback */
-    {
-        g_object_get (browser->settings, "location-entry-search",
-                      &location_entry_search, NULL);
-        url = location_entry_search;
-    }
+        url = browser->location_entry_search;
+
     if (strstr (url, "%s"))
         search = g_strdup_printf (url, keywords);
     else
@@ -2624,7 +2615,6 @@ _action_search_submit (GtkAction*     action,
         midori_browser_set_current_uri (browser, search);
 
     g_free (search);
-    g_free (location_entry_search);
 }
 
 static void
@@ -2644,6 +2634,21 @@ _action_search_notify_current_item (GtkAction*     action,
         idx = 0;
 
     g_object_set (browser->settings, "last-web-search", idx, NULL);
+}
+
+static void
+_action_search_notify_default_item (GtkAction*     action,
+                                    GParamSpec*    pspec,
+                                    MidoriBrowser* browser)
+{
+    MidoriSearchAction* search_action;
+    KatzeItem* item;
+
+    search_action = MIDORI_SEARCH_ACTION (action);
+    item = midori_search_action_get_default_item (search_action);
+    if (item)
+        g_object_set (browser->settings, "location-entry-search",
+                      katze_item_get_uri (item), NULL);
 }
 
 static void
@@ -3970,6 +3975,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_search_focus_out, browser,
                       "signal::notify::current-item",
                       _action_search_notify_current_item, browser,
+                      "signal::notify::default-item",
+                      _action_search_notify_default_item, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group,
         action, "<Ctrl>K");
@@ -4457,6 +4464,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
                   "last-web-search", &last_web_search,
+                  "location-entry-search", &browser->location_entry_search,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   "progress-in-location", &browser->progress_in_location,
                   "remember-last-visited-pages", &browser->remember_last_visited_pages,
@@ -4497,11 +4505,22 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     if (browser->search_engines)
     {
+        guint i;
+
         item = katze_array_get_nth_item (browser->search_engines,
                                          last_web_search);
         if (item)
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
+
+        i = 0;
+        while ((item = katze_array_get_nth_item (browser->search_engines, i++)))
+            if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
+            {
+                midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
+                _action_by_name (browser, "Search")), item);
+                break;
+            }
     }
 
     midori_panel_set_compact (MIDORI_PANEL (browser->panel), compact_sidepanel);
@@ -4550,6 +4569,10 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_statusbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("progress-in-location"))
         browser->progress_in_location = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("location-entry-search"))
+    {
+        katze_assign (browser->location_entry_search, g_value_dup_string (&value));
+    }
     else if (name == g_intern_string ("remember-last-visited-pages"))
         browser->remember_last_visited_pages = g_value_get_boolean (&value);
     else if (name == g_intern_string ("news-aggregator"))
@@ -4711,12 +4734,23 @@ midori_browser_set_property (GObject*      object,
         /* FIXME: Connect to updates */
         if (browser->settings)
         {
+            guint i;
+
             g_object_get (browser->settings, "last-web-search",
                           &last_web_search, NULL);
             item = katze_array_get_nth_item (browser->search_engines,
                                              last_web_search);
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
+
+            i = 0;
+            while ((item = katze_array_get_nth_item (browser->search_engines, i++)))
+                if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
+                {
+                    midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
+                    _action_by_name (browser, "Search")), item);
+                    break;
+                }
         }
         break;
     case PROP_HISTORY:

@@ -25,6 +25,7 @@ struct _MidoriSearchAction
 
     KatzeArray* search_engines;
     KatzeItem* current_item;
+    KatzeItem* default_item;
     gchar* text;
 
     KatzeNet* net;
@@ -35,6 +36,7 @@ struct _MidoriSearchAction
     GtkWidget* treeview;
     GtkWidget* edit_button;
     GtkWidget* remove_button;
+    GtkWidget* default_button;
 };
 
 struct _MidoriSearchActionClass
@@ -50,6 +52,7 @@ enum
 
     PROP_SEARCH_ENGINES,
     PROP_CURRENT_ITEM,
+    PROP_DEFAULT_ITEM,
     PROP_TEXT,
     PROP_DIALOG
 };
@@ -147,6 +150,22 @@ midori_search_action_class_init (MidoriSearchActionClass* class)
                                      KATZE_TYPE_ITEM,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+    /**
+     * MidoriSearchAction:default-item:
+     *
+     * The default search engine.
+     *
+     * Since: 0.1.6
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_DEFAULT_ITEM,
+                                     g_param_spec_object (
+                                     "default-item",
+                                     "Default Item",
+                                     "The default search engine",
+                                     KATZE_TYPE_ITEM,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
     g_object_class_install_property (gobject_class,
                                      PROP_TEXT,
                                      g_param_spec_string (
@@ -171,6 +190,7 @@ midori_search_action_init (MidoriSearchAction* search_action)
 {
     search_action->search_engines = NULL;
     search_action->current_item = NULL;
+    search_action->default_item = NULL;
     search_action->text = NULL;
 
     search_action->net = katze_net_new ();
@@ -181,6 +201,7 @@ midori_search_action_init (MidoriSearchAction* search_action)
     search_action->treeview = NULL;
     search_action->edit_button = NULL;
     search_action->remove_button = NULL;
+    search_action->default_button = NULL;
 }
 
 static void
@@ -213,6 +234,10 @@ midori_search_action_set_property (GObject*      object,
         midori_search_action_set_current_item (search_action,
                                                g_value_get_object (value));
         break;
+    case PROP_DEFAULT_ITEM:
+        midori_search_action_set_default_item (search_action,
+                                               g_value_get_object (value));
+        break;
     case PROP_TEXT:
         midori_search_action_set_text (search_action,
                                        g_value_get_string (value));
@@ -238,6 +263,9 @@ midori_search_action_get_property (GObject*    object,
         break;
     case PROP_CURRENT_ITEM:
         g_value_set_object (value, search_action->current_item);
+        break;
+    case PROP_DEFAULT_ITEM:
+        g_value_set_object (value, search_action->default_item);
         break;
     case PROP_TEXT:
         g_value_set_string (value, search_action->text);
@@ -716,6 +744,67 @@ midori_search_action_set_current_item (MidoriSearchAction* search_action,
     while ((proxies = g_slist_next (proxies)));
 }
 
+/**
+ * midori_search_action_get_default_item:
+ * @search_action: a #MidoriSearchAction
+ *
+ * Retrieves the default search engine.
+ *
+ * Since 0.1.6
+ *
+ * Return value: a #KatzeItem
+ **/
+KatzeItem*
+midori_search_action_get_default_item (MidoriSearchAction* search_action)
+{
+    g_return_val_if_fail (MIDORI_IS_SEARCH_ACTION (search_action), NULL);
+
+    return search_action->default_item;
+}
+
+/**
+ * midori_search_action_set_default_item:
+ * @search_action: a #MidoriSearchAction
+ * @item: a #KatzeItem
+ *
+ * Sets the default search engine.
+ *
+ * Since 0.1.6
+ **/
+void
+midori_search_action_set_default_item (MidoriSearchAction* search_action,
+                                       KatzeItem*          item)
+{
+    g_return_if_fail (MIDORI_IS_SEARCH_ACTION (search_action));
+    g_return_if_fail (!item || KATZE_IS_ITEM (item));
+
+    if (item)
+        g_object_ref (item);
+    katze_object_assign (search_action->default_item, item);
+    g_object_notify (G_OBJECT (search_action), "default-item");
+}
+
+static void
+midori_search_action_dialog_render_tick_cb (GtkTreeViewColumn* column,
+                                            GtkCellRenderer*   renderer,
+                                            GtkTreeModel*      model,
+                                            GtkTreeIter*       iter,
+                                            GtkWidget*         treeview)
+{
+    KatzeItem* item;
+    MidoriSearchAction* search_action;
+    gint width;
+
+    gtk_tree_model_get (model, iter, 0, &item, -1);
+
+    search_action = g_object_get_data (G_OBJECT (treeview), "search-action");
+    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &width, NULL);
+    g_object_set (renderer, "stock-id",
+        search_action->default_item == item ? GTK_STOCK_YES : NULL,
+        "width", width + 4, NULL);
+    g_object_unref (item);
+}
+
 static void
 midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
                                             GtkCellRenderer*   renderer,
@@ -733,6 +822,7 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
     icon = midori_search_action_get_icon (search_action->net, item, treeview);
     g_object_set (renderer, "pixbuf", icon, "yalign", 0.25, NULL);
     g_object_unref (icon);
+    g_object_unref (item);
 }
 
 static void
@@ -753,6 +843,7 @@ midori_search_action_dialog_render_text (GtkTreeViewColumn* column,
     markup = g_markup_printf_escaped ("<b>%s</b>\n%s", name, text ? text : "");
     g_object_set (renderer, "markup", markup, NULL);
     g_free (markup);
+    g_object_unref (item);
 }
 
 static void
@@ -771,6 +862,7 @@ midori_search_action_dialog_render_token (GtkTreeViewColumn* column,
     markup = g_markup_printf_escaped ("<b>%s</b>", token ? token : "");
     g_object_set (renderer, "markup", markup, "yalign", 0.0, NULL);
     g_free (markup);
+    g_object_unref (item);
 }
 
 static void
@@ -968,6 +1060,29 @@ midori_search_action_dialog_remove_cb (GtkWidget*          widget,
 }
 
 static void
+midori_search_action_dialog_default_cb (GtkWidget*          widget,
+                                        MidoriSearchAction* search_action)
+{
+    KatzeArray* search_engines;
+    GtkWidget* treeview;
+    GtkTreeSelection* selection;
+    GtkTreeModel* liststore;
+    GtkTreeIter iter;
+    KatzeItem* item;
+
+    search_engines = search_action->search_engines;
+    treeview = search_action->treeview;
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+    if (gtk_tree_selection_get_selected (selection, &liststore, &iter))
+    {
+        gtk_tree_model_get (liststore, &iter, 0, &item, -1);
+        midori_search_action_set_default_item (search_action, item);
+        g_object_unref (item);
+        gtk_widget_queue_draw (treeview);
+    }
+}
+
+static void
 midori_search_action_treeview_selection_cb (GtkTreeSelection*   selection,
                                             MidoriSearchAction* search_action)
 {
@@ -977,6 +1092,7 @@ midori_search_action_treeview_selection_cb (GtkTreeSelection*   selection,
 
     gtk_widget_set_sensitive (search_action->edit_button, selected);
     gtk_widget_set_sensitive (search_action->remove_button, selected);
+    gtk_widget_set_sensitive (search_action->default_button, selected);
 }
 
 static void
@@ -1068,6 +1184,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     KatzeItem* item;
     GtkWidget* vbox;
     GtkWidget* button;
+    GtkWidget* image;
 
     g_return_val_if_fail (MIDORI_IS_SEARCH_ACTION (search_action), NULL);
 
@@ -1093,7 +1210,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
                                        GTK_RESPONSE_HELP, FALSE);
     sokoke_widget_get_text_size (dialog, "M", &width, &height);
-    gtk_window_set_default_size (GTK_WINDOW (dialog), width * 42, -1);
+    gtk_window_set_default_size (GTK_WINDOW (dialog), width * 52, -1);
     g_signal_connect (dialog, "response",
                       G_CALLBACK (gtk_widget_destroy), dialog);
     /* TODO: Do we want tooltips for explainations or can we omit that?
@@ -1112,10 +1229,15 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         "changed", G_CALLBACK (midori_search_action_treeview_selection_cb),
         search_action);
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+    g_object_set_data (G_OBJECT (treeview), "search-action", search_action);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
-    g_object_set_data (G_OBJECT (treeview), "search-action", search_action);
+    gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
+        (GtkTreeCellDataFunc)midori_search_action_dialog_render_tick_cb,
+        treeview, NULL);
+    renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
+    gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
         (GtkTreeCellDataFunc)midori_search_action_dialog_render_icon_cb,
         treeview, NULL);
@@ -1162,6 +1284,17 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     search_action->remove_button = button;
     g_signal_connect (button, "clicked",
         G_CALLBACK (midori_search_action_dialog_remove_cb), search_action);
+    gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+    if (!i)
+        gtk_widget_set_sensitive (button, FALSE);
+    button = gtk_label_new (""); /* This is an invisible separator */
+    gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 8);
+    button = gtk_button_new_with_mnemonic ("Use as _default");
+    image = gtk_image_new_from_stock (GTK_STOCK_YES, GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_image (GTK_BUTTON (button), image);
+    search_action->default_button = button;
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_search_action_dialog_default_cb), search_action);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     if (!i)
         gtk_widget_set_sensitive (button, FALSE);
