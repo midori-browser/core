@@ -1043,21 +1043,24 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         {
             KatzeArray* search_engines;
             KatzeItem* item;
+            GtkWidget* sub_menu = gtk_menu_new ();
+
+            menuitem = gtk_image_menu_item_new_with_mnemonic (_("Search _with"));
+            gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), sub_menu);
+            gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 1);
+            gtk_widget_show (menuitem);
 
             search_engines = katze_object_get_object (window, "search-engines");
             while ((item = katze_array_get_nth_item (search_engines, i++)))
             {
                 GdkPixbuf* pixbuf;
-                gchar* text = g_strdup_printf (_("Search with %s"),
-                    katze_item_get_name (item));
-                menuitem = gtk_image_menu_item_new_with_mnemonic (text);
-                g_free (text);
+                menuitem = gtk_image_menu_item_new_with_mnemonic (katze_item_get_name (item));
                 pixbuf = midori_search_action_get_icon (view->net, item,
                                                         GTK_WIDGET (web_view));
                 icon = gtk_image_new_from_pixbuf (pixbuf);
                 g_object_unref (pixbuf);
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-                gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, i - 1);
+                gtk_menu_shell_insert (GTK_MENU_SHELL (sub_menu), menuitem, i - 1);
                 g_object_set_data (G_OBJECT (menuitem), "search",
                                    (gchar*)katze_item_get_uri (item));
                 g_signal_connect (menuitem, "activate",
@@ -1067,19 +1070,15 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             g_object_unref (search_engines);
         }
         items = gtk_container_get_children (GTK_CONTAINER (menu));
-        menuitem = (GtkWidget*)g_list_nth_data (items, i - 1);
-        if (i > 1)
-            gtk_widget_destroy (menuitem);
-        else
-        {
-            /* hack to localize menu item */
-            label = gtk_bin_get_child (GTK_BIN (menuitem));
-            gtk_label_set_label (GTK_LABEL (label), _("_Search the Web"));
-            /* hack to implement Search the Web */
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
-        }
+        menuitem = (GtkWidget*)g_list_nth_data (items, 0);
+        /* hack to localize menu item */
+        label = gtk_bin_get_child (GTK_BIN (menuitem));
+        gtk_label_set_label (GTK_LABEL (label), _("_Search the Web"));
+        /* hack to implement Search the Web */
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
         g_list_free (items);
+
         if (strchr (view->selected_text, '.')
             && !strchr (view->selected_text, ' '))
         {
