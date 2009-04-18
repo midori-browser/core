@@ -1246,9 +1246,10 @@ midori_location_action_set_search_engines (MidoriLocationAction* location_action
 
         completion = gtk_entry_get_completion (GTK_ENTRY (child));
         i = 0;
+        /* FIXME: Apparently deleting doesn't always work, but why? */
         if (location_action->search_engines)
-        while ((item = katze_array_get_nth_item (location_action->search_engines, i)))
-            gtk_entry_completion_delete_action (completion, i++);
+        while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
+            gtk_entry_completion_delete_action (completion, i);
         midori_location_action_add_actions (completion, search_engines);
     }
 

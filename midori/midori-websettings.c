@@ -41,6 +41,7 @@ struct _MidoriWebSettings
 
     MidoriToolbarStyle toolbar_style;
     gboolean progress_in_location;
+    gboolean search_engines_in_completion;
     gchar* toolbar_items;
     gboolean compact_sidepanel;
     gboolean right_align_sidepanel;
@@ -110,6 +111,7 @@ enum
 
     PROP_TOOLBAR_STYLE,
     PROP_PROGRESS_IN_LOCATION,
+    PROP_SEARCH_ENGINES_IN_COMPLETION,
     PROP_TOOLBAR_ITEMS,
     PROP_COMPACT_SIDEPANEL,
     PROP_RIGHT_ALIGN_SIDEPANEL,
@@ -478,6 +480,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "progress-in-location",
                                      _("Show progress in location entry"),
                                      _("Whether to show loading progress in the location entry"),
+                                     TRUE,
+                                     flags));
+
+    /**
+    * MidoriWebSettings:search-engines-in-completion:
+    *
+    * Whether to show search engines in the location completion.
+    *
+    * Since: 0.1.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SEARCH_ENGINES_IN_COMPLETION,
+                                     g_param_spec_boolean (
+                                     "search-engines-in-completion",
+                                     _("Search engines in location completion"),
+                                     _("Whether to show search engines in the location completion"),
                                      TRUE,
                                      flags));
 
@@ -1036,6 +1054,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_PROGRESS_IN_LOCATION:
         web_settings->progress_in_location = g_value_get_boolean (value);
         break;
+    case PROP_SEARCH_ENGINES_IN_COMPLETION:
+        web_settings->search_engines_in_completion = g_value_get_boolean (value);
+        break;
     case PROP_TOOLBAR_ITEMS:
         katze_assign (web_settings->toolbar_items, g_value_dup_string (value));
         break;
@@ -1231,6 +1252,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_PROGRESS_IN_LOCATION:
         g_value_set_boolean (value, web_settings->progress_in_location);
+        break;
+    case PROP_SEARCH_ENGINES_IN_COMPLETION:
+        g_value_set_boolean (value, web_settings->search_engines_in_completion);
         break;
     case PROP_TOOLBAR_ITEMS:
         g_value_set_string (value, web_settings->toolbar_items);

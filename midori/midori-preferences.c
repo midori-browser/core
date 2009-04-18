@@ -553,6 +553,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (button, 1, 2, 0, 1);
     #endif
     button = katze_property_proxy (settings, "progress-in-location", NULL);
+    FILLED_ADD (button, 0, 1, 1, 2);
+    button = katze_property_proxy (settings, "search-engines-in-completion", NULL);
     FILLED_ADD (button, 1, 2, 1, 2);
     FRAME_NEW (_("Browsing"));
     TABLE_NEW (5, 2);
