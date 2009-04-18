@@ -2547,10 +2547,15 @@ _action_location_submit_uri (GtkAction*     action,
     gint n;
 
     new_uri = sokoke_magic_uri (uri, browser->search_engines);
-    if (!new_uri && strstr (browser->location_entry_search, "%s"))
-        new_uri = g_strdup_printf (browser->location_entry_search, uri);
-    else if (!new_uri)
-        new_uri = g_strconcat (browser->location_entry_search, uri, NULL);
+    if (!new_uri)
+    {
+        gchar* uri_ = g_uri_escape_string (uri, " :/", TRUE);
+        if (strstr (browser->location_entry_search, "%s"))
+            new_uri = g_strdup_printf (browser->location_entry_search, uri_);
+        else if (!new_uri)
+            new_uri = g_strconcat (browser->location_entry_search, uri_, NULL);
+        g_free (uri_);
+    }
 
     if (new_tab)
     {

@@ -279,11 +279,13 @@ sokoke_magic_uri (const gchar* uri,
     if (parts[0] && parts[1])
         if ((item = katze_array_find_token (search_engines, parts[0])))
         {
+            gchar* uri_ = g_uri_escape_string (parts[1], " :/", TRUE);
             search_uri = katze_item_get_uri (item);
             if (strstr (search_uri, "%s"))
-                search = g_strdup_printf (search_uri, parts[1]);
+                search = g_strdup_printf (search_uri, uri_);
             else
-                search = g_strdup_printf ("%s%s", search_uri, parts[1]);
+                search = g_strconcat (search_uri, uri_, NULL);
+            g_free (uri_);
         }
     g_strfreev (parts);
     return search;

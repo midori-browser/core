@@ -117,6 +117,8 @@ magic_uri_search (void)
     test_input ("cats dogs", NULL);
     test_input ("gtk 2.0", NULL);
     test_input ("gtk2.0", NULL);
+    test_input ("pcre++", NULL);
+    test_input ("sm pcre++", SM "pcre%2B%2B");
     test_input ("midori0.1.0", NULL);
     test_input ("midori 0.1.0", NULL);
     test_input ("search:cats", NULL);
