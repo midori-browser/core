@@ -208,8 +208,9 @@ midori_location_action_set_model (MidoriLocationAction* location_action,
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
         g_object_set (location_entry, "model", model, NULL);
-        g_object_set (gtk_entry_get_completion (GTK_ENTRY (entry)),
-            "model", model ? location_action->sort_model : NULL, NULL);
+        gtk_entry_completion_set_model (
+            gtk_entry_get_completion (GTK_ENTRY (entry)),
+            model ? location_action->filter_model : NULL);
     }
 }
 
@@ -770,11 +771,11 @@ midori_location_action_add_actions (GtkEntryCompletion* completion,
         return;
 
     i = 0;
-    while ((item = katze_array_get_nth_item (search_engines, i++)))
+    while ((item = katze_array_get_nth_item (search_engines, i)))
     {
         gchar* text = g_strdup_printf (_("Search with %s"),
             katze_item_get_name (item));
-        gtk_entry_completion_insert_action_text (completion, i, text);
+        gtk_entry_completion_insert_action_text (completion, i++, text);
         g_free (text);
     }
 }
@@ -1246,10 +1247,9 @@ midori_location_action_set_search_engines (MidoriLocationAction* location_action
 
         completion = gtk_entry_get_completion (GTK_ENTRY (child));
         i = 0;
-        /* FIXME: Apparently deleting doesn't always work, but why? */
         if (location_action->search_engines)
         while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
-            gtk_entry_completion_delete_action (completion, i);
+            gtk_entry_completion_delete_action (completion, 0);
         midori_location_action_add_actions (completion, search_engines);
     }
 
