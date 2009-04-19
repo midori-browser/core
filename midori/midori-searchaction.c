@@ -1289,7 +1289,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         gtk_widget_set_sensitive (button, FALSE);
     button = gtk_label_new (""); /* This is an invisible separator */
     gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 8);
-    button = gtk_button_new_with_mnemonic ("Use as _default");
+    button = gtk_button_new_with_mnemonic (_("Use as _default"));
     image = gtk_image_new_from_stock (GTK_STOCK_YES, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image (GTK_BUTTON (button), image);
     search_action->default_button = button;
