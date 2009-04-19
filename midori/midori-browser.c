@@ -2587,14 +2587,7 @@ _action_location_submit_uri (GtkAction*     action,
 
     new_uri = sokoke_magic_uri (uri, browser->search_engines);
     if (!new_uri)
-    {
-        gchar* uri_ = g_uri_escape_string (uri, " :/", TRUE);
-        if (strstr (browser->location_entry_search, "%s"))
-            new_uri = g_strdup_printf (browser->location_entry_search, uri_);
-        else if (!new_uri)
-            new_uri = g_strconcat (browser->location_entry_search, uri_, NULL);
-        g_free (uri_);
-    }
+        new_uri = sokoke_search_uri (browser->location_entry_search, uri);
 
     if (new_tab)
     {
@@ -2648,10 +2641,7 @@ _action_search_submit (GtkAction*     action,
     else /* The location entry search is our fallback */
         url = browser->location_entry_search;
 
-    if (strstr (url, "%s"))
-        search = g_strdup_printf (url, keywords);
-    else
-        search = g_strconcat (url, " ", keywords, NULL);
+    search = sokoke_search_uri (url, keywords);
 
     if (new_tab)
         midori_browser_add_uri (browser, search);

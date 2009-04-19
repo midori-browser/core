@@ -750,10 +750,7 @@ midori_location_entry_action_activated_cb (GtkEntryCompletion*   completion,
         gchar* search;
         if (!item)
             return;
-        if (strstr (uri, "%s"))
-            search = g_strdup_printf (uri, keywords);
-        else
-            search = g_strconcat (uri, " ", keywords, NULL);
+        search = sokoke_search_uri (uri, keywords);
         midori_location_action_set_uri (location_action, search);
         g_signal_emit (location_action, signals[SUBMIT_URI], 0, search, FALSE);
         g_free (search);

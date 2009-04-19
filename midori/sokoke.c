@@ -213,6 +213,36 @@ sokoke_idn_to_punycode (gchar* uri)
     #endif
 }
 
+/**
+ * sokoke_search_uri:
+ * @uri: a search URI with or without %s
+ * @keywords: keywords
+ *
+ * Takes a search engine URI and inserts the specified
+ * keywords. The @keywords are percent encoded. If the
+ * search URI contains a %s they keywords are inserted
+ * in that place, otherwise appended to the URI.
+ *
+ * Return value: a newly allocated search URI
+ **/
+gchar* sokoke_search_uri (const gchar* uri,
+                          const gchar* keywords)
+{
+    gchar* escaped;
+    gchar* search;
+
+    g_return_val_if_fail (uri != NULL, NULL);
+    g_return_val_if_fail (keywords != NULL, NULL);
+
+    escaped = g_uri_escape_string (keywords, " :/", TRUE);
+    if (strstr (uri, "%s"))
+        search = g_strdup_printf (uri, escaped);
+    else
+        search = g_strconcat (uri, escaped, NULL);
+    g_free (escaped);
+    return search;
+}
+
 gchar*
 sokoke_magic_uri (const gchar* uri,
                   KatzeArray*  search_engines)
@@ -279,13 +309,8 @@ sokoke_magic_uri (const gchar* uri,
     if (parts[0] && parts[1])
         if ((item = katze_array_find_token (search_engines, parts[0])))
         {
-            gchar* uri_ = g_uri_escape_string (parts[1], " :/", TRUE);
             search_uri = katze_item_get_uri (item);
-            if (strstr (search_uri, "%s"))
-                search = g_strdup_printf (search_uri, uri_);
-            else
-                search = g_strconcat (search_uri, uri_, NULL);
-            g_free (uri_);
+            search = sokoke_search_uri (search_uri, parts[1]);
         }
     g_strfreev (parts);
     return search;
