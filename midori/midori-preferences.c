@@ -542,6 +542,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     SPANNED_ADD (button, 0, 1, 4, 5);
     button = katze_property_proxy (settings, "find-while-typing", NULL);
+    SPANNED_ADD (button, 1, 2, 4, 5);
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
