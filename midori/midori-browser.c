@@ -66,6 +66,7 @@ struct _MidoriBrowser
 
     GtkWidget* statusbar;
     GtkWidget* transferbar;
+    GtkWidget* transferbar_clear;
     GtkWidget* progressbar;
     gchar* statusbar_text;
 
@@ -903,11 +904,16 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
             gtk_button_set_image (GTK_BUTTON (button), icon);
             if (g_object_get_data (G_OBJECT (download), "open-download"))
                 gtk_button_clicked (GTK_BUTTON (button));
+            else
+                g_object_set_data (G_OBJECT (gtk_widget_get_parent (button)),
+                                   "done", (void*)1);
             break;
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
         case WEBKIT_DOWNLOAD_STATUS_ERROR:
             icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
+            g_object_set_data (G_OBJECT (gtk_widget_get_parent (button)),
+                               "done", (void*)1);
             break;
         default:
             break;
@@ -918,10 +924,17 @@ static void
 midori_browser_download_button_clicked_cb (GtkWidget*      button,
                                            WebKitDownload* download)
 {
+    MidoriBrowser* browser;
+    GList* buttons;
+
+    browser = MIDORI_BROWSER (gtk_widget_get_toplevel (button));
+
     switch (webkit_download_get_status (download))
     {
         case WEBKIT_DOWNLOAD_STATUS_STARTED:
             webkit_download_cancel (download);
+            g_object_set_data (G_OBJECT (gtk_widget_get_parent (button)),
+                               "done", (void*)1);
             break;
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
@@ -943,6 +956,11 @@ midori_browser_download_button_clicked_cb (GtkWidget*      button,
         default:
             break;
     }
+
+    buttons = gtk_container_get_children (GTK_CONTAINER (browser->transferbar));
+    if (g_list_length (buttons) == 1)
+        gtk_widget_hide (browser->transferbar_clear);
+    g_list_free (buttons);
 }
 
 static void
@@ -978,6 +996,7 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
     gtk_widget_show_all (box);
     gtk_box_pack_start (GTK_BOX (browser->transferbar), box, FALSE, FALSE, 0);
+    gtk_widget_show (browser->transferbar_clear);
 
     g_signal_connect (download, "notify::progress",
         G_CALLBACK (midori_browser_download_notify_progress_cb), progress);
@@ -1015,6 +1034,26 @@ midori_view_download_requested_cb (GtkWidget*      view,
     return TRUE;
 }
 #endif
+
+static void
+midori_browser_transferbar_clear_clicked_cb (GtkWidget*     button,
+                                             MidoriBrowser* browser)
+{
+    GList* buttons;
+    guint i;
+    GtkWidget* item;
+
+    buttons = gtk_container_get_children (GTK_CONTAINER (browser->transferbar));
+    i = 0;
+    while ((item = g_list_nth_data (buttons, i++)))
+        if (g_object_get_data (G_OBJECT (item), "done"))
+            gtk_widget_destroy (item);
+    g_list_free (buttons);
+    buttons = gtk_container_get_children (GTK_CONTAINER (browser->transferbar));
+    if (g_list_length (buttons) == 1)
+        gtk_widget_hide (browser->transferbar_clear);
+    g_list_free (buttons);
+}
 
 static void
 midori_view_search_text_cb (GtkWidget*     view,
@@ -3885,6 +3924,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
     GtkWidget* scrolled;
+    GtkWidget* icon;
 
     browser->net = katze_net_new ();
 
@@ -4290,6 +4330,13 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->transferbar,
                         FALSE, FALSE, 3);
     gtk_widget_show (browser->transferbar);
+    browser->transferbar_clear = gtk_button_new_with_label (_("Delete All"));
+    icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
+    gtk_button_set_image (GTK_BUTTON (browser->transferbar_clear), icon);
+    g_signal_connect (browser->transferbar_clear, "clicked",
+        G_CALLBACK (midori_browser_transferbar_clear_clicked_cb), browser);
+    gtk_box_pack_end (GTK_BOX (browser->transferbar), browser->transferbar_clear,
+                        FALSE, FALSE, 0);
     g_signal_connect (browser->statusbar, "button-press-event",
         G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
 
