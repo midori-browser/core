@@ -30,6 +30,9 @@ gboolean
 sokoke_spawn_program                (const gchar* command,
                                      const gchar* argument);
 
+gchar* sokoke_search_uri            (const gchar* uri,
+                                     const gchar* keywords);
+
 gchar*
 sokoke_magic_uri                    (const gchar*    uri,
                                      KatzeArray*     search_engines);
