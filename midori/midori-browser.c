@@ -939,15 +939,8 @@ midori_browser_download_button_clicked_cb (GtkWidget*      button,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             const gchar* uri = webkit_download_get_destination_uri (download);
-            gboolean success = gtk_show_uri (gtk_widget_get_screen (button),
-                uri, gtk_get_current_event_time (), NULL);
-            if (!success)
-            {
-                gchar* command = g_strconcat ("exo-open ", uri, NULL);
-                success = g_spawn_command_line_async (command, NULL);
-                g_free (command);
-            }
-            if (success)
+            if (sokoke_show_uri (gtk_widget_get_screen (button),
+                uri, gtk_get_current_event_time (), NULL))
                 gtk_widget_destroy (gtk_widget_get_parent (button));
             break;
         }
@@ -2402,8 +2395,6 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
         {
             if ((fp = fdopen (fd, "w")))
             {
-                gboolean success;
-
                 ret = fwrite (request->data, 1, request->length, fp);
                 fclose (fp);
                 if ((ret - request->length) != 0)
@@ -2415,13 +2406,10 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
                 if (text_editor && *text_editor)
-                    success = sokoke_spawn_program (text_editor, unique_filename);
+                    sokoke_spawn_program (text_editor, unique_filename);
                 else
-                {
-                    gchar* command = g_strconcat ("exo-open ", unique_filename, NULL);
-                    success = g_spawn_command_line_async (command, NULL);
-                    g_free (command);
-                }
+                    sokoke_show_uri (NULL, unique_filename,
+                                     gtk_get_current_event_time (), NULL);
 
                 g_free (unique_filename);
                 g_free (text_editor);
@@ -3100,13 +3088,7 @@ _action_about_activate_email (GtkAboutDialog* about,
                               const gchar*    uri,
                               gpointer        user_data)
 {
-    if (!gtk_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL))
-    {
-        /* Fallback to Exo for example if GConf isn't setup */
-        gchar* command = g_strconcat ("exo-open ", uri, NULL);
-        g_spawn_command_line_async (command, NULL);
-        g_free (command);
-    }
+    sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
 }
 
 static void

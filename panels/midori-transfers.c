@@ -329,14 +329,8 @@ midori_transfers_treeview_row_activated_cb (GtkTreeView*       treeview,
                 gboolean success;
 
                 uri = webkit_download_get_destination_uri (download);
-                success = gtk_show_uri (gtk_widget_get_screen (GTK_WIDGET (
+                sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (
                     treeview)), uri, gtk_get_current_event_time (), NULL);
-                if (!success)
-                {
-                    gchar* command = g_strconcat ("exo-open ", uri, NULL);
-                    success = g_spawn_command_line_async (command, NULL);
-                    g_free (command);
-                }
                 break;
             }
             case WEBKIT_DOWNLOAD_STATUS_CANCELLED:

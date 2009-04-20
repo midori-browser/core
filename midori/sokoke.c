@@ -93,6 +93,48 @@ error_dialog (const gchar* short_message,
 
 }
 
+/**
+ * sokoke_show_uri:
+ * @screen: a #GdkScreen, or %NULL
+ * @uri: the URI to show
+ * @timestamp: the timestamp of the event
+ * @error: the location of a #GError, or %NULL
+ *
+ * Shows the specified URI with an appropriate application. This
+ * supports xdg-open, exo-open and gnome-open as fallbacks if
+ * GIO doesn't do the trick.
+ *
+ * Return value: %TRUE on success, %FALSE if an error occurred
+ **/
+gboolean
+sokoke_show_uri (GdkScreen*   screen,
+                 const gchar* uri,
+                 guint32      timestamp,
+                 GError**     error)
+{
+    const gchar* fallbacks [] = { "xdg-open", "exo-open", "gnome-open" };
+    gsize i;
+
+    g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
+    g_return_val_if_fail (uri != NULL, FALSE);
+    g_return_val_if_fail (!error || !*error, FALSE);
+
+    if (gtk_show_uri (screen, uri, timestamp, error))
+        return TRUE;
+
+    for (i = 0; i < G_N_ELEMENTS (fallbacks); i++)
+    {
+        gchar* command = g_strconcat (fallbacks[i], " ", uri, NULL);
+        gboolean result = g_spawn_command_line_async (command, error);
+        g_free (command);
+        if (result)
+            return TRUE;
+        *error = NULL;
+    }
+
+    return FALSE;
+}
+
 gboolean
 sokoke_spawn_program (const gchar* command,
                       const gchar* argument)

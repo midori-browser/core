@@ -1847,13 +1847,7 @@ midori_view_set_uri (MidoriView*  view,
         }
         else if (g_str_has_prefix (uri, "mailto:"))
         {
-            if (!gtk_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL))
-            {
-                /* Fallback to Exo for example if GConf isn't setup */
-                gchar* command = g_strconcat ("exo-open ", uri, NULL);
-                g_spawn_command_line_async (command, NULL);
-                g_free (command);
-            }
+            sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
         }
         else
         {

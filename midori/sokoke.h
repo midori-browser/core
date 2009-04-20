@@ -27,6 +27,12 @@ sokoke_js_script_eval (JSContextRef js_context,
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
 gboolean
+sokoke_show_uri                     (GdkScreen*   screen,
+                                     const gchar* uri,
+                                     guint32      timestamp,
+                                     GError**     error);
+
+gboolean
 sokoke_spawn_program                (const gchar* command,
                                      const gchar* argument);
 
