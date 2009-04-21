@@ -71,7 +71,8 @@ build_config_filename (const gchar* filename)
 }
 
 static MidoriWebSettings*
-settings_new_from_file (const gchar* filename)
+settings_new_from_file (const gchar* filename,
+                        gchar***     extensions)
 {
     MidoriWebSettings* settings = midori_web_settings_new ();
     GKeyFile* key_file = g_key_file_new ();
@@ -156,11 +157,17 @@ settings_new_from_file (const gchar* filename)
             g_warning (_("Invalid configuration value '%s'"), property);
     }
     g_free (pspecs);
+
+    *extensions = g_key_file_get_keys (key_file, "extensions", NULL, NULL);
+
+    g_key_file_free (key_file);
+
     return settings;
 }
 
 static gboolean
 settings_save_to_file (MidoriWebSettings* settings,
+                       MidoriApp*         app,
                        const gchar*       filename,
                        GError**           error)
 {
@@ -172,6 +179,8 @@ settings_save_to_file (MidoriWebSettings* settings,
     GType type;
     const gchar* property;
     gboolean saved;
+    KatzeArray* extensions = katze_object_get_object (app, "extensions");
+    MidoriExtension* extension;
 
     key_file = g_key_file_new ();
     class = G_OBJECT_GET_CLASS (settings);
@@ -228,6 +237,14 @@ settings_save_to_file (MidoriWebSettings* settings,
             g_warning (_("Invalid configuration value '%s'"), property);
     }
     g_free (pspecs);
+
+    i = 0;
+    while ((extension = katze_array_get_nth_item (extensions, i++)))
+        if (midori_extension_is_active (extension))
+            g_key_file_set_boolean (key_file, "extensions",
+                g_object_get_data (G_OBJECT (extension), "filename"), TRUE);
+    g_object_unref (extensions);
+
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
     return saved;
@@ -710,14 +727,15 @@ midori_app_quit_cb (MidoriApp* app)
 
 static void
 settings_notify_cb (MidoriWebSettings* settings,
-                    GParamSpec*        pspec)
+                    GParamSpec*        pspec,
+                    MidoriApp*         app)
 {
     gchar* config_file;
     GError* error;
 
     config_file = build_config_filename ("config");
     error = NULL;
-    if (!settings_save_to_file (settings, config_file, &error))
+    if (!settings_save_to_file (settings, app, config_file, &error))
     {
         g_warning (_("The configuration couldn't be saved. %s"), error->message);
         g_error_free (error);
@@ -1147,13 +1165,13 @@ static gboolean
 midori_load_extensions (gpointer data)
 {
     MidoriApp* app = MIDORI_APP (data);
+    gchar** active_extensions = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
-    const gchar* filename;
     MidoriExtension* extension;
-    guint i;
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
+    g_object_set (app, "extensions", extensions, NULL);
     if (g_module_supported ())
     {
         /* FIXME: Read extensions from system data dirs */
@@ -1165,6 +1183,8 @@ midori_load_extensions (gpointer data)
         extension_dir = g_dir_open (extension_path, 0, NULL);
         if (extension_dir != NULL)
         {
+            const gchar* filename;
+
             while ((filename = g_dir_read_name (extension_dir)))
             {
                 gchar* fullname;
@@ -1186,6 +1206,8 @@ midori_load_extensions (gpointer data)
                     extension = extension_init ();
                     /* FIXME: Validate the extension */
                     /* Signal that we want the extension to load and save */
+                    g_object_set_data_full (G_OBJECT (extension), "filename",
+                                            g_strdup (filename), g_free);
                     midori_extension_get_config_dir (extension);
                 }
                 else
@@ -1197,6 +1219,14 @@ midori_load_extensions (gpointer data)
                     g_warning ("%s", g_module_error ());
                 }
                 katze_array_add_item (extensions, extension);
+                if (active_extensions)
+                {
+                    guint i = 0;
+                    gchar* name;
+                    while ((name = active_extensions[i++]))
+                        if (!g_strcmp0 (filename, name))
+                            g_signal_emit_by_name (extension, "activate", app);
+                }
                 g_object_unref (extension);
             }
             g_dir_close (extension_dir);
@@ -1204,11 +1234,7 @@ midori_load_extensions (gpointer data)
         g_free (extension_path);
     }
 
-    g_object_set (app, "extensions", extensions, NULL);
-
-    i = 0;
-    while ((extension = katze_array_get_nth_item (extensions, i++)))
-        g_signal_emit_by_name (extension, "activate", app);
+    g_strfreev (active_extensions);
 
     return FALSE;
 }
@@ -1345,6 +1371,7 @@ main (int    argc,
      { NULL }
     };
     GString* error_messages;
+    gchar** extensions;
     MidoriWebSettings* settings;
     gchar* config_file;
     MidoriStartup load_on_startup;
@@ -1497,7 +1524,7 @@ main (int    argc,
     error_messages = g_string_new (NULL);
     config_file = build_config_filename ("config");
     error = NULL;
-    settings = settings_new_from_file (config_file);
+    settings = settings_new_from_file (config_file, &extensions);
     katze_assign (config_file, build_config_filename ("accels"));
     gtk_accel_map_load (config_file);
     katze_assign (config_file, build_config_filename ("search"));
@@ -1657,7 +1684,7 @@ main (int    argc,
     katze_assign (config_file, build_config_filename ("config"));
     if (is_writable (config_file))
         g_signal_connect_after (settings, "notify",
-            G_CALLBACK (settings_notify_cb), NULL);
+            G_CALLBACK (settings_notify_cb), app);
 
     katze_assign (config_file, build_config_filename ("search"));
     if (is_writable (config_file))
@@ -1746,6 +1773,7 @@ main (int    argc,
         G_CALLBACK (midori_app_add_browser_cb), NULL);
 
     g_idle_add (midori_load_cookie_jar, settings);
+    g_object_set_data (G_OBJECT (app), "extensions", extensions);
     g_idle_add (midori_load_extensions, app);
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_idle_add (midori_load_session, _session);
