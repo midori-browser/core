@@ -459,8 +459,7 @@ midori_extension_get_app (MidoriExtension* extension)
  * @extension: a #MidoriExtension
  *
  * Retrieves the path to a directory reserved for configuration
- * files specific to the extension. For that purpose the 'name'
- * of the extension is actually part of the path.
+ * files specific to the extension.
  *
  * If settings are installed on the extension, they will be
  * loaded from and saved to a file "config" in this path.
@@ -470,12 +469,16 @@ midori_extension_get_app (MidoriExtension* extension)
 const gchar*
 midori_extension_get_config_dir (MidoriExtension* extension)
 {
+
     g_return_val_if_fail (midori_extension_is_prepared (extension), NULL);
 
     if (!extension->priv->config_dir)
+    {
+        gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
+        g_return_val_if_fail (filename != NULL, NULL);
         extension->priv->config_dir = g_build_filename (
-            sokoke_set_config_dir (NULL), "extensions",
-            extension->priv->name, NULL);
+            sokoke_set_config_dir (NULL), "extensions", filename, NULL);
+    }
 
     return extension->priv->config_dir;
 }
