@@ -52,6 +52,9 @@ struct _MidoriAppClass
     (*add_browser)            (MidoriApp*     app,
                                MidoriBrowser* browser);
     void
+    (*remove_browser)         (MidoriApp*     app,
+                               MidoriBrowser* browser);
+    void
     (*quit)                   (MidoriApp*     app);
 };
 
@@ -75,6 +78,7 @@ enum
 
 enum {
     ADD_BROWSER,
+    REMOVE_BROWSER,
     QUIT,
 
     LAST_SIGNAL
@@ -131,6 +135,7 @@ static gboolean
 midori_browser_destroy_cb (MidoriBrowser* browser,
                            MidoriApp*     app)
 {
+    g_signal_emit (app, signals[REMOVE_BROWSER], 0, browser);
     katze_array_remove_item (app->browsers, browser);
     if (!katze_array_is_empty (app->browsers))
         return FALSE;
@@ -185,6 +190,26 @@ midori_app_class_init (MidoriAppClass* class)
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (MidoriAppClass, add_browser),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        MIDORI_TYPE_BROWSER);
+
+    /**
+     * MidoriApp::remove-browser:
+     * @app: the object on which the signal is emitted
+     * @browser: a #MidoriBrowser
+     *
+     * A new browser is being added to the app.
+     *
+     * Since: 0.1.7
+     */
+    signals[REMOVE_BROWSER] = g_signal_new (
+        "remove-browser",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
         0,
         NULL,
         g_cclosure_marshal_VOID__OBJECT,
@@ -752,7 +777,7 @@ midori_app_add_browser (MidoriApp*     app,
  *
  * Return value: a new #MidoriBrowser
  *
- * Since: 1.0.2
+ * Since: 0.1.2
  **/
 MidoriBrowser*
 midori_app_create_browser (MidoriApp* app)
