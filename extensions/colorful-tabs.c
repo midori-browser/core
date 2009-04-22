@@ -12,15 +12,6 @@
 #include <midori/midori.h>
 
 static void
-colorful_tabs_button_toggled_cb (GtkWidget*       button,
-                                 MidoriExtension* extension)
-{
-    midori_extension_set_boolean (extension, "tint",
-        !midori_extension_get_boolean (extension, "tint"));
-    /* FIXME: Update all tab colors */
-}
-
-static void
 colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   GParamSpec*      pspec,
                                   MidoriExtension* extension)
@@ -71,6 +62,25 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
 }
 
 static void
+colorful_tabs_browser_foreach_cb (GtkWidget*       view,
+                                  MidoriExtension* extension)
+{
+    colorful_tabs_view_notify_uri_cb (MIDORI_VIEW (view), NULL, extension);
+}
+
+static void
+colorful_tabs_button_toggled_cb (GtkWidget*       button,
+                                 MidoriExtension* extension)
+{
+    MidoriBrowser* browser = MIDORI_BROWSER (gtk_widget_get_toplevel (button));
+
+    midori_extension_set_boolean (extension, "tint",
+        !midori_extension_get_boolean (extension, "tint"));
+    midori_browser_foreach (browser,
+        (GtkCallback)colorful_tabs_browser_foreach_cb, extension);
+}
+
+static void
 colorful_tabs_browser_add_tab_cb (MidoriBrowser*   browser,
                                   MidoriView*      view,
                                   MidoriExtension* extension)
@@ -83,11 +93,12 @@ static void
 colorful_tabs_deactivate_cb (MidoriExtension* extension,
                              GtkWidget*       bbox)
 {
-    gtk_widget_destroy (bbox);
     g_signal_handlers_disconnect_by_func (
         extension, colorful_tabs_deactivate_cb, bbox);
     /* FIXME: Disconnect signals */
-    /* FIXME: Reset all tab colors */
+    midori_browser_foreach (MIDORI_BROWSER (gtk_widget_get_toplevel (bbox)),
+        (GtkCallback)colorful_tabs_browser_foreach_cb, extension);
+    gtk_widget_destroy (bbox);
 }
 
 static void
