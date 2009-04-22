@@ -199,7 +199,8 @@ midori_extensions_set_property (GObject*      object,
     case PROP_APP:
     {
         KatzeArray* array;
-        guint i, n;
+        MidoriExtension* extension;
+        guint i;
 
         /* FIXME: Handle NULL and subsequent assignments */
         extensions->app = g_value_get_object (value);
@@ -207,10 +208,9 @@ midori_extensions_set_property (GObject*      object,
         g_signal_connect (array, "add-item",
             G_CALLBACK (midori_extensions_add_item_cb), extensions);
 
-        if ((n = katze_array_get_length (array)))
-            for (i = 0; i < n; i++)
-                midori_extensions_add_item_cb (array,
-                    katze_array_get_nth_item (array, i), extensions);
+        i = 0;
+        while ((extension = katze_array_get_nth_item (array, i++)))
+            midori_extensions_add_item_cb (array, extension, extensions);
     }
         break;
     default:
@@ -270,8 +270,11 @@ midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
     g_free (name);
     g_free (version);
     g_free (desc);
-    g_object_set (renderer, "text", text, NULL);
+    g_object_set (renderer, "text", text,
+                  "sensitive", midori_extension_is_active (extension),
+                  NULL);
     g_free (text);
+    g_object_unref (extension);
 }
 
 static void
