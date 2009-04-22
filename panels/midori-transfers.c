@@ -326,7 +326,6 @@ midori_transfers_treeview_row_activated_cb (GtkTreeView*       treeview,
             case WEBKIT_DOWNLOAD_STATUS_FINISHED:
             {
                 const gchar* uri;
-                gboolean success;
 
                 uri = webkit_download_get_destination_uri (download);
                 sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (

@@ -135,8 +135,6 @@ enum
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
 
-    PROP_ENFORCE_96_DPI,
-    PROP_ENABLE_DEVELOPER_EXTRAS,
     PROP_ZOOM_TEXT_AND_IMAGES,
     PROP_FIND_WHILE_TYPING,
     PROP_ACCEPT_COOKIES,
@@ -1319,12 +1317,6 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, web_settings->open_popups_in_tabs);
         break;
 
-    case PROP_ENFORCE_96_DPI:
-        g_value_set_boolean (value, FALSE);
-        break;
-    case PROP_ENABLE_DEVELOPER_EXTRAS:
-        g_value_set_boolean (value, FALSE);
-        break;
     case PROP_ZOOM_TEXT_AND_IMAGES:
         g_value_set_boolean (value, web_settings->zoom_text_and_images);
         break;
