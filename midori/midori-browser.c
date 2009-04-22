@@ -1214,6 +1214,28 @@ _midori_browser_remove_tab (MidoriBrowser* browser,
     gtk_widget_destroy (view);
 }
 
+/**
+ * midori_browser_foreach:
+ * @browser: a #MidoriBrowser
+ * @callback: a #GtkCallback
+ * @callback_data: custom data
+ *
+ * Calls the specified callback for each view contained
+ * in the browser.
+ *
+ * Since: 0.1.7
+ **/
+void
+midori_browser_foreach (MidoriBrowser* browser,
+                        GtkCallback    callback,
+                        gpointer       callback_data)
+{
+  g_return_if_fail (MIDORI_IS_BROWSER (browser));
+
+  gtk_container_foreach (GTK_CONTAINER (browser->notebook),
+                         callback, callback_data);
+}
+
 static void
 _midori_browser_quit (MidoriBrowser* browser)
 {
@@ -1282,8 +1304,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_TYPE_POINTER);
 
     /**
-     * MidoriView::add-download:
-     * @view: the object on which the signal is emitted
+     * MidoriBrowser::add-download:
+     * @browser: the object on which the signal is emitted
      * @download: a new download
      *
      * Emitted when a new download was accepted and is
@@ -1293,7 +1315,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
      * Emitting this signal manually is equal to a
      * user initiating and confirming a download
      *
-     * Note: This requires WebKitGTK 1.1.3.
+     * Note: This requires WebKitGTK+ 1.1.3.
      *
      * Since: 0.1.5
      */
