@@ -34,9 +34,7 @@ void mouse_gesture_clear(MouseGesture *g)
 
 MouseGesture* mouse_gesture_new(void)
 {
-	MouseGesture *g = NULL;
-	if((g = g_new(MouseGesture, 1)) == NULL)
-		return(NULL);
+	MouseGesture *g = g_new(MouseGesture, 1);
 	mouse_gesture_clear(g);
 	return(g);
 }
@@ -198,12 +196,14 @@ static void mouse_gestures_deactivate(MidoriExtension *extension, MidoriApp *app
 				g_signal_handler_disconnect(page, signal_id); // disconnect the handler
 		}
 	}
+	g_signal_handlers_disconnect_by_func(extension, mouse_gestures_deactivate, app);
 	g_free(gesture); // free the structure that contains the gesture information
 	return;
 }
 
 static void mouse_gestures_activate(MidoriExtension *extension, MidoriApp *app) // this is performed on extension-activation
 {
+	gesture = mouse_gesture_new();
     g_signal_connect(app, "add-browser", G_CALLBACK(mouse_gestures_browser_cb), NULL); // connect the above callback to the "add-browser" signal of app
 	g_signal_connect(extension, "deactivate", G_CALLBACK(mouse_gestures_deactivate), app); // connect the deactivate callback to the extension
 	return;
@@ -218,12 +218,5 @@ MidoriExtension* extension_init(void)
 							 "version", MOUSE_GESTURES_VERSION,
 							 "authors", "Matthias Kruk <mkruk@matthiaskruk.de>", NULL);
     g_signal_connect(extension, "activate", G_CALLBACK(mouse_gestures_activate), NULL); // connect the callback that's executed on activation
-	gesture = NULL; // initialise gesture pointer; initialising pointers is always a good choice
-	if((gesture = mouse_gesture_new()) == NULL) // allocate space for the gesture
-	{
-		// no space could be allocated
-		g_free(extension); // free the space used by this extension
-		return(NULL);
-	}
     return(extension);
 }
