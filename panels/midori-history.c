@@ -117,10 +117,9 @@ midori_history_get_stock_id (MidoriViewable* viewable)
 static void
 midori_history_add_clicked_cb (GtkWidget* toolitem)
 {
-    GtkWidget* browser = gtk_widget_get_toplevel (toolitem);
+    MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
     /* FIXME: Take selected folder into account */
-    midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser),
-                                             NULL, TRUE, FALSE);
+    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
 }
 
 static void
@@ -152,11 +151,11 @@ static void
 midori_history_clear_clicked_cb (GtkWidget*     toolitem,
                                  MidoriHistory* history)
 {
-    GtkWidget* browser;
+    MidoriBrowser* browser;
     GtkWidget* dialog;
     gint result;
 
-    browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
+    browser = midori_browser_get_for_widget (GTK_WIDGET (history));
     dialog = gtk_message_dialog_new (GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
@@ -641,10 +640,10 @@ midori_history_row_activated_cb (GtkTreeView*       treeview,
         uri = katze_item_get_uri (item);
         if (uri && *uri)
         {
-            GtkWidget* browser;
+            MidoriBrowser* browser;
 
-            browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
-            midori_browser_set_current_uri (MIDORI_BROWSER (browser), uri);
+            browser = midori_browser_get_for_widget (GTK_WIDGET (history));
+            midori_browser_set_current_uri (browser, uri);
         }
 
         g_object_unref (item);
@@ -691,8 +690,8 @@ midori_history_open_activate_cb (GtkWidget*     menuitem,
 
     if (uri && *uri)
     {
-        GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
-        midori_browser_set_current_uri (MIDORI_BROWSER (browser), uri);
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
+        midori_browser_set_current_uri (browser, uri);
     }
 }
 
@@ -714,14 +713,14 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
-                GtkWidget* browser;
+                MidoriBrowser* browser;
                 MidoriWebSettings* settings;
 
-                browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
-                n = midori_browser_add_item (MIDORI_BROWSER (browser), child);
+                browser = midori_browser_get_for_widget (GTK_WIDGET (history));
+                n = midori_browser_add_item (browser, child);
                 settings = katze_object_get_object (browser, "settings");
                 if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
-                    midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+                    midori_browser_set_current_page (browser, n);
                 g_object_unref (settings);
             }
             i++;
@@ -731,14 +730,14 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
     {
         if ((uri = katze_item_get_uri (item)) && *uri)
         {
-            GtkWidget* browser;
+            MidoriBrowser* browser;
             MidoriWebSettings* settings;
 
-            browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
-            n = midori_browser_add_item (MIDORI_BROWSER (browser), item);
+            browser = midori_browser_get_for_widget (GTK_WIDGET (history));
+            n = midori_browser_add_item (browser, item);
             settings = katze_object_get_object (browser, "settings");
             if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
-                midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+                midori_browser_set_current_page (browser, n);
             g_object_unref (settings);
         }
     }
@@ -756,7 +755,7 @@ midori_history_open_in_window_activate_cb (GtkWidget*     menuitem,
 
     if (uri && *uri)
     {
-        GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
         g_signal_emit_by_name (browser, "new-window", uri);
     }
 }
@@ -773,8 +772,8 @@ midori_history_bookmark_activate_cb (GtkWidget*     menuitem,
 
     if (uri && *uri)
     {
-        GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (history));
-        midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser), item, TRUE, FALSE);
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
+        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
     }
 }
 
@@ -852,12 +851,12 @@ midori_history_button_release_event_cb (GtkWidget*      widget,
 
             if (uri && *uri)
             {
-                GtkWidget* browser;
+                MidoriBrowser* browser;
                 gint n;
 
-                browser = gtk_widget_get_toplevel (widget);
-                n = midori_browser_add_uri (MIDORI_BROWSER (browser), uri);
-                midori_browser_set_current_page (MIDORI_BROWSER (browser), n);
+                browser = midori_browser_get_for_widget (widget);
+                n = midori_browser_add_uri (browser, uri);
+                midori_browser_set_current_page (browser, n);
             }
         }
         else
