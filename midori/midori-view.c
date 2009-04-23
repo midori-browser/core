@@ -814,6 +814,17 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 9:
         midori_view_go_forward (view);
         return TRUE;
+    /*
+     * On some fancier mice the scroll wheel can be used to scroll horizontally.
+     * A middle click usually registers both a middle click (2) and a
+     * horizontal scroll (11 or 12).
+     * We catch horizontal scrolls and ignore them to prevent middle clicks from
+     * accidentally being interpreted as first button clicks.
+     */
+    case 11:
+        return TRUE;
+    case 12:
+        return TRUE;
     }
 
     return FALSE;
