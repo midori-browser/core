@@ -699,7 +699,7 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
 
     item = katze_item_new ();
     katze_item_set_uri (item, uri);
-    browser = (MidoriBrowser*)gtk_widget_get_toplevel (menuitem);
+    browser = midori_browser_get_for_widget (menuitem);
     midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
 }
 
@@ -806,7 +806,7 @@ midori_view_save_as_cb (GtkWidget*   menuitem,
 {
     MidoriBrowser* browser;
 
-    browser = (MidoriBrowser*)gtk_widget_get_toplevel (menuitem);
+    browser = midori_browser_get_for_widget (menuitem);
     midori_browser_save_uri (browser, uri);
 }
 
@@ -927,7 +927,7 @@ midori_browser_download_button_clicked_cb (GtkWidget*      button,
     MidoriBrowser* browser;
     GList* buttons;
 
-    browser = MIDORI_BROWSER (gtk_widget_get_toplevel (button));
+    browser = midori_browser_get_for_widget (button);
 
     switch (webkit_download_get_status (download))
     {
@@ -3181,7 +3181,7 @@ static gboolean
 midori_browser_panel_timeout (GtkWidget* hpaned)
 {
     gboolean position = gtk_paned_get_position (GTK_PANED (hpaned));
-    MidoriBrowser* browser = MIDORI_BROWSER (gtk_widget_get_toplevel (hpaned));
+    MidoriBrowser* browser = midori_browser_get_for_widget (hpaned);
     if (browser->settings)
         g_object_set (browser->settings, "last-panel-position", position, NULL);
     browser->panel_timeout = 0;
@@ -5207,6 +5207,37 @@ midori_browser_get_proxy_array (MidoriBrowser* browser)
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
 
     return browser->proxy_array;
+}
+
+/**
+ * midori_browser_get_for_widget:
+ * @widget: a #GtkWidget
+ *
+ * Determines the browser appropriate for the specified widget.
+ *
+ * Return value: a #MidoriBrowser
+ *
+ * Since 0.1.7
+ **/
+MidoriBrowser*
+midori_browser_get_for_widget (GtkWidget* widget)
+{
+    gpointer browser;
+
+    g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
+
+    browser = gtk_widget_get_toplevel (GTK_WIDGET (widget));
+    if (!MIDORI_IS_BROWSER (browser))
+    {
+        if (!GTK_IS_WINDOW (browser))
+            return NULL;
+
+        browser = gtk_window_get_transient_for (GTK_WINDOW (browser));
+        if (!MIDORI_IS_BROWSER (browser))
+            return NULL;
+    }
+
+    return MIDORI_BROWSER (browser);
 }
 
 /**
