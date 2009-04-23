@@ -231,8 +231,8 @@ static void
 midori_console_hierarchy_changed_cb (MidoriConsole* console,
                                      GtkWidget*     old_parent)
 {
-    GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (console));
-    if (GTK_WIDGET_TOPLEVEL (browser))
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (console));
+    if (MIDORI_IS_BROWSER (browser))
         g_signal_connect (browser, "add-tab",
             G_CALLBACK (midori_console_browser_add_tab_cb), console);
 }
