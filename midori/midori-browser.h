@@ -132,6 +132,9 @@ midori_browser_get_current_tab        (MidoriBrowser*     browser);
 KatzeArray*
 midori_browser_get_proxy_array        (MidoriBrowser*     browser);
 
+MidoriBrowser*
+midori_browser_get_for_widget         (GtkWidget*         widget);
+
 void
 midori_browser_quit                   (MidoriBrowser*     browser);
 
