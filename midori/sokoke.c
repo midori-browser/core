@@ -129,7 +129,8 @@ sokoke_show_uri (GdkScreen*   screen,
         g_free (command);
         if (result)
             return TRUE;
-        *error = NULL;
+        if (error)
+            *error = NULL;
     }
 
     return FALSE;
