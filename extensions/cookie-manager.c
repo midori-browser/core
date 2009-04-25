@@ -481,7 +481,7 @@ static void cm_delete_all_cookies_real(CMData *cmdata)
 static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CMData *cmdata)
 {
 	GtkWidget *dialog;
-	GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(button));
+	MidoriBrowser *toplevel = midori_browser_get_for_widget(GTK_WIDGET(button));
 	const gchar *filter_text;
 
 	dialog = gtk_message_dialog_new(GTK_WINDOW(toplevel),
@@ -492,7 +492,8 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CMData *cmdat
 
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Question"));
 	/* steal Midori's icon :) */
-	gtk_window_set_icon_name(GTK_WINDOW(dialog), gtk_window_get_icon_name(GTK_WINDOW(toplevel)));
+	if (toplevel != NULL)
+		gtk_window_set_icon_name(GTK_WINDOW(dialog), gtk_window_get_icon_name(GTK_WINDOW(toplevel)));
 
 	filter_text = gtk_entry_get_text(GTK_ENTRY(cmdata->filter_entry));
 	if (*filter_text != '\0')
@@ -825,11 +826,11 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	cmdata->delete_all_button = GTK_WIDGET(toolitem);
 
-    toolitem = gtk_separator_tool_item_new();
-    gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
-    gtk_tool_item_set_expand(toolitem, TRUE);
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
-    gtk_widget_show(GTK_WIDGET(toolitem));
+	toolitem = gtk_separator_tool_item_new();
+	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
+	gtk_tool_item_set_expand(toolitem, TRUE);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+	gtk_widget_show(GTK_WIDGET(toolitem));
 
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_ADD);
 	gtk_tool_item_set_tooltip_text(toolitem, _("Expand All"));
@@ -851,14 +852,14 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	gtk_label_set_line_wrap_mode(GTK_LABEL(cmdata->desc_label), PANGO_WRAP_CHAR);
 	gtk_misc_set_alignment(GTK_MISC(cmdata->desc_label), 0, 0);
 	gtk_misc_set_padding(GTK_MISC(cmdata->desc_label), 3, 3);
-    gtk_widget_show(cmdata->desc_label);
+	gtk_widget_show(cmdata->desc_label);
 
 	desc_swin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(desc_swin),
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_NEVER);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(desc_swin), GTK_SHADOW_NONE);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(desc_swin), cmdata->desc_label);
-    gtk_widget_show(desc_swin);
+	gtk_widget_show(desc_swin);
 
 	cm_tree_prepare(cmdata);
 	gtk_widget_show(cmdata->treeview);
@@ -868,7 +869,7 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 		GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_swin), GTK_SHADOW_IN);
 	gtk_container_add(GTK_CONTAINER(tree_swin), cmdata->treeview);
-    gtk_widget_show(tree_swin);
+	gtk_widget_show(tree_swin);
 
 	filter_label = gtk_label_new(_("Filter:"));
 	gtk_widget_show(filter_label);
@@ -890,12 +891,12 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 	filter_hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(filter_hbox), filter_label, FALSE, FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(filter_hbox), cmdata->filter_entry, TRUE, TRUE, 3);
-    gtk_widget_show(filter_hbox);
+	gtk_widget_show(filter_hbox);
 
 	paned = gtk_vpaned_new();
 	gtk_paned_pack1(GTK_PANED(paned), tree_swin, TRUE, FALSE);
 	gtk_paned_pack2(GTK_PANED(paned), desc_swin, FALSE, FALSE);
-    gtk_widget_show(paned);
+	gtk_widget_show(paned);
 
 	cmdata->panel_page = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(cmdata->panel_page), filter_hbox, FALSE, FALSE, 5);
@@ -921,14 +922,14 @@ static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, Midori
 
 static void cm_activate_cb(MidoriExtension *extension, MidoriApp *app, gpointer data)
 {
-    KatzeArray* browsers;
-    MidoriBrowser* browser;
-    guint i;
+	KatzeArray* browsers;
+	MidoriBrowser* browser;
+	guint i;
 
-    browsers = katze_object_get_object(app, "browsers");
-    i = 0;
-    while ((browser = katze_array_get_nth_item(browsers, i++)))
-        cm_app_add_browser_cb(app, browser, extension);
+	browsers = katze_object_get_object(app, "browsers");
+	i = 0;
+	while ((browser = katze_array_get_nth_item(browsers, i++)))
+		cm_app_add_browser_cb(app, browser, extension);
 	g_object_unref(browsers);
 	g_signal_connect(app, "add-browser", G_CALLBACK(cm_app_add_browser_cb), extension);
 }
