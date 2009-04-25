@@ -528,8 +528,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_tooltip_text (button, _("Enable embedded scripting languages"));
     INDENTED_ADD (button, 0, 1, 2, 3);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable plugins"));
-    gtk_widget_set_tooltip_text (button, _("Enable embedded plugin objects"));
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
+    gtk_widget_set_tooltip_text (button, _("Enable embedded Netscape plugin objects"));
     SPANNED_ADD (button, 1, 2, 2, 3);
     button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));

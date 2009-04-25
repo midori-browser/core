@@ -69,7 +69,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     gtk_widget_show (image);
     gtk_container_add (GTK_CONTAINER (button), image);
     #if GTK_CHECK_VERSION(2, 12, 0)
-    gtk_widget_set_tooltip_text (button, _("Enable plugins"));
+    gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
     #endif
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show (button);

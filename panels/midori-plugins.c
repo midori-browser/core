@@ -84,7 +84,7 @@ midori_plugins_class_init (MidoriPluginsClass* class)
 static const gchar*
 midori_plugins_get_label (MidoriViewable* viewable)
 {
-    return _("Plugins");
+    return _("Netscape plugins");
 }
 
 static const gchar*
