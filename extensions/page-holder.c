@@ -27,7 +27,7 @@ page_holder_notebook_append_view (GtkWidget* notebook)
     GtkWidget* label;
 
     view = midori_view_new (NULL);
-    browser = MIDORI_BROWSER (gtk_widget_get_toplevel (notebook));
+    browser = midori_browser_get_for_widget (notebook);
     settings = katze_object_get_object (browser, "settings");
     midori_view_set_settings (MIDORI_VIEW (view), settings);
     g_object_unref (settings);
@@ -49,7 +49,7 @@ page_holder_button_jump_to_clicked_cb (GtkWidget* button,
     if (n < 0)
         n = page_holder_notebook_append_view (notebook);
 
-    browser = MIDORI_BROWSER (gtk_widget_get_toplevel (notebook));
+    browser = midori_browser_get_for_widget (notebook);
     uri = midori_browser_get_current_uri (browser);
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), n);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
@@ -66,7 +66,7 @@ page_holder_button_add_clicked_cb (GtkWidget* button,
 
     n = page_holder_notebook_append_view (notebook);
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), n);
-    browser = MIDORI_BROWSER (gtk_widget_get_toplevel (notebook));
+    browser = midori_browser_get_for_widget (notebook);
     uri = midori_browser_get_current_uri (browser);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
 }
