@@ -108,6 +108,23 @@ midori_extension_set_string          (MidoriExtension* extension,
                                       const gchar*     name,
                                       const gchar*     value);
 
+void
+midori_extension_install_string_list (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gchar**          default_value,
+                                      gsize            default_length);
+
+gchar**
+midori_extension_get_string_list     (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gsize*           length);
+
+void
+midori_extension_set_string_list     (MidoriExtension* extension,
+                                      const gchar*     name,
+                                      gchar**          value,
+                                      gsize            length);
+
 G_END_DECLS
 
 #endif /* __MIDORI_EXTENSION_H__ */
