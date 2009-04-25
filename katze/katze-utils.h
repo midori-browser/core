@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -51,6 +52,22 @@ G_BEGIN_DECLS
     { \
         if (lvalue) \
             g_object_unref (lvalue); \
+        lvalue = rvalue; \
+    }
+
+/**
+ * katze_strv_assign:
+ * @lvalue: a string list
+ * @rvalue: the new value
+ *
+ * Frees @lvalue if needed and assigns it the value of @rvalue.
+ *
+ * Since: 0.1.7
+ **/
+#define katze_strv_assign(lvalue, rvalue) \
+    if (1) \
+    { \
+        g_strfreev (lvalue); \
         lvalue = rvalue; \
     }
 
