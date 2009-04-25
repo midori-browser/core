@@ -253,6 +253,7 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     gtk_container_remove (GTK_CONTAINER (panel->notebook), scrolled);
     gtk_box_pack_start (GTK_BOX (vbox), scrolled, TRUE, TRUE, 0);
     g_object_unref (scrolled);
+    midori_panel_set_current_page (panel, n);
     if (!gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
         gtk_widget_set_sensitive (toolbutton, FALSE);
     g_signal_connect (window, "delete-event",
