@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -673,6 +674,25 @@ sokoke_key_file_get_boolean_default (GKeyFile*      key_file,
     if (!g_key_file_has_key (key_file, group, key, NULL))
         return default_value;
     return g_key_file_get_boolean (key_file, group, key, error);
+}
+
+gchar**
+sokoke_key_file_get_string_list_default (GKeyFile*     key_file,
+                                         const gchar*  group,
+                                         const gchar*  key,
+                                         gsize*        length,
+                                         gchar**       default_value,
+                                         gsize*        default_length,
+                                         GError*       error)
+{
+    gchar** value = g_key_file_get_string_list (key_file, group, key, length, NULL);
+    if (!value)
+    {
+        value = g_strdupv (default_value);
+        if (length)
+            *length = *default_length;
+    }
+    return value;
 }
 
 gboolean
