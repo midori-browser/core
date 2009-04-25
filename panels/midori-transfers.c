@@ -347,10 +347,13 @@ midori_transfers_hierarchy_changed_cb (MidoriTransfers* transfers,
                                        GtkWidget*       old_parent)
 {
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
-    GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (transfers));
-    if (GTK_WIDGET_TOPLEVEL (browser))
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (transfers));
+    if (MIDORI_IS_BROWSER (browser))
         g_signal_connect (browser, "add-download",
             G_CALLBACK (midori_transfers_browser_add_download_cb), transfers);
+    if (old_parent)
+        g_signal_handlers_disconnect_by_func (old_parent,
+            midori_transfers_browser_add_download_cb, transfers);
     #endif
 }
 
