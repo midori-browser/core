@@ -76,6 +76,21 @@ extension_mock_object (void)
 }
 
 static void
+katze_assert_cmpstrv (gchar** values1,
+                      gsize   length1,
+                      gchar** values2,
+                      gsize   length2)
+{
+    gsize i;
+
+    g_assert ((values1 && values2) || (!values1 && !values2));
+    /* g_assert_cmpint (length1, ==, length2); */
+
+    for (i = 0; i < length1; i++)
+        g_assert_cmpstr (values1[i], ==, values2[i]);
+}
+
+static void
 extension_settings (void)
 {
     MidoriApp* app;
@@ -83,6 +98,9 @@ extension_settings (void)
     gboolean nihilist;
     gint age;
     const gchar* lastname;
+    gchar* pet_names[] = {"Tiger", "Bonzo", "Streuner", NULL};
+    gchar** names;
+    gsize names_n;
 
     app = midori_app_new ();
     extension = extension_mock_object ();
@@ -125,6 +143,27 @@ extension_settings (void)
     midori_extension_set_string (extension, "lastname", "Theodor Fontane");
     lastname = midori_extension_get_string (extension, "lastname");
     g_assert_cmpstr (lastname, ==, "Theodor Fontane");
+    midori_extension_deactivate (extension);
+
+    extension = extension_mock_object ();
+    midori_extension_install_string_list (extension, "pets", pet_names, 3);
+    names = midori_extension_get_string_list (extension, "pets", &names_n);
+    katze_assert_cmpstrv (NULL, 0, names, names_n);
+    g_strfreev (names);
+    g_signal_emit_by_name (extension, "activate", app);
+    names = midori_extension_get_string_list (extension, "pets", &names_n);
+    katze_assert_cmpstrv (pet_names, 3, names, names_n);
+    g_strfreev (names);
+    /* names = g_strsplit ("Carla,Fluffy,Goro,Kitty", ",", 0);
+    midori_extension_set_string_list (extension, "pets", names, G_MAXSIZE);
+    g_strfreev (names);
+    names = midori_extension_get_string_list (extension, "pets", &names_n);
+    g_assert_cmpint (names_n, ==, 4); */
+    names = g_strsplit ("Carla,Fluffy,Goro,Kitty", ",", 0);
+    midori_extension_set_string_list (extension, "pets", names, 2);
+    g_strfreev (names);
+    names = midori_extension_get_string_list (extension, "pets", &names_n);
+    g_assert_cmpint (names_n, ==, 2);
     midori_extension_deactivate (extension);
 }
 
