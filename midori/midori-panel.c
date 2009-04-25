@@ -25,6 +25,7 @@ struct _MidoriPanel
 
     GtkWidget* toolbar;
     GtkToolItem* button_align;
+    GtkToolItem* button_detach;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
     GtkWidget* toolbook;
@@ -252,6 +253,8 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     gtk_container_remove (GTK_CONTAINER (panel->notebook), scrolled);
     gtk_box_pack_start (GTK_BOX (vbox), scrolled, TRUE, TRUE, 0);
     g_object_unref (scrolled);
+    if (!gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
+        gtk_widget_set_sensitive (toolbutton, FALSE);
     g_signal_connect (window, "delete-event",
         G_CALLBACK (midori_panel_detached_window_delete_event_cb), panel);
     gtk_widget_show (window);
@@ -305,6 +308,8 @@ midori_panel_init (MidoriPanel* panel)
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_FULLSCREEN);
+    gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
+    panel->button_detach = toolitem;
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem),
                                _("Detach chosen panel from the window"));
     gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem),
@@ -560,6 +565,10 @@ midori_panel_construct_tool_item (MidoriPanel*    panel,
     gtk_toolbar_insert (GTK_TOOLBAR (panel->toolbar), toolitem, -1);
     g_signal_connect (viewable, "destroy",
                       G_CALLBACK (midori_panel_widget_destroy_cb), toolitem);
+
+    if (gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
+        gtk_widget_set_sensitive (GTK_WIDGET (panel->button_detach), TRUE);
+
     return toolitem;
 }
 
