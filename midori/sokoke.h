@@ -35,7 +35,8 @@ sokoke_show_uri                         (GdkScreen*      screen,
 
 gboolean
 sokoke_spawn_program                    (const gchar*    command,
-                                         const gchar*    argument);
+                                         const gchar*    argument,
+                                         gboolean        quote);
 
 gchar* sokoke_search_uri                (const gchar*    uri,
                                          const gchar*    keywords);

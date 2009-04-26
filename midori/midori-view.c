@@ -926,7 +926,7 @@ static void
 midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
                                            MidoriView* view)
 {
-    sokoke_spawn_program (view->download_manager, view->link_uri);
+    sokoke_spawn_program (view->download_manager, view->link_uri, TRUE);
 }
 
 static void

@@ -900,6 +900,9 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
     switch (webkit_download_get_status (download))
     {
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
+        {
+            MidoriBrowser* browser = midori_browser_get_for_widget (button);
+
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
             if (g_object_get_data (G_OBJECT (download), "open-download"))
@@ -907,6 +910,28 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
             else
                 g_object_set_data (G_OBJECT (gtk_widget_get_parent (button)),
                                    "done", (void*)1);
+
+            if (browser->settings && katze_object_get_boolean (
+                browser->settings, "notify-transfer-completed"))
+            {
+                gchar* program = g_find_program_in_path ("notify-send");
+                if (program != NULL)
+                {
+                    gchar* msg = g_strdup_printf (
+                        _("The file <b>%s</b> has been downloaded."),
+                        webkit_download_get_suggested_filename (download));
+                    gchar* msgq = g_shell_quote (msg);
+                    gchar* titleq = g_shell_quote (_("Transfer completed"));
+                    gchar* command = g_strconcat (titleq, " ", msgq, NULL);
+                    g_free (msg);
+                    g_free (titleq);
+                    g_free (msgq);
+                    sokoke_spawn_program ("notify-send -i midori %s", command, FALSE);
+                    g_free (command);
+                    g_free (program);
+                }
+            }
+        }
             break;
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
         case WEBKIT_DOWNLOAD_STATUS_ERROR:
@@ -2428,7 +2453,7 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
                 if (text_editor && *text_editor)
-                    sokoke_spawn_program (text_editor, unique_filename);
+                    sokoke_spawn_program (text_editor, unique_filename, TRUE);
                 else
                     sokoke_show_uri (NULL, unique_filename,
                                      gtk_get_current_event_time (), NULL);
@@ -2621,7 +2646,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
     {
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
         if (browser->news_aggregator && *browser->news_aggregator)
-            sokoke_spawn_program (browser->news_aggregator, uri);
+            sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
     }
 }
 

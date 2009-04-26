@@ -139,7 +139,8 @@ sokoke_show_uri (GdkScreen*   screen,
 
 gboolean
 sokoke_spawn_program (const gchar* command,
-                      const gchar* argument)
+                      const gchar* argument,
+                      gboolean     quote)
 {
     gchar* argument_escaped;
     gchar* command_ready;
@@ -149,7 +150,7 @@ sokoke_spawn_program (const gchar* command,
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
 
-    argument_escaped = g_shell_quote (argument);
+    argument_escaped = quote ? g_shell_quote (argument) : g_strdup (argument);
     if (strstr (command, "%s"))
         command_ready = g_strdup_printf (command, argument_escaped);
     else

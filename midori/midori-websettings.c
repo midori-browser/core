@@ -50,6 +50,7 @@ struct _MidoriWebSettings
     gchar* homepage;
     gboolean show_crash_dialog;
     gchar* download_folder;
+    gboolean notify_transfer_completed;
     gchar* download_manager;
     gchar* text_editor;
     gchar* news_aggregator;
@@ -120,6 +121,7 @@ enum
     PROP_HOMEPAGE,
     PROP_SHOW_CRASH_DIALOG,
     PROP_DOWNLOAD_FOLDER,
+    PROP_NOTIFY_TRANSFER_COMPLETED,
     PROP_DOWNLOAD_MANAGER,
     PROP_TEXT_EDITOR,
     PROP_NEWS_AGGREGATOR,
@@ -580,6 +582,26 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     #endif
 
+    /**
+     * MidoriWebSettings:notify-transfer-completed:
+     *
+     * Whether to show a notification when a transfer has been completed.
+     *
+     * Since: 0.1.7
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_NOTIFY_TRANSFER_COMPLETED,
+                                     g_param_spec_boolean (
+                                     "notify-transfer-completed",
+                                     _("Notify when a transfer has been completed"),
+                                     _("Whether to show a notification when a transfer has been completed"),
+                                     TRUE,
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+    #else
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+    #endif
+
     g_object_class_install_property (gobject_class,
                                      PROP_DOWNLOAD_MANAGER,
                                      g_param_spec_string (
@@ -912,6 +934,7 @@ notify_default_encoding_cb (GObject*    object,
 static void
 midori_web_settings_init (MidoriWebSettings* web_settings)
 {
+    web_settings->notify_transfer_completed = TRUE;
     web_settings->download_folder = g_strdup (midori_get_download_dir ());
     web_settings->http_proxy = NULL;
     web_settings->open_popups_in_tabs = TRUE;
@@ -1076,6 +1099,9 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_DOWNLOAD_FOLDER:
         katze_assign (web_settings->download_folder, g_value_dup_string (value));
+        break;
+    case PROP_NOTIFY_TRANSFER_COMPLETED:
+        web_settings->notify_transfer_completed = g_value_get_boolean (value);
         break;
     case PROP_DOWNLOAD_MANAGER:
         katze_assign (web_settings->download_manager, g_value_dup_string (value));
@@ -1275,6 +1301,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_DOWNLOAD_FOLDER:
         g_value_set_string (value, web_settings->download_folder);
+        break;
+    case PROP_NOTIFY_TRANSFER_COMPLETED:
+        g_value_set_boolean (value, web_settings->notify_transfer_completed);
         break;
     case PROP_DOWNLOAD_MANAGER:
         g_value_set_string (value, web_settings->download_manager);
