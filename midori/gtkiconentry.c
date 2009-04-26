@@ -28,12 +28,20 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
                                      GdkPixbuf*           pixbuf)
 {
     /* Without this ugly hack pixbuf icons don't work */
-    if (pixbuf)
-    {
-        gtk_widget_hide (GTK_WIDGET (entry));
-        gtk_entry_set_icon_from_pixbuf (entry, position, pixbuf);
-        gtk_widget_show (GTK_WIDGET (entry));
-    }
+    gtk_widget_hide (GTK_WIDGET (entry));
+    gtk_entry_set_icon_from_pixbuf (entry, position, pixbuf);
+    gtk_widget_show (GTK_WIDGET (entry));
+}
+
+void
+gtk_icon_entry_set_icon_from_stock  (GtkEntry*            entry,
+				     GtkEntryIconPosition position,
+				     const gchar*         stock_id)
+{
+    if (stock_id)
+	gtk_entry_set_icon_from_stock(entry, position, stock_id);
+    else
+	gtk_icon_entry_set_icon_from_pixbuf(entry, position, NULL);
 }
 
 #else
@@ -1265,6 +1273,10 @@ gtk_icon_entry_set_icon_from_stock (GtkIconEntry *entry,
 				    const gchar *stock_id)
 {
   GdkPixbuf *pixbuf;
+
+  /* FIXME: Due to a bug in GtkIconEntry we need to set a non-NULL icon */
+  if (! stock_id)
+    stock_id = GTK_STOCK_INFO;
 
   pixbuf = gtk_widget_render_icon (GTK_WIDGET (entry),
 				   stock_id,

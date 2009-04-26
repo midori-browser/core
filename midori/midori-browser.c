@@ -312,7 +312,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
             MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
     else
         midori_location_action_set_secondary_icon (
-            MIDORI_LOCATION_ACTION (action), GTK_STOCK_INFO);
+            MIDORI_LOCATION_ACTION (action), NULL);
 }
 
 static void
@@ -420,7 +420,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
             midori_location_action_set_uri (
                 MIDORI_LOCATION_ACTION (action), uri);
             midori_location_action_set_secondary_icon (
-                MIDORI_LOCATION_ACTION (action), GTK_STOCK_INFO);
+                MIDORI_LOCATION_ACTION (action), NULL);
             g_object_notify (G_OBJECT (browser), "uri");
         }
 
@@ -4003,8 +4003,6 @@ midori_browser_init (MidoriBrowser* browser)
         "label", _("_Location..."),
         "stock-id", GTK_STOCK_JUMP_TO,
         "tooltip", _("Open a particular location"),
-        /* FIXME: Due to a bug in GtkIconEntry we need to set an initial icon */
-        "secondary-icon", STOCK_NEWS_FEED,
         NULL);
     g_object_connect (action,
                       "signal::activate",

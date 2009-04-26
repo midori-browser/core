@@ -1311,12 +1311,8 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
         entry = gtk_bin_get_child (GTK_BIN (alignment));
         child = gtk_bin_get_child (GTK_BIN (entry));
 
-        if (stock_id)
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
-                GTK_ICON_ENTRY_SECONDARY, stock_id);
-        else
-            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (child),
-                GTK_ICON_ENTRY_SECONDARY, NULL);
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+            GTK_ICON_ENTRY_SECONDARY, stock_id);
     }
 }
 
