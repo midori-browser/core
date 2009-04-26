@@ -196,13 +196,15 @@ midori_panel_detached_window_delete_event_cb (GtkWidget*   window,
     GtkWidget* toolbar = g_object_get_data (G_OBJECT (scrolled), "panel-toolbar");
     GtkWidget* menuitem = g_object_get_data (G_OBJECT (scrolled), "panel-menuitem");
     GtkToolItem* toolitem;
+    gint n;
+
     g_object_ref (toolbar);
     gtk_container_remove (GTK_CONTAINER (vbox), toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
     g_object_unref (toolbar);
     g_object_ref (scrolled);
     gtk_container_remove (GTK_CONTAINER (vbox), scrolled);
-    gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
+    n = gtk_notebook_append_page (GTK_NOTEBOOK (panel->notebook), scrolled, NULL);
     g_object_unref (scrolled);
     toolitem = midori_panel_construct_tool_item (panel,
         MIDORI_VIEWABLE (_midori_panel_child_for_scrolled (panel, scrolled)));
@@ -211,6 +213,8 @@ midori_panel_detached_window_delete_event_cb (GtkWidget*   window,
         gtk_widget_show (menuitem);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
     }
+    midori_panel_set_current_page (panel, n);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), TRUE);
     return FALSE;
 }
 
@@ -222,7 +226,6 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     /* FIXME: What happens when the browser is destroyed? */
     /* FIXME: What about multiple browsers? */
     /* FIXME: Should we remember if the child was detached? */
-    /* FIXME: Fix label of the sidepanel after removing the widgets */
     gint n = midori_panel_get_current_page (panel);
     GtkToolItem* toolitem = gtk_toolbar_get_nth_item (
         GTK_TOOLBAR (panel->toolbar), n);
@@ -253,7 +256,10 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     gtk_container_remove (GTK_CONTAINER (panel->notebook), scrolled);
     gtk_box_pack_start (GTK_BOX (vbox), scrolled, TRUE, TRUE, 0);
     g_object_unref (scrolled);
-    midori_panel_set_current_page (panel, n);
+    midori_panel_set_current_page (panel, n > 0 ? n - 1 : 0);
+    toolitem = gtk_toolbar_get_nth_item (GTK_TOOLBAR (panel->toolbar),
+                                         n > 0 ? n - 1 : 0);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem), TRUE);
     if (!gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
         gtk_widget_set_sensitive (toolbutton, FALSE);
     g_signal_connect (window, "delete-event",
