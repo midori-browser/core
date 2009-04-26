@@ -474,34 +474,40 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Appearance" */
     PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Appearance"));
     FRAME_NEW (_("Font settings"));
-    TABLE_NEW (6, 2);
+    TABLE_NEW (7, 2);
     label = gtk_label_new (_("Default Font Family"));
     INDENTED_ADD (label, 0, 1, 0, 1);
     hbox = gtk_hbox_new (FALSE, 4);
     button = katze_property_proxy (settings, "default-font-family", "font");
+    gtk_widget_set_tooltip_text (entry, _("The default font family used to display text"));
     gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
     entry = katze_property_proxy (settings, "default-font-size", NULL);
     gtk_widget_set_tooltip_text (entry, _("The default font size used to display text"));
     gtk_box_pack_end (GTK_BOX (hbox), entry, FALSE, FALSE, 4);
     FILLED_ADD (hbox, 1, 2, 0, 1);
-    label = gtk_label_new (_("Minimum Font Size"));
+    label = gtk_label_new (_("Fixed-width Font Family"));
     INDENTED_ADD (label, 0, 1, 1, 2);
+    button = katze_property_proxy (settings, "monospace-font-family", "font");
+    gtk_widget_set_tooltip_text (button, _("The font family used to display fixed-width text"));
+    INDENTED_ADD (button, 1, 2, 1, 2);
+    label = gtk_label_new (_("Minimum Font Size"));
+    INDENTED_ADD (label, 0, 1, 2, 3);
     entry = katze_property_proxy (settings, "minimum-font-size", NULL);
     gtk_widget_set_tooltip_text (entry, _("The minimum font size used to display text"));
-    INDENTED_ADD (entry, 1, 2, 1, 2);
+    INDENTED_ADD (entry, 1, 2, 2, 3);
     label = katze_property_label (settings, "preferred-encoding");
-    INDENTED_ADD (label, 0, 1, 2, 3);
+    INDENTED_ADD (label, 0, 1, 3, 4);
     button = katze_property_proxy (settings, "preferred-encoding", NULL);
-    FILLED_ADD (button, 1, 2, 2, 3);
+    FILLED_ADD (button, 1, 2, 3, 4);
     label = katze_property_label (settings, "default-encoding");
     gtk_label_set_label (GTK_LABEL (label), _("Encoding"));
-    INDENTED_ADD (label, 0, 1, 3, 4);
+    INDENTED_ADD (label, 0, 1, 4, 5);
     entry = katze_property_proxy (settings, "default-encoding", NULL);
     gtk_widget_set_tooltip_text (entry, _("The character encoding to use by default"));
     g_signal_connect (settings, "notify::preferred-encoding",
         G_CALLBACK (midori_preferences_notify_preferred_encoding_cb), entry);
     midori_preferences_notify_preferred_encoding_cb (settings, NULL, entry);
-    FILLED_ADD (entry, 1, 2, 3, 4);
+    FILLED_ADD (entry, 1, 2, 4, 5);
 
     /* Page "Behavior" */
     PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
