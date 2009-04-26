@@ -219,6 +219,15 @@ midori_panel_detached_window_delete_event_cb (GtkWidget*   window,
 }
 
 static void
+midori_panel_widget_destroy_cb (GtkWidget* viewable,
+                                GtkWidget* widget)
+{
+    gtk_widget_destroy (widget);
+    g_signal_handlers_disconnect_by_func (
+        viewable, midori_panel_widget_destroy_cb, widget);
+}
+
+static void
 midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
                                        MidoriPanel* panel)
 {
@@ -246,6 +255,9 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     gtk_container_add (GTK_CONTAINER (window), vbox);
     if (menuitem)
         gtk_widget_hide (menuitem);
+    g_signal_handlers_disconnect_by_func (
+        _midori_panel_child_for_scrolled (panel, scrolled),
+        midori_panel_widget_destroy_cb, toolitem);
     gtk_container_remove (GTK_CONTAINER (panel->toolbar), GTK_WIDGET (toolitem));
     g_object_ref (toolbar);
     gtk_container_remove (GTK_CONTAINER (panel->toolbook), toolbar);
@@ -535,15 +547,6 @@ midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
     gtk_notebook_remove_page (GTK_NOTEBOOK (panel->notebook), i);
     g_signal_handlers_disconnect_by_func (
         viewable, midori_panel_viewable_destroy_cb, panel);
-}
-
-static void
-midori_panel_widget_destroy_cb (GtkWidget* viewable,
-                                GtkWidget* widget)
-{
-    gtk_widget_destroy (widget);
-    g_signal_handlers_disconnect_by_func (
-        viewable, midori_panel_widget_destroy_cb, widget);
 }
 
 static GtkToolItem*
