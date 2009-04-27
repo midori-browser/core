@@ -38,15 +38,12 @@ G_BEGIN_DECLS
     #define GTK_ICON_ENTRY GTK_ENTRY
     #define GTK_TYPE_ICON_ENTRY GTK_TYPE_ENTRY
     #define gtk_icon_entry_new gtk_entry_new
+    #define gtk_icon_entry_set_icon_from_stock gtk_entry_set_icon_from_stock
+
     void
     gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
                                          GtkEntryIconPosition position,
                                          GdkPixbuf*           pixbuf);
-    void
-    gtk_icon_entry_set_icon_from_stock  (GtkEntry*            entry,
-                                         GtkEntryIconPosition position,
-                                         const gchar*         stock_id);
-
     #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable
 #else
 

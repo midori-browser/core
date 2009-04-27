@@ -33,17 +33,6 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
     gtk_widget_show (GTK_WIDGET (entry));
 }
 
-void
-gtk_icon_entry_set_icon_from_stock  (GtkEntry*            entry,
-				     GtkEntryIconPosition position,
-				     const gchar*         stock_id)
-{
-    if (stock_id)
-	gtk_entry_set_icon_from_stock(entry, position, stock_id);
-    else
-	gtk_icon_entry_set_icon_from_pixbuf(entry, position, NULL);
-}
-
 #else
 
 #include <string.h>
