@@ -423,8 +423,10 @@ sokoke_get_desktop (void)
         /* Are we running in Xfce? */
         gint result;
         gchar *out = NULL;
+        gchar *err = NULL;
         gboolean success = g_spawn_command_line_sync ("xprop -root _DT_SAVE_MODE",
-            &out, NULL, &result, NULL);
+            &out, &err, &result, NULL);
+        g_free (err);
         if (success && ! result && out != NULL && strstr (out, "xfce4") != NULL)
             desktop = SOKOKE_DESKTOP_XFCE;
         else
