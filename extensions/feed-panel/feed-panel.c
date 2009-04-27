@@ -89,9 +89,17 @@ feed_panel_treeview_render_icon_cb (GtkTreeViewColumn* column,
         pitem = item;
 
     uri = katze_item_get_uri (pitem);
-    pixbuf = katze_net_load_icon (panel->net, uri, NULL, NULL, NULL);
-    if (!pixbuf)
-        pixbuf = panel->pixbuf;
+    if (uri)
+    {
+        pixbuf = katze_net_load_icon (panel->net, uri, NULL, NULL, NULL);
+        if (!pixbuf)
+            pixbuf = panel->pixbuf;
+    }
+    else
+    {
+        pixbuf = gtk_widget_render_icon (panel->treeview,
+                     GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_MENU, NULL);
+    }
 
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
@@ -339,41 +347,47 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
         const gchar* text;
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-
         uri = katze_item_get_uri (item);
 
-        if (uri)
+        if (KATZE_IS_ARRAY (item))
         {
-            if (KATZE_IS_ARRAY (item))
-            {
-                gint64 date;
-                SoupDate* sdate;
+            gint64 date;
 
-                text = NULL;
+            text = NULL;
+            if (!uri)
+                text = g_strdup (katze_item_get_text (KATZE_ITEM (item)));
+            else
+            {
                 date = katze_item_get_added (item);
                 if (date)
                 {
+                    SoupDate* sdate;
+                    const gchar* suri;
                     sdate = soup_date_new_from_time_t ((time_t) date);
-                    text = g_strdup_printf ("Last updated %s.", soup_date_to_string (sdate, SOUP_DATE_HTTP));
+                    suri  = (const gchar*)g_object_get_data (G_OBJECT (item), "feeduri");
+                    text = g_strdup_printf (
+                            "<html><head><title>feed</title></head>"
+                            "<body><h3>%s</h3><p />Last updated %s.</body></html>",
+                            suri, soup_date_to_string (sdate, SOUP_DATE_HTTP));
                     soup_date_free (sdate);
                 }
-                webkit_web_view_load_html_string (
-                    WEBKIT_WEB_VIEW (panel->webview), text ? text : "", uri);
-                g_free ((gchar*) text);
+            }
+            webkit_web_view_load_html_string (
+                WEBKIT_WEB_VIEW (panel->webview), text ? text : "", uri);
+            g_free ((gchar*) text);
 
-                sensitive = TRUE;
-            }
-            else
-            {
-                text = katze_item_get_text (item);
-                if (text)
-                {
-                    webkit_web_view_load_html_string (
-                        WEBKIT_WEB_VIEW (panel->webview), text, uri);
-                }
-            }
-            g_object_unref (item);
+            sensitive = TRUE;
         }
+        else
+        {
+            text = katze_item_get_text (item);
+            if (text)
+            {
+                webkit_web_view_load_html_string (
+                    WEBKIT_WEB_VIEW (panel->webview), text, uri);
+            }
+        }
+        g_object_unref (item);
     }
     if (GTK_IS_WIDGET (panel->delete))
         gtk_widget_set_sensitive (panel->delete, sensitive);

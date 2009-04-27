@@ -141,28 +141,12 @@ static void
 feed_handle_net_error (FeedNetPrivate* netpriv,
                        const gchar*    msg)
 {
-    GtkWidget* dialog;
+    const gchar* uri;
 
-    dialog = gtk_message_dialog_new (
-            NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-            _("Error"));
-    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-           "%s", msg);
-    gtk_window_set_title (GTK_WINDOW (dialog), EXTENSION_NAME);
-    gtk_widget_show (dialog);
-    g_signal_connect_swapped (dialog, "response",
-           G_CALLBACK (gtk_widget_destroy), dialog);
-
-    if (feed_has_flags (netpriv->feed, FEED_NEW))
-    {
-        KatzeArray* parent;
-        KatzeItem* child;
-
-        child = KATZE_ITEM (netpriv->feed);
-        parent = katze_item_get_parent (child);
-        katze_array_remove_item (parent, child);
-        feed_save_items (netpriv->extension, parent);
-    }
+    uri = (gchar*) g_object_get_data (G_OBJECT (netpriv->feed), "feeduri");
+    katze_item_set_name (KATZE_ITEM (netpriv->feed), uri);
+    katze_item_set_text (KATZE_ITEM (netpriv->feed), msg);
+    katze_item_set_uri (KATZE_ITEM (netpriv->feed), NULL);
     feed_remove_flags (netpriv->feed, FEED_READ);
 }
 
@@ -206,20 +190,18 @@ feed_transfer_cb (KatzeNetRequest* request,
             feed_handle_net_error (netpriv, error->message);
             g_error_free (error);
         }
-        else
-        {
-            if (feed_has_flags (netpriv->feed, FEED_REMOVE))
-            {
-                KatzeArray* parent;
 
-                /* deferred remove */
-                parent = katze_item_get_parent (KATZE_ITEM (netpriv->feed));
-                katze_array_remove_item (parent, netpriv->feed);
-                feed_save_items (netpriv->extension, parent);
-            }
-            else
-                feed_set_flags (netpriv->feed, 0);
+        if (feed_has_flags (netpriv->feed, FEED_REMOVE))
+        {
+            KatzeArray* parent;
+
+            /* deferred remove */
+            parent = katze_item_get_parent (KATZE_ITEM (netpriv->feed));
+            katze_array_remove_item (parent, netpriv->feed);
+            feed_save_items (netpriv->extension, parent);
         }
+        else
+            feed_set_flags (netpriv->feed, 0);
     }
 
     netpriv->parsers = NULL;
@@ -415,6 +397,7 @@ feed_app_add_browser_cb (MidoriApp*       app,
             update_feed (priv, KATZE_ITEM (feed));
         }
     }
+    g_strdupv (sfeeds);
     action_group = midori_browser_get_action_group (browser);
     action = gtk_action_group_get_action (action_group, "Location");
 
