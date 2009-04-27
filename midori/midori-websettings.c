@@ -541,7 +541,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Load on Startup"),
                                      _("What to load on startup"),
                                      MIDORI_TYPE_STARTUP,
-                                     MIDORI_STARTUP_HOMEPAGE,
+                                     MIDORI_STARTUP_LAST_OPEN_PAGES,
                                      flags));
 
     g_object_class_install_property (gobject_class,
