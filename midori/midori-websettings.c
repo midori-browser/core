@@ -50,6 +50,7 @@ struct _MidoriWebSettings
     gchar* homepage;
     gboolean show_crash_dialog;
     gchar* download_folder;
+    gboolean ask_for_destination_folder;
     gboolean notify_transfer_completed;
     gchar* download_manager;
     gchar* text_editor;
@@ -121,6 +122,7 @@ enum
     PROP_HOMEPAGE,
     PROP_SHOW_CRASH_DIALOG,
     PROP_DOWNLOAD_FOLDER,
+    PROP_ASK_FOR_DESTINATION_FOLDER,
     PROP_NOTIFY_TRANSFER_COMPLETED,
     PROP_DOWNLOAD_MANAGER,
     PROP_TEXT_EDITOR,
@@ -583,6 +585,26 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     #endif
 
     /**
+     * MidoriWebSettings:ask-for-destination-folder:
+     *
+     * Whether to ask for the destination folder when downloading a file.
+     *
+     * Since: 0.1.7
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_ASK_FOR_DESTINATION_FOLDER,
+                                     g_param_spec_boolean (
+                                     "ask-for-destination-folder",
+                                     _("Ask for the destination folder"),
+        _("Whether to ask for the destination folder when downloading a file"),
+                                     FALSE,
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+    #else
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+    #endif
+
+    /**
      * MidoriWebSettings:notify-transfer-completed:
      *
      * Whether to show a notification when a transfer has been completed.
@@ -594,7 +616,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean (
                                      "notify-transfer-completed",
                                      _("Notify when a transfer has been completed"),
-                                     _("Whether to show a notification when a transfer has been completed"),
+        _("Whether to show a notification when a transfer has been completed"),
                                      TRUE,
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
@@ -721,7 +743,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean (
                                      "open-tabs-next-to-current",
                                      _("Open Tabs next to Current"),
-                                     _("Whether to open new tabs next to the current tab or after the last one"),
+        _("Whether to open new tabs next to the current tab or after the last one"),
                                      TRUE,
                                      flags));
 
@@ -1100,6 +1122,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_DOWNLOAD_FOLDER:
         katze_assign (web_settings->download_folder, g_value_dup_string (value));
         break;
+    case PROP_ASK_FOR_DESTINATION_FOLDER:
+        web_settings->ask_for_destination_folder = g_value_get_boolean (value);
+        break;
     case PROP_NOTIFY_TRANSFER_COMPLETED:
         web_settings->notify_transfer_completed = g_value_get_boolean (value);
         break;
@@ -1301,6 +1326,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_DOWNLOAD_FOLDER:
         g_value_set_string (value, web_settings->download_folder);
+        break;
+    case PROP_ASK_FOR_DESTINATION_FOLDER:
+        g_value_set_boolean (value, web_settings->ask_for_destination_folder);
         break;
     case PROP_NOTIFY_TRANSFER_COMPLETED:
         g_value_set_boolean (value, web_settings->notify_transfer_completed);
