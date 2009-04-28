@@ -58,7 +58,6 @@ typedef struct
 
 enum
 {
-    FEED_NEW,
     FEED_READ,
     FEED_REMOVE
 };
@@ -104,10 +103,33 @@ feed_add_item (KatzeArray*  feeds,
 
     if (uri)
     {
-        feed = katze_array_new (KATZE_TYPE_ITEM);
-        g_object_set_data_full (G_OBJECT (feed), "feeduri",
-            (gpointer) g_strdup ((uri)), g_free);
-        katze_array_add_item (feeds, feed);
+        if (katze_array_find_token (feeds, uri))
+        {
+            GtkWidget* dialog;
+
+            dialog = gtk_message_dialog_new (
+                NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                _("Error"));
+                gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                _("Feed %s already exists"), uri);
+            gtk_window_set_title (GTK_WINDOW (dialog), EXTENSION_NAME);
+            gtk_widget_show (dialog);
+            g_signal_connect_swapped (dialog, "response",
+                    G_CALLBACK (gtk_widget_destroy), dialog);
+
+        }
+        else
+        {
+            KatzeArray* child;
+
+            feed = katze_array_new (KATZE_TYPE_ARRAY);
+            child = katze_array_new (KATZE_TYPE_ITEM);
+            katze_item_set_uri (KATZE_ITEM (feed), uri);
+            katze_item_set_token (KATZE_ITEM (feed), uri);
+            katze_item_set_uri (KATZE_ITEM (child), uri);
+            katze_array_add_item (feeds, feed);
+            katze_array_add_item (feed, child);
+        }
     }
     return feed;
 }
@@ -129,7 +151,7 @@ feed_save_items (MidoriExtension* extension,
     for (i = 0; i < n; i++)
     {
         item = katze_array_get_nth_item (feed, i);
-        sfeeds[i]  = (gchar*) g_object_get_data (G_OBJECT (item), "feeduri");
+        sfeeds[i] = (gchar*) katze_item_get_uri (KATZE_ITEM (item));
     }
     sfeeds[n] = NULL;
 
@@ -141,12 +163,19 @@ static void
 feed_handle_net_error (FeedNetPrivate* netpriv,
                        const gchar*    msg)
 {
+    KatzeItem* child;
     const gchar* uri;
+    gint n;
 
-    uri = (gchar*) g_object_get_data (G_OBJECT (netpriv->feed), "feeduri");
-    katze_item_set_name (KATZE_ITEM (netpriv->feed), uri);
-    katze_item_set_text (KATZE_ITEM (netpriv->feed), msg);
-    katze_item_set_uri (KATZE_ITEM (netpriv->feed), NULL);
+    n = katze_array_get_length (netpriv->feed);
+    g_assert (n == 1);
+    child = katze_array_get_nth_item (netpriv->feed, 0);
+    g_assert (KATZE_IS_ARRAY (child));
+
+    uri  = katze_item_get_uri (KATZE_ITEM (netpriv->feed));
+    katze_item_set_name (child, uri);
+    katze_item_set_text (child, msg);
+    katze_item_set_uri (child, NULL);
     feed_remove_flags (netpriv->feed, FEED_READ);
 }
 
@@ -184,8 +213,19 @@ feed_transfer_cb (KatzeNetRequest* request,
 
     if (request->data)
     {
+        KatzeArray* item;
+        const gchar* uri;
+        gint n;
+
+        n = katze_array_get_length (netpriv->feed);
+        g_assert (n == 1);
+        item = katze_array_get_nth_item (netpriv->feed, 0);
+        g_assert (KATZE_IS_ARRAY (item));
+        uri = katze_item_get_uri (KATZE_ITEM (netpriv->feed));
+        katze_item_set_uri (KATZE_ITEM (item), uri);
+
         if (!parse_feed (request->data, request->length,
-             netpriv->parsers, netpriv->feed, &error))
+             netpriv->parsers, item, &error))
         {
             feed_handle_net_error (netpriv, error->message);
             g_error_free (error);
@@ -216,11 +256,8 @@ update_feed (FeedPrivate* priv,
     if (!(feed_has_flags (feed, FEED_READ)))
     {
         FeedNetPrivate* netpriv;
-        gchar* uri;
 
-        uri = (gchar*) g_object_get_data (G_OBJECT (feed), "feeduri");
         feed_add_flags (feed, FEED_READ);
-        katze_item_set_uri (KATZE_ITEM (feed), uri);
         netpriv = g_new0 (FeedNetPrivate, 1);
         netpriv->parsers = priv->parsers;
         netpriv->extension = priv->extension;
@@ -272,9 +309,11 @@ secondary_icon_released_cb (GtkAction*     action,
         KatzeArray* feed;
 
         feed = feed_add_item (priv->feeds, uri);
-        feed_save_items (priv->extension, priv->feeds);
-        feed_add_flags (feed, FEED_NEW);
-        update_feed (priv, KATZE_ITEM (feed));
+        if (feed)
+        {
+            feed_save_items (priv->extension, priv->feeds);
+            update_feed (priv, KATZE_ITEM (feed));
+        }
     }
 }
 
@@ -324,9 +363,11 @@ panel_add_feed_cb (FeedPanel*   panel,
             KatzeArray* feed;
 
             feed = feed_add_item (priv->feeds, uri);
-            feed_save_items (priv->extension, priv->feeds);
-            feed_add_flags (feed, FEED_NEW);
-            update_feed (priv, KATZE_ITEM (feed));
+            if (feed)
+            {
+                feed_save_items (priv->extension, priv->feeds);
+                update_feed (priv, KATZE_ITEM (feed));
+            }
         }
     }
     gtk_widget_destroy (dialog);
@@ -334,10 +375,15 @@ panel_add_feed_cb (FeedPanel*   panel,
 
 static void
 panel_remove_feed_cb (FeedPanel*   panel,
-                      KatzeArray*  feed,
+                      KatzeItem*   item,
                       FeedPrivate* priv)
 {
+    KatzeArray* feed;
+
+    feed = katze_item_get_parent (item);
+
     g_assert (KATZE_IS_ARRAY (priv->feeds));
+    g_assert (KATZE_IS_ARRAY (feed));
 
     if (feed_has_flags (feed, FEED_READ))
         feed_add_flags (feed, FEED_REMOVE);
@@ -394,7 +440,8 @@ feed_app_add_browser_cb (MidoriApp*       app,
         if (sfeeds[i])
         {
             feed = feed_add_item (feeds, sfeeds[i]);
-            update_feed (priv, KATZE_ITEM (feed));
+            if (feed)
+                update_feed (priv, KATZE_ITEM (feed));
         }
     }
     g_strdupv (sfeeds);

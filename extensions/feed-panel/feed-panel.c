@@ -131,7 +131,7 @@ feed_panel_treeview_render_text_cb (GtkTreeViewColumn* column,
 }
 
 static void
-feed_panel_add_item_cb (KatzeArray* feed,
+feed_panel_add_item_cb (KatzeArray* parent,
                         KatzeItem*  child,
                         FeedPanel*  panel)
 {
@@ -141,33 +141,36 @@ feed_panel_add_item_cb (KatzeArray* feed,
     KatzeItem* item;
     gint i;
 
-    g_return_if_fail (KATZE_IS_ARRAY (feed));
+    g_return_if_fail (KATZE_IS_ARRAY (parent));
     g_return_if_fail (KATZE_IS_ITEM (child));
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (panel->treeview));
 
-    if (KATZE_IS_ARRAY (child))
+    if (katze_item_get_parent (KATZE_ITEM (parent)))
     {
-        gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &child_iter,
-            NULL, G_MAXINT, 0, child, -1);
-    }
-    else
-    {
-
-        i = 0;
-        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i++))
+        if (KATZE_IS_ARRAY (child))
         {
-            gtk_tree_model_get (model, &iter, 0, &item, -1);
-            if (item == KATZE_ITEM (feed))
-            {
-                gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &child_iter,
-                    &iter, 0, 0, child, -1);
+            gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &child_iter,
+                NULL, G_MAXINT, 0, child, -1);
+        }
+        else
+        {
 
-                g_object_unref (child);
+            i = 0;
+            while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i++))
+            {
+                gtk_tree_model_get (model, &iter, 0, &item, -1);
+                if (item == KATZE_ITEM (parent))
+                {
+                    gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &child_iter,
+                        &iter, 0, 0, child, -1);
+
+                    g_object_unref (child);
+                    g_object_unref (item);
+                    break;
+                }
                 g_object_unref (item);
-                break;
             }
-            g_object_unref (item);
         }
     }
     feed_panel_insert_item (panel, GTK_TREE_STORE (model), &child_iter, child);
@@ -199,21 +202,33 @@ feed_panel_remove_iter (GtkTreeModel* model,
 }
 
 static void
-feed_panel_remove_item_cb (KatzeArray* feed,
+feed_panel_remove_item_cb (KatzeArray* item,
                            KatzeItem*  child,
                            FeedPanel*  panel)
 {
     GtkTreeModel* model;
+    KatzeItem* pitem;
 
-    g_assert (KATZE_IS_ARRAY (feed));
+    g_assert (KATZE_IS_ARRAY (item));
     g_assert (KATZE_IS_ITEM (child));
 
     if (KATZE_IS_ARRAY (child))
         feed_panel_disconnect_feed (panel, KATZE_ARRAY (child));
 
+    if (!katze_item_get_parent (KATZE_ITEM (item)))
+    {
+        gint n;
+
+        n = katze_array_get_length (KATZE_ARRAY (child));
+        g_assert (n == 1);
+        pitem = katze_array_get_nth_item (KATZE_ARRAY (child), 0);
+    }
+    else
+        pitem = child;
+
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (panel->treeview));
-    feed_panel_remove_iter (model, child);
-    g_object_unref (child);
+    feed_panel_remove_iter (model, pitem);
+    g_object_unref (pitem);
 }
 
 static void
@@ -362,13 +377,17 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                 if (date)
                 {
                     SoupDate* sdate;
-                    const gchar* suri;
+                    const gchar* puri;
+                    KatzeItem* parent;
                     sdate = soup_date_new_from_time_t ((time_t) date);
-                    suri  = (const gchar*)g_object_get_data (G_OBJECT (item), "feeduri");
+
+                    parent = katze_item_get_parent (item);
+                    g_assert (KATZE_IS_ARRAY (parent));
+                    puri = katze_item_get_uri (parent);
                     text = g_strdup_printf (
                             "<html><head><title>feed</title></head>"
                             "<body><h3>%s</h3><p />Last updated %s.</body></html>",
-                            suri, soup_date_to_string (sdate, SOUP_DATE_HTTP));
+                            puri, soup_date_to_string (sdate, SOUP_DATE_HTTP));
                     soup_date_free (sdate);
                 }
             }
