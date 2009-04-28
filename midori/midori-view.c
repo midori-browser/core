@@ -25,14 +25,6 @@
 #include <glib/gi18n.h>
 #include <webkit/webkit.h>
 
-#if GLIB_CHECK_VERSION (2, 18, 0)
-    #define D_(__domain, __message) g_dgettext (__domain, __message)
-#elif ENABLE_NLS
-    #define D_(__domain, __message) dgettext (__domain, __message)
-#else
-    #define D_(__domain, __message) __message
-#endif
-
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
@@ -1111,8 +1103,12 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         /* hack to localize menu item */
         if (GTK_IS_BIN (menuitem))
         {
-            label = gtk_bin_get_child (GTK_BIN (menuitem));
-            gtk_label_set_label (GTK_LABEL (label), D_("gtk20", "_Refresh"));
+            GtkStockItem stock_item;
+            if (gtk_stock_lookup (GTK_STOCK_REFRESH, &stock_item))
+            {
+                label = gtk_bin_get_child (GTK_BIN (menuitem));
+                gtk_label_set_label (GTK_LABEL (label), stock_item.label);
+            }
         }
         g_list_free (items);
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo Close Tab"));
