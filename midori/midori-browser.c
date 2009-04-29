@@ -2651,14 +2651,6 @@ _action_location_secondary_icon_released (GtkAction*     action,
 }
 
 static void
-_action_search_activate (GtkAction*     action,
-                         MidoriBrowser* browser)
-{
-    if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
-        gtk_widget_show (browser->navigationbar);
-}
-
-static void
 _action_search_submit (GtkAction*     action,
                        const gchar*   keywords,
                        gboolean       new_tab,
@@ -2684,6 +2676,24 @@ _action_search_submit (GtkAction*     action,
         midori_browser_set_current_uri (browser, search);
 
     g_free (search);
+}
+
+static void
+_action_search_activate (GtkAction*     action,
+                         MidoriBrowser* browser)
+{
+    GSList* proxies = gtk_action_get_proxies (action);
+    guint i = 0;
+    GtkWidget* proxy;
+    while (((proxy = g_slist_nth_data (proxies, i++))))
+        if (GTK_IS_TOOL_ITEM (proxy))
+        {
+            if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
+                gtk_widget_show (browser->navigationbar);
+            return;
+        }
+    _action_search_submit (action, "", FALSE, browser);
+    gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
 static void
