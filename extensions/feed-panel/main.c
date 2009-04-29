@@ -111,7 +111,7 @@ feed_add_item (KatzeArray*  feeds,
                 NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
                 _("Error"));
                 gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-                _("Feed %s already exists"), uri);
+                _("Feed '%s' already exists"), uri);
             gtk_window_set_title (GTK_WINDOW (dialog), EXTENSION_NAME);
             gtk_widget_show (dialog);
             g_signal_connect_swapped (dialog, "response",
@@ -188,7 +188,7 @@ feed_status_cb (KatzeNetRequest*  request,
     {
         gchar* msg;
 
-        msg = g_strdup_printf (_("Error loading feed %s"),
+        msg = g_strdup_printf (_("Error loading feed '%s'"),
                         katze_item_get_uri (KATZE_ITEM (netpriv->feed)));
         feed_handle_net_error (netpriv, msg);
         g_free (msg);

@@ -376,19 +376,28 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                 date = katze_item_get_added (item);
                 if (date)
                 {
-                    SoupDate* sdate;
+                    time_t date_t;
+                    const struct tm* tm;
+                    static gchar date_format[512];
                     const gchar* puri;
                     KatzeItem* parent;
-                    sdate = soup_date_new_from_time_t ((time_t) date);
+                    gchar* last_updated;
 
+                    date_t = (time_t)date;
+                    tm = localtime (&date_t);
+                    /* Some gcc versions complain about "%c" for no reason */
+                    strftime (date_format, sizeof (date_format), "%c", tm);
                     parent = katze_item_get_parent (item);
                     g_assert (KATZE_IS_ARRAY (parent));
                     puri = katze_item_get_uri (parent);
+    /* i18n: The local date a feed was last updated */
+                    last_updated = g_strdup_printf (C_("Feed", "Last updated: %s."),
+                                                    date_format);
                     text = g_strdup_printf (
                             "<html><head><title>feed</title></head>"
-                            "<body><h3>%s</h3><p />Last updated %s.</body></html>",
-                            puri, soup_date_to_string (sdate, SOUP_DATE_HTTP));
-                    soup_date_free (sdate);
+                            "<body><h3>%s</h3><p />%s</body></html>",
+                            puri, last_updated);
+                    g_free (last_updated);
                 }
             }
             webkit_web_view_load_html_string (
