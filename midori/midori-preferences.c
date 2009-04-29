@@ -519,7 +519,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     TABLE_NEW (1, 2);
     button = katze_property_proxy (settings, "enable-spell-checking", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
-    gtk_widget_set_tooltip_text (button, _("Enables spell checking while typing"));
+    gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
     INDENTED_ADD (button, 0, 1, 0, 1);
     entry = katze_property_proxy (settings, "spell-checking-languages", NULL);
     gtk_widget_set_tooltip_text (entry, _("A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""));
