@@ -214,7 +214,7 @@ atom_postparse_entry (FeedParser* fparser)
             !katze_item_get_added (fparser->item))
         {
             feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
-                                   _("Failed to find required Atom entry elements in XML data."));
+                                   _("Failed to find required Atom \"entry\" elements in XML data."));
         }
     }
 
@@ -320,7 +320,7 @@ atom_postparse_feed (FeedParser* fparser)
             !katze_item_get_added (fparser->item))
         {
             feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
-                                   _("Failed to find required Atom feed elements in XML data."));
+                                   _("Failed to find required Atom \"feed\" elements in XML data."));
         }
     }
 }

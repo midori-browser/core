@@ -15,7 +15,7 @@
 
 #include <midori/midori.h>
 
-#define EXTENSION_NAME "FeedPanel"
+#define EXTENSION_NAME "Feed Panel"
 #define UPDATE_FREQ 10
 
 #define feed_get_flags(feed) \

@@ -43,7 +43,7 @@ rss_is_valid (FeedParser* fparser)
                 }
 
                 feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
-                                       _("Failed to find channel element in RSS XML data."));
+                                       _("Failed to find \"channel\" element in RSS XML data."));
             }
             else
             {
@@ -134,14 +134,14 @@ rss_postparse_item (FeedParser* fparser)
     if (!*fparser->error)
     {
         /*
-        * Verify that the required Atom elements are added
+        * Verify that the required RSS elements are added
         * (as per the spec)
         */
         if (!katze_item_get_name (fparser->item) &&
             !katze_item_get_text (fparser->item))
         {
             feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
-                                   _("Failed to find required RSS item elements in XML data."));
+                                   _("Failed to find required RSS \"item\" elements in XML data."));
         }
     }
 
@@ -218,7 +218,7 @@ rss_postparse_channel (FeedParser* fparser)
     if (!*fparser->error)
     {
         /*
-         * Verify that the required Atom elements are added
+         * Verify that the required RSS elements are added
          * (as per the spec)
          */
         if (!katze_item_get_name (fparser->item) ||
@@ -226,7 +226,7 @@ rss_postparse_channel (FeedParser* fparser)
             !katze_item_get_uri (fparser->item))
         {
             feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
-                                   _("Failed to find required RSS channel elements in XML data."));
+                                   _("Failed to find required RSS \"channel\" elements in XML data."));
         }
     }
 }
