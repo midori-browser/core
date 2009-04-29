@@ -3784,7 +3784,6 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     time_t now;
     gint64 day;
     gint64 pday;
-    gint64 age;
     gint64 newage;
     gchar token[50];
 
@@ -3797,15 +3796,12 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     while ((parent = katze_array_get_nth_item (browser->history, i++)))
     {
         pday = katze_item_get_added (KATZE_ITEM (parent));
-        age = katze_item_get_added (item);
         newage = day - pday;
         if (newage == 0)
         {
             found = TRUE;
             katze_array_add_item (parent, item);
         }
-        if (age != newage)
-            katze_item_set_added (item, newage);
     }
     if (!found)
     {
