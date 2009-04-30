@@ -141,6 +141,7 @@ feed_panel_add_item_cb (KatzeArray* parent,
     KatzeItem* item;
     gint i;
 
+    g_return_if_fail (FEED_IS_PANEL (panel));
     g_return_if_fail (KATZE_IS_ARRAY (parent));
     g_return_if_fail (KATZE_IS_ITEM (child));
 
@@ -209,8 +210,9 @@ feed_panel_remove_item_cb (KatzeArray* item,
     GtkTreeModel* model;
     KatzeItem* pitem;
 
-    g_assert (KATZE_IS_ARRAY (item));
-    g_assert (KATZE_IS_ITEM (child));
+    g_return_if_fail (FEED_IS_PANEL (panel));
+    g_return_if_fail (KATZE_IS_ARRAY (item));
+    g_return_if_fail (KATZE_IS_ITEM (child));
 
     if (KATZE_IS_ARRAY (child))
         feed_panel_disconnect_feed (panel, KATZE_ARRAY (child));
@@ -234,14 +236,16 @@ feed_panel_remove_item_cb (KatzeArray* item,
 static void
 feed_panel_move_item_cb (KatzeArray* feed,
                          KatzeItem*  child,
+                         gint        position,
                          FeedPanel*  panel)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
     guint i;
 
-    g_assert (KATZE_IS_ARRAY (feed));
-    g_assert (KATZE_IS_ITEM (child));
+    g_return_if_fail (FEED_IS_PANEL (panel));
+    g_return_if_fail (KATZE_IS_ARRAY (feed));
+    g_return_if_fail (KATZE_IS_ITEM (child));
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (panel->treeview));
 
