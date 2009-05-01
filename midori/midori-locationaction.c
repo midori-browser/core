@@ -620,6 +620,10 @@ midori_location_action_set_item (MidoriLocationAction*    location_action,
     GdkPixbuf* icon;
     GdkPixbuf* new_icon;
 
+    /* Ensure we keep the title if we added the same URI with a title before */
+    if (!item->title)
+        gtk_tree_model_get (location_action->model, iter, TITLE_COL, &item->title, -1);
+
     gtk_list_store_set (GTK_LIST_STORE (location_action->model), iter,
         URI_COL, item->uri, TITLE_COL, item->title, -1);
 
