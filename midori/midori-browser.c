@@ -395,6 +395,61 @@ midori_view_notify_icon_cb (MidoriView*    view,
 }
 
 static void
+midori_browser_update_thumbnail (GtkWidget*   view,
+                                 const gchar* uri)
+{
+    GtkWidget* child;
+
+    #if GTK_CHECK_VERSION (2, 12, 0)
+    /* FIXME: A preference should toggle thumbnails */
+
+    if (midori_view_get_load_status (MIDORI_VIEW (view)) != MIDORI_LOAD_FINISHED)
+        return;
+
+    /* gtk_widget_get_snapshot works only with visible widgets */
+    if (!GTK_WIDGET_DRAWABLE (view))
+        return;
+
+    if ((child = gtk_bin_get_child (GTK_BIN (view))))
+    {
+        static gchar* folder = NULL;
+        GdkRectangle rect;
+        GdkPixmap* pixmap;
+        GdkPixbuf* pixbuf;
+        gchar* thumb;
+        gchar* filename;
+
+        if (G_UNLIKELY (!folder))
+        {
+            folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
+                                       "thumbs", NULL);
+            g_mkdir_with_parents (folder, 0700);
+        }
+
+        thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
+        filename = g_build_filename (folder, thumb, NULL);
+        g_free (thumb);
+        /* FIXME: Regenerate if needed */
+        if (g_file_test (filename, G_FILE_TEST_EXISTS))
+        {
+            g_free (filename);
+            return;
+        }
+
+        rect.x = rect.y = -1;
+        rect.width = rect.height = 0;
+        pixmap = gtk_widget_get_snapshot (child, &rect);
+        pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, NULL, 0, 0,
+                                               0, 0, rect.width, rect.height);
+        g_object_unref (pixmap);
+        gdk_pixbuf_save (pixbuf, filename, "png", NULL, NULL);
+        g_free (filename);
+        g_object_unref (pixbuf);
+    }
+    #endif
+}
+
+static void
 midori_view_notify_load_status_cb (GtkWidget*      view,
                                    GParamSpec*     pspec,
                                    MidoriBrowser*  browser)
@@ -423,6 +478,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
                 MIDORI_LOCATION_ACTION (action), NULL);
             g_object_notify (G_OBJECT (browser), "uri");
         }
+        midori_browser_update_thumbnail (view, uri);
 
         _midori_browser_update_interface (browser);
         _midori_browser_set_statusbar_text (browser, NULL);
@@ -2661,6 +2717,9 @@ _action_search_submit (GtkAction*     action,
     const gchar* url;
     gchar* search;
 
+    if (!browser->settings)
+        return;
+
     g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
     item = katze_array_get_nth_item (browser->search_engines, last_web_search);
     if (item)
@@ -3303,6 +3362,8 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     _midori_browser_set_statusbar_text (browser, NULL);
     _midori_browser_update_interface (browser);
     _midori_browser_update_progress (browser, MIDORI_VIEW (view));
+
+    midori_browser_update_thumbnail (view, uri);
 }
 
 static void
