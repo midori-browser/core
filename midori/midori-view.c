@@ -615,6 +615,50 @@ webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
     g_object_notify (G_OBJECT (view), "progress");
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 6)
+static gboolean
+webkit_web_view_load_error_cb (WebKitWebView*  web_view,
+                               WebKitWebFrame* web_frame,
+                               const gchar*    uri,
+                               GError*         error,
+                               MidoriView*     view)
+{
+    const gchar* template_file = DATADIR "/midori/res/error.html";
+    gchar* template;
+
+    if (g_file_get_contents (template_file, &template, NULL, NULL))
+    {
+        SoupServer* res_server;
+        guint port;
+        gchar* res_root;
+        gchar* message;
+        gchar* result;
+
+        res_server = sokoke_get_res_server ();
+        port = soup_server_get_port (res_server);
+        res_root = g_strdup_printf ("http://localhost:%d/res", port);
+
+        message = g_strdup_printf (_("The page %s couldn't be loaded."), uri);
+        result = sokoke_replace_variables (template,
+            "{title}", _("Error"),
+            "{message}", message,
+            "{description}", error->message,
+            "{tryagain}", _("Try again"),
+            "{res}", res_root, NULL);
+        g_free (template);
+        g_free (message);
+
+        webkit_web_frame_load_alternate_string (web_frame,
+            result, res_root, uri);
+        g_free (res_root);
+        g_free (result);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+#else
 static void
 webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
                                gboolean        success,
@@ -645,6 +689,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
 
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 }
+#endif
 
 static void
 webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
@@ -1755,12 +1800,18 @@ midori_view_construct_web_view (MidoriView* view)
                       "signal::download-requested",
                       webkit_web_view_download_requested_cb, view,
                       #endif
+                      #if WEBKIT_CHECK_VERSION (1, 1, 6)
+                      "signal::load-error",
+                      webkit_web_view_load_error_cb, view,
+                      #endif
                       NULL);
 
+    #if !WEBKIT_CHECK_VERSION (1, 1, 6)
     g_object_connect (web_frame,
                       "signal::load-done",
                       webkit_web_frame_load_done_cb, view,
                       NULL);
+    #endif
 
     if (view->settings)
     {
@@ -1802,6 +1853,7 @@ midori_view_set_uri (MidoriView*  view,
         if (g_str_has_prefix (uri, "error:"))
         {
             data = NULL;
+            #if !WEBKIT_CHECK_VERSION (1, 1, 3)
             if (!strncmp (uri, "error:nodisplay ", 16))
             {
                 gchar* title;
@@ -1818,7 +1870,8 @@ midori_view_set_uri (MidoriView*  view,
                     title, title, view->uri, view->mime_type);
                 g_free (title);
             }
-            else if (!strncmp (uri, "error:nodocs ", 13))
+            #endif
+            if (!strncmp (uri, "error:nodocs ", 13))
             {
                 gchar* title;
 

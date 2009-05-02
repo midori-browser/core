@@ -336,9 +336,10 @@ def build (bld):
             ' -o ' + blddir + '/data/logo-shade.png ' + \
             srcdir + '/data/logo-shade.svg'
         if not Utils.exec_command (command):
-            bld.install_files ('${DATADIR}/' + APPNAME, blddir + '/data/logo-shade.png')
+            bld.install_files ('${DATADIR}/' + APPNAME + '/res', blddir + '/data/logo-shade.png')
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
+    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/error.html')
 
     if Options.commands['check']:
         bld.add_subdirs ('tests')

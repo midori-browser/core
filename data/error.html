@@ -1,0 +1,65 @@
+<!--
+ Error page template for Midori.
+ This file is licensed under the terms of the expat license, see the file EXPAT.
+-->
+
+<html>
+<head>
+<title>{title}</title>
+<style type="text/css">
+body {
+   background-color: #eee;
+   margin: 0;
+   padding: 0;
+}
+
+#container {
+   background: #f6fff3;
+   min-width: 70%;
+   max-width: 70%;
+   margin: 2em auto 1em;
+   padding: 1em;
+   border: 0.2em solid #9acb7f;
+   -webkit-border-radius: 1em;
+}
+
+h1 {
+   font-size: 1.4em;
+   font-weight: bold;
+}
+
+#logo {
+  position: absolute; right: 15px; bottom: 15px;
+  z-index: -1;
+}
+
+message {
+   font-size: 1.1em;
+}
+
+description {
+   font-size: 1em;
+}
+
+</style>
+</head>
+<body>
+
+<div id="container">
+
+<img id="logo" src="{res}/logo-shade.png" />
+
+<h1>{title}</h1>
+<div class="message">
+ <p>{message}</p>
+ <p>{description}</p>
+</div>
+
+<form onsubmit="location.reload()">
+<input type="submit" value="{tryagain}" />
+</form>
+
+</div>
+
+</body>
+</html>
