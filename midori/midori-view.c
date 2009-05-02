@@ -638,7 +638,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         port = soup_server_get_port (res_server);
         res_root = g_strdup_printf ("http://localhost:%d/res", port);
 
-        message = g_strdup_printf (_("The page %s couldn't be loaded."), uri);
+        message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
         result = sokoke_replace_variables (template,
             "{title}", _("Error"),
             "{message}", message,
