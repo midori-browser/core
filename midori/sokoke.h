@@ -16,7 +16,7 @@
 #include <katze/katze.h>
 
 #include <gtk/gtk.h>
-
+#include <libsoup/soup.h>
 #include <JavaScriptCore/JavaScript.h>
 
 gchar*
@@ -153,5 +153,8 @@ sokoke_set_config_dir                   (const gchar*    new_config_dir);
 gboolean
 sokoke_remove_path                      (const gchar*    path,
                                          gboolean        ignore_errors);
+
+SoupServer*
+sokoke_get_res_server                   (void);
 
 #endif /* !__SOKOKE_H__ */

@@ -971,3 +971,50 @@ sokoke_remove_path (const gchar* path,
     g_rmdir (path);
     return TRUE;
 }
+
+static void
+res_server_handler_cb (SoupServer*        res_server,
+                       SoupMessage*       msg,
+                       const gchar*       path,
+                       GHashTable*        query,
+                       SoupClientContext* client,
+                       gpointer           data)
+{
+    if (g_str_has_prefix (path, "/res"))
+    {
+        gchar* filename = g_strconcat (DATADIR "/midori", path, NULL);
+        gchar* contents;
+        guint length;
+
+        if (g_file_get_contents (filename, &contents, &length, NULL))
+        {
+            /* FIXME: Support any MIME type */
+            soup_message_set_response (msg, "image/png", SOUP_MEMORY_TAKE,
+                                       contents, length);
+            soup_message_set_status (msg, 401);
+        }
+        else
+            soup_message_set_status (msg, 404);
+        g_free (filename);
+    }
+    else
+    {
+        soup_message_set_status (msg, 404);
+    }
+}
+
+SoupServer*
+sokoke_get_res_server (void)
+{
+    static SoupServer* res_server = NULL;
+
+    if (G_UNLIKELY (!res_server))
+    {
+        res_server = soup_server_new ("port", SOUP_ADDRESS_ANY_PORT, NULL);
+        soup_server_add_handler (res_server, "/",
+            res_server_handler_cb, NULL, NULL);
+        soup_server_run_async (res_server);
+    }
+
+    return res_server;
+}
