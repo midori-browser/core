@@ -1018,3 +1018,28 @@ sokoke_get_res_server (void)
 
     return res_server;
 }
+
+gchar*
+sokoke_replace_variables (const gchar* template,
+                          const gchar* variable_first, ...)
+{
+    gchar* result = g_strdup (template);
+    const gchar* variable;
+
+    va_list args;
+    va_start (args, variable_first);
+
+    for (variable = variable_first; variable; variable = va_arg (args, const gchar*))
+    {
+        const gchar* value = va_arg (args, const gchar*);
+        GRegex* regex = g_regex_new (variable, 0, 0, NULL);
+        gchar* replaced = result;
+        result = g_regex_replace (regex, replaced, -1, 0, value, 0, NULL);
+        g_free (replaced);
+        g_regex_unref (regex);
+    }
+
+    va_end (args);
+
+    return result;
+}

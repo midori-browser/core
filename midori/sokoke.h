@@ -157,4 +157,8 @@ sokoke_remove_path                      (const gchar*    path,
 SoupServer*
 sokoke_get_res_server                   (void);
 
+gchar*
+sokoke_replace_variables                (const gchar* template,
+                                         const gchar* variable_first, ...);
+
 #endif /* !__SOKOKE_H__ */
