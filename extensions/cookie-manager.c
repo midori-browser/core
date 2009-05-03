@@ -474,6 +474,8 @@ static void cm_delete_all_cookies_real(CMData *cmdata)
 	}
 	gtk_tree_path_free(path_first);
 
+	/* now that we deleted all matching cookies, we reset the filter */
+	gtk_entry_set_text(GTK_ENTRY(cmdata->filter_entry), "");
 	cm_set_button_sensitiveness(cmdata, FALSE);
 }
 
@@ -499,7 +501,7 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CMData *cmdat
 	if (*filter_text != '\0')
 	{
 		gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-			_("Only the visible cookies are deleted which match the entered filter string."));
+			_("Only cookies which match the filter will be deleted."));
 	}
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_YES)
