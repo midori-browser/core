@@ -2226,6 +2226,31 @@ _action_bookmarks_activate_item (GtkAction*     action,
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
+static gboolean
+_action_bookmarks_activate_item_alt (GtkAction*     action,
+                                     KatzeItem*     item,
+                                     guint          button,
+                                     MidoriBrowser* browser)
+{
+    if (button == 2)
+    {
+        gint n;
+        gboolean open_in_background;
+
+        g_object_get (browser->settings, "open-tabs-in-the-background",
+            &open_in_background, NULL);
+
+        n = midori_browser_add_uri (browser, katze_item_get_uri (item));
+
+        if (!open_in_background)
+            midori_browser_set_current_page (browser, n);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 _action_window_populate_popup (GtkAction*     action,
                                GtkMenu*       menu,
@@ -4151,6 +4176,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_bookmarks_populate_popup, browser,
                       "signal::activate-item",
                       _action_bookmarks_activate_item, browser,
+                      "signal::activate-item-alt",
+                      _action_bookmarks_activate_item_alt, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);

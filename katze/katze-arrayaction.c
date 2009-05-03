@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Enrico Tröger <enrico.troeger@uvena.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -13,6 +14,7 @@
 
 #include "katze-net.h"
 #include "katze-utils.h"
+#include "marshal.h"
 
 #include <string.h>
 #include <glib/gi18n.h>
@@ -44,6 +46,7 @@ enum
 {
     POPULATE_POPUP,
     ACTIVATE_ITEM,
+    ACTIVATE_ITEM_ALT,
     LAST_SIGNAL
 };
 
@@ -106,6 +109,30 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        g_cclosure_marshal_VOID__OBJECT,
                                        G_TYPE_NONE, 1,
                                        KATZE_TYPE_ITEM);
+
+    /**
+     * KatzeArrayAction::activate-item-alt:
+     * @array: the object on which the signal is emitted
+     * @item: the item being activated
+     * @button: the mouse button pressed
+     *
+     * An item was clicked with a particular button. Use this if you need
+     * to handle middle or right clicks specially.
+     *
+     * Return value: %TRUE if the event was handled. If %FALSE is returned,
+     *               the default "activate-item" signal is emitted.
+     *
+     * Since: 0.1.7
+     **/
+    signals[ACTIVATE_ITEM_ALT] = g_signal_new ("activate-item-alt",
+                                       G_TYPE_FROM_CLASS (class),
+                                       (GSignalFlags) (G_SIGNAL_RUN_LAST),
+                                       0,
+                                       0,
+                                       NULL,
+                                       katze_cclosure_marshal_BOOLEAN__OBJECT_UINT,
+                                       G_TYPE_BOOLEAN, 2,
+                                       KATZE_TYPE_ITEM, G_TYPE_UINT);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_array_action_finalize;
@@ -205,12 +232,20 @@ katze_array_action_activate (GtkAction* action)
         GTK_ACTION_CLASS (katze_array_action_parent_class)->activate (action);
 }
 
-static void
-katze_array_action_menu_item_activate_cb (GtkWidget*        proxy,
-                                          KatzeArrayAction* array_action)
+static gboolean
+katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
+                                         GdkEventButton*   event,
+                                         KatzeArrayAction* array_action)
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
-    g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, item);
+    gboolean handled;
+
+    g_signal_emit (array_action, signals[ACTIVATE_ITEM_ALT], 0, item, event->button, &handled);
+
+    if (!handled)
+        g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, item);
+
+    return TRUE;
 }
 
 static void
@@ -268,8 +303,10 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                 G_CALLBACK (katze_array_action_menu_item_select_cb), array_action);
         }
         else
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (katze_array_action_menu_item_activate_cb), array_action);
+        {
+            g_signal_connect (menuitem, "button-press-event",
+                G_CALLBACK (katze_array_action_menu_button_press_cb), array_action);
+        }
         gtk_widget_show (menuitem);
     }
     if (!i)
