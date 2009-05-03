@@ -984,13 +984,17 @@ res_server_handler_cb (SoupServer*        res_server,
     {
         gchar* filename = g_strconcat (DATADIR "/midori", path, NULL);
         gchar* contents;
-        guint length;
+        gsize length;
 
         if (g_file_get_contents (filename, &contents, &length, NULL))
         {
-            /* FIXME: Support any MIME type */
-            soup_message_set_response (msg, "image/png", SOUP_MEMORY_TAKE,
+            gchar* content_type = g_content_type_guess (filename, (guchar*)contents,
+                                                        length, NULL);
+            gchar* mime_type = g_content_type_get_mime_type (content_type);
+            g_free (content_type);
+            soup_message_set_response (msg, mime_type, SOUP_MEMORY_TAKE,
                                        contents, length);
+            g_free (mime_type);
             soup_message_set_status (msg, 401);
         }
         else
