@@ -980,6 +980,12 @@ res_server_handler_cb (SoupServer*        res_server,
                        SoupClientContext* client,
                        gpointer           data)
 {
+    if (g_strcmp0 (soup_message_get_uri (msg)->host, "localhost"))
+    {
+        soup_message_set_status (msg, 204);
+        return;
+    }
+
     if (g_str_has_prefix (path, "/res"))
     {
         gchar* filename = g_strconcat (DATADIR "/midori", path, NULL);
@@ -995,7 +1001,7 @@ res_server_handler_cb (SoupServer*        res_server,
             soup_message_set_response (msg, mime_type, SOUP_MEMORY_TAKE,
                                        contents, length);
             g_free (mime_type);
-            soup_message_set_status (msg, 401);
+            soup_message_set_status (msg, 200);
         }
         else
             soup_message_set_status (msg, 404);
