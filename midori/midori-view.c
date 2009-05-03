@@ -1550,6 +1550,9 @@ midori_view_get_property (GObject*    object,
     case PROP_ZOOM_LEVEL:
         g_value_set_float (value, midori_view_get_zoom_level (view));
         break;
+    case PROP_NEWS_FEEDS:
+        g_value_set_object (value, view->news_feeds);
+        break;
     case PROP_STATUSBAR_TEXT:
         g_value_set_string (value, view->statusbar_text);
         break;
