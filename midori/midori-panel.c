@@ -542,9 +542,10 @@ static void
 midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
                                   MidoriPanel* panel)
 {
-    gint i = gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook), viewable);
+    gint i = gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook),
+                g_object_get_data (G_OBJECT (viewable), "parent"));
     if (i > -1)
-    gtk_notebook_remove_page (GTK_NOTEBOOK (panel->notebook), i);
+        gtk_notebook_remove_page (GTK_NOTEBOOK (panel->notebook), i);
     g_signal_handlers_disconnect_by_func (
         viewable, midori_panel_viewable_destroy_cb, panel);
 }
@@ -667,6 +668,7 @@ midori_panel_append_page (MidoriPanel*    panel,
                           G_CALLBACK (midori_panel_widget_destroy_cb), menuitem);
     }
 
+    g_object_set_data (G_OBJECT (viewable), "parent", scrolled);
     g_signal_connect (viewable, "destroy",
                       G_CALLBACK (midori_panel_viewable_destroy_cb), panel);
 
