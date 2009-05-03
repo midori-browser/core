@@ -52,7 +52,7 @@ struct _MidoriView
     gchar* selected_text;
     MidoriWebSettings* settings;
     GtkWidget* web_view;
-    /* KatzeArray* news_feeds; */
+    KatzeArray* news_feeds;
 
     gchar* download_manager;
     gchar* news_aggregator;
@@ -127,7 +127,7 @@ enum
     PROP_LOAD_STATUS,
     PROP_PROGRESS,
     PROP_ZOOM_LEVEL,
-    /* PROP_NEWS_FEEDS, */
+    PROP_NEWS_FEEDS,
     PROP_STATUSBAR_TEXT,
     PROP_SETTINGS,
     PROP_NET
@@ -426,14 +426,21 @@ midori_view_class_init (MidoriViewClass* class)
                                      1.0f,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-    /* g_object_class_install_property (gobject_class,
+    /**
+    * MidoriView:news-feeds:
+    *
+    * The news feeds advertised by the currently loaded page.
+    *
+    * Since: 0.1.7
+    */
+    g_object_class_install_property (gobject_class,
                                      PROP_NEWS_FEEDS,
                                      g_param_spec_object (
                                      "news-feeds",
                                      "News Feeds",
                                      "The list of available news feeds",
                                      KATZE_TYPE_ARRAY,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)); */
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR_TEXT,
@@ -705,12 +712,31 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     if (view->news_aggregator && *view->news_aggregator)
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+        /* This snippet joins the available news feeds into a string like this:
+           URI1|title1,URI2|title2
+           FIXME: Ensure separators contained in the string can't break it */
         gchar* value = sokoke_js_script_eval (js_context,
         "function feeds (l) { var f = new Array (); for (i in l) "
         "{ var t = l[i].type; "
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
-        "f.push (l[i].href); } return f; }"
+        "f.push (l[i].href + '|' + l[i].title); } return f; }"
         "feeds (document.getElementsByTagName ('link'))", NULL);
+        gchar** items = g_strsplit (value, ",", 0);
+        gchar** iter;
+
+        katze_array_clear (view->news_feeds);
+        for (iter = items; iter && *iter; iter++)
+        {
+            gchar** parts = g_strsplit (*iter, "|", 2);
+            KatzeItem* item = g_object_new (KATZE_TYPE_ITEM,
+                "uri", parts ? *parts : "",
+                "name", parts && *parts ? parts[1] : NULL,
+                NULL);
+            katze_array_add_item (view->news_feeds, item);
+            g_object_unref (item);
+            g_strfreev (parts);
+        }
+        g_strfreev (items);
         g_object_set_data (G_OBJECT (view), "news-feeds",
                            value && *value ? (void*)1 : (void*)0);
         /* Ensure load-status is notified again, whether it changed or not */
@@ -1404,6 +1430,8 @@ midori_view_init (MidoriView* view)
     view->statusbar_text = NULL;
     view->link_uri = NULL;
     view->selected_text = NULL;
+    view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
+
     view->item = NULL;
 
     view->download_manager = NULL;
@@ -1431,6 +1459,7 @@ midori_view_finalize (GObject* object)
     katze_assign (view->statusbar_text, NULL);
     katze_assign (view->link_uri, NULL);
     katze_assign (view->selected_text, NULL);
+    katze_object_assign (view->news_feeds, NULL);
 
     katze_object_assign (view->settings, NULL);
     katze_object_assign (view->item, NULL);
