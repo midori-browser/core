@@ -175,9 +175,9 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 static void
 midori_bookmarks_folder_clicked_cb (GtkWidget* toolitem)
 {
-    GtkWidget* browser = gtk_widget_get_toplevel (toolitem);
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (toolitem));
     /* FIXME: Take selected folder into account */
-    midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser),
+    midori_browser_edit_bookmark_dialog_new (browser,
                                              NULL, TRUE, TRUE);
 }
 
@@ -612,10 +612,8 @@ midori_bookmarks_row_activated_cb (GtkTreeView*       treeview,
         uri = katze_item_get_uri (item);
         if (uri && *uri)
         {
-            GtkWidget* browser;
-
-            browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
-            midori_browser_set_current_uri (MIDORI_BROWSER (browser), uri);
+            MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+            midori_browser_set_current_uri (browser, uri);
         }
 
         g_object_unref (item);
@@ -662,8 +660,8 @@ midori_bookmarks_open_activate_cb (GtkWidget*       menuitem,
 
     if (uri && *uri)
     {
-        GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
-        midori_browser_set_current_uri (MIDORI_BROWSER (browser), uri);
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+        midori_browser_set_current_uri (browser, uri);
     }
 }
 
@@ -727,7 +725,7 @@ midori_bookmarks_open_in_window_activate_cb (GtkWidget*       menuitem,
 
     if (uri && *uri)
     {
-        GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
         g_signal_emit_by_name (browser, "new-window", uri);
     }
 }
@@ -744,8 +742,8 @@ midori_bookmarks_edit_activate_cb (GtkWidget*       menuitem,
 
     if (!is_separator)
     {
-        GtkWidget* browser = gtk_widget_get_toplevel (GTK_WIDGET (bookmarks));
-        midori_browser_edit_bookmark_dialog_new (MIDORI_BROWSER (browser), item, FALSE, FALSE);
+        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
     }
 }
 
