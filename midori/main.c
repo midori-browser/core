@@ -35,6 +35,7 @@
 #else
     #define is_writable(_cfg_filename) 1
 #endif
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glib/gstdio.h>
@@ -1344,6 +1345,31 @@ midori_run_script (const gchar* filename)
     return 1;
 }
 
+static void
+snapshot_load_finished_cb (GtkWidget*      web_view,
+                           WebKitWebFrame* web_frame,
+                           gchar*          filename)
+{
+    GError* error;
+    GtkPrintOperation* operation = gtk_print_operation_new ();
+    GtkPrintOperationAction action = GTK_PRINT_OPERATION_ACTION_EXPORT;
+    GtkPrintOperationResult result;
+
+    gtk_print_operation_set_export_filename (operation, filename);
+    error = NULL;
+    result = webkit_web_frame_print_full (web_frame, operation, action, &error);
+
+    if (error != NULL)
+    {
+        g_error ("%s", error->message);
+        gtk_main_quit ();
+    }
+
+    g_object_unref (operation);
+    g_print (_("Snapshot saved to: %s\n"), filename);
+    gtk_main_quit ();
+}
+
 int
 main (int    argc,
       char** argv)
@@ -1351,6 +1377,7 @@ main (int    argc,
     gchar* webapp;
     gchar* config;
     gboolean run;
+    gchar* snapshot;
     gboolean version;
     gchar** uris;
     MidoriApp* app;
@@ -1364,6 +1391,8 @@ main (int    argc,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
+       { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
+       N_("Take a snapshot of the specified URI"), NULL },
        { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
@@ -1406,6 +1435,7 @@ main (int    argc,
     webapp = NULL;
     config = NULL;
     run = FALSE;
+    snapshot = NULL;
     version = FALSE;
     uris = NULL;
     error = NULL;
@@ -1436,6 +1466,38 @@ main (int    argc,
           PACKAGE_BUGREPORT,
           _("Check for new versions at:")
         );
+        return 0;
+    }
+
+    if (snapshot)
+    {
+        GError *error;
+        gchar* filename;
+        gint fd;
+        GtkWidget* web_view;
+
+        fd = g_file_open_tmp ("snapshot-XXXXXX.pdf", &filename, &error);
+        close (fd);
+
+        error = NULL;
+        if (error)
+        {
+            g_error ("%s", error->message);
+            return 1;
+        }
+
+        if (g_unlink (filename) == -1)
+        {
+            g_error ("%s", g_strerror (errno));
+            return 1;
+        }
+
+        web_view = webkit_web_view_new ();
+        g_signal_connect (web_view, "load-finished",
+            G_CALLBACK (snapshot_load_finished_cb), filename);
+        webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), snapshot);
+        gtk_main ();
+        g_free (filename);
         return 0;
     }
 
