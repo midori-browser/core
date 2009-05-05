@@ -980,12 +980,6 @@ res_server_handler_cb (SoupServer*        res_server,
                        SoupClientContext* client,
                        gpointer           data)
 {
-    if (g_strcmp0 (soup_message_get_uri (msg)->host, "localhost"))
-    {
-        soup_message_set_status (msg, 204);
-        return;
-    }
-
     if (g_str_has_prefix (path, "/res"))
     {
         gchar* filename = g_strconcat (DATADIR "/midori", path, NULL);
@@ -1017,12 +1011,16 @@ SoupServer*
 sokoke_get_res_server (void)
 {
     static SoupServer* res_server = NULL;
+    SoupAddress* addr = NULL;
 
     if (G_UNLIKELY (!res_server))
     {
-        res_server = soup_server_new ("port", SOUP_ADDRESS_ANY_PORT, NULL);
+        addr = soup_address_new ("localhost", SOUP_ADDRESS_ANY_PORT);
+        soup_address_resolve_sync (addr, NULL);
+        res_server = soup_server_new ("interface", addr, NULL);
+        g_object_unref (addr);
         soup_server_add_handler (res_server, "/",
-            res_server_handler_cb, NULL, NULL);
+                                 res_server_handler_cb, NULL, NULL);
         soup_server_run_async (res_server);
     }
 
