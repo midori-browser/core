@@ -1345,6 +1345,7 @@ midori_run_script (const gchar* filename)
     return 1;
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 6)
 static void
 snapshot_load_finished_cb (GtkWidget*      web_view,
                            WebKitWebFrame* web_frame,
@@ -1369,6 +1370,7 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
     g_print (_("Snapshot saved to: %s\n"), filename);
     gtk_main_quit ();
 }
+#endif
 
 int
 main (int    argc,
@@ -1391,8 +1393,10 @@ main (int    argc,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
+       #if WEBKIT_CHECK_VERSION (1, 1, 6)
        { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
        N_("Take a snapshot of the specified URI"), NULL },
+       #endif
        { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
@@ -1469,6 +1473,7 @@ main (int    argc,
         return 0;
     }
 
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
     if (snapshot)
     {
         GError *error;
@@ -1500,6 +1505,7 @@ main (int    argc,
         g_free (filename);
         return 0;
     }
+    #endif
 
     /* Web Application support */
     if (webapp)
