@@ -2172,10 +2172,37 @@ _action_trash_activate_item (GtkAction*     action,
                              KatzeItem*     item,
                              MidoriBrowser* browser)
 {
-    gint n = midori_browser_add_item (browser, item);
-    midori_browser_set_current_page (browser, n);
+    midori_browser_set_current_uri (browser, katze_item_get_uri (item));
     katze_array_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
+}
+
+static gboolean
+_action_trash_activate_item_alt (GtkAction*     action,
+                                 KatzeItem*     item,
+                                 guint          button,
+                                 MidoriBrowser* browser)
+{
+    if (button == 2)
+    {
+        gint n;
+        gboolean open_in_background;
+
+        g_object_get (browser->settings, "open-tabs-in-the-background",
+            &open_in_background, NULL);
+
+        n = midori_browser_add_uri (browser, katze_item_get_uri (item));
+
+        if (!open_in_background)
+            midori_browser_set_current_page (browser, n);
+
+        katze_array_remove_item (browser->trash, item);
+        _midori_browser_update_actions (browser);
+
+        return TRUE;
+    }
+
+    return FALSE;
 }
 
 static void
@@ -2227,10 +2254,10 @@ _action_bookmarks_activate_item (GtkAction*     action,
 }
 
 static gboolean
-_action_bookmarks_activate_item_alt (GtkAction*     action,
-                                     KatzeItem*     item,
-                                     guint          button,
-                                     MidoriBrowser* browser)
+_action_menus_activate_item_alt (GtkAction*     action,
+                                 KatzeItem*     item,
+                                 guint          button,
+                                 MidoriBrowser* browser)
 {
     if (button == 2)
     {
@@ -4146,6 +4173,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_trash_populate_popup, browser,
                       "signal::activate-item",
                       _action_trash_activate_item, browser,
+                      "signal::activate-item-alt",
+                      _action_trash_activate_item_alt, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
@@ -4161,6 +4190,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_history_populate_popup, browser,
                       "signal::activate-item",
                       _action_history_activate_item, browser,
+                      "signal::activate-item-alt",
+                      _action_menus_activate_item_alt, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
@@ -4177,7 +4208,7 @@ midori_browser_init (MidoriBrowser* browser)
                       "signal::activate-item",
                       _action_bookmarks_activate_item, browser,
                       "signal::activate-item-alt",
-                      _action_bookmarks_activate_item_alt, browser,
+                      _action_menus_activate_item_alt, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
