@@ -2796,6 +2796,9 @@ _action_search_activate (GtkAction*     action,
     GSList* proxies = gtk_action_get_proxies (action);
     guint i = 0;
     GtkWidget* proxy;
+    const gchar* uri;
+    gchar* search;
+
     while (((proxy = g_slist_nth_data (proxies, i++))))
         if (GTK_IS_TOOL_ITEM (proxy))
         {
@@ -2803,8 +2806,13 @@ _action_search_activate (GtkAction*     action,
                 gtk_widget_show (browser->navigationbar);
             return;
         }
-    _action_search_submit (action, "", FALSE, browser);
+
+    /* Load default search engine in current tab */
+    uri = browser->location_entry_search;
+    search = sokoke_search_uri (uri ? uri : "", "");
+    midori_browser_set_current_uri (browser, search);
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
+    g_free (search);
 }
 
 static void
