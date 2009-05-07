@@ -1,0 +1,216 @@
+<!--
+ Speed Dial head template for Midori.
+ Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
+ This file is licensed under the terms of the expat license, see the file EXPAT.
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{title}</title>
+    <script type="text/javascript" src="{res}/mootools.js"></script>
+    <style>
+    body {
+        text-align: center;
+        background-color: #fefefe;
+        font-family: sans-serif;
+    }
+
+    #wrap {
+        width: 660px;
+        height: 570px;
+        margin: 0px auto;
+        text-align: center;
+    }
+
+    div.shortcut {
+        float: left;
+        border: 1px solid #ccc;
+        position: relative;
+        width: 200px;
+        height: 150px;
+        margin: 25px 25px 0px 0px;
+        background-color: #fff;
+        -webkit-border-radius: 10px;
+    }
+
+    div.right {
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+
+    div.top {
+        margin-top: 0px;
+    }
+
+    h1 {
+        font-size: 50px;
+        font-weight: bold;
+        margin: 0px;
+        height: 30px;
+        padding: 10px 0px 0px 0px;
+        display: block;
+    }
+
+    h4 {
+        font-size: 11px;
+        font-weight: bold
+        margin: 10px 0px 0px 0px;
+        padding: 10px 5px 0px;
+        display: block;
+    }
+
+    h4 span:before {
+        content: "{click_to_add}";
+        font-size: 11px;
+    }
+
+    h4 span {
+        font-size: 11px;
+    }
+
+
+    div.shortcut a {
+        border: 1px solid #ccc;
+        display: block;
+        width: 160px;
+        height: 107px;
+        margin: 15px auto 0px;
+        background-color: #fafafa;
+        color: #aaa;
+        text-decoration: none;
+    }
+
+    .waiter img {
+        margin-top: 38px;
+    }
+
+    div.shortcut a:hover {
+        border: 1px solid #999;
+    }
+
+    div.shortcut p {
+        font-size: 12px;
+        margin: 0px;
+        padding: 5px 0px 0px;
+        color: #222;
+    }
+
+    #search_bar {
+        margin: 20px 0px 20px;
+    }
+
+    div.clear {
+        clear: both;
+    }
+
+    input[type=text] {
+        color: #ddd;
+    }
+
+    input[type=text]:active, input[type=text]:focus {
+        color: #222;
+    }
+
+    div.activated {
+        background-color: #f5f5f5;
+    }
+
+    .cross {
+        -webkit-border-radius: 7px;
+        background-color: #ddd;
+        height: 15px;
+        width: 15px;
+        font-size: 11px;
+        font-weight: bolder;
+        font-family: sans-serif;
+        margin-bottom: -17px;
+        margin-left: 183px;
+        margin-top: 2px;
+        text-align: center;
+        color: #fff;
+        cursor: pointer;
+        z-index: -4;
+    }
+
+    .cross:hover {
+        background-color: #ff7575;
+    }
+    </style>
+
+    <script type="text/javascript">
+    var getAction = function (id)
+    {
+
+        var a = $(id).getFirst ();
+        if (a.getProperty ('href') != "#" )
+            return true;
+
+        var url = prompt ("{enter_shortcut_address}", "http://");
+        if (!url) return false;
+
+        var name = prompt ("{enter_shortcut_name}", "");
+        if (!name) name = "";
+
+        a.setProperty('href', url);
+        a.getNext().set('text', name);
+
+        a.empty();
+        var im = new Element('img', { src: '{stock}/throbber.gif' });
+
+        a.addClass ('waiter');
+        a.grab (im);
+
+        getThumbnail (id, url);
+        return false;
+    }
+
+    var getThumbnail = function (id, url)
+    {
+        console.log ("tandoori-get-thumbnail "+ id +" "+ url);
+        return false;
+    }
+
+    var setThumbnail = function (id, data, href)
+    {
+        var a = $(id).getFirst ();
+        var im = new Element ('img', { src: 'data:image/png;base64,' + data });
+
+        a.empty ().removeClass ('waiter').grab (im);
+        a.setProperty ('href', href);
+
+        var cross = new Element ('div', { 'html': 'x' });
+            cross.setProperty ('onclick', 'clearShortcut("' + id + '");');
+            cross.addClass ('cross');
+            cross.inject ($(id), 'top');
+            $(id).addClass ('activated');
+    }
+
+
+    var clearShortcut = function (id)
+    {
+        if(!confirm("{are_you_sure}"))
+            return;
+
+        var num = id.charAt (1);
+        var sc = $(id);
+        var cross = sc.getFirst ();
+        var a = cross.getNext ();
+        var p = a.getNext ();
+
+        cross.dispose ();
+        sc.removeClass ('activated');
+        a.empty ();
+
+        cross.dispose ();
+        sc.removeClass ('activated');
+        a.empty ().set ('html', '<h1>' + num + '</h1><h4><span/></h4>');
+        a.setProperty ('href', '#');
+        p.empty ();
+
+        console.log ("tandoori-save");
+    }
+
+		</script>
+</head>
+

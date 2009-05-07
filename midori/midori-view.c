@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -23,6 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <glib/gi18n.h>
+#include <glib/gprintf.h>
+#include <glib/gstdio.h>
 #include <webkit/webkit.h>
 
 /* This is unstable API, so we need to declare it */
@@ -170,6 +173,16 @@ static void
 midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                 GParamSpec*        pspec,
                                 MidoriView*        view);
+
+static void
+midori_view_tandoori_get_thumb (GtkWidget*   web_view,
+                                const gchar* message,
+                                MidoriView*  view);
+
+
+static void
+midori_view_tandoori_save (GtkWidget* web_view);
+
 
 static void
 midori_view_class_init (MidoriViewClass* class)
@@ -1397,14 +1410,20 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
 }
 #endif
 
-static void
+static gboolean
 webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* message,
                                     guint        line,
                                     const gchar* source_id,
                                     MidoriView*  view)
 {
-    g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
+    if (!strncmp (message, "tandoori-get-thumbnail", 22))
+        midori_view_tandoori_get_thumb (web_view, message, view);
+    else if (!strncmp (message, "tandoori-save", 13))
+        midori_view_tandoori_save (web_view);
+    else
+        g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
+    return TRUE;
 }
 
 static void
@@ -1880,9 +1899,65 @@ midori_view_set_uri (MidoriView*  view,
     {
         if (!view->web_view)
             midori_view_construct_web_view (view);
+
+        if (midori_view_is_blank (view))
+        {
+            SoupServer* res_server;
+            guint port;
+            gchar* res_root;
+            gchar* tandoori_head;
+            gchar* tandoori_body;
+            gchar* tandoori_html;
+            gchar* t_body_fname;
+
+            katze_assign (view->uri, g_strdup (""));
+
+            g_file_get_contents (DATADIR "/midori/res/tandoori-head.html",
+                                 &tandoori_head, NULL, NULL);
+
+            res_server = sokoke_get_res_server ();
+            port = soup_server_get_port (res_server);
+            res_root = g_strdup_printf ("http://localhost:%d/res", port);
+            t_body_fname = g_strconcat (g_get_user_config_dir (),
+                                        "/midori/tandoori-body.html", NULL);
+
+            if (!g_file_test (t_body_fname, G_FILE_TEST_EXISTS))
+            {
+                g_file_get_contents (DATADIR "/midori/res/tandoori-body.html",
+                                     &tandoori_body, NULL, NULL );
+                g_file_set_contents (t_body_fname, tandoori_body, -1, NULL );
+            }
+            else
+                g_file_get_contents (t_body_fname, &tandoori_body, NULL, NULL);
+
+            tandoori_html = g_strconcat (tandoori_head, tandoori_body, NULL);
+            data = sokoke_replace_variables (tandoori_html,
+                "{res}", res_root,
+                "{title}", _("Blank page"),
+                "{click_to_add}", _("Click to add a shortcut"),
+                "{enter_shortcut_address}", _("Enter shortcut address"),
+                "{enter_shortcut_name}", _("Enter shortcut name"),
+                "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
+
+            #if WEBKIT_CHECK_VERSION (1, 1, 6)
+            webkit_web_frame_load_alternate_string (
+                webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)),
+                data, res_root, "about:blank");
+            #else
+            webkit_web_view_load_html_string (
+                WEBKIT_WEB_VIEW (view->web_view), data, res_root);
+            #endif
+
+            g_free (res_root);
+            g_free (data);
+            g_free (tandoori_html);
+            g_free (tandoori_head);
+            g_free (tandoori_body);
+            g_free (t_body_fname);
+        }
         /* This is not prefectly elegant, but creating an
            error page inline is the simplest solution. */
-        if (g_str_has_prefix (uri, "error:"))
+        else if (g_str_has_prefix (uri, "error:"))
         {
             data = NULL;
             #if !WEBKIT_CHECK_VERSION (1, 1, 3)
@@ -2761,4 +2836,88 @@ midori_view_execute_script (MidoriView*  view,
     else
         webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), script);
     return TRUE;
+}
+
+static void
+midori_view_tandoori_inject_thumb (MidoriView* view,
+                                   gchar*      filename,
+                                   gchar*     dom_id,
+                                   gchar*     url)
+{
+    gchar* file_content;
+    gchar* encoded;
+    gchar* js;
+    gsize sz;
+    GdkPixbuf* img;
+
+    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+        return;
+
+    img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
+    gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
+    encoded = g_base64_encode ( (guchar *)file_content, sz );
+
+    /** Call Javascript function to replace shortcut content **/
+    js = g_strdup_printf ("setThumbnail('%s','%s','%s');", dom_id, encoded, url);
+    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), js);
+    free (js);
+    g_object_unref (img);
+
+    midori_view_tandoori_save (view->web_view);
+
+    g_free (url);
+    g_free (dom_id);
+    g_free (encoded);
+    g_free (file_content);
+}
+
+/**
+ * midori_view_tandoori_save
+ * @web_view: a #WebkitView
+ * @message: Console log data
+ *
+ * Load a thumbnail, and sets the DOM
+ *
+ **/
+static void
+midori_view_tandoori_get_thumb (GtkWidget*   web_view,
+                                const gchar* message,
+                                MidoriView*  view)
+{
+    static gchar* folder;
+    gchar* thumb;
+    gchar* filename;
+    gchar** t_data = g_strsplit (message," ", 4);
+
+    /* t_data[1] = div id and t_data[2] = shortcut's url */
+    if (t_data[1] == NULL || t_data[2] == NULL )
+        return;
+
+    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "thumbs", NULL);
+    thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, t_data[2], -1);
+    filename = g_build_filename (folder, thumb, NULL);
+    g_free (thumb);
+
+    midori_view_tandoori_inject_thumb (view, filename,
+        g_strdup (t_data[1]), g_strdup (t_data[2]));
+    g_strfreev (t_data);
+}
+
+/**
+ * midori_view_tandoori_save
+ * @web_view: a #WebkitView
+ *
+ * Save tandoori DOM structure to body template
+ *
+ **/
+static void
+midori_view_tandoori_save (GtkWidget*    web_view)
+{
+    JSContextRef js_context = webkit_web_frame_get_global_context (
+        webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)));
+    gchar* newdom = sokoke_js_script_eval (js_context,"document.body.innerHTML", NULL);
+    gchar* fname = g_strconcat (g_get_user_config_dir (), "/midori/tandoori-body.html", NULL);
+    g_file_set_contents ( fname, newdom, -1, NULL );
+    g_free (fname);
+    g_free (newdom);
 }

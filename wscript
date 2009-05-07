@@ -340,6 +340,9 @@ def build (bld):
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
     bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/error.html')
+    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/tandoori-head.html')
+    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/tandoori-body.html')
+    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/mootools.js')
 
     if Options.commands['check']:
         bld.add_subdirs ('tests')
