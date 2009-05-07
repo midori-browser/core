@@ -1903,7 +1903,7 @@ midori_view_set_uri (MidoriView*  view,
         if (!view->web_view)
             midori_view_construct_web_view (view);
 
-        if (midori_view_is_blank (view))
+        if (!g_strcmp0 (uri, ""))
         {
             SoupServer* res_server;
             guint port;
