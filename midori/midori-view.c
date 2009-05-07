@@ -31,8 +31,11 @@
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
+/* This is public API since WebKitGTK+ 1.1.6 */
+#if !WEBKIT_CHECK_VERSION (1, 1, 6)
 void
 webkit_web_frame_print (WebKitWebFrame* web_frame);
+#endif
 
 GdkPixbuf*
 midori_search_action_get_icon (KatzeNet*  net,
