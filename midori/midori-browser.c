@@ -1,6 +1,7 @@
 /*
  Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008 Dale Whittaker <dayul@users.sf.net>
+ Copyright (C) 2009 Jérôme Geulfucci <jeromeg@xfce.org>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -3030,6 +3031,111 @@ midori_browser_menu_bookmarks_item_activate_cb (GtkWidget*     widget,
 }
 
 static gboolean
+midori_browser_menu_button_press_event_cb (GtkWidget*      toolitem,
+                                           GdkEventButton* event,
+                                           MidoriBrowser*  browser)
+{
+    if (event->button == 3)
+    {
+        midori_browser_toolbar_popup_context_menu_cb (
+            GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
+                gtk_widget_get_parent (toolitem) : toolitem,
+            event->x, event->y, event->button, browser);
+
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static gboolean
+midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
+                                                GdkEventButton* event,
+                                                MidoriBrowser*  browser)
+{
+  if (event->button == 2)
+    {
+        GtkAction* action = gtk_widget_get_action (toolitem);
+        const gchar* name;
+        gboolean open_in_background = FALSE;
+        gchar* homepage;
+
+        g_return_val_if_fail (action != NULL, FALSE);
+
+        if (!browser->settings)
+            return FALSE;
+
+        g_object_get (browser->settings, "open-tabs-in-the-background",
+            &open_in_background, NULL);
+
+        g_object_get (browser->settings, "homepage", &homepage, NULL);
+
+        name = gtk_action_get_name (action);
+
+        if (g_str_equal (name, "Homepage"))
+        {
+            gint n;
+
+            n = midori_browser_add_uri (browser, homepage);
+
+            if (!open_in_background)
+                midori_browser_set_current_page (browser, n);
+
+            return TRUE;
+        }
+        else if (g_str_equal (name, "Back"))
+        {
+            GtkWidget* view;
+            WebKitWebBackForwardList* back_forward_list;
+            WebKitWebHistoryItem* back_item;
+            const gchar* back_uri;
+            gint n;
+
+            view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
+
+            back_forward_list =
+                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
+
+            back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
+            back_uri = webkit_web_history_item_get_uri (back_item);
+
+            n = midori_browser_add_uri (browser, back_uri);
+
+            if (!open_in_background)
+                midori_browser_set_current_page (browser, n);
+
+            return TRUE;
+        }
+        else if (g_str_equal (name, "Forward"))
+        {
+            GtkWidget *view;
+            WebKitWebBackForwardList *back_forward_list;
+            WebKitWebHistoryItem *forward_item;
+            const gchar *forward_uri;
+            gint n;
+
+            view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
+
+            back_forward_list =
+                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
+
+            forward_item =
+                webkit_web_back_forward_list_get_forward_item (back_forward_list);
+            forward_uri = webkit_web_history_item_get_uri (forward_item);
+
+            n = midori_browser_add_uri (browser, forward_uri);
+
+            if (!open_in_background)
+                midori_browser_set_current_page (browser, n);
+
+            return TRUE;
+        }
+
+        g_free (homepage);
+    }
+    return FALSE;
+}
+
+static gboolean
 midori_browser_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                        GdkEventButton* event,
                                                        MidoriBrowser*  browser)
@@ -4059,6 +4165,9 @@ midori_browser_init (MidoriBrowser* browser)
     GError* error;
     GtkAction* action;
     GtkWidget* menuitem;
+    GtkWidget* homepage;
+    GtkWidget* back;
+    GtkWidget* forward;
     #if HAVE_HILDON
     GtkWidget* menu;
     GList* children;
@@ -4256,7 +4365,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
     gtk_widget_hide (browser->menubar);
     g_signal_connect (browser->menubar, "button-press-event",
-        G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
+        G_CALLBACK (midori_browser_menu_button_press_event_cb), browser);
     #endif
     menuitem = gtk_menu_item_new ();
     #if !HAVE_HILDON
@@ -4273,6 +4382,19 @@ midori_browser_init (MidoriBrowser* browser)
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
+
+    homepage = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Homepage");
+    g_signal_connect (homepage, "button-press-event",
+        G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
+
+    back = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Back");
+    g_signal_connect (back, "button-press-event",
+        G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
+
+    forward = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Forward");
+    g_signal_connect (forward, "button-press-event",
+        G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
+
 
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
     _action_set_sensitive (browser, "FindQuick", FALSE);
@@ -4488,7 +4610,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_end (GTK_BOX (browser->transferbar), browser->transferbar_clear,
                         FALSE, FALSE, 0);
     g_signal_connect (browser->statusbar, "button-press-event",
-        G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb), browser);
+        G_CALLBACK (midori_browser_menu_button_press_event_cb), browser);
 
     g_object_unref (ui_manager);
 }
