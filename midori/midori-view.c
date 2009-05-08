@@ -60,6 +60,7 @@ struct _MidoriView
     GtkWidget* web_view;
     KatzeArray* news_feeds;
 
+    gboolean speed_dial_in_new_tabs;
     gchar* download_manager;
     gchar* news_aggregator;
     gboolean middle_click_opens_selection;
@@ -1612,6 +1613,7 @@ _midori_view_update_settings (MidoriView* view)
     gboolean zoom_text_and_images;
 
     g_object_get (view->settings,
+        "speed-dial-in-new-tabs", &view->speed_dial_in_new_tabs,
         "download-manager", &view->download_manager,
         "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
@@ -1639,7 +1641,11 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_value_init (&value, pspec->value_type);
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
-    if (name == g_intern_string ("download-manager"))
+    if (name == g_intern_string ("speed-dial-in-new-tabs"))
+    {
+        view->speed_dial_in_new_tabs = g_value_get_boolean (&value);
+    }
+    else if (name == g_intern_string ("download-manager"))
     {
         katze_assign (view->download_manager, g_value_dup_string (&value));
     }
@@ -1903,7 +1909,7 @@ midori_view_set_uri (MidoriView*  view,
         if (!view->web_view)
             midori_view_construct_web_view (view);
 
-        if (!g_strcmp0 (uri, ""))
+        if (view->speed_dial_in_new_tabs && !g_strcmp0 (uri, ""))
         {
             SoupServer* res_server;
             guint port;

@@ -49,6 +49,7 @@ struct _MidoriWebSettings
     MidoriStartup load_on_startup;
     gchar* homepage;
     gboolean show_crash_dialog;
+    gboolean speed_dial_in_new_tabs;
     gchar* download_folder;
     gboolean ask_for_destination_folder;
     gboolean notify_transfer_completed;
@@ -121,6 +122,7 @@ enum
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
     PROP_SHOW_CRASH_DIALOG,
+    PROP_SPEED_DIAL_IN_NEW_TABS,
     PROP_DOWNLOAD_FOLDER,
     PROP_ASK_FOR_DESTINATION_FOLDER,
     PROP_NOTIFY_TRANSFER_COMPLETED,
@@ -568,6 +570,23 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "show-crash-dialog",
                                      _("Show crash dialog"),
                                      _("Show a dialog after Midori crashed"),
+                                     TRUE,
+                                     flags));
+
+    /**
+    * MidoriWebSettings:speed-dial-in-new-tabs:
+    *
+    * Show a speed dial page in newly opened tabs.
+    *
+    * Since: 0.1.7
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SPEED_DIAL_IN_NEW_TABS,
+                                     g_param_spec_boolean (
+                                     "speed-dial-in-new-tabs",
+        /* i18n: Speed dial, webpage shortcuts, named for the phone function */
+                                     _("Show speed dial in new tabs"),
+                                     _("Show a speed dial page in newly opened tabs"),
                                      TRUE,
                                      flags));
 
@@ -1119,6 +1138,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_SHOW_CRASH_DIALOG:
         web_settings->show_crash_dialog = g_value_get_boolean (value);
         break;
+    case PROP_SPEED_DIAL_IN_NEW_TABS:
+        web_settings->speed_dial_in_new_tabs = g_value_get_boolean (value);
+        break;
     case PROP_DOWNLOAD_FOLDER:
         katze_assign (web_settings->download_folder, g_value_dup_string (value));
         break;
@@ -1323,6 +1345,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_SHOW_CRASH_DIALOG:
         g_value_set_boolean (value, web_settings->show_crash_dialog);
+        break;
+    case PROP_SPEED_DIAL_IN_NEW_TABS:
+        g_value_set_boolean (value, web_settings->speed_dial_in_new_tabs);
         break;
     case PROP_DOWNLOAD_FOLDER:
         g_value_set_string (value, web_settings->download_folder);

@@ -420,7 +420,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     }
     FILLED_ADD (hbox, 1, 2, 1, 2);
     button = katze_property_proxy (settings, "show-crash-dialog", NULL);
-    SPANNED_ADD (button, 0, 2, 2, 3);
+    INDENTED_ADD (button, 0, 1, 2, 3);
+    button = katze_property_proxy (settings, "speed-dial-in-new-tabs", NULL);
+    INDENTED_ADD (button, 1, 2, 2, 3);
     FRAME_NEW (_("Transfers"));
     TABLE_NEW (2, 2);
     label = katze_property_label (settings, "download-folder");
