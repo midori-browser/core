@@ -1001,6 +1001,21 @@ res_server_handler_cb (SoupServer*        res_server,
             soup_message_set_status (msg, 404);
         g_free (filename);
     }
+    else if (g_str_has_prefix (path, "/stock/"))
+    {
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_default ();
+        const gchar* icon_name = &path[7];
+        GdkPixbuf* icon = gtk_icon_theme_load_icon (icon_theme, icon_name,
+            strstr (icon_name, "dialog") ? 48 : 22, 0, NULL);
+        gchar* contents;
+        gsize length;
+
+        gdk_pixbuf_save_to_buffer (icon, &contents, &length, "png", NULL, NULL);
+        g_object_unref (icon);
+        soup_message_set_response (msg, "image/png", SOUP_MEMORY_TAKE,
+                                   contents, length);
+        soup_message_set_status (msg, 200);
+    }
     else
     {
         soup_message_set_status (msg, 404);
