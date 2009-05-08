@@ -85,6 +85,7 @@ struct _MidoriBrowser
 
     gboolean show_navigationbar;
     gboolean show_statusbar;
+    gboolean customized_homepage_in_new_tabs;
     gboolean progress_in_location;
     gboolean remember_last_visited_pages;
     gchar* location_entry_search;
@@ -402,8 +403,6 @@ midori_browser_update_thumbnail (GtkWidget*   view,
     GtkWidget* child;
 
     #if GTK_CHECK_VERSION (2, 12, 0)
-    /* FIXME: A preference should toggle thumbnails */
-
     if (midori_view_get_load_status (MIDORI_VIEW (view)) != MIDORI_LOAD_FINISHED)
         return;
 
@@ -479,7 +478,8 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
                 MIDORI_LOCATION_ACTION (action), NULL);
             g_object_notify (G_OBJECT (browser), "uri");
         }
-        midori_browser_update_thumbnail (view, uri);
+        if (browser->customized_homepage_in_new_tabs)
+            midori_browser_update_thumbnail (view, uri);
 
         _midori_browser_update_interface (browser);
         _midori_browser_set_statusbar_text (browser, NULL);
@@ -3504,7 +3504,8 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     _midori_browser_update_interface (browser);
     _midori_browser_update_progress (browser, MIDORI_VIEW (view));
 
-    midori_browser_update_thumbnail (view, uri);
+    if (browser->customized_homepage_in_new_tabs)
+        midori_browser_update_thumbnail (view, uri);
 }
 
 static void
@@ -4831,6 +4832,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-panel", &show_panel,
                   "show-transferbar", &show_transferbar,
                   "show-statusbar", &browser->show_statusbar,
+                  "customized-homepage-in-new-tabs", &browser->customized_homepage_in_new_tabs,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
                   "last-web-search", &last_web_search,
@@ -4937,6 +4939,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_navigationbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("show-statusbar"))
         browser->show_statusbar = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("customized-homepage-in-new-tabs"))
+        browser->customized_homepage_in_new_tabs = g_value_get_boolean (&value);
     else if (name == g_intern_string ("progress-in-location"))
         browser->progress_in_location = g_value_get_boolean (&value);
     else if (name == g_intern_string ("search-engines-in-completion"))
