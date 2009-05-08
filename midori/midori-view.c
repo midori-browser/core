@@ -1912,6 +1912,7 @@ midori_view_set_uri (MidoriView*  view,
             gchar* tandoori_body;
             gchar* tandoori_html;
             gchar* t_body_fname;
+            gchar* location_entry_search;
 
             katze_assign (view->uri, g_strdup (""));
 
@@ -1934,13 +1935,19 @@ midori_view_set_uri (MidoriView*  view,
                 g_file_get_contents (t_body_fname, &tandoori_body, NULL, NULL);
 
             tandoori_html = g_strconcat (tandoori_head, tandoori_body, NULL);
+            g_object_get (view->settings, "location-entry-search",
+                          &location_entry_search, NULL);
             data = sokoke_replace_variables (tandoori_html,
                 "{res}", res_root,
                 "{title}", _("Blank page"),
+                "{search_uri}", &location_entry_search,
+                "{search_title}", _("Suchen"),
+                "{search}", _("Suchen"),
                 "{click_to_add}", _("Click to add a shortcut"),
                 "{enter_shortcut_address}", _("Enter shortcut address"),
                 "{enter_shortcut_name}", _("Enter shortcut name"),
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
+            g_free (location_entry_search);
 
             #if WEBKIT_CHECK_VERSION (1, 1, 6)
             webkit_web_frame_load_alternate_string (

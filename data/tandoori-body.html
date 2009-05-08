@@ -6,10 +6,10 @@
 
 <body>
     <div id="wrap">
-        <form id="search_bar" name="search_bar" action="http://www.google.com/search" method="get">
-            <input type="text" name="q" value="Google" onfocus="javascript:this.value='';"
-                onblur="javascript:if(this.value=='') this.value='Google';" />
-            <button>Search</button>
+        <form id="search_bar" name="search_bar" action="{search_uri}" method="get">
+            <input type="text" name="q" value="{search_title}" onfocus="javascript:this.value='';"
+                onblur="javascript:if(this.value=='') this.value='{search_title}';" />
+            <button>{search}</button>
         </form>
     <div class="shortcut top" id="s1">
         <a href="#" onclick="javascript:return getAction('s1');">
