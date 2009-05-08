@@ -902,8 +902,7 @@ midori_view_new_tab_cb (GtkWidget*     view,
                         MidoriBrowser* browser)
 {
     gint n = midori_browser_add_uri (browser, uri);
-    if (!background)
-        midori_browser_set_current_page (browser, n);
+    _midori_browser_set_current_page_smartly (browser, n);
 }
 
 static void
@@ -2187,15 +2186,10 @@ _action_trash_activate_item_alt (GtkAction*     action,
     if (button == 2)
     {
         gint n;
-        gboolean open_in_background;
-
-        g_object_get (browser->settings, "open-tabs-in-the-background",
-            &open_in_background, NULL);
 
         n = midori_browser_add_uri (browser, katze_item_get_uri (item));
 
-        if (!open_in_background)
-            midori_browser_set_current_page (browser, n);
+        _midori_browser_set_current_page_smartly (browser, n);
 
         katze_array_remove_item (browser->trash, item);
         _midori_browser_update_actions (browser);
@@ -2262,16 +2256,8 @@ _action_menus_activate_item_alt (GtkAction*     action,
 {
     if (button == 2)
     {
-        gint n;
-        gboolean open_in_background;
-
-        g_object_get (browser->settings, "open-tabs-in-the-background",
-            &open_in_background, NULL);
-
-        n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-
-        if (!open_in_background)
-            midori_browser_set_current_page (browser, n);
+        gint n = midori_browser_add_uri (browser, katze_item_get_uri (item));
+        _midori_browser_set_current_page_smartly (browser, n);
 
         return TRUE;
     }
@@ -3056,16 +3042,12 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
     {
         GtkAction* action = gtk_widget_get_action (toolitem);
         const gchar* name;
-        gboolean open_in_background = FALSE;
         gchar* homepage;
 
         g_return_val_if_fail (action != NULL, FALSE);
 
         if (!browser->settings)
             return FALSE;
-
-        g_object_get (browser->settings, "open-tabs-in-the-background",
-            &open_in_background, NULL);
 
         g_object_get (browser->settings, "homepage", &homepage, NULL);
 
@@ -3077,8 +3059,7 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
 
             n = midori_browser_add_uri (browser, homepage);
 
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
@@ -3100,8 +3081,7 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
 
             n = midori_browser_add_uri (browser, back_uri);
 
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
@@ -3123,9 +3103,7 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
             forward_uri = webkit_web_history_item_get_uri (forward_item);
 
             n = midori_browser_add_uri (browser, forward_uri);
-
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
@@ -3142,18 +3120,15 @@ midori_browser_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
 {
     KatzeItem* item;
     gint n;
-    gboolean open_in_background;
 
     if (event->button == 2)
     {
         item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
         if (katze_item_get_uri (item))
         {
-            g_object_get (browser->settings, "open-tabs-in-the-background",
-                &open_in_background, NULL);
             n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
+
             return TRUE;
         }
     }
@@ -4690,16 +4665,12 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_widget_get_action (parent);
         const gchar* name;
-        gboolean open_in_background = FALSE;
         gchar* homepage;
 
         g_return_val_if_fail (action != NULL, FALSE);
 
         if (!browser->settings)
             return FALSE;
-
-        g_object_get (browser->settings, "open-tabs-in-the-background",
-            &open_in_background, NULL);
 
         g_object_get (browser->settings, "homepage", &homepage, NULL);
 
@@ -4710,9 +4681,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
             gint n;
 
             n = midori_browser_add_uri (browser, homepage);
-
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
@@ -4733,9 +4702,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
             back_uri = webkit_web_history_item_get_uri (back_item);
 
             n = midori_browser_add_uri (browser, back_uri);
-
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
@@ -4757,9 +4724,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
             forward_uri = webkit_web_history_item_get_uri (forward_item);
 
             n = midori_browser_add_uri (browser, forward_uri);
-
-            if (!open_in_background)
-                midori_browser_set_current_page (browser, n);
+            _midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
