@@ -1476,7 +1476,6 @@ main (int    argc,
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
     if (snapshot)
     {
-        GError *error;
         gchar* filename;
         gint fd;
         GtkWidget* web_view;
