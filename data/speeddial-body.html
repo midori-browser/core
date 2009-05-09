@@ -3,14 +3,7 @@
  Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
  This file is licensed under the terms of the expat license, see the file EXPAT.
 -->
-
-<body>
-    <div id="wrap">
-        <form id="search_bar" name="search_bar" action="{search_uri}" method="get">
-            <input type="text" name="q" value="{search_title}" onfocus="javascript:this.value='';"
-                onblur="javascript:if(this.value=='') this.value='{search_title}';" />
-            <button>{search}</button>
-        </form>
+    <div id="content">
     <div class="shortcut top" id="s1">
         <a href="#" onclick="javascript:return getAction('s1');">
             <h1>1</h1><h4><span/></h4>
@@ -59,13 +52,14 @@
         </a>
         <p> </p>
     </div>
-        <div class="shortcut right" id="s9">
-            <a href="#" onclick="javascript:return getAction('s9');">
-                <h1>9</h1><h4><span/></h4>
-            </a>
-            <p> </p>
-        </div>
+    <div class="shortcut right" id="s9">
+        <a href="#" onclick="javascript:return getAction('s9');">
+            <h1>9</h1><h4><span/></h4>
+        </a>
+        <p> </p>
     </div>
+    </div> <!-- #wrap -->
     <div class="clear"></div>
+    </div> <!-- #content -->
 </body>
 </html>

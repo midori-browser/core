@@ -200,6 +200,8 @@
         if (!name) return;
 
         $(id).getLast ().set ('html', name);
+
+        console.log ("speeddial-save");
     }
 
     var clearShortcut = function (id)
@@ -226,6 +228,29 @@
         console.log ("speeddial-save");
     }
 
+    var speeddialSearch = function ()
+    {
+        var reg = new RegExp("%s", "g");
+        var search_url = $('search_bar').getProperty ('action');
+        var search_content = $('search_bar').getFirst ().get ('value');
+        window.location.href = search_url.replace (reg,  encodeURIComponent (search_content));
+        return false;
+    }
+
+    var getSpeeddialContent = function()
+    {
+        var content = $('content').get ('html');
+        return '<div id="content">' + content + '</div></div></body></html>';
+    }
+
     </script>
 </head>
+<body>
+    <div id="wrap">
+        <form id="search_bar" name="search_bar" action="{search_uri}"
+              method="get" onsubmit="javascript:return speeddialSearch();">
+            <input type="text" name="q" value="{search_title}" onfocus="javascript:this.value='';"
+                onblur="javascript:if(this.value=='') this.value='{search_title}';" />
+            <button>{search}</button>
+        </form>
 

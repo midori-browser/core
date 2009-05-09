@@ -1014,13 +1014,13 @@ midori_web_view_menu_action_add_speeddial_cb (GtkWidget*  widget,
         gchar* file_content;
         gchar* encoded;
         gchar* speeddial_body;
-        gchar* t_body_fname;
+        gchar* body_fname;
         gsize sz;
 
-        t_body_fname = g_strdup_printf ("%s%s", g_get_user_config_dir (),
-                                        "/midori/speeddial-body.html");
+        body_fname = g_strconcat (g_get_user_config_dir (),
+                                  "/midori/speeddial-body.html", NULL);
 
-        g_file_get_contents (t_body_fname, &speeddial_body, NULL, NULL);
+        g_file_get_contents (body_fname, &speeddial_body, NULL, NULL);
 
         img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
         gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
@@ -1046,13 +1046,13 @@ midori_web_view_menu_action_add_speeddial_cb (GtkWidget*  widget,
         replace = g_regex_replace (regex, speeddial_body, -1,
                                    1, replace_by, 0, NULL);
 
-        g_file_set_contents (t_body_fname, replace, -1, NULL);
+        g_file_set_contents (body_fname, replace, -1, NULL);
 
         g_object_unref (img);
         g_regex_unref (regex);
         g_free (encoded);
         g_free (file_content);
-        g_free (t_body_fname);
+        g_free (body_fname);
         g_free (speeddial_body);
         g_free (replace_by);
         g_free (replace_from);
@@ -2028,7 +2028,7 @@ midori_view_set_uri (MidoriView*  view,
             gchar* speeddial_head;
             gchar* speeddial_body;
             gchar* speeddial_html;
-            gchar* t_body_fname;
+            gchar* body_fname;
             gchar* location_entry_search;
 
             katze_assign (view->uri, g_strdup (""));
@@ -2039,32 +2039,34 @@ midori_view_set_uri (MidoriView*  view,
             res_server = sokoke_get_res_server ();
             port = soup_server_get_port (res_server);
             res_root = g_strdup_printf ("http://localhost:%d/res", port);
-            t_body_fname = g_strconcat (g_get_user_config_dir (),
-                                        "/midori/speeddial-body.html", NULL);
+            body_fname = g_strconcat (g_get_user_config_dir (),
+                                      "/midori/speeddial-body.html", NULL);
 
-            if (!g_file_test (t_body_fname, G_FILE_TEST_EXISTS))
+            if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
             {
                 g_file_get_contents (DATADIR "/midori/res/speeddial-body.html",
                                      &speeddial_body, NULL, NULL );
-                g_file_set_contents (t_body_fname, speeddial_body, -1, NULL );
+                g_file_set_contents (body_fname, speeddial_body, -1, NULL );
             }
             else
-                g_file_get_contents (t_body_fname, &speeddial_body, NULL, NULL);
+                g_file_get_contents (body_fname, &speeddial_body, NULL, NULL);
 
             speeddial_html = g_strconcat (speeddial_head, speeddial_body, NULL);
+
             g_object_get (view->settings, "location-entry-search",
                           &location_entry_search, NULL);
+
             data = sokoke_replace_variables (speeddial_html,
                 "{res}", res_root,
                 "{title}", _("Blank page"),
-                "{search_uri}", &location_entry_search,
+                "{search_uri}", location_entry_search,
                 "{search_title}", _("Search"),
                 "{search}", _("Search"),
                 "{click_to_add}", _("Click to add a shortcut"),
                 "{enter_shortcut_address}", _("Enter shortcut address"),
                 "{enter_shortcut_name}", _("Enter shortcut name"),
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
-            g_free (location_entry_search);
+
 
             #if WEBKIT_CHECK_VERSION (1, 1, 6)
             webkit_web_frame_load_alternate_string (
@@ -2080,7 +2082,8 @@ midori_view_set_uri (MidoriView*  view,
             g_free (speeddial_html);
             g_free (speeddial_head);
             g_free (speeddial_body);
-            g_free (t_body_fname);
+            g_free (body_fname);
+            g_free (location_entry_search);
         }
         /* This is not prefectly elegant, but creating an
            error page inline is the simplest solution. */
@@ -3101,7 +3104,7 @@ midori_view_speeddial_save (GtkWidget*    web_view)
 {
     JSContextRef js_context = webkit_web_frame_get_global_context (
         webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)));
-    gchar* newdom = sokoke_js_script_eval (js_context,"document.body.innerHTML", NULL);
+    gchar* newdom = sokoke_js_script_eval (js_context,"getSpeeddialContent()", NULL);
     gchar* fname = g_strconcat (g_get_user_config_dir (), "/midori/speeddial-body.html", NULL);
     g_file_set_contents (fname, newdom, -1, NULL);
     g_free (fname);
