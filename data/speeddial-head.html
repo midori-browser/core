@@ -9,6 +9,7 @@
   <head>
     <title>{title}</title>
     <script type="text/javascript" src="{res}/mootools.js"></script>
+
     <style>
     body {
         text-align: center;
@@ -68,7 +69,6 @@
     h4 span {
         font-size: 11px;
     }
-
 
     div.shortcut a {
         border: 1px solid #ccc;
@@ -136,6 +136,10 @@
     .cross:hover {
         background-color: #ff7575;
     }
+
+    .activated p {
+        cursor: text;
+    }
     </style>
 
     <script type="text/javascript">
@@ -167,7 +171,7 @@
 
     var getThumbnail = function (id, url)
     {
-        console.log ("tandoori-get-thumbnail "+ id +" "+ url);
+        console.log ("speeddial-get-thumbnail " + id + " " + url);
         return false;
     }
 
@@ -180,12 +184,23 @@
         a.setProperty ('href', href);
 
         var cross = new Element ('div', { 'html': 'x' });
-            cross.setProperty ('onclick', 'clearShortcut("' + id + '");');
-            cross.addClass ('cross');
-            cross.inject ($(id), 'top');
-            $(id).addClass ('activated');
+        cross.setProperty ('onclick', 'clearShortcut("' + id + '");');
+        cross.addClass ('cross');
+        cross.inject ($(id), 'top');
+
+        $(id).addClass ('activated');
+
+        var p = a.getNext();
+        p.setProperty('onclick', 'javascript:rename_shortcut("' + id + '");');
     }
 
+    var rename_shortcut = function (id)
+    {
+        var name = prompt ("{enter_shortcut_name}", "");
+        if (!name) return;
+
+        $(id).getLast ().set ('html', name);
+    }
 
     var clearShortcut = function (id)
     {
@@ -206,9 +221,9 @@
         sc.removeClass ('activated');
         a.empty ().set ('html', '<h1>' + num + '</h1><h4><span/></h4>');
         a.setProperty ('href', '#');
-        p.empty ();
+        p.empty ().removeProperty ('onclick');
 
-        console.log ("tandoori-save");
+        console.log ("speeddial-save");
     }
 
     </script>
