@@ -3034,81 +3034,89 @@ midori_browser_menu_button_press_event_cb (GtkWidget*      toolitem,
 }
 
 static gboolean
+midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
+                                                       GtkAction*     action)
+{
+    const gchar* name;
+    gchar* homepage;
+
+    g_return_val_if_fail (action != NULL, FALSE);
+
+    if (!browser->settings)
+        return FALSE;
+
+    g_object_get (browser->settings, "homepage", &homepage, NULL);
+
+    name = gtk_action_get_name (action);
+
+    if (g_str_equal (name, "Homepage"))
+    {
+        gint n;
+
+        n = midori_browser_add_uri (browser, homepage);
+        _midori_browser_set_current_page_smartly (browser, n);
+
+        return TRUE;
+    }
+    else if (g_str_equal (name, "Back"))
+    {
+        GtkWidget* view;
+        WebKitWebBackForwardList* back_forward_list;
+        WebKitWebHistoryItem* back_item;
+        const gchar* back_uri;
+        gint n;
+
+        view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
+
+        back_forward_list =
+            webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
+
+        back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
+        back_uri = webkit_web_history_item_get_uri (back_item);
+
+        n = midori_browser_add_uri (browser, back_uri);
+        _midori_browser_set_current_page_smartly (browser, n);
+
+        return TRUE;
+    }
+    else if (g_str_equal (name, "Forward"))
+    {
+        GtkWidget *view;
+        WebKitWebBackForwardList *back_forward_list;
+        WebKitWebHistoryItem *forward_item;
+        const gchar *forward_uri;
+        gint n;
+
+        view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
+
+        back_forward_list =
+            webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
+
+        forward_item =
+            webkit_web_back_forward_list_get_forward_item (back_forward_list);
+        forward_uri = webkit_web_history_item_get_uri (forward_item);
+
+        n = midori_browser_add_uri (browser, forward_uri);
+        _midori_browser_set_current_page_smartly (browser, n);
+
+        return TRUE;
+    }
+
+    g_free (homepage);
+
+    return FALSE;
+}
+
+static gboolean
 midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
                                                 GdkEventButton* event,
                                                 MidoriBrowser*  browser)
 {
-  if (event->button == 2)
+    if (event->button == 2)
     {
         GtkAction* action = gtk_widget_get_action (toolitem);
-        const gchar* name;
-        gchar* homepage;
 
-        g_return_val_if_fail (action != NULL, FALSE);
-
-        if (!browser->settings)
-            return FALSE;
-
-        g_object_get (browser->settings, "homepage", &homepage, NULL);
-
-        name = gtk_action_get_name (action);
-
-        if (g_str_equal (name, "Homepage"))
-        {
-            gint n;
-
-            n = midori_browser_add_uri (browser, homepage);
-
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-        else if (g_str_equal (name, "Back"))
-        {
-            GtkWidget* view;
-            WebKitWebBackForwardList* back_forward_list;
-            WebKitWebHistoryItem* back_item;
-            const gchar* back_uri;
-            gint n;
-
-            view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
-
-            back_forward_list =
-                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
-
-            back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
-            back_uri = webkit_web_history_item_get_uri (back_item);
-
-            n = midori_browser_add_uri (browser, back_uri);
-
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-        else if (g_str_equal (name, "Forward"))
-        {
-            GtkWidget *view;
-            WebKitWebBackForwardList *back_forward_list;
-            WebKitWebHistoryItem *forward_item;
-            const gchar *forward_uri;
-            gint n;
-
-            view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
-
-            back_forward_list =
-                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
-
-            forward_item =
-                webkit_web_back_forward_list_get_forward_item (back_forward_list);
-            forward_uri = webkit_web_history_item_get_uri (forward_item);
-
-            n = midori_browser_add_uri (browser, forward_uri);
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-
-        g_free (homepage);
+        return midori_browser_menu_middle_click_on_navigation_action (browser, action);
     }
     return FALSE;
 }
@@ -4665,72 +4673,8 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
     {
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_widget_get_action (parent);
-        const gchar* name;
-        gchar* homepage;
 
-        g_return_val_if_fail (action != NULL, FALSE);
-
-        if (!browser->settings)
-            return FALSE;
-
-        g_object_get (browser->settings, "homepage", &homepage, NULL);
-
-        name = gtk_action_get_name (action);
-
-        if (g_str_equal (name, "Homepage"))
-        {
-            gint n;
-
-            n = midori_browser_add_uri (browser, homepage);
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-        else if (g_str_equal (name, "Back"))
-        {
-            GtkWidget* view;
-            WebKitWebBackForwardList* back_forward_list;
-            WebKitWebHistoryItem* back_item;
-            const gchar* back_uri;
-            gint n;
-
-            view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
-
-            back_forward_list =
-                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
-
-            back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
-            back_uri = webkit_web_history_item_get_uri (back_item);
-
-            n = midori_browser_add_uri (browser, back_uri);
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-        else if (g_str_equal (name, "Forward"))
-        {
-            GtkWidget *view;
-            WebKitWebBackForwardList *back_forward_list;
-            WebKitWebHistoryItem *forward_item;
-            const gchar *forward_uri;
-            gint n;
-
-            view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
-
-            back_forward_list =
-                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
-
-            forward_item =
-                webkit_web_back_forward_list_get_forward_item (back_forward_list);
-            forward_uri = webkit_web_history_item_get_uri (forward_item);
-
-            n = midori_browser_add_uri (browser, forward_uri);
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-
-        g_free (homepage);
+        return midori_browser_menu_middle_click_on_navigation_action (browser, action);
     }
     else if (event->button == 3)
     {
