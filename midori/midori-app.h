@@ -64,6 +64,11 @@ midori_app_create_browser         (MidoriApp*         app);
 void
 midori_app_quit                   (MidoriApp*         app);
 
+void
+midori_app_send_notification      (MidoriApp*         app,
+                                   const gchar*       title,
+                                   const gchar*       message);
+
 G_END_DECLS
 
 #endif /* __MIDORI_APP_H__ */

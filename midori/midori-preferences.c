@@ -327,7 +327,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* entry;
     GtkWidget* hbox;
     gint icon_width, icon_height;
-    gchar* program;
 
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
@@ -433,9 +432,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_sensitive (label, FALSE);
     INDENTED_ADD (label, 0, 1, 1, 2);
     button = katze_property_proxy (settings, "notify-transfer-completed", NULL);
-    if (!((program = g_find_program_in_path ("notify-send"))))
-        gtk_widget_set_sensitive (button, FALSE);
-    g_free (program);
+    /* FIXME: Disable the option if notifications presumably cannot be sent
+      gtk_widget_set_sensitive (button, FALSE); */
     SPANNED_ADD (button, 1, 2, 1, 2);
 
     /* Page "Appearance" */

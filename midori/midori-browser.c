@@ -26,6 +26,7 @@
 
 #include "gtkiconentry.h"
 #include "compat.h"
+#include "marshal.h"
 #include "sokoke.h"
 
 #include <glib/gi18n.h>
@@ -126,6 +127,7 @@ enum
     ACTIVATE_ACTION,
     CONTEXT_READY,
     ADD_DOWNLOAD,
+    SEND_NOTIFICATION,
     QUIT,
 
     LAST_SIGNAL
@@ -970,25 +972,17 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
             if (browser->settings && katze_object_get_boolean (
                 browser->settings, "notify-transfer-completed"))
             {
-                gchar* program = g_find_program_in_path ("notify-send");
-                if (program != NULL)
-                {
-                    gchar* msg = g_strdup_printf (
-                        _("The file <b>%s</b> has been downloaded."),
-                        webkit_download_get_suggested_filename (download));
-                    gchar* msgq = g_shell_quote (msg);
-                    gchar* titleq = g_shell_quote (_("Transfer completed"));
-                    gchar* command = g_strconcat (titleq, " ", msgq, NULL);
-                    g_free (msg);
-                    g_free (titleq);
-                    g_free (msgq);
-                    sokoke_spawn_program ("notify-send -i midori %s", command, FALSE);
-                    g_free (command);
-                    g_free (program);
-                }
+                gchar* msg = g_strdup_printf (
+                    _("The file <b>%s</b> has been downloaded."),
+                    webkit_download_get_suggested_filename (download));
+
+                g_signal_emit (browser, signals[SEND_NOTIFICATION], 0,
+                    _("Transfer completed"), msg);
+
+                g_free (msg);
             }
-        }
             break;
+        }
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
         case WEBKIT_DOWNLOAD_STATUS_ERROR:
             icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
@@ -1410,6 +1404,29 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
         G_TYPE_OBJECT);
+
+    /**
+     * MidoriBrowser::send-notification:
+     * @browser: the object on which the signal is emitted
+     * @title: the title for the notification
+     * @message: the message for the notification
+     *
+     * Emitted when a browser wants to display a notification message,
+     * e.g. when a download has been completed.
+     *
+     * Since: 0.1.7
+     */
+    signals[SEND_NOTIFICATION] = g_signal_new (
+        "send-notification",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__STRING_STRING,
+        G_TYPE_NONE, 2,
+        G_TYPE_STRING,
+        G_TYPE_STRING);
 
     signals[QUIT] = g_signal_new (
         "quit",
