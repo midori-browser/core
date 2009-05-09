@@ -1319,7 +1319,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         gtk_widget_show (menuitem);
 
         /* FIXME: This should be a proper action in the browser */
-        menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to customized homepage"));
+        menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to customized _homepage"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeeddial");
         g_signal_connect (menuitem, "activate",
