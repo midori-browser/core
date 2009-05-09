@@ -212,7 +212,6 @@ def configure (conf):
     print "User documentation:  " + user_docs + " (docutils)"
     print "API documentation:   " + api_docs + " (gtk-doc)"
     print
-    print "Optional run time dependencies:"
     print "Single instance:     " + unique + " (unique)"
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
             Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
