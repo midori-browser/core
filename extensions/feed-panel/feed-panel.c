@@ -121,9 +121,9 @@ feed_panel_treeview_render_text_cb (GtkTreeViewColumn* column,
     g_assert (KATZE_IS_ITEM (item));
 
     title = katze_item_get_name (item);
-    if (!title)
+    if (!title || !*title || g_str_equal (title, " "))
         title = katze_item_get_text (item);
-    if (!title)
+    if (!title || !*title || g_str_equal (title, " "))
         title = katze_item_get_uri (item);
 
     g_object_set (renderer, "text", title, NULL);
@@ -377,23 +377,24 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                 text = g_strdup (katze_item_get_text (KATZE_ITEM (item)));
             else
             {
+                KatzeItem* parent;
+                const gchar* puri;
+
+                parent = katze_item_get_parent (item);
+                g_assert (KATZE_IS_ARRAY (parent));
                 date = katze_item_get_added (item);
+                puri = katze_item_get_uri (parent);
                 if (date)
                 {
                     time_t date_t;
                     const struct tm* tm;
                     static gchar date_format[512];
-                    const gchar* puri;
-                    KatzeItem* parent;
                     gchar* last_updated;
 
                     date_t = (time_t)date;
                     tm = localtime (&date_t);
                     /* Some gcc versions complain about "%c" for no reason */
                     strftime (date_format, sizeof (date_format), "%c", tm);
-                    parent = katze_item_get_parent (item);
-                    g_assert (KATZE_IS_ARRAY (parent));
-                    puri = katze_item_get_uri (parent);
     /* i18n: The local date a feed was last updated */
                     last_updated = g_strdup_printf (C_("Feed", "Last updated: %s."),
                                                     date_format);
@@ -402,6 +403,12 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
                             "<body><h3>%s</h3><p />%s</body></html>",
                             puri, last_updated);
                     g_free (last_updated);
+                }
+                else
+                {
+                    text = g_strdup_printf (
+                            "<html><head><title>feed</title></head>"
+                            "<body><h3>%s</h3></body></html>", puri);
                 }
             }
             webkit_web_view_load_html_string (
@@ -413,11 +420,8 @@ feed_panel_cursor_or_row_changed_cb (GtkTreeView* treeview,
         else
         {
             text = katze_item_get_text (item);
-            if (text)
-            {
-                webkit_web_view_load_html_string (
-                    WEBKIT_WEB_VIEW (panel->webview), text, uri);
-            }
+            webkit_web_view_load_html_string (
+                WEBKIT_WEB_VIEW (panel->webview), text ? text : "", uri);
         }
         g_object_unref (item);
     }

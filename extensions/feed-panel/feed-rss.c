@@ -107,7 +107,7 @@ rss_parse_item (FeedParser* fparser)
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = feed_get_element_string (fparser);
+        content = feed_get_element_markup (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "description"))
@@ -165,7 +165,7 @@ rss_parse_channel (FeedParser* fparser)
 
     if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = feed_get_element_string (fparser);
+        content = feed_get_element_markup (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "description"))

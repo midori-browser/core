@@ -20,6 +20,7 @@
 
 #include <libsoup/soup.h>
 #include <libxml/parser.h>
+#include <libxml/HTMLparser.h>
 
 G_BEGIN_DECLS
 
@@ -52,8 +53,12 @@ typedef struct _FeedParser
 #define feed_parser_set_error(fparser, err, msg) \
     *(fparser)->error = g_error_new ( \
             FEED_PARSE_ERROR, (err), (msg))
+
 gchar*
 feed_get_element_string (FeedParser* fparser);
+
+gchar*
+feed_get_element_markup (FeedParser* fparser);
 
 gint64
 feed_get_element_date   (FeedParser* fparser);

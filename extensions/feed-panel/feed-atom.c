@@ -138,6 +138,31 @@ atom_get_link (KatzeItem* item,
     }
 }
 
+static gchar*
+atom_get_title (FeedParser* fparser)
+{
+    if (!katze_item_get_name (fparser->item))
+    {
+        gchar* type;
+
+        type = (gchar*)xmlGetProp (fparser->node, BAD_CAST "type");
+        if (type)
+        {
+            gchar* content = NULL;
+
+            if (g_str_equal (type, "html") ||
+                g_str_equal (type, "xhtml"))
+                content = feed_get_element_markup (fparser);
+
+            xmlFree (type);
+
+            if (content)
+                return content;
+        }
+    }
+    return feed_get_element_string (fparser);
+}
+
 static void
 atom_preparse_entry (FeedParser* fparser)
 {
@@ -161,7 +186,7 @@ atom_parse_entry (FeedParser* fparser)
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = feed_get_element_string (fparser);
+        content = atom_get_title (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "summary"))
@@ -249,7 +274,7 @@ atom_parse_feed (FeedParser* fparser)
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = feed_get_element_string (fparser);
+        content = atom_get_title (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "subtitle"))

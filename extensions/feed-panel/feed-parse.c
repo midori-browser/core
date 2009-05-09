@@ -30,7 +30,43 @@ feed_get_element_string (FeedParser* fparser)
         return g_strdup (" ");
     }
 
-    return (gchar* )xmlNodeListGetString (fparser->doc, node->children, 1);
+    return (gchar*)xmlNodeListGetString (fparser->doc, node->children, 1);
+}
+
+void
+handle_markup_chars (void*          user_data,
+                     const xmlChar* ch,
+                     int            len)
+{
+    gchar** markup;
+    gchar* temp;
+
+    markup = (gchar**)user_data;
+    temp = g_strndup ((gchar*)ch, len);
+    *markup = (*markup) ? g_strconcat (*markup, temp, NULL) : g_strdup (temp);
+    g_free (temp);
+}
+
+gchar*
+feed_get_element_markup (FeedParser* fparser)
+{
+    gchar* markup;
+    const xmlChar* stag;
+
+    markup = feed_get_element_string (fparser);
+    if ((stag = xmlStrchr (BAD_CAST markup, '<')) && xmlStrchr (stag, '>'))
+    {
+        gchar* text = NULL;
+        htmlSAXHandlerPtr psax;
+
+        psax = g_new0 (htmlSAXHandler, 1);
+        psax->characters = handle_markup_chars;
+        htmlSAXParseDoc (BAD_CAST markup, NULL, psax, &text);
+        g_free (psax);
+        g_free (markup);
+        return text;
+    }
+    return markup;
 }
 
 gint64
