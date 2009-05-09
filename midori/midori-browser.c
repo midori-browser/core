@@ -444,7 +444,7 @@ midori_browser_update_thumbnail (GtkWidget*   view,
         pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, NULL, 0, 0,
                                                0, 0, rect.width, rect.height);
         g_object_unref (pixmap);
-        gdk_pixbuf_save (pixbuf, filename, "png", NULL, NULL);
+        gdk_pixbuf_save (pixbuf, filename, "jpeg", NULL, "quality", "70", NULL);
         g_free (filename);
         g_object_unref (pixbuf);
     }
