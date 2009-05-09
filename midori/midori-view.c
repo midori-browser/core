@@ -2753,9 +2753,15 @@ midori_view_reload (MidoriView* view,
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
+#if WEBKIT_CHECK_VERSION (1, 1, 6)
+    /* WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
+       so reloading via Javascript works but not via API calls. */
+    title = g_strdup (_("Error"));
+#else
     /* Error pages are special, we want to try loading the destination
        again, not the error page which isn't even a proper page */
     title = g_strdup_printf (_("Not found - %s"), view->uri);
+#endif
     if (view->title && strstr (title, view->title))
         webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), view->uri);
     else if (from_cache)
