@@ -698,6 +698,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         webkit_web_frame_load_alternate_string (web_frame,
             result, res_root, uri);
         g_free (res_root);
+        g_free (stock_root);
         g_free (result);
 
         return TRUE;
@@ -1964,6 +1965,7 @@ midori_view_set_uri (MidoriView*  view,
             gchar* speed_dial_html;
             gchar* body_fname;
             gchar* location_entry_search;
+            gchar* stock_root;
 
             katze_assign (view->uri, g_strdup (""));
 
@@ -1973,6 +1975,7 @@ midori_view_set_uri (MidoriView*  view,
             res_server = sokoke_get_res_server ();
             port = soup_server_get_port (res_server);
             res_root = g_strdup_printf ("http://localhost:%d/res", port);
+            stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
             body_fname = g_build_filename (sokoke_set_config_dir (NULL),
                                            "speeddial-body.html", NULL);
 
@@ -1992,6 +1995,7 @@ midori_view_set_uri (MidoriView*  view,
 
             data = sokoke_replace_variables (speed_dial_html,
                 "{res}", res_root,
+                "{stock}", stock_root,
                 "{title}", _("Blank page"),
                 "{search_uri}", location_entry_search,
                 "{search_title}", _("Search"),
@@ -2012,6 +2016,7 @@ midori_view_set_uri (MidoriView*  view,
             #endif
 
             g_free (res_root);
+            g_free (stock_root);
             g_free (data);
             g_free (speed_dial_html);
             g_free (speed_dial_head);
