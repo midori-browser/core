@@ -60,7 +60,7 @@ struct _MidoriView
     GtkWidget* web_view;
     KatzeArray* news_feeds;
 
-    gboolean customized_homepage_in_new_tabs;
+    gboolean speed_dial_in_new_tabs;
     gchar* download_manager;
     gchar* news_aggregator;
     gboolean middle_click_opens_selection;
@@ -1251,9 +1251,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
         gtk_widget_show (menuitem);
 
-        if (view->customized_homepage_in_new_tabs)
+        if (view->speed_dial_in_new_tabs)
         {
-            menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to customized _homepage"));
+            menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to Speed _dial"));
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
             g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeedDial");
             g_signal_connect (menuitem, "activate",
@@ -1659,7 +1659,7 @@ _midori_view_update_settings (MidoriView* view)
     gboolean zoom_text_and_images;
 
     g_object_get (view->settings,
-        "customized-homepage-in-new-tabs", &view->customized_homepage_in_new_tabs,
+        "speed-dial-in-new-tabs", &view->speed_dial_in_new_tabs,
         "download-manager", &view->download_manager,
         "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
@@ -1687,9 +1687,9 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_value_init (&value, pspec->value_type);
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
-    if (name == g_intern_string ("customized-homepage-in-new-tabs"))
+    if (name == g_intern_string ("speed-dial-in-new-tabs"))
     {
-        view->customized_homepage_in_new_tabs = g_value_get_boolean (&value);
+        view->speed_dial_in_new_tabs = g_value_get_boolean (&value);
     }
     else if (name == g_intern_string ("download-manager"))
     {
@@ -1955,7 +1955,7 @@ midori_view_set_uri (MidoriView*  view,
         if (!view->web_view)
             midori_view_construct_web_view (view);
 
-        if (view->customized_homepage_in_new_tabs && !g_strcmp0 (uri, ""))
+        if (view->speed_dial_in_new_tabs && !g_strcmp0 (uri, ""))
         {
             SoupServer* res_server;
             guint port;
@@ -2002,7 +2002,7 @@ midori_view_set_uri (MidoriView*  view,
                 "{search}", _("Search"),
                 "{click_to_add}", _("Click to add a shortcut"),
                 "{enter_shortcut_address}", _("Enter shortcut address"),
-                "{enter_shortcut_name}", _("Enter shortcut name"),
+                "{enter_shortcut_name}", _("Enter shortcut title"),
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
 
 

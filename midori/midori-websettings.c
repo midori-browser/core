@@ -49,7 +49,7 @@ struct _MidoriWebSettings
     MidoriStartup load_on_startup;
     gchar* homepage;
     gboolean show_crash_dialog;
-    gboolean customized_homepage_in_new_tabs;
+    gboolean speed_dial_in_new_tabs;
     gchar* download_folder;
     gboolean ask_for_destination_folder;
     gboolean notify_transfer_completed;
@@ -122,7 +122,7 @@ enum
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
     PROP_SHOW_CRASH_DIALOG,
-    PROP_CUSTOMIZED_HOMEPAGE_IN_NEW_TABS,
+    PROP_SPEED_DIAL_IN_NEW_TABS,
     PROP_DOWNLOAD_FOLDER,
     PROP_ASK_FOR_DESTINATION_FOLDER,
     PROP_NOTIFY_TRANSFER_COMPLETED,
@@ -574,18 +574,19 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
     /**
-    * MidoriWebSettings:customized-homepage-in-new-tabs:
+    * MidoriWebSettings:speed-dial-in-new-tabs:
     *
-    * Show a customized homepage in newly opened tabs.
+    * Show spee dial in newly opened tabs.
     *
     * Since: 0.1.7
     */
     g_object_class_install_property (gobject_class,
-                                     PROP_CUSTOMIZED_HOMEPAGE_IN_NEW_TABS,
+                                     PROP_SPEED_DIAL_IN_NEW_TABS,
                                      g_param_spec_boolean (
-                                     "customized-homepage-in-new-tabs",
-                                     _("Show customized homepage in new tabs"),
-                                     _("Show a customized homepage in newly opened tabs"),
+                                     "speed-dial-in-new-tabs",
+        /* i18n: Speed dial, webpage shortcuts, named for the phone function */
+                                     _("Show speed dial in new tabs"),
+                                     _("Show speed dial in newly opened tabs"),
                                      TRUE,
                                      flags));
 
@@ -1137,8 +1138,8 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_SHOW_CRASH_DIALOG:
         web_settings->show_crash_dialog = g_value_get_boolean (value);
         break;
-    case PROP_CUSTOMIZED_HOMEPAGE_IN_NEW_TABS:
-        web_settings->customized_homepage_in_new_tabs = g_value_get_boolean (value);
+    case PROP_SPEED_DIAL_IN_NEW_TABS:
+        web_settings->speed_dial_in_new_tabs = g_value_get_boolean (value);
         break;
     case PROP_DOWNLOAD_FOLDER:
         katze_assign (web_settings->download_folder, g_value_dup_string (value));
@@ -1345,8 +1346,8 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_SHOW_CRASH_DIALOG:
         g_value_set_boolean (value, web_settings->show_crash_dialog);
         break;
-    case PROP_CUSTOMIZED_HOMEPAGE_IN_NEW_TABS:
-        g_value_set_boolean (value, web_settings->customized_homepage_in_new_tabs);
+    case PROP_SPEED_DIAL_IN_NEW_TABS:
+        g_value_set_boolean (value, web_settings->speed_dial_in_new_tabs);
         break;
     case PROP_DOWNLOAD_FOLDER:
         g_value_set_string (value, web_settings->download_folder);

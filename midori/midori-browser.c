@@ -86,7 +86,7 @@ struct _MidoriBrowser
 
     gboolean show_navigationbar;
     gboolean show_statusbar;
-    gboolean customized_homepage_in_new_tabs;
+    gboolean speed_dial_in_new_tabs;
     gboolean progress_in_location;
     gboolean remember_last_visited_pages;
     gchar* location_entry_search;
@@ -250,7 +250,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_can_go_forward (MIDORI_VIEW (view)));
 
     gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
-        browser->customized_homepage_in_new_tabs);
+        browser->speed_dial_in_new_tabs);
     /* Currently views that don't support source, don't support
        saving either. If that changes, we need to think of something. */
     _action_set_sensitive (browser, "SaveAs",
@@ -482,7 +482,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
                 MIDORI_LOCATION_ACTION (action), NULL);
             g_object_notify (G_OBJECT (browser), "uri");
         }
-        if (browser->customized_homepage_in_new_tabs)
+        if (browser->speed_dial_in_new_tabs)
             midori_browser_update_thumbnail (view, uri);
 
         _midori_browser_update_interface (browser);
@@ -3681,7 +3681,7 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     _midori_browser_update_interface (browser);
     _midori_browser_update_progress (browser, MIDORI_VIEW (view));
 
-    if (browser->customized_homepage_in_new_tabs)
+    if (browser->speed_dial_in_new_tabs)
         midori_browser_update_thumbnail (view, uri);
 }
 
@@ -3761,8 +3761,8 @@ static const GtkActionEntry entries[] = {
    NULL, "<Ctrl>s",
    N_("Save to a file"), G_CALLBACK (_action_save_as_activate) },
  { "AddSpeedDial", NULL,
-   N_("Add to customize _homepage"), "<Ctrl>h",
-   N_("Add shortcut to customized _homepage"), G_CALLBACK (_action_add_speed_dial_activate) },
+   N_("Add to Speed _dial"), "<Ctrl>h",
+   N_("Add shortcut to speed dial"), G_CALLBACK (_action_add_speed_dial_activate) },
  { "TabClose", NULL,
    N_("_Close Tab"), "<Ctrl>w",
    N_("Close the current tab"), G_CALLBACK (_action_tab_close_activate) },
@@ -4949,7 +4949,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-panel", &show_panel,
                   "show-transferbar", &show_transferbar,
                   "show-statusbar", &browser->show_statusbar,
-                  "customized-homepage-in-new-tabs", &browser->customized_homepage_in_new_tabs,
+                  "speed-dial-in-new-tabs", &browser->speed_dial_in_new_tabs,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
                   "last-web-search", &last_web_search,
@@ -5056,8 +5056,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_navigationbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("show-statusbar"))
         browser->show_statusbar = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("customized-homepage-in-new-tabs"))
-        browser->customized_homepage_in_new_tabs = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("speed-dial-in-new-tabs"))
+        browser->speed_dial_in_new_tabs = g_value_get_boolean (&value);
     else if (name == g_intern_string ("progress-in-location"))
         browser->progress_in_location = g_value_get_boolean (&value);
     else if (name == g_intern_string ("search-engines-in-completion"))
