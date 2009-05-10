@@ -152,6 +152,7 @@ enum {
     SEARCH_TEXT,
     ADD_BOOKMARK,
     SAVE_AS,
+    ADD_SPEED_DIAL,
 
     LAST_SIGNAL
 };
@@ -179,15 +180,12 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                 MidoriView*        view);
 
 static void
-midori_view_speeddial_get_thumb (GtkWidget*   web_view,
+midori_view_speed_dial_get_thumb (GtkWidget*   web_view,
                                  const gchar* message,
                                  MidoriView*  view);
 
 static void
-midori_view_speeddial_save (GtkWidget* web_view);
-
-static gchar*
-midori_view_speeddial_get_next_free_slot (void);
+midori_view_speed_dial_save (GtkWidget* web_view);
 
 static void
 midori_view_class_init (MidoriViewClass* class)
@@ -355,6 +353,26 @@ midori_view_class_init (MidoriViewClass* class)
 
     signals[SAVE_AS] = g_signal_new (
         "save-as",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
+
+    /**
+     * MidoriView::add-speed-dial:
+     * @view: the object on which the signal is emitted
+     * @uri: the URI to add to the speed dial
+     *
+     * Emitted when an URI is added to the spee dial page.
+     *
+     * Since: 0.1.7
+     */
+    signals[ADD_SPEED_DIAL] = g_signal_new (
+        "add-speed-dial",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         0,
@@ -971,96 +989,10 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_action_add_speeddial_cb (GtkWidget*  widget,
+midori_web_view_menu_action_add_speed_dial_cb (GtkWidget*  widget,
                                               MidoriView* view)
 {
-    gchar* folder;
-    gchar* thumb;
-    gchar* filename;
-    gchar* replace_from;
-    gchar* replace_by;
-    /*gchar* uri = g_strdup (webkit_web_frame_get_uri (
-        webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view))));
-    gchar* title = g_strdup (webkit_web_frame_get_title (
-                            webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view))));*/
-    gchar* uri = g_strdup (view->uri);
-    gchar* title = g_strdup (view->title);
-    gchar* slot_id = midori_view_speeddial_get_next_free_slot ();
-
-    if (slot_id == NULL)
-    {
-        g_free (uri);
-        g_free (title);
-        return;
-    }
-
-    if (strlen (title) > 15)
-    {
-        gchar* stripped = g_strndup (title, 15 * sizeof (gchar));
-        g_free (title);
-        title = g_strdup_printf ("%s...", stripped);
-        g_free  (stripped);
-    }
-
-    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "thumbs", NULL);
-    thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
-    filename = g_build_filename (folder, thumb, NULL);
-
-    if (g_file_test (filename, G_FILE_TEST_EXISTS))
-    {
-        GdkPixbuf* img;
-        GRegex* regex;
-        gchar* replace;
-        gchar* file_content;
-        gchar* encoded;
-        gchar* speeddial_body;
-        gchar* body_fname;
-        gsize sz;
-
-        body_fname = g_strconcat (g_get_user_config_dir (),
-                                  "/midori/speeddial-body.html", NULL);
-
-        g_file_get_contents (body_fname, &speeddial_body, NULL, NULL);
-
-        img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
-        gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
-        encoded = g_base64_encode ((guchar *)file_content, sz);
-
-        replace_from = g_strdup_printf (
-            "<div class=\"(.+)\" id=\"%s\">[ \r\n\t]*"\
-            "<a href=\"#\" onclick=\""\
-            "javascript:return getAction\\('%s'\\);\".*>[ \r\n\t]*<h1>"\
-            "%s</h1><h4>.+</h4>[ \r\n\t]*</a>[ \r\n\t]*<p>[ ]*</p>[ \r\t\n]*</div>",
-                slot_id, slot_id, (slot_id+1));
-
-        replace_by = g_strdup_printf (
-            "<div class=\"\\1 activated\" id=\"%s\">"\
-            "<div onclick=\"clearShortcut"\
-            "('%s');\" class=\"cross\">x</div><a href=\"%s\" onclick="\
-            "\"javascript:return getAction('%s');\"><img src="\
-            "\"data:image/png;base64,%s\" /></a><p onclick="\
-            "\"javascript:rename_shortcut('%s');\">%s</p></div>",
-                slot_id, slot_id, uri, slot_id, encoded, slot_id, title);
-
-        regex = g_regex_new (replace_from, G_REGEX_MULTILINE, 0, NULL);
-        replace = g_regex_replace (regex, speeddial_body, -1,
-                                   1, replace_by, 0, NULL);
-
-        g_file_set_contents (body_fname, replace, -1, NULL);
-
-        g_object_unref (img);
-        g_regex_unref (regex);
-        g_free (encoded);
-        g_free (file_content);
-        g_free (body_fname);
-        g_free (speeddial_body);
-        g_free (replace_by);
-        g_free (replace_from);
-        g_free (replace);
-    }
-
-    g_free (thumb);
-    g_free (filename);
+    g_signal_emit (view, signals[ADD_SPEED_DIAL], 0, view->link_uri);
 }
 
 static void
@@ -1318,13 +1250,14 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
         gtk_widget_show (menuitem);
 
-        /* FIXME: This should be a proper action in the browser */
         menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to customized _homepage"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeeddial");
+        g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeedDial");
         g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_add_speeddial_cb), view);
+            G_CALLBACK (midori_web_view_menu_action_add_speed_dial_cb), view);
         gtk_widget_show (menuitem);
+        if (!view->customized_homepage_in_new_tabs)
+            gtk_widget_set_sensitive (menuitem, FALSE);
 
         menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE_AS, NULL);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -1532,10 +1465,10 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* source_id,
                                     MidoriView*  view)
 {
-    if (!strncmp (message, "speeddial-get-thumbnail", 22))
-        midori_view_speeddial_get_thumb (web_view, message, view);
-    else if (!strncmp (message, "speeddial-save", 13))
-        midori_view_speeddial_save (web_view);
+    if (!strncmp (message, "speed_dial-get-thumbnail", 22))
+        midori_view_speed_dial_get_thumb (web_view, message, view);
+    else if (!strncmp (message, "speed_dial-save", 13))
+        midori_view_speed_dial_save (web_view);
     else
         g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
     return TRUE;
@@ -2025,16 +1958,16 @@ midori_view_set_uri (MidoriView*  view,
             SoupServer* res_server;
             guint port;
             gchar* res_root;
-            gchar* speeddial_head;
-            gchar* speeddial_body;
-            gchar* speeddial_html;
+            gchar* speed_dial_head;
+            gchar* speed_dial_body;
+            gchar* speed_dial_html;
             gchar* body_fname;
             gchar* location_entry_search;
 
             katze_assign (view->uri, g_strdup (""));
 
             g_file_get_contents (DATADIR "/midori/res/speeddial-head.html",
-                                 &speeddial_head, NULL, NULL);
+                                 &speed_dial_head, NULL, NULL);
 
             res_server = sokoke_get_res_server ();
             port = soup_server_get_port (res_server);
@@ -2045,18 +1978,18 @@ midori_view_set_uri (MidoriView*  view,
             if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
             {
                 g_file_get_contents (DATADIR "/midori/res/speeddial-body.html",
-                                     &speeddial_body, NULL, NULL );
-                g_file_set_contents (body_fname, speeddial_body, -1, NULL );
+                                     &speed_dial_body, NULL, NULL );
+                g_file_set_contents (body_fname, speed_dial_body, -1, NULL );
             }
             else
-                g_file_get_contents (body_fname, &speeddial_body, NULL, NULL);
+                g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 
-            speeddial_html = g_strconcat (speeddial_head, speeddial_body, NULL);
+            speed_dial_html = g_strconcat (speed_dial_head, speed_dial_body, NULL);
 
             g_object_get (view->settings, "location-entry-search",
                           &location_entry_search, NULL);
 
-            data = sokoke_replace_variables (speeddial_html,
+            data = sokoke_replace_variables (speed_dial_html,
                 "{res}", res_root,
                 "{title}", _("Blank page"),
                 "{search_uri}", location_entry_search,
@@ -2079,9 +2012,9 @@ midori_view_set_uri (MidoriView*  view,
 
             g_free (res_root);
             g_free (data);
-            g_free (speeddial_html);
-            g_free (speeddial_head);
-            g_free (speeddial_body);
+            g_free (speed_dial_html);
+            g_free (speed_dial_head);
+            g_free (speed_dial_body);
             g_free (body_fname);
             g_free (location_entry_search);
         }
@@ -2976,14 +2909,14 @@ midori_view_execute_script (MidoriView*  view,
 
 
 /**
- * midori_view_speeddial_inject_thumb
+ * midori_view_speed_dial_inject_thumb
  * @view: a #MidoriView
  * @filename: filename of the thumbnail
- * @dom_id: Id of the shortcut on speeddial page in wich to inject content
+ * @dom_id: Id of the shortcut on speed_dial page in wich to inject content
  * @url: url of the shortcut
  */
 static void
-midori_view_speeddial_inject_thumb (MidoriView* view,
+midori_view_speed_dial_inject_thumb (MidoriView* view,
                                    gchar*     filename,
                                    gchar*     dom_id,
                                    gchar*     url)
@@ -3007,7 +2940,7 @@ midori_view_speeddial_inject_thumb (MidoriView* view,
     free (js);
     g_object_unref (img);
 
-    midori_view_speeddial_save (view->web_view);
+    midori_view_speed_dial_save (view->web_view);
 
     g_free (url);
     g_free (dom_id);
@@ -3017,7 +2950,7 @@ midori_view_speeddial_inject_thumb (MidoriView* view,
 
 
 /**
- * midori_view_speeddial_save
+ * midori_view_speed_dial_save
  * @web_view: a #WebkitView
  * @message: Console log data
  *
@@ -3029,7 +2962,7 @@ midori_view_speeddial_inject_thumb (MidoriView* view,
  *
  **/
 static void
-midori_view_speeddial_get_thumb (GtkWidget*   web_view,
+midori_view_speed_dial_get_thumb (GtkWidget*   web_view,
                                 const gchar* message,
                                 MidoriView*  view)
 {
@@ -3047,60 +2980,20 @@ midori_view_speeddial_get_thumb (GtkWidget*   web_view,
     filename = g_build_filename (folder, thumb, NULL);
     g_free (thumb);
 
-    midori_view_speeddial_inject_thumb (view, filename,
+    midori_view_speed_dial_inject_thumb (view, filename,
         g_strdup (t_data[1]), g_strdup (t_data[2]));
     g_strfreev (t_data);
 }
 
-
 /**
- * midori_view_speeddial_get_next_free_slot
- *
- * Returns: Id of the next shortcut slot on the speeddial page
- */
-static gchar*
-midori_view_speeddial_get_next_free_slot (void)
-{
-    gchar* speeddial_body;
-    gchar* body_fname;
-    gchar* slot_id = NULL;
-    gchar* p = NULL;
-
-    body_fname = g_strdup_printf ("%s%s", g_get_user_config_dir (),
-                                  "/midori/speeddial-body.html");
-    if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
-    {
-        g_file_get_contents (DATADIR "/midori/res/speeddial-body.html",
-                             &speeddial_body, NULL, NULL);
-        g_file_set_contents (body_fname, speeddial_body, -1, NULL);
-    }
-    else
-        g_file_get_contents (body_fname, &speeddial_body, NULL, NULL);
-
-    p = g_strstr_len (speeddial_body, -1, "<h1>");
-
-    if (p != NULL)
-    {
-        p = g_strndup ((p+4), 1);
-        slot_id = g_strdup_printf ("s%s", p);
-        g_free (p);
-    }
-
-    g_free (body_fname);
-    g_free (speeddial_body);
-
-    return slot_id;
-}
-
-/**
- * midori_view_speeddial_save
+ * midori_view_speed_dial_save
  * @web_view: a #WebkitView
  *
- * Save speeddial DOM structure to body template
+ * Save speed_dial DOM structure to body template
  *
  **/
 static void
-midori_view_speeddial_save (GtkWidget*    web_view)
+midori_view_speed_dial_save (GtkWidget*    web_view)
 {
     JSContextRef js_context = webkit_web_frame_get_global_context (
         webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)));

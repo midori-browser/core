@@ -249,6 +249,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "Forward",
         midori_view_can_go_forward (MIDORI_VIEW (view)));
 
+    _action_set_sensitive (browser, "AddSpeedDial",
+        browser->customized_homepage_in_new_tabs);
     /* Currently views that don't support source, don't support
        saving either. If that changes, we need to think of something. */
     _action_set_sensitive (browser, "SaveAs",
@@ -869,6 +871,147 @@ midori_view_save_as_cb (GtkWidget*   menuitem,
     midori_browser_save_uri (browser, uri);
 }
 
+static gchar*
+midori_browser_speed_dial_get_next_free_slot (void)
+{
+    gchar* speed_dial_body;
+    gchar* body_fname;
+    gchar* slot_id = NULL;
+    gchar* p = NULL;
+
+    body_fname = g_strdup_printf ("%s%s", g_get_user_config_dir (),
+                                  "/midori/speeddial-body.html");
+    if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
+    {
+        g_file_get_contents (DATADIR "/midori/res/speeddial-body.html",
+                             &speed_dial_body, NULL, NULL);
+        g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
+    }
+    else
+        g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
+
+    p = g_strstr_len (speed_dial_body, -1, "<h1>");
+
+    if (p != NULL)
+    {
+        p = g_strndup ((p+4), 1);
+        slot_id = g_strdup_printf ("s%s", p);
+        g_free (p);
+    }
+
+    g_free (body_fname);
+    g_free (speed_dial_body);
+
+    return slot_id;
+}
+
+
+static void
+midori_browser_add_speed_dial (MidoriBrowser* browser)
+{
+    gchar* folder;
+    gchar* thumb;
+    gchar* filename;
+    gchar* replace_from;
+    gchar* replace_by;
+    gsize len;
+
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+
+    gchar* uri = g_strdup (midori_view_get_display_uri (MIDORI_VIEW (view)));
+    gchar* title = g_strdup (midori_view_get_display_title (MIDORI_VIEW (view)));
+    gchar* slot_id = midori_browser_speed_dial_get_next_free_slot ();
+
+    if (slot_id == NULL)
+    {
+        g_free (uri);
+        g_free (title);
+        return;
+    }
+
+    if ((len = g_utf8_strlen (title, -1)) > 15)
+    {
+        gchar* ellipsized = g_malloc0 (len + 1);
+        g_utf8_strncpy (ellipsized, title, 15);
+        g_free (title);
+        title = g_strdup_printf ("%s...", ellipsized);
+        g_free  (ellipsized);
+    }
+
+    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "thumbs", NULL);
+    thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
+    filename = g_build_filename (folder, thumb, NULL);
+
+    if (g_file_test (filename, G_FILE_TEST_EXISTS))
+    {
+        GdkPixbuf* img;
+        GRegex* regex;
+        gchar* replace;
+        gchar* file_content;
+        gchar* encoded;
+        gchar* speed_dial_body;
+        gchar* body_fname;
+        gsize sz;
+
+        body_fname = g_strdup_printf ("%s%s", g_get_user_config_dir (),
+                                      "/midori/speeddial-body.html");
+
+        g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
+
+        img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
+        gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
+        encoded = g_base64_encode ((guchar *)file_content, sz);
+
+        replace_from = g_strdup_printf (
+            "<div class=\"(.+)\" id=\"%s\">[ \r\n\t]*"\
+            "<a href=\"#\" onclick=\""\
+            "javascript:return getAction\\('%s'\\);\".*>[ \r\n\t]*<h1>"\
+            "%s</h1><h4>.+</h4>[ \r\n\t]*</a>[ \r\n\t]*<p>[ ]*</p>[ \r\t\n]*</div>",
+                slot_id, slot_id, (slot_id+1));
+
+        replace_by = g_strdup_printf (
+            "<div class=\"\\1 activated\" id=\"%s\">"\
+            "<div onclick=\"clearShortcut"\
+            "('%s');\" class=\"cross\">x</div><a href=\"%s\" onclick="\
+            "\"javascript:return getAction('%s');\"><img src="\
+            "\"data:image/png;base64,%s\" /></a><p onclick="\
+            "\"javascript:rename_shortcut('%s');\">%s</p></div>",
+                slot_id, slot_id, uri, slot_id, encoded, slot_id, title);
+
+        regex = g_regex_new (replace_from, G_REGEX_MULTILINE, 0, NULL);
+        replace = g_regex_replace (regex, speed_dial_body, -1,
+                                   1, replace_by, 0, NULL);
+
+        g_file_set_contents (body_fname, replace, -1, NULL);
+
+        g_object_unref (img);
+        g_regex_unref (regex);
+        g_free (encoded);
+        g_free (file_content);
+        g_free (body_fname);
+        g_free (speed_dial_body);
+        g_free (replace_by);
+        g_free (replace_from);
+        g_free (replace);
+    }
+
+    g_free (thumb);
+    g_free (filename);
+}
+
+
+static void
+midori_view_add_speed_dial_cb (GtkWidget*   menuitem,
+                              const gchar* uri,
+                              GtkWidget*   view)
+{
+    MidoriBrowser* browser;
+
+    browser = midori_browser_get_for_widget (menuitem);
+    midori_browser_add_speed_dial (browser);
+}
+
+
 static gboolean
 midori_browser_tab_leave_notify_event_cb (GtkWidget*        widget,
                                           GdkEventCrossing* event,
@@ -1255,6 +1398,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_add_bookmark_cb, browser,
                       "signal::save-as",
                       midori_view_save_as_cb, browser,
+                      "signal::add-speed-dial",
+                      midori_view_add_speed_dial_cb, browser,
                       "signal::leave-notify-event",
                       midori_browser_tab_leave_notify_event_cb, browser,
                       NULL);
@@ -1725,6 +1870,13 @@ _action_save_as_activate (GtkAction*     action,
 }
 
 static void
+_action_add_speed_dial_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    midori_browser_add_speed_dial (browser);
+}
+
+static void
 _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
@@ -2107,7 +2259,7 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
         const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Preferences", "Window", "Bookmarks", "RecentlyVisited",
+            "Preferences", "Window", "Bookmarks", "RecentlyVisited", "AddSpeedDial",
             "ReloadStop", "ZoomIn", "Separator", "ZoomOut", "Back", "Forward",
             "Homepage", "Panel", "Trash", "Search" };
         GtkWidget* submenu;
@@ -3608,6 +3760,9 @@ static const GtkActionEntry entries[] = {
  { "SaveAs", GTK_STOCK_SAVE_AS,
    NULL, "<Ctrl>s",
    N_("Save to a file"), G_CALLBACK (_action_save_as_activate) },
+ { "AddSpeedDial", NULL,
+   N_("Add to customize _homepage"), "<Ctrl>h",
+   N_("Add shortcut to customized _homepage"), G_CALLBACK (_action_add_speed_dial_activate) },
  { "TabClose", NULL,
    N_("_Close Tab"), "<Ctrl>w",
    N_("Close the current tab"), G_CALLBACK (_action_tab_close_activate) },
@@ -3944,6 +4099,7 @@ static const gchar* ui_markup =
     "</menu>"
     "<menuitem action='SourceView'/>"
     "<menuitem action='Fullscreen'/>"
+    "<menuitem action='AddSpeedDial'/>"
    "</menu>"
    "<menu action='Go'>"
     "<menuitem action='Back'/>"
