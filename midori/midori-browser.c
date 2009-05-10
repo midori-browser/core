@@ -879,8 +879,8 @@ midori_browser_speed_dial_get_next_free_slot (void)
     gchar* slot_id = NULL;
     gchar* p = NULL;
 
-    body_fname = g_strdup_printf ("%s%s", g_get_user_config_dir (),
-                                  "/midori/speeddial-body.html");
+    body_fname = g_build_filename (sokoke_set_config_dir (NULL),
+                                   "speeddial-body.html", NULL);
     if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
     {
         g_file_get_contents (DATADIR "/midori/res/speeddial-body.html",
@@ -953,8 +953,8 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         gchar* body_fname;
         gsize sz;
 
-        body_fname = g_strdup_printf ("%s%s", g_get_user_config_dir (),
-                                      "/midori/speeddial-body.html");
+        body_fname = g_build_filename (sokoke_set_config_dir (NULL),
+                                       "speeddial-body.html", NULL);
 
         g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 

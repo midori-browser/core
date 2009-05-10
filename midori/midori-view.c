@@ -1972,8 +1972,8 @@ midori_view_set_uri (MidoriView*  view,
             res_server = sokoke_get_res_server ();
             port = soup_server_get_port (res_server);
             res_root = g_strdup_printf ("http://localhost:%d/res", port);
-            body_fname = g_strconcat (g_get_user_config_dir (),
-                                      "/midori/speeddial-body.html", NULL);
+            body_fname = g_build_filename (sokoke_set_config_dir (NULL),
+                                           "speeddial-body.html", NULL);
 
             if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
             {
@@ -2998,7 +2998,8 @@ midori_view_speed_dial_save (GtkWidget*    web_view)
     JSContextRef js_context = webkit_web_frame_get_global_context (
         webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)));
     gchar* newdom = sokoke_js_script_eval (js_context,"getSpeeddialContent()", NULL);
-    gchar* fname = g_strconcat (g_get_user_config_dir (), "/midori/speeddial-body.html", NULL);
+    gchar* fname = g_build_filename (sokoke_set_config_dir (NULL),
+                                     "speeddial-body.html", NULL);
     g_file_set_contents (fname, newdom, -1, NULL);
     g_free (fname);
     g_free (newdom);
