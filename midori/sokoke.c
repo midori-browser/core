@@ -1057,7 +1057,7 @@ sokoke_replace_variables (const gchar* template,
         const gchar* value = va_arg (args, const gchar*);
         GRegex* regex = g_regex_new (variable, 0, 0, NULL);
         gchar* replaced = result;
-        result = g_regex_replace (regex, replaced, -1, 0, value, 0, NULL);
+        result = g_regex_replace_literal (regex, replaced, -1, 0, value, 0, NULL);
         g_free (replaced);
         g_regex_unref (regex);
     }
