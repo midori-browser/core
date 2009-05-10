@@ -596,13 +596,13 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
         }
         else if (age > 6)
         {
-            sdate = g_strdup_printf (_("A week ago"));
+            sdate = _("A week ago");
             g_object_set (renderer, "text", sdate, NULL);
-            g_free (sdate);
         }
         else if (age > 1)
         {
-            sdate = g_strdup_printf (_("%d days ago"), (gint)age);
+            sdate = g_strdup_printf (ngettext (_("%d day ago"),
+                _("%d days ago"), (gint)age), (gint)age);
             g_object_set (renderer, "text", sdate, NULL);
             g_free (sdate);
         }
