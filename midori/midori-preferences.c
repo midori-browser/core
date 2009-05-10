@@ -444,7 +444,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 0, 1);
     hbox = gtk_hbox_new (FALSE, 4);
     button = katze_property_proxy (settings, "default-font-family", "font");
-    gtk_widget_set_tooltip_text (entry, _("The default font family used to display text"));
+    gtk_widget_set_tooltip_text (button, _("The default font family used to display text"));
     gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
     entry = katze_property_proxy (settings, "default-font-size", NULL);
     gtk_widget_set_tooltip_text (entry, _("The default font size used to display text"));
