@@ -1250,14 +1250,15 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
         gtk_widget_show (menuitem);
 
-        menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to customized _homepage"));
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeedDial");
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_add_speed_dial_cb), view);
-        gtk_widget_show (menuitem);
-        if (!view->customized_homepage_in_new_tabs)
-            gtk_widget_set_sensitive (menuitem, FALSE);
+        if (view->customized_homepage_in_new_tabs)
+        {
+            menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to customized _homepage"));
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeedDial");
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_web_view_menu_action_add_speed_dial_cb), view);
+            gtk_widget_show (menuitem);
+        }
 
         menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE_AS, NULL);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
