@@ -13,6 +13,8 @@
 #include "sokoke.h"
 #include "midori-stock.h"
 
+#include "compat.h"
+
 #if HAVE_CONFIG_H
     #include <config.h>
 #endif
