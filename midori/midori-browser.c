@@ -406,7 +406,7 @@ midori_browser_update_thumbnail (GtkWidget*   view,
 {
     GtkWidget* child;
 
-    #if GTK_CHECK_VERSION (2, 12, 0)
+    #if GTK_CHECK_VERSION (2, 14, 0)
     if (midori_view_get_load_status (MIDORI_VIEW (view)) != MIDORI_LOAD_FINISHED)
         return;
 
