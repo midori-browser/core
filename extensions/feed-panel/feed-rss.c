@@ -137,11 +137,30 @@ rss_postparse_item (FeedParser* fparser)
         * Verify that the required RSS elements are added
         * (as per the spec)
         */
-        if (!katze_item_get_name (fparser->item) &&
-            !katze_item_get_text (fparser->item))
+        if (!katze_item_get_name (fparser->item))
         {
-            feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
-                                   _("Failed to find required RSS \"item\" elements in XML data."));
+            gchar* desc;
+
+            desc = (gchar*)katze_item_get_text (fparser->item);
+            if (!desc)
+            {
+                feed_parser_set_error (fparser, FEED_PARSE_ERROR_MISSING_ELEMENT,
+                                       _("Failed to find required RSS \"item\" elements in XML data."));
+            }
+            else
+            {
+                desc = feed_remove_markup (g_strdup (desc));
+                if (desc)
+                {
+                    katze_item_set_name (fparser->item, desc);
+                    g_free (desc);
+                }
+                else
+                {
+                    if ((desc = (gchar*)katze_item_get_uri (fparser->item)))
+                        katze_item_set_name (fparser->item, desc);
+                }
+            }
         }
     }
 

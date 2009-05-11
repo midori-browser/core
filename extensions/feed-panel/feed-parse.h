@@ -58,6 +58,9 @@ gchar*
 feed_get_element_string (FeedParser* fparser);
 
 gchar*
+feed_remove_markup (gchar* markup);
+
+gchar*
 feed_get_element_markup (FeedParser* fparser);
 
 gint64
