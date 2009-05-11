@@ -537,7 +537,7 @@ midori_app_finalize (GObject* object)
         app->libnotify_funcs.uninit ();
         g_module_close (app->libnotify_module);
     }
-    katze_object_assign (app->program_notify_send, NULL);
+    katze_assign (app->program_notify_send, NULL);
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
 }
