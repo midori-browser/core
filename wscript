@@ -340,7 +340,7 @@ def build (bld):
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
     bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/error.html')
     bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
-    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/speeddial-body.html')
+    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/speeddial.json')
     bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/mootools.js')
 
     if Options.commands['check']:

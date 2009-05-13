@@ -11,6 +11,12 @@
     <script type="text/javascript" src="{res}/mootools.js"></script>
 
     <style>
+
+    html, body, #content {
+        margin: 0px;
+        padding: 0px
+    }
+
     body {
         text-align: center;
         background-color: #fefefe;
@@ -19,7 +25,7 @@
 
     #wrap {
         width: 660px;
-        height: 570px;
+        height: 550px;
         margin: 0px auto;
         text-align: center;
     }
@@ -30,7 +36,7 @@
         position: relative;
         width: 200px;
         height: 150px;
-        margin: 25px 25px 0px 0px;
+        margin: 20px 20px 0px 0px;
         background-color: #fff;
         -webkit-border-radius: 10px;
     }
@@ -106,10 +112,18 @@
 
     input[type=text] {
         color: #ddd;
+        vertical-align: middle;
+        font-size: 13px;
     }
 
     input[type=text]:active, input[type=text]:focus {
         color: #222;
+    }
+
+    button {
+        font-size: 12px;
+        padding: 5px 7px;
+        vertical-align: middle;
     }
 
     div.activated {
@@ -139,15 +153,24 @@
 
     .activated p {
         cursor: text;
-        background: url({stock}/gtk-edit) 98% 65% no-repeat;
-        -webkit-background-size: 12px 15px;
+        background: url({stock}/gtk-edit) 98% 70% no-repeat;
+        -webkit-background-size: 16px 15px;
+        opacity: 0.6;
+        color: rgba(0,0,0,1);
+    }
+
+    .activated p:hover {
+        opacity: 1;
+        color: rgba(0,0,0,0.5);
     }
     </style>
 
     <script type="text/javascript">
+
+    sc = JSON.decode ({json_data});
+
     var getAction = function (id)
     {
-
         var a = $(id).getFirst ();
         if (a.getProperty ('href') != "#" )
             return true;
@@ -161,6 +184,9 @@
         a.setProperty('href', url);
         a.getNext().set('text', name);
 
+        var num = id.charAt (1) - 1;
+        sc.shortcuts[num].title = name;
+
         a.empty();
         var im = new Element('img', { src: '{stock}/throbber.gif' });
 
@@ -173,7 +199,7 @@
 
     var getThumbnail = function (id, url)
     {
-        console.log ("speeddial-get-thumbnail " + id + " " + url);
+        console.log ("speed_dial-get-thumbnail " + id + " " + url);
         return false;
     }
 
@@ -192,18 +218,27 @@
 
         $(id).addClass ('activated');
 
-        var p = a.getNext();
-        p.setProperty('onclick', 'javascript:rename_shortcut("' + id + '");');
+        var p = a.getNext ();
+        p.setProperty('onclick', 'javascript:renameShortcut("' + id + '");');
+
+        var num = id.charAt (1) - 1;
+        sc.shortcuts[num].href = href;
+        sc.shortcuts[num].img = data;
+
+        console.log ("speed_dial-save '" + JSON.encode (sc) + "'");
     }
 
-    var rename_shortcut = function (id)
+    var renameShortcut = function (id)
     {
         var name = prompt ("{enter_shortcut_name}", "");
         if (!name) return;
 
-        $(id).getLast ().set ('html', name);
+        var num = id.charAt (1) - 1;
 
-        console.log ("speeddial-save");
+        $(id).getLast ().set ('html', name);
+        sc.shortcuts[num].title = name;
+
+        console.log ("speed_dial-save '" + JSON.encode (sc) + "'");
     }
 
     var clearShortcut = function (id)
@@ -212,39 +247,90 @@
             return;
 
         var num = id.charAt (1);
-        var sc = $(id);
-        var cross = sc.getFirst ();
+        var div = $(id);
+        var cross = div.getFirst ();
         var a = cross.getNext ();
         var p = a.getNext ();
 
         cross.dispose ();
-        sc.removeClass ('activated');
+        div.removeClass ('activated');
         a.empty ();
 
         cross.dispose ();
-        sc.removeClass ('activated');
+        div.removeClass ('activated');
         a.empty ().set ('html', '<h1>' + num + '</h1><h4><span/></h4>');
         a.setProperty ('href', '#');
         p.empty ().removeProperty ('onclick');
 
-        console.log ("speeddial-save");
+        num -= 1;
+        sc.shortcuts[num].href = "#";
+        sc.shortcuts[num].title = "";
+        sc.shortcuts[num].img = "";
+
+        console.log ("speed_dial-save '" + JSON.encode (sc) + "'");
     }
 
     var speeddialSearch = function ()
     {
-        var reg = new RegExp("%s", "g");
+        var reg = new RegExp ("%s", "g");
         var search_url = $('search_bar').getProperty ('action');
         var search_content = $('search_bar').getFirst ().get ('value');
         window.location.href = search_url.replace (reg,  encodeURIComponent (search_content));
         return false;
     }
 
-    var getSpeeddialContent = function()
+    var buildSpeeddial = function ()
     {
-        var content = $('content').get ('html');
-        return '<div id="content">' + content + '</div></div></body></html>';
+        sc.shortcuts.each (function (item, index, sc)
+        {
+            var cl = "shortcut";
+
+            if (index == 0 || index == 1 || index == 2)
+                cl += " top";
+            if (index == 2 || index == 5 || index == 8)
+                cl += " right";
+
+            var div = new Element ('div', {
+                'class': cl,
+                'id': item.id
+            });
+
+            var a = new Element ('a', {
+                'href': item.href,
+                'events': {
+                    'click': function () {
+                        return getAction (item.id);
+                    }
+                }
+            });
+
+            var p = new Element ('p', {
+                'text': item.title
+            });
+
+            if (item.href == "#")
+                a.set ('html', '<h1>' + item.id.charAt (1) + '</h1><h4><span/></h4>');
+            else
+            {
+                div.addClass ('activated');
+                var im = new Element ('img', { src: 'data:image/png;base64,' + item.img });
+                var cross = new Element ('div', { 'html': 'x' });
+                cross.setProperty ('onclick', 'clearShortcut("' + item.id + '");');
+                cross.addClass ('cross');
+                cross.inject (div, 'top');
+                a.grab (im);
+                p.setProperty('onclick', 'javascript:renameShortcut("' + item.id + '");');
+            }
+
+            div.grab (a);
+            div.grab (p);
+            $('content').grab (div);
+        });
     }
 
+    window.addEvent ('domready', function () {
+        buildSpeeddial ();
+    });
     </script>
 </head>
 <body>
@@ -255,4 +341,9 @@
                 onblur="javascript:if(this.value=='') this.value='{search_title}';" />
             <button>{search}</button>
         </form>
+        <div id="content">
+        </div>
+    </div>
+</body>
+</html>
 

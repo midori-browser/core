@@ -874,33 +874,45 @@ midori_view_save_as_cb (GtkWidget*   menuitem,
 static gchar*
 midori_browser_speed_dial_get_next_free_slot (void)
 {
+    GRegex* regex;
+    GMatchInfo* match_info;
     gchar* speed_dial_body;
     gchar* body_fname;
     gchar* slot_id = NULL;
-    gchar* p = NULL;
 
     body_fname = g_build_filename (sokoke_set_config_dir (NULL),
-                                   "speeddial-body.html", NULL);
+                                   "speeddial.json", NULL);
+
     if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
     {
-        g_file_get_contents (DATADIR "/midori/res/speeddial-body.html",
-                             &speed_dial_body, NULL, NULL);
-        g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
+        if (g_file_get_contents (DATADIR "/midori/res/speeddial.json",
+                                 &speed_dial_body, NULL, NULL))
+        {
+            g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
+
+            g_free (speed_dial_body);
+        }
+        g_free (body_fname);
+        return g_strdup ("s1");
     }
     else
         g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 
-    p = g_strstr_len (speed_dial_body, -1, "<h1>");
+    regex = g_regex_new ("\"id\":[ \t]*\"(s[0-9])\"[ \t]*,[ \t]*\"href\":\"#\"",
+                         G_REGEX_MULTILINE, 0, NULL);
 
-    if (p != NULL)
+    if (g_regex_match (regex, speed_dial_body, 0, &match_info))
     {
-        p = g_strndup ((p+4), 1);
-        slot_id = g_strdup_printf ("s%s", p);
-        g_free (p);
+        slot_id = g_match_info_fetch (match_info, 1);
+        g_match_info_free (match_info);
     }
+
+    if (!g_strcmp0 (slot_id, ""))
+        g_free (slot_id);
 
     g_free (body_fname);
     g_free (speed_dial_body);
+    g_free (regex);
 
     return slot_id;
 }
@@ -954,45 +966,37 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         gsize sz;
 
         body_fname = g_build_filename (sokoke_set_config_dir (NULL),
-                                       "speeddial-body.html", NULL);
+                                       "speeddial.json", NULL);
 
-        g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
+        if (g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL))
+        {
+            img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
+            gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
+            encoded = g_base64_encode ((guchar *)file_content, sz);
 
-        img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
-        gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
-        encoded = g_base64_encode ((guchar *)file_content, sz);
+            replace_from = g_strdup_printf (
+                "\\{[ \t]*\"id\"[ \t]*:[ \t]*\"%s\"[ \t]*,[ \t]*\"href\"[ \t]*"\
+                "[ \t]*:[ \t]*\"#\"[ \t]*,[ \t]*\"title\"[ \t]*:[ \t]*\"\"[ \t]*,"\
+                "\"img\"[ \t]*:[ \t]*\"\"[ \t]*\\}", slot_id);
+            replace_by = g_strdup_printf (
+                "{\"id\":\"%s\",\"href\":\"%s\",\"title\":\"%s\",\"img\":\"%s\"}",
+                slot_id, uri, title, encoded);
 
-        replace_from = g_strdup_printf (
-            "<div class=\"(.+)\" id=\"%s\">[ \r\n\t]*"\
-            "<a href=\"#\" onclick=\""\
-            "javascript:return getAction\\('%s'\\);\".*>[ \r\n\t]*<h1>"\
-            "%s</h1><h4>.+</h4>[ \r\n\t]*</a>[ \r\n\t]*<p>[ ]*</p>[ \r\t\n]*</div>",
-                slot_id, slot_id, (slot_id+1));
+            regex = g_regex_new (replace_from, G_REGEX_MULTILINE, 0, NULL);
+            replace = g_regex_replace (regex, speed_dial_body, -1,
+                                       1, replace_by, 0, NULL);
+            g_file_set_contents (body_fname, replace, -1, NULL);
 
-        replace_by = g_strdup_printf (
-            "<div class=\"\\1 activated\" id=\"%s\">"\
-            "<div onclick=\"clearShortcut"\
-            "('%s');\" class=\"cross\">x</div><a href=\"%s\" onclick="\
-            "\"javascript:return getAction('%s');\"><img src="\
-            "\"data:image/png;base64,%s\" /></a><p onclick="\
-            "\"javascript:rename_shortcut('%s');\">%s</p></div>",
-                slot_id, slot_id, uri, slot_id, encoded, slot_id, title);
-
-        regex = g_regex_new (replace_from, G_REGEX_MULTILINE, 0, NULL);
-        replace = g_regex_replace (regex, speed_dial_body, -1,
-                                   1, replace_by, 0, NULL);
-
-        g_file_set_contents (body_fname, replace, -1, NULL);
-
-        g_object_unref (img);
-        g_regex_unref (regex);
-        g_free (encoded);
-        g_free (file_content);
+            g_object_unref (img);
+            g_regex_unref (regex);
+            g_free (encoded);
+            g_free (file_content);
+            g_free (speed_dial_body);
+            g_free (replace_from);
+            g_free (replace_by);
+            g_free (replace);
+        }
         g_free (body_fname);
-        g_free (speed_dial_body);
-        g_free (replace_by);
-        g_free (replace_from);
-        g_free (replace);
     }
 
     g_free (thumb);
