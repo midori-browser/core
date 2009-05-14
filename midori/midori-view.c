@@ -783,8 +783,9 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
             g_strfreev (parts);
         }
         g_strfreev (items);
-        g_object_set_data_full (G_OBJECT (view), "news-feeds",
-                           value && *value ? (void*)1 : (void*)0, g_free);
+        g_object_set_data (G_OBJECT (view), "news-feeds",
+                           value && *value ? (void*)1 : (void*)0);
+        g_free (value);
         /* Ensure load-status is notified again, whether it changed or not */
         g_object_notify (G_OBJECT (view), "load-status");
     }
