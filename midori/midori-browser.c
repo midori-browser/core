@@ -3859,7 +3859,7 @@ static const GtkActionEntry entries[] = {
     N_("Custom..."), "",
     NULL, G_CALLBACK (_action_view_encoding_activate) },
  { "SourceView", NULL,
-   N_("View _Source"), "",
+   N_("View _Source"), "<Ctrl>U",
    N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
  { "SelectionSourceView", NULL,
     N_("View Selection Source"), "",
