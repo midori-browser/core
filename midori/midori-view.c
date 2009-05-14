@@ -539,7 +539,10 @@ midori_view_update_icon (MidoriView* view,
         {
             icon_theme = gtk_icon_theme_get_for_screen (screen);
             if ((parts = g_strsplit (view->mime_type, "/", 2)))
-                parts = (parts[0] && parts[1]) ? parts : NULL;
+            {
+                if (!(parts[0] && parts[1]))
+                    katze_assign (parts, NULL);
+            }
         }
         else
             parts = NULL;
@@ -780,8 +783,8 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
             g_strfreev (parts);
         }
         g_strfreev (items);
-        g_object_set_data (G_OBJECT (view), "news-feeds",
-                           value && *value ? (void*)1 : (void*)0);
+        g_object_set_data_full (G_OBJECT (view), "news-feeds",
+                           value && *value ? (void*)1 : (void*)0, g_free);
         /* Ensure load-status is notified again, whether it changed or not */
         g_object_notify (G_OBJECT (view), "load-status");
     }

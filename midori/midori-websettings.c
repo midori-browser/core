@@ -954,7 +954,7 @@ notify_default_encoding_cb (GObject*    object,
                             GParamSpec* pspec)
 {
     MidoriWebSettings* web_settings;
-    const gchar* string;
+    gchar* string;
     const gchar* encoding;
 
     web_settings = MIDORI_WEB_SETTINGS (object);
@@ -973,6 +973,7 @@ notify_default_encoding_cb (GObject*    object,
         web_settings->preferred_encoding = MIDORI_ENCODING_WESTERN;
     else
         web_settings->preferred_encoding = MIDORI_ENCODING_CUSTOM;
+    g_free (string);
     g_object_notify (object, "preferred-encoding");
 }
 
@@ -994,6 +995,20 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
 static void
 midori_web_settings_finalize (GObject* object)
 {
+    MidoriWebSettings* web_settings;
+
+    web_settings = MIDORI_WEB_SETTINGS (object);
+
+    katze_assign (web_settings->toolbar_items, NULL);
+    katze_assign (web_settings->homepage, NULL);
+    katze_assign (web_settings->download_folder, NULL);
+    katze_assign (web_settings->download_manager, NULL);
+    katze_assign (web_settings->text_editor, NULL);
+    katze_assign (web_settings->news_aggregator, NULL);
+    katze_assign (web_settings->location_entry_search, NULL);
+    katze_assign (web_settings->http_proxy, NULL);
+    katze_assign (web_settings->ident_string, NULL);
+
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
 }
 
