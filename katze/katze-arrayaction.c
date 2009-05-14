@@ -472,6 +472,44 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     }
 }
 
+static gboolean
+katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
+                                               KatzeItem* item)
+{
+    KatzeArrayAction* array_action;
+    GtkWidget* menuitem;
+    const gchar* icon_name;
+    GtkWidget* image;
+    GdkPixbuf* icon;
+
+    array_action = g_object_get_data (G_OBJECT (proxy), "KatzeArrayAction");
+    menuitem = katze_image_menu_item_new_ellipsized (
+        katze_item_get_name (item));
+    if ((icon_name = katze_item_get_icon (item)) && *icon_name)
+        image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
+    else
+    {
+        if (KATZE_IS_ARRAY (item))
+            icon = gtk_widget_render_icon (menuitem,
+                GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
+        else
+            icon = katze_net_load_icon (array_action->net,
+                katze_item_get_uri (item), NULL, proxy, NULL);
+        image = gtk_image_new_from_pixbuf (icon);
+        g_object_unref (icon);
+    }
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
+    g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
+    g_signal_connect (menuitem, "button-press-event",
+        G_CALLBACK (katze_array_action_menu_button_press_cb), array_action);
+    /* we need the 'activate' signal as well for keyboard events */
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (katze_array_action_menu_activate_cb), array_action);
+    gtk_tool_item_set_proxy_menu_item (GTK_TOOL_ITEM (proxy),
+        "katze-tool-item-menu", menuitem);
+    return TRUE;
+}
+
 /**
  * katze_array_action_create_tool_item_for:
  * @array_action: a #KatzeArrayAction
@@ -507,6 +545,8 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
         return gtk_separator_tool_item_new ();
 
     toolitem = gtk_tool_button_new (NULL, NULL);
+    g_signal_connect (toolitem, "create-menu-proxy",
+        G_CALLBACK (katze_array_action_proxy_create_menu_proxy_cb), item);
     if (KATZE_IS_ARRAY (item))
         icon = gtk_widget_render_icon (GTK_WIDGET (toolitem),
             GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
