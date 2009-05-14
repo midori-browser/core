@@ -510,6 +510,17 @@ midori_view_context_ready_cb (GtkWidget*     view,
 }
 
 static void
+midori_view_notify_uri_cb (GtkWidget*     view,
+                           GParamSpec*    pspec,
+                           MidoriBrowser* browser)
+{
+    const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+    GtkAction* action = _action_by_name (browser, "Location");
+    midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+    _midori_browser_update_interface (browser);
+}
+
+static void
 midori_view_notify_title_cb (GtkWidget*     view,
                              GParamSpec*    pspec,
                              MidoriBrowser* browser)
@@ -1376,6 +1387,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_progress_cb, browser,
                       "signal::context-ready",
                       midori_view_context_ready_cb, browser,
+                      "signal::notify::uri",
+                      midori_view_notify_uri_cb, browser,
                       "signal::notify::title",
                       midori_view_notify_title_cb, browser,
                       "signal::notify::zoom-level",

@@ -793,6 +793,25 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     g_object_thaw_notify (G_OBJECT (view));
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 4)
+static void
+webkit_web_view_notify_uri_cb (WebKitWebView* web_view,
+                               GParamSpec*    pspec,
+                               MidoriView*    view)
+{
+    g_object_get (web_view, "uri", &view->uri, NULL);
+    g_object_notify (G_OBJECT (view), "uri");
+}
+
+static void
+webkit_web_view_notify_title_cb (WebKitWebView* web_view,
+                                 GParamSpec*    pspec,
+                                 MidoriView*    view)
+{
+    g_object_get (web_view, "title", &view->title, NULL);
+    g_object_notify (G_OBJECT (view), "title");
+}
+#else
 static void
 webkit_web_view_title_changed_cb (WebKitWebView*  web_view,
                                   WebKitWebFrame* web_frame,
@@ -801,6 +820,7 @@ webkit_web_view_title_changed_cb (WebKitWebView*  web_view,
 {
     g_object_set (view, "title", title, NULL);
 }
+#endif
 
 static void
 webkit_web_view_statusbar_text_changed_cb (WebKitWebView* web_view,
@@ -1904,8 +1924,15 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_progress_changed_cb, view,
                       "signal::load-finished",
                       webkit_web_view_load_finished_cb, view,
+                      #if WEBKIT_CHECK_VERSION (1, 1, 4)
+                      "signal::notify::uri",
+                      webkit_web_view_notify_uri_cb, view,
+                      "signal::notify::title",
+                      webkit_web_view_notify_title_cb, view,
+                      #else
                       "signal::title-changed",
                       webkit_web_view_title_changed_cb, view,
+                      #endif
                       "signal::status-bar-text-changed",
                       webkit_web_view_statusbar_text_changed_cb, view,
                       "signal::hovering-over-link",
