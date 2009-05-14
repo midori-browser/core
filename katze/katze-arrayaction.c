@@ -232,6 +232,14 @@ katze_array_action_activate (GtkAction* action)
         GTK_ACTION_CLASS (katze_array_action_parent_class)->activate (action);
 }
 
+static void
+katze_array_action_menu_activate_cb  (GtkWidget*        proxy,
+                                      KatzeArrayAction* array_action)
+{
+    KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
+    g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, item);
+}
+
 static gboolean
 katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
                                          GdkEventButton*   event,
@@ -240,10 +248,16 @@ katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
     gboolean handled;
 
-    g_signal_emit (array_action, signals[ACTIVATE_ITEM_ALT], 0, item, event->button, &handled);
+    g_signal_emit (array_action, signals[ACTIVATE_ITEM_ALT], 0, item,
+        event->button, &handled);
 
     if (!handled)
         g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, item);
+
+    /* we need to block the 'activate' handler which would be called
+     * otherwise as well */
+    g_signal_handlers_block_by_func (proxy,
+        katze_array_action_menu_activate_cb, array_action);
 
     return TRUE;
 }
@@ -306,6 +320,9 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         {
             g_signal_connect (menuitem, "button-press-event",
                 G_CALLBACK (katze_array_action_menu_button_press_cb), array_action);
+            /* we need the 'activate' signal as well for keyboard events */
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (katze_array_action_menu_activate_cb), array_action);
         }
         gtk_widget_show (menuitem);
     }
