@@ -948,6 +948,18 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
     gchar* title = g_strdup (midori_view_get_display_title (MIDORI_VIEW (view)));
     gchar* slot_id = midori_browser_speed_dial_get_next_free_slot ();
 
+    GRegex* reg_quotes = g_regex_new ("'", 0, 0, NULL);
+    GRegex* reg_others = g_regex_new ("[\\\"\\\\]", 0, 0, NULL);
+    gchar* temp_title = g_regex_replace_literal (reg_others, title,
+                                                 -1, 0, " ", 0, NULL);
+    g_free (title);
+    title = g_regex_replace_literal (reg_quotes, temp_title, -1, 0,
+                                     "\\\\'", 0, NULL);
+
+    g_free (temp_title);
+    g_regex_unref (reg_quotes);
+    g_regex_unref (reg_others);
+
     if (slot_id == NULL)
     {
         g_free (uri);
@@ -957,11 +969,27 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
 
     if ((len = g_utf8_strlen (title, -1)) > 15)
     {
-        gchar* ellipsized = g_malloc0 (len + 1);
+        /**
+          * The case when a quote was escaped with a backslash and the
+          * backslash becomes the last character of the ellipsized string.
+          * This causes JSON parsing to fail.
+          * For example: "My Foo Bar \'b\..."
+          **/
+        GRegex* reg_unsafe = g_regex_new ("([\\\\]+\\.)", 0, 0, NULL);
+
+        gchar* temp;
+        gchar* ellipsized = g_malloc0 ( len + 1);
+
         g_utf8_strncpy (ellipsized, title, 15);
         g_free (title);
-        title = g_strdup_printf ("%s...", ellipsized);
+
+        temp = g_strdup_printf ("%s...", ellipsized);
         g_free  (ellipsized);
+
+        title = g_regex_replace_literal (reg_unsafe, temp, -1, 0, ".", 0, NULL);
+        g_free (temp);
+
+        g_regex_unref (reg_unsafe);
     }
 
     folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "thumbs", NULL);
@@ -999,6 +1027,7 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
             regex = g_regex_new (replace_from, G_REGEX_MULTILINE, 0, NULL);
             replace = g_regex_replace (regex, speed_dial_body, -1,
                                        1, replace_by, 0, NULL);
+
             g_file_set_contents (body_fname, replace, -1, NULL);
 
             g_object_unref (img);

@@ -2021,7 +2021,6 @@ midori_view_set_uri (MidoriView*  view,
             gchar* speed_dial_head;
             gchar* speed_dial_body;
             gchar* body_fname;
-            gchar* location_entry_search;
             gchar* stock_root;
 
             katze_assign (view->uri, g_strdup (""));
@@ -2047,18 +2046,11 @@ midori_view_set_uri (MidoriView*  view,
             else
                 g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 
-
-            g_object_get (view->settings, "location-entry-search",
-                          &location_entry_search, NULL);
-
             data = sokoke_replace_variables (speed_dial_head,
                 "{res}", res_root,
                 "{stock}", stock_root,
                 "{json_data}", speed_dial_body,
                 "{title}", _("Speed dial"),
-                "{search_uri}", location_entry_search,
-                "{search_title}", _("Search"),
-                "{search}", _("Search"),
                 "{click_to_add}", _("Click to add a shortcut"),
                 "{enter_shortcut_address}", _("Enter shortcut address"),
                 "{enter_shortcut_name}", _("Enter shortcut title"),
@@ -2080,7 +2072,6 @@ midori_view_set_uri (MidoriView*  view,
             g_free (speed_dial_head);
             g_free (speed_dial_body);
             g_free (body_fname);
-            g_free (location_entry_search);
         }
         /* This is not prefectly elegant, but creating an
            error page inline is the simplest solution. */
@@ -3061,7 +3052,13 @@ midori_view_speed_dial_save (GtkWidget*   web_view,
     gchar* json = g_strdup (message + 15);
     gchar* fname = g_build_filename (sokoke_set_config_dir (NULL),
                                      "speeddial.json", NULL);
-    g_file_set_contents (fname, json, -1, NULL);
+
+    GRegex* reg_double = g_regex_new ("\\\\\"", 0, 0, NULL);
+    gchar* safe = g_regex_replace_literal (reg_double, json, -1, 0, "\\\\\"", 0, NULL);
+    g_file_set_contents (fname, safe, -1, NULL);
+
     g_free (fname);
     g_free (json);
+    g_free (safe);
+    g_regex_unref (reg_double);
 }
