@@ -514,10 +514,13 @@ midori_view_notify_uri_cb (GtkWidget*     view,
                            GParamSpec*    pspec,
                            MidoriBrowser* browser)
 {
-    const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    GtkAction* action = _action_by_name (browser, "Location");
-    midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
-    _midori_browser_update_interface (browser);
+    if (view == midori_browser_get_current_tab (browser))
+    {
+        const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+        GtkAction* action = _action_by_name (browser, "Location");
+        midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+        _midori_browser_update_interface (browser);
+    }
 }
 
 static void
