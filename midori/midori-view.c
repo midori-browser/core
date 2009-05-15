@@ -2055,7 +2055,7 @@ midori_view_set_uri (MidoriView*  view,
                 "{res}", res_root,
                 "{stock}", stock_root,
                 "{json_data}", speed_dial_body,
-                "{title}", _("Blank page"),
+                "{title}", _("Speed dial"),
                 "{search_uri}", location_entry_search,
                 "{search_title}", _("Search"),
                 "{search}", _("Search"),
@@ -2230,11 +2230,10 @@ midori_view_get_display_title (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), "about:blank");
 
-    if (midori_view_is_blank (view))
-        return _("Blank page");
-
     if (view->title && *view->title)
         return view->title;
+    if (midori_view_is_blank (view))
+        return _("Blank page");
     return midori_view_get_display_uri (view);
 }
 
