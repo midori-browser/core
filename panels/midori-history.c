@@ -274,7 +274,8 @@ midori_history_clear_cb (KatzeArray*    array,
 
 static void
 midori_history_disconnect_folder (MidoriHistory* history,
-                                  KatzeArray*    array)
+                                  KatzeArray*    array,
+                                  gboolean       unref)
 {
     KatzeItem* item;
     guint i;
@@ -292,8 +293,9 @@ midori_history_disconnect_folder (MidoriHistory* history,
     while ((item = katze_array_get_nth_item (array, i++)))
     {
         if (KATZE_IS_ARRAY (item))
-            midori_history_disconnect_folder (history, KATZE_ARRAY (item));
-        g_object_unref (item);
+            midori_history_disconnect_folder (history, KATZE_ARRAY (item), TRUE);
+        if (unref)
+            g_object_unref (item);
     }
 }
 
@@ -308,6 +310,7 @@ midori_history_add_item_cb (KatzeArray*    array,
 
     g_return_if_fail (KATZE_IS_ARRAY (array));
     g_return_if_fail (KATZE_IS_ITEM (added_item));
+    g_return_if_fail (MIDORI_IS_HISTORY (history));
 
     if (KATZE_IS_ARRAY (added_item))
     {
@@ -391,7 +394,7 @@ midori_history_remove_item_cb (KatzeArray*    array,
     g_assert (KATZE_IS_ITEM (removed_item));
 
     if (KATZE_IS_ARRAY (removed_item))
-        midori_history_disconnect_folder (history, KATZE_ARRAY (removed_item));
+        midori_history_disconnect_folder (history, KATZE_ARRAY (removed_item), TRUE);
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
     midori_history_remove_iter (model, NULL, removed_item);
@@ -423,7 +426,7 @@ midori_history_clear_cb (KatzeArray*    array,
             midori_history_remove_item_cb (array, item, history);
     }
 
-    midori_history_disconnect_folder (history, array);
+    midori_history_disconnect_folder (history, array, TRUE);
 }
 
 static void
@@ -480,7 +483,7 @@ midori_history_set_app (MidoriHistory* history,
 
     if (history->array)
     {
-        midori_history_disconnect_folder (history, history->array);
+        midori_history_disconnect_folder (history, history->array, TRUE);
         g_object_unref (history->array);
         model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
         gtk_tree_store_clear (GTK_TREE_STORE (model));
@@ -966,6 +969,11 @@ midori_history_finalize (GObject* object)
 
     if (history->app)
         g_object_unref (history->app);
+
+    /* FIXME: We don't unref items (last argument is FALSE) because
+       our reference counting is incorrect. */
+    midori_history_disconnect_folder (history, history->array, FALSE);
+
     g_object_unref (history->array);
 }
 
