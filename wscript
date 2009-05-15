@@ -395,6 +395,7 @@ def shutdown ():
         os.chdir ('..')
     elif Options.options.run:
         folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
+        folder = os.path.relpath (folder)
         try:
             ext = 'MIDORI_EXTENSION_PATH=' + folder + os.sep + 'extensions'
             nls = 'NLSPATH=' + folder + os.sep + 'po'
