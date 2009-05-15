@@ -508,6 +508,41 @@ midori_view_class_init (MidoriViewClass* class)
                                      flags));
 }
 
+static void
+midori_view_update_title (MidoriView* view)
+{
+    #define title midori_view_get_display_title (view)
+    if (view->tab_label)
+    {
+        /* If the title starts with the presumed name of the website, we
+            ellipsize differently, to emphasize the subtitle */
+        if (gtk_label_get_angle (GTK_LABEL (view->tab_title)) == 0.0)
+        {
+            SoupURI* uri = soup_uri_new (view->uri);
+            const gchar* host = uri ? (uri->host ? uri->host : "") : "";
+            const gchar* name = g_str_has_prefix (host, "www.") ? &host[4] : host;
+            guint i = 0;
+            while (name[i++])
+                if (name[i] == '.')
+                    break;
+            if (!g_ascii_strncasecmp (title, name, i))
+                gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_START);
+            else
+                gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_END);
+            if (uri)
+                soup_uri_free (uri);
+        }
+        gtk_label_set_text (GTK_LABEL (view->tab_title), title);
+        gtk_widget_set_tooltip_text (view->tab_title, title);
+    }
+    if (view->menu_item)
+        gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
+                            view->menu_item))), title);
+    if (view->item)
+        katze_item_set_name (view->item, title);
+    #undef title
+}
+
 static GdkPixbuf*
 midori_view_mime_icon (GtkIconTheme* icon_theme,
                        const gchar*  format,
@@ -809,6 +844,7 @@ webkit_web_view_notify_title_cb (WebKitWebView* web_view,
                                  MidoriView*    view)
 {
     g_object_get (web_view, "title", &view->title, NULL);
+    midori_view_update_title (view);
     g_object_notify (G_OBJECT (view), "title");
 }
 #else
@@ -1581,36 +1617,7 @@ midori_view_set_property (GObject*      object,
     {
     case PROP_TITLE:
         katze_assign (view->title, g_value_dup_string (value));
-        #define title midori_view_get_display_title (view)
-        if (view->tab_label)
-        {
-            /* If the title starts with the presumed name of the website, we
-                ellipsize differently, to emphasize the subtitle */
-            if (gtk_label_get_angle (GTK_LABEL (view->tab_title)) == 0.0)
-            {
-                SoupURI* uri = soup_uri_new (view->uri);
-                const gchar* host = uri ? (uri->host ? uri->host : "") : "";
-                const gchar* name = g_str_has_prefix (host, "www.") ? &host[4] : host;
-                guint i = 0;
-                while (name[i++])
-                    if (name[i] == '.')
-                        break;
-                if (!g_ascii_strncasecmp (title, name, i))
-                    gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_START);
-                else
-                    gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_END);
-                if (uri)
-                    soup_uri_free (uri);
-            }
-            gtk_label_set_text (GTK_LABEL (view->tab_title), title);
-            gtk_widget_set_tooltip_text (view->tab_title, title);
-        }
-        if (view->menu_item)
-            gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
-                                view->menu_item))), title);
-        if (view->item)
-            katze_item_set_name (view->item, title);
-        #undef title
+        midori_view_update_title (view);
         break;
     case PROP_ZOOM_LEVEL:
         midori_view_set_zoom_level (view, g_value_get_float (value));
