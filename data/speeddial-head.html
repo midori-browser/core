@@ -11,7 +11,6 @@
     <script type="text/javascript" src="{res}/mootools.js"></script>
 
     <style>
-
     html, body, #content {
         margin: 0px;
         padding: 0px
@@ -25,9 +24,13 @@
 
     #wrap {
         width: 660px;
-        height: 550px;
+        height: 500px;
         margin: 0px auto;
         text-align: center;
+    }
+
+    #content {
+        margin-top: 40px;
     }
 
     div.shortcut {
@@ -102,28 +105,8 @@
         color: #222;
     }
 
-    #search_bar {
-        margin: 20px 0px 20px;
-    }
-
     div.clear {
         clear: both;
-    }
-
-    input[type=text] {
-        color: #ddd;
-        vertical-align: middle;
-        font-size: 13px;
-    }
-
-    input[type=text]:active, input[type=text]:focus {
-        color: #222;
-    }
-
-    button {
-        font-size: 12px;
-        padding: 5px 7px;
-        vertical-align: middle;
     }
 
     div.activated {
@@ -162,6 +145,12 @@
     <script type="text/javascript">
 
     sc = JSON.decode ({json_data});
+
+    var encodeSafe = function (obj) {
+        var str = JSON.encode (obj);
+        str = str.replace (/\'/g, '\\\'');
+        return str;
+    }
 
     var getAction = function (id)
     {
@@ -219,7 +208,7 @@
         sc.shortcuts[num].href = href;
         sc.shortcuts[num].img = data;
 
-        console.log ("speed_dial-save '" + JSON.encode (sc) + "'");
+        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
     }
 
     var renameShortcut = function (id)
@@ -232,7 +221,7 @@
         $(id).getLast ().set ('html', name);
         sc.shortcuts[num].title = name;
 
-        console.log ("speed_dial-save '" + JSON.encode (sc) + "'");
+        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
     }
 
     var clearShortcut = function (id)
@@ -261,16 +250,7 @@
         sc.shortcuts[num].title = "";
         sc.shortcuts[num].img = "";
 
-        console.log ("speed_dial-save '" + JSON.encode (sc) + "'");
-    }
-
-    var speeddialSearch = function ()
-    {
-        var reg = new RegExp ("%s", "g");
-        var search_url = $('search_bar').getProperty ('action');
-        var search_content = $('search_bar').getFirst ().get ('value');
-        window.location.href = search_url.replace (reg,  encodeURIComponent (search_content));
-        return false;
+        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
     }
 
     var buildSpeeddial = function ()
@@ -329,12 +309,6 @@
 </head>
 <body>
     <div id="wrap">
-        <form id="search_bar" name="search_bar" action="{search_uri}"
-              method="get" onsubmit="javascript:return speeddialSearch();">
-            <input type="text" name="q" value="{search_title}" onfocus="javascript:this.value='';"
-                onblur="javascript:if(this.value=='') this.value='{search_title}';" />
-            <button>{search}</button>
-        </form>
         <div id="content">
         </div>
     </div>
