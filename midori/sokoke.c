@@ -1008,11 +1008,32 @@ res_server_handler_cb (SoupServer*        res_server,
     else if (g_str_has_prefix (path, "/stock/"))
     {
         GtkIconTheme* icon_theme = gtk_icon_theme_get_default ();
-        const gchar* icon_name = &path[7];
-        GdkPixbuf* icon = gtk_icon_theme_load_icon (icon_theme, icon_name,
-            strstr (icon_name, "dialog") ? 48 : 22, 0, NULL);
+        const gchar* icon_name = &path[7] ? &path[7] : "";
+        gint icon_size = 22;
+        GdkPixbuf* icon;
         gchar* contents;
         gsize length;
+
+        if (g_ascii_isalpha (icon_name[0]))
+            icon_size = strstr (icon_name, "dialog") ? 48 : 22;
+        else if (g_ascii_isdigit (icon_name[0]))
+        {
+            guint i = 0;
+            while (icon_name[i])
+                if (icon_name[i++] == '/')
+                {
+                    gchar* size = g_strndup (icon_name, i - 1);
+                    icon_size = atoi (size);
+                    g_free (size);
+                    icon_name = &icon_name[i];
+                }
+        }
+
+        icon = gtk_icon_theme_load_icon (icon_theme, icon_name,
+            icon_size, 0, NULL);
+        if (!icon)
+            icon = gtk_icon_theme_load_icon (icon_theme, "gtk-missing-image",
+                icon_size, 0, NULL);
 
         gdk_pixbuf_save_to_buffer (icon, &contents, &length, "png", NULL, NULL);
         g_object_unref (icon);
