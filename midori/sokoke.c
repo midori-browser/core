@@ -222,6 +222,8 @@ sokoke_idn_to_punycode (gchar* uri)
             g_utf8_strncpy (buffer, hostname, offset);
             hostname = buffer;
         }
+        else
+            hostname = g_strdup (hostname);
     }
     else
         hostname = g_strdup (uri);

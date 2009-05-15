@@ -62,6 +62,7 @@ magic_uri_uri (void)
     test_input ("http://example.com", "http://example.com");
     test_input ("example.com", "http://example.com");
     test_input ("example.com", "http://example.com");
+    test_input ("www.google..com", "http://www.google..com");
     test_input ("/home/user/midori.html", "file:///home/user/midori.html");
     a = g_get_current_dir ();
     b = g_strconcat ("file://", a, G_DIR_SEPARATOR_S, "magic-uri.c", NULL);
@@ -139,6 +140,7 @@ magic_uri_search (void)
     test_input ("g conference \"April 2, 7:00 am\"", NULL);
     test_input ("max@mustermann.de", NULL);
     test_input ("g max@mustermann.de", NULL);
+    test_input ("g inurl:http://twotoasts.de bug", NULL);
 }
 
 static void
