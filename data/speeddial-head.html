@@ -131,24 +131,19 @@
     }
 
     .cross {
-        -webkit-border-radius: 7px;
-        background-color: #ddd;
-        height: 15px;
-        width: 15px;
-        font-size: 11px;
-        font-weight: bolder;
-        font-family: sans-serif;
+        height: 16px;
+        width: 16px;
         margin-bottom: -17px;
-        margin-left: 183px;
+        margin-left: 180px;
         margin-top: 2px;
-        text-align: center;
-        color: #fff;
+        background: url({stock}/16/gtk-close) 98% 70% no-repeat;
         cursor: pointer;
         z-index: -4;
+        opacity: 0.6;
     }
 
     .cross:hover {
-        background-color: #ff7575;
+        opacity: 1;
     }
 
     .activated p {
@@ -210,7 +205,7 @@
         a.empty ().removeClass ('waiter').grab (im);
         a.setProperty ('href', href);
 
-        var cross = new Element ('div', { 'html': 'x' });
+        var cross = new Element ('div', { 'html': '' });
         cross.setProperty ('onclick', 'clearShortcut("' + id + '");');
         cross.addClass ('cross');
         cross.inject ($(id), 'top');
@@ -313,7 +308,7 @@
             {
                 div.addClass ('activated');
                 var im = new Element ('img', { src: 'data:image/png;base64,' + item.img });
-                var cross = new Element ('div', { 'html': 'x' });
+                var cross = new Element ('div', { 'html': '' });
                 cross.setProperty ('onclick', 'clearShortcut("' + item.id + '");');
                 cross.addClass ('cross');
                 cross.inject (div, 'top');
