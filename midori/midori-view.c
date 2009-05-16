@@ -2006,6 +2006,8 @@ midori_view_set_uri (MidoriView*  view,
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
+    /* Treat "about:blank" and "" equally, see midori_view_is_blank(). */
+    if (!g_strcmp0 (uri, "about:blank")) uri = "";
     if (!uri) uri = "";
 
     if (1)
