@@ -1460,7 +1460,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_browser_tab_leave_notify_event_cb, browser,
                       NULL);
 
-    if (browser->settings &&
+    if (!g_object_get_data (G_OBJECT (view), "midori-view-append") &&
+        browser->settings &&
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
         n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
@@ -1857,7 +1858,6 @@ _action_tab_new_activate (GtkAction*     action,
 {
     gint n = midori_browser_add_uri (browser, "");
     midori_browser_set_current_page (browser, n);
-    gtk_action_activate (_action_by_name (browser, "Location"));
 }
 
 static void
@@ -3791,9 +3791,22 @@ gtk_notebook_button_press_event_cb (GtkNotebook*    notebook,
         && ((event->type == GDK_2BUTTON_PRESS && event->button == 1)
         || (event->type == GDK_BUTTON_PRESS && event->button == 2)))
     {
-       gtk_action_activate (_action_by_name (browser, "TabNew"));
+        gint n;
+        GtkWidget* view;
 
-       return TRUE;
+        if (browser->settings)
+            view = g_object_new (MIDORI_TYPE_VIEW,
+                                 "settings", browser->settings,
+                                 "net", browser->net, NULL);
+        else
+            view = midori_view_new (browser->net);
+        midori_view_set_uri (MIDORI_VIEW (view), "");
+        gtk_widget_show (view);
+        g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
+        n = midori_browser_add_tab (browser, view);
+        midori_browser_set_current_page (browser, n);
+
+        return TRUE;
     }
 
     return FALSE;
