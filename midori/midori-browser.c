@@ -1109,7 +1109,9 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
-    g_signal_emit (browser, signals[NEW_WINDOW], 0, uri);
+    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
+    midori_browser_add_uri (new_browser, uri);
+    g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
 }
 
 static void
@@ -1120,12 +1122,10 @@ midori_view_new_view_cb (GtkWidget*     view,
 {
     if (where == MIDORI_NEW_VIEW_WINDOW)
     {
-        /* MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER,
-            NULL);
-        g_signal_emit (browser, signals[NEW_BROWSER], 0, new_browser); */
-        g_debug ("Opening all pages in new windows not implemented");
-        midori_browser_set_current_page (browser,
-            midori_browser_add_tab (browser, new_view));
+        MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
+        midori_browser_add_tab (new_browser, new_view);
+        midori_browser_set_current_tab (new_browser, new_view);
+        g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
     }
     else
     {
@@ -1525,6 +1525,15 @@ midori_browser_class_init (MidoriBrowserClass* class)
     GObjectClass* gobject_class;
     GParamFlags flags;
 
+    /**
+     * MidoriBrowser::new-window:
+     * @browser: the object on which the signal is emitted
+     * @window: a new browser window
+     *
+     * Emitted when a new browser window was created.
+     *
+     * Note: Before 0.1.7 the second argument was an URI string.
+     */
     signals[NEW_WINDOW] = g_signal_new (
         "new-window",
         G_TYPE_FROM_CLASS (class),
@@ -1532,9 +1541,9 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_STRUCT_OFFSET (MidoriBrowserClass, new_window),
         0,
         NULL,
-        g_cclosure_marshal_VOID__STRING,
+        g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
-        G_TYPE_STRING);
+        MIDORI_TYPE_BROWSER);
 
     signals[ADD_TAB] = g_signal_new (
         "add-tab",
@@ -1849,7 +1858,9 @@ static void
 _action_window_new_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
-    g_signal_emit (browser, signals[NEW_WINDOW], 0, "");
+    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
+    midori_browser_add_uri (new_browser, "");
+    g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
 }
 
 static void
@@ -3174,7 +3185,11 @@ midori_browser_bookmark_open_in_window_activate_cb (GtkWidget*     menuitem,
     uri = katze_item_get_uri (item);
 
     if (uri && *uri)
-        g_signal_emit (browser, signals[NEW_WINDOW], 0, uri);
+    {
+        MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
+        midori_browser_add_uri (new_browser, uri);
+        g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+    }
 }
 
 static void

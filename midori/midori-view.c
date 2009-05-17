@@ -42,6 +42,9 @@ midori_search_action_get_icon (KatzeNet*  net,
                                KatzeItem* item,
                                GtkWidget* widget);
 
+static void
+midori_view_construct_web_view (MidoriView* view);
+
 struct _MidoriView
 {
     GtkScrolledWindow parent_instance;
@@ -1387,7 +1390,7 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         "net", view->net,
         "settings", view->settings,
         NULL);
-    midori_view_set_uri (MIDORI_VIEW (new_view), "");
+    midori_view_construct_web_view (MIDORI_VIEW (new_view));
     g_signal_connect (MIDORI_VIEW (new_view)->web_view, "web-view-ready",
       G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
     return MIDORI_VIEW (new_view)->web_view;
@@ -1915,6 +1918,8 @@ midori_view_construct_web_view (MidoriView* view)
 {
     WebKitWebFrame* web_frame;
     gpointer inspector;
+
+    g_return_if_fail (!view->web_view);
 
     view->web_view = webkit_web_view_new ();
 

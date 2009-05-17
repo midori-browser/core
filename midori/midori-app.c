@@ -135,13 +135,18 @@ midori_browser_focus_in_event_cb (MidoriBrowser* browser,
 
 static void
 midori_browser_new_window_cb (MidoriBrowser* browser,
-                              const gchar*   uri,
+                              MidoriBrowser* new_browser,
                               MidoriApp*     app)
 {
-    MidoriBrowser* new_browser = midori_app_create_browser (app);
-    midori_app_add_browser (app, new_browser);
+    g_object_set (new_browser,
+                  "settings", app->settings,
+                  "bookmarks", app->bookmarks,
+                  "trash", app->trash,
+                  "search-engines", app->search_engines,
+                  "history", app->history,
+                  NULL);
 
-    midori_browser_add_uri (new_browser, uri);
+    midori_app_add_browser (app, new_browser);
     gtk_widget_show (GTK_WIDGET (new_browser));
 }
 
