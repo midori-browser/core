@@ -4386,7 +4386,6 @@ midori_browser_init (MidoriBrowser* browser)
     GList* children;
     #endif
     GtkSettings* gtk_settings;
-    GtkWidget* hbox;
     GtkWidget* hpaned;
     GtkWidget* vpaned;
     GtkToolItem* toolitem;
@@ -4656,10 +4655,6 @@ midori_browser_init (MidoriBrowser* browser)
     #endif
     g_signal_connect (browser->bookmarkbar, "popup-context-menu",
         G_CALLBACK (midori_browser_toolbar_popup_context_menu_cb), browser);
-
-    /* Superuser warning */
-    if ((hbox = sokoke_superuser_warning_new ()))
-        gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
     /* Create the panel */
     hpaned = gtk_hpaned_new ();

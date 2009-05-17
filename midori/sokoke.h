@@ -74,9 +74,6 @@ sokoke_xfce_header_new                  (const gchar*    icon,
                                          const gchar*    title);
 
 GtkWidget*
-sokoke_superuser_warning_new            (void);
-
-GtkWidget*
 sokoke_hig_frame_new                    (const gchar*    title);
 
 void
