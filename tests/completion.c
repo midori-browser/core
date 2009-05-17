@@ -15,6 +15,10 @@
 
 #include "midori.h"
 
+/* This is a private function */
+GtkWidget*
+midori_location_action_entry_for_proxy (GtkWidget* proxy);
+
 typedef struct
 {
     const gchar* uri;
@@ -41,7 +45,6 @@ completion_count (void)
 {
     MidoriLocationAction* action;
     GtkWidget* toolitem;
-    GtkWidget* alignment;
     GtkWidget* location_entry;
     GtkWidget* entry;
     GtkTreeModel* model;
@@ -49,8 +52,7 @@ completion_count (void)
 
     action = g_object_new (MIDORI_TYPE_LOCATION_ACTION, NULL);
     toolitem = gtk_action_create_tool_item (GTK_ACTION (action));
-    alignment = gtk_bin_get_child (GTK_BIN (toolitem));
-    location_entry = gtk_bin_get_child (GTK_BIN (alignment));
+    location_entry = midori_location_action_entry_for_proxy (toolitem);
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
     model = gtk_combo_box_get_model (GTK_COMBO_BOX (location_entry));
 
@@ -129,7 +131,6 @@ completion_fill (void)
 {
     MidoriLocationAction* action;
     GtkWidget* toolitem;
-    GtkWidget* alignment;
     GtkWidget* location_entry;
     GtkWidget* entry;
     GtkTreeModel* model;
@@ -138,8 +139,7 @@ completion_fill (void)
 
     action = g_object_new (MIDORI_TYPE_LOCATION_ACTION, NULL);
     toolitem = gtk_action_create_tool_item (GTK_ACTION (action));
-    alignment = gtk_bin_get_child (GTK_BIN (toolitem));
-    location_entry = gtk_bin_get_child (GTK_BIN (alignment));
+    location_entry = midori_location_action_entry_for_proxy (toolitem);
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
     g_print ("...\n");
@@ -217,7 +217,6 @@ completion_match (void)
 {
     MidoriLocationAction* action;
     GtkWidget* toolitem;
-    GtkWidget* alignment;
     GtkWidget* location_entry;
     GtkWidget* entry;
     GtkEntryCompletion* completion;
@@ -230,8 +229,7 @@ completion_match (void)
     midori_location_action_thaw (action);
 
     toolitem = gtk_action_create_tool_item (GTK_ACTION (action));
-    alignment = gtk_bin_get_child (GTK_BIN (toolitem));
-    location_entry = gtk_bin_get_child (GTK_BIN (alignment));
+    location_entry = midori_location_action_entry_for_proxy (toolitem);
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
     completion = gtk_entry_get_completion (GTK_ENTRY (entry));
     g_signal_connect (completion, "insert-prefix",

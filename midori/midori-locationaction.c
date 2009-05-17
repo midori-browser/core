@@ -189,7 +189,8 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
-static GtkWidget*
+/* Allow this to be used in tests, it's otherwise private */
+/*static*/ GtkWidget*
 midori_location_action_entry_for_proxy (GtkWidget* proxy)
 {
     GtkWidget* alignment = gtk_bin_get_child (GTK_BIN (proxy));
