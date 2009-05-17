@@ -492,7 +492,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
            with speed dial open. */
         if (midori_view_get_load_status (MIDORI_VIEW (view))
             == MIDORI_LOAD_FINISHED)
-            if (midori_view_is_blank (view))
+            if (midori_view_is_blank (MIDORI_VIEW (view)))
                 gtk_action_activate (_action_by_name (browser, "Location"));
     }
 
