@@ -2863,6 +2863,12 @@ static void
 _action_back_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    {
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
+        return;
+    }
+
     GtkWidget* view = midori_browser_get_current_tab (browser);
     if (view)
         midori_view_go_back (MIDORI_VIEW (view));
@@ -2872,6 +2878,12 @@ static void
 _action_forward_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
+    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    {
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
+        return;
+    }
+
     GtkWidget* view = midori_browser_get_current_tab (browser);
     if (view)
         midori_view_go_forward (MIDORI_VIEW (view));
@@ -2881,6 +2893,12 @@ static void
 _action_homepage_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
+    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    {
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
+        return;
+    }
+
     gchar* homepage;
 
     if (!browser->settings)
@@ -3274,12 +3292,18 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
 
     name = gtk_action_get_name (action);
 
+    /* We use a trick here to implement middle click and prevent the default
+       "activate" callback from being invoked. We set "midori-middle-click"
+       as GObject data and check the value in the "activate" callback. */
+
     if (g_str_equal (name, "Homepage"))
     {
         gint n;
 
         n = midori_browser_add_uri (browser, homepage);
         _midori_browser_set_current_page_smartly (browser, n);
+
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
 
         return TRUE;
     }
@@ -3302,6 +3326,8 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
         n = midori_browser_add_uri (browser, back_uri);
         _midori_browser_set_current_page_smartly (browser, n);
 
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
+
         return TRUE;
     }
     else if (g_str_equal (name, "Forward"))
@@ -3323,6 +3349,8 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
 
         n = midori_browser_add_uri (browser, forward_uri);
         _midori_browser_set_current_page_smartly (browser, n);
+
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
 
         return TRUE;
     }
