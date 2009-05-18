@@ -1009,10 +1009,15 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     if (character == (event->keyval | 0x01000000))
         return FALSE;
 
-    if (view->find_while_typing && !webkit_web_view_can_cut_clipboard (web_view)
+    if (character == '.' || character == '/')
+        character = '\0';
+    else if (!view->find_while_typing)
+        return FALSE;
+
+    if (!webkit_web_view_can_cut_clipboard (web_view)
         && !webkit_web_view_can_paste_clipboard (web_view))
     {
-        gchar* text = g_strdup_printf ("%c", character);
+        gchar* text = character ? g_strdup_printf ("%c", character) : g_strdup ("");
 
         g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text);
         g_free (text);
