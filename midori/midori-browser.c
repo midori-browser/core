@@ -273,8 +273,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_can_find (MIDORI_VIEW (view)));
     _action_set_sensitive (browser, "FindPrevious",
         midori_view_can_find (MIDORI_VIEW (view)));
-    /* _action_set_sensitive (browser, "FindQuick",
-        midori_view_can_find (MIDORI_VIEW (view))); */
+    _action_set_sensitive (browser, "FindQuick",
+        midori_view_can_find (MIDORI_VIEW (view)));
     gtk_widget_set_sensitive (GTK_WIDGET (browser->find_highlight),
         midori_view_can_find (MIDORI_VIEW (view)));
 
@@ -2165,6 +2165,15 @@ _action_find_previous_activate (GtkAction*     action,
 }
 
 static void
+_action_find_quick_activate (GtkAction*     action,
+                             MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    if (view)
+        g_signal_emit_by_name (view, "search-text", TRUE, "");
+}
+
+static void
 _find_highlight_toggled (GtkToggleToolButton* toolitem,
                          MidoriBrowser*       browser)
 {
@@ -3919,7 +3928,7 @@ static const GtkActionEntry entries[] = {
    G_CALLBACK (_action_find_previous_activate) },
  { "FindQuick", GTK_STOCK_FIND,
    N_("_Quick Find"), "period",
-   N_("Quickly jump to a word or phrase"), NULL/*G_CALLBACK (_action_find_quick_activate)*/ },
+   N_("Quickly jump to a word or phrase"), G_CALLBACK (_action_find_quick_activate) },
  { "Preferences", GTK_STOCK_PREFERENCES,
    NULL, "<Ctrl><Alt>p",
    N_("Configure the application preferences"), G_CALLBACK (_action_preferences_activate) },
@@ -4181,6 +4190,7 @@ static const gchar* ui_markup =
     "<separator/>"
     "<menuitem action='Find'/>"
     "<menuitem action='FindNext'/>"
+    "<menuitem action='FindQuick'/>"
     "<separator/>"
     "<menuitem action='Preferences'/>"
    "</menu>"
@@ -4665,7 +4675,6 @@ midori_browser_init (MidoriBrowser* browser)
 
 
     _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
-    _action_set_sensitive (browser, "FindQuick", FALSE);
     #if HAVE_HILDON
     g_object_set (_action_by_name (browser, "Menubar"), "visible", FALSE, NULL);
     g_object_set (_action_by_name (browser, "Statusbar"), "visible", FALSE, NULL);
