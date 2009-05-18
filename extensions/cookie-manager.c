@@ -95,6 +95,8 @@ static void cm_browser_close_cb(GtkObject *browser, CMData *cmdata)
 	g_signal_handlers_disconnect_by_func(cmdata->extension, cm_deactivate_cb, cmdata);
 	g_signal_handlers_disconnect_by_func(cmdata->browser, cm_browser_close_cb, cmdata);
 	g_signal_handlers_disconnect_by_func(cmdata->jar, cm_jar_changed_cb, cmdata);
+	if (cmdata->timer_id > 0)
+		g_source_remove(cmdata->timer_id);
 
 	cm_free_cookie_list(cmdata);
 
