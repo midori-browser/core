@@ -1951,7 +1951,7 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::button-press-event",
                       gtk_widget_button_press_event_cb, view,
-                      "signal::key-press-event",
+                      "signal-after::key-press-event",
                       gtk_widget_key_press_event_cb, view,
                       "signal::scroll-event",
                       gtk_widget_scroll_event_cb, view,
