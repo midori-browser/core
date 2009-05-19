@@ -527,11 +527,11 @@ midori_addons_finalize (GObject* object)
 }
 
 static gboolean
-_metadata_from_file (const gchar* filename,
-                     GSList**     includes,
-                     GSList**     excludes,
-                     gchar**      name,
-                     gchar**      description)
+js_metadata_from_file (const gchar* filename,
+                       GSList**     includes,
+                       GSList**     excludes,
+                       gchar**      name,
+                       gchar**      description)
 {
     GIOChannel* channel;
     gboolean found_meta;
@@ -591,6 +591,82 @@ _metadata_from_file (const gchar* filename,
                  rest_of_line = g_strdup (line + strlen ("// @description "));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *description = rest_of_line;
+             }
+        }
+        g_free (line);
+    }
+    g_io_channel_shutdown (channel, false, 0);
+    g_io_channel_unref (channel);
+
+    return TRUE;
+}
+
+static gboolean
+css_metadata_from_file (const gchar* filename,
+                        GSList**     includes,
+                        GSList**     excludes)
+{
+    GIOChannel* channel;
+    gchar* line;
+    gchar* rest_of_line;
+
+    if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_IS_SYMLINK))
+        return FALSE;
+
+    channel = g_io_channel_new_file (filename, "r", 0);
+    if (!channel)
+        return FALSE;
+
+    while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
+           == G_IO_STATUS_NORMAL)
+    {
+        if (g_str_has_prefix (line, "@namespace"))
+            ; /* FIXME: Check "http://www.w3.org/1999/xhtml", skip otherwise */
+        else if (g_str_has_prefix (line, "@-moz-document"))
+        { /* FIXME: We merely look for includes. We should honor blocks. */
+             if (includes)
+             {
+                 gchar** parts;
+                 guint i;
+
+                 rest_of_line = g_strdup (line + strlen ("@-moz-document"));
+                 rest_of_line = g_strstrip (rest_of_line);
+                 parts = g_strsplit (rest_of_line, " ", 0);
+                 i = 0;
+                 while (parts[i])
+                 {
+                     if (g_str_has_prefix (parts[i], "url-prefix("))
+                     {
+                         gchar* value = g_strdup (parts[i] + strlen ("url-prefix("));
+                         guint j;
+
+                         if (value[0] != '\'' && value[0] != '"')
+                         {
+                             /* Wrong syntax, abort */
+                             g_free (value);
+                             g_strfreev (parts);
+                             g_free (line);
+                             g_io_channel_shutdown (channel, false, 0);
+                             g_slist_free (*includes);
+                             g_slist_free (*excludes);
+                             *includes = NULL;
+                             *excludes = NULL;
+                             return FALSE;
+                         }
+                         j = 1;
+                         while (value[j] != '\0')
+                         {
+                             if (value[j] == value[0])
+                                 break;
+                             j++;
+                         }
+                         *includes = g_slist_prepend (*includes, g_strndup (value + 1, j - 1));
+                         g_free (value);
+                     }
+                     /* FIXME: Recognize "domain" */
+                     i++;
+                 }
+                 g_strfreev (parts);
              }
         }
         g_free (line);
@@ -742,6 +818,7 @@ _js_style_from_file (JSContextRef js_context,
     error = NULL;
     if (g_file_get_contents (filename, &style, NULL, &error))
     {
+        guint meta = 0;
         n = strlen (style);
         for (i = 0; i < n; i++)
         {
@@ -751,7 +828,34 @@ _js_style_from_file (JSContextRef js_context,
             /* Change all single quotes to double quotes */
             if (style[i] == '\'')
                 style[i] = '\"';
+            /* Turn metadata we inspected earlier into comments */
+            if (!meta && style[i] == '@')
+            {
+                style[i] = '/';
+                meta++;
+            }
+            else if (meta == 1 && (style[i] == '-' || style[i] == 'n'))
+            {
+                style[i] = '*';
+                meta++;
+            }
+            else if (meta == 2 && style[i] == '{')
+            {
+                style[i - 1] = '*';
+                style[i] = '/';
+                meta++;
+            }
+            else if (meta == 3 && style[i] == '{')
+                meta++;
+            else if (meta == 4 && style[i] == '}')
+                meta--;
+            else if (meta == 3 && style[i] == '}')
+            {
+                style[i] = ' ';
+                meta = 0;
+            }
         }
+
         style_script = g_strdup_printf (
             "window.addEventListener ('DOMContentLoaded',"
             "function () {"
@@ -1031,8 +1135,8 @@ midori_addons_update_elements (MidoriAddons* addons)
         if (addons->kind == MIDORI_ADDON_USER_SCRIPTS)
         {
             name = NULL;
-            if (!_metadata_from_file (fullname, &includes, &excludes,
-                                      &name, &description))
+            if (!js_metadata_from_file (fullname, &includes, &excludes,
+                                        &name, &description))
                 broken = TRUE;
 
             if (name)
@@ -1040,6 +1144,11 @@ midori_addons_update_elements (MidoriAddons* addons)
                 g_free (displayname);
                 displayname = name;
             }
+        }
+        else if (addons->kind == MIDORI_ADDON_USER_STYLES)
+        {
+            if (!css_metadata_from_file (fullname, &includes, &excludes))
+                broken = TRUE;
         }
 
         element = g_new (struct AddonElement, 1);
