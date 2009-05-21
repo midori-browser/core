@@ -398,6 +398,48 @@ midori_view_notify_icon_cb (MidoriView*    view,
         MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
 }
 
+static GdkPixbuf*
+midori_view_get_snapshot (MidoriView* view)
+{
+    GtkWidget* web_view;
+    GdkRectangle rect;
+    GdkPixmap* pixmap;
+    GdkEvent event;
+    gboolean result;
+    GdkColormap* colormap;
+    GdkPixbuf* pixbuf;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+    web_view = gtk_bin_get_child (GTK_BIN (view));
+    g_return_val_if_fail (web_view->window, NULL);
+
+    rect.x = web_view->allocation.x;
+    rect.y = web_view->allocation.y;
+    rect.width = web_view->allocation.width;
+    rect.height = web_view->allocation.height;
+
+    pixmap = gdk_pixmap_new (web_view->window,
+        web_view->allocation.width, web_view->allocation.height,
+        gdk_drawable_get_depth (web_view->window));
+    event.expose.type = GDK_EXPOSE;
+    event.expose.window = pixmap;
+    event.expose.send_event = FALSE;
+    event.expose.count = 0;
+    event.expose.area.x = 0;
+    event.expose.area.y = 0;
+    gdk_drawable_get_size (GDK_DRAWABLE (web_view->window),
+        &event.expose.area.width, &event.expose.area.height);
+    event.expose.region = gdk_region_rectangle (&event.expose.area);
+
+    g_signal_emit_by_name (web_view, "expose-event", &event, &result);
+
+    colormap = gdk_drawable_get_colormap (pixmap);
+    pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colormap, 0, 0,
+                                           0, 0, rect.width, rect.height);
+    g_object_unref (pixmap);
+    return pixbuf;
+}
+
 static void
 midori_browser_update_thumbnail (GtkWidget*   view,
                                  const gchar* uri)
@@ -408,15 +450,9 @@ midori_browser_update_thumbnail (GtkWidget*   view,
     if (midori_view_get_load_status (MIDORI_VIEW (view)) != MIDORI_LOAD_FINISHED)
         return;
 
-    /* gtk_widget_get_snapshot works only with visible widgets */
-    if (!GTK_WIDGET_DRAWABLE (view))
-        return;
-
     if ((child = gtk_bin_get_child (GTK_BIN (view))))
     {
         static gchar* folder = NULL;
-        GdkRectangle rect;
-        GdkPixmap* pixmap;
         GdkPixbuf* pixbuf;
         gchar* thumb;
         gchar* filename;
@@ -431,22 +467,25 @@ midori_browser_update_thumbnail (GtkWidget*   view,
         thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
         filename = g_build_filename (folder, thumb, NULL);
         g_free (thumb);
+
         /* FIXME: Regenerate if needed */
         if (g_file_test (filename, G_FILE_TEST_EXISTS))
-        {
-            g_free (filename);
             return;
-        }
 
-        rect.x = rect.y = -1;
-        rect.width = rect.height = 0;
-        pixmap = gtk_widget_get_snapshot (child, &rect);
-        pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, NULL, 0, 0,
-                                               0, 0, rect.width, rect.height);
-        g_object_unref (pixmap);
-        gdk_pixbuf_save (pixbuf, filename, "jpeg", NULL, "quality", "70", NULL);
-        g_free (filename);
-        g_object_unref (pixbuf);
+        pixbuf = midori_view_get_snapshot (MIDORI_VIEW (view));
+        if (pixbuf)
+        {
+            GError* error = NULL;
+            gdk_pixbuf_save (pixbuf, filename, "jpeg", &error, "quality", "70", NULL);
+            if (error != NULL)
+            {
+                g_error ("%s", error->message);
+                g_error_free (error);
+            }
+            g_free (filename);
+            if (pixbuf)
+                g_object_unref (pixbuf);
+        }
     }
     #endif
 }
