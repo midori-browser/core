@@ -38,7 +38,8 @@ browser_create (void)
         GtkAction* action = actions->data;
         if (g_strcmp0 (gtk_action_get_name (action), "WindowClose"))
             if (g_strcmp0 (gtk_action_get_name (action), "EncodingCustom"))
-                gtk_action_activate (action);
+                if (g_strcmp0 (gtk_action_get_name (action), "AddSpeedDial"))
+                    gtk_action_activate (action);
         actions = g_list_next (actions);
     }
     g_list_free (actions);
