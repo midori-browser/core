@@ -399,7 +399,9 @@ midori_view_notify_icon_cb (MidoriView*    view,
 }
 
 static GdkPixbuf*
-midori_view_get_snapshot (MidoriView* view)
+midori_view_get_snapshot (MidoriView* view,
+                          guint       width,
+                          guint       height)
 {
     GtkWidget* web_view;
     GdkRectangle rect;
@@ -437,57 +439,21 @@ midori_view_get_snapshot (MidoriView* view)
     pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colormap, 0, 0,
                                            0, 0, rect.width, rect.height);
     g_object_unref (pixmap);
-    return pixbuf;
-}
 
-static void
-midori_browser_update_thumbnail (GtkWidget*   view,
-                                 const gchar* uri)
-{
-    GtkWidget* child;
-
-    #if GTK_CHECK_VERSION (2, 14, 0)
-    if (midori_view_get_load_status (MIDORI_VIEW (view)) != MIDORI_LOAD_FINISHED)
-        return;
-
-    if ((child = gtk_bin_get_child (GTK_BIN (view))))
+    if (width || height)
     {
-        static gchar* folder = NULL;
-        GdkPixbuf* pixbuf;
-        gchar* thumb;
-        gchar* filename;
-
-        if (G_UNLIKELY (!folder))
-        {
-            folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
-                                       "thumbs", NULL);
-            g_mkdir_with_parents (folder, 0700);
-        }
-
-        thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
-        filename = g_build_filename (folder, thumb, NULL);
-        g_free (thumb);
-
-        /* FIXME: Regenerate if needed */
-        if (g_file_test (filename, G_FILE_TEST_EXISTS))
-            return;
-
-        pixbuf = midori_view_get_snapshot (MIDORI_VIEW (view));
-        if (pixbuf)
-        {
-            GError* error = NULL;
-            gdk_pixbuf_save (pixbuf, filename, "jpeg", &error, "quality", "70", NULL);
-            if (error != NULL)
-            {
-                g_error ("%s", error->message);
-                g_error_free (error);
-            }
-            g_free (filename);
-            if (pixbuf)
-                g_object_unref (pixbuf);
-        }
+        GdkPixbuf* scaled;
+        if (!width)
+            width = rect.width;
+        if (!height)
+            height = rect.height;
+        scaled = gdk_pixbuf_scale_simple (pixbuf, width, height,
+                                          GDK_INTERP_TILES);
+        g_object_unref (pixbuf);
+        return scaled;
     }
-    #endif
+
+    return pixbuf;
 }
 
 static void
@@ -519,8 +485,6 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
                 MIDORI_LOCATION_ACTION (action), NULL);
             g_object_notify (G_OBJECT (browser), "uri");
         }
-        if (browser->speed_dial_in_new_tabs)
-            midori_browser_update_thumbnail (view, uri);
 
         _midori_browser_update_interface (browser);
         _midori_browser_set_statusbar_text (browser, NULL);
@@ -979,9 +943,7 @@ midori_browser_speed_dial_get_next_free_slot (void)
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser)
 {
-    gchar* folder;
-    gchar* thumb;
-    gchar* filename;
+    GdkPixbuf* img;
     gchar* replace_from;
     gchar* replace_by;
     gsize len;
@@ -1036,13 +998,8 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         g_regex_unref (reg_unsafe);
     }
 
-    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "thumbs", NULL);
-    thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
-    filename = g_build_filename (folder, thumb, NULL);
-
-    if (g_file_test (filename, G_FILE_TEST_EXISTS))
+    if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 160, 107)))
     {
-        GdkPixbuf* img;
         GRegex* regex;
         gchar* replace;
         gchar* file_content;
@@ -1056,7 +1013,6 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
 
         if (g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL))
         {
-            img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
             gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
             encoded = g_base64_encode ((guchar *)file_content, sz);
 
@@ -1085,9 +1041,6 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         }
         g_free (body_fname);
     }
-
-    g_free (thumb);
-    g_free (filename);
 }
 
 
@@ -3816,9 +3769,6 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     _midori_browser_set_statusbar_text (browser, NULL);
     _midori_browser_update_interface (browser);
     _midori_browser_update_progress (browser, MIDORI_VIEW (view));
-
-    if (browser->speed_dial_in_new_tabs)
-        midori_browser_update_thumbnail (view, uri);
 }
 
 static void
