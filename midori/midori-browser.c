@@ -3486,6 +3486,15 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
             sokoke_remove_path (cache, TRUE);
             g_free (cache);
         }
+        button = g_object_get_data (G_OBJECT (dialog), "trash");
+        if (gtk_toggle_button_get_active (button))
+        {
+            if (browser->trash)
+            {
+                katze_array_clear (browser->trash);
+                _midori_browser_update_actions (browser);
+            }
+        }
     }
     if (response_id != GTK_RESPONSE_DELETE_EVENT)
         gtk_widget_destroy (dialog);
@@ -3548,6 +3557,9 @@ _action_clear_private_data_activate (GtkAction*     action,
         g_object_set_data (G_OBJECT (dialog), "website-icons", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
+        button = gtk_check_button_new_with_mnemonic (_("_Closed Tabs and Windows"));
+        g_object_set_data (G_OBJECT (dialog), "trash", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 8);
         gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
