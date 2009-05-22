@@ -84,6 +84,8 @@ struct _MidoriWebSettings
     MidoriIdentity identify_as;
     gchar* ident_string;
     gint cache_size;
+
+    gint clear_private_data;
 };
 
 struct _MidoriWebSettingsClass
@@ -156,7 +158,9 @@ enum
     PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
     PROP_IDENT_STRING,
-    PROP_CACHE_SIZE
+    PROP_CACHE_SIZE,
+
+    PROP_CLEAR_PRIVATE_DATA
 };
 
 GType
@@ -947,6 +951,23 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The allowed size of the cache"),
                                      0, G_MAXINT, 100,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * MidoriWebSettings:clear-private-data:
+     *
+     * The private data selected for deletion.
+     *
+     * Since: 0.1.7
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_CLEAR_PRIVATE_DATA,
+                                     g_param_spec_int (
+                                     "clear-private-data",
+                                     _("Clear private data"),
+                                     _("The private data selected for deletion"),
+                                     0, G_MAXINT, 0,
+                                     flags));
+
 }
 
 static void
@@ -1280,6 +1301,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_CACHE_SIZE:
         web_settings->cache_size = g_value_get_int (value);
         break;
+    case PROP_CLEAR_PRIVATE_DATA:
+        web_settings->clear_private_data = g_value_get_int (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1466,6 +1490,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_CACHE_SIZE:
         g_value_set_int (value, web_settings->cache_size);
+        break;
+    case PROP_CLEAR_PRIVATE_DATA:
+        g_value_set_int (value, web_settings->clear_private_data);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
