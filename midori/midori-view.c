@@ -514,6 +514,17 @@ midori_view_class_init (MidoriViewClass* class)
 static void
 midori_view_update_title (MidoriView* view)
 {
+    /* If left-to-right text is combined with right-to-left text the default
+       behaviour of Pango can result in awkwardly aligned text. For example
+       "‪بستيان نوصر (hadess) | An era comes to an end - Midori" becomes
+       "hadess) | An era comes to an end - Midori) بستيان نوصر". So to prevent
+       this we insert an LRE character before the title which indicates that
+       we want left-to-right but retains the direction of right-to-left text. */
+    if (view->title && !g_str_has_prefix (view->title, "‪"))
+    {
+        gchar* new_title = g_strconcat ("‪", view->title, NULL);
+        katze_assign (view->title, new_title);
+    }
     #define title midori_view_get_display_title (view)
     if (view->tab_label)
     {
