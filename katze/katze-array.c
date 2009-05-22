@@ -111,16 +111,10 @@ _katze_array_move_item (KatzeArray* array,
 static void
 _katze_array_clear (KatzeArray* array)
 {
-    guint n;
-    guint i;
     GObject* item;
 
-    n = g_list_length (array->items);
-    for (i = 0; i < n; i++)
-    {
-        if ((item = g_list_nth_data (array->items, i)))
-            katze_array_remove_item (array, item);
-    }
+    while ((item = g_list_nth_data (array->items, 0)))
+        katze_array_remove_item (array, item);
     g_list_free (array->items);
     array->items = NULL;
 }
