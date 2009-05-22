@@ -1100,8 +1100,8 @@ midori_view_new_window_cb (GtkWidget*     view,
                            MidoriBrowser* browser)
 {
     MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-    midori_browser_add_uri (new_browser, uri);
     g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+    midori_browser_add_uri (new_browser, uri);
 }
 
 static void
@@ -1113,9 +1113,9 @@ midori_view_new_view_cb (GtkWidget*     view,
     if (where == MIDORI_NEW_VIEW_WINDOW)
     {
         MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
+        g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
-        g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
     }
     else
     {
@@ -1849,8 +1849,8 @@ _action_window_new_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
     MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-    midori_browser_add_uri (new_browser, "");
     g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+    midori_browser_add_uri (new_browser, "");
 }
 
 static void
@@ -3177,8 +3177,8 @@ midori_browser_bookmark_open_in_window_activate_cb (GtkWidget*     menuitem,
     if (uri && *uri)
     {
         MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-        midori_browser_add_uri (new_browser, uri);
         g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+        midori_browser_add_uri (new_browser, uri);
     }
 }
 
