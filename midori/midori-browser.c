@@ -262,7 +262,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_can_go_forward (MIDORI_VIEW (view)));
 
     gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
-        browser->speed_dial_in_new_tabs);
+        browser->speed_dial_in_new_tabs && !midori_view_is_blank (MIDORI_VIEW (view)));
     /* Currently views that don't support source, don't support
        saving either. If that changes, we need to think of something. */
     _action_set_sensitive (browser, "SaveAs",

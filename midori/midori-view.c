@@ -1332,7 +1332,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
         gtk_widget_show (menuitem);
 
-        if (view->speed_dial_in_new_tabs)
+        if (view->speed_dial_in_new_tabs && !midori_view_is_blank (view))
         {
             menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to Speed _dial"));
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
