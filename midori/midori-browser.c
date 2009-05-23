@@ -932,7 +932,7 @@ midori_browser_speed_dial_get_next_free_slot (void)
     else
         g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 
-    regex = g_regex_new ("\"id\":[ \t]*\"(s[0-9])\"[ \t]*,[ \t]*\"href\":\"#\"",
+    regex = g_regex_new ("\"id\":\"(s[1-9])\",\"href\":\"#\"",
                          G_REGEX_MULTILINE, 0, NULL);
 
     if (g_regex_match (regex, speed_dial_body, 0, &match_info))
@@ -1029,9 +1029,8 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
             encoded = g_base64_encode ((guchar *)file_content, sz);
 
             replace_from = g_strdup_printf (
-                "\\{[ \t]*\"id\"[ \t]*:[ \t]*\"%s\"[ \t]*,[ \t]*\"href\"[ \t]*"\
-                "[ \t]*:[ \t]*\"#\"[ \t]*,[ \t]*\"title\"[ \t]*:[ \t]*\"\"[ \t]*,"\
-                "\"img\"[ \t]*:[ \t]*\"\"[ \t]*\\}", slot_id);
+                "\\{\"id\":\"%s\",\"href\":\"#\",\"title\":\"\",\"img\":\"\"\\}",
+                slot_id);
             replace_by = g_strdup_printf (
                 "{\"id\":\"%s\",\"href\":\"%s\",\"title\":\"%s\",\"img\":\"%s\"}",
                 slot_id, uri, title, encoded);
