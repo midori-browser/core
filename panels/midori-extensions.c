@@ -302,10 +302,12 @@ midori_extensions_treeview_row_activated_cb (GtkTreeView*       treeview,
             midori_extension_deactivate (extension);
         else
             g_signal_emit_by_name (extension, "activate", extensions->app);
-    gtk_widget_set_sensitive (GTK_WIDGET (button_enable),
-        !midori_extension_is_active (extension));
-    gtk_widget_set_sensitive (GTK_WIDGET (button_disable),
-        midori_extension_is_active (extension));
+        gtk_widget_set_sensitive (GTK_WIDGET (button_enable),
+            !midori_extension_is_active (extension));
+        gtk_widget_set_sensitive (GTK_WIDGET (button_disable),
+            midori_extension_is_active (extension));
+        /* FIXME: Update only the appropriate row */
+        gtk_widget_queue_draw (GTK_WIDGET (treeview));
     }
 }
 
