@@ -100,8 +100,23 @@ midori_transfers_button_clear_clicked_cb (GtkToolItem*    toolitem,
 {
     GtkTreeModel* model = gtk_tree_view_get_model (
         GTK_TREE_VIEW (transfers->treeview));
-    /* FIXME: Clear only finished and cancelled downloads */
-    gtk_tree_store_clear (GTK_TREE_STORE (model));
+    GtkTreeIter iter;
+    gint n = 0;
+    while ((gtk_tree_model_iter_nth_child (model, &iter, NULL, n++)))
+    {
+        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        WebKitDownload* download;
+        WebKitDownloadStatus status;
+
+        gtk_tree_model_get (model, &iter, 1, &download, -1);
+
+        status = webkit_download_get_status (download);
+        if (status == WEBKIT_DOWNLOAD_STATUS_FINISHED
+            || status == WEBKIT_DOWNLOAD_STATUS_CANCELLED)
+            gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+        g_object_unref (download);
+        #endif
+    }
 }
 
 static GtkWidget*
@@ -173,8 +188,8 @@ midori_transfers_browser_add_download_cb (MidoriBrowser*   browser,
 
     treeview = GTK_TREE_VIEW (transfers->treeview);
     model = gtk_tree_view_get_model (treeview);
-    gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-                                       NULL, NULL, G_MAXINT,
+    gtk_list_store_insert_with_values (GTK_LIST_STORE (model),
+                                       NULL, G_MAXINT,
                                        0, NULL, 1, download, -1);
     g_signal_connect (download, "notify::progress",
         G_CALLBACK (midori_transfers_download_notify_progress_cb), transfers);
@@ -364,7 +379,7 @@ midori_transfers_init (MidoriTransfers* transfers)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
-    GtkTreeStore* treestore = gtk_tree_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_OBJECT);
+    GtkListStore* treestore = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_OBJECT);
     transfers->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (treestore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (transfers->treeview), FALSE);
     column = gtk_tree_view_column_new ();
