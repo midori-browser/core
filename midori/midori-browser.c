@@ -3540,6 +3540,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         GtkIconTheme* icon_theme;
         GtkSizeGroup* sizegroup;
         GtkWidget* hbox;
+        GtkWidget* alignment;
         GtkWidget* vbox;
         GtkWidget* icon;
         GtkWidget* label;
@@ -3549,7 +3550,8 @@ _action_clear_private_data_activate (GtkAction*     action,
         g_object_get (browser->settings, "clear-private-data", &clear_prefs, NULL);
 
         dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
-            GTK_WINDOW (browser), GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_WINDOW (browser),
+            GTK_DIALOG_NO_SEPARATOR | GTK_DIALOG_DESTROY_WITH_PARENT,
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
@@ -3566,39 +3568,42 @@ _action_clear_private_data_activate (GtkAction*     action,
         gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
         label = gtk_label_new (_("Clear the following data:"));
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 8);
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 0);
         hbox = gtk_hbox_new (FALSE, 4);
         icon = gtk_image_new ();
         gtk_size_group_add_widget (sizegroup, icon);
         gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
         vbox = gtk_vbox_new (TRUE, 4);
+        alignment = gtk_alignment_new (0, 0, 1, 1);
+        gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 6, 12, 0);
         button = gtk_check_button_new_with_mnemonic (_("History"));
         if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "history", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         button = gtk_check_button_new_with_mnemonic (_("Cookies"));
         if ((clear_prefs & MIDORI_CLEAR_COOKIES) == MIDORI_CLEAR_COOKIES)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "cookies", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         button = gtk_check_button_new_with_mnemonic (_("'Flash' Cookies"));
         if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "flash-cookies", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         button = gtk_check_button_new_with_mnemonic (_("Website icons"));
         if ((clear_prefs & MIDORI_CLEAR_WEBSITE_ICONS) == MIDORI_CLEAR_WEBSITE_ICONS)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "website-icons", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
         button = gtk_check_button_new_with_mnemonic (_("_Closed Tabs and Windows"));
         if ((clear_prefs & MIDORI_CLEAR_TRASH) == MIDORI_CLEAR_TRASH)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(button), TRUE);
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "trash", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 8);
+        gtk_container_add (GTK_CONTAINER (alignment), vbox);
+        gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 0);
         gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
         g_signal_connect (dialog, "response",
