@@ -396,12 +396,12 @@ def shutdown ():
     elif Options.options.run:
         folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
         try:
-            folder = os.path.relpath (folder)
+            relfolder = os.path.relpath (folder)
         except:
             pass
         try:
-            ext = 'MIDORI_EXTENSION_PATH=' + folder + os.sep + 'extensions'
-            nls = 'NLSPATH=' + folder + os.sep + 'po'
+            ext = 'MIDORI_EXTENSION_PATH=' + relfolder + os.sep + 'extensions'
+            nls = 'NLSPATH=' + relfolder + os.sep + 'po'
             lang = os.environ['LANG']
             try:
                 for lang in os.listdir (folder + os.sep + 'po'):
@@ -417,7 +417,7 @@ def shutdown ():
                         'LC_MESSAGES' + os.sep + APPNAME + '.mo')
             except:
                 pass
-            command = folder + os.sep + APPNAME + os.sep + APPNAME
+            command = relfolder + os.sep + APPNAME + os.sep + APPNAME
             print ext + ' ' + nls + ' ' + command
             Utils.exec_command (ext + ' ' + nls + ' ' + command)
         except:
