@@ -293,7 +293,7 @@ midori_history_disconnect_folder (MidoriHistory* history,
     while ((item = katze_array_get_nth_item (array, i++)))
     {
         if (KATZE_IS_ARRAY (item))
-            midori_history_disconnect_folder (history, KATZE_ARRAY (item), TRUE);
+            midori_history_disconnect_folder (history, KATZE_ARRAY (item), unref);
         if (unref)
             g_object_unref (item);
     }
@@ -461,7 +461,6 @@ midori_history_insert_item (MidoriHistory* history,
             age = day - pday;
             gtk_tree_store_insert_with_values (treestore, &iter, parent,
                                                0, 0, item, 1, age, -1);
-            g_object_unref (item);
             piter = &iter;
         }
         i = 0;
@@ -501,7 +500,7 @@ midori_history_set_app (MidoriHistory* history,
 
         model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
         midori_history_insert_item (history, GTK_TREE_STORE (model),
-            NULL, KATZE_ITEM (g_object_ref (history->array)), day);
+            NULL, KATZE_ITEM (history->array), day);
     }
 }
 
@@ -973,7 +972,6 @@ midori_history_finalize (GObject* object)
     /* FIXME: We don't unref items (last argument is FALSE) because
        our reference counting is incorrect. */
     midori_history_disconnect_folder (history, history->array, FALSE);
-
     g_object_unref (history->array);
 }
 
