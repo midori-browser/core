@@ -503,10 +503,8 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
 
         /* This is a hack to ensure that the address entry is focussed
            with speed dial open. */
-        if (midori_view_get_load_status (MIDORI_VIEW (view))
-            == MIDORI_LOAD_FINISHED)
-            if (midori_view_is_blank (MIDORI_VIEW (view)))
-                gtk_action_activate (_action_by_name (browser, "Location"));
+        if (midori_view_is_blank (MIDORI_VIEW (view)))
+            gtk_action_activate (_action_by_name (browser, "Location"));
     }
 
     g_object_notify (G_OBJECT (browser), "load-status");
@@ -1862,6 +1860,7 @@ _action_window_new_activate (GtkAction*     action,
     MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
     g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
     midori_browser_add_uri (new_browser, "");
+    midori_browser_activate_action (new_browser, "Location");
 }
 
 static void
