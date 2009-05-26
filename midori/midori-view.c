@@ -1078,13 +1078,6 @@ midori_web_view_menu_action_add_speed_dial_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
-                                             MidoriView* view)
-{
-    g_signal_emit (view, signals[NEW_WINDOW], 0, view->link_uri);
-}
-
-static void
 midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
@@ -1193,9 +1186,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         /* hack to localize menu item */
         label = gtk_bin_get_child (GTK_BIN (menuitem));
         gtk_label_set_label (GTK_LABEL (label), _("Open Link in New _Window"));
-        /* hack to implement New Window */
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_new_window_activate_cb), view);
         menuitem = (GtkWidget*)g_list_nth_data (items, 3);
         g_list_free (items);
         #if WEBKIT_CHECK_VERSION (1, 1, 3)
