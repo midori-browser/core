@@ -410,64 +410,6 @@ midori_view_notify_icon_cb (MidoriView*    view,
         MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
 }
 
-static GdkPixbuf*
-midori_view_get_snapshot (MidoriView* view,
-                          guint       width,
-                          guint       height)
-{
-    GtkWidget* web_view;
-    GdkRectangle rect;
-    GdkPixmap* pixmap;
-    GdkEvent event;
-    gboolean result;
-    GdkColormap* colormap;
-    GdkPixbuf* pixbuf;
-
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
-    web_view = gtk_bin_get_child (GTK_BIN (view));
-    g_return_val_if_fail (web_view->window, NULL);
-
-    rect.x = web_view->allocation.x;
-    rect.y = web_view->allocation.y;
-    rect.width = web_view->allocation.width;
-    rect.height = web_view->allocation.height;
-
-    pixmap = gdk_pixmap_new (web_view->window,
-        web_view->allocation.width, web_view->allocation.height,
-        gdk_drawable_get_depth (web_view->window));
-    event.expose.type = GDK_EXPOSE;
-    event.expose.window = pixmap;
-    event.expose.send_event = FALSE;
-    event.expose.count = 0;
-    event.expose.area.x = 0;
-    event.expose.area.y = 0;
-    gdk_drawable_get_size (GDK_DRAWABLE (web_view->window),
-        &event.expose.area.width, &event.expose.area.height);
-    event.expose.region = gdk_region_rectangle (&event.expose.area);
-
-    g_signal_emit_by_name (web_view, "expose-event", &event, &result);
-
-    colormap = gdk_drawable_get_colormap (pixmap);
-    pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colormap, 0, 0,
-                                           0, 0, rect.width, rect.height);
-    g_object_unref (pixmap);
-
-    if (width || height)
-    {
-        GdkPixbuf* scaled;
-        if (!width)
-            width = rect.width;
-        if (!height)
-            height = rect.height;
-        scaled = gdk_pixbuf_scale_simple (pixbuf, width, height,
-                                          GDK_INTERP_TILES);
-        g_object_unref (pixbuf);
-        return scaled;
-    }
-
-    return pixbuf;
-}
-
 static void
 midori_view_notify_load_status_cb (GtkWidget*      view,
                                    GParamSpec*     pspec,
@@ -949,6 +891,10 @@ midori_browser_speed_dial_get_next_free_slot (void)
     return slot_id;
 }
 
+GdkPixbuf*
+midori_view_get_snapshot (MidoriView* view,
+                          guint       width,
+                          guint       height);
 
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser)
