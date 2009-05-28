@@ -3034,6 +3034,40 @@ midori_view_get_snapshot (MidoriView* view,
     return pixbuf;
 }
 
+static void
+thumb_view_load_status_cb (MidoriView* thumb_view,
+                           GParamSpec* pspec,
+                           MidoriView* view)
+{
+    GdkPixbuf* img;
+    gchar* file_content;
+    gchar* encoded;
+    gchar* dom_id;
+    gchar* js;
+    gsize sz;
+
+    if (katze_object_get_enum (thumb_view, "load-status") != MIDORI_LOAD_FINISHED)
+        return;
+
+    img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 160, 107);
+    gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, "compression", "7", NULL);
+    encoded = g_base64_encode ((guchar *)file_content, sz );
+
+    /* Call Javascript function to replace shortcut's content */
+    dom_id = g_object_get_data (G_OBJECT (thumb_view), "dom-id");
+    js = g_strdup_printf ("setThumbnail('%s','%s','%s');",
+                          dom_id, encoded, thumb_view->uri);
+    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), js);
+    free (js);
+    g_object_unref (img);
+
+    g_free (dom_id);
+    g_free (encoded);
+    g_free (file_content);
+
+    gtk_widget_destroy (GTK_WIDGET (thumb_view));
+}
+
 /**
  * midori_view_speed_dial_inject_thumb
  * @view: a #MidoriView
@@ -3043,33 +3077,40 @@ midori_view_get_snapshot (MidoriView* view,
  */
 static void
 midori_view_speed_dial_inject_thumb (MidoriView* view,
-                                   gchar*     filename,
-                                   gchar*     dom_id,
-                                   gchar*     url)
+                                     gchar*      filename,
+                                     gchar*      dom_id,
+                                     gchar*      url)
 {
-    gchar* file_content;
-    gchar* encoded;
-    gchar* js;
-    gsize sz;
-    GdkPixbuf* img;
+    GtkWidget* thumb_view;
+    MidoriWebSettings* settings;
+    GtkWidget* browser;
+    GtkWidget* notebook;
+    GtkWidget* label;
 
-    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+    thumb_view = midori_view_new (view->net);
+    settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
+        "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
+    midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
+    browser = gtk_widget_get_toplevel (GTK_WIDGET (view));
+    if (!GTK_IS_WINDOW (browser))
         return;
-
-    img = gdk_pixbuf_new_from_file_at_scale (filename, 160, 107, FALSE, NULL);
-    gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, "compression", "7", NULL);
-    encoded = g_base64_encode ( (guchar *)file_content, sz );
-
-    /* Call Javascript function to replace shortcut's content */
-    js = g_strdup_printf ("setThumbnail('%s','%s','%s');", dom_id, encoded, url);
-    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), js);
-    free (js);
-    g_object_unref (img);
-
-    g_free (url);
-    g_free (dom_id);
-    g_free (encoded);
-    g_free (file_content);
+    /* What we are doing here is a bit of a hack. In order to render a
+       thumbnail we need a new view and load the url in it. But it has
+       to be visible and packed in a container. So we secretly pack it
+       into the notebook of the parent browser. */
+    notebook = katze_object_get_object (browser, "notebook");
+    if (!notebook)
+        return;
+    gtk_container_add (GTK_CONTAINER (notebook), thumb_view);
+    /* We use an empty label. It's not invisible but at least hard to spot. */
+    label = gtk_event_box_new ();
+    gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), thumb_view, label);
+    g_object_unref (notebook);
+    gtk_widget_show (thumb_view);
+    g_object_set_data (G_OBJECT (thumb_view), "dom-id", dom_id);
+    g_signal_connect (thumb_view, "notify::load-status",
+        G_CALLBACK (thumb_view_load_status_cb), view);
+    midori_view_set_uri (MIDORI_VIEW (thumb_view), url);
 }
 
 /**
@@ -3086,24 +3127,15 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
  **/
 static void
 midori_view_speed_dial_get_thumb (GtkWidget*   web_view,
-                                const gchar* message,
-                                MidoriView*  view)
+                                  const gchar* message,
+                                  MidoriView*  view)
 {
-    static gchar* folder;
-    gchar* thumb;
-    gchar* filename;
     gchar** t_data = g_strsplit (message," ", 4);
 
     if (t_data[1] == NULL || t_data[2] == NULL )
         return;
 
-    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
-                               "thumbs", NULL);
-    thumb = g_compute_checksum_for_string (G_CHECKSUM_MD5, t_data[2], -1);
-    filename = g_build_filename (folder, thumb, NULL);
-    g_free (thumb);
-
-    midori_view_speed_dial_inject_thumb (view, filename,
+    midori_view_speed_dial_inject_thumb (view, NULL,
         g_strdup (t_data[1]), g_strdup (t_data[2]));
     g_strfreev (t_data);
 }
