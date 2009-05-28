@@ -2021,7 +2021,17 @@ _action_select_all_activate (GtkAction*     action,
         if (GTK_IS_EDITABLE (widget))
             gtk_editable_select_region (GTK_EDITABLE (widget), 0, -1);
         else if (g_signal_lookup ("select-all", G_OBJECT_TYPE (widget)))
-            g_signal_emit_by_name (widget, "select-all", TRUE);
+        {
+            if (GTK_IS_TEXT_VIEW (widget))
+                g_signal_emit_by_name (widget, "select-all", TRUE);
+            else if (GTK_IS_TREE_VIEW (widget))
+            {
+                gboolean dummy;
+                g_signal_emit_by_name (widget, "select-all", &dummy);
+            }
+            else
+                g_signal_emit_by_name (widget, "select-all");
+        }
     }
 }
 
