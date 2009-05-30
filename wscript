@@ -38,23 +38,23 @@ srcdir = '.'
 blddir = '_build_'
 
 def option_enabled (option):
-    if eval ('Options.options.enable_' + option):
+    if getattr (Options.options, 'enable_' + option):
         return True
-    if eval ('Options.options.disable_' + option):
+    if getattr (Options.options, 'disable_' + option):
         return False
     return True
 
 def configure (conf):
     def option_checkfatal (option, desc):
-        if eval ('Options.options.enable_' + option):
+        if hasattr (Options.options, 'enable_' + option):
                 Utils.pprint ('RED', desc + ' N/A')
                 sys.exit (1)
 
     def dirname_default (dirname, default):
-        if eval ('Options.options.' + dirname) == '':
+        if getattr (Options.options, dirname) == '':
             dirvalue = default
         else:
-            dirvalue = eval ('Options.options.' + dirname)
+            dirvalue = getattr (Options.options, dirname)
         conf.define (dirname, dirvalue)
         return dirvalue
 
