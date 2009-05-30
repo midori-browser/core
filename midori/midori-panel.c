@@ -488,7 +488,7 @@ midori_panel_set_compact (MidoriPanel* panel,
 
 /**
  * midori_panel_set_right_aligned:
- * @compact: %TRUE if the panel should be aligned to the right
+ * @right_aligned: %TRUE if the panel should be aligned to the right
  *
  * Determines if the panel should be right aligned.
  *
