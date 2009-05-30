@@ -50,7 +50,6 @@ struct _MidoriBrowser
     GtkWidget* menu_tools;
     GtkWidget* throbber;
     GtkWidget* navigationbar;
-    GtkWidget* button_fullscreen;
     GtkWidget* bookmarkbar;
 
     GtkWidget* panel;
@@ -2191,7 +2190,7 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
         GtkAction* action = gtk_widget_get_action (GTK_WIDGET (children->data));
         /* If a widget has no action that is actually a bug, so warn about it */
         g_warn_if_fail (action != NULL);
-        if (action && strcmp (gtk_action_get_name (action), "Fullscreen"))
+        if (action)
         {
             g_string_append (toolbar_items, gtk_action_get_name (action));
             g_string_append (toolbar_items, ",");
@@ -2282,7 +2281,7 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
         const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Preferences", "Window", "Bookmarks", "RecentlyVisited", "AddSpeedDial",
+            "Fullscreen", "Preferences", "Window", "Bookmarks", "RecentlyVisited", "AddSpeedDial",
             "ReloadStop", "ZoomIn", "Separator", "ZoomOut", "Back", "Forward",
             "Homepage", "Panel", "Trash", "Search" };
         GtkWidget* submenu;
@@ -4080,17 +4079,11 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
         if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
         {
             gtk_widget_hide (browser->menubar);
-            g_object_set (browser->button_fullscreen,
-                          "stock-id", GTK_STOCK_LEAVE_FULLSCREEN, NULL);
-            gtk_widget_show (browser->button_fullscreen);
         }
         else
         {
             if (katze_object_get_boolean (browser->settings, "show-menubar"))
                 gtk_widget_show (browser->menubar);
-            gtk_widget_hide (browser->button_fullscreen);
-            g_object_set (browser->button_fullscreen,
-                          "stock-id", GTK_STOCK_FULLSCREEN, NULL);
         }
     }
 }
@@ -5004,14 +4997,6 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
         name++;
     }
     g_strfreev (names);
-
-    action = gtk_action_group_get_action (browser->action_group, "Fullscreen");
-    browser->button_fullscreen = gtk_action_create_tool_item (action);
-    gtk_widget_hide (browser->button_fullscreen);
-    g_signal_connect (browser->button_fullscreen, "clicked",
-                      G_CALLBACK (_action_fullscreen_activate), browser);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                        GTK_TOOL_ITEM (browser->button_fullscreen), -1);
 }
 
 static void
