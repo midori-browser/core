@@ -1017,6 +1017,20 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
 }
 
 static void
+midori_search_action_activate_edit_cb (GtkTreeView *treeview,
+                                       GtkTreePath *path,
+                                       GtkTreeViewColumn *column,
+                                       MidoriSearchAction* search_action)
+{
+    GtkTreeSelection* selection;
+
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+    if (gtk_tree_selection_get_selected (selection, NULL, NULL))
+        midori_search_action_get_editor (search_action, FALSE);
+}
+
+
+static void
 midori_search_action_dialog_add_cb (GtkWidget*          widget,
                                     MidoriSearchAction* search_action)
 {
@@ -1228,6 +1242,8 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     g_signal_connect (gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview)),
         "changed", G_CALLBACK (midori_search_action_treeview_selection_cb),
         search_action);
+    g_signal_connect (treeview, "row-activated",
+        G_CALLBACK (midori_search_action_activate_edit_cb), search_action);
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     g_object_set_data (G_OBJECT (treeview), "search-action", search_action);
     column = gtk_tree_view_column_new ();
