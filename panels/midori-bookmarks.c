@@ -725,8 +725,10 @@ midori_bookmarks_open_in_window_activate_cb (GtkWidget*       menuitem,
 
     if (uri && *uri)
     {
-        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-        g_signal_emit_by_name (browser, "new-window", uri);
+        MidoriBrowser* new_browser = midori_app_create_browser (bookmarks->app);
+        midori_app_add_browser (bookmarks->app, new_browser);
+        gtk_widget_show (GTK_WIDGET (new_browser));
+        midori_browser_add_uri (new_browser, uri);
     }
 }
 
