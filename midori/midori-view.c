@@ -26,6 +26,7 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <gdk/gdkkeysyms.h>
 #include <webkit/webkit.h>
 
 /* This is unstable API, so we need to declare it */
@@ -1016,13 +1017,14 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                                MidoriView*    view)
 {
     guint character = gdk_unicode_to_keyval (event->keyval);
-    /* Skip control characters */
-    if (character == (event->keyval | 0x01000000))
-        return FALSE;
 
-    if (character == '.' || character == '/')
+    if (event->keyval == '.' || event->keyval == '/' || event->keyval == GDK_KP_Divide)
         character = '\0';
     else if (!view->find_while_typing)
+        return FALSE;
+
+    /* Skip control characters */
+    if (character == (event->keyval | 0x01000000))
         return FALSE;
 
     if (!webkit_web_view_can_cut_clipboard (web_view)
