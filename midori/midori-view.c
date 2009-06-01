@@ -1489,6 +1489,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     }
     gtk_dialog_add_buttons (GTK_DIALOG (dialog),
         GTK_STOCK_SAVE, 1,
+        GTK_STOCK_SAVE_AS, 4,
         GTK_STOCK_CANCEL, 2,
         GTK_STOCK_OPEN, 3,
         NULL);
@@ -1497,6 +1498,11 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
     switch (response)
     {
+       case 4:
+            g_object_set_data (G_OBJECT (view), "save-as-download", (gpointer)1);
+            webkit_web_policy_decision_download (decision);
+            webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (view->web_view));
+            return TRUE;
         case 3:
             g_object_set_data (G_OBJECT (view), "open-download", (gpointer)1);
         case 1:
@@ -1535,7 +1541,10 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
     gboolean handled;
     g_object_set_data (G_OBJECT (download), "open-download",
         g_object_get_data (G_OBJECT (view), "open-download"));
+    g_object_set_data (G_OBJECT (download), "save-as-download",
+        g_object_get_data (G_OBJECT (view), "save-as-download"));
     g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
+    g_object_set_data (G_OBJECT (view), "save-as-download", (gpointer)0);
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     return handled;
 }

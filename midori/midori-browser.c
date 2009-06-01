@@ -1215,6 +1215,21 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
         G_CALLBACK (midori_browser_download_button_clicked_cb), download);
 }
 
+static void
+midori_view_download_save_as_response_cb (GtkWidget*      dialog,
+                                          gint            response,
+                                          WebKitDownload* download)
+{
+    if (response == GTK_RESPONSE_ACCEPT)
+    {
+        gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+        webkit_download_set_destination_uri (download, uri);
+        g_free (uri);
+        webkit_download_start (download);
+    }
+    gtk_widget_destroy (dialog);
+}
+
 static gboolean
 midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
@@ -1223,21 +1238,40 @@ midori_view_download_requested_cb (GtkWidget*      view,
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     if (!webkit_download_get_destination_uri (download))
     {
-        gchar* folder;
         gchar* filename;
         gchar* uri;
 
-        if (g_object_get_data (G_OBJECT (download), "open-download"))
-            folder = g_strdup (g_get_tmp_dir ());
+        if (g_object_get_data (G_OBJECT (download), "save-as-download"))
+        {
+            GtkWidget* dialog = gtk_file_chooser_dialog_new (
+                _("Save file"), GTK_WINDOW (browser),
+                GTK_FILE_CHOOSER_ACTION_SAVE,
+                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                NULL);
+            gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_SAVE);
+            gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
+            /* FIXME: Remember the last folder
+               gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir); */
+            gtk_widget_show (dialog);
+            g_signal_connect (dialog, "response",
+                G_CALLBACK (midori_view_download_save_as_response_cb), download);
+        }
         else
-            folder = katze_object_get_string (browser->settings, "download-folder");
-        filename = g_build_filename (folder,
-            webkit_download_get_suggested_filename (download), NULL);
-        g_free (folder);
-        uri = g_filename_to_uri (filename, NULL, NULL);
-        g_free (filename);
-        webkit_download_set_destination_uri (download, uri);
-        g_free (uri);
+        {
+            gchar* folder;
+            if (g_object_get_data (G_OBJECT (download), "open-download"))
+                folder = g_strdup (g_get_tmp_dir ());
+            else
+                folder = katze_object_get_string (browser->settings, "download-folder");
+            filename = g_build_filename (folder,
+                webkit_download_get_suggested_filename (download), NULL);
+            g_free (folder);
+            uri = g_filename_to_uri (filename, NULL, NULL);
+            g_free (filename);
+            webkit_download_set_destination_uri (download, uri);
+            g_free (uri);
+        }
     }
     midori_browser_add_download_item (browser, download);
     return TRUE;
