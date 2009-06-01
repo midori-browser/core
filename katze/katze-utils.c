@@ -153,6 +153,7 @@ proxy_object_notify_string_cb (GObject*    object,
  *     Since 0.1.6 the following hints are also supported:
  *     "toggle": the widget created will be an empty toggle button. This
  *         is only supported with boolean properties.
+ *         Since 0.1.8 "toggle" creates GtkCheckButton widgets without checkmarks.
  *
  * Any other values for @hint are silently ignored.
  *
@@ -196,10 +197,11 @@ katze_property_proxy (gpointer     object,
         gchar* notify_property;
         gboolean toggled = katze_object_get_boolean (object, property);
 
+        widget = gtk_check_button_new ();
         if (_hint == g_intern_string ("toggle"))
-            widget = gtk_toggle_button_new ();
+            gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (widget), FALSE);
         else
-            widget = gtk_check_button_new_with_label (gettext (nick));
+            gtk_button_set_label (GTK_BUTTON (widget), gettext (nick));
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggled);
         g_signal_connect (widget, "toggled",
                           G_CALLBACK (proxy_toggle_button_toggled_cb), object);
