@@ -1464,7 +1464,6 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     gtk_widget_show (image);
     gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG (dialog), image);
     #endif
-    g_free (content_type);
     if (g_strrstr (description, mime_type))
         gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
         _("File Type: '%s'"), mime_type);
@@ -1491,8 +1490,11 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         GTK_STOCK_SAVE, 1,
         GTK_STOCK_SAVE_AS, 4,
         GTK_STOCK_CANCEL, 2,
-        GTK_STOCK_OPEN, 3,
         NULL);
+    if (!g_content_type_is_unknown (content_type))
+        gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+            GTK_STOCK_OPEN, 3, NULL);
+    g_free (content_type);
     response = gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
     g_object_set_data (G_OBJECT (view), "open-download", (gpointer)0);
