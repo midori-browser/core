@@ -1113,9 +1113,12 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
             if (browser->settings && katze_object_get_boolean (
                 browser->settings, "notify-transfer-completed"))
             {
+                const gchar* uri = webkit_download_get_destination_uri (download);
+                gchar* path = soup_uri_decode (uri);
+                gchar* filename = g_strrstr (path, "/") + 1;
                 gchar* msg = g_strdup_printf (
-                    _("The file <b>%s</b> has been downloaded."),
-                    webkit_download_get_suggested_filename (download));
+                    _("The file <b>%s</b> has been downloaded."), filename);
+                g_free (path);
 
                 g_signal_emit (browser, signals[SEND_NOTIFICATION], 0,
                     _("Transfer completed"), msg);
