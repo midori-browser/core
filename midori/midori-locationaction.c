@@ -34,6 +34,7 @@ struct _MidoriLocationAction
     GtkTreeModel* model;
     GtkTreeModel* filter_model;
     GtkTreeModel* sort_model;
+    GtkEntryCompletion* completion;
     GdkPixbuf* default_icon;
     GHashTable* items;
 };
@@ -308,6 +309,7 @@ midori_location_action_init (MidoriLocationAction* location_action)
     location_action->progress = 0.0;
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
+    location_action->completion = NULL;
 
     location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
         GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
@@ -329,6 +331,7 @@ midori_location_action_finalize (GObject* object)
     katze_assign (location_action->uri, NULL);
     katze_assign (location_action->search_engines, NULL);
 
+    katze_object_assign (location_action->completion, NULL);
     katze_object_assign (location_action->model, NULL);
     katze_object_assign (location_action->sort_model, NULL);
     katze_object_assign (location_action->filter_model, NULL);
@@ -828,6 +831,7 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
 
     entry = gtk_bin_get_child (GTK_BIN (location_entry));
     completion = gtk_entry_completion_new ();
+    location_action->completion = completion;
 
     gtk_entry_completion_set_model (completion, location_action->sort_model);
     gtk_entry_completion_set_text_column (completion, URI_COL);
@@ -857,8 +861,6 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
                                         location_action->search_engines);
     g_signal_connect (completion, "action-activated",
         G_CALLBACK (midori_location_entry_action_activated_cb), location_action);
-
-    g_object_unref (completion);
 }
 
 static void
@@ -1271,7 +1273,7 @@ midori_location_action_set_search_engines (MidoriLocationAction* location_action
         entry = midori_location_action_entry_for_proxy (proxies->data);
         child = gtk_bin_get_child (GTK_BIN (entry));
 
-        completion = gtk_entry_get_completion (GTK_ENTRY (child));
+        completion = location_action->completion;
         i = 0;
         if (location_action->search_engines)
         while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
