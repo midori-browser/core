@@ -34,7 +34,6 @@ struct _MidoriLocationAction
     GtkTreeModel* model;
     GtkTreeModel* filter_model;
     GtkTreeModel* sort_model;
-    GtkEntryCompletion* completion;
     GdkPixbuf* default_icon;
     GHashTable* items;
     KatzeNet* net;
@@ -106,6 +105,10 @@ midori_location_action_connect_proxy (GtkAction* action,
 static void
 midori_location_action_disconnect_proxy (GtkAction* action,
                                          GtkWidget* proxy);
+
+static void
+midori_location_action_completion_init (MidoriLocationAction* location_action,
+                                        GtkEntry*             entry);
 
 static void
 midori_location_action_class_init (MidoriLocationActionClass* class)
@@ -239,9 +242,7 @@ midori_location_action_set_model (MidoriLocationAction* location_action,
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
         g_object_set (location_entry, "model", model, NULL);
-        gtk_entry_completion_set_model (
-            gtk_entry_get_completion (GTK_ENTRY (entry)),
-            model ? location_action->filter_model : NULL);
+        midori_location_action_completion_init (location_action, GTK_ENTRY (entry));
     }
 }
 
@@ -306,10 +307,10 @@ midori_location_action_thaw (MidoriLocationAction* location_action)
     filter_model = gtk_tree_model_filter_new (sort_model, NULL);
     gtk_tree_model_filter_set_visible_column (
         GTK_TREE_MODEL_FILTER (filter_model), VISIBLE_COL);
-    midori_location_action_set_model (location_action, location_action->model);
 
     location_action->filter_model = filter_model;
     location_action->sort_model = sort_model;
+    midori_location_action_set_model (location_action, location_action->model);
 
     i = MAX_ITEMS;
     while (gtk_tree_model_iter_nth_child (sort_model, &iter, NULL, i++))
@@ -329,7 +330,6 @@ midori_location_action_init (MidoriLocationAction* location_action)
     location_action->progress = 0.0;
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
-    location_action->completion = NULL;
 
     location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
         GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
@@ -352,7 +352,6 @@ midori_location_action_finalize (GObject* object)
     katze_assign (location_action->uri, NULL);
     katze_assign (location_action->search_engines, NULL);
 
-    katze_object_assign (location_action->completion, NULL);
     katze_object_assign (location_action->model, NULL);
     katze_object_assign (location_action->sort_model, NULL);
     katze_object_assign (location_action->filter_model, NULL);
@@ -427,11 +426,25 @@ midori_location_action_set_property (GObject*      object,
         break;
     case PROP_HISTORY:
     {
-        /* FIXME: MidoriBrowser is essentially making up for the lack
-                  of synchronicity of newly added items. */
+        KatzeArray* history;
+        GtkTreeModel* model;
+
+        history = g_value_get_object (value);
+        model = g_object_get_data (G_OBJECT (history), "midori-location-model");
         midori_location_action_freeze (location_action);
-        midori_location_action_insert_history_item (location_action,
-            KATZE_ITEM (g_value_get_object (value)));
+        if (model != NULL)
+        {
+            katze_object_assign (location_action->model, g_object_ref (model));
+        }
+        else
+        {
+            /* FIXME: MidoriBrowser is essentially making up for the lack
+                      of synchronicity of newly added items. */
+            midori_location_action_insert_history_item (location_action,
+                KATZE_ITEM (g_value_get_object (value)));
+            g_object_set_data (G_OBJECT (history),
+                "midori-location-model", location_action->model);
+        }
         midori_location_action_thaw (location_action);
         break;
     }
@@ -898,17 +911,26 @@ midori_location_action_add_actions (GtkEntryCompletion* completion,
 
 static void
 midori_location_action_completion_init (MidoriLocationAction* location_action,
-                                        GtkWidget*            location_entry)
+                                        GtkEntry*             entry)
 {
-    GtkWidget* entry;
     GtkEntryCompletion* completion;
     GtkCellRenderer* renderer;
 
-    entry = gtk_bin_get_child (GTK_BIN (location_entry));
-    completion = gtk_entry_completion_new ();
-    location_action->completion = completion;
+    if ((completion = gtk_entry_get_completion (entry)))
+    {
+        gtk_entry_completion_set_model (completion,
+            midori_location_action_is_frozen (location_action)
+            ? NULL : location_action->filter_model);
+        return;
+    }
 
-    gtk_entry_completion_set_model (completion, location_action->sort_model);
+    completion = gtk_entry_completion_new ();
+    gtk_entry_set_completion (entry, completion);
+    g_object_unref (completion);
+    gtk_entry_completion_set_model (completion,
+        midori_location_action_is_frozen (location_action)
+        ? NULL : location_action->filter_model);
+
     gtk_entry_completion_set_text_column (completion, URI_COL);
     #if GTK_CHECK_VERSION (2, 12, 0)
     gtk_entry_completion_set_inline_selection (completion, TRUE);
@@ -928,7 +950,7 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
     gtk_entry_completion_set_match_func (completion,
         midori_location_entry_completion_match_cb, NULL, NULL);
 
-    gtk_entry_set_completion (GTK_ENTRY (entry), completion);
+
     g_signal_connect (completion, "match-selected",
         G_CALLBACK (midori_location_entry_match_selected_cb), location_action);
 
@@ -1008,7 +1030,8 @@ midori_location_action_connect_proxy (GtkAction* action,
             renderer, midori_location_entry_render_text_cb, NULL, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
-        midori_location_action_completion_init (location_action, entry);
+        midori_location_action_completion_init (location_action,
+            GTK_ENTRY (gtk_bin_get_child (GTK_BIN (entry))));
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
 
@@ -1348,7 +1371,8 @@ midori_location_action_set_search_engines (MidoriLocationAction* location_action
         entry = midori_location_action_entry_for_proxy (proxies->data);
         child = gtk_bin_get_child (GTK_BIN (entry));
 
-        completion = location_action->completion;
+        midori_location_action_completion_init (location_action, GTK_ENTRY (child));
+        completion = gtk_entry_get_completion (GTK_ENTRY (child));
         i = 0;
         if (location_action->search_engines)
         while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
