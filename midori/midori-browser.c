@@ -4315,49 +4315,9 @@ midori_browser_history_remove_item_cb (KatzeArray*    folder,
                                        KatzeItem*     item,
                                        MidoriBrowser* browser)
 {
-    GtkAction* action;
-
-    action = _action_by_name (browser, "Location");
-    midori_location_action_delete_item_from_uri (
-        MIDORI_LOCATION_ACTION (action), katze_item_get_uri (item));
-    g_signal_handlers_disconnect_by_func (folder,
-                                          midori_browser_history_remove_item_cb,
-                                          browser);
-
-    action = _action_by_name (browser, "RecentlyVisited");
+    GtkAction* action = _action_by_name (browser, "RecentlyVisited");
     if ((KatzeArray*)item == katze_array_action_get_array (KATZE_ARRAY_ACTION (action)))
         g_object_set (action, "array", NULL, NULL);
-}
-
-static void
-_location_action_insert_history_item (MidoriLocationAction* action,
-                                      MidoriBrowser*        browser,
-                                      KatzeItem*            item)
-{
-    KatzeItem* child;
-    guint i;
-    const gchar* uri;
-    GdkPixbuf* pixbuf = NULL;
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        for (i = katze_array_get_length (KATZE_ARRAY (item)); i > 0; i--)
-        {
-            child = katze_array_get_nth_item (KATZE_ARRAY (item), i - 1);
-            _location_action_insert_history_item (action, browser, child);
-        }
-    }
-    else
-    {
-        uri = katze_item_get_uri (item);
-        pixbuf = katze_net_load_icon (browser->net, katze_item_get_uri (item),
-                                      NULL, GTK_WIDGET (browser), NULL);
-        midori_location_action_add_item (action, uri,
-            pixbuf, katze_item_get_name (item));
-        g_object_unref (pixbuf);
-        g_signal_connect (katze_item_get_parent (item), "remove-item",
-            G_CALLBACK (midori_browser_history_remove_item_cb), browser);
-    }
 }
 
 static void
@@ -4409,11 +4369,8 @@ midori_browser_set_history (MidoriBrowser* browser,
     now = time (NULL);
     day = sokoke_time_t_to_julian (&now);
 
-    action = _action_by_name (browser, "Location");
-    midori_location_action_freeze (MIDORI_LOCATION_ACTION (action));
-    _location_action_insert_history_item (MIDORI_LOCATION_ACTION (action),
-        browser, KATZE_ITEM (browser->history));
-    midori_location_action_thaw (MIDORI_LOCATION_ACTION (action));
+    g_object_set (_action_by_name (browser, "Location"), "history",
+                  browser->history, NULL);
 }
 
 static void

@@ -37,6 +37,7 @@ struct _MidoriLocationAction
     GtkEntryCompletion* completion;
     GdkPixbuf* default_icon;
     GHashTable* items;
+    KatzeNet* net;
 };
 
 struct _MidoriLocationActionClass
@@ -51,7 +52,8 @@ enum
     PROP_0,
 
     PROP_PROGRESS,
-    PROP_SECONDARY_ICON
+    PROP_SECONDARY_ICON,
+    PROP_HISTORY
 };
 
 enum
@@ -188,6 +190,24 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "The stock ID of the secondary icon",
                                      NULL,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * MidoriLocationAction:history:
+     *
+     * The list of history items.
+     *
+     * This is actually a reference to a history instance.
+     *
+     * Since 0.1.8
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_HISTORY,
+                                     g_param_spec_object (
+                                     "history",
+                                     "History",
+                                     "The list of history items",
+                                     KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 /* Allow this to be used in tests, it's otherwise private */
@@ -321,6 +341,7 @@ midori_location_action_init (MidoriLocationAction* location_action)
 
     location_action->items = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                     g_free, g_free);
+    location_action->net = katze_net_new ();
 }
 
 static void
@@ -338,8 +359,52 @@ midori_location_action_finalize (GObject* object)
     katze_object_assign (location_action->default_icon, NULL);
 
     g_hash_table_destroy (location_action->items);
+    katze_object_assign (location_action->net, NULL);
 
     G_OBJECT_CLASS (midori_location_action_parent_class)->finalize (object);
+}
+
+static void
+midori_location_action_history_remove_item_cb (KatzeArray*           folder,
+                                               KatzeItem*            item,
+                                               MidoriLocationAction* action)
+{
+    midori_location_action_delete_item_from_uri (action, katze_item_get_uri (item));
+    if (KATZE_IS_ARRAY (item))
+        g_signal_handlers_disconnect_by_func (item,
+            midori_location_action_history_remove_item_cb, action);
+}
+
+static void
+midori_location_action_insert_history_item (MidoriLocationAction* action,
+                                            KatzeItem*            item)
+{
+    KatzeItem* child;
+    guint i;
+    const gchar* uri;
+    GdkPixbuf* pixbuf = NULL;
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        for (i = katze_array_get_length (KATZE_ARRAY (item)); i > 0; i--)
+        {
+            child = katze_array_get_nth_item (KATZE_ARRAY (item), i - 1);
+            midori_location_action_insert_history_item (action, child);
+        }
+    }
+    else
+    {
+        uri = katze_item_get_uri (item);
+        pixbuf = katze_net_load_icon (action->net, katze_item_get_uri (item),
+                                      NULL, NULL, NULL);
+        if (!pixbuf)
+            pixbuf = action->default_icon;
+        midori_location_action_add_item (action, uri,
+            pixbuf, katze_item_get_name (item));
+        g_object_unref (pixbuf);
+        g_signal_connect (katze_item_get_parent (item), "remove-item",
+            G_CALLBACK (midori_location_action_history_remove_item_cb), action);
+    }
 }
 
 static void
@@ -360,6 +425,16 @@ midori_location_action_set_property (GObject*      object,
         midori_location_action_set_secondary_icon (location_action,
             g_value_get_string (value));
         break;
+    case PROP_HISTORY:
+    {
+        /* FIXME: MidoriBrowser is essentially making up for the lack
+                  of synchronicity of newly added items. */
+        midori_location_action_freeze (location_action);
+        midori_location_action_insert_history_item (location_action,
+            KATZE_ITEM (g_value_get_object (value)));
+        midori_location_action_thaw (location_action);
+        break;
+    }
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
