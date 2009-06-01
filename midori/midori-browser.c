@@ -1183,6 +1183,7 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
     GtkWidget* icon;
     GtkWidget* button;
     GtkWidget* progress;
+    const gchar* uri;
     gint width;
 
     box = gtk_hbox_new (FALSE, 0);
@@ -1191,8 +1192,16 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
     progress = gtk_progress_bar_new ();
     gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (progress),
                                     PANGO_ELLIPSIZE_MIDDLE);
-    gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress),
-        webkit_download_get_suggested_filename (download));
+    if ((uri = webkit_download_get_destination_uri (download)))
+    {
+        gchar* path = soup_uri_decode (uri);
+        gchar* filename = g_strrstr (path, "/") + 1;
+        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress), filename);
+        g_free (path);
+    }
+    else
+        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (progress),
+            webkit_download_get_suggested_filename (download));
     sokoke_widget_get_text_size (progress, "M", &width, NULL);
     gtk_widget_set_size_request (progress, width * 10, -1);
     /* Avoid a bug in WebKit */
@@ -1227,8 +1236,8 @@ midori_view_download_save_as_response_cb (GtkWidget*      dialog,
     {
         gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
         MidoriBrowser* browser = midori_browser_get_for_widget (dialog);
-        midori_browser_add_download_item (browser, download);
         webkit_download_set_destination_uri (download, uri);
+        midori_browser_add_download_item (browser, download);
         g_free (uri);
         webkit_download_start (download);
     }
