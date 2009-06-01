@@ -1226,10 +1226,14 @@ midori_view_download_save_as_response_cb (GtkWidget*      dialog,
     if (response == GTK_RESPONSE_ACCEPT)
     {
         gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
+        MidoriBrowser* browser = midori_browser_get_for_widget (dialog);
+        midori_browser_add_download_item (browser, download);
         webkit_download_set_destination_uri (download, uri);
         g_free (uri);
         webkit_download_start (download);
     }
+    else
+        g_object_unref (download);
     gtk_widget_destroy (dialog);
 }
 
@@ -1274,9 +1278,9 @@ midori_view_download_requested_cb (GtkWidget*      view,
             g_free (filename);
             webkit_download_set_destination_uri (download, uri);
             g_free (uri);
+            midori_browser_add_download_item (browser, download);
         }
     }
-    midori_browser_add_download_item (browser, download);
     return TRUE;
 }
 #endif
