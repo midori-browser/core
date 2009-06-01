@@ -2566,7 +2566,7 @@ midori_view_tab_label_query_tooltip_cb (GtkWidget*  tab_label,
     if (view->speed_dial_in_new_tabs)
         gtk_tooltip_set_icon (tooltip, midori_view_get_snapshot (view, 160, 107));
     else
-        gtk_tooltip_set_text (tooltip, view->uri);
+        gtk_tooltip_set_text (tooltip, midori_view_get_display_title (view));
     return TRUE;
 }
 #endif
