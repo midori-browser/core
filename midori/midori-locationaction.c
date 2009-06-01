@@ -323,6 +323,15 @@ midori_location_action_thaw (MidoriLocationAction* location_action)
     }
 }
 
+static GtkTreeModel*
+midori_location_action_create_model (void)
+{
+    GtkTreeModel* model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
+        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
+        G_TYPE_INT, G_TYPE_BOOLEAN);
+    return model;
+}
+
 static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
@@ -332,9 +341,7 @@ midori_location_action_init (MidoriLocationAction* location_action)
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
 
-    location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
-        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-        G_TYPE_INT, G_TYPE_BOOLEAN);
+    location_action->model = midori_location_action_create_model ();
 
     location_action->filter_model = NULL;
     location_action->sort_model = NULL;
@@ -435,7 +442,6 @@ midori_location_action_set_property (GObject*      object,
         history = g_value_dup_object (value);
         katze_assign (location_action->history, g_object_ref (history));
         model = g_object_get_data (G_OBJECT (history), "midori-location-model");
-        midori_location_action_freeze (location_action);
         if (model != NULL)
         {
             katze_object_assign (location_action->model, g_object_ref (model));
@@ -443,17 +449,16 @@ midori_location_action_set_property (GObject*      object,
         else
         {
             g_object_unref (location_action->model);
-            location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
-                GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-                G_TYPE_INT, G_TYPE_BOOLEAN);
+            location_action->model = midori_location_action_create_model ();
+            midori_location_action_freeze (location_action);
             /* FIXME: MidoriBrowser is essentially making up for the lack
                       of synchronicity of newly added items. */
             midori_location_action_insert_history_item (location_action,
                 KATZE_ITEM (g_value_get_object (value)));
+            midori_location_action_thaw (location_action);
             g_object_set_data (G_OBJECT (history),
                 "midori-location-model", location_action->model);
         }
-        midori_location_action_thaw (location_action);
         break;
     }
     default:
