@@ -129,6 +129,22 @@ proxy_object_notify_string_cb (GObject*    object,
     g_free (value);
 }
 
+static void
+proxy_widget_boolean_destroy_cb (GtkWidget* proxy,
+                                 GObject*   object)
+{
+    g_signal_handlers_disconnect_by_func (object,
+        proxy_object_notify_boolean_cb, proxy);
+}
+
+static void
+proxy_widget_string_destroy_cb (GtkWidget* proxy,
+                                 GObject*  object)
+{
+    g_signal_handlers_disconnect_by_func (object,
+        proxy_object_notify_string_cb, proxy);
+}
+
 /**
  * katze_property_proxy:
  * @object: a #GObject
@@ -208,6 +224,8 @@ katze_property_proxy (gpointer     object,
         notify_property = g_strdup_printf ("notify::%s", property);
         g_signal_connect (object, notify_property,
             G_CALLBACK (proxy_object_notify_boolean_cb), widget);
+        g_signal_connect (widget, "destroy",
+            G_CALLBACK (proxy_widget_boolean_destroy_cb), object);
         g_free (notify_property);
     }
     else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("file"))
@@ -300,6 +318,8 @@ katze_property_proxy (gpointer     object,
         notify_property = g_strdup_printf ("notify::%s", property);
         g_signal_connect (object, notify_property,
             G_CALLBACK (proxy_object_notify_string_cb), widget);
+        g_signal_connect (widget, "destroy",
+            G_CALLBACK (proxy_widget_string_destroy_cb), object);
         g_free (notify_property);
     }
     else if (type == G_TYPE_PARAM_FLOAT)
