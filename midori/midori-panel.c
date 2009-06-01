@@ -329,10 +329,8 @@ midori_panel_init (MidoriPanel* panel)
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_FULLSCREEN);
     gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
     panel->button_detach = toolitem;
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem),
-                               _("Detach chosen panel from the window"));
     gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem),
-                               _("Whether to detach the chosen panel from the window"));
+        _("Detach chosen panel from the window"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_panel_button_detach_clicked_cb), panel);
     #if HAVE_OSX
@@ -341,10 +339,8 @@ midori_panel_init (MidoriPanel* panel)
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
     #endif
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem),
-                               _("Align sidepanel on the right"));
     gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem),
-                               _("Whether to align the sidepanel on the right"));
+        _("Align sidepanel to the right"));
     g_signal_connect (toolitem, "clicked",
         G_CALLBACK (midori_panel_button_align_clicked_cb), panel);
     #if HAVE_OSX
@@ -508,6 +504,9 @@ midori_panel_set_right_aligned (MidoriPanel* panel,
     gtk_tool_button_set_stock_id (GTK_TOOL_BUTTON (panel->button_align),
         right_aligned ? GTK_STOCK_GO_BACK : GTK_STOCK_GO_FORWARD);
     panel->right_aligned = right_aligned;
+    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (panel->button_align),
+        !panel->right_aligned ? _("Align sidepanel to the right")
+            : _("Align sidepanel to the left"));
     g_object_notify (G_OBJECT (panel), "right-aligned");
 }
 
