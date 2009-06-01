@@ -282,6 +282,8 @@ int
 main (int    argc,
       char** argv)
 {
+    /* libSoup uses threads, so we need to initialize threads. */
+    if (!g_thread_supported ()) g_thread_init (NULL);
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
 
