@@ -37,6 +37,7 @@ struct _MidoriLocationAction
     GdkPixbuf* default_icon;
     GHashTable* items;
     KatzeNet* net;
+    KatzeArray* history;
 };
 
 struct _MidoriLocationActionClass
@@ -342,6 +343,7 @@ midori_location_action_init (MidoriLocationAction* location_action)
     location_action->items = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                     g_free, g_free);
     location_action->net = katze_net_new ();
+    location_action->history = NULL;
 }
 
 static void
@@ -359,6 +361,7 @@ midori_location_action_finalize (GObject* object)
 
     g_hash_table_destroy (location_action->items);
     katze_object_assign (location_action->net, NULL);
+    katze_object_assign (location_action->history, NULL);
 
     G_OBJECT_CLASS (midori_location_action_parent_class)->finalize (object);
 }
@@ -429,7 +432,8 @@ midori_location_action_set_property (GObject*      object,
         KatzeArray* history;
         GtkTreeModel* model;
 
-        history = g_value_get_object (value);
+        history = g_value_dup_object (value);
+        katze_assign (location_action->history, g_object_ref (history));
         model = g_object_get_data (G_OBJECT (history), "midori-location-model");
         midori_location_action_freeze (location_action);
         if (model != NULL)
@@ -438,6 +442,10 @@ midori_location_action_set_property (GObject*      object,
         }
         else
         {
+            g_object_unref (location_action->model);
+            location_action->model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
+                GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
+                G_TYPE_INT, G_TYPE_BOOLEAN);
             /* FIXME: MidoriBrowser is essentially making up for the lack
                       of synchronicity of newly added items. */
             midori_location_action_insert_history_item (location_action,
@@ -469,6 +477,9 @@ midori_location_action_get_property (GObject*    object,
         break;
     case PROP_SECONDARY_ICON:
         g_value_set_string (value, location_action->secondary_icon);
+        break;
+    case PROP_HISTORY:
+        g_value_set_object (value, location_action->history);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
