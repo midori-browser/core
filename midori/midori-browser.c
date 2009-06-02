@@ -1262,9 +1262,6 @@ midori_view_download_requested_cb (GtkWidget*      view,
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     if (!webkit_download_get_destination_uri (download))
     {
-        gchar* filename;
-        gchar* uri;
-
         if (g_object_get_data (G_OBJECT (download), "save-as-download"))
         {
             GtkWidget* dialog = gtk_file_chooser_dialog_new (
@@ -1286,6 +1283,9 @@ midori_view_download_requested_cb (GtkWidget*      view,
         else
         {
             gchar* folder;
+            gchar* filename;
+            gchar* uri;
+
             if (g_object_get_data (G_OBJECT (download), "open-download"))
                 folder = g_strdup (g_get_tmp_dir ());
             else
@@ -4395,7 +4395,6 @@ midori_browser_set_history (MidoriBrowser* browser,
                             KatzeArray*    history)
 {
     KatzeItem* recently_visited;
-    GtkAction* action;
     time_t now;
     gint64 day;
 
