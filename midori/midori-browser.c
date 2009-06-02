@@ -968,6 +968,8 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
 
         if (g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL))
         {
+            gint i;
+
             gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
             encoded = g_base64_encode ((guchar *)file_content, sz);
 
@@ -983,6 +985,12 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
                                        1, replace_by, 0, NULL);
 
             g_file_set_contents (body_fname, replace, -1, NULL);
+
+            i = 0;
+            while ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (
+                                                      browser->notebook), i++)))
+                if (midori_view_is_blank (MIDORI_VIEW (view)))
+                    midori_view_reload (MIDORI_VIEW (view), FALSE);
 
             g_object_unref (img);
             g_regex_unref (regex);
