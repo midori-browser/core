@@ -4430,6 +4430,8 @@ midori_browser_set_history (MidoriBrowser* browser,
     if (!history)
         return;
 
+    g_signal_connect (browser->history, "remove-item",
+        G_CALLBACK (midori_browser_history_remove_item_cb), browser);
     g_signal_connect (browser->history, "clear",
                       G_CALLBACK (midori_browser_history_clear_cb), browser);
 
