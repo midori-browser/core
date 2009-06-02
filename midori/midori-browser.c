@@ -1277,6 +1277,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
             gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
             /* FIXME: Remember the last folder
                gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir); */
+            gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog),
+                webkit_download_get_suggested_filename (download));
             gtk_widget_show (dialog);
             g_signal_connect (dialog, "response",
                 G_CALLBACK (midori_view_download_save_as_response_cb), download);
