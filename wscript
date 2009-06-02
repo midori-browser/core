@@ -47,6 +47,7 @@ def option_enabled (option):
 def configure (conf):
     def option_checkfatal (option, desc):
         if hasattr (Options.options, 'enable_' + option):
+            if getattr (Options.options, 'enable_' + option):
                 Utils.pprint ('RED', desc + ' N/A')
                 sys.exit (1)
 
@@ -124,16 +125,16 @@ def configure (conf):
     if option_enabled ('libidn'):
         check_pkg ('libidn', '1.0', False)
         libidn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
-    else:
         option_checkfatal ('libidn', 'international domain names')
+    else:
         libidn = 'no '
     conf.define ('HAVE_LIBIDN', [0,1][libidn == 'yes'])
 
     if option_enabled ('sqlite'):
         check_pkg ('sqlite3', '3.0', False, var='SQLITE')
         sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
-    else:
         option_checkfatal ('sqlite', 'history database')
+    else:
         sqlite = 'no '
     conf.define ('HAVE_SQLITE', [0,1][sqlite == 'yes'])
 
@@ -152,8 +153,8 @@ def configure (conf):
         if conf.env['HAVE_HILDON'] == 1:
             check_pkg ('libosso', mandatory=False, var='HILDON')
         hildon = ['N/A','yes'][conf.env['HAVE_HILDON'] == 1]
-    else:
         option_checkfatal ('hildon', 'Maemo integration')
+    else:
         hildon = 'no '
     conf.define ('HAVE_HILDON', [0,1][hildon == 'yes'])
 
