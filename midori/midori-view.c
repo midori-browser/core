@@ -48,8 +48,8 @@ midori_view_construct_web_view (MidoriView* view);
 
 GdkPixbuf*
 midori_view_get_snapshot (MidoriView* view,
-                          guint       width,
-                          guint       height);
+                          gint        width,
+                          gint        height);
 
 struct _MidoriView
 {
@@ -2564,7 +2564,7 @@ midori_view_tab_label_query_tooltip_cb (GtkWidget*  tab_label,
                                         MidoriView* view)
 {
     if (view->speed_dial_in_new_tabs)
-        gtk_tooltip_set_icon (tooltip, midori_view_get_snapshot (view, 160, 107));
+        gtk_tooltip_set_icon (tooltip, midori_view_get_snapshot (view, -160, -107));
     else
         gtk_tooltip_set_text (tooltip, midori_view_get_display_title (view));
     return TRUE;
@@ -3023,10 +3023,12 @@ midori_view_execute_script (MidoriView*  view,
 /* For now this is private API */
 GdkPixbuf*
 midori_view_get_snapshot (MidoriView* view,
-                          guint       width,
-                          guint       height)
+                          gint        width,
+                          gint        height)
 {
     GtkWidget* web_view;
+    gboolean fast;
+    gint x, y, w, h;
     GdkRectangle rect;
     GdkPixmap* pixmap;
     GdkEvent event;
@@ -3038,13 +3040,30 @@ midori_view_get_snapshot (MidoriView* view,
     web_view = gtk_bin_get_child (GTK_BIN (view));
     g_return_val_if_fail (web_view->window, NULL);
 
-    rect.x = web_view->allocation.x;
-    rect.y = web_view->allocation.y;
-    rect.width = web_view->allocation.width;
-    rect.height = web_view->allocation.height;
+    x = web_view->allocation.x;
+    y = web_view->allocation.y;
+    w = web_view->allocation.width;
+    h = web_view->allocation.height;
 
-    pixmap = gdk_pixmap_new (web_view->window,
-        web_view->allocation.width, web_view->allocation.height,
+    /* If width and height are both negative, we try to render faster at
+       the cost of correctness or beauty. Only a part of the page is
+       rendered which makes it a lot faster and scaling isn't as nice. */
+    fast = FALSE;
+    if (width < 0 && height < 0)
+    {
+        width *= -1;
+        height *= -1;
+        w = w > 320 ? 320 : w;
+        h = h > 240 ? 240 : h;
+        fast = TRUE;
+    }
+
+    rect.x = x;
+    rect.y = y;
+    rect.width = w;
+    rect.height = h;
+
+    pixmap = gdk_pixmap_new (web_view->window, w, h,
         gdk_drawable_get_depth (web_view->window));
     event.expose.type = GDK_EXPOSE;
     event.expose.window = pixmap;
@@ -3070,8 +3089,9 @@ midori_view_get_snapshot (MidoriView* view,
             width = rect.width;
         if (!height)
             height = rect.height;
+
         scaled = gdk_pixbuf_scale_simple (pixbuf, width, height,
-                                          GDK_INTERP_TILES);
+            fast ? GDK_INTERP_NEAREST : GDK_INTERP_TILES);
         g_object_unref (pixbuf);
         return scaled;
     }
