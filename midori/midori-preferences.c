@@ -452,9 +452,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FILLED_ADD (hbox, 1, 2, 0, 1);
     label = gtk_label_new (_("Fixed-width Font Family"));
     INDENTED_ADD (label, 0, 1, 1, 2);
+    hbox = gtk_hbox_new (FALSE, 4);
     button = katze_property_proxy (settings, "monospace-font-family", "font");
     gtk_widget_set_tooltip_text (button, _("The font family used to display fixed-width text"));
-    INDENTED_ADD (button, 1, 2, 1, 2);
+    gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
+    entry = katze_property_proxy (settings, "default-monospace-font-size", NULL);
+    gtk_widget_set_tooltip_text (entry, _("The font size used to display fixed-width text"));
+    gtk_box_pack_end (GTK_BOX (hbox), entry, FALSE, FALSE, 4);
+    INDENTED_ADD (hbox, 1, 2, 1, 2);
     label = gtk_label_new (_("Minimum Font Size"));
     INDENTED_ADD (label, 0, 1, 2, 3);
     entry = katze_property_proxy (settings, "minimum-font-size", NULL);
