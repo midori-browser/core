@@ -266,13 +266,15 @@ midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
     name = katze_object_get_string (extension, "name");
     version = katze_object_get_string (extension, "version");
     desc = katze_object_get_string (extension, "description");
-    text = g_strdup_printf ("%s %s\n%s", name, version, desc);
+    text = g_markup_printf_escaped ("<b>%s</b> %s\n%s", name, version, desc);
     g_free (name);
     g_free (version);
     g_free (desc);
-    g_object_set (renderer, "text", text,
+
+    g_object_set (renderer, "markup", text,
                   "sensitive", midori_extension_is_active (extension),
                   NULL);
+
     g_free (text);
     g_object_unref (extension);
 }
