@@ -28,6 +28,7 @@ struct _MidoriExtensionPrivate
     gchar* description;
     gchar* version;
     gchar* authors;
+    gchar* website;
 
     MidoriApp* app;
     gint active;
@@ -129,7 +130,8 @@ enum
     PROP_NAME,
     PROP_DESCRIPTION,
     PROP_VERSION,
-    PROP_AUTHORS
+    PROP_AUTHORS,
+    PROP_WEBSITE
 };
 
 enum {
@@ -224,6 +226,22 @@ midori_extension_class_init (MidoriExtensionClass* class)
                                      "authors",
                                      "Authors",
                                      "The authors of the extension",
+                                     NULL,
+                                     flags));
+
+    /**
+     * MidoriExtension:website:
+     *
+     * The website of the extension.
+     *
+     * Since: 0.1.8
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_WEBSITE,
+                                     g_param_spec_string (
+                                     "website",
+                                     "Website",
+                                     "The website of the extension",
                                      NULL,
                                      flags));
 
@@ -346,6 +364,7 @@ midori_extension_finalize (GObject* object)
     katze_assign (extension->priv->description, NULL);
     katze_assign (extension->priv->version, NULL);
     katze_assign (extension->priv->authors, NULL);
+    katze_assign (extension->priv->website, NULL);
 
     katze_assign (extension->priv->config_dir, NULL);
     g_list_free (extension->priv->lsettings);
@@ -376,6 +395,9 @@ midori_extension_set_property (GObject*      object,
     case PROP_AUTHORS:
         katze_assign (extension->priv->authors, g_value_dup_string (value));
         break;
+    case PROP_WEBSITE:
+        katze_assign (extension->priv->website, g_value_dup_string (value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -403,6 +425,9 @@ midori_extension_get_property (GObject*    object,
         break;
     case PROP_AUTHORS:
         g_value_set_string (value, extension->priv->authors);
+        break;
+    case PROP_WEBSITE:
+        g_value_set_string (value, extension->priv->website);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
