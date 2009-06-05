@@ -117,15 +117,17 @@ def configure (conf):
     if option_enabled ('unique'):
         check_pkg ('unique-1.0', '0.9', False)
         unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
+        if unique != 'yes':
+            option_checkfatal ('unique', 'single instance')
     else:
-        option_checkfatal ('unique', 'single instance')
         unique = 'no '
     conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
 
     if option_enabled ('libidn'):
         check_pkg ('libidn', '1.0', False)
         libidn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
-        option_checkfatal ('libidn', 'international domain names')
+        if libidn != 'yes':
+            option_checkfatal ('libidn', 'international domain names')
     else:
         libidn = 'no '
     conf.define ('HAVE_LIBIDN', [0,1][libidn == 'yes'])
@@ -133,7 +135,8 @@ def configure (conf):
     if option_enabled ('sqlite'):
         check_pkg ('sqlite3', '3.0', False, var='SQLITE')
         sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
-        option_checkfatal ('sqlite', 'history database')
+        if sqlite != 'yes':
+            option_checkfatal ('sqlite', 'history database')
     else:
         sqlite = 'no '
     conf.define ('HAVE_SQLITE', [0,1][sqlite == 'yes'])
@@ -153,7 +156,8 @@ def configure (conf):
         if conf.env['HAVE_HILDON'] == 1:
             check_pkg ('libosso', mandatory=False, var='HILDON')
         hildon = ['N/A','yes'][conf.env['HAVE_HILDON'] == 1]
-        option_checkfatal ('hildon', 'Maemo integration')
+        if hildon != 'yes':
+            option_checkfatal ('hildon', 'Maemo integration')
     else:
         hildon = 'no '
     conf.define ('HAVE_HILDON', [0,1][hildon == 'yes'])
