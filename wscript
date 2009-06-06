@@ -191,6 +191,11 @@ def configure (conf):
         hildon = 'no '
     conf.define ('HAVE_HILDON', [0,1][hildon == 'yes'])
 
+    # Store options in env, since 'Options' is not persistent
+    if 'CC' in os.environ: conf.env['CC'] = os.environ['CC']
+    conf.env['addons'] = option_enabled ('addons')
+    conf.env['docs'] = option_enabled ('docs')
+
     conf.check (header_name='unistd.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
 
@@ -297,12 +302,12 @@ def set_options (opt):
 def build (bld):
     bld.add_subdirs ('katze midori icons')
 
-    if option_enabled ('addons'):
+    if bld.env['addons']:
         bld.add_subdirs ('extensions')
 
     bld.add_group ()
 
-    if option_enabled ('docs'):
+    if bld.env['docs']:
         bld.install_files ('${DOCDIR}/' + APPNAME + '/', \
             'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
 
