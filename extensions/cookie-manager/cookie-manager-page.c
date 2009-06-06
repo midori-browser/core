@@ -28,22 +28,17 @@ typedef struct _CookieManagerPagePrivate			CookieManagerPagePrivate;
 
 #define CM_EMPTY_LABEL_TEXT "\n\n\n\n\n\n"
 
-enum
-{
-	COOKIE_MANAGER_COL_NAME,
-	COOKIE_MANAGER_COL_COOKIE,
-	COOKIE_MANAGER_COL_VISIBLE,
-	COOKIE_MANAGER_N_COLUMNS
-};
-
 
 struct _CookieManagerPagePrivate
 {
+	CookieManager *parent;
+
 	GtkWidget *treeview;
 	GtkTreeStore *store;
 	GtkTreeModel *filter;
 
 	GtkWidget *filter_entry;
+	gboolean ignore_changed_filter;
 
 	GtkWidget *desc_label;
 	GtkWidget *delete_button;
@@ -53,11 +48,13 @@ struct _CookieManagerPagePrivate
 
 	GtkWidget *toolbar;
 	GtkWidget *popup_menu;
+};
 
-	GSList *cookies;
-	SoupCookieJar *jar;
-	guint timer_id;
-	gint ignore_changed_count;
+enum
+{
+	PROP_0,
+	PROP_STORE,
+	PROP_PARENT
 };
 
 
@@ -69,7 +66,6 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CookieManager
 static void cm_tree_popup_collapse_activate_cb(GtkMenuItem *item, CookieManagerPage *cmp);
 static void cm_tree_popup_expand_activate_cb(GtkMenuItem *item, CookieManagerPage *cmp);
 static void cm_filter_tree(CookieManagerPage *cmp, const gchar *filter_text);
-static void cm_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, SoupCookie *new, CookieManagerPage *cmp);
 
 
 G_DEFINE_TYPE_WITH_CODE(CookieManagerPage, cookie_manager_page, GTK_TYPE_VBOX,
@@ -87,22 +83,6 @@ static const gchar *cookie_manager_page_get_label(MidoriViewable *viewable)
 static const gchar *cookie_manager_page_get_stock_id(MidoriViewable *viewable)
 {
 	return STOCK_COOKIE_MANAGER;
-}
-
-
-static void cm_free_cookie_list(CookieManagerPage *cmp)
-{
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
-
-	if (priv->cookies != NULL)
-	{
-		GSList *l;
-
-		for (l = priv->cookies; l != NULL; l = g_slist_next(l))
-			soup_cookie_free(l->data);
-		g_slist_free(priv->cookies);
-		priv->cookies = NULL;
-	}
 }
 
 
@@ -174,73 +154,19 @@ static void cookie_manager_page_viewable_iface_init(MidoriViewableIface* iface)
 }
 
 
-static void cookie_manager_page_finalize(GObject *object)
+static void cookie_manager_page_pre_cookies_change_cb(CookieManager *cm, CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(object);
-
-	g_signal_handlers_disconnect_by_func(priv->jar, cm_jar_changed_cb, object);
-
-	if (priv->timer_id > 0)
-		g_source_remove(priv->timer_id);
-
-	cm_free_cookie_list(COOKIE_MANAGER_PAGE(object));
-
-	gtk_widget_destroy(priv->popup_menu);
-
-	G_OBJECT_CLASS(cookie_manager_page_parent_class)->finalize(object);
-}
-
-
-static void cm_refresh_store(CookieManagerPage *cmp)
-{
-	GSList *l;
-	GHashTable *parents;
-	GtkTreeIter iter;
-	GtkTreeIter *parent_iter;
-	SoupCookie *cookie;
-	const gchar *filter_text;
 	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
 
 	g_object_ref(priv->filter);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), NULL);
+}
 
-	gtk_tree_store_clear(priv->store);
 
-	/* free the old list */
-	cm_free_cookie_list(cmp);
-
-	priv->cookies = soup_cookie_jar_all_cookies(priv->jar);
-
-	/* Hashtable holds domain names as keys, the corresponding tree iters as values */
-	parents = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-
-	for (l = priv->cookies; l != NULL; l = g_slist_next(l))
-	{
-		cookie = l->data;
-
-		/* look for the parent item for the current domain name and create it if it doesn't exist */
-		if ((parent_iter = (GtkTreeIter*) g_hash_table_lookup(parents, cookie->domain)) == NULL)
-		{
-			parent_iter = g_new0(GtkTreeIter, 1);
-
-			gtk_tree_store_append(priv->store, parent_iter, NULL);
-			gtk_tree_store_set(priv->store, parent_iter,
-				COOKIE_MANAGER_COL_NAME, cookie->domain,
-				COOKIE_MANAGER_COL_COOKIE, NULL,
-				COOKIE_MANAGER_COL_VISIBLE, TRUE,
-				-1);
-
-			g_hash_table_insert(parents, g_strdup(cookie->domain), parent_iter);
-		}
-
-		gtk_tree_store_append(priv->store, &iter, parent_iter);
-		gtk_tree_store_set(priv->store, &iter,
-			COOKIE_MANAGER_COL_NAME, cookie->name,
-			COOKIE_MANAGER_COL_COOKIE, cookie,
-			COOKIE_MANAGER_COL_VISIBLE, TRUE,
-			-1);
-	}
-	g_hash_table_destroy(parents);
+static void cookie_manager_page_cookies_changed_cb(CookieManager *cm, CookieManagerPage *cmp)
+{
+	const gchar *filter_text;
+	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
 
 	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), GTK_TREE_MODEL(priv->filter));
 	g_object_unref(priv->filter);
@@ -255,32 +181,78 @@ static void cm_refresh_store(CookieManagerPage *cmp)
 }
 
 
-static gboolean cm_delayed_refresh(CookieManagerPage *cmp)
+static void cookie_manager_page_filter_changed_cb(CookieManager *cm, const gchar *text,
+												  CookieManagerPage *cmp)
 {
 	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
 
-	cm_refresh_store(cmp);
-	priv->timer_id = 0;
-
-	return FALSE;
+	priv->ignore_changed_filter = TRUE;
+	gtk_entry_set_text(GTK_ENTRY(priv->filter_entry), text);
+	priv->ignore_changed_filter = FALSE;
 }
 
 
-static void cm_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, SoupCookie *new,
-							  CookieManagerPage *cmp)
+static void cookie_manager_page_finalize(GObject *object)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(object);
 
-	if (priv->ignore_changed_count > 0)
+	gtk_widget_destroy(priv->popup_menu);
+
+	g_signal_handlers_disconnect_by_func(priv->parent,
+		cookie_manager_page_pre_cookies_change_cb, object);
+	g_signal_handlers_disconnect_by_func(priv->parent,
+		cookie_manager_page_cookies_changed_cb, object);
+	g_signal_handlers_disconnect_by_func(priv->parent,
+		cookie_manager_page_filter_changed_cb, object);
+
+	G_OBJECT_CLASS(cookie_manager_page_parent_class)->finalize(object);
+}
+
+
+static void cookie_manager_page_set_property(GObject *object, guint prop_id, const GValue *value,
+											 GParamSpec *pspec)
+{
+	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(object);
+	switch (prop_id)
 	{
-		priv->ignore_changed_count--;
-		return;
-	}
+		case PROP_STORE:
+		{
+			priv->store = g_value_get_object(value);
 
-	/* We delay these events a little bit to avoid too many rebuilds of the tree.
-	 * Some websites (like Flyspray bugtrackers sent a whole bunch of cookies at once. */
-	if (priv->timer_id == 0)
-		priv->timer_id = g_timeout_add_seconds(1, (GSourceFunc) cm_delayed_refresh, cmp);
+			/* setting filter and model */
+			priv->filter = gtk_tree_model_filter_new(GTK_TREE_MODEL(priv->store), NULL);
+			gtk_tree_model_filter_set_visible_column(GTK_TREE_MODEL_FILTER(priv->filter),
+				COOKIE_MANAGER_COL_VISIBLE);
+			gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), GTK_TREE_MODEL(priv->filter));
+			g_object_unref(priv->filter);
+
+			break;
+		}
+		case PROP_PARENT:
+		{
+			if (priv->parent != NULL)
+			{
+				g_signal_handlers_disconnect_by_func(priv->parent,
+					cookie_manager_page_pre_cookies_change_cb, object);
+				g_signal_handlers_disconnect_by_func(priv->parent,
+					cookie_manager_page_cookies_changed_cb, object);
+				g_signal_handlers_disconnect_by_func(priv->parent,
+					cookie_manager_page_filter_changed_cb, object);
+			}
+			priv->parent = g_value_get_object(value);
+
+			g_signal_connect(priv->parent, "pre-cookies-change",
+				G_CALLBACK(cookie_manager_page_pre_cookies_change_cb), object);
+			g_signal_connect(priv->parent, "cookies-changed",
+				G_CALLBACK(cookie_manager_page_cookies_changed_cb), object);
+			g_signal_connect(priv->parent, "filter-changed",
+				G_CALLBACK(cookie_manager_page_filter_changed_cb), object);
+			break;
+		}
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+			break;
+	}
 }
 
 
@@ -288,7 +260,27 @@ static void cookie_manager_page_class_init(CookieManagerPageClass *klass)
 {
 	GObjectClass *g_object_class;
 	g_object_class = G_OBJECT_CLASS(klass);
+
 	g_object_class->finalize = cookie_manager_page_finalize;
+	g_object_class->set_property = cookie_manager_page_set_property;
+
+	g_object_class_install_property(g_object_class,
+		PROP_STORE,
+		g_param_spec_object(
+		"store",
+		"Treestore",
+		"The tree store",
+		GTK_TYPE_TREE_STORE,
+		G_PARAM_WRITABLE));
+
+	g_object_class_install_property(g_object_class,
+		PROP_PARENT,
+		g_param_spec_object(
+		"parent",
+		"Parent",
+		"The CookieManager parent instance",
+		COOKIE_MANAGER_TYPE,
+		G_PARAM_WRITABLE));
 
 	g_type_class_add_private(klass, sizeof(CookieManagerPagePrivate));
 }
@@ -346,13 +338,7 @@ static void cm_delete_cookie(CookieManagerPage *cmp, GtkTreeModel *model, GtkTre
 
 	gtk_tree_model_get(model, child, COOKIE_MANAGER_COL_COOKIE, &cookie, -1);
 
-	if (cookie != NULL)
-	{
-		priv->ignore_changed_count++;
-
-		soup_cookie_jar_delete_cookie(priv->jar, cookie);
-		/* the SoupCookie object is freed when the whole list gets updated */
-	}
+	cookie_manager_delete_cookie(priv->parent, cookie);
 }
 
 
@@ -670,10 +656,16 @@ static void cm_filter_tree(CookieManagerPage *cmp, const gchar *filter_text)
 
 static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage *cmp)
 {
-	const gchar *text = gtk_entry_get_text(GTK_ENTRY(editable));
+	const gchar *text;
 	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
 
+	if (priv->ignore_changed_filter)
+		return;
+
+	text = gtk_entry_get_text(GTK_ENTRY(editable));
 	cm_filter_tree(cmp, text);
+
+	cookie_manager_update_filter(priv->parent, text);
 
 	if (*text != '\0')
 		gtk_tree_view_expand_all(GTK_TREE_VIEW(priv->treeview));
@@ -830,20 +822,6 @@ static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
 
-	/* create the main store */
-	priv->store = gtk_tree_store_new(COOKIE_MANAGER_N_COLUMNS,
-		G_TYPE_STRING, SOUP_TYPE_COOKIE, G_TYPE_BOOLEAN);
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(priv->store),
-		COOKIE_MANAGER_COL_NAME, GTK_SORT_ASCENDING);
-
-	/* setting filter and model */
-	priv->filter = gtk_tree_model_filter_new(GTK_TREE_MODEL(priv->store), NULL);
-	gtk_tree_model_filter_set_visible_column(GTK_TREE_MODEL_FILTER(priv->filter),
-		COOKIE_MANAGER_COL_VISIBLE);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), GTK_TREE_MODEL(priv->filter));
-	g_object_unref(priv->store);
-	g_object_unref(priv->filter);
-
 	/* signals */
 	g_signal_connect(sel, "changed", G_CALLBACK(cm_tree_selection_changed_cb), cmp);
 	g_signal_connect(treeview, "button-press-event", G_CALLBACK(cm_tree_button_press_event_cb), cmp);
@@ -909,8 +887,11 @@ static void cookie_manager_page_init(CookieManagerPage *self)
 	GtkWidget *filter_hbox;
 	GtkWidget *filter_label;
 	GtkWidget *treeview;
-	SoupSession *session;
 	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(self);
+
+	priv->parent = NULL;
+	priv->store = NULL;
+	priv->ignore_changed_filter = FALSE;
 
 	cm_create_toolbar(self);
 
@@ -968,18 +949,19 @@ static void cookie_manager_page_init(CookieManagerPage *self)
 
 	gtk_box_pack_start(GTK_BOX(self), filter_hbox, FALSE, FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(self), paned, TRUE, TRUE, 0);
-
-	/* setup soup */
-	session = webkit_get_default_session();
-	priv->jar = SOUP_COOKIE_JAR(soup_session_get_feature(session, soup_cookie_jar_get_type()));
-	g_signal_connect(priv->jar, "changed", G_CALLBACK(cm_jar_changed_cb), self);
-
-	cm_refresh_store(self);
 }
 
 
-GtkWidget *cookie_manager_page_new(void)
+GtkWidget *cookie_manager_page_new(CookieManager *parent, GtkTreeStore *store,
+								   const gchar *filter_text)
 {
-	return g_object_new(COOKIE_MANAGER_PAGE_TYPE, NULL);
+	GtkWidget *cmp;
+
+	cmp = g_object_new(COOKIE_MANAGER_PAGE_TYPE, "parent", parent, "store", store, NULL);
+
+	if (filter_text != NULL)
+		cookie_manager_page_filter_changed_cb(parent, filter_text, COOKIE_MANAGER_PAGE(cmp));
+
+	return cmp;
 }
 

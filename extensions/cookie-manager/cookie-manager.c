@@ -16,115 +16,324 @@
 #include "cookie-manager.h"
 #include "cookie-manager-page.h"
 
+typedef struct _CookieManagerPrivate			CookieManagerPrivate;
 
+#define COOKIE_MANAGER_GET_PRIVATE(obj)		(G_TYPE_INSTANCE_GET_PRIVATE((obj),\
+			COOKIE_MANAGER_TYPE, CookieManagerPrivate))
 
-typedef struct
+struct _CookieManager
+{
+	GObject parent;
+};
+
+struct _CookieManagerClass
+{
+	GObjectClass parent_class;
+};
+
+struct _CookieManagerPrivate
 {
 	MidoriApp *app;
-	MidoriBrowser *browser;
 	MidoriExtension *extension;
-	GtkWidget *panel_page;
-} CMData;
 
-static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, MidoriExtension *ext);
-static void cm_deactivate_cb(MidoriExtension *extension, CMData *cmdata);
+	GSList *panel_pages;
 
+	GtkTreeStore *store;
+	GSList *cookies;
+	SoupCookieJar *jar;
+	guint timer_id;
+	gint ignore_changed_count;
 
+	gchar *filter_text;
+};
 
-static void cm_browser_close_cb(GtkObject *browser, CMData *cmdata)
+static void cookie_manager_finalize(GObject *object);
+static void cookie_manager_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser,
+											  CookieManager *cm);
+
+enum
 {
-	g_signal_handlers_disconnect_by_func(cmdata->extension, cm_deactivate_cb, cmdata);
-	g_signal_handlers_disconnect_by_func(cmdata->browser, cm_browser_close_cb, cmdata);
+	COOKIES_CHANGED,
+	PRE_COOKIES_CHANGE,
+	FILTER_CHANGED,
 
-	/* the panel_page widget gets destroyed automatically when a browser is closed but not
-	 * when the extension is deactivated */
-	if (cmdata->panel_page != NULL && IS_COOKIE_MANAGER_PAGE(cmdata->panel_page))
-		gtk_widget_destroy(cmdata->panel_page);
+	LAST_SIGNAL
+};
+static guint signals[LAST_SIGNAL];
 
-	g_free(cmdata);
+
+G_DEFINE_TYPE(CookieManager, cookie_manager, G_TYPE_OBJECT);
+
+
+static void cookie_manager_class_init(CookieManagerClass *klass)
+{
+	GObjectClass *g_object_class;
+
+	g_object_class = G_OBJECT_CLASS(klass);
+
+	g_object_class->finalize = cookie_manager_finalize;
+
+	signals[COOKIES_CHANGED] = g_signal_new(
+		"cookies-changed",
+		G_TYPE_FROM_CLASS(klass),
+		(GSignalFlags) 0,
+		0,
+		0,
+		NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
+
+	signals[PRE_COOKIES_CHANGE] = g_signal_new(
+		"pre-cookies-change",
+		G_TYPE_FROM_CLASS(klass),
+		(GSignalFlags) 0,
+		0,
+		0,
+		NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
+
+	signals[FILTER_CHANGED] = g_signal_new(
+		"filter-changed",
+		G_TYPE_FROM_CLASS(klass),
+		(GSignalFlags) 0,
+		0,
+		0,
+		NULL,
+		g_cclosure_marshal_VOID__STRING,
+		G_TYPE_NONE, 1, G_TYPE_STRING);
+
+	g_type_class_add_private(klass, sizeof(CookieManagerPrivate));
 }
 
 
-static void cm_deactivate_cb(MidoriExtension *extension, CMData *cmdata)
+static void cookie_manager_panel_pages_foreach(gpointer ptr, gpointer data)
 {
-	g_signal_handlers_disconnect_by_func(cmdata->app, cm_app_add_browser_cb, extension);
-	cm_browser_close_cb(NULL, cmdata);
+	if (ptr != NULL && GTK_IS_WIDGET(ptr))
+		gtk_widget_destroy(GTK_WIDGET(ptr));
 }
 
 
-static void cm_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser, MidoriExtension *ext)
+static void cookie_manager_page_destroy_cb(GtkObject *page, CookieManager *cm)
 {
-	GtkWidget *panel;
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	priv->panel_pages = g_slist_remove(priv->panel_pages, page);
+}
+
+
+static void cookie_manager_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser,
+											  CookieManager *cm)
+{
+	MidoriPanel *panel;
 	GtkWidget *page;
-	CMData *cmdata;
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
 
 	panel = katze_object_get_object(browser, "panel");
 
-	page = cookie_manager_page_new();
+	page = cookie_manager_page_new(cm, priv->store, priv->filter_text);
 	gtk_widget_show(page);
-	midori_panel_append_page(MIDORI_PANEL(panel), MIDORI_VIEWABLE(page));
+	midori_panel_append_page(panel, MIDORI_VIEWABLE(page));
+	g_signal_connect(page, "destroy", G_CALLBACK(cookie_manager_page_destroy_cb), cm);
 
-	cmdata = g_new0(CMData, 1);
-	cmdata->app = app;
-	cmdata->browser = browser;
-	cmdata->extension = ext;
-	cmdata->panel_page = page;
-
-	g_signal_connect(browser, "destroy", G_CALLBACK(cm_browser_close_cb), cmdata);
-	g_signal_connect(ext, "deactivate", G_CALLBACK(cm_deactivate_cb), cmdata);
+	priv->panel_pages = g_slist_append(priv->panel_pages, page);
 
 	g_object_unref(panel);
 }
 
 
-static void cm_activate_cb(MidoriExtension *extension, MidoriApp *app, gpointer data)
+static void cookie_manager_free_cookie_list(CookieManager *cm)
 {
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	if (priv->cookies != NULL)
+	{
+		GSList *l;
+
+		for (l = priv->cookies; l != NULL; l = g_slist_next(l))
+			soup_cookie_free(l->data);
+		g_slist_free(priv->cookies);
+		priv->cookies = NULL;
+	}
+}
+
+
+static void cookie_manager_refresh_store(CookieManager *cm)
+{
+	GSList *l;
+	GHashTable *parents;
+	GtkTreeIter iter;
+	GtkTreeIter *parent_iter;
+	SoupCookie *cookie;
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	g_signal_emit(cm, signals[PRE_COOKIES_CHANGE], 0);
+
+	gtk_tree_store_clear(priv->store);
+
+	/* free the old list */
+	cookie_manager_free_cookie_list(cm);
+
+	priv->cookies = soup_cookie_jar_all_cookies(priv->jar);
+
+	/* Hashtable holds domain names as keys, the corresponding tree iters as values */
+	parents = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+	for (l = priv->cookies; l != NULL; l = g_slist_next(l))
+	{
+		cookie = l->data;
+
+		/* look for the parent item for the current domain name and create it if it doesn't exist */
+		if ((parent_iter = (GtkTreeIter*) g_hash_table_lookup(parents, cookie->domain)) == NULL)
+		{
+			parent_iter = g_new0(GtkTreeIter, 1);
+
+			gtk_tree_store_append(priv->store, parent_iter, NULL);
+			gtk_tree_store_set(priv->store, parent_iter,
+				COOKIE_MANAGER_COL_NAME, cookie->domain,
+				COOKIE_MANAGER_COL_COOKIE, NULL,
+				COOKIE_MANAGER_COL_VISIBLE, TRUE,
+				-1);
+
+			g_hash_table_insert(parents, g_strdup(cookie->domain), parent_iter);
+		}
+
+		gtk_tree_store_append(priv->store, &iter, parent_iter);
+		gtk_tree_store_set(priv->store, &iter,
+			COOKIE_MANAGER_COL_NAME, cookie->name,
+			COOKIE_MANAGER_COL_COOKIE, cookie,
+			COOKIE_MANAGER_COL_VISIBLE, TRUE,
+			-1);
+	}
+	g_hash_table_destroy(parents);
+
+	g_signal_emit(cm, signals[COOKIES_CHANGED], 0);
+}
+
+
+static gboolean cookie_manager_delayed_refresh(CookieManager *cm)
+{
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	cookie_manager_refresh_store(cm);
+	priv->timer_id = 0;
+
+	return FALSE;
+}
+
+
+static void cookie_manager_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, SoupCookie *new,
+							  CookieManager *cm)
+{
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	if (priv->ignore_changed_count > 0)
+	{
+		priv->ignore_changed_count--;
+		return;
+	}
+
+	/* We delay these events a little bit to avoid too many rebuilds of the tree.
+	 * Some websites (like Flyspray bugtrackers sent a whole bunch of cookies at once. */
+	if (priv->timer_id == 0)
+		priv->timer_id = g_timeout_add_seconds(1, (GSourceFunc) cookie_manager_delayed_refresh, cm);
+}
+
+
+static void cookie_manager_finalize(GObject *object)
+{
+	CookieManager *cm = COOKIE_MANAGER(object);
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	g_signal_handlers_disconnect_by_func(priv->app, cookie_manager_app_add_browser_cb, cm);
+	g_signal_handlers_disconnect_by_func(priv->jar, cookie_manager_jar_changed_cb, cm);
+
+	/* remove all panel pages from open windows */
+	g_slist_foreach(priv->panel_pages, cookie_manager_panel_pages_foreach, NULL);
+	g_slist_free(priv->panel_pages);
+
+	/* clean cookies */
+	if (priv->timer_id > 0)
+		g_source_remove(priv->timer_id);
+
+	cookie_manager_free_cookie_list(cm);
+
+	g_object_unref(priv->store);
+	g_free(priv->filter_text);
+
+	G_OBJECT_CLASS(cookie_manager_parent_class)->finalize(object);
+}
+
+
+static void cookie_manager_init(CookieManager *self)
+{
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(self);
+	SoupSession *session;
+
+	priv->filter_text = NULL;
+	priv->panel_pages = NULL;
+	/* create the main store */
+	priv->store = gtk_tree_store_new(COOKIE_MANAGER_N_COLUMNS,
+		G_TYPE_STRING, SOUP_TYPE_COOKIE, G_TYPE_BOOLEAN);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(priv->store),
+		COOKIE_MANAGER_COL_NAME, GTK_SORT_ASCENDING);
+
+	/* setup soup */
+	session = webkit_get_default_session();
+	priv->jar = SOUP_COOKIE_JAR(soup_session_get_feature(session, soup_cookie_jar_get_type()));
+	g_signal_connect(priv->jar, "changed", G_CALLBACK(cookie_manager_jar_changed_cb), self);
+
+	cookie_manager_refresh_store(self);
+}
+
+
+void cookie_manager_update_filter(CookieManager *cm, const gchar *text)
+{
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	katze_assign(priv->filter_text, g_strdup(text));
+
+	g_signal_emit(cm, signals[FILTER_CHANGED], 0, text);
+}
+
+
+void cookie_manager_delete_cookie(CookieManager *cm, SoupCookie *cookie)
+{
+	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+
+	if (cookie != NULL)
+	{
+		priv->ignore_changed_count++;
+
+		soup_cookie_jar_delete_cookie(priv->jar, cookie);
+		/* the SoupCookie object is freed when the whole list gets updated */
+	}
+}
+
+
+CookieManager *cookie_manager_new(MidoriExtension *extension, MidoriApp *app)
+{
+	CookieManager *cm;
+	CookieManagerPrivate *priv;
 	guint i;
 	KatzeArray *browsers;
 	MidoriBrowser *browser;
+
+	cm = g_object_new(COOKIE_MANAGER_TYPE, NULL);
+
+	priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	priv->app = app;
+	priv->extension = extension;
 
 	/* add the cookie manager panel page to existing browsers */
 	browsers = katze_object_get_object(app, "browsers");
 	i = 0;
 	while ((browser = katze_array_get_nth_item(browsers, i++)))
-		cm_app_add_browser_cb(app, browser, extension);
+		cookie_manager_app_add_browser_cb(app, browser, cm);
 	g_object_unref(browsers);
 
-	g_signal_connect(app, "add-browser", G_CALLBACK(cm_app_add_browser_cb), extension);
+	g_signal_connect(app, "add-browser", G_CALLBACK(cookie_manager_app_add_browser_cb), cm);
+
+	return cm;
 }
 
-
-MidoriExtension *extension_init(void)
-{
-	MidoriExtension *extension;
-	GtkIconFactory *factory;
-	GtkIconSource *icon_source;
-	GtkIconSet *icon_set;
-	static GtkStockItem items[] =
-	{
-		{ STOCK_COOKIE_MANAGER, N_("_Cookie Manager"), 0, 0, NULL }
-	};
-
-	factory = gtk_icon_factory_new();
-	gtk_stock_add(items, G_N_ELEMENTS(items));
-	icon_set = gtk_icon_set_new();
-	icon_source = gtk_icon_source_new();
-	gtk_icon_source_set_icon_name(icon_source, GTK_STOCK_DIALOG_AUTHENTICATION);
-	gtk_icon_set_add_source(icon_set, icon_source);
-	gtk_icon_source_free(icon_source);
-	gtk_icon_factory_add(factory, STOCK_COOKIE_MANAGER, icon_set);
-	gtk_icon_set_unref(icon_set);
-	gtk_icon_factory_add_default(factory);
-	g_object_unref(factory);
-
-	extension = g_object_new(MIDORI_TYPE_EXTENSION,
-		"name", _("Cookie Manager"),
-		"description", _("List, view and delete cookies"),
-		"version", "0.2",
-		"authors", "Enrico Tröger <enrico(dot)troeger(at)uvena(dot)de>",
-		NULL);
-
-	g_signal_connect(extension, "activate", G_CALLBACK(cm_activate_cb), NULL);
-
-	return extension;
-}

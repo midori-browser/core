@@ -38,7 +38,9 @@ struct _CookieManagerPageClass
 };
 
 GType		cookie_manager_page_get_type		(void);
-GtkWidget*	cookie_manager_page_new				(void);
+GtkWidget*	cookie_manager_page_new				(CookieManager *parent,
+												 GtkTreeStore *store,
+												 const gchar *filter_text);
 
 G_END_DECLS
 
