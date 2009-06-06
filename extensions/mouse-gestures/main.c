@@ -44,7 +44,7 @@ static gboolean mouse_gestures_handle_events (GtkWidget     *widget,
                                               MidoriBrowser *browser)
 {
     /* A button was pressed */
-    if (event->type == GDK_BUTTON_PRESS)
+    if (event->type == GDK_BUTTON_PRESS && event->button.button == 2)
     {
         /* If the gesture was previously cleaned, start a new gesture and coordinates */
         if (gesture->last == MOUSE_BUTTON_UNSET)

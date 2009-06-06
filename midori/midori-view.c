@@ -1016,6 +1016,9 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         return TRUE;
     }
 
+    /* We propagate the event, since it may otherwise be stuck in WebKit */
+    g_signal_emit_by_name (view, "event", event, &background);
+
     return FALSE;
 }
 
