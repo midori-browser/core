@@ -673,9 +673,9 @@ midori_app_instance_is_running (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
 
-    #if HAVE_UNIQUE
     if (!app->instance)
         app->instance = midori_app_create_instance (app, app->name);
+    #if HAVE_UNIQUE
     if (app->instance)
         return unique_app_is_running (app->instance);
     #endif
