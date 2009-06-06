@@ -44,6 +44,14 @@ def option_enabled (option):
         return False
     return True
 
+def is_mingw (env):
+    if 'CC' in env:
+        cc = env['CC']
+        if not isinstance (cc, str):
+            cc = ''.join (cc)
+        return cc.find ('mingw') != -1# or cc.find ('wine') != -1
+    return False
+
 def configure (conf):
     def option_checkfatal (option, desc):
         if hasattr (Options.options, 'enable_' + option):
@@ -87,6 +95,22 @@ def configure (conf):
     else:
         nls = 'no '
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
+
+    # This is specific to cross compiling with mingw
+    if is_mingw (conf.env) and Options.platform != 'win32':
+        Options.platform = 'win32'
+        # Make sure we don't have -fPIC in the CCFLAGS
+        conf.env["shlib_CCFLAGS"] = []
+        # Adjust file naming
+        conf.env["shlib_PATTERN"] = 'lib%s.dll'
+        conf.env['program_PATTERN'] = '%s.exe'
+        # Use Visual C++ compatible alignment
+        conf.env.append_value ('CCFLAGS', '-mms-bitfields')
+
+        conf.env['implib_PATTERN']      = 'lib%s.dll.a'
+        conf.env['IMPLIB_ST']           = '-Wl,--out-implib,%s'
+
+        Utils.pprint ('BLUE', 'Mingw recognized, assuming chross compile.')
 
     dirname_default ('DOCDIR', os.path.join (conf.env['DATADIR'], 'doc'))
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
