@@ -300,6 +300,8 @@ def build (bld):
     if option_enabled ('addons'):
         bld.add_subdirs ('extensions')
 
+    bld.add_group ()
+
     if option_enabled ('docs'):
         bld.install_files ('${DOCDIR}/' + APPNAME + '/', \
             'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
