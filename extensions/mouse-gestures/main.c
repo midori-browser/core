@@ -177,32 +177,25 @@ static void mouse_gestures_browser_cb (MidoriApp *app, MidoriBrowser *browser)
 static void mouse_gestures_deactivate (MidoriExtension *extension, MidoriApp *app)
 {
     gulong signal_id;
-    KatzeArray *browsers;
+    KatzeArray* browsers;
+    MidoriBrowser* browser;
     guint i;
-    gint j;
-    GtkWidget *notebook;
 
-    signal_id =
-        g_signal_handler_find (app, G_SIGNAL_MATCH_FUNC,
-                               0, 0, NULL,
-                               mouse_gestures_browser_cb, NULL);
+    signal_id = g_signal_handler_find (app, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
+                                       mouse_gestures_browser_cb, NULL);
 
-    if(signal_id != 0)
+    if (signal_id != 0)
         g_signal_handler_disconnect (app, signal_id);
 
     browsers = katze_object_get_object (app, "browsers");
-
-    for (i = 0; i < katze_array_get_length (browsers); i++)
+    i = 0;
+    while ((browser = katze_array_get_nth_item (browsers, i++)))
     {
-        MidoriBrowser *browser;
+        gint j;
+        GtkWidget* notebook;
 
-        browser = katze_array_get_nth_item (browsers, i);
-
-        signal_id =
-            g_signal_handler_find (browser, G_SIGNAL_MATCH_FUNC,
-                                   0, 0, NULL,
-                                   mouse_gestures_tab_cb, NULL);
-
+        signal_id = g_signal_handler_find (browser, G_SIGNAL_MATCH_FUNC,
+            0, 0, NULL, mouse_gestures_tab_cb, NULL);
         if (signal_id != 0)
             g_signal_handler_disconnect (browser, signal_id);
 
@@ -212,15 +205,14 @@ static void mouse_gestures_deactivate (MidoriExtension *extension, MidoriApp *ap
         {
             GtkWidget *page = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), j);
 
-            signal_id =
-                g_signal_handler_find (page, G_SIGNAL_MATCH_FUNC,
-                                       0, 0, NULL,
-                                       mouse_gestures_handle_events, NULL);
+            signal_id = g_signal_handler_find (page, G_SIGNAL_MATCH_FUNC,
+                0, 0, NULL, mouse_gestures_handle_events, NULL);
 
             if (signal_id != 0)
                 g_signal_handler_disconnect (page, signal_id);
         }
     }
+    g_object_unref (browsers);
 
     g_signal_handlers_disconnect_by_func (extension, mouse_gestures_deactivate, app);
     g_free (gesture);
