@@ -729,7 +729,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                GError*         error,
                                MidoriView*     view)
 {
-    const gchar* template_file = DATADIR "/midori/res/error.html";
+    const gchar* template_file = MDATADIR "/midori/res/error.html";
     gchar* template;
 
     if (g_file_get_contents (template_file, &template, NULL, NULL))
@@ -786,7 +786,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
         data = g_strdup_printf (
             "<html><head><title>%s</title></head>"
             "<body><h1>%s</h1>"
-            "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
+            "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
             "style=\"position: absolute; right: 15px; bottom: 15px;\">"
             "<p />The page you were opening doesn't exist."
             "<p />Try to <a href=\"%s\">load the page again</a>, "
@@ -2059,7 +2059,7 @@ midori_view_set_uri (MidoriView*  view,
 
             katze_assign (view->uri, g_strdup (""));
 
-            g_file_get_contents (DATADIR "/midori/res/speeddial-head.html",
+            g_file_get_contents (MDATADIR "/midori/res/speeddial-head.html",
                                  &speed_dial_head, NULL, NULL);
 
             res_server = sokoke_get_res_server ();
@@ -2071,7 +2071,7 @@ midori_view_set_uri (MidoriView*  view,
 
             if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
             {
-                if (g_file_get_contents (DATADIR "/midori/res/speeddial.json",
+                if (g_file_get_contents (MDATADIR "/midori/res/speeddial.json",
                                          &speed_dial_body, NULL, NULL))
                     g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
                 else
@@ -2122,7 +2122,7 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
-                    "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
+                    "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px;\">"
                     "<p />The document %s of type '%s' cannot be displayed."
                     "</body></html>",
@@ -2139,7 +2139,7 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
-                    "<img src=\"file://" DATADIR "/midori/logo-shade.png\" "
+                    "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px;\">"
                     "<p />There is no documentation installed at %s."
                     "You may want to ask your distribution or "

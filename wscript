@@ -51,12 +51,14 @@ def configure (conf):
                 Utils.pprint ('RED', desc + ' N/A')
                 sys.exit (1)
 
-    def dirname_default (dirname, default):
+    def dirname_default (dirname, default, defname=None):
         if getattr (Options.options, dirname) == '':
             dirvalue = default
         else:
             dirvalue = getattr (Options.options, dirname)
-        conf.define (dirname, dirvalue)
+        if not defname:
+            defname = dirname
+        conf.define (defname, dirvalue)
         return dirvalue
 
     conf.check_tool ('compiler_cc')
@@ -86,13 +88,16 @@ def configure (conf):
         nls = 'no '
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
 
-    dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'))
     dirname_default ('DOCDIR', os.path.join (conf.env['DATADIR'], 'doc'))
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     if conf.env['PREFIX'] == '/usr':
         dirname_default ('SYSCONFDIR', '/etc')
     else:
         dirname_default ('SYSCONFDIR', os.path.join (conf.env['PREFIX'], 'etc'))
+    dirname_default ('DATADIR', os.path.join (conf.env['PREFIX'], 'share'),
+    # Use MDATADIR because DATADIR is a constant in objidl.h on Windows
+        'MDATADIR')
+    conf.undefine ('DATADIR')
 
     if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')

@@ -858,7 +858,7 @@ midori_browser_speed_dial_get_next_free_slot (void)
 
     if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
     {
-        if (g_file_get_contents (DATADIR "/midori/res/speeddial.json",
+        if (g_file_get_contents (MDATADIR "/midori/res/speeddial.json",
                                  &speed_dial_body, NULL, NULL))
         {
             g_file_set_contents (body_fname, speed_dial_body, -1, NULL);

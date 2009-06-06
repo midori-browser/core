@@ -958,7 +958,7 @@ res_server_handler_cb (SoupServer*        res_server,
 {
     if (g_str_has_prefix (path, "/res"))
     {
-        gchar* filename = g_strconcat (DATADIR "/midori", path, NULL);
+        gchar* filename = g_strconcat (MDATADIR "/midori", path, NULL);
         gchar* contents;
         gsize length;
 
