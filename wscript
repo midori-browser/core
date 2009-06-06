@@ -110,7 +110,6 @@ def configure (conf):
 
         Utils.pprint ('BLUE', 'Mingw recognized, assuming chross compile.')
 
-    dirname_default ('DOCDIR', os.path.join (conf.env['DATADIR'], 'doc'))
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     if conf.env['PREFIX'] == '/usr':
         dirname_default ('SYSCONFDIR', '/etc')
@@ -120,6 +119,7 @@ def configure (conf):
     # Use MDATADIR because DATADIR is a constant in objidl.h on Windows
         'MDATADIR')
     conf.undefine ('DATADIR')
+    dirname_default ('DOCDIR', os.path.join (conf.env['MDATADIR'], 'doc'))
 
     if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
