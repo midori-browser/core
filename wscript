@@ -106,9 +106,7 @@ def configure (conf):
         conf.env['program_PATTERN'] = '%s.exe'
         # Use Visual C++ compatible alignment
         conf.env.append_value ('CCFLAGS', '-mms-bitfields')
-
-        conf.env['implib_PATTERN']      = 'lib%s.dll.a'
-        conf.env['IMPLIB_ST']           = '-Wl,--out-implib,%s'
+        conf.env['staticlib_LINKFLAGS'] = []
 
         Utils.pprint ('BLUE', 'Mingw recognized, assuming chross compile.')
 
@@ -178,7 +176,7 @@ def configure (conf):
     if Options.platform == 'win32':
         args = '--define-variable=target=win32'
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
-    check_pkg ('webkit-1.0', '1.1.1')
+    check_pkg ('webkit-1.0', '1.1.1', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     check_pkg ('libxml-2.0', '2.6')
@@ -344,7 +342,7 @@ def build (bld):
         bld.install_files ('${DATADIR}/dbus-1/services',
                            'data/com.nokia.' + APPNAME + '.service')
     else:
-        appdir = '${DATADIR}/applications'
+        appdir = '${MDATADIR}/applications'
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_in')
         obj.source = 'data/' + APPNAME + '.desktop.in'
@@ -379,20 +377,20 @@ def build (bld):
             ' -o ' + blddir + '/data/logo-shade.png ' + \
             srcdir + '/data/logo-shade.svg'
         if not Utils.exec_command (command):
-            bld.install_files ('${DATADIR}/' + APPNAME + '/res', blddir + '/data/logo-shade.png')
+            bld.install_files ('${MDATADIR}/' + APPNAME + '/res', blddir + '/data/logo-shade.png')
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
-    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/error.html')
-    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
-    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/speeddial.json')
-    bld.install_files ('${DATADIR}/' + APPNAME + '/res', 'data/mootools.js')
+    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/error.html')
+    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
+    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial.json')
+    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/mootools.js')
 
     if Options.commands['check']:
         bld.add_subdirs ('tests')
 
 def shutdown ():
     if Options.commands['install'] or Options.commands['uninstall']:
-        dir = Build.bld.get_install_path ('${DATADIR}/icons/hicolor')
+        dir = Build.bld.get_install_path ('${MDATADIR}/icons/hicolor')
         icon_cache_updated = False
         if not Options.options.destdir:
             # update the pixmap cache directory
