@@ -75,7 +75,7 @@ static gboolean mouse_gestures_handle_events (GtkWidget     *widget,
                      (gesture->middle.y - y < DEVIANCE && gesture->middle.y - y > -DEVIANCE))
             {
                 gesture->end.x = x;
-		gesture->end.y = y;
+                gesture->end.y = y;
             }
         }
 
@@ -91,9 +91,9 @@ static gboolean mouse_gestures_handle_events (GtkWidget     *widget,
                 (gesture->middle.x - gesture->start.x > -DEVIANCE))
             {
                  /* We initially moved down more than MINLENGTH pixels */
-		if (gesture->middle.y > gesture->start.y + MINLENGTH)
-		{
-		    /* Then we the final vertical move is between the bounds and
+                if (gesture->middle.y > gesture->start.y + MINLENGTH)
+                {
+                    /* Then we the final vertical move is between the bounds and
                        we moved right more than MINLENGTH pixels */
                     if ((gesture->middle.y - gesture->end.y < DEVIANCE) &&
                         (gesture->middle.y - gesture->end.y > -DEVIANCE) &&
@@ -119,8 +119,8 @@ static gboolean mouse_gestures_handle_events (GtkWidget     *widget,
                     }
                 }
                 /* We initially moved up more than MINLENGTH pixels */
-		else if (gesture->middle.y + MINLENGTH < gesture->start.y)
-		{
+                else if (gesture->middle.y + MINLENGTH < gesture->start.y)
+                {
                     /* The end node was never updated, we only did a vertical move */
                     if (gesture->end.y == 0 && gesture->end.x == 0)
                     {
@@ -145,7 +145,7 @@ static gboolean mouse_gestures_handle_events (GtkWidget     *widget,
                 }
                 /* We initially moved left more than MINLENGTH pixels */
                 else if (gesture->middle.x + MINLENGTH < gesture->start.x)
-		{
+                {
                     /* The end node was never updated, we only did an horizontal move */
                     if (gesture->end.x == 0 && gesture->end.y == 0)
                     {
@@ -156,7 +156,7 @@ static gboolean mouse_gestures_handle_events (GtkWidget     *widget,
             }
         }
 
-	mouse_gesture_clear (gesture);
+        mouse_gesture_clear (gesture);
 
         return TRUE;
     }
