@@ -137,10 +137,10 @@ def configure (conf):
     else:
         api_docs = 'no '
 
-    def check_pkg (name, version='', mandatory=True, var=None):
+    def check_pkg (name, version='', mandatory=True, var=None, args=''):
         if not var:
             var = name.split ('-')[0].upper ()
-        conf.check_cfg (package=name, uselib_store=var, args='--cflags --libs',
+        conf.check_cfg (package=name, uselib_store=var, args='--cflags --libs ' + args,
             atleast_version=version, mandatory=mandatory)
 
     if option_enabled ('unique'):
@@ -174,7 +174,10 @@ def configure (conf):
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
     check_pkg ('gio-2.0', '2.16.0')
-    check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
+    args = ''
+    if Options.platform == 'win32':
+        args = '--define-variable=target=win32'
+    check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
     check_pkg ('webkit-1.0', '1.1.1')
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
