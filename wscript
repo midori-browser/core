@@ -439,7 +439,9 @@ def shutdown ():
     elif Options.options.run:
         folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
         try:
-            relfolder = os.path.relpath (folder)
+            relfolder = folder
+            if not is_mingw (Build.bld.env):
+                relfolder = os.path.relpath (folder)
         except:
             pass
         try:
@@ -460,8 +462,14 @@ def shutdown ():
                         'LC_MESSAGES' + os.sep + APPNAME + '.mo')
             except:
                 pass
-            command = relfolder + os.sep + APPNAME + os.sep + APPNAME
-            print ext + ' ' + nls + ' ' + command
-            Utils.exec_command (ext + ' ' + nls + ' ' + command)
-        except:
-            Utils.pprint ('RED', "Failed to run application.")
+            command = ext + ' ' + nls + ' '
+            if is_mingw (Build.bld.env):
+                # This works only if everything is installed to that prefix
+                os.chdir (Build.bld.env['PREFIX'] + os.sep + 'bin')
+                command += ' wine cmd /k "PATH=%PATH%;' + Build.bld.env['PREFIX'] + os.sep + 'bin' + ' && ' + APPNAME + '.exe"'
+            else:
+                command += ' ' + relfolder + os.sep + APPNAME + os.sep + APPNAME
+            print command
+            Utils.exec_command (command)
+        except Exception, msg:
+            Utils.pprint ('RED', "Failed to run application: " + str (msg))
