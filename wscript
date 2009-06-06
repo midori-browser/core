@@ -177,6 +177,7 @@ def configure (conf):
         args = '--define-variable=target=win32'
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
     check_pkg ('webkit-1.0', '1.1.1', args=args)
+    conf.define ('HAVE_JSCORE', not is_mingw (conf.env))
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     check_pkg ('libxml-2.0', '2.6')

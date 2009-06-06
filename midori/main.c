@@ -1307,6 +1307,7 @@ midori_load_session (gpointer data)
     return FALSE;
 }
 
+#if HAVE_JSCORE
 static gint
 midori_run_script (const gchar* filename)
 {
@@ -1344,6 +1345,7 @@ midori_run_script (const gchar* filename)
     g_print ("%s - Exception: %s\n", filename, exception);
     return 1;
 }
+#endif
 
 #if WEBKIT_CHECK_VERSION (1, 1, 6)
 static void
@@ -1391,8 +1393,10 @@ main (int    argc,
        N_("Run ADDRESS as a web application"), N_("ADDRESS") },
        { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
+       #if HAVE_JSCORE
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
+       #endif
        #if WEBKIT_CHECK_VERSION (1, 1, 6)
        { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
        N_("Take a snapshot of the specified URI"), NULL },
@@ -1529,9 +1533,11 @@ main (int    argc,
         return 0;
     }
 
+    #if HAVE_JSCORE
     /* Standalone javascript support */
     if (run)
         return midori_run_script (uris ? *uris : NULL);
+    #endif
 
     #if HAVE_HILDON
     osso_context = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);

@@ -36,6 +36,7 @@
     #include <idna.h>
 #endif
 
+#if HAVE_JSCORE
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
@@ -49,18 +50,22 @@ sokoke_js_string_utf8 (JSStringRef js_string)
     JSStringGetUTF8CString (js_string, string_utf8, size_utf8);
     return string_utf8;
 }
+#endif
 
 gchar*
 sokoke_js_script_eval (JSContextRef js_context,
                        const gchar* script,
                        gchar**      exception)
 {
+    #if HAVE_JSCORE
     gchar* value;
     JSStringRef js_value_string;
+    #endif
 
     g_return_val_if_fail (js_context, FALSE);
     g_return_val_if_fail (script, FALSE);
 
+    #if HAVE_JSCORE
     JSStringRef js_script = JSStringCreateWithUTF8CString (script);
     JSValueRef js_exception = NULL;
     JSValueRef js_value = JSEvaluateScript (js_context, js_script,
@@ -79,6 +84,9 @@ sokoke_js_script_eval (JSContextRef js_context,
     value = sokoke_js_string_utf8 (js_value_string);
     JSStringRelease (js_value_string);
     return value;
+    #else
+    return g_strdup ("");
+    #endif
 }
 
 static void
