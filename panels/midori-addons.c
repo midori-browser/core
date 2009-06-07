@@ -306,49 +306,6 @@ _addons_get_files (MidoriAddons* addons)
     return files;
 }
 
-static GtkTreePath*
-_treeview_first_selected_path (GtkTreeView *treeview)
-{
-    GtkTreeSelection* selection;
-    GList* tree_paths;
-
-    selection = gtk_tree_view_get_selection (treeview);
-    if (!selection)
-        return NULL;
-
-    if (gtk_tree_selection_get_selected (selection, NULL, NULL))
-    {
-        GtkTreePath* result;
-        tree_paths = gtk_tree_selection_get_selected_rows (selection, NULL);
-        result = gtk_tree_path_copy (g_list_nth_data (tree_paths, 0));
-        g_list_foreach (tree_paths, (GFunc)gtk_tree_path_free, NULL);
-        g_list_free (tree_paths);
-        return result;
-    }
-    else
-        return NULL;
-}
-
-static void
-_addons_toggle_enable_button (MidoriAddons* addons,
-                              gboolean      sensitive)
-{
-    GtkToolItem* button;
-
-    button = gtk_toolbar_get_nth_item (GTK_TOOLBAR (addons->toolbar), 1);
-    gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
-}
-
-static void
-_addons_toggle_disable_button (MidoriAddons* addons,
-                               gboolean      sensitive)
-{
-    GtkToolItem* button;
-
-    button = gtk_toolbar_get_nth_item (GTK_TOOLBAR (addons->toolbar), 2);
-    gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
-}
-
 static void
 midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
                                          GFile*            child,
@@ -357,67 +314,6 @@ midori_addons_directory_monitor_changed (GFileMonitor*     monitor,
                                          MidoriAddons*     addons)
 {
     midori_addons_update_elements (addons);
-}
-
-static void
-midori_addons_treeview_cursor_changed (GtkTreeView*  treeview,
-                                       MidoriAddons* addons)
-{
-    struct AddonElement* element;
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-    GtkTreePath *path;
-
-    path = _treeview_first_selected_path (treeview);
-
-    model = gtk_tree_view_get_model (treeview);
-    if (path && gtk_tree_model_get_iter (model, &iter, path))
-    {
-        gtk_tree_model_get (model, &iter, 0, &element, -1);
-        if (element->broken)
-        {
-            _addons_toggle_enable_button (addons, FALSE);
-            _addons_toggle_disable_button (addons, FALSE);
-        } else
-        {
-            _addons_toggle_enable_button (addons, !element->enabled);
-            _addons_toggle_disable_button (addons, element->enabled);
-        }
-    }
-}
-
-static void
-midori_addons_button_status_clicked_cb (GtkToolItem*  toolitem,
-                                        MidoriAddons* addons)
-{
-    GtkTreeView* treeview;
-    struct AddonElement* element;
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-    GtkTreePath* path;
-
-    treeview = GTK_TREE_VIEW (addons->treeview);
-
-    path = _treeview_first_selected_path (treeview);
-    model = gtk_tree_view_get_model (treeview);
-    if (gtk_tree_model_get_iter (model, &iter, path))
-    {
-        gtk_tree_model_get (model, &iter, 0, &element, -1);
-        if (toolitem == gtk_toolbar_get_nth_item (
-            GTK_TOOLBAR (addons->toolbar), 2)) /* disable button */
-            element->enabled = FALSE;
-        else if (toolitem ==  gtk_toolbar_get_nth_item (
-                 GTK_TOOLBAR (addons->toolbar), 1)) /* enable button */
-            element->enabled = TRUE;
-
-        _addons_toggle_enable_button (addons, !element->enabled);
-        _addons_toggle_disable_button (addons, element->enabled);
-
-        /* After enabling or disabling an element, the tree view
-           is not updated automatically; we need to notify tree model
-           in order to take the modification into account */
-        gtk_tree_model_row_changed (model, path, &iter);
-    }
 }
 
 static void
@@ -435,7 +331,7 @@ midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
 }
 
 static void
-midori_addons_treeview_render_icon_cb (GtkTreeViewColumn* column,
+midori_addons_treeview_render_tick_cb (GtkTreeViewColumn* column,
                                        GtkCellRenderer*   renderer,
                                        GtkTreeModel*      model,
                                        GtkTreeIter*       iter,
@@ -445,10 +341,10 @@ midori_addons_treeview_render_icon_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &element, -1);
 
-    if (element->broken)
-        g_object_set (renderer, "stock-id", GTK_STOCK_STOP, NULL);
-    else
-        g_object_set (renderer, "stock-id", GTK_STOCK_FILE, NULL);
+    g_object_set (renderer,
+                  "active", element->enabled,
+                  "sensitive", !element->broken,
+                  NULL);
 }
 
 static void
@@ -475,14 +371,48 @@ midori_addons_treeview_row_activated_cb (GtkTreeView*       treeview,
                                          GtkTreeViewColumn* column,
                                          MidoriAddons*     addons)
 {
-    /*GtkTreeModel* model = gtk_tree_view_get_model (treeview);
+    GtkTreeModel* model = gtk_tree_view_get_model (treeview);
     GtkTreeIter iter;
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
-        gchar* b;
-        gtk_tree_model_get (model, &iter, 2, &b, -1);
-        g_free (b);
-    }*/
+        struct AddonElement *element;
+
+        gtk_tree_model_get (model, &iter, 0, &element, -1);
+
+        element->enabled = !element->enabled;
+
+        /* After enabling or disabling an element, the tree view
+           is not updated automatically; we need to notify tree model
+           in order to take the modification into account */
+        gtk_tree_model_row_changed (model, path, &iter);
+    }
+}
+
+static void
+midori_addons_cell_renderer_toggled_cb (GtkCellRendererToggle* renderer,
+                                        const gchar*           path,
+                                        MidoriAddons*          addons)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (addons->treeview));
+    if (gtk_tree_model_get_iter_from_string (model, &iter, path))
+    {
+        struct AddonElement *element;
+        GtkTreePath* tree_path;
+
+        gtk_tree_model_get (model, &iter, 0, &element, -1);
+
+        element->enabled = !element->enabled;
+
+        /* After enabling or disabling an element, the tree view
+           is not updated automatically; we need to notify tree model
+           in order to take the modification into account */
+        tree_path = gtk_tree_path_new_from_string (path);
+        gtk_tree_model_row_changed (model, tree_path, &iter);
+        gtk_tree_path_free (tree_path);
+    }
 }
 
 static void
@@ -490,7 +420,7 @@ midori_addons_init (MidoriAddons* addons)
 {
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_text;
-    GtkCellRenderer* renderer_pixbuf;
+    GtkCellRenderer* renderer_toggle;
 
     addons->web_widget = NULL;
     addons->elements = NULL;
@@ -498,11 +428,15 @@ midori_addons_init (MidoriAddons* addons)
     addons->treeview = gtk_tree_view_new ();
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (addons->treeview), FALSE);
     column = gtk_tree_view_column_new ();
-    renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
-    gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
-        (GtkTreeCellDataFunc)midori_addons_treeview_render_icon_cb,
+    renderer_toggle = gtk_cell_renderer_toggle_new ();
+    gtk_tree_view_column_pack_start (column, renderer_toggle, FALSE);
+    gtk_tree_view_column_set_cell_data_func (column, renderer_toggle,
+        (GtkTreeCellDataFunc)midori_addons_treeview_render_tick_cb,
         addons->treeview, NULL);
+    g_signal_connect (renderer_toggle, "toggled",
+        G_CALLBACK (midori_addons_cell_renderer_toggled_cb), addons);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (addons->treeview), column);
+    column = gtk_tree_view_column_new ();
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
@@ -1026,26 +960,6 @@ midori_addons_get_toolbar (MidoriViewable* addons)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
 
-        /* enable button */
-        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_YES);
-        gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("_Enable"));
-        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Enable"));
-        g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_addons_button_status_clicked_cb), addons);
-        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
-        gtk_widget_show (GTK_WIDGET (toolitem));
-
-        /* disable button */
-        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_NO);
-        gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("_Disable"));
-        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Disable"));
-        g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_addons_button_status_clicked_cb), addons);
-        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
-        gtk_widget_show (GTK_WIDGET (toolitem));
-
         /* separator */
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
@@ -1062,10 +976,6 @@ midori_addons_get_toolbar (MidoriViewable* addons)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         MIDORI_ADDONS (addons)->toolbar = toolbar;
-
-        g_signal_connect (MIDORI_ADDONS (addons)->treeview, "cursor-changed",
-                          G_CALLBACK (midori_addons_treeview_cursor_changed),
-                          addons);
 
         g_signal_connect (toolbar, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
@@ -1179,12 +1089,5 @@ midori_addons_update_elements (MidoriAddons* addons)
     gtk_tree_view_set_model (GTK_TREE_VIEW (addons->treeview),
                              GTK_TREE_MODEL (liststore));
 
-    /* In case a row was selected, that selection will be cancelled
-       when calling gtk_tree_view_set_model. So, we need to make sure
-       that the buttons are insensitive. */
-    if (addons->toolbar)
-    {
-        _addons_toggle_enable_button (addons, FALSE);
-        _addons_toggle_disable_button (addons, FALSE);
-    }
+    gtk_widget_queue_draw (GTK_WIDGET (addons->treeview));
 }
