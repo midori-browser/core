@@ -745,6 +745,15 @@ settings_notify_cb (MidoriWebSettings* settings,
 }
 
 static void
+extension_activate_cb (MidoriExtension* extension,
+                       MidoriApp*       app)
+{
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
+    settings_notify_cb (settings, NULL, app);
+    g_object_unref (settings);
+}
+
+static void
 accel_map_changed_cb (GtkAccelMap*    accel_map,
                       gchar*          accel_path,
                       guint           accel_key,
@@ -1185,6 +1194,8 @@ midori_load_extensions (gpointer data)
         if (extension_dir != NULL)
         {
             const gchar* filename;
+            gchar* config_file = build_config_filename ("config");
+            gboolean is_writable = is_writable (config_file);
 
             while ((filename = g_dir_read_name (extension_dir)))
             {
@@ -1228,9 +1239,17 @@ midori_load_extensions (gpointer data)
                         if (!g_strcmp0 (filename, name))
                             g_signal_emit_by_name (extension, "activate", app);
                 }
+                if (is_writable)
+                {
+                    g_signal_connect_after (extension, "activate",
+                        G_CALLBACK (extension_activate_cb), app);
+                    g_signal_connect_after (extension, "deactivate",
+                        G_CALLBACK (extension_activate_cb), app);
+                }
                 g_object_unref (extension);
             }
             g_dir_close (extension_dir);
+            g_free (config_file);
         }
         g_free (extension_path);
     }
