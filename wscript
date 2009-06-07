@@ -108,7 +108,7 @@ def configure (conf):
         conf.env.append_value ('CCFLAGS', '-mms-bitfields')
         conf.env['staticlib_LINKFLAGS'] = []
 
-        Utils.pprint ('BLUE', 'Mingw recognized, assuming chross compile.')
+        Utils.pprint ('BLUE', 'Mingw recognized, assuming cross compile.')
 
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     if conf.env['PREFIX'] == '/usr':
@@ -194,7 +194,7 @@ def configure (conf):
     conf.define ('HAVE_HILDON', [0,1][hildon == 'yes'])
 
     # Store options in env, since 'Options' is not persistent
-    if 'CC' in os.environ: conf.env['CC'] = os.environ['CC']
+    if 'CC' in os.environ: conf.env['CC'] = os.environ['CC'].split()
     conf.env['addons'] = option_enabled ('addons')
     conf.env['docs'] = option_enabled ('docs')
 
