@@ -372,6 +372,169 @@ midori_transfers_hierarchy_changed_cb (MidoriTransfers* transfers,
     #endif
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 3)
+static GtkWidget*
+midori_transfers_popup_menu_item (GtkMenu*         menu,
+                                  const gchar*     stock_id,
+                                  const gchar*     label,
+                                  WebKitDownload*  download,
+                                  gpointer         callback,
+                                  gboolean         enabled,
+                                  MidoriTransfers* transfers)
+{
+    GtkWidget* menuitem;
+
+    menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
+    if (label)
+        gtk_label_set_text_with_mnemonic (GTK_LABEL (gtk_bin_get_child (
+                                          GTK_BIN (menuitem))), label);
+
+    if (!enabled)
+        gtk_widget_set_sensitive (menuitem, FALSE);
+
+    g_object_set_data (G_OBJECT (menuitem), "WebKitDownload", download);
+
+    if (callback)
+        g_signal_connect (menuitem, "activate", G_CALLBACK (callback), transfers);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+
+    return menuitem;
+}
+
+static void
+midori_transfers_open_activate_cb (GtkWidget*       menuitem,
+                                   MidoriTransfers* transfers)
+{
+    WebKitDownload* download;
+    const gchar* uri;
+
+    download = g_object_get_data (G_OBJECT (menuitem), "WebKitDownload");
+    g_return_if_fail (download != NULL);
+
+    uri = webkit_download_get_destination_uri (download);
+    sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (transfers->treeview)),
+                     uri, gtk_get_current_event_time (), NULL);
+}
+
+static void
+midori_transfers_open_folder_activate_cb (GtkWidget*       menuitem,
+                                          MidoriTransfers* transfers)
+{
+    WebKitDownload* download;
+    const gchar* uri;
+    GFile* file;
+    GFile* folder;
+
+    download = g_object_get_data (G_OBJECT (menuitem), "WebKitDownload");
+    g_return_if_fail (download != NULL);
+
+    uri = webkit_download_get_destination_uri (download);
+    file = g_file_new_for_uri (uri);
+    if ((folder = g_file_get_parent (file)))
+    {
+        gchar* folder_uri = g_file_get_uri (folder);
+        sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (transfers->treeview)),
+            folder_uri, gtk_get_current_event_time (), NULL);
+        g_free (folder_uri);
+        g_object_unref (folder);
+    }
+    g_object_unref (file);
+}
+
+static void
+midori_transfers_copy_address_activate_cb (GtkWidget*       menuitem,
+                                           MidoriTransfers* transfers)
+{
+    WebKitDownload* download;
+    const gchar* uri;
+    GtkClipboard* clipboard;
+
+    download = g_object_get_data (G_OBJECT (menuitem), "WebKitDownload");
+    g_return_if_fail (download != NULL);
+
+    uri = webkit_download_get_destination_uri (download);
+    clipboard = gtk_clipboard_get_for_display (
+        gtk_widget_get_display (GTK_WIDGET (menuitem)),
+        GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text (clipboard, uri, -1);
+}
+
+static void
+midori_transfers_popup (GtkWidget*       widget,
+                        GdkEventButton*  event,
+                        WebKitDownload*  download,
+                        MidoriTransfers* transfers)
+{
+    GtkWidget* menu;
+    gboolean finished = FALSE;
+
+    if (webkit_download_get_status (download) == WEBKIT_DOWNLOAD_STATUS_FINISHED)
+        finished = TRUE;
+
+    menu = gtk_menu_new ();
+    midori_transfers_popup_menu_item (GTK_MENU (menu), GTK_STOCK_OPEN, NULL, download,
+        midori_transfers_open_activate_cb, finished, transfers);
+    midori_transfers_popup_menu_item (GTK_MENU (menu), GTK_STOCK_DIRECTORY,
+        _("Open Destination _Folder"), download,
+        midori_transfers_open_folder_activate_cb, TRUE, transfers);
+    midori_transfers_popup_menu_item (GTK_MENU (menu), GTK_STOCK_COPY,
+        _("Copy Link Loc_ation"), download,
+        midori_transfers_copy_address_activate_cb, FALSE, transfers);
+
+    sokoke_widget_popup (widget, GTK_MENU (menu),
+                         event, SOKOKE_MENU_POSITION_CURSOR);
+}
+#endif
+
+static gboolean
+midori_transfers_popup_menu_cb (GtkWidget*       widget,
+                                MidoriTransfers* transfers)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
+    {
+        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        WebKitDownload* download;
+
+        gtk_tree_model_get (model, &iter, 1, &download, -1);
+
+        midori_transfers_popup (widget, NULL, download, transfers);
+        g_object_unref (download);
+        return TRUE;
+        #endif
+    }
+    return FALSE;
+}
+
+static gboolean
+midori_transfers_button_release_event_cb (GtkWidget*      widget,
+                                         GdkEventButton*  event,
+                                         MidoriTransfers* transfers)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    if (event->button != 3)
+        return FALSE;
+
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
+    {
+        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        WebKitDownload* download;
+
+        gtk_tree_model_get (model, &iter, 1, &download, -1);
+
+        midori_transfers_popup (widget, NULL, download, transfers);
+        g_object_unref (download);
+        return TRUE;
+        #endif
+    }
+    return FALSE;
+}
+
 static void
 midori_transfers_init (MidoriTransfers* transfers)
 {
@@ -400,9 +563,14 @@ midori_transfers_init (MidoriTransfers* transfers)
         transfers->treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (transfers->treeview), column);
     g_object_unref (treestore);
-    g_signal_connect (transfers->treeview, "row-activated",
-                      G_CALLBACK (midori_transfers_treeview_row_activated_cb),
-                      transfers);
+    g_object_connect (transfers->treeview,
+        "signal::row-activated",
+        midori_transfers_treeview_row_activated_cb, transfers,
+        "signal::button-release-event",
+        midori_transfers_button_release_event_cb, transfers,
+        "signal::popup-menu",
+        midori_transfers_popup_menu_cb, transfers,
+        NULL);
     gtk_widget_show (transfers->treeview);
     gtk_box_pack_start (GTK_BOX (transfers), transfers->treeview, TRUE, TRUE, 0);
 
