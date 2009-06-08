@@ -398,9 +398,9 @@ midori_extensions_popup_menu_cb (GtkWidget*        widget,
 }
 
 static gboolean
-midori_extensions_button_press_event_cb (GtkWidget*         widget,
-                                         GdkEventButton*    event,
-                                         MidoriExtensions*  extensions)
+midori_extensions_button_release_event_cb (GtkWidget*         widget,
+                                           GdkEventButton*    event,
+                                           MidoriExtensions*  extensions)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -474,8 +474,8 @@ midori_extensions_init (MidoriExtensions* extensions)
     g_object_connect (extensions->treeview,
         "signal::row-activated",
         midori_extensions_treeview_row_activated_cb, extensions,
-        "signal::button-press-event",
-        midori_extensions_button_press_event_cb, extensions,
+        "signal::button-release-event",
+        midori_extensions_button_release_event_cb, extensions,
         "signal::popup-menu",
         midori_extensions_popup_menu_cb, extensions,
         NULL);
