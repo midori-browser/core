@@ -2,6 +2,8 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
+import os
+
 tests = os.listdir ('tests')
 for test in tests:
     folder = 'tests' + os.sep + test

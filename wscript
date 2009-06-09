@@ -339,8 +339,8 @@ def build (bld):
         bld.install_files ('${DOCDIR}/midori/api/', blddir + '/docs/api/*')
 
     if bld.env['HAVE_HILDON']:
-        appdir = '${DATADIR}/applications/hildon'
-        bld.install_files ('${DATADIR}/dbus-1/services',
+        appdir = '${MDATADIR}/applications/hildon'
+        bld.install_files ('${MDATADIR}/dbus-1/services',
                            'data/com.nokia.' + APPNAME + '.service')
     else:
         appdir = '${MDATADIR}/applications'
@@ -351,7 +351,7 @@ def build (bld):
         obj.flags  = '-d'
         bld.install_files (appdir, 'data/' + APPNAME + '.desktop')
     else:
-        folder = os.path.dirname (bld.env['waf_config_files'][0]) + '/data'
+        folder = os.path.abspath (blddir + '/default/data')
         Utils.check_dir (folder)
         desktop = APPNAME + '.desktop'
         pre = open ('data/' + desktop + '.in')
@@ -437,7 +437,7 @@ def shutdown ():
             Utils.pprint ('RED', "Make sure intltool is installed.")
         os.chdir ('..')
     elif Options.options.run:
-        folder = os.path.dirname (Build.bld.env['waf_config_files'][0])
+        folder = os.path.abspath (blddir + '/default')
         try:
             relfolder = folder
             if not is_mingw (Build.bld.env):
