@@ -894,7 +894,7 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     bookmarks->net = katze_net_new ();
 
     /* Create the treeview */
-    model = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
+    model = midori_bookmark_store_new (1, KATZE_TYPE_ITEM);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
