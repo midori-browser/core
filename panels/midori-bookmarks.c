@@ -16,6 +16,7 @@
 #include "midori-stock.h"
 #include "midori-view.h"
 #include "midori-viewable.h"
+#include "midori-bookmark-store.h"
 
 #include "sokoke.h"
 
