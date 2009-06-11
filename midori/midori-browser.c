@@ -2991,10 +2991,14 @@ _action_location_submit_uri (GtkAction*     action,
                              gboolean       new_tab,
                              MidoriBrowser* browser)
 {
+    gchar* stripped_uri;
     gchar* new_uri;
     gint n;
 
-    new_uri = sokoke_magic_uri (uri, browser->search_engines);
+    stripped_uri = g_strdup (uri);
+    g_strstrip (stripped_uri);
+    new_uri = sokoke_magic_uri (stripped_uri, browser->search_engines);
+    g_free (stripped_uri);
     if (!new_uri)
         new_uri = sokoke_search_uri (browser->location_entry_search, uri);
 
