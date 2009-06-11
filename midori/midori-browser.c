@@ -2998,9 +2998,9 @@ _action_location_submit_uri (GtkAction*     action,
     stripped_uri = g_strdup (uri);
     g_strstrip (stripped_uri);
     new_uri = sokoke_magic_uri (stripped_uri, browser->search_engines);
-    g_free (stripped_uri);
     if (!new_uri)
-        new_uri = sokoke_search_uri (browser->location_entry_search, uri);
+        new_uri = sokoke_search_uri (browser->location_entry_search, stripped_uri);
+    g_free (stripped_uri);
 
     if (new_tab)
     {
