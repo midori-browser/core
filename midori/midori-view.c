@@ -1314,7 +1314,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
         }
         g_list_free (items);
-        menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo Close Tab"));
+        menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo _Close Tab"));
         icon = gtk_image_new_from_stock (GTK_STOCK_UNDELETE, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -1356,7 +1356,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         if (!midori_view_can_view_source (view))
             gtk_widget_set_sensitive (menuitem, FALSE);
 
-        menuitem = gtk_image_menu_item_new_with_mnemonic (_("View _Source"));
+        menuitem = gtk_image_menu_item_new_with_mnemonic (_("View So_urce"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         g_object_set_data (G_OBJECT (menuitem), "action", "SourceView");
         g_signal_connect (menuitem, "activate",
