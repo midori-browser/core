@@ -2348,9 +2348,11 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
         gtk_widget_is_ancestor (widget, browser->navigationbar))
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
-        const gchar* actions[] = { "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Fullscreen", "Preferences", "Window", "Bookmarks", "RecentlyVisited", "AddSpeedDial",
-            "ReloadStop", "ZoomIn", "Separator", "ZoomOut", "Back", "Forward",
+        const gchar* actions[] = {
+            "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
+            "Fullscreen", "Preferences", "Window", "Bookmarks",
+            "RecentlyVisited", "AddSpeedDial", "ReloadStop", "ZoomIn",
+            "Separator", "ZoomOut", "Back", "Forward",
             "Homepage", "Panel", "Trash", "Search" };
         GtkWidget* submenu;
         gsize i;
