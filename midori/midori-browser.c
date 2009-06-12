@@ -4022,7 +4022,8 @@ static const GtkActionEntry entries[] = {
     N_("Chinese (BIG5)"), "",
     NULL, G_CALLBACK (_action_view_encoding_activate) },
  { "EncodingJapanese", NULL,
-    N_("Japanese (SHIFT_JIS)"), "",
+ /* i18n: A double underscore "__" is used to prevent an unwanted mnemonic */
+    N_("Japanese (SHIFT__JIS)"), "",
     NULL, G_CALLBACK (_action_view_encoding_activate) },
  { "EncodingRussian", NULL,
     N_("Russian (KOI8-R)"), "",
