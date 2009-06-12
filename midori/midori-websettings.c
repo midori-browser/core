@@ -592,11 +592,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Show speed dial in new tabs"),
                                      _("Show speed dial in newly opened tabs"),
                                      TRUE,
-    #if GTK_CHECK_VERSION (2, 14, 0)
                                      flags));
-    #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-    #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_DOWNLOAD_FOLDER,
