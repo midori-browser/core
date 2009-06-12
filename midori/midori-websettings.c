@@ -1292,7 +1292,8 @@ midori_web_settings_set_property (GObject*      object,
         }
         break;
     case PROP_IDENT_STRING:
-        katze_assign (web_settings->ident_string, g_value_dup_string (value));
+        if (web_settings->identify_as == MIDORI_IDENT_CUSTOM)
+            katze_assign (web_settings->ident_string, g_value_dup_string (value));
         break;
     case PROP_CACHE_SIZE:
         web_settings->cache_size = g_value_get_int (value);
