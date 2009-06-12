@@ -4449,10 +4449,36 @@ midori_browser_set_history (MidoriBrowser* browser,
 }
 
 static void
+midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
+                                             GObject*        acceleratable,
+                                             guint           keyval,
+                                             GdkModifierType modifiers)
+{
+    GtkAccelGroupEntry* entry;
+
+    if ((entry = gtk_accel_group_query (accel_group, keyval, modifiers, NULL)))
+    {
+        gint n;
+        MidoriBrowser* browser;
+        GtkWidget* view;
+
+        n = keyval - GDK_0;
+        if (n == 0)
+            n = 10;
+        browser = g_object_get_data (G_OBJECT (accel_group), "midori-browser");
+        if ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook),
+                                          n - 1)))
+            midori_browser_set_current_tab (browser, view);
+    }
+}
+
+static void
 midori_browser_init (MidoriBrowser* browser)
 {
     GtkWidget* vbox;
     GtkUIManager* ui_manager;
+    GtkAccelGroup* accel_group;
+    guint i;
     GError* error;
     GtkAction* action;
     GtkWidget* menuitem;
@@ -4503,8 +4529,20 @@ midori_browser_init (MidoriBrowser* browser)
         toggle_entries, toggle_entries_n, browser);
     ui_manager = gtk_ui_manager_new ();
     gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
-    gtk_window_add_accel_group (GTK_WINDOW (browser),
-                                gtk_ui_manager_get_accel_group (ui_manager));
+    accel_group = gtk_ui_manager_get_accel_group (ui_manager);
+    gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
+
+    g_object_set_data (G_OBJECT (accel_group), "midori-browser", browser);
+    for (i = 0; i < 10; i++)
+    {
+        gchar* accel_path = g_strdup_printf ("<Manual>/Browser/SwitchTab%d", i);
+        GClosure* closure = g_cclosure_new (
+            G_CALLBACK (midori_browser_accel_switch_tab_activate_cb),
+            browser, NULL);
+        gtk_accel_map_add_entry (accel_path, GDK_0 + i, GDK_MOD1_MASK);
+        gtk_accel_group_connect_by_path (accel_group, accel_path, closure);
+        g_free (accel_path);
+    }
 
     error = NULL;
     if (!gtk_ui_manager_add_ui_from_string (ui_manager, ui_markup, -1, &error))
