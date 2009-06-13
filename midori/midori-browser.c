@@ -321,13 +321,12 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
 
     action = _action_by_name (browser, "Location");
-    if (browser->news_aggregator && *browser->news_aggregator
-        && g_object_get_data (G_OBJECT (view), "news-feeds"))
+    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
     else
         midori_location_action_set_secondary_icon (
-            MIDORI_LOCATION_ACTION (action), NULL);
+            MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
 }
 
 static void
@@ -435,7 +434,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
             midori_location_action_set_uri (
                 MIDORI_LOCATION_ACTION (action), uri);
             midori_location_action_set_secondary_icon (
-                MIDORI_LOCATION_ACTION (action), NULL);
+                MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
             g_object_notify (G_OBJECT (browser), "uri");
         }
 
@@ -2968,11 +2967,28 @@ _action_location_active_changed (GtkAction*     action,
 }
 
 static void
+_action_location_focus_in (GtkAction*     action,
+                           MidoriBrowser* browser)
+{
+    midori_location_action_set_secondary_icon (
+        MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
+}
+
+static void
 _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+
     if (!browser->show_navigationbar)
         gtk_widget_hide (browser->navigationbar);
+
+    if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
+    else
+        midori_location_action_set_secondary_icon (
+            MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
 }
 
 static void
@@ -3023,8 +3039,12 @@ _action_location_secondary_icon_released (GtkAction*     action,
     if ((view = midori_browser_get_current_tab (browser)))
     {
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-        if (browser->news_aggregator && *browser->news_aggregator)
+        if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
+            _action_location_submit_uri (action, uri, FALSE, browser);
+        else if (g_object_get_data (G_OBJECT (view), "news-feeds"))
             sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
+        else
+            _action_location_submit_uri (action, uri, FALSE, browser);
     }
 }
 
@@ -4574,6 +4594,8 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_location_activate, browser,
                       "signal::active-changed",
                       _action_location_active_changed, browser,
+                      "signal::focus-in",
+                      _action_location_focus_in, browser,
                       "signal::focus-out",
                       _action_location_focus_out, browser,
                       "signal::reset-uri",

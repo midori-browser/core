@@ -59,6 +59,7 @@ enum
 enum
 {
     ACTIVE_CHANGED,
+    FOCUS_IN,
     FOCUS_OUT,
     SECONDARY_ICON_RELEASED,
     RESET_URI,
@@ -126,6 +127,22 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                             g_cclosure_marshal_VOID__INT,
                                             G_TYPE_NONE, 1,
                                             G_TYPE_INT);
+
+    /**
+     * MidoriLocationAction:focus-in:
+     *
+     * The focus-in signal is emitted when the entry obtains the focus.
+     *
+     * Since 0.1.8
+     */
+    signals[FOCUS_IN] = g_signal_new ("focus-in",
+                                      G_TYPE_FROM_CLASS (class),
+                                      (GSignalFlags) (G_SIGNAL_RUN_LAST),
+                                      0,
+                                      0,
+                                      NULL,
+                                      g_cclosure_marshal_VOID__VOID,
+                                      G_TYPE_NONE, 0);
 
     signals[FOCUS_OUT] = g_signal_new ("focus-out",
                                        G_TYPE_FROM_CLASS (class),
@@ -219,10 +236,7 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
 midori_location_action_entry_for_proxy (GtkWidget* proxy)
 {
     GtkWidget* alignment = gtk_bin_get_child (GTK_BIN (proxy));
-    GtkWidget* hbox = gtk_bin_get_child (GTK_BIN (alignment));
-    GList* children = gtk_container_get_children (GTK_CONTAINER (hbox));
-    GtkWidget* entry = g_list_nth_data (children, 0);
-    g_list_free (children);
+    GtkWidget* entry = gtk_bin_get_child (GTK_BIN (alignment));
     return entry;
 }
 
@@ -514,29 +528,12 @@ midori_location_action_activate (GtkAction* action)
         GTK_ACTION_CLASS (midori_location_action_parent_class)->activate (action);
 }
 
-static void
-midori_location_action_go_clicked_cb (GtkWidget* button,
-                                      GtkAction* action)
-{
-    GtkWidget* hbox = gtk_widget_get_parent (button);
-    GList* children = gtk_container_get_children (GTK_CONTAINER (hbox));
-    GtkWidget* location_entry = g_list_nth_data (children, 0);
-    g_list_free (children);
-    GtkWidget* entry = gtk_bin_get_child (GTK_BIN (location_entry));
-    const gchar* uri = gtk_entry_get_text (GTK_ENTRY (entry));
-    if (uri && *uri)
-        g_signal_emit (action, signals[SUBMIT_URI], 0, uri, FALSE);
-}
-
 static GtkWidget*
 midori_location_action_create_tool_item (GtkAction* action)
 {
     GtkWidget* toolitem;
     GtkWidget* alignment;
-    GtkWidget* hbox;
     GtkWidget* location_entry;
-    GtkWidget* go_button;
-    GtkWidget* go_icon;
 
     toolitem = GTK_WIDGET (gtk_tool_item_new ());
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
@@ -544,21 +541,9 @@ midori_location_action_create_tool_item (GtkAction* action)
     alignment = gtk_alignment_new (0.0f, 0.5f, 1.0f, 0.1f);
     gtk_widget_show (alignment);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
-    hbox = gtk_hbox_new (FALSE, 0);
-    gtk_widget_show (hbox);
-    gtk_container_add (GTK_CONTAINER (alignment), hbox);
     location_entry = midori_location_entry_new ();
     gtk_widget_show (location_entry);
-    gtk_box_pack_start (GTK_BOX (hbox), location_entry, TRUE, TRUE, 0);
-    go_button = gtk_button_new ();
-    gtk_button_set_focus_on_click (GTK_BUTTON (go_button), FALSE);
-    gtk_button_set_relief (GTK_BUTTON (go_button), GTK_RELIEF_NONE);
-    go_icon = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO, GTK_ICON_SIZE_MENU);
-    gtk_button_set_image (GTK_BUTTON (go_button), go_icon);
-    gtk_widget_show (go_button);
-    gtk_box_pack_start (GTK_BOX (hbox), go_button, FALSE, FALSE, 0);
-    g_signal_connect (go_button, "clicked",
-        G_CALLBACK (midori_location_action_go_clicked_cb), action);
+    gtk_container_add (GTK_CONTAINER (alignment), location_entry);
 
     return toolitem;
 }
@@ -589,6 +574,15 @@ midori_location_action_key_press_event_cb (GtkWidget*   widget,
         return TRUE;
     }
     }
+    return FALSE;
+}
+
+static gboolean
+midori_location_action_focus_in_event_cb (GtkWidget*   widget,
+                                           GdkEventKey* event,
+                                           GtkAction*   action)
+{
+    g_signal_emit (action, signals[FOCUS_IN], 0);
     return FALSE;
 }
 
@@ -1054,6 +1048,8 @@ midori_location_action_connect_proxy (GtkAction* action,
         g_object_connect (gtk_bin_get_child (GTK_BIN (entry)),
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
+                      "signal::focus-in-event",
+                      midori_location_action_focus_in_event_cb, action,
                       "signal::focus-out-event",
                       midori_location_action_focus_out_event_cb, action,
                       "signal::icon-release",
