@@ -246,20 +246,20 @@ def configure (conf):
             Utils.pprint ('RED', 'No debugging level support for ' + compiler)
             sys.exit (1)
 
-    print
-    print "Optional build time dependencies:"
-    print "Localization:        " + nls + " (intltool)"
-    print "Icon optimizations:  " + icons + " (rsvg-convert)"
-    print "User documentation:  " + user_docs + " (docutils)"
-    print "API documentation:   " + api_docs + " (gtk-doc)"
-    print
-    print "Single instance:     " + unique + " (unique)"
+    print '''
+        Localization:        %(nls)s (intltool)
+        Icon optimizations:  %(icons)s (rsvg-convert)
+        Single instance:     %(unique)s (unique)
+        Persistent history:  %(sqlite)s (sqlite3)
+
+        IDN support:         %(libidn)s (libidn)
+        User documentation:  %(user_docs)s (docutils)
+        API documentation:   %(api_docs)s (gtk-doc)
+        Maemo integration:   %(hildon)s (hildon)
+        ''' % locals ()
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
-            Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
-            Utils.pprint ('RED', 'Please use an older or newer version.')
-    print "IDN support:         " + libidn + " (libidn)"
-    print "Persistent history:  " + sqlite + " (sqlite3)"
-    print "Maemo integration:   " + hildon + " (hildon)"
+        Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
+        Utils.pprint ('RED', 'Please use an older or newer version.')
 
 def set_options (opt):
     def add_enable_option (option, desc, group=None, disable=False):
