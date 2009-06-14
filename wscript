@@ -140,6 +140,7 @@ def configure (conf):
             var = name.split ('-')[0].upper ()
         conf.check_cfg (package=name, uselib_store=var, args='--cflags --libs ' + args,
             atleast_version=version, mandatory=mandatory)
+        return conf.env['HAVE_' + var]
 
     if option_enabled ('unique'):
         check_pkg ('unique-1.0', '0.9', False)
@@ -183,9 +184,8 @@ def configure (conf):
     check_pkg ('libxml-2.0', '2.6')
 
     if option_enabled ('hildon'):
-        check_pkg ('hildon-1', mandatory=False, var='HILDON')
-        if conf.env['HAVE_HILDON'] == 1:
-            check_pkg ('libosso', mandatory=False, var='HILDON')
+        if check_pkg ('hildon-1', mandatory=False, var='HILDON'):
+            check_pkg ('libosso', var='HILDON')
         hildon = ['N/A','yes'][conf.env['HAVE_HILDON'] == 1]
         if hildon != 'yes':
             option_checkfatal ('hildon', 'Maemo integration')
