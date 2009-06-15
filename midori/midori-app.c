@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,13 @@
 #include <glib/gi18n.h>
 
 #if HAVE_UNIQUE
+    typedef gpointer MidoriAppInstance;
+    #define MidoriAppInstanceNull NULL
     #include <unique/unique.h>
+#else
+    typedef gint MidoriAppInstance;
+    #define MidoriAppInstanceNull -1
+    #include "socket.h"
 #endif
 
 typedef struct _NotifyNotification NotifyNotification;
@@ -54,7 +60,7 @@ struct _MidoriApp
     KatzeArray* extensions;
     KatzeArray* browsers;
 
-    gpointer instance;
+    MidoriAppInstance instance;
 
     /* libnotify handling */
     gchar*         program_notify_send;
@@ -383,6 +389,74 @@ midori_app_class_init (MidoriAppClass* class)
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
 
+static gboolean
+midori_app_command_received (MidoriApp*   app,
+                             const gchar* command,
+                             gchar**      uris,
+                             GdkScreen*   screen)
+{
+    if (g_str_equal (command, "activate"))
+    {
+        gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
+        gtk_window_present (GTK_WINDOW (app->browser));
+        return TRUE;
+    }
+    else if (g_str_equal (command, "new"))
+    {
+        MidoriBrowser* browser = midori_app_create_browser (app);
+        midori_app_add_browser (app, browser);
+        /* FIXME: Should open the homepage according to settings */
+        midori_browser_add_uri (browser, "");
+        midori_browser_activate_action (browser, "Location");
+        gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
+        gtk_widget_show (GTK_WIDGET (browser));
+        return TRUE;
+    }
+    else if (g_str_equal (command, "open"))
+    {
+        gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
+        gtk_window_present (GTK_WINDOW (app->browser));
+        if (!uris)
+            return FALSE;
+        else
+        {
+            MidoriBrowser* browser;
+            MidoriNewPage open_external_pages_in;
+            gboolean first;
+
+            g_object_get (app->settings, "open-external-pages-in",
+                          &open_external_pages_in, NULL);
+            if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
+            {
+                browser = midori_app_create_browser (app);
+                midori_app_add_browser (app, browser);
+                gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
+                gtk_widget_show (GTK_WIDGET (browser));
+            }
+            else
+                browser = app->browser;
+            first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
+            while (*uris)
+            {
+                gchar* fixed_uri = sokoke_magic_uri (*uris, NULL);
+                if (first)
+                {
+                    midori_browser_set_current_uri (browser, fixed_uri);
+                    first = FALSE;
+                }
+                else
+                    midori_browser_set_current_page (browser,
+                        midori_browser_add_uri (browser, fixed_uri));
+                g_free (fixed_uri);
+                uris++;
+            }
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 #if HAVE_UNIQUE
 static UniqueResponse
 midori_browser_message_received_cb (UniqueApp*         instance,
@@ -391,98 +465,94 @@ midori_browser_message_received_cb (UniqueApp*         instance,
                                     guint              timestamp,
                                     MidoriApp*         app)
 {
-  UniqueResponse response;
-  MidoriBrowser* browser;
-  gchar** uris;
-  MidoriNewPage open_external_pages_in;
-  gboolean first;
+  gboolean success;
+  GdkScreen* screen = unique_message_data_get_screen (message);
 
   switch (command)
   {
   case UNIQUE_ACTIVATE:
-      gtk_window_set_screen (GTK_WINDOW (app->browser),
-                             unique_message_data_get_screen (message));
-      gtk_window_present (GTK_WINDOW (app->browser));
-      response = UNIQUE_RESPONSE_OK;
+      success = midori_app_command_received (app, "activate", NULL, screen);
       break;
   case UNIQUE_NEW:
-      browser = midori_app_create_browser (app);
-      midori_app_add_browser (app, browser);
-      /* FIXME: Should open the homepage according to settings */
-      midori_browser_add_uri (browser, "");
-      midori_browser_activate_action (browser, "Location");
-      gtk_window_set_screen (GTK_WINDOW (app->browser),
-                             unique_message_data_get_screen (message));
-      gtk_widget_show (GTK_WIDGET (browser));
-      response = UNIQUE_RESPONSE_OK;
+      success = midori_app_command_received (app, "new", NULL, screen);
       break;
   case UNIQUE_OPEN:
-      gtk_window_set_screen (GTK_WINDOW (app->browser),
-                             unique_message_data_get_screen (message));
-      gtk_window_present (GTK_WINDOW (app->browser));
-      uris = unique_message_data_get_uris (message);
-      if (!uris)
-          response = UNIQUE_RESPONSE_FAIL;
-      else
-      {
-          g_object_get (app->settings, "open-external-pages-in",
-              &open_external_pages_in, NULL);
-          if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
-          {
-              browser = midori_app_create_browser (app);
-              midori_app_add_browser (app, browser);
-              gtk_window_set_screen (GTK_WINDOW (app->browser),
-                                     unique_message_data_get_screen (message));
-              gtk_widget_show (GTK_WIDGET (browser));
-          }
-          else
-              browser = app->browser;
-          first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
-          while (*uris)
-          {
-              gchar* fixed_uri = sokoke_magic_uri (*uris, NULL);
-              if (first)
-              {
-                  midori_browser_set_current_uri (browser, fixed_uri);
-                  first = FALSE;
-              }
-              else
-                  midori_browser_set_current_page (browser,
-                      midori_browser_add_uri (browser, fixed_uri));
-              g_free (fixed_uri);
-              uris++;
-          }
-          /* g_strfreev (uris); */
-          response = UNIQUE_RESPONSE_OK;
-      }
+  {
+      gchar** uris = unique_message_data_get_uris (message);
+      success = midori_app_command_received (app, "open", uris, screen);
+      /* g_strfreev (uris); */
       break;
+  }
   default:
-      response = UNIQUE_RESPONSE_FAIL;
+      success = FALSE;
       break;
   }
 
-  return response;
+  return success ? UNIQUE_RESPONSE_OK : UNIQUE_RESPONSE_FAIL;
+}
+#else
+static gboolean
+midori_app_io_channel_watch_cb (GIOChannel*  channel,
+                                GIOCondition condition,
+                                MidoriApp*   app)
+{
+    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (app->browser));
+    gint fd, sock;
+    gchar buf[4096];
+    struct sockaddr_in caddr;
+    guint caddr_len = sizeof(caddr);
+
+    fd = app->instance;
+    sock = accept (fd, (struct sockaddr *)&caddr, &caddr_len);
+
+    while (fd_gets (sock, buf, sizeof (buf)) != -1)
+    {
+        if (strncmp (buf, "activate", 8) == 0)
+        {
+            midori_app_command_received (app, "open", NULL, screen);
+        }
+        else if (strncmp (buf, "new", 3) == 0)
+        {
+            midori_app_command_received (app, "new", NULL, screen);
+        }
+        else if (strncmp (buf, "open", 4) == 0)
+        {
+            while (fd_gets (sock, buf, sizeof (buf)) != -1 && *buf != '.')
+            {
+                gchar** uris = g_strsplit (g_strstrip (buf), "\n", 2);
+                midori_app_command_received (app, "open", uris, screen);
+                g_strfreev (uris);
+            }
+        }
+    }
+
+    gtk_window_present (GTK_WINDOW (app->browser));
+
+    fd_close (sock);
+
+    return TRUE;
 }
 #endif
 
-static gpointer
+static MidoriAppInstance
 midori_app_create_instance (MidoriApp*   app,
                             const gchar* name)
 {
-    #if HAVE_UNIQUE
-    gpointer instance;
+    MidoriAppInstance instance;
     GdkDisplay* display;
     gchar* display_name;
     gchar* instance_name;
     guint i, n;
+    #if !HAVE_UNIQUE
+    gboolean exists;
+    GIOChannel* channel;
     #endif
 
     if (!name)
         name = "midori";
 
-    #if HAVE_UNIQUE
     if (!(display = gdk_display_get_default ()))
-        return NULL;
+        return MidoriAppInstanceNull;
 
     display_name = g_strdup (gdk_display_get_name (display));
     n = strlen (display_name);
@@ -490,15 +560,24 @@ midori_app_create_instance (MidoriApp*   app,
         if (display_name[i] == ':' || display_name[i] == '.')
             display_name[i] = '_';
     instance_name = g_strdup_printf ("de.twotoasts.%s_%s", name, display_name);
+
+    #if HAVE_UNIQUE
     instance = unique_app_new (instance_name, NULL);
-    g_free (instance_name);
-    g_free (display_name);
     g_signal_connect (instance, "message-received",
                       G_CALLBACK (midori_browser_message_received_cb), app);
-    return instance;
     #else
-    return NULL;
+    instance = socket_init (instance_name, sokoke_set_config_dir (NULL), &exists);
+    g_object_set_data (G_OBJECT (app), "sock-exists",
+        exists ? (gpointer)0xdeadbeef : NULL);
+    channel = g_io_channel_unix_new (instance);
+    g_io_add_watch (channel, G_IO_IN | G_IO_PRI | G_IO_ERR,
+        (GIOFunc)midori_app_io_channel_watch_cb, app);
     #endif
+
+    g_free (instance_name);
+    g_free (display_name);
+
+    return instance;
 }
 
 static void
@@ -514,7 +593,7 @@ midori_app_init (MidoriApp* app)
     app->extensions = NULL;
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
-    app->instance = NULL;
+    app->instance = MidoriAppInstanceNull;
 
     midori_app_init_libnotify (app);
 }
@@ -535,7 +614,11 @@ midori_app_finalize (GObject* object)
     katze_object_assign (app->extensions, NULL);
     katze_object_assign (app->browsers, NULL);
 
+    #if HAVE_UNIQUE
     katze_object_assign (app->instance, NULL);
+    #else
+    sock_cleanup ();
+    #endif
 
     if (app->libnotify_module)
     {
@@ -663,9 +746,6 @@ midori_app_new (void)
  * Use the "name" property if you want to run more
  * than one instance.
  *
- * If Midori was built without single instance support
- * this function will always return %FALSE.
- *
  * Return value: %TRUE if an instance is already running
  **/
 gboolean
@@ -673,11 +753,13 @@ midori_app_instance_is_running (MidoriApp* app)
 {
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
 
-    if (!app->instance)
+    if (app->instance == MidoriAppInstanceNull)
         app->instance = midori_app_create_instance (app, app->name);
     #if HAVE_UNIQUE
     if (app->instance)
         return unique_app_is_running (app->instance);
+    #else
+        return g_object_get_data (G_OBJECT (app), "sock-exists") != NULL;
     #endif
     return FALSE;
 }
@@ -710,6 +792,12 @@ midori_app_instance_send_activate (MidoriApp* app)
         if (response == UNIQUE_RESPONSE_OK)
             return TRUE;
     }
+    #else
+    if (app->instance > -1)
+    {
+        send_open_command (app->instance, "activate", NULL);
+        return TRUE;
+    }
     #endif
     return FALSE;
 }
@@ -739,6 +827,12 @@ midori_app_instance_send_new_browser (MidoriApp* app)
         response = unique_app_send_message (app->instance, UNIQUE_NEW, NULL);
         if (response == UNIQUE_RESPONSE_OK)
             return TRUE;
+    }
+    #else
+    if (app->instance > -1)
+    {
+        send_open_command (app->instance, "new", NULL);
+        return TRUE;
     }
     #endif
     return FALSE;
@@ -778,6 +872,12 @@ midori_app_instance_send_uris (MidoriApp* app,
         unique_message_data_free (message);
         if (response == UNIQUE_RESPONSE_OK)
             return TRUE;
+    }
+    #else
+    if (app->instance > -1)
+    {
+        send_open_command (app->instance, "open", uris);
+        return TRUE;
     }
     #endif
     return FALSE;

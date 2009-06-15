@@ -199,6 +199,16 @@ def configure (conf):
     conf.env['docs'] = option_enabled ('docs')
 
     conf.check (header_name='unistd.h')
+    if not conf.env['HAVE_UNIQUE']:
+        if Options.platform == 'win32':
+            conf.check (lib='ws2_32')
+        check_pkg ('openssl', mandatory=False)
+        conf.define ('USE_SSL', [0,1][conf.env['HAVE_OPENSSL'] == 1])
+        conf.define ('HAVE_NETDB_H', [0,1][conf.check (header_name='netdb.h')])
+        conf.check (header_name='sys/wait.h')
+        conf.check (header_name='sys/select.h')
+        conf.check (function_name='inet_aton')
+        conf.check (function_name='inet_addr')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
 
     if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
@@ -249,7 +259,6 @@ def configure (conf):
     print '''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
-        Single instance:     %(unique)s (unique)
         Persistent history:  %(sqlite)s (sqlite3)
 
         IDN support:         %(libidn)s (libidn)
