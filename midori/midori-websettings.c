@@ -20,6 +20,10 @@
     #include <config.h>
 #endif
 
+#if defined (G_OS_UNIX)
+    #include <sys/utsname.h>
+#endif
+
 struct _MidoriWebSettings
 {
     WebKitWebSettings parent_instance;
@@ -1029,6 +1033,24 @@ midori_web_settings_finalize (GObject* object)
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
 }
 
+#if defined (G_OS_UNIX)
+static gchar*
+get_sys_name (void)
+{
+    static gchar* sys_name = NULL;
+
+    if (!sys_name)
+    {
+        struct utsname name;
+        if (uname (&name) != -1)
+            sys_name = g_strdup_printf ("%s %s", name.sysname, name.machine);
+        else
+            sys_name = "Unix";
+    }
+    return sys_name;
+}
+#endif
+
 static gchar*
 generate_ident_string (MidoriIdentity identify_as)
 {
@@ -1053,12 +1075,7 @@ generate_ident_string (MidoriIdentity identify_as)
     "PPC Mac OS X";
     #endif */
     #elif defined (G_OS_UNIX)
-    /* struct utsname name;
-    if (uname (&name) != -1)
-        String::format ("%s %s", name.sysname, name.machine);
-    else
-        "Unknown";*/
-    "Linux";
+    get_sys_name ();
     #elif defined (G_OS_WIN32)
     // FIXME: Windows NT version
     "Windows";
