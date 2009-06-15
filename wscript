@@ -98,6 +98,8 @@ def configure (conf):
 
     # This is specific to cross compiling with mingw
     if is_mingw (conf.env) and Options.platform != 'win32':
+        if not 'AR' in os.environ and not 'RANLIB' in os.environ:
+            conf.env['AR'] = os.environ['CC'][:-3] + 'ar'
         Options.platform = 'win32'
         # Make sure we don't have -fPIC in the CCFLAGS
         conf.env["shlib_CCFLAGS"] = []
