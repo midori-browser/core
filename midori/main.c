@@ -1269,6 +1269,7 @@ midori_load_session (gpointer data)
     KatzeArray* session;
     KatzeItem* item;
     guint i;
+    gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
 
     browser = midori_app_create_browser (app);
     midori_app_add_browser (app, browser);
@@ -1322,6 +1323,9 @@ midori_load_session (gpointer data)
         g_object_weak_ref (G_OBJECT (session),
             (GWeakNotify)(midori_browser_weak_notify_cb), browser);
     }
+
+    if (command)
+        midori_app_send_command (app, command);
 
     return FALSE;
 }
@@ -1401,6 +1405,7 @@ main (int    argc,
     gchar* config;
     gboolean run;
     gchar* snapshot;
+    gboolean execute;
     gboolean version;
     gchar** uris;
     MidoriApp* app;
@@ -1420,6 +1425,8 @@ main (int    argc,
        { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
        N_("Take a snapshot of the specified URI"), NULL },
        #endif
+       { "execute", 'e', 0, G_OPTION_ARG_NONE, &execute,
+       N_("Execute the specified command"), NULL },
        { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
@@ -1463,6 +1470,7 @@ main (int    argc,
     config = NULL;
     run = FALSE;
     snapshot = NULL;
+    execute = FALSE;
     version = FALSE;
     uris = NULL;
     error = NULL;
@@ -1594,8 +1602,9 @@ main (int    argc,
     {
         GtkWidget* dialog;
 
-        /* TODO: Open as many tabs as we have uris, seperated by pipes */
-        if (uris)
+        if (execute)
+            result = midori_app_send_command (app, uris);
+        else if (uris) /* TODO: Open a tab per URI, seperated by pipes */
             result = midori_app_instance_send_uris (app, uris);
         else
             result = midori_app_instance_send_new_browser (app);
@@ -1755,6 +1764,9 @@ main (int    argc,
     }
     g_string_free (error_messages, TRUE);
 
+    /* If -e or --execute was specified, "uris" refers to the command. */
+    if (!execute)
+    {
     /* Open as many tabs as we have uris, seperated by pipes */
     i = 0;
     while (uris && uris[i])
@@ -1771,6 +1783,7 @@ main (int    argc,
         }
         g_free (uri);
         i++;
+    }
     }
 
     katze_assign (config_file, build_config_filename ("config"));
@@ -1869,6 +1882,9 @@ main (int    argc,
     g_idle_add (midori_load_extensions, app);
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_idle_add (midori_load_session, _session);
+
+    if (execute)
+        g_object_set_data (G_OBJECT (app), "execute-command", uris);
 
     gtk_main ();
 

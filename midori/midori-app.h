@@ -54,6 +54,10 @@ gboolean
 midori_app_instance_send_uris     (MidoriApp*         app,
                                    gchar**            uris);
 
+gboolean
+midori_app_send_command           (MidoriApp*         app,
+                                   gchar**            command);
+
 void
 midori_app_add_browser            (MidoriApp*         app,
                                    MidoriBrowser*     browser);

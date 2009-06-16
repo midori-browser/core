@@ -24,6 +24,7 @@
     typedef gpointer MidoriAppInstance;
     #define MidoriAppInstanceNull NULL
     #include <unique/unique.h>
+    #define MIDORI_UNIQUE_COMMAND 1
 #else
     typedef gint MidoriAppInstance;
     #define MidoriAppInstanceNull -1
@@ -203,6 +204,7 @@ _midori_app_add_browser (MidoriApp*     app,
 
     katze_array_add_item (app->browsers, browser);
 
+    app->browser = browser;
     #if HAVE_UNIQUE
     if (app->instance)
         unique_app_watch_window (app->instance, GTK_WINDOW (browser));
@@ -395,6 +397,14 @@ midori_app_command_received (MidoriApp*   app,
                              gchar**      uris,
                              GdkScreen*   screen)
 {
+    if (!screen)
+    {
+        if (app->browser && gtk_widget_has_screen (GTK_WIDGET (app->browser)))
+            screen = gtk_widget_get_screen (GTK_WIDGET (app->browser));
+        else
+            screen = gdk_screen_get_default ();
+    }
+
     if (g_str_equal (command, "activate"))
     {
         gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
@@ -453,6 +463,13 @@ midori_app_command_received (MidoriApp*   app,
             return TRUE;
         }
     }
+    else if (g_str_equal (command, "command"))
+    {
+        if (!uris || !app->browser)
+            return FALSE;
+        midori_browser_activate_action (app->browser, *uris);
+        return TRUE;
+    }
 
     return FALSE;
 }
@@ -480,6 +497,13 @@ midori_browser_message_received_cb (UniqueApp*         instance,
   {
       gchar** uris = unique_message_data_get_uris (message);
       success = midori_app_command_received (app, "open", uris, screen);
+      /* g_strfreev (uris); */
+      break;
+  }
+  case MIDORI_UNIQUE_COMMAND:
+  {
+      gchar** uris = unique_message_data_get_uris (message);
+      success = midori_app_command_received (app, "command", uris, screen);
       /* g_strfreev (uris); */
       break;
   }
@@ -524,6 +548,20 @@ midori_app_io_channel_watch_cb (GIOChannel*  channel,
                 g_strfreev (uris);
             }
         }
+        else if (strncmp (buf, "command", 7) == 0)
+        {
+            guint i = 0;
+            gchar** uris = g_new (gchar, 100);
+            while (fd_gets (sock, buf, sizeof (buf)) != -1 && *buf != '.')
+            {
+                uris[i++] = g_strdup (g_strstrip (buf));
+                if (i == 99)
+                    break;
+            }
+            uris[i] = NULL;
+            midori_app_command_received (app, "command", uris, screen);
+            g_strfreev (uris);
+        }
     }
 
     gtk_window_present (GTK_WINDOW (app->browser));
@@ -563,6 +601,7 @@ midori_app_create_instance (MidoriApp*   app,
 
     #if HAVE_UNIQUE
     instance = unique_app_new (instance_name, NULL);
+    unique_app_add_command (instance, "midori-command", MIDORI_UNIQUE_COMMAND);
     g_signal_connect (instance, "message-received",
                       G_CALLBACK (midori_browser_message_received_cb), app);
     #else
@@ -877,6 +916,57 @@ midori_app_instance_send_uris (MidoriApp* app,
     if (app->instance > -1)
     {
         send_open_command (app->instance, "open", uris);
+        return TRUE;
+    }
+    #endif
+    return FALSE;
+}
+
+/**
+ * midori_app_send_command:
+ * @app: a #MidoriApp
+ * @command: a string vector of a command to execute
+ *
+ * Sends a command to an instance of Midori, which
+ * is either the current process or an already running
+ * instance with the same name on the default display.
+ *
+ * Names of GtkAction objects of MidoriBrowser are recognized as commands.
+ *
+ * Return value: %TRUE if the message was sent successfully
+ *
+ * Since: 0.1.8
+ **/
+gboolean
+midori_app_send_command (MidoriApp* app,
+                         gchar**    command)
+{
+    #if HAVE_UNIQUE
+    UniqueMessageData* message;
+    UniqueResponse response;
+    #endif
+
+    /* g_return_val_if_fail (MIDORI_IS_APP (app), FALSE); */
+    g_return_val_if_fail (command != NULL, FALSE);
+
+    if (!midori_app_instance_is_running (app))
+        return midori_app_command_received (app, "command", command, NULL);
+
+    #if HAVE_UNIQUE
+    if (app->instance)
+    {
+        message = unique_message_data_new ();
+        unique_message_data_set_uris (message, command);
+        response = unique_app_send_message (app->instance,
+            MIDORI_UNIQUE_COMMAND, message);
+        unique_message_data_free (message);
+        if (response == UNIQUE_RESPONSE_OK)
+            return TRUE;
+    }
+    #else
+    if (app->instance > -1)
+    {
+        send_open_command (app->instance, "command", command);
         return TRUE;
     }
     #endif
