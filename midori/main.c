@@ -220,9 +220,9 @@ settings_save_to_file (MidoriWebSettings* settings,
         }
         else if (type == G_TYPE_PARAM_BOOLEAN)
         {
-            gboolean boolean;
-            g_object_get (settings, property, &boolean, NULL);
-            g_key_file_set_boolean (key_file, "settings", property, boolean);
+            gboolean truth;
+            g_object_get (settings, property, &truth, NULL);
+            g_key_file_set_boolean (key_file, "settings", property, truth);
         }
         else if (type == G_TYPE_PARAM_ENUM)
         {
