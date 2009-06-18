@@ -54,8 +54,6 @@ midori_bookmark_store_init (MidoriBookmarkStore* bookmark_store)
 static void
 midori_bookmark_store_finalize (GObject* object)
 {
-    MidoriBookmarkStore* bookmark_store = MIDORI_BOOKMARK_STORE (object);
-
     /* Nothing to do */
 }
 
@@ -94,11 +92,11 @@ midori_bookmark_store_new (gint n_columns,
 
     g_return_val_if_fail (n_columns > 0, NULL);
 
-    treestore = g_object_new (GTK_TYPE_TREE_STORE, NULL);
+    treestore = g_object_new (MIDORI_TYPE_BOOKMARK_STORE, NULL);
 
     va_start (args, n_columns);
 
-    types = g_new (gint, n_columns);
+    types = g_new (GType, n_columns);
     for (i = 0; i < n_columns; i++)
     {
         GType type = va_arg (args, GType);
