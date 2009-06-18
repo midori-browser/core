@@ -266,13 +266,14 @@ def configure (conf):
         IDN support:         %(libidn)s (libidn)
         User documentation:  %(user_docs)s (docutils)
         API documentation:   %(api_docs)s (gtk-doc)
-        Maemo integration:   %(hildon)s (hildon)
         ''' % locals ()
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
         Utils.pprint ('RED', 'Please use an older or newer version.')
 
 def set_options (opt):
+    def is_maemo (): return os.path.exists ('/etc/osso-af-init/osso-gtk.defs')
+
     def add_enable_option (option, desc, group=None, disable=False):
         if group == None:
             group = opt
@@ -310,7 +311,7 @@ def set_options (opt):
     add_enable_option ('libidn', 'international domain name support', group)
     add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('addons', 'building of extensions', group)
-    add_enable_option ('hildon', 'Maemo integration', group)
+    add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
 
 def build (bld):
     bld.add_subdirs ('katze midori icons')
