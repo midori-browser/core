@@ -1085,13 +1085,6 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_action_add_speed_dial_cb (GtkWidget*  widget,
-                                              MidoriView* view)
-{
-    g_signal_emit (view, signals[ADD_SPEED_DIAL], 0, view->link_uri);
-}
-
-static void
 midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
