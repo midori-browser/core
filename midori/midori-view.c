@@ -16,6 +16,7 @@
 
 #include "midori-view.h"
 #include "midori-stock.h"
+#include "midori-browser.h"
 
 #include "compat.h"
 #include "marshal.h"
@@ -1135,18 +1136,12 @@ midori_web_view_menu_add_bookmark_activate_cb (GtkWidget*  widget,
 }
 
 static void
-midori_web_view_menu_action_activate_cb (GtkWidget*  widget,
-                                         MidoriView* view)
-{
-    const gchar* action = g_object_get_data (G_OBJECT (widget), "action");
-    g_signal_emit (view, signals[ACTIVATE_ACTION], 0, action);
-}
-
-static void
 webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                                    GtkWidget*     menu,
                                    MidoriView*    view)
 {
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    GtkActionGroup* actions = midori_browser_get_action_group (browser);
     GtkWidget* menuitem;
     GtkWidget* icon;
     gchar* stock_id;
@@ -1314,82 +1309,51 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
         }
         g_list_free (items);
-        menuitem = gtk_image_menu_item_new_with_mnemonic (_("Undo _Close Tab"));
-        icon = gtk_image_new_from_stock (GTK_STOCK_UNDELETE, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "UndoTabClose");
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-        /* FIXME: Make this sensitive only when there is a tab to undo */
-        gtk_widget_show (menuitem);
 
         if (1)
         {
             menuitem = gtk_separator_menu_item_new ();
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
             gtk_widget_show (menuitem);
-            menuitem = gtk_image_menu_item_new_with_mnemonic (_("_Menubar"));
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Menubar"));
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-            g_object_set_data (G_OBJECT (menuitem), "action", "Menubar");
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-            gtk_widget_show (menuitem);
-            menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Preferences"));
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-            g_object_set_data (G_OBJECT (menuitem), "action", "Preferences");
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-            gtk_widget_show (menuitem);
         }
 
         menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
 
-        menuitem = gtk_image_menu_item_new_from_stock (STOCK_BOOKMARK_ADD, NULL);
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "BookmarkAdd"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "BookmarkAdd");
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-        gtk_widget_show (menuitem);
 
         if (view->speed_dial_in_new_tabs && !midori_view_is_blank (view))
         {
-            menuitem = gtk_image_menu_item_new_with_mnemonic (_("Add to Speed _dial"));
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "AddSpeedDial"));
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-            g_object_set_data (G_OBJECT (menuitem), "action", "AddSpeedDial");
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_web_view_menu_action_add_speed_dial_cb), view);
-            gtk_widget_show (menuitem);
         }
 
-        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE_AS, NULL);
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "SaveAs"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "SaveAs");
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-        gtk_widget_show (menuitem);
         /* Currently views that don't support source, don't support
            saving either. If that changes, we need to think of something. */
         if (!midori_view_can_view_source (view))
             gtk_widget_set_sensitive (menuitem, FALSE);
-
-        menuitem = gtk_image_menu_item_new_with_mnemonic (_("View So_urce"));
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "SourceView"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "SourceView");
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-        gtk_widget_show (menuitem);
-        if (!midori_view_can_view_source (view))
-            gtk_widget_set_sensitive (menuitem, FALSE);
-
-        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_PRINT, NULL);
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Print"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "action", "Print");
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
-        gtk_widget_show (menuitem);
     }
 }
 
