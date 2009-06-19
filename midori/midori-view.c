@@ -1324,6 +1324,25 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         /* FIXME: Make this sensitive only when there is a tab to undo */
         gtk_widget_show (menuitem);
 
+        if (1)
+        {
+            menuitem = gtk_separator_menu_item_new ();
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            gtk_widget_show (menuitem);
+            menuitem = gtk_image_menu_item_new_with_mnemonic (_("_Menubar"));
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            g_object_set_data (G_OBJECT (menuitem), "action", "Menubar");
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
+            gtk_widget_show (menuitem);
+            menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            g_object_set_data (G_OBJECT (menuitem), "action", "Preferences");
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_web_view_menu_action_activate_cb), view);
+            gtk_widget_show (menuitem);
+        }
+
         menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
