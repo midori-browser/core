@@ -827,12 +827,13 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         "f.push (l[i].href + '|' + l[i].title); } return f; }"
         "feeds (document.getElementsByTagName ('link'))", NULL);
         gchar** items = g_strsplit (value, ",", 0);
-        gchar** iter;
+        guint i = 0;
 
         katze_array_clear (view->news_feeds);
-        for (iter = items; iter && *iter; iter++)
+        if (items != NULL)
+        while (items[i] != NULL)
         {
-            gchar** parts = g_strsplit (*iter, "|", 2);
+            gchar** parts = g_strsplit (items[i], "|", 2);
             KatzeItem* item = g_object_new (KATZE_TYPE_ITEM,
                 "uri", parts ? *parts : "",
                 "name", parts && *parts ? parts[1] : NULL,
@@ -840,6 +841,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
             katze_array_add_item (view->news_feeds, item);
             g_object_unref (item);
             g_strfreev (parts);
+            i++;
         }
         g_strfreev (items);
         g_object_set_data (G_OBJECT (view), "news-feeds",
