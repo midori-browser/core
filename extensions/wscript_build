@@ -6,9 +6,6 @@ import os
 
 extensions = os.listdir ('extensions')
 for extension in extensions:
-    # Tab Panel isn't useful at this point
-    if extension == 'tab-panel':
-        continue
     # Adblock is incomplete and not ready for release
     if extension == 'adblock.c':
         continue
