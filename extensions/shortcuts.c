@@ -123,10 +123,15 @@ shortcuts_preferences_render_accel (GtkTreeViewColumn* column,
     if (accel_path)
     {
         if (gtk_accel_map_lookup_entry (accel_path, &key))
-            g_object_set (renderer,
-                          "accel-key", key.accel_key,
-                          "accel-mods", key.accel_mods,
-                          NULL);
+        {
+            if (key.accel_key)
+                g_object_set (renderer,
+                              "accel-key", key.accel_key,
+                              "accel-mods", key.accel_mods,
+                              NULL);
+            else
+                g_object_set (renderer, "text", _("None"), NULL);
+        }
         g_object_set (renderer, "sensitive", TRUE, "editable", TRUE, NULL);
     }
     else
