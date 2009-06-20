@@ -23,6 +23,13 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
                          GtkWidget*       panel)
 {
     MidoriApp* app = midori_extension_get_app (extension);
+    MidoriBrowser* browser;
+    GtkWidget* notebook;
+
+    browser = midori_browser_get_for_widget (panel);
+    notebook = katze_object_get_object (browser, "notebook");
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), TRUE);
+    g_object_unref (notebook);
 
     gtk_widget_destroy (panel);
     g_signal_handlers_disconnect_by_func (
@@ -40,6 +47,10 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* notebook;
     GtkWidget* toolbar;
     /* GtkToolItem* toolitem; */
+
+    notebook = katze_object_get_object (browser, "notebook");
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), FALSE);
+    g_object_unref (notebook);
 
     panel = katze_object_get_object (browser, "panel");
     notebook = gtk_notebook_new ();
