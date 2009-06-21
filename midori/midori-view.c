@@ -2178,6 +2178,8 @@ midori_view_is_blank (MidoriView*  view)
  *
  * Retrieves the icon of the view.
  *
+ * The returned icon is owned by the @view and must not be modified.
+ *
  * Return value: a #GdkPixbuf
  **/
 GdkPixbuf*
