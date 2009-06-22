@@ -1308,19 +1308,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 
-        if (1)
-        {
-            menuitem = gtk_separator_menu_item_new ();
-            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-            gtk_widget_show (menuitem);
-            menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "Menubar"));
-            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-            menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "Preferences"));
-            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        }
-
         menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
