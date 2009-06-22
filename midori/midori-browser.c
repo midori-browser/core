@@ -82,6 +82,7 @@ struct _MidoriBrowser
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
+    gboolean show_tabs;
 
     KatzeNet* net;
 
@@ -117,7 +118,8 @@ enum
     PROP_BOOKMARKS,
     PROP_TRASH,
     PROP_SEARCH_ENGINES,
-    PROP_HISTORY
+    PROP_HISTORY,
+    PROP_SHOW_TABS,
 };
 
 enum
@@ -197,6 +199,9 @@ _toggle_tabbar_smartly (MidoriBrowser* browser)
 {
     guint n;
     gboolean always_show_tabbar;
+
+    if (!browser->show_tabs)
+        return;
 
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
     if (n < 2 && browser->settings)
@@ -1853,6 +1858,25 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "History",
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
+                                     flags));
+
+    /**
+     * MidoriBrowser:show-tabs:
+     *
+     * Whether or not to show tabs.
+     *
+     * If disabled, no tab labels are shown. This is intended for
+     * extensions that want to provide alternative tab labels.
+     *
+     * Since 0.1.8
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_TABS,
+                                     g_param_spec_boolean (
+                                     "show-tabs",
+                                     "Show Tabs",
+                                     "Whether or not to show tabs",
+                                     TRUE,
                                      flags));
 
     /* Add 2px space between tool buttons */
@@ -5535,6 +5559,13 @@ midori_browser_set_property (GObject*      object,
     case PROP_HISTORY:
         midori_browser_set_history (browser, g_value_get_object (value));
         break;
+    case PROP_SHOW_TABS:
+        browser->show_tabs = g_value_get_boolean (value);
+        if (browser->show_tabs)
+            _toggle_tabbar_smartly (browser);
+        else
+            gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), FALSE);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -5599,6 +5630,9 @@ midori_browser_get_property (GObject*    object,
         break;
     case PROP_HISTORY:
         g_value_set_object (value, browser->history);
+        break;
+    case PROP_SHOW_TABS:
+        g_value_set_boolean (value, browser->show_tabs);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
