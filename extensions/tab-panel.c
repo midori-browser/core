@@ -26,14 +26,11 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
     MidoriApp* app = midori_extension_get_app (extension);
     GtkTreeModel* model;
     MidoriBrowser* browser;
-    GtkWidget* notebook;
 
     model = g_object_get_data (G_OBJECT (extension), "treemodel");
     g_object_unref (model);
     browser = midori_browser_get_for_widget (panel);
-    notebook = katze_object_get_object (browser, "notebook");
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), TRUE);
-    g_object_unref (notebook);
+    g_object_set (browser, "show-tabs", TRUE, NULL);
 
     gtk_widget_destroy (panel);
     g_signal_handlers_disconnect_by_func (
@@ -289,13 +286,10 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
     GtkWidget* panel;
-    GtkWidget* notebook;
     GtkWidget* toolbar;
     /* GtkToolItem* toolitem; */
 
-    notebook = katze_object_get_object (browser, "notebook");
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), FALSE);
-    g_object_unref (notebook);
+    g_object_set (browser, "show-tabs", FALSE, NULL);
 
     panel = katze_object_get_object (browser, "panel");
 
@@ -356,7 +350,7 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     g_signal_connect (browser, "remove-tab",
         G_CALLBACK (tab_panel_browser_remove_tab_cb), extension);
     g_signal_connect (extension, "deactivate",
-        G_CALLBACK (tab_panel_deactivate_cb), notebook);
+        G_CALLBACK (tab_panel_deactivate_cb), treeview);
 }
 
 static void
