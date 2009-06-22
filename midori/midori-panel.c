@@ -797,6 +797,8 @@ midori_panel_page_num (MidoriPanel* panel,
  *
  * The child must be visible, otherwise the underlying GtkNotebook will
  * silently ignore the attempt to switch the page.
+ *
+ * Since 0.1.8 the "page" property is notifying changes.
  **/
 void
 midori_panel_set_current_page (MidoriPanel* panel,
@@ -806,15 +808,15 @@ midori_panel_set_current_page (MidoriPanel* panel,
 
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
-
     if ((viewable = midori_panel_get_nth_page (panel, n)))
     {
         const gchar* label;
 
+        gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
+        gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
         label = midori_viewable_get_label (MIDORI_VIEWABLE (viewable));
         g_object_set (panel->toolbar_label, "label", label, NULL);
+        g_object_notify (G_OBJECT (panel), "page");
     }
 }
 

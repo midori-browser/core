@@ -3896,6 +3896,16 @@ midori_panel_notify_position_cb (GObject*       hpaned,
 }
 
 static void
+midori_panel_notify_page_cb (MidoriPanel*   panel,
+                             GParamSpec*    pspec,
+                             MidoriBrowser* browser)
+{
+    gint page = katze_object_get_boolean (panel, "page");
+    if (browser->settings && page > -1)
+        g_object_set (browser->settings, "last-panel-page", page, NULL);
+}
+
+static void
 midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
                                       GParamSpec*    pspec,
                                       MidoriBrowser* browser)
@@ -4307,7 +4317,16 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 
     if (GTK_WIDGET_REALIZED (widget))
     {
+        gpointer last_page;
         GdkWindowState state = gdk_window_get_state (widget->window);
+
+        if ((last_page = g_object_get_data (G_OBJECT (browser), "last-page")))
+        {
+            midori_panel_set_current_page (MIDORI_PANEL (browser->panel),
+                GPOINTER_TO_INT (last_page));
+            g_object_set_data (G_OBJECT (browser), "last-page", NULL);
+        }
+
         if (!(state &
             (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN))
             && !browser->alloc_timeout)
@@ -4918,6 +4937,8 @@ midori_browser_init (MidoriBrowser* browser)
     browser->panel = g_object_new (MIDORI_TYPE_PANEL,
                                    "menu", browser->menu_tools,
                                    NULL);
+    g_signal_connect (browser->panel, "notify::page",
+                      G_CALLBACK (midori_panel_notify_page_cb), browser);
     g_signal_connect (browser->panel, "notify::right-aligned",
                       G_CALLBACK (midori_panel_notify_right_aligned_cb), browser);
     g_signal_connect (browser->panel, "close",
@@ -5312,7 +5333,13 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                                     right_align_sidepanel);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
-    midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);
+    /* The browser may not yet be visible, which means that we can't set the
+       page. So we set it in midori_browser_size_allocate_cb */
+    if (GTK_WIDGET_VISIBLE (browser))
+        midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);
+    else
+        g_object_set_data (G_OBJECT (browser), "last-page",
+                           GINT_TO_POINTER (last_panel_page));
 
     _action_set_active (browser, "Menubar", show_menubar);
     _action_set_active (browser, "Navigationbar", browser->show_navigationbar);
