@@ -850,6 +850,7 @@ sokoke_register_stock_items (void)
     {
         { STOCK_EXTENSION, NULL, 0, 0, GTK_STOCK_CONVERT },
         { STOCK_IMAGE, NULL, 0, 0, GTK_STOCK_ORIENTATION_PORTRAIT },
+        { STOCK_WEB_BROWSER, NULL, 0, 0, "gnome-web-browser" },
         { STOCK_NEWS_FEED, NULL, 0, 0, GTK_STOCK_INDEX },
         { STOCK_SCRIPT, NULL, 0, 0, GTK_STOCK_EXECUTE },
         { STOCK_STYLE, NULL, 0, 0, GTK_STOCK_SELECT_COLOR },
