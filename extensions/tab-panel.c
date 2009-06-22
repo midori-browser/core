@@ -255,7 +255,27 @@ tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
                                  MidoriView*      view,
                                  MidoriExtension* extension)
 {
+    GtkTreeModel* model = g_object_get_data (G_OBJECT (extension), "treemodel");
+    guint i;
+    GtkTreeIter iter;
 
+    i = 0;
+    while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
+    {
+        MidoriView* view_;
+
+        gtk_tree_model_get (model, &iter, 0, &view_, -1);
+
+        if (view == view_)
+        {
+            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
+            g_object_unref (view_);
+            break;
+        }
+
+        g_object_unref (view_);
+        i++;
+    }
 }
 
 static void
