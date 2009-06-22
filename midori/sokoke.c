@@ -743,6 +743,9 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
 
     g_return_val_if_fail (GTK_IS_ACTION (action), NULL);
 
+    if (KATZE_IS_ARRAY_ACTION (action))
+        return gtk_action_create_menu_item (action);
+
     g_object_get (action,
                   "label", &label,
                   "stock-id", &stock_id,
