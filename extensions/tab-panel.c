@@ -187,11 +187,13 @@ midori_extension_button_release_event_cb (GtkWidget*       widget,
 
         gtk_tree_model_get (model, &iter, 0, &view, -1);
 
-        if (event->button != 3)
+        if (event->button == 1)
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (widget);
             midori_browser_set_current_tab (browser, view);
         }
+        else if (event->button == 2)
+            gtk_widget_destroy (view);
         else
             midori_extension_popup (widget, event, view, extension);
 
