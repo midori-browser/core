@@ -2561,6 +2561,41 @@ _action_window_activate_item (GtkAction*     action,
 }
 
 static void
+_action_compact_menu_populate_popup (GtkAction*     action,
+                                     GtkMenu*       menu,
+                                     MidoriBrowser* browser)
+{
+    static const GtkActionEntry actions[] = {
+      { "TabNew" },
+      { "WindowNew" },
+      { "Open" },
+      { "PrivateBrowsing" },
+      { NULL },
+      { "Bookmarkbar" },
+      { "Panel" },
+      { "Statusbar" },
+      { NULL },
+      { "Fullscreen" },
+      { "Preferences" },
+      { "ClearPrivateData" },
+    };
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (actions); i++)
+    {
+        GtkWidget* menuitem;
+        if (actions[i].name != NULL)
+            menuitem = sokoke_action_create_popup_menu_item (
+                _action_by_name (browser, actions[i].name));
+        else
+            menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    }
+
+    gtk_widget_show_all (GTK_WIDGET (menu));
+}
+
+static void
 midori_preferences_response_help_cb (GtkWidget*     preferences,
                                      gint           response,
                                      MidoriBrowser* browser)
@@ -2601,6 +2636,39 @@ _action_menubar_activate (GtkToggleAction* action,
         g_object_set (browser->settings, "show-menubar", active, NULL);
     #if !HAVE_HILDON
     sokoke_widget_set_visible (browser->menubar, active);
+    if (browser->settings)
+    {
+        if (active)
+        {
+            GtkContainer* navigationbar = GTK_CONTAINER (browser->navigationbar);
+            GList* children = gtk_container_get_children (navigationbar);
+            GtkAction* menu_action = _action_by_name (browser, "CompactMenu");
+            for (; children != NULL; children = g_list_next (children))
+            {
+                GtkAction* action_;
+                action_ = gtk_widget_get_action (GTK_WIDGET (children->data));
+                if (action_ == menu_action)
+                {
+                    gtk_container_remove (navigationbar,
+                        GTK_WIDGET (children->data));
+                    _midori_browser_save_toolbar_items (browser);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            GtkAction* widget_action = _action_by_name (browser, "CompactMenu");
+            GtkWidget* toolitem = gtk_action_create_tool_item (widget_action);
+            gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                                GTK_TOOL_ITEM (toolitem), -1);
+            g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+                "button-press-event",
+                G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+                browser);
+            _midori_browser_save_toolbar_items (browser);
+        }
+    }
     #endif
 }
 
@@ -4695,6 +4763,20 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_window_activate_item, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
+    g_object_unref (action);
+
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "CompactMenu",
+        "label", _("_Menu"),
+        "stock-id", STOCK_WEB_BROWSER,
+        "tooltip", NULL, /* FIXME */
+        "array", katze_array_new (KATZE_TYPE_ITEM),
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-popup",
+                      _action_compact_menu_populate_popup, browser,
+                      NULL);
+    gtk_action_group_add_action (browser->action_group, action);
     g_object_unref (action);
 
     /* Create the menubar */
