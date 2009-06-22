@@ -758,6 +758,9 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
         menuitem = gtk_check_menu_item_new_with_mnemonic (label);
         gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
             gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action)));
+        if (GTK_IS_RADIO_ACTION (action))
+            gtk_check_menu_item_set_draw_as_radio (GTK_CHECK_MENU_ITEM (menuitem),
+                                                   TRUE);
     }
     else if (stock_id)
     {
