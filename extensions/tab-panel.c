@@ -149,7 +149,8 @@ midori_extension_open_in_window_activate_cb (GtkWidget*       menuitem,
     new_browser = midori_app_create_browser (midori_extension_get_app (extension));
     midori_app_add_browser (midori_extension_get_app (extension), new_browser);
     gtk_widget_show (GTK_WIDGET (new_browser));
-    midori_browser_add_tab (new_browser, view);
+    midori_browser_add_uri (new_browser,
+        midori_view_get_display_uri (MIDORI_VIEW (view)));
 }
 
 static void
