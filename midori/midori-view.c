@@ -1322,6 +1322,34 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 gtk_action_group_get_action (actions, "ZoomNormal"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Encoding"));
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        if (GTK_WIDGET_IS_SENSITIVE (menuitem))
+        {
+            GtkWidget* sub_menu;
+            static const GtkActionEntry encodings[] = {
+              { "EncodingAutomatic" },
+              { "EncodingChinese" },
+              { "EncodingJapanese" },
+              { "EncodingRussian" },
+              { "EncodingUnicode" },
+              { "EncodingWestern" },
+              { "EncodingCustom" },
+            };
+            guint i;
+
+            sub_menu = gtk_menu_new ();
+            gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), sub_menu);
+
+            for (i = 0; i < G_N_ELEMENTS (encodings); i++)
+            {
+                menuitem = sokoke_action_create_popup_menu_item (
+                    gtk_action_group_get_action (actions, encodings[i].name));
+                gtk_menu_shell_append (GTK_MENU_SHELL (sub_menu), menuitem);
+            }
+        }
+
         menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
