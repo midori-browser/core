@@ -2772,6 +2772,7 @@ _action_zoom_normal_activate (GtkAction*     action,
 
 static void
 _action_view_encoding_activate (GtkAction*     action,
+                                GtkAction*     current,
                                 MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
@@ -2780,7 +2781,7 @@ _action_view_encoding_activate (GtkAction*     action,
         const gchar* name;
         GtkWidget* web_view;
 
-        name = gtk_action_get_name (action);
+        name = gtk_action_get_name (current);
         web_view = gtk_bin_get_child (GTK_BIN (view));
         if (!strcmp (name, "EncodingAutomatic"))
             g_object_set (web_view, "custom-encoding", NULL, NULL);
@@ -4103,28 +4104,6 @@ static const GtkActionEntry entries[] = {
    NULL, "<Ctrl>0",
    N_("Reset the zoom level"), G_CALLBACK (_action_zoom_normal_activate) },
  { "Encoding", NULL, N_("_Encoding") },
- { "EncodingAutomatic", NULL,
-    N_("_Automatic"), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
- { "EncodingChinese", NULL,
-    N_("Chinese (BIG5)"), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
- { "EncodingJapanese", NULL,
- /* i18n: A double underscore "__" is used to prevent an unwanted mnemonic */
-    N_("Japanese (SHIFT__JIS)"), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
- { "EncodingRussian", NULL,
-    N_("Russian (KOI8-R)"), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
- { "EncodingUnicode", NULL,
-    N_("Unicode (UTF-8)"), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
- { "EncodingWestern", NULL,
-    N_("Western (ISO-8859-1)"), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
- { "EncodingCustom", NULL,
-    N_("Custom..."), "",
-    NULL, G_CALLBACK (_action_view_encoding_activate) },
  { "SourceView", NULL,
    N_("View So_urce"), "<Ctrl>U",
    N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
@@ -4226,6 +4205,32 @@ static const GtkToggleActionEntry toggle_entries[] = {
    FALSE },
  };
  static const guint toggle_entries_n = G_N_ELEMENTS (toggle_entries);
+
+static const GtkRadioActionEntry encoding_entries[] = {
+{ "EncodingAutomatic", NULL,
+    N_("_Automatic"), "",
+    NULL, 1 },
+ { "EncodingChinese", NULL,
+    N_("Chinese (BIG5)"), "",
+    NULL, 1 },
+ { "EncodingJapanese", NULL,
+ /* i18n: A double underscore "__" is used to prevent an unwanted mnemonic */
+    N_("Japanese (SHIFT__JIS)"), "",
+    NULL, 1 },
+ { "EncodingRussian", NULL,
+    N_("Russian (KOI8-R)"), "",
+    NULL, 1 },
+ { "EncodingUnicode", NULL,
+    N_("Unicode (UTF-8)"), "",
+    NULL, 1 },
+ { "EncodingWestern", NULL,
+    N_("Western (ISO-8859-1)"), "",
+    NULL, 1 },
+ { "EncodingCustom", NULL,
+    N_("Custom..."), "",
+    NULL, 1 },
+ };
+ static const guint encoding_entries_n = G_N_ELEMENTS (encoding_entries);
 
 static void
 midori_browser_window_state_event_cb (MidoriBrowser*       browser,
@@ -4616,6 +4621,9 @@ midori_browser_init (MidoriBrowser* browser)
                                   entries, entries_n, browser);
     gtk_action_group_add_toggle_actions (browser->action_group,
         toggle_entries, toggle_entries_n, browser);
+    gtk_action_group_add_radio_actions (browser->action_group,
+        encoding_entries, encoding_entries_n, 0,
+        G_CALLBACK (_action_view_encoding_activate), browser);
     ui_manager = gtk_ui_manager_new ();
     gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
     accel_group = gtk_ui_manager_get_accel_group (ui_manager);
