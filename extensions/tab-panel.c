@@ -178,7 +178,7 @@ midori_extension_button_release_event_cb (GtkWidget*       widget,
     GtkTreeModel* model;
     GtkTreeIter iter;
 
-    if (event->button != 2 && event->button != 3)
+    if (event->button < 1 || event->button > 3)
         return FALSE;
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
@@ -187,7 +187,7 @@ midori_extension_button_release_event_cb (GtkWidget*       widget,
 
         gtk_tree_model_get (model, &iter, 0, &view, -1);
 
-        if (event->button == 2)
+        if (event->button != 3)
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (widget);
             midori_browser_set_current_tab (browser, view);
