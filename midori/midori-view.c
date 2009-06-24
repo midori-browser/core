@@ -2427,6 +2427,29 @@ midori_view_get_proxy_menu_item (MidoriView* view)
     return view->menu_item;
 }
 
+static void
+midori_view_tab_label_menu_open_cb (GtkWidget* menuitem,
+                                    GtkWidget* view)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    midori_browser_set_current_tab (browser, view);
+}
+
+static void
+midori_view_tab_label_menu_window_new_cb (GtkWidget* menuitem,
+                                          GtkWidget* view)
+{
+    g_signal_emit (view, signals[NEW_WINDOW], 0,
+        midori_view_get_display_uri (MIDORI_VIEW (view)));
+}
+
+static void
+midori_view_tab_label_menu_close_cb (GtkWidget* menuitem,
+                                     GtkWidget* view)
+{
+    gtk_widget_destroy (view);
+}
+
 static gboolean
 midori_view_tab_label_button_release_event (GtkWidget*      tab_label,
                                             GdkEventButton* event,
@@ -2436,6 +2459,33 @@ midori_view_tab_label_button_release_event (GtkWidget*      tab_label,
     {
         /* Close the widget on middle click */
         gtk_widget_destroy (widget);
+        return TRUE;
+    }
+    else if (event->button == 3)
+    {
+        /* Show a context menu on right click */
+        GtkWidget* menu;
+        GtkWidget* menuitem;
+
+        menu = gtk_menu_new ();
+        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_view_tab_label_menu_open_cb), widget);
+        menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_view_tab_label_menu_window_new_cb), widget);
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_view_tab_label_menu_close_cb), widget);
+        gtk_widget_show_all (menu);
+
+        sokoke_widget_popup (widget, GTK_MENU (menu),
+                             event, SOKOKE_MENU_POSITION_CURSOR);
         return TRUE;
     }
 
