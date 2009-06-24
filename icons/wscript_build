@@ -15,7 +15,7 @@ def add_image (bld, category, name):
     if rsvg_convert:
         Utils.check_dir (blddir + '/icons')
 
-    for size in [16, 22, 32, 48]:
+    for size in [16, 22, 24, 32, 48]:
         format = str (size) + 'x' + str (size)
         if os.access (srcdir + '/icons/' + format + '/' + name + '.png', os.F_OK):
             bld.install_files ('${MDATADIR}/icons/hicolor/' + format + '/' + category,
