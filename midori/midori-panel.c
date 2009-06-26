@@ -231,7 +231,6 @@ static void
 midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
                                        MidoriPanel* panel)
 {
-    /* FIXME: Use stock icon for window */
     /* FIXME: What happens when the browser is destroyed? */
     /* FIXME: What about multiple browsers? */
     /* FIXME: Should we remember if the child was detached? */
@@ -248,6 +247,7 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
     g_object_set_data (G_OBJECT (window), "scrolled", scrolled);
     gtk_window_set_title (GTK_WINDOW (window), title);
+    gtk_window_set_skip_taskbar_hint (GTK_WINDOW (window), TRUE);
     gtk_window_set_default_size (GTK_WINDOW (window), 250, 400);
     gtk_window_set_transient_for (GTK_WINDOW (window),
         GTK_WINDOW (gtk_widget_get_toplevel (panel->notebook)));
