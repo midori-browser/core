@@ -3993,14 +3993,18 @@ midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
 }
 
 static gboolean
-gtk_notebook_button_press_event_cb (GtkNotebook*    notebook,
-                                    GdkEventButton* event,
-                                    MidoriBrowser*  browser)
+midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
+                                                     GdkEventButton* event,
+                                                     MidoriBrowser*  browser)
 {
+    if (event->window != notebook->event_window)
+        return FALSE;
+
+    /* FIXME: Handle double click only when it wasn't handled by GtkNotebook */
+
     /* Open a new tab on double click or middle mouse click */
-    if (event->window == notebook->event_window
-        && ((event->type == GDK_2BUTTON_PRESS && event->button == 1)
-        || (event->type == GDK_BUTTON_PRESS && event->button == 2)))
+    if (/*(event->type == GDK_2BUTTON_PRESS && event->button == 1)
+    || */(event->type == GDK_BUTTON_PRESS && event->button == 2))
     {
         gint n;
         GtkWidget* view;
@@ -4963,8 +4967,8 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (browser->notebook, "page-reordered",
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),
                       browser);
-    g_signal_connect (browser->notebook, "button-press-event",
-                      G_CALLBACK (gtk_notebook_button_press_event_cb),
+    g_signal_connect_after (browser->notebook, "button-press-event",
+        G_CALLBACK (midori_browser_notebook_button_press_event_after_cb),
                       browser);
     gtk_widget_show (browser->notebook);
 
