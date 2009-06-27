@@ -2450,6 +2450,45 @@ midori_view_tab_label_menu_close_cb (GtkWidget* menuitem,
     gtk_widget_destroy (view);
 }
 
+/**
+ * midori_view_get_tab_menu:
+ * @view: a #MidoriView
+ *
+ * Retrieves a menu that is typically shown when right-clicking
+ * a tab label or equivalent representation.
+ *
+ * Return value: a #GtkMenu
+ *
+ * Since: 0.1.8
+ **/
+GtkWidget*
+midori_view_get_tab_menu (MidoriView* view)
+{
+    GtkWidget* menu;
+    GtkWidget* menuitem;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
+    menu = gtk_menu_new ();
+    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_open_cb), view);
+    menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_window_new_cb), view);
+    menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_close_cb), view);
+    gtk_widget_show_all (menu);
+
+    return menu;
+}
+
 static gboolean
 midori_view_tab_label_button_release_event (GtkWidget*      tab_label,
                                             GdkEventButton* event,
@@ -2464,28 +2503,10 @@ midori_view_tab_label_button_release_event (GtkWidget*      tab_label,
     else if (event->button == 3)
     {
         /* Show a context menu on right click */
-        GtkWidget* menu;
-        GtkWidget* menuitem;
+        GtkWidget* menu = midori_view_get_tab_menu (MIDORI_VIEW (widget));
 
-        menu = gtk_menu_new ();
-        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_view_tab_label_menu_open_cb), widget);
-        menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_view_tab_label_menu_window_new_cb), widget);
-        menuitem = gtk_separator_menu_item_new ();
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_view_tab_label_menu_close_cb), widget);
-        gtk_widget_show_all (menu);
-
-        sokoke_widget_popup (widget, GTK_MENU (menu),
-                             event, SOKOKE_MENU_POSITION_CURSOR);
+        katze_widget_popup (widget, GTK_MENU (menu),
+                            event, SOKOKE_MENU_POSITION_CURSOR);
         return TRUE;
     }
 

@@ -114,6 +114,9 @@ GtkWidget*
 midori_view_get_proxy_menu_item        (MidoriView*        view);
 
 GtkWidget*
+midori_view_get_tab_menu               (MidoriView*        view);
+
+GtkWidget*
 midori_view_get_proxy_tab_label        (MidoriView*        view);
 
 KatzeItem*
