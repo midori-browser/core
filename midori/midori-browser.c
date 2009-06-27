@@ -4824,7 +4824,7 @@ midori_browser_init (MidoriBrowser* browser)
         "name", "CompactMenu",
         "label", _("_Menu"),
         "stock-id", STOCK_WEB_BROWSER,
-        "tooltip", _("_Menu"),
+        "tooltip", _("Menu"),
         "array", katze_array_new (KATZE_TYPE_ITEM),
         NULL);
     g_object_connect (action,
