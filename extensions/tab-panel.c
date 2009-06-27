@@ -105,67 +105,12 @@ midori_extension_row_activated_cb (GtkTreeView*       treeview,
 }
 
 static void
-midori_extension_popup_item (GtkWidget*       menu,
-                             const gchar*     stock_id,
-                             const gchar*     label,
-                             GtkWidget*       view,
-                             gpointer         callback,
-                             MidoriExtension* extension)
-{
-    GtkWidget* menuitem;
-
-    menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
-    if (label)
-        gtk_label_set_text_with_mnemonic (GTK_LABEL (gtk_bin_get_child (
-        GTK_BIN (menuitem))), label);
-    g_object_set_data (G_OBJECT (menuitem), "MidoriView", view);
-    g_signal_connect (menuitem, "activate", G_CALLBACK (callback), extension);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-}
-
-static void
-midori_extension_open_activate_cb (GtkWidget*       menuitem,
-                                   MidoriExtension* extension)
-{
-    GtkWidget* view;
-    MidoriBrowser* browser;
-
-    view = (GtkWidget*)g_object_get_data (G_OBJECT (menuitem), "MidoriView");
-
-    browser = midori_browser_get_for_widget (view);
-    midori_browser_set_current_tab (browser, view);
-}
-
-static void
-midori_extension_open_in_window_activate_cb (GtkWidget*       menuitem,
-                                             MidoriExtension* extension)
-{
-    GtkWidget* view;
-    MidoriBrowser* new_browser;
-
-    view = (GtkWidget*)g_object_get_data (G_OBJECT (menuitem), "MidoriView");
-
-    new_browser = midori_app_create_browser (midori_extension_get_app (extension));
-    midori_app_add_browser (midori_extension_get_app (extension), new_browser);
-    gtk_widget_show (GTK_WIDGET (new_browser));
-    midori_browser_add_uri (new_browser,
-        midori_view_get_display_uri (MIDORI_VIEW (view)));
-}
-
-static void
 midori_extension_popup (GtkWidget*       widget,
                         GdkEventButton*  event,
                         GtkWidget*       view,
                         MidoriExtension* extension)
 {
-    GtkWidget* menu;
-
-    menu = gtk_menu_new ();
-    midori_extension_popup_item (menu, GTK_STOCK_OPEN, NULL,
-        view, midori_extension_open_activate_cb, extension);
-    midori_extension_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
-        view, midori_extension_open_in_window_activate_cb, extension);
+    GtkWidget* menu = midori_view_get_tab_menu (MIDORI_VIEW (view));
 
     sokoke_widget_popup (widget, GTK_MENU (menu),
                          event, SOKOKE_MENU_POSITION_CURSOR);
