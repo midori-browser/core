@@ -178,13 +178,16 @@ midori_extension_popup_menu_cb (GtkWidget*       widget,
 
 static void
 tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
-                              MidoriView*      view,
+                              GtkWidget*       view,
                               MidoriExtension* extension)
 {
     GtkTreeModel* model = g_object_get_data (G_OBJECT (extension), "treemodel");
     GtkTreeIter iter;
+    GtkWidget* notebook = katze_object_get_object (browser, "notebook");
+    gint page = gtk_notebook_page_num (GTK_NOTEBOOK (notebook), view);
+    g_object_unref (notebook);
     gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-        &iter, NULL, G_MAXINT, 0, view, -1);
+        &iter, NULL, page, 0, view, -1);
 }
 
 static void
@@ -192,7 +195,7 @@ tab_panel_browser_foreach_cb (GtkWidget*       view,
                               MidoriExtension* extension)
 {
     tab_panel_browser_add_tab_cb (midori_browser_get_for_widget (view),
-                                  MIDORI_VIEW (view), extension);
+                                  view, extension);
 }
 
 static void
@@ -293,7 +296,7 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     midori_browser_foreach (browser,
         (GtkCallback)tab_panel_browser_foreach_cb, treeview);
 
-    g_signal_connect (browser, "add-tab",
+    g_signal_connect_after (browser, "add-tab",
         G_CALLBACK (tab_panel_browser_add_tab_cb), extension);
     g_signal_connect (browser, "remove-tab",
         G_CALLBACK (tab_panel_browser_remove_tab_cb), extension);
