@@ -2444,6 +2444,18 @@ midori_view_tab_label_menu_window_new_cb (GtkWidget* menuitem,
 }
 
 static void
+midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
+                                             MidoriView* view)
+{
+    MidoriNewView where = MIDORI_NEW_VIEW_TAB;
+    GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
+        "net", view->net, "settings", view->settings, NULL);
+    midori_view_set_uri (MIDORI_VIEW (new_view),
+        midori_view_get_display_uri (view));
+    g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+}
+
+static void
 midori_view_tab_label_menu_close_cb (GtkWidget* menuitem,
                                      GtkWidget* view)
 {
@@ -2478,6 +2490,10 @@ midori_view_get_tab_menu (MidoriView* view)
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_window_new_cb), view);
+    menuitem = gtk_menu_item_new_with_mnemonic (_("_Duplicate Tab"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_duplicate_tab_cb), view);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
