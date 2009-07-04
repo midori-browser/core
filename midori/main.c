@@ -1269,6 +1269,7 @@ midori_load_session (gpointer data)
     KatzeArray* session;
     KatzeItem* item;
     guint i;
+    gint64 current;
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
 
     browser = midori_app_create_browser (app);
@@ -1305,8 +1306,11 @@ midori_load_session (gpointer data)
     i = 0;
     while ((item = katze_array_get_nth_item (_session, i++)))
         midori_browser_add_item (browser, item);
-    /* FIXME: Switch to the last active page */
-    item = katze_array_get_nth_item (_session, 0);
+    current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");
+    if (current < 0)
+        current = 0;
+    midori_browser_set_current_page (browser, current);
+    item = katze_array_get_nth_item (_session, current);
     if (!strcmp (katze_item_get_uri (item), ""))
         midori_browser_activate_action (browser, "Location");
     g_object_unref (_session);
