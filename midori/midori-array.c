@@ -284,6 +284,30 @@ katze_item_to_data (KatzeItem* item)
 }
 
 static gchar*
+katze_item_metadata_to_xbel (KatzeItem* item)
+{
+    GList* keys = katze_item_get_meta_keys (item);
+    GString* markup;
+    /* FIXME: Allow specifying an alternative namespace/ URI */
+    const gchar* namespace_uri = "http://www.twotoasts.de";
+    const gchar* namespace = "midori";
+    gsize i;
+    const gchar* key;
+
+    if (!keys)
+        return g_strdup ("");
+
+    markup = g_string_new ("<info>\n<metadata owner=\"");
+    g_string_append_printf (markup, "%s\"", namespace_uri);
+    i = 0;
+    while ((key = g_list_nth_data (keys, i++)))
+        g_string_append_printf (markup, " %s:%s=\"%s\"", namespace, key,
+            katze_item_get_meta_string (item, key));
+    g_string_append_printf (markup, "/>\n</info>\n");
+    return g_string_free (markup, FALSE);
+}
+
+static gchar*
 katze_array_to_xbel (KatzeArray* array,
                      GError**    error)
 {
@@ -291,8 +315,10 @@ katze_array_to_xbel (KatzeArray* array,
     guint i;
     KatzeItem* item;
     gchar* item_xml;
+    const gchar* namespacing;
     gchar* title;
     gchar* desc;
+    gchar* metadata;
     gchar* outer_markup;
 
     inner_markup = g_string_new (NULL);
@@ -304,20 +330,25 @@ katze_array_to_xbel (KatzeArray* array,
         g_free (item_xml);
     }
 
+    namespacing = " xmlns:midori=\"http://www.twotoasts.de\"";
     title = _simple_xml_element ("title", katze_item_get_name (KATZE_ITEM (array)));
     desc = _simple_xml_element ("desc", katze_item_get_text (KATZE_ITEM (array)));
+    metadata = katze_item_metadata_to_xbel (KATZE_ITEM (array));
     outer_markup = g_strdup_printf (
-                   "%s%s<xbel version=\"1.0\">\n%s%s%s</xbel>\n",
+                   "%s%s<xbel version=\"1.0\"%s>\n%s%s%s%s</xbel>\n",
                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
                    "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
                    "XML Bookmark Exchange Language 1.0//EN//XML\" "
                    "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n",
+                   namespacing,
                    title,
                    desc,
+                   metadata,
                    inner_markup->str);
     g_string_free (inner_markup, TRUE);
     g_free (title);
     g_free (desc);
+    g_free (metadata);
 
     return outer_markup;
 }
