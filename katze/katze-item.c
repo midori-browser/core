@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -147,7 +147,8 @@ katze_item_class_init (KatzeItemClass* class)
 static void
 katze_item_init (KatzeItem* item)
 {
-    /* Nothing to do here */
+    item->metadata = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                            g_free, g_free);
 }
 
 static void
@@ -160,6 +161,8 @@ katze_item_finalize (GObject* object)
     g_free (item->uri);
     g_free (item->icon);
     g_free (item->token);
+
+    g_hash_table_unref (item->metadata);
 
     G_OBJECT_CLASS (katze_item_parent_class)->finalize (object);
 }
@@ -449,6 +452,94 @@ katze_item_set_added (KatzeItem* item,
 
     item->added = added;
     g_object_notify (G_OBJECT (item), "added");
+}
+
+/**
+ * katze_item_get_meta_keys:
+ * @item: a #KatzeItem
+ *
+ * Retrieves a list of all meta keys.
+ *
+ * Return value: a newly allocated #GList of constant strings
+ *
+ * Since: 0.1.8
+ **/
+GList*
+katze_item_get_meta_keys (KatzeItem* item)
+{
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    return g_hash_table_get_keys (item->metadata);
+}
+
+/**
+ * katze_item_get_meta_string:
+ * @item: a #KatzeItem
+ * @key: the name of an integer value
+ *
+ * Retrieves a string value by the specified key from the
+ * meta data of the item.
+ *
+ * Return value: a string, or %NULL
+ *
+ * Since: 0.1.8
+ **/
+const gchar*
+katze_item_get_meta_string (KatzeItem*   item,
+                            const gchar* key)
+{
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    return g_hash_table_lookup (item->metadata, key);
+}
+
+/**
+ * katze_item_get_meta_integer:
+ * @item: a #KatzeItem
+ * @key: the name of an integer value
+ *
+ * Retrieves an integer value by the specified key from the
+ * meta data of the item.
+ *
+ * If the key is present but not representable as an
+ * integer, -1 is returned.
+ *
+ * Return value: an integer value, or -1
+ *
+ * Since: 0.1.8
+ **/
+gint64
+katze_item_get_meta_integer (KatzeItem*   item,
+                             const gchar* key)
+{
+    gpointer value;
+
+    g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
+
+    if (g_hash_table_lookup_extended (item->metadata, key, NULL, &value))
+        return g_ascii_strtoll (value, NULL, 0);
+    return -1;
+}
+
+/**
+ * katze_item_set_meta_integer:
+ * @item: a #KatzeItem
+ * @key: the name of an integer value
+ *
+ * Saves the specified integer value in the meta data of
+ * the item under the specified key.
+ *
+ * Since: 0.1.8
+ **/
+void
+katze_item_set_meta_integer (KatzeItem*   item,
+                             const gchar* key,
+                             gint64       value)
+{
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    g_hash_table_insert (item->metadata, g_strdup (key), g_strdup_printf ("%lu", value));
+    /* TODO: Emit meta-key-changed */
 }
 
 /**

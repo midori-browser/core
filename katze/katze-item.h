@@ -42,6 +42,7 @@ struct _KatzeItem
     gchar* icon;
     gchar* token;
     gint64 added;
+    GHashTable* metadata;
 
     KatzeItem* parent;
 };
@@ -101,6 +102,22 @@ katze_item_get_added              (KatzeItem*      item);
 void
 katze_item_set_added              (KatzeItem*      item,
                                    gint64          added);
+
+GList*
+katze_item_get_meta_keys          (KatzeItem*      item);
+
+const gchar*
+katze_item_get_meta_string        (KatzeItem*      item,
+                                   const gchar*    key);
+
+gint64
+katze_item_get_meta_integer       (KatzeItem*      item,
+                                   const gchar*    key);
+
+void
+katze_item_set_meta_integer       (KatzeItem*      item,
+                                   const gchar*    key,
+                                   gint64          value);
 
 gpointer
 katze_item_get_parent             (KatzeItem*      item);
