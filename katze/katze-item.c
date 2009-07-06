@@ -494,6 +494,28 @@ katze_item_get_meta_string (KatzeItem*   item,
 }
 
 /**
+ * katze_item_set_meta_string:
+ * @item: a #KatzeItem
+ * @key: the name of a string value
+ * @value: the value as a string
+ *
+ * Saves the specified string value in the meta data of
+ * the item under the specified key.
+ *
+ * Since: 0.1.8
+ **/
+void
+katze_item_set_meta_string (KatzeItem*   item,
+                            const gchar* key,
+                            const gchar* value)
+{
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    g_hash_table_insert (item->metadata, g_strdup (key), g_strdup (value));
+    /* TODO: Emit meta-key-changed */
+}
+
+/**
  * katze_item_get_meta_integer:
  * @item: a #KatzeItem
  * @key: the name of an integer value

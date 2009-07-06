@@ -110,6 +110,11 @@ const gchar*
 katze_item_get_meta_string        (KatzeItem*      item,
                                    const gchar*    key);
 
+void
+katze_item_set_meta_string        (KatzeItem*      item,
+                                   const gchar*    key,
+                                   const gchar*    value);
+
 gint64
 katze_item_get_meta_integer       (KatzeItem*      item,
                                    const gchar*    key);
