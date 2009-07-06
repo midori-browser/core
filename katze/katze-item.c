@@ -472,6 +472,19 @@ katze_item_get_meta_keys (KatzeItem* item)
     return g_hash_table_get_keys (item->metadata);
 }
 
+static void
+katze_item_set_meta_data_value (KatzeItem*   item,
+                                const gchar* key,
+                                gchar*       value)
+{
+    /* FIXME: Make the default namespace configurable */
+    if (g_str_has_prefix (key, "midori:"))
+        g_hash_table_insert (item->metadata, g_strdup (&key[7]), value);
+    else
+        g_hash_table_insert (item->metadata, g_strdup (key), value);
+    /* TODO: Emit meta-key-changed */
+}
+
 /**
  * katze_item_get_meta_string:
  * @item: a #KatzeItem
@@ -479,6 +492,8 @@ katze_item_get_meta_keys (KatzeItem* item)
  *
  * Retrieves a string value by the specified key from the
  * meta data of the item.
+ *
+ * Specify "namespace:key" or "key" to use the default namespace.
  *
  * Return value: a string, or %NULL
  *
@@ -491,6 +506,8 @@ katze_item_get_meta_string (KatzeItem*   item,
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
     g_return_val_if_fail (key != NULL, NULL);
 
+    if (g_str_has_prefix (key, "midori:"))
+        key = &key[7];
     return g_hash_table_lookup (item->metadata, key);
 }
 
@@ -503,6 +520,8 @@ katze_item_get_meta_string (KatzeItem*   item,
  * Saves the specified string value in the meta data of
  * the item under the specified key.
  *
+ * Specify "namespace:key" or "key" to use the default namespace.
+ *
  * Since: 0.1.8
  **/
 void
@@ -513,8 +532,7 @@ katze_item_set_meta_string (KatzeItem*   item,
     g_return_if_fail (KATZE_IS_ITEM (item));
     g_return_if_fail (key != NULL);
 
-    g_hash_table_insert (item->metadata, g_strdup (key), g_strdup (value));
-    /* TODO: Emit meta-key-changed */
+    katze_item_set_meta_data_value (item, key, g_strdup (value));
 }
 
 /**
@@ -541,6 +559,8 @@ katze_item_get_meta_integer (KatzeItem*   item,
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
     g_return_val_if_fail (key != NULL, -1);
 
+    if (g_str_has_prefix (key, "midori:"))
+        key = &key[7];
     if (g_hash_table_lookup_extended (item->metadata, key, NULL, &value))
         return g_ascii_strtoll (value, NULL, 0);
     return -1;
@@ -564,8 +584,7 @@ katze_item_set_meta_integer (KatzeItem*   item,
     g_return_if_fail (KATZE_IS_ITEM (item));
     g_return_if_fail (key != NULL);
 
-    g_hash_table_insert (item->metadata, g_strdup (key), g_strdup_printf ("%lu", value));
-    /* TODO: Emit meta-key-changed */
+    katze_item_set_meta_data_value (item, key, g_strdup_printf ("%lu", value));
 }
 
 /**
