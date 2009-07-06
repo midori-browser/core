@@ -109,6 +109,47 @@ katze_array_from_xmlNodePtr (xmlNodePtr cur)
     return array;
 }
 
+static void
+katze_xbel_parse_info (KatzeItem* item,
+                       xmlNodePtr cur)
+{
+    cur = cur->xmlChildrenNode;
+    while (cur)
+    {
+        if (!xmlStrcmp (cur->name, (const xmlChar*)"metadata"))
+        {
+            xmlChar* owner = xmlGetProp (cur, (xmlChar*)"owner");
+            g_strstrip ((gchar*)owner);
+            /* FIXME: Save metadata from unknown owners */
+            if (!g_strcmp0 ((gchar*)owner, "http://www.twotoasts.de"))
+            {
+                xmlAttrPtr properties = cur->properties;
+                while (properties)
+                {
+                    xmlChar* value = xmlGetProp (cur, properties->name);
+                    if (properties->ns && properties->ns->prefix)
+                    {
+                        gchar* ns_value = g_strdup_printf ("%s:%s",
+                            properties->ns->prefix, properties->name);
+                        katze_item_set_meta_string (item,
+                            (gchar*)ns_value, value);
+                        g_free (ns_value);
+                    }
+                    else
+                        katze_item_set_meta_string (item,
+                            (gchar*)properties->name, (gchar*)value);
+                    xmlFree (value);
+                    properties = properties->next;
+                }
+            }
+            xmlFree (owner);
+        }
+        else if (g_strcmp0 ((gchar*)cur->name, "text"))
+            g_critical ("Unexpected element <%s> in <metadata>.", cur->name);
+        cur = cur->next;
+    }
+}
+
 /* Loads the contents from an xmlNodePtr into an array. */
 static gboolean
 katze_array_from_xmlDocPtr (KatzeArray* array,
@@ -153,8 +194,8 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
             item = katze_item_from_xmlNodePtr (cur);
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
             item = katze_item_new ();
-        /*else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
-            item = katze_xbel_parse_info (xbel, cur);*/
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
+            katze_xbel_parse_info (KATZE_ITEM (array), cur);
         if (item)
             katze_array_add_item (array, item);
         cur = cur->next;
