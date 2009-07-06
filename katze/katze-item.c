@@ -489,6 +489,7 @@ katze_item_get_meta_string (KatzeItem*   item,
                             const gchar* key)
 {
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+    g_return_val_if_fail (key != NULL, NULL);
 
     return g_hash_table_lookup (item->metadata, key);
 }
@@ -510,6 +511,7 @@ katze_item_set_meta_string (KatzeItem*   item,
                             const gchar* value)
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
+    g_return_if_fail (key != NULL);
 
     g_hash_table_insert (item->metadata, g_strdup (key), g_strdup (value));
     /* TODO: Emit meta-key-changed */
@@ -537,6 +539,7 @@ katze_item_get_meta_integer (KatzeItem*   item,
     gpointer value;
 
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
+    g_return_val_if_fail (key != NULL, -1);
 
     if (g_hash_table_lookup_extended (item->metadata, key, NULL, &value))
         return g_ascii_strtoll (value, NULL, 0);
@@ -559,6 +562,7 @@ katze_item_set_meta_integer (KatzeItem*   item,
                              gint64       value)
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
+    g_return_if_fail (key != NULL);
 
     g_hash_table_insert (item->metadata, g_strdup (key), g_strdup_printf ("%lu", value));
     /* TODO: Emit meta-key-changed */
