@@ -400,39 +400,40 @@ def build (bld):
         bld.add_subdirs ('docs/api')
         bld.install_files ('${DOCDIR}/midori/api/', blddir + '/docs/api/*')
 
-    if bld.env['HAVE_HILDON']:
-        appdir = '${MDATADIR}/applications/hildon'
-        bld.install_files ('${MDATADIR}/dbus-1/services',
-                           'data/com.nokia.' + APPNAME + '.service')
-    else:
-        appdir = '${MDATADIR}/applications'
-    if bld.env['INTLTOOL']:
-        obj = bld.new_task_gen ('intltool_in')
-        obj.source = 'data/' + APPNAME + '.desktop.in'
-        obj.install_path = appdir
-        obj.flags  = ['-d', '-c']
-        bld.install_files (appdir, 'data/' + APPNAME + '.desktop')
-    else:
-        folder = os.path.abspath (blddir + '/default/data')
-        Utils.check_dir (folder)
-        desktop = APPNAME + '.desktop'
-        pre = open ('data/' + desktop + '.in')
-        after = open (folder + '/' + desktop, 'w')
-        try:
+    if not is_mingw (bld.env) and Options.platform != 'win32':
+        if bld.env['HAVE_HILDON']:
+            appdir = '${MDATADIR}/applications/hildon'
+            bld.install_files ('${MDATADIR}/dbus-1/services',
+                               'data/com.nokia.' + APPNAME + '.service')
+        else:
+            appdir = '${MDATADIR}/applications'
+        if bld.env['INTLTOOL']:
+            obj = bld.new_task_gen ('intltool_in')
+            obj.source = 'data/' + APPNAME + '.desktop.in'
+            obj.install_path = appdir
+            obj.flags  = ['-d', '-c']
+            bld.install_files (appdir, 'data/' + APPNAME + '.desktop')
+        else:
+            folder = os.path.abspath (blddir + '/default/data')
+            Utils.check_dir (folder)
+            desktop = APPNAME + '.desktop'
+            pre = open ('data/' + desktop + '.in')
+            after = open (folder + '/' + desktop, 'w')
             try:
-                for line in pre:
-                    if line != '':
-                        if line[0] == '_':
-                            after.write (line[1:])
-                        else:
-                            after.write (line)
-                after.close ()
-                Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
-                bld.install_files (appdir, folder + '/' + desktop)
-            except:
-                Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
-        finally:
-            pre.close ()
+                try:
+                    for line in pre:
+                        if line != '':
+                            if line[0] == '_':
+                                after.write (line[1:])
+                            else:
+                                after.write (line)
+                    after.close ()
+                    Utils.pprint ('BLUE', desktop + '.in -> ' + desktop)
+                    bld.install_files (appdir, folder + '/' + desktop)
+                except:
+                    Utils.pprint ('BLUE', 'File ' + desktop + ' not generated')
+            finally:
+                pre.close ()
 
     if bld.env['RSVG_CONVERT']:
         Utils.check_dir (blddir + '/data')
