@@ -584,7 +584,12 @@ katze_item_set_meta_integer (KatzeItem*   item,
     g_return_if_fail (KATZE_IS_ITEM (item));
     g_return_if_fail (key != NULL);
 
-    katze_item_set_meta_data_value (item, key, g_strdup_printf ("%lu", value));
+    katze_item_set_meta_data_value (item, key,
+    #ifdef G_GINT64_FORMAT
+        g_strdup_printf ("%" G_GINT64_FORMAT, value));
+    #else
+        g_strdup_printf ("%li", value));
+    #endif
 }
 
 /**
