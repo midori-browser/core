@@ -27,5 +27,7 @@ obj = bld.new_task_gen ('cc', 'program')
 obj.target = 'midori'
 obj.includes = '. .. ../panels'
 obj.source = 'main.c'
+if bld.env['WINRC']:
+    obj.source += ' ../data/midori.rc'
 obj.uselib = 'UNIQUE LIBSOUP GMODULE GTHREAD GIO GTK SQLITE WEBKIT LIBXML'
 obj.uselib_local = 'panels'

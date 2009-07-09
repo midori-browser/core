@@ -19,6 +19,9 @@ import Utils
 import pproc as subprocess
 import os
 import UnitTest
+import Task
+from TaskGen import extension
+import misc
 
 major = 0
 minor = 1
@@ -51,6 +54,16 @@ def is_mingw (env):
             cc = ''.join (cc)
         return cc.find ('mingw') != -1# or cc.find ('wine') != -1
     return False
+
+# Compile Win32 res files to (resource) object files
+@extension ('.rc')
+def rc_file(self, node):
+    rctask = self.create_task ('winrc')
+    rctask.set_inputs (node)
+    rctask.set_outputs (node.change_ext ('.rc.o'))
+    self.compiled_tasks.append (rctask)
+Task.simple_task_type ('winrc', '${WINRC} -o${TGT} ${SRC}', color='BLUE',
+    before='cc cxx', shell=False)
 
 def configure (conf):
     def option_checkfatal (option, desc):
@@ -96,10 +109,17 @@ def configure (conf):
         nls = 'no '
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
 
+    if is_mingw (conf.env) or Options.platform == 'win32':
+        if not conf.find_program ('convert', var='CONVERT'):
+            Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
+        conf.find_program ('windres', var='WINRC')
+
     # This is specific to cross compiling with mingw
     if is_mingw (conf.env) and Options.platform != 'win32':
         if not 'AR' in os.environ and not 'RANLIB' in os.environ:
             conf.env['AR'] = os.environ['CC'][:-3] + 'ar'
+        if conf.find_program (os.environ['CC'][:-3] + 'windres', var='WINRC'):
+            os.environ['WINRC'] = os.environ['CC'][:-3] + 'windres'
         Options.platform = 'win32'
         # Make sure we don't have -fPIC in the CCFLAGS
         conf.env["shlib_CCFLAGS"] = []
@@ -111,6 +131,9 @@ def configure (conf):
         conf.env['staticlib_LINKFLAGS'] = []
 
         Utils.pprint ('BLUE', 'Mingw recognized, assuming cross compile.')
+
+    if conf.env['CONVERT'] and not conf.env['WINRC']:
+        Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
 
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     if conf.env['PREFIX'] == '/usr':
@@ -314,6 +337,33 @@ def set_options (opt):
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
 
 def build (bld):
+    def image_to_win32ico (task):
+        'Converts an image to a Win32 ico'
+
+        if not os.path.exists (bld.env['CONVERT']):
+            return 1
+
+        infile = task.inputs[0].abspath (task.env)
+        outfile = task.outputs[0].abspath (task.env)
+        command = bld.env['CONVERT'] + ' -background transparent \
+            -geometry 32x32 -extent 32x32 ' + \
+            infile + ' ' + outfile
+        if Utils.exec_command (command):
+            return 1
+
+        if task.chmod:
+            os.chmod (outfile, task.chmod)
+        return 0
+
+    if bld.env['WINRC']:
+        obj = bld.new_task_gen ('copy',
+            fun = image_to_win32ico,
+            source = 'icons/scalable/midori.svg',
+            target = 'data/midori.ico',
+            before = 'cc')
+
+    bld.add_group ()
+
     bld.add_subdirs ('katze midori icons')
 
     if bld.env['addons']:
