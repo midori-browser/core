@@ -132,7 +132,7 @@ katze_xbel_parse_info (KatzeItem* item,
                         gchar* ns_value = g_strdup_printf ("%s:%s",
                             properties->ns->prefix, properties->name);
                         katze_item_set_meta_string (item,
-                            (gchar*)ns_value, value);
+                            (gchar*)ns_value, (gchar*)value);
                         g_free (ns_value);
                     }
                     else
