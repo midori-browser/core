@@ -109,6 +109,11 @@ def configure (conf):
         nls = 'no '
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
 
+    if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
+        icons = 'yes'
+    else:
+        icons = 'no '
+
     if is_mingw (conf.env) or Options.platform == 'win32':
         if not conf.find_program ('convert', var='CONVERT'):
             Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
@@ -235,11 +240,6 @@ def configure (conf):
         conf.check (function_name='inet_aton')
         conf.check (function_name='inet_addr')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
-
-    if conf.find_program ('rsvg-convert', var='RSVG_CONVERT'):
-        icons = 'yes'
-    else:
-        icons = 'no '
 
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
