@@ -2291,48 +2291,6 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
     g_object_set (browser->settings, "toolbar-items", items, NULL);
     g_free (items);
 }
-
-static void
-midori_browser_toolbar_add_item_cb (GtkWidget*     menuitem,
-                                    MidoriBrowser* browser)
-{
-    GtkWidget* widget = g_object_get_data (G_OBJECT (menuitem), "widget");
-    GtkAction* widget_action = g_object_get_data (G_OBJECT (menuitem), "action");
-    GtkWidget* toolitem = gtk_action_create_tool_item (widget_action);
-    if (widget)
-    {
-        gint i = gtk_toolbar_get_item_index (GTK_TOOLBAR (browser->navigationbar),
-                                             GTK_TOOL_ITEM (widget));
-        gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                            GTK_TOOL_ITEM (toolitem), i ? i : 0);
-    }
-    else
-        gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                            GTK_TOOL_ITEM (toolitem), 0);
-    if (gtk_bin_get_child (GTK_BIN (toolitem)))
-        g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
-            "button-press-event",
-            G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
-            browser);
-    else
-    {
-        gtk_tool_item_set_use_drag_window (GTK_TOOL_ITEM (toolitem), TRUE);
-        g_signal_connect (toolitem,
-            "button-press-event",
-            G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
-            browser);
-    }
-    _midori_browser_save_toolbar_items (browser);
-}
-
-static void
-midori_browser_toolbar_remove_item_cb (GtkWidget*     menuitem,
-                                       MidoriBrowser* browser)
-{
-    GtkWidget* widget = g_object_get_data (G_OBJECT (menuitem), "widget");
-    gtk_container_remove (GTK_CONTAINER (browser->navigationbar), widget);
-    _midori_browser_save_toolbar_items (browser);
-}
 #endif
 
 /**
@@ -2387,68 +2345,6 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-
-    #if !HAVE_HILDON
-    if (widget == browser->navigationbar ||
-        gtk_widget_is_ancestor (widget, browser->navigationbar))
-    {
-        GtkAction* widget_action = gtk_widget_get_action (widget);
-        const gchar** actions = midori_browser_get_toolbar_actions (browser);
-        const gchar** name;
-        GtkWidget* submenu;
-
-        menuitem = gtk_separator_menu_item_new ();
-        gtk_widget_show (menuitem);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        submenu = gtk_menu_new ();
-        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ADD, NULL);
-        gtk_widget_show (menuitem);
-        gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_REMOVE, NULL);
-        gtk_widget_show (menuitem);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        if (widget_action &&
-            strcmp (gtk_action_get_name (widget_action), "Location"))
-        {
-            g_object_set_data (G_OBJECT (menuitem), "widget", widget);
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_browser_toolbar_remove_item_cb), browser);
-        }
-        else
-            gtk_widget_set_sensitive (menuitem, FALSE);
-
-        name = actions;
-        while (*name != NULL)
-        {
-            GtkAction* action = _action_by_name (browser, *name);
-            gchar* stock_id = katze_object_get_string (action, "stock-id");
-            gchar* label = katze_object_get_string (action, "label");
-
-            if (stock_id && label)
-            {
-                GtkWidget* icon;
-
-                menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-                icon = gtk_image_new_from_stock (stock_id, GTK_ICON_SIZE_MENU);
-                gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-            }
-            else if (stock_id)
-                menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
-            else
-                menuitem = gtk_image_menu_item_new_with_mnemonic (label);
-            gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menuitem);
-            if (widget_action)
-                g_object_set_data (G_OBJECT (menuitem), "widget", widget);
-            g_object_set_data (G_OBJECT (menuitem), "action", action);
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_browser_toolbar_add_item_cb), browser);
-
-            name++;
-        }
-        sokoke_container_show_children (GTK_CONTAINER (submenu));
-    }
-    #endif
 
     katze_widget_popup (widget, GTK_MENU (menu), NULL,
         button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
