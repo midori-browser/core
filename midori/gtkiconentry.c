@@ -27,10 +27,16 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
                                      GtkEntryIconPosition position,
                                      GdkPixbuf*           pixbuf)
 {
+    GtkWidget* widget = GTK_WIDGET (entry);
+    GtkWidget* window;
+
     /* Without this ugly hack pixbuf icons don't work */
-    gtk_widget_hide (GTK_WIDGET (entry));
+    gtk_widget_hide (widget);
     gtk_entry_set_icon_from_pixbuf (entry, position, pixbuf);
-    gtk_widget_show (GTK_WIDGET (entry));
+    gtk_widget_show (widget);
+
+    if ((window = gtk_widget_get_toplevel (widget)))
+        gtk_window_set_focus (GTK_WINDOW (window), widget);
 }
 
 #else
