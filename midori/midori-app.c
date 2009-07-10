@@ -551,7 +551,7 @@ midori_app_io_channel_watch_cb (GIOChannel*  channel,
         else if (strncmp (buf, "command", 7) == 0)
         {
             guint i = 0;
-            gchar** uris = g_new (gchar, 100);
+            gchar** uris = g_new (gchar*, 100);
             while (fd_gets (sock, buf, sizeof (buf)) != -1 && *buf != '.')
             {
                 uris[i++] = g_strdup (g_strstrip (buf));
