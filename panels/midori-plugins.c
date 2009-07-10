@@ -224,6 +224,7 @@ midori_plugins_init (MidoriPlugins* plugins)
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_pixbuf;
     GtkListStore* liststore = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+
     plugins->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (plugins->treeview), FALSE);
     column = gtk_tree_view_column_new ();
@@ -242,76 +243,34 @@ midori_plugins_init (MidoriPlugins* plugins)
     gtk_widget_show (plugins->treeview);
     gtk_box_pack_start (GTK_BOX (plugins), plugins->treeview, TRUE, TRUE, 0);
 
-    /* FIXME: Monitor folders for newly added and removes files */
-    if (g_module_supported ())
+    if (1)
     {
-        /* FIXME: WebKit is also looking in legacy folders,
-                  we should have API to obtain that same list. */
-        gchar** plugin_dirs;
-        gsize i = 0;
+        /* FIXME: WebKit should have API to obtain the list of plugins. */
+        /* FIXME: Monitor folders for newly added and removes files */
+        GtkWidget* web_view = webkit_web_view_new ();
+        WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+        /* This snippet joins the available plugins into a string like this:
+           URI1|title1,URI2|title2
+           FIXME: Ensure separators contained in the string can't break it */
+        gchar* value = sokoke_js_script_eval (js_context,
+            "function plugins (l) { var f = new Array (); for (i in l) "
+            "{ var t = l[i].name; "
+            "f.push (l[i].name + '|' + l[i].filename); } return f; }"
+            "plugins (navigator.plugins)", NULL);
+        gchar** items = g_strsplit (value, ",", 0);
+        guint i = 0;
 
-        if (g_getenv ("MOZ_PLUGIN_PATH"))
-            plugin_dirs = g_strsplit (g_getenv ("MOZ_PLUGIN_PATH"), ":", 0);
-        else
-            plugin_dirs = g_strsplit ("/usr/lib/mozilla/plugins", ":", 0);
-
-        while (plugin_dirs[i])
+        if (items != NULL)
+        while (items[i] != NULL)
         {
-            gchar* plugin_path;
-            GDir* plugin_dir;
-
-            plugin_path = g_build_filename (plugin_dirs[i], NULL);
-            plugin_dir = g_dir_open (plugin_path, 0, NULL);
-            if (plugin_dir != 0)
-            {
-                const gchar* filename;
-
-                while ((filename = g_dir_read_name (plugin_dir)))
-                {
-                    gchar* fullname;
-                    GModule* module;
-                    typedef int (*NP_GetValue_func)(void* instance,
-                                                    int   variable,
-                                                    void* value);
-                    NP_GetValue_func NP_GetValue;
-                    const gchar* plugin_name;
-                    const gchar* plugin_description;
-
-                    /* Ignore files which don't have the correct suffix */
-                    if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
-                        continue;
-
-                    fullname = g_build_filename (plugin_path, filename, NULL);
-                    module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
-                    g_free (fullname);
-
-                    if (module && g_module_symbol (module, "NP_GetValue",
-                                                   (gpointer) &NP_GetValue))
-                    {
-                        typedef const gchar* (*NP_GetMIMEDescription_func)(void);
-                        NP_GetMIMEDescription_func NP_GetMIMEDescription;
-
-                        NP_GetValue (NULL, 2, &plugin_name);
-                        if (g_module_symbol (module, "NP_GetMIMEDescription",
-                                             (gpointer) &NP_GetMIMEDescription))
-                            plugin_description = NP_GetMIMEDescription ();
-                        else
-                            plugin_description = g_module_error ();
-                    }
-                    else
-                    {
-                        plugin_name = filename;
-                        plugin_description = g_module_error ();
-                    }
-
-                    midori_plugins_add_item (plugins, plugin_name, plugin_description);
-                }
-                g_dir_close (plugin_dir);
-            }
-            g_free (plugin_path);
+            gchar** parts = g_strsplit (items[i], "|", 2);
+            if (parts && *parts && !g_str_equal (parts[1], "undefined"))
+                midori_plugins_add_item (plugins, *parts, parts[1]);
+            g_strfreev (parts);
             i++;
         }
-        g_strfreev (plugin_dirs);
+        g_strfreev (items);
     }
 }
 
