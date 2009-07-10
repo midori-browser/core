@@ -138,6 +138,9 @@ midori_browser_get_for_widget         (GtkWidget*         widget);
 void
 midori_browser_quit                   (MidoriBrowser*     browser);
 
+const gchar**
+midori_browser_get_toolbar_actions    (MidoriBrowser*     browser);
+
 G_END_DECLS
 
 #endif /* __MIDORI_BROWSER_H__ */

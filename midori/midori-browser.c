@@ -2335,6 +2335,28 @@ midori_browser_toolbar_remove_item_cb (GtkWidget*     menuitem,
 }
 #endif
 
+/**
+ * midori_browser_get_toolbar_actions:
+ *
+ * Retrieves a list of actions which are suitable for use in a toolbar.
+ *
+ * Return value: a NULL-terminated array of strings with actions
+ *
+ * Since: 0.1.8
+ **/
+const gchar**
+midori_browser_get_toolbar_actions (MidoriBrowser* browser)
+{
+    static const gchar* actions[] = {
+            "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
+            "Fullscreen", "Preferences", "Window", "Bookmarks",
+            "RecentlyVisited", "AddSpeedDial", "ReloadStop", "ZoomIn",
+            "ZoomOut", "Separator", "Back", "Forward", "Homepage",
+            "Panel", "Trash", "Search", NULL };
+
+    return actions;
+}
+
 static gboolean
 midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
                                               gint           x,
@@ -2371,14 +2393,9 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
         gtk_widget_is_ancestor (widget, browser->navigationbar))
     {
         GtkAction* widget_action = gtk_widget_get_action (widget);
-        const gchar* actions[] = {
-            "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Fullscreen", "Preferences", "Window", "Bookmarks",
-            "RecentlyVisited", "AddSpeedDial", "ReloadStop", "ZoomIn",
-            "Separator", "ZoomOut", "Back", "Forward",
-            "Homepage", "Panel", "Trash", "Search" };
+        const gchar** actions = midori_browser_get_toolbar_actions (browser);
+        const gchar** name;
         GtkWidget* submenu;
-        gsize i;
 
         menuitem = gtk_separator_menu_item_new ();
         gtk_widget_show (menuitem);
@@ -2401,9 +2418,10 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
         else
             gtk_widget_set_sensitive (menuitem, FALSE);
 
-        for (i = 0; i < G_N_ELEMENTS (actions); i++)
+        name = actions;
+        while (*name != NULL)
         {
-            GtkAction* action = _action_by_name (browser, actions[i]);
+            GtkAction* action = _action_by_name (browser, *name);
             gchar* stock_id = katze_object_get_string (action, "stock-id");
             gchar* label = katze_object_get_string (action, "label");
 
@@ -2425,6 +2443,8 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
             g_object_set_data (G_OBJECT (menuitem), "action", action);
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (midori_browser_toolbar_add_item_cb), browser);
+
+            name++;
         }
         sokoke_container_show_children (GTK_CONTAINER (submenu));
     }
