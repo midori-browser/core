@@ -954,6 +954,9 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
                                         midori_location_entry_render_pixbuf_cb,
                                         NULL, NULL);
     renderer = gtk_cell_renderer_text_new ();
+    gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
+    gtk_cell_renderer_text_set_fixed_height_from_font (
+        GTK_CELL_RENDERER_TEXT (renderer), 2);
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, TRUE);
     gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (completion), renderer,
                                         midori_location_entry_render_text_cb,
