@@ -1442,7 +1442,7 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 }
 
 /**
- * midori_location_action_set_item_from_uri:
+ * midori_location_action_delete_item_from_uri:
  * @location_action: a #MidoriLocationAction
  * @uri: a string
  *
