@@ -76,6 +76,7 @@ enum
     TITLE_COL,
     VISITS_COL,
     VISIBLE_COL,
+    YALIGN_COL,
     N_COLS
 };
 
@@ -342,7 +343,7 @@ midori_location_action_create_model (void)
 {
     GtkTreeModel* model = (GtkTreeModel*)gtk_list_store_new (N_COLS,
         GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-        G_TYPE_INT, G_TYPE_BOOLEAN);
+        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT);
     return model;
 }
 
@@ -607,23 +608,6 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
 }
 
 static void
-midori_location_entry_render_pixbuf_cb (GtkCellLayout*   layout,
-                                        GtkCellRenderer* renderer,
-                                        GtkTreeModel*    model,
-                                        GtkTreeIter*     iter,
-                                        gpointer         data)
-{
-    GdkPixbuf* pixbuf;
-
-    gtk_tree_model_get (model, iter, FAVICON_COL, &pixbuf, -1);
-    if (pixbuf)
-    {
-        g_object_set (renderer, "pixbuf", pixbuf, "yalign", 0.25, NULL);
-        g_object_unref (pixbuf);
-    }
-}
-
-static void
 midori_location_entry_render_text_cb (GtkCellLayout*   layout,
                                       GtkCellRenderer* renderer,
                                       GtkTreeModel*    model,
@@ -764,7 +748,7 @@ midori_location_action_set_item (MidoriLocationAction*    location_action,
         gtk_tree_model_get (location_action->model, iter, TITLE_COL, &item->title, -1);
 
     gtk_list_store_set (GTK_LIST_STORE (location_action->model), iter,
-        URI_COL, item->uri, TITLE_COL, item->title, -1);
+        URI_COL, item->uri, TITLE_COL, item->title, YALIGN_COL, 0.25, -1);
 
     gtk_tree_model_get (location_action->model, iter, FAVICON_COL, &icon, -1);
     if (item->favicon)
@@ -950,9 +934,8 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
 
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, FALSE);
-    gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (completion), renderer,
-                                        midori_location_entry_render_pixbuf_cb,
-                                        NULL, NULL);
+    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (completion), renderer,
+        "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
     renderer = gtk_cell_renderer_text_new ();
     gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
     gtk_cell_renderer_text_set_fixed_height_from_font (
@@ -1036,8 +1019,8 @@ midori_location_action_connect_proxy (GtkAction* action,
         /* Setup the renderer for the favicon */
         renderer = gtk_cell_renderer_pixbuf_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (entry), renderer, FALSE);
-        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (entry),
-            renderer, midori_location_entry_render_pixbuf_cb, NULL, NULL);
+        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (entry), renderer,
+            "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
         renderer = gtk_cell_renderer_text_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (entry), renderer, TRUE);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (entry),
