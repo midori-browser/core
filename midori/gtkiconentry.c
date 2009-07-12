@@ -36,7 +36,8 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
     gtk_widget_show (widget);
 
     if ((window = gtk_widget_get_toplevel (widget)))
-        gtk_window_set_focus (GTK_WINDOW (window), widget);
+        if (GTK_IS_WINDOW (window))
+            gtk_window_set_focus (GTK_WINDOW (window), widget);
 }
 
 #else
