@@ -17,6 +17,29 @@
 #include "midori-bookmarks.h"
 #include "sokoke.h"
 
+typedef struct
+{
+    const gchar* type;
+    const gchar* property;
+} ObjectProperty;
+
+static ObjectProperty properties_object_skip[] =
+{
+    { "MidoriWebSettings", "ident-string" },
+};
+
+static gboolean
+properties_should_skip (const gchar* type,
+                        const gchar* property)
+{
+    guint i;
+    for (i = 0; i < G_N_ELEMENTS (properties_object_skip); i++)
+        if (g_str_equal (properties_object_skip[i].type, type))
+            if (g_str_equal (properties_object_skip[i].property, property))
+                return TRUE;
+    return FALSE;
+}
+
 #define pspec_is_writable(pspec) (pspec->flags & G_PARAM_WRITABLE \
     && !(pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY)))
 
@@ -38,6 +61,10 @@ properties_object_get_set (GObject* object)
 
         /* Skip properties of parent classes */
         if (pspec->owner_type != G_OBJECT_TYPE (object))
+            continue;
+
+        /* Skip properties that cannot be tested generically */
+        if (properties_should_skip (G_OBJECT_TYPE_NAME (object), property))
             continue;
 
         g_object_get (object, property, &value, NULL);
