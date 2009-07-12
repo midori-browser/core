@@ -27,17 +27,13 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
                                      GtkEntryIconPosition position,
                                      GdkPixbuf*           pixbuf)
 {
-    GtkWidget* widget = GTK_WIDGET (entry);
-    GtkWidget* window;
+    gboolean activatable;
 
     /* Without this ugly hack pixbuf icons don't work */
-    gtk_widget_hide (widget);
+    activatable = gtk_entry_get_icon_activatable (entry, position);
     gtk_entry_set_icon_from_pixbuf (entry, position, pixbuf);
-    gtk_widget_show (widget);
-
-    if ((window = gtk_widget_get_toplevel (widget)))
-        if (GTK_IS_WINDOW (window))
-            gtk_window_set_focus (GTK_WINDOW (window), widget);
+    gtk_entry_set_icon_activatable (entry, position, !activatable);
+    gtk_entry_set_icon_activatable (entry, position, activatable);
 }
 
 #else
