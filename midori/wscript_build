@@ -5,7 +5,7 @@
 import platform
 
 obj = bld.new_task_gen ('cc', 'staticlib')
-obj.name = 'midori'
+obj.name = 'midori-core'
 obj.target = 'midori'
 obj.includes = '. ..'
 obj.find_sources_in_dirs ('.', excludes=['main.c'])
@@ -20,7 +20,7 @@ obj.target = 'panels'
 obj.includes = '. ..'
 obj.find_sources_in_dirs ('../panels')
 obj.uselib = 'UNIQUE LIBSOUP GMODULE GTHREAD GIO GTK SQLITE WEBKIT LIBXML'
-obj.uselib_local = 'midori'
+obj.uselib_local = 'midori-core'
 obj.install_path = None
 
 obj = bld.new_task_gen ('cc', 'program')
