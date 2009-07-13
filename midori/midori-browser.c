@@ -212,6 +212,7 @@ _toggle_tabbar_smartly (MidoriBrowser* browser)
             n++;
     }
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), n > 1);
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), n > 1);
 }
 
 static void
@@ -5513,7 +5514,10 @@ midori_browser_set_property (GObject*      object,
         if (browser->show_tabs)
             _toggle_tabbar_smartly (browser);
         else
+        {
             gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), FALSE);
+            gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), FALSE);
+        }
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
