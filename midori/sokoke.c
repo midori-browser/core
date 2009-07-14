@@ -363,11 +363,11 @@ sokoke_magic_uri (const gchar* uri,
     search_uri = NULL;
     /* Do we have a keyword and a string? */
     parts = g_strsplit (uri, " ", 2);
-    if (parts[0] && parts[1])
+    if (parts[0])
         if ((item = katze_array_find_token (search_engines, parts[0])))
         {
             search_uri = katze_item_get_uri (item);
-            search = sokoke_search_uri (search_uri, parts[1]);
+            search = sokoke_search_uri (search_uri, parts[1] ? parts[1] : "");
         }
     g_strfreev (parts);
     return search;
