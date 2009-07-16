@@ -223,14 +223,22 @@ adblock_app_add_browser_cb (MidoriApp*       app,
         G_CALLBACK (adblock_deactivate_cb), menuitem);
 }
 
+static gboolean
+adblock_ismatched (const gchar*  patt,
+                   const GRegex* regex,
+                   const gchar*  uri)
+{
+    return g_regex_match_full (regex, uri, -1, 0, 0, NULL, NULL);
+}
+
 static void
 adblock_session_request_queued_cb (SoupSession* session,
                                    SoupMessage* msg,
-                                   GRegex*      regex)
+                                   GHashTable*  pattern)
 {
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    if (g_regex_match_full (regex, uri, -1, 0, 0, NULL, NULL))
+    if (g_hash_table_find (pattern, (GHRFunc) adblock_ismatched, uri))
     {
         /* g_debug ("match! '%s'", uri); */
         /* FIXME: This leads to funny error pages if frames are blocked */
@@ -247,14 +255,18 @@ adblock_session_add_filter (SoupSession* session,
 
     if ((file = g_fopen (path, "r")))
     {
-        /* We assume filter lists found on the web are commonly very long */
-        GString* pattern = g_string_sized_new (1000 * 200);
+        GHashTable* pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
+                              (GDestroyNotify)g_free,
+                              (GDestroyNotify)g_regex_unref);
+
+        gboolean havepattern = FALSE;
         gchar line[255];
         GRegex* regex;
         GError* error;
 
         while (fgets (line, 255, file))
         {
+            error = NULL;
             /* Ignore comments and new lines */
             if (line[0] == '!')
                 continue;
@@ -269,27 +281,26 @@ adblock_session_add_filter (SoupSession* session,
             if (line[0] == '[')
                 continue;
             g_strchomp (line);
-            g_string_append (pattern, line);
-            g_string_append_c (pattern, '|');
+            /* TODO: Replace '*' with '.*', '?' with '\?' */
+            regex = g_regex_new (line, G_REGEX_OPTIMIZE,
+                                 G_REGEX_MATCH_NOTEMPTY, &error);
+            if (error)
+            {
+                g_warning ("%s: %s", G_STRFUNC, error->message);
+                g_error_free (error);
+            }
+            else
+            {
+                havepattern = TRUE;
+                g_hash_table_insert (pattern, g_strdup (line), regex);
+            }
         }
+        fclose (file);
 
-        error = NULL;
-        if (pattern->len > 2 &&
-            (regex = g_regex_new (pattern->str, G_REGEX_OPTIMIZE,
-                G_REGEX_MATCH_NOTEMPTY, &error)))
-        {
-            /* g_debug ("%s: '%s'", G_STRFUNC, pattern->str); */
+        if (havepattern)
             g_signal_connect_data (session, "request-queued",
                                    G_CALLBACK (adblock_session_request_queued_cb),
-                                   regex, (GClosureNotify)g_regex_unref, 0);
-        }
-        else if (error)
-        {
-            /* g_warning ("%s: %s", G_STRFUNC, error->message); */
-            g_error_free (error);
-        }
-        g_string_free (pattern, TRUE);
-        fclose (file);
+                                   pattern, (GClosureNotify)g_hash_table_destroy, 0);
     }
     /* FIXME: This should presumably be freed, but there's a possible crash
        g_free (path); */
