@@ -266,6 +266,8 @@ adblock_session_add_filter (SoupSession* session,
 
         while (fgets (line, 255, file))
         {
+            gchar* temp;
+
             error = NULL;
             /* Ignore comments and new lines */
             if (line[0] == '!')
@@ -281,18 +283,26 @@ adblock_session_add_filter (SoupSession* session,
             if (line[0] == '[')
                 continue;
             g_strchomp (line);
-            /* TODO: Replace '*' with '.*', '?' with '\?' */
-            regex = g_regex_new (line, G_REGEX_OPTIMIZE,
+            /* TODO: Replace trailing '*' with '.*' */
+            if (line[0] == '*')
+                temp = g_strconcat (".", line, NULL);
+            else if (line[0] == '?')
+                temp = g_strconcat ("\\", line, NULL);
+            else
+                temp = g_strdup (line);
+
+            regex = g_regex_new (temp, G_REGEX_OPTIMIZE,
                                  G_REGEX_MATCH_NOTEMPTY, &error);
             if (error)
             {
                 g_warning ("%s: %s", G_STRFUNC, error->message);
                 g_error_free (error);
+                g_free (temp);
             }
             else
             {
                 havepattern = TRUE;
-                g_hash_table_insert (pattern, g_strdup (line), regex);
+                g_hash_table_insert (pattern, temp, regex);
             }
         }
         fclose (file);
