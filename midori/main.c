@@ -1401,6 +1401,19 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
 }
 #endif
 
+static void
+midori_web_app_browser_notify_load_status_cb (MidoriBrowser* browser,
+                                              GParamSpec*    pspec,
+                                              gpointer       data)
+{
+    if (katze_object_get_enum (browser, "load-status") != MIDORI_LOAD_PROVISIONAL)
+    {
+        GtkWidget* view = midori_browser_get_current_tab (browser);
+        GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
+        gtk_window_set_icon (GTK_WINDOW (browser), icon);
+    }
+}
+
 int
 main (int    argc,
       char** argv)
@@ -1554,6 +1567,8 @@ main (int    argc,
                       NULL);
         g_object_unref (settings);
         g_object_set (browser, "settings", settings, NULL);
+        g_signal_connect (browser, "notify::load-status",
+            G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         midori_browser_add_uri (browser, webapp);
         g_object_set_data (G_OBJECT (browser), "locked", (void*)1);
         g_signal_connect (browser, "destroy",
