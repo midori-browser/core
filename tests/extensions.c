@@ -167,15 +167,81 @@ extension_settings (void)
     midori_extension_deactivate (extension);
 }
 
+static void
+extension_activate (gconstpointer data)
+{
+    MidoriApp* app = midori_app_new ();
+    MidoriExtension* extension = MIDORI_EXTENSION (data);
+    /* g_signal_emit_by_name (extension, "activate", app);
+    midori_extension_deactivate (extension); */
+    g_object_unref (app);
+}
+
+static void
+load_extensions (void)
+{
+    if (g_module_supported ())
+    {
+        GDir* extension_dir = g_dir_open (EXTENSION_PATH, 0, NULL);
+        if (extension_dir != NULL)
+        {
+            const gchar* filename;
+
+            while ((filename = g_dir_read_name (extension_dir)))
+            {
+                gchar* fullname;
+                GModule* module;
+                typedef MidoriExtension* (*extension_init_func)(void);
+                extension_init_func extension_init;
+
+                /* Ignore files which don't have the correct suffix */
+                if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
+                    continue;
+
+                fullname = g_build_filename (EXTENSION_PATH, filename, NULL);
+                module = g_module_open (fullname, G_MODULE_BIND_LOCAL);
+                g_free (fullname);
+
+                if (module && g_module_symbol (module, "extension_init",
+                                               (gpointer) &extension_init))
+                {
+                    guint length;
+                    gchar* name;
+                    gchar* path;
+                    typedef MidoriExtension* (*extension_test_func)(const gchar* path);
+                    extension_test_func extension_test;
+
+                    if (g_str_has_prefix (filename, "lib"))
+                        filename = &filename[3];
+                    length = strlen (filename);
+                    name = g_strdup (filename);
+                    name[length - strlen (G_MODULE_SUFFIX) - 1] = '\0';
+                    path = g_strconcat ("/extensions/", name, "/activate", NULL);
+                    g_free (name);
+                    g_test_add_data_func (path, extension_init (), extension_activate);
+                    g_free (path);
+                    if (g_module_symbol (module, "extension_test",
+                                                 (gpointer) &extension_test))
+                        extension_test (path);
+                }
+            }
+            g_dir_close (extension_dir);
+        }
+    }
+}
+
 int
 main (int    argc,
       char** argv)
 {
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
+    if (!g_thread_supported ()) g_thread_init (NULL);
 
     g_test_add_func ("/extensions/create", extension_create);
     g_test_add_func ("/extensions/settings", extension_settings);
+
+    load_extensions ();
 
     return g_test_run ();
 }
