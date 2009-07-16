@@ -4574,6 +4574,7 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (midori_browser_size_allocate_cb), NULL);
     g_signal_connect (browser, "destroy",
                       G_CALLBACK (midori_browser_destroy_cb), NULL);
+    gtk_window_set_role (GTK_WINDOW (browser), "browser");
     gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
     gtk_window_set_title (GTK_WINDOW (browser), g_get_application_name ());
     vbox = gtk_vbox_new (FALSE, 0);
