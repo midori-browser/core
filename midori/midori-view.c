@@ -1318,9 +1318,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomOut"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "ZoomNormal"));
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "Encoding"));
@@ -1374,9 +1371,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             gtk_widget_set_sensitive (menuitem, FALSE);
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SourceView"));
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "Print"));
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     }
 }
