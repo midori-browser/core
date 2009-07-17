@@ -460,7 +460,8 @@ midori_location_action_set_property (GObject*      object,
         if (model != NULL)
         {
             katze_object_assign (location_action->model, g_object_ref (model));
-            midori_location_action_set_model (location_action, model);
+            location_action->filter_model = NULL;
+            midori_location_action_thaw (location_action);
         }
         else
         {
