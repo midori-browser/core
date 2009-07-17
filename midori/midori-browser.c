@@ -3083,6 +3083,7 @@ _action_location_focus_in (GtkAction*     action,
             gtk_container_add (GTK_CONTAINER (popup), box);
             gtk_window_set_transient_for (GTK_WINDOW (popup), GTK_WINDOW (browser));
             gtk_toolbar_set_icon_size (GTK_TOOLBAR (box), GTK_ICON_SIZE_MENU);
+            gtk_toolbar_set_style (GTK_TOOLBAR (box), GTK_TOOLBAR_BOTH_HORIZ);
             gtk_toolbar_insert (GTK_TOOLBAR (box), homepage, -1);
             i = 0;
             if (browser->bookmarks)
