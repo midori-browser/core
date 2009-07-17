@@ -32,52 +32,6 @@ shortcuts_deactivate_cb (MidoriExtension* extension,
         app, shortcuts_app_add_browser_cb, extension);
 }
 
-/* A copy of _gtk_toolbar_elide_underscores
-   Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
-   Copied from GTK+ 2.17.1 */
-static gchar *
-elide_underscores (const gchar *original)
-{
-  gchar *q, *result;
-  const gchar *p, *end;
-  gsize len;
-  gboolean last_underscore;
-
-  if (!original)
-    return NULL;
-
-  len = strlen (original);
-  q = result = g_malloc (len + 1);
-  last_underscore = FALSE;
-
-  end = original + len;
-  for (p = original; p < end; p++)
-    {
-      if (!last_underscore && *p == '_')
-	last_underscore = TRUE;
-      else
-	{
-	  last_underscore = FALSE;
-	  if (original + 2 <= p && p + 1 <= end &&
-              p[-2] == '(' && p[-1] == '_' && p[0] != '_' && p[1] == ')')
-	    {
-	      q--;
-	      *q = '\0';
-	      p++;
-	    }
-	  else
-	    *q++ = *p;
-	}
-    }
-
-  if (last_underscore)
-    *q++ = '_';
-
-  *q = '\0';
-
-  return result;
-}
-
 static void
 shortcuts_preferences_render_text (GtkTreeViewColumn* column,
                                    GtkCellRenderer*   renderer,
@@ -91,13 +45,13 @@ shortcuts_preferences_render_text (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &action, -1);
     if ((label = katze_object_get_string (action, "label")))
-        stripped = elide_underscores (label);
+        stripped = katze_strip_mnemonics (label);
     else
     {
         GtkStockItem item;
         g_object_get (action, "stock-id", &label, NULL);
         if (gtk_stock_lookup (label, &item))
-            stripped = elide_underscores (item.label);
+            stripped = katze_strip_mnemonics (item.label);
         else
             stripped = g_strdup ("");
     }
