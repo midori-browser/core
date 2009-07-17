@@ -31,6 +31,7 @@ typedef struct
 	GtkWidget *drag_source;
 
 	GtkActionGroup *action_group;
+	MidoriBrowser *browser;
 } TBEditorWidget;
 
 enum
@@ -330,6 +331,53 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 }
 
 
+static gboolean tb_editor_foreach_used(GtkTreeModel *model, GtkTreePath *path,
+									   GtkTreeIter *iter, gpointer data)
+{
+	gchar *action_name;
+
+	gtk_tree_model_get(model, iter, TB_EDITOR_COL_ACTION, &action_name, -1);
+
+	if (action_name != NULL && *action_name != '\0')
+	{
+		g_string_append(data, action_name);
+		g_string_append_c(data, ',');
+	}
+
+	g_free(action_name);
+	return FALSE;
+}
+
+
+static void tb_editor_update_toolbar(TBEditorWidget *tbw)
+{
+	MidoriWebSettings *settings;
+	GString *str = g_string_new(NULL);
+
+	gtk_tree_model_foreach(GTK_TREE_MODEL(tbw->store_used), tb_editor_foreach_used, str);
+
+	settings = katze_object_get_object(tbw->browser, "settings");
+	g_object_set(settings, "toolbar-items", str->str, NULL);
+	g_object_unref(settings);
+
+	g_string_free(str, TRUE);
+}
+
+
+static void tb_editor_available_items_changed_cb(GtkTreeModel *model, GtkTreePath *arg1,
+												 GtkTreeIter *arg2, TBEditorWidget *tbw)
+{
+	tb_editor_update_toolbar(tbw);
+}
+
+
+static void tb_editor_available_items_deleted_cb(GtkTreeModel *model, GtkTreePath *arg1,
+												 TBEditorWidget *tbw)
+{
+	tb_editor_update_toolbar(tbw);
+}
+
+
 static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 {
 	GtkWidget *dialog, *vbox, *hbox, *vbox_buttons, *button_add, *button_remove;
@@ -341,7 +389,6 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 	dialog = gtk_dialog_new_with_buttons(_("Customize Toolbar"),
 				GTK_WINDOW(parent),
 				GTK_DIALOG_DESTROY_WITH_PARENT,
-				GTK_STOCK_APPLY, GTK_RESPONSE_APPLY,
 				GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
 	vbox = (GTK_DIALOG(dialog))->vbox;
 	gtk_box_set_spacing(GTK_BOX(vbox), 6);
@@ -349,7 +396,6 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 	gtk_window_set_default_size(GTK_WINDOW(dialog), -1, 400);
 	gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CLOSE);
 
-	/* TODO display labels instead of action names in the treeviews */
 	tbw->store_available = gtk_list_store_new(TB_EDITOR_COLS_MAX, G_TYPE_STRING, G_TYPE_STRING);
 	tbw->store_used = gtk_list_store_new(TB_EDITOR_COLS_MAX, G_TYPE_STRING, G_TYPE_STRING);
 
@@ -389,6 +435,11 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 		GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swin_used), GTK_SHADOW_ETCHED_IN);
 	gtk_container_add(GTK_CONTAINER(swin_used), tree_used);
+
+	g_signal_connect(tbw->store_used, "row-changed",
+		G_CALLBACK(tb_editor_available_items_changed_cb), tbw);
+	g_signal_connect(tbw->store_used, "row-deleted",
+		G_CALLBACK(tb_editor_available_items_deleted_cb), tbw);
 
 	/* drag'n'drop */
 	gtk_tree_view_enable_model_drag_source(GTK_TREE_VIEW(tree_available), GDK_BUTTON1_MASK,
@@ -453,45 +504,11 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 }
 
 
-static gboolean tb_editor_foreach_used(GtkTreeModel *model, GtkTreePath *path,
-									   GtkTreeIter *iter, gpointer data)
-{
-	gchar *action_name;
-
-	gtk_tree_model_get(model, iter, TB_EDITOR_COL_ACTION, &action_name, -1);
-
-	if (action_name != NULL && *action_name != '\0')
-	{
-		g_string_append(data, action_name);
-		g_string_append_c(data, ',');
-	}
-
-	g_free(action_name);
-	return FALSE;
-}
-
-
-static void tb_editor_update_toolbar(TBEditorWidget *tbw, MidoriBrowser *browser)
-{
-	MidoriWebSettings *settings;
-	GString *str = g_string_new(NULL);
-
-	gtk_tree_model_foreach(GTK_TREE_MODEL(tbw->store_used), tb_editor_foreach_used, str);
-
-	settings = katze_object_get_object(browser, "settings");
-	g_object_set(settings, "toolbar-items", str->str, NULL);
-	g_object_unref(settings);
-
-	g_string_free(str, TRUE);
-}
-
-
 static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, MidoriBrowser *browser)
 {
 	GSList *node, *used_items, *all_items;
 	GtkTreePath *path;
 	gchar *label;
-	gint response;
 	TBEditorWidget *tbw;
 
 	/* read the current active toolbar items */
@@ -503,7 +520,9 @@ static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, Mi
 	/* create the GUI */
 	tbw = tb_editor_create_dialog(browser);
 
+	/* cache some pointers, this is safe enough since the dialog is run modally */
 	tbw->action_group = midori_browser_get_action_group(browser);
+	tbw->browser = browser;
 
 	/* fill the stores */
 	for (node = all_items; node != NULL; node = node->next)
@@ -538,13 +557,8 @@ static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, Mi
 	gtk_tree_path_free(path);
 
 	/* run it */
-	while ((response = gtk_dialog_run(GTK_DIALOG(tbw->dialog))))
-	{
-		tb_editor_update_toolbar(tbw, browser);
+	gtk_dialog_run(GTK_DIALOG(tbw->dialog));
 
-		if (response == GTK_RESPONSE_CLOSE || response == GTK_RESPONSE_DELETE_EVENT)
-			break;
-	}
 	gtk_widget_destroy(tbw->dialog);
 
 	g_slist_foreach(used_items, (GFunc) g_free, NULL);
