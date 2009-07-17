@@ -33,6 +33,13 @@ typedef struct
 	GtkActionGroup *action_group;
 } TBEditorWidget;
 
+enum
+{
+	TB_EDITOR_COL_ACTION,
+	TB_EDITOR_COL_LABEL,
+	TB_EDITOR_COLS_MAX
+};
+
 static const GtkTargetEntry tb_editor_dnd_targets[] =
 {
 	{ "MIDORI_TB_EDITOR_ROW", 0, 0 }
@@ -148,7 +155,7 @@ static void tb_editor_btn_remove_clicked_cb(GtkWidget *button, TBEditorWidget *t
 	selection_used = gtk_tree_view_get_selection(tbw->tree_used);
 	if (gtk_tree_selection_get_selected(selection_used, &model_used, &iter_used))
 	{
-		gtk_tree_model_get(model_used, &iter_used, 0, &action_name, -1);
+		gtk_tree_model_get(model_used, &iter_used, TB_EDITOR_COL_ACTION, &action_name, -1);
 		if (g_strcmp0(action_name, "Location") != 0)
 		{
 			if (gtk_list_store_remove(tbw->store_used, &iter_used))
@@ -157,8 +164,10 @@ static void tb_editor_btn_remove_clicked_cb(GtkWidget *button, TBEditorWidget *t
 			if (g_strcmp0(action_name, "Separator") != 0)
 			{
 				label = tb_editor_get_action_label(tbw, action_name);
-				gtk_list_store_insert_with_values(tbw->store_available, &iter_new,
-					-1, 0, action_name, 1, label, -1);
+				gtk_list_store_insert_with_values(tbw->store_available, &iter_new, -1,
+					TB_EDITOR_COL_ACTION, action_name,
+					TB_EDITOR_COL_LABEL, label,
+					-1);
 				tb_editor_scroll_to_iter(tbw->tree_available, &iter_new);
 				g_free(label);
 			}
@@ -179,7 +188,7 @@ static void tb_editor_btn_add_clicked_cb(GtkWidget *button, TBEditorWidget *tbw)
 	selection_available = gtk_tree_view_get_selection(tbw->tree_available);
 	if (gtk_tree_selection_get_selected(selection_available, &model_available, &iter_available))
 	{
-		gtk_tree_model_get(model_available, &iter_available, 0, &action_name, -1);
+		gtk_tree_model_get(model_available, &iter_available, TB_EDITOR_COL_ACTION, &action_name, -1);
 		if (g_strcmp0(action_name, "Separator") != 0)
 		{
 			if (gtk_list_store_remove(tbw->store_available, &iter_available))
@@ -192,11 +201,15 @@ static void tb_editor_btn_add_clicked_cb(GtkWidget *button, TBEditorWidget *tbw)
 		{
 			gtk_list_store_insert_before(tbw->store_used, &iter_new, &iter_selected);
 			gtk_list_store_set(tbw->store_used, &iter_new,
-				0, action_name, 1, label, -1);
+				TB_EDITOR_COL_ACTION, action_name,
+				TB_EDITOR_COL_LABEL, label,
+				-1);
 		}
 		else
 			gtk_list_store_insert_with_values(tbw->store_used, &iter_new, -1,
-				0, action_name, 1, label, -1);
+				TB_EDITOR_COL_ACTION, action_name,
+				TB_EDITOR_COL_LABEL, label,
+				-1);
 
 		tb_editor_scroll_to_iter(tbw->tree_used, &iter_new);
 
@@ -232,7 +245,7 @@ static void tb_editor_drag_data_get_cb(GtkWidget *widget, GdkDragContext *contex
 	if (! gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	gtk_tree_model_get(model, &iter, 0, &name, -1);
+	gtk_tree_model_get(model, &iter, TB_EDITOR_COL_ACTION, &name, -1);
 	if (name == NULL || *name == '\0')
 	{
 		g_free(name);
@@ -293,10 +306,16 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 				else
 					gtk_list_store_insert_after(store, &iter, iter_before_ptr);
 
-				gtk_list_store_set(store, &iter, 0, text, 1, label, -1);
+				gtk_list_store_set(store, &iter,
+					TB_EDITOR_COL_ACTION, text,
+					TB_EDITOR_COL_LABEL, label,
+					-1);
 			}
 			else
-				gtk_list_store_insert_with_values(store, &iter, -1, 0, text, 1, label, -1);
+				gtk_list_store_insert_with_values(store, &iter, -1,
+					TB_EDITOR_COL_ACTION, text,
+					TB_EDITOR_COL_LABEL, label,
+					-1);
 
 			tb_editor_scroll_to_iter(tree, &iter);
 			g_free(label);
@@ -331,22 +350,22 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 	gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CLOSE);
 
 	/* TODO display labels instead of action names in the treeviews */
-	tbw->store_available = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-	tbw->store_used = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+	tbw->store_available = gtk_list_store_new(TB_EDITOR_COLS_MAX, G_TYPE_STRING, G_TYPE_STRING);
+	tbw->store_used = gtk_list_store_new(TB_EDITOR_COLS_MAX, G_TYPE_STRING, G_TYPE_STRING);
 
 	label = gtk_label_new(
 		_("Select items to be displayed on the toolbar. Items can be reodered by drag and drop."));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
 
 	tree_available = gtk_tree_view_new();
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree_available), GTK_TREE_MODEL(tbw->store_available));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree_available), TRUE);
 	gtk_tree_sortable_set_sort_column_id(
-		GTK_TREE_SORTABLE(tbw->store_available), 1, GTK_SORT_ASCENDING);
+		GTK_TREE_SORTABLE(tbw->store_available), TB_EDITOR_COL_LABEL, GTK_SORT_ASCENDING);
 
 	text_renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes(
-		_("Available Items"), text_renderer, "text", 1, NULL);
+		_("Available Items"), text_renderer, "text", TB_EDITOR_COL_LABEL, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_available), column);
 
 	swin_available = gtk_scrolled_window_new(NULL, NULL);
@@ -362,7 +381,7 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 
 	text_renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes(
-		_("Displayed Items"), text_renderer, "text", 1, NULL);
+		_("Displayed Items"), text_renderer, "text", TB_EDITOR_COL_LABEL, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_used), column);
 
 	swin_used = gtk_scrolled_window_new(NULL, NULL);
@@ -439,7 +458,7 @@ static gboolean tb_editor_foreach_used(GtkTreeModel *model, GtkTreePath *path,
 {
 	gchar *action_name;
 
-	gtk_tree_model_get(model, iter, 0, &action_name, -1);
+	gtk_tree_model_get(model, iter, TB_EDITOR_COL_ACTION, &action_name, -1);
 
 	if (action_name != NULL && *action_name != '\0')
 	{
@@ -495,8 +514,8 @@ static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, Mi
 			label = tb_editor_get_action_label(tbw, node->data);
 
 			gtk_list_store_insert_with_values(tbw->store_available, NULL, -1,
-				0, node->data,
-				1, label,
+				TB_EDITOR_COL_ACTION, node->data,
+				TB_EDITOR_COL_LABEL, label,
 				-1);
 
 			g_free(label);
@@ -507,8 +526,8 @@ static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, Mi
 		label = tb_editor_get_action_label(tbw, node->data);
 
 		gtk_list_store_insert_with_values(tbw->store_used, NULL, -1,
-			0, node->data,
-			1, label,
+			TB_EDITOR_COL_ACTION, node->data,
+			TB_EDITOR_COL_LABEL, label,
 			-1);
 
 		g_free(label);
