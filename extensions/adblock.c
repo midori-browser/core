@@ -35,20 +35,6 @@ adblock_deactivate_cb (MidoriExtension* extension,
     /* FIXME: Disconnect session callbacks */
 }
 
-static void
-adblock_preferences_render_text (GtkTreeViewColumn* column,
-                                 GtkCellRenderer*   renderer,
-                                 GtkTreeModel*      model,
-                                 GtkTreeIter*       iter,
-                                 MidoriExtension*   extension)
-{
-    gchar* uri;
-
-    gtk_tree_model_get (model, iter, 0, &uri, -1);
-    g_object_set (renderer, "text", uri, NULL);
-    g_free (uri);
-}
-
 static GtkWidget*
 adblock_get_preferences_dialog (MidoriExtension* extension)
 {
@@ -107,14 +93,10 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
-    /* gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
-        (GtkTreeCellDataFunc)adblock_preferences_render_icon_cb,
-        treeview, NULL); */
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_text,
-        (GtkTreeCellDataFunc)adblock_preferences_render_text,
-        extension, NULL);
+    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer_text,
+        "text", 0, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
