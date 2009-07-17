@@ -625,6 +625,64 @@ katze_tree_view_get_selected_iter (GtkTreeView*   treeview,
 }
 
 /**
+ * katze_strip_mnemonics:
+ * @original: a string with mnemonics
+ *
+ * Parses the given string for mnemonics in the form
+ * "B_utton" or "Button (_U)" and returns a string
+ * without any mnemonics.
+ *
+ * Return value: a newly allocated string without mnemonics
+ *
+ * Since: 0.1.8
+ **/
+gchar*
+katze_strip_mnemonics (const gchar* original)
+{
+  /* A copy of _gtk_toolbar_elide_underscores
+     Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+     Copied from GTK+ 2.17.1 */
+  gchar *q, *result;
+  const gchar *p, *end;
+  gsize len;
+  gboolean last_underscore;
+
+  if (!original)
+    return NULL;
+
+  len = strlen (original);
+  q = result = g_malloc (len + 1);
+  last_underscore = FALSE;
+
+  end = original + len;
+  for (p = original; p < end; p++)
+    {
+      if (!last_underscore && *p == '_')
+	last_underscore = TRUE;
+      else
+	{
+	  last_underscore = FALSE;
+	  if (original + 2 <= p && p + 1 <= end &&
+              p[-2] == '(' && p[-1] == '_' && p[0] != '_' && p[1] == ')')
+	    {
+	      q--;
+	      *q = '\0';
+	      p++;
+	    }
+	  else
+	    *q++ = *p;
+	}
+    }
+
+  if (last_underscore)
+    *q++ = '_';
+
+  *q = '\0';
+
+  return result;
+}
+
+/**
  * katze_object_has_property:
  * @object: a #GObject
  * @property: the name of the property

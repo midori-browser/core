@@ -106,6 +106,9 @@ katze_tree_view_get_selected_iter    (GtkTreeView*    treeview,
                                       GtkTreeModel**  model,
                                       GtkTreeIter*    iter);
 
+gchar*
+katze_strip_mnemonics                (const gchar*    original);
+
 gboolean
 katze_object_has_property            (gpointer     object,
                                       const gchar* property);
