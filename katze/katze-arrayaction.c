@@ -559,7 +559,7 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     label = gtk_label_new (NULL);
     /* FIXME: Should text direction be respected here? */
-    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     gtk_label_set_max_width_chars (GTK_LABEL (label), 25);
     gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_MIDDLE);
     gtk_widget_show (label);
