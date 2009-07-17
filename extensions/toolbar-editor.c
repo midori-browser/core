@@ -29,6 +29,8 @@ typedef struct
 	GtkTreeViewDropPosition last_drag_pos;
 
 	GtkWidget *drag_source;
+
+	GtkActionGroup *action_group;
 } TBEditorWidget;
 
 static const GtkTargetEntry tb_editor_dnd_targets[] =
@@ -48,6 +50,24 @@ static void tb_editor_deactivate_cb(MidoriExtension *extension, GtkWidget *menui
 	gtk_widget_destroy(menuitem);
 	g_signal_handlers_disconnect_by_func(extension, tb_editor_deactivate_cb, menuitem);
 	g_signal_handlers_disconnect_by_func(app, tb_editor_app_add_browser_cb, extension);
+}
+
+
+static gchar *tb_editor_get_action_label(TBEditorWidget *tbw, const gchar *action_name)
+{
+	gchar *label, *label_clean;
+
+	label = katze_object_get_string(gtk_action_group_get_action(
+		tbw->action_group, action_name), "label");
+
+	if (label == NULL)
+		return NULL;
+
+	label_clean = katze_strip_mnemonics(label);
+
+	g_free(label);
+
+	return label_clean;
 }
 
 
@@ -123,6 +143,7 @@ static void tb_editor_btn_remove_clicked_cb(GtkWidget *button, TBEditorWidget *t
 	GtkTreeSelection *selection_used;
 	GtkTreeIter iter_used, iter_new;
 	gchar *action_name;
+	gchar *label;
 
 	selection_used = gtk_tree_view_get_selection(tbw->tree_used);
 	if (gtk_tree_selection_get_selected(selection_used, &model_used, &iter_used))
@@ -135,9 +156,11 @@ static void tb_editor_btn_remove_clicked_cb(GtkWidget *button, TBEditorWidget *t
 
 			if (g_strcmp0(action_name, "Separator") != 0)
 			{
+				label = tb_editor_get_action_label(tbw, action_name);
 				gtk_list_store_insert_with_values(tbw->store_available, &iter_new,
-					-1, 0, action_name, -1);
+					-1, 0, action_name, 1, label, -1);
 				tb_editor_scroll_to_iter(tbw->tree_available, &iter_new);
+				g_free(label);
 			}
 		}
 		g_free(action_name);
@@ -151,6 +174,7 @@ static void tb_editor_btn_add_clicked_cb(GtkWidget *button, TBEditorWidget *tbw)
 	GtkTreeSelection *selection_available, *selection_used;
 	GtkTreeIter iter_available, iter_new, iter_selected;
 	gchar *action_name;
+	gchar *label;
 
 	selection_available = gtk_tree_view_get_selection(tbw->tree_available);
 	if (gtk_tree_selection_get_selected(selection_available, &model_available, &iter_available))
@@ -163,17 +187,21 @@ static void tb_editor_btn_add_clicked_cb(GtkWidget *button, TBEditorWidget *tbw)
 		}
 
 		selection_used = gtk_tree_view_get_selection(tbw->tree_used);
+		label = tb_editor_get_action_label(tbw, action_name);
 		if (gtk_tree_selection_get_selected(selection_used, NULL, &iter_selected))
 		{
 			gtk_list_store_insert_before(tbw->store_used, &iter_new, &iter_selected);
-			gtk_list_store_set(tbw->store_used, &iter_new, 0, action_name, -1);
+			gtk_list_store_set(tbw->store_used, &iter_new,
+				0, action_name, 1, label, -1);
 		}
 		else
-			gtk_list_store_insert_with_values(tbw->store_used, &iter_new, -1, 0, action_name, -1);
+			gtk_list_store_insert_with_values(tbw->store_used, &iter_new, -1,
+				0, action_name, 1, label, -1);
 
 		tb_editor_scroll_to_iter(tbw->tree_used, &iter_new);
 
 		g_free(action_name);
+		g_free(label);
 	}
 }
 
@@ -248,6 +276,7 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 		{
 			GtkTreeIter iter, iter_before, *iter_before_ptr;
 			GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(tree));
+			gchar *label = tb_editor_get_action_label(tbw, text);
 
 			if (tbw->last_drag_path != NULL)
 			{
@@ -264,12 +293,13 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 				else
 					gtk_list_store_insert_after(store, &iter, iter_before_ptr);
 
-				gtk_list_store_set(store, &iter, 0, text, -1);
+				gtk_list_store_set(store, &iter, 0, text, 1, label, -1);
 			}
 			else
-				gtk_list_store_insert_with_values(store, &iter, -1, 0, text, -1);
+				gtk_list_store_insert_with_values(store, &iter, -1, 0, text, 1, label, -1);
 
 			tb_editor_scroll_to_iter(tree, &iter);
+			g_free(label);
 		}
 		if (tree != tbw->tree_used || ! is_sep)
 			del = TRUE;
@@ -301,8 +331,8 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 	gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CLOSE);
 
 	/* TODO display labels instead of action names in the treeviews */
-	tbw->store_available = gtk_list_store_new(1, G_TYPE_STRING);
-	tbw->store_used = gtk_list_store_new(1, G_TYPE_STRING);
+	tbw->store_available = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+	tbw->store_used = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 
 	label = gtk_label_new(
 		_("Select items to be displayed on the toolbar. Items can be reodered by drag and drop."));
@@ -312,11 +342,11 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree_available), GTK_TREE_MODEL(tbw->store_available));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree_available), TRUE);
 	gtk_tree_sortable_set_sort_column_id(
-		GTK_TREE_SORTABLE(tbw->store_available), 0, GTK_SORT_ASCENDING);
+		GTK_TREE_SORTABLE(tbw->store_available), 1, GTK_SORT_ASCENDING);
 
 	text_renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes(
-		_("Available Items"), text_renderer, "text", 0, NULL);
+		_("Available Items"), text_renderer, "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_available), column);
 
 	swin_available = gtk_scrolled_window_new(NULL, NULL);
@@ -332,7 +362,7 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 
 	text_renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes(
-		_("Displayed Items"), text_renderer, "text", 0, NULL);
+		_("Displayed Items"), text_renderer, "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(tree_used), column);
 
 	swin_used = gtk_scrolled_window_new(NULL, NULL);
@@ -441,6 +471,7 @@ static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, Mi
 {
 	GSList *node, *used_items, *all_items;
 	GtkTreePath *path;
+	gchar *label;
 	gint response;
 	TBEditorWidget *tbw;
 
@@ -453,18 +484,34 @@ static void tb_editor_menu_configure_toolbar_activate_cb(GtkWidget *menuitem, Mi
 	/* create the GUI */
 	tbw = tb_editor_create_dialog(browser);
 
+	tbw->action_group = midori_browser_get_action_group(browser);
+
 	/* fill the stores */
 	for (node = all_items; node != NULL; node = node->next)
 	{
 		if (strcmp(node->data, "Separator") == 0 ||
 			g_slist_find_custom(used_items, node->data, (GCompareFunc) strcmp) == NULL)
 		{
-			gtk_list_store_insert_with_values(tbw->store_available, NULL, -1, 0, node->data, -1);
+			label = tb_editor_get_action_label(tbw, node->data);
+
+			gtk_list_store_insert_with_values(tbw->store_available, NULL, -1,
+				0, node->data,
+				1, label,
+				-1);
+
+			g_free(label);
 		}
 	}
 	for (node = used_items; node != NULL; node = node->next)
 	{
-		gtk_list_store_insert_with_values(tbw->store_used, NULL, -1, 0, node->data, -1);
+		label = tb_editor_get_action_label(tbw, node->data);
+
+		gtk_list_store_insert_with_values(tbw->store_used, NULL, -1,
+			0, node->data,
+			1, label,
+			-1);
+
+		g_free(label);
 	}
 	/* select first item */
 	path = gtk_tree_path_new_from_string("0");
