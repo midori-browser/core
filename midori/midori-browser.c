@@ -340,9 +340,43 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                                     const gchar*   text)
 {
     katze_assign (browser->statusbar_text, g_strdup (text));
-    gtk_statusbar_pop (GTK_STATUSBAR (browser->statusbar), 1);
-    gtk_statusbar_push (GTK_STATUSBAR (browser->statusbar), 1,
-                        browser->statusbar_text ? browser->statusbar_text : "");
+
+    if (!GTK_WIDGET_VISIBLE (browser->statusbar))
+    {
+        GtkAction* action = _action_by_name (browser, "Location");
+        MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
+        if (text && *text)
+        {
+            static GdkPixbuf* blank = NULL;
+            if (G_UNLIKELY (!blank))
+                blank = gdk_pixbuf_new_from_data ((guchar*)"",
+                    GDK_COLORSPACE_RGB, TRUE, 8, 1, 1, 1, NULL, NULL);
+            midori_location_action_set_uri (location_action, text);
+            midori_location_action_set_icon (location_action, blank);
+            midori_location_action_set_secondary_icon (location_action, NULL);
+        }
+        else
+        {
+            GtkWidget* view = midori_browser_get_current_tab (browser);
+            if (G_LIKELY (view))
+            {
+                if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+                    midori_location_action_set_secondary_icon (
+                        location_action, STOCK_NEWS_FEED);
+                else
+                    midori_location_action_set_secondary_icon (
+                        location_action, GTK_STOCK_JUMP_TO);
+                midori_location_action_set_uri (location_action,
+                    midori_view_get_display_uri (MIDORI_VIEW (view)));
+            }
+        }
+    }
+    else
+    {
+        gtk_statusbar_pop (GTK_STATUSBAR (browser->statusbar), 1);
+        gtk_statusbar_push (GTK_STATUSBAR (browser->statusbar), 1,
+                            browser->statusbar_text ? browser->statusbar_text : "");
+    }
 }
 
 static void
