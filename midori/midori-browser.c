@@ -51,6 +51,7 @@ struct _MidoriBrowser
     GtkWidget* throbber;
     GtkWidget* navigationbar;
     GtkWidget* bookmarkbar;
+    GtkToolItem* homepage;
 
     GtkWidget* panel;
     GtkWidget* notebook;
@@ -4567,6 +4568,16 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
 }
 
 static void
+midori_browser_bookmark_homepage_clicked_cb (GtkToolItem*   button,
+                                             MidoriBrowser* browser)
+{
+    gchar* homepage;
+    g_object_get (browser->settings, "homepage", &homepage, NULL);
+    midori_browser_set_current_uri (browser, homepage);
+    g_free (homepage);
+}
+
+static void
 midori_browser_init (MidoriBrowser* browser)
 {
     GtkWidget* vbox;
@@ -4876,6 +4887,12 @@ midori_browser_init (MidoriBrowser* browser)
                                GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
+    browser->homepage = gtk_tool_button_new_from_stock (STOCK_HOMEPAGE);
+    gtk_tool_item_set_is_important (browser->homepage, TRUE);
+    gtk_widget_show (GTK_WIDGET (browser->homepage));
+    g_signal_connect (browser->homepage, "clicked",
+        G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb), browser);
+    gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), browser->homepage, -1);
     #if HAVE_HILDON
     hildon_window_add_toolbar (HILDON_WINDOW (browser),
                                GTK_TOOLBAR (browser->bookmarkbar));
@@ -5198,6 +5215,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
     gboolean show_panel, show_transferbar;
+    gchar* homepage;
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gint last_web_search;
@@ -5223,6 +5241,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-panel", &show_panel,
                   "show-transferbar", &show_transferbar,
                   "show-statusbar", &browser->show_statusbar,
+                  "homepage", &homepage,
                   "speed-dial-in-new-tabs", &browser->speed_dial_in_new_tabs,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
@@ -5308,6 +5327,9 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     #endif
     _action_set_active (browser, "Statusbar", browser->show_statusbar);
 
+    sokoke_widget_set_visible (GTK_WIDGET (browser->homepage), *homepage);
+
+    g_free (homepage);
     g_free (toolbar_items);
 }
 
@@ -5340,6 +5362,9 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->speed_dial_in_new_tabs = g_value_get_boolean (&value);
     else if (name == g_intern_string ("progress-in-location"))
         browser->progress_in_location = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("homepage"))
+        sokoke_widget_set_visible (GTK_WIDGET (browser->homepage),
+            *g_value_get_string (&value));
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
         if (g_value_get_boolean (&value))
