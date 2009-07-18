@@ -276,9 +276,9 @@ adblock_app_add_browser_cb (MidoriApp*       app,
 }
 
 static gboolean
-adblock_ismatched (const gchar*  patt,
-                   const GRegex* regex,
-                   const gchar*  uri)
+adblock_is_matched (const gchar*  pattern,
+                    const GRegex* regex,
+                    const gchar*  uri)
 {
     return g_regex_match_full (regex, uri, -1, 0, 0, NULL, NULL);
 }
@@ -290,7 +290,7 @@ adblock_session_request_queued_cb (SoupSession* session,
 {
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    if (g_hash_table_find (pattern, (GHRFunc) adblock_ismatched, uri))
+    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, uri))
     {
         /* g_debug ("match! '%s'", uri); */
         /* FIXME: This leads to funny error pages if frames are blocked */
@@ -299,9 +299,36 @@ adblock_session_request_queued_cb (SoupSession* session,
     g_free (uri);
 }
 
-static void
-adblock_session_add_filter (SoupSession* session,
-                            gchar*       path)
+static gchar*
+adblock_parse_line (gchar* line)
+{
+    if (!line)
+        return NULL;
+
+    /* Ignore comments and new lines */
+    if (line[0] == '!')
+        return NULL;
+    /* FIXME: No support for whitelisting */
+    if (line[0] == '@' && line[1] == '@')
+        return NULL;
+    /* FIXME: Differentiate # comments from element hiding */
+    /* FIXME: No support for element hiding */
+    if (line[0] == '#' && line[1] == '#')
+        return NULL;
+    /* FIXME: No support for [include] and [exclude] tags */
+    if (line[0] == '[')
+        return NULL;
+    g_strchomp (line);
+    /* TODO: Replace trailing '*' with '.*' */
+    if (line[0] == '*')
+        return g_strconcat (".", line, NULL);
+    else if (line[0] == '?')
+        return g_strconcat ("\\", line, NULL);
+    return g_strdup (line);
+}
+
+static GHashTable*
+adblock_parse_file (gchar* path)
 {
     FILE* file;
 
@@ -311,61 +338,38 @@ adblock_session_add_filter (SoupSession* session,
                               (GDestroyNotify)g_free,
                               (GDestroyNotify)g_regex_unref);
 
-        gboolean havepattern = FALSE;
+        gboolean have_pattern = FALSE;
         gchar line[255];
         GRegex* regex;
-        GError* error;
 
         while (fgets (line, 255, file))
         {
-            gchar* temp;
+            GError* error = NULL;
+            gchar* parsed;
 
-            error = NULL;
-            /* Ignore comments and new lines */
-            if (line[0] == '!')
-                continue;
-            /* FIXME: No support for whitelisting */
-            if (line[0] == '@' && line[1] == '@')
-                continue;
-            /* FIXME: Differentiate # comments from element hiding */
-            /* FIXME: No support for element hiding */
-            if (line[0] == '#' && line[1] == '#')
-                continue;
-            /* FIXME: No support for [include] and [exclude] tags */
-            if (line[0] == '[')
-                continue;
-            g_strchomp (line);
-            /* TODO: Replace trailing '*' with '.*' */
-            if (line[0] == '*')
-                temp = g_strconcat (".", line, NULL);
-            else if (line[0] == '?')
-                temp = g_strconcat ("\\", line, NULL);
-            else
-                temp = g_strdup (line);
-
-            regex = g_regex_new (temp, G_REGEX_OPTIMIZE,
+            parsed = adblock_parse_line (line);
+            regex = g_regex_new (parsed, G_REGEX_OPTIMIZE,
                                  G_REGEX_MATCH_NOTEMPTY, &error);
             if (error)
             {
                 g_warning ("%s: %s", G_STRFUNC, error->message);
                 g_error_free (error);
-                g_free (temp);
+                g_free (parsed);
             }
             else
             {
-                havepattern = TRUE;
-                g_hash_table_insert (pattern, temp, regex);
+                have_pattern = TRUE;
+                g_hash_table_insert (pattern, parsed, regex);
             }
         }
         fclose (file);
 
-        if (havepattern)
-            g_signal_connect_data (session, "request-queued",
-                                   G_CALLBACK (adblock_session_request_queued_cb),
-                                   pattern, (GClosureNotify)g_hash_table_destroy, 0);
+        if (have_pattern)
+            return pattern;
     }
     /* FIXME: This should presumably be freed, but there's a possible crash
        g_free (path); */
+    return NULL;
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 3)
@@ -375,7 +379,11 @@ adblock_download_notify_status_cb (WebKitDownload* download,
                                    gchar*          path)
 {
     SoupSession* session = webkit_get_default_session ();
-    adblock_session_add_filter (session, path);
+    GHashTable* pattern = adblock_parse_file (path);
+    if (pattern)
+        g_signal_connect_data (session, "request-queued",
+                               G_CALLBACK (adblock_session_request_queued_cb),
+                               pattern, (GClosureNotify)g_hash_table_destroy, 0);
     /* g_object_unref (download); */
 }
 #endif
@@ -432,13 +440,81 @@ adblock_activate_cb (MidoriExtension* extension,
                 #endif
             }
             else
-                adblock_session_add_filter (session, path);
+            {
+                GHashTable* pattern = adblock_parse_file (path);
+                if (pattern)
+                    g_signal_connect_data (session, "request-queued",
+                        G_CALLBACK (adblock_session_request_queued_cb),
+                        pattern, (GClosureNotify)g_hash_table_destroy, 0);
+            }
             g_free (filename);
         }
     }
     g_strfreev (filters);
     g_free (folder);
 }
+
+#if G_ENABLE_DEBUG
+static void
+test_adblock_parse (void)
+{
+    g_assert (!adblock_parse_line (NULL));
+    g_assert (!adblock_parse_line ("!"));
+    g_assert (!adblock_parse_line ("@@"));
+    g_assert (!adblock_parse_line ("##"));
+    g_assert (!adblock_parse_line ("["));
+
+    g_assert_cmpstr (adblock_parse_line ("*foo"), ==, ".*foo");
+    g_assert_cmpstr (adblock_parse_line ("?foo"), ==, "\\?foo");
+    /* g_assert_cmpstr (adblock_parse_line ("foo*"), ==, "foo.*");
+    g_assert_cmpstr (adblock_parse_line ("foo?"), ==, "foo\\?"); */
+
+    g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, ".*foo/bar");
+    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/.*"), ==, "http://bla.blub/.*");
+}
+
+static void
+test_adblock_pattern (void)
+{
+    gint temp;
+    gchar* filename;
+    GHashTable* pattern;
+
+    temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
+
+    g_file_set_contents (filename,
+        "*ads.foo.bar.*\n"
+        ".*ads.bogus.name.*\n"
+        "http://ads.bla.blub/.*\n"
+        "http://ads.blub.boing/*.",
+        -1, NULL);
+    pattern = adblock_parse_file (filename);
+
+    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
+              "http://ads.foo.bar/teddy"));
+    g_assert (!g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
+              "http://ads.fuu.bar/teddy"));
+    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
+              "https://ads.bogus.name/blub"));
+    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
+              "http://ads.bla.blub/kitty"));
+    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
+              "http://ads.blub.boing/soda"));
+    g_assert (!g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
+              "http://ads.foo.boing/beer"));
+
+    g_hash_table_destroy (pattern);
+    close (temp);
+    g_unlink (filename);
+}
+
+void
+extension_test (void)
+{
+    g_test_add_func ("/extensions/adblock/parse", test_adblock_parse);
+    g_test_add_func ("/extensions/adblock/pattern", test_adblock_pattern);
+}
+#endif
 
 MidoriExtension*
 extension_init (void)
