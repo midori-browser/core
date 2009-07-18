@@ -135,6 +135,11 @@ katze_xbel_parse_info (KatzeItem* item,
                 xmlAttrPtr properties = cur->properties;
                 while (properties)
                 {
+                    if (!xmlStrcmp (properties->name, (xmlChar*)"owner"))
+                    {
+                        properties = properties->next;
+                        continue;
+                    }
                     xmlChar* value = xmlGetProp (cur, properties->name);
                     if (properties->ns && properties->ns->prefix)
                     {
