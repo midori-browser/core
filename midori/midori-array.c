@@ -360,8 +360,9 @@ katze_item_metadata_to_xbel (KatzeItem* item)
     g_string_append_printf (markup, "%s\"", namespace_uri);
     i = 0;
     while ((key = g_list_nth_data (keys, i++)))
-        g_string_append_printf (markup, " %s:%s=\"%s\"", namespace, key,
-            katze_item_get_meta_string (item, key));
+        if (katze_item_get_meta_string (item, key))
+            g_string_append_printf (markup, " %s:%s=\"%s\"", namespace, key,
+                katze_item_get_meta_string (item, key));
     g_string_append_printf (markup, "/>\n</info>\n");
     return g_string_free (markup, FALSE);
 }
