@@ -5804,6 +5804,9 @@ midori_browser_add_item (MidoriBrowser* browser,
     const gchar* uri;
     const gchar* title;
     GtkWidget* view;
+    gint page;
+    KatzeItem* proxy_item;
+    GList* keys;
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
@@ -5818,7 +5821,18 @@ midori_browser_add_item (MidoriBrowser* browser,
     midori_view_set_uri (MIDORI_VIEW (view), uri);
     gtk_widget_show (view);
 
-    return midori_browser_add_tab (browser, view);
+    page = midori_browser_add_tab (browser, view);
+    proxy_item = midori_view_get_proxy_item (MIDORI_VIEW (view));
+    if ((keys = katze_item_get_meta_keys (item)))
+    {
+        guint i = 0;
+        const gchar* key;
+        while ((key = g_list_nth_data (keys, i++)))
+            katze_item_set_meta_string (proxy_item, key,
+                katze_item_get_meta_string (item, key));
+        g_list_free (keys);
+    }
+    return page;
 }
 
 /**
