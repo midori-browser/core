@@ -444,6 +444,30 @@ midori_extensions_cell_renderer_toggled_cb (GtkCellRendererToggle* renderer,
     }
 }
 
+static gint
+midori_extensions_tree_sort_func (GtkTreeModel* model,
+                                  GtkTreeIter*  a,
+                                  GtkTreeIter*  b,
+                                  gpointer      data)
+{
+    MidoriExtension* e1, *e2;
+    gchar* name1, *name2;
+    gint result = 0;
+
+    gtk_tree_model_get (model, a, 0, &e1, -1);
+    gtk_tree_model_get (model, b, 0, &e2, -1);
+
+    name1 = katze_object_get_string (e1, "name");
+    name2 = katze_object_get_string (e2, "name");
+
+    result = g_strcmp0 (name1, name2);
+
+    g_free (name1);
+    g_free (name2);
+
+    return result;
+}
+
 static void
 midori_extensions_init (MidoriExtensions* extensions)
 {
@@ -453,6 +477,10 @@ midori_extensions_init (MidoriExtensions* extensions)
     GtkCellRenderer* renderer_toggle;
     GtkListStore* liststore = gtk_list_store_new (1, G_TYPE_OBJECT);
     extensions->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (liststore),
+        0, GTK_SORT_ASCENDING);
+    gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (liststore),
+        0, midori_extensions_tree_sort_func, NULL, NULL);
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (extensions->treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer_toggle = gtk_cell_renderer_toggle_new ();
