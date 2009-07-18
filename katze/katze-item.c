@@ -574,6 +574,8 @@ katze_item_get_meta_integer (KatzeItem*   item,
  * Saves the specified integer value in the meta data of
  * the item under the specified key.
  *
+ * A value of -1 is intepreted as unset.
+ *
  * Since: 0.1.8
  **/
 void
@@ -584,12 +586,17 @@ katze_item_set_meta_integer (KatzeItem*   item,
     g_return_if_fail (KATZE_IS_ITEM (item));
     g_return_if_fail (key != NULL);
 
-    katze_item_set_meta_data_value (item, key,
-    #ifdef G_GINT64_FORMAT
-        g_strdup_printf ("%" G_GINT64_FORMAT, value));
-    #else
-        g_strdup_printf ("%li", value));
-    #endif
+    if (value == -1)
+        katze_item_set_meta_data_value (item, key, NULL);
+    else
+    {
+        katze_item_set_meta_data_value (item, key,
+        #ifdef G_GINT64_FORMAT
+            g_strdup_printf ("%" G_GINT64_FORMAT, value));
+        #else
+            g_strdup_printf ("%li", value));
+        #endif
+    }
 }
 
 /**
