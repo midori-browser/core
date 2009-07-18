@@ -22,6 +22,9 @@
     #include <libxml/tree.h>
 #endif
 
+static gchar*
+katze_item_metadata_to_xbel (KatzeItem* item);
+
 #if HAVE_LIBXML
 static KatzeItem*
 katze_item_from_xmlNodePtr (xmlNodePtr cur)
@@ -277,10 +280,12 @@ static gchar*
 katze_item_to_data (KatzeItem* item)
 {
     gchar* markup;
+    gchar* metadata;
 
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
     markup = NULL;
+    metadata = katze_item_metadata_to_xbel (item);
     if (KATZE_IS_ARRAY (item))
     {
         GString* _markup = g_string_new (NULL);
@@ -295,10 +300,11 @@ katze_item_to_data (KatzeItem* item)
         /* gchar* folded = item->folded ? NULL : g_strdup_printf (" folded=\"no\""); */
         gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
         gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
-        markup = g_strdup_printf ("<folder%s>\n%s%s%s</folder>\n",
+        markup = g_strdup_printf ("<folder%s>\n%s%s%s%s</folder>\n",
                                   "" /* folded ? folded : "" */,
                                   title, desc,
-                                  _markup->str);
+                                  _markup->str,
+                                  metadata);
         g_string_free (_markup, TRUE);
         /* g_free (folded); */
         g_free (title);
@@ -314,13 +320,14 @@ katze_item_to_data (KatzeItem* item)
         markup = g_strdup_printf ("<bookmark%s>\n%s%s%s</bookmark>\n",
                                   href,
                                   title, desc,
-                                  "");
+                                  metadata);
         g_free (href);
         g_free (title);
         g_free (desc);
     }
     else
         markup = g_strdup ("<separator/>\n");
+    g_free (metadata);
     return markup;
 }
 
