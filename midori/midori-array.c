@@ -22,6 +22,10 @@
     #include <libxml/tree.h>
 #endif
 
+static void
+katze_xbel_parse_info (KatzeItem* item,
+                       xmlNodePtr cur);
+
 static gchar*
 katze_item_metadata_to_xbel (KatzeItem* item);
 
@@ -52,6 +56,8 @@ katze_item_from_xmlNodePtr (xmlNodePtr cur)
             katze_item_set_text (item, g_strstrip ((gchar*)key));
             g_free (key);
         }
+        else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
+            katze_xbel_parse_info (item, cur);
         cur = cur->next;
     }
     return item;
