@@ -15,6 +15,9 @@
 #include "config.h"
 
 #include <glib/gstdio.h>
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
 
 static void
 adblock_app_add_browser_cb (MidoriApp*       app,
