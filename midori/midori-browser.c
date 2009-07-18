@@ -4009,8 +4009,9 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
     gtk_window_set_title (GTK_WINDOW (browser), window_title);
     g_free (window_title);
 
-    katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current",
-                                 midori_browser_get_current_page (browser));
+    if (browser->proxy_array)
+        katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current",
+                                     midori_browser_get_current_page (browser));
     g_object_notify (G_OBJECT (browser), "uri");
 
     _midori_browser_set_statusbar_text (browser, NULL);
