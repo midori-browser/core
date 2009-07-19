@@ -1563,6 +1563,7 @@ main (int    argc,
                       "show-menubar", FALSE,
                       "show-navigationbar", TRUE,
                       "toolbar-items", "Back,Forward,ReloadStop,Location",
+                      "homepage", NULL,
                       "show-statusbar", TRUE,
                       NULL);
         g_object_unref (settings);
