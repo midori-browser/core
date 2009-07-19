@@ -2291,7 +2291,7 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
     g_object_get (browser->settings, "toolbar-style", &toolbar_style, NULL);
     if (toolbar_style == MIDORI_TOOLBAR_DEFAULT)
     {
-        g_object_get (browser->settings,
+        g_object_get (object,
                       "gtk-toolbar-style", &gtk_toolbar_style, NULL);
         gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
                                gtk_toolbar_style);
