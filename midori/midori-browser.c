@@ -3070,21 +3070,31 @@ _action_location_focus_in (GtkAction*     action,
         {
             GtkWidget* popup = gtk_window_new (GTK_WINDOW_POPUP);
             GtkWidget* box = gtk_toolbar_new ();
-            GtkToolItem* homepage = gtk_tool_button_new_from_stock (STOCK_HOMEPAGE);
+            gchar* homepage = NULL;
             guint i;
             KatzeItem* item;
 
             /* FIXME: Resize popup to avoid overflowing items */
             /* FIXME: Take care of added and removed items */
-            gtk_tool_item_set_is_important (homepage, TRUE);
-            gtk_widget_show (GTK_WIDGET (homepage));
-            g_signal_connect (homepage, "clicked",
-                G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb), browser);
+            if (browser->settings)
+                g_object_get (browser->settings, "homepage", &homepage, NULL);
+            if (homepage && homepage)
+                {
+                    GtkToolItem* toolitem;
+
+                    toolitem = gtk_tool_button_new_from_stock (STOCK_HOMEPAGE);
+                    gtk_tool_item_set_is_important (toolitem, TRUE);
+                    gtk_widget_show (GTK_WIDGET (toolitem));
+                    g_signal_connect (toolitem, "clicked",
+                        G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb),
+                        browser);
+                    gtk_toolbar_insert (GTK_TOOLBAR (box), toolitem, -1);
+                }
+
             gtk_container_add (GTK_CONTAINER (popup), box);
             gtk_window_set_transient_for (GTK_WINDOW (popup), GTK_WINDOW (browser));
             gtk_toolbar_set_icon_size (GTK_TOOLBAR (box), GTK_ICON_SIZE_MENU);
             gtk_toolbar_set_style (GTK_TOOLBAR (box), GTK_TOOLBAR_BOTH_HORIZ);
-            gtk_toolbar_insert (GTK_TOOLBAR (box), homepage, -1);
             i = 0;
             if (browser->bookmarks)
             while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
@@ -5403,7 +5413,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     #endif
     _action_set_active (browser, "Statusbar", browser->show_statusbar);
 
-    sokoke_widget_set_visible (GTK_WIDGET (browser->homepage), *homepage);
+    sokoke_widget_set_visible (GTK_WIDGET (browser->homepage),
+                               homepage && *homepage);
 
     g_free (homepage);
     g_free (toolbar_items);
@@ -5440,7 +5451,7 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->progress_in_location = g_value_get_boolean (&value);
     else if (name == g_intern_string ("homepage"))
         sokoke_widget_set_visible (GTK_WIDGET (browser->homepage),
-            *g_value_get_string (&value));
+            g_value_get_string (&value) && *g_value_get_string (&value));
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
         if (g_value_get_boolean (&value))
