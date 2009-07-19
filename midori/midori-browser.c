@@ -5978,7 +5978,7 @@ midori_browser_set_current_page (MidoriBrowser* browser,
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
     if (view && midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
-    else
+    else if (view)
         gtk_widget_grab_focus (view);
 }
 
