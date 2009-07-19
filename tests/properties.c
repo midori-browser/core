@@ -58,6 +58,7 @@ properties_object_get_set (GObject* object)
         GType type = G_PARAM_SPEC_TYPE (pspec);
         const gchar* property = g_param_spec_get_name (pspec);
         void* value = NULL;
+        guint j;
 
         /* Skip properties of parent classes */
         if (pspec->owner_type != G_OBJECT_TYPE (object))
@@ -66,6 +67,16 @@ properties_object_get_set (GObject* object)
         /* Skip properties that cannot be tested generically */
         if (properties_should_skip (G_OBJECT_TYPE_NAME (object), property))
             continue;
+
+        /* Verify that the ID is unique */
+        if (pspecs[i]->owner_type == G_OBJECT_TYPE (object))
+        for (j = 0; j < n_properties; j++)
+            if (i != j && pspecs[j]->owner_type == G_OBJECT_TYPE (object))
+                if (pspec->param_id == pspecs[j]->param_id)
+                    g_error ("Duplicate ID %d of %s and %s",
+                        pspec->param_id,
+                        g_param_spec_get_name (pspec),
+                        g_param_spec_get_name (pspecs[j]));
 
         g_object_get (object, property, &value, NULL);
         if (type == G_TYPE_PARAM_BOOLEAN)
@@ -111,7 +122,6 @@ properties_object_get_set (GObject* object)
         {
             GEnumClass* enum_class = G_ENUM_CLASS (
                 g_type_class_ref (pspec->value_type));
-            gint j;
 
             if (pspec_is_writable (pspec))
             {
