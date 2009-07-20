@@ -1335,7 +1335,7 @@ midori_load_session (gpointer data)
     return FALSE;
 }
 
-#if HAVE_JSCORE
+#ifdef HAVE_JSCORE
 static gint
 midori_run_script (const gchar* filename)
 {
@@ -1435,7 +1435,7 @@ main (int    argc,
        N_("Run ADDRESS as a web application"), N_("ADDRESS") },
        { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
-       #if HAVE_JSCORE
+       #ifdef HAVE_JSCORE
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
        #endif
@@ -1589,7 +1589,7 @@ main (int    argc,
         return 0;
     }
 
-    #if HAVE_JSCORE
+    #ifdef HAVE_JSCORE
     /* Standalone javascript support */
     if (run)
         return midori_run_script (uris ? *uris : NULL);

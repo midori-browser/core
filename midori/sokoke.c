@@ -36,7 +36,7 @@
     #include <idna.h>
 #endif
 
-#if HAVE_JSCORE
+#ifdef HAVE_JSCORE
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
@@ -57,7 +57,7 @@ sokoke_js_script_eval (JSContextRef js_context,
                        const gchar* script,
                        gchar**      exception)
 {
-    #if HAVE_JSCORE
+    #ifdef HAVE_JSCORE
     gchar* value;
     JSStringRef js_value_string;
     #endif
@@ -65,7 +65,7 @@ sokoke_js_script_eval (JSContextRef js_context,
     g_return_val_if_fail (js_context, FALSE);
     g_return_val_if_fail (script, FALSE);
 
-    #if HAVE_JSCORE
+    #ifdef HAVE_JSCORE
     JSStringRef js_script = JSStringCreateWithUTF8CString (script);
     JSValueRef js_exception = NULL;
     JSValueRef js_value = JSEvaluateScript (js_context, js_script,
@@ -100,8 +100,6 @@ error_dialog (const gchar* short_message,
     gtk_widget_show (dialog);
     g_signal_connect_swapped (dialog, "response",
                               G_CALLBACK (gtk_widget_destroy), dialog);
-
-
 }
 
 /**
