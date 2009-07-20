@@ -1661,6 +1661,15 @@ main (int    argc,
     }
     if (!error && katze_array_is_empty (search_engines))
     {
+        #ifdef G_OS_WIN32
+        gchar* dir;
+
+        dir = g_win32_get_package_installation_directory_of_module (NULL);
+        katze_assign (config_file,
+            g_build_filename (dir, "etc", "xdg", PACKAGE_NAME, "search", NULL));
+        g_free (dir);
+        search_engines = search_engines_new_from_file (config_file, NULL);
+        #else
         const gchar* const * config_dirs = g_get_system_config_dirs ();
         i = 0;
         while (config_dirs[i])
@@ -1680,6 +1689,7 @@ main (int    argc,
                 g_build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, "search", NULL));
             search_engines = search_engines_new_from_file (config_file, NULL);
         }
+        #endif
     }
     else if (error)
     {
