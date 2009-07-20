@@ -240,6 +240,8 @@ def configure (conf):
         conf.check (function_name='inet_aton')
         conf.check (function_name='inet_addr')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
+    if Options.platform == 'win32':
+        conf.env.append_value ('LINKFLAGS', '-mwindows')
 
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
