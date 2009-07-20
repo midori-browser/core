@@ -1478,7 +1478,15 @@ main (int    argc,
     if (g_getenv ("NLSPATH"))
         bindtextdomain (GETTEXT_PACKAGE, g_getenv ("NLSPATH"));
     else
+    #ifdef G_OS_WIN32
+    {
+        gchar* path = sokoke_find_data_filename ("locale");
+        bindtextdomain (GETTEXT_PACKAGE, path);
+        g_free (path);
+    }
+    #else
         bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+    #endif
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
     #endif
