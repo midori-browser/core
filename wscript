@@ -346,7 +346,7 @@ def build (bld):
         infile = task.inputs[0].abspath (task.env)
         outfile = task.outputs[0].abspath (task.env)
         command = bld.env['CONVERT'] + ' -background transparent \
-            -geometry 32x32 -extent 32x32 ' + \
+            -geometry 16x16 -extent 16x16 ' + \
             infile + ' ' + outfile
         if Utils.exec_command (command):
             return 1
@@ -358,7 +358,7 @@ def build (bld):
     if bld.env['WINRC']:
         obj = bld.new_task_gen ('copy',
             fun = image_to_win32ico,
-            source = 'icons/scalable/midori.svg',
+            source = 'icons/16x16/midori.png',
             target = 'data/midori.ico',
             before = 'cc')
 
