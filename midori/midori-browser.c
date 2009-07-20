@@ -4432,8 +4432,10 @@ static const gchar* ui_markup =
     "<separator/>"
     "<menuitem action='Find'/>"
     "<menuitem action='FindNext'/>"
+    #ifndef G_OS_WIN32
     "<separator/>"
     "<menuitem action='Preferences'/>"
+    #endif
    "</menu>"
    "<menu action='View'>"
     "<menu action='Toolbars'>"
@@ -4478,6 +4480,10 @@ static const gchar* ui_markup =
     "<menuitem action='ManageSearchEngines'/>"
     "<menuitem action='ClearPrivateData'/>"
     /* Panel items shall be appended here */
+    #ifdef G_OS_WIN32
+    "<separator/>"
+    "<menuitem action='Preferences'/>"
+    #endif
    "</menu>"
    "<menuitem action='Window'/>"
    "<menu action='Help'>"
@@ -4917,7 +4923,7 @@ midori_browser_init (MidoriBrowser* browser)
         gtk_ui_manager_get_widget (ui_manager, "/menubar/Tools")));
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
-    gtk_menu_shell_append (GTK_MENU_SHELL (browser->menu_tools), menuitem);
+    gtk_menu_shell_insert (GTK_MENU_SHELL (browser->menu_tools), menuitem, 3);
 
     homepage = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Homepage");
     g_signal_connect (homepage, "button-press-event",

@@ -661,7 +661,7 @@ midori_panel_append_page (MidoriPanel*    panel,
         g_signal_connect (menuitem, "activate",
                           G_CALLBACK (midori_panel_menu_item_activate_cb),
                           panel);
-        gtk_menu_shell_append (GTK_MENU_SHELL (panel->menu), menuitem);
+        gtk_menu_shell_insert (GTK_MENU_SHELL (panel->menu), menuitem, 4);
         g_object_set_data (G_OBJECT (scrolled), "panel-menuitem", menuitem);
         g_signal_connect (viewable, "destroy",
                           G_CALLBACK (midori_panel_widget_destroy_cb), menuitem);
