@@ -522,6 +522,7 @@ midori_view_class_init (MidoriViewClass* class)
 static void
 midori_view_update_title (MidoriView* view)
 {
+    #ifndef G_OS_WIN32
     /* If left-to-right text is combined with right-to-left text the default
        behaviour of Pango can result in awkwardly aligned text. For example
        "‪بستيان نوصر (hadess) | An era comes to an end - Midori" becomes
@@ -533,6 +534,7 @@ midori_view_update_title (MidoriView* view)
         gchar* new_title = g_strconcat ("‪", view->title, NULL);
         katze_assign (view->title, new_title);
     }
+    #endif
     #define title midori_view_get_display_title (view)
     if (view->tab_label)
     {
