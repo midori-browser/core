@@ -172,6 +172,10 @@ static void
 midori_browser_new_history_item (MidoriBrowser* browser,
                                  KatzeItem*     item);
 
+static void
+_midori_browser_set_toolbar_style (MidoriBrowser*     browser,
+                                   MidoriToolbarStyle toolbar_style);
+
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
                  const gchar*   name)
@@ -2286,16 +2290,9 @@ midori_browser_navigationbar_notify_style_cb (GObject*       object,
                                               MidoriBrowser* browser)
 {
     MidoriToolbarStyle toolbar_style;
-    GtkToolbarStyle gtk_toolbar_style;
 
     g_object_get (browser->settings, "toolbar-style", &toolbar_style, NULL);
-    if (toolbar_style == MIDORI_TOOLBAR_DEFAULT)
-    {
-        g_object_get (object,
-                      "gtk-toolbar-style", &gtk_toolbar_style, NULL);
-        gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
-                               gtk_toolbar_style);
-    }
+    _midori_browser_set_toolbar_style (browser, toolbar_style);
 }
 
 static gboolean
@@ -5198,7 +5195,11 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
     GtkToolbarStyle gtk_toolbar_style;
     GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
+    #ifdef G_OS_WIN32
+        gtk_toolbar_style = GTK_TOOLBAR_ICONS;
+    #else
         g_object_get (gtk_settings, "gtk-toolbar-style", &gtk_toolbar_style, NULL);
+    #endif
     else
     {
         switch (toolbar_style)
