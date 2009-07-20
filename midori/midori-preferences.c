@@ -551,12 +551,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label, 0, 1, 0, 1);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
-    #if HAVE_UNIQUE
     label = katze_property_label (settings, "open-external-pages-in");
     INDENTED_ADD (label, 0, 1, 1, 2);
     button = katze_property_proxy (settings, "open-external-pages-in", NULL);
     FILLED_ADD (button, 1, 2, 1, 2);
-    #endif
     button = katze_property_proxy (settings, "always-show-tabbar", NULL);
     INDENTED_ADD (button, 0, 1, 2, 3);
     button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
