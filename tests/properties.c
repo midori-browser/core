@@ -125,21 +125,22 @@ properties_object_get_set (GObject* object)
 
             if (pspec_is_writable (pspec))
             {
+                gint k;
                 g_object_set (object, property,
                     G_PARAM_SPEC_ENUM (pspec)->default_value, NULL);
-                for (j = enum_class->minimum; j < enum_class->maximum; j++)
+                for (k = enum_class->minimum; k < enum_class->maximum; k++)
                 {
-                    GEnumValue* enum_value = g_enum_get_value (enum_class, j);
+                    GEnumValue* enum_value = g_enum_get_value (enum_class, k);
                     if (!enum_value)
                         g_error ("%s.%s has no value %d",
-                            G_OBJECT_TYPE_NAME (object), property, j);
+                            G_OBJECT_TYPE_NAME (object), property, k);
                     GEnumValue* enum_value_ = g_enum_get_value_by_name (enum_class,
                         enum_value->value_name);
                     if (!enum_value)
                         g_error ("%s.%s has no value '%s'",
                             G_OBJECT_TYPE_NAME (object), property, enum_value->value_name);
                     g_assert_cmpint (enum_value->value, ==, enum_value_->value);
-                    g_object_set (object, property, j, NULL);
+                    g_object_set (object, property, k, NULL);
                 }
             }
 
