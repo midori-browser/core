@@ -151,6 +151,9 @@ gboolean
 sokoke_remove_path                      (const gchar*    path,
                                          gboolean        ignore_errors);
 
+gchar*
+sokoke_find_data_filename               (const gchar*    filename);
+
 SoupServer*
 sokoke_get_res_server                   (void);
 

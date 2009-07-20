@@ -967,6 +967,32 @@ sokoke_remove_path (const gchar* path,
     return TRUE;
 }
 
+/**
+ * sokoke_find_data_filename:
+ * @filename: a filename or relative path
+ *
+ * Looks for the specified filename in the system data
+ * directories, depending on the platform.
+ *
+ * Return value: a full path
+ **/
+gchar*
+sokoke_find_data_filename (const gchar* filename)
+{
+    const gchar* const* data_dirs = g_get_system_data_dirs ();
+    guint i = 0;
+    const gchar* data_dir;
+
+    while ((data_dir = data_dirs[i++]))
+    {
+        gchar* path = g_build_filename (data_dir, filename, NULL);
+        if (g_file_test (path, G_FILE_TEST_EXISTS))
+            return path;
+        g_free (path);
+    }
+    return g_build_filename (MDATADIR, filename, NULL);
+}
+
 static void
 res_server_handler_cb (SoupServer*        res_server,
                        SoupMessage*       msg,
@@ -977,13 +1003,15 @@ res_server_handler_cb (SoupServer*        res_server,
 {
     if (g_str_has_prefix (path, "/res"))
     {
-        gchar* filename = g_strconcat (MDATADIR "/midori", path, NULL);
+        gchar* filename = g_build_filename ("midori", path, NULL);
+        gchar* filepath = sokoke_find_data_filename (filename);
         gchar* contents;
         gsize length;
 
-        if (g_file_get_contents (filename, &contents, &length, NULL))
+        g_free (filename);
+        if (g_file_get_contents (filepath, &contents, &length, NULL))
         {
-            gchar* content_type = g_content_type_guess (filename, (guchar*)contents,
+            gchar* content_type = g_content_type_guess (filepath, (guchar*)contents,
                                                         length, NULL);
             gchar* mime_type = g_content_type_get_mime_type (content_type);
             g_free (content_type);
@@ -994,7 +1022,7 @@ res_server_handler_cb (SoupServer*        res_server,
         }
         else
             soup_message_set_status (msg, 404);
-        g_free (filename);
+        g_free (filepath);
     }
     else if (g_str_has_prefix (path, "/stock/"))
     {

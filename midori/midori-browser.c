@@ -903,13 +903,16 @@ midori_browser_speed_dial_get_next_free_slot (void)
 
     if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
     {
-        if (g_file_get_contents (MDATADIR "/midori/res/speeddial.json",
-                                 &speed_dial_body, NULL, NULL))
+        gchar* filename = g_build_filename ("midori", "res", "speeddial.json", NULL);
+        gchar* filepath = sokoke_find_data_filename (filename);
+        g_free (filename);
+        if (g_file_get_contents (filepath, &speed_dial_body, NULL, NULL))
         {
             g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
 
             g_free (speed_dial_body);
         }
+        g_free (filepath);
         g_free (body_fname);
         return g_strdup ("s1");
     }

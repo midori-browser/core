@@ -732,10 +732,12 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                GError*         error,
                                MidoriView*     view)
 {
-    const gchar* template_file = MDATADIR "/midori/res/error.html";
+    gchar* template_file = g_build_filename ("midori", "res", "error.html", NULL);
+    gchar* path = sokoke_find_data_filename (template_file);
     gchar* template;
 
-    if (g_file_get_contents (template_file, &template, NULL, NULL))
+    g_free (template_file);
+    if (g_file_get_contents (path, &template, NULL, NULL))
     {
         SoupServer* res_server;
         guint port;
@@ -766,9 +768,11 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         g_free (res_root);
         g_free (stock_root);
         g_free (result);
+        g_free (path);
 
         return TRUE;
     }
+    g_free (path);
 
     return FALSE;
 }
