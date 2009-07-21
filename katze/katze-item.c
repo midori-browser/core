@@ -24,7 +24,7 @@
  * several commonly needed properties.
  */
 
-G_DEFINE_TYPE (KatzeItem, katze_item, G_TYPE_OBJECT)
+G_DEFINE_TYPE (KatzeItem, katze_item, G_TYPE_OBJECT);
 
 enum
 {
@@ -38,6 +38,14 @@ enum
     PROP_ADDED,
     PROP_PARENT
 };
+
+enum {
+    META_DATA_CHANGED,
+
+    LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
 
 static void
 katze_item_finalize (GObject* object);
@@ -59,6 +67,26 @@ katze_item_class_init (KatzeItemClass* class)
 {
     GObjectClass* gobject_class;
     GParamFlags flags;
+
+    /**
+     * KatzeItem::meta-data-changed:
+     * @item: the object on which the signal is emitted
+     * @key: the key that changed
+     *
+     * Emitted when a meta data value was changed.
+     *
+     * Since: 0.1.9
+     */
+    signals[META_DATA_CHANGED] = g_signal_new (
+        "meta-data-changed",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__STRING,
+        G_TYPE_NONE, 1,
+        G_TYPE_STRING);
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->finalize = katze_item_finalize;
@@ -482,7 +510,7 @@ katze_item_set_meta_data_value (KatzeItem*   item,
         g_hash_table_insert (item->metadata, g_strdup (&key[7]), value);
     else
         g_hash_table_insert (item->metadata, g_strdup (key), value);
-    /* TODO: Emit meta-key-changed */
+    g_signal_emit (item, signals[META_DATA_CHANGED], 0, key);
 }
 
 /**

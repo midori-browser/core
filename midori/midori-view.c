@@ -52,6 +52,11 @@ midori_view_get_snapshot (MidoriView* view,
                           gint        width,
                           gint        height);
 
+static void
+midori_view_item_meta_data_changed (KatzeItem*   item,
+                                    const gchar* key,
+                                    MidoriView*  view);
+
 struct _MidoriView
 {
     GtkScrolledWindow parent_instance;
@@ -62,6 +67,7 @@ struct _MidoriView
     GdkPixbuf* icon;
     gdouble progress;
     MidoriLoadStatus load_status;
+    gboolean minimized;
     gchar* statusbar_text;
     gchar* link_uri;
     gboolean has_selection;
@@ -144,6 +150,7 @@ enum
     PROP_ICON,
     PROP_LOAD_STATUS,
     PROP_PROGRESS,
+    PROP_MINIMIZED,
     PROP_ZOOM_LEVEL,
     PROP_NEWS_FEEDS,
     PROP_STATUSBAR_TEXT,
@@ -463,6 +470,26 @@ midori_view_class_init (MidoriViewClass* class)
                                      "The current loading progress",
                                      0.0, 1.0, 0.0,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+    /**
+    * MidoriView:minimized:
+    *
+    * Whether the view is minimized or in normal state.
+    *
+    * Minimizing a view indicates that only the icon should
+    * be advertised rather than the full blown tab label and
+    * it might otherwise be presented specially.
+    *
+    * Since: 0.1.8
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_MINIMIZED,
+                                     g_param_spec_boolean (
+                                     "minimized",
+                                     "Minimized",
+                                     "Whether the view is minimized or in normal state",
+                                     FALSE,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
                                      PROP_ZOOM_LEVEL,
@@ -1596,6 +1623,7 @@ midori_view_init (MidoriView* view)
                                          GTK_ICON_SIZE_MENU, NULL);
     view->progress = 0.0;
     view->load_status = MIDORI_LOAD_FINISHED;
+    view->minimized = FALSE;
     view->statusbar_text = NULL;
     view->link_uri = NULL;
     view->selected_text = NULL;
@@ -1621,6 +1649,9 @@ midori_view_finalize (GObject* object)
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
             midori_view_settings_notify_cb, view);
+    if (view->item)
+        g_signal_handlers_disconnect_by_func (view->item,
+            midori_view_item_meta_data_changed, view);
 
     katze_assign (view->uri, NULL);
     katze_assign (view->title, NULL);
@@ -1656,6 +1687,20 @@ midori_view_set_property (GObject*      object,
     case PROP_TITLE:
         katze_assign (view->title, g_value_dup_string (value));
         midori_view_update_title (view);
+        break;
+    case PROP_MINIMIZED:
+        view->minimized = g_value_get_boolean (value);
+        if (view->item)
+        {
+            g_signal_handlers_block_by_func (view->item,
+                midori_view_item_meta_data_changed, view);
+            katze_item_set_meta_integer (view->item, "minimized",
+                                         view->minimized ? 1 : -1);
+            g_signal_handlers_unblock_by_func (view->item,
+                midori_view_item_meta_data_changed, view);
+        }
+        if (view->tab_label)
+            sokoke_widget_set_visible (view->tab_title, !view->minimized);
         break;
     case PROP_ZOOM_LEVEL:
         midori_view_set_zoom_level (view, g_value_get_float (value));
@@ -1704,6 +1749,9 @@ midori_view_get_property (GObject*    object,
         break;
     case PROP_LOAD_STATUS:
         g_value_set_enum (value, midori_view_get_load_status (view));
+        break;
+    case PROP_MINIMIZED:
+        g_value_set_boolean (value, view->minimized);
         break;
     case PROP_ZOOM_LEVEL:
         g_value_set_float (value, midori_view_get_zoom_level (view));
@@ -2456,6 +2504,13 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
 }
 
 static void
+midori_view_tab_label_menu_minimize_tab_cb (GtkWidget*  menuitem,
+                                            MidoriView* view)
+{
+    g_object_set (view, "minimized", !view->minimized, NULL);
+}
+
+static void
 midori_view_tab_label_menu_close_cb (GtkWidget* menuitem,
                                      GtkWidget* view)
 {
@@ -2494,6 +2549,11 @@ midori_view_get_tab_menu (MidoriView* view)
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_duplicate_tab_cb), view);
+    menuitem = gtk_menu_item_new_with_mnemonic (
+        view->minimized ? _("_Restore Tab") : _("_Minimize Tab"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_minimize_tab_cb), view);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
@@ -2763,6 +2823,16 @@ midori_view_get_proxy_tab_label (MidoriView* view)
     return view->tab_label;
 }
 
+static void
+midori_view_item_meta_data_changed (KatzeItem*   item,
+                                    const gchar* key,
+                                    MidoriView*  view)
+{
+    if (g_str_equal (key, "minimized"))
+        g_object_set (view, "minimized",
+            katze_item_get_meta_string (item, key) != NULL, NULL);
+}
+
 /**
  * midori_view_get_proxy_item:
  * @view: a #MidoriView
@@ -2790,6 +2860,8 @@ midori_view_get_proxy_item (MidoriView* view)
         katze_item_set_uri (view->item, uri);
         title = midori_view_get_display_title (view);
         katze_item_set_name (view->item, title);
+        g_signal_connect (view->item, "meta-data-changed",
+            G_CALLBACK (midori_view_item_meta_data_changed), view);
     }
     return view->item;
 }
