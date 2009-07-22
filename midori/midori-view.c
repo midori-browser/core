@@ -2476,6 +2476,13 @@ midori_view_get_proxy_menu_item (MidoriView* view)
 }
 
 static void
+midori_view_tab_label_menu_new_tab_cb (GtkWidget*  menuitem,
+                                       MidoriView* view)
+{
+    g_signal_emit (view, signals[NEW_TAB], 0, "", FALSE);
+}
+
+static void
 midori_view_tab_label_menu_open_cb (GtkWidget* menuitem,
                                     GtkWidget* view)
 {
@@ -2537,6 +2544,12 @@ midori_view_get_tab_menu (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     menu = gtk_menu_new ();
+    menuitem = gtk_menu_item_new_with_mnemonic (_("New _Tab"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_new_tab_cb), view);
+    menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
