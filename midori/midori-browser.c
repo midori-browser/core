@@ -1101,7 +1101,8 @@ midori_view_new_tab_cb (GtkWidget*     view,
                         MidoriBrowser* browser)
 {
     gint n = midori_browser_add_uri (browser, uri);
-    _midori_browser_set_current_page_smartly (browser, n);
+    if (!background)
+        midori_browser_set_current_page (browser, n);
 }
 
 static void
