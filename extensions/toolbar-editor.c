@@ -581,7 +581,7 @@ static void tb_editor_app_add_browser_cb(MidoriApp *app, MidoriBrowser *browser,
 	panel = katze_object_get_object(browser, "panel");
 	menu = katze_object_get_object(panel, "menu");
 	g_object_unref(panel);
-	menuitem = gtk_menu_item_new_with_mnemonic(_("Configure _Toolbar..."));
+	menuitem = gtk_menu_item_new_with_mnemonic(_("Customize _Toolbar..."));
 	g_signal_connect(menuitem, "activate",
 		G_CALLBACK(tb_editor_menu_configure_toolbar_activate_cb), browser);
 	gtk_widget_show(menuitem);

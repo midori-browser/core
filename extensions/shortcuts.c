@@ -163,7 +163,7 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     app = midori_extension_get_app (extension);
     browser = katze_object_get_object (app, "browser");
 
-    dialog_title = _("Configure Keyboard shortcuts");
+    dialog_title = _("Customize Keyboard shortcuts");
     dialog = gtk_dialog_new_with_buttons (dialog_title, GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
         #if !HAVE_OSX
@@ -260,7 +260,7 @@ shortcuts_app_add_browser_cb (MidoriApp*       app,
     panel = katze_object_get_object (browser, "panel");
     menu = katze_object_get_object (panel, "menu");
     g_object_unref (panel);
-    menuitem = gtk_menu_item_new_with_mnemonic (_("Configure Sh_ortcuts..."));
+    menuitem = gtk_menu_item_new_with_mnemonic (_("Customize Sh_ortcuts..."));
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (shortcuts_menu_configure_shortcuts_activate_cb), extension);
     gtk_widget_show (menuitem);

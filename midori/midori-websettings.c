@@ -192,9 +192,9 @@ midori_startup_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_STARTUP_BLANK_PAGE, "MIDORI_STARTUP_BLANK_PAGE", N_("Blank page") },
-         { MIDORI_STARTUP_HOMEPAGE, "MIDORI_STARTUP_HOMEPAGE", N_("Homepage") },
-         { MIDORI_STARTUP_LAST_OPEN_PAGES, "MIDORI_STARTUP_LAST_OPEN_PAGES", N_("Last open pages") },
+         { MIDORI_STARTUP_BLANK_PAGE, "MIDORI_STARTUP_BLANK_PAGE", N_("Show Blank page") },
+         { MIDORI_STARTUP_HOMEPAGE, "MIDORI_STARTUP_HOMEPAGE", N_("Show Homepage") },
+         { MIDORI_STARTUP_LAST_OPEN_PAGES, "MIDORI_STARTUP_LAST_OPEN_PAGES", N_("Show last open tabs") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriStartup", values);
@@ -249,8 +249,8 @@ midori_toolbar_style_get_type (void)
          { MIDORI_TOOLBAR_DEFAULT, "MIDORI_TOOLBAR_DEFAULT", N_("Default") },
          { MIDORI_TOOLBAR_ICONS, "MIDORI_TOOLBAR_ICONS", N_("Icons") },
          { MIDORI_TOOLBAR_TEXT, "MIDORI_TOOLBAR_TEXT", N_("Text") },
-         { MIDORI_TOOLBAR_BOTH, "MIDORI_TOOLBAR_BOTH", N_("Both") },
-         { MIDORI_TOOLBAR_BOTH_HORIZ, "MIDORI_TOOLBAR_BOTH_HORIZ", N_("Both horizontal") },
+         { MIDORI_TOOLBAR_BOTH, "MIDORI_TOOLBAR_BOTH", N_("Icons and text") },
+         { MIDORI_TOOLBAR_BOTH_HORIZ, "MIDORI_TOOLBAR_BOTH_HORIZ", N_("Text beside icons") },
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriToolbarStyle", values);
@@ -473,7 +473,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_TOOLBAR_STYLE,
                                      g_param_spec_enum (
                                      "toolbar-style",
-                                     _("Toolbar Style"),
+                                     _("Toolbar Style:"),
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
@@ -550,8 +550,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_LOAD_ON_STARTUP,
                                      g_param_spec_enum (
                                      "load-on-startup",
-                                     _("Load on Startup"),
-                                     _("What to load on startup"),
+                                     _("When Midori starts:"),
+                                     _("What to do when Midori starts"),
                                      MIDORI_TYPE_STARTUP,
                                      MIDORI_STARTUP_LAST_OPEN_PAGES,
                                      flags));
@@ -560,7 +560,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_HOMEPAGE,
                                      g_param_spec_string (
                                      "homepage",
-                                     _("Homepage"),
+                                     _("Homepage:"),
                                      _("The homepage"),
                                      "http://www.google.com",
                                      flags));
@@ -602,7 +602,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_DOWNLOAD_FOLDER,
                                      g_param_spec_string (
                                      "download-folder",
-                                     _("Download Folder"),
+                                     _("Save downloaded files to:"),
                                      _("The folder downloaded files are saved to"),
                                      midori_get_download_dir (),
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
@@ -727,7 +727,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_OPEN_NEW_PAGES_IN,
                                      g_param_spec_enum (
                                      "open-new-pages-in",
-                                     _("Open new pages in"),
+                                     _("Open new pages in:"),
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
@@ -737,7 +737,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_OPEN_EXTERNAL_PAGES_IN,
                                      g_param_spec_enum (
                                      "open-external-pages-in",
-                                     _("Open external pages in"),
+                                     _("Open external pages in:"),
                                      _("Where to open externally opened pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,

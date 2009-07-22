@@ -1173,7 +1173,7 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
                 gchar* path = soup_uri_decode (uri);
                 gchar* filename = g_strrstr (path, "/") + 1;
                 gchar* msg = g_strdup_printf (
-                    _("The file <b>%s</b> has been downloaded."), filename);
+                    _("The file '<b>%s</b>' has been downloaded."), filename);
                 g_free (path);
 
                 g_signal_emit (browser, signals[SEND_NOTIFICATION], 0,
