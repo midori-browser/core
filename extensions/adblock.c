@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -18,6 +19,38 @@
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
+
+static gchar *
+adblock_fixup_regexp (gchar* src)
+{
+    gchar* dst;
+    gchar* s;
+    /* FIXME: Avoid always allocating twice the string */
+    s = dst = g_malloc (strlen (src) * 2);
+
+    while (*src)
+    {
+        switch (*src)
+        {
+        case '*':
+            *s++ = '.';
+            break;
+        case '.':
+            *s++ = '\\';
+            break;
+        case '?':
+            *s++ = '\\';
+            break;
+        case '|':
+            *s++ = '\\';
+            break;
+        }
+        *s++ = *src;
+        src++;
+    }
+    *s = 0;
+    return dst;
+}
 
 static void
 adblock_app_add_browser_cb (MidoriApp*       app,
@@ -322,12 +355,7 @@ adblock_parse_line (gchar* line)
     if (line[0] == '[')
         return NULL;
     g_strchomp (line);
-    /* TODO: Replace trailing '*' with '.*' */
-    if (line[0] == '*')
-        return g_strconcat (".", line, NULL);
-    else if (line[0] == '?')
-        return g_strconcat ("\\", line, NULL);
-    return g_strdup (line);
+    return adblock_fixup_regexp (line);
 }
 
 static GHashTable*
@@ -469,11 +497,11 @@ test_adblock_parse (void)
 
     g_assert_cmpstr (adblock_parse_line ("*foo"), ==, ".*foo");
     g_assert_cmpstr (adblock_parse_line ("?foo"), ==, "\\?foo");
-    /* g_assert_cmpstr (adblock_parse_line ("foo*"), ==, "foo.*");
-    g_assert_cmpstr (adblock_parse_line ("foo?"), ==, "foo\\?"); */
+    g_assert_cmpstr (adblock_parse_line ("foo*"), ==, "foo.*");
+    g_assert_cmpstr (adblock_parse_line ("foo?"), ==, "foo\\?");
 
-    g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, ".*foo/bar");
-    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/.*"), ==, "http://bla.blub/.*");
+    g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, "\\..*foo/bar");
+    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla\\.blub/.*");
 }
 
 static void
@@ -486,10 +514,10 @@ test_adblock_pattern (void)
     temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
 
     g_file_set_contents (filename,
-        "*ads.foo.bar.*\n"
-        ".*ads.bogus.name.*\n"
-        "http://ads.bla.blub/.*\n"
-        "http://ads.blub.boing/*.",
+        "*ads.foo.bar*\n"
+        "*ads.bogus.name*\n"
+        "http://ads.bla.blub/*\n"
+        "http://ads.blub.boing/*",
         -1, NULL);
     pattern = adblock_parse_file (filename);
 
