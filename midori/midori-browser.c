@@ -50,7 +50,6 @@ struct _MidoriBrowser
     GtkWidget* menu_tools;
     GtkWidget* throbber;
     GtkWidget* navigationbar;
-    GtkWidget* bookmark_popup;
     GtkWidget* bookmarkbar;
     GtkToolItem* homepage;
 
@@ -3026,32 +3025,6 @@ midori_browser_bookmark_homepage_clicked_cb (GtkToolItem*   button,
 }
 
 static void
-midori_browser_position_popup (GtkWidget* popup,
-                               GtkWidget* widget)
-{
-    gint wx, wy;
-    GtkRequisition menu_req;
-    GtkRequisition widget_req;
-
-    if (GTK_WIDGET_NO_WINDOW (widget))
-    {
-        gdk_window_get_position (widget->window, &wx, &wy);
-        wx += widget->allocation.x;
-        wy += widget->allocation.y;
-    }
-    else
-        gdk_window_get_origin (widget->window, &wx, &wy);
-    gtk_widget_size_request (popup, &menu_req);
-    gtk_widget_size_request (widget, &widget_req);
-
-    gtk_widget_show_all (popup);
-    gtk_window_move (GTK_WINDOW (popup),
-        wx, wy + widget_req.height);
-    gtk_window_resize (GTK_WINDOW (popup),
-        widget->allocation.width, 1);
-}
-
-static void
 browser_bookmarks_add_item_cb (KatzeArray* array,
                                KatzeItem*  item,
                                GtkWidget*  toolbar);
@@ -3062,53 +3035,6 @@ _action_location_focus_in (GtkAction*     action,
 {
     midori_location_action_set_secondary_icon (
         MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
-    if (!GTK_WIDGET_VISIBLE (browser->bookmarkbar))
-    {
-        GSList* proxies = gtk_action_get_proxies (action);
-        GtkWidget* proxy = g_slist_nth_data (proxies, 0);
-
-        if (G_UNLIKELY (!browser->bookmark_popup))
-        {
-            GtkWidget* popup = gtk_window_new (GTK_WINDOW_POPUP);
-            GtkWidget* box = gtk_toolbar_new ();
-            gchar* homepage = NULL;
-            guint i;
-            KatzeItem* item;
-
-            /* FIXME: Resize popup to avoid overflowing items */
-            /* FIXME: Take care of added and removed items */
-            if (browser->settings)
-                g_object_get (browser->settings, "homepage", &homepage, NULL);
-            if (homepage && homepage)
-                {
-                    GtkToolItem* toolitem;
-
-                    toolitem = gtk_tool_button_new_from_stock (STOCK_HOMEPAGE);
-                    gtk_tool_item_set_is_important (toolitem, TRUE);
-                    gtk_widget_show (GTK_WIDGET (toolitem));
-                    g_signal_connect (toolitem, "clicked",
-                        G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb),
-                        browser);
-                    gtk_toolbar_insert (GTK_TOOLBAR (box), toolitem, -1);
-                }
-
-            gtk_container_add (GTK_CONTAINER (popup), box);
-            gtk_window_set_transient_for (GTK_WINDOW (popup), GTK_WINDOW (browser));
-            gtk_toolbar_set_icon_size (GTK_TOOLBAR (box), GTK_ICON_SIZE_MENU);
-            gtk_toolbar_set_style (GTK_TOOLBAR (box), GTK_TOOLBAR_BOTH_HORIZ);
-            i = 0;
-            if (browser->bookmarks)
-            while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
-                browser_bookmarks_add_item_cb (browser->bookmarks, item, box);
-            browser->bookmark_popup = popup;
-            g_signal_connect (popup, "destroy",
-                G_CALLBACK (gtk_widget_destroyed), &browser->bookmark_popup);
-        }
-
-        if (!GTK_IS_TOOL_ITEM (proxy))
-            proxy = g_slist_nth_data (proxies, 1);
-        midori_browser_position_popup (browser->bookmark_popup, proxy);
-    }
 }
 
 static void
@@ -3116,9 +3042,6 @@ _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-
-    if (browser->bookmark_popup)
-        gtk_widget_hide (browser->bookmark_popup);
 
     if (!browser->show_navigationbar)
         gtk_widget_hide (browser->navigationbar);
@@ -4696,7 +4619,6 @@ midori_browser_init (MidoriBrowser* browser)
 
     browser->net = katze_net_new ();
 
-    browser->bookmark_popup = NULL;
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
     browser->bookmarks = NULL;
