@@ -3707,7 +3707,7 @@ _action_clear_private_data_activate (GtkAction*     action,
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "website-icons", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("_Closed Tabs and Windows"));
+        button = gtk_check_button_new_with_mnemonic (_("_Closed Tabs"));
         if ((clear_prefs & MIDORI_CLEAR_TRASH) == MIDORI_CLEAR_TRASH)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "trash", button);
