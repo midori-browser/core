@@ -352,12 +352,8 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
         if (text && *text)
         {
-            static GdkPixbuf* blank = NULL;
-            if (G_UNLIKELY (!blank))
-                blank = gdk_pixbuf_new_from_data ((guchar*)"",
-                    GDK_COLORSPACE_RGB, TRUE, 8, 1, 1, 1, NULL, NULL);
             midori_location_action_set_uri (location_action, text);
-            midori_location_action_set_icon (location_action, blank);
+            midori_location_action_set_icon (location_action, NULL);
             midori_location_action_set_secondary_icon (location_action, NULL);
         }
         else

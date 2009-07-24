@@ -1119,6 +1119,16 @@ midori_location_action_set_uri (MidoriLocationAction* location_action,
     midori_location_action_set_text (location_action, uri);
 }
 
+/**
+ * midori_location_action_set_icon:
+ * @location_action: a #MidoriLocationAction
+ * @icon: a #GdkPixbuf or %NULL
+ *
+ * Sets the icon shown on the left hand side.
+ *
+ * Note: Since 0.1.8 %NULL can be passed to indicate that the
+ *     visible URI refers to a target, not the current location.
+ **/
 void
 midori_location_action_set_icon (MidoriLocationAction* location_action,
                                  GdkPixbuf*            icon)
@@ -1128,7 +1138,7 @@ midori_location_action_set_icon (MidoriLocationAction* location_action,
     GtkWidget* entry;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (GDK_IS_PIXBUF (icon));
+    g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
@@ -1138,8 +1148,12 @@ midori_location_action_set_icon (MidoriLocationAction* location_action,
         location_entry = midori_location_action_entry_for_proxy (proxies->data);
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-            GTK_ICON_ENTRY_PRIMARY, icon);
+        if (icon)
+            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
+                GTK_ICON_ENTRY_PRIMARY, icon);
+        else
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+                GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_JUMP_TO);
     }
 }
 
