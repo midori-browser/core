@@ -132,6 +132,7 @@ enum
     CONTEXT_READY,
     ADD_DOWNLOAD,
     SEND_NOTIFICATION,
+    POPULATE_TOOL_MENU,
     QUIT,
 
     LAST_SIGNAL
@@ -174,6 +175,10 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 static void
 _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                    MidoriToolbarStyle toolbar_style);
+
+GtkWidget*
+midori_panel_construct_menu_item (MidoriPanel*    panel,
+                                  MidoriViewable* viewable);
 
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
@@ -1695,6 +1700,27 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_TYPE_STRING,
         G_TYPE_STRING);
 
+    /**
+     * MidoriBrowser::populate-tool-menu:
+     * @browser: the object on which the signal is emitted
+     * @menu: the #GtkMenu to populate
+     *
+     * Emitted when a Tool menu is displayed, such as the
+     * toplevel Tools in the menubar or the compact menu.
+     *
+     * Since: 0.1.9
+     */
+    signals[POPULATE_TOOL_MENU] = g_signal_new (
+        "populate-tool-menu",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GTK_TYPE_MENU);
+
     signals[QUIT] = g_signal_new (
         "quit",
         G_TYPE_FROM_CLASS (class),
@@ -2481,6 +2507,59 @@ _action_bookmarks_activate_item (GtkAction*     action,
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
+static void
+_action_tools_populate_popup (GtkAction*     action,
+                              GtkMenu*       menu,
+                              MidoriBrowser* browser)
+{
+    static const GtkActionEntry actions[] = {
+      { "ManageSearchEngines" },
+      { "ClearPrivateData" },
+      { "-" },
+      { NULL },
+      { "p" },
+      #ifdef G_OS_WIN32
+      { NULL },
+      { "Preferences" },
+      #endif
+    };
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (actions); i++)
+    {
+        GtkWidget* menuitem;
+        if (actions[i].name != NULL)
+        {
+            if (actions[i].name[0] == '-')
+            {
+                g_signal_emit (browser, signals[POPULATE_TOOL_MENU], 0, menu);
+                continue;
+            }
+            else if (actions[i].name[0] == 'p')
+            {
+                MidoriPanel* panel;
+                gsize j;
+                GtkWidget* widget;
+
+                panel = MIDORI_PANEL (browser->panel);
+                j = 0;
+                while ((widget = midori_panel_get_nth_page (panel, j++)))
+                {
+                    menuitem = midori_panel_construct_menu_item (panel, MIDORI_VIEWABLE (widget));
+                    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                }
+                continue;
+            }
+            menuitem = sokoke_action_create_popup_menu_item (
+                _action_by_name (browser, actions[i].name));
+        }
+        else
+            menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        gtk_widget_show (menuitem);
+    }
+}
+
 static gboolean
 _action_menus_activate_item_alt (GtkAction*     action,
                                  KatzeItem*     item,
@@ -2542,13 +2621,14 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "TabNew" },
       { "WindowNew" },
       { "Open" },
-      { "PrivateBrowsing" },
       { "Print" },
+      { "PrivateBrowsing" },
       { NULL },
       { "Bookmarkbar" },
       { "Panel" },
       { "Statusbar" },
       { NULL },
+      { "-" },
       { "ClearPrivateData" },
       { "Fullscreen" },
       { "Preferences" },
@@ -2559,14 +2639,20 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     {
         GtkWidget* menuitem;
         if (actions[i].name != NULL)
+        {
+            if (actions[i].name[0] == '-')
+            {
+                g_signal_emit (browser, signals[POPULATE_TOOL_MENU], 0, menu);
+                continue;
+            }
             menuitem = sokoke_action_create_popup_menu_item (
                 _action_by_name (browser, actions[i].name));
+        }
         else
             menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        gtk_widget_show (menuitem);
     }
-
-    gtk_widget_show_all (GTK_WIDGET (menu));
 }
 
 static void
@@ -4145,7 +4231,6 @@ static const GtkActionEntry entries[] = {
  { "BookmarkFolderAdd", NULL,
    N_("Add a new _folder"), "",
    N_("Add a new bookmark folder"), G_CALLBACK (_action_bookmark_folder_add_activate) },
- { "Tools", NULL, N_("_Tools") },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
    N_("Add, edit and remove search engines..."),
@@ -4399,15 +4484,7 @@ static const gchar* ui_markup =
     "<menuitem action='RecentlyVisited'/>"
    "</menu>"
    "<menuitem action='Bookmarks'/>"
-   "<menu action='Tools'>"
-    "<menuitem action='ManageSearchEngines'/>"
-    "<menuitem action='ClearPrivateData'/>"
-    /* Panel items shall be appended here */
-    #ifdef G_OS_WIN32
-    "<separator/>"
-    "<menuitem action='Preferences'/>"
-    #endif
-   "</menu>"
+   "<menuitem action='Tools'/>"
    "<menuitem action='Window'/>"
    "<menu action='Help'>"
     "<menuitem action='HelpContents'/>"
@@ -4422,10 +4499,13 @@ static const gchar* ui_markup =
     "<menuitem action='FindPrevious'/>"
     "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='BookmarkFolderAdd'/>"
+    "<menuitem action='ManageSearchEngines'/>"
+    "<menuitem action='ClearPrivateData'/>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
     "<menuitem action='UndoTabClose'/>"
     "<menuitem action='TrashEmpty'/>"
+    "<menuitem action='Preferences'/>"
    "</menu>"
   "</menubar>"
   "<toolbar name='toolbar_navigation'>"
@@ -4781,6 +4861,18 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_unref (action);
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "Tools",
+        "label", _("_Tools"),
+        "array", katze_array_new (KATZE_TYPE_ITEM),
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-popup",
+                      _action_tools_populate_popup, browser,
+                      NULL);
+    gtk_action_group_add_action (browser->action_group, action);
+    g_object_unref (action);
+
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Window",
         "label", _("_Window"),
         "stock-id", GTK_STOCK_INDEX,
@@ -4841,11 +4933,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_set_sensitive (menuitem, FALSE);
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
-    browser->menu_tools = gtk_menu_item_get_submenu (GTK_MENU_ITEM (
-        gtk_ui_manager_get_widget (ui_manager, "/menubar/Tools")));
-    menuitem = gtk_separator_menu_item_new ();
-    gtk_widget_show (menuitem);
-    gtk_menu_shell_insert (GTK_MENU_SHELL (browser->menu_tools), menuitem, 3);
+    browser->menu_tools = gtk_menu_new ();
 
     homepage = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Homepage");
     g_signal_connect (homepage, "button-press-event",

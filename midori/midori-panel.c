@@ -133,6 +133,15 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      GTK_SHADOW_NONE,
                                      flags));
 
+    /**
+     * MidoriWebSettings:menu:
+     *
+     * This is the menu that holds the panel menu items.
+     *
+     * You shouldn't use this menu or add items.
+     *
+     * Deprecated: 0.1.9
+     */
     g_object_class_install_property (gobject_class,
                                      PROP_MENU,
                                      g_param_spec_object (
@@ -404,7 +413,6 @@ midori_panel_set_property (GObject*      object,
         break;
     case PROP_MENU:
         katze_object_assign (panel->menu, g_value_dup_object (value));
-        /* FIXME: Move existing items to the new menu */
         break;
     case PROP_PAGE:
         midori_panel_set_current_page (panel, g_value_get_int (value));
@@ -515,26 +523,46 @@ midori_panel_menu_item_activate_cb (GtkWidget*   widget,
                                     MidoriPanel* panel)
 {
     GtkWidget* child;
-    GtkToggleToolButton* toolitem;
+    GtkToolItem* toolitem;
     guint n;
 
     child = g_object_get_data (G_OBJECT (widget), "page");
-    toolitem = g_object_get_data (G_OBJECT (widget), "toolitem");
+    n = midori_panel_page_num (panel, child);
+    toolitem = gtk_toolbar_get_nth_item (GTK_TOOLBAR (panel->toolbar), n);
 
     if (toolitem)
     {
         /* Unsetting the button before setting it ensures that
            it will emit signals even if it was active before */
-        gtk_toggle_tool_button_set_active (toolitem, FALSE);
-        gtk_toggle_tool_button_set_active (toolitem, TRUE);
+        GtkToggleToolButton* button = GTK_TOGGLE_TOOL_BUTTON (toolitem);
+        g_signal_handlers_block_by_func (widget,
+            midori_panel_menu_item_activate_cb, panel);
+        gtk_toggle_tool_button_set_active (button, FALSE);
+        gtk_toggle_tool_button_set_active (button, TRUE);
+        g_signal_handlers_unblock_by_func (widget,
+            midori_panel_menu_item_activate_cb, panel);
     }
-    else
-    {
-        n = midori_panel_page_num (panel, child);
-        midori_panel_set_current_page (panel, n);
-        g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
-        gtk_widget_show (GTK_WIDGET (panel));
-    }
+
+    midori_panel_set_current_page (panel, n);
+    g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
+    gtk_widget_show (GTK_WIDGET (panel));
+}
+
+/* Private function, used by MidoriBrowser */
+/* static */ GtkWidget*
+midori_panel_construct_menu_item (MidoriPanel*    panel,
+                                  MidoriViewable* viewable)
+{
+    const gchar* stock_id;
+    GtkWidget* menuitem;
+
+    stock_id = midori_viewable_get_stock_id (viewable);
+    menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
+    gtk_widget_show (menuitem);
+    g_object_set_data (G_OBJECT (menuitem), "page", viewable);
+    g_signal_connect (menuitem, "activate",
+                      G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
+    return menuitem;
 }
 
 static void
@@ -609,9 +637,6 @@ midori_panel_append_page (MidoriPanel*    panel,
     GtkWidget* widget;
     GtkWidget* toolbar;
     const gchar* label;
-    const gchar* stock_id;
-    GtkToolItem* toolitem;
-    GtkWidget* menuitem;
     guint n;
 
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
@@ -648,26 +673,9 @@ midori_panel_append_page (MidoriPanel*    panel,
 
     n = midori_panel_page_num (panel, scrolled);
     label = midori_viewable_get_label (viewable);
-    stock_id = midori_viewable_get_stock_id (viewable);
-
-    toolitem = midori_panel_construct_tool_item (panel, viewable);
-
-    if (panel->menu)
-    {
-        menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
-        gtk_widget_show (menuitem);
-        g_object_set_data (G_OBJECT (menuitem), "page", viewable);
-        g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
-        g_signal_connect (menuitem, "activate",
-                          G_CALLBACK (midori_panel_menu_item_activate_cb),
-                          panel);
-        gtk_menu_shell_insert (GTK_MENU_SHELL (panel->menu), menuitem, 4);
-        g_object_set_data (G_OBJECT (scrolled), "panel-menuitem", menuitem);
-        g_signal_connect (viewable, "destroy",
-                          G_CALLBACK (midori_panel_widget_destroy_cb), menuitem);
-    }
 
     g_object_set_data (G_OBJECT (viewable), "parent", scrolled);
+    midori_panel_construct_tool_item (panel, viewable);
     g_signal_connect (viewable, "destroy",
                       G_CALLBACK (midori_panel_viewable_destroy_cb), panel);
 

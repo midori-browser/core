@@ -53,19 +53,25 @@ adblock_fixup_regexp (gchar* src)
 }
 
 static void
+adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
+                                       GtkWidget*       menu,
+                                       MidoriExtension* extension);
+
+static void
 adblock_app_add_browser_cb (MidoriApp*       app,
                             MidoriBrowser*   browser,
                             MidoriExtension* extension);
 
 static void
 adblock_deactivate_cb (MidoriExtension* extension,
-                       GtkWidget*       menuitem)
+                       MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
 
-    gtk_widget_destroy (menuitem);
     g_signal_handlers_disconnect_by_func (
-        extension, adblock_deactivate_cb, menuitem);
+        browser, adblock_browser_populate_tool_menu_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        extension, adblock_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, adblock_app_add_browser_cb, extension);
     /* FIXME: Disconnect session callbacks */
@@ -289,26 +295,28 @@ adblock_menu_configure_filters_activate_cb (GtkWidget*       menuitem,
 }
 
 static void
-adblock_app_add_browser_cb (MidoriApp*       app,
-                            MidoriBrowser*   browser,
-                            MidoriExtension* extension)
+adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
+                                       GtkWidget*       menu,
+                                       MidoriExtension* extension)
 {
-    GtkWidget* panel;
-    GtkWidget* menu;
     GtkWidget* menuitem;
 
-    panel = katze_object_get_object (browser, "panel");
-    menu = katze_object_get_object (panel, "menu");
     menuitem = gtk_menu_item_new_with_mnemonic (_("Configure _Advertisement filters..."));
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (adblock_menu_configure_filters_activate_cb), extension);
     gtk_widget_show (menuitem);
-    gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 3);
-    g_object_unref (menu);
-    g_object_unref (panel);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+}
 
+static void
+adblock_app_add_browser_cb (MidoriApp*       app,
+                            MidoriBrowser*   browser,
+                            MidoriExtension* extension)
+{
+    g_signal_connect (browser, "populate-tool-menu",
+        G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
     g_signal_connect (extension, "deactivate",
-        G_CALLBACK (adblock_deactivate_cb), menuitem);
+        G_CALLBACK (adblock_deactivate_cb), browser);
 }
 
 static gboolean

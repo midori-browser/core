@@ -15,19 +15,25 @@
 #include "config.h"
 
 static void
+shortcuts_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
+                                         GtkWidget*       menu,
+                                         MidoriExtension* extension);
+
+static void
 shortcuts_app_add_browser_cb (MidoriApp*       app,
                               MidoriBrowser*   browser,
                               MidoriExtension* extension);
 
 static void
 shortcuts_deactivate_cb (MidoriExtension* extension,
-                         GtkWidget*       menuitem)
+                         MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
 
-    gtk_widget_destroy (menuitem);
     g_signal_handlers_disconnect_by_func (
-        extension, shortcuts_deactivate_cb, menuitem);
+        browser, shortcuts_browser_populate_tool_menu_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        extension, shortcuts_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, shortcuts_app_add_browser_cb, extension);
 }
@@ -249,26 +255,28 @@ shortcuts_menu_configure_shortcuts_activate_cb (GtkWidget*       menuitem,
 }
 
 static void
-shortcuts_app_add_browser_cb (MidoriApp*       app,
-                              MidoriBrowser*   browser,
-                              MidoriExtension* extension)
+shortcuts_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
+                                         GtkWidget*       menu,
+                                         MidoriExtension* extension)
 {
-    GtkWidget* panel;
-    GtkWidget* menu;
     GtkWidget* menuitem;
 
-    panel = katze_object_get_object (browser, "panel");
-    menu = katze_object_get_object (panel, "menu");
-    g_object_unref (panel);
     menuitem = gtk_menu_item_new_with_mnemonic (_("Customize Sh_ortcuts..."));
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (shortcuts_menu_configure_shortcuts_activate_cb), extension);
     gtk_widget_show (menuitem);
-    gtk_menu_shell_insert (GTK_MENU_SHELL (menu), menuitem, 3);
-    g_object_unref (menu);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+}
 
+static void
+shortcuts_app_add_browser_cb (MidoriApp*       app,
+                              MidoriBrowser*   browser,
+                              MidoriExtension* extension)
+{
+    g_signal_connect (browser, "populate-tool-menu",
+        G_CALLBACK (shortcuts_browser_populate_tool_menu_cb), extension);
     g_signal_connect (extension, "deactivate",
-        G_CALLBACK (shortcuts_deactivate_cb), menuitem);
+        G_CALLBACK (shortcuts_deactivate_cb), browser);
 }
 
 static void
