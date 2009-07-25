@@ -4115,7 +4115,7 @@ _action_trash_empty_activate (GtkAction*     action,
 
 static const GtkActionEntry entries[] = {
  { "File", NULL, N_("_File") },
- { "WindowNew", NULL,
+ { "WindowNew", STOCK_WINDOW_NEW,
    N_("New _Window"), "<Ctrl>n",
    N_("Open a new window"), G_CALLBACK (_action_window_new_activate) },
  { "TabNew", STOCK_TAB_NEW,
@@ -4765,7 +4765,7 @@ midori_browser_init (MidoriBrowser* browser)
     action = g_object_new (MIDORI_TYPE_LOCATION_ACTION,
         "name", "Location",
         "label", _("_Location..."),
-        "stock-id", NULL,
+        "stock-id", GTK_STOCK_JUMP_TO,
         "tooltip", _("Open a particular location"),
         NULL);
     g_object_connect (action,
@@ -4935,14 +4935,17 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
     browser->menu_tools = gtk_menu_new ();
 
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
+        gtk_ui_manager_get_widget (ui_manager, "/menubar/File/WindowNew")), NULL);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
+        gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Location")), NULL);
+
     homepage = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Homepage");
     g_signal_connect (homepage, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
-
     back = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Back");
     g_signal_connect (back, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
-
     forward = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Forward");
     g_signal_connect (forward, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
