@@ -471,6 +471,10 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
             g_object_unref (icon);
             gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
+            #if GTK_CHECK_VERSION (2, 16, 0)
+            gtk_image_menu_item_set_always_show_image (
+                GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
+            #endif
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
             g_object_set_data (G_OBJECT (menuitem), "engine", item);
             g_signal_connect (menuitem, "activate",

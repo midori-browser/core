@@ -1286,6 +1286,10 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 icon = gtk_image_new_from_pixbuf (pixbuf);
                 g_object_unref (pixbuf);
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
+                #if GTK_CHECK_VERSION (2, 16, 0)
+                gtk_image_menu_item_set_always_show_image (
+                    GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
+                #endif
                 gtk_menu_shell_insert (GTK_MENU_SHELL (sub_menu), menuitem, i - 1);
                 g_object_set_data (G_OBJECT (menuitem), "search",
                                    (gchar*)katze_item_get_uri (item));
