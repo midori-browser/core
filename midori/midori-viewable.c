@@ -13,6 +13,14 @@
 
 #include <glib/gi18n.h>
 
+enum {
+    POPULATE_OPTION_MENU,
+
+    LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
+
 static void
 midori_viewable_base_init (MidoriViewableIface* iface);
 
@@ -67,6 +75,27 @@ midori_viewable_base_init (MidoriViewableIface* iface)
 
     if (initialized)
         return;
+
+    /**
+     * MidoriViewable::populate-option-menu:
+     * @viewable: the object on which the signal is emitted
+     * @menu: the #GtkMenu to populate
+     *
+     * Emitted when an Option menu is displayed, for instance
+     * when the user clicks the Options button in the panel.
+     *
+     * Since: 0.1.9
+     */
+    signals[POPULATE_OPTION_MENU] = g_signal_new (
+        "populate-option-menu",
+        G_TYPE_FROM_INTERFACE (iface),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GTK_TYPE_MENU);
 
     iface->p = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
@@ -258,6 +287,6 @@ midori_viewable_get_toolbar (MidoriViewable* viewable)
 
     toolbar = MIDORI_VIEWABLE_GET_IFACE (viewable)->get_toolbar (viewable);
     if (!toolbar)
-        toolbar = gtk_event_box_new ();
+        toolbar = gtk_toolbar_new ();
     return toolbar;
 }

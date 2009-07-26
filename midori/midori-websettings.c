@@ -48,6 +48,7 @@ struct _MidoriWebSettings
     gboolean search_engines_in_completion;
     gchar* toolbar_items;
     gboolean compact_sidepanel;
+    gboolean show_panel_controls;
     gboolean right_align_sidepanel;
 
     MidoriStartup load_on_startup;
@@ -123,6 +124,7 @@ enum
     PROP_SEARCH_ENGINES_IN_COMPLETION,
     PROP_TOOLBAR_ITEMS,
     PROP_COMPACT_SIDEPANEL,
+    PROP_SHOW_PANEL_CONTROLS,
     PROP_RIGHT_ALIGN_SIDEPANEL,
 
     PROP_LOAD_ON_STARTUP,
@@ -527,6 +529,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Compact Sidepanel"),
                                      _("Whether to make the sidepanel compact"),
                                      FALSE,
+                                     flags));
+
+    /**
+     * MidoriWebSettings:show-panel-controls:
+     *
+     * Whether to show the operating controls of the panel.
+     *
+     * Since: 0.1.9
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_PANEL_CONTROLS,
+                                     g_param_spec_boolean (
+                                     "show-panel-controls",
+                                     _("Show operating controls of the panel"),
+                                     _("Whether to show the operating controls of the panel"),
+                                     TRUE,
                                      flags));
 
     /**
@@ -1000,6 +1018,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->notify_transfer_completed = TRUE;
     web_settings->download_folder = g_strdup (midori_get_download_dir ());
     web_settings->http_proxy = NULL;
+    web_settings->show_panel_controls = TRUE;
     web_settings->open_popups_in_tabs = TRUE;
     web_settings->remember_last_form_inputs = TRUE;
     web_settings->remember_last_downloaded_files = TRUE;
@@ -1173,6 +1192,9 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_COMPACT_SIDEPANEL:
         web_settings->compact_sidepanel = g_value_get_boolean (value);
+        break;
+    case PROP_SHOW_PANEL_CONTROLS:
+        web_settings->show_panel_controls = g_value_get_boolean (value);
         break;
     case PROP_RIGHT_ALIGN_SIDEPANEL:
         web_settings->right_align_sidepanel = g_value_get_boolean (value);
@@ -1385,6 +1407,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_COMPACT_SIDEPANEL:
         g_value_set_boolean (value, web_settings->compact_sidepanel);
+        break;
+    case PROP_SHOW_PANEL_CONTROLS:
+        g_value_set_boolean (value, web_settings->show_panel_controls);
         break;
     case PROP_RIGHT_ALIGN_SIDEPANEL:
         g_value_set_boolean (value, web_settings->right_align_sidepanel);

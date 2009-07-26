@@ -23,6 +23,7 @@ struct _MidoriPanel
 {
     GtkHBox parent_instance;
 
+    GtkWidget* labelbar;
     GtkWidget* toolbar;
     GtkToolItem* button_align;
     GtkToolItem* button_detach;
@@ -32,6 +33,8 @@ struct _MidoriPanel
     GtkWidget* notebook;
     GtkMenu*   menu;
 
+    gboolean show_titles;
+    gboolean show_controls;
     gboolean right_aligned;
 };
 
@@ -53,6 +56,8 @@ enum
     PROP_SHADOW_TYPE,
     PROP_MENU,
     PROP_PAGE,
+    PROP_SHOW_TITLES,
+    PROP_SHOW_CONTROLS,
     PROP_RIGHT_ALIGNED,
 };
 
@@ -159,6 +164,38 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      "The index of the current page",
                                      -1, G_MAXINT, -1,
                                      flags));
+
+    /**
+     * MidoriWebSettings:show-titles:
+     *
+     * Whether to show panel titles.
+     *
+     * Since: 0.1.9
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_TITLES,
+                                     g_param_spec_boolean (
+                                     "show-titles",
+                                     "Show Titles",
+                                     "Whether to show panel titles",
+                                     TRUE,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * MidoriWebSettings:show-controls:
+     *
+     * Whether to show operating controls.
+     *
+     * Since: 0.1.9
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SHOW_CONTROLS,
+                                     g_param_spec_boolean (
+                                     "show-controls",
+                                     "Show Controls",
+                                     "Whether to show operating controls",
+                                     TRUE,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriWebSettings:right-aligned:
@@ -310,6 +347,8 @@ midori_panel_init (MidoriPanel* panel)
     GtkWidget* labelbar;
     GtkToolItem* toolitem;
 
+    panel->show_titles = TRUE;
+    panel->show_controls = TRUE;
     panel->right_aligned = FALSE;
 
     /* Create the sidebar */
@@ -326,6 +365,7 @@ midori_panel_init (MidoriPanel* panel)
 
     /* Create the titlebar */
     labelbar = gtk_toolbar_new ();
+    panel->labelbar = labelbar;
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (labelbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (labelbar), GTK_TOOLBAR_ICONS);
     toolitem = gtk_tool_item_new ();
@@ -417,6 +457,19 @@ midori_panel_set_property (GObject*      object,
     case PROP_PAGE:
         midori_panel_set_current_page (panel, g_value_get_int (value));
         break;
+    case PROP_SHOW_TITLES:
+        panel->show_titles = g_value_get_boolean (value);
+        #if HAVE_HILDON
+        panel->show_titles = TRUE;
+        #endif
+        gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar),
+            panel->show_titles ? GTK_TOOLBAR_BOTH : GTK_TOOLBAR_ICONS);
+        break;
+    case PROP_SHOW_CONTROLS:
+        panel->show_controls = g_value_get_boolean (value);
+        sokoke_widget_set_visible (panel->labelbar, panel->show_controls);
+        sokoke_widget_set_visible (panel->toolbar, panel->show_controls);
+        break;
     case PROP_RIGHT_ALIGNED:
         midori_panel_set_right_aligned (panel, g_value_get_boolean (value));
         break;
@@ -445,6 +498,12 @@ midori_panel_get_property (GObject*    object,
         break;
     case PROP_PAGE:
         g_value_set_int (value, midori_panel_get_current_page (panel));
+        break;
+    case PROP_SHOW_TITLES:
+        g_value_set_boolean (value, panel->show_titles);
+        break;
+    case PROP_SHOW_CONTROLS:
+        g_value_set_boolean (value, panel->show_controls);
         break;
     case PROP_RIGHT_ALIGNED:
         g_value_set_boolean (value, panel->right_aligned);
@@ -476,6 +535,8 @@ midori_panel_new (void)
  * @compact: %TRUE if the panel should be compact
  *
  * Determines if the panel should be compact.
+ *
+ * Deprecated: 0.1.9
  **/
 void
 midori_panel_set_compact (MidoriPanel* panel,
@@ -483,11 +544,7 @@ midori_panel_set_compact (MidoriPanel* panel,
 {
     g_return_if_fail (MIDORI_IS_PANEL (panel));
 
-    #if HAVE_HILDON
-    compact = TRUE;
-    #endif
-    gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar),
-        compact ? GTK_TOOLBAR_ICONS : GTK_TOOLBAR_BOTH);
+    g_object_set (panel, "show-titles", !compact, NULL);
 }
 
 /**
@@ -610,6 +667,54 @@ midori_panel_construct_tool_item (MidoriPanel*    panel,
     return toolitem;
 }
 
+static void
+midori_panel_show_titles_toggled_cb (GtkWidget*   menuitem,
+                                     MidoriPanel* panel)
+{
+    g_object_set (panel, "show-titles", !panel->show_titles, NULL);
+}
+
+static void
+midori_panel_show_controls_toggled_cb (GtkWidget*   menuitem,
+                                       MidoriPanel* panel)
+{
+    g_object_set (panel, "show-controls", !panel->show_controls, NULL);
+}
+
+static void
+midori_panel_options_clicked_cb (GtkToolItem* toolitem,
+                                 MidoriPanel* panel)
+{
+    gint n;
+    GtkWidget* viewable;
+    GtkWidget* menu;
+    GtkWidget* menuitem;
+
+    n = midori_panel_get_current_page (panel);
+    viewable = midori_panel_get_nth_page (panel, n);
+    menu = gtk_menu_new ();
+    #if !HAVE_HILDON
+    menuitem = gtk_check_menu_item_new_with_mnemonic (_("Show panel _titles"));
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
+                                    panel->show_titles);
+    g_signal_connect (menuitem, "toggled",
+        G_CALLBACK (midori_panel_show_titles_toggled_cb), panel);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    #endif
+    menuitem = gtk_check_menu_item_new_with_mnemonic (_("Show operating _controls"));
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
+                                    panel->show_controls);
+    g_signal_connect (menuitem, "toggled",
+        G_CALLBACK (midori_panel_show_controls_toggled_cb), panel);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    g_signal_emit_by_name (viewable, "populate-option-menu", menu);
+
+    katze_widget_popup (GTK_WIDGET (toolitem), GTK_MENU (menu),
+                        NULL, SOKOKE_MENU_POSITION_LEFT);
+}
+
 /**
  * midori_panel_append_page:
  * @panel: a #MidoriPanel
@@ -636,6 +741,7 @@ midori_panel_append_page (MidoriPanel*    panel,
     GObjectClass* gobject_class;
     GtkWidget* widget;
     GtkWidget* toolbar;
+    GtkToolItem* toolitem;
     const gchar* label;
     guint n;
 
@@ -666,6 +772,12 @@ midori_panel_append_page (MidoriPanel*    panel,
     gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
     toolbar = midori_viewable_get_toolbar (viewable);
+    toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_PROPERTIES);
+    gtk_tool_item_set_tooltip_text (toolitem, _("Options"));
+    g_signal_connect (toolitem, "clicked",
+        G_CALLBACK (midori_panel_options_clicked_cb), panel);
+    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, 0);
+    gtk_widget_show (GTK_WIDGET (toolitem));
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
     g_signal_connect (viewable, "destroy",

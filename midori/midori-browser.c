@@ -180,6 +180,11 @@ GtkWidget*
 midori_panel_construct_menu_item (MidoriPanel*    panel,
                                   MidoriViewable* viewable);
 
+static void
+midori_browser_settings_notify (MidoriWebSettings* web_settings,
+                                GParamSpec*        pspec,
+                                MidoriBrowser*     browser);
+
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
                  const gchar*   name)
@@ -3958,6 +3963,38 @@ midori_panel_notify_page_cb (MidoriPanel*   panel,
 }
 
 static void
+midori_panel_notify_show_titles_cb (MidoriPanel*   panel,
+                                    GParamSpec*    pspec,
+                                    MidoriBrowser* browser)
+{
+    gboolean show_titles = katze_object_get_boolean (panel, "show-titles");
+    if (browser->settings)
+    {
+        g_signal_handlers_block_by_func (browser->settings,
+            midori_browser_settings_notify, browser);
+        g_object_set (browser->settings, "compact-sidepanel", !show_titles, NULL);
+        g_signal_handlers_unblock_by_func (browser->settings,
+            midori_browser_settings_notify, browser);
+    }
+}
+
+static void
+midori_panel_notify_show_controls_cb (MidoriPanel*   panel,
+                                      GParamSpec*    pspec,
+                                      MidoriBrowser* browser)
+{
+    gboolean show_controls = katze_object_get_boolean (panel, "show-controls");
+    if (browser->settings)
+    {
+        g_signal_handlers_block_by_func (browser->settings,
+            midori_browser_settings_notify, browser);
+        g_object_set (browser->settings, "show-panel-controls", show_controls, NULL);
+        g_signal_handlers_unblock_by_func (browser->settings,
+            midori_browser_settings_notify, browser);
+    }
+}
+
+static void
 midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
                                       GParamSpec*    pspec,
                                       MidoriBrowser* browser)
@@ -5014,12 +5051,18 @@ midori_browser_init (MidoriBrowser* browser)
     browser->panel = g_object_new (MIDORI_TYPE_PANEL,
                                    "menu", browser->menu_tools,
                                    NULL);
-    g_signal_connect (browser->panel, "notify::page",
-                      G_CALLBACK (midori_panel_notify_page_cb), browser);
-    g_signal_connect (browser->panel, "notify::right-aligned",
-                      G_CALLBACK (midori_panel_notify_right_aligned_cb), browser);
-    g_signal_connect (browser->panel, "close",
-                      G_CALLBACK (midori_panel_close_cb), browser);
+    g_object_connect (browser->panel,
+        "signal::notify::page",
+        midori_panel_notify_page_cb, browser,
+        "signal::notify::show-titles",
+        midori_panel_notify_show_titles_cb, browser,
+        "signal::notify::show-controls",
+        midori_panel_notify_show_controls_cb, browser,
+        "signal::notify::right-aligned",
+        midori_panel_notify_right_aligned_cb, browser,
+        "signal::close",
+        midori_panel_close_cb, browser,
+        NULL);
     gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
 
     /* Notebook, containing all views */
@@ -5317,7 +5360,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
     MidoriWindowState last_window_state;
-    gboolean compact_sidepanel, right_align_sidepanel;
+    gboolean compact_sidepanel, show_panel_controls, right_align_sidepanel;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
     gboolean show_panel, show_transferbar;
@@ -5338,6 +5381,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "last-window-height", &last_window_height,
                   "last-window-state", &last_window_state,
                   "compact-sidepanel", &compact_sidepanel,
+                  "show-panel-controls", &show_panel_controls,
                   "right-align-sidepanel", &right_align_sidepanel,
                   "last-panel-position", &last_panel_position,
                   "last-panel-page", &last_panel_page,
@@ -5411,9 +5455,9 @@ _midori_browser_update_settings (MidoriBrowser* browser)
             }
     }
 
-    midori_panel_set_compact (MIDORI_PANEL (browser->panel), compact_sidepanel);
-    midori_panel_set_right_aligned (MIDORI_PANEL (browser->panel),
-                                    right_align_sidepanel);
+    g_object_set (browser->panel, "show-titles", !compact_sidepanel,
+        "show-controls", show_panel_controls,
+        "right-aligned", right_align_sidepanel, NULL);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
     /* The browser may not yet be visible, which means that we can't set the
@@ -5457,8 +5501,11 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     else if (name == g_intern_string ("toolbar-items"))
         _midori_browser_set_toolbar_items (browser, g_value_get_string (&value));
     else if (name == g_intern_string ("compact-sidepanel"))
-        midori_panel_set_compact (MIDORI_PANEL (browser->panel),
-            g_value_get_boolean (&value));
+        g_object_set (browser->panel, "show-titles",
+                      !g_value_get_boolean (&value), NULL);
+    else if (name == g_intern_string ("show-controls"))
+        g_object_set (browser->panel, "show-controls",
+                      g_value_get_boolean (&value), NULL);
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser);
     else if (name == g_intern_string ("show-navigationbar"))

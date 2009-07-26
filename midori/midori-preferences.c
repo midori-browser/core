@@ -562,11 +562,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     INDENTED_ADD (button, 0, 1, 3, 4);
-    button = katze_property_proxy (settings, "compact-sidepanel", NULL);
-    WIDGET_ADD (button, 1, 2, 3, 4);
+    button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
+    SPANNED_ADD (button, 1, 2, 3, 4);
     #endif
-    /* button = katze_property_proxy (settings, "open-popups-in-tabs", NULL);
-    SPANNED_ADD (button, 0, 1, 4, 5);*/
     button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
     WIDGET_ADD (button, 0, 1, 5, 6);
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
