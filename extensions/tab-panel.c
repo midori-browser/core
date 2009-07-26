@@ -247,6 +247,7 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     model = g_object_get_data (G_OBJECT (extension), "treemodel");
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+    gtk_tree_view_set_show_expanders (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
