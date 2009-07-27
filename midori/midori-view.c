@@ -2746,6 +2746,27 @@ midori_view_tab_label_query_tooltip_cb (GtkWidget*  tab_label,
 #endif
 
 /**
+ * midori_view_get_label_ellipsize:
+ * @view: a #MidoriView
+ *
+ * Determines how labels representing the view should be
+ * ellipsized, which is helpful for alternative labels.
+ *
+ * Return value: how to ellipsize the label
+ *
+ * Since: 0.1.9
+ **/
+PangoEllipsizeMode
+midori_view_get_label_ellipsize (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), PANGO_ELLIPSIZE_END);
+
+    if (view->tab_label)
+        return gtk_label_get_ellipsize (GTK_LABEL (view->tab_title));
+    return PANGO_ELLIPSIZE_END;
+}
+
+/**
  * midori_view_get_proxy_tab_label:
  * @view: a #MidoriView
  *
