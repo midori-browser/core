@@ -46,6 +46,36 @@ midori_extension_cursor_or_row_changed_cb (GtkTreeView*     treeview,
     /* Nothing to do */
 }
 
+#if GTK_CHECK_VERSION (2, 12, 0)
+static gboolean
+tab_panel_treeview_query_tooltip_cb (GtkWidget*  treeview,
+                                     gint        x,
+                                     gint        y,
+                                     gboolean    keyboard_tip,
+                                     GtkTooltip* tooltip,
+                                     gpointer    user_data)
+{
+    GtkTreeIter iter;
+    GtkTreePath* path;
+    GtkTreeModel* model;
+    MidoriView* view;
+
+    if (!gtk_tree_view_get_tooltip_context (GTK_TREE_VIEW (treeview),
+        &x, &y, keyboard_tip, &model, &path, &iter))
+        return FALSE;
+
+    gtk_tree_model_get (model, &iter, 0, &view, -1);
+
+    gtk_tooltip_set_text (tooltip, midori_view_get_display_title (view));
+    gtk_tree_view_set_tooltip_row (GTK_TREE_VIEW (treeview), tooltip, path);
+
+    gtk_tree_path_free (path);
+    g_object_unref (view);
+
+    return TRUE;
+}
+#endif
+
 static void
 midori_extension_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                           GtkCellRenderer*   renderer,
@@ -77,8 +107,6 @@ midori_extension_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     g_object_set (renderer, "text", midori_view_get_display_title (view),
                   "ellipsize", midori_view_get_label_ellipsize (view), NULL);
-    gtk_tree_store_set (GTK_TREE_STORE (model), iter,
-                        1, midori_view_get_display_title (view), -1);
 
     g_object_unref (view);
 }
@@ -252,7 +280,9 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     gtk_tree_view_set_show_expanders (GTK_TREE_VIEW (treeview), FALSE);
     #if GTK_CHECK_VERSION (2, 12, 0)
-    gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (treeview), 1);
+    g_signal_connect (treeview, "query-tooltip",
+        G_CALLBACK (tab_panel_treeview_query_tooltip_cb), NULL);
+    gtk_widget_set_has_tooltip (treeview, TRUE);
     #endif
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
