@@ -122,6 +122,10 @@ midori_browser_set_current_page       (MidoriBrowser*     browser,
 gint
 midori_browser_get_current_page       (MidoriBrowser*     browser);
 
+GtkWidget*
+midori_browser_get_nth_tab            (MidoriBrowser*     browser,
+                                       gint               n);
+
 void
 midori_browser_set_current_tab        (MidoriBrowser*     browser,
                                        GtkWidget*         widget);

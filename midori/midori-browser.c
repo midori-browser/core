@@ -6068,6 +6068,28 @@ midori_browser_get_current_page (MidoriBrowser* browser)
 }
 
 /**
+ * midori_browser_get_nth_tab:
+ * @browser: a #MidoriBrowser
+ * @page: the index of a tab
+ *
+ * Retrieves the tab at the position @page.
+ *
+ * If there is no page present at all, %NULL is returned.
+ *
+ * Return value: the selected page, or -1
+ *
+ * Since: 0.1.9
+ **/
+GtkWidget*
+midori_browser_get_nth_tab (MidoriBrowser* browser,
+                            gint           page)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+
+    return gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), page);
+}
+
+/**
  * midori_browser_set_current_tab:
  * @browser: a #MidoriBrowser
  * @view: a #GtkWidget
