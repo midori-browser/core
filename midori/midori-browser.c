@@ -138,16 +138,6 @@ enum
     LAST_SIGNAL
 };
 
-enum
-{
-    MIDORI_CLEAR_NONE = 0,
-    MIDORI_CLEAR_HISTORY = 1,
-    MIDORI_CLEAR_COOKIES = 2,
-    MIDORI_CLEAR_FLASH_COOKIES = 4,
-    MIDORI_CLEAR_WEBSITE_ICONS = 8,
-    MIDORI_CLEAR_TRASH = 16
-};
-
 static guint signals[LAST_SIGNAL];
 
 static void
@@ -3724,6 +3714,16 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
 }
 
 static void
+midori_browser_clear_on_quit_toggled_cb (GtkToggleButton*   button,
+                                         MidoriWebSettings* settings)
+{
+    gint clear_prefs = MIDORI_CLEAR_NONE;
+    g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
+    clear_prefs ^= MIDORI_CLEAR_ON_QUIT;
+    g_object_set (settings, "clear-private-data", clear_prefs, NULL);
+}
+
+static void
 _action_clear_private_data_activate (GtkAction*     action,
                                      MidoriBrowser* browser)
 {
@@ -3802,6 +3802,15 @@ _action_clear_private_data_activate (GtkAction*     action,
         gtk_container_add (GTK_CONTAINER (alignment), vbox);
         gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
         gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 0);
+        button = gtk_check_button_new_with_mnemonic (_("Clear private data when _quitting Midori"));
+        if ((clear_prefs & MIDORI_CLEAR_ON_QUIT) == MIDORI_CLEAR_ON_QUIT)
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+        g_signal_connect (button, "toggled",
+            G_CALLBACK (midori_browser_clear_on_quit_toggled_cb), browser->settings);
+        alignment = gtk_alignment_new (0, 0, 1, 1);
+        gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 0, 2, 0);
+        gtk_container_add (GTK_CONTAINER (alignment), button);
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), alignment, FALSE, FALSE, 0);
         gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
         g_signal_connect (dialog, "response",

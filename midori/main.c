@@ -1413,6 +1413,20 @@ midori_web_app_browser_notify_load_status_cb (MidoriBrowser* browser,
     }
 }
 
+static void
+midori_remove_config_file (gint         clear_prefs,
+                           gint         flag,
+                           const gchar* filename)
+{
+    if ((clear_prefs & flag) == flag)
+    {
+        gchar* config_file = build_config_filename (filename);
+        if (is_writable (config_file))
+            g_unlink (config_file);
+        g_free (config_file);
+    }
+}
+
 int
 main (int    argc,
       char** argv)
@@ -1468,6 +1482,7 @@ main (int    argc,
     #if HAVE_HILDON
     osso_context_t* osso_context;
     #endif
+    gint clear_prefs = MIDORI_CLEAR_NONE;
 
     #if ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -1925,12 +1940,35 @@ main (int    argc,
     osso_deinitialize (osso_context);
     #endif
 
-    #if HAVE_SQLITE
     settings = katze_object_get_object (app, "settings");
+    #if HAVE_SQLITE
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
-    g_object_unref (settings);
     midori_history_terminate (db, max_history_age);
     #endif
+
+    /* Clear data on quit, according to the Clear private data dialog */
+    g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
+    #if HAVE_SQLITE
+    midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
+    #endif
+    midori_remove_config_file (clear_prefs, MIDORI_CLEAR_COOKIES, "cookies.txt");
+    if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
+    {
+        gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
+                                         "Flash_Player", NULL);
+        sokoke_remove_path (cache, TRUE);
+        g_free (cache);
+    }
+    if ((clear_prefs & MIDORI_CLEAR_WEBSITE_ICONS) == MIDORI_CLEAR_WEBSITE_ICONS)
+    {
+        gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                         PACKAGE_NAME, "icons", NULL);
+        sokoke_remove_path (cache, TRUE);
+        g_free (cache);
+    }
+    midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
+
+    g_object_unref (settings);
     g_object_unref (app);
     g_free (config_file);
     return 0;
