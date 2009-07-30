@@ -1111,12 +1111,17 @@ static void
 midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
 {
-    gchar* uri = view->link_uri;
-
-    if (!uri)
-        uri = (gchar*)g_object_get_data (G_OBJECT (widget), "uri");
-    g_signal_emit (view, signals[NEW_TAB], 0, uri,
-        view->open_tabs_in_the_background);
+    if (view->link_uri)
+        g_signal_emit (view, signals[NEW_TAB], 0, view->link_uri,
+                       view->open_tabs_in_the_background);
+    else
+    {
+        gchar* data = (gchar*)g_object_get_data (G_OBJECT (widget), "uri");
+        gchar* uri = sokoke_magic_uri (data, NULL);
+        g_signal_emit (view, signals[NEW_TAB], 0, uri,
+                       view->open_tabs_in_the_background);
+        g_free (uri);
+    }
 }
 
 static void
