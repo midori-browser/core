@@ -2516,6 +2516,7 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
         "net", view->net, "settings", view->settings, NULL);
     midori_view_set_uri (MIDORI_VIEW (new_view),
         midori_view_get_display_uri (view));
+    gtk_widget_show (new_view);
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
 }
 
