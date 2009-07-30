@@ -1090,12 +1090,41 @@ midori_view_attach_inspector_cb (GtkWidget*     view,
 }
 
 static void
+midori_browser_view_copy_history (GtkWidget* view_to,
+                                  GtkWidget* view_from)
+{
+    WebKitWebView* copy_from;
+    WebKitWebBackForwardList* list_from;
+    WebKitWebView* copy_to;
+    WebKitWebBackForwardList* list_to;
+    guint length_from;
+    guint i;
+
+    copy_from = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view_from)));
+    list_from = webkit_web_view_get_back_forward_list (copy_from);
+    copy_to = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view_to)));
+    list_to = webkit_web_view_get_back_forward_list (copy_to);
+    length_from = webkit_web_back_forward_list_get_back_length (list_from);
+
+    g_return_if_fail (!webkit_web_back_forward_list_get_back_length (list_to));
+
+    for (i = -length_from; i <= 0; i++)
+    {
+        webkit_web_back_forward_list_add_item (list_to,
+            webkit_web_back_forward_list_get_nth_item (list_from, i));
+    }
+}
+
+static void
 midori_view_new_tab_cb (GtkWidget*     view,
                         const gchar*   uri,
                         gboolean       background,
                         MidoriBrowser* browser)
 {
     gint n = midori_browser_add_uri (browser, uri);
+    midori_browser_view_copy_history (midori_browser_get_nth_tab (browser, n),
+                                      view);
+
     if (!background)
         midori_browser_set_current_page (browser, n);
 }
