@@ -1098,7 +1098,7 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     WebKitWebView* copy_to;
     WebKitWebBackForwardList* list_to;
     guint length_from;
-    guint i;
+    gint i;
 
     copy_from = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view_from)));
     list_from = webkit_web_view_get_back_forward_list (copy_from);
