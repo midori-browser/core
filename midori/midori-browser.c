@@ -1091,7 +1091,8 @@ midori_view_attach_inspector_cb (GtkWidget*     view,
 
 static void
 midori_browser_view_copy_history (GtkWidget* view_to,
-                                  GtkWidget* view_from)
+                                  GtkWidget* view_from,
+                                  gboolean   omit_last)
 {
     WebKitWebView* copy_from;
     WebKitWebBackForwardList* list_from;
@@ -1108,7 +1109,7 @@ midori_browser_view_copy_history (GtkWidget* view_to,
 
     g_return_if_fail (!webkit_web_back_forward_list_get_back_length (list_to));
 
-    for (i = -length_from; i <= 0; i++)
+    for (i = -length_from; i <= (omit_last ? -1 : 0); i++)
     {
         webkit_web_back_forward_list_add_item (list_to,
             webkit_web_back_forward_list_get_nth_item (list_from, i));
@@ -1123,7 +1124,7 @@ midori_view_new_tab_cb (GtkWidget*     view,
 {
     gint n = midori_browser_add_uri (browser, uri);
     midori_browser_view_copy_history (midori_browser_get_nth_tab (browser, n),
-                                      view);
+                                      view, FALSE);
 
     if (!background)
         midori_browser_set_current_page (browser, n);
@@ -1145,6 +1146,7 @@ midori_view_new_view_cb (GtkWidget*     view,
                          MidoriNewView  where,
                          MidoriBrowser* browser)
 {
+    midori_browser_view_copy_history (new_view, view, TRUE);
     if (where == MIDORI_NEW_VIEW_WINDOW)
     {
         MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
