@@ -1323,12 +1323,20 @@ midori_web_settings_set_property (GObject*      object,
         {
             gchar* string = generate_ident_string (web_settings->identify_as);
             katze_assign (web_settings->ident_string, string);
+            #if WEBKIT_CHECK_VERSION (1, 1, 11)
+            g_object_set (web_settings, "user-agent", string, NULL);
+            #endif
             g_object_notify (object, "ident-string");
         }
         break;
     case PROP_IDENT_STRING:
         if (web_settings->identify_as == MIDORI_IDENT_CUSTOM)
+        {
             katze_assign (web_settings->ident_string, g_value_dup_string (value));
+            #if WEBKIT_CHECK_VERSION (1, 1, 11)
+            g_object_set (web_settings, "user-agent", web_settings->ident_string, NULL);
+            #endif
+        }
         break;
     case PROP_CACHE_SIZE:
         web_settings->cache_size = g_value_get_int (value);
