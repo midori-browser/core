@@ -30,16 +30,6 @@ struct _MidoriLocationEntryClass
 G_DEFINE_TYPE (MidoriLocationEntry,
     midori_location_entry, GTK_TYPE_COMBO_BOX_ENTRY)
 
-enum
-{
-    FAVICON_COL,
-    URI_COL,
-    TITLE_COL,
-    VISITS_COL,
-    VISIBLE_COL,
-    N_COLS
-};
-
 static gboolean
 entry_key_press_event (GtkWidget*           widget,
                        GdkEventKey*         event,
