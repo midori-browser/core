@@ -1168,8 +1168,23 @@ midori_browser_download_notify_progress_cb (WebKitDownload* download,
                                             GParamSpec*     pspec,
                                             GtkWidget*      progress)
 {
+    gchar* current;
+    gchar* total;
+    gchar* size_text;
+    gchar* text;
+
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
         webkit_download_get_progress (download));
+
+    current = g_format_size_for_display (webkit_download_get_current_size (download));
+    total = g_format_size_for_display (webkit_download_get_total_size (download));
+    size_text = g_strdup_printf (_("%s of %s"), current, total);
+    g_free (current);
+    g_free (total);
+    text = g_strdup_printf ("%s (%s)",
+        gtk_progress_bar_get_text (GTK_PROGRESS_BAR (progress)),
+        size_text);
+    gtk_widget_set_tooltip_text (progress, text);
 }
 
 static void
