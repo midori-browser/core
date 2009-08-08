@@ -2126,6 +2126,8 @@ midori_view_set_uri (MidoriView*  view,
 
             g_file_get_contents (MDATADIR "/midori/res/speeddial-head.html",
                                  &speed_dial_head, NULL, NULL);
+            if (G_UNLIKELY (!speed_dial_head))
+                speed_dial_head = g_strdup ("");
 
             res_server = sokoke_get_res_server ();
             port = soup_server_get_port (res_server);
