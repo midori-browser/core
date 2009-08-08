@@ -1948,25 +1948,28 @@ main (int    argc,
 
     /* Clear data on quit, according to the Clear private data dialog */
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
-    #if HAVE_SQLITE
-    midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
-    #endif
-    midori_remove_config_file (clear_prefs, MIDORI_CLEAR_COOKIES, "cookies.txt");
-    if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
+    if (clear_prefs & MIDORI_CLEAR_ON_QUIT)
     {
-        gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
-                                         "Flash_Player", NULL);
-        sokoke_remove_path (cache, TRUE);
-        g_free (cache);
+        #if HAVE_SQLITE
+        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
+        #endif
+        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_COOKIES, "cookies.txt");
+        if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
+        {
+            gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
+                                             "Flash_Player", NULL);
+            sokoke_remove_path (cache, TRUE);
+            g_free (cache);
+        }
+        if ((clear_prefs & MIDORI_CLEAR_WEBSITE_ICONS) == MIDORI_CLEAR_WEBSITE_ICONS)
+        {
+            gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                             PACKAGE_NAME, "icons", NULL);
+            sokoke_remove_path (cache, TRUE);
+            g_free (cache);
+        }
+        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
     }
-    if ((clear_prefs & MIDORI_CLEAR_WEBSITE_ICONS) == MIDORI_CLEAR_WEBSITE_ICONS)
-    {
-        gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                         PACKAGE_NAME, "icons", NULL);
-        sokoke_remove_path (cache, TRUE);
-        g_free (cache);
-    }
-    midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
 
     g_object_unref (settings);
     g_object_unref (app);
