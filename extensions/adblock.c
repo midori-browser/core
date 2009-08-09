@@ -387,6 +387,9 @@ adblock_parse_file (gchar* path)
             gchar* parsed;
 
             parsed = adblock_parse_line (line);
+            if (!parsed)
+                continue;
+
             regex = g_regex_new (parsed, G_REGEX_OPTIMIZE,
                                  G_REGEX_MATCH_NOTEMPTY, &error);
             if (error)
