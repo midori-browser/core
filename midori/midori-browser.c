@@ -5287,6 +5287,11 @@ midori_browser_finalize (GObject* object)
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
 
+    if (browser->settings)
+        g_signal_handlers_disconnect_by_func (browser->settings,
+                                              midori_browser_settings_notify,
+                                              browser);
+
     katze_assign (browser->statusbar_text, NULL);
 
     katze_object_assign (browser->settings, NULL);
@@ -5556,11 +5561,23 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     else if (name == g_intern_string ("toolbar-items"))
         _midori_browser_set_toolbar_items (browser, g_value_get_string (&value));
     else if (name == g_intern_string ("compact-sidepanel"))
+    {
+        g_signal_handlers_block_by_func (browser->panel,
+            midori_panel_notify_show_titles_cb, browser);
         g_object_set (browser->panel, "show-titles",
                       !g_value_get_boolean (&value), NULL);
-    else if (name == g_intern_string ("show-controls"))
+        g_signal_handlers_unblock_by_func (browser->panel,
+            midori_panel_notify_show_titles_cb, browser);
+    }
+    else if (name == g_intern_string ("show-panel-controls"))
+    {
+        g_signal_handlers_block_by_func (browser->panel,
+            midori_panel_notify_show_controls_cb, browser);
         g_object_set (browser->panel, "show-controls",
                       g_value_get_boolean (&value), NULL);
+        g_signal_handlers_unblock_by_func (browser->panel,
+            midori_panel_notify_show_controls_cb, browser);
+    }
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser);
     else if (name == g_intern_string ("show-navigationbar"))
