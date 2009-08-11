@@ -5258,7 +5258,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->transferbar,
                         FALSE, FALSE, 3);
     gtk_widget_show (browser->transferbar);
-    browser->transferbar_clear = gtk_button_new_with_label (_("Delete All"));
+    browser->transferbar_clear = gtk_button_new_with_label (_("Clear All"));
     icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
     gtk_button_set_image (GTK_BUTTON (browser->transferbar_clear), icon);
     g_signal_connect (browser->transferbar_clear, "clicked",
