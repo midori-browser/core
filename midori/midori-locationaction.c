@@ -312,6 +312,10 @@ midori_location_action_thaw (MidoriLocationAction* location_action)
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (midori_location_action_is_frozen (location_action));
 
+    gtk_tree_sortable_set_sort_column_id (
+        GTK_TREE_SORTABLE (location_action->model),
+        VISITS_COL, GTK_SORT_DESCENDING);
+
     filter_model = gtk_tree_model_filter_new (location_action->model, NULL);
     gtk_tree_model_filter_set_visible_column (
         GTK_TREE_MODEL_FILTER (filter_model), VISIBLE_COL);
@@ -333,8 +337,6 @@ midori_location_action_create_model (void)
     GtkTreeModel* model = (GtkTreeModel*) gtk_list_store_new (N_COLS,
         GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
         G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT);
-    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (model),
-        VISITS_COL, GTK_SORT_DESCENDING);
     return model;
 }
 
