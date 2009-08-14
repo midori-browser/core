@@ -3227,8 +3227,22 @@ _action_location_secondary_icon_released (GtkAction*     action,
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
         if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
             _action_location_submit_uri (action, uri, FALSE, browser);
-        else if (g_object_get_data (G_OBJECT (view), "news-feeds"))
-            sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
+        else if ((uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
+        {
+            if (browser->news_aggregator && *browser->news_aggregator)
+                sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
+            else
+            {
+                GtkWidget* dialog = gtk_message_dialog_new (
+                    GTK_WINDOW (browser), 0, GTK_MESSAGE_INFO,
+                    GTK_BUTTONS_OK, "%s", _("New feed"));
+                    gtk_message_dialog_format_secondary_text (
+                        GTK_MESSAGE_DIALOG (dialog), "%s", uri);
+                 gtk_widget_show (dialog);
+                 g_signal_connect_swapped (dialog, "response",
+                     G_CALLBACK (gtk_widget_destroy), dialog);
+            }
+        }
         else
             _action_location_submit_uri (action, uri, FALSE, browser);
     }

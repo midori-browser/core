@@ -847,7 +847,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 
-    if (view->news_aggregator && *view->news_aggregator)
+    if (1)
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
         /* This snippet joins the available news feeds into a string like this:
@@ -861,6 +861,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         "feeds (document.getElementsByTagName ('link'))", NULL);
         gchar** items = g_strsplit (value, ",", 0);
         guint i = 0;
+        gchar* default_uri = NULL;
 
         katze_array_clear (view->news_feeds);
         if (items != NULL)
@@ -873,12 +874,13 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                 NULL);
             katze_array_add_item (view->news_feeds, item);
             g_object_unref (item);
+            if (!default_uri)
+                default_uri = g_strdup (parts ? *parts : NULL);
             g_strfreev (parts);
             i++;
         }
         g_strfreev (items);
-        g_object_set_data (G_OBJECT (view), "news-feeds",
-                           value && *value ? (void*)1 : (void*)0);
+        g_object_set_data_full (G_OBJECT (view), "news-feeds", default_uri, g_free);
         g_free (value);
         /* Ensure load-status is notified again, whether it changed or not */
         g_object_notify (G_OBJECT (view), "load-status");
