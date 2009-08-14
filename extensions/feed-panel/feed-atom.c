@@ -11,12 +11,6 @@
 
 #include "feed-atom.h"
 
-#define atom_get_link_attribute(item, attribute) \
-    (gchar*)g_object_get_data (G_OBJECT (item), attribute)
-
-#define atom_set_link_attribute(item, attribute, value) \
-    g_object_set_data (G_OBJECT (item), attribute, value)
-
 static gboolean
 atom_is_valid (FeedParser* fparser)
 {
@@ -102,8 +96,8 @@ atom_get_link (KatzeItem* item,
     gboolean newlink;
 
     newlink = FALSE;
-    oldtype = atom_get_link_attribute (item, "linktype");
-    oldrel = atom_get_link_attribute (item, "linkrel");
+    oldtype = (gchar*)katze_item_get_meta_string (item, "feedpanel:linktype");
+    oldrel = (gchar*)katze_item_get_meta_string (item, "feedpanel:linkrel");
 
     newtype = (gchar*)xmlGetProp (node, BAD_CAST "type");
     newrel = (gchar*)xmlGetProp (node, BAD_CAST "rel");
@@ -127,21 +121,21 @@ atom_get_link (KatzeItem* item,
     if (newlink)
     {
         katze_item_set_uri (item, href);
-        atom_set_link_attribute (item, "linkrel", newrel);
-        atom_set_link_attribute (item, "linktype", newrel);
+        katze_item_set_meta_string (item, "feedpanel:linkrel", newrel);
+        katze_item_set_meta_string (item, "feedpanel:linktype", newtype);
     }
-    else
-    {
-        xmlFree (href);
-        xmlFree (newrel);
-        xmlFree (newtype);
-    }
+
+    xmlFree (href);
+    xmlFree (newrel);
+    xmlFree (newtype);
 }
 
 static gchar*
 atom_get_title (FeedParser* fparser)
 {
-    if (!katze_item_get_name (fparser->item))
+    const gchar* name;
+
+    if (!(name = katze_item_get_name (fparser->item)))
     {
         gchar* type;
 
@@ -159,8 +153,9 @@ atom_get_title (FeedParser* fparser)
             if (content)
                 return content;
         }
+        return feed_get_element_string (fparser);
     }
-    return feed_get_element_string (fparser);
+    return g_strdup (name);
 }
 
 static void
@@ -245,8 +240,8 @@ atom_postparse_entry (FeedParser* fparser)
 
     if (KATZE_IS_ITEM (fparser->item))
     {
-        atom_set_link_attribute (fparser->item, "linkrel", NULL);
-        atom_set_link_attribute (fparser->item, "linktype", NULL);
+        katze_item_set_meta_string (fparser->item, "feedpanel:linkrel", NULL);
+        katze_item_set_meta_string (fparser->item, "feedpanel:linktype", NULL);
 
         if (*fparser->error)
         {
@@ -330,8 +325,8 @@ atom_postparse_feed (FeedParser* fparser)
 {
     if (KATZE_IS_ARRAY (fparser->item))
     {
-        atom_set_link_attribute (fparser->item, "linkrel", NULL);
-        atom_set_link_attribute (fparser->item, "linktype", NULL);
+        katze_item_set_meta_string (fparser->item, "feedpanel:linkrel", NULL);
+        katze_item_set_meta_string (fparser->item, "feedpanel:linktype", NULL);
     }
 
     if (!*fparser->error)

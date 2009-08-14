@@ -19,11 +19,10 @@
 #define UPDATE_FREQ 10
 
 #define feed_get_flags(feed) \
-    GPOINTER_TO_INT (g_object_get_data (G_OBJECT ((feed)), "flags"))
+    katze_item_get_meta_integer (KATZE_ITEM ((feed)), "feedpanel:flags")
 
 #define feed_set_flags(feed, flags) \
-    g_object_set_data (G_OBJECT ((feed)), "flags", \
-        GINT_TO_POINTER ((flags)))
+    katze_item_set_meta_integer (KATZE_ITEM ((feed)), "feedpanel:flags", (flags))
 
 #define feed_has_flags(feed, flags) \
     ((flags) & feed_get_flags ((feed)))
