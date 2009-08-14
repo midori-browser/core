@@ -294,8 +294,6 @@ gchar*
 sokoke_magic_uri (const gchar* uri,
                   KatzeArray*  search_engines)
 {
-    gchar* current_dir;
-    gchar* result;
     gchar** parts;
     gchar* search;
     const gchar* search_uri;
@@ -313,20 +311,13 @@ sokoke_magic_uri (const gchar* uri,
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);
-    /* Construct an absolute path if the file is relative */
-    if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
-    {
-        current_dir = g_get_current_dir ();
-        result = g_strconcat ("file://", current_dir,
-                              G_DIR_SEPARATOR_S, uri, NULL);
-        g_free (current_dir);
-        return result;
-    }
     /* Do we have a protocol? */
     if (g_strstr_len (uri, 8, "://"))
         return sokoke_idn_to_punycode (g_strdup (uri));
 
     /* Do we have a domain, ip address or localhost? */
+    if (g_ascii_isdigit (uri[0]))
+        return g_strconcat ("http://", uri, NULL);
     search = NULL;
     if (!strchr (uri, ' ') &&
         ((search = strchr (uri, ':')) || (search = strchr (uri, '@'))) &&
@@ -339,11 +330,11 @@ sokoke_magic_uri (const gchar* uri,
     {
         if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
             if (!strchr (parts[0], ' ') && !strchr (parts[1], ' '))
-                if ((search = g_strconcat ("http://", uri, NULL)))
-                {
-                    g_strfreev (parts);
-                    return sokoke_idn_to_punycode (search);
-                }
+            {
+                search = g_strconcat ("http://", uri, NULL);
+                g_strfreev (parts);
+                return sokoke_idn_to_punycode (search);
+            }
     }
     g_strfreev (parts);
     /* We don't want to search? So return early. */

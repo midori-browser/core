@@ -1642,8 +1642,12 @@ main (int    argc,
 
         if (execute)
             result = midori_app_send_command (app, uris);
-        else if (uris) /* TODO: Open a tab per URI, seperated by pipes */
+        else if (uris)
+        {
+            /* TODO: Open a tab per URI, seperated by pipes */
+            /* FIXME: Handle relative files or magic URI here */
             result = midori_app_instance_send_uris (app, uris);
+        }
         else
             result = midori_app_instance_send_new_browser (app);
 
@@ -1823,7 +1827,16 @@ main (int    argc,
         while (uri != NULL)
         {
             item = katze_item_new ();
-            uri_ready = sokoke_magic_uri (uri, NULL);
+            /* Construct an absolute path if the file is relative */
+            if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
+            {
+                gchar* current_dir = g_get_current_dir ();
+                uri_ready = g_strconcat ("file://", current_dir,
+                                         G_DIR_SEPARATOR_S, uri, NULL);
+                g_free (current_dir);
+            }
+            else
+                uri_ready = sokoke_magic_uri (uri, NULL);
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
             katze_array_add_item (_session, item);

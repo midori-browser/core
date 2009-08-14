@@ -54,8 +54,6 @@ test_input (const gchar* input,
 static void
 magic_uri_uri (void)
 {
-    gchar* a, *b;
-
     test_input ("ftp://ftp.mozilla.org", "ftp://ftp.mozilla.org");
     test_input ("ftp://ftp.mozilla.org/pub", "ftp://ftp.mozilla.org/pub");
     test_input ("http://www.example.com", "http://www.example.com");
@@ -64,14 +62,10 @@ magic_uri_uri (void)
     test_input ("example.com", "http://example.com");
     test_input ("www.google..com", "http://www.google..com");
     test_input ("/home/user/midori.html", "file:///home/user/midori.html");
-    a = g_get_current_dir ();
-    b = g_strconcat ("file://", a, G_DIR_SEPARATOR_S, "magic-uri.c", NULL);
-    g_free (a);
-    test_input ("magic-uri.c", b);
-    g_free (b);
     test_input ("localhost", "http://localhost");
     test_input ("localhost:8000", "http://localhost:8000");
     test_input ("localhost/rss", "http://localhost/rss");
+    test_input ("10.0.0.1", "http://10.0.0.1");
     test_input ("192.168.1.1", "http://192.168.1.1");
     test_input ("192.168.1.1:8000", "http://192.168.1.1:8000");
     test_input ("file:///home/mark/foo/bar.html",
