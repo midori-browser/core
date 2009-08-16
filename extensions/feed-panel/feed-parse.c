@@ -29,7 +29,6 @@ feed_get_element_string (FeedParser* fparser)
          */
         return g_strdup (" ");
     }
-
     return (gchar*)xmlNodeListGetString (fparser->doc, node->children, 1);
 }
 
@@ -74,6 +73,14 @@ gchar*
 feed_get_element_markup (FeedParser* fparser)
 {
     gchar* markup;
+    xmlNodePtr node = fparser->node;
+
+    if (node->children &&
+        !xmlIsBlankNode (node->children) &&
+        node->children->type == XML_ELEMENT_NODE)
+    {
+        return (gchar*) xmlNodeGetContent (node->children);
+    }
 
     markup = feed_get_element_string (fparser);
     return feed_remove_markup (markup);
