@@ -1105,15 +1105,23 @@ generate_ident_string (MidoriIdentity identify_as)
 
     const gchar* lang = pango_language_to_string (gtk_get_default_language ());
 
+    #ifndef WEBKIT_USER_AGENT_MAJOR_VERSION
+        #define WEBKIT_USER_AGENT_MAJOR_VERSION 532
+        #define WEBKIT_USER_AGENT_MINOR_VERSION 1
+    #endif
+
+    const gchar* webcore = "WebKit/" G_STRINGIFY (WEBKIT_USER_AGENT_MAJOR_VERSION)
+        "." G_STRINGIFY (WEBKIT_USER_AGENT_MINOR_VERSION) "+";
+
     switch (identify_as)
     {
     case MIDORI_IDENT_MIDORI:
-        return g_strdup_printf ("%s (%s; %s; U; %s) WebKit/532+",
-                                appname, platform, os, lang);
+        return g_strdup_printf ("%s (%s; %s; U; %s) %s",
+                                appname, platform, os, lang, webcore);
     case MIDORI_IDENT_SAFARI:
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
-            "AppleWebKit/532+ (KHTML, like Gecko) Safari/419.3 %s",
-                                platform, os, lang, appname);
+            "AppleWebKit/532+ (KHTML, like Gecko) Safari/%s %s",
+                                platform, os, lang, webcore, appname);
     case MIDORI_IDENT_FIREFOX:
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s; rv:1.8.1) "
             "Gecko/20061010 Firefox/2.0 %s",
