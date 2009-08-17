@@ -3943,13 +3943,18 @@ static void
 _action_about_activate (GtkAction*     action,
                         MidoriBrowser* browser)
 {
+    gchar* comments = g_strdup_printf ("GTK+ %d.%d.%d, WebKitGTK+ %d.%d.%d\n%s",
+        GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+        WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
+        _("A lightweight web browser."));
+
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
     gtk_show_about_dialog (GTK_WINDOW (browser),
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
         "name", PACKAGE_NAME,
         "version", PACKAGE_VERSION,
-        "comments", _("A lightweight web browser."),
+        "comments", comments,
         "copyright", "Copyright © 2007-2009 Christian Dywan",
         "website", "http://www.twotoasts.de",
         "authors", credits_authors,
