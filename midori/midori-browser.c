@@ -3215,7 +3215,7 @@ _action_location_submit_uri (GtkAction*     action,
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
-static void
+static gboolean
 _action_location_secondary_icon_released (GtkAction*     action,
                                           GtkWidget*     widget,
                                           MidoriBrowser* browser)
@@ -3245,7 +3245,10 @@ _action_location_secondary_icon_released (GtkAction*     action,
         }
         else
             _action_location_submit_uri (action, uri, FALSE, browser);
+        return TRUE;
     }
+
+    return FALSE;
 }
 
 static void
@@ -4887,7 +4890,7 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_location_reset_uri, browser,
                       "signal::submit-uri",
                       _action_location_submit_uri, browser,
-                      "signal::secondary-icon-released",
+                      "signal-after::secondary-icon-released",
                       _action_location_secondary_icon_released, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group,

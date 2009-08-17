@@ -153,14 +153,23 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                        g_cclosure_marshal_VOID__VOID,
                                        G_TYPE_NONE, 0);
 
+    /**
+     * MidoriLocationAction:secondary-icon-released:
+     *
+     * The secondary-icon-released signal is emitted when the mouse button
+     * is released above the secondary icon.
+     *
+     * Since 0.1.10 a signal handler can return %TRUE to stop signal
+     * emission, for instance to suppress default behavior.
+     */
     signals[SECONDARY_ICON_RELEASED] = g_signal_new ("secondary-icon-released",
                                        G_TYPE_FROM_CLASS (class),
                                        (GSignalFlags) (G_SIGNAL_RUN_LAST),
                                        0,
-                                       0,
+                                       g_signal_accumulator_true_handled,
                                        NULL,
-                                       g_cclosure_marshal_VOID__OBJECT,
-                                       G_TYPE_NONE, 1,
+                                       midori_cclosure_marshal_BOOLEAN__OBJECT,
+                                       G_TYPE_BOOLEAN, 1,
                                        GTK_TYPE_WIDGET);
 
     signals[RESET_URI] = g_signal_new ("reset-uri",
