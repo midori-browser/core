@@ -19,10 +19,11 @@
 #define UPDATE_FREQ 10
 
 #define feed_get_flags(feed) \
-    katze_item_get_meta_integer (KATZE_ITEM ((feed)), "feedpanel:flags")
+    GPOINTER_TO_INT (g_object_get_data (G_OBJECT ((feed)), "flags"))
 
 #define feed_set_flags(feed, flags) \
-    katze_item_set_meta_integer (KATZE_ITEM ((feed)), "feedpanel:flags", (flags))
+    g_object_set_data (G_OBJECT ((feed)), "flags", \
+                       GINT_TO_POINTER ((flags)))
 
 #define feed_has_flags(feed, flags) \
     ((flags) & feed_get_flags ((feed)))
@@ -57,7 +58,7 @@ typedef struct
 
 enum
 {
-    FEED_READ,
+    FEED_READ = 1,
     FEED_REMOVE
 };
 
@@ -252,7 +253,10 @@ feed_transfer_cb (KatzeNetRequest* request,
             feed_save_items (netpriv->extension, parent);
         }
         else
-            feed_set_flags (netpriv->feed, 0);
+        {
+            feed_remove_flags (netpriv->feed, FEED_REMOVE);
+            feed_remove_flags (netpriv->feed, FEED_READ);
+        }
     }
 
     netpriv->parsers = NULL;
