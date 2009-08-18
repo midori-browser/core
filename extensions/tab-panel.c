@@ -25,6 +25,49 @@ tab_panel_settings_notify_cb (MidoriWebSettings* settings,
                               GtkTreeModel*      model);
 
 static void
+tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
+                              GtkWidget*       view,
+                              MidoriExtension* extension);
+
+static void
+tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
+                                 GtkWidget*       view,
+                                 MidoriExtension* extension);
+
+static void
+tab_panel_view_notify_minimized_cb (GtkWidget*       view,
+                                    GParamSpec*      pspec,
+                                    MidoriExtension* extension);
+
+static void
+tab_panel_view_notify_icon_cb (GtkWidget*       view,
+                               GParamSpec*      pspec,
+                               MidoriExtension* extension);
+
+static void
+tab_panel_view_notify_title_cb (GtkWidget*       view,
+                                GParamSpec*      pspec,
+                                MidoriExtension* extension);
+
+static GtkTreeModel*
+tab_panel_get_model_for_browser (MidoriBrowser* browser)
+{
+    return g_object_get_data (G_OBJECT (browser), "tab-panel-ext-model");
+}
+
+static GtkWidget*
+tab_panel_get_toolbar_for_browser (MidoriBrowser* browser)
+{
+    return g_object_get_data (G_OBJECT (browser), "tab-panel-ext-toolbar");
+}
+
+static GtkToolItem*
+tab_panel_get_toolitem_for_view (GtkWidget* view)
+{
+    return g_object_get_data (G_OBJECT (view), "tab-panel-ext-toolitem");
+}
+
+static void
 tab_panel_deactivate_cb (MidoriExtension* extension,
                          GtkWidget*       panel)
 {
@@ -32,10 +75,10 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
     GtkTreeModel* model;
     MidoriBrowser* browser;
 
-    model = g_object_get_data (G_OBJECT (extension), "treemodel");
-    g_object_unref (model);
     browser = midori_browser_get_for_widget (panel);
     g_object_set (browser, "show-tabs", TRUE, NULL);
+    model = tab_panel_get_model_for_browser (browser);
+    g_object_unref (model);
 
     gtk_widget_destroy (panel);
     g_signal_handlers_disconnect_by_func (
@@ -43,7 +86,17 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
     g_signal_handlers_disconnect_by_func (
         app, tab_panel_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_browser_add_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_browser_remove_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
         browser, tab_panel_settings_notify_cb, model);
+    g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_view_notify_minimized_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_view_notify_icon_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_view_notify_title_cb, extension);
 }
 
 static void
@@ -84,41 +137,6 @@ tab_panel_treeview_query_tooltip_cb (GtkWidget*  treeview,
 #endif
 
 static void
-midori_extension_treeview_render_icon_cb (GtkTreeViewColumn* column,
-                                          GtkCellRenderer*   renderer,
-                                          GtkTreeModel*      model,
-                                          GtkTreeIter*       iter,
-                                          GtkWidget*         treeview)
-{
-    MidoriView* view;
-    GdkPixbuf* pixbuf;
-
-    gtk_tree_model_get (model, iter, 0, &view, -1);
-
-    if ((pixbuf = midori_view_get_icon (view)))
-        g_object_set (renderer, "pixbuf", pixbuf, NULL);
-
-    g_object_unref (view);
-}
-
-static void
-midori_extension_treeview_render_text_cb (GtkTreeViewColumn* column,
-                                          GtkCellRenderer*   renderer,
-                                          GtkTreeModel*      model,
-                                          GtkTreeIter*       iter,
-                                          GtkWidget*         treeview)
-{
-    MidoriView* view;
-
-    gtk_tree_model_get (model, iter, 0, &view, -1);
-
-    g_object_set (renderer, "text", midori_view_get_display_title (view),
-                  "ellipsize", midori_view_get_label_ellipsize (view), NULL);
-
-    g_object_unref (view);
-}
-
-static void
 midori_extension_row_activated_cb (GtkTreeView*       treeview,
                                    GtkTreePath*       path,
                                    GtkTreeViewColumn* column,
@@ -143,10 +161,9 @@ midori_extension_row_activated_cb (GtkTreeView*       treeview,
 }
 
 static void
-midori_extension_popup (GtkWidget*       widget,
-                        GdkEventButton*  event,
-                        GtkWidget*       view,
-                        MidoriExtension* extension)
+tab_panel_popup (GtkWidget*      widget,
+                 GdkEventButton* event,
+                 GtkWidget*      view)
 {
     GtkWidget* menu = midori_view_get_tab_menu (MIDORI_VIEW (view));
 
@@ -185,7 +202,7 @@ midori_extension_button_release_event_cb (GtkWidget*       widget,
         else if (event->button == 2)
             gtk_widget_destroy (view);
         else
-            midori_extension_popup (widget, event, view, extension);
+            tab_panel_popup (widget, event, view);
 
         g_object_unref (view);
         return TRUE;
@@ -215,7 +232,7 @@ midori_extension_popup_menu_cb (GtkWidget*       widget,
         GtkWidget* view;
 
         gtk_tree_model_get (model, &iter, 0, &view, -1);
-        midori_extension_popup (widget, NULL, view, extension);
+        tab_panel_popup (widget, NULL, view);
         g_object_unref (view);
     }
 }
@@ -235,21 +252,207 @@ tab_panel_settings_notify_cb (MidoriWebSettings* settings,
 }
 
 static void
+tab_panel_remove_view (MidoriBrowser* browser,
+                       GtkWidget*     view,
+                       gboolean       minimized)
+{
+    if (minimized)
+    {
+        GtkToolItem* toolitem = tab_panel_get_toolitem_for_view (view);
+        gtk_widget_destroy (GTK_WIDGET (toolitem));
+    }
+    else
+    {
+        GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
+        GtkTreeIter iter;
+        guint i = 0;
+
+        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
+        {
+            MidoriView* view_;
+
+            gtk_tree_model_get (model, &iter, 0, &view_, -1);
+
+            if ((MidoriView*)view == view_)
+            {
+                gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
+                g_object_unref (view_);
+                break;
+            }
+
+            g_object_unref (view_);
+            i++;
+        }
+    }
+}
+
+static void
+tab_panel_view_notify_minimized_cb (GtkWidget*       view,
+                                    GParamSpec*      pspec,
+                                    MidoriExtension* extension)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    gboolean minimized = katze_object_get_boolean (view, "minimized");
+
+    tab_panel_remove_view (browser, view, !minimized);
+    tab_panel_browser_add_tab_cb (browser, view, extension);
+}
+
+static void
+tab_panel_view_notify_icon_cb (GtkWidget*       view,
+                               GParamSpec*      pspec,
+                               MidoriExtension* extension)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    gboolean minimized = katze_object_get_boolean (view, "minimized");
+    GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
+
+    if (minimized)
+    {
+        GtkToolItem* toolitem = tab_panel_get_toolitem_for_view (view);
+        GtkWidget* image = gtk_tool_button_get_icon_widget (GTK_TOOL_BUTTON (toolitem));
+        gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
+    }
+    else
+    {
+        GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
+        GtkTreeIter iter;
+        guint i = 0;
+
+        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
+        {
+            MidoriView* view_;
+
+            gtk_tree_model_get (model, &iter, 0, &view_, -1);
+
+            if ((MidoriView*)view == view_)
+            {
+                gtk_tree_store_set (GTK_TREE_STORE (model), &iter, 3, icon, -1);
+                g_object_unref (view_);
+                break;
+            }
+
+            g_object_unref (view_);
+            i++;
+        }
+    }
+}
+
+static void
+tab_panel_view_notify_title_cb (GtkWidget*       view,
+                                GParamSpec*      pspec,
+                                MidoriExtension* extension)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    gboolean minimized = katze_object_get_boolean (view, "minimized");
+    const gchar* title = midori_view_get_display_title (MIDORI_VIEW (view));
+
+    if (minimized)
+    {
+        GtkToolItem* toolitem = tab_panel_get_toolitem_for_view (view);
+        gtk_tool_item_set_tooltip_text (toolitem, title);
+    }
+    else
+    {
+        GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
+        GtkTreeIter iter;
+        guint i = 0;
+
+        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
+        {
+            MidoriView* view_;
+
+            gtk_tree_model_get (model, &iter, 0, &view_, -1);
+
+            if ((MidoriView*)view == view_)
+            {
+                gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+                    4, title, 5, midori_view_get_label_ellipsize (view_), -1);
+                g_object_unref (view_);
+                break;
+            }
+
+            g_object_unref (view_);
+            i++;
+        }
+    }
+}
+
+static void
+tab_panel_toolitem_clicked_cb (GtkToolItem* toolitem,
+                               GtkWidget*   view)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    midori_browser_set_current_tab (browser, view);
+}
+
+static gboolean
+tab_panel_toolitem_button_press_event_cb (GtkToolItem*    toolitem,
+                                          GdkEventButton* event,
+                                          GtkWidget*      view)
+{
+    if (event->button == 3)
+    {
+        tab_panel_popup (GTK_WIDGET (toolitem), event, view);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void
 tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
                               GtkWidget*       view,
                               MidoriExtension* extension)
 {
-    GtkTreeModel* model = g_object_get_data (G_OBJECT (extension), "treemodel");
-    GtkTreeIter iter;
     GtkWidget* notebook = katze_object_get_object (browser, "notebook");
     gint page = gtk_notebook_page_num (GTK_NOTEBOOK (notebook), view);
     MidoriWebSettings* settings = katze_object_get_object (browser, "settings");
-    gboolean buttons = katze_object_get_boolean (settings, "close-buttons-on-tabs");
+    gboolean minimized = katze_object_get_boolean (view, "minimized");
+    GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
+    const gchar* title = midori_view_get_display_title (MIDORI_VIEW (view));
+    GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
 
-    gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-        &iter, NULL, page, 0, view, 1, GTK_STOCK_CLOSE, 2, buttons, -1);
-    g_signal_connect (settings, "notify::close-buttons-on-tabs",
-        G_CALLBACK (tab_panel_settings_notify_cb), model);
+    if (minimized)
+    {
+        GtkWidget* toolbar = tab_panel_get_toolbar_for_browser (browser);
+        GtkWidget* image = gtk_image_new_from_pixbuf (
+            midori_view_get_icon (MIDORI_VIEW (view)));
+        GtkToolItem* toolitem = gtk_tool_button_new (image, NULL);
+        gtk_tool_item_set_tooltip_text (toolitem, title);
+        gtk_widget_show (image);
+        g_object_set_data (G_OBJECT (view), "tab-panel-ext-toolitem", toolitem);
+        gtk_widget_show (GTK_WIDGET (toolitem));
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (tab_panel_toolitem_clicked_cb), view);
+        g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)), "button-press-event",
+            G_CALLBACK (tab_panel_toolitem_button_press_event_cb), view);
+    }
+    else
+    {
+        GtkTreeIter iter;
+        gboolean buttons = katze_object_get_boolean (settings, "close-buttons-on-tabs");
+        gint ellipsize = midori_view_get_label_ellipsize (MIDORI_VIEW (view));
+
+        gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
+            &iter, NULL, page, 0, view, 1, GTK_STOCK_CLOSE, 2, buttons,
+            3, icon, 4, title, 5, ellipsize , -1);
+    }
+
+    if (!g_signal_handler_find (view, G_SIGNAL_MATCH_FUNC,
+        g_signal_lookup ("notify", MIDORI_TYPE_VIEW), 0, NULL,
+        tab_panel_view_notify_minimized_cb, extension))
+    {
+        g_signal_connect (settings, "notify::close-buttons-on-tabs",
+            G_CALLBACK (tab_panel_settings_notify_cb), model);
+        g_signal_connect (view, "notify::minimized",
+            G_CALLBACK (tab_panel_view_notify_minimized_cb), extension);
+        g_signal_connect (view, "notify::icon",
+            G_CALLBACK (tab_panel_view_notify_icon_cb), extension);
+        g_signal_connect (view, "notify::title",
+            G_CALLBACK (tab_panel_view_notify_title_cb), extension);
+    }
 
     g_object_unref (notebook);
     g_object_unref (settings);
@@ -265,30 +468,13 @@ tab_panel_browser_foreach_cb (GtkWidget*       view,
 
 static void
 tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
-                                 MidoriView*      view,
+                                 GtkWidget*       view,
                                  MidoriExtension* extension)
 {
-    GtkTreeModel* model = g_object_get_data (G_OBJECT (extension), "treemodel");
-    guint i;
-    GtkTreeIter iter;
+    gboolean minimized = katze_object_get_boolean (view, "minimized");
 
-    i = 0;
-    while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
-    {
-        MidoriView* view_;
-
-        gtk_tree_model_get (model, &iter, 0, &view_, -1);
-
-        if (view == view_)
-        {
-            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-            g_object_unref (view_);
-            break;
-        }
-
-        g_object_unref (view_);
-        i++;
-    }
+    if (!(GTK_OBJECT_FLAGS (browser) & GTK_IN_DESTRUCTION))
+        tab_panel_remove_view (browser, view, minimized);
 }
 
 static void
@@ -309,7 +495,9 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
 
     panel = katze_object_get_object (browser, "panel");
 
-    model = g_object_get_data (G_OBJECT (extension), "treemodel");
+    model = gtk_tree_store_new (6, MIDORI_TYPE_VIEW,
+        G_TYPE_STRING, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+    g_object_set_data (G_OBJECT (browser), "tab-panel-ext-model", model);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     gtk_tree_view_set_show_expanders (GTK_TREE_VIEW (treeview), FALSE);
@@ -321,14 +509,12 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_pixbuf,
-        (GtkTreeCellDataFunc)midori_extension_treeview_render_icon_cb,
-        treeview, NULL);
+    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer_pixbuf,
+        "pixbuf", 3, NULL);
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_text,
-        (GtkTreeCellDataFunc)midori_extension_treeview_render_text_cb,
-        treeview, NULL);
+    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer_text,
+        "text", 4, "ellipsize", 5, NULL);
     gtk_tree_view_column_set_expand (column, TRUE);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     column = gtk_tree_view_column_new ();
@@ -354,6 +540,7 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     gtk_widget_show (treeview);
 
     toolbar = gtk_toolbar_new ();
+    g_object_set_data (G_OBJECT (browser), "tab-panel-ext-toolbar", toolbar);
     gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
     gtk_widget_show (toolbar);
@@ -386,14 +573,9 @@ static void
 tab_panel_activate_cb (MidoriExtension* extension,
                        MidoriApp*       app)
 {
-    GtkTreeStore* model;
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
-
-    model = gtk_tree_store_new (3, MIDORI_TYPE_VIEW,
-                                   G_TYPE_STRING, G_TYPE_BOOLEAN);
-    g_object_set_data (G_OBJECT (extension), "treemodel", model);
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
