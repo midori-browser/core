@@ -935,6 +935,7 @@ midori_bookmarks_finalize (GObject* object)
 {
     MidoriBookmarks* bookmarks = MIDORI_BOOKMARKS (object);
 
+    midori_bookmarks_disconnect_folder (bookmarks, bookmarks->array);
     if (bookmarks->app)
         g_object_unref (bookmarks->app);
     g_object_unref (bookmarks->net);

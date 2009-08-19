@@ -175,6 +175,10 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
                                 GParamSpec*        pspec,
                                 MidoriBrowser*     browser);
 
+static void
+midori_browser_set_bookmarks (MidoriBrowser* browser,
+                              KatzeArray*    bookmarks);
+
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
                  const gchar*   name)
@@ -4512,6 +4516,9 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
+    if (browser->bookmarks)
+        midori_browser_set_bookmarks (browser, NULL);
+
     if (G_UNLIKELY (browser->panel_timeout))
         g_source_remove (browser->panel_timeout);
     if (G_UNLIKELY (browser->alloc_timeout))
@@ -5705,6 +5712,14 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
 
     if (browser->bookmarks == bookmarks)
         return;
+
+    if (browser->bookmarks)
+    {
+        g_signal_handlers_disconnect_by_func (
+            browser->bookmarks, browser_bookmarks_add_item_cb, browser->bookmarkbar);
+        g_signal_handlers_disconnect_by_func (
+            browser->bookmarks, browser_bookmarks_remove_item_cb, browser->bookmarkbar);
+    }
 
     if (bookmarks)
         g_object_ref (bookmarks);
