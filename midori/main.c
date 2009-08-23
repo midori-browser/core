@@ -1984,6 +1984,14 @@ main (int    argc,
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
     }
 
+    if (katze_object_get_boolean (settings, "load-on-startup")
+        != MIDORI_STARTUP_LAST_OPEN_PAGES)
+    {
+        katze_assign (config_file, build_config_filename ("session.xbel"));
+        if (is_writable (config_file))
+            g_unlink (config_file);
+    }
+
     g_object_unref (settings);
     g_object_unref (app);
     g_free (config_file);
