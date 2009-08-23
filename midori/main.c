@@ -182,6 +182,7 @@ settings_save_to_file (MidoriWebSettings* settings,
     gboolean saved;
     KatzeArray* extensions = katze_object_get_object (app, "extensions");
     MidoriExtension* extension;
+    gchar** _extensions;
 
     key_file = g_key_file_new ();
     class = G_OBJECT_GET_CLASS (settings);
@@ -239,12 +240,24 @@ settings_save_to_file (MidoriWebSettings* settings,
     }
     g_free (pspecs);
 
-    i = 0;
-    while ((extension = katze_array_get_nth_item (extensions, i++)))
-        if (midori_extension_is_active (extension))
-            g_key_file_set_boolean (key_file, "extensions",
-                g_object_get_data (G_OBJECT (extension), "filename"), TRUE);
-    g_object_unref (extensions);
+    if (extensions)
+    {
+        i = 0;
+        while ((extension = katze_array_get_nth_item (extensions, i++)))
+            if (midori_extension_is_active (extension))
+                g_key_file_set_boolean (key_file, "extensions",
+                    g_object_get_data (G_OBJECT (extension), "filename"), TRUE);
+        g_object_unref (extensions);
+    }
+    else if ((_extensions = g_object_get_data (G_OBJECT (app), "extensions")))
+    {
+        i = 0;
+        while (_extensions[i])
+        {
+            g_key_file_set_boolean (key_file, "extensions", _extensions[i], TRUE);
+            i++;
+        }
+    }
 
     saved = sokoke_key_file_save_to_file (key_file, filename, error);
     g_key_file_free (key_file);
@@ -1910,6 +1923,7 @@ main (int    argc,
     }
     #endif
 
+    g_object_set_data (G_OBJECT (app), "extensions", extensions);
     /* We test for the presence of a dummy file which is created once
        and deleted during normal runtime, but persists in case of a crash. */
     katze_assign (config_file, build_config_filename ("running"));
@@ -1939,7 +1953,6 @@ main (int    argc,
         G_CALLBACK (midori_app_add_browser_cb), NULL);
 
     g_idle_add (midori_load_cookie_jar, settings);
-    g_object_set_data (G_OBJECT (app), "extensions", extensions);
     g_idle_add (midori_load_extensions, app);
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_idle_add (midori_load_session, _session);
