@@ -1099,6 +1099,14 @@ button_reset_session_clicked_cb (GtkWidget*  button,
     gtk_widget_set_sensitive (button, FALSE);
 }
 
+static void
+button_disable_extensions_clicked_cb (GtkWidget* button,
+                                      MidoriApp* app)
+{
+    g_object_set_data (G_OBJECT (app), "extensions", NULL);
+    gtk_widget_set_sensitive (button, FALSE);
+}
+
 static GtkWidget*
 midori_create_diagnostic_dialog (MidoriWebSettings* settings,
                                  KatzeArray*        _session)
@@ -1108,6 +1116,7 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     GtkIconTheme* icon_theme;
     GtkWidget* box;
     GtkWidget* button;
+    MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
 
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
@@ -1136,8 +1145,11 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_widget_set_sensitive (button, !katze_array_is_empty (_session));
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     button = gtk_button_new_with_mnemonic (_("Disable all _extensions"));
-    gtk_widget_set_sensitive (button, FALSE);
-    /* FIXME: Disable all extensions */
+    if (g_object_get_data (G_OBJECT (app), "extensions"))
+        g_signal_connect (button, "clicked",
+            G_CALLBACK (button_disable_extensions_clicked_cb), app);
+    else
+        gtk_widget_set_sensitive (button, FALSE);
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (box);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
@@ -1923,6 +1935,7 @@ main (int    argc,
     }
     #endif
 
+    katze_item_set_parent (KATZE_ITEM (_session), app);
     g_object_set_data (G_OBJECT (app), "extensions", extensions);
     /* We test for the presence of a dummy file which is created once
        and deleted during normal runtime, but persists in case of a crash. */
@@ -1954,7 +1967,6 @@ main (int    argc,
 
     g_idle_add (midori_load_cookie_jar, settings);
     g_idle_add (midori_load_extensions, app);
-    katze_item_set_parent (KATZE_ITEM (_session), app);
     g_idle_add (midori_load_session, _session);
 
     if (execute)
