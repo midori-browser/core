@@ -767,7 +767,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "middle-click-opens-selection",
                                      _("Middle click opens Selection"),
                                      _("Load an address from the selection via middle click"),
-                                     FALSE,
+                                     TRUE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
