@@ -491,14 +491,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Shrink images automatically"));
     gtk_widget_set_tooltip_text (button, _("Automatically shrink standalone images to fit"));
     SPANNED_ADD (button, 1, 2, 0, 1);
-    button = katze_property_proxy (settings, "print-backgrounds", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Print background images"));
-    gtk_widget_set_tooltip_text (button, _("Whether background images should be printed"));
-    INDENTED_ADD (button, 0, 1, 1, 2);
-    button = katze_property_proxy (settings, "resizable-text-areas", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Resizable text areas"));
-    gtk_widget_set_tooltip_text (button, _("Whether text areas are resizable"));
-    SPANNED_ADD (button, 1, 2, 1, 2);
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     gtk_widget_set_tooltip_text (button, _("Enable embedded scripting languages"));
