@@ -1614,6 +1614,17 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
     return TRUE;
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 5)
+static gboolean
+midori_view_web_view_print_requested_cb (GtkWidget*      web_view,
+                                         WebKitWebFrame* web_frame,
+                                         MidoriView*     view)
+{
+    midori_view_print (view);
+    return TRUE;
+}
+#endif
+
 static void
 webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
                                           WebKitWebFrame* web_frame,
@@ -2061,6 +2072,10 @@ midori_view_construct_web_view (MidoriView* view)
                       #if WEBKIT_CHECK_VERSION (1, 1, 3)
                       "signal::download-requested",
                       webkit_web_view_download_requested_cb, view,
+                      #endif
+                      #if WEBKIT_CHECK_VERSION (1, 1, 5)
+                      "signal::print-requested",
+                      midori_view_web_view_print_requested_cb, view,
                       #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 6)
                       "signal::load-error",
@@ -3113,6 +3128,43 @@ midori_view_go_forward (MidoriView* view)
     webkit_web_view_go_forward (WEBKIT_WEB_VIEW (view->web_view));
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 5)
+static GtkWidget*
+midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
+                                           MidoriView*        view)
+{
+    GtkWidget* box;
+    GtkWidget* button;
+
+    box = gtk_vbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 4);
+    button = gtk_check_button_new ();
+    g_object_set_data (G_OBJECT (operation), "print-backgrounds", button);
+    gtk_button_set_label (GTK_BUTTON (button), _("Print background images"));
+    gtk_widget_set_tooltip_text (button, _("Whether background images should be printed"));
+    if (katze_object_get_boolean (view->settings, "print-backgrounds"))
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+    gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
+    gtk_widget_show_all (box);
+
+    return box;
+}
+
+static void
+midori_view_print_custom_widget_apply_cb (GtkPrintOperation* operation,
+                                          GtkWidget*         widget,
+                                          MidoriView*        view)
+{
+    GtkWidget* button;
+
+    button = g_object_get_data (G_OBJECT (operation), "print-backgrounds");
+    g_object_set (view->settings,
+        "print-backgrounds",
+        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)),
+        NULL);
+}
+#endif
+
 /**
  * midori_view_print
  * @view: a #MidoriView
@@ -3122,10 +3174,43 @@ midori_view_go_forward (MidoriView* view)
 void
 midori_view_print (MidoriView* view)
 {
+    WebKitWebFrame* frame;
+    #if WEBKIT_CHECK_VERSION (1, 1, 5)
+    GtkPrintOperation* operation;
+    GError* error;
+    #endif
+
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    webkit_web_frame_print (webkit_web_view_get_main_frame (
-        WEBKIT_WEB_VIEW (view->web_view)));
+    frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    #if WEBKIT_CHECK_VERSION (1, 1, 5)
+    operation = gtk_print_operation_new ();
+    gtk_print_operation_set_custom_tab_label (operation, _("Features"));
+    g_signal_connect (operation, "create-custom-widget",
+        G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
+    g_signal_connect (operation, "custom-widget-apply",
+        G_CALLBACK (midori_view_print_custom_widget_apply_cb), view);
+    error = NULL;
+    webkit_web_frame_print_full (frame, operation,
+        GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, &error);
+    g_object_unref (operation);
+
+    if (error)
+    {
+        GtkWidget* window = gtk_widget_get_toplevel (GTK_WIDGET (view));
+        GtkWidget* dialog = gtk_message_dialog_new (
+            GTK_WIDGET_TOPLEVEL (window) ? GTK_WINDOW (window) : NULL,
+            GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_CLOSE, "%s", error->message);
+        g_error_free (error);
+
+        g_signal_connect (dialog, "response",
+                          G_CALLBACK (gtk_widget_destroy), NULL);
+        gtk_widget_show (dialog);
+    }
+    #else
+    webkit_web_frame_print (frame);
+    #endif
 }
 
 /**
