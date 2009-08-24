@@ -638,65 +638,63 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             : g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
         len = 0;
     }
-    if (key && *key)
+    if (G_LIKELY (data && uri))
     {
-        if (G_LIKELY (data && uri))
+        temp = g_ascii_strdown (uri, -1);
+        if (key && *key && (start = strstr (temp, key)))
         {
-            temp = g_ascii_strdown (uri, -1);
-            if ((start = strstr (temp, key)))
+            len = strlen (key);
+            skey = g_malloc0 (len + 1);
+            strncpy (skey, uri + (start - temp), len);
+            if (skey && *skey && (parts = g_strsplit (uri, skey, 2)))
             {
-                len = strlen (key);
-                skey = g_malloc0 (len + 1);
-                strncpy (skey, uri + (start - temp), len);
-                if (skey && *skey && (parts = g_strsplit (uri, skey, 2)))
+                if (parts[0] && parts[1])
                 {
-                    if (parts[0] && parts[1])
-                    {
-                        desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                            parts[0], skey, parts[1]);
-                        g_strfreev (parts);
-                    }
-                }
-                g_free (skey);
-            }
-            g_free (temp);
-        }
-        if (uri && !desc_uri)
-            desc_uri = g_markup_escape_text (uri, -1);
-        if (G_LIKELY (data && title))
-        {
-            temp = g_utf8_strdown (title, -1);
-            if ((start = strstr (temp, key)))
-            {
-                if (!len)
-                    len = strlen (key);
-                skey = g_malloc0 (len + 1);
-                strncpy (skey, title + (start - temp), len);
-                parts = g_strsplit (title, skey, 2);
-                if (parts && parts[0] && parts[1])
-                    desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                    desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
                         parts[0], skey, parts[1]);
-                g_strfreev (parts);
-                g_free (skey);
+                    g_strfreev (parts);
+                }
             }
-            g_free (temp);
+            g_free (skey);
         }
-        if (title && !desc_title)
-            desc_title = g_markup_escape_text (title, -1);
-
-        if (desc_title)
-        {
-            desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>",
-                                    desc_title, desc_uri);
-            g_free (desc_uri);
-            g_free (desc_title);
-        }
-        else
-            desc = desc_uri;
-
-        g_object_set (renderer, "markup", desc,
-            "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+        g_free (temp);
     }
+    if (uri && !desc_uri)
+        desc_uri = g_markup_escape_text (uri, -1);
+    if (G_LIKELY (data && title))
+    {
+        temp = g_utf8_strdown (title, -1);
+        if (key && *key && (start = strstr (temp, key)))
+        {
+            if (!len)
+                len = strlen (key);
+            skey = g_malloc0 (len + 1);
+            strncpy (skey, title + (start - temp), len);
+            parts = g_strsplit (title, skey, 2);
+            if (parts && parts[0] && parts[1])
+                desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                    parts[0], skey, parts[1]);
+            g_strfreev (parts);
+            g_free (skey);
+        }
+        g_free (temp);
+    }
+    if (title && !desc_title)
+        desc_title = g_markup_escape_text (title, -1);
+
+    if (desc_title)
+    {
+        desc = g_strdup_printf ("%s\n<span color='gray45'>%s</span>",
+                                desc_title, desc_uri);
+        g_free (desc_uri);
+        g_free (desc_title);
+    }
+    else
+        desc = desc_uri;
+
+    g_object_set (renderer, "markup", desc,
+        "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+
     g_free (uri);
     g_free (title);
     g_free (key);
