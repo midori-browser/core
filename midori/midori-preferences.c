@@ -645,15 +645,15 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "accept-cookies", NULL);
     FILLED_ADD (button, 1, 2, 0, 1);
     button = katze_property_proxy (settings, "original-cookies-only", NULL);
-    SPANNED_ADD (button, 0, 2, 1, 2);
-    label = katze_property_label (settings, "maximum-cookie-age");
-    INDENTED_ADD (label, 0, 1, 2, 3);
+    SPANNED_ADD (button, 0, 1, 1, 2);
     hbox = gtk_hbox_new (FALSE, 4);
+    label = katze_property_label (settings, "maximum-cookie-age");
+    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     entry = katze_property_proxy (settings, "maximum-cookie-age", NULL);
     gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("days")),
                         FALSE, FALSE, 0);
-    FILLED_ADD (hbox, 1, 2, 2, 3);
+    FILLED_ADD (hbox, 1, 2, 1, 2);
     FRAME_NEW (_("History"));
     TABLE_NEW (3, 2);
     button = katze_property_proxy (settings, "remember-last-visited-pages", NULL);
