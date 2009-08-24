@@ -1969,7 +1969,6 @@ webkit_web_inspector_inspect_web_view_cb (gpointer       inspector,
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
     if (GTK_WIDGET_TOPLEVEL (toplevel))
     {
-        gtk_window_set_transient_for (GTK_WINDOW (window), GTK_WINDOW (toplevel));
         screen = gtk_window_get_screen (GTK_WINDOW (toplevel));
         width = gdk_screen_get_width (screen) / 1.7;
         height = gdk_screen_get_height (screen) / 1.7;
