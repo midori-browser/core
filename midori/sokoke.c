@@ -949,6 +949,32 @@ sokoke_remove_path (const gchar* path,
 }
 
 /**
+ * sokoke_find_config_filename:
+ * @filename: a filename or relative path
+ *
+ * Looks for the specified filename in the system config
+ * directories, depending on the platform.
+ *
+ * Return value: a full path
+ **/
+gchar*
+sokoke_find_config_filename (const gchar* filename)
+{
+    const gchar* const* config_dirs = g_get_system_config_dirs ();
+    guint i = 0;
+    const gchar* config_dir;
+
+    while ((config_dir = config_dirs[i++]))
+    {
+        gchar* path = g_build_filename (config_dir, PACKAGE_NAME, filename, NULL);
+        if (g_file_test (path, G_FILE_TEST_EXISTS))
+            return path;
+        g_free (path);
+    }
+    return g_build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, filename, NULL);
+}
+
+/**
  * sokoke_find_data_filename:
  * @filename: a filename or relative path
  *

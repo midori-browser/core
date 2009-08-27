@@ -92,7 +92,13 @@ settings_new_from_file (const gchar* filename,
     if (!g_key_file_load_from_file (key_file, filename,
                                    G_KEY_FILE_KEEP_COMMENTS, &error))
     {
-        if (error->code != G_FILE_ERROR_NOENT)
+        if (error->code == G_FILE_ERROR_NOENT)
+        {
+            gchar* config_file = sokoke_find_config_filename ("config");
+            g_key_file_load_from_file (key_file, config_file,
+                                       G_KEY_FILE_KEEP_COMMENTS, NULL);
+        }
+        else
             printf (_("The configuration couldn't be loaded: %s\n"),
                     error->message);
         g_error_free (error);
@@ -1716,25 +1722,9 @@ main (int    argc,
         g_free (dir);
         search_engines = search_engines_new_from_file (config_file, NULL);
         #else
-        const gchar* const * config_dirs = g_get_system_config_dirs ();
-        i = 0;
-        while (config_dirs[i])
-        {
-            g_object_unref (search_engines);
-            katze_assign (config_file,
-                g_build_filename (config_dirs[i], PACKAGE_NAME, "search", NULL));
-            search_engines = search_engines_new_from_file (config_file, NULL);
-            if (!katze_array_is_empty (search_engines))
-                break;
-            i++;
-        }
-        if (katze_array_is_empty (search_engines))
-        {
-            g_object_unref (search_engines);
-            katze_assign (config_file,
-                g_build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, "search", NULL));
-            search_engines = search_engines_new_from_file (config_file, NULL);
-        }
+        katze_assign (config_file,
+            sokoke_find_config_filename ("search"));
+        search_engines = search_engines_new_from_file (config_file, NULL);
         #endif
     }
     else if (error)
@@ -1751,7 +1741,13 @@ main (int    argc,
     error = NULL;
     if (!midori_array_from_file (bookmarks, config_file, "xbel", &error))
     {
-        if (error->code != G_FILE_ERROR_NOENT)
+        if (error->code == G_FILE_ERROR_NOENT)
+        {
+            katze_assign (config_file,
+                sokoke_find_config_filename ("bookmarks.xbel"));
+            midori_array_from_file (bookmarks, config_file, "xbel", NULL);
+        }
+        else
             g_string_append_printf (error_messages,
                 _("The bookmarks couldn't be loaded: %s\n"), error->message);
         g_error_free (error);

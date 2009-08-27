@@ -152,6 +152,9 @@ sokoke_remove_path                      (const gchar*    path,
                                          gboolean        ignore_errors);
 
 gchar*
+sokoke_find_config_filename             (const gchar*    filename);
+
+gchar*
 sokoke_find_data_filename               (const gchar*    filename);
 
 SoupServer*
