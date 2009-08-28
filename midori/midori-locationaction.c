@@ -605,7 +605,11 @@ midori_location_action_icon_released_cb (GtkWidget*           widget,
                                          GtkAction*           action)
 {
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-        g_signal_emit (action, signals[SECONDARY_ICON_RELEASED], 0, widget);
+    {
+        gboolean result;
+        g_signal_emit (action, signals[SECONDARY_ICON_RELEASED], 0,
+                       widget, &result);
+    }
 }
 
 static void
