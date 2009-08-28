@@ -246,16 +246,18 @@ midori_array_from_file (KatzeArray*  array,
     if (!g_file_test (filename, G_FILE_TEST_EXISTS))
     {
         /* File doesn't exist */
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_NOENT,
-                                      _("File not found."));
+        if (error)
+            *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_NOENT,
+                                          _("File not found."));
         return FALSE;
     }
 
     if ((doc = xmlParseFile (filename)) == NULL)
     {
         /* No valid xml or broken encoding */
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                      _("Malformed document."));
+        if (error)
+            *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                          _("Malformed document."));
         return FALSE;
     }
 
@@ -263,8 +265,9 @@ midori_array_from_file (KatzeArray*  array,
     {
         /* Parsing failed */
         xmlFreeDoc (doc);
-        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                      _("Malformed document."));
+        if (error)
+            *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                          _("Malformed document."));
         return FALSE;
     }
     xmlFreeDoc (doc);
