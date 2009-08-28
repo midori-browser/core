@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef GDK_WINDOWING_X11
+    #include <gdk/gdkx.h>
+#endif
+
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
@@ -409,25 +413,35 @@ sokoke_get_desktop (void)
 {
     #if HAVE_OSX
     return SOKOKE_DESKTOP_OSX;
-    #else
+    #elif defined (GDK_WINDOWING_X11)
     static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;
     if (G_UNLIKELY (desktop == SOKOKE_DESKTOP_UNTESTED))
     {
         /* Are we running in Xfce? */
-        gint result;
-        gchar *out = NULL;
-        gchar *err = NULL;
-        gboolean success = g_spawn_command_line_sync ("xprop -root _DT_SAVE_MODE",
-            &out, &err, &result, NULL);
-        g_free (err);
-        if (success && ! result && out != NULL && strstr (out, "xfce4") != NULL)
-            desktop = SOKOKE_DESKTOP_XFCE;
-        else
-            desktop = SOKOKE_DESKTOP_UNKNOWN;
-        g_free (out);
+        GdkDisplay* display = gdk_display_get_default ();
+        Display* xdisplay = GDK_DISPLAY_XDISPLAY (display);
+        Window root_window = RootWindow (xdisplay, 0);
+        Atom save_mode_atom = gdk_x11_get_xatom_by_name ("_DT_SAVE_MODE");
+        Atom actual_type;
+        int actual_format;
+        unsigned long n_items, bytes;
+        gchar* value;
+        int status = XGetWindowProperty (xdisplay, root_window,
+            save_mode_atom, 0, (~0L),
+            False, AnyPropertyType, &actual_type, &actual_format,
+            &n_items, &bytes, (unsigned char**)&value);
+        desktop = SOKOKE_DESKTOP_UNKNOWN;
+        if (status == Success)
+        {
+            if (n_items == 6 && !strncmp (value, "xfce4", 6))
+                desktop = SOKOKE_DESKTOP_XFCE;
+            XFree (value);
+        }
     }
 
     return desktop;
+    #else
+    return SOKOKE_DESKTOP_UNKNOWN;
     #endif
 }
 
