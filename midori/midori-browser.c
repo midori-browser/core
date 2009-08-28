@@ -589,9 +589,12 @@ midori_view_notify_statusbar_text_cb (MidoriView*    view,
 {
     gchar* text;
 
-    g_object_get (view, "statusbar-text", &text, NULL);
-    _midori_browser_set_statusbar_text (browser, text);
-    g_free (text);
+    if ((GtkWidget*)view == midori_browser_get_current_tab (browser))
+    {
+        g_object_get (view, "statusbar-text", &text, NULL);
+        _midori_browser_set_statusbar_text (browser, text);
+        g_free (text);
+    }
 }
 
 /* Private function, used by MidoriBookmarks and MidoriHistory */
