@@ -1005,36 +1005,63 @@ midori_browser_weak_notify_cb (MidoriBrowser* browser,
 }
 
 static void
-soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
-                                            GParamSpec*        pspec,
-                                            SoupSession*       session)
+midori_soup_session_set_proxy_uri (SoupSession* session,
+                                   const gchar* uri)
 {
-    gboolean auto_detect_proxy;
-    gchar* http_proxy;
+    gchar* fixed_uri;
     SoupURI* proxy_uri;
 
-    auto_detect_proxy = katze_object_get_boolean (settings, "auto-detect-proxy");
-    if (auto_detect_proxy)
-        http_proxy = g_strdup (g_getenv ("http_proxy"));
-    else
-        http_proxy = katze_object_get_string (settings, "http-proxy");
     /* soup_uri_new expects a non-NULL string with a protocol */
-    if (http_proxy && g_str_has_prefix (http_proxy, "http://"))
-        proxy_uri = soup_uri_new (http_proxy);
-    else if (http_proxy && *http_proxy)
+    if (uri && g_str_has_prefix (uri, "http://"))
+        proxy_uri = soup_uri_new (uri);
+    else if (uri && *uri)
     {
-        gchar* fixed_http_proxy = g_strconcat ("http://", http_proxy, NULL);
-        proxy_uri = soup_uri_new (fixed_http_proxy);
-        g_free (fixed_http_proxy);
+        fixed_uri = g_strconcat ("http://", uri, NULL);
+        proxy_uri = soup_uri_new (fixed_uri);
+        g_free (fixed_uri);
     }
     else
         proxy_uri = NULL;
-    g_free (http_proxy);
     g_object_set (session, "proxy-uri", proxy_uri, NULL);
     if (proxy_uri)
         soup_uri_free (proxy_uri);
 }
 
+static void
+soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
+                                            GParamSpec*        pspec,
+                                            SoupSession*       session)
+{
+    gboolean auto_detect_proxy;
+
+    auto_detect_proxy = katze_object_get_boolean (settings, "auto-detect-proxy");
+    if (auto_detect_proxy)
+    {
+        gboolean gnome_supported = FALSE;
+        GModule* module;
+        GType (*get_type_function) (void);
+        if (g_module_supported ())
+            if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
+            {
+                if (g_module_symbol (module, "soup_proxy_resolver_gnome_get_type",
+                                     (void*) &get_type_function))
+                {
+                    soup_session_add_feature_by_type (session, get_type_function ());
+                    gnome_supported = TRUE;
+                }
+            }
+        if (!gnome_supported)
+            midori_soup_session_set_proxy_uri (session, g_getenv ("http_proxy"));
+    }
+    else
+    {
+        gchar* http_proxy = katze_object_get_string (settings, "http-proxy");
+        midori_soup_session_set_proxy_uri (session, http_proxy);
+        g_free (http_proxy);
+    }
+}
+
+#if !WEBKIT_CHECK_VERSION (1, 1, 11)
 static void
 soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
                                               GParamSpec*        pspec,
@@ -1044,6 +1071,7 @@ soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
     g_object_set (session, "user-agent", ident_string, NULL);
     g_free (ident_string);
 }
+#endif
 
 static void
 midori_soup_session_debug (SoupSession* session)
@@ -1064,17 +1092,32 @@ midori_soup_session_prepare (SoupSession*       session,
                              SoupCookieJar*     cookie_jar,
                              MidoriWebSettings* settings)
 {
+    GModule* module;
+    GType (*get_type_function) (void);
     SoupSessionFeature* feature;
     gchar* config_file;
 
+    if (g_module_supported ())
+        if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
+        {
+            #ifdef HAVE_LIBSOUP_2_27_92
+            if (g_module_symbol (module, "soup_password_manager_gnome_get_type",
+                                 (void*) &get_type_function))
+                soup_session_add_feature_by_type (session, get_type_function ());
+            #endif
+        }
+
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
-    soup_session_settings_notify_ident_string_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::auto-detect-proxy",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
+
+    #if !WEBKIT_CHECK_VERSION (1, 1, 11)
+    soup_session_settings_notify_ident_string_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::ident-string",
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), session);
+    #endif
 
     soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
     midori_soup_session_debug (session);

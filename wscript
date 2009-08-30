@@ -210,6 +210,7 @@ def configure (conf):
     check_pkg ('webkit-1.0', '1.1.1', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
+    check_pkg ('libsoup-2.4', '2.27.92', False, var='LIBSOUP_2_27_92')
     check_pkg ('libxml-2.0', '2.6')
 
     if option_enabled ('hildon'):

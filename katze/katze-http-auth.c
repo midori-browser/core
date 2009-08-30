@@ -37,6 +37,21 @@ G_DEFINE_TYPE_WITH_CODE (KatzeHttpAuth, katze_http_auth, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (SOUP_TYPE_SESSION_FEATURE,
                          katze_http_auth_session_feature_iface_init));
 
+#ifdef HAVE_LIBSOUP_2_27_92
+static void
+authentication_message_got_headers_cb (SoupMessage* msg,
+                                       SoupAuth*    auth)
+{
+    /* Anything but 401 and 5xx means the password was accepted */
+    if (msg->status_code != 401 && msg->status_code < 500)
+    {
+        gchar* username = g_object_get_data (G_OBJECT (msg), "username");
+        gchar* password = g_object_get_data (G_OBJECT (msg), "password");
+        soup_auth_save_password (auth, username, password);
+    }
+}
+#endif
+
 static void
 authentication_dialog_response_cb (GtkWidget* dialog,
                                    gint       response,
@@ -47,6 +62,8 @@ authentication_dialog_response_cb (GtkWidget* dialog,
     SoupSession* session;
     SoupMessage* msg;
 
+    msg = g_object_get_data (G_OBJECT (dialog), "msg");
+
     if (response == GTK_RESPONSE_OK)
     {
 
@@ -56,10 +73,17 @@ authentication_dialog_response_cb (GtkWidget* dialog,
         soup_auth_authenticate (auth,
             gtk_entry_get_text (GTK_ENTRY (username)),
             gtk_entry_get_text (GTK_ENTRY (password)));
+        #ifdef HAVE_LIBSOUP_2_27_92
+        g_object_set_data_full (G_OBJECT (msg), "username",
+            g_strdup (gtk_entry_get_text (GTK_ENTRY (username))), g_free);
+        g_object_set_data_full (G_OBJECT (msg), "password",
+            g_strdup (gtk_entry_get_text (GTK_ENTRY (password))), g_free);
+        g_signal_connect (msg, "got-headers",
+            G_CALLBACK (authentication_message_got_headers_cb), auth);
+        #endif
     }
 
     session = g_object_get_data (G_OBJECT (dialog), "session");
-    msg = g_object_get_data (G_OBJECT (dialog), "msg");
     gtk_widget_destroy (dialog);
     if (g_object_get_data (G_OBJECT (msg), "paused"))
         soup_session_unpause_message (session, msg);
@@ -79,6 +103,9 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
     GtkWidget* label;
     GtkWidget* align;
     GtkWidget* entry;
+    #ifdef HAVE_LIBSOUP_2_27_92
+    GSList* users;
+    #endif
 
     /* We want to ask for authentication exactly once, so we
        enforce this with a tag. There might be a better way. */
@@ -130,6 +157,11 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
     gtk_size_group_add_widget (sizegroup, align);
     gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
     entry = gtk_entry_new ();
+    #ifdef HAVE_LIBSOUP_2_27_92
+    users = soup_auth_get_saved_users (auth);
+    if (users)
+        gtk_entry_set_text (GTK_ENTRY (entry), users->data);
+    #endif
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     g_object_set_data (G_OBJECT (dialog), "username", entry);
@@ -141,6 +173,14 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
     gtk_size_group_add_widget (sizegroup, align);
     gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
     entry = gtk_entry_new_with_max_length (32);
+    #ifdef HAVE_LIBSOUP_2_27_92
+    if (users)
+    {
+        gtk_entry_set_text (GTK_ENTRY (entry),
+            soup_auth_get_saved_password (auth, users->data));
+        g_slist_free (users);
+    }
+    #endif
     gtk_entry_set_visibility (GTK_ENTRY (entry), FALSE);
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
