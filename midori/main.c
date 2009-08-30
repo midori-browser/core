@@ -1093,7 +1093,6 @@ midori_soup_session_prepare (SoupSession*       session,
                              MidoriWebSettings* settings)
 {
     GModule* module;
-    GType (*get_type_function) (void);
     SoupSessionFeature* feature;
     gchar* config_file;
 
@@ -1101,6 +1100,7 @@ midori_soup_session_prepare (SoupSession*       session,
         if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
         {
             #ifdef HAVE_LIBSOUP_2_27_92
+            GType (*get_type_function) (void);
             if (g_module_symbol (module, "soup_password_manager_gnome_get_type",
                                  (void*) &get_type_function))
                 soup_session_add_feature_by_type (session, get_type_function ());
