@@ -179,6 +179,10 @@ static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
                               KatzeArray*    bookmarks);
 
+static void
+midori_browser_add_download_item (MidoriBrowser*  browser,
+                                  WebKitDownload* download);
+
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
                  const gchar*   name)
@@ -784,6 +788,7 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
     midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
 }
 
+#if !WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 midori_browser_save_transfer_cb (KatzeNetRequest* request,
                                  gchar*           filename)
@@ -808,6 +813,7 @@ midori_browser_save_transfer_cb (KatzeNetRequest* request,
     }
     g_free (filename);
 }
+#endif
 
 static void
 midori_browser_save_uri (MidoriBrowser* browser,
@@ -869,10 +875,27 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
+        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        WebKitNetworkRequest* request;
+        WebKitDownload* download;
+        gchar* destination;
+        #endif
+
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
         folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        request = webkit_network_request_new (uri);
+        download = webkit_download_new (request);
+        g_object_unref (request);
+        destination = g_filename_to_uri (filename, NULL, NULL);
+        webkit_download_set_destination_uri (download, destination);
+        g_free (destination);
+        midori_browser_add_download_item (browser, download);
+        webkit_download_start (download);
+        #else
         katze_net_load_uri (browser->net, uri, NULL,
             (KatzeNetTransferCb)midori_browser_save_transfer_cb, filename);
+        #endif
 
         g_free (last_dir);
         last_dir = folder;
