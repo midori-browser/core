@@ -978,10 +978,10 @@ midori_app_add_browser_cb (MidoriApp*     app,
     g_object_unref (panel);
 }
 
-static void
-midori_browser_session_cb (MidoriBrowser* browser,
-                           gpointer       pspec,
-                           KatzeArray*    session)
+static guint save_timeout = 0;
+
+static gboolean
+midori_session_save_timeout_cb (KatzeArray* session)
 {
     gchar* config_file;
     GError* error;
@@ -994,6 +994,24 @@ midori_browser_session_cb (MidoriBrowser* browser,
         g_error_free (error);
     }
     g_free (config_file);
+
+    save_timeout = 0;
+    g_object_unref (session);
+
+    return FALSE;
+}
+
+static void
+midori_browser_session_cb (MidoriBrowser* browser,
+                           gpointer       pspec,
+                           KatzeArray*    session)
+{
+    if (!save_timeout)
+    {
+        g_object_ref (session);
+        save_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
+            (GSourceFunc)midori_session_save_timeout_cb, session, NULL);
+    }
 }
 
 static void
