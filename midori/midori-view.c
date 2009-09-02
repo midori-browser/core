@@ -770,6 +770,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         guint port;
         gchar* res_root;
         gchar* stock_root;
+        gchar* title;
         gchar* message;
         gchar* result;
 
@@ -778,9 +779,10 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         res_root = g_strdup_printf ("http://localhost:%d/res", port);
         stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
 
+        title = g_strdup_printf (_("Error - %s"), uri);
         message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
         result = sokoke_replace_variables (template,
-            "{title}", _("Error"),
+            "{title}", title,
             "{message}", message,
             "{description}", error->message,
             "{tryagain}", _("Try again"),
@@ -789,6 +791,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
             NULL);
         g_free (template);
         g_free (message);
+        g_free (title);
 
         webkit_web_frame_load_alternate_string (web_frame,
             result, res_root, uri);
@@ -3034,11 +3037,11 @@ midori_view_reload (MidoriView* view,
 #if WEBKIT_CHECK_VERSION (1, 1, 6)
     /* WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
        so reloading via Javascript works but not via API calls. */
-    title = g_strdup (_("Error"));
+    title = g_strdup_printf (_("Error - %s"), view->uri);
 #else
     /* Error pages are special, we want to try loading the destination
        again, not the error page which isn't even a proper page */
-    title = g_strdup_printf (_("Not found - %s"), view->uri);
+    title = g_strdup_printf (_("Error - %s"), view->uri);
 #endif
     if (view->title && strstr (title, view->title))
         webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), view->uri);
