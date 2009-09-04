@@ -1010,6 +1010,9 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         else if (view->middle_click_opens_selection)
         {
             guint i = 0;
+            /* FIXME: This isn't quite correct, we need mouse context */
+            if (webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (view->web_view)))
+                return FALSE;
             clipboard = gtk_clipboard_get_for_display (
                 gtk_widget_get_display (GTK_WIDGET (view)),
                 GDK_SELECTION_PRIMARY);
