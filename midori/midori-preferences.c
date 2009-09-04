@@ -487,9 +487,13 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
     gtk_widget_set_tooltip_text (button, _("Load and display images automatically"));
     INDENTED_ADD (button, 0, 1, 0, 1);
+    #if 0
     button = katze_property_proxy (settings, "auto-shrink-images", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Shrink images automatically"));
     gtk_widget_set_tooltip_text (button, _("Automatically shrink standalone images to fit"));
+    #else
+    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
+    #endif
     SPANNED_ADD (button, 1, 2, 0, 1);
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
