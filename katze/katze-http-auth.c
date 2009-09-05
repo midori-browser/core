@@ -37,7 +37,7 @@ G_DEFINE_TYPE_WITH_CODE (KatzeHttpAuth, katze_http_auth, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (SOUP_TYPE_SESSION_FEATURE,
                          katze_http_auth_session_feature_iface_init));
 
-#ifdef HAVE_LIBSOUP_2_27_92
+#ifdef HAVE_LIBSOUP_2_27_91
 static void
 authentication_message_got_headers_cb (SoupMessage* msg,
                                        SoupAuth*    auth)
@@ -73,7 +73,7 @@ authentication_dialog_response_cb (GtkWidget* dialog,
         soup_auth_authenticate (auth,
             gtk_entry_get_text (GTK_ENTRY (username)),
             gtk_entry_get_text (GTK_ENTRY (password)));
-        #ifdef HAVE_LIBSOUP_2_27_92
+        #ifdef HAVE_LIBSOUP_2_27_91
         g_object_set_data_full (G_OBJECT (msg), "username",
             g_strdup (gtk_entry_get_text (GTK_ENTRY (username))), g_free);
         g_object_set_data_full (G_OBJECT (msg), "password",
@@ -103,7 +103,7 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
     GtkWidget* label;
     GtkWidget* align;
     GtkWidget* entry;
-    #ifdef HAVE_LIBSOUP_2_27_92
+    #ifdef HAVE_LIBSOUP_2_27_91
     GSList* users;
     #endif
 
@@ -157,7 +157,7 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
     gtk_size_group_add_widget (sizegroup, align);
     gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
     entry = gtk_entry_new ();
-    #ifdef HAVE_LIBSOUP_2_27_92
+    #ifdef HAVE_LIBSOUP_2_27_91
     users = soup_auth_get_saved_users (auth);
     if (users)
         gtk_entry_set_text (GTK_ENTRY (entry), users->data);
@@ -173,7 +173,7 @@ katze_http_auth_session_authenticate_cb (SoupSession* session,
     gtk_size_group_add_widget (sizegroup, align);
     gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
     entry = gtk_entry_new_with_max_length (32);
-    #ifdef HAVE_LIBSOUP_2_27_92
+    #ifdef HAVE_LIBSOUP_2_27_91
     if (users)
     {
         gtk_entry_set_text (GTK_ENTRY (entry),

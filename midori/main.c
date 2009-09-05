@@ -1117,7 +1117,7 @@ midori_soup_session_prepare (SoupSession*       session,
     if (g_module_supported ())
         if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
         {
-            #ifdef HAVE_LIBSOUP_2_27_92
+            #ifdef HAVE_LIBSOUP_2_27_91
             GType (*get_type_function) (void);
             if (g_module_symbol (module, "soup_password_manager_gnome_get_type",
                                  (void*) &get_type_function))
