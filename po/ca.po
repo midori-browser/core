@@ -1,0 +1,2366 @@
+# Catalan translations for midori package
+# Traduccions al català del paquet «midori».
+# Copyright (C) 2009 THE midori'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the midori package.
+# Carles Muñoz Gorriz <carlesmu@internautas.org>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: midori\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-07-29 23:58+0200\n"
+"PO-Revision-Date: 2009-09-05 18:02+0100\n"
+"Last-Translator: Carles Muñoz Gorriz <carlesmu@internautas.org>\n"
+"Language-Team: Catalan\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Catalan\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: ../data/midori.desktop.in.h:1
+msgid "Lightweight web browser"
+msgstr "Navegador web lleuger"
+
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1343 ../midori/main.c:1517
+#: ../midori/main.c:1525 ../midori/main.c:1536
+#: ../midori/midori-websettings.c:287
+msgid "Midori"
+msgstr "Midori"
+
+#: ../data/midori.desktop.in.h:3
+msgid "Web Browser"
+msgstr "Navegador web"
+
+#: ../midori/main.c:96
+#, fuzzy, c-format
+msgid "The configuration couldn't be loaded: %s\n"
+msgstr "No s'ha pogut carregar el fitxer."
+
+#: ../midori/main.c:151
+#, c-format
+msgid "Value '%s' is invalid for %s"
+msgstr "El valor «%s» no és vàlid per %s"
+
+#: ../midori/main.c:158 ../midori/main.c:238
+#, c-format
+msgid "Invalid configuration value '%s'"
+msgstr "Valor de configuració «%s» no és vàlid"
+
+#: ../midori/main.c:350
+#, c-format
+msgid "Failed to open database: %s\n"
+msgstr "No s'ha pogut obrir la base de dades: %s\n"
+
+#: ../midori/main.c:382
+#, fuzzy, c-format
+msgid "Failed to execute database statement: %s\n"
+msgstr "No s'ha pogut fer la còpia de seguretat de la base de dades."
+
+#: ../midori/main.c:436
+#, fuzzy, c-format
+msgid "Failed to remove history item: %s\n"
+msgstr "s'ha produït un error en pam_set_item()\n"
+
+#: ../midori/main.c:460
+#, fuzzy, c-format
+msgid "Failed to clear history: %s\n"
+msgstr "Ha estat impossible eliminar el valor de la variable DISPLAY!"
+
+#: ../midori/main.c:483 ../midori/main.c:517 ../midori/main.c:533
+#, fuzzy, c-format
+msgid "Failed to add history item: %s\n"
+msgstr "Cerca un _element a afegir al calaix:"
+
+#. i18n: Couldn't remove items that are older than n days
+#: ../midori/main.c:712
+#, fuzzy, c-format
+msgid "Failed to remove old history items: %s\n"
+msgstr ""
+"dpkg: %s: avís - s'ha produït un error en esborrar l'antiga còpia de "
+"seguretat «%.250s»: %s\n"
+
+#: ../midori/main.c:741
+#, fuzzy, c-format
+msgid "The configuration couldn't be saved. %s"
+msgstr "No s'ha pogut desar el text."
+
+#: ../midori/main.c:779
+#, c-format
+msgid "The search engines couldn't be saved. %s"
+msgstr "No es pot desar les enginys de cerca. %s"
+
+#: ../midori/main.c:798 ../midori/main.c:826 ../midori/main.c:855
+#, c-format
+msgid "The bookmarks couldn't be saved. %s"
+msgstr "No s'han pogut desar les adreces d'interès. %s"
+
+#. i18n: Trash, or wastebin, containing closed tabs
+#: ../midori/main.c:878 ../midori/main.c:901
+#, fuzzy, c-format
+msgid "The trash couldn't be saved. %s"
+msgstr "No s'ha pogut desar el text."
+
+#: ../midori/main.c:974
+#, fuzzy, c-format
+msgid "The session couldn't be saved. %s"
+msgstr "No s'ha pogut desar el text."
+
+#: ../midori/main.c:1101
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+
+#: ../midori/main.c:1116
+#, fuzzy
+msgid "Modify _preferences"
+msgstr "Modificació de les preferències"
+
+#: ../midori/main.c:1120
+#, fuzzy
+msgid "Reset the last _session"
+msgstr "Importar la ltima sessi"
+
+#: ../midori/main.c:1125
+#, fuzzy
+msgid "Disable all _extensions"
+msgstr ""
+"  --posix\n"
+"                 inhabilita totes les extensions GNU.\n"
+
+#: ../midori/main.c:1343
+#, fuzzy
+msgid "No filename specified"
+msgstr "%s: No s'ha especificat el rebedor."
+
+#: ../midori/main.c:1366
+#, fuzzy
+msgid "An unknown error occured."
+msgstr "%s: S'ha produït un error desconegut"
+
+#: ../midori/main.c:1398
+#, fuzzy, c-format
+msgid "Snapshot saved to: %s\n"
+msgstr " S'ha desat la configuració a ~/"
+
+#: ../midori/main.c:1447
+msgid "Run ADDRESS as a web application"
+msgstr "Executa ADREÇA com una aplicació web"
+
+#: ../midori/main.c:1447
+msgid "ADDRESS"
+msgstr "ADREÇA"
+
+#: ../midori/main.c:1449
+msgid "Use FOLDER as configuration folder"
+msgstr "Empra CARPETA com a carpeta de configuració"
+
+#: ../midori/main.c:1449
+msgid "FOLDER"
+msgstr "CARPETA"
+
+#: ../midori/main.c:1451
+msgid "Run the specified filename as javascript"
+msgstr "Executa el fitxer especificat com a javascript"
+
+#: ../midori/main.c:1454
+#, fuzzy
+msgid "Take a snapshot of the specified URI"
+msgstr "No s'ha especificat cap URL des d'on reproduir."
+
+#: ../midori/main.c:1457
+#, fuzzy
+msgid "Execute the specified command"
+msgstr "No heu especificat cap ordre"
+
+#: ../midori/main.c:1459
+#, fuzzy
+msgid "Display program version"
+msgstr "Mostra la versió del programa"
+
+#: ../midori/main.c:1461
+msgid "Addresses"
+msgstr "Adreces"
+
+#: ../midori/main.c:1514
+msgid "[Addresses]"
+msgstr "[adreces]"
+
+#: ../midori/main.c:1537
+msgid "Please report comments, suggestions and bugs to:"
+msgstr "Envieu comentaris, suggeriments i informes d'error a:"
+
+#: ../midori/main.c:1539
+#, fuzzy
+msgid "Check for new versions at:"
+msgstr "Verifica si hi ha noves versions dels paquets"
+
+#: ../midori/main.c:1619
+#, fuzzy
+msgid "The specified configuration folder is invalid."
+msgstr "La carpeta que heu especificat és un camí invàlid."
+
+#: ../midori/main.c:1655
+msgid "An instance of Midori is already running but not responding.\n"
+msgstr "Ja s'està executant una altra instància de Midori, però no respon.\n"
+
+#: ../midori/main.c:1715
+#, fuzzy, c-format
+msgid "The search engines couldn't be loaded. %s\n"
+msgstr "No s'ha pogut carregar els següents fitxers:"
+
+#: ../midori/main.c:1727
+#, c-format
+msgid "The bookmarks couldn't be loaded: %s\n"
+msgstr "No s'ha pogut carregar les adreces d'interès: %s\n"
+
+#: ../midori/main.c:1742
+#, fuzzy, c-format
+msgid "The session couldn't be loaded: %s\n"
+msgstr "No s'ha pogut carregar el fitxer."
+
+#: ../midori/main.c:1755
+#, fuzzy, c-format
+msgid "The trash couldn't be loaded: %s\n"
+msgstr "No s'ha pogut carregar el fitxer."
+
+#: ../midori/main.c:1768
+#, fuzzy, c-format
+msgid "The history couldn't be loaded: %s\n"
+msgstr "No s'ha pogut carregar el fitxer."
+
+#: ../midori/main.c:1780
+#, fuzzy
+msgid "The following errors occured:"
+msgstr "S'ha produït el següent error:"
+
+#: ../midori/main.c:1796
+msgid "_Ignore"
+msgstr "_Ignora"
+
+#: ../midori/midori-array.c:250
+msgid "File not found."
+msgstr "No s'ha trobat el fitxer."
+
+#: ../midori/midori-array.c:258 ../midori/midori-array.c:267
+#, fuzzy
+msgid "Malformed document."
+msgstr "Valida el document"
+
+#: ../midori/midori-array.c:429 ../midori/sokoke.c:694
+#, fuzzy, c-format
+msgid "Writing failed."
+msgstr "Ha fallat al escriure la petició HTTP: %s.\n"
+
+#: ../midori/midori-browser.c:307 ../midori/midori-browser.c:4229
+#: ../midori/midori-browser.c:4235
+#, fuzzy
+msgid "Reload the current page"
+msgstr "Actualitza la pàgina actual"
+
+#: ../midori/midori-browser.c:318 ../midori/midori-browser.c:4232
+#, fuzzy
+msgid "Stop loading the current page"
+msgstr "Atura la càrrega d'aquesta pàgina"
+
+#: ../midori/midori-browser.c:409
+#, fuzzy, c-format
+msgid "%d%% loaded"
+msgstr "S'ha carregat"
+
+#: ../midori/midori-browser.c:434
+#, fuzzy, c-format
+msgid "Unexpected action '%s'."
+msgstr "Acció del comandament"
+
+#: ../midori/midori-browser.c:616
+msgid "New folder"
+msgstr "Nova carpeta"
+
+#: ../midori/midori-browser.c:616
+msgid "Edit folder"
+msgstr "Edita la carpeta"
+
+#: ../midori/midori-browser.c:618
+msgid "New bookmark"
+msgstr "Nova adreça d'interès"
+
+#: ../midori/midori-browser.c:618
+msgid "Edit bookmark"
+msgstr "Edita l'adreça d'interès"
+
+#: ../midori/midori-browser.c:648
+msgid "_Title:"
+msgstr "_Títol:"
+
+#: ../midori/midori-browser.c:661 ../midori/midori-searchaction.c:952
+msgid "_Description:"
+msgstr "_Descripció:"
+
+#: ../midori/midori-browser.c:680 ../midori/midori-searchaction.c:966
+#: ../extensions/feed-panel/main.c:343
+msgid "_Address:"
+msgstr "_Adreça:"
+
+#: ../midori/midori-browser.c:699
+msgid "_Folder:"
+msgstr "_Carpeta:"
+
+#: ../midori/midori-browser.c:704 ../midori/midori-browser.c:745
+msgid "Toplevel folder"
+msgstr "Carpeta de nivell superior"
+
+#: ../midori/midori-browser.c:821
+msgid "Save file as"
+msgstr "Anomena i desa"
+
+#: ../midori/midori-browser.c:1172
+#, fuzzy, c-format
+msgid "The file '<b>%s</b>' has been downloaded."
+msgstr "S'ha desat el fitxer"
+
+#: ../midori/midori-browser.c:1176
+msgid "Transfer completed"
+msgstr "Transferència finalitzada"
+
+#: ../midori/midori-browser.c:1317
+msgid "Save file"
+msgstr "Desa el fitxer"
+
+#: ../midori/midori-browser.c:1984
+msgid "Open file"
+msgstr "Obre un fitxer"
+
+#: ../midori/midori-browser.c:3430 ../panels/midori-bookmarks.c:781
+#: ../panels/midori-history.c:812
+#, fuzzy
+msgid "Open all in _Tabs"
+msgstr "Obre els equips en noves pestanyes"
+
+#: ../midori/midori-browser.c:3437 ../panels/midori-bookmarks.c:787
+#: ../panels/midori-history.c:818 ../extensions/feed-panel/feed-panel.c:542
+#, fuzzy
+msgid "Open in New _Tab"
+msgstr "Obre l'enllaç en una _pestanya nova"
+
+#: ../midori/midori-browser.c:3440 ../panels/midori-bookmarks.c:789
+#: ../panels/midori-history.c:820 ../extensions/feed-panel/feed-panel.c:544
+#, fuzzy
+msgid "Open in New _Window"
+msgstr "Obre en una _finestra nova"
+
+#: ../midori/midori-browser.c:3750
+msgid "Clear Private Data"
+msgstr "Neteja les dades privades"
+
+#: ../midori/midori-browser.c:3754
+msgid "_Clear private data"
+msgstr "_Neteja les dades privades"
+
+#: ../midori/midori-browser.c:3767
+msgid "Clear the following data:"
+msgstr "Neteja les següents dades"
+
+#: ../midori/midori-browser.c:3777 ../midori/midori-preferences.c:671
+#: ../panels/midori-history.c:108
+msgid "History"
+msgstr "Historial"
+
+#: ../midori/midori-browser.c:3782
+msgid "Cookies"
+msgstr "Galetes"
+
+#: ../midori/midori-browser.c:3787
+msgid "'Flash' Cookies"
+msgstr "Galetes «Flash»"
+
+#: ../midori/midori-browser.c:3792
+msgid "Website icons"
+msgstr "Icones de llocs webs"
+
+#: ../midori/midori-browser.c:3797 ../midori/sokoke.c:868
+#, fuzzy
+msgid "_Closed Tabs"
+msgstr "els separadors no són compatibles"
+
+#: ../midori/midori-browser.c:3805
+msgid "Clear private data when _quitting Midori"
+msgstr "Neteja les dades provades al _sortir de Midori"
+
+#: ../midori/midori-browser.c:3889
+msgid "A lightweight web browser."
+msgstr "Un navegador de pàgines web lleuger."
+
+#: ../midori/midori-browser.c:3897
+msgid "translator-credits"
+msgstr "Carles Muñoz Gorriz <carlesmu@internautas.org>, 2009."
+
+#: ../midori/midori-browser.c:4163
+msgid "_File"
+msgstr "_Fitxer"
+
+#: ../midori/midori-browser.c:4165 ../midori/sokoke.c:869
+msgid "New _Window"
+msgstr "Nova _finestra"
+
+#: ../midori/midori-browser.c:4166
+msgid "Open a new window"
+msgstr "Obre una finestra nova"
+
+#: ../midori/midori-browser.c:4169
+msgid "Open a new tab"
+msgstr "Obre una pestanya nova"
+
+#: ../midori/midori-browser.c:4172
+msgid "Open a file"
+msgstr "Obre un fitxer"
+
+#: ../midori/midori-browser.c:4175
+msgid "Save to a file"
+msgstr "Desa en un fitxer"
+
+#: ../midori/midori-browser.c:4177
+#, fuzzy
+msgid "Add to Speed _dial"
+msgstr "Trieu l'ISP a trucar"
+
+#: ../midori/midori-browser.c:4178
+#, fuzzy
+msgid "Add shortcut to speed dial"
+msgstr "No s'ha pogut afegir una drecera nova"
+
+#: ../midori/midori-browser.c:4180
+msgid "_Close Tab"
+msgstr "Tan_ca la pestanya"
+
+#: ../midori/midori-browser.c:4181
+msgid "Close the current tab"
+msgstr "Tanca la pestanya actual"
+
+#: ../midori/midori-browser.c:4183
+msgid "C_lose Window"
+msgstr "_Tanca la finestra"
+
+#: ../midori/midori-browser.c:4184
+msgid "Close this window"
+msgstr "Tanca aquesta finestra"
+
+#: ../midori/midori-browser.c:4187
+#, fuzzy
+msgid "Print the current page"
+msgstr "Imprimeix la pàgina actual"
+
+#: ../midori/midori-browser.c:4190
+#, fuzzy
+msgid "Quit the application"
+msgstr "Surt d'aquesta aplicació"
+
+#: ../midori/midori-browser.c:4192
+msgid "_Edit"
+msgstr "_Edita"
+
+#: ../midori/midori-browser.c:4195
+#, fuzzy
+msgid "Cut the selected text"
+msgstr "Suprimeix el text seleccionat"
+
+#: ../midori/midori-browser.c:4198 ../midori/midori-browser.c:4201
+#, fuzzy
+msgid "Copy the selected text"
+msgstr "Còpia el text seleccionat al portaretalls"
+
+#: ../midori/midori-browser.c:4204
+#, fuzzy
+msgid "Paste text from the clipboard"
+msgstr "Enganxa objectes del porta-retalls"
+
+#: ../midori/midori-browser.c:4207
+#, fuzzy
+msgid "Delete the selected text"
+msgstr "Suprimeix el text seleccionat"
+
+#: ../midori/midori-browser.c:4210
+#, fuzzy
+msgid "Select all text"
+msgstr "Selecciona tot el text."
+
+#: ../midori/midori-browser.c:4213
+msgid "Find a word or phrase in the page"
+msgstr "Cerca una paraula o frase a la pàgina"
+
+#: ../midori/midori-browser.c:4215
+msgid "Find _Next"
+msgstr "Cerca el _següent"
+
+#: ../midori/midori-browser.c:4216
+msgid "Find the next occurrence of a word or phrase"
+msgstr "Cerca la següent ocurrència de la paraula o frase"
+
+#: ../midori/midori-browser.c:4218
+msgid "Find _Previous"
+msgstr "Cerca l'_anterior"
+
+#: ../midori/midori-browser.c:4219
+msgid "Find the previous occurrence of a word or phrase"
+msgstr "Cerca l'anterior ocurrència de la paraula o frase"
+
+#: ../midori/midori-browser.c:4223
+#, fuzzy
+msgid "Configure the application preferences"
+msgstr "Canvia les preferències de l'aplicació"
+
+#: ../midori/midori-browser.c:4225
+msgid "_View"
+msgstr "_Visualitza"
+
+#: ../midori/midori-browser.c:4226
+msgid "_Toolbars"
+msgstr "Barres d'_eines"
+
+#: ../midori/midori-browser.c:4238
+msgid "Increase the zoom level"
+msgstr "Augmenta el nivell de zoom"
+
+#: ../midori/midori-browser.c:4241
+msgid "Decrease the zoom level"
+msgstr "Disminueix el nivell de zoom"
+
+#: ../midori/midori-browser.c:4244
+#, fuzzy
+msgid "Reset the zoom level"
+msgstr "Nivell màxim de zoom"
+
+#: ../midori/midori-browser.c:4245
+msgid "_Encoding"
+msgstr "_Codificació"
+
+#: ../midori/midori-browser.c:4247
+#, fuzzy
+msgid "View So_urce"
+msgstr "És tan..."
+
+#: ../midori/midori-browser.c:4248
+#, fuzzy
+msgid "View the source code of the page"
+msgstr "Codi font Emacs Lisp"
+
+#: ../midori/midori-browser.c:4250
+#, fuzzy
+msgid "View Selection Source"
+msgstr "Visualització de codi font - Conglomerate"
+
+#: ../midori/midori-browser.c:4251
+#, fuzzy
+msgid "View the source code of the selection"
+msgstr "Codi font Emacs Lisp"
+
+#: ../midori/midori-browser.c:4255
+#, fuzzy
+msgid "Toggle fullscreen view"
+msgstr "Commuta la vista en pantalla completa"
+
+#: ../midori/midori-browser.c:4257
+msgid "_Go"
+msgstr "_Vés"
+
+#: ../midori/midori-browser.c:4260
+msgid "Go back to the previous page"
+msgstr "Torna a la pàgina anterior"
+
+#: ../midori/midori-browser.c:4263
+msgid "Go forward to the next page"
+msgstr "Avança a la pàgina següent"
+
+#: ../midori/midori-browser.c:4266
+msgid "Go to your homepage"
+msgstr "Va a la vostre pàgina d'inici"
+
+#: ../midori/midori-browser.c:4268
+msgid "Empty Trash"
+msgstr "Buida la paperera"
+
+#: ../midori/midori-browser.c:4269
+msgid "Delete the contents of the trash"
+msgstr "Esborra tot el contingut de la paperera"
+
+#: ../midori/midori-browser.c:4271
+msgid "Undo _Close Tab"
+msgstr "Desfés _tanca pestanya"
+
+#: ../midori/midori-browser.c:4272
+msgid "Open the last closed tab"
+msgstr "Obre la darrera pestanya tancada"
+
+#: ../midori/midori-browser.c:4276 ../panels/midori-bookmarks.c:231
+msgid "Add a new bookmark"
+msgstr "Afegeix una adreça d'interès"
+
+#: ../midori/midori-browser.c:4278
+msgid "Add a new _folder"
+msgstr "Afegeix una _carpeta"
+
+#: ../midori/midori-browser.c:4279
+msgid "Add a new bookmark folder"
+msgstr "Afegeix una carpeta d'adreces d'interès"
+
+#: ../midori/midori-browser.c:4281 ../midori/midori-searchaction.c:497
+msgid "_Manage Search Engines"
+msgstr "_Gestiona els ginys de cerca"
+
+#: ../midori/midori-browser.c:4282
+msgid "Add, edit and remove search engines..."
+msgstr "Afegeix, edita o treu ginys de cerca…"
+
+#: ../midori/midori-browser.c:4285
+msgid "_Clear Private Data"
+msgstr "_Neteja les dades privades"
+
+#: ../midori/midori-browser.c:4286
+msgid "Clear private data..."
+msgstr "Neteja les dades privades…"
+
+#: ../midori/midori-browser.c:4290
+msgid "_Previous Tab"
+msgstr "_Anterior pestanya"
+
+#: ../midori/midori-browser.c:4291
+msgid "Switch to the previous tab"
+msgstr "Canvia a la pestanya anterior"
+
+#: ../midori/midori-browser.c:4293
+msgid "_Next Tab"
+msgstr "_Següent pestanya"
+
+#: ../midori/midori-browser.c:4294
+msgid "Switch to the next tab"
+msgstr "Canvia a la pestanya següent"
+
+#: ../midori/midori-browser.c:4296
+msgid "_Help"
+msgstr "A_juda"
+
+#: ../midori/midori-browser.c:4298
+msgid "_Contents"
+msgstr "_Continguts"
+
+#: ../midori/midori-browser.c:4299
+msgid "Show the documentation"
+msgstr "Mostra la documentació"
+
+#: ../midori/midori-browser.c:4301
+msgid "_Frequent Questions"
+msgstr "_Preguntes freqüents"
+
+#: ../midori/midori-browser.c:4302
+msgid "Show the Frequently Asked Questions"
+msgstr "Mostra les preguntes més freqüents"
+
+#: ../midori/midori-browser.c:4304
+msgid "_Report a Bug"
+msgstr "Informa d'un _error"
+
+#: ../midori/midori-browser.c:4305
+msgid "Open Midori's bug tracker"
+msgstr ""
+
+#: ../midori/midori-browser.c:4308
+#, fuzzy
+msgid "Show information about the program"
+msgstr "Mostra la informació sobre aquest programa"
+
+#: ../midori/midori-browser.c:4315
+#, fuzzy
+msgid "P_rivate Browsing"
+msgstr "Navegació web"
+
+#: ../midori/midori-browser.c:4316
+msgid "Don't save any private data while browsing"
+msgstr ""
+
+#: ../midori/midori-browser.c:4321
+msgid "_Menubar"
+msgstr "Barra de _menú"
+
+#: ../midori/midori-browser.c:4322
+msgid "Show menubar"
+msgstr "Mostra la barra de menú"
+
+#: ../midori/midori-browser.c:4325
+msgid "_Navigationbar"
+msgstr "Barra de _navegació"
+
+#: ../midori/midori-browser.c:4326
+#, fuzzy
+msgid "Show navigationbar"
+msgstr "Mostra parpellejant"
+
+#: ../midori/midori-browser.c:4329
+msgid "Side_panel"
+msgstr "_Quadre lateral"
+
+#: ../midori/midori-browser.c:4330
+msgid "Show sidepanel"
+msgstr "Mostra el quadre lateral"
+
+#: ../midori/midori-browser.c:4333
+msgid "_Bookmarkbar"
+msgstr "Barra d'_adreces d'interès"
+
+#: ../midori/midori-browser.c:4334
+msgid "Show bookmarkbar"
+msgstr "Mostra la barra d'adreces d'interès"
+
+#: ../midori/midori-browser.c:4337
+msgid "_Transferbar"
+msgstr "Barra de _transferències"
+
+#: ../midori/midori-browser.c:4338
+msgid "Show transferbar"
+msgstr "Mostra la barra de transferències"
+
+#: ../midori/midori-browser.c:4341
+msgid "_Statusbar"
+msgstr "Barra d'_estat"
+
+#: ../midori/midori-browser.c:4342
+msgid "Show statusbar"
+msgstr "Mostra la barra d'estat"
+
+#: ../midori/midori-browser.c:4349
+msgid "_Automatic"
+msgstr "_Automàtic"
+
+#: ../midori/midori-browser.c:4352 ../midori/midori-websettings.c:214
+msgid "Chinese (BIG5)"
+msgstr "Chinese Traditional (Big5)"
+
+#. i18n: A double underscore "__" is used to prevent an unwanted mnemonic
+#: ../midori/midori-browser.c:4356
+msgid "Japanese (SHIFT__JIS)"
+msgstr "Japonès (Shift_JIS)"
+
+#: ../midori/midori-browser.c:4359 ../midori/midori-websettings.c:216
+msgid "Russian (KOI8-R)"
+msgstr "Rus (KOI8-R)"
+
+#: ../midori/midori-browser.c:4362 ../midori/midori-websettings.c:217
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+#: ../midori/midori-browser.c:4365 ../midori/midori-websettings.c:218
+msgid "Western (ISO-8859-1)"
+msgstr "Occidental (ISO-8859-1)"
+
+#: ../midori/midori-browser.c:4368 ../midori/midori-websettings.c:219
+#: ../midori/midori-websettings.c:291
+msgid "Custom..."
+msgstr "Personalitzat…"
+
+#: ../midori/midori-browser.c:4806
+msgid "_Separator"
+msgstr "_Separador"
+
+#: ../midori/midori-browser.c:4813
+msgid "_Location..."
+msgstr "_Ubicació…"
+
+#: ../midori/midori-browser.c:4815
+msgid "Open a particular location"
+msgstr "Obre una ubicació"
+
+#: ../midori/midori-browser.c:4839
+msgid "_Web Search..."
+msgstr "Cerca _web…"
+
+#: ../midori/midori-browser.c:4841
+msgid "Run a web search"
+msgstr "Exevuta una cerca web"
+
+#: ../midori/midori-browser.c:4862
+msgid "Reopen a previously closed tab or window"
+msgstr ""
+
+#: ../midori/midori-browser.c:4877
+#, fuzzy
+msgid "_Recently visited pages"
+msgstr "Creua les pàgines visitades"
+
+#: ../midori/midori-browser.c:4879
+msgid "Reopen pages that you visited earlier"
+msgstr ""
+
+#: ../midori/midori-browser.c:4894 ../midori/sokoke.c:857
+msgid "_Bookmarks"
+msgstr "_Adreces d'interès"
+
+#: ../midori/midori-browser.c:4896
+msgid "Show the saved bookmarks"
+msgstr "Mostra les adreces d'interès desades"
+
+#: ../midori/midori-browser.c:4911
+msgid "_Tools"
+msgstr "_Eines"
+
+#: ../midori/midori-browser.c:4923
+msgid "_Window"
+msgstr "_Finestra"
+
+#: ../midori/midori-browser.c:4925
+#, fuzzy
+msgid "Show a list of all open tabs"
+msgstr "Mostra o amaga tots els diàlegs actius"
+
+#: ../midori/midori-browser.c:4939
+msgid "_Menu"
+msgstr "_Menú"
+
+#: ../midori/midori-browser.c:4941
+msgid "Menu"
+msgstr "Menú"
+
+#. i18n: A panel at the bottom, to search text in pages
+#: ../midori/midori-browser.c:5127
+#, fuzzy
+msgid "_Inline Find:"
+msgstr "No s'ha pogut trobar «%s»"
+
+#: ../midori/midori-browser.c:5152
+msgid "Previous"
+msgstr "Anterior"
+
+#: ../midori/midori-browser.c:5157
+msgid "Next"
+msgstr "Següent"
+
+#: ../midori/midori-browser.c:5162
+#, fuzzy
+msgid "Match Case"
+msgstr "Coi_ncidència de majúscules i minúscules"
+
+#: ../midori/midori-browser.c:5170
+#, fuzzy
+msgid "Highlight Matches"
+msgstr "Ressalta les coincidències"
+
+#: ../midori/midori-browser.c:5180
+#, fuzzy
+msgid "Close Findbar"
+msgstr "no s'ha pogut tancar"
+
+#: ../midori/midori-browser.c:5215
+#: ../extensions/cookie-manager/cookie-manager-page.c:109
+msgid "Delete All"
+msgstr "Suprimeix-ho tot"
+
+#: ../midori/midori-browser.c:5552
+#, fuzzy, c-format
+msgid "Unexpected setting '%s'"
+msgstr "en establir les dates de %s"
+
+#: ../midori/midori-locationaction.c:901
+#, c-format
+msgid "Search with %s"
+msgstr "Cerca amb %s"
+
+#: ../midori/midori-panel.c:382 ../midori/midori-panel.c:384
+#, fuzzy
+msgid "Detach chosen panel from the window"
+msgstr "Mostra l'animació fora d'aquesta finestra de diàleg"
+
+#: ../midori/midori-panel.c:394 ../midori/midori-panel.c:396
+#: ../midori/midori-panel.c:577 ../midori/midori-panel.c:580
+#, fuzzy
+msgid "Align sidepanel to the right"
+msgstr "Horitzontal, creixent cap a la dreta"
+
+#: ../midori/midori-panel.c:406 ../midori/midori-panel.c:407
+msgid "Close panel"
+msgstr "Tanca el quadre"
+
+#: ../midori/midori-panel.c:578 ../midori/midori-panel.c:581
+#, fuzzy
+msgid "Align sidepanel to the left"
+msgstr "Horitzontal, creixent cap a l'esquerra"
+
+#: ../midori/midori-panel.c:704
+#, fuzzy
+msgid "Show panel _titles"
+msgstr "Mostra els títols"
+
+#: ../midori/midori-panel.c:712
+#, fuzzy
+msgid "Show operating _controls"
+msgstr "Mostra/Amaga els controls"
+
+#: ../midori/midori-panel.c:783
+msgid "Options"
+msgstr "Opcions"
+
+#: ../midori/midori-websettings.c:197
+#, fuzzy
+msgid "Show Blank page"
+msgstr "Mostra la pàgina d'ajuda"
+
+#: ../midori/midori-websettings.c:198
+msgid "Show Homepage"
+msgstr "Mostra la pàgina d'inici"
+
+#: ../midori/midori-websettings.c:199
+#, fuzzy
+msgid "Show last open tabs"
+msgstr "Obre un projecte"
+
+#: ../midori/midori-websettings.c:215
+msgid "Japanese (SHIFT_JIS)"
+msgstr "Japonès (Shift_JIS)"
+
+#: ../midori/midori-websettings.c:234
+msgid "New tab"
+msgstr "Nova pestanya"
+
+#: ../midori/midori-websettings.c:235
+msgid "New window"
+msgstr "Nova finestra"
+
+#: ../midori/midori-websettings.c:236
+#, fuzzy
+msgid "Current tab"
+msgstr "/Estil de pestanya/E_stat actual"
+
+#: ../midori/midori-websettings.c:251
+msgid "Default"
+msgstr "Per defecte"
+
+#: ../midori/midori-websettings.c:252
+msgid "Icons"
+msgstr "Icones"
+
+#: ../midori/midori-websettings.c:253
+msgid "Text"
+msgstr "Text"
+
+#: ../midori/midori-websettings.c:254
+msgid "Icons and text"
+msgstr "Icones i text"
+
+#: ../midori/midori-websettings.c:255
+msgid "Text beside icons"
+msgstr "Text sota les icones"
+
+#: ../midori/midori-websettings.c:270
+msgid "All cookies"
+msgstr "Totes les galetes"
+
+#: ../midori/midori-websettings.c:271
+msgid "Session cookies"
+msgstr "Galetes de sessió"
+
+#: ../midori/midori-websettings.c:272 ../panels/midori-addons.c:94
+#: ../extensions/shortcuts.c:93
+msgid "None"
+msgstr "Cap"
+
+#: ../midori/midori-websettings.c:288
+msgid "Safari"
+msgstr "Safari"
+
+#: ../midori/midori-websettings.c:289
+msgid "Firefox"
+msgstr "Firefox"
+
+#: ../midori/midori-websettings.c:290
+msgid "Internet Explorer"
+msgstr "Internet Explorer"
+
+#: ../midori/midori-websettings.c:343
+#, fuzzy
+msgid "Remember last window size"
+msgstr "Empra la geometria de la darrera finestra"
+
+#: ../midori/midori-websettings.c:344
+msgid "Whether to save the last window size"
+msgstr ""
+
+#: ../midori/midori-websettings.c:352
+#, fuzzy
+msgid "Last window width"
+msgstr "Amplada de finestra desitjada"
+
+#: ../midori/midori-websettings.c:353
+#, fuzzy
+msgid "The last saved window width"
+msgstr "L'amplària per defecte de la finestra de l'aplicació"
+
+#: ../midori/midori-websettings.c:361
+#, fuzzy
+msgid "Last window height"
+msgstr "Alçada de finestra desitjada"
+
+#: ../midori/midori-websettings.c:362
+#, fuzzy
+msgid "The last saved window height"
+msgstr "L'alçada per defecte de la finestra de la bitàcola"
+
+#: ../midori/midori-websettings.c:387
+#, fuzzy
+msgid "Last panel position"
+msgstr "La posició de l'objecte al quadre"
+
+#: ../midori/midori-websettings.c:388
+#, fuzzy
+msgid "The last saved panel position"
+msgstr "La posició de l'objecte al quadre"
+
+#. i18n: The internal index of the last opened panel
+#: ../midori/midori-websettings.c:397
+#, fuzzy
+msgid "Last panel page"
+msgstr "Mostra l'última pàgina"
+
+#: ../midori/midori-websettings.c:398
+#, fuzzy
+msgid "The last saved panel page"
+msgstr "Vés a l'última pàgina"
+
+#: ../midori/midori-websettings.c:406
+#, fuzzy
+msgid "Last Web search"
+msgstr "Cerca per Web"
+
+#: ../midori/midori-websettings.c:407
+#, fuzzy
+msgid "The last saved Web search"
+msgstr "Permet fe búsquedes a la web directament des del quadre"
+
+#: ../midori/midori-websettings.c:416
+msgid "Show Menubar"
+msgstr "Mostra la barra de menú"
+
+#: ../midori/midori-websettings.c:417
+msgid "Whether to show the menubar"
+msgstr "Si es mostrarà la barra de menú"
+
+#: ../midori/midori-websettings.c:425
+msgid "Show Navigationbar"
+msgstr "Mostra la barra de navegació"
+
+#: ../midori/midori-websettings.c:426
+msgid "Whether to show the navigationbar"
+msgstr "Si es mostrarà la barra de navegació"
+
+#: ../midori/midori-websettings.c:434
+msgid "Show Bookmarkbar"
+msgstr "Mostra la barra d'adreces d'interès"
+
+#: ../midori/midori-websettings.c:435
+msgid "Whether to show the bookmarkbar"
+msgstr "Si es mostra la barra d'adreces d'interès"
+
+#: ../midori/midori-websettings.c:443
+#, fuzzy
+msgid "Show Panel"
+msgstr "Mostra quadre"
+
+#: ../midori/midori-websettings.c:444
+#, fuzzy
+msgid "Whether to show the panel"
+msgstr "Si es mostrarà un indicador d'ordenació"
+
+#: ../midori/midori-websettings.c:459
+msgid "Show Transferbar"
+msgstr "Mostra barra de fransferències"
+
+#: ../midori/midori-websettings.c:460
+msgid "Whether to show the transferbar"
+msgstr "Si es mostrarà la barra de transferències"
+
+#: ../midori/midori-websettings.c:468
+msgid "Show Statusbar"
+msgstr "Mostra la barra d'estat"
+
+#: ../midori/midori-websettings.c:469
+msgid "Whether to show the statusbar"
+msgstr "Si es mostrarà la barra d'estat"
+
+#: ../midori/midori-websettings.c:478
+msgid "Toolbar Style:"
+msgstr "Estil de la barra d'eines:"
+
+#: ../midori/midori-websettings.c:479
+msgid "The style of the toolbar"
+msgstr "L'estil de la barra d'eines"
+
+#: ../midori/midori-websettings.c:495
+msgid "Show progress in location entry"
+msgstr ""
+
+#: ../midori/midori-websettings.c:496
+msgid "Whether to show loading progress in the location entry"
+msgstr ""
+
+#: ../midori/midori-websettings.c:511
+msgid "Search engines in location completion"
+msgstr ""
+
+#: ../midori/midori-websettings.c:512
+msgid "Whether to show search engines in the location completion"
+msgstr ""
+
+#: ../midori/midori-websettings.c:520
+msgid "Toolbar Items"
+msgstr "Elements de la barra d'eines"
+
+#: ../midori/midori-websettings.c:521
+msgid "The items to show on the toolbar"
+msgstr "Els elements que es mostraran a la barra d'eines"
+
+#: ../midori/midori-websettings.c:529
+#, fuzzy
+msgid "Compact Sidepanel"
+msgstr "Desplegament compacte"
+
+#: ../midori/midori-websettings.c:530
+msgid "Whether to make the sidepanel compact"
+msgstr ""
+
+#: ../midori/midori-websettings.c:545
+#, fuzzy
+msgid "Show operating controls of the panel"
+msgstr "Mostra/amaga el plafó de navegació"
+
+#: ../midori/midori-websettings.c:546
+msgid "Whether to show the operating controls of the panel"
+msgstr ""
+
+#: ../midori/midori-websettings.c:561
+#, fuzzy
+msgid "Align sidepanel on the right"
+msgstr "La barra d'estat està a la dreta"
+
+#: ../midori/midori-websettings.c:562
+#, fuzzy
+msgid "Whether to align the sidepanel on the right"
+msgstr "Si s'ha de mostrar un mesurador de barra d'estat a la dreta"
+
+#: ../midori/midori-websettings.c:571
+#, fuzzy
+msgid "When Midori starts:"
+msgstr "Activa quan _s'inicia l'ordinador"
+
+#: ../midori/midori-websettings.c:572
+msgid "What to do when Midori starts"
+msgstr ""
+
+#: ../midori/midori-websettings.c:581
+msgid "Homepage:"
+msgstr "Pàgina d'inici:"
+
+#: ../midori/midori-websettings.c:582
+msgid "The homepage"
+msgstr "La pàgina d'inici"
+
+#: ../midori/midori-websettings.c:597
+#, fuzzy
+msgid "Show crash dialog"
+msgstr "Inhabilita el diàleg de fallades"
+
+#: ../midori/midori-websettings.c:598
+msgid "Show a dialog after Midori crashed"
+msgstr "Mostra un diàleg quan Midori falli"
+
+#. i18n: Speed dial, webpage shortcuts, named for the phone function
+#: ../midori/midori-websettings.c:614
+#, fuzzy
+msgid "Show speed dial in new tabs"
+msgstr "Si s'ha de mostrar la barra de menú a les noves finestres/pestanyes"
+
+#: ../midori/midori-websettings.c:615
+msgid "Show speed dial in newly opened tabs"
+msgstr ""
+
+#: ../midori/midori-websettings.c:623
+#, fuzzy
+msgid "Save downloaded files to:"
+msgstr "  -P,  --directory-prefix=PREFIX  desa els fitxers a PREFIX/...\n"
+
+#: ../midori/midori-websettings.c:624
+msgid "The folder downloaded files are saved to"
+msgstr ""
+
+#: ../midori/midori-websettings.c:643
+#, fuzzy
+msgid "Ask for the destination folder"
+msgstr "Seleccioneu una carpeta per als podcasts"
+
+#: ../midori/midori-websettings.c:644
+msgid "Whether to ask for the destination folder when downloading a file"
+msgstr ""
+
+#: ../midori/midori-websettings.c:663
+msgid "Notify when a transfer has been completed"
+msgstr "Informa quan una transferència hagi finalitzat"
+
+#: ../midori/midori-websettings.c:664
+msgid "Whether to show a notification when a transfer has been completed"
+msgstr "Si es mostra una notificació quan acabi una transferència"
+
+#: ../midori/midori-websettings.c:676
+msgid "Download Manager"
+msgstr "Gestor de descàrregues"
+
+#: ../midori/midori-websettings.c:677
+msgid "An external download manager"
+msgstr "Un gestor de descàrregues extern"
+
+#: ../midori/midori-websettings.c:685
+msgid "Text Editor"
+msgstr "Editor de text"
+
+#: ../midori/midori-websettings.c:686
+msgid "An external text editor"
+msgstr "Un editor de text extern"
+
+#: ../midori/midori-websettings.c:701
+#, fuzzy
+msgid "News Aggregator"
+msgstr "Agregador de RSS"
+
+#: ../midori/midori-websettings.c:702
+#, fuzzy
+msgid "An external news aggregator"
+msgstr "Font SunOS News"
+
+#: ../midori/midori-websettings.c:710
+#, fuzzy
+msgid "Location entry Search"
+msgstr "_Ubicació que s'ha de cercar:"
+
+#: ../midori/midori-websettings.c:711
+msgid "The search to perform inside the location entry"
+msgstr ""
+
+#: ../midori/midori-websettings.c:719
+#, fuzzy
+msgid "Preferred Encoding"
+msgstr "La codificació no és vàlida."
+
+#: ../midori/midori-websettings.c:720
+#, fuzzy
+msgid "The preferred character encoding"
+msgstr "Codificació del joc de caràcters de la BD"
+
+#: ../midori/midori-websettings.c:730
+#, fuzzy
+msgid "Always Show Tabbar"
+msgstr "Mostra sempre la Clutterbar "
+
+#: ../midori/midori-websettings.c:731
+#, fuzzy
+msgid "Always show the tabbar"
+msgstr "Mostra sempre la Clutterbar "
+
+#: ../midori/midori-websettings.c:739
+#, fuzzy
+msgid "Close Buttons on Tabs"
+msgstr "Mostar el botó de _tancar a les pestanyes"
+
+#: ../midori/midori-websettings.c:740
+#, fuzzy
+msgid "Whether tabs have close buttons"
+msgstr "Mostra els botons per tancar pestanyes"
+
+#: ../midori/midori-websettings.c:748
+#, fuzzy
+msgid "Open new pages in:"
+msgstr "Obre en una finestra nova"
+
+#: ../midori/midori-websettings.c:749
+#, fuzzy
+msgid "Where to open new pages"
+msgstr "No s'ha pogut obrir una nova sessió."
+
+#: ../midori/midori-websettings.c:758
+#, fuzzy
+msgid "Open external pages in:"
+msgstr "El nombre de pàgines del document."
+
+#: ../midori/midori-websettings.c:759
+msgid "Where to open externally opened pages"
+msgstr ""
+
+#: ../midori/midori-websettings.c:768
+#, fuzzy
+msgid "Middle click opens Selection"
+msgstr "Cliqueu per a completar la selecció"
+
+#: ../midori/midori-websettings.c:769
+msgid "Load an address from the selection via middle click"
+msgstr ""
+
+#: ../midori/midori-websettings.c:777
+#, fuzzy
+msgid "Open tabs in the background"
+msgstr "Obre els equips en noves pestanyes"
+
+#: ../midori/midori-websettings.c:778
+#, fuzzy
+msgid "Whether to open new tabs in the background"
+msgstr "Si s'ha de mostrar la barra de menú a les noves finestres/pestanyes"
+
+#: ../midori/midori-websettings.c:786
+#, fuzzy
+msgid "Open Tabs next to Current"
+msgstr "no es pot obrir l'actual fitxer d'opcions «%.250s»"
+
+#: ../midori/midori-websettings.c:787
+msgid "Whether to open new tabs next to the current tab or after the last one"
+msgstr ""
+
+#: ../midori/midori-websettings.c:795
+#, fuzzy
+msgid "Open popups in tabs"
+msgstr "Obre els equips en noves pestanyes"
+
+#: ../midori/midori-websettings.c:796
+#, fuzzy
+msgid "Whether to open popup windows in tabs"
+msgstr "Si s'ha de mostrar la barra de menú a les noves finestres/pestanyes"
+
+#: ../midori/midori-websettings.c:812
+#, fuzzy
+msgid "Zoom Text and Images"
+msgstr "Text i contrasenya de només lectura"
+
+#: ../midori/midori-websettings.c:813
+msgid "Whether to zoom text and images"
+msgstr ""
+
+#: ../midori/midori-websettings.c:828
+#, fuzzy
+msgid "Find inline while typing"
+msgstr "S'ha produït un error en cercar el directori /@l: %m\n"
+
+#: ../midori/midori-websettings.c:829
+msgid "Whether to automatically find inline while typing"
+msgstr ""
+
+#: ../midori/midori-websettings.c:837
+msgid "Accept cookies"
+msgstr "Accepta galetes"
+
+#: ../midori/midori-websettings.c:838
+msgid "What type of cookies to accept"
+msgstr ""
+
+#: ../midori/midori-websettings.c:847
+#, fuzzy
+msgid "Original cookies only"
+msgstr "obtindre sols lectura"
+
+#: ../midori/midori-websettings.c:848
+msgid "Accept cookies from the original website only"
+msgstr ""
+
+#: ../midori/midori-websettings.c:856
+#, fuzzy
+msgid "Maximum cookie age"
+msgstr "Duració màxima de la contrasenya"
+
+#: ../midori/midori-websettings.c:857
+msgid "The maximum number of days to save cookies for"
+msgstr ""
+
+#: ../midori/midori-websettings.c:867
+#, fuzzy
+msgid "Remember last visited pages"
+msgstr "Creua les pàgines visitades"
+
+#: ../midori/midori-websettings.c:868
+msgid "Whether the last visited pages are saved"
+msgstr ""
+
+#: ../midori/midori-websettings.c:876
+#, fuzzy
+msgid "Maximum history age"
+msgstr "Duració màxima de la contrasenya"
+
+#: ../midori/midori-websettings.c:877
+msgid "The maximum number of days to save the history for"
+msgstr ""
+
+#: ../midori/midori-websettings.c:885
+#, fuzzy
+msgid "Remember last form inputs"
+msgstr "Empra la geometria de la darrera finestra"
+
+#: ../midori/midori-websettings.c:886
+msgid "Whether the last form inputs are saved"
+msgstr ""
+
+#: ../midori/midori-websettings.c:894
+#, fuzzy
+msgid "Remember last downloaded files"
+msgstr "S'estan suprimint els fitxers baixats obsolets"
+
+#: ../midori/midori-websettings.c:895
+msgid "Whether the last downloaded files are saved"
+msgstr ""
+
+#: ../midori/midori-websettings.c:905
+msgid "Proxy Server"
+msgstr "Servidor intermediari"
+
+#: ../midori/midori-websettings.c:906
+msgid "The proxy server used for HTTP connections"
+msgstr ""
+
+#: ../midori/midori-websettings.c:921
+msgid "Detect proxy server automatically"
+msgstr "Detecta automàticament el servidor intermediari"
+
+#: ../midori/midori-websettings.c:922
+msgid "Whether to detect the proxy server automatically from the environment"
+msgstr ""
+
+#. i18n: This refers to an application, not the 'user agent' string
+#: ../midori/midori-websettings.c:938
+#, fuzzy
+msgid "Identify as"
+msgstr "Desa _com"
+
+#: ../midori/midori-websettings.c:939
+msgid "What to identify as to web pages"
+msgstr ""
+
+#: ../midori/midori-websettings.c:955
+#, fuzzy
+msgid "Identification string"
+msgstr "la cadena no és terminada"
+
+#: ../midori/midori-websettings.c:956
+#, fuzzy
+msgid "The application identification string"
+msgstr "La cadena d'identificació d'aplicacions"
+
+#: ../midori/midori-websettings.c:964
+#, fuzzy
+msgid "Cache size"
+msgstr "Mida de la memòria cau:"
+
+#: ../midori/midori-websettings.c:965
+#, fuzzy
+msgid "The allowed size of the cache"
+msgstr "Mida de la memòria cau de mosàics:"
+
+#: ../midori/midori-websettings.c:980
+#, fuzzy
+msgid "Clear private data"
+msgstr "Transferéncia de dades cancel·lada.\n"
+
+#: ../midori/midori-websettings.c:981
+msgid "The private data selected for deletion"
+msgstr ""
+
+#: ../midori/midori-view.c:781
+#, fuzzy, c-format
+msgid "The page '%s' couldn't be loaded."
+msgstr "No s'ha pogut carregar el fitxer."
+
+#. WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
+#. so reloading via Javascript works but not via API calls.
+#: ../midori/midori-view.c:783 ../midori/midori-view.c:3013
+#: ../extensions/feed-panel/main.c:112
+msgid "Error"
+msgstr "Error"
+
+#: ../midori/midori-view.c:786
+#, fuzzy
+msgid "Try again"
+msgstr "Torneu a provar"
+
+#. i18n: The title of the 404 - Not found error page
+#. Error pages are special, we want to try loading the destination
+#. again, not the error page which isn't even a proper page
+#: ../midori/midori-view.c:818 ../midori/midori-view.c:3017
+#, fuzzy, c-format
+msgid "Not found - %s"
+msgstr "«%s» no trobat"
+
+#: ../midori/midori-view.c:1205
+#, fuzzy
+msgid "Open _Link"
+msgstr "_Obre l'enllaç"
+
+#: ../midori/midori-view.c:1207
+#, fuzzy
+msgid "Open Link in New _Tab"
+msgstr "Obre l'enllaç en una _pestanya nova"
+
+#: ../midori/midori-view.c:1224
+#, fuzzy
+msgid "Open Link in New _Window"
+msgstr "Obre l'enllaç a una _nova finestra"
+
+#: ../midori/midori-view.c:1230
+#, fuzzy
+msgid "_Download Link destination"
+msgstr "%s és un enllaç sense destinació"
+
+#: ../midori/midori-view.c:1236
+#, fuzzy
+msgid "_Save Link destination"
+msgstr "%s és un enllaç sense destinació"
+
+#: ../midori/midori-view.c:1245
+#, fuzzy
+msgid "Download with Download _Manager"
+msgstr "Navega el sistema de fitxers amb el gestor de fitxers"
+
+#: ../midori/midori-view.c:1274
+msgid "Search _with"
+msgstr "Cerca _amb"
+
+#: ../midori/midori-view.c:1306
+#, fuzzy
+msgid "_Search the Web"
+msgstr "Cerca per Web"
+
+#: ../midori/midori-view.c:1316
+#, fuzzy
+msgid "Open Address in New _Tab"
+msgstr "Obre l'enllaç en una _pestanya nova"
+
+#: ../midori/midori-view.c:1494
+#, fuzzy
+msgid "Open or download file"
+msgstr "Obre un fitxer existent o crea un nou fitxer."
+
+#: ../midori/midori-view.c:1511
+#, c-format
+msgid "File Type: '%s'"
+msgstr "Tipus de fitxer: «%s»"
+
+#: ../midori/midori-view.c:1514
+#, c-format
+msgid "File Type: %s ('%s')"
+msgstr "Tipus de fitxer: %s («%s»)"
+
+#. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
+#: ../midori/midori-view.c:1518
+#, c-format
+msgid "Open %s"
+msgstr "Obre %s"
+
+#: ../midori/midori-view.c:1957
+#, fuzzy, c-format
+msgid "Inspect page - %s"
+msgstr " Pàgina de manual "
+
+#: ../midori/midori-view.c:2147
+#, fuzzy
+msgid "Speed dial"
+msgstr "Tipus _de marcatge:"
+
+#: ../midori/midori-view.c:2148
+#, fuzzy
+msgid "Click to add a shortcut"
+msgstr "No s'ha pogut afegir una drecera nova"
+
+#: ../midori/midori-view.c:2149
+#, fuzzy
+msgid "Enter shortcut address"
+msgstr "Introduïu una adreça electrònica"
+
+#: ../midori/midori-view.c:2150
+#, fuzzy
+msgid "Enter shortcut title"
+msgstr "Introduïu el títol de la cançó."
+
+#: ../midori/midori-view.c:2151
+#, fuzzy
+msgid "Are you sure you want to delete this shortcut?"
+msgstr "Esteu segur que voleu suprimir aquest compartit?"
+
+#: ../midori/midori-view.c:2181
+#, fuzzy, c-format
+msgid "Document cannot be displayed"
+msgstr "No es pot comprovar la validesa del document \"%s\"."
+
+#: ../midori/midori-view.c:2198
+#, fuzzy, c-format
+msgid "No documentation installed"
+msgstr "No s'han pogut trobar plantilles"
+
+#: ../midori/midori-view.c:2323
+#, fuzzy
+msgid "Blank page"
+msgstr " Pàgina de manual "
+
+#: ../midori/midori-view.c:2551 ../midori/sokoke.c:865
+#, fuzzy
+msgid "New _Tab"
+msgstr "Nova pes_tanya"
+
+#: ../midori/midori-view.c:2565
+#, fuzzy
+msgid "_Duplicate Tab"
+msgstr "el separador és buit"
+
+#: ../midori/midori-view.c:2570
+#, fuzzy
+msgid "_Restore Tab"
+msgstr "el separador és buit"
+
+#: ../midori/midori-view.c:2570
+#, fuzzy
+msgid "_Minimize Tab"
+msgstr "el separador és buit"
+
+#: ../midori/midori-preferences.c:91
+#, fuzzy, c-format
+msgid "Preferences for %s"
+msgstr "Preferències de l'Orca per a %s"
+
+#. Page "General"
+#: ../midori/midori-preferences.c:398
+msgid "General"
+msgstr "General"
+
+#: ../midori/midori-preferences.c:399
+msgid "Startup"
+msgstr "Inicialització"
+
+#: ../midori/midori-preferences.c:415
+msgid "Use current page as homepage"
+msgstr ""
+
+#: ../midori/midori-preferences.c:425 ../panels/midori-transfers.c:88
+msgid "Transfers"
+msgstr "Transferències"
+
+#. Page "Appearance"
+#: ../midori/midori-preferences.c:440
+msgid "Appearance"
+msgstr "Aparença"
+
+#: ../midori/midori-preferences.c:441
+#, fuzzy
+msgid "Font settings"
+msgstr "Altres paràmetres de lletra"
+
+#: ../midori/midori-preferences.c:443
+#, fuzzy
+msgid "Default Font Family"
+msgstr "Joc de família de tipus de lletra"
+
+#: ../midori/midori-preferences.c:447
+#, fuzzy
+msgid "The default font family used to display text"
+msgstr "Font utilitzada per visualitzar el text a la sortida xosd"
+
+#: ../midori/midori-preferences.c:450
+#, fuzzy
+msgid "The default font size used to display text"
+msgstr "Font utilitzada per visualitzar el text a la sortida xosd"
+
+#: ../midori/midori-preferences.c:453
+#, fuzzy
+msgid "Fixed-width Font Family"
+msgstr "Tipus de lletra per al text de mida fixa"
+
+#: ../midori/midori-preferences.c:457
+msgid "The font family used to display fixed-width text"
+msgstr ""
+
+#: ../midori/midori-preferences.c:460
+msgid "The font size used to display fixed-width text"
+msgstr ""
+
+#: ../midori/midori-preferences.c:463
+#, fuzzy
+msgid "Minimum Font Size"
+msgstr "Joc de mida de tipus de lletra"
+
+#: ../midori/midori-preferences.c:466
+#, fuzzy
+msgid "The minimum font size used to display text"
+msgstr "Font utilitzada per visualitzar el text a la sortida xosd"
+
+#: ../midori/midori-preferences.c:473
+msgid "Encoding"
+msgstr "Codificació"
+
+#: ../midori/midori-preferences.c:476
+#, fuzzy
+msgid "The character encoding to use by default"
+msgstr "Nom del rerefons del GtkFileChooser predeterminat"
+
+#. Page "Behavior"
+#: ../midori/midori-preferences.c:483
+msgid "Behavior"
+msgstr "Comportament"
+
+#: ../midori/midori-preferences.c:484
+msgid "Features"
+msgstr "Característiques"
+
+#: ../midori/midori-preferences.c:487 ../extensions/statusbar-features.c:88
+#, fuzzy
+msgid "Load images automatically"
+msgstr "Carrega automàticament el darrer projecte"
+
+#: ../midori/midori-preferences.c:488
+#, fuzzy
+msgid "Load and display images automatically"
+msgstr "Nom de fitxer per carregar i visualitzar"
+
+#: ../midori/midori-preferences.c:491
+#, fuzzy
+msgid "Shrink images automatically"
+msgstr "Esborra les imatges automàticament després de gravar"
+
+#: ../midori/midori-preferences.c:492
+msgid "Automatically shrink standalone images to fit"
+msgstr ""
+
+#: ../midori/midori-preferences.c:495
+#, fuzzy
+msgid "Print background images"
+msgstr "/Afegeix pestanya/_Imatges"
+
+#: ../midori/midori-preferences.c:496
+#, fuzzy
+msgid "Whether background images should be printed"
+msgstr "Si s'han de mostrar imatges en els menús."
+
+#: ../midori/midori-preferences.c:499
+#, fuzzy
+msgid "Resizable text areas"
+msgstr "/Àrees de mascara _seleccionades"
+
+#: ../midori/midori-preferences.c:500
+msgid "Whether text areas are resizable"
+msgstr ""
+
+#: ../midori/midori-preferences.c:503 ../extensions/statusbar-features.c:100
+msgid "Enable scripts"
+msgstr "Habilita els scripts"
+
+#: ../midori/midori-preferences.c:504
+msgid "Enable embedded scripting languages"
+msgstr "Habilita els llenguatges d'script incrustats"
+
+#: ../midori/midori-preferences.c:507 ../extensions/statusbar-features.c:112
+msgid "Enable Netscape plugins"
+msgstr "Habilita els connectors de netscape"
+
+#: ../midori/midori-preferences.c:508
+msgid "Enable embedded Netscape plugin objects"
+msgstr ""
+
+#: ../midori/midori-preferences.c:511
+#, fuzzy
+msgid "Enforce 96 dots per inch"
+msgstr "Resolució de la pantalla (punts per polzada)"
+
+#: ../midori/midori-preferences.c:512
+msgid "Enforce a video dot density of 96 DPI"
+msgstr ""
+
+#: ../midori/midori-preferences.c:515
+#, fuzzy
+msgid "Enable developer tools"
+msgstr "/Eines/Esborra la cache"
+
+#: ../midori/midori-preferences.c:516
+msgid "Enable special extensions for developers"
+msgstr ""
+
+#: ../midori/midori-preferences.c:523
+#, fuzzy
+msgid "Spell Checking"
+msgstr "Comprovació de l'ortografia"
+
+#: ../midori/midori-preferences.c:526
+#, fuzzy
+msgid "Enable Spell Checking"
+msgstr "La revisió d'ortografia ha fallat: %s"
+
+#: ../midori/midori-preferences.c:527
+msgid "Enable spell checking while typing"
+msgstr ""
+
+#. i18n: The example should be adjusted to contain a good local default
+#: ../midori/midori-preferences.c:531
+msgid ""
+"A comma separated list of languages to be used for spell checking, for "
+"example \"en_GB,de_DE\""
+msgstr ""
+
+#. Page "Interface"
+#: ../midori/midori-preferences.c:536
+msgid "Interface"
+msgstr "Interfície"
+
+#: ../midori/midori-preferences.c:537
+msgid "Navigationbar"
+msgstr "Barra de navegació"
+
+#: ../midori/midori-preferences.c:548
+msgid "Browsing"
+msgstr "Navegant"
+
+#. Page "Applications"
+#: ../midori/midori-preferences.c:574
+msgid "Applications"
+msgstr "Aplicacions"
+
+#: ../midori/midori-preferences.c:575
+msgid "External applications"
+msgstr "Aplicacions externes"
+
+#. Page "Network"
+#: ../midori/midori-preferences.c:621 ../midori/midori-preferences.c:622
+msgid "Network"
+msgstr "Xarxa"
+
+#: ../midori/midori-preferences.c:649
+msgid "MB"
+msgstr "MB"
+
+#. Page "Privacy"
+#: ../midori/midori-preferences.c:654
+msgid "Privacy"
+msgstr "Privacitat"
+
+#: ../midori/midori-preferences.c:655
+msgid "Web Cookies"
+msgstr "Galetes de web"
+
+#: ../midori/midori-preferences.c:668 ../midori/midori-preferences.c:678
+msgid "days"
+msgstr "dies"
+
+#: ../midori/midori-searchaction.c:488 ../katze/katze-arrayaction.c:335
+msgid "Empty"
+msgstr "Buit"
+
+#: ../midori/midori-searchaction.c:908
+#, fuzzy
+msgid "Add search engine"
+msgstr "Cercador de Gadu-Gadu"
+
+#: ../midori/midori-searchaction.c:908
+#, fuzzy
+msgid "Edit search engine"
+msgstr "Cercador de Gadu-Gadu"
+
+#: ../midori/midori-searchaction.c:936
+msgid "_Name:"
+msgstr "_Nom:"
+
+#: ../midori/midori-searchaction.c:980
+msgid "_Icon:"
+msgstr "_Icona:"
+
+#: ../midori/midori-searchaction.c:994
+msgid "_Token:"
+msgstr "_Testimoni:"
+
+#: ../midori/midori-searchaction.c:1213
+#, fuzzy
+msgid "Manage Search Engines"
+msgstr "Repeteix l'última recerca"
+
+#: ../midori/midori-searchaction.c:1312
+#, fuzzy
+msgid "Use as _default"
+msgstr "usa la clau predeterminada com a destinatari predeterminat"
+
+#: ../midori/sokoke.c:162 ../midori/sokoke.c:174
+#, fuzzy
+msgid "Could not run external program."
+msgstr "No s'ha pogut executar %s a la columna %d"
+
+#: ../midori/sokoke.c:856
+msgid "_Bookmark"
+msgstr "_Adreça d'interès"
+
+#: ../midori/sokoke.c:858
+msgid "Add Boo_kmark"
+msgstr "Afegeix adreça d'_interès"
+
+#: ../midori/sokoke.c:859
+msgid "_Console"
+msgstr "_Consola"
+
+#: ../midori/sokoke.c:860
+msgid "_Extensions"
+msgstr "_Extensions"
+
+#: ../midori/sokoke.c:861
+msgid "_History"
+msgstr "_Historial"
+
+#: ../midori/sokoke.c:862
+msgid "_Homepage"
+msgstr "_Pàgina d'inici"
+
+#: ../midori/sokoke.c:863
+msgid "_Userscripts"
+msgstr "Scripts d'_usuari"
+
+#: ../midori/sokoke.c:864
+#, fuzzy
+msgid "User_styles"
+msgstr "Múltiples estils"
+
+#: ../midori/sokoke.c:866
+msgid "_Transfers"
+msgstr "_Transferències"
+
+#: ../midori/sokoke.c:867
+msgid "Netscape p_lugins"
+msgstr "_Connectors de Netscape"
+
+#: ../panels/midori-addons.c:95 ../panels/midori-addons.c:141
+msgid "Userscripts"
+msgstr "Scripts d'usuari"
+
+#: ../panels/midori-addons.c:96 ../panels/midori-addons.c:143
+msgid "Userstyles"
+msgstr ""
+
+#: ../panels/midori-bookmarks.c:108
+msgid "Bookmarks"
+msgstr "Adreces d'interès"
+
+#: ../panels/midori-bookmarks.c:239
+msgid "Edit the selected bookmark"
+msgstr "Edita l'adreça d'interès seleccionada"
+
+#: ../panels/midori-bookmarks.c:247
+msgid "Delete the selected bookmark"
+msgstr "Suprimeix l'adreça d'interès seleccionada"
+
+#: ../panels/midori-bookmarks.c:260
+msgid "Add a new folder"
+msgstr "Afegeix una carpeta nova"
+
+#: ../panels/midori-bookmarks.c:592
+msgid "<i>Separator</i>"
+msgstr "<i>Separador</i>"
+
+#: ../panels/midori-console.c:87
+msgid "Console"
+msgstr "Consola"
+
+#: ../panels/midori-extensions.c:91
+msgid "Extensions"
+msgstr "Extensions"
+
+#: ../panels/midori-history.c:162
+msgid "Are you sure you want to remove all history items?"
+msgstr "Voler esborrar tots els elements de l’historial?"
+
+#: ../panels/midori-history.c:217
+#, fuzzy
+msgid "Bookmark the selected history item"
+msgstr "Mou l'element seleccionat cap amunt"
+
+#: ../panels/midori-history.c:226
+#, fuzzy
+msgid "Delete the selected history item"
+msgstr "Mou l'element seleccionat cap amunt"
+
+#: ../panels/midori-history.c:234
+#, fuzzy
+msgid "Clear the entire history"
+msgstr "Buida la llista de fitxers recents"
+
+#: ../panels/midori-history.c:601
+msgid "A week ago"
+msgstr "Setmana passada"
+
+#: ../panels/midori-history.c:606
+#, c-format
+msgid "%d day ago"
+msgid_plural "%d days ago"
+msgstr[0] "Fa %d dia"
+msgstr[1] "Fa %d dies"
+
+#: ../panels/midori-history.c:614
+msgid "Today"
+msgstr "Avuí"
+
+#: ../panels/midori-history.c:616
+msgid "Yesterday"
+msgstr "Ahir"
+
+#: ../panels/midori-plugins.c:87 ../extensions/statusbar-features.c:108
+#, fuzzy
+msgid "Netscape plugins"
+msgstr "Connectors de Netscape"
+
+#: ../panels/midori-transfers.c:271
+#, c-format
+msgid "%s of %s"
+msgstr "%s de %s"
+
+#: ../panels/midori-transfers.c:479
+#, fuzzy
+msgid "Open Destination _Folder"
+msgstr "_Obre la carpeta de destinació després de l'extracció"
+
+#: ../panels/midori-transfers.c:482
+#, fuzzy
+msgid "Copy Link Loc_ation"
+msgstr "no es pot copiar l'enllaç simbòlic cíclic %s"
+
+#: ../katze/katze-http-auth.c:97
+#, fuzzy
+msgid "Authentication Required"
+msgstr "Es requereix autenticació"
+
+#: ../katze/katze-http-auth.c:113
+msgid ""
+"A username and a password are required\n"
+"to open this location:"
+msgstr ""
+
+#: ../katze/katze-http-auth.c:127
+msgid "Username"
+msgstr "Nom d'usuari"
+
+#: ../katze/katze-http-auth.c:138
+msgid "Password"
+msgstr "Contrasenya"
+
+#: ../katze/katze-throbber.c:828
+#, fuzzy, c-format
+msgid "Named icon '%s' couldn't be loaded"
+msgstr "No s'ha pogut carregar els següents fitxers:"
+
+#: ../katze/katze-throbber.c:841
+#, fuzzy, c-format
+msgid "Stock icon '%s' couldn't be loaded"
+msgstr "No s'ha pogut carregar els següents fitxers:"
+
+#: ../katze/katze-throbber.c:907
+#, fuzzy
+msgid "Animation frames are broken"
+msgstr "Els paquets següents contenen errors."
+
+#: ../katze/katze-utils.c:200 ../katze/katze-utils.c:407
+#, fuzzy, c-format
+msgid "Property '%s' is invalid for %s"
+msgstr "El tipus %s per a la propietat %s no és vàlid"
+
+#: ../katze/katze-utils.c:235 ../katze/katze-utils.c:264
+msgid "Choose file"
+msgstr "Seleccioneu fitxer"
+
+#: ../katze/katze-utils.c:250
+msgid "Choose folder"
+msgstr "Seleccioneu carpeta"
+
+#: ../extensions/adblock.c:167
+#, fuzzy
+msgid "Configure Advertisement filters"
+msgstr "Configura els filtres de visualització de colors"
+
+#: ../extensions/adblock.c:304
+#, fuzzy
+msgid "Configure _Advertisement filters..."
+msgstr "Configura els filtres de visualització de colors"
+
+#: ../extensions/adblock.c:562
+msgid "Advertisement blocker"
+msgstr ""
+
+#: ../extensions/adblock.c:563
+msgid "Block advertisements according to a filter list"
+msgstr ""
+
+#: ../extensions/colorful-tabs.c:115
+#, fuzzy
+msgid "Tint tabs distinctly"
+msgstr "es&Borra els tabuladors amb la tecla de retrocés"
+
+#: ../extensions/colorful-tabs.c:151
+#, fuzzy
+msgid "Colorful Tabs"
+msgstr "els separadors no són compatibles"
+
+#: ../extensions/colorful-tabs.c:152
+msgid "Tint each tab distinctly"
+msgstr ""
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:79
+#: ../extensions/cookie-manager/main.c:56
+msgid "Cookie Manager"
+msgstr "Gestor de galetes"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:111
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:126
+msgid "Expand All"
+msgstr "Expansiona-ho tot"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:133
+msgid "Collapse All"
+msgstr "Colapsa-ho tot"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:460
+msgid "Do you really want to delete all cookies?"
+msgstr "Voleu eliminar totes les galetes?"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:462
+msgid "Question"
+msgstr "Qüestió"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:471
+msgid "Only cookies which match the filter will be deleted."
+msgstr ""
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:539
+msgid "At the end of the session"
+msgstr "Al finalitzar la sessió"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:542
+#, c-format
+msgid ""
+"<b>Host</b>: %s\n"
+"<b>Name</b>: %s\n"
+"<b>Value</b>: %s\n"
+"<b>Path</b>: %s\n"
+"<b>Secure</b>: %s\n"
+"<b>Expires</b>: %s"
+msgstr ""
+"<b>Maquina</b>: %s\n"
+"<b>Nom</b>: %s\n"
+"<b>Valor</b>: %s\n"
+"<b>Camí</b>: %s\n"
+"<b>Segura</b>: %s\n"
+"<b>Expiració</b>: %s"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:548
+msgid "Yes"
+msgstr "Sí"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:548
+msgid "No"
+msgstr "No"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:811
+msgid "Name"
+msgstr "Nom"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:862
+msgid "_Expand All"
+msgstr "_Expandeix-ho tot"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:870
+msgid "_Collapse All"
+msgstr "_Plega-ho tot"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:923
+msgid "Filter:"
+msgstr "Filtre:"
+
+#: ../extensions/cookie-manager/cookie-manager-page.c:928
+msgid ""
+"Enter a filter string to show only cookies whose name or domain field match "
+"the entered filter"
+msgstr ""
+
+#: ../extensions/cookie-manager/main.c:40
+msgid "_Cookie Manager"
+msgstr "_Gestor de galetes"
+
+#: ../extensions/cookie-manager/main.c:57
+msgid "List, view and delete cookies"
+msgstr "Llista, mostra i borra galetes"
+
+#: ../extensions/feed-panel/feed-atom.c:242
+msgid "Failed to find required Atom \"entry\" elements in XML data."
+msgstr ""
+
+#: ../extensions/feed-panel/feed-atom.c:348
+msgid "Failed to find required Atom \"feed\" elements in XML data."
+msgstr ""
+
+#. i18n: The local date a feed was last updated
+#: ../extensions/feed-panel/feed-panel.c:399
+#, c-format
+msgctxt "Feed"
+msgid "Last updated: %s."
+msgstr "Darrera actualització: %s."
+
+#: ../extensions/feed-panel/feed-panel.c:664
+msgid "Feeds"
+msgstr "Canals"
+
+#: ../extensions/feed-panel/feed-panel.c:717
+msgid "Add new feed"
+msgstr "Afegeix un nou canal"
+
+#: ../extensions/feed-panel/feed-panel.c:724
+msgid "Delete feed"
+msgstr "Suprimeix el canal"
+
+#: ../extensions/feed-panel/feed-panel.c:807
+msgid "_Feeds"
+msgstr "_Canals"
+
+#: ../extensions/feed-panel/feed-parse.c:185
+#, c-format
+msgid "Failed to find root element in feed XML data."
+msgstr ""
+
+#: ../extensions/feed-panel/feed-parse.c:225
+#, c-format
+msgid "Unsupported feed format."
+msgstr "Format de canal no compatible."
+
+#: ../extensions/feed-panel/feed-parse.c:255
+#, c-format
+msgid "Failed to parse XML feed: %s"
+msgstr "No s'ha pogut analitzar el canal XML: %s"
+
+#: ../extensions/feed-panel/feed-rss.c:46
+msgid "Failed to find \"channel\" element in RSS XML data."
+msgstr ""
+
+#: ../extensions/feed-panel/feed-rss.c:51
+msgid "Unsupported RSS version found."
+msgstr "Versió RSS no compatible."
+
+#: ../extensions/feed-panel/feed-rss.c:148
+msgid "Failed to find required RSS \"item\" elements in XML data."
+msgstr ""
+
+#: ../extensions/feed-panel/feed-rss.c:248
+msgid "Failed to find required RSS \"channel\" elements in XML data."
+msgstr ""
+
+#: ../extensions/feed-panel/main.c:114
+#, c-format
+msgid "Feed '%s' already exists"
+msgstr "El canal «%s» ja existeix."
+
+#: ../extensions/feed-panel/main.c:191
+#, c-format
+msgid "Error loading feed '%s'"
+msgstr "Error en carregar el canal «%s»"
+
+#: ../extensions/feed-panel/main.c:331
+msgid "New feed"
+msgstr "Nou canal"
+
+#: ../extensions/feed-panel/main.c:489
+msgid "Feed Panel"
+msgstr "Quadre de canals"
+
+#: ../extensions/feed-panel/main.c:490
+msgid "Read Atom/ RSS feeds"
+msgstr "Llegeix canals Atom/RSS"
+
+#: ../extensions/mouse-gestures/main.c:236
+msgid "Mouse Gestures"
+msgstr "Gesticulacions de ratolí"
+
+#: ../extensions/mouse-gestures/main.c:237
+msgid "Control Midori by moving the mouse"
+msgstr ""
+
+#. i18n: A panel showing a user specified web page
+#: ../extensions/page-holder.c:129 ../extensions/page-holder.c:177
+msgid "Pageholder"
+msgstr ""
+
+#: ../extensions/page-holder.c:161
+msgid "_Pageholder"
+msgstr ""
+
+#: ../extensions/shortcuts.c:172
+msgid "Customize Keyboard shortcuts"
+msgstr "Configura les dreceres de teclat"
+
+#: ../extensions/shortcuts.c:264
+msgid "Customize Sh_ortcuts..."
+msgstr "Configura les _dreceres…"
+
+#: ../extensions/shortcuts.c:303
+msgid "Shortcuts"
+msgstr "Dreceres"
+
+#: ../extensions/shortcuts.c:304
+msgid "View and edit keyboard shortcuts"
+msgstr "Mostra i edita les dreceres del teclat"
+
+#: ../extensions/statusbar-features.c:84
+msgid "Images"
+msgstr "Imatges"
+
+#: ../extensions/statusbar-features.c:96
+msgid "Scripts"
+msgstr "Scripts"
+
+#: ../extensions/statusbar-features.c:149
+msgid "Statusbar Features"
+msgstr "Característiques de la la barra d'estat"
+
+#: ../extensions/statusbar-features.c:150
+msgid "Easily toggle features on web pages on and off"
+msgstr ""
+
+#: ../extensions/tab-panel.c:383 ../extensions/tab-panel.c:443
+msgid "Tab Panel"
+msgstr "Quadre de pestanyes"
+
+#: ../extensions/tab-panel.c:427
+msgid "T_ab Panel"
+msgstr "Quadre de _pestanyes"
+
+#: ../extensions/tab-panel.c:444
+msgid "Show tabs in a vertical panel"
+msgstr "Mostra les pestanyes en un quadre vertical"
+
+#: ../extensions/toolbar-editor.c:391
+msgid "Customize Toolbar"
+msgstr "_Personalitza la barra d'eines"
+
+#: ../extensions/toolbar-editor.c:407
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reodered by drag "
+"and drop."
+msgstr ""
+"Selecciona els elements mostrats a la barra d'eines. Els elements poden ser "
+"ordenats arrossegant-los."
+
+#: ../extensions/toolbar-editor.c:423
+msgid "Available Items"
+msgstr "Elements disponibles"
+
+#: ../extensions/toolbar-editor.c:444
+msgid "Displayed Items"
+msgstr "Elements Mostrats"
+
+#: ../extensions/toolbar-editor.c:579
+msgid "Customize _Toolbar..."
+msgstr "Personalitza la barra d'_eines…"
+
+#: ../extensions/toolbar-editor.c:611
+msgid "Toolbar Editor"
+msgstr "Editor de la barra d'eines"
+
+#: ../extensions/toolbar-editor.c:612
+msgid "Easily edit the toolbar layout"
+msgstr ""
