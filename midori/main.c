@@ -1110,20 +1110,8 @@ midori_soup_session_prepare (SoupSession*       session,
                              SoupCookieJar*     cookie_jar,
                              MidoriWebSettings* settings)
 {
-    GModule* module;
     SoupSessionFeature* feature;
     gchar* config_file;
-
-    if (g_module_supported ())
-        if ((module = g_module_open ("libsoup-gnome-2.4.so", G_MODULE_BIND_LOCAL)))
-        {
-            #ifdef HAVE_LIBSOUP_2_27_91
-            GType (*get_type_function) (void);
-            if (g_module_symbol (module, "soup_password_manager_gnome_get_type",
-                                 (void*) &get_type_function))
-                soup_session_add_feature_by_type (session, get_type_function ());
-            #endif
-        }
 
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
@@ -1137,7 +1125,11 @@ midori_soup_session_prepare (SoupSession*       session,
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), session);
     #endif
 
-    soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_AUTH);
+    config_file = build_config_filename ("logins");
+    feature = g_object_new (KATZE_TYPE_HTTP_AUTH, "filename", config_file, NULL);
+    g_free (config_file);
+    soup_session_add_feature (session, feature);
+    g_object_unref (feature);
     midori_soup_session_debug (session);
 
     feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
@@ -1145,7 +1137,7 @@ midori_soup_session_prepare (SoupSession*       session,
     g_object_set_data_full (G_OBJECT (feature), "filename",
                             config_file, (GDestroyNotify)g_free);
     soup_session_add_feature (session, SOUP_SESSION_FEATURE (cookie_jar));
-    soup_session_add_feature (session, feature);
+    g_object_unref (feature);
 }
 
 static void
