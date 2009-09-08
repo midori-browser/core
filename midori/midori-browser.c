@@ -3966,7 +3966,13 @@ _action_about_activate_email (GtkAboutDialog* about,
                               const gchar*    uri,
                               gpointer        user_data)
 {
-    sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
+    /* Some email clients need the 'mailto' to function properly */
+    gchar* newuri = NULL;
+    if (!g_str_has_prefix (uri, "mailto:"))
+        newuri = g_strconcat ("mailto:", uri, NULL);
+
+    sokoke_show_uri (NULL, newuri ? newuri : uri, GDK_CURRENT_TIME, NULL);
+    g_free (newuri);
 }
 
 static void
