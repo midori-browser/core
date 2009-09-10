@@ -1204,7 +1204,26 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         icon = gtk_image_menu_item_get_image (GTK_IMAGE_MENU_ITEM (menuitem));
         gtk_image_get_stock (GTK_IMAGE (icon), &stock_id, NULL);
         if (!strcmp (stock_id, GTK_STOCK_CUT))
+        {
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+            if (!strcmp (stock_id, GTK_STOCK_UNDO))
+                return;
+            menuitem = gtk_separator_menu_item_new ();
+            gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+            gtk_widget_show (menuitem);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Redo"));
+            gtk_widget_set_sensitive (menuitem,
+                webkit_web_view_can_redo (web_view));
+            gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Undo"));
+            gtk_widget_set_sensitive (menuitem,
+                webkit_web_view_can_undo (web_view));
+            gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
             return;
+        }
+        #endif
         if (strcmp (stock_id, GTK_STOCK_FIND))
             has_selection = FALSE;
     }

@@ -2156,12 +2156,19 @@ _action_edit_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    gboolean can_undo = FALSE, can_redo = FALSE;
+    #endif
     gboolean can_cut = FALSE, can_copy = FALSE, can_paste = FALSE;
     gboolean has_selection, can_select_all = FALSE;
 
     if (WEBKIT_IS_WEB_VIEW (widget))
     {
         WebKitWebView* view = WEBKIT_WEB_VIEW (widget);
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        can_undo = webkit_web_view_can_undo (view);
+        can_redo = webkit_web_view_can_redo (view);
+        #endif
         can_cut = webkit_web_view_can_cut_clipboard (view);
         can_copy = webkit_web_view_can_copy_clipboard (view);
         can_paste = webkit_web_view_can_paste_clipboard (view);
@@ -2187,12 +2194,36 @@ _action_edit_activate (GtkAction*     action,
         can_select_all = TRUE;
     }
 
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    _action_set_sensitive (browser, "Undo", can_undo);
+    _action_set_sensitive (browser, "Redo", can_redo);
+    #endif
     _action_set_sensitive (browser, "Cut", can_cut);
     _action_set_sensitive (browser, "Copy", can_copy);
     _action_set_sensitive (browser, "Paste", can_paste);
     _action_set_sensitive (browser, "Delete", can_cut);
     _action_set_sensitive (browser, "SelectAll", can_select_all);
 }
+
+#if WEBKIT_CHECK_VERSION (1, 1, 14)
+static void
+_action_undo_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
+{
+    GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
+    if (WEBKIT_IS_WEB_VIEW (widget))
+        webkit_web_view_undo (WEBKIT_WEB_VIEW (widget));
+}
+
+static void
+_action_redo_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
+{
+    GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
+    if (WEBKIT_IS_WEB_VIEW (widget))
+        webkit_web_view_redo (WEBKIT_WEB_VIEW (widget));
+}
+#endif
 
 static void
 _action_cut_activate (GtkAction*     action,
@@ -4294,6 +4325,14 @@ static const GtkActionEntry entries[] = {
    N_("Quit the application"), G_CALLBACK (_action_quit_activate) },
 
  { "Edit", NULL, N_("_Edit"), NULL, NULL, G_CALLBACK (_action_edit_activate) },
+ #if WEBKIT_CHECK_VERSION (1, 1, 14)
+ { "Undo", GTK_STOCK_UNDO,
+   NULL, "<Ctrl>z",
+   N_("Undo the last modification"), G_CALLBACK (_action_undo_activate) },
+   { "Redo", GTK_STOCK_REDO,
+   NULL, "<Ctrl><Shift>z",
+   N_("Redo the last modification"), G_CALLBACK (_action_redo_activate) },
+ #endif
  { "Cut", GTK_STOCK_CUT,
    NULL, "<Ctrl>x",
    N_("Cut the selected text"), G_CALLBACK (_action_cut_activate) },
@@ -4584,6 +4623,11 @@ static const gchar* ui_markup =
     "<menuitem action='Quit'/>"
    "</menu>"
    "<menu action='Edit'>"
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    "<menuitem action='Undo'/>"
+    "<menuitem action='Redo'/>"
+    "<separator/>"
+    #endif
     "<menuitem action='Cut'/>"
     "<menuitem action='Copy'/>"
     "<menuitem action='Paste'/>"
