@@ -221,7 +221,10 @@ midori_extensions_treeview_render_tick_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &extension, -1);
 
-    g_object_set (renderer, "active", midori_extension_is_active (extension), NULL);
+    g_object_set (renderer,
+        "activatable", midori_extension_is_prepared (extension),
+        "active", midori_extension_is_active (extension),
+        NULL);
 
     g_object_unref (extension);
 }
@@ -244,12 +247,16 @@ midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
     name = katze_object_get_string (extension, "name");
     version = katze_object_get_string (extension, "version");
     desc = katze_object_get_string (extension, "description");
-    text = g_markup_printf_escaped ("<b>%s</b> %s\n%s", name, version, desc);
+    text = g_markup_printf_escaped ("<b>%s</b> %s\n%s",
+        name, version && *version ? version : "", desc);
     g_free (name);
     g_free (version);
     g_free (desc);
 
-    g_object_set (renderer, "markup", text, NULL);
+    g_object_set (renderer,
+        "markup", text,
+        "sensitive", midori_extension_is_prepared (extension),
+        NULL);
 
     g_free (text);
     g_object_unref (extension);
@@ -272,7 +279,7 @@ midori_extensions_treeview_row_activated_cb (GtkTreeView*       treeview,
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
         if (midori_extension_is_active (extension))
             midori_extension_deactivate (extension);
-        else
+        else if (midori_extension_is_prepared (extension))
             g_signal_emit_by_name (extension, "activate", extensions->app);
 
         g_object_unref (extension);
@@ -410,7 +417,7 @@ midori_extensions_button_release_event_cb (GtkWidget*         widget,
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
-        MidoriExtension *extension;
+        MidoriExtension* extension;
 
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
 
@@ -432,12 +439,12 @@ midori_extensions_cell_renderer_toggled_cb (GtkCellRendererToggle* renderer,
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (extensions->treeview));
     if (gtk_tree_model_get_iter_from_string (model, &iter, path))
     {
-        MidoriExtension *extension;
+        MidoriExtension* extension;
 
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
         if (midori_extension_is_active (extension))
             midori_extension_deactivate (extension);
-        else
+        else if (midori_extension_is_prepared (extension))
             g_signal_emit_by_name (extension, "activate", extensions->app);
 
         g_object_unref (extension);
@@ -459,6 +466,9 @@ midori_extensions_tree_sort_func (GtkTreeModel* model,
 
     name1 = katze_object_get_string (e1, "name");
     name2 = katze_object_get_string (e2, "name");
+
+    g_object_unref (e1);
+    g_object_unref (e2);
 
     result = g_strcmp0 (name1, name2);
 

@@ -604,20 +604,22 @@ static void tb_editor_activate_cb(MidoriExtension *extension, MidoriApp *app)
 	g_object_unref(browsers);
 }
 
+#endif
 
 MidoriExtension *extension_init(void)
 {
 	MidoriExtension* extension = g_object_new(MIDORI_TYPE_EXTENSION,
 		"name", _("Toolbar Editor"),
 		"description", _("Easily edit the toolbar layout"),
+		#if !HAVE_HILDON
 		"version", "0.1",
+		#endif
 		"authors", "Enrico Tröger <enrico(dot)troeger(at)uvena(dot)de>",
 		NULL);
 
+	#if !HAVE_HILDON
 	g_signal_connect(extension, "activate", G_CALLBACK(tb_editor_activate_cb), NULL);
+	#endif
 
 	return extension;
 }
-
-
-#endif

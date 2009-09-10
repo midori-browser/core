@@ -561,21 +561,25 @@ extension_test (void)
 }
 #endif
 
+#endif
+
 MidoriExtension*
 extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Advertisement blocker"),
         "description", _("Block advertisements according to a filter list"),
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
         "version", "0.1",
+        #endif
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
     midori_extension_install_string_list (extension, "filters", NULL, G_MAXSIZE);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (adblock_activate_cb), NULL);
+    #endif
 
     return extension;
 }
-
-#endif
