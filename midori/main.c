@@ -1137,6 +1137,7 @@ midori_soup_session_prepare (SoupSession*       session,
     g_object_set_data_full (G_OBJECT (feature), "filename",
                             config_file, (GDestroyNotify)g_free);
     soup_session_add_feature (session, SOUP_SESSION_FEATURE (cookie_jar));
+    soup_session_add_feature (session, feature);
     g_object_unref (feature);
 }
 
