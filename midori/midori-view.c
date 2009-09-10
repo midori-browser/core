@@ -1221,9 +1221,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             gtk_widget_set_sensitive (menuitem,
                 webkit_web_view_can_undo (web_view));
             gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+        #endif
             return;
         }
-        #endif
         if (strcmp (stock_id, GTK_STOCK_FIND))
             has_selection = FALSE;
     }
