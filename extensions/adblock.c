@@ -20,11 +20,19 @@
     #include <unistd.h>
 #endif
 
+#if WEBKIT_CHECK_VERSION (1, 1, 14)
+
+static GHashTable* pattern = NULL;
+
 static gchar *
 adblock_fixup_regexp (gchar* src)
 {
     gchar* dst;
     gchar* s;
+
+    if (!(src && *src))
+        return g_strdup ("");
+
     /* FIXME: Avoid always allocating twice the string */
     s = dst = g_malloc (strlen (src) * 2);
 
@@ -308,19 +316,8 @@ adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 }
 
-static void
-adblock_app_add_browser_cb (MidoriApp*       app,
-                            MidoriBrowser*   browser,
-                            MidoriExtension* extension)
-{
-    g_signal_connect (browser, "populate-tool-menu",
-        G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
-    g_signal_connect (extension, "deactivate",
-        G_CALLBACK (adblock_deactivate_cb), browser);
-}
-
 static gboolean
-adblock_is_matched (const gchar*  pattern,
+adblock_is_matched (const gchar*  patt,
                     const GRegex* regex,
                     const gchar*  uri)
 {
@@ -328,19 +325,43 @@ adblock_is_matched (const gchar*  pattern,
 }
 
 static void
-adblock_session_request_queued_cb (SoupSession* session,
-                                   SoupMessage* msg,
-                                   GHashTable*  pattern)
+adblock_resource_request_starting_cb (WebKitWebView*         web_view,
+                                      WebKitWebFrame*        web_frame,
+                                      WebKitWebResource*     web_resource,
+                                      WebKitNetworkRequest*  request,
+                                      WebKitNetworkResponse* response,
+                                      MidoriView*            view)
 {
-    SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, uri))
+    const gchar* uri = webkit_network_request_get_uri (request);
+    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, (char*)uri))
     {
-        /* g_debug ("match! '%s'", uri); */
-        /* FIXME: This leads to funny error pages if frames are blocked */
-        soup_message_set_response (msg, "text/plain", SOUP_MEMORY_STATIC, "adblock", 7);
+        webkit_network_request_set_uri (request, "about:blank");
+        /* TODO: Need to figure out how to indicate what was blocked */
     }
-    g_free (uri);
+}
+
+
+static void
+adblock_add_tab_cb (MidoriBrowser* browser,
+                    MidoriView*    view)
+{
+    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    g_signal_connect (web_view, "resource-request-starting",
+        G_CALLBACK (adblock_resource_request_starting_cb), view);
+}
+
+static void
+adblock_app_add_browser_cb (MidoriApp*       app,
+                            MidoriBrowser*   browser,
+                            MidoriExtension* extension)
+{
+    if (pattern)
+        g_signal_connect (browser, "add-tab",
+            G_CALLBACK (adblock_add_tab_cb), 0);
+    g_signal_connect (browser, "populate-tool-menu",
+        G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
+    g_signal_connect (extension, "deactivate",
+        G_CALLBACK (adblock_deactivate_cb), browser);
 }
 
 static gchar*
@@ -373,9 +394,9 @@ adblock_parse_file (gchar* path)
 
     if ((file = g_fopen (path, "r")))
     {
-        GHashTable* pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
-                              (GDestroyNotify)g_free,
-                              (GDestroyNotify)g_regex_unref);
+        GHashTable* patt = g_hash_table_new_full (g_str_hash, g_str_equal,
+                               (GDestroyNotify)g_free,
+                               (GDestroyNotify)g_regex_unref);
 
         gboolean have_pattern = FALSE;
         gchar line[255];
@@ -401,34 +422,27 @@ adblock_parse_file (gchar* path)
             else
             {
                 have_pattern = TRUE;
-                g_hash_table_insert (pattern, parsed, regex);
+                g_hash_table_insert (patt, parsed, regex);
             }
         }
         fclose (file);
 
         if (have_pattern)
-            return pattern;
+            return patt;
     }
     /* FIXME: This should presumably be freed, but there's a possible crash
        g_free (path); */
     return NULL;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 adblock_download_notify_status_cb (WebKitDownload* download,
                                    GParamSpec*     pspec,
                                    gchar*          path)
 {
-    SoupSession* session = webkit_get_default_session ();
-    GHashTable* pattern = adblock_parse_file (path);
-    if (pattern)
-        g_signal_connect_data (session, "request-queued",
-                               G_CALLBACK (adblock_session_request_queued_cb),
-                               pattern, (GClosureNotify)g_hash_table_destroy, 0);
+    pattern = adblock_parse_file (path);
     /* g_object_unref (download); */
 }
-#endif
 
 static void
 adblock_activate_cb (MidoriExtension* extension,
@@ -464,7 +478,6 @@ adblock_activate_cb (MidoriExtension* extension,
             gchar* path = g_build_filename (folder, filename, NULL);
             if (!g_file_test (path, G_FILE_TEST_EXISTS))
             {
-                #if WEBKIT_CHECK_VERSION (1, 1, 3)
                 WebKitNetworkRequest* request;
                 WebKitDownload* download;
                 gchar* destination = g_filename_to_uri (path, NULL, NULL);
@@ -477,18 +490,9 @@ adblock_activate_cb (MidoriExtension* extension,
                 g_signal_connect (download, "notify::status",
                     G_CALLBACK (adblock_download_notify_status_cb), path);
                 webkit_download_start (download);
-                #else
-                /* FIXME: Is it worth to rewrite this without WebKitDownload? */
-                #endif
             }
             else
-            {
-                GHashTable* pattern = adblock_parse_file (path);
-                if (pattern)
-                    g_signal_connect_data (session, "request-queued",
-                        G_CALLBACK (adblock_session_request_queued_cb),
-                        pattern, (GClosureNotify)g_hash_table_destroy, 0);
-            }
+                pattern = adblock_parse_file (path);
             g_free (filename);
         }
     }
@@ -520,7 +524,6 @@ test_adblock_pattern (void)
 {
     gint temp;
     gchar* filename;
-    GHashTable* pattern;
 
     temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
 
@@ -574,3 +577,5 @@ extension_init (void)
 
     return extension;
 }
+
+#endif
