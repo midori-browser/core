@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-07-29 23:58+0200\n"
-"PO-Revision-Date: 2009-09-05 18:02+0100\n"
+"PO-Revision-Date: 2009-09-13 19:12+0100\n"
 "Last-Translator: Carles Muñoz Gorriz <carlesmu@internautas.org>\n"
 "Language-Team: Catalan\n"
 "MIME-Version: 1.0\n"
@@ -34,9 +34,9 @@ msgid "Web Browser"
 msgstr "Navegador web"
 
 #: ../midori/main.c:96
-#, fuzzy, c-format
+#, c-format
 msgid "The configuration couldn't be loaded: %s\n"
-msgstr "No s'ha pogut carregar el fitxer."
+msgstr "No s'ha pogut carregar la configuració: %s\n"
 
 #: ../midori/main.c:151
 #, c-format
@@ -266,9 +266,9 @@ msgid "Stop loading the current page"
 msgstr "Atura la càrrega d'aquesta pàgina"
 
 #: ../midori/midori-browser.c:409
-#, fuzzy, c-format
+#, c-format
 msgid "%d%% loaded"
-msgstr "S'ha carregat"
+msgstr "%d%% carregat"
 
 #: ../midori/midori-browser.c:434
 #, fuzzy, c-format
@@ -925,9 +925,8 @@ msgid "New window"
 msgstr "Nova finestra"
 
 #: ../midori/midori-websettings.c:236
-#, fuzzy
 msgid "Current tab"
-msgstr "/Estil de pestanya/E_stat actual"
+msgstr "Pestanya actual"
 
 #: ../midori/midori-websettings.c:251
 msgid "Default"
@@ -1059,9 +1058,8 @@ msgid "Whether to show the bookmarkbar"
 msgstr "Si es mostra la barra d'adreces d'interès"
 
 #: ../midori/midori-websettings.c:443
-#, fuzzy
 msgid "Show Panel"
-msgstr "Mostra quadre"
+msgstr "Mostra el quadre"
 
 #: ../midori/midori-websettings.c:444
 #, fuzzy
@@ -1464,9 +1462,9 @@ msgid "The private data selected for deletion"
 msgstr ""
 
 #: ../midori/midori-view.c:781
-#, fuzzy, c-format
+#, c-format
 msgid "The page '%s' couldn't be loaded."
-msgstr "No s'ha pogut carregar el fitxer."
+msgstr "No s'ha pogut carregar la pàgina «%s»."
 
 #. WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
 #. so reloading via Javascript works but not via API calls.
@@ -1476,66 +1474,56 @@ msgid "Error"
 msgstr "Error"
 
 #: ../midori/midori-view.c:786
-#, fuzzy
 msgid "Try again"
-msgstr "Torneu a provar"
+msgstr "Torneu-ho a provar"
 
 #. i18n: The title of the 404 - Not found error page
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
 #: ../midori/midori-view.c:818 ../midori/midori-view.c:3017
-#, fuzzy, c-format
+#, c-format
 msgid "Not found - %s"
-msgstr "«%s» no trobat"
+msgstr "No s'ha trobat «%s»"
 
 #: ../midori/midori-view.c:1205
-#, fuzzy
 msgid "Open _Link"
-msgstr "_Obre l'enllaç"
+msgstr "Obre l'_enllaç"
 
 #: ../midori/midori-view.c:1207
-#, fuzzy
 msgid "Open Link in New _Tab"
-msgstr "Obre l'enllaç en una _pestanya nova"
+msgstr "Obre l'enllaç en una nova _pestanya"
 
 #: ../midori/midori-view.c:1224
-#, fuzzy
 msgid "Open Link in New _Window"
-msgstr "Obre l'enllaç a una _nova finestra"
+msgstr "Obre l'enllaç a una nova _finestra"
 
 #: ../midori/midori-view.c:1230
-#, fuzzy
 msgid "_Download Link destination"
-msgstr "%s és un enllaç sense destinació"
+msgstr "_Descarrega el destí de l'enllaç"
 
 #: ../midori/midori-view.c:1236
-#, fuzzy
 msgid "_Save Link destination"
-msgstr "%s és un enllaç sense destinació"
+msgstr "De_sa el destí de l'enllaç"
 
 #: ../midori/midori-view.c:1245
-#, fuzzy
 msgid "Download with Download _Manager"
-msgstr "Navega el sistema de fitxers amb el gestor de fitxers"
+msgstr "Descarrega amb el _gestor de descàrregues"
 
 #: ../midori/midori-view.c:1274
 msgid "Search _with"
 msgstr "Cerca _amb"
 
 #: ../midori/midori-view.c:1306
-#, fuzzy
 msgid "_Search the Web"
-msgstr "Cerca per Web"
+msgstr "_Cerca la Web"
 
 #: ../midori/midori-view.c:1316
-#, fuzzy
 msgid "Open Address in New _Tab"
-msgstr "Obre l'enllaç en una _pestanya nova"
+msgstr "Obre l'adreça en una nova _pestanya"
 
 #: ../midori/midori-view.c:1494
-#, fuzzy
 msgid "Open or download file"
-msgstr "Obre un fitxer existent o crea un nou fitxer."
+msgstr "Obre o descarrega el fitxer"
 
 #: ../midori/midori-view.c:1511
 #, c-format
@@ -1554,9 +1542,9 @@ msgid "Open %s"
 msgstr "Obre %s"
 
 #: ../midori/midori-view.c:1957
-#, fuzzy, c-format
+#, c-format
 msgid "Inspect page - %s"
-msgstr " Pàgina de manual "
+msgstr "Inspecciona la pàgina «%s»"
 
 #: ../midori/midori-view.c:2147
 #, fuzzy
@@ -1594,34 +1582,29 @@ msgid "No documentation installed"
 msgstr "No s'han pogut trobar plantilles"
 
 #: ../midori/midori-view.c:2323
-#, fuzzy
 msgid "Blank page"
-msgstr " Pàgina de manual "
+msgstr "Pàgina en blanc"
 
 #: ../midori/midori-view.c:2551 ../midori/sokoke.c:865
-#, fuzzy
 msgid "New _Tab"
-msgstr "Nova pes_tanya"
+msgstr "Nova _pestanya"
 
 #: ../midori/midori-view.c:2565
-#, fuzzy
 msgid "_Duplicate Tab"
-msgstr "el separador és buit"
+msgstr "_Duplica la pestanya"
 
 #: ../midori/midori-view.c:2570
-#, fuzzy
 msgid "_Restore Tab"
-msgstr "el separador és buit"
+msgstr "_Restaura la pestanya"
 
 #: ../midori/midori-view.c:2570
-#, fuzzy
 msgid "_Minimize Tab"
-msgstr "el separador és buit"
+msgstr "_Minimitza la pestanya"
 
 #: ../midori/midori-preferences.c:91
-#, fuzzy, c-format
+#, c-format
 msgid "Preferences for %s"
-msgstr "Preferències de l'Orca per a %s"
+msgstr "Preferències per a %s"
 
 #. Page "General"
 #: ../midori/midori-preferences.c:398
@@ -1646,29 +1629,24 @@ msgid "Appearance"
 msgstr "Aparença"
 
 #: ../midori/midori-preferences.c:441
-#, fuzzy
 msgid "Font settings"
-msgstr "Altres paràmetres de lletra"
+msgstr "Paràmetres del tipus de lletra"
 
 #: ../midori/midori-preferences.c:443
-#, fuzzy
 msgid "Default Font Family"
-msgstr "Joc de família de tipus de lletra"
+msgstr "Família de tipus de lletra per defecte"
 
 #: ../midori/midori-preferences.c:447
-#, fuzzy
 msgid "The default font family used to display text"
-msgstr "Font utilitzada per visualitzar el text a la sortida xosd"
+msgstr "La família de tipus de lletra per defecte emprada per mostrar el text"
 
 #: ../midori/midori-preferences.c:450
-#, fuzzy
 msgid "The default font size used to display text"
-msgstr "Font utilitzada per visualitzar el text a la sortida xosd"
+msgstr "La mida del tipus de lletra per defecte emprada per mostrar el text"
 
 #: ../midori/midori-preferences.c:453
-#, fuzzy
 msgid "Fixed-width Font Family"
-msgstr "Tipus de lletra per al text de mida fixa"
+msgstr "Família de tipus de lletra d'amplada fixa"
 
 #: ../midori/midori-preferences.c:457
 msgid "The font family used to display fixed-width text"
@@ -1679,23 +1657,20 @@ msgid "The font size used to display fixed-width text"
 msgstr ""
 
 #: ../midori/midori-preferences.c:463
-#, fuzzy
 msgid "Minimum Font Size"
-msgstr "Joc de mida de tipus de lletra"
+msgstr "Mida mínima del tipus de lletra"
 
 #: ../midori/midori-preferences.c:466
-#, fuzzy
 msgid "The minimum font size used to display text"
-msgstr "Font utilitzada per visualitzar el text a la sortida xosd"
+msgstr "La mida mínima del tipus de lletra emprada per mostrar text"
 
 #: ../midori/midori-preferences.c:473
 msgid "Encoding"
 msgstr "Codificació"
 
 #: ../midori/midori-preferences.c:476
-#, fuzzy
 msgid "The character encoding to use by default"
-msgstr "Nom del rerefons del GtkFileChooser predeterminat"
+msgstr "La codificació de caràcters per defecte"
 
 #. Page "Behavior"
 #: ../midori/midori-preferences.c:483
@@ -1707,33 +1682,28 @@ msgid "Features"
 msgstr "Característiques"
 
 #: ../midori/midori-preferences.c:487 ../extensions/statusbar-features.c:88
-#, fuzzy
 msgid "Load images automatically"
-msgstr "Carrega automàticament el darrer projecte"
+msgstr "Carrega les imatges automàticament"
 
 #: ../midori/midori-preferences.c:488
-#, fuzzy
 msgid "Load and display images automatically"
-msgstr "Nom de fitxer per carregar i visualitzar"
+msgstr "Carrega i mostra les imatges automàticament"
 
 #: ../midori/midori-preferences.c:491
-#, fuzzy
 msgid "Shrink images automatically"
-msgstr "Esborra les imatges automàticament després de gravar"
+msgstr "Encongeix les imatges automàticament"
 
 #: ../midori/midori-preferences.c:492
 msgid "Automatically shrink standalone images to fit"
 msgstr ""
 
 #: ../midori/midori-preferences.c:495
-#, fuzzy
 msgid "Print background images"
-msgstr "/Afegeix pestanya/_Imatges"
+msgstr "Imprimeix les imatges de fons"
 
 #: ../midori/midori-preferences.c:496
-#, fuzzy
 msgid "Whether background images should be printed"
-msgstr "Si s'han de mostrar imatges en els menús."
+msgstr "Si s'han d'imprimir les imatges de fons"
 
 #: ../midori/midori-preferences.c:499
 #, fuzzy
@@ -1779,14 +1749,12 @@ msgid "Enable special extensions for developers"
 msgstr ""
 
 #: ../midori/midori-preferences.c:523
-#, fuzzy
 msgid "Spell Checking"
-msgstr "Comprovació de l'ortografia"
+msgstr "Corrector ortogràfic"
 
 #: ../midori/midori-preferences.c:526
-#, fuzzy
 msgid "Enable Spell Checking"
-msgstr "La revisió d'ortografia ha fallat: %s"
+msgstr "Habilita el corrector ortogràfic"
 
 #: ../midori/midori-preferences.c:527
 msgid "Enable spell checking while typing"
@@ -1848,14 +1816,12 @@ msgid "Empty"
 msgstr "Buit"
 
 #: ../midori/midori-searchaction.c:908
-#, fuzzy
 msgid "Add search engine"
-msgstr "Cercador de Gadu-Gadu"
+msgstr "Afegeix giny de cerca"
 
 #: ../midori/midori-searchaction.c:908
-#, fuzzy
 msgid "Edit search engine"
-msgstr "Cercador de Gadu-Gadu"
+msgstr "Edita giny de cerca"
 
 #: ../midori/midori-searchaction.c:936
 msgid "_Name:"
@@ -1870,14 +1836,12 @@ msgid "_Token:"
 msgstr "_Testimoni:"
 
 #: ../midori/midori-searchaction.c:1213
-#, fuzzy
 msgid "Manage Search Engines"
-msgstr "Repeteix l'última recerca"
+msgstr "Gestiona els ginys de cerca"
 
 #: ../midori/midori-searchaction.c:1312
-#, fuzzy
 msgid "Use as _default"
-msgstr "usa la clau predeterminada com a destinatari predeterminat"
+msgstr "Empra'l per _defecte"
 
 #: ../midori/sokoke.c:162 ../midori/sokoke.c:174
 #, fuzzy
@@ -1913,9 +1877,8 @@ msgid "_Userscripts"
 msgstr "Scripts d'_usuari"
 
 #: ../midori/sokoke.c:864
-#, fuzzy
 msgid "User_styles"
-msgstr "Múltiples estils"
+msgstr "E_stils personals"
 
 #: ../midori/sokoke.c:866
 msgid "_Transfers"
@@ -1931,7 +1894,7 @@ msgstr "Scripts d'usuari"
 
 #: ../panels/midori-addons.c:96 ../panels/midori-addons.c:143
 msgid "Userstyles"
-msgstr ""
+msgstr "Estils d'usuari"
 
 #: ../panels/midori-bookmarks.c:108
 msgid "Bookmarks"
@@ -2000,7 +1963,6 @@ msgid "Yesterday"
 msgstr "Ahir"
 
 #: ../panels/midori-plugins.c:87 ../extensions/statusbar-features.c:108
-#, fuzzy
 msgid "Netscape plugins"
 msgstr "Connectors de Netscape"
 
@@ -2039,14 +2001,14 @@ msgid "Password"
 msgstr "Contrasenya"
 
 #: ../katze/katze-throbber.c:828
-#, fuzzy, c-format
+#, c-format
 msgid "Named icon '%s' couldn't be loaded"
-msgstr "No s'ha pogut carregar els següents fitxers:"
+msgstr ""
 
 #: ../katze/katze-throbber.c:841
-#, fuzzy, c-format
+#, c-format
 msgid "Stock icon '%s' couldn't be loaded"
-msgstr "No s'ha pogut carregar els següents fitxers:"
+msgstr ""
 
 #: ../katze/katze-throbber.c:907
 #, fuzzy
