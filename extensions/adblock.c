@@ -566,11 +566,18 @@ extension_test (void)
 MidoriExtension*
 extension_init (void)
 {
+    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
+    gchar* desc = g_strdup_printf (_("Not available: %s required"),
+                                   "WebKitGTK+ 1.1.14");
+    #endif
+
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Advertisement blocker"),
-        "description", _("Block advertisements according to a filter list"),
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        "description", _("Block advertisements according to a filter list"),
         "version", "0.1",
+        #else
+        "description", desc,
         #endif
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
@@ -579,6 +586,8 @@ extension_init (void)
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (adblock_activate_cb), NULL);
+    #else
+    g_free (desc);
     #endif
 
     return extension;

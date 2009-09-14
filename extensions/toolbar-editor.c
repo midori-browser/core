@@ -610,9 +610,11 @@ MidoriExtension *extension_init(void)
 {
 	MidoriExtension* extension = g_object_new(MIDORI_TYPE_EXTENSION,
 		"name", _("Toolbar Editor"),
-		"description", _("Easily edit the toolbar layout"),
 		#if !HAVE_HILDON
+		"description", _("Easily edit the toolbar layout"),
 		"version", "0.1",
+		#else
+		"description", _("Not available on this platform"),
 		#endif
 		"authors", "Enrico Tröger <enrico(dot)troeger(at)uvena(dot)de>",
 		NULL);
