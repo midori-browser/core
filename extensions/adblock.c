@@ -23,6 +23,7 @@
 #if WEBKIT_CHECK_VERSION (1, 1, 14)
 
 static GHashTable* pattern = NULL;
+static gchar* blockcss = "";
 
 static gchar *
 adblock_fixup_regexp (gchar* src)
@@ -64,26 +65,6 @@ static void
 adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
                                        GtkWidget*       menu,
                                        MidoriExtension* extension);
-
-static void
-adblock_app_add_browser_cb (MidoriApp*       app,
-                            MidoriBrowser*   browser,
-                            MidoriExtension* extension);
-
-static void
-adblock_deactivate_cb (MidoriExtension* extension,
-                       MidoriBrowser*   browser)
-{
-    MidoriApp* app = midori_extension_get_app (extension);
-
-    g_signal_handlers_disconnect_by_func (
-        browser, adblock_browser_populate_tool_menu_cb, extension);
-    g_signal_handlers_disconnect_by_func (
-        extension, adblock_deactivate_cb, browser);
-    g_signal_handlers_disconnect_by_func (
-        app, adblock_app_add_browser_cb, extension);
-    /* FIXME: Disconnect session callbacks */
-}
 
 static void
 adblock_preferences_renderer_text_edited_cb (GtkCellRenderer* renderer,
@@ -340,14 +321,54 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     }
 }
 
+static gchar*
+adblock_build_js (gchar* style)
+{
+    return g_strdup_printf (
+        "window.addEventListener ('DOMContentLoaded',"
+        "function () {"
+        "var mystyle = document.createElement(\"style\");"
+        "mystyle.setAttribute(\"type\", \"text/css\");"
+        "mystyle.appendChild(document.createTextNode('%s'));"
+        "var head = document.getElementsByTagName(\"head\")[0];"
+        "if (head) head.appendChild(mystyle);"
+        "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
+        "}, true);",
+        style);
+}
+
+static void
+adblock_window_object_cleared_cb (GtkWidget*      web_view,
+                                  WebKitWebFrame* web_frame,
+                                  JSContextRef    js_context,
+                                  JSObjectRef     js_window)
+{
+    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (web_view),
+                                    adblock_build_js (blockcss));
+}
 
 static void
 adblock_add_tab_cb (MidoriBrowser* browser,
                     MidoriView*    view)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    g_signal_connect (web_view, "resource-request-starting",
-        G_CALLBACK (adblock_resource_request_starting_cb), view);
+    if (blockcss && *blockcss)
+        g_signal_connect (web_view, "window-object-cleared",
+            G_CALLBACK (adblock_window_object_cleared_cb), 0);
+    if (pattern)
+        g_signal_connect (web_view, "resource-request-starting",
+            G_CALLBACK (adblock_resource_request_starting_cb), view);
+}
+
+static void
+adblock_deactivate_cb (MidoriExtension* extension,
+                       MidoriBrowser*   browser);
+
+static void
+adblock_add_tab_foreach_cb (MidoriView*      view,
+                            MidoriBrowser*   browser)
+{
+    adblock_add_tab_cb (browser, view);
 }
 
 static void
@@ -356,12 +377,22 @@ adblock_app_add_browser_cb (MidoriApp*       app,
                             MidoriExtension* extension)
 {
     if (pattern)
-        g_signal_connect (browser, "add-tab",
-            G_CALLBACK (adblock_add_tab_cb), 0);
+    {
+	midori_browser_foreach (browser, (GtkCallback)adblock_add_tab_foreach_cb, browser);
+        g_signal_connect (browser, "add-tab", G_CALLBACK (adblock_add_tab_cb), 0);
+    }
     g_signal_connect (browser, "populate-tool-menu",
         G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (adblock_deactivate_cb), browser);
+}
+
+static void
+adblock_frame_add (gchar* line)
+{
+    (void)*line++;
+    (void)*line++;
+    blockcss = g_strdup_printf ("%s %s { display: none !important; }",blockcss,line);
 }
 
 static gchar*
@@ -369,21 +400,28 @@ adblock_parse_line (gchar* line)
 {
     if (!line)
         return NULL;
-
+    g_strchomp (line);
     /* Ignore comments and new lines */
     if (line[0] == '!')
         return NULL;
     /* FIXME: No support for whitelisting */
     if (line[0] == '@' && line[1] == '@')
         return NULL;
-    /* FIXME: Differentiate # comments from element hiding */
-    /* FIXME: No support for element hiding */
+    /* Got block hider */
+    if (line[0] == '#' && line[1] == '#' && (line[2] == '.'||line[2] == '#'||line[2] == 'a'))
+    {
+        adblock_frame_add (line);
+        return NULL;
+    }
+    /* FIXME: Do we have smth else starting with ##? */
     if (line[0] == '#' && line[1] == '#')
+        return NULL;
+    /* FIXME: No support for per domain element hiding */
+    if (strstr (line,"##"))
         return NULL;
     /* FIXME: No support for [include] and [exclude] tags */
     if (line[0] == '[')
         return NULL;
-    g_strchomp (line);
     return adblock_fixup_regexp (line);
 }
 
@@ -391,7 +429,6 @@ static GHashTable*
 adblock_parse_file (gchar* path)
 {
     FILE* file;
-
     if ((file = g_fopen (path, "r")))
     {
         GHashTable* patt = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -430,8 +467,6 @@ adblock_parse_file (gchar* path)
         if (have_pattern)
             return patt;
     }
-    /* FIXME: This should presumably be freed, but there's a possible crash
-       g_free (path); */
     return NULL;
 }
 
@@ -445,6 +480,37 @@ adblock_download_notify_status_cb (WebKitDownload* download,
 }
 
 static void
+adblock_deactivate_tabs (MidoriView*      view,
+                         MidoriBrowser*   browser)
+{
+    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    g_signal_handlers_disconnect_by_func (
+       browser, adblock_add_tab_cb, 0);
+    g_signal_handlers_disconnect_by_func (
+       web_view, adblock_window_object_cleared_cb, 0);
+    g_signal_handlers_disconnect_by_func (
+       web_view, adblock_resource_request_starting_cb, view);
+}
+
+static void
+adblock_deactivate_cb (MidoriExtension* extension,
+                       MidoriBrowser*   browser)
+{
+    MidoriApp* app = midori_extension_get_app (extension);
+
+    g_signal_handlers_disconnect_by_func (
+        browser, adblock_browser_populate_tool_menu_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        extension, adblock_deactivate_cb, browser);
+    g_signal_handlers_disconnect_by_func (
+        app, adblock_app_add_browser_cb, extension);
+    midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
+
+    pattern = NULL;
+    blockcss = "";
+}
+
+static void
 adblock_activate_cb (MidoriExtension* extension,
                      MidoriApp*       app)
 {
@@ -453,17 +519,7 @@ adblock_activate_cb (MidoriExtension* extension,
     guint i;
     gchar* folder;
     gchar** filters;
-    SoupSession* session;
 
-    browsers = katze_object_get_object (app, "browsers");
-    i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
-        adblock_app_add_browser_cb (app, browser, extension);
-    g_signal_connect (app, "add-browser",
-        G_CALLBACK (adblock_app_add_browser_cb), extension);
-    g_object_unref (browsers);
-
-    session = webkit_get_default_session ();
     folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
                                "adblock", NULL);
     g_mkdir_with_parents (folder, 0700);
@@ -476,6 +532,7 @@ adblock_activate_cb (MidoriExtension* extension,
             gchar* filename = g_compute_checksum_for_string (G_CHECKSUM_MD5,
                                                              filters[i - 1], -1);
             gchar* path = g_build_filename (folder, filename, NULL);
+
             if (!g_file_test (path, G_FILE_TEST_EXISTS))
             {
                 WebKitNetworkRequest* request;
@@ -493,9 +550,19 @@ adblock_activate_cb (MidoriExtension* extension,
             }
             else
                 pattern = adblock_parse_file (path);
+            g_free (path);
             g_free (filename);
         }
     }
+
+    browsers = katze_object_get_object (app, "browsers");
+    i = 0;
+    while ((browser = katze_array_get_nth_item (browsers, i++)))
+        adblock_app_add_browser_cb (app, browser, extension);
+    g_signal_connect (app, "add-browser",
+        G_CALLBACK (adblock_app_add_browser_cb), extension);
+
+    g_object_unref (browsers);
     g_strfreev (filters);
     g_free (folder);
 }
