@@ -3070,10 +3070,22 @@ _action_source_view_activate (GtkAction*     action,
         text_editor = NULL;
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
 
-    if (!g_strcmp0 (text_editor, ""))
+    if (!(text_editor && *text_editor))
     {
-        GFile* file = g_file_new_for_uri (uri);
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        GtkWidget* source;
+        GtkWidget* web_view;
 
+        source = midori_view_new (browser->net);
+        midori_view_set_uri (MIDORI_VIEW (source), "");
+        web_view = gtk_bin_get_child (GTK_BIN (source));
+        webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), TRUE);
+        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
+        gtk_widget_show (source);
+        midori_browser_add_tab (browser, source);
+        return;
+        #else
+        GFile* file = g_file_new_for_uri (uri);
         gchar* content_type;
         GAppInfo* app_info;
         GList* files;
@@ -3104,6 +3116,7 @@ _action_source_view_activate (GtkAction*     action,
             g_free (text_editor);
             return;
         }
+        #endif
     }
 
     katze_net_load_uri (browser->net, uri, NULL,
