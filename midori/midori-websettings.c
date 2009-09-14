@@ -286,6 +286,7 @@ midori_identity_get_type (void)
         static const GEnumValue values[] = {
          { MIDORI_IDENT_MIDORI, "MIDORI_IDENT_MIDORI", N_("Midori") },
          { MIDORI_IDENT_SAFARI, "MIDORI_IDENT_SAFARI", N_("Safari") },
+         { MIDORI_IDENT_IPHONE, "MIDORI_IDENT_IPHONE", N_("iPhone") },
          { MIDORI_IDENT_FIREFOX, "MIDORI_IDENT_FIREFOX", N_("Firefox") },
          { MIDORI_IDENT_EXPLORER, "MIDORI_IDENT_EXPLORER", N_("Internet Explorer") },
          { MIDORI_IDENT_CUSTOM, "MIDORI_IDENT_CUSTOM", N_("Custom...") },
@@ -1122,6 +1123,11 @@ generate_ident_string (MidoriIdentity identify_as)
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
             "AppleWebKit/532+ (KHTML, like Gecko) Safari/%s %s",
                                 platform, os, lang, webcore, appname);
+    case MIDORI_IDENT_IPHONE:
+        return g_strdup_printf ("Mozilla/5.0 (iPhone; U; %s; %s) "
+            "AppleWebKit/532+ (KHTML, like Gecko) Version/3.0 Mobile/1A538b "
+            "Safari/419.3 %s",
+                                os, lang, appname);
     case MIDORI_IDENT_FIREFOX:
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s; rv:1.8.1) "
             "Gecko/20061010 Firefox/2.0 %s",
