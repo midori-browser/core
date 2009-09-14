@@ -165,11 +165,14 @@ proxy_widget_string_destroy_cb (GtkWidget* proxy,
  *     "uri": the widget created will be particularly suitable for
  *         choosing an existing filename, encoded as an URI.
  *     "font": the widget created will be particularly suitable for
- *         choosing a font from installed fonts.
+ *         choosing a variable-width font from installed fonts.
  *     Since 0.1.6 the following hints are also supported:
  *     "toggle": the widget created will be an empty toggle button. This
  *         is only supported with boolean properties.
  *         Since 0.1.8 "toggle" creates GtkCheckButton widgets without checkmarks.
+ *     Since 0.2.0 the following hints are also supported:
+ *     "font-monospace": the widget created will be particularly suitable for
+ *         choosing a fixed-width font from installed fonts.
  *
  * Any other values for @hint are silently ignored.
  *
@@ -276,28 +279,34 @@ katze_property_proxy (gpointer     object,
                               G_CALLBACK (proxy_uri_file_set_cb), object);
         #endif
     }
-    else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("font"))
+    else if (type == G_TYPE_PARAM_STRING && (_hint == g_intern_string ("font")
+        || _hint == g_intern_string ("font-monospace")))
     {
+        GtkComboBox* combo;
         int n_families, i;
         PangoContext* context;
         PangoFontFamily** families;
+        gboolean monospace = _hint == g_intern_string ("font-monospace");
         string = katze_object_get_string (object, property);
 
         widget = gtk_combo_box_new_text ();
+        combo = GTK_COMBO_BOX (widget);
         context = gtk_widget_get_pango_context (widget);
         pango_context_list_families (context, &families, &n_families);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
+        if (string)
         for (i = 0; i < n_families; i++)
         {
             const gchar* font = pango_font_family_get_name (families[i]);
-            gtk_combo_box_append_text (GTK_COMBO_BOX (widget), font);
-            if (string && !strcmp (font, string))
-                gtk_combo_box_set_active (GTK_COMBO_BOX (widget), i);
+            if (monospace != pango_font_family_is_monospace (families[i]))
+                continue;
+            gtk_combo_box_append_text (combo, font);
+            if (!g_ascii_strcasecmp (font, string))
+                gtk_combo_box_set_active (combo, i);
         }
         gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (
-            gtk_combo_box_get_model (GTK_COMBO_BOX (widget))),
-                                     0, GTK_SORT_ASCENDING);
+            gtk_combo_box_get_model (combo)), 0, GTK_SORT_ASCENDING);
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_text_changed_cb), object);
         g_free (families);
