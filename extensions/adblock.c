@@ -37,6 +37,10 @@ adblock_fixup_regexp (gchar* src)
     /* FIXME: Avoid always allocating twice the string */
     s = dst = g_malloc (strlen (src) * 2);
 
+    /* |http:// means ^http:// */
+    if (src[0] == '|')
+        src[0] = '^';
+
     while (*src)
     {
         switch (*src)
@@ -314,6 +318,8 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       MidoriView*            view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
+    if (!strncmp(uri, "data", 4))
+        return;
     if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, (char*)uri))
     {
         webkit_network_request_set_uri (request, "about:blank");
@@ -407,6 +413,12 @@ adblock_parse_line (gchar* line)
     /* FIXME: No support for whitelisting */
     if (line[0] == '@' && line[1] == '@')
         return NULL;
+    /* FIXME: What is this? */
+    if (line[0] == '|' && line[1] == '|')
+        return NULL;
+    /* ditto */
+    if (strstr (line,"$"))
+        return NULL;
     /* Got block hider */
     if (line[0] == '#' && line[1] == '#' && (line[2] == '.'||line[2] == '#'||line[2] == 'a'))
     {
@@ -425,10 +437,31 @@ adblock_parse_line (gchar* line)
     return adblock_fixup_regexp (line);
 }
 
+static GRegex*
+adblock_add_regexp (gchar *line)
+{
+    GError* error;
+    GRegex* regex;
+
+    error = NULL;
+    regex = g_regex_new (line, G_REGEX_OPTIMIZE | G_REGEX_CASELESS,
+                               G_REGEX_MATCH_NOTEMPTY, &error);
+    if (error)
+    {
+        g_warning ("%s: %s", G_STRFUNC, error->message);
+        g_error_free (error);
+        return NULL;
+    }
+    else
+        return regex;
+}
+
 static GHashTable*
 adblock_parse_file (gchar* path)
 {
     FILE* file;
+    int maxlimit = 150;
+    int i = 0;
     if ((file = g_fopen (path, "r")))
     {
         GHashTable* patt = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -436,33 +469,35 @@ adblock_parse_file (gchar* path)
                                (GDestroyNotify)g_regex_unref);
 
         gboolean have_pattern = FALSE;
-        gchar line[255];
-        GRegex* regex;
+        gchar line[500];
+        gchar* rline = "";
 
-        while (fgets (line, 255, file))
+        while (fgets (line, 500, file))
         {
-            GError* error = NULL;
             gchar* parsed;
 
             parsed = adblock_parse_line (line);
             if (!parsed)
                 continue;
 
-            regex = g_regex_new (parsed, G_REGEX_OPTIMIZE,
-                                 G_REGEX_MATCH_NOTEMPTY, &error);
-            if (error)
-            {
-                g_warning ("%s: %s", G_STRFUNC, error->message);
-                g_error_free (error);
-                g_free (parsed);
-            }
-            else
+            i++;
+            rline = g_strdup_printf ("%s|%s", rline, parsed);
+            if (rline && *rline && i >= maxlimit)
             {
                 have_pattern = TRUE;
-                g_hash_table_insert (patt, parsed, regex);
+                g_hash_table_insert (patt, rline, adblock_add_regexp (rline));
+                rline = g_strdup ("");
+                i = 0;
             }
         }
         fclose (file);
+
+        if (rline && *rline)
+        {
+            have_pattern = TRUE;
+            g_hash_table_insert (patt, rline, adblock_add_regexp (rline));
+            rline = g_strdup ("");
+        }
 
         if (have_pattern)
             return patt;
