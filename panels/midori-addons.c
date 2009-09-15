@@ -917,14 +917,15 @@ midori_addons_new (MidoriAddonKind kind,
         monitor = g_file_monitor_directory (directory,
                                             G_FILE_MONITOR_NONE,
                                             NULL, &error);
-        if (!monitor)
+        if (monitor)
+            g_signal_connect (monitor, "changed",
+                G_CALLBACK (midori_addons_directory_monitor_changed), addons);
+        else
         {
-            g_warning ("could not monitor %s: %s", g_file_get_parse_name (directory),
-                       error->message);
+            g_warning (_("Can't monitor folder '%s': %s"),
+                       g_file_get_parse_name (directory), error->message);
             g_error_free (error);
         }
-        g_signal_connect (monitor, "changed",
-            G_CALLBACK (midori_addons_directory_monitor_changed), addons);
         g_object_unref (directory);
     }
     g_slist_free (list);
