@@ -92,6 +92,7 @@ struct _MidoriView
     GtkWidget* tab_title;
     GtkWidget* tab_close;
     KatzeItem* item;
+    gint scrollh, scrollv;
 
     KatzeNet* net;
 };
@@ -205,7 +206,6 @@ midori_view_speed_dial_get_thumb (GtkWidget*   web_view,
 static void
 midori_view_speed_dial_save (GtkWidget*   web_view,
                              const gchar* message);
-
 
 static void
 midori_view_class_init (MidoriViewClass* class)
@@ -846,6 +846,17 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     view->progress = 1.0;
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
+
+    if (view->scrollh || view->scrollv)
+    {
+        GtkAdjustment* adjustment = katze_object_get_object (view, "hadjustment");
+        gtk_adjustment_set_value (adjustment, view->scrollh);
+        g_object_unref (adjustment);
+        adjustment = katze_object_get_object (view, "vadjustment");
+        gtk_adjustment_set_value (adjustment, view->scrollv);
+        g_object_unref (adjustment);
+        view->scrollh = view->scrollv = 0;
+    }
 
     if (1)
     {
@@ -1669,6 +1680,48 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
 }
 
 static void
+midori_view_hadjustment_notify_value_cb (GtkAdjustment* hadjustment,
+                                         GParamSpec*    pspec,
+                                         MidoriView*    view)
+{
+    gint value = (gint)gtk_adjustment_get_value (hadjustment);
+    if (view->item)
+        katze_item_set_meta_integer (view->item, "scrollh", value);
+}
+
+static void
+midori_view_notify_hadjustment_cb (MidoriView* view,
+                                   GParamSpec* pspec,
+                                   gpointer    data)
+{
+    GtkAdjustment* hadjustment = katze_object_get_object (view, "hadjustment");
+    g_signal_connect (hadjustment, "notify::value",
+        G_CALLBACK (midori_view_hadjustment_notify_value_cb), view);
+    g_object_unref (hadjustment);
+}
+
+static void
+midori_view_vadjustment_notify_value_cb (GtkAdjustment* vadjustment,
+                                         GParamSpec*    pspec,
+                                         MidoriView*    view)
+{
+    gint value = (gint)gtk_adjustment_get_value (vadjustment);
+    if (view->item)
+        katze_item_set_meta_integer (view->item, "scrollv", value);
+}
+
+static void
+midori_view_notify_vadjustment_cb (MidoriView* view,
+                                   GParamSpec* pspec,
+                                   gpointer    data)
+{
+    GtkAdjustment* vadjustment = katze_object_get_object (view, "vadjustment");
+    g_signal_connect (vadjustment, "notify::value",
+        G_CALLBACK (midori_view_vadjustment_notify_value_cb), view);
+    g_object_unref (vadjustment);
+}
+
+static void
 midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
@@ -1685,13 +1738,18 @@ midori_view_init (MidoriView* view)
     view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
 
     view->item = NULL;
+    view->scrollh = view->scrollv = 0;
 
     view->download_manager = NULL;
     view->news_aggregator = NULL;
     view->web_view = NULL;
 
-    /* Adjustments are not created automatically */
+    /* Adjustments are not created initially, but overwritten later */
     g_object_set (view, "hadjustment", NULL, "vadjustment", NULL, NULL);
+    g_signal_connect (view, "notify::hadjustment",
+        G_CALLBACK (midori_view_notify_hadjustment_cb), view);
+    g_signal_connect (view, "notify::vadjustment",
+        G_CALLBACK (midori_view_notify_vadjustment_cb), view);
 }
 
 static void
@@ -2926,6 +2984,16 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
     if (g_str_equal (key, "minimized"))
         g_object_set (view, "minimized",
             katze_item_get_meta_string (item, key) != NULL, NULL);
+    else if (g_str_has_prefix (key, "scroll"))
+    {
+        gint value = katze_item_get_meta_integer (item, key);
+        if (!view->scrollh && key[6] == 'h')
+            view->scrollh = value > -1 ? value : 0;
+        else if (!view->scrollv && key[6] == 'v')
+            view->scrollv = value > -1 ? value : 0;
+        else
+            return;
+    }
 }
 
 /**
