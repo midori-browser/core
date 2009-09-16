@@ -525,7 +525,6 @@ katze_net_load_icon (KatzeNet*      net,
                      GtkWidget*     widget,
                      gpointer       user_data)
 {
-    guint i;
     KatzeNetIconPriv* priv;
     gchar* icon_uri;
     gchar* icon_file;
@@ -535,22 +534,28 @@ katze_net_load_icon (KatzeNet*      net,
 
     g_return_val_if_fail (KATZE_IS_NET (net), NULL);
     g_return_val_if_fail (!widget || GTK_IS_WIDGET (widget), NULL);
+    g_return_val_if_fail (uri != NULL, NULL);
 
     pixbuf = NULL;
-    if (uri && (g_str_has_prefix (uri, "http://") ||
-        g_str_has_prefix (uri, "https://")))
+    icon_uri = g_strdup (g_object_get_data (G_OBJECT (net), uri));
+    g_object_set_data (G_OBJECT (net), uri, NULL);
+    if ((icon_uri && g_str_has_prefix (icon_uri, "http"))
+        || g_str_has_prefix (uri, "http"))
     {
-        i = 8;
-        while (uri[i] != '\0' && uri[i] != '/')
-            i++;
-        if (uri[i] == '/')
+        if (!icon_uri)
         {
-            icon_uri = g_strdup (uri);
-            icon_uri[i] = '\0';
-            icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
+            guint i = 8;
+            while (uri[i] != '\0' && uri[i] != '/')
+                i++;
+            if (uri[i] == '/')
+            {
+                icon_uri = g_strdup (uri);
+                icon_uri[i] = '\0';
+                icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
+            }
+            else
+                icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
         }
-        else
-            icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
 
         icon_file = katze_net_get_cached_path (net, icon_uri, "icons");
 
