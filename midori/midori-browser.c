@@ -5807,7 +5807,7 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
         g_signal_handlers_disconnect_by_func (
             browser->bookmarks, browser_bookmarks_add_item_cb, browser->bookmarkbar);
         g_signal_handlers_disconnect_by_func (
-            browser->bookmarks, browser_bookmarks_remove_item_cb, browser->bookmarkbar);
+            browser->bookmarks, browser_bookmarks_remove_item_cb, browser);
     }
 
     if (bookmarks)
