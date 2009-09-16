@@ -220,7 +220,17 @@ static void mouse_gestures_deactivate (MidoriExtension *extension, MidoriApp *ap
 
 static void mouse_gestures_activate (MidoriExtension *extension, MidoriApp *app)
 {
+    KatzeArray* browsers;
+    MidoriBrowser* browser;
+    guint i;
+
     gesture = mouse_gesture_new ();
+
+    browsers = katze_object_get_object (app, "browsers");
+    i = 0;
+    while ((browser = katze_array_get_nth_item (browsers, i++)))
+        mouse_gestures_browser_cb (app, browser);
+    g_object_unref (browsers);
 
     g_signal_connect (app, "add-browser",
                       G_CALLBACK (mouse_gestures_browser_cb), NULL);
