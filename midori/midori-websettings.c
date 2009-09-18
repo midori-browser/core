@@ -1110,19 +1110,18 @@ generate_ident_string (MidoriIdentity identify_as)
         #define WEBKIT_USER_AGENT_MAJOR_VERSION 532
         #define WEBKIT_USER_AGENT_MINOR_VERSION 1
     #endif
-
-    const gchar* webcore = "WebKit/" G_STRINGIFY (WEBKIT_USER_AGENT_MAJOR_VERSION)
-        "." G_STRINGIFY (WEBKIT_USER_AGENT_MINOR_VERSION) "+";
+    const int webcore_major = WEBKIT_USER_AGENT_MAJOR_VERSION;
+    const int webcore_minor = WEBKIT_USER_AGENT_MINOR_VERSION;
 
     switch (identify_as)
     {
     case MIDORI_IDENT_MIDORI:
-        return g_strdup_printf ("%s (%s; %s; U; %s) %s",
-                                appname, platform, os, lang, webcore);
+        return g_strdup_printf ("%s (%s; %s; U; %s) WebKit/%d.%d+",
+            appname, platform, os, lang, webcore_major, webcore_minor);
     case MIDORI_IDENT_SAFARI:
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
-            "AppleWebKit/532+ (KHTML, like Gecko) Safari/%s %s",
-                                platform, os, lang, webcore, appname);
+            "AppleWebKit/%d+ (KHTML, like Gecko) Safari/%d.%d+ %s",
+            platform, os, lang, webcore_major, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_IPHONE:
         return g_strdup_printf ("Mozilla/5.0 (iPhone; U; %s; %s) "
             "AppleWebKit/532+ (KHTML, like Gecko) Version/3.0 Mobile/1A538b "
