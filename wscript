@@ -267,16 +267,15 @@ def configure (conf):
         elif debug_level == 'full':
             # -Wdeclaration-after-statement
             # -Wmissing-declarations -Wmissing-prototypes
-            # -Wwrite-strings
+            # -Wwrite-strings -Wunsafe-loop-optimizations -Wmissing-include-dirs
             conf.env.append_value ('CCFLAGS',
                 '-Wall -Wextra -O1 -g '
                 '-Waggregate-return -Wno-unused-parameter '
                 '-Wno-missing-field-initializers '
-                '-Wunsafe-loop-optimizations '
                 '-Wredundant-decls -Wmissing-noreturn '
                 '-Wshadow -Wpointer-arith -Wcast-align '
                 '-Winline -Wformat-security '
-                '-Winit-self -Wmissing-include-dirs -Wundef '
+                '-Winit-self -Wundef '
                 '-Wmissing-format-attribute -Wnested-externs '
                 '-DG_ENABLE_DEBUG'.split ())
     elif debug_level != 'none':
