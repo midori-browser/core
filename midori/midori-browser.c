@@ -601,6 +601,26 @@ midori_view_notify_statusbar_text_cb (MidoriView*    view,
     }
 }
 
+static gboolean
+midori_browser_edit_bookmark_uri_focus_in_cb (GtkEntry*      entry,
+                                              GdkEventFocus* event,
+                                              GtkDialog*     dialog)
+{
+    gtk_dialog_set_response_sensitive (dialog, GTK_RESPONSE_ACCEPT, TRUE);
+    return FALSE;
+}
+
+static gboolean
+midori_browser_edit_bookmark_uri_focus_out_cb (GtkEntry*      entry,
+                                               GdkEventFocus* event,
+                                               GtkDialog*     dialog)
+{
+    const gchar* uri = gtk_entry_get_text (entry);
+    gtk_dialog_set_response_sensitive (dialog, GTK_RESPONSE_ACCEPT,
+        uri && g_strstr_len (uri, -1, "://"));
+    return FALSE;
+}
+
 /* Private function, used by MidoriBookmarks and MidoriHistory */
 /* static */ void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
@@ -694,6 +714,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         entry_uri = gtk_entry_new ();
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
         gtk_entry_set_text (GTK_ENTRY (entry_uri), katze_item_get_uri (bookmark));
+        g_signal_connect (entry_uri, "focus-in-event",
+            G_CALLBACK (midori_browser_edit_bookmark_uri_focus_in_cb), dialog);
+        g_signal_connect (entry_uri, "focus-out-event",
+            G_CALLBACK (midori_browser_edit_bookmark_uri_focus_out_cb), dialog);
         gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
         gtk_widget_show_all (hbox);
