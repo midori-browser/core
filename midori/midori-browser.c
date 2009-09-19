@@ -352,9 +352,13 @@ static void
 _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                                     const gchar*   text)
 {
+    GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
+    gboolean is_location = widget ?
+        MIDORI_IS_LOCATION_ENTRY (gtk_widget_get_parent (widget)) : FALSE;
+
     katze_assign (browser->statusbar_text, g_strdup (text));
 
-    if (!GTK_WIDGET_VISIBLE (browser->statusbar))
+    if (!GTK_WIDGET_VISIBLE (browser->statusbar) && !is_location)
     {
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
