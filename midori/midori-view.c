@@ -701,6 +701,26 @@ midori_view_update_load_status (MidoriView*      view,
             view->load_status != MIDORI_LOAD_FINISHED);
 }
 
+static gboolean
+midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view,
+                                             WebKitWebFrame*            web_frame,
+                                             WebKitNetworkRequest*      request,
+                                             WebKitWebNavigationAction* action,
+                                             WebKitWebPolicyDecision*   decision,
+                                             MidoriView*                view)
+{
+    const gchar* uri = webkit_network_request_get_uri (request);
+    if (g_str_has_prefix (uri, "mailto:"))
+    {
+        webkit_web_policy_decision_ignore (decision);
+        sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
+                         uri, GDK_CURRENT_TIME, NULL);
+        return TRUE;
+    }
+    /* TODO: Handle more external protocols */
+    return FALSE;
+}
+
 static void
 webkit_web_view_load_started_cb (WebKitWebView*  web_view,
                                  WebKitWebFrame* web_frame,
@@ -2388,6 +2408,8 @@ midori_view_construct_web_view (MidoriView* view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
 
     g_object_connect (view->web_view,
+                      "signal::navigation-policy-decision-requested",
+                      midori_view_web_view_navigation_decision_cb, view,
                       "signal::load-started",
                       webkit_web_view_load_started_cb, view,
                       "signal::load-committed",
