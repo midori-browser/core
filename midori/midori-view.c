@@ -82,6 +82,7 @@ struct _MidoriView
     gboolean speed_dial_in_new_tabs;
     gchar* download_manager;
     gchar* news_aggregator;
+    gboolean ask_for_destination_folder;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
@@ -1202,9 +1203,11 @@ midori_web_view_menu_save_activate_cb (GtkWidget*  widget,
     WebKitDownload* download = webkit_download_new (request);
     gboolean handled;
     g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "save-as-download", 0);
+    if (view->ask_for_destination_folder)
+        g_object_set_data (G_OBJECT (download), "save-as-download", (void*)0xdeadbeef);
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
-    webkit_download_start (download);
+    if (!view->ask_for_destination_folder)
+        webkit_download_start (download);
 }
 
 static void
@@ -1247,9 +1250,11 @@ midori_web_view_menu_image_save_activate_cb (GtkWidget*  widget,
     WebKitDownload* download = webkit_download_new (request);
     gboolean handled;
     g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "save-as-download", 0);
+    if (view->ask_for_destination_folder)
+        g_object_set_data (G_OBJECT (download), "save-as-download", (void*)0xdeadbeef);
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
-    webkit_download_start (download);
+    if (!view->ask_for_destination_folder)
+        webkit_download_start (download);
     g_free (uri);
 }
 
@@ -1274,9 +1279,11 @@ midori_web_view_menu_video_save_activate_cb (GtkWidget*  widget,
     WebKitDownload* download = webkit_download_new (request);
     gboolean handled;
     g_object_unref (request);
-    g_object_set_data (G_OBJECT (download), "save-as-download", 0);
+    if (view->ask_for_destination_folder)
+        g_object_set_data (G_OBJECT (download), "save-as-download", (void*)0xdeadbeef);
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
-    webkit_download_start (download);
+    if (!view->ask_for_destination_folder)
+        webkit_download_start (download);
     g_free (uri);
 }
 
@@ -1495,9 +1502,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("_Copy Link destination"), NULL,
             G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
-        /* FIXME */
         midori_view_insert_menu_item (menu_shell, -1,
-            FALSE ? _("_Save Link destination") : _("_Download Link destination"), NULL,
+            view->ask_for_destination_folder ? _("_Save Link destination")
+            : _("_Download Link destination"), NULL,
             G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
         if (view->download_manager && *view->download_manager)
             midori_view_insert_menu_item (menu_shell, -1,
@@ -1521,9 +1528,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Image _Address"), NULL,
             G_CALLBACK (midori_web_view_menu_image_copy_activate_cb), widget);
-        /* FIXME */
         midori_view_insert_menu_item (menu_shell, -1,
-            FALSE ? _("Save I_mage") : _("Download I_mage"), GTK_STOCK_SAVE,
+            view->ask_for_destination_folder ? _("Save I_mage")
+            : _("Download I_mage"), GTK_STOCK_SAVE,
             G_CALLBACK (midori_web_view_menu_image_save_activate_cb), widget);
     }
 
@@ -2200,6 +2207,7 @@ _midori_view_update_settings (MidoriView* view)
         "zoom-text-and-images", &zoom_text_and_images,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
+        "ask-for-destination-folder", &view->ask_for_destination_folder,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
         "find-while-typing", &view->find_while_typing,
@@ -2249,6 +2257,10 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     else if (name == g_intern_string ("open-new-pages-in"))
     {
         view->open_new_pages_in = g_value_get_enum (&value);
+    }
+    else if (name == g_intern_string ("ask-for-destination-folder"))
+    {
+        view->ask_for_destination_folder = g_value_get_boolean (&value);
     }
     else if (name == g_intern_string ("middle-click-opens-selection"))
     {

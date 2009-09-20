@@ -429,7 +429,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "download-folder", "folder");
     FILLED_ADD (button, 1, 2, 0, 1);
     label = katze_property_proxy (settings, "ask-for-destination-folder", NULL);
-    gtk_widget_set_sensitive (label, FALSE);
     INDENTED_ADD (label, 0, 1, 1, 2);
     button = katze_property_proxy (settings, "notify-transfer-completed", NULL);
     /* FIXME: Disable the option if notifications presumably cannot be sent

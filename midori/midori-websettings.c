@@ -635,6 +635,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
      *
      * Whether to ask for the destination folder when downloading a file.
      *
+     * Note: Only since 0.2.0 is this value actually used.
+     *
      * Since: 0.1.7
      */
     g_object_class_install_property (gobject_class,
@@ -644,7 +646,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Ask for the destination folder"),
         _("Whether to ask for the destination folder when downloading a file"),
                                      FALSE,
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
     #else
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
