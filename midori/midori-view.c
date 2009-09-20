@@ -1052,10 +1052,10 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         }
         else if (view->middle_click_opens_selection)
         {
+            gboolean is_editable;
             #if WEBKIT_CHECK_VERSION (1, 1, 15)
             WebKitHitTestResult* result;
             WebKitHitTestResultContext context;
-            gboolean is_editable;
 
             result = webkit_web_view_get_hit_test_result (web_view, event);
             context = katze_object_get_int (result, "context");
@@ -1448,7 +1448,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         if (!strcmp (stock_id, GTK_STOCK_FIND))
         {
             gtk_widget_hide (menuitem);
-            gtk_widget_set_no_show_all (menuitem);
+            gtk_widget_set_no_show_all (menuitem, TRUE);
             menuitem = (GtkWidget*)g_list_nth_data (items, 1);
             gtk_widget_hide (menuitem);
             menuitem = (GtkWidget*)g_list_nth_data (items, 2);
