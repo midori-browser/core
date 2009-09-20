@@ -69,6 +69,9 @@ struct _MidoriView
     MidoriLoadStatus load_status;
     gboolean minimized;
     gchar* statusbar_text;
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    WebKitHitTestResult* hit_test;
+    #endif
     gchar* link_uri;
     gboolean has_selection;
     gchar* selected_text;
@@ -1146,6 +1149,127 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
         return FALSE;
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 15)
+static void
+midori_web_view_menu_open_activate_cb (GtkWidget*  widget,
+                                       MidoriView* view)
+{
+    midori_view_set_uri (view, view->link_uri);
+}
+
+static void
+midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
+                                             MidoriView* view)
+{
+    g_signal_emit (view, signals[NEW_WINDOW], 0, view->link_uri);
+}
+
+static void
+midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
+                                            MidoriView* view)
+{
+    GdkDisplay* display = gtk_widget_get_display (widget);
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
+        GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text (clipboard, view->link_uri, -1);
+}
+
+static void
+midori_web_view_menu_save_activate_cb (GtkWidget*  widget,
+                                       MidoriView* view)
+{
+    WebKitNetworkRequest* request = webkit_network_request_new (view->link_uri);
+    WebKitDownload* download = webkit_download_new (request);
+    gboolean handled;
+    g_object_unref (request);
+    g_object_set_data (G_OBJECT (download), "save-as-download", 0);
+    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    webkit_download_start (download);
+}
+
+static void
+midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
+                                                MidoriView* view)
+{
+    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
+    g_signal_emit (view, signals[NEW_TAB], 0, uri,
+                   view->open_tabs_in_the_background);
+    g_free (uri);
+}
+
+static void
+midori_web_view_menu_image_new_window_activate_cb (GtkWidget*  widget,
+                                                    MidoriView* view)
+{
+    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
+    g_signal_emit (view, signals[NEW_WINDOW], 0, uri);
+    g_free (uri);
+}
+
+static void
+midori_web_view_menu_image_copy_activate_cb (GtkWidget*  widget,
+                                             MidoriView* view)
+{
+    GdkDisplay* display = gtk_widget_get_display (widget);
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
+        GDK_SELECTION_CLIPBOARD);
+    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
+    gtk_clipboard_set_text (clipboard, uri, -1);
+    g_free (uri);
+}
+
+static void
+midori_web_view_menu_image_save_activate_cb (GtkWidget*  widget,
+                                             MidoriView* view)
+{
+    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
+    WebKitNetworkRequest* request = webkit_network_request_new (uri);
+    WebKitDownload* download = webkit_download_new (request);
+    gboolean handled;
+    g_object_unref (request);
+    g_object_set_data (G_OBJECT (download), "save-as-download", 0);
+    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    webkit_download_start (download);
+    g_free (uri);
+}
+
+static void
+midori_web_view_menu_video_copy_activate_cb (GtkWidget*  widget,
+                                             MidoriView* view)
+{
+    GdkDisplay* display = gtk_widget_get_display (widget);
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
+        GDK_SELECTION_CLIPBOARD);
+    gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
+    gtk_clipboard_set_text (clipboard, uri, -1);
+    g_free (uri);
+}
+
+static void
+midori_web_view_menu_video_save_activate_cb (GtkWidget*  widget,
+                                             MidoriView* view)
+{
+    gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
+    WebKitNetworkRequest* request = webkit_network_request_new (uri);
+    WebKitDownload* download = webkit_download_new (request);
+    gboolean handled;
+    g_object_unref (request);
+    g_object_set_data (G_OBJECT (download), "save-as-download", 0);
+    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    webkit_download_start (download);
+    g_free (uri);
+}
+
+static void
+midori_web_view_menu_video_download_activate_cb (GtkWidget*  widget,
+                                                 MidoriView* view)
+{
+    gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
+    sokoke_spawn_program (view->download_manager, uri, TRUE);
+    g_free (uri);
+}
+#endif
+
 static void
 midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
@@ -1264,7 +1388,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
     gint x, y;
     GdkEventButton event;
-    WebKitHitTestResult* result;
     WebKitHitTestResultContext context;
     gboolean is_image;
     gboolean is_media;
@@ -1273,8 +1396,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     gdk_window_get_pointer (GTK_WIDGET (web_view)->window, &x, &y, NULL);
     event.x = x;
     event.y = y;
-    result = webkit_web_view_get_hit_test_result (web_view, &event);
-    context = katze_object_get_int (result, "context");
+    katze_object_assign (view->hit_test,
+        webkit_web_view_get_hit_test_result (web_view, &event));
+    context = katze_object_get_int (view->hit_test, "context");
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
     midori_view_has_selection (view);
@@ -1282,7 +1406,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     is_image = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE;
     is_media = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_MEDIA;
     is_document = !view->link_uri && !has_selection && !is_image && !is_media;
-    g_object_unref (result);
     #else
     has_selection = midori_view_has_selection (view);
     is_document = !view->link_uri && !has_selection;
@@ -1298,6 +1421,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         if (!strcmp (stock_id, GTK_STOCK_FIND))
         {
             gtk_widget_hide (menuitem);
+            gtk_widget_set_no_show_all (menuitem);
             menuitem = (GtkWidget*)g_list_nth_data (items, 1);
             gtk_widget_hide (menuitem);
             menuitem = (GtkWidget*)g_list_nth_data (items, 2);
@@ -1341,20 +1465,20 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     {
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open _Link"), NULL,
-            NULL /* G_CALLBACK (midori_web_view_menu_open_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_open_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Window"), STOCK_WINDOW_NEW,
-            NULL /* G_CALLBACK (midori_web_view_menu_new_window_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("_Copy Link destination"), NULL,
-            NULL /* G_CALLBACK (midori_web_view_menu_copy_link_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
         /* FIXME */
         midori_view_insert_menu_item (menu_shell, -1,
             FALSE ? _("_Save Link destination") : _("_Download Link destination"), NULL,
-            NULL /* G_CALLBACK (midori_web_view_menu_save_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
         if (view->download_manager && *view->download_manager)
             midori_view_insert_menu_item (menu_shell, -1,
             _("Download with Download _Manager"), STOCK_TRANSFER,
@@ -1370,31 +1494,31 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open _Image in New Tab"), STOCK_TAB_NEW,
-            NULL /* G_CALLBACK (midori_web_view_menu_image_new_tab_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_image_new_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open _Image in New Window"), STOCK_WINDOW_NEW,
-            NULL /* G_CALLBACK (midori_web_view_menu_image_new_window_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_image_new_window_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Image _Address"), NULL,
-            NULL /* G_CALLBACK (midori_web_view_menu_image_new_window_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_image_copy_activate_cb), widget);
         /* FIXME */
         midori_view_insert_menu_item (menu_shell, -1,
             FALSE ? _("Save I_mage") : _("Download I_mage"), GTK_STOCK_SAVE,
-            NULL /* G_CALLBACK (midori_web_view_menu_image_save_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_image_save_activate_cb), widget);
     }
 
     if (is_media)
     {
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Video _Address"), NULL,
-            NULL /* G_CALLBACK (midori_web_view_menu_video_copy_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_video_copy_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             FALSE ? _("Save _Video") : _("Download _Video"), GTK_STOCK_SAVE,
-            NULL /* G_CALLBACK (midori_web_view_menu_video_save_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_video_save_activate_cb), widget);
         if (view->download_manager && *view->download_manager)
             midori_view_insert_menu_item (menu_shell, -1,
             _("Download with Download _Manager"), STOCK_TRANSFER,
-            NULL /* G_CALLBACK (midori_web_view_menu_video_download_activate_cb) */, widget);
+            G_CALLBACK (midori_web_view_menu_video_download_activate_cb), widget);
     }
     #else
     if (view->link_uri)
@@ -1422,27 +1546,18 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         #else
         /* hack to disable non-functional Download File */
         gtk_widget_hide (menuitem);
-        menuitem = gtk_image_menu_item_new_with_mnemonic (
-            _("_Save Link destination"));
-        gtk_menu_shell_insert (menu_shell, menuitem, 3);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_save_as_activate_cb), view);
+        gtk_widget_set_no_show_all (menuitem);
+        midori_view_insert_menu_item (menu_shell, 3,
+            _("_Save Link destination"), NULL,
+            G_CALLBACK (midori_web_view_menu_save_as_activate_cb), widget);
         #endif
         if (view->download_manager && *view->download_manager)
-        {
-            menuitem = gtk_image_menu_item_new_with_mnemonic (
-                _("Download with Download _Manager"));
-            icon = gtk_image_new_from_stock (GTK_STOCK_SAVE_AS,
-                                             GTK_ICON_SIZE_MENU);
-            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-            gtk_menu_shell_insert (menu_shell, menuitem, 4);
-            g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_web_view_menu_download_activate_cb), view);
-        }
-        menuitem = gtk_image_menu_item_new_from_stock (STOCK_BOOKMARK_ADD, NULL);
-        gtk_menu_shell_insert (menu_shell, menuitem, 5);
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_add_bookmark_activate_cb), view);
+            midori_view_insert_menu_item (menu_shell, 4,
+            _("Download with Download _Manager"), STOCK_TRANSFER,
+            G_CALLBACK (midori_web_view_menu_download_activate_cb), widget);
+        midori_view_insert_menu_item (menu_shell, 5,
+            NULL, STOCK_BOOKMARK_ADD,
+            G_CALLBACK (midori_web_view_menu_add_bookmark_activate_cb), widget);
     }
     #endif
 
@@ -1546,9 +1661,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (menu_shell, menuitem);
-
-        menuitem = gtk_separator_menu_item_new ();
-        gtk_menu_shell_append (menu_shell, menuitem);
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomIn"));
@@ -1585,9 +1698,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
         }
 
-        menuitem = gtk_separator_menu_item_new ();
-        gtk_menu_shell_append (menu_shell, menuitem);
-
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
         gtk_menu_shell_append (menu_shell, menuitem);
@@ -1884,6 +1995,9 @@ midori_view_init (MidoriView* view)
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
     view->statusbar_text = NULL;
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    view->hit_test = NULL;
+    #endif
     view->link_uri = NULL;
     view->selected_text = NULL;
     view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
