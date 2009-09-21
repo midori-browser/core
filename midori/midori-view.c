@@ -69,7 +69,7 @@ struct _MidoriView
     MidoriLoadStatus load_status;
     gboolean minimized;
     gchar* statusbar_text;
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 16)
     WebKitHitTestResult* hit_test;
     #endif
     gchar* link_uri;
@@ -1053,7 +1053,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         else if (view->middle_click_opens_selection)
         {
             gboolean is_editable;
-            #if WEBKIT_CHECK_VERSION (1, 1, 15)
+            #if WEBKIT_CHECK_VERSION (1, 1, 16)
             WebKitHitTestResult* result;
             WebKitHitTestResultContext context;
 
@@ -1170,7 +1170,7 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
         return FALSE;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 15)
+#if WEBKIT_CHECK_VERSION (1, 1, 16)
 static void
 midori_web_view_menu_open_activate_cb (GtkWidget*  widget,
                                        MidoriView* view)
@@ -1412,7 +1412,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     gboolean is_document;
     GtkWidget* label;
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 16)
     gint x, y;
     GdkEventButton event;
     WebKitHitTestResultContext context;
@@ -1482,7 +1482,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         return;
     }
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 16)
     items = gtk_container_get_children (GTK_CONTAINER (menu));
     i = 0;
     while ((menuitem = g_list_nth_data (items, i++)))
@@ -1627,7 +1627,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
             g_object_unref (search_engines);
         }
-        #if WEBKIT_CHECK_VERSION (1, 1, 15)
+        #if WEBKIT_CHECK_VERSION (1, 1, 16)
         midori_view_insert_menu_item (menu_shell, 0,
             _("_Search the Web"), GTK_STOCK_FIND,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
@@ -1656,7 +1656,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (is_document)
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 15)
+        #if WEBKIT_CHECK_VERSION (1, 1, 16)
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (actions, "Back"));
         gtk_menu_shell_append (menu_shell, menuitem);
@@ -1689,6 +1689,23 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (menu_shell, menuitem);
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
+
+        #if WEBKIT_CHECK_VERSION (1, 1, 16)
+        /* if (webkit_web_view_get_main_frame (web_view) != frame_under_mouse)
+        {
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open _Frame in New Tab"), NULL,
+                G_CALLBACK (midori_web_view_menu_frame_new_tab_activate_cb), widget);
+            midori_view_insert_menu_item (menu_shell, -1,
+                _("Open _Frame in New Window"), NULL,
+                G_CALLBACK (midori_web_view_menu_frame_new_window_activate_cb), widget);
+        } */
+
+        /* FIXME: There is currently no API to inspect an URI
+        midori_view_insert_menu_item (menu_shell, -1,
+            _("Inspect page"), NULL,
+            G_CALLBACK (midori_web_view_menu_inspect_page_activate_cb), widget); */
+        #endif
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomIn"));
@@ -2022,7 +2039,7 @@ midori_view_init (MidoriView* view)
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
     view->statusbar_text = NULL;
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 16)
     view->hit_test = NULL;
     #endif
     view->link_uri = NULL;
