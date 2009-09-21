@@ -181,15 +181,6 @@ def configure (conf):
         unique = 'no '
     conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
 
-    if option_enabled ('libidn'):
-        check_pkg ('libidn', '1.0', False)
-        libidn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
-        if libidn != 'yes':
-            option_checkfatal ('libidn', 'international domain names')
-    else:
-        libidn = 'no '
-    conf.define ('HAVE_LIBIDN', [0,1][libidn == 'yes'])
-
     if option_enabled ('sqlite'):
         check_pkg ('sqlite3', '3.0', False, var='SQLITE')
         sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
@@ -210,8 +201,21 @@ def configure (conf):
     check_pkg ('webkit-1.0', '1.1.1', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
-    check_pkg ('libsoup-2.4', '2.27.91', False, var='LIBSOUP_2_27_91')
+    check_pkg ('libsoup-2.4', '2.27.90', False, var='LIBSOUP_2_27_90')
     check_pkg ('libxml-2.0', '2.6')
+
+    if conf.env['HAVE_LIBSOUP_2_27_90']:
+       idn = 'yes'
+       conf.define ('HAVE_LIBIDN', 0)
+    else:
+        if option_enabled ('libidn'):
+            check_pkg ('libidn', '1.0', False)
+            idn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
+            if idn != 'yes':
+                option_checkfatal ('libidn', 'international domain names')
+        else:
+            idn = 'no '
+        conf.define ('HAVE_LIBIDN', [0,1][idn == 'yes'])
 
     if option_enabled ('hildon'):
         if check_pkg ('hildon-1', mandatory=False, var='HILDON'):
@@ -287,7 +291,7 @@ def configure (conf):
         Icon optimizations:  %(icons)s (rsvg-convert)
         Persistent history:  %(sqlite)s (sqlite3)
 
-        IDN support:         %(libidn)s (libidn)
+        IDN support:         %(idn)s (libidn or libsoup 2.27.90)
         User documentation:  %(user_docs)s (docutils)
         API documentation:   %(api_docs)s (gtk-doc)
         ''' % locals ()
