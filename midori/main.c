@@ -960,11 +960,6 @@ midori_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
-    /* Userstyles */
-    addon = midori_addons_new (MIDORI_ADDON_USER_STYLES, GTK_WIDGET (browser));
-    gtk_widget_show (addon);
-    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
-
     /* Plugins */
     addon = g_object_new (MIDORI_TYPE_PLUGINS, "app", app, NULL);
     gtk_widget_show (addon);

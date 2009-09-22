@@ -28,7 +28,6 @@
 #define STOCK_WEB_BROWSER        "web-browser"
 #define STOCK_NEWS_FEED          "news-feed"
 #define STOCK_STYLE              "gnome-settings-theme"
-#define STOCK_STYLES             "gnome-settings-theme"
 #define STOCK_TRANSFER           "package"
 #define STOCK_TRANSFERS          "package"
 #define STOCK_PLUGINS            GTK_STOCK_CONVERT
@@ -38,7 +37,7 @@
 #define STOCK_IMAGE              "gnome-mime-image"
 #define STOCK_NETWORK_OFFLINE    "network-offline"
 #define STOCK_SCRIPT             "stock_script"
-#define STOCK_SCRIPTS            "stock_script"
+#define STOCK_SCRIPTS            "gnome-settings-theme"
 #define STOCK_SEND               "stock_mail-send"
 #define STOCK_TAB_NEW            "stock_new-tab"
 #define STOCK_USER_TRASH         "gnome-stock-trash"
