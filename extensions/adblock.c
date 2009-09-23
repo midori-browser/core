@@ -25,6 +25,9 @@
 static GHashTable* pattern = NULL;
 static gchar* blockcss = "";
 
+static GHashTable*
+adblock_parse_file (gchar* path);
+
 static gchar *
 adblock_fixup_regexp (gchar* src)
 {
@@ -66,6 +69,60 @@ adblock_fixup_regexp (gchar* src)
 }
 
 static void
+adblock_download_notify_status_cb (WebKitDownload* download,
+                                   GParamSpec*     pspec,
+                                   gchar*          path)
+{
+    pattern = adblock_parse_file (path);
+    /* g_object_unref (download); */
+}
+
+static void
+adblock_reload_rules(MidoriExtension* extension)
+{
+    gchar** filters;
+    gchar* folder;
+    guint i = 0;
+    filters = midori_extension_get_string_list (extension, "filters", NULL);
+    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
+                               "adblock", NULL);
+    g_mkdir_with_parents (folder, 0700);
+
+    if (!filters)
+        return;
+
+    pattern = NULL;
+    blockcss = "";
+
+    while (filters[i++] != NULL)
+    {
+        gchar* filename = g_compute_checksum_for_string (G_CHECKSUM_MD5,
+                                                         filters[i - 1], -1);
+        gchar* path = g_build_filename (folder, filename, NULL);
+        if (!g_file_test (path, G_FILE_TEST_EXISTS))
+        {
+            WebKitNetworkRequest* request;
+            WebKitDownload* download;
+            gchar* destination = g_filename_to_uri (path, NULL, NULL);
+            request = webkit_network_request_new (filters[i -1]);
+            download = webkit_download_new (request);
+            g_object_unref (request);
+            webkit_download_set_destination_uri (download, destination);
+            g_free (destination);
+            g_signal_connect (download, "notify::status",
+                G_CALLBACK (adblock_download_notify_status_cb), path);
+            webkit_download_start (download);
+        }
+        else
+            pattern = adblock_parse_file (path);
+        g_free (path);
+        g_free (filename);
+    }
+    g_strfreev (filters);
+    g_free (folder);
+}
+
+static void
 adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
                                        GtkWidget*       menu,
                                        MidoriExtension* extension);
@@ -91,17 +148,25 @@ adblock_preferences_model_row_changed_cb (GtkTreeModel*    model,
     gsize length = gtk_tree_model_iter_n_children (model, NULL);
     gchar** filters = g_new (gchar*, length + 1);
     guint i = 0;
+    gboolean need_reload = FALSE;
 
     if (gtk_tree_model_iter_children (model, iter, NULL))
         do
         {
             gchar* filter;
             gtk_tree_model_get (model, iter, 0, &filter, -1);
-            filters[i++] = filter;
+            if (filter && filter[0] && filter[1] && filter[2])
+            {
+                filters[i++] = filter;
+                need_reload = TRUE;
+            }
+            g_free (filter);
         }
         while (gtk_tree_model_iter_next (model, iter));
     filters[length] = NULL;
     midori_extension_set_string_list (extension, "filters", filters, length);
+    if (need_reload)
+        adblock_reload_rules (extension);
 }
 
 static void
@@ -318,7 +383,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       MidoriView*            view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
-    if (!strncmp(uri, "data", 4))
+    if (!strncmp (uri, "data", 4))
         return;
     if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, (char*)uri))
     {
@@ -384,7 +449,8 @@ adblock_app_add_browser_cb (MidoriApp*       app,
 {
     if (pattern)
     {
-	midori_browser_foreach (browser, (GtkCallback)adblock_add_tab_foreach_cb, browser);
+        midori_browser_foreach (browser,
+            (GtkCallback)adblock_add_tab_foreach_cb, browser);
         g_signal_connect (browser, "add-tab", G_CALLBACK (adblock_add_tab_cb), 0);
     }
     g_signal_connect (browser, "populate-tool-menu",
@@ -506,15 +572,6 @@ adblock_parse_file (gchar* path)
 }
 
 static void
-adblock_download_notify_status_cb (WebKitDownload* download,
-                                   GParamSpec*     pspec,
-                                   gchar*          path)
-{
-    pattern = adblock_parse_file (path);
-    /* g_object_unref (download); */
-}
-
-static void
 adblock_deactivate_tabs (MidoriView*      view,
                          MidoriBrowser*   browser)
 {
@@ -541,8 +598,9 @@ adblock_deactivate_cb (MidoriExtension* extension,
         app, adblock_app_add_browser_cb, extension);
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
-    pattern = NULL;
     blockcss = "";
+    if (pattern)
+        g_hash_table_destroy (pattern);
 }
 
 static void
@@ -552,43 +610,7 @@ adblock_activate_cb (MidoriExtension* extension,
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
-    gchar* folder;
-    gchar** filters;
-
-    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
-                               "adblock", NULL);
-    g_mkdir_with_parents (folder, 0700);
-    filters = midori_extension_get_string_list (extension, "filters", NULL);
-    if (filters != NULL)
-    {
-        i = 0;
-        while (filters[i++] != NULL)
-        {
-            gchar* filename = g_compute_checksum_for_string (G_CHECKSUM_MD5,
-                                                             filters[i - 1], -1);
-            gchar* path = g_build_filename (folder, filename, NULL);
-
-            if (!g_file_test (path, G_FILE_TEST_EXISTS))
-            {
-                WebKitNetworkRequest* request;
-                WebKitDownload* download;
-                gchar* destination = g_filename_to_uri (path, NULL, NULL);
-
-                request = webkit_network_request_new (filters[i -1]);
-                download = webkit_download_new (request);
-                g_object_unref (request);
-                webkit_download_set_destination_uri (download, destination);
-                g_free (destination);
-                g_signal_connect (download, "notify::status",
-                    G_CALLBACK (adblock_download_notify_status_cb), path);
-                webkit_download_start (download);
-            }
-            else
-                pattern = adblock_parse_file (path);
-            g_free (path);
-            g_free (filename);
-        }
-    }
+    adblock_reload_rules (extension);
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
@@ -598,8 +620,6 @@ adblock_activate_cb (MidoriExtension* extension,
         G_CALLBACK (adblock_app_add_browser_cb), extension);
 
     g_object_unref (browsers);
-    g_strfreev (filters);
-    g_free (folder);
 }
 
 #if G_ENABLE_DEBUG
