@@ -973,6 +973,15 @@ webkit_web_view_statusbar_text_changed_cb (WebKitWebView* web_view,
     g_object_set (G_OBJECT (view), "statusbar-text", text, NULL);
 }
 
+static gboolean
+midori_view_web_view_leave_notify_event_cb (WebKitWebView*    web_view,
+                                            GdkEventCrossing* event,
+                                            MidoriView*       view)
+{
+    g_object_set (G_OBJECT (view), "statusbar-text", NULL, NULL);
+    return FALSE;
+}
+
 static void
 webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
                                        const gchar*   tooltip,
@@ -2458,6 +2467,8 @@ midori_view_construct_web_view (MidoriView* view)
                       #endif
                       "signal::status-bar-text-changed",
                       webkit_web_view_statusbar_text_changed_cb, view,
+                      "signal::leave-notify-event",
+                      midori_view_web_view_leave_notify_event_cb, view,
                       "signal::hovering-over-link",
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::button-press-event",
