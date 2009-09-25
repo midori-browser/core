@@ -295,7 +295,7 @@ katze_http_auth_session_request_queued_cb (SoupSession*   session,
     g_signal_connect (session, "authenticate",
         G_CALLBACK (katze_http_auth_session_authenticate_cb), http_auth);
     g_signal_handlers_disconnect_by_func (session,
-        katze_http_auth_session_request_queued_cb, NULL);
+        katze_http_auth_session_request_queued_cb, http_auth);
 }
 
 static void
