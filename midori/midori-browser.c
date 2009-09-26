@@ -2849,6 +2849,11 @@ _action_menubar_activate (GtkToggleAction* action,
             _midori_browser_save_toolbar_items (browser);
         }
     }
+
+    g_object_set_data (G_OBJECT (browser), "midori-toolbars-visible",
+        GTK_WIDGET_VISIBLE (browser->menubar)
+        || GTK_WIDGET_VISIBLE (browser->navigationbar)
+        ? (void*)0xdeadbeef : NULL);
     #endif
 }
 
@@ -2860,6 +2865,11 @@ _action_navigationbar_activate (GtkToggleAction* action,
     if (browser->settings)
         g_object_set (browser->settings, "show-navigationbar", active, NULL);
     sokoke_widget_set_visible (browser->navigationbar, active);
+
+    g_object_set_data (G_OBJECT (browser), "midori-toolbars-visible",
+        GTK_WIDGET_VISIBLE (browser->menubar)
+        || GTK_WIDGET_VISIBLE (browser->navigationbar)
+        ? (void*)0xdeadbeef : NULL);
 }
 
 static void

@@ -1814,6 +1814,13 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             G_CALLBACK (midori_web_view_menu_inspect_page_activate_cb), widget); */
         #endif
 
+        if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
+        {
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Menubar"));
+            gtk_menu_shell_append (menu_shell, menuitem);
+        }
+
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomIn"));
         gtk_menu_shell_append (menu_shell, menuitem);
