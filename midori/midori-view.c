@@ -69,7 +69,7 @@ struct _MidoriView
     MidoriLoadStatus load_status;
     gboolean minimized;
     gchar* statusbar_text;
-    #if WEBKIT_CHECK_VERSION (1, 1, 16)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
     WebKitHitTestResult* hit_test;
     #endif
     gchar* link_uri;
@@ -1150,7 +1150,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         else if (view->middle_click_opens_selection)
         {
             gboolean is_editable;
-            #if WEBKIT_CHECK_VERSION (1, 1, 16)
+            #if WEBKIT_CHECK_VERSION (1, 1, 15)
             WebKitHitTestResult* result;
             WebKitHitTestResultContext context;
 
@@ -1267,7 +1267,7 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
         return FALSE;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 16)
+#if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
 midori_web_view_menu_open_activate_cb (GtkWidget*  widget,
                                        MidoriView* view)
@@ -1502,20 +1502,22 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     GtkWidget* widget = GTK_WIDGET (view);
     GtkWidget* menuitem;
     GtkWidget* icon;
+    #if !WEBKIT_CHECK_VERSION (1, 1, 15)
     gchar* stock_id;
+    #endif
     GList* items;
     gboolean has_selection;
     gboolean is_editable;
     gboolean is_document;
     GtkWidget* label;
+    guint i;
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 16)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
     gint x, y;
     GdkEventButton event;
     WebKitHitTestResultContext context;
     gboolean is_image;
     gboolean is_media;
-    gint i;
 
     gdk_window_get_pointer (GTK_WIDGET (web_view)->window, &x, &y, NULL);
     event.x = x;
@@ -1553,6 +1555,8 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             gtk_image_get_stock (GTK_IMAGE (icon), &stock_id, NULL);
         }
         is_editable = !strcmp (stock_id, GTK_STOCK_CUT);
+        if (is_document && !strcmp (stock_id, GTK_STOCK_OPEN))
+            is_document = FALSE;
     }
     else
         is_editable = FALSE;
@@ -1579,12 +1583,17 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         return;
     }
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 16)
-    items = gtk_container_get_children (GTK_CONTAINER (menu));
-    i = 0;
-    while ((menuitem = g_list_nth_data (items, i++)))
-        gtk_widget_destroy (menuitem);
-    g_list_free (items);
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    /* FIXME: We can't re-implement Open in Frame or Inspect page,
+      so we can't replace the default document menu */
+    if (!is_document)
+    {
+        items = gtk_container_get_children (GTK_CONTAINER (menu));
+        i = 0;
+        while ((menuitem = g_list_nth_data (items, i++)))
+            gtk_widget_destroy (menuitem);
+        g_list_free (items);
+    }
     if (view->link_uri)
     {
         midori_view_insert_menu_item (menu_shell, -1,
@@ -1688,7 +1697,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     if (!view->link_uri && has_selection)
     {
         GtkWidget* window;
-        guint i;
 
         window = gtk_widget_get_toplevel (GTK_WIDGET (web_view));
         i = 0;
@@ -1724,7 +1732,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
             g_object_unref (search_engines);
         }
-        #if WEBKIT_CHECK_VERSION (1, 1, 16)
+        #if WEBKIT_CHECK_VERSION (1, 1, 15)
         midori_view_insert_menu_item (menu_shell, 0,
             _("_Search the Web"), GTK_STOCK_FIND,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
@@ -1753,7 +1761,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (is_document)
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 16)
+        /* FIXME: We can't re-implement Open in Frame or Inspect page
+        #if WEBKIT_CHECK_VERSION (1, 1, 15) */
+        #if 0
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (actions, "Back"));
         gtk_menu_shell_append (menu_shell, menuitem);
@@ -1787,7 +1797,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         gtk_menu_shell_append (menu_shell, menuitem);
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
 
-        #if WEBKIT_CHECK_VERSION (1, 1, 16)
+        #if WEBKIT_CHECK_VERSION (1, 1, 15)
         /* if (webkit_web_view_get_main_frame (web_view) != frame_under_mouse)
         {
             midori_view_insert_menu_item (menu_shell, -1,
@@ -1826,7 +1836,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
               { "EncodingWestern" },
               { "EncodingCustom" },
             };
-            guint i;
 
             sub_menu = gtk_menu_new ();
             gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), sub_menu);
@@ -2136,7 +2145,7 @@ midori_view_init (MidoriView* view)
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
     view->statusbar_text = NULL;
-    #if WEBKIT_CHECK_VERSION (1, 1, 16)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
     view->hit_test = NULL;
     #endif
     view->link_uri = NULL;
