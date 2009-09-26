@@ -97,6 +97,7 @@ struct _MidoriView
     GtkWidget* tab_close;
     KatzeItem* item;
     gint scrollh, scrollv;
+    gboolean back_forward_set;
 
     KatzeNet* net;
 };
@@ -750,6 +751,49 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     katze_assign (view->uri, g_strdup (uri));
     if (view->item)
     {
+        #if 0
+        /* Load back forward history from meta data. WebKit does not seem to
+          respect the order of items, so the feature is unusable. */
+        if (!view->back_forward_set)
+        {
+            WebKitWebBackForwardList* list;
+            gchar* key;
+            guint i;
+            const gchar* data;
+            WebKitWebHistoryItem* item;
+
+            list = webkit_web_view_get_back_forward_list (web_view);
+
+            key = g_strdup ("back4");
+            for (i = 4; i > 0; i--)
+            {
+                key[4] = 48 + i;
+                if ((data = katze_item_get_meta_string (view->item, key)))
+                {
+                    item = webkit_web_history_item_new_with_data (data, NULL);
+                    webkit_web_back_forward_list_add_item (list, item);
+                    g_object_unref (item);
+                }
+            }
+
+            #if 0
+            key[0] = 'f';
+            key[1] = 'o';
+            key[2] = 'r';
+            key[3] = 'e';
+            for (i = 4; i > 0; i--)
+            {
+                key[4] = 48 + i;
+                item = webkit_web_history_item_new_with_data (data, NULL);
+                webkit_web_back_forward_list_add_item (list, item);
+                g_object_unref (item);
+            }
+            #endif
+            g_free (key);
+            view->back_forward_set = TRUE;
+        }
+        #endif
+
         katze_item_set_uri (view->item, uri);
         katze_item_set_added (view->item, time (NULL));
     }
@@ -941,6 +985,50 @@ webkit_web_view_notify_uri_cb (WebKitWebView* web_view,
                                GParamSpec*    pspec,
                                MidoriView*    view)
 {
+    #if 0
+    if (view->item)
+    {
+        /* Save back forward history as meta data. This is disabled
+          because we can't reliably restore these atm. */
+        WebKitWebView* web_view;
+        WebKitWebBackForwardList* list;
+        GList* back;
+        GList* forward;
+
+        web_view = WEBKIT_WEB_VIEW (view->web_view);
+        list = webkit_web_view_get_back_forward_list (web_view);
+        back = webkit_web_back_forward_list_get_back_list_with_limit (list, 5);
+        forward = webkit_web_back_forward_list_get_forward_list_with_limit (list, 5);
+        guint i;
+        WebKitWebHistoryItem* item;
+        gchar* key = g_strdup ("back0");
+
+        i = 0;
+        while ((item = g_list_nth_data (back, i++)))
+        {
+            katze_item_set_meta_string (view->item, key,
+                webkit_web_history_item_get_uri (item));
+            key[4] = 48 + i;
+        }
+
+        #if 0
+        key[0] = 'f';
+        key[1] = 'o';
+        key[2] = 'r';
+        key[3] = 'e';
+        key[4] = 48;
+        i = 0;
+        while ((item = g_list_nth_data (forward, i++)))
+        {
+            katze_item_set_meta_string (view->item, key,
+                webkit_web_history_item_get_uri (item));
+            key[4] = 48 + i;
+        }
+        #endif
+        g_free (key);
+    }
+    #endif
+
     g_object_get (web_view, "uri", &view->uri, NULL);
     g_object_notify (G_OBJECT (view), "uri");
 }
@@ -2057,6 +2145,7 @@ midori_view_init (MidoriView* view)
 
     view->item = NULL;
     view->scrollh = view->scrollv = 0;
+    view->back_forward_set = FALSE;
 
     view->download_manager = NULL;
     view->news_aggregator = NULL;
