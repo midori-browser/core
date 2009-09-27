@@ -3105,6 +3105,7 @@ _action_source_view_activate (GtkAction*     action,
         GtkWidget* web_view;
 
         source = midori_view_new (browser->net);
+        midori_view_set_settings (MIDORI_VIEW (source), browser->settings);
         midori_view_set_uri (MIDORI_VIEW (source), "");
         web_view = gtk_bin_get_child (GTK_BIN (source));
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), TRUE);
