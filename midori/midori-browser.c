@@ -3147,6 +3147,13 @@ _action_source_view_activate (GtkAction*     action,
         #endif
     }
 
+    if (g_str_has_prefix (uri, "file://"))
+    {
+        gchar* filename = g_filename_from_uri (uri, NULL, NULL);
+        sokoke_spawn_program (text_editor, filename, TRUE);
+        g_free (filename);
+        return;
+    }
     katze_net_load_uri (browser->net, uri, NULL,
         (KatzeNetTransferCb)midori_browser_source_transfer_cb, browser);
     g_free (text_editor);
