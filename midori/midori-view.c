@@ -59,7 +59,7 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
 
 struct _MidoriView
 {
-    GtkScrolledWindow parent_instance;
+    KatzeScrolled parent_instance;
 
     gchar* uri;
     gchar* title;
@@ -104,10 +104,10 @@ struct _MidoriView
 
 struct _MidoriViewClass
 {
-    GtkScrolledWindowClass parent_class;
+    KatzeScrolledClass parent_class;
 };
 
-G_DEFINE_TYPE (MidoriView, midori_view, GTK_TYPE_SCROLLED_WINDOW)
+G_DEFINE_TYPE (MidoriView, midori_view, KATZE_TYPE_SCROLLED);
 
 GType
 midori_load_status_get_type (void)
@@ -1525,6 +1525,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     katze_object_assign (view->hit_test,
         webkit_web_view_get_hit_test_result (web_view, &event));
     context = katze_object_get_int (view->hit_test, "context");
+    /* Ensure view->link_uri is correct. */
+    katze_assign (view->link_uri,
+        katze_object_get_string (view->hit_test, "link-uri"));
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
     midori_view_has_selection (view);
@@ -1533,6 +1536,8 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     is_media = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_MEDIA;
     is_document = !view->link_uri && !has_selection && !is_image && !is_media;
     #else
+    /* There is no guarantee view->link_uri is correct in case
+        gtk-touchscreen-mode is enabled, nothing we can do. */
     has_selection = midori_view_has_selection (view);
     is_document = !view->link_uri && !has_selection;
 
@@ -2329,13 +2334,14 @@ midori_view_new (KatzeNet* net)
 static void
 _midori_view_update_settings (MidoriView* view)
 {
-    gboolean zoom_text_and_images;
+    gboolean zoom_text_and_images, kinetic_scrolling;
 
     g_object_get (view->settings,
         "speed-dial-in-new-tabs", &view->speed_dial_in_new_tabs,
         "download-manager", &view->download_manager,
         "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
+        "kinetic-scrolling", &kinetic_scrolling,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
         "open-new-pages-in", &view->open_new_pages_in,
         "ask-for-destination-folder", &view->ask_for_destination_folder,
@@ -2345,8 +2351,9 @@ _midori_view_update_settings (MidoriView* view)
         NULL);
 
     if (view->web_view)
-        g_object_set (view->web_view, "full-content-zoom",
-                      zoom_text_and_images, NULL);
+        g_object_set (view->web_view,
+                      "full-content-zoom", zoom_text_and_images, NULL);
+    g_object_set (view, "kinetic-scrolling", kinetic_scrolling, NULL);
 }
 
 static void
@@ -2378,6 +2385,11 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         if (view->web_view)
             g_object_set (view->web_view, "full-content-zoom",
                           g_value_get_boolean (&value), NULL);
+    }
+    else if (name == g_intern_string ("kinetic-scrolling"))
+    {
+        g_object_set (view, "kinetic-scrolling",
+                      g_value_get_boolean (&value), NULL);
     }
     else if (name == g_intern_string ("close-buttons-on-tabs"))
     {

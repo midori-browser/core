@@ -75,6 +75,7 @@ struct _MidoriWebSettings
 
     gboolean zoom_text_and_images;
     gboolean find_while_typing;
+    gboolean kinetic_scrolling;
     MidoriAcceptCookies accept_cookies;
     gboolean original_cookies_only;
     gint maximum_cookie_age;
@@ -151,6 +152,7 @@ enum
 
     PROP_ZOOM_TEXT_AND_IMAGES,
     PROP_FIND_WHILE_TYPING,
+    PROP_KINETIC_SCROLLING,
     PROP_ACCEPT_COOKIES,
     PROP_ORIGINAL_COOKIES_ONLY,
     PROP_MAXIMUM_COOKIE_AGE,
@@ -833,6 +835,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      FALSE,
                                      flags));
 
+    /**
+    * MidoriWebSettings:kinetic-scrolling:
+    *
+    * Whether scrolling should kinetically move according to speed.
+    *
+    * Since: 0.2.0
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_KINETIC_SCROLLING,
+                                     g_param_spec_boolean (
+                                     "kinetic-scrolling",
+                                     _("Kinetic scrolling"),
+                                     _("Whether scrolling should kinetically move according to speed"),
+                                     TRUE,
+                                     flags));
+
     g_object_class_install_property (gobject_class,
                                      PROP_ACCEPT_COOKIES,
                                      g_param_spec_enum (
@@ -1025,6 +1043,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->open_popups_in_tabs = TRUE;
     web_settings->remember_last_form_inputs = TRUE;
     web_settings->remember_last_downloaded_files = TRUE;
+    web_settings->kinetic_scrolling = TRUE;
     web_settings->auto_detect_proxy = TRUE;
 
     g_signal_connect (web_settings, "notify::default-encoding",
@@ -1303,6 +1322,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_FIND_WHILE_TYPING:
         web_settings->find_while_typing = g_value_get_boolean (value);
         break;
+    case PROP_KINETIC_SCROLLING:
+        web_settings->kinetic_scrolling = g_value_get_boolean (value);
+        break;
     case PROP_ACCEPT_COOKIES:
         web_settings->accept_cookies = g_value_get_enum (value);
         break;
@@ -1505,6 +1527,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_FIND_WHILE_TYPING:
         g_value_set_boolean (value, web_settings->find_while_typing);
+        break;
+    case PROP_KINETIC_SCROLLING:
+        g_value_set_boolean (value, web_settings->kinetic_scrolling);
         break;
     case PROP_ACCEPT_COOKIES:
         g_value_set_enum (value, web_settings->accept_cookies);

@@ -1554,9 +1554,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     KatzeItem* item;
     guint n;
 
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (view),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
     GTK_WIDGET_SET_FLAGS (view, GTK_CAN_FOCUS);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view),
                                          GTK_SHADOW_ETCHED_IN);

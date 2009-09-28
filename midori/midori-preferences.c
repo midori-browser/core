@@ -315,6 +315,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* header;
     GtkWindow* parent;
     const gchar* icon_name;
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    GtkSettings* gtk_settings;
+    #endif
     GtkSizeGroup* sizegroup;
     GtkWidget* toolbar;
     GtkWidget* toolbutton;
@@ -341,6 +344,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         gtk_window_get_title (GTK_WINDOW (preferences)))))
         gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
             header, FALSE, FALSE, 0);
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    gtk_settings = parent ? gtk_widget_get_settings (GTK_WIDGET (parent)) : NULL;
+    #endif
 
     preferences->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (preferences->notebook), 6);
@@ -487,9 +493,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_tooltip_text (button, _("Load and display images automatically"));
     INDENTED_ADD (button, 0, 1, 0, 1);
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
-    button = katze_property_proxy (settings, "auto-shrink-images", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Shrink images automatically"));
-    gtk_widget_set_tooltip_text (button, _("Automatically shrink standalone images to fit"));
+    if (katze_object_get_boolean (gtk_settings, "gtk-touchscreen-mode"))
+        button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
+    else
+    {
+        button = katze_property_proxy (settings, "auto-shrink-images", NULL);
+        gtk_button_set_label (GTK_BUTTON (button), _("Shrink images automatically"));
+        gtk_widget_set_tooltip_text (button, _("Automatically shrink standalone images to fit"));
+    }
     #else
     button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     #endif
