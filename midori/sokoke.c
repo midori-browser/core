@@ -319,8 +319,8 @@ sokoke_magic_uri (const gchar* uri,
     if (g_strstr_len (uri, 8, "://"))
         return sokoke_idn_to_punycode (g_strdup (uri));
 
-    /* Do we have a domain, ip address or localhost? */
-    if (g_ascii_isdigit (uri[0]))
+    /* Do we have an IP address? */
+    if (g_ascii_isdigit (uri[0]) && g_strstr_len (uri, 4, "."))
         return g_strconcat ("http://", uri, NULL);
     search = NULL;
     if (!strchr (uri, ' ') &&
