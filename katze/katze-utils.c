@@ -283,7 +283,7 @@ katze_property_proxy (gpointer     object,
         || _hint == g_intern_string ("font-monospace")))
     {
         GtkComboBox* combo;
-        int n_families, i;
+        gint n_families, i;
         PangoContext* context;
         PangoFontFamily** families;
         gboolean monospace = _hint == g_intern_string ("font-monospace");
@@ -296,14 +296,18 @@ katze_property_proxy (gpointer     object,
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
         if (string)
-        for (i = 0; i < n_families; i++)
         {
-            const gchar* font = pango_font_family_get_name (families[i]);
-            if (monospace != pango_font_family_is_monospace (families[i]))
-                continue;
-            gtk_combo_box_append_text (combo, font);
-            if (!g_ascii_strcasecmp (font, string))
-                gtk_combo_box_set_active (combo, i);
+            gint j = 0;
+            for (i = 0; i < n_families; i++)
+            {
+                const gchar* font = pango_font_family_get_name (families[i]);
+                if (monospace != pango_font_family_is_monospace (families[i]))
+                    continue;
+                gtk_combo_box_append_text (combo, font);
+                if (!g_ascii_strcasecmp (font, string))
+                    gtk_combo_box_set_active (combo, j);
+                j++;
+            }
         }
         gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (
             gtk_combo_box_get_model (combo)), 0, GTK_SORT_ASCENDING);
