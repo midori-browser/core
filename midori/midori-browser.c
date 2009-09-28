@@ -4433,7 +4433,7 @@ static const GtkActionEntry entries[] = {
    N_("Reset the zoom level"), G_CALLBACK (_action_zoom_normal_activate) },
  { "Encoding", NULL, N_("_Encoding") },
  { "SourceView", NULL,
-   N_("View So_urce"), "<Ctrl>U",
+   N_("View So_urce"), "<Ctrl><Alt>U",
    N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
  { "SelectionSourceView", NULL,
     N_("View Selection Source"), "",
