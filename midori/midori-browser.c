@@ -262,49 +262,44 @@ midori_browser_view_can_set_encoding (MidoriView* view)
 static void
 _midori_browser_update_interface (MidoriBrowser* browser)
 {
-    GtkWidget* view;
+    GtkWidget* widget;
+    MidoriView* view;
     gboolean loading;
     gboolean can_reload;
     GtkAction* action;
 
-    view = midori_browser_get_current_tab (browser);
-    loading = midori_view_get_load_status (MIDORI_VIEW (view))
-        != MIDORI_LOAD_FINISHED;
-    can_reload = midori_view_can_reload (MIDORI_VIEW (view));
+    widget = midori_browser_get_current_tab (browser);
+    view = MIDORI_VIEW (widget);
+    loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
+    can_reload = midori_view_can_reload (view);
 
     _action_set_sensitive (browser, "Reload", can_reload && !loading);
     _action_set_sensitive (browser, "Stop", can_reload && loading);
-    _action_set_sensitive (browser, "Back",
-        midori_view_can_go_back (MIDORI_VIEW (view)));
-    _action_set_sensitive (browser, "Forward",
-        midori_view_can_go_forward (MIDORI_VIEW (view)));
+    _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
+    _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
 
     gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
-        browser->speed_dial_in_new_tabs && !midori_view_is_blank (MIDORI_VIEW (view)));
+        browser->speed_dial_in_new_tabs && !midori_view_is_blank (view));
     /* Currently views that don't support source, don't support
        saving either. If that changes, we need to think of something. */
-    _action_set_sensitive (browser, "SaveAs",
-        midori_view_can_view_source (MIDORI_VIEW (view)));
-    _action_set_sensitive (browser, "Print",
-        midori_view_can_print (MIDORI_VIEW (view)));
-    _action_set_sensitive (browser, "ZoomIn",
-        midori_view_can_zoom_in (MIDORI_VIEW (view)));
-    _action_set_sensitive (browser, "ZoomOut",
-        midori_view_can_zoom_out (MIDORI_VIEW (view)));
+    _action_set_sensitive (browser, "SaveAs", midori_view_can_view_source (view));
+    _action_set_sensitive (browser, "Print", midori_view_can_print (view));
+    _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
+    _action_set_sensitive (browser, "ZoomOut", midori_view_can_zoom_out (view));
     _action_set_sensitive (browser, "ZoomNormal",
-        midori_view_get_zoom_level (MIDORI_VIEW (view)) != 1.0f);
+        midori_view_get_zoom_level (view) != 1.0f);
     _action_set_sensitive (browser, "Encoding",
-        midori_browser_view_can_set_encoding (MIDORI_VIEW (view)));
+        midori_browser_view_can_set_encoding (view));
     _action_set_sensitive (browser, "SourceView",
-        midori_view_can_view_source (MIDORI_VIEW (view)));
+        midori_view_can_view_source (view));
     _action_set_sensitive (browser, "Find",
-        midori_view_can_find (MIDORI_VIEW (view)));
+        midori_view_can_find (view));
     _action_set_sensitive (browser, "FindNext",
-        midori_view_can_find (MIDORI_VIEW (view)));
+        midori_view_can_find (view));
     _action_set_sensitive (browser, "FindPrevious",
-        midori_view_can_find (MIDORI_VIEW (view)));
+        midori_view_can_find (view));
     gtk_widget_set_sensitive (GTK_WIDGET (browser->find_highlight),
-        midori_view_can_find (MIDORI_VIEW (view)));
+        midori_view_can_find (view));
 
     action = gtk_action_group_get_action (browser->action_group, "ReloadStop");
     if (!loading)
@@ -334,7 +329,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         {
             action = _action_by_name (browser, "Location");
             midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action),
-                midori_view_get_progress (MIDORI_VIEW (view)));
+                midori_view_get_progress (view));
         }
     }
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
@@ -462,27 +457,26 @@ midori_view_notify_icon_cb (MidoriView*    view,
 }
 
 static void
-midori_view_notify_load_status_cb (GtkWidget*      view,
+midori_view_notify_load_status_cb (GtkWidget*      widget,
                                    GParamSpec*     pspec,
                                    MidoriBrowser*  browser)
 {
+    MidoriView* view = MIDORI_VIEW (widget);
     const gchar* uri;
     GtkAction* action;
 
-    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+    uri = midori_view_get_display_uri (view);
     action = _action_by_name (browser, "Location");
 
-    if (midori_view_get_load_status (MIDORI_VIEW (view))
-        == MIDORI_LOAD_COMMITTED)
+    if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
         if (browser->remember_last_visited_pages)
             midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
     }
 
-    if (view == midori_browser_get_current_tab (browser))
+    if (widget == midori_browser_get_current_tab (browser))
     {
-        if (midori_view_get_load_status (MIDORI_VIEW (view))
-            == MIDORI_LOAD_COMMITTED)
+        if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
         {
             midori_location_action_set_uri (
                 MIDORI_LOCATION_ACTION (action), uri);
@@ -496,7 +490,7 @@ midori_view_notify_load_status_cb (GtkWidget*      view,
 
         /* This is a hack to ensure that the address entry is focussed
            with speed dial open. */
-        if (midori_view_is_blank (MIDORI_VIEW (view)))
+        if (midori_view_is_blank (view))
             gtk_action_activate (_action_by_name (browser, "Location"));
     }
 
@@ -535,22 +529,23 @@ midori_view_notify_uri_cb (GtkWidget*     view,
 }
 
 static void
-midori_view_notify_title_cb (GtkWidget*     view,
+midori_view_notify_title_cb (GtkWidget*     widget,
                              GParamSpec*    pspec,
                              MidoriBrowser* browser)
 {
+    MidoriView* view = MIDORI_VIEW (widget);
     const gchar* uri;
     const gchar* title;
     GtkAction* action;
     gchar* window_title;
 
-    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    title = midori_view_get_display_title (MIDORI_VIEW (view));
+    uri = midori_view_get_display_uri (view);
+    title = midori_view_get_display_title (view);
     action = _action_by_name (browser, "Location");
     if (browser->remember_last_visited_pages)
         midori_location_action_set_title_for_uri (
         MIDORI_LOCATION_ACTION (action), title, uri);
-    if (midori_view_get_load_status (MIDORI_VIEW (view)) == MIDORI_LOAD_COMMITTED)
+    if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
         KatzeItem* item;
         KatzeItem* proxy;
@@ -558,7 +553,7 @@ midori_view_notify_title_cb (GtkWidget*     view,
         if (browser->history && browser->remember_last_visited_pages)
         {
             item = g_object_get_data (G_OBJECT (view), "history-item-added");
-            proxy = midori_view_get_proxy_item (MIDORI_VIEW (view));
+            proxy = midori_view_get_proxy_item (view);
             if (item && katze_item_get_added (item) == katze_item_get_added (proxy))
                 katze_item_set_name (item, katze_item_get_name (proxy));
             else
@@ -571,7 +566,7 @@ midori_view_notify_title_cb (GtkWidget*     view,
         }
     }
 
-    if (view == midori_browser_get_current_tab (browser))
+    if (widget == midori_browser_get_current_tab (browser))
     {
         window_title = g_strconcat (title, " - ",
             g_get_application_name (), NULL);
@@ -591,13 +586,13 @@ midori_view_notify_zoom_level_cb (GtkWidget*     view,
 }
 
 static void
-midori_view_notify_statusbar_text_cb (MidoriView*    view,
+midori_view_notify_statusbar_text_cb (GtkWidget*     view,
                                       GParamSpec*    pspec,
                                       MidoriBrowser* browser)
 {
     gchar* text;
 
-    if ((GtkWidget*)view == midori_browser_get_current_tab (browser))
+    if (view == midori_browser_get_current_tab (browser))
     {
         g_object_get (view, "statusbar-text", &text, NULL);
         _midori_browser_set_statusbar_text (browser, text);
@@ -1550,6 +1545,7 @@ static void
 _midori_browser_add_tab (MidoriBrowser* browser,
                          GtkWidget*     view)
 {
+    GtkNotebook* notebook = GTK_NOTEBOOK (browser->notebook);
     GtkWidget* tab_label;
     KatzeItem* item;
     guint n;
@@ -1611,18 +1607,14 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         browser->settings &&
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
-        n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-        gtk_notebook_insert_page (GTK_NOTEBOOK (browser->notebook), view,
-                                  tab_label, n + 1);
+        n = gtk_notebook_get_current_page (notebook);
+        gtk_notebook_insert_page (notebook, view, tab_label, n + 1);
     }
     else
-        gtk_notebook_append_page (GTK_NOTEBOOK (browser->notebook), view,
-                                  tab_label);
+        gtk_notebook_append_page (notebook, view, tab_label);
 
-    gtk_notebook_set_tab_reorderable (GTK_NOTEBOOK (browser->notebook),
-                                      view, TRUE);
-    gtk_notebook_set_tab_detachable (GTK_NOTEBOOK (browser->notebook),
-                                     view, TRUE);
+    gtk_notebook_set_tab_reorderable (notebook, view, TRUE);
+    gtk_notebook_set_tab_detachable (notebook, view, TRUE);
 
     /* We want the tab to be removed if the widget is destroyed */
     g_signal_connect (view, "destroy",
