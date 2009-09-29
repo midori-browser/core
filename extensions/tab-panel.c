@@ -35,6 +35,11 @@ tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
                                  MidoriExtension* extension);
 
 static void
+tab_panel_browser_notify_tab_cb (MidoriBrowser* browser,
+                                 GParamSpec*    pspec,
+                                 GtkTreeView*   treeview);
+
+static void
 tab_panel_view_notify_minimized_cb (GtkWidget*       view,
                                     GParamSpec*      pspec,
                                     MidoriExtension* extension);
@@ -67,28 +72,50 @@ tab_panel_get_toolitem_for_view (GtkWidget* view)
     return g_object_get_data (G_OBJECT (view), "tab-panel-ext-toolitem");
 }
 
+static gboolean
+tab_panel_get_iter_for_view (GtkTreeModel* model,
+                             GtkTreeIter*  iter,
+                             gpointer      view)
+{
+    guint i = 0;
+
+    while (gtk_tree_model_iter_nth_child (model, iter, NULL, i))
+    {
+        MidoriView* view_;
+
+        gtk_tree_model_get (model, iter, 0, &view_, -1);
+        g_object_unref (view_);
+        if (view_ == view)
+            return TRUE;
+        i++;
+    }
+
+    return FALSE;
+}
+
 static void
 tab_panel_deactivate_cb (MidoriExtension* extension,
-                         GtkWidget*       panel)
+                         GtkWidget*       treeview)
 {
     MidoriApp* app = midori_extension_get_app (extension);
     GtkTreeModel* model;
     MidoriBrowser* browser;
 
-    browser = midori_browser_get_for_widget (panel);
+    browser = midori_browser_get_for_widget (treeview);
     g_object_set (browser, "show-tabs", TRUE, NULL);
     model = tab_panel_get_model_for_browser (browser);
     g_object_unref (model);
 
-    gtk_widget_destroy (panel);
     g_signal_handlers_disconnect_by_func (
-        extension, tab_panel_deactivate_cb, panel);
+        extension, tab_panel_deactivate_cb, treeview);
     g_signal_handlers_disconnect_by_func (
         app, tab_panel_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, tab_panel_browser_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, tab_panel_browser_remove_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_browser_notify_tab_cb, treeview);
     g_signal_handlers_disconnect_by_func (
         browser, tab_panel_settings_notify_cb, model);
     g_signal_handlers_disconnect_by_func (
@@ -97,6 +124,8 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
         browser, tab_panel_view_notify_icon_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, tab_panel_view_notify_title_cb, extension);
+
+    gtk_widget_destroy (treeview);
 }
 
 static void
@@ -265,24 +294,8 @@ tab_panel_remove_view (MidoriBrowser* browser,
     {
         GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
         GtkTreeIter iter;
-        guint i = 0;
-
-        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
-        {
-            MidoriView* view_;
-
-            gtk_tree_model_get (model, &iter, 0, &view_, -1);
-
-            if ((MidoriView*)view == view_)
-            {
-                gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-                g_object_unref (view_);
-                break;
-            }
-
-            g_object_unref (view_);
-            i++;
-        }
+        if (tab_panel_get_iter_for_view (model, &iter, view))
+            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
     }
 }
 
@@ -317,24 +330,8 @@ tab_panel_view_notify_icon_cb (GtkWidget*       view,
     {
         GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
         GtkTreeIter iter;
-        guint i = 0;
-
-        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
-        {
-            MidoriView* view_;
-
-            gtk_tree_model_get (model, &iter, 0, &view_, -1);
-
-            if ((MidoriView*)view == view_)
-            {
-                gtk_tree_store_set (GTK_TREE_STORE (model), &iter, 3, icon, -1);
-                g_object_unref (view_);
-                break;
-            }
-
-            g_object_unref (view_);
-            i++;
-        }
+        if (tab_panel_get_iter_for_view (model, &iter, view))
+            gtk_tree_store_set (GTK_TREE_STORE (model), &iter, 3, icon, -1);
     }
 }
 
@@ -356,24 +353,11 @@ tab_panel_view_notify_title_cb (GtkWidget*       view,
     {
         GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
         GtkTreeIter iter;
-        guint i = 0;
-
-        while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
+        if (tab_panel_get_iter_for_view (model, &iter, view))
         {
-            MidoriView* view_;
-
-            gtk_tree_model_get (model, &iter, 0, &view_, -1);
-
-            if ((MidoriView*)view == view_)
-            {
-                gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
-                    4, title, 5, midori_view_get_label_ellipsize (view_), -1);
-                g_object_unref (view_);
-                break;
-            }
-
-            g_object_unref (view_);
-            i++;
+            gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+                4, title,
+                5, midori_view_get_label_ellipsize (MIDORI_VIEW (view)), -1);
         }
     }
 }
@@ -478,6 +462,26 @@ tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
 }
 
 static void
+tab_panel_browser_notify_tab_cb (MidoriBrowser* browser,
+                                 GParamSpec*    pspec,
+                                 GtkTreeView*   treeview)
+{
+    GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
+    GtkTreeIter iter;
+    GtkWidget* view;
+
+    if (GTK_OBJECT_FLAGS (browser) & GTK_IN_DESTRUCTION)
+        return;
+
+    view = midori_browser_get_current_tab (browser);
+    if (tab_panel_get_iter_for_view (model, &iter, view))
+    {
+        GtkTreeSelection* selection = gtk_tree_view_get_selection (treeview);
+        gtk_tree_selection_select_iter (selection, &iter);
+    }
+}
+
+static void
 tab_panel_app_add_browser_cb (MidoriApp*       app,
                               MidoriBrowser*   browser,
                               MidoriExtension* extension)
@@ -565,6 +569,8 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
         G_CALLBACK (tab_panel_browser_add_tab_cb), extension);
     g_signal_connect (browser, "remove-tab",
         G_CALLBACK (tab_panel_browser_remove_tab_cb), extension);
+    g_signal_connect (browser, "notify::tab",
+        G_CALLBACK (tab_panel_browser_notify_tab_cb), treeview);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (tab_panel_deactivate_cb), treeview);
 }
