@@ -1077,7 +1077,14 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
                                        MidoriView*    view)
 {
     katze_assign (view->link_uri, g_strdup (link_uri));
-    g_object_set (G_OBJECT (view), "statusbar-text", link_uri, NULL);
+    if (link_uri && g_str_has_prefix (link_uri, "mailto:"))
+    {
+        gchar* text = g_strdup_printf (_("Send a message to %s"), &link_uri[7]);
+        g_object_set (G_OBJECT (view), "statusbar-text", text, NULL);
+        g_free (text);
+    }
+    else
+        g_object_set (G_OBJECT (view), "statusbar-text", link_uri, NULL);
 }
 
 #define MIDORI_KEYS_MODIFIER_MASK (GDK_SHIFT_MASK | GDK_CONTROL_MASK \
