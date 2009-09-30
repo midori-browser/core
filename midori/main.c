@@ -1150,6 +1150,17 @@ static void
 button_reset_session_clicked_cb (GtkWidget*  button,
                                  KatzeArray* session)
 {
+    gchar* config_file;
+    GError* error;
+
+    config_file = build_config_filename ("session.old.xbel");
+    error = NULL;
+    if (!midori_array_to_file (session, config_file, "xbel", &error))
+    {
+        g_warning (_("The session couldn't be saved. %s"), error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
     katze_array_clear (session);
     gtk_widget_set_sensitive (button, FALSE);
 }
