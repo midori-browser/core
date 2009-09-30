@@ -1404,10 +1404,20 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
     else
     {
         gchar* data = (gchar*)g_object_get_data (G_OBJECT (widget), "uri");
-        gchar* uri = sokoke_magic_uri (data, NULL);
-        g_signal_emit (view, signals[NEW_TAB], 0, uri,
-                       view->open_tabs_in_the_background);
-        g_free (uri);
+        if (strchr (data, '@'))
+        {
+            gchar* uri = g_strconcat ("mailto:", data, NULL);
+            sokoke_show_uri (gtk_widget_get_screen (widget),
+                             uri, GDK_CURRENT_TIME, NULL);
+            g_free (uri);
+        }
+        else
+        {
+            gchar* uri = sokoke_magic_uri (data, NULL);
+            g_signal_emit (view, signals[NEW_TAB], 0, uri,
+                           view->open_tabs_in_the_background);
+            g_free (uri);
+        }
     }
 }
 
@@ -1753,12 +1763,22 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_list_free (items);
         #endif
 
-        if (view->selected_text && strchr (view->selected_text, '.')
-            && !strchr (view->selected_text, ' '))
+        g_strstrip (view->selected_text);
+        if (view->selected_text && !strchr (view->selected_text, ' ')
+            && strchr (view->selected_text, '.'))
         {
-            menuitem = midori_view_insert_menu_item (menu_shell, -1,
-                _("Open Address in New _Tab"), GTK_STOCK_JUMP_TO,
-                G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+            if (strchr (view->selected_text, '@'))
+            {
+                gchar* text = g_strdup_printf (_("Send a message to %s"), view->selected_text);
+                menuitem = midori_view_insert_menu_item (menu_shell, -1,
+                    text, GTK_STOCK_JUMP_TO,
+                    G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+                g_free (text);
+            }
+            else
+                menuitem = midori_view_insert_menu_item (menu_shell, -1,
+                    _("Open Address in New _Tab"), GTK_STOCK_JUMP_TO,
+                    G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
             g_object_set_data (G_OBJECT (menuitem), "uri", view->selected_text);
         }
         /* FIXME: view selection source */
