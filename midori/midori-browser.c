@@ -2695,6 +2695,10 @@ _action_window_populate_popup (GtkAction*     action,
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_action_create_menu_item (
+        _action_by_name (browser, "TabCurrent"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "TabPrevious"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -4004,6 +4008,15 @@ _action_tab_next_activate (GtkAction*     action,
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n + 1);
 }
 
+static void
+_action_tab_current_activate (GtkAction*     action,
+                              MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    GtkWidget* child = gtk_bin_get_child (GTK_BIN (view));
+    gtk_widget_grab_focus (child ? child : view);
+}
+
 static const gchar* credits_authors[] = {
     "Christian Dywan <christian@twotoasts.de>", NULL };
 static const gchar* credits_documenters[] = {
@@ -4479,6 +4492,9 @@ static const GtkActionEntry entries[] = {
  { "TabNext", GTK_STOCK_GO_FORWARD,
    N_("_Next Tab"), "<Ctrl>Page_Down",
    N_("Switch to the next tab"), G_CALLBACK (_action_tab_next_activate) },
+ { "TabCurrent", NULL,
+   N_("Focus _Current Tab"), "<Ctrl>Home",
+   N_("Focus the current tab"), G_CALLBACK (_action_tab_current_activate) },
 
  { "Help", NULL, N_("_Help") },
  { "HelpContents", GTK_STOCK_HELP,
@@ -4744,6 +4760,7 @@ static const gchar* ui_markup =
     "<menuitem action='ClearPrivateData'/>"
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
+    "<menuitem action='TabCurrent'/>"
     "<menuitem action='UndoTabClose'/>"
     "<menuitem action='TrashEmpty'/>"
     "<menuitem action='Preferences'/>"
