@@ -2695,6 +2695,10 @@ _action_window_populate_popup (GtkAction*     action,
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_action_create_menu_item (
+        _action_by_name (browser, "LastSession"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "TabCurrent"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -4495,6 +4499,9 @@ static const GtkActionEntry entries[] = {
  { "TabCurrent", NULL,
    N_("Focus _Current Tab"), "<Ctrl>Home",
    N_("Focus the current tab"), G_CALLBACK (_action_tab_current_activate) },
+ { "LastSession", NULL,
+   N_("Open last _session"), NULL,
+   N_("Open the tabs saved in the last session"), NULL },
 
  { "Help", NULL, N_("_Help") },
  { "HelpContents", GTK_STOCK_HELP,
@@ -4761,6 +4768,7 @@ static const gchar* ui_markup =
     "<menuitem action='TabPrevious'/>"
     "<menuitem action='TabNext'/>"
     "<menuitem action='TabCurrent'/>"
+    "<menuitem action='LastSession'/>"
     "<menuitem action='UndoTabClose'/>"
     "<menuitem action='TrashEmpty'/>"
     "<menuitem action='Preferences'/>"
@@ -5219,6 +5227,7 @@ midori_browser_init (MidoriBrowser* browser)
     #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_sensitive (browser, "SelectionSourceView", FALSE);
+    _action_set_sensitive (browser, "LastSession", FALSE);
 
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (

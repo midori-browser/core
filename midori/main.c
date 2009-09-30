@@ -1350,6 +1350,32 @@ midori_load_extensions (gpointer data)
     return FALSE;
 }
 
+static void
+midori_browser_action_last_session_activate_cb (GtkAction*     action,
+                                                MidoriBrowser* browser)
+{
+    KatzeArray* old_session = katze_array_new (KATZE_TYPE_ITEM);
+    gchar* config_file = build_config_filename ("session.old.xbel");
+    GError* error = NULL;
+    if (midori_array_from_file (old_session, config_file, "xbel", &error))
+    {
+        guint i = 0;
+        KatzeItem* item;
+        while ((item = katze_array_get_nth_item (old_session, i++)))
+            midori_browser_add_item (browser, item);
+    }
+    else
+    {
+        g_warning (_("The session couldn't be loaded: %s\n"), error->message);
+        /* FIXME: Show a graphical dialog */
+        g_error_free (error);
+    }
+    g_free (config_file);
+    gtk_action_set_sensitive (action, FALSE);
+    g_signal_handlers_disconnect_by_func (action,
+        midori_browser_action_last_session_activate_cb, browser);
+}
+
 static gboolean
 midori_load_session (gpointer data)
 {
@@ -1364,10 +1390,19 @@ midori_load_session (gpointer data)
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
 
     browser = midori_app_create_browser (app);
+    config_file = build_config_filename ("session.old.xbel");
+    if (g_file_test (config_file, G_FILE_TEST_EXISTS))
+    {
+        GtkActionGroup* action_group = midori_browser_get_action_group (browser);
+        GtkAction* action = gtk_action_group_get_action (action_group, "LastSession");
+        g_signal_connect (action, "activate",
+            G_CALLBACK (midori_browser_action_last_session_activate_cb), browser);
+        gtk_action_set_sensitive (action, TRUE);
+    }
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));
 
-    config_file = build_config_filename ("accels");
+    katze_assign (config_file, build_config_filename ("accels"));
     if (is_writable (config_file))
         g_signal_connect_after (gtk_accel_map_get (), "changed",
             G_CALLBACK (accel_map_changed_cb), NULL);
