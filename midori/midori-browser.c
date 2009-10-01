@@ -2520,11 +2520,45 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
 }
 
 static void
+midori_browser_menu_item_select_cb (GtkWidget*     menuitem,
+                                    MidoriBrowser* browser)
+{
+    GtkAction* action = gtk_widget_get_action (menuitem);
+    const gchar* tooltip = action ? gtk_action_get_tooltip (action) : NULL;
+    if (!tooltip)
+    {
+        /* This is undocumented object data, used by KatzeArrayAction. */
+        KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+        if (item)
+            tooltip = katze_item_get_uri (item);
+    }
+    _midori_browser_set_statusbar_text (browser, tooltip);
+}
+
+static void
+midori_browser_menu_item_deselect_cb (GtkWidget*     menuitem,
+                                      MidoriBrowser* browser)
+{
+    _midori_browser_set_statusbar_text (browser, NULL);
+}
+
+static void
 _action_trash_populate_popup (GtkAction*     action,
                               GtkMenu*       menu,
                               MidoriBrowser* browser)
 {
+    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
+    guint i = 0;
     GtkWidget* menuitem;
+
+    while ((menuitem = g_list_nth_data (children, i++)))
+    {
+        g_signal_connect (menuitem, "select",
+            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
+        g_signal_connect (menuitem, "deselect",
+            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
+    }
+    g_list_free (children);
 
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -2573,7 +2607,18 @@ _action_history_populate_popup (GtkAction*     action,
                                 GtkMenu*       menu,
                                 MidoriBrowser* browser)
 {
-    /* Nothing to do */
+    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
+    guint i = 0;
+    GtkWidget* menuitem;
+
+    while ((menuitem = g_list_nth_data (children, i++)))
+    {
+        g_signal_connect (menuitem, "select",
+            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
+        g_signal_connect (menuitem, "deselect",
+            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
+    }
+    g_list_free (children);
 }
 
 static void
@@ -2589,7 +2634,18 @@ _action_bookmarks_populate_popup (GtkAction*     action,
                                   GtkMenu*       menu,
                                   MidoriBrowser* browser)
 {
+    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
+    guint i = 0;
     GtkWidget* menuitem;
+
+    while ((menuitem = g_list_nth_data (children, i++)))
+    {
+        g_signal_connect (menuitem, "select",
+            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
+        g_signal_connect (menuitem, "deselect",
+            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
+    }
+    g_list_free (children);
 
     if (katze_array_get_nth_item (browser->bookmarks, 0))
     {
@@ -2691,7 +2747,20 @@ _action_window_populate_popup (GtkAction*     action,
                                GtkMenu*       menu,
                                MidoriBrowser* browser)
 {
-    GtkWidget* menuitem = gtk_separator_menu_item_new ();
+    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
+    guint i = 0;
+    GtkWidget* menuitem;
+
+    while ((menuitem = g_list_nth_data (children, i++)))
+    {
+        g_signal_connect (menuitem, "select",
+            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
+        g_signal_connect (menuitem, "deselect",
+            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
+    }
+    g_list_free (children);
+
+    menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_action_create_menu_item (
@@ -4935,6 +5004,36 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
 }
 
 static void
+midori_browser_ui_manager_connect_proxy_cb (GtkUIManager*  ui_manager,
+                                            GtkAction*     action,
+                                            GtkWidget*     proxy,
+                                            MidoriBrowser* browser)
+{
+    if (GTK_IS_MENU_ITEM (proxy))
+    {
+        g_signal_connect (proxy, "select",
+            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
+        g_signal_connect (proxy, "deselect",
+            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
+    }
+}
+
+static void
+midori_browser_ui_manager_disconnect_proxy_cb (GtkUIManager*  ui_manager,
+                                               GtkAction*     action,
+                                               GtkWidget*     proxy,
+                                               MidoriBrowser* browser)
+{
+    if (GTK_IS_MENU_ITEM (proxy))
+    {
+        g_signal_handlers_disconnect_by_func (proxy,
+            midori_browser_menu_item_select_cb, browser);
+        g_signal_handlers_disconnect_by_func (proxy,
+            midori_browser_menu_item_deselect_cb, browser);
+    }
+}
+
+static void
 midori_browser_init (MidoriBrowser* browser)
 {
     GtkWidget* vbox;
@@ -4994,6 +5093,10 @@ midori_browser_init (MidoriBrowser* browser)
         encoding_entries, encoding_entries_n, 0,
         G_CALLBACK (_action_view_encoding_activate), browser);
     ui_manager = gtk_ui_manager_new ();
+    g_signal_connect (ui_manager, "connect-proxy",
+        G_CALLBACK (midori_browser_ui_manager_connect_proxy_cb), browser);
+    g_signal_connect (ui_manager, "disconnect-proxy",
+        G_CALLBACK (midori_browser_ui_manager_disconnect_proxy_cb), browser);
     gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
     accel_group = gtk_ui_manager_get_accel_group (ui_manager);
     gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
