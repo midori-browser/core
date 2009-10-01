@@ -1449,6 +1449,18 @@ midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
     g_free (uri);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 15)
+static void
+midori_web_view_menu_copy_activate_cb (GtkWidget*  widget,
+                                       MidoriView* view)
+{
+    GdkDisplay* display = gtk_widget_get_display (widget);
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
+        GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text (clipboard, view->selected_text, -1);
+}
+#endif
+
 #if !WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 midori_web_view_menu_save_as_activate_cb (GtkWidget*  widget,
@@ -1758,6 +1770,10 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         midori_view_insert_menu_item (menu_shell, 0,
             _("_Search the Web"), GTK_STOCK_FIND,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
+        midori_view_insert_menu_item (menu_shell, -1,
+            NULL, GTK_STOCK_COPY,
+            G_CALLBACK (midori_web_view_menu_copy_activate_cb), widget);
         #else
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         menuitem = (GtkWidget*)g_list_nth_data (items, 0);
