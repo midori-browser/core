@@ -2524,15 +2524,16 @@ midori_browser_menu_item_select_cb (GtkWidget*     menuitem,
                                     MidoriBrowser* browser)
 {
     GtkAction* action = gtk_widget_get_action (menuitem);
-    const gchar* tooltip = action ? gtk_action_get_tooltip (action) : NULL;
+    gchar* tooltip = action ? katze_object_get_string (action, "tooltip") : NULL;
     if (!tooltip)
     {
         /* This is undocumented object data, used by KatzeArrayAction. */
         KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
         if (item)
-            tooltip = katze_item_get_uri (item);
+            tooltip = g_strdup (katze_item_get_uri (item));
     }
     _midori_browser_set_statusbar_text (browser, tooltip);
+    g_free (tooltip);
 }
 
 static void
