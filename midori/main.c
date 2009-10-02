@@ -94,7 +94,7 @@ settings_new_from_file (const gchar* filename,
     {
         if (error->code == G_FILE_ERROR_NOENT)
         {
-            gchar* config_file = sokoke_find_config_filename ("config");
+            gchar* config_file = sokoke_find_config_filename (NULL, "config");
             g_key_file_load_from_file (key_file, config_file,
                                        G_KEY_FILE_KEEP_COMMENTS, NULL);
         }
@@ -1818,7 +1818,7 @@ main (int    argc,
         search_engines = search_engines_new_from_file (config_file, NULL);
         #else
         katze_assign (config_file,
-            sokoke_find_config_filename ("search"));
+            sokoke_find_config_filename (NULL, "search"));
         search_engines = search_engines_new_from_file (config_file, NULL);
         #endif
     }
@@ -1839,7 +1839,7 @@ main (int    argc,
         if (error->code == G_FILE_ERROR_NOENT)
         {
             katze_assign (config_file,
-                sokoke_find_config_filename ("bookmarks.xbel"));
+                sokoke_find_config_filename (NULL, "bookmarks.xbel"));
             midori_array_from_file (bookmarks, config_file, "xbel", NULL);
         }
         else

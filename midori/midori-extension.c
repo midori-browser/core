@@ -272,11 +272,21 @@ midori_extension_activate_cb (MidoriExtension* extension,
         if (!g_key_file_load_from_file (extension->priv->key_file, config_file,
                                         G_KEY_FILE_KEEP_COMMENTS, &error))
         {
-            if (error->code != G_FILE_ERROR_NOENT)
+            if (error->code == G_FILE_ERROR_NOENT)
+            {
+                gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
+                gchar* folder = g_strconcat ("extensions/", filename, NULL);
+                katze_assign (config_file,
+                    sokoke_find_config_filename (folder, "config"));
+                g_key_file_load_from_file (extension->priv->key_file, config_file,
+                                           G_KEY_FILE_KEEP_COMMENTS, NULL);
+            }
+            else
                 printf (_("The configuration of the extension '%s' couldn't be loaded: %s\n"),
                         extension->priv->name, error->message);
             g_error_free (error);
         }
+        g_free (config_file);
     }
 
     while (lsettings)
