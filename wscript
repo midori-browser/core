@@ -454,6 +454,16 @@ def build (bld):
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial.json')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/mootools.js')
 
+    # FIXME: Determine the library naming for other platforms
+    if Options.platform == 'linux':
+        extensions = os.listdir ('data/extensions')
+        for extension in extensions:
+            folder = 'lib' + extension + '.so'
+            source = 'data/extensions/' + extension +  '/config'
+            if os.path.exists (source):
+                bld.install_files ('${SYSCONFDIR}/' + APPNAME + \
+                                   '/extensions/' + folder, source)
+
     if Options.commands['check']:
         bld.add_subdirs ('tests')
 
