@@ -375,8 +375,51 @@ katze_array_find_token (KatzeArray*  array,
     i = 0;
     while ((item = g_list_nth_data (array->items, i++)))
     {
-        const gchar* found_token = katze_item_get_token ((KatzeItem*)item);
+        const gchar* found_token;
+
+        if (!KATZE_IS_ITEM (item))
+            continue;
+        found_token = ((KatzeItem*)item)->token;
         if (!g_strcmp0 (found_token, token))
+            return item;
+    }
+    return NULL;
+}
+
+/**
+ * katze_array_find_uri:
+ * @array: a #KatzeArray
+ * @uri: an URI
+ *
+ * Looks up an item in the array which has the specified URI.
+ *
+ * This function will silently fail if the type of the list
+ * is not based on #GObject and only #KatzeItem children
+ * are checked for their token, any other objects are skipped.
+ *
+ * Return value: an item, or %NULL
+ *
+ * Since: 0.2.0
+ **/
+gpointer
+katze_array_find_uri (KatzeArray*  array,
+                      const gchar* uri)
+{
+    guint i;
+    gpointer item;
+
+    if (!katze_array_is_a (array, G_TYPE_OBJECT))
+        return NULL;
+
+    i = 0;
+    while ((item = g_list_nth_data (array->items, i++)))
+    {
+        const gchar* found_uri;
+
+        if (!KATZE_IS_ITEM (item))
+            continue;
+        found_uri = ((KatzeItem*)item)->uri;
+        if (!g_strcmp0 (found_uri, uri))
             return item;
     }
     return NULL;

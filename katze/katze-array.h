@@ -65,6 +65,10 @@ gpointer
 katze_array_find_token             (KatzeArray*   array,
                                     const gchar*  token);
 
+gpointer
+katze_array_find_uri               (KatzeArray*   array,
+                                    const gchar*  uri);
+
 guint
 katze_array_get_length             (KatzeArray*   array);
 
