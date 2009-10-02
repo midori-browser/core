@@ -160,7 +160,7 @@ midori_browser_get_property (GObject*    object,
 
 static void
 midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem*     item);
+                                 KatzeItem**    item);
 
 static void
 _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
@@ -559,7 +559,8 @@ midori_view_notify_title_cb (GtkWidget*     widget,
             else
             {
                 katze_object_assign (item, katze_item_copy (proxy));
-                midori_browser_new_history_item (browser, g_object_ref (item));
+                midori_browser_new_history_item (browser, &item);
+                g_object_ref (item);
                 g_object_set_data_full (G_OBJECT (view), "history-item-added",
                                         item, (GDestroyNotify)g_object_unref);
             }
@@ -4878,31 +4879,33 @@ midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
 
 static void
 midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem*     item)
+                                 KatzeItem**    item)
 {
     KatzeArray* parent;
     gint i;
     gboolean found;
     time_t now;
     gint64 day;
-    gint64 pday;
-    gint64 newage;
     gchar token[50];
 
     now = time (NULL);
-    katze_item_set_added (item, now);
+    katze_item_set_added (*item, now);
     day = sokoke_time_t_to_julian (&now);
 
     found = FALSE;
     i = 0;
     while ((parent = katze_array_get_nth_item (browser->history, i++)))
     {
-        pday = katze_item_get_added (KATZE_ITEM (parent));
-        newage = day - pday;
-        if (newage == 0)
+        gint64 pday = katze_item_get_added (KATZE_ITEM (parent));
+        if (day - pday == 0)
         {
+            KatzeItem* _item;
+
             found = TRUE;
-            katze_array_add_item (parent, item);
+            if ((_item = katze_array_find_uri (parent, katze_item_get_uri (*item))))
+                *item = g_object_ref (_item);
+            else
+                katze_array_add_item (parent, *item);
         }
     }
     if (!found)
@@ -4912,7 +4915,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
         katze_item_set_added (KATZE_ITEM (parent), day);
         katze_item_set_name (KATZE_ITEM (parent), token);
         katze_array_add_item (browser->history, parent);
-        katze_array_add_item (parent, item);
+        katze_array_add_item (parent, *item);
     }
 }
 
