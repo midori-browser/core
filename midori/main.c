@@ -1612,8 +1612,8 @@ main (int    argc,
 
     #if ENABLE_NLS
     setlocale (LC_ALL, "");
-    if (g_getenv ("NLSPATH"))
-        bindtextdomain (GETTEXT_PACKAGE, g_getenv ("NLSPATH"));
+    if (g_getenv ("MIDORI_NLSPATH"))
+        bindtextdomain (GETTEXT_PACKAGE, g_getenv ("MIDORI_NLSPATH"));
     else
     #ifdef G_OS_WIN32
     {

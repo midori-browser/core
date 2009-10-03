@@ -524,7 +524,7 @@ def shutdown ():
             pass
         try:
             ext = 'MIDORI_EXTENSION_PATH=' + relfolder + os.sep + 'extensions'
-            nls = 'NLSPATH=' + relfolder + os.sep + 'po'
+            nls = 'MIDORI_NLSPATH=' + relfolder + os.sep + 'po'
             lang = os.environ['LANG']
             try:
                 for lang in os.listdir (folder + os.sep + 'po'):
