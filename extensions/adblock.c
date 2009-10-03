@@ -169,7 +169,7 @@ adblock_preferences_model_row_changed_cb (GtkTreeModel*    model,
         while (gtk_tree_model_iter_next (model, iter));
     filters[length] = NULL;
     midori_extension_set_string_list (extension, "filters", filters, length);
-    g_strfreev (filters);
+    g_free (filters);
     if (need_reload)
         adblock_reload_rules (extension);
 }
