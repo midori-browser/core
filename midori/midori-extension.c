@@ -278,6 +278,7 @@ midori_extension_activate_cb (MidoriExtension* extension,
                 gchar* folder = g_strconcat ("extensions/", filename, NULL);
                 katze_assign (config_file,
                     sokoke_find_config_filename (folder, "config"));
+                g_free (folder);
                 g_key_file_load_from_file (extension->priv->key_file, config_file,
                                            G_KEY_FILE_KEEP_COMMENTS, NULL);
             }
