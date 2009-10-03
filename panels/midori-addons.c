@@ -781,7 +781,7 @@ midori_web_widget_context_ready_cb (GtkWidget*         web_widget,
                                     JSGlobalContextRef js_context,
                                     MidoriAddons*      addons)
 {
-    const gchar* uri;
+    gchar* uri;
     GSList* elements;
     struct AddonElement* element;
     gchar* fullname;
@@ -831,6 +831,8 @@ midori_web_widget_context_ready_cb (GtkWidget*         web_widget,
 
         elements = g_slist_next (elements);
     }
+
+    g_free (uri);
 }
 
 /**
