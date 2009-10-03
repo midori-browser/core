@@ -733,9 +733,10 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
             temp = g_utf8_casefold (title, -1);
             match = (strstr (temp, key) != NULL);
             g_free (temp);
-            g_free (title);
         }
     }
+
+    g_free (title);
 
     return match;
 }
