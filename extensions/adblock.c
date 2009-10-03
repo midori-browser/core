@@ -508,31 +508,10 @@ adblock_parse_line (gchar* line)
     return adblock_fixup_regexp (line);
 }
 
-static GRegex*
-adblock_add_regexp (gchar *line)
-{
-    GError* error;
-    GRegex* regex;
-
-    error = NULL;
-    regex = g_regex_new (line, G_REGEX_OPTIMIZE | G_REGEX_CASELESS,
-                               G_REGEX_MATCH_NOTEMPTY, &error);
-    if (error)
-    {
-        g_warning ("%s: %s", G_STRFUNC, error->message);
-        g_error_free (error);
-        return NULL;
-    }
-    else
-        return regex;
-}
-
 static GHashTable*
 adblock_parse_file (gchar* path)
 {
     FILE* file;
-    int maxlimit = 150;
-    int i = 0;
     if ((file = g_fopen (path, "r")))
     {
         GHashTable* patt = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -541,34 +520,32 @@ adblock_parse_file (gchar* path)
 
         gboolean have_pattern = FALSE;
         gchar line[500];
-        gchar* rline = "";
+        GRegex* regex;
 
         while (fgets (line, 500, file))
         {
+            GError* error = NULL;
             gchar* parsed;
 
             parsed = adblock_parse_line (line);
             if (!parsed)
                 continue;
 
-            i++;
-            rline = g_strdup_printf ("%s|%s", rline, parsed);
-            if (rline && *rline && i >= maxlimit)
+            regex = g_regex_new (parsed, G_REGEX_OPTIMIZE,
+                                 G_REGEX_MATCH_NOTEMPTY, &error);
+            if (error)
+            {
+                g_warning ("%s: %s", G_STRFUNC, error->message);
+                g_error_free (error);
+                g_free (parsed);
+            }
+            else
             {
                 have_pattern = TRUE;
-                g_hash_table_insert (patt, rline, adblock_add_regexp (rline));
-                rline = g_strdup ("");
-                i = 0;
+                g_hash_table_insert (patt, parsed, regex);
             }
         }
         fclose (file);
-
-        if (rline && *rline)
-        {
-            have_pattern = TRUE;
-            g_hash_table_insert (patt, rline, adblock_add_regexp (rline));
-            rline = g_strdup ("");
-        }
 
         if (have_pattern)
             return patt;
