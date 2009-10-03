@@ -74,11 +74,12 @@ adblock_download_notify_status_cb (WebKitDownload* download,
                                    gchar*          path)
 {
     pattern = adblock_parse_file (path);
+    g_free (path);
     /* g_object_unref (download); */
 }
 
 static void
-adblock_reload_rules(MidoriExtension* extension)
+adblock_reload_rules (MidoriExtension* extension)
 {
     gchar** filters;
     gchar* folder;
@@ -114,8 +115,10 @@ adblock_reload_rules(MidoriExtension* extension)
             webkit_download_start (download);
         }
         else
+        {
             pattern = adblock_parse_file (path);
-        g_free (path);
+            g_free (path);
+        }
         g_free (filename);
     }
     g_strfreev (filters);
@@ -160,11 +163,13 @@ adblock_preferences_model_row_changed_cb (GtkTreeModel*    model,
                 filters[i++] = filter;
                 need_reload = TRUE;
             }
-            g_free (filter);
+            else
+                g_free (filter);
         }
         while (gtk_tree_model_iter_next (model, iter));
     filters[length] = NULL;
     midori_extension_set_string_list (extension, "filters", filters, length);
+    g_strfreev (filters);
     if (need_reload)
         adblock_reload_rules (extension);
 }
