@@ -356,8 +356,7 @@ midori_panel_init (MidoriPanel* panel)
     gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar), GTK_TOOLBAR_BOTH);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (panel->toolbar),
                                GTK_ICON_SIZE_BUTTON);
-    gtk_toolbar_set_orientation (GTK_TOOLBAR (panel->toolbar),
-                                 GTK_ORIENTATION_VERTICAL);
+    g_object_set (panel->toolbar, "orientation", GTK_ORIENTATION_VERTICAL, NULL);
     gtk_box_pack_start (GTK_BOX (panel), panel->toolbar, FALSE, FALSE, 0);
     gtk_widget_show_all (panel->toolbar);
     vbox = gtk_vbox_new (FALSE, 0);
