@@ -1772,6 +1772,22 @@ main (int    argc,
         {
             /* TODO: Open a tab per URI, seperated by pipes */
             /* FIXME: Handle relative files or magic URI here */
+            /* Encode any IDN addresses because libUnique doesn't like them */
+            i = 0;
+            while (uris[i] != NULL)
+            {
+                #if GLIB_CHECK_VERSION (2, 22, 0)
+                gchar* encoded = g_hostname_to_unicode (uris[i]);
+                if (encoded)
+                {
+                    g_free (uris[i]);
+                    uris[i] = encoded;
+                }
+                #else
+                uris[i] = sokoke_idn_to_punycode (uris[i]);
+                #endif
+                i++;
+            }
             result = midori_app_instance_send_uris (app, uris);
         }
         else

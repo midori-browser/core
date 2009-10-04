@@ -185,7 +185,7 @@ sokoke_spawn_program (const gchar* command,
     return TRUE;
 }
 
-static gchar*
+gchar*
 sokoke_idn_to_punycode (gchar* uri)
 {
     #if HAVE_LIBIDN

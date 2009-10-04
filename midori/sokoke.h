@@ -42,6 +42,9 @@ gchar* sokoke_search_uri                (const gchar*    uri,
                                          const gchar*    keywords);
 
 gchar*
+sokoke_idn_to_punycode                  (gchar*          uri);
+
+gchar*
 sokoke_magic_uri                        (const gchar*    uri,
                                          KatzeArray*     search_engines);
 
