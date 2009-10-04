@@ -45,6 +45,13 @@ struct _MidoriLocationActionClass
     GtkActionClass parent_class;
 };
 
+typedef struct _MidoriLocationEntryItem
+{
+    GdkPixbuf* favicon;
+    const gchar* uri;
+    const gchar* title;
+} MidoriLocationEntryItem;
+
 G_DEFINE_TYPE (MidoriLocationAction, midori_location_action, GTK_TYPE_ACTION)
 
 enum
@@ -843,42 +850,52 @@ midori_location_action_iter_insert (MidoriLocationAction* location_action,
 }
 
 static void
-midori_location_action_set_item (MidoriLocationAction*    location_action,
-                                 MidoriLocationEntryItem* item,
-                                 gboolean                 increment_visits,
-                                 gboolean                 filter)
+midori_location_action_set_item (MidoriLocationAction* location_action,
+                                 GdkPixbuf*            icon,
+                                 const gchar*          uri,
+                                 const gchar*          title,
+                                 gboolean              increment_visits,
+                                 gboolean              filter)
 {
     GtkTreeModel* model;
     GtkTreeModel* filter_model;
     GtkTreeIter iter;
-    GdkPixbuf* icon;
     GdkPixbuf* new_icon;
     gint visits = 0;
+    gchar* _title = NULL;
+    GdkPixbuf* original_icon = NULL;
 
     model = location_action->model;
 
-    if (midori_location_action_iter_insert (location_action,
-        item->uri, &iter, G_MAXINT))
+    if (midori_location_action_iter_insert (location_action, uri, &iter, G_MAXINT))
         gtk_tree_model_get (model, &iter, VISITS_COL, &visits, -1);
+
+    gtk_tree_model_get (model, &iter, FAVICON_COL, &original_icon, -1);
 
     if (increment_visits)
         gtk_list_store_set (GTK_LIST_STORE (model), &iter,
                             VISITS_COL, ++visits, VISIBLE_COL, TRUE, -1);
 
     /* Ensure we keep the title if we added the same URI with a title before */
-    if (!item->title)
-        gtk_tree_model_get (model, &iter, TITLE_COL, &item->title, -1);
+    if (!title)
+    {
+        gtk_tree_model_get (model, &iter, TITLE_COL, &_title, -1);
+        title = _title;
+    }
 
     gtk_list_store_set (GTK_LIST_STORE (model), &iter,
-        URI_COL, item->uri, TITLE_COL, item->title, YALIGN_COL, 0.25, -1);
+        URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25, -1);
+    g_free (_title);
 
-    gtk_tree_model_get (model, &iter, FAVICON_COL, &icon, -1);
-    if (item->favicon)
-        new_icon = item->favicon;
-    else if (!icon)
-        new_icon = location_action->default_icon;
-    else
+    if (icon)
+        new_icon = icon;
+    else if (original_icon)
+    {
         new_icon = NULL;
+        g_object_unref (original_icon);
+    }
+    else
+        new_icon = location_action->default_icon;
     if (new_icon)
         gtk_list_store_set (GTK_LIST_STORE (model), &iter,
                             FAVICON_COL, new_icon, -1);
@@ -1040,7 +1057,7 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
                                                  GTK_ICON_ENTRY_PRIMARY, pixbuf);
             g_object_unref (pixbuf);
             katze_assign (location_action->text, uri);
-            katze_assign (location_action->uri, uri);
+            katze_assign (location_action->uri, g_strdup (uri));
 
             g_signal_emit (location_action, signals[ACTIVE_CHANGED], 0,
                            gtk_combo_box_get_active (combo_box));
@@ -1268,18 +1285,13 @@ void
 midori_location_action_add_uri (MidoriLocationAction* location_action,
                                 const gchar*          uri)
 {
-    MidoriLocationEntryItem item;
-
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
 
     if (midori_location_action_is_frozen (location_action))
         return;
 
-    item.favicon = NULL;
-    item.uri = uri;
-    item.title = NULL;
-    midori_location_action_set_item (location_action, &item, TRUE, TRUE);
+    midori_location_action_set_item (location_action, NULL, uri, NULL, TRUE, TRUE);
 
     katze_assign (location_action->uri, g_strdup (uri));
 }
@@ -1293,28 +1305,22 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
     GSList* proxies;
     GtkWidget* location_entry;
     GtkWidget* entry;
-    MidoriLocationEntryItem item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
     g_return_if_fail (title != NULL);
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
 
-    item.favicon = icon;
-    item.uri = uri;
-    item.title = title;
-    midori_location_action_set_item (location_action, &item, TRUE, FALSE);
+    midori_location_action_set_item (location_action, icon, uri, title, TRUE, FALSE);
 
     if (midori_location_action_is_frozen (location_action))
         return;
 
-    katze_assign (location_action->uri, g_strdup (uri));
-
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
+    if (!g_strcmp0 (location_action->uri, uri))
     for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data) &&
-        !strcmp (location_action->uri, uri))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         location_entry = midori_location_action_entry_for_proxy (proxies->data);
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
@@ -1332,22 +1338,18 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
     GSList* proxies;
     GtkWidget* location_entry;
     GtkWidget* entry;
-    MidoriLocationEntryItem item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
     g_return_if_fail (uri != NULL);
 
-    item.favicon = icon;
-    item.uri = uri;
-    item.title = NULL;
-    midori_location_action_set_item (location_action, &item, FALSE, TRUE);
+    midori_location_action_set_item (location_action, icon, uri, NULL, FALSE, TRUE);
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
+    if (!g_strcmp0 (location_action->uri, uri))
     for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data) &&
-        !g_strcmp0 (location_action->uri, uri))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         location_entry = midori_location_action_entry_for_proxy (proxies->data);
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
@@ -1368,10 +1370,7 @@ midori_location_action_set_title_for_uri (MidoriLocationAction* location_action,
     g_return_if_fail (title != NULL);
     g_return_if_fail (uri != NULL);
 
-    item.favicon = NULL;
-    item.uri = uri;
-    item.title = title;
-    midori_location_action_set_item (location_action, &item, FALSE, TRUE);
+    midori_location_action_set_item (location_action, NULL, uri, title, FALSE, TRUE);
 }
 
 /**

@@ -34,13 +34,6 @@ G_BEGIN_DECLS
 typedef struct _MidoriLocationAction         MidoriLocationAction;
 typedef struct _MidoriLocationActionClass    MidoriLocationActionClass;
 
-struct _MidoriLocationEntryItem
-{
-    GdkPixbuf* favicon;
-    const gchar* uri;
-    const gchar* title;
-};
-
 GType
 midori_location_action_get_type             (void);
 

@@ -25,7 +25,6 @@ G_BEGIN_DECLS
 
 typedef struct _MidoriLocationEntry         MidoriLocationEntry;
 typedef struct _MidoriLocationEntryClass    MidoriLocationEntryClass;
-typedef struct _MidoriLocationEntryItem     MidoriLocationEntryItem;
 
 GType
 midori_location_entry_get_type             (void);
