@@ -26,6 +26,7 @@ struct _MidoriLocationAction
 {
     GtkAction parent_instance;
 
+    gchar* text;
     gchar* uri;
     KatzeArray* search_engines;
     gdouble progress;
@@ -352,7 +353,7 @@ midori_location_action_create_model (void)
 static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
-    location_action->uri = NULL;
+    location_action->text = location_action->uri = NULL;
     location_action->search_engines = NULL;
     location_action->progress = 0.0;
     location_action->secondary_icon = NULL;
@@ -374,6 +375,7 @@ midori_location_action_finalize (GObject* object)
 {
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (object);
 
+    katze_assign (location_action->text, NULL);
     katze_assign (location_action->uri, NULL);
     katze_assign (location_action->search_engines, NULL);
 
@@ -551,8 +553,15 @@ midori_location_action_create_tool_item (GtkAction* action)
     return toolitem;
 }
 
+static void
+midori_location_action_changed_cb (GtkEntry*             entry,
+                                   MidoriLocationAction* location_action)
+{
+    katze_assign (location_action->text, g_strdup (gtk_entry_get_text (entry)));
+}
+
 static gboolean
-midori_location_action_key_press_event_cb (GtkWidget*   widget,
+midori_location_action_key_press_event_cb (GtkEntry*    entry,
                                            GdkEventKey* event,
                                            GtkAction*   action)
 {
@@ -564,7 +573,7 @@ midori_location_action_key_press_event_cb (GtkWidget*   widget,
     case GDK_KP_Enter:
     case GDK_Return:
     {
-        if ((uri = gtk_entry_get_text (GTK_ENTRY (widget))) && *uri)
+        if ((uri = gtk_entry_get_text (entry)) && *uri)
         {
             g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
                 (event->state & GDK_MOD1_MASK) ? TRUE : FALSE);
@@ -582,8 +591,8 @@ midori_location_action_key_press_event_cb (GtkWidget*   widget,
 
 static gboolean
 midori_location_action_focus_in_event_cb (GtkWidget*   widget,
-                                           GdkEventKey* event,
-                                           GtkAction*   action)
+                                          GdkEventKey* event,
+                                          GtkAction*   action)
 {
     g_signal_emit (action, signals[FOCUS_IN], 0);
     return FALSE;
@@ -905,7 +914,7 @@ midori_location_entry_match_selected_cb (GtkEntryCompletion*   completion,
     gchar* uri;
     gtk_tree_model_get (model, iter, URI_COL, &uri, -1);
 
-    midori_location_action_set_uri (location_action, uri);
+    midori_location_action_set_text (location_action, uri);
     g_signal_emit (location_action, signals[SUBMIT_URI], 0, uri, FALSE);
     g_free (uri);
 
@@ -928,7 +937,7 @@ midori_location_entry_action_activated_cb (GtkEntryCompletion*   completion,
         if (!item)
             return;
         search = sokoke_search_uri (uri, keywords);
-        midori_location_action_set_uri (location_action, search);
+        midori_location_action_set_text (location_action, search);
         g_signal_emit (location_action, signals[SUBMIT_URI], 0, search, FALSE);
         g_free (search);
     }
@@ -1030,6 +1039,7 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                                                  GTK_ICON_ENTRY_PRIMARY, pixbuf);
             g_object_unref (pixbuf);
+            katze_assign (location_action->text, uri);
             katze_assign (location_action->uri, uri);
 
             g_signal_emit (location_action, signals[ACTIVE_CHANGED], 0,
@@ -1083,6 +1093,8 @@ midori_location_action_connect_proxy (GtkAction* action,
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
 
         g_object_connect (gtk_bin_get_child (GTK_BIN (entry)),
+                      "signal::changed",
+                      midori_location_action_changed_cb, action,
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
                       "signal::focus-in-event",
@@ -1107,6 +1119,14 @@ midori_location_action_disconnect_proxy (GtkAction* action,
         (action, proxy);
 }
 
+/**
+ * midori_location_action_get_uri:
+ * @location_action: a #MidoriLocationAction
+ *
+ * Retrieves the current URI. See also midori_location_action_get_text().
+ *
+ * Return value: the current URI
+ **/
 const gchar*
 midori_location_action_get_uri (MidoriLocationAction* location_action)
 {
@@ -1116,13 +1136,34 @@ midori_location_action_get_uri (MidoriLocationAction* location_action)
 }
 
 /**
+ * midori_location_action_get_text:
+ * @location_action: a #MidoriLocationAction
+ *
+ * Retrieves the current text, which may be the current URI or
+ * anything typed in the entry.
+ *
+ * Return value: the current text
+ *
+ * Since: 0.2.0
+ **/
+const gchar*
+midori_location_action_get_text (MidoriLocationAction* location_action)
+{
+    g_return_val_if_fail (MIDORI_IS_LOCATION_ACTION (location_action), NULL);
+
+    return location_action->text;
+}
+
+/**
  * midori_location_action_set_text:
  * @location_action: a #MidoriLocationAction
  * @text: a string
  *
  * Sets the entry text to @text and, if applicable, updates the icon.
+ *
+ * Since: 0.2.0
  **/
-static void
+void
 midori_location_action_set_text (MidoriLocationAction* location_action,
                                  const gchar*          text)
 {
@@ -1132,12 +1173,20 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
     GtkTreeIter iter;
     GdkPixbuf* icon;
 
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+    g_return_if_fail (text != NULL);
+
+    katze_assign (location_action->text, g_strdup (text));
+
     if (!(proxies = gtk_action_get_proxies (GTK_ACTION (location_action))))
         return;
 
     if (midori_location_action_iter_lookup (location_action, text, &iter))
+    {
         gtk_tree_model_get (location_action->model,
                             &iter, FAVICON_COL, &icon, -1);
+        katze_assign (location_action->uri, g_strdup (text));
+    }
     else
         icon = g_object_ref (location_action->default_icon);
 
@@ -1156,6 +1205,15 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
         g_object_unref (icon);
 }
 
+/**
+ * midori_location_action_set_uri:
+ * @location_action: a #MidoriLocationAction
+ * @uri: an URI string
+ *
+ * Sets the entry URI to @uri and, if applicable, updates the icon.
+ *
+ * Deprecated: 0.2.0
+ **/
 void
 midori_location_action_set_uri (MidoriLocationAction* location_action,
                                 const gchar*          uri)

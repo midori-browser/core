@@ -4312,22 +4312,45 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
                              guint            page_num,
                              MidoriBrowser*   browser)
 {
-    GtkWidget* view;
+    GtkWidget* widget;
+    GtkAction* action;
+    const gchar* text;
+
+    if (!(widget = midori_browser_get_current_tab (browser)))
+        return;
+
+    action = _action_by_name (browser, "Location");
+    text = midori_location_action_get_text (MIDORI_LOCATION_ACTION (action));
+    g_object_set_data_full (G_OBJECT (widget), "midori-browser-typed-text",
+                            g_strdup (text), g_free);
+}
+
+static void
+gtk_notebook_switch_page_after_cb (GtkWidget*       notebook,
+                                   GtkNotebookPage* page,
+                                   guint            page_num,
+                                   MidoriBrowser*   browser)
+{
+    GtkWidget* widget;
+    MidoriView* view;
     const gchar* uri;
     GtkAction* action;
     const gchar* title;
     gchar* window_title;
 
-    if (!(view = midori_browser_get_current_tab (browser)))
+    if (!(widget = midori_browser_get_current_tab (browser)))
         return;
 
-    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+    view = MIDORI_VIEW (widget);
+    uri = g_object_get_data (G_OBJECT (widget), "midori-browser-typed-text");
+    if (!uri)
+        uri = midori_view_get_display_uri (view);
     action = _action_by_name (browser, "Location");
-    midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+    midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
     midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
-        midori_view_get_icon (MIDORI_VIEW (view)));
+                                     midori_view_get_icon (view));
 
-    title = midori_view_get_display_title (MIDORI_VIEW (view));
+    title = midori_view_get_display_title (view);
     window_title = g_strconcat (title, " - ", g_get_application_name (), NULL);
     gtk_window_set_title (GTK_WINDOW (browser), window_title);
     g_free (window_title);
@@ -4342,7 +4365,7 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
 
     _midori_browser_set_statusbar_text (browser, NULL);
     _midori_browser_update_interface (browser);
-    _midori_browser_update_progress (browser, MIDORI_VIEW (view));
+    _midori_browser_update_progress (browser, view);
 }
 
 static void
@@ -5414,8 +5437,11 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_unref (rcstyle);
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
     gtk_paned_pack2 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
+    g_signal_connect (browser->notebook, "switch-page",
+                      G_CALLBACK (gtk_notebook_switch_page_cb),
+                      browser);
     g_signal_connect_after (browser->notebook, "switch-page",
-                            G_CALLBACK (gtk_notebook_switch_page_cb),
+                            G_CALLBACK (gtk_notebook_switch_page_after_cb),
                             browser);
     g_signal_connect (browser->notebook, "page-reordered",
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),

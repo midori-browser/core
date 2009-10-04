@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -49,6 +49,13 @@ midori_location_action_freeze              (MidoriLocationAction* location_actio
 
 void
 midori_location_action_thaw                (MidoriLocationAction* location_action);
+
+const gchar*
+midori_location_action_get_text             (MidoriLocationAction* location_action);
+
+void
+midori_location_action_set_text             (MidoriLocationAction* location_action,
+                                             const gchar*          text);
 
 const gchar*
 midori_location_action_get_uri              (MidoriLocationAction* location_action);
