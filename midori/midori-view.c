@@ -3774,6 +3774,9 @@ midori_view_print (MidoriView* view)
     #if WEBKIT_CHECK_VERSION (1, 1, 5)
     operation = gtk_print_operation_new ();
     gtk_print_operation_set_custom_tab_label (operation, _("Features"));
+#if GTK_CHECK_VERSION (2, 18, 0)
+    gtk_print_operation_set_embed_page_setup (operation, TRUE);
+#endif
     g_signal_connect (operation, "create-custom-widget",
         G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
     g_signal_connect (operation, "custom-widget-apply",
