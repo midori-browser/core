@@ -358,6 +358,42 @@ sokoke_magic_uri (const gchar* uri,
     return search;
 }
 
+/**
+ * sokoke_format_uri_for_display:
+ * @uri: an URI string
+ *
+ * Formats an URI for display, for instance by converting
+ * percent encoded characters and by decoding punycode.
+ *
+ * Return value: a newly allocated URI
+ **/
+gchar*
+sokoke_format_uri_for_display (const gchar* uri)
+{
+    if (uri && g_str_has_prefix (uri, "http://"))
+    {
+        gchar* unescaped = g_uri_unescape_string (uri, NULL);
+        #ifdef HAVE_LIBSOUP_2_27_90
+        gchar* decoded = g_hostname_to_unicode (unescaped);
+        if (decoded)
+        {
+            g_free (unescaped);
+            return decoded;
+        }
+        return unescaped;
+        #elif HAVE_LIBIDN
+        gchar* decoded;
+        if (!idna_to_unicode_8z8z (unescaped, &decoded, 0) == IDNA_SUCCESS)
+            return unescaped;
+        g_free (unescaped);
+        return decoded;
+        #else
+        return unescaped;
+        #endif
+    }
+    return g_strdup (uri);
+}
+
 void
 sokoke_combo_box_add_strings (GtkComboBox* combobox,
                               const gchar* label_first, ...)

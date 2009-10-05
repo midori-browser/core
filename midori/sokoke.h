@@ -48,6 +48,9 @@ gchar*
 sokoke_magic_uri                        (const gchar*    uri,
                                          KatzeArray*     search_engines);
 
+gchar*
+sokoke_format_uri_for_display           (const gchar*    uri);
+
 typedef enum {
     SOKOKE_MENU_POSITION_CURSOR = 0,
     SOKOKE_MENU_POSITION_LEFT,

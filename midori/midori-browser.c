@@ -351,7 +351,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
     gboolean is_location = widget ?
         MIDORI_IS_LOCATION_ENTRY (gtk_widget_get_parent (widget)) : FALSE;
 
-    katze_assign (browser->statusbar_text, g_strdup (text));
+    katze_assign (browser->statusbar_text, sokoke_format_uri_for_display (text));
 
     if (!GTK_WIDGET_VISIBLE (browser->statusbar) && !is_location)
     {

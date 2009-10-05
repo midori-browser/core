@@ -748,7 +748,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     uri = webkit_web_frame_get_uri (web_frame);
     g_return_if_fail (uri != NULL);
-    katze_assign (view->uri, g_strdup (uri));
+    katze_assign (view->uri, sokoke_format_uri_for_display (uri));
     if (view->item)
     {
         #if 0
@@ -2831,7 +2831,7 @@ midori_view_set_uri (MidoriView*  view,
         }
         else
         {
-            katze_assign (view->uri, g_strdup (uri));
+            katze_assign (view->uri, sokoke_format_uri_for_display (uri));
             g_object_notify (G_OBJECT (view), "uri");
             if (view->item)
                 katze_item_set_uri (view->item, uri);
