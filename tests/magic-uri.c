@@ -19,6 +19,20 @@
 #define SM "http://www.searchmash.com/search/"
 
 static void
+sokoke_assert_str_equal (const gchar* input,
+                         const gchar* result,
+                         const gchar* expected)
+{
+    if (g_strcmp0 (result, expected))
+    {
+        g_error ("Input: %s\nExpected: %s\nResult: %s",
+                 input ? input : "NULL",
+                 expected ? expected : "NULL",
+                 result ? result : "NULL");
+    }
+}
+
+static void
 test_input (const gchar* input,
             const gchar* expected)
 {
@@ -41,13 +55,7 @@ test_input (const gchar* input,
     }
 
     gchar* uri = sokoke_magic_uri (input, search_engines);
-    if (g_strcmp0 (uri, expected))
-    {
-        g_error ("Input: %s\nExpected: %s\nResult: %s",
-                 input ? input : "NULL",
-                 expected ? expected : "NULL",
-                 uri ? uri : "NULL");
-    }
+    sokoke_assert_str_equal (input, uri, expected);
     g_free (uri);
 }
 
@@ -167,6 +175,35 @@ magic_uri_performance (void)
     g_print ("\nTime needed for URI tests: %f ", g_test_timer_elapsed ());
 }
 
+static void
+magic_uri_format (void)
+{
+    typedef struct
+    {
+        const gchar* before;
+        const gchar* after;
+    } URIItem;
+
+    static const URIItem items[] = {
+     { "http://www.csszengarden.com", NULL },
+     { "http://live.gnome.org/GTK+/3.0/Tasks", NULL },
+     { "http://www.johannkönig.com/index.php?ausw=home", NULL },
+     { "http://digilife.bz/wiki/index.php?Python%E3%81%AE%E9%96%8B%E7%99%BA%E6%89%8B%E9%A0%86",
+       "http://digilife.bz/wiki/index.php?Pythonの開発手順" },
+     { "http://die-welt.net/~evgeni/LenovoBatteryLinux/", NULL },
+     { "http://wiki.c3sl.ufpr.br/multiseat/index.php/Xephyr_Solution", NULL },
+     };
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
+    {
+        gchar* result = sokoke_format_uri_for_display (items[i].before);
+        const gchar* after = items[i].after ? items[i].after : items[i].before;
+        sokoke_assert_str_equal (items[i].before, result, after);
+        g_free (result);
+    }
+}
+
 int
 main (int    argc,
       char** argv)
@@ -179,6 +216,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/search", magic_uri_search);
     g_test_add_func ("/magic-uri/pseudo", magic_uri_pseudo);
     g_test_add_func ("/magic-uri/performance", magic_uri_performance);
+    g_test_add_func ("/magic-uri/format", magic_uri_format);
 
     return g_test_run ();
 }

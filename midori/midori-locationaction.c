@@ -635,7 +635,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
                                       GtkTreeIter*     iter,
                                       gpointer         data)
 {
-    gchar* uri_raw;
     gchar* uri;
     gchar* title;
     gchar* desc;
@@ -649,14 +648,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar** parts;
     size_t len;
 
-    gtk_tree_model_get (model, iter, URI_COL, &uri_raw, TITLE_COL, &title, -1);
-
-    #if GLIB_CHECK_VERSION (2, 22, 0)
-    uri = g_hostname_to_unicode (uri_raw);
-    g_free (uri_raw);
-    #else
-    uri = uri_raw;
-    #endif
+    gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
     desc = desc_uri = desc_title = key = NULL;
     if (G_LIKELY (data))

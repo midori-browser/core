@@ -185,6 +185,59 @@ sokoke_spawn_program (const gchar* command,
     return TRUE;
 }
 
+#if defined (HAVE_LIBSOUP_2_27_90) || HAVE_LIBIDN
+/**
+ * sokoke_hostname_from_uri:
+ * @uri: an URI string
+ * @path: location of a string pointer
+ *
+ * Returns the hostname of the specified URI,
+ * and stores the path in @path.
+ * @path is at least set to ""
+ *
+ * Return value: a newly allocated hostname
+ **/
+static gchar*
+sokoke_hostname_from_uri (const gchar* uri,
+                          gchar**      path)
+{
+    gchar* hostname;
+
+    *path = "";
+    if ((hostname = g_utf8_strchr (uri, -1, '/')))
+    {
+        if (hostname[1] == '/')
+            hostname += 2;
+        if ((*path = g_utf8_strchr (hostname, -1, '/')))
+        {
+            gulong offset = g_utf8_pointer_to_offset (hostname, *path);
+            gchar* buffer = g_malloc0 (offset + 1);
+            g_utf8_strncpy (buffer, hostname, offset);
+            hostname = buffer;
+        }
+        else
+            hostname = g_strdup (hostname);
+    }
+    else
+        hostname = g_strdup (uri);
+    return hostname;
+}
+#endif
+
+/**
+ * sokoke_idn_to_punycode:
+ * @uri: an URI string
+ *
+ * The specified URI is parsed and the hostname
+ * part of it is encoded if it is not ASCII.
+ *
+ * If libIDN is not available at compile time,
+ * this code will pass the string unaltered.
+ *
+ * The called function owns the passed string.
+ *
+ * Return value: a newly allocated ASCII URI
+ **/
 gchar*
 sokoke_idn_to_punycode (gchar* uri)
 {
@@ -212,23 +265,7 @@ sokoke_idn_to_punycode (gchar* uri)
         proto = buffer;
     }
 
-    path = NULL;
-    if ((hostname = g_utf8_strchr (uri, -1, '/')))
-    {
-        if (hostname[1] == '/')
-            hostname += 2;
-        if ((path = g_utf8_strchr (hostname, -1, '/')))
-        {
-            gulong offset = g_utf8_pointer_to_offset (hostname, path);
-            gchar* buffer = g_malloc0 (offset + 1);
-            g_utf8_strncpy (buffer, hostname, offset);
-            hostname = buffer;
-        }
-        else
-            hostname = g_strdup (hostname);
-    }
-    else
-        hostname = g_strdup (uri);
+    hostname = sokoke_hostname_from_uri (uri, &path);
 
     if (!(q = stringprep_utf8_to_ucs4 (hostname, -1, NULL)))
     {
@@ -294,6 +331,16 @@ gchar* sokoke_search_uri (const gchar* uri,
     return search;
 }
 
+/**
+ * sokoke_magic_uri:
+ * @uri: a string typed by a user
+ * @search_engines: search engines
+ *
+ * Takes a string that was typed by a user,
+ * guesses what it is, and returns an URI.
+ *
+ * Return value: a newly allocated URI
+ **/
 gchar*
 sokoke_magic_uri (const gchar* uri,
                   KatzeArray*  search_engines)
@@ -358,6 +405,7 @@ sokoke_magic_uri (const gchar* uri,
     return search;
 }
 
+
 /**
  * sokoke_format_uri_for_display:
  * @uri: an URI string
@@ -374,12 +422,19 @@ sokoke_format_uri_for_display (const gchar* uri)
     {
         gchar* unescaped = g_uri_unescape_string (uri, NULL);
         #ifdef HAVE_LIBSOUP_2_27_90
-        gchar* decoded = g_hostname_to_unicode (unescaped);
+        gchar* path;
+        gchar* hostname = sokoke_hostname_from_uri (unescaped, &path);
+        gchar* decoded = g_hostname_to_unicode (hostname);
+
         if (decoded)
         {
+            gchar* result = g_strconcat ("http://", decoded, path, NULL);
             g_free (unescaped);
-            return decoded;
+            g_free (decoded);
+            g_free (hostname);
+            return result;
         }
+        g_free (hostname);
         return unescaped;
         #elif HAVE_LIBIDN
         gchar* decoded;
