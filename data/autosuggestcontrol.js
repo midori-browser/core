@@ -341,6 +341,9 @@ FormSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:
     var aSuggestions = [];
     var sTextboxValue = oAutoSuggestControl.textbox.value;
 
+    if (!this.suggestions)
+        return;
+
     if (sTextboxValue.length > 0){
         //search for matching suggestions
         for (var i=0; i < this.suggestions.length; i++) {
@@ -361,6 +364,7 @@ function initSuggestions () {
         var eid = inputs[i].getAttribute("id");
         if (!ename && eid)
                 ename=eid;
-        var smth = new AutoSuggestControl(inputs[i], new FormSuggestions(ename));
+        if (inputs[i].type == "text")
+            var smth = new AutoSuggestControl(inputs[i], new FormSuggestions(ename));
     }
 };

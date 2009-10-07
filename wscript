@@ -453,6 +453,8 @@ def build (bld):
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial.json')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/mootools.js')
+    bld.install_files ('${MDATADIR}/' + APPNAME, 'data/autosuggestcontrol.js')
+    bld.install_files ('${MDATADIR}/' + APPNAME, 'data/autosuggestcontrol.css')
 
     # FIXME: Determine the library naming for other platforms
     if Options.platform == 'linux':
