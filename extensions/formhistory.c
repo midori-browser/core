@@ -75,20 +75,26 @@ formhistory_prepare_js ()
 static gchar*
 formhistory_build_js ()
 {
-    const gchar* suggestions = "";
+    gchar* suggestions = g_strdup ("");
     GHashTableIter iter;
     gpointer key, value;
+    gchar* script;
+
     g_hash_table_iter_init (&iter, global_keys);
     while (g_hash_table_iter_next (&iter, &key, &value))
-       suggestions = g_strdup_printf ("%s arr[\"%s\"] = [%s]; ",
-                                      suggestions, (char*)key, (char*)value);
-    gchar* script = g_strdup_printf ("function FormSuggestions(eid) { "
-                                     "arr = new Array();"
-                                     "%s"
-                                     "this.suggestions = arr[eid]; }"
-                                     "%s",
-                                     suggestions,
-                                     jsforms);
+    {
+       gchar* _suggestions = g_strdup_printf ("%s arr[\"%s\"] = [%s]; ",
+                                              suggestions, (char*)key, (char*)value);
+       katze_assign (suggestions, _suggestions);
+    }
+    script = g_strdup_printf ("function FormSuggestions(eid) { "
+                              "arr = new Array();"
+                              "%s"
+                              "this.suggestions = arr[eid]; }"
+                              "%s",
+                              suggestions,
+                              jsforms);
+    g_free (suggestions);
    return script;
 }
 
@@ -104,7 +110,7 @@ formhistory_update_main_hash (GHashTable* keys)
     while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
     {
         if (value && *value && (strlen (value) > MAXCHARS || strlen (value) < MINCHARS))
-            return;
+            continue;
 
         tmp = g_hash_table_lookup (global_keys, (gpointer)key);
         if (tmp)
