@@ -905,26 +905,44 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
 #endif
 
 static void
+midori_view_apply_scroll_position (MidoriView* view)
+{
+    if (view->scrollh > -2)
+    {
+        if (view->scrollh > 0)
+        {
+            GtkAdjustment* adjustment = katze_object_get_object (view, "hadjustment");
+            gtk_adjustment_set_value (adjustment, view->scrollh);
+            g_object_unref (adjustment);
+        }
+        view->scrollh = -3;
+    }
+    if (view->scrollv > -2)
+    {
+        if (view->scrollv > 0)
+        {
+            GtkAdjustment* adjustment = katze_object_get_object (view, "vadjustment");
+            gtk_adjustment_set_value (adjustment, view->scrollv);
+            g_object_unref (adjustment);
+        }
+        view->scrollv = -3;
+    }
+}
+
+static void
 webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                                   WebKitWebFrame* web_frame,
                                   MidoriView*     view)
 {
     g_object_freeze_notify (G_OBJECT (view));
 
+    /* TODO: Find a better condition than a finished load.
+      Apparently WEBKIT_LOAD_FIRST_VISUALLY_NON_EMPTY_LAYOUT is too early. */
+    midori_view_apply_scroll_position (view);
+
     view->progress = 1.0;
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
-
-    if (view->scrollh || view->scrollv)
-    {
-        GtkAdjustment* adjustment = katze_object_get_object (view, "hadjustment");
-        gtk_adjustment_set_value (adjustment, view->scrollh);
-        g_object_unref (adjustment);
-        adjustment = katze_object_get_object (view, "vadjustment");
-        gtk_adjustment_set_value (adjustment, view->scrollv);
-        g_object_unref (adjustment);
-        view->scrollh = view->scrollv = 0;
-    }
 
     if (1)
     {
@@ -2208,7 +2226,7 @@ midori_view_init (MidoriView* view)
     view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
 
     view->item = NULL;
-    view->scrollh = view->scrollv = 0;
+    view->scrollh = view->scrollv = -2;
     view->back_forward_set = FALSE;
 
     view->download_manager = NULL;
@@ -3474,9 +3492,9 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
     else if (g_str_has_prefix (key, "scroll"))
     {
         gint value = katze_item_get_meta_integer (item, key);
-        if (!view->scrollh && key[6] == 'h')
+        if (view->scrollh == -2 && key[6] == 'h')
             view->scrollh = value > -1 ? value : 0;
-        else if (!view->scrollv && key[6] == 'v')
+        else if (view->scrollv == -2 && key[6] == 'v')
             view->scrollv = value > -1 ? value : 0;
         else
             return;
