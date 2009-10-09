@@ -1776,13 +1776,19 @@ main (int    argc,
             i = 0;
             while (uris[i] != NULL)
             {
-                #if GLIB_CHECK_VERSION (2, 22, 0)
-                gchar* encoded = g_hostname_to_unicode (uris[i]);
+                #ifdef HAVE_LIBSOUP_2_27_90
+                gchar* path;
+                gchar* hostname = sokoke_hostname_from_uri (uris[i], &path);
+                gchar* encoded = g_hostname_to_ascii (hostname);
+
                 if (encoded)
                 {
+                    gchar* res = g_strconcat ("http://", encoded, path, NULL);
                     g_free (uris[i]);
-                    uris[i] = encoded;
+                    g_free (encoded);
+                    uris[i] = res;
                 }
+                g_free (hostname);
                 #else
                 uris[i] = sokoke_idn_to_punycode (uris[i]);
                 #endif

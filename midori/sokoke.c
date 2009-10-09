@@ -197,7 +197,7 @@ sokoke_spawn_program (const gchar* command,
  *
  * Return value: a newly allocated hostname
  **/
-static gchar*
+gchar*
 sokoke_hostname_from_uri (const gchar* uri,
                           gchar**      path)
 {

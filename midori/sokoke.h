@@ -42,6 +42,10 @@ gchar* sokoke_search_uri                (const gchar*    uri,
                                          const gchar*    keywords);
 
 gchar*
+sokoke_hostname_from_uri                (const gchar*    uri,
+                                         gchar**         path);
+
+gchar*
 sokoke_idn_to_punycode                  (gchar*          uri);
 
 gchar*
