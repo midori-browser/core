@@ -23,7 +23,7 @@
 #if WEBKIT_CHECK_VERSION (1, 1, 14)
 
 static GHashTable* pattern;
-static gchar* blockcss = "";
+static gchar* blockcss = NULL;
 
 static void
 adblock_parse_file (gchar* path);
@@ -97,7 +97,7 @@ adblock_reload_rules (MidoriExtension* extension)
     pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_regex_unref);
-    blockcss = "";
+    katze_assign (blockcss, NULL);
 
     while (filters[i++] != NULL)
     {
@@ -467,9 +467,13 @@ adblock_app_add_browser_cb (MidoriApp*       app,
 static void
 adblock_frame_add (gchar* line)
 {
+    gchar* new_blockcss;
+
     (void)*line++;
     (void)*line++;
-    blockcss = g_strdup_printf ("%s %s { display: none !important; }",blockcss,line);
+    new_blockcss = g_strdup_printf ("%s %s { display: none !important; }",
+                                    blockcss, line);
+    katze_assign (blockcss, new_blockcss);
 }
 
 static gchar*
@@ -568,7 +572,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
         app, adblock_app_add_browser_cb, extension);
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
-    blockcss = "";
+    katze_assign (blockcss, NULL);
     g_hash_table_destroy (pattern);
 }
 
