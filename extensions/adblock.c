@@ -22,10 +22,10 @@
 
 #if WEBKIT_CHECK_VERSION (1, 1, 14)
 
-static GHashTable* pattern = NULL;
+static GHashTable* pattern;
 static gchar* blockcss = "";
 
-static GHashTable*
+static void
 adblock_parse_file (gchar* path);
 
 static gchar *
@@ -73,7 +73,9 @@ adblock_download_notify_status_cb (WebKitDownload* download,
                                    GParamSpec*     pspec,
                                    gchar*          path)
 {
-    pattern = adblock_parse_file (path);
+    if (!g_file_test (path, G_FILE_TEST_EXISTS))
+       return;
+    adblock_parse_file (path);
     g_free (path);
     /* g_object_unref (download); */
 }
@@ -92,7 +94,9 @@ adblock_reload_rules (MidoriExtension* extension)
     if (!filters)
         return;
 
-    pattern = NULL;
+    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
+                   (GDestroyNotify)g_free,
+                   (GDestroyNotify)g_regex_unref);
     blockcss = "";
 
     while (filters[i++] != NULL)
@@ -116,7 +120,7 @@ adblock_reload_rules (MidoriExtension* extension)
         }
         else
         {
-            pattern = adblock_parse_file (path);
+            adblock_parse_file (path);
             g_free (path);
         }
         g_free (filename);
@@ -431,9 +435,8 @@ adblock_add_tab_cb (MidoriBrowser* browser,
     if (blockcss && *blockcss)
         g_signal_connect (web_view, "window-object-cleared",
             G_CALLBACK (adblock_window_object_cleared_cb), 0);
-    if (pattern)
-        g_signal_connect (web_view, "resource-request-starting",
-            G_CALLBACK (adblock_resource_request_starting_cb), view);
+    g_signal_connect (web_view, "resource-request-starting",
+         G_CALLBACK (adblock_resource_request_starting_cb), view);
 }
 
 static void
@@ -452,12 +455,9 @@ adblock_app_add_browser_cb (MidoriApp*       app,
                             MidoriBrowser*   browser,
                             MidoriExtension* extension)
 {
-    if (pattern)
-    {
-        midori_browser_foreach (browser,
-            (GtkCallback)adblock_add_tab_foreach_cb, browser);
-        g_signal_connect (browser, "add-tab", G_CALLBACK (adblock_add_tab_cb), 0);
-    }
+    midori_browser_foreach (browser,
+          (GtkCallback)adblock_add_tab_foreach_cb, browser);
+    g_signal_connect (browser, "add-tab", G_CALLBACK (adblock_add_tab_cb), 0);
     g_signal_connect (browser, "populate-tool-menu",
         G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
     g_signal_connect (extension, "deactivate",
@@ -508,17 +508,12 @@ adblock_parse_line (gchar* line)
     return adblock_fixup_regexp (line);
 }
 
-static GHashTable*
+static void
 adblock_parse_file (gchar* path)
 {
     FILE* file;
     if ((file = g_fopen (path, "r")))
     {
-        GHashTable* patt = g_hash_table_new_full (g_str_hash, g_str_equal,
-                               (GDestroyNotify)g_free,
-                               (GDestroyNotify)g_regex_unref);
-
-        gboolean have_pattern = FALSE;
         gchar line[500];
         GRegex* regex;
 
@@ -540,17 +535,10 @@ adblock_parse_file (gchar* path)
                 g_free (parsed);
             }
             else
-            {
-                have_pattern = TRUE;
-                g_hash_table_insert (patt, parsed, regex);
-            }
+                g_hash_table_insert (pattern, parsed, regex);
         }
         fclose (file);
-
-        if (have_pattern)
-            return patt;
     }
-    return NULL;
 }
 
 static void
@@ -581,8 +569,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
     blockcss = "";
-    if (pattern)
-        g_hash_table_destroy (pattern);
+    g_hash_table_destroy (pattern);
 }
 
 static void
@@ -637,7 +624,7 @@ test_adblock_pattern (void)
         "http://ads.bla.blub/*\n"
         "http://ads.blub.boing/*",
         -1, NULL);
-    pattern = adblock_parse_file (filename);
+    adblock_parse_file (filename);
 
     g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
               "http://ads.foo.bar/teddy"));
@@ -673,7 +660,7 @@ test_adblock_count (void)
         gdouble elapsed = 0.0;
         gchar* str;
         int i;
-        pattern = adblock_parse_file (filename);
+        adblock_parse_file (filename);
         for (i = 0; i < 6; i++)
         {
             str = urls[i];
