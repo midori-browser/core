@@ -46,7 +46,7 @@ sokoke_hostname_from_uri                (const gchar*    uri,
                                          gchar**         path);
 
 gchar*
-sokoke_idn_to_punycode                  (gchar*          uri);
+sokoke_uri_to_ascii                     (const gchar*    uri);
 
 gchar*
 sokoke_magic_uri                        (const gchar*    uri,

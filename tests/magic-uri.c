@@ -86,27 +86,46 @@ magic_uri_uri (void)
 static void
 magic_uri_idn (void)
 {
-    #if HAVE_LIBIDN
-    test_input ("http://www.münchhausen.at", "http://www.xn--mnchhausen-9db.at");
-    test_input ("http://www.خداوند.com/", "http://www.xn--mgbndb8il.com/");
-    test_input ("айкидо.com", "http://xn--80aildf0a.com");
-    test_input ("http://東京理科大学.jp", "http://xn--1lq68wkwbj6ugkpigi.jp");
-    test_input ("https://青のネコ",  "https://xn--u9jthzcs263c");
+    typedef struct
+    {
+        const gchar* before;
+        const gchar* after;
+    } URIItem;
+
+    static const URIItem items[] = {
+    #if HAVE_LIBIDN || defined (HAVE_LIBSOUP_2_27_90)
+     { "http://www.münchhausen.at", "http://www.xn--mnchhausen-9db.at" },
+     { "http://www.خداوند.com/", "http://www.xn--mgbndb8il.com/" },
+     { "айкидо.com", "xn--80aildf0a.com" },
+     { "http://東京理科大学.jp", "http://xn--1lq68wkwbj6ugkpigi.jp" },
+     { "https://青のネコ",  "https://xn--u9jthzcs263c" },
     #else
-    test_input ("http://www.münchhausen.at", "http://www.münchhausen.at");
-    test_input ("http://www.خداوند.com/", "http://www.خداوند.com/");
-    test_input ("айкидо.com", "http://айкидо.com");
-    test_input ("http://東京理科大学.jp", "http://東京理科大学.jp");
-    test_input ("https://青のネコ.co.jp",  "https://青のネコ.co.jp");
+     { "http://www.münchhausen.at", NULL },
+     { "http://www.خداوند.com/", NULL },
+     { "айкидо.com", NULL },
+     { "http://東京理科大学.jp", NULL },
+     { "https://青のネコ.co.jp",  NULL },
     #endif
-    test_input ("http://en.wikipedia.org/wiki/Kölsch_language",
-                "http://en.wikipedia.org/wiki/Kölsch_language");
-    test_input ("en.wikipedia.org/wiki/Kölsch_language",
-                "http://en.wikipedia.org/wiki/Kölsch_language");
+    { "http://en.wikipedia.org/wiki/Kölsch_language", NULL },
+    { "file:///home/mark/frühstück", NULL },
+     };
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
+    {
+        gchar* result = sokoke_uri_to_ascii (items[i].before);
+        const gchar* after = items[i].after ? items[i].after : items[i].before;
+        sokoke_assert_str_equal (items[i].before, result, after);
+        g_free (result);
+    }
+
+    #if HAVE_LIBIDN
+    test_input ("айкидо.com", "http://xn--80aildf0a.com");
+    #else
+    test_input ("айкидо.com", "http://айкидо.com");
+    #endif
     test_input ("sm Küchenzubehör", SM "Küchenzubehör");
     test_input ("sm 東京理科大学", SM "東京理科大学");
-    test_input ("file:///home/mark/frühstück",
-                "file:///home/mark/frühstück");
 }
 
 static void

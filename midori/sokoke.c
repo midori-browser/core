@@ -185,7 +185,6 @@ sokoke_spawn_program (const gchar* command,
     return TRUE;
 }
 
-#if defined (HAVE_LIBSOUP_2_27_90) || HAVE_LIBIDN
 /**
  * sokoke_hostname_from_uri:
  * @uri: an URI string
@@ -222,42 +221,60 @@ sokoke_hostname_from_uri (const gchar* uri,
         hostname = g_strdup (uri);
     return hostname;
 }
-#endif
 
 /**
- * sokoke_idn_to_punycode:
+ * sokoke_hostname_to_ascii:
+ * @uri: an URI string
+ *
+ * The specified hostname is encoded if it is not ASCII.
+ *
+ * If no IDN support is available at compile time,
+ * the hostname will be returned unaltered.
+ *
+ * Return value: a newly allocated hostname
+ **/
+static gchar*
+sokoke_hostname_to_ascii (const gchar* hostname)
+{
+    #ifdef HAVE_LIBSOUP_2_27_90
+    return g_hostname_to_ascii (hostname);
+    #elif HAVE_LIBIDN
+    uint32_t* q;
+    char* encoded;
+    int rc;
+
+    if ((q = stringprep_utf8_to_ucs4 (hostname, -1, NULL)))
+    {
+        rc = idna_to_ascii_4z (q, &encoded, IDNA_ALLOW_UNASSIGNED);
+        free (q);
+        if (rc == IDNA_SUCCESS)
+            return encoded;
+    }
+    #endif
+    return g_strdup (hostname);
+}
+
+/**
+ * sokoke_uri_to_ascii:
  * @uri: an URI string
  *
  * The specified URI is parsed and the hostname
  * part of it is encoded if it is not ASCII.
  *
- * If libIDN is not available at compile time,
- * this code will pass the string unaltered.
+ * If no IDN support is available at compile time,
+ * the URI will be returned unaltered.
  *
- * The called function owns the passed string.
- *
- * Return value: a newly allocated ASCII URI
+ * Return value: a newly allocated URI
  **/
 gchar*
-sokoke_idn_to_punycode (gchar* uri)
+sokoke_uri_to_ascii (const gchar* uri)
 {
-    #if HAVE_LIBIDN
     gchar* proto;
-    gchar* hostname;
-    gchar* path;
-    char *s;
-    uint32_t *q;
-    int rc;
-    gchar *result;
 
     if ((proto = g_utf8_strchr (uri, -1, ':')))
     {
         gulong offset;
         gchar* buffer;
-
-        /* 'file' URIs don't have a hostname */
-        if (!strcmp (proto, "file"))
-            return uri;
 
         offset = g_utf8_pointer_to_offset (uri, proto);
         buffer = g_malloc0 (offset + 1);
@@ -265,36 +282,27 @@ sokoke_idn_to_punycode (gchar* uri)
         proto = buffer;
     }
 
-    hostname = sokoke_hostname_from_uri (uri, &path);
+    gchar* path;
+    gchar* hostname = sokoke_hostname_from_uri (uri, &path);
+    gchar* encoded = sokoke_hostname_to_ascii (hostname);
 
-    if (!(q = stringprep_utf8_to_ucs4 (hostname, -1, NULL)))
+    if (encoded)
     {
-        g_free (proto);
-        g_free (hostname);
-        return uri;
+        gchar* res = g_strconcat (proto ? proto : "", proto ? "://" : "",
+                                  encoded, path, NULL);
+        g_free (encoded);
+        return res;
     }
+    g_free (hostname);
+    return g_strdup (uri);
+}
 
-    rc = idna_to_ascii_4z (q, &s, IDNA_ALLOW_UNASSIGNED);
-    free (q);
-    if (rc != IDNA_SUCCESS)
-    {
-        g_free (proto);
-        g_free (hostname);
-        return uri;
-    }
-
-    if (proto)
-    {
-        result = g_strconcat (proto, "://", s, path ? path : "", NULL);
-        g_free (proto);
-        if (path)
-            g_free (hostname);
-    }
-    else
-        result = g_strdup (s);
+static gchar*
+sokoke_idn_to_punycode (gchar* uri)
+{
+    #if HAVE_LIBIDN
+    gchar* result = sokoke_uri_to_ascii (uri);
     g_free (uri);
-    free (s);
-
     return result;
     #else
     return uri;
