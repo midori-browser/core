@@ -620,6 +620,10 @@ test_adblock_pattern (void)
     gint temp;
     gchar* filename;
 
+    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
+              (GDestroyNotify)g_free,
+              (GDestroyNotify)g_regex_unref);
+
     temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
 
     g_file_set_contents (filename,
@@ -643,14 +647,19 @@ test_adblock_pattern (void)
     g_assert (!g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
               "http://ads.foo.boing/beer"));
 
-    g_hash_table_destroy (pattern);
     close (temp);
     g_unlink (filename);
+
+    g_hash_table_destroy (pattern);
 }
 
 static void
 test_adblock_count (void)
 {
+    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
+              (GDestroyNotify)g_free,
+              (GDestroyNotify)g_regex_unref);
+
         gchar* urls[6] = {
             "https://bugs.webkit.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&query_based_on=gtkport&field0-0-0=keywords&type0-0-0=anywordssubstr&value0-0-0=Gtk%20Cairo%20soup&field0-0-1=short_desc&type0-0-1=anywordssubstr&value0-0-1=Gtk%20Cairo%20soup%20autoconf%20automake%20autotool&field0-0-2=component&type0-0-2=equals&value0-0-2=WebKit%20Gtk",
             "http://www.engadget.com/2009/09/24/google-hits-android-rom-modder-with-a-cease-and-desist-letter/",
@@ -673,6 +682,8 @@ test_adblock_count (void)
             elapsed += g_test_timer_elapsed ();
         }
         g_print ("Search took %f seconds\n", elapsed);
+
+    g_hash_table_destroy (pattern);
 }
 
 void
