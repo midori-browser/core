@@ -124,6 +124,7 @@ dnsprefetch_activate_cb (MidoriExtension* extension,
     MidoriBrowser* browser;
     guint i;
 
+    katze_assign (hosts, g_strdup (""));
     host_count = 0;
 
     browsers = katze_object_get_object (app, "browsers");
