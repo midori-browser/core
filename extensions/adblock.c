@@ -24,6 +24,7 @@
 
 static GHashTable* pattern;
 static gchar* blockcss = NULL;
+static gchar* blockscript = NULL;
 
 static void
 adblock_parse_file (gchar* path);
@@ -423,8 +424,7 @@ adblock_window_object_cleared_cb (GtkWidget*      web_view,
                                   JSContextRef    js_context,
                                   JSObjectRef     js_window)
 {
-    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (web_view),
-                                    adblock_build_js (blockcss));
+    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (web_view), blockscript);
 }
 
 static void
@@ -432,11 +432,10 @@ adblock_add_tab_cb (MidoriBrowser* browser,
                     MidoriView*    view)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    if (blockcss && *blockcss)
-        g_signal_connect (web_view, "window-object-cleared",
-            G_CALLBACK (adblock_window_object_cleared_cb), 0);
+    g_signal_connect (web_view, "window-object-cleared",
+        G_CALLBACK (adblock_window_object_cleared_cb), 0);
     g_signal_connect (web_view, "resource-request-starting",
-         G_CALLBACK (adblock_resource_request_starting_cb), view);
+        G_CALLBACK (adblock_resource_request_starting_cb), view);
 }
 
 static void
@@ -541,6 +540,7 @@ adblock_parse_file (gchar* path)
             else
                 g_hash_table_insert (pattern, parsed, regex);
         }
+        katze_assign (blockscript, adblock_build_js (blockcss));
         fclose (file);
     }
 }
