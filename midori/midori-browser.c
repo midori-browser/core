@@ -6424,12 +6424,15 @@ midori_browser_set_current_page (MidoriBrowser* browser,
                                  gint           n)
 {
     GtkWidget* view;
+    GtkWidget* web_view;
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
     if (view && midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
-    else if (view)
+    else if ((web_view = gtk_bin_get_child (GTK_BIN (view))))
+        gtk_widget_grab_focus (web_view);
+    else
         gtk_widget_grab_focus (view);
 }
 
@@ -6487,6 +6490,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
                                 GtkWidget*     view)
 {
     gint n;
+    GtkWidget* web_view;
 
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (GTK_IS_WIDGET (view));
@@ -6495,6 +6499,8 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     if (view && midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
+    else if ((web_view = gtk_bin_get_child (GTK_BIN (view))))
+        gtk_widget_grab_focus (web_view);
     else
         gtk_widget_grab_focus (view);
 }
