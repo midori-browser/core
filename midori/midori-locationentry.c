@@ -409,6 +409,11 @@ entry_key_press_event (GtkWidget*           widget,
                 gtk_combo_box_popup (GTK_COMBO_BOX (location_entry));
             return TRUE;
         }
+        case GDK_Page_Up:
+        case GDK_Page_Down:
+        {
+            return TRUE;
+        }
     }
 
     return FALSE;
