@@ -102,14 +102,19 @@ static void
 formhistory_update_main_hash (GHashTable* keys)
 {
     GHashTableIter iter;
-    gchar* tmp = "";
-    gchar* new_value = "";
-    gchar* key = "";
-    gchar* value = "";
+    gchar* key;
+    gchar* value;
+
     g_hash_table_iter_init (&iter, keys);
     while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
     {
-        if (value && *value && (strlen (value) > MAXCHARS || strlen (value) < MINCHARS))
+        guint length;
+        gchar* tmp;
+
+        if (!(value && *value))
+            continue;
+        length = strlen (value);
+        if (length > MAXCHARS || length < MINCHARS)
             continue;
 
         tmp = g_hash_table_lookup (global_keys, (gpointer)key);
@@ -119,14 +124,14 @@ formhistory_update_main_hash (GHashTable* keys)
             if (!g_regex_match_simple (rvalue, tmp,
                                        G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
             {
-                new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
+                gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
                 g_hash_table_replace (global_keys, key, new_value);
             }
             g_free (rvalue);
         }
         else
         {
-            new_value = g_strdup_printf ("\"%s\",",value);
+            gchar* new_value = g_strdup_printf ("\"%s\",",value);
             g_hash_table_insert (global_keys, key, new_value);
         }
     }
