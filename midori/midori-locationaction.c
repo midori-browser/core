@@ -45,13 +45,6 @@ struct _MidoriLocationActionClass
     GtkActionClass parent_class;
 };
 
-typedef struct _MidoriLocationEntryItem
-{
-    GdkPixbuf* favicon;
-    const gchar* uri;
-    const gchar* title;
-} MidoriLocationEntryItem;
-
 G_DEFINE_TYPE (MidoriLocationAction, midori_location_action, GTK_TYPE_ACTION)
 
 enum
@@ -1366,8 +1359,6 @@ midori_location_action_set_title_for_uri (MidoriLocationAction* location_action,
                                           const gchar*          title,
                                           const gchar*          uri)
 {
-    MidoriLocationEntryItem item;
-
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (title != NULL);
     g_return_if_fail (uri != NULL);
