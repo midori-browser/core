@@ -3575,7 +3575,7 @@ midori_view_can_zoom_in (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    return view->web_view != NULL;
+    return view->web_view != NULL && !g_str_has_prefix (view->mime_type, "image/");
 }
 
 gboolean
@@ -3583,7 +3583,7 @@ midori_view_can_zoom_out (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    return view->web_view != NULL;
+    return view->web_view != NULL && !g_str_has_prefix (view->mime_type, "image/");
 }
 
 gboolean
