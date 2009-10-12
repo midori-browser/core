@@ -1045,8 +1045,10 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
             gtk_tree_model_get (model, &iter, FAVICON_COL, &pixbuf,
                 URI_COL, &uri, -1);
 
+            #if !HAVE_HILDON
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                                                  GTK_ICON_ENTRY_PRIMARY, pixbuf);
+            #endif
             g_object_unref (pixbuf);
             katze_assign (location_action->text, uri);
             katze_assign (location_action->uri, g_strdup (uri));
@@ -1206,8 +1208,10 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
         gtk_entry_set_text (GTK_ENTRY (entry), text);
+        #if !HAVE_HILDON
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
             GTK_ICON_ENTRY_PRIMARY, icon);
+        #endif
     }
 
     if (icon)
@@ -1253,6 +1257,7 @@ midori_location_action_set_icon (MidoriLocationAction* location_action,
     GtkWidget* location_entry;
     GtkWidget* entry;
 
+    #if !HAVE_HILDON
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
 
@@ -1271,6 +1276,7 @@ midori_location_action_set_icon (MidoriLocationAction* location_action,
             gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_JUMP_TO);
     }
+    #endif
 }
 
 void
@@ -1305,6 +1311,7 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
 
     midori_location_action_set_item (location_action, icon, uri, title, TRUE, FALSE);
 
+    #if !HAVE_HILDON
     if (midori_location_action_is_frozen (location_action))
         return;
 
@@ -1320,6 +1327,7 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
             GTK_ICON_ENTRY_PRIMARY, icon);
     }
+    #endif
 }
 
 void
@@ -1337,6 +1345,7 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
 
     midori_location_action_set_item (location_action, icon, uri, NULL, FALSE, TRUE);
 
+    #if !HAVE_HILDON
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
     if (!g_strcmp0 (location_action->uri, uri))
@@ -1349,6 +1358,7 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
             GTK_ICON_ENTRY_PRIMARY, icon);
     }
+    #endif
 }
 
 void
@@ -1458,6 +1468,7 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 
     katze_assign (location_action->secondary_icon, g_strdup (stock_id));
 
+    #if !HAVE_HILDON
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
     for (; proxies != NULL; proxies = g_slist_next (proxies))
@@ -1469,6 +1480,7 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
             GTK_ICON_ENTRY_SECONDARY, stock_id);
     }
+    #endif
 }
 
 /**

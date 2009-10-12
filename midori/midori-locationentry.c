@@ -379,10 +379,12 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
     location_entry->progress = 0.0;
 
     entry = gtk_icon_entry_new ();
+    #if !HAVE_HILDON
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FILE);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_SECONDARY, TRUE);
+    #endif
     g_signal_connect_after (entry, "key-press-event",
         G_CALLBACK (entry_key_press_event), location_entry);
     #if !GTK_CHECK_VERSION (2, 16, 0)
