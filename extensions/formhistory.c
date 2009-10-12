@@ -137,15 +137,20 @@ formhistory_session_request_queued_cb (SoupSession* session,
                                        SoupMessage* msg)
 {
     gchar* method = katze_object_get_string (msg, "method");
-    if (method[0] == 'P' && method[1] == 'O' && method[2] == 'S')
+    if (method && !strncmp (method, "POST", 4))
     {
-        SoupMessageHeaders* hdrs = msg->request_headers;
-        /* FIXME: Need a permanent storage implementation */
-        const char* referer = soup_message_headers_get_one (hdrs, "Referer");
+        /* SoupMessageHeaders* hdrs = msg->request_headers;
+        const gchar* referer; */
         SoupMessageBody* body = msg->request_body;
-        soup_buffer_free (soup_message_body_flatten (body));
-        GHashTable* keys = soup_form_decode (body->data);
-        formhistory_update_main_hash (keys);
+        if (soup_message_body_get_accumulate (body))
+        {
+            SoupBuffer* buffer = soup_message_body_flatten (body);
+            GHashTable* keys = soup_form_decode (body->data);
+            formhistory_update_main_hash (keys);
+            soup_buffer_free (buffer);
+        }
+        /* FIXME: Need a permanent storage implementation */
+        /* referer = soup_message_headers_get_one (hdrs, "Referer"); */
     }
     g_free (method);
 }
