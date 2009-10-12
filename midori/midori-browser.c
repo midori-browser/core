@@ -336,11 +336,21 @@ _midori_browser_update_interface (MidoriBrowser* browser)
 
     action = _action_by_name (browser, "Location");
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
+    {
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
+        #if HAVE_HILDON
+        gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), TRUE);
+        #endif
+    }
     else
+    {
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
+        #if HAVE_HILDON
+        gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), FALSE);
+        #endif
+    }
 }
 
 static void
@@ -2126,6 +2136,92 @@ _action_add_speed_dial_activate (GtkAction*     action,
 }
 
 static void
+_action_add_desktop_shortcut_activate (GtkAction*     action,
+                                       MidoriBrowser* browser)
+{
+    #if defined (GDK_WINDOWING_X11)
+    /* TODO: Implement */
+    #elif defined(GDK_WINDOWING_QUARTZ)
+    /* TODO: Implement */
+    #elif defined (GDK_WINDOWING_WIN32)
+    /* TODO: Implement */
+    #elif HAVE_HILDON
+    /* TODO: Implement */
+    #endif
+}
+
+static void
+_action_add_news_feed_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    GtkWidget* view;
+    const gchar* uri;
+
+    if (!(view = midori_browser_get_current_tab (browser)))
+        return;
+    if (!(uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
+        return;
+
+    if (browser->news_aggregator && *browser->news_aggregator)
+        sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
+    else
+    {
+        GtkWidget* dialog = gtk_message_dialog_new (
+            GTK_WINDOW (browser), 0, GTK_MESSAGE_INFO,
+            GTK_BUTTONS_OK, "%s", _("New feed"));
+        gtk_message_dialog_format_secondary_text (
+            GTK_MESSAGE_DIALOG (dialog), "%s", uri);
+        gtk_widget_show (dialog);
+        g_signal_connect_swapped (dialog, "response",
+            G_CALLBACK (gtk_widget_destroy), dialog);
+    }
+}
+
+static void
+_action_compact_add_activate (GtkAction*     action,
+                              MidoriBrowser* browser)
+{
+    GtkStockItem item;
+    GtkWidget* dialog;
+    GtkBox* box;
+    gchar* label = NULL;
+    GtkWidget* button;
+
+    if (!GTK_WIDGET_VISIBLE (browser))
+        return;
+
+    gtk_stock_lookup (GTK_STOCK_ADD, &item);
+    dialog = g_object_new (GTK_TYPE_DIALOG,
+        "transient-for", browser, "title", item.label, NULL); /* Add a new bookmark */
+    box = GTK_BOX (GTK_DIALOG (dialog)->vbox);
+
+    action = _action_by_name (browser, "BookmarkAdd");
+    katze_assign (label, katze_object_get_string (action, "label"));
+    button = gtk_button_new_with_mnemonic (label);
+    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
+    gtk_action_connect_proxy (action, button);
+    action = _action_by_name (browser, "AddSpeedDial");
+    katze_assign (label, katze_object_get_string (action, "label"));
+    button = gtk_button_new_with_mnemonic (label);
+    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
+    gtk_action_connect_proxy (action, button);
+    action = _action_by_name (browser, "AddDesktopShortcut");
+    katze_assign (label, katze_object_get_string (action, "label"));
+    button = gtk_button_new_with_mnemonic (label);
+    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
+    gtk_action_connect_proxy (action, button);
+    action = _action_by_name (browser, "AddNewsFeed");
+    katze_assign (label, katze_object_get_string (action, "label"));
+    button = gtk_button_new_with_mnemonic (label);
+    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
+    gtk_action_connect_proxy (action, button);
+
+    g_free (label);
+
+    gtk_dialog_run (GTK_DIALOG (dialog));
+}
+
+static void
 _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
@@ -2821,7 +2917,9 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "-" },
       #endif
       { "ClearPrivateData" },
+      #if !HAVE_HILDON
       { "Fullscreen" },
+      #endif
       { "Preferences" },
     };
     guint i;
@@ -3409,21 +3507,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
         if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
             _action_location_submit_uri (action, uri, FALSE, browser);
         else if ((uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
-        {
-            if (browser->news_aggregator && *browser->news_aggregator)
-                sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
-            else
-            {
-                GtkWidget* dialog = gtk_message_dialog_new (
-                    GTK_WINDOW (browser), 0, GTK_MESSAGE_INFO,
-                    GTK_BUTTONS_OK, "%s", _("New feed"));
-                    gtk_message_dialog_format_secondary_text (
-                        GTK_MESSAGE_DIALOG (dialog), "%s", uri);
-                 gtk_widget_show (dialog);
-                 g_signal_connect_swapped (dialog, "response",
-                     G_CALLBACK (gtk_widget_destroy), dialog);
-            }
-        }
+            _action_add_news_feed_activate (action, browser);
         else
             _action_location_submit_uri (action, uri, FALSE, browser);
         return TRUE;
@@ -4469,6 +4553,15 @@ static const GtkActionEntry entries[] = {
  { "AddSpeedDial", NULL,
    N_("Add to Speed _dial"), "<Ctrl>h",
    N_("Add shortcut to speed dial"), G_CALLBACK (_action_add_speed_dial_activate) },
+ { "AddDesktopShortcut", NULL,
+   N_("Add Shortcut to the _desktop"), "<Ctrl>h",
+   N_("Add shortcut to the desktop"), G_CALLBACK (_action_add_desktop_shortcut_activate) },
+ { "AddNewsFeed", NULL,
+   N_("Subscribe to News _feed"), NULL,
+   N_("Subscribe to this news feed"), G_CALLBACK (_action_add_news_feed_activate) },
+ { "CompactAdd", GTK_STOCK_ADD,
+  NULL, NULL,
+  NULL, G_CALLBACK (_action_compact_add_activate) },
  { "TabClose", GTK_STOCK_CLOSE,
    N_("_Close Tab"), "<Ctrl>w",
    N_("Close the current tab"), G_CALLBACK (_action_tab_close_activate) },
@@ -4777,6 +4870,7 @@ static const gchar* ui_markup =
     "<separator/>"
     "<menuitem action='SaveAs'/>"
     "<menuitem action='AddSpeedDial'/>"
+    "<menuitem action='AddDesktopShortcut'/>"
     "<separator/>"
     "<menuitem action='TabClose'/>"
     "<menuitem action='WindowClose'/>"
@@ -5076,10 +5170,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkWidget* homepage;
     GtkWidget* back;
     GtkWidget* forward;
-    #if HAVE_HILDON
-    GtkWidget* menu;
-    GList* children;
-    #endif
     GtkSettings* gtk_settings;
     GtkWidget* hpaned;
     GtkWidget* vpaned;
@@ -5302,14 +5392,14 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_unref (action);
 
     /* Create the menubar */
-    browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     #if HAVE_HILDON
     browser->menubar = gtk_menu_new ();
-    _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
+    _action_compact_menu_populate_popup (NULL, GTK_MENU (browser->menubar), browser);
     hildon_window_set_menu (HILDON_WINDOW (browser), GTK_MENU (browser->menubar));
     hildon_program_add_window (hildon_program_get_instance (),
                                HILDON_WINDOW (browser));
     #else
+    browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
     gtk_widget_hide (browser->menubar);
     g_signal_connect (browser->menubar, "button-press-event",
@@ -5354,6 +5444,8 @@ midori_browser_init (MidoriBrowser* browser)
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_sensitive (browser, "SelectionSourceView", FALSE);
     _action_set_sensitive (browser, "LastSession", FALSE);
+    /* FIXME: Enable once implemented */
+    _action_set_sensitive (browser, "AddDesktopShortcut", FALSE);
 
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
@@ -5683,7 +5775,7 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
     GtkWidget* toolitem;
 
     #if HAVE_HILDON
-    items = "Bookmarks,Window,Back,Forward,ReloadStop,Location,Panel,Trash";
+    items = "Bookmarks,CompactAdd,ReloadStop,Location,Back,Fullscreen";
     #endif
 
     gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
