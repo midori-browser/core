@@ -2813,11 +2813,13 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "Print" },
       { "PrivateBrowsing" },
       { NULL },
+      #if !HAVE_HILDON
       { "Bookmarkbar" },
       { "Panel" },
       { "Statusbar" },
       { NULL },
       { "-" },
+      #endif
       { "ClearPrivateData" },
       { "Fullscreen" },
       { "Preferences" },
@@ -5302,15 +5304,8 @@ midori_browser_init (MidoriBrowser* browser)
     /* Create the menubar */
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     #if HAVE_HILDON
-    menu = gtk_menu_new ();
-    children = gtk_container_get_children (GTK_CONTAINER (browser->menubar));
-    while (children)
-    {
-        menuitem = GTK_WIDGET (children->data);
-        gtk_widget_reparent (menuitem, menu);
-        children = g_list_next (children);
-    }
-    browser->menubar = menu;
+    browser->menubar = gtk_menu_new ();
+    _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
     hildon_window_set_menu (HILDON_WINDOW (browser), GTK_MENU (browser->menubar));
     hildon_program_add_window (hildon_program_get_instance (),
                                HILDON_WINDOW (browser));
