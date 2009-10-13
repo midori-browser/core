@@ -304,7 +304,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     action = gtk_action_group_get_action (browser->action_group, "ReloadStop");
     if (!loading)
     {
-        gtk_widget_set_sensitive (browser->throbber, FALSE);
         g_object_set (action,
                       "stock-id", GTK_STOCK_REFRESH,
                       "tooltip", _("Reload the current page"),
@@ -315,7 +314,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     }
     else
     {
-        gtk_widget_set_sensitive (browser->throbber, TRUE);
         g_object_set (action,
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
@@ -332,7 +330,15 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                 midori_view_get_progress (view));
         }
     }
+
+    #if HAVE_HILDON
+    #if HILDON_CHECK_VERSION (2, 2, 0)
+    hildon_gtk_window_set_progress_indicator (GTK_WINDOW (browser), loading);
+    #endif
+    #else
+    gtk_widget_set_sensitive (browser->throbber, loading);
     katze_throbber_set_animated (KATZE_THROBBER (browser->throbber), loading);
+    #endif
 
     action = _action_by_name (browser, "Location");
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
@@ -2899,17 +2905,21 @@ _action_window_activate_item (GtkAction*     action,
 
 static void
 _action_compact_menu_populate_popup (GtkAction*     action,
-                                     GtkMenu*       menu,
+                                     GtkWidget*     menu,
                                      MidoriBrowser* browser)
 {
     static const GtkActionEntry actions[] = {
       { "TabNew" },
       { "WindowNew" },
       { "Open" },
+      #if HAVE_HILDON
+      { "Find" },
+      { "Homepage" },
+      { "ManageSearchEngines" },
+      #else
       { "Print" },
       { "PrivateBrowsing" },
       { NULL },
-      #if !HAVE_HILDON
       { "Bookmarkbar" },
       { "Panel" },
       { "Statusbar" },
@@ -2926,6 +2936,28 @@ _action_compact_menu_populate_popup (GtkAction*     action,
 
     for (i = 0; i < G_N_ELEMENTS (actions); i++)
     {
+        #if HAVE_HILDON
+        #if HILDON_CHECK_VERSION (2, 2, 0)
+        #define HAVE_APP_MENU 1
+        #endif
+        #endif
+        #ifdef HAVE_APP_MENU
+        GtkAction* _action;
+        gchar* label;
+        GtkWidget* button;
+
+        if (!actions[i].name)
+            continue;
+        _action = _action_by_name (browser, actions[i].name);
+        label = katze_object_get_string (_action, "label");
+        button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
+        gtk_widget_show (button);
+        gtk_button_set_label (GTK_BUTTON (button), label);
+        g_free (label);
+        g_signal_connect_swapped (button, "clicked",
+            G_CALLBACK (gtk_action_activate), _action);
+        hildon_app_menu_append (HILDON_APP_MENU (menu), GTK_BUTTON (button));
+        #else
         GtkWidget* menuitem;
         if (actions[i].name != NULL)
         {
@@ -2941,6 +2973,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
             menuitem = gtk_separator_menu_item_new ();
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
+        #endif
     }
 }
 
@@ -5166,7 +5199,9 @@ midori_browser_init (MidoriBrowser* browser)
     guint i;
     GError* error;
     GtkAction* action;
+    #if !HAVE_HILDON
     GtkWidget* menuitem;
+    #endif
     GtkWidget* homepage;
     GtkWidget* back;
     GtkWidget* forward;
@@ -5393,9 +5428,15 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Create the menubar */
     #if HAVE_HILDON
+    #if HILDON_CHECK_VERSION (2, 2, 0)
+    browser->menubar = hildon_app_menu_new ();
+    _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
+    hildon_window_set_app_menu (HILDON_WINDOW (browser), HILDON_APP_MENU (browser->menubar));
+    #else
     browser->menubar = gtk_menu_new ();
-    _action_compact_menu_populate_popup (NULL, GTK_MENU (browser->menubar), browser);
+    _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
     hildon_window_set_menu (HILDON_WINDOW (browser), GTK_MENU (browser->menubar));
+    #endif
     hildon_program_add_window (hildon_program_get_instance (),
                                HILDON_WINDOW (browser));
     #else
@@ -5404,17 +5445,16 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_hide (browser->menubar);
     g_signal_connect (browser->menubar, "button-press-event",
         G_CALLBACK (midori_browser_menu_button_press_event_cb), browser);
-    #endif
+
     menuitem = gtk_menu_item_new ();
-    #if !HAVE_HILDON
     gtk_widget_show (menuitem);
-    #endif
     browser->throbber = katze_throbber_new ();
     gtk_widget_show (browser->throbber);
     gtk_container_add (GTK_CONTAINER (menuitem), browser->throbber);
     gtk_widget_set_sensitive (menuitem, FALSE);
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
+    #endif
     browser->menu_tools = gtk_menu_new ();
 
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
