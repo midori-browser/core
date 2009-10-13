@@ -1959,6 +1959,34 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     gtk_widget_show_all (menu);
 }
 
+#if HAVE_HILDON
+static void
+midori_view_web_view_tap_and_hold_cb (GtkWidget*  web_view,
+                                      MidoriView* view)
+{
+    gint x, y;
+    GdkEvent event;
+    gboolean result;
+
+    /* Emulate a pointer motion above the tap position
+      and a right click at the according position. */
+    gdk_window_get_pointer (web_view->window, &x, &y, NULL);
+    event.any.type = GDK_MOTION_NOTIFY;
+    event.any.window = web_view->window;
+    event.motion.x = x;
+    event.motion.y = y;
+    g_signal_emit_by_name (web_view, "motion-notify-event", &event, &result);
+
+    event.any.type = GDK_BUTTON_PRESS;
+    event.any.window = web_view->window;
+    event.button.axes = NULL;
+    event.button.x = x;
+    event.button.y = y;
+    event.button.button = 3;
+    g_signal_emit_by_name (web_view, "button-press-event", &event, &result);
+}
+#endif
+
 static gboolean
 webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
                                    MidoriView* view)
@@ -2634,6 +2662,10 @@ midori_view_construct_web_view (MidoriView* view)
     webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), "");
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
 
+    #if HAVE_HILDON
+    gtk_widget_tap_and_hold_setup (view->web_view, NULL, NULL, 0);
+    #endif
+
     g_object_connect (view->web_view,
                       "signal::navigation-policy-decision-requested",
                       midori_view_web_view_navigation_decision_cb, view,
@@ -2668,6 +2700,10 @@ midori_view_construct_web_view (MidoriView* view)
                       gtk_widget_scroll_event_cb, view,
                       "signal::populate-popup",
                       webkit_web_view_populate_popup_cb, view,
+                      #if HAVE_HILDON
+                      "signal::tap-and-hold",
+                      midori_view_web_view_tap_and_hold_cb, view,
+                      #endif
                       "signal::console-message",
                       webkit_web_view_console_message_cb, view,
                       "signal::window-object-cleared",
