@@ -20,19 +20,16 @@
 static gchar* hosts = NULL;
 static int host_count;
 
-static void
-dnsprefetch_do_prefetch (WebKitWebView* web_view,
-                         const gchar*   title,
-                         const char*    uri,
-                         gpointer       user_data)
+static bool
+dnsprefetch_do_prefetch (const char* uri)
 {
      SoupURI* s_uri;
 
      if (!uri)
-        return;
+        return FALSE;
      s_uri = soup_uri_new (uri);
      if (!s_uri || !s_uri->host)
-         return;
+         return FALSE;
 
      #if GLIB_CHECK_VERSION (2, 22, 0)
      if (g_hostname_is_ip_address (s_uri->host))
@@ -41,12 +38,12 @@ dnsprefetch_do_prefetch (WebKitWebView* web_view,
      #endif
      {
          soup_uri_free (s_uri);
-         return;
+         return FALSE;
      }
      if (!g_str_has_prefix (uri, "http"))
      {
          soup_uri_free (s_uri);
-         return;
+         return FALSE;
      }
 
      if (!g_regex_match_simple (s_uri->host, hosts,
@@ -69,6 +66,16 @@ dnsprefetch_do_prefetch (WebKitWebView* web_view,
          katze_assign (hosts, new_hosts);
      }
      soup_uri_free (s_uri);
+     return TRUE;
+}
+
+static void
+dnsprefetch_prefetch_cb (WebKitWebView* web_view,
+                         const gchar*   title,
+                         const char*    uri,
+                         gpointer       user_data)
+{
+     dnsprefetch_do_prefetch (uri);
 }
 
 static void
@@ -77,7 +84,7 @@ dnsprefetch_add_tab_cb (MidoriBrowser* browser,
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     g_signal_connect (web_view, "hovering-over-link",
-            G_CALLBACK (dnsprefetch_do_prefetch), 0);
+            G_CALLBACK (dnsprefetch_prefetch_cb), 0);
 }
 
 static void
@@ -152,6 +159,33 @@ dnsprefetch_activate_cb (MidoriExtension* extension,
 
     g_object_unref (browsers);
 }
+
+#if G_ENABLE_DEBUG
+static void
+dnsprefetch_parse (void)
+{
+    g_assert (!dnsprefetch_do_prefetch (NULL));
+    g_assert (dnsprefetch_do_prefetch ("http://google.com"));
+    g_assert (dnsprefetch_do_prefetch ("http://google.com"));
+    g_assert (dnsprefetch_do_prefetch ("http://googlecom"));
+    g_assert (dnsprefetch_do_prefetch ("http://1kino.com"));
+    g_assert (dnsprefetch_do_prefetch ("http://"));
+    g_assert (!dnsprefetch_do_prefetch ("http:/"));
+    g_assert (!dnsprefetch_do_prefetch ("http"));
+    g_assert (!dnsprefetch_do_prefetch ("ftp://ftphost.org"));
+    g_assert (!dnsprefetch_do_prefetch ("http://10.0.0.1"));
+    g_assert (!dnsprefetch_do_prefetch ("about:blank"));
+    g_assert (!dnsprefetch_do_prefetch ("javascript: alert()"));
+}
+
+void
+extension_test (void)
+{
+    katze_assign (hosts, g_strdup (""));
+    host_count = 0;
+    g_test_add_func ("/extensions/dnsprefetch/parse", dnsprefetch_parse);
+}
+#endif
 
 MidoriExtension*
 extension_init (void)
