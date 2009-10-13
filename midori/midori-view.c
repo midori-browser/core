@@ -1844,6 +1844,12 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         gtk_menu_shell_append (menu_shell, menuitem);
         #else
         items = gtk_container_get_children (GTK_CONTAINER (menu));
+        #if HAVE_HILDON
+        gtk_widget_hide (g_list_nth_data (items, 2));
+        gtk_widget_set_no_show_all (g_list_nth_data (items, 2), TRUE);
+        gtk_widget_hide (g_list_nth_data (items, 3));
+        gtk_widget_set_no_show_all (g_list_nth_data (items, 3), TRUE);
+        #endif
         menuitem = (GtkWidget*)g_list_nth_data (items, 3);
         /* hack to localize menu item */
         if (GTK_IS_BIN (menuitem))
@@ -1921,6 +1927,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
         }
 
+        #if !HAVE_HILDON
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
@@ -1935,6 +1942,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "AddDesktopShortcut"));
         gtk_menu_shell_append (menu_shell, menuitem);
+        #endif
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SaveAs"));
