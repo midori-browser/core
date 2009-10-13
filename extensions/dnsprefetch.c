@@ -21,18 +21,34 @@ static gchar* hosts = NULL;
 static int host_count;
 
 static void
-dnsprefetch_do_prefetch (WebKitWebView *web_view,
-                         gchar         *title,
-                         gchar         *uri,
+dnsprefetch_do_prefetch (WebKitWebView* web_view,
+                         const gchar*   title,
+                         const char*    uri,
                          gpointer       user_data)
 {
-    SoupURI* s_uri;
+     SoupURI* s_uri;
 
-     /* FIXME: Ignore IP addresses */
-     if (!(uri && g_str_has_prefix (uri, "http")))
+     if (!uri)
+        return;
+     s_uri = soup_uri_new (uri);
+     if (!s_uri)
          return;
 
-     s_uri = soup_uri_new (uri);
+     #if GLIB_CHECK_VERSION (2, 22, 0)
+     if (g_hostname_is_ip_address (s_uri->host))
+     #else
+     if (g_ascii_isdigit (s_uri->host[0]) && g_strstr_len (s_uri->host, 4, "."))
+     #endif
+     {
+         soup_uri_free (s_uri);
+         return;
+     }
+     if (!g_str_has_prefix (uri, "http"))
+     {
+         soup_uri_free (s_uri);
+         return;
+     }
+
      if (!g_regex_match_simple (s_uri->host, hosts,
                                 G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
      {
