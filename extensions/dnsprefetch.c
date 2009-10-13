@@ -31,7 +31,7 @@ dnsprefetch_do_prefetch (WebKitWebView* web_view,
      if (!uri)
         return;
      s_uri = soup_uri_new (uri);
-     if (!s_uri)
+     if (!s_uri || !s_uri->host)
          return;
 
      #if GLIB_CHECK_VERSION (2, 22, 0)
