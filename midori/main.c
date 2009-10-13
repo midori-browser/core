@@ -1185,7 +1185,16 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
 
     dialog = gtk_message_dialog_new (
-        NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
+        NULL, 0, GTK_MESSAGE_WARNING,
+        #if HAVE_HILDON
+        #if HILDON_CHECK_VERSION (2, 2, 0)
+        GTK_BUTTONS_NONE,
+        #else
+        GTK_BUTTONS_OK,
+        #endif
+        #else
+        GTK_BUTTONS_OK,
+        #endif
         _("Midori seems to have crashed the last time it was opened. "
           "If this happened repeatedly, try one of the following options "
           "to solve the problem."));
@@ -1219,6 +1228,19 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (box);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
+    #if HAVE_HILDON
+    #if HILDON_CHECK_VERSION (2, 2, 0)
+    box = gtk_hbox_new (FALSE, 4);
+    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), box, TRUE, FALSE, 4);
+    button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_HALFSCREEN_WIDTH);
+    gtk_button_set_label (GTK_BUTTON (button), GTK_STOCK_OK);
+    gtk_button_set_use_stock (GTK_BUTTON (button), TRUE);
+    g_signal_connect_swapped (button, "clicked",
+        G_CALLBACK (gtk_widget_destroy), dialog);
+    gtk_box_pack_start (GTK_BOX (box), button, TRUE, FALSE, 4);
+    gtk_widget_show_all (box);
+    #endif
+    #endif
     if (1)
     {
         /* GtkLabel can't wrap the text properly. Until some day
