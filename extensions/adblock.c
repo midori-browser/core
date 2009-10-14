@@ -259,8 +259,10 @@ static void
 adblock_preferences_add_clicked_cb (GtkWidget*    button,
                                     GtkTreeModel* model)
 {
+    GtkEntry* entry = g_object_get_data (G_OBJECT (button), "entry");
     gtk_list_store_insert_with_values (GTK_LIST_STORE (model),
-        NULL, 0, 0, "", -1);
+        NULL, 0, 0, gtk_entry_get_text (entry), -1);
+    gtk_entry_set_text (entry, "");
 }
 
 static void
@@ -272,6 +274,15 @@ adblock_preferences_remove_clicked_cb (GtkWidget*   button,
     if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
         gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 }
+
+#if GTK_CHECK_VERSION (2, 18, 0)
+static gboolean
+adblock_activate_link_cb (GtkWidget*   label,
+                          const gchar* uri)
+{
+    return sokoke_show_uri (gtk_widget_get_screen (label), uri, GDK_CURRENT_TIME, NULL);
+}
+#endif
 
 static GtkWidget*
 adblock_get_preferences_dialog (MidoriExtension* extension)
@@ -292,6 +303,8 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     gchar** filters;
     GtkWidget* vbox;
     GtkWidget* button;
+    gchar* description;
+    GtkWidget* entry;
     #if HAVE_OSX
     GtkWidget* icon;
     #endif
@@ -325,6 +338,28 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     hbox = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox,
                                  TRUE, TRUE, 12);
+    vbox = gtk_vbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 4);
+    button = gtk_label_new (NULL);
+    description = g_strdup_printf (_(
+        "Type the address of a preconfigured filter list in the text entry "
+        "and click \"Add\" to add it to the list. "
+        "You can find more lists at %s."),
+        #if GTK_CHECK_VERSION (2, 18, 0)
+        "<a href=\"http://easylist.adblockplus.org/\">easylist.adblockplus.org</a>");
+        #else
+        "<u>http://easylist.adblockplus.org/</u>");
+        #endif
+    #if GTK_CHECK_VERSION (2, 18, 0)
+    g_signal_connect (button, "activate-link",
+        G_CALLBACK (adblock_activate_link_cb), NULL);
+    #endif
+    gtk_label_set_markup (GTK_LABEL (button), description);
+    g_free (description);
+    gtk_label_set_line_wrap (GTK_LABEL (button), TRUE);
+    gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 4);
+    entry = gtk_entry_new ();
+    gtk_box_pack_start (GTK_BOX (vbox), entry, FALSE, FALSE, 4);
     liststore = gtk_list_store_new (1, G_TYPE_STRING);
     g_object_connect (liststore,
         "signal::row-inserted",
@@ -361,7 +396,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     gtk_container_add (GTK_CONTAINER (scrolled), treeview);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
                                          GTK_SHADOW_IN);
-    gtk_box_pack_start (GTK_BOX (hbox), scrolled, TRUE, TRUE, 5);
+    gtk_box_pack_start (GTK_BOX (vbox), scrolled, TRUE, TRUE, 5);
 
     filters = midori_extension_get_string_list (extension, "filters", NULL);
     if (filters != NULL)
@@ -377,6 +412,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     vbox = gtk_vbox_new (FALSE, 4);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 4);
     button = gtk_button_new_from_stock (GTK_STOCK_ADD);
+    g_object_set_data (G_OBJECT (button), "entry", entry);
     g_signal_connect (button, "clicked",
         G_CALLBACK (adblock_preferences_add_clicked_cb), liststore);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
