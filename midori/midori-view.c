@@ -77,6 +77,7 @@ struct _MidoriView
     gchar* selected_text;
     MidoriWebSettings* settings;
     GtkWidget* web_view;
+    GtkWidget* thumb_view;
     KatzeArray* news_feeds;
 
     gboolean speed_dial_in_new_tabs;
@@ -2294,6 +2295,9 @@ midori_view_finalize (GObject* object)
         g_signal_handlers_disconnect_by_func (view->item,
             midori_view_item_meta_data_changed, view);
 
+    if (view->thumb_view)
+        gtk_widget_destroy (view->thumb_view);
+
     katze_assign (view->uri, NULL);
     katze_assign (view->title, NULL);
     katze_object_assign (view->icon, NULL);
@@ -4087,7 +4091,14 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     g_free (encoded);
     g_free (file_content);
 
+    g_signal_handlers_disconnect_by_func (
+       thumb_view, thumb_view_load_status_cb, view);
+
+    /* Destroying the view here may trigger a WebKitGTK+ bug */
+    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
     gtk_widget_destroy (GTK_WIDGET (thumb_view));
+    view->thumb_view = NULL;
+    #endif
 }
 
 /**
@@ -4109,13 +4120,10 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
     GtkWidget* notebook;
     GtkWidget* label;
 
-    thumb_view = midori_view_new (view->net);
-    settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
-        "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
-    midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
     browser = gtk_widget_get_toplevel (GTK_WIDGET (view));
     if (!GTK_IS_WINDOW (browser))
         return;
+
     /* What we are doing here is a bit of a hack. In order to render a
        thumbnail we need a new view and load the url in it. But it has
        to be visible and packed in a container. So we secretly pack it
@@ -4123,12 +4131,22 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
     notebook = katze_object_get_object (browser, "notebook");
     if (!notebook)
         return;
-    gtk_container_add (GTK_CONTAINER (notebook), thumb_view);
-    /* We use an empty label. It's not invisible but at least hard to spot. */
-    label = gtk_event_box_new ();
-    gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), thumb_view, label);
-    g_object_unref (notebook);
-    gtk_widget_show (thumb_view);
+
+    if (!view->thumb_view)
+    {
+        view->thumb_view = midori_view_new (view->net);
+        gtk_container_add (GTK_CONTAINER (notebook), view->thumb_view);
+        /* We use an empty label. It's not invisible but at least hard to spot. */
+        label = gtk_event_box_new ();
+        gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), view->thumb_view, label);
+        g_object_unref (notebook);
+        gtk_widget_show (view->thumb_view);
+    }
+    thumb_view = view->thumb_view;
+    settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
+        "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
+    midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
+
     g_object_set_data (G_OBJECT (thumb_view), "dom-id", dom_id);
     g_signal_connect (thumb_view, "notify::load-status",
         G_CALLBACK (thumb_view_load_status_cb), view);
