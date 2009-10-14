@@ -20,7 +20,7 @@
     #include <unistd.h>
 #endif
 
-#if WEBKIT_CHECK_VERSION (1, 1, 14)
+#define HAVE_WEBKIT_RESOURCE_REQUEST WEBKIT_CHECK_VERSION (1, 1, 14)
 
 #define ADBLOCK_FILTER_VALID(__filter) \
     (__filter && (g_str_has_prefix (__filter, "http") \
@@ -459,6 +459,7 @@ adblock_is_matched (const gchar*  patt,
     return g_regex_match_full (regex, uri, -1, 0, 0, NULL, NULL);
 }
 
+#if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
 adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       WebKitWebFrame*        web_frame,
@@ -476,6 +477,22 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         /* TODO: Need to figure out how to indicate what was blocked */
     }
 }
+#else
+static void
+adblock_session_request_queued_cb (SoupSession* session,
+                                   SoupMessage* msg)
+{
+    SoupURI* soup_uri = soup_message_get_uri (msg);
+    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
+    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, uri))
+    {
+        soup_uri = soup_uri_new ("http://.invalid");
+        soup_message_set_uri (msg, soup_uri);
+        soup_uri_free (soup_uri);
+    }
+    g_free (uri);
+}
+#endif
 
 static gchar*
 adblock_build_js (gchar* style)
@@ -509,8 +526,10 @@ adblock_add_tab_cb (MidoriBrowser* browser,
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
+    #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (adblock_resource_request_starting_cb), view);
+    #endif
 }
 
 static void
@@ -629,8 +648,13 @@ adblock_deactivate_tabs (MidoriView*      view,
        browser, adblock_add_tab_cb, 0);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
+    #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_resource_request_starting_cb, view);
+    #else
+    g_signal_handlers_disconnect_by_func (
+       webkit_get_default_session (), adblock_session_request_queued_cb, NULL);
+    #endif
 }
 
 static void
@@ -658,6 +682,13 @@ adblock_activate_cb (MidoriExtension* extension,
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
+    #if !HAVE_WEBKIT_RESOURCE_REQUEST
+    SoupSession* session = webkit_get_default_session ();
+
+    g_signal_connect (session, "request-queued",
+                      G_CALLBACK (adblock_session_request_queued_cb), NULL);
+    #endif
+
     adblock_reload_rules (extension);
 
     browsers = katze_object_get_object (app, "browsers");
@@ -770,34 +801,19 @@ extension_test (void)
 }
 #endif
 
-#endif
-
 MidoriExtension*
 extension_init (void)
 {
-    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
-    gchar* desc = g_strdup_printf (_("Not available: %s required"),
-                                   "WebKitGTK+ 1.1.14");
-    #endif
-
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Advertisement blocker"),
-        #if WEBKIT_CHECK_VERSION (1, 1, 14)
         "description", _("Block advertisements according to a filter list"),
         "version", "0.1",
-        #else
-        "description", desc,
-        #endif
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
-    #if WEBKIT_CHECK_VERSION (1, 1, 14)
     midori_extension_install_string_list (extension, "filters", NULL, G_MAXSIZE);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (adblock_activate_cb), NULL);
-    #else
-    g_free (desc);
-    #endif
 
     return extension;
 }
