@@ -1682,7 +1682,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             _("Open _Image in New Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_image_new_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
-            _("Open _Image in New Window"), STOCK_WINDOW_NEW,
+            _("Open Image in New Wi_ndow"), STOCK_WINDOW_NEW,
             G_CALLBACK (midori_web_view_menu_image_new_window_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Image _Address"), NULL,
