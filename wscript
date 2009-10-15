@@ -24,8 +24,8 @@ from TaskGen import extension
 import misc
 
 major = 0
-minor = 1
-micro = 10
+minor = 2
+micro = 0
 
 APPNAME = 'midori'
 VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
