@@ -778,7 +778,6 @@ katze_scrolled_event_handler (GdkEvent*           event,
             stop_propagating = button_release_event (current_widget, &event->button, current_scrolled_window);
     }
 
-
     if (!stop_propagating)
         katze_scrolled_event_handler_next (event, state);
 
@@ -885,10 +884,15 @@ katze_scrolled_dispose (GObject* object)
 static void
 katze_scrolled_class_init (KatzeScrolledClass* class)
 {
-    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
-    GtkWidgetClass* widget_class = GTK_WIDGET_CLASS (class);
-    GtkContainerClass* container_class = GTK_CONTAINER_CLASS (class);
+    GObjectClass* gobject_class;
+    GtkWidgetClass* widget_class;
+    GtkContainerClass* container_class;
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    GtkSettings* gtk_settings;
+
+    gobject_class = G_OBJECT_CLASS (class);
+    widget_class = GTK_WIDGET_CLASS (class);
+    container_class = GTK_CONTAINER_CLASS (class);
 
     gobject_class->set_property = katze_scrolled_set_property;
     gobject_class->get_property = katze_scrolled_get_property;
@@ -938,7 +942,15 @@ katze_scrolled_class_init (KatzeScrolledClass* class)
     activated_widgets = g_tree_new ((GCompareFunc)compare_pointers);
     current_gdk_window = NULL;
 
-    katze_scrolled_event_handler_append (katze_scrolled_event_handler, NULL);
+    /* Usually touchscreen mode is either always set or it isn't, so it
+      should be a safe optimization to not setup events if not needed. */
+    if ((gtk_settings = gtk_settings_get_default ()))
+    {
+        gboolean touchscreen;
+        g_object_get (gtk_settings, "gtk-touchscreen-mode", &touchscreen, NULL);
+        if (touchscreen)
+            katze_scrolled_event_handler_append (katze_scrolled_event_handler, NULL);
+    }
 
     g_type_class_add_private (class, sizeof (KatzeScrolledPrivate));
 }
