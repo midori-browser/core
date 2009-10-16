@@ -34,11 +34,12 @@ G_BEGIN_DECLS
  * Frees @lvalue if needed and assigns it the value of @rvalue.
  **/
 #define katze_assign(lvalue, rvalue) \
-    if (1) \
+    do \
     { \
         g_free (lvalue); \
         lvalue = rvalue; \
-    }
+    } \
+    while (0)
 
 /**
  * katze_object_assign:
@@ -48,12 +49,13 @@ G_BEGIN_DECLS
  * Unrefs @lvalue if needed and assigns it the value of @rvalue.
  **/
 #define katze_object_assign(lvalue, rvalue) \
-    if (1) \
+    do \
     { \
         if (lvalue) \
             g_object_unref (lvalue); \
         lvalue = rvalue; \
-    }
+    } \
+    while (0)
 
 /**
  * katze_strv_assign:
@@ -65,11 +67,12 @@ G_BEGIN_DECLS
  * Since: 0.1.7
  **/
 #define katze_strv_assign(lvalue, rvalue) \
-    if (1) \
+    do \
     { \
         g_strfreev (lvalue); \
         lvalue = rvalue; \
-    }
+    } \
+    while (0)
 
 GtkWidget*
 katze_property_proxy                (gpointer     object,
