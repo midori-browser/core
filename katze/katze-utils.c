@@ -61,6 +61,38 @@ proxy_combo_box_text_changed_cb (GtkComboBox* button,
 }
 
 static void
+proxy_combo_box_apps_changed_cb (GtkComboBox* button,
+                                 GObject*     object)
+{
+    guint active = gtk_combo_box_get_active (button);
+    GtkTreeModel* model = gtk_combo_box_get_model (button);
+    GtkTreeIter iter;
+
+    if (gtk_tree_model_iter_nth_child (model, &iter, NULL, active))
+    {
+        GAppInfo* info;
+        const gchar* exe;
+        const gchar* property = g_object_get_data (G_OBJECT (button), "property");
+
+        gtk_tree_model_get (model, &iter, 0, &info, -1);
+
+        if (info)
+        {
+            #if 0 /* GLIB_CHECK_VERSION (2, 20, 0) */
+            /* FIXME: Implement non-trivial command lines */
+            exe = g_app_info_get_commandline (info);
+            #else
+            exe = g_app_info_get_executable (info);
+            #endif
+            g_object_set (object, property, exe, NULL);
+            g_object_unref (info);
+        }
+        else
+            g_object_set (object, property, "", NULL);
+    }
+}
+
+static void
 proxy_entry_activate_cb (GtkEntry* entry,
                          GObject*  object)
 {
@@ -145,6 +177,38 @@ proxy_widget_string_destroy_cb (GtkWidget* proxy,
         proxy_object_notify_string_cb, proxy);
 }
 
+static GList*
+katze_app_info_get_all_for_category (const gchar* category)
+{
+    GList* all_apps = g_app_info_get_all ();
+    GList* apps = NULL;
+    guint i = 0;
+    GAppInfo* info;
+    while ((info = g_list_nth_data (all_apps, i++)))
+    {
+        #ifdef GDK_WINDOWING_X11
+        gchar* filename = g_strconcat ("applications/", g_app_info_get_id (info), NULL);
+        GKeyFile* file = g_key_file_new ();
+
+        if (g_key_file_load_from_data_dirs (file, filename, NULL, G_KEY_FILE_NONE, NULL))
+        {
+            gchar* cat = g_key_file_get_string (file, "Desktop Entry",
+                                                "Categories", NULL);
+            if (cat && g_strrstr (cat, category))
+                apps = g_list_append (apps, info);
+
+            g_free (cat);
+        }
+        g_key_file_free (file);
+        g_free (filename);
+        #else
+        apps = g_list_append (apps, info);
+        #endif
+    }
+    g_list_free (all_apps);
+    return apps;
+}
+
 /**
  * katze_property_proxy:
  * @object: a #GObject
@@ -173,6 +237,11 @@ proxy_widget_string_destroy_cb (GtkWidget* proxy,
  *     Since 0.2.0 the following hints are also supported:
  *     "font-monospace": the widget created will be particularly suitable for
  *         choosing a fixed-width font from installed fonts.
+ *     Since 0.2.1 the following hints are also supported:
+ *     "application-TYPE": the widget created will be particularly suitable
+ *         for choosing an application to open TYPE files, ie. "text/plain".
+ *     "application-CATEGORY": the widget created will be particularly suitable
+ *         for choosing an application to open CATEGORY files, ie. "Network".
  *
  * Any other values for @hint are silently ignored.
  *
@@ -314,6 +383,67 @@ katze_property_proxy (gpointer     object,
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_text_changed_cb), object);
         g_free (families);
+    }
+    else if (type == G_TYPE_PARAM_STRING && hint && g_str_has_prefix (hint, "application-"))
+    {
+        GtkListStore* model;
+        GtkCellRenderer* renderer;
+        GtkComboBox* combo;
+        GList* apps;
+        const gchar* type = &hint[12];
+
+        model = gtk_list_store_new (3, G_TYPE_APP_INFO, G_TYPE_STRING, G_TYPE_STRING);
+        widget = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
+        renderer = gtk_cell_renderer_pixbuf_new ();
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, FALSE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "icon-name", 1);
+        renderer = gtk_cell_renderer_text_new ();
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "text", 2);
+        combo = GTK_COMBO_BOX (widget);
+        apps = g_app_info_get_all_for_type (type);
+        if (!apps)
+            apps = katze_app_info_get_all_for_category (type);
+
+        string = katze_object_get_string (object, property);
+        if (!g_strcmp0 (string, ""))
+            katze_assign (string, NULL);
+
+        if (apps)
+        {
+            GtkTreeIter iter_none;
+            gint i = 0;
+            GAppInfo* info;
+
+            gtk_list_store_insert_with_values (model, &iter_none, 0,
+                0, NULL, 1, NULL, 2, _("None"), -1);
+
+            while ((info = g_list_nth_data (apps, i++)))
+            {
+                const gchar* name = g_app_info_get_name (info);
+                GIcon* icon = g_app_info_get_icon (info);
+                gchar* icon_name = g_icon_to_string (icon);
+                GtkTreeIter iter;
+
+                gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
+                    0, info, 1, icon_name, 2, name, -1);
+                if (string && g_strrstr (g_app_info_get_executable (info), string))
+                    gtk_combo_box_set_active_iter (combo, &iter);
+
+                g_free (icon_name);
+            }
+
+            if (gtk_combo_box_get_active (combo) == -1)
+            {
+                if (string)
+                    /* FIXME: Support custom command */;
+                else
+                    gtk_combo_box_set_active_iter (combo, &iter_none);
+            }
+        }
+        g_list_free (apps);
+        g_signal_connect (widget, "changed",
+                          G_CALLBACK (proxy_combo_box_apps_changed_cb), object);
     }
     else if (type == G_TYPE_PARAM_STRING)
     {

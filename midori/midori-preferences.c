@@ -586,11 +586,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     gtk_widget_set_size_request (button, icon_width, icon_height);
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 4);
-    entry = katze_property_proxy (settings, "text-editor", NULL);
+    entry = katze_property_proxy (settings, "text-editor", "application-text/plain");
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-    proxy_download_manager_icon_cb (entry, NULL, GTK_IMAGE (button));
-    g_signal_connect (entry, "focus-out-event",
-        G_CALLBACK (proxy_download_manager_icon_cb), button);
     FILLED_ADD (hbox, 1, 2, 0, 1);
     label = katze_property_label (settings, "download-manager");
     INDENTED_ADD (label, 0, 1, 1, 2);
@@ -600,11 +597,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     gtk_widget_set_size_request (button, icon_width, icon_height);
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 4);
-    entry = katze_property_proxy (settings, "download-manager", NULL);
+    entry = katze_property_proxy (settings, "download-manager", "application-Network");
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-    proxy_download_manager_icon_cb (entry, NULL, GTK_IMAGE (button));
-    g_signal_connect (entry, "focus-out-event",
-        G_CALLBACK (proxy_download_manager_icon_cb), button);
     FILLED_ADD (hbox, 1, 2, 1, 2);
     label = katze_property_label (settings, "news-aggregator");
     INDENTED_ADD (label, 0, 1, 2, 3);
@@ -614,11 +608,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     gtk_widget_set_size_request (button, icon_width, icon_height);
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 4);
-    entry = katze_property_proxy (settings, "news-aggregator", NULL);
+    entry = katze_property_proxy (settings, "news-aggregator", "application-Network");
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-    proxy_download_manager_icon_cb (entry, NULL, GTK_IMAGE (button));
-    g_signal_connect (entry, "focus-out-event",
-        G_CALLBACK (proxy_download_manager_icon_cb), button);
     FILLED_ADD (hbox, 1, 2, 2, 3);
 
     /* Page "Network" */
