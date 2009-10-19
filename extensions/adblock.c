@@ -28,10 +28,38 @@
 
 static GHashTable* pattern;
 static gchar* blockcss = NULL;
+static gchar* blockcssprivate = NULL;
 static gchar* blockscript = NULL;
 
 static void
 adblock_parse_file (gchar* path);
+
+static gchar*
+adblock_build_js (const gchar* style,
+                  const gchar* private)
+{
+    return g_strdup_printf (
+        "window.addEventListener ('DOMContentLoaded',"
+        "function () {"
+        "var URL = location.href;"
+        "var sites = new Array(); %s;"
+        "var public = '%s';"
+        "for (var i in sites) {"
+        "if (URL.indexOf(i) != -1) {"
+        "public += sites[i];"
+        "break;"
+        "}}"
+        "public += ' {display: none !important;}';"
+        "var mystyle = document.createElement(\"style\");"
+        "mystyle.setAttribute(\"type\", \"text/css\");"
+        "mystyle.appendChild(document.createTextNode(public));"
+        "var head = document.getElementsByTagName(\"head\")[0];"
+        "if (head) head.appendChild(mystyle);"
+        "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
+        "}, true);",
+        private,
+        style);
+}
 
 static gchar *
 adblock_fixup_regexp (gchar* src)
@@ -102,7 +130,8 @@ adblock_reload_rules (MidoriExtension* extension)
     pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_regex_unref);
-    katze_assign (blockcss, NULL);
+    katze_assign (blockcss, g_strdup ("z-non-exist"));
+    katze_assign (blockcssprivate, g_strdup (""));
 
     while (filters[i++] != NULL)
     {
@@ -130,6 +159,7 @@ adblock_reload_rules (MidoriExtension* extension)
         }
         g_free (filename);
     }
+    katze_assign (blockscript, adblock_build_js (blockcss, blockcssprivate));
     g_strfreev (filters);
     g_free (folder);
 }
@@ -530,22 +560,6 @@ adblock_session_request_queued_cb (SoupSession* session,
 }
 #endif
 
-static gchar*
-adblock_build_js (gchar* style)
-{
-    return g_strdup_printf (
-        "window.addEventListener ('DOMContentLoaded',"
-        "function () {"
-        "var mystyle = document.createElement(\"style\");"
-        "mystyle.setAttribute(\"type\", \"text/css\");"
-        "mystyle.appendChild(document.createTextNode('%s'));"
-        "var head = document.getElementsByTagName(\"head\")[0];"
-        "if (head) head.appendChild(mystyle);"
-        "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
-        "}, true);",
-        style);
-}
-
 static void
 adblock_window_object_cleared_cb (GtkWidget*      web_view,
                                   WebKitWebFrame* web_frame,
@@ -600,9 +614,37 @@ adblock_frame_add (gchar* line)
 
     (void)*line++;
     (void)*line++;
-    new_blockcss = g_strdup_printf ("%s %s { display: none !important; }",
-                                    blockcss, line);
+    new_blockcss = g_strdup_printf ("%s, %s", blockcss, line);
     katze_assign (blockcss, new_blockcss);
+}
+
+static void
+adblock_frame_add_private (gchar* line)
+{
+    gchar* new_blockcss;
+    gchar** data;
+    data = g_strsplit (line, "##", 2);
+
+    if (strstr (data[0],","))
+    {
+        gchar** domains;
+        gint max, i;
+        domains = g_strsplit (data[0], ",", -1);
+        for (max = i = 0; domains [i]; i++)
+        {
+            new_blockcss = g_strdup_printf ("%s;\nsites['%s']+=',%s'",
+                blockcssprivate, g_strstrip (domains[i]), data[1]);
+            katze_assign (blockcssprivate, new_blockcss);
+        }
+        g_strfreev (domains);
+    }
+    else
+    {
+        new_blockcss = g_strdup_printf ("%s;\nsites['%s']+=',%s'",
+            blockcssprivate, data[0], data[1]);
+        katze_assign (blockcssprivate, new_blockcss);
+    }
+    g_strfreev (data);
 }
 
 static gchar*
@@ -624,7 +666,8 @@ adblock_parse_line (gchar* line)
     if (strstr (line,"$"))
         return NULL;
     /* Got block hider */
-    if (line[0] == '#' && line[1] == '#' && (line[2] == '.'||line[2] == '#'||line[2] == 'a'))
+    if (line[0] == '#' && line[1] == '#' && (line[2] == '.' || line[2] == '#'
+     || line[2] == 'A' || line[2] == 'a' || line[2] == 'D' || line[2] == 'U'))
     {
         adblock_frame_add (line);
         return NULL;
@@ -632,9 +675,12 @@ adblock_parse_line (gchar* line)
     /* FIXME: Do we have smth else starting with ##? */
     if (line[0] == '#' && line[1] == '#')
         return NULL;
-    /* FIXME: No support for per domain element hiding */
+
     if (strstr (line,"##"))
+    {
+        adblock_frame_add_private (line);
         return NULL;
+    }
     /* FIXME: No support for [include] and [exclude] tags */
     if (line[0] == '[')
         return NULL;
@@ -670,7 +716,6 @@ adblock_parse_file (gchar* path)
             else
                 g_hash_table_insert (pattern, parsed, regex);
         }
-        katze_assign (blockscript, adblock_build_js (blockcss));
         fclose (file);
     }
 }
@@ -708,6 +753,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
     katze_assign (blockcss, NULL);
+    katze_assign (blockcssprivate, NULL);
     g_hash_table_destroy (pattern);
 }
 
