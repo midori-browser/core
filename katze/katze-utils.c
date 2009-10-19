@@ -553,6 +553,7 @@ katze_property_label (gpointer     object,
     }
     nick = g_param_spec_get_nick (pspec);
     widget = gtk_label_new (nick);
+    gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
 
     return widget;
 }

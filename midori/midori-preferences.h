@@ -14,8 +14,6 @@
 
 #include "midori-websettings.h"
 
-#include <gtk/gtk.h>
-
 #include <katze/katze.h>
 
 G_BEGIN_DECLS
@@ -38,7 +36,7 @@ typedef struct _MidoriPreferencesClass           MidoriPreferencesClass;
 
 struct _MidoriPreferencesClass
 {
-    GtkDialogClass parent_class;
+    KatzePreferencesClass parent_class;
 };
 
 GType

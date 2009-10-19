@@ -608,24 +608,6 @@ sokoke_xfce_header_new (const gchar* icon,
     return NULL;
 }
 
-GtkWidget*
-sokoke_hig_frame_new (const gchar* title)
-{
-    /* Create a frame with no actual frame but a bold label and indentation */
-    GtkWidget* frame = gtk_frame_new (NULL);
-    #ifdef G_OS_WIN32
-    gtk_frame_set_label (GTK_FRAME (frame), title);
-    #else
-    gchar* title_bold = g_strdup_printf ("<b>%s</b>", title);
-    GtkWidget* label = gtk_label_new (NULL);
-    gtk_label_set_markup (GTK_LABEL (label), title_bold);
-    g_free (title_bold);
-    gtk_frame_set_label_widget (GTK_FRAME (frame), label);
-    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
-    #endif
-    return frame;
-}
-
 void
 sokoke_widget_set_pango_font_style (GtkWidget* widget,
                                     PangoStyle style)

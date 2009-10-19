@@ -78,6 +78,9 @@ properties_object_get_set (GObject* object)
                         g_param_spec_get_name (pspec),
                         g_param_spec_get_name (pspecs[j]));
 
+        if (!(pspec->flags & G_PARAM_READABLE))
+            continue;
+
         g_object_get (object, property, &value, NULL);
         if (type == G_TYPE_PARAM_BOOLEAN)
         {

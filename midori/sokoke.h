@@ -83,9 +83,6 @@ GtkWidget*
 sokoke_xfce_header_new                  (const gchar*    icon,
                                          const gchar*    title);
 
-GtkWidget*
-sokoke_hig_frame_new                    (const gchar*    title);
-
 void
 sokoke_widget_set_pango_font_style      (GtkWidget*      widget,
                                          PangoStyle      style);
