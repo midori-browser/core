@@ -22,25 +22,29 @@
 #define HAVE_WEBKIT_RESOURCE_REQUEST 0 /* WEBKIT_CHECK_VERSION (1, 1, 14) */
 
 static gchar*
-web_cache_get_cached_path (const gchar* cache_path,
-                           const gchar* uri)
+web_cache_get_cached_path (MidoriExtension* extension,
+                           const gchar*     uri)
 {
+    static const gchar* cache_path = NULL;
     gchar* checksum;
     gchar* folder;
     gchar* sub_path;
-    gchar* extension;
+    gchar* ext;
     gchar* cached_filename;
     gchar* cached_path;
 
+    /* cache_path = midori_extension_get_string (extension, "path"); */
+    if (!cache_path)
+        cache_path = g_build_filename (g_get_user_cache_dir (),
+                                       PACKAGE_NAME, "web", NULL);
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
     folder = g_strdup_printf ("%c%c", checksum[0], checksum[1]);
     sub_path = g_build_path (G_DIR_SEPARATOR_S, cache_path, folder, NULL);
     g_mkdir (sub_path, 0700);
     g_free (folder);
 
-    extension = g_strrstr (uri, ".");
-    cached_filename = g_strdup_printf ("%s%s", checksum,
-                                       extension ? extension : "");
+    ext = g_strrstr (uri, ".");
+    cached_filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
     g_free (checksum);
     cached_path = g_build_filename (sub_path, cached_filename, NULL);
     g_free (cached_filename);
@@ -57,16 +61,24 @@ web_cache_resource_request_starting_cb (WebKitWebView*         web_view,
                                         MidoriExtension*       extension)
 {
     const gchar* uri;
-    const gchar* cache_path;
     gchar* filename;
 
     uri = webkit_network_request_get_uri (request);
     if (!(uri && g_str_has_prefix (uri, "http://")))
         return;
 
-    cache_path = midori_extension_get_string (extension, "path");
-    filename = web_cache_get_cached_path (cache_path, uri);
     /* g_debug ("cache lookup: %s => %s", uri, filename); */
+
+    /* FIXME: Replacing the main resource of the frame is bad,
+        we must either skip it or find a way to redirect internally. */
+
+    filename = web_cache_get_cached_path (extension, uri);
+    if (g_file_test (filename, G_FILE_TEST_EXISTS))
+    {
+        gchar* file_uri = g_filename_to_uri (filename, NULL, NULL);
+        webkit_network_request_set_uri (request, file_uri);
+        g_free (file_uri);
+    }
 
     g_free (filename);
 }
@@ -75,28 +87,27 @@ static void
 web_cache_mesage_got_headers_cb (SoupMessage*     msg,
                                  MidoriExtension* extension)
 {
-    const gchar* cache_path = midori_extension_get_string (extension, "path");
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    gchar* filename = web_cache_get_cached_path (cache_path, uri);
+    gchar* filename = web_cache_get_cached_path (extension, uri);
     gchar* data;
     gsize length;
 
-    g_debug ("cache serve: %s", filename);
+    /* g_debug ("cache serve: %s (%s)", uri, filename); */
 
     /* FIXME: Inspect headers and decide whether we need to update the cache */
 
     g_file_get_contents (filename, &data, &length, NULL);
-    /* soup_message_body_append (msg->response_body, SOUP_MEMORY_TAKE, data, length); */
+    soup_message_set_status (msg, SOUP_STATUS_OK);
     /* FIXME: MIME type */
-    soup_message_set_response (msg, "image/jpeg", SOUP_MEMORY_TAKE, data, length);
-    soup_message_body_complete (msg->response_body);
-    soup_message_finished (msg);
-    /* soup_message_cancel (msg); */
+    soup_message_set_request (msg, "image/jpeg", SOUP_MEMORY_TAKE, data, length);
+    g_signal_handlers_disconnect_by_func (msg, web_cache_mesage_got_headers_cb, extension);
+    soup_session_requeue_message (g_object_get_data (G_OBJECT (msg), "session"), msg);
 
     g_free (filename);
     g_free (uri);
 }
+#endif
 
 static void
 web_cache_mesage_got_chunk_cb (SoupMessage*     msg,
@@ -119,15 +130,19 @@ web_cache_session_request_queued_cb (SoupSession*     session,
 
     if (g_str_has_prefix (uri, "http"))
     {
-        const gchar* cache_path = midori_extension_get_string (extension, "path");
-        gchar* filename = web_cache_get_cached_path (cache_path, uri);
+        gchar* filename = web_cache_get_cached_path (extension, uri);
 
         /* g_debug ("cache lookup: %s => %s", uri, filename); */
 
+        g_object_set_data (G_OBJECT (msg), "session", session);
+        #if HAVE_WEBKIT_RESOURCE_REQUEST
+        if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+        #else
         if (g_file_test (filename, G_FILE_TEST_EXISTS))
             g_signal_connect (msg, "got-headers",
-                G_CALLBACK (web_cache_mesage_got_chunk_cb), extension);
+                G_CALLBACK (web_cache_mesage_got_headers_cb), extension);
         else
+        #endif
             g_signal_connect (msg, "got-chunk",
                 G_CALLBACK (web_cache_mesage_got_chunk_cb), extension);
 
@@ -136,7 +151,6 @@ web_cache_session_request_queued_cb (SoupSession*     session,
 
     g_free (uri);
 }
-#endif
 
 static void
 web_cache_session_request_unqueued_cb (SoupSession*     session,
@@ -146,18 +160,27 @@ web_cache_session_request_unqueued_cb (SoupSession*     session,
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : NULL;
 
-    /* g_debug ("request unqueued: %d", msg->status_code); */
+    /* g_debug ("request unqueued: %d %s", msg->status_code, uri); */
 
+    #if !HAVE_WEBKIT_RESOURCE_REQUEST
+    /* Network is unavailable, so we fallback to cache */
+    if (msg->status_code == SOUP_STATUS_CANT_RESOLVE)
+        web_cache_mesage_got_headers_cb (msg, extension);
+    else
+    #endif
+
+    /* FIXME: Only store if this wasn't a cached message already */
     if (uri && g_str_has_prefix (uri, "http"))
     {
         SoupMessageHeaders* hdrs = msg->response_headers;
         const gchar* mime_type = soup_message_headers_get_content_type (hdrs, NULL);
 
+        /* FIXME: Don't store big files */
+
         /* Only images are cached */
         if (mime_type && g_str_has_prefix (mime_type, "image/"))
         {
-            const gchar* cache_path = midori_extension_get_string (extension, "path");
-            gchar* filename = web_cache_get_cached_path (cache_path, uri);
+            gchar* filename = web_cache_get_cached_path (extension, uri);
             SoupMessageBody* body = msg->response_body;
             SoupBuffer* buffer = NULL;
 
