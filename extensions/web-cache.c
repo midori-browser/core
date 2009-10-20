@@ -26,18 +26,23 @@ web_cache_get_cached_path (const gchar* cache_path,
                            const gchar* uri)
 {
     gchar* checksum;
+    gchar* folder;
+    gchar* sub_path;
     gchar* extension;
     gchar* cached_filename;
     gchar* cached_path;
 
-    g_mkdir_with_parents (cache_path, 0700);
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
+    folder = g_strdup_printf ("%c%c", checksum[0], checksum[1]);
+    sub_path = g_build_path (G_DIR_SEPARATOR_S, cache_path, folder, NULL);
+    g_mkdir (sub_path, 0700);
+    g_free (folder);
 
     extension = g_strrstr (uri, ".");
     cached_filename = g_strdup_printf ("%s%s", checksum,
                                        extension ? extension : "");
     g_free (checksum);
-    cached_path = g_build_filename (cache_path, cached_filename, NULL);
+    cached_path = g_build_filename (sub_path, cached_filename, NULL);
     g_free (cached_filename);
     return cached_path;
 }
