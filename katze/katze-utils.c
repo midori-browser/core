@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -11,6 +11,7 @@
 
 #include "katze-utils.h"
 
+#include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
 #include <string.h>
@@ -979,4 +980,77 @@ katze_object_get_object (gpointer     object,
 
     g_object_get (object, property, &value, NULL);
     return value;
+}
+
+/**
+ * katze_mkdir_with_parents:
+ * @pathname: a pathname in the GLib file name encoding
+ * @mode: permissions to use for newly created directories
+ *
+ * Create a directory if it doesn't already exist. Create intermediate
+ * parent directories as needed, too.
+ *
+ * Similar to g_mkdir_with_parents() but returning early if the
+ * @pathname refers to an existing directory.
+ *
+ * Returns: 0 if the directory already exists, or was successfully
+ * created. Returns -1 if an error occurred, with errno set.
+ *
+ * Since: 0.2.1
+ */
+/* Creating directories recursively
+   Copyright 2000 Red Hat, Inc.
+   Originally copied from Glib 2.20, coding style adjusted
+   Modified to determine file existence early and pathname must be != NULL */
+int
+katze_mkdir_with_parents (const gchar* pathname,
+                          int          mode)
+{
+  gchar* fn, *p;
+
+  if (g_file_test (pathname, G_FILE_TEST_EXISTS))
+      return 0;
+
+  fn = g_strdup (pathname);
+
+  if (g_path_is_absolute (fn))
+    p = (gchar *) g_path_skip_root (fn);
+  else
+    p = fn;
+
+  do
+  {
+      while (*p && !G_IS_DIR_SEPARATOR (*p))
+          p++;
+
+      if (!*p)
+          p = NULL;
+      else
+          *p = '\0';
+
+      if (!g_file_test (fn, G_FILE_TEST_EXISTS))
+      {
+          if (g_mkdir (fn, mode) == -1)
+          {
+              g_free (fn);
+              return -1;
+          }
+      }
+      else if (!g_file_test (fn, G_FILE_TEST_IS_DIR))
+      {
+          g_free (fn);
+          return -1;
+      }
+      if (p)
+      {
+          *p++ = G_DIR_SEPARATOR;
+          while (*p && G_IS_DIR_SEPARATOR (*p))
+              p++;
+      }
+  }
+  while (p);
+
+  g_free (fn);
+
+  return 0;
 }

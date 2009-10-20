@@ -658,7 +658,7 @@ midori_extension_set_boolean (MidoriExtension* extension,
         /* FIXME: Handle readonly folder/ file */
         gchar* config_file = g_build_filename (extension->priv->config_dir,
                                                "config", NULL);
-        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_boolean (extension->priv->key_file,
                                 "settings", name, value);
         sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
@@ -755,7 +755,7 @@ midori_extension_set_integer (MidoriExtension* extension,
         /* FIXME: Handle readonly folder/ file */
         gchar* config_file = g_build_filename (extension->priv->config_dir,
                                                "config", NULL);
-        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_integer (extension->priv->key_file,
                                 "settings", name, value);
         sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
@@ -852,7 +852,7 @@ midori_extension_set_string (MidoriExtension* extension,
         /* FIXME: Handle readonly folder/ file */
         gchar* config_file = g_build_filename (extension->priv->config_dir,
                                                "config", NULL);
-        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_string (extension->priv->key_file,
                                 "settings", name, value);
         sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);
@@ -964,7 +964,7 @@ midori_extension_set_string_list (MidoriExtension* extension,
         /* FIXME: Handle readonly folder/ file */
         gchar* config_file = g_build_filename (extension->priv->config_dir,
                                                "config", NULL);
-        g_mkdir_with_parents (extension->priv->config_dir, 0700);
+        katze_mkdir_with_parents (extension->priv->config_dir, 0700);
         g_key_file_set_string_list (extension->priv->key_file,
                                     "settings", name, (const gchar**)value, length);
         sokoke_key_file_save_to_file (extension->priv->key_file, config_file, &error);

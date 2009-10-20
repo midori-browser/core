@@ -140,6 +140,10 @@ gpointer
 katze_object_get_object              (gpointer     object,
                                       const gchar* property);
 
+int
+katze_mkdir_with_parents             (const gchar* pathname,
+                                      int          mode);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */

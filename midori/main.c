@@ -67,7 +67,7 @@ static gchar*
 build_config_filename (const gchar* filename)
 {
     const gchar* path = sokoke_set_config_dir (NULL);
-    g_mkdir_with_parents (path, 0700);
+    katze_mkdir_with_parents (path, 0700);
     return g_build_filename (path, filename, NULL);
 }
 

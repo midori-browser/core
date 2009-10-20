@@ -157,7 +157,7 @@ katze_net_get_cached_path (KatzeNet*    net,
         cache_path = g_build_filename (net->cache_path, subfolder, NULL);
     else
         cache_path = net->cache_path;
-    g_mkdir_with_parents (cache_path, 0700);
+    katze_mkdir_with_parents (cache_path, 0700);
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
 
     extension = g_strrstr (uri, ".");

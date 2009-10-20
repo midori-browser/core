@@ -320,7 +320,7 @@ midori_get_download_dir (void)
     const gchar* dir = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
     if (dir)
     {
-        g_mkdir_with_parents (dir, 0700);
+        katze_mkdir_with_parents (dir, 0700);
         return dir;
     }
     return g_get_home_dir ();
