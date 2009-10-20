@@ -148,7 +148,7 @@ web_cache_session_request_unqueued_cb (SoupSession*     session,
 
     /* g_debug ("request unqueued: %d", msg->status_code); */
 
-    if (uri && msg->status_code != SOUP_STATUS_OK && g_str_has_prefix (uri, "http"))
+    if (uri && g_str_has_prefix (uri, "http"))
     {
         SoupMessageHeaders* hdrs = msg->response_headers;
         const gchar* mime_type = soup_message_headers_get_content_type (hdrs, NULL);
