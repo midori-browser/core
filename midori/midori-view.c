@@ -2742,12 +2742,12 @@ midori_view_construct_web_view (MidoriView* view)
     #endif
 
     g_object_connect (view->web_view,
-                      #if WEBKIT_CHECK_VERSION (1, 1, 14)
                       "signal::navigation-policy-decision-requested",
                       midori_view_web_view_navigation_decision_cb, view,
-                      #endif
+                      #if WEBKIT_CHECK_VERSION (1, 1, 14)
                       "signal::resource-request-starting",
                       midori_view_web_view_resource_request_cb, view,
+                      #endif
                       "signal::load-started",
                       webkit_web_view_load_started_cb, view,
                       "signal::load-committed",
