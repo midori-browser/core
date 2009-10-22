@@ -818,6 +818,71 @@ webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 6)
+#if WEBKIT_CHECK_VERSION (1, 1, 14)
+static void
+midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
+                                          WebKitWebFrame*        web_frame,
+                                          WebKitWebResource*     web_resource,
+                                          WebKitNetworkRequest*  request,
+                                          WebKitNetworkResponse* response,
+                                          MidoriView*            view)
+{
+    const gchar* uri = webkit_network_request_get_uri (request);
+
+    /* Only apply custom URIs to special pages for security purposes */
+    if (!webkit_web_data_source_get_unreachable_uri (
+        webkit_web_frame_get_data_source (web_frame)))
+        return;
+
+    if (g_str_has_prefix (uri, "res://"))
+    {
+        gchar* filename = g_build_filename ("midori/res", &uri[5], NULL);
+        gchar* filepath = sokoke_find_data_filename (filename);
+        gchar* file_uri;
+
+        g_free (filename);
+        file_uri = g_filename_to_uri (filepath, NULL, NULL);
+        g_free (filepath);
+        webkit_network_request_set_uri (request, file_uri);
+        g_free (file_uri);
+    }
+    else if (g_str_has_prefix (uri, "stock://"))
+    {
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_default ();
+        const gchar* icon_name = &uri[8] ? &uri[8] : "";
+        gint icon_size = 22;
+        GtkIconInfo* info;
+
+        if (g_ascii_isalpha (icon_name[0]))
+            icon_size = strstr (icon_name, "dialog") ? 48 : 22;
+        else if (g_ascii_isdigit (icon_name[0]))
+        {
+            guint i = 0;
+            while (icon_name[i])
+                if (icon_name[i++] == '/')
+                {
+                    gchar* size = g_strndup (icon_name, i - 1);
+                    icon_size = atoi (size);
+                    g_free (size);
+                    icon_name = &icon_name[i];
+                }
+        }
+
+        if ((info = gtk_icon_theme_lookup_icon (icon_theme, icon_name, icon_size, 0)))
+        {
+            const gchar* filename = gtk_icon_info_get_filename (info);
+            if (filename)
+            {
+                gchar* file_uri = g_filename_to_uri (filename, NULL, NULL);
+                webkit_network_request_set_uri (request, file_uri);
+                g_free (file_uri);
+            }
+            gtk_icon_info_free (info);
+        }
+    }
+}
+#endif
+
 static gboolean
 webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                WebKitWebFrame* web_frame,
@@ -842,8 +907,13 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
 
         res_server = sokoke_get_res_server ();
         port = soup_server_get_port (res_server);
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        res_root = g_strdup ("res:/");
+        stock_root = g_strdup ("stock:/");
+        #else
         res_root = g_strdup_printf ("http://localhost:%d/res", port);
         stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
+        #endif
 
         title = g_strdup_printf (_("Error - %s"), uri);
         message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
@@ -2672,8 +2742,12 @@ midori_view_construct_web_view (MidoriView* view)
     #endif
 
     g_object_connect (view->web_view,
+                      #if WEBKIT_CHECK_VERSION (1, 1, 14)
                       "signal::navigation-policy-decision-requested",
                       midori_view_web_view_navigation_decision_cb, view,
+                      #endif
+                      "signal::resource-request-starting",
+                      midori_view_web_view_resource_request_cb, view,
                       "signal::load-started",
                       webkit_web_view_load_started_cb, view,
                       "signal::load-committed",
