@@ -3225,13 +3225,6 @@ midori_view_get_proxy_menu_item (MidoriView* view)
 }
 
 static void
-midori_view_tab_label_menu_new_tab_cb (GtkWidget*  menuitem,
-                                       MidoriView* view)
-{
-    g_signal_emit (view, signals[NEW_TAB], 0, "", FALSE);
-}
-
-static void
 midori_view_tab_label_menu_open_cb (GtkWidget* menuitem,
                                     GtkWidget* view)
 {
@@ -3288,16 +3281,23 @@ midori_view_tab_label_menu_close_cb (GtkWidget* menuitem,
 GtkWidget*
 midori_view_get_tab_menu (MidoriView* view)
 {
+    MidoriBrowser* browser;
+    GtkActionGroup* actions;
     GtkWidget* menu;
     GtkWidget* menuitem;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
+    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    actions = midori_browser_get_action_group (browser);
+
     menu = gtk_menu_new ();
-    menuitem = gtk_menu_item_new_with_mnemonic (_("New _Tab"));
+    menuitem = sokoke_action_create_popup_menu_item (
+        gtk_action_group_get_action (actions, "TabNew"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    g_signal_connect (menuitem, "activate",
-        G_CALLBACK (midori_view_tab_label_menu_new_tab_cb), view);
+    menuitem = sokoke_action_create_popup_menu_item (
+        gtk_action_group_get_action (actions, "UndoTabClose"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
