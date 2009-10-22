@@ -2189,7 +2189,6 @@ static void
 _action_compact_add_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
-    GtkStockItem item;
     GtkWidget* dialog;
     GtkBox* box;
     gchar* label = NULL;
@@ -2198,9 +2197,9 @@ _action_compact_add_activate (GtkAction*     action,
     if (!GTK_WIDGET_VISIBLE (browser))
         return;
 
-    gtk_stock_lookup (GTK_STOCK_ADD, &item);
     dialog = g_object_new (GTK_TYPE_DIALOG,
-        "transient-for", browser, "title", item.label, NULL); /* Add a new bookmark */
+        "transient-for", browser,
+        "title", _("Add a new bookmark"), NULL);
     box = GTK_BOX (GTK_DIALOG (dialog)->vbox);
 
     action = _action_by_name (browser, "BookmarkAdd");
@@ -2955,6 +2954,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
         button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
         gtk_widget_show (button);
         gtk_button_set_label (GTK_BUTTON (button), label);
+        gtk_button_set_use_underline (GTK_BUTTON (button), TRUE);
         g_free (label);
         g_signal_connect_swapped (button, "clicked",
             G_CALLBACK (gtk_action_activate), _action);
