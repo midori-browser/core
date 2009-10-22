@@ -2726,7 +2726,7 @@ midori_view_construct_web_view (MidoriView* view)
                       midori_view_web_view_print_requested_cb, view,
                       #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 6)
-                      "signal::load-error",
+                      "signal-after::load-error",
                       webkit_web_view_load_error_cb, view,
                       #endif
                       NULL);
