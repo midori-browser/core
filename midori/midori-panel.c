@@ -673,12 +673,14 @@ midori_panel_construct_tool_item (MidoriPanel*    panel,
     return toolitem;
 }
 
+#if !HAVE_HILDON
 static void
 midori_panel_show_titles_toggled_cb (GtkWidget*   menuitem,
                                      MidoriPanel* panel)
 {
     g_object_set (panel, "show-titles", !panel->show_titles, NULL);
 }
+#endif
 
 static void
 midori_panel_show_controls_toggled_cb (GtkWidget*   menuitem,
