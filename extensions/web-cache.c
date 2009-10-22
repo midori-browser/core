@@ -36,8 +36,7 @@ web_cache_get_cached_path (MidoriExtension* extension,
 
     /* cache_path = midori_extension_get_string (extension, "path"); */
     if (!cache_path)
-        cache_path = g_build_filename (g_get_user_cache_dir (),
-                                       PACKAGE_NAME, "web", NULL);
+        cache_path = midori_extension_get_string (extension, "path");
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
     folder = g_strdup_printf ("%c%c", checksum[0], checksum[1]);
     sub_path = g_build_path (G_DIR_SEPARATOR_S, cache_path, folder, NULL);
@@ -356,10 +355,13 @@ static void
 web_cache_activate_cb (MidoriExtension* extension,
                        MidoriApp*       app)
 {
+    const gchar* cache_path = midori_extension_get_string (extension, "path");
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
     SoupSession* session = webkit_get_default_session ();
+
+    katze_mkdir_with_parents (cache_path, 0700);
 
     g_signal_connect (session, "request-queued",
                       G_CALLBACK (web_cache_session_request_queued_cb), extension);
