@@ -625,9 +625,9 @@ midori_browser_edit_bookmark_uri_changed_cb (GtkEntry*      entry,
     gtk_dialog_set_response_sensitive (dialog, GTK_RESPONSE_ACCEPT,
         uri && (g_str_has_prefix (uri, "http://")
         || g_str_has_prefix (uri, "https://")
-        || g_str_has_prefix (uri, "file://"))
+        || g_str_has_prefix (uri, "file://")
         || g_str_has_prefix (uri, "data:")
-        || g_str_has_prefix (uri, "javascript:"));
+        || g_str_has_prefix (uri, "javascript:")));
 }
 
 /* Private function, used by MidoriBookmarks and MidoriHistory */
