@@ -1293,6 +1293,19 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
         return FALSE;
 }
 
+static void
+midori_web_view_set_clipboard (GtkWidget*   widget,
+                                      const gchar* text)
+{
+    GdkDisplay* display = gtk_widget_get_display (widget);
+    GtkClipboard* clipboard;
+
+    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text (clipboard, text, -1);
+    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
+    gtk_clipboard_set_text (clipboard, text, -1);
+}
+
 #if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
 midori_web_view_menu_open_activate_cb (GtkWidget*  widget,
@@ -1312,10 +1325,7 @@ static void
 midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
                                             MidoriView* view)
 {
-    GdkDisplay* display = gtk_widget_get_display (widget);
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
-        GDK_SELECTION_CLIPBOARD);
-    gtk_clipboard_set_text (clipboard, view->link_uri, -1);
+    midori_web_view_set_clipboard (widget, view->link_uri);
 }
 
 static void
@@ -1356,11 +1366,8 @@ static void
 midori_web_view_menu_image_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
-    GdkDisplay* display = gtk_widget_get_display (widget);
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
-        GDK_SELECTION_CLIPBOARD);
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    gtk_clipboard_set_text (clipboard, uri, -1);
+    midori_web_view_set_clipboard (widget, uri);
     g_free (uri);
 }
 
@@ -1385,11 +1392,8 @@ static void
 midori_web_view_menu_video_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
-    GdkDisplay* display = gtk_widget_get_display (widget);
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
-        GDK_SELECTION_CLIPBOARD);
     gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
-    gtk_clipboard_set_text (clipboard, uri, -1);
+    midori_web_view_set_clipboard (widget, uri);
     g_free (uri);
 }
 
@@ -1473,10 +1477,7 @@ static void
 midori_web_view_menu_copy_activate_cb (GtkWidget*  widget,
                                        MidoriView* view)
 {
-    GdkDisplay* display = gtk_widget_get_display (widget);
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (display,
-        GDK_SELECTION_CLIPBOARD);
-    gtk_clipboard_set_text (clipboard, view->selected_text, -1);
+    midori_web_view_set_clipboard (widget, view->selected_text);
 }
 #endif
 
