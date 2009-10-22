@@ -30,7 +30,7 @@ formhistory_prepare_js ()
    guint i;
    gchar* file;
 
-   gchar* data_path = g_build_filename (MDATADIR, PACKAGE_NAME, NULL);
+   gchar* data_path = g_build_filename (MDATADIR, PACKAGE_NAME, "res", NULL);
    file = g_build_filename (data_path,"/autosuggestcontrol.js",NULL);
    if (!g_file_test (file, G_FILE_TEST_EXISTS))
        return FALSE;
