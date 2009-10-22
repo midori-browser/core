@@ -1363,6 +1363,7 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
         return FALSE;
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
 midori_web_view_set_clipboard (GtkWidget*   widget,
                                       const gchar* text)
@@ -1376,7 +1377,6 @@ midori_web_view_set_clipboard (GtkWidget*   widget,
     gtk_clipboard_set_text (clipboard, text, -1);
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
 midori_web_view_menu_open_activate_cb (GtkWidget*  widget,
                                        MidoriView* view)
