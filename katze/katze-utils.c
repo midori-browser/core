@@ -391,7 +391,7 @@ katze_property_proxy (gpointer     object,
         GtkCellRenderer* renderer;
         GtkComboBox* combo;
         GList* apps;
-        const gchar* type = &hint[12];
+        const gchar* app_type = &hint[12];
 
         model = gtk_list_store_new (3, G_TYPE_APP_INFO, G_TYPE_STRING, G_TYPE_STRING);
         widget = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
@@ -402,9 +402,9 @@ katze_property_proxy (gpointer     object,
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
         gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "text", 2);
         combo = GTK_COMBO_BOX (widget);
-        apps = g_app_info_get_all_for_type (type);
+        apps = g_app_info_get_all_for_type (app_type);
         if (!apps)
-            apps = katze_app_info_get_all_for_category (type);
+            apps = katze_app_info_get_all_for_category (app_type);
 
         string = katze_object_get_string (object, property);
         if (!g_strcmp0 (string, ""))
