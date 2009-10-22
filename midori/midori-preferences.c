@@ -77,14 +77,6 @@ midori_preferences_class_init (MidoriPreferencesClass* class)
 }
 
 static void
-midori_preferences_response_cb (MidoriPreferences* preferences,
-                                gint               response)
-{
-    if (response == GTK_RESPONSE_CLOSE)
-        gtk_widget_destroy (GTK_WIDGET (preferences));
-}
-
-static void
 midori_preferences_init (MidoriPreferences* preferences)
 {
     /* Nothing to do */
@@ -122,8 +114,6 @@ midori_preferences_get_property (GObject*    object,
                                  GValue*     value,
                                  GParamSpec* pspec)
 {
-    MidoriPreferences* preferences = MIDORI_PREFERENCES (object);
-
     switch (prop_id)
     {
     default:
@@ -173,42 +163,6 @@ midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
         g_object_set (settings, "homepage", uri, NULL);
         g_free (uri);
     }
-}
-
-static gboolean
-proxy_download_manager_icon_cb (GtkWidget*     entry,
-                                GdkEventFocus* event,
-                                GtkImage*      icon)
-{
-    const gchar* command;
-    gchar* first_space;
-    gchar* first_part;
-    gchar* path;
-
-    command = gtk_entry_get_text (GTK_ENTRY (entry));
-    if ((first_space = strstr (command, " ")))
-        first_part = g_strndup (command, first_space - command);
-    else
-        first_part = g_strdup (command);
-    path = g_find_program_in_path (first_part);
-
-    if (path)
-    {
-        if (gtk_icon_theme_has_icon (gtk_icon_theme_get_for_screen (
-            gtk_widget_get_screen (entry)), first_part))
-            gtk_image_set_from_icon_name (icon, first_part, GTK_ICON_SIZE_MENU);
-        else
-            gtk_image_set_from_stock (icon, GTK_STOCK_EXECUTE, GTK_ICON_SIZE_MENU);
-        g_free (path);
-    }
-    else if (first_part && *first_part)
-        gtk_image_set_from_stock (icon, GTK_STOCK_STOP, GTK_ICON_SIZE_MENU);
-    else
-        gtk_image_clear (icon);
-
-    g_free (first_part);
-
-    return FALSE;
 }
 
 static void
@@ -307,7 +261,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* label;
     GtkWidget* button;
     GtkWidget* entry;
-    gint icon_width, icon_height;
 
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
