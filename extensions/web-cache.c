@@ -34,7 +34,6 @@ web_cache_get_cached_path (MidoriExtension* extension,
     gchar* cached_filename;
     gchar* cached_path;
 
-    /* cache_path = midori_extension_get_string (extension, "path"); */
     if (!cache_path)
         cache_path = midori_extension_get_string (extension, "path");
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
@@ -44,8 +43,12 @@ web_cache_get_cached_path (MidoriExtension* extension,
     g_free (folder);
 
     encoded = soup_uri_encode (uri, "/");
-    ext = g_strrstr (encoded, ".");
+    ext = g_strdup (g_strrstr (encoded, "."));
+    /* Make sure ext isn't becoming too long */
+    if (ext && ext[0] && ext[1] && ext[2] && ext[3] && ext[4])
+        ext[4] = '\0';
     cached_filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
+    g_free (ext);
     g_free (encoded);
     g_free (checksum);
     cached_path = g_build_filename (sub_path, cached_filename, NULL);
@@ -101,8 +104,6 @@ web_cache_load_error_cb (WebKitWebView*   web_view,
                          GError*          error,
                          MidoriExtension* extension)
 {
-    const gchar* provisional;
-
     if (!(uri && g_str_has_prefix (uri, "http://")))
         return FALSE;
 
@@ -188,7 +189,7 @@ web_cache_session_request_queued_cb (SoupSession*     session,
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
 
-    if (g_str_has_prefix (uri, "http"))
+    if (g_str_has_prefix (uri, "http") && !g_strcmp0 (msg->method, "GET"))
     {
         gchar* filename = web_cache_get_cached_path (extension, uri);
 
@@ -220,6 +221,12 @@ web_cache_session_request_unqueued_cb (SoupSession*     session,
 {
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : NULL;
+
+     if (g_strcmp0 (msg->method, "GET"))
+     {
+         g_free (uri);
+         return;
+     }
 
     /* g_debug ("request unqueued: %d %s", msg->status_code, uri); */
 
