@@ -300,7 +300,7 @@ def configure (conf):
         Utils.pprint ('RED', 'Please use an older or newer version.')
 
 def set_options (opt):
-    def is_maemo (): return os.path.exists ('/etc/osso-af-init/osso-gtk.defs')
+    def is_maemo (): return os.path.exists ('/etc/osso-af-init/')
 
     def add_enable_option (option, desc, group=None, disable=False):
         if group == None:
