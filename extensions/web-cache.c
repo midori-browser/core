@@ -19,7 +19,7 @@
     #include <unistd.h>
 #endif
 
-#define HAVE_WEBKIT_RESOURCE_REQUEST 0 /* WEBKIT_CHECK_VERSION (1, 1, 14) */
+#define HAVE_WEBKIT_RESOURCE_REQUEST WEBKIT_CHECK_VERSION (1, 1, 14)
 
 static gchar*
 web_cache_get_cached_path (MidoriExtension* extension,
@@ -29,6 +29,7 @@ web_cache_get_cached_path (MidoriExtension* extension,
     gchar* checksum;
     gchar* folder;
     gchar* sub_path;
+    gchar* encoded;
     gchar* ext;
     gchar* cached_filename;
     gchar* cached_path;
@@ -43,13 +44,72 @@ web_cache_get_cached_path (MidoriExtension* extension,
     g_mkdir (sub_path, 0700);
     g_free (folder);
 
-    ext = g_strrstr (uri, ".");
+    encoded = soup_uri_encode (uri, "/");
+    ext = g_strrstr (encoded, ".");
     cached_filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
+    g_free (encoded);
     g_free (checksum);
     cached_path = g_build_filename (sub_path, cached_filename, NULL);
     g_free (cached_filename);
     return cached_path;
 }
+
+static gboolean
+web_cache_replace_frame_uri (MidoriExtension* extension,
+                             const gchar*     uri,
+                             WebKitWebFrame*  web_frame)
+{
+    gchar* filename;
+    gboolean handled = FALSE;
+
+    filename = web_cache_get_cached_path (extension, uri);
+
+    /* g_debug ("cache lookup: %s => %s", uri, filename); */
+
+    if (g_file_test (filename, G_FILE_TEST_EXISTS))
+    {
+        gchar* data;
+        g_file_get_contents (filename, &data, NULL, NULL);
+        webkit_web_frame_load_alternate_string (web_frame, data, NULL, uri);
+        g_free (data);
+        handled = TRUE;
+    }
+
+    g_free (filename);
+    return handled;
+}
+
+static gboolean
+web_cache_navigation_decision_cb (WebKitWebView*             web_view,
+                                  WebKitWebFrame*            web_frame,
+                                  WebKitNetworkRequest*      request,
+                                  WebKitWebNavigationAction* action,
+                                  WebKitWebPolicyDecision*   decision,
+                                  MidoriExtension*           extension)
+{
+    const gchar* uri = webkit_network_request_get_uri (request);
+    if (!(uri && g_str_has_prefix (uri, "http://")))
+        return FALSE;
+
+    return web_cache_replace_frame_uri (extension, uri, web_frame);
+}
+
+#if WEBKIT_CHECK_VERSION (1, 1, 6)
+static gboolean
+web_cache_load_error_cb (WebKitWebView*   web_view,
+                         WebKitWebFrame*  web_frame,
+                         const gchar*     uri,
+                         GError*          error,
+                         MidoriExtension* extension)
+{
+    const gchar* provisional;
+
+    if (!(uri && g_str_has_prefix (uri, "http://")))
+        return FALSE;
+
+    return web_cache_replace_frame_uri (extension, uri, web_frame);
+}
+#endif
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
@@ -67,10 +127,12 @@ web_cache_resource_request_starting_cb (WebKitWebView*         web_view,
     if (!(uri && g_str_has_prefix (uri, "http://")))
         return;
 
-    /* g_debug ("cache lookup: %s => %s", uri, filename); */
-
-    /* FIXME: Replacing the main resource of the frame is bad,
-        we must either skip it or find a way to redirect internally. */
+    if (!(g_strcmp0 (uri, webkit_web_frame_get_uri (web_frame))
+        && g_strcmp0 (webkit_web_data_source_get_unreachable_uri (webkit_web_frame_get_data_source (web_frame)), uri)))
+    {
+        web_cache_replace_frame_uri (extension, uri, web_frame);
+        return;
+    }
 
     filename = web_cache_get_cached_path (extension, uri);
     if (g_file_test (filename, G_FILE_TEST_EXISTS))
@@ -79,10 +141,10 @@ web_cache_resource_request_starting_cb (WebKitWebView*         web_view,
         webkit_network_request_set_uri (request, file_uri);
         g_free (file_uri);
     }
-
     g_free (filename);
 }
-#else
+#endif
+
 static void
 web_cache_mesage_got_headers_cb (SoupMessage*     msg,
                                  MidoriExtension* extension)
@@ -107,7 +169,6 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
     g_free (filename);
     g_free (uri);
 }
-#endif
 
 static void
 web_cache_mesage_got_chunk_cb (SoupMessage*     msg,
@@ -132,17 +193,18 @@ web_cache_session_request_queued_cb (SoupSession*     session,
     {
         gchar* filename = web_cache_get_cached_path (extension, uri);
 
-        /* g_debug ("cache lookup: %s => %s", uri, filename); */
+        /* g_debug ("cache lookup: %d %s => %s", msg->status_code, uri, filename); */
 
         g_object_set_data (G_OBJECT (msg), "session", session);
-        #if HAVE_WEBKIT_RESOURCE_REQUEST
-        if (!g_file_test (filename, G_FILE_TEST_EXISTS))
-        #else
+
+        /* Network is unavailable, so we fallback to cache */
+        if (msg->status_code == SOUP_STATUS_CANT_RESOLVE)
+            web_cache_mesage_got_headers_cb (msg, extension);
+
         if (g_file_test (filename, G_FILE_TEST_EXISTS))
             g_signal_connect (msg, "got-headers",
                 G_CALLBACK (web_cache_mesage_got_headers_cb), extension);
         else
-        #endif
             g_signal_connect (msg, "got-chunk",
                 G_CALLBACK (web_cache_mesage_got_chunk_cb), extension);
 
@@ -170,6 +232,7 @@ web_cache_session_request_unqueued_cb (SoupSession*     session,
     #endif
 
     /* FIXME: Only store if this wasn't a cached message already */
+    /* FIXME: Don't store files from the res server */
     if (uri && g_str_has_prefix (uri, "http"))
     {
         SoupMessageHeaders* hdrs = msg->response_headers;
@@ -177,22 +240,34 @@ web_cache_session_request_unqueued_cb (SoupSession*     session,
 
         /* FIXME: Don't store big files */
 
-        /* Only images are cached */
-        if (mime_type && g_str_has_prefix (mime_type, "image/"))
+        if (mime_type)
         {
             gchar* filename = web_cache_get_cached_path (extension, uri);
             SoupMessageBody* body = msg->response_body;
             SoupBuffer* buffer = NULL;
 
             /* We fed the buffer manually before, so this actually works. */
-            soup_message_body_set_accumulate (body, TRUE);
-            buffer = soup_message_body_flatten (body);
-
-            /* g_debug ("cache store: %s => %s", uri, filename); */
+            if (!soup_message_body_get_accumulate (body))
+            {
+                soup_message_body_set_accumulate (body, TRUE);
+                buffer = soup_message_body_flatten (body);
+            }
 
             /* FIXME: Update sensibly */
             if (!g_file_test (filename, G_FILE_TEST_EXISTS))
-                g_file_set_contents (filename, body->data, body->length, NULL);
+                if (body->length)
+                {
+                    /* g_debug ("cache store: %s => %s (%d)", uri, filename, body->length); */
+                    GError* error = NULL;
+                    g_file_set_contents (filename, body->data, body->length, &error);
+                    if (error)
+                    {
+                        g_printf ("%s\n", error->message);
+                        g_error_free (error);
+                    }
+                }
+                /* else
+                    g_debug ("cache skip empty"); */
 
             if (buffer)
                 soup_buffer_free (buffer);
@@ -210,6 +285,12 @@ web_cache_add_tab_cb (MidoriBrowser*   browser,
                       MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    g_signal_connect (web_view, "navigation-policy-decision-requested",
+        G_CALLBACK (web_cache_navigation_decision_cb), extension);
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    g_signal_connect (web_view, "load-error",
+        G_CALLBACK (web_cache_load_error_cb), extension);
+    #endif
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (web_cache_resource_request_starting_cb), extension);
@@ -253,10 +334,9 @@ web_cache_deactivate_tabs (MidoriView*      view,
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, web_cache_resource_request_starting_cb, extension);
-    #else
+    #endif
     g_signal_handlers_disconnect_by_func (
        webkit_get_default_session (), web_cache_session_request_queued_cb, extension);
-    #endif
 }
 
 static void
@@ -281,10 +361,8 @@ web_cache_activate_cb (MidoriExtension* extension,
     guint i;
     SoupSession* session = webkit_get_default_session ();
 
-    #if !HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (session, "request-queued",
                       G_CALLBACK (web_cache_session_request_queued_cb), extension);
-    #endif
     g_signal_connect (session, "request-unqueued",
                       G_CALLBACK (web_cache_session_request_unqueued_cb), extension);
 
