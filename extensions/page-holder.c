@@ -175,7 +175,7 @@ extension_init (void)
 
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Pageholder"),
-        "description", "",
+        "description", _("Keep one or multiple pages open in parallel to your tabs"),
         "version", "0.1",
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
