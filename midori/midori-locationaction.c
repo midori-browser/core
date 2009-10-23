@@ -1262,11 +1262,11 @@ void
 midori_location_action_set_icon (MidoriLocationAction* location_action,
                                  GdkPixbuf*            icon)
 {
+    #if !HAVE_HILDON
     GSList* proxies;
     GtkWidget* location_entry;
     GtkWidget* entry;
 
-    #if !HAVE_HILDON
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
 
@@ -1309,9 +1309,11 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
                                  GdkPixbuf*            icon,
                                  const gchar*          title)
 {
+    #if !HAVE_HILDON
     GSList* proxies;
     GtkWidget* location_entry;
     GtkWidget* entry;
+    #endif
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
@@ -1344,9 +1346,11 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
                                          GdkPixbuf*            icon,
                                          const gchar*          uri)
 {
+    #if !HAVE_HILDON
     GSList* proxies;
     GtkWidget* location_entry;
     GtkWidget* entry;
+    #endif
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
@@ -1465,9 +1469,11 @@ void
 midori_location_action_set_secondary_icon (MidoriLocationAction* location_action,
                                            const gchar*          stock_id)
 {
+    #if !HAVE_HILDON
     GSList* proxies;
     GtkWidget* entry;
     GtkWidget* child;
+    #endif
     GtkStockItem stock_item;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
