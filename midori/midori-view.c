@@ -625,8 +625,8 @@ midori_view_update_icon (MidoriView* view,
     if (!icon)
     {
         GdkScreen* screen;
-        GtkIconTheme* icon_theme;
-        gchar** parts;
+        GtkIconTheme* icon_theme = NULL;
+        gchar** parts = NULL;
         gchar* icon_name;
 
         if ((screen = gtk_widget_get_screen (GTK_WIDGET (view))))
@@ -638,8 +638,6 @@ midori_view_update_icon (MidoriView* view,
                     katze_assign (parts, NULL);
             }
         }
-        else
-            parts = NULL;
 
         if (parts)
             icon = midori_view_mime_icon (icon_theme, "%s-%s",
