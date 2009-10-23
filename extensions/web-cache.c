@@ -350,7 +350,12 @@ web_cache_deactivate_cb (MidoriExtension* extension,
                          MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
+    SoupSession* session = webkit_get_default_session ();
 
+    g_signal_handlers_disconnect_by_func (
+        session, web_cache_session_request_queued_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        session, web_cache_session_request_unqueued_cb, extension);
     g_signal_handlers_disconnect_by_func (
         extension, web_cache_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
