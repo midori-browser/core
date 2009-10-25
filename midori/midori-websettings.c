@@ -701,7 +701,11 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "news-aggregator",
                                      _("News Aggregator"),
                                      _("An external news aggregator"),
+                                     #if HAVE_HILDON
+                                     "osso_notes",
+                                     #else
                                      NULL,
+                                     #endif
                                      flags));
 
     g_object_class_install_property (gobject_class,

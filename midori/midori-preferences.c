@@ -452,6 +452,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     SPANNED_ADD (button);
 
+    #if !HAVE_HILDON
     /* Page "Applications" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Applications"));
     FRAME_NEW (_("External applications"));
@@ -467,6 +468,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "news-aggregator", "application-Network");
     SPANNED_ADD (entry);
+    #endif
 
     /* Page "Network" */
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
