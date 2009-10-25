@@ -251,12 +251,10 @@ void
 midori_preferences_set_settings (MidoriPreferences* preferences,
                                  MidoriWebSettings* settings)
 {
-    GList* children;
-    GtkWidget* notebook;
     GtkWidget* header;
     GtkWindow* parent;
     const gchar* icon_name;
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
     GtkSettings* gtk_settings;
     #endif
     KatzePreferences* _preferences;
@@ -267,11 +265,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
 
-    children = gtk_container_get_children (GTK_CONTAINER (GTK_DIALOG (preferences)->vbox));
-    notebook = g_list_nth_data (children, 0);
-    g_list_free (children);
-    gtk_container_foreach (GTK_CONTAINER (notebook),
-                           (GtkCallback)gtk_widget_destroy, NULL);
+    gtk_container_foreach (GTK_CONTAINER (GTK_DIALOG (preferences)->vbox), (GtkCallback)gtk_widget_destroy, NULL);
 
     g_object_get (preferences, "transient-for", &parent, NULL);
     icon_name = parent ? gtk_window_get_icon_name (parent) : NULL;
@@ -282,7 +276,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
             header, FALSE, FALSE, 0);
         gtk_widget_show_all (header);
     }
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
     gtk_settings = parent ?
         gtk_widget_get_settings (GTK_WIDGET (parent)) : gtk_settings_get_default ();
     #endif
@@ -381,7 +375,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
     gtk_widget_set_tooltip_text (button, _("Load and display images automatically"));
     INDENTED_ADD (button);
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
     if (katze_object_get_boolean (gtk_settings, "gtk-touchscreen-mode"))
         button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
     else
