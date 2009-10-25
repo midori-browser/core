@@ -176,6 +176,7 @@ midori_preferences_notify_preferred_encoding_cb (MidoriWebSettings* settings,
     gtk_widget_set_sensitive (entry, preferred_encoding == MIDORI_ENCODING_CUSTOM);
 }
 
+#if !HAVE_HILDON
 static void
 midori_preferences_notify_auto_detect_proxy_cb (MidoriWebSettings* settings,
                                                 GParamSpec*        pspec,
@@ -186,6 +187,7 @@ midori_preferences_notify_auto_detect_proxy_cb (MidoriWebSettings* settings,
 
     gtk_widget_set_sensitive (entry, !auto_detect_proxy);
 }
+#endif
 
 static void
 midori_preferences_notify_identify_as_cb (MidoriWebSettings* settings,
@@ -322,6 +324,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "speed-dial-in-new-tabs", NULL);
     SPANNED_ADD (button);
     FRAME_NEW (_("Transfers"));
+    #if !HAVE_HILDON
     label = katze_property_label (settings, "download-folder");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "download-folder", "folder");
@@ -332,10 +335,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* FIXME: Disable the option if notifications presumably cannot be sent
       gtk_widget_set_sensitive (button, FALSE); */
     SPANNED_ADD (button);
+    #endif
 
     /* Page "Appearance" */
     PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Appearance"));
     FRAME_NEW (_("Font settings"));
+    #if !HAVE_HILDON
     label = gtk_label_new (_("Default Font Family"));
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "default-font-family", "font");
@@ -357,6 +362,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     entry = katze_property_proxy (settings, "minimum-font-size", NULL);
     gtk_widget_set_tooltip_text (entry, _("The minimum font size used to display text"));
     SPANNED_ADD (entry);
+    #endif
     label = katze_property_label (settings, "preferred-encoding");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "preferred-encoding", NULL);
@@ -396,6 +402,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
     gtk_widget_set_tooltip_text (button, _("Enable embedded Netscape plugin objects"));
     SPANNED_ADD (button);
+    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
     gtk_widget_set_tooltip_text (button, _("Enforce a video dot density of 96 DPI"));
@@ -404,6 +411,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Enable developer tools"));
     gtk_widget_set_tooltip_text (button, _("Enable special extensions for developers"));
     SPANNED_ADD (button);
+    #endif
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "find-while-typing", NULL);
@@ -427,11 +435,11 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"));
     button = katze_property_proxy (settings, "toolbar-style", NULL);
     SPANNED_ADD (button);
-    #endif
     button = katze_property_proxy (settings, "progress-in-location", NULL);
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "search-engines-in-completion", NULL);
     SPANNED_ADD (button);
+    #endif
     FRAME_NEW (_("Browsing"));
     label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label);
@@ -469,6 +477,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Network" */
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
     FRAME_NEW (_("Network"));
+    #if !HAVE_HILDON
     label = katze_property_label (settings, "http-proxy");
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", NULL);
@@ -478,6 +487,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::auto-detect-proxy",
         G_CALLBACK (midori_preferences_notify_auto_detect_proxy_cb), entry);
     midori_preferences_notify_auto_detect_proxy_cb (settings, NULL, entry);
+    #endif
     label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "identify-as", NULL);
