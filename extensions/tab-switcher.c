@@ -323,8 +323,9 @@ MidoriExtension*
 extension_init (void)
 {
     MidoriExtension *extension = g_object_new (MIDORI_TYPE_EXTENSION,
-        "name", _("Tab Switcher"),
-        "description", _("Allows to switch tabs as known from the Opera browser"),
+        "name", _("Tab History List"),
+        "description", _("Allows to switch tabs by choosing from a "
+                         "list sorted by last usage"),
         "version", "0.1",
         "authors", "André Stösel <Midori-Plugin@PyIT.de>",
         NULL);
