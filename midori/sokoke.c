@@ -11,13 +11,13 @@
 */
 
 #include "sokoke.h"
-#include "midori-stock.h"
-
-#include "compat.h"
 
 #if HAVE_CONFIG_H
     #include <config.h>
 #endif
+
+#include "compat.h"
+#include "midori-stock.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
@@ -916,6 +916,11 @@ sokoke_time_t_to_julian (const time_t* timestamp)
 void
 sokoke_register_stock_items (void)
 {
+    GtkIconSource* icon_source;
+    GtkIconSet* icon_set;
+    GtkIconFactory* factory;
+    gsize i;
+
     typedef struct
     {
         const gchar* stock_id;
@@ -924,11 +929,6 @@ sokoke_register_stock_items (void)
         guint keyval;
         const gchar* fallback;
     } FatStockItem;
-    GtkIconSource* icon_source;
-    GtkIconSet* icon_set;
-    GtkIconFactory* factory = gtk_icon_factory_new ();
-    gsize i;
-
     static FatStockItem items[] =
     {
         { STOCK_EXTENSION, NULL, 0, 0, GTK_STOCK_CONVERT },
@@ -954,6 +954,7 @@ sokoke_register_stock_items (void)
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
     };
 
+    factory = gtk_icon_factory_new ();
     for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
         icon_set = gtk_icon_set_new ();
@@ -973,6 +974,53 @@ sokoke_register_stock_items (void)
     gtk_stock_add ((GtkStockItem*)items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
+
+    #if HAVE_HILDON
+    /* Maemo doesn't theme stock icons. So we map platform icons
+        to stock icons. These are all monochrome toolbar icons. */
+    typedef struct
+    {
+        const gchar* stock_id;
+        const gchar* icon_name;
+    } CompatItem;
+    static CompatItem compat_items[] =
+    {
+        { GTK_STOCK_ADD,        "general_add" },
+        { GTK_STOCK_BOLD,       "general_bold" },
+        { GTK_STOCK_CLOSE,      "general_close_b" },
+        { GTK_STOCK_DELETE,     "general_delete" },
+        { GTK_STOCK_FIND,       "general_search" },
+        { GTK_STOCK_FULLSCREEN, "general_fullsize_b" },
+        { GTK_STOCK_GO_BACK,    "general_back" },
+        { GTK_STOCK_GO_FORWARD, "general_forward" },
+        { GTK_STOCK_GO_UP,      "filemanager_folder_up" },
+        { GTK_STOCK_GOTO_FIRST, "pdf_viewer_first_page" },
+        { GTK_STOCK_GOTO_LAST,  "pdf_viewer_last_page" },
+        { GTK_STOCK_INFO,       "general_information" },
+        { GTK_STOCK_ITALIC,     "general_italic" },
+        { GTK_STOCK_JUMP_TO,    "general_move_to_folder" },
+        { GTK_STOCK_REFRESH,    "general_refresh" },
+        { GTK_STOCK_SAVE,       "notes_save" },
+        { GTK_STOCK_STOP,       "general_stop" },
+        { GTK_STOCK_UNDERLINE,  "notes_underline" },
+        { GTK_STOCK_ZOOM_IN,    "pdf_zoomin" },
+        { GTK_STOCK_ZOOM_OUT,   "pdf_zoomout" },
+    };
+
+    factory = gtk_icon_factory_new ();
+    for (i = 0; i < G_N_ELEMENTS (compat_items); i++)
+    {
+        icon_set = gtk_icon_set_new ();
+        icon_source = gtk_icon_source_new ();
+        gtk_icon_source_set_icon_name (icon_source, compat_items[i].icon_name);
+        gtk_icon_set_add_source (icon_set, icon_source);
+        gtk_icon_source_free (icon_source);
+        gtk_icon_factory_add (factory, compat_items[i].stock_id, icon_set);
+        gtk_icon_set_unref (icon_set);
+    }
+    gtk_icon_factory_add_default (factory);
+    g_object_unref (factory);
+    #endif
 }
 
 /**
