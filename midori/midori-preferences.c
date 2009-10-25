@@ -497,12 +497,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         G_CALLBACK (midori_preferences_notify_identify_as_cb), entry);
     midori_preferences_notify_identify_as_cb (settings, NULL, entry);
     SPANNED_ADD (entry);
-    label = katze_property_label (settings, "cache-size");
-    INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "cache-size", NULL);
-    SPANNED_ADD (entry);
-    label = gtk_label_new (_("MB"));
-    SPANNED_ADD (label);
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
@@ -526,8 +520,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     label = gtk_label_new (_("days"));
     SPANNED_ADD (label);
-    button = katze_property_proxy (settings, "remember-last-form-inputs", NULL);
-    INDENTED_ADD (button);
     button = katze_property_proxy (settings, "remember-last-downloaded-files", NULL);
     INDENTED_ADD (button);
 }

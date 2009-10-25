@@ -82,14 +82,12 @@ struct _MidoriWebSettings
 
     gboolean remember_last_visited_pages;
     gint maximum_history_age;
-    gboolean remember_last_form_inputs;
     gboolean remember_last_downloaded_files;
 
     gchar* http_proxy;
     gboolean auto_detect_proxy;
     MidoriIdentity identify_as;
     gchar* ident_string;
-    gint cache_size;
 
     gint clear_private_data;
 };
@@ -159,14 +157,12 @@ enum
 
     PROP_REMEMBER_LAST_VISITED_PAGES,
     PROP_MAXIMUM_HISTORY_AGE,
-    PROP_REMEMBER_LAST_FORM_INPUTS,
     PROP_REMEMBER_LAST_DOWNLOADED_FILES,
 
     PROP_HTTP_PROXY,
     PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
     PROP_IDENT_STRING,
-    PROP_CACHE_SIZE,
 
     PROP_CLEAR_PRIVATE_DATA
 };
@@ -908,15 +904,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      flags));
 
     g_object_class_install_property (gobject_class,
-                                     PROP_REMEMBER_LAST_FORM_INPUTS,
-                                     g_param_spec_boolean (
-                                     "remember-last-form-inputs",
-                                     _("Remember last form inputs"),
-                                     _("Whether the last form inputs are saved"),
-                                     TRUE,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-    g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_DOWNLOADED_FILES,
                                      g_param_spec_boolean (
                                      "remember-last-downloaded-files",
@@ -986,15 +973,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      NULL,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-    g_object_class_install_property (gobject_class,
-                                     PROP_CACHE_SIZE,
-                                     g_param_spec_int (
-                                     "cache-size",
-                                     _("Cache size"),
-                                     _("The allowed size of the cache"),
-                                     0, G_MAXINT, 100,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
     /**
      * MidoriWebSettings:clear-private-data:
      *
@@ -1049,7 +1027,6 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->http_proxy = NULL;
     web_settings->show_panel_controls = TRUE;
     web_settings->open_popups_in_tabs = TRUE;
-    web_settings->remember_last_form_inputs = TRUE;
     web_settings->remember_last_downloaded_files = TRUE;
     web_settings->kinetic_scrolling = TRUE;
     web_settings->auto_detect_proxy = TRUE;
@@ -1349,9 +1326,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_MAXIMUM_HISTORY_AGE:
         web_settings->maximum_history_age = g_value_get_int (value);
         break;
-    case PROP_REMEMBER_LAST_FORM_INPUTS:
-        web_settings->remember_last_form_inputs = g_value_get_boolean (value);
-        break;
     case PROP_REMEMBER_LAST_DOWNLOADED_FILES:
         web_settings->remember_last_downloaded_files = g_value_get_boolean (value);
         break;
@@ -1382,9 +1356,6 @@ midori_web_settings_set_property (GObject*      object,
             g_object_set (web_settings, "user-agent", web_settings->ident_string, NULL);
             #endif
         }
-        break;
-    case PROP_CACHE_SIZE:
-        web_settings->cache_size = g_value_get_int (value);
         break;
     case PROP_CLEAR_PRIVATE_DATA:
         web_settings->clear_private_data = g_value_get_int (value);
@@ -1555,9 +1526,6 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_MAXIMUM_HISTORY_AGE:
         g_value_set_int (value, web_settings->maximum_history_age);
         break;
-    case PROP_REMEMBER_LAST_FORM_INPUTS:
-        g_value_set_boolean (value, web_settings->remember_last_form_inputs);
-        break;
     case PROP_REMEMBER_LAST_DOWNLOADED_FILES:
         g_value_set_boolean (value, web_settings->remember_last_downloaded_files);
         break;
@@ -1578,9 +1546,6 @@ midori_web_settings_get_property (GObject*    object,
             katze_assign (web_settings->ident_string, string);
         }
         g_value_set_string (value, web_settings->ident_string);
-        break;
-    case PROP_CACHE_SIZE:
-        g_value_set_int (value, web_settings->cache_size);
         break;
     case PROP_CLEAR_PRIVATE_DATA:
         g_value_set_int (value, web_settings->clear_private_data);
