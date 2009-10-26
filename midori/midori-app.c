@@ -1076,13 +1076,10 @@ midori_app_init_libnotify (MidoriApp* app)
  * @title: title of the notification
  * @message: text of the notification, or NULL
  *
- * Send #message to the notification daemon to display it.
- * This is done by using libnotify if available or by using the program
- * "notify-send" as a fallback.
+ * Send #message to a notification service to display it.
  *
- * There is no guarantee that the message have been sent and displayed, as
- * neither libnotify nor "notify-send" might be available or the
- * notification daemon might not be running.
+ * There is no guarantee that the message has been sent and displayed, as
+ * there might not be any notification service available.
  *
  * Since 0.1.7
  **/
@@ -1091,6 +1088,10 @@ midori_app_send_notification (MidoriApp*   app,
                               const gchar* title,
                               const gchar* message)
 {
+    #if HAVE_HILDON
+    hildon_banner_show_information_with_markup (GTK_WIDGET (app->browser),
+                                                "midori", message);
+    #else
     gboolean sent = FALSE;
 
     g_return_if_fail (MIDORI_IS_APP (app));
@@ -1118,4 +1119,5 @@ midori_app_send_notification (MidoriApp*   app,
         g_free (msgq);
         g_free (command);
     }
+    #endif
 }
