@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -19,7 +20,9 @@
     #include <unistd.h>
 #endif
 
+static gboolean offline_mode = FALSE;
 #define HAVE_WEBKIT_RESOURCE_REQUEST WEBKIT_CHECK_VERSION (1, 1, 14)
+#define MAXLENGTH 1024 * 1024
 
 static gchar*
 web_cache_get_cached_path (MidoriExtension* extension,
@@ -92,6 +95,8 @@ web_cache_navigation_decision_cb (WebKitWebView*             web_view,
     const gchar* uri = webkit_network_request_get_uri (request);
     if (!(uri && g_str_has_prefix (uri, "http://")))
         return FALSE;
+    if (offline_mode == FALSE)
+        return FALSE;
 
     return web_cache_replace_frame_uri (extension, uri, web_frame);
 }
@@ -104,12 +109,191 @@ web_cache_load_error_cb (WebKitWebView*   web_view,
                          GError*          error,
                          MidoriExtension* extension)
 {
+    if (offline_mode == FALSE)
+        return FALSE;
     if (!(uri && g_str_has_prefix (uri, "http://")))
         return FALSE;
 
     return web_cache_replace_frame_uri (extension, uri, web_frame);
 }
 #endif
+
+static void
+web_cache_save_headers (SoupMessage* msg,
+                        gchar*       filename)
+{
+      gchar* dsc_filename = g_strdup_printf ("%s.dsc", filename);
+      SoupMessageHeaders* hdrs = msg->response_headers;
+      SoupMessageHeadersIter iter;
+      const gchar* name, *value;
+      FILE* dscfd;
+
+      soup_message_headers_iter_init (&iter, hdrs);
+      dscfd = g_fopen (dsc_filename,"w+");
+      while (soup_message_headers_iter_next (&iter, &name, &value))
+          g_fprintf (dscfd, "%s: %s\n", name, value);
+      fclose (dscfd);
+}
+
+GHashTable*
+web_cache_get_headers (gchar* filename)
+{
+    GHashTable* headers;
+    FILE* file;
+    gchar* dsc_filename;
+
+    headers = g_hash_table_new_full (g_str_hash, g_str_equal,
+                               (GDestroyNotify)g_free,
+                               (GDestroyNotify)g_free);
+
+    if (!filename)
+        return headers;
+    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+        return headers;
+
+    dsc_filename = g_strdup_printf ("%s.dsc", filename);
+    if (!g_file_test (dsc_filename, G_FILE_TEST_EXISTS))
+    {
+        g_free (dsc_filename);
+        return headers;
+    }
+    if ((file = g_fopen (dsc_filename, "r")))
+    {
+        gchar line[128];
+        while (fgets (line, 128, file))
+        {
+            if (line==NULL)
+                continue;
+            g_strchomp (line);
+            gchar** data;
+            data = g_strsplit (line, ":", 2);
+            if (data[0] && data[1])
+                g_hash_table_insert (headers, g_strdup (data[0]),
+                                     g_strdup (g_strchug (data[1])));
+            g_strfreev (data);
+        }
+    }
+    fclose (file);
+    /* g_hash_table_destroy (headers); */
+    g_free (dsc_filename);
+    return headers;
+}
+
+static void
+web_cache_message_got_chunk_cb (SoupMessage* msg,
+                                SoupBuffer*  chunk,
+                                gchar*       filename)
+{
+    GFile *file;
+    GOutputStream *stream;
+
+    if (!chunk->data || !chunk->length)
+        return;
+
+    if (!(g_file_test (filename, G_FILE_TEST_EXISTS)))
+    {
+        /* FIXME: Is there are better ways to create a file? like touch */
+        FILE* cffd;
+        cffd = g_fopen (filename,"w");
+        fclose (cffd);
+    }
+    file = g_file_new_for_path (filename);
+    stream = (GOutputStream*)g_file_append_to (file, 0, NULL, NULL);
+    g_output_stream_write (stream, chunk->data, chunk->length, NULL, NULL);
+    g_output_stream_close (stream, NULL, NULL);
+    g_object_unref (file);
+}
+
+static void
+web_cache_message_rewrite (SoupMessage*  msg,
+                           gchar*        filename)
+{
+    GHashTable* cache_headers = web_cache_get_headers (filename);
+    GHashTableIter iter;
+    SoupBuffer *buffer;
+    gpointer key, value;
+    char *data;
+    gsize length;
+
+    /* FIXME: Seems to open image in a new tab we need to set content-type separately */
+    soup_message_set_status (msg, SOUP_STATUS_OK);
+    g_hash_table_iter_init (&iter, cache_headers);
+    while (g_hash_table_iter_next (&iter, &key, &value))
+        soup_message_headers_replace (msg->response_headers, key, value);
+    g_signal_emit_by_name (msg, "got-headers", NULL);
+
+    msg->response_body = soup_message_body_new ();
+    g_file_get_contents (filename, &data, &length, NULL);
+    if (data && length)
+    {
+        buffer = soup_buffer_new (SOUP_MEMORY_TEMPORARY, data, length);
+        soup_message_body_append_buffer (msg->response_body, buffer);
+        g_signal_emit_by_name (msg, "got-chunk", buffer, NULL);
+        soup_buffer_free (buffer);
+    }
+    soup_message_got_body (msg);
+    g_free (data);
+
+    #if 0
+    if (offline_mode == TRUE)
+    {
+       /* Workaroung for offline mode
+       FIXME: libsoup-CRITICAL **: queue_message: assertion `item != NULL' failed */
+       SoupSession *session = webkit_get_default_session ();
+       soup_session_requeue_message (session, msg);
+    }
+    soup_message_finished (msg);
+    #endif
+}
+
+static void
+web_cache_mesage_got_headers_cb (SoupMessage*     msg,
+                                 MidoriExtension* extension)
+{
+    SoupURI* soup_uri = soup_message_get_uri (msg);
+    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
+    gchar* filename = web_cache_get_cached_path (extension, uri);
+    const gchar* nocache;
+    SoupMessageHeaders *hdrs = msg->response_headers;
+    gint length;
+
+    /* Skip big files */
+    length = GPOINTER_TO_INT (soup_message_headers_get_one (hdrs, "Content-Length"));
+    if (length > MAXLENGTH)
+        return;
+
+    nocache = soup_message_headers_get_one (hdrs, "Pragma");
+    if (nocache == NULL)
+        nocache = soup_message_headers_get_one (hdrs, "Cache-Control");
+    if (nocache)
+    {
+        if (g_regex_match_simple ("no-cache|no-store", nocache,
+                                  G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+        {
+            g_free (uri);
+            return;
+        }
+    }
+
+    if (msg->status_code == SOUP_STATUS_NOT_MODIFIED)
+    {
+        /* g_debug ("loading from cache: %s -> %s", uri, filename); */
+        g_signal_handlers_disconnect_by_func (msg,
+            web_cache_mesage_got_headers_cb, extension);
+        web_cache_message_rewrite (msg, filename);
+    }
+    else if (msg->status_code == SOUP_STATUS_OK)
+    {
+        /* g_debug ("updating cache: %s -> %s", uri, filename); */
+        web_cache_save_headers (msg, filename);
+        /* FIXME: Do we need to disconnect signal after we are in unqueue? */
+        g_signal_connect (msg, "got-chunk",
+            G_CALLBACK (web_cache_message_got_chunk_cb), filename);
+    }
+    /* FIXME: how to free this?
+      g_free (filename); */
+    g_free (uri);
+}
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
@@ -122,166 +306,93 @@ web_cache_resource_request_starting_cb (WebKitWebView*         web_view,
 {
     const gchar* uri;
     gchar* filename;
-
+    /* TODO: Good place to check are we offline */
     uri = webkit_network_request_get_uri (request);
     if (!(uri && g_str_has_prefix (uri, "http://")))
         return;
+
+    if (offline_mode == FALSE)
+       return;
+
+    filename = web_cache_get_cached_path (extension, uri);
+    /* g_debug ("loading %s -> %s",uri, filename); */
+    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+    {
+        g_free (filename);
+        return;
+    }
 
     if (!(g_strcmp0 (uri, webkit_web_frame_get_uri (web_frame))
         && g_strcmp0 (webkit_web_data_source_get_unreachable_uri (webkit_web_frame_get_data_source (web_frame)), uri)))
     {
         web_cache_replace_frame_uri (extension, uri, web_frame);
+        g_free (filename);
         return;
     }
 
-    filename = web_cache_get_cached_path (extension, uri);
-    if (g_file_test (filename, G_FILE_TEST_EXISTS))
-    {
-        gchar* file_uri = g_filename_to_uri (filename, NULL, NULL);
-        webkit_network_request_set_uri (request, file_uri);
-        g_free (file_uri);
-    }
+    gchar* file_uri = g_filename_to_uri (filename, NULL, NULL);
+    webkit_network_request_set_uri (request, file_uri);
+
+    g_free (file_uri);
     g_free (filename);
 }
 #endif
-
-static void
-web_cache_mesage_got_headers_cb (SoupMessage*     msg,
-                                 MidoriExtension* extension)
-{
-    SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    gchar* filename = web_cache_get_cached_path (extension, uri);
-    gchar* data;
-    gsize length;
-
-    /* g_debug ("cache serve: %s (%s)", uri, filename); */
-
-    /* FIXME: Inspect headers and decide whether we need to update the cache */
-
-    g_file_get_contents (filename, &data, &length, NULL);
-    soup_message_set_status (msg, SOUP_STATUS_OK);
-    /* FIXME: MIME type */
-    soup_message_set_request (msg, "image/jpeg", SOUP_MEMORY_TAKE, data, length);
-    g_signal_handlers_disconnect_by_func (msg, web_cache_mesage_got_headers_cb, extension);
-    soup_session_requeue_message (g_object_get_data (G_OBJECT (msg), "session"), msg);
-
-    g_free (filename);
-    g_free (uri);
-}
-
-static void
-web_cache_mesage_got_chunk_cb (SoupMessage*     msg,
-                               SoupBuffer*      chunk,
-                               MidoriExtension* extension)
-{
-    /* Fill the body in manually for later use, even if WebKitGTK+
-        disables accumulation. We should probably do this differently.  */
-    if (!soup_message_body_get_accumulate (msg->response_body))
-        soup_message_body_append_buffer (msg->response_body, chunk);
-}
 
 static void
 web_cache_session_request_queued_cb (SoupSession*     session,
                                      SoupMessage*     msg,
                                      MidoriExtension* extension)
 {
+    /*FIXME: Should we need to free soupuri? */
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
+
+    /* For now we are handling only online mode here */
+    if (offline_mode == TRUE)
+        return;
 
     if (g_str_has_prefix (uri, "http") && !g_strcmp0 (msg->method, "GET"))
     {
         gchar* filename = web_cache_get_cached_path (extension, uri);
+        if (offline_mode == FALSE)
+        {
+            GHashTable* cache_headers;
+            gchar* etag;
+            gchar* last_modified;
 
-        /* g_debug ("cache lookup: %d %s => %s", msg->status_code, uri, filename); */
-
-        g_object_set_data (G_OBJECT (msg), "session", session);
-
-        /* Network is unavailable, so we fallback to cache */
-        if (msg->status_code == SOUP_STATUS_CANT_RESOLVE)
-            web_cache_mesage_got_headers_cb (msg, extension);
-
-        if (g_file_test (filename, G_FILE_TEST_EXISTS))
+            cache_headers = web_cache_get_headers (filename);
+            etag = g_hash_table_lookup (cache_headers, "ETag");
+            last_modified = g_hash_table_lookup (cache_headers, "Last-Modified");
+            if (etag)
+                soup_message_headers_append (msg->request_headers,
+                                             "If-None-Match", etag);
+            if (last_modified)
+                soup_message_headers_append (msg->request_headers,
+                                             "If-Modified-Since", last_modified);
+            /* FIXME: Do we need to disconnect signal after we are in unqueue? */
             g_signal_connect (msg, "got-headers",
                 G_CALLBACK (web_cache_mesage_got_headers_cb), extension);
-        else
-            g_signal_connect (msg, "got-chunk",
-                G_CALLBACK (web_cache_mesage_got_chunk_cb), extension);
 
+            g_free (etag);
+            g_free (last_modified);
+            g_free (filename);
+            /* FIXME: uncoment this is leading to a crash
+              g_hash_table_destroy (cache_headers); */
+            return;
+        }
+/*
+        else
+        {
+            g_debug("queued in offline mode: %s -> %s", uri, filename);
+            if (g_file_test (filename, G_FILE_TEST_EXISTS))
+            {
+                 soup_message_set_status (msg, SOUP_STATUS_NOT_MODIFIED);
+                 web_cache_message_rewrite (msg, filename);
+            }
+        }
+*/
         g_free (filename);
     }
-
-    g_free (uri);
-}
-
-static void
-web_cache_session_request_unqueued_cb (SoupSession*     session,
-                                       SoupMessage*     msg,
-                                       MidoriExtension* extension)
-{
-    SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : NULL;
-
-     if (g_strcmp0 (msg->method, "GET"))
-     {
-         g_free (uri);
-         return;
-     }
-
-    /* g_debug ("request unqueued: %d %s", msg->status_code, uri); */
-
-    #if !HAVE_WEBKIT_RESOURCE_REQUEST
-    /* Network is unavailable, so we fallback to cache */
-    if (msg->status_code == SOUP_STATUS_CANT_RESOLVE)
-        web_cache_mesage_got_headers_cb (msg, extension);
-    else
-    #endif
-
-    /* FIXME: Only store if this wasn't a cached message already */
-    /* FIXME: Don't store files from the res server */
-    if (uri && g_str_has_prefix (uri, "http"))
-    {
-        SoupMessageHeaders* hdrs = msg->response_headers;
-        const gchar* mime_type = soup_message_headers_get_content_type (hdrs, NULL);
-
-        /* FIXME: Don't store big files */
-
-        if (mime_type)
-        {
-            gchar* filename = web_cache_get_cached_path (extension, uri);
-            SoupMessageBody* body = msg->response_body;
-            SoupBuffer* buffer = NULL;
-
-            /* We fed the buffer manually before, so this actually works. */
-            if (!soup_message_body_get_accumulate (body))
-            {
-                soup_message_body_set_accumulate (body, TRUE);
-                buffer = soup_message_body_flatten (body);
-            }
-
-            /* FIXME: Update sensibly */
-            if (!g_file_test (filename, G_FILE_TEST_EXISTS))
-                if (body->length)
-                {
-                    /* g_debug ("cache store: %s => %s (%d)", uri, filename, body->length); */
-                    GError* error = NULL;
-                    g_file_set_contents (filename, body->data, body->length, &error);
-                    if (error)
-                    {
-                        g_printf ("%s\n", error->message);
-                        g_error_free (error);
-                    }
-                }
-                /* else
-                    g_debug ("cache skip empty"); */
-
-            if (buffer)
-                soup_buffer_free (buffer);
-        }
-        /* else
-            g_debug ("cache skip: %s", mime_type); */
-    }
-
     g_free (uri);
 }
 
@@ -293,10 +404,12 @@ web_cache_add_tab_cb (MidoriBrowser*   browser,
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (web_cache_navigation_decision_cb), extension);
+
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
     g_signal_connect (web_view, "load-error",
         G_CALLBACK (web_cache_load_error_cb), extension);
     #endif
+
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (web_cache_resource_request_starting_cb), extension);
@@ -355,8 +468,6 @@ web_cache_deactivate_cb (MidoriExtension* extension,
     g_signal_handlers_disconnect_by_func (
         session, web_cache_session_request_queued_cb, extension);
     g_signal_handlers_disconnect_by_func (
-        session, web_cache_session_request_unqueued_cb, extension);
-    g_signal_handlers_disconnect_by_func (
         extension, web_cache_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, web_cache_app_add_browser_cb, extension);
@@ -374,11 +485,8 @@ web_cache_activate_cb (MidoriExtension* extension,
     SoupSession* session = webkit_get_default_session ();
 
     katze_mkdir_with_parents (cache_path, 0700);
-
     g_signal_connect (session, "request-queued",
                       G_CALLBACK (web_cache_session_request_queued_cb), extension);
-    g_signal_connect (session, "request-unqueued",
-                      G_CALLBACK (web_cache_session_request_unqueued_cb), extension);
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
