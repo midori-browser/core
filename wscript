@@ -220,6 +220,7 @@ def configure (conf):
     if option_enabled ('hildon'):
         if check_pkg ('hildon-1', mandatory=False, var='HILDON'):
             check_pkg ('libosso', var='HILDON')
+            check_pkg ('hildon-1', '2.2', var='HAVE_HILDON_2_2')
         hildon = ['N/A','yes'][conf.env['HAVE_HILDON'] == 1]
         if hildon != 'yes':
             option_checkfatal ('hildon', 'Maemo integration')
