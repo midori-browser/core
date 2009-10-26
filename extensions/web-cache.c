@@ -133,6 +133,8 @@ web_cache_save_headers (SoupMessage* msg,
       while (soup_message_headers_iter_next (&iter, &name, &value))
           g_fprintf (dscfd, "%s: %s\n", name, value);
       fclose (dscfd);
+
+      g_free (dsc_filename);
 }
 
 GHashTable*
@@ -271,6 +273,7 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
                                   G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
         {
             g_free (uri);
+            g_free (filename);
             return;
         }
     }
@@ -281,17 +284,17 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
         g_signal_handlers_disconnect_by_func (msg,
             web_cache_mesage_got_headers_cb, extension);
         web_cache_message_rewrite (msg, filename);
+        g_free (filename);
     }
     else if (msg->status_code == SOUP_STATUS_OK)
     {
         /* g_debug ("updating cache: %s -> %s", uri, filename); */
         web_cache_save_headers (msg, filename);
         /* FIXME: Do we need to disconnect signal after we are in unqueue? */
-        g_signal_connect (msg, "got-chunk",
-            G_CALLBACK (web_cache_message_got_chunk_cb), filename);
+        g_signal_connect_data (msg, "got-chunk",
+            G_CALLBACK (web_cache_message_got_chunk_cb),
+            filename, (GClosureNotify)g_free, 0);
     }
-    /* FIXME: how to free this?
-      g_free (filename); */
     g_free (uri);
 }
 
