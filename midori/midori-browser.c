@@ -1514,8 +1514,10 @@ midori_view_search_text_cb (GtkWidget*     view,
     }
     if (GTK_WIDGET_VISIBLE (browser->find) && !typing)
     {
+        #if !HAVE_HILDON
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
             GTK_ICON_ENTRY_PRIMARY, (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
+        #endif
         text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
         case_sensitive = gtk_toggle_tool_button_get_active (
             GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
@@ -2411,12 +2413,14 @@ _action_find_activate (GtkAction*     action,
 {
     if (!GTK_WIDGET_VISIBLE (browser->find))
     {
+        #if !HAVE_HILDON
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
                                             GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FIND);
-        gtk_entry_set_text (GTK_ENTRY (browser->find_text), "");
         gtk_widget_show (GTK_WIDGET (browser->find_case));
+        #endif
         gtk_widget_show (GTK_WIDGET (browser->find_highlight));
         gtk_widget_show (GTK_WIDGET (browser->find_close));
+        gtk_entry_set_text (GTK_ENTRY (browser->find_text), "");
         gtk_widget_show (browser->find);
     }
 
@@ -4640,7 +4644,7 @@ static const GtkActionEntry entries[] = {
  { "Find", GTK_STOCK_FIND,
    NULL, "<Ctrl>f",
    N_("Find a word or phrase in the page"), G_CALLBACK (_action_find_activate) },
- { "FindNext", NULL,
+ { "FindNext", GTK_STOCK_GO_FORWARD,
    N_("Find _Next"), "<Ctrl>g",
    N_("Find the next occurrence of a word or phrase"), G_CALLBACK (_action_find_next_activate) },
  { "FindPrevious", GTK_STOCK_GO_BACK,
@@ -5611,6 +5615,7 @@ midori_browser_init (MidoriBrowser* browser)
         gtk_label_new_with_mnemonic (_("_Inline Find:")));
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_text = gtk_icon_entry_new ();
+    #if !HAVE_HILDON
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
                                         GTK_ICON_ENTRY_PRIMARY,
                                         GTK_STOCK_FIND);
@@ -5619,6 +5624,7 @@ midori_browser_init (MidoriBrowser* browser)
                                         GTK_STOCK_CLEAR);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (browser->find_text),
                                        GTK_ICON_ENTRY_SECONDARY, TRUE);
+    #endif
     g_signal_connect (browser->find_text, "icon-release",
         G_CALLBACK (midori_browser_entry_clear_icon_released_cb), NULL);
     g_signal_connect (browser->find_text, "activate",
@@ -5631,6 +5637,10 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_container_add (GTK_CONTAINER (toolitem), browser->find_text);
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
+    #if HAVE_HILDON
+    browser->find_case = gtk_toggle_tool_button_new ();
+    browser->find_highlight = gtk_toggle_tool_button_new ();
+    #else
     toolitem = (GtkToolItem*)gtk_action_create_tool_item
         (_action_by_name (browser, "FindPrevious"));
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Previous"));
@@ -5648,6 +5658,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), browser->find_case, -1);
     browser->find_highlight = gtk_toggle_tool_button_new_from_stock (
         GTK_STOCK_SELECT_ALL);
+    #endif
     g_signal_connect (browser->find_highlight, "toggled",
                       G_CALLBACK (_find_highlight_toggled), browser);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (browser->find_highlight),
@@ -5657,7 +5668,9 @@ midori_browser_init (MidoriBrowser* browser)
     toolitem = gtk_separator_tool_item_new ();
     gtk_separator_tool_item_set_draw (
         GTK_SEPARATOR_TOOL_ITEM (toolitem), FALSE);
+    #if !HAVE_HILDON
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
+    #endif
     gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
     browser->find_close = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (browser->find_close),
