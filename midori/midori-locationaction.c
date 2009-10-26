@@ -643,6 +643,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 
     if (G_UNLIKELY (!icon))
     {
+        #if !HAVE_HILDON
         MidoriLocationAction* action = MIDORI_LOCATION_ACTION (data);
         icon = katze_net_load_icon (action->net, uri, NULL, NULL, NULL);
         if (G_LIKELY (icon))
@@ -652,6 +653,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         }
         else
             midori_location_action_set_icon_for_uri (action, action->default_icon, uri);
+        #endif
     }
     else
         g_object_unref (icon);
