@@ -371,10 +371,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Behavior" */
     PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
     FRAME_NEW (_("Features"));
+    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
     gtk_widget_set_tooltip_text (button, _("Load and display images automatically"));
     INDENTED_ADD (button);
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
     if (katze_object_get_boolean (gtk_settings, "gtk-touchscreen-mode"))
         button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
@@ -388,6 +390,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     #endif
     SPANNED_ADD (button);
+    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
     gtk_widget_set_tooltip_text (button, _("Enable embedded scripting languages"));
@@ -396,7 +399,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
     gtk_widget_set_tooltip_text (button, _("Enable embedded Netscape plugin objects"));
     SPANNED_ADD (button);
-    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
     gtk_widget_set_tooltip_text (button, _("Enforce a video dot density of 96 DPI"));
@@ -443,13 +445,15 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "open-external-pages-in", NULL);
     SPANNED_ADD (button);
+    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "always-show-tabbar", NULL);
     INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
+    button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
     SPANNED_ADD (button);
+    #endif
     button = katze_property_proxy (settings, "open-tabs-next-to-current", NULL);
     INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "close-buttons-on-tabs", NULL);
+    button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
     SPANNED_ADD (button);
 
     #if !HAVE_HILDON

@@ -2920,8 +2920,9 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       #if HAVE_HILDON
       { "Find" },
       { "Homepage" },
-      { "ManageSearchEngines" },
+      { "SourceView" },
       #else
+      { "ManageSearchEngines" },
       { "Print" },
       { "PrivateBrowsing" },
       { NULL },
@@ -2930,12 +2931,15 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "Statusbar" },
       { NULL },
       { "-" },
-      #endif
       { "ClearPrivateData" },
-      #if !HAVE_HILDON
       { "Fullscreen" },
       #endif
       { "Preferences" },
+      #if HAVE_HILDON
+      { "auto-load-images" },
+      { "enable-scripts" },
+      { "enable-plugins" },
+      #endif
     };
     guint i;
 
@@ -2954,14 +2958,19 @@ _action_compact_menu_populate_popup (GtkAction*     action,
         if (!actions[i].name)
             continue;
         _action = _action_by_name (browser, actions[i].name);
-        label = katze_object_get_string (_action, "label");
-        button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
+        if (_action)
+        {
+            label = katze_object_get_string (_action, "label");
+            button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
+            gtk_button_set_label (GTK_BUTTON (button), label);
+            gtk_button_set_use_underline (GTK_BUTTON (button), TRUE);
+            g_free (label);
+            g_signal_connect_swapped (button, "clicked",
+                G_CALLBACK (gtk_action_activate), _action);
+        }
+        else
+            button = katze_property_proxy (browser->settings, actions[i].name, NULL);
         gtk_widget_show (button);
-        gtk_button_set_label (GTK_BUTTON (button), label);
-        gtk_button_set_use_underline (GTK_BUTTON (button), TRUE);
-        g_free (label);
-        g_signal_connect_swapped (button, "clicked",
-            G_CALLBACK (gtk_action_activate), _action);
         hildon_app_menu_append (HILDON_APP_MENU (menu), GTK_BUTTON (button));
         #else
         GtkWidget* menuitem;
