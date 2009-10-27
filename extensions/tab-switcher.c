@@ -11,17 +11,44 @@
 
 #include <midori/midori.h>
 
-enum { TAB_NAME, TAB_POINTER, TAB_CELL_COUNT };
+enum { TAB_ICON, TAB_NAME, TAB_POINTER, TAB_CELL_COUNT };
 
 static MidoriExtension *thisExtension;
 static gboolean switchEvent;
+
+static GdkPixbuf* tab_selector_get_snapshot(MidoriView* view,
+                                            gint       maxwidth,
+                                            gint       maxheight)
+{
+    GtkWidget* web_view;
+    guint width, height;
+    gfloat factor;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+    web_view = gtk_bin_get_child (GTK_BIN (view));
+
+    if(maxwidth < 0) {
+        maxwidth *= -1;
+    }
+    if(maxheight < 0) {
+        maxheight *= -1;
+    }
+
+    factor = MIN((gfloat) maxwidth / web_view->allocation.width, (gfloat) maxheight / web_view->allocation.height);
+    width = (int)(factor * web_view->allocation.width);
+    height = (int)(factor * web_view->allocation.height);
+
+    return midori_view_get_snapshot(view, width, height);
+}
 
 static void tab_selector_list_foreach (GtkWidget    *view,
                                        GtkListStore *store)
 {
     GtkTreeIter it;
+    GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
     const gchar *title = midori_view_get_display_title (MIDORI_VIEW (view));
     gtk_list_store_append (store, &it);
+    gtk_list_store_set (store, &it, TAB_ICON, icon, -1);
     gtk_list_store_set (store, &it, TAB_NAME, title, -1);
     gtk_list_store_set (store, &it, TAB_POINTER, view, -1);
 }
@@ -29,15 +56,33 @@ static void tab_selector_list_foreach (GtkWidget    *view,
 static GtkWidget* tab_selector_init_window (MidoriBrowser   *browser)
 {
     GList *list;
+    gint col_offset;
     GtkCellRenderer *renderer;
-    GtkWidget *window, *treeview;
+    GtkTreeViewColumn *column;
+    GtkWidget *window, *treeview, *sw, *hbox;
     GtkListStore *store;
+    GtkWidget *page;
+    GtkWidget *image;
+    GdkPixbuf *snapshot;
 
     window = gtk_window_new(GTK_WINDOW_POPUP);
     gtk_window_set_default_size(GTK_WINDOW(window), 320, 20);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 
-    store = gtk_list_store_new(TAB_CELL_COUNT, G_TYPE_STRING, G_TYPE_POINTER);
+
+    hbox = gtk_hbox_new(FALSE, 5);
+    gtk_container_add(GTK_CONTAINER(window), hbox);
+
+    sw = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
+            GTK_SHADOW_ETCHED_IN);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw),
+            GTK_POLICY_NEVER,
+            GTK_POLICY_AUTOMATIC);
+
+    gtk_box_pack_start (GTK_BOX (hbox), sw, TRUE, TRUE, 0);
+
+    store = gtk_list_store_new(TAB_CELL_COUNT, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER);
     treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
     g_object_set_data(G_OBJECT(window), "tab_selector_treeview", treeview);
 
@@ -46,12 +91,31 @@ static GtkWidget* tab_selector_init_window (MidoriBrowser   *browser)
 
     g_object_unref(store);
     g_object_set(treeview, "headers-visible", FALSE, NULL);
-    renderer = gtk_cell_renderer_text_new();
+
+    renderer = gtk_cell_renderer_pixbuf_new();
 
     gtk_tree_view_insert_column_with_attributes(
-            GTK_TREE_VIEW(treeview), -1, "Title", renderer, "text", TAB_NAME, NULL);
+            GTK_TREE_VIEW(treeview), -1, "Icon", renderer, "pixbuf", TAB_ICON, NULL);
 
-    gtk_container_add(GTK_CONTAINER(window), treeview);
+    renderer = gtk_cell_renderer_text_new();
+
+    col_offset = gtk_tree_view_insert_column_with_attributes(
+            GTK_TREE_VIEW(treeview), -1, "Title", renderer, "text", TAB_NAME, NULL);
+    column = gtk_tree_view_get_column (GTK_TREE_VIEW (treeview), col_offset - 1);
+    gtk_tree_view_column_set_sizing (GTK_TREE_VIEW_COLUMN (column),
+            GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_fixed_width (GTK_TREE_VIEW_COLUMN (column),
+            midori_extension_get_integer(thisExtension, "TitleColumnWidth"));
+
+    gtk_container_add (GTK_CONTAINER (sw), treeview);
+
+    page = katze_object_get_object(browser, "tab");
+    snapshot = tab_selector_get_snapshot(MIDORI_VIEW(page),
+            midori_extension_get_integer(thisExtension, "TabPreviewWidth"),
+            midori_extension_get_integer(thisExtension, "TabPreviewHeight"));
+    image = gtk_image_new_from_pixbuf (snapshot);
+    gtk_box_pack_start (GTK_BOX (hbox), image, TRUE, TRUE, 0);
+    g_object_set_data(G_OBJECT(window), "tab_selector_image", image);
 
     gtk_widget_show_all(window);
 
@@ -62,39 +126,47 @@ static void tab_selector_window_walk (  GtkWidget       *window,
                                         GdkEventKey     *event,
                                         MidoriBrowser   *browser)
 {
+    gint *pindex, iindex, items;
+    GtkWidget *view;
     GtkTreeIter iter;
-    GtkWidget *view, *treeview;
-    GtkTreePath *path, *start, *end;
+    GtkTreePath *path;
+    GtkTreeView *treeview;
+    GtkTreeModel *model;
     GtkTreeViewColumn *column;
 
     treeview = g_object_get_data (G_OBJECT (window), "tab_selector_treeview");
-    if (gtk_tree_view_get_visible_range (GTK_TREE_VIEW (treeview), &start, &end)) {
-        gtk_tree_view_get_cursor (GTK_TREE_VIEW (treeview), &path, &column);
-        if (event->state & GDK_SHIFT_MASK) {
-            if(gtk_tree_path_compare (path, start) == 0)
-                path = gtk_tree_path_copy (end);
-            else
-                gtk_tree_path_prev (path);
-        } else {
-            if (gtk_tree_path_compare (path, end) == 0)
-                path = gtk_tree_path_copy (start);
-            else
-                gtk_tree_path_next (path);
-        }
-        column = gtk_tree_view_get_column (GTK_TREE_VIEW (treeview), 1);
-        gtk_tree_view_set_cursor (GTK_TREE_VIEW (treeview), path, column, FALSE);
-        if (midori_extension_get_boolean (thisExtension, "ShowTabInBackground")) {
-            GtkTreeModel *model;
-            model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+    model = gtk_tree_view_get_model (treeview);
+    items = gtk_tree_model_iter_n_children (model, NULL) -1;
+    gtk_tree_view_get_cursor (treeview, &path, &column);
+    pindex = gtk_tree_path_get_indices (path);
+    if(!pindex)
+        return;
+    iindex = *pindex;
+    gtk_tree_path_free(path);
 
-            gtk_tree_model_get_iter (model, &iter, path);
-            gtk_tree_model_get (model, &iter, TAB_POINTER, &view, -1);
-            midori_browser_set_current_tab (browser, view);
-        }
-        gtk_tree_path_free (path);
+    if (event->state & GDK_SHIFT_MASK)
+        iindex = iindex == 0 ? items : iindex-1;
+    else
+        iindex = iindex == items ? 0 : iindex+1;
+
+    path = gtk_tree_path_new_from_indices(iindex, -1);
+    column = gtk_tree_view_get_column (GTK_TREE_VIEW (treeview), 1);
+    gtk_tree_view_set_cursor (GTK_TREE_VIEW (treeview), path, column, FALSE);
+
+    gtk_tree_model_get_iter (model, &iter, path);
+    gtk_tree_model_get (model, &iter, TAB_POINTER, &view, -1);
+
+    if (midori_extension_get_boolean (thisExtension, "ShowTabInBackground")) {
+        midori_browser_set_current_tab (browser, view);
+    } else {
+        GtkImage *image;
+        GdkPixbuf *snapshot = tab_selector_get_snapshot(MIDORI_VIEW(view),
+                midori_extension_get_integer(thisExtension, "TabPreviewWidth"),
+                midori_extension_get_integer(thisExtension, "TabPreviewHeight"));
+        image = g_object_get_data(G_OBJECT(window), "tab_selector_image");
+        gtk_image_set_from_pixbuf(image, snapshot);
     }
-    gtk_tree_path_free (end);
-    gtk_tree_path_free (start);
+    gtk_tree_path_free(path);
 }
 
 static gboolean tab_selector_handle_events (GtkWidget       *widget,
@@ -336,6 +408,9 @@ extension_init (void)
         G_CALLBACK (tab_selector_deactivate_cb), NULL);
 
     midori_extension_install_boolean (extension, "ShowTabInBackground", FALSE);
+    midori_extension_install_integer (extension, "TitleColumnWidth", 300);
+    midori_extension_install_integer (extension, "TabPreviewWidth", 200);
+    midori_extension_install_integer (extension, "TabPreviewHeight", 200);
     thisExtension = extension;
     switchEvent = TRUE;
 
