@@ -246,6 +246,7 @@ katze_preferences_add_category (KatzePreferences* preferences,
 
     priv->sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     priv->sizegroup2 = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+    priv->hbox = NULL;
     #else
     if (!priv->notebook)
         katze_preferences_prepare (preferences);
@@ -349,8 +350,11 @@ katze_preferences_add_widget (KatzePreferences* preferences,
       but lots of repeated function calls aren't either. */
     gtk_widget_show_all (widget);
 
-    if (_type != g_intern_static_string ("spanned"))
+    if (_type != g_intern_static_string ("spanned") || !priv->hbox)
     {
+        if (!priv->hbox)
+            _type = g_intern_string ("indented");
+
         priv->hbox = gtk_hbox_new (FALSE, 4);
         gtk_widget_show (priv->hbox);
         gtk_box_pack_start (GTK_BOX (priv->hbox), widget, TRUE, FALSE, 0);
