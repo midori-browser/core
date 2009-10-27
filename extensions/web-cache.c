@@ -182,18 +182,21 @@ web_cache_get_headers (gchar* filename)
     return headers;
 }
 
-static void
+static gboolean
 web_cache_tmp_prepare (gchar* filename)
 {
     gchar* tmp_filename = g_strdup_printf ("%s.tmp", filename);
 
-    /* If load was interruped we are ending up with a partical cache file
-       FIXME: What if a page asks to download the same file more than once?
-       Seems then we are ending up with a broken cache again */
+    /* FIXME: If load was interruped we are ending up with a partical
+       cache files forever */
     if (g_file_test (tmp_filename, G_FILE_TEST_EXISTS))
-        g_unlink (tmp_filename);
+    {
+        g_free (tmp_filename);
+        return FALSE;
+    }
     g_file_set_contents (tmp_filename, "", -1, NULL);
     g_free (tmp_filename);
+    return TRUE;
 }
 
 static void
@@ -337,7 +340,8 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
     else if (msg->status_code == SOUP_STATUS_OK)
     {
         /* g_debug ("updating cache: %s -> %s", uri, filename); */
-        web_cache_tmp_prepare (filename);
+        if (!web_cache_tmp_prepare (filename))
+            return;
         web_cache_save_headers (msg, filename);
         g_signal_connect_data (msg, "got-chunk",
             G_CALLBACK (web_cache_message_got_chunk_cb),
@@ -418,12 +422,11 @@ web_cache_session_request_queued_cb (SoupSession*     session,
             etag = g_hash_table_lookup (cache_headers, "ETag");
             last_modified = g_hash_table_lookup (cache_headers, "Last-Modified");
             if (etag)
-                soup_message_headers_append (msg->request_headers,
+                soup_message_headers_replace (msg->request_headers,
                                              "If-None-Match", etag);
             if (last_modified)
                 soup_message_headers_replace (msg->request_headers,
                                               "If-Modified-Since", last_modified);
-            /* FIXME: Do we need to disconnect signal after we are in unqueue? */
             g_signal_connect (msg, "got-headers",
                 G_CALLBACK (web_cache_mesage_got_headers_cb), extension);
 
