@@ -193,16 +193,14 @@ web_cache_message_got_chunk_cb (SoupMessage* msg,
         return;
 
     if (!(g_file_test (filename, G_FILE_TEST_EXISTS)))
-    {
-        /* FIXME: Is there are better ways to create a file? like touch */
-        FILE* cffd;
-        cffd = g_fopen (filename,"w");
-        fclose (cffd);
-    }
+        g_file_set_contents (filename, "", -1, NULL);
+
     file = g_file_new_for_path (filename);
-    stream = (GOutputStream*)g_file_append_to (file, 0, NULL, NULL);
-    g_output_stream_write (stream, chunk->data, chunk->length, NULL, NULL);
-    g_output_stream_close (stream, NULL, NULL);
+    if ((stream = (GOutputStream*)g_file_append_to (file, 0, NULL, NULL)))
+    {
+        g_output_stream_write (stream, chunk->data, chunk->length, NULL, NULL);
+        g_object_unref (stream);
+    }
     g_object_unref (file);
 }
 
@@ -258,6 +256,10 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
     const gchar* nocache;
     SoupMessageHeaders *hdrs = msg->response_headers;
     gint length;
+
+    /* Skip files downloaded by the user */
+    if (g_object_get_data (G_OBJECT (msg), "midori-web-cache-download"))
+        return;
 
     /* Skip big files */
     length = GPOINTER_TO_INT (soup_message_headers_get_one (hdrs, "Content-Length"));
@@ -326,7 +328,8 @@ web_cache_resource_request_starting_cb (WebKitWebView*         web_view,
     }
 
     if (!(g_strcmp0 (uri, webkit_web_frame_get_uri (web_frame))
-        && g_strcmp0 (webkit_web_data_source_get_unreachable_uri (webkit_web_frame_get_data_source (web_frame)), uri)))
+        && g_strcmp0 (webkit_web_data_source_get_unreachable_uri (
+                      webkit_web_frame_get_data_source (web_frame)), uri)))
     {
         web_cache_replace_frame_uri (extension, uri, web_frame);
         g_free (filename);
@@ -419,6 +422,20 @@ web_cache_add_tab_cb (MidoriBrowser*   browser,
     #endif
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 3)
+static void
+web_cache_add_download_cb (MidoriBrowser*   browser,
+                           WebKitDownload*  download,
+                           MidoriExtension* extension)
+{
+    WebKitNetworkRequest* request = webkit_download_get_network_request (download);
+    SoupMessage* msg = webkit_network_request_get_message (request);
+    if (msg)
+        g_object_set_data (G_OBJECT (msg), "midori-web-cache-download",
+                           (gpointer)0xdeadbeef);
+}
+#endif
+
 static void
 web_cache_deactivate_cb (MidoriExtension* extension,
                          MidoriBrowser*   browser);
@@ -440,6 +457,10 @@ web_cache_app_add_browser_cb (MidoriApp*       app,
           (GtkCallback)web_cache_add_tab_foreach_cb, extension);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (web_cache_add_tab_cb), extension);
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    g_signal_connect (browser, "add-download",
+        G_CALLBACK (web_cache_add_download_cb), extension);
+    #endif
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (web_cache_deactivate_cb), browser);
 }
@@ -449,16 +470,11 @@ web_cache_deactivate_tabs (MidoriView*      view,
                            MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    MidoriBrowser* browser = midori_browser_get_for_widget (web_view);
 
-    g_signal_handlers_disconnect_by_func (
-       browser, web_cache_add_tab_cb, 0);
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, web_cache_resource_request_starting_cb, extension);
     #endif
-    g_signal_handlers_disconnect_by_func (
-       webkit_get_default_session (), web_cache_session_request_queued_cb, extension);
 }
 
 static void
@@ -474,6 +490,12 @@ web_cache_deactivate_cb (MidoriExtension* extension,
         extension, web_cache_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, web_cache_app_add_browser_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+       browser, web_cache_add_tab_cb, extension);
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    g_signal_handlers_disconnect_by_func (
+        browser, web_cache_add_download_cb, extension);
+    #endif
     midori_browser_foreach (browser, (GtkCallback)web_cache_deactivate_tabs, extension);
 }
 
