@@ -16,11 +16,25 @@
 
 #include <string.h>
 
+#if HAVE_CONFIG_H
+    #include "config.h"
+#endif
+
+#ifdef HAVE_HILDON_2_2
+    #include <hildon/hildon.h>
+#endif
+
 static void
 proxy_toggle_button_toggled_cb (GtkToggleButton* button,
                                 GObject*         object)
 {
-    gboolean toggled = gtk_toggle_button_get_active (button);
+    gboolean toggled;
+    #ifdef HAVE_HILDON_2_2
+    if (HILDON_IS_CHECK_BUTTON (button))
+        toggled = hildon_check_button_get_active (HILDON_CHECK_BUTTON (button));
+    #else
+    toggled = gtk_toggle_button_get_active (button);
+    #endif
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, toggled, NULL);
 }
@@ -132,6 +146,16 @@ proxy_spin_button_changed_cb (GtkSpinButton* button,
     }
 }
 
+#ifdef HAVE_HILDON_2_2
+static void
+proxy_picker_button_changed_cb (HildonPickerButton* button,
+                                GObject*            object)
+{
+    gint value = hildon_picker_button_get_active (button);
+    const gchar* property = g_object_get_data (G_OBJECT (button), "property");
+    g_object_set (object, property, value, NULL);
+}
+#else
 static void
 proxy_combo_box_changed_cb (GtkComboBox* button,
                             GObject*     object)
@@ -140,6 +164,7 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, value, NULL);
 }
+#endif
 
 static void
 proxy_object_notify_boolean_cb (GObject*    object,
@@ -286,12 +311,23 @@ katze_property_proxy (gpointer     object,
         gchar* notify_property;
         gboolean toggled = katze_object_get_boolean (object, property);
 
-        widget = gtk_check_button_new ();
-        if (_hint == g_intern_string ("toggle"))
-            gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (widget), FALSE);
-        else
+        #ifdef HAVE_HILDON_2_2
+        if (_hint != g_intern_string ("toggle"))
+        {
+            widget = hildon_check_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
             gtk_button_set_label (GTK_BUTTON (widget), gettext (nick));
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggled);
+            hildon_check_button_set_active (HILDON_CHECK_BUTTON (widget), toggled);
+        }
+        else
+        #endif
+        {
+            widget = gtk_check_button_new ();
+            if (_hint == g_intern_string ("toggle"))
+                gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (widget), FALSE);
+            else
+                gtk_button_set_label (GTK_BUTTON (widget), gettext (nick));
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggled);
+        }
         g_signal_connect (widget, "toggled",
                           G_CALLBACK (proxy_toggle_button_toggled_cb), object);
         notify_property = g_strdup_printf ("notify::%s", property);
@@ -500,15 +536,35 @@ katze_property_proxy (gpointer     object,
             g_type_class_ref (pspec->value_type));
         gint value = katze_object_get_enum (object, property);
 
+        #ifdef HAVE_HILDON_2_2
+        GtkWidget* selector;
+
+        widget = hildon_picker_button_new (HILDON_SIZE_AUTO, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
+        selector = hildon_touch_selector_new_text ();
+        hildon_button_set_title (HILDON_BUTTON (widget), gettext (nick));
+        hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (widget),
+                                           HILDON_TOUCH_SELECTOR (selector));
+        #else
         widget = gtk_combo_box_new_text ();
+        #endif
         for (i = 0; i < enum_class->n_values; i++)
         {
             const gchar* label = gettext (enum_class->values[i].value_nick);
+            #ifdef HAVE_HILDON_2_2
+            hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (selector), label);
+            #else
             gtk_combo_box_append_text (GTK_COMBO_BOX (widget), label);
+            #endif
         }
+        #ifdef HAVE_HILDON_2_2
+        hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (selector), 0, value);
+        g_signal_connect (widget, "value-changed",
+                          G_CALLBACK (proxy_picker_button_changed_cb), object);
+        #else
         gtk_combo_box_set_active (GTK_COMBO_BOX (widget), value);
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_changed_cb), object);
+        #endif
         g_type_class_unref (enum_class);
     }
     else
