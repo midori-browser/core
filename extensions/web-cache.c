@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include <glib/gstdio.h>
+#include <stdlib.h>
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
@@ -122,14 +123,14 @@ static void
 web_cache_save_headers (SoupMessage* msg,
                         gchar*       filename)
 {
-      gchar* dsc_filename = g_strdup_printf ("%s.dsc", filename);
+      gchar* dsc_filename = g_strdup_printf ("%s.dsc.tmp", filename);
       SoupMessageHeaders* hdrs = msg->response_headers;
       SoupMessageHeadersIter iter;
       const gchar* name, *value;
       FILE* dscfd;
 
       soup_message_headers_iter_init (&iter, hdrs);
-      dscfd = g_fopen (dsc_filename,"w+");
+      dscfd = g_fopen (dsc_filename, "w");
       while (soup_message_headers_iter_next (&iter, &name, &value))
           g_fprintf (dscfd, "%s: %s\n", name, value);
       fclose (dscfd);
@@ -182,26 +183,75 @@ web_cache_get_headers (gchar* filename)
 }
 
 static void
+web_cache_tmp_prepare (gchar* filename)
+{
+    gchar* tmp_filename = g_strdup_printf ("%s.tmp", filename);
+
+    /* If load was interruped we are ending up with a partical cache file
+       FIXME: What if a page asks to download the same file more than once?
+       Seems then we are ending up with a broken cache again */
+    if (g_file_test (tmp_filename, G_FILE_TEST_EXISTS))
+        g_unlink (tmp_filename);
+    g_file_set_contents (tmp_filename, "", -1, NULL);
+    g_free (tmp_filename);
+}
+
+static void
+web_cache_set_content_type (SoupMessage* msg,
+                            SoupBuffer*  buffer)
+{
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    const char *ct;
+    SoupContentSniffer* sniffer = soup_content_sniffer_new ();
+    ct = soup_content_sniffer_sniff (sniffer, msg, buffer, NULL);
+    if (!ct)
+        ct = soup_message_headers_get_one (msg->response_headers, "Content-Type");
+    if (ct)
+        g_signal_emit_by_name (msg, "content-sniffed", ct, NULL);
+    #endif
+}
+
+static void
+web_cache_message_finished_cb (SoupMessage* msg,
+                               gchar*       filename)
+{
+    gchar* headers;
+    gchar* tmp_headers;
+    gchar* tmp_data;
+
+    headers = g_strdup_printf ("%s.dsc", filename);
+    tmp_headers = g_strdup_printf ("%s.dsc.tmp", filename);
+    tmp_data = g_strdup_printf ("%s.tmp", filename);
+
+    g_rename (tmp_data, filename);
+    g_rename (tmp_headers, headers);
+
+    g_free (headers);
+    g_free (tmp_headers);
+    g_free (tmp_data);
+}
+
+static void
 web_cache_message_got_chunk_cb (SoupMessage* msg,
                                 SoupBuffer*  chunk,
                                 gchar*       filename)
 {
     GFile *file;
     GOutputStream *stream;
+    gchar *tmp_filename;
 
     if (!chunk->data || !chunk->length)
         return;
 
-    if (!(g_file_test (filename, G_FILE_TEST_EXISTS)))
-        g_file_set_contents (filename, "", -1, NULL);
-
-    file = g_file_new_for_path (filename);
+    tmp_filename = g_strdup_printf ("%s.tmp", filename);
+    file = g_file_new_for_path (tmp_filename);
     if ((stream = (GOutputStream*)g_file_append_to (file, 0, NULL, NULL)))
     {
         g_output_stream_write (stream, chunk->data, chunk->length, NULL, NULL);
         g_object_unref (stream);
     }
     g_object_unref (file);
+    g_free (tmp_filename);
 }
 
 static void
@@ -215,7 +265,6 @@ web_cache_message_rewrite (SoupMessage*  msg,
     char *data;
     gsize length;
 
-    /* FIXME: Seems to open image in a new tab we need to set content-type separately */
     soup_message_set_status (msg, SOUP_STATUS_OK);
     g_hash_table_iter_init (&iter, cache_headers);
     while (g_hash_table_iter_next (&iter, &key, &value))
@@ -227,6 +276,7 @@ web_cache_message_rewrite (SoupMessage*  msg,
     if (data && length)
     {
         buffer = soup_buffer_new (SOUP_MEMORY_TEMPORARY, data, length);
+        web_cache_set_content_type (msg, buffer);
         soup_message_body_append_buffer (msg->response_body, buffer);
         g_signal_emit_by_name (msg, "got-chunk", buffer, NULL);
         soup_buffer_free (buffer);
@@ -251,35 +301,31 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
                                  MidoriExtension* extension)
 {
     SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    gchar* filename = web_cache_get_cached_path (extension, uri);
+    gchar* uri;
+    gchar* filename;
     const gchar* nocache;
     SoupMessageHeaders *hdrs = msg->response_headers;
-    gint length;
 
     /* Skip files downloaded by the user */
     if (g_object_get_data (G_OBJECT (msg), "midori-web-cache-download"))
         return;
 
     /* Skip big files */
-    length = GPOINTER_TO_INT (soup_message_headers_get_one (hdrs, "Content-Length"));
-    if (length > MAXLENGTH)
+    const char* cl = soup_message_headers_get_one (hdrs, "Content-Length");
+    if (cl && atoi (cl) > MAXLENGTH)
         return;
 
     nocache = soup_message_headers_get_one (hdrs, "Pragma");
-    if (nocache == NULL)
+    if (!nocache)
         nocache = soup_message_headers_get_one (hdrs, "Cache-Control");
-    if (nocache)
+    if (nocache && g_regex_match_simple ("no-cache|no-store", nocache,
+                                         G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
     {
-        if (g_regex_match_simple ("no-cache|no-store", nocache,
-                                  G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
-        {
-            g_free (uri);
-            g_free (filename);
-            return;
-        }
+        return;
     }
 
+    uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
+    filename = web_cache_get_cached_path (extension, uri);
     if (msg->status_code == SOUP_STATUS_NOT_MODIFIED)
     {
         /* g_debug ("loading from cache: %s -> %s", uri, filename); */
@@ -291,11 +337,13 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
     else if (msg->status_code == SOUP_STATUS_OK)
     {
         /* g_debug ("updating cache: %s -> %s", uri, filename); */
+        web_cache_tmp_prepare (filename);
         web_cache_save_headers (msg, filename);
-        /* FIXME: Do we need to disconnect signal after we are in unqueue? */
         g_signal_connect_data (msg, "got-chunk",
             G_CALLBACK (web_cache_message_got_chunk_cb),
             filename, (GClosureNotify)g_free, 0);
+        g_signal_connect (msg, "finished",
+            G_CALLBACK (web_cache_message_finished_cb), filename);
     }
     g_free (uri);
 }
@@ -373,8 +421,8 @@ web_cache_session_request_queued_cb (SoupSession*     session,
                 soup_message_headers_append (msg->request_headers,
                                              "If-None-Match", etag);
             if (last_modified)
-                soup_message_headers_append (msg->request_headers,
-                                             "If-Modified-Since", last_modified);
+                soup_message_headers_replace (msg->request_headers,
+                                              "If-Modified-Since", last_modified);
             /* FIXME: Do we need to disconnect signal after we are in unqueue? */
             g_signal_connect (msg, "got-headers",
                 G_CALLBACK (web_cache_mesage_got_headers_cb), extension);
