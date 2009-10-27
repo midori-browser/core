@@ -996,11 +996,6 @@ midori_browser_speed_dial_get_next_free_slot (void)
     return slot_id;
 }
 
-GdkPixbuf*
-midori_view_get_snapshot (MidoriView* view,
-                          guint       width,
-                          guint       height);
-
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser)
 {

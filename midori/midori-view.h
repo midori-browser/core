@@ -195,6 +195,11 @@ midori_view_execute_script             (MidoriView*        view,
                                         const gchar*       script,
                                         gchar**            exception);
 
+GdkPixbuf*
+midori_view_get_snapshot               (MidoriView*        view,
+                                        gint               width,
+                                        gint               height);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

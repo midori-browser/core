@@ -47,11 +47,6 @@ midori_search_action_get_icon (KatzeNet*  net,
 static void
 midori_view_construct_web_view (MidoriView* view);
 
-GdkPixbuf*
-midori_view_get_snapshot (MidoriView* view,
-                          gint        width,
-                          gint        height);
-
 static void
 midori_view_item_meta_data_changed (KatzeItem*   item,
                                     const gchar* key,
@@ -4056,7 +4051,22 @@ midori_view_execute_script (MidoriView*  view,
     return TRUE;
 }
 
-/* For now this is private API */
+/**
+ * midori_view_get_snapshot
+ * @view: a #MidoriView
+ * @width: the desired width
+ * @height: the desired height
+ *
+ * Take a snapshot of the view at the given dimensions. The
+ * view has to be mapped on the screen.
+ *
+ * If width and height are negative, the resulting
+ * image is going to be optimized for speed.
+ *
+ * Returns: a newly allocated #GdkPixbuf
+ *
+ * Since: 0.2.1
+ **/
 GdkPixbuf*
 midori_view_get_snapshot (MidoriView* view,
                           gint        width,
