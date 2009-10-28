@@ -70,8 +70,9 @@ static GtkWidget* tab_selector_init_window (MidoriBrowser   *browser)
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 
 
-    hbox = gtk_hbox_new(FALSE, 5);
+    hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_add(GTK_CONTAINER(window), hbox);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox), 1);
 
     sw = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
@@ -241,26 +242,6 @@ static void tab_selector_switch_page (GtkNotebook     *notebook,
     }
 }
 
-static void tab_selector_page_added (GtkNotebook     *notebook,
-                                     GtkWidget       *child,
-                                     guint            page_num,
-                                     MidoriBrowser   *browser)
-{
-    GList *list = g_object_get_data(G_OBJECT(browser), "tab_selector_list");
-    list = g_list_append(list, child);
-    g_object_set_data(G_OBJECT(browser), "tab_selector_list", list);
-}
-
-static void tab_selector_page_removed (GtkNotebook     *notebook,
-                                       GtkWidget       *child,
-                                       guint            page_num,
-                                       MidoriBrowser   *browser)
-{
-    GList *list = g_object_get_data(G_OBJECT(browser), "tab_selector_list");
-    list = g_list_remove(list, child);
-    g_object_set_data(G_OBJECT(browser), "tab_selector_list", list);
-}
-
 static void
 tab_selector_browser_add_tab_cb (MidoriBrowser      *browser,
                                  GtkWidget          *view,
@@ -270,6 +251,20 @@ tab_selector_browser_add_tab_cb (MidoriBrowser      *browser,
             G_CALLBACK (tab_selector_handle_events), browser);
     g_signal_connect (view, "key_release_event",
             G_CALLBACK (tab_selector_handle_events), browser);
+
+    GList *list = g_object_get_data(G_OBJECT(browser), "tab_selector_list");
+    list = g_list_append(list, view);
+    g_object_set_data(G_OBJECT(browser), "tab_selector_list", list);
+}
+
+static void
+tab_selector_browser_remove_tab_cb (MidoriBrowser      *browser,
+                                    GtkWidget          *view,
+                                    MidoriExtension    *extension)
+{
+    GList *list = g_object_get_data(G_OBJECT(browser), "tab_selector_list");
+    list = g_list_remove(list, view);
+    g_object_set_data(G_OBJECT(browser), "tab_selector_list", list);
 }
 
 static void
@@ -289,8 +284,10 @@ tab_selector_app_add_browser_cb (MidoriApp       *app,
 
     g_object_set_data(G_OBJECT(browser), "tab_selector_list", NULL);
 
-    g_signal_connect_after (browser, "add-tab",
+    g_signal_connect (browser, "add-tab",
         G_CALLBACK (tab_selector_browser_add_tab_cb), extension);
+    g_signal_connect (browser, "remove-tab",
+        G_CALLBACK (tab_selector_browser_remove_tab_cb), extension);
 
     navigationbar = katze_object_get_object(browser, "navigationbar");
     g_signal_connect (navigationbar, "key_press_event",
@@ -302,10 +299,6 @@ tab_selector_app_add_browser_cb (MidoriApp       *app,
     notebook = katze_object_get_object(browser, "notebook");
     g_signal_connect_after (notebook, "switch-page",
             G_CALLBACK (tab_selector_switch_page), browser);
-    g_signal_connect (notebook, "page-added",
-            G_CALLBACK (tab_selector_page_added), browser);
-    g_signal_connect (notebook, "page-removed",
-            G_CALLBACK (tab_selector_page_removed), browser);
     g_object_unref(notebook);
 }
 
@@ -331,6 +324,8 @@ tab_selector_disconnect_browser_cb (MidoriApp       *app,
     g_signal_handlers_disconnect_by_func (
         browser, tab_selector_browser_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
+        browser, tab_selector_browser_remove_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
         katze_object_get_object (browser, "navigationbar"),
         tab_selector_handle_events, browser);
 
@@ -344,10 +339,6 @@ tab_selector_disconnect_browser_cb (MidoriApp       *app,
     notebook = katze_object_get_object (browser, "notebook");
     g_signal_handlers_disconnect_by_func (notebook,
             tab_selector_switch_page, browser);
-    g_signal_handlers_disconnect_by_func (notebook,
-            tab_selector_page_added, browser);
-    g_signal_handlers_disconnect_by_func (notebook,
-            tab_selector_page_removed, browser);
     g_object_unref (notebook);
 }
 
@@ -355,14 +346,19 @@ static void
 tab_selector_activate_cb (MidoriExtension   *extension,
                           MidoriApp         *app)
 {
+    GtkWidget *view;
     KatzeArray *browsers;
     MidoriBrowser *browser;
-    guint i;
+    guint i, j;
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    while ((browser = katze_array_get_nth_item (browsers, i++))) {
+        j = 0;
         tab_selector_app_add_browser_cb (app, browser, extension);
+        while((view = midori_browser_get_nth_tab(browser, j++)))
+            tab_selector_browser_add_tab_cb(browser, view, extension);
+    }
     g_object_unref (browsers);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (tab_selector_app_add_browser_cb), extension);
