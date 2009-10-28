@@ -1871,7 +1871,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
         g_strstrip (view->selected_text);
         if (view->selected_text && !strchr (view->selected_text, ' ')
-            && strchr (view->selected_text, '.'))
+            && (strchr (view->selected_text, '.') || g_strstr_len (view->selected_text, 9, "://")))
         {
             if (strchr (view->selected_text, '@'))
             {
