@@ -272,7 +272,10 @@ katze_app_info_get_all_for_category (const gchar* category)
  * Any other values for @hint are silently ignored.
  *
  * Since 0.1.2 strings without hints and booleans are truly synchronous
- * including property changes causing the proxy to be updated.
+ *     including property changes causing the proxy to be updated.
+ *
+ * Since 0.2.1 the proxy may contain a label if the platform
+ *     has according widgets.
  *
  * Return value: a new widget
  **/
@@ -539,7 +542,7 @@ katze_property_proxy (gpointer     object,
         #ifdef HAVE_HILDON_2_2
         GtkWidget* selector;
 
-        widget = hildon_picker_button_new (HILDON_SIZE_AUTO, HILDON_BUTTON_ARRANGEMENT_VERTICAL);
+        widget = hildon_picker_button_new (HILDON_SIZE_AUTO, HILDON_BUTTON_ARRANGEMENT_HORIZONTAL);
         selector = hildon_touch_selector_new_text ();
         hildon_button_set_title (HILDON_BUTTON (widget), gettext (nick));
         hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (widget),
@@ -588,6 +591,9 @@ katze_property_proxy (gpointer     object,
  * Create a label widget displaying the name of the specified object's property.
  *
  * Return value: a new label widget
+ *
+ * Since 0.2.1 the label will be empty if the property proxy for the
+ *    same property would contain a label already.
  **/
 GtkWidget*
 katze_property_label (gpointer     object,
@@ -608,6 +614,12 @@ katze_property_label (gpointer     object,
                    property, G_OBJECT_CLASS_NAME (class));
         return gtk_label_new (property);
     }
+
+    #ifdef HAVE_HILDON_2_2
+    if (G_PARAM_SPEC_TYPE (pspec) == G_TYPE_PARAM_ENUM)
+        return gtk_label_new (NULL);
+    #endif
+
     nick = g_param_spec_get_nick (pspec);
     widget = gtk_label_new (nick);
     gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
