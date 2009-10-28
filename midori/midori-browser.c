@@ -5716,7 +5716,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_unref (GTK_STATUSBAR (browser->statusbar)->label);
     gtk_container_add (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
                        browser->statusbar_contents);
-    gtk_label_set_ellipsize (GTK_LABEL (GTK_STATUSBAR (browser->statusbar)->label), FALSE);
     #else
     browser->statusbar_contents = browser->statusbar;
     #endif
