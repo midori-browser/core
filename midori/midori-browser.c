@@ -2589,7 +2589,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
             "Fullscreen", "Preferences", "Window", "Bookmarks",
             "RecentlyVisited", "ReloadStop", "ZoomIn", "TabClose",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
-            "Panel", "Trash", "Search", NULL };
+            "Panel", "Trash", "Search", "BookmarkAdd", NULL };
 
     return actions;
 }
