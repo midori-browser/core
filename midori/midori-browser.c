@@ -67,6 +67,7 @@ struct _MidoriBrowser
     gboolean find_typing;
 
     GtkWidget* statusbar;
+    GtkWidget* statusbar_contents;
     GtkWidget* transferbar;
     GtkWidget* transferbar_clear;
     GtkWidget* progressbar;
@@ -1903,13 +1904,19 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      MIDORI_LOAD_FINISHED,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
+    /**
+    * MidoriBrowser:statusbar:
+    *
+    * The widget representing the statusbar contents. This is
+    * not an actual #GtkStatusbar but rather a #GtkBox.
+    */
     g_object_class_install_property (gobject_class,
                                      PROP_STATUSBAR,
                                      g_param_spec_object (
                                      "statusbar",
                                      "Statusbar",
                                      "The statusbar",
-                                     GTK_TYPE_STATUSBAR,
+                                     GTK_TYPE_BOX,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     /**
@@ -5696,22 +5703,39 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Statusbar */
     browser->statusbar = gtk_statusbar_new ();
+    /* Rearrange the statusbar packing. This is necessariy to keep
+        themes happy while there is no support from GtkStatusbar. */
+    #if 1
+    browser->statusbar_contents = gtk_hbox_new (FALSE, 4);
+    gtk_widget_show (browser->statusbar_contents);
+    g_object_ref (GTK_STATUSBAR (browser->statusbar)->label);
+    gtk_container_remove (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
+                          GTK_STATUSBAR (browser->statusbar)->label);
+    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
+                        GTK_STATUSBAR (browser->statusbar)->label, TRUE, TRUE, 0);
+    g_object_unref (GTK_STATUSBAR (browser->statusbar)->label);
+    gtk_container_add (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
+                       browser->statusbar_contents);
+    gtk_label_set_ellipsize (GTK_LABEL (GTK_STATUSBAR (browser->statusbar)->label), FALSE);
+    #else
+    browser->statusbar_contents = browser->statusbar;
+    #endif
     /* Adjust the statusbar's padding to avoid child overlapping */
     rcstyle = gtk_rc_style_new ();
     rcstyle->xthickness = rcstyle->ythickness = -4;
-    gtk_widget_modify_style (browser->statusbar, rcstyle);
+    gtk_widget_modify_style (browser->statusbar_contents, rcstyle);
     g_object_unref (rcstyle);
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
     browser->progressbar = gtk_progress_bar_new ();
     /* Set the progressbar's height to 1 to fit it in the statusbar */
     gtk_widget_set_size_request (browser->progressbar, -1, 1);
-    gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->progressbar,
-                        FALSE, FALSE, 3);
+    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
+                        browser->progressbar, FALSE, FALSE, 3);
 
     browser->transferbar = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (browser->statusbar), browser->transferbar,
-                        FALSE, FALSE, 3);
+    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
+                        browser->transferbar, FALSE, FALSE, 3);
     gtk_widget_show (browser->transferbar);
     browser->transferbar_clear = gtk_button_new_with_label (_("Clear All"));
     icon = gtk_image_new_from_stock (GTK_STOCK_CLEAR, GTK_ICON_SIZE_MENU);
@@ -6314,7 +6338,7 @@ midori_browser_get_property (GObject*    object,
         break;
     }
     case PROP_STATUSBAR:
-        g_value_set_object (value, browser->statusbar);
+        g_value_set_object (value, browser->statusbar_contents);
         break;
     case PROP_STATUSBAR_TEXT:
         g_value_set_string (value, browser->statusbar_text);
