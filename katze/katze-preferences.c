@@ -17,6 +17,7 @@
 
 #if HAVE_HILDON
     #include "katze-scrolled.h"
+    #include <hildon/hildon.h>
 #endif
 
 #include <string.h>
@@ -350,11 +351,15 @@ katze_preferences_add_widget (KatzePreferences* preferences,
       but lots of repeated function calls aren't either. */
     gtk_widget_show_all (widget);
 
-    if (_type != g_intern_static_string ("spanned") || !priv->hbox)
-    {
-        if (!priv->hbox)
-            _type = g_intern_string ("indented");
+    if (!priv->hbox)
+        _type = g_intern_string ("indented");
+    #ifdef HAVE_HILDON_2_2
+    else if (HILDON_IS_CHECK_BUTTON (widget) || HILDON_IS_PICKER_BUTTON (widget))
+        _type = g_intern_string ("indented");
+    #endif
 
+    if (_type != g_intern_static_string ("spanned"))
+    {
         priv->hbox = gtk_hbox_new (FALSE, 4);
         gtk_widget_show (priv->hbox);
         gtk_box_pack_start (GTK_BOX (priv->hbox), widget, TRUE, FALSE, 0);
