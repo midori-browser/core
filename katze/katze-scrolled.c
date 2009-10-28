@@ -16,6 +16,7 @@
 #endif
 
 #include "katze-scrolled.h"
+#include "katze-utils.h"
 
 #define DEFAULT_INTERVAL 50
 #define DEFAULT_DECELERATION 0.7
@@ -819,14 +820,13 @@ katze_scrolled_realize (GtkWidget* widget)
     KatzeScrolled* scrolled = KATZE_SCROLLED (widget);
     KatzeScrolledPrivate* priv = scrolled->priv;
     gboolean drag_scrolling;
-    GtkSettings* settings = gtk_widget_get_settings (widget);
     GtkPolicyType policy;
     GdkWindowAttr attr;
     GdkColor color;
 
     (*GTK_WIDGET_CLASS (katze_scrolled_parent_class)->realize) (widget);
 
-    g_object_get (settings, "gtk-touchscreen-mode", &drag_scrolling, NULL);
+    drag_scrolling = katze_widget_has_touchscreen_mode (widget);
     policy = drag_scrolling ? GTK_POLICY_NEVER : GTK_POLICY_AUTOMATIC;
     g_object_set (scrolled, "drag-scrolling", drag_scrolling,
         "hscrollbar-policy", policy, "vscrollbar-policy", policy, NULL);
@@ -888,7 +888,6 @@ katze_scrolled_class_init (KatzeScrolledClass* class)
     GtkWidgetClass* widget_class;
     GtkContainerClass* container_class;
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
-    GtkSettings* gtk_settings;
 
     gobject_class = G_OBJECT_CLASS (class);
     widget_class = GTK_WIDGET_CLASS (class);
@@ -944,13 +943,8 @@ katze_scrolled_class_init (KatzeScrolledClass* class)
 
     /* Usually touchscreen mode is either always set or it isn't, so it
       should be a safe optimization to not setup events if not needed. */
-    if ((gtk_settings = gtk_settings_get_default ()))
-    {
-        gboolean touchscreen;
-        g_object_get (gtk_settings, "gtk-touchscreen-mode", &touchscreen, NULL);
-        if (touchscreen)
-            katze_scrolled_event_handler_append (katze_scrolled_event_handler, NULL);
-    }
+    if (katze_widget_has_touchscreen_mode (NULL))
+        katze_scrolled_event_handler_append (katze_scrolled_event_handler, NULL);
 
     g_type_class_add_private (class, sizeof (KatzeScrolledPrivate));
 }

@@ -144,6 +144,9 @@ int
 katze_mkdir_with_parents             (const gchar* pathname,
                                       int          mode);
 
+gboolean
+katze_widget_has_touchscreen_mode    (GtkWidget*      widget);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */

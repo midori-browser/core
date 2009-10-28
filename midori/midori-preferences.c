@@ -257,9 +257,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* header;
     GtkWindow* parent;
     const gchar* icon_name;
-    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
-    GtkSettings* gtk_settings;
-    #endif
     KatzePreferences* _preferences;
     GtkWidget* label;
     GtkWidget* button;
@@ -281,10 +278,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
             header, FALSE, FALSE, 0);
         gtk_widget_show_all (header);
     }
-    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
-    gtk_settings = parent ?
-        gtk_widget_get_settings (GTK_WIDGET (parent)) : gtk_settings_get_default ();
-    #endif
     _preferences = KATZE_PREFERENCES (preferences);
 
     #define PAGE_NEW(__icon, __label) \
@@ -383,7 +376,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button);
     #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
-    if (katze_object_get_boolean (gtk_settings, "gtk-touchscreen-mode"))
+    if (katze_widget_has_touchscreen_mode (parent ?
+        GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
         button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
     else
     {
