@@ -73,7 +73,7 @@ midori_extensions_class_init (MidoriExtensionsClass* class)
     gobject_class->get_property = midori_extensions_get_property;
     gobject_class->finalize = midori_extensions_finalize;
 
-    flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+    flags = G_PARAM_READWRITE;
 
     g_object_class_install_property (gobject_class,
                                      PROP_APP,
@@ -183,6 +183,10 @@ midori_extensions_set_property (GObject*      object,
         i = 0;
         while ((extension = katze_array_get_nth_item (array, i++)))
             midori_extensions_add_item_cb (array, extension, extensions);
+
+        /* Hide if there are no extensions at all */
+        if (!katze_array_get_nth_item (array, 0))
+            gtk_widget_hide (GTK_WIDGET (object));
     }
         break;
     default:

@@ -966,8 +966,9 @@ midori_app_add_browser_cb (MidoriApp*     app,
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Extensions */
-    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
+    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
     gtk_widget_show (addon);
+    g_object_set (addon, "app", app, NULL);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     g_object_unref (panel);

@@ -633,10 +633,12 @@ midori_panel_construct_menu_item (MidoriPanel*    panel,
 
     stock_id = midori_viewable_get_stock_id (viewable);
     menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
-    gtk_widget_show (menuitem);
     g_object_set_data (G_OBJECT (menuitem), "page", viewable);
     g_signal_connect (menuitem, "activate",
                       G_CALLBACK (midori_panel_menu_item_activate_cb), panel);
+
+    if (GTK_WIDGET_VISIBLE (viewable))
+        gtk_widget_show (menuitem);
     return menuitem;
 }
 
@@ -747,6 +749,8 @@ midori_panel_options_clicked_cb (GtkToolItem* toolitem,
  * Since 0.1.3 destroying the @viewable implicitly removes
  * the page including the menu and eventual toolbar.
  *
+ * Since 0.2.1 a hidden @viewable will not be shown in the panel.
+ *
  * In the case of an error, -1 is returned.
  *
  * Return value: the index of the new page, or -1
@@ -759,9 +763,7 @@ midori_panel_append_page (MidoriPanel*    panel,
     GObjectClass* gobject_class;
     GtkWidget* widget;
     GtkWidget* toolbar;
-    #if !HAVE_HILDON
     GtkToolItem* toolitem;
-    #endif
     const gchar* label;
     guint n;
 
@@ -809,9 +811,15 @@ midori_panel_append_page (MidoriPanel*    panel,
     label = midori_viewable_get_label (viewable);
 
     g_object_set_data (G_OBJECT (viewable), "parent", scrolled);
-    midori_panel_construct_tool_item (panel, viewable);
+    toolitem = midori_panel_construct_tool_item (panel, viewable);
     g_signal_connect (viewable, "destroy",
                       G_CALLBACK (midori_panel_viewable_destroy_cb), panel);
+
+    if (!GTK_WIDGET_VISIBLE (viewable))
+    {
+        gtk_widget_hide (scrolled);
+        gtk_widget_hide (GTK_WIDGET (toolitem));
+    }
 
     return n;
 }
@@ -941,6 +949,8 @@ midori_panel_page_num (MidoriPanel* panel,
  * silently ignore the attempt to switch the page.
  *
  * Since 0.1.8 the "page" property is notifying changes.
+ *
+ * Since 0.2.1 switching to hidden pages fails silently.
  **/
 void
 midori_panel_set_current_page (MidoriPanel* panel,
@@ -954,6 +964,8 @@ midori_panel_set_current_page (MidoriPanel* panel,
     {
         const gchar* label;
 
+        if (!GTK_WIDGET_VISIBLE (viewable))
+            return;
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
         label = midori_viewable_get_label (MIDORI_VIEWABLE (viewable));
