@@ -240,6 +240,47 @@ midori_preferences_add_toolbutton (GtkWidget*   toolbar,
 #endif
 }
 
+static void
+midori_preferences_list_dicts_cb (const gchar* lang_tag,
+                                  const gchar* provider_name,
+                                  const gchar* provider_desc,
+                                  const gchar* provider_file,
+                                  GList**      dicts)
+{
+    *dicts = g_list_prepend (*dicts, (gchar*)lang_tag);
+}
+
+static GList*
+midori_preferences_get_spell_languages (void)
+{
+    static gpointer (*enchant_broker_init) (void) = NULL;
+    static void (*enchant_broker_list_dicts) (gpointer, GCallback, gpointer) = NULL;
+    static void (*enchant_broker_free) (gpointer) = NULL;
+    gpointer broker;
+    GList* dicts = NULL;
+
+    if (!enchant_broker_list_dicts && g_module_supported ())
+    {
+        GModule* module;
+        if (!(module = g_module_open ("libenchant.so", G_MODULE_BIND_LOCAL)))
+            return NULL;
+        if (!g_module_symbol (module, "enchant_broker_init",
+                              (void*) &enchant_broker_init))
+            return NULL;
+        if (!g_module_symbol (module, "enchant_broker_list_dicts",
+                              (void*) &enchant_broker_list_dicts))
+            return NULL;
+        if (!g_module_symbol (module, "enchant_broker_free",
+                              (void*) &enchant_broker_free))
+            return NULL;
+    }
+
+    broker = enchant_broker_init ();
+    enchant_broker_list_dicts (broker, (GCallback)midori_preferences_list_dicts_cb, &dicts);
+    enchant_broker_free (broker);
+    return dicts;
+}
+
 /**
  * midori_preferences_set_settings:
  * @settings: the settings
@@ -261,6 +302,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     GtkWidget* label;
     GtkWidget* button;
     GtkWidget* entry;
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    GList* languages;
+    #endif
 
     g_return_if_fail (MIDORI_IS_PREFERENCES (preferences));
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
@@ -412,15 +456,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "find-while-typing", NULL);
     SPANNED_ADD (button);
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
-    FRAME_NEW (_("Spell Checking"));
-    button = katze_property_proxy (settings, "enable-spell-checking", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
-    gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
-    INDENTED_ADD (button);
-    entry = katze_property_proxy (settings, "spell-checking-languages", NULL);
-    /* i18n: The example should be adjusted to contain a good local default */
-    gtk_widget_set_tooltip_text (entry, _("A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""));
-    SPANNED_ADD (entry);
+    if ((languages = midori_preferences_get_spell_languages ()))
+    {
+        FRAME_NEW (_("Spell Checking"));
+        button = katze_property_proxy (settings, "enable-spell-checking", NULL);
+        gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
+        gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
+        INDENTED_ADD (button);
+        entry = katze_property_proxy (settings, "spell-checking-languages", NULL);
+        /* i18n: The example should be adjusted to contain a good local default */
+        gtk_widget_set_tooltip_text (entry, _("A comma separated list of "
+           "languages to be used for spell checking, for example \"en_GB,de_DE\""));
+        SPANNED_ADD (entry);
+        g_list_free (languages);
+    }
     #endif
 
     /* Page "Interface" */
