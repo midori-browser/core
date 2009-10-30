@@ -577,7 +577,7 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
                                         GtkCellRenderer*   renderer,
                                         GtkTreeModel*      model,
                                         GtkTreeIter*       iter,
-                                        GtkWidget*         treeview)
+                                        MidoriHistory*     history)
 {
     KatzeItem* item;
     gint64 age;
@@ -590,9 +590,21 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
     {
         gchar* sdate;
 
-        g_assert (age >= 0);
+        /* A negative age is a date in the future, the clock is probably off */
+        if (age < -1)
+        {
+            static gboolean clock_warning = FALSE;
+            if (!clock_warning)
+            {
+                midori_app_send_notification (history->app,
+                    _("Erroneous clock time"),
+                    _("The clock time lies in the past. "
+                      "Please check the current date and time."));
+                clock_warning = TRUE;
+            }
+        }
 
-        if (age > 7)
+        if (age > 7 || age < 0)
         {
             g_object_set (renderer, "text", katze_item_get_name (item), NULL);
         }
@@ -941,7 +953,7 @@ midori_history_init (MidoriHistory* history)
     gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_history_treeview_render_text_cb,
-        treeview, NULL);
+        history, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     g_object_unref (model);
     g_object_connect (treeview,
