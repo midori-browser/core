@@ -56,12 +56,12 @@ def is_mingw (env):
     return False
 
 # Compile Win32 res files to (resource) object files
-@extension ('.rc')
 def rc_file(self, node):
     rctask = self.create_task ('winrc')
     rctask.set_inputs (node)
     rctask.set_outputs (node.change_ext ('.rc.o'))
     self.compiled_tasks.append (rctask)
+rc_file = extension ('.rc')(rc_file)
 Task.simple_task_type ('winrc', '${WINRC} -o${TGT} ${SRC}', color='BLUE',
     before='cc cxx', shell=False)
 
