@@ -343,6 +343,10 @@ def set_options (opt):
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
 
+    # Provided for compatibility
+    opt.add_option ('--build', help='Ignored')
+    opt.add_option ('--disable-maintainer-mode', help='Ignored')
+
 def build (bld):
     def image_to_win32ico (task):
         'Converts an image to a Win32 ico'
@@ -380,7 +384,7 @@ def build (bld):
 
     if bld.env['docs']:
         bld.install_files ('${DOCDIR}/' + APPNAME + '/', \
-            'AUTHORS ChangeLog COPYING EXPAT README TRANSLATE')
+            'AUTHORS COPYING ChangeLog EXPAT README')
 
     # Install default configuration
     bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + '/', 'data/search')
