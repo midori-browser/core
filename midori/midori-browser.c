@@ -200,6 +200,14 @@ _action_set_sensitive (MidoriBrowser* browser,
 }
 
 static void
+_action_set_visible (MidoriBrowser* browser,
+                     const gchar*   name,
+                     gboolean       visible)
+{
+    gtk_action_set_visible (_action_by_name (browser, name), visible);
+}
+
+static void
 _action_set_active (MidoriBrowser* browser,
                     const gchar*   name,
                     gboolean       active)
@@ -5494,19 +5502,19 @@ midori_browser_init (MidoriBrowser* browser)
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
 
 
-    _action_set_sensitive (browser, "PrivateBrowsing", FALSE);
+    _action_set_visible (browser, "PrivateBrowsing", FALSE);
     #if HAVE_HILDON
-    g_object_set (_action_by_name (browser, "Menubar"), "visible", FALSE, NULL);
-    g_object_set (_action_by_name (browser, "Statusbar"), "visible", FALSE, NULL);
+    _action_set_visible (browser, "Menubar", FALSE);
+    _action_set_visible (browser, "Statusbar", FALSE);
     #endif
     #if !WEBKIT_CHECK_VERSION (1, 1, 3)
-    _action_set_sensitive (browser, "Transferbar", FALSE);
+    _action_set_visible (browser, "Transferbar", FALSE);
     #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
-    _action_set_sensitive (browser, "SelectionSourceView", FALSE);
-    _action_set_sensitive (browser, "LastSession", FALSE);
-    /* FIXME: Enable once implemented */
-    _action_set_sensitive (browser, "AddDesktopShortcut", FALSE);
+    _action_set_visible (browser, "SelectionSourceView", FALSE);
+    _action_set_visible (browser, "LastSession", FALSE);
+    /* FIXME: Show once implemented */
+    _action_set_visible (browser, "AddDesktopShortcut", FALSE);
 
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (

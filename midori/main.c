@@ -1424,7 +1424,7 @@ midori_load_session (gpointer data)
         GtkAction* action = gtk_action_group_get_action (action_group, "LastSession");
         g_signal_connect (action, "activate",
             G_CALLBACK (midori_browser_action_last_session_activate_cb), browser);
-        gtk_action_set_sensitive (action, TRUE);
+        gtk_action_set_visible (action, TRUE);
     }
     midori_app_add_browser (app, browser);
     gtk_widget_show (GTK_WIDGET (browser));

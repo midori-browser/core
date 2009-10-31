@@ -2007,6 +2007,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "AddDesktopShortcut"));
         gtk_menu_shell_append (menu_shell, menuitem);
+        gtk_widget_set_no_show_all (menuitem, TRUE);
         #endif
 
         menuitem = sokoke_action_create_popup_menu_item (
