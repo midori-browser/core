@@ -2936,9 +2936,10 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "Homepage" },
       { "SourceView" },
       #else
-      { "ManageSearchEngines" },
       { "Print" },
+      { "About" },
       { "PrivateBrowsing" },
+      { "ManageSearchEngines" },
       { NULL },
       { "Bookmarkbar" },
       { "Panel" },
@@ -2999,9 +3000,11 @@ _action_compact_menu_populate_popup (GtkAction*     action,
                 _action_by_name (browser, actions[i].name));
         }
         else
+        {
             menuitem = gtk_separator_menu_item_new ();
+            gtk_widget_show (menuitem);
+        }
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        gtk_widget_show (menuitem);
         #endif
     }
 }
