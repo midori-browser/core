@@ -234,6 +234,7 @@ def configure (conf):
     conf.env['docs'] = option_enabled ('docs')
 
     conf.check (header_name='unistd.h')
+    conf.check (header_name='signal.h')
     if not conf.env['HAVE_UNIQUE']:
         if Options.platform == 'win32':
             conf.check (lib='ws2_32')

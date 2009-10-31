@@ -54,6 +54,10 @@
     #include <libosso.h>
 #endif
 
+#ifdef HAVE_SIGNAL_H
+    #include <signal.h>
+#endif
+
 #define MIDORI_HISTORY_ERROR g_quark_from_string("MIDORI_HISTORY_ERROR")
 
 typedef enum
@@ -1576,6 +1580,19 @@ midori_remove_config_file (gint         clear_prefs,
     }
 }
 
+#ifdef HAVE_SIGNAL_H
+static void
+signal_handler (int signal_id)
+{
+    if (signal_id == SIGHUP || signal_id == SIGINT
+     || signal_id == SIGTERM || signal_id == SIGQUIT)
+    {
+        midori_app_quit_cb (NULL);
+        gtk_main_quit ();
+    }
+}
+#endif
+
 int
 main (int    argc,
       char** argv)
@@ -1649,6 +1666,13 @@ main (int    argc,
     #endif
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
+    #endif
+
+    #ifdef HAVE_SIGNAL_H
+    signal (SIGHUP, &signal_handler);
+    signal (SIGINT, &signal_handler);
+    signal (SIGTERM, &signal_handler);
+    signal (SIGQUIT, &signal_handler);
     #endif
 
     /* Parse cli options */
