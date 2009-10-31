@@ -1194,8 +1194,8 @@ midori_view_new_window_cb (GtkWidget*     view,
                            const gchar*   uri,
                            MidoriBrowser* browser)
 {
-    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-    g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+    MidoriBrowser* new_browser;
+    g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
     midori_browser_add_uri (new_browser, uri);
 }
 
@@ -1208,8 +1208,8 @@ midori_view_new_view_cb (GtkWidget*     view,
     midori_browser_view_copy_history (new_view, view, TRUE);
     if (where == MIDORI_NEW_VIEW_WINDOW)
     {
-        MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-        g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+        MidoriBrowser* new_browser;
+        g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
     }
@@ -1685,11 +1685,15 @@ midori_browser_class_init (MidoriBrowserClass* class)
     /**
      * MidoriBrowser::new-window:
      * @browser: the object on which the signal is emitted
-     * @window: a new browser window
+     * @window: a new browser window, or %NULL
      *
      * Emitted when a new browser window was created.
      *
      * Note: Before 0.1.7 the second argument was an URI string.
+     *
+     * Note: Since 0.2.1 the return value is a #MidoriBrowser
+     *
+     * Return value: a new #MidoriBrowser
      */
     signals[NEW_WINDOW] = g_signal_new (
         "new-window",
@@ -1698,8 +1702,8 @@ midori_browser_class_init (MidoriBrowserClass* class)
         G_STRUCT_OFFSET (MidoriBrowserClass, new_window),
         0,
         NULL,
-        g_cclosure_marshal_VOID__OBJECT,
-        G_TYPE_NONE, 1,
+        midori_cclosure_marshal_OBJECT__OBJECT,
+        MIDORI_TYPE_BROWSER, 1,
         MIDORI_TYPE_BROWSER);
 
     signals[ADD_TAB] = g_signal_new (
@@ -2061,8 +2065,8 @@ static void
 _action_window_new_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
-    MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-    g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+    MidoriBrowser* new_browser;
+    g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
     midori_browser_add_uri (new_browser, "");
     midori_browser_activate_action (new_browser, "Location");
 }
@@ -3753,8 +3757,8 @@ midori_browser_bookmark_open_in_window_activate_cb (GtkWidget*     menuitem,
 
     if (uri && *uri)
     {
-        MidoriBrowser* new_browser = g_object_new (MIDORI_TYPE_BROWSER, NULL);
-        g_signal_emit (browser, signals[NEW_WINDOW], 0, new_browser);
+        MidoriBrowser* new_browser;
+        g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
         midori_browser_add_uri (new_browser, uri);
     }
 }

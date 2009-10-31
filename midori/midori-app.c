@@ -140,21 +140,26 @@ midori_browser_focus_in_event_cb (MidoriBrowser* browser,
     return FALSE;
 }
 
-static void
+static MidoriBrowser*
 midori_browser_new_window_cb (MidoriBrowser* browser,
                               MidoriBrowser* new_browser,
                               MidoriApp*     app)
 {
-    g_object_set (new_browser,
-                  "settings", app->settings,
-                  "bookmarks", app->bookmarks,
-                  "trash", app->trash,
-                  "search-engines", app->search_engines,
-                  "history", app->history,
-                  NULL);
+    if (new_browser)
+        g_object_set (new_browser,
+                      "settings", app->settings,
+                      "bookmarks", app->bookmarks,
+                      "trash", app->trash,
+                      "search-engines", app->search_engines,
+                      "history", app->history,
+                      NULL);
+    else
+        new_browser = midori_app_create_browser (app);
 
     midori_app_add_browser (app, new_browser);
     gtk_widget_show (GTK_WIDGET (new_browser));
+
+    return new_browser;
 }
 
 static gboolean
@@ -1002,6 +1007,9 @@ midori_app_add_browser (MidoriApp*     app,
  *
  * Creates a #MidoriBrowser which inherits its settings,
  * bookmarks, trash, search engines and history from  @app.
+ *
+ * Note that creating a browser this way can be a lot
+ * faster than setting it up manually.
  *
  * Return value: a new #MidoriBrowser
  *

@@ -509,8 +509,11 @@ feed_panel_open_in_window_activate_cb (GtkWidget* menuitem,
     if (uri && *uri)
     {
         MidoriBrowser* browser;
+        MidoriBrowser* new_browser;
+
         browser = midori_browser_get_for_widget (GTK_WIDGET (panel));
-        g_signal_emit_by_name (browser, "new-window", uri);
+        g_signal_emit_by_name (browser, "new-window", NULL, &new_browser);
+        midori_browser_add_uri (new_browser, uri);
     }
 }
 
