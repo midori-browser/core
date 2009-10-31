@@ -542,7 +542,9 @@ katze_property_proxy (gpointer     object,
         #ifdef HAVE_HILDON_2_2
         GtkWidget* selector;
 
-        widget = hildon_picker_button_new (HILDON_SIZE_AUTO, HILDON_BUTTON_ARRANGEMENT_HORIZONTAL);
+        widget = hildon_picker_button_new (
+            HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH,
+            HILDON_BUTTON_ARRANGEMENT_HORIZONTAL);
         selector = hildon_touch_selector_new_text ();
         hildon_button_set_title (HILDON_BUTTON (widget), gettext (nick));
         hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (widget),
