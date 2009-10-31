@@ -211,6 +211,7 @@ midori_preferred_encoding_get_type (void)
         static const GEnumValue values[] = {
          { MIDORI_ENCODING_CHINESE, "MIDORI_ENCODING_CHINESE", N_("Chinese (BIG5)") },
          { MIDORI_ENCODING_JAPANESE, "MIDORI_ENCODING_JAPANESE", N_("Japanese (SHIFT_JIS)") },
+         { MIDORI_ENCODING_KOREAN, "MIDORI_ENCODING_KOREAN", N_("Korean (EUC-KR)") },
          { MIDORI_ENCODING_RUSSIAN, "MIDORI_ENCODING_RUSSIAN", N_("Russian (KOI8-R)") },
          { MIDORI_ENCODING_UNICODE, "MIDORI_ENCODING_UNICODE", N_("Unicode (UTF-8)") },
          { MIDORI_ENCODING_WESTERN, "MIDORI_ENCODING_WESTERN", N_("Western (ISO-8859-1)") },
@@ -1011,6 +1012,8 @@ notify_default_encoding_cb (GObject*    object,
         web_settings->preferred_encoding = MIDORI_ENCODING_CHINESE;
     else if (!strcmp (encoding, "SHIFT_JIS"))
         web_settings->preferred_encoding = MIDORI_ENCODING_JAPANESE;
+    else if (!strcmp (encoding, "EUC-KR"))
+        web_settings->preferred_encoding = MIDORI_ENCODING_KOREAN;
     else if (!strcmp (encoding, "KOI8-R"))
         web_settings->preferred_encoding = MIDORI_ENCODING_RUSSIAN;
     else if (!strcmp (encoding, "UTF-8"))
@@ -1265,6 +1268,9 @@ midori_web_settings_set_property (GObject*      object,
             break;
         case MIDORI_ENCODING_JAPANESE:
             g_object_set (object, "default-encoding", "SHIFT_JIS", NULL);
+            break;
+       case MIDORI_ENCODING_KOREAN:
+            g_object_set (object, "default-encoding", "EUC-KR", NULL);
             break;
         case MIDORI_ENCODING_RUSSIAN:
             g_object_set (object, "default-encoding", "KOI8-R", NULL);
