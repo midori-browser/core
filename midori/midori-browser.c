@@ -5290,9 +5290,9 @@ midori_browser_init (MidoriBrowser* browser)
         G_CALLBACK (midori_browser_ui_manager_connect_proxy_cb), browser);
     g_signal_connect (ui_manager, "disconnect-proxy",
         G_CALLBACK (midori_browser_ui_manager_disconnect_proxy_cb), browser);
-    gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
     accel_group = gtk_ui_manager_get_accel_group (ui_manager);
     gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
+    gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
 
     g_object_set_data (G_OBJECT (accel_group), "midori-browser", browser);
     for (i = 0; i < 10; i++)
@@ -5575,6 +5575,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), hpaned, TRUE, TRUE, 0);
     gtk_widget_show (hpaned);
     browser->panel = g_object_new (MIDORI_TYPE_PANEL,
+                                   "action-group", browser->action_group,
                                    "menu", browser->menu_tools,
                                    NULL);
     g_object_connect (browser->panel,
