@@ -147,41 +147,35 @@ sokoke_spawn_program (const gchar* command,
                       gboolean     quote)
 {
     gchar* argument_escaped;
-    gchar* command_ready;
-    gchar** argv;
+    GAppInfo* info;
+    GFile* file;
+    GList* files;
     GError* error;
 
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
 
     argument_escaped = quote ? g_shell_quote (argument) : g_strdup (argument);
-    if (strstr (command, "%s"))
-        command_ready = g_strdup_printf (command, argument_escaped);
-    else
-        command_ready = g_strconcat (command, " ", argument_escaped, NULL);
+
+    info = g_app_info_create_from_commandline (command,
+        NULL, G_APP_INFO_CREATE_NONE, NULL);
+    file = g_file_new_for_commandline_arg (argument_escaped);
+    files = g_list_append (NULL, file);
 
     error = NULL;
-    if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
+    if (!g_app_info_launch (info, files, NULL, &error))
     {
         error_dialog (_("Could not run external program."), error->message);
         g_error_free (error);
-        g_free (command_ready);
         g_free (argument_escaped);
+        g_object_unref (file);
+        g_list_free (files);
         return FALSE;
     }
 
-    error = NULL;
-    if (!g_spawn_async (NULL, argv, NULL,
-        (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-        NULL, NULL, NULL, &error))
-    {
-        error_dialog (_("Could not run external program."), error->message);
-        g_error_free (error);
-    }
-
-    g_strfreev (argv);
-    g_free (command_ready);
     g_free (argument_escaped);
+    g_object_unref (file);
+    g_list_free (files);
     return TRUE;
 }
 
