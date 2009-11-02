@@ -75,6 +75,21 @@ proxy_combo_box_text_changed_cb (GtkComboBox* button,
     g_object_set (object, property, text, NULL);
 }
 
+static const gchar*
+katze_app_info_get_commandline (GAppInfo* info)
+{
+    const gchar* exe;
+
+    #if GLIB_CHECK_VERSION (2, 20, 0)
+    exe = g_app_info_get_commandline (info);
+    #else
+    exe = g_object_get_data (G_OBJECT (info), "katze-cmdline");
+    #endif
+    if (!exe)
+        exe = g_app_info_get_executable (info);
+    return exe;
+}
+
 static void
 proxy_combo_box_apps_changed_cb (GtkComboBox* button,
                                  GObject*     object)
@@ -93,12 +108,7 @@ proxy_combo_box_apps_changed_cb (GtkComboBox* button,
 
         if (info)
         {
-            #if 0 /* GLIB_CHECK_VERSION (2, 20, 0) */
-            /* FIXME: Implement non-trivial command lines */
-            exe = g_app_info_get_commandline (info);
-            #else
-            exe = g_app_info_get_executable (info);
-            #endif
+            exe = katze_app_info_get_commandline (info);
             g_object_set (object, property, exe, NULL);
             g_object_unref (info);
         }
@@ -467,16 +477,32 @@ katze_property_proxy (gpointer     object,
 
                 gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
                     0, info, 1, icon_name, 2, name, -1);
-                if (string && g_strrstr (g_app_info_get_executable (info), string))
+                if (string && !strcmp (katze_app_info_get_commandline (info), string))
                     gtk_combo_box_set_active_iter (combo, &iter);
 
                 g_free (icon_name);
             }
 
+            /* FIXME: Implement entering a custom command
+            gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+                0, NULL, 1, NULL, 2, _("Custom..."), -1); */
+
             if (gtk_combo_box_get_active (combo) == -1)
             {
                 if (string)
-                    /* FIXME: Support custom command */;
+                {
+                    GtkTreeIter iter;
+
+                    info = g_app_info_create_from_commandline (string,
+                        NULL, G_APP_INFO_CREATE_NONE, NULL);
+                    #if !GLIB_CHECK_VERSION (2, 20, 0)
+                    g_object_set_data (G_OBJECT (info), "katze-cmdline");
+                    #endif
+                    gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
+                        0, info, 1, NULL, 2, string, -1);
+                    gtk_combo_box_set_active_iter (combo, &iter);
+                    g_object_unref (info);
+                }
                 else
                     gtk_combo_box_set_active_iter (combo, &iter_none);
             }
