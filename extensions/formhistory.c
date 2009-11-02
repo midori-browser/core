@@ -19,6 +19,10 @@
     #include <unistd.h>
 #endif
 
+#if HAVE_SQLITE
+    #include <sqlite3.h>
+#endif
+
 static GHashTable* global_keys;
 static gchar* jsforms;
 
@@ -99,7 +103,19 @@ formhistory_build_js ()
 }
 
 static void
-formhistory_update_main_hash (GHashTable* keys)
+formhistory_update_database (gpointer     db,
+                             const gchar* key,
+                             const gchar* value)
+{
+    #if HAVE_SQLITE
+    /* FIXME: Write keys to the database */
+    /* g_print (":: %s= %s\n", key, value); */
+    #endif
+}
+
+static void
+formhistory_update_main_hash (GHashTable* keys,
+                              gpointer    db)
 {
     GHashTableIter iter;
     gchar* key;
@@ -117,8 +133,7 @@ formhistory_update_main_hash (GHashTable* keys)
         if (length > MAXCHARS || length < MINCHARS)
             continue;
 
-        tmp = g_hash_table_lookup (global_keys, (gpointer)key);
-        if (tmp)
+        if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
         {
             gchar* rvalue = g_strdup_printf ("\"%s\"",value);
             if (!g_regex_match_simple (rvalue, tmp,
@@ -126,6 +141,7 @@ formhistory_update_main_hash (GHashTable* keys)
             {
                 gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
                 g_hash_table_replace (global_keys, key, new_value);
+                formhistory_update_database (db, key, value);
             }
             g_free (rvalue);
         }
@@ -133,29 +149,34 @@ formhistory_update_main_hash (GHashTable* keys)
         {
             gchar* new_value = g_strdup_printf ("\"%s\",",value);
             g_hash_table_insert (global_keys, key, new_value);
+            formhistory_update_database (db, key, value);
         }
     }
 }
 
 static void
-formhistory_session_request_queued_cb (SoupSession* session,
-                                       SoupMessage* msg)
+formhistory_session_request_queued_cb (SoupSession*     session,
+                                       SoupMessage*     msg,
+                                       MidoriExtension* extension)
 {
     gchar* method = katze_object_get_string (msg, "method");
     if (method && !strncmp (method, "POST", 4))
     {
-        /* SoupMessageHeaders* hdrs = msg->request_headers;
-        const gchar* referer; */
         SoupMessageBody* body = msg->request_body;
         if (soup_message_body_get_accumulate (body))
         {
-            SoupBuffer* buffer = soup_message_body_flatten (body);
-            GHashTable* keys = soup_form_decode (body->data);
-            formhistory_update_main_hash (keys);
+            SoupBuffer* buffer;
+            GHashTable* keys;
+            gpointer db;
+
+            buffer = soup_message_body_flatten (body);
+            keys = soup_form_decode (body->data);
+
+            db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
+            formhistory_update_main_hash (keys, db);
             soup_buffer_free (buffer);
+            g_hash_table_destroy (keys);
         }
-        /* FIXME: Need a permanent storage implementation */
-        /* referer = soup_message_headers_get_one (hdrs, "Referer"); */
     }
     g_free (method);
 }
@@ -172,15 +193,16 @@ formhistory_window_object_cleared_cb (GtkWidget*      web_view,
 }
 
 static void
-formhistory_add_tab_cb (MidoriBrowser* browser,
-                        MidoriView*    view)
+formhistory_add_tab_cb (MidoriBrowser*   browser,
+                        MidoriView*      view,
+                        MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     SoupSession *session = webkit_get_default_session ();
     g_signal_connect (web_view, "window-object-cleared",
-            G_CALLBACK (formhistory_window_object_cleared_cb), 0);
+            G_CALLBACK (formhistory_window_object_cleared_cb), NULL);
     g_signal_connect (session, "request-queued",
-       G_CALLBACK (formhistory_session_request_queued_cb), 0);
+       G_CALLBACK (formhistory_session_request_queued_cb), extension);
 }
 
 static void
@@ -188,10 +210,11 @@ formhistory_deactivate_cb (MidoriExtension* extension,
                            MidoriBrowser*   browser);
 
 static void
-formhistory_add_tab_foreach_cb (MidoriView*    view,
-                                MidoriBrowser* browser)
+formhistory_add_tab_foreach_cb (MidoriView*     view,
+                                MidoriBrowser*  browser,
+                                MidoriExtension* extension)
 {
-    formhistory_add_tab_cb (browser, view);
+    formhistory_add_tab_cb (browser, view, extension);
 }
 
 static void
@@ -200,24 +223,26 @@ formhistory_app_add_browser_cb (MidoriApp*       app,
                                 MidoriExtension* extension)
 {
     midori_browser_foreach (browser,
-        (GtkCallback)formhistory_add_tab_foreach_cb, browser);
-    g_signal_connect (browser, "add-tab", G_CALLBACK (formhistory_add_tab_cb), 0);
+        (GtkCallback)formhistory_add_tab_foreach_cb, extension);
+    g_signal_connect (browser, "add-tab",
+        G_CALLBACK (formhistory_add_tab_cb), extension);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (formhistory_deactivate_cb), browser);
 }
 
 static void
-formhistory_deactivate_tabs (MidoriView*    view,
-                             MidoriBrowser* browser)
+formhistory_deactivate_tabs (MidoriView*      view,
+                             MidoriBrowser*   browser,
+                             MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     SoupSession *session = webkit_get_default_session ();
     g_signal_handlers_disconnect_by_func (
-       browser, formhistory_add_tab_cb, 0);
+       browser, formhistory_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
-       web_view, formhistory_window_object_cleared_cb, 0);
+       web_view, formhistory_window_object_cleared_cb, NULL);
     g_signal_handlers_disconnect_by_func (
-       session, formhistory_session_request_queued_cb, 0);
+       session, formhistory_session_request_queued_cb, extension);
 }
 
 static void
@@ -225,22 +250,36 @@ formhistory_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
+    #if HAVE_SQLITE
+    sqlite3* db;
+    #endif
 
     g_signal_handlers_disconnect_by_func (
         extension, formhistory_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, formhistory_app_add_browser_cb, extension);
-    midori_browser_foreach (browser, (GtkCallback)formhistory_deactivate_tabs, browser);
+    midori_browser_foreach (browser,
+        (GtkCallback)formhistory_deactivate_tabs, extension);
 
     jsforms = "";
     if (global_keys)
         g_hash_table_destroy (global_keys);
+
+    #if HAVE_SQLITE
+    if ((db = g_object_get_data (G_OBJECT (extension), "formhistory-db")))
+        sqlite3_close (db);
+    #endif
 }
 
 static void
 formhistory_activate_cb (MidoriExtension* extension,
                          MidoriApp*       app)
 {
+    #if HAVE_SQLITE
+    const gchar* config_dir;
+    gchar* filename;
+    sqlite3* db;
+    #endif
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
@@ -248,6 +287,21 @@ formhistory_activate_cb (MidoriExtension* extension,
     global_keys = g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify)g_free,
                                (GDestroyNotify)g_free);
+    #if HAVE_SQLITE
+    config_dir = midori_extension_get_config_dir (extension);
+    katze_mkdir_with_parents (config_dir, 0700);
+    filename = g_build_filename (config_dir, "forms.db", NULL);
+    if (sqlite3_open (filename, &db))
+    {
+        g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
+        sqlite3_close (db);
+    }
+    g_free (filename);
+    /* FIXME: Load keys from the database */
+
+    g_object_set_data (G_OBJECT (extension), "formhistory-db", db);
+    #endif
+
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
     while ((browser = katze_array_get_nth_item (browsers, i++)))
@@ -278,8 +332,10 @@ MidoriExtension*
 extension_init (void)
 {
     gboolean should_init = TRUE;
-    gchar* ver;
+    const gchar* ver;
     gchar* desc;
+    MidoriExtension* extension;
+
     if (formhistory_prepare_js ())
     {
         ver = "0.1";
@@ -292,7 +348,8 @@ extension_init (void)
         ver = NULL;
         should_init = FALSE;
     }
-    MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
+
+    extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Form history filler"),
         "description", desc,
         "version", ver,
