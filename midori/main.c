@@ -1999,7 +1999,9 @@ main (int    argc,
         {
             item = katze_item_new ();
             /* Construct an absolute path if the file is relative */
-            if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
+            if (g_path_is_absolute (uri))
+                uri_ready = g_strconcat ("file://", uri, NULL);
+            else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
             {
                 gchar* current_dir = g_get_current_dir ();
                 uri_ready = g_strconcat ("file://", current_dir,
