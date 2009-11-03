@@ -15,7 +15,13 @@ def add_image (bld, category, name):
     if rsvg_convert:
         Utils.check_dir (blddir + '/icons')
 
-    for size in [16, 22, 24, 32, 48]:
+    if bld.env['HAVE_HILDON']:
+        category = 'hildon'
+        icon_sizes = [48, 64]
+    else:
+        icon_sizes = [16, 22, 24, 32, 48]
+
+    for size in icon_sizes:
         format = str (size) + 'x' + str (size)
         if os.access (srcdir + '/icons/' + format + '/' + name + '.png', os.F_OK):
             bld.install_files ('${MDATADIR}/icons/hicolor/' + format + '/' + category,
