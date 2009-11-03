@@ -90,6 +90,11 @@ katze_app_info_get_commandline (GAppInfo* info)
     return exe;
 }
 
+static gboolean
+proxy_entry_focus_out_event_cb (GtkEntry*      entry,
+                                GdkEventFocus* event,
+                                GObject*       object);
+
 static void
 proxy_combo_box_apps_changed_cb (GtkComboBox* button,
                                  GObject*     object)
@@ -101,10 +106,36 @@ proxy_combo_box_apps_changed_cb (GtkComboBox* button,
     if (gtk_tree_model_iter_nth_child (model, &iter, NULL, active))
     {
         GAppInfo* info;
+        gboolean use_entry;
+        GtkWidget* child;
         const gchar* exe;
         const gchar* property = g_object_get_data (G_OBJECT (button), "property");
 
         gtk_tree_model_get (model, &iter, 0, &info, -1);
+
+        use_entry = info && !g_app_info_get_icon (info);
+        child = gtk_bin_get_child (GTK_BIN (button));
+        if (use_entry && GTK_IS_CELL_VIEW (child))
+        {
+            GtkWidget* entry = gtk_entry_new ();
+            exe = g_app_info_get_executable (info);
+            if (exe && *exe && strcmp (exe, "%f"))
+                gtk_entry_set_text (GTK_ENTRY (entry), exe);
+            gtk_widget_show (entry);
+            gtk_container_add (GTK_CONTAINER (button), entry);
+            gtk_widget_grab_focus (entry);
+            g_signal_connect (entry, "focus-out-event",
+                G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+            g_object_set_data_full (G_OBJECT (entry), "property",
+                                    g_strdup (property), g_free);
+        }
+        else if (!use_entry && GTK_IS_ENTRY (child))
+        {
+            /* Force the combo to change the item again */
+            gtk_widget_destroy (child);
+            gtk_combo_box_set_active (button, 0);
+            gtk_combo_box_set_active_iter (button, &iter);
+        }
 
         if (info)
         {
@@ -483,25 +514,35 @@ katze_property_proxy (gpointer     object,
                 g_free (icon_name);
             }
 
-            /* FIXME: Implement entering a custom command
+            info = g_app_info_create_from_commandline ("",
+                "", G_APP_INFO_CREATE_NONE, NULL);
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, NULL, 1, NULL, 2, _("Custom..."), -1); */
+                0, info, 1, NULL, 2, _("Custom..."), -1);
+            g_object_unref (info);
 
             if (gtk_combo_box_get_active (combo) == -1)
             {
                 if (string)
                 {
-                    GtkTreeIter iter;
+                    GtkWidget* entry;
+                    const gchar* exe;
 
                     info = g_app_info_create_from_commandline (string,
                         NULL, G_APP_INFO_CREATE_NONE, NULL);
                     #if !GLIB_CHECK_VERSION (2, 20, 0)
-                    g_object_set_data (G_OBJECT (info), "katze-cmdline");
+                    g_object_set_data (G_OBJECT (info), "katze-cmdline", string);
                     #endif
-                    gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
-                        0, info, 1, NULL, 2, string, -1);
-                    gtk_combo_box_set_active_iter (combo, &iter);
+                    entry = gtk_entry_new ();
+                    exe = g_app_info_get_executable (info);
+                    if (exe && *exe && strcmp (exe, "%f"))
+                        gtk_entry_set_text (GTK_ENTRY (entry), string);
+                    gtk_widget_show (entry);
+                    gtk_container_add (GTK_CONTAINER (combo), entry);
                     g_object_unref (info);
+                    g_signal_connect (entry, "focus-out-event",
+                        G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+                    g_object_set_data_full (G_OBJECT (entry), "property",
+                                            g_strdup (property), g_free);
                 }
                 else
                     gtk_combo_box_set_active_iter (combo, &iter_none);
