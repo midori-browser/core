@@ -195,6 +195,7 @@ proxy_picker_button_changed_cb (HildonPickerButton* button,
     gint value = hildon_picker_button_get_active (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, value, NULL);
+    /* FIXME: Implement custom-PROPERTY */
 }
 #else
 static void
@@ -203,6 +204,36 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
 {
     gint value = gtk_combo_box_get_active (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
+    gint custom_value = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (button),
+                                         "katze-custom-value"));
+    if (custom_value)
+    {
+        GtkWidget* child = gtk_bin_get_child (GTK_BIN (button));
+        if (value == custom_value && GTK_IS_CELL_VIEW (child))
+        {
+            GtkWidget* entry = gtk_entry_new ();
+            const gchar* custom_property = g_object_get_data (G_OBJECT (button),
+                "katze-custom-property");
+            /* FIXME: Fill in the previous value for convenience
+            gint old_value = katze_object_get_integer (object, custom_property);
+            if (old_value && *old_value)
+                gtk_entry_set_text (GTK_ENTRY (entry), ""); */
+            gtk_widget_show (entry);
+            gtk_container_add (GTK_CONTAINER (button), entry);
+            gtk_widget_grab_focus (entry);
+            g_signal_connect (entry, "focus-out-event",
+                G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+            g_object_set_data_full (G_OBJECT (entry), "property",
+                                    g_strdup (custom_property), g_free);
+        }
+        else if (value != custom_value && GTK_IS_ENTRY (child))
+        {
+            /* Force the combo to change the item again */
+            gtk_widget_destroy (child);
+            gtk_combo_box_set_active (button, value + 1);
+            gtk_combo_box_set_active (button, value);
+        }
+    }
     g_object_set (object, property, value, NULL);
 }
 #endif
@@ -309,6 +340,9 @@ katze_app_info_get_all_for_category (const gchar* category)
  *         for choosing an application to open TYPE files, ie. "text/plain".
  *     "application-CATEGORY": the widget created will be particularly suitable
  *         for choosing an application to open CATEGORY files, ie. "Network".
+ *     "custom-PROPERTY": the last value of an enumeration will be the "custom"
+ *         value, where the user may enter text freely, which then updates
+ *         the property PROPERTY instead. This applies only to enumerations.
  *
  * Any other values for @hint are silently ignored.
  *
@@ -605,6 +639,10 @@ katze_property_proxy (gpointer     object,
         GEnumClass* enum_class = G_ENUM_CLASS (
             g_type_class_ref (pspec->value_type));
         gint value = katze_object_get_enum (object, property);
+        const gchar* custom = NULL;
+
+        if (hint && g_str_has_prefix (hint, "custom-"))
+            custom = &hint[7];
 
         #ifdef HAVE_HILDON_2_2
         GtkWidget* selector;
@@ -637,6 +675,26 @@ katze_property_proxy (gpointer     object,
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_changed_cb), object);
         #endif
+        if (custom)
+        {
+            if (value == (gint)(enum_class->n_values - 1))
+            {
+                GtkWidget* entry = gtk_entry_new ();
+                gchar* text = katze_object_get_string (object, custom);
+                if (text && *text)
+                    gtk_entry_set_text (GTK_ENTRY (entry), text);
+                gtk_widget_show (entry);
+                gtk_container_add (GTK_CONTAINER (widget), entry);
+                g_signal_connect (entry, "focus-out-event",
+                    G_CALLBACK (proxy_entry_focus_out_event_cb), object);
+                g_object_set_data_full (G_OBJECT (entry), "property",
+                                        g_strdup (custom), g_free);
+            }
+            g_object_set_data (G_OBJECT (widget), "katze-custom-value",
+                               GINT_TO_POINTER (enum_class->n_values - 1));
+            g_object_set_data (G_OBJECT (widget), "katze-custom-property",
+                               (gpointer)custom);
+        }
         g_type_class_unref (enum_class);
     }
     else

@@ -170,17 +170,6 @@ midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
     }
 }
 
-static void
-midori_preferences_notify_preferred_encoding_cb (MidoriWebSettings* settings,
-                                                 GParamSpec*        pspec,
-                                                 GtkWidget*         entry)
-{
-    MidoriPreferredEncoding preferred_encoding;
-
-    preferred_encoding = katze_object_get_enum (settings, "preferred-encoding");
-    gtk_widget_set_sensitive (entry, preferred_encoding == MIDORI_ENCODING_CUSTOM);
-}
-
 #if !HAVE_HILDON
 static void
 midori_preferences_notify_auto_detect_proxy_cb (MidoriWebSettings* settings,
@@ -193,16 +182,6 @@ midori_preferences_notify_auto_detect_proxy_cb (MidoriWebSettings* settings,
     gtk_widget_set_sensitive (entry, !auto_detect_proxy);
 }
 #endif
-
-static void
-midori_preferences_notify_identify_as_cb (MidoriWebSettings* settings,
-                                          GParamSpec*        pspec,
-                                          GtkWidget*         entry)
-{
-    MidoriIdentity identify_as = katze_object_get_enum (settings, "identify-as");
-
-    gtk_widget_set_sensitive (entry, identify_as == MIDORI_IDENT_CUSTOM);
-}
 
 #if HAVE_OSX
 static void
@@ -401,14 +380,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #endif
     label = katze_property_label (settings, "preferred-encoding");
     INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "preferred-encoding", NULL);
+    button = katze_property_proxy (settings, "preferred-encoding", "custom-default-encoding");
     SPANNED_ADD (button);
-    entry = katze_property_proxy (settings, "default-encoding", NULL);
-    gtk_widget_set_tooltip_text (entry, _("The character encoding to use by default"));
-    g_signal_connect (settings, "notify::preferred-encoding",
-        G_CALLBACK (midori_preferences_notify_preferred_encoding_cb), entry);
-    midori_preferences_notify_preferred_encoding_cb (settings, NULL, entry);
-    SPANNED_ADD (entry);
 
     /* Page "Behavior" */
     PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
@@ -538,13 +511,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #endif
     label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "identify-as", NULL);
+    button = katze_property_proxy (settings, "identify-as", "custom-ident-string");
     SPANNED_ADD (button);
-    entry = katze_property_proxy (settings, "ident-string", NULL);
-    g_signal_connect (settings, "notify::identify-as",
-        G_CALLBACK (midori_preferences_notify_identify_as_cb), entry);
-    midori_preferences_notify_identify_as_cb (settings, NULL, entry);
-    SPANNED_ADD (entry);
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
