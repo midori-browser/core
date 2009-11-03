@@ -455,22 +455,25 @@ def build (bld):
             bld.install_files ('${MDATADIR}/' + APPNAME + '/res', blddir + '/data/logo-shade.png')
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
+
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/error.html')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial.json')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/mootools.js')
-    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
-    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.css')
 
-    # FIXME: Determine the library naming for other platforms
-    if Options.platform == 'linux':
-        extensions = os.listdir ('data/extensions')
-        for extension in extensions:
-            folder = 'lib' + extension + '.so'
-            source = 'data/extensions/' + extension +  '/config'
-            if os.path.exists (source):
-                bld.install_files ('${SYSCONFDIR}/' + APPNAME + \
-                                   '/extensions/' + folder, source)
+    if bld.env['addons']:
+        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
+        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.css')
+
+        # FIXME: Determine the library naming for other platforms
+        if Options.platform == 'linux':
+            extensions = os.listdir ('data/extensions')
+            for extension in extensions:
+                folder = 'lib' + extension + '.so'
+                source = 'data/extensions/' + extension +  '/config'
+                if os.path.exists (source):
+                    bld.install_files ('${SYSCONFDIR}/' + APPNAME + \
+                                       '/extensions/' + folder, source)
 
     if Options.commands['check']:
         bld.add_subdirs ('tests')
