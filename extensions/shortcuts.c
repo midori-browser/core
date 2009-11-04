@@ -88,6 +88,7 @@ shortcuts_preferences_render_accel (GtkTreeViewColumn* column,
                 g_object_set (renderer,
                               "accel-key", key.accel_key,
                               "accel-mods", key.accel_mods,
+                              "accel-mode", GTK_CELL_RENDERER_ACCEL_MODE_OTHER,
                               NULL);
             else
                 g_object_set (renderer, "text", _("None"), NULL);

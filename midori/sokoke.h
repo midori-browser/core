@@ -172,4 +172,8 @@ gchar*
 sokoke_replace_variables                (const gchar* template,
                                          const gchar* variable_first, ...);
 
+gboolean
+sokoke_window_activate_key              (GtkWindow*      window,
+                                         GdkEventKey*    event);
+
 #endif /* !__SOKOKE_H__ */

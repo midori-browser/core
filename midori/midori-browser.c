@@ -1684,9 +1684,41 @@ _midori_browser_quit (MidoriBrowser* browser)
     /* Nothing to do */
 }
 
+static gboolean
+midori_browser_key_press_event (GtkWidget*   widget,
+                                GdkEventKey* event)
+{
+    GtkWindow* window = GTK_WINDOW (widget);
+    GtkWidget* focus = gtk_window_get_focus (window);
+    GtkWidgetClass* widget_class;
+    gboolean priority = GTK_IS_EDITABLE (focus) || GTK_IS_TEXT_VIEW (focus)
+                     || WEBKIT_IS_WEB_VIEW (focus);
+
+    if (priority && !event->state && gtk_window_propagate_key_event (window, event))
+        return TRUE;
+
+    if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
+        if (sokoke_window_activate_key (window, event))
+            return TRUE;
+
+    if (gtk_window_propagate_key_event (window, event))
+        return TRUE;
+
+    if (!(event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK)))
+        if (sokoke_window_activate_key (window, event))
+            return TRUE;
+
+    if (!priority && event->state && gtk_window_propagate_key_event (window, event))
+        return TRUE;
+
+    widget_class = g_type_class_peek_static (g_type_parent (GTK_TYPE_WINDOW));
+    return widget_class->key_press_event (widget, event);
+}
+
 static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
+    GtkWidgetClass* gtkwidget_class;
     GObjectClass* gobject_class;
     GParamFlags flags;
 
@@ -1843,6 +1875,9 @@ midori_browser_class_init (MidoriBrowserClass* class)
     class->remove_tab = _midori_browser_remove_tab;
     class->activate_action = _midori_browser_activate_action;
     class->quit = _midori_browser_quit;
+
+    gtkwidget_class = GTK_WIDGET_CLASS (class);
+    gtkwidget_class->key_press_event = midori_browser_key_press_event;
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->dispose = midori_browser_dispose;

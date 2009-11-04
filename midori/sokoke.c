@@ -1260,3 +1260,41 @@ sokoke_replace_variables (const gchar* template,
 
     return result;
 }
+
+/**
+ * sokoke_window_activate_key:
+ * @window: a #GtkWindow
+ * @event: a #GdkEventKey
+ *
+ * Attempts to activate they key from the event, much
+ * like gtk_window_activate_key(), including keys
+ * that gtk_accelerator_valid() considers invalid.
+ *
+ * Return value: %TRUE on success
+ **/
+gboolean
+sokoke_window_activate_key (GtkWindow*   window,
+                            GdkEventKey* event)
+{
+    gchar *accel_name;
+    GQuark accel_quark;
+    GObject* object;
+    GSList *slist;
+
+    if (gtk_window_activate_key (window, event))
+        return TRUE;
+
+    /* We don't use gtk_accel_groups_activate because it refuses to
+        activate anything that gtk_accelerator_valid doesn't like. */
+    accel_name = gtk_accelerator_name (event->keyval, (event->state & gtk_accelerator_get_default_mod_mask ()));
+    accel_quark = g_quark_from_string (accel_name);
+    g_free (accel_name);
+    object = G_OBJECT (window);
+
+    for (slist = gtk_accel_groups_from_object (object); slist; slist = slist->next)
+        if (gtk_accel_group_activate (slist->data, accel_quark,
+                                      object, event->keyval, event->state))
+            return TRUE;
+
+    return FALSE;
+}
