@@ -280,14 +280,21 @@ static void
 midori_addons_button_add_clicked_cb (GtkToolItem*  toolitem,
                                      MidoriAddons* addons)
 {
-    GtkWidget* dialog = gtk_message_dialog_new (
+    gchar* path_scripts, *path_styles;
+    GtkWidget* dialog;
+
+    path_scripts = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+                                 PACKAGE_NAME, "scripts", NULL);
+    path_styles = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+                                 PACKAGE_NAME, "styles", NULL);
+    dialog = gtk_message_dialog_new (
         GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
         GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
         _("Copy userscripts to the folder %s and "
-        "copy userstyles to the folder %s."),
-        "~/.local/share/midori/scripts",
-        "~/.local/share/midori/styles");
+        "copy userstyles to the folder %s."), path_scripts, path_styles);
+    g_free (path_scripts);
+    g_free (path_styles);
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
 }
