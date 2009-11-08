@@ -5776,16 +5776,9 @@ midori_browser_init (MidoriBrowser* browser)
     #else
     browser->statusbar_contents = browser->statusbar;
     #endif
-    /* Adjust the statusbar's padding to avoid child overlapping */
-    rcstyle = gtk_rc_style_new ();
-    rcstyle->xthickness = rcstyle->ythickness = -4;
-    gtk_widget_modify_style (browser->statusbar_contents, rcstyle);
-    g_object_unref (rcstyle);
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
     browser->progressbar = gtk_progress_bar_new ();
-    /* Set the progressbar's height to 1 to fit it in the statusbar */
-    gtk_widget_set_size_request (browser->progressbar, -1, 1);
     gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
                         browser->progressbar, FALSE, FALSE, 3);
 
