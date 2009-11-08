@@ -520,9 +520,9 @@ static void
 web_cache_deactivate_tabs (MidoriView*      view,
                            MidoriExtension* extension)
 {
+    #if HAVE_WEBKIT_RESOURCE_REQUEST
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
 
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, web_cache_resource_request_starting_cb, extension);
     #endif
