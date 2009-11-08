@@ -503,8 +503,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", NULL);
     SPANNED_ADD (entry);
+    INDENTED_ADD (gtk_event_box_new ());
     button = katze_property_proxy (settings, "auto-detect-proxy", NULL);
-    FILLED_ADD (button);
+    SPANNED_ADD (button);
     g_signal_connect (settings, "notify::auto-detect-proxy",
         G_CALLBACK (midori_preferences_notify_auto_detect_proxy_cb), entry);
     midori_preferences_notify_auto_detect_proxy_cb (settings, NULL, entry);
