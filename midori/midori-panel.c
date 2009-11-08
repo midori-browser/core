@@ -403,6 +403,7 @@ midori_panel_init (MidoriPanel* panel)
     toolitem = gtk_tool_item_new ();
     gtk_tool_item_set_expand (toolitem, TRUE);
     panel->toolbar_label = gtk_label_new (NULL);
+    gtk_label_set_ellipsize (GTK_LABEL (panel->toolbar_label), PANGO_ELLIPSIZE_END);
     gtk_misc_set_alignment (GTK_MISC (panel->toolbar_label), 0, 0.5);
     gtk_container_add (GTK_CONTAINER (toolitem), panel->toolbar_label);
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
