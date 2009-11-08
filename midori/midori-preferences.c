@@ -491,7 +491,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
     label = katze_property_label (settings, "news-aggregator");
     INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "news-aggregator", "application-Network");
+    entry = katze_property_proxy (settings, "news-aggregator", "application-News");
     SPANNED_ADD (entry);
     #endif
 
