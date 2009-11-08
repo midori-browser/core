@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
+ Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -108,8 +109,21 @@ formhistory_update_database (gpointer     db,
                              const gchar* value)
 {
     #if HAVE_SQLITE
-    /* FIXME: Write keys to the database */
-    /* g_print (":: %s= %s\n", key, value); */
+    gchar* sqlcmd;
+    gchar* errmsg;
+    gint success;
+
+    sqlcmd = sqlite3_mprintf ("INSERT INTO forms VALUES"
+                              "('%q', '%q', '%q')",
+                              NULL, key, value);
+    success = sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg);
+    sqlite3_free (sqlcmd);
+    if (success != SQLITE_OK)
+    {
+        g_printerr (_("Failed to add form value: %s\n"), errmsg);
+        g_free (errmsg);
+        return;
+    }
     #endif
 }
 
@@ -140,7 +154,7 @@ formhistory_update_main_hash (GHashTable* keys,
                                        G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
             {
                 gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
-                g_hash_table_replace (global_keys, key, new_value);
+                g_hash_table_insert (global_keys, g_strdup (key), new_value);
                 formhistory_update_database (db, key, value);
             }
             g_free (rvalue);
@@ -148,7 +162,7 @@ formhistory_update_main_hash (GHashTable* keys,
         else
         {
             gchar* new_value = g_strdup_printf ("\"%s\",",value);
-            g_hash_table_insert (global_keys, key, new_value);
+            g_hash_table_replace (global_keys, g_strdup (key), new_value);
             formhistory_update_database (db, key, value);
         }
     }
@@ -175,7 +189,7 @@ formhistory_session_request_queued_cb (SoupSession*     session,
             db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
             formhistory_update_main_hash (keys, db);
             soup_buffer_free (buffer);
-            /* FIXME: g_hash_table_destroy (keys); */
+            g_hash_table_destroy (keys);
         }
     }
     g_free (method);
@@ -271,6 +285,37 @@ formhistory_deactivate_cb (MidoriExtension* extension,
     #endif
 }
 
+#if HAVE_SQLITE
+static int
+formhistory_add_field (gpointer  data,
+                       int       argc,
+                       char**    argv,
+                       char**    colname)
+{
+    gint i;
+    gint ncols = 3;
+
+    /* Test whether have the right number of columns */
+    g_return_val_if_fail (argc % ncols == 0, 1);
+
+    for (i = 0; i < (argc - ncols) + 1; i++)
+    {
+        if (argv[i])
+        {
+            if (colname[i] && !g_ascii_strcasecmp (colname[i], "domain")
+             && colname[i + 1] && !g_ascii_strcasecmp (colname[i + 1], "field")
+             && colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "value"))
+            {
+                gchar* key = argv[i + 1];
+                gchar* new_value = g_strdup_printf ("\"%s\",", argv[i + 2]);
+                g_hash_table_replace (global_keys, g_strdup (key), new_value);
+            }
+        }
+    }
+    return 0;
+}
+#endif
+
 static void
 formhistory_activate_cb (MidoriExtension* extension,
                          MidoriApp*       app)
@@ -279,6 +324,7 @@ formhistory_activate_cb (MidoriExtension* extension,
     const gchar* config_dir;
     gchar* filename;
     sqlite3* db;
+    char* errmsg = NULL, *errmsg2 = NULL;
     #endif
     KatzeArray* browsers;
     MidoriBrowser* browser;
@@ -297,9 +343,27 @@ formhistory_activate_cb (MidoriExtension* extension,
         sqlite3_close (db);
     }
     g_free (filename);
-    /* FIXME: Load keys from the database */
-
-    g_object_set_data (G_OBJECT (extension), "formhistory-db", db);
+    if ((sqlite3_exec (db, "CREATE TABLE IF NOT EXISTS "
+                           "forms (domain text, field text, value text)",
+                           NULL, NULL, &errmsg) == SQLITE_OK)
+        && (sqlite3_exec (db, "SELECT domain, field, value FROM forms ",
+                          formhistory_add_field,
+                          NULL, &errmsg2) == SQLITE_OK))
+        g_object_set_data (G_OBJECT (extension), "formhistory-db", db);
+    else
+    {
+        if (errmsg)
+        {
+            g_critical (_("Failed to execute database statement: %s\n"), errmsg);
+            sqlite3_free (errmsg);
+            if (errmsg2)
+            {
+                g_critical (_("Failed to execute database statement: %s\n"), errmsg2);
+                sqlite3_free (errmsg2);
+            }
+        }
+        sqlite3_close (db);
+    }
     #endif
 
     browsers = katze_object_get_object (app, "browsers");
