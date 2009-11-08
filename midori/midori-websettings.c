@@ -148,6 +148,9 @@ enum
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
 
+    PROP_AUTO_LOAD_IMAGES,
+    PROP_ENABLE_SCRIPTS,
+    PROP_ENABLE_PLUGINS,
     PROP_ZOOM_TEXT_AND_IMAGES,
     PROP_FIND_WHILE_TYPING,
     PROP_KINETIC_SCROLLING,
@@ -812,6 +815,32 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
 
+    /* Override properties to localize them for preference proxies */
+    g_object_class_install_property (gobject_class,
+                                     PROP_AUTO_LOAD_IMAGES,
+                                     g_param_spec_boolean (
+                                     "auto-load-images",
+                                     _("Load images automatically"),
+                                     _("Load and display images automatically"),
+                                     TRUE,
+                                     flags));
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_SCRIPTS,
+                                     g_param_spec_boolean (
+                                     "enable-scripts",
+                                     _("Enable scripts"),
+                                     _("Enable embedded scripting languages"),
+                                     TRUE,
+                                     flags));
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_PLUGINS,
+                                     g_param_spec_boolean (
+                                     "enable-plugins",
+                                     _("Enable Netscape plugins"),
+                                     _("Enable embedded Netscape plugin objects"),
+                                     TRUE,
+                                     flags));
+
     /**
      * MidoriWebSettings:zoom-text-and-images:
      *
@@ -1311,6 +1340,18 @@ midori_web_settings_set_property (GObject*      object,
         web_settings->open_popups_in_tabs = g_value_get_boolean (value);
         break;
 
+    case PROP_AUTO_LOAD_IMAGES:
+        g_object_set (web_settings, "WebKitWebSettings::auto-load-images",
+                      g_value_get_boolean (value), NULL);
+        break;
+    case PROP_ENABLE_SCRIPTS:
+        g_object_set (web_settings, "WebKitWebSettings::enable-scripts",
+                      g_value_get_boolean (value), NULL);
+        break;
+    case PROP_ENABLE_PLUGINS:
+        g_object_set (web_settings, "WebKitWebSettings::enable-plugins",
+                      g_value_get_boolean (value), NULL);
+        break;
     case PROP_ZOOM_TEXT_AND_IMAGES:
         web_settings->zoom_text_and_images = g_value_get_boolean (value);
         break;
@@ -1511,6 +1552,18 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, web_settings->open_popups_in_tabs);
         break;
 
+    case PROP_AUTO_LOAD_IMAGES:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::auto-load-images"));
+        break;
+    case PROP_ENABLE_SCRIPTS:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-scripts"));
+        break;
+    case PROP_ENABLE_PLUGINS:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-plugins"));
+        break;
     case PROP_ZOOM_TEXT_AND_IMAGES:
         g_value_set_boolean (value, web_settings->zoom_text_and_images);
         break;

@@ -388,8 +388,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FRAME_NEW (_("Features"));
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "auto-load-images", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Load images automatically"));
-    gtk_widget_set_tooltip_text (button, _("Load and display images automatically"));
     INDENTED_ADD (button);
     #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
@@ -408,12 +406,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "enable-scripts", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable scripts"));
-    gtk_widget_set_tooltip_text (button, _("Enable embedded scripting languages"));
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable Netscape plugins"));
-    gtk_widget_set_tooltip_text (button, _("Enable embedded Netscape plugin objects"));
     SPANNED_ADD (button);
     button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
