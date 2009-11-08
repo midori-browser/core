@@ -99,7 +99,7 @@ formhistory_build_js ()
                               suggestions,
                               jsforms);
     g_free (suggestions);
-   return script;
+    return script;
 }
 
 static void
@@ -175,7 +175,7 @@ formhistory_session_request_queued_cb (SoupSession*     session,
             db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
             formhistory_update_main_hash (keys, db);
             soup_buffer_free (buffer);
-            g_hash_table_destroy (keys);
+            /* FIXME: g_hash_table_destroy (keys); */
         }
     }
     g_free (method);
