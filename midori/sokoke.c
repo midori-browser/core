@@ -146,7 +146,6 @@ sokoke_spawn_program (const gchar* command,
                       const gchar* argument,
                       gboolean     quote)
 {
-    gchar* argument_escaped;
     GAppInfo* info;
     GFile* file;
     GList* files;
@@ -154,12 +153,11 @@ sokoke_spawn_program (const gchar* command,
 
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
-
-    argument_escaped = quote ? g_shell_quote (argument) : g_strdup (argument);
+    /* quote is ignored */
 
     info = g_app_info_create_from_commandline (command,
         NULL, G_APP_INFO_CREATE_NONE, NULL);
-    file = g_file_new_for_commandline_arg (argument_escaped);
+    file = g_file_new_for_commandline_arg (argument);
     files = g_list_append (NULL, file);
 
     error = NULL;
@@ -167,13 +165,11 @@ sokoke_spawn_program (const gchar* command,
     {
         error_dialog (_("Could not run external program."), error->message);
         g_error_free (error);
-        g_free (argument_escaped);
         g_object_unref (file);
         g_list_free (files);
         return FALSE;
     }
 
-    g_free (argument_escaped);
     g_object_unref (file);
     g_list_free (files);
     return TRUE;
