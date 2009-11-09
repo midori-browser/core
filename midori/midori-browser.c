@@ -4901,7 +4901,7 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
         else
         {
             if (katze_object_get_boolean (browser->settings, "show-menubar"))
-                gtk_widget_show (browser->navigationbar);
+                gtk_widget_show (browser->menubar);
             if (katze_object_get_boolean (browser->settings, "show-navigationbar"))
                 gtk_widget_show (browser->navigationbar);
         }
