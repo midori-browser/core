@@ -206,18 +206,20 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     gint custom_value = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (button),
                                          "katze-custom-value"));
+    const gchar* custom_property = g_object_get_data (G_OBJECT (button),
+                                                      "katze-custom-property");
+
     if (custom_value)
     {
         GtkWidget* child = gtk_bin_get_child (GTK_BIN (button));
+
         if (value == custom_value && GTK_IS_CELL_VIEW (child))
         {
             GtkWidget* entry = gtk_entry_new ();
-            const gchar* custom_property = g_object_get_data (G_OBJECT (button),
-                "katze-custom-property");
-            /* FIXME: Fill in the previous value for convenience
-            gint old_value = katze_object_get_integer (object, custom_property);
-            if (old_value && *old_value)
-                gtk_entry_set_text (GTK_ENTRY (entry), ""); */
+            gchar* custom_text = katze_object_get_string (object, custom_property);
+            if (custom_text && *custom_text)
+                gtk_entry_set_text (GTK_ENTRY (entry), custom_text);
+            g_free (custom_text);
             gtk_widget_show (entry);
             gtk_container_add (GTK_CONTAINER (button), entry);
             gtk_widget_grab_focus (entry);
@@ -234,7 +236,22 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
             gtk_combo_box_set_active (button, value);
         }
     }
+
     g_object_set (object, property, value, NULL);
+
+    if (custom_value)
+    {
+        #if GTK_CHECK_VERSION (2, 12, 0)
+        if (value == custom_value)
+            gtk_widget_set_tooltip_text (GTK_WIDGET (button), NULL);
+        else
+        {
+            gchar* custom_text = katze_object_get_string (object, custom_property);
+            gtk_widget_set_tooltip_text (GTK_WIDGET (button), custom_text);
+            g_free (custom_text);
+        }
+        #endif
+    }
 }
 #endif
 
@@ -677,6 +694,8 @@ katze_property_proxy (gpointer     object,
         #endif
         if (custom)
         {
+            gchar* custom_text = katze_object_get_string (object, custom);
+
             if (value == (gint)(enum_class->n_values - 1))
             {
                 GtkWidget* entry = gtk_entry_new ();
@@ -690,6 +709,13 @@ katze_property_proxy (gpointer     object,
                 g_object_set_data_full (G_OBJECT (entry), "property",
                                         g_strdup (custom), g_free);
             }
+            #if GTK_CHECK_VERSION (2, 12, 0)
+            else
+                gtk_widget_set_tooltip_text (widget, custom_text);
+            #endif
+
+            g_free (custom_text);
+
             g_object_set_data (G_OBJECT (widget), "katze-custom-value",
                                GINT_TO_POINTER (enum_class->n_values - 1));
             g_object_set_data (G_OBJECT (widget), "katze-custom-property",
@@ -701,7 +727,10 @@ katze_property_proxy (gpointer     object,
         widget = gtk_label_new (gettext (nick));
     g_free (string);
 
-    gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
+    #if GTK_CHECK_VERSION (2, 12, 0)
+    if (!gtk_widget_get_tooltip_text (widget))
+        gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
+    #endif
     gtk_widget_set_sensitive (widget, pspec->flags & G_PARAM_WRITABLE);
 
     g_object_set_data_full (G_OBJECT (widget), "property",
@@ -749,6 +778,7 @@ katze_property_label (gpointer     object,
 
     nick = g_param_spec_get_nick (pspec);
     widget = gtk_label_new (nick);
+    gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
     gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
 
     return widget;
