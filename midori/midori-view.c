@@ -2062,6 +2062,12 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
 {
     GtkWidget* new_view = gtk_widget_get_parent (web_view);
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
+
+    /* FIXME: Open windows opened by scripts in tabs if they otherwise
+        would be replacing the page the user opened. */
+    if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
+        return TRUE;
+
     if (view->open_new_pages_in == MIDORI_NEW_PAGE_TAB)
     {
         if (view->open_tabs_in_the_background)
@@ -2071,13 +2077,7 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
         where = MIDORI_NEW_VIEW_WINDOW;
 
     gtk_widget_show (new_view);
-    if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
-    {
-        g_debug ("Opening all pages in current tab not implemented");
-        g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
-    }
-    else
-        g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+    g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
 
     return TRUE;
 }
@@ -2087,14 +2087,21 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
                                     WebKitWebFrame* web_frame,
                                     MidoriView*     view)
 {
-    GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
-        "net", view->net,
-        "settings", view->settings,
-        NULL);
-    midori_view_construct_web_view (MIDORI_VIEW (new_view));
-    g_signal_connect (MIDORI_VIEW (new_view)->web_view, "web-view-ready",
-      G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
-    return MIDORI_VIEW (new_view)->web_view;
+    MidoriView* new_view;
+
+    if (view->open_new_pages_in == MIDORI_NEW_PAGE_CURRENT)
+        new_view = view;
+    else
+    {
+        new_view = g_object_new (MIDORI_TYPE_VIEW,
+            "net", view->net,
+            "settings", view->settings,
+            NULL);
+        midori_view_construct_web_view (new_view);
+        g_signal_connect (new_view->web_view, "web-view-ready",
+                          G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
+    }
+    return new_view->web_view;
 }
 
 static gboolean

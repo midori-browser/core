@@ -1221,7 +1221,7 @@ midori_view_new_view_cb (GtkWidget*     view,
         midori_browser_add_tab (new_browser, new_view);
         midori_browser_set_current_tab (new_browser, new_view);
     }
-    else
+    else if (gtk_widget_get_parent (new_view) != browser->notebook)
     {
         gint n = midori_browser_add_tab (browser, new_view);
         if (where != MIDORI_NEW_VIEW_BACKGROUND)
