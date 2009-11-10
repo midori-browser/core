@@ -2931,11 +2931,11 @@ _action_window_populate_popup (GtkAction*     action,
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_action_create_menu_item (
-        _action_by_name (browser, "TabPrevious"));
+        _action_by_name (browser, "TabNext"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_action_create_menu_item (
-        _action_by_name (browser, "TabNext"));
+        _action_by_name (browser, "TabPrevious"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
 }
