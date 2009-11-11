@@ -1607,8 +1607,10 @@ main (int    argc,
     {
        { "app", 'a', 0, G_OPTION_ARG_STRING, &webapp,
        N_("Run ADDRESS as a web application"), N_("ADDRESS") },
+       #if !HAVE_HILDON
        { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
+       #endif
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
        #if WEBKIT_CHECK_VERSION (1, 1, 6)
