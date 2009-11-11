@@ -137,6 +137,9 @@ def configure (conf):
 
         Utils.pprint ('BLUE', 'Mingw recognized, assuming cross compile.')
 
+    if Options.platform != 'win32':
+        conf.check_cc (lib='X11', uselib='X11')
+
     if conf.env['CONVERT'] and not conf.env['WINRC']:
         Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
 
