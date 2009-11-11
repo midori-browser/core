@@ -3084,8 +3084,8 @@ _action_menubar_activate (GtkToggleAction* action,
     gboolean active = gtk_toggle_action_get_active (action);
     if (browser->settings)
         g_object_set (browser->settings, "show-menubar", active, NULL);
-    #if !HAVE_HILDON
     sokoke_widget_set_visible (browser->menubar, active);
+    #if !HAVE_HILDON
     if (browser->settings)
     {
         if (active)
