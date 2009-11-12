@@ -8,12 +8,13 @@
  version 2.1 of the License, or (at your option) any later version.
 */
 
-#define MAXCHARS 20
+#define MAXCHARS 60
 #define MINCHARS 2
 
 #include <midori/midori.h>
 
 #include "config.h"
+#include "midori/sokoke.h"
 
 #include <glib/gstdio.h>
 #if HAVE_UNISTD_H
@@ -78,6 +79,22 @@ formhistory_prepare_js ()
 }
 
 static gchar*
+formhistory_fixup_value (char* value)
+{
+    guint i = 0;
+    g_strchomp (value);
+    while (value[i])
+    {
+        if (value[i] == '\n')
+            value[i] = ' ';
+        else if (value[i] == '"')
+            value[i] = '\'';
+        i++;
+    }
+    return value;
+}
+
+static gchar*
 formhistory_build_js ()
 {
     gchar* suggestions = g_strdup ("");
@@ -128,73 +145,98 @@ formhistory_update_database (gpointer     db,
 }
 
 static void
-formhistory_update_main_hash (GHashTable* keys,
-                              gpointer    db)
+formhistory_update_main_hash (gchar* key,
+                              gchar* value)
 {
-    GHashTableIter iter;
-    gchar* key;
-    gchar* value;
+    guint length;
+    gchar* tmp;
 
-    g_hash_table_iter_init (&iter, keys);
-    while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
+    if (!(value && *value))
+        return;
+    length = strlen (value);
+    if (length > MAXCHARS || length < MINCHARS)
+        return;
+
+    if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
     {
-        guint length;
-        gchar* tmp;
-
-        if (!(value && *value))
-            continue;
-        length = strlen (value);
-        if (length > MAXCHARS || length < MINCHARS)
-            continue;
-
-        if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
+        gchar* rvalue = g_strdup_printf ("\"%s\"",value);
+        if (!g_regex_match_simple (rvalue, tmp,
+                                   G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
         {
-            gchar* rvalue = g_strdup_printf ("\"%s\"",value);
-            if (!g_regex_match_simple (rvalue, tmp,
-                                       G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+            gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
+            formhistory_fixup_value (new_value);
+            g_hash_table_insert (global_keys, g_strdup (key), new_value);
+        }
+        g_free (rvalue);
+    }
+    else
+    {
+        gchar* new_value = g_strdup_printf ("\"%s\",",value);
+        formhistory_fixup_value (new_value);
+        g_hash_table_replace (global_keys, g_strdup (key), new_value);
+    }
+}
+
+#if WEBKIT_CHECK_VERSION (1, 1, 4)
+static gboolean
+formhistory_navigation_decision_cb (WebKitWebView*             web_view,
+                                    WebKitWebFrame*            web_frame,
+                                    WebKitNetworkRequest*      request,
+                                    WebKitWebNavigationAction* action,
+                                    WebKitWebPolicyDecision*   decision,
+                                    MidoriExtension*           extension)
+{
+    gchar* exception;
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+    /* The script returns form data in the form "field_name|,|value|,|field_type".
+       We are handling only input fields with 'text' or 'password' type.
+       The field separator is "|||" */
+    const gchar* script = "function dumpForm (inputs) {"
+                 "  var out = '';"
+                 "  for (i=0;i<inputs.length;i++) {"
+                 "    if (inputs[i].value && (inputs[i].type == 'text' || inputs[i].type == 'password')) {"
+                 "        var ename = inputs[i].getAttribute('name');"
+                 "        var eid = inputs[i].getAttribute('id');"
+                 "        if (!ename && eid)"
+                 "            ename=eid;"
+                 "        out += ename+'|,|'+inputs[i].value +'|,|'+inputs[i].type +'|||';"
+                 "    }"
+                 "  }"
+                 "  return out;"
+                 "}"
+                 "dumpForm (document.getElementsByTagName('input'))";
+
+    if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED
+     || webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_RESUBMITTED)
+    {
+        gchar* value = sokoke_js_script_eval (js_context, script, &exception);
+        if (value)
+        {
+            gpointer db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
+            gchar** inputs = g_strsplit (value, "|||", 0);
+            guint i = 0;
+            while (inputs[i] != NULL)
             {
-                gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
-                g_hash_table_insert (global_keys, g_strdup (key), new_value);
-                formhistory_update_database (db, key, value);
+                gchar** parts = g_strsplit (inputs[i], "|,|", 3);
+                if (parts && parts[0] && parts[1] && parts[2])
+                {
+                    /* FIXME: We need to handle passwords */
+                    if (strcmp (parts[2], "password"))
+                    {
+                        formhistory_update_main_hash (parts[0], parts[1]);
+                        formhistory_update_database (db, parts[0], parts[1]);
+                    }
+                }
+                g_strfreev (parts);
+                i++;
             }
-            g_free (rvalue);
-        }
-        else
-        {
-            gchar* new_value = g_strdup_printf ("\"%s\",",value);
-            g_hash_table_replace (global_keys, g_strdup (key), new_value);
-            formhistory_update_database (db, key, value);
+            g_strfreev (inputs);
+            g_free (value);
         }
     }
+    return FALSE;
 }
-
-static void
-formhistory_session_request_queued_cb (SoupSession*     session,
-                                       SoupMessage*     msg,
-                                       MidoriExtension* extension)
-{
-    gchar* method = katze_object_get_string (msg, "method");
-    if (method && !strncmp (method, "POST", 4))
-    {
-        SoupMessageBody* body = msg->request_body;
-        if (soup_message_body_get_accumulate (body))
-        {
-            SoupBuffer* buffer;
-            GHashTable* keys;
-            gpointer db;
-
-            buffer = soup_message_body_flatten (body);
-            keys = soup_form_decode (body->data);
-
-            db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
-            formhistory_update_main_hash (keys, db);
-            soup_buffer_free (buffer);
-            g_hash_table_destroy (keys);
-        }
-    }
-    g_free (method);
-}
-
+#endif
 
 static void
 formhistory_window_object_cleared_cb (GtkWidget*      web_view,
@@ -212,11 +254,12 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
                         MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    SoupSession *session = webkit_get_default_session ();
     g_signal_connect (web_view, "window-object-cleared",
             G_CALLBACK (formhistory_window_object_cleared_cb), NULL);
-    g_signal_connect (session, "request-queued",
-       G_CALLBACK (formhistory_session_request_queued_cb), extension);
+    #if WEBKIT_CHECK_VERSION (1, 1, 4)
+    g_signal_connect (web_view, "navigation-policy-decision-requested",
+        G_CALLBACK (formhistory_navigation_decision_cb), extension);
+    #endif
 }
 
 static void
@@ -250,13 +293,14 @@ formhistory_deactivate_tabs (MidoriView*      view,
                              MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    SoupSession *session = webkit_get_default_session ();
     g_signal_handlers_disconnect_by_func (
        browser, formhistory_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_window_object_cleared_cb, NULL);
+    #if WEBKIT_CHECK_VERSION (1, 1, 4)
     g_signal_handlers_disconnect_by_func (
-       session, formhistory_session_request_queued_cb, extension);
+       web_view, formhistory_navigation_decision_cb, extension);
+    #endif
 }
 
 static void
@@ -307,8 +351,7 @@ formhistory_add_field (gpointer  data,
              && colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "value"))
             {
                 gchar* key = argv[i + 1];
-                gchar* new_value = g_strdup_printf ("\"%s\",", argv[i + 2]);
-                g_hash_table_replace (global_keys, g_strdup (key), new_value);
+                formhistory_update_main_hash (g_strdup (key), g_strdup (argv[i + 2]));
             }
         }
     }
