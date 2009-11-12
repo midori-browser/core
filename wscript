@@ -137,9 +137,6 @@ def configure (conf):
 
         Utils.pprint ('BLUE', 'Mingw recognized, assuming cross compile.')
 
-    if Options.platform != 'win32':
-        conf.check_cc (lib='X11', uselib='X11')
-
     if conf.env['CONVERT'] and not conf.env['WINRC']:
         Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
 
@@ -200,6 +197,8 @@ def configure (conf):
     args = ''
     if Options.platform == 'win32':
         args = '--define-variable=target=win32'
+    elif sys.platform != 'darwin':
+        check_pkg ('x11')
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
     check_pkg ('webkit-1.0', '1.1.1', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')
