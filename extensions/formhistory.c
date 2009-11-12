@@ -248,33 +248,8 @@ formhistory_feed_keys (GHashTable* keys,
     g_hash_table_iter_init (&iter, keys);
     while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
     {
-        guint length;
-        gchar* tmp;
-
-        if (!(value && *value))
-            continue;
-        length = strlen (value);
-        if (length > MAXCHARS || length < MINCHARS)
-            continue;
-
-        if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
-        {
-            gchar* rvalue = g_strdup_printf ("\"%s\"",value);
-            if (!g_regex_match_simple (rvalue, tmp,
-                                       G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
-            {
-                gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
-                g_hash_table_insert (global_keys, g_strdup (key), new_value);
-                formhistory_update_database (db, key, value);
-            }
-            g_free (rvalue);
-        }
-        else
-        {
-            gchar* new_value = g_strdup_printf ("\"%s\",",value);
-            g_hash_table_replace (global_keys, g_strdup (key), new_value);
-            formhistory_update_database (db, key, value);
-        }
+        formhistory_update_main_hash (key, value);
+        formhistory_update_database (db, key, value);
     }
 }
 
@@ -371,6 +346,9 @@ formhistory_deactivate_tabs (MidoriView*      view,
     #if WEBKIT_CHECK_VERSION (1, 1, 4)
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_navigation_decision_cb, extension);
+    #else
+    g_signal_handlers_disconnect_by_func (
+       webkit_get_default_session (), formhistory_session_request_queued_cb, extension);
     #endif
 }
 
