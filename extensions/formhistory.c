@@ -236,6 +236,74 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
     }
     return FALSE;
 }
+#else
+static void
+formhistory_feed_keys (GHashTable* keys,
+                       gpointer    db)
+{
+    GHashTableIter iter;
+    gchar* key;
+    gchar* value;
+
+    g_hash_table_iter_init (&iter, keys);
+    while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
+    {
+        guint length;
+        gchar* tmp;
+
+        if (!(value && *value))
+            continue;
+        length = strlen (value);
+        if (length > MAXCHARS || length < MINCHARS)
+            continue;
+
+        if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
+        {
+            gchar* rvalue = g_strdup_printf ("\"%s\"",value);
+            if (!g_regex_match_simple (rvalue, tmp,
+                                       G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+            {
+                gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
+                g_hash_table_insert (global_keys, g_strdup (key), new_value);
+                formhistory_update_database (db, key, value);
+            }
+            g_free (rvalue);
+        }
+        else
+        {
+            gchar* new_value = g_strdup_printf ("\"%s\",",value);
+            g_hash_table_replace (global_keys, g_strdup (key), new_value);
+            formhistory_update_database (db, key, value);
+        }
+    }
+}
+
+static void
+formhistory_session_request_queued_cb (SoupSession*     session,
+                                       SoupMessage*     msg,
+                                       MidoriExtension* extension)
+{
+    gchar* method = katze_object_get_string (msg, "method");
+    if (method && !strncmp (method, "POST", 4))
+    {
+        SoupMessageBody* body = msg->request_body;
+        if (soup_message_body_get_accumulate (body))
+        {
+            SoupBuffer* buffer;
+            GHashTable* keys;
+            gpointer db;
+
+            buffer = soup_message_body_flatten (body);
+            keys = soup_form_decode (body->data);
+
+            db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
+            formhistory_feed_keys (keys, db);
+            soup_buffer_free (buffer);
+            g_hash_table_destroy (keys);
+        }
+    }
+    g_free (method);
+}
 #endif
 
 static void
@@ -259,6 +327,9 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
     #if WEBKIT_CHECK_VERSION (1, 1, 4)
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (formhistory_navigation_decision_cb), extension);
+    #else
+    g_signal_connect (webkit_get_default_session (), "request-queued",
+        G_CALLBACK (formhistory_session_request_queued_cb), extension);
     #endif
 }
 
