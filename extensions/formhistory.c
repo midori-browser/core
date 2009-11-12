@@ -144,7 +144,7 @@ formhistory_update_database (gpointer     db,
     #endif
 }
 
-static void
+static gboolean
 formhistory_update_main_hash (gchar* key,
                               gchar* value)
 {
@@ -152,11 +152,12 @@ formhistory_update_main_hash (gchar* key,
     gchar* tmp;
 
     if (!(value && *value))
-        return;
+        return FALSE;
     length = strlen (value);
     if (length > MAXCHARS || length < MINCHARS)
-        return;
+        return FALSE;
 
+    formhistory_fixup_value (value);
     if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
     {
         gchar* rvalue = g_strdup_printf ("\"%s\"",value);
@@ -164,17 +165,21 @@ formhistory_update_main_hash (gchar* key,
                                    G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
         {
             gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
-            formhistory_fixup_value (new_value);
             g_hash_table_insert (global_keys, g_strdup (key), new_value);
+            g_free (rvalue);
         }
-        g_free (rvalue);
+        else
+        {
+            g_free (rvalue);
+            return FALSE;
+        }
     }
     else
     {
         gchar* new_value = g_strdup_printf ("\"%s\",",value);
-        formhistory_fixup_value (new_value);
         g_hash_table_replace (global_keys, g_strdup (key), new_value);
     }
+    return TRUE;
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 4)
@@ -223,8 +228,8 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                     /* FIXME: We need to handle passwords */
                     if (strcmp (parts[2], "password"))
                     {
-                        formhistory_update_main_hash (parts[0], parts[1]);
-                        formhistory_update_database (db, parts[0], parts[1]);
+                        if (formhistory_update_main_hash (parts[0], parts[1]))
+                            formhistory_update_database (db, parts[0], parts[1]);
                     }
                 }
                 g_strfreev (parts);
@@ -248,8 +253,8 @@ formhistory_feed_keys (GHashTable* keys,
     g_hash_table_iter_init (&iter, keys);
     while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
     {
-        formhistory_update_main_hash (key, value);
-        formhistory_update_database (db, key, value);
+        if (formhistory_update_main_hash (key, value))
+            formhistory_update_database (db, key, value);
     }
 }
 
