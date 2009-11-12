@@ -191,7 +191,6 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebPolicyDecision*   decision,
                                     MidoriExtension*           extension)
 {
-    gchar* exception;
     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     /* The script returns form data in the form "field_name|,|value|,|field_type".
        We are handling only input fields with 'text' or 'password' type.
@@ -214,7 +213,7 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
     if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED
      || webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_RESUBMITTED)
     {
-        gchar* value = sokoke_js_script_eval (js_context, script, &exception);
+        gchar* value = sokoke_js_script_eval (js_context, script, NULL);
         if (value)
         {
             gpointer db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
