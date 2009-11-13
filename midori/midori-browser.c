@@ -3083,11 +3083,8 @@ _action_menubar_activate (GtkToggleAction* action,
 {
     gboolean active = gtk_toggle_action_get_active (action);
     if (browser->settings)
-        g_object_set (browser->settings, "show-menubar", active, NULL);
-    sokoke_widget_set_visible (browser->menubar, active);
-    #if !HAVE_HILDON
-    if (browser->settings)
     {
+        #if !HAVE_HILDON
         if (active)
         {
             GtkContainer* navigationbar = GTK_CONTAINER (browser->navigationbar);
@@ -3118,13 +3115,16 @@ _action_menubar_activate (GtkToggleAction* action,
                 browser);
             _midori_browser_save_toolbar_items (browser);
         }
+        #endif
+        g_object_set (browser->settings, "show-menubar", active, NULL);
     }
+    /* Make sure the menubar is uptodate in case no settings are set */
+    sokoke_widget_set_visible (browser->menubar, active);
 
     g_object_set_data (G_OBJECT (browser), "midori-toolbars-visible",
         GTK_WIDGET_VISIBLE (browser->menubar)
         || GTK_WIDGET_VISIBLE (browser->navigationbar)
         ? (void*)0xdeadbeef : NULL);
-    #endif
 }
 
 static void
@@ -6114,6 +6114,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     }
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser);
+    else if (name == g_intern_string ("show-menubar"))
+        sokoke_widget_set_visible (browser->menubar, g_value_get_boolean (&value));
     else if (name == g_intern_string ("show-navigationbar"))
         browser->show_navigationbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("show-statusbar"))
