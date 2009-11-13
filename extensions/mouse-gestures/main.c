@@ -222,14 +222,20 @@ static void mouse_gestures_activate (MidoriExtension *extension, MidoriApp *app)
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i;
+    GtkWidget* tab;
+    guint i, j;
 
     gesture = mouse_gesture_new ();
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
     while ((browser = katze_array_get_nth_item (browsers, i++)))
+    {
+        j = 0;
+        while ((tab = midori_browser_get_nth_tab (browser, j++)))
+            mouse_gestures_tab_cb (browser, tab);
         mouse_gestures_browser_cb (app, browser);
+    }
     g_object_unref (browsers);
 
     g_signal_connect (app, "add-browser",
