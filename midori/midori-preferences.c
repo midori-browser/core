@@ -155,9 +155,17 @@ midori_preferences_new (GtkWindow*         parent,
     return GTK_WIDGET (preferences);
 }
 
+#if GTK_CHECK_VERSION (2, 16, 0)
+static void
+midori_preferences_homepage_icon_press_cb (GtkWidget*           button,
+                                           GtkEntryIconPosition position,
+                                           GdkEvent*            event,
+                                           MidoriWebSettings*   settings)
+#else
 static void
 midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
                                                 MidoriWebSettings* settings)
+#endif
 {
     GtkWidget* preferences = gtk_widget_get_toplevel (button);
     GtkWidget* browser = katze_object_get_object (preferences, "transient-for");
@@ -326,6 +334,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
     if (parent && katze_object_has_property (parent, "uri"))
     {
+        #if GTK_CHECK_VERSION (2, 16, 0)
+        gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
+            GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_JUMP_TO);
+        gtk_entry_set_icon_tooltip_text (GTK_ENTRY (entry),
+            GTK_ENTRY_ICON_SECONDARY, _("Use current page as homepage"));
+        g_signal_connect (entry, "icon-press",
+            G_CALLBACK (midori_preferences_homepage_icon_press_cb), settings);
+        #else
         button = gtk_button_new ();
         label = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO, GTK_ICON_SIZE_BUTTON);
         gtk_button_set_image (GTK_BUTTON (button), label);
@@ -333,6 +349,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         g_signal_connect (button, "clicked",
             G_CALLBACK (midori_preferences_homepage_current_clicked_cb), settings);
         SPANNED_ADD (button);
+        #endif
     }
     button = katze_property_proxy (settings, "show-crash-dialog", NULL);
     INDENTED_ADD (button);
