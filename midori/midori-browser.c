@@ -226,7 +226,7 @@ _toggle_tabbar_smartly (MidoriBrowser* browser)
         return;
 
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    if (n < 2 && browser->settings)
+    if (n < 2)
     {
         g_object_get (browser->settings, "always-show-tabbar",
             &always_show_tabbar, NULL);
@@ -1275,8 +1275,7 @@ midori_browser_download_notify_status_cb (WebKitDownload* download,
                 g_object_set_data (G_OBJECT (gtk_widget_get_parent (button)),
                                    "done", (void*)1);
 
-            if (browser->settings && katze_object_get_boolean (
-                browser->settings, "notify-transfer-completed"))
+            if (katze_object_get_boolean (browser->settings, "notify-transfer-completed"))
             {
                 const gchar* uri = webkit_download_get_destination_uri (download);
                 gchar* path = soup_uri_decode (uri);
@@ -1630,7 +1629,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       NULL);
 
     if (!g_object_get_data (G_OBJECT (view), "midori-view-append") &&
-        browser->settings &&
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
         n = gtk_notebook_get_current_page (notebook);
@@ -3060,13 +3058,12 @@ _action_preferences_activate (GtkAction*     action,
 {
     static GtkWidget* dialog = NULL;
 
-    if (!browser->settings || !GTK_WIDGET_VISIBLE (browser))
+    if (!GTK_WIDGET_VISIBLE (browser))
         return;
 
     if (!dialog)
     {
-        dialog = midori_preferences_new (GTK_WINDOW (browser),
-                                         browser->settings);
+        dialog = midori_preferences_new (GTK_WINDOW (browser), browser->settings);
         g_signal_connect (dialog, "response",
             G_CALLBACK (midori_preferences_response_help_cb), browser);
         g_signal_connect (dialog, "destroy",
@@ -3473,16 +3470,13 @@ static void
 _action_homepage_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
+    gchar* homepage;
+
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
         return;
     }
-
-    gchar* homepage;
-
-    if (!browser->settings)
-        return;
 
     g_object_get (browser->settings, "homepage", &homepage, NULL);
     midori_browser_set_current_uri (browser, homepage);
@@ -3624,9 +3618,6 @@ _action_search_submit (GtkAction*     action,
     KatzeItem* item;
     const gchar* url;
     gchar* search;
-
-    if (!browser->settings)
-        return;
 
     g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
     item = katze_array_get_nth_item (browser->search_engines, last_web_search);
@@ -3914,9 +3905,6 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
     gchar* homepage;
 
     g_return_val_if_fail (action != NULL, FALSE);
-
-    if (!browser->settings)
-        return FALSE;
 
     g_object_get (browser->settings, "homepage", &homepage, NULL);
 
@@ -4411,7 +4399,7 @@ midori_panel_notify_page_cb (MidoriPanel*   panel,
                              MidoriBrowser* browser)
 {
     gint page = katze_object_get_boolean (panel, "page");
-    if (browser->settings && page > -1)
+    if (page > -1)
         g_object_set (browser->settings, "last-panel-page", page, NULL);
 }
 
@@ -4452,8 +4440,7 @@ midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
     gint paned_position = gtk_paned_get_position (GTK_PANED (hpaned));
     gint paned_size = hpaned->allocation.width;
 
-    g_object_set (browser->settings, "right-align-sidepanel",
-                  right_aligned, NULL);
+    g_object_set (browser->settings, "right-align-sidepanel", right_aligned, NULL);
 
     g_object_ref (browser->panel);
     g_object_ref (vpaned);
