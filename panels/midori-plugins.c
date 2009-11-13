@@ -255,8 +255,7 @@ midori_plugins_init (MidoriPlugins* plugins)
            FIXME: Ensure separators contained in the string can't break it */
         gchar* value = sokoke_js_script_eval (js_context,
             "function plugins (l) { var f = new Array (); for (i in l) "
-            "{ var t = l[i].name; "
-            "f.push (l[i].name + '|' + l[i].filename); } return f; }"
+            "{ f.push (l[i].name + '|' + l[i].filename); } return f; }"
             "plugins (navigator.plugins)", NULL);
         gchar** items = g_strsplit (value, ",", 0);
         guint i = 0;
