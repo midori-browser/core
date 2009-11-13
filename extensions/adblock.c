@@ -539,6 +539,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         return;
     if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, (char*)uri))
     {
+        #if 0
         gchar* text;
 
         if (gtk_widget_get_has_tooltip (image))
@@ -547,6 +548,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
            text = g_strdup_printf ("Blocked content: \n%s", uri);
         gtk_widget_set_tooltip_text (image, text);
         g_free (text);
+        #endif
 
         webkit_network_request_set_uri (request, "about:blank");
     }
@@ -614,9 +616,13 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* image;
 
     statusbar = katze_object_get_object (browser, "statusbar");
+    #if 0
     image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
     gtk_widget_show (image);
     gtk_box_pack_start (GTK_BOX (statusbar), image, FALSE, FALSE, 3);
+    #else
+    image = NULL;
+    #endif
 
     midori_browser_foreach (browser,
           (GtkCallback)adblock_add_tab_foreach_cb, image);
