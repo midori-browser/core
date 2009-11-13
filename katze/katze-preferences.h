@@ -65,14 +65,6 @@ katze_preferences_add_widget             (KatzePreferences* preferences,
                                           GtkWidget*        widget,
                                           const gchar*      type);
 
-void
-katze_preferences_add_option             (KatzePreferences* preferences,
-                                          gpointer          object,
-                                          const gchar*      property,
-                                          const gchar*      label,
-                                          GtkWidget*        widget,
-                                          const gchar*      type);
-
 G_END_DECLS
 
 #endif /* __KATZE_PREFERENCES_H__ */
