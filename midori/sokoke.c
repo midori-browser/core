@@ -40,6 +40,10 @@
     #include <idna.h>
 #endif
 
+#ifdef HAVE_HILDON_FM
+    #include <hildon/hildon-file-chooser-dialog.h>
+#endif
+
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
@@ -1294,4 +1298,38 @@ sokoke_window_activate_key (GtkWindow*   window,
             return TRUE;
 
     return FALSE;
+}
+
+/**
+ * sokoke_file_chooser_dialog_new:
+ * @title: a window title, or %NULL
+ * @window: a parent #GtkWindow, or %NULL
+ * @action: a #GtkFileChooserAction
+ *
+ * Creates a new file chooser dialog, as appropriate for
+ * the platform, with buttons according to the @action.
+ *
+ * The positive response is %GTK_RESPONSE_OK.
+ *
+ * Return value: a new #GtkFileChooser
+ **/
+GtkWidget*
+sokoke_file_chooser_dialog_new (const gchar*         title,
+                                GtkWindow*           window,
+                                GtkFileChooserAction action)
+{
+    const gchar* stock_id = GTK_STOCK_OPEN;
+    GtkWidget* dialog;
+
+    if (action == GTK_FILE_CHOOSER_ACTION_SAVE)
+        stock_id = GTK_STOCK_SAVE;
+    #ifdef HAVE_HILDON_FM
+    dialog = hildon_file_chooser_dialog_new (window, action);
+    #else
+    dialog = gtk_file_chooser_dialog_new (title, window, action,
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        stock_id, GTK_RESPONSE_OK, NULL);
+    gtk_window_set_icon_name (GTK_WINDOW (dialog), stock_id);
+    #endif
+    return dialog;
 }

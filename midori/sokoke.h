@@ -176,4 +176,9 @@ gboolean
 sokoke_window_activate_key              (GtkWindow*      window,
                                          GdkEventKey*    event);
 
+GtkWidget*
+sokoke_file_chooser_dialog_new          (const gchar*         title,
+                                         GtkWindow*           window,
+                                         GtkFileChooserAction action);
+
 #endif /* !__SOKOKE_H__ */

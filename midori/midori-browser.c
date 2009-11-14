@@ -872,14 +872,8 @@ midori_browser_save_uri (MidoriBrowser* browser,
     if (!GTK_WIDGET_VISIBLE (browser))
         return;
 
-    dialog = gtk_file_chooser_dialog_new (
-        _("Save file as"), GTK_WINDOW (browser),
-        GTK_FILE_CHOOSER_ACTION_SAVE,
-        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-        GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-        NULL);
-    gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_SAVE);
-    gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
+    dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
+        GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
 
     if (uri)
     {
@@ -915,7 +909,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     if (!folder_set && last_dir && *last_dir)
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
 
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
         #if WEBKIT_CHECK_VERSION (1, 1, 3)
         WebKitNetworkRequest* request;
@@ -1425,14 +1419,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
 
             if (!dialog)
             {
-                dialog = gtk_file_chooser_dialog_new (
-                    _("Save file"), GTK_WINDOW (browser),
-                    GTK_FILE_CHOOSER_ACTION_SAVE,
-                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-                    NULL);
-                gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_SAVE);
-                gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
+                dialog = sokoke_file_chooser_dialog_new (_("Save file"),
+                    GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
                 gtk_window_set_destroy_with_parent (GTK_WINDOW (dialog), TRUE);
                 folder = katze_object_get_string (browser->settings, "download-folder");
                 gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder);
@@ -2128,21 +2116,16 @@ _action_open_activate (GtkAction*     action,
     gchar* uri = NULL;
     gboolean folder_set = FALSE;
     GtkWidget* dialog;
+    GtkWidget* view;
 
     if (!GTK_WIDGET_VISIBLE (browser))
         return;
 
-    dialog = gtk_file_chooser_dialog_new (
-        _("Open file"), GTK_WINDOW (browser),
-        GTK_FILE_CHOOSER_ACTION_OPEN,
-        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-        NULL);
-     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_OPEN);
-     gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (browser));
+    dialog = sokoke_file_chooser_dialog_new (_("Open file"),
+        GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
 
      /* base the start folder on the current view's uri if it is local */
-     GtkWidget* view = midori_browser_get_current_tab (browser);
+     view = midori_browser_get_current_tab (browser);
      if ((uri = (gchar*)midori_view_get_display_uri (MIDORI_VIEW (view))))
      {
          gchar* filename = g_filename_from_uri (uri, NULL, NULL);
@@ -2163,7 +2146,7 @@ _action_open_activate (GtkAction*     action,
      if (!folder_set && last_dir && *last_dir)
          gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
 
-     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
      {
          gchar* folder;
 
