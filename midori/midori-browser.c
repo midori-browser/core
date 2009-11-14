@@ -245,7 +245,6 @@ _midori_browser_update_actions (MidoriBrowser* browser)
 
     _toggle_tabbar_smartly (browser);
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    _action_set_sensitive (browser, "TabClose", n > 1);
     _action_set_sensitive (browser, "TabPrevious", n > 1);
     _action_set_sensitive (browser, "TabNext", n > 1);
 
