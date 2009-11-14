@@ -542,7 +542,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     label = gtk_label_new (_("days"));
     SPANNED_ADD (label);
     FRAME_NEW (_("History"));
-    button = katze_property_proxy (settings, "remember-last-visited-pages", NULL);
+    button = katze_property_label (settings, "maximum-history-age");
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "maximum-history-age", NULL);
     SPANNED_ADD (button);

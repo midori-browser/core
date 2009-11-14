@@ -919,6 +919,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
 
 
 
+    /**
+    * MidoriWebSettings:remember-last-visited-pages:
+    *
+    * Whether the last visited pages are saved.
+    *
+    * Deprecated: 0.2.2
+    */
     g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_VISITED_PAGES,
                                      g_param_spec_boolean (

@@ -92,7 +92,7 @@ struct _MidoriBrowser
     gboolean show_statusbar;
     gboolean speed_dial_in_new_tabs;
     gboolean progress_in_location;
-    gboolean remember_last_visited_pages;
+    guint maximum_history_age;
     gchar* location_entry_search;
     gchar* news_aggregator;
 };
@@ -475,7 +475,7 @@ midori_view_notify_icon_cb (MidoriView*    view,
 
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     action = _action_by_name (browser, "Location");
-    if (browser->remember_last_visited_pages)
+    if (browser->maximum_history_age)
         midori_location_action_set_icon_for_uri (
         MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
 }
@@ -494,7 +494,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
 
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
-        if (browser->remember_last_visited_pages)
+        if (browser->maximum_history_age)
             midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
     }
 
@@ -566,7 +566,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
     uri = midori_view_get_display_uri (view);
     title = midori_view_get_display_title (view);
     action = _action_by_name (browser, "Location");
-    if (browser->remember_last_visited_pages)
+    if (browser->maximum_history_age)
         midori_location_action_set_title_for_uri (
         MIDORI_LOCATION_ACTION (action), title, uri);
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
@@ -574,7 +574,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
         KatzeItem* item;
         KatzeItem* proxy;
 
-        if (browser->history && browser->remember_last_visited_pages)
+        if (browser->history && browser->maximum_history_age)
         {
             item = g_object_get_data (G_OBJECT (view), "history-item-added");
             proxy = midori_view_get_proxy_item (view);
@@ -5942,7 +5942,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "location-entry-search", &browser->location_entry_search,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   "progress-in-location", &browser->progress_in_location,
-                  "remember-last-visited-pages", &browser->remember_last_visited_pages,
+                  "maximum-history-age", &browser->maximum_history_age,
                   "news-aggregator", &browser->news_aggregator,
                   NULL);
 
@@ -6089,8 +6089,8 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     {
         katze_assign (browser->location_entry_search, g_value_dup_string (&value));
     }
-    else if (name == g_intern_string ("remember-last-visited-pages"))
-        browser->remember_last_visited_pages = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("maximum-history-age"))
+        browser->maximum_history_age = g_value_get_boolean (&value);
     else if (name == g_intern_string ("news-aggregator"))
     {
         katze_assign (browser->news_aggregator, g_value_dup_string (&value));
