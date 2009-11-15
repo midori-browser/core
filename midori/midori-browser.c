@@ -17,6 +17,7 @@
 
 #include "midori-browser.h"
 
+#include "midori-array.h"
 #include "midori-view.h"
 #include "midori-preferences.h"
 #include "midori-panel.h"
@@ -2793,6 +2794,10 @@ _action_bookmarks_populate_popup (GtkAction*     action,
         gtk_widget_show (menuitem);
     }
     menuitem = gtk_action_create_menu_item (
+        _action_by_name (browser, "BookmarksImport"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "BookmarkFolderAdd"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -4017,6 +4022,131 @@ _action_bookmark_folder_add_activate (GtkAction*     action,
 }
 
 static void
+_action_bookmarks_import_activate (GtkAction*     action,
+                                   MidoriBrowser* browser)
+{
+    typedef struct
+    {
+        const gchar* path;
+        const gchar* name;
+    } BookmarkClient;
+    static const BookmarkClient bookmark_clients[] = {
+        { ".local/share/data/Arora/bookmarks.xbel", N_("Arora") },
+    };
+
+    GtkWidget* dialog;
+    GtkSizeGroup* sizegroup;
+    GtkWidget* hbox;
+    GtkWidget* label;
+    GtkWidget* combo;
+    GtkComboBox* combobox;
+    guint i;
+    KatzeItem* item;
+
+    dialog = gtk_dialog_new_with_buttons (
+        _("Import bookmarks..."), GTK_WINDOW (browser),
+        GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        _("_Import bookmarks"), GTK_RESPONSE_ACCEPT,
+        NULL);
+    gtk_window_set_icon_name (GTK_WINDOW (dialog), STOCK_BOOKMARKS);
+
+    gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+    sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+
+    /* FIXME: Use application icons */
+    /* TODO: Custom item, to choose a file manually */
+    hbox = gtk_hbox_new (FALSE, 8);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
+    label = gtk_label_new_with_mnemonic (_("_Application:"));
+    gtk_size_group_add_widget (sizegroup, label);
+    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+    combo = gtk_combo_box_new_text ();
+    combobox = GTK_COMBO_BOX (combo);
+    for (i = 0; i < G_N_ELEMENTS (bookmark_clients); i++)
+    {
+        gchar* path = g_build_filename (g_get_home_dir (),
+                                        bookmark_clients[i].path, NULL);
+        if (g_file_test (path, G_FILE_TEST_EXISTS))
+            gtk_combo_box_append_text (combobox, bookmark_clients[i].name);
+        g_free (path);
+    }
+    gtk_combo_box_set_active (combobox, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_widget_show_all (hbox);
+
+    hbox = gtk_hbox_new (FALSE, 8);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
+    label = gtk_label_new_with_mnemonic (_("_Folder:"));
+    gtk_size_group_add_widget (sizegroup, label);
+    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+    combo = gtk_combo_box_new_text ();
+    combobox = GTK_COMBO_BOX (combo);
+    gtk_combo_box_append_text (combobox, _("Toplevel folder"));
+    gtk_combo_box_set_active (combobox, 0);
+    i = 0;
+    while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
+    {
+        if (KATZE_IS_ARRAY (item))
+        {
+            const gchar* name = katze_item_get_name (item);
+            gtk_combo_box_append_text (combobox, name);
+        }
+    }
+    gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_widget_show_all (hbox);
+    /* FIXME: Importing into a subfolder doesn't work */
+    gtk_widget_set_sensitive (combo, FALSE);
+
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        gchar* path;
+        gchar* selected;
+        KatzeArray* folder;
+        GError* error;
+
+        i = gtk_combo_box_get_active (combobox);
+        path = g_build_filename (g_get_home_dir (), bookmark_clients[i].path, NULL);
+
+        selected = gtk_combo_box_get_active_text (combobox);
+        folder = browser->bookmarks;
+        if (g_strcmp0 (selected, _("Toplevel folder")))
+        {
+            i = 0;
+            while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
+                if (KATZE_IS_ARRAY (item))
+                    if (!g_strcmp0 (katze_item_get_name (item), selected))
+                    {
+                        folder = KATZE_ARRAY (item);
+                        break;
+                    }
+        }
+        g_free (selected);
+
+        error = NULL;
+        if (!midori_array_from_file (folder, path, "xbel", &error))
+        {
+            GtkWidget* error_dialog = gtk_message_dialog_new (
+                GTK_WINDOW (browser), GTK_DIALOG_DESTROY_WITH_PARENT,
+                GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                _("Failed to import bookmarks"));
+            gtk_message_dialog_format_secondary_text (
+                GTK_MESSAGE_DIALOG (error_dialog), "%s", error->message);
+            g_error_free (error);
+            gtk_widget_show (error_dialog);
+            g_signal_connect_swapped (error_dialog, "response",
+                G_CALLBACK (gtk_widget_destroy), error_dialog);
+        }
+        g_free (path);
+    }
+    gtk_widget_destroy (dialog);
+}
+
+static void
 _action_manage_search_engines_activate (GtkAction*     action,
                                         MidoriBrowser* browser)
 {
@@ -4726,6 +4856,9 @@ static const GtkActionEntry entries[] = {
  { "BookmarkFolderAdd", NULL,
    N_("Add a new _folder"), "",
    N_("Add a new bookmark folder"), G_CALLBACK (_action_bookmark_folder_add_activate) },
+ { "BookmarksImport", NULL,
+   N_("_Import bookmarks"), "",
+   NULL, G_CALLBACK (_action_bookmarks_import_activate) },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
    N_("Add, edit and remove search engines..."),
