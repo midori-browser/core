@@ -840,8 +840,7 @@ midori_history_popup (GtkWidget*      widget,
     midori_history_popup_item (menu, GTK_STOCK_DELETE, NULL,
         item, midori_history_delete_activate_cb, history);
 
-    sokoke_widget_popup (widget, GTK_MENU (menu),
-                         event, SOKOKE_MENU_POSITION_CURSOR);
+    katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
 
 static gboolean

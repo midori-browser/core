@@ -196,8 +196,7 @@ tab_panel_popup (GtkWidget*      widget,
 {
     GtkWidget* menu = midori_view_get_tab_menu (MIDORI_VIEW (view));
 
-    sokoke_widget_popup (widget, GTK_MENU (menu),
-                         event, SOKOKE_MENU_POSITION_CURSOR);
+    katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
 
 static gboolean

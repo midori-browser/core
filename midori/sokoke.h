@@ -55,12 +55,6 @@ sokoke_magic_uri                        (const gchar*    uri,
 gchar*
 sokoke_format_uri_for_display           (const gchar*    uri);
 
-typedef enum {
-    SOKOKE_MENU_POSITION_CURSOR = 0,
-    SOKOKE_MENU_POSITION_LEFT,
-    SOKOKE_MENU_POSITION_RIGHT
-} SokokeMenuPos;
-
 void
 sokoke_combo_box_add_strings            (GtkComboBox*    combobox,
                                          const gchar*    label_first,
@@ -72,12 +66,6 @@ sokoke_widget_set_visible               (GtkWidget*      widget,
 
 void
 sokoke_container_show_children          (GtkContainer*   container);
-
-void
-sokoke_widget_popup                     (GtkWidget*      widget,
-                                         GtkMenu*        menu,
-                                         GdkEventButton* event,
-                                         SokokeMenuPos   pos);
 
 GtkWidget*
 sokoke_xfce_header_new                  (const gchar*    icon,

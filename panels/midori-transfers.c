@@ -483,8 +483,7 @@ midori_transfers_popup (GtkWidget*       widget,
         _("Copy Link Loc_ation"), download,
         midori_transfers_copy_address_activate_cb, FALSE, transfers);
 
-    sokoke_widget_popup (widget, GTK_MENU (menu),
-                         event, SOKOKE_MENU_POSITION_CURSOR);
+    katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
 #endif
 

@@ -485,15 +485,6 @@ sokoke_container_show_children (GtkContainer* container)
     gtk_container_foreach (container, (GtkCallback)(gtk_widget_show_all), NULL);
 }
 
-void
-sokoke_widget_popup (GtkWidget*      widget,
-                     GtkMenu*        menu,
-                     GdkEventButton* event,
-                     SokokeMenuPos   pos)
-{
-    katze_widget_popup (widget, menu, event, (KatzeMenuPos)pos);
-}
-
 typedef enum
 {
     SOKOKE_DESKTOP_UNTESTED,

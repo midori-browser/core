@@ -797,8 +797,7 @@ midori_bookmarks_popup (GtkWidget*       widget,
     midori_bookmarks_popup_item (menu, GTK_STOCK_DELETE, NULL,
         item, midori_bookmarks_delete_activate_cb, bookmarks);
 
-    sokoke_widget_popup (widget, GTK_MENU (menu),
-                         event, SOKOKE_MENU_POSITION_CURSOR);
+    katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
 
 static gboolean

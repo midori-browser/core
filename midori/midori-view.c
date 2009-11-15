@@ -3362,7 +3362,7 @@ midori_view_tab_label_button_release_event (GtkWidget*      tab_label,
         GtkWidget* menu = midori_view_get_tab_menu (MIDORI_VIEW (widget));
 
         katze_widget_popup (widget, GTK_MENU (menu),
-                            event, SOKOKE_MENU_POSITION_CURSOR);
+                            event, KATZE_MENU_POSITION_CURSOR);
         return TRUE;
     }
 

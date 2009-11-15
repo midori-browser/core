@@ -711,7 +711,7 @@ midori_panel_options_clicked_cb (GtkToolItem* toolitem,
     g_signal_emit_by_name (viewable, "populate-option-menu", menu);
 
     katze_widget_popup (GTK_WIDGET (toolitem), GTK_MENU (menu),
-                        NULL, SOKOKE_MENU_POSITION_LEFT);
+                        NULL, KATZE_MENU_POSITION_LEFT);
 }
 #endif
 

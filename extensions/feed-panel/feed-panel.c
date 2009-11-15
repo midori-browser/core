@@ -553,8 +553,8 @@ feed_panel_popup (GtkWidget*      widget,
             item, feed_panel_delete_activate_cb, panel);
     }
 
-    sokoke_widget_popup (widget, GTK_MENU (menu),
-                         event, SOKOKE_MENU_POSITION_CURSOR);
+    katze_widget_popup (widget, GTK_MENU (menu),
+                        event, KATZE_MENU_POSITION_CURSOR);
 }
 
 static gboolean

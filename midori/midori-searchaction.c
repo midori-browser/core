@@ -501,8 +501,7 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_search_action_manage_activate_cb), action);
     gtk_widget_show (menuitem);
-    sokoke_widget_popup (entry, GTK_MENU (menu),
-                         NULL, SOKOKE_MENU_POSITION_LEFT);
+    katze_widget_popup (entry, GTK_MENU (menu), NULL, KATZE_MENU_POSITION_LEFT);
 }
 
 static gboolean
