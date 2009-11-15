@@ -1515,6 +1515,14 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
 }
 
 static void
+midori_web_view_menu_background_tab_activate_cb (GtkWidget*  widget,
+                                                 MidoriView* view)
+{
+    g_signal_emit (view, signals[NEW_TAB], 0, view->link_uri,
+                   !view->open_tabs_in_the_background);
+}
+
+static void
 midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
@@ -1719,6 +1727,11 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
+        midori_view_insert_menu_item (menu_shell, -1,
+            view->open_tabs_in_the_background
+            ? _("Open Link in _Foreground Tab")
+            : _("Open Link in _Background Tab"), STOCK_TAB_NEW,
+            G_CALLBACK (midori_web_view_menu_background_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Window"), STOCK_WINDOW_NEW,
             G_CALLBACK (midori_web_view_menu_new_window_activate_cb), widget);
