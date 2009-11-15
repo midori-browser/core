@@ -3230,7 +3230,7 @@ midori_view_get_proxy_menu_item (MidoriView* view)
     if (!view->menu_item)
     {
         title = midori_view_get_display_title (view);
-        view->menu_item = sokoke_image_menu_item_new_ellipsized (title);
+        view->menu_item = katze_image_menu_item_new_ellipsized (title);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (view->menu_item),
             gtk_image_new_from_pixbuf (view->icon));
 

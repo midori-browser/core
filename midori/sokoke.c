@@ -866,20 +866,6 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
 }
 
 /**
- * sokoke_image_menu_item_new_ellipsized:
- * @label: the text of the menu item
- *
- * Creates a new #GtkImageMenuItem containing an ellipsized label.
- *
- * Return value: a new #GtkImageMenuItem
- **/
-GtkWidget*
-sokoke_image_menu_item_new_ellipsized (const gchar* label)
-{
-    return katze_image_menu_item_new_ellipsized (label);
-}
-
-/**
  * sokoke_time_t_to_julian:
  * @timestamp: a time_t timestamp value
  *
