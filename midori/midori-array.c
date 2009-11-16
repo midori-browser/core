@@ -15,6 +15,7 @@
     #include <config.h>
 #endif
 
+#include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
 #if HAVE_LIBXML
@@ -217,14 +218,95 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
     return TRUE;
 }
 
+static gboolean
+katze_array_from_opera_file (KatzeArray* array,
+                             FILE*       file)
+{
+    gchar line[200];
+    KatzeArray* folder = array;
+    KatzeItem* item = NULL;
+
+    while (fgets (line, 200, file))
+    {
+        g_strstrip (line);
+        if (line[0] == '\0')
+        {
+            item = NULL;
+            continue;
+        }
+        else if (line[0] == '-')
+        {
+            item = NULL;
+            if (folder != array)
+                folder = katze_item_get_parent ((KatzeItem*)folder);
+            else
+                g_warning ("A level-up although we are at the top level");
+            continue;
+        }
+
+        if (line[0] == '#')
+        {
+            const gchar* element = &line[1];
+            if (!g_ascii_strncasecmp (element, "FOLDER", 6))
+            {
+                item = (KatzeItem*)katze_array_new (KATZE_TYPE_ARRAY);
+                katze_array_add_item (folder, item);
+                folder = (KatzeArray*)item;
+            }
+            else if (!g_ascii_strncasecmp (element, "URL", 3))
+            {
+                item = katze_item_new ();
+                katze_array_add_item (folder, item);
+            }
+            else
+                g_warning ("Unexpected element: %s", element);
+        }
+        else if (item)
+        {
+            gchar** parts = g_strsplit (line, "=", 2);
+            if (parts && parts[0] && parts[1])
+            {
+                if (g_str_equal (parts[0], "NAME"))
+                    katze_item_set_name (item, parts[1]);
+                else if (g_str_equal (parts[0], "URL"))
+                    katze_item_set_uri (item, parts[1]);
+                else if (g_str_equal (parts[0], "DESCRIPTION"))
+                    katze_item_set_text (item, parts[1]);
+                else if (g_str_equal (parts[0], "CREATED"))
+                    katze_item_set_added (item,
+                        g_ascii_strtoull (parts[1], NULL, 10));
+                /* FIXME: Implement visited time
+                else if (g_str_equal (parts[0], "VISITED"))
+                    katze_item_set_visited (item,
+                        g_ascii_strtoull (parts[1], NULL, 10)); */
+                /* FIXME: Implement bookmarkbar flag
+                else if (g_str_equal (parts[0], "ON PERSONALBAR"))
+                    ; */
+                /* FIXME: Implement websites as panels
+                else if (g_str_equal (parts[0], "IN PANEL"))
+                    ; */
+            }
+            else
+                g_warning ("Broken property: %s", line);
+            g_strfreev (parts);
+        }
+        else
+            g_warning ("Unexpected property outside of element: %s", line);
+    }
+    return TRUE;
+}
+
 /**
  * midori_array_from_file:
  * @array: a #KatzeArray
  * @filename: a filename to load from
- * @format: the desired format
+ * @format: "xbel", "opera", or %NULL
  * @error: a #GError or %NULL
  *
  * Loads the contents of a file in the specified format.
+ *
+ * Since 0.2.2 @format can be %NULL to indicate that the
+ *   file should be loaded if it's any supported format.
  *
  * Return value: %TRUE on success, %FALSE otherwise
  *
@@ -236,11 +318,8 @@ midori_array_from_file (KatzeArray*  array,
                         const gchar* format,
                         GError**     error)
 {
-    xmlDocPtr doc;
-
     g_return_val_if_fail (katze_array_is_a (array, KATZE_TYPE_ITEM), FALSE);
     g_return_val_if_fail (filename != NULL, FALSE);
-    g_return_val_if_fail (!g_strcmp0 (format, "xbel"), FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
 
     if (!g_file_test (filename, G_FILE_TEST_EXISTS))
@@ -252,26 +331,77 @@ midori_array_from_file (KatzeArray*  array,
         return FALSE;
     }
 
-    if ((doc = xmlParseFile (filename)) == NULL)
+    /* Opera6 */
+    if (!g_strcmp0 (format, "opera")
+    || (!format && g_str_has_suffix (filename, ".adr")))
     {
-        /* No valid xml or broken encoding */
-        if (error)
-            *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                          _("Malformed document."));
-        return FALSE;
+        FILE* file;
+        if ((file = g_fopen (filename, "r")))
+        {
+            guint verify;
+            gchar line[50];
+
+            verify = 0;
+            while (fgets (line, 50, file))
+            {
+                g_strstrip (line);
+                if (verify == 0 && !strcmp (line, "Opera Hotlist version 2.0"))
+                    verify++;
+                else if (verify == 1
+                     && !strcmp (line, "Options: encoding = utf8, version=3"))
+                    verify++;
+                else if (verify == 2)
+                {
+                    if (!katze_array_from_opera_file (array, file))
+                    {
+                        /* Parsing failed */
+                        fclose (file);
+                        if (error)
+                            *error = g_error_new_literal (G_FILE_ERROR,
+                                G_FILE_ERROR_FAILED, _("Malformed document."));
+                        return FALSE;
+                    }
+                    return TRUE;
+                }
+                else
+                    break;
+            }
+            fclose (file);
+        }
     }
 
-    if (!katze_array_from_xmlDocPtr (array, doc))
+    /* XBEL */
+    if (!g_strcmp0 (format, "xbel")
+     || !format)
     {
-        /* Parsing failed */
+        xmlDocPtr doc;
+
+        if ((doc = xmlParseFile (filename)) == NULL)
+        {
+            /* No valid xml or broken encoding */
+            if (error)
+                *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                              _("Malformed document."));
+            return FALSE;
+        }
+
+        if (!katze_array_from_xmlDocPtr (array, doc))
+        {
+            /* Parsing failed */
+            xmlFreeDoc (doc);
+            if (error)
+                *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                              _("Malformed document."));
+            return FALSE;
+        }
         xmlFreeDoc (doc);
-        if (error)
-            *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
-                                          _("Malformed document."));
-        return FALSE;
+        return TRUE;
     }
-    xmlFreeDoc (doc);
-    return TRUE;
+
+    if (error)
+        *error = g_error_new_literal (G_FILE_ERROR, G_FILE_ERROR_FAILED,
+                                      _("Unrecognized bookmark format."));
+    return FALSE;
 }
 #endif
 

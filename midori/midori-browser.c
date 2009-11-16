@@ -4031,6 +4031,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     } BookmarkClient;
     static const BookmarkClient bookmark_clients[] = {
         { ".local/share/data/Arora/bookmarks.xbel", N_("Arora") },
+        { ".opera/bookmarks.adr", N_("Opera") },
     };
 
     GtkWidget* dialog;
@@ -4039,6 +4040,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     GtkWidget* label;
     GtkWidget* combo;
     GtkComboBox* combobox;
+    GtkComboBox* combobox_folder;
     guint i;
     KatzeItem* item;
 
@@ -4082,16 +4084,17 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     combo = gtk_combo_box_new_text ();
-    combobox = GTK_COMBO_BOX (combo);
-    gtk_combo_box_append_text (combobox, _("Toplevel folder"));
-    gtk_combo_box_set_active (combobox, 0);
+    combobox_folder = GTK_COMBO_BOX (combo);
+    gtk_combo_box_append_text (combobox_folder, _("Toplevel folder"));
+    gtk_combo_box_set_active (combobox_folder, 0);
     i = 0;
     while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
     {
         if (KATZE_IS_ARRAY (item))
         {
             const gchar* name = katze_item_get_name (item);
-            gtk_combo_box_append_text (combobox, name);
+            if (name)
+                gtk_combo_box_append_text (combobox_folder, name);
         }
     }
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
@@ -4111,7 +4114,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         i = gtk_combo_box_get_active (combobox);
         path = g_build_filename (g_get_home_dir (), bookmark_clients[i].path, NULL);
 
-        selected = gtk_combo_box_get_active_text (combobox);
+        selected = gtk_combo_box_get_active_text (combobox_folder);
         folder = browser->bookmarks;
         if (g_strcmp0 (selected, _("Toplevel folder")))
         {
@@ -4127,7 +4130,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         g_free (selected);
 
         error = NULL;
-        if (!midori_array_from_file (folder, path, "xbel", &error))
+        if (!midori_array_from_file (folder, path, NULL, &error))
         {
             GtkWidget* error_dialog = gtk_message_dialog_new (
                 GTK_WINDOW (browser), GTK_DIALOG_DESTROY_WITH_PARENT,
