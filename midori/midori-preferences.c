@@ -193,13 +193,6 @@ midori_preferences_notify_auto_detect_proxy_cb (MidoriWebSettings* settings,
 
 #if HAVE_OSX
 static void
-midori_preferences_help_clicked_cb (GtkWidget* button,
-                                    GtkDialog* dialog)
-{
-    gtk_dialog_response (dialog, GTK_RESPONSE_HELP);
-}
-
-static void
 midori_preferences_toolbutton_clicked_cb (GtkWidget* toolbutton,
                                           GtkWidget* page)
 {

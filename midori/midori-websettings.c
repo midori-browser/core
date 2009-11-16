@@ -1098,7 +1098,7 @@ midori_web_settings_finalize (GObject* object)
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
 }
 
-#if defined (G_OS_UNIX)
+#if defined (G_OS_UNIX) && !HAVE_OSX
 static gchar*
 get_sys_name (void)
 {

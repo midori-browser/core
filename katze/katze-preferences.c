@@ -174,8 +174,8 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_container_set_border_width (GTK_CONTAINER (priv->notebook), 6);
 
     #if HAVE_OSX
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (preferences->notebook), FALSE);
-    gtk_notebook_set_show_border (GTK_NOTEBOOK (preferences->notebook), FALSE);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (priv->notebook), FALSE);
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (priv->notebook), FALSE);
     priv->toolbar = gtk_toolbar_new ();
     gtk_toolbar_set_style (GTK_TOOLBAR (priv->toolbar), GTK_TOOLBAR_BOTH);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (priv->toolbar), FALSE);
@@ -200,15 +200,15 @@ katze_preferences_prepare (KatzePreferences* preferences)
 
     #if HAVE_OSX
     GtkWidget* icon;
-    hbox = gtk_hbox_new (FALSE, 0);
-    button = gtk_button_new ();
+    GtkWidget* hbox = gtk_hbox_new (FALSE, 0);
+    GtkWidget* button = gtk_button_new ();
     icon = gtk_image_new_from_stock (GTK_STOCK_HELP, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image (GTK_BUTTON (button), icon);
     g_signal_connect (button, "clicked",
         G_CALLBACK (katze_preferences_help_clicked_cb), preferences);
     gtk_box_pack_end (GTK_BOX (hbox),
         button, FALSE, FALSE, 4);
-    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->action_area),
         hbox, FALSE, FALSE, 0);
     #endif
     gtk_widget_show_all (GTK_DIALOG (preferences)->vbox);
@@ -262,12 +262,13 @@ katze_preferences_add_category (KatzePreferences* preferences,
         gtk_radio_tool_button_new_from_widget (
         GTK_RADIO_TOOL_BUTTON (priv->toolbutton))
         : gtk_radio_tool_button_new (NULL));
+    gtk_widget_show (priv->toolbutton);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (priv->toolbutton), label);
     gtk_tool_button_set_stock_id (GTK_TOOL_BUTTON (priv->toolbutton), icon);
-    gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
+    gtk_toolbar_insert (GTK_TOOLBAR (priv->toolbar),
                         GTK_TOOL_ITEM (priv->toolbutton), -1);
     g_signal_connect (priv->toolbutton, "clicked",
-        G_CALLBACK (katze_preferences_toolbutton_clicked_cb), page);
+        G_CALLBACK (katze_preferences_toolbutton_clicked_cb), priv->page);
     if (priv->toolbutton)
         g_object_set_data (G_OBJECT (priv->toolbutton), "notebook", priv->notebook);
     #endif
