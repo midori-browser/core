@@ -399,7 +399,7 @@ katze_array_action_create_tool_item (GtkAction* action)
 {
     GtkWidget* toolitem;
 
-    toolitem = GTK_WIDGET (gtk_tool_button_new (NULL, NULL));
+    toolitem = GTK_WIDGET (gtk_tool_button_new (NULL, ""));
     return toolitem;
 }
 
@@ -552,7 +552,7 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     if (!KATZE_IS_ARRAY (item) && !uri)
         return gtk_separator_tool_item_new ();
 
-    toolitem = gtk_tool_button_new (NULL, NULL);
+    toolitem = gtk_tool_button_new (NULL, "");
     g_signal_connect (toolitem, "create-menu-proxy",
         G_CALLBACK (katze_array_action_proxy_create_menu_proxy_cb), item);
     if (KATZE_IS_ARRAY (item))
