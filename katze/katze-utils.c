@@ -326,46 +326,41 @@ katze_app_info_get_all_for_category (const gchar* category)
 }
 
 #if !GLIB_CHECK_VERSION (2, 20, 0)
-/* GIcon serialization
-   Copyright (C) 2006-2007 Red Hat, Inc.
-   Copyright (C) 2006-2007 Alexander Larsson <alexl@redhat.com>
-   Copied subtly changed from Glib 2.20 */
+/* Icon tokenization, for Glib < 2.20 */
 static gboolean
-g_icon_to_string_tokenized (GIcon *icon, GString *s)
+g_icon_to_string_tokenized (GIcon   *icon,
+                            GString *s)
 {
-  char *ret;
   GPtrArray *tokens;
-  gint version;
-  GIconIface *icon_iface;
   guint i;
 
-  ret = NULL;
-
-  icon_iface = G_ICON_GET_IFACE (icon);
-  if (icon_iface->to_tokens == NULL)
+  if (G_IS_THEMED_ICON (icon))
+    {
+      guint n;
+      const char * const *names;
+      tokens = g_ptr_array_new ();
+      g_object_get (icon, "names", &names, NULL);
+      for (n = 0; names[n] != NULL; n++)
+        g_ptr_array_add (tokens, g_strdup (names[n]));
+    }
+  else if (G_IS_FILE_ICON (icon))
+    {
+      tokens = g_ptr_array_new ();
+      g_ptr_array_add (tokens,
+                       g_file_get_uri (g_file_icon_get_file (G_FILE_ICON (icon))));
+    }
+  else
     return FALSE;
 
-  tokens = g_ptr_array_new ();
-  if (!icon_iface->to_tokens (icon, tokens, &version))
-    {
-      g_ptr_array_free (tokens, TRUE);
-      return FALSE;
-    }
-
-  /* format: TypeName[.Version] <token_0> .. <token_N-1>
-     version 0 is implicit and can be omitted
-     all the tokens are url escaped to ensure they have no spaces in them */
-
   g_string_append (s, g_type_name_from_instance ((GTypeInstance *)icon));
-  if (version != 0)
-    g_string_append_printf (s, ".%d", version);
 
   for (i = 0; i < tokens->len; i++)
     {
       char *token = g_ptr_array_index (tokens, i);
+
       g_string_append_c (s, ' ');
-      /* We really only need to escape spaces here, so allow lots of otherwise reserved chars */
       g_string_append_uri_escaped (s, token, "!$&'()*+,;=:@/", TRUE);
+
       g_free (token);
     }
 
@@ -374,48 +369,35 @@ g_icon_to_string_tokenized (GIcon *icon, GString *s)
   return TRUE;
 }
 
-/* GIcon serialization
-   Copyright (C) 2006-2007 Red Hat, Inc.
-   Copyright (C) 2006-2007 Alexander Larsson <alexl@redhat.com>
-   Copied subtly changed from Glib 2.20 */
-gchar *
+/* GIcon serialization, for Glib < 2.20 */
+static gchar *
 g_icon_to_string (GIcon *icon)
 {
-  gchar *ret;
+  gchar *ret = NULL;
 
-  g_return_val_if_fail (icon != NULL, NULL);
   g_return_val_if_fail (G_IS_ICON (icon), NULL);
-
-  ret = NULL;
 
   if (G_IS_FILE_ICON (icon))
     {
-      GFile *file;
-
-      file = g_file_icon_get_file (G_FILE_ICON (icon));
+      GFile *file = g_file_icon_get_file (G_FILE_ICON (icon));
       if (g_file_is_native (file))
-	{
-	  ret = g_file_get_path (file);
-	  if (!g_utf8_validate (ret, -1, NULL))
-	    {
-	      g_free (ret);
-	      ret = NULL;
-	    }
-	}
+        {
+          ret = g_file_get_path (file);
+          if (!g_utf8_validate (ret, -1, NULL))
+            {
+              g_free (ret);
+              ret = NULL;
+            }
+        }
       else
         ret = g_file_get_uri (file);
     }
   else if (G_IS_THEMED_ICON (icon))
     {
       const char * const *names;
-
-      names = g_themed_icon_get_names (G_THEMED_ICON (icon));
-      if (names != NULL &&
-          names[0] != NULL &&
-          /* Allowing icons starting with dot would break G_ICON_SERIALIZATION_MAGIC0 */
-          names[0][0] != '.' &&
-          g_utf8_validate (names[0], -1, NULL) && /* Only return utf8 strings */
-          names[1] == NULL)
+      g_object_get (icon, "names", &names, NULL);
+      if (names && names[0] && names[0][0] != '.' &&
+          g_utf8_validate (names[0], -1, NULL) && names[1] == NULL)
         ret = g_strdup (names[0]);
     }
 
