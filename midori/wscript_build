@@ -11,7 +11,7 @@ obj.includes = '. ..'
 obj.find_sources_in_dirs ('.', excludes=['main.c'])
 obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
 obj.uselib = 'UNIQUE LIBSOUP LIBIDN GIO GTK SQLITE WEBKIT LIBXML ' \
-             'WS2_32 OPENSSL' \
+             'WS2_32 OPENSSL ' \
              'HILDON HILDON_FM'
 obj.uselib_local = 'katze'
 obj.install_path = None
