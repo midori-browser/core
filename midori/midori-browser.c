@@ -5155,6 +5155,7 @@ static const gchar* ui_markup =
     "<menuitem action='FindPrevious'/>"
     "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='BookmarkFolderAdd'/>"
+    "<menuitem action='BookmarksImport'/>"
     "<menuitem action='ManageSearchEngines'/>"
     "<menuitem action='ClearPrivateData'/>"
     "<menuitem action='TabPrevious'/>"
