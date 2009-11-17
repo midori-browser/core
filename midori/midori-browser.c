@@ -5936,9 +5936,12 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
 {
     #if HAVE_HILDON
     GtkToolbarStyle gtk_toolbar_style = GTK_TOOLBAR_ICONS;
+    GtkIconSize icon_size = GTK_ICON_SIZE_LARGE_TOOLBAR;
     #else
     GtkToolbarStyle gtk_toolbar_style;
+    GtkIconSize icon_size;
     GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
+    g_object_get (gtk_settings, "gtk-toolbar-icon-size", &icon_size, NULL);
     if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
     #ifdef G_OS_WIN32
         gtk_toolbar_style = GTK_TOOLBAR_ICONS;
@@ -5949,6 +5952,8 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
     {
         switch (toolbar_style)
         {
+        case MIDORI_TOOLBAR_SMALL_ICONS:
+            icon_size = GTK_ICON_SIZE_SMALL_TOOLBAR;
         case MIDORI_TOOLBAR_ICONS:
             gtk_toolbar_style = GTK_TOOLBAR_ICONS;
             break;
@@ -5966,6 +5971,7 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
     #endif
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
                            gtk_toolbar_style);
+    gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->navigationbar), icon_size);
 }
 
 static gboolean
