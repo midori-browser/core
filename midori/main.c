@@ -1580,12 +1580,8 @@ midori_remove_config_file (gint         clear_prefs,
 static void
 signal_handler (int signal_id)
 {
-    if (signal_id == SIGHUP || signal_id == SIGINT
-     || signal_id == SIGTERM || signal_id == SIGQUIT)
-    {
-        midori_app_quit_cb (NULL);
-        gtk_main_quit ();
-    }
+    midori_app_quit_cb (NULL);
+    gtk_main_quit ();
 }
 #endif
 
@@ -1664,10 +1660,18 @@ main (int    argc,
     #endif
 
     #ifdef HAVE_SIGNAL_H
+    #ifdef SIGHUP
     signal (SIGHUP, &signal_handler);
+    #endif
+    #ifdef SIGINT
     signal (SIGINT, &signal_handler);
+    #endif
+    #ifdef SIGTERM
     signal (SIGTERM, &signal_handler);
+    #endif
+    #ifdef SIGQUIT
     signal (SIGQUIT, &signal_handler);
+    #endif
     #endif
 
     /* Parse cli options */
