@@ -626,7 +626,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* uri;
     gchar* title;
     GdkPixbuf* icon;
-    GtkEntryCompletion* completion;
     gchar* desc;
     gchar* desc_uri;
     gchar* desc_title;
@@ -638,13 +637,16 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar** parts;
     size_t len;
 
+    entry = data;
+
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
                         FAVICON_COL, &icon, -1);
 
     if (G_UNLIKELY (!icon))
     {
         #if !HAVE_HILDON
-        MidoriLocationAction* action = MIDORI_LOCATION_ACTION (data);
+        MidoriLocationAction* action
+            = g_object_get_data (G_OBJECT (renderer), "location-action");
         icon = katze_net_load_icon (action->net, uri, NULL, NULL, NULL);
         if (G_LIKELY (icon))
         {
@@ -658,20 +660,14 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     else
         g_object_unref (icon);
 
-    completion = GTK_IS_ENTRY_COMPLETION (layout)
-        ? GTK_ENTRY_COMPLETION (layout) : NULL;
-
     desc = desc_uri = desc_title = key = NULL;
-    if (G_LIKELY (completion))
+    key = title ? g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1)
+        : g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+    len = 0;
+
+    if (G_LIKELY (uri))
     {
-        entry = gtk_entry_completion_get_entry (completion);
-        key = title ? g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1)
-            : g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
-        len = 0;
-    }
-    if (G_LIKELY (completion && uri))
-    {
-        temp = g_ascii_strdown (uri, -1);
+        temp = g_utf8_strdown (uri, -1);
         if (key && *key && (start = strstr (temp, key)))
         {
             len = strlen (key);
@@ -680,11 +676,9 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             if (skey && *skey && (parts = g_strsplit (uri, skey, 2)))
             {
                 if (parts[0] && parts[1])
-                {
                     desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
                         parts[0], skey, parts[1]);
-                    g_strfreev (parts);
-                }
+                g_strfreev (parts);
             }
             g_free (skey);
         }
@@ -692,7 +686,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     }
     if (uri && !desc_uri)
         desc_uri = g_markup_escape_text (uri, -1);
-    if (G_LIKELY (completion && title))
+    if (G_LIKELY (title))
     {
         temp = g_utf8_strdown (title, -1);
         if (key && *key && (start = strstr (temp, key)))
@@ -750,17 +744,19 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     match = FALSE;
     if (G_LIKELY (uri))
     {
-        temp = g_utf8_casefold (uri, -1);
-        match = (strstr (temp, key) != NULL);
+        gchar* ckey = g_utf8_collate_key (key, -1);
+        temp = g_utf8_collate_key (uri, -1);
+        match = (strstr (temp, ckey) != NULL);
         g_free (temp);
         g_free (uri);
 
         if (!match && G_LIKELY (title))
         {
-            temp = g_utf8_casefold (title, -1);
-            match = (strstr (temp, key) != NULL);
+            temp = g_utf8_collate_key (title, -1);
+            match = (strstr (temp, ckey) != NULL);
             g_free (temp);
         }
+        g_free (ckey);
     }
 
     g_free (title);
@@ -1016,13 +1012,14 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
     gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (completion), renderer,
         "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
     renderer = gtk_cell_renderer_text_new ();
+    g_object_set_data (G_OBJECT (renderer), "location-action", location_action);
     gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
     gtk_cell_renderer_text_set_fixed_height_from_font (
         GTK_CELL_RENDERER_TEXT (renderer), 2);
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, TRUE);
     gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (completion), renderer,
                                         midori_location_entry_render_text_cb,
-                                        location_action, NULL);
+                                        entry, NULL);
     gtk_entry_completion_set_match_func (completion,
         midori_location_entry_completion_match_cb, NULL, NULL);
 
@@ -1074,7 +1071,6 @@ static void
 midori_location_action_connect_proxy (GtkAction* action,
                                       GtkWidget* proxy)
 {
-    GtkWidget* entry;
     MidoriLocationAction* location_action;
     GtkCellRenderer* renderer;
 
@@ -1088,7 +1084,8 @@ midori_location_action_connect_proxy (GtkAction* action,
 
     if (GTK_IS_TOOL_ITEM (proxy))
     {
-        entry = midori_location_action_entry_for_proxy (proxy);
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxy);
+        GtkWidget* child = gtk_bin_get_child (GTK_BIN (entry));
 
         midori_location_entry_set_progress (MIDORI_LOCATION_ENTRY (entry),
             MIDORI_LOCATION_ACTION (action)->progress);
@@ -1104,17 +1101,17 @@ midori_location_action_connect_proxy (GtkAction* action,
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (entry), renderer,
             "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
         renderer = gtk_cell_renderer_text_new ();
+        g_object_set_data (G_OBJECT (renderer), "location-action", action);
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (entry), renderer, TRUE);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (entry),
-            renderer, midori_location_entry_render_text_cb, action, NULL);
+            renderer, midori_location_entry_render_text_cb, child, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
-        midori_location_action_completion_init (location_action,
-            GTK_ENTRY (gtk_bin_get_child (GTK_BIN (entry))));
+        midori_location_action_completion_init (location_action, GTK_ENTRY (child));
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
 
-        g_object_connect (gtk_bin_get_child (GTK_BIN (entry)),
+        g_object_connect (child,
                       "signal::changed",
                       midori_location_action_changed_cb, action,
                       "signal::key-press-event",
