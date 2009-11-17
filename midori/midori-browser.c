@@ -5379,6 +5379,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkWidget* vpaned;
     GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
+    GtkWidget* label;
     GtkWidget* scrolled;
     GtkWidget* icon;
 
@@ -5858,20 +5859,22 @@ midori_browser_init (MidoriBrowser* browser)
     browser->statusbar = gtk_statusbar_new ();
     /* Rearrange the statusbar packing. This is necessariy to keep
         themes happy while there is no support from GtkStatusbar. */
-    #if 1
-    browser->statusbar_contents = gtk_hbox_new (FALSE, 4);
-    gtk_widget_show (browser->statusbar_contents);
-    g_object_ref (GTK_STATUSBAR (browser->statusbar)->label);
-    gtk_container_remove (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
-                          GTK_STATUSBAR (browser->statusbar)->label);
-    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
-                        GTK_STATUSBAR (browser->statusbar)->label, TRUE, TRUE, 0);
-    g_object_unref (GTK_STATUSBAR (browser->statusbar)->label);
-    gtk_container_add (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
-                       browser->statusbar_contents);
-    #else
-    browser->statusbar_contents = browser->statusbar;
-    #endif
+    label = GTK_STATUSBAR (browser->statusbar)->label;
+    if (GTK_IS_BOX (gtk_widget_get_parent (label)))
+        browser->statusbar_contents = gtk_widget_get_parent (label);
+    else
+    {
+        browser->statusbar_contents = gtk_hbox_new (FALSE, 4);
+        gtk_widget_show (browser->statusbar_contents);
+        g_object_ref (GTK_STATUSBAR (browser->statusbar)->label);
+        gtk_container_remove (
+            GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame), label);
+        gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
+            label, TRUE, TRUE, 0);
+        g_object_unref (label);
+        gtk_container_add (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
+                           browser->statusbar_contents);
+    }
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
     browser->progressbar = gtk_progress_bar_new ();
