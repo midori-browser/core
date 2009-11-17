@@ -191,9 +191,9 @@ mouse_gestures_add_tab_cb (MidoriBrowser*   browser,
 
     g_object_connect (web_view,
         "signal::button-press-event",
-        mouse_gestures_button_press_event_cb, extension,
+        mouse_gestures_button_press_event_cb, browser,
         "signal::motion-notify-event",
-        mouse_gestures_motion_notify_event_cb, extension,
+        mouse_gestures_motion_notify_event_cb, browser,
         "signal::button-release-event",
         mouse_gestures_button_release_event_cb, browser,
         NULL);
@@ -242,7 +242,7 @@ mouse_gestures_deactivate_tabs (MidoriView*    view,
 
 static void
 mouse_gestures_deactivate_cb (MidoriExtension* extension,
-                         MidoriBrowser*   browser)
+                              MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
 
