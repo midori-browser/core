@@ -301,8 +301,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                 icon = gtk_widget_render_icon (menuitem,
                     GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
             else
-                icon = katze_net_load_icon (array_action->net,
-                    katze_item_get_uri (item), NULL, proxy, NULL);
+                icon = katze_load_cached_icon (katze_item_get_uri (item), proxy);
             image = gtk_image_new_from_pixbuf (icon);
             g_object_unref (icon);
         }
@@ -460,8 +459,7 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     }
     else if (!KATZE_IS_ARRAY (item) && !strcmp (property, "uri"))
     {
-        icon = katze_net_load_icon (array_action->net, katze_item_get_uri (item),
-            NULL, GTK_WIDGET (toolitem), NULL);
+        icon = katze_load_cached_icon (katze_item_get_uri (item), GTK_WIDGET (toolitem));
         image = gtk_image_new_from_pixbuf (icon);
         g_object_unref (icon);
         gtk_widget_show (image);
@@ -497,8 +495,7 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
             icon = gtk_widget_render_icon (menuitem,
                 GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
         else
-            icon = katze_net_load_icon (array_action->net,
-                katze_item_get_uri (item), NULL, proxy, NULL);
+            icon = katze_load_cached_icon (katze_item_get_uri (item), proxy);
         image = gtk_image_new_from_pixbuf (icon);
         g_object_unref (icon);
     }
@@ -569,8 +566,7 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
         icon = gtk_widget_render_icon (GTK_WIDGET (toolitem),
             GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
     else
-        icon = katze_net_load_icon (array_action->net, uri,
-            NULL, GTK_WIDGET (toolitem), NULL);
+        icon = katze_load_cached_icon (uri, GTK_WIDGET (toolitem));
     image = gtk_image_new_from_pixbuf (icon);
     g_object_unref (icon);
     gtk_widget_show (image);

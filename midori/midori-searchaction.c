@@ -432,7 +432,7 @@ midori_search_action_get_icon (KatzeNet*  net,
     }
 
     if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
-        return katze_net_load_icon (net, icon, NULL, widget, NULL);
+        return katze_load_cached_icon (icon, widget);
 
     return gtk_widget_render_icon (widget, GTK_STOCK_FILE,
                                    GTK_ICON_SIZE_MENU, NULL);

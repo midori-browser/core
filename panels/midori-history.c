@@ -560,9 +560,7 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
     else
-        pixbuf = katze_net_load_icon (
-            MIDORI_HISTORY (gtk_widget_get_parent (treeview))->net,
-            katze_item_get_uri (item), NULL, treeview, NULL);
+        pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
 
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 

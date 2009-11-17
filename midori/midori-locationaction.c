@@ -642,13 +642,12 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
                         FAVICON_COL, &icon, -1);
 
-    if (G_UNLIKELY (!icon))
+    if (G_UNLIKELY (!icon) && uri)
     {
         #if !HAVE_HILDON
         MidoriLocationAction* action
             = g_object_get_data (G_OBJECT (renderer), "location-action");
-        icon = katze_net_load_icon (action->net, uri, NULL, NULL, NULL);
-        if (G_LIKELY (icon))
+        if ((icon = katze_load_cached_icon (uri, NULL)))
         {
             midori_location_action_set_icon_for_uri (action, icon, uri);
             g_object_unref (icon);
@@ -657,7 +656,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             midori_location_action_set_icon_for_uri (action, action->default_icon, uri);
         #endif
     }
-    else
+    else if (icon)
         g_object_unref (icon);
 
     desc = desc_uri = desc_title = key = NULL;

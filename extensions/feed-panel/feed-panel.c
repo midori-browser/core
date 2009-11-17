@@ -91,7 +91,7 @@ feed_panel_treeview_render_icon_cb (GtkTreeViewColumn* column,
     uri = katze_item_get_uri (pitem);
     if (uri)
     {
-        pixbuf = katze_net_load_icon (panel->net, uri, NULL, NULL, NULL);
+        pixbuf = katze_load_cached_icon (uri, NULL);
         if (!pixbuf)
             pixbuf = panel->pixbuf;
     }

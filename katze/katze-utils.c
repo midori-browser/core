@@ -14,6 +14,7 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 #include <gio/gio.h>
+#include <libsoup/soup.h>
 
 #include <string.h>
 
@@ -1401,4 +1402,62 @@ katze_widget_has_touchscreen_mode (GtkWidget* widget)
         g_object_get (gtk_settings, "gtk-touchscreen-mode", &enabled, NULL);
         return enabled;
     }
+}
+
+/**
+ * katze_load_cached_icon:
+ * @uri: an URI string
+ * @widget: a #GtkWidget, or %NULL
+ *
+ * Loads a cached icon for the specified @uri. If there is no
+ * icon and @widget is specified, a default will be returned.
+ *
+ * Returns: a #GdkPixbuf, or %NULL
+ *
+ * Since: 0.2.2
+ */
+GdkPixbuf*
+katze_load_cached_icon (const gchar* uri,
+                        GtkWidget*   widget)
+{
+    GdkPixbuf* icon = NULL;
+
+    if (g_str_has_prefix (uri, "http://"))
+    {
+        guint i;
+        gchar* icon_uri;
+        gchar* checksum;
+        gchar* ext;
+        gchar* filename;
+        gchar* path;
+
+        i = 8;
+        while (uri[i] != '\0' && uri[i] != '/')
+            i++;
+        if (uri[i] == '/')
+        {
+            icon_uri = g_strdup (uri);
+            icon_uri[i] = '\0';
+            icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
+        }
+        else
+            icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
+
+        checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, icon_uri, -1);
+        ext = g_strrstr (icon_uri, ".");
+        g_free (icon_uri);
+        filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
+        g_free (checksum);
+        path = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
+                                 "icons", filename, NULL);
+        if ((icon = gdk_pixbuf_new_from_file_at_size (path, 16, 16, NULL)))
+        {
+            g_free (path);
+            return icon;
+        }
+        g_free (path);
+    }
+
+    return icon || !widget ? icon : gtk_widget_render_icon (widget,
+        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
 }
