@@ -75,7 +75,6 @@ mouse_gestures_button_press_event_cb (GtkWidget*     web_view,
             gesture->start.y = event->button.y;
             gesture->last = event->button.button;
         }
-
         return TRUE;
     }
 
@@ -106,9 +105,11 @@ mouse_gestures_motion_notify_event_cb (GtkWidget*     web_view,
             gesture->end.x = x;
             gesture->end.y = y;
         }
+
+        return TRUE;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 static gboolean
@@ -175,11 +176,13 @@ mouse_gestures_button_release_event_cb (GtkWidget*     web_view,
                     midori_browser_activate_action (browser, "Back");
             }
         }
+
+        mouse_gesture_clear (gesture);
+
+        return TRUE;
     }
 
-    mouse_gesture_clear (gesture);
-
-    return TRUE;
+    return FALSE;
 }
 
 static void
