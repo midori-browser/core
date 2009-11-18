@@ -2718,7 +2718,8 @@ _action_trash_activate_item (GtkAction*     action,
                              KatzeItem*     item,
                              MidoriBrowser* browser)
 {
-    midori_browser_set_current_uri (browser, katze_item_get_uri (item));
+    guint n = midori_browser_add_item (browser, item);
+    midori_browser_set_current_page (browser, n);
     katze_array_remove_item (browser->trash, item);
     _midori_browser_update_actions (browser);
 }
