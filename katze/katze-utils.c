@@ -14,7 +14,6 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 #include <gio/gio.h>
-#include <libsoup/soup.h>
 
 #include <string.h>
 
@@ -869,7 +868,9 @@ katze_property_label (gpointer     object,
 
     nick = g_param_spec_get_nick (pspec);
     widget = gtk_label_new (nick);
+    #if GTK_CHECK_VERSION (2, 12, 0)
     gtk_widget_set_tooltip_text (widget, g_param_spec_get_blurb (pspec));
+    #endif
     gtk_misc_set_alignment (GTK_MISC (widget), 0.0, 0.5);
 
     return widget;
