@@ -29,12 +29,8 @@
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
-    #define is_writable(_cfg_filename) \
-        !g_access (_cfg_filename, W_OK) || \
-        !g_file_test (_cfg_filename, G_FILE_TEST_EXISTS)
-#else
-    #define is_writable(_cfg_filename) 1
 #endif
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,7 +63,6 @@ static gchar*
 build_config_filename (const gchar* filename)
 {
     const gchar* path = sokoke_set_config_dir (NULL);
-    katze_mkdir_with_parents (path, 0700);
     return g_build_filename (path, filename, NULL);
 }
 
@@ -1309,7 +1304,6 @@ midori_load_extensions (gpointer data)
         {
             const gchar* filename;
             gchar* config_file = build_config_filename ("config");
-            gboolean is_writable = is_writable (config_file);
 
             while ((filename = g_dir_read_name (extension_dir)))
             {
@@ -1353,13 +1347,10 @@ midori_load_extensions (gpointer data)
                         if (!g_strcmp0 (filename, name))
                             g_signal_emit_by_name (extension, "activate", app);
                 }
-                if (is_writable)
-                {
-                    g_signal_connect_after (extension, "activate",
-                        G_CALLBACK (extension_activate_cb), app);
-                    g_signal_connect_after (extension, "deactivate",
-                        G_CALLBACK (extension_activate_cb), app);
-                }
+                g_signal_connect_after (extension, "activate",
+                    G_CALLBACK (extension_activate_cb), app);
+                g_signal_connect_after (extension, "deactivate",
+                    G_CALLBACK (extension_activate_cb), app);
                 g_object_unref (extension);
             }
             g_dir_close (extension_dir);
@@ -1426,9 +1417,8 @@ midori_load_session (gpointer data)
     gtk_widget_show (GTK_WIDGET (browser));
 
     katze_assign (config_file, build_config_filename ("accels"));
-    if (is_writable (config_file))
-        g_signal_connect_after (gtk_accel_map_get (), "changed",
-            G_CALLBACK (accel_map_changed_cb), NULL);
+    g_signal_connect_after (gtk_accel_map_get (), "changed",
+        G_CALLBACK (accel_map_changed_cb), NULL);
 
     if (katze_array_is_empty (_session))
     {
@@ -1466,17 +1456,14 @@ midori_load_session (gpointer data)
     g_object_unref (_session);
 
     katze_assign (config_file, build_config_filename ("session.xbel"));
-    if (is_writable (config_file))
-    {
-        g_signal_connect_after (browser, "notify::uri",
-            G_CALLBACK (midori_browser_session_cb), session);
-        g_signal_connect_after (browser, "add-tab",
-            G_CALLBACK (midori_browser_session_cb), session);
-        g_signal_connect_after (browser, "remove-tab",
-            G_CALLBACK (midori_browser_session_cb), session);
-        g_object_weak_ref (G_OBJECT (session),
-            (GWeakNotify)(midori_browser_weak_notify_cb), browser);
-    }
+    g_signal_connect_after (browser, "notify::uri",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect_after (browser, "add-tab",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect_after (browser, "remove-tab",
+        G_CALLBACK (midori_browser_session_cb), session);
+    g_object_weak_ref (G_OBJECT (session),
+        (GWeakNotify)(midori_browser_weak_notify_cb), browser);
 
     if (command)
         midori_app_send_command (app, command);
@@ -1570,8 +1557,7 @@ midori_remove_config_file (gint         clear_prefs,
     if ((clear_prefs & flag) == flag)
     {
         gchar* config_file = build_config_filename (filename);
-        if (is_writable (config_file))
-            g_unlink (config_file);
+        g_unlink (config_file);
         g_free (config_file);
     }
 }
@@ -1833,6 +1819,8 @@ main (int    argc,
         return 1;
     }
 
+    katze_mkdir_with_parents (sokoke_set_config_dir (NULL), 0700);
+
     /* Load configuration files */
     error_messages = g_string_new (NULL);
     config_file = build_config_filename ("config");
@@ -2010,12 +1998,11 @@ main (int    argc,
     }
 
     katze_assign (config_file, build_config_filename ("config"));
-    if (is_writable (config_file))
-        g_signal_connect_after (settings, "notify",
-            G_CALLBACK (settings_notify_cb), app);
+    g_signal_connect_after (settings, "notify",
+        G_CALLBACK (settings_notify_cb), app);
 
     katze_assign (config_file, build_config_filename ("search"));
-    if (is_writable (config_file))
+    if (1)
     {
         g_signal_connect_after (search_engines, "add-item",
             G_CALLBACK (midori_search_engines_modify_cb), search_engines);
@@ -2030,7 +2017,7 @@ main (int    argc,
         }
     }
     katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
-    if (is_writable (config_file))
+    if (1)
     {
         g_signal_connect_after (bookmarks, "add-item",
             G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
@@ -2054,22 +2041,16 @@ main (int    argc,
         }
     }
     katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
-    if (is_writable (config_file))
-    {
-        g_signal_connect_after (trash, "add-item",
-            G_CALLBACK (midori_trash_add_item_cb), NULL);
-        g_signal_connect_after (trash, "remove-item",
-            G_CALLBACK (midori_trash_remove_item_cb), NULL);
-    }
+    g_signal_connect_after (trash, "add-item",
+        G_CALLBACK (midori_trash_add_item_cb), NULL);
+    g_signal_connect_after (trash, "remove-item",
+        G_CALLBACK (midori_trash_remove_item_cb), NULL);
     #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
-    if (is_writable (config_file))
-    {
-        g_signal_connect_after (history, "add-item",
-            G_CALLBACK (midori_history_add_item_cb), db);
-        g_signal_connect_after (history, "clear",
-            G_CALLBACK (midori_history_clear_cb), db);
-    }
+    g_signal_connect_after (history, "add-item",
+        G_CALLBACK (midori_history_add_item_cb), db);
+    g_signal_connect_after (history, "clear",
+        G_CALLBACK (midori_history_clear_cb), db);
     #endif
 
     katze_item_set_parent (KATZE_ITEM (_session), app);
@@ -2146,8 +2127,7 @@ main (int    argc,
         != MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, build_config_filename ("session.xbel"));
-        if (is_writable (config_file))
-            g_unlink (config_file);
+        g_unlink (config_file);
     }
 
     g_object_unref (settings);
