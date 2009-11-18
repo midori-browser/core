@@ -3769,8 +3769,6 @@ can_do (find)
  * @from_cache: whether to allow caching
  *
  * Reloads the view.
- *
- * Note: The @from_cache value is currently ignored.
  **/
 void
 midori_view_reload (MidoriView* view,

@@ -282,7 +282,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
     can_reload = midori_view_can_reload (view);
 
-    _action_set_sensitive (browser, "Reload", can_reload && !loading);
+    _action_set_sensitive (browser, "Reload", can_reload);
     _action_set_sensitive (browser, "Stop", can_reload && loading);
     _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
     _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
@@ -5110,8 +5110,8 @@ static const gchar* ui_markup =
     "</menu>"
     "<menuitem action='Panel'/>"
     "<separator/>"
-    "<menuitem action='Reload'/>"
     "<menuitem action='Stop'/>"
+    "<menuitem action='Reload'/>"
     "<separator/>"
     "<menuitem action='ZoomIn'/>"
     "<menuitem action='ZoomOut'/>"
