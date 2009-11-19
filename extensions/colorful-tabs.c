@@ -23,12 +23,6 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
     GdkColor color;
 
     label = midori_view_get_proxy_tab_label (view);
-    if (!midori_extension_get_boolean (extension, "tint"))
-    {
-        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
-        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
-        return;
-    }
 
     /* Find a color that is unique to an address. We merely compute
        a hash value, pick the first 6 + 1 characters and turn the
@@ -60,45 +54,35 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
     }
 }
-
 static void
-colorful_tabs_browser_foreach_cb (GtkWidget*       view,
+colorful_tabs_browser_add_tab_cb (MidoriBrowser*   browser,
+                                  GtkWidget*       view,
                                   MidoriExtension* extension)
 {
     colorful_tabs_view_notify_uri_cb (MIDORI_VIEW (view), NULL, extension);
-}
-
-static void
-colorful_tabs_button_toggled_cb (GtkWidget*       button,
-                                 MidoriExtension* extension)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (button);
-
-    midori_extension_set_boolean (extension, "tint",
-        !midori_extension_get_boolean (extension, "tint"));
-    midori_browser_foreach (browser,
-        (GtkCallback)colorful_tabs_browser_foreach_cb, extension);
-}
-
-static void
-colorful_tabs_browser_add_tab_cb (MidoriBrowser*   browser,
-                                  MidoriView*      view,
-                                  MidoriExtension* extension)
-{
     g_signal_connect (view, "notify::uri",
         G_CALLBACK (colorful_tabs_view_notify_uri_cb), extension);
 }
 
 static void
 colorful_tabs_deactivate_cb (MidoriExtension* extension,
-                             GtkWidget*       bbox)
+                             MidoriBrowser*   browser)
 {
+    guint i;
+    GtkWidget* view;
+
     g_signal_handlers_disconnect_by_func (
-        extension, colorful_tabs_deactivate_cb, bbox);
-    /* FIXME: Disconnect signals */
-    midori_browser_foreach (midori_browser_get_for_widget (bbox),
-        (GtkCallback)colorful_tabs_browser_foreach_cb, extension);
-    gtk_widget_destroy (bbox);
+        extension, colorful_tabs_deactivate_cb, browser);
+    i = 0;
+    while ((view = midori_browser_get_nth_tab (browser, i++)))
+    {
+        GtkWidget* label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
+        gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), FALSE);
+        gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
+        gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
+        g_signal_handlers_disconnect_by_func (
+            view, colorful_tabs_view_notify_uri_cb, extension);
+    }
 }
 
 static void
@@ -106,26 +90,16 @@ colorful_tabs_app_add_browser_cb (MidoriApp*       app,
                                   MidoriBrowser*   browser,
                                   MidoriExtension* extension)
 {
-    GtkWidget* statusbar;
-    GtkWidget* bbox;
-    GtkWidget* button;
+    guint i;
+    GtkWidget* view;
 
-    statusbar = katze_object_get_object (browser, "statusbar");
-    bbox = gtk_hbox_new (FALSE, 0);
-    button = gtk_check_button_new_with_label (_("Tint tabs distinctly"));
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button),
-        midori_extension_get_boolean (extension, "tint"));
-    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    gtk_widget_show (button);
-    gtk_widget_show (bbox);
-    gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
-
-    g_signal_connect (button, "toggled",
-        G_CALLBACK (colorful_tabs_button_toggled_cb), extension);
+    i = 0;
+    while ((view = midori_browser_get_nth_tab (browser, i++)))
+        colorful_tabs_browser_add_tab_cb (browser, view, extension);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (colorful_tabs_browser_add_tab_cb), extension);
     g_signal_connect (extension, "deactivate",
-        G_CALLBACK (colorful_tabs_deactivate_cb), bbox);
+        G_CALLBACK (colorful_tabs_deactivate_cb), browser);
 }
 
 static void
@@ -142,6 +116,8 @@ colorful_tabs_activate_cb (MidoriExtension* extension,
         colorful_tabs_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (colorful_tabs_app_add_browser_cb), extension);
+
+    g_object_unref (browsers);
 }
 
 MidoriExtension*
@@ -153,7 +129,6 @@ extension_init (void)
         "version", "0.1",
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
-    midori_extension_install_boolean (extension, "tint", FALSE);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (colorful_tabs_activate_cb), NULL);
