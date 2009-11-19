@@ -440,7 +440,7 @@ midori_history_remove_item_cb (KatzeArray* history,
 
     sqlcmd = sqlite3_mprintf (
         "DELETE FROM history WHERE uri = '%q' AND"
-        " title = '%q' AND date = %" G_GINT64_FORMAT,
+        " title = '%q' AND date = %llu",
         katze_item_get_uri (item),
         katze_item_get_name (item),
         katze_item_get_added (item));
@@ -486,7 +486,7 @@ midori_history_notify_item_cb (KatzeItem*  item,
     GError* error = NULL;
 
     sqlcmd = sqlite3_mprintf ("UPDATE history SET title='%q' WHERE "
-                              "uri='%q' AND date=%" G_GUINT64_FORMAT,
+                              "uri='%q' AND date=%llu",
                               katze_item_get_name (item),
                               katze_item_get_uri (item),
                               katze_item_get_added (item));
@@ -534,8 +534,8 @@ midori_history_add_item_cb (KatzeArray* array,
         }
     }
     sqlcmd = sqlite3_mprintf ("INSERT INTO history VALUES"
-                              "('%q', '%q', %" G_GUINT64_FORMAT ","
-                              " %" G_GUINT64_FORMAT ")",
+                              "('%q', '%q', %llu,"
+                              " %llu)",
                               katze_item_get_uri (item),
                               katze_item_get_name (item),
                               katze_item_get_added (item),
