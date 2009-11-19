@@ -675,9 +675,12 @@ midori_app_create_instance (MidoriApp*   app,
     instance = socket_init (instance_name, sokoke_set_config_dir (NULL), &exists);
     g_object_set_data (G_OBJECT (app), "sock-exists",
         exists ? (gpointer)0xdeadbeef : NULL);
-    channel = g_io_channel_unix_new (instance);
-    g_io_add_watch (channel, G_IO_IN | G_IO_PRI | G_IO_ERR,
-        (GIOFunc)midori_app_io_channel_watch_cb, app);
+    if (instance != MidoriAppInstanceNull)
+    {
+        channel = g_io_channel_unix_new (instance);
+        g_io_add_watch (channel, G_IO_IN | G_IO_PRI | G_IO_ERR,
+            (GIOFunc)midori_app_io_channel_watch_cb, app);
+    }
     #endif
 
     g_free (instance_name);
