@@ -890,20 +890,22 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     g_free (template_file);
     if (g_file_get_contents (path, &template, NULL, NULL))
     {
+        #if !WEBKIT_CHECK_VERSION (1, 1, 14)
         SoupServer* res_server;
         guint port;
+        #endif
         gchar* res_root;
         gchar* stock_root;
         gchar* title;
         gchar* message;
         gchar* result;
 
-        res_server = sokoke_get_res_server ();
-        port = soup_server_get_port (res_server);
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
         res_root = g_strdup ("res:/");
         stock_root = g_strdup ("stock:/");
         #else
+        res_server = sokoke_get_res_server ();
+        port = soup_server_get_port (res_server);
         res_root = g_strdup_printf ("http://localhost:%d/res", port);
         stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
         #endif
@@ -2869,8 +2871,10 @@ midori_view_set_uri (MidoriView*  view,
 
         if (view->speed_dial_in_new_tabs && !g_strcmp0 (uri, ""))
         {
+            #if !WEBKIT_CHECK_VERSION (1, 1, 14)
             SoupServer* res_server;
             guint port;
+            #endif
             gchar* res_root;
             gchar* speed_dial_head;
             gchar* speed_dial_body;
@@ -2884,10 +2888,15 @@ midori_view_set_uri (MidoriView*  view,
             if (G_UNLIKELY (!speed_dial_head))
                 speed_dial_head = g_strdup ("");
 
+            #if WEBKIT_CHECK_VERSION (1, 1, 14)
+            res_root = g_strdup ("res:/");
+            stock_root = g_strdup ("stock:/");
+            #else
             res_server = sokoke_get_res_server ();
             port = soup_server_get_port (res_server);
             res_root = g_strdup_printf ("http://localhost:%d/res", port);
             stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
+            #endif
             body_fname = g_build_filename (sokoke_set_config_dir (NULL),
                                            "speeddial.json", NULL);
 

@@ -15,8 +15,7 @@
 
 #include <katze/katze.h>
 
-#include <gtk/gtk.h>
-#include <libsoup/soup.h>
+#include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
 
 gchar*
@@ -150,8 +149,10 @@ sokoke_find_config_filename             (const gchar*    folder,
 gchar*
 sokoke_find_data_filename               (const gchar*    filename);
 
+#if !WEBKIT_CHECK_VERSION (1, 1, 14)
 SoupServer*
 sokoke_get_res_server                   (void);
+#endif
 
 gchar*
 sokoke_replace_variables                (const gchar* template,

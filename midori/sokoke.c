@@ -1156,6 +1156,7 @@ sokoke_find_data_filename (const gchar* filename)
     return g_build_filename (MDATADIR, filename, NULL);
 }
 
+#if !WEBKIT_CHECK_VERSION (1, 1, 14)
 static void
 res_server_handler_cb (SoupServer*        res_server,
                        SoupMessage*       msg,
@@ -1248,6 +1249,7 @@ sokoke_get_res_server (void)
 
     return res_server;
 }
+#endif
 
 gchar*
 sokoke_replace_variables (const gchar* template,
