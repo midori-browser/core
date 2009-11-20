@@ -26,6 +26,13 @@
     (__filter && (g_str_has_prefix (__filter, "http") \
                || g_str_has_prefix (__filter, "file")))
 
+typedef struct
+{
+    const gchar* page_uri;
+    const gchar* uri;
+    const gchar* query;
+} Matcher;
+
 static GHashTable* pattern;
 static gchar* blockcss = NULL;
 static gchar* blockcssprivate = NULL;
@@ -41,21 +48,20 @@ adblock_build_js (const gchar* style,
     return g_strdup_printf (
         "window.addEventListener ('DOMContentLoaded',"
         "function () {"
-        "var URL = location.href;"
-        "var sites = new Array(); %s;"
-        "var public = '%s';"
-        "for (var i in sites) {"
-        "if (URL.indexOf(i) != -1) {"
-        "public += sites[i];"
-        "break;"
-        "}}"
-        "public += ' {display: none !important;}';"
-        "var mystyle = document.createElement(\"style\");"
-        "mystyle.setAttribute(\"type\", \"text/css\");"
-        "mystyle.appendChild(document.createTextNode(public));"
-        "var head = document.getElementsByTagName(\"head\")[0];"
-        "if (head) head.appendChild(mystyle);"
-        "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
+        "   var URL = location.href;"
+        "   var sites = new Array(); %s;"
+        "   var public = '%s';"
+        "   for (var i in sites) {"
+        "       if (URL.indexOf(i) != -1) {"
+        "           public += sites[i];"
+        "           break;"
+        "   }}"
+        "   public += ' {display: none !important;}';"
+        "   var mystyle = document.createElement('style');"
+        "   mystyle.setAttribute('type', 'text/css');"
+        "   mystyle.appendChild(document.createTextNode(public));"
+        "   var head = document.getElementsByTagName('head')[0];"
+        "   if (head) head.appendChild(mystyle);"
         "}, true);",
         private,
         style);
@@ -73,10 +79,6 @@ adblock_fixup_regexp (gchar* src)
     /* FIXME: Avoid always allocating twice the string */
     s = dst = g_malloc (strlen (src) * 2);
 
-    /* |http:// means ^http:// */
-    if (src[0] == '|')
-        src[0] = '^';
-
     while (*src)
     {
         switch (*src)
@@ -92,6 +94,15 @@ adblock_fixup_regexp (gchar* src)
             break;
         case '|':
             *s++ = '\\';
+            break;
+        case '/':
+            *s++ = '\\';
+            break;
+        /* FIXME: We actually need to match :[0-9]+ or '/'. Sign means
+           "here could be port number or nothing". So bla.com^ will match
+           bla.com/ or bla.com:8080/ but not bla.com.au/ */
+        case '^':
+            *src = '?';
             break;
         }
         *s++ = *src;
@@ -518,11 +529,37 @@ adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
 }
 
 static gboolean
-adblock_is_matched (const gchar*  patt,
+adblock_is_matched (const gchar*  opts,
                     const GRegex* regex,
-                    const gchar*  uri)
+                    Matcher*      data)
 {
-    return g_regex_match_full (regex, uri, -1, 0, 0, NULL, NULL);
+    gchar* patt;
+
+    if (g_regex_match_simple ("type=fulluri,", opts, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY))
+        patt = g_strdup (data->uri);
+    else
+        patt = g_strdup (data->query);
+
+    if (g_regex_match_full (regex, patt, -1, 0, 0, NULL, NULL))
+    {
+        if (g_regex_match_simple (",third-party", opts,
+                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+        {
+            if (data->page_uri && g_regex_match_full (regex, data->page_uri, -1, 0, 0, NULL, NULL))
+            {
+                g_free (patt);
+                return FALSE;
+            }
+        }
+        /* TODO: Domain opt check */
+        g_free (patt);
+        return TRUE;
+    }
+    else
+    {
+        g_free (patt);
+        return FALSE;
+    }
 }
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
@@ -534,10 +571,38 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       WebKitNetworkResponse* response,
                                       GtkWidget*             image)
 {
-    const gchar* uri = webkit_network_request_get_uri (request);
-    if (!strncmp (uri, "data", 4))
+    Matcher data;
+    const char *page_uri;
+    const gchar* uri;
+    SoupMessage* msg;
+    SoupURI* soup_uri;
+
+    uri = webkit_network_request_get_uri (request);
+    if (!strncmp (uri, "data", 4) || !strncmp (uri, "file", 4))
         return;
-    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, (char*)uri))
+
+    msg = webkit_network_request_get_message (request);
+    if (!msg)
+        return;
+
+    if (msg->method && !strncmp (msg->method, "POST", 4))
+        return;
+
+    soup_uri = soup_uri_new (uri);
+    if (soup_uri->query)
+        data.query = g_strdup_printf ("%s?%s", soup_uri->path, soup_uri->query);
+    else
+        data.query = g_strdup (soup_uri->path);
+    soup_uri_free (soup_uri);
+
+    data.uri = uri;
+    page_uri = webkit_web_view_get_uri (web_view);
+
+    if (!page_uri || !strcmp (page_uri, "about:blank"))
+        page_uri = uri;
+    data.page_uri = page_uri;
+
+    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, &data))
     {
         #if 0
         gchar* text;
@@ -558,9 +623,32 @@ static void
 adblock_session_request_queued_cb (SoupSession* session,
                                    SoupMessage* msg)
 {
-    SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, uri))
+    Matcher data;
+    SoupURI* soup_uri;
+    gchar* uri;
+    gchar* page_uri;
+
+    if (msg->method && !strncmp (msg->method, "POST", 4))
+        return;
+
+    /* FIXME: There is a crasher somewhere introduced with the refactoring */
+
+    soup_uri = soup_message_get_uri (msg);
+    uri = soup_uri_to_string (soup_uri, FALSE);
+    if (soup_uri->query)
+        data.query = g_strdup_printf ("%s?%s", soup_uri->path, soup_uri->query);
+    else
+        data.query = g_strdup (soup_uri->path);
+    soup_uri_free (soup_uri);
+
+    data.uri = uri;
+    page_uri = NULL; /* FIXME */
+
+    if (!page_uri || !strcmp (page_uri, "about:blank"))
+        page_uri = uri;
+    data.page_uri = page_uri;
+
+    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, &data))
     {
         /* FIXME: Update image tooltip */
 
@@ -636,6 +724,27 @@ adblock_app_add_browser_cb (MidoriApp*       app,
 }
 
 static void
+adblock_compile_regexp (GHashTable* tbl,
+                       gchar*      patt,
+                       gchar*      opts)
+{
+    GRegex* regex;
+    GError* error = NULL;
+
+    /* TODO: Play with optimization flags */
+    regex = g_regex_new (patt, G_REGEX_OPTIMIZE,
+                         G_REGEX_MATCH_NOTEMPTY, &error);
+
+    if (!error)
+        g_hash_table_insert (tbl, opts, regex);
+    else
+    {
+        g_warning ("%s: %s", G_STRFUNC, error->message);
+        g_error_free (error);
+    }
+}
+
+static void
 adblock_frame_add (gchar* line)
 {
     gchar* new_blockcss;
@@ -657,8 +766,9 @@ adblock_frame_add_private (gchar* line)
     {
         gchar** domains;
         gint max, i;
+
         domains = g_strsplit (data[0], ",", -1);
-        for (max = i = 0; domains [i]; i++)
+        for (max = i = 0; domains[i]; i++)
         {
             new_blockcss = g_strdup_printf ("%s;\nsites['%s']+=',%s'",
                 blockcssprivate, g_strstrip (domains[i]), data[1]);
@@ -675,6 +785,56 @@ adblock_frame_add_private (gchar* line)
     g_strfreev (data);
 }
 
+static void
+adblock_add_url_pattern (gchar* line)
+{
+    gchar* opts;
+    gchar** data;
+    gchar* patt;
+    gchar* parsed;
+
+    if (line[0] == '|' && line[1] == '|' )
+    {
+        (void)*line++;
+        (void)*line++;
+
+        data = g_strsplit (line, "$", 2);
+        parsed = adblock_fixup_regexp (data[0]);
+        patt = g_strdup_printf ("^https?://([a-z0-9\\.]+)?%s", parsed);
+        if (data[1])
+            opts = g_strdup_printf ("type=fulluri,regexp=%s,%s", patt, data[1]);
+        else
+            opts = g_strdup_printf ("type=fulluri,regexp=%s", patt);
+
+        g_strfreev (data);
+        g_free (parsed);
+    }
+    else if (line[0] == '|')
+    {
+        (void)*line++;
+
+        data = g_strsplit (line, "$", 2);
+        parsed = adblock_fixup_regexp (data[0]);
+        patt = g_strdup_printf ("^%s", parsed);
+        if (data[1])
+            opts = g_strdup_printf ("type=fulluri,regexp=%s,%s", patt, data[1]);
+        else
+            opts = g_strdup_printf ("type=fulluri,regexp=%s", patt);
+
+        g_strfreev (data);
+        g_free (parsed);
+    }
+    else
+    {
+        patt = adblock_fixup_regexp (line);
+        opts = g_strdup_printf ("regexp=%s", patt);
+    }
+
+    /* g_debug ("got: %s opts %s", patt, opts); */
+    adblock_compile_regexp (pattern, patt, opts);
+    g_free (patt);
+}
+
 static gchar*
 adblock_parse_line (gchar* line)
 {
@@ -687,63 +847,42 @@ adblock_parse_line (gchar* line)
     /* FIXME: No support for whitelisting */
     if (line[0] == '@' && line[1] == '@')
         return NULL;
-    /* FIXME: What is this? */
-    if (line[0] == '|' && line[1] == '|')
+    /* FIXME: No support for [include] and [exclude] tags */
+    if (line[0] == '[')
         return NULL;
-    /* ditto */
-    if (strstr (line,"$"))
-        return NULL;
-    /* Got block hider */
-    if (line[0] == '#' && line[1] == '#' && (line[2] == '.' || line[2] == '#'
-     || line[2] == 'A' || line[2] == 'a' || line[2] == 'D' || line[2] == 'U'))
+
+    /* Got CSS block hider */
+    if (line[0] == '#' && line[1] == '#' )
     {
         adblock_frame_add (line);
         return NULL;
     }
-    /* FIXME: Do we have smth else starting with ##? */
-    if (line[0] == '#' && line[1] == '#')
+    /* Some crazy lists do this */
+    if (line[0] == '#')
         return NULL;
 
+    /* Got per domain CSS hider rule */
     if (strstr (line,"##"))
     {
         adblock_frame_add_private (line);
         return NULL;
     }
-    /* FIXME: No support for [include] and [exclude] tags */
-    if (line[0] == '[')
-        return NULL;
-    return adblock_fixup_regexp (line);
+
+    /* Got URL blocker rule */
+    adblock_add_url_pattern (line);
+    return line;
 }
 
 static void
 adblock_parse_file (gchar* path)
 {
     FILE* file;
+    gchar line[500];
+
     if ((file = g_fopen (path, "r")))
     {
-        gchar line[500];
-        GRegex* regex;
-
         while (fgets (line, 500, file))
-        {
-            GError* error = NULL;
-            gchar* parsed;
-
-            parsed = adblock_parse_line (line);
-            if (!parsed)
-                continue;
-
-            regex = g_regex_new (parsed, G_REGEX_OPTIMIZE,
-                                 G_REGEX_MATCH_NOTEMPTY, &error);
-            if (error)
-            {
-                g_warning ("%s: %s", G_STRFUNC, error->message);
-                g_error_free (error);
-                g_free (parsed);
-            }
-            else
-                g_hash_table_insert (pattern, parsed, regex);
-        }
+            adblock_parse_line (line);
         fclose (file);
     }
 }
@@ -846,6 +985,7 @@ test_adblock_pattern (void)
 
     temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
 
+    /* TODO: Update some tests and add new ones. */
     g_file_set_contents (filename,
         "*ads.foo.bar*\n"
         "*ads.bogus.name*\n"
