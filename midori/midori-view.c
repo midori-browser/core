@@ -2163,6 +2163,12 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     #else
     content_type = g_strdup (mime_type);
     #endif
+    if (!content_type)
+    #ifdef G_OS_WIN32
+        content_type = g_content_type_get_mime_type ("*");
+    #else
+        content_type = g_strdup ("application/octet-stream");
+    #endif
     description = g_content_type_get_description (content_type);
     #if GTK_CHECK_VERSION (2, 14, 0)
     icon = g_content_type_get_icon (content_type);
