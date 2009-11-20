@@ -354,9 +354,12 @@ tab_panel_view_notify_title_cb (GtkWidget*       view,
         GtkTreeIter iter;
         if (tab_panel_get_iter_for_view (model, &iter, view))
         {
+            GtkWidget* label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
+            GtkStyle* style = gtk_widget_get_style (label);
             gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
                 4, title,
-                5, midori_view_get_label_ellipsize (MIDORI_VIEW (view)), -1);
+                5, midori_view_get_label_ellipsize (MIDORI_VIEW (view)),
+                6, &style->bg[GTK_STATE_NORMAL], -1);
         }
     }
 }
@@ -420,7 +423,7 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
 
         gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
             &iter, NULL, page, 0, view, 1, GTK_STOCK_CLOSE, 2, buttons,
-            3, icon, 4, title, 5, ellipsize , -1);
+            3, icon, 4, title, 5, ellipsize, 6, NULL, -1);
     }
 
     if (!g_signal_handler_find (view, G_SIGNAL_MATCH_FUNC,
@@ -498,8 +501,8 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
 
     panel = katze_object_get_object (browser, "panel");
 
-    model = gtk_tree_store_new (6, MIDORI_TYPE_VIEW,
-        G_TYPE_STRING, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+    model = gtk_tree_store_new (7, MIDORI_TYPE_VIEW,
+        G_TYPE_STRING, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT, GDK_TYPE_COLOR);
     g_object_set_data (G_OBJECT (browser), "tab-panel-ext-model", model);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
@@ -513,18 +516,19 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer_pixbuf,
-        "pixbuf", 3, NULL);
+        "pixbuf", 3, "cell-background-gdk", 6, NULL);
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, TRUE);
     gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer_text,
-        "text", 4, "ellipsize", 5, NULL);
+        "text", 4, "ellipsize", 5, "cell-background-gdk", 6, NULL);
     gtk_tree_view_column_set_expand (column, TRUE);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
     gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer_pixbuf,
-        "stock-id", 1, "follow-state", 2, "visible", 2, NULL);
+        "stock-id", 1, "follow-state", 2,
+        "visible", 2, "cell-background-gdk", 6, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     g_object_connect (treeview,
                       "signal::row-activated",
