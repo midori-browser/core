@@ -2463,6 +2463,7 @@ _action_find_activate (GtkAction*     action,
     if (!GTK_WIDGET_VISIBLE (browser->find))
     {
         GtkWidget* view;
+        const gchar* text;
 
         #if !HAVE_HILDON
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
@@ -2472,8 +2473,8 @@ _action_find_activate (GtkAction*     action,
         gtk_widget_show (GTK_WIDGET (browser->find_highlight));
         gtk_widget_show (GTK_WIDGET (browser->find_close));
         view = midori_browser_get_current_tab (browser);
-        gtk_entry_set_text (GTK_ENTRY (browser->find_text),
-            midori_view_get_selected_text (MIDORI_VIEW (view)));
+        if ((text = midori_view_get_selected_text (MIDORI_VIEW (view))))
+            gtk_entry_set_text (GTK_ENTRY (browser->find_text), text);
         gtk_widget_show (browser->find);
     }
 
