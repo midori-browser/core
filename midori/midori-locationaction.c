@@ -736,6 +736,7 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     gchar* title;
     gboolean match;
     gchar* temp;
+    gchar* ftemp;
 
     model = gtk_entry_completion_get_model (completion);
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
@@ -744,18 +745,24 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     if (G_LIKELY (uri))
     {
         gchar* ckey = g_utf8_collate_key (key, -1);
+        gchar* fkey = g_utf8_casefold (ckey, -1);
+        g_free (ckey);
         temp = g_utf8_collate_key (uri, -1);
-        match = (strstr (temp, ckey) != NULL);
+        ftemp = g_utf8_casefold (temp, -1);
         g_free (temp);
+        match = (strstr (ftemp, fkey) != NULL);
+        g_free (ftemp);
         g_free (uri);
 
         if (!match && G_LIKELY (title))
         {
             temp = g_utf8_collate_key (title, -1);
-            match = (strstr (temp, ckey) != NULL);
+            ftemp = g_utf8_casefold (temp, -1);
             g_free (temp);
+            match = (strstr (ftemp, fkey) != NULL);
+            g_free (ftemp);
         }
-        g_free (ckey);
+        g_free (fkey);
     }
 
     g_free (title);
@@ -1423,9 +1430,11 @@ midori_location_action_set_search_engines (MidoriLocationAction* location_action
         completion = gtk_entry_get_completion (GTK_ENTRY (child));
         i = 0;
         if (location_action->search_engines)
-        while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
-            gtk_entry_completion_delete_action (completion, 0);
-        midori_location_action_add_actions (completion, search_engines);
+        {
+            while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
+                gtk_entry_completion_delete_action (completion, 0);
+            midori_location_action_add_actions (completion, search_engines);
+        }
     }
 
     katze_object_assign (location_action->search_engines, search_engines);
