@@ -2115,8 +2115,11 @@ _action_window_new_activate (GtkAction*     action,
 {
     MidoriBrowser* new_browser;
     g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
-    midori_browser_add_uri (new_browser, "");
-    midori_browser_activate_action (new_browser, "Location");
+    if (new_browser)
+    {
+        midori_browser_add_uri (new_browser, "");
+        midori_browser_activate_action (new_browser, "Location");
+    }
 }
 
 static void
