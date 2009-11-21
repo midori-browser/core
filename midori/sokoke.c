@@ -458,11 +458,17 @@ sokoke_format_uri_for_display (const gchar* uri)
 {
     if (uri && g_str_has_prefix (uri, "http://"))
     {
-        gchar* unescaped = g_uri_unescape_string (uri, NULL);
+        gchar* unescaped = g_uri_unescape_string (uri, " +");
         #ifdef HAVE_LIBSOUP_2_27_90
         gchar* path;
-        gchar* hostname = sokoke_hostname_from_uri (unescaped, &path);
-        gchar* decoded = g_hostname_to_unicode (hostname);
+        gchar* hostname;
+        gchar* decoded;
+
+        if (!unescaped)
+            return g_strdup (uri);
+
+        hostname = sokoke_hostname_from_uri (unescaped, &path);
+        decoded = g_hostname_to_unicode (hostname);
 
         if (decoded)
         {
@@ -476,6 +482,10 @@ sokoke_format_uri_for_display (const gchar* uri)
         return unescaped;
         #elif HAVE_LIBIDN
         gchar* decoded;
+
+        if (!unescaped)
+            return g_strdup (uri);
+
         if (!idna_to_unicode_8z8z (unescaped, &decoded, 0) == IDNA_SUCCESS)
             return unescaped;
         g_free (unescaped);
