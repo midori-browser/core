@@ -2222,7 +2222,7 @@ _action_add_news_feed_activate (GtkAction*     action,
         return;
 
     if (browser->news_aggregator && *browser->news_aggregator)
-        sokoke_spawn_program (browser->news_aggregator, uri, TRUE);
+        sokoke_spawn_program (browser->news_aggregator, uri, FALSE);
     else
     {
         GtkWidget* dialog = gtk_message_dialog_new (
