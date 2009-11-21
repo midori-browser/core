@@ -307,6 +307,26 @@ adblock_preferences_add_clicked_cb (GtkWidget*    button,
 }
 
 static void
+adblock_preferences_edit_clicked_cb (GtkWidget*         button,
+                                     GtkTreeViewColumn* column)
+{
+    GdkEvent* event = gtk_get_current_event ();
+    GtkTreeView* treeview = g_object_get_data (G_OBJECT (button), "treeview");
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
+    {
+        gchar* path = gtk_tree_model_get_string_from_iter (model, &iter);
+        GtkTreePath* tree_path = gtk_tree_path_new_from_string (path);
+        /* gtk_cell_renderer_start_editing */
+        gtk_tree_view_set_cursor (treeview, tree_path, column, TRUE);
+        gtk_tree_path_free (tree_path);
+        g_free (path);
+    }
+    gdk_event_free (event);
+}
+
+static void
 adblock_preferences_remove_clicked_cb (GtkWidget*   button,
                                        GtkTreeView* treeview)
 {
@@ -458,8 +478,10 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
         G_CALLBACK (adblock_preferences_add_clicked_cb), liststore);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     button = gtk_button_new_from_stock (GTK_STOCK_EDIT);
+    g_object_set_data (G_OBJECT (button), "treeview", treeview);
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (adblock_preferences_edit_clicked_cb), column);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
-    gtk_widget_set_sensitive (button, FALSE);
     button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
     g_signal_connect (button, "clicked",
         G_CALLBACK (adblock_preferences_remove_clicked_cb), treeview);
