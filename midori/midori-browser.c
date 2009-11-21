@@ -6446,19 +6446,22 @@ midori_browser_set_property (GObject*      object,
             _action_by_name (browser, "Search")), browser->search_engines);
         /* FIXME: Connect to updates */
 
-        g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
-        item = katze_array_get_nth_item (browser->search_engines, last_web_search);
-        midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
-            _action_by_name (browser, "Search")), item);
-
-        i = 0;
-        while ((item = katze_array_get_nth_item (browser->search_engines, i++)))
-            if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
-            {
-                midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
+        if (browser->search_engines)
+        {
+            g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
+            item = katze_array_get_nth_item (browser->search_engines, last_web_search);
+            midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
-                break;
-            }
+
+            i = 0;
+            while ((item = katze_array_get_nth_item (browser->search_engines, i++)))
+                if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
+                {
+                    midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
+                    _action_by_name (browser, "Search")), item);
+                    break;
+                }
+        }
         break;
     }
     case PROP_HISTORY:
