@@ -4080,6 +4080,9 @@ _action_bookmarks_import_activate (GtkAction*     action,
     guint i;
     KatzeItem* item;
 
+    if (!browser->bookmarks || !GTK_WIDGET_VISIBLE (browser))
+        return;
+
     dialog = gtk_dialog_new_with_buttons (
         _("Import bookmarks..."), GTK_WINDOW (browser),
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
