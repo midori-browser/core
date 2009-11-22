@@ -253,6 +253,7 @@ katze_preferences_add_category (KatzePreferences* preferences,
         katze_preferences_prepare (preferences);
 
     priv->page = gtk_vbox_new (FALSE, 0);
+    priv->sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     gtk_widget_show (priv->page);
     gtk_container_set_border_width (GTK_CONTAINER (priv->page), 4);
     gtk_notebook_append_page (GTK_NOTEBOOK (priv->notebook),
@@ -311,7 +312,6 @@ katze_preferences_add_group (KatzePreferences* preferences,
     #if !HAVE_HILDON
     KatzePreferencesPrivate* priv = preferences->priv;
 
-    priv->sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     priv->sizegroup2 = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     priv->frame = katze_hig_frame_new (label);
     gtk_container_set_border_width (GTK_CONTAINER (priv->frame), 4);
@@ -373,7 +373,11 @@ katze_preferences_add_widget (KatzePreferences* preferences,
         GtkWidget* align = gtk_alignment_new (0, 0.5, 0, 0);
         gtk_widget_show (align);
         gtk_container_add (GTK_CONTAINER (align), priv->hbox);
+        #if HAVE_HILDON
+        if (!GTK_IS_SPIN_BUTTON (widget) && !GTK_IS_LABEL (widget))
+        #else
         if (!GTK_IS_SPIN_BUTTON (widget))
+        #endif
             gtk_size_group_add_widget (priv->sizegroup, widget);
         gtk_box_pack_start (GTK_BOX (priv->box), align, TRUE, FALSE, 0);
     }
