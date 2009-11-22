@@ -586,6 +586,9 @@ katze_property_proxy (gpointer     object,
         pango_context_list_families (context, &families, &n_families);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
+        /* 'sans' and 'sans-serif' are presumably the same */
+        if (!g_strcmp0 (string, "sans-serif"))
+            katze_assign (string, g_strdup ("sans"));
         if (string)
         {
             gint j = 0;
