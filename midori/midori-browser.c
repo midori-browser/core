@@ -2213,17 +2213,9 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
 }
 
 static void
-_action_add_news_feed_activate (GtkAction*     action,
-                                MidoriBrowser* browser)
+midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
+                                       const gchar*   uri)
 {
-    GtkWidget* view;
-    const gchar* uri;
-
-    if (!(view = midori_browser_get_current_tab (browser)))
-        return;
-    if (!(uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
-        return;
-
     if (browser->news_aggregator && *browser->news_aggregator)
         sokoke_spawn_program (browser->news_aggregator, uri, FALSE);
     else
@@ -2237,6 +2229,21 @@ _action_add_news_feed_activate (GtkAction*     action,
         g_signal_connect_swapped (dialog, "response",
             G_CALLBACK (gtk_widget_destroy), dialog);
     }
+}
+
+static void
+_action_add_news_feed_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    GtkWidget* view;
+    const gchar* uri;
+
+    if (!(view = midori_browser_get_current_tab (browser)))
+        return;
+    if (!(uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
+        return;
+
+    midori_browser_subscribe_to_news_feed (browser, uri);
 }
 
 static void
@@ -3614,6 +3621,14 @@ _action_location_submit_uri (GtkAction*     action,
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
+static void
+midori_browser_news_feed_clicked_cb (GtkWidget*     menuitem,
+                                     MidoriBrowser* browser)
+{
+    gchar* uri = g_object_get_data (G_OBJECT (menuitem), "uri");
+    midori_browser_subscribe_to_news_feed (browser, uri);
+}
+
 static gboolean
 _action_location_secondary_icon_released (GtkAction*     action,
                                           GtkWidget*     widget,
@@ -3627,7 +3642,51 @@ _action_location_secondary_icon_released (GtkAction*     action,
         if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
             _action_location_submit_uri (action, uri, FALSE, browser);
         else if ((uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
-            _action_add_news_feed_activate (action, browser);
+        {
+            KatzeArray* news_feeds;
+            KatzeItem* item;
+            KatzeItem* itemm;
+
+            news_feeds = katze_object_get_object (G_OBJECT (view), "news-feeds");
+            item = katze_array_get_nth_item (news_feeds, 0);
+            if ((itemm = katze_array_get_nth_item (news_feeds, 1)))
+            {
+                guint i;
+                GtkWidget* menu;
+                GtkWidget* menuitem;
+
+                menu = gtk_menu_new ();
+                menuitem = gtk_menu_item_new_with_label (katze_item_get_name (item));
+                g_object_set_data_full (G_OBJECT (menuitem), "uri",
+                    g_strdup (katze_item_get_uri (item)), (GDestroyNotify)g_free);
+                g_signal_connect (menuitem, "activate",
+                    G_CALLBACK (midori_browser_news_feed_clicked_cb), browser);
+                gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                menuitem = gtk_menu_item_new_with_label (katze_item_get_name (itemm));
+                g_object_set_data_full (G_OBJECT (menuitem), "uri",
+                    g_strdup (katze_item_get_uri (itemm)), (GDestroyNotify)g_free);
+                g_signal_connect (menuitem, "activate",
+                    G_CALLBACK (midori_browser_news_feed_clicked_cb), browser);
+                gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                i = 2;
+                while ((itemm = katze_array_get_nth_item (news_feeds, i++)))
+                {
+                    menuitem = gtk_menu_item_new_with_label (
+                        katze_item_get_name (itemm));
+                    g_object_set_data_full (G_OBJECT (menuitem), "uri",
+                        g_strdup (katze_item_get_uri (itemm)), (GDestroyNotify)g_free);
+                    g_signal_connect (menuitem, "activate",
+                        G_CALLBACK (midori_browser_news_feed_clicked_cb), browser);
+                    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+                }
+                sokoke_container_show_children (GTK_CONTAINER (menu));
+                katze_widget_popup (widget, GTK_MENU (menu), NULL,
+                                    KATZE_MENU_POSITION_RIGHT);
+            }
+            else
+                midori_browser_subscribe_to_news_feed (browser, uri);
+            g_object_unref (news_feeds);
+        }
         else
             _action_location_submit_uri (action, uri, FALSE, browser);
         return TRUE;
