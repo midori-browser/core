@@ -735,8 +735,6 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     gchar* uri;
     gchar* title;
     gboolean match;
-    gchar* temp;
-    gchar* ftemp;
 
     model = gtk_entry_completion_get_model (completion);
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
@@ -744,25 +742,11 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     match = FALSE;
     if (G_LIKELY (uri))
     {
-        gchar* ckey = g_utf8_collate_key (key, -1);
-        gchar* fkey = g_utf8_casefold (ckey, -1);
-        g_free (ckey);
-        temp = g_utf8_collate_key (uri, -1);
-        ftemp = g_utf8_casefold (temp, -1);
-        g_free (temp);
-        match = (strstr (ftemp, fkey) != NULL);
-        g_free (ftemp);
+        match = strstr (uri, key) != NULL;
         g_free (uri);
 
         if (!match && G_LIKELY (title))
-        {
-            temp = g_utf8_collate_key (title, -1);
-            ftemp = g_utf8_casefold (temp, -1);
-            g_free (temp);
-            match = (strstr (ftemp, fkey) != NULL);
-            g_free (ftemp);
-        }
-        g_free (fkey);
+            match = strstr (title, key) != NULL;
     }
 
     g_free (title);
