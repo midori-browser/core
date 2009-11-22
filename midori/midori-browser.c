@@ -4071,6 +4071,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     } BookmarkClient;
     static const BookmarkClient bookmark_clients[] = {
         { ".local/share/data/Arora/bookmarks.xbel", N_("Arora") },
+        { ".kazehakase/bookmarks.xml", N_("Kazehakase") },
         { ".opera/bookmarks.adr", N_("Opera") },
     };
 
