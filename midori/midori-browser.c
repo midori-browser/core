@@ -4068,11 +4068,12 @@ _action_bookmarks_import_activate (GtkAction*     action,
     {
         const gchar* path;
         const gchar* name;
+        const gchar* icon;
     } BookmarkClient;
     static const BookmarkClient bookmark_clients[] = {
-        { ".local/share/data/Arora/bookmarks.xbel", N_("Arora") },
-        { ".kazehakase/bookmarks.xml", N_("Kazehakase") },
-        { ".opera/bookmarks.adr", N_("Opera") },
+        { ".local/share/data/Arora/bookmarks.xbel", N_("Arora"), "arora" },
+        { ".kazehakase/bookmarks.xml", N_("Kazehakase"), "kazehakase-icon" },
+        { ".opera/bookmarks.adr", N_("Opera"), "opera" },
     };
 
     GtkWidget* dialog;
@@ -4081,7 +4082,10 @@ _action_bookmarks_import_activate (GtkAction*     action,
     GtkWidget* label;
     GtkWidget* combo;
     GtkComboBox* combobox;
+    GtkListStore* model;
+    GtkCellRenderer* renderer;
     GtkComboBox* combobox_folder;
+    gint icon_width = 16;
     guint i;
     KatzeItem* item;
 
@@ -4100,21 +4104,31 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
     sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
-    /* FIXME: Use application icons */
     /* TODO: Custom item, to choose a file manually */
     hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
     label = gtk_label_new_with_mnemonic (_("_Application:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    combo = gtk_combo_box_new_text ();
+    model = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT);
+    combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
+    renderer = gtk_cell_renderer_pixbuf_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, FALSE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "icon-name", 1);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "width", 2);
+    renderer = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
     combobox = GTK_COMBO_BOX (combo);
+    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, NULL);
     for (i = 0; i < G_N_ELEMENTS (bookmark_clients); i++)
     {
         gchar* path = g_build_filename (g_get_home_dir (),
                                         bookmark_clients[i].path, NULL);
         if (g_file_test (path, G_FILE_TEST_EXISTS))
-            gtk_combo_box_append_text (combobox, bookmark_clients[i].name);
+            gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+                0, bookmark_clients[i].name, 1, bookmark_clients[i].icon,
+                2, icon_width, -1);
         g_free (path);
     }
     gtk_combo_box_set_active (combobox, 0);
