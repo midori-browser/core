@@ -226,8 +226,16 @@ web_cache_message_finished_cb (SoupMessage* msg,
     tmp_headers = g_strdup_printf ("%s.dsc.tmp", filename);
     tmp_data = g_strdup_printf ("%s.tmp", filename);
 
-    g_rename (tmp_data, filename);
-    g_rename (tmp_headers, headers);
+    if (msg->status_code == SOUP_STATUS_OK)
+    {
+        g_rename (tmp_data, filename);
+        g_rename (tmp_headers, headers);
+    }
+    else
+    {
+        g_unlink (tmp_data);
+        g_unlink (tmp_headers);
+    }
 
     g_free (headers);
     g_free (tmp_headers);
