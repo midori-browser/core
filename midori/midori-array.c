@@ -279,9 +279,9 @@ katze_array_from_opera_file (KatzeArray* array,
                 else if (g_str_equal (parts[0], "VISITED"))
                     katze_item_set_visited (item,
                         g_ascii_strtoull (parts[1], NULL, 10)); */
-                /* FIXME: Implement bookmarkbar flag
                 else if (g_str_equal (parts[0], "ON PERSONALBAR"))
-                    ; */
+                    katze_item_set_meta_integer (item, "toolbar",
+                        !g_strcmp0 (parts[1], "YES") ? 1 : -1);
                 /* FIXME: Implement websites as panels
                 else if (g_str_equal (parts[0], "IN PANEL"))
                     ; */

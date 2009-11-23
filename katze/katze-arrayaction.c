@@ -369,9 +369,17 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
         return;
     }
 
+    array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeArray");
+    if (!KATZE_IS_ARRAY (array))
+    {
+        g_object_set_data (G_OBJECT (proxy), "KatzeItem", array);
+        g_signal_connect (proxy, "clicked",
+            G_CALLBACK (katze_array_action_menu_activate_cb), array_action);
+        return;
+    }
+
     menu = gtk_menu_new ();
 
-    array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeArray");
     if (!array)
         array = array_action->array;
     katze_array_action_generate_menu (array_action, array, menu, proxy);
@@ -591,12 +599,10 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
         gtk_tool_item_set_tooltip_text (toolitem, desc);
     else
         gtk_tool_item_set_tooltip_text (toolitem, uri);
-    if (KATZE_IS_ARRAY (item))
-    {
-        g_object_set_data (G_OBJECT (toolitem), "KatzeArray", item);
-        g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (katze_array_action_proxy_clicked_cb), array_action);
-    }
+
+    g_object_set_data (G_OBJECT (toolitem), "KatzeArray", item);
+    g_signal_connect (toolitem, "clicked",
+        G_CALLBACK (katze_array_action_proxy_clicked_cb), array_action);
 
     g_object_set_data (G_OBJECT (toolitem), "KatzeArrayAction", array_action);
     g_signal_connect (item, "notify",
