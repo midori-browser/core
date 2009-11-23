@@ -714,7 +714,7 @@ adblock_add_tab_foreach_cb (MidoriView*      view,
                             MidoriBrowser*   browser,
                             GtkWidget*       image)
 {
-    adblock_add_tab_cb (browser, view, NULL);
+    adblock_add_tab_cb (browser, view, image);
 }
 
 static void
@@ -731,7 +731,7 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     gtk_widget_show (image);
     gtk_box_pack_start (GTK_BOX (statusbar), image, FALSE, FALSE, 3);
     #else
-    image = NULL;
+    image = GTK_WIDGET (browser);
     #endif
 
     midori_browser_foreach (browser,
@@ -923,11 +923,10 @@ adblock_deactivate_tabs (MidoriView* view,
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_resource_request_starting_cb, image);
-    #else
-    g_signal_handlers_disconnect_by_func (
-       webkit_get_default_session (), adblock_session_request_queued_cb, NULL);
     #endif
+    #if 0
     gtk_widget_destroy (image);
+    #endif
 }
 
 static void
@@ -937,6 +936,12 @@ adblock_deactivate_cb (MidoriExtension* extension,
     MidoriBrowser* browser = midori_browser_get_for_widget (image);
     MidoriApp* app = midori_extension_get_app (extension);
 
+    #if !HAVE_WEBKIT_RESOURCE_REQUEST
+    g_signal_handlers_disconnect_matched (webkit_get_default_session (),
+        G_SIGNAL_MATCH_FUNC,
+        g_signal_lookup ("request-queued", SOUP_TYPE_SESSION), 0,
+        NULL, adblock_session_request_queued_cb, NULL);
+    #endif
     g_signal_handlers_disconnect_by_func (
         browser, adblock_browser_populate_tool_menu_cb, extension);
     g_signal_handlers_disconnect_by_func (
