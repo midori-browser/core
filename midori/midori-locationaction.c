@@ -742,11 +742,20 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     match = FALSE;
     if (G_LIKELY (uri))
     {
-        match = strstr (uri, key) != NULL;
+        gchar* fkey = g_utf8_casefold (key, -1);
+        gchar* furi = g_utf8_casefold (uri, -1);
         g_free (uri);
+        match = strstr (furi, fkey) != NULL;
+        g_free (furi);
 
         if (!match && G_LIKELY (title))
-            match = strstr (title, key) != NULL;
+        {
+            gchar* ftitle = g_utf8_casefold (title, -1);
+            match = strstr (ftitle, fkey) != NULL;
+            g_free (ftitle);
+        }
+
+        g_free (fkey);
     }
 
     g_free (title);
@@ -1414,11 +1423,10 @@ midori_location_action_set_search_engines (MidoriLocationAction* location_action
         completion = gtk_entry_get_completion (GTK_ENTRY (child));
         i = 0;
         if (location_action->search_engines)
-        {
             while ((item = katze_array_get_nth_item (location_action->search_engines, i++)))
                 gtk_entry_completion_delete_action (completion, 0);
-            midori_location_action_add_actions (completion, search_engines);
-        }
+
+        midori_location_action_add_actions (completion, search_engines);
     }
 
     katze_object_assign (location_action->search_engines, search_engines);
