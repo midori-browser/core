@@ -3433,36 +3433,20 @@ _action_source_view_activate (GtkAction*     action,
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
         gtk_widget_show (source);
         midori_browser_add_tab (browser, source);
+        g_free (text_editor);
         return;
         #else
-        GFile* file = g_file_new_for_uri (uri);
-        gchar* content_type;
-        GAppInfo* app_info;
-        GList* files;
-        gpointer context;
+        GError* error = NULL;
 
-        #if GLIB_CHECK_VERSION (2, 18, 0)
-        content_type = g_content_type_from_mime_type ("text/plain");
-        #else
-        content_type = g_strdup ("text/plain");
-        #endif
-
-        app_info = g_app_info_get_default_for_type (content_type,
-            !g_str_has_prefix (uri, "file://"));
-        g_free (content_type);
-        files = g_list_prepend (NULL, file);
-        #if GTK_CHECK_VERSION (2, 14, 0)
-        context = gdk_app_launch_context_new ();
-        gdk_app_launch_context_set_screen (context, gtk_widget_get_screen (view));
-        gdk_app_launch_context_set_timestamp (context, gtk_get_current_event_time ());
-        #else
-        context = g_app_launch_context_new ();
-        #endif
-        if (g_app_info_launch (app_info, files, context, NULL))
+        /* FIXME: Handling http transparently in the function would be nice */
+        if (g_str_has_prefix (uri, "file://"))
         {
-            g_object_unref (app_info);
-            g_list_free (files);
-            g_object_unref (file);
+            if (!sokoke_show_uri_with_mime_type (gtk_widget_get_screen (view),
+                uri, "text/plain", gtk_get_current_event_time (), &error))
+                sokoke_error_dialog (_("Could not run external program."),
+                    error ? error->message : "");
+            if (error)
+                g_error_free (error);
             g_free (text_editor);
             return;
         }

@@ -706,12 +706,14 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                                              MidoriView*                view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
-    if (g_str_has_prefix (uri, "mailto:"))
+    if (g_str_has_prefix (uri, "mailto:") || g_str_has_prefix (uri, "tel:"))
     {
-        webkit_web_policy_decision_ignore (decision);
-        sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
-                         uri, GDK_CURRENT_TIME, NULL);
-        return TRUE;
+        if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
+                             uri, GDK_CURRENT_TIME, NULL))
+        {
+            webkit_web_policy_decision_ignore (decision);
+            return TRUE;
+        }
     }
     /* TODO: Handle more external protocols */
     return FALSE;
@@ -3001,7 +3003,9 @@ midori_view_set_uri (MidoriView*  view,
         {
             midori_view_execute_script (view, &uri[11], NULL);
         }
-        else if (g_str_has_prefix (uri, "mailto:"))
+        else if (g_str_has_prefix (uri, "mailto:")
+              || g_str_has_prefix (uri, "tel:")
+              || g_str_has_prefix (uri, "callto:"))
         {
             sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
         }

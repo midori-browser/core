@@ -26,6 +26,17 @@ sokoke_js_script_eval                   (JSContextRef    js_context,
 /* Many themes need this hack for small toolbars to work */
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
+void
+sokoke_error_dialog                     (const gchar*    short_message,
+                                         const gchar*    detailed_message);
+
+gboolean
+sokoke_show_uri_with_mime_type          (GdkScreen*      screen,
+                                         const gchar*    uri,
+                                         const gchar*    mime_type,
+                                         guint32         timestamp,
+                                         GError**        error);
+
 gboolean
 sokoke_show_uri                         (GdkScreen*      screen,
                                          const gchar*    uri,

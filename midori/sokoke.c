@@ -44,6 +44,12 @@
     #include <hildon/hildon-file-chooser-dialog.h>
 #endif
 
+#if HAVE_HILDON
+    #include <libosso.h>
+    #include <hildon-mime.h>
+    #include <hildon-uri.h>
+#endif
+
 static gchar*
 sokoke_js_string_utf8 (JSStringRef js_string)
 {
@@ -90,9 +96,9 @@ sokoke_js_script_eval (JSContextRef js_context,
     return value;
 }
 
-static void
-error_dialog (const gchar* short_message,
-              const gchar* detailed_message)
+void
+sokoke_error_dialog (const gchar* short_message,
+                     const gchar* detailed_message)
 {
     GtkWidget* dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", short_message);
@@ -101,6 +107,88 @@ error_dialog (const gchar* short_message,
     gtk_widget_show (dialog);
     g_signal_connect_swapped (dialog, "response",
                               G_CALLBACK (gtk_widget_destroy), dialog);
+}
+
+/**
+ * sokoke_show_uri_with_mime_type:
+ * @screen: a #GdkScreen, or %NULL
+ * @uri: the URI to show
+ * @mime_type: a MIME type
+ * @timestamp: the timestamp of the event
+ * @error: the location of a #GError, or %NULL
+ *
+ * Shows the specified URI with an appropriate application,
+ * as though it had the specified MIME type.
+ *
+ * On Maemo, hildon_mime_open_file_with_mime_type() is used.
+ *
+ * See also: sokoke_show_uri().
+ *
+ * Return value: %TRUE on success, %FALSE if an error occurred
+ **/
+gboolean
+sokoke_show_uri_with_mime_type (GdkScreen*   screen,
+                                const gchar* uri,
+                                const gchar* mime_type,
+                                guint32      timestamp,
+                                GError**     error)
+{
+    gboolean success;
+    #if HAVE_HILDON
+    osso_context_t* osso;
+    DBusConnection* dbus;
+
+    osso = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
+    if (!osso)
+    {
+        g_print ("Failed to initialize libosso\n");
+        return FALSE;
+    }
+
+    dbus = (DBusConnection *) osso_get_dbus_connection (osso);
+    if (!dbus)
+    {
+        osso_deinitialize (osso);
+        g_print ("Failed to get dbus connection from osso context\n");
+        return FALSE;
+    }
+
+    success = (hildon_mime_open_file_with_mime_type (dbus,
+               uri, mime_type) == 1);
+    osso_deinitialize (osso);
+    #else
+    GFile* file = g_file_new_for_uri (uri);
+    gchar* content_type;
+    GAppInfo* app_info;
+    GList* files;
+    gpointer context;
+
+    #if GLIB_CHECK_VERSION (2, 18, 0)
+    content_type = g_content_type_from_mime_type (mime_type);
+    #else
+    content_type = g_strdup (mime_type);
+    #endif
+
+    app_info = g_app_info_get_default_for_type (content_type,
+        !g_str_has_prefix (uri, "file://"));
+    g_free (content_type);
+    files = g_list_prepend (NULL, file);
+    #if GTK_CHECK_VERSION (2, 14, 0)
+    context = gdk_app_launch_context_new ();
+    gdk_app_launch_context_set_screen (context, screen);
+    gdk_app_launch_context_set_timestamp (context, timestamp);
+    #else
+    context = g_app_launch_context_new ();
+    #endif
+
+    success = g_app_info_launch (app_info, files, context, error);
+
+    g_object_unref (app_info);
+    g_list_free (files);
+    g_object_unref (file);
+    #endif
+
+    return success;
 }
 
 /**
@@ -114,6 +202,8 @@ error_dialog (const gchar* short_message,
  * supports xdg-open, exo-open and gnome-open as fallbacks if
  * GIO doesn't do the trick.
  *
+ * On Maemo, hildon_uri_open() is used.
+ *
  * Return value: %TRUE on success, %FALSE if an error occurred
  **/
 gboolean
@@ -122,6 +212,11 @@ sokoke_show_uri (GdkScreen*   screen,
                  guint32      timestamp,
                  GError**     error)
 {
+    #if HAVE_HILDON
+    HildonURIAction* action = hildon_uri_get_default_action_by_uri (uri, NULL);
+    return hildon_uri_open (uri, action, error);
+    #else
+
     const gchar* fallbacks [] = { "xdg-open", "exo-open", "gnome-open" };
     gsize i;
 
@@ -144,6 +239,7 @@ sokoke_show_uri (GdkScreen*   screen,
     }
 
     return FALSE;
+    #endif
 }
 
 gboolean
@@ -158,6 +254,34 @@ sokoke_spawn_program (const gchar* command,
 
     if (filename)
     {
+        gboolean success;
+
+        #if HAVE_HILDON
+        osso_context_t* osso;
+        DBusConnection* dbus;
+
+        osso = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
+        if (!osso)
+        {
+            sokoke_error_dialog (_("Could not run external program."),
+                                 "Failed to initialize libosso");
+            return FALSE;
+        }
+
+        dbus = (DBusConnection *) osso_get_dbus_connection (osso);
+        if (!dbus)
+        {
+            osso_deinitialize (osso);
+            sokoke_error_dialog (_("Could not run external program."),
+                                 "Failed to get dbus connection from osso context");
+            return FALSE;
+        }
+
+        error = NULL;
+        /* FIXME: This is not correct, find a proper way to do this */
+        success = (osso_application_top (osso, command, argument) == OSSO_OK);
+        osso_deinitialize (osso);
+        #else
         GAppInfo* info;
         GFile* file;
         GList* files;
@@ -168,20 +292,23 @@ sokoke_spawn_program (const gchar* command,
         files = g_list_append (NULL, file);
 
         error = NULL;
-        if (!g_app_info_launch (info, files, NULL, &error))
-        {
-            error_dialog (_("Could not run external program."), error->message);
-            g_error_free (error);
-            g_object_unref (file);
-            g_list_free (files);
-            return FALSE;
-        }
-
+        success = g_app_info_launch (info, files, NULL, &error);
         g_object_unref (file);
         g_list_free (files);
+        #endif
+
+        if (!success)
+        {
+            sokoke_error_dialog (_("Could not run external program."),
+                error ? error->message : "");
+            if (error)
+                g_error_free (error);
+            return FALSE;
+        }
     }
     else
     {
+        /* FIXME: Implement Hildon specific version */
         gchar* command_ready;
         gchar** argv;
 
@@ -193,7 +320,8 @@ sokoke_spawn_program (const gchar* command,
         error = NULL;
         if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
         {
-            error_dialog (_("Could not run external program."), error->message);
+            sokoke_error_dialog (_("Could not run external program."),
+                                 error->message);
             g_error_free (error);
             g_free (command_ready);
             return FALSE;
@@ -205,7 +333,8 @@ sokoke_spawn_program (const gchar* command,
             (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
             NULL, NULL, NULL, &error))
         {
-            error_dialog (_("Could not run external program."), error->message);
+            sokoke_error_dialog (_("Could not run external program."),
+                                 error->message);
             g_error_free (error);
         }
 
@@ -395,6 +524,8 @@ sokoke_magic_uri (const gchar* uri,
     /* Just return if it's a javascript: or mailto: uri */
     if (g_str_has_prefix (uri, "javascript:")
      || g_str_has_prefix (uri, "mailto:")
+     || g_str_has_prefix (uri, "tel:")
+     || g_str_has_prefix (uri, "callto:")
      || g_str_has_prefix (uri, "data:"))
         return g_strdup (uri);
     /* Add file:// if we have a local path */
