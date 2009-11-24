@@ -706,11 +706,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "news-aggregator",
                                      _("News Aggregator"),
                                      _("An external news aggregator"),
-                                     #if HAVE_HILDON
-                                     "osso_notes",
-                                     #else
                                      NULL,
-                                     #endif
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -758,11 +754,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Open new pages in:"),
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
-                                     #if HAVE_HILDON
-                                     MIDORI_NEW_PAGE_WINDOW,
-                                     #else
                                      MIDORI_NEW_PAGE_TAB,
-                                     #endif
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -772,11 +764,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Open external pages in:"),
                                      _("Where to open externally opened pages"),
                                      MIDORI_TYPE_NEW_PAGE,
-                                     #if HAVE_HILDON
-                                     MIDORI_NEW_PAGE_WINDOW,
-                                     #else
                                      MIDORI_NEW_PAGE_TAB,
-                                     #endif
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
