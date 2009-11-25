@@ -1518,6 +1518,7 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
     }
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
 midori_web_view_menu_background_tab_activate_cb (GtkWidget*  widget,
                                                  MidoriView* view)
@@ -1525,6 +1526,7 @@ midori_web_view_menu_background_tab_activate_cb (GtkWidget*  widget,
     g_signal_emit (view, signals[NEW_TAB], 0, view->link_uri,
                    !view->open_tabs_in_the_background);
 }
+#endif
 
 static void
 midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
