@@ -95,9 +95,6 @@ adblock_fixup_regexp (gchar* src)
         case '|':
             *s++ = '\\';
             break;
-        case '/':
-            *s++ = '\\';
-            break;
         /* FIXME: We actually need to match :[0-9]+ or '/'. Sign means
            "here could be port number or nothing". So bla.com^ will match
            bla.com/ or bla.com:8080/ but not bla.com.au/ */
@@ -557,11 +554,13 @@ adblock_is_matched (const gchar*  opts,
 {
     gchar* patt;
 
+    patt = g_strdup (data->uri);
+    /* TODO: To figure out
     if (g_regex_match_simple ("type=fulluri,", opts, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY))
         patt = g_strdup (data->uri);
     else
         patt = g_strdup (data->query);
-
+    */
     if (g_regex_match_full (regex, patt, -1, 0, 0, NULL, NULL))
     {
         if (g_regex_match_simple (",third-party", opts,
@@ -767,6 +766,47 @@ adblock_compile_regexp (GHashTable* tbl,
 }
 
 static void
+adblock_add_url_pattern (gchar* format,
+                         gchar* type,
+                         gchar* line)
+{
+    gchar** data;
+    gchar* patt;
+    gchar* fixed_patt;
+    gchar* format_patt;
+    gchar* opts;
+
+    data = g_strsplit (line, "$", -1);
+    if (data && data[0] && data[1] && data[2])
+    {
+        patt = g_strdup_printf ("%s%s", data[0], data[1]);
+        opts = g_strdup_printf ("type=%s,regexp=%s,%s", type, patt, data[2]);
+    }
+    else if (data && data[0] && data[1])
+    {
+        patt = g_strdup (data[0]);
+        opts = g_strdup_printf ("type=%s,regexp=%s,%s", type, patt, data[1]);
+    }
+    else
+    {
+        patt = g_strdup (data[0]);
+        opts = g_strdup_printf ("type=%s,regexp=%s", type, patt);
+    }
+
+    fixed_patt = adblock_fixup_regexp (patt);
+    format_patt =  g_strdup_printf (format, fixed_patt);
+
+    /* g_debug ("got: %s opts %s", format_patt, opts); */
+    adblock_compile_regexp (pattern, format_patt, opts);
+
+    g_strfreev (data);
+    g_free (patt);
+    g_free (fixed_patt);
+    g_free (format_patt);
+    g_free (opts);
+}
+
+static void
 adblock_frame_add (gchar* line)
 {
     gchar* new_blockcss;
@@ -778,11 +818,12 @@ adblock_frame_add (gchar* line)
 }
 
 static void
-adblock_frame_add_private (gchar* line)
+adblock_frame_add_private (const gchar* line,
+                           const gchar* sep)
 {
     gchar* new_blockcss;
     gchar** data;
-    data = g_strsplit (line, "##", 2);
+    data = g_strsplit (line, sep, 2);
 
     if (strstr (data[0],","))
     {
@@ -807,56 +848,6 @@ adblock_frame_add_private (gchar* line)
     g_strfreev (data);
 }
 
-static void
-adblock_add_url_pattern (gchar* line)
-{
-    gchar* opts;
-    gchar** data;
-    gchar* patt;
-    gchar* parsed;
-
-    if (line[0] == '|' && line[1] == '|' )
-    {
-        (void)*line++;
-        (void)*line++;
-
-        data = g_strsplit (line, "$", 2);
-        parsed = adblock_fixup_regexp (data[0]);
-        patt = g_strdup_printf ("^https?://([a-z0-9\\.]+)?%s", parsed);
-        if (data[1])
-            opts = g_strdup_printf ("type=fulluri,regexp=%s,%s", patt, data[1]);
-        else
-            opts = g_strdup_printf ("type=fulluri,regexp=%s", patt);
-
-        g_strfreev (data);
-        g_free (parsed);
-    }
-    else if (line[0] == '|')
-    {
-        (void)*line++;
-
-        data = g_strsplit (line, "$", 2);
-        parsed = adblock_fixup_regexp (data[0]);
-        patt = g_strdup_printf ("^%s", parsed);
-        if (data[1])
-            opts = g_strdup_printf ("type=fulluri,regexp=%s,%s", patt, data[1]);
-        else
-            opts = g_strdup_printf ("type=fulluri,regexp=%s", patt);
-
-        g_strfreev (data);
-        g_free (parsed);
-    }
-    else
-    {
-        patt = adblock_fixup_regexp (line);
-        opts = g_strdup_printf ("regexp=%s", patt);
-    }
-
-    /* g_debug ("got: %s opts %s", patt, opts); */
-    adblock_compile_regexp (pattern, patt, opts);
-    g_free (patt);
-}
-
 static gchar*
 adblock_parse_line (gchar* line)
 {
@@ -879,19 +870,38 @@ adblock_parse_line (gchar* line)
         adblock_frame_add (line);
         return NULL;
     }
-    /* Some crazy lists do this */
+    /* Got CSS block hider. Workaround */
     if (line[0] == '#')
         return NULL;
 
     /* Got per domain CSS hider rule */
     if (strstr (line,"##"))
     {
-        adblock_frame_add_private (line);
+        adblock_frame_add_private (line,"##");
         return NULL;
     }
 
+    /* Got per domain CSS hider rule. Workaround */
+    if (strstr (line,"#"))
+    {
+        adblock_frame_add_private (line,"#");
+        return NULL;
+    }
     /* Got URL blocker rule */
-    adblock_add_url_pattern (line);
+    if (line[0] == '|' && line[1] == '|' )
+    {
+        (void)*line++;
+        (void)*line++;
+        adblock_add_url_pattern ("^https?://([a-z0-9\\.]+)?%s", "fulluri", line);
+        return NULL;
+    }
+    if (line[0] == '|')
+    {
+        (void)*line++;
+        adblock_add_url_pattern ("^%s", "fulluri", line);
+        return NULL;
+    }
+    adblock_add_url_pattern ("%s", "uri", line);
     return line;
 }
 
