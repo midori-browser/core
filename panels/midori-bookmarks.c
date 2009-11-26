@@ -32,6 +32,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          gboolean       new_bookmark,
                                          gboolean       is_folder);
 
+void
+midori_browser_open_bookmark (MidoriBrowser* browser,
+                              KatzeItem*     item);
+
 struct _MidoriBookmarks
 {
     GtkVBox parent_instance;
@@ -601,19 +605,17 @@ midori_bookmarks_row_activated_cb (GtkTreeView*       treeview,
     GtkTreeModel* model;
     GtkTreeIter iter;
     KatzeItem* item;
-    const gchar* uri;
 
     model = gtk_tree_view_get_model (treeview);
 
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
+        MidoriBrowser* browser;
+
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-        uri = katze_item_get_uri (item);
-        if (uri && *uri)
-        {
-            MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-            midori_browser_set_current_uri (browser, uri);
-        }
+
+        browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+        midori_browser_open_bookmark (browser, item);
 
         g_object_unref (item);
     }
