@@ -616,12 +616,16 @@ katze_property_proxy (gpointer     object,
         GtkComboBox* combo;
         GList* apps;
         const gchar* app_type = &hint[12];
+        gint icon_width = 16;
+        gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, NULL);
 
-        model = gtk_list_store_new (3, G_TYPE_APP_INFO, G_TYPE_STRING, G_TYPE_STRING);
+        model = gtk_list_store_new (4, G_TYPE_APP_INFO, G_TYPE_STRING,
+                                       G_TYPE_STRING, G_TYPE_INT);
         widget = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
         renderer = gtk_cell_renderer_pixbuf_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, FALSE);
         gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "icon-name", 1);
+        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "width", 3);
         renderer = gtk_cell_renderer_text_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
         gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (widget), renderer, "text", 2);
@@ -641,17 +645,21 @@ katze_property_proxy (gpointer     object,
             GAppInfo* info;
 
             gtk_list_store_insert_with_values (model, &iter_none, 0,
-                0, NULL, 1, NULL, 2, _("None"), -1);
+                0, NULL, 1, NULL, 2, _("None"), 3, icon_width, -1);
 
             while ((info = g_list_nth_data (apps, i++)))
             {
                 const gchar* name = g_app_info_get_name (info);
                 GIcon* icon = g_app_info_get_icon (info);
-                gchar* icon_name = g_icon_to_string (icon);
+                gchar* icon_name;
                 GtkTreeIter iter;
 
+                if (!g_app_info_should_show (info))
+                    continue;
+
+                icon_name = icon ? g_icon_to_string (icon) : NULL;
                 gtk_list_store_insert_with_values (model, &iter, G_MAXINT,
-                    0, info, 1, icon_name, 2, name, -1);
+                    0, info, 1, icon_name, 2, name, 3, icon_width, -1);
                 if (string && !strcmp (katze_app_info_get_commandline (info), string))
                     gtk_combo_box_set_active_iter (combo, &iter);
 
@@ -661,7 +669,7 @@ katze_property_proxy (gpointer     object,
             info = g_app_info_create_from_commandline ("",
                 "", G_APP_INFO_CREATE_NONE, NULL);
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, info, 1, NULL, 2, _("Custom..."), -1);
+                0, info, 1, NULL, 2, _("Custom..."), 3, icon_width, -1);
             g_object_unref (info);
 
             if (gtk_combo_box_get_active (combo) == -1)
