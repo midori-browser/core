@@ -388,8 +388,14 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     if (array == array_action->array)
         g_signal_emit (array_action, signals[POPULATE_POPUP], 0, menu);
 
+    #if HAVE_HILDON
+    /* Avoid a bug in GTK+ messing up the initial scrolling position */
+    katze_widget_popup (NULL, GTK_MENU (menu),
+                        NULL, KATZE_MENU_POSITION_LEFT);
+    #else
     katze_widget_popup (GTK_WIDGET (proxy), GTK_MENU (menu),
                         NULL, KATZE_MENU_POSITION_LEFT);
+    #endif
 }
 
 static GtkWidget*
