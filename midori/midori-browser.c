@@ -1733,13 +1733,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
                                 GdkEventKey* event)
 {
     GtkWindow* window = GTK_WINDOW (widget);
-    GtkWidget* focus = gtk_window_get_focus (window);
     GtkWidgetClass* widget_class;
-    gboolean priority = GTK_IS_EDITABLE (focus) || GTK_IS_TEXT_VIEW (focus)
-                     || WEBKIT_IS_WEB_VIEW (focus);
-
-    if (priority && !event->state && gtk_window_propagate_key_event (window, event))
-        return TRUE;
 
     if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
         if (sokoke_window_activate_key (window, event))
@@ -1752,7 +1746,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
         if (sokoke_window_activate_key (window, event))
             return TRUE;
 
-    if (!priority && event->state && gtk_window_propagate_key_event (window, event))
+    if (event->state && gtk_window_propagate_key_event (window, event))
         return TRUE;
 
     widget_class = g_type_class_peek_static (g_type_parent (GTK_TYPE_WINDOW));
