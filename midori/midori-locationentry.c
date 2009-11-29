@@ -381,12 +381,13 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
 
     location_entry->progress = 0.0;
 
-    entry = gtk_icon_entry_new ();
     #if HAVE_HILDON
+    entry = gtk_entry_new ();
     mode = hildon_gtk_entry_get_input_mode (GTK_ENTRY (entry));
     mode &= ~HILDON_GTK_INPUT_MODE_AUTOCAP;
     hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry), mode);
     #else
+    entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FILE);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
