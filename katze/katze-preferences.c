@@ -66,6 +66,19 @@ katze_preferences_response_cb (KatzePreferences* preferences,
         gtk_widget_destroy (GTK_WIDGET (preferences));
 }
 
+#ifdef HAVE_HILDON_2_2
+static void
+katze_preferences_size_request_cb (KatzePreferences* preferences,
+                                   GtkRequisition*   requisition)
+{
+    GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (preferences));
+    if (gdk_screen_get_height (screen) > gdk_screen_get_width (screen))
+        gtk_widget_hide (gtk_dialog_get_action_area (GTK_DIALOG (preferences)));
+    else
+        gtk_widget_show (gtk_dialog_get_action_area (GTK_DIALOG (preferences)));
+}
+#endif
+
 static void
 katze_preferences_init (KatzePreferences* preferences)
 {
@@ -94,9 +107,17 @@ katze_preferences_init (KatzePreferences* preferences)
         #endif
         NULL);
     #endif
+
     g_object_connect (preferences,
         "signal::response", katze_preferences_response_cb, NULL,
         NULL);
+
+    #ifdef HAVE_HILDON_2_2
+    katze_preferences_size_request_cb (preferences, NULL);
+    g_object_connect (preferences,
+        "signal::size-request", katze_preferences_size_request_cb, NULL,
+        NULL);
+    #endif
 }
 
 static void
@@ -168,7 +189,8 @@ katze_preferences_prepare (KatzePreferences* preferences)
     priv->sizegroup = NULL;
     priv->sizegroup2 = NULL;
 
-    g_signal_connect (priv->scrolled, "destroy", G_CALLBACK (gtk_widget_destroyed), &priv->scrolled);
+    g_signal_connect (priv->scrolled, "destroy",
+                      G_CALLBACK (gtk_widget_destroyed), &priv->scrolled);
     #else
     priv->notebook = gtk_notebook_new ();
     gtk_container_set_border_width (GTK_CONTAINER (priv->notebook), 6);
@@ -195,7 +217,8 @@ katze_preferences_prepare (KatzePreferences* preferences)
     priv->box = NULL;
     priv->hbox = NULL;
 
-    g_signal_connect (priv->notebook, "destroy", G_CALLBACK (gtk_widget_destroyed), &priv->notebook);
+    g_signal_connect (priv->notebook, "destroy",
+                      G_CALLBACK (gtk_widget_destroyed), &priv->notebook);
     #endif
 
     #if HAVE_OSX
@@ -206,8 +229,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_button_set_image (GTK_BUTTON (button), icon);
     g_signal_connect (button, "clicked",
         G_CALLBACK (katze_preferences_help_clicked_cb), preferences);
-    gtk_box_pack_end (GTK_BOX (hbox),
-        button, FALSE, FALSE, 4);
+    gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 4);
     gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->action_area),
         hbox, FALSE, FALSE, 0);
     #endif

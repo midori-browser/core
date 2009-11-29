@@ -22,6 +22,11 @@
 
 #if HAVE_HILDON
     #include <libosso.h>
+    #ifdef HAVE_HILDON_2_2
+        #include <dbus/dbus.h>
+        #include <mce/mode-names.h>
+        #include <mce/dbus-names.h>
+    #endif
     typedef osso_context_t* MidoriAppInstance;
     #define MidoriAppInstanceNull NULL
 #elif HAVE_UNIQUE
@@ -642,6 +647,12 @@ midori_app_create_instance (MidoriApp*   app,
         osso_deinitialize (instance);
         return NULL;
     }
+
+    #ifdef HAVE_HILDON_2_2
+    if (OSSO_OK == osso_rpc_run_system (instance, MCE_SERVICE, MCE_REQUEST_PATH,
+        MCE_REQUEST_IF, MCE_ACCELEROMETER_ENABLE_REQ, NULL, DBUS_TYPE_INVALID))
+        /* Accelerometer enabled */;
+    #endif
     #else
     GdkDisplay* display;
     gchar* display_name;

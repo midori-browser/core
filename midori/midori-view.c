@@ -1977,12 +1977,14 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             gtk_menu_shell_append (menu_shell, menuitem);
         }
 
+        #if !HAVE_HILDON
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomIn"));
         gtk_menu_shell_append (menu_shell, menuitem);
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomOut"));
         gtk_menu_shell_append (menu_shell, menuitem);
+        #endif
 
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "Encoding"));
@@ -2012,7 +2014,15 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
         }
 
-        #if !HAVE_HILDON
+        #if HAVE_HILDON
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "CompactAdd"));
+        gtk_menu_shell_append (menu_shell, menuitem);
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Fullscreen"));
+        gtk_menu_shell_append (menu_shell, menuitem);
+        #else
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
@@ -2033,7 +2043,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SaveAs"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        #if !HAVE_HILDON
         /* Currently views that don't support source, don't support
            saving either. If that changes, we need to think of something. */
         if (!midori_view_can_view_source (view))
@@ -2041,7 +2050,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SourceView"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        #endif
     }
 
     gtk_widget_show_all (menu);

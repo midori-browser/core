@@ -38,6 +38,16 @@
     #include <unistd.h>
 #endif
 
+#ifdef HAVE_HILDON_2_2
+    #include <dbus/dbus.h>
+    #include <mce/mode-names.h>
+    #include <mce/dbus-names.h>
+    #define MCE_SIGNAL_MATCH "type='signal'," \
+        "sender='"    MCE_SERVICE     "',"    \
+        "path='"      MCE_SIGNAL_PATH "',"    \
+        "interface='" MCE_SIGNAL_IF   "'"
+#endif
+
 struct _MidoriBrowser
 {
     #if HAVE_HILDON
@@ -3029,8 +3039,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "Open" },
       #if HAVE_HILDON
       { "Find" },
-      { "Homepage" },
-      { "SourceView" },
       #else
       { "Print" },
       { "About" },
@@ -3057,12 +3065,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
 
     for (i = 0; i < G_N_ELEMENTS (actions); i++)
     {
-        #if HAVE_HILDON
-        #if HILDON_CHECK_VERSION (2, 2, 0)
-        #define HAVE_APP_MENU 1
-        #endif
-        #endif
-        #ifdef HAVE_APP_MENU
+        #ifdef HAVE_HILDON_2_2
         GtkAction* _action;
         gchar* label;
         GtkWidget* button;
@@ -5474,6 +5477,58 @@ midori_browser_ui_manager_disconnect_proxy_cb (GtkUIManager*  ui_manager,
     }
 }
 
+#ifdef HAVE_HILDON_2_2
+static void
+midori_browser_set_portrait_mode (MidoriBrowser* browser,
+                                  gboolean       portrait)
+{
+    if (portrait)
+        hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
+                                              HILDON_PORTRAIT_MODE_REQUEST);
+    else
+        hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
+                                              ~HILDON_PORTRAIT_MODE_REQUEST);
+    _action_set_visible (browser, "Bookmarks", !portrait);
+    _action_set_visible (browser, "CompactAdd", !portrait);
+    _action_set_visible (browser, "Back", !portrait);
+    _action_set_visible (browser, "SourceView", !portrait);
+    _action_set_visible (browser, "Fullscreen", !portrait);
+}
+
+static DBusHandlerResult
+midori_browser_mce_filter_cb (DBusConnection* connection,
+                              DBusMessage*    message,
+                              gpointer        data)
+{
+    if (dbus_message_is_signal (message, MCE_SIGNAL_IF, MCE_DEVICE_ORIENTATION_SIG))
+    {
+        DBusError error;
+        char *rotation, *stand, *face;
+        int x, y, z;
+
+        dbus_error_init (&error);
+        if (dbus_message_get_args (message,
+                                   &error,
+                                   DBUS_TYPE_STRING, &rotation,
+                                   DBUS_TYPE_STRING, &stand,
+                                   DBUS_TYPE_STRING, &face,
+                                   DBUS_TYPE_INT32,  &x,
+                                   DBUS_TYPE_INT32,  &y,
+                                   DBUS_TYPE_INT32,  &z, DBUS_TYPE_INVALID))
+        {
+            gboolean portrait = !strcmp (rotation, MCE_ORIENTATION_PORTRAIT);
+            midori_browser_set_portrait_mode (MIDORI_BROWSER (data), portrait);
+        }
+        else
+        {
+            g_warning ("%s: %s\n", error.name, error.message);
+            dbus_error_free (&error);
+        }
+    }
+    return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+#endif
+
 static void
 midori_browser_init (MidoriBrowser* browser)
 {
@@ -5790,6 +5845,18 @@ midori_browser_init (MidoriBrowser* browser)
                                GTK_TOOLBAR (browser->navigationbar));
     #else
     gtk_box_pack_start (GTK_BOX (vbox), browser->navigationbar, FALSE, FALSE, 0);
+    #endif
+
+    #ifdef HAVE_HILDON_2_2
+    DBusConnection* system_bus = dbus_bus_get (DBUS_BUS_SYSTEM, NULL);
+    if (system_bus)
+    {
+        dbus_bus_add_match (system_bus, MCE_SIGNAL_MATCH, NULL);
+        dbus_connection_add_filter (system_bus,
+            midori_browser_mce_filter_cb, browser, NULL);
+        hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
+                                              HILDON_PORTRAIT_MODE_SUPPORT);
+    }
     #endif
 
     /* Bookmarkbar */
