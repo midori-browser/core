@@ -5493,7 +5493,7 @@ midori_browser_set_portrait_mode (MidoriBrowser* browser,
     else
         hildon_gtk_window_set_portrait_flags (GTK_WINDOW (browser),
                                               ~HILDON_PORTRAIT_MODE_REQUEST);
-    _action_set_visible (browser, "Bookmarks", !portrait);
+    _action_set_visible (browser, "Tools", !portrait);
     _action_set_visible (browser, "CompactAdd", !portrait);
     _action_set_visible (browser, "Back", !portrait);
     _action_set_visible (browser, "SourceView", !portrait);
@@ -6198,7 +6198,7 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
     GtkWidget* toolitem;
 
     #if HAVE_HILDON
-    items = "Bookmarks,CompactAdd,ReloadStop,Location,Back,Fullscreen";
+    items = "Tools,CompactAdd,ReloadStop,Location,Back,Fullscreen";
     #endif
 
     gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
