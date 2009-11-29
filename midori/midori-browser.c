@@ -5753,6 +5753,9 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_unref (action);
 
     /* Create the menubar */
+    browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
+    gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
+    gtk_widget_hide (browser->menubar);
     #if HAVE_HILDON
     #if HILDON_CHECK_VERSION (2, 2, 0)
     browser->menubar = hildon_app_menu_new ();
@@ -5766,9 +5769,6 @@ midori_browser_init (MidoriBrowser* browser)
     hildon_program_add_window (hildon_program_get_instance (),
                                HILDON_WINDOW (browser));
     #else
-    browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
-    gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
-    gtk_widget_hide (browser->menubar);
     g_signal_connect (browser->menubar, "button-press-event",
         G_CALLBACK (midori_browser_menu_button_press_event_cb), browser);
 
