@@ -737,6 +737,10 @@ katze_property_proxy (gpointer     object,
         widget = gtk_spin_button_new_with_range (
             G_PARAM_SPEC_INT (pspec)->minimum,
             G_PARAM_SPEC_INT (pspec)->maximum, 1);
+        #if HAVE_HILDON
+        hildon_gtk_entry_set_input_mode (GTK_ENTRY (widget),
+                                         HILDON_GTK_INPUT_MODE_NUMERIC);
+        #endif
         /* Keep it narrow, 5 digits are usually fine */
         gtk_entry_set_width_chars (GTK_ENTRY (widget), 5);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
