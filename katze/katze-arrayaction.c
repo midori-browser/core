@@ -20,6 +20,10 @@
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 
+#if HAVE_CONFIG_H
+    #include "config.h"
+#endif
+
 struct _KatzeArrayAction
 {
     GtkAction parent_instance;
