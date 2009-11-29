@@ -50,6 +50,7 @@ struct _MidoriWebSettings
     gboolean compact_sidepanel;
     gboolean show_panel_controls;
     gboolean right_align_sidepanel;
+    gboolean open_panels_in_windows;
 
     MidoriStartup load_on_startup;
     gchar* homepage;
@@ -125,6 +126,7 @@ enum
     PROP_COMPACT_SIDEPANEL,
     PROP_SHOW_PANEL_CONTROLS,
     PROP_RIGHT_ALIGN_SIDEPANEL,
+    PROP_OPEN_PANELS_IN_WINDOWS,
 
     PROP_LOAD_ON_STARTUP,
     PROP_HOMEPAGE,
@@ -564,6 +566,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "right-align-sidepanel",
                                      _("Align sidepanel on the right"),
                                      _("Whether to align the sidepanel on the right"),
+                                     FALSE,
+                                     flags));
+
+    /**
+     * MidoriWebSettings:open-panels-in-window:
+     *
+     * Whether to open panels in separate windows.
+     *
+     * Since: 0.2.2
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_OPEN_PANELS_IN_WINDOWS,
+                                     g_param_spec_boolean (
+                                     "open-panels-in-windows",
+                                     _("Open panels in separate windows"),
+        _("Whether to always open panels in separate windows"),
                                      FALSE,
                                      flags));
 
@@ -1250,6 +1268,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_RIGHT_ALIGN_SIDEPANEL:
         web_settings->right_align_sidepanel = g_value_get_boolean (value);
         break;
+    case PROP_OPEN_PANELS_IN_WINDOWS:
+        web_settings->open_panels_in_windows = g_value_get_boolean (value);
+        break;
 
     case PROP_LOAD_ON_STARTUP:
         web_settings->load_on_startup = g_value_get_enum (value);
@@ -1484,6 +1505,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_RIGHT_ALIGN_SIDEPANEL:
         g_value_set_boolean (value, web_settings->right_align_sidepanel);
+        break;
+    case PROP_OPEN_PANELS_IN_WINDOWS:
+        g_value_set_boolean (value, web_settings->open_panels_in_windows);
         break;
 
     case PROP_LOAD_ON_STARTUP:

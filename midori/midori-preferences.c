@@ -405,11 +405,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
         button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
     else
-    {
-        button = katze_property_proxy (settings, "auto-shrink-images", NULL);
-        gtk_button_set_label (GTK_BUTTON (button), _("Shrink images automatically"));
-        gtk_widget_set_tooltip_text (button, _("Automatically shrink standalone images to fit"));
-    }
+        button = katze_property_proxy (settings, "open-panels-in-windows", NULL);
     #else
     button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     #endif

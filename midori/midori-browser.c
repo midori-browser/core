@@ -6239,7 +6239,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean remember_last_window_size;
     gint last_window_width, last_window_height;
     MidoriWindowState last_window_state;
-    gboolean compact_sidepanel, show_panel_controls, right_align_sidepanel;
+    gboolean compact_sidepanel, show_panel_controls;
+    gboolean right_align_sidepanel, open_panels_in_windows;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
     gboolean show_panel, show_transferbar;
@@ -6262,6 +6263,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "compact-sidepanel", &compact_sidepanel,
                   "show-panel-controls", &show_panel_controls,
                   "right-align-sidepanel", &right_align_sidepanel,
+                  "open-panels-in-windows", &open_panels_in_windows,
                   "last-panel-position", &last_panel_position,
                   "last-panel-page", &last_panel_page,
                   "show-menubar", &show_menubar,
@@ -6336,7 +6338,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     g_object_set (browser->panel, "show-titles", !compact_sidepanel,
         "show-controls", show_panel_controls,
-        "right-aligned", right_align_sidepanel, NULL);
+        "right-aligned", right_align_sidepanel,
+        "open-panels-in-windows", open_panels_in_windows, NULL);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
                             last_panel_position);
     /* The browser may not yet be visible, which means that we can't set the
@@ -6397,6 +6400,9 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         g_signal_handlers_unblock_by_func (browser->panel,
             midori_panel_notify_show_controls_cb, browser);
     }
+    else if (name == g_intern_string ("open-panels-in-windows"))
+        g_object_set (browser->panel, "open-panels-in-windows",
+                      g_value_get_boolean (&value), NULL);
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser);
     else if (name == g_intern_string ("show-menubar"))

@@ -43,6 +43,7 @@ struct _MidoriPanel
     gboolean show_titles;
     gboolean show_controls;
     gboolean right_aligned;
+    gboolean open_panels_in_windows;
 };
 
 struct _MidoriPanelClass
@@ -67,6 +68,7 @@ enum
     PROP_SHOW_TITLES,
     PROP_SHOW_CONTROLS,
     PROP_RIGHT_ALIGNED,
+    PROP_OPEN_PANELS_IN_WINDOWS,
 };
 
 enum {
@@ -237,6 +239,22 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      "Whether the panel is aligned to the right",
                                      FALSE,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * MidoriWebSettings:open-panels-in-windows:
+     *
+     * Whether to open panels in separate windows.
+     *
+     * Since: 0.2.2
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_OPEN_PANELS_IN_WINDOWS,
+                                     g_param_spec_boolean (
+                                     "open-panels-in-windows",
+                                     "Open panels in windows",
+        "Whether to open panels in standalone windows by default",
+                                     FALSE,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -266,6 +284,7 @@ midori_panel_detached_window_delete_event_cb (GtkWidget*   window,
     GtkWidget* scrolled = g_object_get_data (G_OBJECT (window), "scrolled");
     GtkWidget* toolbar = g_object_get_data (G_OBJECT (scrolled), "panel-toolbar");
     GtkWidget* menuitem = g_object_get_data (G_OBJECT (scrolled), "panel-menuitem");
+    GtkWidget* viewable = _midori_panel_child_for_scrolled (panel, scrolled);
     GtkToolItem* toolitem;
     gint n;
 
@@ -277,13 +296,9 @@ midori_panel_detached_window_delete_event_cb (GtkWidget*   window,
     gtk_container_remove (GTK_CONTAINER (vbox), scrolled);
     n = gtk_notebook_append_page (GTK_NOTEBOOK (panel->notebook), scrolled, NULL);
     g_object_unref (scrolled);
-    toolitem = midori_panel_construct_tool_item (panel,
-        MIDORI_VIEWABLE (_midori_panel_child_for_scrolled (panel, scrolled)));
+    toolitem = midori_panel_construct_tool_item (panel, MIDORI_VIEWABLE (viewable));
     if (menuitem)
-    {
-        gtk_widget_show (menuitem);
         g_object_set_data (G_OBJECT (menuitem), "toolitem", toolitem);
-    }
     midori_panel_set_current_page (panel, n);
     return FALSE;
 }
@@ -298,13 +313,9 @@ midori_panel_widget_destroy_cb (GtkWidget* viewable,
 }
 
 static void
-midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
-                                       MidoriPanel* panel)
+midori_panel_detach_page (MidoriPanel* panel,
+                          gint         n)
 {
-    /* FIXME: What happens when the browser is destroyed? */
-    /* FIXME: What about multiple browsers? */
-    /* FIXME: Should we remember if the child was detached? */
-    gint n = midori_panel_get_current_page (panel);
     GtkToolItem* toolitem = gtk_toolbar_get_nth_item (
         GTK_TOOLBAR (panel->toolbar), n);
     const gchar* title = gtk_tool_button_get_label (GTK_TOOL_BUTTON (toolitem));
@@ -312,7 +323,6 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
         GTK_NOTEBOOK (panel->toolbook), n);
     GtkWidget* scrolled = gtk_notebook_get_nth_page (
         GTK_NOTEBOOK (panel->notebook), n);
-    GtkWidget* menuitem = g_object_get_data (G_OBJECT (scrolled), "panel-menuitem");
     GtkWidget* vbox = gtk_vbox_new (FALSE, 0);
     #if HAVE_HILDON
     GtkWidget* window = hildon_window_new ();
@@ -328,8 +338,6 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     gtk_container_add (GTK_CONTAINER (window), vbox);
     g_object_set_data (G_OBJECT (window), "scrolled", scrolled);
     gtk_window_set_title (GTK_WINDOW (window), title);
-    if (menuitem)
-        gtk_widget_hide (menuitem);
     g_signal_handlers_disconnect_by_func (
         _midori_panel_child_for_scrolled (panel, scrolled),
         midori_panel_widget_destroy_cb, toolitem);
@@ -351,10 +359,21 @@ midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
     toolitem = gtk_toolbar_get_nth_item (GTK_TOOLBAR (panel->toolbar),
                                          n > 0 ? n - 1 : 0);
     if (!gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
-        gtk_widget_set_sensitive (toolbutton, FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (panel->button_detach), FALSE);
     g_signal_connect (window, "delete-event",
         G_CALLBACK (midori_panel_detached_window_delete_event_cb), panel);
     gtk_widget_show (window);
+}
+
+static void
+midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
+                                       MidoriPanel* panel)
+{
+    /* FIXME: What happens when the browser is destroyed? */
+    /* FIXME: What about multiple browsers? */
+    /* FIXME: Should we remember if the child was detached? */
+    gint n = midori_panel_get_current_page (panel);
+    midori_panel_detach_page (panel, n);
 }
 
 static void
@@ -510,6 +529,9 @@ midori_panel_set_property (GObject*      object,
     case PROP_RIGHT_ALIGNED:
         midori_panel_set_right_aligned (panel, g_value_get_boolean (value));
         break;
+    case PROP_OPEN_PANELS_IN_WINDOWS:
+        panel->open_panels_in_windows = g_value_get_boolean (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -547,6 +569,9 @@ midori_panel_get_property (GObject*    object,
         break;
     case PROP_RIGHT_ALIGNED:
         g_value_set_boolean (value, panel->right_aligned);
+        break;
+    case PROP_OPEN_PANELS_IN_WINDOWS:
+        g_value_set_boolean (value, panel->open_panels_in_windows);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -719,11 +744,27 @@ static void
 midori_panel_action_activate_cb (GtkRadioAction* action,
                                  MidoriPanel*    panel)
 {
-    gint n = katze_object_get_int (action, "value");
+    GtkWidget* viewable = g_object_get_data (G_OBJECT (action), "viewable");
+    gint n = midori_panel_page_num (panel, viewable);
 
-    midori_panel_set_current_page (panel, n);
-    g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
-    gtk_widget_show (GTK_WIDGET (panel));
+    /* If the panel is detached, focus the window */
+    if (n == -1)
+    {
+        GtkWidget* toplevel = gtk_widget_get_toplevel (viewable);
+        gtk_window_present (GTK_WINDOW (toplevel));
+        return;
+    }
+
+    if (panel->open_panels_in_windows
+     && gtk_radio_action_get_current_value (action)
+     == katze_object_get_int (action, "value"))
+        midori_panel_detach_page (panel, n);
+    else
+    {
+        midori_panel_set_current_page (panel, n);
+        g_signal_emit (panel, signals[SWITCH_PAGE], 0, n);
+        gtk_widget_show (GTK_WIDGET (panel));
+    }
 }
 
 /**
@@ -808,6 +849,7 @@ midori_panel_append_page (MidoriPanel*    panel,
     action = (GtkAction*)gtk_radio_action_new (action_name,
         midori_viewable_get_label (viewable),
         NULL, midori_viewable_get_stock_id (viewable), n);
+    g_object_set_data (G_OBJECT (action), "viewable", viewable);
     g_signal_connect (action, "activate",
         G_CALLBACK (midori_panel_action_activate_cb), panel);
     if (panel->action_group)
