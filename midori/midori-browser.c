@@ -742,6 +742,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_size_group_add_widget (sizegroup, label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         entry_uri = gtk_entry_new ();
+        #if HAVE_HILDON
+        HildonGtkInputMode mode = hildon_gtk_entry_get_input_mode (GTK_ENTRY (entry_uri));
+        mode &= ~HILDON_GTK_INPUT_MODE_AUTOCAP;
+        hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry_uri), mode);
+        #endif
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
         gtk_entry_set_text (GTK_ENTRY (entry_uri), katze_item_get_uri (bookmark));
         midori_browser_edit_bookmark_uri_changed_cb (GTK_ENTRY (entry_uri),
