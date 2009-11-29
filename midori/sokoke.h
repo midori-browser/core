@@ -27,7 +27,8 @@ sokoke_js_script_eval                   (JSContextRef    js_context,
 #define GTK_ICON_SIZE_SMALL_TOOLBAR GTK_ICON_SIZE_BUTTON
 
 void
-sokoke_error_dialog                     (const gchar*    short_message,
+sokoke_message_dialog                   (GtkMessageType  message_type,
+                                         const gchar*    short_message,
                                          const gchar*    detailed_message);
 
 gboolean

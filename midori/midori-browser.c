@@ -2258,16 +2258,7 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
     if (browser->news_aggregator && *browser->news_aggregator)
         sokoke_spawn_program (browser->news_aggregator, uri, FALSE);
     else
-    {
-        GtkWidget* dialog = gtk_message_dialog_new (
-            GTK_WINDOW (browser), 0, GTK_MESSAGE_INFO,
-            GTK_BUTTONS_OK, "%s", _("New feed"));
-        gtk_message_dialog_format_secondary_text (
-            GTK_MESSAGE_DIALOG (dialog), "%s", uri);
-        gtk_widget_show (dialog);
-        g_signal_connect_swapped (dialog, "response",
-            G_CALLBACK (gtk_widget_destroy), dialog);
-    }
+        sokoke_message_dialog (GTK_MESSAGE_INFO, _("New feed"), uri);
 }
 
 static void
@@ -2291,8 +2282,9 @@ _action_compact_add_activate (GtkAction*     action,
 {
     GtkWidget* dialog;
     GtkBox* box;
-    gchar* label = NULL;
-    GtkWidget* button;
+    const gchar* actions[] = { "BookmarkAdd", "AddSpeedDial",
+                               "AddDesktopShortcut", "AddNewsFeed" };
+    guint i;
 
     if (!GTK_WIDGET_VISIBLE (browser))
         return;
@@ -2302,30 +2294,25 @@ _action_compact_add_activate (GtkAction*     action,
         "title", _("Add a new bookmark"), NULL);
     box = GTK_BOX (GTK_DIALOG (dialog)->vbox);
 
-    action = _action_by_name (browser, "BookmarkAdd");
-    katze_assign (label, katze_object_get_string (action, "label"));
-    button = gtk_button_new_with_mnemonic (label);
-    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
-    gtk_action_connect_proxy (action, button);
-    action = _action_by_name (browser, "AddSpeedDial");
-    katze_assign (label, katze_object_get_string (action, "label"));
-    button = gtk_button_new_with_mnemonic (label);
-    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
-    gtk_action_connect_proxy (action, button);
-    action = _action_by_name (browser, "AddDesktopShortcut");
-    katze_assign (label, katze_object_get_string (action, "label"));
-    button = gtk_button_new_with_mnemonic (label);
-    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
-    gtk_action_connect_proxy (action, button);
-    action = _action_by_name (browser, "AddNewsFeed");
-    katze_assign (label, katze_object_get_string (action, "label"));
-    button = gtk_button_new_with_mnemonic (label);
-    gtk_box_pack_start (box, button, TRUE, TRUE, 4);
-    gtk_action_connect_proxy (action, button);
+    for (i = 0; i < G_N_ELEMENTS (actions); i++)
+    {
+        gchar* label;
+        GtkWidget* button;
 
-    g_free (label);
+        action = _action_by_name (browser, actions[i]);
+        label = katze_object_get_string (action, "label");
+        button = gtk_button_new_with_mnemonic (label);
+        g_free (label);
+        gtk_widget_set_name (button, "GtkButton-thumb");
+        gtk_box_pack_start (box, button, TRUE, TRUE, 4);
+        gtk_action_connect_proxy (action, button);
+        g_signal_connect_swapped (button, "clicked",
+                                  G_CALLBACK (gtk_widget_destroy), dialog);
+    }
 
-    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_show (dialog);
+    g_signal_connect_swapped (dialog, "response",
+                              G_CALLBACK (gtk_widget_destroy), dialog);
 }
 
 static void
@@ -3455,8 +3442,8 @@ _action_source_view_activate (GtkAction*     action,
         {
             if (!sokoke_show_uri_with_mime_type (gtk_widget_get_screen (view),
                 uri, "text/plain", gtk_get_current_event_time (), &error))
-                sokoke_error_dialog (_("Could not run external program."),
-                    error ? error->message : "");
+                sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                    _("Could not run external program."), error ? error->message : "");
             if (error)
                 g_error_free (error);
             g_free (text_editor);

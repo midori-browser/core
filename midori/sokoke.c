@@ -46,6 +46,7 @@
 
 #if HAVE_HILDON
     #include <libosso.h>
+    #include <hildon/hildon.h>
     #include <hildon-mime.h>
     #include <hildon-uri.h>
 #endif
@@ -97,16 +98,23 @@ sokoke_js_script_eval (JSContextRef js_context,
 }
 
 void
-sokoke_error_dialog (const gchar* short_message,
-                     const gchar* detailed_message)
+sokoke_message_dialog (GtkMessageType message_type,
+                       const gchar*   short_message,
+                       const gchar*   detailed_message)
 {
     GtkWidget* dialog = gtk_message_dialog_new (
-        NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", short_message);
+        NULL, 0, message_type,
+        #if HAVE_HILDON
+        GTK_BUTTONS_NONE,
+        #else
+        GTK_BUTTONS_OK,
+        #endif
+        "%s", short_message);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
                                               "%s", detailed_message);
-    gtk_widget_show (dialog);
     g_signal_connect_swapped (dialog, "response",
                               G_CALLBACK (gtk_widget_destroy), dialog);
+    gtk_widget_show (dialog);
 }
 
 /**
@@ -263,8 +271,9 @@ sokoke_spawn_program (const gchar* command,
         osso = osso_initialize (PACKAGE_NAME, PACKAGE_VERSION, FALSE, NULL);
         if (!osso)
         {
-            sokoke_error_dialog (_("Could not run external program."),
-                                 "Failed to initialize libosso");
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                                   _("Could not run external program."),
+                                   "Failed to initialize libosso");
             return FALSE;
         }
 
@@ -272,8 +281,9 @@ sokoke_spawn_program (const gchar* command,
         if (!dbus)
         {
             osso_deinitialize (osso);
-            sokoke_error_dialog (_("Could not run external program."),
-                                 "Failed to get dbus connection from osso context");
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                                   _("Could not run external program."),
+                                   "Failed to get dbus connection from osso context");
             return FALSE;
         }
 
@@ -299,7 +309,8 @@ sokoke_spawn_program (const gchar* command,
 
         if (!success)
         {
-            sokoke_error_dialog (_("Could not run external program."),
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                _("Could not run external program."),
                 error ? error->message : "");
             if (error)
                 g_error_free (error);
@@ -320,8 +331,9 @@ sokoke_spawn_program (const gchar* command,
         error = NULL;
         if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
         {
-            sokoke_error_dialog (_("Could not run external program."),
-                                 error->message);
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                                   _("Could not run external program."),
+                                   error->message);
             g_error_free (error);
             g_free (command_ready);
             return FALSE;
@@ -333,8 +345,9 @@ sokoke_spawn_program (const gchar* command,
             (GSpawnFlags)G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
             NULL, NULL, NULL, &error))
         {
-            sokoke_error_dialog (_("Could not run external program."),
-                                 error->message);
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                                   _("Could not run external program."),
+                                   error->message);
             g_error_free (error);
         }
 
