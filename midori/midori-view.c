@@ -40,9 +40,9 @@ webkit_web_frame_print (WebKitWebFrame* web_frame);
 #endif
 
 GdkPixbuf*
-midori_search_action_get_icon (KatzeNet*  net,
-                               KatzeItem* item,
-                               GtkWidget* widget);
+midori_search_action_get_icon (KatzeItem*    item,
+                               GtkWidget*    widget,
+                               const gchar** icon_name);
 
 static void
 midori_view_construct_web_view (MidoriView* view);
@@ -1850,11 +1850,18 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             while ((item = katze_array_get_nth_item (search_engines, i++)))
             {
                 GdkPixbuf* pixbuf;
+                const gchar* icon_name;
+
                 menuitem = gtk_image_menu_item_new_with_mnemonic (katze_item_get_name (item));
-                pixbuf = midori_search_action_get_icon (view->net, item,
-                                                        GTK_WIDGET (web_view));
-                icon = gtk_image_new_from_pixbuf (pixbuf);
-                g_object_unref (pixbuf);
+                pixbuf = midori_search_action_get_icon (item,
+                    GTK_WIDGET (web_view), &icon_name);
+                if (pixbuf)
+                {
+                    icon = gtk_image_new_from_pixbuf (pixbuf);
+                    g_object_unref (pixbuf);
+                }
+                else
+                    icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
                 #if GTK_CHECK_VERSION (2, 16, 0)
                 gtk_image_menu_item_set_always_show_image (
