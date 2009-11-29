@@ -46,6 +46,8 @@
         "sender='"    MCE_SERVICE     "',"    \
         "path='"      MCE_SIGNAL_PATH "',"    \
         "interface='" MCE_SIGNAL_IF   "'"
+    #include <gdk/gdkx.h>
+    #include <X11/Xatom.h>
 #endif
 
 struct _MidoriBrowser
@@ -4923,10 +4925,18 @@ static const GtkActionEntry entries[] = {
    NULL, "<Ctrl>r",
    N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "ZoomIn", GTK_STOCK_ZOOM_IN,
+   #if HAVE_HILDON
+   NULL, "F7",
+   #else
    NULL, "<Ctrl>plus",
+   #endif
    N_("Increase the zoom level"), G_CALLBACK (_action_zoom_in_activate) },
  { "ZoomOut", GTK_STOCK_ZOOM_OUT,
+   #if HAVE_HILDON
+   NULL, "F8",
+   #else
    NULL, "<Ctrl>minus",
+   #endif
    N_("Decrease the zoom level"), G_CALLBACK (_action_zoom_out_activate) },
  { "ZoomNormal", GTK_STOCK_ZOOM_100,
    NULL, "<Ctrl>0",
@@ -4940,7 +4950,11 @@ static const GtkActionEntry entries[] = {
     N_("View the source code of the selection"),
     NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
+   #if HAVE_HILDON
+   NULL, "F6",
+   #else
    NULL, "F11",
+   #endif
    N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
 
  { "Go", NULL, N_("_Go") },
@@ -5281,6 +5295,15 @@ midori_browser_realize_cb (GtkStyle*      style,
 {
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
+    #ifdef HAVE_HILDON_2_2
+    /* hildon_gtk_window_enable_zoom_keys */
+    guint32 set = 1;
+    gdk_property_change (GTK_WIDGET (browser)->window,
+                         gdk_atom_intern ("_HILDON_ZOOM_KEY_ATOM", FALSE),
+                         gdk_x11_xatom_to_atom (XA_INTEGER),
+                         32, GDK_PROP_MODE_REPLACE,
+                         (const guchar *) &set, 1);
+    #endif
 
     screen = gtk_widget_get_screen (GTK_WIDGET (browser));
     if (screen)
