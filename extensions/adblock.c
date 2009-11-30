@@ -805,7 +805,6 @@ adblock_add_url_pattern (gchar* format,
     g_free (patt);
     g_free (fixed_patt);
     g_free (format_patt);
-    g_free (opts);
 }
 
 static void
