@@ -63,7 +63,7 @@ AutoSuggestControl.prototype.createDropDown = function () {
     this.layer = document.createElement("div");
     this.layer.className = "suggestions";
     this.layer.style.visibility = "hidden";
-    this.layer.style.width = this.textbox.offsetWidth + 10;
+    this.layer.style.width = this.textbox.offsetWidth;
 
     //when the user clicks on the a suggestion, get the text (innerHTML)
     //and place it into a textbox
@@ -158,7 +158,7 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
         this.hideSuggestions();
     } else {
         //request suggestions from the suggestion provider with typeahead
-        this.provider.requestSuggestions(this, true);
+        this.provider.requestSuggestions(this, false);
     }
 
 
