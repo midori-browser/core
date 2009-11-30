@@ -2869,17 +2869,23 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item)
 {
     const gchar* uri = katze_item_get_uri (item);
+    gchar* uri_fixed;
+
     if (!(uri && *uri))
         return;
 
+    /* Imported bookmarks may lack a protocol */
+    uri_fixed = sokoke_magic_uri (uri, NULL);
+
     /* FIXME: Use the same binary that is running right now */
     if (katze_item_get_meta_integer (item, "app") != -1)
-        sokoke_spawn_program ("midori -a", uri, FALSE);
+        sokoke_spawn_program ("midori -a", uri_fixed, FALSE);
     else
     {
-        midori_browser_set_current_uri (browser, uri);
+        midori_browser_set_current_uri (browser, uri_fixed);
         gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
     }
+    g_free (uri_fixed);
 }
 
 static void
