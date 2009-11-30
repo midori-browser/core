@@ -541,6 +541,14 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
     return TRUE;
 }
 
+static void
+katze_array_action_toolitem_destroy_cb (GtkToolItem* toolitem,
+                                        KatzeItem*   item)
+{
+    g_signal_handlers_disconnect_by_func (item,
+        G_CALLBACK (katze_array_action_item_notify_cb), toolitem);
+}
+
 /**
  * katze_array_action_create_tool_item_for:
  * @array_action: a #KatzeArrayAction
@@ -615,6 +623,8 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     g_object_set_data (G_OBJECT (toolitem), "KatzeArrayAction", array_action);
     g_signal_connect (item, "notify",
         G_CALLBACK (katze_array_action_item_notify_cb), toolitem);
+    g_signal_connect (toolitem, "destroy",
+        G_CALLBACK (katze_array_action_toolitem_destroy_cb), item);
     return toolitem;
 }
 
