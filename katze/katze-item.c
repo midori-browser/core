@@ -590,7 +590,7 @@ katze_item_get_meta_integer (KatzeItem*   item,
     if (g_str_has_prefix (key, "midori:"))
         key = &key[7];
     if (g_hash_table_lookup_extended (item->metadata, key, NULL, &value))
-        return g_ascii_strtoll (value, NULL, 0);
+        return value ? g_ascii_strtoll (value, NULL, 0) : -1;
     return -1;
 }
 
