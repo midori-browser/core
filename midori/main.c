@@ -1837,6 +1837,8 @@ main (int    argc,
     error = NULL;
     settings = settings_new_from_file (config_file, &extensions);
     katze_assign (config_file, build_config_filename ("accels"));
+    if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
+        katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
     gtk_accel_map_load (config_file);
     katze_assign (config_file, build_config_filename ("search"));
     error = NULL;
