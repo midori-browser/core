@@ -15,11 +15,7 @@ def add_image (bld, category, name):
     if rsvg_convert:
         Utils.check_dir (blddir + '/icons')
 
-    if bld.env['HAVE_HILDON']:
-        category = 'hildon'
-        icon_sizes = [48, 64]
-    else:
-        icon_sizes = [16, 22, 24, 32, 48]
+    icon_sizes = [16, 22, 24, 32, 48]
 
     for size in icon_sizes:
         format = str (size) + 'x' + str (size)

@@ -4925,18 +4925,10 @@ static const GtkActionEntry entries[] = {
    NULL, "<Ctrl>r",
    N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
  { "ZoomIn", GTK_STOCK_ZOOM_IN,
-   #if HAVE_HILDON
-   NULL, "F7",
-   #else
    NULL, "<Ctrl>plus",
-   #endif
    N_("Increase the zoom level"), G_CALLBACK (_action_zoom_in_activate) },
  { "ZoomOut", GTK_STOCK_ZOOM_OUT,
-   #if HAVE_HILDON
-   NULL, "F8",
-   #else
    NULL, "<Ctrl>minus",
-   #endif
    N_("Decrease the zoom level"), G_CALLBACK (_action_zoom_out_activate) },
  { "ZoomNormal", GTK_STOCK_ZOOM_100,
    NULL, "<Ctrl>0",
@@ -4950,11 +4942,7 @@ static const GtkActionEntry entries[] = {
     N_("View the source code of the selection"),
     NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
-   #if HAVE_HILDON
-   NULL, "F6",
-   #else
    NULL, "F11",
-   #endif
    N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
 
  { "Go", NULL, N_("_Go") },
