@@ -93,11 +93,13 @@ katze_array_from_xmlNodePtr (xmlNodePtr cur)
         {
             key = xmlNodeGetContent (cur);
             katze_item_set_name (KATZE_ITEM (array), g_strstrip ((gchar*)key));
+            xmlFree (key);
         }
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
         {
             key = xmlNodeGetContent (cur);
             katze_item_set_text (KATZE_ITEM (array), g_strstrip ((gchar*)key));
+            xmlFree (key);
         }
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
         {
@@ -129,19 +131,26 @@ katze_xbel_parse_info (KatzeItem* item,
         if (!xmlStrcmp (cur->name, (const xmlChar*)"metadata"))
         {
             xmlChar* owner = xmlGetProp (cur, (xmlChar*)"owner");
-            g_strstrip ((gchar*)owner);
+            if (owner)
+                g_strstrip ((gchar*)owner);
+            else
+                /* Albeit required, "owner" is not set by MicroB */
+                owner = (xmlChar*)NULL;
             /* FIXME: Save metadata from unknown owners */
-            if (!g_strcmp0 ((gchar*)owner, "http://www.twotoasts.de"))
+            if (!owner || !strcmp ((gchar*)owner, "http://www.twotoasts.de"))
             {
                 xmlAttrPtr properties = cur->properties;
+                xmlNodePtr children = cur->children;
                 while (properties)
                 {
+                    xmlChar* value;
+
                     if (!xmlStrcmp (properties->name, (xmlChar*)"owner"))
                     {
                         properties = properties->next;
                         continue;
                     }
-                    xmlChar* value = xmlGetProp (cur, properties->name);
+                    value = xmlGetProp (cur, properties->name);
                     if (properties->ns && properties->ns->prefix)
                     {
                         gchar* ns_value = g_strdup_printf ("%s:%s",
@@ -155,6 +164,26 @@ katze_xbel_parse_info (KatzeItem* item,
                             (gchar*)properties->name, (gchar*)value);
                     xmlFree (value);
                     properties = properties->next;
+                }
+                while (children)
+                {
+                    xmlNodePtr grand_children = children->children;
+                    while (grand_children)
+                    {
+                        xmlChar* value = grand_children->content;
+                        gchar* ns_value;
+                        if (!owner)
+                            ns_value = g_strdup_printf (":%s", children->name);
+                        else if (xmlStrEqual (owner, (xmlChar*)"http://www.twotoasts.de"))
+                            ns_value = g_strdup_printf ("midori:%s", children->name);
+                        else /* FIXME: Save metadata from unknown owners */
+                            ns_value = g_strdup_printf (":%s", children->name);
+                        katze_item_set_meta_string (item, ns_value, (gchar*)value);
+                        g_free (ns_value);
+                        grand_children = grand_children->next;
+                    }
+
+                    children = children->next;
                 }
             }
             xmlFree (owner);
@@ -211,6 +240,16 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
             item = katze_item_new ();
         else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
             katze_xbel_parse_info (KATZE_ITEM (array), cur);
+        else if (!xmlStrcmp (cur->name, (xmlChar*)"title"))
+        {
+            xmlNodePtr node = cur->xmlChildrenNode;
+            katze_item_set_name (KATZE_ITEM (array), (gchar*)node->content);
+        }
+        else if (!xmlStrcmp (cur->name, (xmlChar*)"desc"))
+        {
+            xmlNodePtr node = cur->xmlChildrenNode;
+            katze_item_set_text (KATZE_ITEM (array), (gchar*)node->content);
+        }
         if (item)
             katze_array_add_item (array, item);
         cur = cur->next;
@@ -480,28 +519,47 @@ katze_item_metadata_to_xbel (KatzeItem* item)
 {
     GList* keys = katze_item_get_meta_keys (item);
     GString* markup;
-    /* FIXME: Allow specifying an alternative namespace/ URI */
-    const gchar* namespace_uri = "http://www.twotoasts.de";
-    const gchar* namespace = "midori";
+    GString* markdown;
+    /* FIXME: Allow specifying an alternative default namespace */
+    /* FIXME: Support foreign namespaces with their own URI */
+    gchar* namespace = NULL;
+    const gchar* namespace_uri;
     gsize i;
     const gchar* key;
+    const gchar* value;
 
     if (!keys)
         return g_strdup ("");
 
-    markup = g_string_new ("<info>\n<metadata owner=\"");
-    g_string_append_printf (markup, "%s\"", namespace_uri);
+    markup = g_string_new ("<info>\n<metadata");
+    markdown = g_string_new (NULL);
     i = 0;
     while ((key = g_list_nth_data (keys, i++)))
-        if (katze_item_get_meta_string (item, key))
+        if ((value = katze_item_get_meta_string (item, key)))
         {
-            gchar* escaped =
-                g_markup_escape_text (katze_item_get_meta_string (item, key), -1);
-            g_string_append_printf (markup, " %s:%s=\"%s\"", namespace, key,
-                escaped);
+            gchar* escaped = g_markup_escape_text (value, -1);
+            namespace = strchr (key, ':');
+            if (key[0] == ':') /* MicroB uses un-namespaced children */
+            {
+                key = &key[1];
+                g_string_append_printf (markdown, "<%s>%s</%s>\n", key, escaped, key);
+            }
+            else if (namespace)
+                g_string_append_printf (markup, " %s=\"%s\"", key, escaped);
+            else
+                g_string_append_printf (markup, " midori:%s=\"%s\"", key, escaped);
             g_free (escaped);
         }
-    g_string_append_printf (markup, "/>\n</info>\n");
+    if (!namespace)
+    {
+        namespace_uri = "http://www.twotoasts.de";
+        g_string_append_printf (markup, " owner=\"%s\"", namespace_uri);
+    }
+    if (markdown->len)
+        g_string_append_printf (markup, ">\n%s</metadata>\n</info>\n", markdown->str);
+    else
+        g_string_append_printf (markup, "/>\n</info>\n");
+    g_string_free (markdown, TRUE);
     return g_string_free (markup, FALSE);
 }
 

@@ -50,6 +50,12 @@
     #include <signal.h>
 #endif
 
+#if HAVE_HILDON
+    #define BOOKMARK_FILE "/home/user/.bookmarks/MyBookmarks.xml"
+#else
+    #define BOOKMARK_FILE "bookmarks.xbel"
+#endif
+
 #define MIDORI_HISTORY_ERROR g_quark_from_string("MIDORI_HISTORY_ERROR")
 
 typedef enum
@@ -62,7 +68,11 @@ typedef enum
 static gchar*
 build_config_filename (const gchar* filename)
 {
-    const gchar* path = sokoke_set_config_dir (NULL);
+    const gchar* path;
+
+    if (g_path_is_absolute (filename))
+        return g_strdup (filename);
+    path = sokoke_set_config_dir (NULL);
     return g_build_filename (path, filename, NULL);
 }
 
@@ -805,7 +815,7 @@ midori_bookmarks_notify_item_cb (KatzeArray* folder,
     gchar* config_file;
     GError* error;
 
-    config_file = build_config_filename ("bookmarks.xbel");
+    config_file = build_config_filename (BOOKMARK_FILE);
     error = NULL;
     if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
     {
@@ -833,7 +843,7 @@ midori_bookmarks_add_item_cb (KatzeArray* folder,
     gchar* config_file;
     GError* error;
 
-    config_file = build_config_filename ("bookmarks.xbel");
+    config_file = build_config_filename (BOOKMARK_FILE);
     error = NULL;
     if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
     {
@@ -862,7 +872,7 @@ midori_bookmarks_remove_item_cb (KatzeArray* folder,
     gchar* config_file;
     GError* error;
 
-    config_file = build_config_filename ("bookmarks.xbel");
+    config_file = build_config_filename (BOOKMARK_FILE);
     error = NULL;
     if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
     {
@@ -1864,7 +1874,7 @@ main (int    argc,
     }
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     #if HAVE_LIBXML
-    katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
+    katze_assign (config_file, build_config_filename (BOOKMARK_FILE));
     error = NULL;
     if (!midori_array_from_file (bookmarks, config_file, "xbel", &error))
     {
@@ -2016,8 +2026,9 @@ main (int    argc,
                     G_CALLBACK (midori_search_engines_modify_cb), search_engines);
         }
     }
-    katze_assign (config_file, build_config_filename ("bookmarks.xbel"));
-    if (1)
+    katze_assign (config_file, build_config_filename (BOOKMARK_FILE));
+    /* Don't save bookmarks if they are not our own */
+    if (!g_path_is_absolute (BOOKMARK_FILE))
     {
         g_signal_connect_after (bookmarks, "add-item",
             G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
