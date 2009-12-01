@@ -23,6 +23,8 @@
     #include <libxml/tree.h>
 #endif
 
+#define katze_str_equal(str1, str2) !strcmp (str1, str2)
+
 static void
 katze_xbel_parse_info (KatzeItem* item,
                        xmlNodePtr cur);
@@ -35,29 +37,18 @@ static KatzeItem*
 katze_item_from_xmlNodePtr (xmlNodePtr cur)
 {
     KatzeItem* item;
-    xmlChar* key;
 
     item = katze_item_new ();
-    key = xmlGetProp (cur, (xmlChar*)"href");
-    katze_item_set_uri (item, (gchar*)key);
-    g_free (key);
+    item->uri = (gchar*)xmlGetProp (cur, (xmlChar*)"href");
 
     cur = cur->xmlChildrenNode;
     while (cur)
     {
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_name (item, g_strstrip ((gchar*)key));
-            g_free (key);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_text (item, g_strstrip ((gchar*)key));
-            g_free (key);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
+        if (katze_str_equal ((gchar*)cur->name, "title"))
+            item->name = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        else if (katze_str_equal ((gchar*)cur->name, "desc"))
+            item->text = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        else if (katze_str_equal ((gchar*)cur->name, "info"))
             katze_xbel_parse_info (item, cur);
         cur = cur->next;
     }
@@ -89,29 +80,21 @@ katze_array_from_xmlNodePtr (xmlNodePtr cur)
     cur = cur->xmlChildrenNode;
     while (cur)
     {
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"title"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_name (KATZE_ITEM (array), g_strstrip ((gchar*)key));
-            xmlFree (key);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"desc"))
-        {
-            key = xmlNodeGetContent (cur);
-            katze_item_set_text (KATZE_ITEM (array), g_strstrip ((gchar*)key));
-            xmlFree (key);
-        }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
+        if (katze_str_equal ((gchar*)cur->name, "title"))
+            ((KatzeItem*)array)->name = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        else if (katze_str_equal ((gchar*)cur->name, "desc"))
+            ((KatzeItem*)array)->text = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        else if (katze_str_equal ((gchar*)cur->name, "folder"))
         {
             item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
             katze_array_add_item (array, item);
         }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
+        else if (katze_str_equal ((gchar*)cur->name, "bookmark"))
         {
             item = katze_item_from_xmlNodePtr (cur);
             katze_array_add_item (array, item);
         }
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
+        else if (katze_str_equal ((gchar*)cur->name, "separator"))
         {
             item = katze_item_new ();
             katze_array_add_item (array, item);
@@ -128,7 +111,7 @@ katze_xbel_parse_info (KatzeItem* item,
     cur = cur->xmlChildrenNode;
     while (cur)
     {
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"metadata"))
+        if (katze_str_equal ((gchar*)cur->name, "metadata"))
         {
             xmlChar* owner = xmlGetProp (cur, (xmlChar*)"owner");
             if (owner)
@@ -137,7 +120,7 @@ katze_xbel_parse_info (KatzeItem* item,
                 /* Albeit required, "owner" is not set by MicroB */
                 owner = (xmlChar*)NULL;
             /* FIXME: Save metadata from unknown owners */
-            if (!owner || !strcmp ((gchar*)owner, "http://www.twotoasts.de"))
+            if (!owner || katze_str_equal ((gchar*)owner, "http://www.twotoasts.de"))
             {
                 xmlAttrPtr properties = cur->properties;
                 xmlNodePtr children = cur->children;
@@ -145,7 +128,7 @@ katze_xbel_parse_info (KatzeItem* item,
                 {
                     xmlChar* value;
 
-                    if (!xmlStrcmp (properties->name, (xmlChar*)"owner"))
+                    if (katze_str_equal ((gchar*)properties->name, "owner"))
                     {
                         properties = properties->next;
                         continue;
@@ -174,7 +157,7 @@ katze_xbel_parse_info (KatzeItem* item,
                         gchar* ns_value;
                         if (!owner)
                             ns_value = g_strdup_printf (":%s", children->name);
-                        else if (xmlStrEqual (owner, (xmlChar*)"http://www.twotoasts.de"))
+                        else if (katze_str_equal ((gchar*)owner, "http://www.twotoasts.de"))
                             ns_value = g_strdup_printf ("midori:%s", children->name);
                         else /* FIXME: Save metadata from unknown owners */
                             ns_value = g_strdup_printf (":%s", children->name);
@@ -188,7 +171,7 @@ katze_xbel_parse_info (KatzeItem* item,
             }
             xmlFree (owner);
         }
-        else if (g_strcmp0 ((gchar*)cur->name, "text"))
+        else if (!katze_str_equal ((gchar*)cur->name, "text"))
             g_critical ("Unexpected element <%s> in <metadata>.", cur->name);
         cur = cur->next;
     }
@@ -223,7 +206,7 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
         /* Empty document */
         return FALSE;
     }
-    if (xmlStrcmp (cur->name, (const xmlChar*)"xbel"))
+    if (!katze_str_equal ((gchar*)cur->name, "xbel"))
     {
         /* Wrong document kind */
         return FALSE;
@@ -232,20 +215,20 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
     while (cur)
     {
         item = NULL;
-        if (!xmlStrcmp (cur->name, (const xmlChar*)"folder"))
+        if (katze_str_equal ((gchar*)cur->name, "folder"))
             item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"bookmark"))
+        else if (katze_str_equal ((gchar*)cur->name, "bookmark"))
             item = katze_item_from_xmlNodePtr (cur);
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"separator"))
+        else if (katze_str_equal ((gchar*)cur->name, "separator"))
             item = katze_item_new ();
-        else if (!xmlStrcmp (cur->name, (const xmlChar*)"info"))
+        else if (katze_str_equal ((gchar*)cur->name, "info"))
             katze_xbel_parse_info (KATZE_ITEM (array), cur);
-        else if (!xmlStrcmp (cur->name, (xmlChar*)"title"))
+        else if (katze_str_equal ((gchar*)cur->name, "title"))
         {
             xmlNodePtr node = cur->xmlChildrenNode;
             katze_item_set_name (KATZE_ITEM (array), (gchar*)node->content);
         }
-        else if (!xmlStrcmp (cur->name, (xmlChar*)"desc"))
+        else if (katze_str_equal ((gchar*)cur->name, "desc"))
         {
             xmlNodePtr node = cur->xmlChildrenNode;
             katze_item_set_text (KATZE_ITEM (array), (gchar*)node->content);
@@ -305,24 +288,22 @@ katze_array_from_opera_file (KatzeArray* array,
             gchar** parts = g_strsplit (line, "=", 2);
             if (parts && parts[0] && parts[1])
             {
-                if (g_str_equal (parts[0], "NAME"))
-                    katze_item_set_name (item, parts[1]);
-                else if (g_str_equal (parts[0], "URL"))
-                    katze_item_set_uri (item, parts[1]);
-                else if (g_str_equal (parts[0], "DESCRIPTION"))
-                    katze_item_set_text (item, parts[1]);
-                else if (g_str_equal (parts[0], "CREATED"))
-                    katze_item_set_added (item,
-                        g_ascii_strtoull (parts[1], NULL, 10));
+                if (katze_str_equal (parts[0], "NAME"))
+                    item->name = g_strdup (parts[1]);
+                else if (katze_str_equal (parts[0], "URL"))
+                    item->uri = g_strdup (parts[1]);
+                else if (katze_str_equal (parts[0], "DESCRIPTION"))
+                    item->text = g_strdup (parts[1]);
+                else if (katze_str_equal (parts[0], "CREATED"))
+                    item->added = g_ascii_strtoull (parts[1], NULL, 10);
                 /* FIXME: Implement visited time
-                else if (g_str_equal (parts[0], "VISITED"))
-                    katze_item_set_visited (item,
-                        g_ascii_strtoull (parts[1], NULL, 10)); */
-                else if (g_str_equal (parts[0], "ON PERSONALBAR"))
+                else if (katze_str_equal (parts[0], "VISITED"))
+                    item->visited = g_ascii_strtoull (parts[1], NULL, 10); */
+                else if (katze_str_equal (parts[0], "ON PERSONALBAR"))
                     katze_item_set_meta_integer (item, "toolbar",
-                        !g_strcmp0 (parts[1], "YES") ? 1 : -1);
+                        katze_str_equal (parts[1], "YES") ? 1 : -1);
                 /* FIXME: Implement websites as panels
-                else if (g_str_equal (parts[0], "IN PANEL"))
+                else if (katze_str_equal (parts[0], "IN PANEL"))
                     ; */
             }
             else
@@ -370,9 +351,12 @@ midori_array_from_file (KatzeArray*  array,
         return FALSE;
     }
 
+    if (!format)
+        format = "";
+
     /* Opera6 */
-    if (!g_strcmp0 (format, "opera")
-    || (!format && g_str_has_suffix (filename, ".adr")))
+    if (katze_str_equal (format, "opera")
+    || (!*format && g_str_has_suffix (filename, ".adr")))
     {
         FILE* file;
         if ((file = g_fopen (filename, "r")))
@@ -384,10 +368,10 @@ midori_array_from_file (KatzeArray*  array,
             while (fgets (line, 50, file))
             {
                 g_strstrip (line);
-                if (verify == 0 && !strcmp (line, "Opera Hotlist version 2.0"))
+                if (verify == 0 && katze_str_equal (line, "Opera Hotlist version 2.0"))
                     verify++;
                 else if (verify == 1
-                     && !strcmp (line, "Options: encoding = utf8, version=3"))
+                    && katze_str_equal (line, "Options: encoding = utf8, version=3"))
                     verify++;
                 else if (verify == 2)
                 {
@@ -410,8 +394,8 @@ midori_array_from_file (KatzeArray*  array,
     }
 
     /* XBEL */
-    if (!g_strcmp0 (format, "xbel")
-     || !format)
+    if (katze_str_equal (format, "xbel")
+     || !*format)
     {
         xmlDocPtr doc;
 
