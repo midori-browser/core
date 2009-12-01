@@ -4168,12 +4168,13 @@ _action_bookmarks_import_activate (GtkAction*     action,
     label = gtk_label_new_with_mnemonic (_("_Application:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    model = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT);
+    model = gtk_list_store_new (4, G_TYPE_STRING, G_TYPE_STRING,
+                                   G_TYPE_STRING, G_TYPE_INT);
     combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, FALSE);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "icon-name", 1);
-    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "width", 2);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "width", 3);
     renderer = gtk_cell_renderer_text_new ();
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
@@ -4186,7 +4187,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         if (g_file_test (path, G_FILE_TEST_EXISTS))
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, bookmark_clients[i].name, 1, bookmark_clients[i].icon,
-                2, icon_width, -1);
+                2, path, 3, icon_width, -1);
         g_free (path);
     }
     gtk_combo_box_set_active (combobox, 0);
@@ -4222,13 +4223,14 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
+        GtkTreeIter iter;
         gchar* path;
         gchar* selected;
         KatzeArray* folder;
         GError* error;
 
-        i = gtk_combo_box_get_active (combobox);
-        path = g_build_filename (g_get_home_dir (), bookmark_clients[i].path, NULL);
+        gtk_combo_box_get_active_iter (combobox, &iter);
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &path, -1);
 
         selected = gtk_combo_box_get_active_text (combobox_folder);
         folder = browser->bookmarks;
