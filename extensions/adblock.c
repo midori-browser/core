@@ -662,7 +662,6 @@ adblock_session_request_queued_cb (SoupSession* session,
         data.query = g_strdup_printf ("%s?%s", soup_uri->path, soup_uri->query);
     else
         data.query = g_strdup (soup_uri->path);
-    soup_uri_free (soup_uri);
 
     data.uri = uri;
     page_uri = NULL; /* FIXME */
