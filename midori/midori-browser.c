@@ -4351,6 +4351,15 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
             }
             clear_prefs |= MIDORI_CLEAR_TRASH;
         }
+        button = g_object_get_data (G_OBJECT (dialog), "web-cache");
+        if (gtk_toggle_button_get_active (button))
+        {
+            gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                             PACKAGE_NAME, "web", NULL);
+            sokoke_remove_path (cache, TRUE);
+            g_free (cache);
+            clear_prefs |= MIDORI_CLEAR_WEB_CACHE;
+        }
 
         if (clear_prefs != saved_prefs)
             g_object_set (browser->settings, "clear-private-data", clear_prefs, NULL);
@@ -4444,6 +4453,11 @@ _action_clear_private_data_activate (GtkAction*     action,
         if ((clear_prefs & MIDORI_CLEAR_TRASH) == MIDORI_CLEAR_TRASH)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "trash", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+        button = gtk_check_button_new_with_mnemonic (_("Web Cache"));
+        if ((clear_prefs & MIDORI_CLEAR_WEB_CACHE) == MIDORI_CLEAR_WEB_CACHE)
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+        g_object_set_data (G_OBJECT (dialog), "web-cache", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (alignment), vbox);
         gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);

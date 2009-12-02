@@ -43,6 +43,7 @@ enum
     MIDORI_CLEAR_WEBSITE_ICONS = 8,
     MIDORI_CLEAR_TRASH = 16,
     MIDORI_CLEAR_ON_QUIT = 32,
+    MIDORI_CLEAR_WEB_CACHE = 64,
 };
 
 typedef enum

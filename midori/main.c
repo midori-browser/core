@@ -2134,6 +2134,13 @@ main (int    argc,
             g_free (cache);
         }
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
+        if ((clear_prefs & MIDORI_CLEAR_WEB_CACHE) == MIDORI_CLEAR_WEB_CACHE)
+        {
+            gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                             PACKAGE_NAME, "web", NULL);
+            sokoke_remove_path (cache, TRUE);
+            g_free (cache);
+        }
     }
 
     if (katze_object_get_boolean (settings, "load-on-startup")
