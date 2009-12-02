@@ -245,11 +245,13 @@ katze_array_from_opera_file (KatzeArray* array,
                              FILE*       file)
 {
     gchar line[200];
+    gchar* partial_line = NULL;
     KatzeArray* folder = array;
     KatzeItem* item = NULL;
 
     while (fgets (line, 200, file))
     {
+        gboolean incomplete_line = (strlen (line) == 199);
         g_strstrip (line);
         if (line[0] == '\0')
         {
@@ -285,7 +287,31 @@ katze_array_from_opera_file (KatzeArray* array,
         }
         else if (item)
         {
-            gchar** parts = g_strsplit (line, "=", 2);
+            gchar** parts;
+
+            /* Handle lines longer than 200 characters */
+            if (incomplete_line)
+            {
+                if (partial_line)
+                {
+                    gchar* chunk = g_strconcat (partial_line, line, NULL);
+                    katze_assign (partial_line, chunk);
+                }
+                else
+                    partial_line = g_strdup (line);
+                continue;
+            }
+
+            if (partial_line)
+            {
+                gchar* full_line = g_strconcat (partial_line, line, NULL);
+                katze_assign (partial_line, NULL);
+                parts = g_strsplit (full_line, "=", 2);
+                g_free (full_line);
+            }
+            else
+                parts = g_strsplit (line, "=", 2);
+
             if (parts && parts[0] && parts[1])
             {
                 if (katze_str_equal (parts[0], "NAME"))
