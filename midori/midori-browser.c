@@ -5746,6 +5746,7 @@ midori_browser_init (MidoriBrowser* browser)
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Tools",
         "label", _("_Tools"),
+        "stock-id", GTK_STOCK_PREFERENCES,
         "array", katze_array_new (KATZE_TYPE_ITEM),
         NULL);
     g_object_connect (action,
