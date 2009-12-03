@@ -454,74 +454,114 @@ midori_array_from_file (KatzeArray*  array,
 }
 #endif
 
-static gchar*
-_simple_xml_element (const gchar* name,
-                     const gchar* value)
+/* Inspired by append_escaped_text() from gmarkup.c in Glib.
+   The main difference is that we filter out control characters. */
+static void
+string_append_escaped (GString     *str,
+                       const gchar *text)
 {
-    gchar* value_escaped;
-    gchar* markup;
+    gssize length;
+    const gchar* p;
+    const gchar* end;
+    gunichar c;
 
-    if (!value)
-        return g_strdup ("");
-    value_escaped = g_markup_escape_text (value, -1);
-    markup = g_strdup_printf ("<%s>%s</%s>\n", name, value_escaped, name);
-    g_free (value_escaped);
-    return markup;
+    length = strlen (text);
+    p = text;
+    end = text + length;
+
+    while (p != end)
+    {
+        const gchar *next;
+        next = g_utf8_next_char (p);
+
+        switch (*p)
+        {
+        case '&':
+            g_string_append (str, "&amp;");
+            break;
+        case '<':
+            g_string_append (str, "&lt;");
+            break;
+        case '>':
+            g_string_append (str, "&gt;");
+            break;
+        case '\'':
+            g_string_append (str, "&apos;");
+            break;
+        case '"':
+            g_string_append (str, "&quot;");
+            break;
+        default:
+            c = g_utf8_get_char (p);
+            if (g_unichar_iscntrl (c))
+                g_string_append_c (str, ' ');
+            else if ((0x1 <= c && c <= 0x8)
+             || (0xb <= c && c  <= 0xc)
+             || (0xe <= c && c <= 0x1f)
+             || (0x7f <= c && c <= 0x84)
+             || (0x86 <= c && c <= 0x9f))
+                g_string_append_printf (str, "&#x%x;", c);
+            else
+                g_string_append_len (str, p, next - p);
+            break;
+        }
+
+        p = next;
+    }
 }
 
-static gchar*
-katze_item_to_data (KatzeItem* item)
+static void
+string_append_xml_element (GString*     string,
+                           const gchar* name,
+                           const gchar* value)
+{
+    if (value)
+    {
+        g_string_append_printf (string, "<%s>", name);
+        string_append_escaped (string, value);
+        g_string_append_printf (string, "</%s>\n", name);
+    }
+}
+
+static void
+string_append_item (GString*   string,
+                    KatzeItem* item)
 {
     gchar* markup;
     gchar* metadata;
 
-    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+    g_return_if_fail (KATZE_IS_ITEM (item));
 
     markup = NULL;
     metadata = katze_item_metadata_to_xbel (item);
     if (KATZE_IS_ARRAY (item))
     {
-        GString* _markup = g_string_new (NULL);
         guint i = 0;
         KatzeItem* _item;
-        while ((_item = katze_array_get_nth_item (KATZE_ARRAY (item), i++)))
-        {
-            gchar* item_markup = katze_item_to_data (_item);
-            g_string_append (_markup, item_markup);
-            g_free (item_markup);
-        }
-        /* gchar* folded = item->folded ? NULL : g_strdup_printf (" folded=\"no\""); */
-        gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
-        gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
-        markup = g_strdup_printf ("<folder%s>\n%s%s%s%s</folder>\n",
-                                  "" /* folded ? folded : "" */,
-                                  title, desc,
-                                  _markup->str,
-                                  metadata);
-        g_string_free (_markup, TRUE);
-        /* g_free (folded); */
-        g_free (title);
-        g_free (desc);
+        KatzeArray* array = KATZE_ARRAY (item);
+
+        g_string_append (string, "<folder>\n");
+        /* FIXME: " folded=\"no\" */
+        string_append_xml_element (string, "title", katze_item_get_name (item));
+        string_append_xml_element (string, "desc", katze_item_get_text (item));
+        while ((_item = katze_array_get_nth_item (array, i++)))
+            string_append_item (string, _item);
+        g_string_append (string, metadata);
+        g_string_append (string, "</folder>\n");
     }
     else if (katze_item_get_uri (item))
     {
-        gchar* href_escaped = g_markup_escape_text (katze_item_get_uri (item), -1);
-        gchar* href = g_strdup_printf (" href=\"%s\"", href_escaped);
-        g_free (href_escaped);
-        gchar* title = _simple_xml_element ("title", katze_item_get_name (item));
-        gchar* desc = _simple_xml_element ("desc", katze_item_get_text (item));
-        markup = g_strdup_printf ("<bookmark%s>\n%s%s%s</bookmark>\n",
-                                  href,
-                                  title, desc,
-                                  metadata);
-        g_free (href);
-        g_free (title);
-        g_free (desc);
+        g_string_append (string, "<bookmark href=\"");
+        string_append_escaped (string, katze_item_get_uri (item));
+        g_string_append (string, "\">\n");
+        string_append_xml_element (string, "title", katze_item_get_name (item));
+        string_append_xml_element (string, "desc", katze_item_get_text (item));
+        g_string_append (string, metadata);
+        g_string_append (string, "</bookmark>\n");
     }
     else
-        markup = g_strdup ("<separator/>\n");
+        g_string_append (string, "<separator/>\n");
     g_free (metadata);
-    return markup;
 }
 
 static gchar*
@@ -547,18 +587,26 @@ katze_item_metadata_to_xbel (KatzeItem* item)
     while ((key = g_list_nth_data (keys, i++)))
         if ((value = katze_item_get_meta_string (item, key)))
         {
-            gchar* escaped = g_markup_escape_text (value, -1);
             namespace = strchr (key, ':');
             if (key[0] == ':') /* MicroB uses un-namespaced children */
             {
                 key = &key[1];
-                g_string_append_printf (markdown, "<%s>%s</%s>\n", key, escaped, key);
+                g_string_append_printf (markdown, "<%s>", key);
+                string_append_escaped (markdown, value);
+                g_string_append_printf (markdown, "</%s>\n", key);
             }
             else if (namespace)
-                g_string_append_printf (markup, " %s=\"%s\"", key, escaped);
+            {
+                g_string_append_printf (markup, " %s=\"", key);
+                string_append_escaped (markup, value);
+                g_string_append_c (markup, '\"');
+            }
             else
-                g_string_append_printf (markup, " midori:%s=\"%s\"", key, escaped);
-            g_free (escaped);
+            {
+                g_string_append_printf (markup, " midori:%s=\"", key);
+                string_append_escaped (markup, value);
+                g_string_append_c (markup, '\"');
+            }
         }
     if (!namespace)
     {
@@ -577,46 +625,29 @@ static gchar*
 katze_array_to_xbel (KatzeArray* array,
                      GError**    error)
 {
-    GString* inner_markup;
+    gchar* metadata = katze_item_metadata_to_xbel (KATZE_ITEM (array));
     guint i;
     KatzeItem* item;
-    gchar* item_xml;
-    const gchar* namespacing;
-    gchar* title;
-    gchar* desc;
-    gchar* metadata;
-    gchar* outer_markup;
 
-    inner_markup = g_string_new (NULL);
+    GString* markup = g_string_new (
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
+        "XML Bookmark Exchange Language 1.0//EN//XML\" "
+        "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n"
+        "<xbel version=\"1.0\""
+        " xmlns:midori=\"http://www.twotoasts.de\""
+        ">\n");
+    string_append_xml_element (markup, "title", katze_item_get_name (KATZE_ITEM (array)));
+    string_append_xml_element (markup, "desc", katze_item_get_text (KATZE_ITEM (array)));
+    g_string_append (markup, metadata);
     i = 0;
     while ((item = katze_array_get_nth_item (array, i++)))
-    {
-        item_xml = katze_item_to_data (item);
-        g_string_append (inner_markup, item_xml);
-        g_free (item_xml);
-    }
+        string_append_item (markup, item);
+    g_string_append (markup, "</xbel>\n");
 
-    namespacing = " xmlns:midori=\"http://www.twotoasts.de\"";
-    title = _simple_xml_element ("title", katze_item_get_name (KATZE_ITEM (array)));
-    desc = _simple_xml_element ("desc", katze_item_get_text (KATZE_ITEM (array)));
-    metadata = katze_item_metadata_to_xbel (KATZE_ITEM (array));
-    outer_markup = g_strdup_printf (
-                   "%s%s<xbel version=\"1.0\"%s>\n%s%s%s%s</xbel>\n",
-                   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
-                   "<!DOCTYPE xbel PUBLIC \"+//IDN python.org//DTD "
-                   "XML Bookmark Exchange Language 1.0//EN//XML\" "
-                   "\"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd\">\n",
-                   namespacing,
-                   title,
-                   desc,
-                   metadata,
-                   inner_markup->str);
-    g_string_free (inner_markup, TRUE);
-    g_free (title);
-    g_free (desc);
     g_free (metadata);
 
-    return outer_markup;
+    return g_string_free (markup, FALSE);
 }
 
 static gboolean
