@@ -4162,7 +4162,6 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
     sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
-    /* TODO: Custom item, to choose a file manually */
     hbox = gtk_hbox_new (FALSE, 8);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
     label = gtk_label_new_with_mnemonic (_("_Application:"));
@@ -4186,10 +4185,12 @@ _action_bookmarks_import_activate (GtkAction*     action,
                                         bookmark_clients[i].path, NULL);
         if (g_file_test (path, G_FILE_TEST_EXISTS))
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, bookmark_clients[i].name, 1, bookmark_clients[i].icon,
+                0, _(bookmark_clients[i].name), 1, bookmark_clients[i].icon,
                 2, path, 3, icon_width, -1);
         g_free (path);
     }
+    gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+        0, _("Custom..."), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
@@ -4247,23 +4248,29 @@ _action_bookmarks_import_activate (GtkAction*     action,
         }
         g_free (selected);
 
-        error = NULL;
-        if (!midori_array_from_file (folder, path, NULL, &error))
+        gtk_widget_destroy (dialog);
+        if (!path)
         {
-            GtkWidget* error_dialog = gtk_message_dialog_new (
-                GTK_WINDOW (browser), GTK_DIALOG_DESTROY_WITH_PARENT,
-                GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-                _("Failed to import bookmarks"));
-            gtk_message_dialog_format_secondary_text (
-                GTK_MESSAGE_DIALOG (error_dialog), "%s", error->message);
-            g_error_free (error);
-            gtk_widget_show (error_dialog);
-            g_signal_connect_swapped (error_dialog, "response",
-                G_CALLBACK (gtk_widget_destroy), error_dialog);
+            GtkWidget* file_dialog = sokoke_file_chooser_dialog_new (
+                _("Save file as"),
+                GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
+            if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
+                path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
+            gtk_widget_destroy (file_dialog);
+        }
+
+        error = NULL;
+        if (path && !midori_array_from_file (folder, path, NULL, &error))
+        {
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                _("Failed to import bookmarks"), error ? error->message : "");
+            if (error)
+                g_error_free (error);
         }
         g_free (path);
     }
-    gtk_widget_destroy (dialog);
+    else
+        gtk_widget_destroy (dialog);
 }
 
 static void
