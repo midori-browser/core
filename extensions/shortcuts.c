@@ -39,68 +39,6 @@ shortcuts_deactivate_cb (MidoriExtension* extension,
 }
 
 static void
-shortcuts_preferences_render_text (GtkTreeViewColumn* column,
-                                   GtkCellRenderer*   renderer,
-                                   GtkTreeModel*      model,
-                                   GtkTreeIter*       iter,
-                                   MidoriExtension*   extension)
-{
-    GtkAction* action;
-    gchar* label;
-    gchar* stripped;
-
-    gtk_tree_model_get (model, iter, 0, &action, -1);
-    if ((label = katze_object_get_string (action, "label")))
-        stripped = katze_strip_mnemonics (label);
-    else
-    {
-        GtkStockItem item;
-        g_object_get (action, "stock-id", &label, NULL);
-        if (gtk_stock_lookup (label, &item))
-            stripped = katze_strip_mnemonics (item.label);
-        else
-            stripped = g_strdup ("");
-    }
-    g_free (label);
-    g_object_set (renderer, "text", stripped, NULL);
-    g_free (stripped);
-    g_object_unref (action);
-}
-
-static void
-shortcuts_preferences_render_accel (GtkTreeViewColumn* column,
-                                    GtkCellRenderer*   renderer,
-                                    GtkTreeModel*      model,
-                                    GtkTreeIter*       iter,
-                                    MidoriExtension*   extension)
-{
-    GtkAction* action;
-    const gchar* accel_path;
-    GtkAccelKey key;
-
-    gtk_tree_model_get (model, iter, 0, &action, -1);
-    accel_path = gtk_action_get_accel_path (action);
-    if (accel_path)
-    {
-        if (gtk_accel_map_lookup_entry (accel_path, &key))
-        {
-            if (key.accel_key)
-                g_object_set (renderer,
-                              "accel-key", key.accel_key,
-                              "accel-mods", key.accel_mods,
-                              "accel-mode", GTK_CELL_RENDERER_ACCEL_MODE_OTHER,
-                              NULL);
-            else
-                g_object_set (renderer, "text", _("None"), NULL);
-        }
-        g_object_set (renderer, "sensitive", TRUE, "editable", TRUE, NULL);
-    }
-    else
-        g_object_set (renderer, "text", "", "sensitive", FALSE, NULL);
-    g_object_unref (action);
-}
-
-static void
 shortcuts_accel_edited_cb (GtkCellRenderer* renderer,
                            const gchar*     tree_path,
                            guint            accel_key,
@@ -115,9 +53,12 @@ shortcuts_accel_edited_cb (GtkCellRenderer* renderer,
         GtkAction* action;
         const gchar* accel_path;
 
-        gtk_tree_model_get (model, &iter, 0, &action, -1);
+        gtk_tree_model_get (model, &iter, 6, &action, -1);
         accel_path = gtk_action_get_accel_path (action);
         gtk_accel_map_change_entry (accel_path, accel_key, accel_mods, TRUE);
+
+        gtk_list_store_set (GTK_LIST_STORE (model),
+            &iter, 1, accel_key, 2, accel_mods, -1);
 
         g_object_unref (action);
     }
@@ -135,12 +76,50 @@ shortcuts_accel_cleared_cb (GtkCellRenderer* renderer,
         GtkAction* action;
         const gchar* accel_path;
 
-        gtk_tree_model_get (model, &iter, 0, &action, -1);
+        gtk_tree_model_get (model, &iter, 6, &action, -1);
         accel_path = gtk_action_get_accel_path (action);
         gtk_accel_map_change_entry (accel_path, 0, 0, FALSE);
 
+        gtk_list_store_set (GTK_LIST_STORE (model),
+            &iter, 1, 0, 2, 0, -1);
+
         g_object_unref (action);
     }
+}
+
+static gchar*
+shortcuts_label_for_action (GtkAction* action)
+{
+    gchar* label;
+    gchar* stripped;
+
+    if ((label = katze_object_get_string (action, "label")))
+        stripped = katze_strip_mnemonics (label);
+    else
+    {
+        GtkStockItem item;
+
+        g_object_get (action, "stock-id", &label, NULL);
+        if (gtk_stock_lookup (label, &item))
+            stripped = katze_strip_mnemonics (item.label);
+        else
+            stripped = g_strdup ("");
+    }
+
+    g_free (label);
+    return stripped;
+}
+
+static gboolean
+shortcuts_hotkey_for_action (GtkAction*   action,
+                             GtkAccelKey* key)
+{
+    const gchar* accel_path = gtk_action_get_accel_path (action);
+    if (accel_path)
+        if (gtk_accel_map_lookup_entry (accel_path, key))
+            return TRUE;
+
+    return FALSE;
 }
 
 static GtkWidget*
@@ -156,8 +135,7 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     GtkListStore* liststore;
     GtkWidget* treeview;
     GtkTreeViewColumn* column;
-    GtkCellRenderer* renderer_text;
-    GtkCellRenderer* renderer_accel;
+    GtkCellRenderer* renderer;
     GtkWidget* scrolled;
     GtkActionGroup* action_group;
     GList* actions;
@@ -191,25 +169,27 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     hbox = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox,
                                  TRUE, TRUE, 12);
-    liststore = gtk_list_store_new (1, GTK_TYPE_ACTION);
+    liststore = gtk_list_store_new (7,
+        G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_BOOLEAN,
+        G_TYPE_STRING, GTK_TYPE_ACTION);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
-    renderer_text = gtk_cell_renderer_text_new ();
-    gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_text,
-        (GtkTreeCellDataFunc)shortcuts_preferences_render_text,
-        extension, NULL);
+    renderer = gtk_cell_renderer_text_new ();
+    gtk_tree_view_column_pack_start (column, renderer, FALSE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "text", 0);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     column = gtk_tree_view_column_new ();
-    renderer_accel = gtk_cell_renderer_accel_new ();
-    gtk_tree_view_column_pack_start (column, renderer_accel, TRUE);
-    gtk_tree_view_column_set_cell_data_func (column, renderer_accel,
-        (GtkTreeCellDataFunc)shortcuts_preferences_render_accel,
-        extension, NULL);
-    g_signal_connect (renderer_accel, "accel-edited",
+    renderer = gtk_cell_renderer_accel_new ();
+    gtk_tree_view_column_pack_start (column, renderer, TRUE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "accel-key", 1);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "accel-mods", 2);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "accel-mode", 3);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "sensitive", 4);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "editable", 4);
+    g_signal_connect (renderer, "accel-edited",
         G_CALLBACK (shortcuts_accel_edited_cb), liststore);
-    g_signal_connect (renderer_accel, "accel-cleared",
+    g_signal_connect (renderer, "accel-cleared",
         G_CALLBACK (shortcuts_accel_cleared_cb), liststore);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     scrolled = gtk_scrolled_window_new (NULL, NULL);
@@ -225,8 +205,16 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     i = 0;
     /* FIXME: Catch added and removed actions */
     while ((action = g_list_nth_data (actions, i++)))
+    {
+        gchar* label = shortcuts_label_for_action (action);
+        GtkAccelKey key;
+        gboolean has_hotkey = shortcuts_hotkey_for_action (action, &key);
         gtk_list_store_insert_with_values (GTK_LIST_STORE (liststore),
-                                           NULL, G_MAXINT, 0, action, -1);
+            NULL, G_MAXINT, 0, label, 1, key.accel_key, 2, key.accel_mods,
+                            3, GTK_CELL_RENDERER_ACCEL_MODE_OTHER,
+                            4, has_hotkey, 6, action, -1);
+        g_free (label);
+    }
     g_list_free (actions);
 
     g_object_unref (liststore);
