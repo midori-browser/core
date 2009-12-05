@@ -338,7 +338,11 @@ static gboolean
 adblock_activate_link_cb (GtkWidget*   label,
                           const gchar* uri)
 {
-    return sokoke_show_uri (gtk_widget_get_screen (label), uri, GDK_CURRENT_TIME, NULL);
+    MidoriBrowser* browser = midori_browser_get_for_widget (label);
+    gint n = midori_browser_add_uri (browser, uri);
+    if (n > -1)
+        midori_browser_set_current_page (browser, n);
+    return n > -1;
 }
 #endif
 
