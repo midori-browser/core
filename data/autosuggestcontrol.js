@@ -1,9 +1,9 @@
 /**
  * An autosuggest textbox control.
  * from Nicholas C. Zakas (Author) example: http://www.nczonline.net/
- * @class
- * @scope public
+ * Adopted for Midori by Alexander V. Butenko <a.butenka@gmail.com>
  */
+
 function AutoSuggestControl(oTextbox /*:HTMLInputElement*/,
                             oProvider /*:SuggestionProvider*/) {
     /**
@@ -28,7 +28,6 @@ function AutoSuggestControl(oTextbox /*:HTMLInputElement*/,
     this.textbox /*:HTMLInputElement*/ = oTextbox;
     //initialize the control
     this.init();
-
 }
 
 /**
@@ -38,13 +37,9 @@ function AutoSuggestControl(oTextbox /*:HTMLInputElement*/,
  * @param aSuggestions An array of suggestion strings.
  * @param bTypeAhead If the control should provide a type ahead suggestion.
  */
-AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
-                                                     bTypeAhead /*:boolean*/) {
+AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/) {
     //make sure theres at least one suggestion
     if (aSuggestions.length > 0) {
-        if (bTypeAhead) {
-           this.typeAhead(aSuggestions[0]);
-        }
         this.showSuggestions(aSuggestions);
     } else {
         this.hideSuggestions();
@@ -56,7 +51,6 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/,
  * @scope private
  */
 AutoSuggestControl.prototype.createDropDown = function () {
-
     var oThis = this;
 
     //create the layer and assign styles
@@ -65,8 +59,6 @@ AutoSuggestControl.prototype.createDropDown = function () {
     this.layer.style.visibility = "hidden";
     this.layer.style.width = this.textbox.offsetWidth;
 
-    //when the user clicks on the a suggestion, get the text (innerHTML)
-    //and place it into a textbox
     this.layer.onmousedown =
     this.layer.onmouseup =
     this.layer.onmouseover = function (oEvent) {
@@ -82,8 +74,6 @@ AutoSuggestControl.prototype.createDropDown = function () {
             oThis.textbox.focus();
         }
     };
-
-
     document.body.appendChild(this.layer);
 };
 
@@ -93,7 +83,6 @@ AutoSuggestControl.prototype.createDropDown = function () {
  * @return The left coordinate of the textbox in pixels.
  */
 AutoSuggestControl.prototype.getLeft = function () /*:int*/ {
-
     var oNode = this.textbox;
     var iLeft = 0;
 
@@ -148,8 +137,7 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
     var iKeyCode = oEvent.keyCode;
     //for backspace (8) and delete (46), shows suggestions without typeahead
     if (iKeyCode == 8 || iKeyCode == 46) {
-        this.provider.requestSuggestions(this, false);
-
+        this.provider.requestSuggestions(this);
     //make sure not to interfere with non-character keys
     } else if (iKeyCode < 32 || (iKeyCode >= 33 && iKeyCode < 46) || (iKeyCode >= 112 && iKeyCode <= 123) ) {
         //ignore
@@ -158,11 +146,8 @@ AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
         this.hideSuggestions();
     } else {
         //request suggestions from the suggestion provider with typeahead
-        this.provider.requestSuggestions(this, false);
+        this.provider.requestSuggestions(this);
     }
-
-
-
 };
 
 /**
@@ -195,43 +180,34 @@ AutoSuggestControl.prototype.highlightSuggestion = function (oSuggestionNode) {
  * @scope private
  */
 AutoSuggestControl.prototype.init = function () {
-
     //save a reference to this object
     var oThis = this;
 
     //assign the onkeyup event handler
     this.textbox.onkeyup = function (oEvent) {
-
         //check for the proper location of the event object
         if (!oEvent) {
             oEvent = window.event;
         }
-
         //call the handleKeyUp() method with the event object
         oThis.handleKeyUp(oEvent);
     };
 
     //assign onkeydown event handler
     this.textbox.onkeydown = function (oEvent) {
-
         //check for the proper location of the event object
         if (!oEvent) {
             oEvent = window.event;
         }
-
         //call the handleKeyDown() method with the event object
         oThis.handleKeyDown(oEvent);
     };
 
     //assign onblur event handler (hides suggestions)
-    this.textbox.onblur = function () {
-        oThis.hideSuggestions();
-    };
-
+    this.textbox.onblur =
     this.textbox.onclick = function () {
         oThis.hideSuggestions();
     };
-
 
     //create the suggestions dropdown
     this.createDropDown();
@@ -274,20 +250,9 @@ AutoSuggestControl.prototype.previousSuggestion = function () {
  * @param iLength The number of characters to select.
  */
 AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*:int*/) {
-
-    //use text ranges for Internet Explorer
-    if (this.textbox.createTextRange) {
-        var oRange = this.textbox.createTextRange();
-        oRange.moveStart("character", iStart);
-        oRange.moveEnd("character", iLength - this.textbox.value.length);
-        oRange.select();
-
-    //use setSelectionRange() for Mozilla
-    } else if (this.textbox.setSelectionRange) {
+    if (this.textbox.setSelectionRange) {
         this.textbox.setSelectionRange(iStart, iLength);
     }
-
-    //set focus back to the textbox
     this.textbox.focus();
 };
 
@@ -298,7 +263,6 @@ AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*
  * @param aSuggestions An array of suggestions for the control.
  */
 AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/) {
-
     var oDiv = null;
     this.layer.innerHTML = "";  //clear contents of the layer
 
@@ -311,59 +275,41 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     this.layer.style.left = this.getLeft() + "px";
     this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
     this.layer.style.visibility = "visible";
-
 };
-
-/**
- * Inserts a suggestion into the textbox, highlighting the
- * suggested part of the text.
- * @scope private
- * @param sSuggestion The suggestion for the textbox.
- */
-AutoSuggestControl.prototype.typeAhead = function (sSuggestion /*:String*/) {
-
-    //check for support of typeahead functionality
-    if (this.textbox.createTextRange || this.textbox.setSelectionRange){
-        var iLen = this.textbox.value.length;
-        this.textbox.value = sSuggestion;
-        this.selectRange(iLen, sSuggestion.length);
-    }
-};
-
 
 /**
  * Request suggestions for the given autosuggest control.
  * @scope protected
  * @param oAutoSuggestControl The autosuggest control to provide suggestions for.
  */
-FormSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/,
-                                                          bTypeAhead /*:boolean*/) {
+FormSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:AutoSuggestControl*/) {
     var aSuggestions = [];
-    var sTextboxValue = oAutoSuggestControl.textbox.value;
+    var sTextboxValue = oAutoSuggestControl.textbox.value.toLowerCase();
 
     if (!this.suggestions)
         return;
+    if (!sTextboxValue.length)
+        return;
 
-    if (sTextboxValue.length > 0){
-        //search for matching suggestions
-        for (var i=0; i < this.suggestions.length; i++) {
-            if (this.suggestions[i].indexOf(sTextboxValue) == 0) {
-                aSuggestions.push(this.suggestions[i]);
-            }
-        }
+    //search for matching suggestions
+    for (var i=0; i < this.suggestions.length; i++) {
+         if (this.suggestions[i].toLowerCase().indexOf(sTextboxValue) == 0) {
+             aSuggestions.push(this.suggestions[i]);
+         }
     }
     //provide suggestions to the control
-    oAutoSuggestControl.autosuggest(aSuggestions, bTypeAhead);
+    oAutoSuggestControl.autosuggest(aSuggestions);
 };
 
 function initSuggestions () {
     var inputs = document.getElementsByTagName("input");
+
     for (i=0;i<inputs.length;i++)
     {
         var ename = inputs[i].getAttribute("name");
         var eid = inputs[i].getAttribute("id");
         if (!ename && eid)
-                ename=eid;
+            ename=eid;
         if (inputs[i].type == "text")
             var smth = new AutoSuggestControl(inputs[i], new FormSuggestions(ename));
     }
