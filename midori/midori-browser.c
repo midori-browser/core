@@ -2844,10 +2844,15 @@ _action_bookmarks_populate_popup (GtkAction*     action,
     }
     g_list_free (children);
 
-    if (katze_array_get_nth_item (browser->bookmarks, 0))
+    menuitem = gtk_separator_menu_item_new ();
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+
+    if (katze_array_is_empty (browser->bookmarks))
     {
-        menuitem = gtk_separator_menu_item_new ();
-        gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+        menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
+        gtk_widget_set_sensitive (menuitem, FALSE);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
     }
     menuitem = gtk_action_create_menu_item (

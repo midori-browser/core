@@ -301,8 +301,8 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                                   GtkWidget*        menu,
                                   GtkWidget*        proxy)
 {
-    guint i;
-    guint summand;
+    gint i;
+    gint summand;
     KatzeItem* item;
     GtkWidget* menuitem;
     const gchar* icon_name;
@@ -366,13 +366,6 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (katze_array_action_menu_activate_cb), array_action);
         }
-        gtk_widget_show (menuitem);
-    }
-    if (!i)
-    {
-        menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
-        gtk_widget_set_sensitive (menuitem, FALSE);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         gtk_widget_show (menuitem);
     }
 }
