@@ -5431,10 +5431,12 @@ midori_browser_set_history (MidoriBrowser* browser,
     if (history && ((recently_visited = katze_array_get_nth_item (history,
         katze_array_get_length (KATZE_ARRAY (history)) - 1))))
         g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                      "array", recently_visited, NULL);
+                      "array", recently_visited, "reversed", TRUE,
+                      NULL);
     else
         g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                      "array", NULL, NULL);
+                      "array", NULL, "reversed", FALSE,
+                      NULL);
 
     if (!history)
         return;
@@ -6616,8 +6618,9 @@ midori_browser_set_property (GObject*      object,
     case PROP_TRASH:
         /* FIXME: Disconnect handlers */
         katze_object_assign (browser->trash, g_value_dup_object (value));
-        g_object_set (_action_by_name (browser, "Trash"), "array",
-            browser->trash, NULL);
+        g_object_set (_action_by_name (browser, "Trash"),
+                      "array", browser->trash, "reversed", TRUE,
+                      NULL);
         /* FIXME: Connect to updates */
         _midori_browser_update_actions (browser);
         break;

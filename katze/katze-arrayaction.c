@@ -30,6 +30,7 @@ struct _KatzeArrayAction
 
     KatzeArray* array;
     KatzeNet* net;
+    gboolean reversed;
 };
 
 struct _KatzeArrayActionClass
@@ -43,7 +44,8 @@ enum
 {
     PROP_0,
 
-    PROP_ARRAY
+    PROP_ARRAY,
+    PROP_REVERSED
 };
 
 enum
@@ -158,6 +160,22 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                      "The array the action represents",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE));
+
+    /**
+     * KatzeArrayAction:reversed:
+     *
+     * Whether the array should be walked backwards when building menus.
+     *
+     * Since: 0.2.2
+     **/
+    g_object_class_install_property (gobject_class,
+                                     PROP_REVERSED,
+                                     g_param_spec_boolean (
+                                     "reversed",
+                                     "Reversed",
+        "Whether the array should be walked backwards when building menus",
+                                     FALSE,
+                                     G_PARAM_READWRITE));
 }
 
 static void
@@ -165,6 +183,7 @@ katze_array_action_init (KatzeArrayAction* array_action)
 {
     array_action->array = NULL;
     array_action->net = katze_net_new ();
+    array_action->reversed = FALSE;
 }
 
 static void
@@ -191,6 +210,9 @@ katze_array_action_set_property (GObject*      object,
     case PROP_ARRAY:
         katze_array_action_set_array (array_action, g_value_get_object (value));
         break;
+    case PROP_REVERSED:
+        array_action->reversed = g_value_get_boolean (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -209,6 +231,9 @@ katze_array_action_get_property (GObject*    object,
     {
     case PROP_ARRAY:
         g_value_set_object (value, array_action->array);
+        break;
+    case PROP_REVERSED:
+        g_value_set_boolean (value, array_action->reversed);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -277,6 +302,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
                                   GtkWidget*        proxy)
 {
     guint i;
+    guint summand;
     KatzeItem* item;
     GtkWidget* menuitem;
     const gchar* icon_name;
@@ -284,8 +310,17 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     GtkWidget* image;
     GtkWidget* submenu;
 
-    i = 0;
-    while ((item = katze_array_get_nth_item (array, i++)))
+    if (array_action->reversed)
+    {
+        i = katze_array_get_length (array);
+        summand = -1;
+    }
+    else
+    {
+        i = -1;
+        summand = +1;
+    }
+    while ((item = katze_array_get_nth_item (array, i += summand)))
     {
         /* FIXME: The menu item should reflect changes to the item  */
         if (!KATZE_IS_ARRAY (item) && !katze_item_get_uri (item))
