@@ -4133,6 +4133,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         { ".kazehakase/bookmarks.xml", N_("Kazehakase"), "kazehakase-icon" },
         { ".opera/bookmarks.adr", N_("Opera"), "opera" },
         { ".kde/share/apps/konqueror/bookmarks.xml", N_("Konqueror"), "konqueror" },
+        { ".gnome2/epiphany/bookmarks.rdf", N_("Epiphany"), "epiphany" },
     };
 
     GtkWidget* dialog;

@@ -183,34 +183,78 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
                             xmlDocPtr   doc)
 {
     xmlNodePtr cur;
-    xmlChar* version;
-    gchar* value;
     KatzeItem* item;
 
     cur = xmlDocGetRootElement (doc);
-    version = xmlGetProp (cur, (xmlChar*)"version");
-    if (xmlStrcmp (version, (xmlChar*)"1.0"))
-        g_warning ("XBEL version is not 1.0.");
-    xmlFree (version);
-
-    value = (gchar*)xmlGetProp (cur, (xmlChar*)"title");
-    katze_item_set_name (KATZE_ITEM (array), value);
-    g_free (value);
-
-    value = (gchar*)xmlGetProp (cur, (xmlChar*)"desc");
-    katze_item_set_text (KATZE_ITEM (array), value);
-    g_free (value);
 
     if ((cur = xmlDocGetRootElement (doc)) == NULL)
     {
         /* Empty document */
         return FALSE;
     }
-    if (!katze_str_equal ((gchar*)cur->name, "xbel"))
+    if (katze_str_equal ((gchar*)cur->name, "xbel"))
+    {
+        /* XBEL 1.0 */
+        gchar* value;
+
+        value = (gchar*)xmlGetProp (cur, (xmlChar*)"version");
+        if (!katze_str_equal (value, "1.0"))
+            g_warning ("XBEL version is not 1.0.");
+        g_free (value);
+
+        value = (gchar*)xmlGetProp (cur, (xmlChar*)"title");
+        katze_item_set_name (KATZE_ITEM (array), value);
+        g_free (value);
+
+        value = (gchar*)xmlGetProp (cur, (xmlChar*)"desc");
+        katze_item_set_text (KATZE_ITEM (array), value);
+        g_free (value);
+    }
+    else if (katze_str_equal ((gchar*)cur->name, "RDF"))
+    {
+        /* Minimal RSS 1.0 support, enough to read bookmarks */
+        cur = cur->xmlChildrenNode;
+        while (cur)
+        {
+            item = NULL;
+            if (katze_str_equal ((gchar*)cur->name, "item"))
+            {
+                xmlNodePtr cur_item;
+
+                item = katze_item_new ();
+
+                cur_item = cur->xmlChildrenNode;
+                while (cur_item)
+                {
+                    if (katze_str_equal ((gchar*)cur_item->name, "title"))
+                        item->name = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                    else if (katze_str_equal ((gchar*)cur_item->name, "link"))
+                        item->uri = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                    else if (katze_str_equal ((gchar*)cur_item->name, "subject"))
+                    {
+                        gchar* value = g_strstrip ((gchar*)xmlNodeGetContent (cur_item));
+                        /* FIXME: Create a folder according to the tag */
+                        g_free (value);
+                    }
+                    cur_item = cur_item->next;
+                }
+            }
+            else if (katze_str_equal ((gchar*)cur->name, "channel"))
+                /* Ignored */;
+            else if (!katze_str_equal ((gchar*)cur->name, "text"))
+                g_warning ("Unexpected attribute: %s", (gchar*)cur->name);
+            if (item)
+                katze_array_add_item (array, item);
+            cur = cur->next;
+        }
+        return TRUE;
+    }
+    else
     {
         /* Wrong document kind */
         return FALSE;
     }
+
     cur = cur->xmlChildrenNode;
     while (cur)
     {
@@ -233,6 +277,8 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
             xmlNodePtr node = cur->xmlChildrenNode;
             katze_item_set_text (KATZE_ITEM (array), (gchar*)node->content);
         }
+        else if (!katze_str_equal ((gchar*)cur->name, "text"))
+            g_warning ("Unexpected attribute: %s", (gchar*)cur->name);
         if (item)
             katze_array_add_item (array, item);
         cur = cur->next;
