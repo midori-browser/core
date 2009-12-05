@@ -328,7 +328,7 @@ midori_history_add_item_cb (KatzeArray*    array,
     if (array == history->array)
     {
         gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-            &iter, NULL, G_MAXINT, 0, added_item, -1);
+            &iter, NULL, 0, 0, added_item, -1);
         return;
     }
 
@@ -344,7 +344,7 @@ midori_history_add_item_cb (KatzeArray*    array,
             GtkTreeIter child_iter;
 
             gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-                &child_iter, &iter, G_MAXINT, 0, added_item, -1);
+                &child_iter, &iter, 0, 0, added_item, -1);
             break;
         }
         g_object_unref (item);
