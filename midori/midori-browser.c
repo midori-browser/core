@@ -4132,6 +4132,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         { ".local/share/data/Arora/bookmarks.xbel", N_("Arora"), "arora" },
         { ".kazehakase/bookmarks.xml", N_("Kazehakase"), "kazehakase-icon" },
         { ".opera/bookmarks.adr", N_("Opera"), "opera" },
+        { ".kde/share/apps/konqueror/bookmarks.xml", N_("Konqueror"), "konqueror" },
     };
 
     GtkWidget* dialog;
@@ -4251,8 +4252,9 @@ _action_bookmarks_import_activate (GtkAction*     action,
         gtk_widget_destroy (dialog);
         if (!path)
         {
-            GtkWidget* file_dialog = sokoke_file_chooser_dialog_new (
-                _("Save file as"),
+            GtkWidget* file_dialog;
+
+            file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
                 GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
             if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
                 path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
