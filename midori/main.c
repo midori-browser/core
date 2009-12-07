@@ -1758,6 +1758,7 @@ main (int    argc,
                       NULL);
         g_object_unref (settings);
         g_object_set (browser, "settings", settings, NULL);
+        sokoke_set_config_dir ("/");
         g_signal_connect (browser, "notify::load-status",
             G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         midori_browser_add_uri (browser, webapp);
