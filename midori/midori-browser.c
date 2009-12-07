@@ -3565,6 +3565,26 @@ midori_browser_bookmark_homepage_clicked_cb (GtkToolItem*   button,
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
 }
 
+static gboolean
+midori_browser_bookmark_homepage_button_press_cb (GtkToolItem*    button,
+                                                  GdkEventButton* event,
+                                                  MidoriBrowser*  browser)
+{
+    if (event->button == 2)
+    {
+        gchar* homepage;
+        guint n;
+
+        g_object_get (browser->settings, "homepage", &homepage, NULL);
+        n = midori_browser_add_uri (browser, homepage);
+        g_free (homepage);
+        _midori_browser_set_current_page_smartly (browser, n);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 browser_bookmarks_add_item_cb (KatzeArray* array,
                                KatzeItem*  item,
@@ -5908,6 +5928,8 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (GTK_WIDGET (browser->homepage));
     g_signal_connect (browser->homepage, "clicked",
         G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb), browser);
+    g_signal_connect (gtk_bin_get_child (GTK_BIN (browser->homepage)), "button-press-event",
+        G_CALLBACK (midori_browser_bookmark_homepage_button_press_cb), browser);
     gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), browser->homepage, -1);
     #if HAVE_HILDON
     hildon_window_add_toolbar (HILDON_WINDOW (browser),
