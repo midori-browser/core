@@ -1031,6 +1031,10 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
 
         if (new_engine)
             katze_array_add_item (search_action->search_engines, item);
+        /* If it isn't a new search engine but the old default one,
+           we need to update the default search engine after editing it. */
+        else if (item == midori_search_action_get_default_item (search_action))
+            midori_search_action_set_default_item (search_action, item);
     }
     gtk_widget_destroy (dialog);
 }
