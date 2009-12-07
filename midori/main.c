@@ -1576,8 +1576,10 @@ midori_remove_config_file (gint         clear_prefs,
 static void
 signal_handler (int signal_id)
 {
+    signal (signal_id, 0);
     midori_app_quit_cb (NULL);
-    gtk_main_quit ();
+    if (kill (getpid (), signal_id))
+      exit (1);
 }
 #endif
 
