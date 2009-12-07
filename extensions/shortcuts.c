@@ -52,13 +52,18 @@ shortcuts_accel_edited_cb (GtkCellRenderer* renderer,
     {
         GtkAction* action;
         const gchar* accel_path;
+        GtkTreeIter child_iter;
+        GtkTreeModel* liststore;
 
         gtk_tree_model_get (model, &iter, 6, &action, -1);
         accel_path = gtk_action_get_accel_path (action);
         gtk_accel_map_change_entry (accel_path, accel_key, accel_mods, TRUE);
 
-        gtk_list_store_set (GTK_LIST_STORE (model),
-            &iter, 1, accel_key, 2, accel_mods, -1);
+        gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model),
+                                                        &child_iter, &iter);
+        liststore = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+        gtk_list_store_set (GTK_LIST_STORE (liststore),
+            &child_iter, 1, accel_key, 2, accel_mods, -1);
 
         g_object_unref (action);
     }
@@ -75,13 +80,18 @@ shortcuts_accel_cleared_cb (GtkCellRenderer* renderer,
     {
         GtkAction* action;
         const gchar* accel_path;
+        GtkTreeIter child_iter;
+        GtkTreeModel* liststore;
 
         gtk_tree_model_get (model, &iter, 6, &action, -1);
         accel_path = gtk_action_get_accel_path (action);
         gtk_accel_map_change_entry (accel_path, 0, 0, FALSE);
 
-        gtk_list_store_set (GTK_LIST_STORE (model),
-            &iter, 1, 0, 2, 0, -1);
+        gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model),
+                                                        &child_iter, &iter);
+        liststore = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+        gtk_list_store_set (GTK_LIST_STORE (liststore),
+            &child_iter, 1, 0, 2, 0, -1);
 
         g_object_unref (action);
     }
@@ -133,6 +143,7 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     GtkWidget* xfce_heading;
     GtkWidget* hbox;
     GtkListStore* liststore;
+    GtkTreeModel* model;
     GtkWidget* treeview;
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer;
@@ -172,7 +183,8 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     liststore = gtk_list_store_new (7,
         G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_BOOLEAN,
         G_TYPE_STRING, GTK_TYPE_ACTION);
-    treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
+    model = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (liststore));
+    treeview = gtk_tree_view_new_with_model (model);
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
     column = gtk_tree_view_column_new ();
     renderer = gtk_cell_renderer_text_new ();
@@ -188,9 +200,9 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "sensitive", 4);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (column), renderer, "editable", 4);
     g_signal_connect (renderer, "accel-edited",
-        G_CALLBACK (shortcuts_accel_edited_cb), liststore);
+        G_CALLBACK (shortcuts_accel_edited_cb), model);
     g_signal_connect (renderer, "accel-cleared",
-        G_CALLBACK (shortcuts_accel_cleared_cb), liststore);
+        G_CALLBACK (shortcuts_accel_cleared_cb), model);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
@@ -218,6 +230,9 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     g_list_free (actions);
 
     g_object_unref (liststore);
+    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (model),
+                                          0, GTK_SORT_ASCENDING);
+    g_object_unref (model);
 
     gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
 
