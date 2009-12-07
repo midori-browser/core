@@ -489,9 +489,15 @@ midori_app_command_received (MidoriApp*   app,
     }
     else if (g_str_equal (command, "command"))
     {
+        guint i = 0;
+
         if (!uris || !app->browser)
             return FALSE;
-        midori_browser_activate_action (app->browser, *uris);
+        while (uris[i] != NULL)
+        {
+            midori_browser_activate_action (app->browser, uris[i]);
+            i++;
+        }
         return TRUE;
     }
 

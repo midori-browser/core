@@ -1769,7 +1769,14 @@ main (int    argc,
         gtk_widget_show (GTK_WIDGET (browser));
         midori_browser_activate_action (browser, "Location");
         if (execute)
-            midori_browser_activate_action (browser, *uris);
+        {
+            i = 0;
+            while (uris[i] != NULL)
+            {
+                midori_browser_activate_action (browser, uris[i]);
+                i++;
+            }
+        }
         gtk_main ();
         return 0;
     }
