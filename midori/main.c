@@ -1768,6 +1768,8 @@ main (int    argc,
             G_CALLBACK (gtk_main_quit), NULL);
         gtk_widget_show (GTK_WIDGET (browser));
         midori_browser_activate_action (browser, "Location");
+        if (execute)
+            midori_browser_activate_action (browser, *uris);
         gtk_main ();
         return 0;
     }
