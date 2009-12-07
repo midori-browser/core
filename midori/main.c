@@ -1762,6 +1762,8 @@ main (int    argc,
             G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         midori_browser_add_uri (browser, webapp);
         g_object_set_data (G_OBJECT (browser), "locked", (void*)1);
+        g_signal_connect (browser, "quit",
+            G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "destroy",
             G_CALLBACK (gtk_main_quit), NULL);
         gtk_widget_show (GTK_WIDGET (browser));
