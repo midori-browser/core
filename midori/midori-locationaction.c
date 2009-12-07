@@ -571,7 +571,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         if ((uri = gtk_entry_get_text (entry)) && *uri)
         {
             g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
-                (event->state & GDK_MOD1_MASK) ? TRUE : FALSE);
+                (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
             return TRUE;
         }
     }
