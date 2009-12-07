@@ -1260,14 +1260,22 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             clipboard = gtk_clipboard_get_for_display (
                 gtk_widget_get_display (GTK_WIDGET (view)),
                 GDK_SELECTION_PRIMARY);
-            uri = gtk_clipboard_wait_for_text (clipboard);
-            if (uri && strchr (uri, '.'))
+            if ((uri = gtk_clipboard_wait_for_text (clipboard)))
             {
+                KatzeArray* empty_array = katze_array_new (KATZE_TYPE_ITEM);
                 guint i = 0;
                 while (uri[i++] != '\0')
                     if (uri[i] == '\n' || uri[i] == '\r')
                         uri[i] = ' ';
-                new_uri = sokoke_magic_uri (g_strstrip (uri), NULL);
+                new_uri = sokoke_magic_uri (g_strstrip (uri), empty_array);
+                g_object_unref (empty_array);
+                if (!new_uri)
+                {
+                    gchar* search;
+                    g_object_get (view->settings, "location-entry-search",
+                                  &search, NULL);
+                    new_uri = sokoke_search_uri (search, uri);
+                }
                 if (event->state & GDK_CONTROL_MASK)
                 {
                     background = view->open_tabs_in_the_background;
