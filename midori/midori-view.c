@@ -1019,13 +1019,13 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
            URI1|title1,URI2|title2
            FIXME: Ensure separators contained in the string can't break it */
         gchar* value = sokoke_js_script_eval (js_context,
-        "function links (l) { var f = new Array (); for (i in l) "
+        "(function (l) { var f = new Array (); for (i in l) "
         "{ var t = l[i].type; var r = l[i].rel; "
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
         "f.push (l[i].href + '|' + l[i].title);"
         "else if (r && r.indexOf ('icon') != -1) f.push (l[i].href); } "
-        "return f; }"
-        "links (document.getElementsByTagName ('link'))", NULL);
+        "return f; })("
+        "document.getElementsByTagName ('link'));", NULL);
         gchar** items = g_strsplit (value, ",", 0);
         guint i = 0;
         gchar* default_uri = NULL;
