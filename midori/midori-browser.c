@@ -3604,9 +3604,7 @@ _action_location_focus_out (GtkAction*     action,
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
 
-    if (!browser->show_navigationbar
-        || gdk_window_get_state (GTK_WIDGET (browser)->window)
-                                 & GDK_WINDOW_STATE_FULLSCREEN)
+    if (!browser->show_navigationbar)
         gtk_widget_hide (browser->navigationbar);
 
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
@@ -5148,14 +5146,11 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
         if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
         {
             gtk_widget_hide (browser->menubar);
-            gtk_widget_hide (browser->navigationbar);
         }
         else
         {
             if (katze_object_get_boolean (browser->settings, "show-menubar"))
                 gtk_widget_show (browser->menubar);
-            if (katze_object_get_boolean (browser->settings, "show-navigationbar"))
-                gtk_widget_show (browser->navigationbar);
         }
     }
 }
