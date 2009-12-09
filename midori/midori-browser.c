@@ -1447,7 +1447,7 @@ midori_view_download_save_as_response_cb (GtkWidget*      dialog,
                                           MidoriBrowser*  browser)
 {
     WebKitDownload* download = g_object_get_data (G_OBJECT (dialog), "download");
-    if (response == GTK_RESPONSE_ACCEPT)
+    if (response == GTK_RESPONSE_OK)
     {
         gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
         webkit_download_set_destination_uri (download, uri);
