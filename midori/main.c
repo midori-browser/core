@@ -204,47 +204,52 @@ settings_save_to_file (MidoriWebSettings* settings,
         type = G_PARAM_SPEC_TYPE (pspec);
         property = g_param_spec_get_name (pspec);
         if (!(pspec->flags & G_PARAM_WRITABLE))
-        {
-            gchar* prop_comment = g_strdup_printf ("# %s", property);
-            g_key_file_set_string (key_file, "settings", prop_comment, "");
-            g_free (prop_comment);
             continue;
-        }
         if (type == G_TYPE_PARAM_STRING)
         {
             gchar* string;
+            const gchar* def_string = G_PARAM_SPEC_STRING (pspec)->default_value;
             g_object_get (settings, property, &string, NULL);
-            g_key_file_set_string (key_file, "settings", property,
-                                   string ? string : "");
+            if (!string)
+                string = g_strdup ("");
+            if (!def_string)
+                def_string = "";
+            if (strcmp (string, def_string))
+                g_key_file_set_string (key_file, "settings", property, string);
             g_free (string);
         }
         else if (type == G_TYPE_PARAM_INT)
         {
             gint integer;
             g_object_get (settings, property, &integer, NULL);
-            g_key_file_set_integer (key_file, "settings", property, integer);
+            if (integer != G_PARAM_SPEC_INT (pspec)->default_value)
+                g_key_file_set_integer (key_file, "settings", property, integer);
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
             gfloat number;
             g_object_get (settings, property, &number, NULL);
-            g_key_file_set_double (key_file, "settings", property, number);
+            if (number != G_PARAM_SPEC_FLOAT (pspec)->default_value)
+                g_key_file_set_double (key_file, "settings", property, number);
         }
         else if (type == G_TYPE_PARAM_BOOLEAN)
         {
             gboolean truth;
             g_object_get (settings, property, &truth, NULL);
-            g_key_file_set_boolean (key_file, "settings", property, truth);
+            if (truth != G_PARAM_SPEC_BOOLEAN (pspec)->default_value)
+                g_key_file_set_boolean (key_file, "settings", property, truth);
         }
         else if (type == G_TYPE_PARAM_ENUM)
         {
             GEnumClass* enum_class = G_ENUM_CLASS (
                 g_type_class_ref (pspec->value_type));
             gint integer;
+            GEnumValue* enum_value;
             g_object_get (settings, property, &integer, NULL);
-            GEnumValue* enum_value = g_enum_get_value (enum_class, integer);
-            g_key_file_set_string (key_file, "settings", property,
-                                   enum_value->value_name);
+            enum_value = g_enum_get_value (enum_class, integer);
+            if (integer != G_PARAM_SPEC_ENUM (pspec)->default_value)
+                g_key_file_set_string (key_file, "settings", property,
+                                       enum_value->value_name);
         }
         else
             g_warning (_("Invalid configuration value '%s'"), property);
