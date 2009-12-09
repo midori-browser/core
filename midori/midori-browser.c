@@ -366,17 +366,13 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     {
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
-        #if HAVE_HILDON
         gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), TRUE);
-        #endif
     }
     else
     {
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
-        #if HAVE_HILDON
         gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), FALSE);
-        #endif
     }
 }
 
@@ -2629,7 +2625,6 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                    GdkEventButton* event,
                                                    MidoriBrowser*  browser);
 
-#if !HAVE_HILDON
 static void
 _midori_browser_save_toolbar_items (MidoriBrowser* browser)
 {
@@ -2654,7 +2649,6 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
     g_object_set (browser->settings, "toolbar-items", items, NULL);
     g_free (items);
 }
-#endif
 
 /**
  * midori_browser_get_toolbar_actions:
@@ -3144,42 +3138,38 @@ _action_menubar_activate (GtkToggleAction* action,
                           MidoriBrowser*   browser)
 {
     gboolean active = gtk_toggle_action_get_active (action);
-    if (1)
+    if (active)
     {
-        #if !HAVE_HILDON
-        if (active)
+        GtkContainer* navigationbar = GTK_CONTAINER (browser->navigationbar);
+        GList* children = gtk_container_get_children (navigationbar);
+        GtkAction* menu_action = _action_by_name (browser, "CompactMenu");
+        for (; children != NULL; children = g_list_next (children))
         {
-            GtkContainer* navigationbar = GTK_CONTAINER (browser->navigationbar);
-            GList* children = gtk_container_get_children (navigationbar);
-            GtkAction* menu_action = _action_by_name (browser, "CompactMenu");
-            for (; children != NULL; children = g_list_next (children))
+            GtkAction* action_;
+            action_ = gtk_widget_get_action (GTK_WIDGET (children->data));
+            if (action_ == menu_action)
             {
-                GtkAction* action_;
-                action_ = gtk_widget_get_action (GTK_WIDGET (children->data));
-                if (action_ == menu_action)
-                {
-                    gtk_container_remove (navigationbar,
-                        GTK_WIDGET (children->data));
-                    _midori_browser_save_toolbar_items (browser);
-                    break;
-                }
+                gtk_container_remove (navigationbar,
+                    GTK_WIDGET (children->data));
+                _midori_browser_save_toolbar_items (browser);
+                break;
             }
         }
-        else
-        {
-            GtkAction* widget_action = _action_by_name (browser, "CompactMenu");
-            GtkWidget* toolitem = gtk_action_create_tool_item (widget_action);
-            gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
-                                GTK_TOOL_ITEM (toolitem), -1);
-            g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
-                "button-press-event",
-                G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
-                browser);
-            _midori_browser_save_toolbar_items (browser);
-        }
-        #endif
-        g_object_set (browser->settings, "show-menubar", active, NULL);
     }
+    else
+    {
+        GtkAction* widget_action = _action_by_name (browser, "CompactMenu");
+        GtkWidget* toolitem = gtk_action_create_tool_item (widget_action);
+        gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                            GTK_TOOL_ITEM (toolitem), -1);
+        g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
+            "button-press-event",
+            G_CALLBACK (midori_browser_toolbar_item_button_press_event_cb),
+            browser);
+        _midori_browser_save_toolbar_items (browser);
+    }
+
+    g_object_set (browser->settings, "show-menubar", active, NULL);
     /* Make sure the menubar is uptodate in case no settings are set */
     sokoke_widget_set_visible (browser->menubar, active);
 
@@ -3227,9 +3217,7 @@ _action_statusbar_activate (GtkToggleAction* action,
 {
     gboolean active = gtk_toggle_action_get_active (action);
     g_object_set (browser->settings, "show-statusbar", active, NULL);
-    #if !HAVE_HILDON
     sokoke_widget_set_visible (browser->statusbar, active);
-    #endif
 }
 
 static void
@@ -5868,8 +5856,8 @@ midori_browser_init (MidoriBrowser* browser)
     _action_set_visible (browser, "PrivateBrowsing", FALSE);
     #if HAVE_HILDON
     _action_set_visible (browser, "Menubar", FALSE);
-    _action_set_visible (browser, "Statusbar", FALSE);
     #endif
+    _action_set_visible (browser, "Statusbar", FALSE);
     #if !WEBKIT_CHECK_VERSION (1, 1, 3)
     _action_set_visible (browser, "Transferbar", FALSE);
     #endif
@@ -6173,10 +6161,6 @@ static void
 _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
                                    MidoriToolbarStyle toolbar_style)
 {
-    #if HAVE_HILDON
-    GtkToolbarStyle gtk_toolbar_style = GTK_TOOLBAR_ICONS;
-    GtkIconSize icon_size = GTK_ICON_SIZE_LARGE_TOOLBAR;
-    #else
     GtkToolbarStyle gtk_toolbar_style;
     GtkIconSize icon_size;
     GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
@@ -6207,7 +6191,6 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
             gtk_toolbar_style = GTK_TOOLBAR_BOTH_HORIZ;
         }
     }
-    #endif
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
                            gtk_toolbar_style);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->navigationbar), icon_size);
@@ -6245,10 +6228,6 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
     gchar** name;
     GtkAction* action;
     GtkWidget* toolitem;
-
-    #if HAVE_HILDON
-    items = "Tools,CompactAdd,ReloadStop,Location,Back,Fullscreen";
-    #endif
 
     gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
         (GtkCallback)gtk_widget_destroy, NULL);
