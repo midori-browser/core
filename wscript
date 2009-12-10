@@ -237,7 +237,6 @@ def configure (conf):
     conf.env['docs'] = option_enabled ('docs')
 
     conf.check (header_name='unistd.h')
-    conf.check (header_name='signal.h')
     if not conf.env['HAVE_UNIQUE']:
         if Options.platform == 'win32':
             conf.check (lib='ws2_32')
@@ -251,6 +250,8 @@ def configure (conf):
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
         conf.env.append_value ('LINKFLAGS', '-mwindows')
+    else:
+        conf.check (header_name='signal.h')
 
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
