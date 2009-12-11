@@ -402,7 +402,7 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     }
 
     array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeArray");
-    if (KATZE_IS_ITEM (array))
+    if (KATZE_IS_ITEM (array) && katze_item_get_uri ((KatzeItem*)array))
     {
         g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, array);
         return;
