@@ -865,7 +865,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                     }
         }
         g_free (selected);
-        if (folder != katze_item_get_parent (bookmark))
+        if (folder != katze_item_get_parent (bookmark) && folder != browser->bookmarks)
         {
             katze_array_remove_item (katze_item_get_parent (bookmark), bookmark);
             new_bookmark = TRUE;
