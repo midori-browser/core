@@ -75,12 +75,14 @@ katze_item_class_init (KatzeItemClass* class)
      *
      * Emitted when a meta data value was changed.
      *
+     * Since 0.2.2 details according to keys are supported.
+     *
      * Since: 0.1.9
      */
     signals[META_DATA_CHANGED] = g_signal_new (
         "meta-data-changed",
         G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST |G_SIGNAL_DETAILED),
         0,
         0,
         NULL,
@@ -510,7 +512,7 @@ katze_item_set_meta_data_value (KatzeItem*   item,
         g_hash_table_insert (item->metadata, g_strdup (&key[7]), value);
     else
         g_hash_table_insert (item->metadata, g_strdup (key), value);
-    g_signal_emit (item, signals[META_DATA_CHANGED], 0, key);
+    g_signal_emit (item, signals[META_DATA_CHANGED], g_quark_from_string (key), key);
 }
 
 /**
