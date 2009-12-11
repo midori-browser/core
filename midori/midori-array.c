@@ -84,6 +84,8 @@ katze_array_from_xmlNodePtr (xmlNodePtr cur)
             ((KatzeItem*)array)->name = g_strstrip ((gchar*)xmlNodeGetContent (cur));
         else if (katze_str_equal ((gchar*)cur->name, "desc"))
             ((KatzeItem*)array)->text = g_strstrip ((gchar*)xmlNodeGetContent (cur));
+        else if (katze_str_equal ((gchar*)cur->name, "info"))
+            katze_xbel_parse_info ((KatzeItem*)array, cur);
         else if (katze_str_equal ((gchar*)cur->name, "folder"))
         {
             item = (KatzeItem*)katze_array_from_xmlNodePtr (cur);
