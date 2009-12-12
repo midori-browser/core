@@ -2166,6 +2166,15 @@ _action_tab_new_activate (GtkAction*     action,
 }
 
 static void
+_action_private_browsing_activate (GtkAction*     action,
+                                   MidoriBrowser* browser)
+{
+    const gchar* uri = midori_browser_get_current_uri (browser);
+    /* FIXME: Use the same binary that is running right now */
+    sokoke_spawn_program ("midori -a", uri, FALSE);
+}
+
+static void
 _action_open_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
@@ -3033,14 +3042,13 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     static const GtkActionEntry actions[] = {
       { "TabNew" },
       { "WindowNew" },
+      { "PrivateBrowsing" },
       { "Open" },
       #if HAVE_HILDON
       { "Find" },
       #else
       { "Print" },
       { "About" },
-      { "PrivateBrowsing" },
-      { "ManageSearchEngines" },
       { NULL },
       { "Menubar" },
       { "Bookmarkbar" },
@@ -4888,6 +4896,10 @@ static const GtkActionEntry entries[] = {
  { "TabNew", STOCK_TAB_NEW,
    NULL, "<Ctrl>t",
    N_("Open a new tab"), G_CALLBACK (_action_tab_new_activate) },
+ { "PrivateBrowsing", NULL,
+   N_("P_rivate Browsing"), "<Ctrl><Shift>n",
+   N_("Don't save any private data while browsing"),
+   G_CALLBACK (_action_private_browsing_activate), },
  { "Open", GTK_STOCK_OPEN,
    NULL, "<Ctrl>o",
    N_("Open a file"), G_CALLBACK (_action_open_activate) },
@@ -5058,12 +5070,6 @@ static const GtkActionEntry entries[] = {
  static const guint entries_n = G_N_ELEMENTS (entries);
 
 static const GtkToggleActionEntry toggle_entries[] = {
- { "PrivateBrowsing", NULL,
-   N_("P_rivate Browsing"), "",
-   N_("Don't save any private data while browsing"),
-   NULL/*G_CALLBACK (_action_private_browsing_activate)*/,
-   FALSE },
-
  { "Menubar", NULL,
    N_("_Menubar"), "",
    N_("Show menubar"), G_CALLBACK (_action_menubar_activate),
@@ -5215,6 +5221,7 @@ static const gchar* ui_markup =
    "<menu action='File'>"
     "<menuitem action='WindowNew'/>"
     "<menuitem action='TabNew'/>"
+    "<menuitem action='PrivateBrowsing'/>"
     "<separator/>"
     "<menuitem action='Open'/>"
     "<separator/>"
@@ -5226,7 +5233,6 @@ static const gchar* ui_markup =
     "<menuitem action='WindowClose'/>"
     "<separator/>"
     "<menuitem action='Print'/>"
-    "<menuitem action='PrivateBrowsing'/>"
     "<separator/>"
     "<menuitem action='Quit'/>"
    "</menu>"
@@ -5856,8 +5862,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (forward, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
 
-
-    _action_set_visible (browser, "PrivateBrowsing", FALSE);
     #if HAVE_HILDON
     _action_set_visible (browser, "Menubar", FALSE);
     #endif

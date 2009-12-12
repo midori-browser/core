@@ -2037,6 +2037,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "Fullscreen"));
         gtk_menu_shell_append (menu_shell, menuitem);
+        menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "PrivateBrowsing"));
+        gtk_menu_shell_append (menu_shell, menuitem);
         #else
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
