@@ -15,6 +15,7 @@
 #include "gtkiconentry.h"
 #include "marshal.h"
 #include "sokoke.h"
+#include "midori-browser.h"
 
 #include <string.h>
 #include <glib/gi18n.h>
@@ -1074,6 +1075,23 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
 }
 
 static void
+midori_location_action_populate_popup_cb (GtkWidget*            entry,
+                                          GtkMenuShell*         menu,
+                                          MidoriLocationAction* location_action)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (entry);
+    GtkActionGroup* actions = midori_browser_get_action_group (browser);
+    GtkWidget* menuitem;
+
+    menuitem = gtk_separator_menu_item_new ();
+    gtk_widget_show (menuitem);
+    gtk_menu_shell_append (menu, menuitem);
+    menuitem = sokoke_action_create_popup_menu_item (
+        gtk_action_group_get_action (actions, "ManageSearchEngines"));
+    gtk_menu_shell_append (menu, menuitem);
+}
+
+static void
 midori_location_action_connect_proxy (GtkAction* action,
                                       GtkWidget* proxy)
 {
@@ -1128,6 +1146,8 @@ midori_location_action_connect_proxy (GtkAction* action,
                       midori_location_action_focus_out_event_cb, action,
                       "signal::icon-release",
                       midori_location_action_icon_released_cb, action,
+                      "signal::populate-popup",
+                      midori_location_action_populate_popup_cb, action,
                       NULL);
     }
 }
