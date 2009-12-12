@@ -610,6 +610,11 @@ sokoke_format_uri_for_display (const gchar* uri)
 
         if (!unescaped)
             return g_strdup (uri);
+        else if (!g_utf8_validate (unescaped, -1, NULL))
+        {
+            g_free (unescaped);
+            return g_strdup (uri);
+        }
 
         hostname = sokoke_hostname_from_uri (unescaped, &path);
         decoded = g_hostname_to_unicode (hostname);
@@ -629,6 +634,11 @@ sokoke_format_uri_for_display (const gchar* uri)
 
         if (!unescaped)
             return g_strdup (uri);
+        else if (!g_utf8_validate (unescaped, -1, NULL))
+        {
+            g_free (unescaped);
+            return g_strdup (uri);
+        }
 
         if (!idna_to_unicode_8z8z (unescaped, &decoded, 0) == IDNA_SUCCESS)
             return unescaped;
