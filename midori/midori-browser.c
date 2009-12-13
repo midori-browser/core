@@ -2961,6 +2961,12 @@ _action_tools_populate_popup (GtkAction*     action,
     }
 }
 
+static void
+midori_browser_bookmark_popup (GtkWidget*      widget,
+                               GdkEventButton* event,
+                               KatzeItem*      item,
+                               MidoriBrowser*  browser);
+
 static gboolean
 _action_menus_activate_item_alt (GtkAction*     action,
                                  KatzeItem*     item,
@@ -2972,6 +2978,13 @@ _action_menus_activate_item_alt (GtkAction*     action,
         gint n = midori_browser_add_uri (browser, katze_item_get_uri (item));
         _midori_browser_set_current_page_smartly (browser, n);
 
+        return TRUE;
+    }
+    else if (button == 3)
+    {
+        GdkEvent* event = gtk_get_current_event ();
+        midori_browser_bookmark_popup (gtk_get_event_widget (event),
+            (GdkEventButton*)event, item, browser);
         return TRUE;
     }
 
@@ -3992,14 +4005,24 @@ midori_browser_menu_button_press_event_cb (GtkWidget*      toolitem,
                                            GdkEventButton* event,
                                            MidoriBrowser*  browser)
 {
-    if (event->button == 3)
+    /* GtkMenuBar catches button events on children with submenus,
+       so we need to see if the actual widget is the menubar, and if
+       it is an item, we forward it to the actual widget. */
+    toolitem = gtk_get_event_widget ((GdkEvent*)event);
+
+    if (GTK_IS_MENU_BAR (toolitem) && event->button == 3)
     {
         midori_browser_toolbar_popup_context_menu_cb (
             GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
                 gtk_widget_get_parent (toolitem) : toolitem,
             event->x, event->y, event->button, browser);
-
         return TRUE;
+    }
+    else if (GTK_IS_MENU_ITEM (toolitem) && event->button == 3)
+    {
+        gboolean handled;
+        g_signal_emit_by_name (toolitem, "button-press-event", event, &handled);
+        return handled;
     }
     return FALSE;
 }
