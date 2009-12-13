@@ -2170,8 +2170,9 @@ _action_private_browsing_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
     const gchar* uri = midori_browser_get_current_uri (browser);
-    /* FIXME: Use the same binary that is running right now */
-    sokoke_spawn_program ("midori -a", uri, FALSE);
+    if (uri != NULL)
+        /* FIXME: Use the same binary that is running right now */
+        sokoke_spawn_program ("midori -a", uri, FALSE);
 }
 
 static void
