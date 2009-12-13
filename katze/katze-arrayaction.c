@@ -360,12 +360,12 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         }
         else
         {
-            g_signal_connect (menuitem, "button-press-event",
-                G_CALLBACK (katze_array_action_menu_button_press_cb), array_action);
             /* we need the 'activate' signal as well for keyboard events */
             g_signal_connect (menuitem, "activate",
                 G_CALLBACK (katze_array_action_menu_activate_cb), array_action);
         }
+        g_signal_connect (menuitem, "button-press-event",
+            G_CALLBACK (katze_array_action_menu_button_press_cb), array_action);
         gtk_widget_show (menuitem);
     }
 }
