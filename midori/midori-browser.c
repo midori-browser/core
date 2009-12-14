@@ -5889,7 +5889,6 @@ midori_browser_init (MidoriBrowser* browser)
     #if HAVE_HILDON
     _action_set_visible (browser, "Menubar", FALSE);
     #endif
-    _action_set_visible (browser, "Statusbar", FALSE);
     #if !WEBKIT_CHECK_VERSION (1, 1, 3)
     _action_set_visible (browser, "Transferbar", FALSE);
     #endif
