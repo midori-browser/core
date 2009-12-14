@@ -1150,13 +1150,7 @@ static void
 midori_app_init_libnotify (MidoriApp* app)
 {
     #if !HAVE_HILDON
-    gint i;
-    const gchar* sonames[] = { "libnotify.so", "libnotify.so.1", NULL };
-
-    for (i = 0; sonames[i] != NULL && app->libnotify_module == NULL; i++ )
-    {
-        app->libnotify_module = g_module_open (sonames[i], G_MODULE_BIND_LOCAL);
-    }
+    app->libnotify_module = g_module_open ("libnotify.so.1", G_MODULE_BIND_LOCAL);
 
     if (app->libnotify_module != NULL)
     {

@@ -242,7 +242,7 @@ midori_preferences_get_spell_languages (void)
     if (!enchant_broker_list_dicts && g_module_supported ())
     {
         GModule* module;
-        if (!(module = g_module_open ("libenchant.so", G_MODULE_BIND_LOCAL)))
+        if (!(module = g_module_open ("libenchant.so.1", G_MODULE_BIND_LOCAL)))
             return NULL;
         if (!g_module_symbol (module, "enchant_broker_init",
                               (void*) &enchant_broker_init))
