@@ -22,6 +22,10 @@
 #include <glib/gi18n.h>
 #include <libsoup/soup.h>
 
+#if HAVE_LIBNOTIFY
+    #include <libnotify/notify.h>
+#endif
+
 struct _MidoriPreferences
 {
     KatzePreferences parent_instance;
@@ -334,10 +338,13 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     label = katze_property_proxy (settings, "ask-for-destination-folder", NULL);
     INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "notify-transfer-completed", NULL);
-    /* FIXME: Disable the option if notifications presumably cannot be sent
-      gtk_widget_set_sensitive (button, FALSE); */
-    SPANNED_ADD (button);
+    #if HAVE_LIBNOTIFY
+    if (notify_is_initted () || g_find_program_in_path ("notify-send"))
+    {
+        button = katze_property_proxy (settings, "notify-transfer-completed", NULL);
+        SPANNED_ADD (button);
+    }
+    #endif
     #endif
 
     /* Page "Appearance" */

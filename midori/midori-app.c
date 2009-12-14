@@ -40,20 +40,8 @@
     #include "socket.h"
 #endif
 
-#if !HAVE_HILDON
-typedef struct _NotifyNotification NotifyNotification;
-
-typedef struct
-{
-    gboolean            (*init)               (const gchar* app_name);
-    void                (*uninit)             (void);
-    NotifyNotification* (*notification_new)   (const gchar* summary,
-                                               const gchar* body,
-                                               const gchar* icon,
-                                               GtkWidget*   attach);
-    gboolean            (*notification_show)  (NotifyNotification* notification,
-                                               GError**            error);
-} LibNotifyFuncs;
+#if HAVE_LIBNOTIFY
+    #include <libnotify/notify.h>
 #endif
 
 struct _MidoriApp
@@ -75,10 +63,7 @@ struct _MidoriApp
     MidoriAppInstance instance;
 
     #if !HAVE_HILDON
-    /* libnotify handling */
-    gchar*         program_notify_send;
-    GModule*       libnotify_module;
-    LibNotifyFuncs libnotify_funcs;
+    gchar* program_notify_send;
     #endif
 };
 
@@ -127,9 +112,6 @@ static guint signals[LAST_SIGNAL];
 
 static void
 midori_app_finalize (GObject* object);
-
-static void
-midori_app_init_libnotify (MidoriApp* app);
 
 static void
 midori_app_set_property (GObject*      object,
@@ -722,7 +704,11 @@ midori_app_init (MidoriApp* app)
 
     app->instance = MidoriAppInstanceNull;
 
-    midori_app_init_libnotify (app);
+    #if HAVE_LIBNOTIFY
+    notify_init ("midori");
+    #endif
+
+    app->program_notify_send = g_find_program_in_path ("notify-send");
 }
 
 static void
@@ -750,14 +736,11 @@ midori_app_finalize (GObject* object)
     sock_cleanup ();
     #endif
 
-    #if !HAVE_HILDON
-    if (app->libnotify_module)
-    {
-        app->libnotify_funcs.uninit ();
-        g_module_close (app->libnotify_module);
-    }
-    katze_assign (app->program_notify_send, NULL);
+    #if HAVE_LIBNOTIFY
+    if (notify_is_initted ())
+        notify_uninit ();
     #endif
+    katze_assign (app->program_notify_send, NULL);
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
 }
@@ -1146,35 +1129,6 @@ midori_app_quit (MidoriApp* app)
     g_signal_emit (app, signals[QUIT], 0);
 }
 
-static void
-midori_app_init_libnotify (MidoriApp* app)
-{
-    #if !HAVE_HILDON
-    app->libnotify_module = g_module_open ("libnotify.so.1", G_MODULE_BIND_LOCAL);
-
-    if (app->libnotify_module != NULL)
-    {
-        g_module_symbol (app->libnotify_module, "notify_init",
-            (void*) &(app->libnotify_funcs.init));
-        g_module_symbol (app->libnotify_module, "notify_uninit",
-            (void*) &(app->libnotify_funcs.uninit));
-        g_module_symbol (app->libnotify_module, "notify_notification_new",
-            (void*) &(app->libnotify_funcs.notification_new));
-        g_module_symbol (app->libnotify_module, "notify_notification_show",
-            (void*) &(app->libnotify_funcs.notification_show));
-
-        /* init libnotify */
-        if (!app->libnotify_funcs.init || !app->libnotify_funcs.init ("midori"))
-        {
-             g_module_close (app->libnotify_module);
-             app->libnotify_module = NULL;
-        }
-    }
-
-    app->program_notify_send = g_find_program_in_path ("notify-send");
-    #endif
-}
-
 /**
  * midori_app_send_notification:
  * @app: a #MidoriApp
@@ -1193,23 +1147,26 @@ midori_app_send_notification (MidoriApp*   app,
                               const gchar* title,
                               const gchar* message)
 {
+    g_return_if_fail (MIDORI_IS_APP (app));
+    g_return_if_fail (title);
+
     #if HAVE_HILDON
     hildon_banner_show_information_with_markup (GTK_WIDGET (app->browser),
                                                 "midori", message);
     #else
     gboolean sent = FALSE;
 
-    g_return_if_fail (MIDORI_IS_APP (app));
-    g_return_if_fail (title);
-
-    if (app->libnotify_module)
+    #if HAVE_LIBNOTIFY
+    if (notify_is_initted ())
     {
-        NotifyNotification* n;
+        NotifyNotification* note;
 
-        n = app->libnotify_funcs.notification_new (title, message, "midori", NULL);
-        sent = app->libnotify_funcs.notification_show (n, NULL);
-        g_object_unref (n);
+        note = notify_notification_new (title, message, "midori", NULL);
+        sent = notify_notification_show (note, NULL);
+        g_object_unref (note);
     }
+    #endif
+
     /* Fall back to the command line program "notify-send" */
     if (!sent && app->program_notify_send)
     {

@@ -190,6 +190,15 @@ def configure (conf):
         sqlite = 'no '
     conf.define ('HAVE_SQLITE', [0,1][sqlite == 'yes'])
 
+    if option_enabled ('libnotify'):
+        check_pkg ('libnotify', mandatory=False)
+        libnotify = ['N/A','yes'][conf.env['HAVE_LIBNOTIFY'] == 1]
+        if libnotify != 'yes':
+            option_checkfatal ('libnotify', 'notifications')
+    else:
+        libnotify = 'no '
+    conf.define ('HAVE_LIBNOTIFY', [0,1][libnotify == 'yes'])
+
     conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
@@ -296,6 +305,7 @@ def configure (conf):
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
         Persistent history:  %(sqlite)s (sqlite3)
+        Notifications:       %(libnotify)s (libnotify)
 
         IDN support:         %(idn)s (libidn or libsoup 2.27.90)
         User documentation:  %(user_docs)s (docutils)
@@ -344,6 +354,7 @@ def set_options (opt):
     add_enable_option ('unique', 'single instance support', group)
     add_enable_option ('libidn', 'international domain name support', group)
     add_enable_option ('sqlite', 'history database support', group)
+    add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
 
