@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori git version\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-12 22:09+0300\n"
-"PO-Revision-Date: 2009-10-12 23:01+0200\n"
+"POT-Creation-Date: 2009-12-16 20:55+0200\n"
+"PO-Revision-Date: 2009-12-16 21:49+0200\n"
 "Last-Translator: Evaggelos Balaskas <ebalaskas@ebalaskas.gr>\n"
 "Language-Team: Greek <nls@tux.hellug.gr>\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgid "Lightweight web browser"
 msgstr "Ελαφρύς περιηγητής ιστού"
 
 #: ../data/midori.desktop.in.h:2
-#: ../midori/main.c:1469
-#: ../midori/main.c:1643
-#: ../midori/main.c:1651
-#: ../midori/main.c:1662
-#: ../midori/midori-websettings.c:289
+#: ../midori/main.c:1514
+#: ../midori/main.c:1712
+#: ../midori/main.c:1720
+#: ../midori/main.c:1731
+#: ../midori/midori-websettings.c:292
 msgid "Midori"
 msgstr "Μιντόρι"
 
@@ -36,1407 +36,1531 @@ msgstr "Μιντόρι"
 msgid "Web Browser"
 msgstr "Περιηγητής Ιστού"
 
-#: ../midori/main.c:102
+#: ../midori/main.c:107
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Οι ρυθμίσεις δεν μπορούν να φορτωθούν: %s\n"
 
-#: ../midori/main.c:157
+#: ../midori/main.c:162
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "Η τιμή '%s' δεν είναι έγκυρη για το %s"
 
-#: ../midori/main.c:164
-#: ../midori/main.c:245
+#: ../midori/main.c:169
+#: ../midori/main.c:255
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Μη έγκυρη τιμή ρύθμισης '%s'"
 
-#: ../midori/main.c:369
+#: ../midori/main.c:379
+#: ../extensions/formhistory.c:438
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "Αποτυχία κατά το άνοιγμα της βάσης: %s\n"
 
-#: ../midori/main.c:401
+#: ../midori/main.c:411
+#: ../extensions/formhistory.c:453
+#: ../extensions/formhistory.c:457
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Αποτυχία κατά την εκτέλεση της δήλωσης στην βάση: %s\n"
 
-#: ../midori/main.c:455
+#: ../midori/main.c:465
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Αποτυχία στην διαγραφή του αντικειμένου από το ιστορικό: %s\n"
 
-#: ../midori/main.c:479
+#: ../midori/main.c:489
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "Αποτυχία στον καθαρισμό του ιστορικού: %s\n"
 
-#: ../midori/main.c:502
-#: ../midori/main.c:536
-#: ../midori/main.c:552
+#: ../midori/main.c:512
+#: ../midori/main.c:546
+#: ../midori/main.c:562
 #, c-format
 msgid "Failed to add history item: %s\n"
 msgstr "Αποτυχία στην προσθήκη ενός αντικειμένου στο ιστορικό: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:731
+#: ../midori/main.c:741
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "Αποτυχία στην διαγραφή των παλιών αντικειμένων από το ιστορικό: %s\n"
 
-#: ../midori/main.c:760
+#: ../midori/main.c:770
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Οι ρυθμίσεις δεν μπορούν να αποθηκευτούν. %s"
 
-#: ../midori/main.c:798
+#: ../midori/main.c:808
 #, c-format
 msgid "The search engines couldn't be saved. %s"
-msgstr "Οι μηχανές αναζήτησης δεν μπορούν να αποθηκευτούν. %s"
+msgstr "Οι μηχανές αναζήτησης δεν μπόρεσαν να αποθηκευτούν. %s"
 
-#: ../midori/main.c:817
-#: ../midori/main.c:845
-#: ../midori/main.c:874
+#: ../midori/main.c:827
+#: ../midori/main.c:877
+#: ../midori/main.c:897
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
-msgstr "Οι σελιδοδείκτες δεν μπορούν να αποθηκευτούν. %s"
+msgstr "Οι σελιδοδείκτες δεν μπόρεσαν να αποθηκευτούν. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:897
-#: ../midori/main.c:920
+#: ../midori/main.c:927
+#: ../midori/main.c:950
 #, c-format
 msgid "The trash couldn't be saved. %s"
-msgstr "Τα απορρίμματα δεν μπορούν να αποθηκευτούν. %s"
+msgstr "Τα απορρίμματα δεν μπόρεσαν να αποθηκευτούν. %s"
 
-#: ../midori/main.c:988
-#: ../midori/main.c:1160
+#: ../midori/main.c:1019
+#: ../midori/main.c:1191
 #, c-format
 msgid "The session couldn't be saved. %s"
-msgstr "Η συνεδρία δεν μπορεί να αποθηκευτεί. %s"
+msgstr "Η συνεδρία δεν μπόρεσε να αποθηκευτεί. %s"
 
-#: ../midori/main.c:1189
+#: ../midori/main.c:1229
 msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
 msgstr "Το μιντόρι φαίνεται ότι κρέμασε την τελευταία φορά που άνοιξε. Εάν αυτό συνεχίζει επανειλημμένα δοκιμάστε μία από τις παρακάτω επιλογές για να επιλύσετε το πρόβλημα."
 
-#: ../midori/main.c:1204
+#: ../midori/main.c:1244
 msgid "Modify _preferences"
 msgstr "Τροποποίηση _προτιμήσεων"
 
-#: ../midori/main.c:1208
+#: ../midori/main.c:1248
 msgid "Reset the last _session"
 msgstr "Επαναφορά της τελευταίας σ_υνεδρίας"
 
-#: ../midori/main.c:1213
+#: ../midori/main.c:1253
 msgid "Disable all _extensions"
 msgstr "Απενεργοποίηση όλων των επ_εκτάσεων"
 
-#: ../midori/main.c:1369
-#: ../midori/main.c:1870
+#: ../midori/main.c:1418
+#: ../midori/main.c:1945
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Η συνεδρία δεν μπορεί να φορτωθεί: %s\n"
 
-#: ../midori/main.c:1469
+#: ../midori/main.c:1514
 msgid "No filename specified"
 msgstr "Δεν ορίστηκε όνομα αρχείου"
 
-#: ../midori/main.c:1492
+#: ../midori/main.c:1537
 msgid "An unknown error occured."
 msgstr "Συνέβει ένα άγνωστο σφάλμα."
 
-#: ../midori/main.c:1524
+#: ../midori/main.c:1569
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Το στιγμιότυπο αποθηκεύτηκε στο: %s\n"
 
-#: ../midori/main.c:1573
+#: ../midori/main.c:1628
 msgid "Run ADDRESS as a web application"
 msgstr "Άνοιγμα της διεύθυνσης ως διαδικτυακή εφαρμογή"
 
-#: ../midori/main.c:1573
+#: ../midori/main.c:1628
 msgid "ADDRESS"
 msgstr "Διεύθυνση"
 
-#: ../midori/main.c:1575
+#: ../midori/main.c:1631
 msgid "Use FOLDER as configuration folder"
 msgstr "Χρήση φακέλου ως φάκελος ρύθμισης"
 
-#: ../midori/main.c:1575
+#: ../midori/main.c:1631
 msgid "FOLDER"
 msgstr "ΦΑΚΕΛΟΣ"
 
-#: ../midori/main.c:1577
+#: ../midori/main.c:1634
 msgid "Run the specified filename as javascript"
 msgstr "Τρέξε το συγκεκριμένο όνομα αρχείου ως javascript"
 
-#: ../midori/main.c:1580
+#: ../midori/main.c:1637
 msgid "Take a snapshot of the specified URI"
 msgstr "Αποθήκευση του συγκεκριμένου URI"
 
-#: ../midori/main.c:1583
+#: ../midori/main.c:1640
 msgid "Execute the specified command"
-msgstr "Εκτέλεση συγκεκριμένης εντολής"
+msgstr "Εκτέλεση της συγκεκριμένης εντολής"
 
-#: ../midori/main.c:1585
+#: ../midori/main.c:1642
 msgid "Display program version"
 msgstr "Προβολή έκδοσης προγράμματος"
 
-#: ../midori/main.c:1587
+#: ../midori/main.c:1644
 msgid "Addresses"
 msgstr "Διευθύνσεις"
 
-#: ../midori/main.c:1640
+#: ../midori/main.c:1709
 msgid "[Addresses]"
 msgstr "[Διευθύνσεις"
 
-#: ../midori/main.c:1663
+#: ../midori/main.c:1732
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Παρακαλώ αναφέρατε σχόλια, προτάσεις και σφάλματα στο:"
 
-#: ../midori/main.c:1665
+#: ../midori/main.c:1734
 msgid "Check for new versions at:"
 msgstr "Έλεγχος για νέα έκδοση στο:"
 
-#: ../midori/main.c:1745
+#: ../midori/main.c:1816
 msgid "The specified configuration folder is invalid."
 msgstr "Η συγκεκριμένη ρύθμιση φακέλου είναι άκυρη."
 
-#: ../midori/main.c:1793
+#: ../midori/main.c:1864
 msgid "An instance of Midori is already running but not responding.\n"
-msgstr "Όλα τα στιγμιότυπα του Μιντόρι τρέχουν ήδη αλλά δεν ανταποκρίνονται.\n"
+msgstr "Ένα στιγμιότυπο του Μιντόρι τρέχει ήδη αλλά δεν ανταποκρίνεται.\n"
 
-#: ../midori/main.c:1837
+#: ../midori/main.c:1912
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
-msgstr "Οι μηχανές αναζήτησης δεν μπορούν να φορτωθούν. %s\n"
+msgstr "Οι μηχανές αναζήτησης δεν μπόρεσαν να φορτωθούν. %s\n"
 
-#: ../midori/main.c:1855
+#: ../midori/main.c:1930
 #, c-format
 msgid "The bookmarks couldn't be loaded: %s\n"
 msgstr "Οι σελιδοδείκτες δεν μπορούν να φορτωθούν: %s\n"
 
-#: ../midori/main.c:1883
+#: ../midori/main.c:1958
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr "Τα απορρίμματα δεν μπορούν να φορτωθούν: %s\n"
+msgstr "Τα απορρίμματα δεν μπόρεσαν να φορτωθούν: %s\n"
 
-#: ../midori/main.c:1896
+#: ../midori/main.c:1971
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr "Το ιστορικό δεν μπορεί να φορτωθεί: %s\n"
+msgstr "Το ιστορικό δεν μπόρεσε να φορτωθεί: %s\n"
 
-#: ../midori/main.c:1908
+#: ../midori/main.c:1983
 msgid "The following errors occured:"
 msgstr "Δημιουργήθηκαν τα ακόλουθα σφάλματα:"
 
-#: ../midori/main.c:1924
+#: ../midori/main.c:1999
 msgid "_Ignore"
 msgstr "Α_γνόησε"
 
-#: ../midori/midori-array.c:251
+#: ../midori/midori-array.c:424
 msgid "File not found."
 msgstr "Το αρχείο δεν βρέθηκε."
 
-#: ../midori/midori-array.c:260
-#: ../midori/midori-array.c:270
+#: ../midori/midori-array.c:458
+#: ../midori/midori-array.c:481
+#: ../midori/midori-array.c:491
 msgid "Malformed document."
 msgstr "Κακοσχηματισμένο έγγραφο."
 
-#: ../midori/midori-array.c:437
-#: ../midori/sokoke.c:798
+#: ../midori/midori-array.c:500
+msgid "Unrecognized bookmark format."
+msgstr "Άγνωστος τύπος συνδέσμου."
+
+#: ../midori/midori-array.c:714
+#: ../midori/sokoke.c:965
 #, c-format
 msgid "Writing failed."
 msgstr "Αποτυχία εγγραφής."
 
-#: ../midori/midori-browser.c:310
-#: ../midori/midori-browser.c:4530
-#: ../midori/midori-browser.c:4536
+#: ../midori/midori-browser.c:330
+#: ../midori/midori-browser.c:5003
+#: ../midori/midori-browser.c:5009
 msgid "Reload the current page"
 msgstr "Ανανέωση της τρέχουσας σελίδας"
 
-#: ../midori/midori-browser.c:321
-#: ../midori/midori-browser.c:4533
+#: ../midori/midori-browser.c:340
+#: ../midori/midori-browser.c:5006
 msgid "Stop loading the current page"
 msgstr "Σταμάτημα φόρτωσης της τρέχουσας σελίδας"
 
-#: ../midori/midori-browser.c:416
+#: ../midori/midori-browser.c:449
 #, c-format
 msgid "%d%% loaded"
 msgstr "%d%% φορτώθηκε"
 
-#: ../midori/midori-browser.c:441
+#: ../midori/midori-browser.c:474
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "Αναπάντεχη ενέργεια '%s'."
 
-#: ../midori/midori-browser.c:638
+#: ../midori/midori-browser.c:675
 msgid "New folder"
 msgstr "Νέος φάκελος"
 
-#: ../midori/midori-browser.c:638
+#: ../midori/midori-browser.c:675
 msgid "Edit folder"
 msgstr "Επεξεργασία φακέλου"
 
-#: ../midori/midori-browser.c:640
+#: ../midori/midori-browser.c:677
 msgid "New bookmark"
 msgstr "Νέος σελιδοδείκτης"
 
-#: ../midori/midori-browser.c:640
+#: ../midori/midori-browser.c:677
 msgid "Edit bookmark"
 msgstr "Επεξεργασία σελιδοδείκτη"
 
-#: ../midori/midori-browser.c:670
+#: ../midori/midori-browser.c:707
 msgid "_Title:"
 msgstr "_Τίτλος:"
 
-#: ../midori/midori-browser.c:683
-#: ../midori/midori-searchaction.c:952
+#: ../midori/midori-browser.c:720
+#: ../midori/midori-searchaction.c:967
 msgid "_Description:"
 msgstr "_Περιγραφή:"
 
-#: ../midori/midori-browser.c:702
-#: ../midori/midori-searchaction.c:966
+#: ../midori/midori-browser.c:739
+#: ../midori/midori-searchaction.c:981
 #: ../extensions/feed-panel/main.c:368
 msgid "_Address:"
 msgstr "_Διεύθυνση:"
 
-#: ../midori/midori-browser.c:725
+#: ../midori/midori-browser.c:769
+#: ../midori/midori-browser.c:4250
 msgid "_Folder:"
 msgstr "_Φάκελος:"
 
-#: ../midori/midori-browser.c:730
-#: ../midori/midori-browser.c:771
+#: ../midori/midori-browser.c:779
+#: ../midori/midori-browser.c:855
+#: ../midori/midori-browser.c:4255
+#: ../midori/midori-browser.c:4287
 msgid "Toplevel folder"
 msgstr "Αρχικός φάκελος"
 
-#: ../midori/midori-browser.c:849
+#: ../midori/midori-browser.c:808
+msgid "Show in the tool_bar"
+msgstr "Εμφάνιση στην εργαλειο_θήκη"
+
+#: ../midori/midori-browser.c:823
+msgid "Run as _web application"
+msgstr "Εκτέλεση ως _διαδικτυακή εφαρμογή"
+
+#: ../midori/midori-browser.c:935
+#: ../midori/midori-browser.c:4305
 msgid "Save file as"
 msgstr "Αποθήκευση αρχείου ως"
 
-#: ../midori/midori-browser.c:1226
+#: ../midori/midori-browser.c:1302
 #: ../panels/midori-transfers.c:272
 #, c-format
 msgid "%s of %s"
 msgstr "%s από %s"
 
-#: ../midori/midori-browser.c:1263
+#: ../midori/midori-browser.c:1338
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
 msgstr "Το αρχείο '<b>%s</b>' έχει κατέβει."
 
-#: ../midori/midori-browser.c:1267
+#: ../midori/midori-browser.c:1342
 msgid "Transfer completed"
 msgstr "Η μεταφορά ολοκληρώθηκε"
 
-#: ../midori/midori-browser.c:1408
+#: ../midori/midori-browser.c:1482
 msgid "Save file"
 msgstr "Αποθήκευση αρχείου"
 
-#: ../midori/midori-browser.c:2069
+#: ../midori/midori-browser.c:2191
 msgid "Open file"
 msgstr "Άνοιγμα αρχείου"
 
-#: ../midori/midori-browser.c:3419
+#: ../midori/midori-browser.c:2267
 #: ../extensions/feed-panel/main.c:356
 msgid "New feed"
 msgstr "Νέα ροή"
 
-#: ../midori/midori-browser.c:3674
-#: ../panels/midori-bookmarks.c:781
-#: ../panels/midori-history.c:812
+#: ../midori/midori-browser.c:2300
+#: ../midori/midori-browser.c:5050
+#: ../panels/midori-bookmarks.c:243
+msgid "Add a new bookmark"
+msgstr "Προσθήκη ενός νέου σελιδοδείκτη"
+
+#: ../midori/midori-browser.c:2861
+#: ../midori/midori-searchaction.c:491
+msgid "Empty"
+msgstr "Άδειο"
+
+#: ../midori/midori-browser.c:3467
+#: ../midori/sokoke.c:275
+#: ../midori/sokoke.c:285
+#: ../midori/sokoke.c:313
+#: ../midori/sokoke.c:335
+#: ../midori/sokoke.c:349
+msgid "Could not run external program."
+msgstr "Δεν μπορεί να εκτελεστεί το εξωτερικό πρόγραμμα."
+
+#: ../midori/midori-browser.c:3980
+#: ../panels/midori-bookmarks.c:796
+#: ../panels/midori-history.c:822
 msgid "Open all in _Tabs"
 msgstr "Άνοιγμα όλων σε _καρτέλες"
 
-#: ../midori/midori-browser.c:3681
-#: ../panels/midori-bookmarks.c:787
-#: ../panels/midori-history.c:818
-#: ../extensions/feed-panel/feed-panel.c:542
+#: ../midori/midori-browser.c:3987
+#: ../panels/midori-bookmarks.c:802
+#: ../panels/midori-history.c:828
+#: ../extensions/feed-panel/feed-panel.c:545
 msgid "Open in New _Tab"
 msgstr "Άνοιγμα σε νέα_καρτέλα"
 
-#: ../midori/midori-browser.c:3684
-#: ../panels/midori-bookmarks.c:789
-#: ../panels/midori-history.c:820
-#: ../extensions/feed-panel/feed-panel.c:544
+#: ../midori/midori-browser.c:3990
+#: ../panels/midori-bookmarks.c:804
+#: ../panels/midori-history.c:830
+#: ../extensions/feed-panel/feed-panel.c:547
 msgid "Open in New _Window"
 msgstr "Άνοιγμα σε νέο _παράθυρο"
 
-#: ../midori/midori-browser.c:3994
+#: ../midori/midori-browser.c:4179
+msgid "Arora"
+msgstr "Arora"
+
+#: ../midori/midori-browser.c:4180
+msgid "Kazehakase"
+msgstr "Kazehakase"
+
+#: ../midori/midori-browser.c:4181
+msgid "Opera"
+msgstr "Opera"
+
+#: ../midori/midori-browser.c:4182
+msgid "Konqueror"
+msgstr "Konqueror"
+
+#: ../midori/midori-browser.c:4183
+msgid "Epiphany"
+msgstr "Epiphany"
+
+#: ../midori/midori-browser.c:4203
+#: ../panels/midori-bookmarks.c:272
+msgid "Import bookmarks..."
+msgstr "Εισαγωγή συνδέσμων..."
+
+#: ../midori/midori-browser.c:4206
+#: ../midori/midori-browser.c:5055
+msgid "_Import bookmarks"
+msgstr "_Εισαγωγή συνδέσμων..."
+
+#: ../midori/midori-browser.c:4216
+msgid "_Application:"
+msgstr "_Εφαρμογή:"
+
+#: ../midori/midori-browser.c:4242
+#: ../midori/midori-browser.c:5148
+#: ../midori/midori-websettings.c:223
+#: ../midori/midori-websettings.c:297
+#: ../katze/katze-utils.c:672
+msgid "Custom..."
+msgstr "Προσαρμογή..."
+
+#: ../midori/midori-browser.c:4316
+msgid "Failed to import bookmarks"
+msgstr "Αποτυχία εισαγωγής συνδέσμων"
+
+#: ../midori/midori-browser.c:4462
 msgid "Clear Private Data"
 msgstr "Καθαρισμός προσωπικών δεδομένων"
 
-#: ../midori/midori-browser.c:3998
+#: ../midori/midori-browser.c:4466
 msgid "_Clear private data"
 msgstr "_Καθαρισμός προσωπικών δεδομένων"
 
-#: ../midori/midori-browser.c:4011
+#: ../midori/midori-browser.c:4479
 msgid "Clear the following data:"
 msgstr "Καθαρισμός των παρακάτω δεδομένων:"
 
-#: ../midori/midori-browser.c:4021
-#: ../midori/midori-preferences.c:675
+#: ../midori/midori-browser.c:4489
+#: ../midori/midori-preferences.c:515
 #: ../panels/midori-history.c:108
 msgid "History"
 msgstr "Ιστορικό"
 
-#: ../midori/midori-browser.c:4026
+#: ../midori/midori-browser.c:4494
 msgid "Cookies"
 msgstr "Cookies"
 
-#: ../midori/midori-browser.c:4031
+#: ../midori/midori-browser.c:4499
 msgid "'Flash' Cookies"
 msgstr "Άδειασμα των cookies"
 
-#: ../midori/midori-browser.c:4036
+#: ../midori/midori-browser.c:4504
 msgid "Website icons"
 msgstr "Εικονίδια ιστότοπων"
 
-#: ../midori/midori-browser.c:4041
-#: ../midori/sokoke.c:971
+#: ../midori/midori-browser.c:4509
+#: ../midori/sokoke.c:1124
 msgid "_Closed Tabs"
 msgstr "_Κλειστές καρτέλες"
 
-#: ../midori/midori-browser.c:4049
+#: ../midori/midori-browser.c:4514
+#: ../extensions/web-cache.c:591
+msgid "Web Cache"
+msgstr "Προσωρινής μνήμης ιστού"
+
+#: ../midori/midori-browser.c:4522
 msgid "Clear private data when _quitting Midori"
 msgstr "Καθαρισμός προσωπικών δεδομένων κατά τον _τερματισμό του Midori"
 
-#: ../midori/midori-browser.c:4145
+#: ../midori/midori-browser.c:4618
 msgid "A lightweight web browser."
 msgstr "Ένας ελαφρύς περιηγητής ιστού"
 
-#: ../midori/midori-browser.c:4161
+#: ../midori/midori-browser.c:4634
 msgid "translator-credits"
 msgstr "Ευάγγελος Μπαλάσκας <ebalaskas@ebalaskas.gr> 2008"
 
-#: ../midori/midori-browser.c:4456
+#: ../midori/midori-browser.c:4916
 msgid "_File"
 msgstr "_Αρχείο"
 
-#: ../midori/midori-browser.c:4458
-#: ../midori/sokoke.c:972
+#: ../midori/midori-browser.c:4918
+#: ../midori/sokoke.c:1125
 msgid "New _Window"
 msgstr "Νέο _παράθυρο"
 
-#: ../midori/midori-browser.c:4459
+#: ../midori/midori-browser.c:4919
 msgid "Open a new window"
 msgstr "Άνοιγμα ενός νέου παραθύρου"
 
-#: ../midori/midori-browser.c:4462
+#: ../midori/midori-browser.c:4922
 msgid "Open a new tab"
 msgstr "Άνοιγμα μίας νέας καρτέλας"
 
-#: ../midori/midori-browser.c:4465
-msgid "Open a file"
-msgstr "Άνοιγμα αρχείου"
-
-#: ../midori/midori-browser.c:4468
-msgid "Save to a file"
-msgstr "Αποθήκευση σε αρχείου"
-
-#: ../midori/midori-browser.c:4470
-msgid "Add to Speed _dial"
-msgstr "Προσθήκη σε γρήγορη σ_ύνδεση"
-
-#: ../midori/midori-browser.c:4471
-msgid "Add shortcut to speed dial"
-msgstr "Προσθήκη συντόμευσης σε γρήγορη σύνδεση"
-
-#: ../midori/midori-browser.c:4473
-msgid "_Close Tab"
-msgstr "_Κλείσιμο καρτέλας"
-
-#: ../midori/midori-browser.c:4474
-msgid "Close the current tab"
-msgstr "Κλείσιμο της τρέχουσας καρτέλας"
-
-#: ../midori/midori-browser.c:4476
-msgid "C_lose Window"
-msgstr "Κ_λείσιμο παραθύρου"
-
-#: ../midori/midori-browser.c:4477
-msgid "Close this window"
-msgstr "Κλείσιμο αυτού του παραθύρου"
-
-#: ../midori/midori-browser.c:4480
-msgid "Print the current page"
-msgstr "Εκτύπωση της τρέχουσας σελίδας"
-
-#: ../midori/midori-browser.c:4483
-msgid "Quit the application"
-msgstr "Έξοδος από την εφαρμογή"
-
-#: ../midori/midori-browser.c:4485
-msgid "_Edit"
-msgstr "_Επεξεργασία"
-
-#: ../midori/midori-browser.c:4489
-msgid "Undo the last modification"
-msgstr "Αναίρεση της τελευταίας τροποποίησης"
-
-#: ../midori/midori-browser.c:4492
-msgid "Redo the last modification"
-msgstr "Επανάληψη της τελευταίας τροποποίησης"
-
-#: ../midori/midori-browser.c:4496
-msgid "Cut the selected text"
-msgstr "Αποκοπή επιλεγμένου κειμένου"
-
-#: ../midori/midori-browser.c:4499
-#: ../midori/midori-browser.c:4502
-msgid "Copy the selected text"
-msgstr "Αντιγραφή επιλεγμένου κειμένου"
-
-#: ../midori/midori-browser.c:4505
-msgid "Paste text from the clipboard"
-msgstr "Επικόλληση κειμένου από το πρόχειρο"
-
-#: ../midori/midori-browser.c:4508
-msgid "Delete the selected text"
-msgstr "Διαγραφή του επιλεγμένου κειμένου"
-
-#: ../midori/midori-browser.c:4511
-msgid "Select all text"
-msgstr "Επιλογή όλου του κειμένου"
-
-#: ../midori/midori-browser.c:4514
-msgid "Find a word or phrase in the page"
-msgstr "Αναζήτηση μίας λέξης ή φράσης στην σελίδα"
-
-#: ../midori/midori-browser.c:4516
-msgid "Find _Next"
-msgstr "Εύρεση επ_όμενο"
-
-#: ../midori/midori-browser.c:4517
-msgid "Find the next occurrence of a word or phrase"
-msgstr "Εύρεση της επόμενης ύπαρξης της λέξης ή της φράσης"
-
-#: ../midori/midori-browser.c:4519
-msgid "Find _Previous"
-msgstr "Εύρεση _προηγούμενο"
-
-#: ../midori/midori-browser.c:4520
-msgid "Find the previous occurrence of a word or phrase"
-msgstr "Εύρεση της προηγούμενης ύπαρξης της λέξης ή της φράσης"
-
-#: ../midori/midori-browser.c:4524
-msgid "Configure the application preferences"
-msgstr "Παραμετροποίηση των ρυθμίσεων της εφαρμογής"
-
-#: ../midori/midori-browser.c:4526
-msgid "_View"
-msgstr "_Εμφάνιση"
-
-#: ../midori/midori-browser.c:4527
-msgid "_Toolbars"
-msgstr "_Εργαλειοθήκες"
-
-#: ../midori/midori-browser.c:4539
-msgid "Increase the zoom level"
-msgstr "Αύξηση του επίπεδου εστίασης"
-
-#: ../midori/midori-browser.c:4542
-msgid "Decrease the zoom level"
-msgstr "Μείωση του επιπέδου εστίασης"
-
-#: ../midori/midori-browser.c:4545
-msgid "Reset the zoom level"
-msgstr "Επαναφορά του επιπέδου εστίασης"
-
-#: ../midori/midori-browser.c:4546
-msgid "_Encoding"
-msgstr "_Κωδικοποίηση"
-
-#: ../midori/midori-browser.c:4548
-msgid "View So_urce"
-msgstr "Προβολή κ_ώδικα"
-
-#: ../midori/midori-browser.c:4549
-msgid "View the source code of the page"
-msgstr "Προβολή του πηγαίου κώδικα αυτής της σελίδας"
-
-#: ../midori/midori-browser.c:4551
-msgid "View Selection Source"
-msgstr "Προβολή του επιλεγμένου κώδικα"
-
-#: ../midori/midori-browser.c:4552
-msgid "View the source code of the selection"
-msgstr "Προβολή του πηγαίου κώδικα του επιλεγμένου"
-
-#: ../midori/midori-browser.c:4556
-msgid "Toggle fullscreen view"
-msgstr "Εναλλαγή σε πλήρη οθόνη"
-
-#: ../midori/midori-browser.c:4558
-msgid "_Go"
-msgstr "_Μετάβαση"
-
-#: ../midori/midori-browser.c:4561
-msgid "Go back to the previous page"
-msgstr "Μετάβαση στην προηγούμενη σελίδα"
-
-#: ../midori/midori-browser.c:4564
-msgid "Go forward to the next page"
-msgstr "Μετάβαση στην επόμενη σελίδα"
-
-#: ../midori/midori-browser.c:4567
-msgid "Go to your homepage"
-msgstr "Μετάβαση στην αρχική σελίδα"
-
-#: ../midori/midori-browser.c:4569
-msgid "Empty Trash"
-msgstr "Άδειασμα αποριμμάτων"
-
-#: ../midori/midori-browser.c:4570
-msgid "Delete the contents of the trash"
-msgstr "Διαγραφή των περιεχομένων των απορριμάτων"
-
-#: ../midori/midori-browser.c:4572
-msgid "Undo _Close Tab"
-msgstr "Αναίρεση κλ_είσιμο καρτέλας"
-
-#: ../midori/midori-browser.c:4573
-msgid "Open the last closed tab"
-msgstr "Άνοιγμα της τελευταίας καρτέλας που έκλεισε"
-
-#: ../midori/midori-browser.c:4577
-#: ../panels/midori-bookmarks.c:231
-msgid "Add a new bookmark"
-msgstr "Προσθήκη ενός νέου σελιδοδείκτη"
-
-#: ../midori/midori-browser.c:4579
-msgid "Add a new _folder"
-msgstr "Προσθήκη ενός νέου φ_ακέλου"
-
-#: ../midori/midori-browser.c:4580
-msgid "Add a new bookmark folder"
-msgstr "Προσθήκη ενός νέου φακέλου σελιδοδεικτών"
-
-#: ../midori/midori-browser.c:4582
-#: ../midori/midori-searchaction.c:497
-msgid "_Manage Search Engines"
-msgstr "_Διαχείριση των μηχανών αναζήτησης"
-
-#: ../midori/midori-browser.c:4583
-msgid "Add, edit and remove search engines..."
-msgstr "Προσθήκη, επεξεργασία και διαγραφή των μηχανών αναζήτησης..."
-
-#: ../midori/midori-browser.c:4586
-msgid "_Clear Private Data"
-msgstr "_Καθαρισμός προσωπικών δεδομένων"
-
-#: ../midori/midori-browser.c:4587
-msgid "Clear private data..."
-msgstr "Καθαρισμός προσωπικών δεδομένων..."
-
-#: ../midori/midori-browser.c:4591
-msgid "_Previous Tab"
-msgstr "_Προηγούμενη καρτέλα"
-
-#: ../midori/midori-browser.c:4592
-msgid "Switch to the previous tab"
-msgstr "Μετάβαση στην προηγούμενη καρτέλα"
-
-#: ../midori/midori-browser.c:4594
-msgid "_Next Tab"
-msgstr "Επόμε_νη καρτέλα"
-
-#: ../midori/midori-browser.c:4595
-msgid "Switch to the next tab"
-msgstr "Μετάβαση στην επόμενη καρτέλα"
-
-#: ../midori/midori-browser.c:4597
-msgid "Focus _Current Tab"
-msgstr "Εστίαση στην _ισχύουσα καρτέλα"
-
-#: ../midori/midori-browser.c:4598
-msgid "Focus the current tab"
-msgstr "Εστίαση στην ισχύουσα καρτέλα"
-
-#: ../midori/midori-browser.c:4600
-msgid "Open last _session"
-msgstr "Επαναφορά της τελευταίας _συνεδρίας"
-
-#: ../midori/midori-browser.c:4601
-msgid "Open the tabs saved in the last session"
-msgstr "Άνοιγμα των καρτέλων που αποθηκεύτηκαν κατά την τελευταία συνεδρία"
-
-#: ../midori/midori-browser.c:4603
-msgid "_Help"
-msgstr "_Βοήθεια"
-
-#: ../midori/midori-browser.c:4605
-msgid "_Contents"
-msgstr "_Περιεχόμενα"
-
-#: ../midori/midori-browser.c:4606
-msgid "Show the documentation"
-msgstr "Εμφάνιση της τεκμηρίωσης"
-
-#: ../midori/midori-browser.c:4608
-msgid "_Frequent Questions"
-msgstr "Σ_υχνές ερωτήσεις"
-
-#: ../midori/midori-browser.c:4609
-msgid "Show the Frequently Asked Questions"
-msgstr "Εμφάνιση των πιο συχνά ερωτηθέντων ερωτήσεων"
-
-#: ../midori/midori-browser.c:4611
-msgid "_Report a Bug"
-msgstr "Α_ναφορά σφάλματος"
-
-#: ../midori/midori-browser.c:4612
-msgid "Open Midori's bug tracker"
-msgstr "Άνοιγμα καταγραφής σφαλμάτων midori"
-
-#: ../midori/midori-browser.c:4615
-msgid "Show information about the program"
-msgstr "Εμφάνιση πληροφοριών σχετικά με την εφαρμογή"
-
-#: ../midori/midori-browser.c:4622
+#: ../midori/midori-browser.c:4924
 msgid "P_rivate Browsing"
 msgstr "Π_ροσωπική περιήγηση"
 
-#: ../midori/midori-browser.c:4623
+#: ../midori/midori-browser.c:4925
 msgid "Don't save any private data while browsing"
 msgstr "Να μην γίνει αποθήκευση προσωπικών δεδομένων κατά την περιήγηση"
 
-#: ../midori/midori-browser.c:4628
+#: ../midori/midori-browser.c:4929
+msgid "Open a file"
+msgstr "Άνοιγμα αρχείου"
+
+#: ../midori/midori-browser.c:4932
+msgid "Save to a file"
+msgstr "Αποθήκευση σε αρχείου"
+
+#: ../midori/midori-browser.c:4934
+msgid "Add to Speed _dial"
+msgstr "Προσθήκη σε γρήγορη σ_ύνδεση"
+
+#: ../midori/midori-browser.c:4935
+msgid "Add shortcut to speed dial"
+msgstr "Προσθήκη συντόμευσης σε γρήγορη σύνδεση"
+
+#: ../midori/midori-browser.c:4937
+msgid "Add Shortcut to the _desktop"
+msgstr "Προσθήκη συντόμευσης στην _επιφάνεια εργασίας"
+
+#: ../midori/midori-browser.c:4938
+msgid "Add shortcut to the desktop"
+msgstr "Προσθήκη συντόμευσης στην _επιφάνεια"
+
+#: ../midori/midori-browser.c:4940
+msgid "Subscribe to News _feed"
+msgstr "Εγγραφή σε _ροή νέων"
+
+#: ../midori/midori-browser.c:4941
+msgid "Subscribe to this news feed"
+msgstr "Εγγραφή στην ροή νέων"
+
+#: ../midori/midori-browser.c:4946
+msgid "_Close Tab"
+msgstr "_Κλείσιμο καρτέλας"
+
+#: ../midori/midori-browser.c:4947
+msgid "Close the current tab"
+msgstr "Κλείσιμο της τρέχουσας καρτέλας"
+
+#: ../midori/midori-browser.c:4949
+msgid "C_lose Window"
+msgstr "Κ_λείσιμο παραθύρου"
+
+#: ../midori/midori-browser.c:4950
+msgid "Close this window"
+msgstr "Κλείσιμο αυτού του παραθύρου"
+
+#: ../midori/midori-browser.c:4953
+msgid "Print the current page"
+msgstr "Εκτύπωση της τρέχουσας σελίδας"
+
+#: ../midori/midori-browser.c:4956
+msgid "Quit the application"
+msgstr "Έξοδος από την εφαρμογή"
+
+#: ../midori/midori-browser.c:4958
+msgid "_Edit"
+msgstr "_Επεξεργασία"
+
+#: ../midori/midori-browser.c:4962
+msgid "Undo the last modification"
+msgstr "Αναίρεση της τελευταίας τροποποίησης"
+
+#: ../midori/midori-browser.c:4965
+msgid "Redo the last modification"
+msgstr "Επανάληψη της τελευταίας τροποποίησης"
+
+#: ../midori/midori-browser.c:4969
+msgid "Cut the selected text"
+msgstr "Αποκοπή επιλεγμένου κειμένου"
+
+#: ../midori/midori-browser.c:4972
+#: ../midori/midori-browser.c:4975
+msgid "Copy the selected text"
+msgstr "Αντιγραφή επιλεγμένου κειμένου"
+
+#: ../midori/midori-browser.c:4978
+msgid "Paste text from the clipboard"
+msgstr "Επικόλληση κειμένου από το πρόχειρο"
+
+#: ../midori/midori-browser.c:4981
+msgid "Delete the selected text"
+msgstr "Διαγραφή του επιλεγμένου κειμένου"
+
+#: ../midori/midori-browser.c:4984
+msgid "Select all text"
+msgstr "Επιλογή όλου του κειμένου"
+
+#: ../midori/midori-browser.c:4987
+msgid "Find a word or phrase in the page"
+msgstr "Αναζήτηση μίας λέξης ή φράσης στην σελίδα"
+
+#: ../midori/midori-browser.c:4989
+msgid "Find _Next"
+msgstr "Εύρεση επ_όμενο"
+
+#: ../midori/midori-browser.c:4990
+msgid "Find the next occurrence of a word or phrase"
+msgstr "Εύρεση της επόμενης ύπαρξης της λέξης ή της φράσης"
+
+#: ../midori/midori-browser.c:4992
+msgid "Find _Previous"
+msgstr "Εύρεση _προηγούμενο"
+
+#: ../midori/midori-browser.c:4993
+msgid "Find the previous occurrence of a word or phrase"
+msgstr "Εύρεση της προηγούμενης ύπαρξης της λέξης ή της φράσης"
+
+#: ../midori/midori-browser.c:4997
+msgid "Configure the application preferences"
+msgstr "Παραμετροποίηση των ρυθμίσεων της εφαρμογής"
+
+#: ../midori/midori-browser.c:4999
+msgid "_View"
+msgstr "_Εμφάνιση"
+
+#: ../midori/midori-browser.c:5000
+msgid "_Toolbars"
+msgstr "_Εργαλειοθήκες"
+
+#: ../midori/midori-browser.c:5012
+msgid "Increase the zoom level"
+msgstr "Αύξηση του επίπεδου εστίασης"
+
+#: ../midori/midori-browser.c:5015
+msgid "Decrease the zoom level"
+msgstr "Μείωση του επιπέδου εστίασης"
+
+#: ../midori/midori-browser.c:5018
+msgid "Reset the zoom level"
+msgstr "Επαναφορά του επιπέδου εστίασης"
+
+#: ../midori/midori-browser.c:5019
+msgid "_Encoding"
+msgstr "_Κωδικοποίηση"
+
+#: ../midori/midori-browser.c:5021
+msgid "View So_urce"
+msgstr "Προβολή κ_ώδικα"
+
+#: ../midori/midori-browser.c:5022
+msgid "View the source code of the page"
+msgstr "Προβολή του πηγαίου κώδικα αυτής της σελίδας"
+
+#: ../midori/midori-browser.c:5024
+msgid "View Selection Source"
+msgstr "Προβολή του επιλεγμένου κώδικα"
+
+#: ../midori/midori-browser.c:5025
+msgid "View the source code of the selection"
+msgstr "Προβολή του πηγαίου κώδικα του επιλεγμένου"
+
+#: ../midori/midori-browser.c:5029
+msgid "Toggle fullscreen view"
+msgstr "Εναλλαγή σε πλήρη οθόνη"
+
+#: ../midori/midori-browser.c:5031
+msgid "_Go"
+msgstr "_Μετάβαση"
+
+#: ../midori/midori-browser.c:5034
+msgid "Go back to the previous page"
+msgstr "Μετάβαση στην προηγούμενη σελίδα"
+
+#: ../midori/midori-browser.c:5037
+msgid "Go forward to the next page"
+msgstr "Μετάβαση στην επόμενη σελίδα"
+
+#: ../midori/midori-browser.c:5040
+msgid "Go to your homepage"
+msgstr "Μετάβαση στην αρχική σελίδα"
+
+#: ../midori/midori-browser.c:5042
+msgid "Empty Trash"
+msgstr "Άδειασμα αποριμμάτων"
+
+#: ../midori/midori-browser.c:5043
+msgid "Delete the contents of the trash"
+msgstr "Διαγραφή των περιεχομένων των απορριμάτων"
+
+#: ../midori/midori-browser.c:5045
+msgid "Undo _Close Tab"
+msgstr "Αναίρεση κλ_είσιμο καρτέλας"
+
+#: ../midori/midori-browser.c:5046
+msgid "Open the last closed tab"
+msgstr "Άνοιγμα της τελευταίας καρτέλας που έκλεισε"
+
+#: ../midori/midori-browser.c:5052
+msgid "Add a new _folder"
+msgstr "Προσθήκη ενός νέου φ_ακέλου"
+
+#: ../midori/midori-browser.c:5053
+msgid "Add a new bookmark folder"
+msgstr "Προσθήκη ενός νέου φακέλου σελιδοδεικτών"
+
+#: ../midori/midori-browser.c:5058
+#: ../midori/midori-searchaction.c:500
+msgid "_Manage Search Engines"
+msgstr "_Διαχείριση των μηχανών αναζήτησης"
+
+#: ../midori/midori-browser.c:5059
+msgid "Add, edit and remove search engines..."
+msgstr "Προσθήκη, επεξεργασία και διαγραφή των μηχανών αναζήτησης..."
+
+#: ../midori/midori-browser.c:5062
+msgid "_Clear Private Data"
+msgstr "_Καθαρισμός προσωπικών δεδομένων"
+
+#: ../midori/midori-browser.c:5063
+msgid "Clear private data..."
+msgstr "Καθαρισμός προσωπικών δεδομένων..."
+
+#: ../midori/midori-browser.c:5067
+msgid "_Previous Tab"
+msgstr "_Προηγούμενη καρτέλα"
+
+#: ../midori/midori-browser.c:5068
+msgid "Switch to the previous tab"
+msgstr "Μετάβαση στην προηγούμενη καρτέλα"
+
+#: ../midori/midori-browser.c:5070
+msgid "_Next Tab"
+msgstr "Επόμε_νη καρτέλα"
+
+#: ../midori/midori-browser.c:5071
+msgid "Switch to the next tab"
+msgstr "Μετάβαση στην επόμενη καρτέλα"
+
+#: ../midori/midori-browser.c:5073
+msgid "Focus _Current Tab"
+msgstr "Εστίαση στην _ισχύουσα καρτέλα"
+
+#: ../midori/midori-browser.c:5074
+msgid "Focus the current tab"
+msgstr "Εστίαση στην ισχύουσα καρτέλα"
+
+#: ../midori/midori-browser.c:5076
+msgid "Open last _session"
+msgstr "Επαναφορά της τελευταίας _συνεδρίας"
+
+#: ../midori/midori-browser.c:5077
+msgid "Open the tabs saved in the last session"
+msgstr "Άνοιγμα των καρτέλων που αποθηκεύτηκαν κατά την τελευταία συνεδρία"
+
+#: ../midori/midori-browser.c:5079
+msgid "_Help"
+msgstr "_Βοήθεια"
+
+#: ../midori/midori-browser.c:5081
+msgid "_Contents"
+msgstr "_Περιεχόμενα"
+
+#: ../midori/midori-browser.c:5082
+msgid "Show the documentation"
+msgstr "Εμφάνιση της τεκμηρίωσης"
+
+#: ../midori/midori-browser.c:5084
+msgid "_Frequent Questions"
+msgstr "Σ_υχνές ερωτήσεις"
+
+#: ../midori/midori-browser.c:5085
+msgid "Show the Frequently Asked Questions"
+msgstr "Εμφάνιση των πιο συχνά ερωτηθέντων ερωτήσεων"
+
+#: ../midori/midori-browser.c:5087
+msgid "_Report a Bug"
+msgstr "Α_ναφορά σφάλματος"
+
+#: ../midori/midori-browser.c:5088
+msgid "Open Midori's bug tracker"
+msgstr "Άνοιγμα καταγραφής σφαλμάτων midori"
+
+#: ../midori/midori-browser.c:5091
+msgid "Show information about the program"
+msgstr "Εμφάνιση πληροφοριών σχετικά με την εφαρμογή"
+
+#: ../midori/midori-browser.c:5098
 msgid "_Menubar"
 msgstr "_Μπάρα μενού"
 
-#: ../midori/midori-browser.c:4629
+#: ../midori/midori-browser.c:5099
 msgid "Show menubar"
 msgstr "Προβολή μπάρας μενού"
 
-#: ../midori/midori-browser.c:4632
+#: ../midori/midori-browser.c:5102
 msgid "_Navigationbar"
 msgstr "_Μπάρα περιήγησης"
 
-#: ../midori/midori-browser.c:4633
+#: ../midori/midori-browser.c:5103
 msgid "Show navigationbar"
 msgstr "Εμφάνιση περιήγησης"
 
-#: ../midori/midori-browser.c:4636
+#: ../midori/midori-browser.c:5106
 msgid "Side_panel"
 msgstr "Πλαϊνό _πλαίσιο"
 
-#: ../midori/midori-browser.c:4637
+#: ../midori/midori-browser.c:5107
 msgid "Show sidepanel"
 msgstr "Εμφάνιση πλαϊνού πλαισίου"
 
-#: ../midori/midori-browser.c:4640
+#: ../midori/midori-browser.c:5110
 msgid "_Bookmarkbar"
 msgstr "_Μπάρα σελιδοδείκτη"
 
-#: ../midori/midori-browser.c:4641
+#: ../midori/midori-browser.c:5111
 msgid "Show bookmarkbar"
 msgstr "Εμφάνιση μπάρα σελιδοδείκτη"
 
-#: ../midori/midori-browser.c:4644
+#: ../midori/midori-browser.c:5114
 msgid "_Transferbar"
 msgstr "_Μπάρα μεταφορών"
 
-#: ../midori/midori-browser.c:4645
+#: ../midori/midori-browser.c:5115
 msgid "Show transferbar"
 msgstr "Εμφάνιση μπάρα μεταφορών"
 
-#: ../midori/midori-browser.c:4648
+#: ../midori/midori-browser.c:5118
 msgid "_Statusbar"
 msgstr "_Γραμμή κατάστασης"
 
-#: ../midori/midori-browser.c:4649
+#: ../midori/midori-browser.c:5119
 msgid "Show statusbar"
 msgstr "Εμφάνιση γραμμής κατάστασης"
 
-#: ../midori/midori-browser.c:4656
+#: ../midori/midori-browser.c:5126
 msgid "_Automatic"
 msgstr "_Αυτόματα"
 
-#: ../midori/midori-browser.c:4659
-#: ../midori/midori-websettings.c:216
+#: ../midori/midori-browser.c:5129
+#: ../midori/midori-websettings.c:217
 msgid "Chinese (BIG5)"
 msgstr "Κινέζικα (BIG5)"
 
 #. i18n: A double underscore "__" is used to prevent an unwanted mnemonic
-#: ../midori/midori-browser.c:4663
+#: ../midori/midori-browser.c:5133
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Ιαπωνικά (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:4666
-#: ../midori/midori-websettings.c:218
+#: ../midori/midori-browser.c:5136
+#: ../midori/midori-websettings.c:219
+msgid "Korean (EUC-KR)"
+msgstr "Κορεάτικα (EUC-KR)"
+
+#: ../midori/midori-browser.c:5139
+#: ../midori/midori-websettings.c:220
 msgid "Russian (KOI8-R)"
 msgstr "Ρωσικά (KOI8-R)"
 
-#: ../midori/midori-browser.c:4669
-#: ../midori/midori-websettings.c:219
+#: ../midori/midori-browser.c:5142
+#: ../midori/midori-websettings.c:221
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:4672
-#: ../midori/midori-websettings.c:220
+#: ../midori/midori-browser.c:5145
+#: ../midori/midori-websettings.c:222
 msgid "Western (ISO-8859-1)"
 msgstr "Δυτικά (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:4675
-#: ../midori/midori-websettings.c:221
-#: ../midori/midori-websettings.c:294
-msgid "Custom..."
-msgstr "Προσαρμογή..."
-
-#: ../midori/midori-browser.c:5159
+#: ../midori/midori-browser.c:5697
 msgid "_Separator"
 msgstr "_Διαχωριστής"
 
-#: ../midori/midori-browser.c:5166
+#: ../midori/midori-browser.c:5704
 msgid "_Location..."
 msgstr "_Τοποθεσία:"
 
-#: ../midori/midori-browser.c:5168
+#: ../midori/midori-browser.c:5706
 msgid "Open a particular location"
 msgstr "Άνοιγμα συγκεκριμένης τοποθεσίας"
 
-#: ../midori/midori-browser.c:5192
+#: ../midori/midori-browser.c:5730
 msgid "_Web Search..."
 msgstr "_Αναζήτηση ιστού..."
 
-#: ../midori/midori-browser.c:5194
+#: ../midori/midori-browser.c:5732
 msgid "Run a web search"
 msgstr "Εκκίνηση μίας αναζήτησης ιστού"
 
-#: ../midori/midori-browser.c:5215
+#: ../midori/midori-browser.c:5753
 msgid "Reopen a previously closed tab or window"
 msgstr "Ξανα-άνοιγμα προηγούμενης καρτέλας ή παράθυρο που έχει κλείσει"
 
-#: ../midori/midori-browser.c:5230
+#: ../midori/midori-browser.c:5768
 msgid "_Recently visited pages"
 msgstr "_Πρόσφατες επισκεπτόμενες σελίδες "
 
-#: ../midori/midori-browser.c:5232
+#: ../midori/midori-browser.c:5770
 msgid "Reopen pages that you visited earlier"
 msgstr "Ξανα-άνοιγμα σελίδων που επισκεφτήκατε νωρίτερα"
 
-#: ../midori/midori-browser.c:5247
-#: ../midori/sokoke.c:961
+#: ../midori/midori-browser.c:5785
+#: ../midori/sokoke.c:1114
 msgid "_Bookmarks"
 msgstr "_Σελιδοδείκτες"
 
-#: ../midori/midori-browser.c:5249
+#: ../midori/midori-browser.c:5787
 msgid "Show the saved bookmarks"
 msgstr "Εμφάνιση των αποθηκευμένων σελιδοδεικτών"
 
-#: ../midori/midori-browser.c:5264
+#: ../midori/midori-browser.c:5802
 msgid "_Tools"
 msgstr "_Εργαλεία"
 
-#: ../midori/midori-browser.c:5276
+#: ../midori/midori-browser.c:5815
 msgid "_Window"
 msgstr "_Παράθυρο"
 
-#: ../midori/midori-browser.c:5278
+#: ../midori/midori-browser.c:5817
 msgid "Show a list of all open tabs"
-msgstr "Εμφάνιση μίας λίστας με όλα τις ανοιχτές καρτέλες"
+msgstr "Εμφάνιση μίας λίστας με όλες τις ανοιχτές καρτέλες"
 
-#: ../midori/midori-browser.c:5292
+#: ../midori/midori-browser.c:5831
 msgid "_Menu"
 msgstr "_Μενού"
 
-#: ../midori/midori-browser.c:5294
+#: ../midori/midori-browser.c:5833
 msgid "Menu"
 msgstr "Μενού"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../midori/midori-browser.c:5477
+#: ../midori/midori-browser.c:6035
 msgid "_Inline Find:"
 msgstr "Ε_νσωματωμένη αναζήτηση:"
 
-#: ../midori/midori-browser.c:5502
+#: ../midori/midori-browser.c:6066
 msgid "Previous"
 msgstr "Προηγούμενο"
 
-#: ../midori/midori-browser.c:5507
+#: ../midori/midori-browser.c:6071
 msgid "Next"
 msgstr "Επόμενο"
 
-#: ../midori/midori-browser.c:5512
+#: ../midori/midori-browser.c:6076
 msgid "Match Case"
 msgstr "Ταίριασμα πεζών"
 
-#: ../midori/midori-browser.c:5520
+#: ../midori/midori-browser.c:6085
 msgid "Highlight Matches"
 msgstr "Τονισμός των ταιριασμάτων"
 
-#: ../midori/midori-browser.c:5530
+#: ../midori/midori-browser.c:6097
 msgid "Close Findbar"
 msgstr "Κλείσιμο μπάρας εύρεσης"
 
-#: ../midori/midori-browser.c:5565
+#: ../midori/midori-browser.c:6143
 #: ../panels/midori-transfers.c:143
 msgid "Clear All"
 msgstr "Καθαρισμός όλων"
 
-#: ../midori/midori-browser.c:5919
+#: ../midori/midori-browser.c:6501
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "Αναπάντεχη ρύθμιση '%s'"
 
-#: ../midori/midori-locationaction.c:968
+#: ../midori/midori-locationaction.c:982
 #, c-format
 msgid "Search with %s"
 msgstr "Αναζήτηση με %s"
 
-#: ../midori/midori-panel.c:381
-#: ../midori/midori-panel.c:383
+#: ../midori/midori-panel.c:434
+#: ../midori/midori-panel.c:436
 msgid "Detach chosen panel from the window"
 msgstr "Αποσύνδεση επιλεγμένου πλαισίου από το παράθυρο"
 
-#: ../midori/midori-panel.c:393
-#: ../midori/midori-panel.c:395
-#: ../midori/midori-panel.c:576
-#: ../midori/midori-panel.c:579
+#: ../midori/midori-panel.c:446
+#: ../midori/midori-panel.c:448
+#: ../midori/midori-panel.c:638
+#: ../midori/midori-panel.c:641
 msgid "Align sidepanel to the right"
-msgstr "Εάν θα ευθυγραμμίζεται το πλαϊνό πλαίσιο στα δεξιά"
+msgstr "Ευθυγράμμιση πλαϊνού πλαισίου στα δεξιά"
 
-#: ../midori/midori-panel.c:405
-#: ../midori/midori-panel.c:406
+#: ../midori/midori-panel.c:458
+#: ../midori/midori-panel.c:459
 msgid "Close panel"
 msgstr "Κλείσιμο πλαισίου"
 
-#: ../midori/midori-panel.c:577
-#: ../midori/midori-panel.c:580
+#: ../midori/midori-panel.c:639
+#: ../midori/midori-panel.c:642
 msgid "Align sidepanel to the left"
-msgstr "Εάν θα ευθυγραμμίζεται το πλαϊνό πλαίσιο στα αριστερά"
+msgstr "Ευθυγράμμιση πλαϊνού πλαισίου στα  αριστερά"
 
-#: ../midori/midori-panel.c:703
+#: ../midori/midori-panel.c:722
 msgid "Show panel _titles"
 msgstr "Εμφάνιση των _τίτλων στο ταμπλό"
 
-#: ../midori/midori-panel.c:711
+#: ../midori/midori-panel.c:729
 msgid "Show operating _controls"
 msgstr "Εμφάνιση των στοιχείων λειτουργίας"
 
-#: ../midori/midori-panel.c:782
+#: ../midori/midori-panel.c:834
 msgid "Options"
 msgstr "Επιλογές"
 
-#: ../midori/midori-websettings.c:199
+#: ../midori/midori-websettings.c:200
 msgid "Show Blank page"
 msgstr "Εμφάνιση κενής σελίδας"
 
-#: ../midori/midori-websettings.c:200
+#: ../midori/midori-websettings.c:201
 msgid "Show Homepage"
 msgstr "Εμφάνιση αρχικής σελίδας"
 
-#: ../midori/midori-websettings.c:201
+#: ../midori/midori-websettings.c:202
 msgid "Show last open tabs"
 msgstr "Εμφάνιση των τελευταίων ανοιχτών καρτέλων"
 
-#: ../midori/midori-websettings.c:217
+#: ../midori/midori-websettings.c:218
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Ιαπωνικά (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:236
+#: ../midori/midori-websettings.c:238
 msgid "New tab"
 msgstr "Νέα καρτέλα"
 
-#: ../midori/midori-websettings.c:237
+#: ../midori/midori-websettings.c:239
 msgid "New window"
 msgstr "Νέο παράθυρο"
 
-#: ../midori/midori-websettings.c:238
+#: ../midori/midori-websettings.c:240
 msgid "Current tab"
 msgstr "Τρέχον καρτέλα"
 
-#: ../midori/midori-websettings.c:253
+#: ../midori/midori-websettings.c:255
 msgid "Default"
 msgstr "Προκαθορισμένο"
 
-#: ../midori/midori-websettings.c:254
+#: ../midori/midori-websettings.c:256
 msgid "Icons"
 msgstr "Εικονίδια"
 
-#: ../midori/midori-websettings.c:255
+#: ../midori/midori-websettings.c:257
+msgid "Small icons"
+msgstr "Μικρά εικονίδια"
+
+#: ../midori/midori-websettings.c:258
 msgid "Text"
 msgstr "Κείμενο"
 
-#: ../midori/midori-websettings.c:256
+#: ../midori/midori-websettings.c:259
 msgid "Icons and text"
 msgstr "Εικονίδια με κείμενο"
 
-#: ../midori/midori-websettings.c:257
+#: ../midori/midori-websettings.c:260
 msgid "Text beside icons"
 msgstr "Κείμενο δίπλα στα εικονίδια"
 
-#: ../midori/midori-websettings.c:272
+#: ../midori/midori-websettings.c:275
 msgid "All cookies"
 msgstr "Όλα τα cookies"
 
-#: ../midori/midori-websettings.c:273
+#: ../midori/midori-websettings.c:276
 msgid "Session cookies"
 msgstr "Cookies συνεδρίας"
 
-#: ../midori/midori-websettings.c:274
+#: ../midori/midori-websettings.c:277
 #: ../panels/midori-addons.c:93
-#: ../extensions/shortcuts.c:93
+#: ../katze/katze-utils.c:648
 msgid "None"
 msgstr "Κανένα"
 
-#: ../midori/midori-websettings.c:290
+#: ../midori/midori-websettings.c:293
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:291
+#: ../midori/midori-websettings.c:294
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:292
+#: ../midori/midori-websettings.c:295
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:293
+#: ../midori/midori-websettings.c:296
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:346
+#: ../midori/midori-websettings.c:349
 msgid "Remember last window size"
 msgstr "Απομνημόνευση μεγέθους τελευταίου παραθύρου"
 
-#: ../midori/midori-websettings.c:347
+#: ../midori/midori-websettings.c:350
 msgid "Whether to save the last window size"
 msgstr "Εάν θα αποθηκεύεται το μέγεθος του τελευταίου παραθύρου"
 
-#: ../midori/midori-websettings.c:355
+#: ../midori/midori-websettings.c:358
 msgid "Last window width"
 msgstr "Πλάτος τελευταίου παραθύρου"
 
-#: ../midori/midori-websettings.c:356
+#: ../midori/midori-websettings.c:359
 msgid "The last saved window width"
 msgstr "Το τελευταίο αποθηκευμένο πλάτος παραθύρου"
 
-#: ../midori/midori-websettings.c:364
+#: ../midori/midori-websettings.c:367
 msgid "Last window height"
 msgstr "Ύψος τελευταίου παραθύρου"
 
-#: ../midori/midori-websettings.c:365
+#: ../midori/midori-websettings.c:368
 msgid "The last saved window height"
 msgstr "Το τελευταίο ύψος αποθηκευμένου παραθύρου"
 
-#: ../midori/midori-websettings.c:390
+#: ../midori/midori-websettings.c:393
 msgid "Last panel position"
 msgstr "Η τελευταία θέση πλαισίου"
 
-#: ../midori/midori-websettings.c:391
+#: ../midori/midori-websettings.c:394
 msgid "The last saved panel position"
 msgstr "Η τελευταία αποθηκευμένη θέση πλαισίου"
 
 #. i18n: The internal index of the last opened panel
-#: ../midori/midori-websettings.c:400
+#: ../midori/midori-websettings.c:403
 msgid "Last panel page"
 msgstr "Η τελευταία σελίδα πλαισίου"
 
-#: ../midori/midori-websettings.c:401
+#: ../midori/midori-websettings.c:404
 msgid "The last saved panel page"
 msgstr "Η τελευταία αποθηκευμένη σελίδα πλαισίου"
 
-#: ../midori/midori-websettings.c:409
+#: ../midori/midori-websettings.c:412
 msgid "Last Web search"
 msgstr "Τελευταία αναζήτηση ιστού"
 
-#: ../midori/midori-websettings.c:410
+#: ../midori/midori-websettings.c:413
 msgid "The last saved Web search"
 msgstr "Η τελευταία αποθηκευμένη αναζήτηση ιστού"
 
-#: ../midori/midori-websettings.c:419
+#: ../midori/midori-websettings.c:422
 msgid "Show Menubar"
 msgstr "Εμφάνιση γραμμής μενού"
 
-#: ../midori/midori-websettings.c:420
+#: ../midori/midori-websettings.c:423
 msgid "Whether to show the menubar"
 msgstr "Εάν θα φαίνεται η μπάρα του μενού"
 
-#: ../midori/midori-websettings.c:428
+#: ../midori/midori-websettings.c:431
 msgid "Show Navigationbar"
 msgstr "Εμφάνιση της γραμμής πλοήγησης"
 
-#: ../midori/midori-websettings.c:429
+#: ../midori/midori-websettings.c:432
 msgid "Whether to show the navigationbar"
 msgstr "Εάν θα φαίνεται η γραμμή πλοήγησης"
 
-#: ../midori/midori-websettings.c:437
+#: ../midori/midori-websettings.c:440
 msgid "Show Bookmarkbar"
 msgstr "Εμφάνιση μπάρας σελιδοδεικτών"
 
-#: ../midori/midori-websettings.c:438
+#: ../midori/midori-websettings.c:441
 msgid "Whether to show the bookmarkbar"
 msgstr "Εάν θα φαίνεται η μπάρα των σελιλοδεικτών"
 
-#: ../midori/midori-websettings.c:446
+#: ../midori/midori-websettings.c:449
 msgid "Show Panel"
 msgstr "Εμφάνιση πλαισίου"
 
-#: ../midori/midori-websettings.c:447
+#: ../midori/midori-websettings.c:450
 msgid "Whether to show the panel"
 msgstr "Εάν θα φαίνεται το πλαίσιο"
 
-#: ../midori/midori-websettings.c:462
+#: ../midori/midori-websettings.c:465
 msgid "Show Transferbar"
 msgstr "Εμφάνιση μπάρας μεταφορών"
 
-#: ../midori/midori-websettings.c:463
+#: ../midori/midori-websettings.c:466
 msgid "Whether to show the transferbar"
 msgstr "Εάν θα φαίνεται η μπάρα μεταφορών"
 
-#: ../midori/midori-websettings.c:471
+#: ../midori/midori-websettings.c:474
 msgid "Show Statusbar"
 msgstr "Εμφάνιση γραμμής κατάστασης"
 
-#: ../midori/midori-websettings.c:472
+#: ../midori/midori-websettings.c:475
 msgid "Whether to show the statusbar"
 msgstr "Εάν θα φαίνεται η γραμμή κατάστασης"
 
-#: ../midori/midori-websettings.c:481
+#: ../midori/midori-websettings.c:484
 msgid "Toolbar Style:"
 msgstr "Στυλ εργαλειοθήκης:"
 
-#: ../midori/midori-websettings.c:482
+#: ../midori/midori-websettings.c:485
 msgid "The style of the toolbar"
 msgstr "Το στυλ της εργαλειοθήκης"
 
-#: ../midori/midori-websettings.c:498
+#: ../midori/midori-websettings.c:501
 msgid "Show progress in location entry"
 msgstr "Να εμφανίζεται η πρόοδος στην τοποθεσίας εισαγωγής"
 
-#: ../midori/midori-websettings.c:499
+#: ../midori/midori-websettings.c:502
 msgid "Whether to show loading progress in the location entry"
-msgstr "Εάν θα εμφανίζεται η φόρτωση προόδου στην τοποθεσία εισαγωγής"
+msgstr "Εάν θα εμφανίζεται η πρόοδος φόρτωσης στην τοποθεσία εισαγωγής"
 
-#: ../midori/midori-websettings.c:514
+#: ../midori/midori-websettings.c:517
 msgid "Search engines in location completion"
 msgstr "Μηχανές αναζήτησης στην τοποθεσία συμπλήρωσης"
 
-#: ../midori/midori-websettings.c:515
+#: ../midori/midori-websettings.c:518
 msgid "Whether to show search engines in the location completion"
 msgstr "Εάν θα φαίνονται οι μηχανές αναζήτησης στην τοποθεσία συμπλήρωσης"
 
-#: ../midori/midori-websettings.c:523
+#: ../midori/midori-websettings.c:526
 msgid "Toolbar Items"
 msgstr "Αντικείμενα εργαλειοθήκης"
 
-#: ../midori/midori-websettings.c:524
+#: ../midori/midori-websettings.c:527
 msgid "The items to show on the toolbar"
 msgstr "Τι αντικείμενα να εμφανίζονται στην εργαλειοθήκη"
 
-#: ../midori/midori-websettings.c:532
+#: ../midori/midori-websettings.c:535
 msgid "Compact Sidepanel"
 msgstr "Σύμπτυξη πλαϊνού πλαισίου"
 
-#: ../midori/midori-websettings.c:533
+#: ../midori/midori-websettings.c:536
 msgid "Whether to make the sidepanel compact"
 msgstr "Εάν θα γίνει σύμπτυξη του πλαϊνού πλαισίου"
 
-#: ../midori/midori-websettings.c:548
+#: ../midori/midori-websettings.c:551
 msgid "Show operating controls of the panel"
 msgstr "Εμφάνιση των στοιχείων λειτουργίας στο ταμπλό"
 
-#: ../midori/midori-websettings.c:549
+#: ../midori/midori-websettings.c:552
 msgid "Whether to show the operating controls of the panel"
 msgstr "Εάν θα φαίνονται τα στοιχεία λειτουργίας στο ταμπλό"
 
-#: ../midori/midori-websettings.c:564
+#: ../midori/midori-websettings.c:567
 msgid "Align sidepanel on the right"
 msgstr "Ευθυγράμμιση πλαϊνού πλαισίου στα δεξιά"
 
-#: ../midori/midori-websettings.c:565
+#: ../midori/midori-websettings.c:568
 msgid "Whether to align the sidepanel on the right"
 msgstr "Εάν θα ευθυγραμμίζεται το πλαϊνό πλαίσιο στα δεξιά"
 
-#: ../midori/midori-websettings.c:574
+#: ../midori/midori-websettings.c:583
+msgid "Open panels in separate windows"
+msgstr "Άνοιγμα ταμπλών σε ξεχωριστά παράθυρα"
+
+#: ../midori/midori-websettings.c:584
+msgid "Whether to always open panels in separate windows"
+msgstr "Εάν θα ανοίγουν πάντα τα ταμπλό σε ξεχωριστά παράθυρα"
+
+#: ../midori/midori-websettings.c:593
 msgid "When Midori starts:"
 msgstr "Κατά την εκκίνηση του midori:"
 
-#: ../midori/midori-websettings.c:575
+#: ../midori/midori-websettings.c:594
 msgid "What to do when Midori starts"
 msgstr "Κατά την εκκίνηση του midori να φορτώνει:"
 
-#: ../midori/midori-websettings.c:584
+#: ../midori/midori-websettings.c:603
 msgid "Homepage:"
 msgstr "Αρχική σελίδα:"
 
-#: ../midori/midori-websettings.c:585
+#: ../midori/midori-websettings.c:604
 msgid "The homepage"
 msgstr "Η αρχική σελίδα"
 
-#: ../midori/midori-websettings.c:600
+#: ../midori/midori-websettings.c:619
 msgid "Show crash dialog"
 msgstr "Εμφάνιση παραθύρου αποτυχίας"
 
-#: ../midori/midori-websettings.c:601
+#: ../midori/midori-websettings.c:620
 msgid "Show a dialog after Midori crashed"
 msgstr "Εμφάνιση διαλόγου μετά από αποτυχία"
 
 #. i18n: Speed dial, webpage shortcuts, named for the phone function
-#: ../midori/midori-websettings.c:617
+#: ../midori/midori-websettings.c:636
 msgid "Show speed dial in new tabs"
 msgstr "Εμφάνιση γρήγορης σύνδεσης σε νέες καρτέλες"
 
-#: ../midori/midori-websettings.c:618
+#: ../midori/midori-websettings.c:637
 msgid "Show speed dial in newly opened tabs"
 msgstr "Εμφάνιση γρήγορης σύνδεσης στις νέες ανοιχτές καρτέλες"
 
-#: ../midori/midori-websettings.c:626
+#: ../midori/midori-websettings.c:645
 msgid "Save downloaded files to:"
 msgstr "Αποθήκευση των αρχείων που κατέβηκαν στο:"
 
-#: ../midori/midori-websettings.c:627
+#: ../midori/midori-websettings.c:646
 msgid "The folder downloaded files are saved to"
 msgstr "Ο κατάλογος στον οποίο αποθηκεύονται τα αρχεία που κατεβαίνουν"
 
-#: ../midori/midori-websettings.c:648
+#: ../midori/midori-websettings.c:667
 msgid "Ask for the destination folder"
 msgstr "Ερώτηση για τον κατάλογο αποθήκευσης"
 
-#: ../midori/midori-websettings.c:649
+#: ../midori/midori-websettings.c:668
 msgid "Whether to ask for the destination folder when downloading a file"
 msgstr "Εάν θα ρωτάει για τον κατάλογο αποθήκευσης όταν κατεβαίνει ένα αρχείο"
 
-#: ../midori/midori-websettings.c:668
+#: ../midori/midori-websettings.c:687
 msgid "Notify when a transfer has been completed"
 msgstr "Ειδοποίηση όταν μία μεταφορά έχει ολοκληρωθεί"
 
-#: ../midori/midori-websettings.c:669
+#: ../midori/midori-websettings.c:688
 msgid "Whether to show a notification when a transfer has been completed"
 msgstr "Εάν θα εμφανίζεται μία ειδοποίηση όταν ολοκληρωθεί μία μεταφορά"
 
-#: ../midori/midori-websettings.c:681
+#: ../midori/midori-websettings.c:700
 msgid "Download Manager"
 msgstr "Διαχειριστής μεταφορών"
 
-#: ../midori/midori-websettings.c:682
+#: ../midori/midori-websettings.c:701
 msgid "An external download manager"
 msgstr "Εξωτερικός διαχειριστής μεταφορών"
 
-#: ../midori/midori-websettings.c:690
+#: ../midori/midori-websettings.c:709
 msgid "Text Editor"
 msgstr "Κειμενογράφος"
 
-#: ../midori/midori-websettings.c:691
+#: ../midori/midori-websettings.c:710
 msgid "An external text editor"
 msgstr "Εξωτερικός κειμενογράφος"
 
-#: ../midori/midori-websettings.c:706
+#: ../midori/midori-websettings.c:725
 msgid "News Aggregator"
 msgstr "Διαχειριστής νέων"
 
-#: ../midori/midori-websettings.c:707
+#: ../midori/midori-websettings.c:726
 msgid "An external news aggregator"
 msgstr "Εξωτερικός διαχειριστής νέων"
 
-#: ../midori/midori-websettings.c:715
+#: ../midori/midori-websettings.c:734
 msgid "Location entry Search"
 msgstr "Διεύθυνση για αναζήτηση"
 
-#: ../midori/midori-websettings.c:716
+#: ../midori/midori-websettings.c:735
 msgid "The search to perform inside the location entry"
 msgstr "Η αναζήτηση να πραγματοποιηθεί εσωτερικά της τοποθεσίας εισαγωγής"
 
-#: ../midori/midori-websettings.c:724
+#: ../midori/midori-websettings.c:743
 msgid "Preferred Encoding"
 msgstr "Προτιμώμενη κωδικοποίηση"
 
-#: ../midori/midori-websettings.c:725
+#: ../midori/midori-websettings.c:744
 msgid "The preferred character encoding"
 msgstr "Η προτιμώμενη κωδικοποίηση χαρακτήρων"
 
-#: ../midori/midori-websettings.c:735
+#: ../midori/midori-websettings.c:754
 msgid "Always Show Tabbar"
 msgstr "Εμφάνιση πάντα της γραμμής καρτέλων"
 
-#: ../midori/midori-websettings.c:736
+#: ../midori/midori-websettings.c:755
 msgid "Always show the tabbar"
 msgstr "Εμφάνιση πάντα της μπάρας με τις καρτέλες"
 
-#: ../midori/midori-websettings.c:744
+#: ../midori/midori-websettings.c:763
 msgid "Close Buttons on Tabs"
 msgstr "Κουμπιά κλεισίματος στις καρτέλες"
 
-#: ../midori/midori-websettings.c:745
+#: ../midori/midori-websettings.c:764
 msgid "Whether tabs have close buttons"
 msgstr "Εάν οι καρτέλες θα έχουν κουμπί κλεισίματος"
 
-#: ../midori/midori-websettings.c:753
+#: ../midori/midori-websettings.c:772
 msgid "Open new pages in:"
 msgstr "Άνοιγμα νέων σελίδων σε:"
 
-#: ../midori/midori-websettings.c:754
+#: ../midori/midori-websettings.c:773
 msgid "Where to open new pages"
 msgstr "Που να ανοίγουν οι νέες σελίδες"
 
-#: ../midori/midori-websettings.c:763
+#: ../midori/midori-websettings.c:782
 msgid "Open external pages in:"
 msgstr "Άνοιγμα εξωτερικών σελίδων σε:"
 
-#: ../midori/midori-websettings.c:764
+#: ../midori/midori-websettings.c:783
 msgid "Where to open externally opened pages"
 msgstr "Που να ανοίγουν οι εξωτερικές ανοιγμένες σελίδες"
 
-#: ../midori/midori-websettings.c:773
+#: ../midori/midori-websettings.c:792
 msgid "Middle click opens Selection"
 msgstr "Το μεσαίο κλικ ανοίγει την Επιλογή"
 
-#: ../midori/midori-websettings.c:774
+#: ../midori/midori-websettings.c:793
 msgid "Load an address from the selection via middle click"
 msgstr "Φόρτωση μίας διεύθυνσης από την επιλογή μέσω του μεσαίου κλικ"
 
-#: ../midori/midori-websettings.c:782
+#: ../midori/midori-websettings.c:801
 msgid "Open tabs in the background"
 msgstr "Άνοιγμα των καρτελών στο παρασκήνιο"
 
-#: ../midori/midori-websettings.c:783
+#: ../midori/midori-websettings.c:802
 msgid "Whether to open new tabs in the background"
 msgstr "Εάν θα ανοίγονται νέες καρτέλες στο παρασκήνιο"
 
-#: ../midori/midori-websettings.c:791
+#: ../midori/midori-websettings.c:810
 msgid "Open Tabs next to Current"
 msgstr "Άνοιγμα των καρτελών δίπλα στο τρέχων"
 
-#: ../midori/midori-websettings.c:792
+#: ../midori/midori-websettings.c:811
 msgid "Whether to open new tabs next to the current tab or after the last one"
 msgstr "Εάν θα ανοίγονται νέες καρτέλες δίπλα στην τρέχουσα καρτέλα ή μετά την τελευταία"
 
-#: ../midori/midori-websettings.c:800
+#: ../midori/midori-websettings.c:819
 msgid "Open popups in tabs"
 msgstr "Άνοιγμα αναδυόμενων παραθύρων σε καρτέλες"
 
-#: ../midori/midori-websettings.c:801
+#: ../midori/midori-websettings.c:820
 msgid "Whether to open popup windows in tabs"
 msgstr "Εάν θα ανοίγονται τα αναδυόμενα παράθυρα σε καρτέλες"
 
-#: ../midori/midori-websettings.c:817
+#: ../midori/midori-websettings.c:830
+#: ../extensions/statusbar-features.c:88
+msgid "Load images automatically"
+msgstr "Αυτόματη φόρτωση εικόνων"
+
+#: ../midori/midori-websettings.c:831
+msgid "Load and display images automatically"
+msgstr "Αυτόματη φόρτωση και εμφάνιση εικόνων"
+
+#: ../midori/midori-websettings.c:838
+#: ../extensions/statusbar-features.c:100
+msgid "Enable scripts"
+msgstr "Ενεργοποίηση σεναρίων"
+
+#: ../midori/midori-websettings.c:839
+msgid "Enable embedded scripting languages"
+msgstr "Ενεργοποίηση ενσωματωμένων γλωσσών κειμένου"
+
+#: ../midori/midori-websettings.c:846
+#: ../extensions/statusbar-features.c:112
+msgid "Enable Netscape plugins"
+msgstr "Ενεργοποίηση αρθρωμάτων netscape"
+
+#: ../midori/midori-websettings.c:847
+msgid "Enable embedded Netscape plugin objects"
+msgstr "Ενεργοποίηση ενσωματωμένων αρθρωμάτων netscape"
+
+#: ../midori/midori-websettings.c:862
 msgid "Zoom Text and Images"
 msgstr "Εστίαση κειμένου και εικόνων"
 
-#: ../midori/midori-websettings.c:818
+#: ../midori/midori-websettings.c:863
 msgid "Whether to zoom text and images"
 msgstr "Εάν θα εστιάζεται το κείμενο και οι εικόνες"
 
-#: ../midori/midori-websettings.c:833
+#: ../midori/midori-websettings.c:878
 msgid "Find inline while typing"
 msgstr "Ενσωματωμένη εύρεση κατά την πληκτρολόγηση"
 
-#: ../midori/midori-websettings.c:834
+#: ../midori/midori-websettings.c:879
 msgid "Whether to automatically find inline while typing"
 msgstr "Εάν θα γίνεται αυτόματη ενσωματωμένη αναζήτηση κατά την πληκτρολόγηση"
 
-#: ../midori/midori-websettings.c:849
+#: ../midori/midori-websettings.c:894
 msgid "Kinetic scrolling"
 msgstr "Κινητική κύλιση"
 
-#: ../midori/midori-websettings.c:850
+#: ../midori/midori-websettings.c:895
 msgid "Whether scrolling should kinetically move according to speed"
 msgstr "Εάν η κύλιση θα κινείται ανάλογα με την ταχύτητα "
 
-#: ../midori/midori-websettings.c:858
+#: ../midori/midori-websettings.c:903
 msgid "Accept cookies"
 msgstr "Αποδοχή cookies"
 
-#: ../midori/midori-websettings.c:859
+#: ../midori/midori-websettings.c:904
 msgid "What type of cookies to accept"
 msgstr "Τι τύπο cookies να γίνονται αποδεκτά"
 
-#: ../midori/midori-websettings.c:868
+#: ../midori/midori-websettings.c:913
 msgid "Original cookies only"
 msgstr "Μόνο πρωτότυπα cookies"
 
-#: ../midori/midori-websettings.c:869
+#: ../midori/midori-websettings.c:914
 msgid "Accept cookies from the original website only"
 msgstr "Αποδοχή cookies μόνο από πρωτότυπους ιστότοπους"
 
-#: ../midori/midori-websettings.c:877
+#: ../midori/midori-websettings.c:922
 msgid "Maximum cookie age"
 msgstr "Μέγιστος χρόνος cookie"
 
-#: ../midori/midori-websettings.c:878
+#: ../midori/midori-websettings.c:923
 msgid "The maximum number of days to save cookies for"
 msgstr "Ο μέγιστος χρόνος σε μέρες για την αποθήκευση των cookies"
 
-#: ../midori/midori-websettings.c:888
+#: ../midori/midori-websettings.c:940
 msgid "Remember last visited pages"
 msgstr "Απομνημόνευση των τελευταίων επισκεπτόμενων σελίδων"
 
-#: ../midori/midori-websettings.c:889
+#: ../midori/midori-websettings.c:941
 msgid "Whether the last visited pages are saved"
 msgstr "Εάν θα αποθηκεύονται οι τελευταίες επισκεπτόμενες σελίδες"
 
-#: ../midori/midori-websettings.c:897
+#: ../midori/midori-websettings.c:949
 msgid "Maximum history age"
 msgstr "Μέγιστο χρόνος ιστορικού"
 
-#: ../midori/midori-websettings.c:898
+#: ../midori/midori-websettings.c:950
 msgid "The maximum number of days to save the history for"
 msgstr "Ο μέγιστος χρόνος σε μέρες για την αποθήκευση του ιστορικού"
 
-#: ../midori/midori-websettings.c:906
-msgid "Remember last form inputs"
-msgstr "Απομνημόνευση των τελευταίων εισαγωγών"
-
-#: ../midori/midori-websettings.c:907
-msgid "Whether the last form inputs are saved"
-msgstr "Εάν θα αποθηκεύονται οι τελευταίες εισαγωγές φορμών"
-
-#: ../midori/midori-websettings.c:915
+#: ../midori/midori-websettings.c:958
 msgid "Remember last downloaded files"
 msgstr "Απομνημόνευση των τελευταίων αρχείων που κατέβηκαν"
 
-#: ../midori/midori-websettings.c:916
+#: ../midori/midori-websettings.c:959
 msgid "Whether the last downloaded files are saved"
 msgstr "Εάν θα αποθηκεύονται τα τελευταία αρχεία που κατέβηκαν"
 
-#: ../midori/midori-websettings.c:926
+#: ../midori/midori-websettings.c:969
 msgid "Proxy Server"
 msgstr "Διακομιστής μεσολάβησης"
 
-#: ../midori/midori-websettings.c:927
+#: ../midori/midori-websettings.c:970
 msgid "The proxy server used for HTTP connections"
 msgstr "Ο μεσολαβητής χρησιμοποιείται για http συνδέσεις"
 
-#: ../midori/midori-websettings.c:942
+#: ../midori/midori-websettings.c:985
 msgid "Detect proxy server automatically"
 msgstr "Αυτόματη εύρεση διακομιστή μεσολάβησης"
 
-#: ../midori/midori-websettings.c:943
+#: ../midori/midori-websettings.c:986
 msgid "Whether to detect the proxy server automatically from the environment"
 msgstr "Εάν θα εντοπίζεται αυτόματα από το περιβάλλον ο διακομιστής μεσολάβησης"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:959
+#: ../midori/midori-websettings.c:1002
 msgid "Identify as"
 msgstr "Αναγνώριση ως"
 
-#: ../midori/midori-websettings.c:960
+#: ../midori/midori-websettings.c:1003
 msgid "What to identify as to web pages"
 msgstr "Με τι να αναγνωρίζεται στις σελίδες ιστού"
 
-#: ../midori/midori-websettings.c:976
+#: ../midori/midori-websettings.c:1019
 msgid "Identification string"
 msgstr "Αλφαριθμητικό αναγνώρισης"
 
-#: ../midori/midori-websettings.c:977
+#: ../midori/midori-websettings.c:1020
 msgid "The application identification string"
 msgstr "Το αλφαριθμητικό αναγνώρισης της εφαρμογής"
 
-#: ../midori/midori-websettings.c:985
-msgid "Cache size"
-msgstr "Μέγεθος προσωρινής μνήμης"
-
-#: ../midori/midori-websettings.c:986
-msgid "The allowed size of the cache"
-msgstr "Το επιτρεπόμενο μέγεθος της προσωρινής  μνήμης"
-
-#: ../midori/midori-websettings.c:1001
+#: ../midori/midori-websettings.c:1035
 msgid "Clear private data"
 msgstr "Καθαρισμός προσωπικών δεδομένων"
 
-#: ../midori/midori-websettings.c:1002
+#: ../midori/midori-websettings.c:1036
 msgid "The private data selected for deletion"
 msgstr "Τα προσωπικά δεδομένα που επιλέχθηκαν για διαγραφή"
 
@@ -1444,465 +1568,411 @@ msgstr "Τα προσωπικά δεδομένα που επιλέχθηκαν �
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:847
-#: ../midori/midori-view.c:3643
-#: ../midori/midori-view.c:3647
+#: ../midori/midori-view.c:915
+#: ../midori/midori-view.c:3831
+#: ../midori/midori-view.c:3835
 #, c-format
 msgid "Error - %s"
 msgstr "Σφάλμα- %s"
 
-#: ../midori/midori-view.c:848
+#: ../midori/midori-view.c:916
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Η σελίδα '%s' δεν μπορεί να φορτωθεί."
 
-#: ../midori/midori-view.c:853
+#: ../midori/midori-view.c:921
 msgid "Try again"
 msgstr "Δοκιμάστε ξανά"
 
 #. i18n: The title of the 404 - Not found error page
-#: ../midori/midori-view.c:886
+#: ../midori/midori-view.c:954
 #, c-format
 msgid "Not found - %s"
 msgstr "Δεν βρέθηκε - %s"
 
-#: ../midori/midori-view.c:1100
-#: ../midori/midori-view.c:1813
+#: ../midori/midori-view.c:1168
+#: ../midori/midori-view.c:1912
 #, c-format
 msgid "Send a message to %s"
 msgstr "Αποστολή μηνύματος στο: %s"
 
-#: ../midori/midori-view.c:1652
-#: ../midori/midori-view.c:1715
+#: ../midori/midori-view.c:1739
+#: ../midori/midori-view.c:1807
 msgid "Open _Link"
 msgstr "Άνοιγμα _συνδέσμου"
 
-#: ../midori/midori-view.c:1655
-#: ../midori/midori-view.c:1717
+#: ../midori/midori-view.c:1742
+#: ../midori/midori-view.c:1809
 msgid "Open Link in New _Tab"
 msgstr "Άνοιγμα συνδέσμου σε νέα κ_αρτέλα"
 
-#: ../midori/midori-view.c:1658
-#: ../midori/midori-view.c:1724
+#: ../midori/midori-view.c:1746
+msgid "Open Link in _Foreground Tab"
+msgstr "Άνοιγμα συνδέσμου σε νέα καρτέλα στο π_ροσκήνιο"
+
+#: ../midori/midori-view.c:1747
+msgid "Open Link in _Background Tab"
+msgstr "Άνοιγμα συνδέσμου σε καρτέλα στο _παρασκήνιο"
+
+#: ../midori/midori-view.c:1750
+#: ../midori/midori-view.c:1816
 msgid "Open Link in New _Window"
 msgstr "Άνοιγμα συνδέσμου σε νέο _παραθύρο"
 
-#: ../midori/midori-view.c:1661
+#: ../midori/midori-view.c:1753
 msgid "_Copy Link destination"
 msgstr "Α_ντιγραφή συνδέσμου προορισμού"
 
-#: ../midori/midori-view.c:1664
-#: ../midori/midori-view.c:1736
+#: ../midori/midori-view.c:1756
+#: ../midori/midori-view.c:1828
 msgid "_Save Link destination"
 msgstr "Απ_οθήκευση συνδέσμου προορισμού"
 
-#: ../midori/midori-view.c:1665
-#: ../midori/midori-view.c:1730
+#: ../midori/midori-view.c:1757
+#: ../midori/midori-view.c:1822
 msgid "_Download Link destination"
 msgstr "Κ_ατέβασμα συνδέσμου προορισμού"
 
-#: ../midori/midori-view.c:1669
-#: ../midori/midori-view.c:1705
-#: ../midori/midori-view.c:1741
+#: ../midori/midori-view.c:1761
+#: ../midori/midori-view.c:1797
+#: ../midori/midori-view.c:1833
 msgid "Download with Download _Manager"
 msgstr "Κατέβασμα με τον διαχειριστή μεταφορών"
 
-#: ../midori/midori-view.c:1681
+#: ../midori/midori-view.c:1773
 msgid "Open _Image in New Tab"
 msgstr "Άνοιγμα ει_κόνας σε νέα καρτέλα"
 
-#: ../midori/midori-view.c:1684
-msgid "Open _Image in New Window"
-msgstr "Άνοιγμα ει_κόνας σε νέο παράθυρο"
+#: ../midori/midori-view.c:1776
+msgid "Open Image in New Wi_ndow"
+msgstr "Άνοιγμα εικόνας σε νέο πα_ράθυρο"
 
-#: ../midori/midori-view.c:1687
+#: ../midori/midori-view.c:1779
 msgid "Copy Image _Address"
 msgstr "Αντιγραφή _διεύθυνσης εικόνας"
 
-#: ../midori/midori-view.c:1690
+#: ../midori/midori-view.c:1782
 msgid "Save I_mage"
 msgstr "Αποθήκευση ει_κόνας"
 
-#: ../midori/midori-view.c:1691
+#: ../midori/midori-view.c:1783
 msgid "Download I_mage"
 msgstr "Αποθήκευση ει_κόνας"
 
-#: ../midori/midori-view.c:1698
+#: ../midori/midori-view.c:1790
 msgid "Copy Video _Address"
 msgstr "Αντιγραφή _διεύθυνσης βίντεο"
 
-#: ../midori/midori-view.c:1701
+#: ../midori/midori-view.c:1793
 msgid "Save _Video"
 msgstr "Αποθήκευση _βίντεο"
 
-#: ../midori/midori-view.c:1701
+#: ../midori/midori-view.c:1793
 msgid "Download _Video"
 msgstr "Αποθήκευση _βίντεο"
 
-#: ../midori/midori-view.c:1761
+#: ../midori/midori-view.c:1853
 msgid "Search _with"
 msgstr "Αναζήτηση _με"
 
-#: ../midori/midori-view.c:1789
-#: ../midori/midori-view.c:1800
+#: ../midori/midori-view.c:1888
+#: ../midori/midori-view.c:1899
 msgid "_Search the Web"
 msgstr "_Αναζήτηση στον ιστό"
 
-#: ../midori/midori-view.c:1821
+#: ../midori/midori-view.c:1920
 msgid "Open Address in New _Tab"
 msgstr "Άνοιγμα διεύθυνσης σε νέα_καρτέλα"
 
-#: ../midori/midori-view.c:2030
+#: ../midori/midori-view.c:2190
 msgid "Open or download file"
 msgstr "Άνοιγμα ή κατέβασμα αρχείου"
 
-#: ../midori/midori-view.c:2047
+#: ../midori/midori-view.c:2213
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Τύπος αρχείου: '%s'"
 
-#: ../midori/midori-view.c:2050
+#: ../midori/midori-view.c:2216
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Τύπος αρχείου: %s ('%s')"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2054
+#: ../midori/midori-view.c:2220
 #, c-format
 msgid "Open %s"
 msgstr "Άνοιγμα %s"
 
-#: ../midori/midori-view.c:2567
+#: ../midori/midori-view.c:2736
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Εξέταση σελίδα -%s"
 
-#: ../midori/midori-view.c:2766
+#: ../midori/midori-view.c:2954
 msgid "Speed dial"
 msgstr "Γρήγορη σύνδεση"
 
-#: ../midori/midori-view.c:2767
+#: ../midori/midori-view.c:2955
 msgid "Click to add a shortcut"
 msgstr "Κάντε click για προσθήκη συντόμευσης"
 
-#: ../midori/midori-view.c:2768
+#: ../midori/midori-view.c:2956
 msgid "Enter shortcut address"
 msgstr "Εισάγεται διεύθυνση συντόμευσης"
 
-#: ../midori/midori-view.c:2769
+#: ../midori/midori-view.c:2957
 msgid "Enter shortcut title"
 msgstr "Εισάγετε τίτλο συντόμευσης"
 
-#: ../midori/midori-view.c:2770
+#: ../midori/midori-view.c:2958
 msgid "Are you sure you want to delete this shortcut?"
 msgstr "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την συντόμευση;"
 
-#: ../midori/midori-view.c:2800
+#: ../midori/midori-view.c:2988
 #, c-format
 msgid "Document cannot be displayed"
 msgstr "Το αρχείο δεν μπορεί να εμφανιστεί"
 
-#: ../midori/midori-view.c:2817
+#: ../midori/midori-view.c:3005
 #, c-format
 msgid "No documentation installed"
 msgstr "Δεν έχει εγκατασταθεί τεκμηρίωση"
 
-#: ../midori/midori-view.c:2942
+#: ../midori/midori-view.c:3132
 msgid "Blank page"
 msgstr "Κενή σελίδα"
 
-#: ../midori/midori-view.c:3171
-#: ../midori/sokoke.c:968
-msgid "New _Tab"
-msgstr "Νέα _καρτέλα"
-
-#: ../midori/midori-view.c:3185
+#: ../midori/midori-view.c:3375
 msgid "_Duplicate Tab"
 msgstr "_Διπλότυπη καρτέλα"
 
-#: ../midori/midori-view.c:3190
+#: ../midori/midori-view.c:3380
 msgid "_Restore Tab"
 msgstr "_Επαναφορά καρτέλας"
 
-#: ../midori/midori-view.c:3190
+#: ../midori/midori-view.c:3380
 msgid "_Minimize Tab"
 msgstr "_Ελαχιστοποίηση καρτέλας"
 
-#: ../midori/midori-view.c:3749
+#: ../midori/midori-view.c:3937
 msgid "Print background images"
 msgstr "Εκτύπωση εικόνων παρασκηνίου"
 
-#: ../midori/midori-view.c:3750
+#: ../midori/midori-view.c:3938
 msgid "Whether background images should be printed"
 msgstr "Εάν θα τυπώνονται οι εικόνες παρασκηνίου"
 
-#: ../midori/midori-view.c:3794
-#: ../midori/midori-preferences.c:489
+#: ../midori/midori-view.c:3982
+#: ../midori/midori-preferences.c:383
 msgid "Features"
 msgstr "Χαρακτηριστικά"
 
-#: ../midori/midori-preferences.c:91
-#, c-format
-msgid "Preferences for %s"
-msgstr "Προτιμήσεις για %s"
-
 #. Page "General"
-#: ../midori/midori-preferences.c:404
+#: ../midori/midori-preferences.c:300
 msgid "General"
 msgstr "Γενικά"
 
-#: ../midori/midori-preferences.c:405
+#: ../midori/midori-preferences.c:301
 msgid "Startup"
 msgstr "Εκκίνηση"
 
-#: ../midori/midori-preferences.c:421
+#: ../midori/midori-preferences.c:316
+#: ../midori/midori-preferences.c:323
 msgid "Use current page as homepage"
 msgstr "Τρέχουσα σελίδα ως αρχική"
 
-#: ../midori/midori-preferences.c:431
+#: ../midori/midori-preferences.c:333
 #: ../panels/midori-transfers.c:88
 msgid "Transfers"
 msgstr "Μεταφορές"
 
 #. Page "Appearance"
-#: ../midori/midori-preferences.c:445
+#: ../midori/midori-preferences.c:351
 msgid "Appearance"
 msgstr "Εμφάνιση"
 
-#: ../midori/midori-preferences.c:446
+#: ../midori/midori-preferences.c:352
 msgid "Font settings"
 msgstr "Ρυθμίσεις γραμματοσειράς"
 
-#: ../midori/midori-preferences.c:448
+#: ../midori/midori-preferences.c:354
 msgid "Default Font Family"
 msgstr "Προεπιλεγμένη οικογένεια γραμματοσειράς"
 
-#: ../midori/midori-preferences.c:452
+#: ../midori/midori-preferences.c:357
 msgid "The default font family used to display text"
 msgstr "Η προκαθορισμένη οικογένεια γραμματοσειράς χρησιμοποιείται για την εμφάνιση του κειμένου"
 
-#: ../midori/midori-preferences.c:455
+#: ../midori/midori-preferences.c:360
 msgid "The default font size used to display text"
 msgstr "Το προκαθορισμένο μέγεθος γραμματοσειράς για την εμφάνιση του κειμένου"
 
-#: ../midori/midori-preferences.c:458
+#: ../midori/midori-preferences.c:362
 msgid "Fixed-width Font Family"
 msgstr "Σταθερού-μεγέθους οικογένεια γραμματοσειράς"
 
-#: ../midori/midori-preferences.c:462
+#: ../midori/midori-preferences.c:365
 msgid "The font family used to display fixed-width text"
 msgstr "Η οικογένεια γραμματοσειράς χρησιμοποιείται για την εμφάνιση σταθερού μεγέθους κειμένου"
 
-#: ../midori/midori-preferences.c:465
+#: ../midori/midori-preferences.c:368
 msgid "The font size used to display fixed-width text"
 msgstr "Το μέγεθος της γραμματοσειράς που χρησιμοποιείται για την εμφάνιση κειμένου σταθερού μεγέθους"
 
-#: ../midori/midori-preferences.c:468
+#: ../midori/midori-preferences.c:370
 msgid "Minimum Font Size"
 msgstr "Ελάχιστο μέγεθος γραμματοσειράς"
 
-#: ../midori/midori-preferences.c:471
+#: ../midori/midori-preferences.c:373
 msgid "The minimum font size used to display text"
 msgstr "Το ελάχιστο μέγεθος γραμματοσειράς για την εμφάνιση του κειμένου"
 
-#: ../midori/midori-preferences.c:478
-msgid "Encoding"
-msgstr "Κωδικοποίηση"
-
-#: ../midori/midori-preferences.c:481
-msgid "The character encoding to use by default"
-msgstr "Η προτιμώμενη κωδικοποίηση χαρακτήρων προς χρήση"
-
 #. Page "Behavior"
-#: ../midori/midori-preferences.c:488
+#: ../midori/midori-preferences.c:382
 msgid "Behavior"
 msgstr "Συμπεριφορά"
 
-#: ../midori/midori-preferences.c:492
-#: ../extensions/statusbar-features.c:88
-msgid "Load images automatically"
-msgstr "Αυτόματη φόρτωση εικόνων"
-
-#: ../midori/midori-preferences.c:493
-msgid "Load and display images automatically"
-msgstr "Αυτόματη φόρτωση και εμφάνιση εικόνων"
-
-#: ../midori/midori-preferences.c:501
-msgid "Shrink images automatically"
-msgstr "Αυτόματη σμίκρυνσης εικόνων"
-
-#: ../midori/midori-preferences.c:502
-msgid "Automatically shrink standalone images to fit"
-msgstr "Αυτόματη σμίκρυνση αυτόνομων εικόνων για ταίριασμα"
-
-#: ../midori/midori-preferences.c:509
-#: ../extensions/statusbar-features.c:100
-msgid "Enable scripts"
-msgstr "Ενεργοποίηση σεναρίων"
-
-#: ../midori/midori-preferences.c:510
-msgid "Enable embedded scripting languages"
-msgstr "Ενεργοποίηση ενσωματωμένων γλωσσών κειμένου"
-
-#: ../midori/midori-preferences.c:513
-#: ../extensions/statusbar-features.c:112
-msgid "Enable Netscape plugins"
-msgstr "Ενεργοποίηση αρθρωμάτων netscape"
-
-#: ../midori/midori-preferences.c:514
-msgid "Enable embedded Netscape plugin objects"
-msgstr "Ενεργοποίηση ενσωματωμένων αρθρωμάτων netscape"
-
-#: ../midori/midori-preferences.c:517
+#: ../midori/midori-preferences.c:404
 msgid "Enforce 96 dots per inch"
 msgstr "Επιβολή 96 dots ανά ίντσα"
 
-#: ../midori/midori-preferences.c:518
+#: ../midori/midori-preferences.c:405
 msgid "Enforce a video dot density of 96 DPI"
 msgstr "Επιβολή της πυκνότητας βίντεο dot στα 96DPI"
 
-#: ../midori/midori-preferences.c:521
+#: ../midori/midori-preferences.c:408
 msgid "Enable developer tools"
 msgstr "Ενεργοποίηση εργαλείων ανάπτυξης"
 
-#: ../midori/midori-preferences.c:522
+#: ../midori/midori-preferences.c:409
 msgid "Enable special extensions for developers"
 msgstr "Ενεργοποίηση συγκεκριμένων επεκτάσεων για προγραμματιστές"
 
-#: ../midori/midori-preferences.c:529
+#: ../midori/midori-preferences.c:417
 msgid "Spell Checking"
 msgstr "Ορθογραφία πληκτρολόγησης"
 
-#: ../midori/midori-preferences.c:532
+#: ../midori/midori-preferences.c:420
 msgid "Enable Spell Checking"
 msgstr "Ενεργοποίηση ορθογραφίας"
 
-#: ../midori/midori-preferences.c:533
+#: ../midori/midori-preferences.c:421
 msgid "Enable spell checking while typing"
 msgstr "Ενεργοποίηση ορθογραφίας κατά την πληκτρολόγηση"
 
 #. i18n: The example should be adjusted to contain a good local default
-#: ../midori/midori-preferences.c:537
+#: ../midori/midori-preferences.c:425
 msgid "A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""
 msgstr "Μία διαχωρισμένη λίστα με τις γλώσσες που μπορείτε να χρησιμοποιήσετε κατά την ορθογραφία πληκτρολόγησης, για παράδειγμα \"en_GB,de_DE\""
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:542
+#: ../midori/midori-preferences.c:431
 msgid "Interface"
 msgstr "Διεπαφή"
 
-#: ../midori/midori-preferences.c:543
+#: ../midori/midori-preferences.c:432
 msgid "Navigationbar"
 msgstr "Γραμμή πλοήγησης"
 
-#: ../midori/midori-preferences.c:554
+#: ../midori/midori-preferences.c:442
 msgid "Browsing"
 msgstr "Περιήγηση"
 
 #. Page "Applications"
-#: ../midori/midori-preferences.c:578
+#: ../midori/midori-preferences.c:464
 msgid "Applications"
 msgstr "Εφαρμογές"
 
-#: ../midori/midori-preferences.c:579
+#: ../midori/midori-preferences.c:465
 msgid "External applications"
 msgstr "Εξωτερικές εφαρμογές"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:625
-#: ../midori/midori-preferences.c:626
+#: ../midori/midori-preferences.c:481
+#: ../midori/midori-preferences.c:482
 msgid "Network"
 msgstr "Δίκτυο"
 
-#: ../midori/midori-preferences.c:653
-msgid "MB"
-msgstr "ΜΒ"
-
 #. Page "Privacy"
-#: ../midori/midori-preferences.c:658
+#: ../midori/midori-preferences.c:501
 msgid "Privacy"
 msgstr "Προσωπικό απόρρητο"
 
-#: ../midori/midori-preferences.c:659
+#: ../midori/midori-preferences.c:502
 msgid "Web Cookies"
 msgstr "Cookies ιστού"
 
-#: ../midori/midori-preferences.c:672
-#: ../midori/midori-preferences.c:682
+#: ../midori/midori-preferences.c:513
+#: ../midori/midori-preferences.c:520
 msgid "days"
 msgstr "ημέρες"
 
-#: ../midori/midori-searchaction.c:488
-#: ../katze/katze-arrayaction.c:335
-msgid "Empty"
-msgstr "Άδειο"
-
-#: ../midori/midori-searchaction.c:908
+#: ../midori/midori-searchaction.c:923
 msgid "Add search engine"
 msgstr "Προσθήκη μηχανής αναζήτησης"
 
-#: ../midori/midori-searchaction.c:908
+#: ../midori/midori-searchaction.c:923
 msgid "Edit search engine"
 msgstr "Επεξεργασία μηχανής αναζήτησης"
 
-#: ../midori/midori-searchaction.c:936
+#: ../midori/midori-searchaction.c:951
 msgid "_Name:"
 msgstr "_Όνομα:"
 
-#: ../midori/midori-searchaction.c:980
+#: ../midori/midori-searchaction.c:995
 msgid "_Icon:"
 msgstr "_Εικονίδιο:"
 
-#: ../midori/midori-searchaction.c:994
+#: ../midori/midori-searchaction.c:1009
 msgid "_Token:"
 msgstr "_Μορφότυπο:"
 
-#: ../midori/midori-searchaction.c:1213
+#: ../midori/midori-searchaction.c:1232
 msgid "Manage Search Engines"
 msgstr "Διαχείριση των μηχανών αναζήτησης"
 
-#: ../midori/midori-searchaction.c:1312
+#: ../midori/midori-searchaction.c:1333
 msgid "Use as _default"
 msgstr "Χρήση ως _προκαθορισμένο"
 
-#: ../midori/sokoke.c:166
-#: ../midori/sokoke.c:178
-msgid "Could not run external program."
-msgstr "Δεν μπορεί να εκτελεστεί το εξωτερικό πρόγραμμα."
-
-#: ../midori/sokoke.c:960
+#: ../midori/sokoke.c:1113
 msgid "_Bookmark"
 msgstr "_Σελιδοδείκτης"
 
-#: ../midori/sokoke.c:962
+#: ../midori/sokoke.c:1115
 msgid "Add Boo_kmark"
 msgstr "Προσθήκη σ_ελιδοδείκτη"
 
-#: ../midori/sokoke.c:963
+#: ../midori/sokoke.c:1116
 msgid "_Console"
 msgstr "_Τερματικό"
 
-#: ../midori/sokoke.c:964
+#: ../midori/sokoke.c:1117
 msgid "_Extensions"
 msgstr "_Επεκτάσεις"
 
-#: ../midori/sokoke.c:965
+#: ../midori/sokoke.c:1118
 msgid "_History"
 msgstr "_Ιστορικό"
 
-#: ../midori/sokoke.c:966
+#: ../midori/sokoke.c:1119
 msgid "_Homepage"
 msgstr "_Αρχική σελίδα"
 
-#: ../midori/sokoke.c:967
+#: ../midori/sokoke.c:1120
 msgid "_Userscripts"
 msgstr "_Σενάρια χρήστη"
 
-#: ../midori/sokoke.c:969
+#: ../midori/sokoke.c:1121
+msgid "New _Tab"
+msgstr "Νέα _καρτέλα"
+
+#: ../midori/sokoke.c:1122
 msgid "_Transfers"
 msgstr "_Μεταφορές"
 
-#: ../midori/sokoke.c:970
+#: ../midori/sokoke.c:1123
 msgid "Netscape p_lugins"
 msgstr "Α_ρθρωμάτων netscape"
 
@@ -1915,33 +1985,33 @@ msgstr "Σενάρια χρηστών"
 msgid "Userstyles"
 msgstr "Θέματα χρήστη"
 
-#: ../panels/midori-addons.c:287
+#: ../panels/midori-addons.c:294
 #, c-format
 msgid "Copy userscripts to the folder %s and copy userstyles to the folder %s."
 msgstr "Αντιγραφή σεναρίων χρήστη στον κατάλογο %s και αντιγραφή των θεμάτων χρήση στον κατάλογο %s."
 
-#: ../panels/midori-addons.c:889
+#: ../panels/midori-addons.c:896
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Αδυναμία παρακολούθησης του καταλόγου '%s': %s"
 
-#: ../panels/midori-bookmarks.c:108
+#: ../panels/midori-bookmarks.c:112
 msgid "Bookmarks"
 msgstr "Σελιδοδείκτες"
 
-#: ../panels/midori-bookmarks.c:239
+#: ../panels/midori-bookmarks.c:251
 msgid "Edit the selected bookmark"
 msgstr "Επεξεργασία του επιλεγμένου σελιδοδείκτη"
 
-#: ../panels/midori-bookmarks.c:247
+#: ../panels/midori-bookmarks.c:259
 msgid "Delete the selected bookmark"
 msgstr "Διαγραφή του επιλεγμένου σελιδοδείκτη"
 
-#: ../panels/midori-bookmarks.c:260
+#: ../panels/midori-bookmarks.c:279
 msgid "Add a new folder"
 msgstr "Προσθήκη ενός νέου φακέλου"
 
-#: ../panels/midori-bookmarks.c:592
+#: ../panels/midori-bookmarks.c:609
 msgid "<i>Separator</i>"
 msgstr "<i>Διαχωριστικό</i>"
 
@@ -1969,22 +2039,30 @@ msgstr "Διαγραφή του επιλεγμένου αντικειμένου 
 msgid "Clear the entire history"
 msgstr "Καθαρισμός ολόκληρου του ιστορικού"
 
-#: ../panels/midori-history.c:601
+#: ../panels/midori-history.c:598
+msgid "Erroneous clock time"
+msgstr "Εσφαλμένη τιμή ώρας"
+
+#: ../panels/midori-history.c:599
+msgid "The clock time lies in the past. Please check the current date and time."
+msgstr "Η τιμή της ώρας είναι παρελθοντική. Παρακαλώ ελέγξτε την τρέχουσα ημερομηνία και ώρα."
+
+#: ../panels/midori-history.c:611
 msgid "A week ago"
 msgstr "Μια βδομάδα πριν"
 
-#: ../panels/midori-history.c:606
+#: ../panels/midori-history.c:616
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d μέρα πριν"
 msgstr[1] "%d μέρες πριν"
 
-#: ../panels/midori-history.c:614
+#: ../panels/midori-history.c:624
 msgid "Today"
 msgstr "Σήμερα"
 
-#: ../panels/midori-history.c:616
+#: ../panels/midori-history.c:626
 msgid "Yesterday"
 msgstr "Χθες"
 
@@ -2039,51 +2117,52 @@ msgstr "Το εικονίδιο Stock '%s' δεν μπορεί να φορτωθ
 msgid "Animation frames are broken"
 msgstr "Τα κινούμενα γραφικά πλαίσια δεν λειτουργούν"
 
-#: ../katze/katze-utils.c:203
-#: ../katze/katze-utils.c:420
+#: ../katze/katze-utils.c:483
+#: ../katze/katze-utils.c:874
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "Η ιδιότητα '%s' δεν είναι έγκυρη για το %s"
 
-#: ../katze/katze-utils.c:238
-#: ../katze/katze-utils.c:267
+#: ../katze/katze-utils.c:529
+#: ../katze/katze-utils.c:558
 msgid "Choose file"
 msgstr "Επιλογή αρχείου"
 
-#: ../katze/katze-utils.c:253
+#: ../katze/katze-utils.c:544
 msgid "Choose folder"
 msgstr "Επιλογή φακέλου"
 
-#: ../extensions/adblock.c:235
+#: ../katze/katze-preferences.c:91
+#, c-format
+msgid "Preferences for %s"
+msgstr "Προτιμήσεις για %s"
+
+#: ../extensions/adblock.c:377
 msgid "Configure Advertisement filters"
 msgstr "Ρύθμιση φίλτρων διαφημίσεων"
 
-#: ../extensions/adblock.c:372
+#: ../extensions/adblock.c:409
+#, c-format
+msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
+msgstr "Πληκτρολογήστε την διεύθυνση σε μία προ ρυθμισμένη λίστα φίλτρων στην εισαγωγή κειμένου και πατήστε \"Προσθήκη\" για να την προσθέσετε στην λίστα. Μπορείτε να βρείτε περισσότερες λίστες στο %s."
+
+#: ../extensions/adblock.c:549
 msgid "Configure _Advertisement filters..."
 msgstr "Ρύθμιση φίλτρων δ_ιαφημίσεων..."
 
-#: ../extensions/adblock.c:704
-#, c-format
-msgid "Not available: %s required"
-msgstr "Μη διαθέσιμο: απαιτείται %s"
-
-#: ../extensions/adblock.c:709
+#: ../extensions/adblock.c:1103
 msgid "Advertisement blocker"
 msgstr "Εμποδιστής διαφημίσεων"
 
-#: ../extensions/adblock.c:711
+#: ../extensions/adblock.c:1104
 msgid "Block advertisements according to a filter list"
 msgstr "Μπλόκαρε διαφημίσεις σύμφωνα με μία λίστα με φίλτρα"
 
-#: ../extensions/colorful-tabs.c:115
-msgid "Tint tabs distinctly"
-msgstr "Ευκρινές αποχρώσεις καρτελών"
-
-#: ../extensions/colorful-tabs.c:151
+#: ../extensions/colorful-tabs.c:127
 msgid "Colorful Tabs"
 msgstr "Χρωματιστές καρτέλες"
 
-#: ../extensions/colorful-tabs.c:152
+#: ../extensions/colorful-tabs.c:128
 msgid "Tint each tab distinctly"
 msgstr "Ευκρινές αποχρώσεις σε κάθε καρτέλα"
 
@@ -2177,11 +2256,11 @@ msgstr "_Διαχειριστής cookie"
 msgid "List, view and delete cookies"
 msgstr "Λίστα, εμφάνιση και διαγραφή cookies"
 
-#: ../extensions/dnsprefetch.c:143
+#: ../extensions/dnsprefetch.c:194
 msgid "DNS prefetching"
 msgstr "Προ ανάκληση DNS"
 
-#: ../extensions/dnsprefetch.c:144
+#: ../extensions/dnsprefetch.c:195
 msgid "Prefetch IP addresses of hovered links"
 msgstr "Προ φόρτωση των διευθύνσεων IP των συνδέσμων"
 
@@ -2200,19 +2279,19 @@ msgctxt "Feed"
 msgid "Last updated: %s."
 msgstr "Τελευταία ενημέρωση: %s."
 
-#: ../extensions/feed-panel/feed-panel.c:664
+#: ../extensions/feed-panel/feed-panel.c:667
 msgid "Feeds"
 msgstr "Ροές νέων"
 
-#: ../extensions/feed-panel/feed-panel.c:717
+#: ../extensions/feed-panel/feed-panel.c:720
 msgid "Add new feed"
 msgstr "Προσθήκη ενός νέας ροής"
 
-#: ../extensions/feed-panel/feed-panel.c:724
+#: ../extensions/feed-panel/feed-panel.c:727
 msgid "Delete feed"
 msgstr "Διαγραφή ροής"
 
-#: ../extensions/feed-panel/feed-panel.c:807
+#: ../extensions/feed-panel/feed-panel.c:810
 msgid "_Feeds"
 msgstr "_Ροές"
 
@@ -2269,28 +2348,33 @@ msgstr "Πλαίσιο ροής"
 msgid "Read Atom/ RSS feeds"
 msgstr "Ανάγνωση Atom / RSS ροών"
 
-#: ../extensions/formhistory.c:276
+#: ../extensions/formhistory.c:140
+#, c-format
+msgid "Failed to add form value: %s\n"
+msgstr "Απέτυχε η προσθήκη τιμής φόρμας: %s\n"
+
+#: ../extensions/formhistory.c:502
 msgid "Stores history of entered form data"
 msgstr "Αποθηκεύει το ιστορικό των δεδομένων που έχουν εισαχθεί σε φόρμες"
 
-#: ../extensions/formhistory.c:280
+#: ../extensions/formhistory.c:506
 #, c-format
 msgid "Not available: %s"
 msgstr "Μη διαθέσιμα: %s"
 
-#: ../extensions/formhistory.c:281
+#: ../extensions/formhistory.c:507
 msgid "Resource files not installed"
 msgstr "Τα αρχεία πόρων δεν έχουν εγκατασταθεί"
 
-#: ../extensions/formhistory.c:286
+#: ../extensions/formhistory.c:513
 msgid "Form history filler"
 msgstr "Ιστορικό δεδομένων φόρμας"
 
-#: ../extensions/mouse-gestures/main.c:246
+#: ../extensions/mouse-gestures.c:288
 msgid "Mouse Gestures"
 msgstr "Κινήσεις ποντικιού"
 
-#: ../extensions/mouse-gestures/main.c:247
+#: ../extensions/mouse-gestures.c:289
 msgid "Control Midori by moving the mouse"
 msgstr "Χειρισμός του midori μετακινώντας το ποντίκι"
 
@@ -2304,19 +2388,23 @@ msgstr "Αποθήκευση Σελίδων"
 msgid "_Pageholder"
 msgstr "_Αποθήκευση σελίδων"
 
-#: ../extensions/shortcuts.c:172
+#: ../extensions/page-holder.c:178
+msgid "Keep one or multiple pages open in parallel to your tabs"
+msgstr "Να μένει μία ή περισσότερες σελίδες παράλληλα ανοιχτές στις καρτέλες σας"
+
+#: ../extensions/shortcuts.c:162
 msgid "Customize Keyboard shortcuts"
 msgstr "Προσαρμογή συντομεύσεων πληκτρολογίου"
 
-#: ../extensions/shortcuts.c:264
+#: ../extensions/shortcuts.c:268
 msgid "Customize Sh_ortcuts..."
 msgstr "Προσαρμογή σ_υντομεύσεων..."
 
-#: ../extensions/shortcuts.c:303
+#: ../extensions/shortcuts.c:307
 msgid "Shortcuts"
 msgstr "Συντομεύσεις"
 
-#: ../extensions/shortcuts.c:304
+#: ../extensions/shortcuts.c:308
 msgid "View and edit keyboard shortcuts"
 msgstr "Εμφάνιση και επεξεργασία συντομεύσεων πληκτρολογίου"
 
@@ -2336,18 +2424,26 @@ msgstr "Γραμμή κατάστασης χαρακτηριστικών"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Εύκολη εναλλαγή χαρακτηριστικών στις ιστοσελίδες ενεργοποίηση και απενεργοποίηση"
 
-#: ../extensions/tab-panel.c:562
-#: ../extensions/tab-panel.c:619
+#: ../extensions/tab-panel.c:565
+#: ../extensions/tab-panel.c:622
 msgid "Tab Panel"
 msgstr "Πλαίσιο καρτέλας"
 
-#: ../extensions/tab-panel.c:603
+#: ../extensions/tab-panel.c:606
 msgid "T_ab Panel"
 msgstr "Πλαίσιο κ_αρτέλας"
 
-#: ../extensions/tab-panel.c:620
+#: ../extensions/tab-panel.c:623
 msgid "Show tabs in a vertical panel"
 msgstr "Εμφάνιση καρτελών στο κάθετο πλαίσιο"
+
+#: ../extensions/tab-switcher.c:394
+msgid "Tab History List"
+msgstr "Καρτέλα λίστας ιστορικού"
+
+#: ../extensions/tab-switcher.c:395
+msgid "Allows to switch tabs by choosing from a list sorted by last usage"
+msgstr "Να επιτρέπεται η εναλλαγή καρτέλων επιλέγοντας από την ταξινομημένη λίστα της τελευταίας χρήσης."
 
 #: ../extensions/toolbar-editor.c:391
 msgid "Customize Toolbar"
@@ -2380,4 +2476,8 @@ msgstr "Εύκολη επεξεργασία της εμφάνισης της ε�
 #: ../extensions/toolbar-editor.c:617
 msgid "Not available on this platform"
 msgstr "Μη διαθέσιμο σε αυτή την πλατφόρμα"
+
+#: ../extensions/web-cache.c:592
+msgid "Cache HTTP communication on disk"
+msgstr "Προσωρινή μνήμη επικοινωνίας HTTP στο δίσκο"
 
