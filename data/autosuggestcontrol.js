@@ -53,12 +53,18 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/) {
 AutoSuggestControl.prototype.createDropDown = function () {
     var oThis = this;
 
-    //create the layer and assign styles
-    this.layer = document.createElement("div");
-    this.layer.className = "suggestions";
-    this.layer.style.visibility = "hidden";
-    this.layer.style.width = this.textbox.offsetWidth;
+    var sDiv = document.getElementById("suggestions_box");
 
+    if (sDiv)
+        this.layer = sDiv;
+    else
+    {
+        this.layer = document.createElement("div");
+        this.layer.className = "suggestions";
+        this.layer.id = "suggestions_box";
+        this.layer.style.visibility = "hidden";
+        this.layer.style.width = this.textbox.offsetWidth;
+    }
     this.layer.onmousedown =
     this.layer.onmouseup =
     this.layer.onmouseover = function (oEvent) {
@@ -275,6 +281,7 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     this.layer.style.left = this.getLeft() + "px";
     this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
     this.layer.style.visibility = "visible";
+    this.layer.style.position = "absolute";
 };
 
 /**
