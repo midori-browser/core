@@ -58,15 +58,20 @@ formhistory_prepare_js ()
 
    jsforms = g_strdup_printf (
         "%s"
-        "window.addEventListener (\"load\", function () { initSuggestions (); }, true);"
+        "window.addEventListener ('load', function () { initSuggestions (); }, true);"
         "window.addEventListener ('DOMContentLoaded',"
         "function () {"
-        "var mystyle = document.createElement(\"style\");"
-        "mystyle.setAttribute(\"type\", \"text/css\");"
-        "mystyle.appendChild(document.createTextNode(\"%s\"));"
-        "var head = document.getElementsByTagName(\"head\")[0];"
-        "if (head) head.appendChild(mystyle);"
-        "else document.documentElement.insertBefore(mystyle, document.documentElement.firstChild);"
+        "   var styles = document.getElementsByTagName('style');"
+        "   for (i=0; i<styles.length; i++) {"
+        "       if (styles[i].getAttribute('title') == 'formhistory')"
+        "           return;"
+        "   }"
+        "   var mystyle = document.createElement('style');"
+        "   mystyle.setAttribute('type', 'text/css');"
+        "   mystyle.setAttribute('title', 'formhistory');"
+        "   mystyle.appendChild(document.createTextNode('%s'));"
+        "   var head = document.getElementsByTagName('head')[0];"
+        "   if (head) head.appendChild(mystyle);"
         "}, true);",
         autosuggest,
         style);
