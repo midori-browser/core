@@ -22,18 +22,14 @@
 
 #define HAVE_WEBKIT_RESOURCE_REQUEST WEBKIT_CHECK_VERSION (1, 1, 14)
 
+#define SIGNATURE_SIZE 8
+#define USE_PATTERN_MATCHING 1
 #define ADBLOCK_FILTER_VALID(__filter) \
     (__filter && (g_str_has_prefix (__filter, "http") \
                || g_str_has_prefix (__filter, "file")))
 
-typedef struct
-{
-    const gchar* page_uri;
-    const gchar* uri;
-    const gchar* query;
-} Matcher;
-
 static GHashTable* pattern;
+static GHashTable* keys;
 static gchar* blockcss = NULL;
 static gchar* blockcssprivate = NULL;
 static gchar* blockscript = NULL;
@@ -48,6 +44,11 @@ adblock_build_js (const gchar* style,
     return g_strdup_printf (
         "window.addEventListener ('DOMContentLoaded',"
         "function () {"
+        "   var styles = document.getElementsByTagName('style');"
+        "   for (i=0; i<styles.length; i++) {"
+        "       if (styles[i].getAttribute('title') == 'madblock')"
+        "           return;"
+        "   }"
         "   var URL = location.href;"
         "   var sites = new Array(); %s;"
         "   var public = '%s';"
@@ -59,6 +60,7 @@ adblock_build_js (const gchar* style,
         "   public += ' {display: none !important;}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
+        "   mystyle.setAttribute('title', 'madblock');"
         "   mystyle.appendChild(document.createTextNode(public));"
         "   var head = document.getElementsByTagName('head')[0];"
         "   if (head) head.appendChild(mystyle);"
@@ -68,45 +70,19 @@ adblock_build_js (const gchar* style,
 }
 
 static gchar *
-adblock_fixup_regexp (gchar* src)
+adblock_fixup_regexp (gchar* src);
+
+static void
+adblock_init_db ()
 {
-    gchar* dst;
-    gchar* s;
-
-    if (!(src && *src))
-        return g_strdup ("");
-
-    /* FIXME: Avoid always allocating twice the string */
-    s = dst = g_malloc (strlen (src) * 2);
-
-    while (*src)
-    {
-        switch (*src)
-        {
-        case '*':
-            *s++ = '.';
-            break;
-        case '.':
-            *s++ = '\\';
-            break;
-        case '?':
-            *s++ = '\\';
-            break;
-        case '|':
-            *s++ = '\\';
-            break;
-        /* FIXME: We actually need to match :[0-9]+ or '/'. Sign means
-           "here could be port number or nothing". So bla.com^ will match
-           bla.com/ or bla.com:8080/ but not bla.com.au/ */
-        case '^':
-            *src = '?';
-            break;
-        }
-        *s++ = *src;
-        src++;
-    }
-    *s = 0;
-    return dst;
+    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
+                   (GDestroyNotify)g_free,
+                   (GDestroyNotify)g_regex_unref);
+    keys = g_hash_table_new_full (g_str_hash, g_str_equal,
+                   (GDestroyNotify)g_free,
+                   (GDestroyNotify)g_regex_unref);
+    katze_assign (blockcss, g_strdup ("z-non-exist"));
+    katze_assign (blockcssprivate, g_strdup (""));
 }
 
 static void
@@ -135,11 +111,7 @@ adblock_reload_rules (MidoriExtension* extension)
     if (!filters)
         return;
 
-    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
-                   (GDestroyNotify)g_free,
-                   (GDestroyNotify)g_regex_unref);
-    katze_assign (blockcss, g_strdup ("z-non-exist"));
-    katze_assign (blockcssprivate, g_strdup (""));
+    adblock_init_db ();
 
     while (filters[i++] != NULL)
     {
@@ -554,40 +526,97 @@ adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
 }
 
 static gboolean
-adblock_is_matched (const gchar*  opts,
-                    const GRegex* regex,
-                    Matcher*      data)
+adblock_check_filter_options (GRegex*       regex,
+                              const gchar*  opts,
+                              const gchar*  req_uri,
+                              const gchar*  page_uri)
 {
-    gchar* patt;
-
-    patt = g_strdup (data->uri);
-    /* TODO: To figure out
-    if (g_regex_match_simple ("type=fulluri,", opts, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY))
-        patt = g_strdup (data->uri);
-    else
-        patt = g_strdup (data->query);
-    */
-    if (g_regex_match_full (regex, patt, -1, 0, 0, NULL, NULL))
+    if (g_regex_match_simple (",third-party", opts,
+                              G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
     {
-        if (g_regex_match_simple (",third-party", opts,
-                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+        if (page_uri && g_regex_match_full (regex, page_uri, -1, 0, 0, NULL, NULL))
+            return TRUE;
+    }
+    /* TODO: Domain opt check */
+    return FALSE;
+}
+
+static gboolean
+adblock_is_matched_by_pattern (const gchar*  req_uri,
+                               const gchar*  page_uri)
+{
+    GHashTableIter iter;
+    gpointer opts, regex;
+
+    if (USE_PATTERN_MATCHING == 0)
+        return FALSE;
+
+    g_hash_table_iter_init (&iter, pattern);
+    while (g_hash_table_iter_next (&iter, &opts, &regex))
+    {
+        if (g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
         {
-            if (data->page_uri && g_regex_match_full (regex, data->page_uri, -1, 0, 0, NULL, NULL))
-            {
-                g_free (patt);
+            if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri) == TRUE)
                 return FALSE;
+            else
+            {
+                /* g_debug("blocked by pattern regexp=%s -- %s", g_regex_get_pattern (regex), req_uri); */
+                return TRUE;
             }
         }
-        /* TODO: Domain opt check */
-        g_free (patt);
-        return TRUE;
     }
-    else
-    {
-        g_free (patt);
-        return FALSE;
-    }
+    return FALSE;
 }
+
+static gboolean
+adblock_is_matched_by_key (const gchar*  opts,
+                           const gchar*  req_uri,
+                           const gchar*  page_uri)
+{
+    int pos = 0;
+    gchar *sig = NULL;
+    GRegex* regex;
+    gchar* uri;
+
+    uri = adblock_fixup_regexp ((gchar*)req_uri);
+
+    int len = strlen (uri);
+    for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--) {
+        sig = strndup (uri+pos, SIGNATURE_SIZE);
+        regex = g_hash_table_lookup (keys, sig);
+        if (regex)
+        {
+            if (g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
+            {
+                g_free (uri);
+                g_free (sig);
+                if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri) == TRUE)
+                    return FALSE;
+                else
+                {
+                    /* g_debug("blocked by key sig=%s regexp=%s -- %s", sig, g_regex_get_pattern (regex), req_uri); */
+                    return TRUE;
+                }
+            }
+        }
+        g_free (sig);
+    }
+    g_free (uri);
+    return FALSE;
+}
+
+static gboolean
+adblock_is_matched (const gchar*  opts,
+                    const gchar*  req_uri,
+                    const gchar*  page_uri)
+{
+
+    if (adblock_is_matched_by_key (opts, req_uri, page_uri) == TRUE)
+        return TRUE;
+    else
+        return adblock_is_matched_by_pattern (req_uri, page_uri);
+}
+
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
@@ -598,91 +627,66 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       WebKitNetworkResponse* response,
                                       GtkWidget*             image)
 {
-    Matcher data;
-    const char *page_uri;
-    const gchar* uri;
     SoupMessage* msg;
-    SoupURI* soup_uri;
+    const gchar* req_uri;
+    const char *page_uri;
 
-    uri = webkit_network_request_get_uri (request);
-    if (!strncmp (uri, "data", 4) || !strncmp (uri, "file", 4))
+    req_uri = webkit_network_request_get_uri (request);
+
+    if (!req_uri)
+        return;
+    if (!strncmp (req_uri, "data", 4) || !strncmp (req_uri, "file", 4))
         return;
 
     msg = webkit_network_request_get_message (request);
     if (!msg)
         return;
-
     if (msg->method && !strncmp (msg->method, "POST", 4))
         return;
 
-    soup_uri = soup_uri_new (uri);
-    if (soup_uri->query)
-        data.query = g_strdup_printf ("%s?%s", soup_uri->path, soup_uri->query);
-    else
-        data.query = g_strdup (soup_uri->path);
-    soup_uri_free (soup_uri);
-
-    data.uri = uri;
     page_uri = webkit_web_view_get_uri (web_view);
-
     if (!page_uri || !strcmp (page_uri, "about:blank"))
-        page_uri = uri;
-    data.page_uri = page_uri;
+        page_uri = req_uri;
 
-    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, &data))
-    {
-        #if 0
-        gchar* text;
+    /* gdouble elapsed = 0.0;
+    g_test_timer_start (); */
 
-        if (gtk_widget_get_has_tooltip (image))
-           text = g_strdup_printf ("%s\n%s", gtk_widget_get_tooltip_text (image), uri);
-        else
-           text = g_strdup_printf ("Blocked content: \n%s", uri);
-        gtk_widget_set_tooltip_text (image, text);
-        g_free (text);
-        #endif
-
+    /* TODO: opts should be defined */
+    if (adblock_is_matched (NULL, req_uri, page_uri))
         webkit_network_request_set_uri (request, "about:blank");
-    }
+    /* elapsed += g_test_timer_elapsed ();
+    g_debug ("%f", elapsed); */
+
 }
 #else
 static void
 adblock_session_request_queued_cb (SoupSession* session,
                                    SoupMessage* msg)
 {
-    Matcher data;
     SoupURI* soup_uri;
-    gchar* uri;
+    gchar* req_uri;
     gchar* page_uri;
 
     if (msg->method && !strncmp (msg->method, "POST", 4))
         return;
 
-    /* FIXME: There is a crasher somewhere introduced with the refactoring */
-
     soup_uri = soup_message_get_uri (msg);
-    uri = soup_uri_to_string (soup_uri, FALSE);
-    if (soup_uri->query)
-        data.query = g_strdup_printf ("%s?%s", soup_uri->path, soup_uri->query);
-    else
-        data.query = g_strdup (soup_uri->path);
+    req_uri = soup_uri_to_string (soup_uri, FALSE);
 
-    data.uri = uri;
     page_uri = NULL; /* FIXME */
 
     if (!page_uri || !strcmp (page_uri, "about:blank"))
-        page_uri = uri;
-    data.page_uri = page_uri;
+        page_uri = req_uri;
 
-    if (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched, &data))
+    if (adblock_is_matched (NULL, req_uri, page_uri))
     {
-        /* FIXME: Update image tooltip */
-
         soup_uri = soup_uri_new ("http://.invalid");
         soup_message_set_uri (msg, soup_uri);
         soup_uri_free (soup_uri);
+        g_free (req_uri);
+        return;
     }
-    g_free (uri);
+    g_free (req_uri);
 }
 #endif
 
@@ -700,6 +704,7 @@ adblock_add_tab_cb (MidoriBrowser* browser,
                     MidoriView*    view,
                     GtkWidget*     image)
 {
+
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
@@ -749,28 +754,118 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     g_object_unref (statusbar);
 }
 
+static gchar *
+adblock_fixup_regexp (gchar* src)
+{
+    gchar* dst;
+    GString* str;
+    int len;
+
+    if (!src)
+        return NULL;
+
+    str = g_string_new ("");
+
+    /* lets strip first .* */
+    if (src[0] == '*')
+    {
+        (void)*src++;
+    }
+
+    do
+    {
+        switch (*src)
+        {
+        case '*':
+            g_string_append (str, ".*");
+            break;
+        case '.':
+            g_string_append (str, "\\.");
+            break;
+        case '?':
+            g_string_append (str, "\\?");
+            break;
+        case '|':
+            g_string_append (str, "");
+            break;
+        /* FIXME: We actually need to match :[0-9]+ or '/'. Sign means
+           "here could be port number or nothing". So bla.com^ will match
+           bla.com/ or bla.com:8080/ but not bla.com.au/ */
+        case '^':
+            g_string_append (str, "");
+            break;
+        default:
+            g_string_append_printf (str,"%c", *src);
+            break;
+        }
+        src++;
+    }
+    while (*src);
+
+    dst = g_strdup (str->str);
+    g_string_free (str, TRUE);
+    /* We dont need .* in the end of url. Thats stupid */
+    len = strlen (dst);
+    if (dst && dst[len-1] == '*' && dst[len-2] == '.')
+    {
+        dst[len-2] = '\0';
+    }
+    return dst;
+}
+
 static void
 adblock_compile_regexp (GHashTable* tbl,
-                       gchar*      patt,
-                       gchar*      opts)
+                        GHashTable* keystbl,
+                        gchar*      patt,
+                        gchar*      opts)
 {
     GRegex* regex;
     GError* error = NULL;
+    int pos = 0;
+    gchar *sig;
 
     /* TODO: Play with optimization flags */
     regex = g_regex_new (patt, G_REGEX_OPTIMIZE,
                          G_REGEX_MATCH_NOTEMPTY, &error);
-
-    if (!error)
-        g_hash_table_insert (tbl, opts, regex);
-    else
+    if (error)
     {
         g_warning ("%s: %s", G_STRFUNC, error->message);
         g_error_free (error);
+        return;
+    }
+
+    if (!g_regex_match_simple ("^/.*[\\^\\$\\*].*/$", patt, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY))
+    {
+        int len = strlen (patt);
+        for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--) {
+            sig = strndup(patt+pos, SIGNATURE_SIZE);
+            if (!g_regex_match_simple ("[\\*]", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
+                !g_hash_table_lookup (keystbl, sig))
+            {
+                /* g_debug ("sig: %s %s", sig, patt); */
+                g_hash_table_insert (keystbl, sig, regex);
+            }
+            else
+            {
+                if (g_regex_match_simple ("^\\*", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
+                    !g_hash_table_lookup (tbl, opts))
+                {
+                    /* g_debug ("patt2: %s %s", sig, patt); */
+                    g_hash_table_insert (tbl, opts, regex);
+                }
+                g_free (sig);
+            }
+        }
+    }
+    else
+    {
+        /*g_debug ("patt: %s", patt); */
+        /* Pattern is a regexp chars */
+        g_hash_table_insert (tbl, opts, regex);
     }
 }
 
-static void
+static gchar*
 adblock_add_url_pattern (gchar* format,
                          gchar* type,
                          gchar* line)
@@ -802,12 +897,12 @@ adblock_add_url_pattern (gchar* format,
     format_patt =  g_strdup_printf (format, fixed_patt);
 
     /* g_debug ("got: %s opts %s", format_patt, opts); */
-    adblock_compile_regexp (pattern, format_patt, opts);
+    adblock_compile_regexp (pattern, keys, format_patt, opts);
 
     g_strfreev (data);
     g_free (patt);
     g_free (fixed_patt);
-    g_free (format_patt);
+    return format_patt;
 }
 
 static void
@@ -896,17 +991,14 @@ adblock_parse_line (gchar* line)
     {
         (void)*line++;
         (void)*line++;
-        adblock_add_url_pattern ("^https?://([a-z0-9\\.]+)?%s", "fulluri", line);
-        return NULL;
+        return adblock_add_url_pattern ("%s", "fulluri", line);
     }
     if (line[0] == '|')
     {
         (void)*line++;
-        adblock_add_url_pattern ("^%s", "fulluri", line);
-        return NULL;
+        return adblock_add_url_pattern ("^%s", "fulluri", line);
     }
-    adblock_add_url_pattern ("%s", "uri", line);
-    return line;
+    return adblock_add_url_pattern ("%s", "uri", line);
 }
 
 static void
@@ -914,11 +1006,16 @@ adblock_parse_file (gchar* path)
 {
     FILE* file;
     gchar line[500];
+    gchar *out;
 
     if ((file = g_fopen (path, "r")))
     {
         while (fgets (line, 500, file))
-            adblock_parse_line (line);
+        {
+            out = adblock_parse_line (line);
+            if (out)
+                g_free (out);
+        }
         fclose (file);
     }
 }
@@ -999,19 +1096,20 @@ adblock_activate_cb (MidoriExtension* extension,
 static void
 test_adblock_parse (void)
 {
+    adblock_init_db ();
     g_assert (!adblock_parse_line (NULL));
     g_assert (!adblock_parse_line ("!"));
     g_assert (!adblock_parse_line ("@@"));
     g_assert (!adblock_parse_line ("##"));
     g_assert (!adblock_parse_line ("["));
 
-    g_assert_cmpstr (adblock_parse_line ("*foo"), ==, ".*foo");
+    g_assert_cmpstr (adblock_parse_line ("*foo"), ==, "foo");
+    g_assert_cmpstr (adblock_parse_line ("f*oo"), ==, "f.*oo");
     g_assert_cmpstr (adblock_parse_line ("?foo"), ==, "\\?foo");
-    g_assert_cmpstr (adblock_parse_line ("foo*"), ==, "foo.*");
     g_assert_cmpstr (adblock_parse_line ("foo?"), ==, "foo\\?");
 
     g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, "\\..*foo/bar");
-    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla\\.blub/.*");
+    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla\\.blub/");
 }
 
 static void
@@ -1020,33 +1118,42 @@ test_adblock_pattern (void)
     gint temp;
     gchar* filename;
 
-    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
-              (GDestroyNotify)g_free,
-              (GDestroyNotify)g_regex_unref);
-
     temp = g_file_open_tmp ("midori_adblock_match_test_XXXXXX", &filename, NULL);
 
     /* TODO: Update some tests and add new ones. */
     g_file_set_contents (filename,
         "*ads.foo.bar*\n"
         "*ads.bogus.name*\n"
-        "http://ads.bla.blub/*\n"
-        "http://ads.blub.boing/*",
+        "||^http://ads.bla.blub/*\n"
+        "|http://ads.blub.boing/*$domain=xxx.com\n"
+        "engine.adct.ru/*?\n"
+        "/addyn|*|adtech;\n"
+        "doubleclick.net/pfadx/*.mtvi\n"
+        "objects.tremormedia.com/embed/xml/*.xml?r=\n"
+        "videostrip.com^*/admatcherclient.\n"
+        "test.dom/test?var\n"
+        "br.gcl.ru/cgi-bin/br/",
         -1, NULL);
+
     adblock_parse_file (filename);
 
-    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
-              "http://ads.foo.bar/teddy"));
-    g_assert (!g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
-              "http://ads.fuu.bar/teddy"));
-    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
-              "https://ads.bogus.name/blub"));
-    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
-              "http://ads.bla.blub/kitty"));
-    g_assert (g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
-              "http://ads.blub.boing/soda"));
-    g_assert (!g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,
-              "http://ads.foo.boing/beer"));
+    g_assert (adblock_is_matched (NULL, "http://test.dom/test?var=1", ""));
+    g_assert (adblock_is_matched (NULL, "http://ads.foo.bar/teddy", ""));
+    g_assert (!adblock_is_matched (NULL, "http://ads.fuu.bar/teddy", ""));
+    g_assert (adblock_is_matched (NULL, "https://ads.bogus.name/blub", ""));
+    g_assert (adblock_is_matched (NULL, "http://ads.bla.blub/kitty", ""));
+    g_assert (adblock_is_matched (NULL, "http://ads.blub.boing/soda", ""));
+    g_assert (!adblock_is_matched (NULL, "http://ads.foo.boing/beer", ""));
+    g_assert (adblock_is_matched (NULL, "https://testsub.engine.adct.ru/test?id=1", ""));
+    if (USE_PATTERN_MATCHING)
+        g_assert (adblock_is_matched (NULL, "http://test.ltd/addyn/test/test?var=adtech;&var2=1", ""));
+    g_assert (adblock_is_matched (NULL, "http://add.doubleclick.net/pfadx/aaaa.mtvi", ""));
+    g_assert (!adblock_is_matched (NULL, "http://add.doubleclick.net/pfadx/aaaa.mtv", ""));
+    g_assert (adblock_is_matched (NULL, "http://objects.tremormedia.com/embed/xml/list.xml?r=", ""));
+    g_assert (!adblock_is_matched (NULL, "http://qq.videostrip.c/sub/admatcherclient.php", ""));
+    g_assert (adblock_is_matched (NULL, "http://qq.videostrip.com/sub/admatcherclient.php", ""));
+    g_assert (adblock_is_matched (NULL, "http://qq.videostrip.com/sub/admatcherclient.php", ""));
+    g_assert (adblock_is_matched (NULL, "http://br.gcl.ru/cgi-bin/br/test", ""));
 
     close (temp);
     g_unlink (filename);
@@ -1057,10 +1164,7 @@ test_adblock_pattern (void)
 static void
 test_adblock_count (void)
 {
-    pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
-              (GDestroyNotify)g_free,
-              (GDestroyNotify)g_regex_unref);
-
+        adblock_init_db ();
         gchar* urls[6] = {
             "https://bugs.webkit.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&query_based_on=gtkport&field0-0-0=keywords&type0-0-0=anywordssubstr&value0-0-0=Gtk%20Cairo%20soup&field0-0-1=short_desc&type0-0-1=anywordssubstr&value0-0-1=Gtk%20Cairo%20soup%20autoconf%20automake%20autotool&field0-0-2=component&type0-0-2=equals&value0-0-2=WebKit%20Gtk",
             "http://www.engadget.com/2009/09/24/google-hits-android-rom-modder-with-a-cease-and-desist-letter/",
@@ -1079,7 +1183,7 @@ test_adblock_count (void)
         {
             str = urls[i];
             g_test_timer_start ();
-            g_hash_table_find (pattern, (GHRFunc) adblock_is_matched,str);
+            adblock_is_matched (NULL, str, "");
             elapsed += g_test_timer_elapsed ();
         }
         g_print ("Search took %f seconds\n", elapsed);
