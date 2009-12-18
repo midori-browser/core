@@ -21,6 +21,10 @@
     #include "config.h"
 #endif
 
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
 #ifdef HAVE_HILDON_2_2
     #include <hildon/hildon.h>
 #endif
@@ -1340,7 +1344,8 @@ katze_mkdir_with_parents (const gchar* pathname,
 {
   gchar* fn, *p;
 
-  if (g_file_test (pathname, G_FILE_TEST_EXISTS))
+  /* Use g_access instead of g_file_test for better performance */
+  if (g_access (pathname, F_OK) == 0)
       return 0;
 
   fn = g_strdup (pathname);
@@ -1360,7 +1365,7 @@ katze_mkdir_with_parents (const gchar* pathname,
       else
           *p = '\0';
 
-      if (!g_file_test (fn, G_FILE_TEST_EXISTS))
+      if (g_access (fn, F_OK) != 0)
       {
           if (g_mkdir (fn, mode) == -1)
           {
