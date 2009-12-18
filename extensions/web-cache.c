@@ -21,8 +21,6 @@
     #include <unistd.h>
 #endif
 
-static gboolean offline_mode = FALSE;
-#define HAVE_WEBKIT_RESOURCE_REQUEST WEBKIT_CHECK_VERSION (1, 1, 14)
 #define MAXLENGTH 1024 * 1024
 
 static gchar*
@@ -60,65 +58,6 @@ web_cache_get_cached_path (MidoriExtension* extension,
     return cached_path;
 }
 
-static gboolean
-web_cache_replace_frame_uri (MidoriExtension* extension,
-                             const gchar*     uri,
-                             WebKitWebFrame*  web_frame)
-{
-    gchar* filename;
-    gboolean handled = FALSE;
-
-    filename = web_cache_get_cached_path (extension, uri);
-
-    /* g_debug ("cache lookup: %s => %s", uri, filename); */
-
-    if (g_file_test (filename, G_FILE_TEST_EXISTS))
-    {
-        gchar* data;
-        g_file_get_contents (filename, &data, NULL, NULL);
-        webkit_web_frame_load_alternate_string (web_frame, data, NULL, uri);
-        g_free (data);
-        handled = TRUE;
-    }
-
-    g_free (filename);
-    return handled;
-}
-
-static gboolean
-web_cache_navigation_decision_cb (WebKitWebView*             web_view,
-                                  WebKitWebFrame*            web_frame,
-                                  WebKitNetworkRequest*      request,
-                                  WebKitWebNavigationAction* action,
-                                  WebKitWebPolicyDecision*   decision,
-                                  MidoriExtension*           extension)
-{
-    const gchar* uri = webkit_network_request_get_uri (request);
-    if (!(uri && g_str_has_prefix (uri, "http://")))
-        return FALSE;
-    if (offline_mode == FALSE)
-        return FALSE;
-
-    return web_cache_replace_frame_uri (extension, uri, web_frame);
-}
-
-#if WEBKIT_CHECK_VERSION (1, 1, 6)
-static gboolean
-web_cache_load_error_cb (WebKitWebView*   web_view,
-                         WebKitWebFrame*  web_frame,
-                         const gchar*     uri,
-                         GError*          error,
-                         MidoriExtension* extension)
-{
-    if (offline_mode == FALSE)
-        return FALSE;
-    if (!(uri && g_str_has_prefix (uri, "http://")))
-        return FALSE;
-
-    return web_cache_replace_frame_uri (extension, uri, web_frame);
-}
-#endif
-
 static void
 web_cache_save_headers (SoupMessage* msg,
                         gchar*       filename)
@@ -145,27 +84,30 @@ web_cache_get_headers (gchar* filename)
     FILE* file;
     gchar* dsc_filename;
 
+    if (!filename)
+        return NULL;
+
+    /* use g_access() instead of g_file_test for better performance */
+    if (g_access (filename, F_OK) != 0)
+        return NULL;
+
+    dsc_filename = g_strdup_printf ("%s.dsc", filename);
+    if (g_access (dsc_filename, R_OK) != 0)
+    {
+        g_free (dsc_filename);
+        return NULL;
+    }
+
     headers = g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify)g_free,
                                (GDestroyNotify)g_free);
 
-    if (!filename)
-        return headers;
-    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
-        return headers;
-
-    dsc_filename = g_strdup_printf ("%s.dsc", filename);
-    if (!g_file_test (dsc_filename, G_FILE_TEST_EXISTS))
-    {
-        g_free (dsc_filename);
-        return headers;
-    }
     if ((file = g_fopen (dsc_filename, "r")))
     {
         gchar line[128];
         while (fgets (line, 128, file))
         {
-            if (line==NULL)
+            if (line == NULL)
                 continue;
             g_strchomp (line);
             gchar** data;
@@ -175,9 +117,11 @@ web_cache_get_headers (gchar* filename)
                                      g_strdup (g_strchug (data[1])));
             g_strfreev (data);
         }
+        fclose (file);
     }
-    fclose (file);
-    /* g_hash_table_destroy (headers); */
+    else
+        g_hash_table_destroy (headers);
+
     g_free (dsc_filename);
     return headers;
 }
@@ -187,9 +131,7 @@ web_cache_tmp_prepare (gchar* filename)
 {
     gchar* tmp_filename = g_strdup_printf ("%s.tmp", filename);
 
-    /* FIXME: If load was interruped we are ending up with a partical
-       cache files forever */
-    if (g_file_test (tmp_filename, G_FILE_TEST_EXISTS))
+    if (g_access (filename, F_OK) == 0)
     {
         g_free (tmp_filename);
         return FALSE;
@@ -276,6 +218,9 @@ web_cache_message_rewrite (SoupMessage*  msg,
     char *data;
     gsize length;
 
+    if (!cache_headers)
+        return;
+
     soup_message_set_status (msg, SOUP_STATUS_OK);
     g_hash_table_iter_init (&iter, cache_headers);
     while (g_hash_table_iter_next (&iter, &key, &value))
@@ -294,26 +239,14 @@ web_cache_message_rewrite (SoupMessage*  msg,
     }
     soup_message_got_body (msg);
     g_free (data);
-
-    #if 0
-    if (offline_mode == TRUE)
-    {
-       /* Workaroung for offline mode
-       FIXME: libsoup-CRITICAL **: queue_message: assertion `item != NULL' failed */
-       SoupSession *session = webkit_get_default_session ();
-       soup_session_requeue_message (session, msg);
-    }
-    soup_message_finished (msg);
-    #endif
 }
 
 static void
-web_cache_mesage_got_headers_cb (SoupMessage*     msg,
-                                 MidoriExtension* extension)
+web_cache_mesage_got_headers_cb (SoupMessage* msg,
+                                 gchar*       filename)
 {
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri;
-    gchar* filename;
     const gchar* nocache;
     SoupMessageHeaders *hdrs = msg->response_headers;
 
@@ -336,12 +269,11 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
     }
 
     uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
-    filename = web_cache_get_cached_path (extension, uri);
     if (msg->status_code == SOUP_STATUS_NOT_MODIFIED)
     {
         /* g_debug ("loading from cache: %s -> %s", uri, filename); */
         g_signal_handlers_disconnect_by_func (msg,
-            web_cache_mesage_got_headers_cb, extension);
+            web_cache_mesage_got_headers_cb, filename);
         web_cache_message_rewrite (msg, filename);
         g_free (filename);
     }
@@ -360,73 +292,24 @@ web_cache_mesage_got_headers_cb (SoupMessage*     msg,
     g_free (uri);
 }
 
-#if HAVE_WEBKIT_RESOURCE_REQUEST
-static void
-web_cache_resource_request_starting_cb (WebKitWebView*         web_view,
-                                        WebKitWebFrame*        web_frame,
-                                        WebKitWebResource*     web_resource,
-                                        WebKitNetworkRequest*  request,
-                                        WebKitNetworkResponse* response,
-                                        MidoriExtension*       extension)
-{
-    const gchar* uri;
-    gchar* filename;
-    /* TODO: Good place to check are we offline */
-    uri = webkit_network_request_get_uri (request);
-    if (!(uri && g_str_has_prefix (uri, "http://")))
-        return;
-
-    if (offline_mode == FALSE)
-       return;
-
-    filename = web_cache_get_cached_path (extension, uri);
-    /* g_debug ("loading %s -> %s",uri, filename); */
-    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
-    {
-        g_free (filename);
-        return;
-    }
-
-    if (!(g_strcmp0 (uri, webkit_web_frame_get_uri (web_frame))
-        && g_strcmp0 (webkit_web_data_source_get_unreachable_uri (
-                      webkit_web_frame_get_data_source (web_frame)), uri)))
-    {
-        web_cache_replace_frame_uri (extension, uri, web_frame);
-        g_free (filename);
-        return;
-    }
-
-    gchar* file_uri = g_filename_to_uri (filename, NULL, NULL);
-    webkit_network_request_set_uri (request, file_uri);
-
-    g_free (file_uri);
-    g_free (filename);
-}
-#endif
-
 static void
 web_cache_session_request_queued_cb (SoupSession*     session,
                                      SoupMessage*     msg,
                                      MidoriExtension* extension)
 {
-    /*FIXME: Should we need to free soupuri? */
     SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
+    gchar* uri = soup_uri_to_string (soup_uri, FALSE);
 
-    /* For now we are handling only online mode here */
-    if (offline_mode == TRUE)
-        return;
-
-    if (g_str_has_prefix (uri, "http") && !g_strcmp0 (msg->method, "GET"))
+    if (uri && g_str_has_prefix (uri, "http") && !g_strcmp0 (msg->method, "GET"))
     {
         gchar* filename = web_cache_get_cached_path (extension, uri);
-        if (offline_mode == FALSE)
-        {
-            GHashTable* cache_headers;
-            gchar* etag;
-            gchar* last_modified;
+        GHashTable* cache_headers;
+        gchar* etag;
+        gchar* last_modified;
 
-            cache_headers = web_cache_get_headers (filename);
+        cache_headers = web_cache_get_headers (filename);
+        if (cache_headers)
+        {
             etag = g_hash_table_lookup (cache_headers, "ETag");
             last_modified = g_hash_table_lookup (cache_headers, "Last-Modified");
             if (etag)
@@ -435,50 +318,13 @@ web_cache_session_request_queued_cb (SoupSession*     session,
             if (last_modified)
                 soup_message_headers_replace (msg->request_headers,
                                               "If-Modified-Since", last_modified);
-            g_signal_connect (msg, "got-headers",
-                G_CALLBACK (web_cache_mesage_got_headers_cb), extension);
+            g_hash_table_destroy (cache_headers);
+        }
+        g_signal_connect (msg, "got-headers",
+                G_CALLBACK (web_cache_mesage_got_headers_cb), filename);
 
-            g_free (etag);
-            g_free (last_modified);
-            g_free (filename);
-            /* FIXME: uncoment this is leading to a crash
-              g_hash_table_destroy (cache_headers); */
-            return;
-        }
-/*
-        else
-        {
-            g_debug("queued in offline mode: %s -> %s", uri, filename);
-            if (g_file_test (filename, G_FILE_TEST_EXISTS))
-            {
-                 soup_message_set_status (msg, SOUP_STATUS_NOT_MODIFIED);
-                 web_cache_message_rewrite (msg, filename);
-            }
-        }
-*/
-        g_free (filename);
     }
     g_free (uri);
-}
-
-static void
-web_cache_add_tab_cb (MidoriBrowser*   browser,
-                      MidoriView*      view,
-                      MidoriExtension* extension)
-{
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    g_signal_connect (web_view, "navigation-policy-decision-requested",
-        G_CALLBACK (web_cache_navigation_decision_cb), extension);
-
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
-    g_signal_connect (web_view, "load-error",
-        G_CALLBACK (web_cache_load_error_cb), extension);
-    #endif
-
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
-    g_signal_connect (web_view, "resource-request-starting",
-        G_CALLBACK (web_cache_resource_request_starting_cb), extension);
-    #endif
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 3)
@@ -500,40 +346,16 @@ web_cache_deactivate_cb (MidoriExtension* extension,
                          MidoriBrowser*   browser);
 
 static void
-web_cache_add_tab_foreach_cb (MidoriView*      view,
-                              MidoriBrowser*   browser,
-                              MidoriExtension* extension)
-{
-    web_cache_add_tab_cb (browser, view, extension);
-}
-
-static void
 web_cache_app_add_browser_cb (MidoriApp*       app,
                               MidoriBrowser*   browser,
                               MidoriExtension* extension)
 {
-    midori_browser_foreach (browser,
-          (GtkCallback)web_cache_add_tab_foreach_cb, extension);
-    g_signal_connect (browser, "add-tab",
-        G_CALLBACK (web_cache_add_tab_cb), extension);
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
     g_signal_connect (browser, "add-download",
         G_CALLBACK (web_cache_add_download_cb), extension);
     #endif
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (web_cache_deactivate_cb), browser);
-}
-
-static void
-web_cache_deactivate_tabs (MidoriView*      view,
-                           MidoriExtension* extension)
-{
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-
-    g_signal_handlers_disconnect_by_func (
-       web_view, web_cache_resource_request_starting_cb, extension);
-    #endif
 }
 
 static void
@@ -549,13 +371,10 @@ web_cache_deactivate_cb (MidoriExtension* extension,
         extension, web_cache_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, web_cache_app_add_browser_cb, extension);
-    g_signal_handlers_disconnect_by_func (
-       browser, web_cache_add_tab_cb, extension);
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
     g_signal_handlers_disconnect_by_func (
         browser, web_cache_add_download_cb, extension);
     #endif
-    midori_browser_foreach (browser, (GtkCallback)web_cache_deactivate_tabs, extension);
 }
 
 static void
