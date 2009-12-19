@@ -90,7 +90,7 @@ adblock_download_notify_status_cb (WebKitDownload* download,
                                    GParamSpec*     pspec,
                                    gchar*          path)
 {
-    if (!g_file_test (path, G_FILE_TEST_EXISTS))
+    if (g_access (path, F_OK) != 0)
        return;
     adblock_parse_file (path);
     g_free (path);
@@ -118,7 +118,7 @@ adblock_reload_rules (MidoriExtension* extension)
         gchar* filename = g_compute_checksum_for_string (G_CHECKSUM_MD5,
                                                          filters[i - 1], -1);
         gchar* path = g_build_filename (folder, filename, NULL);
-        if (!g_file_test (path, G_FILE_TEST_EXISTS))
+        if (g_access (path, F_OK) != 0)
         {
             WebKitNetworkRequest* request;
             WebKitDownload* download;

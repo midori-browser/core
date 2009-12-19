@@ -13,8 +13,13 @@
     #include <config.h>
 #endif
 
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
 #include "katze-net.h"
 
+#include <glib/gstdio.h>
 #include <libsoup/soup.h>
 #include <webkit/webkit.h>
 
@@ -254,7 +259,7 @@ katze_net_local_cb (KatzeNetPriv* priv)
     request = priv->request;
     filename = g_filename_from_uri (request->uri, NULL, NULL);
 
-    if (!filename || !g_file_test (filename, G_FILE_TEST_EXISTS))
+    if (!filename || g_access (filename, F_OK) != 0)
     {
         request->status = KATZE_NET_NOT_FOUND;
         if (priv->status_cb)

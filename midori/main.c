@@ -1440,7 +1440,7 @@ midori_load_session (gpointer data)
 
     browser = midori_app_create_browser (app);
     config_file = build_config_filename ("session.old.xbel");
-    if (g_file_test (config_file, G_FILE_TEST_EXISTS))
+    if (g_access (config_file, F_OK) == 0)
     {
         GtkActionGroup* action_group = midori_browser_get_action_group (browser);
         GtkAction* action = gtk_action_group_get_action (action_group, "LastSession");
@@ -1876,7 +1876,7 @@ main (int    argc,
     error = NULL;
     settings = settings_new_from_file (config_file, &extensions);
     katze_assign (config_file, build_config_filename ("accels"));
-    if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
+    if (g_access (config_file, F_OK) != 0)
         katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
     gtk_accel_map_load (config_file);
     katze_assign (config_file, build_config_filename ("search"));
@@ -2096,7 +2096,7 @@ main (int    argc,
        and deleted during normal runtime, but persists in case of a crash. */
     katze_assign (config_file, build_config_filename ("running"));
     if (katze_object_get_boolean (settings, "show-crash-dialog")
-        && g_file_test (config_file, G_FILE_TEST_EXISTS))
+        && g_access (config_file, F_OK) == 0)
     {
         GtkWidget* dialog = midori_create_diagnostic_dialog (settings, _session);
         gtk_dialog_run (GTK_DIALOG (dialog));

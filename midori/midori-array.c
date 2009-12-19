@@ -23,6 +23,10 @@
     #include <libxml/tree.h>
 #endif
 
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
 #define katze_str_equal(str1, str2) !strcmp (str1, str2)
 
 static void
@@ -416,7 +420,7 @@ midori_array_from_file (KatzeArray*  array,
     g_return_val_if_fail (filename != NULL, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
 
-    if (!g_file_test (filename, G_FILE_TEST_EXISTS))
+    if (g_access (filename, F_OK) != 0)
     {
         /* File doesn't exist */
         if (error)

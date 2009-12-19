@@ -31,6 +31,7 @@
 #include "sokoke.h"
 
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include <string.h>
@@ -1022,7 +1023,7 @@ midori_browser_speed_dial_get_next_free_slot (void)
     body_fname = g_build_filename (sokoke_set_config_dir (NULL),
                                    "speeddial.json", NULL);
 
-    if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
+    if (g_access (body_fname, F_OK) != 0)
     {
         gchar* filename = g_build_filename ("midori", "res", "speeddial.json", NULL);
         gchar* filepath = sokoke_find_data_filename (filename);
@@ -4232,7 +4233,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     {
         gchar* path = g_build_filename (g_get_home_dir (),
                                         bookmark_clients[i].path, NULL);
-        if (g_file_test (path, G_FILE_TEST_EXISTS))
+        if (g_access (path, F_OK) == 0)
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, _(bookmark_clients[i].name), 1, bookmark_clients[i].icon,
                 2, path, 3, icon_width, -1);
@@ -4648,7 +4649,7 @@ _action_help_link_activate (GtkAction*     action,
     {
         #ifdef DOCDIR
         uri = "file://" DOCDIR "/midori/user/midori.html";
-        if (!g_file_test (DOCDIR "/midori/user/midori.html", G_FILE_TEST_EXISTS))
+        if (g_access (DOCDIR "/midori/user/midori.html", F_OK) != 0)
         #endif
             uri = "error:nodocs " DOCDIR "/midori/user/midori.html";
     }

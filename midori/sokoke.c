@@ -1287,7 +1287,7 @@ sokoke_find_config_filename (const gchar* folder,
     while ((config_dir = config_dirs[i++]))
     {
         gchar* path = g_build_filename (config_dir, PACKAGE_NAME, folder, filename, NULL);
-        if (g_file_test (path, G_FILE_TEST_EXISTS))
+        if (g_access (filename, F_OK) == 0)
             return path;
         g_free (path);
     }
@@ -1313,7 +1313,7 @@ sokoke_find_data_filename (const gchar* filename)
     while ((data_dir = data_dirs[i++]))
     {
         gchar* path = g_build_filename (data_dir, filename, NULL);
-        if (g_file_test (path, G_FILE_TEST_EXISTS))
+        if (g_access (filename, F_OK) == 0)
             return path;
         g_free (path);
     }

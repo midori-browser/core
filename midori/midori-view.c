@@ -30,6 +30,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <webkit/webkit.h>
 
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
@@ -2936,7 +2940,7 @@ midori_view_set_uri (MidoriView*  view,
             body_fname = g_build_filename (sokoke_set_config_dir (NULL),
                                            "speeddial.json", NULL);
 
-            if (!g_file_test (body_fname, G_FILE_TEST_EXISTS))
+            if (g_access (body_fname, F_OK) != 0)
             {
                 if (g_file_get_contents (MDATADIR "/midori/res/speeddial.json",
                                          &speed_dial_body, NULL, NULL))
