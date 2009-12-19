@@ -38,7 +38,6 @@ function AutoSuggestControl(oTextbox /*:HTMLInputElement*/,
  * @param bTypeAhead If the control should provide a type ahead suggestion.
  */
 AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/) {
-    //make sure theres at least one suggestion
     if (aSuggestions.length > 0) {
         this.showSuggestions(aSuggestions);
     } else {
@@ -51,35 +50,16 @@ AutoSuggestControl.prototype.autosuggest = function (aSuggestions /*:Array*/) {
  * @scope private
  */
 AutoSuggestControl.prototype.createDropDown = function () {
-    var oThis = this;
-
     var sDiv = document.getElementById("suggestions_box");
-
-    if (sDiv)
+    if (sDiv) {
         this.layer = sDiv;
-    else
-    {
-        this.layer = document.createElement("div");
-        this.layer.className = "suggestions";
-        this.layer.id = "suggestions_box";
-        this.layer.style.visibility = "hidden";
-        this.layer.style.width = this.textbox.offsetWidth;
+        return;
     }
-    this.layer.onmousedown =
-    this.layer.onmouseup =
-    this.layer.onmouseover = function (oEvent) {
-        oEvent = oEvent || window.event;
-        oTarget = oEvent.target || oEvent.srcElement;
-
-        if (oEvent.type == "mousedown") {
-            oThis.textbox.value = oTarget.firstChild.nodeValue;
-            oThis.hideSuggestions();
-        } else if (oEvent.type == "mouseover") {
-            oThis.highlightSuggestion(oTarget);
-        } else {
-            oThis.textbox.focus();
-        }
-    };
+    this.layer = document.createElement("div");
+    this.layer.className = "suggestions";
+    this.layer.id = "suggestions_box";
+    this.layer.style.visibility = "hidden";
+    this.layer.style.width = this.textbox.offsetWidth;
     document.body.appendChild(this.layer);
 };
 
@@ -91,12 +71,10 @@ AutoSuggestControl.prototype.createDropDown = function () {
 AutoSuggestControl.prototype.getLeft = function () /*:int*/ {
     var oNode = this.textbox;
     var iLeft = 0;
-
-    while(oNode.tagName != "BODY") {
+    while (oNode.tagName != "BODY") {
         iLeft += oNode.offsetLeft;
         oNode = oNode.offsetParent;
     }
-
     return iLeft;
 };
 
@@ -141,17 +119,15 @@ AutoSuggestControl.prototype.handleKeyDown = function (oEvent /*:Event*/) {
  */
 AutoSuggestControl.prototype.handleKeyUp = function (oEvent /*:Event*/) {
     var iKeyCode = oEvent.keyCode;
-    //for backspace (8) and delete (46), shows suggestions without typeahead
     if (iKeyCode == 8 || iKeyCode == 46) {
         this.provider.requestSuggestions(this);
     //make sure not to interfere with non-character keys
     } else if (iKeyCode < 32 || (iKeyCode >= 33 && iKeyCode < 46) || (iKeyCode >= 112 && iKeyCode <= 123) ) {
         //ignore
     } else if (oEvent.ctrlKey) {
-	iKeyCode = 0;
         this.hideSuggestions();
     } else {
-        //request suggestions from the suggestion provider with typeahead
+        //request suggestions from the suggestion provider
         this.provider.requestSuggestions(this);
     }
 };
@@ -227,11 +203,15 @@ AutoSuggestControl.prototype.init = function () {
 AutoSuggestControl.prototype.nextSuggestion = function () {
     var cSuggestionNodes = this.layer.childNodes;
 
-    if (cSuggestionNodes.length > 0 && this.cur < cSuggestionNodes.length-1) {
-        var oNode = cSuggestionNodes[++this.cur];
-        this.highlightSuggestion(oNode);
-        this.textbox.value = oNode.firstChild.nodeValue;
-    }
+    if (!cSuggestionNodes.length)
+        return;
+
+    if (this.cur == cSuggestionNodes.length-1)
+        this.cur = -1;
+
+    var oNode = cSuggestionNodes[++this.cur];
+    this.highlightSuggestion(oNode);
+    this.textbox.value = oNode.firstChild.nodeValue;
 };
 
 /**
@@ -242,24 +222,15 @@ AutoSuggestControl.prototype.nextSuggestion = function () {
 AutoSuggestControl.prototype.previousSuggestion = function () {
     var cSuggestionNodes = this.layer.childNodes;
 
-    if (cSuggestionNodes.length > 0 && this.cur > 0) {
-        var oNode = cSuggestionNodes[--this.cur];
-        this.highlightSuggestion(oNode);
-        this.textbox.value = oNode.firstChild.nodeValue;
-    }
-};
+    if (!cSuggestionNodes.length)
+        return;
 
-/**
- * Selects a range of text in the textbox.
- * @scope public
- * @param iStart The start index (base 0) of the selection.
- * @param iLength The number of characters to select.
- */
-AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*:int*/) {
-    if (this.textbox.setSelectionRange) {
-        this.textbox.setSelectionRange(iStart, iLength);
-    }
-    this.textbox.focus();
+    if (this.cur == -1 || this.cur == 0)
+        this.cur = cSuggestionNodes.length;
+
+    var oNode = cSuggestionNodes[--this.cur];
+    this.highlightSuggestion(oNode);
+    this.textbox.value = oNode.firstChild.nodeValue;
 };
 
 /**
@@ -269,6 +240,7 @@ AutoSuggestControl.prototype.selectRange = function (iStart /*:int*/, iLength /*
  * @param aSuggestions An array of suggestions for the control.
  */
 AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/) {
+    var oThis  = this;
     var oDiv = null;
     this.layer.innerHTML = "";  //clear contents of the layer
 
@@ -282,6 +254,21 @@ AutoSuggestControl.prototype.showSuggestions = function (aSuggestions /*:Array*/
     this.layer.style.top = (this.getTop()+this.textbox.offsetHeight) + "px";
     this.layer.style.visibility = "visible";
     this.layer.style.position = "absolute";
+    this.layer.onmousedown =
+    this.layer.onmouseup =
+    this.layer.onmouseover = function (oEvent) {
+        var oEvent = oEvent || window.event;
+        var oTarget = oEvent.target || oEvent.srcElement;
+
+        if (oEvent.type == "mousedown") {
+            oThis.textbox.value = oTarget.firstChild.nodeValue;
+            oThis.hideSuggestions();
+        } else if (oEvent.type == "mouseover") {
+            oThis.highlightSuggestion(oTarget);
+        } else {
+            oThis.textbox.focus();
+        }
+    };
 };
 
 /**
@@ -295,14 +282,13 @@ FormSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:
 
     if (!this.suggestions)
         return;
-    if (!sTextboxValue.length)
-        return;
 
     //search for matching suggestions
-    for (var i=0; i < this.suggestions.length; i++) {
-         if (this.suggestions[i].toLowerCase().indexOf(sTextboxValue) == 0) {
-             aSuggestions.push(this.suggestions[i]);
-         }
+    if (sTextboxValue.length)
+        for (var i=0; i < this.suggestions.length; i++) {
+             if (this.suggestions[i].toLowerCase().indexOf(sTextboxValue) == 0) {
+                 aSuggestions.push(this.suggestions[i]);
+        }
     }
     //provide suggestions to the control
     oAutoSuggestControl.autosuggest(aSuggestions);

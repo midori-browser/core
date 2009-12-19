@@ -38,13 +38,13 @@ formhistory_prepare_js ()
 
    gchar* data_path = g_build_filename (MDATADIR, PACKAGE_NAME, "res", NULL);
    file = g_build_filename (data_path,"/autosuggestcontrol.js",NULL);
-   if (!g_file_test (file, G_FILE_TEST_EXISTS))
+   if (g_access (file, F_OK) != 0)
        return FALSE;
    g_file_get_contents (file, &autosuggest, NULL, NULL);
    g_strchomp (autosuggest);
 
    file = g_build_filename (data_path,"/autosuggestcontrol.css",NULL);
-   if (!g_file_test (file, G_FILE_TEST_EXISTS))
+   if (g_access (file, F_OK) != 0)
        return FALSE;
    g_file_get_contents (file, &style, NULL, NULL);
    g_strchomp (style);
@@ -58,7 +58,6 @@ formhistory_prepare_js ()
 
    jsforms = g_strdup_printf (
         "%s"
-        "window.addEventListener ('load', function () { initSuggestions (); }, true);"
         "window.addEventListener ('DOMContentLoaded',"
         "function () {"
         "   var styles = document.getElementsByTagName('style');"
@@ -66,6 +65,7 @@ formhistory_prepare_js ()
         "       if (styles[i].getAttribute('title') == 'formhistory')"
         "           return;"
         "   }"
+        "   initSuggestions ();"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
         "   mystyle.setAttribute('title', 'formhistory');"
@@ -215,8 +215,7 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                  "}"
                  "dumpForm (document.getElementsByTagName('input'))";
 
-    if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED
-     || webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_RESUBMITTED)
+    if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED)
     {
         gchar* value = sokoke_js_script_eval (js_context, script, NULL);
         if (value)
