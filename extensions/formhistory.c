@@ -290,13 +290,12 @@ formhistory_session_request_queued_cb (SoupSession*     session,
 #endif
 
 static void
-formhistory_window_object_cleared_cb (GtkWidget*      web_view,
+formhistory_window_object_cleared_cb (WebKitWebView*  web_view,
                                       WebKitWebFrame* web_frame,
                                       JSContextRef    js_context,
                                       JSObjectRef     js_window)
 {
-    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (web_view),
-                                    formhistory_build_js ());
+    sokoke_js_script_eval (js_context, formhistory_build_js (), NULL);
 }
 
 static void
