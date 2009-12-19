@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Midori 0.1.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-29 23:28+0900\n"
-"PO-Revision-Date: 2009-11-29 23:25+0900\n"
+"POT-Creation-Date: 2009-12-19 18:05+0900\n"
+"PO-Revision-Date: 2009-12-19 18:05+0900\n"
 "Last-Translator: Masato Hashimoto <cabezon.hashimoto@gmail.com>\n"
 "Language-Team: Japanese <xfce-users-jp@ml.fdiary.net>\n"
 "MIME-Version: 1.0\n"
@@ -20,8 +20,11 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "軽量級ウェブブラウザ"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1479 ../midori/main.c:1675
-#: ../midori/main.c:1683 ../midori/main.c:1694
+#: ../data/midori.desktop.in.h:2
+#: ../midori/main.c:1514
+#: ../midori/main.c:1712
+#: ../midori/main.c:1720
+#: ../midori/main.c:1731
 #: ../midori/midori-websettings.c:292
 msgid "Midori"
 msgstr "Midori"
@@ -30,296 +33,312 @@ msgstr "Midori"
 msgid "Web Browser"
 msgstr "ウェブブラウザ"
 
-#: ../midori/main.c:97
+#: ../midori/main.c:107
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "設定を読み込めませんでした: %s\n"
 
-#: ../midori/main.c:152
+#: ../midori/main.c:162
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "'%s' は %s の値として無効です"
 
-#: ../midori/main.c:159 ../midori/main.c:240
+#: ../midori/main.c:169
+#: ../midori/main.c:255
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "無効な設定値 '%s'"
 
-#: ../midori/main.c:364 ../extensions/formhistory.c:438
+#: ../midori/main.c:379
+#: ../extensions/formhistory.c:443
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "データベースのオープンに失敗しました: %s\n"
 
-#: ../midori/main.c:396 ../extensions/formhistory.c:453
-#: ../extensions/formhistory.c:457
+#: ../midori/main.c:411
+#: ../extensions/formhistory.c:458
+#: ../extensions/formhistory.c:462
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "データベース文の実行に失敗しました: %s\n"
 
-#: ../midori/main.c:450
+#: ../midori/main.c:465
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "履歴アイテムの削除に失敗しました: %s\n"
 
-#: ../midori/main.c:474
+#: ../midori/main.c:489
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "履歴のクリアに失敗しました: %s\n"
 
-#: ../midori/main.c:497 ../midori/main.c:531 ../midori/main.c:547
+#: ../midori/main.c:512
+#: ../midori/main.c:546
+#: ../midori/main.c:562
 #, c-format
 msgid "Failed to add history item: %s\n"
 msgstr "履歴アイテムの追加に失敗しました: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:726
+#: ../midori/main.c:741
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "古い履歴アイテムの削除に失敗しました: %s\n"
 
-#: ../midori/main.c:755
+#: ../midori/main.c:770
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "設定を保存できませんでした。%s"
 
-#: ../midori/main.c:793
+#: ../midori/main.c:808
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "検索エンジンを保存できませんでした。%s"
 
-#: ../midori/main.c:812 ../midori/main.c:840 ../midori/main.c:869
+#: ../midori/main.c:827
+#: ../midori/main.c:877
+#: ../midori/main.c:897
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "ブックマークを保存できませんでした。%s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:892 ../midori/main.c:915
+#: ../midori/main.c:927
+#: ../midori/main.c:950
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "ゴミ箱を保存できませんでした。%s"
 
-#: ../midori/main.c:984 ../midori/main.c:1156
+#: ../midori/main.c:1019
+#: ../midori/main.c:1191
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "セッションは保存できませんでした。%s"
 
-#: ../midori/main.c:1194
-msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
-msgstr ""
-"Midori は最後に開いたときにクラッシュしたようです。もしこれが繰り返し発生する"
-"ようであれば、問題解決のために以下のオプションのいずれかを試してみてくださ"
-"い。"
+#: ../midori/main.c:1229
+msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
+msgstr "Midori は最後に開いたときにクラッシュしたようです。もしこれが繰り返し発生するようであれば、問題解決のために以下のオプションのいずれかを試してみてください。"
 
-#: ../midori/main.c:1209
+#: ../midori/main.c:1244
 msgid "Modify _preferences"
 msgstr "設定を変更する(_P)"
 
-#: ../midori/main.c:1213
+#: ../midori/main.c:1248
 msgid "Reset the last _session"
 msgstr "最後のセッションをリセットする(_S)"
 
-#: ../midori/main.c:1218
+#: ../midori/main.c:1253
 msgid "Disable all _extensions"
 msgstr "すべてのエクステンションを無効にする(_E)"
 
-#: ../midori/main.c:1383 ../midori/main.c:1894
+#: ../midori/main.c:1418
+#: ../midori/main.c:1945
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "セッションを読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1479
+#: ../midori/main.c:1514
 msgid "No filename specified"
 msgstr "ファイル名が指定されていません"
 
-#: ../midori/main.c:1502
+#: ../midori/main.c:1537
 msgid "An unknown error occured."
 msgstr "未知のエラーが発生しました。"
 
-#: ../midori/main.c:1534
+#: ../midori/main.c:1569
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "スナップショットを取得しました: %s\n"
 
 # CLI --help
-#: ../midori/main.c:1591
+#: ../midori/main.c:1628
 msgid "Run ADDRESS as a web application"
 msgstr "ADDRESS をウェブアプリケーションとして実行する"
 
-#: ../midori/main.c:1591
+#: ../midori/main.c:1628
 msgid "ADDRESS"
 msgstr "ADDRESS"
 
 # CLI --help
-#: ../midori/main.c:1594
+#: ../midori/main.c:1631
 msgid "Use FOLDER as configuration folder"
 msgstr "設定フォルダとして FOLDER を使用する"
 
-#: ../midori/main.c:1594
+#: ../midori/main.c:1631
 msgid "FOLDER"
 msgstr "FOLDER"
 
 # CLI --help
-#: ../midori/main.c:1597
+#: ../midori/main.c:1634
 msgid "Run the specified filename as javascript"
 msgstr "指定されたファイル名を javascript として実行する"
 
 # CLI --help
-#: ../midori/main.c:1600
+#: ../midori/main.c:1637
 msgid "Take a snapshot of the specified URI"
 msgstr "指定された URI のスナップショットを取得する"
 
 # CLI --help
-#: ../midori/main.c:1603
+#: ../midori/main.c:1640
 msgid "Execute the specified command"
 msgstr "指定されたコマンドを実行する"
 
 # CLI --help
-#: ../midori/main.c:1605
+#: ../midori/main.c:1642
 msgid "Display program version"
 msgstr "プログラムのバージョンを表示する"
 
-#: ../midori/main.c:1607
+#: ../midori/main.c:1644
 msgid "Addresses"
 msgstr "アドレス"
 
-#: ../midori/main.c:1672
+#: ../midori/main.c:1709
 msgid "[Addresses]"
 msgstr "[アドレス]"
 
-#: ../midori/main.c:1695
+#: ../midori/main.c:1732
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "コメント、ご提案、またはバグの報告はこちらまでお願いします:"
 
-#: ../midori/main.c:1697
+#: ../midori/main.c:1734
 msgid "Check for new versions at:"
 msgstr "新しいバージョンのチェックはこちら:"
 
-#: ../midori/main.c:1767
+#: ../midori/main.c:1816
 msgid "The specified configuration folder is invalid."
 msgstr "指定された設定フォルダが正しくありません。"
 
-#: ../midori/main.c:1815
+#: ../midori/main.c:1864
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Midori のインスタンスはすでに実行中ですが応答がありません。\n"
 
-#: ../midori/main.c:1861
+#: ../midori/main.c:1912
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "検索エンジンを読み込めませんでした。%s\n"
 
-#: ../midori/main.c:1879
+#: ../midori/main.c:1930
 #, c-format
 msgid "The bookmarks couldn't be loaded: %s\n"
 msgstr "ブックマークを読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1907
+#: ../midori/main.c:1958
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "ゴミ箱を読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1920
+#: ../midori/main.c:1971
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "履歴を読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1932
+#: ../midori/main.c:1983
 msgid "The following errors occured:"
 msgstr "次のエラーが発生しました:"
 
-#: ../midori/main.c:1948
+#: ../midori/main.c:1999
 msgid "_Ignore"
 msgstr "無視(_I)"
 
-#: ../midori/midori-array.c:330
+#: ../midori/midori-array.c:424
 msgid "File not found."
 msgstr "ファイルが見つかりません。"
 
-#: ../midori/midori-array.c:361 ../midori/midori-array.c:384
-#: ../midori/midori-array.c:394
+#: ../midori/midori-array.c:458
+#: ../midori/midori-array.c:481
+#: ../midori/midori-array.c:491
 msgid "Malformed document."
 msgstr "不正な形式のドキュメントです。"
 
-#: ../midori/midori-array.c:403
+#: ../midori/midori-array.c:500
 msgid "Unrecognized bookmark format."
 msgstr "認識できないブックマーク形式です。"
 
-#: ../midori/midori-array.c:567 ../midori/sokoke.c:955
+#: ../midori/midori-array.c:714
+#: ../midori/sokoke.c:965
 #, c-format
 msgid "Writing failed."
 msgstr "書き込みに失敗しました。"
 
-#: ../midori/midori-browser.c:330 ../midori/midori-browser.c:4920
-#: ../midori/midori-browser.c:4926
+#: ../midori/midori-browser.c:330
+#: ../midori/midori-browser.c:5003
+#: ../midori/midori-browser.c:5009
 msgid "Reload the current page"
 msgstr "現在のページを再読み込みします"
 
-#: ../midori/midori-browser.c:340 ../midori/midori-browser.c:4923
+#: ../midori/midori-browser.c:340
+#: ../midori/midori-browser.c:5006
 msgid "Stop loading the current page"
 msgstr "現在のページの読み込みを中止します"
 
-#: ../midori/midori-browser.c:453
+#: ../midori/midori-browser.c:449
 #, c-format
 msgid "%d%% loaded"
 msgstr "%d%% ロードしました"
 
-#: ../midori/midori-browser.c:478
+#: ../midori/midori-browser.c:474
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "'%s' は想定外のアクションです。"
 
-#: ../midori/midori-browser.c:679
+#: ../midori/midori-browser.c:675
 msgid "New folder"
 msgstr "新しいフォルダ"
 
-#: ../midori/midori-browser.c:679
+#: ../midori/midori-browser.c:675
 msgid "Edit folder"
 msgstr "フォルダの編集"
 
-#: ../midori/midori-browser.c:681
+#: ../midori/midori-browser.c:677
 msgid "New bookmark"
 msgstr "新しいブックマーク"
 
-#: ../midori/midori-browser.c:681
+#: ../midori/midori-browser.c:677
 msgid "Edit bookmark"
 msgstr "ブックマークの編集"
 
-#: ../midori/midori-browser.c:711
+#: ../midori/midori-browser.c:707
 msgid "_Title:"
 msgstr "タイトル(_T):"
 
-#: ../midori/midori-browser.c:724 ../midori/midori-searchaction.c:967
+#: ../midori/midori-browser.c:720
+#: ../midori/midori-searchaction.c:967
 msgid "_Description:"
 msgstr "説明(_D):"
 
-#: ../midori/midori-browser.c:743 ../midori/midori-searchaction.c:981
+#: ../midori/midori-browser.c:739
+#: ../midori/midori-searchaction.c:981
 #: ../extensions/feed-panel/main.c:368
 msgid "_Address:"
 msgstr "アドレス(_A):"
 
-#: ../midori/midori-browser.c:773 ../midori/midori-browser.c:4193
+#: ../midori/midori-browser.c:769
+#: ../midori/midori-browser.c:4250
 msgid "_Folder:"
 msgstr "フォルダ(_F):"
 
-#: ../midori/midori-browser.c:783 ../midori/midori-browser.c:859
-#: ../midori/midori-browser.c:4198 ../midori/midori-browser.c:4229
+#: ../midori/midori-browser.c:779
+#: ../midori/midori-browser.c:855
+#: ../midori/midori-browser.c:4255
+#: ../midori/midori-browser.c:4287
 msgid "Toplevel folder"
 msgstr "トップレベルフォルダ"
 
-#: ../midori/midori-browser.c:812
+#: ../midori/midori-browser.c:808
 msgid "Show in the tool_bar"
 msgstr "ツールバーに表示する(_B)"
 
-#: ../midori/midori-browser.c:827
+#: ../midori/midori-browser.c:823
 msgid "Run as _web application"
 msgstr "ウェブアプリケーションとして実行する(_W)"
 
 #: ../midori/midori-browser.c:935
+#: ../midori/midori-browser.c:4305
 msgid "Save file as"
 msgstr "名前を付けて保存"
 
-#: ../midori/midori-browser.c:1302 ../panels/midori-transfers.c:272
+#: ../midori/midori-browser.c:1302
+#: ../panels/midori-transfers.c:272
 #, c-format
 msgid "%s of %s"
 msgstr "%s / %s"
@@ -337,664 +356,714 @@ msgstr "転送完了"
 msgid "Save file"
 msgstr "ファイルの保存"
 
-#: ../midori/midori-browser.c:2181
+#: ../midori/midori-browser.c:2191
 msgid "Open file"
 msgstr "ファイルを開く"
 
-#: ../midori/midori-browser.c:2257 ../extensions/feed-panel/main.c:356
+#: ../midori/midori-browser.c:2267
+#: ../extensions/feed-panel/main.c:356
 msgid "New feed"
 msgstr "新しいフィード"
 
 # tooltip
-#: ../midori/midori-browser.c:2290 ../midori/midori-browser.c:4979
-#: ../panels/midori-bookmarks.c:235
+#: ../midori/midori-browser.c:2300
+#: ../midori/midori-browser.c:5050
+#: ../panels/midori-bookmarks.c:243
 msgid "Add a new bookmark"
 msgstr "新しいブックマークを追加します"
 
-#: ../midori/midori-browser.c:3442 ../midori/sokoke.c:275
-#: ../midori/sokoke.c:285 ../midori/sokoke.c:313 ../midori/sokoke.c:335
+#: ../midori/midori-browser.c:2861
+#: ../midori/midori-searchaction.c:491
+msgid "Empty"
+msgstr "空です"
+
+#: ../midori/midori-browser.c:3467
+#: ../midori/sokoke.c:275
+#: ../midori/sokoke.c:285
+#: ../midori/sokoke.c:313
+#: ../midori/sokoke.c:335
 #: ../midori/sokoke.c:349
 msgid "Could not run external program."
 msgstr "外部プログラムを実行できませんでした。"
 
-#: ../midori/midori-browser.c:3937 ../panels/midori-bookmarks.c:781
+#: ../midori/midori-browser.c:3980
+#: ../panels/midori-bookmarks.c:796
 #: ../panels/midori-history.c:822
 msgid "Open all in _Tabs"
 msgstr "タブですべて開く(_T)"
 
-#: ../midori/midori-browser.c:3944 ../panels/midori-bookmarks.c:787
-#: ../panels/midori-history.c:828 ../extensions/feed-panel/feed-panel.c:545
+#: ../midori/midori-browser.c:3987
+#: ../panels/midori-bookmarks.c:802
+#: ../panels/midori-history.c:828
+#: ../extensions/feed-panel/feed-panel.c:545
 msgid "Open in New _Tab"
 msgstr "新しいタブで開く(_T)"
 
-#: ../midori/midori-browser.c:3947 ../panels/midori-bookmarks.c:789
-#: ../panels/midori-history.c:830 ../extensions/feed-panel/feed-panel.c:547
+#: ../midori/midori-browser.c:3990
+#: ../panels/midori-bookmarks.c:804
+#: ../panels/midori-history.c:830
+#: ../extensions/feed-panel/feed-panel.c:547
 msgid "Open in New _Window"
 msgstr "新しいウィンドウで開く(_W)"
 
-#: ../midori/midori-browser.c:4126
+#: ../midori/midori-browser.c:4179
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4127
+#: ../midori/midori-browser.c:4180
 msgid "Kazehakase"
 msgstr "風博士"
 
-#: ../midori/midori-browser.c:4128
+#: ../midori/midori-browser.c:4181
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4148
+#: ../midori/midori-browser.c:4182
+msgid "Konqueror"
+msgstr "Konqueror"
+
+#: ../midori/midori-browser.c:4183
+msgid "Epiphany"
+msgstr "Epiphany"
+
+#: ../midori/midori-browser.c:4203
+#: ../panels/midori-bookmarks.c:272
 msgid "Import bookmarks..."
 msgstr "ブックマークのインポート..."
 
-#: ../midori/midori-browser.c:4151 ../midori/midori-browser.c:4984
+#: ../midori/midori-browser.c:4206
+#: ../midori/midori-browser.c:5055
 msgid "_Import bookmarks"
 msgstr "ブックマークのインポート(_I)"
 
-#: ../midori/midori-browser.c:4162
+#: ../midori/midori-browser.c:4216
 msgid "_Application:"
 msgstr "アプリケーション(_A):"
 
-#: ../midori/midori-browser.c:4248
+#: ../midori/midori-browser.c:4242
+#: ../midori/midori-browser.c:5148
+#: ../midori/midori-websettings.c:223
+#: ../midori/midori-websettings.c:297
+#: ../katze/katze-utils.c:676
+msgid "Custom..."
+msgstr "カスタム..."
+
+#: ../midori/midori-browser.c:4316
 msgid "Failed to import bookmarks"
 msgstr "ブックマークのインポートに失敗しました"
 
 # Dialog title
-#: ../midori/midori-browser.c:4388
+#: ../midori/midori-browser.c:4462
 msgid "Clear Private Data"
 msgstr "プライベートデータのクリア"
 
 # Button label
-#: ../midori/midori-browser.c:4392
+#: ../midori/midori-browser.c:4466
 msgid "_Clear private data"
 msgstr "プライベートデータのクリア(_C)"
 
-#: ../midori/midori-browser.c:4405
+#: ../midori/midori-browser.c:4479
 msgid "Clear the following data:"
 msgstr "以下のデータをクリアします:"
 
-#: ../midori/midori-browser.c:4415 ../midori/midori-preferences.c:533
+#: ../midori/midori-browser.c:4489
+#: ../midori/midori-preferences.c:515
 #: ../panels/midori-history.c:108
 msgid "History"
 msgstr "履歴"
 
-#: ../midori/midori-browser.c:4420
+#: ../midori/midori-browser.c:4494
 msgid "Cookies"
 msgstr "Cookie"
 
-#: ../midori/midori-browser.c:4425
+#: ../midori/midori-browser.c:4499
 msgid "'Flash' Cookies"
 msgstr "'Flash' Cookie"
 
-#: ../midori/midori-browser.c:4430
+#: ../midori/midori-browser.c:4504
 msgid "Website icons"
 msgstr "ウェブサイトアイコン"
 
-#: ../midori/midori-browser.c:4435 ../midori/sokoke.c:1114
+#: ../midori/midori-browser.c:4509
+#: ../midori/sokoke.c:1124
 msgid "_Closed Tabs"
 msgstr "閉じたタブ(_C)"
 
-#: ../midori/midori-browser.c:4443
+#: ../midori/midori-browser.c:4514
+#: ../extensions/web-cache.c:410
+msgid "Web Cache"
+msgstr "ウェブキャッシュ"
+
+#: ../midori/midori-browser.c:4522
 msgid "Clear private data when _quitting Midori"
 msgstr "Midori 終了時にプライベートデータをクリアする(_Q)"
 
-#: ../midori/midori-browser.c:4539
+#: ../midori/midori-browser.c:4618
 msgid "A lightweight web browser."
 msgstr "軽快なウェブブラウザ"
 
-#: ../midori/midori-browser.c:4555
+#: ../midori/midori-browser.c:4634
 msgid "translator-credits"
 msgstr "Masato Hashimoto <hashimo@xfce.org>"
 
-#: ../midori/midori-browser.c:4837
+#: ../midori/midori-browser.c:4916
 msgid "_File"
 msgstr "ファイル(_F)"
 
-#: ../midori/midori-browser.c:4839 ../midori/sokoke.c:1115
+#: ../midori/midori-browser.c:4918
+#: ../midori/sokoke.c:1125
 msgid "New _Window"
 msgstr "新しいウィンドウ(_W)"
 
 # tooltip
-#: ../midori/midori-browser.c:4840
+#: ../midori/midori-browser.c:4919
 msgid "Open a new window"
 msgstr "新しいウィンドウを開きます"
 
 # tooltip
-#: ../midori/midori-browser.c:4843
+#: ../midori/midori-browser.c:4922
 msgid "Open a new tab"
 msgstr "新しいタブを開きます"
 
-# tooltip
-#: ../midori/midori-browser.c:4846
-msgid "Open a file"
-msgstr "ファイルを開きます"
-
-# tooltip
-#: ../midori/midori-browser.c:4849
-msgid "Save to a file"
-msgstr "ファイルへ保存します"
-
-#: ../midori/midori-browser.c:4851
-msgid "Add to Speed _dial"
-msgstr "スピードダイアルに追加(_D)"
-
-# tooltip
-#: ../midori/midori-browser.c:4852
-msgid "Add shortcut to speed dial"
-msgstr "ショートカットをスピードダイアルに追加します"
-
-#: ../midori/midori-browser.c:4854
-msgid "Add Shortcut to the _desktop"
-msgstr "デスクトップにショートカットを追加(_D)"
-
-# tooltip
-#: ../midori/midori-browser.c:4855
-msgid "Add shortcut to the desktop"
-msgstr "デスクトップにショートカットを追加します"
-
-#: ../midori/midori-browser.c:4857
-msgid "Subscribe to News _feed"
-msgstr "ニュースフィードを購読(_F)"
-
-#: ../midori/midori-browser.c:4858
-msgid "Subscribe to this news feed"
-msgstr "このニュースフィードを購読します"
-
-#: ../midori/midori-browser.c:4863
-msgid "_Close Tab"
-msgstr "タブを閉じる(_C)"
-
-# tooltip
-#: ../midori/midori-browser.c:4864
-msgid "Close the current tab"
-msgstr "現在のタブを閉じます"
-
-#: ../midori/midori-browser.c:4866
-msgid "C_lose Window"
-msgstr "ウィンドウを閉じる(_L)"
-
-# tooltip
-#: ../midori/midori-browser.c:4867
-msgid "Close this window"
-msgstr "このウィンドウを閉じます"
-
-# tooltip
-#: ../midori/midori-browser.c:4870
-msgid "Print the current page"
-msgstr "現在のページを印刷します"
-
-# tooltip
-#: ../midori/midori-browser.c:4873
-msgid "Quit the application"
-msgstr "このアプリケーションを終了します"
-
-#: ../midori/midori-browser.c:4875
-msgid "_Edit"
-msgstr "編集(_E)"
-
-#: ../midori/midori-browser.c:4879
-msgid "Undo the last modification"
-msgstr "最後の修正を元に戻す"
-
-#: ../midori/midori-browser.c:4882
-msgid "Redo the last modification"
-msgstr "最後の修正をやり直す"
-
-# tooltip
-#: ../midori/midori-browser.c:4886
-msgid "Cut the selected text"
-msgstr "選択した文字を切り取ります"
-
-# tooltip
-#: ../midori/midori-browser.c:4889 ../midori/midori-browser.c:4892
-msgid "Copy the selected text"
-msgstr "選択した文字をコピーします"
-
-# tooltip
-#: ../midori/midori-browser.c:4895
-msgid "Paste text from the clipboard"
-msgstr "クリップボードから文字を貼り付けます"
-
-# tooltip
-#: ../midori/midori-browser.c:4898
-msgid "Delete the selected text"
-msgstr "選択した文字を削除します"
-
-# tooltip
-#: ../midori/midori-browser.c:4901
-msgid "Select all text"
-msgstr "すべての文字を選択します"
-
-# tooltip
-#: ../midori/midori-browser.c:4904
-msgid "Find a word or phrase in the page"
-msgstr "ページ内の単語やフレーズを検索します"
-
-#: ../midori/midori-browser.c:4906
-msgid "Find _Next"
-msgstr "次を検索(_N)"
-
-# tooltip
-#: ../midori/midori-browser.c:4907
-msgid "Find the next occurrence of a word or phrase"
-msgstr "指定文字列に一致する次の候補を検索します"
-
-#: ../midori/midori-browser.c:4909
-msgid "Find _Previous"
-msgstr "前を検索(_P)"
-
-# tooltip
-#: ../midori/midori-browser.c:4910
-msgid "Find the previous occurrence of a word or phrase"
-msgstr "指定文字列に一致する前の候補を検索します"
-
-# tooltip
-#: ../midori/midori-browser.c:4914
-msgid "Configure the application preferences"
-msgstr "このアプリケーションの設定を行います"
-
-#: ../midori/midori-browser.c:4916
-msgid "_View"
-msgstr "表示(_V)"
-
-#: ../midori/midori-browser.c:4917
-msgid "_Toolbars"
-msgstr "ツールバー(_T)"
-
-# tooltip
-#: ../midori/midori-browser.c:4933
-msgid "Increase the zoom level"
-msgstr "ズームレベルを大きくします"
-
-# tooltip
-#: ../midori/midori-browser.c:4940
-msgid "Decrease the zoom level"
-msgstr "ズームレベルを小さくします"
-
-# tooltip
-#: ../midori/midori-browser.c:4943
-msgid "Reset the zoom level"
-msgstr "ズームレベルをリセットします"
-
-#: ../midori/midori-browser.c:4944
-msgid "_Encoding"
-msgstr "エンコーディング(_E)"
-
-#: ../midori/midori-browser.c:4946
-msgid "View So_urce"
-msgstr "ソースを表示(_U)"
-
-# tooltip
-#: ../midori/midori-browser.c:4947
-msgid "View the source code of the page"
-msgstr "ページのソースコードを表示します"
-
-#: ../midori/midori-browser.c:4949
-msgid "View Selection Source"
-msgstr "選択領域のソースを表示"
-
-# tooltip
-#: ../midori/midori-browser.c:4950
-msgid "View the source code of the selection"
-msgstr "選択した領域のソースを表示します"
-
-# tooltip
-#: ../midori/midori-browser.c:4958
-msgid "Toggle fullscreen view"
-msgstr "全画面表示/解除を切り替えます"
-
-#: ../midori/midori-browser.c:4960
-msgid "_Go"
-msgstr "移動(_G)"
-
-# tooltip
-#: ../midori/midori-browser.c:4963
-msgid "Go back to the previous page"
-msgstr "前のページへ戻ります"
-
-# tooltip
-#: ../midori/midori-browser.c:4966
-msgid "Go forward to the next page"
-msgstr "次のページへ進みます"
-
-# tooltip
-#: ../midori/midori-browser.c:4969
-msgid "Go to your homepage"
-msgstr "ホームページに移動します"
-
-#: ../midori/midori-browser.c:4971
-msgid "Empty Trash"
-msgstr "ゴミ箱を空にする"
-
-# tooltip
-#: ../midori/midori-browser.c:4972
-msgid "Delete the contents of the trash"
-msgstr "ゴミ箱の中身を削除します"
-
-#: ../midori/midori-browser.c:4974
-msgid "Undo _Close Tab"
-msgstr "閉じたタブを元に戻す(_C)"
-
-# tooltip
-#: ../midori/midori-browser.c:4975
-msgid "Open the last closed tab"
-msgstr "最後に閉じたタブを開きます"
-
-#: ../midori/midori-browser.c:4981
-msgid "Add a new _folder"
-msgstr "新しいフォルダの追加(_F)"
-
-# tooltip
-#: ../midori/midori-browser.c:4982
-msgid "Add a new bookmark folder"
-msgstr "新しいブックマークフォルダを追加します"
-
-#: ../midori/midori-browser.c:4987 ../midori/midori-searchaction.c:500
-msgid "_Manage Search Engines"
-msgstr "検索エンジンの管理(_M)"
-
-# tooltip
-#: ../midori/midori-browser.c:4988
-msgid "Add, edit and remove search engines..."
-msgstr "検索エンジンを追加、編集、または削除します..."
-
-#: ../midori/midori-browser.c:4991
-msgid "_Clear Private Data"
-msgstr "プライベートデータのクリア(_C)"
-
-# tooltip
-#: ../midori/midori-browser.c:4992
-msgid "Clear private data..."
-msgstr "プライベートデータをクリアします..."
-
-#: ../midori/midori-browser.c:4996
-msgid "_Previous Tab"
-msgstr "前のタブ(_P)"
-
-# tooltip
-#: ../midori/midori-browser.c:4997
-msgid "Switch to the previous tab"
-msgstr "前のタブへ切り替えます"
-
-#: ../midori/midori-browser.c:4999
-msgid "_Next Tab"
-msgstr "次のタブ(_N)"
-
-# tooltip
-#: ../midori/midori-browser.c:5000
-msgid "Switch to the next tab"
-msgstr "次のタブへ切り替えます"
-
-#: ../midori/midori-browser.c:5002
-msgid "Focus _Current Tab"
-msgstr "現在のタブにフォーカス(_C)"
-
-# tooltip
-#: ../midori/midori-browser.c:5003
-msgid "Focus the current tab"
-msgstr "現在のタブにフォーカスを移動します"
-
-#: ../midori/midori-browser.c:5005
-msgid "Open last _session"
-msgstr "最後のセッションを開く(_S)"
-
-#: ../midori/midori-browser.c:5006
-msgid "Open the tabs saved in the last session"
-msgstr "最後のセッションで保存されたタブを開きます"
-
-#: ../midori/midori-browser.c:5008
-msgid "_Help"
-msgstr "ヘルプ(_H)"
-
-#: ../midori/midori-browser.c:5010
-msgid "_Contents"
-msgstr "目次(_C)"
-
-# tooltip
-#: ../midori/midori-browser.c:5011
-msgid "Show the documentation"
-msgstr "ドキュメントを表示します"
-
-#: ../midori/midori-browser.c:5013
-msgid "_Frequent Questions"
-msgstr "よくある質問(_F)"
-
-# tooltip
-#: ../midori/midori-browser.c:5014
-msgid "Show the Frequently Asked Questions"
-msgstr "よくある質問とその回答を表示します"
-
-#: ../midori/midori-browser.c:5016
-msgid "_Report a Bug"
-msgstr "バグを報告(_R)"
-
-# tooltip
-#: ../midori/midori-browser.c:5017
-msgid "Open Midori's bug tracker"
-msgstr "Midori のバグトラッカーを開きます"
-
-# tooltip
-#: ../midori/midori-browser.c:5020
-msgid "Show information about the program"
-msgstr "このプログラムについての情報を表示します"
-
-#: ../midori/midori-browser.c:5027
+#: ../midori/midori-browser.c:4924
 msgid "P_rivate Browsing"
 msgstr "プライベートブラウジング(_R)"
 
 # tooltip
-#: ../midori/midori-browser.c:5028
+#: ../midori/midori-browser.c:4925
 msgid "Don't save any private data while browsing"
 msgstr "閲覧中に個人データを保存しません"
 
-#: ../midori/midori-browser.c:5033
+# tooltip
+#: ../midori/midori-browser.c:4929
+msgid "Open a file"
+msgstr "ファイルを開きます"
+
+# tooltip
+#: ../midori/midori-browser.c:4932
+msgid "Save to a file"
+msgstr "ファイルへ保存します"
+
+#: ../midori/midori-browser.c:4934
+msgid "Add to Speed _dial"
+msgstr "スピードダイアルに追加(_D)"
+
+# tooltip
+#: ../midori/midori-browser.c:4935
+msgid "Add shortcut to speed dial"
+msgstr "ショートカットをスピードダイアルに追加します"
+
+#: ../midori/midori-browser.c:4937
+msgid "Add Shortcut to the _desktop"
+msgstr "デスクトップにショートカットを追加(_D)"
+
+# tooltip
+#: ../midori/midori-browser.c:4938
+msgid "Add shortcut to the desktop"
+msgstr "デスクトップにショートカットを追加します"
+
+#: ../midori/midori-browser.c:4940
+msgid "Subscribe to News _feed"
+msgstr "ニュースフィードを購読(_F)"
+
+#: ../midori/midori-browser.c:4941
+msgid "Subscribe to this news feed"
+msgstr "このニュースフィードを購読します"
+
+#: ../midori/midori-browser.c:4946
+msgid "_Close Tab"
+msgstr "タブを閉じる(_C)"
+
+# tooltip
+#: ../midori/midori-browser.c:4947
+msgid "Close the current tab"
+msgstr "現在のタブを閉じます"
+
+#: ../midori/midori-browser.c:4949
+msgid "C_lose Window"
+msgstr "ウィンドウを閉じる(_L)"
+
+# tooltip
+#: ../midori/midori-browser.c:4950
+msgid "Close this window"
+msgstr "このウィンドウを閉じます"
+
+# tooltip
+#: ../midori/midori-browser.c:4953
+msgid "Print the current page"
+msgstr "現在のページを印刷します"
+
+# tooltip
+#: ../midori/midori-browser.c:4956
+msgid "Quit the application"
+msgstr "このアプリケーションを終了します"
+
+#: ../midori/midori-browser.c:4958
+msgid "_Edit"
+msgstr "編集(_E)"
+
+#: ../midori/midori-browser.c:4962
+msgid "Undo the last modification"
+msgstr "最後の修正を元に戻す"
+
+#: ../midori/midori-browser.c:4965
+msgid "Redo the last modification"
+msgstr "最後の修正をやり直す"
+
+# tooltip
+#: ../midori/midori-browser.c:4969
+msgid "Cut the selected text"
+msgstr "選択した文字を切り取ります"
+
+# tooltip
+#: ../midori/midori-browser.c:4972
+#: ../midori/midori-browser.c:4975
+msgid "Copy the selected text"
+msgstr "選択した文字をコピーします"
+
+# tooltip
+#: ../midori/midori-browser.c:4978
+msgid "Paste text from the clipboard"
+msgstr "クリップボードから文字を貼り付けます"
+
+# tooltip
+#: ../midori/midori-browser.c:4981
+msgid "Delete the selected text"
+msgstr "選択した文字を削除します"
+
+# tooltip
+#: ../midori/midori-browser.c:4984
+msgid "Select all text"
+msgstr "すべての文字を選択します"
+
+# tooltip
+#: ../midori/midori-browser.c:4987
+msgid "Find a word or phrase in the page"
+msgstr "ページ内の単語やフレーズを検索します"
+
+#: ../midori/midori-browser.c:4989
+msgid "Find _Next"
+msgstr "次を検索(_N)"
+
+# tooltip
+#: ../midori/midori-browser.c:4990
+msgid "Find the next occurrence of a word or phrase"
+msgstr "指定文字列に一致する次の候補を検索します"
+
+#: ../midori/midori-browser.c:4992
+msgid "Find _Previous"
+msgstr "前を検索(_P)"
+
+# tooltip
+#: ../midori/midori-browser.c:4993
+msgid "Find the previous occurrence of a word or phrase"
+msgstr "指定文字列に一致する前の候補を検索します"
+
+# tooltip
+#: ../midori/midori-browser.c:4997
+msgid "Configure the application preferences"
+msgstr "このアプリケーションの設定を行います"
+
+#: ../midori/midori-browser.c:4999
+msgid "_View"
+msgstr "表示(_V)"
+
+#: ../midori/midori-browser.c:5000
+msgid "_Toolbars"
+msgstr "ツールバー(_T)"
+
+# tooltip
+#: ../midori/midori-browser.c:5012
+msgid "Increase the zoom level"
+msgstr "ズームレベルを大きくします"
+
+# tooltip
+#: ../midori/midori-browser.c:5015
+msgid "Decrease the zoom level"
+msgstr "ズームレベルを小さくします"
+
+# tooltip
+#: ../midori/midori-browser.c:5018
+msgid "Reset the zoom level"
+msgstr "ズームレベルをリセットします"
+
+#: ../midori/midori-browser.c:5019
+msgid "_Encoding"
+msgstr "エンコーディング(_E)"
+
+#: ../midori/midori-browser.c:5021
+msgid "View So_urce"
+msgstr "ソースを表示(_U)"
+
+# tooltip
+#: ../midori/midori-browser.c:5022
+msgid "View the source code of the page"
+msgstr "ページのソースコードを表示します"
+
+#: ../midori/midori-browser.c:5024
+msgid "View Selection Source"
+msgstr "選択領域のソースを表示"
+
+# tooltip
+#: ../midori/midori-browser.c:5025
+msgid "View the source code of the selection"
+msgstr "選択した領域のソースを表示します"
+
+# tooltip
+#: ../midori/midori-browser.c:5029
+msgid "Toggle fullscreen view"
+msgstr "全画面表示/解除を切り替えます"
+
+#: ../midori/midori-browser.c:5031
+msgid "_Go"
+msgstr "移動(_G)"
+
+# tooltip
+#: ../midori/midori-browser.c:5034
+msgid "Go back to the previous page"
+msgstr "前のページへ戻ります"
+
+# tooltip
+#: ../midori/midori-browser.c:5037
+msgid "Go forward to the next page"
+msgstr "次のページへ進みます"
+
+# tooltip
+#: ../midori/midori-browser.c:5040
+msgid "Go to your homepage"
+msgstr "ホームページに移動します"
+
+#: ../midori/midori-browser.c:5042
+msgid "Empty Trash"
+msgstr "ゴミ箱を空にする"
+
+# tooltip
+#: ../midori/midori-browser.c:5043
+msgid "Delete the contents of the trash"
+msgstr "ゴミ箱の中身を削除します"
+
+#: ../midori/midori-browser.c:5045
+msgid "Undo _Close Tab"
+msgstr "閉じたタブを元に戻す(_C)"
+
+# tooltip
+#: ../midori/midori-browser.c:5046
+msgid "Open the last closed tab"
+msgstr "最後に閉じたタブを開きます"
+
+#: ../midori/midori-browser.c:5052
+msgid "Add a new _folder"
+msgstr "新しいフォルダの追加(_F)"
+
+# tooltip
+#: ../midori/midori-browser.c:5053
+msgid "Add a new bookmark folder"
+msgstr "新しいブックマークフォルダを追加します"
+
+#: ../midori/midori-browser.c:5058
+#: ../midori/midori-searchaction.c:500
+msgid "_Manage Search Engines"
+msgstr "検索エンジンの管理(_M)"
+
+# tooltip
+#: ../midori/midori-browser.c:5059
+msgid "Add, edit and remove search engines..."
+msgstr "検索エンジンを追加、編集、または削除します..."
+
+#: ../midori/midori-browser.c:5062
+msgid "_Clear Private Data"
+msgstr "プライベートデータのクリア(_C)"
+
+# tooltip
+#: ../midori/midori-browser.c:5063
+msgid "Clear private data..."
+msgstr "プライベートデータをクリアします..."
+
+#: ../midori/midori-browser.c:5067
+msgid "_Previous Tab"
+msgstr "前のタブ(_P)"
+
+# tooltip
+#: ../midori/midori-browser.c:5068
+msgid "Switch to the previous tab"
+msgstr "前のタブへ切り替えます"
+
+#: ../midori/midori-browser.c:5070
+msgid "_Next Tab"
+msgstr "次のタブ(_N)"
+
+# tooltip
+#: ../midori/midori-browser.c:5071
+msgid "Switch to the next tab"
+msgstr "次のタブへ切り替えます"
+
+#: ../midori/midori-browser.c:5073
+msgid "Focus _Current Tab"
+msgstr "現在のタブにフォーカス(_C)"
+
+# tooltip
+#: ../midori/midori-browser.c:5074
+msgid "Focus the current tab"
+msgstr "現在のタブにフォーカスを移動します"
+
+#: ../midori/midori-browser.c:5076
+msgid "Open last _session"
+msgstr "最後のセッションを開く(_S)"
+
+#: ../midori/midori-browser.c:5077
+msgid "Open the tabs saved in the last session"
+msgstr "最後のセッションで保存されたタブを開きます"
+
+#: ../midori/midori-browser.c:5079
+msgid "_Help"
+msgstr "ヘルプ(_H)"
+
+#: ../midori/midori-browser.c:5081
+msgid "_Contents"
+msgstr "目次(_C)"
+
+# tooltip
+#: ../midori/midori-browser.c:5082
+msgid "Show the documentation"
+msgstr "ドキュメントを表示します"
+
+#: ../midori/midori-browser.c:5084
+msgid "_Frequent Questions"
+msgstr "よくある質問(_F)"
+
+# tooltip
+#: ../midori/midori-browser.c:5085
+msgid "Show the Frequently Asked Questions"
+msgstr "よくある質問とその回答を表示します"
+
+#: ../midori/midori-browser.c:5087
+msgid "_Report a Bug"
+msgstr "バグを報告(_R)"
+
+# tooltip
+#: ../midori/midori-browser.c:5088
+msgid "Open Midori's bug tracker"
+msgstr "Midori のバグトラッカーを開きます"
+
+# tooltip
+#: ../midori/midori-browser.c:5091
+msgid "Show information about the program"
+msgstr "このプログラムについての情報を表示します"
+
+#: ../midori/midori-browser.c:5098
 msgid "_Menubar"
 msgstr "メニューバー(_M)"
 
 # tooltip
-#: ../midori/midori-browser.c:5034
+#: ../midori/midori-browser.c:5099
 msgid "Show menubar"
 msgstr "メニューバーを表示します"
 
-#: ../midori/midori-browser.c:5037
+#: ../midori/midori-browser.c:5102
 msgid "_Navigationbar"
 msgstr "ナビゲーションバー(_N)"
 
 # tooltip
-#: ../midori/midori-browser.c:5038
+#: ../midori/midori-browser.c:5103
 msgid "Show navigationbar"
 msgstr "ナビゲーションバーを表示します"
 
-#: ../midori/midori-browser.c:5041
+#: ../midori/midori-browser.c:5106
 msgid "Side_panel"
 msgstr "サイドパネル(_P)"
 
 # tooltip
-#: ../midori/midori-browser.c:5042
+#: ../midori/midori-browser.c:5107
 msgid "Show sidepanel"
 msgstr "サイドパネルを表示します"
 
-#: ../midori/midori-browser.c:5045
+#: ../midori/midori-browser.c:5110
 msgid "_Bookmarkbar"
 msgstr "ブックマークバー(_B)"
 
 # tooltip
-#: ../midori/midori-browser.c:5046
+#: ../midori/midori-browser.c:5111
 msgid "Show bookmarkbar"
 msgstr "ブックマークバーを表示します"
 
-#: ../midori/midori-browser.c:5049
+#: ../midori/midori-browser.c:5114
 msgid "_Transferbar"
 msgstr "転送バー(_T)"
 
 # tooltip
-#: ../midori/midori-browser.c:5050
+#: ../midori/midori-browser.c:5115
 msgid "Show transferbar"
 msgstr "転送バーを表示します"
 
-#: ../midori/midori-browser.c:5053
+#: ../midori/midori-browser.c:5118
 msgid "_Statusbar"
 msgstr "ステータスバー(_S)"
 
 # tooltip
-#: ../midori/midori-browser.c:5054
+#: ../midori/midori-browser.c:5119
 msgid "Show statusbar"
 msgstr "ステータスバーを表示します"
 
-#: ../midori/midori-browser.c:5061
+#: ../midori/midori-browser.c:5126
 msgid "_Automatic"
 msgstr "自動(_A)"
 
-#: ../midori/midori-browser.c:5064 ../midori/midori-websettings.c:217
+#: ../midori/midori-browser.c:5129
+#: ../midori/midori-websettings.c:217
 msgid "Chinese (BIG5)"
 msgstr "中国語 (BIG5)"
 
 #. i18n: A double underscore "__" is used to prevent an unwanted mnemonic
-#: ../midori/midori-browser.c:5068
+#: ../midori/midori-browser.c:5133
 msgid "Japanese (SHIFT__JIS)"
 msgstr "日本語 (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5071 ../midori/midori-websettings.c:219
+#: ../midori/midori-browser.c:5136
+#: ../midori/midori-websettings.c:219
 msgid "Korean (EUC-KR)"
 msgstr "韓国語 (EUC-KR)"
 
-#: ../midori/midori-browser.c:5074 ../midori/midori-websettings.c:220
+#: ../midori/midori-browser.c:5139
+#: ../midori/midori-websettings.c:220
 msgid "Russian (KOI8-R)"
 msgstr "ロシア語 (KOI8-R)"
 
-#: ../midori/midori-browser.c:5077 ../midori/midori-websettings.c:221
+#: ../midori/midori-browser.c:5142
+#: ../midori/midori-websettings.c:221
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5080 ../midori/midori-websettings.c:222
+#: ../midori/midori-browser.c:5145
+#: ../midori/midori-websettings.c:222
 msgid "Western (ISO-8859-1)"
 msgstr "西欧 (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5083 ../midori/midori-websettings.c:223
-#: ../midori/midori-websettings.c:297 ../katze/katze-utils.c:672
-msgid "Custom..."
-msgstr "カスタム..."
-
-#: ../midori/midori-browser.c:5633
+#: ../midori/midori-browser.c:5697
 msgid "_Separator"
 msgstr "セパレータ(_S)"
 
-#: ../midori/midori-browser.c:5640
+#: ../midori/midori-browser.c:5704
 msgid "_Location..."
 msgstr "場所(_L)..."
 
 # tooltip
-#: ../midori/midori-browser.c:5642
+#: ../midori/midori-browser.c:5706
 msgid "Open a particular location"
 msgstr "指定された場所を開きます"
 
-#: ../midori/midori-browser.c:5666
+#: ../midori/midori-browser.c:5730
 msgid "_Web Search..."
 msgstr "ウェブ検索(_W)..."
 
 # tooltip
-#: ../midori/midori-browser.c:5668
+#: ../midori/midori-browser.c:5732
 msgid "Run a web search"
 msgstr "ウェブ検索を実行します"
 
 # tooltip
-#: ../midori/midori-browser.c:5689
+#: ../midori/midori-browser.c:5753
 msgid "Reopen a previously closed tab or window"
 msgstr "これまでに閉じられたタブやウィンドウを再び開きます"
 
-#: ../midori/midori-browser.c:5704
+#: ../midori/midori-browser.c:5768
 msgid "_Recently visited pages"
 msgstr "最近訪れたページ(_R)"
 
 # tooltip
-#: ../midori/midori-browser.c:5706
+#: ../midori/midori-browser.c:5770
 msgid "Reopen pages that you visited earlier"
 msgstr "以前に訪れたページを再び開きます"
 
-#: ../midori/midori-browser.c:5721 ../midori/sokoke.c:1104
+#: ../midori/midori-browser.c:5785
+#: ../midori/sokoke.c:1114
 msgid "_Bookmarks"
 msgstr "ブックマーク(_B)"
 
 # tooltip
-#: ../midori/midori-browser.c:5723
+#: ../midori/midori-browser.c:5787
 msgid "Show the saved bookmarks"
 msgstr "ブックマークを表示します"
 
-#: ../midori/midori-browser.c:5738
+#: ../midori/midori-browser.c:5802
 msgid "_Tools"
 msgstr "ツール(_T)"
 
-#: ../midori/midori-browser.c:5750
+#: ../midori/midori-browser.c:5815
 msgid "_Window"
 msgstr "ウィンドウ(_W)"
 
 # tooltip
-#: ../midori/midori-browser.c:5752
+#: ../midori/midori-browser.c:5817
 msgid "Show a list of all open tabs"
 msgstr "開いているすべてのタブのリストを表示します"
 
-#: ../midori/midori-browser.c:5766
+#: ../midori/midori-browser.c:5831
 msgid "_Menu"
 msgstr "メニュー(_M)"
 
-#: ../midori/midori-browser.c:5768
+#: ../midori/midori-browser.c:5833
 msgid "Menu"
 msgstr "メニュー"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../midori/midori-browser.c:5971
+#: ../midori/midori-browser.c:6035
 msgid "_Inline Find:"
 msgstr "インライン検索(_I)"
 
-#: ../midori/midori-browser.c:6002
+#: ../midori/midori-browser.c:6066
 msgid "Previous"
 msgstr "前を検索"
 
-#: ../midori/midori-browser.c:6007
+#: ../midori/midori-browser.c:6071
 msgid "Next"
 msgstr "次を検索"
 
-#: ../midori/midori-browser.c:6012
+#: ../midori/midori-browser.c:6076
 msgid "Match Case"
 msgstr "大文字・小文字を区別"
 
-#: ../midori/midori-browser.c:6021
+#: ../midori/midori-browser.c:6085
 msgid "Highlight Matches"
 msgstr "強調表示"
 
-#: ../midori/midori-browser.c:6033
+#: ../midori/midori-browser.c:6097
 msgid "Close Findbar"
 msgstr "検索バーを閉じる"
 
-#: ../midori/midori-browser.c:6079 ../panels/midori-transfers.c:143
+#: ../midori/midori-browser.c:6143
+#: ../panels/midori-transfers.c:143
 msgid "Clear All"
 msgstr "すべてクリア"
 
-#: ../midori/midori-browser.c:6446
+#: ../midori/midori-browser.c:6501
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "'%s' は予想外の設定です"
 
-#: ../midori/midori-locationaction.c:974
+#: ../midori/midori-locationaction.c:982
 #, c-format
 msgid "Search with %s"
 msgstr "%s で検索"
 
-#: ../midori/midori-panel.c:434 ../midori/midori-panel.c:436
+#: ../midori/midori-panel.c:434
+#: ../midori/midori-panel.c:436
 msgid "Detach chosen panel from the window"
 msgstr "選択したパネルをウィンドウから切り離す"
 
-#: ../midori/midori-panel.c:446 ../midori/midori-panel.c:448
-#: ../midori/midori-panel.c:638 ../midori/midori-panel.c:641
+#: ../midori/midori-panel.c:446
+#: ../midori/midori-panel.c:448
+#: ../midori/midori-panel.c:638
+#: ../midori/midori-panel.c:641
 msgid "Align sidepanel to the right"
 msgstr "サイドパネルを右側に配置する"
 
-#: ../midori/midori-panel.c:458 ../midori/midori-panel.c:459
+#: ../midori/midori-panel.c:458
+#: ../midori/midori-panel.c:459
 msgid "Close panel"
 msgstr "パネルを閉じます"
 
-#: ../midori/midori-panel.c:639 ../midori/midori-panel.c:642
+#: ../midori/midori-panel.c:639
+#: ../midori/midori-panel.c:642
 msgid "Align sidepanel to the left"
 msgstr "サイドパネルを左側に配置する"
 
@@ -1070,8 +1139,9 @@ msgstr "すべての Cookie"
 msgid "Session cookies"
 msgstr "セッションの Cookie"
 
-#: ../midori/midori-websettings.c:277 ../panels/midori-addons.c:93
-#: ../katze/katze-utils.c:648 ../extensions/shortcuts.c:94
+#: ../midori/midori-websettings.c:277
+#: ../panels/midori-addons.c:93
+#: ../katze/katze-utils.c:652
 msgid "None"
 msgstr "なし"
 
@@ -1451,7 +1521,8 @@ msgstr "ポップアップをタブに開く"
 msgid "Whether to open popup windows in tabs"
 msgstr "ポップアップウィンドウをタブに開きます"
 
-#: ../midori/midori-websettings.c:830 ../extensions/statusbar-features.c:88
+#: ../midori/midori-websettings.c:830
+#: ../extensions/statusbar-features.c:88
 msgid "Load images automatically"
 msgstr "画像を自動的に読み込む"
 
@@ -1460,7 +1531,8 @@ msgstr "画像を自動的に読み込む"
 msgid "Load and display images automatically"
 msgstr "画像を自動的に読み込んで表示します"
 
-#: ../midori/midori-websettings.c:838 ../extensions/statusbar-features.c:100
+#: ../midori/midori-websettings.c:838
+#: ../extensions/statusbar-features.c:100
 msgid "Enable scripts"
 msgstr "スクリプトを有効にする"
 
@@ -1469,7 +1541,8 @@ msgstr "スクリプトを有効にする"
 msgid "Enable embedded scripting languages"
 msgstr "組み込みスクリプト言語を有効にします"
 
-#: ../midori/midori-websettings.c:846 ../extensions/statusbar-features.c:112
+#: ../midori/midori-websettings.c:846
+#: ../extensions/statusbar-features.c:112
 msgid "Enable Netscape plugins"
 msgstr "Netscape プラグインを有効にする"
 
@@ -1609,8 +1682,9 @@ msgstr "選択されているプライベートデータを削除します"
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:915 ../midori/midori-view.c:3820
-#: ../midori/midori-view.c:3824
+#: ../midori/midori-view.c:915
+#: ../midori/midori-view.c:3831
+#: ../midori/midori-view.c:3835
 #, c-format
 msgid "Error - %s"
 msgstr "エラー - %s"
@@ -1630,327 +1704,334 @@ msgstr "再試行"
 msgid "Not found - %s"
 msgstr "ページが見つかりません - %s"
 
-#: ../midori/midori-view.c:1168 ../midori/midori-view.c:1904
+#: ../midori/midori-view.c:1168
+#: ../midori/midori-view.c:1912
 #, c-format
 msgid "Send a message to %s"
 msgstr "メッセージを送信します 宛先: %s"
 
-#: ../midori/midori-view.c:1731 ../midori/midori-view.c:1799
+#: ../midori/midori-view.c:1739
+#: ../midori/midori-view.c:1807
 msgid "Open _Link"
 msgstr "リンクを開く(_L)"
 
-#: ../midori/midori-view.c:1734 ../midori/midori-view.c:1801
+#: ../midori/midori-view.c:1742
+#: ../midori/midori-view.c:1809
 msgid "Open Link in New _Tab"
 msgstr "リンクを新しいタブで開く(_T)"
 
-#: ../midori/midori-view.c:1738
+#: ../midori/midori-view.c:1746
 msgid "Open Link in _Foreground Tab"
 msgstr "リンクをフォアグラウンドのタブで開く(_T)"
 
-#: ../midori/midori-view.c:1739
+#: ../midori/midori-view.c:1747
 msgid "Open Link in _Background Tab"
 msgstr "リンクをバックグラウンドのタブで開く(_T)"
 
-#: ../midori/midori-view.c:1742 ../midori/midori-view.c:1808
+#: ../midori/midori-view.c:1750
+#: ../midori/midori-view.c:1816
 msgid "Open Link in New _Window"
 msgstr "リンクを新しいウィンドウで開く(_W)"
 
-#: ../midori/midori-view.c:1745
+#: ../midori/midori-view.c:1753
 msgid "_Copy Link destination"
 msgstr "リンク先をコピー(_C)"
 
-#: ../midori/midori-view.c:1748 ../midori/midori-view.c:1820
+#: ../midori/midori-view.c:1756
+#: ../midori/midori-view.c:1828
 msgid "_Save Link destination"
 msgstr "リンク先を保存(_S)"
 
-#: ../midori/midori-view.c:1749 ../midori/midori-view.c:1814
+#: ../midori/midori-view.c:1757
+#: ../midori/midori-view.c:1822
 msgid "_Download Link destination"
 msgstr "リンク先をダウンロード(_D)"
 
-#: ../midori/midori-view.c:1753 ../midori/midori-view.c:1789
-#: ../midori/midori-view.c:1825
+#: ../midori/midori-view.c:1761
+#: ../midori/midori-view.c:1797
+#: ../midori/midori-view.c:1833
 msgid "Download with Download _Manager"
 msgstr "ダウンロードマネージャでダウンロード(_M)"
 
-#: ../midori/midori-view.c:1765
+#: ../midori/midori-view.c:1773
 msgid "Open _Image in New Tab"
 msgstr "画像を新しいタブで開く(_I)"
 
-#: ../midori/midori-view.c:1768
+#: ../midori/midori-view.c:1776
 msgid "Open Image in New Wi_ndow"
 msgstr "画像を新しいウィンドウで開く(_N)"
 
-#: ../midori/midori-view.c:1771
+#: ../midori/midori-view.c:1779
 msgid "Copy Image _Address"
 msgstr "画像のアドレスをコピー(_A)"
 
-#: ../midori/midori-view.c:1774
+#: ../midori/midori-view.c:1782
 msgid "Save I_mage"
 msgstr "画像を保存(_M)"
 
-#: ../midori/midori-view.c:1775
+#: ../midori/midori-view.c:1783
 msgid "Download I_mage"
 msgstr "画像をダウンロード(_M)"
 
-#: ../midori/midori-view.c:1782
+#: ../midori/midori-view.c:1790
 msgid "Copy Video _Address"
 msgstr "動画のアドレスをコピー(_A)"
 
-#: ../midori/midori-view.c:1785
+#: ../midori/midori-view.c:1793
 msgid "Save _Video"
 msgstr "動画を保存(_V)"
 
-#: ../midori/midori-view.c:1785
+#: ../midori/midori-view.c:1793
 msgid "Download _Video"
 msgstr "動画をダウンロード(_V)"
 
-#: ../midori/midori-view.c:1845
+#: ../midori/midori-view.c:1853
 msgid "Search _with"
 msgstr "検索(_W)"
 
-#: ../midori/midori-view.c:1880 ../midori/midori-view.c:1891
+#: ../midori/midori-view.c:1888
+#: ../midori/midori-view.c:1899
 msgid "_Search the Web"
 msgstr "ウェブで検索(_S)"
 
-#: ../midori/midori-view.c:1912
+#: ../midori/midori-view.c:1920
 msgid "Open Address in New _Tab"
 msgstr "アドレスを新しいタブで開く(_T)"
 
-#: ../midori/midori-view.c:2179
+#: ../midori/midori-view.c:2190
 msgid "Open or download file"
 msgstr "ファイルを開きますか、保存しますか?"
 
-#: ../midori/midori-view.c:2202
+#: ../midori/midori-view.c:2213
 #, c-format
 msgid "File Type: '%s'"
 msgstr "ファイルタイプ: '%s'"
 
-#: ../midori/midori-view.c:2205
+#: ../midori/midori-view.c:2216
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "ファイルタイプ: %s ('%s')"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2209
+#: ../midori/midori-view.c:2220
 #, c-format
 msgid "Open %s"
 msgstr "%s を開く"
 
-#: ../midori/midori-view.c:2725
+#: ../midori/midori-view.c:2736
 #, c-format
 msgid "Inspect page - %s"
 msgstr "ページの調査 - %s"
 
-#: ../midori/midori-view.c:2943
+#: ../midori/midori-view.c:2954
 msgid "Speed dial"
 msgstr "スピードダイアル"
 
-#: ../midori/midori-view.c:2944
+#: ../midori/midori-view.c:2955
 msgid "Click to add a shortcut"
 msgstr "クリックするとショートカットを追加できます"
 
-#: ../midori/midori-view.c:2945
+#: ../midori/midori-view.c:2956
 msgid "Enter shortcut address"
 msgstr "ショートカットのアドレスを入力してください"
 
-#: ../midori/midori-view.c:2946
+#: ../midori/midori-view.c:2957
 msgid "Enter shortcut title"
 msgstr "ショートカットの名前を入力してください"
 
-#: ../midori/midori-view.c:2947
+#: ../midori/midori-view.c:2958
 msgid "Are you sure you want to delete this shortcut?"
 msgstr "このショートカットを削除してもよろしいですか?"
 
-#: ../midori/midori-view.c:2977
+#: ../midori/midori-view.c:2988
 #, c-format
 msgid "Document cannot be displayed"
 msgstr "ドキュメントを表示できません"
 
-#: ../midori/midori-view.c:2994
+#: ../midori/midori-view.c:3005
 #, c-format
 msgid "No documentation installed"
 msgstr "ドキュメントはインストールされていません"
 
-#: ../midori/midori-view.c:3121
+#: ../midori/midori-view.c:3132
 msgid "Blank page"
 msgstr "空白ページ"
 
-#: ../midori/midori-view.c:3364
+#: ../midori/midori-view.c:3375
 msgid "_Duplicate Tab"
 msgstr "タブの複製(_D)"
 
-#: ../midori/midori-view.c:3369
+#: ../midori/midori-view.c:3380
 msgid "_Restore Tab"
 msgstr "タブの復元(_R)"
 
-#: ../midori/midori-view.c:3369
+#: ../midori/midori-view.c:3380
 msgid "_Minimize Tab"
 msgstr "タブの最小化(_M)"
 
-#: ../midori/midori-view.c:3926
+#: ../midori/midori-view.c:3937
 msgid "Print background images"
 msgstr "背景画像を印刷する"
 
 # tooltip
-#: ../midori/midori-view.c:3927
+#: ../midori/midori-view.c:3938
 msgid "Whether background images should be printed"
 msgstr "印刷するときに背景画像も印刷します"
 
-#: ../midori/midori-view.c:3971 ../midori/midori-preferences.c:398
+#: ../midori/midori-view.c:3982
+#: ../midori/midori-preferences.c:383
 msgid "Features"
 msgstr "機能"
 
 #. Page "General"
-#: ../midori/midori-preferences.c:318
+#: ../midori/midori-preferences.c:300
 msgid "General"
 msgstr "一般"
 
-#: ../midori/midori-preferences.c:319
+#: ../midori/midori-preferences.c:301
 msgid "Startup"
 msgstr "起動"
 
 # tooltip
-#: ../midori/midori-preferences.c:334 ../midori/midori-preferences.c:341
+#: ../midori/midori-preferences.c:316
+#: ../midori/midori-preferences.c:323
 msgid "Use current page as homepage"
 msgstr "現在のページをホームページにします"
 
-#: ../midori/midori-preferences.c:351 ../panels/midori-transfers.c:88
+#: ../midori/midori-preferences.c:333
+#: ../panels/midori-transfers.c:88
 msgid "Transfers"
 msgstr "転送"
 
 #. Page "Appearance"
-#: ../midori/midori-preferences.c:366
+#: ../midori/midori-preferences.c:351
 msgid "Appearance"
 msgstr "外観"
 
-#: ../midori/midori-preferences.c:367
+#: ../midori/midori-preferences.c:352
 msgid "Font settings"
 msgstr "フォント設定"
 
-#: ../midori/midori-preferences.c:369
+#: ../midori/midori-preferences.c:354
 msgid "Default Font Family"
 msgstr "デフォルトフォントファミリ"
 
 # tooltip
-#: ../midori/midori-preferences.c:372
+#: ../midori/midori-preferences.c:357
 msgid "The default font family used to display text"
 msgstr "文字表示で使用するデフォルトのフォントファミリを指定します"
 
 # tooltip
-#: ../midori/midori-preferences.c:375
+#: ../midori/midori-preferences.c:360
 msgid "The default font size used to display text"
 msgstr "文字表示で使用するデフォルトのフォントサイズを指定します"
 
-#: ../midori/midori-preferences.c:377
+#: ../midori/midori-preferences.c:362
 msgid "Fixed-width Font Family"
 msgstr "等幅フォントファミリ"
 
 # tooltip
-#: ../midori/midori-preferences.c:380
+#: ../midori/midori-preferences.c:365
 msgid "The font family used to display fixed-width text"
 msgstr "等幅文字表示で使用するフォントファミリを指定します"
 
 # tooltip
-#: ../midori/midori-preferences.c:383
+#: ../midori/midori-preferences.c:368
 msgid "The font size used to display fixed-width text"
 msgstr "等幅文字表示で使用するフォントのサイズを指定します"
 
-#: ../midori/midori-preferences.c:385
+#: ../midori/midori-preferences.c:370
 msgid "Minimum Font Size"
 msgstr "最小フォントサイズ"
 
 # tooltip
-#: ../midori/midori-preferences.c:388
+#: ../midori/midori-preferences.c:373
 msgid "The minimum font size used to display text"
 msgstr "文字表示で使用する最小のフォントサイズを指定します"
 
 #. Page "Behavior"
-#: ../midori/midori-preferences.c:397
+#: ../midori/midori-preferences.c:382
 msgid "Behavior"
 msgstr "振る舞い"
 
-#: ../midori/midori-preferences.c:419
+#: ../midori/midori-preferences.c:404
 msgid "Enforce 96 dots per inch"
 msgstr "強制的に 96DPI にする"
 
 # tooltip
-#: ../midori/midori-preferences.c:420
+#: ../midori/midori-preferences.c:405
 msgid "Enforce a video dot density of 96 DPI"
 msgstr "ドット密度を強制的に 96DPI にします"
 
-#: ../midori/midori-preferences.c:423
+#: ../midori/midori-preferences.c:408
 msgid "Enable developer tools"
 msgstr "開発ツールを有効にする"
 
 # tooltip
-#: ../midori/midori-preferences.c:424
+#: ../midori/midori-preferences.c:409
 msgid "Enable special extensions for developers"
 msgstr "開発者用特殊エクステンションを有効にします"
 
-#: ../midori/midori-preferences.c:434
+#: ../midori/midori-preferences.c:417
 msgid "Spell Checking"
 msgstr "スペルチェック"
 
-#: ../midori/midori-preferences.c:436
+#: ../midori/midori-preferences.c:420
 msgid "Enable Spell Checking"
 msgstr "スペルチェックを有効にする"
 
 # tooltip
-#: ../midori/midori-preferences.c:437
+#: ../midori/midori-preferences.c:421
 msgid "Enable spell checking while typing"
 msgstr "キー入力中のスペルチェックを有効にします"
 
 # tooltip
 #. i18n: The example should be adjusted to contain a good local default
-#: ../midori/midori-preferences.c:441
-msgid ""
-"A comma separated list of languages to be used for spell checking, for "
-"example \"en_GB,de_DE\""
+#: ../midori/midori-preferences.c:425
+msgid "A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""
 msgstr "スペルチェックを行う言語をカンマで区切って指定します。例 \"en,de_DE\""
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:449
+#: ../midori/midori-preferences.c:431
 msgid "Interface"
 msgstr "インターフェイス"
 
-#: ../midori/midori-preferences.c:450
+#: ../midori/midori-preferences.c:432
 msgid "Navigationbar"
 msgstr "ナビゲーションバー"
 
-#: ../midori/midori-preferences.c:460
+#: ../midori/midori-preferences.c:442
 msgid "Browsing"
 msgstr "ブラウジング"
 
 #. Page "Applications"
-#: ../midori/midori-preferences.c:482
+#: ../midori/midori-preferences.c:464
 msgid "Applications"
 msgstr "アプリケーション"
 
-#: ../midori/midori-preferences.c:483
+#: ../midori/midori-preferences.c:465
 msgid "External applications"
 msgstr "外部アプリケーション"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:499 ../midori/midori-preferences.c:500
+#: ../midori/midori-preferences.c:481
+#: ../midori/midori-preferences.c:482
 msgid "Network"
 msgstr "ネットワーク"
 
 #. Page "Privacy"
-#: ../midori/midori-preferences.c:519
+#: ../midori/midori-preferences.c:501
 msgid "Privacy"
 msgstr "プライバシー"
 
-#: ../midori/midori-preferences.c:520
+#: ../midori/midori-preferences.c:502
 msgid "Web Cookies"
 msgstr "ウェブ Cookie"
 
-#: ../midori/midori-preferences.c:531 ../midori/midori-preferences.c:538
+#: ../midori/midori-preferences.c:513
+#: ../midori/midori-preferences.c:520
 msgid "days"
 msgstr "日"
-
-#: ../midori/midori-searchaction.c:491 ../katze/katze-arrayaction.c:338
-msgid "Empty"
-msgstr "空です"
 
 #: ../midori/midori-searchaction.c:923
 msgid "Add search engine"
@@ -1972,55 +2053,56 @@ msgstr "アイコン(_I):"
 msgid "_Token:"
 msgstr "トークン(_T):"
 
-#: ../midori/midori-searchaction.c:1228
+#: ../midori/midori-searchaction.c:1232
 msgid "Manage Search Engines"
 msgstr "検索エンジンの管理"
 
-#: ../midori/midori-searchaction.c:1329
+#: ../midori/midori-searchaction.c:1333
 msgid "Use as _default"
 msgstr "デフォルトで使う(_D)"
 
-#: ../midori/sokoke.c:1103
+#: ../midori/sokoke.c:1113
 msgid "_Bookmark"
 msgstr "ブックマーク(_B)"
 
-#: ../midori/sokoke.c:1105
+#: ../midori/sokoke.c:1115
 msgid "Add Boo_kmark"
 msgstr "ブックマークに追加(_K)"
 
-#: ../midori/sokoke.c:1106
+#: ../midori/sokoke.c:1116
 msgid "_Console"
 msgstr "コンソール(_C)"
 
-#: ../midori/sokoke.c:1107
+#: ../midori/sokoke.c:1117
 msgid "_Extensions"
 msgstr "エクステンション(_E)"
 
-#: ../midori/sokoke.c:1108
+#: ../midori/sokoke.c:1118
 msgid "_History"
 msgstr "履歴(_H)"
 
-#: ../midori/sokoke.c:1109
+#: ../midori/sokoke.c:1119
 msgid "_Homepage"
 msgstr "ホームページ(_H)"
 
-#: ../midori/sokoke.c:1110
+#: ../midori/sokoke.c:1120
 msgid "_Userscripts"
 msgstr "ユーザスクリプト(_U)"
 
-#: ../midori/sokoke.c:1111
+#: ../midori/sokoke.c:1121
 msgid "New _Tab"
 msgstr "新しいタブ(_T)"
 
-#: ../midori/sokoke.c:1112
+#: ../midori/sokoke.c:1122
 msgid "_Transfers"
 msgstr "転送(_T)"
 
-#: ../midori/sokoke.c:1113
+#: ../midori/sokoke.c:1123
 msgid "Netscape p_lugins"
 msgstr "Netscape プラグイン(_L)"
 
-#: ../panels/midori-addons.c:94 ../panels/midori-addons.c:139
+#: ../panels/midori-addons.c:94
+#: ../panels/midori-addons.c:139
 msgid "Userscripts"
 msgstr "ユーザスクリプト"
 
@@ -2031,9 +2113,7 @@ msgstr "ユーザスタイル"
 #: ../panels/midori-addons.c:294
 #, c-format
 msgid "Copy userscripts to the folder %s and copy userstyles to the folder %s."
-msgstr ""
-"ユーザスクリプトをフォルダ %s へ、ユーザスタイルをフォルダ %s へコピーしま"
-"す。"
+msgstr "ユーザスクリプトをフォルダ %s へ、ユーザスタイルをフォルダ %s へコピーします。"
 
 #: ../panels/midori-addons.c:896
 #, c-format
@@ -2045,20 +2125,20 @@ msgid "Bookmarks"
 msgstr "ブックマーク"
 
 # tooltip
-#: ../panels/midori-bookmarks.c:243
+#: ../panels/midori-bookmarks.c:251
 msgid "Edit the selected bookmark"
 msgstr "選択したブックマークを編集します"
 
 # tooltip
-#: ../panels/midori-bookmarks.c:251
+#: ../panels/midori-bookmarks.c:259
 msgid "Delete the selected bookmark"
 msgstr "選択したブックマークを削除します"
 
-#: ../panels/midori-bookmarks.c:264
+#: ../panels/midori-bookmarks.c:279
 msgid "Add a new folder"
 msgstr "新しいフォルダの追加"
 
-#: ../panels/midori-bookmarks.c:594
+#: ../panels/midori-bookmarks.c:609
 msgid "<i>Separator</i>"
 msgstr "<i>セパレータ</i>"
 
@@ -2094,8 +2174,7 @@ msgid "Erroneous clock time"
 msgstr "時刻の誤り"
 
 #: ../panels/midori-history.c:599
-msgid ""
-"The clock time lies in the past. Please check the current date and time."
+msgid "The clock time lies in the past. Please check the current date and time."
 msgstr "時計時刻が過去になっています。現在の日付と時刻をチェックしてください。"
 
 #: ../panels/midori-history.c:611
@@ -2117,7 +2196,8 @@ msgstr "今日"
 msgid "Yesterday"
 msgstr "昨日"
 
-#: ../panels/midori-plugins.c:87 ../extensions/statusbar-features.c:108
+#: ../panels/midori-plugins.c:87
+#: ../extensions/statusbar-features.c:108
 msgid "Netscape plugins"
 msgstr "Netscape プラグイン"
 
@@ -2167,16 +2247,18 @@ msgstr "ストックアイコン '%s' を読み込めませんでした"
 msgid "Animation frames are broken"
 msgstr "アニメーションフレームは壊れています"
 
-#: ../katze/katze-utils.c:483 ../katze/katze-utils.c:874
+#: ../katze/katze-utils.c:487
+#: ../katze/katze-utils.c:878
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "'%s' は %s のプロパティとして無効です"
 
-#: ../katze/katze-utils.c:529 ../katze/katze-utils.c:558
+#: ../katze/katze-utils.c:533
+#: ../katze/katze-utils.c:562
 msgid "Choose file"
 msgstr "ファイルの選択"
 
-#: ../katze/katze-utils.c:544
+#: ../katze/katze-utils.c:548
 msgid "Choose folder"
 msgstr "フォルダの選択"
 
@@ -2185,29 +2267,25 @@ msgstr "フォルダの選択"
 msgid "Preferences for %s"
 msgstr "%s の設定"
 
-#: ../extensions/adblock.c:373
+#: ../extensions/adblock.c:349
 msgid "Configure Advertisement filters"
 msgstr "広告フィルタの設定"
 
-#: ../extensions/adblock.c:405
+#: ../extensions/adblock.c:381
 #, c-format
-msgid ""
-"Type the address of a preconfigured filter list in the text entry and click "
-"\"Add\" to add it to the list. You can find more lists at %s."
-msgstr ""
-"リストに追加するには、フィルタリストのアドレスを入力し \"追加\" ボタンをク"
-"リックしてください。フィルタリストは %s で見つけることができます。"
+msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
+msgstr "リストに追加するには、フィルタリストのアドレスを入力し \"追加\" ボタンをクリックしてください。フィルタリストは %s で見つけることができます。"
 
-#: ../extensions/adblock.c:545
+#: ../extensions/adblock.c:521
 msgid "Configure _Advertisement filters..."
 msgstr "広告フィルタの設定(_A)..."
 
-#: ../extensions/adblock.c:1101
+#: ../extensions/adblock.c:1207
 msgid "Advertisement blocker"
 msgstr "広告ブロッカ"
 
 # description
-#: ../extensions/adblock.c:1102
+#: ../extensions/adblock.c:1208
 msgid "Block advertisements according to a filter list"
 msgstr "フィルタリストに登録された広告をブロックします"
 
@@ -2230,12 +2308,8 @@ msgid "Delete All"
 msgstr "すべて削除"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:111
-msgid ""
-"Deletes all shown cookies. If a filter is set, only those cookies are "
-"deleted which match the filter."
-msgstr ""
-"表示されているすべての cookie を削除します。フィルタが設定されていれば、フィ"
-"ルタにマッチした cookie のみ削除されます。"
+msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
+msgstr "表示されているすべての cookie を削除します。フィルタが設定されていれば、フィルタにマッチした cookie のみ削除されます。"
 
 # tooltip
 #: ../extensions/cookie-manager/cookie-manager-page.c:126
@@ -2310,12 +2384,8 @@ msgstr "フィルタ:"
 
 # tooltip
 #: ../extensions/cookie-manager/cookie-manager-page.c:928
-msgid ""
-"Enter a filter string to show only cookies whose name or domain field match "
-"the entered filter"
-msgstr ""
-"フィルタに入力された文字列と、名前またはドメインフィールドがマッチした "
-"cookie のみ表示します。"
+msgid "Enter a filter string to show only cookies whose name or domain field match the entered filter"
+msgstr "フィルタに入力された文字列と、名前またはドメインフィールドがマッチした cookie のみ表示します。"
 
 #: ../extensions/cookie-manager/main.c:40
 msgid "_Cookie Manager"
@@ -2419,25 +2489,25 @@ msgstr "フィードパネル"
 msgid "Read Atom/ RSS feeds"
 msgstr "Atom/RSS フィードを購読します"
 
-#: ../extensions/formhistory.c:140
+#: ../extensions/formhistory.c:145
 #, c-format
 msgid "Failed to add form value: %s\n"
 msgstr "フォーム値の追加に失敗しました: %s\n"
 
-#: ../extensions/formhistory.c:502
+#: ../extensions/formhistory.c:507
 msgid "Stores history of entered form data"
 msgstr "入力されたフォームデータの履歴を記憶します"
 
-#: ../extensions/formhistory.c:506
+#: ../extensions/formhistory.c:511
 #, c-format
 msgid "Not available: %s"
 msgstr "利用できません: %s"
 
-#: ../extensions/formhistory.c:507
+#: ../extensions/formhistory.c:512
 msgid "Resource files not installed"
 msgstr "リソースファイルがインストールされていません"
 
-#: ../extensions/formhistory.c:513
+#: ../extensions/formhistory.c:518
 msgid "Form history filler"
 msgstr "入力フォーム履歴フィルタ"
 
@@ -2451,7 +2521,8 @@ msgid "Control Midori by moving the mouse"
 msgstr "マウスの操作で Midori を制御します"
 
 #. i18n: A panel showing a user specified web page
-#: ../extensions/page-holder.c:129 ../extensions/page-holder.c:177
+#: ../extensions/page-holder.c:129
+#: ../extensions/page-holder.c:177
 msgid "Pageholder"
 msgstr "ページホルダ"
 
@@ -2463,20 +2534,20 @@ msgstr "ページホルダ(_P)"
 msgid "Keep one or multiple pages open in parallel to your tabs"
 msgstr "タブとは別に 1 つ以上のページをパネルに表示します"
 
-#: ../extensions/shortcuts.c:173
+#: ../extensions/shortcuts.c:162
 msgid "Customize Keyboard shortcuts"
 msgstr "キーボードショートカットのカスタマイズ"
 
-#: ../extensions/shortcuts.c:265
+#: ../extensions/shortcuts.c:268
 msgid "Customize Sh_ortcuts..."
 msgstr "ショートカットのカスタマイズ(_O)..."
 
-#: ../extensions/shortcuts.c:304
+#: ../extensions/shortcuts.c:307
 msgid "Shortcuts"
 msgstr "ショートカット"
 
 # description
-#: ../extensions/shortcuts.c:305
+#: ../extensions/shortcuts.c:308
 msgid "View and edit keyboard shortcuts"
 msgstr "キーボードショートカットの表示および編集を行います"
 
@@ -2497,7 +2568,8 @@ msgstr "ステータスバー機能"
 msgid "Easily toggle features on web pages on and off"
 msgstr "ウェブページへの機能のオン/オフを簡単に切り替えます"
 
-#: ../extensions/tab-panel.c:565 ../extensions/tab-panel.c:622
+#: ../extensions/tab-panel.c:565
+#: ../extensions/tab-panel.c:622
 msgid "Tab Panel"
 msgstr "タブパネル"
 
@@ -2523,12 +2595,8 @@ msgid "Customize Toolbar"
 msgstr "ツールバーのカスタマイズ"
 
 #: ../extensions/toolbar-editor.c:407
-msgid ""
-"Select items to be displayed on the toolbar. Items can be reodered by drag "
-"and drop."
-msgstr ""
-"ツールバーに表示するアイテムを選択してください。表示順はドラッグアンドドロッ"
-"プで変更できます。"
+msgid "Select items to be displayed on the toolbar. Items can be reodered by drag and drop."
+msgstr "ツールバーに表示するアイテムを選択してください。表示順はドラッグアンドドロップで変更できます。"
 
 #: ../extensions/toolbar-editor.c:423
 msgid "Available Items"
@@ -2555,13 +2623,10 @@ msgstr "ツールバーのレイアウトを簡単に編集できます"
 msgid "Not available on this platform"
 msgstr "このプラットフォームでは利用できません"
 
-#: ../extensions/web-cache.c:591
-msgid "Web Cache"
-msgstr "ウェブキャッシュ"
-
-#: ../extensions/web-cache.c:592
+#: ../extensions/web-cache.c:411
 msgid "Cache HTTP communication on disk"
 msgstr "HTTP 通信をディスクにキャッシュします"
 
 #~ msgid "Shrink images automatically"
 #~ msgstr "画像を自動的に縮小する"
+
