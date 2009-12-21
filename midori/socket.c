@@ -142,6 +142,11 @@ GSourceFuncs sock_watch_funcs = {
 	NULL
 };
 
+gint fd_recv				(gint		 fd,
+					 gchar		*buf,
+					 gint		 len,
+					 gint		 flags);
+
 #ifdef G_OS_WIN32
 static SockInfo *sock_find_from_fd	(gint	fd);
 #endif
