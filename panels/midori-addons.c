@@ -22,8 +22,13 @@
 #include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <string.h>
 #include <gio/gio.h>
+
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
 
 struct _MidoriAddons
 {
@@ -212,14 +217,20 @@ _addons_get_directories (MidoriAddons* addons)
     {
         path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
                              PACKAGE_NAME, folders[i], NULL);
-        directories = g_slist_prepend (directories, path);
+        if (g_access (path, X_OK) == 0)
+            directories = g_slist_prepend (directories, path);
+        else
+            g_free (path);
 
         datadirs = g_get_system_data_dirs ();
         while (*datadirs)
         {
             path = g_build_path (G_DIR_SEPARATOR_S, *datadirs,
                                  PACKAGE_NAME, folders[i], NULL);
-            directories = g_slist_prepend (directories, path);
+            if (g_access (path, X_OK) == 0)
+                directories = g_slist_prepend (directories, path);
+            else
+                g_free (path);
             datadirs++;
         }
     }
