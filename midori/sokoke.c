@@ -380,12 +380,7 @@ sokoke_hostname_from_uri (const gchar* uri,
         if (hostname[1] == '/')
             hostname += 2;
         if ((*path = g_utf8_strchr (hostname, -1, '/')))
-        {
-            gulong offset = g_utf8_pointer_to_offset (hostname, *path);
-            gchar* buffer = g_malloc0 (offset + 1);
-            g_utf8_strncpy (buffer, hostname, offset);
-            hostname = buffer;
-        }
+            hostname = g_strndup (hostname, *path - hostname);
         else
             hostname = g_strdup (hostname);
     }

@@ -211,6 +211,8 @@ magic_uri_format (void)
        "http://digilife.bz/wiki/index.php?Pythonの開発手順" },
      { "http://die-welt.net/~evgeni/LenovoBatteryLinux/", NULL },
      { "http://wiki.c3sl.ufpr.br/multiseat/index.php/Xephyr_Solution", NULL },
+     { "http://şøñđëřżēıċħęŋđőmæîņĭśŧşũþėŗ.de/char.jpg", NULL },
+     { "http://www.ⓖⓝⓞⓜⓔ.org/", "http://www.gnome.org/" },
      };
     guint i;
 
