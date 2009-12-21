@@ -34,7 +34,7 @@ static gchar* blockcss = NULL;
 static gchar* blockcssprivate = NULL;
 static gchar* blockscript = NULL;
 
-static void
+static gboolean
 adblock_parse_file (gchar* path);
 
 static gchar*
@@ -90,8 +90,9 @@ adblock_download_notify_status_cb (WebKitDownload* download,
                                    GParamSpec*     pspec,
                                    gchar*          path)
 {
-    if (g_access (path, F_OK) != 0)
-       return;
+    if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_FINISHED)
+        return;
+
     adblock_parse_file (path);
     g_free (path);
     /* g_object_unref (download); */
@@ -104,12 +105,13 @@ adblock_reload_rules (MidoriExtension* extension)
     gchar* folder;
     guint i = 0;
     filters = midori_extension_get_string_list (extension, "filters", NULL);
-    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
-                               "adblock", NULL);
-    g_mkdir_with_parents (folder, 0700);
 
     if (!filters)
         return;
+
+    folder = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
+                               "adblock", NULL);
+    katze_mkdir_with_parents (folder, 0700);
 
     adblock_init_db ();
 
@@ -118,7 +120,7 @@ adblock_reload_rules (MidoriExtension* extension)
         gchar* filename = g_compute_checksum_for_string (G_CHECKSUM_MD5,
                                                          filters[i - 1], -1);
         gchar* path = g_build_filename (folder, filename, NULL);
-        if (g_access (path, F_OK) != 0)
+        if (!adblock_parse_file (path))
         {
             WebKitNetworkRequest* request;
             WebKitDownload* download;
@@ -133,10 +135,7 @@ adblock_reload_rules (MidoriExtension* extension)
             webkit_download_start (download);
         }
         else
-        {
-            adblock_parse_file (path);
             g_free (path);
-        }
         g_free (filename);
     }
     katze_assign (blockscript, adblock_build_js (blockcss, blockcssprivate));
@@ -573,24 +572,23 @@ adblock_is_matched_by_key (const gchar*  opts,
                            const gchar*  req_uri,
                            const gchar*  page_uri)
 {
-    int pos = 0;
-    gchar *sig = NULL;
-    GRegex* regex;
     gchar* uri;
+    gint len;
+    int pos = 0;
 
     uri = adblock_fixup_regexp ((gchar*)req_uri);
-
-    int len = strlen (uri);
-    for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--) {
-        sig = strndup (uri+pos, SIGNATURE_SIZE);
-        regex = g_hash_table_lookup (keys, sig);
+    len = strlen (uri);
+    for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--)
+    {
+        gchar* sig = g_strndup (uri + pos, SIGNATURE_SIZE);
+        GRegex* regex = g_hash_table_lookup (keys, sig);
         if (regex)
         {
             if (g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
             {
                 g_free (uri);
                 g_free (sig);
-                if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri) == TRUE)
+                if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri))
                     return FALSE;
                 else
                 {
@@ -1001,23 +999,20 @@ adblock_parse_line (gchar* line)
     return adblock_add_url_pattern ("%s", "uri", line);
 }
 
-static void
+static gboolean
 adblock_parse_file (gchar* path)
 {
     FILE* file;
     gchar line[500];
-    gchar *out;
 
     if ((file = g_fopen (path, "r")))
     {
         while (fgets (line, 500, file))
-        {
-            out = adblock_parse_line (line);
-            if (out)
-                g_free (out);
-        }
+            g_free (adblock_parse_line (line));
         fclose (file);
+        return TRUE;
     }
+    return FALSE;
 }
 
 static void
