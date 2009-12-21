@@ -37,16 +37,14 @@ formhistory_prepare_js ()
    gchar* file;
 
    gchar* data_path = g_build_filename (MDATADIR, PACKAGE_NAME, "res", NULL);
-   file = g_build_filename (data_path,"/autosuggestcontrol.js",NULL);
-   if (g_access (file, F_OK) != 0)
+   file = g_build_filename (data_path, G_DIR_SEPARATOR_S, "autosuggestcontrol.js",NULL);
+   if (!g_file_get_contents (file, &autosuggest, NULL, NULL))
        return FALSE;
-   g_file_get_contents (file, &autosuggest, NULL, NULL);
    g_strchomp (autosuggest);
 
-   file = g_build_filename (data_path,"/autosuggestcontrol.css",NULL);
-   if (g_access (file, F_OK) != 0)
+   file = g_build_filename (data_path, G_DIR_SEPARATOR_S, "autosuggestcontrol.css",NULL);
+   if(!g_file_get_contents (file, &style, NULL, NULL))
        return FALSE;
-   g_file_get_contents (file, &style, NULL, NULL);
    g_strchomp (style);
    i = 0;
    while (style[i])
