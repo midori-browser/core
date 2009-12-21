@@ -1217,12 +1217,8 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
 
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING,
-        #if HAVE_HILDON
-        #if HILDON_CHECK_VERSION (2, 2, 0)
+        #ifdef HAVE_HILDON_2_2
         GTK_BUTTONS_NONE,
-        #else
-        GTK_BUTTONS_OK,
-        #endif
         #else
         GTK_BUTTONS_OK,
         #endif
@@ -1259,8 +1255,7 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (box);
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
-    #if HAVE_HILDON
-    #if HILDON_CHECK_VERSION (2, 2, 0)
+    #ifdef HAVE_HILDON_2_2
     box = gtk_hbox_new (FALSE, 4);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), box, TRUE, FALSE, 4);
     button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_HALFSCREEN_WIDTH);
@@ -1270,7 +1265,6 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
         G_CALLBACK (gtk_widget_destroy), dialog);
     gtk_box_pack_start (GTK_BOX (box), button, TRUE, FALSE, 4);
     gtk_widget_show_all (box);
-    #endif
     #endif
     if (1)
     {
@@ -1614,6 +1608,7 @@ main (int    argc,
 {
     gchar* webapp;
     gchar* config;
+    gboolean diagnostic_dialog;
     gboolean run;
     gchar* snapshot;
     gboolean execute;
@@ -1630,6 +1625,8 @@ main (int    argc,
        { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
        #endif
+       { "diagnostic-dialog", 'd', 0, G_OPTION_ARG_NONE, &diagnostic_dialog,
+       N_("Show a diagnostic dialog"), NULL },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
        #if WEBKIT_CHECK_VERSION (1, 1, 6)
@@ -2095,15 +2092,20 @@ main (int    argc,
     /* We test for the presence of a dummy file which is created once
        and deleted during normal runtime, but persists in case of a crash. */
     katze_assign (config_file, build_config_filename ("running"));
-    if (katze_object_get_boolean (settings, "show-crash-dialog")
-        && g_access (config_file, F_OK) == 0)
+    if (g_access (config_file, F_OK) == 0)
+    {
+        if (katze_object_get_boolean (settings, "show-crash-dialog"))
+            diagnostic_dialog = TRUE;
+    }
+    else
+        g_file_set_contents (config_file, "RUNNING", -1, NULL);
+
+    if (diagnostic_dialog)
     {
         GtkWidget* dialog = midori_create_diagnostic_dialog (settings, _session);
         gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (dialog);
     }
-    else
-        g_file_set_contents (config_file, "RUNNING", -1, NULL);
     g_signal_connect (app, "quit", G_CALLBACK (midori_app_quit_cb), NULL);
 
     g_object_set (app, "settings", settings,
