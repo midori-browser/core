@@ -92,12 +92,6 @@ web_cache_get_headers (gchar* filename)
         return NULL;
 
     dsc_filename = g_strdup_printf ("%s.dsc", filename);
-    if (g_access (dsc_filename, R_OK) != 0)
-    {
-        g_free (dsc_filename);
-        return NULL;
-    }
-
     headers = g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify)g_free,
                                (GDestroyNotify)g_free);
@@ -107,10 +101,12 @@ web_cache_get_headers (gchar* filename)
         gchar line[128];
         while (fgets (line, 128, file))
         {
+            gchar** data;
+
             if (line == NULL)
                 continue;
+
             g_strchomp (line);
-            gchar** data;
             data = g_strsplit (line, ":", 2);
             if (data[0] && data[1])
                 g_hash_table_insert (headers, g_strdup (data[0]),
@@ -118,12 +114,12 @@ web_cache_get_headers (gchar* filename)
             g_strfreev (data);
         }
         fclose (file);
+        g_free (dsc_filename);
+        return headers;
     }
-    else
-        g_hash_table_destroy (headers);
-
+    g_hash_table_destroy (headers);
     g_free (dsc_filename);
-    return headers;
+    return NULL;
 }
 
 static gboolean
