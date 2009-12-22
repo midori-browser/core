@@ -1697,6 +1697,7 @@ main (int    argc,
     /* Parse cli options */
     webapp = NULL;
     config = NULL;
+    diagnostic_dialog = FALSE;
     run = FALSE;
     snapshot = NULL;
     execute = FALSE;
