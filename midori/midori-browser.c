@@ -1205,10 +1205,17 @@ midori_view_attach_inspector_cb (GtkWidget*     view,
                                  GtkWidget*     inspector_view,
                                  MidoriBrowser* browser)
 {
-    GtkWidget* scrolled = gtk_widget_get_parent (browser->inspector_view);
-    gtk_container_remove (GTK_CONTAINER (scrolled), browser->inspector_view);
-    gtk_container_add (GTK_CONTAINER (scrolled), inspector_view);
+    GtkWidget* toplevel;
+    GtkWidget* scrolled;
+
+    toplevel = gtk_widget_get_toplevel (inspector_view);
+    gtk_widget_hide (toplevel);
+    scrolled = gtk_widget_get_parent (browser->inspector_view);
+    gtk_widget_destroy (browser->inspector_view);
+    gtk_widget_reparent (inspector_view, scrolled);
+    gtk_widget_show_all (browser->inspector);
     browser->inspector_view = inspector_view;
+    gtk_widget_destroy (toplevel);
 }
 
 static void
@@ -5991,7 +5998,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_modify_style (browser->notebook, rcstyle);
     g_object_unref (rcstyle);
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
-    gtk_paned_pack2 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
+    gtk_paned_pack1 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
     g_signal_connect (browser->notebook, "switch-page",
                       G_CALLBACK (gtk_notebook_switch_page_cb),
                       browser);
@@ -6008,19 +6015,16 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Inspector container */
     browser->inspector = gtk_vbox_new (FALSE, 0);
-    gtk_paned_pack2 (GTK_PANED (vpaned), browser->inspector, TRUE, TRUE);
+    gtk_paned_pack2 (GTK_PANED (vpaned), browser->inspector, FALSE, FALSE);
     scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
                                          GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start (GTK_BOX (browser->inspector),
-        scrolled, TRUE, TRUE, 0);
-    browser->inspector_view = webkit_web_view_new ();
+    gtk_box_pack_start (GTK_BOX (browser->inspector), scrolled, TRUE, TRUE, 0);
+    browser->inspector_view = gtk_viewport_new (NULL, NULL);
     gtk_container_add (GTK_CONTAINER (scrolled), browser->inspector_view);
-    gtk_widget_show_all (browser->inspector);
 
     /* Incremental findbar */
     browser->find = gtk_toolbar_new ();

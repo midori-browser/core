@@ -2080,7 +2080,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 #if HAVE_HILDON
 static void
 midori_view_web_view_tap_and_hold_cb (GtkWidget*  web_view,
-                                      MidoriView* view)
+                                      gpointer    data)
 {
     gint x, y;
     GdkEvent event;
@@ -2722,10 +2722,11 @@ midori_view_get_progress (MidoriView* view)
     return view->progress;
 }
 
-static WebKitWebView*
-webkit_web_inspector_inspect_web_view_cb (gpointer       inspector,
-                                          WebKitWebView* web_view,
-                                          MidoriView*    view)
+static void
+midori_view_web_inspector_construct_window (gpointer       inspector,
+                                            WebKitWebView* web_view,
+                                            GtkWidget*     inspector_view,
+                                            MidoriView*    view)
 {
     gchar* title;
     GtkWidget* window;
@@ -2735,7 +2736,6 @@ webkit_web_inspector_inspect_web_view_cb (gpointer       inspector,
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;
     GdkPixbuf* gray_icon;
-    GtkWidget* inspector_view;
 
     title = g_strdup_printf (_("Inspect page - %s"), "");
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -2769,17 +2769,52 @@ webkit_web_inspector_inspect_web_view_cb (gpointer       inspector,
     }
     else
         gtk_window_set_icon_name (GTK_WINDOW (window), "midori");
-    inspector_view = webkit_web_view_new ();
     gtk_container_add (GTK_CONTAINER (window), inspector_view);
-
-    /* FIXME: Implement web inspector signals properly
-       FIXME: Save and restore window size
-       FIXME: Update window title with URI */
     gtk_widget_show_all (window);
-    /* inspector_view = webkit_web_view_new ();
-    gtk_widget_show (inspector_view);
-    g_signal_emit (view, signals[ATTACH_INSPECTOR], 0, inspector_view); */
+
+    /* FIXME: Update window title with URI */
+}
+
+static WebKitWebView*
+midori_view_web_inspector_inspect_web_view_cb (gpointer       inspector,
+                                               WebKitWebView* web_view,
+                                               MidoriView*    view)
+{
+    GtkWidget* inspector_view = webkit_web_view_new ();
+    #if HAVE_HILDON
+    gtk_widget_tap_and_hold_setup (view->web_view, NULL, NULL, 0);
+    g_signal_connect (view->web_view, "tap-and-hold",
+                      G_CALLBACK (midori_view_web_view_tap_and_hold_cb), NULL);
+    #endif
+    midori_view_web_inspector_construct_window (inspector,
+        web_view, inspector_view, view);
     return WEBKIT_WEB_VIEW (inspector_view);
+}
+
+static gboolean
+midori_view_web_inspector_attach_window_cb (gpointer    inspector,
+                                            MidoriView* view)
+{
+    GtkWidget* inspector_view = katze_object_get_object (inspector, "web-view");
+    g_signal_emit (view, signals[ATTACH_INSPECTOR], 0, inspector_view);
+    g_object_unref (inspector_view);
+    return TRUE;
+}
+
+static gboolean
+midori_view_web_inspector_detach_window_cb (gpointer    inspector,
+                                            MidoriView* view)
+{
+    GtkWidget* inspector_view = katze_object_get_object (inspector, "web-view");
+    GtkWidget* parent = gtk_widget_get_parent (inspector_view);
+    if (GTK_IS_WINDOW (parent))
+        return FALSE;
+    gtk_widget_hide (parent);
+    gtk_container_remove (GTK_CONTAINER (parent), inspector_view);
+    midori_view_web_inspector_construct_window (inspector,
+        WEBKIT_WEB_VIEW (view->web_view), inspector_view, view);
+    g_object_unref (inspector_view);
+    return TRUE;
 }
 
 static void
@@ -2798,6 +2833,8 @@ midori_view_construct_web_view (MidoriView* view)
 
     #if HAVE_HILDON
     gtk_widget_tap_and_hold_setup (view->web_view, NULL, NULL, 0);
+    g_signal_connect (view->web_view, "tap-and-hold",
+                      G_CALLBACK (midori_view_web_view_tap_and_hold_cb), NULL);
     #endif
 
     g_object_connect (view->web_view,
@@ -2838,10 +2875,6 @@ midori_view_construct_web_view (MidoriView* view)
                       gtk_widget_scroll_event_cb, view,
                       "signal::populate-popup",
                       webkit_web_view_populate_popup_cb, view,
-                      #if HAVE_HILDON
-                      "signal::tap-and-hold",
-                      midori_view_web_view_tap_and_hold_cb, view,
-                      #endif
                       "signal::console-message",
                       webkit_web_view_console_message_cb, view,
                       "signal::window-object-cleared",
@@ -2882,8 +2915,15 @@ midori_view_construct_web_view (MidoriView* view)
     gtk_container_add (GTK_CONTAINER (view), view->web_view);
 
     inspector = katze_object_get_object (view->web_view, "web-inspector");
-    g_object_connect (inspector, "signal::inspect-web-view",
-                      webkit_web_inspector_inspect_web_view_cb, view, NULL);
+    g_object_connect (inspector,
+                      "signal::inspect-web-view",
+                      midori_view_web_inspector_inspect_web_view_cb, view,
+                      "signal::attach-window",
+                      midori_view_web_inspector_attach_window_cb, view,
+                      "signal::detach-window",
+                      midori_view_web_inspector_detach_window_cb, view,
+                      NULL);
+    g_object_unref (inspector);
 }
 
 /**
