@@ -400,19 +400,17 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
     SPANNED_ADD (button);
-    button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
-    gtk_widget_set_tooltip_text (button, _("Enforce a video dot density of 96 DPI"));
-    INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "enable-developer-extras", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable developer tools"));
-    gtk_widget_set_tooltip_text (button, _("Enable special extensions for developers"));
-    SPANNED_ADD (button);
     #endif
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "find-while-typing", NULL);
     SPANNED_ADD (button);
+    #if !HAVE_HILDON
+    button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
+    gtk_widget_set_tooltip_text (button, _("Enforce a video dot density of 96 DPI"));
+    INDENTED_ADD (button);
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
     FRAME_NEW (_("Spell Checking"));
     /* FIXME: Provide a nice dictionary selection */

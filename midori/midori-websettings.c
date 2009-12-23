@@ -153,6 +153,7 @@ enum
     PROP_AUTO_LOAD_IMAGES,
     PROP_ENABLE_SCRIPTS,
     PROP_ENABLE_PLUGINS,
+    PROP_ENABLE_DEVELOPER_EXTRAS,
     PROP_ZOOM_TEXT_AND_IMAGES,
     PROP_FIND_WHILE_TYPING,
     PROP_KINETIC_SCROLLING,
@@ -847,6 +848,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Enable embedded Netscape plugin objects"),
                                      TRUE,
                                      flags));
+    /* Override properties to override defaults */
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_DEVELOPER_EXTRAS,
+                                     g_param_spec_boolean (
+                                     "enable-developer-extras",
+                                     "Enable developer tools",
+                                     "Enable special extensions for developers",
+                                     TRUE,
+                                     flags));
 
     /**
      * MidoriWebSettings:zoom-text-and-images:
@@ -1376,6 +1386,10 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-plugins",
                       g_value_get_boolean (value), NULL);
         break;
+    case PROP_ENABLE_DEVELOPER_EXTRAS:
+        g_object_set (web_settings, "WebKitWebSettings::enable-developer-extras",
+                      g_value_get_boolean (value), NULL);
+        break;
     case PROP_ZOOM_TEXT_AND_IMAGES:
         web_settings->zoom_text_and_images = g_value_get_boolean (value);
         break;
@@ -1590,6 +1604,10 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_ENABLE_PLUGINS:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-plugins"));
+        break;
+    case PROP_ENABLE_DEVELOPER_EXTRAS:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-developer-extras"));
         break;
     case PROP_ZOOM_TEXT_AND_IMAGES:
         g_value_set_boolean (value, web_settings->zoom_text_and_images);
