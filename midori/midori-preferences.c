@@ -504,8 +504,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "accept-cookies", NULL);
     SPANNED_ADD (button);
-    button = katze_property_proxy (settings, "original-cookies-only", NULL);
-    INDENTED_ADD (button);
     label = katze_property_label (settings, "maximum-cookie-age");
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "maximum-cookie-age", NULL);

@@ -906,6 +906,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_ACCEPT_COOKIES_ALL,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+    /**
+     * MidoriWebSettings:original-cookies-only:
+     *
+     * Accept cookies from the original website only.
+     *
+     * Deprecated: 0.2.3: This value is not used.
+    */
     g_object_class_install_property (gobject_class,
                                      PROP_ORIGINAL_COOKIES_ONLY,
                                      g_param_spec_boolean (
