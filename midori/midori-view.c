@@ -1170,11 +1170,11 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
     if (link_uri && g_str_has_prefix (link_uri, "mailto:"))
     {
         gchar* text = g_strdup_printf (_("Send a message to %s"), &link_uri[7]);
-        g_object_set (G_OBJECT (view), "statusbar-text", text, NULL);
+        g_object_set (view, "statusbar-text", text, NULL);
         g_free (text);
     }
     else
-        g_object_set (G_OBJECT (view), "statusbar-text", link_uri, NULL);
+        g_object_set (view, "statusbar-text", link_uri, NULL);
 }
 
 #define MIDORI_KEYS_MODIFIER_MASK (GDK_SHIFT_MASK | GDK_CONTROL_MASK \
@@ -1640,9 +1640,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     GtkWidget* widget = GTK_WIDGET (view);
     GtkWidget* menuitem;
     GtkWidget* icon;
-    #if !WEBKIT_CHECK_VERSION (1, 1, 15)
     gchar* stock_id;
-    #endif
     GList* items;
     gboolean has_selection;
     gboolean is_editable;
@@ -1726,6 +1724,36 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         return;
     }
 
+    items = gtk_container_get_children (GTK_CONTAINER (menu));
+    menuitem = (GtkWidget*)g_list_nth_data (items, 0);
+    /* Form control: no items */
+    if (!menuitem)
+    {
+        g_list_free (items);
+        return;
+    }
+    /* Form control: separator and Inspect element */
+    if (GTK_IS_SEPARATOR_MENU_ITEM (menuitem) && g_list_length (items) == 2)
+    {
+        i = 0;
+        while ((menuitem = g_list_nth_data (items, i++)))
+            gtk_widget_destroy (menuitem);
+        g_list_free (items);
+        return;
+    }
+    g_list_free (items);
+    /* Link and/ or image, but falsely reported as document */
+    if (is_document)
+    {
+        if (GTK_IS_IMAGE_MENU_ITEM (menuitem))
+        {
+            icon = gtk_image_menu_item_get_image (GTK_IMAGE_MENU_ITEM (menuitem));
+            gtk_image_get_stock (GTK_IMAGE (icon), &stock_id, NULL);
+            if (stock_id && !strcmp (stock_id, GTK_STOCK_OPEN))
+                return;
+        }
+    }
+
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
     /* FIXME: We can't re-implement Open in Frame or Inspect page,
       so we can't replace the default document menu */
@@ -1748,7 +1776,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         midori_view_insert_menu_item (menu_shell, -1,
             view->open_tabs_in_the_background
             ? _("Open Link in _Foreground Tab")
-            : _("Open Link in _Background Tab"), STOCK_TAB_NEW,
+            : _("Open Link in _Background Tab"), NULL,
             G_CALLBACK (midori_web_view_menu_background_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Window"), STOCK_WINDOW_NEW,
