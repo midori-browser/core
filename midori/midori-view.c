@@ -1343,9 +1343,9 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         && !webkit_web_view_can_paste_clipboard (web_view))
     {
         gchar* text = character ? g_strdup_printf ("%c", character) : g_strdup ("");
-
         g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text);
         g_free (text);
+        return TRUE;
     }
 
     return FALSE;
