@@ -888,7 +888,7 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
     item = katze_item_new ();
     katze_item_set_uri (item, uri);
     browser = midori_browser_get_for_widget (menuitem);
-    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
+    midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
 }
 
 #if !WEBKIT_CHECK_VERSION (1, 1, 3)
