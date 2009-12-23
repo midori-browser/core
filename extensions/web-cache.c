@@ -127,7 +127,7 @@ web_cache_tmp_prepare (gchar* filename)
 {
     gchar* tmp_filename = g_strdup_printf ("%s.tmp", filename);
 
-    if (g_access (filename, F_OK) == 0)
+    if (g_access (tmp_filename, F_OK) == 0)
     {
         g_free (tmp_filename);
         return FALSE;
