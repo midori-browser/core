@@ -1020,6 +1020,7 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
         ? NULL : location_action->model);
 
     gtk_entry_completion_set_text_column (completion, URI_COL);
+    gtk_entry_completion_set_inline_completion (completion, TRUE);
     #if GTK_CHECK_VERSION (2, 12, 0)
     gtk_entry_completion_set_inline_selection (completion, TRUE);
     #endif
