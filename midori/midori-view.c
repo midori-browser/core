@@ -601,73 +601,101 @@ midori_view_update_title (MidoriView* view)
     #undef title
 }
 
-static GdkPixbuf*
-midori_view_mime_icon (GtkIconTheme* icon_theme,
+static void
+midori_view_apply_icon (MidoriView*  view,
+                        GdkPixbuf*   icon,
+                        const gchar* icon_name)
+{
+    if (view->item)
+        katze_item_set_icon (view->item, icon_name);
+    katze_object_assign (view->icon, icon);
+    g_object_notify (G_OBJECT (view), "icon");
+
+    if (view->tab_icon)
+    {
+        if (icon_name)
+            katze_throbber_set_static_icon_name (KATZE_THROBBER (view->tab_icon),
+                                                 icon_name);
+        else
+            katze_throbber_set_static_pixbuf (KATZE_THROBBER (view->tab_icon),
+                                              view->icon);
+    }
+    if (view->menu_item)
+    {
+        GtkWidget* image;
+        if (icon_name)
+            image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
+        else
+            image = gtk_image_new_from_pixbuf (view->icon);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (view->menu_item), image);
+    }
+}
+
+static gboolean
+midori_view_mime_icon (MidoriView*   view,
+                       GtkIconTheme* icon_theme,
                        const gchar*  format,
                        const gchar*  part1,
-                       const gchar*  part2,
-                       gchar**       name)
+                       const gchar*  part2)
 {
+    gchar* icon_name;
     GdkPixbuf* icon;
 
-    *name = part2 ? g_strdup_printf (format, part1, part2)
+    icon_name = part2 ? g_strdup_printf (format, part1, part2)
         : g_strdup_printf (format, part1);
-    if (!(icon = gtk_icon_theme_load_icon (icon_theme, *name, 16, 0, NULL)))
-        g_free (*name);
-    return icon ? g_object_ref (icon) : NULL;
+    if (!(icon = gtk_icon_theme_load_icon (icon_theme, icon_name, 16, 0, NULL)))
+    {
+        g_free (icon_name);
+        return FALSE;
+    }
+
+    g_object_ref (icon);
+    midori_view_apply_icon (view, icon, icon_name);
+    g_free (icon_name);
+    return TRUE;
 }
 
 static void
 midori_view_update_icon (MidoriView* view,
                          GdkPixbuf*  icon)
 {
-    if (!icon)
+    GdkScreen* screen;
+    GtkIconTheme* theme;
+    gchar** parts = NULL;
+
+    if (icon)
     {
-        GdkScreen* screen;
-        GtkIconTheme* icon_theme = NULL;
-        gchar** parts = NULL;
-        gchar* icon_name;
-
-        if ((screen = gtk_widget_get_screen (GTK_WIDGET (view))))
-        {
-            icon_theme = gtk_icon_theme_get_for_screen (screen);
-            if ((parts = g_strsplit (view->mime_type, "/", 2)))
-            {
-                if (!(parts[0] && parts[1]))
-                    katze_assign (parts, NULL);
-            }
-        }
-
-        if (parts)
-            icon = midori_view_mime_icon (icon_theme, "%s-%s",
-                                          parts[0], parts[1], &icon_name);
-        if (!icon && parts)
-            icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-%s",
-                                          parts[0], parts[1], &icon_name);
-        if (!icon && parts)
-            icon = midori_view_mime_icon (icon_theme, "%s-x-generic",
-                                          parts[0], NULL, &icon_name);
-        if (!icon && parts)
-            icon = midori_view_mime_icon (icon_theme, "gnome-mime-%s-x-generic",
-                                          parts[0], NULL, &icon_name);
-        if (view->item)
-            katze_item_set_icon (view->item, icon ? icon_name : NULL);
-        if (!icon)
-            icon = gtk_widget_render_icon (GTK_WIDGET (view),
-                GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+        midori_view_apply_icon (view, icon, NULL);
+        return;
     }
-    else if (view->item)
-        katze_item_set_icon (view->item, NULL);
-    katze_object_assign (view->icon, icon);
-    g_object_notify (G_OBJECT (view), "icon");
 
-    if (view->tab_icon)
-        katze_throbber_set_static_pixbuf (KATZE_THROBBER (view->tab_icon),
-                                          view->icon);
-    if (view->menu_item)
-        gtk_image_menu_item_set_image (
-            GTK_IMAGE_MENU_ITEM (view->menu_item),
-                gtk_image_new_from_pixbuf (view->icon));
+    if (!((screen = gtk_widget_get_screen (GTK_WIDGET (view)))
+        && (theme = gtk_icon_theme_get_for_screen (screen))))
+        return;
+
+    if (!((parts = g_strsplit (view->mime_type, "/", 2)) && (*parts && parts[1])))
+    {
+        g_strfreev (parts);
+        /* This is a hack to have a Find icon in the location while the
+           blank page has a File icon. */
+        icon = gtk_widget_render_icon (GTK_WIDGET (view),
+            GTK_STOCK_FIND, GTK_ICON_SIZE_MENU, NULL);
+        midori_view_apply_icon (view, icon, GTK_STOCK_FILE);
+        return;
+    }
+
+    if (midori_view_mime_icon (view, theme, "%s-%s", *parts, parts[1]))
+        return;
+    if (midori_view_mime_icon (view, theme, "gnome-mime-%s-%s", *parts, parts[1]))
+        return;
+    if (midori_view_mime_icon (view, theme, "%s-x-generic", *parts, NULL))
+        return;
+    if (midori_view_mime_icon (view, theme, "gnome-mime-%s-x-generic", *parts, NULL))
+        return;
+
+    icon = gtk_widget_render_icon (GTK_WIDGET (view),
+        GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+    midori_view_apply_icon (view, icon, NULL);
 }
 
 static void
@@ -2409,9 +2437,8 @@ midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
     view->title = NULL;
-    view->mime_type = g_strdup ("text/html");
-    view->icon = gtk_widget_render_icon (GTK_WIDGET (view), GTK_STOCK_FILE,
-                                         GTK_ICON_SIZE_MENU, NULL);
+    view->mime_type = g_strdup ("");
+    view->icon = NULL;
     view->progress = 0.0;
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
