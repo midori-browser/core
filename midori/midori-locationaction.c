@@ -665,7 +665,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         g_object_unref (icon);
 
     desc = desc_uri = desc_title = key = NULL;
-    key = g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+    key = g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
     len = 0;
 
     if (G_LIKELY (uri))
@@ -755,15 +755,21 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     match = FALSE;
     if (G_LIKELY (uri))
     {
-        gchar* fkey = g_utf8_casefold (key, -1);
-        gchar* furi = g_utf8_casefold (uri, -1);
+        gchar* nkey = g_utf8_normalize (key, -1, G_NORMALIZE_ALL);
+        gchar* nuri = g_utf8_normalize (uri, -1, G_NORMALIZE_ALL);
+        gchar* fkey = g_utf8_casefold (nkey, -1);
+        gchar* furi = g_utf8_casefold (nuri, -1);
         g_free (uri);
+        g_free (nkey);
+        g_free (nuri);
         match = strstr (furi, fkey) != NULL;
         g_free (furi);
 
         if (!match && G_LIKELY (title))
         {
-            gchar* ftitle = g_utf8_casefold (title, -1);
+            gchar* ntitle = g_utf8_normalize (title, -1, G_NORMALIZE_ALL);
+            gchar* ftitle = g_utf8_casefold (ntitle, -1);
+            g_free (ntitle);
             match = strstr (ftitle, fkey) != NULL;
             g_free (ftitle);
         }
