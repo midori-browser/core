@@ -643,76 +643,81 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
                         FAVICON_COL, &icon, -1);
 
-    if (G_UNLIKELY (!icon) && uri)
+    if (G_UNLIKELY (!icon))
     {
-        #if !HAVE_HILDON
-        MidoriLocationAction* action
-            = g_object_get_data (G_OBJECT (renderer), "location-action");
-        if ((icon = katze_load_cached_icon (uri, NULL)))
+        if (uri)
         {
-            midori_location_action_set_icon_for_uri (action, icon, uri);
-            g_object_unref (icon);
+            #if !HAVE_HILDON
+            MidoriLocationAction* action;
+
+            action = g_object_get_data (G_OBJECT (renderer), "location-action");
+            if ((icon = katze_load_cached_icon (uri, NULL)))
+            {
+                midori_location_action_set_icon_for_uri (action, icon, uri);
+                g_object_unref (icon);
+            }
+            else
+                midori_location_action_set_icon_for_uri (action, action->default_icon, uri);
+            #endif
         }
-        else
-            midori_location_action_set_icon_for_uri (action, action->default_icon, uri);
-        #endif
     }
-    else if (icon)
+    else
         g_object_unref (icon);
 
     desc = desc_uri = desc_title = key = NULL;
-    key = title ? g_utf8_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1)
-        : g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
+    key = g_ascii_strdown (gtk_entry_get_text (GTK_ENTRY (entry)), -1);
     len = 0;
 
-    /* g_uri_unescape_segment () sometimes produces garbage */
-    if (G_UNLIKELY (uri && !g_utf8_validate (uri, -1, (const gchar **)&temp)))
-        temp[0]='\0';
-    else if (G_LIKELY (uri))
+    if (G_LIKELY (uri))
     {
+        /* g_uri_unescape_segment () sometimes produces garbage */
+        if (!g_utf8_validate (uri, -1, (const gchar **)&temp))
+            temp[0] = '\0';
+
         temp = g_utf8_strdown (uri, -1);
-        if (key && *key && (start = strstr (temp, key)))
+        if ((start = strstr (temp, key)) && (start - temp))
         {
             len = strlen (key);
-            skey = g_malloc0 (len + 1);
-            strncpy (skey, uri + (start - temp), len);
-            if (skey && *skey && (parts = g_strsplit (uri, skey, 2)))
-            {
-                if (parts[0] && parts[1])
-                    desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                        parts[0], skey, parts[1]);
-                g_strfreev (parts);
-            }
+            skey = g_strndup (uri + (start - temp), len);
+            parts = g_strsplit (uri, skey, 2);
+            if (parts[0] && parts[1])
+                desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
+                    parts[0], skey, parts[1]);
+            else
+                desc_uri = g_markup_escape_text (uri, -1);
+            g_strfreev (parts);
             g_free (skey);
         }
+        else
+            desc_uri = g_markup_escape_text (uri, -1);
         g_free (temp);
     }
-    if (uri && !desc_uri)
-        desc_uri = g_markup_escape_text (uri, -1);
 
-    /* g_uri_unescape_segment () sometimes produces garbage */
-    if (G_UNLIKELY (title && !g_utf8_validate (title, -1, (const gchar **)&temp)))
-        temp[0]='\0';
-    else if (G_LIKELY (title))
+    if (G_LIKELY (title))
     {
+        /* g_uri_unescape_segment () sometimes produces garbage */
+        if (!g_utf8_validate (title, -1, (const gchar **)&temp))
+            temp[0] = '\0';
+
         temp = g_utf8_strdown (title, -1);
-        if (key && *key && (start = strstr (temp, key)))
+        if ((start = strstr (temp, key)) && (start - temp))
         {
             if (!len)
                 len = strlen (key);
-            skey = g_malloc0 (len + 1);
-            strncpy (skey, title + (start - temp), len);
+            skey = g_strndup (title + (start - temp), len);
             parts = g_strsplit (title, skey, 2);
             if (parts && parts[0] && parts[1])
                 desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
                     parts[0], skey, parts[1]);
+            else
+                desc_title = g_markup_escape_text (title, -1);
             g_strfreev (parts);
             g_free (skey);
         }
+        else
+            desc_title = g_markup_escape_text (title, -1);
         g_free (temp);
     }
-    if (title && !desc_title)
-        desc_title = g_markup_escape_text (title, -1);
 
     if (desc_title)
     {
