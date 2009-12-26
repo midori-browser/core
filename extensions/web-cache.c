@@ -277,7 +277,10 @@ web_cache_mesage_got_headers_cb (SoupMessage* msg,
     {
         /* g_debug ("updating cache: %s -> %s", uri, filename); */
         if (!web_cache_tmp_prepare (filename))
+        {
+            g_free (uri);
             return;
+        }
         web_cache_save_headers (msg, filename);
         g_signal_connect_data (msg, "got-chunk",
             G_CALLBACK (web_cache_message_got_chunk_cb),
