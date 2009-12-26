@@ -410,6 +410,8 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                         location_action, GTK_STOCK_JUMP_TO);
                 midori_location_action_set_uri (location_action,
                     midori_view_get_display_uri (MIDORI_VIEW (view)));
+                midori_location_action_set_icon (location_action,
+                    midori_view_get_icon (MIDORI_VIEW (view)));
             }
         }
     }
@@ -483,11 +485,16 @@ midori_view_notify_icon_cb (MidoriView*    view,
     const gchar* uri;
     GtkAction* action;
 
-    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+    if (midori_browser_get_current_tab (browser) != (GtkWidget*)view)
+        return;
+
+    uri = midori_view_get_display_uri (view);
     action = _action_by_name (browser, "Location");
     if (browser->maximum_history_age)
         midori_location_action_set_icon_for_uri (
         MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
+    midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
+                                     midori_view_get_icon (view));
 }
 
 static void
