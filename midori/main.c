@@ -509,7 +509,7 @@ midori_history_notify_item_cb (KatzeItem*  item,
     sqlite3_free (sqlcmd);
     if (!success)
     {
-        g_printerr (_("Failed to add history item: %s\n"), error->message);
+        g_printerr (_("Failed to update history item: %s\n"), error->message);
         g_error_free (error);
         return ;
     }
@@ -543,7 +543,7 @@ midori_history_add_item_cb (KatzeArray* array,
         if (!db_exec_callback (db, "SELECT date('now')",
                                gettimestr, item, &error))
         {
-            g_printerr (_("Failed to add history item: %s\n"), error->message);
+            g_printerr (_("Failed to get current time: %s\n"), error->message);
             g_error_free (error);
             return;
         }
