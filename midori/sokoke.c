@@ -80,16 +80,23 @@ sokoke_js_script_eval (JSContextRef js_context,
     JSValueRef js_exception = NULL;
     JSValueRef js_value = JSEvaluateScript (js_context, js_script,
         JSContextGetGlobalObject (js_context), NULL, 0, &js_exception);
-    if (!js_value && exception)
+    JSStringRelease (js_script);
+
+    if (!js_value)
     {
         JSStringRef js_message = JSValueToStringCopy (js_context,
                                                       js_exception, NULL);
+        value = sokoke_js_string_utf8 (js_message);
         if (exception)
-            *exception = sokoke_js_string_utf8 (js_message);
+            *exception = value;
+        else
+        {
+            g_warning ("%s", value);
+            g_free (value);
+        }
         JSStringRelease (js_message);
-        js_value = JSValueMakeNull (js_context);
+        return NULL;
     }
-    JSStringRelease (js_script);
 
     js_value_string = JSValueToStringCopy (js_context, js_value, NULL);
     value = sokoke_js_string_utf8 (js_value_string);
