@@ -41,7 +41,7 @@ web_cache_get_cached_path (MidoriExtension* extension,
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
     folder = g_strdup_printf ("%c%c", checksum[0], checksum[1]);
     sub_path = g_build_path (G_DIR_SEPARATOR_S, cache_path, folder, NULL);
-    g_mkdir (sub_path, 0700);
+    katze_mkdir_with_parents (sub_path, 0700);
     g_free (folder);
 
     encoded = soup_uri_encode (uri, "/");
@@ -58,7 +58,7 @@ web_cache_get_cached_path (MidoriExtension* extension,
     return cached_path;
 }
 
-static void
+static gboolean
 web_cache_save_headers (SoupMessage* msg,
                         gchar*       filename)
 {
@@ -70,11 +70,15 @@ web_cache_save_headers (SoupMessage* msg,
 
       soup_message_headers_iter_init (&iter, hdrs);
       dscfd = g_fopen (dsc_filename, "w");
+      g_free (dsc_filename);
+      if (!dscfd)
+          return FALSE;
+
       while (soup_message_headers_iter_next (&iter, &name, &value))
           g_fprintf (dscfd, "%s: %s\n", name, value);
       fclose (dscfd);
 
-      g_free (dsc_filename);
+      return TRUE;
 }
 
 GHashTable*
@@ -281,12 +285,14 @@ web_cache_mesage_got_headers_cb (SoupMessage* msg,
             g_free (uri);
             return;
         }
-        web_cache_save_headers (msg, filename);
-        g_signal_connect_data (msg, "got-chunk",
-            G_CALLBACK (web_cache_message_got_chunk_cb),
-            filename, (GClosureNotify)g_free, 0);
-        g_signal_connect (msg, "finished",
-            G_CALLBACK (web_cache_message_finished_cb), filename);
+        if (web_cache_save_headers (msg, filename))
+        {
+            g_signal_connect_data (msg, "got-chunk",
+                G_CALLBACK (web_cache_message_got_chunk_cb),
+                filename, (GClosureNotify)g_free, 0);
+            g_signal_connect (msg, "finished",
+                G_CALLBACK (web_cache_message_finished_cb), filename);
+        }
     }
     g_free (uri);
 }
