@@ -299,6 +299,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "Stop", can_reload && loading);
     _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
     _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
+    _action_set_sensitive (browser, "Previous",
+        midori_view_get_previous_page (view) != NULL);
+    _action_set_sensitive (browser, "Next",
+        midori_view_get_next_page (view) != NULL);
 
     gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
         browser->speed_dial_in_new_tabs && !midori_view_is_blank (view));
@@ -2696,7 +2700,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
             "Fullscreen", "Preferences", "Window", "Bookmarks",
             "RecentlyVisited", "ReloadStop", "ZoomIn", "TabClose",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
-            "Panel", "Trash", "Search", "BookmarkAdd", NULL };
+            "Panel", "Trash", "Search", "BookmarkAdd", "Previous", "Next", NULL };
 
     return actions;
 }
@@ -3545,6 +3549,44 @@ _action_forward_activate (GtkAction*     action,
 }
 
 static void
+_action_previous_activate (GtkAction*     action,
+                           MidoriBrowser* browser)
+{
+    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    {
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
+        return;
+    }
+
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    if (view)
+    {
+        gchar* uri = g_strdup (midori_view_get_previous_page (MIDORI_VIEW (view)));
+        midori_view_set_uri (MIDORI_VIEW (view), uri);
+        g_free (uri);
+    }
+}
+
+static void
+_action_next_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
+{
+    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    {
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
+        return;
+    }
+
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    if (view)
+    {
+        gchar* uri = g_strdup (midori_view_get_next_page (MIDORI_VIEW (view)));
+        midori_view_set_uri (MIDORI_VIEW (view), uri);
+        g_free (uri);
+    }
+}
+
+static void
 _action_homepage_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
@@ -4112,6 +4154,34 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
         forward_uri = webkit_web_history_item_get_uri (forward_item);
 
         n = midori_browser_add_uri (browser, forward_uri);
+        _midori_browser_set_current_page_smartly (browser, n);
+
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
+
+        return TRUE;
+    }
+    else if (g_str_equal (name, "Previous"))
+    {
+        GtkWidget *view;
+        gint n;
+
+        view = midori_browser_get_current_tab (browser);
+        n = midori_browser_add_uri (browser,
+            midori_view_get_previous_page (MIDORI_VIEW (view)));
+        _midori_browser_set_current_page_smartly (browser, n);
+
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
+
+        return TRUE;
+    }
+    else if (g_str_equal (name, "Next"))
+    {
+        GtkWidget *view;
+        gint n;
+
+        view = midori_browser_get_current_tab (browser);
+        n = midori_browser_add_uri (browser,
+            midori_view_get_next_page (MIDORI_VIEW (view)));
         _midori_browser_set_current_page_smartly (browser, n);
 
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
@@ -5050,6 +5120,12 @@ static const GtkActionEntry entries[] = {
  { "Forward", GTK_STOCK_GO_FORWARD,
    NULL, "<Alt>Right",
    N_("Go forward to the next page"), G_CALLBACK (_action_forward_activate) },
+ { "Previous", GTK_STOCK_MEDIA_PREVIOUS,
+   NULL, "<Ctrl>Left",
+   N_("Go to the previous sub-page"), G_CALLBACK (_action_previous_activate) },
+ { "Next", GTK_STOCK_MEDIA_NEXT,
+   NULL, "<Ctrl>Right",
+   N_("Go to the next sub-page"), G_CALLBACK (_action_next_activate) },
  { "Homepage", STOCK_HOMEPAGE,
    NULL, "<Alt>Home",
    N_("Go to your homepage"), G_CALLBACK (_action_homepage_activate) },
@@ -5328,6 +5404,8 @@ static const gchar* ui_markup =
    "<menu action='Go'>"
     "<menuitem action='Back'/>"
     "<menuitem action='Forward'/>"
+    "<menuitem action='Previous'/>"
+    "<menuitem action='Next'/>"
     "<menuitem action='Homepage'/>"
     "<menuitem action='Location'/>"
     "<menuitem action='Search'/>"
@@ -5898,6 +5976,12 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (back, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
     forward = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Forward");
+    g_signal_connect (forward, "button-press-event",
+        G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
+    forward = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Previous");
+    g_signal_connect (forward, "button-press-event",
+        G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
+    forward = gtk_ui_manager_get_widget (ui_manager, "/menubar/Go/Next");
     g_signal_connect (forward, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
 

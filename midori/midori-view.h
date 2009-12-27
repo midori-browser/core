@@ -160,6 +160,12 @@ midori_view_can_go_forward             (MidoriView*        view);
 void
 midori_view_go_forward                 (MidoriView*        view);
 
+const gchar*
+midori_view_get_previous_page          (MidoriView*        view);
+
+const gchar*
+midori_view_get_next_page              (MidoriView*        view);
+
 gboolean
 midori_view_can_print                  (MidoriView*        view);
 

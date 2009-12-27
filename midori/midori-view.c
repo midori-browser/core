@@ -4021,6 +4021,68 @@ midori_view_go_forward (MidoriView* view)
     webkit_web_view_go_forward (WEBKIT_WEB_VIEW (view->web_view));
 }
 
+/**
+ * midori_view_get_previous_page
+ * @view: a #MidoriView
+ *
+ * Determines the previous sub-page in the view.
+ *
+ * Return value: an URI, or %NULL
+ *
+ * Since: 0.2.3
+ **/
+const gchar*
+midori_view_get_previous_page (MidoriView* view)
+{
+    static gchar* uri = NULL;
+    WebKitWebFrame* web_frame;
+    JSContextRef js_context;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    katze_assign (uri, sokoke_js_script_eval (js_context,
+        "(function (l) { for (i in l) "
+        "if ((l[i].rel && l[i].rel == 'prev') "
+        " || (l[i].innerHTML"
+        "  && l[i].innerHTML.toLowerCase ().indexOf ('prev') != -1)) "
+        "{ return l[i].href; } return 0; })("
+        "document.getElementsByTagName ('a'));", NULL));
+    return uri && uri[0] != '0' ? uri : NULL;
+}
+
+/**
+ * midori_view_get_next_page
+ * @view: a #MidoriView
+ *
+ * Determines the next sub-page in the view.
+ *
+ * Return value: an URI, or %NULL
+ *
+ * Since: 0.2.3
+ **/
+const gchar*
+midori_view_get_next_page (MidoriView* view)
+{
+    static gchar* uri = NULL;
+    WebKitWebFrame* web_frame;
+    JSContextRef js_context;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    katze_assign (uri, sokoke_js_script_eval (js_context,
+        "(function (l) { for (i in l) "
+        "if ((l[i].rel && l[i].rel == 'next') "
+        " || (l[i].innerHTML"
+        "  && l[i].innerHTML.toLowerCase ().indexOf ('next') != -1)) "
+        "{ return l[i].href; } return 0; })("
+        "document.getElementsByTagName ('a'));", NULL));
+    return uri && uri[0] != '0' ? uri : NULL;
+}
+
 #if WEBKIT_CHECK_VERSION (1, 1, 5)
 static GtkWidget*
 midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
