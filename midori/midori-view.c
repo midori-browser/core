@@ -1621,6 +1621,21 @@ midori_web_view_menu_add_bookmark_activate_cb (GtkWidget*  widget,
     g_signal_emit (view, signals[ADD_BOOKMARK], 0, view->link_uri);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 17)
+static void
+midori_web_view_menu_inspect_element_activate_cb (GtkWidget*  widget,
+                                                  MidoriView* view)
+{
+    WebKitWebInspector* inspector;
+    gint x, y;
+
+    inspector = webkit_web_view_get_inspector (WEBKIT_WEB_VIEW (view->web_view));
+    x = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "x"));
+    y = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "y"));
+    webkit_web_inspector_inspect_coordinates (inspector, x, y);
+}
+#endif
+
 static GtkWidget*
 midori_view_insert_menu_item (GtkMenuShell* menu,
                              gint          position,
@@ -1763,9 +1778,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     /* Form control: separator and Inspect element */
     if (GTK_IS_SEPARATOR_MENU_ITEM (menuitem) && g_list_length (items) == 2)
     {
-        i = 0;
-        while ((menuitem = g_list_nth_data (items, i++)))
-            gtk_widget_destroy (menuitem);
+        gtk_widget_destroy (menuitem);
         g_list_free (items);
         return;
     }
@@ -1783,8 +1796,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     }
 
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
-    /* FIXME: We can't re-implement Open in Frame or Inspect page,
-      so we can't replace the default document menu */
+    /* FIXME: We can't re-implement Open in Frame */
     if (!is_document)
     {
         items = gtk_container_get_children (GTK_CONTAINER (menu));
@@ -1856,6 +1868,13 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             midori_view_insert_menu_item (menu_shell, -1,
             _("Download with Download _Manager"), STOCK_TRANSFER,
             G_CALLBACK (midori_web_view_menu_video_download_activate_cb), widget);
+    }
+
+    if (has_selection)
+    {
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
+        midori_view_insert_menu_item (menu_shell, -1, NULL, GTK_STOCK_COPY,
+            G_CALLBACK (midori_web_view_menu_copy_activate_cb), widget);
     }
     #else
     if (view->link_uri)
@@ -1947,10 +1966,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         midori_view_insert_menu_item (menu_shell, 0,
             _("_Search the Web"), GTK_STOCK_FIND,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
-        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
-        midori_view_insert_menu_item (menu_shell, -1,
-            NULL, GTK_STOCK_COPY,
-            G_CALLBACK (midori_web_view_menu_copy_activate_cb), widget);
         #else
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         menuitem = (GtkWidget*)g_list_nth_data (items, 0);
@@ -1986,9 +2001,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (is_document)
     {
-        /* FIXME: We can't re-implement Open in Frame or Inspect page
-        #if WEBKIT_CHECK_VERSION (1, 1, 15) */
-        #if 0
+        #if 0 /* WEBKIT_CHECK_VERSION (1, 1, 15) */
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (actions, "Back"));
         gtk_menu_shell_append (menu_shell, menuitem);
@@ -2023,10 +2036,10 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         g_list_free (items);
         #endif
 
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
 
         #if WEBKIT_CHECK_VERSION (1, 1, 15)
         /* if (webkit_web_view_get_main_frame (web_view) != frame_under_mouse)
@@ -2038,11 +2051,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 _("Open _Frame in New Window"), NULL,
                 G_CALLBACK (midori_web_view_menu_frame_new_window_activate_cb), widget);
         } */
-
-        /* FIXME: There is currently no API to inspect an URI
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Inspect page"), NULL,
-            G_CALLBACK (midori_web_view_menu_inspect_page_activate_cb), widget); */
         #endif
 
         if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
@@ -2129,6 +2137,19 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                 gtk_action_group_get_action (actions, "SourceView"));
         gtk_menu_shell_append (menu_shell, menuitem);
     }
+
+    #if WEBKIT_CHECK_VERSION (1, 1, 17)
+    if (!is_document && view->settings
+        && katze_object_get_boolean (view->settings, "enable-developer-extras"))
+    {
+        gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
+        menuitem = midori_view_insert_menu_item (menu_shell, -1,
+            _("Inspect _Element"), NULL,
+            G_CALLBACK (midori_web_view_menu_inspect_element_activate_cb), widget);
+        g_object_set_data (G_OBJECT (menuitem), "x", GINT_TO_POINTER (x));
+        g_object_set_data (G_OBJECT (menuitem), "y", GINT_TO_POINTER (y));
+    }
+    #endif
 
     gtk_widget_show_all (menu);
 }
