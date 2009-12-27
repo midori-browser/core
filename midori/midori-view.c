@@ -1996,7 +1996,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
                     G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
             g_object_set_data (G_OBJECT (menuitem), "uri", view->selected_text);
         }
-        /* FIXME: view selection source */
     }
 
     if (is_document)

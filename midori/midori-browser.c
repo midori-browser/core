@@ -5105,10 +5105,6 @@ static const GtkActionEntry entries[] = {
  { "SourceView", NULL,
    N_("View So_urce"), "<Ctrl><Alt>U",
    N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
- { "SelectionSourceView", NULL,
-    N_("View Selection Source"), "",
-    N_("View the source code of the selection"),
-    NULL/*G_CALLBACK (_action_selection_source_view_activate)*/ },
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
    NULL, "F11",
    N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
@@ -5992,7 +5988,6 @@ midori_browser_init (MidoriBrowser* browser)
     _action_set_visible (browser, "Transferbar", FALSE);
     #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
-    _action_set_visible (browser, "SelectionSourceView", FALSE);
     _action_set_visible (browser, "LastSession", FALSE);
     /* FIXME: Show once implemented */
     _action_set_visible (browser, "AddDesktopShortcut", FALSE);
