@@ -833,7 +833,7 @@ adblock_compile_regexp (GHashTable* tbl,
     {
         int len = strlen (patt);
         for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--) {
-            sig = strndup(patt+pos, SIGNATURE_SIZE);
+            sig = g_strndup (patt + pos, SIGNATURE_SIZE);
             if (!g_regex_match_simple ("[\\*]", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
                 !g_hash_table_lookup (keystbl, sig))
             {
