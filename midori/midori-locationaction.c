@@ -755,47 +755,11 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     match = FALSE;
     if (G_LIKELY (uri))
     {
-        gchar* nkey;
-        gchar* fkey;
-        gchar* nuri;
-        gchar* furi;
-
-        if ((nkey = g_utf8_normalize (key, -1, G_NORMALIZE_ALL)))
-        {
-            fkey = g_utf8_casefold (nkey, -1);
-            g_free (nkey);
-        }
-        else
-            fkey = g_utf8_casefold (key, -1);
-        if ((nuri = g_utf8_normalize (uri, -1, G_NORMALIZE_ALL)))
-        {
-            furi = g_utf8_casefold (nuri, -1);
-            g_free (nuri);
-        }
-        else
-            furi = g_utf8_casefold (uri, -1);
+        match = katze_utf8_stristr (uri, key);
         g_free (uri);
-        match = strstr (furi, fkey) != NULL;
-        g_free (furi);
 
         if (!match && G_LIKELY (title))
-        {
-            gchar* ntitle;
-            gchar* ftitle;
-
-            if ((ntitle = g_utf8_normalize (title, -1, G_NORMALIZE_ALL)))
-            {
-                ftitle = g_utf8_casefold (ntitle, -1);
-                g_free (ntitle);
-            }
-            else
-                ftitle = g_utf8_casefold (title, -1);
-
-            match = strstr (ftitle, fkey) != NULL;
-            g_free (ftitle);
-        }
-
-        g_free (fkey);
+            match = katze_utf8_stristr (title, key);
     }
 
     g_free (title);

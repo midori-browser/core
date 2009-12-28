@@ -19,6 +19,38 @@
 GtkWidget*
 midori_location_action_entry_for_proxy (GtkWidget* proxy);
 
+static const gchar* compare_urls[] = {
+ "http://en.wikipedia.org/wiki/Foul",
+ "http://de.wikipedia.org/wiki/Düsseldorf",
+ "http://de.wikipedia.org/wiki/Düsseldorf",
+ "http://ja.wikipedia.org/wiki/若井はんじ・けんじ",
+ "http://www.johannkönig.com",
+ "http://şøñđëřżēıċħęŋđőmæîņĭśŧşũþėŗ.de",
+ };
+
+static void
+completion_compare (void)
+{
+    const guint runs = 10000;
+    guint t;
+    gdouble elapsed = 0.0;
+
+    for (t = 0; t < runs; t++)
+    {
+        g_test_timer_start ();
+        guint i, j;
+        for (i = 0; i < G_N_ELEMENTS (compare_urls); i++)
+        {
+            gchar* url = katze_collfold (compare_urls[i]);
+            for (j = 0; j < G_N_ELEMENTS (compare_urls); j++)
+                katze_utf8_stristr (compare_urls[i], url);
+            g_free  (url);
+        }
+        elapsed += g_test_timer_elapsed ();
+    }
+    g_print ("%f seconds for comparison\n", elapsed / runs);
+}
+
 typedef struct
 {
     const gchar* uri;
@@ -287,6 +319,7 @@ main (int    argc,
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
 
+    g_test_add_func ("/completion/compare", completion_compare);
     g_test_add_func ("/completion/count", completion_count);
     g_test_add_func ("/completion/fill", completion_fill);
     g_test_add_func ("/completion/match", completion_match);
