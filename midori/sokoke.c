@@ -104,6 +104,14 @@ sokoke_js_script_eval (JSContextRef js_context,
     return value;
 }
 
+static void
+sokoke_message_dialog_response_cb (GtkWidget* dialog,
+                                   gint       response,
+                                   gpointer   data)
+{
+    gtk_widget_destroy (dialog);
+}
+
 void
 sokoke_message_dialog (GtkMessageType message_type,
                        const gchar*   short_message,
@@ -119,8 +127,8 @@ sokoke_message_dialog (GtkMessageType message_type,
         "%s", short_message);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
                                               "%s", detailed_message);
-    g_signal_connect_swapped (dialog, "response",
-                              G_CALLBACK (gtk_widget_destroy), dialog);
+    g_signal_connect (dialog, "response",
+                      G_CALLBACK (sokoke_message_dialog_response_cb), NULL);
     gtk_widget_show (dialog);
 }
 

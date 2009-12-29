@@ -2302,6 +2302,14 @@ _action_add_news_feed_activate (GtkAction*     action,
 }
 
 static void
+_action_compact_add_response_cb (GtkWidget* dialog,
+                                 gint       response,
+                                 gpointer   data)
+{
+    gtk_widget_destroy (dialog);
+}
+
+static void
 _action_compact_add_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
@@ -2336,8 +2344,8 @@ _action_compact_add_activate (GtkAction*     action,
     }
 
     gtk_widget_show (dialog);
-    g_signal_connect_swapped (dialog, "response",
-                              G_CALLBACK (gtk_widget_destroy), dialog);
+    g_signal_connect (dialog, "response",
+                              G_CALLBACK (_action_compact_add_response_cb), NULL);
 }
 
 static void

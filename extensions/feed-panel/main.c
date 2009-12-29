@@ -105,6 +105,14 @@ feed_deactivate_cb (MidoriExtension* extension,
     }
 }
 
+static void
+feed_dialog_response_cb (GtkWidget* dialog,
+                         gint       response,
+                         gpointer   data)
+{
+    gtk_widget_destroy (dialog);
+}
+
 static KatzeArray*
 feed_add_item (KatzeArray*  feeds,
                const gchar* uri)
@@ -126,8 +134,8 @@ feed_add_item (KatzeArray*  feeds,
                 _("Feed '%s' already exists"), uri);
             gtk_window_set_title (GTK_WINDOW (dialog), EXTENSION_NAME);
             gtk_widget_show (dialog);
-            g_signal_connect_swapped (dialog, "response",
-                    G_CALLBACK (gtk_widget_destroy), dialog);
+            g_signal_connect (dialog, "response",
+                    G_CALLBACK (feed_dialog_response_cb), NULL);
 
         }
         else

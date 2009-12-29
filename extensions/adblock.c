@@ -314,6 +314,14 @@ adblock_activate_link_cb (GtkWidget*   label,
 }
 #endif
 
+static void
+adblock_preferences_response_cb (GtkWidget* dialog,
+                                 gint       response,
+                                 gpointer   data)
+{
+    gtk_widget_destroy (dialog);
+}
+
 static GtkWidget*
 adblock_get_preferences_dialog (MidoriExtension* extension)
 {
@@ -361,7 +369,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     sokoke_widget_get_text_size (dialog, "M", &width, &height);
     gtk_window_set_default_size (GTK_WINDOW (dialog), width * 52, -1);
     g_signal_connect (dialog, "response",
-                      G_CALLBACK (gtk_widget_destroy), dialog);
+                      G_CALLBACK (adblock_preferences_response_cb), NULL);
     /* TODO: We need mnemonics */
     if ((xfce_heading = sokoke_xfce_header_new (
         gtk_window_get_icon_name (GTK_WINDOW (dialog)), dialog_title)))
