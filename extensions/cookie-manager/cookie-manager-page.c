@@ -10,6 +10,7 @@
 */
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include <midori/midori.h>
 #include <midori/gtkiconentry.h>
@@ -760,6 +761,18 @@ static gboolean cm_tree_button_release_event_cb(GtkWidget *widget, GdkEventButto
 }
 
 
+static gboolean cm_tree_key_press_cb(GtkWidget *widget, GdkEventKey *event, CookieManagerPage *cmp)
+{
+	if (event->keyval == GDK_Delete && !
+		(event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK)))
+	{
+		cm_button_delete_clicked_cb(NULL, cmp);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
 static gboolean cm_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton *ev,
 											  CookieManagerPage *cmp)
 {
@@ -824,6 +837,7 @@ static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 
 	/* signals */
 	g_signal_connect(sel, "changed", G_CALLBACK(cm_tree_selection_changed_cb), cmp);
+	g_signal_connect(treeview, "key-press-event", G_CALLBACK(cm_tree_key_press_cb), cmp);
 	g_signal_connect(treeview, "button-press-event", G_CALLBACK(cm_tree_button_press_event_cb), cmp);
 	g_signal_connect(treeview, "button-release-event", G_CALLBACK(cm_tree_button_release_event_cb), cmp);
 	g_signal_connect(treeview, "popup-menu", G_CALLBACK(cm_tree_popup_menu_cb), cmp);
