@@ -343,7 +343,7 @@ static void cm_delete_cookie(CookieManagerPage *cmp, GtkTreeModel *model, GtkTre
 }
 
 
-static void cm_button_delete_clicked_cb(GtkToolButton *button, CookieManagerPage *cmp)
+static void cm_delete_item(CookieManagerPage *cmp)
 {
 	GtkTreeIter iter, iter_store, child;
 	GtkTreeModel *model;
@@ -409,6 +409,11 @@ static void cm_button_delete_clicked_cb(GtkToolButton *button, CookieManagerPage
 		gtk_tree_path_free(path_store);
 		gtk_tree_path_free(path_model);
 	}
+}
+
+static void cm_button_delete_clicked_cb(GtkToolButton *button, CookieManagerPage *cmp)
+{
+	cm_delete_item(cmp);
 }
 
 
@@ -766,7 +771,7 @@ static gboolean cm_tree_key_press_cb(GtkWidget *widget, GdkEventKey *event, Cook
 	if (event->keyval == GDK_Delete && !
 		(event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK)))
 	{
-		cm_button_delete_clicked_cb(NULL, cmp);
+		cm_delete_item(cmp);
 		return TRUE;
 	}
 	return FALSE;
