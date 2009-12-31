@@ -3148,7 +3148,15 @@ midori_view_set_uri (MidoriView*  view,
         }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
-            midori_view_execute_script (view, &uri[11], NULL);
+            gboolean result;
+            gchar* exception;
+
+            result = midori_view_execute_script (view, &uri[11], &exception);
+            if (!result)
+            {
+                sokoke_message_dialog (GTK_MESSAGE_ERROR, "javascript:", exception);
+                g_free (exception);
+            }
         }
         else if (g_str_has_prefix (uri, "mailto:")
               || g_str_has_prefix (uri, "tel:")
@@ -4289,22 +4297,24 @@ midori_view_execute_script (MidoriView*  view,
     WebKitWebFrame* web_frame;
     JSContextRef js_context;
     gchar* script_decoded;
+    gchar* result;
+    gboolean success;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
     g_return_val_if_fail (script != NULL, FALSE);
 
-    /* FIXME Actually store exception. */
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
     if ((script_decoded = soup_uri_decode (script)))
     {
-        webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view),
-                                        script_decoded);
+        result = sokoke_js_script_eval (js_context, script_decoded, exception);
         g_free (script_decoded);
     }
     else
-        webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), script);
-    return TRUE;
+        result = sokoke_js_script_eval (js_context, script, exception);
+    success = result != NULL;
+    g_free (result);
+    return success;
 }
 
 /**
