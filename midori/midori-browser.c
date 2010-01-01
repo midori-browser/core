@@ -866,6 +866,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 ? 1 : -1);
         }
 
+        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
+            if (!GTK_WIDGET_VISIBLE (browser->bookmarkbar))
+                _action_set_active (browser, "Bookmarkbar", TRUE);
+
         folder = browser->bookmarks;
         selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
         if (strcmp (selected, _("Toplevel folder")))
