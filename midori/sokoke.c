@@ -526,15 +526,19 @@ gchar* sokoke_search_uri (const gchar* uri,
  * sokoke_magic_uri:
  * @uri: a string typed by a user
  * @search_engines: search engines
+ * @item: the location to store a #KatzeItem
  *
  * Takes a string that was typed by a user,
  * guesses what it is, and returns an URI.
+ *
+ * If it was a search, @item will contain the engine.
  *
  * Return value: a newly allocated URI
  **/
 gchar*
 sokoke_magic_uri (const gchar* uri,
-                  KatzeArray*  search_engines)
+                  KatzeArray*  search_engines,
+                  KatzeItem**  found_item)
 {
     gchar** parts;
     gchar* search;
@@ -593,6 +597,8 @@ sokoke_magic_uri (const gchar* uri,
         {
             search_uri = katze_item_get_uri (item);
             search = sokoke_search_uri (search_uri, parts[1] ? parts[1] : "");
+            if (found_item)
+                *found_item = item;
         }
     g_strfreev (parts);
     return search;

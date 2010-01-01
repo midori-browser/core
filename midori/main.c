@@ -2035,7 +2035,7 @@ main (int    argc,
                 g_free (current_dir);
             }
             else
-                uri_ready = sokoke_magic_uri (uri, NULL);
+                uri_ready = sokoke_magic_uri (uri, NULL, NULL);
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
             katze_array_add_item (_session, item);

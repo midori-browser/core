@@ -55,7 +55,7 @@ test_input (const gchar* input,
         g_object_unref (item);
     }
 
-    gchar* uri = sokoke_magic_uri (input, search_engines);
+    gchar* uri = sokoke_magic_uri (input, search_engines, NULL);
     sokoke_assert_str_equal (input, uri, expected);
     g_free (uri);
 }

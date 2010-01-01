@@ -454,7 +454,7 @@ midori_app_command_received (MidoriApp*   app,
             first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
             while (*uris)
             {
-                gchar* fixed_uri = sokoke_magic_uri (*uris, NULL);
+                gchar* fixed_uri = sokoke_magic_uri (*uris, NULL, NULL);
                 if (first)
                 {
                     midori_browser_set_current_uri (browser, fixed_uri);

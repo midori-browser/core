@@ -198,6 +198,11 @@ static void
 midori_browser_add_download_item (MidoriBrowser*  browser,
                                   WebKitDownload* download);
 
+GdkPixbuf*
+midori_search_action_get_icon (KatzeItem*    item,
+                               GtkWidget*    widget,
+                               const gchar** icon_name);
+
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
                  const gchar*   name)
@@ -2918,7 +2923,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         return;
 
     /* Imported bookmarks may lack a protocol */
-    uri_fixed = sokoke_magic_uri (uri, NULL);
+    uri_fixed = sokoke_magic_uri (uri, NULL, NULL);
 
     /* FIXME: Use the same binary that is running right now */
     if (katze_item_get_meta_integer (item, "app") != -1)
@@ -3707,6 +3712,8 @@ _action_location_reset_uri (GtkAction*     action,
     midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
 }
 
+
+
 static void
 _action_location_submit_uri (GtkAction*     action,
                              const gchar*   uri,
@@ -3715,14 +3722,37 @@ _action_location_submit_uri (GtkAction*     action,
 {
     gchar* stripped_uri;
     gchar* new_uri;
+    KatzeItem* item;
     gint n;
 
     stripped_uri = g_strdup (uri);
     g_strstrip (stripped_uri);
-    new_uri = sokoke_magic_uri (stripped_uri, browser->search_engines);
+    item = NULL;
+    new_uri = sokoke_magic_uri (stripped_uri, browser->search_engines, &item);
     if (!new_uri)
         new_uri = sokoke_search_uri (browser->location_entry_search, stripped_uri);
     g_free (stripped_uri);
+
+    if (item)
+    {
+        gchar* title;
+        GdkPixbuf* icon;
+        const gchar* icon_name;
+
+        title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
+        icon = midori_search_action_get_icon (item, GTK_WIDGET (browser), &icon_name);
+        if (!icon)
+        {
+            GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (browser));
+            GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+            icon = gtk_icon_theme_load_icon (icon_theme, icon_name, 16, 0, NULL);
+        }
+        midori_location_action_add_item (MIDORI_LOCATION_ACTION (action),
+                                         uri, icon, title);
+        if (icon)
+            g_object_unref (icon);
+        g_free (title);
+    }
 
     if (new_tab)
     {

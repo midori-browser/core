@@ -1303,7 +1303,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                 while (uri[i++] != '\0')
                     if (uri[i] == '\n' || uri[i] == '\r')
                         uri[i] = ' ';
-                new_uri = sokoke_magic_uri (g_strstrip (uri), empty_array);
+                new_uri = sokoke_magic_uri (g_strstrip (uri), empty_array, NULL);
                 g_object_unref (empty_array);
                 if (!new_uri)
                 {
@@ -1554,7 +1554,7 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
         }
         else
         {
-            gchar* uri = sokoke_magic_uri (data, NULL);
+            gchar* uri = sokoke_magic_uri (data, NULL, NULL);
             g_signal_emit (view, signals[NEW_TAB], 0, uri,
                            view->open_tabs_in_the_background);
             g_free (uri);
