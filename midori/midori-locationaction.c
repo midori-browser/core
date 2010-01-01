@@ -1083,6 +1083,21 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
 }
 
 static void
+midori_location_action_paste_proceed_cb (GtkWidget* menuitem,
+                                         GtkWidget* location_action)
+{
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (
+        gtk_widget_get_display (GTK_WIDGET (menuitem)),GDK_SELECTION_CLIPBOARD);
+    gchar* uri;
+
+    if ((uri = gtk_clipboard_wait_for_text (clipboard)))
+    {
+        g_signal_emit (location_action, signals[SUBMIT_URI], 0, uri, FALSE);
+        g_free (uri);
+    }
+}
+
+static void
 midori_location_action_populate_popup_cb (GtkWidget*            entry,
                                           GtkMenuShell*         menu,
                                           MidoriLocationAction* location_action)
@@ -1097,6 +1112,11 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     menuitem = sokoke_action_create_popup_menu_item (
         gtk_action_group_get_action (actions, "ManageSearchEngines"));
     gtk_menu_shell_append (menu, menuitem);
+    menuitem = gtk_menu_item_new_with_mnemonic (_("Paste and p_roceed"));
+    gtk_widget_show (menuitem);
+    gtk_menu_shell_append (menu, menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_location_action_paste_proceed_cb), location_action);
 }
 
 static void
