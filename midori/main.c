@@ -25,7 +25,6 @@
 #include "midori-transfers.h"
 
 #include "sokoke.h"
-#include "compat.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>

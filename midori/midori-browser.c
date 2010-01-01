@@ -26,7 +26,6 @@
 #include "midori-stock.h"
 
 #include "gtkiconentry.h"
-#include "compat.h"
 #include "marshal.h"
 #include "sokoke.h"
 

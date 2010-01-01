@@ -14,7 +14,6 @@
     #include <config.h>
 #endif
 
-#include "compat.h"
 #include "sokoke.h"
 
 #define SM "http://www.searchmash.com/search/"

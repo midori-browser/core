@@ -17,7 +17,6 @@
     #include <config.h>
 #endif
 
-#include "compat.h"
 #include "midori-stock.h"
 
 #if HAVE_UNISTD_H
@@ -50,6 +49,44 @@
     #include <hildon/hildon.h>
     #include <hildon-mime.h>
     #include <hildon-uri.h>
+#endif
+
+#if !GTK_CHECK_VERSION(2, 12, 0)
+
+void
+gtk_widget_set_has_tooltip (GtkWidget* widget,
+                            gboolean   has_tooltip)
+{
+    /* Do nothing */
+}
+
+void
+gtk_widget_set_tooltip_text (GtkWidget*   widget,
+                             const gchar* text)
+{
+    if (text && *text)
+    {
+        static GtkTooltips* tooltips = NULL;
+        if (G_UNLIKELY (!tooltips))
+            tooltips = gtk_tooltips_new ();
+        gtk_tooltips_set_tip (tooltips, widget, text, NULL);
+    }
+}
+
+void
+gtk_tool_item_set_tooltip_text (GtkToolItem* toolitem,
+                                const gchar* text)
+{
+    if (text && *text)
+    {
+        static GtkTooltips* tooltips = NULL;
+        if (G_UNLIKELY (!tooltips))
+            tooltips = gtk_tooltips_new ();
+
+        gtk_tool_item_set_tooltip (toolitem, tooltips, text, NULL);
+    }
+}
+
 #endif
 
 static gchar*
@@ -248,8 +285,13 @@ sokoke_show_uri (GdkScreen*   screen,
     g_return_val_if_fail (uri != NULL, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
 
+    #if GTK_CHECK_VERSION (2, 14, 0)
     if (gtk_show_uri (screen, uri, timestamp, error))
         return TRUE;
+    #else
+    if (g_app_info_launch_default_for_uri (uri, NULL, NULL))
+        return TRUE;
+    #endif
 
     for (i = 0; i < G_N_ELEMENTS (fallbacks); i++)
     {

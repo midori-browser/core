@@ -18,6 +18,27 @@
 #include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
 
+#if !GLIB_CHECK_VERSION (2, 14, 0)
+    #define G_PARAM_STATIC_STRINGS \
+    (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
+#endif
+
+#if !GTK_CHECK_VERSION(2, 12, 0)
+
+void
+gtk_widget_set_has_tooltip             (GtkWidget*         widget,
+                                        gboolean           has_tooltip);
+
+void
+gtk_widget_set_tooltip_text            (GtkWidget*         widget,
+                                        const gchar*       text);
+
+void
+gtk_tool_item_set_tooltip_text         (GtkToolItem*       toolitem,
+                                        const gchar*       text);
+
+#endif
+
 gchar*
 sokoke_js_script_eval                   (JSContextRef    js_context,
                                          const gchar*    script,

@@ -17,7 +17,6 @@
 #include "midori-view.h"
 
 #include "sokoke.h"
-#include "compat.h"
 #include <glib/gi18n.h>
 
 struct _MidoriTransfers

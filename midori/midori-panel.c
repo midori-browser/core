@@ -13,7 +13,6 @@
 
 #include "midori-view.h"
 
-#include "compat.h"
 #include "marshal.h"
 #include "sokoke.h"
 

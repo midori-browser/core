@@ -16,7 +16,6 @@
 #endif
 
 #include "sokoke.h"
-#include "compat.h"
 
 #include <string.h>
 #include <glib/gi18n.h>

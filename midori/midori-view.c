@@ -18,7 +18,6 @@
 #include "midori-stock.h"
 #include "midori-browser.h"
 
-#include "compat.h"
 #include "marshal.h"
 #include "sokoke.h"
 
