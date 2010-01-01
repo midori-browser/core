@@ -1380,7 +1380,7 @@ gtk_icon_entry_set_icon_from_gicon (const GtkIconEntry *entry,
 					 GTK_ICON_SIZE_MENU,
 					 &width, &height);
 
-      #if #GTK_CHECK_VERSION (2, 14, 0)
+      #if GTK_CHECK_VERSION (2, 14, 0)
       info = gtk_icon_theme_lookup_by_gicon (icon_theme,
 					     icon,
 					     MIN (width, height), 0);
