@@ -136,7 +136,7 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        0,
                                        0,
                                        NULL,
-                                       katze_cclosure_marshal_BOOLEAN__OBJECT_UINT,
+                                       midori_cclosure_marshal_BOOLEAN__OBJECT_UINT,
                                        G_TYPE_BOOLEAN, 2,
                                        KATZE_TYPE_ITEM, G_TYPE_UINT);
 

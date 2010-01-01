@@ -166,7 +166,7 @@ katze_array_class_init (KatzeArrayClass* class)
         G_STRUCT_OFFSET (KatzeArrayClass, move_item),
         0,
         NULL,
-        katze_cclosure_marshal_VOID__POINTER_INT,
+        midori_cclosure_marshal_VOID__POINTER_INT,
         G_TYPE_NONE, 2,
         G_TYPE_POINTER,
         G_TYPE_INT);

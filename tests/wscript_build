@@ -29,5 +29,5 @@ for test in tests:
     obj.cflags = ['-DEXTENSION_PATH="' + os.path.abspath ('_build_/default/extensions') + '"']
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
-    obj.uselib_local = 'panels'
+    obj.uselib_local = 'midori-core'
     obj.unit_test = 1

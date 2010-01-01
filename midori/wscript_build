@@ -4,32 +4,35 @@
 
 import platform
 
-obj = bld.new_task_gen ('cc', 'staticlib')
-obj.name = 'midori-core'
-obj.target = 'midori'
-obj.includes = '. ..'
-obj.find_sources_in_dirs ('.', excludes=['main.c'])
-obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
-obj.uselib = 'UNIQUE LIBSOUP LIBIDN GIO GTK SQLITE LIBNOTIFY WEBKIT LIBXML ' \
-             'WS2_32 OPENSSL ' \
-             'HILDON HILDON_FM'
-obj.uselib_local = 'katze'
-obj.install_path = None
+progressive = True
+libs = 'M UNIQUE LIBSOUP GMODULE GTHREAD LIBIDN GIO GTK SQLITE ' \
+       'LIBNOTIFY WEBKIT LIBXML X11 WS2_32 OPENSSL HILDON HILDON_FM'
 
-obj = bld.new_task_gen ('cc', 'staticlib')
-obj.name = 'panels'
-obj.target = 'panels'
-obj.includes = '. ..'
-obj.find_sources_in_dirs ('../panels')
-obj.uselib = 'UNIQUE LIBSOUP GMODULE GTHREAD GIO GTK SQLITE WEBKIT LIBXML X11'
-obj.uselib_local = 'midori-core'
-obj.install_path = None
+if progressive or Options.commands['check']:
+    obj = bld.new_task_gen ('cc', 'staticlib')
+    obj.target = 'midori-core'
+    obj.includes = '.. ../katze .'
+    obj.find_sources_in_dirs ('../katze . ../panels', excludes=['main.c'])
+    obj.uselib = libs
+    obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
+    obj.install_path = None
+    bld.add_group ()
 
-obj = bld.new_task_gen ('cc', 'program')
-obj.target = 'midori'
-obj.includes = '. .. ../panels'
-obj.source = 'main.c'
-if bld.env['WINRC']:
-    obj.source += ' ../data/midori.rc'
-obj.uselib = 'UNIQUE LIBSOUP GMODULE GTHREAD GIO GTK SQLITE WEBKIT LIBXML'
-obj.uselib_local = 'panels'
+if progressive:
+    obj = bld.new_task_gen ('cc', 'program')
+    obj.target = 'midori'
+    obj.includes = '.. ../katze . ../panels'
+    obj.find_sources_in_dirs ('../katze .')
+    obj.uselib = libs
+    obj.uselib_local = 'midori-core'
+    if bld.env['WINRC']:
+        obj.source += ' ../data/midori.rc'
+else:
+    obj = bld.new_task_gen ('cc', 'program')
+    obj.target = 'midori'
+    obj.includes = '.. ../katze . ../panels'
+    obj.find_sources_in_dirs ('../katze . ../panels')
+    obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
+    obj.uselib = libs
+    if bld.env['WINRC']:
+        obj.source += ' ../data/midori.rc'
