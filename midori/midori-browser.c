@@ -2760,7 +2760,10 @@ midori_browser_menu_item_select_cb (GtkWidget*     menuitem,
         /* This is undocumented object data, used by KatzeArrayAction. */
         KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
         if (item)
+        {
             tooltip = g_strdup (katze_item_get_uri (item));
+            sokoke_prefetch_uri (tooltip);
+        }
     }
     _midori_browser_set_statusbar_text (browser, tooltip);
     g_free (tooltip);

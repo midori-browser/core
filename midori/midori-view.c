@@ -1194,6 +1194,10 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
                                        const gchar*   link_uri,
                                        MidoriView*    view)
 {
+    #if !(WEBKIT_CHECK_VERSION (2, 18, 0) && defined (HAVE_LIBSOUP_2_29_3))
+    sokoke_prefetch_uri (link_uri);
+    #endif
+
     katze_assign (view->link_uri, g_strdup (link_uri));
     if (link_uri && g_str_has_prefix (link_uri, "mailto:"))
     {

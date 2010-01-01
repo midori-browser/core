@@ -179,4 +179,7 @@ sokoke_file_chooser_dialog_new          (const gchar*         title,
                                          GtkWindow*           window,
                                          GtkFileChooserAction action);
 
+gboolean
+sokoke_prefetch_uri                     (const char* uri);
+
 #endif /* !__SOKOKE_H__ */

@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -225,10 +226,30 @@ magic_uri_format (void)
     }
 }
 
+static void
+magic_uri_prefetch (void)
+{
+    g_assert (!sokoke_prefetch_uri (NULL));
+    g_assert (sokoke_prefetch_uri ("http://google.com"));
+    g_assert (sokoke_prefetch_uri ("http://google.com"));
+    g_assert (sokoke_prefetch_uri ("http://googlecom"));
+    g_assert (sokoke_prefetch_uri ("http://1kino.com"));
+    g_assert (sokoke_prefetch_uri ("http://"));
+    g_assert (!sokoke_prefetch_uri ("http:/"));
+    g_assert (!sokoke_prefetch_uri ("http"));
+    g_assert (!sokoke_prefetch_uri ("ftp://ftphost.org"));
+    g_assert (!sokoke_prefetch_uri ("http://10.0.0.1"));
+    g_assert (!sokoke_prefetch_uri ("about:blank"));
+    g_assert (!sokoke_prefetch_uri ("javascript: alert()"));
+}
+
 int
 main (int    argc,
       char** argv)
 {
+    /* libSoup uses threads, therefore if WebKit is built with libSoup
+       or Midori is using it, we need to initialize threads. */
+    if (!g_thread_supported ()) g_thread_init (NULL);
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
 
@@ -238,6 +259,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/pseudo", magic_uri_pseudo);
     g_test_add_func ("/magic-uri/performance", magic_uri_performance);
     g_test_add_func ("/magic-uri/format", magic_uri_format);
+    g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
 
     return g_test_run ();
 }

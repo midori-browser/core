@@ -1,6 +1,7 @@
 /*
  Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
+ Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -1520,4 +1521,67 @@ sokoke_file_chooser_dialog_new (const gchar*         title,
     gtk_window_set_icon_name (GTK_WINDOW (dialog), stock_id);
     #endif
     return dialog;
+}
+
+/**
+ * sokoke_prefetch_uri:
+ * @uri: an URI string
+ *
+ * Attempts to prefetch the specified URI, that is
+ * it tries to resolve the hostname in advance.
+ *
+ * Return value: %TRUE on success
+ **/
+gboolean
+sokoke_prefetch_uri (const char* uri)
+{
+    #define MAXHOSTS 50
+    static gchar* hosts = NULL;
+    static gint host_count = G_MAXINT;
+
+    SoupURI* s_uri;
+
+    if (!uri)
+        return FALSE;
+    s_uri = soup_uri_new (uri);
+    if (!s_uri || !s_uri->host)
+        return FALSE;
+
+    #if GLIB_CHECK_VERSION (2, 22, 0)
+    if (g_hostname_is_ip_address (s_uri->host))
+    #else
+    if (g_ascii_isdigit (s_uri->host[0]) && g_strstr_len (s_uri->host, 4, "."))
+    #endif
+    {
+        soup_uri_free (s_uri);
+        return FALSE;
+    }
+    if (!g_str_has_prefix (uri, "http"))
+    {
+        soup_uri_free (s_uri);
+        return FALSE;
+    }
+
+    if (!hosts ||
+        !g_regex_match_simple (s_uri->host, hosts,
+                               G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+    {
+        SoupAddress* address;
+        gchar* new_hosts;
+
+        address = soup_address_new (s_uri->host, SOUP_ADDRESS_ANY_PORT);
+        soup_address_resolve_async (address, 0, 0, 0, 0);
+        g_object_unref (address);
+
+        if (host_count > MAXHOSTS)
+        {
+            katze_assign (hosts, g_strdup (""));
+            host_count = 0;
+        }
+        host_count++;
+        new_hosts = g_strdup_printf ("%s|%s", hosts, s_uri->host);
+        katze_assign (hosts, new_hosts);
+    }
+    soup_uri_free (s_uri);
+    return TRUE;
 }
