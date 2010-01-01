@@ -46,6 +46,7 @@ G_BEGIN_DECLS
                                          GtkEntryIconPosition position,
                                          GdkPixbuf*           pixbuf);
     #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable
+    #define gtk_icon_entry_set_progress_fraction gtk_entry_set_progress_fraction
 #else
 
 #define GTK_TYPE_ICON_ENTRY (gtk_icon_entry_get_type())
@@ -129,6 +130,9 @@ void       gtk_icon_entry_set_tooltip             (const GtkIconEntry *icon_entr
 void       gtk_icon_entry_set_icon_sensitive      (const GtkIconEntry *icon_entry,
 						   GtkIconEntryPosition icon_pos,
 						   gboolean sensitive);
+
+void       gtk_icon_entry_set_progress_fraction    (GtkIconEntry *icon_entry,
+                                                    gdouble       fraction);
 
 #endif
 

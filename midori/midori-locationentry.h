@@ -29,10 +29,6 @@ typedef struct _MidoriLocationEntryClass    MidoriLocationEntryClass;
 GType
 midori_location_entry_get_type             (void);
 
-void
-midori_location_entry_set_progress         (MidoriLocationEntry* location_entry,
-                                            gdouble              progress);
-
 G_END_DECLS
 
 #endif /* __MIDORI_LOCATION_ENTRY_H__ */

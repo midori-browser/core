@@ -1139,7 +1139,7 @@ midori_location_action_connect_proxy (GtkAction* action,
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxy);
         GtkWidget* child = gtk_bin_get_child (GTK_BIN (entry));
 
-        midori_location_entry_set_progress (MIDORI_LOCATION_ENTRY (entry),
+        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (child),
             MIDORI_LOCATION_ACTION (action)->progress);
         gtk_combo_box_set_model (GTK_COMBO_BOX (entry),
             MIDORI_LOCATION_ACTION (action)->filter_model);
@@ -1502,6 +1502,7 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
 {
     GSList* proxies;
     GtkWidget* entry;
+    GtkWidget* child;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
@@ -1513,9 +1514,10 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
         entry = midori_location_action_entry_for_proxy (proxies->data);
+        child = gtk_bin_get_child (GTK_BIN (entry));
 
-        midori_location_entry_set_progress (MIDORI_LOCATION_ENTRY (entry),
-                                            location_action->progress);
+        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (child),
+                                              location_action->progress);
     }
 }
 
