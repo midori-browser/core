@@ -29,9 +29,6 @@ typedef struct _MidoriLocationEntryClass    MidoriLocationEntryClass;
 GType
 midori_location_entry_get_type             (void);
 
-GtkWidget*
-midori_location_entry_new                  (void);
-
 void
 midori_location_entry_set_progress         (MidoriLocationEntry* location_entry,
                                             gdouble              progress);

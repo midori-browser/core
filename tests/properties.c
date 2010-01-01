@@ -205,8 +205,6 @@ main (int    argc,
         (gconstpointer)MIDORI_TYPE_EXTENSION, properties_type_test);
     g_test_add_data_func ("/properties/location-action",
         (gconstpointer)MIDORI_TYPE_LOCATION_ACTION, properties_type_test);
-    g_test_add_data_func ("/properties/location-entry",
-        (gconstpointer)MIDORI_TYPE_LOCATION_ENTRY, properties_type_test);
     g_test_add_data_func ("/properties/panel",
         (gconstpointer)MIDORI_TYPE_PANEL, properties_type_test);
     g_test_add_data_func ("/properties/preferences",

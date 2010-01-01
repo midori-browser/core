@@ -542,7 +542,7 @@ midori_location_action_create_tool_item (GtkAction* action)
     alignment = gtk_alignment_new (0.0f, 0.5f, 1.0f, 0.1f);
     gtk_widget_show (alignment);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
-    location_entry = midori_location_entry_new ();
+    location_entry = g_object_new (MIDORI_TYPE_LOCATION_ENTRY, NULL);
     gtk_widget_show (location_entry);
     gtk_container_add (GTK_CONTAINER (alignment), location_entry);
 
@@ -579,6 +579,19 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     case GDK_Escape:
     {
         g_signal_emit (action, signals[RESET_URI], 0);
+        return TRUE;
+    }
+    case GDK_Down:
+    case GDK_Up:
+    {
+        GtkWidget* parent = gtk_widget_get_parent (GTK_WIDGET (entry));
+        if (!katze_object_get_boolean (parent, "popup-shown"))
+            gtk_combo_box_popup (GTK_COMBO_BOX (parent));
+        return TRUE;
+    }
+    case GDK_Page_Up:
+    case GDK_Page_Down:
+    {
         return TRUE;
     }
     }

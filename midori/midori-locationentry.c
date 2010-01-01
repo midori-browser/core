@@ -30,11 +30,6 @@ struct _MidoriLocationEntryClass
 G_DEFINE_TYPE (MidoriLocationEntry,
     midori_location_entry, GTK_TYPE_COMBO_BOX_ENTRY)
 
-static gboolean
-entry_key_press_event (GtkWidget*           widget,
-                       GdkEventKey*         event,
-                       MidoriLocationEntry* location_entry);
-
 static void
 midori_location_entry_class_init (MidoriLocationEntryClass* class)
 {
@@ -393,49 +388,10 @@ midori_location_entry_init (MidoriLocationEntry* location_entry)
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_SECONDARY, TRUE);
     #endif
-    g_signal_connect_after (entry, "key-press-event",
-        G_CALLBACK (entry_key_press_event), location_entry);
     #if !GTK_CHECK_VERSION (2, 16, 0)
     g_signal_connect_after (entry, "expose-event",
         G_CALLBACK (entry_expose_event), location_entry);
     #endif
     gtk_widget_show (entry);
     gtk_container_add (GTK_CONTAINER (location_entry), entry);
-}
-
-static gboolean
-entry_key_press_event (GtkWidget*           widget,
-                       GdkEventKey*         event,
-                       MidoriLocationEntry* location_entry)
-{
-    switch (event->keyval)
-    {
-        case GDK_Down:
-        case GDK_Up:
-        {
-            if (!katze_object_get_boolean (location_entry, "popup-shown"))
-                gtk_combo_box_popup (GTK_COMBO_BOX (location_entry));
-            return TRUE;
-        }
-        case GDK_Page_Up:
-        case GDK_Page_Down:
-        {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-/**
- * midori_location_entry_new:
- *
- * Creates a new #MidoriLocationEntry.
- *
- * Return value: a new #MidoriLocationEntry
- **/
-GtkWidget*
-midori_location_entry_new (void)
-{
-    return g_object_new (MIDORI_TYPE_LOCATION_ENTRY, NULL);
 }
