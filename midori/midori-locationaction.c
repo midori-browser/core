@@ -1018,7 +1018,6 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
         ? NULL : location_action->model);
 
     gtk_entry_completion_set_text_column (completion, URI_COL);
-    gtk_entry_completion_set_inline_completion (completion, TRUE);
     #if GTK_CHECK_VERSION (2, 12, 0)
     gtk_entry_completion_set_inline_selection (completion, TRUE);
     #endif
@@ -1039,7 +1038,6 @@ midori_location_action_completion_init (MidoriLocationAction* location_action,
                                         entry, NULL);
     gtk_entry_completion_set_match_func (completion,
         midori_location_entry_completion_match_cb, NULL, NULL);
-
 
     g_signal_connect (completion, "match-selected",
         G_CALLBACK (midori_location_entry_match_selected_cb), location_action);
