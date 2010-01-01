@@ -154,6 +154,7 @@ enum
     PROP_ENABLE_SCRIPTS,
     PROP_ENABLE_PLUGINS,
     PROP_ENABLE_DEVELOPER_EXTRAS,
+    PROP_ENABLE_PAGE_CACHE,
     PROP_ZOOM_TEXT_AND_IMAGES,
     PROP_FIND_WHILE_TYPING,
     PROP_KINETIC_SCROLLING,
@@ -857,6 +858,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Enable special extensions for developers",
                                      TRUE,
                                      flags));
+    #if WEBKIT_CHECK_VERSION (1, 1, 18)
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_PAGE_CACHE,
+                                     g_param_spec_boolean ("enable-page-cache",
+                                                           "Enable page cache",
+                                                           "Whether the page cache should be used",
+                                                           TRUE,
+                                                           flags));
+    #endif
 
     /**
      * MidoriWebSettings:zoom-text-and-images:
@@ -1390,6 +1400,12 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-developer-extras",
                       g_value_get_boolean (value), NULL);
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 18)
+    case PROP_ENABLE_PAGE_CACHE:
+        g_object_set (web_settings, "WebKitWebSettings::enable-page-cache",
+                      g_value_get_boolean (value), NULL);
+        break;
+    #endif
     case PROP_ZOOM_TEXT_AND_IMAGES:
         web_settings->zoom_text_and_images = g_value_get_boolean (value);
         break;
@@ -1609,6 +1625,12 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-developer-extras"));
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 18)
+    case PROP_ENABLE_PAGE_CACHE:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-page-cache"));
+        break;
+    #endif
     case PROP_ZOOM_TEXT_AND_IMAGES:
         g_value_set_boolean (value, web_settings->zoom_text_and_images);
         break;
