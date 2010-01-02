@@ -53,9 +53,8 @@ adblock_build_js (const gchar* style,
         "   for (var i in sites) {"
         "       if (URL.indexOf(i) != -1) {"
         "           public += sites[i];"
-        "           break;"
+        "           public += ' {display: none !important}';"
         "   }}"
-        "   public += ' {display: none !important;}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
         "   mystyle.setAttribute('id', 'madblock');"
@@ -79,7 +78,7 @@ adblock_init_db ()
     keys = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_regex_unref);
-    katze_assign (blockcss, g_strdup ("z-non-exist"));
+    katze_assign (blockcss, g_strdup ("z-non-exist {display: none !important};"));
     katze_assign (blockcssprivate, g_strdup (""));
 }
 
@@ -704,9 +703,18 @@ static void
 adblock_custom_block_image_cb (GtkWidget*       widget,
                                MidoriExtension* extension)
 {
-    FILE* list;
+    WebKitWebView* web_view;
+    const gchar* req_uri;
     gchar* custom_list;
+    FILE* list;
+    SoupURI* s_req_domain;
     gchar* uri;
+    SoupURI* s_uri;
+
+    web_view = g_object_get_data (G_OBJECT (widget), "webview");
+    req_uri = webkit_web_view_get_uri (web_view);
+    if (!req_uri)
+        return;
 
     custom_list = g_build_filename (midori_extension_get_config_dir (extension),
                                     CUSTOM_LIST_NAME, NULL);
@@ -715,11 +723,17 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
         g_free (custom_list);
         return;
     }
+    s_req_domain = soup_uri_new (req_uri);
     uri = g_object_get_data (G_OBJECT (widget), "uri");
+    s_uri = soup_uri_new (uri);
+
     g_fprintf (list, "%s\n", uri);
-    g_fprintf (list, "##img[src=\"%s\"]\n", uri);
+    g_fprintf (list, "%s##img[src*=\"%s\"]\n", s_req_domain->host, s_uri->path);
     fclose (list);
-    adblock_parse_file (custom_list);
+    adblock_reload_rules (extension);
+
+    soup_uri_free (s_req_domain);
+    soup_uri_free (s_uri);
     g_free (custom_list);
 }
 
@@ -747,6 +761,7 @@ adblock_populate_popup_cb (WebKitWebView*   web_view,
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_object_set_data_full (G_OBJECT (menuitem), "uri", uri, (GDestroyNotify)g_free);
+    g_object_set_data (G_OBJECT (menuitem), "webview", web_view);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (adblock_custom_block_image_cb), extension);
 }
@@ -978,7 +993,7 @@ adblock_frame_add (gchar* line)
 
     (void)*line++;
     (void)*line++;
-    new_blockcss = g_strdup_printf ("%s, %s", blockcss, line);
+    new_blockcss = g_strdup_printf ("%s; %s {display: none !important}", blockcss, line);
     katze_assign (blockcss, new_blockcss);
 }
 
