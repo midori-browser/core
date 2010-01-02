@@ -760,7 +760,7 @@ adblock_populate_popup_cb (WebKitWebView*   web_view,
     if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE))
         return;
     uri = katze_object_get_string (hit_test, "image-uri");
-    menuitem = gtk_menu_item_new_with_mnemonic ("B_lock image");
+    menuitem = gtk_menu_item_new_with_mnemonic ("Bl_ock image");
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_object_set_data_full (G_OBJECT (menuitem), "uri", uri, (GDestroyNotify)g_free);
