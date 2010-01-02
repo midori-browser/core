@@ -12,8 +12,6 @@
 #ifndef __MIDORI_LOCATION_ACTION_H__
 #define __MIDORI_LOCATION_ACTION_H__
 
-#include "midori-locationentry.h"
-
 #include <katze/katze.h>
 
 G_BEGIN_DECLS

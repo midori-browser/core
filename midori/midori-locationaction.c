@@ -240,6 +240,12 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /* We want location entries to have appears-as-list applied */
+    gtk_rc_parse_string ("style \"midori-location-entry-style\" {\n"
+                         "  GtkComboBox::appears-as-list = 1\n }\n"
+                         "widget \"*MidoriLocationEntry\" "
+                         "style \"midori-location-entry-style\"\n");
 }
 
 /* Allow this to be used in tests, it's otherwise private */
@@ -535,6 +541,10 @@ midori_location_action_create_tool_item (GtkAction* action)
     GtkWidget* toolitem;
     GtkWidget* alignment;
     GtkWidget* location_entry;
+    GtkWidget* entry;
+    #if HAVE_HILDON
+    HildonGtkInputMode mode;
+    #endif
 
     toolitem = GTK_WIDGET (gtk_tool_item_new ());
     gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
@@ -542,9 +552,25 @@ midori_location_action_create_tool_item (GtkAction* action)
     alignment = gtk_alignment_new (0.0f, 0.5f, 1.0f, 0.1f);
     gtk_widget_show (alignment);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
-    location_entry = g_object_new (MIDORI_TYPE_LOCATION_ENTRY, NULL);
+    location_entry = gtk_combo_box_entry_new ();
+    gtk_widget_set_name (location_entry, "MidoriLocationEntry");
     gtk_widget_show (location_entry);
     gtk_container_add (GTK_CONTAINER (alignment), location_entry);
+
+    #if HAVE_HILDON
+    entry = gtk_entry_new ();
+    mode = hildon_gtk_entry_get_input_mode (GTK_ENTRY (entry));
+    mode &= ~HILDON_GTK_INPUT_MODE_AUTOCAP;
+    hildon_gtk_entry_set_input_mode (GTK_ENTRY (entry), mode);
+    #else
+    entry = gtk_icon_entry_new ();
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+         GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FILE);
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
+         GTK_ICON_ENTRY_SECONDARY, TRUE);
+    #endif
+    gtk_widget_show (entry);
+    gtk_container_add (GTK_CONTAINER (location_entry), entry);
 
     return toolitem;
 }
