@@ -24,6 +24,7 @@
 
 #define SIGNATURE_SIZE 8
 #define USE_PATTERN_MATCHING 1
+#define CUSTOM_LIST_NAME "custom.list"
 #define ADBLOCK_FILTER_VALID(__filter) \
     (__filter && (g_str_has_prefix (__filter, "http") \
                || g_str_has_prefix (__filter, "file")))
@@ -102,6 +103,7 @@ adblock_reload_rules (MidoriExtension* extension)
     gchar* folder;
     guint i = 0;
     filters = midori_extension_get_string_list (extension, "filters", NULL);
+    gchar* custom_list;
 
     if (!filters)
         return;
@@ -135,6 +137,10 @@ adblock_reload_rules (MidoriExtension* extension)
             g_free (path);
         g_free (filename);
     }
+    custom_list = g_build_filename (midori_extension_get_config_dir (extension),
+                                    CUSTOM_LIST_NAME, NULL);
+    adblock_parse_file (custom_list);
+    g_free (custom_list);
     katze_assign (blockscript, adblock_build_js (blockcss, blockcssprivate));
     g_strfreev (filters);
     g_free (folder);
@@ -693,6 +699,58 @@ adblock_session_request_queued_cb (SoupSession* session,
 }
 #endif
 
+#if WEBKIT_CHECK_VERSION (1, 1, 15)
+static void
+adblock_custom_block_image_cb (GtkWidget*       widget,
+                               MidoriExtension* extension)
+{
+    FILE* list;
+    gchar* custom_list;
+    gchar* uri;
+
+    custom_list = g_build_filename (midori_extension_get_config_dir (extension),
+                                    CUSTOM_LIST_NAME, NULL);
+    if (!(list = g_fopen (custom_list, "a+")))
+    {
+        g_free (custom_list);
+        return;
+    }
+    uri = g_object_get_data (G_OBJECT (widget), "uri");
+    g_fprintf (list, "%s\n", uri);
+    fclose (list);
+    adblock_parse_file (custom_list);
+    g_free (custom_list);
+}
+
+static void
+adblock_populate_popup_cb (WebKitWebView*   web_view,
+                           GtkWidget*       menu,
+                           MidoriExtension* extension)
+{
+    GtkWidget* menuitem;
+    gchar *uri;
+    gint x, y;
+    GdkEventButton event;
+    WebKitHitTestResultContext context;
+    WebKitHitTestResult* hit_test;
+
+    gdk_window_get_pointer (GTK_WIDGET (web_view)->window, &x, &y, NULL);
+    event.x = x;
+    event.y = y;
+    hit_test = webkit_web_view_get_hit_test_result (web_view, &event);
+    context = katze_object_get_int (hit_test, "context");
+    if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE))
+        return;
+    uri = katze_object_get_string (hit_test, "image-uri");
+    menuitem = gtk_menu_item_new_with_mnemonic ("B_lock image");
+    gtk_widget_show (menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_object_set_data_full (G_OBJECT (menuitem), "uri", uri, (GDestroyNotify)g_free);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (adblock_custom_block_image_cb), extension);
+}
+#endif
+
 static void
 adblock_window_object_cleared_cb (GtkWidget*      web_view,
                                   WebKitWebFrame* web_frame,
@@ -703,14 +761,19 @@ adblock_window_object_cleared_cb (GtkWidget*      web_view,
 }
 
 static void
-adblock_add_tab_cb (MidoriBrowser* browser,
-                    MidoriView*    view,
-                    GtkWidget*     image)
+adblock_add_tab_cb (MidoriBrowser*   browser,
+                    MidoriView*      view,
+                    MidoriExtension* extension)
 {
-
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
+
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    g_signal_connect_after (web_view, "populate-popup",
+        G_CALLBACK (adblock_populate_popup_cb), extension);
+    #endif
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (adblock_resource_request_starting_cb), image);
@@ -719,14 +782,14 @@ adblock_add_tab_cb (MidoriBrowser* browser,
 
 static void
 adblock_deactivate_cb (MidoriExtension* extension,
-                       GtkWidget*       image);
+                       MidoriBrowser*   browser);
 
 static void
 adblock_add_tab_foreach_cb (MidoriView*      view,
                             MidoriBrowser*   browser,
-                            GtkWidget*       image)
+                            MidoriExtension* extension)
 {
-    adblock_add_tab_cb (browser, view, image);
+    adblock_add_tab_cb (browser, view, extension);
 }
 
 static void
@@ -738,22 +801,21 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* image;
 
     statusbar = katze_object_get_object (browser, "statusbar");
-    #if 0
-    image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
+    image = NULL;
+    /* image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
     gtk_widget_show (image);
-    gtk_box_pack_start (GTK_BOX (statusbar), image, FALSE, FALSE, 3);
-    #else
-    image = GTK_WIDGET (browser);
-    #endif
+    gtk_box_pack_start (GTK_BOX (statusbar), image, FALSE, FALSE, 3); */
+    g_object_set_data_full (G_OBJECT (browser), "status-image", image,
+                            (GDestroyNotify)gtk_widget_destroy);
 
     midori_browser_foreach (browser,
-          (GtkCallback)adblock_add_tab_foreach_cb, image);
+          (GtkCallback)adblock_add_tab_foreach_cb, extension);
     g_signal_connect (browser, "add-tab",
-        G_CALLBACK (adblock_add_tab_cb), image);
+        G_CALLBACK (adblock_add_tab_cb), extension);
     g_signal_connect (browser, "populate-tool-menu",
         G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
     g_signal_connect (extension, "deactivate",
-        G_CALLBACK (adblock_deactivate_cb), image);
+        G_CALLBACK (adblock_deactivate_cb), browser);
     g_object_unref (statusbar);
 }
 
@@ -1021,30 +1083,31 @@ adblock_parse_file (gchar* path)
 }
 
 static void
-adblock_deactivate_tabs (MidoriView* view,
-                         GtkWidget*  image)
+adblock_deactivate_tabs (MidoriView*      view,
+                         MidoriBrowser*   browser,
+                         MidoriExtension* extension)
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
-    MidoriBrowser* browser = midori_browser_get_for_widget (image);
+    GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
 
     g_signal_handlers_disconnect_by_func (
-       browser, adblock_add_tab_cb, 0);
+       browser, adblock_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    g_signal_handlers_disconnect_by_func (
+       web_view, adblock_populate_popup_cb, extension);
+    #endif
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_resource_request_starting_cb, image);
-    #endif
-    #if 0
-    gtk_widget_destroy (image);
     #endif
 }
 
 static void
 adblock_deactivate_cb (MidoriExtension* extension,
-                       GtkWidget*       image)
+                       MidoriBrowser*   browser)
 {
-    MidoriBrowser* browser = midori_browser_get_for_widget (image);
     MidoriApp* app = midori_extension_get_app (extension);
 
     #if !HAVE_WEBKIT_RESOURCE_REQUEST
@@ -1059,7 +1122,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
         extension, adblock_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, adblock_app_add_browser_cb, extension);
-    midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, image);
+    midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
     katze_assign (blockcss, NULL);
     katze_assign (blockcssprivate, NULL);
