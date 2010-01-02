@@ -1836,7 +1836,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             _("Open Link as Web A_pplication"), NULL,
             G_CALLBACK (midori_web_view_menu_web_app_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
-            _("_Copy Link destination"), NULL,
+            _("Copy Link de_stination"), NULL,
             G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             view->ask_for_destination_folder ? _("_Save Link destination")
