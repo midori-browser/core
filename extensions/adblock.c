@@ -717,6 +717,7 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
     }
     uri = g_object_get_data (G_OBJECT (widget), "uri");
     g_fprintf (list, "%s\n", uri);
+    g_fprintf (list, "##img[src=\"%s\"]\n", uri);
     fclose (list);
     adblock_parse_file (custom_list);
     g_free (custom_list);
