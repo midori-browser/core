@@ -1777,9 +1777,10 @@ main (int    argc,
                       "toolbar-items", "Back,Forward,ReloadStop,Location",
                       "homepage", NULL,
                       "show-statusbar", TRUE,
+                      "enable-developer-extras", FALSE,
                       NULL);
-        g_object_unref (settings);
         g_object_set (browser, "settings", settings, NULL);
+        g_object_unref (settings);
         sokoke_set_config_dir ("/");
         g_signal_connect (browser, "notify::load-status",
             G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
