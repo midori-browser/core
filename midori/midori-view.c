@@ -3920,22 +3920,27 @@ midori_view_can_zoom_out (MidoriView* view)
 gboolean
 midori_view_can_view_source (MidoriView* view)
 {
-    const gchar* uri = view->uri;
+    #if GLIB_CHECK_VERSION (2, 18, 0)
+    gchar* content_type;
+    gchar* text_type;
+    #endif
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    /* FIXME: Consider other types that are also text */
-    if (!g_str_has_prefix (view->mime_type, "text/")
-        && !g_strrstr (view->mime_type, "xml"))
+    if (midori_view_is_blank (view))
         return FALSE;
 
-    if (!uri)
-        return FALSE;
-    if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
-        return TRUE;
-    if (g_str_has_prefix (uri, "file://"))
-        return TRUE;
-    return FALSE;
+    #if GLIB_CHECK_VERSION (2, 18, 0)
+    content_type = g_content_type_from_mime_type (view->mime_type);
+    text_type = g_content_type_from_mime_type ("text/plain");
+    return g_content_type_is_a (content_type, text_type);
+    #elif defined (G_OS_UNIX)
+    return g_content_type_is_a (view->mime_type, "text/plain");
+    #else
+    return g_str_has_prefix (view->mime_type, "text/")
+        || g_strrstr (view->mime_type, "xml")
+        || g_strrstr (view->mime_type, "javascript");
+    #endif
 }
 
 #define can_do(what) \
