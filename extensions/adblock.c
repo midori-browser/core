@@ -51,10 +51,11 @@ adblock_build_js (const gchar* style,
         "   var sites = new Array(); %s;"
         "   var public = '%s';"
         "   for (var i in sites) {"
-        "       if (URL.indexOf(i) != -1) {"
-        "           public += sites[i];"
-        "           public += ' {display: none !important}';"
+        "       if (URL.indexOf(i) != -1 && sites[i] ){"
+        "           public += ', .'+sites[i];"
+        "           break;"
         "   }}"
+        "   public += ' {display: none !important}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
         "   mystyle.setAttribute('id', 'madblock');"
@@ -78,7 +79,7 @@ adblock_init_db ()
     keys = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_regex_unref);
-    katze_assign (blockcss, g_strdup ("z-non-exist {display: none !important};"));
+    katze_assign (blockcss, g_strdup ("z-non-exist"));
     katze_assign (blockcssprivate, g_strdup (""));
 }
 
@@ -996,7 +997,13 @@ adblock_frame_add (gchar* line)
 
     (void)*line++;
     (void)*line++;
-    new_blockcss = g_strdup_printf ("%s; %s {display: none !important}", blockcss, line);
+    if (strchr (line, ':')
+    && !g_regex_match_simple (".*\\[.*:.*\\].*", line,
+                              G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+    {
+        return;
+    }
+    new_blockcss = g_strdup_printf ("%s, %s", blockcss, line);
     katze_assign (blockcss, new_blockcss);
 }
 
@@ -1008,7 +1015,16 @@ adblock_frame_add_private (const gchar* line,
     gchar** data;
     data = g_strsplit (line, sep, 2);
 
-    if (strstr (data[0],","))
+    if (!(data[1] && *data[1])
+     || (strchr (data[1], ':')
+     && !g_regex_match_simple (".*\\[.*:.*\\].*", data[1],
+                               G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY)))
+    {
+        g_strfreev (data);
+        return;
+    }
+
+    if (strchr (data[0], ','))
     {
         gchar** domains;
         gint max, i;
@@ -1058,16 +1074,16 @@ adblock_parse_line (gchar* line)
         return NULL;
 
     /* Got per domain CSS hider rule */
-    if (strstr (line,"##"))
+    if (strstr (line, "##"))
     {
-        adblock_frame_add_private (line,"##");
+        adblock_frame_add_private (line, "##");
         return NULL;
     }
 
     /* Got per domain CSS hider rule. Workaround */
-    if (strstr (line,"#"))
+    if (strchr (line, '#'))
     {
-        adblock_frame_add_private (line,"#");
+        adblock_frame_add_private (line, "#");
         return NULL;
     }
     /* Got URL blocker rule */
@@ -1089,11 +1105,11 @@ static gboolean
 adblock_parse_file (gchar* path)
 {
     FILE* file;
-    gchar line[500];
+    gchar line[2000];
 
     if ((file = g_fopen (path, "r")))
     {
-        while (fgets (line, 500, file))
+        while (fgets (line, 2000, file))
             g_free (adblock_parse_line (line));
         fclose (file);
         return TRUE;
