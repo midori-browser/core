@@ -22,7 +22,7 @@ if progressive:
     obj = bld.new_task_gen ('cc', 'program')
     obj.target = 'midori'
     obj.includes = '.. ../katze . ../panels'
-    obj.find_sources_in_dirs ('../katze .')
+    obj.source = './main.c'
     obj.uselib = libs
     obj.uselib_local = 'midori-core'
     if bld.env['WINRC']:
