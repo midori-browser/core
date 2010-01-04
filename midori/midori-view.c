@@ -212,6 +212,11 @@ midori_view_speed_dial_save (GtkWidget*   web_view,
                              const gchar* message);
 
 static void
+midori_view_populate_popup (MidoriView* view,
+                            GtkWidget*  menu,
+                            gboolean    manual);
+
+static void
 midori_view_class_init (MidoriViewClass* class)
 {
     GObjectClass* gobject_class;
@@ -1329,6 +1334,19 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             g_free (uri);
         }
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    case 3:
+        if (event->state & GDK_CONTROL_MASK)
+        {
+            /* Ctrl + Right-click suppresses javascript button handling */
+            GtkWidget* menu = gtk_menu_new ();
+            midori_view_populate_popup (view, menu, TRUE);
+            katze_widget_popup (GTK_WIDGET (web_view), GTK_MENU (menu), event,
+                                KATZE_MENU_POSITION_CURSOR);
+            return TRUE;
+        }
+        break;
+    #endif
     case 8:
         midori_view_go_back (view);
         return TRUE;
@@ -1684,14 +1702,15 @@ midori_view_insert_menu_item (GtkMenuShell* menu,
 }
 
 static void
-webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
-                                   GtkWidget*     menu,
-                                   MidoriView*    view)
+midori_view_populate_popup (MidoriView* view,
+                            GtkWidget*  menu,
+                            gboolean    manual)
 {
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
+    GtkWidget* widget = GTK_WIDGET (view);
+    MidoriBrowser* browser = midori_browser_get_for_widget (widget);
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     GtkMenuShell* menu_shell = GTK_MENU_SHELL (menu);
-    GtkWidget* widget = GTK_WIDGET (view);
     GtkWidget* menuitem;
     GtkWidget* icon;
     gchar* stock_id;
@@ -1709,7 +1728,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     gboolean is_image;
     gboolean is_media;
 
-    gdk_window_get_pointer (GTK_WIDGET (web_view)->window, &x, &y, NULL);
+    gdk_window_get_pointer (view->web_view->window, &x, &y, NULL);
     event.x = x;
     event.y = y;
     katze_object_assign (view->hit_test,
@@ -1775,19 +1794,64 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             webkit_web_view_can_undo (web_view));
         gtk_menu_shell_prepend (menu_shell, menuitem);
         #endif
+        if (manual)
+        {
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Cut"));
+            gtk_widget_set_sensitive (menuitem,
+                webkit_web_view_can_cut_clipboard (web_view));
+            gtk_menu_shell_append (menu_shell, menuitem);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Copy"));
+            gtk_widget_set_sensitive (menuitem,
+                webkit_web_view_can_copy_clipboard (web_view));
+            gtk_menu_shell_append (menu_shell, menuitem);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Paste"));
+            gtk_widget_set_sensitive (menuitem,
+                webkit_web_view_can_paste_clipboard (web_view));
+            gtk_menu_shell_append (menu_shell, menuitem);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Delete"));
+            gtk_widget_set_sensitive (menuitem,
+                webkit_web_view_can_cut_clipboard (web_view));
+            gtk_menu_shell_append (menu_shell, menuitem);
+            menuitem = gtk_separator_menu_item_new ();
+            gtk_widget_show (menuitem);
+            gtk_menu_shell_append (menu_shell, menuitem);
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "SelectAll"));
+            gtk_menu_shell_append (menu_shell, menuitem);
+            /* FIXME: We are missing Font, Input Methods and Insert Character */
+            #if WEBKIT_CHECK_VERSION (1, 1, 17)
+            if (katze_object_get_boolean (view->settings, "enable-developer-extras"))
+            {
+                menuitem = gtk_separator_menu_item_new ();
+                gtk_widget_show (menuitem);
+                gtk_menu_shell_append (menu_shell, menuitem);
+                menuitem = midori_view_insert_menu_item (menu_shell, -1,
+                    _("Inspect _Element"), NULL,
+                    G_CALLBACK (midori_web_view_menu_inspect_element_activate_cb),
+                    widget);
+                gtk_widget_show (menuitem);
+                g_object_set_data (G_OBJECT (menuitem), "x", GINT_TO_POINTER (x));
+                g_object_set_data (G_OBJECT (menuitem), "y", GINT_TO_POINTER (y));
+             }
+             #endif
+        }
         return;
     }
 
     items = gtk_container_get_children (GTK_CONTAINER (menu));
     menuitem = (GtkWidget*)g_list_nth_data (items, 0);
     /* Form control: no items */
-    if (!menuitem)
+    if (!manual && !menuitem)
     {
         g_list_free (items);
         return;
     }
     /* Form control: separator and Inspect element */
-    if (GTK_IS_SEPARATOR_MENU_ITEM (menuitem) && g_list_length (items) == 2)
+    if (!manual && GTK_IS_SEPARATOR_MENU_ITEM (menuitem) && g_list_length (items) == 2)
     {
         gtk_widget_destroy (menuitem);
         g_list_free (items);
@@ -1807,7 +1871,6 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     }
 
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
-    /* FIXME: We can't re-implement Open in Frame */
     if (!is_document)
     {
         items = gtk_container_get_children (GTK_CONTAINER (menu));
@@ -2014,7 +2077,8 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
 
     if (is_document)
     {
-        #if 0 /* WEBKIT_CHECK_VERSION (1, 1, 15) */
+        if (manual)
+        {
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (actions, "Back"));
         gtk_menu_shell_append (menu_shell, menuitem);
@@ -2027,7 +2091,9 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (actions, "Reload"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        #else
+        }
+        else
+        {
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         #if HAVE_HILDON
         gtk_widget_hide (g_list_nth_data (items, 2));
@@ -2047,7 +2113,7 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
             }
         }
         g_list_free (items);
-        #endif
+        }
 
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
@@ -2152,8 +2218,8 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     }
 
     #if WEBKIT_CHECK_VERSION (1, 1, 17)
-    if (!is_document && view->settings
-        && katze_object_get_boolean (view->settings, "enable-developer-extras"))
+    if ((!is_document || manual)
+      && katze_object_get_boolean (view->settings, "enable-developer-extras"))
     {
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = midori_view_insert_menu_item (menu_shell, -1,
@@ -2165,6 +2231,14 @@ webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
     #endif
 
     gtk_widget_show_all (menu);
+}
+
+static void
+webkit_web_view_populate_popup_cb (WebKitWebView* web_view,
+                                   GtkWidget*     menu,
+                                   MidoriView*    view)
+{
+    midori_view_populate_popup (view, menu, FALSE);
 }
 
 #if HAVE_HILDON
