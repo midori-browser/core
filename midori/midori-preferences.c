@@ -417,7 +417,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
     gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
     INDENTED_ADD (button);
-    button = gtk_label_new (_("Spell checking languages:"));
+    button = gtk_label_new (_("Spelling dictionaries:"));
     INDENTED_ADD (button);
     entry = katze_property_proxy (settings, "spell-checking-languages", NULL);
     /* i18n: The example should be adjusted to contain a good local default */
