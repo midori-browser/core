@@ -494,6 +494,13 @@ def build (bld):
     if Options.commands['check']:
         bld.add_subdirs ('tests')
 
+    if Options.commands['clean']:
+        distclean ()
+
+def distclean ():
+    if os.path.exists ('po/midori.pot'):
+        os.remove ('po/midori.pot')
+
 def shutdown ():
     if Options.commands['install'] or Options.commands['uninstall']:
         dir = Build.bld.get_install_path ('${MDATADIR}/icons/hicolor')
