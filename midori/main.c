@@ -1314,7 +1314,6 @@ midori_load_extensions (gpointer data)
     MidoriApp* app = MIDORI_APP (data);
     gchar** active_extensions = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
-    MidoriExtension* extension;
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
@@ -1331,7 +1330,6 @@ midori_load_extensions (gpointer data)
         if (extension_dir != NULL)
         {
             const gchar* filename;
-            gchar* config_file = build_config_filename ("config");
 
             while ((filename = g_dir_read_name (extension_dir)))
             {
@@ -1339,6 +1337,7 @@ midori_load_extensions (gpointer data)
                 GModule* module;
                 typedef MidoriExtension* (*extension_init_func)(void);
                 extension_init_func extension_init;
+                MidoriExtension* extension;
 
                 /* Ignore files which don't have the correct suffix */
                 if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
@@ -1382,11 +1381,9 @@ midori_load_extensions (gpointer data)
                 g_object_unref (extension);
             }
             g_dir_close (extension_dir);
-            g_free (config_file);
         }
         g_free (extension_path);
     }
-
     g_strfreev (active_extensions);
 
     return FALSE;
