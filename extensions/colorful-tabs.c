@@ -65,12 +65,20 @@ colorful_tabs_browser_add_tab_cb (MidoriBrowser*   browser,
 }
 
 static void
+colorful_tabs_app_add_browser_cb (MidoriApp*       app,
+                                  MidoriBrowser*   browser,
+                                  MidoriExtension* extension);
+
+static void
 colorful_tabs_deactivate_cb (MidoriExtension* extension,
                              MidoriBrowser*   browser)
 {
     guint i;
     GtkWidget* view;
+    MidoriApp* app = midori_extension_get_app (extension);
 
+    g_signal_handlers_disconnect_by_func (
+        app, colorful_tabs_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
         extension, colorful_tabs_deactivate_cb, browser);
     i = 0;
@@ -101,6 +109,7 @@ colorful_tabs_app_add_browser_cb (MidoriApp*       app,
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (colorful_tabs_deactivate_cb), browser);
 }
+
 
 static void
 colorful_tabs_activate_cb (MidoriExtension* extension,
