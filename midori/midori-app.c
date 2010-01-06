@@ -206,8 +206,10 @@ _midori_app_add_browser (MidoriApp*     app,
 
     app->browser = browser;
     #if HAVE_UNIQUE
+    /* We *do not* let unique watch windows because that includes
+        bringing windows in the foreground, even from other workspaces.
     if (app->instance)
-        unique_app_watch_window (app->instance, GTK_WINDOW (browser));
+        unique_app_watch_window (app->instance, GTK_WINDOW (browser)); */
     #endif
 }
 
@@ -391,6 +393,15 @@ midori_app_class_init (MidoriAppClass* class)
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
 
+static void
+midori_app_raise_window (GtkWindow* window,
+                         GdkScreen* screen)
+{
+    gtk_window_set_screen (window, screen);
+    gtk_window_present (window);
+    gtk_window_deiconify (window);
+}
+
 static gboolean
 midori_app_command_received (MidoriApp*   app,
                              const gchar* command,
@@ -410,8 +421,7 @@ midori_app_command_received (MidoriApp*   app,
         if (!app->browser)
             return FALSE;
 
-        gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
-        gtk_window_present (GTK_WINDOW (app->browser));
+        midori_app_raise_window (GTK_WINDOW (app->browser), screen);
         return TRUE;
     }
     else if (g_str_equal (command, "new"))
@@ -421,8 +431,8 @@ midori_app_command_received (MidoriApp*   app,
         /* FIXME: Should open the homepage according to settings */
         midori_browser_add_uri (browser, "");
         midori_browser_activate_action (browser, "Location");
-        gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
         gtk_widget_show (GTK_WIDGET (browser));
+        midori_app_raise_window (GTK_WINDOW (browser), screen);
         return TRUE;
     }
     else if (g_str_equal (command, "open"))
@@ -430,8 +440,6 @@ midori_app_command_received (MidoriApp*   app,
         if (!app->browser)
             return FALSE;
 
-        gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
-        gtk_window_present (GTK_WINDOW (app->browser));
         if (!uris)
             return FALSE;
         else
@@ -446,11 +454,13 @@ midori_app_command_received (MidoriApp*   app,
             {
                 browser = midori_app_create_browser (app);
                 midori_app_add_browser (app, browser);
-                gtk_window_set_screen (GTK_WINDOW (app->browser), screen);
                 gtk_widget_show (GTK_WIDGET (browser));
             }
             else
                 browser = app->browser;
+
+            midori_app_raise_window (GTK_WINDOW (browser), screen);
+
             first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
             while (*uris)
             {
@@ -604,8 +614,6 @@ midori_app_io_channel_watch_cb (GIOChannel*  channel,
             g_strfreev (uris);
         }
     }
-
-    gtk_window_present (GTK_WINDOW (app->browser));
 
     fd_close (sock);
 
