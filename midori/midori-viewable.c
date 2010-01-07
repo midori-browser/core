@@ -84,7 +84,7 @@ midori_viewable_base_init (MidoriViewableIface* iface)
      * Emitted when an Option menu is displayed, for instance
      * when the user clicks the Options button in the panel.
      *
-     * Since: 0.1.9
+     * Deprecated: 0.2.3
      */
     signals[POPULATE_OPTION_MENU] = g_signal_new (
         "populate-option-menu",

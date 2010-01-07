@@ -32,6 +32,7 @@ struct _MidoriPanel
     GtkWidget* toolbar;
     GtkToolItem* button_align;
     GtkToolItem* button_detach;
+    GtkToolItem* button_controls;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
     GtkWidget* toolbook;
@@ -196,7 +197,7 @@ midori_panel_class_init (MidoriPanelClass* class)
      *
      * Whether to show panel titles.
      *
-     * Since: 0.1.9
+     * Deprecated: 0.2.3
      */
     g_object_class_install_property (gobject_class,
                                      PROP_SHOW_TITLES,
@@ -404,14 +405,11 @@ midori_panel_init (MidoriPanel* panel)
 
     /* Create the sidebar */
     panel->toolbar = gtk_toolbar_new ();
-    gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar), GTK_TOOLBAR_BOTH);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (panel->toolbar),
-                               GTK_ICON_SIZE_BUTTON);
-    g_object_set (panel->toolbar, "orientation", GTK_ORIENTATION_VERTICAL, NULL);
-    gtk_box_pack_start (GTK_BOX (panel), panel->toolbar, FALSE, FALSE, 0);
+    gtk_toolbar_set_icon_size (GTK_TOOLBAR (panel->toolbar), GTK_ICON_SIZE_BUTTON);
     gtk_widget_show_all (panel->toolbar);
     vbox = gtk_vbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (panel), vbox, TRUE, TRUE, 0);
+    gtk_box_pack_end (GTK_BOX (vbox), panel->toolbar, FALSE, FALSE, 0);
 
     /* Create the titlebar */
     labelbar = gtk_toolbar_new ();
@@ -517,13 +515,18 @@ midori_panel_set_property (GObject*      object,
         break;
     case PROP_SHOW_TITLES:
         panel->show_titles = g_value_get_boolean (value);
-        gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar),
-            panel->show_titles ? GTK_TOOLBAR_BOTH : GTK_TOOLBAR_ICONS);
+        /* Ignore */
         break;
     case PROP_SHOW_CONTROLS:
         panel->show_controls = g_value_get_boolean (value);
         sokoke_widget_set_visible (panel->labelbar, panel->show_controls);
         sokoke_widget_set_visible (panel->toolbar, panel->show_controls);
+        if (panel->button_controls)
+        {
+            gtk_toggle_tool_button_set_active (
+                GTK_TOGGLE_TOOL_BUTTON (panel->button_controls),
+                !panel->show_controls);
+        }
         break;
     case PROP_RIGHT_ALIGNED:
         midori_panel_set_right_aligned (panel, g_value_get_boolean (value));
@@ -691,54 +694,6 @@ midori_panel_construct_tool_item (MidoriPanel*    panel,
     return GTK_TOOL_ITEM (toolitem);
 }
 
-#if !HAVE_HILDON
-static void
-midori_panel_show_titles_toggled_cb (GtkWidget*   menuitem,
-                                     MidoriPanel* panel)
-{
-    g_object_set (panel, "show-titles", !panel->show_titles, NULL);
-}
-
-static void
-midori_panel_show_controls_toggled_cb (GtkWidget*   menuitem,
-                                       MidoriPanel* panel)
-{
-    g_object_set (panel, "show-controls", !panel->show_controls, NULL);
-}
-
-static void
-midori_panel_options_clicked_cb (GtkToolItem* toolitem,
-                                 MidoriPanel* panel)
-{
-    gint n;
-    GtkWidget* viewable;
-    GtkWidget* menu;
-    GtkWidget* menuitem;
-
-    n = midori_panel_get_current_page (panel);
-    viewable = midori_panel_get_nth_page (panel, n);
-    menu = gtk_menu_new ();
-    menuitem = gtk_check_menu_item_new_with_mnemonic (_("Show panel _titles"));
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
-                                    panel->show_titles);
-    g_signal_connect (menuitem, "toggled",
-        G_CALLBACK (midori_panel_show_titles_toggled_cb), panel);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-    menuitem = gtk_check_menu_item_new_with_mnemonic (_("Show operating _controls"));
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menuitem),
-                                    panel->show_controls);
-    g_signal_connect (menuitem, "toggled",
-        G_CALLBACK (midori_panel_show_controls_toggled_cb), panel);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-    g_signal_emit_by_name (viewable, "populate-option-menu", menu);
-
-    katze_widget_popup (GTK_WIDGET (toolitem), GTK_MENU (menu),
-                        NULL, KATZE_MENU_POSITION_LEFT);
-}
-#endif
-
 static void
 midori_panel_action_activate_cb (GtkRadioAction* action,
                                  MidoriPanel*    panel)
@@ -765,6 +720,15 @@ midori_panel_action_activate_cb (GtkRadioAction* action,
         gtk_widget_show (GTK_WIDGET (panel));
     }
 }
+
+#if !HAVE_HILDON
+static void
+midori_panel_show_controls_toggled_cb (GtkWidget*   menuitem,
+                                       MidoriPanel* panel)
+{
+    g_object_set (panel, "show-controls", !panel->show_controls, NULL);
+}
+#endif
 
 /**
  * midori_panel_append_page:
@@ -829,12 +793,15 @@ midori_panel_append_page (MidoriPanel*    panel,
 
     toolbar = midori_viewable_get_toolbar (viewable);
     #if !HAVE_HILDON
-    toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_PROPERTIES);
-    gtk_tool_item_set_tooltip_text (toolitem, _("Options"));
+    toolitem = gtk_toggle_tool_button_new_from_stock (GTK_STOCK_PROPERTIES);
+    gtk_tool_item_set_tooltip_text (toolitem, _("Show operating _controls"));
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem),
+        !panel->show_controls);
     g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (midori_panel_options_clicked_cb), panel);
+        G_CALLBACK (midori_panel_show_controls_toggled_cb), panel);
     gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, 0);
     gtk_widget_show (GTK_WIDGET (toolitem));
+    panel->button_controls = toolitem;
     #endif
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
@@ -847,7 +814,8 @@ midori_panel_append_page (MidoriPanel*    panel,
         midori_viewable_get_stock_id (viewable), NULL);
     action = (GtkAction*)gtk_radio_action_new (action_name,
         midori_viewable_get_label (viewable),
-        NULL, midori_viewable_get_stock_id (viewable), n);
+        midori_viewable_get_label (viewable),
+        midori_viewable_get_stock_id (viewable), n);
     g_object_set_data (G_OBJECT (action), "viewable", viewable);
     g_signal_connect (action, "activate",
         G_CALLBACK (midori_panel_action_activate_cb), panel);
