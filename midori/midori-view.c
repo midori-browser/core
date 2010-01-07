@@ -995,7 +995,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
             "<html><head><title>%s</title></head>"
             "<body><h1>%s</h1>"
             "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
-            "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+            "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
             "<p />The page you were opening doesn't exist."
             "<p />Try to <a href=\"%s\">load the page again</a>, "
             "or move on to another page."
@@ -3198,7 +3198,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
                     "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<p />The document %s of type '%s' cannot be displayed."
                     "</body></html>",
                     title, title, view->uri, view->mime_type);
@@ -3215,7 +3215,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
                     "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<p />There is no documentation installed at %s."
                     "You may want to ask your distribution or "
                     "package maintainer for it or if this a custom build "
@@ -3259,7 +3259,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<html><head><title>about:version</title></head>"
                     "<body><h1>about:version</h1>"
                     "<img src=\"res://logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>"
                     "<tr><td>Midori</td><td>" PACKAGE_VERSION "%s</td></tr>"
                     "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
@@ -3300,7 +3300,7 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head><body><h1>%s</h1>"
                     "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
-                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "</body></html>", view->uri, view->uri);
             }
 
