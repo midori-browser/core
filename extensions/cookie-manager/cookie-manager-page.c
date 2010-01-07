@@ -568,10 +568,17 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 			COOKIE_MANAGER_COL_COOKIE, &cookie,
 			-1);
 
-		if (cookie == NULL && name != NULL)
+		if (name != NULL)
 		{
-			text = cm_skip_leading_dot(name);
+			GtkTreeIter parent;
+			/* get the name of the parent item which should be a domain item */
+			if (cookie != NULL && gtk_tree_model_iter_parent(model, &parent, &iter))
+			{
+				g_free(name);
+				gtk_tree_model_get(model, &parent, COOKIE_MANAGER_COL_NAME, &name, -1);
+			}
 
+			text = cm_skip_leading_dot(name);
 			gtk_selection_data_set_text(data, text, -1);
 		}
 		g_free(name);
