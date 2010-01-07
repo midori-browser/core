@@ -204,4 +204,7 @@ sokoke_file_chooser_dialog_new          (const gchar*         title,
 gboolean
 sokoke_prefetch_uri                     (const char* uri);
 
+gchar *
+sokoke_accept_languages                 (const gchar* const * lang_names);
+
 #endif /* !__SOKOKE_H__ */

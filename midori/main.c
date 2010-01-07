@@ -1117,6 +1117,34 @@ soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
 #endif
 
 static void
+midori_soup_session_settings_accept_language_cb (SoupSession*       session,
+                                                 SoupMessage*       msg,
+                                                 MidoriWebSettings* settings)
+{
+    gchar* languages = katze_object_get_string (settings, "preferred-languages");
+    gchar* accpt;
+
+    /* Empty, use the system locales */
+    if (!(languages && *languages))
+        accpt = sokoke_accept_languages (g_get_language_names ());
+    /* No =, no ., looks like a list of language names */
+    else if (!(strchr (languages, '=') && strchr (languages, '.')))
+    {
+        gchar ** lang_names = g_strsplit_set (languages, ",; ", -1);
+        accpt = sokoke_accept_languages ((const gchar* const *)lang_names);
+        g_strfreev (lang_names);
+    }
+    /* Presumably a well formatted list including priorities */
+    else
+        accpt = languages;
+
+    if (accpt != languages)
+        g_free (languages);
+    soup_message_headers_append (msg->request_headers, "ACCEPT_LANGUAGE", accpt);
+    g_free (accpt);
+}
+
+static void
 midori_soup_session_debug (SoupSession* session)
 {
     const char* soup_debug = g_getenv ("MIDORI_SOUP_DEBUG");
@@ -1149,6 +1177,9 @@ midori_soup_session_prepare (SoupSession*       session,
     g_signal_connect (settings, "notify::ident-string",
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), session);
     #endif
+
+    g_signal_connect (session, "request-queued",
+        G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 
     config_file = build_config_filename ("logins");
     feature = g_object_new (KATZE_TYPE_HTTP_AUTH, "filename", config_file, NULL);

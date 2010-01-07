@@ -495,6 +495,11 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "identify-as", "custom-ident-string");
     SPANNED_ADD (button);
+    label = katze_property_label (settings, "preferred-languages");
+    INDENTED_ADD (label);
+    entry = katze_property_proxy (settings, "preferred-languages", NULL);
+    SPANNED_ADD (entry);
+
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));

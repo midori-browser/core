@@ -86,6 +86,7 @@ struct _MidoriWebSettings
     gboolean remember_last_downloaded_files;
 
     gchar* http_proxy;
+    gchar* http_accept_language;
     gboolean auto_detect_proxy;
     MidoriIdentity identify_as;
     gchar* ident_string;
@@ -170,6 +171,7 @@ enum
     PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
     PROP_IDENT_STRING,
+    PROP_PREFERRED_LANGUAGES,
 
     PROP_CLEAR_PRIVATE_DATA
 };
@@ -1049,6 +1051,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
+    * MidoriWebSettings:preferred-languages:
+    *
+    * A comma separated list of languages preferred for rendering multilingual webpages.
+    *
+    * Since: 0.2.3
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PREFERRED_LANGUAGES,
+                                     g_param_spec_string (
+                                     "preferred-languages",
+                                     _("Preferred languages"),
+        _("A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""),
+                                     NULL,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
      * MidoriWebSettings:clear-private-data:
      *
      * The private data selected for deletion.
@@ -1462,6 +1480,9 @@ midori_web_settings_set_property (GObject*      object,
             #endif
         }
         break;
+    case PROP_PREFERRED_LANGUAGES:
+        katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
+        break;
     case PROP_CLEAR_PRIVATE_DATA:
         web_settings->clear_private_data = g_value_get_int (value);
         break;
@@ -1676,6 +1697,9 @@ midori_web_settings_get_property (GObject*    object,
             katze_assign (web_settings->ident_string, string);
         }
         g_value_set_string (value, web_settings->ident_string);
+        break;
+    case PROP_PREFERRED_LANGUAGES:
+        g_value_set_string (value, web_settings->http_accept_language);
         break;
     case PROP_CLEAR_PRIVATE_DATA:
         g_value_set_int (value, web_settings->clear_private_data);

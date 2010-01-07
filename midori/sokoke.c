@@ -1633,3 +1633,89 @@ sokoke_prefetch_uri (const char* uri)
     soup_uri_free (s_uri);
     return TRUE;
 }
+
+/* Provide a new way for SoupSession to assume an 'Accept-Language'
+   string automatically from the return value of g_get_language_names(),
+   properly formatted according to RFC2616.
+   Copyright (C) 2009 Mario Sanchez Prada <msanchez@igalia.com>
+   Copyright (C) 2009 Dan Winship <danw@gnome.org>
+   Mostly copied from libSoup 2.29, coding style adjusted */
+
+/* Converts a language in POSIX format and to be RFC2616 compliant    */
+/* Based on code from epiphany-webkit (ephy_langs_append_languages()) */
+static gchar *
+sokoke_posix_lang_to_rfc2616 (const gchar *language)
+{
+    if (!strchr (language, '.') && !strchr (language, '@') && language[0] != 'C')
+        /* change to lowercase and '_' to '-' */
+        return g_strdelimit (g_ascii_strdown (language, -1), "_", '-');
+
+    return NULL;
+}
+
+/* Adds a quality value to a string (any value between 0 and 1). */
+static gchar *
+sokoke_add_quality_value (const gchar *str,
+                          float        qvalue)
+{
+    if ((qvalue >= 0.0) && (qvalue <= 1.0))
+    {
+        int qv_int = (qvalue * 1000 + 0.5);
+        return g_strdup_printf ("%s;q=%d.%d",
+                                str, (int) (qv_int / 1000), qv_int % 1000);
+    }
+
+    return g_strdup (str);
+}
+
+/* Returns a RFC2616 compliant languages list from system locales */
+gchar *
+sokoke_accept_languages (const gchar* const * lang_names)
+{
+    GArray *langs_garray = NULL;
+    char *cur_lang = NULL;
+    char *prev_lang = NULL;
+    char **langs_array;
+    char *langs_str;
+    float delta;
+    int i, n_lang_names;
+
+    /* Calculate delta for setting the quality values */
+    n_lang_names = g_strv_length ((gchar **)lang_names);
+    delta = 0.999 / (n_lang_names - 1);
+
+    /* Build the array of languages */
+    langs_garray = g_array_new (TRUE, FALSE, sizeof (char*));
+    for (i = 0; lang_names[i] != NULL; i++)
+    {
+        cur_lang = sokoke_posix_lang_to_rfc2616 (lang_names[i]);
+
+        /* Apart from getting a valid RFC2616 compliant
+           language, also get rid of extra variants */
+        if (cur_lang && (!prev_lang ||
+           (!strcmp (prev_lang, cur_lang) || !strstr (prev_lang, cur_lang))))
+        {
+
+            gchar *qv_lang = NULL;
+
+            /* Save reference for further comparison */
+            prev_lang = cur_lang;
+
+            /* Add the quality value and append it */
+            qv_lang = sokoke_add_quality_value (cur_lang, 1 - i * delta);
+            g_array_append_val (langs_garray, qv_lang);
+        }
+    }
+
+    /* Fallback: add "en" if list is empty */
+    if (langs_garray->len == 0)
+    {
+        gchar* fallback = g_strdup ("en");
+        g_array_append_val (langs_garray, fallback);
+    }
+
+    langs_array = (char **) g_array_free (langs_garray, FALSE);
+    langs_str = g_strjoinv (", ", langs_array);
+
+    return langs_str;
+}
