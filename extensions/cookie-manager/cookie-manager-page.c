@@ -609,6 +609,25 @@ static gchar *cm_get_cookie_description_text(SoupCookie *cookie)
 }
 
 
+static gchar *cm_get_domain_description_text(const gchar *domain, gint cookie_count)
+{
+	gchar *str, *text;
+
+	if (*domain == '.')
+		domain++; /* skip a leading dot */
+
+	text = g_markup_printf_escaped(
+		_("<b>Domain</b>: %s\n<b>Cookies</b>: %d"),
+		domain, cookie_count);
+
+	str = g_strconcat(text, "\n\n\n\n", NULL);
+
+	g_free(text);
+
+	return str;
+}
+
+
 #if GTK_CHECK_VERSION(2, 12, 0)
 static gboolean cm_tree_query_tooltip(GtkWidget *widget, gint x, gint y, gboolean keyboard_mode,
 									  GtkTooltip *tooltip, CookieManagerPage *cmp)
@@ -743,7 +762,7 @@ static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieMana
 	GList *rows;
 	GtkTreeIter iter, iter_store;
 	GtkTreeModel *model;
-	gchar *text;
+	gchar *text, *name;
 	gboolean valid = TRUE;
 	gboolean delete_possible = TRUE;
 	guint rows_len;
@@ -765,6 +784,8 @@ static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieMana
 		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(model),
 			&iter_store, &iter);
 	}
+	else
+		valid = FALSE;
 
 	if (valid && gtk_tree_store_iter_is_valid(priv->store, &iter_store))
 	{
@@ -778,7 +799,19 @@ static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieMana
 			g_free(text);
 		}
 		else
-			valid = FALSE;
+		{
+			gtk_tree_model_get(model, &iter, COOKIE_MANAGER_COL_NAME, &name, -1);
+			if (name != NULL)
+			{
+				gint cookie_count = gtk_tree_model_iter_n_children(model, &iter);
+
+				text = cm_get_domain_description_text(name, cookie_count);
+				gtk_label_set_markup(GTK_LABEL(priv->desc_label), text);
+
+				g_free(text);
+				g_free(name);
+			}
+		}
 	}
 	/* This is a bit hack'ish but we add some empty lines to get a minimum height of the
 	 * label at the bottom without any font size calculation. */
