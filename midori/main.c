@@ -1140,7 +1140,7 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
 
     if (accpt != languages)
         g_free (languages);
-    soup_message_headers_append (msg->request_headers, "ACCEPT_LANGUAGE", accpt);
+    soup_message_headers_append (msg->request_headers, "Accept-Language", accpt);
     g_free (accpt);
 }
 
