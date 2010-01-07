@@ -807,8 +807,12 @@ midori_web_widget_context_ready_cb (GtkWidget*         web_widget,
     gchar* message;
 
     uri = katze_object_get_string (web_widget, "uri");
-    if (!uri)
+    /* Don't run scripts or styles on blank or special pages */
+    if (!(uri && *uri && strncmp (uri, "about:", 6)))
+    {
+        g_free (uri);
         return;
+    }
 
     elements = addons->elements;
     while (elements)
