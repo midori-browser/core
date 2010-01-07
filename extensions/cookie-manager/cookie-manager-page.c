@@ -918,6 +918,26 @@ static gboolean cm_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton 
 }
 
 
+static void cm_tree_render_text_cb(GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model,
+								   GtkTreeIter *iter, gpointer data)
+{
+	gchar *name;
+
+	gtk_tree_model_get(model, iter, COOKIE_MANAGER_COL_NAME, &name, -1);
+
+	if (name != NULL && *name != '.')
+	{
+		gchar *display_name = g_strconcat(" ", name, NULL);
+		g_object_set(renderer, "text", display_name, NULL);
+		g_free(display_name);
+	}
+	else
+		g_object_set(renderer, "text", name, NULL);
+
+	g_free(name);
+}
+
+
 static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 {
 	GtkCellRenderer *renderer;
@@ -936,6 +956,8 @@ static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 	gtk_tree_view_column_set_sort_indicator(column, TRUE);
 	gtk_tree_view_column_set_sort_column_id(column, COOKIE_MANAGER_COL_NAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer,
+        (GtkTreeCellDataFunc) cm_tree_render_text_cb, NULL, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(treeview), TRUE);
