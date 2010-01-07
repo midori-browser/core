@@ -528,6 +528,12 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CookieManager
 }
 
 
+static const gchar *cm_skip_leading_dot(const gchar *text)
+{
+	return (*text == '.') ? text + 1 : text;
+}
+
+
 static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_context,
 									 GtkSelectionData *data, guint info, guint ltime,
 									 CookieManagerPage *cmp)
@@ -554,7 +560,8 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 	if (gtk_tree_store_iter_is_valid(priv->store, &iter_store))
 	{
 		SoupCookie *cookie;
-		gchar *name, *text;
+		gchar *name;
+		const gchar *text;
 
 		gtk_tree_model_get(model, &iter,
 			COOKIE_MANAGER_COL_NAME, &name,
@@ -563,8 +570,7 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 
 		if (cookie == NULL && name != NULL)
 		{
-			/* skip a leading dot */
-			text = (*name == '.') ? name + 1 : name;
+			text = cm_skip_leading_dot(name);
 
 			gtk_selection_data_set_text(data, text, -1);
 		}
@@ -613,8 +619,7 @@ static gchar *cm_get_domain_description_text(const gchar *domain, gint cookie_co
 {
 	gchar *str, *text;
 
-	if (*domain == '.')
-		domain++; /* skip a leading dot */
+	domain = cm_skip_leading_dot(domain);
 
 	text = g_markup_printf_escaped(
 		_("<b>Domain</b>: %s\n<b>Cookies</b>: %d"),
