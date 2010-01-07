@@ -21,7 +21,6 @@
 #include "midori-console.h"
 #include "midori-extensions.h"
 #include "midori-history.h"
-#include "midori-plugins.h"
 #include "midori-transfers.h"
 
 #include "sokoke.h"
@@ -989,11 +988,6 @@ midori_app_add_browser_cb (MidoriApp*     app,
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
-    /* Plugins */
-    addon = g_object_new (MIDORI_TYPE_PLUGINS, "app", app, NULL);
-    gtk_widget_show (addon);
-    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
-
     /* Extensions */
     addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
     gtk_widget_show (addon);
@@ -1340,6 +1334,52 @@ midori_load_cookie_jar (gpointer data)
 }
 
 static gboolean
+midori_load_netscape_plugins (gpointer data)
+{
+    MidoriApp* app = MIDORI_APP (data);
+    KatzeArray* extensions = katze_object_get_object (app, "extensions");
+    /* FIXME: WebKit should have API to obtain the list of plugins. */
+    /* FIXME: Monitor folders for newly added and removes files */
+    GtkWidget* web_view = webkit_web_view_new ();
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+    /* This snippet joins the available plugins into a string like this:
+        URI1|title1,URI2|title2
+    FIXME: Ensure separators contained in the string can't break it */
+    gchar* value = sokoke_js_script_eval (js_context,
+        "function plugins (l) { var f = new Array (); for (i in l) "
+        "{ f.push (l[i].name + '|' + l[i].filename); } return f; }"
+        "plugins (navigator.plugins)", NULL);
+    gchar** items = g_strsplit (value, ",", 0);
+    guint i = 0;
+
+    if (items != NULL)
+    while (items[i] != NULL)
+    {
+        gchar** parts = g_strsplit (items[i], "|", 2);
+        if (parts && *parts && !g_str_equal (parts[1], "undefined"))
+        {
+            MidoriExtension* extension;
+            gchar* desc = parts[1];
+            gsize j = 0;
+            while (desc[j++])
+                if (desc[j-1] == ';')
+                    desc[j-1] = '\n';
+            extension = g_object_new (MIDORI_TYPE_EXTENSION,
+                "name", parts[0], "description", desc, NULL);
+            g_object_set_data (G_OBJECT (extension), "static", (void*)0xdeadbeef);
+            katze_array_add_item (extensions, extension);
+        }
+        g_strfreev (parts);
+        i++;
+    }
+    g_strfreev (items);
+    g_object_unref (extensions);
+
+    return FALSE;
+}
+
+static gboolean
 midori_load_extensions (gpointer data)
 {
     MidoriApp* app = MIDORI_APP (data);
@@ -1416,6 +1456,8 @@ midori_load_extensions (gpointer data)
         g_free (extension_path);
     }
     g_strfreev (active_extensions);
+
+    g_idle_add (midori_load_netscape_plugins, app);
 
     return FALSE;
 }

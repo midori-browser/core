@@ -227,7 +227,7 @@ midori_extensions_treeview_render_tick_cb (GtkTreeViewColumn* column,
 
     g_object_set (renderer,
         "activatable", midori_extension_is_prepared (extension),
-        "active", midori_extension_is_active (extension),
+        "active", midori_extension_is_active (extension) || g_object_get_data (G_OBJECT (extension), "static"),
         NULL);
 
     g_object_unref (extension);
