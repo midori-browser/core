@@ -311,6 +311,21 @@ static void cm_free_selection_list(GList *rows, GFunc func)
 }
 
 
+/* Fast version of g_list_length(). It only checks for the first few elements of
+ * the list and returns the length 0, 1 or 2 where 2 means 2 elements or more. */
+static gint cm_list_length(GList *list)
+{
+	if (list == NULL)
+		return 0;
+	else if (list->next == NULL)
+		return 1;
+	else if (list->next != NULL)
+		return 2;
+
+	return 0; /* safe default */
+}
+
+
 static void cm_tree_popup_collapse_activate_cb(GtkMenuItem *item, CookieManagerPage *cmp)
 {
 	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
@@ -361,7 +376,7 @@ static void cm_delete_item(CookieManagerPage *cmp)
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
-	if (rows == NULL || g_list_length(rows) == 0) /* this should be the same */
+	if (cm_list_length(rows) == 0)
 		return;
 
 	/* as paths will change during delete, first create GtkTreeRowReferences for
@@ -525,7 +540,7 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
-	if (g_list_length(rows) != 1)
+	if (cm_list_length(rows) != 1)
 	{
 		cm_free_selection_list(rows, (GFunc) gtk_tree_path_free);
 		return;
@@ -736,7 +751,7 @@ static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieMana
 	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
 
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
-	rows_len = g_list_length(rows);
+	rows_len = cm_list_length(rows);
 	if (rows_len == 0)
 	{
 		valid = FALSE;
@@ -840,7 +855,7 @@ static gboolean cm_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton 
 
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
 		rows = gtk_tree_selection_get_selected_rows(selection, &model);
-		if (g_list_length(rows) == 1)
+		if (cm_list_length(rows) == 1)
 		{
 			/* get iter */
 			gtk_tree_model_get_iter(model, &iter, (GtkTreePath*) (g_list_nth_data(rows, 0)));
