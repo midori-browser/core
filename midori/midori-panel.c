@@ -853,13 +853,12 @@ midori_panel_append_page (MidoriPanel*    panel,
         G_CALLBACK (midori_panel_action_activate_cb), panel);
     if (panel->action_group)
     {
-        /* FIXME: For some reason the accelerator only works if a menuitem
-            is created, but not before that. */
         GtkWidget* toplevel = gtk_widget_get_toplevel (GTK_WIDGET (panel));
         GSList* groups = gtk_accel_groups_from_object (G_OBJECT (toplevel));
         gtk_action_set_accel_group (action, g_slist_nth_data (groups, 0));
         gtk_action_group_add_action_with_accel (panel->action_group,
                                                 action, NULL);
+        gtk_action_connect_accelerator (action);
     }
     if (n > 0)
         g_object_set (action, "group", g_object_get_data (
