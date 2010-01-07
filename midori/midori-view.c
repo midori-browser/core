@@ -33,6 +33,10 @@
     #include <unistd.h>
 #endif
 
+#ifndef G_OS_WIN32
+    #include <sys/utsname.h>
+#endif
+
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
@@ -861,10 +865,8 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     const gchar* uri = webkit_network_request_get_uri (request);
 
     /* Only apply custom URIs to special pages for security purposes */
-    if (!webkit_web_data_source_get_unreachable_uri (
-        webkit_web_frame_get_data_source (web_frame)))
+    if (view->uri && *view->uri && strncmp (view->uri, "about:", 6))
         return;
-
     if (g_str_has_prefix (uri, "res://"))
     {
         gchar* filename = g_build_filename ("midori/res", &uri[5], NULL);
@@ -3104,15 +3106,14 @@ midori_view_set_uri (MidoriView*  view,
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
     /* Treat "about:blank" and "" equally, see midori_view_is_blank(). */
-    if (!g_strcmp0 (uri, "about:blank")) uri = "";
-    if (!uri) uri = "";
+    if (!uri || !strcmp (uri, "about:blank")) uri = "";
 
     if (1)
     {
         if (!view->web_view)
             midori_view_construct_web_view (view);
 
-        if (view->speed_dial_in_new_tabs && !g_strcmp0 (uri, ""))
+        if (view->speed_dial_in_new_tabs && !strcmp (uri, ""))
         {
             #if !WEBKIT_CHECK_VERSION (1, 1, 14)
             SoupServer* res_server;
@@ -3181,9 +3182,9 @@ midori_view_set_uri (MidoriView*  view,
             g_free (speed_dial_body);
             g_free (body_fname);
         }
-        /* This is not prefectly elegant, but creating an
-           error page inline is the simplest solution. */
-        else if (g_str_has_prefix (uri, "error:"))
+        /* This is not prefectly elegant, but creating
+           special pages inline is the simplest solution. */
+        else if (g_str_has_prefix (uri, "error:") || g_str_has_prefix (uri, "about:"))
         {
             data = NULL;
             #if !WEBKIT_CHECK_VERSION (1, 1, 3)
@@ -3223,16 +3224,93 @@ midori_view_set_uri (MidoriView*  view,
                     title, title, view->uri);
                 g_free (title);
             }
-            if (data)
+            else if (!strcmp (uri, "about:version"))
             {
-                webkit_web_view_load_html_string (
-                    WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
-                g_free (data);
-                g_object_notify (G_OBJECT (view), "uri");
-                if (view->item)
-                    katze_item_set_uri (view->item, uri);
-                return;
+                gchar* ident = katze_object_get_string (view->settings, "ident-string");
+                #if defined (G_OS_WIN32)
+                gchar* sys_name = g_strdup ("Windows");
+                #else
+                gchar* sys_name;
+                struct utsname name;
+                if (uname (&name) != -1)
+                    sys_name = g_strdup_printf ("%s %s", name.sysname, name.machine);
+                else
+                    sys_name = g_strdup ("Unix");
+                #endif
+
+                katze_assign (view->uri, g_strdup (uri));
+                #ifndef WEBKIT_USER_AGENT_MAJOR_VERSION
+                    #define WEBKIT_USER_AGENT_MAJOR_VERSION 532
+                    #define WEBKIT_USER_AGENT_MINOR_VERSION 1
+                #endif
+                #if defined (HAVE_LIBSOUP_2_29_3)
+                    #define LIBSOUP_VERSION "2.29.3"
+                #elif defined (HAVE_LIBSOUP_2_27_90)
+                    #define LIBSOUP_VERSION "2.27.90"
+                #else
+                    #define LIBSOUP_VERSION "2.25.2"
+                #endif
+                #ifdef G_ENABLE_DEBUG
+                    #define DEBUGGING " (Debug)"
+                #else
+                    #define DEBUGGING ""
+                #endif
+                data = g_strdup_printf (
+                    "<html><head><title>about:version</title></head>"
+                    "<body><h1>about:version</h1>"
+                    "<img src=\"res://logo-shade.png\" "
+                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "<table>"
+                    "<tr><td>Midori</td><td>" PACKAGE_VERSION "%s</td></tr>"
+                    "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
+                    "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
+                    "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
+                    "<tr><td>libsoup</td><td>%s</td></tr>"
+                    "<tr><td>sqlite3</td><td>%s</td></tr>"
+                    "<tr><td>libnotify</td><td>%s</td></tr>"
+                    "<tr><td>libidn</td><td>%s</td></tr>"
+                    "<tr><td>libunique</td><td>%s</td></tr>"
+                    "<tr><td>libhildon</td><td>%s</td></tr>"
+                    "<tr><td>Platform</td><td>%s</td></tr>"
+                    "<tr><td>Identification</td><td>%s</td></tr>"
+                    "</table>"
+                    "</body></html>",
+                    DEBUGGING,
+                    WEBKIT_MAJOR_VERSION,
+                    WEBKIT_MINOR_VERSION,
+                    WEBKIT_MICRO_VERSION,
+                    webkit_major_version (),
+                    webkit_minor_version (),
+                    webkit_micro_version (),
+                    GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+                    gtk_major_version, gtk_minor_version, gtk_micro_version,
+                    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+                    glib_major_version, glib_minor_version, glib_micro_version,
+                    LIBSOUP_VERSION,
+                    HAVE_SQLITE ? "Yes" : "No",
+                    HAVE_LIBNOTIFY ? "Yes" : "No",
+                    HAVE_LIBIDN ? "Yes" : "No",
+                    HAVE_UNIQUE ? "Yes" : "No",
+                    HAVE_HILDON ? "Yes" : "No",
+                    sys_name, ident);
             }
+            else
+            {
+                katze_assign (view->uri, g_strdup (uri));
+                data = g_strdup_printf (
+                    "<html><head><title>%s</title></head><body><h1>%s</h1>"
+                    "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
+                    "style=\"position: absolute; right: 15px; bottom: 15px;\">"
+                    "</body></html>", view->uri, view->uri);
+            }
+
+            webkit_web_view_load_html_string (
+                WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
+            g_free (data);
+            g_object_notify (G_OBJECT (view), "uri");
+            if (view->item)
+                katze_item_set_uri (view->item, uri);
+            return;
         }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
@@ -4056,8 +4134,12 @@ midori_view_reload (MidoriView* view,
 #endif
     if (view->title && strstr (title, view->title))
         webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), view->uri);
-    else if (midori_view_is_blank (view))
-        midori_view_set_uri (view, view->uri);
+    else if (!(view->uri && *view->uri && strncmp (view->uri, "about:", 6)))
+    {
+        gchar* uri = g_strdup (view->uri);
+        midori_view_set_uri (view, uri);
+        g_free (uri);
+    }
     else if (from_cache)
         webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
     else

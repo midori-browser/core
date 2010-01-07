@@ -596,7 +596,8 @@ sokoke_magic_uri (const gchar* uri,
      || g_str_has_prefix (uri, "mailto:")
      || g_str_has_prefix (uri, "tel:")
      || g_str_has_prefix (uri, "callto:")
-     || g_str_has_prefix (uri, "data:"))
+     || g_str_has_prefix (uri, "data:")
+     || g_str_has_prefix (uri, "about:"))
         return g_strdup (uri);
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
