@@ -522,11 +522,9 @@ midori_panel_set_property (GObject*      object,
         sokoke_widget_set_visible (panel->labelbar, panel->show_controls);
         sokoke_widget_set_visible (panel->toolbar, panel->show_controls);
         if (panel->button_controls)
-        {
             gtk_toggle_tool_button_set_active (
                 GTK_TOGGLE_TOOL_BUTTON (panel->button_controls),
                 !panel->show_controls);
-        }
         break;
     case PROP_RIGHT_ALIGNED:
         midori_panel_set_right_aligned (panel, g_value_get_boolean (value));
@@ -726,7 +724,8 @@ static void
 midori_panel_show_controls_toggled_cb (GtkWidget*   menuitem,
                                        MidoriPanel* panel)
 {
-    g_object_set (panel, "show-controls", !panel->show_controls, NULL);
+    if (panel->show_controls != !gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (menuitem)))
+        g_object_set (panel, "show-controls", !panel->show_controls, NULL);
 }
 #endif
 
