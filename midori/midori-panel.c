@@ -986,11 +986,19 @@ midori_panel_set_current_page (MidoriPanel* panel,
 
     if ((viewable = midori_panel_get_nth_page (panel, n)))
     {
+        GtkWidget* toolbar;
+        GList* items;
         const gchar* label;
 
         if (!GTK_WIDGET_VISIBLE (viewable))
             return;
+
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
+        toolbar = gtk_notebook_get_nth_page (GTK_NOTEBOOK (panel->toolbook), n);
+        items = gtk_container_get_children (GTK_CONTAINER (toolbar));
+        sokoke_widget_set_visible (panel->toolbook,
+            g_list_nth_data (items, 1) != NULL);
+        g_list_free (items);
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
         label = midori_viewable_get_label (MIDORI_VIEWABLE (viewable));
         g_object_set (panel->toolbar_label, "label", label, NULL);
