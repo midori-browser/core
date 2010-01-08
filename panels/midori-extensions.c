@@ -103,14 +103,10 @@ midori_extensions_get_toolbar (MidoriViewable* extensions)
     if (!MIDORI_EXTENSIONS (extensions)->toolbar)
     {
         GtkWidget* toolbar;
-        GtkToolItem* toolitem;
 
         toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
-        toolitem = gtk_tool_item_new ();
-        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        gtk_widget_show (GTK_WIDGET (toolitem));
 
         MIDORI_EXTENSIONS (extensions)->toolbar = toolbar;
     }
