@@ -589,6 +589,7 @@ adblock_is_matched_by_key (const gchar*  opts,
     gchar* uri;
     gint len;
     int pos = 0;
+    GList* regex_bl = NULL;
 
     uri = adblock_fixup_regexp ((gchar*)req_uri);
     len = strlen (uri);
@@ -596,24 +597,30 @@ adblock_is_matched_by_key (const gchar*  opts,
     {
         gchar* sig = g_strndup (uri + pos, SIGNATURE_SIZE);
         GRegex* regex = g_hash_table_lookup (keys, sig);
-        if (regex)
+        if (regex && !g_list_find (regex_bl, regex))
         {
             if (g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
             {
                 g_free (uri);
                 g_free (sig);
                 if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri))
+                {
+                    g_list_free (regex_bl);
                     return FALSE;
+                }
                 else
                 {
                     /* g_debug("blocked by key sig=%s regexp=%s -- %s", sig, g_regex_get_pattern (regex), req_uri); */
+                    g_list_free (regex_bl);
                     return TRUE;
                 }
             }
+            regex_bl = g_list_prepend (regex_bl, regex);
         }
         g_free (sig);
     }
     g_free (uri);
+    g_list_free (regex_bl);
     return FALSE;
 }
 
@@ -660,14 +667,11 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     if (!page_uri || !strcmp (page_uri, "about:blank"))
         page_uri = req_uri;
 
-    /* gdouble elapsed = 0.0;
-    g_test_timer_start (); */
-
+    /* g_test_timer_start (); */
     /* TODO: opts should be defined */
     if (adblock_is_matched (NULL, req_uri, page_uri))
         webkit_network_request_set_uri (request, "about:blank");
-    /* elapsed += g_test_timer_elapsed ();
-    g_debug ("%f", elapsed); */
+    /* g_debug ("%f", g_test_timer_elapsed ()); */
 
 }
 #else
@@ -864,9 +868,9 @@ adblock_fixup_regexp (gchar* src)
         case '*':
             g_string_append (str, ".*");
             break;
-        case '.':
+        /*case '.':
             g_string_append (str, "\\.");
-            break;
+            break;*/
         case '?':
             g_string_append (str, "\\?");
             break;
@@ -1206,8 +1210,8 @@ test_adblock_parse (void)
     g_assert_cmpstr (adblock_parse_line ("?foo"), ==, "\\?foo");
     g_assert_cmpstr (adblock_parse_line ("foo?"), ==, "foo\\?");
 
-    g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, "\\..*foo/bar");
-    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla\\.blub/");
+    g_assert_cmpstr (adblock_parse_line (".*foo/bar"), ==, "..*foo/bar");
+    g_assert_cmpstr (adblock_parse_line ("http://bla.blub/*"), ==, "http://bla.blub/");
 }
 
 static void
@@ -1235,6 +1239,7 @@ test_adblock_pattern (void)
 
     adblock_parse_file (filename);
 
+    g_test_timer_start ();
     g_assert (adblock_is_matched (NULL, "http://test.dom/test?var=1", ""));
     g_assert (adblock_is_matched (NULL, "http://ads.foo.bar/teddy", ""));
     g_assert (!adblock_is_matched (NULL, "http://ads.fuu.bar/teddy", ""));
@@ -1252,39 +1257,15 @@ test_adblock_pattern (void)
     g_assert (adblock_is_matched (NULL, "http://qq.videostrip.com/sub/admatcherclient.php", ""));
     g_assert (adblock_is_matched (NULL, "http://qq.videostrip.com/sub/admatcherclient.php", ""));
     g_assert (adblock_is_matched (NULL, "http://br.gcl.ru/cgi-bin/br/test", ""));
+    g_assert (!adblock_is_matched (NULL, "https://bugs.webkit.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&query_based_on=gtkport&field0-0-0=keywords&type0-0-0=anywordssubstr&value0-0-0=Gtk%20Cairo%20soup&field0-0-1=short_desc&type0-0-1=anywordssubstr&value0-0-1=Gtk%20Cairo%20soup%20autoconf%20automake%20autotool&field0-0-2=component&type0-0-2=equals&value0-0-2=WebKit%20Gtk", ""));
+    g_assert (!adblock_is_matched (NULL, "http://www.engadget.com/2009/09/24/google-hits-android-rom-modder-with-a-cease-and-desist-letter/", ""));
+    g_assert (!adblock_is_matched (NULL, "http://karibik-invest.com/es/bienes_raices/search.php?sqT=19&sqN=&sqMp=&sqL=0&qR=1&sqMb=&searchMode=1&action=B%FAsqueda", ""));
+    g_assert (!adblock_is_matched (NULL, "http://google.com", ""));
+
+    g_print ("Search took %f seconds\n", g_test_timer_elapsed ());
 
     close (temp);
     g_unlink (filename);
-
-    g_hash_table_destroy (pattern);
-}
-
-static void
-test_adblock_count (void)
-{
-        adblock_init_db ();
-        gchar* urls[6] = {
-            "https://bugs.webkit.org/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&long_desc_type=substring&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&emailassigned_to1=1&emailtype1=substring&email1=&emailassigned_to2=1&emailreporter2=1&emailcc2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&query_based_on=gtkport&field0-0-0=keywords&type0-0-0=anywordssubstr&value0-0-0=Gtk%20Cairo%20soup&field0-0-1=short_desc&type0-0-1=anywordssubstr&value0-0-1=Gtk%20Cairo%20soup%20autoconf%20automake%20autotool&field0-0-2=component&type0-0-2=equals&value0-0-2=WebKit%20Gtk",
-            "http://www.engadget.com/2009/09/24/google-hits-android-rom-modder-with-a-cease-and-desist-letter/",
-            "http://karibik-invest.com/es/bienes_raices/search.php?sqT=19&sqN=&sqMp=&sqL=0&qR=1&sqMb=&searchMode=1&action=B%FAsqueda",
-            "http://google.com",
-            "http://ya.ru",
-            "http://google.com"
-        };
-        /* FIXME */
-        gchar* filename = "/home/avb/.cache/midori/adblock/bb6cd38a4579b3605946b1228fa65297";
-        gdouble elapsed = 0.0;
-        gchar* str;
-        int i;
-        adblock_parse_file (filename);
-        for (i = 0; i < 6; i++)
-        {
-            str = urls[i];
-            g_test_timer_start ();
-            adblock_is_matched (NULL, str, "");
-            elapsed += g_test_timer_elapsed ();
-        }
-        g_print ("Search took %f seconds\n", elapsed);
 
     g_hash_table_destroy (pattern);
 }
@@ -1294,7 +1275,6 @@ extension_test (void)
 {
     g_test_add_func ("/extensions/adblock/parse", test_adblock_parse);
     g_test_add_func ("/extensions/adblock/pattern", test_adblock_pattern);
-    g_test_add_func ("/extensions/adblock/count", test_adblock_count);
 }
 #endif
 
@@ -1304,7 +1284,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Advertisement blocker"),
         "description", _("Block advertisements according to a filter list"),
-        "version", "0.1",
+        "version", "0.5",
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
     midori_extension_install_string_list (extension, "filters", NULL, G_MAXSIZE);
