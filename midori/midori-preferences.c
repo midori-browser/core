@@ -468,7 +468,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
     label = katze_property_label (settings, "download-manager");
     INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "download-manager", "application-Network");
+    entry = katze_property_proxy (settings, "download-manager", "application-FileTransfer");
     SPANNED_ADD (entry);
     label = katze_property_label (settings, "news-aggregator");
     INDENTED_ADD (label);
