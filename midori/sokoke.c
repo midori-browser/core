@@ -378,8 +378,12 @@ sokoke_spawn_program (const gchar* command,
     else
     {
         /* FIXME: Implement Hildon specific version */
+        gchar* uri_format;
         gchar* command_ready;
         gchar** argv;
+
+        if ((uri_format = strstr (command, "%u")))
+            uri_format[1] = 's';
 
         if (strstr (command, "%s"))
             command_ready = g_strdup_printf (command, argument);
