@@ -3717,16 +3717,12 @@ midori_view_tab_close_clicked (GtkWidget* tab_close,
 }
 
 static void
-midori_view_tab_icon_style_set_cb (GtkWidget* tab_icon,
+midori_view_tab_icon_style_set_cb (GtkWidget* tab_close,
                                    GtkStyle*  previous_style)
 {
-    GtkSettings* gtk_settings;
-    gint width, height;
-
-    gtk_settings = gtk_widget_get_settings (tab_icon);
-    gtk_icon_size_lookup_for_settings (gtk_settings, GTK_ICON_SIZE_MENU,
-                                       &width, &height);
-    gtk_widget_set_size_request (tab_icon, width + 4, height + 4);
+    GtkRequisition size;
+    gtk_widget_size_request (gtk_bin_get_child (GTK_BIN (tab_close)), &size);
+    gtk_widget_set_size_request (tab_close, size.width, size.height);
 }
 
 static void
@@ -3893,6 +3889,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
     GtkWidget* hbox;
     GtkRcStyle* rcstyle;
     GtkWidget* image;
+    GtkWidget* align;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
@@ -3920,17 +3917,18 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         gtk_widget_modify_style (view->tab_close, rcstyle);
         g_object_unref (rcstyle);
         image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
-        gtk_button_set_image (GTK_BUTTON (view->tab_close), image);
-        gtk_misc_set_alignment (GTK_MISC (image), 0.0, 0.5);
+        gtk_container_add (GTK_CONTAINER (view->tab_close), image);
+        align = gtk_alignment_new (1.0, 0.0, 0.0, 0.0);
+        gtk_container_add (GTK_CONTAINER (align), view->tab_close);
 
         #if HAVE_OSX
         gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
         gtk_box_pack_end (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (hbox), view->tab_close, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (hbox), align, FALSE, FALSE, 0);
         #else
         gtk_box_pack_start (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
-        gtk_box_pack_end (GTK_BOX (hbox), view->tab_close, FALSE, FALSE, 0);
+        gtk_box_pack_end (GTK_BOX (hbox), align, FALSE, FALSE, 0);
         #endif
         gtk_widget_show_all (GTK_WIDGET (event_box));
 
