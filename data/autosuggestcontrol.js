@@ -301,9 +301,11 @@ function initSuggestions () {
     {
         var ename = inputs[i].getAttribute("name");
         var eid = inputs[i].getAttribute("id");
+        var autocomplete = inputs[i].getAttribute ("autocomplete");
+
         if (!ename && eid)
             ename=eid;
-        if (inputs[i].type == "text")
-            var smth = new AutoSuggestControl(inputs[i], new FormSuggestions(ename));
+        if (inputs[i].type == "text" && autocomplete != "off")
+            var smth = new AutoSuggestControl (inputs[i], new FormSuggestions (ename));
     }
 };

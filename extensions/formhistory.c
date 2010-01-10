@@ -191,7 +191,6 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebPolicyDecision*   decision,
                                     MidoriExtension*           extension)
 {
-    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     /* The script returns form data in the form "field_name|,|value|,|field_type".
        We are handling only input fields with 'text' or 'password' type.
        The field separator is "|||" */
@@ -203,7 +202,8 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                  "        var eid = inputs[i].getAttribute('id');"
                  "        if (!ename && eid)"
                  "            ename=eid;"
-                 "        out += ename+'|,|'+inputs[i].value +'|,|'+inputs[i].type +'|||';"
+                 "        if (inputs[i].getAttribute('autocomplete') != 'off')"
+                 "            out += ename+'|,|'+inputs[i].value +'|,|'+inputs[i].type +'|||';"
                  "    }"
                  "  }"
                  "  return out;"
@@ -212,8 +212,9 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
 
     if (webkit_web_navigation_action_get_reason (action) == WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED)
     {
+        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
         gchar* value = sokoke_js_script_eval (js_context, script, NULL);
-        if (value)
+        if (value && *value)
         {
             gpointer db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
             gchar** inputs = g_strsplit (value, "|||", 0);
@@ -496,7 +497,7 @@ extension_init (void)
 
     if (formhistory_prepare_js ())
     {
-        ver = "0.1";
+        ver = "1.0";
         desc = g_strdup (_("Stores history of entered form data"));
     }
     else
