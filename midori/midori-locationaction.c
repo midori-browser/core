@@ -1138,6 +1138,7 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     menuitem = sokoke_action_create_popup_menu_item (
         gtk_action_group_get_action (actions, "ManageSearchEngines"));
     gtk_menu_shell_append (menu, menuitem);
+    /* i18n: Right-click on Location, Open an URL from the clipboard */
     menuitem = gtk_menu_item_new_with_mnemonic (_("Paste and p_roceed"));
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (menu, menuitem);

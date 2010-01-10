@@ -5162,9 +5162,11 @@ static const GtkActionEntry entries[] = {
    N_("Go forward to the next page"), G_CALLBACK (_action_forward_activate) },
  { "Previous", GTK_STOCK_MEDIA_PREVIOUS,
    NULL, "<Ctrl>Left",
+ /* i18n: Visit the previous logical page, ie. in a forum or blog */
    N_("Go to the previous sub-page"), G_CALLBACK (_action_previous_activate) },
  { "Next", GTK_STOCK_MEDIA_NEXT,
    NULL, "<Ctrl>Right",
+ /* i18n: Visit the following logical page, ie. in a forum or blog */
    N_("Go to the next sub-page"), G_CALLBACK (_action_next_activate) },
  { "Homepage", STOCK_HOMEPAGE,
    NULL, "<Alt>Home",
