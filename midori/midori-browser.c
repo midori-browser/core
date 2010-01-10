@@ -4808,7 +4808,7 @@ _action_panel_activate (GtkToggleAction* action,
 static gboolean
 midori_browser_panel_timeout (GtkWidget* hpaned)
 {
-    gboolean position = gtk_paned_get_position (GTK_PANED (hpaned));
+    gint position = gtk_paned_get_position (GTK_PANED (hpaned));
     MidoriBrowser* browser = midori_browser_get_for_widget (hpaned);
     g_object_set (browser->settings, "last-panel-position", position, NULL);
     browser->panel_timeout = 0;
