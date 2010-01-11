@@ -4880,13 +4880,13 @@ midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
     gtk_container_remove (GTK_CONTAINER (hpaned), vpaned);
     if (right_aligned)
     {
-        gtk_paned_pack1 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+        gtk_paned_pack1 (GTK_PANED (hpaned), vpaned, TRUE, FALSE);
         gtk_paned_pack2 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
     }
     else
     {
         gtk_paned_pack1 (GTK_PANED (hpaned), browser->panel, FALSE, FALSE);
-        gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+        gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, TRUE, FALSE);
     }
     gtk_paned_set_position (GTK_PANED (hpaned), paned_size - paned_position);
     g_object_unref (browser->panel);
@@ -6121,7 +6121,7 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Notebook, containing all views */
     vpaned = gtk_vpaned_new ();
-    gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, FALSE, FALSE);
+    gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, TRUE, FALSE);
     gtk_widget_show (vpaned);
     browser->notebook = gtk_notebook_new ();
     /* Remove the inner border between scrollbars and the window border */
