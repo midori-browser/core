@@ -165,6 +165,7 @@ magic_uri_search (void)
     test_input ("g max@mustermann.de", NULL);
     test_input ("g inurl:http://twotoasts.de bug", NULL);
     test_input ("sm", SM);
+    /* test_input ("LT_PREREQ(2.2)", NULL); */
 }
 
 static void
