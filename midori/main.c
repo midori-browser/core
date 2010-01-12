@@ -592,65 +592,32 @@ midori_history_add_items (void*  data,
 
     for (i = 0; i < (argc - ncols) + 1; i++)
     {
-        if (argv[i])
+        item = katze_item_new ();
+        katze_item_set_uri (item, argv[i]);
+        katze_item_set_name (item, argv[i + 1]);
+        date = g_ascii_strtoull (argv[i + 2], NULL, 10);
+        day = g_ascii_strtoull (argv[i + 3], NULL, 10);
+        katze_item_set_added (item, date);
+
+        n = katze_array_get_length (array);
+        for (j = n - 1; j >= 0; j--)
         {
-            if (colname[i] && !g_ascii_strcasecmp (colname[i], "uri") &&
-                colname[i + 1] && !g_ascii_strcasecmp (colname[i + 1], "title") &&
-                colname[i + 2] && !g_ascii_strcasecmp (colname[i + 2], "date") &&
-                colname[i + 3] && !g_ascii_strcasecmp (colname[i + 3], "day"))
-            {
-                item = katze_item_new ();
-                katze_item_set_uri (item, argv[i]);
-                katze_item_set_name (item, argv[i + 1]);
-                date = g_ascii_strtoull (argv[i + 2], NULL, 10);
-                day = g_ascii_strtoull (argv[i + 3], NULL, 10);
-                katze_item_set_added (item, date);
-
-                n = katze_array_get_length (array);
-                for (j = n - 1; j >= 0; j--)
-                {
-                    parent = katze_array_get_nth_item (array, j);
-                    if (day == katze_item_get_added (KATZE_ITEM (parent)))
-                        break;
-                }
-                if (j < 0)
-                {
-                    parent = katze_array_new (KATZE_TYPE_ARRAY);
-                    katze_item_set_added (KATZE_ITEM (parent), day);
-                    strftime (token, sizeof (token), "%x",
-                          localtime ((time_t *)&date));
-                    katze_item_set_name (KATZE_ITEM (parent), token);
-                    katze_array_add_item (array, parent);
-                }
-                katze_array_add_item (parent, item);
-            }
+            parent = katze_array_get_nth_item (array, j);
+            if (day == katze_item_get_added (KATZE_ITEM (parent)))
+                break;
         }
-    }
-    return 0;
-}
 
-static int
-midori_history_test_day_column (void*  data,
-                                int    argc,
-                                char** argv,
-                                char** colname)
-{
-    gint i;
-    gboolean* has_day;
-
-    has_day = (gboolean*)data;
-
-    for (i = 0; i < argc; i++)
-    {
-        if (argv[i] &&
-            !g_ascii_strcasecmp (colname[i], "name") &&
-            !g_ascii_strcasecmp (argv[i], "day"))
+        if (j < 0)
         {
-            *has_day = TRUE;
-            break;
+            parent = katze_array_new (KATZE_TYPE_ARRAY);
+            katze_item_set_added (KATZE_ITEM (parent), day);
+            strftime (token, sizeof (token), "%x", localtime ((time_t *)&date));
+            katze_item_set_name (KATZE_ITEM (parent), token);
+            katze_array_add_item (array, parent);
         }
-    }
 
+        katze_array_add_item (parent, item);
+    }
     return 0;
 }
 
@@ -675,15 +642,10 @@ midori_history_initialize (KatzeArray*  array,
                   error))
         return NULL;
 
-    if (!db_exec_callback (db,
-                           "PRAGMA table_info(history)",
-                           midori_history_test_day_column,
-                           &has_day, error))
+    if (!db_exec (db, "SELECT day FROM history LIMIT 1", error))
         return NULL;
 
-    if (!has_day)
-    {
-        if (!db_exec (db,
+    if (!has_day && !db_exec (db,
                       "BEGIN TRANSACTION;"
                       "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
                       "INSERT INTO backup SELECT uri,title,date FROM history;"
@@ -697,7 +659,6 @@ midori_history_initialize (KatzeArray*  array,
                       "COMMIT;",
                       error))
         return NULL;
-    }
 
     if (!db_exec_callback (db,
                            "SELECT uri, title, date, day FROM history "
@@ -2030,11 +1991,10 @@ main (int    argc,
         g_error_free (error);
     }
     #endif
-    #if HAVE_SQLITE
-    katze_assign (config_file, build_config_filename ("history.db"));
-    #endif
     history = katze_array_new (KATZE_TYPE_ARRAY);
     #if HAVE_SQLITE
+    katze_assign (config_file, build_config_filename ("history.db"));
+
     error = NULL;
     if ((db = midori_history_initialize (history, config_file, &error)) == NULL)
     {
