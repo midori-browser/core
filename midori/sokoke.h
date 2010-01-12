@@ -183,6 +183,9 @@ sokoke_find_config_filename             (const gchar*    folder,
 gchar*
 sokoke_find_data_filename               (const gchar*    filename);
 
+gchar**
+sokoke_get_argv                         (gchar**         argument_vector);
+
 #if !WEBKIT_CHECK_VERSION (1, 1, 14)
 SoupServer*
 sokoke_get_res_server                   (void);

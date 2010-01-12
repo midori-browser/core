@@ -1384,6 +1384,25 @@ sokoke_find_data_filename (const gchar* filename)
     return g_build_filename (MDATADIR, filename, NULL);
 }
 
+/**
+ * sokoke_get_argv:
+ * @argument_vector: %NULL
+ *
+ * Retrieves the argument vector passed at program startup.
+ *
+ * Return value: the argument vector
+ **/
+gchar**
+sokoke_get_argv (gchar** argument_vector)
+{
+    static gchar** stored_argv = NULL;
+
+    if (!stored_argv)
+        stored_argv = g_strdupv (argument_vector);
+
+    return stored_argv;
+}
+
 #if !WEBKIT_CHECK_VERSION (1, 1, 14)
 static void
 res_server_handler_cb (SoupServer*        res_server,

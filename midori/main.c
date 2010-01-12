@@ -1763,6 +1763,9 @@ main (int    argc,
     #endif
     #endif
 
+    /* Preserve argument vector */
+    sokoke_get_argv (argv);
+
     /* Parse cli options */
     webapp = NULL;
     config = NULL;

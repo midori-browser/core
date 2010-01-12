@@ -3226,6 +3226,8 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:version"))
             {
+                gchar** argument_vector = sokoke_get_argv (NULL);
+                gchar* command_line = g_strjoinv (" ", argument_vector);
                 gchar* ident = katze_object_get_string (view->settings, "ident-string");
                 #if defined (G_OS_WIN32)
                 gchar* sys_name = g_strdup ("Windows");
@@ -3261,6 +3263,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>"
+                    "<tr><td>Command line</td><td>%s</td></tr>"
                     "<tr><td>Midori</td><td>" PACKAGE_VERSION "%s</td></tr>"
                     "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
@@ -3275,6 +3278,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "</table>"
                     "</body></html>",
+                    command_line,
                     DEBUGGING,
                     WEBKIT_MAJOR_VERSION,
                     WEBKIT_MINOR_VERSION,
@@ -3293,6 +3297,9 @@ midori_view_set_uri (MidoriView*  view,
                     HAVE_UNIQUE ? "Yes" : "No",
                     HAVE_HILDON ? "Yes" : "No",
                     sys_name, ident);
+                g_free (command_line);
+                g_free (ident);
+                g_free (sys_name);
             }
             else
             {
