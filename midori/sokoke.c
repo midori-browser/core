@@ -1546,6 +1546,10 @@ sokoke_window_activate_key (GtkWindow*   window,
     if (gtk_window_activate_key (window, event))
         return TRUE;
 
+    /* Hack to allow Ctrl + Shift + Tab */
+    if (event->keyval == 65056)
+        event->keyval = GDK_Tab;
+
     /* We don't use gtk_accel_groups_activate because it refuses to
         activate anything that gtk_accelerator_valid doesn't like. */
     accel_name = gtk_accelerator_name (event->keyval, (event->state & gtk_accelerator_get_default_mod_mask ()));
