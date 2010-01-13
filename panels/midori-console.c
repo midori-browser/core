@@ -219,6 +219,7 @@ midori_console_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &message, 1, &line, 2, &source_id, -1);
 
+    g_strchomp (message);
     text = g_strdup_printf ("%d @ %s\n%s", line, source_id, message);
     g_object_set (renderer, "text", text, NULL);
     g_free (text);
