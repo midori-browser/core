@@ -413,6 +413,9 @@ midori_search_action_get_icon (KatzeItem*    item,
 {
     const gchar* icon;
 
+    if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
+        return katze_load_cached_icon (icon, widget);
+
     if ((icon = katze_item_get_icon (item)) && *icon)
     {
         GdkScreen* screen;
@@ -421,14 +424,11 @@ midori_search_action_get_icon (KatzeItem*    item,
         screen = gtk_widget_get_screen (widget);
         icon_theme = gtk_icon_theme_get_for_screen (screen);
         if (gtk_icon_theme_has_icon (icon_theme, icon))
+        {
             *icon_name = icon;
-        else
-            *icon_name = GTK_STOCK_FILE;
-        return NULL;
+            return NULL;
+        }
     }
-
-    if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
-        return katze_load_cached_icon (icon, widget);
 
     *icon_name = GTK_STOCK_FILE;
     return NULL;
