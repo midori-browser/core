@@ -263,7 +263,6 @@ parse_feed (gchar*      data,
                               xerror->message);
         xmlResetLastError ();
     }
-    xmlCleanupParser ();
     xmlMemoryDump ();
 
     return *error ? FALSE : TRUE;
