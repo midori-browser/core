@@ -227,7 +227,6 @@ web_cache_message_rewrite (SoupMessage*  msg,
         soup_message_headers_replace (msg->response_headers, key, value);
     g_signal_emit_by_name (msg, "got-headers", NULL);
 
-    msg->response_body = soup_message_body_new ();
     g_file_get_contents (filename, &data, &length, NULL);
     if (data && length)
     {
@@ -236,9 +235,10 @@ web_cache_message_rewrite (SoupMessage*  msg,
         soup_message_body_append_buffer (msg->response_body, buffer);
         g_signal_emit_by_name (msg, "got-chunk", buffer, NULL);
         soup_buffer_free (buffer);
+        g_free (data);
     }
     soup_message_got_body (msg);
-    g_free (data);
+    soup_message_finished (msg);
 }
 
 static void
@@ -287,9 +287,8 @@ web_cache_mesage_got_headers_cb (SoupMessage* msg,
         }
         if (web_cache_save_headers (msg, filename))
         {
-            g_signal_connect_data (msg, "got-chunk",
-                G_CALLBACK (web_cache_message_got_chunk_cb),
-                filename, (GClosureNotify)g_free, 0);
+            g_signal_connect (msg, "got-chunk",
+                G_CALLBACK (web_cache_message_got_chunk_cb), filename);
             g_signal_connect (msg, "finished",
                 G_CALLBACK (web_cache_message_finished_cb), filename);
         }
