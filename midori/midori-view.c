@@ -3618,6 +3618,23 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
 }
 
 static void
+midori_view_browser_close_tabs_cb (GtkWidget* view,
+                                   gpointer   data)
+{
+    GtkWidget* remaining_view = data;
+    if (view != remaining_view)
+        gtk_widget_destroy (view);
+}
+
+static void
+midori_view_tab_label_menu_close_other_tabs_cb (GtkWidget* menuitem,
+                                                GtkWidget* view)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    midori_browser_foreach (browser, midori_view_browser_close_tabs_cb, view);
+}
+
+static void
 midori_view_tab_label_menu_minimize_tab_cb (GtkWidget*  menuitem,
                                             MidoriView* view)
 {
@@ -3683,6 +3700,10 @@ midori_view_get_tab_menu (MidoriView* view)
         G_CALLBACK (midori_view_tab_label_menu_minimize_tab_cb), view);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    menuitem = gtk_menu_item_new_with_mnemonic (_("Close ot_her Tabs"));
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+    g_signal_connect (menuitem, "activate",
+        G_CALLBACK (midori_view_tab_label_menu_close_other_tabs_cb), view);
     menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CLOSE, NULL);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
