@@ -636,6 +636,36 @@ adblock_is_matched (const gchar*  opts,
         return adblock_is_matched_by_pattern (req_uri, page_uri);
 }
 
+static gchar*
+adblock_prepare_urihider_js (const gchar* uri)
+{
+    const char *js =
+        "(function() {"
+        "function getElementsByAttribute (strTagName, strAttributeName, strAttributeValue) {"
+        "    var arrElements = document.getElementsByTagName (strTagName);"
+        "    var arrReturnElements = new Array();"
+        "    for (var i=0; i<arrElements.length; i++) {"
+        "        var oCurrent = arrElements[i];"
+        "        var oAttribute = oCurrent.getAttribute && oCurrent.getAttribute (strAttributeName);"
+        "        if (oAttribute && oAttribute.length > 0 && strAttributeValue.indexOf (oAttribute) != -1)"
+        "            arrReturnElements.push (oCurrent);"
+        "    }"
+        "    return arrReturnElements;"
+        "}"
+        "function hideElementBySrc (strUri) {"
+        "    var oElements = getElementsByAttribute('img', 'src', strUri);"
+        "    if (oElements.length == 0)"
+        "        oElements = getElementsByAttribute ('iframe', 'src', strUri);"
+        "    for (var i=0; i<oElements.length; i++) {"
+        "        oElements[i].style.visibility = 'hidden !important';"
+        "        oElements[i].style.width = '0';"
+        "        oElements[i].style.height = '0';"
+        "    }"
+        "}"
+        "hideElementBySrc ('%s');"
+        "})()";
+    return g_strdup_printf (js, uri);
+}
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
@@ -670,7 +700,21 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     /* g_test_timer_start (); */
     /* TODO: opts should be defined */
     if (adblock_is_matched (NULL, req_uri, page_uri))
+    {
+        gchar* script = adblock_prepare_urihider_js (req_uri);
+        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+        WebKitWebFrame* main_frame;
+
         webkit_network_request_set_uri (request, "about:blank");
+        sokoke_js_script_eval (js_context, script, NULL);
+        main_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+        if (main_frame != web_frame)
+        {
+            js_context = webkit_web_frame_get_global_context (main_frame);
+            sokoke_js_script_eval (js_context, script, NULL);
+        }
+        g_free (script);
+    }
     /* g_debug ("%f", g_test_timer_elapsed ()); */
 
 }
