@@ -926,6 +926,7 @@ adblock_compile_regexp (GHashTable* tbl,
     if (!g_regex_match_simple ("^/.*[\\^\\$\\*].*/$", patt, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY))
     {
         int len = strlen (patt);
+        int signature_count = 0;
         for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--) {
             sig = g_strndup (patt + pos, SIGNATURE_SIZE);
             if (!g_regex_match_simple ("[\\*]", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
@@ -933,6 +934,7 @@ adblock_compile_regexp (GHashTable* tbl,
             {
                 /* g_debug ("sig: %s %s", sig, patt); */
                 g_hash_table_insert (keystbl, sig, regex);
+                signature_count++;
             }
             else
             {
@@ -945,6 +947,8 @@ adblock_compile_regexp (GHashTable* tbl,
                 g_free (sig);
             }
         }
+        if (signature_count > 1 && g_hash_table_lookup (tbl, opts))
+            g_hash_table_steal (tbl, opts);
     }
     else
     {
