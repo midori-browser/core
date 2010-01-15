@@ -636,6 +636,7 @@ adblock_is_matched (const gchar*  opts,
         return adblock_is_matched_by_pattern (req_uri, page_uri);
 }
 
+#if HAVE_WEBKIT_RESOURCE_REQUEST
 static gchar*
 adblock_prepare_urihider_js (const gchar* uri)
 {
@@ -667,7 +668,6 @@ adblock_prepare_urihider_js (const gchar* uri)
     return g_strdup_printf (js, uri);
 }
 
-#if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
 adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       WebKitWebFrame*        web_frame,
