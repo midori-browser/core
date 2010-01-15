@@ -54,15 +54,6 @@
     #define BOOKMARK_FILE "bookmarks.xbel"
 #endif
 
-#define MIDORI_HISTORY_ERROR g_quark_from_string("MIDORI_HISTORY_ERROR")
-
-typedef enum
-{
-    MIDORI_HISTORY_ERROR_DB_OPEN,    /* Error opening the database file */
-    MIDORI_HISTORY_ERROR_EXEC_SQL,   /* Error executing SQL statement */
-
-} MidoriHistoryError;
-
 static gchar*
 build_config_filename (const gchar* filename)
 {
@@ -361,69 +352,6 @@ search_engines_save_to_file (KatzeArray*  search_engines,
 }
 
 #if HAVE_SQLITE
-/* Open database 'dbname' */
-static sqlite3*
-db_open (const char* dbname,
-         GError**    error)
-{
-    sqlite3* db;
-
-    if (sqlite3_open (dbname, &db))
-    {
-        if (error)
-        {
-            *error = g_error_new (MIDORI_HISTORY_ERROR,
-                                  MIDORI_HISTORY_ERROR_DB_OPEN,
-                                  _("Failed to open database: %s\n"),
-                                  sqlite3_errmsg (db));
-        }
-        sqlite3_close (db);
-        return NULL;
-    }
-    return (db);
-}
-
-/* Close database 'db' */
-static void
-db_close (sqlite3* db)
-{
-    sqlite3_close (db);
-}
-
-/* Execute an SQL statement and run 'callback' on the result data */
-static gboolean
-db_exec_callback (sqlite3*    db,
-                  const char* sqlcmd,
-                  int         (*callback)(void*, int, char**, char**),
-                  void*       cbarg,
-                  GError**    error)
-{
-    char* errmsg;
-
-    if (sqlite3_exec (db, sqlcmd, callback, cbarg, &errmsg) != SQLITE_OK)
-    {
-        if (error)
-        {
-            *error = g_error_new (MIDORI_HISTORY_ERROR,
-                                  MIDORI_HISTORY_ERROR_EXEC_SQL,
-                                  _("Failed to execute database statement: %s\n"),
-                                  errmsg);
-        }
-        sqlite3_free (errmsg);
-        return FALSE;
-    }
-    return TRUE;
-}
-
-/* Execute a SQL statement */
-static gboolean
-db_exec (sqlite3*    db,
-         const char* sqlcmd,
-         GError**    error)
-{
-    return (db_exec_callback (db, sqlcmd, NULL, NULL, error));
-}
-
 /* sqlite method for retrieving the date/ time */
 static int
 gettimestr (void*  data,
@@ -446,8 +374,7 @@ midori_history_remove_item_cb (KatzeArray* history,
                                sqlite3*    db)
 {
     gchar* sqlcmd;
-    gboolean success = TRUE;
-    GError* error = NULL;
+    char* errmsg = NULL;
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
@@ -457,12 +384,10 @@ midori_history_remove_item_cb (KatzeArray* history,
         katze_item_get_uri (item),
         katze_item_get_name (item),
         katze_item_get_added (item));
-    success = db_exec (db, sqlcmd, &error);
-    if (!success)
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        g_printerr (_("Failed to remove history item: %s\n"), error->message);
-        g_error_free (error);
-        return ;
+        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
     }
     sqlite3_free (sqlcmd);
 }
@@ -478,14 +403,14 @@ static void
 midori_history_clear_cb (KatzeArray* history,
                          sqlite3*    db)
 {
-    GError* error = NULL;
+    char* errmsg = NULL;
 
     g_return_if_fail (KATZE_IS_ARRAY (history));
 
-    if (!db_exec (db, "DELETE FROM history", &error))
+    if (sqlite3_exec (db, "DELETE FROM history", NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        g_printerr (_("Failed to clear history: %s\n"), error->message);
-        g_error_free (error);
+        g_printerr (_("Failed to clear history: %s\n"), errmsg);
+        sqlite3_free (errmsg);
     }
 }
 
@@ -495,22 +420,19 @@ midori_history_notify_item_cb (KatzeItem*  item,
                                sqlite3*    db)
 {
     gchar* sqlcmd;
-    gboolean success = TRUE;
-    GError* error = NULL;
+    char* errmsg = NULL;
 
     sqlcmd = sqlite3_mprintf ("UPDATE history SET title='%q' WHERE "
                               "uri='%q' AND date=%llu",
                               katze_item_get_name (item),
                               katze_item_get_uri (item),
                               katze_item_get_added (item));
-    success = db_exec (db, sqlcmd, &error);
-    sqlite3_free (sqlcmd);
-    if (!success)
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        g_printerr (_("Failed to update history item: %s\n"), error->message);
-        g_error_free (error);
-        return ;
+        g_printerr (_("Failed to update history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
     }
+    sqlite3_free (sqlcmd);
 }
 
 static void
@@ -519,8 +441,8 @@ midori_history_add_item_cb (KatzeArray* array,
                             sqlite3*    db)
 {
     gchar* sqlcmd;
-    gboolean success = TRUE;
-    GError* error = NULL;
+    int success;
+    char* errmsg = NULL;
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
@@ -538,11 +460,11 @@ midori_history_add_item_cb (KatzeArray* array,
     /* New item, set added to the current date/ time */
     if (!katze_item_get_added (item))
     {
-        if (!db_exec_callback (db, "SELECT date('now')",
-                               gettimestr, item, &error))
+        if (sqlite3_exec (db, "SELECT date('now')",
+                          gettimestr, item, &errmsg) != SQLITE_OK)
         {
-            g_printerr (_("Failed to get current time: %s\n"), error->message);
-            g_error_free (error);
+            g_printerr (_("Failed to get current time: %s\n"), errmsg);
+            sqlite3_free (errmsg);
             return;
         }
     }
@@ -553,12 +475,12 @@ midori_history_add_item_cb (KatzeArray* array,
                               katze_item_get_name (item),
                               katze_item_get_added (item),
                               katze_item_get_added (KATZE_ITEM (array)));
-    success = db_exec (db, sqlcmd, &error);
+    success = sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg);
     sqlite3_free (sqlcmd);
-    if (!success)
+    if (success != SQLITE_OK)
     {
-        g_printerr (_("Failed to add history item: %s\n"), error->message);
-        g_error_free (error);
+        g_printerr (_("Failed to add history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
         return ;
     }
 
@@ -624,7 +546,7 @@ midori_history_add_items (void*  data,
 static sqlite3*
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
-                           GError**     error)
+                           char**       errmsg)
 {
     sqlite3* db;
     KatzeItem* item;
@@ -633,19 +555,26 @@ midori_history_initialize (KatzeArray*  array,
 
     has_day = FALSE;
 
-    if ((db = db_open (filename, error)) == NULL)
-        return db;
+    if (sqlite3_open (filename, &db) != SQLITE_OK)
+    {
+        if (errmsg)
+            *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
+                                       sqlite3_errmsg (db));
+        sqlite3_close (db);
+        return NULL;
+    }
 
-    if (!db_exec (db,
+    if (sqlite3_exec (db,
                   "CREATE TABLE IF NOT EXISTS "
                   "history(uri text, title text, date integer, day integer)",
-                  error))
+                  NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
 
-    if (!db_exec (db, "SELECT day FROM history LIMIT 1", error))
+    if (sqlite3_exec (db, "SELECT day FROM history LIMIT 1", NULL, NULL,
+                      errmsg) != SQLITE_OK)
         return NULL;
 
-    if (!has_day && !db_exec (db,
+    if (!has_day && sqlite3_exec (db,
                       "BEGIN TRANSACTION;"
                       "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
                       "INSERT INTO backup SELECT uri,title,date FROM history;"
@@ -657,15 +586,15 @@ midori_history_initialize (KatzeArray*  array,
                       "FROM backup;"
                       "DROP TABLE backup;"
                       "COMMIT;",
-                      error))
+                      NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
 
-    if (!db_exec_callback (db,
+    if (sqlite3_exec (db,
                            "SELECT uri, title, date, day FROM history "
                            "ORDER BY date ASC",
                            midori_history_add_items,
                            array,
-                           error))
+                           errmsg) != SQLITE_OK)
         return NULL;
 
     i = 0;
@@ -686,23 +615,20 @@ midori_history_terminate (sqlite3* db,
                           gint     max_history_age)
 {
     gchar* sqlcmd;
-    gboolean success = TRUE;
-    GError* error = NULL;
+    char* errmsg = NULL;
 
     sqlcmd = g_strdup_printf (
         "DELETE FROM history WHERE "
         "(julianday(date('now')) - julianday(date(date,'unixepoch')))"
         " >= %d", max_history_age);
-    db_exec (db, sqlcmd, &error);
-    if (!success)
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
         /* i18n: Couldn't remove items that are older than n days */
-        g_printerr (_("Failed to remove old history items: %s\n"), error->message);
-        g_error_free (error);
-        return ;
+        g_printerr (_("Failed to remove old history items: %s\n"), errmsg);
+        sqlite3_free (errmsg);
     }
     g_free (sqlcmd);
-    db_close (db);
+    sqlite3_close (db);
 }
 #endif
 
@@ -1686,6 +1612,7 @@ main (int    argc,
     KatzeItem* item;
     gchar* uri_ready;
     #if HAVE_SQLITE
+    gchar* errmsg;
     sqlite3* db;
     gint max_history_age;
     #endif
@@ -1995,12 +1922,12 @@ main (int    argc,
     #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
 
-    error = NULL;
-    if ((db = midori_history_initialize (history, config_file, &error)) == NULL)
+    errmsg = NULL;
+    if ((db = midori_history_initialize (history, config_file, &errmsg)) == NULL)
     {
         g_string_append_printf (error_messages,
-            _("The history couldn't be loaded: %s\n"), error->message);
-        g_error_free (error);
+            _("The history couldn't be loaded: %s\n"), errmsg);
+        g_free (errmsg);
     }
     #endif
 
