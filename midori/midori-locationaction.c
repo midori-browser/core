@@ -21,6 +21,7 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 
+#define COMPLETION_DELAY 150
 #define MAX_ITEMS 25
 
 struct _MidoriLocationAction
@@ -34,6 +35,12 @@ struct _MidoriLocationAction
 
     GtkTreeModel* model;
     GtkTreeModel* filter_model;
+    guint completion_timeout;
+    gchar* key;
+    GtkWidget* popup;
+    GtkWidget* treeview;
+    GtkTreeModel* completion_model;
+    GtkWidget* entry;
     GdkPixbuf* default_icon;
     GHashTable* items;
     KatzeNet* net;
@@ -109,9 +116,17 @@ static void
 midori_location_action_disconnect_proxy (GtkAction* action,
                                          GtkWidget* proxy);
 
+static gboolean
+midori_location_entry_completion_match_cb (GtkTreeModel* model,
+                                           GtkTreeIter*  iter,
+                                           gpointer      data);
+
 static void
-midori_location_action_completion_init (MidoriLocationAction* location_action,
-                                        GtkEntry*             entry);
+midori_location_entry_render_text_cb (GtkCellLayout*   layout,
+                                      GtkCellRenderer* renderer,
+                                      GtkTreeModel*    model,
+                                      GtkTreeIter*     iter,
+                                      gpointer         data);
 
 static void
 midori_location_action_class_init (MidoriLocationActionClass* class)
@@ -247,6 +262,153 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                          "style \"midori-location-entry-style\"\n");
 }
 
+static GtkTreeModel*
+midori_location_action_create_model (void)
+{
+    GtkTreeModel* model = (GtkTreeModel*) gtk_list_store_new (N_COLS,
+        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
+        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT);
+    return model;
+}
+
+static void
+midori_location_action_popup_position (GtkWidget* popup,
+                                       GtkWidget* widget)
+{
+    gint wx, wy;
+    GtkRequisition menu_req;
+    GtkRequisition widget_req;
+
+    if (GTK_WIDGET_NO_WINDOW (widget))
+    {
+        gdk_window_get_position (widget->window, &wx, &wy);
+        wx += widget->allocation.x;
+        wy += widget->allocation.y;
+    }
+    else
+        gdk_window_get_origin (widget->window, &wx, &wy);
+    gtk_widget_size_request (popup, &menu_req);
+    gtk_widget_size_request (widget, &widget_req);
+
+    gtk_window_move (GTK_WINDOW (popup),
+        wx, wy + widget_req.height);
+    gtk_window_resize (GTK_WINDOW (popup),
+        widget->allocation.width, 1);
+}
+
+static gboolean
+midori_location_action_popup_timeout_cb (gpointer data)
+{
+    MidoriLocationAction* action = data;
+    static GtkTreeModel* model = NULL;
+    GtkTreeViewColumn* column;
+    gint matches, height, screen_height;
+
+    if (G_UNLIKELY (!action->popup))
+    {
+        GtkWidget* popup;
+        GtkWidget* scrolled;
+        GtkWidget* treeview;
+        GtkCellRenderer* renderer;
+
+        model = gtk_tree_model_filter_new (action->model, NULL);
+        gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (model),
+            midori_location_entry_completion_match_cb, action, NULL);
+        action->completion_model = model;
+
+        popup = gtk_window_new (GTK_WINDOW_POPUP);
+        gtk_window_set_type_hint (GTK_WINDOW (popup), GDK_WINDOW_TYPE_HINT_COMBO);
+        scrolled = g_object_new (GTK_TYPE_SCROLLED_WINDOW,
+            "hscrollbar-policy", GTK_POLICY_NEVER,
+            "vscrollbar-policy", GTK_POLICY_AUTOMATIC, NULL);
+        gtk_container_add (GTK_CONTAINER (popup), scrolled);
+        treeview = gtk_tree_view_new_with_model (model);
+        gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+        gtk_container_add (GTK_CONTAINER (scrolled), treeview);
+        /* FIXME: Handle button presses and hovering rows */
+        action->treeview = treeview;
+
+        column = gtk_tree_view_column_new ();
+        renderer = gtk_cell_renderer_pixbuf_new ();
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
+        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
+            "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
+        renderer = gtk_cell_renderer_text_new ();
+        g_object_set_data (G_OBJECT (renderer), "location-action", action);
+        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
+        gtk_cell_renderer_text_set_fixed_height_from_font (
+            GTK_CELL_RENDERER_TEXT (renderer), 2);
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
+        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
+                                            midori_location_entry_render_text_cb,
+                                            action->entry, NULL);
+        gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
+
+        action->popup = popup;
+        g_signal_connect (popup, "destroy",
+            G_CALLBACK (gtk_widget_destroyed), &action->popup);
+    }
+
+    if (!*action->key)
+    {
+        const gchar* uri = gtk_entry_get_text (GTK_ENTRY (action->entry));
+        katze_assign (action->key, katze_collfold (uri));
+    }
+
+    gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (model));
+    matches = gtk_tree_model_iter_n_children (model, NULL);
+    /* TODO: Suggest _("Search with %s") or opening hostname as actions */
+
+    if (!GTK_WIDGET_VISIBLE (action->popup))
+    {
+        GtkWidget* toplevel = gtk_widget_get_toplevel (action->entry);
+        gtk_window_set_screen (GTK_WINDOW (action->popup),
+                               gtk_widget_get_screen (action->entry));
+        gtk_window_set_transient_for (GTK_WINDOW (action->popup), GTK_WINDOW (toplevel));
+        gtk_widget_show_all (action->popup);
+        gtk_tree_view_columns_autosize (GTK_TREE_VIEW (action->treeview));
+    }
+
+    column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
+    gtk_tree_view_column_cell_get_size (column, NULL, NULL, NULL, NULL, &height);
+    /* FIXME: This really should consider monitor geometry */
+    /* FIXME: Consider y position versus height */
+    screen_height = gdk_screen_get_height (gtk_widget_get_screen (action->popup));
+    height = MIN (matches * height, screen_height / 1.5);
+    gtk_widget_set_size_request (action->treeview, -1, height);
+    midori_location_action_popup_position (action->popup, action->entry);
+
+    return FALSE;
+}
+
+static void
+midori_location_action_popup_completion (MidoriLocationAction* action,
+                                         GtkWidget*            entry,
+                                         const gchar*          key)
+{
+    if (action->completion_timeout)
+        g_source_remove (action->completion_timeout);
+    katze_assign (action->key, g_strdup (key));
+    action->entry = entry;
+    g_signal_connect (entry, "destroy",
+        G_CALLBACK (gtk_widget_destroyed), &action->entry);
+    action->completion_timeout = g_timeout_add (COMPLETION_DELAY,
+        midori_location_action_popup_timeout_cb, action);
+    /* TODO: Inline completion */
+}
+
+static void
+midori_location_action_popdown_completion (MidoriLocationAction* location_action)
+{
+    if (G_LIKELY (location_action->popup))
+    {
+        gtk_widget_hide (location_action->popup);
+        gtk_tree_selection_unselect_all (gtk_tree_view_get_selection (
+            GTK_TREE_VIEW (location_action->treeview)));
+    }
+    location_action->completion_timeout = 0;
+}
+
 /* Allow this to be used in tests, it's otherwise private */
 /*static*/ GtkWidget*
 midori_location_action_entry_for_proxy (GtkWidget* proxy)
@@ -273,7 +435,6 @@ midori_location_action_set_model (MidoriLocationAction* location_action,
         entry = gtk_bin_get_child (GTK_BIN (location_entry));
 
         g_object_set (location_entry, "model", model, NULL);
-        midori_location_action_completion_init (location_action, GTK_ENTRY (entry));
     }
 }
 
@@ -347,15 +508,6 @@ midori_location_action_thaw (MidoriLocationAction* location_action)
     }
 }
 
-static GtkTreeModel*
-midori_location_action_create_model (void)
-{
-    GtkTreeModel* model = (GtkTreeModel*) gtk_list_store_new (N_COLS,
-        GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT);
-    return model;
-}
-
 static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
@@ -363,6 +515,10 @@ midori_location_action_init (MidoriLocationAction* location_action)
     location_action->progress = 0.0;
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
+    location_action->completion_timeout = 0;
+    location_action->key = NULL;
+    location_action->popup = NULL;
+    location_action->entry = NULL;
 
     location_action->model = midori_location_action_create_model ();
 
@@ -385,6 +541,12 @@ midori_location_action_finalize (GObject* object)
 
     katze_object_assign (location_action->model, NULL);
     katze_object_assign (location_action->filter_model, NULL);
+    katze_assign (location_action->key, NULL);
+    if (location_action->popup)
+    {
+        gtk_widget_destroy (location_action->popup);
+        location_action->popup = NULL;
+    }
     katze_object_assign (location_action->default_icon, NULL);
 
     g_hash_table_destroy (location_action->items);
@@ -584,42 +746,137 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                                            GdkEventKey* event,
                                            GtkAction*   action)
 {
-    const gchar* uri;
+    GtkWidget* widget = GTK_WIDGET (entry);
+    MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
+    const gchar* text;
+    static gint selected = -1;
+    gboolean is_enter = FALSE;
 
     switch (event->keyval)
     {
     case GDK_ISO_Enter:
     case GDK_KP_Enter:
     case GDK_Return:
-    {
-        if ((uri = gtk_entry_get_text (entry)) && *uri)
+        is_enter = TRUE;
+    case GDK_Left:
+    case GDK_KP_Left:
+    case GDK_Right:
+    case GDK_KP_Right:
+
+        if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
         {
-            g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
-                (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
-            return TRUE;
+            GtkTreeModel* model = location_action->completion_model;
+            GtkTreeIter iter;
+            midori_location_action_popdown_completion (location_action);
+            if (gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
+            {
+                gchar* uri;
+                gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
+                gtk_entry_set_text (entry, uri);
+
+                if (is_enter)
+                    g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
+                        (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
+
+                g_free (uri);
+                selected = -1;
+                return TRUE;
+            }
+            selected = -1;
         }
-    }
+
+        if (is_enter)
+            if ((text = gtk_entry_get_text (entry)) && *text)
+                g_signal_emit (action, signals[SUBMIT_URI], 0, text,
+                    (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
+        break;
     case GDK_Escape:
     {
+        if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
+        {
+            midori_location_action_popdown_completion (location_action);
+            text = gtk_entry_get_text (entry);
+            pango_layout_set_text (gtk_entry_get_layout (entry), text, -1);
+            selected = -1;
+            return TRUE;
+        }
+
         g_signal_emit (action, signals[RESET_URI], 0);
-        return TRUE;
+        /* Return FALSE to allow Escape to stop loading */
+        return FALSE;
     }
+    case GDK_Page_Up:
+    case GDK_Page_Down:
+        if (!(location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup)))
+            return TRUE;
     case GDK_Down:
+    case GDK_KP_Down:
     case GDK_Up:
+    case GDK_KP_Up:
     {
-        GtkWidget* parent = gtk_widget_get_parent (GTK_WIDGET (entry));
+        GtkWidget* parent;
+
+        if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
+        {
+            GtkTreeModel* model = location_action->completion_model;
+            gint matches = gtk_tree_model_iter_n_children (model, NULL);
+            GtkTreePath* path;
+            GtkTreeIter iter;
+
+            if (event->keyval == GDK_Down || event->keyval == GDK_KP_Down)
+                selected = MIN (selected + 1, matches -1);
+            else if (event->keyval == GDK_Up || event->keyval == GDK_KP_Up)
+                selected = MAX (selected - 1, 0);
+            else if (event->keyval == GDK_Page_Down)
+                selected = MIN (selected + 14, matches -1);
+            else if (event->keyval == GDK_Page_Up)
+                selected = MAX (selected - 14, 0);
+
+            path = gtk_tree_path_new_from_indices (selected, -1);
+            gtk_tree_view_set_cursor (GTK_TREE_VIEW (location_action->treeview),
+                                      path, NULL, FALSE);
+            gtk_tree_path_free (path);
+
+            if (gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
+            {
+                gchar* uri;
+                gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
+                /* Update the layout without actually changing the text */
+                pango_layout_set_text (gtk_entry_get_layout (entry), uri, -1);
+                g_free (uri);
+            }
+            return TRUE;
+        }
+
+        parent = gtk_widget_get_parent (widget);
         if (!katze_object_get_boolean (parent, "popup-shown"))
             gtk_combo_box_popup (GTK_COMBO_BOX (parent));
         return TRUE;
     }
-    case GDK_Page_Up:
-    case GDK_Page_Down:
-    {
-        return TRUE;
-    }
+    default:
+        if ((text = gtk_entry_get_text (entry)) && *text)
+        {
+            midori_location_action_popup_completion (location_action, widget, "");
+            selected = -1;
+            return FALSE;
+        }
     }
     return FALSE;
 }
+
+#if GTK_CHECK_VERSION (2, 19, 3)
+static void
+midori_location_action_preedit_changed_cb (GtkWidget*   widget,
+                                           const gchar* preedit,
+                                           GtkAction*   action)
+{
+    MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
+    gchar* key = katze_collfold (preedit);
+    midori_location_action_popup_completion (location_action,
+                                             GTK_WIDGET (widget), key);
+    g_free (key);
+}
+#endif
 
 static gboolean
 midori_location_action_focus_in_event_cb (GtkWidget*   widget,
@@ -635,6 +892,7 @@ midori_location_action_focus_out_event_cb (GtkWidget*   widget,
                                            GdkEventKey* event,
                                            GtkAction*   action)
 {
+    midori_location_action_popdown_completion (MIDORI_LOCATION_ACTION (action));
     g_signal_emit (action, signals[FOCUS_OUT], 0);
     return FALSE;
 }
@@ -775,17 +1033,15 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 }
 
 static gboolean
-midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
-                                           const gchar*        key,
-                                           GtkTreeIter*        iter,
-                                           gpointer            data)
+midori_location_action_match (GtkTreeModel* model,
+                              const gchar*  key,
+                              GtkTreeIter*  iter,
+                              gpointer      data)
 {
-    GtkTreeModel* model;
     gchar* uri;
     gchar* title;
     gboolean match;
 
-    model = gtk_entry_completion_get_model (completion);
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
 
     match = FALSE;
@@ -801,6 +1057,15 @@ midori_location_entry_completion_match_cb (GtkEntryCompletion* completion,
     g_free (title);
 
     return match;
+}
+
+static gboolean
+midori_location_entry_completion_match_cb (GtkTreeModel* model,
+                                           GtkTreeIter*  iter,
+                                           gpointer      data)
+{
+    MidoriLocationAction* action = data;
+    return midori_location_action_match (model, action->key, iter, data);
 }
 
 /**
@@ -960,70 +1225,6 @@ midori_location_action_set_item (MidoriLocationAction* location_action,
     }
 }
 
-static gboolean
-midori_location_entry_match_selected_cb (GtkEntryCompletion*   completion,
-                                         GtkTreeModel*         model,
-                                         GtkTreeIter*          iter,
-                                         MidoriLocationAction* location_action)
-{
-    gchar* uri;
-    gtk_tree_model_get (model, iter, URI_COL, &uri, -1);
-
-    midori_location_action_set_text (location_action, uri);
-    g_signal_emit (location_action, signals[SUBMIT_URI], 0, uri, FALSE);
-    g_free (uri);
-
-    return FALSE;
-}
-
-static void
-midori_location_action_completion_init (MidoriLocationAction* location_action,
-                                        GtkEntry*             entry)
-{
-    GtkEntryCompletion* completion;
-    GtkCellRenderer* renderer;
-
-    if ((completion = gtk_entry_get_completion (entry)))
-    {
-        gtk_entry_completion_set_model (completion,
-            midori_location_action_is_frozen (location_action)
-            ? NULL : location_action->model);
-        return;
-    }
-
-    completion = gtk_entry_completion_new ();
-    gtk_entry_set_completion (entry, completion);
-    g_object_unref (completion);
-    gtk_entry_completion_set_model (completion,
-        midori_location_action_is_frozen (location_action)
-        ? NULL : location_action->model);
-
-    gtk_entry_completion_set_text_column (completion, URI_COL);
-    #if GTK_CHECK_VERSION (2, 12, 0)
-    gtk_entry_completion_set_inline_selection (completion, TRUE);
-    #endif
-    gtk_cell_layout_clear (GTK_CELL_LAYOUT (completion));
-
-    renderer = gtk_cell_renderer_pixbuf_new ();
-    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, FALSE);
-    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (completion), renderer,
-        "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
-    renderer = gtk_cell_renderer_text_new ();
-    g_object_set_data (G_OBJECT (renderer), "location-action", location_action);
-    gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-    gtk_cell_renderer_text_set_fixed_height_from_font (
-        GTK_CELL_RENDERER_TEXT (renderer), 2);
-    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, TRUE);
-    gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (completion), renderer,
-                                        midori_location_entry_render_text_cb,
-                                        entry, NULL);
-    gtk_entry_completion_set_match_func (completion,
-        midori_location_entry_completion_match_cb, NULL, NULL);
-
-    g_signal_connect (completion, "match-selected",
-        G_CALLBACK (midori_location_entry_match_selected_cb), location_action);
-}
-
 static void
 midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
                                          MidoriLocationAction* location_action)
@@ -1136,7 +1337,6 @@ midori_location_action_connect_proxy (GtkAction* action,
             renderer, midori_location_entry_render_text_cb, child, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
-        midori_location_action_completion_init (location_action, GTK_ENTRY (child));
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
 
@@ -1145,6 +1345,10 @@ midori_location_action_connect_proxy (GtkAction* action,
                       midori_location_action_changed_cb, action,
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
+                      #if GTK_CHECK_VERSION (2, 19, 3)
+                      "signal::preedit-changed",
+                      midori_location_action_preedit_changed_cb, action,
+                      #endif
                       "signal::focus-in-event",
                       midori_location_action_focus_in_event_cb, action,
                       "signal::focus-out-event",
