@@ -21,6 +21,10 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 
+#if HAVE_SQLITE
+    #include <sqlite3.h>
+#endif
+
 #define COMPLETION_DELAY 150
 #define MAX_ITEMS 25
 
@@ -116,10 +120,12 @@ static void
 midori_location_action_disconnect_proxy (GtkAction* action,
                                          GtkWidget* proxy);
 
+#if !HAVE_SQLITE
 static gboolean
 midori_location_entry_completion_match_cb (GtkTreeModel* model,
                                            GtkTreeIter*  iter,
                                            gpointer      data);
+#endif
 
 static void
 midori_location_entry_render_text_cb (GtkCellLayout*   layout,
@@ -302,6 +308,13 @@ midori_location_action_popup_timeout_cb (gpointer data)
     MidoriLocationAction* action = data;
     static GtkTreeModel* model = NULL;
     GtkTreeViewColumn* column;
+    #if HAVE_SQLITE
+    GtkListStore* store;
+    sqlite3* db;
+    gchar* query;
+    gint result;
+    sqlite3_stmt* statement;
+    #endif
     gint matches, height, screen_height;
 
     if (G_UNLIKELY (!action->popup))
@@ -311,9 +324,13 @@ midori_location_action_popup_timeout_cb (gpointer data)
         GtkWidget* treeview;
         GtkCellRenderer* renderer;
 
+        #if HAVE_SQLITE
+        model = midori_location_action_create_model ();
+        #else
         model = gtk_tree_model_filter_new (action->model, NULL);
         gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (model),
             midori_location_entry_completion_match_cb, action, NULL);
+        #endif
         action->completion_model = model;
 
         popup = gtk_window_new (GTK_WINDOW_POPUP);
@@ -352,11 +369,53 @@ midori_location_action_popup_timeout_cb (gpointer data)
     if (!*action->key)
     {
         const gchar* uri = gtk_entry_get_text (GTK_ENTRY (action->entry));
+        #if HAVE_SQLITE
+        katze_assign (action->key, g_strdup (uri));
+        #else
         katze_assign (action->key, katze_collfold (uri));
+        #endif
     }
 
+    #if HAVE_SQLITE
+    store = GTK_LIST_STORE (model);
+    gtk_list_store_clear (store);
+
+    db = g_object_get_data (G_OBJECT (action->history), "db");
+    /* FIXME: Consider keeping the prepared statement with '...LIKE ?...'
+        and prepending/ appending % to the key. */
+    query = sqlite3_mprintf ("SELECT DISTINCT uri, title FROM history WHERE "
+                             "uri LIKE '%%%q%%' OR title LIKE '%%%q%%'"
+                             "ORDER BY day LIMIT %d",
+                             action->key, action->key, MAX_ITEMS);
+    result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
+    sqlite3_free (query);
+    matches = 0;
+    if (result == SQLITE_OK)
+    {
+        while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+        {
+            const unsigned char* uri = sqlite3_column_text (statement, 0);
+            const unsigned char* title = sqlite3_column_text (statement, 1);
+            GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
+            if (!icon)
+                icon = action->default_icon;
+            gtk_list_store_insert_with_values (store, NULL, 0,
+                URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+                FAVICON_COL, icon, -1);
+            matches++;
+        }
+        if (result != SQLITE_DONE)
+            g_print (_("Failed to execute database statement: %s\n"),
+                     sqlite3_errmsg (db));
+        sqlite3_finalize (statement);
+    }
+    else
+        g_print (_("Failed to execute database statement: %s\n"),
+                 sqlite3_errmsg (db));
+    #else
     gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (model));
     matches = gtk_tree_model_iter_n_children (model, NULL);
+    #endif
     /* TODO: Suggest _("Search with %s") or opening hostname as actions */
 
     if (!GTK_WIDGET_VISIBLE (action->popup))
@@ -768,7 +827,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             GtkTreeModel* model = location_action->completion_model;
             GtkTreeIter iter;
             midori_location_action_popdown_completion (location_action);
-            if (gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
+            if (selected > -1 &&
+                gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
             {
                 gchar* uri;
                 gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
@@ -871,10 +931,15 @@ midori_location_action_preedit_changed_cb (GtkWidget*   widget,
                                            GtkAction*   action)
 {
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
+    #if HAVE_SQLITE
+    midori_location_action_popup_completion (location_action,
+                                             GTK_WIDGET (widget), preedit);
+    #else
     gchar* key = katze_collfold (preedit);
     midori_location_action_popup_completion (location_action,
                                              GTK_WIDGET (widget), key);
     g_free (key);
+    #endif
 }
 #endif
 
@@ -1032,6 +1097,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     g_free (desc);
 }
 
+#if !HAVE_SQLITE
 static gboolean
 midori_location_action_match (GtkTreeModel* model,
                               const gchar*  key,
@@ -1067,6 +1133,7 @@ midori_location_entry_completion_match_cb (GtkTreeModel* model,
     MidoriLocationAction* action = data;
     return midori_location_action_match (model, action->key, iter, data);
 }
+#endif
 
 /**
  * midori_location_action_iter_lookup:

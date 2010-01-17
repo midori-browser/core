@@ -1918,6 +1918,7 @@ main (int    argc,
             _("The history couldn't be loaded: %s\n"), errmsg);
         g_free (errmsg);
     }
+    g_object_set_data (G_OBJECT (history), "db", db);
     #endif
 
     /* In case of errors */
