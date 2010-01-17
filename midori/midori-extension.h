@@ -46,7 +46,7 @@ struct _MidoriExtensionClass
 };
 
 GType
-midori_extension_get_type            (void);
+midori_extension_get_type            (void) G_GNUC_CONST;
 
 gboolean
 midori_extension_is_prepared         (MidoriExtension* extension);

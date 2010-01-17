@@ -50,7 +50,7 @@ struct _MidoriViewableIface
 };
 
 GType
-midori_viewable_get_type               (void);
+midori_viewable_get_type               (void) G_GNUC_CONST;
 
 GtkWidget*
 midori_viewable_new_from_uri           (const gchar*           uri);

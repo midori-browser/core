@@ -149,7 +149,7 @@ midori_identity_get_type (void) G_GNUC_CONST;
     (midori_identity_get_type ())
 
 GType
-midori_web_settings_get_type               (void);
+midori_web_settings_get_type               (void) G_GNUC_CONST;
 
 MidoriWebSettings*
 midori_web_settings_new                    (void);

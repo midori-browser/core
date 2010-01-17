@@ -61,7 +61,7 @@ typedef struct _MidoriView                MidoriView;
 typedef struct _MidoriViewClass           MidoriViewClass;
 
 GType
-midori_view_get_type                   (void);
+midori_view_get_type                   (void) G_GNUC_CONST;
 
 GtkWidget*
 midori_view_new                        (KatzeNet*          net);

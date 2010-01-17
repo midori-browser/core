@@ -37,7 +37,7 @@ typedef struct _MidoriPanel                MidoriPanel;
 typedef struct _MidoriPanelClass           MidoriPanelClass;
 
 GType
-midori_panel_get_type               (void);
+midori_panel_get_type               (void) G_GNUC_CONST;
 
 GtkWidget*
 midori_panel_new                    (void);

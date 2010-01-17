@@ -36,7 +36,7 @@ typedef struct _MidoriApp                MidoriApp;
 typedef struct _MidoriAppClass           MidoriAppClass;
 
 GType
-midori_app_get_type               (void);
+midori_app_get_type               (void) G_GNUC_CONST;
 
 MidoriApp*
 midori_app_new                    (void);

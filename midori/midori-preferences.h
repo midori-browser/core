@@ -40,7 +40,7 @@ struct _MidoriPreferencesClass
 };
 
 GType
-midori_preferences_get_type               (void);
+midori_preferences_get_type               (void) G_GNUC_CONST;
 
 GtkWidget*
 midori_preferences_new              (GtkWindow*         parent,

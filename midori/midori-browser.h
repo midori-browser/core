@@ -75,7 +75,7 @@ struct _MidoriBrowserClass
 };
 
 GType
-midori_browser_get_type               (void);
+midori_browser_get_type               (void) G_GNUC_CONST;
 
 MidoriBrowser*
 midori_browser_new                    (void);

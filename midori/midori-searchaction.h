@@ -33,7 +33,7 @@ typedef struct _MidoriSearchAction         MidoriSearchAction;
 typedef struct _MidoriSearchActionClass    MidoriSearchActionClass;
 
 GType
-midori_search_action_get_type              (void);
+midori_search_action_get_type              (void) G_GNUC_CONST;
 
 const gchar*
 midori_search_action_get_text              (MidoriSearchAction* action);
