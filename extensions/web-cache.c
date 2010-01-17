@@ -41,6 +41,7 @@ web_cache_get_cached_path (MidoriExtension* extension,
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
     folder = g_strdup_printf ("%c%c", checksum[0], checksum[1]);
     sub_path = g_build_path (G_DIR_SEPARATOR_S, cache_path, folder, NULL);
+    /* FIXME: Wrong place? */
     katze_mkdir_with_parents (sub_path, 0700);
     g_free (folder);
 
@@ -87,6 +88,7 @@ web_cache_get_headers (gchar* filename)
     GHashTable* headers;
     FILE* file;
     gchar* dsc_filename;
+    gchar line[128];
 
     if (!filename)
         return NULL;
@@ -100,45 +102,46 @@ web_cache_get_headers (gchar* filename)
                                (GDestroyNotify)g_free,
                                (GDestroyNotify)g_free);
 
-    if ((file = g_fopen (dsc_filename, "r")))
+    if (!(file = g_fopen (dsc_filename, "r")))
     {
-        gchar line[128];
-        while (fgets (line, 128, file))
-        {
-            gchar** data;
-
-            if (line == NULL)
-                continue;
-
-            g_strchomp (line);
-            data = g_strsplit (line, ":", 2);
-            if (data[0] && data[1])
-                g_hash_table_insert (headers, g_strdup (data[0]),
-                                     g_strdup (g_strchug (data[1])));
-            g_strfreev (data);
-        }
-        fclose (file);
+        g_hash_table_destroy (headers);
         g_free (dsc_filename);
-        return headers;
+        return NULL;
     }
-    g_hash_table_destroy (headers);
+    while (fgets (line, 128, file))
+    {
+        gchar** data;
+
+        if (line == NULL)
+            continue;
+
+        g_strchomp (line);
+        data = g_strsplit (line, ":", 2);
+        if (data[0] && data[1])
+            g_hash_table_insert (headers, g_strdup (data[0]),
+                                 g_strdup (g_strchug (data[1])));
+        g_strfreev (data);
+    }
+    fclose (file);
     g_free (dsc_filename);
-    return NULL;
+    return headers;
 }
 
-static gboolean
+static GFile*
 web_cache_tmp_prepare (gchar* filename)
 {
-    gchar* tmp_filename = g_strdup_printf ("%s.tmp", filename);
+    GFile *file;
 
+    gchar* tmp_filename = g_strdup_printf ("%s.tmp", filename);
     if (g_access (tmp_filename, F_OK) == 0)
     {
         g_free (tmp_filename);
-        return FALSE;
+        return NULL;
     }
-    g_file_set_contents (tmp_filename, "", -1, NULL);
+    file = g_file_new_for_path (tmp_filename);
     g_free (tmp_filename);
-    return TRUE;
+
+    return file;
 }
 
 static void
@@ -146,27 +149,36 @@ web_cache_set_content_type (SoupMessage* msg,
                             SoupBuffer*  buffer)
 {
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
-    const char *ct;
+    gchar* sniffed_type;
     SoupContentSniffer* sniffer = soup_content_sniffer_new ();
-    ct = soup_content_sniffer_sniff (sniffer, msg, buffer, NULL);
-    if (!ct)
-        ct = soup_message_headers_get_one (msg->response_headers, "Content-Type");
-    if (ct)
-        g_signal_emit_by_name (msg, "content-sniffed", ct, NULL);
+    if ((sniffed_type = soup_content_sniffer_sniff (sniffer, msg, buffer, NULL)))
+    {
+        g_signal_emit_by_name (msg, "content-sniffed", sniffed_type, NULL);
+        g_free (sniffed_type);
+    }
+    else
+    {
+        const gchar* content_type = soup_message_headers_get_one (
+            msg->response_headers, "Content-Type");
+        g_signal_emit_by_name (msg, "content-sniffed", content_type, NULL);
+    }
     #endif
 }
 
 static void
-web_cache_message_finished_cb (SoupMessage* msg,
-                               gchar*       filename)
+web_cache_message_finished_cb (SoupMessage*   msg,
+                               GOutputStream* stream)
 {
     gchar* headers;
     gchar* tmp_headers;
     gchar* tmp_data;
+    gchar* filename;
 
+    filename = g_object_get_data (G_OBJECT (stream), "filename");
     headers = g_strdup_printf ("%s.dsc", filename);
     tmp_headers = g_strdup_printf ("%s.dsc.tmp", filename);
     tmp_data = g_strdup_printf ("%s.tmp", filename);
+    g_output_stream_close (stream, NULL, NULL);
 
     if (msg->status_code == SOUP_STATUS_OK)
     {
@@ -179,45 +191,74 @@ web_cache_message_finished_cb (SoupMessage* msg,
         g_unlink (tmp_headers);
     }
 
+    g_object_unref (stream);
     g_free (headers);
     g_free (tmp_headers);
     g_free (tmp_data);
 }
 
+static void web_cache_pause_message (SoupMessage* msg)
+{
+    SoupSession* session;
+    session = g_object_get_data (G_OBJECT (msg), "session");
+    soup_session_pause_message (session, msg);
+}
+
+static void web_cache_unpause_message (SoupMessage* msg)
+{
+    SoupSession* session;
+    session = g_object_get_data (G_OBJECT (msg), "session");
+    soup_session_unpause_message (session, msg);
+}
+
 static void
 web_cache_message_got_chunk_cb (SoupMessage* msg,
                                 SoupBuffer*  chunk,
-                                gchar*       filename)
+                                GOutputStream* stream)
 {
-    GFile *file;
-    GOutputStream *stream;
-    gchar *tmp_filename;
-
     if (!chunk->data || !chunk->length)
         return;
+    /* FIXME g_output_stream_write_async (stream, chunk->data, chunk->length,
+        G_PRIORITY_DEFAULT, NULL, NULL, (gpointer)chunk->length); */
+    g_output_stream_write (stream, chunk->data, chunk->length, NULL, NULL);
+}
 
-    tmp_filename = g_strdup_printf ("%s.tmp", filename);
-    file = g_file_new_for_path (tmp_filename);
-    if ((stream = (GOutputStream*)g_file_append_to (file, 0, NULL, NULL)))
+static void
+web_cache_message_rewrite_async_cb (GFile *file,
+                                    GAsyncResult* res,
+                                    SoupMessage*  msg)
+{
+    SoupBuffer *buffer;
+    char *data;
+    gsize length;
+    GError *error = NULL;
+
+    if (g_file_load_contents_finish (file, res, &data, &length, NULL, &error))
     {
-        g_output_stream_write (stream, chunk->data, chunk->length, NULL, NULL);
-        g_object_unref (stream);
+        buffer = soup_buffer_new (SOUP_MEMORY_TEMPORARY, data, length);
+        web_cache_set_content_type (msg, buffer);
+        soup_message_body_append_buffer (msg->response_body, buffer);
+        /* FIXME? */
+        web_cache_unpause_message (msg);
+        g_signal_emit_by_name (msg, "got-chunk", buffer, NULL);
+        soup_buffer_free (buffer);
+        g_free (data);
+        soup_message_got_body (msg);
+        soup_message_finished (msg);
     }
     g_object_unref (file);
-    g_free (tmp_filename);
+    g_object_unref (msg);
 }
 
 static void
 web_cache_message_rewrite (SoupMessage*  msg,
                            gchar*        filename)
 {
-    GHashTable* cache_headers = web_cache_get_headers (filename);
     GHashTableIter iter;
-    SoupBuffer *buffer;
     gpointer key, value;
-    char *data;
-    gsize length;
+    GFile *file;
 
+    GHashTable* cache_headers = web_cache_get_headers (filename);
     if (!cache_headers)
         return;
 
@@ -226,36 +267,32 @@ web_cache_message_rewrite (SoupMessage*  msg,
     while (g_hash_table_iter_next (&iter, &key, &value))
         soup_message_headers_replace (msg->response_headers, key, value);
     g_signal_emit_by_name (msg, "got-headers", NULL);
+    g_hash_table_destroy (cache_headers);
 
-    g_file_get_contents (filename, &data, &length, NULL);
-    if (data && length)
-    {
-        buffer = soup_buffer_new (SOUP_MEMORY_TEMPORARY, data, length);
-        web_cache_set_content_type (msg, buffer);
-        soup_message_body_append_buffer (msg->response_body, buffer);
-        g_signal_emit_by_name (msg, "got-chunk", buffer, NULL);
-        soup_buffer_free (buffer);
-        g_free (data);
-    }
-    soup_message_got_body (msg);
-    soup_message_finished (msg);
+    /* FIXME? It seems libsoup already said "goodbye" by the time
+       the asynchronous function is starting to send data */
+    web_cache_pause_message (msg);
+    file = g_file_new_for_path (filename);
+    g_free (filename);
+    g_object_ref (msg);
+    g_file_load_contents_async (file, NULL,
+        (GAsyncReadyCallback)web_cache_message_rewrite_async_cb, msg);
 }
 
 static void
 web_cache_mesage_got_headers_cb (SoupMessage* msg,
                                  gchar*       filename)
 {
-    SoupURI* soup_uri = soup_message_get_uri (msg);
-    gchar* uri;
     const gchar* nocache;
     SoupMessageHeaders *hdrs = msg->response_headers;
+    const char* cl;
 
     /* Skip files downloaded by the user */
     if (g_object_get_data (G_OBJECT (msg), "midori-web-cache-download"))
         return;
 
     /* Skip big files */
-    const char* cl = soup_message_headers_get_one (hdrs, "Content-Length");
+    cl = soup_message_headers_get_one (hdrs, "Content-Length");
     if (cl && atoi (cl) > MAXLENGTH)
         return;
 
@@ -268,32 +305,38 @@ web_cache_mesage_got_headers_cb (SoupMessage* msg,
         return;
     }
 
-    uri = soup_uri ? soup_uri_to_string (soup_uri, FALSE) : g_strdup ("");
     if (msg->status_code == SOUP_STATUS_NOT_MODIFIED)
     {
-        /* g_debug ("loading from cache: %s -> %s", uri, filename); */
+        /* g_debug ("loading from cache: %s", filename); */
         g_signal_handlers_disconnect_by_func (msg,
             web_cache_mesage_got_headers_cb, filename);
         web_cache_message_rewrite (msg, filename);
-        g_free (filename);
     }
     else if (msg->status_code == SOUP_STATUS_OK)
     {
-        /* g_debug ("updating cache: %s -> %s", uri, filename); */
-        if (!web_cache_tmp_prepare (filename))
-        {
-            g_free (uri);
+        GFile* file;
+        GOutputStream* ostream;
+
+        /* g_debug ("updating cache: %s", filename); */
+        if (!(file = web_cache_tmp_prepare (filename)))
             return;
-        }
-        if (web_cache_save_headers (msg, filename))
-        {
-            g_signal_connect (msg, "got-chunk",
-                G_CALLBACK (web_cache_message_got_chunk_cb), filename);
-            g_signal_connect (msg, "finished",
-                G_CALLBACK (web_cache_message_finished_cb), filename);
-        }
+        if (!web_cache_save_headers (msg, filename))
+            return;
+
+        ostream = (GOutputStream*)g_file_append_to (file,
+            G_FILE_CREATE_PRIVATE | G_FILE_CREATE_REPLACE_DESTINATION, NULL, NULL);
+        g_object_unref (file);
+
+        if (!ostream)
+            return;
+
+        g_object_set_data_full (G_OBJECT (ostream), "filename",
+                                filename, (GDestroyNotify)g_free);
+        g_signal_connect (msg, "got-chunk",
+            G_CALLBACK (web_cache_message_got_chunk_cb), ostream);
+        g_signal_connect (msg, "finished",
+            G_CALLBACK (web_cache_message_finished_cb), ostream);
     }
-    g_free (uri);
 }
 
 static void
@@ -324,6 +367,7 @@ web_cache_session_request_queued_cb (SoupSession*     session,
                                               "If-Modified-Since", last_modified);
             g_hash_table_destroy (cache_headers);
         }
+        g_object_set_data (G_OBJECT (msg), "session", session);
         g_signal_connect (msg, "got-headers",
                 G_CALLBACK (web_cache_mesage_got_headers_cb), filename);
 
