@@ -35,7 +35,7 @@ typedef struct _KatzeHttpAuth                KatzeHttpAuth;
 typedef struct _KatzeHttpAuthClass           KatzeHttpAuthClass;
 
 GType
-katze_http_auth_get_type                       (void);
+katze_http_auth_get_type                       (void) G_GNUC_CONST;
 
 G_END_DECLS
 

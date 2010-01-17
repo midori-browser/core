@@ -48,7 +48,7 @@ struct _KatzeScrolledClass
 };
 
 GType
-katze_scrolled_get_type         (void);
+katze_scrolled_get_type         (void) G_GNUC_CONST;
 
 GtkWidget*
 katze_scrolled_new              (GtkAdjustment* hadjustment,

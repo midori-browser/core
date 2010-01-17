@@ -35,7 +35,7 @@ typedef struct _KatzeNet                KatzeNet;
 typedef struct _KatzeNetClass           KatzeNetClass;
 
 GType
-katze_net_get_type                       (void);
+katze_net_get_type                       (void) G_GNUC_CONST;
 
 KatzeNet*
 katze_net_new                            (void);

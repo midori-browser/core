@@ -35,7 +35,7 @@ typedef struct _KatzeHttpCookies                KatzeHttpCookies;
 typedef struct _KatzeHttpCookiesClass           KatzeHttpCookiesClass;
 
 GType
-katze_http_cookies_get_type                       (void);
+katze_http_cookies_get_type                       (void) G_GNUC_CONST;
 
 G_END_DECLS
 

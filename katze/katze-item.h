@@ -56,7 +56,7 @@ struct _KatzeItemClass
 };
 
 GType
-katze_item_get_type               (void);
+katze_item_get_type               (void) G_GNUC_CONST;
 
 KatzeItem*
 katze_item_new                    (void);

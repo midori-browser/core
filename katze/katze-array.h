@@ -33,7 +33,7 @@ typedef struct _KatzeArray                       KatzeArray;
 typedef struct _KatzeArrayClass                  KatzeArrayClass;
 
 GType
-katze_array_get_type               (void);
+katze_array_get_type               (void) G_GNUC_CONST;
 
 KatzeArray*
 katze_array_new                    (GType         type);

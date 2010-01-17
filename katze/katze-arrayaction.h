@@ -35,7 +35,7 @@ typedef struct _KatzeArrayAction         KatzeArrayAction;
 typedef struct _KatzeArrayActionClass    KatzeArrayActionClass;
 
 GType
-katze_array_action_get_type              (void);
+katze_array_action_get_type              (void) G_GNUC_CONST;
 
 KatzeArray*
 katze_array_action_get_array            (KatzeArrayAction* array_action);

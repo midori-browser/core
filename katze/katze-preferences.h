@@ -46,7 +46,7 @@ struct _KatzePreferencesClass
 };
 
 GType
-katze_preferences_get_type               (void);
+katze_preferences_get_type               (void) G_GNUC_CONST;
 
 GtkWidget*
 katze_preferences_new                    (GtkWindow*          parent);

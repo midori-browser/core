@@ -45,7 +45,7 @@ struct _KatzeThrobberClass
 };
 
 GType
-katze_throbber_get_type             (void);
+katze_throbber_get_type             (void) G_GNUC_CONST;
 
 GtkWidget*
 katze_throbber_new                  (void);

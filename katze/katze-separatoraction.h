@@ -36,7 +36,7 @@ typedef struct _KatzeSeparatorAction         KatzeSeparatorAction;
 typedef struct _KatzeSeparatorActionClass    KatzeSeparatorActionClass;
 
 GType
-katze_separator_action_get_type              (void);
+katze_separator_action_get_type              (void) G_GNUC_CONST;
 
 G_END_DECLS
 
