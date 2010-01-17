@@ -6616,12 +6616,7 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
             g_value_get_string (&value) && *g_value_get_string (&value));
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
-        if (g_value_get_boolean (&value))
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), browser->search_engines);
-        else
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), NULL);
+        /* Do nothing */
     }
     else if (name == g_intern_string ("location-entry-search"))
     {
@@ -6835,13 +6830,6 @@ midori_browser_set_property (GObject*      object,
 
         /* FIXME: Disconnect handlers */
         katze_object_assign (browser->search_engines, g_value_dup_object (value));
-        if (katze_object_get_boolean (browser->settings,
-                                      "search-engines-in-completion"))
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), browser->search_engines);
-        else
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), NULL);
         midori_search_action_set_search_engines (MIDORI_SEARCH_ACTION (
             _action_by_name (browser, "Search")), browser->search_engines);
         /* FIXME: Connect to updates */
