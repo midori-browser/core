@@ -489,60 +489,6 @@ midori_history_add_item_cb (KatzeArray* array,
                             G_CALLBACK (midori_history_notify_item_cb), db);
 }
 
-static int
-midori_history_add_items (void*  data,
-                          int    argc,
-                          char** argv,
-                          char** colname)
-{
-    KatzeItem* item;
-    KatzeArray* parent;
-    KatzeArray* array;
-    gint64 date;
-    gint64 day;
-    gint i;
-    gint j;
-    gint n;
-    gint ncols = 4;
-    gchar token[50];
-
-    array = KATZE_ARRAY (data);
-    g_return_val_if_fail (KATZE_IS_ARRAY (array), 1);
-
-    /* Test whether have the right number of columns */
-    g_return_val_if_fail (argc % ncols == 0, 1);
-
-    for (i = 0; i < (argc - ncols) + 1; i++)
-    {
-        item = katze_item_new ();
-        katze_item_set_uri (item, argv[i]);
-        katze_item_set_name (item, argv[i + 1]);
-        date = g_ascii_strtoull (argv[i + 2], NULL, 10);
-        day = g_ascii_strtoull (argv[i + 3], NULL, 10);
-        katze_item_set_added (item, date);
-
-        n = katze_array_get_length (array);
-        for (j = n - 1; j >= 0; j--)
-        {
-            parent = katze_array_get_nth_item (array, j);
-            if (day == katze_item_get_added (KATZE_ITEM (parent)))
-                break;
-        }
-
-        if (j < 0)
-        {
-            parent = katze_array_new (KATZE_TYPE_ARRAY);
-            katze_item_set_added (KATZE_ITEM (parent), day);
-            strftime (token, sizeof (token), "%x", localtime ((time_t *)&date));
-            katze_item_set_name (KATZE_ITEM (parent), token);
-            katze_array_add_item (array, parent);
-        }
-
-        katze_array_add_item (parent, item);
-    }
-    return 0;
-}
-
 static sqlite3*
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
@@ -552,6 +498,8 @@ midori_history_initialize (KatzeArray*  array,
     KatzeItem* item;
     gint i;
     gboolean has_day;
+    sqlite3_stmt* statement;
+    gint result;
 
     has_day = FALSE;
 
@@ -589,13 +537,54 @@ midori_history_initialize (KatzeArray*  array,
                       NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
 
-    if (sqlite3_exec (db,
-                           "SELECT uri, title, date, day FROM history "
-                           "ORDER BY date ASC",
-                           midori_history_add_items,
-                           array,
-                           errmsg) != SQLITE_OK)
+    /* FIXME: Install LIKE function with unicode case insensitivity */
+    /* FIXME: Limit by maximum-history-age */
+    if (sqlite3_prepare_v2 (db,
+        "SELECT DISTINCT uri, title, date, day FROM history ORDER BY date ASC",
+        -1, &statement, NULL) != SQLITE_OK)
         return NULL;
+
+    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+    {
+        const unsigned char* uri = sqlite3_column_text (statement, 0);
+        const unsigned char* title = sqlite3_column_text (statement, 1);
+        sqlite3_int64 date = sqlite3_column_int64 (statement, 2);
+        sqlite3_int64 day = sqlite3_column_int64 (statement, 3);
+        KatzeArray* parent;
+        gint j;
+        gint n;
+        gchar token[50];
+
+        item = katze_item_new ();
+        katze_item_set_uri (item, (gchar*)uri);
+        katze_item_set_name (item, (gchar*)title);
+        katze_item_set_added (item, date);
+
+        n = katze_array_get_length (array);
+        for (j = n - 1; j >= 0; j--)
+        {
+            parent = katze_array_get_nth_item (array, j);
+            if (day == katze_item_get_added (KATZE_ITEM (parent)))
+                break;
+        }
+
+        if (j < 0)
+        {
+            parent = katze_array_new (KATZE_TYPE_ARRAY);
+            katze_item_set_added (KATZE_ITEM (parent), day);
+            strftime (token, sizeof (token), "%x", localtime ((time_t *)&date));
+            katze_item_set_name (KATZE_ITEM (parent), token);
+            katze_array_add_item (array, parent);
+        }
+
+        katze_array_add_item (parent, item);
+    }
+
+    if (result != SQLITE_DONE)
+        g_print (_("Failed to execute database statement: %s\n"),
+                 sqlite3_errmsg (db));
+
+    sqlite3_finalize (statement);
 
     i = 0;
     while ((item = katze_array_get_nth_item (array, i++)))
