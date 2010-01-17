@@ -21,9 +21,6 @@ cd po
 msginit -l aa_CC -o aa.po -i midori.pot
 sed -i 's/PACKAGE/midori/g' aa.po
 
-Make sure you add your language to the file po/LINGUAS.
-Just open the file with a text editor and add your code.
-
 To check your language 'aa' for errors, do this:
 
 msgfmt -c --check-accelerators=_ aa.po
