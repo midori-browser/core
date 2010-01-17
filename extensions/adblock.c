@@ -638,34 +638,52 @@ adblock_is_matched (const gchar*  opts,
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
 static gchar*
-adblock_prepare_urihider_js (const gchar* uri)
+adblock_prepare_urihider_js (GList* uris)
 {
+    GList* li = NULL;
+    gchar* out;
+    gchar* cmd = g_strdup ("");
+    gchar* tmp;
     const char *js =
         "(function() {"
-        "function getElementsByAttribute (strTagName, strAttributeName, strAttributeValue) {"
+        "function getElementsByAttribute (strTagName, strAttributeName, arrAttributeValue) {"
         "    var arrElements = document.getElementsByTagName (strTagName);"
         "    var arrReturnElements = new Array();"
-        "    for (var i=0; i<arrElements.length; i++) {"
-        "        var oCurrent = arrElements[i];"
-        "        var oAttribute = oCurrent.getAttribute && oCurrent.getAttribute (strAttributeName);"
-        "        if (oAttribute && oAttribute.length > 0 && strAttributeValue.indexOf (oAttribute) != -1)"
-        "            arrReturnElements.push (oCurrent);"
+        "    for (var j=0; j<arrAttributeValue.length; j++) {"
+        "        var strAttributeValue = arrAttributeValue[j];"
+        "        for (var i=0; i<arrElements.length; i++) {"
+        "             var oCurrent = arrElements[i];"
+        "             var oAttribute = oCurrent.getAttribute && oCurrent.getAttribute (strAttributeName);"
+        "             if (oAttribute && oAttribute.length > 0 && strAttributeValue.indexOf (oAttribute) != -1)"
+        "                 arrReturnElements.push (oCurrent);"
+        "        }"
         "    }"
         "    return arrReturnElements;"
-        "}"
-        "function hideElementBySrc (strUri) {"
-        "    var oElements = getElementsByAttribute('img', 'src', strUri);"
+        "};"
+        "function hideElementBySrc (uris) {"
+        "    var oElements = getElementsByAttribute('img', 'src', uris);"
         "    if (oElements.length == 0)"
-        "        oElements = getElementsByAttribute ('iframe', 'src', strUri);"
+        "        oElements = getElementsByAttribute ('iframe', 'src', uris);"
         "    for (var i=0; i<oElements.length; i++) {"
         "        oElements[i].style.visibility = 'hidden !important';"
         "        oElements[i].style.width = '0';"
         "        oElements[i].style.height = '0';"
         "    }"
-        "}"
-        "hideElementBySrc ('%s');"
-        "})()";
-    return g_strdup_printf (js, uri);
+        "};"
+        "var uris=new Array ();"
+        "%s"
+        "hideElementBySrc (uris);"
+        "})();";
+
+    for (li = uris; li != NULL; li = g_list_next (li))
+    {
+        tmp = g_strdup_printf ("uris.push ('%s');%s", (gchar*)li->data, cmd);
+        katze_assign (cmd, tmp);
+    }
+    out = g_strdup_printf (js, cmd);
+    g_free (cmd);
+
+    return out;
 }
 
 static void
@@ -677,6 +695,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
                                       GtkWidget*             image)
 {
     SoupMessage* msg;
+    GList* blocked_uris;
     const gchar* req_uri;
     const char *page_uri;
 
@@ -701,19 +720,10 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     /* TODO: opts should be defined */
     if (adblock_is_matched (NULL, req_uri, page_uri))
     {
-        gchar* script = adblock_prepare_urihider_js (req_uri);
-        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-        WebKitWebFrame* main_frame;
-
+        blocked_uris = g_object_get_data (G_OBJECT (web_view), "blocked-uris");
+        blocked_uris = g_list_prepend (blocked_uris, g_strdup (req_uri));
         webkit_network_request_set_uri (request, "about:blank");
-        sokoke_js_script_eval (js_context, script, NULL);
-        main_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-        if (main_frame != web_frame)
-        {
-            js_context = webkit_web_frame_get_global_context (main_frame);
-            sokoke_js_script_eval (js_context, script, NULL);
-        }
-        g_free (script);
+        g_object_set_data (G_OBJECT (web_view), "blocked-uris", blocked_uris);
     }
     /* g_debug ("%f", g_test_timer_elapsed ()); */
 
@@ -755,18 +765,9 @@ static void
 adblock_custom_block_image_cb (GtkWidget*       widget,
                                MidoriExtension* extension)
 {
-    WebKitWebView* web_view;
-    const gchar* req_uri;
     gchar* custom_list;
     FILE* list;
-    SoupURI* s_req_domain;
     gchar* uri;
-    SoupURI* s_uri;
-
-    web_view = g_object_get_data (G_OBJECT (widget), "webview");
-    req_uri = webkit_web_view_get_uri (web_view);
-    if (!req_uri)
-        return;
 
     custom_list = g_build_filename (midori_extension_get_config_dir (extension),
                                     CUSTOM_LIST_NAME, NULL);
@@ -775,17 +776,12 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
         g_free (custom_list);
         return;
     }
-    s_req_domain = soup_uri_new (req_uri);
     uri = g_object_get_data (G_OBJECT (widget), "uri");
-    s_uri = soup_uri_new (uri);
 
     g_fprintf (list, "%s\n", uri);
-    g_fprintf (list, "%s##img[src*=\"%s\"]\n", s_req_domain->host, s_uri->path);
     fclose (list);
     adblock_reload_rules (extension, TRUE);
 
-    soup_uri_free (s_req_domain);
-    soup_uri_free (s_uri);
     g_free (custom_list);
 }
 
@@ -806,26 +802,55 @@ adblock_populate_popup_cb (WebKitWebView*   web_view,
     event.y = y;
     hit_test = webkit_web_view_get_hit_test_result (web_view, &event);
     context = katze_object_get_int (hit_test, "context");
-    if (!(context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE))
+    if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE)
+    {
+        uri = katze_object_get_string (hit_test, "image-uri");
+        menuitem = gtk_menu_item_new_with_mnemonic ("Bl_ock image");
+    }
+    else if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
+    {
+        uri = katze_object_get_string (hit_test, "link-uri");
+        menuitem = gtk_menu_item_new_with_mnemonic ("Bl_ock link");
+    }
+    else
         return;
-    uri = katze_object_get_string (hit_test, "image-uri");
-    menuitem = gtk_menu_item_new_with_mnemonic ("Bl_ock image");
     gtk_widget_show (menuitem);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_object_set_data_full (G_OBJECT (menuitem), "uri", uri, (GDestroyNotify)g_free);
-    g_object_set_data (G_OBJECT (menuitem), "webview", web_view);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (adblock_custom_block_image_cb), extension);
 }
 #endif
 
+#if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
-adblock_window_object_cleared_cb (GtkWidget*      web_view,
+adblock_load_finished_cb (WebKitWebView  *web_view,
+                          WebKitWebFrame *web_frame,
+                          gpointer        user_data)
+{
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+    GList* uris = g_object_get_data (G_OBJECT (web_view), "blocked-uris");
+    if (g_list_nth_data (uris, 0) == NULL)
+        return;
+
+    gchar* script = adblock_prepare_urihider_js (uris);
+    webkit_web_view_execute_script (web_view, script);
+    sokoke_js_script_eval (js_context, script, NULL);
+    GList* li = NULL;
+    for (li = uris; li != NULL; li = g_list_next (li))
+        uris = g_list_remove (uris, li->data);
+    g_free (script);
+    g_object_set_data (G_OBJECT (web_view), "blocked-uris", uris);
+}
+#endif
+
+static void
+adblock_window_object_cleared_cb (WebKitWebView*  web_view,
                                   WebKitWebFrame* web_frame,
                                   JSContextRef    js_context,
                                   JSObjectRef     js_window)
 {
-    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (web_view), blockscript);
+    webkit_web_view_execute_script (web_view, blockscript);
 }
 
 static void
@@ -847,6 +872,8 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (adblock_resource_request_starting_cb), image);
+    g_signal_connect (web_view, "load-finished",
+        G_CALLBACK (adblock_load_finished_cb), image);
     #endif
 }
 
@@ -1192,6 +1219,8 @@ adblock_deactivate_tabs (MidoriView*      view,
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_resource_request_starting_cb, image);
+    g_signal_handlers_disconnect_by_func (
+       web_view, adblock_load_finished_cb, image);
     #endif
 }
 
@@ -1286,12 +1315,14 @@ test_adblock_pattern (void)
         "objects.tremormedia.com/embed/xml/*.xml?r=\n"
         "videostrip.com^*/admatcherclient.\n"
         "test.dom/test?var\n"
+        "/adpage.\n"
         "br.gcl.ru/cgi-bin/br/",
         -1, NULL);
 
     adblock_parse_file (filename);
 
     g_test_timer_start ();
+    g_assert (adblock_is_matched (NULL, "http://www.engadget.com/_uac/adpage.html", ""));
     g_assert (adblock_is_matched (NULL, "http://test.dom/test?var=1", ""));
     g_assert (adblock_is_matched (NULL, "http://ads.foo.bar/teddy", ""));
     g_assert (!adblock_is_matched (NULL, "http://ads.fuu.bar/teddy", ""));
