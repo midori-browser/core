@@ -122,9 +122,9 @@ midori_location_action_disconnect_proxy (GtkAction* action,
 
 #if !HAVE_SQLITE
 static gboolean
-midori_location_entry_completion_match_cb (GtkTreeModel* model,
-                                           GtkTreeIter*  iter,
-                                           gpointer      data);
+midori_location_action_filter_match_cb (GtkTreeModel* model,
+                                        GtkTreeIter*  iter,
+                                        gpointer      data);
 #endif
 
 static void
@@ -329,7 +329,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         #else
         model = gtk_tree_model_filter_new (action->model, NULL);
         gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (model),
-            midori_location_entry_completion_match_cb, action, NULL);
+            midori_location_action_filter_match_cb, action, NULL);
         #endif
         action->completion_model = model;
 
@@ -530,6 +530,18 @@ midori_location_action_freeze (MidoriLocationAction* location_action)
         g_hash_table_remove_all (location_action->items);
 }
 
+static gboolean
+midori_location_action_filter_recent_cb (GtkTreeModel* model,
+                                         GtkTreeIter*  iter,
+                                         gpointer      data)
+{
+    GtkTreePath* path = gtk_tree_model_get_path (model, iter);
+    gint* indices = gtk_tree_path_get_indices (path);
+    gboolean visible = *indices < MAX_ITEMS;
+    gtk_tree_path_free (path);
+    return visible;
+}
+
 /**
  * midori_location_action_thaw:
  * @location_action: a #MidoriLocationAction
@@ -542,8 +554,6 @@ void
 midori_location_action_thaw (MidoriLocationAction* location_action)
 {
     GtkTreeModel* filter_model;
-    GtkTreeIter iter;
-    gint i;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (midori_location_action_is_frozen (location_action));
@@ -553,18 +563,10 @@ midori_location_action_thaw (MidoriLocationAction* location_action)
         VISITS_COL, GTK_SORT_DESCENDING);
 
     filter_model = gtk_tree_model_filter_new (location_action->model, NULL);
-    gtk_tree_model_filter_set_visible_column (
-        GTK_TREE_MODEL_FILTER (filter_model), VISIBLE_COL);
-
+    gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (filter_model),
+        midori_location_action_filter_recent_cb, location_action, NULL);
     location_action->filter_model = filter_model;
     midori_location_action_set_model (location_action, location_action->model);
-
-    i = MAX_ITEMS;
-    while (gtk_tree_model_iter_nth_child (location_action->model, &iter, NULL, i++))
-    {
-        gtk_list_store_set (GTK_LIST_STORE (location_action->model),
-                    &iter, VISIBLE_COL, FALSE, -1);
-    }
 }
 
 static void
@@ -1126,9 +1128,9 @@ midori_location_action_match (GtkTreeModel* model,
 }
 
 static gboolean
-midori_location_entry_completion_match_cb (GtkTreeModel* model,
-                                           GtkTreeIter*  iter,
-                                           gpointer      data)
+midori_location_action_filter_match_cb (GtkTreeModel* model,
+                                        GtkTreeIter*  iter,
+                                        gpointer      data)
 {
     MidoriLocationAction* action = data;
     return midori_location_action_match (model, action->key, iter, data);
@@ -1228,7 +1230,6 @@ midori_location_action_set_item (MidoriLocationAction* location_action,
                                  gboolean              filter)
 {
     GtkTreeModel* model;
-    GtkTreeModel* filter_model;
     GtkTreeIter iter;
     GdkPixbuf* new_icon;
     gint visits = 0;
@@ -1269,27 +1270,6 @@ midori_location_action_set_item (MidoriLocationAction* location_action,
     if (new_icon)
         gtk_list_store_set (GTK_LIST_STORE (model), &iter,
                             FAVICON_COL, new_icon, -1);
-
-    if (filter)
-    {
-        filter_model = location_action->filter_model;
-
-        if (filter_model)
-        {
-            GtkTreeIter idx;
-            gint n;
-
-            n = gtk_tree_model_iter_n_children (filter_model, NULL);
-            if (n > MAX_ITEMS)
-            {
-                gtk_tree_model_iter_nth_child (filter_model, &idx, NULL, n - 1);
-                gtk_tree_model_filter_convert_iter_to_child_iter (
-                    GTK_TREE_MODEL_FILTER (filter_model), &iter, &idx);
-                gtk_list_store_set (GTK_LIST_STORE (model),
-                    &iter, VISIBLE_COL, FALSE, -1);
-            }
-        }
-    }
 }
 
 static void
