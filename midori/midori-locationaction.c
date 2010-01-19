@@ -919,6 +919,10 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         return TRUE;
     }
     default:
+        /* Don't trigger completion on control characters */
+        if (gdk_unicode_to_keyval (event->keyval) == (event->keyval | 0x01000000))
+            return FALSE;
+
         if ((text = gtk_entry_get_text (entry)) && *text)
         {
             midori_location_action_popup_completion (location_action, widget, "");
