@@ -388,7 +388,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         and prepending/ appending % to the key. */
     query = sqlite3_mprintf ("SELECT DISTINCT uri, title FROM history WHERE "
                              "uri LIKE '%%%q%%' OR title LIKE '%%%q%%'"
-                             "ORDER BY day LIMIT %d",
+                             "ORDER BY date ASC LIMIT %d",
                              action->key, action->key, MAX_ITEMS);
     result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
     sqlite3_free (query);
