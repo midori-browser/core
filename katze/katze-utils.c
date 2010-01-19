@@ -1457,17 +1457,18 @@ katze_load_cached_icon (const gchar* uri,
             i++;
         if (uri[i] == '/')
         {
-            icon_uri = g_strdup (uri);
-            icon_uri[i] = '\0';
-            icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
+            gchar* ticon_uri = g_strdup (uri);
+            ticon_uri[i] = '\0';
+            icon_uri = g_strdup_printf ("%s/favicon.ico", ticon_uri);
+            g_free (ticon_uri);
         }
         else
             icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
 
         checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, icon_uri, -1);
         ext = g_strrstr (icon_uri, ".");
-        g_free (icon_uri);
         filename = g_strdup_printf ("%s%s", checksum, ext ? ext : "");
+        g_free (icon_uri);
         g_free (checksum);
         path = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
                                  "icons", filename, NULL);
