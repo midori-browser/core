@@ -424,8 +424,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
         gtk_window_set_screen (GTK_WINDOW (action->popup),
                                gtk_widget_get_screen (action->entry));
         gtk_window_set_transient_for (GTK_WINDOW (action->popup), GTK_WINDOW (toplevel));
-        gtk_widget_show_all (action->popup);
         gtk_tree_view_columns_autosize (GTK_TREE_VIEW (action->treeview));
+        gtk_widget_show_all (action->popup);
     }
 
     column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
