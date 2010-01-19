@@ -68,6 +68,8 @@ static void cm_tree_popup_collapse_activate_cb(GtkMenuItem *item, CookieManagerP
 static void cm_tree_popup_expand_activate_cb(GtkMenuItem *item, CookieManagerPage *cmp);
 static void cm_filter_tree(CookieManagerPage *cmp, const gchar *filter_text);
 
+typedef void (*CMPathWalkFunc) (GtkTreePath *path);
+
 
 G_DEFINE_TYPE_WITH_CODE(CookieManagerPage, cookie_manager_page, GTK_TYPE_VBOX,
 						G_IMPLEMENT_INTERFACE(MIDORI_TYPE_VIEWABLE,
@@ -364,11 +366,73 @@ static void cm_delete_cookie(CookieManagerPage *cmp, GtkTreeModel *model, GtkTre
 }
 
 
+static gboolean cm_try_to_select(CMPathWalkFunc path_func, GtkTreeSelection *selection,
+								 GtkTreeModel *model, GtkTreePath *path)
+{
+	GtkTreeIter iter;
+
+	if (gtk_tree_path_get_depth(path) <= 0) /* sanity check */
+		return FALSE;
+
+	/* modify the path using the passed function */
+	if (path_func != NULL)
+		path_func(path);
+
+	if (gtk_tree_path_get_depth(path) <= 0) /* sanity check */
+		return FALSE;
+
+	/* check whether the path points to something valid and if so, select it */
+	if (gtk_tree_model_get_iter(model, &iter, path))
+	{
+		GtkTreeView *treeview = gtk_tree_selection_get_tree_view(selection);
+		gboolean was_expanded =
+			! gtk_tree_model_iter_has_child(model, &iter) ||
+			  gtk_tree_view_row_expanded(treeview, path);
+		/* to get gtk_tree_selection_select_path() working, we need to expand the row first
+		 * if it isn't expanded yet, at least when the row is a parent item */
+		if (! was_expanded)
+			gtk_tree_view_expand_to_path(treeview, path);
+
+		gtk_tree_selection_select_path(selection, path);
+
+		if (! was_expanded) /* restore the previous state */
+			gtk_tree_view_collapse_row(treeview, path);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+/* select an item after deletion */
+static void cm_select_path(CookieManagerPage *cmp, GtkTreeModel *model, GtkTreePath *path)
+{
+	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
+	CMPathWalkFunc path_funcs[] = {
+		(CMPathWalkFunc) gtk_tree_path_prev, (CMPathWalkFunc) gtk_tree_path_up,
+		(CMPathWalkFunc) gtk_tree_path_next, NULL };
+	CMPathWalkFunc *path_func;
+
+	/* first try selecting the item directly to which path points */
+	if (! cm_try_to_select(NULL, selection, model, path))
+	{	/* if this failed, modify the path until we found something valid */
+		path_func = path_funcs;
+		while (*path_func != NULL)
+		{
+			if (cm_try_to_select(*path_func, selection, model, path))
+				break;
+			path_func++;
+		}
+	}
+}
+
+
 static void cm_delete_item(CookieManagerPage *cmp)
 {
 	GtkTreeIter iter, iter_store, child;
 	GtkTreeModel *model;
-	GtkTreePath *path;
+	GtkTreePath *path, *last_path;
 	GtkTreeSelection *selection;
 	GList *rows, *row;
 	GList *refs = NULL;
@@ -378,6 +442,8 @@ static void cm_delete_item(CookieManagerPage *cmp)
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
 	if (cm_list_length(rows) == 0)
 		return;
+
+	last_path = gtk_tree_path_copy(g_list_nth_data(rows, 0));
 
 	/* as paths will change during delete, first create GtkTreeRowReferences for
 	 * all selected rows */
@@ -452,6 +518,9 @@ static void cm_delete_item(CookieManagerPage *cmp)
 	} while ((row = row->next) != NULL);
 	cm_free_selection_list(rows, (GFunc) gtk_tree_path_free);
 	cm_free_selection_list(refs, (GFunc) gtk_tree_row_reference_free);
+
+	cm_select_path(cmp, model, last_path);
+	gtk_tree_path_free(last_path);
 }
 
 
@@ -488,11 +557,12 @@ static void cm_delete_all_cookies_real(CookieManagerPage *cmp)
 		else
 			cm_store_remove(cmp, &iter);
 	}
-	gtk_tree_path_free(path_first);
-
 	/* now that we deleted all matching cookies, we reset the filter */
 	gtk_entry_set_text(GTK_ENTRY(priv->filter_entry), "");
 	cm_set_button_sensitiveness(cmp, FALSE);
+
+	cm_select_path(cmp, model, path_first);
+	gtk_tree_path_free(path_first);
 }
 
 
