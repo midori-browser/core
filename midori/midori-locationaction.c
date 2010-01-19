@@ -317,6 +317,9 @@ midori_location_action_popup_timeout_cb (gpointer data)
     #endif
     gint matches, height, screen_height;
 
+    if (!gtk_widget_has_focus (action->entry))
+        return FALSE;
+
     if (G_UNLIKELY (!action->popup))
     {
         GtkWidget* popup;
