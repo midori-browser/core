@@ -889,7 +889,8 @@ midori_location_action_button_press_event_cb (GtkEntry*             entry,
     {
         midori_location_action_popdown_completion (action);
 
-        return TRUE;
+        /* Allow button handling, for context menu and selection */
+        return FALSE;
     }
 
     return FALSE;
