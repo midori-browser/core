@@ -23,6 +23,10 @@
     (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif
 
+#if !GTK_CHECK_VERSION (2, 18, 0)
+#define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
+#endif
+
 #if !GTK_CHECK_VERSION(2, 12, 0)
 
 void
