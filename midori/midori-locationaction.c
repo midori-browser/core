@@ -911,8 +911,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
         {
             midori_location_action_popdown_completion (location_action);
-            text = gtk_entry_get_text (entry);
-            pango_layout_set_text (gtk_entry_get_layout (entry), text, -1);
             return TRUE;
         }
 
@@ -957,8 +955,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             {
                 gchar* uri;
                 gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
-                /* Update the layout without actually changing the text */
-                pango_layout_set_text (gtk_entry_get_layout (entry), uri, -1);
+                gtk_entry_set_text (entry, uri);
                 g_free (uri);
             }
             location_action->completion_index = selected;
