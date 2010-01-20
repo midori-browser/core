@@ -303,6 +303,37 @@ midori_location_action_popup_position (GtkWidget* popup,
 }
 
 static gboolean
+midori_location_action_treeview_button_press_cb (GtkWidget*            treeview,
+                                                 GdkEventButton*       event,
+                                                 MidoriLocationAction* action)
+{
+    GtkTreePath* path;
+
+    if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (treeview),
+        event->x, event->y, &path, NULL, NULL, NULL))
+    {
+        GtkTreeIter iter;
+        gchar* uri;
+
+        gtk_tree_model_get_iter (action->completion_model, &iter, path);
+        gtk_tree_path_free (path);
+
+        gtk_widget_hide (action->popup);
+        gtk_tree_selection_unselect_all (gtk_tree_view_get_selection (
+            GTK_TREE_VIEW (treeview)));
+        action->completion_timeout = 0;
+
+        gtk_tree_model_get (action->completion_model, &iter, URI_COL, &uri, -1);
+        gtk_entry_set_text (GTK_ENTRY (action->entry), uri);
+        g_free (uri);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gboolean
 midori_location_action_popup_timeout_cb (gpointer data)
 {
     MidoriLocationAction* action = data;
@@ -345,7 +376,9 @@ midori_location_action_popup_timeout_cb (gpointer data)
         treeview = gtk_tree_view_new_with_model (model);
         gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
         gtk_container_add (GTK_CONTAINER (scrolled), treeview);
-        /* FIXME: Handle button presses and hovering rows */
+        /* FIXME: Handle hovering rows */
+        g_signal_connect (treeview, "button-press-event",
+            G_CALLBACK (midori_location_action_treeview_button_press_cb), action);
         action->treeview = treeview;
 
         column = gtk_tree_view_column_new ();
