@@ -354,6 +354,19 @@ midori_location_action_popup_timeout_cb (gpointer data)
     if (!gtk_widget_has_focus (action->entry))
         return FALSE;
 
+    if (!*action->key)
+    {
+        const gchar* uri = gtk_entry_get_text (GTK_ENTRY (action->entry));
+        #if HAVE_SQLITE
+        katze_assign (action->key, g_strdup (uri));
+        #else
+        katze_assign (action->key, katze_collfold (uri));
+        #endif
+    }
+
+    if (!(action->key && *action->key))
+        return FALSE;
+
     if (G_UNLIKELY (!action->popup))
     {
         GtkWidget* popup;
@@ -403,16 +416,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
         action->popup = popup;
         g_signal_connect (popup, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &action->popup);
-    }
-
-    if (!*action->key)
-    {
-        const gchar* uri = gtk_entry_get_text (GTK_ENTRY (action->entry));
-        #if HAVE_SQLITE
-        katze_assign (action->key, g_strdup (uri));
-        #else
-        katze_assign (action->key, katze_collfold (uri));
-        #endif
     }
 
     #if HAVE_SQLITE
@@ -504,7 +507,11 @@ midori_location_action_popdown_completion (MidoriLocationAction* location_action
         gtk_tree_selection_unselect_all (gtk_tree_view_get_selection (
             GTK_TREE_VIEW (location_action->treeview)));
     }
-    location_action->completion_timeout = 0;
+    if (location_action->completion_timeout)
+    {
+        g_source_remove (location_action->completion_timeout);
+        location_action->completion_timeout = 0;
+    }
     location_action->completion_index = -1;
 }
 
@@ -843,6 +850,36 @@ midori_location_action_changed_cb (GtkEntry*             entry,
     katze_assign (location_action->text, g_strdup (gtk_entry_get_text (entry)));
 }
 
+static void
+midori_location_action_move_cursor_cb (GtkEntry*             entry,
+                                       GtkMovementStep       step,
+                                       gint                  count,
+                                       gboolean              extend_selection,
+                                       MidoriLocationAction* action)
+{
+    gchar* text = g_strdup (pango_layout_get_text (gtk_entry_get_layout (entry)));
+    /* Update entry with the completed text */
+    gtk_entry_set_text (entry, text);
+    g_free (text);
+    midori_location_action_popdown_completion (action);
+}
+
+static void
+midori_location_action_backspace_cb (GtkWidget*            entry,
+                                     MidoriLocationAction* action)
+{
+    midori_location_action_popup_completion (action, entry, "");
+    action->completion_index = -1;
+}
+
+static void
+midori_location_action_paste_clipboard_cb (GtkWidget*            entry,
+                                           MidoriLocationAction* action)
+{
+    midori_location_action_popup_completion (action, entry, "");
+    action->completion_index = -1;
+}
+
 static gboolean
 midori_location_action_button_press_event_cb (GtkEntry*             entry,
                                               GdkEventKey*          event,
@@ -911,6 +948,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
         {
             midori_location_action_popdown_completion (location_action);
+            text = gtk_entry_get_text (entry);
+            pango_layout_set_text (gtk_entry_get_layout (entry), text, -1);
             return TRUE;
         }
 
@@ -955,7 +994,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             {
                 gchar* uri;
                 gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
-                gtk_entry_set_text (entry, uri);
+                /* Update the layout without actually changing the text */
+                pango_layout_set_text (gtk_entry_get_layout (entry), uri, -1);
                 g_free (uri);
             }
             location_action->completion_index = selected;
@@ -1446,6 +1486,12 @@ midori_location_action_connect_proxy (GtkAction* action,
         g_object_connect (child,
                       "signal::changed",
                       midori_location_action_changed_cb, action,
+                      "signal::move-cursor",
+                      midori_location_action_move_cursor_cb, action,
+                      "signal::backspace",
+                      midori_location_action_backspace_cb, action,
+                      "signal::paste-clipboard",
+                      midori_location_action_paste_clipboard_cb, action,
                       "signal::button-press-event",
                       midori_location_action_button_press_event_cb, action,
                       "signal::key-press-event",
