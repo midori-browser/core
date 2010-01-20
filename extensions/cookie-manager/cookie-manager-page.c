@@ -385,9 +385,7 @@ static gboolean cm_try_to_select(CMPathWalkFunc path_func, GtkTreeSelection *sel
 	if (gtk_tree_model_get_iter(model, &iter, path))
 	{
 		GtkTreeView *treeview = gtk_tree_selection_get_tree_view(selection);
-		gboolean was_expanded =
-			! gtk_tree_model_iter_has_child(model, &iter) ||
-			  gtk_tree_view_row_expanded(treeview, path);
+		gboolean was_expanded = gtk_tree_view_row_expanded(treeview, path);
 		/* to get gtk_tree_selection_select_path() working, we need to expand the row first
 		 * if it isn't expanded yet, at least when the row is a parent item */
 		if (! was_expanded)
