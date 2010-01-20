@@ -378,8 +378,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
         gtk_container_add (GTK_CONTAINER (popup), scrolled);
         treeview = gtk_tree_view_new_with_model (model);
         gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+        gtk_tree_view_set_hover_selection (GTK_TREE_VIEW (treeview), TRUE);
         gtk_container_add (GTK_CONTAINER (scrolled), treeview);
-        /* FIXME: Handle hovering rows */
         g_signal_connect (treeview, "button-press-event",
             G_CALLBACK (midori_location_action_treeview_button_press_cb), action);
         action->treeview = treeview;
