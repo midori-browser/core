@@ -844,6 +844,21 @@ midori_location_action_changed_cb (GtkEntry*             entry,
 }
 
 static gboolean
+midori_location_action_button_press_event_cb (GtkEntry*             entry,
+                                              GdkEventKey*          event,
+                                              MidoriLocationAction* action)
+{
+    if (action->popup && GTK_WIDGET_VISIBLE (action->popup))
+    {
+        midori_location_action_popdown_completion (action);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gboolean
 midori_location_action_key_press_event_cb (GtkEntry*    entry,
                                            GdkEventKey* event,
                                            GtkAction*   action)
@@ -1434,6 +1449,8 @@ midori_location_action_connect_proxy (GtkAction* action,
         g_object_connect (child,
                       "signal::changed",
                       midori_location_action_changed_cb, action,
+                      "signal::button-press-event",
+                      midori_location_action_button_press_event_cb, action,
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
                       #if GTK_CHECK_VERSION (2, 19, 3)
