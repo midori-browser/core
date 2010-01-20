@@ -1582,6 +1582,8 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (text != NULL);
 
+    midori_location_action_popdown_completion (location_action);
+
     katze_assign (location_action->text, g_strdup (text));
 
     if (!(proxies = gtk_action_get_proxies (GTK_ACTION (location_action))))
