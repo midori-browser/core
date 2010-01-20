@@ -44,6 +44,7 @@ struct _MidoriLocationAction
     GtkWidget* popup;
     GtkWidget* treeview;
     GtkTreeModel* completion_model;
+    gint completion_index;
     GtkWidget* entry;
     GdkPixbuf* default_icon;
     GHashTable* items;
@@ -133,6 +134,9 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
                                       GtkTreeModel*    model,
                                       GtkTreeIter*     iter,
                                       gpointer         data);
+
+static void
+midori_location_action_popdown_completion (MidoriLocationAction* location_action);
 
 static void
 midori_location_action_class_init (MidoriLocationActionClass* class)
@@ -318,13 +322,12 @@ midori_location_action_treeview_button_press_cb (GtkWidget*            treeview,
         gtk_tree_model_get_iter (action->completion_model, &iter, path);
         gtk_tree_path_free (path);
 
-        gtk_widget_hide (action->popup);
-        gtk_tree_selection_unselect_all (gtk_tree_view_get_selection (
-            GTK_TREE_VIEW (treeview)));
-        action->completion_timeout = 0;
+        midori_location_action_popdown_completion (action);
 
         gtk_tree_model_get (action->completion_model, &iter, URI_COL, &uri, -1);
         gtk_entry_set_text (GTK_ENTRY (action->entry), uri);
+        g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
+                       (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
         g_free (uri);
 
         return TRUE;
@@ -502,6 +505,7 @@ midori_location_action_popdown_completion (MidoriLocationAction* location_action
             GTK_TREE_VIEW (location_action->treeview)));
     }
     location_action->completion_timeout = 0;
+    location_action->completion_index = -1;
 }
 
 /* Allow this to be used in tests, it's otherwise private */
@@ -613,6 +617,7 @@ midori_location_action_init (MidoriLocationAction* location_action)
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
     location_action->completion_timeout = 0;
+    location_action->completion_index = -1;
     location_action->key = NULL;
     location_action->popup = NULL;
     location_action->entry = NULL;
@@ -846,7 +851,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     GtkWidget* widget = GTK_WIDGET (entry);
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
     const gchar* text;
-    static gint selected = -1;
     gboolean is_enter = FALSE;
 
     switch (event->keyval)
@@ -864,6 +868,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         {
             GtkTreeModel* model = location_action->completion_model;
             GtkTreeIter iter;
+            gint selected = location_action->completion_index;
             midori_location_action_popdown_completion (location_action);
             if (selected > -1 &&
                 gtk_tree_model_iter_nth_child (model, &iter, NULL, selected))
@@ -877,10 +882,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                         (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
 
                 g_free (uri);
-                selected = -1;
                 return TRUE;
             }
-            selected = -1;
         }
 
         if (is_enter)
@@ -895,7 +898,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             midori_location_action_popdown_completion (location_action);
             text = gtk_entry_get_text (entry);
             pango_layout_set_text (gtk_entry_get_layout (entry), text, -1);
-            selected = -1;
             return TRUE;
         }
 
@@ -920,6 +922,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             gint matches = gtk_tree_model_iter_n_children (model, NULL);
             GtkTreePath* path;
             GtkTreeIter iter;
+            gint selected = location_action->completion_index;
 
             if (event->keyval == GDK_Down || event->keyval == GDK_KP_Down)
                 selected = MIN (selected + 1, matches -1);
@@ -943,6 +946,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                 pango_layout_set_text (gtk_entry_get_layout (entry), uri, -1);
                 g_free (uri);
             }
+            location_action->completion_index = selected;
             return TRUE;
         }
 
@@ -959,7 +963,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         if ((text = gtk_entry_get_text (entry)) && *text)
         {
             midori_location_action_popup_completion (location_action, widget, "");
-            selected = -1;
+            location_action->completion_index = -1;
             return FALSE;
         }
     }
