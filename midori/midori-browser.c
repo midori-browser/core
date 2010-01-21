@@ -2955,6 +2955,9 @@ _action_tools_populate_popup (GtkAction*     action,
     static const GtkActionEntry actions[] = {
       { "ManageSearchEngines" },
       { "ClearPrivateData" },
+      #if WEBKIT_CHECK_VERSION (1, 1, 17)
+      { "InspectPage" },
+      #endif
       { "-" },
       { NULL },
       { "p" },
@@ -3109,6 +3112,9 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { NULL },
       { "-" },
       { "ClearPrivateData" },
+      #if WEBKIT_CHECK_VERSION (1, 1, 17)
+      { "InspectPage" },
+      #endif
       { "Fullscreen" },
       #endif
       { "Preferences" },
@@ -4669,6 +4675,18 @@ _action_clear_private_data_activate (GtkAction*     action,
         gtk_window_present (GTK_WINDOW (dialog));
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 17)
+static void
+_action_inspect_page_activate (GtkAction*     action,
+                               MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view)));
+    WebKitWebInspector* inspector = webkit_web_view_get_inspector (web_view);
+    webkit_web_inspector_show (inspector);
+}
+#endif
+
 static void
 _action_tab_previous_activate (GtkAction*     action,
                                MidoriBrowser* browser)
@@ -5195,6 +5213,12 @@ static const GtkActionEntry entries[] = {
    N_("_Clear Private Data"), "<Ctrl><Shift>Delete",
    N_("Clear private data..."),
    G_CALLBACK (_action_clear_private_data_activate) },
+ #if WEBKIT_CHECK_VERSION (1, 1, 17)
+ { "InspectPage", NULL,
+   N_("_Inspect Page"), "<Ctrl><Shift>i",
+   N_("Inspect page details and access developer tools..."),
+   G_CALLBACK (_action_inspect_page_activate) },
+ #endif
 
  { "TabPrevious", GTK_STOCK_GO_BACK,
    N_("_Previous Tab"), "<Ctrl>Page_Up",
