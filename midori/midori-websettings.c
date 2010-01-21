@@ -1229,8 +1229,8 @@ generate_ident_string (MidoriIdentity identify_as)
             "Safari/419.3 %s",
                                 os, lang, appname);
     case MIDORI_IDENT_FIREFOX:
-        return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s; rv:1.8.1) "
-            "Gecko/20061010 Firefox/2.0 %s",
+        return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s; rv:1.9.0.2) "
+            "Gecko/2008092313 Firefox/3.8 %s",
                                 platform, os, lang, appname);
     case MIDORI_IDENT_EXPLORER:
         return g_strdup_printf ("Mozilla/4.0 (compatible; "
