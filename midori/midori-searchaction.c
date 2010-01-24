@@ -357,15 +357,15 @@ midori_search_action_key_press_event_cb (GtkWidget*          entry,
     case GDK_Return:
         text = gtk_entry_get_text (GTK_ENTRY (entry));
         g_signal_emit (search_action, signals[SUBMIT], 0, text,
-            (event->state & GDK_MOD1_MASK) ? TRUE : FALSE);
+                       MIDORI_MOD_NEW_TAB (event->state));
         search_action->last_proxy = entry;
         return TRUE;
     case GDK_Up:
-        if (event->state & GDK_CONTROL_MASK)
+        if (MIDORI_MOD_SCROLL (event->state))
             _midori_search_action_move_index (search_action, - 1);
         return TRUE;
     case GDK_Down:
-        if (event->state & GDK_CONTROL_MASK)
+        if (MIDORI_MOD_SCROLL (event->state))
             _midori_search_action_move_index (search_action, + 1);
         return TRUE;
     }

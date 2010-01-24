@@ -327,7 +327,7 @@ midori_location_action_treeview_button_press_cb (GtkWidget*            treeview,
         gtk_tree_model_get (action->completion_model, &iter, URI_COL, &uri, -1);
         gtk_entry_set_text (GTK_ENTRY (action->entry), uri);
         g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
-                       (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
+                       MIDORI_MOD_NEW_TAB (event->state));
         g_free (uri);
 
         return TRUE;
@@ -932,7 +932,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
 
                 if (is_enter)
                     g_signal_emit (action, signals[SUBMIT_URI], 0, uri,
-                        (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
+                                   MIDORI_MOD_NEW_TAB (event->state));
 
                 g_free (uri);
                 return TRUE;
@@ -942,7 +942,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         if (is_enter)
             if ((text = gtk_entry_get_text (entry)) && *text)
                 g_signal_emit (action, signals[SUBMIT_URI], 0, text,
-                    (event->state & GDK_CONTROL_MASK) ? TRUE : FALSE);
+                               MIDORI_MOD_NEW_TAB (event->state));
         break;
     case GDK_Escape:
     {

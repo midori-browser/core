@@ -1237,33 +1237,19 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 1:
         if (!link_uri)
             return FALSE;
-        #if HAVE_OSX
-        /* FIXME: Test for Command key */
-        if (0)
-        #else
-        if (event->state & GDK_CONTROL_MASK)
-        #endif
+        if (MIDORI_MOD_NEW_TAB (event->state))
         {
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
-            if (event->state & GDK_SHIFT_MASK)
+            if (MIDORI_MOD_BACKGROUND (event->state))
                 background = !background;
             g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
             return TRUE;
         }
-        else if (event->state & GDK_SHIFT_MASK)
+        else if (MIDORI_MOD_NEW_WINDOW (event->state))
         {
             /* Open link in new window */
             g_signal_emit (view, signals[NEW_WINDOW], 0, link_uri);
-            return TRUE;
-        }
-        else if (event->state & GDK_MOD1_MASK)
-        {
-            /* Open link in new tab */
-            background = view->open_tabs_in_the_background;
-            if (event->state & GDK_CONTROL_MASK)
-                background = !background;
-            g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
             return TRUE;
         }
         break;
@@ -1272,12 +1258,12 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         {
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
-            if (event->state & GDK_CONTROL_MASK)
+            if (MIDORI_MOD_BACKGROUND (event->state))
                 background = !background;
             g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
             return TRUE;
         }
-        else if (event->state & GDK_CONTROL_MASK)
+        else if (MIDORI_MOD_SCROLL (event->state))
         {
             midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0);
             return FALSE; /* Allow Ctrl + Middle click */
@@ -1304,36 +1290,43 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                 GDK_SELECTION_PRIMARY);
             if ((uri = gtk_clipboard_wait_for_text (clipboard)))
             {
-                KatzeArray* empty_array = katze_array_new (KATZE_TYPE_ITEM);
                 guint i = 0;
                 while (uri[i++] != '\0')
                     if (uri[i] == '\n' || uri[i] == '\r')
                         uri[i] = ' ';
-                new_uri = sokoke_magic_uri (g_strstrip (uri), empty_array, NULL);
-                g_object_unref (empty_array);
-                if (!new_uri)
+                g_strstrip (uri);
+
+                /* Hold Alt to search for the selected word */
+                if (event->state & GDK_MOD1_MASK)
                 {
-                    gchar* search;
-                    g_object_get (view->settings, "location-entry-search",
-                                  &search, NULL);
-                    new_uri = sokoke_search_uri (search, uri);
+                    KatzeArray* empty_array = katze_array_new (KATZE_TYPE_ITEM);
+                    new_uri = sokoke_magic_uri (uri, empty_array, NULL);
+                    g_object_unref (empty_array);
+                    if (!new_uri)
+                    {
+                        gchar* search;
+                        g_object_get (view->settings, "location-entry-search",
+                                      &search, NULL);
+                        new_uri = sokoke_search_uri (search, uri);
+                    }
+                    katze_assign (uri, new_uri);
                 }
-                if (event->state & GDK_CONTROL_MASK)
+
+                if (MIDORI_MOD_NEW_TAB (event->state))
                 {
                     background = view->open_tabs_in_the_background;
-                    if (event->state & GDK_CONTROL_MASK)
+                    if (MIDORI_MOD_BACKGROUND (event->state))
                         background = !background;
-                    g_signal_emit (view, signals[NEW_TAB], 0, new_uri, background);
+                    g_signal_emit (view, signals[NEW_TAB], 0, uri, background);
                 }
                 else
                 {
-                    midori_view_set_uri (MIDORI_VIEW (view), new_uri);
+                    midori_view_set_uri (MIDORI_VIEW (view), uri);
                     gtk_widget_grab_focus (GTK_WIDGET (view));
                 }
-                g_free (new_uri);
                 return TRUE;
-            }
             g_free (uri);
+            }
         }
         break;
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
@@ -1409,7 +1402,7 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
 {
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
 
-    if (event->state & GDK_CONTROL_MASK)
+    if (MIDORI_MOD_SCROLL (event->state))
     {
         if (event->direction == GDK_SCROLL_DOWN)
             midori_view_set_zoom_level (view,
