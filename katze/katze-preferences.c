@@ -208,7 +208,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     #endif
     priv->toolbutton = NULL;
     gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->vbox),
-                      priv->notebook, FALSE, FALSE, 4);
+                      priv->notebook, TRUE, TRUE, 4);
 
     priv->sizegroup = NULL;
     priv->sizegroup2 = NULL;
