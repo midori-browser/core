@@ -793,7 +793,7 @@ midori_panel_append_page (MidoriPanel*    panel,
     toolbar = midori_viewable_get_toolbar (viewable);
     #if !HAVE_HILDON
     toolitem = gtk_toggle_tool_button_new_from_stock (GTK_STOCK_PROPERTIES);
-    gtk_tool_item_set_tooltip_text (toolitem, _("Show operating _controls"));
+    gtk_tool_item_set_tooltip_text (toolitem, _("Hide operating controls"));
     gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem),
         !panel->show_controls);
     g_signal_connect (toolitem, "clicked",
