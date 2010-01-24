@@ -110,6 +110,7 @@ authentication_message_got_headers_cb (SoupMessage*       msg,
                 fprintf (file, "%s\t%s\t%s\n", opaque_info,
                          login->username, login->password);
                 fclose (file);
+                g_chmod (save->http_auth->filename, 0600);
             }
         }
         else
