@@ -351,7 +351,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     #endif
     gint matches, height, screen_height;
 
-    if (!gtk_widget_has_focus (action->entry))
+    if (!gtk_widget_has_focus (action->entry) || !action->history)
         return FALSE;
 
     if (!*action->key)
@@ -364,8 +364,39 @@ midori_location_action_popup_timeout_cb (gpointer data)
         #endif
     }
 
-    if (!(action->key && *action->key))
+    if (!*action->key)
+    {
+        midori_location_action_popdown_completion (action);
         return FALSE;
+    }
+
+    #if HAVE_SQLITE
+    db = g_object_get_data (G_OBJECT (action->history), "db");
+    /* FIXME: Consider keeping the prepared statement with '...LIKE ?...'
+        and prepending/ appending % to the key. */
+    query = sqlite3_mprintf ("SELECT uri, title FROM history WHERE "
+                             "uri LIKE '%%%q%%' OR title LIKE '%%%q%%'"
+                             "GROUP BY uri ORDER BY count() DESC LIMIT %d",
+                             action->key, action->key, MAX_ITEMS);
+    result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
+    sqlite3_free (query);
+
+    if (result != SQLITE_OK)
+    {
+        g_print (_("Failed to execute database statement: %s\n"),
+                 sqlite3_errmsg (db));
+        midori_location_action_popdown_completion (action);
+        return FALSE;
+    }
+
+    result = sqlite3_step (statement);
+    if (result != SQLITE_ROW)
+    {
+        sqlite3_finalize (statement);
+        midori_location_action_popdown_completion (action);
+        return FALSE;
+    }
+    #endif
 
     if (G_UNLIKELY (!action->popup))
     {
@@ -422,38 +453,21 @@ midori_location_action_popup_timeout_cb (gpointer data)
     store = GTK_LIST_STORE (model);
     gtk_list_store_clear (store);
 
-    db = g_object_get_data (G_OBJECT (action->history), "db");
-    /* FIXME: Consider keeping the prepared statement with '...LIKE ?...'
-        and prepending/ appending % to the key. */
-    query = sqlite3_mprintf ("SELECT uri, title FROM history WHERE "
-                             "uri LIKE '%%%q%%' OR title LIKE '%%%q%%'"
-                             "GROUP BY uri ORDER BY count() DESC LIMIT %d",
-                             action->key, action->key, MAX_ITEMS);
-    result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
-    sqlite3_free (query);
     matches = 0;
-    if (result == SQLITE_OK)
+    do
     {
-        while ((result = sqlite3_step (statement)) == SQLITE_ROW)
-        {
-            const unsigned char* uri = sqlite3_column_text (statement, 0);
-            const unsigned char* title = sqlite3_column_text (statement, 1);
-            GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
-            if (!icon)
-                icon = action->default_icon;
-            gtk_list_store_insert_with_values (store, NULL, matches,
-                URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
-                FAVICON_COL, icon, -1);
-            matches++;
-        }
-        if (result != SQLITE_DONE)
-            g_print (_("Failed to execute database statement: %s\n"),
-                     sqlite3_errmsg (db));
-        sqlite3_finalize (statement);
+        const unsigned char* uri = sqlite3_column_text (statement, 0);
+        const unsigned char* title = sqlite3_column_text (statement, 1);
+        GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
+        if (!icon)
+            icon = action->default_icon;
+        gtk_list_store_insert_with_values (store, NULL, matches,
+            URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+            FAVICON_COL, icon, -1);
+        matches++;
+        result = sqlite3_step (statement);
     }
-    else
-        g_print (_("Failed to execute database statement: %s\n"),
-                 sqlite3_errmsg (db));
+    while (result == SQLITE_ROW);
     #else
     gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (model));
     matches = gtk_tree_model_iter_n_children (model, NULL);
