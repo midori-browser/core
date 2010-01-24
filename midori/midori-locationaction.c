@@ -425,9 +425,9 @@ midori_location_action_popup_timeout_cb (gpointer data)
     db = g_object_get_data (G_OBJECT (action->history), "db");
     /* FIXME: Consider keeping the prepared statement with '...LIKE ?...'
         and prepending/ appending % to the key. */
-    query = sqlite3_mprintf ("SELECT DISTINCT uri, title FROM history WHERE "
+    query = sqlite3_mprintf ("SELECT uri, title FROM history WHERE "
                              "uri LIKE '%%%q%%' OR title LIKE '%%%q%%'"
-                             "ORDER BY date ASC LIMIT %d",
+                             "GROUP BY uri ORDER BY count() DESC LIMIT %d",
                              action->key, action->key, MAX_ITEMS);
     result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
     sqlite3_free (query);
@@ -441,7 +441,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
             if (!icon)
                 icon = action->default_icon;
-            gtk_list_store_insert_with_values (store, NULL, 0,
+            gtk_list_store_insert_with_values (store, NULL, matches,
                 URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
                 FAVICON_COL, icon, -1);
             matches++;
