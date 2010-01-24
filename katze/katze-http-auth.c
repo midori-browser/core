@@ -266,6 +266,7 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     label = gtk_check_button_new_with_mnemonic (_("_Remember password"));
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
     g_object_set_data (G_OBJECT (dialog), "remember", label);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (label), (login != NULL));
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
