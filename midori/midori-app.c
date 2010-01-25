@@ -62,7 +62,7 @@ struct _MidoriApp
 
     MidoriAppInstance instance;
 
-    #if !HAVE_HILDON
+    #if !HAVE_HILDON || !HAVE_LIBNOTIFY
     gchar* program_notify_send;
     #endif
 };
@@ -714,9 +714,10 @@ midori_app_init (MidoriApp* app)
 
     #if HAVE_LIBNOTIFY
     notify_init ("midori");
+    #else
+    app->program_notify_send = g_find_program_in_path ("notify-send");
     #endif
 
-    app->program_notify_send = g_find_program_in_path ("notify-send");
 }
 
 static void
@@ -747,8 +748,9 @@ midori_app_finalize (GObject* object)
     #if HAVE_LIBNOTIFY
     if (notify_is_initted ())
         notify_uninit ();
+    #else
+        katze_assign (app->program_notify_send, NULL);
     #endif
-    katze_assign (app->program_notify_send, NULL);
 
     G_OBJECT_CLASS (midori_app_parent_class)->finalize (object);
 }
@@ -1173,8 +1175,7 @@ midori_app_send_notification (MidoriApp*   app,
         sent = notify_notification_show (note, NULL);
         g_object_unref (note);
     }
-    #endif
-
+    #else
     /* Fall back to the command line program "notify-send" */
     if (!sent && app->program_notify_send)
     {
@@ -1189,5 +1190,6 @@ midori_app_send_notification (MidoriApp*   app,
         g_free (msgq);
         g_free (command);
     }
+    #endif
     #endif
 }
