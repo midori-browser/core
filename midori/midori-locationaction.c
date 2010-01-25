@@ -452,7 +452,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
                                gtk_widget_get_screen (action->entry));
         gtk_window_set_transient_for (GTK_WINDOW (action->popup), GTK_WINDOW (toplevel));
         gtk_tree_view_columns_autosize (GTK_TREE_VIEW (action->treeview));
-        gtk_widget_show_all (action->popup);
     }
 
     column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
@@ -463,6 +462,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     height = MIN (matches * height, screen_height / 1.5);
     gtk_widget_set_size_request (action->treeview, -1, height);
     midori_location_action_popup_position (action->popup, action->entry);
+    gtk_widget_show_all (action->popup);
 
     return FALSE;
 }
