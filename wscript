@@ -306,7 +306,7 @@ def configure (conf):
     print '''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
-        Persistent history:  %(sqlite)s (sqlite3)
+        History:             %(sqlite)s (sqlite3)
         Notifications:       %(libnotify)s (libnotify)
 
         IDN support:         %(idn)s (libidn or libsoup 2.27.90)
