@@ -946,10 +946,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 
     if (G_LIKELY (uri))
     {
-        /* g_uri_unescape_segment () sometimes produces garbage */
-        if (!g_utf8_validate (uri, -1, (const gchar **)&temp))
-            temp[0] = '\0';
-
         temp = g_utf8_strdown (uri, -1);
         if ((start = strstr (temp, key)) && (start - temp))
         {
@@ -971,10 +967,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 
     if (G_LIKELY (title))
     {
-        /* g_uri_unescape_segment () sometimes produces garbage */
-        if (!g_utf8_validate (title, -1, (const gchar **)&temp))
-            temp[0] = '\0';
-
         temp = g_utf8_strdown (title, -1);
         if ((start = strstr (temp, key)) && (start - temp))
         {
