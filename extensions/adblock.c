@@ -1078,9 +1078,10 @@ adblock_frame_add (gchar* line)
 
     (void)*line++;
     (void)*line++;
-    if (strchr (line, ':')
+    if (strchr (line, '\'')
+    || (strchr (line, ':')
     && !g_regex_match_simple (".*\\[.*:.*\\].*", line,
-                              G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+                              G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY)))
     {
         return;
     }
@@ -1097,6 +1098,7 @@ adblock_frame_add_private (const gchar* line,
     data = g_strsplit (line, sep, 2);
 
     if (!(data[1] && *data[1])
+     ||  strchr (data[1], '\'')
      || (strchr (data[1], ':')
      && !g_regex_match_simple (".*\\[.*:.*\\].*", data[1],
                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY)))
