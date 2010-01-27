@@ -3159,7 +3159,11 @@ midori_view_set_uri (MidoriView*  view,
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
 
 
-            #if WEBKIT_CHECK_VERSION (1, 1, 6)
+            #if WEBKIT_CHECK_VERSION (1, 1, 14)
+            webkit_web_frame_load_alternate_string (
+                webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)),
+                data, "about:blank", "about:blank");
+            #elif WEBKIT_CHECK_VERSION (1, 1, 6)
             webkit_web_frame_load_alternate_string (
                 webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)),
                 data, res_root, "about:blank");
