@@ -1,10 +1,57 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
-It is 4 spaces, no tabs, preferrably at 80 columns per line.
++++ Hacking guide for Midori +++
 
-The preferred coding style is explained by example.
+Indentation is 4 spaces, no tabs, preferrably at 80 to 120 columns per line to
+avoid automated line-breaks. Trailing whitespace is not desirable.
 
-Source file example:
+Variable and function names should be animal, animal_shelter or animalsc in
+case it would otherwise be very long. Loop counters may be single letters.
+Type names should be Animal, AnimalShelter or AnimalSC.
+
+There is a space between functions or keywords and round brackets, and curly
+brackets always go on separate lines, at the indentation level of the
+function, conditional or loop expression.
+The type of a function goes on a separate line before the function.
+Preprocessor instructions are indented with the code they relate to.
+
+Code history is precious, so one should avoid renaming a lot of functions at
+once or moving whole paragraphs only to add or remove a level of indentation.
+Moving blocks of code around is also undesriable because it makes patches less
+readable since the result looks like new code.
+
+
++++ Source files in the project +++
+
+Core:
+    Files prefixed with "midori-" in the folder "midori" make up the core. They
+    are essential to running the browser and mostly tailored to the browser.
+    All header files prefixed with "midori-" are considered supported API and
+    can be used to implement extensions.
+    "sokoke" is a collection of very specialized helper functions which change
+    from time to time as needed. In the past some of the code was moved to
+    "katze" when it was considered generally useful.
+    "socket" is a socket implementation with no dependency on other parts of
+    the core, which is used if Midori is built without an external single
+    instance support library.
+Panels:
+    Files in the "panels" folder are classes that implement MidoriViewable and
+    which are loaded into the MidoriPanel at startup. These panels are in
+    principle optional.
+Katze:
+    Re-usable classes and utility functions that don't depend on the core and
+    some of that code indeed found its way into other projects.
+Extensions:
+    These are extensions, written in C, which are loaded optionally if the user
+    so chooses. Extensions can use API from "midori-" and "katze-" headers. Each
+    module consists of either a single .c file or a folder with .c files.
+Tests:
+    Unit tests are run regularly to verify possible regressions or measure
+    performance of implementations. Except for select cases code changes should
+    not cause failure of unit tests.
+
+
++++ Examplary source code +++
 
     /*
        Copyright
