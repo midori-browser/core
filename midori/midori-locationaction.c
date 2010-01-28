@@ -853,7 +853,12 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             if (event->keyval == GDK_Down || event->keyval == GDK_KP_Down)
                 selected = MIN (selected + 1, matches -1);
             else if (event->keyval == GDK_Up || event->keyval == GDK_KP_Up)
-                selected = MAX (selected - 1, 0);
+            {
+                if (selected == -1)
+                    selected = matches - 1;
+                else
+                    selected = MAX (selected - 1, 0);
+            }
             else if (event->keyval == GDK_Page_Down)
                 selected = MIN (selected + 14, matches -1);
             else if (event->keyval == GDK_Page_Up)
