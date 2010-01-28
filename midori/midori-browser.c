@@ -202,6 +202,9 @@ midori_search_action_get_icon (KatzeItem*    item,
                                GtkWidget*    widget,
                                const gchar** icon_name);
 
+static void
+_midori_browser_find_done (MidoriBrowser* browser);
+
 static GtkAction*
 _action_by_name (MidoriBrowser* browser,
                  const gchar*   name)
@@ -2537,7 +2540,9 @@ static void
 _action_find_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-    if (!GTK_WIDGET_VISIBLE (browser->find))
+    if (GTK_WIDGET_VISIBLE (browser->find))
+        _midori_browser_find_done (browser);
+    else
     {
         GtkWidget* view;
         const gchar* text;
@@ -2613,8 +2618,7 @@ midori_browser_find_text_focus_out_event_cb (GtkWidget*     entry,
                                              GdkEventFocus* event,
                                              MidoriBrowser* browser)
 {
-    if (browser->find_typing)
-        _midori_browser_find_done (browser);
+    _midori_browser_find_done (browser);
     return FALSE;
 }
 
