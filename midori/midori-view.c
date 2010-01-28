@@ -4643,8 +4643,8 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     g_signal_handlers_disconnect_by_func (
        thumb_view, thumb_view_load_status_cb, view);
 
-    /* Destroying the view here may trigger a WebKitGTK+ bug */
-    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
+    /* Destroying the view here may trigger a WebKitGTK+ 1.1.14 bug */
+    #if !WEBKIT_CHECK_VERSION (1, 1, 14) || WEBKIT_CHECK_VERSION (1, 1, 15)
     gtk_widget_destroy (GTK_WIDGET (thumb_view));
     view->thumb_view = NULL;
     #endif
