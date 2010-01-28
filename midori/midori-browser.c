@@ -205,37 +205,15 @@ midori_search_action_get_icon (KatzeItem*    item,
 static void
 _midori_browser_find_done (MidoriBrowser* browser);
 
-static GtkAction*
-_action_by_name (MidoriBrowser* browser,
-                 const gchar*   name)
-{
-    return gtk_action_group_get_action (browser->action_group, name);
-}
-
-static void
-_action_set_sensitive (MidoriBrowser* browser,
-                       const gchar*   name,
-                       gboolean       sensitive)
-{
-    gtk_action_set_sensitive (_action_by_name (browser, name), sensitive);
-}
-
-static void
-_action_set_visible (MidoriBrowser* browser,
-                     const gchar*   name,
-                     gboolean       visible)
-{
-    gtk_action_set_visible (_action_by_name (browser, name), visible);
-}
-
-static void
-_action_set_active (MidoriBrowser* browser,
-                    const gchar*   name,
-                    gboolean       active)
-{
-    GtkAction* action = _action_by_name (browser, name);
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), active);
-}
+#define _action_by_name(brwsr, nme) \
+    gtk_action_group_get_action (brwsr->action_group, nme)
+#define _action_set_sensitive(brwsr, nme, snstv) \
+    gtk_action_set_sensitive (_action_by_name (brwsr, nme), snstv);
+#define _action_set_visible(brwsr, nme, vsbl) \
+    gtk_action_set_visible (_action_by_name (brwsr, nme), vsbl);
+#define _action_set_active(brwsr, nme, actv) \
+    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION ( \
+    _action_by_name (brwsr, nme)), actv);
 
 static void
 _toggle_tabbar_smartly (MidoriBrowser* browser)
