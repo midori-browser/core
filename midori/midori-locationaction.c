@@ -34,6 +34,7 @@ struct _MidoriLocationAction
 
     gchar* text;
     gchar* uri;
+    KatzeArray* search_engines;
     gdouble progress;
     gchar* secondary_icon;
 
@@ -373,7 +374,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     }
 
     result = sqlite3_step (statement);
-    if (result != SQLITE_ROW)
+    if (result != SQLITE_ROW && !action->search_engines)
     {
         sqlite3_finalize (statement);
         midori_location_action_popdown_completion (action);
@@ -432,7 +433,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     gtk_list_store_clear (store);
 
     matches = 0;
-    do
+    while (result == SQLITE_ROW)
     {
         const unsigned char* uri = sqlite3_column_text (statement, 0);
         const unsigned char* title = sqlite3_column_text (statement, 1);
@@ -445,8 +446,27 @@ midori_location_action_popup_timeout_cb (gpointer data)
         matches++;
         result = sqlite3_step (statement);
     }
-    while (result == SQLITE_ROW);
-    /* TODO: Suggest _("Search with %s") or opening hostname as actions */
+
+    if (action->search_engines)
+    {
+        gint i = 0;
+        KatzeItem* item;
+        while ((item = katze_array_get_nth_item (action->search_engines, i)))
+        {
+            gchar* uri;
+            gchar* title;
+
+            uri = sokoke_search_uri (katze_item_get_uri (item), action->key);
+            title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
+            gtk_list_store_insert_with_values (store, NULL, matches,
+                URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+                FAVICON_COL, NULL, -1);
+            g_free (uri);
+            g_free (title);
+            i++;
+        }
+        matches += i;
+    }
 
     if (!GTK_WIDGET_VISIBLE (action->popup))
     {
@@ -547,6 +567,7 @@ static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
     location_action->text = location_action->uri = NULL;
+    location_action->search_engines = NULL;
     location_action->progress = 0.0;
     location_action->secondary_icon = NULL;
     location_action->default_icon = NULL;
@@ -565,6 +586,7 @@ midori_location_action_finalize (GObject* object)
 
     katze_assign (location_action->text, NULL);
     katze_assign (location_action->uri, NULL);
+    katze_assign (location_action->search_engines, NULL);
 
     katze_assign (location_action->key, NULL);
     if (location_action->popup)
@@ -1455,15 +1477,21 @@ midori_location_action_set_title_for_uri (MidoriLocationAction* location_action,
  * @location_action: a #MidoriLocationAction
  * @search_engines: a #KatzeArray
  *
- * This function is obsolete and has no effect.
+ * Assigns the specified search engines to the location action.
+ * Search engines will appear as actions in the completion.
  *
- * Deprecated: 0.2.3
+ * Since: 0.1.6
  **/
 void
 midori_location_action_set_search_engines (MidoriLocationAction* location_action,
                                            KatzeArray*           search_engines)
 {
-    /* Do nothing */
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+
+    if (search_engines)
+        g_object_ref (search_engines);
+
+    katze_object_assign (location_action->search_engines, search_engines);
 }
 
 gdouble

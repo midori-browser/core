@@ -512,7 +512,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     *
     * Whether to show search engines in the location completion.
     *
-    * Deprecated: 0.2.3: This setting is obsolete.
+    * Since: 0.1.6
     */
     g_object_class_install_property (gobject_class,
                                      PROP_SEARCH_ENGINES_IN_COMPLETION,
