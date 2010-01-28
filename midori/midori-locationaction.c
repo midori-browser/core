@@ -402,6 +402,9 @@ midori_location_action_popup_timeout_cb (gpointer data)
         gtk_container_add (GTK_CONTAINER (scrolled), treeview);
         g_signal_connect (treeview, "button-press-event",
             G_CALLBACK (midori_location_action_treeview_button_press_cb), action);
+        /* a nasty hack to get the completions treeview to size nicely */
+        gtk_widget_set_size_request (gtk_scrolled_window_get_vscrollbar (
+            GTK_SCROLLED_WINDOW (scrolled)), -1, 0);
         action->treeview = treeview;
 
         column = gtk_tree_view_column_new ();
