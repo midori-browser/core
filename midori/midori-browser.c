@@ -499,10 +499,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
     action = _action_by_name (browser, "Location");
 
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
-    {
-        if (browser->maximum_history_age)
-            midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
-    }
+        midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
 
     if (widget == midori_browser_get_current_tab (browser))
     {
@@ -5586,9 +5583,9 @@ midori_browser_history_clear_cb (KatzeArray*    history,
                                  MidoriBrowser* browser)
 {
     GtkAction* location_action = _action_by_name (browser, "Location");
-    midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
     g_object_set (_action_by_name (browser, "RecentlyVisited"),
                   "array", NULL, NULL);
+    midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
 }
 
 static void

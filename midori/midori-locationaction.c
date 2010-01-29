@@ -601,6 +601,32 @@ midori_location_action_finalize (GObject* object)
 }
 
 static void
+midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
+                                        MidoriLocationAction* location_action)
+{
+    if (GTK_IS_BUTTON (widget))
+    {
+        gboolean show = location_action->history
+            && katze_array_get_nth_item (location_action->history, 0);
+        sokoke_widget_set_visible (widget, show);
+        gtk_widget_set_size_request (widget, show ? -1 : 1, show ? -1 : 1);
+    }
+}
+
+static void
+midori_location_action_toggle_arrow (MidoriLocationAction* location_action)
+{
+    GSList* proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
+        gtk_container_forall (GTK_CONTAINER (entry),
+            (GtkCallback)midori_location_action_toggle_arrow_cb, location_action);
+    }
+}
+
+static void
 midori_location_action_set_property (GObject*      object,
                                      guint         prop_id,
                                      const GValue* value,
@@ -621,6 +647,8 @@ midori_location_action_set_property (GObject*      object,
     case PROP_HISTORY:
     {
         katze_assign (location_action->history, g_value_dup_object (value));
+
+        midori_location_action_toggle_arrow (location_action);
         break;
     }
     default:
@@ -1207,6 +1235,8 @@ midori_location_action_connect_proxy (GtkAction* action,
             renderer, midori_location_entry_render_text_cb, child, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
+        gtk_container_forall (GTK_CONTAINER (entry),
+            (GtkCallback)midori_location_action_toggle_arrow_cb, action);
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
         g_signal_connect (entry, "popup",
@@ -1405,6 +1435,8 @@ midori_location_action_add_uri (MidoriLocationAction* location_action,
     g_return_if_fail (uri != NULL);
 
     katze_assign (location_action->uri, g_strdup (uri));
+
+    midori_location_action_toggle_arrow (location_action);
 }
 
 void
@@ -1583,5 +1615,5 @@ midori_location_action_clear (MidoriLocationAction* location_action)
 {
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
-    /* Nothing to do */
+    midori_location_action_toggle_arrow (location_action);
 }
