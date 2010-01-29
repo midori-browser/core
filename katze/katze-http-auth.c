@@ -20,6 +20,10 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
+#if !GTK_CHECK_VERSION (2, 14, 0)
+    #define gtk_dialog_get_content_area(dialog) dialog->vbox
+#endif
+
 struct _KatzeHttpAuth
 {
     GObject parent_instance;
@@ -216,9 +220,9 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         GTK_STOCK_DIALOG_AUTHENTICATION);
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), 5);
 
-    gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 5);
+    gtk_box_set_spacing (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), 5);
     hbox = gtk_hbox_new (FALSE, 6);
     image = gtk_image_new_from_stock (GTK_STOCK_DIALOG_AUTHENTICATION,
                                       GTK_ICON_SIZE_DIALOG);
@@ -226,14 +230,14 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     label = gtk_label_new (_("A username and a password are required\n"
                              "to open this location:"));
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
     label = gtk_label_new (soup_auth_get_host (auth));
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), label);
+    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), label);
     /* If the realm is merely the host, omit the realm label */
     if (g_strcmp0 (soup_auth_get_host (auth), soup_auth_get_realm (auth)))
     {
         label = gtk_label_new (soup_auth_get_realm (auth));
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), label);
+        gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), label);
     }
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     hbox = gtk_hbox_new (FALSE, 6);
@@ -248,29 +252,30 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     g_object_set_data (G_OBJECT (dialog), "username", entry);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
     hbox = gtk_hbox_new (FALSE, 6);
     label = gtk_label_new (_("Password"));
     align = gtk_alignment_new (0, 0.5, 0, 0);
     gtk_container_add (GTK_CONTAINER (align), label);
     gtk_size_group_add_widget (sizegroup, align);
     gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
-    entry = gtk_entry_new_with_max_length (32);
+    entry = gtk_entry_new ();
+    gtk_entry_set_max_length (GTK_ENTRY (entry), 32);
     if (login)
         gtk_entry_set_text (GTK_ENTRY (entry), login->password);
     gtk_entry_set_visibility (GTK_ENTRY (entry), FALSE);
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     g_object_set_data (G_OBJECT (dialog), "password", entry);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
     hbox = gtk_hbox_new (FALSE, 6);
     label = gtk_check_button_new_with_mnemonic (_("_Remember password"));
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
     g_object_set_data (G_OBJECT (dialog), "remember", label);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (label), (login != NULL));
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
-    gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
+    gtk_widget_show_all (gtk_dialog_get_content_area (GTK_DIALOG (dialog)));
 
     g_object_set_data (G_OBJECT (dialog), "session", session);
     g_object_set_data (G_OBJECT (dialog), "msg", msg);

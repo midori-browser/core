@@ -23,6 +23,10 @@
 #include <string.h>
 #include <glib/gi18n.h>
 
+#if !GTK_CHECK_VERSION (2, 14, 0)
+    #define gtk_dialog_get_content_area(dialog) dialog->vbox
+#endif
+
 struct _KatzePreferencesPrivate
 {
     #if HAVE_HILDON
@@ -177,7 +181,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     GtkWidget* viewport;
 
     priv->scrolled = katze_scrolled_new (NULL, NULL);
-    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+    gtk_box_pack_end (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                       priv->scrolled, TRUE, TRUE, 4);
     viewport = gtk_viewport_new (NULL, NULL);
     gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport), GTK_SHADOW_NONE);
@@ -201,13 +205,13 @@ katze_preferences_prepare (KatzePreferences* preferences)
     priv->toolbar = gtk_toolbar_new ();
     gtk_toolbar_set_style (GTK_TOOLBAR (priv->toolbar), GTK_TOOLBAR_BOTH);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (priv->toolbar), FALSE);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                         priv->toolbar, FALSE, FALSE, 0);
     #else
     priv->toolbar = NULL;
     #endif
     priv->toolbutton = NULL;
-    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->vbox),
+    gtk_box_pack_end (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (preferences))),
                       priv->notebook, TRUE, TRUE, 4);
 
     priv->sizegroup = NULL;
@@ -233,7 +237,7 @@ katze_preferences_prepare (KatzePreferences* preferences)
     gtk_box_pack_end (GTK_BOX (GTK_DIALOG (preferences)->action_area),
         hbox, FALSE, FALSE, 0);
     #endif
-    gtk_widget_show_all (GTK_DIALOG (preferences)->vbox);
+    gtk_widget_show_all (gtk_dialog_get_content_area (GTK_DIALOG (preferences)));
 }
 
 /**
