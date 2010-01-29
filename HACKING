@@ -5,13 +5,21 @@ This file is licensed under the terms of the expat license, see the file EXPAT.
 Indentation is 4 spaces, no tabs, preferrably at 80 to 120 columns per line to
 avoid automated line-breaks. Trailing whitespace is not desirable.
 
+Declarations go to the beginning of a block, not inline. Variables of one plain
+type may be grouped in one declaration, pointer types may not be grouped. The
+asterisk goes next to the type.
+
+Comments explain functionality, they should not state facts. The appropriate
+style is always C style /* */, not C++ style.
+
 Variable and function names should be animal, animal_shelter or animalsc in
 case it would otherwise be very long. Loop counters may be single letters.
 Type names should be Animal, AnimalShelter or AnimalSC.
 
 There is a space between functions or keywords and round brackets, and curly
 brackets always go on separate lines, at the indentation level of the
-function, conditional or loop expression.
+function, conditional or loop expression. Curly brackets are left out for single
+statement conditionals and loops unless they notably help readability.
 The type of a function goes on a separate line before the function.
 Preprocessor instructions are indented with the code they relate to.
 
