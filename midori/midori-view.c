@@ -2901,7 +2901,7 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     g_free (title);
 
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
-    if (GTK_WIDGET_TOPLEVEL (toplevel))
+    if (gtk_widget_is_toplevel (toplevel))
     {
         screen = gtk_window_get_screen (GTK_WINDOW (toplevel));
         width = gdk_screen_get_width (screen) / 1.7;
@@ -4391,7 +4391,7 @@ midori_view_print (MidoriView* view)
     {
         GtkWidget* window = gtk_widget_get_toplevel (GTK_WIDGET (view));
         GtkWidget* dialog = gtk_message_dialog_new (
-            GTK_WIDGET_TOPLEVEL (window) ? GTK_WINDOW (window) : NULL,
+            gtk_widget_is_toplevel (window) ? GTK_WINDOW (window) : NULL,
             GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,
             GTK_BUTTONS_CLOSE, "%s", error->message);
         g_error_free (error);
