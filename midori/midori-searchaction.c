@@ -440,10 +440,6 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
                                        gint                 button,
                                        GtkAction*           action)
 {
-
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-        return;
-
     KatzeArray* search_engines;
     GtkWidget* menu;
     guint i;
@@ -451,6 +447,9 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
     KatzeItem* item;
     GdkPixbuf* icon;
     GtkWidget* image;
+
+    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+        return;
 
     search_engines = MIDORI_SEARCH_ACTION (action)->search_engines;
     menu = gtk_menu_new ();
