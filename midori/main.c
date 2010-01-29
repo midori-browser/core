@@ -1448,24 +1448,24 @@ midori_load_session (gpointer data)
 static gint
 midori_run_script (const gchar* filename)
 {
+    gchar* exception;
+    gchar* script;
+    GError* error;
+
     if (!(filename))
     {
         g_print ("%s - %s\n", _("Midori"), _("No filename specified"));
         return 1;
     }
 
-    JSGlobalContextRef js_context;
-    gchar* exception;
-    gchar* script;
-    GError* error = NULL;
-
-    js_context = JSGlobalContextCreateInGroup (NULL, NULL);
-
+    error = NULL;
     if (g_file_get_contents (filename, &script, NULL, &error))
     {
+        JSGlobalContextRef js_context = JSGlobalContextCreateInGroup (NULL, NULL);
         if (sokoke_js_script_eval (js_context, script, &exception))
             exception = NULL;
         g_free (script);
+        JSGlobalContextRelease (js_context);
     }
     else if (error)
     {
@@ -1475,7 +1475,6 @@ midori_run_script (const gchar* filename)
     else
         exception = g_strdup (_("An unknown error occured."));
 
-    JSGlobalContextRelease (js_context);
     if (!exception)
         return 0;
 
