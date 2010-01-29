@@ -3512,10 +3512,12 @@ static void
 _action_fullscreen_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
+    GdkWindowState state;
+
     if (!GTK_WIDGET (browser)->window)
         return;
 
-    GdkWindowState state = gdk_window_get_state (GTK_WIDGET (browser)->window);
+    state = gdk_window_get_state (GTK_WIDGET (browser)->window);
     if (state & GDK_WINDOW_STATE_FULLSCREEN)
         gtk_window_unfullscreen (GTK_WINDOW (browser));
     else
@@ -3526,13 +3528,15 @@ static void
 _action_back_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    GtkWidget* view;
+
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
         return;
     }
 
-    GtkWidget* view = midori_browser_get_current_tab (browser);
+    view = midori_browser_get_current_tab (browser);
     if (view)
         midori_view_go_back (MIDORI_VIEW (view));
 }
@@ -3541,13 +3545,15 @@ static void
 _action_forward_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
+    GtkWidget* view;
+
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
         return;
     }
 
-    GtkWidget* view = midori_browser_get_current_tab (browser);
+    view = midori_browser_get_current_tab (browser);
     if (view)
         midori_view_go_forward (MIDORI_VIEW (view));
 }
@@ -3556,13 +3562,15 @@ static void
 _action_previous_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
+    GtkWidget* view;
+
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
         return;
     }
 
-    GtkWidget* view = midori_browser_get_current_tab (browser);
+    view = midori_browser_get_current_tab (browser);
     if (view)
     {
         gchar* uri = g_strdup (midori_view_get_previous_page (MIDORI_VIEW (view)));
@@ -3575,13 +3583,15 @@ static void
 _action_next_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    GtkWidget* view;
+
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
         return;
     }
 
-    GtkWidget* view = midori_browser_get_current_tab (browser);
+    view = midori_browser_get_current_tab (browser);
     if (view)
     {
         gchar* uri = g_strdup (midori_view_get_next_page (MIDORI_VIEW (view)));
@@ -4341,7 +4351,8 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
     gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
     combobox = GTK_COMBO_BOX (combo);
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, NULL);
+    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (GTK_WIDGET (browser)),
+                                       GTK_ICON_SIZE_MENU, &icon_width, NULL);
     for (i = 0; i < G_N_ELEMENTS (bookmark_clients); i++)
     {
         gchar* path = g_build_filename (g_get_home_dir (),

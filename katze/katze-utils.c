@@ -34,13 +34,15 @@ proxy_toggle_button_toggled_cb (GtkToggleButton* button,
                                 GObject*         object)
 {
     gboolean toggled;
+    const gchar* property;
+
     #ifdef HAVE_HILDON_2_2
     if (HILDON_IS_CHECK_BUTTON (button))
         toggled = hildon_check_button_get_active (HILDON_CHECK_BUTTON (button));
     #else
     toggled = gtk_toggle_button_get_active (button);
     #endif
-    const gchar* property = g_object_get_data (G_OBJECT (button), "property");
+    property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, toggled, NULL);
 }
 
@@ -620,8 +622,12 @@ katze_property_proxy (gpointer     object,
         GtkComboBox* combo;
         GList* apps;
         const gchar* app_type = &hint[12];
+        GtkSettings* settings;
         gint icon_width = 16;
-        gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, NULL);
+
+        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
+        gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                           &icon_width, NULL);
 
         model = gtk_list_store_new (4, G_TYPE_APP_INFO, G_TYPE_STRING,
                                        G_TYPE_STRING, G_TYPE_INT);

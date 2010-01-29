@@ -811,7 +811,8 @@ midori_search_action_dialog_render_tick_cb (GtkTreeViewColumn* column,
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     search_action = g_object_get_data (G_OBJECT (treeview), "search-action");
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &width, NULL);
+    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (treeview),
+                                       GTK_ICON_SIZE_MENU, &width, NULL);
     g_object_set (renderer, "stock-id",
         search_action->default_item == item ? GTK_STOCK_YES : NULL,
         "width", width + 4, NULL);

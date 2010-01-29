@@ -434,6 +434,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     GdkPixbuf* pixbuf_scaled;
     gint icon_width, icon_height;
     size_t ret;
+    GtkSettings* settings;
 
     if (request->status == KATZE_NET_MOVED)
         return;
@@ -479,7 +480,14 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
             return;
         }
     }
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+
+    if (priv->widget)
+        settings = gtk_widget_get_settings (priv->widget);
+    else
+        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
+
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                       &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
                                              GDK_INTERP_BILINEAR);
     g_object_unref (pixbuf);
@@ -536,6 +544,7 @@ katze_net_load_icon (KatzeNet*      net,
     GdkPixbuf* pixbuf;
     gint icon_width, icon_height;
     GdkPixbuf* pixbuf_scaled;
+    GtkSettings* settings;
 
     g_return_val_if_fail (KATZE_IS_NET (net), NULL);
     g_return_val_if_fail (!widget || GTK_IS_WIDGET (widget), NULL);
@@ -599,7 +608,14 @@ katze_net_load_icon (KatzeNet*      net,
         else
             return NULL;
     }
-    gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+
+    if (widget)
+        settings = gtk_widget_get_settings (widget);
+    else
+        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
+
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                       &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
                                              GDK_INTERP_BILINEAR);
     g_object_unref (pixbuf);
