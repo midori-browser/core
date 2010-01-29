@@ -108,15 +108,20 @@ katze_throbber_timeout_destroy (KatzeThrobber* throbber);
 static void
 katze_throbber_class_init (KatzeThrobberClass* class)
 {
-    GObjectClass* gobject_class = G_OBJECT_CLASS (class);
+    GObjectClass* gobject_class;
+    GtkObjectClass* object_class;
+    GtkWidgetClass* widget_class;
+    GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
+
+    gobject_class = G_OBJECT_CLASS (class);
     gobject_class->dispose = katze_throbber_dispose;
     gobject_class->set_property = katze_throbber_set_property;
     gobject_class->get_property = katze_throbber_get_property;
 
-    GtkObjectClass* object_class = GTK_OBJECT_CLASS (class);
+    object_class = GTK_OBJECT_CLASS (class);
     object_class->destroy = katze_throbber_destroy;
 
-    GtkWidgetClass* widget_class = GTK_WIDGET_CLASS (class);
+    widget_class = GTK_WIDGET_CLASS (class);
     widget_class->realize = katze_throbber_realize;
     widget_class->unrealize = katze_throbber_unrealize;
     widget_class->map = katze_throbber_map;
@@ -125,8 +130,6 @@ katze_throbber_class_init (KatzeThrobberClass* class)
     widget_class->screen_changed = katze_throbber_screen_changed;
     widget_class->size_request = katze_throbber_size_request;
     widget_class->expose_event = katze_throbber_expose_event;
-
-    GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
     g_object_class_install_property (gobject_class,
                                      PROP_ICON_SIZE,
@@ -855,6 +858,8 @@ katze_throbber_expose_event (GtkWidget*      widget,
     }
     else
     {
+        gint cols, rows;
+
         if (G_UNLIKELY (throbber->icon_name && !throbber->pixbuf))
         {
             icon_theme_changed (KATZE_THROBBER (widget));
@@ -868,8 +873,8 @@ katze_throbber_expose_event (GtkWidget*      widget,
             }
         }
 
-        gint cols = gdk_pixbuf_get_width (throbber->pixbuf) / throbber->width;
-        gint rows = gdk_pixbuf_get_height (throbber->pixbuf) / throbber->height;
+        cols = gdk_pixbuf_get_width (throbber->pixbuf) / throbber->width;
+        rows = gdk_pixbuf_get_height (throbber->pixbuf) / throbber->height;
 
         if (G_UNLIKELY (cols == 1 && cols == rows))
         {
