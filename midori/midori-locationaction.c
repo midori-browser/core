@@ -466,7 +466,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             uri = sokoke_search_uri (katze_item_get_uri (item), action->key);
             title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
             style = gtk_widget_get_style (action->treeview);
-            gtk_list_store_insert_with_values (store, NULL, matches,
+            gtk_list_store_insert_with_values (store, NULL, matches + i,
                 URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
                 BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
                 FAVICON_COL, NULL, -1);
