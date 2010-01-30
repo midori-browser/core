@@ -86,6 +86,7 @@ enum
     VISITS_COL,
     VISIBLE_COL,
     YALIGN_COL,
+    BACKGROUND_COL,
     N_COLS
 };
 
@@ -267,7 +268,7 @@ midori_location_action_create_model (void)
 {
     GtkTreeModel* model = (GtkTreeModel*) gtk_list_store_new (N_COLS,
         GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT);
+        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT, GDK_TYPE_COLOR);
     return model;
 }
 
@@ -412,13 +413,18 @@ midori_location_action_popup_timeout_cb (gpointer data)
         renderer = gtk_cell_renderer_pixbuf_new ();
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, FALSE);
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
-            "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
+            "pixbuf", FAVICON_COL, "yalign", YALIGN_COL,
+            "cell-background-gdk", BACKGROUND_COL,
+            NULL);
         renderer = gtk_cell_renderer_text_new ();
         g_object_set_data (G_OBJECT (renderer), "location-action", action);
         gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
         gtk_cell_renderer_text_set_fixed_height_from_font (
             GTK_CELL_RENDERER_TEXT (renderer), 2);
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
+        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
+            "cell-background-gdk", BACKGROUND_COL,
+            NULL);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
                                             midori_location_entry_render_text_cb,
                                             action->entry, NULL);
@@ -455,11 +461,14 @@ midori_location_action_popup_timeout_cb (gpointer data)
         {
             gchar* uri;
             gchar* title;
+            GtkStyle* style;
 
             uri = sokoke_search_uri (katze_item_get_uri (item), action->key);
             title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
+            style = gtk_widget_get_style (action->treeview);
             gtk_list_store_insert_with_values (store, NULL, matches,
                 URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+                BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
                 FAVICON_COL, NULL, -1);
             g_free (uri);
             g_free (title);
