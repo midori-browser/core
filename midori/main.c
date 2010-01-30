@@ -1860,6 +1860,17 @@ main (int    argc,
                 error->message);
         g_error_free (error);
     }
+
+    /* Pick first search engine as default if not set */
+    g_object_get (settings, "location-entry-search", &uri, NULL);
+    if (!(uri && *uri) && !katze_array_is_empty (search_engines))
+    {
+        item = katze_array_get_nth_item (search_engines, 0);
+        g_object_set (settings, "location-entry-search",
+                      katze_item_get_uri (item), NULL);
+    }
+    g_free (uri);
+
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     #if HAVE_LIBXML
     katze_assign (config_file, build_config_filename (BOOKMARK_FILE));

@@ -737,7 +737,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "location-entry-search",
                                      _("Location entry Search"),
                                      _("The search to perform inside the location entry"),
-                                     "http://www.google.com/search?q=%s",
+                                     NULL,
                                      flags));
 
     g_object_class_install_property (gobject_class,

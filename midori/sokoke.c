@@ -556,8 +556,10 @@ gchar* sokoke_search_uri (const gchar* uri,
     gchar* escaped;
     gchar* search;
 
-    g_return_val_if_fail (uri != NULL, NULL);
     g_return_val_if_fail (keywords != NULL, NULL);
+
+    if (!uri)
+        return g_strdup (keywords);
 
     escaped = g_uri_escape_string (keywords, " :/", TRUE);
     if (strstr (uri, "%s"))
