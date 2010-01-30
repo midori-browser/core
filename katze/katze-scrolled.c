@@ -18,6 +18,15 @@
 #include "katze-scrolled.h"
 #include "katze-utils.h"
 
+#if !GTK_CHECK_VERSION (2, 14, 0)
+    #define gtk_adjustment_get_page_size(adj) adj->page_size
+    #define gtk_adjustment_get_upper(adj) adj->upper
+    #define gtk_adjustment_get_lower(adj) adj->lower
+    #define gtk_adjustment_get_value(adj) adj->value
+    #define gtk_adjustment_get_page_size(adj) adj->page_size
+    #define gtk_adjustment_get_page_size(adj) adj->page_size
+#endif
+
 #define DEFAULT_INTERVAL 50
 #define DEFAULT_DECELERATION 0.7
 #define DEFAULT_DRAGGING_STOPPED_DELAY 100
@@ -305,18 +314,24 @@ adjust_scrollbar (KatzeScrolled* scrolled,
 {
     KatzeScrolledPrivate* priv = scrolled->priv;
     GtkWidget* widget = GTK_WIDGET (scrolled);
+    gdouble page_size, upper, lower, value;
     gint x, y;
     gint size;
     double position;
     GtkWidget* window;
 
-    if (adjustment->page_size >= adjustment->upper - adjustment->lower)
+    page_size = gtk_adjustment_get_page_size (adjustment);
+    upper = gtk_adjustment_get_upper (adjustment);
+    lower = gtk_adjustment_get_lower (adjustment);
+    value = gtk_adjustment_get_value (adjustment);
+
+    if (page_size >= upper - lower)
     {
         *previous_size = 0;
         return FALSE;
     }
 
-    size = ((double)adjustment->page_size) / (adjustment->upper - adjustment->lower) * (horizontal
+    size = ((double)page_size) / (upper - lower) * (horizontal
         ? widget->allocation.height : widget->allocation.width);
     if (size != *previous_size)
     {
@@ -341,7 +356,7 @@ adjust_scrollbar (KatzeScrolled* scrolled,
         }
     }
 
-    position = (adjustment->value - adjustment->lower) / (adjustment->upper - adjustment->lower);
+    position = (value - lower) / (upper - lower);
     window = gtk_widget_get_toplevel (widget);
     if (horizontal)
     {
@@ -418,35 +433,45 @@ do_timeout_scroll (KatzeScrolled* scrolled)
     GtkScrolledWindow* gtk_scrolled = GTK_SCROLLED_WINDOW (scrolled);
     GtkAdjustment* hadjustment;
     GtkAdjustment* vadjustment;
-    gdouble hvalue;
-    gdouble vvalue;
+    gdouble hpage_size, hupper, hlower, hvalue, new_hvalue;
+    gdouble vpage_size, vupper, vlower, vvalue, new_vvalue;
 
     hadjustment = gtk_scrolled_window_get_hadjustment (gtk_scrolled);
-    vadjustment = gtk_scrolled_window_get_vadjustment (gtk_scrolled);
-    hvalue = calculate_timeout_scroll_values (hadjustment->value,
-        hadjustment->upper - hadjustment->page_size,
+    hpage_size = gtk_adjustment_get_page_size (hadjustment);
+    hupper = gtk_adjustment_get_upper (hadjustment);
+    hlower = gtk_adjustment_get_lower (hadjustment);
+    hvalue = gtk_adjustment_get_value (hadjustment);
+    new_hvalue = calculate_timeout_scroll_values (hvalue,
+        hupper - hpage_size,
         &priv->horizontal_speed,
         priv->horizontal_deceleration,
         &priv->vertical_deceleration,
         priv->deceleration);
-    vvalue = calculate_timeout_scroll_values (vadjustment->value,
-        vadjustment->upper - vadjustment->page_size,
+
+    vadjustment = gtk_scrolled_window_get_vadjustment (gtk_scrolled);
+    vpage_size = gtk_adjustment_get_page_size (vadjustment);
+    vupper = gtk_adjustment_get_upper (vadjustment);
+    vlower = gtk_adjustment_get_lower (vadjustment);
+    vvalue = gtk_adjustment_get_value (vadjustment);
+    new_vvalue = calculate_timeout_scroll_values (vvalue,
+        vupper - vpage_size,
         &priv->vertical_speed,
         priv->vertical_deceleration,
         &priv->horizontal_deceleration,
         priv->deceleration);
-    if (vvalue != vadjustment->value)
+
+    if (new_vvalue != vvalue)
     {
-        if (hvalue != hadjustment->value)
+        if (new_hvalue != hvalue)
         {
             disable_hadjustment (scrolled);
-            gtk_adjustment_set_value (hadjustment, hvalue);
+            gtk_adjustment_set_value (hadjustment, new_hvalue);
             enable_hadjustment (scrolled);
         }
-        gtk_adjustment_set_value (vadjustment, vvalue);
+        gtk_adjustment_set_value (vadjustment, new_vvalue);
     }
-    else if (hvalue != hadjustment->value)
-        gtk_adjustment_set_value (hadjustment, hvalue);
+    else if (new_hvalue != hvalue)
+        gtk_adjustment_set_value (hadjustment, new_hvalue);
 
     adjust_scrollbar (scrolled, priv->horizontal_scrollbar_window,
                      gtk_scrolled_window_get_hadjustment (gtk_scrolled),
@@ -510,13 +535,14 @@ do_motion_scroll (KatzeScrolled* scrolled,
                   guint32        timestamp)
 {
     KatzeScrolledPrivate* priv = scrolled->priv;
-    GtkAdjustment* hadjustment;
-    GtkAdjustment* vadjustment;
-    gdouble hvalue;
-    gdouble vvalue;
 
     if (priv->dragged || gtk_drag_check_threshold (widget, priv->start_x, priv->start_y, x, y))
     {
+        GtkAdjustment* hadjustment;
+        GtkAdjustment* vadjustment;
+        gdouble hpage_size, hupper, hvalue, new_hvalue;
+        gdouble vpage_size, vupper, vvalue, new_vvalue;
+
         if (timestamp - priv->previous_time > priv->dragging_stopped_delay || !priv->dragged)
         {
             priv->dragged = TRUE;
@@ -554,23 +580,26 @@ do_motion_scroll (KatzeScrolled* scrolled,
         }
 
         hadjustment = gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled));
+        hvalue = gtk_adjustment_get_value (hadjustment);
+        new_hvalue = calculate_motion_scroll_values (hvalue,
+            hupper - hpage_size, x, priv->previous_x);
+
         vadjustment = gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled));
-        hvalue = calculate_motion_scroll_values (hadjustment->value,
-            hadjustment->upper - hadjustment->page_size, x, priv->previous_x);
-        vvalue = calculate_motion_scroll_values (vadjustment->value,
-            vadjustment->upper - vadjustment->page_size, y, priv->previous_y);
-        if (vvalue != vadjustment->value)
+        vvalue = gtk_adjustment_get_value (vadjustment);
+        new_vvalue = calculate_motion_scroll_values (vvalue,
+            vupper - vpage_size, y, priv->previous_y);
+        if (new_vvalue != vvalue)
         {
-            if (hvalue != hadjustment->value)
+            if (new_hvalue != hvalue)
             {
                 disable_hadjustment (scrolled);
-                gtk_adjustment_set_value (hadjustment, hvalue);
+                gtk_adjustment_set_value (hadjustment, new_hvalue);
                 enable_hadjustment (scrolled);
             }
-            gtk_adjustment_set_value (vadjustment, vvalue);
+            gtk_adjustment_set_value (vadjustment, new_vvalue);
         }
-        else if (hvalue != hadjustment->value)
-            gtk_adjustment_set_value (hadjustment, hvalue);
+        else if (new_hvalue != hvalue)
+            gtk_adjustment_set_value (hadjustment, new_hvalue);
     }
 
     priv->previous_y = y;
