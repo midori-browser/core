@@ -514,6 +514,13 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
     label = gtk_label_new (_("days"));
     SPANNED_ADD (label);
+    #if WEBKIT_CHECK_VERSION (1, 1, 8)
+    INDENTED_ADD (katze_property_proxy (settings, "enable-html5-database", NULL));
+    SPANNED_ADD (katze_property_proxy (settings, "enable-html5-local-storage", NULL));
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 1, 13)
+    INDENTED_ADD (katze_property_proxy (settings, "enable-offline-web-application-cache", NULL));
+    #endif
     FRAME_NEW (_("History"));
     button = katze_property_label (settings, "maximum-history-age");
     INDENTED_ADD (button);
