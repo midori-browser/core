@@ -155,6 +155,9 @@ enum
     PROP_ENABLE_SCRIPTS,
     PROP_ENABLE_PLUGINS,
     PROP_ENABLE_DEVELOPER_EXTRAS,
+    PROP_ENABLE_HTML5_DATABASE,
+    PROP_ENABLE_HTML5_LOCAL_STORAGE,
+    PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE,
     PROP_ENABLE_PAGE_CACHE,
     PROP_ZOOM_TEXT_AND_IMAGES,
     PROP_FIND_WHILE_TYPING,
@@ -860,6 +863,31 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Enable special extensions for developers",
                                      TRUE,
                                      flags));
+    #if WEBKIT_CHECK_VERSION (1, 1, 8)
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_HTML5_DATABASE,
+                                     g_param_spec_boolean ("enable-html5-database",
+                                                           _("Enable HTML5 database support"),
+                                                           _("Whether to enable HTML5 database support"),
+                                                           FALSE,
+                                                           flags));
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_HTML5_LOCAL_STORAGE,
+                                     g_param_spec_boolean ("enable-html5-local-storage",
+                                                           _("Enable HTML5 local storage support"),
+                                                           _("Whether to enable HTML5 local storage support"),
+                                                           FALSE,
+                                                           flags));
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 1, 13)
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE,
+                                     g_param_spec_boolean ("enable-offline-web-application-cache",
+                                                           _("Enable offline web application cache"),
+                                                           _("Whether to enable offline web application cache"),
+                                                           FALSE,
+                                                           flags));
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_PAGE_CACHE,
@@ -1418,6 +1446,22 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-developer-extras",
                       g_value_get_boolean (value), NULL);
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 8)
+    case PROP_ENABLE_HTML5_DATABASE:
+        g_object_set (web_settings, "WebKitWebSettings::enable-html5-database",
+                      g_value_get_boolean (value), NULL);
+        break;
+    case PROP_ENABLE_HTML5_LOCAL_STORAGE:
+        g_object_set (web_settings, "WebKitWebSettings::enable-html5-local-storage",
+                      g_value_get_boolean (value), NULL);
+        break;
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 1, 13)
+    case PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE:
+        g_object_set (web_settings, "WebKitWebSettings::enable-offline-web-application-cache",
+                      g_value_get_boolean (value), NULL);
+        break;
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_object_set (web_settings, "WebKitWebSettings::enable-page-cache",
@@ -1646,6 +1690,22 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-developer-extras"));
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 8)
+    case PROP_ENABLE_HTML5_DATABASE:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-html5-database"));
+        break;
+    case PROP_ENABLE_HTML5_LOCAL_STORAGE:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-html5-local-storage"));
+        break;
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 1, 13)
+    case PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-offline-web-application-cache"));
+        break;
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
