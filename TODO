@@ -1,9 +1,72 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
 TODO:
+ . Detect opensearch engines on sites: http://searchplugins.net/pluginlist.aspx
+ . Request network if not connected and re-open the url on success
+ . Make cookie manager horizontal if the window is wide
+ . Handle SSL like SSH: confirm any cert on first connection, warn about any change in subsequent connections
+ . Open on startup: Ask (Last open pages, Blank, Homepage, [x] Don't ask anymore)
+ . Support @run-at document-start: http://dev.chromium.org/developers/design-documents/user-scripts
+ . Add an 'install' button to addons
+ . Dragging a link onto the web view to open it
+ . Extension: Ask Google if an address cannot be found, ie. typo
+ . View source is not always equal to Save As
+ . Show New Window icon in statusbar for new-window links
+ . Validate search engine tokens
+ . Easily register stock items in extensions (mouse gestures, input-mouse)
+ . Show graphical error when a bookmarklet fails to run
+ . Unit test katze array action
+ . There is no way to reset the toolbar
+ . Estimate download speed
+ . Implement no_proxy, https_proxy
+ . Make it possible to use extra C or C++ libraries in extensions
+ . Add icon cache size preference
+ . Fix icons with white background to be transparent?
+ . Visually indicate that a tab is being opened even if outside the visible tabs
+ . gget/ eatmonkey/ Transmission dbus in Transfers
+ . Add Midori to autostart, and remove it if it's quit, optionally disabled
+ . Use @include and @exclude with userstyles
+ . Support -moz-document domain: http://userstyles.org/styles/22837
+ . Need a throbber with invisible menubar: make compact-menu throbb?
+ . Implement live bookmarks, see http://johnbokma.com/firefox/rss-and-live-bookmarks.html
+ . Add a dialog (right-cick) to Addons, to edit @include and @exclude
+ . Show URI in css overlay tooltips if statusbar is hidden
+ . "Menu" tool buttons aren't depressed while a menu is open
+ . Statusbar doesn't show right-click menu
+ . Consider pango_layout_set_auto_dir
+ . Make it possible to change ident string for particular domains
+ . Support max-age for Flash cookies
+ . Update speed dial thumbnail when loading the according page from speed dial
+ . Implement "Open image" which opens an image with an external application
+ . Add custom actions extension; example Set Wallpaper
+ . Offer restoring session after crash, if session isn't opened at startup AND crash dialogue is enabled
+ . Vi extension, modelled after vimprobable
+ . Show loading tabs in the tab panel extension
+ . Let extensions add preferences
+ . Show syntax errors in userscripts/ styles
+ . Add HTTP_PRAGMA: no-cache when Ctrl+Shift+R
+ . Honor HTTP_PRAGMA: no-cache in web cache
+ . Shortcut for switching browser windows
+ . Bookmark folder context menu, "Sort by Name"
+ . Adblock Block image: dialog to edit regex before adding
+ . KatzeArrayAction should support "activate" signal
+ . Remove extra inner panel border
+ . Need a way to switch panels without menubar or operating controls
+ . Move statusbar_contents below panel if statusbar is hidden
+ . Teplace "disable plugins" with showing a "load plugins automatically", where unchecking that keeps a placeholder that can be clicked to play
+ . Show "Type an address or keywords to search" in empty location even when focussed
+ . Show "Search hostname" in (can't resolve) error page, www.heyarnold.twotoastsde == typo?
+ . Enable extensions in private (app) mode
+ . Allow -e Set setting or so
+ . Remember if inspector was attached or not
+ . Icon in empty entry to paste from clipboard
+ . Show suggestions in error page, ie. missing www. or www. not existing for a domain: http://www.svcl.org/
+ . Warn when closing tab with unsubmitted form
+ . Always allow popups, keep hidden, show icon to ask whether to show popups
+ . Make Shift + Click download the link
  . Use an update timeout in KatzePropertyProxy instead of only focus-out
  . Show a loading mouse pointer
- . Import and export of the bookmarks file, or using one from a specific path
+ . Export of the bookmarks file, or using one from a specific path
  . Custom context menu actions, like in Thunar or Epiphany
  . Analogus to blocked popups, blocked scripts moving layers on load (extension)
  . Per-site blocking of individual elements on a page
@@ -13,11 +76,8 @@ TODO:
  . Automatic update checks (browser, extensions)?
  . Auto-group tabs by opener, with colors?
  . Mark (dogear) a selection so that it isn't cleared implicitly, multiply on one page
- . Have an internal uri scheme, eg. 'res:', to reference eg. themed icons
- . 'about:' uris: about, blank, cache, config, plugins
  . Check specific bookmarks for updates automatically (extension)
  . Mark "new" as well as "actually modified" tabs specially (even over sessions)
- . SearchEngine: "Show in context menu"
  . Save screenshot of a document?
  . Right-click a textbox in a search form and choose 'add to websearch'
  . Honor design principle "no warnings but undo of backups"?
@@ -25,11 +85,9 @@ TODO:
  . Protected tabs prompt when attempting to close them
  . Provide a 'sleep mode' after a crash where open documents are loaded manually
  . Option to run plugins or scripts only on demand, like NoScript, per-site
- . Optional http redirection manually or on timeout
- . Style: none, compatible (b/w), default, [styles], "media", ["media" styles], ...
+ . Optional http redirection manually or on timeout via SoupMessage::restarted
+ . Style: none, compatible (b/w), default, [styles], "media", ["media" styles]
  . Mouse pointer coordinates in the status bar (extension)
  . Draw rectangle with the mouse, x/y/x2/y2 in the statusbar (extension)
- . Private browsing mode (no browsing, download or search history)
  . Shared bookmarks and config
- . Custom-mode, e.g. hide menubar and use help icon to have a help viewer
  . Prevent dead tabs: download, aborted page
