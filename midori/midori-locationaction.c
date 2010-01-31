@@ -1087,8 +1087,10 @@ midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
         if ((entry = GTK_ICON_ENTRY (gtk_bin_get_child (GTK_BIN (combo_box)))))
         {
             GtkTreeModel* model;
-            GdkPixbuf* pixbuf;
             gchar* uri;
+            #if !HAVE_HILDON
+            GdkPixbuf* pixbuf;
+            #endif
 
             model = gtk_combo_box_get_model (combo_box);
             gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
