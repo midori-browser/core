@@ -280,22 +280,25 @@ midori_location_action_popup_position (GtkWidget* popup,
     gint wx, wy;
     GtkRequisition menu_req;
     GtkRequisition widget_req;
+    GdkScreen* screen;
+    gint monitor_num;
+    GdkRectangle monitor;
 
-    if (GTK_WIDGET_NO_WINDOW (widget))
-    {
-        gdk_window_get_position (widget->window, &wx, &wy);
-        wx += widget->allocation.x;
-        wy += widget->allocation.y;
-    }
-    else
-        gdk_window_get_origin (widget->window, &wx, &wy);
+    gdk_window_get_origin (widget->window, &wx, &wy);
     gtk_widget_size_request (popup, &menu_req);
     gtk_widget_size_request (widget, &widget_req);
 
-    gtk_window_move (GTK_WINDOW (popup),
-        wx, wy + widget_req.height);
-    gtk_window_resize (GTK_WINDOW (popup),
-        widget->allocation.width, 1);
+    screen = gtk_widget_get_screen (widget);
+    monitor_num = gdk_screen_get_monitor_at_window (screen, widget->window);
+    gdk_screen_get_monitor_geometry (screen, monitor_num, &monitor);
+
+    if (wy + widget_req.height + menu_req.height <= monitor.y + monitor.height
+     || wy - monitor.y < (monitor.y + monitor.height) - (wy + widget_req.height))
+        wy += widget_req.height;
+    else
+        wy -= menu_req.height;
+    gtk_window_move (GTK_WINDOW (popup),  wx, wy);
+    gtk_window_resize (GTK_WINDOW (popup), widget->allocation.width, 1);
 }
 
 static gboolean
@@ -488,8 +491,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
     column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
     gtk_tree_view_column_cell_get_size (column, NULL, NULL, NULL, NULL, &height);
-    /* FIXME: This really should consider monitor geometry */
-    /* FIXME: Consider y position versus height */
     screen_height = gdk_screen_get_height (gtk_widget_get_screen (action->popup));
     height = MIN (matches * height, screen_height / 1.5);
     gtk_widget_set_size_request (action->treeview, -1, height);
