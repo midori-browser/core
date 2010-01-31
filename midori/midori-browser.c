@@ -4544,7 +4544,10 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
         }
 
         if (clear_prefs != saved_prefs)
+        {
+            clear_prefs |= (saved_prefs & MIDORI_CLEAR_ON_QUIT);
             g_object_set (browser->settings, "clear-private-data", clear_prefs, NULL);
+        }
     }
     if (response_id != GTK_RESPONSE_DELETE_EVENT)
         gtk_widget_destroy (dialog);
