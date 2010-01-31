@@ -1224,7 +1224,8 @@ midori_load_netscape_plugins (gpointer data)
     FIXME: Ensure separators contained in the string can't break it */
     gchar* value = sokoke_js_script_eval (js_context,
         "function plugins (l) { var f = new Array (); for (i in l) "
-        "{ f.push (l[i].name + '|' + l[i].filename); } return f; }"
+        "{ var p = l[i].name + '|' + l[i].filename; "
+        "if (f.indexOf (p) == -1) f.push (p); } return f; }"
         "plugins (navigator.plugins)", NULL);
     gchar** items = g_strsplit (value, ",", 0);
     guint i = 0;
