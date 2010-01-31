@@ -2324,7 +2324,11 @@ _action_compact_add_activate (GtkAction*     action,
         g_free (label);
         gtk_widget_set_name (button, "GtkButton-thumb");
         gtk_box_pack_start (box, button, TRUE, TRUE, 4);
+        #if GTK_CHECK_VERSION (2, 16, 0)
+        gtk_activatable_set_related_action (GTK_ACTIVATABLE (button), action);
+        #else
         gtk_action_connect_proxy (action, button);
+        #endif
         g_signal_connect_swapped (button, "clicked",
                                   G_CALLBACK (gtk_widget_destroy), dialog);
     }
@@ -2664,7 +2668,9 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
     children = gtk_container_get_children (GTK_CONTAINER (browser->navigationbar));
     for (; children != NULL; children = g_list_next (children))
     {
-        GtkAction* action = gtk_widget_get_action (GTK_WIDGET (children->data));
+        GtkAction* action;
+
+        action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (children->data));
         /* If a widget has no action that is actually a bug, so warn about it */
         g_warn_if_fail (action != NULL);
         if (action)
@@ -2740,8 +2746,11 @@ static void
 midori_browser_menu_item_select_cb (GtkWidget*     menuitem,
                                     MidoriBrowser* browser)
 {
-    GtkAction* action = gtk_widget_get_action (menuitem);
-    gchar* tooltip = action ? katze_object_get_string (action, "tooltip") : NULL;
+    GtkAction* action;
+    gchar* tooltip;
+
+    action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (menuitem));
+    tooltip = action ? katze_object_get_string (action, "tooltip") : NULL;
     if (!tooltip)
     {
         /* This is undocumented object data, used by KatzeArrayAction. */
@@ -3195,7 +3204,8 @@ _action_menubar_activate (GtkToggleAction* action,
         for (; children != NULL; children = g_list_next (children))
         {
             GtkAction* action_;
-            action_ = gtk_widget_get_action (GTK_WIDGET (children->data));
+
+            action_ = gtk_activatable_get_related_action (GTK_ACTIVATABLE (children->data));
             if (action_ == menu_action)
             {
                 gtk_container_remove (navigationbar,
@@ -4240,7 +4250,9 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
 {
     if (event->button == 2)
     {
-        GtkAction* action = gtk_widget_get_action (toolitem);
+        GtkAction* action;
+
+        action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (toolitem));
 
         return midori_browser_menu_middle_click_on_navigation_action (browser, action);
     }

@@ -29,6 +29,11 @@
     (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif
 
+#if !GTK_CHECK_VERSION (2, 16, 0)
+    #define GTK_ACTIVATABLE GTK_WIDGET
+    #define gtk_activatable_get_related_action gtk_widget_get_action
+#endif
+
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL (widget)
     #define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
