@@ -493,7 +493,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #endif
     label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "identify-as", "custom-ident-string");
+    button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     SPANNED_ADD (button);
     label = katze_property_label (settings, "preferred-languages");
     INDENTED_ADD (label);

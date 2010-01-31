@@ -3225,7 +3225,7 @@ midori_view_set_uri (MidoriView*  view,
             {
                 gchar** argument_vector = sokoke_get_argv (NULL);
                 gchar* command_line = g_strjoinv (" ", argument_vector);
-                gchar* ident = katze_object_get_string (view->settings, "ident-string");
+                gchar* ident = katze_object_get_string (view->settings, "user-agent");
                 #if defined (G_OS_WIN32)
                 gchar* sys_name = g_strdup ("Windows");
                 #else

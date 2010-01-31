@@ -980,7 +980,7 @@ soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
                                               GParamSpec*        pspec,
                                               SoupSession*       session)
 {
-    gchar* ident_string = katze_object_get_string (settings, "ident-string");
+    gchar* ident_string = katze_object_get_string (settings, "user-agent");
     g_object_set (session, "user-agent", ident_string, NULL);
     g_free (ident_string);
 }
@@ -1044,7 +1044,7 @@ midori_soup_session_prepare (SoupSession*       session,
 
     #if !WEBKIT_CHECK_VERSION (1, 1, 11)
     soup_session_settings_notify_ident_string_cb (settings, NULL, session);
-    g_signal_connect (settings, "notify::ident-string",
+    g_signal_connect (settings, "notify::user-agent",
         G_CALLBACK (soup_session_settings_notify_ident_string_cb), session);
     #endif
 

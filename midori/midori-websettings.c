@@ -173,7 +173,7 @@ enum
     PROP_HTTP_PROXY,
     PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
-    PROP_IDENT_STRING,
+    PROP_USER_AGENT,
     PROP_PREFERRED_LANGUAGES,
 
     PROP_CLEAR_PRIVATE_DATA
@@ -1063,16 +1063,16 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
-    * MidoriWebSettings:ident-string:
-    *
-    * The browser identification string.
-    *
-    * Since: 0.1.2
-    */
+     * MidoriWebSettings:user-agent:
+     *
+     * The browser identification string.
+     *
+     * Since: 0.2.3
+     */
     g_object_class_install_property (gobject_class,
-                                     PROP_IDENT_STRING,
+                                     PROP_USER_AGENT,
                                      g_param_spec_string (
-                                     "ident-string",
+                                     "user-agent",
                                      _("Identification string"),
                                      _("The application identification string"),
                                      NULL,
@@ -1511,16 +1511,17 @@ midori_web_settings_set_property (GObject*      object,
             katze_assign (web_settings->ident_string, string);
             #if WEBKIT_CHECK_VERSION (1, 1, 11)
             g_object_set (web_settings, "user-agent", string, NULL);
+            #else
+            g_object_notify (object, "user-agent");
             #endif
-            g_object_notify (object, "ident-string");
         }
         break;
-    case PROP_IDENT_STRING:
+    case PROP_USER_AGENT:
         if (web_settings->identify_as == MIDORI_IDENT_CUSTOM)
         {
             katze_assign (web_settings->ident_string, g_value_dup_string (value));
             #if WEBKIT_CHECK_VERSION (1, 1, 11)
-            g_object_set (web_settings, "user-agent", web_settings->ident_string, NULL);
+            g_object_set (web_settings, "WebKitWebSettings::user-agent", web_settings->ident_string, NULL);
             #endif
         }
         break;
@@ -1750,7 +1751,7 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_IDENTIFY_AS:
         g_value_set_enum (value, web_settings->identify_as);
         break;
-    case PROP_IDENT_STRING:
+    case PROP_USER_AGENT:
         if (!g_strcmp0 (web_settings->ident_string, ""))
         {
             gchar* string = generate_ident_string (web_settings->identify_as);

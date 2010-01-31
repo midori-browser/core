@@ -25,7 +25,7 @@ typedef struct
 
 static ObjectProperty properties_object_skip[] =
 {
-    { "MidoriWebSettings", "ident-string" },
+    { "MidoriWebSettings", "user-agent" },
 };
 
 static gboolean
