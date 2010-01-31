@@ -878,7 +878,7 @@ katze_scrolled_realize (GtkWidget* widget)
                       G_CALLBACK (on_expose_event), scrolled);
 
     color.red = color.green = color.blue = 0x9999;
-    gdk_rgb_find_color (gdk_colormap_get_system (), &color);
+    gdk_rgb_find_color (gtk_widget_get_colormap (widget), &color);
     gdk_window_set_background (priv->vertical_scrollbar_window, &color);
     gdk_window_set_background (priv->horizontal_scrollbar_window, &color);
 
