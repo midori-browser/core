@@ -23,8 +23,6 @@
     #define gtk_adjustment_get_upper(adj) adj->upper
     #define gtk_adjustment_get_lower(adj) adj->lower
     #define gtk_adjustment_get_value(adj) adj->value
-    #define gtk_adjustment_get_page_size(adj) adj->page_size
-    #define gtk_adjustment_get_page_size(adj) adj->page_size
 #endif
 
 #define DEFAULT_INTERVAL 50
@@ -331,8 +329,8 @@ adjust_scrollbar (KatzeScrolled* scrolled,
         return FALSE;
     }
 
-    size = ((double)page_size) / (upper - lower) * (horizontal
-        ? widget->allocation.height : widget->allocation.width);
+    size = page_size / (upper - lower)
+        * (horizontal ? widget->allocation.height : widget->allocation.width);
     if (size != *previous_size)
     {
         *previous_size = size;
@@ -580,11 +578,15 @@ do_motion_scroll (KatzeScrolled* scrolled,
         }
 
         hadjustment = gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled));
+        hpage_size = gtk_adjustment_get_page_size (hadjustment);
+        hupper = gtk_adjustment_get_upper (hadjustment);
         hvalue = gtk_adjustment_get_value (hadjustment);
         new_hvalue = calculate_motion_scroll_values (hvalue,
             hupper - hpage_size, x, priv->previous_x);
 
         vadjustment = gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled));
+        vpage_size = gtk_adjustment_get_page_size (vadjustment);
+        vupper = gtk_adjustment_get_upper (vadjustment);
         vvalue = gtk_adjustment_get_value (vadjustment);
         new_vvalue = calculate_motion_scroll_values (vvalue,
             vupper - vpage_size, y, priv->previous_y);
