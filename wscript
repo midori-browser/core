@@ -296,9 +296,13 @@ def configure (conf):
                 '-Wredundant-decls -Wmissing-noreturn '
                 '-Wshadow -Wpointer-arith -Wcast-align '
                 '-Winline -Wformat-security '
-                '-Winit-self -Wundef '
+                '-Winit-self -Wundef -Wdeclaration-after-statement '
                 '-Wmissing-format-attribute -Wnested-externs '
-                '-DG_ENABLE_DEBUG'.split ())
+            # -DGSEAL_ENABLE
+                '-DG_ENABLE_DEBUG -DG_DISABLE_DEPRECATED '
+                '-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED '
+                '-DGTK_DISABLE_DEPRECATED -DPANGO_DISABLE_DEPRECATED '
+                '-DGDK_MULTIHEAD_SAFE -DGTK_MULTIHEAD_SAFE'.split ())
     elif debug_level != 'none':
             Utils.pprint ('RED', 'No debugging level support for ' + compiler)
             sys.exit (1)
