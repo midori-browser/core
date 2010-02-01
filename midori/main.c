@@ -1823,6 +1823,7 @@ main (int    argc,
     config_file = build_config_filename ("config");
     error = NULL;
     settings = settings_new_from_file (config_file, &extensions);
+    g_object_set (settings, "enable-developer-extras", TRUE, NULL);
     katze_assign (config_file, build_config_filename ("accels"));
     if (g_access (config_file, F_OK) != 0)
         katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
