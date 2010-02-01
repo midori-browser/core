@@ -1518,12 +1518,11 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_USER_AGENT:
         if (web_settings->identify_as == MIDORI_IDENT_CUSTOM)
-        {
             katze_assign (web_settings->ident_string, g_value_dup_string (value));
-            #if WEBKIT_CHECK_VERSION (1, 1, 11)
-            g_object_set (web_settings, "WebKitWebSettings::user-agent", web_settings->ident_string, NULL);
-            #endif
-        }
+        #if WEBKIT_CHECK_VERSION (1, 1, 11)
+        g_object_set (web_settings, "WebKitWebSettings::user-agent",
+                                    web_settings->ident_string, NULL);
+        #endif
         break;
     case PROP_PREFERRED_LANGUAGES:
         katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
