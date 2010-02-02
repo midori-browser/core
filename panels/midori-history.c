@@ -31,6 +31,12 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          gboolean       new_bookmark,
                                          gboolean       is_folder);
 
+#include "config.h"
+
+#if HAVE_SQLITE
+    #include <sqlite3.h>
+#endif
+
 struct _MidoriHistory
 {
     GtkVBox parent_instance;
@@ -114,6 +120,144 @@ midori_history_get_stock_id (MidoriViewable* viewable)
     return STOCK_HISTORY;
 }
 
+#if HAVE_SQLITE
+static void
+midori_history_clear_db (MidoriHistory* history)
+{
+    gchar* sqlcmd;
+    sqlite3* db;
+    char* errmsg = NULL;
+
+    db = g_object_get_data (G_OBJECT (history->array), "db");
+    sqlcmd = sqlite3_mprintf ("DELETE FROM history");
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    sqlite3_free (sqlcmd);
+}
+
+static void
+midori_history_remove_item_from_db (MidoriHistory* history,
+                                    KatzeItem*     item,
+                                    int            age)
+{
+    gchar* sqlcmd;
+    sqlite3* db;
+    char* errmsg = NULL;
+
+    db = g_object_get_data (G_OBJECT (history->array), "db");
+
+    if (katze_item_get_uri (item))
+        sqlcmd = sqlite3_mprintf (
+            "DELETE FROM history WHERE uri = '%q' AND"
+            " title = '%q' AND date = %llu",
+            katze_item_get_uri (item),
+            katze_item_get_name (item),
+            katze_item_get_added (item));
+    else
+       sqlcmd = sqlite3_mprintf (
+            "DELETE FROM history WHERE day = %d", katze_item_get_added (item));
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    sqlite3_free (sqlcmd);
+}
+
+static gboolean
+midori_history_read_from_db (MidoriHistory* history,
+                             GtkTreeModel*  model,
+                             GtkTreeIter*   parent,
+                             int            req_day)
+{
+    sqlite3* db;
+    sqlite3_stmt* statement;
+    gint result;
+    gchar* sqlcmd;
+
+    GtkTreeIter iter;
+    GtkTreeIter root_iter;
+
+    db = g_object_get_data (G_OBJECT (history->array), "db");
+
+    if (req_day == 0)
+        sqlcmd = g_strdup ("SELECT day, date, "
+                           "(strftime ('%s','now') - date) / 86400 as age "
+                           " FROM history GROUP BY day ORDER BY day ASC");
+    else
+        sqlcmd = g_strdup_printf ("SELECT uri, title, date, day "
+                                  " FROM history WHERE day = '%d' "
+                                  " GROUP BY uri ORDER BY date ASC", req_day);
+
+    if (sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL) != SQLITE_OK)
+    {
+        g_free (sqlcmd);
+        return FALSE;
+    }
+    g_free (sqlcmd);
+
+    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+    {
+        KatzeItem* item;
+        const unsigned char* uri;
+        const unsigned char* title;
+        sqlite3_int64 date;
+        sqlite3_int64 day;
+        sqlite3_int64 age;
+        gchar token[50];
+
+        if (req_day == 0)
+        {
+            day = sqlite3_column_int64 (statement, 0);
+            date = sqlite3_column_int64 (statement, 1);
+            age = sqlite3_column_int64 (statement, 2);
+
+            item = katze_item_new ();
+            katze_item_set_added (item, day);
+            strftime (token, sizeof (token), "%x", localtime ((time_t *)&date));
+            katze_item_set_name (item, token);
+            gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &root_iter, NULL,
+                                               0, 0, item, 1, age, -1);
+            /* FIXME: Always show expanders even if no child nodes? */
+            gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &iter, &root_iter,
+                                               0, 0, item, 1, -1, -1);
+        }
+        else
+        {
+            uri = sqlite3_column_text (statement, 0);
+            title = sqlite3_column_text (statement, 1);
+            date = sqlite3_column_int64 (statement, 2);
+            day = sqlite3_column_int64 (statement, 3);
+            if (!uri)
+                continue;
+
+            item = katze_item_new ();
+            katze_item_set_added (item, date);
+            katze_item_set_uri (item, (gchar*)uri);
+            katze_item_set_name (item, (gchar*)title);
+            /* FIXME: Gtk-WARNING **: gtk/gtktreestore.c:946: Invalid column
+                number -1076101456 added to iter (remember to end your list
+                of columns with a -1) */
+            gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), NULL, parent,
+                                               0, 0, item, 1, -1, -1);
+        }
+    }
+
+    if (result != SQLITE_DONE)
+        g_print (_("Failed to execute database statement: %s\n"),
+                 sqlite3_errmsg (db));
+
+    sqlite3_finalize (statement);
+    return FALSE;
+}
+
 static void
 midori_history_add_clicked_cb (GtkWidget* toolitem)
 {
@@ -133,16 +277,11 @@ midori_history_delete_clicked_cb (GtkWidget*     toolitem,
                                            &model, &iter))
     {
         KatzeItem* item;
-        KatzeArray* parent;
+        gint64 age;
 
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-
-        /* FIXME: Even toplevel items should technically have a parent */
-        g_return_if_fail (katze_item_get_parent (item));
-
-        parent = katze_item_get_parent (item);
-        katze_array_remove_item (parent, item);
-
+        gtk_tree_model_get (model, &iter, 0, &item, 1, &age, -1);
+        midori_history_remove_item_from_db (history, item, age);
+        gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
         g_object_unref (item);
     }
 }
@@ -165,7 +304,7 @@ midori_history_clear_clicked_cb (GtkWidget*     toolitem,
     if (result != GTK_RESPONSE_YES)
         return;
 
-    katze_array_clear (history->array);
+    midori_history_clear_db (history);
 }
 
 static void
@@ -197,6 +336,7 @@ midori_history_cursor_or_row_changed_cb (GtkTreeView*   treeview,
         gtk_widget_set_sensitive (history->delete, FALSE);
     }
 }
+#endif
 
 static GtkWidget*
 midori_history_get_toolbar (MidoriViewable* viewable)
@@ -206,12 +346,15 @@ midori_history_get_toolbar (MidoriViewable* viewable)
     if (!history->toolbar)
     {
         GtkWidget* toolbar;
+        #if HAVE_SQLITE
         GtkToolItem* toolitem;
+        #endif
 
         toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         history->toolbar = toolbar;
+        #if HAVE_SQLITE
         toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK_ADD);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                      _("Bookmark the selected history item"));
@@ -245,6 +388,7 @@ midori_history_get_toolbar (MidoriViewable* viewable)
             G_CALLBACK (gtk_widget_destroyed), &history->delete);
         g_signal_connect (history->clear, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &history->clear);
+        #endif
     }
 
     return history->toolbar;
@@ -259,222 +403,6 @@ midori_history_viewable_iface_init (MidoriViewableIface* iface)
 }
 
 static void
-midori_history_add_item_cb (KatzeArray*    array,
-                            KatzeItem*     added_item,
-                            MidoriHistory* history);
-
-static void
-midori_history_remove_item_cb (KatzeArray*    array,
-                               KatzeItem*     removed_item,
-                               MidoriHistory* history);
-
-static void
-midori_history_clear_cb (KatzeArray*    array,
-                         MidoriHistory* history);
-
-static void
-midori_history_disconnect_folder (MidoriHistory* history,
-                                  KatzeArray*    array,
-                                  gboolean       unref)
-{
-    KatzeItem* item;
-    guint i;
-
-    g_return_if_fail (KATZE_IS_ARRAY (array));
-
-    g_signal_handlers_disconnect_by_func (array,
-        midori_history_add_item_cb, history);
-    g_signal_handlers_disconnect_by_func (array,
-        midori_history_remove_item_cb, history);
-    g_signal_handlers_disconnect_by_func (array,
-        midori_history_clear_cb, history);
-
-    i = 0;
-    while ((item = katze_array_get_nth_item (array, i++)))
-    {
-        if (KATZE_IS_ARRAY (item))
-            midori_history_disconnect_folder (history, KATZE_ARRAY (item), unref);
-        if (unref)
-            g_object_unref (item);
-    }
-}
-
-static void
-midori_history_add_item_cb (KatzeArray*    array,
-                            KatzeItem*     added_item,
-                            MidoriHistory* history)
-{
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-    guint i;
-
-    g_return_if_fail (KATZE_IS_ARRAY (array));
-    g_return_if_fail (KATZE_IS_ITEM (added_item));
-    g_return_if_fail (MIDORI_IS_HISTORY (history));
-
-    if (KATZE_IS_ARRAY (added_item))
-    {
-        g_signal_connect (added_item, "add-item",
-            G_CALLBACK (midori_history_add_item_cb), history);
-        g_signal_connect (added_item, "remove-item",
-            G_CALLBACK (midori_history_remove_item_cb), history);
-        g_signal_connect (added_item, "clear",
-            G_CALLBACK (midori_history_clear_cb), history);
-    }
-
-    g_object_ref (added_item);
-    model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
-
-    if (array == history->array)
-    {
-        gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-            &iter, NULL, 0, 0, added_item, -1);
-        return;
-    }
-
-    i = 0;
-    /* FIXME: Recurse over children of folders, too */
-    while (gtk_tree_model_iter_nth_child (model, &iter, NULL, i))
-    {
-        KatzeItem* item;
-
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-        if (item == (KatzeItem*)array)
-        {
-            GtkTreeIter child_iter;
-
-            gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-                &child_iter, &iter, 0, 0, added_item, -1);
-            break;
-        }
-        g_object_unref (item);
-
-        i++;
-    }
-}
-
-static void
-midori_history_remove_iter (GtkTreeModel* model,
-                            GtkTreeIter*  parent,
-                            KatzeItem*    removed_item)
-{
-    guint i;
-    GtkTreeIter iter;
-
-    i = 0;
-    while (gtk_tree_model_iter_nth_child (model, &iter, parent, i))
-    {
-        KatzeItem* item;
-
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-
-        if (item == removed_item)
-        {
-            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-            g_object_unref (item);
-            break;
-        }
-
-        if (KATZE_IS_ARRAY (item))
-            midori_history_remove_iter (model, &iter, removed_item);
-
-        g_object_unref (item);
-        i++;
-    }
-}
-
-static void
-midori_history_remove_item_cb (KatzeArray*    array,
-                               KatzeItem*     removed_item,
-                               MidoriHistory* history)
-{
-    GtkTreeModel* model;
-
-    g_assert (KATZE_IS_ARRAY (array));
-    g_assert (KATZE_IS_ITEM (removed_item));
-
-    if (KATZE_IS_ARRAY (removed_item))
-        midori_history_disconnect_folder (history, KATZE_ARRAY (removed_item), TRUE);
-
-    model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
-    midori_history_remove_iter (model, NULL, removed_item);
-    g_object_unref (removed_item);
-}
-
-static void
-midori_history_clear_cb (KatzeArray*    array,
-                         MidoriHistory* history)
-{
-    GtkTreeView* treeview;
-    GtkTreeStore* store;
-
-    g_assert (KATZE_IS_ARRAY (array));
-
-    if (array == history->array)
-    {
-        treeview = GTK_TREE_VIEW (history->treeview);
-        store = GTK_TREE_STORE (gtk_tree_view_get_model (treeview));
-        gtk_tree_store_clear (store);
-    }
-    else
-    {
-        KatzeItem* item;
-        guint i;
-
-        i = 0;
-        while ((item = katze_array_get_nth_item (array, i++)))
-            midori_history_remove_item_cb (array, item, history);
-    }
-
-    midori_history_disconnect_folder (history, array, TRUE);
-}
-
-static void
-midori_history_insert_item (MidoriHistory* history,
-                            GtkTreeStore*  treestore,
-                            GtkTreeIter*   parent,
-                            KatzeItem*     item,
-                            gint64         day)
-{
-    GtkTreeIter iter;
-    gint64 age = -1;
-
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        GtkTreeIter* piter;
-        gint64 pday;
-        guint i;
-        KatzeItem* child;
-
-        g_signal_connect (item, "add-item",
-            G_CALLBACK (midori_history_add_item_cb), history);
-        g_signal_connect (item, "remove-item",
-            G_CALLBACK (midori_history_remove_item_cb), history);
-        g_signal_connect (item, "clear",
-            G_CALLBACK (midori_history_clear_cb), history);
-
-        piter = parent;
-        if ((pday = katze_item_get_added (item)))
-        {
-            age = day - pday;
-            gtk_tree_store_insert_with_values (treestore, &iter, parent,
-                                               0, 0, item, 1, age, -1);
-            piter = &iter;
-        }
-        i = 0;
-        while ((child = katze_array_get_nth_item (KATZE_ARRAY (item), i++)))
-            midori_history_insert_item (history, treestore, piter, child, day);
-    }
-    else
-    {
-        gtk_tree_store_insert_with_values (treestore, &iter, parent,
-                                           0, 0, item, 1, age, -1);
-    }
-}
-
-static void
 midori_history_set_app (MidoriHistory* history,
                         MidoriApp*     app)
 {
@@ -482,26 +410,21 @@ midori_history_set_app (MidoriHistory* history,
 
     if (history->array)
     {
-        midori_history_disconnect_folder (history, history->array, TRUE);
         g_object_unref (history->array);
         model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
         gtk_tree_store_clear (GTK_TREE_STORE (model));
     }
+
     katze_assign (history->app, app);
     if (!app)
         return;
-
     g_object_ref (app);
-    history->array = katze_object_get_object (app, "history");
-    if (history->array)
-    {
-        time_t now = time (NULL);
-        gint64 day = sokoke_time_t_to_julian (&now);
 
-        model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
-        midori_history_insert_item (history, GTK_TREE_STORE (model),
-            NULL, KATZE_ITEM (history->array), day);
-    }
+    history->array = katze_object_get_object (app, "history");
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
+    #if HAVE_SQLITE
+    midori_history_read_from_db (history, model, NULL, 0);
+    #endif
 }
 
 static void
@@ -550,17 +473,16 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                         GtkWidget*         treeview)
 {
     KatzeItem* item;
+    gint64 age;
     GdkPixbuf* pixbuf = NULL;
 
-    gtk_tree_model_get (model, iter, 0, &item, -1);
+    gtk_tree_model_get (model, iter, 0, &item, 1, &age, -1);
 
-    g_assert (KATZE_IS_ITEM (item));
-
-    if (KATZE_IS_ARRAY (item))
+    if (katze_item_get_uri (item))
+        pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
+    else
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
-    else
-        pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
 
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
@@ -582,9 +504,7 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
 
     gtk_tree_model_get (model, iter, 0, &item, 1, &age, -1);
 
-    g_assert (KATZE_IS_ITEM (item));
-
-    if (KATZE_IS_ARRAY (item))
+    if (age != -1)
     {
         gchar* sdate;
 
@@ -633,6 +553,7 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
     g_object_unref (item);
 }
 
+#if HAVE_SQLITE
 static void
 midori_history_row_activated_cb (GtkTreeView*       treeview,
                                    GtkTreePath*       path,
@@ -792,22 +713,6 @@ midori_history_bookmark_activate_cb (GtkWidget*     menuitem,
 }
 
 static void
-midori_history_delete_activate_cb (GtkWidget*     menuitem,
-                                   MidoriHistory* history)
-{
-    KatzeItem* item;
-    KatzeArray* parent;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-
-    /* FIXME: Even toplevel items should technically have a parent */
-    g_return_if_fail (katze_item_get_parent (item));
-
-    parent = katze_item_get_parent (item);
-    katze_array_remove_item (parent, item);
-}
-
-static void
 midori_history_popup (GtkWidget*      widget,
                       GdkEventButton* event,
                       KatzeItem*      item,
@@ -836,7 +741,7 @@ midori_history_popup (GtkWidget*      widget,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     midori_history_popup_item (menu, GTK_STOCK_DELETE, NULL,
-        item, midori_history_delete_activate_cb, history);
+        item, midori_history_delete_clicked_cb, history);
 
     katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
@@ -925,6 +830,33 @@ midori_history_popup_menu_cb (GtkWidget*     widget,
 }
 
 static void
+midori_history_row_expanded_cb (GtkTreeView*   treeview,
+                                GtkTreeIter*   iter,
+                                GtkTreePath*   path,
+                                MidoriHistory* history)
+{
+    GtkTreeModel* model;
+    KatzeItem* item;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+    gtk_tree_model_get (model, iter, 0, &item, -1);
+    /* FIXME: We need always repopulate parent. Now ignoring dupes */
+    if (gtk_tree_model_iter_n_children (model, iter) < 2)
+        midori_history_read_from_db (history, model, iter, katze_item_get_added (item));
+    g_object_unref (item);
+}
+
+static void
+midori_history_row_collapsed_cb (GtkTreeView *treeview,
+                                 GtkTreeIter *iter,
+                                 GtkTreePath *path,
+                                 gpointer     user_data)
+{
+    /* FIXME: Free parent childs on close and repopulate them again on open */
+}
+#endif
+
+static void
 midori_history_init (MidoriHistory* history)
 {
     GtkTreeStore* model;
@@ -953,6 +885,7 @@ midori_history_init (MidoriHistory* history)
         history, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     g_object_unref (model);
+    #if HAVE_SQLITE
     g_object_connect (treeview,
                       "signal::row-activated",
                       midori_history_row_activated_cb, history,
@@ -964,12 +897,18 @@ midori_history_init (MidoriHistory* history)
                       midori_history_button_release_event_cb, history,
                       "signal::key-release-event",
                       midori_history_key_release_event_cb, history,
+                      "signal::row-expanded",
+                      midori_history_row_expanded_cb, history,
+                      "signal::row-collapsed",
+                      midori_history_row_collapsed_cb, history,
                       "signal::popup-menu",
                       midori_history_popup_menu_cb, history,
                       NULL);
+    #endif
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (history), treeview, TRUE, TRUE, 0);
     history->treeview = treeview;
+    /* FIXME: We need to connect a signal here, to add new pages into history */
 }
 
 static void
@@ -982,7 +921,6 @@ midori_history_finalize (GObject* object)
 
     /* FIXME: We don't unref items (last argument is FALSE) because
        our reference counting is incorrect. */
-    midori_history_disconnect_folder (history, history->array, FALSE);
     g_object_unref (history->array);
 }
 
