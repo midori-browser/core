@@ -352,154 +352,13 @@ search_engines_save_to_file (KatzeArray*  search_engines,
 }
 
 #if HAVE_SQLITE
-/* sqlite method for retrieving the date/ time */
-static int
-gettimestr (void*  data,
-            int    argc,
-            char** argv,
-            char** colname)
-{
-    KatzeItem* item = KATZE_ITEM (data);
-    (void) colname;
-
-    g_return_val_if_fail (argc == 1, 1);
-
-    katze_item_set_added (item, g_ascii_strtoull (argv[0], NULL, 10));
-    return 0;
-}
-
-static void
-midori_history_remove_item_cb (KatzeArray* history,
-                               KatzeItem*  item,
-                               sqlite3*    db)
-{
-    gchar* sqlcmd;
-    char* errmsg = NULL;
-
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
-    sqlcmd = sqlite3_mprintf (
-        "DELETE FROM history WHERE uri = '%q' AND"
-        " title = '%q' AND date = %llu",
-        katze_item_get_uri (item),
-        katze_item_get_name (item),
-        katze_item_get_added (item));
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-    sqlite3_free (sqlcmd);
-}
-
-static void
-midori_history_clear_before_cb (KatzeArray* item,
-                                sqlite3*    db)
-{
-    g_signal_handlers_block_by_func (item, midori_history_remove_item_cb, db);
-}
-
-static void
-midori_history_clear_cb (KatzeArray* history,
-                         sqlite3*    db)
-{
-    char* errmsg = NULL;
-
-    g_return_if_fail (KATZE_IS_ARRAY (history));
-
-    if (sqlite3_exec (db, "DELETE FROM history", NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to clear history: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-}
-
-static void
-midori_history_notify_item_cb (KatzeItem*  item,
-                               GParamSpec* pspec,
-                               sqlite3*    db)
-{
-    gchar* sqlcmd;
-    char* errmsg = NULL;
-
-    sqlcmd = sqlite3_mprintf ("UPDATE history SET title='%q' WHERE "
-                              "uri='%q' AND date=%llu",
-                              katze_item_get_name (item),
-                              katze_item_get_uri (item),
-                              katze_item_get_added (item));
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to update history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-    sqlite3_free (sqlcmd);
-}
-
-static void
-midori_history_add_item_cb (KatzeArray* array,
-                            KatzeItem*  item,
-                            sqlite3*    db)
-{
-    gchar* sqlcmd;
-    int success;
-    char* errmsg = NULL;
-
-    g_return_if_fail (KATZE_IS_ITEM (item));
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        g_signal_connect_after (item, "add-item",
-                G_CALLBACK (midori_history_add_item_cb), db);
-        g_signal_connect (item, "remove-item",
-                G_CALLBACK (midori_history_remove_item_cb), db);
-        g_signal_connect (item, "clear",
-            G_CALLBACK (midori_history_clear_before_cb), db);
-        return;
-    }
-
-    /* New item, set added to the current date/ time */
-    if (!katze_item_get_added (item))
-    {
-        if (sqlite3_exec (db, "SELECT date('now')",
-                          gettimestr, item, &errmsg) != SQLITE_OK)
-        {
-            g_printerr (_("Failed to get current time: %s\n"), errmsg);
-            sqlite3_free (errmsg);
-            return;
-        }
-    }
-    sqlcmd = sqlite3_mprintf ("INSERT INTO history VALUES"
-                              "('%q', '%q', %llu,"
-                              " %llu)",
-                              katze_item_get_uri (item),
-                              katze_item_get_name (item),
-                              katze_item_get_added (item),
-                              katze_item_get_added (KATZE_ITEM (array)));
-    success = sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg);
-    sqlite3_free (sqlcmd);
-    if (success != SQLITE_OK)
-    {
-        g_printerr (_("Failed to add history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-        return ;
-    }
-
-    /* The title is set after the item is added */
-    g_signal_connect_after (item, "notify::name",
-                            G_CALLBACK (midori_history_notify_item_cb), db);
-}
-
 static sqlite3*
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
                            char**       errmsg)
 {
     sqlite3* db;
-    KatzeItem* item;
-    gint i;
     gboolean has_day;
-    sqlite3_stmt* statement;
-    gint result;
 
     has_day = FALSE;
 
@@ -537,65 +396,6 @@ midori_history_initialize (KatzeArray*  array,
                       NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
 
-    /* FIXME: Install LIKE function with unicode case insensitivity */
-    /* FIXME: Limit by maximum-history-age */
-    if (sqlite3_prepare_v2 (db,
-        "SELECT DISTINCT uri, title, date, day FROM history ORDER BY date ASC",
-        -1, &statement, NULL) != SQLITE_OK)
-        return NULL;
-
-    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
-    {
-        const unsigned char* uri = sqlite3_column_text (statement, 0);
-        const unsigned char* title = sqlite3_column_text (statement, 1);
-        sqlite3_int64 date = sqlite3_column_int64 (statement, 2);
-        sqlite3_int64 day = sqlite3_column_int64 (statement, 3);
-        KatzeArray* parent;
-        gint j;
-        gint n;
-        gchar token[50];
-
-        item = katze_item_new ();
-        katze_item_set_uri (item, (gchar*)uri);
-        katze_item_set_name (item, (gchar*)title);
-        katze_item_set_added (item, date);
-
-        n = katze_array_get_length (array);
-        for (j = n - 1; j >= 0; j--)
-        {
-            parent = katze_array_get_nth_item (array, j);
-            if (day == katze_item_get_added (KATZE_ITEM (parent)))
-                break;
-        }
-
-        if (j < 0)
-        {
-            parent = katze_array_new (KATZE_TYPE_ARRAY);
-            katze_item_set_added (KATZE_ITEM (parent), day);
-            strftime (token, sizeof (token), "%x", localtime ((time_t *)&date));
-            katze_item_set_name (KATZE_ITEM (parent), token);
-            katze_array_add_item (array, parent);
-        }
-
-        katze_array_add_item (parent, item);
-    }
-
-    if (result != SQLITE_DONE)
-        g_print (_("Failed to execute database statement: %s\n"),
-                 sqlite3_errmsg (db));
-
-    sqlite3_finalize (statement);
-
-    i = 0;
-    while ((item = katze_array_get_nth_item (array, i++)))
-    {
-        g_signal_connect_after (item, "add-item",
-            G_CALLBACK (midori_history_add_item_cb), db);
-        g_signal_connect (item, "remove-item",
-            G_CALLBACK (midori_history_remove_item_cb), db);
-        g_signal_connect (item, "clear",
-            G_CALLBACK (midori_history_clear_before_cb), db);
-    }
     return db;
 }
 
@@ -2044,10 +1844,6 @@ main (int    argc,
         G_CALLBACK (midori_trash_remove_item_cb), NULL);
     #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
-    g_signal_connect_after (history, "add-item",
-        G_CALLBACK (midori_history_add_item_cb), db);
-    g_signal_connect_after (history, "clear",
-        G_CALLBACK (midori_history_clear_cb), db);
     #endif
 
     katze_item_set_parent (KATZE_ITEM (_session), app);
