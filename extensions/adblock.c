@@ -92,6 +92,7 @@ adblock_download_notify_status_cb (WebKitDownload* download,
         return;
 
     adblock_parse_file (path);
+    katze_assign (blockscript, adblock_build_js (blockcss, blockcssprivate));
     g_free (path);
     /* g_object_unref (download); */
 }
