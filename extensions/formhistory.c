@@ -291,7 +291,10 @@ formhistory_window_object_cleared_cb (WebKitWebView*  web_view,
                                       JSContextRef    js_context,
                                       JSObjectRef     js_window)
 {
-    sokoke_js_script_eval (js_context, formhistory_build_js (), NULL);
+    gchar* script;
+    script = formhistory_build_js ();
+    sokoke_js_script_eval (js_context, script, NULL);
+    g_free (script);
 }
 
 static void
@@ -343,8 +346,6 @@ formhistory_deactivate_tabs (MidoriView*      view,
 {
     GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
     g_signal_handlers_disconnect_by_func (
-       browser, formhistory_add_tab_cb, extension);
-    g_signal_handlers_disconnect_by_func (
        web_view, formhistory_window_object_cleared_cb, NULL);
     #if WEBKIT_CHECK_VERSION (1, 1, 4)
     g_signal_handlers_disconnect_by_func (
@@ -365,13 +366,15 @@ formhistory_deactivate_cb (MidoriExtension* extension,
     #endif
 
     g_signal_handlers_disconnect_by_func (
+       browser, formhistory_add_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
         extension, formhistory_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, formhistory_app_add_browser_cb, extension);
     midori_browser_foreach (browser,
         (GtkCallback)formhistory_deactivate_tabs, extension);
 
-    jsforms = "";
+    katze_assign (jsforms, NULL);
     if (global_keys)
         g_hash_table_destroy (global_keys);
 
@@ -428,6 +431,8 @@ formhistory_activate_cb (MidoriExtension* extension,
     global_keys = g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify)g_free,
                                (GDestroyNotify)g_free);
+    if(!jsforms)
+        formhistory_prepare_js ();
     #if HAVE_SQLITE
     config_dir = midori_extension_get_config_dir (extension);
     katze_mkdir_with_parents (config_dir, 0700);
