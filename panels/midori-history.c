@@ -256,9 +256,10 @@ midori_history_read_from_db (MidoriHistory* history,
 
             gtk_tree_store_insert_with_values (model, &root_iter, NULL,
                                                0, 0, item, 1, sdate, -1);
-            /* FIXME: Always show expanders even if no child nodes? */
+            /* That's an invisible dummy, so we always have an expander */
+            /* FIXME: Hide this row */
             gtk_tree_store_insert_with_values (model, &iter, &root_iter,
-                0, 0, item, 1, katze_item_get_name (item), -1);
+                0, 0, NULL, 1, NULL, -1);
 
             if (age > 1 && age < 7)
                 g_free (sdate);
@@ -354,11 +355,12 @@ midori_history_cursor_or_row_changed_cb (GtkTreeView*   treeview,
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        is_page = !KATZE_IS_ARRAY (item) && katze_item_get_uri (item);
+        is_page = item && katze_item_get_uri (item);
         gtk_widget_set_sensitive (history->bookmark, is_page);
         gtk_widget_set_sensitive (history->delete, TRUE);
 
-        g_object_unref (item);
+        if (item)
+            g_object_unref (item);
     }
     else
     {
@@ -503,11 +505,13 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                         GtkWidget*         treeview)
 {
     KatzeItem* item;
-    GdkPixbuf* pixbuf = NULL;
+    GdkPixbuf* pixbuf;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
-    if (katze_item_get_uri (item))
+    if (!item)
+        pixbuf = NULL;
+    else if (katze_item_get_uri (item))
         pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
     else
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
@@ -516,9 +520,10 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
     if (pixbuf)
+    {
         g_object_unref (pixbuf);
-
-    g_object_unref (item);
+        g_object_unref (item);
+    }
 }
 
 #if HAVE_SQLITE
@@ -538,6 +543,10 @@ midori_history_row_activated_cb (GtkTreeView*       treeview,
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
+
+        if (!item)
+            return;
+
         uri = katze_item_get_uri (item);
         if (uri && *uri)
         {
@@ -731,6 +740,9 @@ midori_history_button_release_event_cb (GtkWidget*      widget,
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
+        if (!item)
+            return FALSE;
+
         if (event->button == 2)
         {
             const gchar* uri = katze_item_get_uri (item);
@@ -828,6 +840,22 @@ midori_history_row_collapsed_cb (GtkTreeView *treeview,
 }
 #endif
 
+static gboolean
+midori_history_row_sep_func (GtkTreeModel*  model,
+                             GtkTreeIter*   iter,
+                             MidoriHistory* history)
+{
+    KatzeItem* item;
+
+    gtk_tree_model_get (model, iter, 0, &item, -1);
+
+    if (item == NULL)
+        return TRUE;
+
+    g_object_unref (item);
+    return FALSE;
+}
+
 static void
 midori_history_init (MidoriHistory* history)
 {
@@ -844,6 +872,8 @@ midori_history_init (MidoriHistory* history)
     model = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_STRING);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+    gtk_tree_view_set_row_separator_func (GTK_TREE_VIEW (treeview),
+        (GtkTreeViewRowSeparatorFunc)midori_history_row_sep_func, history, NULL);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
