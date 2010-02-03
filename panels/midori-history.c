@@ -180,6 +180,7 @@ midori_history_read_from_db (MidoriHistory* history,
     sqlite3_stmt* statement;
     gint result;
     gchar* sqlcmd;
+    time_t current_time;
 
     GtkTreeIter iter;
     GtkTreeIter root_iter;
@@ -201,6 +202,8 @@ midori_history_read_from_db (MidoriHistory* history,
     }
     g_free (sqlcmd);
 
+    current_time = time (NULL);
+
     while ((result = sqlite3_step (statement)) == SQLITE_ROW)
     {
         KatzeItem* item;
@@ -211,7 +214,6 @@ midori_history_read_from_db (MidoriHistory* history,
 
         if (req_day == 0)
         {
-            time_t current_time;
             gint age;
             gchar token[50];
             gchar* sdate;
@@ -221,7 +223,6 @@ midori_history_read_from_db (MidoriHistory* history,
 
             item = katze_item_new ();
             katze_item_set_added (item, day);
-            current_time = time (NULL);
             age = sokoke_days_between ((time_t*)&date, &current_time);
 
             /* A negative age is a date in the future, the clock is probably off */
