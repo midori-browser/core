@@ -865,8 +865,11 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     const gchar* uri = webkit_network_request_get_uri (request);
 
     /* Only apply custom URIs to special pages for security purposes */
-    if (view->uri && *view->uri && strncmp (view->uri, "about:", 6))
+    if (view->uri && *view->uri && strncmp (view->uri, "about:", 6)
+        && !webkit_web_data_source_get_unreachable_uri (
+            webkit_web_frame_get_data_source (web_frame)))
         return;
+
     if (g_str_has_prefix (uri, "res://"))
     {
         gchar* filename = g_build_filename ("midori/res", &uri[5], NULL);
@@ -964,8 +967,13 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         g_free (message);
         g_free (title);
 
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        webkit_web_frame_load_alternate_string (web_frame,
+            result, "about:blank", uri);
+        #else
         webkit_web_frame_load_alternate_string (web_frame,
             result, res_root, uri);
+        #endif
         g_free (res_root);
         g_free (stock_root);
         g_free (result);
