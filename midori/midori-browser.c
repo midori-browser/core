@@ -50,6 +50,10 @@
     #include <X11/Xatom.h>
 #endif
 
+#if HAVE_SQLITE
+    #include <sqlite3.h>
+#endif
+
 struct _MidoriBrowser
 {
     #if HAVE_HILDON
@@ -456,6 +460,31 @@ _midori_browser_update_progress (MidoriBrowser* browser,
 }
 
 static void
+midori_browser_update_history_title (MidoriBrowser* browser,
+                                     KatzeItem*     item)
+{
+    #if HAVE_SQLITE
+    sqlite3* db;
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+
+    db = g_object_get_data (G_OBJECT (browser->history), "db");
+    sqlcmd = sqlite3_mprintf ("UPDATE history SET title='%q' WHERE"
+                              " uri = '%q' and date=%d",
+                              katze_item_get_name (item),
+                              katze_item_get_uri (item),
+                              katze_item_get_added (item));
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to insert new history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+    sqlite3_free (sqlcmd);
+    #endif
+}
+
+static void
 _midori_browser_activate_action (MidoriBrowser* browser,
                                  const gchar*   name)
 {
@@ -582,7 +611,10 @@ midori_view_notify_title_cb (GtkWidget*     widget,
             item = g_object_get_data (G_OBJECT (view), "history-item-added");
             proxy = midori_view_get_proxy_item (view);
             if (item && katze_item_get_added (item) == katze_item_get_added (proxy))
+            {
                 katze_item_set_name (item, katze_item_get_name (proxy));
+                midori_browser_update_history_title (browser, item);
+            }
             else
             {
                 katze_object_assign (item, katze_item_copy (proxy));
@@ -5561,42 +5593,34 @@ static void
 midori_browser_new_history_item (MidoriBrowser* browser,
                                  KatzeItem**    item)
 {
-    KatzeArray* parent;
-    gint i;
-    gboolean found;
     time_t now;
     gint64 day;
-    gchar token[50];
+    #if HAVE_SQLITE
+    sqlite3* db;
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+    #endif
 
     now = time (NULL);
     katze_item_set_added (*item, now);
     day = sokoke_time_t_to_julian (&now);
 
-    found = FALSE;
-    i = 0;
-    while ((parent = katze_array_get_nth_item (browser->history, i++)))
-    {
-        gint64 pday = katze_item_get_added (KATZE_ITEM (parent));
-        if (day - pday == 0)
-        {
-            KatzeItem* _item;
+    #if HAVE_SQLITE
+    db = g_object_get_data (G_OBJECT (browser->history), "db");
+    sqlcmd = sqlite3_mprintf ("INSERT INTO history (uri, title, date, day) VALUES "
+                              "('%q', '%q', %d, %d)",
+                              katze_item_get_uri (*item),
+                              katze_item_get_name (*item),
+                              katze_item_get_added (*item),
+                              day);
 
-            found = TRUE;
-            if ((_item = katze_array_find_uri (parent, katze_item_get_uri (*item))))
-                *item = g_object_ref (_item);
-            else
-                katze_array_add_item (parent, *item);
-        }
-    }
-    if (!found)
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        strftime (token, sizeof (token), "%x", localtime (&now));
-        parent = katze_array_new (KATZE_TYPE_ARRAY);
-        katze_item_set_added (KATZE_ITEM (parent), day);
-        katze_item_set_name (KATZE_ITEM (parent), token);
-        katze_array_add_item (browser->history, parent);
-        katze_array_add_item (parent, *item);
+        g_printerr (_("Failed to insert new history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
     }
+    sqlite3_free (sqlcmd);
+    #endif
 }
 
 static void
