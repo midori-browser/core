@@ -768,13 +768,10 @@ midori_history_key_release_event_cb (GtkWidget*     widget,
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
         KatzeItem* item;
-        KatzeArray* parent;
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-
-        parent = katze_item_get_parent (item);
-        katze_array_remove_item (parent, item);
-
+        midori_history_remove_item_from_db (history, item);
+        gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
         g_object_unref (item);
     }
 
