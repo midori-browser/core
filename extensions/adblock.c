@@ -803,7 +803,48 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
 {
     gchar* custom_list;
     FILE* list;
-    gchar* uri;
+    MidoriApp* app;
+    GtkWidget* browser;
+    GtkWidget* dialog;
+    GtkSizeGroup* sizegroup;
+    GtkWidget* hbox;
+    GtkWidget* label;
+    GtkWidget* entry;
+    gchar* title;
+
+    app = midori_extension_get_app (extension);
+    browser = katze_object_get_object (app, "browser");
+
+    title = _("Edit rule");
+    dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (browser),
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+            GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT,
+            NULL);
+    gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_ADD);
+    gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+    sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+
+    hbox = gtk_hbox_new (FALSE, 8);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
+    label = gtk_label_new_with_mnemonic (_("_Rule:"));
+    gtk_size_group_add_widget (sizegroup, label);
+    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+    entry = gtk_entry_new ();
+    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+    gtk_entry_set_text (GTK_ENTRY (entry),
+                        g_object_get_data (G_OBJECT (widget), "uri"));
+    gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_widget_show_all (hbox);
+
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) != GTK_RESPONSE_ACCEPT)
+    {
+        gtk_widget_destroy (dialog);
+        return;
+    }
 
     custom_list = g_build_filename (midori_extension_get_config_dir (extension),
                                     CUSTOM_LIST_NAME, NULL);
@@ -812,13 +853,13 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
         g_free (custom_list);
         return;
     }
-    uri = g_object_get_data (G_OBJECT (widget), "uri");
 
-    g_fprintf (list, "%s\n", uri);
+    g_fprintf (list, "%s\n", gtk_entry_get_text (GTK_ENTRY (entry)));
     fclose (list);
     adblock_reload_rules (extension, TRUE);
 
     g_free (custom_list);
+    gtk_widget_destroy (dialog);
 }
 
 static void
