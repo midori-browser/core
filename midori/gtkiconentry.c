@@ -610,7 +610,7 @@ entry_expose_event (GtkWidget*      entry,
   {
       gtk_paint_box (entry->style, text_area,
                      GTK_STATE_SELECTED, GTK_SHADOW_OUT,
-                     &event->area, entry, "bar",
+                     &event->area, entry, "entry-progress",
                      0, 0, priv->fraction * width, height);
       gtk_entry_draw_text (GTK_ENTRY (entry));
   }
