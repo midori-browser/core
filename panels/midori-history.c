@@ -808,20 +808,26 @@ midori_history_row_expanded_cb (GtkTreeView*   treeview,
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
     gtk_tree_model_get (model, iter, 0, &item, -1);
-    /* FIXME: We need always repopulate parent. Now ignoring dupes */
-    if (gtk_tree_model_iter_n_children (model, iter) < 2)
-        midori_history_read_from_db (history, GTK_TREE_STORE (model),
-                                     iter, katze_item_get_added (item));
+    midori_history_read_from_db (history, GTK_TREE_STORE (model),
+                                 iter, katze_item_get_added (item));
     g_object_unref (item);
 }
 
 static void
 midori_history_row_collapsed_cb (GtkTreeView *treeview,
-                                 GtkTreeIter *iter,
+                                 GtkTreeIter *parent,
                                  GtkTreePath *path,
                                  gpointer     user_data)
 {
-    /* FIXME: Free parent childs on close and repopulate them again on open */
+    GtkTreeModel* model;
+    GtkTreeIter child;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+    while (gtk_tree_model_iter_n_children (model, parent) > 1)
+    {
+        if (gtk_tree_model_iter_children (model, &child, parent))
+            gtk_tree_store_remove (GTK_TREE_STORE (model), &child);
+    }
 }
 #endif
 
