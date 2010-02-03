@@ -182,6 +182,10 @@ sokoke_action_create_popup_menu_item    (GtkAction*      action);
 gint64
 sokoke_time_t_to_julian                 (const time_t*   timestamp);
 
+gint
+sokoke_days_between                     (const time_t*   day1,
+                                         const time_t*   day2);
+
 void
 sokoke_register_stock_items             (void);
 
