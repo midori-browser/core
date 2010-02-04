@@ -614,14 +614,29 @@ midori_location_action_finalize (GObject* object)
 static void
 midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
                                         MidoriLocationAction* location_action)
-{
-    if (GTK_IS_BUTTON (widget))
-    {
-        gboolean show = location_action->history
-            && katze_array_get_nth_item (location_action->history, 0);
-        sokoke_widget_set_visible (widget, show);
-        gtk_widget_set_size_request (widget, show ? -1 : 1, show ? -1 : 1);
-    }
+{    gboolean show = FALSE;
+
+    #if HAVE_SQLITE
+    sqlite3* db;
+    const gchar* sqlcmd;
+    sqlite3_stmt* statement;
+    gint result;
+    #endif
+
+    if (!GTK_IS_BUTTON (widget))
+        return;
+
+    #if HAVE_SQLITE
+    db = g_object_get_data (G_OBJECT (location_action->history), "db");
+    sqlcmd = "SELECT uri FROM history LIMIT 1";
+    sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+    result = sqlite3_step (statement);
+    if (result == SQLITE_ROW)
+        show = TRUE;
+    sqlite3_finalize (statement);
+    #endif
+    sokoke_widget_set_visible (widget, show);
+    gtk_widget_set_size_request (widget, show ? -1 : 1, show ? -1 : 1);
 }
 
 static void
