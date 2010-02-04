@@ -359,6 +359,8 @@ midori_history_initialize (KatzeArray*  array,
 {
     sqlite3* db;
     gboolean has_day;
+    sqlite3_stmt* stmt;
+    gint result;
 
     has_day = FALSE;
 
@@ -377,11 +379,14 @@ midori_history_initialize (KatzeArray*  array,
                   NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
 
-    if (sqlite3_exec (db, "SELECT day FROM history LIMIT 1", NULL, NULL,
-                      errmsg) != SQLITE_OK)
-        return NULL;
+    sqlite3_prepare_v2 (db, "SELECT day FROM history LIMIT 1", -1, &stmt, NULL);
+    result = sqlite3_step (stmt);
+    if (result == SQLITE_ROW)
+        has_day = TRUE;
+    sqlite3_finalize (stmt);
 
-    if (!has_day && sqlite3_exec (db,
+    if (!has_day)
+        sqlite3_exec (db,
                       "BEGIN TRANSACTION;"
                       "CREATE TEMPORARY TABLE backup (uri text, title text, date integer);"
                       "INSERT INTO backup SELECT uri,title,date FROM history;"
@@ -393,9 +398,7 @@ midori_history_initialize (KatzeArray*  array,
                       "FROM backup;"
                       "DROP TABLE backup;"
                       "COMMIT;",
-                      NULL, NULL, errmsg) != SQLITE_OK)
-        return NULL;
-
+                      NULL, NULL, errmsg);
     return db;
 }
 
