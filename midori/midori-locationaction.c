@@ -342,7 +342,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     gchar* query;
     gint result;
     sqlite3_stmt* statement;
-    gint matches, height, screen_height;
+    gint matches, searches, height, screen_height, sep;
 
     if (!gtk_widget_has_focus (action->entry) || !action->history)
         return FALSE;
@@ -422,8 +422,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
         renderer = gtk_cell_renderer_text_new ();
         g_object_set_data (G_OBJECT (renderer), "location-action", action);
         gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-        gtk_cell_renderer_text_set_fixed_height_from_font (
-            GTK_CELL_RENDERER_TEXT (renderer), 2);
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (column), renderer, TRUE);
         gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (column), renderer,
             "cell-background-gdk", BACKGROUND_COL,
@@ -441,7 +439,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     store = GTK_LIST_STORE (model);
     gtk_list_store_clear (store);
 
-    matches = 0;
+    matches = searches = 0;
     while (result == SQLITE_ROW)
     {
         const unsigned char* uri = sqlite3_column_text (statement, 0);
@@ -477,7 +475,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             g_free (title);
             i++;
         }
-        matches += i;
+        searches += i;
     }
 
     if (!GTK_WIDGET_VISIBLE (action->popup))
@@ -492,7 +490,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
     column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
     gtk_tree_view_column_cell_get_size (column, NULL, NULL, NULL, NULL, &height);
     screen_height = gdk_screen_get_height (gtk_widget_get_screen (action->popup));
-    height = MIN (matches * height, screen_height / 1.5);
+    gtk_widget_style_get (action->treeview, "vertical-separator", &sep, NULL);
+    /* FIXME: Instead of 1.5 we should relate to the height of one line */
+    height = MIN (matches * height + (matches + searches) * sep
+                                   + searches * height / 1.5, screen_height / 1.5);
     gtk_widget_set_size_request (action->treeview, -1, height);
     midori_location_action_popup_position (action->popup, action->entry);
     gtk_widget_show_all (action->popup);
@@ -993,6 +994,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 {
     gchar* uri;
     gchar* title;
+    GdkColor* background;
     gchar* desc;
     gchar* desc_uri;
     gchar* desc_title;
@@ -1007,12 +1009,22 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 
     entry = data;
 
-    gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title, -1);
+    gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
+        BACKGROUND_COL, &background, -1);
 
     desc = desc_uri = desc_title = key = NULL;
     str = gtk_entry_get_text (GTK_ENTRY (entry));
     if (!str)
         return;
+
+    if (background != NULL) /* A search engine action */
+    {
+        g_object_set (renderer, "text", title,
+            "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+        g_free (uri);
+        g_free (title);
+        return;
+    }
 
     key = g_utf8_strdown (str, -1);
     len = strlen (key);
