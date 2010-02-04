@@ -465,22 +465,24 @@ midori_browser_update_history_title (MidoriBrowser* browser,
 {
     #if HAVE_SQLITE
     sqlite3* db;
-    gchar* sqlcmd;
-    char* errmsg = NULL;
+    static sqlite3_stmt* stmt = NULL;
 
     db = g_object_get_data (G_OBJECT (browser->history), "db");
-    sqlcmd = sqlite3_mprintf ("UPDATE history SET title='%q' WHERE"
-                              " uri = '%q' and date=%d",
-                              katze_item_get_name (item),
-                              katze_item_get_uri (item),
-                              katze_item_get_added (item));
-
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    if (!stmt)
     {
-        g_printerr (_("Failed to insert new history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
+        const gchar* sqlcmd;
+
+        sqlcmd = "UPDATE history SET title=? WHERE uri = ? and date=?";
+        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
     }
-    sqlite3_free (sqlcmd);
+    sqlite3_bind_text (stmt, 1, katze_item_get_name (item), -1, 0);
+    sqlite3_bind_text (stmt, 2, katze_item_get_uri (item), -1, 0);
+    sqlite3_bind_int64 (stmt, 3, katze_item_get_added (item));
+
+    if (sqlite3_step (stmt) != SQLITE_DONE)
+        g_printerr (_("Failed to update title: %s\n"), sqlite3_errmsg (db));
+    sqlite3_reset (stmt);
+    sqlite3_clear_bindings (stmt);
     #endif
 }
 
@@ -5597,8 +5599,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     gint64 day;
     #if HAVE_SQLITE
     sqlite3* db;
-    gchar* sqlcmd;
-    char* errmsg = NULL;
+    static sqlite3_stmt* stmt = NULL;
     #endif
 
     now = time (NULL);
@@ -5607,19 +5608,23 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 
     #if HAVE_SQLITE
     db = g_object_get_data (G_OBJECT (browser->history), "db");
-    sqlcmd = sqlite3_mprintf ("INSERT INTO history (uri, title, date, day) VALUES "
-                              "('%q', '%q', %d, %d)",
-                              katze_item_get_uri (*item),
-                              katze_item_get_name (*item),
-                              katze_item_get_added (*item),
-                              day);
-
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    if (!stmt)
     {
-        g_printerr (_("Failed to insert new history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
+        const gchar* sqlcmd;
+
+        sqlcmd = "INSERT INTO history (uri, title, date, day) VALUES (?,?,?,?)";
+        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
     }
-    sqlite3_free (sqlcmd);
+    sqlite3_bind_text (stmt, 1, katze_item_get_uri (*item), -1, 0);
+    sqlite3_bind_text (stmt, 2, katze_item_get_name (*item), -1, 0);
+    sqlite3_bind_int64 (stmt, 3, katze_item_get_added (*item));
+    sqlite3_bind_int64 (stmt, 4, day);
+
+    if (sqlite3_step (stmt) != SQLITE_DONE)
+        g_printerr (_("Failed to insert new history item: %s\n"),
+                    sqlite3_errmsg (db));
+    sqlite3_reset (stmt);
+    sqlite3_clear_bindings (stmt);
     #endif
 }
 
