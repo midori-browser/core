@@ -339,9 +339,9 @@ midori_location_action_popup_timeout_cb (gpointer data)
     GtkTreeViewColumn* column;
     GtkListStore* store;
     sqlite3* db;
-    gchar* query;
     gint result;
-    sqlite3_stmt* statement;
+    static sqlite3_stmt* stmt;
+    const gchar* sqlcmd;
     gint matches, searches, height, screen_height, sep;
 
     if (!gtk_widget_has_focus (action->entry) || !action->history)
@@ -360,27 +360,22 @@ midori_location_action_popup_timeout_cb (gpointer data)
     }
 
     db = g_object_get_data (G_OBJECT (action->history), "db");
-    /* FIXME: Consider keeping the prepared statement with '...LIKE ?...'
-        and prepending/ appending % to the key. */
-    query = sqlite3_mprintf ("SELECT uri, title FROM history WHERE "
-                             "uri LIKE '%%%q%%' OR title LIKE '%%%q%%'"
-                             "GROUP BY uri ORDER BY count() DESC LIMIT %d",
-                             action->key, action->key, MAX_ITEMS);
-    result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
-    sqlite3_free (query);
-
-    if (result != SQLITE_OK)
+    if (!stmt)
     {
-        g_print (_("Failed to execute database statement: %s\n"),
-                 sqlite3_errmsg (db));
-        midori_location_action_popdown_completion (action);
-        return FALSE;
+        sqlcmd = "SELECT uri, title FROM history WHERE uri LIKE ? OR title LIKE ?"
+                 " GROUP BY uri ORDER BY count() DESC LIMIT ?";
+        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
     }
+    sqlite3_bind_text (stmt, 1, g_strdup_printf ("%%%s%%", action->key), -1, g_free);
+    sqlite3_bind_text (stmt, 2, g_strdup_printf ("%%%s%%", action->key), -1, g_free);
+    sqlite3_bind_int64 (stmt, 3, MAX_ITEMS);
 
-    result = sqlite3_step (statement);
+    result = sqlite3_step (stmt);
     if (result != SQLITE_ROW && !action->search_engines)
     {
-        sqlite3_finalize (statement);
+        g_print (_("Failed to select from history: %s\n"), sqlite3_errmsg (db));
+        sqlite3_reset (stmt);
+        sqlite3_clear_bindings (stmt);
         midori_location_action_popdown_completion (action);
         return FALSE;
     }
@@ -442,8 +437,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
     matches = searches = 0;
     while (result == SQLITE_ROW)
     {
-        const unsigned char* uri = sqlite3_column_text (statement, 0);
-        const unsigned char* title = sqlite3_column_text (statement, 1);
+        const unsigned char* uri = sqlite3_column_text (stmt, 0);
+        const unsigned char* title = sqlite3_column_text (stmt, 1);
         GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
         if (!icon)
             icon = action->default_icon;
@@ -451,8 +446,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
             URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
             FAVICON_COL, icon, -1);
         matches++;
-        result = sqlite3_step (statement);
+        result = sqlite3_step (stmt);
     }
+    sqlite3_reset (stmt);
+    sqlite3_clear_bindings (stmt);
 
     if (action->search_engines)
     {
@@ -1142,41 +1139,38 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
     #if HAVE_SQLITE
     GtkListStore* store;
     sqlite3* db;
-    gchar* query;
     gint result;
-    sqlite3_stmt* statement;
+    const gchar* sqlcmd;
+    static sqlite3_stmt* stmt;
     gint matches;
 
     store = GTK_LIST_STORE (gtk_combo_box_get_model (combo_box));
     gtk_list_store_clear (store);
 
     db = g_object_get_data (G_OBJECT (location_action->history), "db");
-    /* FIXME: Consider keeping the prepared statement with '...LIKE ?...'
-        and prepending/ appending % to the key. */
-    query = sqlite3_mprintf ("SELECT uri, title FROM history GROUP BY uri "
-                             "ORDER BY count() DESC LIMIT %d", MAX_ITEMS);
-    result = sqlite3_prepare_v2 (db, query, -1, &statement, NULL);
-    sqlite3_free (query);
+    if (!stmt)
+    {
+        sqlcmd = "SELECT uri, title FROM history"
+                 " GROUP BY uri ORDER BY count() DESC LIMIT ?";
+        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
+    }
 
-    if (result != SQLITE_OK)
+    sqlite3_bind_int64 (stmt, 1, MAX_ITEMS);
+    result = sqlite3_step (stmt);
+    if (result != SQLITE_ROW)
     {
         g_print (_("Failed to execute database statement: %s\n"),
                  sqlite3_errmsg (db));
-        return;
-    }
-
-    result = sqlite3_step (statement);
-    if (result != SQLITE_ROW)
-    {
-        sqlite3_finalize (statement);
+        sqlite3_reset (stmt);
+        sqlite3_clear_bindings (stmt);
         return;
     }
 
     matches = 0;
     do
     {
-        const unsigned char* uri = sqlite3_column_text (statement, 0);
-        const unsigned char* title = sqlite3_column_text (statement, 1);
+        const unsigned char* uri = sqlite3_column_text (stmt, 0);
+        const unsigned char* title = sqlite3_column_text (stmt, 1);
         GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
         if (!icon)
             icon = location_action->default_icon;
@@ -1184,9 +1178,11 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
             URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
             FAVICON_COL, icon, -1);
         matches++;
-        result = sqlite3_step (statement);
+        result = sqlite3_step (stmt);
     }
     while (result == SQLITE_ROW);
+    sqlite3_reset (stmt);
+    sqlite3_clear_bindings (stmt);
     #endif
 }
 
