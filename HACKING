@@ -8,13 +8,16 @@ avoid automated line-breaks. Trailing whitespace is not desirable.
 Declarations go to the beginning of a block, not inline. Variables of one plain
 type may be grouped in one declaration, pointer types may not be grouped. The
 asterisk goes next to the type.
+Variables should be ordered in the order they are used.
 
 Comments explain functionality, they should not state facts. The appropriate
 style is always C style /* */, not C++ style.
 
 Variable and function names should be animal, animal_shelter or animalsc in
 case it would otherwise be very long. Loop counters may be single letters.
-Type names should be Animal, AnimalShelter or AnimalSC.
+Type names should be Animal, AnimalShelter or AnimalSC. No prefixes from third
+party projects should be used, such as GTK or WebKit, while underlines may be
+used but do not have a particular meaning.
 
 There is a space between functions or keywords and round brackets, and curly
 brackets always go on separate lines, at the indentation level of the
