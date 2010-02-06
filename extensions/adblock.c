@@ -882,12 +882,12 @@ adblock_populate_popup_cb (WebKitWebView*   web_view,
     if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_IMAGE)
     {
         uri = katze_object_get_string (hit_test, "image-uri");
-        menuitem = gtk_menu_item_new_with_mnemonic ("Bl_ock image");
+        menuitem = gtk_menu_item_new_with_mnemonic (_("Bl_ock image"));
     }
     else if (context & WEBKIT_HIT_TEST_RESULT_CONTEXT_LINK)
     {
         uri = katze_object_get_string (hit_test, "link-uri");
-        menuitem = gtk_menu_item_new_with_mnemonic ("Bl_ock link");
+        menuitem = gtk_menu_item_new_with_mnemonic (_("Bl_ock link"));
     }
     else
         return;
