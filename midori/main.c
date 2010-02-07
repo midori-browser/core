@@ -1065,6 +1065,12 @@ midori_load_extensions (gpointer data)
     MidoriApp* app = MIDORI_APP (data);
     gchar** active_extensions = g_object_get_data (G_OBJECT (app), "extensions");
     KatzeArray* extensions;
+    #ifdef G_ENABLE_DEBUG
+    gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
+    GTimer* timer;
+    if (startup_timer)
+        timer = g_timer_new ();
+    #endif
 
     /* Load extensions */
     extensions = katze_array_new (MIDORI_TYPE_EXTENSION);
@@ -1139,6 +1145,11 @@ midori_load_extensions (gpointer data)
 
     g_idle_add (midori_load_netscape_plugins, app);
 
+    #ifdef G_ENABLE_DEBUG
+    if (startup_timer)
+        g_debug ("Extensions:\t%f", g_test_timer_elapsed ());
+    #endif
+
     return FALSE;
 }
 
@@ -1180,6 +1191,12 @@ midori_load_session (gpointer data)
     guint i;
     gint64 current;
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
+    #ifdef G_ENABLE_DEBUG
+    gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
+    GTimer* timer;
+    if (startup_timer)
+        timer = g_timer_new ();
+    #endif
 
     browser = midori_app_create_browser (app);
     config_file = build_config_filename ("session.old.xbel");
@@ -1245,6 +1262,11 @@ midori_load_session (gpointer data)
 
     if (command)
         midori_app_send_command (app, command);
+
+    #ifdef G_ENABLE_DEBUG
+    if (startup_timer)
+        g_debug ("Session setup:\t%f", g_test_timer_elapsed ());
+    #endif
 
     return FALSE;
 }
@@ -1409,6 +1431,13 @@ main (int    argc,
     gint max_history_age;
     #endif
     gint clear_prefs = MIDORI_CLEAR_NONE;
+    #ifdef G_ENABLE_DEBUG
+        gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
+        #define midori_startup_timer(tmrmsg) if (startup_timer) \
+            g_debug (tmrmsg, (g_test_timer_last () - g_test_timer_elapsed ()) * -1)
+    #else
+        #define midori_startup_timer(tmrmsg)
+    #endif
 
     #if ENABLE_NLS
     setlocale (LC_ALL, "");
@@ -1469,6 +1498,11 @@ main (int    argc,
     sokoke_register_stock_items ();
     g_set_application_name (_("Midori"));
 
+    #ifdef G_ENABLE_DEBUG
+    if (startup_timer)
+        g_test_timer_start ();
+    #endif
+
     if (version)
     {
         g_print (
@@ -1523,6 +1557,7 @@ main (int    argc,
     if (webapp)
     {
         MidoriBrowser* browser = midori_browser_new ();
+        midori_startup_timer ("Browser: \t%f");
         settings = katze_object_get_object (browser, "settings");
         g_object_set (settings,
                       "show-menubar", FALSE,
@@ -1533,6 +1568,7 @@ main (int    argc,
                       "enable-developer-extras", FALSE,
                       NULL);
         g_object_set (browser, "settings", settings, NULL);
+        midori_startup_timer ("Setup config: \t%f");
         g_object_unref (settings);
         sokoke_set_config_dir ("/");
         g_signal_connect (browser, "notify::load-status",
@@ -1554,6 +1590,7 @@ main (int    argc,
                 i++;
             }
         }
+        midori_startup_timer ("App created: \t%f");
         gtk_main ();
         return 0;
     }
@@ -1581,6 +1618,7 @@ main (int    argc,
     else
         app = midori_app_new ();
     g_free (config);
+    midori_startup_timer ("App created: \t%f");
 
     /* FIXME: The app might be 'running' but actually showing a dialog
               after a crash, so running a new window isn't a good idea. */
@@ -1621,16 +1659,22 @@ main (int    argc,
 
     katze_mkdir_with_parents (sokoke_set_config_dir (NULL), 0700);
 
-    /* Load configuration files */
+    /* Load configuration file */
     error_messages = g_string_new (NULL);
     config_file = build_config_filename ("config");
     error = NULL;
     settings = settings_new_from_file (config_file, &extensions);
     g_object_set (settings, "enable-developer-extras", TRUE, NULL);
+    midori_startup_timer ("Config read: \t%f");
+
+    /* Load accelerators */
     katze_assign (config_file, build_config_filename ("accels"));
     if (g_access (config_file, F_OK) != 0)
         katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
     gtk_accel_map_load (config_file);
+    midori_startup_timer ("Accels read: \t%f");
+
+    /* Load search engines */
     katze_assign (config_file, build_config_filename ("search"));
     error = NULL;
     search_engines = search_engines_new_from_file (config_file, &error);
@@ -1665,7 +1709,6 @@ main (int    argc,
                 error->message);
         g_error_free (error);
     }
-
     /* Pick first search engine as default if not set */
     g_object_get (settings, "location-entry-search", &uri, NULL);
     if (!(uri && *uri) && !katze_array_is_empty (search_engines))
@@ -1675,6 +1718,7 @@ main (int    argc,
                       katze_item_get_uri (item), NULL);
     }
     g_free (uri);
+    midori_startup_timer ("Search read: \t%f");
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     #if HAVE_LIBXML
@@ -1694,6 +1738,8 @@ main (int    argc,
         g_error_free (error);
     }
     #endif
+    midori_startup_timer ("Bkmarks read: \t%f");
+
     _session = katze_array_new (KATZE_TYPE_ITEM);
     #if HAVE_LIBXML
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
@@ -1710,6 +1756,8 @@ main (int    argc,
         }
     }
     #endif
+    midori_startup_timer ("Session read: \t%f");
+
     trash = katze_array_new (KATZE_TYPE_ITEM);
     #if HAVE_LIBXML
     katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
@@ -1722,6 +1770,8 @@ main (int    argc,
         g_error_free (error);
     }
     #endif
+
+    midori_startup_timer ("Trash read: \t%f");
     history = katze_array_new (KATZE_TYPE_ARRAY);
     #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
@@ -1735,6 +1785,7 @@ main (int    argc,
     }
     g_object_set_data (G_OBJECT (history), "db", db);
     #endif
+    midori_startup_timer ("History read: \t%f");
 
     /* In case of errors */
     if (error_messages->len)
@@ -1869,6 +1920,7 @@ main (int    argc,
         gtk_widget_destroy (dialog);
     }
     g_signal_connect (app, "quit", G_CALLBACK (midori_app_quit_cb), NULL);
+    midori_startup_timer ("Signal setup: \t%f");
 
     g_object_set (app, "settings", settings,
                        "bookmarks", bookmarks,
@@ -1883,6 +1935,7 @@ main (int    argc,
     g_object_unref (settings);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (midori_app_add_browser_cb), NULL);
+    midori_startup_timer ("App prepared: \t%f");
 
     g_idle_add (midori_load_cookie_jar, settings);
     g_idle_add (midori_load_extensions, app);
