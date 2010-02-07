@@ -104,46 +104,40 @@ settings_new_from_file (const gchar* filename,
         pspec = pspecs[i];
         if (!(pspec->flags & G_PARAM_WRITABLE))
             continue;
+
         type = G_PARAM_SPEC_TYPE (pspec);
         property = g_param_spec_get_name (pspec);
+        if (!g_key_file_has_key (key_file, "settings", property, NULL))
+            continue;
+
         if (type == G_TYPE_PARAM_STRING)
         {
-            str = sokoke_key_file_get_string_default (key_file,
-                "settings", property,
-                G_PARAM_SPEC_STRING (pspec)->default_value, NULL);
+            str = g_key_file_get_string (key_file, "settings", property, NULL);
             g_object_set (settings, property, str, NULL);
             g_free (str);
         }
         else if (type == G_TYPE_PARAM_INT)
         {
-            integer = sokoke_key_file_get_integer_default (key_file,
-                "settings", property,
-                G_PARAM_SPEC_INT (pspec)->default_value, NULL);
+            integer = g_key_file_get_integer (key_file, "settings", property, NULL);
             g_object_set (settings, property, integer, NULL);
         }
         else if (type == G_TYPE_PARAM_FLOAT)
         {
-            number = sokoke_key_file_get_double_default (key_file,
-                "settings", property,
-                G_PARAM_SPEC_FLOAT (pspec)->default_value, NULL);
+            number = g_key_file_get_double (key_file, "settings", property, NULL);
             g_object_set (settings, property, number, NULL);
         }
         else if (type == G_TYPE_PARAM_BOOLEAN)
         {
-            boolean = sokoke_key_file_get_boolean_default (key_file,
-                "settings", property,
-                G_PARAM_SPEC_BOOLEAN (pspec)->default_value, NULL);
+            boolean = g_key_file_get_boolean (key_file, "settings", property, NULL);
             g_object_set (settings, property, boolean, NULL);
         }
         else if (type == G_TYPE_PARAM_ENUM)
         {
             GEnumClass* enum_class = G_ENUM_CLASS (
-                g_type_class_ref (pspec->value_type));
-            GEnumValue* enum_value = g_enum_get_value (enum_class,
-                G_PARAM_SPEC_ENUM (pspec)->default_value);
-            str = sokoke_key_file_get_string_default (key_file,
-                "settings", property,
-                enum_value->value_name, NULL);
+                g_type_class_peek (pspec->value_type));
+            GEnumValue* enum_value;
+
+            str = g_key_file_get_string (key_file, "settings", property, NULL);
             enum_value = g_enum_get_value_by_name (enum_class, str);
             if (enum_value)
                 g_object_set (settings, property, enum_value->value, NULL);
