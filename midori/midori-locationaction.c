@@ -639,7 +639,12 @@ midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
 static void
 midori_location_action_toggle_arrow (MidoriLocationAction* location_action)
 {
-    GSList* proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+    GSList* proxies;
+
+    if (!location_action->history)
+        return;
+
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
@@ -1268,8 +1273,9 @@ midori_location_action_connect_proxy (GtkAction* action,
             renderer, midori_location_entry_render_text_cb, child, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
-        gtk_container_forall (GTK_CONTAINER (entry),
-            (GtkCallback)midori_location_action_toggle_arrow_cb, action);
+        if (location_action->history)
+            gtk_container_forall (GTK_CONTAINER (entry),
+                (GtkCallback)midori_location_action_toggle_arrow_cb, action);
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
         g_signal_connect (entry, "popup",
