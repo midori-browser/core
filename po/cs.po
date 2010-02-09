@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-05 08:54+0100\n"
-"PO-Revision-Date: 2010-02-05 08:55+0100\n"
+"POT-Creation-Date: 2010-02-09 06:06+0100\n"
+"PO-Revision-Date: 2010-02-09 08:02+0100\n"
 "Last-Translator: David Štancl <dstancl@dstancl.cz>\n"
 "Language-Team: Czech < >\n"
 "MIME-Version: 1.0\n"
@@ -22,8 +22,8 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "Odlehčený prohlížeč"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1261 ../midori/main.c:1462
-#: ../midori/main.c:1470 ../midori/main.c:1481
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1277 ../midori/main.c:1485
+#: ../midori/main.c:1493 ../midori/main.c:1509
 #: ../midori/midori-websettings.c:299
 msgid "Midori"
 msgstr "Midori"
@@ -37,54 +37,54 @@ msgstr "Internetový prohlížeč"
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Konfigurace nemůže být načtena: %s\n"
 
-#: ../midori/main.c:151
+#: ../midori/main.c:145
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "Hodnota '%s' je pro %s špatná"
 
-#: ../midori/main.c:158 ../midori/main.c:244
+#: ../midori/main.c:152 ../midori/main.c:238
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Nesprávná hodnota '%s' v konfiguraci"
 
-#: ../midori/main.c:370 ../extensions/formhistory.c:442
+#: ../midori/main.c:364 ../extensions/formhistory.c:442
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "Nepodařilo se otevřít databázi: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:419
+#: ../midori/main.c:413
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "Nepodařilo se odstranit staré položky historie: %s\n"
 
-#: ../midori/main.c:447
+#: ../midori/main.c:441
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Konfigurace nemůže být uložena. %s"
 
-#: ../midori/main.c:485
+#: ../midori/main.c:479
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "Vyhledávací nástroj nemůže být uložen. %s"
 
-#: ../midori/main.c:504 ../midori/main.c:554 ../midori/main.c:574
+#: ../midori/main.c:498 ../midori/main.c:548 ../midori/main.c:568
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Záložky nemohou být uloženy. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:604 ../midori/main.c:627
+#: ../midori/main.c:598 ../midori/main.c:621
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "Seznam zavřených karet nemůže být uložen. %s"
 
-#: ../midori/main.c:691 ../midori/main.c:894
+#: ../midori/main.c:685 ../midori/main.c:888
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Sezení nemůže být uloženo. %s"
 
-#: ../midori/main.c:928
+#: ../midori/main.c:922
 msgid ""
 "Midori seems to have crashed the last time it was opened. If this happened "
 "repeatedly, try one of the following options to solve the problem."
@@ -92,121 +92,121 @@ msgstr ""
 "Zdá se, že Midori nebylo naposledy řádně ukončeno. Jestliže se to stává "
 "opakovaně, pro odstranění problému zkuste následující možnosti."
 
-#: ../midori/main.c:943
+#: ../midori/main.c:937
 msgid "Modify _preferences"
 msgstr "Změnit _nastavení"
 
-#: ../midori/main.c:947
+#: ../midori/main.c:941
 msgid "Reset the last _session"
 msgstr "Vymazat poslední _sezení"
 
-#: ../midori/main.c:952
+#: ../midori/main.c:946
 msgid "Disable all _extensions"
 msgstr "Zakázat všechna _rozšíření"
 
-#: ../midori/main.c:1161 ../midori/main.c:1708
+#: ../midori/main.c:1166 ../midori/main.c:1748
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Sezení nemůže být načteno: %s\n"
 
-#: ../midori/main.c:1261
+#: ../midori/main.c:1277
 msgid "No filename specified"
 msgstr "Nebyl zadán název souboru"
 
-#: ../midori/main.c:1280
+#: ../midori/main.c:1296
 msgid "An unknown error occured."
 msgstr "Nastala neznámá chyba."
 
-#: ../midori/main.c:1311
+#: ../midori/main.c:1327
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Snímek uložen do %s\n"
 
-#: ../midori/main.c:1371
+#: ../midori/main.c:1387
 msgid "Run ADDRESS as a web application"
 msgstr "Spustit ADDRESS jako webovou aplikaci"
 
-#: ../midori/main.c:1371
+#: ../midori/main.c:1387
 msgid "ADDRESS"
 msgstr "ADDRESS"
 
-#: ../midori/main.c:1374
+#: ../midori/main.c:1390
 msgid "Use FOLDER as configuration folder"
 msgstr "Použít FOLDER jako místo pro uložení konfigurace"
 
-#: ../midori/main.c:1374
+#: ../midori/main.c:1390
 msgid "FOLDER"
 msgstr "FOLDER"
 
-#: ../midori/main.c:1377
+#: ../midori/main.c:1393
 msgid "Show a diagnostic dialog"
 msgstr "Zobrazit dialog po pádu"
 
-#: ../midori/main.c:1379
+#: ../midori/main.c:1395
 msgid "Run the specified filename as javascript"
 msgstr "Spustit jako javascript"
 
-#: ../midori/main.c:1382
+#: ../midori/main.c:1398
 msgid "Take a snapshot of the specified URI"
 msgstr "Získat snímek požadovaného URI"
 
-#: ../midori/main.c:1385
+#: ../midori/main.c:1401
 msgid "Execute the specified command"
 msgstr "Spustit vybraný příkaz"
 
-#: ../midori/main.c:1387
+#: ../midori/main.c:1403
 msgid "Display program version"
 msgstr "Zobrazit verzi programu"
 
-#: ../midori/main.c:1389
+#: ../midori/main.c:1405
 msgid "Addresses"
 msgstr "Adresy"
 
-#: ../midori/main.c:1459
+#: ../midori/main.c:1482
 msgid "[Addresses]"
 msgstr "[Adresy]"
 
-#: ../midori/main.c:1482
+#: ../midori/main.c:1510
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Komentáře, požadavky a chyby posílejte na:"
 
-#: ../midori/main.c:1484
+#: ../midori/main.c:1512
 msgid "Check for new versions at:"
 msgstr "Zkontrolujte, zda není nová verze na "
 
-#: ../midori/main.c:1567
+#: ../midori/main.c:1598
 msgid "The specified configuration folder is invalid."
 msgstr "Vybraný konfigurační adresář je neplatný."
 
-#: ../midori/main.c:1615
+#: ../midori/main.c:1647
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Midori sice již běží, ale neodpovídá.\n"
 
-#: ../midori/main.c:1664
+#: ../midori/main.c:1702
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "Vyhledávací nástroje nemohou být načteny.%s\n"
 
-#: ../midori/main.c:1693
+#: ../midori/main.c:1731
 #, c-format
 msgid "The bookmarks couldn't be loaded: %s\n"
 msgstr "Záložky nemohou být načteny: %s\n"
 
-#: ../midori/main.c:1721
+#: ../midori/main.c:1763
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Zavřené karty nemohou být načteny: %s\n"
 
-#: ../midori/main.c:1733
+#: ../midori/main.c:1777
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Historie nemůže být načtena: %s\n"
 
-#: ../midori/main.c:1746
+#: ../midori/main.c:1791
 msgid "The following errors occured:"
 msgstr "Došlo k následujícím chybám:"
 
-#: ../midori/main.c:1762
+#: ../midori/main.c:1807
 msgid "_Ignore"
 msgstr "_Ignorovat"
 
@@ -945,14 +945,14 @@ msgstr "Neočekávané nastavení '%s'"
 msgid "Failed to select from history: %s\n"
 msgstr "Nezdařilo se načíst historii: %s\n"
 
-#: ../midori/midori-locationaction.c:1162 ../panels/midori-history.c:286
+#: ../midori/midori-locationaction.c:1167 ../panels/midori-history.c:286
 #: ../extensions/formhistory.c:457 ../extensions/formhistory.c:461
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Nepodařilo se spustit databázový příkaz: %s\n"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1220
+#: ../midori/midori-locationaction.c:1225
 msgid "Paste and p_roceed"
 msgstr "Vložit a s_pustit"
 
@@ -2149,6 +2149,14 @@ msgstr "Upravit pravidlo"
 msgid "_Rule:"
 msgstr "P_ravidlo:"
 
+#: ../extensions/adblock.c:885
+msgid "Bl_ock image"
+msgstr "Bl_okovat obrázek"
+
+#: ../extensions/adblock.c:890
+msgid "Bl_ock link"
+msgstr "Bl_okovat odkaz"
+
 #: ../extensions/adblock.c:1447
 msgid "Advertisement blocker"
 msgstr "Blokování reklamy"
@@ -2456,44 +2464,43 @@ msgid "Allows to switch tabs by choosing from a list sorted by last usage"
 msgstr ""
 "Umožňuje přepínat karty výběrem ze seznamu řazeného podle posledního použití"
 
-#: ../extensions/toolbar-editor.c:391
+#: ../extensions/toolbar-editor.c:389
 msgid "Customize Toolbar"
 msgstr "Upravit lištu"
 
-#: ../extensions/toolbar-editor.c:407
+#: ../extensions/toolbar-editor.c:405
 msgid ""
 "Select items to be displayed on the toolbar. Items can be reodered by drag "
 "and drop."
 msgstr ""
 "Vybrané položky se zobrazí na liště. Změnu pořadí provedete přetažením."
 
-#: ../extensions/toolbar-editor.c:423
+#: ../extensions/toolbar-editor.c:421
 msgid "Available Items"
 msgstr "Dostupné položky"
 
-#: ../extensions/toolbar-editor.c:444
+#: ../extensions/toolbar-editor.c:442
 msgid "Displayed Items"
 msgstr "Zobrazené položky"
 
-#: ../extensions/toolbar-editor.c:579
+#: ../extensions/toolbar-editor.c:577
 msgid "Customize _Toolbar..."
 msgstr "Upravit _lištu..."
 
-#: ../extensions/toolbar-editor.c:612
+#: ../extensions/toolbar-editor.c:608
 msgid "Toolbar Editor"
 msgstr "Editor lišty"
 
-#: ../extensions/toolbar-editor.c:614
+#: ../extensions/toolbar-editor.c:609
 msgid "Easily edit the toolbar layout"
 msgstr "Umožňuje jednoduše změnit lištu"
-
-#: ../extensions/toolbar-editor.c:617
-msgid "Not available on this platform"
-msgstr "Není k dispozici"
 
 #: ../extensions/web-cache.c:459
 msgid "Cache HTTP communication on disk"
 msgstr "Kešuje (ukládá) HTTP komunikaci na disk"
+
+#~ msgid "Not available on this platform"
+#~ msgstr "Není k dispozici"
 
 #~ msgid "Failed to get current time: %s\n"
 #~ msgstr "Nepodařilo se zjistit aktuální čas: %s\n"
