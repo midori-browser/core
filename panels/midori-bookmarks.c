@@ -46,7 +46,6 @@ struct _MidoriBookmarks
     GtkWidget* treeview;
     MidoriApp* app;
     KatzeArray* array;
-    KatzeNet* net;
 };
 
 struct _MidoriBookmarksClass
@@ -906,8 +905,6 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
 
-    bookmarks->net = katze_net_new ();
-
     /* Create the treeview */
     model = midori_bookmark_store_new (1, KATZE_TYPE_ITEM);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
@@ -952,7 +949,6 @@ midori_bookmarks_finalize (GObject* object)
     midori_bookmarks_disconnect_folder (bookmarks, bookmarks->array);
     if (bookmarks->app)
         g_object_unref (bookmarks->app);
-    g_object_unref (bookmarks->net);
 }
 
 /**
