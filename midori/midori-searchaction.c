@@ -28,8 +28,6 @@ struct _MidoriSearchAction
     KatzeItem* default_item;
     gchar* text;
 
-    KatzeNet* net;
-
     GtkWidget* last_proxy;
 
     GtkWidget* dialog;
@@ -193,8 +191,6 @@ midori_search_action_init (MidoriSearchAction* search_action)
     search_action->default_item = NULL;
     search_action->text = NULL;
 
-    search_action->net = katze_net_new ();
-
     search_action->last_proxy = NULL;
 
     search_action->dialog = NULL;
@@ -210,8 +206,6 @@ midori_search_action_finalize (GObject* object)
     MidoriSearchAction* search_action = MIDORI_SEARCH_ACTION (object);
 
     katze_assign (search_action->text, NULL);
-
-    katze_object_assign (search_action->net, NULL);
 
     G_OBJECT_CLASS (midori_search_action_parent_class)->finalize (object);
 }
