@@ -90,6 +90,7 @@ struct _MidoriBrowser
     GtkWidget* progressbar;
     gchar* statusbar_text;
 
+    gint last_window_width, last_window_height;
     guint alloc_timeout;
     guint panel_timeout;
 
@@ -5386,9 +5387,20 @@ midori_browser_alloc_timeout (MidoriBrowser* browser)
 
     if (!(state &
         (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
-        g_object_set (browser->settings,
-            "last-window-width", widget->allocation.width,
-            "last-window-height", widget->allocation.height, NULL);
+    {
+        if (widget->allocation.width != browser->last_window_width)
+        {
+            browser->last_window_width = widget->allocation.width;
+            g_object_set (browser->settings,
+                "last-window-width", browser->last_window_width, NULL);
+        }
+        if (widget->allocation.height != browser->last_window_height)
+        {
+            browser->last_window_height = widget->allocation.height;
+            g_object_set (browser->settings,
+                "last-window-height", widget->allocation.height, NULL);
+        }
+    }
 
     browser->alloc_timeout = 0;
     return FALSE;
@@ -5400,10 +5412,9 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 {
     GtkWidget* widget = GTK_WIDGET (browser);
 
-    if (GTK_WIDGET_REALIZED (widget))
+    if (GTK_WIDGET_REALIZED (widget) && !browser->alloc_timeout)
     {
         gpointer last_page;
-        GdkWindowState state = gdk_window_get_state (widget->window);
 
         if ((last_page = g_object_get_data (G_OBJECT (browser), "last-page")))
         {
@@ -5412,13 +5423,8 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
             g_object_set_data (G_OBJECT (browser), "last-page", NULL);
         }
 
-        if (!(state &
-            (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN))
-            && !browser->alloc_timeout)
-        {
-            browser->alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
-                (GSourceFunc)midori_browser_alloc_timeout, browser, NULL);
-        }
+        browser->alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
+            (GSourceFunc)midori_browser_alloc_timeout, browser, NULL);
     }
 }
 
@@ -6496,7 +6502,6 @@ static void
 _midori_browser_update_settings (MidoriBrowser* browser)
 {
     gboolean remember_last_window_size;
-    gint last_window_width, last_window_height;
     MidoriWindowState last_window_state;
     gboolean compact_sidepanel, show_panel_controls;
     gboolean right_align_sidepanel, open_panels_in_windows;
@@ -6516,8 +6521,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     g_object_get (browser->settings,
                   "remember-last-window-size", &remember_last_window_size,
-                  "last-window-width", &last_window_width,
-                  "last-window-height", &last_window_height,
+                  "last-window-width", &browser->last_window_width,
+                  "last-window-height", &browser->last_window_height,
                   "last-window-state", &last_window_state,
                   "compact-sidepanel", &compact_sidepanel,
                   "show-panel-controls", &show_panel_controls,
@@ -6549,9 +6554,9 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     if (remember_last_window_size)
     {
-        if (last_window_width && last_window_height)
+        if (browser->last_window_width && browser->last_window_height)
             gtk_window_set_default_size (GTK_WINDOW (browser),
-                                         last_window_width, last_window_height);
+                browser->last_window_width, browser->last_window_height);
         else
             gtk_window_set_default_size (GTK_WINDOW (browser),
                                          default_width, default_height);
