@@ -48,7 +48,6 @@ struct _MidoriHistory
     GtkWidget* treeview;
     MidoriApp* app;
     KatzeArray* array;
-    KatzeNet* net;
 };
 
 struct _MidoriHistoryClass
@@ -859,9 +858,6 @@ midori_history_init (MidoriHistory* history)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
-
-    history->net = katze_net_new ();
-    /* FIXME: Dereference the net on finalization */
 
     /* Create the treeview */
     model = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_STRING);
