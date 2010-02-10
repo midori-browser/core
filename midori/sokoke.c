@@ -598,12 +598,12 @@ sokoke_magic_uri (const gchar* uri,
         katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
 
     /* Just return if it's a javascript: or mailto: uri */
-    if (g_str_has_prefix (uri, "javascript:")
-     || g_str_has_prefix (uri, "mailto:")
-     || g_str_has_prefix (uri, "tel:")
-     || g_str_has_prefix (uri, "callto:")
-     || g_str_has_prefix (uri, "data:")
-     || g_str_has_prefix (uri, "about:"))
+    if (!strncmp (uri, "javascript:", 11)
+     || !strncmp (uri, "mailto:", 7)
+     || !strncmp (uri, "tel:", 4)
+     || !strncmp (uri, "callto:", 7)
+     || !strncmp (uri, "data:", 5)
+     || !strncmp (uri, "about:", 6))
         return g_strdup (uri);
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
@@ -620,7 +620,7 @@ sokoke_magic_uri (const gchar* uri,
         ((search = strchr (uri, ':')) || (search = strchr (uri, '@'))) &&
         search[0] && !g_ascii_isalpha (search[1]))
         return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
-    if (!strcmp (uri, "localhost") || g_str_has_prefix (uri, "localhost/"))
+    if (!strncmp (uri, "localhost", 9) && (uri[9] == '\0' || uri[9] == '/'))
         return g_strconcat ("http://", uri, NULL);
     parts = g_strsplit (uri, ".", 0);
     if (!search && parts[0] && parts[1])
