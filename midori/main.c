@@ -1193,6 +1193,9 @@ midori_load_session (gpointer data)
     #endif
 
     browser = midori_app_create_browser (app);
+    g_signal_connect_after (katze_object_get_object (app, "settings"), "notify",
+        G_CALLBACK (settings_notify_cb), app);
+
     config_file = build_config_filename ("session.old.xbel");
     if (g_access (config_file, F_OK) == 0)
     {
@@ -1855,10 +1858,6 @@ main (int    argc,
         i++;
     }
     }
-
-    katze_assign (config_file, build_config_filename ("config"));
-    g_signal_connect_after (settings, "notify",
-        G_CALLBACK (settings_notify_cb), app);
 
     katze_assign (config_file, build_config_filename ("search"));
     if (1)
