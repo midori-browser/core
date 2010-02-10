@@ -18,6 +18,7 @@
 #include "midori-viewable.h"
 
 #include "sokoke.h"
+#include "gtkiconentry.h"
 
 #include <glib/gi18n.h>
 #include <string.h>
@@ -37,6 +38,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     #include <sqlite3.h>
 #endif
 
+#define COMPLETION_DELAY 150
+
 struct _MidoriHistory
 {
     GtkVBox parent_instance;
@@ -48,6 +51,9 @@ struct _MidoriHistory
     GtkWidget* treeview;
     MidoriApp* app;
     KatzeArray* array;
+
+    gint filter_timeout;
+    gchar* filter;
 };
 
 struct _MidoriHistoryClass
@@ -169,16 +175,30 @@ midori_history_remove_item_from_db (MidoriHistory* history,
     sqlite3_free (sqlcmd);
 }
 
+/**
+ * midori_history_read_from_db:
+ * @history: a #MidoriHistory
+ * @model: a #GtkTreeStore
+ * @parent: a #GtkTreeIter, or %NULL
+ * @req_day: the timestamp of one day, or 0
+ * @filter: a filter string to search for
+ *
+ * Populates the model according to parameters:
+ * 1. If @req_day is 0, all dates are added as folders.
+ * 2. If @req_day is given, all pages for that day are added.
+ * 3. If @filter is given, all pages matching the filter are added.
+ **/
 static gboolean
 midori_history_read_from_db (MidoriHistory* history,
                              GtkTreeStore*  model,
                              GtkTreeIter*   parent,
-                             int            req_day)
+                             int            req_day,
+                             const gchar*   filter)
 {
     sqlite3* db;
     sqlite3_stmt* statement;
     gint result;
-    gchar* sqlcmd;
+    const gchar* sqlcmd;
     time_t current_time;
 
     GtkTreeIter iter;
@@ -186,20 +206,35 @@ midori_history_read_from_db (MidoriHistory* history,
 
     db = g_object_get_data (G_OBJECT (history->array), "db");
 
-    if (req_day == 0)
-        sqlcmd = g_strdup ("SELECT day, date "
-                           "FROM history GROUP BY day ORDER BY day ASC");
-    else
-        sqlcmd = g_strdup_printf ("SELECT uri, title, date, day "
-                                  " FROM history WHERE day = '%d' "
-                                  " GROUP BY uri ORDER BY date ASC", req_day);
-
-    if (sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL) != SQLITE_OK)
+    if (filter && *filter)
     {
-        g_free (sqlcmd);
-        return FALSE;
+        gchar* filterstr;
+
+        sqlcmd = "SELECT uri, title, date "
+                 "FROM history WHERE uri LIKE ? or title LIKE ? "
+                 "GROUP BY uri ORDER BY date ASC";
+        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+        filterstr = g_strdup_printf ("%%%s%%", filter);
+        sqlite3_bind_text (statement, 1, filterstr, -1, g_free);
+        sqlite3_bind_text (statement, 2, g_strdup (filterstr), -1, g_free);
+        req_day = -1;
     }
-    g_free (sqlcmd);
+    else if (req_day == 0)
+    {
+        sqlcmd = "SELECT day, date FROM history GROUP BY day ORDER BY day ASC";
+        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+    }
+    else
+    {
+        sqlcmd = "SELECT uri, title, date, day "
+                 "FROM history WHERE day = ? "
+                 "GROUP BY uri ORDER BY date ASC";
+        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+        sqlite3_bind_int64 (statement, 1, req_day);
+    }
+
+    if (result != SQLITE_OK)
+        return FALSE;
 
     if (req_day == 0)
         current_time = time (NULL);
@@ -281,7 +316,7 @@ midori_history_read_from_db (MidoriHistory* history,
         }
     }
 
-    if (req_day != 0)
+    if (req_day != 0 && !(filter && *filter))
     {
         /* Remove invisible dummy row */
         GtkTreeIter child;
@@ -463,7 +498,7 @@ midori_history_set_app (MidoriHistory* history,
     history->array = katze_object_get_object (app, "history");
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
     #if HAVE_SQLITE
-    midori_history_read_from_db (history, GTK_TREE_STORE (model), NULL, 0);
+    midori_history_read_from_db (history, GTK_TREE_STORE (model), NULL, 0, NULL);
     #endif
 }
 
@@ -826,7 +861,7 @@ midori_history_row_expanded_cb (GtkTreeView*   treeview,
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
     gtk_tree_model_get (model, iter, 0, &item, -1);
     midori_history_read_from_db (history, GTK_TREE_STORE (model),
-                                 iter, katze_item_get_added (item));
+                                 iter, katze_item_get_added (item), NULL);
     g_object_unref (item);
 }
 
@@ -848,16 +883,73 @@ midori_history_row_collapsed_cb (GtkTreeView *treeview,
     gtk_tree_store_insert_with_values (treestore, &child, parent,
         0, 0, NULL, 1, NULL, -1);
 }
+
+static gboolean
+midori_history_filter_timeout_cb (gpointer data)
+{
+    MidoriHistory* history = data;
+    GtkTreeModel* model;
+    GtkTreeStore* treestore;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
+    treestore = GTK_TREE_STORE (model);
+
+    gtk_tree_store_clear (treestore);
+    midori_history_read_from_db (history, treestore, NULL, 0, history->filter);
+
+    return FALSE;
+}
+
+static void
+midori_history_filter_entry_changed_cb (GtkEntry*      entry,
+                                        MidoriHistory* history)
+{
+    if (history->filter_timeout)
+        g_source_remove (history->filter_timeout);
+    history->filter_timeout = g_timeout_add (COMPLETION_DELAY,
+        midori_history_filter_timeout_cb, history);
+    katze_assign (history->filter, g_strdup (gtk_entry_get_text (entry)));
+}
 #endif
+static void
+midori_history_filter_entry_clear_cb (GtkEntry*      entry,
+                                      gint           icon_pos,
+                                      gint           button,
+                                      MidoriHistory* history)
+{
+    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+        gtk_entry_set_text (entry, "");
+}
+
 
 static void
 midori_history_init (MidoriHistory* history)
 {
+    GtkWidget* entry;
+    GtkWidget* box;
     GtkTreeStore* model;
     GtkWidget* treeview;
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
+
+    /* Create the filter entry */
+    entry = gtk_icon_entry_new ();
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+        GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_CLEAR);
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
+        GTK_ICON_ENTRY_SECONDARY, TRUE);
+    g_signal_connect (entry, "icon-release",
+        G_CALLBACK (midori_history_filter_entry_clear_cb), history);
+    #if HAVE_SQLITE
+    g_signal_connect (entry, "changed",
+        G_CALLBACK (midori_history_filter_entry_changed_cb), history);
+    #endif
+    box = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Filter:")), FALSE, FALSE, 3);
+    gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 3);
+    gtk_widget_show_all (box);
+    gtk_box_pack_start (GTK_BOX (history), box, FALSE, FALSE, 5);
 
     /* Create the treeview */
     model = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_STRING);
@@ -899,6 +991,8 @@ midori_history_init (MidoriHistory* history)
     gtk_box_pack_start (GTK_BOX (history), treeview, TRUE, TRUE, 0);
     history->treeview = treeview;
     /* FIXME: We need to connect a signal here, to add new pages into history */
+
+    history->filter = NULL;
 }
 
 static void
@@ -912,6 +1006,7 @@ midori_history_finalize (GObject* object)
     /* FIXME: We don't unref items (last argument is FALSE) because
        our reference counting is incorrect. */
     g_object_unref (history->array);
+    katze_assign (history->filter, NULL);
 }
 
 /**
