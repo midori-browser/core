@@ -12,7 +12,6 @@
 
 #include "katze-arrayaction.h"
 
-#include "katze-net.h"
 #include "katze-utils.h"
 #include "marshal.h"
 
@@ -29,7 +28,6 @@ struct _KatzeArrayAction
     GtkAction parent_instance;
 
     KatzeArray* array;
-    KatzeNet* net;
     gboolean reversed;
 };
 
@@ -182,7 +180,6 @@ static void
 katze_array_action_init (KatzeArrayAction* array_action)
 {
     array_action->array = NULL;
-    array_action->net = katze_net_new ();
     array_action->reversed = FALSE;
 }
 
@@ -192,7 +189,6 @@ katze_array_action_finalize (GObject* object)
     KatzeArrayAction* array_action = KATZE_ARRAY_ACTION (object);
 
     katze_object_assign (array_action->array, NULL);
-    katze_object_assign (array_action->net, NULL);
 
     G_OBJECT_CLASS (katze_array_action_parent_class)->finalize (object);
 }
