@@ -622,18 +622,21 @@ sokoke_magic_uri (const gchar* uri,
         return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
     if (!strncmp (uri, "localhost", 9) && (uri[9] == '\0' || uri[9] == '/'))
         return g_strconcat ("http://", uri, NULL);
-    parts = g_strsplit (uri, ".", 0);
-    if (!search && parts[0] && parts[1])
+    if (!search)
     {
-        if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
-            if (!strchr (parts[0], ' ') && !strchr (parts[1], ' '))
-            {
-                search = g_strconcat ("http://", uri, NULL);
-                g_strfreev (parts);
-                return sokoke_idn_to_punycode (search);
-            }
+        parts = g_strsplit (uri, ".", 0);
+        if (parts[0] && parts[1])
+        {
+            if (!(parts[1][1] == '\0' && !g_ascii_isalpha (parts[1][0])))
+                if (!strchr (parts[0], ' ') && !strchr (parts[1], ' '))
+                {
+                    search = g_strconcat ("http://", uri, NULL);
+                    g_strfreev (parts);
+                   return sokoke_idn_to_punycode (search);
+                }
+        }
+        g_strfreev (parts);
     }
-    g_strfreev (parts);
     /* We don't want to search? So return early. */
     if (!search_engines)
         return g_strdup (uri);
