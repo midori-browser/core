@@ -82,7 +82,7 @@ history_panel_fill (void)
     g_assert (value == array);
     history = g_object_new (MIDORI_TYPE_HISTORY, "app", app, NULL);
     children = gtk_container_get_children (GTK_CONTAINER (history));
-    treeview = g_list_nth_data (children, 0);
+    treeview = g_list_nth_data (children, 1);
     g_list_free (children);
     g_assert (GTK_IS_TREE_VIEW (treeview));
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
