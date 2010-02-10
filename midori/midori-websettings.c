@@ -653,7 +653,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The folder downloaded files are saved to"),
                                      midori_get_download_dir (),
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
     #else
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     #endif
@@ -675,7 +675,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         _("Whether to ask for the destination folder when downloading a file"),
                                      FALSE,
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
     #else
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     #endif
@@ -695,7 +695,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         _("Whether to show a notification when a transfer has been completed"),
                                      TRUE,
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
     #else
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     #endif
@@ -780,7 +780,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open new pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_EXTERNAL_PAGES_IN,
@@ -790,7 +790,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Where to open externally opened pages"),
                                      MIDORI_TYPE_NEW_PAGE,
                                      MIDORI_NEW_PAGE_TAB,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_MIDDLE_CLICK_OPENS_SELECTION,
@@ -826,7 +826,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Open popups in tabs"),
                                      _("Whether to open popup windows in tabs"),
                                      TRUE,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
 
     /* Override properties to localize them for preference proxies */
@@ -912,7 +912,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                       _("Zoom Text and Images"),
                                       _("Whether to zoom text and images"),
                                       FALSE,
-                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                      flags));
 
     /**
     * MidoriWebSettings:find-while-typing:
@@ -954,7 +954,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("What type of cookies to accept"),
                                      MIDORI_TYPE_ACCEPT_COOKIES,
                                      MIDORI_ACCEPT_COOKIES_ALL,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
      * MidoriWebSettings:original-cookies-only:
@@ -970,7 +970,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Original cookies only"),
                                      _("Accept cookies from the original website only"),
                                      FALSE,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_MAXIMUM_COOKIE_AGE,
@@ -979,7 +979,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Maximum cookie age"),
                                      _("The maximum number of days to save cookies for"),
                                      0, G_MAXINT, 30,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
 
 
@@ -1015,7 +1015,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Remember last downloaded files"),
                                      _("Whether the last downloaded files are saved"),
                                      TRUE,
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
 
 
@@ -1026,7 +1026,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Proxy Server"),
                                      _("The proxy server used for HTTP connections"),
                                      NULL,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
     * MidoriWebSettings:auto-detect-proxy:
@@ -1042,7 +1042,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Detect proxy server automatically"),
         _("Whether to detect the proxy server automatically from the environment"),
                                      TRUE,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
     * MidoriWebSettings:identify-as:
@@ -1060,7 +1060,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("What to identify as to web pages"),
                                      MIDORI_TYPE_IDENTITY,
                                      MIDORI_IDENT_MIDORI,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
      * MidoriWebSettings:user-agent:
@@ -1076,7 +1076,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Identification string"),
                                      _("The application identification string"),
                                      NULL,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
     * MidoriWebSettings:preferred-languages:
@@ -1092,7 +1092,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Preferred languages"),
         _("A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""),
                                      NULL,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
      * MidoriWebSettings:clear-private-data:
