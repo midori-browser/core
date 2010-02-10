@@ -498,7 +498,8 @@ midori_history_set_app (MidoriHistory* history,
     history->array = katze_object_get_object (app, "history");
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
     #if HAVE_SQLITE
-    midori_history_read_from_db (history, GTK_TREE_STORE (model), NULL, 0, NULL);
+    if (history->array)
+        midori_history_read_from_db (history, GTK_TREE_STORE (model), NULL, 0, NULL);
     #endif
 }
 
