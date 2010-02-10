@@ -202,7 +202,8 @@ midori_history_read_from_db (MidoriHistory* history,
     }
     g_free (sqlcmd);
 
-    current_time = time (NULL);
+    if (req_day == 0)
+        current_time = time (NULL);
 
     while ((result = sqlite3_step (statement)) == SQLITE_ROW)
     {
@@ -257,7 +258,6 @@ midori_history_read_from_db (MidoriHistory* history,
             gtk_tree_store_insert_with_values (model, &root_iter, NULL,
                                                0, 0, item, 1, sdate, -1);
             /* That's an invisible dummy, so we always have an expander */
-            /* FIXME: Hide this row */
             gtk_tree_store_insert_with_values (model, &iter, &root_iter,
                 0, 0, NULL, 1, NULL, -1);
 
@@ -280,6 +280,15 @@ midori_history_read_from_db (MidoriHistory* history,
             gtk_tree_store_insert_with_values (model, NULL, parent,
                 0, 0, item, 1, katze_item_get_name (item), -1);
         }
+    }
+
+    if (req_day != 0)
+    {
+        /* Remove invisible dummy row */
+        GtkTreeIter child;
+        gint last = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (model), parent);
+        gtk_tree_model_iter_nth_child (GTK_TREE_MODEL (model), &child, parent, last - 1);
+        gtk_tree_store_remove (model, &child);
     }
 
     if (result != SQLITE_DONE)
@@ -829,32 +838,18 @@ midori_history_row_collapsed_cb (GtkTreeView *treeview,
                                  gpointer     user_data)
 {
     GtkTreeModel* model;
+    GtkTreeStore* treestore;
     GtkTreeIter child;
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-    while (gtk_tree_model_iter_n_children (model, parent) > 1)
-    {
-        if (gtk_tree_model_iter_children (model, &child, parent))
-            gtk_tree_store_remove (GTK_TREE_STORE (model), &child);
-    }
+    treestore = GTK_TREE_STORE (model);
+    while (gtk_tree_model_iter_nth_child (model, &child, parent, 0))
+        gtk_tree_store_remove (treestore, &child);
+    /* That's an invisible dummy, so we always have an expander */
+    gtk_tree_store_insert_with_values (treestore, &child, parent,
+        0, 0, NULL, 1, NULL, -1);
 }
 #endif
-
-static gboolean
-midori_history_row_sep_func (GtkTreeModel*  model,
-                             GtkTreeIter*   iter,
-                             MidoriHistory* history)
-{
-    KatzeItem* item;
-
-    gtk_tree_model_get (model, iter, 0, &item, -1);
-
-    if (item == NULL)
-        return TRUE;
-
-    g_object_unref (item);
-    return FALSE;
-}
 
 static void
 midori_history_init (MidoriHistory* history)
@@ -872,8 +867,6 @@ midori_history_init (MidoriHistory* history)
     model = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_STRING);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
-    gtk_tree_view_set_row_separator_func (GTK_TREE_VIEW (treeview),
-        (GtkTreeViewRowSeparatorFunc)midori_history_row_sep_func, history, NULL);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
