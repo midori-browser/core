@@ -1358,6 +1358,29 @@ midori_remove_config_file (gint         clear_prefs,
     }
 }
 
+static gchar*
+midori_prepare_uri (const gchar *uri)
+{
+    gchar* uri_ready;
+
+    if (g_path_is_absolute (uri))
+        return g_filename_to_uri (uri, NULL, NULL);
+    else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
+    {
+        gchar* current_dir = g_get_current_dir ();
+        uri_ready = g_strconcat ("file://", current_dir,
+                                 G_DIR_SEPARATOR_S, uri, NULL);
+        g_free (current_dir);
+        return uri_ready;
+    }
+
+    uri_ready = sokoke_magic_uri (uri);
+    if (uri_ready)
+        return sokoke_uri_to_ascii (uri_ready);
+
+    return sokoke_uri_to_ascii (uri);
+}
+
 #ifdef HAVE_SIGNAL_H
 static void
 signal_handler (int signal_id)
@@ -1554,6 +1577,8 @@ main (int    argc,
     if (webapp)
     {
         MidoriBrowser* browser = midori_browser_new ();
+        gchar* tmp_uri = midori_prepare_uri (webapp);
+        katze_assign (webapp, tmp_uri);
         midori_startup_timer ("Browser: \t%f");
         settings = katze_object_get_object (browser, "settings");
         g_object_set (settings,
@@ -1628,12 +1653,11 @@ main (int    argc,
         else if (uris)
         {
             /* TODO: Open a tab per URI, seperated by pipes */
-            /* FIXME: Handle relative files or magic URI here */
             /* Encode any IDN addresses because libUnique doesn't like them */
             i = 0;
             while (uris[i] != NULL)
             {
-                gchar* new_uri = sokoke_uri_to_ascii (uris[i]);
+                gchar* new_uri = midori_prepare_uri (uris[i]);
                 katze_assign (uris[i], new_uri);
                 i++;
             }
@@ -1837,22 +1861,7 @@ main (int    argc,
         while (uri != NULL)
         {
             item = katze_item_new ();
-            /* Construct an absolute path if the file is relative */
-            if (g_path_is_absolute (uri))
-                uri_ready = g_strconcat ("file://", uri, NULL);
-            else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
-            {
-                gchar* current_dir = g_get_current_dir ();
-                uri_ready = g_strconcat ("file://", current_dir,
-                                         G_DIR_SEPARATOR_S, uri, NULL);
-                g_free (current_dir);
-            }
-            else
-            {
-                uri_ready = sokoke_magic_uri (uri);
-                if (!uri_ready)
-                    uri_ready = g_strdup (uri_ready);
-            }
+            uri_ready = midori_prepare_uri (uri);
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
             katze_array_add_item (_session, item);
