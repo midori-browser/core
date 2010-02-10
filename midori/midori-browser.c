@@ -2954,7 +2954,9 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         return;
 
     /* Imported bookmarks may lack a protocol */
-    uri_fixed = sokoke_magic_uri (uri, NULL, NULL);
+    uri_fixed = sokoke_magic_uri (uri);
+    if (!uri_fixed)
+        uri_fixed = g_strdup (uri);
 
     /* FIXME: Use the same binary that is running right now */
     if (katze_item_get_meta_integer (item, "app") != -1)
@@ -3770,37 +3772,43 @@ _action_location_submit_uri (GtkAction*     action,
 {
     gchar* stripped_uri;
     gchar* new_uri;
-    KatzeItem* item;
     gint n;
 
     stripped_uri = g_strdup (uri);
     g_strstrip (stripped_uri);
-    item = NULL;
-    new_uri = sokoke_magic_uri (stripped_uri, browser->search_engines, &item);
+    new_uri = sokoke_magic_uri (stripped_uri);
     if (!new_uri)
-        new_uri = sokoke_search_uri (browser->location_entry_search, stripped_uri);
-    g_free (stripped_uri);
-
-    if (item)
     {
-        gchar* title;
-        GdkPixbuf* icon;
-        const gchar* icon_name;
+        gchar** parts;
+        gchar* keywords = NULL;
+        const gchar* search_uri = NULL;
 
-        title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
-        icon = midori_search_action_get_icon (item, GTK_WIDGET (browser), &icon_name);
-        if (!icon)
+        /* Do we have a keyword and a string? */
+        parts = g_strsplit (stripped_uri, " ", 2);
+        if (parts[0])
         {
-            GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (browser));
-            GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
-            icon = gtk_icon_theme_load_icon (icon_theme, icon_name, 16, 0, NULL);
+            KatzeItem* item;
+            if ((item = katze_array_find_token (browser->search_engines, parts[0])))
+            {
+                keywords = g_strdup (parts[1] ? parts[1] : "");
+                search_uri = katze_item_get_uri (item);
+            }
         }
-        midori_location_action_add_item (MIDORI_LOCATION_ACTION (action),
-                                         uri, icon, title);
-        if (icon)
-            g_object_unref (icon);
-        g_free (title);
+        g_strfreev (parts);
+
+        if (keywords)
+            g_free (stripped_uri);
+        else
+        {
+            keywords = stripped_uri;
+            search_uri = browser->location_entry_search;
+        }
+        new_uri = sokoke_search_uri (search_uri, keywords);
+
+        g_free (keywords);
     }
+    else
+        g_free (stripped_uri);
 
     if (new_tab)
     {

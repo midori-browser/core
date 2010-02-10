@@ -1307,9 +1307,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                 /* Hold Alt to search for the selected word */
                 if (event->state & GDK_MOD1_MASK)
                 {
-                    KatzeArray* empty_array = katze_array_new (KATZE_TYPE_ITEM);
-                    new_uri = sokoke_magic_uri (uri, empty_array, NULL);
-                    g_object_unref (empty_array);
+                    new_uri = sokoke_magic_uri (uri);
                     if (!new_uri)
                     {
                         gchar* search;
@@ -1582,7 +1580,9 @@ midori_web_view_menu_new_tab_activate_cb (GtkWidget*  widget,
         }
         else
         {
-            gchar* uri = sokoke_magic_uri (data, NULL, NULL);
+            gchar* uri = sokoke_magic_uri (data);
+            if (!uri)
+                uri = g_strdup (data);
             g_signal_emit (view, signals[NEW_TAB], 0, uri,
                            view->open_tabs_in_the_background);
             g_free (uri);

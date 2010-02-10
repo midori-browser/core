@@ -97,9 +97,7 @@ gchar*
 sokoke_uri_to_ascii                     (const gchar*    uri);
 
 gchar*
-sokoke_magic_uri                        (const gchar*    uri,
-                                         KatzeArray*     search_engines,
-                                         KatzeItem**     found_item);
+sokoke_magic_uri                        (const gchar*    uri);
 
 gchar*
 sokoke_format_uri_for_display           (const gchar*    uri);

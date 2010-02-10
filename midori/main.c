@@ -1848,7 +1848,11 @@ main (int    argc,
                 g_free (current_dir);
             }
             else
-                uri_ready = sokoke_magic_uri (uri, NULL, NULL);
+            {
+                uri_ready = sokoke_magic_uri (uri);
+                if (!uri_ready)
+                    uri_ready = g_strdup (uri_ready);
+            }
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
             katze_array_add_item (_session, item);

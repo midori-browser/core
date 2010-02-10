@@ -573,29 +573,21 @@ gchar* sokoke_search_uri (const gchar* uri,
 /**
  * sokoke_magic_uri:
  * @uri: a string typed by a user
- * @search_engines: search engines
- * @item: the location to store a #KatzeItem
  *
  * Takes a string that was typed by a user,
  * guesses what it is, and returns an URI.
  *
- * If it was a search, @item will contain the engine.
+ * If it was a search, %NULL will be returned.
  *
- * Return value: a newly allocated URI
+ * Return value: a newly allocated URI, or %NULL
  **/
 gchar*
-sokoke_magic_uri (const gchar* uri,
-                  KatzeArray*  search_engines,
-                  KatzeItem**  found_item)
+sokoke_magic_uri (const gchar* uri)
 {
     gchar** parts;
     gchar* search;
-    const gchar* search_uri;
-    KatzeItem* item;
 
     g_return_val_if_fail (uri, NULL);
-    g_return_val_if_fail (!search_engines ||
-        katze_array_is_a (search_engines, KATZE_TYPE_ITEM), NULL);
 
     /* Just return if it's a javascript: or mailto: uri */
     if (!strncmp (uri, "javascript:", 11)
@@ -637,25 +629,8 @@ sokoke_magic_uri (const gchar* uri,
         }
         g_strfreev (parts);
     }
-    /* We don't want to search? So return early. */
-    if (!search_engines)
-        return g_strdup (uri);
-    search = NULL;
-    search_uri = NULL;
-    /* Do we have a keyword and a string? */
-    parts = g_strsplit (uri, " ", 2);
-    if (parts[0])
-        if ((item = katze_array_find_token (search_engines, parts[0])))
-        {
-            search_uri = katze_item_get_uri (item);
-            search = sokoke_search_uri (search_uri, parts[1] ? parts[1] : "");
-            if (found_item)
-                *found_item = item;
-        }
-    g_strfreev (parts);
-    return search;
+    return NULL;
 }
-
 
 /**
  * sokoke_format_uri_for_display:
