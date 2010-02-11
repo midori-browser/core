@@ -347,13 +347,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     if (!gtk_widget_has_focus (action->entry) || !action->history)
         return FALSE;
 
-    if (!*action->key)
-    {
-        const gchar* uri = gtk_entry_get_text (GTK_ENTRY (action->entry));
-        katze_assign (action->key, g_strdup (uri));
-    }
-
-    if (!*action->key)
+    if (!(action->key && *action->key))
     {
         midori_location_action_popdown_completion (action);
         return FALSE;
@@ -502,11 +496,11 @@ midori_location_action_popup_timeout_cb (gpointer data)
 static void
 midori_location_action_popup_completion (MidoriLocationAction* action,
                                          GtkWidget*            entry,
-                                         const gchar*          key)
+                                         gchar*                key)
 {
     if (action->completion_timeout)
         g_source_remove (action->completion_timeout);
-    katze_assign (action->key, g_strdup (key));
+    katze_assign (action->key, key);
     action->entry = entry;
     g_signal_connect (entry, "destroy",
         G_CALLBACK (gtk_widget_destroyed), &action->entry);
@@ -797,7 +791,8 @@ static void
 midori_location_action_backspace_cb (GtkWidget*            entry,
                                      MidoriLocationAction* action)
 {
-    midori_location_action_popup_completion (action, entry, "");
+    gchar* key = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
+    midori_location_action_popup_completion (action, entry, key);
     action->completion_index = -1;
 }
 
@@ -805,7 +800,8 @@ static void
 midori_location_action_paste_clipboard_cb (GtkWidget*            entry,
                                            MidoriLocationAction* action)
 {
-    midori_location_action_popup_completion (action, entry, "");
+    gchar* key = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
+    midori_location_action_popup_completion (action, entry, key);
     action->completion_index = -1;
 }
 
@@ -943,29 +939,37 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         return TRUE;
     }
     default:
+    {
+        gunichar character;
+        gchar buffer[7];
+        gint length;
+        gchar* key;
+
+        character = gdk_keyval_to_unicode (event->keyval);
         /* Don't trigger completion on control characters */
-        if (gdk_unicode_to_keyval (event->keyval) == (event->keyval | 0x01000000))
+        if (!character || event->is_modifier)
             return FALSE;
 
-        if ((text = gtk_entry_get_text (entry)) && *text)
-        {
-            midori_location_action_popup_completion (location_action, widget, "");
-            location_action->completion_index = -1;
-            return FALSE;
-        }
+        length = g_unichar_to_utf8 (character, buffer);
+        buffer[length] = '\0';
+        key = g_strconcat (gtk_entry_get_text (entry), buffer, NULL);
+        midori_location_action_popup_completion (location_action, widget, key);
+        location_action->completion_index = -1;
+        return FALSE;
+    }
     }
     return FALSE;
 }
 
 #if GTK_CHECK_VERSION (2, 19, 3)
 static void
-midori_location_action_preedit_changed_cb (GtkWidget*   widget,
+midori_location_action_preedit_changed_cb (GtkWidget*   entry,
                                            const gchar* preedit,
                                            GtkAction*   action)
 {
     MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
-    midori_location_action_popup_completion (location_action,
-                                             GTK_WIDGET (widget), preedit);
+    gchar* key = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
+    midori_location_action_popup_completion (location_action, entry, key);
 }
 #endif
 
@@ -1286,16 +1290,16 @@ midori_location_action_connect_proxy (GtkAction* action,
                       midori_location_action_changed_cb, action,
                       "signal::move-cursor",
                       midori_location_action_move_cursor_cb, action,
-                      "signal::backspace",
+                      "signal-after::backspace",
                       midori_location_action_backspace_cb, action,
-                      "signal::paste-clipboard",
+                      "signal-after::paste-clipboard",
                       midori_location_action_paste_clipboard_cb, action,
                       "signal::button-press-event",
                       midori_location_action_button_press_event_cb, action,
                       "signal::key-press-event",
                       midori_location_action_key_press_event_cb, action,
                       #if GTK_CHECK_VERSION (2, 19, 3)
-                      "signal::preedit-changed",
+                      "signal-after::preedit-changed",
                       midori_location_action_preedit_changed_cb, action,
                       #endif
                       "signal::focus-in-event",
