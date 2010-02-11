@@ -4542,12 +4542,25 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
 
         g_object_get (browser->settings, "clear-private-data", &saved_prefs, NULL);
 
+        #if HAVE_SQLITE
         button = g_object_get_data (G_OBJECT (dialog), "history");
         if (gtk_toggle_button_get_active (button))
         {
-            katze_array_clear (browser->history);
+            const gchar* sqlcmd;
+            sqlite3* db;
+            char* errmsg = NULL;
+
+            db = g_object_get_data (G_OBJECT (browser->history), "db");
+            sqlcmd = "DELETE FROM history";
+
+            if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+            {
+                g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+                sqlite3_free (errmsg);
+            }
             clear_prefs |= MIDORI_CLEAR_HISTORY;
         }
+        #endif
         button = g_object_get_data (G_OBJECT (dialog), "cookies");
         if (gtk_toggle_button_get_active (button))
         {
@@ -4674,11 +4687,13 @@ _action_clear_private_data_activate (GtkAction*     action,
         vbox = gtk_vbox_new (TRUE, 4);
         alignment = gtk_alignment_new (0, 0, 1, 1);
         gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 6, 12, 0);
+        #if HAVE_SQLITE
         button = gtk_check_button_new_with_mnemonic (_("History"));
         if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "history", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+        #endif
         button = gtk_check_button_new_with_mnemonic (_("Cookies"));
         if ((clear_prefs & MIDORI_CLEAR_COOKIES) == MIDORI_CLEAR_COOKIES)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
