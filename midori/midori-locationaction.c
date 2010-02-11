@@ -417,7 +417,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             NULL);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (column), renderer,
                                             midori_location_entry_render_text_cb,
-                                            action->entry, NULL);
+                                            action, NULL);
         gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
 
         action->popup = popup;
@@ -517,6 +517,7 @@ midori_location_action_popdown_completion (MidoriLocationAction* location_action
     if (G_LIKELY (location_action->popup))
     {
         gtk_widget_hide (location_action->popup);
+        katze_assign (location_action->key, NULL);
         gtk_tree_selection_unselect_all (gtk_tree_view_get_selection (
             GTK_TREE_VIEW (location_action->treeview)));
     }
@@ -1013,13 +1014,13 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
                                       GtkTreeIter*     iter,
                                       gpointer         data)
 {
+    MidoriLocationAction* action = data;
     gchar* uri;
     gchar* title;
     GdkColor* background;
     gchar* desc;
     gchar* desc_uri;
     gchar* desc_title;
-    GtkWidget* entry;
     const gchar* str;
     gchar* key;
     gchar* start;
@@ -1028,15 +1029,8 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar** parts;
     size_t len;
 
-    entry = data;
-
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
         BACKGROUND_COL, &background, -1);
-
-    desc = desc_uri = desc_title = key = NULL;
-    str = gtk_entry_get_text (GTK_ENTRY (entry));
-    if (!str)
-        return;
 
     if (background != NULL) /* A search engine action */
     {
@@ -1046,6 +1040,12 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         g_free (title);
         return;
     }
+
+    desc = desc_uri = desc_title = key = NULL;
+    if (action->key)
+        str = action->key;
+    else
+        str = "";
 
     key = g_utf8_strdown (str, -1);
     len = strlen (key);
@@ -1274,7 +1274,7 @@ midori_location_action_connect_proxy (GtkAction* action,
         g_object_set_data (G_OBJECT (renderer), "location-action", action);
         gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (entry), renderer, TRUE);
         gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (entry),
-            renderer, midori_location_entry_render_text_cb, child, NULL);
+            renderer, midori_location_entry_render_text_cb, action, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
         if (location_action->history)
