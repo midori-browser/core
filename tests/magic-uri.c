@@ -37,6 +37,8 @@ test_input (const gchar* input,
             const gchar* expected)
 {
     static KatzeArray* search_engines = NULL;
+    gchar* uri;
+
     if (G_UNLIKELY (!search_engines))
     {
         KatzeItem* item;
@@ -54,7 +56,30 @@ test_input (const gchar* input,
         g_object_unref (item);
     }
 
-    gchar* uri = sokoke_magic_uri (input, search_engines, NULL);
+    uri = sokoke_magic_uri (input);
+    if (!uri)
+    {
+        gchar** parts;
+        gchar* keywords = NULL;
+        const gchar* search_uri = NULL;
+
+        /* Do we have a keyword and a string? */
+        parts = g_strsplit (input, " ", 2);
+        if (parts[0])
+        {
+            KatzeItem* item;
+            if ((item = katze_array_find_token (search_engines, parts[0])))
+            {
+                keywords = g_strdup (parts[1] ? parts[1] : "");
+                search_uri = katze_item_get_uri (item);
+            }
+        }
+        g_strfreev (parts);
+
+        uri = keywords ? sokoke_search_uri (search_uri, keywords) : NULL;
+
+        g_free (keywords);
+    }
     sokoke_assert_str_equal (input, uri, expected);
     g_free (uri);
 }
