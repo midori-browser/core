@@ -133,6 +133,7 @@ magic_uri_idn (void)
     #endif
     { "http://en.wikipedia.org/wiki/Kölsch_language", NULL },
     { "file:///home/mark/frühstück", NULL },
+    { "about:version", NULL },
      };
     guint i;
 

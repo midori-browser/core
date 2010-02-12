@@ -424,9 +424,9 @@ sokoke_spawn_program (const gchar* command,
  * @uri: an URI string
  * @path: location of a string pointer
  *
- * Returns the hostname of the specified URI,
- * and stores the path in @path.
- * @path is at least set to ""
+ * Returns the hostname of the specified URI.
+ *
+ * If there is a path, it is stored in @path.
  *
  * Return value: a newly allocated hostname
  **/
@@ -436,19 +436,17 @@ sokoke_hostname_from_uri (const gchar* uri,
 {
     gchar* hostname;
 
-    *path = "";
-    if ((hostname = g_utf8_strchr (uri, -1, '/')))
+    if ((hostname = strchr (uri, '/')))
     {
         if (hostname[1] == '/')
             hostname += 2;
-        if ((*path = g_utf8_strchr (hostname, -1, '/')))
-            hostname = g_strndup (hostname, *path - hostname);
+        if ((*path = strchr (hostname, '/')))
+            return g_strndup (hostname, *path - hostname);
         else
-            hostname = g_strdup (hostname);
+            return g_strdup (hostname);
     }
-    else
-        hostname = g_strdup (uri);
-    return hostname;
+
+    return g_strdup (uri);
 }
 
 /**
@@ -498,9 +496,12 @@ sokoke_hostname_to_ascii (const gchar* hostname)
 gchar*
 sokoke_uri_to_ascii (const gchar* uri)
 {
-    gchar* proto;
+    gchar* proto = NULL;
+    gchar* path = NULL;
+    gchar* hostname;
+    gchar* encoded;
 
-    if ((proto = g_utf8_strchr (uri, -1, ':')))
+    if (strchr (uri, '/') && (proto = strchr (uri, ':')))
     {
         gulong offset;
         gchar* buffer;
@@ -511,9 +512,8 @@ sokoke_uri_to_ascii (const gchar* uri)
         proto = buffer;
     }
 
-    gchar* path;
-    gchar* hostname = sokoke_hostname_from_uri (uri, &path);
-    gchar* encoded = sokoke_hostname_to_ascii (hostname);
+    hostname = sokoke_hostname_from_uri (uri, &path);
+    encoded = sokoke_hostname_to_ascii (hostname);
 
     if (encoded)
     {
@@ -648,7 +648,7 @@ sokoke_format_uri_for_display (const gchar* uri)
     {
         gchar* unescaped = g_uri_unescape_string (uri, " +");
         #ifdef HAVE_LIBSOUP_2_27_90
-        gchar* path;
+        gchar* path = NULL;
         gchar* hostname;
         gchar* decoded;
 
