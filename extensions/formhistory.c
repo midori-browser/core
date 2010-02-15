@@ -31,12 +31,16 @@ static gchar* jsforms;
 static gboolean
 formhistory_prepare_js ()
 {
+   gchar* data_name;
+   gchar* data_path;
    gchar* autosuggest;
    gchar* style;
    guint i;
    gchar* file;
 
-   gchar* data_path = g_build_filename (MDATADIR, PACKAGE_NAME, "res", NULL);
+   data_name = g_build_filename (PACKAGE_NAME, "res", NULL);
+   data_path = sokoke_find_data_filename (data_name);
+   g_free (data_name);
    file = g_build_filename (data_path, G_DIR_SEPARATOR_S, "autosuggestcontrol.js",NULL);
    if (!g_file_get_contents (file, &autosuggest, NULL, NULL))
        return FALSE;
