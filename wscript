@@ -118,6 +118,7 @@ def configure (conf):
         if not conf.find_program ('convert', var='CONVERT'):
             Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
         conf.find_program ('windres', var='WINRC')
+        conf.env['platform'] = 'win32'
 
     # This is specific to cross compiling with mingw
     if is_mingw (conf.env) and Options.platform != 'win32':
@@ -261,6 +262,7 @@ def configure (conf):
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
         conf.env.append_value ('LINKFLAGS', '-mwindows')
+        conf.env.append_value ('program_LINKFLAGS', ['-Wl,--out-implib=default/midori/libmidori.a', '-Wl,--export-all-symbols'])
     else:
         conf.check (header_name='signal.h')
 

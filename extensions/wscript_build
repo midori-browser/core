@@ -29,3 +29,5 @@ for extension in extensions:
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML HILDON'
     obj.install_path = '${LIBDIR}/midori'
+    if bld.env['platform'] == 'win32':
+        obj.uselib_local = 'midori'
