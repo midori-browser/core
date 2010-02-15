@@ -4857,15 +4857,37 @@ _action_help_link_activate (GtkAction*     action,
     const gchar* action_name;
     const gchar* uri;
     gint n;
+    #if defined (G_OS_WIN32) && defined (DOCDIR)
+    gchar* free_uri = NULL;
+    #endif
 
     action_name = gtk_action_get_name (action);
     if  (!strncmp ("HelpContents", action_name, 12))
     {
+        #ifdef G_OS_WIN32
+        {
+            #ifdef DOCDIR
+            gchar* path = sokoke_find_data_filename ("doc/midori/user/midori.html");
+            uri = free_uri = g_filename_to_uri (path, NULL, NULL);
+            if (g_access (path, F_OK) != 0)
+            {
+                if (g_access (DOCDIR "/midori/user/midori.html", F_OK) == 0)
+                    uri = "file://" DOCDIR "/midori/user/midori.html";
+                else
+            #endif
+                    uri = "error:nodocs share/doc/midori/user/midori.html";
+            #ifdef DOCDIR
+            }
+            g_free (path);
+            #endif
+        }
+        #else
         #ifdef DOCDIR
         uri = "file://" DOCDIR "/midori/user/midori.html";
         if (g_access (DOCDIR "/midori/user/midori.html", F_OK) != 0)
         #endif
             uri = "error:nodocs " DOCDIR "/midori/user/midori.html";
+        #endif
     }
     else if  (!strncmp ("HelpFAQ", action_name, 7))
         uri = "http://wiki.xfce.org/_export/xhtml/midori_faq";
@@ -4878,8 +4900,11 @@ _action_help_link_activate (GtkAction*     action,
     {
         n = midori_browser_add_uri (browser, uri);
         midori_browser_set_current_page (browser, n);
-    }
 
+        #if defined (G_OS_WIN32) && defined (DOCDIR)
+        g_free (free_uri);
+        #endif
+    }
 }
 
 static void
