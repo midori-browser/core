@@ -276,6 +276,73 @@ sokoke_show_uri (GdkScreen*   screen,
     #if HAVE_HILDON
     HildonURIAction* action = hildon_uri_get_default_action_by_uri (uri, NULL);
     return hildon_uri_open (uri, action, error);
+
+    #elif defined (G_OS_WIN32)
+
+    const gchar* fallbacks [] = { "explorer" };
+    gsize i;
+    GAppInfo *app_info;
+    GFile *file;
+    gchar *free_uri;
+
+    g_return_val_if_fail (uri != NULL, FALSE);
+    g_return_val_if_fail (!error || !*error, FALSE);
+    g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
+
+    file = g_file_new_for_uri (uri);
+    app_info = g_file_query_default_handler (file, NULL, error);
+
+    if (app_info != NULL)
+    {
+        GdkAppLaunchContext *context;
+        gboolean result;
+        GList l;
+
+        context = gdk_app_launch_context_new ();
+        gdk_app_launch_context_set_screen (context, screen);
+        gdk_app_launch_context_set_timestamp (context, timestamp);
+
+        l.data = (char *)file;
+        l.next = l.prev = NULL;
+        result = g_app_info_launch (app_info, &l, (GAppLaunchContext*)context, error);
+
+        g_object_unref (context);
+        g_object_unref (app_info);
+        g_object_unref (file);
+
+        if (result)
+            return TRUE;
+    }
+    else
+        g_object_unref (file);
+
+    free_uri = g_filename_from_uri (uri, NULL, NULL);
+    if (free_uri)
+    {
+        gchar *quoted = g_shell_quote (free_uri);
+        uri = quoted;
+        g_free (free_uri);
+        free_uri = quoted;
+    }
+
+    for (i = 0; i < G_N_ELEMENTS (fallbacks); i++)
+    {
+        gchar* command = g_strconcat (fallbacks[i], " ", uri, NULL);
+        gboolean result = g_spawn_command_line_async (command, error);
+        g_free (command);
+        if (result)
+        {
+            g_free (free_uri);
+            return TRUE;
+        }
+        if (error)
+            *error = NULL;
+    }
+
+    g_free (free_uri);
+
+    return FALSE;
+
     #else
 
     const gchar* fallbacks [] = { "xdg-open", "exo-open", "gnome-open" };
