@@ -993,25 +993,32 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
 {
     gchar* title;
     gchar* data;
+    gchar* logo_path;
+    gchar* logo_uri;
 
     if (!success)
     {
         /* i18n: The title of the 404 - Not found error page */
         title = g_strdup_printf (_("Not found - %s"), view->uri);
         katze_assign (view->title, title);
+        logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
+        logo_uri = g_filename_to_uri (logo_path);
+        g_free (logo_path);
         data = g_strdup_printf (
             "<html><head><title>%s</title></head>"
             "<body><h1>%s</h1>"
-            "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
+            "<img src=\"%s\" "
             "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
             "<p />The page you were opening doesn't exist."
             "<p />Try to <a href=\"%s\">load the page again</a>, "
             "or move on to another page."
             "</body></html>",
-            title, title, view->uri);
+            title, title, logo_uri, view->uri);
         webkit_web_view_load_html_string (
             WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
+        g_free (title);
         g_free (data);
+        g_free (logo_uri);
     }
 
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
@@ -3125,11 +3132,13 @@ midori_view_set_uri (MidoriView*  view,
             gchar* speed_dial_body;
             gchar* body_fname;
             gchar* stock_root;
+            gchar* filepath;
 
             katze_assign (view->uri, g_strdup (""));
 
-            g_file_get_contents (MDATADIR "/midori/res/speeddial-head.html",
-                                 &speed_dial_head, NULL, NULL);
+            filepath = sokoke_find_data_filename ("midori/res/speeddial-head.html");
+            g_file_get_contents (filepath, &speed_dial_head, NULL, NULL);
+            g_free (filepath);
             if (G_UNLIKELY (!speed_dial_head))
                 speed_dial_head = g_strdup ("");
 
@@ -3147,11 +3156,13 @@ midori_view_set_uri (MidoriView*  view,
 
             if (g_access (body_fname, F_OK) != 0)
             {
-                if (g_file_get_contents (MDATADIR "/midori/res/speeddial.json",
+                filepath = sokoke_find_data_filename ("midori/res/speeddial.json");
+                if (g_file_get_contents (filepath,
                                          &speed_dial_body, NULL, NULL))
                     g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
                 else
                     speed_dial_body = g_strdup ("");
+                g_free (filepath);
             }
             else
                 g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
@@ -3196,38 +3207,50 @@ midori_view_set_uri (MidoriView*  view,
             if (!strncmp (uri, "error:nodisplay ", 16))
             {
                 gchar* title;
+                gchar* logo_path;
+                gchar* logo_uri;
 
                 katze_assign (view->uri, g_strdup (&uri[16]));
                 title = g_strdup_printf (_("Document cannot be displayed"));
+                logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
+                logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
+                g_free (logo_path);
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
-                    "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
+                    "<img src=\"%s\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<p />The document %s of type '%s' cannot be displayed."
                     "</body></html>",
-                    title, title, view->uri, view->mime_type);
+                    title, title, logo_uri, view->uri, view->mime_type);
                 g_free (title);
+                g_free (logo_uri);
             }
             #endif
             if (!strncmp (uri, "error:nodocs ", 13))
             {
                 gchar* title;
+                gchar* logo_path;
+                gchar* logo_uri;
 
                 katze_assign (view->uri, g_strdup (&uri[13]));
                 title = g_strdup_printf (_("No documentation installed"));
+                logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
+                logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
+                g_free (logo_path);
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
-                    "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
+                    "<img src=\"%s\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<p />There is no documentation installed at %s."
                     "You may want to ask your distribution or "
                     "package maintainer for it or if this a custom build "
                     "verify that the build is setup properly."
                     "</body></html>",
-                    title, title, view->uri);
+                    title, title, logo_uri, view->uri);
                 g_free (title);
+                g_free (logo_uri);
             }
             else if (!strcmp (uri, "about:version"))
             {
@@ -4696,9 +4719,9 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
         /* We use an empty label. It's not invisible but at least hard to spot. */
         label = gtk_event_box_new ();
         gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), view->thumb_view, label);
-        g_object_unref (notebook);
         gtk_widget_show (view->thumb_view);
     }
+    g_object_unref (notebook);
     thumb_view = view->thumb_view;
     settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
         "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
@@ -4711,7 +4734,7 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
 }
 
 /**
- * midori_view_speed_dial_save
+ * midori_view_speed_dial_get_thumb
  * @web_view: a #WebkitView
  * @message: Console log data
  *
