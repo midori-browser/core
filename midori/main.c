@@ -419,14 +419,6 @@ midori_history_terminate (sqlite3* db,
 #endif
 
 static void
-midori_app_quit_cb (MidoriApp* app)
-{
-    gchar* config_file = build_config_filename ("running");
-    g_unlink (config_file);
-    g_free (config_file);
-}
-
-static void
 settings_notify_cb (MidoriWebSettings* settings,
                     GParamSpec*        pspec,
                     MidoriApp*         app)
@@ -704,6 +696,18 @@ midori_browser_session_cb (MidoriBrowser* browser,
         save_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
             (GSourceFunc)midori_session_save_timeout_cb, session, NULL);
     }
+}
+
+static void
+midori_app_quit_cb (MidoriBrowser* browser,
+                    KatzeArray*    session)
+{
+    gchar* config_file = build_config_filename ("running");
+    g_unlink (config_file);
+    g_free (config_file);
+
+    if (save_timeout && session)
+        midori_session_save_timeout_cb (session);
 }
 
 static void
@@ -1269,6 +1273,8 @@ midori_load_session (gpointer data)
         G_CALLBACK (midori_browser_session_cb), session);
     g_signal_connect_after (browser, "remove-tab",
         G_CALLBACK (midori_browser_session_cb), session);
+    g_signal_connect (app, "quit",
+        G_CALLBACK (midori_app_quit_cb), session);
     g_object_weak_ref (G_OBJECT (session),
         (GWeakNotify)(midori_browser_weak_notify_cb), browser);
 
@@ -1401,7 +1407,7 @@ static void
 signal_handler (int signal_id)
 {
     signal (signal_id, 0);
-    midori_app_quit_cb (NULL);
+    midori_app_quit_cb (NULL, NULL);
     if (kill (getpid (), signal_id))
       exit (1);
 }
@@ -1940,7 +1946,6 @@ main (int    argc,
         gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (dialog);
     }
-    g_signal_connect (app, "quit", G_CALLBACK (midori_app_quit_cb), NULL);
     midori_startup_timer ("Signal setup: \t%f");
 
     g_object_set (app, "settings", settings,
