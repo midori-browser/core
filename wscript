@@ -257,8 +257,8 @@ def configure (conf):
         conf.define ('HAVE_NETDB_H', [0,1][conf.check (header_name='netdb.h')])
         conf.check (header_name='sys/wait.h')
         conf.check (header_name='sys/select.h')
-        conf.check (function_name='inet_aton')
-        conf.check (function_name='inet_addr')
+        conf.check (function_name='inet_aton', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
+        conf.check (function_name='inet_addr', header_name='sys/types.h sys/socket.h netinet/in.h arpa/inet.h')
     conf.define ('HAVE_OSX', int(sys.platform == 'darwin'))
     if Options.platform == 'win32':
         conf.env.append_value ('LINKFLAGS', '-mwindows')
