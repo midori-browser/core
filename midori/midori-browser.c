@@ -210,6 +210,12 @@ midori_search_action_get_icon (KatzeItem*    item,
 static void
 _midori_browser_find_done (MidoriBrowser* browser);
 
+static gboolean
+_action_menus_activate_item_alt (GtkAction*     action,
+                                 KatzeItem*     item,
+                                 guint          button,
+                                 MidoriBrowser* browser);
+
 #define _action_by_name(brwsr, nme) \
     gtk_action_group_get_action (brwsr->action_group, nme)
 #define _action_set_sensitive(brwsr, nme, snstv) \
@@ -2874,22 +2880,85 @@ _action_trash_activate_item_alt (GtkAction*     action,
 }
 
 static void
+midori_browser_menu_item_activate_cb (GtkWidget*     menuitem,
+                                      MidoriBrowser* browser)
+{
+    KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+    midori_browser_set_current_uri (browser, katze_item_get_uri (item));
+}
+
+static gboolean
+midori_browser_menu_item_button_press_cb (GtkWidget*      menuitem,
+                                          GdkEventButton* event,
+                                          MidoriBrowser*  browser)
+{
+    KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+    return _action_menus_activate_item_alt (NULL, item, event->button, browser);
+}
+
+static void
 _action_history_populate_popup (GtkAction*     action,
                                 GtkMenu*       menu,
                                 MidoriBrowser* browser)
 {
-    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
-    guint i = 0;
-    GtkWidget* menuitem;
+    #if HAVE_SQLITE
+    sqlite3* db;
+    sqlite3_stmt* statement;
+    gint result;
+    const gchar* sqlcmd;
 
-    while ((menuitem = g_list_nth_data (children, i++)))
+    db = g_object_get_data (G_OBJECT (browser->history), "db");
+    sqlcmd = "SELECT uri, title, date FROM history "
+             "GROUP BY uri ORDER BY date ASC LIMIT 10";
+    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+    if (result != SQLITE_OK)
     {
+        g_print (_("Failed to execute database statement: %s\n"),
+                 sqlite3_errmsg (db));
+        return;
+    }
+
+    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+    {
+        const unsigned char* uri;
+        const unsigned char* title;
+        KatzeItem* item;
+        GtkWidget* menuitem;
+        GdkPixbuf* icon;
+        GtkWidget* image;
+
+        uri = sqlite3_column_text (statement, 0);
+        title = sqlite3_column_text (statement, 1);
+
+        item = katze_item_new ();
+        katze_item_set_uri (item, (gchar*)uri);
+        katze_item_set_name (item, (gchar*)title);
+
+        menuitem = katze_image_menu_item_new_ellipsized ((gchar*)title);
+        icon = katze_load_cached_icon ((gchar*)uri, GTK_WIDGET (browser));
+        image = gtk_image_new_from_pixbuf (icon);
+        g_object_unref (icon);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
+        #if GTK_CHECK_VERSION (2, 16, 0)
+        gtk_image_menu_item_set_always_show_image (
+            GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
+        #endif
+        g_object_set_data_full (G_OBJECT (menuitem), "KatzeItem",
+                                item, (GDestroyNotify)g_object_unref);
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        gtk_widget_show (menuitem);
+
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_browser_menu_item_activate_cb), browser);
+        g_signal_connect (menuitem, "button-press-event",
+            G_CALLBACK (midori_browser_menu_item_button_press_cb), browser);
         g_signal_connect (menuitem, "select",
             G_CALLBACK (midori_browser_menu_item_select_cb), browser);
         g_signal_connect (menuitem, "deselect",
             G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
     }
-    g_list_free (children);
+    sqlite3_finalize (statement);
+    #endif
 }
 
 static void
@@ -5697,8 +5766,6 @@ midori_browser_history_clear_cb (KatzeArray*    history,
                                  MidoriBrowser* browser)
 {
     GtkAction* location_action = _action_by_name (browser, "Location");
-    g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                  "array", NULL, NULL);
     midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
 }
 
@@ -5706,7 +5773,6 @@ static void
 midori_browser_set_history (MidoriBrowser* browser,
                             KatzeArray*    history)
 {
-    KatzeItem* recently_visited;
     time_t now;
     gint64 day;
 
@@ -5720,18 +5786,10 @@ midori_browser_set_history (MidoriBrowser* browser,
     if (history)
         g_object_ref (history);
     katze_object_assign (browser->history, history);
+    g_object_set (_action_by_name (browser, "RecentlyVisited"),
+                  "array", history, NULL);
 
     midori_browser_history_clear_cb (history, browser);
-
-    if (history && ((recently_visited = katze_array_get_nth_item (history,
-        katze_array_get_length (KATZE_ARRAY (history)) - 1))))
-        g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                      "array", recently_visited, "reversed", TRUE,
-                      NULL);
-    else
-        g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                      "array", NULL, "reversed", FALSE,
-                      NULL);
 
     if (!history)
         return;
