@@ -16,6 +16,10 @@
 #include <glib/gi18n.h>
 #include <math.h>
 
+#if !GTK_CHECK_VERSION (2, 18, 0)
+    #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
+#endif
+
 struct _KatzeThrobber
 {
     GtkMisc parent_instance;
@@ -793,16 +797,20 @@ katze_throbber_aligned_coords (GtkWidget* widget,
 {
     gfloat xalign, yalign;
     gint xpad, ypad;
+    GtkAllocation allocation;
+    GtkRequisition requisition;
 
     gtk_misc_get_alignment (GTK_MISC (widget), &xalign, &yalign);
     if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
         xalign = 1.0f - xalign;
     gtk_misc_get_padding (GTK_MISC (widget), &xpad, &ypad);
 
-    *ax = floor (widget->allocation.x + xpad
-        + ((widget->allocation.width - widget->requisition.width) * xalign));
-    *ay = floor (widget->allocation.y + ypad
-        + ((widget->allocation.height - widget->requisition.height) * yalign));
+    gtk_widget_get_allocation (widget, &allocation);
+    gtk_widget_size_request (widget, &requisition);
+    *ax = floor (allocation.x + xpad
+        + ((allocation.width - requisition.width) * xalign));
+    *ay = floor (allocation.y + ypad
+        + ((allocation.height - requisition.height) * yalign));
 }
 
 static gboolean
