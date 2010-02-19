@@ -515,7 +515,7 @@ def build (bld):
                 folder = 'lib' + extension + '.so'
                 source = 'data/extensions/' + extension +  '/config'
                 if os.path.exists (source):
-                    bld.install_files ('${SYSCONFDIR}/' + APPNAME + \
+                    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + \
                                        '/extensions/' + folder, source)
 
     if Options.commands['check']:
