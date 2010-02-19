@@ -31,6 +31,7 @@
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_get_has_window(wdgt) !GTK_WIDGET_NO_WINDOW (wdgt)
+    #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
 #endif
 
 static void
@@ -920,21 +921,24 @@ katze_widget_popup_position_menu (GtkMenu*  menu,
 {
     gint wx, wy;
     gint menu_width;
+    GtkAllocation allocation;
     GtkRequisition menu_req;
     GtkRequisition widget_req;
     KatzePopupInfo* info = user_data;
     GtkWidget* widget = info->widget;
     gint widget_height;
 
+    gtk_widget_get_allocation (widget, &allocation);
+
     /* Retrieve size and position of both widget and menu */
     if (!gtk_widget_get_has_window (widget))
     {
-        gdk_window_get_position (widget->window, &wx, &wy);
-        wx += widget->allocation.x;
-        wy += widget->allocation.y;
+        gdk_window_get_position (gtk_widget_get_window (widget), &wx, &wy);
+        wx += allocation.x;
+        wy += allocation.y;
     }
     else
-        gdk_window_get_origin (widget->window, &wx, &wy);
+        gdk_window_get_origin (gtk_widget_get_window (widget), &wx, &wy);
     gtk_widget_size_request (GTK_WIDGET (menu), &menu_req);
     gtk_widget_size_request (widget, &widget_req);
     menu_width = menu_req.width;
@@ -945,7 +949,7 @@ katze_widget_popup_position_menu (GtkMenu*  menu,
         ; /* Do nothing? */
     else if (info->position == KATZE_MENU_POSITION_RIGHT)
     {
-        *x = wx + widget->allocation.width - menu_width;
+        *x = wx + allocation.width - menu_width;
         *y = wy + widget_height;
     } else if (info->position == KATZE_MENU_POSITION_LEFT)
     {
