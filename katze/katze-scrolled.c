@@ -28,6 +28,12 @@
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
     #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
+    #define gtk_widget_is_drawable GTK_WIDGET_DRAWABLE
+#endif
+#if !GTK_CHECK_VERSION (2, 20, 0)
+    #define gtk_widget_set_realized(wdgt, real) \
+        if (real) GTK_WIDGET_SET_FLAGS (wdgt, GTK_REALIZED); \
+        else GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_REALIZED)
 #endif
 
 #define DEFAULT_INTERVAL 50
@@ -277,7 +283,7 @@ on_expose_event (GtkWidget*      widget,
     KatzeScrolledPrivate* priv = scrolled->priv;
     gboolean ret = FALSE;
 
-    if (GTK_WIDGET_DRAWABLE (widget))
+    if (gtk_widget_is_drawable (widget))
     {
         if (event->window == priv->horizontal_scrollbar_window)
         {
@@ -904,7 +910,7 @@ katze_scrolled_realize (GtkWidget* widget)
     color.red = color.green = color.blue = 0x6666;
     gdk_gc_set_rgb_fg_color (priv->shadow_gc, &color);
 
-    GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+    gtk_widget_set_realized (widget, TRUE);
 }
 
 static void

@@ -29,6 +29,10 @@
     #include <hildon/hildon.h>
 #endif
 
+#if !GTK_CHECK_VERSION (2, 18, 0)
+    #define gtk_widget_get_has_window(wdgt) !GTK_WIDGET_NO_WINDOW (wdgt)
+#endif
+
 static void
 proxy_toggle_button_toggled_cb (GtkToggleButton* button,
                                 GObject*         object)
@@ -923,7 +927,7 @@ katze_widget_popup_position_menu (GtkMenu*  menu,
     gint widget_height;
 
     /* Retrieve size and position of both widget and menu */
-    if (GTK_WIDGET_NO_WINDOW (widget))
+    if (!gtk_widget_get_has_window (widget))
     {
         gdk_window_get_position (widget->window, &wx, &wy);
         wx += widget->allocation.x;

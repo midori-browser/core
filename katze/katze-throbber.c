@@ -18,6 +18,9 @@
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
+    #define gtk_widget_set_has_window(wdgt, wnd) \
+        if (wnd) GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_NO_WINDOW); \
+        else GTK_WIDGET_SET_FLAGS (wdgt, GTK_NO_WINDOW)
 #endif
 
 struct _KatzeThrobber
@@ -202,7 +205,7 @@ katze_throbber_class_init (KatzeThrobberClass* class)
 static void
 katze_throbber_init (KatzeThrobber *throbber)
 {
-    GTK_WIDGET_SET_FLAGS (throbber, GTK_NO_WINDOW);
+    gtk_widget_set_has_window (GTK_WIDGET (throbber), FALSE);
 
     throbber->timer_id = -1;
 }
