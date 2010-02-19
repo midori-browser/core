@@ -29,8 +29,9 @@
     #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
     #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
     #define gtk_widget_is_drawable GTK_WIDGET_DRAWABLE
+    #define gtk_widget_get_drawable GTK_WIDGET_VISIBLE
 #endif
-#if !GTK_CHECK_VERSION (2, 20, 0)
+#if !GTK_CHECK_VERSION (2, 19, 6)
     #define gtk_widget_set_realized(wdgt, real) \
         if (real) GTK_WIDGET_SET_FLAGS (wdgt, GTK_REALIZED); \
         else GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_REALIZED)
@@ -679,18 +680,22 @@ button_press_event (GtkWidget*      widget,
         priv->start_time  = event->time;
     }
 
-    if (priv->scrolling_hints && !GTK_SCROLLED_WINDOW (scrolled)->hscrollbar_visible &&
-        adjust_scrollbar (scrolled, priv->horizontal_scrollbar_window,
-                     gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled)),
-                         &priv->horizontal_scrollbar_size, FALSE))
+    if (priv->scrolling_hints
+        && !gtk_widget_get_visible (gtk_scrolled_window_get_hscrollbar (
+                                    GTK_SCROLLED_WINDOW (scrolled)))
+        && adjust_scrollbar (scrolled, priv->horizontal_scrollbar_window,
+           gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled)),
+               &priv->horizontal_scrollbar_size, FALSE))
     {
         gdk_window_raise (priv->horizontal_scrollbar_window);
         gdk_window_show (priv->horizontal_scrollbar_window);
     }
-    if (priv->scrolling_hints && !GTK_SCROLLED_WINDOW (scrolled)->vscrollbar_visible &&
-        adjust_scrollbar (scrolled, priv->vertical_scrollbar_window,
-                     gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled)),
-                         &priv->vertical_scrollbar_size, TRUE))
+    if (priv->scrolling_hints
+        && !gtk_widget_get_visible (gtk_scrolled_window_get_vscrollbar (
+                                    GTK_SCROLLED_WINDOW (scrolled)))
+        && adjust_scrollbar (scrolled, priv->vertical_scrollbar_window,
+           gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled)),
+               &priv->vertical_scrollbar_size, TRUE))
     {
         gdk_window_raise (priv->vertical_scrollbar_window);
         gdk_window_show (priv->vertical_scrollbar_window);
