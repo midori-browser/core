@@ -23,6 +23,10 @@
     #define gtk_adjustment_get_upper(adj) adj->upper
     #define gtk_adjustment_get_lower(adj) adj->lower
     #define gtk_adjustment_get_value(adj) adj->value
+    #define gtk_widget_get_window(wdgt) wdgt->window
+#endif
+#if !GTK_CHECK_VERSION (2, 18, 0)
+    #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
 #endif
 
 #define DEFAULT_INTERVAL 50
@@ -642,7 +646,8 @@ button_press_event (GtkWidget*      widget,
             g_source_remove (priv->scrolling_timeout_id);
             priv->scrolling_timeout_id = 0;
         }
-        gdk_window_get_pointer (GTK_WIDGET (scrolled)->window, &x, &y, &mask);
+        gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
+                                &x, &y, &mask);
         /* do_motion_scroll (scrolled, widget, x, y, event->time); */
     }
     else
@@ -658,7 +663,8 @@ button_press_event (GtkWidget*      widget,
             priv->dragged = FALSE;
             priv->previous_time = event->time;
         }
-        gdk_window_get_pointer (GTK_WIDGET (scrolled)->window, &x, &y, &mask);
+        gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
+                                &x, &y, &mask);
         priv->start_x = priv->previous_x = priv->farest_x = x;
         priv->start_y = priv->previous_y = priv->farest_y = y;
         priv->start_time  = event->time;
@@ -699,7 +705,8 @@ button_release_event (GtkWidget*      widget,
     gint y;
     GdkModifierType mask;
 
-    gdk_window_get_pointer (GTK_WIDGET (scrolled)->window, &x, &y, &mask);
+    gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
+                            &x, &y, &mask);
     if (priv->press_received &&
         gtk_drag_check_threshold (widget, priv->start_x, priv->start_y, x, y)) {
         priv->dragged = TRUE;
@@ -744,7 +751,8 @@ motion_notify_event (GtkWidget*      widget,
 
     if (priv->press_received)
     {
-        gdk_window_get_pointer (GTK_WIDGET (scrolled)->window, &x, &y, &mask);
+        gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
+                                &x, &y, &mask);
         do_motion_scroll (scrolled, widget, x, y, event->time);
     }
 
@@ -787,7 +795,8 @@ katze_scrolled_event_handler (GdkEvent*           event,
                     crossing.type = GDK_LEAVE_NOTIFY;
                     crossing.window = event->motion.window;
                     crossing.send_event = event->motion.send_event;
-                    crossing.subwindow = GTK_WIDGET (current_scrolled_window)->window;
+                    crossing.subwindow = gtk_widget_get_window (
+                        GTK_WIDGET (current_scrolled_window));
                     crossing.time = event->motion.time;
                     crossing.x = event->motion.x;
                     crossing.y = event->motion.y;
@@ -818,7 +827,8 @@ katze_scrolled_event_handler (GdkEvent*           event,
         crossing.type = GDK_ENTER_NOTIFY;
         crossing.window = event->button.window;
         crossing.send_event = event->button.send_event;
-        crossing.subwindow = GTK_WIDGET (current_scrolled_window)->window;
+        crossing.subwindow = gtk_widget_get_window (
+            GTK_WIDGET (current_scrolled_window));
         crossing.time = event->button.time;
         crossing.x = event->button.x;
         crossing.y = event->button.y;
@@ -852,6 +862,7 @@ katze_scrolled_realize (GtkWidget* widget)
     KatzeScrolledPrivate* priv = scrolled->priv;
     gboolean drag_scrolling;
     GtkPolicyType policy;
+    GdkWindow* window;
     GdkWindowAttr attr;
     GdkColor color;
 
@@ -862,15 +873,16 @@ katze_scrolled_realize (GtkWidget* widget)
     g_object_set (scrolled, "drag-scrolling", drag_scrolling,
         "hscrollbar-policy", policy, "vscrollbar-policy", policy, NULL);
 
-    widget->window = g_object_ref (gtk_widget_get_parent_window (widget));
+    window = g_object_ref (gtk_widget_get_parent_window (widget));
+    gtk_widget_set_window (widget, window);
 
     attr.height = attr.width = 10;
     attr.event_mask = GDK_EXPOSURE_MASK;
     attr.wclass = GDK_INPUT_OUTPUT;
     attr.window_type = GDK_WINDOW_CHILD;
     attr.override_redirect = TRUE;
-    priv->vertical_scrollbar_window = gdk_window_new (widget->window, &attr, 0);
-    priv->horizontal_scrollbar_window = gdk_window_new (widget->window, &attr, 0);
+    priv->vertical_scrollbar_window = gdk_window_new (window, &attr, 0);
+    priv->horizontal_scrollbar_window = gdk_window_new (window, &attr, 0);
 
     gdk_window_set_user_data (priv->vertical_scrollbar_window, widget);
     gdk_window_set_user_data (priv->horizontal_scrollbar_window, widget);
@@ -882,10 +894,10 @@ katze_scrolled_realize (GtkWidget* widget)
     gdk_window_set_background (priv->vertical_scrollbar_window, &color);
     gdk_window_set_background (priv->horizontal_scrollbar_window, &color);
 
-    priv->hilight_gc = gdk_gc_new (widget->window);
+    priv->hilight_gc = gdk_gc_new (window);
     color.red = color.green = color.blue = 0xcccc;
     gdk_gc_set_rgb_fg_color (priv->hilight_gc, &color);
-    priv->shadow_gc = gdk_gc_new (widget->window);
+    priv->shadow_gc = gdk_gc_new (window);
     color.red = color.green = color.blue = 0x6666;
     gdk_gc_set_rgb_fg_color (priv->shadow_gc, &color);
 
