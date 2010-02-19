@@ -691,6 +691,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 {
     const gchar* title;
     GtkWidget* dialog;
+    GtkWidget* content_area;
     GtkSizeGroup* sizegroup;
     GtkWidget* view;
     GtkWidget* hbox;
@@ -716,10 +717,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
         NULL);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (content_area), 5);
     sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     if (!bookmark)
@@ -747,7 +749,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     value = katze_item_get_name (bookmark);
     gtk_entry_set_text (GTK_ENTRY (entry_title), value ? value : "");
     gtk_box_pack_start (GTK_BOX (hbox), entry_title, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -763,7 +765,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_entry_set_text (GTK_ENTRY (entry_desc), value ? value : "");
     }
     gtk_box_pack_start (GTK_BOX (hbox), entry_desc, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     entry_uri = NULL;
@@ -787,7 +789,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         g_signal_connect (entry_uri, "changed",
             G_CALLBACK (midori_browser_edit_bookmark_uri_changed_cb), dialog);
         gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+        gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
     }
 
@@ -831,7 +833,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         if (n < 2)
             gtk_widget_set_sensitive (combo_folder, FALSE);
         gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+        gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
     }
 
@@ -844,7 +846,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_toolbar),
         katze_item_get_meta_string (bookmark, "toolbar") != NULL);
     gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     check_app = NULL;
@@ -859,7 +861,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
             katze_item_get_meta_string (bookmark, "app") != NULL);
         gtk_box_pack_start (GTK_BOX (hbox), check_app, TRUE, TRUE, 0);
-        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+        gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
     }
 
@@ -2357,7 +2359,7 @@ _action_compact_add_activate (GtkAction*     action,
     dialog = g_object_new (GTK_TYPE_DIALOG,
         "transient-for", browser,
         "title", _("Add a new bookmark"), NULL);
-    box = GTK_BOX (GTK_DIALOG (dialog)->vbox);
+    box = GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (dialog)));
 
     for (i = 0; i < G_N_ELEMENTS (actions); i++)
     {
@@ -4437,6 +4439,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     };
 
     GtkWidget* dialog;
+    GtkWidget* content_area;
     GtkSizeGroup* sizegroup;
     GtkWidget* hbox;
     GtkWidget* label;
@@ -4458,10 +4461,11 @@ _action_bookmarks_import_activate (GtkAction*     action,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         _("_Import bookmarks"), GTK_RESPONSE_ACCEPT,
         NULL);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     gtk_window_set_icon_name (GTK_WINDOW (dialog), STOCK_BOOKMARKS);
 
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (content_area), 5);
     sizegroup =  gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -4496,7 +4500,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         0, _("Custom..."), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -4519,7 +4523,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         }
     }
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
     /* FIXME: Importing into a subfolder doesn't work */
     gtk_widget_set_sensitive (combo, FALSE);
@@ -4716,6 +4720,7 @@ _action_clear_private_data_activate (GtkAction*     action,
 
     if (!dialog)
     {
+        GtkWidget* content_area;
         GdkScreen* screen;
         GtkIconTheme* icon_theme;
         GtkSizeGroup* sizegroup;
@@ -4734,6 +4739,7 @@ _action_clear_private_data_activate (GtkAction*     action,
             GTK_DIALOG_NO_SEPARATOR | GTK_DIALOG_DESTROY_WITH_PARENT,
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
+        content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
         screen = gtk_widget_get_screen (GTK_WIDGET (browser));
         if (screen)
@@ -4748,7 +4754,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
         label = gtk_label_new (_("Clear the following data:"));
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
         hbox = gtk_hbox_new (FALSE, 4);
         icon = gtk_image_new ();
         gtk_size_group_add_widget (sizegroup, icon);
@@ -4790,7 +4796,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (alignment), vbox);
         gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);
         button = gtk_check_button_new_with_mnemonic (_("Clear private data when _quitting Midori"));
         if ((clear_prefs & MIDORI_CLEAR_ON_QUIT) == MIDORI_CLEAR_ON_QUIT)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
@@ -4799,8 +4805,8 @@ _action_clear_private_data_activate (GtkAction*     action,
         alignment = gtk_alignment_new (0, 0, 1, 1);
         gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 0, 2, 0);
         gtk_container_add (GTK_CONTAINER (alignment), button);
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), alignment, FALSE, FALSE, 0);
-        gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
+        gtk_box_pack_start (GTK_BOX (content_area), alignment, FALSE, FALSE, 0);
+        gtk_widget_show_all (content_area);
 
         g_signal_connect (dialog, "response",
             G_CALLBACK (midori_browser_clear_private_data_response_cb), browser);
