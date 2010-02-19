@@ -27,6 +27,7 @@
 #endif
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
+    #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
 #endif
 
 #define DEFAULT_INTERVAL 50
@@ -320,6 +321,7 @@ adjust_scrollbar (KatzeScrolled* scrolled,
     gint x, y;
     gint size;
     double position;
+    GtkAllocation allocation;
     GtkWidget* window;
 
     page_size = gtk_adjustment_get_page_size (adjustment);
@@ -333,8 +335,9 @@ adjust_scrollbar (KatzeScrolled* scrolled,
         return FALSE;
     }
 
+    gtk_widget_get_allocation (widget, &allocation);
     size = page_size / (upper - lower)
-        * (horizontal ? widget->allocation.height : widget->allocation.width);
+        * (horizontal ? allocation.height : allocation.width);
     if (size != *previous_size)
     {
         *previous_size = size;
@@ -363,13 +366,13 @@ adjust_scrollbar (KatzeScrolled* scrolled,
     if (horizontal)
     {
         gtk_widget_translate_coordinates (widget, window,
-            widget->allocation.width - 20, position * widget->allocation.height, &x, &y);
+            allocation.width - 20, position * allocation.height, &x, &y);
         gdk_window_move (scrollbar_window, x, y);
     }
     else
     {
         gtk_widget_translate_coordinates (widget, window,
-            position * widget->allocation.width, widget->allocation.height - 20, &x, &y);
+            position * allocation.width, allocation.height - 20, &x, &y);
         gdk_window_move (scrollbar_window, x, y);
     }
 
