@@ -335,10 +335,8 @@ static gboolean
 midori_location_action_popup_timeout_cb (gpointer data)
 {
     MidoriLocationAction* action = data;
-    static GtkTreeModel* model = NULL;
     GtkTreeViewColumn* column;
     GtkListStore* store;
-    sqlite3* db;
     gint result;
     static sqlite3_stmt* stmt;
     const gchar* sqlcmd;
@@ -353,9 +351,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
         return FALSE;
     }
 
-    db = g_object_get_data (G_OBJECT (action->history), "db");
     if (!stmt)
     {
+        sqlite3* db;
+        db = g_object_get_data (G_OBJECT (action->history), "db");
         sqlcmd = "SELECT uri, title FROM history WHERE uri LIKE ? OR title LIKE ?"
                  " GROUP BY uri ORDER BY count() DESC LIMIT ?";
         sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
@@ -367,7 +366,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     result = sqlite3_step (stmt);
     if (result != SQLITE_ROW && !action->search_engines)
     {
-        g_print (_("Failed to select from history: %s\n"), sqlite3_errmsg (db));
+        g_print (_("Failed to select from history\n"));
         sqlite3_reset (stmt);
         sqlite3_clear_bindings (stmt);
         midori_location_action_popdown_completion (action);
@@ -376,6 +375,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
     if (G_UNLIKELY (!action->popup))
     {
+        GtkTreeModel* model = NULL;
         GtkWidget* popup;
         GtkWidget* scrolled;
         GtkWidget* treeview;
@@ -425,7 +425,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             G_CALLBACK (gtk_widget_destroyed), &action->popup);
     }
 
-    store = GTK_LIST_STORE (model);
+    store = GTK_LIST_STORE (action->completion_model);
     gtk_list_store_clear (store);
 
     matches = searches = 0;
@@ -1147,7 +1147,6 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
 {
     #if HAVE_SQLITE
     GtkListStore* store;
-    sqlite3* db;
     gint result;
     const gchar* sqlcmd;
     static sqlite3_stmt* stmt;
@@ -1156,9 +1155,10 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
     store = GTK_LIST_STORE (gtk_combo_box_get_model (combo_box));
     gtk_list_store_clear (store);
 
-    db = g_object_get_data (G_OBJECT (location_action->history), "db");
     if (!stmt)
     {
+        sqlite3* db;
+        db = g_object_get_data (G_OBJECT (location_action->history), "db");
         sqlcmd = "SELECT uri, title FROM history"
                  " GROUP BY uri ORDER BY count() DESC LIMIT ?";
         sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
@@ -1168,8 +1168,7 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
     result = sqlite3_step (stmt);
     if (result != SQLITE_ROW)
     {
-        g_print (_("Failed to execute database statement: %s\n"),
-                 sqlite3_errmsg (db));
+        g_print (_("Failed to execute database statement\n"));
         sqlite3_reset (stmt);
         sqlite3_clear_bindings (stmt);
         return;
