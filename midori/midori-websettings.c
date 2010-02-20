@@ -1188,7 +1188,7 @@ get_sys_name (void)
     {
         struct utsname name;
         if (uname (&name) != -1)
-            sys_name = g_strdup_printf ("%s %s", name.sysname, name.machine);
+            sys_name = name.sysname;
         else
             sys_name = "Unix";
     }
@@ -1214,15 +1214,10 @@ generate_ident_string (MidoriIdentity identify_as)
 
     const gchar* os =
     #if HAVE_OSX
-    /* #if defined (HAVE_X86) */
-    "Intel Mac OS X";
-    /* #else
-    "PPC Mac OS X";
-    #endif */
+    "Mac OS X";
     #elif defined (G_OS_UNIX)
     get_sys_name ();
     #elif defined (G_OS_WIN32)
-    // FIXME: Windows NT version
     "Windows";
     #else
     "Unknown";
@@ -1230,8 +1225,7 @@ generate_ident_string (MidoriIdentity identify_as)
 
     const gchar* appname = "Midori/"
         G_STRINGIFY (MIDORI_MAJOR_VERSION) "."
-        G_STRINGIFY (MIDORI_MINOR_VERSION) "."
-        G_STRINGIFY (MIDORI_MICRO_VERSION);
+        G_STRINGIFY (MIDORI_MINOR_VERSION);
 
     const gchar* lang = pango_language_to_string (gtk_get_default_language ());
 
