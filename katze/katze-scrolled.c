@@ -30,6 +30,7 @@
     #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
     #define gtk_widget_is_drawable GTK_WIDGET_DRAWABLE
     #define gtk_widget_get_drawable GTK_WIDGET_VISIBLE
+    #define gtk_widget_get_visible(wdgt) GTK_WIDGET_VISIBLE (wdgt)
 #endif
 #if !GTK_CHECK_VERSION (2, 19, 6)
     #define gtk_widget_set_realized(wdgt, real) \
