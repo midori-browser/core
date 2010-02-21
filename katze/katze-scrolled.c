@@ -27,7 +27,7 @@
 #endif
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
-    #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
+    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
     #define gtk_widget_is_drawable GTK_WIDGET_DRAWABLE
     #define gtk_widget_get_drawable GTK_WIDGET_VISIBLE
 #endif

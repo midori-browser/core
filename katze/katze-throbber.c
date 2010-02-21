@@ -17,7 +17,7 @@
 #include <math.h>
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
-    #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
+    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
     #define gtk_widget_set_has_window(wdgt, wnd) \
         if (wnd) GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_NO_WINDOW); \
         else GTK_WIDGET_SET_FLAGS (wdgt, GTK_NO_WINDOW)
