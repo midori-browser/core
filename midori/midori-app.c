@@ -172,7 +172,10 @@ midori_browser_destroy_cb (MidoriBrowser* browser,
     g_signal_emit (app, signals[REMOVE_BROWSER], 0, browser);
     katze_array_remove_item (app->browsers, browser);
     if (!katze_array_is_empty (app->browsers))
+    {
+        app->browser = katze_array_get_nth_item (app->browsers, 0);
         return FALSE;
+    }
     midori_app_quit (app);
     return TRUE;
 }
