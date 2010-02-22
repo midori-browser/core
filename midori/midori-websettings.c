@@ -1188,7 +1188,7 @@ get_sys_name (void)
     {
         struct utsname name;
         if (uname (&name) != -1)
-            sys_name = name.sysname;
+            sys_name = g_strdup(name.sysname);
         else
             sys_name = "Unix";
     }
