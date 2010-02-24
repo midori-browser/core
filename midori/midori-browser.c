@@ -3853,6 +3853,12 @@ _action_location_submit_uri (GtkAction*     action,
         gchar** parts;
         gchar* keywords = NULL;
         const gchar* search_uri = NULL;
+        #if HAVE_SQLITE
+        time_t now;
+        gint64 day;
+        sqlite3* db;
+        static sqlite3_stmt* statement = NULL;
+        #endif
 
         /* Do we have a keyword and a string? */
         parts = g_strsplit (stripped_uri, " ", 2);
@@ -3875,6 +3881,28 @@ _action_location_submit_uri (GtkAction*     action,
             search_uri = browser->location_entry_search;
         }
         new_uri = sokoke_search_uri (search_uri, keywords);
+
+        #if HAVE_SQLITE
+        now = time (NULL);
+        day = sokoke_time_t_to_julian (&now);
+
+        db = g_object_get_data (G_OBJECT (browser->history), "db");
+        if (!statement)
+        {
+            const gchar* sqlcmd;
+            sqlcmd = "INSERT INTO search (keywords, uri, day) VALUES (?,?,?)";
+            sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &statement, NULL);
+        }
+        sqlite3_bind_text (statement, 1, keywords, -1, 0);
+        sqlite3_bind_text (statement, 2, search_uri, -1, 0);
+        sqlite3_bind_int64 (statement, 3, day);
+
+        if (sqlite3_step (statement) != SQLITE_DONE)
+            g_printerr (_("Failed to insert new history item: %s\n"),
+                        sqlite3_errmsg (db));
+        sqlite3_reset (statement);
+        sqlite3_clear_bindings (statement);
+        #endif
 
         g_free (keywords);
     }

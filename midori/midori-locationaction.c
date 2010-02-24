@@ -87,6 +87,7 @@ enum
     VISIBLE_COL,
     YALIGN_COL,
     BACKGROUND_COL,
+    STYLE_COL,
     N_COLS
 };
 
@@ -268,7 +269,8 @@ midori_location_action_create_model (void)
 {
     GtkTreeModel* model = (GtkTreeModel*) gtk_list_store_new (N_COLS,
         GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING,
-        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT, GDK_TYPE_COLOR);
+        G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_FLOAT,
+        GDK_TYPE_COLOR, G_TYPE_BOOLEAN);
     return model;
 }
 
@@ -341,6 +343,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     static sqlite3_stmt* stmt;
     const gchar* sqlcmd;
     gint matches, searches, height, screen_height, sep;
+    GtkStyle* style;
 
     if (!gtk_widget_has_focus (action->entry) || !action->history)
         return FALSE;
@@ -355,13 +358,16 @@ midori_location_action_popup_timeout_cb (gpointer data)
     {
         sqlite3* db;
         db = g_object_get_data (G_OBJECT (action->history), "db");
-        sqlcmd = "SELECT uri, title FROM history WHERE uri LIKE ? OR title LIKE ?"
-                 " GROUP BY uri ORDER BY count() DESC LIMIT ?";
-        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
+        sqlcmd = "SELECT type, uri, title, count() AS ct FROM history_view "
+                 "WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "
+                 "UNION ALL "
+                 "SELECT type, uri, title, count() AS ct FROM search_view "
+                 "WHERE title LIKE ?1 GROUP BY uri "
+                 "ORDER BY ct DESC LIMIT ?2";
+        sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
     }
     sqlite3_bind_text (stmt, 1, g_strdup_printf ("%%%s%%", action->key), -1, g_free);
-    sqlite3_bind_text (stmt, 2, g_strdup_printf ("%%%s%%", action->key), -1, g_free);
-    sqlite3_bind_int64 (stmt, 3, MAX_ITEMS);
+    sqlite3_bind_int64 (stmt, 2, MAX_ITEMS);
 
     result = sqlite3_step (stmt);
     if (result != SQLITE_ROW && !action->search_engines)
@@ -429,16 +435,30 @@ midori_location_action_popup_timeout_cb (gpointer data)
     gtk_list_store_clear (store);
 
     matches = searches = 0;
+    style = gtk_widget_get_style (action->treeview);
     while (result == SQLITE_ROW)
     {
-        const unsigned char* uri = sqlite3_column_text (stmt, 0);
-        const unsigned char* title = sqlite3_column_text (stmt, 1);
+        sqlite3_int64 type = sqlite3_column_int64 (stmt, 0);
+        const unsigned char* uri = sqlite3_column_text (stmt, 1);
+        const unsigned char* title = sqlite3_column_text (stmt, 2);
         GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
         if (!icon)
             icon = action->default_icon;
-        gtk_list_store_insert_with_values (store, NULL, matches,
-            URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
-            FAVICON_COL, icon, -1);
+        if (type == 1 /* history_view */)
+            gtk_list_store_insert_with_values (store, NULL, matches,
+                URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+                FAVICON_COL, icon, -1);
+        else if (type == 2 /* search_view */)
+        {
+            gchar* search_uri = sokoke_search_uri ((gchar*)uri, (gchar*)title);
+            gchar* search_title = g_strdup_printf (_("Search for %s"), title);
+            gtk_list_store_insert_with_values (store, NULL, matches,
+                URI_COL, search_uri, TITLE_COL, search_title, YALIGN_COL, 0.25,
+                STYLE_COL, 1, FAVICON_COL, icon, -1);
+            g_free (search_uri);
+            g_free (search_title);
+        }
+
         matches++;
         result = sqlite3_step (stmt);
     }
@@ -453,15 +473,13 @@ midori_location_action_popup_timeout_cb (gpointer data)
         {
             gchar* uri;
             gchar* title;
-            GtkStyle* style;
 
             uri = sokoke_search_uri (katze_item_get_uri (item), action->key);
             title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
-            style = gtk_widget_get_style (action->treeview);
             gtk_list_store_insert_with_values (store, NULL, matches + i,
                 URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
                 BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
-                FAVICON_COL, NULL, -1);
+                STYLE_COL, 1, FAVICON_COL, NULL, -1);
             g_free (uri);
             g_free (title);
             i++;
@@ -1018,6 +1036,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* uri;
     gchar* title;
     GdkColor* background;
+    gboolean style;
     gchar* desc;
     gchar* desc_uri;
     gchar* desc_title;
@@ -1030,9 +1049,9 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     size_t len;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
-        BACKGROUND_COL, &background, -1);
+        BACKGROUND_COL, &background, STYLE_COL, &style, -1);
 
-    if (background != NULL) /* A search engine action */
+    if (style) /* A search engine action */
     {
         g_object_set (renderer, "text", title,
             "ellipsize-set", TRUE, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
