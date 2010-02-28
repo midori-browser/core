@@ -210,9 +210,12 @@ midori_history_read_from_db (MidoriHistory* history,
     {
         gchar* filterstr;
 
-        sqlcmd = "SELECT uri, title, date "
-                 "FROM history WHERE uri LIKE ? or title LIKE ? "
-                 "GROUP BY uri ORDER BY date ASC";
+        sqlcmd = "SELECT uri, title, day FROM history_view "
+                 "WHERE uri LIKE ? or title LIKE ? GROUP BY uri "
+                 "UNION ALL "
+                 "SELECT replace(uri, '%s', title) AS uri, title, day "
+                 "FROM search_view WHERE title LIKE ?1 GROUP BY uri "
+                 "ORDER BY day ASC";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
         filterstr = g_strdup_printf ("%%%s%%", filter);
         sqlite3_bind_text (statement, 1, filterstr, -1, g_free);

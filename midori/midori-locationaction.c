@@ -361,7 +361,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         sqlcmd = "SELECT type, uri, title, count() AS ct FROM history_view "
                  "WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "
                  "UNION ALL "
-                 "SELECT type, uri, title, count() AS ct FROM search_view "
+                 "SELECT type, replace(uri, '%s', title) AS uri, title, count() AS ct FROM search_view "
                  "WHERE title LIKE ?1 GROUP BY uri "
                  "ORDER BY ct DESC LIMIT ?2";
         sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
@@ -450,12 +450,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
                 FAVICON_COL, icon, -1);
         else if (type == 2 /* search_view */)
         {
-            gchar* search_uri = sokoke_search_uri ((gchar*)uri, (gchar*)title);
             gchar* search_title = g_strdup_printf (_("Search for %s"), title);
             gtk_list_store_insert_with_values (store, NULL, matches,
-                URI_COL, search_uri, TITLE_COL, search_title, YALIGN_COL, 0.25,
+                URI_COL, uri, TITLE_COL, search_title, YALIGN_COL, 0.25,
                 STYLE_COL, 1, FAVICON_COL, icon, -1);
-            g_free (search_uri);
             g_free (search_title);
         }
 

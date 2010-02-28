@@ -373,9 +373,9 @@ midori_history_initialize (KatzeArray*  array,
                       "CREATE TABLE IF NOT EXISTS "
                       "search (keywords text, uri text, day integer);"
                       "CREATE TEMP VIEW history_view AS SELECT "
-                      "1 AS type, uri, title FROM history;"
+                      "1 AS type, uri, title, day FROM history;"
                       "CREATE TEMP VIEW search_view AS SELECT "
-                      "2 AS type, uri, keywords AS title FROM search;",
+                      "2 AS type, uri, keywords AS title, day FROM search;",
                       NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
 
