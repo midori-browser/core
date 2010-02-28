@@ -3647,6 +3647,32 @@ _action_fullscreen_activate (GtkAction*     action,
         gtk_window_fullscreen (GTK_WINDOW (browser));
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 4)
+static void
+_action_scroll_somewhere_activate (GtkAction*     action,
+                                   MidoriBrowser* browser)
+{
+    GtkWidget* view;
+    WebKitWebView* web_view;
+    const gchar* name;
+
+    view = midori_browser_get_current_tab (browser);
+    if (!view)
+        return;
+    web_view = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view)));
+    name = gtk_action_get_name (action);
+
+    if (g_str_equal (name, "ScrollLeft"))
+        webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, -1);
+    if (g_str_equal (name, "ScrollDown"))
+        webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_DISPLAY_LINES, 1);
+    else if (g_str_equal (name, "ScrollUp"))
+        webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_DISPLAY_LINES, -1);
+    else if (g_str_equal (name, "ScrollRight"))
+        webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, 1);
+}
+#endif
+
 static void
 _action_back_activate (GtkAction*     action,
                        MidoriBrowser* browser)
@@ -5366,6 +5392,20 @@ static const GtkActionEntry entries[] = {
  { "Fullscreen", GTK_STOCK_FULLSCREEN,
    NULL, "F11",
    N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
+ #if WEBKIT_CHECK_VERSION (1, 1, 4)
+ { "ScrollLeft", NULL,
+   N_("Scroll _Left"), "h",
+   N_("Scroll to the left"), G_CALLBACK (_action_scroll_somewhere_activate) },
+ { "ScrollDown", NULL,
+   N_("Scroll _Down"), "j",
+   N_("Scroll down"), G_CALLBACK (_action_scroll_somewhere_activate) },
+ { "ScrollUp", NULL,
+   N_("Scroll _Up"), "k",
+   N_("Scroll up"), G_CALLBACK (_action_scroll_somewhere_activate) },
+ { "ScrollRight", NULL,
+   N_("Scroll _Right"), "l",
+   N_("Scroll to the right"), G_CALLBACK (_action_scroll_somewhere_activate) },
+ #endif
 
  { "Go", NULL, N_("_Go") },
  { "Back", GTK_STOCK_GO_BACK,
@@ -5692,6 +5732,10 @@ static const gchar* ui_markup =
    /* For accelerators to work all actions need to be used
      *somewhere* in the UI definition */
    "<menu action='Dummy'>"
+    "<menuitem action='ScrollLeft'/>"
+    "<menuitem action='ScrollDown'/>"
+    "<menuitem action='ScrollUp'/>"
+    "<menuitem action='ScrollRight'/>"
     "<menuitem action='FindPrevious'/>"
     "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='BookmarkFolderAdd'/>"

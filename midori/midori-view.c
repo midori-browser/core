@@ -1385,11 +1385,13 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                                GdkEventKey*   event,
                                MidoriView*    view)
 {
-    guint character = gdk_unicode_to_keyval (event->keyval);
+    guint character;
 
     if (event->keyval == '.' || event->keyval == '/' || event->keyval == GDK_KP_Divide)
         character = '\0';
-    else if (!view->find_while_typing)
+    else if (view->find_while_typing)
+        character = gdk_unicode_to_keyval (event->keyval);
+    else
         return FALSE;
 
     /* Skip control characters */
