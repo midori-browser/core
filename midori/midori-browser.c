@@ -3001,9 +3001,14 @@ _action_bookmarks_populate_popup (GtkAction*     action,
         gtk_widget_show (menuitem);
     }
     menuitem = gtk_action_create_menu_item (
+        _action_by_name (browser, "BookmarksExport"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "BookmarksImport"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
+
     menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "BookmarkFolderAdd"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
@@ -4636,6 +4641,36 @@ _action_bookmarks_import_activate (GtkAction*     action,
 }
 
 static void
+_action_bookmarks_export_activate (GtkAction*     action,
+                                   MidoriBrowser* browser)
+{
+    GtkWidget* file_dialog;
+    gchar* path = NULL;
+    GError* error;
+
+    file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
+        GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+                                       "bookmarks.xbel");
+    if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
+        path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
+    gtk_widget_destroy (file_dialog);
+
+    if (path == NULL)
+        return;
+
+    error = NULL;
+    if (!midori_array_to_file (browser->bookmarks, path, "xbel", &error))
+    {
+        sokoke_message_dialog (GTK_MESSAGE_ERROR,
+            _("Failed to export bookmarks"), error ? error->message : "");
+        if (error)
+            g_error_free (error);
+    }
+    g_free (path);
+}
+
+static void
 _action_manage_search_engines_activate (GtkAction*     action,
                                         MidoriBrowser* browser)
 {
@@ -5441,6 +5476,9 @@ static const GtkActionEntry entries[] = {
  { "BookmarksImport", NULL,
    N_("_Import bookmarks"), "",
    NULL, G_CALLBACK (_action_bookmarks_import_activate) },
+ { "BookmarksExport", NULL,
+   N_("_Export bookmarks"), "",
+   NULL, G_CALLBACK (_action_bookmarks_export_activate) },
  { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
    N_("_Manage Search Engines"), "<Ctrl><Alt>s",
    N_("Add, edit and remove search engines..."),
@@ -5740,6 +5778,7 @@ static const gchar* ui_markup =
     "<menuitem action='BookmarkAdd'/>"
     "<menuitem action='BookmarkFolderAdd'/>"
     "<menuitem action='BookmarksImport'/>"
+    "<menuitem action='BookmarksExport'/>"
     "<menuitem action='ManageSearchEngines'/>"
     "<menuitem action='ClearPrivateData'/>"
     "<menuitem action='TabPrevious'/>"
