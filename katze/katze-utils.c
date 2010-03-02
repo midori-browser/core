@@ -31,7 +31,7 @@
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_get_has_window(wdgt) !GTK_WIDGET_NO_WINDOW (wdgt)
-    #define gtk_widget_get_allocation (wdgt, alloc) *alloc = wdgt->allocation
+    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
 #endif
 
 static void
