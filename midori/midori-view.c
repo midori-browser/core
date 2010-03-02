@@ -1324,6 +1324,11 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                     }
                     katze_assign (uri, new_uri);
                 }
+                else if (!strstr (uri, "://"))
+                {
+                    g_free (uri);
+                    return FALSE;
+                }
 
                 if (MIDORI_MOD_NEW_TAB (event->state))
                 {
@@ -1337,8 +1342,8 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                     midori_view_set_uri (MIDORI_VIEW (view), uri);
                     gtk_widget_grab_focus (GTK_WIDGET (view));
                 }
+                g_free (uri);
                 return TRUE;
-            g_free (uri);
             }
         }
         break;
