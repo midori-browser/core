@@ -342,7 +342,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
     gint result;
     static sqlite3_stmt* stmt;
     const gchar* sqlcmd;
-    gint matches, searches, height, screen_height, sep;
+    gint matches, searches, height, screen_height, browser_height, sep;
+    MidoriBrowser* browser = midori_browser_get_for_widget (action->entry);
     GtkStyle* style;
 
     if (!gtk_widget_has_focus (action->entry) || !action->history)
@@ -497,10 +498,12 @@ midori_location_action_popup_timeout_cb (gpointer data)
     column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
     gtk_tree_view_column_cell_get_size (column, NULL, NULL, NULL, NULL, &height);
     screen_height = gdk_screen_get_height (gtk_widget_get_screen (action->popup));
+    gtk_window_get_size (GTK_WINDOW (browser), NULL, &browser_height);
+    screen_height = MIN (MIN (browser_height, screen_height / 1.5), screen_height / 1.5);
     gtk_widget_style_get (action->treeview, "vertical-separator", &sep, NULL);
     /* FIXME: Instead of 1.5 we should relate to the height of one line */
     height = MIN (matches * height + (matches + searches) * sep
-                                   + searches * height / 1.5, screen_height / 1.5);
+                                   + searches * height / 1.5, screen_height);
     gtk_widget_set_size_request (action->treeview, -1, height);
     midori_location_action_popup_position (action->popup, action->entry);
     gtk_widget_show_all (action->popup);
