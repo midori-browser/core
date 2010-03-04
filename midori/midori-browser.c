@@ -7333,6 +7333,10 @@ midori_browser_add_item (MidoriBrowser* browser,
     midori_view_set_uri (MIDORI_VIEW (view), uri);
     gtk_widget_show (view);
 
+    /* FIXME: We should have public API for that */
+    if (g_object_get_data (G_OBJECT (item), "midori-view-append"))
+        g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
+
     page = midori_browser_add_tab (browser, view);
     proxy_item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     if ((keys = katze_item_get_meta_keys (item)))

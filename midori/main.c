@@ -1261,7 +1261,10 @@ midori_load_session (gpointer data)
     session = midori_browser_get_proxy_array (browser);
     i = 0;
     while ((item = katze_array_get_nth_item (_session, i++)))
+    {
+        g_object_set_data (G_OBJECT (item), "midori-view-append", (void*)1);
         midori_browser_add_item (browser, item);
+    }
     current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");
     if (current < 0)
         current = 0;
