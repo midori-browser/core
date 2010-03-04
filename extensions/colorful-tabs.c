@@ -80,6 +80,8 @@ colorful_tabs_deactivate_cb (MidoriExtension* extension,
     g_signal_handlers_disconnect_by_func (
         app, colorful_tabs_app_add_browser_cb, extension);
     g_signal_handlers_disconnect_by_func (
+        browser, colorful_tabs_browser_add_tab_cb, extension);
+    g_signal_handlers_disconnect_by_func (
         extension, colorful_tabs_deactivate_cb, browser);
     i = 0;
     while ((view = midori_browser_get_nth_tab (browser, i++)))
