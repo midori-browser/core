@@ -297,7 +297,7 @@ def configure (conf):
                 '-Wno-missing-field-initializers '
                 '-Wredundant-decls -Wmissing-noreturn '
                 '-Wshadow -Wpointer-arith -Wcast-align '
-                '-Winline -Wformat-security '
+                '-Winline -Wformat-security -Wunreachable-code '
                 '-Winit-self -Wundef -Wdeclaration-after-statement '
                 '-Wmissing-format-attribute -Wnested-externs '
             # -DGSEAL_ENABLE
