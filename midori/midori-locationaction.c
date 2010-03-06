@@ -343,10 +343,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
     static sqlite3_stmt* stmt;
     const gchar* sqlcmd;
     gint matches, searches, height, screen_height, browser_height, sep;
-    MidoriBrowser* browser = midori_browser_get_for_widget (action->entry);
+    MidoriBrowser* browser;
     GtkStyle* style;
 
-    if (!gtk_widget_has_focus (action->entry) || !action->history)
+    if (!action->entry || !gtk_widget_has_focus (action->entry) || !action->history)
         return FALSE;
 
     if (!(action->key && *action->key))
@@ -495,6 +495,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         gtk_tree_view_columns_autosize (GTK_TREE_VIEW (action->treeview));
     }
 
+    browser = midori_browser_get_for_widget (action->entry);
     column = gtk_tree_view_get_column (GTK_TREE_VIEW (action->treeview), 0);
     gtk_tree_view_column_cell_get_size (column, NULL, NULL, NULL, NULL, &height);
     screen_height = gdk_screen_get_height (gtk_widget_get_screen (action->popup));
