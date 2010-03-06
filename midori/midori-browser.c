@@ -4648,6 +4648,9 @@ _action_bookmarks_export_activate (GtkAction*     action,
     gchar* path = NULL;
     GError* error;
 
+    if (!browser->bookmarks || !GTK_WIDGET_VISIBLE (browser))
+        return;
+
     file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
