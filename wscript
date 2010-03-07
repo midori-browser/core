@@ -25,7 +25,7 @@ import misc
 
 major = 0
 minor = 2
-micro = 3
+micro = 4
 
 APPNAME = 'midori'
 VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
