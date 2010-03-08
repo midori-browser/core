@@ -379,7 +379,10 @@ def write_linguas_file (self):
     else:
         podir = '../po'
     if 'LINGUAS' in Build.bld.env:
-        linguas = Build.bld.env['LINGUAS']
+        files = Build.bld.env['LINGUAS']
+        for f in files.split (' '):
+            if os.path.exists (podir + '/' + f + '.po'):
+                linguas += f + ' '
     else:
         files = os.listdir (podir)
         for f in files:
