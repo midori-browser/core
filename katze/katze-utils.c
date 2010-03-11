@@ -85,6 +85,7 @@ proxy_combo_box_text_changed_cb (GtkComboBox* button,
     gchar* text = gtk_combo_box_get_active_text (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, text, NULL);
+    g_free (text);
 }
 
 static const gchar*
