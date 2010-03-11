@@ -67,6 +67,7 @@ struct _MidoriView
     gchar* title;
     gchar* mime_type;
     GdkPixbuf* icon;
+    gchar* icon_uri;
     gdouble progress;
     MidoriLoadStatus load_status;
     gboolean minimized;
@@ -103,6 +104,7 @@ struct _MidoriView
     gboolean back_forward_set;
 
     KatzeNet* net;
+    GHashTable* memory;
 };
 
 struct _MidoriViewClass
@@ -713,11 +715,184 @@ midori_view_icon_cb (GdkPixbuf*  icon,
     midori_view_update_icon (view, icon);
 }
 
+typedef void (*KatzeNetIconCb) (GdkPixbuf*  icon,
+                                MidoriView* view);
+
+typedef struct
+{
+    gchar* icon_file;
+    KatzeNetIconCb icon_cb;
+    MidoriView* view;
+    gpointer user_data;
+} KatzeNetIconPriv;
+
+void
+katze_net_icon_priv_free (KatzeNetIconPriv* priv)
+{
+    g_free (priv->icon_file);
+    g_free (priv);
+}
+
+gboolean
+katze_net_icon_status_cb (KatzeNetRequest*  request,
+                          KatzeNetIconPriv* priv)
+{
+    switch (request->status)
+    {
+    case KATZE_NET_VERIFIED:
+        if (request->mime_type &&
+            !g_str_has_prefix (request->mime_type, "image/"))
+        {
+            katze_net_icon_priv_free (priv);
+            return FALSE;
+        }
+        break;
+    case KATZE_NET_MOVED:
+        break;
+    default:
+        katze_net_icon_priv_free (priv);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+void
+katze_net_icon_transfer_cb (KatzeNetRequest*  request,
+                            KatzeNetIconPriv* priv)
+{
+    GdkPixbuf* pixbuf;
+    FILE* fp;
+    GdkPixbuf* pixbuf_scaled;
+    gint icon_width, icon_height;
+    size_t ret;
+    GtkSettings* settings;
+
+    if (request->status == KATZE_NET_MOVED)
+        return;
+
+    pixbuf = NULL;
+    if (request->data)
+    {
+        if ((fp = fopen (priv->icon_file, "wb")))
+        {
+            ret = fwrite (request->data, 1, request->length, fp);
+            fclose (fp);
+            if ((ret - request->length) != 0)
+            {
+                g_warning ("Error writing to file %s "
+                           "in katze_net_icon_transfer_cb()", priv->icon_file);
+            }
+            pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
+        }
+        else
+            pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
+                request->length, request->mime_type, NULL);
+        if (pixbuf)
+            g_object_ref (pixbuf);
+        g_hash_table_insert (priv->view->memory,
+            g_strdup (priv->icon_file), pixbuf);
+    }
+
+    if (!priv->icon_cb)
+    {
+        katze_net_icon_priv_free (priv);
+        return;
+    }
+
+    if (!pixbuf)
+    {
+        priv->icon_cb (NULL, priv->user_data);
+        katze_net_icon_priv_free (priv);
+        return;
+    }
+
+    settings = gtk_widget_get_settings (priv->view->web_view);
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                       &icon_width, &icon_height);
+    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
+                                             GDK_INTERP_BILINEAR);
+    g_object_unref (pixbuf);
+
+    priv->icon_cb (pixbuf_scaled, priv->user_data);
+    katze_net_icon_priv_free (priv);
+}
+
+
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
-    GdkPixbuf* pixbuf = katze_net_load_icon (view->net, view->uri,
-        (KatzeNetIconCb)midori_view_icon_cb, NULL, view);
+    GdkPixbuf* pixbuf;
+    KatzeNetIconPriv* priv;
+    gchar* icon_uri;
+    gchar* icon_file;
+    gint icon_width, icon_height;
+    GdkPixbuf* pixbuf_scaled;
+    GtkSettings* settings;
+
+    pixbuf = NULL;
+    icon_uri = g_strdup (view->icon_uri);
+
+    if ((icon_uri && g_str_has_prefix (icon_uri, "http"))
+        || g_str_has_prefix (view->uri, "http"))
+    {
+        if (!icon_uri)
+        {
+            guint i = 8;
+            while (view->uri[i] != '\0' && view->uri[i] != '/')
+                i++;
+            if (view->uri[i] == '/')
+            {
+                icon_uri = g_strdup (view->uri);
+                icon_uri[i] = '\0';
+                icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
+            }
+            else
+                icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
+        }
+
+        icon_file = katze_net_get_cached_path (view->net, icon_uri, "icons");
+        if (g_hash_table_lookup_extended (view->memory,
+                                          icon_file, NULL, (gpointer)&pixbuf))
+        {
+            g_free (icon_file);
+            if (pixbuf)
+            {
+                g_object_ref (pixbuf);
+                katze_assign (view->icon_uri, icon_uri);
+            }
+        }
+        else if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
+        {
+            g_free (icon_file);
+            katze_assign (view->icon_uri, icon_uri);
+        }
+        /* If the called doesn't provide an icon callback,
+           we assume there is no interest in loading an un-cached icon. */
+        else
+        {
+            priv = g_new0 (KatzeNetIconPriv, 1);
+            priv->icon_file = icon_file;
+            priv->icon_cb = (KatzeNetIconCb)midori_view_icon_cb;
+            priv->view = view;
+
+            katze_net_load_uri (view->net, icon_uri,
+                (KatzeNetStatusCb)katze_net_icon_status_cb,
+                (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
+            g_free (icon_uri);
+        }
+    }
+
+    if (pixbuf)
+    {
+        settings = gtk_widget_get_settings (view->web_view);
+        gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
+                                           &icon_width, &icon_height);
+        pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width,
+            icon_height, GDK_INTERP_BILINEAR);
+        g_object_unref (pixbuf);
+        pixbuf = pixbuf_scaled;
+    }
 
     midori_view_update_icon (view, pixbuf);
 }
@@ -785,6 +960,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     uri = webkit_web_frame_get_uri (web_frame);
     g_return_if_fail (uri != NULL);
     katze_assign (view->uri, sokoke_format_uri_for_display (uri));
+    katze_assign (view->icon_uri, NULL);
     if (view->item)
     {
         #if 0
@@ -1100,8 +1276,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                     default_uri = g_strdup (parts[0]);
             }
             else
-                g_object_set_data_full (G_OBJECT (view->net), view->uri,
-                                        g_strdup (*parts), (GDestroyNotify)g_free);
+                katze_assign (view->icon_uri, g_strdup (*parts));
 
             g_strfreev (parts);
             i++;
@@ -2557,6 +2732,13 @@ midori_view_notify_vadjustment_cb (MidoriView* view,
     g_object_unref (vadjustment);
 }
 
+void
+katze_net_object_maybe_unref (gpointer object)
+{
+    if (object)
+        g_object_unref (object);
+}
+
 static void
 midori_view_init (MidoriView* view)
 {
@@ -2564,6 +2746,9 @@ midori_view_init (MidoriView* view)
     view->title = NULL;
     view->mime_type = g_strdup ("");
     view->icon = NULL;
+    view->icon_uri = NULL;
+    view->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
+        g_free, katze_net_object_maybe_unref);
     view->progress = 0.0;
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
@@ -2611,6 +2796,8 @@ midori_view_finalize (GObject* object)
     katze_assign (view->uri, NULL);
     katze_assign (view->title, NULL);
     katze_object_assign (view->icon, NULL);
+    katze_assign (view->icon_uri, NULL);
+    g_hash_table_destroy (view->memory);
     katze_assign (view->statusbar_text, NULL);
     katze_assign (view->link_uri, NULL);
     katze_assign (view->selected_text, NULL);
@@ -3401,11 +3588,13 @@ midori_view_is_blank (MidoriView*  view)
  * midori_view_get_icon:
  * @view: a #MidoriView
  *
- * Retrieves the icon of the view.
+ * Retrieves the icon of the view, or a default icon. See
+ * midori_view_get_icon_uri() if you need to distinguish
+ * the origin of an icon.
  *
  * The returned icon is owned by the @view and must not be modified.
  *
- * Return value: a #GdkPixbuf
+ * Return value: a #GdkPixbuf, or %NULL
  **/
 GdkPixbuf*
 midori_view_get_icon (MidoriView* view)
@@ -3414,6 +3603,31 @@ midori_view_get_icon (MidoriView* view)
 
     return view->icon;
 }
+
+/**
+ * midori_view_get_icon_uri:
+ * @view: a #MidoriView
+ *
+ * Retrieves the address of the icon of the view
+ * if the loaded website has an icon, otherwise
+ * %NULL.
+ * Note that if there is no icon uri, midori_view_get_icon()
+ * will still return a default icon.
+ *
+ * The returned string is owned by the @view and must not be freed.
+ *
+ * Return value: a string, or %NULL
+ *
+ * Since: 0.2.5
+ **/
+const gchar*
+midori_view_get_icon_uri (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
+    return view->icon_uri;
+}
+
 
 /**
  * midori_view_get_display_uri:

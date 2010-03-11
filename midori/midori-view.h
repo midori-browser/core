@@ -93,6 +93,9 @@ GdkPixbuf*
 midori_view_get_icon                   (MidoriView*        view);
 
 const gchar*
+midori_view_get_icon_uri               (MidoriView*        view);
+
+const gchar*
 midori_view_get_link_uri               (MidoriView*        view);
 
 gboolean

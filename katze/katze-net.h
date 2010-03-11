@@ -74,15 +74,10 @@ katze_net_load_uri                       (KatzeNet*          net,
                                           KatzeNetTransferCb transfer_cb,
                                           gpointer           user_data);
 
-typedef void     (*KatzeNetIconCb)       (GdkPixbuf*         icon,
-                                          gpointer           user_data);
-
-GdkPixbuf*
-katze_net_load_icon                      (KatzeNet*          net,
+gchar*
+katze_net_get_cached_path                (KatzeNet*          net,
                                           const gchar*       uri,
-                                          KatzeNetIconCb     icon_cb,
-                                          GtkWidget*         widget,
-                                          gpointer           user_data);
+                                          const gchar*       subfolder);
 
 G_END_DECLS
 

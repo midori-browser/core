@@ -27,7 +27,6 @@ struct _KatzeNet
 {
     GObject parent_instance;
 
-    GHashTable* memory;
     gchar* cache_path;
     guint cache_size;
 
@@ -54,17 +53,8 @@ katze_net_class_init (KatzeNetClass* class)
 }
 
 static void
-katze_net_object_maybe_unref (gpointer object)
-{
-    if (object)
-        g_object_unref (object);
-}
-
-static void
 katze_net_init (KatzeNet* net)
 {
-    net->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                         g_free, katze_net_object_maybe_unref);
     net->cache_path = g_build_filename (g_get_user_cache_dir (),
                                         PACKAGE_NAME, NULL);
 
@@ -76,7 +66,6 @@ katze_net_finalize (GObject* object)
 {
     KatzeNet* net = KATZE_NET (object);
 
-    g_hash_table_destroy (net->memory);
     katze_assign (net->cache_path, NULL);
 
     G_OBJECT_CLASS (katze_net_parent_class)->finalize (object);
@@ -147,7 +136,7 @@ katze_net_priv_free (KatzeNetPriv* priv)
     g_free (priv);
 }
 
-static gchar*
+gchar*
 katze_net_get_cached_path (KatzeNet*    net,
                            const gchar* uri,
                            const gchar* subfolder)
@@ -383,242 +372,3 @@ katze_net_load_uri (KatzeNet*          net,
     g_idle_add ((GSourceFunc)katze_net_default_cb, priv);
 }
 
-typedef struct
-{
-    KatzeNet* net;
-    gchar* icon_file;
-    KatzeNetIconCb icon_cb;
-    GtkWidget* widget;
-    gpointer user_data;
-} KatzeNetIconPriv;
-
-static void
-katze_net_icon_priv_free (KatzeNetIconPriv* priv)
-{
-    g_free (priv->icon_file);
-    if (priv->widget)
-        g_object_unref (priv->widget);
-    g_free (priv);
-}
-
-static gboolean
-katze_net_icon_status_cb (KatzeNetRequest*  request,
-                          KatzeNetIconPriv* priv)
-{
-    switch (request->status)
-    {
-    case KATZE_NET_VERIFIED:
-        if (request->mime_type &&
-            !g_str_has_prefix (request->mime_type, "image/"))
-        {
-            katze_net_icon_priv_free (priv);
-            return FALSE;
-        }
-        break;
-    case KATZE_NET_MOVED:
-        break;
-    default:
-        katze_net_icon_priv_free (priv);
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-static void
-katze_net_icon_transfer_cb (KatzeNetRequest*  request,
-                            KatzeNetIconPriv* priv)
-{
-    GdkPixbuf* pixbuf;
-    FILE* fp;
-    GdkPixbuf* pixbuf_scaled;
-    gint icon_width, icon_height;
-    size_t ret;
-    GtkSettings* settings;
-
-    if (request->status == KATZE_NET_MOVED)
-        return;
-
-    pixbuf = NULL;
-    if (request->data)
-    {
-        if ((fp = fopen (priv->icon_file, "wb")))
-        {
-            ret = fwrite (request->data, 1, request->length, fp);
-            fclose (fp);
-            if ((ret - request->length) != 0)
-            {
-                g_warning ("Error writing to file %s "
-                           "in katze_net_icon_transfer_cb()", priv->icon_file);
-            }
-            pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
-        }
-        else
-            pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
-                request->length, request->mime_type, NULL);
-        if (pixbuf)
-            g_object_ref (pixbuf);
-        g_hash_table_insert (priv->net->memory,
-            g_strdup (priv->icon_file), pixbuf);
-    }
-
-    if (!priv->icon_cb)
-    {
-        katze_net_icon_priv_free (priv);
-        return;
-    }
-
-    if (!pixbuf)
-    {
-        if (priv->widget)
-            pixbuf = gtk_widget_render_icon (priv->widget,
-                GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-        else
-        {
-            priv->icon_cb (NULL, priv->user_data);
-            katze_net_icon_priv_free (priv);
-            return;
-        }
-    }
-
-    if (priv->widget)
-        settings = gtk_widget_get_settings (priv->widget);
-    else
-        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
-
-    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
-                                       &icon_width, &icon_height);
-    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
-                                             GDK_INTERP_BILINEAR);
-    g_object_unref (pixbuf);
-
-    priv->icon_cb (pixbuf_scaled, priv->user_data);
-    katze_net_icon_priv_free (priv);
-}
-
-/**
- * katze_net_load_icon:
- * @net: a #KatzeNet
- * @uri: an URI string, or %NULL
- * @icon_cb: function to call upon completion
- * @widget: a related #GtkWidget, or %NULL
- * @user_data: data to pass to the callback
- *
- * Requests a transfer of an icon for @uri. This is
- * implemented by looking for a favicon.ico, an
- * image according to the file type or even a
- * generated icon. The provided icon is intended
- * for user interfaces and not guaranteed to be
- * the same over multiple requests, plus it may
- * be scaled to fit the menu icon size.
- *
- * Pass a valid #GtkWidget to @widget if you want
- * a themed default icon in case of a missing icon,
- * otherwise %NULL will be returned in that case.
- *
- * The caller is expected to use the returned icon
- * and update it if @icon_cb is called.
- *
- * Depending on whether the icon was previously
- * cached or @uri is a local resource, the returned
- * icon may already be the final one.
- *
- * Note that both the returned #GdkPixbuf and the
- * icon passed to @icon_cb are newly allocated and
- * the caller owns the reference.
- *
- * Since 0.1.2 @widget can be %NULL.
- *
- * Return value: a #GdkPixbuf, or %NULL
- **/
-GdkPixbuf*
-katze_net_load_icon (KatzeNet*      net,
-                     const gchar*   uri,
-                     KatzeNetIconCb icon_cb,
-                     GtkWidget*     widget,
-                     gpointer       user_data)
-{
-    KatzeNetIconPriv* priv;
-    gchar* icon_uri;
-    gchar* icon_file;
-    GdkPixbuf* pixbuf;
-    gint icon_width, icon_height;
-    GdkPixbuf* pixbuf_scaled;
-    GtkSettings* settings;
-
-    g_return_val_if_fail (KATZE_IS_NET (net), NULL);
-    g_return_val_if_fail (!widget || GTK_IS_WIDGET (widget), NULL);
-    g_return_val_if_fail (uri != NULL, NULL);
-
-    pixbuf = NULL;
-    icon_uri = g_strdup (g_object_get_data (G_OBJECT (net), uri));
-    g_object_set_data (G_OBJECT (net), uri, NULL);
-    if ((icon_uri && g_str_has_prefix (icon_uri, "http"))
-        || g_str_has_prefix (uri, "http"))
-    {
-        if (!icon_uri)
-        {
-            guint i = 8;
-            while (uri[i] != '\0' && uri[i] != '/')
-                i++;
-            if (uri[i] == '/')
-            {
-                icon_uri = g_strdup (uri);
-                icon_uri[i] = '\0';
-                icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
-            }
-            else
-                icon_uri = g_strdup_printf ("%s/favicon.ico", uri);
-        }
-
-        icon_file = katze_net_get_cached_path (net, icon_uri, "icons");
-
-        if (g_hash_table_lookup_extended (net->memory,
-                                          icon_file, NULL, (gpointer)&pixbuf))
-        {
-            g_free (icon_file);
-            if (pixbuf)
-                g_object_ref (pixbuf);
-        }
-        else if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
-            g_free (icon_file);
-        /* If the called doesn't provide an icon callback,
-           we assume there is no interest in loading an un-cached icon. */
-        else if (icon_cb)
-        {
-            priv = g_new0 (KatzeNetIconPriv, 1);
-            priv->net = net;
-            priv->icon_file = icon_file;
-            priv->icon_cb = icon_cb;
-            priv->widget = widget ? g_object_ref (widget) : NULL;
-            priv->user_data = user_data;
-
-            katze_net_load_uri (net, icon_uri,
-                (KatzeNetStatusCb)katze_net_icon_status_cb,
-                (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
-        }
-        g_free (icon_uri);
-    }
-
-    if (!pixbuf)
-    {
-        if (widget)
-            pixbuf = gtk_widget_render_icon (widget,
-                GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-        else
-            return NULL;
-    }
-
-    if (widget)
-        settings = gtk_widget_get_settings (widget);
-    else
-        settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
-
-    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
-                                       &icon_width, &icon_height);
-    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height,
-                                             GDK_INTERP_BILINEAR);
-    g_object_unref (pixbuf);
-
-    return pixbuf_scaled;
-}
