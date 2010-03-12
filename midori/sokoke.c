@@ -273,6 +273,7 @@ sokoke_show_uri (GdkScreen*   screen,
                  guint32      timestamp,
                  GError**     error)
 {
+
     #if HAVE_HILDON
     HildonURIAction* action = hildon_uri_get_default_action_by_uri (uri, NULL);
     return hildon_uri_open (uri, action, error);
@@ -351,6 +352,8 @@ sokoke_show_uri (GdkScreen*   screen,
     g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
     g_return_val_if_fail (uri != NULL, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
+
+    sokoke_recursive_fork_protection (uri, TRUE);
 
     #if GTK_CHECK_VERSION (2, 14, 0)
     if (gtk_show_uri (screen, uri, timestamp, error))
@@ -1738,6 +1741,36 @@ sokoke_prefetch_uri (const char* uri)
     }
     soup_uri_free (s_uri);
     return TRUE;
+}
+
+/**
+ * sokoke_recursive_fork_protection
+ * @uri: the URI to check
+ * @set_uri: if TRUE the URI will be saved
+ *
+ * Protects against recursive invokations of the Midori executable
+ * with the same URI.
+ *
+ * As an example, consider having an URI starting with 'tel://'. You
+ * could attempt to open it with sokoke_show_uri. In turn, 'exo-open'
+ * might be called. Now quite possibly 'exo-open' is unable to handle
+ * 'tel://' and might well fall back to 'midori' as default browser.
+ *
+ * To protect against this scenario, call this function with the
+ * URI and %TRUE before calling any external tool.
+ * #MidoriApp calls sokoke_recursive_fork_protection() with %FALSE
+ * and bails out if %FALSE is returned.
+ *
+ * Return value: %TRUE if @uri is new, %FALSE on recursion
+ **/
+gboolean
+sokoke_recursive_fork_protection (const gchar* uri,
+                                  gboolean     set_uri)
+{
+    static gchar* fork_uri = NULL;
+    if (set_uri)
+        katze_assign (fork_uri, g_strdup (uri));
+    return g_strcmp0 (fork_uri, uri) == 0 ? FALSE : TRUE;
 }
 
 /* Provide a new way for SoupSession to assume an 'Accept-Language'

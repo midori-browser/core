@@ -470,14 +470,17 @@ midori_app_command_received (MidoriApp*   app,
                 gchar* fixed_uri = sokoke_magic_uri (*uris);
                 if (!fixed_uri)
                     fixed_uri = g_strdup (*uris);
-                if (first)
+                if (sokoke_recursive_fork_protection (fixed_uri, FALSE))
                 {
-                    midori_browser_set_current_uri (browser, fixed_uri);
-                    first = FALSE;
+                    if (first)
+                    {
+                        midori_browser_set_current_uri (browser, fixed_uri);
+                        first = FALSE;
+                    }
+                    else
+                        midori_browser_set_current_page (browser,
+                            midori_browser_add_uri (browser, fixed_uri));
                 }
-                else
-                    midori_browser_set_current_page (browser,
-                        midori_browser_add_uri (browser, fixed_uri));
                 g_free (fixed_uri);
                 uris++;
             }

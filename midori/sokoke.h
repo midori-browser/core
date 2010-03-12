@@ -226,4 +226,8 @@ sokoke_prefetch_uri                     (const char* uri);
 gchar *
 sokoke_accept_languages                 (const gchar* const * lang_names);
 
+gboolean
+sokoke_recursive_fork_protection        (const gchar*         uri,
+                                         gboolean             set_uri);
+
 #endif /* !__SOKOKE_H__ */
