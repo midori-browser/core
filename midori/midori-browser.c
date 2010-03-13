@@ -3969,9 +3969,10 @@ _action_location_secondary_icon_released (GtkAction*     action,
     if ((view = midori_browser_get_current_tab (browser)))
     {
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+        const gchar* feed;
         if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
             _action_location_submit_uri (action, uri, FALSE, browser);
-        else if ((uri = g_object_get_data (G_OBJECT (view), "news-feeds")))
+        else if ((feed = g_object_get_data (G_OBJECT (view), "news-feeds")))
         {
             KatzeArray* news_feeds;
             KatzeItem* item;
@@ -4014,7 +4015,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
                                     KATZE_MENU_POSITION_RIGHT);
             }
             else
-                midori_browser_subscribe_to_news_feed (browser, uri);
+                midori_browser_subscribe_to_news_feed (browser, feed);
             g_object_unref (news_feeds);
         }
         else
