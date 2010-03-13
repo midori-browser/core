@@ -64,6 +64,7 @@ struct _MidoriView
     KatzeScrolled parent_instance;
 
     gchar* uri;
+    gboolean special;
     gchar* title;
     gchar* mime_type;
     GdkPixbuf* icon;
@@ -904,6 +905,9 @@ midori_view_update_load_status (MidoriView*      view,
     if (view->load_status == load_status)
         return;
 
+    if (load_status == MIDORI_LOAD_FINISHED)
+        view->special = FALSE;
+
     view->load_status = load_status;
     g_object_notify (G_OBJECT (view), "load-status");
 
@@ -931,6 +935,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         }
     }
     /* TODO: Handle more external protocols */
+    view->special = FALSE;
     return FALSE;
 }
 
@@ -1041,9 +1046,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     const gchar* uri = webkit_network_request_get_uri (request);
 
     /* Only apply custom URIs to special pages for security purposes */
-    if (view->uri && *view->uri && strncmp (view->uri, "about:", 6)
-        && !webkit_web_data_source_get_unreachable_uri (
-            webkit_web_frame_get_data_source (web_frame)))
+    if (!view->special)
         return;
 
     if (g_str_has_prefix (uri, "res://"))
@@ -1143,9 +1146,10 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         g_free (message);
         g_free (title);
 
+        view->special = TRUE;
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
         webkit_web_frame_load_alternate_string (web_frame,
-            result, "about:blank", uri);
+            result, uri, uri);
         #else
         webkit_web_frame_load_alternate_string (web_frame,
             result, res_root, uri);
@@ -3372,6 +3376,7 @@ midori_view_set_uri (MidoriView*  view,
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
 
 
+            view->special = TRUE;
             #if WEBKIT_CHECK_VERSION (1, 1, 14)
             webkit_web_frame_load_alternate_string (
                 webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)),
