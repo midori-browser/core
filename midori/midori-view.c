@@ -722,7 +722,7 @@ typedef void (*KatzeNetIconCb) (GdkPixbuf*  icon,
 typedef struct
 {
     gchar* icon_file;
-    KatzeNetIconCb icon_cb;
+    gchar* icon_uri;
     MidoriView* view;
 } KatzeNetIconPriv;
 
@@ -730,6 +730,7 @@ void
 katze_net_icon_priv_free (KatzeNetIconPriv* priv)
 {
     g_free (priv->icon_file);
+    g_free (priv->icon_uri);
     g_free (priv);
 }
 
@@ -740,8 +741,7 @@ katze_net_icon_status_cb (KatzeNetRequest*  request,
     switch (request->status)
     {
     case KATZE_NET_VERIFIED:
-        if (request->mime_type &&
-            !g_str_has_prefix (request->mime_type, "image/"))
+        if (request->mime_type && strncmp (request->mime_type, "image/", 6))
         {
             katze_net_icon_priv_free (priv);
             return FALSE;
@@ -794,15 +794,9 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
             g_strdup (priv->icon_file), pixbuf);
     }
 
-    if (!priv->icon_cb)
-    {
-        katze_net_icon_priv_free (priv);
-        return;
-    }
-
     if (!pixbuf)
     {
-        priv->icon_cb (NULL, priv->view);
+        midori_view_icon_cb (NULL, priv->view);
         katze_net_icon_priv_free (priv);
         return;
     }
@@ -814,7 +808,8 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
                                              GDK_INTERP_BILINEAR);
     g_object_unref (pixbuf);
 
-    priv->icon_cb (pixbuf_scaled, priv->view);
+    katze_assign (priv->view->icon_uri, g_strdup (priv->icon_uri));
+    midori_view_icon_cb (pixbuf_scaled, priv->view);
     katze_net_icon_priv_free (priv);
 }
 
@@ -867,19 +862,16 @@ _midori_web_view_load_icon (MidoriView* view)
             g_free (icon_file);
             katze_assign (view->icon_uri, icon_uri);
         }
-        /* If the called doesn't provide an icon callback,
-           we assume there is no interest in loading an un-cached icon. */
         else
         {
             priv = g_new0 (KatzeNetIconPriv, 1);
             priv->icon_file = icon_file;
-            priv->icon_cb = (KatzeNetIconCb)midori_view_icon_cb;
+            priv->icon_uri = icon_uri;
             priv->view = view;
 
             katze_net_load_uri (view->net, icon_uri,
                 (KatzeNetStatusCb)katze_net_icon_status_cb,
                 (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
-            g_free (icon_uri);
         }
     }
 
