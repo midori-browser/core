@@ -724,7 +724,6 @@ typedef struct
     gchar* icon_file;
     KatzeNetIconCb icon_cb;
     MidoriView* view;
-    gpointer user_data;
 } KatzeNetIconPriv;
 
 void
@@ -803,7 +802,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
 
     if (!pixbuf)
     {
-        priv->icon_cb (NULL, priv->user_data);
+        priv->icon_cb (NULL, priv->view);
         katze_net_icon_priv_free (priv);
         return;
     }
@@ -815,7 +814,7 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
                                              GDK_INTERP_BILINEAR);
     g_object_unref (pixbuf);
 
-    priv->icon_cb (pixbuf_scaled, priv->user_data);
+    priv->icon_cb (pixbuf_scaled, priv->view);
     katze_net_icon_priv_free (priv);
 }
 
