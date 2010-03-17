@@ -640,6 +640,45 @@ gchar* sokoke_search_uri (const gchar* uri,
     return search;
 }
 
+static void
+sokoke_resolve_hostname_cb (SoupAddress *address,
+                            guint        status,
+                            gpointer     data)
+{
+    if (status == SOUP_STATUS_OK)
+        *(gint *)data = 1;
+    else
+        *(gint *)data = 2;
+}
+
+/**
+ * sokoke_resolve_hostname
+ * @hostname: a string typed by a user
+ *
+ * Takes a string that was typed by a user,
+ * resolves the hostname, and returns the status.
+ *
+ * Return value: %TRUE if is a valid host, else %FALSE
+ **/
+gboolean
+sokoke_resolve_hostname (const gchar* hostname)
+{
+    gchar* uri;
+    gint host_resolved = 0;
+
+    uri = g_strconcat ("http://", hostname, NULL);
+    if (sokoke_prefetch_uri (uri, sokoke_resolve_hostname_cb,
+                             &host_resolved))
+    {
+        GTimer* timer = g_timer_new ();
+        while (!host_resolved && g_timer_elapsed (timer, NULL) < 10)
+            g_main_context_iteration (NULL, FALSE);
+        g_timer_destroy (timer);
+    }
+    g_free (uri);
+    return host_resolved == 1 ? TRUE : FALSE;
+}
+
 /**
  * sokoke_magic_uri:
  * @uri: a string typed by a user
@@ -682,7 +721,8 @@ sokoke_magic_uri (const gchar* uri)
         ((search = strchr (uri, ':')) || (search = strchr (uri, '@'))) &&
         search[0] && !g_ascii_isalpha (search[1]))
         return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
-    if (!strncmp (uri, "localhost", 9) && (uri[9] == '\0' || uri[9] == '/'))
+    if ((!strcmp (uri, "localhost") || strchr (uri, '/'))
+      && sokoke_resolve_hostname (uri))
         return g_strconcat ("http://", uri, NULL);
     if (!search)
     {
@@ -1690,7 +1730,9 @@ sokoke_file_chooser_dialog_new (const gchar*         title,
  * Return value: %TRUE on success
  **/
 gboolean
-sokoke_prefetch_uri (const char* uri)
+sokoke_prefetch_uri (const char*         uri,
+                     SoupAddressCallback callback,
+                     gpointer            user_data)
 {
     #define MAXHOSTS 50
     static gchar* hosts = NULL;
@@ -1727,7 +1769,7 @@ sokoke_prefetch_uri (const char* uri)
         gchar* new_hosts;
 
         address = soup_address_new (s_uri->host, SOUP_ADDRESS_ANY_PORT);
-        soup_address_resolve_async (address, 0, 0, 0, 0);
+        soup_address_resolve_async (address, 0, 0, callback, user_data);
         g_object_unref (address);
 
         if (host_count > MAXHOSTS)
@@ -1739,6 +1781,8 @@ sokoke_prefetch_uri (const char* uri)
         new_hosts = g_strdup_printf ("%s|%s", hosts, s_uri->host);
         katze_assign (hosts, new_hosts);
     }
+    else if (callback)
+        callback (NULL, SOUP_STATUS_OK, user_data);
     soup_uri_free (s_uri);
     return TRUE;
 }

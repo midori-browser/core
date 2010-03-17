@@ -2806,7 +2806,7 @@ midori_browser_menu_item_select_cb (GtkWidget*     menuitem,
         if (item)
         {
             tooltip = g_strdup (katze_item_get_uri (item));
-            sokoke_prefetch_uri (tooltip);
+            sokoke_prefetch_uri (tooltip, NULL, NULL);
         }
     }
     _midori_browser_set_statusbar_text (browser, tooltip);

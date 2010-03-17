@@ -1386,7 +1386,7 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
                                        MidoriView*    view)
 {
     #if !(WEBKIT_CHECK_VERSION (2, 18, 0) && defined (HAVE_LIBSOUP_2_29_3))
-    sokoke_prefetch_uri (link_uri);
+    sokoke_prefetch_uri (link_uri, NULL, NULL);
     #endif
 
     katze_assign (view->link_uri, g_strdup (link_uri));

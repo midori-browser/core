@@ -95,9 +95,12 @@ magic_uri_uri (void)
     test_input ("example.com", "http://example.com");
     test_input ("www.google..com", "http://www.google..com");
     test_input ("/home/user/midori.html", "file:///home/user/midori.html");
-    test_input ("localhost", "http://localhost");
-    test_input ("localhost:8000", "http://localhost:8000");
-    test_input ("localhost/rss", "http://localhost/rss");
+    if (sokoke_resolve_hostname ("localhost"))
+    {
+        test_input ("localhost", "http://localhost");
+        test_input ("localhost:8000", "http://localhost:8000");
+        test_input ("localhost/rss", "http://localhost/rss");
+    }
     test_input ("10.0.0.1", "http://10.0.0.1");
     test_input ("192.168.1.1", "http://192.168.1.1");
     test_input ("192.168.1.1:8000", "http://192.168.1.1:8000");
@@ -255,18 +258,18 @@ magic_uri_format (void)
 static void
 magic_uri_prefetch (void)
 {
-    g_assert (!sokoke_prefetch_uri (NULL));
-    g_assert (sokoke_prefetch_uri ("http://google.com"));
-    g_assert (sokoke_prefetch_uri ("http://google.com"));
-    g_assert (sokoke_prefetch_uri ("http://googlecom"));
-    g_assert (sokoke_prefetch_uri ("http://1kino.com"));
-    g_assert (sokoke_prefetch_uri ("http://"));
-    g_assert (!sokoke_prefetch_uri ("http:/"));
-    g_assert (!sokoke_prefetch_uri ("http"));
-    g_assert (!sokoke_prefetch_uri ("ftp://ftphost.org"));
-    g_assert (!sokoke_prefetch_uri ("http://10.0.0.1"));
-    g_assert (!sokoke_prefetch_uri ("about:blank"));
-    g_assert (!sokoke_prefetch_uri ("javascript: alert()"));
+    g_assert (!sokoke_prefetch_uri (NULL, NULL, NULL));
+    g_assert (sokoke_prefetch_uri ("http://google.com", NULL, NULL));
+    g_assert (sokoke_prefetch_uri ("http://google.com", NULL, NULL));
+    g_assert (sokoke_prefetch_uri ("http://googlecom", NULL, NULL));
+    g_assert (sokoke_prefetch_uri ("http://1kino.com", NULL, NULL));
+    g_assert (sokoke_prefetch_uri ("http://", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri ("http:/", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri ("http", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri ("ftp://ftphost.org", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri ("http://10.0.0.1", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri ("about:blank", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri ("javascript: alert()", NULL, NULL));
 }
 
 int

@@ -221,7 +221,12 @@ sokoke_file_chooser_dialog_new          (const gchar*         title,
                                          GtkFileChooserAction action);
 
 gboolean
-sokoke_prefetch_uri                     (const char* uri);
+sokoke_prefetch_uri                     (const char*         uri,
+                                         SoupAddressCallback callback,
+                                         gpointer            user_data);
+
+gboolean
+sokoke_resolve_hostname                 (const gchar*        hostname);
 
 gchar *
 sokoke_accept_languages                 (const gchar* const * lang_names);
