@@ -373,7 +373,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
     result = sqlite3_step (stmt);
     if (result != SQLITE_ROW && !action->search_engines)
     {
-        g_print (_("Failed to select from history\n"));
+        if (result == SQLITE_ERROR)
+            g_print (_("Failed to select from history\n"));
         sqlite3_reset (stmt);
         sqlite3_clear_bindings (stmt);
         midori_location_action_popdown_completion (action);
