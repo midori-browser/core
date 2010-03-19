@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2010 Samuel Creshal <creshal@arcor.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -12,55 +13,117 @@
 #include <midori/midori.h>
 
 static void
+colorful_tabs_modify_fg (GtkWidget* child,
+                         GdkColor* color)
+{
+    if (GTK_IS_LABEL (child))
+    {
+        gtk_widget_modify_fg (child, GTK_STATE_ACTIVE, color);
+        gtk_widget_modify_fg (child, GTK_STATE_NORMAL, color);
+    }
+}
+
+static void
 colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   GParamSpec*      pspec,
                                   MidoriExtension* extension)
 {
+    GtkWidget* box;
     GtkWidget* label;
     SoupURI* uri;
-    gchar* hash;
     gchar* colorstr;
     GdkColor color;
+    GdkColor fgcolor;
+    GdkPixbuf* icon;
 
     label = midori_view_get_proxy_tab_label (view);
 
-    /* Find a color that is unique to an address. We merely compute
-       a hash value, pick the first 6 + 1 characters and turn the
-       first into a hash sign, ie. #8b424b. In case a color is too
-       dark, we lighten it up a litte. Finally we make the event box
-       visible and modify its background. */
-
-    if ((uri = soup_uri_new (midori_view_get_display_uri (view))) && uri->host)
+    if ((uri = soup_uri_new (midori_view_get_display_uri (view)))
+      && uri->host && (katze_object_get_enum (view, "load-status") == MIDORI_LOAD_FINISHED))
     {
-        hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri->host, -1);
+        icon = midori_view_get_icon (view);
+
+        if (midori_view_get_icon_uri (view) != NULL)
+        {
+            GdkPixbuf* newpix;
+            guchar* pixels;
+
+            newpix = gdk_pixbuf_scale_simple (icon, 1, 1, GDK_INTERP_BILINEAR);
+            g_return_if_fail (gdk_pixbuf_get_bits_per_sample (newpix) == 8);
+            pixels = gdk_pixbuf_get_pixels (newpix);
+            color.red = pixels[0] * 225;
+            color.green = pixels[1] * 225;
+            color.blue = pixels[2] * 225;
+        }
+        else
+        {
+            gchar* hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri->host, 1);
+            colorstr = g_strndup (hash, 6 + 1);
+            g_free (hash);
+            colorstr[0] = '#';
+            gdk_color_parse (colorstr, &color);
+        }
         soup_uri_free (uri);
-        colorstr = g_strndup (hash, 6 + 1);
-        g_free (hash);
-        colorstr[0] = '#';
-        gdk_color_parse (colorstr, &color);
-        if (color.red < 35000)
-            color.red += 25000 + (color.blue + 1) / 2;
-        if (color.green < 35000)
-            color.green += 25000 + (color.red + 1) / 2;
-        if (color.blue < 35000)
-            color.blue += 25000 + (color.green + 1) / 2;
+
+        if ((color.red   < 35000)
+         && (color.green < 35000)
+         && (color.blue  < 35000))
+        {
+            color.red   += 20000;
+            color.green += 20000;
+            color.blue  += 20000;
+        }
+
+        /* Ensure high contrast by enforcing black/ white text colour. */
+        if ((color.red   < 41000)
+         && (color.green < 41000)
+         && (color.blue  < 41000))
+            gdk_color_parse ("#fff", &fgcolor);
+        else
+            gdk_color_parse ("#000", &fgcolor);
+
+        box = gtk_bin_get_child (GTK_BIN (label));
+
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), TRUE);
+
+        gtk_container_foreach (GTK_CONTAINER (box),
+                               (GtkCallback) colorful_tabs_modify_fg,
+                               &fgcolor);
+
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, &color);
+
+        if (color.red < 10000)
+            color.red = 5000;
+        else
+            color.red -= 5000;
+        if (color.blue < 10000)
+            color.blue = 5000;
+        else
+            color.blue -= 5000;
+        if (color.green < 10000)
+            color.green = 5000;
+        else
+            color.green -= 5000;
+
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, &color);
     }
     else
     {
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
+        gtk_container_foreach (GTK_CONTAINER (gtk_bin_get_child (GTK_BIN (label))),
+                               (GtkCallback) colorful_tabs_modify_fg,
+                               NULL);
     }
 }
+
 static void
 colorful_tabs_browser_add_tab_cb (MidoriBrowser*   browser,
                                   GtkWidget*       view,
                                   MidoriExtension* extension)
 {
     colorful_tabs_view_notify_uri_cb (MIDORI_VIEW (view), NULL, extension);
-    g_signal_connect (view, "notify::uri",
+    g_signal_connect (view, "notify::icon",
         G_CALLBACK (colorful_tabs_view_notify_uri_cb), extension);
 }
 
@@ -90,6 +153,9 @@ colorful_tabs_deactivate_cb (MidoriExtension* extension,
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), FALSE);
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
+        gtk_container_foreach (GTK_CONTAINER (gtk_bin_get_child (GTK_BIN (label))),
+                               (GtkCallback) colorful_tabs_modify_fg,
+                               NULL);
         g_signal_handlers_disconnect_by_func (
             view, colorful_tabs_view_notify_uri_cb, extension);
     }
@@ -137,8 +203,8 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Colorful Tabs"),
         "description", _("Tint each tab distinctly"),
-        "version", "0.1",
-        "authors", "Christian Dywan <christian@twotoasts.de>",
+        "version", "0.5",
+        "authors", "Christian Dywan <christian@twotoasts.de>, Samuel Creshal <creshal@arcor.de>",
         NULL);
 
     g_signal_connect (extension, "activate",
