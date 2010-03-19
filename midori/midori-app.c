@@ -227,6 +227,14 @@ midori_app_class_init (MidoriAppClass* class)
 {
     GObjectClass* gobject_class;
 
+    /**
+     * MidoriApp::add-browser:
+     * @app: the object on which the signal is emitted
+     * @browser: a #MidoriBrowser
+     *
+     * A new browser is being added to the app,
+     * see midori_app_add_browser().
+     */
     signals[ADD_BROWSER] = g_signal_new (
         "add-browser",
         G_TYPE_FROM_CLASS (class),
@@ -243,7 +251,8 @@ midori_app_class_init (MidoriAppClass* class)
      * @app: the object on which the signal is emitted
      * @browser: a #MidoriBrowser
      *
-     * A new browser is being added to the app.
+     * A browser is being removed from the app because it
+     * was destroyed.
      *
      * Since: 0.1.7
      */
@@ -258,6 +267,13 @@ midori_app_class_init (MidoriAppClass* class)
         G_TYPE_NONE, 1,
         MIDORI_TYPE_BROWSER);
 
+    /**
+     * MidoriApp::quit:
+     * @app: the object on which the signal is emitted
+     * @browser: a #MidoriBrowser
+     *
+     * The app is being quit, see midori_app_quit().
+     */
     signals[QUIT] = g_signal_new (
         "quit",
         G_TYPE_FROM_CLASS (class),
@@ -1135,7 +1151,7 @@ midori_app_create_browser (MidoriApp* app)
  * midori_app_quit:
  * @app: a #MidoriApp
  *
- * Quits the #MidoriApp singleton.
+ * Quits the #MidoriApp.
  *
  * Since 0.1.2 the "quit" signal is always emitted before quitting.
  **/
