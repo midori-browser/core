@@ -68,12 +68,10 @@ description {
             <h1>{title}</h1>
             <p id="message">{message}</p>
             <p id="description">{description}</p>
-            <form onsubmit="location.reload()">
-                <button>
-                    <img src="{stock}/gtk-refresh"/>
-                    <span>{tryagain}</span>
-                </button>
-            </form>
+            <button onclick="location.reload()">
+                <img src="{stock}/gtk-refresh"/>
+                <span>{tryagain}</span>
+            </button>
         </div>
         <br style="clear: both;"/>
     </div>
