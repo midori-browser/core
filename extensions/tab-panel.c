@@ -329,8 +329,13 @@ tab_panel_view_notify_icon_cb (GtkWidget*       view,
     {
         GtkTreeModel* model = tab_panel_get_model_for_browser (browser);
         GtkTreeIter iter;
+        GtkWidget* label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
+        GtkStyle* style = gtk_widget_get_style (label);
         if (tab_panel_get_iter_for_view (model, &iter, view))
-            gtk_tree_store_set (GTK_TREE_STORE (model), &iter, 3, icon, -1);
+            gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+                3, icon,
+                6, &style->bg[GTK_STATE_NORMAL],
+                -1);
     }
 }
 
@@ -354,12 +359,10 @@ tab_panel_view_notify_title_cb (GtkWidget*       view,
         GtkTreeIter iter;
         if (tab_panel_get_iter_for_view (model, &iter, view))
         {
-            GtkWidget* label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
-            GtkStyle* style = gtk_widget_get_style (label);
             gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
                 4, title,
                 5, midori_view_get_label_ellipsize (MIDORI_VIEW (view)),
-                6, &style->bg[GTK_STATE_NORMAL], -1);
+                -1);
         }
     }
 }
