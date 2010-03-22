@@ -36,6 +36,10 @@ static void
 clock_deactivate_cb (MidoriExtension* extension,
                      MidoriApp*   app);
 
+static void
+clock_set_timeout (MidoriBrowser* browser,
+                   guint interval);
+
 static gboolean
 clock_set_current_time (MidoriBrowser* browser)
 {
@@ -45,6 +49,7 @@ clock_set_current_time (MidoriBrowser* browser)
     struct tm *tm;
     time_t rawtime;
     char datestring[60];
+    guint interval;
 
     extension = g_object_get_data (G_OBJECT (browser), "clock-extension");
     label = g_object_get_data (G_OBJECT (browser), "clock-label");
@@ -54,8 +59,35 @@ clock_set_current_time (MidoriBrowser* browser)
     tm = localtime (&rawtime);
 
     strftime (datestring, 60, format, tm);
-    gtk_label_set_label(GTK_LABEL (label), datestring);
-    return TRUE;
+    gtk_label_set_label (GTK_LABEL (label), datestring);
+
+    if (g_strstr_len (format, -1, "%c")
+     || g_strstr_len (format, -1, "%N")
+     || g_strstr_len (format, -1, "%s")
+     || g_strstr_len (format, -1, "%S")
+     || g_strstr_len (format, -1, "%T")
+     || g_strstr_len (format, -1, "%X")
+    )
+        interval = 1;
+    else
+        /* FIXME: Occasionally there are more than 60 seconds in a minute. */
+        interval = MAX (60 - tm->tm_sec, 1);
+
+    clock_set_timeout (browser, interval);
+
+    return FALSE;
+}
+
+static void
+clock_set_timeout (MidoriBrowser* browser,
+                   guint interval)
+{
+    GSource* source;
+    source = g_timeout_source_new_seconds (interval);
+    g_source_set_callback (source, (GSourceFunc)clock_set_current_time, browser, NULL);
+    g_source_attach (source, NULL);
+    g_object_set_data (G_OBJECT (browser), "clock-timer", source);
+    g_source_unref (source);
 }
 
 static void
@@ -75,7 +107,6 @@ clock_app_add_browser_cb (MidoriApp*       app,
 {
     GtkWidget* statusbar;
     GtkWidget* label;
-    GSource* source;
 
     label = gtk_label_new (NULL);
 
@@ -87,13 +118,6 @@ clock_app_add_browser_cb (MidoriApp*       app,
 
     clock_set_current_time (browser);
     gtk_widget_show (label);
-
-    /* FIXME: Use a 60 second timeout depending on format */
-    source = g_timeout_source_new_seconds (1);
-    g_source_set_callback (source, (GSourceFunc)clock_set_current_time, browser, NULL);
-    g_source_attach (source, NULL);
-    g_object_set_data (G_OBJECT (browser), "clock-timer", source);
-    g_source_unref (source);
 
     g_object_unref (statusbar);
 
