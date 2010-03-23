@@ -410,6 +410,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     INDENTED_ADD (button);
+    #if WEBKIT_CHECK_VERSION (1, 1, 11)
+    button = katze_property_proxy (settings, "javascript-can-open-windows-automatically", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Allow scripts to open popups"));
+    gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
+    SPANNED_ADD (button);
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
     FRAME_NEW (_("Spell Checking"));
     /* FIXME: Provide a nice dictionary selection */
