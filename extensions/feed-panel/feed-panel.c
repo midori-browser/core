@@ -657,8 +657,12 @@ webview_navigation_request_cb (WebKitWebView*             web_view,
         uri = webkit_network_request_get_uri (request);
         n = midori_browser_add_uri (browser, uri);
         midori_browser_set_current_page (browser, n);
+        webkit_web_policy_decision_ignore (policy_decision);
+
+        return TRUE;
     }
-    return TRUE;
+
+    return FALSE;
 }
 
 static const gchar*
