@@ -385,6 +385,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     {
         GtkTreeModel* model = NULL;
         GtkWidget* popup;
+        GtkWidget* popup_frame;
         GtkWidget* scrolled;
         GtkWidget* treeview;
         GtkCellRenderer* renderer;
@@ -394,10 +395,13 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
         popup = gtk_window_new (GTK_WINDOW_POPUP);
         gtk_window_set_type_hint (GTK_WINDOW (popup), GDK_WINDOW_TYPE_HINT_COMBO);
+        popup_frame = gtk_frame_new (NULL);
+        gtk_frame_set_shadow_type (GTK_FRAME (popup_frame), GTK_SHADOW_ETCHED_IN);
+        gtk_container_add (GTK_CONTAINER (popup), popup_frame);
         scrolled = g_object_new (GTK_TYPE_SCROLLED_WINDOW,
             "hscrollbar-policy", GTK_POLICY_NEVER,
             "vscrollbar-policy", GTK_POLICY_AUTOMATIC, NULL);
-        gtk_container_add (GTK_CONTAINER (popup), scrolled);
+        gtk_container_add (GTK_CONTAINER (popup_frame), scrolled);
         treeview = gtk_tree_view_new_with_model (model);
         gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
         gtk_tree_view_set_hover_selection (GTK_TREE_VIEW (treeview), TRUE);
