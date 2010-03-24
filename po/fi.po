@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-11 18:06+0100\n"
-"PO-Revision-Date: 2010-03-16 09:31+0200\n"
+"POT-Creation-Date: 2010-03-24 06:06+0100\n"
+"PO-Revision-Date: 2010-03-24 13:00+0200\n"
 "Last-Translator: Jari Rahkonen <jari.rahkonen@pp1.inet.fi>\n"
 "Language-Team: Finnish\n"
 "MIME-Version: 1.0\n"
@@ -88,8 +88,8 @@ msgid ""
 "Midori seems to have crashed the last time it was opened. If this happened "
 "repeatedly, try one of the following options to solve the problem."
 msgstr ""
-"Midori näyttää kaatuneen edellisellä käynnistyskerralla. Jos ongelma toistuu,"
-" voit kokeilla seuraavia keinoja sen ratkaisemiseksi."
+"Midori näyttää kaatuneen edellisellä käynnistyskerralla. Jos ongelma "
+"toistuu, voit kokeilla seuraavia keinoja sen ratkaisemiseksi."
 
 #: ../midori/main.c:947
 msgid "Modify _preferences"
@@ -222,17 +222,17 @@ msgstr "Virheellinen asiakirja."
 msgid "Unrecognized bookmark format."
 msgstr "Tunnistamaton kirjanmerkin muoto."
 
-#: ../midori/midori-array.c:718 ../midori/sokoke.c:1076
+#: ../midori/midori-array.c:718 ../midori/sokoke.c:1119
 #, c-format
 msgid "Writing failed."
 msgstr "Kirjoitus epäonnistui."
 
-#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5410
-#: ../midori/midori-browser.c:5416
+#: ../midori/midori-browser.c:331 ../midori/midori-browser.c:5420
+#: ../midori/midori-browser.c:5426
 msgid "Reload the current page"
 msgstr "Lataa nykyinen sivu uudelleen"
 
-#: ../midori/midori-browser.c:341 ../midori/midori-browser.c:5413
+#: ../midori/midori-browser.c:341 ../midori/midori-browser.c:5423
 msgid "Stop loading the current page"
 msgstr "Keskeytä nykyisen sivun lataaminen"
 
@@ -280,12 +280,12 @@ msgstr "Ku_vaus:"
 msgid "_Address:"
 msgstr "_Osoite:"
 
-#: ../midori/midori-browser.c:806 ../midori/midori-browser.c:4567
+#: ../midori/midori-browser.c:806 ../midori/midori-browser.c:4577
 msgid "_Folder:"
 msgstr "_Kansio:"
 
 #: ../midori/midori-browser.c:816 ../midori/midori-browser.c:896
-#: ../midori/midori-browser.c:4572 ../midori/midori-browser.c:4604
+#: ../midori/midori-browser.c:4582 ../midori/midori-browser.c:4614
 msgid "Toplevel folder"
 msgstr "Ylätason kansio"
 
@@ -297,8 +297,8 @@ msgstr "Näytä työkal_upalkissa"
 msgid "Run as _web application"
 msgstr "Suorita _web-sovelluksena"
 
-#: ../midori/midori-browser.c:976 ../midori/midori-browser.c:4622
-#: ../midori/midori-browser.c:4654
+#: ../midori/midori-browser.c:976 ../midori/midori-browser.c:4632
+#: ../midori/midori-browser.c:4664
 msgid "Save file as"
 msgstr "Tallenna tiedosto nimellä"
 
@@ -320,697 +320,697 @@ msgstr "Tiedosto siirretty"
 msgid "Save file"
 msgstr "Tallenna tiedosto"
 
-#: ../midori/midori-browser.c:2244
+#: ../midori/midori-browser.c:2253
 msgid "Open file"
 msgstr "Avaa tiedosto"
 
-#: ../midori/midori-browser.c:2320 ../extensions/feed-panel/main.c:364
+#: ../midori/midori-browser.c:2329 ../extensions/feed-panel/main.c:364
 msgid "New feed"
 msgstr "Uusi syöte"
 
-#: ../midori/midori-browser.c:2361 ../midori/midori-browser.c:5475
+#: ../midori/midori-browser.c:2370 ../midori/midori-browser.c:5485
 #: ../panels/midori-bookmarks.c:242
 msgid "Add a new bookmark"
 msgstr "Lisää uusi kirjanmerkki"
 
-#: ../midori/midori-browser.c:2918 ../panels/midori-history.c:332
+#: ../midori/midori-browser.c:2927 ../panels/midori-history.c:332
 #: ../extensions/formhistory.c:461 ../extensions/formhistory.c:465
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Tietokantakäskyn suoritus epäonnistui: %s\n"
 
-#: ../midori/midori-browser.c:2998 ../midori/midori-searchaction.c:484
+#: ../midori/midori-browser.c:3007 ../midori/midori-searchaction.c:484
 msgid "Empty"
 msgstr "Tyhjä"
 
-#: ../midori/midori-browser.c:3618 ../midori/sokoke.c:400
-#: ../midori/sokoke.c:410 ../midori/sokoke.c:438 ../midori/sokoke.c:464
-#: ../midori/sokoke.c:478
+#: ../midori/midori-browser.c:3627 ../midori/sokoke.c:403
+#: ../midori/sokoke.c:413 ../midori/sokoke.c:441 ../midori/sokoke.c:467
+#: ../midori/sokoke.c:481
 msgid "Could not run external program."
 msgstr "Ulkoisen ohjelman suoritus epäonnistui."
 
-#: ../midori/midori-browser.c:3932 ../midori/midori-browser.c:5867
+#: ../midori/midori-browser.c:3941 ../midori/midori-browser.c:5877
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Kohteen lisääminen sivuhistoriaan epäonnistui: %s\n"
 
-#: ../midori/midori-browser.c:4264 ../panels/midori-bookmarks.c:795
+#: ../midori/midori-browser.c:4274 ../panels/midori-bookmarks.c:795
 #: ../panels/midori-history.c:751
 msgid "Open all in _Tabs"
 msgstr "Avaa kaikki välile_hdissä"
 
-#: ../midori/midori-browser.c:4271 ../panels/midori-bookmarks.c:801
+#: ../midori/midori-browser.c:4281 ../panels/midori-bookmarks.c:801
 #: ../panels/midori-history.c:757 ../extensions/feed-panel/feed-panel.c:545
 msgid "Open in New _Tab"
 msgstr "Avaa uudessa _välilehdessä"
 
-#: ../midori/midori-browser.c:4274 ../panels/midori-bookmarks.c:803
+#: ../midori/midori-browser.c:4284 ../panels/midori-bookmarks.c:803
 #: ../panels/midori-history.c:759 ../extensions/feed-panel/feed-panel.c:547
 msgid "Open in New _Window"
 msgstr "Avaa uudessa _ikkunassa"
 
-#: ../midori/midori-browser.c:4493
+#: ../midori/midori-browser.c:4503
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4494
+#: ../midori/midori-browser.c:4504
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4495
+#: ../midori/midori-browser.c:4505
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4496
+#: ../midori/midori-browser.c:4506
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4497
+#: ../midori/midori-browser.c:4507
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4518 ../panels/midori-bookmarks.c:271
+#: ../midori/midori-browser.c:4528 ../panels/midori-bookmarks.c:271
 msgid "Import bookmarks..."
 msgstr "Tuo kirjanmerkit..."
 
-#: ../midori/midori-browser.c:4521 ../midori/midori-browser.c:5480
+#: ../midori/midori-browser.c:4531 ../midori/midori-browser.c:5490
 msgid "_Import bookmarks"
 msgstr "_Tuo kirjanmerkit"
 
-#: ../midori/midori-browser.c:4532
+#: ../midori/midori-browser.c:4542
 msgid "_Application:"
 msgstr "_Sovellus:"
 
-#: ../midori/midori-browser.c:4559 ../midori/midori-browser.c:5582
+#: ../midori/midori-browser.c:4569 ../midori/midori-browser.c:5592
 #: ../midori/midori-websettings.c:230 ../midori/midori-websettings.c:304
-#: ../katze/katze-utils.c:687
+#: ../katze/katze-utils.c:688
 msgid "Custom..."
 msgstr "Mukautettu..."
 
-#: ../midori/midori-browser.c:4633
+#: ../midori/midori-browser.c:4643
 msgid "Failed to import bookmarks"
 msgstr "Kirjanmerkkien tuonti epäonnistui"
 
-#: ../midori/midori-browser.c:4669
+#: ../midori/midori-browser.c:4679
 msgid "Failed to export bookmarks"
 msgstr "Kirjanmerkkien vienti epäonnistui"
 
-#: ../midori/midori-browser.c:4723 ../panels/midori-history.c:141
+#: ../midori/midori-browser.c:4733 ../panels/midori-history.c:141
 #: ../panels/midori-history.c:171
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Kohteen poistaminen sivuhistoriasta epäonnistui: %s\n"
 
-#: ../midori/midori-browser.c:4829
+#: ../midori/midori-browser.c:4839
 msgid "Clear Private Data"
 msgstr "Poista yksityisyystietoja"
 
-#: ../midori/midori-browser.c:4833
+#: ../midori/midori-browser.c:4843
 msgid "_Clear private data"
 msgstr "_Poista yksityisyystietoja"
 
-#: ../midori/midori-browser.c:4847
+#: ../midori/midori-browser.c:4857
 msgid "Clear the following data:"
 msgstr "Poista seuraavat tiedot:"
 
-#: ../midori/midori-browser.c:4858 ../midori/midori-preferences.c:524
+#: ../midori/midori-browser.c:4868 ../midori/midori-preferences.c:530
 #: ../panels/midori-history.c:119
 msgid "History"
 msgstr "Historia"
 
-#: ../midori/midori-browser.c:4864
+#: ../midori/midori-browser.c:4874
 msgid "Cookies"
 msgstr "Evästeet"
 
-#: ../midori/midori-browser.c:4869
+#: ../midori/midori-browser.c:4879
 msgid "'Flash' Cookies"
 msgstr "Flash-evästeet"
 
-#: ../midori/midori-browser.c:4874
+#: ../midori/midori-browser.c:4884
 msgid "Website icons"
 msgstr "Sivustojen kuvakkeet"
 
-#: ../midori/midori-browser.c:4879 ../midori/sokoke.c:1266
+#: ../midori/midori-browser.c:4889 ../midori/sokoke.c:1309
 msgid "_Closed Tabs"
 msgstr "Suljetut _välilehdet"
 
-#: ../midori/midori-browser.c:4884 ../extensions/web-cache.c:464
+#: ../midori/midori-browser.c:4894 ../extensions/web-cache.c:464
 msgid "Web Cache"
 msgstr "Välimuisti"
 
-#: ../midori/midori-browser.c:4892
+#: ../midori/midori-browser.c:4902
 msgid "Clear private data when _quitting Midori"
 msgstr "Poista yksityisyystietoja, kun _Midori suljetaan"
 
-#: ../midori/midori-browser.c:5000
+#: ../midori/midori-browser.c:5010
 msgid "A lightweight web browser."
 msgstr "Kevyt verkkoselain"
 
-#: ../midori/midori-browser.c:5016
+#: ../midori/midori-browser.c:5026
 msgid "translator-credits"
 msgstr ""
 "Elias Julkunen <elias.julkunen@gmail.com>\n"
 "Jari Rahkonen <jari.rahkonen@pp1.inet.fi>"
 
-#: ../midori/midori-browser.c:5323
+#: ../midori/midori-browser.c:5333
 msgid "_File"
 msgstr "_Tiedosto"
 
-#: ../midori/midori-browser.c:5325 ../midori/sokoke.c:1267
+#: ../midori/midori-browser.c:5335 ../midori/sokoke.c:1310
 msgid "New _Window"
 msgstr "Uusi i_kkuna"
 
-#: ../midori/midori-browser.c:5326
+#: ../midori/midori-browser.c:5336
 msgid "Open a new window"
 msgstr "Avaa uusi ikkuna"
 
-#: ../midori/midori-browser.c:5329
+#: ../midori/midori-browser.c:5339
 msgid "Open a new tab"
 msgstr "Avaa uusi välilehti"
 
-#: ../midori/midori-browser.c:5331
+#: ../midori/midori-browser.c:5341
 msgid "P_rivate Browsing"
 msgstr "_Yksityinen selaaminen"
 
-#: ../midori/midori-browser.c:5332
+#: ../midori/midori-browser.c:5342
 msgid "Don't save any private data while browsing"
 msgstr "Älä tallenna yksityisyystietoja selatessa"
 
-#: ../midori/midori-browser.c:5336
+#: ../midori/midori-browser.c:5346
 msgid "Open a file"
 msgstr "Avaa tiedosto"
 
-#: ../midori/midori-browser.c:5339
+#: ../midori/midori-browser.c:5349
 msgid "Save to a file"
 msgstr "Tallenna tiedostoon"
 
-#: ../midori/midori-browser.c:5341
+#: ../midori/midori-browser.c:5351
 msgid "Add to Speed _dial"
 msgstr "Lisää pikavali_ntaan"
 
-#: ../midori/midori-browser.c:5342
+#: ../midori/midori-browser.c:5352
 msgid "Add shortcut to speed dial"
 msgstr "Lisää sivu pikavalintaruutuun"
 
-#: ../midori/midori-browser.c:5344
+#: ../midori/midori-browser.c:5354
 msgid "Add Shortcut to the _desktop"
 msgstr "Luo pikak_uvake työpöydälle"
 
-#: ../midori/midori-browser.c:5345
+#: ../midori/midori-browser.c:5355
 msgid "Add shortcut to the desktop"
 msgstr "Luo pikakuvake työpöydälle"
 
-#: ../midori/midori-browser.c:5347
+#: ../midori/midori-browser.c:5357
 msgid "Subscribe to News _feed"
 msgstr "_Tilaa uutissyöte"
 
-#: ../midori/midori-browser.c:5348
+#: ../midori/midori-browser.c:5358
 msgid "Subscribe to this news feed"
 msgstr "Tilaa tämä uutissyöte"
 
-#: ../midori/midori-browser.c:5353
+#: ../midori/midori-browser.c:5363
 msgid "_Close Tab"
 msgstr "Sulje _välilehti"
 
-#: ../midori/midori-browser.c:5354
+#: ../midori/midori-browser.c:5364
 msgid "Close the current tab"
 msgstr "Sulje avoin välilehti"
 
-#: ../midori/midori-browser.c:5356
+#: ../midori/midori-browser.c:5366
 msgid "C_lose Window"
 msgstr "Sulje i_kkuna"
 
-#: ../midori/midori-browser.c:5357
+#: ../midori/midori-browser.c:5367
 msgid "Close this window"
 msgstr "Sulje tämä ikkuna"
 
-#: ../midori/midori-browser.c:5360
+#: ../midori/midori-browser.c:5370
 msgid "Print the current page"
 msgstr "Tulosta nykyinen sivu"
 
-#: ../midori/midori-browser.c:5363
+#: ../midori/midori-browser.c:5373
 msgid "Quit the application"
 msgstr "Poistu sovelluksesta"
 
-#: ../midori/midori-browser.c:5365
+#: ../midori/midori-browser.c:5375
 msgid "_Edit"
 msgstr "_Muokkaa"
 
-#: ../midori/midori-browser.c:5369
+#: ../midori/midori-browser.c:5379
 msgid "Undo the last modification"
 msgstr "Peru viimeisin muutos"
 
-#: ../midori/midori-browser.c:5372
+#: ../midori/midori-browser.c:5382
 msgid "Redo the last modification"
 msgstr "Toista viimeisin muutos"
 
-#: ../midori/midori-browser.c:5376
+#: ../midori/midori-browser.c:5386
 msgid "Cut the selected text"
 msgstr "Leikkaa valittu teksti"
 
-#: ../midori/midori-browser.c:5379 ../midori/midori-browser.c:5382
+#: ../midori/midori-browser.c:5389 ../midori/midori-browser.c:5392
 msgid "Copy the selected text"
 msgstr "Kopioi valittu teksti"
 
-#: ../midori/midori-browser.c:5385
+#: ../midori/midori-browser.c:5395
 msgid "Paste text from the clipboard"
 msgstr "Liitä teksti leikepöydältä"
 
-#: ../midori/midori-browser.c:5388
+#: ../midori/midori-browser.c:5398
 msgid "Delete the selected text"
 msgstr "Poista valittu teksti"
 
-#: ../midori/midori-browser.c:5391
+#: ../midori/midori-browser.c:5401
 msgid "Select all text"
 msgstr "Valitse kaikki teksti"
 
-#: ../midori/midori-browser.c:5394
+#: ../midori/midori-browser.c:5404
 msgid "Find a word or phrase in the page"
 msgstr "Etsi sanaa tai merkkijonoa sivulta"
 
-#: ../midori/midori-browser.c:5396
+#: ../midori/midori-browser.c:5406
 msgid "Find _Next"
 msgstr "Etsi _seuraava"
 
-#: ../midori/midori-browser.c:5397
+#: ../midori/midori-browser.c:5407
 msgid "Find the next occurrence of a word or phrase"
 msgstr "Etsi sanan tai merkkijonon seuraava esiintymä"
 
-#: ../midori/midori-browser.c:5399
+#: ../midori/midori-browser.c:5409
 msgid "Find _Previous"
 msgstr "Etsi _edellinen"
 
-#: ../midori/midori-browser.c:5400
+#: ../midori/midori-browser.c:5410
 msgid "Find the previous occurrence of a word or phrase"
 msgstr "Etsi sanan tai merkkijonon edellinen esiintymä"
 
-#: ../midori/midori-browser.c:5404
+#: ../midori/midori-browser.c:5414
 msgid "Configure the application preferences"
 msgstr "Muokkaa sovelluksen asetuksia"
 
-#: ../midori/midori-browser.c:5406
+#: ../midori/midori-browser.c:5416
 msgid "_View"
 msgstr "_Näytä"
 
-#: ../midori/midori-browser.c:5407
+#: ../midori/midori-browser.c:5417
 msgid "_Toolbars"
 msgstr "_Työkalupalkit"
 
-#: ../midori/midori-browser.c:5419
+#: ../midori/midori-browser.c:5429
 msgid "Increase the zoom level"
 msgstr "Suurenna"
 
-#: ../midori/midori-browser.c:5422
+#: ../midori/midori-browser.c:5432
 msgid "Decrease the zoom level"
 msgstr "Pienennä"
 
-#: ../midori/midori-browser.c:5425
+#: ../midori/midori-browser.c:5435
 msgid "Reset the zoom level"
 msgstr "Palauta suurennustaso"
 
-#: ../midori/midori-browser.c:5426
+#: ../midori/midori-browser.c:5436
 msgid "_Encoding"
 msgstr "_Merkistö"
 
-#: ../midori/midori-browser.c:5428
+#: ../midori/midori-browser.c:5438
 msgid "View So_urce"
 msgstr "Näytä lä_hdekoodi"
 
-#: ../midori/midori-browser.c:5429
+#: ../midori/midori-browser.c:5439
 msgid "View the source code of the page"
 msgstr "Näytä sivun lähdekoodi"
 
-#: ../midori/midori-browser.c:5432
+#: ../midori/midori-browser.c:5442
 msgid "Toggle fullscreen view"
 msgstr "Kokoruututila päälle/pois"
 
-#: ../midori/midori-browser.c:5435
+#: ../midori/midori-browser.c:5445
 msgid "Scroll _Left"
 msgstr "Vieritä _vasempaan"
 
-#: ../midori/midori-browser.c:5436
+#: ../midori/midori-browser.c:5446
 msgid "Scroll to the left"
 msgstr "Vieritä näkymää vasempaan"
 
-#: ../midori/midori-browser.c:5438
+#: ../midori/midori-browser.c:5448
 msgid "Scroll _Down"
 msgstr "Vieritä _alas"
 
-#: ../midori/midori-browser.c:5439
+#: ../midori/midori-browser.c:5449
 msgid "Scroll down"
 msgstr "Vieritä näkymää alaspäin"
 
-#: ../midori/midori-browser.c:5441
+#: ../midori/midori-browser.c:5451
 msgid "Scroll _Up"
 msgstr "Vieritä yl_ös"
 
-#: ../midori/midori-browser.c:5442
+#: ../midori/midori-browser.c:5452
 msgid "Scroll up"
 msgstr "Vieritä näkymää ylöspäin"
 
-#: ../midori/midori-browser.c:5444
+#: ../midori/midori-browser.c:5454
 msgid "Scroll _Right"
 msgstr "Vieritä oikeaan"
 
-#: ../midori/midori-browser.c:5445
+#: ../midori/midori-browser.c:5455
 msgid "Scroll to the right"
 msgstr "Vieritä näkymää oikeaan"
 
-#: ../midori/midori-browser.c:5448
+#: ../midori/midori-browser.c:5458
 msgid "_Go"
 msgstr "_Siirry"
 
-#: ../midori/midori-browser.c:5451
+#: ../midori/midori-browser.c:5461
 msgid "Go back to the previous page"
 msgstr "Siirry takaisin edelliselle sivulle"
 
-#: ../midori/midori-browser.c:5454
+#: ../midori/midori-browser.c:5464
 msgid "Go forward to the next page"
 msgstr "Siirry eteenpäin seuraavalle sivulle"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5458
+#: ../midori/midori-browser.c:5468
 msgid "Go to the previous sub-page"
 msgstr "Siirry edelliselle alasivulle"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5462
+#: ../midori/midori-browser.c:5472
 msgid "Go to the next sub-page"
 msgstr "Siirry seuraavalle alasivulle"
 
-#: ../midori/midori-browser.c:5465
+#: ../midori/midori-browser.c:5475
 msgid "Go to your homepage"
 msgstr "Siirry kotisivullesi"
 
-#: ../midori/midori-browser.c:5467
+#: ../midori/midori-browser.c:5477
 msgid "Empty Trash"
 msgstr "Tyhjennä roskakori"
 
-#: ../midori/midori-browser.c:5468
+#: ../midori/midori-browser.c:5478
 msgid "Delete the contents of the trash"
 msgstr "Poista roskakorin sisältö"
 
-#: ../midori/midori-browser.c:5470
+#: ../midori/midori-browser.c:5480
 msgid "Undo _Close Tab"
 msgstr "Palauta _välilehti"
 
-#: ../midori/midori-browser.c:5471
+#: ../midori/midori-browser.c:5481
 msgid "Open the last closed tab"
 msgstr "Avaa viimeksi suljettu välilehti"
 
-#: ../midori/midori-browser.c:5477
+#: ../midori/midori-browser.c:5487
 msgid "Add a new _folder"
 msgstr "Luo uusi _kansio"
 
-#: ../midori/midori-browser.c:5478
+#: ../midori/midori-browser.c:5488
 msgid "Add a new bookmark folder"
 msgstr "Luo uusi kirjanmerkkikansio"
 
-#: ../midori/midori-browser.c:5483
+#: ../midori/midori-browser.c:5493
 msgid "_Export bookmarks"
 msgstr "_Vie kirjanmerkkejä"
 
-#: ../midori/midori-browser.c:5486 ../midori/midori-searchaction.c:493
+#: ../midori/midori-browser.c:5496 ../midori/midori-searchaction.c:493
 msgid "_Manage Search Engines"
 msgstr "_Hallitse hakukoneita"
 
-#: ../midori/midori-browser.c:5487
+#: ../midori/midori-browser.c:5497
 msgid "Add, edit and remove search engines..."
 msgstr "Lisää, muokkaa ja poista hakukoneita..."
 
-#: ../midori/midori-browser.c:5490
+#: ../midori/midori-browser.c:5500
 msgid "_Clear Private Data"
 msgstr "_Poista yksityisyystietoja"
 
-#: ../midori/midori-browser.c:5491
+#: ../midori/midori-browser.c:5501
 msgid "Clear private data..."
 msgstr "Poista yksityisyystietoja..."
 
-#: ../midori/midori-browser.c:5495
+#: ../midori/midori-browser.c:5505
 msgid "_Inspect Page"
 msgstr "_Tutki sivua"
 
-#: ../midori/midori-browser.c:5496
+#: ../midori/midori-browser.c:5506
 msgid "Inspect page details and access developer tools..."
 msgstr "Tutki sivun ominaisuuksia ja käytä kehitystyökaluja..."
 
-#: ../midori/midori-browser.c:5501
+#: ../midori/midori-browser.c:5511
 msgid "_Previous Tab"
 msgstr "_Edellinen välilehti"
 
-#: ../midori/midori-browser.c:5502
+#: ../midori/midori-browser.c:5512
 msgid "Switch to the previous tab"
 msgstr "Vaihda edelliselle välilehdelle"
 
-#: ../midori/midori-browser.c:5504
+#: ../midori/midori-browser.c:5514
 msgid "_Next Tab"
 msgstr "_Seuraava välilehti"
 
-#: ../midori/midori-browser.c:5505
+#: ../midori/midori-browser.c:5515
 msgid "Switch to the next tab"
 msgstr "Vaihda seuraavalle välilehdelle"
 
-#: ../midori/midori-browser.c:5507
+#: ../midori/midori-browser.c:5517
 msgid "Focus _Current Tab"
 msgstr "Koh_dista avoimeen välilehteen"
 
-#: ../midori/midori-browser.c:5508
+#: ../midori/midori-browser.c:5518
 msgid "Focus the current tab"
 msgstr "Kohdista avoimeen välilehteen"
 
-#: ../midori/midori-browser.c:5510
+#: ../midori/midori-browser.c:5520
 msgid "Open last _session"
 msgstr "Avaa _edellinen istunto"
 
-#: ../midori/midori-browser.c:5511
+#: ../midori/midori-browser.c:5521
 msgid "Open the tabs saved in the last session"
 msgstr "Avaa edellisellä käyttökerralla tallennetut sivut"
 
-#: ../midori/midori-browser.c:5513
+#: ../midori/midori-browser.c:5523
 msgid "_Help"
 msgstr "_Ohje"
 
-#: ../midori/midori-browser.c:5515
+#: ../midori/midori-browser.c:5525
 msgid "_Contents"
 msgstr "_Sisältö"
 
-#: ../midori/midori-browser.c:5516
+#: ../midori/midori-browser.c:5526
 msgid "Show the documentation"
 msgstr "Näytä dokumentaatio"
 
-#: ../midori/midori-browser.c:5518
+#: ../midori/midori-browser.c:5528
 msgid "_Frequent Questions"
 msgstr "_Usein kysytyt kysymykset"
 
-#: ../midori/midori-browser.c:5519
+#: ../midori/midori-browser.c:5529
 msgid "Show the Frequently Asked Questions"
 msgstr "Näytä usein kysytyt kysymykset"
 
-#: ../midori/midori-browser.c:5521
+#: ../midori/midori-browser.c:5531
 msgid "_Report a Bug"
 msgstr "Il_moita ohjelmavirheestä"
 
-#: ../midori/midori-browser.c:5522
+#: ../midori/midori-browser.c:5532
 msgid "Open Midori's bug tracker"
 msgstr "Avaa Midorin vikojen seurantajärjestelmä"
 
-#: ../midori/midori-browser.c:5525
+#: ../midori/midori-browser.c:5535
 msgid "Show information about the program"
 msgstr "Näytä tietoja sovelluksesta"
 
-#: ../midori/midori-browser.c:5532
+#: ../midori/midori-browser.c:5542
 msgid "_Menubar"
 msgstr "_Valikkopalkki"
 
-#: ../midori/midori-browser.c:5533
+#: ../midori/midori-browser.c:5543
 msgid "Show menubar"
 msgstr "Näytä valikkopalkki"
 
-#: ../midori/midori-browser.c:5536
+#: ../midori/midori-browser.c:5546
 msgid "_Navigationbar"
 msgstr "_Navigointipalkki"
 
-#: ../midori/midori-browser.c:5537
+#: ../midori/midori-browser.c:5547
 msgid "Show navigationbar"
 msgstr "Näytä navigointipalkki"
 
-#: ../midori/midori-browser.c:5540
+#: ../midori/midori-browser.c:5550
 msgid "Side_panel"
 msgstr "_Sivupaneeli"
 
-#: ../midori/midori-browser.c:5541
+#: ../midori/midori-browser.c:5551
 msgid "Show sidepanel"
 msgstr "Näytä sivupaneeli"
 
-#: ../midori/midori-browser.c:5544
+#: ../midori/midori-browser.c:5554
 msgid "_Bookmarkbar"
 msgstr "_Kirjanmerkkipalkki"
 
-#: ../midori/midori-browser.c:5545
+#: ../midori/midori-browser.c:5555
 msgid "Show bookmarkbar"
 msgstr "Näytä kirjanmerkkipalkki"
 
-#: ../midori/midori-browser.c:5548
+#: ../midori/midori-browser.c:5558
 msgid "_Transferbar"
 msgstr "_Latauspalkki"
 
-#: ../midori/midori-browser.c:5549
+#: ../midori/midori-browser.c:5559
 msgid "Show transferbar"
 msgstr "Näytä latauspalkki"
 
-#: ../midori/midori-browser.c:5552
+#: ../midori/midori-browser.c:5562
 msgid "_Statusbar"
 msgstr "_Tilapalkki"
 
-#: ../midori/midori-browser.c:5553
+#: ../midori/midori-browser.c:5563
 msgid "Show statusbar"
 msgstr "Näytä tilapalkki"
 
-#: ../midori/midori-browser.c:5560
+#: ../midori/midori-browser.c:5570
 msgid "_Automatic"
 msgstr "_Automaattinen"
 
-#: ../midori/midori-browser.c:5563 ../midori/midori-websettings.c:224
+#: ../midori/midori-browser.c:5573 ../midori/midori-websettings.c:224
 msgid "Chinese (BIG5)"
 msgstr "Kiinalainen (BIG5)"
 
 #. i18n: A double underscore "__" is used to prevent an unwanted mnemonic
-#: ../midori/midori-browser.c:5567
+#: ../midori/midori-browser.c:5577
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Japanilainen (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5570 ../midori/midori-websettings.c:226
+#: ../midori/midori-browser.c:5580 ../midori/midori-websettings.c:226
 msgid "Korean (EUC-KR)"
 msgstr "Korealainen (EUC-KR)"
 
-#: ../midori/midori-browser.c:5573 ../midori/midori-websettings.c:227
+#: ../midori/midori-browser.c:5583 ../midori/midori-websettings.c:227
 msgid "Russian (KOI8-R)"
 msgstr "Venäläinen (KOI8-R)"
 
-#: ../midori/midori-browser.c:5576 ../midori/midori-websettings.c:228
+#: ../midori/midori-browser.c:5586 ../midori/midori-websettings.c:228
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5579 ../midori/midori-websettings.c:229
+#: ../midori/midori-browser.c:5589 ../midori/midori-websettings.c:229
 msgid "Western (ISO-8859-1)"
 msgstr "Länsimainen (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:6127
+#: ../midori/midori-browser.c:6137
 msgid "_Separator"
 msgstr "_Erotin"
 
-#: ../midori/midori-browser.c:6134
+#: ../midori/midori-browser.c:6144
 msgid "_Location..."
 msgstr "_Sijainti..."
 
-#: ../midori/midori-browser.c:6136
+#: ../midori/midori-browser.c:6146
 msgid "Open a particular location"
 msgstr "Avaa tarkka sijainti"
 
-#: ../midori/midori-browser.c:6160
+#: ../midori/midori-browser.c:6170
 msgid "_Web Search..."
 msgstr "_Verkkohaku"
 
-#: ../midori/midori-browser.c:6162
+#: ../midori/midori-browser.c:6172
 msgid "Run a web search"
 msgstr "Hae verkkosivua"
 
-#: ../midori/midori-browser.c:6183
+#: ../midori/midori-browser.c:6193
 msgid "Reopen a previously closed tab or window"
 msgstr "Avaa uudelleen aikaisemmin suljettu välilehti tai ikkuna"
 
-#: ../midori/midori-browser.c:6198
+#: ../midori/midori-browser.c:6208
 msgid "_Recently visited pages"
 msgstr "_Usein vieraillut sivut"
 
-#: ../midori/midori-browser.c:6200
+#: ../midori/midori-browser.c:6210
 msgid "Reopen pages that you visited earlier"
 msgstr "Avaa uudelleen sivut, joilla vierailit aikaisemmin"
 
-#: ../midori/midori-browser.c:6215 ../midori/sokoke.c:1256
+#: ../midori/midori-browser.c:6225 ../midori/sokoke.c:1299
 msgid "_Bookmarks"
 msgstr "_Kirjanmerkit"
 
-#: ../midori/midori-browser.c:6217
+#: ../midori/midori-browser.c:6227
 msgid "Show the saved bookmarks"
 msgstr "Näytä tallennetut kirjanmerkit"
 
-#: ../midori/midori-browser.c:6232
+#: ../midori/midori-browser.c:6242
 msgid "_Tools"
 msgstr "_Työkalut"
 
-#: ../midori/midori-browser.c:6245
+#: ../midori/midori-browser.c:6255
 msgid "_Window"
 msgstr "I_kkuna"
 
-#: ../midori/midori-browser.c:6247
+#: ../midori/midori-browser.c:6257
 msgid "Show a list of all open tabs"
 msgstr "Näytä luettelo kaikista avoimista välilehdistä"
 
-#: ../midori/midori-browser.c:6261
+#: ../midori/midori-browser.c:6271
 msgid "_Menu"
 msgstr "_Valikko"
 
-#: ../midori/midori-browser.c:6263
+#: ../midori/midori-browser.c:6273
 msgid "Menu"
 msgstr "Valikko"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../midori/midori-browser.c:6467
+#: ../midori/midori-browser.c:6477
 msgid "_Inline Find:"
 msgstr "_Hakupalkki:"
 
-#: ../midori/midori-browser.c:6498
+#: ../midori/midori-browser.c:6508
 msgid "Previous"
 msgstr "_Edellinen"
 
-#: ../midori/midori-browser.c:6503
+#: ../midori/midori-browser.c:6513
 msgid "Next"
 msgstr "Seu_raava"
 
-#: ../midori/midori-browser.c:6508
+#: ../midori/midori-browser.c:6518
 msgid "Match Case"
 msgstr "Huomioi kirjainkoko"
 
-#: ../midori/midori-browser.c:6517
+#: ../midori/midori-browser.c:6527
 msgid "Highlight Matches"
 msgstr "Korosta osumat"
 
-#: ../midori/midori-browser.c:6529
+#: ../midori/midori-browser.c:6539
 msgid "Close Findbar"
 msgstr "Sulje hakupalkki"
 
-#: ../midori/midori-browser.c:6575 ../panels/midori-transfers.c:142
+#: ../midori/midori-browser.c:6585 ../panels/midori-transfers.c:142
 msgid "Clear All"
 msgstr "Tyhjennä"
 
-#: ../midori/midori-browser.c:6932
+#: ../midori/midori-browser.c:6942
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "Odottamaton asetus \"%s\""
 
-#: ../midori/midori-locationaction.c:376
+#: ../midori/midori-locationaction.c:377
 #, c-format
 msgid "Failed to select from history\n"
 msgstr "Valinta historiasta epäonnistui\n"
 
-#: ../midori/midori-locationaction.c:454
+#: ../midori/midori-locationaction.c:455
 #, c-format
 msgid "Search for %s"
 msgstr "Etsi verkosta: %s"
 
-#: ../midori/midori-locationaction.c:477
+#: ../midori/midori-locationaction.c:478
 #, c-format
 msgid "Search with %s"
 msgstr "Käytä hakua %s"
 
-#: ../midori/midori-locationaction.c:1192
+#: ../midori/midori-locationaction.c:1193
 #, c-format
 msgid "Failed to execute database statement\n"
 msgstr "Tietokantakomennon suoritus epäonnistui\n"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1249
+#: ../midori/midori-locationaction.c:1250
 msgid "Paste and p_roceed"
 msgstr "_Liitä ja siirry"
 
@@ -1096,7 +1096,7 @@ msgid "Session cookies"
 msgstr "Istunnon evästeet"
 
 #: ../midori/midori-websettings.c:284 ../panels/midori-addons.c:98
-#: ../katze/katze-utils.c:663
+#: ../katze/katze-utils.c:664
 msgid "None"
 msgstr "Ei mitään"
 
@@ -1616,205 +1616,205 @@ msgstr "Poistettavaksi valitut yksityisyystiedot"
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:956 ../midori/midori-view.c:4190
-#: ../midori/midori-view.c:4194
+#: ../midori/midori-view.c:1126 ../midori/midori-view.c:4402
+#: ../midori/midori-view.c:4406
 #, c-format
 msgid "Error - %s"
 msgstr "Virhe - %s"
 
-#: ../midori/midori-view.c:957
+#: ../midori/midori-view.c:1127
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Sivun \"%s\" lataus epäonnistui."
 
-#: ../midori/midori-view.c:962
+#: ../midori/midori-view.c:1132
 msgid "Try again"
 msgstr "Yritä uudelleen"
 
 #. i18n: The title of the 404 - Not found error page
-#: ../midori/midori-view.c:1002
+#: ../midori/midori-view.c:1173
 #, c-format
 msgid "Not found - %s"
 msgstr "Ei löydy - %s"
 
-#: ../midori/midori-view.c:1225 ../midori/midori-view.c:2081
+#: ../midori/midori-view.c:1395 ../midori/midori-view.c:2251
 #, c-format
 msgid "Send a message to %s"
 msgstr "Lähetä viesti osoitteeseen %s"
 
-#: ../midori/midori-view.c:1850 ../midori/midori-view.c:2243
+#: ../midori/midori-view.c:2020 ../midori/midori-view.c:2413
 msgid "Inspect _Element"
 msgstr "Tutki _elementtiä"
 
-#: ../midori/midori-view.c:1902 ../midori/midori-view.c:1980
+#: ../midori/midori-view.c:2072 ../midori/midori-view.c:2150
 msgid "Open _Link"
 msgstr "Avaa li_nkki"
 
-#: ../midori/midori-view.c:1905 ../midori/midori-view.c:1982
+#: ../midori/midori-view.c:2075 ../midori/midori-view.c:2152
 msgid "Open Link in New _Tab"
 msgstr "Avaa linkki uudelle _välilehdelle"
 
-#: ../midori/midori-view.c:1909
+#: ../midori/midori-view.c:2079
 msgid "Open Link in _Foreground Tab"
 msgstr "Avaa linkki välilehdelle _etualalla"
 
-#: ../midori/midori-view.c:1910
+#: ../midori/midori-view.c:2080
 msgid "Open Link in _Background Tab"
 msgstr "Avaa linkki välilehdelle t_austalla"
 
-#: ../midori/midori-view.c:1913 ../midori/midori-view.c:1989
+#: ../midori/midori-view.c:2083 ../midori/midori-view.c:2159
 msgid "Open Link in New _Window"
 msgstr "Avaa linkki uudessa i_kkunassa"
 
-#: ../midori/midori-view.c:1916
+#: ../midori/midori-view.c:2086
 msgid "Open Link as Web A_pplication"
 msgstr "Avaa linkki _verkkosovelluksena"
 
-#: ../midori/midori-view.c:1919
+#: ../midori/midori-view.c:2089
 msgid "Copy Link de_stination"
 msgstr "K_opioi linkin kohde"
 
-#: ../midori/midori-view.c:1922 ../midori/midori-view.c:2001
+#: ../midori/midori-view.c:2092 ../midori/midori-view.c:2171
 msgid "_Save Link destination"
 msgstr "_Tallenna linkin kohde"
 
-#: ../midori/midori-view.c:1923 ../midori/midori-view.c:1995
+#: ../midori/midori-view.c:2093 ../midori/midori-view.c:2165
 msgid "_Download Link destination"
 msgstr "_Lataa linkin kohde"
 
-#: ../midori/midori-view.c:1927 ../midori/midori-view.c:1963
-#: ../midori/midori-view.c:2006
+#: ../midori/midori-view.c:2097 ../midori/midori-view.c:2133
+#: ../midori/midori-view.c:2176
 msgid "Download with Download _Manager"
 msgstr "Lataa latau_ssovelluksella"
 
-#: ../midori/midori-view.c:1939
+#: ../midori/midori-view.c:2109
 msgid "Open _Image in New Tab"
 msgstr "Avaa kuva uudelle _välilehdelle"
 
-#: ../midori/midori-view.c:1942
+#: ../midori/midori-view.c:2112
 msgid "Open Image in New Wi_ndow"
 msgstr "Avaa kuva uuteen ikku_naan"
 
-#: ../midori/midori-view.c:1945
+#: ../midori/midori-view.c:2115
 msgid "Copy Image _Address"
 msgstr "Kopioi kuvan _osoite"
 
-#: ../midori/midori-view.c:1948
+#: ../midori/midori-view.c:2118
 msgid "Save I_mage"
 msgstr "Tallenna _kuva"
 
-#: ../midori/midori-view.c:1949
+#: ../midori/midori-view.c:2119
 msgid "Download I_mage"
 msgstr "Lataa _kuva"
 
-#: ../midori/midori-view.c:1956
+#: ../midori/midori-view.c:2126
 msgid "Copy Video _Address"
 msgstr "Kopioi videon _osoite"
 
-#: ../midori/midori-view.c:1959
+#: ../midori/midori-view.c:2129
 msgid "Save _Video"
 msgstr "Tallenna _video"
 
-#: ../midori/midori-view.c:1959
+#: ../midori/midori-view.c:2129
 msgid "Download _Video"
 msgstr "Lataa _video"
 
-#: ../midori/midori-view.c:2026
+#: ../midori/midori-view.c:2196
 msgid "Search _with"
 msgstr "_Etsi sanalla"
 
-#: ../midori/midori-view.c:2061 ../midori/midori-view.c:2068
+#: ../midori/midori-view.c:2231 ../midori/midori-view.c:2238
 msgid "_Search the Web"
 msgstr "_Hae verkosta"
 
-#: ../midori/midori-view.c:2089
+#: ../midori/midori-view.c:2259
 msgid "Open Address in New _Tab"
 msgstr "Avaa osoite uudelle _välilehdelle"
 
-#: ../midori/midori-view.c:2375
+#: ../midori/midori-view.c:2545
 msgid "Open or download file"
 msgstr "Avaa tai lataa tiedosto"
 
-#: ../midori/midori-view.c:2398
+#: ../midori/midori-view.c:2568
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Tiedostotyyppi: \"%s\""
 
-#: ../midori/midori-view.c:2401
+#: ../midori/midori-view.c:2571
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Tiedostotyyppi: %s (\"%s\")"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2405
+#: ../midori/midori-view.c:2575
 #, c-format
 msgid "Open %s"
 msgstr "Avaa %s"
 
-#: ../midori/midori-view.c:2920
+#: ../midori/midori-view.c:3102
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Tutki sivua - %s"
 
-#: ../midori/midori-view.c:3181
+#: ../midori/midori-view.c:3363
 msgid "Speed dial"
 msgstr "Pikavalinta"
 
-#: ../midori/midori-view.c:3182
+#: ../midori/midori-view.c:3364
 msgid "Click to add a shortcut"
 msgstr "Lisää pikavalinta napsauttamalla"
 
-#: ../midori/midori-view.c:3183
+#: ../midori/midori-view.c:3365
 msgid "Enter shortcut address"
 msgstr "Syötä pikavalinnan osoite"
 
-#: ../midori/midori-view.c:3184
+#: ../midori/midori-view.c:3366
 msgid "Enter shortcut title"
 msgstr "Lisää pikavalinnan otsake"
 
-#: ../midori/midori-view.c:3185
+#: ../midori/midori-view.c:3367
 msgid "Are you sure you want to delete this shortcut?"
 msgstr "Haluatko varmasti postaa pikavalinnan?"
 
-#: ../midori/midori-view.c:3221
+#: ../midori/midori-view.c:3404
 #, c-format
 msgid "Document cannot be displayed"
 msgstr "Asiakirjaa ei voi näyttää"
 
-#: ../midori/midori-view.c:3244
+#: ../midori/midori-view.c:3427
 #, c-format
 msgid "No documentation installed"
 msgstr "Dokumentaatiota ei ole asennettu"
 
-#: ../midori/midori-view.c:3467
+#: ../midori/midori-view.c:3677
 msgid "Blank page"
 msgstr "Tyhjä sivu"
 
-#: ../midori/midori-view.c:3727
+#: ../midori/midori-view.c:3937
 msgid "_Duplicate Tab"
 msgstr "_Monista välilehti"
 
-#: ../midori/midori-view.c:3732
+#: ../midori/midori-view.c:3942
 msgid "_Restore Tab"
 msgstr "_Palauta välilehti"
 
-#: ../midori/midori-view.c:3732
+#: ../midori/midori-view.c:3942
 msgid "_Minimize Tab"
 msgstr "Pi_enennä välilehti"
 
-#: ../midori/midori-view.c:3738
+#: ../midori/midori-view.c:3948
 msgid "Close ot_her Tabs"
 msgstr "Sulje _muut välilehdet"
 
-#: ../midori/midori-view.c:4362
+#: ../midori/midori-view.c:4574
 msgid "Print background images"
 msgstr "Tulosta taustakuvat"
 
-#: ../midori/midori-view.c:4363
+#: ../midori/midori-view.c:4575
 msgid "Whether background images should be printed"
-msgstr "Tulostetaanko myös taustakuvat"
+msgstr "Tulosta myös verkkosivujen taustakuvat"
 
-#: ../midori/midori-view.c:4415 ../midori/midori-preferences.c:382
+#: ../midori/midori-view.c:4627 ../midori/midori-preferences.c:382
 msgid "Features"
 msgstr "Ominaisuudet"
 
@@ -1889,68 +1889,76 @@ msgstr "Pakota 96 pistettä tuumalle"
 msgid "Enforce a video dot density of 96 DPI"
 msgstr "Pakota näytön pistetarkkuudeksi 96 DPI"
 
-#: ../midori/midori-preferences.c:414
+#: ../midori/midori-preferences.c:415
+msgid "Allow scripts to open popups"
+msgstr "Salli skriptien ponnahdusikkunat"
+
+#: ../midori/midori-preferences.c:416
+msgid "Whether scripts are allowed to open popup windows automatically"
+msgstr "Avaa ponnahdusikkunat skripteistä automaattisesti"
+
+#: ../midori/midori-preferences.c:420
 msgid "Spell Checking"
 msgstr "Oikoluku"
 
-#: ../midori/midori-preferences.c:417
+#: ../midori/midori-preferences.c:423
 msgid "Enable Spell Checking"
 msgstr "Ota oikoluku käyttöön"
 
-#: ../midori/midori-preferences.c:418
+#: ../midori/midori-preferences.c:424
 msgid "Enable spell checking while typing"
 msgstr "Käytä oikolukua kirjoittaessa"
 
-#: ../midori/midori-preferences.c:420
+#: ../midori/midori-preferences.c:426
 msgid "Spelling dictionaries:"
 msgstr "Oikolukusanastot:"
 
 #. i18n: The example should be adjusted to contain a good local default
-#: ../midori/midori-preferences.c:424
+#: ../midori/midori-preferences.c:430
 msgid ""
 "A comma separated list of languages to be used for spell checking, for "
 "example \"en_GB,de_DE\""
 msgstr ""
-"Pilkuin erotettu lista kielistä, joita käytetään oikolukemiseen. "
-"Esimerkiksi \"fi_FI,sv_SE,en_EN\""
+"Pilkuin erotettu lista kielistä, joita käytetään oikolukemiseen. Esimerkiksi "
+"\"fi_FI,sv_SE,en_EN\""
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:430
+#: ../midori/midori-preferences.c:436
 msgid "Interface"
 msgstr "Käyttöliittymä"
 
-#: ../midori/midori-preferences.c:431
+#: ../midori/midori-preferences.c:437
 msgid "Navigationbar"
 msgstr "Navigointipalkki"
 
-#: ../midori/midori-preferences.c:441
+#: ../midori/midori-preferences.c:447
 msgid "Browsing"
 msgstr "Selaaminen"
 
 #. Page "Applications"
-#: ../midori/midori-preferences.c:463
+#: ../midori/midori-preferences.c:469
 msgid "Applications"
 msgstr "Sovellukset"
 
-#: ../midori/midori-preferences.c:464
+#: ../midori/midori-preferences.c:470
 msgid "External applications"
 msgstr "Ulkoiset sovellukset"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:480 ../midori/midori-preferences.c:481
+#: ../midori/midori-preferences.c:486 ../midori/midori-preferences.c:487
 msgid "Network"
 msgstr "Verkko"
 
 #. Page "Privacy"
-#: ../midori/midori-preferences.c:505
+#: ../midori/midori-preferences.c:511
 msgid "Privacy"
 msgstr "Yksityisyys"
 
-#: ../midori/midori-preferences.c:506
+#: ../midori/midori-preferences.c:512
 msgid "Web Cookies"
 msgstr "Evästeet"
 
-#: ../midori/midori-preferences.c:515 ../midori/midori-preferences.c:529
+#: ../midori/midori-preferences.c:521 ../midori/midori-preferences.c:535
 msgid "days"
 msgstr "vrk"
 
@@ -1982,43 +1990,43 @@ msgstr "Hallitse hakukoneita"
 msgid "Use as _default"
 msgstr "Aseta _oletukseksi"
 
-#: ../midori/sokoke.c:1255
+#: ../midori/sokoke.c:1298
 msgid "_Bookmark"
 msgstr "_Kirjanmerkki"
 
-#: ../midori/sokoke.c:1257
+#: ../midori/sokoke.c:1300
 msgid "Add Boo_kmark"
 msgstr "Luo ki_rjanmerkki"
 
-#: ../midori/sokoke.c:1258
+#: ../midori/sokoke.c:1301
 msgid "_Console"
 msgstr "K_onsoli"
 
-#: ../midori/sokoke.c:1259
+#: ../midori/sokoke.c:1302
 msgid "_Extensions"
 msgstr "_Liitännäiset"
 
-#: ../midori/sokoke.c:1260
+#: ../midori/sokoke.c:1303
 msgid "_History"
 msgstr "_Historia"
 
-#: ../midori/sokoke.c:1261
+#: ../midori/sokoke.c:1304
 msgid "_Homepage"
 msgstr "_Kotisivu"
 
-#: ../midori/sokoke.c:1262
+#: ../midori/sokoke.c:1305
 msgid "_Userscripts"
 msgstr "Käyttäjän _skriptit"
 
-#: ../midori/sokoke.c:1263
+#: ../midori/sokoke.c:1306
 msgid "New _Tab"
 msgstr "Uusi _välilehti"
 
-#: ../midori/sokoke.c:1264
+#: ../midori/sokoke.c:1307
 msgid "_Transfers"
 msgstr "_Lataukset"
 
-#: ../midori/sokoke.c:1265
+#: ../midori/sokoke.c:1308
 msgid "Netscape p_lugins"
 msgstr "_Netscape-liitännäiset"
 
@@ -2075,8 +2083,7 @@ msgstr "Virheellinen kellonaika"
 #: ../panels/midori-history.c:274
 msgid ""
 "The clock time lies in the past. Please check the current date and time."
-msgstr ""
-"Kello ei ole ajassa. Tarkista kellonaika ja päiväys."
+msgstr "Kello ei ole ajassa. Tarkista kellonaika ja päiväys."
 
 #: ../panels/midori-history.c:286
 msgid "A week ago"
@@ -2164,16 +2171,16 @@ msgstr "Vakiokuvakkeen \"%s\" lataus epäonnistui"
 msgid "Animation frames are broken"
 msgstr "Animaation kuvissa on vikaa"
 
-#: ../katze/katze-utils.c:494 ../katze/katze-utils.c:889
+#: ../katze/katze-utils.c:495 ../katze/katze-utils.c:890
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "Ominaisuus \"%s\" ei kelpaa kohteelle %s"
 
-#: ../katze/katze-utils.c:540 ../katze/katze-utils.c:569
+#: ../katze/katze-utils.c:541 ../katze/katze-utils.c:570
 msgid "Choose file"
 msgstr "Valitse tiedosto"
 
-#: ../katze/katze-utils.c:555
+#: ../katze/katze-utils.c:556
 msgid "Choose folder"
 msgstr "Valitse kansio"
 
@@ -2223,11 +2230,11 @@ msgstr "Mainosten estäjä"
 msgid "Block advertisements according to a filter list"
 msgstr "Estä mainosten lataaminen suodatinlistan avulla"
 
-#: ../extensions/colorful-tabs.c:138
+#: ../extensions/colorful-tabs.c:204
 msgid "Colorful Tabs"
 msgstr "Värikkäät välilehdet"
 
-#: ../extensions/colorful-tabs.c:139
+#: ../extensions/colorful-tabs.c:205
 msgid "Tint each tab distinctly"
 msgstr "Sävytä välilehdet eri väreillä"
 
@@ -2349,19 +2356,19 @@ msgctxt "Feed"
 msgid "Last updated: %s."
 msgstr "Päivitetty: %s."
 
-#: ../extensions/feed-panel/feed-panel.c:667
+#: ../extensions/feed-panel/feed-panel.c:671
 msgid "Feeds"
 msgstr "Syötteet"
 
-#: ../extensions/feed-panel/feed-panel.c:720
+#: ../extensions/feed-panel/feed-panel.c:724
 msgid "Add new feed"
 msgstr "Lisää syöte"
 
-#: ../extensions/feed-panel/feed-panel.c:727
+#: ../extensions/feed-panel/feed-panel.c:731
 msgid "Delete feed"
 msgstr "Poista syöte"
 
-#: ../extensions/feed-panel/feed-panel.c:810
+#: ../extensions/feed-panel/feed-panel.c:814
 msgid "_Feeds"
 msgstr "Syött_eet"
 
@@ -2497,15 +2504,15 @@ msgstr "Tilapalkin ominaisuudet"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Hallitse verkkosivujen käyttämiä ominaisuuksia vaivattomasti"
 
-#: ../extensions/tab-panel.c:565 ../extensions/tab-panel.c:622
+#: ../extensions/tab-panel.c:568 ../extensions/tab-panel.c:625
 msgid "Tab Panel"
 msgstr "Välilehtipaneeli"
 
-#: ../extensions/tab-panel.c:606
+#: ../extensions/tab-panel.c:609
 msgid "T_ab Panel"
 msgstr "_Välilehtipaneeli"
 
-#: ../extensions/tab-panel.c:623
+#: ../extensions/tab-panel.c:626
 msgid "Show tabs in a vertical panel"
 msgstr "Näytä välilehdet pystypaneelissa"
 
