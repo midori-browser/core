@@ -21,8 +21,9 @@ feed_get_element_string (FeedParser* fparser)
 
     if (!node->children ||
         xmlIsBlankNode (node->children) ||
-        node->children->type != XML_TEXT_NODE
-        )
+        (node->children->type != XML_TEXT_NODE &&
+         node->children->type != XML_CDATA_SECTION_NODE)
+       )
     {
         /* Some servers add required elements with no content,
          * create a dummy string to handle it.
