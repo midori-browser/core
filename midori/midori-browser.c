@@ -1789,7 +1789,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
         if (sokoke_window_activate_key (window, event))
             return TRUE;
 
-    if (gtk_window_propagate_key_event (window, event))
+    if (!event->state && gtk_window_propagate_key_event (window, event))
         return TRUE;
 
     if (!(event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK)))
