@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
+ Copyright (C) 2009-2010 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -107,12 +107,12 @@ rss_parse_item (FeedParser* fparser)
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = feed_get_element_markup (fparser);
+        content = feed_get_element_string (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "description"))
     {
-        content = feed_get_element_string (fparser);
+        content = feed_get_element_markup (fparser);
         katze_item_set_text (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "pubDate"))
@@ -184,12 +184,12 @@ rss_parse_channel (FeedParser* fparser)
 
     if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = feed_get_element_markup (fparser);
+        content = feed_get_element_string (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "description"))
     {
-        content = feed_get_element_string (fparser);
+        content = feed_get_element_markup (fparser);
         katze_item_set_text (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "lastBuildDate"))

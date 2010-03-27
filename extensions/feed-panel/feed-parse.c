@@ -13,11 +13,18 @@
 #include <time.h>
 
 gchar*
-feed_get_element_string (FeedParser* fparser)
+feed_get_element_markup (FeedParser* fparser)
 {
     xmlNodePtr node;
 
     node = fparser->node;
+
+    if (node->children &&
+        !xmlIsBlankNode (node->children) &&
+        node->children->type == XML_ELEMENT_NODE)
+    {
+        return ((gchar*) xmlNodeGetContent (node->children));
+    }
 
     if (!node->children ||
         xmlIsBlankNode (node->children) ||
@@ -71,19 +78,11 @@ feed_remove_markup (gchar* markup)
 }
 
 gchar*
-feed_get_element_markup (FeedParser* fparser)
+feed_get_element_string (FeedParser* fparser)
 {
     gchar* markup;
-    xmlNodePtr node = fparser->node;
 
-    if (node->children &&
-        !xmlIsBlankNode (node->children) &&
-        node->children->type == XML_ELEMENT_NODE)
-    {
-        return (gchar*) xmlNodeGetContent (node->children);
-    }
-
-    markup = feed_get_element_string (fparser);
+    markup = feed_get_element_markup (fparser);
     return feed_remove_markup (markup);
 }
 

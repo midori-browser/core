@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
+ Copyright (C) 2009-2010 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -130,34 +130,6 @@ atom_get_link (KatzeItem* item,
     xmlFree (newtype);
 }
 
-static gchar*
-atom_get_title (FeedParser* fparser)
-{
-    const gchar* name;
-
-    if (!(name = katze_item_get_name (fparser->item)))
-    {
-        gchar* type;
-
-        type = (gchar*)xmlGetProp (fparser->node, BAD_CAST "type");
-        if (type)
-        {
-            gchar* content = NULL;
-
-            if (g_str_equal (type, "html") ||
-                g_str_equal (type, "xhtml"))
-                content = feed_get_element_markup (fparser);
-
-            xmlFree (type);
-
-            if (content)
-                return content;
-        }
-        return feed_get_element_string (fparser);
-    }
-    return g_strdup (name);
-}
-
 static void
 atom_preparse_entry (FeedParser* fparser)
 {
@@ -181,12 +153,12 @@ atom_parse_entry (FeedParser* fparser)
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = atom_get_title (fparser);
+        content = feed_get_element_string (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "summary"))
     {
-        content = feed_get_element_string (fparser);
+        content = feed_get_element_markup (fparser);
         katze_item_set_text (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "updated"))
@@ -209,7 +181,7 @@ atom_parse_entry (FeedParser* fparser)
         /* Only retrieve content if there is no summary */
         if (!katze_item_get_text (fparser->item))
         {
-            content = feed_get_element_string (fparser);
+            content = feed_get_element_markup (fparser);
             katze_item_set_text (fparser->item, content);
         }
     }
@@ -269,12 +241,12 @@ atom_parse_feed (FeedParser* fparser)
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "title"))
     {
-        content = atom_get_title (fparser);
+        content = feed_get_element_string (fparser);
         katze_item_set_name (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "subtitle"))
     {
-        content = feed_get_element_string (fparser);
+        content = feed_get_element_markup (fparser);
         katze_item_set_text (fparser->item, content);
     }
     else if (!xmlStrcmp (node->name, BAD_CAST "updated"))
