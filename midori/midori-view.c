@@ -61,7 +61,7 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
 
 struct _MidoriView
 {
-    KatzeScrolled parent_instance;
+    GtkVBox parent_instance;
 
     gchar* uri;
     gboolean special;
@@ -106,14 +106,16 @@ struct _MidoriView
 
     KatzeNet* net;
     GHashTable* memory;
+
+    GtkWidget* scrolled_window;
 };
 
 struct _MidoriViewClass
 {
-    KatzeScrolledClass parent_class;
+    GtkVBoxClass parent_class;
 };
 
-G_DEFINE_TYPE (MidoriView, midori_view, KATZE_TYPE_SCROLLED);
+G_DEFINE_TYPE (MidoriView, midori_view, GTK_TYPE_VBOX);
 
 GType
 midori_load_status_get_type (void)
@@ -1203,7 +1205,7 @@ midori_view_apply_scroll_position (MidoriView* view)
     {
         if (view->scrollh > 0)
         {
-            GtkAdjustment* adjustment = katze_object_get_object (view, "hadjustment");
+            GtkAdjustment* adjustment = katze_object_get_object (view->scrolled_window, "hadjustment");
             gtk_adjustment_set_value (adjustment, view->scrollh);
             g_object_unref (adjustment);
         }
@@ -1213,7 +1215,7 @@ midori_view_apply_scroll_position (MidoriView* view)
     {
         if (view->scrollv > 0)
         {
-            GtkAdjustment* adjustment = katze_object_get_object (view, "vadjustment");
+            GtkAdjustment* adjustment = katze_object_get_object (view->scrolled_window, "vadjustment");
             gtk_adjustment_set_value (adjustment, view->scrollv);
             g_object_unref (adjustment);
         }
@@ -2700,7 +2702,7 @@ midori_view_notify_hadjustment_cb (MidoriView* view,
                                    GParamSpec* pspec,
                                    gpointer    data)
 {
-    GtkAdjustment* hadjustment = katze_object_get_object (view, "hadjustment");
+    GtkAdjustment* hadjustment = katze_object_get_object (view->scrolled_window, "hadjustment");
     g_signal_connect (hadjustment, "notify::value",
         G_CALLBACK (midori_view_hadjustment_notify_value_cb), view);
     g_object_unref (hadjustment);
@@ -2721,7 +2723,7 @@ midori_view_notify_vadjustment_cb (MidoriView* view,
                                    GParamSpec* pspec,
                                    gpointer    data)
 {
-    GtkAdjustment* vadjustment = katze_object_get_object (view, "vadjustment");
+    GtkAdjustment* vadjustment = katze_object_get_object (view->scrolled_window, "vadjustment");
     g_signal_connect (vadjustment, "notify::value",
         G_CALLBACK (midori_view_vadjustment_notify_value_cb), view);
     g_object_unref (vadjustment);
@@ -2762,12 +2764,15 @@ midori_view_init (MidoriView* view)
     view->download_manager = NULL;
     view->news_aggregator = NULL;
     view->web_view = NULL;
-
     /* Adjustments are not created initially, but overwritten later */
-    g_object_set (view, "hadjustment", NULL, "vadjustment", NULL, NULL);
-    g_signal_connect (view, "notify::hadjustment",
+    view->scrolled_window = katze_scrolled_new (NULL, NULL);
+    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
+                                         GTK_SHADOW_ETCHED_OUT);
+    gtk_container_add (GTK_CONTAINER (view), view->scrolled_window);
+
+    g_signal_connect (view->scrolled_window, "notify::hadjustment",
         G_CALLBACK (midori_view_notify_hadjustment_cb), view);
-    g_signal_connect (view, "notify::vadjustment",
+    g_signal_connect (view->scrolled_window, "notify::vadjustment",
         G_CALLBACK (midori_view_notify_vadjustment_cb), view);
 }
 
@@ -2949,7 +2954,7 @@ _midori_view_update_settings (MidoriView* view)
     if (view->web_view)
         g_object_set (view->web_view,
                       "full-content-zoom", zoom_text_and_images, NULL);
-    g_object_set (view, "kinetic-scrolling", kinetic_scrolling, NULL);
+    g_object_set (view->scrolled_window, "kinetic-scrolling", kinetic_scrolling, NULL);
 }
 
 static void
@@ -3273,8 +3278,8 @@ midori_view_construct_web_view (MidoriView* view)
                 "zoom-text-and-images"), NULL);
     }
 
-    gtk_widget_show (view->web_view);
-    gtk_container_add (GTK_CONTAINER (view), view->web_view);
+    gtk_container_add (GTK_CONTAINER (view->scrolled_window), view->web_view);
+    gtk_widget_show_all (view->scrolled_window);
 
     inspector = katze_object_get_object (view->web_view, "web-inspector");
     g_object_connect (inspector,
@@ -4797,7 +4802,7 @@ midori_view_get_snapshot (MidoriView* view,
     GdkPixbuf* pixbuf;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
-    web_view = gtk_bin_get_child (GTK_BIN (view));
+    web_view = view->web_view;
     g_return_val_if_fail (web_view->window, NULL);
 
     x = web_view->allocation.x;

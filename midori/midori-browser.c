@@ -1270,9 +1270,9 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     guint length_from;
     gint i;
 
-    copy_from = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view_from)));
+    copy_from = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view_from)));
     list_from = webkit_web_view_get_back_forward_list (copy_from);
-    copy_to = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view_to)));
+    copy_to = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view_to)));
     list_to = webkit_web_view_get_back_forward_list (copy_to);
     length_from = webkit_web_back_forward_list_get_back_length (list_from);
 
@@ -1672,8 +1672,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     guint n;
 
     GTK_WIDGET_SET_FLAGS (view, GTK_CAN_FOCUS);
-    gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view),
-                                         GTK_SHADOW_ETCHED_IN);
 
     tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
 
@@ -2626,8 +2624,8 @@ _midori_browser_find_done (MidoriBrowser* browser)
     gtk_widget_hide (browser->find);
     browser->find_typing = FALSE;
     gtk_window_set_focus (GTK_WINDOW (browser),
-        gtk_bin_get_child (GTK_BIN (view)) ?
-        gtk_bin_get_child (GTK_BIN (view)) : view);
+        midori_view_get_web_view (MIDORI_VIEW (view)) ?
+        midori_view_get_web_view (MIDORI_VIEW (view)) : view);
 }
 
 static void
@@ -3476,7 +3474,7 @@ _action_view_encoding_activate (GtkAction*     action,
         GtkWidget* web_view;
 
         name = gtk_action_get_name (current);
-        web_view = gtk_bin_get_child (GTK_BIN (view));
+        web_view = midori_view_get_web_view (MIDORI_VIEW (view));
         if (!strcmp (name, "EncodingAutomatic"))
             g_object_set (web_view, "custom-encoding", NULL, NULL);
         else
@@ -3610,7 +3608,7 @@ _action_source_view_activate (GtkAction*     action,
         source = midori_view_new (browser->net);
         midori_view_set_settings (MIDORI_VIEW (source), browser->settings);
         midori_view_set_uri (MIDORI_VIEW (source), "");
-        web_view = gtk_bin_get_child (GTK_BIN (source));
+        web_view = midori_view_get_web_view (MIDORI_VIEW (source));
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), TRUE);
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
         gtk_widget_show (source);
@@ -3675,7 +3673,7 @@ _action_scroll_somewhere_activate (GtkAction*     action,
     view = midori_browser_get_current_tab (browser);
     if (!view)
         return;
-    web_view = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view)));
+    web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     name = gtk_action_get_name (action);
 
     if (g_str_equal (name, "ScrollLeft"))
@@ -4355,12 +4353,14 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
     else if (g_str_equal (name, "Back"))
     {
         GtkWidget* view;
+        GtkWidget* page;
         WebKitWebBackForwardList* back_forward_list;
         WebKitWebHistoryItem* back_item;
         const gchar* back_uri;
         gint n;
 
-        view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
+        page = midori_browser_get_current_tab (browser);
+        view = midori_view_get_web_view (MIDORI_VIEW (page));
 
         back_forward_list =
             webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
@@ -4378,12 +4378,14 @@ midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
     else if (g_str_equal (name, "Forward"))
     {
         GtkWidget *view;
+        GtkWidget *page;
         WebKitWebBackForwardList *back_forward_list;
         WebKitWebHistoryItem *forward_item;
         const gchar *forward_uri;
         gint n;
 
-        view = gtk_bin_get_child (GTK_BIN (midori_browser_get_current_tab (browser)));
+        page = midori_browser_get_current_tab (browser);
+        view = midori_view_get_web_view (MIDORI_VIEW (page));
 
         back_forward_list =
             webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
@@ -4928,7 +4930,7 @@ _action_inspect_page_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    WebKitWebView* web_view = WEBKIT_WEB_VIEW (gtk_bin_get_child (GTK_BIN (view)));
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (MIDORI_VIEW (view)));
     WebKitWebInspector* inspector = webkit_web_view_get_inspector (web_view);
     webkit_web_inspector_show (inspector);
 }
@@ -4958,7 +4960,7 @@ _action_tab_current_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    GtkWidget* child = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* child = midori_view_get_web_view (MIDORI_VIEW (view));
     gtk_widget_grab_focus (child ? child : view);
 }
 
@@ -7496,7 +7498,7 @@ midori_browser_set_current_page (MidoriBrowser* browser,
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
     if (view && midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
-    else if ((web_view = gtk_bin_get_child (GTK_BIN (view))))
+    else if ((web_view = midori_view_get_web_view (MIDORI_VIEW (view))))
         gtk_widget_grab_focus (web_view);
     else
         gtk_widget_grab_focus (view);
@@ -7565,7 +7567,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     if (view && midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
-    else if ((web_view = gtk_bin_get_child (GTK_BIN (view))))
+    else if ((web_view = midori_view_get_web_view (MIDORI_VIEW (view))))
         gtk_widget_grab_focus (web_view);
     else
         gtk_widget_grab_focus (view);
