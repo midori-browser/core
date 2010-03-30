@@ -306,7 +306,7 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
                         MidoriView*      view,
                         MidoriExtension* extension)
 {
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* web_view = midori_view_get_web_view (view);
     g_signal_connect (web_view, "window-object-cleared",
             G_CALLBACK (formhistory_window_object_cleared_cb), NULL);
     #if WEBKIT_CHECK_VERSION (1, 1, 4)
@@ -348,7 +348,7 @@ formhistory_deactivate_tabs (MidoriView*      view,
                              MidoriBrowser*   browser,
                              MidoriExtension* extension)
 {
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* web_view = midori_view_get_web_view (view);
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_window_object_cleared_cb, NULL);
     #if WEBKIT_CHECK_VERSION (1, 1, 4)

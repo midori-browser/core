@@ -190,7 +190,7 @@ mouse_gestures_add_tab_cb (MidoriBrowser*   browser,
                            MidoriView*      view,
                            MidoriExtension* extension)
 {
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* web_view = midori_view_get_web_view (view);
 
     g_object_connect (web_view,
         "signal::button-press-event",
@@ -231,7 +231,7 @@ static void
 mouse_gestures_deactivate_tabs (MidoriView*    view,
                                 MidoriBrowser* browser)
 {
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* web_view = midori_view_get_web_view (view);
 
     g_object_disconnect (web_view,
         "any_signal::button-press-event",

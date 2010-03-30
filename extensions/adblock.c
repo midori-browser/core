@@ -935,7 +935,7 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
                     MidoriView*      view,
                     MidoriExtension* extension)
 {
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* web_view = midori_view_get_web_view (view);
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
     #endif
@@ -1282,7 +1282,7 @@ adblock_deactivate_tabs (MidoriView*      view,
                          MidoriBrowser*   browser,
                          MidoriExtension* extension)
 {
-    GtkWidget* web_view = gtk_bin_get_child (GTK_BIN (view));
+    GtkWidget* web_view = midori_view_get_web_view (view);
     #if HAVE_WEBKIT_RESOURCE_REQUEST
     GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
     #endif

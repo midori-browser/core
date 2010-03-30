@@ -25,7 +25,8 @@ static GdkPixbuf* tab_selector_get_snapshot(MidoriView* view,
     gfloat factor;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
-    web_view = gtk_bin_get_child (GTK_BIN (view));
+
+    web_view = midori_view_get_web_view (view);
 
     if(maxwidth < 0) {
         maxwidth *= -1;
