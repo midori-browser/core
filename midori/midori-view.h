@@ -209,6 +209,9 @@ midori_view_get_snapshot               (MidoriView*        view,
                                         gint               width,
                                         gint               height);
 
+GtkWidget*
+midori_view_get_web_view               (MidoriView*        view);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

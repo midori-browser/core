@@ -4859,6 +4859,22 @@ midori_view_get_snapshot (MidoriView* view,
     return pixbuf;
 }
 
+/**
+ * midori_view_get_web_view
+ * @view: a #MidoriView
+ *
+ * Returns: The #WebKitWebView for this view
+ *
+ * Since: 0.2.5
+ **/
+GtkWidget*
+midori_view_get_web_view        (MidoriView*        view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
+    return view->web_view;
+}
+
 static void
 thumb_view_load_status_cb (MidoriView* thumb_view,
                            GParamSpec* pspec,
