@@ -600,7 +600,7 @@ entry_expose_event (GtkWidget*      entry,
   GdkWindow* text_area;
   gint width, height;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (icon_entry);
+  priv = icon_entry->priv;
   text_area = GTK_ENTRY (entry)->text_area;
   gdk_drawable_get_size (text_area, &width, &height);
 
@@ -663,7 +663,7 @@ gtk_icon_entry_map (GtkWidget *widget)
 
       GTK_WIDGET_CLASS (parent_class)->map (widget);
 
-      priv = GTK_ICON_ENTRY_GET_PRIVATE (widget);
+      priv = widget->priv;
 
       for (i = 0; i < MAX_ICONS; i++)
 	{
@@ -693,7 +693,7 @@ gtk_icon_entry_unmap (GtkWidget *widget)
     {
       int i;
 
-      priv = GTK_ICON_ENTRY_GET_PRIVATE (widget);
+      priv = widget->priv;
 
       for (i = 0; i < MAX_ICONS; i++)
 	{
@@ -1007,7 +1007,7 @@ place_windows (GtkIconEntry *icon_entry, GtkAllocation *widget_alloc)
   GtkIconEntryPrivate *priv;
   gint y;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (icon_entry);
+  priv = icon_entry->priv;
 
   get_text_area_size (icon_entry, &text_area_alloc);
   
@@ -1900,7 +1900,7 @@ gtk_icon_entry_set_icon_sensitive (const GtkIconEntry *icon_entry,
   g_return_if_fail (GTK_IS_ICON_ENTRY (icon_entry));
   g_return_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos));
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (icon_entry);
+  priv = icon_entry->priv;
 
   icon_info = &priv->icons[icon_pos];
 
@@ -1923,7 +1923,7 @@ gtk_icon_entry_set_progress_fraction (GtkIconEntry *icon_entry,
 
   g_return_if_fail (GTK_IS_ICON_ENTRY (icon_entry));
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (icon_entry);
+  priv = icon_entry->priv;
   priv->fraction = CLAMP (fraction, 0.0, 1.0);
 
   if (GTK_ENTRY (icon_entry)->text_area)
