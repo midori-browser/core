@@ -67,8 +67,6 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
 	((pos) == GTK_ICON_ENTRY_PRIMARY || \
 	 (pos) == GTK_ICON_ENTRY_SECONDARY)
 
-#define GTK_ICON_ENTRY_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GTK_TYPE_ICON_ENTRY, GtkIconEntryPrivate))
-
 typedef struct
 {
   GdkPixbuf *pixbuf;
@@ -620,6 +618,9 @@ entry_expose_event (GtkWidget*      entry,
 static void
 gtk_icon_entry_init (GtkIconEntry *entry)
 {
+  entry->priv = G_TYPE_INSTANCE_GET_PRIVATE (entry, GTK_TYPE_ICON_ENTRY,
+                                             GtkIconEntryPrivate);
+
   g_signal_connect_after (entry, "expose-event",
     G_CALLBACK (entry_expose_event), entry);
 }
@@ -809,7 +810,7 @@ get_icon_width (GtkIconEntry *entry, GtkIconEntryPosition icon_pos)
   GtkIconEntryPrivate *priv;
   EntryIconInfo *icon_info;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   if (icon_info->pixbuf == NULL)
@@ -911,7 +912,7 @@ gtk_icon_entry_realize (GtkWidget *widget)
   int i;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   GTK_WIDGET_CLASS (parent_class)->realize (widget);
 
@@ -955,7 +956,7 @@ gtk_icon_entry_unrealize (GtkWidget *widget)
   int i;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   GTK_WIDGET_CLASS (parent_class)->unrealize (widget);
 
@@ -1066,7 +1067,7 @@ get_pixbuf_from_icon (GtkIconEntry *entry, GtkIconEntryPosition icon_pos)
   EntryIconInfo *icon_info;
   GtkIconEntryPrivate *priv;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   g_object_ref (icon_info->pixbuf);
@@ -1131,7 +1132,7 @@ draw_icon (GtkWidget *widget, GtkIconEntryPosition icon_pos)
   gint x, y, width, height;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   if (icon_info->pixbuf == NULL || !GTK_WIDGET_REALIZED (widget))
@@ -1211,7 +1212,7 @@ gtk_icon_entry_expose (GtkWidget *widget, GdkEventExpose *event)
   g_return_val_if_fail (event != NULL, FALSE);
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   if (GTK_WIDGET_DRAWABLE (widget))
     {
@@ -1256,7 +1257,7 @@ gtk_icon_entry_enter_notify (GtkWidget *widget, GdkEventCrossing *event)
   int i;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   for (i = 0; i < MAX_ICONS; i++)
     {
@@ -1293,7 +1294,7 @@ gtk_icon_entry_leave_notify (GtkWidget *widget, GdkEventCrossing *event)
   int i;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   for (i = 0; i < MAX_ICONS; i++)
     {
@@ -1322,7 +1323,7 @@ gtk_icon_entry_button_press (GtkWidget *widget, GdkEventButton *event)
   int i;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   for (i = 0; i < MAX_ICONS; i++)
     {
@@ -1355,7 +1356,7 @@ gtk_icon_entry_button_release (GtkWidget *widget, GdkEventButton *event)
   int i;
 
   entry = GTK_ICON_ENTRY (widget);
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   for (i = 0; i < MAX_ICONS; i++)
     {
@@ -1407,7 +1408,7 @@ icon_theme_changed (GtkIconEntry *entry)
   GtkIconEntryPrivate *priv;
   int i;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   for (i = 0; i < MAX_ICONS; i++)
     {
@@ -1445,7 +1446,7 @@ gtk_icon_entry_set_icon_internal (GtkIconEntry *entry,
   g_return_if_fail (GTK_IS_ICON_ENTRY (entry));
   g_return_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos));
   
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
   
   if (pixbuf == icon_info->pixbuf)
@@ -1517,7 +1518,7 @@ gtk_icon_entry_set_icon_from_pixbuf (GtkIconEntry *entry,
   g_return_if_fail (GTK_IS_ICON_ENTRY (entry));
   g_return_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos));
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   if (pixbuf == icon_info->pixbuf)
@@ -1614,7 +1615,7 @@ gtk_icon_entry_set_icon_from_icon_name (GtkIconEntry *entry,
   g_return_if_fail (GTK_IS_ICON_ENTRY (entry));
   g_return_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos));
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   screen = gtk_widget_get_screen (GTK_WIDGET (entry));
@@ -1672,7 +1673,7 @@ gtk_icon_entry_set_icon_from_gicon (const GtkIconEntry *entry,
   GError *error = NULL;
   GtkIconInfo *info;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   screen = gtk_widget_get_screen (GTK_WIDGET (entry));
@@ -1725,7 +1726,7 @@ gtk_icon_entry_set_cursor (const GtkIconEntry *entry,
   GtkIconEntryPrivate *priv;
   GdkCursor *cursor;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   icon_info->cursor_type = cursor_type;
@@ -1757,7 +1758,7 @@ gtk_icon_entry_set_icon_highlight (const GtkIconEntry *entry,
   EntryIconInfo *icon_info;
   GtkIconEntryPrivate *priv;
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   g_return_if_fail (entry != NULL);
   g_return_if_fail (GTK_IS_ICON_ENTRY (entry));
@@ -1792,7 +1793,7 @@ gtk_icon_entry_get_pixbuf (const GtkIconEntry *entry,
   g_return_val_if_fail (GTK_IS_ICON_ENTRY (entry), NULL);
   g_return_val_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos), NULL);
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   return priv->icons[icon_pos].pixbuf;
 }
@@ -1818,7 +1819,7 @@ gtk_icon_entry_get_gicon (const GtkIconEntry *entry,
   g_return_val_if_fail (GTK_IS_ICON_ENTRY (entry), NULL);
   g_return_val_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos), NULL);
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
   icon_info = &priv->icons[icon_pos];
 
   return icon_info->storage_type == _GTK_IMAGE_GICON ? icon_info->gicon : NULL;
@@ -1843,7 +1844,7 @@ gtk_icon_entry_get_icon_highlight (const GtkIconEntry *entry,
   g_return_val_if_fail (GTK_IS_ICON_ENTRY (entry), FALSE);
   g_return_val_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos), FALSE);
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   return priv->icons[icon_pos].highlight;
 }
@@ -1869,7 +1870,7 @@ gtk_icon_entry_set_tooltip (const GtkIconEntry *entry,
   g_return_if_fail (GTK_IS_ICON_ENTRY (entry));
   g_return_if_fail (IS_VALID_ICON_ENTRY_POSITION (icon_pos));
 
-  priv = GTK_ICON_ENTRY_GET_PRIVATE (entry);
+  priv = entry->priv;
 
   icon_info = &priv->icons[icon_pos];
 
