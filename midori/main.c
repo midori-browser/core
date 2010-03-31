@@ -54,6 +54,13 @@
     #define BOOKMARK_FILE "bookmarks.xbel"
 #endif
 
+#ifdef GDK_WINDOWING_X11
+    #include <X11/Xlib.h>
+    #include <X11/Xutil.h>
+    #include <X11/extensions/scrnsaver.h>
+    #include <gdk/gdkx.h>
+#endif
+
 static gchar*
 build_config_filename (const gchar* filename)
 {
@@ -1422,6 +1429,71 @@ signal_handler (int signal_id)
 }
 #endif
 
+typedef struct {
+     MidoriBrowser* browser;
+     guint timeout;
+     gchar* uri;
+} MidoriInactivityTimeout;
+
+static gboolean
+midori_inactivity_timeout (gpointer data)
+{
+    #ifdef GDK_WINDOWING_X11
+    MidoriInactivityTimeout* mit = data;
+    static Display* xdisplay = NULL;
+    static XScreenSaverInfo* mit_info = NULL;
+    static int has_extension = -1;
+    int event_base, error_base;
+
+    if (has_extension == -1)
+    {
+        GdkDisplay* display = gtk_widget_get_display (GTK_WIDGET (mit->browser));
+        xdisplay = GDK_DISPLAY_XDISPLAY (display);
+        has_extension = XScreenSaverQueryExtension (xdisplay,
+                                                    &event_base, &error_base);
+    }
+
+    if (has_extension)
+    {
+        if (!mit_info)
+            mit_info = XScreenSaverAllocInfo ();
+
+        XScreenSaverQueryInfo (xdisplay, RootWindow (xdisplay, 0), mit_info);
+        if (mit_info->idle / 1000 > mit->timeout)
+        {
+            guint i = 0;
+            GtkWidget* view;
+
+            while ((view = midori_browser_get_nth_tab (mit->browser, i++)))
+                gtk_widget_destroy (view);
+            midori_browser_set_current_uri (mit->browser, mit->uri);
+            /* TODO: Re-run initial commands */
+
+        }
+    }
+    #else
+    /* TODO: Implement for other windowing systems */
+    #endif
+
+    return TRUE;
+}
+
+static void
+midori_setup_inactivity_reset (MidoriBrowser* browser,
+                               gint           inactivity_reset,
+                               const gchar*   uri)
+{
+    if (inactivity_reset > 0)
+    {
+        MidoriInactivityTimeout* mit = g_new (MidoriInactivityTimeout, 1);
+        mit->browser = browser;
+        mit->timeout = inactivity_reset;
+        mit->uri = g_strdup (uri);
+        g_timeout_add_seconds (inactivity_reset, midori_inactivity_timeout,
+                               mit);
+    }
+}
+
 int
 main (int    argc,
       char** argv)
@@ -1434,6 +1506,7 @@ main (int    argc,
     gboolean execute;
     gboolean version;
     gchar** uris;
+    gint inactivity_reset;
     MidoriApp* app;
     gboolean result;
     GError* error;
@@ -1459,6 +1532,10 @@ main (int    argc,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("Addresses"), NULL },
+       #ifdef GDK_WINDOWING_X11
+       { "inactivity-reset", 'i', 0, G_OPTION_ARG_INT, &inactivity_reset,
+       N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
+       #endif
      { NULL }
     };
     GString* error_messages;
@@ -1534,6 +1611,7 @@ main (int    argc,
     execute = FALSE;
     version = FALSE;
     uris = NULL;
+    inactivity_reset = 0;
     error = NULL;
     if (!gtk_init_with_args (&argc, &argv, _("[Addresses]"), entries,
                              GETTEXT_PACKAGE, &error))
@@ -1642,10 +1720,15 @@ main (int    argc,
                 i++;
             }
         }
+        midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
         midori_startup_timer ("App created: \t%f");
         gtk_main ();
         return 0;
     }
+
+    /* FIXME: Inactivity reset is only supported for app mode */
+    if (inactivity_reset > 0)
+        g_error ("--inactivity-reset is currently only supported with --app.");
 
     /* Standalone javascript support */
     if (run)
