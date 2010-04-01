@@ -209,7 +209,8 @@ def configure (conf):
         args = '--define-variable=target=win32'
     elif sys.platform != 'darwin':
         check_pkg ('x11')
-        conf.check (lib='Xss', mandatory=True)
+        conf.check (header_name='X11/extensions/scrnsaver.h', mandatory=False)
+        conf.check (lib='Xss', mandatory=False)
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
     check_pkg ('webkit-1.0', '1.1.1', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')

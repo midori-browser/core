@@ -54,7 +54,7 @@
     #define BOOKMARK_FILE "bookmarks.xbel"
 #endif
 
-#ifdef GDK_WINDOWING_X11
+#ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
     #include <X11/Xlib.h>
     #include <X11/Xutil.h>
     #include <X11/extensions/scrnsaver.h>
@@ -1438,7 +1438,7 @@ typedef struct {
 static gboolean
 midori_inactivity_timeout (gpointer data)
 {
-    #ifdef GDK_WINDOWING_X11
+    #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
     MidoriInactivityTimeout* mit = data;
     static Display* xdisplay = NULL;
     static XScreenSaverInfo* mit_info = NULL;
@@ -1532,7 +1532,7 @@ main (int    argc,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("Addresses"), NULL },
-       #ifdef GDK_WINDOWING_X11
+       #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
        { "inactivity-reset", 'i', 0, G_OPTION_ARG_INT, &inactivity_reset,
        N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
        #endif
