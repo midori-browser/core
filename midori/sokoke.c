@@ -859,7 +859,8 @@ sokoke_get_desktop (void)
         GdkDisplay* display = gdk_display_get_default ();
         Display* xdisplay = GDK_DISPLAY_XDISPLAY (display);
         Window root_window = RootWindow (xdisplay, 0);
-        Atom save_mode_atom = gdk_x11_get_xatom_by_name ("_DT_SAVE_MODE");
+        Atom save_mode_atom = gdk_x11_get_xatom_by_name_for_display (
+            display, "_DT_SAVE_MODE");
         Atom actual_type;
         int actual_format;
         unsigned long n_items, bytes;
@@ -1016,7 +1017,7 @@ sokoke_entry_set_default_text (GtkEntry*    entry,
                                             PANGO_STYLE_ITALIC);
         gtk_entry_set_text (entry, default_text);
     }
-    else if (!GTK_WIDGET_HAS_FOCUS (GTK_WIDGET (entry)))
+    else if (!gtk_widget_has_focus (GTK_WIDGET (entry)))
     {
         gint has_default = GPOINTER_TO_INT (
             g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));

@@ -5658,7 +5658,7 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 {
     GtkWidget* widget = GTK_WIDGET (browser);
 
-    if (GTK_WIDGET_REALIZED (widget) && !browser->alloc_timeout)
+    if (gtk_widget_get_realized (widget) && !browser->alloc_timeout)
     {
         gpointer last_page;
 
@@ -6681,7 +6681,8 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
     if (event->button == 2)
     {
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
-        GtkAction* action = gtk_widget_get_action (parent);
+        GtkAction* action = gtk_activatable_get_related_action (
+            GTK_ACTIVATABLE (parent));
 
         return midori_browser_menu_middle_click_on_navigation_action (browser, action);
     }

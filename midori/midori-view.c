@@ -2340,7 +2340,7 @@ midori_view_populate_popup (MidoriView* view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "Encoding"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        if (GTK_WIDGET_IS_SENSITIVE (menuitem))
+        if (gtk_widget_get_sensitive (menuitem))
         {
             GtkWidget* sub_menu;
             static const GtkActionEntry encodings[] = {
