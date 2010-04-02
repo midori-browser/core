@@ -759,10 +759,10 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
                                             GParamSpec*        pspec,
                                             SoupSession*       session)
 {
-    gboolean auto_detect_proxy;
+    MidoriProxy proxy_type;
 
-    auto_detect_proxy = katze_object_get_boolean (settings, "auto-detect-proxy");
-    if (auto_detect_proxy)
+    proxy_type = katze_object_get_enum (settings, "proxy-type");
+    if (proxy_type == MIDORI_PROXY_AUTOMATIC)
     {
         gboolean gnome_supported = FALSE;
         GModule* module;
@@ -780,12 +780,14 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         if (!gnome_supported)
             midori_soup_session_set_proxy_uri (session, g_getenv ("http_proxy"));
     }
-    else
+    else if (proxy_type == MIDORI_PROXY_HTTP)
     {
         gchar* http_proxy = katze_object_get_string (settings, "http-proxy");
         midori_soup_session_set_proxy_uri (session, http_proxy);
         g_free (http_proxy);
     }
+    else
+        midori_soup_session_set_proxy_uri (session, NULL);
 }
 
 #if !WEBKIT_CHECK_VERSION (1, 1, 11)

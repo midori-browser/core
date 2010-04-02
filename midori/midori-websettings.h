@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -118,6 +118,19 @@ midori_toolbar_style_get_type (void) G_GNUC_CONST;
 
 #define MIDORI_TYPE_TOOLBAR_STYLE \
     (midori_toolbar_style_get_type ())
+
+typedef enum
+{
+    MIDORI_PROXY_AUTOMATIC,
+    MIDORI_PROXY_HTTP,
+    MIDORI_PROXY_NONE
+} MidoriProxy;
+
+GType
+midori_proxy_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_PROXY \
+    (midori_proxy_get_type ())
 
 typedef enum
 {

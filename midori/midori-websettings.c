@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -85,6 +85,7 @@ struct _MidoriWebSettings
     gint maximum_history_age;
     gboolean remember_last_downloaded_files;
 
+    MidoriProxy proxy_type;
     gchar* http_proxy;
     gchar* http_accept_language;
     gboolean auto_detect_proxy;
@@ -170,6 +171,7 @@ enum
     PROP_MAXIMUM_HISTORY_AGE,
     PROP_REMEMBER_LAST_DOWNLOADED_FILES,
 
+    PROP_PROXY_TYPE,
     PROP_HTTP_PROXY,
     PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
@@ -268,6 +270,23 @@ midori_toolbar_style_get_type (void)
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriToolbarStyle", values);
+    }
+    return type;
+}
+
+GType
+midori_proxy_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_PROXY_AUTOMATIC, "MIDORI_PROXY_AUTOMATIC", N_("Automatic (GNOME or environment)") },
+         { MIDORI_PROXY_HTTP, "MIDORI_PROXY_HTTP", N_("HTTP proxy server") },
+         { MIDORI_PROXY_NONE, "MIDORI_PROXY_NONE", N_("No proxy server") },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriProxy", values);
     }
     return type;
 }
@@ -1019,22 +1038,39 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
 
 
 
+    /**
+     * MidoriWebSettings:proxy-type:
+     *
+     * The type of proxy server to use.
+     *
+     * Since: 0.2.5
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PROXY_TYPE,
+                                     g_param_spec_enum (
+                                     "proxy-type",
+                                     _("Proxy server"),
+                                     _("The type of proxy server to use"),
+                                     MIDORI_TYPE_PROXY,
+                                     MIDORI_PROXY_AUTOMATIC,
+                                     flags));
+
     g_object_class_install_property (gobject_class,
                                      PROP_HTTP_PROXY,
                                      g_param_spec_string (
                                      "http-proxy",
-                                     _("Proxy Server"),
+                                     _("HTTP Proxy Server"),
                                      _("The proxy server used for HTTP connections"),
                                      NULL,
                                      flags));
 
     /**
-    * MidoriWebSettings:auto-detect-proxy:
-    *
-    * Whether to detect the proxy server automatically from the environment
-    *
-    * Since: 0.1.3
-    */
+     * MidoriWebSettings:auto-detect-proxy:
+     *
+     * Whether to detect the proxy server automatically from the environment
+     *
+     * Deprecated: 0.2.5
+     */
     g_object_class_install_property (gobject_class,
                                      PROP_AUTO_DETECT_PROXY,
                                      g_param_spec_boolean (
@@ -1491,6 +1527,13 @@ midori_web_settings_set_property (GObject*      object,
         web_settings->remember_last_downloaded_files = g_value_get_boolean (value);
         break;
 
+    case PROP_PROXY_TYPE:
+        web_settings->proxy_type = g_value_get_enum (value);
+        web_settings->auto_detect_proxy =
+            web_settings->proxy_type == MIDORI_PROXY_AUTOMATIC
+            ? TRUE : FALSE;
+        g_object_notify (object, "auto-detect-proxy");
+    break;
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
         break;
@@ -1735,6 +1778,9 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, web_settings->remember_last_downloaded_files);
         break;
 
+    case PROP_PROXY_TYPE:
+        g_value_set_enum (value, web_settings->proxy_type);
+        break;
     case PROP_HTTP_PROXY:
         g_value_set_string (value, web_settings->http_proxy);
         break;
