@@ -339,10 +339,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         g_object_set (action,
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
-        if (!browser->progress_in_location || !GTK_WIDGET_VISIBLE (browser->navigationbar))
+        if (!browser->progress_in_location || !gtk_widget_get_visible (browser->navigationbar))
             gtk_widget_show (browser->progressbar);
-        if (!GTK_WIDGET_VISIBLE (browser->statusbar) &&
-            !GTK_WIDGET_VISIBLE (browser->navigationbar) &&
+        if (!gtk_widget_get_visible (browser->statusbar) &&
+            !gtk_widget_get_visible (browser->navigationbar) &&
             browser->progress_in_location)
             gtk_widget_show (browser->navigationbar);
         if (browser->progress_in_location)
@@ -387,7 +387,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
 
     katze_assign (browser->statusbar_text, sokoke_format_uri_for_display (text));
 
-    if (!GTK_WIDGET_VISIBLE (browser->statusbar) && !is_location)
+    if (!gtk_widget_get_visible (browser->statusbar) && !is_location)
     {
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
@@ -704,7 +704,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* check_toolbar;
     GtkWidget* check_app;
 
-    if (!browser->bookmarks || !GTK_WIDGET_VISIBLE (browser))
+    if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     if (is_folder)
@@ -888,7 +888,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         }
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
-            if (!GTK_WIDGET_VISIBLE (browser->bookmarkbar))
+            if (!gtk_widget_get_visible (browser->bookmarkbar))
                 _action_set_active (browser, "Bookmarkbar", TRUE);
 
         folder = browser->bookmarks;
@@ -970,7 +970,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
     gchar* last_slash;
     gchar* folder;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
@@ -1604,14 +1604,14 @@ midori_view_search_text_cb (GtkWidget*     view,
         gtk_widget_hide (GTK_WIDGET (browser->find_case));
         gtk_widget_hide (GTK_WIDGET (browser->find_highlight));
         gtk_widget_hide (GTK_WIDGET (browser->find_close));
-        if (!GTK_WIDGET_VISIBLE (browser->find))
+        if (!gtk_widget_get_visible (browser->find))
             gtk_entry_set_text (GTK_ENTRY (browser->find_text), "");
         gtk_widget_show (browser->find);
         gtk_window_set_focus (GTK_WINDOW (browser), browser->find_text);
         gtk_editable_insert_text (GTK_EDITABLE (browser->find_text), typing, -1, &position);
         gtk_editable_set_position (GTK_EDITABLE (browser->find_text), -1);
     }
-    if (GTK_WIDGET_VISIBLE (browser->find) && !typing)
+    if (gtk_widget_get_visible (browser->find) && !typing)
     {
         #if !HAVE_HILDON
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
@@ -2247,7 +2247,7 @@ _action_open_activate (GtkAction*     action,
     GtkWidget* dialog;
     GtkWidget* view;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     dialog = sokoke_file_chooser_dialog_new (_("Open file"),
@@ -2362,7 +2362,7 @@ _action_compact_add_activate (GtkAction*     action,
                                "AddDesktopShortcut", "AddNewsFeed" };
     guint i;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     dialog = g_object_new (GTK_TYPE_DIALOG,
@@ -2416,7 +2416,7 @@ _action_print_activate (GtkAction*     action,
 {
     GtkWidget* view;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     if ((view = midori_browser_get_current_tab (browser)))
@@ -2576,7 +2576,7 @@ static void
 _action_find_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-    if (GTK_WIDGET_VISIBLE (browser->find))
+    if (gtk_widget_get_visible (browser->find))
         _midori_browser_find_done (browser);
     else
     {
@@ -3302,7 +3302,7 @@ _action_preferences_activate (GtkAction*     action,
 {
     static GtkWidget* dialog = NULL;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     if (!dialog)
@@ -3360,8 +3360,8 @@ _action_menubar_activate (GtkToggleAction* action,
     sokoke_widget_set_visible (browser->menubar, active);
 
     g_object_set_data (G_OBJECT (browser), "midori-toolbars-visible",
-        GTK_WIDGET_VISIBLE (browser->menubar)
-        || GTK_WIDGET_VISIBLE (browser->navigationbar)
+        gtk_widget_get_visible (browser->menubar)
+        || gtk_widget_get_visible (browser->navigationbar)
         ? (void*)0xdeadbeef : NULL);
 }
 
@@ -3374,8 +3374,8 @@ _action_navigationbar_activate (GtkToggleAction* action,
     sokoke_widget_set_visible (browser->navigationbar, active);
 
     g_object_set_data (G_OBJECT (browser), "midori-toolbars-visible",
-        GTK_WIDGET_VISIBLE (browser->menubar)
-        || GTK_WIDGET_VISIBLE (browser->navigationbar)
+        gtk_widget_get_visible (browser->menubar)
+        || gtk_widget_get_visible (browser->navigationbar)
         ? (void*)0xdeadbeef : NULL);
 }
 
@@ -3784,7 +3784,7 @@ static void
 _action_location_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
-    if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
+    if (!gtk_widget_get_visible (browser->navigationbar))
         gtk_widget_show (browser->navigationbar);
 }
 
@@ -4076,7 +4076,7 @@ _action_search_activate (GtkAction*     action,
     while (((proxy = g_slist_nth_data (proxies, i++))))
         if (GTK_IS_TOOL_ITEM (proxy))
         {
-            if (!GTK_WIDGET_VISIBLE (browser->navigationbar))
+            if (!gtk_widget_get_visible (browser->navigationbar))
                 gtk_widget_show (browser->navigationbar);
             return;
         }
@@ -4127,7 +4127,7 @@ static void
 _action_search_focus_out (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    if (GTK_WIDGET_VISIBLE (browser->statusbar) && !browser->show_navigationbar)
+    if (gtk_widget_get_visible (browser->statusbar) && !browser->show_navigationbar)
         gtk_widget_hide (browser->navigationbar);
 }
 
@@ -4525,7 +4525,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     guint i;
     KatzeItem* item;
 
-    if (!browser->bookmarks || !GTK_WIDGET_VISIBLE (browser))
+    if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     dialog = gtk_dialog_new_with_buttons (
@@ -4662,7 +4662,7 @@ _action_bookmarks_export_activate (GtkAction*     action,
     gchar* path = NULL;
     GError* error;
 
-    if (!browser->bookmarks || !GTK_WIDGET_VISIBLE (browser))
+    if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
@@ -4693,7 +4693,7 @@ _action_manage_search_engines_activate (GtkAction*     action,
 {
     static GtkWidget* dialog = NULL;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     if (!dialog)
@@ -4821,7 +4821,7 @@ _action_clear_private_data_activate (GtkAction*     action,
 {
     static GtkWidget* dialog = NULL;
 
-    if (!GTK_WIDGET_VISIBLE (browser))
+    if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
     if (!dialog)
@@ -6848,7 +6848,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                             last_panel_position);
     /* The browser may not yet be visible, which means that we can't set the
        page. So we set it in midori_browser_size_allocate_cb */
-    if (GTK_WIDGET_VISIBLE (browser))
+    if (gtk_widget_get_visible (GTK_WIDGET (browser)))
         midori_panel_set_current_page (MIDORI_PANEL (browser->panel), last_panel_page);
     else
         g_object_set_data (G_OBJECT (browser), "last-page",

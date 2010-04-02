@@ -393,7 +393,7 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
     GtkWidget* dialog;
 
     dialog = midori_search_action_get_dialog (search_action);
-    if (GTK_WIDGET_VISIBLE (dialog))
+    if (gtk_widget_get_visible (dialog))
         gtk_window_present (GTK_WINDOW (dialog));
     else
         gtk_widget_show (dialog);

@@ -38,6 +38,7 @@
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL (widget)
     #define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
+    #define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE (widget)
 #endif
 
 #if !GTK_CHECK_VERSION(2, 12, 0)

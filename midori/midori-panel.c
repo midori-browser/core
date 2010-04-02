@@ -657,7 +657,7 @@ midori_panel_construct_menu_item (MidoriPanel*    panel,
     menuitem = gtk_action_create_menu_item (action);
     g_object_set_data (G_OBJECT (menuitem), "page", viewable);
 
-    if (GTK_WIDGET_VISIBLE (viewable))
+    if (gtk_widget_get_visible (GTK_WIDGET (viewable)))
         gtk_widget_show (menuitem);
     return menuitem;
 }
@@ -841,7 +841,7 @@ midori_panel_append_page (MidoriPanel*    panel,
     g_signal_connect (viewable, "destroy",
                       G_CALLBACK (midori_panel_viewable_destroy_cb), panel);
 
-    if (!GTK_WIDGET_VISIBLE (viewable))
+    if (!gtk_widget_get_visible (GTK_WIDGET (viewable)))
     {
         gtk_widget_hide (scrolled);
         gtk_widget_hide (GTK_WIDGET (toolitem));
@@ -992,7 +992,7 @@ midori_panel_set_current_page (MidoriPanel* panel,
         GList* items;
         const gchar* label;
 
-        if (!GTK_WIDGET_VISIBLE (viewable))
+        if (!gtk_widget_get_visible (viewable))
             return;
 
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);

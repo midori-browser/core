@@ -491,7 +491,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         searches += i;
     }
 
-    if (!GTK_WIDGET_VISIBLE (action->popup))
+    if (!gtk_widget_get_visible (action->popup))
     {
         GtkWidget* toplevel = gtk_widget_get_toplevel (action->entry);
         gtk_window_set_screen (GTK_WINDOW (action->popup),
@@ -836,7 +836,7 @@ midori_location_action_button_press_event_cb (GtkEntry*             entry,
                                               GdkEventKey*          event,
                                               MidoriLocationAction* action)
 {
-    if (action->popup && GTK_WIDGET_VISIBLE (action->popup))
+    if (action->popup && gtk_widget_get_visible (action->popup))
     {
         midori_location_action_popdown_completion (action);
 
@@ -868,7 +868,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     case GDK_Right:
     case GDK_KP_Right:
 
-        if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
+        if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
             GtkTreeModel* model = location_action->completion_model;
             GtkTreeIter iter;
@@ -897,7 +897,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         break;
     case GDK_Escape:
     {
-        if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
+        if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
             midori_location_action_popdown_completion (location_action);
             text = gtk_entry_get_text (entry);
@@ -911,7 +911,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     }
     case GDK_Page_Up:
     case GDK_Page_Down:
-        if (!(location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup)))
+        if (!(location_action->popup && gtk_widget_get_visible (location_action->popup)))
             return TRUE;
     case GDK_Down:
     case GDK_KP_Down:
@@ -920,7 +920,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     {
         GtkWidget* parent;
 
-        if (location_action->popup && GTK_WIDGET_VISIBLE (location_action->popup))
+        if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
             GtkTreeModel* model = location_action->completion_model;
             gint matches = gtk_tree_model_iter_n_children (model, NULL);
