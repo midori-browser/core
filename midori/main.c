@@ -1431,6 +1431,27 @@ signal_handler (int signal_id)
 }
 #endif
 
+static void
+midori_soup_session_block_uris_cb (SoupSession* session,
+                                   SoupMessage* msg,
+                                   gchar*       blocked_uris)
+{
+    static GRegex* regex = NULL;
+    SoupURI* soup_uri;
+    gchar* uri;
+    if (!regex)
+        regex = g_regex_new (blocked_uris, 0, 0, NULL);
+    soup_uri = soup_message_get_uri (msg);
+    uri = soup_uri_to_string (soup_uri, FALSE);
+    if (g_regex_match (regex, uri, 0, 0))
+    {
+        soup_uri = soup_uri_new ("http://.invalid");
+        soup_message_set_uri (msg, soup_uri);
+        soup_uri_free (soup_uri);
+    }
+    g_free (uri);
+}
+
 typedef struct {
      MidoriBrowser* browser;
      guint timeout;
@@ -1508,6 +1529,7 @@ main (int    argc,
     gboolean execute;
     gboolean version;
     gchar** uris;
+    gchar* block_uris;
     gint inactivity_reset;
     MidoriApp* app;
     gboolean result;
@@ -1534,6 +1556,8 @@ main (int    argc,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("Addresses"), NULL },
+       { "block-uris", 'b', 0, G_OPTION_ARG_STRING, &block_uris,
+       N_("Block URIs according to regular expression REGEX"), _("REGEX") },
        #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
        { "inactivity-reset", 'i', 0, G_OPTION_ARG_INT, &inactivity_reset,
        N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
@@ -1613,6 +1637,7 @@ main (int    argc,
     execute = FALSE;
     version = FALSE;
     uris = NULL;
+    block_uris = NULL;
     inactivity_reset = 0;
     error = NULL;
     if (!gtk_init_with_args (&argc, &argv, _("[Addresses]"), entries,
@@ -1722,6 +1747,10 @@ main (int    argc,
                 i++;
             }
         }
+        if (block_uris)
+            g_signal_connect (webkit_get_default_session (), "request-queued",
+                G_CALLBACK (midori_soup_session_block_uris_cb),
+                g_strdup (block_uris));
         midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
         midori_startup_timer ("App created: \t%f");
         gtk_main ();
@@ -2063,6 +2092,11 @@ main (int    argc,
 
     if (execute)
         g_object_set_data (G_OBJECT (app), "execute-command", uris);
+    if (block_uris)
+            g_signal_connect (webkit_get_default_session (), "request-queued",
+                G_CALLBACK (midori_soup_session_block_uris_cb),
+                g_strdup (block_uris));
+
 
     gtk_main ();
 
