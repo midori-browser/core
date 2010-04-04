@@ -3067,19 +3067,20 @@ _action_tools_populate_popup (GtkAction*     action,
                               GtkMenu*       menu,
                               MidoriBrowser* browser)
 {
-    static const GtkActionEntry actions[] = {
-      { "ManageSearchEngines" },
-      { "ClearPrivateData" },
-      #if WEBKIT_CHECK_VERSION (1, 1, 17)
-      { "InspectPage" },
-      #endif
-      { "-" },
-      { NULL },
-      { "p" },
-      #ifdef G_OS_WIN32
-      { NULL },
-      { "Preferences" },
-      #endif
+    static const GtkActionEntry actions[] =
+    {
+        { "ManageSearchEngines" },
+        { "ClearPrivateData" },
+        #if WEBKIT_CHECK_VERSION (1, 1, 17)
+        { "InspectPage" },
+        #endif
+        { "-" },
+        { NULL },
+        { "p" },
+        #ifdef G_OS_WIN32
+        { NULL },
+        { "Preferences" },
+        #endif
     };
     guint i;
 
