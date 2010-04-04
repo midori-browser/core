@@ -4965,18 +4965,18 @@ _action_tab_current_activate (GtkAction*     action,
     gtk_widget_grab_focus (child ? child : view);
 }
 
-static const gchar* credits_authors[] = {
-    "Christian Dywan <christian@twotoasts.de>", NULL };
-static const gchar* credits_documenters[] = {
-    "Christian Dywan <christian@twotoasts.de>", NULL };
-static const gchar* credits_artists[] = {
-    "Nancy Runge <nancy@twotoasts.de>", NULL };
+static const gchar* credits_authors[] =
+    { "Christian Dywan <christian@twotoasts.de>", NULL };
+static const gchar* credits_documenters[] =
+    { "Christian Dywan <christian@twotoasts.de>", NULL };
+static const gchar* credits_artists[] =
+    { "Nancy Runge <nancy@twotoasts.de>", NULL };
 
 static const gchar* license =
- "This library is free software; you can redistribute it and/or\n"
- "modify it under the terms of the GNU Lesser General Public\n"
- "License as published by the Free Software Foundation; either\n"
- "version 2.1 of the License, or (at your option) any later version.\n";
+    "This library is free software; you can redistribute it and/or\n"
+    "modify it under the terms of the GNU Lesser General Public\n"
+    "License as published by the Free Software Foundation; either\n"
+    "version 2.1 of the License, or (at your option) any later version.\n";
 
 static void
 _action_about_activate_link (GtkAboutDialog* about,
