@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-03 04:06+0000\n"
-"PO-Revision-Date: 2010-04-03 10:31+0300\n"
+"POT-Creation-Date: 2010-04-04 04:08+0000\n"
+"PO-Revision-Date: 2010-04-04 12:09+0300\n"
 "Last-Translator: Jari Rahkonen <jari.rahkonen@pp1.inet.fi>\n"
 "Language-Team: Finnish\n"
 "MIME-Version: 1.0\n"
@@ -21,8 +21,8 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "Kevyt verkkoselain"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1319 ../midori/main.c:1621
-#: ../midori/main.c:1629 ../midori/main.c:1645
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1319 ../midori/main.c:1646
+#: ../midori/main.c:1654 ../midori/main.c:1670
 #: ../midori/midori-websettings.c:318
 msgid "Midori"
 msgstr "Midori"
@@ -103,7 +103,7 @@ msgstr "Palauta _edellinen istunto"
 msgid "Disable all _extensions"
 msgstr "Poista liitä_nnäiset käytöstä"
 
-#: ../midori/main.c:1200 ../midori/main.c:1890
+#: ../midori/main.c:1200 ../midori/main.c:1919
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Istunnon lataus epäonnistui: %s\n"
@@ -121,99 +121,107 @@ msgstr "Tapahtui tuntematon virhe."
 msgid "Snapshot saved to: %s\n"
 msgstr "Kuva tallennettu osoitteeseen: %s\n"
 
-#: ../midori/main.c:1518
+#: ../midori/main.c:1540
 msgid "Run ADDRESS as a web application"
 msgstr "Suorita OSOITE web-sovelluksena"
 
-#: ../midori/main.c:1518
+#: ../midori/main.c:1540
 msgid "ADDRESS"
 msgstr "OSOITE"
 
-#: ../midori/main.c:1521
+#: ../midori/main.c:1543
 msgid "Use FOLDER as configuration folder"
 msgstr "Lataa asetukset kohteesta KANSIO"
 
-#: ../midori/main.c:1521
+#: ../midori/main.c:1543
 msgid "FOLDER"
 msgstr "KANSIO"
 
-#: ../midori/main.c:1524
+#: ../midori/main.c:1546
 msgid "Show a diagnostic dialog"
 msgstr "Näytä vianetsintädialogi"
 
-#: ../midori/main.c:1526
+#: ../midori/main.c:1548
 msgid "Run the specified filename as javascript"
 msgstr "Suorita annettu tiedostonimi javascriptinä"
 
-#: ../midori/main.c:1529
+#: ../midori/main.c:1551
 msgid "Take a snapshot of the specified URI"
 msgstr "Kaappaa kuva kohteen URI sisällöstä"
 
-#: ../midori/main.c:1532
+#: ../midori/main.c:1554
 msgid "Execute the specified command"
 msgstr "Suorita määritetty komento"
 
-#: ../midori/main.c:1534
+#: ../midori/main.c:1556
 msgid "Display program version"
 msgstr "Näytä sovelluksen versio"
 
-#: ../midori/main.c:1536
+#: ../midori/main.c:1558
 msgid "Addresses"
 msgstr "Osoitteet"
 
-#: ../midori/main.c:1539
+#: ../midori/main.c:1560
+msgid "Block URIs according to regular expression REGEX"
+msgstr "Estä säännöllistä lauseketta LAUSEKE vastaavat URIt"
+
+#: ../midori/main.c:1560
+msgid "REGEX"
+msgstr "LAUSEKE"
+
+#: ../midori/main.c:1563
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Palaa alkutilaan, kun käyttämättä SEKUNNIT sekuntia"
 
-#: ../midori/main.c:1539
+#: ../midori/main.c:1563
 msgid "SECONDS"
 msgstr "SEKUNNIT"
 
-#: ../midori/main.c:1618
+#: ../midori/main.c:1643
 msgid "[Addresses]"
 msgstr "[Osoitteet]"
 
-#: ../midori/main.c:1646
+#: ../midori/main.c:1671
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Kommentit, ehdotukset ja vikailmoitukset osoitteeseen:"
 
-#: ../midori/main.c:1648
+#: ../midori/main.c:1673
 msgid "Check for new versions at:"
 msgstr "Uudet versiot löydät osoitteesta:"
 
-#: ../midori/main.c:1741
+#: ../midori/main.c:1770
 msgid "The specified configuration folder is invalid."
 msgstr "Määritetty asetuskansio ei kelpaa."
 
-#: ../midori/main.c:1789
+#: ../midori/main.c:1818
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Midori on jo käynnissä, muttei vastaa.\n"
 
-#: ../midori/main.c:1844
+#: ../midori/main.c:1873
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "Hakukoneiden lataus epäonnistui. %s\n"
 
-#: ../midori/main.c:1873
+#: ../midori/main.c:1902
 #, c-format
 msgid "The bookmarks couldn't be loaded: %s\n"
 msgstr "Kirjanmerkkien lataus epäonnistui: %s\n"
 
-#: ../midori/main.c:1905
+#: ../midori/main.c:1934
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Roskakorin lataus epäonnistui: %s\n"
 
-#: ../midori/main.c:1919
+#: ../midori/main.c:1948
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Historian lataus epäonnistui: %s\n"
 
-#: ../midori/main.c:1933
+#: ../midori/main.c:1962
 msgid "The following errors occured:"
 msgstr "Seuraavat virheet tapahtuivat:"
 
-#: ../midori/main.c:1949
+#: ../midori/main.c:1978
 msgid "_Ignore"
 msgstr "_Ohita"
 
