@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Midori 0.1.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-03 15:23+0900\n"
-"PO-Revision-Date: 2010-04-03 15:23+0900\n"
+"POT-Creation-Date: 2010-04-04 20:56+0900\n"
+"PO-Revision-Date: 2010-04-04 20:56+0900\n"
 "Last-Translator: Masato Hashimoto <cabezon.hashimoto@gmail.com>\n"
 "Language-Team: Japanese <xfce-users-jp@ml.fdiary.net>\n"
 "MIME-Version: 1.0\n"
@@ -20,8 +20,8 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "軽量級ウェブブラウザ"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1319 ../midori/main.c:1621
-#: ../midori/main.c:1629 ../midori/main.c:1645
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1319 ../midori/main.c:1646
+#: ../midori/main.c:1654 ../midori/main.c:1670
 #: ../midori/midori-websettings.c:318
 msgid "Midori"
 msgstr "Midori"
@@ -103,7 +103,7 @@ msgstr "最後のセッションをリセットする(_S)"
 msgid "Disable all _extensions"
 msgstr "すべてのエクステンションを無効にする(_E)"
 
-#: ../midori/main.c:1200 ../midori/main.c:1890
+#: ../midori/main.c:1200 ../midori/main.c:1919
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "セッションを読み込めませんでした: %s\n"
@@ -122,105 +122,113 @@ msgid "Snapshot saved to: %s\n"
 msgstr "スナップショットを取得しました: %s\n"
 
 # CLI --help
-#: ../midori/main.c:1518
+#: ../midori/main.c:1540
 msgid "Run ADDRESS as a web application"
 msgstr "ADDRESS をウェブアプリケーションとして実行する"
 
-#: ../midori/main.c:1518
+#: ../midori/main.c:1540
 msgid "ADDRESS"
 msgstr "ADDRESS"
 
 # CLI --help
-#: ../midori/main.c:1521
+#: ../midori/main.c:1543
 msgid "Use FOLDER as configuration folder"
 msgstr "設定フォルダとして FOLDER を使用する"
 
-#: ../midori/main.c:1521
+#: ../midori/main.c:1543
 msgid "FOLDER"
 msgstr "FOLDER"
 
-#: ../midori/main.c:1524
+#: ../midori/main.c:1546
 msgid "Show a diagnostic dialog"
 msgstr "診断ダイアログを表示する"
 
 # CLI --help
-#: ../midori/main.c:1526
+#: ../midori/main.c:1548
 msgid "Run the specified filename as javascript"
 msgstr "指定されたファイル名を javascript として実行する"
 
 # CLI --help
-#: ../midori/main.c:1529
+#: ../midori/main.c:1551
 msgid "Take a snapshot of the specified URI"
 msgstr "指定された URI のスナップショットを取得する"
 
 # CLI --help
-#: ../midori/main.c:1532
+#: ../midori/main.c:1554
 msgid "Execute the specified command"
 msgstr "指定されたコマンドを実行する"
 
 # CLI --help
-#: ../midori/main.c:1534
+#: ../midori/main.c:1556
 msgid "Display program version"
 msgstr "プログラムのバージョンを表示する"
 
-#: ../midori/main.c:1536
+#: ../midori/main.c:1558
 msgid "Addresses"
 msgstr "アドレス"
 
+#: ../midori/main.c:1560
+msgid "Block URIs according to regular expression REGEX"
+msgstr "正規表現 REGEX に従って URI をブロックする"
+
+#: ../midori/main.c:1560
+msgid "REGEX"
+msgstr "REGEX"
+
 # CLI --help
-#: ../midori/main.c:1539
+#: ../midori/main.c:1563
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "非アクティブになって SECONDS 秒後に Midori をリセットする"
 
-#: ../midori/main.c:1539
+#: ../midori/main.c:1563
 msgid "SECONDS"
 msgstr "SECONDS"
 
-#: ../midori/main.c:1618
+#: ../midori/main.c:1643
 msgid "[Addresses]"
 msgstr "[アドレス]"
 
-#: ../midori/main.c:1646
+#: ../midori/main.c:1671
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "コメント、ご提案、またはバグの報告はこちらまでお願いします:"
 
-#: ../midori/main.c:1648
+#: ../midori/main.c:1673
 msgid "Check for new versions at:"
 msgstr "新しいバージョンのチェックはこちら:"
 
-#: ../midori/main.c:1741
+#: ../midori/main.c:1770
 msgid "The specified configuration folder is invalid."
 msgstr "指定された設定フォルダが正しくありません。"
 
-#: ../midori/main.c:1789
+#: ../midori/main.c:1818
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Midori のインスタンスはすでに実行中ですが応答がありません。\n"
 
-#: ../midori/main.c:1844
+#: ../midori/main.c:1873
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "検索エンジンを読み込めませんでした。%s\n"
 
-#: ../midori/main.c:1873
+#: ../midori/main.c:1902
 #, c-format
 msgid "The bookmarks couldn't be loaded: %s\n"
 msgstr "ブックマークを読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1905
+#: ../midori/main.c:1934
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "ゴミ箱を読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1919
+#: ../midori/main.c:1948
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "履歴を読み込めませんでした: %s\n"
 
-#: ../midori/main.c:1933
+#: ../midori/main.c:1962
 msgid "The following errors occured:"
 msgstr "次のエラーが発生しました:"
 
-#: ../midori/main.c:1949
+#: ../midori/main.c:1978
 msgid "_Ignore"
 msgstr "無視(_I)"
 
