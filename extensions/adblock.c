@@ -28,6 +28,10 @@
 #define ADBLOCK_FILTER_VALID(__filter) \
     (__filter && (g_str_has_prefix (__filter, "http") \
                || g_str_has_prefix (__filter, "file")))
+#define ADBLOCK_FILTER_SET(__filter,__active) \
+    filter[4] = __active ? (__filter[5] == ':' ? 's' : ':') : '-'
+#define ADBLOCK_FILTER_IS_SET(__filter) \
+    filter[4] != '-'
 
 static GHashTable* pattern;
 static GHashTable* keys;
@@ -192,7 +196,7 @@ adblock_preferences_render_tick_cb (GtkTreeViewColumn* column,
 
     g_object_set (renderer,
         "activatable", ADBLOCK_FILTER_VALID (filter),
-        "active", ADBLOCK_FILTER_VALID (filter) && filter[4] != '-',
+        "active", ADBLOCK_FILTER_VALID (filter) && ADBLOCK_FILTER_IS_SET (filter),
         NULL);
 
     g_free (filter);
@@ -225,7 +229,7 @@ adblock_preferences_renderer_toggle_toggled_cb (GtkCellRendererToggle* renderer,
 
         if (ADBLOCK_FILTER_VALID (filter))
         {
-            filter[4] = ':';
+            ADBLOCK_FILTER_SET (filter, TRUE);
             if (gtk_cell_renderer_toggle_get_active (renderer))
             {
                 if (!strncmp (filter, "http", 4))
@@ -234,7 +238,7 @@ adblock_preferences_renderer_toggle_toggled_cb (GtkCellRendererToggle* renderer,
                     g_unlink (filename);
                     g_free (filename);
                 }
-                filter[4] = '-';
+                ADBLOCK_FILTER_SET (filter, FALSE);
             }
 
             gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, filter, -1);
@@ -256,7 +260,7 @@ adblock_preferences_render_text_cb (GtkTreeViewColumn* column,
     gtk_tree_model_get (model, iter, 0, &filter, -1);
 
     if (ADBLOCK_FILTER_VALID (filter))
-        filter[4] = ':';
+        ADBLOCK_FILTER_SET (filter, TRUE);
 
     g_object_set (renderer,
         "text", filter,
