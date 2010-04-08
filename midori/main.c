@@ -1557,7 +1557,7 @@ main (int    argc,
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
        N_("Addresses"), NULL },
        { "block-uris", 'b', 0, G_OPTION_ARG_STRING, &block_uris,
-       N_("Block URIs according to regular expression REGEX"), _("REGEX") },
+       N_("Block URIs according to regular expression PATTERN"), _("PATTERN") },
        #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
        { "inactivity-reset", 'i', 0, G_OPTION_ARG_INT, &inactivity_reset,
        N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
