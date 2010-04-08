@@ -4841,6 +4841,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         gint clear_prefs = MIDORI_CLEAR_NONE;
         g_object_get (browser->settings, "clear-private-data", &clear_prefs, NULL);
 
+        /* i18n: Dialog: Clear Private Data, in the Tools menu */
         dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
             GTK_WINDOW (browser),
             GTK_DIALOG_NO_SEPARATOR | GTK_DIALOG_DESTROY_WITH_PARENT,
