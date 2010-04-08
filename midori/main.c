@@ -1560,6 +1560,7 @@ main (int    argc,
        N_("Block URIs according to regular expression PATTERN"), _("PATTERN") },
        #ifdef HAVE_X11_EXTENSIONS_SCRNSAVER_H
        { "inactivity-reset", 'i', 0, G_OPTION_ARG_INT, &inactivity_reset,
+       /* i18n: CLI: Close tabs, clear private data, open starting page */
        N_("Reset Midori after SECONDS seconds of inactivity"), N_("SECONDS") },
        #endif
      { NULL }
