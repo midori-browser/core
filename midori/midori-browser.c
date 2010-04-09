@@ -4973,12 +4973,6 @@ static const gchar* credits_documenters[] =
 static const gchar* credits_artists[] =
     { "Nancy Runge <nancy@twotoasts.de>", NULL };
 
-static const gchar* license =
-    "This library is free software; you can redistribute it and/or\n"
-    "modify it under the terms of the GNU Lesser General Public\n"
-    "License as published by the Free Software Foundation; either\n"
-    "version 2.1 of the License, or (at your option) any later version.\n";
-
 static void
 _action_about_activate_link (GtkAboutDialog* about,
                              const gchar*    uri,
@@ -5014,6 +5008,11 @@ _action_about_activate (GtkAction*     action,
         GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
         WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
         _("A lightweight web browser."));
+    const gchar* license =
+    _("This library is free software; you can redistribute it and/or "
+    "modify it under the terms of the GNU Lesser General Public "
+    "License as published by the Free Software Foundation; either "
+    "version 2.1 of the License, or (at your option) any later version.");
 
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
@@ -5031,6 +5030,7 @@ _action_about_activate (GtkAction*     action,
         "wrap-license", TRUE,
         "translator-credits", _("translator-credits"),
         NULL);
+    g_free (comments);
 }
 
 static void
