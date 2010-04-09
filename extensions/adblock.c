@@ -34,7 +34,7 @@
     filter[4] != '-'
 #ifdef G_ENABLE_DEBUG
     #define adblock_debug(dmsg, darg1, darg2) \
-        do { if (debug) g_debug (dmsg, darg1, darg2); } while (0)
+        do { if (debug == 1) g_debug (dmsg, darg1, darg2); } while (0)
 #else
     #define adblock_debug(dmsg, darg1, darg2) /* nothing */
 #endif
@@ -44,7 +44,7 @@ static GHashTable* keys;
 static gchar* blockcss = NULL;
 static gchar* blockcssprivate = NULL;
 static gchar* blockscript = NULL;
-static gboolean debug;
+static guint debug;
 
 static gboolean
 adblock_parse_file (gchar* path);
@@ -764,7 +764,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         page_uri = req_uri;
 
     #ifdef G_ENABLE_DEBUG
-    if (debug)
+    if (debug == 2)
         g_test_timer_start ();
     #endif
     /* TODO: opts should be defined */
@@ -775,7 +775,10 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         webkit_network_request_set_uri (request, "about:blank");
         g_object_set_data (G_OBJECT (web_view), "blocked-uris", blocked_uris);
     }
-    adblock_debug ("match: %f%s", g_test_timer_elapsed (), "seconds");
+    #ifdef G_ENABLE_DEBUG
+    if (debug == 2)
+        g_debug ("match: %f%s", g_test_timer_elapsed (), "seconds");
+    #endif
 
 }
 #else
@@ -1349,6 +1352,7 @@ static void
 adblock_activate_cb (MidoriExtension* extension,
                      MidoriApp*       app)
 {
+    const gchar* debug_mode;
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
@@ -1359,7 +1363,18 @@ adblock_activate_cb (MidoriExtension* extension,
                       G_CALLBACK (adblock_session_request_queued_cb), NULL);
     #endif
 
-    debug = g_getenv ("MIDORI_ADBLOCK") != NULL;
+    #ifdef G_ENABLE_DEBUG
+    debug_mode = g_getenv ("MIDORI_ADBLOCK");
+    if (debug_mode)
+    {
+        if (*debug_mode == '1')
+            debug = 1;
+        else if (*debug_mode == '2')
+            debug = 2;
+        else
+            debug = 0;
+    }
+    #endif
 
     adblock_reload_rules (extension, FALSE);
 
