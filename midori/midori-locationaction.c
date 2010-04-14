@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008-2010 Dale Whittaker <dayul@users.sf.net>
 
  This library is free software; you can redistribute it and/or
@@ -1684,4 +1684,43 @@ midori_location_action_clear (MidoriLocationAction* location_action)
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
     midori_location_action_toggle_arrow (location_action);
+}
+
+/**
+ * midori_location_action_set_security_hint:
+ * @location_action: a #MidoriLocationAction
+ * @hint: a security hint
+ *
+ * Sets a security hint on the action, so that the security status
+ * can be reflected visually.
+ *
+ * Since: 0.2.5
+ **/
+void
+midori_location_action_set_security_hint (MidoriLocationAction* location_action,
+                                          MidoriSecurity        hint)
+{
+    #if !HAVE_HILDON
+    GSList* proxies;
+    GtkWidget* entry;
+    GtkWidget* child;
+    #endif
+
+    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
+
+    #if !HAVE_HILDON
+    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
+
+    for (; proxies != NULL; proxies = g_slist_next (proxies))
+    if (GTK_IS_TOOL_ITEM (proxies->data))
+    {
+        entry = midori_location_action_entry_for_proxy (proxies->data);
+        child = gtk_bin_get_child (GTK_BIN (entry));
+
+        if (hint == MIDORI_SECURITY_UNKNOWN)
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child), GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
+        else if (hint == MIDORI_SECURITY_TRUSTED)
+            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (child), GTK_ICON_ENTRY_PRIMARY, "lock");
+    }
+    #endif
 }

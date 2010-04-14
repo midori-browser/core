@@ -363,6 +363,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     #endif
 
     action = _action_by_name (browser, "Location");
+    midori_location_action_set_security_hint (
+        MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
     {
         midori_location_action_set_secondary_icon (

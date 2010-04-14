@@ -46,6 +46,20 @@ midori_new_view_get_type (void) G_GNUC_CONST;
 
 #define MIDORI_TYPE_VIEW \
     (midori_view_get_type ())
+
+typedef enum
+{
+    MIDORI_SECURITY_NONE, /* The connection is neither encrypted nor verified. */
+    MIDORI_SECURITY_UNKNOWN, /* The security is unknown, due to lack of validation. */
+    MIDORI_SECURITY_TRUSTED /* The security is validated and trusted. */
+} MidoriSecurity;
+
+GType
+midori_security_get_type (void) G_GNUC_CONST;
+
+#define MIDORI_TYPE_SECURITY \
+    (midori_security_get_type ())
+
 #define MIDORI_VIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), MIDORI_TYPE_VIEW, MidoriView))
 #define MIDORI_VIEW_CLASS(klass) \
@@ -211,6 +225,9 @@ midori_view_get_snapshot               (MidoriView*        view,
 
 GtkWidget*
 midori_view_get_web_view               (MidoriView*        view);
+
+MidoriSecurity
+midori_view_get_security               (MidoriView*        view);
 
 G_END_DECLS
 

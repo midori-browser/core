@@ -849,8 +849,28 @@ midori_soup_session_prepare (SoupSession*       session,
                              SoupCookieJar*     cookie_jar,
                              MidoriWebSettings* settings)
 {
+    const gchar* certificate_files[] =
+    {
+        "/etc/pki/tls/certs/ca-bundle.crt",
+        "/etc/ssl/certs/ca-certificates.crt",
+        NULL
+    };
+    guint i;
     SoupSessionFeature* feature;
     gchar* config_file;
+
+    for (i = 0; i < G_N_ELEMENTS (certificate_files); i++)
+        if (g_access (certificate_files[i], F_OK) == 0)
+        {
+            g_object_set (session,
+                "ssl-ca-file", certificate_files[i],
+                "ssl-strict", FALSE,
+                NULL);
+            break;
+        }
+    if (i == G_N_ELEMENTS (certificate_files))
+        g_warning (_("No root certificate file is available. "
+                     "SSL certificates cannot be verified."));
 
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",

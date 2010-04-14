@@ -13,6 +13,7 @@
 #define __MIDORI_LOCATION_ACTION_H__
 
 #include <katze/katze.h>
+#include "midori-view.h"
 
 G_BEGIN_DECLS
 
@@ -100,6 +101,10 @@ midori_location_action_delete_item_from_uri (MidoriLocationAction* location_acti
 
 void
 midori_location_action_clear                (MidoriLocationAction* location_action);
+
+void
+midori_location_action_set_security_hint    (MidoriLocationAction* location_action,
+                                             MidoriSecurity        hint);
 
 G_END_DECLS
 

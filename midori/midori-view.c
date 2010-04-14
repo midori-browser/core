@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2010 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009 Jean-François Guchens <zcx000@gmail.com>
 
  This library is free software; you can redistribute it and/or
@@ -66,6 +66,7 @@ struct _MidoriView
     gchar* uri;
     gboolean special;
     gchar* title;
+    MidoriSecurity security;
     gchar* mime_type;
     GdkPixbuf* icon;
     gchar* icon_uri;
@@ -154,12 +155,30 @@ midori_new_view_get_type (void)
     return type;
 }
 
+GType
+midori_security_get_type (void)
+{
+    static GType type = 0;
+    if (!type)
+    {
+        static const GEnumValue values[] = {
+         { MIDORI_SECURITY_NONE, "MIDORI_SECURITY_NONE", "No security" },
+         { MIDORI_SECURITY_UNKNOWN, "MIDORI_SECURITY_UNKNOWN", "Security unknown" },
+         { MIDORI_SECURITY_TRUSTED, "MIDORI_SECURITY_TRUSTED", "Trusted security" },
+         { 0, NULL, NULL }
+        };
+        type = g_enum_register_static ("MidoriSecurity", values);
+    }
+    return type;
+}
+
 enum
 {
     PROP_0,
 
     PROP_URI,
     PROP_TITLE,
+    PROP_SECURITY,
     PROP_MIME_TYPE,
     PROP_ICON,
     PROP_LOAD_STATUS,
@@ -444,6 +463,23 @@ midori_view_class_init (MidoriViewClass* class)
                                      "The title of the currently loaded page",
                                      NULL,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * MidoriView:security:
+     *
+     * The security status of the loaded page.
+     *
+     * Since: 0.2.5
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SECURITY,
+                                     g_param_spec_enum (
+                                     "security",
+                                     "Security",
+                                     "The security of the currently loaded page",
+                                     MIDORI_TYPE_SECURITY,
+                                     MIDORI_SECURITY_NONE,
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     /**
     * MidoriView:mime-type:
@@ -1012,9 +1048,30 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     midori_view_update_icon (view, NULL);
 
+    if (!strncmp (uri, "https", 5))
+    {
+        WebKitWebDataSource *source;
+        WebKitNetworkRequest *request;
+        SoupMessage *message;
+
+        source = webkit_web_frame_get_data_source (web_frame);
+        request = webkit_web_data_source_get_request (source);
+        message = webkit_network_request_get_message (request);
+
+        if (message
+         && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
+            view->security = MIDORI_SECURITY_TRUSTED;
+        else
+            view->security = MIDORI_SECURITY_UNKNOWN;
+    }
+    else
+        view->security = MIDORI_SECURITY_NONE;
+    g_object_notify (G_OBJECT (view), "security");
+
     midori_view_update_load_status (view, MIDORI_LOAD_COMMITTED);
 
     g_object_thaw_notify (G_OBJECT (view));
+
 }
 
 static void
@@ -2723,6 +2780,7 @@ midori_view_init (MidoriView* view)
 {
     view->uri = NULL;
     view->title = NULL;
+    view->security = MIDORI_SECURITY_NONE;
     view->mime_type = g_strdup ("");
     view->icon = NULL;
     view->icon_uri = NULL;
@@ -2861,6 +2919,9 @@ midori_view_get_property (GObject*    object,
         break;
     case PROP_TITLE:
         g_value_set_string (value, view->title);
+        break;
+    case PROP_SECURITY:
+        g_value_set_enum (value, view->security);
         break;
     case PROP_MIME_TYPE:
         g_value_set_string (value, view->mime_type);
@@ -4860,6 +4921,22 @@ midori_view_get_web_view        (MidoriView*        view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     return view->web_view;
+}
+
+/**
+ * midori_view_get_security
+ * @view: a #MidoriView
+ *
+ * Returns: The #MidoriSecurity for this view
+ *
+ * Since: 0.2.5
+ **/
+MidoriSecurity
+midori_view_get_security (MidoriView* view)
+{
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), MIDORI_SECURITY_NONE);
+
+    return view->security;
 }
 
 static void
