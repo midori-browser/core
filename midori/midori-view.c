@@ -1623,13 +1623,6 @@ midori_web_view_set_clipboard (GtkWidget*   widget,
 }
 
 static void
-midori_web_view_menu_open_activate_cb (GtkWidget*  widget,
-                                       MidoriView* view)
-{
-    midori_view_set_uri (view, view->link_uri);
-}
-
-static void
 midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
@@ -1673,15 +1666,6 @@ midori_web_view_menu_image_new_tab_activate_cb (GtkWidget*  widget,
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
     g_signal_emit (view, signals[NEW_TAB], 0, uri,
                    view->open_tabs_in_the_background);
-    g_free (uri);
-}
-
-static void
-midori_web_view_menu_image_new_window_activate_cb (GtkWidget*  widget,
-                                                    MidoriView* view)
-{
-    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    g_signal_emit (view, signals[NEW_WINDOW], 0, uri);
     g_free (uri);
 }
 
@@ -1830,13 +1814,6 @@ midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
                                            MidoriView* view)
 {
     sokoke_spawn_program (view->download_manager, view->link_uri, FALSE);
-}
-
-static void
-midori_web_view_menu_add_bookmark_activate_cb (GtkWidget*  widget,
-                                               MidoriView* view)
-{
-    g_signal_emit (view, signals[ADD_BOOKMARK], 0, view->link_uri);
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 17)
@@ -2071,9 +2048,6 @@ midori_view_populate_popup (MidoriView* view,
     if (view->link_uri)
     {
         midori_view_insert_menu_item (menu_shell, -1,
-            _("Open _Link"), NULL,
-            G_CALLBACK (midori_web_view_menu_open_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
@@ -2098,9 +2072,6 @@ midori_view_populate_popup (MidoriView* view,
             midori_view_insert_menu_item (menu_shell, -1,
             _("Download with Download _Manager"), STOCK_TRANSFER,
             G_CALLBACK (midori_web_view_menu_download_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            NULL, STOCK_BOOKMARK_ADD,
-            G_CALLBACK (midori_web_view_menu_add_bookmark_activate_cb), widget);
     }
 
     if (is_image)
@@ -2110,9 +2081,6 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open _Image in New Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_image_new_tab_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, -1,
-            _("Open Image in New Wi_ndow"), STOCK_WINDOW_NEW,
-            G_CALLBACK (midori_web_view_menu_image_new_window_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Image _Address"), NULL,
             G_CALLBACK (midori_web_view_menu_image_copy_activate_cb), widget);
@@ -2147,9 +2115,8 @@ midori_view_populate_popup (MidoriView* view,
     {
         items = gtk_container_get_children (GTK_CONTAINER (menu));
         menuitem = (GtkWidget*)g_list_nth_data (items, 0);
-        /* hack to localize menu item */
-        label = gtk_bin_get_child (GTK_BIN (menuitem));
-        gtk_label_set_label (GTK_LABEL (label), _("Open _Link"));
+        /* hack to hide menu item */
+        gtk_widget_hide (menuitem);
         midori_view_insert_menu_item (menu_shell, 1,
             _("Open Link in New _Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
@@ -2177,9 +2144,6 @@ midori_view_populate_popup (MidoriView* view,
             midori_view_insert_menu_item (menu_shell, 4,
             _("Download with Download _Manager"), STOCK_TRANSFER,
             G_CALLBACK (midori_web_view_menu_download_activate_cb), widget);
-        midori_view_insert_menu_item (menu_shell, 5,
-            NULL, STOCK_BOOKMARK_ADD,
-            G_CALLBACK (midori_web_view_menu_add_bookmark_activate_cb), widget);
     }
     #endif
 
