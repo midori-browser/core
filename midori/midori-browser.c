@@ -2654,7 +2654,8 @@ midori_browser_find_text_focus_out_event_cb (GtkWidget*     entry,
                                              GdkEventFocus* event,
                                              MidoriBrowser* browser)
 {
-    _midori_browser_find_done (browser);
+    if (browser->find_typing)
+        _midori_browser_find_done (browser);
     return FALSE;
 }
 
