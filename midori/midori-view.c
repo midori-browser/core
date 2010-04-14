@@ -2499,9 +2499,27 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        gboolean view_source = FALSE;
+
+        if (strcmp (mime_type, "application/xhtml+xml"))
+        {
+            #if GLIB_CHECK_VERSION (2, 18, 0)
+            content_type = g_content_type_from_mime_type (mime_type);
+            #else
+            content_type = g_strdup (mime_type);
+            #endif
+            if (g_content_type_is_a (content_type, "application/xml"))
+                view_source = TRUE;
+            g_free (content_type);
+        }
+        webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
+        #endif
+
         katze_assign (view->mime_type, g_strdup (mime_type));
         midori_view_update_icon (view, NULL);
         g_object_notify (G_OBJECT (view), "mime-type");
+
         return FALSE;
     }
 
