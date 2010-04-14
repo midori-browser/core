@@ -217,6 +217,7 @@ def configure (conf):
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     check_pkg ('libsoup-2.4', '2.27.90', False, var='LIBSOUP_2_27_90')
     check_pkg ('libsoup-2.4', '2.29.3', False, var='LIBSOUP_2_29_3')
+    check_pkg ('libsoup-2.4', '2.29.91', False, var='LIBSOUP_2_29_91')
     check_pkg ('libxml-2.0', '2.6')
 
     if conf.env['HAVE_LIBSOUP_2_27_90']:

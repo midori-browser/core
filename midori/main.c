@@ -849,6 +849,10 @@ midori_soup_session_prepare (SoupSession*       session,
                              SoupCookieJar*     cookie_jar,
                              MidoriWebSettings* settings)
 {
+    SoupSessionFeature* feature;
+    gchar* config_file;
+
+    #if WEBKIT_CHECK_VERSION (1, 1, 14) && defined (HAVE_LIBSOUP_2_29_91)
     const gchar* certificate_files[] =
     {
         "/etc/pki/tls/certs/ca-bundle.crt",
@@ -856,8 +860,6 @@ midori_soup_session_prepare (SoupSession*       session,
         NULL
     };
     guint i;
-    SoupSessionFeature* feature;
-    gchar* config_file;
 
     for (i = 0; i < G_N_ELEMENTS (certificate_files); i++)
         if (g_access (certificate_files[i], F_OK) == 0)
@@ -871,6 +873,7 @@ midori_soup_session_prepare (SoupSession*       session,
     if (i == G_N_ELEMENTS (certificate_files))
         g_warning (_("No root certificate file is available. "
                      "SSL certificates cannot be verified."));
+    #endif
 
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",

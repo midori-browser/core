@@ -1050,6 +1050,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     if (!strncmp (uri, "https", 5))
     {
+#if WEBKIT_CHECK_VERSION (1, 1, 14) && defined (HAVE_LIBSOUP_2_29_91)
         WebKitWebDataSource *source;
         WebKitNetworkRequest *request;
         SoupMessage *message;
@@ -1062,6 +1063,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             view->security = MIDORI_SECURITY_TRUSTED;
         else
+#endif
             view->security = MIDORI_SECURITY_UNKNOWN;
     }
     else
