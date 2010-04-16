@@ -82,13 +82,13 @@ typedef struct
   gboolean insensitive;
 } EntryIconInfo;
 
-typedef struct _GtkIconEntryPrivate
+struct _GtkIconEntryPrivate
 {
   gdouble fraction;
   EntryIconInfo icons[MAX_ICONS];
 
   gulong icon_released_id;
-} GtkIconEntryPrivate;
+};
 
 enum
 {
@@ -663,7 +663,7 @@ gtk_icon_entry_map (GtkWidget *widget)
 
       GTK_WIDGET_CLASS (parent_class)->map (widget);
 
-      priv = widget->priv;
+      priv = GTK_ICON_ENTRY (widget)->priv;
 
       for (i = 0; i < MAX_ICONS; i++)
 	{
@@ -693,7 +693,7 @@ gtk_icon_entry_unmap (GtkWidget *widget)
     {
       int i;
 
-      priv = widget->priv;
+      priv = GTK_ICON_ENTRY (widget)->priv;
 
       for (i = 0; i < MAX_ICONS; i++)
 	{

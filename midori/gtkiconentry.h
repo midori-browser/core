@@ -62,12 +62,15 @@ typedef enum
   GTK_ICON_ENTRY_SECONDARY
 } GtkIconEntryPosition;
 
-typedef struct _GtkIconEntry      GtkIconEntry;
-typedef struct _GtkIconEntryClass GtkIconEntryClass;
+typedef struct _GtkIconEntry        GtkIconEntry;
+typedef struct _GtkIconEntryClass   GtkIconEntryClass;
+typedef struct _GtkIconEntryPrivate GtkIconEntryPrivate;
 
 struct _GtkIconEntry
 {
   GtkEntry parent_object;
+
+  GtkIconEntryPrivate* priv;
 };
 
 struct _GtkIconEntryClass
