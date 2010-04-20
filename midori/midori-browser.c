@@ -198,9 +198,11 @@ static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
                               KatzeArray*    bookmarks);
 
+#if WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 midori_browser_add_download_item (MidoriBrowser*  browser,
                                   WebKitDownload* download);
+#endif
 
 GdkPixbuf*
 midori_search_action_get_icon (KatzeItem*    item,
