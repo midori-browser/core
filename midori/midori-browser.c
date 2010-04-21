@@ -365,8 +365,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     #endif
 
     action = _action_by_name (browser, "Location");
-    midori_location_action_set_security_hint (
-        MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
     {
         midori_location_action_set_secondary_icon (
@@ -379,6 +377,9 @@ _midori_browser_update_interface (MidoriBrowser* browser)
             MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
         gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), FALSE);
     }
+    midori_location_action_set_security_hint (
+        MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
+
 }
 
 static void

@@ -1700,27 +1700,45 @@ void
 midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                                           MidoriSecurity        hint)
 {
-    #if !HAVE_HILDON
     GSList* proxies;
     GtkWidget* entry;
     GtkWidget* child;
-    #endif
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
-    #if !HAVE_HILDON
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
 
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
+        GdkColor bg_color = { 0, 1 };
+        GdkColor fg_color = { 0, 1 };
+
         entry = midori_location_action_entry_for_proxy (proxies->data);
         child = gtk_bin_get_child (GTK_BIN (entry));
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child), GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_INFO);
+        {
+            gdk_color_parse ("#ef7070", &bg_color);
+            gdk_color_parse ("#000", &fg_color);
+            #if !HAVE_HILDON
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+                GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INFO);
+            #endif
+        }
         else if (hint == MIDORI_SECURITY_TRUSTED)
-            gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (child), GTK_ICON_ENTRY_PRIMARY, "lock");
+        {
+            gdk_color_parse ("#fcf19a", &bg_color);
+            gdk_color_parse ("#000", &fg_color);
+            #if !HAVE_HILDON
+            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+                GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_DIALOG_AUTHENTICATION);
+            #endif
+        }
+
+        gtk_widget_modify_base (child, GTK_STATE_NORMAL,
+            bg_color.red == 1 ? NULL : &bg_color);
+        gtk_widget_modify_text (child, GTK_STATE_NORMAL,
+            bg_color.red == 1 ? NULL : &fg_color);
     }
-    #endif
 }
