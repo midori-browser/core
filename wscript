@@ -282,13 +282,18 @@ def configure (conf):
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
     debug_level = Options.options.debug_level
     compiler = conf.env['CC_NAME']
-    if debug_level == '':
-        if compiler == 'gcc':
-            debug_level = 'debug'
-        else:
-            debug_level = 'none'
+    if debug_level != '' and compiler != 'gcc':
+        Utils.pprint ('RED', 'No debugging level support for ' + compiler)
+        sys.exit (1)
+    elif debug_level == '':
+        debug_level = 'debug'
     if compiler == 'gcc':
-        if debug_level == 'debug':
+        if debug_level == 'none':
+            if 'CCFLAGS' in os.environ:
+                conf.env.append_value ('CCFLAGS', os.environ['CCFLAGS'].split ())
+            else:
+                conf.env.append_value ('CCFLAGS', '-DG_DISABLE_CHECKS')
+        elif debug_level == 'debug':
             conf.env.append_value ('CCFLAGS', '-Wall -O0 -g'.split ())
         elif debug_level == 'full':
             # -Wdeclaration-after-statement
@@ -308,10 +313,6 @@ def configure (conf):
                 '-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED '
                 '-DGTK_DISABLE_DEPRECATED -DPANGO_DISABLE_DEPRECATED '
                 '-DGDK_MULTIHEAD_SAFE -DGTK_MULTIHEAD_SAFE'.split ())
-    elif debug_level != 'none':
-            Utils.pprint ('RED', 'No debugging level support for ' + compiler)
-            sys.exit (1)
-
     print '''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
