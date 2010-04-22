@@ -1234,7 +1234,7 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
         title = g_strdup_printf (_("Not found - %s"), view->uri);
         katze_assign (view->title, title);
         logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
-        logo_uri = g_filename_to_uri (logo_path);
+        logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
         g_free (logo_path);
         data = g_strdup_printf (
             "<html><head><title>%s</title></head>"
@@ -2194,7 +2194,7 @@ midori_view_populate_popup (MidoriView* view,
         #else
         /* hack to disable non-functional Download File */
         gtk_widget_hide (menuitem);
-        gtk_widget_set_no_show_all (menuitem);
+        gtk_widget_set_no_show_all (menuitem, TRUE);
         midori_view_insert_menu_item (menu_shell, 3,
             _("_Save Link destination"), NULL,
             G_CALLBACK (midori_web_view_menu_save_as_activate_cb), widget);
