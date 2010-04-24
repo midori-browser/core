@@ -94,6 +94,7 @@ adblock_init_db ()
     katze_assign (blockcssprivate, g_strdup (""));
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 2)
 static void
 adblock_download_notify_status_cb (WebKitDownload* download,
                                    GParamSpec*     pspec,
@@ -107,6 +108,7 @@ adblock_download_notify_status_cb (WebKitDownload* download,
     g_free (path);
     /* g_object_unref (download); */
 }
+#endif
 
 static gchar*
 adblock_get_filename_for_uri (const gchar* uri)
@@ -163,6 +165,7 @@ adblock_reload_rules (MidoriExtension* extension,
 
             if (!adblock_parse_file (path))
             {
+                #if WEBKIT_CHECK_VERSION (1, 1, 2)
                 WebKitNetworkRequest* request;
                 WebKitDownload* download;
                 gchar* destination = g_filename_to_uri (path, NULL, NULL);
@@ -175,6 +178,7 @@ adblock_reload_rules (MidoriExtension* extension,
                 g_signal_connect (download, "notify::status",
                     G_CALLBACK (adblock_download_notify_status_cb), path);
                 webkit_download_start (download);
+                #endif
             }
             else
                 g_free (path);
