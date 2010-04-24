@@ -1538,6 +1538,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
                 folder = katze_object_get_string (browser->settings, "download-folder");
                 gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder);
                 g_free (folder);
+                g_signal_connect (dialog, "destroy",
+                                  G_CALLBACK (gtk_widget_destroyed), &dialog);
                 g_signal_connect (dialog, "response",
                     G_CALLBACK (midori_view_download_save_as_response_cb), browser);
             }
