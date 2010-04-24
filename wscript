@@ -18,7 +18,10 @@ import Options
 import Utils
 import pproc as subprocess
 import os
-import UnitTest
+try:
+    import UnitTest
+except:
+    import unittestw as UnitTest
 import Task
 from TaskGen import extension, feature, taskgen
 import misc
@@ -530,6 +533,10 @@ def build (bld):
 
     if Options.commands['clean']:
         distclean ()
+
+def check (ctx):
+    # The real work happens in shutdown ()
+    pass
 
 def distclean ():
     if os.path.exists ('po/LINGUAS'):
