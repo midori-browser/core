@@ -14,13 +14,18 @@ for test in tests:
         for fila in files:
             if fila[-2:] == '.c':
                 source += ' ' + test + os.sep + fila
+            elif file[-5:] == '.vala':
+                source += ' ' + test + os.sep + fila
         if not source:
             Utils.pprint ('RED', folder + ': No source files found')
             continue
     else:
-        if test[-2:] != '.c':
+        if test[-2:] == '.c':
+            target = test[:-2]
+        elif test[-5:] == '.vala':
+            target = test[:-5]
+        else:
             continue
-        target = test[:-2]
         source = test
 
     obj = bld.new_task_gen ('cc', 'program')

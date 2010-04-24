@@ -76,7 +76,7 @@ _katze_array_add_item (KatzeArray* array,
     {
         GType type = G_OBJECT_TYPE (item);
 
-        g_return_if_fail (katze_array_is_a (array, type));
+        /* g_return_if_fail (katze_array_is_a (array, type)); */
         g_object_ref (item);
         if (g_type_is_a (type, KATZE_TYPE_ITEM))
             katze_item_set_parent (item, array);

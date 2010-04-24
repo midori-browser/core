@@ -25,6 +25,7 @@ except:
 import Task
 from TaskGen import extension, feature, taskgen
 import misc
+from Configure import find_program_impl
 
 major = 0
 minor = 2
@@ -86,6 +87,11 @@ def configure (conf):
         return dirvalue
 
     conf.check_tool ('compiler_cc')
+    # Circumvent mandatory check for valac
+    if find_program_impl (conf.env, 'valac'):
+        conf.check_tool ('vala')
+    else:
+         conf.check_message ('program', 'valac', False, False)
     conf.check_tool ('glib2')
 
     if option_enabled ('userdocs'):
