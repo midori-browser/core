@@ -14,7 +14,7 @@ for extension in extensions:
         for fila in files:
             if fila[-2:] == '.c':
                 source += ' ' + extension + os.sep + fila
-            elif fila[-5:] == '.vala':
+            elif 'VALAC' in bld.env and fila[-5:] == '.vala':
                 source += ' ' + extension + os.sep + fila
         if not source:
             Utils.pprint ('RED', folder + ': No source files found')
@@ -22,7 +22,7 @@ for extension in extensions:
     else:
         if extension[-2:] == '.c':
             target = extension[:-2]
-        elif extension[-5:] == '.vala':
+        elif 'VALAC' in bld.env and extension[-5:] == '.vala':
             target = extension[:-5]
         else:
             continue
