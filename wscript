@@ -322,6 +322,10 @@ def configure (conf):
                 '-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED '
                 '-DGTK_DISABLE_DEPRECATED -DPANGO_DISABLE_DEPRECATED '
                 '-DGDK_MULTIHEAD_SAFE -DGTK_MULTIHEAD_SAFE'.split ())
+    if debug_level == 'full':
+        conf.env.append_value ('VALAFLAGS', '--enable-checking'.split ())
+    elif debug_level == 'none':
+        conf.env.append_value ('VALAFLAGS', '--disable-assert')
     print '''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
