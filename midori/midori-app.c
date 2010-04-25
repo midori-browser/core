@@ -1146,7 +1146,23 @@ midori_app_create_browser (MidoriApp* app)
                          "history", app->history,
                          NULL);
 }
+/**
+ * midori_app_get_browsers:
+ * @app: a #MidoriApp
+ *
+ * Retrieves the browsers as a list.
+ *
+ * Return value: a newly allocated #Glist of #MidoriBrowser
+ *
+ * Since: 0.2.5
+ **/
+GList*
+midori_app_get_browsers (MidoriApp* app)
+{
+    g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
 
+    return katze_array_get_items (app->browsers);
+}
 /**
  * midori_app_quit:
  * @app: a #MidoriApp
