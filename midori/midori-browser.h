@@ -133,6 +133,9 @@ midori_browser_set_current_tab        (MidoriBrowser*     browser,
 GtkWidget*
 midori_browser_get_current_tab        (MidoriBrowser*     browser);
 
+GList*
+midori_browser_get_tabs               (MidoriBrowser*     browser);
+
 KatzeArray*
 midori_browser_get_proxy_items        (MidoriBrowser*     browser);
 

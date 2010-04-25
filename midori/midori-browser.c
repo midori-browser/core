@@ -7614,6 +7614,24 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 }
 
 /**
+ * midori_browser_get_tabs:
+ * @browser: a #MidoriBrowser
+ *
+ * Retrieves the tabs as a list.
+ *
+ * Return value: a newly allocated #GList of #MidoriView
+ *
+ * Since: 0.2.5
+ **/
+GList*
+midori_browser_get_tabs (MidoriBrowser* browser)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+
+    return gtk_container_get_children (GTK_CONTAINER (browser->notebook));
+}
+
+/**
  * midori_browser_get_proxy_items:
  * @browser: a #MidoriBrowser
  *
