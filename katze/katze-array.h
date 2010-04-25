@@ -77,6 +77,9 @@ katze_array_move_item              (KatzeArray*   array,
                                     gpointer      item,
                                     gint          position);
 
+GList*
+katze_array_get_items              (KatzeArray*   array);
+
 void
 katze_array_clear                  (KatzeArray*   array);
 

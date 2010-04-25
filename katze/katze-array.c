@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -459,6 +459,24 @@ katze_array_move_item (KatzeArray* array,
     g_return_if_fail (KATZE_IS_ARRAY (array));
 
     g_signal_emit (array, signals[MOVE_ITEM], 0, item, position);
+}
+
+/**
+ * katze_array_get_items:
+ * @array: a #KatzeArray
+ *
+ * Retrieves the items as a list.
+ *
+ * Return value: a newly allocated #GList of items
+ *
+ * Since: 0.2.5
+ **/
+GList*
+katze_array_get_items (KatzeArray* array)
+{
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
+
+    return g_list_copy (array->items);
 }
 
 /**
