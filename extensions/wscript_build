@@ -33,6 +33,8 @@ for extension in extensions:
     obj.includes = '..'
     obj.source = source
     obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML HILDON'
+    obj.vapi_dirs = '../midori'
+    obj.packages = 'glib-2.0 gio-2.0 gtk+-2.0 libsoup-2.4 webkit-1.0 midori'
     obj.install_path = '${LIBDIR}/midori'
     if bld.env['platform'] == 'win32':
         obj.uselib_local = 'midori'
