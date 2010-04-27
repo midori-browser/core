@@ -2771,6 +2771,23 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
     return actions;
 }
 
+/**
+ * midori_browser_get_settings:
+ *
+ * Retrieves the settings instance of the browser.
+ *
+ * Return value: a #MidoriWebSettings instance
+ *
+ * Since: 0.2.5
+ **/
+MidoriWebSettings*
+midori_browser_get_settings (MidoriBrowser* browser)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), NULL);
+
+    return browser->settings;
+}
+
 static gboolean
 midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
                                               gint           x,

@@ -18,6 +18,7 @@
 #endif
 
 #include <katze/katze.h>
+#include "midori-view.h"
 
 G_BEGIN_DECLS
 
@@ -150,6 +151,9 @@ midori_browser_quit                   (MidoriBrowser*     browser);
 
 const gchar**
 midori_browser_get_toolbar_actions    (MidoriBrowser*     browser);
+
+MidoriWebSettings*
+midori_browser_get_settings           (MidoriBrowser*     browser);
 
 G_END_DECLS
 
