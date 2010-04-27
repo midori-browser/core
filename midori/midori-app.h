@@ -65,6 +65,9 @@ midori_app_add_browser            (MidoriApp*         app,
 MidoriBrowser*
 midori_app_create_browser         (MidoriApp*         app);
 
+MidoriBrowser*
+midori_app_get_browser            (MidoriApp*         app);
+
 GList*
 midori_app_get_browsers           (MidoriApp*         app);
 

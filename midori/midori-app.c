@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -1146,6 +1146,7 @@ midori_app_create_browser (MidoriApp* app)
                          "history", app->history,
                          NULL);
 }
+
 /**
  * midori_app_get_browsers:
  * @app: a #MidoriApp
@@ -1163,6 +1164,26 @@ midori_app_get_browsers (MidoriApp* app)
 
     return katze_array_get_items (app->browsers);
 }
+
+/**
+ * midori_app_get_browser:
+ * @app: a #MidoriApp
+ *
+ * Determines the current browser, which is the one that was
+ * last focussed.
+ *
+ * Return value: the current #MidoriBrowser
+ *
+ * Since: 0.2.5
+ **/
+MidoriBrowser*
+midori_app_get_browser (MidoriApp* app)
+{
+    g_return_val_if_fail (MIDORI_IS_APP (app), NULL);
+
+    return app->browser;
+}
+
 /**
  * midori_app_quit:
  * @app: a #MidoriApp
