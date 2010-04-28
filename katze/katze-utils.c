@@ -29,6 +29,9 @@
     #include <hildon/hildon.h>
 #endif
 
+#if !GTK_CHECK_VERSION (2, 14, 0)
+    #define gtk_widget_get_window(wdgt) wdgt->window
+#endif
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_get_has_window(wdgt) !GTK_WIDGET_NO_WINDOW (wdgt)
     #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation

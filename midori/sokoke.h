@@ -27,6 +27,9 @@
 #if !GLIB_CHECK_VERSION (2, 14, 0)
     #define G_PARAM_STATIC_STRINGS \
     (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
+#endif
+
+#if !GTK_CHECK_VERSION (2, 14, 0)
     #define gtk_dialog_get_content_area(dlg) dlg->vbox
 #endif
 
