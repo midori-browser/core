@@ -229,6 +229,12 @@ midori_view_get_web_view               (MidoriView*        view);
 MidoriSecurity
 midori_view_get_security               (MidoriView*        view);
 
+void
+midori_view_populate_popup             (MidoriView*        view,
+                                        GtkWidget*         menu,
+                                        gboolean           manual);
+
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */

@@ -240,11 +240,6 @@ midori_view_speed_dial_save (GtkWidget*   web_view,
                              const gchar* message);
 
 static void
-midori_view_populate_popup (MidoriView* view,
-                            GtkWidget*  menu,
-                            gboolean    manual);
-
-static void
 midori_view_class_init (MidoriViewClass* class)
 {
     GObjectClass* gobject_class;
@@ -1926,7 +1921,24 @@ midori_view_insert_menu_item (GtkMenuShell* menu,
     return menuitem;
 }
 
-static void
+/**
+ * midori_view_populate_popup:
+ * @view: a #MidoriView
+ * @menu: a #GtkMenu
+ * @manual: %TRUE if this a manually created popup
+ *
+ * Populates the given @menu with context menu items
+ * according to the position of the mouse pointer. This
+ * can be used in situations where a custom hotkey
+ * opens the context menu or the default behaviour
+ * needs to be intercepted.
+ *
+ * @manual should usually be %TRUE, except for the
+ * case where @menu was created by the #WebKitWebView.
+ *
+ * Since: 0.2.5
+ */
+void
 midori_view_populate_popup (MidoriView* view,
                             GtkWidget*  menu,
                             gboolean    manual)
