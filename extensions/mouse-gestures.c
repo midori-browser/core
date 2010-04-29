@@ -28,6 +28,7 @@ struct MouseGestureNode {
 } MouseGestureNode_t;
 
 struct _MouseGesture {
+    MouseButton button;
     struct MouseGestureNode start;
     struct MouseGestureNode middle;
     struct MouseGestureNode end;
@@ -36,8 +37,6 @@ struct _MouseGesture {
 
 #define DEVIANCE 20
 #define MINLENGTH 50
-
-#define MOUSE_GESTURES_BUTTON MOUSE_BUTTON_MIDDLE
 
 MouseGesture *gesture;
 
@@ -65,7 +64,7 @@ mouse_gestures_button_press_event_cb (GtkWidget*     web_view,
                                       GdkEvent*      event,
                                       MidoriBrowser* browser)
 {
-    if (event->button.button == MOUSE_GESTURES_BUTTON)
+    if (event->button.button == gesture->button)
     {
         /* If the gesture was previously cleaned,
            start a new gesture and coordinates. */
@@ -127,7 +126,7 @@ mouse_gestures_button_release_event_cb (GtkWidget*      web_view,
                                         MidoriView*     view)
 {
     /* All mouse gestures will use this mouse button */
-    if (gesture->last == MOUSE_GESTURES_BUTTON)
+    if (gesture->last == gesture->button)
     {
         /* The initial horizontal move is between the bounds */
         if ((gesture->middle.x - gesture->start.x < DEVIANCE) &&
@@ -285,6 +284,7 @@ mouse_gestures_activate_cb (MidoriExtension* extension,
     guint i;
 
     gesture = mouse_gesture_new ();
+    gesture->button = midori_extension_get_integer (extension, "button");
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;
@@ -304,7 +304,7 @@ extension_init (void)
         "description", _("Control Midori by moving the mouse"),
         "version", "0.1",
         "authors", "Matthias Kruk <mkruk@matthiaskruk.de>", NULL);
-    midori_extension_install_integer (extension, "button", MOUSE_GESTURES_BUTTON);
+    midori_extension_install_integer (extension, "button", MOUSE_BUTTON_RIGHT);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (mouse_gestures_activate_cb), NULL);
