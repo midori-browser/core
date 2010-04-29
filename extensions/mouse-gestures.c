@@ -1,6 +1,6 @@
 /*
  Copyright (C) 2009 Matthias Kruk <mkruk@matthiaskruk.de>
- Copyright (C) 2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -98,24 +98,33 @@ mouse_gestures_motion_notify_event_cb (GtkWidget*     web_view,
         {
             gesture->middle.x = x;
             gesture->middle.y = y;
+            return TRUE;
         }
         else if ((gesture->middle.x - x < DEVIANCE && gesture->middle.x - x > -DEVIANCE) ||
                  (gesture->middle.y - y < DEVIANCE && gesture->middle.y - y > -DEVIANCE))
         {
             gesture->end.x = x;
             gesture->end.y = y;
+            return TRUE;
         }
-
-        return TRUE;
     }
 
     return FALSE;
 }
 
 static gboolean
-mouse_gestures_button_release_event_cb (GtkWidget*     web_view,
-                                        GdkEvent*      event,
-                                        MidoriBrowser* browser)
+mouse_gestures_activate_action (MidoriView*  view,
+                                const gchar* name)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    midori_browser_activate_action (browser, name);
+    return TRUE;
+}
+
+static gboolean
+mouse_gestures_button_release_event_cb (GtkWidget*      web_view,
+                                        GdkEventButton* event,
+                                        MidoriView*     view)
 {
     /* All mouse gestures will use this mouse button */
     if (gesture->last == MOUSE_GESTURES_BUTTON)
@@ -133,18 +142,18 @@ mouse_gestures_button_release_event_cb (GtkWidget*     web_view,
                     (gesture->middle.y - gesture->end.y > -DEVIANCE) &&
                     (gesture->end.x > gesture->middle.x + MINLENGTH))
                      /* We moved down then right: close the tab */
-                     midori_browser_activate_action (browser, "TabClose");
+                     return mouse_gestures_activate_action (view, "TabClose");
                 /* Then we the final vertical move is between the bounds and
                 we moved left more than MINLENGTH pixels */
                 else if ((gesture->middle.y - gesture->end.y < DEVIANCE) &&
                          (gesture->middle.y - gesture->end.y > -DEVIANCE) &&
                          (gesture->end.x + MINLENGTH < gesture->middle.x))
                      /* We moved down then left: reload */
-                     midori_browser_activate_action (browser, "Reload");
+                     return mouse_gestures_activate_action (view, "Reload");
                 /* The end node was never updated, we only did a vertical move */
                 else if(gesture->end.y == 0 && gesture->end.x == 0)
                     /* We moved down then: create a new tab */
-                    midori_browser_activate_action (browser, "TabNew");
+                    return mouse_gestures_activate_action (view, "TabNew");
             }
             /* We initially moved up more than MINLENGTH pixels */
             else if (gesture->middle.y + MINLENGTH < gesture->start.y)
@@ -152,7 +161,7 @@ mouse_gestures_button_release_event_cb (GtkWidget*     web_view,
                 /* The end node was never updated, we only did a vertical move */
                 if (gesture->end.y == 0 && gesture->end.x == 0)
                     /* We moved up: stop */
-                    midori_browser_activate_action (browser, "Stop");
+                    return mouse_gestures_activate_action (view, "Stop");
             }
         }
         /* The initial horizontal move is between the bounds */
@@ -165,7 +174,7 @@ mouse_gestures_button_release_event_cb (GtkWidget*     web_view,
                 /* The end node was never updated, we only did an horizontal move */
                 if (gesture->end.x == 0 && gesture->end.y == 0)
                     /* We moved right: forward */
-                    midori_browser_activate_action (browser, "Forward");
+                    return mouse_gestures_activate_action (view, "Forward");
             }
             /* We initially moved left more than MINLENGTH pixels */
             else if (gesture->middle.x + MINLENGTH < gesture->start.x)
@@ -173,12 +182,18 @@ mouse_gestures_button_release_event_cb (GtkWidget*     web_view,
                 /* The end node was never updated, we only did an horizontal move */
                 if (gesture->end.x == 0 && gesture->end.y == 0)
                     /* We moved left: back */
-                    midori_browser_activate_action (browser, "Back");
+                    return mouse_gestures_activate_action (view, "Back");
             }
         }
-
         mouse_gesture_clear (gesture);
+    }
 
+    if (event->button == 3)
+    {
+        GtkWidget* menu = gtk_menu_new ();
+        midori_view_populate_popup (view, menu, TRUE);
+        katze_widget_popup (GTK_WIDGET (web_view), GTK_MENU (menu),
+                            event, KATZE_MENU_POSITION_CURSOR);
         return TRUE;
     }
 
@@ -198,7 +213,7 @@ mouse_gestures_add_tab_cb (MidoriBrowser*   browser,
         "signal::motion-notify-event",
         mouse_gestures_motion_notify_event_cb, browser,
         "signal::button-release-event",
-        mouse_gestures_button_release_event_cb, browser,
+        mouse_gestures_button_release_event_cb, view,
         NULL);
 }
 
@@ -239,7 +254,7 @@ mouse_gestures_deactivate_tabs (MidoriView*    view,
         "any_signal::motion-notify-event",
         mouse_gestures_motion_notify_event_cb, browser,
         "any_signal::button-release-event",
-        mouse_gestures_button_release_event_cb, browser,
+        mouse_gestures_button_release_event_cb, view,
         NULL);
 }
 
