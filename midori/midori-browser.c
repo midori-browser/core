@@ -936,7 +936,46 @@ midori_view_add_bookmark_cb (GtkWidget*   menuitem,
     midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
 }
 
-#if !WEBKIT_CHECK_VERSION (1, 1, 3)
+#if WEBKIT_CHECK_VERSION (1, 1, 3)
+static gboolean
+midori_browser_prepare_download (MidoriBrowser*  browser,
+                                 WebKitDownload* download,
+                                 const gchar*    uri)
+
+{
+    guint64 total_size = webkit_download_get_total_size (download);
+    GFile* file = g_file_new_for_uri (uri);
+    GFile* folder = g_file_get_parent (file);
+    GError* error = NULL;
+    GFileInfo* info = g_file_query_filesystem_info (folder,
+        G_FILE_ATTRIBUTE_FILESYSTEM_FREE, NULL, &error);
+    guint64 free_space = g_file_info_get_attribute_uint64 (info,
+        G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
+    g_object_unref (file);
+    g_object_unref (folder);
+    if (free_space < total_size)
+    {
+        gchar* message = g_strdup_printf (
+            _("There is not enough free space to download \"%s\"."), &uri[7]);
+        gchar* total_size_string = g_format_size_for_display (total_size);
+        gchar* free_space_string = g_format_size_for_display (free_space);
+        gchar* detailed_message = g_strdup_printf (
+            _("The file needs %s but only %s are left."),
+              total_size_string, free_space_string);
+        sokoke_message_dialog (GTK_MESSAGE_ERROR, message, detailed_message);
+        g_free (message);
+        g_free (detailed_message);
+        g_free (total_size_string);
+        g_free (free_space_string);
+        g_object_unref (download);
+        return FALSE;
+    }
+
+    webkit_download_set_destination_uri (download, uri);
+    midori_browser_add_download_item (browser, download);
+    return TRUE;
+}
+#else
 static void
 midori_browser_save_transfer_cb (KatzeNetRequest* request,
                                  gchar*           filename)
@@ -1030,10 +1069,9 @@ midori_browser_save_uri (MidoriBrowser* browser,
         download = webkit_download_new (request);
         g_object_unref (request);
         destination = g_filename_to_uri (filename, NULL, NULL);
-        webkit_download_set_destination_uri (download, destination);
+        if (midori_browser_prepare_download (browser, download, destination))
+            webkit_download_start (download);
         g_free (destination);
-        midori_browser_add_download_item (browser, download);
-        webkit_download_start (download);
         #else
         katze_net_load_uri (browser->net, uri, NULL,
             (KatzeNetTransferCb)midori_browser_save_transfer_cb, filename);
@@ -1498,6 +1536,7 @@ midori_browser_add_download_item (MidoriBrowser*  browser,
         G_CALLBACK (midori_browser_download_button_clicked_cb), download);
 }
 
+
 static void
 midori_view_download_save_as_response_cb (GtkWidget*      dialog,
                                           gint            response,
@@ -1507,10 +1546,9 @@ midori_view_download_save_as_response_cb (GtkWidget*      dialog,
     if (response == GTK_RESPONSE_OK)
     {
         gchar* uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
-        webkit_download_set_destination_uri (download, uri);
-        midori_browser_add_download_item (browser, download);
+        if (midori_browser_prepare_download (browser, download, uri))
+            webkit_download_start (download);
         g_free (uri);
-        webkit_download_start (download);
     }
     else
         g_object_unref (download);
@@ -1562,9 +1600,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
             g_free (folder);
             uri = g_filename_to_uri (filename, NULL, NULL);
             g_free (filename);
-            webkit_download_set_destination_uri (download, uri);
+            midori_browser_prepare_download (browser, download, uri);
             g_free (uri);
-            midori_browser_add_download_item (browser, download);
         }
     }
     return TRUE;
