@@ -303,7 +303,7 @@ def configure (conf):
             if 'CCFLAGS' in os.environ:
                 conf.env.append_value ('CCFLAGS', os.environ['CCFLAGS'].split ())
             else:
-                conf.env.append_value ('CCFLAGS', '-DG_DISABLE_CHECKS')
+                conf.env.append_value ('CCFLAGS', '-DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS -DG_DISABLE_ASSERT'.split ())
         elif debug_level == 'debug':
             conf.env.append_value ('CCFLAGS', '-Wall -O0 -g'.split ())
         elif debug_level == 'full':
