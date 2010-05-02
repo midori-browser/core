@@ -4252,7 +4252,6 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         view->tab_icon = katze_throbber_new ();
         katze_throbber_set_static_pixbuf (KATZE_THROBBER (view->tab_icon),
             midori_view_get_icon (view));
-        gtk_misc_set_alignment (GTK_MISC (view->tab_icon), 0.0, 0.5);
 
         view->tab_title = gtk_label_new (midori_view_get_display_title (view));
         gtk_misc_set_alignment (GTK_MISC (view->tab_title), 0.0, 0.5);

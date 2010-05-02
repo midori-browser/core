@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2008 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,8 @@
 #include <glib/gi18n.h>
 #include <math.h>
 
+#define HAVE_SPINNER GTK_CHECK_VERSION (2, 20, 0)
+
 #if !GTK_CHECK_VERSION (2, 18, 0)
     #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
     #define gtk_widget_set_has_window(wdgt, wnd) \
@@ -25,7 +27,11 @@
 
 struct _KatzeThrobber
 {
+    #if HAVE_SPINNER
+    GtkSpinner parent_instance;
+    #else
     GtkMisc parent_instance;
+    #endif
 
     GtkIconSize icon_size;
     gchar* icon_name;
@@ -42,7 +48,20 @@ struct _KatzeThrobber
     gint height;
 };
 
+struct _KatzeThrobberClass
+{
+    #if HAVE_SPINNER
+    GtkSpinnerClass parent_class;
+    #else
+    GtkMiscClass parent_class;
+    #endif
+};
+
+#if HAVE_SPINNER
+G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_SPINNER);
+#else
 G_DEFINE_TYPE (KatzeThrobber, katze_throbber, GTK_TYPE_MISC);
+#endif
 
 enum
 {
@@ -106,11 +125,13 @@ katze_throbber_expose_event (GtkWidget*      widget,
 static void
 icon_theme_changed (KatzeThrobber* throbber);
 
+#if !HAVE_SPINNER
 static gboolean
 katze_throbber_timeout (KatzeThrobber* throbber);
 
 static void
 katze_throbber_timeout_destroy (KatzeThrobber* throbber);
+#endif
 
 static void
 katze_throbber_class_init (KatzeThrobberClass* class)
@@ -206,6 +227,9 @@ static void
 katze_throbber_init (KatzeThrobber *throbber)
 {
     gtk_widget_set_has_window (GTK_WIDGET (throbber), FALSE);
+    #if !HAVE_SPINNER
+    gtk_misc_set_alignment (GTK_MISC (throbber), 0.0, 0.5);
+    #endif
 
     throbber->timer_id = -1;
 }
@@ -431,14 +455,17 @@ katze_throbber_set_animated (KatzeThrobber*  throbber,
 
     throbber->animated = animated;
 
+    #if HAVE_SPINNER
+    g_object_set (throbber, "active", animated, NULL);
+    #else
     if (animated && (throbber->timer_id < 0))
         throbber->timer_id = g_timeout_add_full (
                          G_PRIORITY_LOW, 50,
                          (GSourceFunc)katze_throbber_timeout,
                          throbber,
                          (GDestroyNotify)katze_throbber_timeout_destroy);
-
     gtk_widget_queue_draw (GTK_WIDGET (throbber));
+    #endif
 
     g_object_notify (G_OBJECT (throbber), "animated");
 }
@@ -741,6 +768,7 @@ katze_throbber_unmap (GtkWidget* widget)
         GTK_WIDGET_CLASS (katze_throbber_parent_class)->unmap (widget);
 }
 
+#if !HAVE_SPINNER
 static gboolean
 katze_throbber_timeout (KatzeThrobber*  throbber)
 {
@@ -756,6 +784,7 @@ katze_throbber_timeout_destroy (KatzeThrobber*  throbber)
     throbber->index = 0;
     throbber->timer_id = -1;
 }
+#endif
 
 static void
 katze_throbber_style_set (GtkWidget* widget,
@@ -803,10 +832,16 @@ katze_throbber_aligned_coords (GtkWidget* widget,
     GtkAllocation allocation;
     GtkRequisition requisition;
 
+    #if HAVE_SPINNER
+    xalign = 0.0;
+    yalign = 0.5;
+    xpad = ypad = 0.0;
+    #else
     gtk_misc_get_alignment (GTK_MISC (widget), &xalign, &yalign);
     if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL)
         xalign = 1.0f - xalign;
     gtk_misc_get_padding (GTK_MISC (widget), &xpad, &ypad);
+    #endif
 
     gtk_widget_get_allocation (widget, &allocation);
     gtk_widget_size_request (widget, &requisition);
@@ -822,6 +857,11 @@ katze_throbber_expose_event (GtkWidget*      widget,
 {
     gint ax, ay;
     KatzeThrobber* throbber = KATZE_THROBBER (widget);
+
+    #if HAVE_SPINNER
+    if (throbber->animated)
+        return GTK_WIDGET_CLASS (katze_throbber_parent_class)->expose_event (widget, event);
+    #endif
 
     if (G_UNLIKELY (!throbber->width || !throbber->height))
         return TRUE;

@@ -33,16 +33,6 @@ typedef struct _KatzeThrobber                KatzeThrobber;
 typedef struct _KatzeThrobberPrivate         KatzeThrobberPrivate;
 typedef struct _KatzeThrobberClass           KatzeThrobberClass;
 
-struct _KatzeThrobberClass
-{
-    GtkMiscClass parent_class;
-
-    /* Padding for future expansion */
-    void (*_katze_reserved1) (void);
-    void (*_katze_reserved2) (void);
-    void (*_katze_reserved3) (void);
-    void (*_katze_reserved4) (void);
-};
 
 GType
 katze_throbber_get_type             (void) G_GNUC_CONST;
