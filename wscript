@@ -259,6 +259,7 @@ def configure (conf):
     # Store options in env, since 'Options' is not persistent
     if 'CC' in os.environ: conf.env['CC'] = os.environ['CC'].split()
     conf.env['addons'] = option_enabled ('addons')
+    conf.env['tests'] = option_enabled ('tests')
     conf.env['docs'] = option_enabled ('docs')
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
@@ -383,6 +384,7 @@ def set_options (opt):
     add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('addons', 'building of extensions', group)
+    add_enable_option ('tests', 'building of tests', group, disable=True)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
 
     # Provided for compatibility
@@ -540,7 +542,7 @@ def build (bld):
                     bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + \
                                        '/extensions/' + folder, source)
 
-    if Options.commands['check']:
+    if Options.commands['check'] or bld.env['tests']:
         bld.add_subdirs ('tests')
 
     if Options.commands['clean']:
