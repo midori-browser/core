@@ -1303,8 +1303,10 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         "{ var t = l[i].type; var r = l[i].rel; "
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
         "f.push (l[i].href + '|' + l[i].title);"
-        "else if (r && r.indexOf ('icon') != -1) f.push (l[i].href); } "
-        "return f; })("
+        #if !WEBKIT_CHECK_VERSION (1, 1, 18)
+        "else if (r && r.indexOf ('icon') != -1) f.push (l[i].href); "
+        #endif
+        "} return f; })("
         "document.getElementsByTagName ('link'));", NULL);
         gchar** items = g_strsplit (value, ",", 0);
         guint i = 0;
@@ -1326,8 +1328,10 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                 if (!default_uri)
                     default_uri = g_strdup (parts[0]);
             }
+            #if !WEBKIT_CHECK_VERSION (1, 1, 18)
             else
                 katze_assign (view->icon_uri, g_strdup (*parts));
+            #endif
 
             g_strfreev (parts);
             i++;
@@ -1343,6 +1347,17 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
 
     g_object_thaw_notify (G_OBJECT (view));
 }
+
+#if WEBKIT_CHECK_VERSION (1, 1, 18)
+static void
+midori_web_view_notify_icon_uri_cb (WebKitWebView* web_view,
+                                    GParamSpec*    pspec,
+                                    MidoriView*    view)
+{
+    katze_assign (view->icon_uri, katze_object_get_string (web_view, "icon-uri"));
+    _midori_web_view_load_icon (view);
+}
+#endif
 
 #if WEBKIT_CHECK_VERSION (1, 1, 4)
 static void
@@ -3276,6 +3291,10 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_progress_changed_cb, view,
                       "signal::load-finished",
                       webkit_web_view_load_finished_cb, view,
+                      #if WEBKIT_CHECK_VERSION (1, 1, 18)
+                      "signal::notify::icon-uri",
+                      midori_web_view_notify_icon_uri_cb, view,
+                      #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 4)
                       "signal::notify::uri",
                       webkit_web_view_notify_uri_cb, view,
