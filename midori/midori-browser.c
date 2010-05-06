@@ -2667,9 +2667,7 @@ _midori_browser_find_done (MidoriBrowser* browser)
     midori_view_unmark_text_matches (MIDORI_VIEW (view));
     gtk_widget_hide (browser->find);
     browser->find_typing = FALSE;
-    gtk_window_set_focus (GTK_WINDOW (browser),
-        midori_view_get_web_view (MIDORI_VIEW (view)) ?
-        midori_view_get_web_view (MIDORI_VIEW (view)) : view);
+    gtk_window_set_focus (GTK_WINDOW (browser), view);
 }
 
 static void
@@ -5024,8 +5022,7 @@ _action_tab_current_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    GtkWidget* child = midori_view_get_web_view (MIDORI_VIEW (view));
-    gtk_widget_grab_focus (child ? child : view);
+    gtk_widget_grab_focus (view);
 }
 
 static const gchar* credits_authors[] =
@@ -7560,14 +7557,11 @@ midori_browser_set_current_page (MidoriBrowser* browser,
                                  gint           n)
 {
     GtkWidget* view;
-    GtkWidget* web_view;
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
-    if (view && midori_view_is_blank (MIDORI_VIEW (view)))
+    if (midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
-    else if ((web_view = midori_view_get_web_view (MIDORI_VIEW (view))))
-        gtk_widget_grab_focus (web_view);
     else
         gtk_widget_grab_focus (view);
 }
@@ -7626,17 +7620,14 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
                                 GtkWidget*     view)
 {
     gint n;
-    GtkWidget* web_view;
 
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (GTK_IS_WIDGET (view));
 
     n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
-    if (view && midori_view_is_blank (MIDORI_VIEW (view)))
+    if (midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
-    else if ((web_view = midori_view_get_web_view (MIDORI_VIEW (view))))
-        gtk_widget_grab_focus (web_view);
     else
         gtk_widget_grab_focus (view);
 }

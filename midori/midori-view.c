@@ -225,6 +225,10 @@ midori_view_get_property (GObject*    object,
                           GValue*     value,
                           GParamSpec* pspec);
 
+static gboolean
+midori_view_focus_in_event (GtkWidget*     widget,
+                            GdkEventFocus* event);
+
 static void
 midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                 GParamSpec*        pspec,
@@ -243,6 +247,7 @@ static void
 midori_view_class_init (MidoriViewClass* class)
 {
     GObjectClass* gobject_class;
+    GtkWidgetClass* gtkwidget_class;
     GParamFlags flags;
 
     signals[ACTIVATE_ACTION] = g_signal_new (
@@ -438,6 +443,9 @@ midori_view_class_init (MidoriViewClass* class)
     gobject_class->finalize = midori_view_finalize;
     gobject_class->set_property = midori_view_set_property;
     gobject_class->get_property = midori_view_get_property;
+
+    gtkwidget_class = GTK_WIDGET_CLASS (class);
+    gtkwidget_class->focus_in_event = midori_view_focus_in_event;
 
     flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS;
 
@@ -2986,6 +2994,20 @@ midori_view_get_property (GObject*    object,
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
     }
+}
+
+static gboolean
+midori_view_focus_in_event (GtkWidget*     widget,
+                            GdkEventFocus* event)
+{
+    MidoriView* view = MIDORI_VIEW (widget);
+
+    /* Always propagate focus to the child web view,
+     * create it if it's not there yet. */
+    if (!view->web_view)
+        midori_view_construct_web_view (view);
+    gtk_widget_grab_focus (view->web_view);
+    return TRUE;
 }
 
 /**
