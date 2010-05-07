@@ -2594,15 +2594,12 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
-        gboolean view_source = FALSE;
+        gboolean view_source = webkit_web_view_get_view_source_mode (WEBKIT_WEB_VIEW (web_view));
 
-        if (strcmp (mime_type, "application/xhtml+xml"))
-        {
-            content_type = g_content_type_from_mime_type (mime_type);
-            if (g_content_type_is_a (content_type, "application/xml"))
-                view_source = TRUE;
-            g_free (content_type);
-        }
+        /* Render raw XML, including news feeds, as source */
+        if (!view_source && (!strcmp (mime_type, "application/xml")
+                          || !strcmp (mime_type, "text/xml")))
+            view_source = TRUE;
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
         #endif
 
