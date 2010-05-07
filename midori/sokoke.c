@@ -224,12 +224,7 @@ sokoke_show_uri_with_mime_type (GdkScreen*   screen,
     GList* files;
     gpointer context;
 
-    #if GLIB_CHECK_VERSION (2, 18, 0)
     content_type = g_content_type_from_mime_type (mime_type);
-    #else
-    content_type = g_strdup (mime_type);
-    #endif
-
     app_info = g_app_info_get_default_for_type (content_type,
         !g_str_has_prefix (uri, "file://"));
     g_free (content_type);

@@ -2598,11 +2598,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
 
         if (strcmp (mime_type, "application/xhtml+xml"))
         {
-            #if GLIB_CHECK_VERSION (2, 18, 0)
             content_type = g_content_type_from_mime_type (mime_type);
-            #else
-            content_type = g_strdup (mime_type);
-            #endif
             if (g_content_type_is_a (content_type, "application/xml"))
                 view_source = TRUE;
             g_free (content_type);
@@ -2621,11 +2617,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     dialog = gtk_message_dialog_new (
         NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Open or download file"));
-    #if GLIB_CHECK_VERSION (2, 18, 0)
     content_type = g_content_type_from_mime_type (mime_type);
-    #else
-    content_type = g_strdup (mime_type);
-    #endif
     if (!content_type)
     #ifdef G_OS_WIN32
         content_type = g_content_type_get_mime_type ("*");
@@ -4445,27 +4437,21 @@ midori_view_can_zoom_out (MidoriView* view)
 gboolean
 midori_view_can_view_source (MidoriView* view)
 {
-    #if GLIB_CHECK_VERSION (2, 18, 0)
     gchar* content_type;
     gchar* text_type;
-    #endif
+    gboolean is_text;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
     if (midori_view_is_blank (view))
         return FALSE;
 
-    #if GLIB_CHECK_VERSION (2, 18, 0)
     content_type = g_content_type_from_mime_type (view->mime_type);
     text_type = g_content_type_from_mime_type ("text/plain");
-    return g_content_type_is_a (content_type, text_type);
-    #elif defined (G_OS_UNIX)
-    return g_content_type_is_a (view->mime_type, "text/plain");
-    #else
-    return g_str_has_prefix (view->mime_type, "text/")
-        || g_strrstr (view->mime_type, "xml")
-        || g_strrstr (view->mime_type, "javascript");
-    #endif
+    is_text = g_content_type_is_a (content_type, text_type);
+    g_free (content_type);
+    g_free (text_type);
+    return is_text;
 }
 
 #define can_do(what) \

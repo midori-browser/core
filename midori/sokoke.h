@@ -29,6 +29,10 @@
     (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
 #endif
 
+#if !GLIB_CHECK_VERSION (2, 18, 0)
+    #define g_content_type_from_mime_type(mtp) g_strdup (mtp)
+#endif
+
 #if !GTK_CHECK_VERSION (2, 14, 0)
     #define gtk_dialog_get_content_area(dlg) dlg->vbox
 #endif
