@@ -1572,6 +1572,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
             {
                 dialog = sokoke_file_chooser_dialog_new (_("Save file"),
                     GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
+                gtk_file_chooser_set_do_overwrite_confirmation (
+                    GTK_FILE_CHOOSER (dialog), TRUE);
                 gtk_window_set_destroy_with_parent (GTK_WINDOW (dialog), TRUE);
                 folder = katze_object_get_string (browser->settings, "download-folder");
                 gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), folder);
@@ -1597,6 +1599,24 @@ midori_view_download_requested_cb (GtkWidget*      view,
                 folder = katze_object_get_string (browser->settings, "download-folder");
             filename = g_build_filename (folder,
                 webkit_download_get_suggested_filename (download), NULL);
+            /* If the filename exists, choose a different name  */
+            if (g_access (filename, F_OK) == 0)
+            {
+                /* FIXME: Put the number in front of the extension */
+                gsize length = strlen (filename);
+                do
+                {
+                    if (g_ascii_isdigit (filename[length - 1]))
+                        filename[length - 1] += 1;
+                    else
+                    {
+                        gchar* new_filename = g_strconcat (filename, "0", NULL);
+                        katze_assign (filename, new_filename);
+                        length = strlen (filename);
+                    }
+                }
+                while (g_access (filename, F_OK) == 0);
+            }
             g_free (folder);
             uri = g_filename_to_uri (filename, NULL, NULL);
             g_free (filename);
