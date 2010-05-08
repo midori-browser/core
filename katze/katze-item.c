@@ -189,7 +189,6 @@ katze_item_finalize (GObject* object)
     g_free (item->name);
     g_free (item->text);
     g_free (item->uri);
-    g_free (item->icon);
     g_free (item->token);
 
     g_hash_table_unref (item->metadata);
@@ -217,7 +216,7 @@ katze_item_set_property (GObject*      object,
         katze_assign (item->uri, g_value_dup_string (value));
         break;
     case PROP_ICON:
-        katze_assign (item->icon, g_value_dup_string (value));
+        katze_item_set_icon (item, g_value_get_string (value));
         break;
     case PROP_TOKEN:
         katze_assign (item->token, g_value_dup_string (value));
@@ -254,7 +253,7 @@ katze_item_get_property (GObject*    object,
         g_value_set_string (value, item->uri);
         break;
     case PROP_ICON:
-        g_value_set_string (value, item->icon);
+        g_value_set_string (value, katze_item_get_icon (item));
         break;
     case PROP_TOKEN:
         g_value_set_string (value, item->token);
@@ -398,7 +397,7 @@ katze_item_get_icon (KatzeItem* item)
 {
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
 
-    return item->icon;
+    return katze_item_get_meta_string (item, "icon");
 }
 
 /**
@@ -414,7 +413,7 @@ katze_item_set_icon (KatzeItem*   item,
 {
     g_return_if_fail (KATZE_IS_ITEM (item));
 
-    katze_assign (item->icon, g_strdup (icon));
+    katze_item_set_meta_string (item, "icon", icon);
     g_object_notify (G_OBJECT (item), "icon");
 }
 
@@ -698,7 +697,6 @@ katze_item_copy (KatzeItem* item)
         "name", item->name,
         "text", item->text,
         "uri", item->uri,
-        "icon", item->icon,
         "token", item->token,
         "added", item->added,
         "parent", item->parent,

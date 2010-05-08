@@ -39,7 +39,6 @@ struct _KatzeItem
     gchar* name;
     gchar* text;
     gchar* uri;
-    gchar* icon;
     gchar* token;
     gint64 added;
     GHashTable* metadata;
