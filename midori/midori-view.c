@@ -4265,7 +4265,6 @@ midori_view_get_proxy_tab_label (MidoriView* view)
             midori_view_get_icon (view));
 
         view->tab_title = gtk_label_new (midori_view_get_display_title (view));
-        sokoke_widget_set_visible (view->tab_title, !view->minimized);
         gtk_misc_set_alignment (GTK_MISC (view->tab_title), 0.0, 0.5);
 
         event_box = gtk_event_box_new ();
@@ -4297,6 +4296,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         #endif
         gtk_widget_show_all (GTK_WIDGET (event_box));
 
+        if (view->minimized)
+            gtk_widget_hide (view->tab_title);
         if (!view->close_buttons_on_tabs)
             gtk_widget_hide (view->tab_close);
 
