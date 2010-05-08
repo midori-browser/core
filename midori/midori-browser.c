@@ -1590,6 +1590,8 @@ midori_view_download_requested_cb (GtkWidget*      view,
         }
         else
         {
+            const gchar* suggested;
+            gchar* basename;
             gchar* filename;
             gchar* uri;
 
@@ -1597,8 +1599,11 @@ midori_view_download_requested_cb (GtkWidget*      view,
                 folder = g_strdup (g_get_tmp_dir ());
             else
                 folder = katze_object_get_string (browser->settings, "download-folder");
-            filename = g_build_filename (folder,
-                webkit_download_get_suggested_filename (download), NULL);
+            suggested = webkit_download_get_suggested_filename (download);
+            /* The suggested name may contain a folder name */
+            basename = g_path_get_basename (suggested);
+            filename = g_build_filename (folder, basename, NULL);
+            g_free (basename);
             /* If the filename exists, choose a different name  */
             if (g_access (filename, F_OK) == 0)
             {
