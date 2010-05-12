@@ -37,8 +37,8 @@ namespace Midori {
         public Browser ();
         public int add_item (GLib.Object item);
         public int add_uri (string uri);
-        public unowned Gtk.Widget get_nth_tab (int n);
-        public GLib.List<weak Gtk.Widget> get_tabs ();
+        public unowned View get_nth_tab (int n);
+        public GLib.List<weak View> get_tabs ();
         public unowned Gtk.ActionGroup get_action_group ();
         public unowned Browser get_for_widget (Gtk.Widget widget);
         public unowned string[] get_toolbar_actions ();
@@ -55,7 +55,7 @@ namespace Midori {
         [NoAccessorMethod]
         public string uri { get; set; }
         [NoAccessorMethod]
-        public Gtk.Widget tab { get; set; }
+        public View tab { get; set; }
         [NoAccessorMethod]
         public uint load_status { get; }
         [NoAccessorMethod]
@@ -76,9 +76,9 @@ namespace Midori {
 
         public signal Browser new_window (Browser? browser);
         [HasEmitter]
-        public signal void add_tab (Gtk.Widget tab);
+        public signal void add_tab (View tab);
         [HasEmitter]
-        public signal void remove_tab (Gtk.Widget tab);
+        public signal void remove_tab (View tab);
         [HasEmitter]
         public signal void activate_action (string name);
         public signal void add_download (GLib.Object download);
@@ -103,6 +103,48 @@ namespace Midori {
 
         public signal void activate (Midori.App app);
         public signal void deactivate ();
+    }
+
+    public class View : Gtk.VBox {
+        [CCode (type = "GtkWidget*")]
+        public View (GLib.Object net);
+        public void set_uri (string uri);
+        public bool is_blank ();
+        public string get_display_uri ();
+        public string get_display_title ();
+        public string get_icon_uri ();
+        public string get_link_uri ();
+        public bool has_selection ();
+        public string get_selected_text ();
+        public Gtk.MenuItem get_proxy_menu_item ();
+        public Gtk.Menu get_tab_menu ();
+        public Pango.EllipsizeMode get_label_ellipsize ();
+        public Gtk.Label get_proxy_tab_label ();
+        public GLib.Object get_proxy_item ();
+        public bool can_view_source ();
+        public bool can_find ();
+        public void search_text (string text, bool case_sensitive, bool forward);
+        public void mark_text_matches (string text, bool case_sensitive);
+        public void set_highlight_text_matches (bool highlight);
+        public bool execute_script (string script, out string exception);
+        public Gdk.Pixbuf get_snapshot (int width, int height);
+        public unowned WebKit.WebView get_web_view ();
+        public void populate_popup (Gtk.Menu menu, bool manual);
+
+        public string uri { get; }
+        public string title { get; }
+        public int security { get; }
+        public string mime_type { get; }
+        public Gdk.Pixbuf icon { get; }
+        public int load_status { get; }
+        public double progress { get; set; }
+        public bool minimized { get; }
+        public float zoom_level { get; }
+        public GLib.Object news_feeds { get; }
+        public string statusbar_text { get; }
+        public WebSettings settings { get; set; }
+        public GLib.Object net { get; }
+
     }
 
     public class WebSettings : WebKit.WebSettings {
