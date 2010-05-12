@@ -10,12 +10,44 @@
 */
 
 using Gtk;
+using WebKit;
 using Midori;
 
 public class ExternalApplications : Midori.Extension {
     Dialog? dialog;
-    void tab_added (Widget tab) {
-        /* */
+    bool launch (string command, string uri) {
+        try {
+            var info = GLib.AppInfo.create_from_commandline (command, null, 0);
+            var uris = new List<string>();
+            uris.prepend (uri);
+            info.launch_uris (uris, null);
+            return true;
+        }
+        catch (GLib.Error error) {
+            var error_dialog = new Gtk.MessageDialog (null, 0,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+                "Failed to launch external application.");
+            error_dialog.format_secondary_text (error.message);
+            error_dialog.response.connect ((dialog, response)
+                => { dialog.destroy (); });
+            error_dialog.show ();
+        }
+        return false;
+    }
+    bool navigating (WebFrame web_frame, NetworkRequest request,
+                     WebNavigationAction action, WebPolicyDecision decision) {
+        string uri = request.get_uri ();
+        if (uri.has_prefix ("ftp://")) {
+            if (launch ("gftp", uri)) {
+                decision.ignore ();
+                return true;
+            }
+        }
+        return false;
+    }
+    void tab_added (View tab) {
+        var web_view = tab.get_web_view ();
+        web_view.navigation_policy_decision_requested.connect (navigating);
     }
     void configure_external_applications () {
         if (dialog == null) {
@@ -68,7 +100,7 @@ public Midori.Extension extension_init () {
     extension.name = "External Applications";
     extension.description = "Lalala";
     extension.version = "0.1";
-    extension.authors = "nobody";
+    extension.authors = "Christian Dywan <christian@twotoasts.de>";
     return extension;
 }
 

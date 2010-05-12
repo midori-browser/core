@@ -966,7 +966,6 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
             return TRUE;
         }
     }
-    /* TODO: Handle more external protocols */
     view->special = FALSE;
     return FALSE;
 }
