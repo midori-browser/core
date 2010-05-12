@@ -28,68 +28,63 @@ struct _MidoriWebSettings
 {
     WebKitWebSettings parent_instance;
 
-    gboolean remember_last_window_size;
+    gboolean remember_last_window_size : 1;
+    MidoriWindowState last_window_state : 2;
+    gboolean show_menubar : 1;
+    gboolean show_navigationbar : 1;
+    gboolean show_bookmarkbar : 1;
+    gboolean show_panel : 1;
+    gboolean show_transferbar : 1;
+    gboolean show_statusbar : 1;
+    MidoriToolbarStyle toolbar_style : 3;
+    gboolean progress_in_location : 1;
+    gboolean search_engines_in_completion : 1;
+    gboolean compact_sidepanel : 1;
+    gboolean show_panel_controls : 1;
+    gboolean right_align_sidepanel : 1;
+    gboolean open_panels_in_windows : 1;
+    MidoriStartup load_on_startup : 2;
+    gboolean show_crash_dialog : 1;
+    gboolean speed_dial_in_new_tabs : 1;
+    gboolean ask_for_destination_folder : 1;
+    gboolean notify_transfer_completed : 1;
+    MidoriPreferredEncoding preferred_encoding : 3;
+    gboolean always_show_tabbar : 1;
+    gboolean close_buttons_on_tabs : 1;
+    MidoriNewPage open_new_pages_in : 2;
+    MidoriNewPage open_external_pages_in : 2;
+    gboolean middle_click_opens_selection : 1;
+    gboolean open_tabs_in_the_background : 1;
+    gboolean open_tabs_next_to_current : 1;
+    gboolean open_popups_in_tabs : 1;
+    gboolean zoom_text_and_images : 1;
+    gboolean find_while_typing : 1;
+    gboolean kinetic_scrolling : 1;
+    MidoriAcceptCookies accept_cookies : 2;
+    gboolean original_cookies_only : 1;
+    gboolean remember_last_visited_pages : 1;
+    gboolean remember_last_downloaded_files : 1;
+    MidoriProxy proxy_type : 2;
+    gboolean auto_detect_proxy : 1;
+    MidoriIdentity identify_as : 3;
+
     gint last_window_width;
     gint last_window_height;
-    MidoriWindowState last_window_state;
     gint last_panel_position;
     gint last_panel_page;
     gint last_web_search;
+    gint maximum_cookie_age;
+    gint maximum_history_age;
 
-    gboolean show_menubar;
-    gboolean show_navigationbar;
-    gboolean show_bookmarkbar;
-    gboolean show_panel;
-    gboolean show_transferbar;
-    gboolean show_statusbar;
-
-    MidoriToolbarStyle toolbar_style;
-    gboolean progress_in_location;
-    gboolean search_engines_in_completion;
     gchar* toolbar_items;
-    gboolean compact_sidepanel;
-    gboolean show_panel_controls;
-    gboolean right_align_sidepanel;
-    gboolean open_panels_in_windows;
-
-    MidoriStartup load_on_startup;
     gchar* homepage;
-    gboolean show_crash_dialog;
-    gboolean speed_dial_in_new_tabs;
     gchar* download_folder;
-    gboolean ask_for_destination_folder;
-    gboolean notify_transfer_completed;
     gchar* download_manager;
     gchar* text_editor;
     gchar* news_aggregator;
     gchar* location_entry_search;
-    MidoriPreferredEncoding preferred_encoding;
-
-    gboolean always_show_tabbar;
-    gboolean close_buttons_on_tabs;
-    MidoriNewPage open_new_pages_in;
-    MidoriNewPage open_external_pages_in;
-    gboolean middle_click_opens_selection;
-    gboolean open_tabs_in_the_background;
-    gboolean open_tabs_next_to_current;
-    gboolean open_popups_in_tabs;
-
-    gboolean zoom_text_and_images;
-    gboolean find_while_typing;
-    gboolean kinetic_scrolling;
-    MidoriAcceptCookies accept_cookies;
-    gboolean original_cookies_only;
-    gint maximum_cookie_age;
-
-    gboolean remember_last_visited_pages;
-    gint maximum_history_age;
-    gboolean remember_last_downloaded_files;
-
-    MidoriProxy proxy_type;
     gchar* http_proxy;
     gchar* http_accept_language;
-    gboolean auto_detect_proxy;
-    MidoriIdentity identify_as;
     gchar* ident_string;
 
     gint clear_private_data;
