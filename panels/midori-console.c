@@ -308,7 +308,6 @@ midori_console_get_toolbar (MidoriViewable* console)
         GtkToolItem* toolitem;
 
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_COPY);
         gtk_tool_item_set_is_important (toolitem, TRUE);

@@ -405,7 +405,6 @@ midori_panel_init (MidoriPanel* panel)
 
     /* Create the sidebar */
     panel->toolbar = gtk_toolbar_new ();
-    gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar), GTK_TOOLBAR_ICONS);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (panel->toolbar), GTK_ICON_SIZE_BUTTON);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (panel->toolbar), FALSE);
     gtk_widget_show_all (panel->toolbar);

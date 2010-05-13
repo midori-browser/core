@@ -429,7 +429,6 @@ midori_history_get_toolbar (MidoriViewable* viewable)
         #endif
 
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         history->toolbar = toolbar;
         #if HAVE_SQLITE

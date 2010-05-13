@@ -1304,6 +1304,7 @@ sokoke_register_stock_items (void)
         { STOCK_PLUGINS,        N_("Netscape p_lugins"), 0, 0, GTK_STOCK_CONVERT },
         { STOCK_USER_TRASH,     N_("_Closed Tabs"), 0, 0, "gtk-undo-ltr" },
         { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
+        { GTK_STOCK_DIRECTORY,  N_("New _Folder"), 0, 0, NULL },
     };
 
     factory = gtk_icon_factory_new ();

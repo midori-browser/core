@@ -186,14 +186,6 @@ midori_bookmarks_folder_clicked_cb (GtkWidget* toolitem)
 }
 
 static void
-midori_bookmarks_import_clicked_cb (GtkWidget* toolitem)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (toolitem));
-    /* FIXME: Take selected folder into account */
-    midori_browser_activate_action (browser, "BookmarksImport");
-}
-
-static void
 midori_bookmarks_cursor_or_row_changed_cb (GtkTreeView*     treeview,
                                            MidoriBookmarks* bookmarks)
 {
@@ -234,7 +226,6 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         GtkToolItem* toolitem;
 
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         bookmarks->toolbar = toolbar;
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
@@ -264,13 +255,6 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem), FALSE);
         gtk_tool_item_set_expand (toolitem, TRUE);
-        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        gtk_widget_show (GTK_WIDGET (toolitem));
-        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CONVERT);
-        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
-                                     _("Import bookmarks..."));
-        g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_bookmarks_import_clicked_cb), bookmarks);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
