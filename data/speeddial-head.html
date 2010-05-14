@@ -167,7 +167,7 @@
         a.setProperty('href', url);
         a.getNext().set('text', name);
 
-        var num = id.charAt (1) - 1;
+        var num = id.substr (1) - 1;
         sc.shortcuts[num].title = name;
 
         a.empty();
@@ -204,7 +204,7 @@
         var p = a.getNext ();
         p.setProperty('onclick', 'javascript:renameShortcut("' + id + '");');
 
-        var num = id.charAt (1) - 1;
+        var num = id.substr (1) - 1;
         sc.shortcuts[num].href = href;
         sc.shortcuts[num].img = data;
 
@@ -216,7 +216,7 @@
         var name = prompt ("{enter_shortcut_name}", "");
         if (!name) return;
 
-        var num = id.charAt (1) - 1;
+        var num = id.substr (1) - 1;
 
         $(id).getLast ().set ('html', name);
         sc.shortcuts[num].title = name;
@@ -229,7 +229,7 @@
         if(!confirm("{are_you_sure}"))
             return;
 
-        var num = id.charAt (1);
+        var num = id.substr (1);
         var div = $(id);
         var cross = div.getFirst ();
         var a = cross.getNext ();
@@ -251,13 +251,20 @@
 
     var buildSpeeddial = function ()
     {
+        var width = 3;
+        if (sc.width != undefined)
+        {
+            width = sc.width;
+            $('wrap').style.width = (width * 220) + 'px';
+        }
+
         sc.shortcuts.each (function (item, index, sc)
         {
             var cl = "shortcut";
 
-            if (index == 0 || index == 1 || index == 2)
+            if (index < width)
                 cl += " top";
-            if (index == 2 || index == 5 || index == 8)
+            if ((index % width) == (width - 1))
                 cl += " right";
 
             var div = new Element ('div', {
@@ -279,7 +286,7 @@
             });
 
             if (item.href == "#")
-                a.set ('html', '<h1>' + item.id.charAt (1) + '</h1><h4><span/></h4>');
+                a.set ('html', '<h1>' + item.id.substr (1) + '</h1><h4><span/></h4>');
             else
             {
                 div.addClass ('activated');
@@ -301,6 +308,21 @@
     window.addEvent ('domready', function () {
         buildSpeeddial ();
     });
+
+    document.onkeypress = function ()
+    {
+        var id = $('s' + String.fromCharCode (event.which));
+
+        if ($(id))
+        {
+            if (getAction (id))
+                document.location = $(id).children[1];
+            return false;
+        }
+
+        return true
+    }
+
     </script>
 </head>
 <body>
