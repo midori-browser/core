@@ -44,7 +44,9 @@ static GHashTable* keys;
 static gchar* blockcss = NULL;
 static gchar* blockcssprivate = NULL;
 static gchar* blockscript = NULL;
+#ifdef G_ENABLE_DEBUG
 static guint debug;
+#endif
 
 static gboolean
 adblock_parse_file (gchar* path);
@@ -1356,7 +1358,9 @@ static void
 adblock_activate_cb (MidoriExtension* extension,
                      MidoriApp*       app)
 {
+    #ifdef G_ENABLE_DEBUG
     const gchar* debug_mode;
+    #endif
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
