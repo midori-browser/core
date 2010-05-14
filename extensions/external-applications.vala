@@ -17,10 +17,10 @@ public class ExternalApplications : Midori.Extension {
     Dialog? dialog;
     bool launch (string command, string uri) {
         try {
-            var info = GLib.AppInfo.create_from_commandline (command, null, 0);
+            var info = GLib.AppInfo.create_from_commandline (command, "", 0);
             var uris = new List<string>();
             uris.prepend (uri);
-            info.launch_uris (uris, null);
+            info.launch_uris (uris, new GLib.AppLaunchContext ());
             return true;
         }
         catch (GLib.Error error) {
@@ -90,17 +90,16 @@ public class ExternalApplications : Midori.Extension {
         }
     }
     internal ExternalApplications () {
+        GLib.Object (name: "External Applications",
+                     description: "Associate URL schemes with external commands",
+                     version: "0.1",
+                     authors: "Christian Dywan <christian@twotoasts.de>");
         activate.connect (activated);
         deactivate.connect (deactivated);
     }
 }
 
 public Midori.Extension extension_init () {
-    var extension = new ExternalApplications ();
-    extension.name = "External Applications";
-    extension.description = "Lalala";
-    extension.version = "0.1";
-    extension.authors = "Christian Dywan <christian@twotoasts.de>";
-    return extension;
+    return new ExternalApplications ();
 }
 
