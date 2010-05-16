@@ -1152,12 +1152,35 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 }
 #endif
 
+static void
+midori_view_load_alternate_string (MidoriView*  view,
+                                   const gchar* data,
+                                   const gchar* res_root,
+                                   const gchar* uri)
+{
+    WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
+    view->special = TRUE;
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    webkit_web_frame_load_alternate_string (
+        webkit_web_view_get_main_frame (web_view),
+        data, uri, uri);
+    #elif WEBKIT_CHECK_VERSION (1, 1, 6)
+    webkit_web_frame_load_alternate_string (
+        webkit_web_view_get_main_frame (web_view),
+        data, res_root, uri);
+    #else
+    webkit_web_view_load_html_string (
+        web_view, data, res_root);
+    #endif
+}
+
 static gboolean
-webkit_web_view_load_error_cb (WebKitWebView*  web_view,
-                               WebKitWebFrame* web_frame,
-                               const gchar*    uri,
-                               GError*         error,
-                               MidoriView*     view)
+midori_view_display_error (MidoriView*  view,
+                           const gchar* uri,
+                           const gchar* title,
+                           const gchar* message,
+                           const gchar* description,
+                           const gchar* try_again)
 {
     gchar* template_file = g_build_filename ("midori", "res", "error.html", NULL);
     gchar* path = sokoke_find_data_filename (template_file);
@@ -1172,8 +1195,6 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         #endif
         gchar* res_root;
         gchar* stock_root;
-        gchar* title;
-        gchar* message;
         gchar* result;
 
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
@@ -1186,28 +1207,19 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
         stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
         #endif
 
-        title = g_strdup_printf (_("Error - %s"), uri);
-        message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
         result = sokoke_replace_variables (template,
             "{title}", title,
             "{message}", message,
-            "{description}", error->message,
-            "{tryagain}", _("Try again"),
+            "{description}", description,
+            "{tryagain}", try_again,
             "{res}", res_root,
             "{stock}", stock_root,
             NULL);
         g_free (template);
-        g_free (message);
-        g_free (title);
 
-        view->special = TRUE;
-        #if WEBKIT_CHECK_VERSION (1, 1, 14)
-        webkit_web_frame_load_alternate_string (web_frame,
-            result, uri, uri);
-        #else
-        webkit_web_frame_load_alternate_string (web_frame,
+        midori_view_load_alternate_string (view,
             result, res_root, uri);
-        #endif
+
         g_free (res_root);
         g_free (stock_root);
         g_free (result);
@@ -1218,6 +1230,22 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     g_free (path);
 
     return FALSE;
+}
+
+static gboolean
+webkit_web_view_load_error_cb (WebKitWebView*  web_view,
+                               WebKitWebFrame* web_frame,
+                               const gchar*    uri,
+                               GError*         error,
+                               MidoriView*     view)
+{
+    gchar* title = g_strdup_printf (_("Error - %s"), uri);
+    gchar* message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
+    gboolean result = midori_view_display_error (view, uri, title,
+        message, error->message, _("Try again"));
+    g_free (message);
+    g_free (title);
+    return result;
 }
 #else
 static void
@@ -3458,19 +3486,8 @@ midori_view_set_uri (MidoriView*  view,
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
 
 
-            view->special = TRUE;
-            #if WEBKIT_CHECK_VERSION (1, 1, 14)
-            webkit_web_frame_load_alternate_string (
-                webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)),
-                data, "about:blank", "about:blank");
-            #elif WEBKIT_CHECK_VERSION (1, 1, 6)
-            webkit_web_frame_load_alternate_string (
-                webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view)),
+            midori_view_load_alternate_string (view,
                 data, res_root, "about:blank");
-            #else
-            webkit_web_view_load_html_string (
-                WEBKIT_WEB_VIEW (view->web_view), data, res_root);
-            #endif
 
             g_free (res_root);
             g_free (stock_root);
