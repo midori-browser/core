@@ -1483,7 +1483,7 @@ sokoke_find_config_filename (const gchar* folder,
  * Looks for the specified filename in the system data
  * directories, depending on the platform.
  *
- * Return value: a full path
+ * Return value: a newly allocated full path
  **/
 gchar*
 sokoke_find_data_filename (const gchar* filename)
@@ -1491,10 +1491,16 @@ sokoke_find_data_filename (const gchar* filename)
     const gchar* const* data_dirs = g_get_system_data_dirs ();
     guint i = 0;
     const gchar* data_dir;
+    gchar* path;
+
+    path = g_build_filename (g_get_user_data_dir (), filename, NULL);
+    if (g_access (path, F_OK) == 0)
+        return path;
+    g_free (path);
 
     while ((data_dir = data_dirs[i++]))
     {
-        gchar* path = g_build_filename (data_dir, filename, NULL);
+        path = g_build_filename (data_dir, filename, NULL);
         if (g_access (path, F_OK) == 0)
             return path;
         g_free (path);
