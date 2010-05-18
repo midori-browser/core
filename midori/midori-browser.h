@@ -130,9 +130,11 @@ midori_browser_get_nth_tab            (MidoriBrowser*     browser,
 void
 midori_browser_set_current_tab        (MidoriBrowser*     browser,
                                        GtkWidget*         widget);
+#define midori_browser_set_tab midori_browser_set_current_tab
 
 GtkWidget*
 midori_browser_get_current_tab        (MidoriBrowser*     browser);
+#define midori_browser_get_tab midori_browser_get_current_tab
 
 GList*
 midori_browser_get_tabs               (MidoriBrowser*     browser);

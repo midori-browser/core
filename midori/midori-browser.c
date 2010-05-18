@@ -7659,13 +7659,15 @@ midori_browser_get_nth_tab (MidoriBrowser* browser,
 }
 
 /**
- * midori_browser_set_current_tab:
+ * midori_browser_set_tab:
  * @browser: a #MidoriBrowser
  * @view: a #GtkWidget
  *
  * Switches to the page containing @view.
  *
  * The widget will also grab the focus automatically.
+ *
+ * Since: 0.2.6
  **/
 void
 midori_browser_set_current_tab (MidoriBrowser* browser,
@@ -7685,7 +7687,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
 }
 
 /**
- * midori_browser_get_current_tab:
+ * midori_browser_get_tab:
  * @browser: a #MidoriBrowser
  *
  * Retrieves the currently selected tab.
@@ -7695,6 +7697,8 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
  * See also midori_browser_get_current_page().
  *
  * Return value: the selected tab, or %NULL
+ *
+ * Since: 0.2.6
  **/
 GtkWidget*
 midori_browser_get_current_tab (MidoriBrowser* browser)

@@ -54,8 +54,7 @@ namespace Midori {
         public Gtk.Widget panel { get; }
         [NoAccessorMethod]
         public string uri { get; set; }
-        [NoAccessorMethod]
-        public View tab { get; set; }
+        public Gtk.Widget? tab { get; set; }
         [NoAccessorMethod]
         public uint load_status { get; }
         [NoAccessorMethod]
