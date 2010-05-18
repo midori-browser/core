@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -187,6 +187,47 @@ midori_console_button_copy_clicked_cb (GtkToolItem*   toolitem,
 }
 
 static void
+midori_console_button_copy_all_clicked_cb (GtkToolItem*   toolitem,
+                                           MidoriConsole* console)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    gint count;
+    GString* all_text;
+    GdkDisplay* display;
+    GtkClipboard* clipboard;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (console->treeview));
+    if (!gtk_tree_model_get_iter_first (model, &iter))
+        return;
+
+    count = gtk_tree_model_iter_n_children (model, NULL);
+    all_text = g_string_sized_new (count * 96);
+
+    do
+    {
+        gchar* text;
+        gchar* message;
+        gint line;
+        gchar* source_id;
+
+        gtk_tree_model_get (model, &iter, 0, &message, 1, &line, 2, &source_id, -1);
+
+        text = g_strdup_printf ("%d @ %s: %s\n", line, source_id, message);
+        g_free (source_id);
+        g_free (message);
+        g_string_append (all_text, text);
+        g_free (text);
+    }
+    while (gtk_tree_model_iter_next (model, &iter));
+
+    display = gtk_widget_get_display (GTK_WIDGET (console));
+    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text (clipboard, all_text->str, -1);
+    g_string_free (all_text, TRUE);
+}
+
+static void
 midori_console_button_clear_clicked_cb (GtkToolItem*   toolitem,
                                         MidoriConsole* console)
 {
@@ -315,6 +356,15 @@ midori_console_get_toolbar (MidoriViewable* console)
             G_CALLBACK (midori_console_button_copy_clicked_cb), console);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
+
+        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DND_MULTIPLE);
+        gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Copy _All"));
+        gtk_tool_item_set_tooltip_text (toolitem, _("Copy All"));
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_console_button_copy_all_clicked_cb), console);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (GTK_WIDGET (toolitem));
+
         /* TODO: What about a find entry here that filters e.g. by url? */
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
