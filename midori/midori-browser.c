@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2010 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008 Dale Whittaker <dayul@users.sf.net>
  Copyright (C) 2009 Jérôme Geulfucci <jeromeg@xfce.org>
 
@@ -217,6 +217,9 @@ _action_menus_activate_item_alt (GtkAction*     action,
                                  KatzeItem*     item,
                                  guint          button,
                                  MidoriBrowser* browser);
+
+static void
+midori_browser_add_speed_dial (MidoriBrowser* browser);
 
 #define _action_by_name(brwsr, nme) \
     gtk_action_group_get_action (brwsr->action_group, nme)
@@ -687,6 +690,15 @@ midori_browser_edit_bookmark_uri_changed_cb (GtkEntry*      entry,
         || g_str_has_prefix (uri, "javascript:")));
 }
 
+static void
+midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
+                                                KatzeItem* bookmark)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (button);
+    gtk_widget_set_sensitive (button, FALSE);
+    midori_browser_add_speed_dial (browser);
+}
+
 /* Private function, used by MidoriBookmarks and MidoriHistory */
 /* static */ void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
@@ -838,6 +850,21 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         if (n < 2)
             gtk_widget_set_sensitive (combo_folder, FALSE);
         gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
+        gtk_container_add (GTK_CONTAINER (content_area), hbox);
+        gtk_widget_show_all (hbox);
+    }
+
+    if (new_bookmark && !is_folder)
+    {
+        hbox = gtk_hbox_new (FALSE, 8);
+        gtk_container_set_border_width (GTK_CONTAINER (hbox), 1);
+        label = gtk_label_new (NULL);
+        gtk_size_group_add_widget (sizegroup, label);
+        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+        label = gtk_button_new_with_mnemonic (_("Add to _Speed Dial"));
+        g_signal_connect (label, "clicked",
+            G_CALLBACK (midori_browser_edit_bookmark_add_speed_dial_cb), bookmark);
+        gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
     }
