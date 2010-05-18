@@ -3483,7 +3483,11 @@ midori_view_set_uri (MidoriView*  view,
                 "{click_to_add}", _("Click to add a shortcut"),
                 "{enter_shortcut_address}", _("Enter shortcut address"),
                 "{enter_shortcut_name}", _("Enter shortcut title"),
-                "{are_you_sure}", _("Are you sure you want to delete this shortcut?"), NULL);
+                "{are_you_sure}", _("Are you sure you want to delete this shortcut?"),
+                "{set_dial_width}", _("Set number of columns"),
+                "{enter_dial_width}", _("Enter number of columns:"),
+                "{set_shortcut_count}", _("Set number of shortcuts"),
+                "{enter_shortcut_count}", _("Enter number of shortcuts:"),  NULL);
 
 
             midori_view_load_alternate_string (view,

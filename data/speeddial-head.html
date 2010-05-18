@@ -30,7 +30,7 @@
     }
 
     #content {
-        margin-top: 40px;
+        margin-top: 10px;
     }
 
     div.shortcut {
@@ -139,6 +139,20 @@
     .activated p:hover {
         opacity: 1;
         color: rgba(0,0,0,0.5);
+    }
+
+    div.config {
+        padding: 12px;
+        text-align: left;
+    }
+
+    div.config span {
+        color: #ccc;
+    }
+
+    div.config span:hover {
+        color: #999;
+        cursor: pointer;
     }
     </style>
 
@@ -252,7 +266,7 @@
     var buildSpeeddial = function ()
     {
         var width = 3;
-        if (sc.width != undefined)
+        if (sc.width)
         {
             width = sc.width;
             $('wrap').style.width = (width * 220) + 'px';
@@ -305,6 +319,39 @@
         });
     }
 
+    var setWidth = function ()
+    {
+        var width = prompt ("{enter_dial_width}", "");
+        if (!width || isNaN (width)) return;
+
+        sc.width = width;
+
+        $('content').empty ();
+        buildSpeeddial ();
+
+        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
+    }
+
+    var setCount = function ()
+    {
+        var count = prompt ("{enter_shortcut_count}", "");
+        if (!count || isNaN (count)) return;
+
+        sc.shortcuts = sc.shortcuts.slice (0, count);
+
+        var i = sc.shortcuts.length;
+        while (i < count)
+        {
+            i++;
+            sc.shortcuts.push ({"id" : "s" + i, "href" : "#", "title" : "", "img" : ""});
+        }
+
+        $('content').empty ();
+        buildSpeeddial ();
+
+        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
+    }
+
     window.addEvent ('domready', function () {
         buildSpeeddial ();
     });
@@ -326,6 +373,10 @@
     </script>
 </head>
 <body>
+    <div class="config">
+        <span onclick="javascript:setWidth()">{set_dial_width}</span>
+        <span onclick="javascript:setCount()">{set_shortcut_count}</span>
+    </div>
     <div id="wrap">
         <div id="content">
         </div>
