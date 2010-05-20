@@ -1153,21 +1153,22 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 #endif
 
 static void
-midori_view_load_alternate_string (MidoriView*  view,
-                                   const gchar* data,
-                                   const gchar* res_root,
-                                   const gchar* uri)
+midori_view_load_alternate_string (MidoriView*     view,
+                                   const gchar*    data,
+                                   const gchar*    res_root,
+                                   const gchar*    uri,
+                                   WebKitWebFrame* web_frame)
 {
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
+    if (!web_frame)
+        web_frame = webkit_web_view_get_main_frame (web_view);
     view->special = TRUE;
     #if WEBKIT_CHECK_VERSION (1, 1, 14)
     webkit_web_frame_load_alternate_string (
-        webkit_web_view_get_main_frame (web_view),
-        data, uri, uri);
+        web_frame, data, uri, uri);
     #elif WEBKIT_CHECK_VERSION (1, 1, 6)
     webkit_web_frame_load_alternate_string (
-        webkit_web_view_get_main_frame (web_view),
-        data, res_root, uri);
+        web_frame, data, res_root, uri);
     #else
     webkit_web_view_load_html_string (
         web_view, data, res_root);
@@ -1175,12 +1176,13 @@ midori_view_load_alternate_string (MidoriView*  view,
 }
 
 static gboolean
-midori_view_display_error (MidoriView*  view,
-                           const gchar* uri,
-                           const gchar* title,
-                           const gchar* message,
-                           const gchar* description,
-                           const gchar* try_again)
+midori_view_display_error (MidoriView*     view,
+                           const gchar*    uri,
+                           const gchar*    title,
+                           const gchar*    message,
+                           const gchar*    description,
+                           const gchar*    try_again,
+                           WebKitWebFrame* web_frame)
 {
     gchar* template_file = g_build_filename ("midori", "res", "error.html", NULL);
     gchar* path = sokoke_find_data_filename (template_file);
@@ -1218,7 +1220,7 @@ midori_view_display_error (MidoriView*  view,
         g_free (template);
 
         midori_view_load_alternate_string (view,
-            result, res_root, uri);
+            result, res_root, uri, web_frame);
 
         g_free (res_root);
         g_free (stock_root);
@@ -1242,7 +1244,7 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     gchar* title = g_strdup_printf (_("Error - %s"), uri);
     gchar* message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
     gboolean result = midori_view_display_error (view, uri, title,
-        message, error->message, _("Try again"));
+        message, error->message, _("Try again"), web_frame);
     g_free (message);
     g_free (title);
     return result;
@@ -3491,7 +3493,7 @@ midori_view_set_uri (MidoriView*  view,
 
 
             midori_view_load_alternate_string (view,
-                data, res_root, "about:blank");
+                data, res_root, "about:blank", NULL);
 
             g_free (res_root);
             g_free (stock_root);
