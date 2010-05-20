@@ -122,6 +122,8 @@ midori_viewable_base_finalize (MidoriViewableIface* iface)
  * the #MidoriViewable via midori_viewable_register_protocol().
  *
  * Return value: a new #MidoriViewable, or %NULL
+ *
+ * Deprecated: 0.2.6
  **/
 GtkWidget*
 midori_viewable_new_from_uri (const gchar* uri)
@@ -210,6 +212,8 @@ viewable_type_implements (GType type,
  * "midori://dummy": support URIs like "midori://dummy/foo"
  *
  * Return value: a new #MidoriViewable, or %NULL
+ *
+ * Deprecated: 0.2.6
  **/
 void
 midori_viewable_register_protocol (GType        type,
