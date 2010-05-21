@@ -1117,13 +1117,13 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     }
     else if (g_str_has_prefix (uri, "stock://"))
     {
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_default ();
+        GdkPixbuf* pixbuf;
         const gchar* icon_name = &uri[8] ? &uri[8] : "";
-        gint icon_size = 22;
-        GtkIconInfo* info;
+        gint icon_size = GTK_ICON_SIZE_MENU;
 
         if (g_ascii_isalpha (icon_name[0]))
-            icon_size = strstr (icon_name, "dialog") ? 48 : 22;
+            icon_size = strstr (icon_name, "dialog") ?
+                GTK_ICON_SIZE_DIALOG : GTK_ICON_SIZE_BUTTON;
         else if (g_ascii_isdigit (icon_name[0]))
         {
             guint i = 0;
@@ -1132,21 +1132,38 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                 {
                     gchar* size = g_strndup (icon_name, i - 1);
                     icon_size = atoi (size);
+                    /* Compatibility: map pixel to symbolic size */
+                    if (icon_size == 16)
+                        icon_size = GTK_ICON_SIZE_MENU;
                     g_free (size);
                     icon_name = &icon_name[i];
                 }
         }
 
-        if ((info = gtk_icon_theme_lookup_icon (icon_theme, icon_name, icon_size, 0)))
+        pixbuf = gtk_widget_render_icon (GTK_WIDGET (view), icon_name, icon_size, NULL);
+        if (!pixbuf)
+            pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
+                GTK_STOCK_MISSING_IMAGE, icon_size, NULL);
+        if (pixbuf)
         {
-            const gchar* filename = gtk_icon_info_get_filename (info);
-            if (filename)
-            {
-                gchar* file_uri = g_filename_to_uri (filename, NULL, NULL);
-                webkit_network_request_set_uri (request, file_uri);
-                g_free (file_uri);
-            }
-            gtk_icon_info_free (info);
+            gboolean success;
+            gchar* buffer;
+            gsize buffer_size;
+            gchar* encoded;
+            gchar* data_uri;
+
+            success = gdk_pixbuf_save_to_buffer (pixbuf, &buffer, &buffer_size, "png", NULL, NULL);
+            g_object_unref (pixbuf);
+            if (!success)
+                return;
+
+            encoded = g_base64_encode ((guchar*)buffer, buffer_size);
+            g_free (buffer);
+            data_uri = g_strconcat ("data:image/png;base64,", encoded, NULL);
+            g_free (encoded);
+            webkit_network_request_set_uri (request, data_uri);
+            g_free (data_uri);
+            return;
         }
     }
 }
