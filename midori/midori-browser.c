@@ -1899,6 +1899,42 @@ midori_browser_key_press_event (GtkWidget*   widget,
     return widget_class->key_press_event (widget, event);
 }
 
+static gboolean
+midori_browser_delete_event (GtkWidget*   widget,
+                             GdkEventAny* event)
+{
+    MidoriBrowser* browser = MIDORI_BROWSER (widget);
+    GList* children;
+    GtkWidget* dialog = NULL;
+    gboolean cancel = FALSE;
+
+    children = gtk_container_get_children (GTK_CONTAINER (browser->transferbar));
+    if (g_list_length (children) > 1)
+    {
+        dialog = gtk_message_dialog_new (GTK_WINDOW (widget),
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
+            _("Some files are being downloaded"));
+        gtk_window_set_title (GTK_WINDOW (dialog),
+            _("Some files are being downloaded"));
+        gtk_dialog_add_button (GTK_DIALOG (dialog),
+            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+        gtk_dialog_add_button (GTK_DIALOG (dialog),
+            _("_Quit Midori"), GTK_RESPONSE_ACCEPT);
+        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+            _("The transfers will be cancelled if Midori quits."));
+    }
+    g_list_free (children);
+    if (dialog != NULL)
+    {
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_CANCEL)
+            cancel = TRUE;
+        gtk_widget_destroy (dialog);
+    }
+
+    return cancel;
+}
+
 static void
 midori_browser_class_init (MidoriBrowserClass* class)
 {
@@ -2062,6 +2098,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
 
     gtkwidget_class = GTK_WIDGET_CLASS (class);
     gtkwidget_class->key_press_event = midori_browser_key_press_event;
+    gtkwidget_class->delete_event = midori_browser_delete_event;
 
     gobject_class = G_OBJECT_CLASS (class);
     gobject_class->dispose = midori_browser_dispose;
