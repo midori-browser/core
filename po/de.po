@@ -3,15 +3,16 @@
 # This file is distributed under the same license as the midori package.
 # Enrico Tröger <enrico.troeger@uvena.de> 2008
 # Christian Dywan <christian@twotoasts.de> 2008-2010
-# 
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.2.4\n"
+"Project-Id-Version: midori 0.2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-23 16:07+0000\n"
+"POT-Creation-Date: 2010-05-24 12:49+0200\n"
 "PO-Revision-Date: 2009-04-30 00:15+0100\n"
 "Last-Translator: Christian Dywan <christian@twotoasts.de>\n"
 "Language-Team: German <de@li.org>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -58,17 +59,17 @@ msgid "Failed to remove old history items: %s\n"
 msgstr "Verlaufseintrag konnte nicht entfernt werden: %s\n"
 
 #: ../midori/main.c:445
-#, c-format, fuzzy
+#, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Die Konfiguration konnte nicht geladen werden. %s"
 
 #: ../midori/main.c:483
-#, c-format, fuzzy
+#, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "Die Suchmaschinen konnten nicht geladen werden. %s"
 
 #: ../midori/main.c:502 ../midori/main.c:552 ../midori/main.c:572
-#, c-format, fuzzy
+#, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Die Lesezeichen konnten nicht geladen werden. %s"
 
@@ -79,17 +80,22 @@ msgid "The trash couldn't be saved. %s"
 msgstr "Der Papierkorb konnte nicht gespeichert werden. %s"
 
 #: ../midori/main.c:684 ../midori/main.c:924
-#, c-format, fuzzy
+#, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Die Sitzung konnte nicht geladen werden. %s"
 
 #: ../midori/main.c:868
-msgid "No root certificate file is available. SSL certificates cannot be verified."
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
 msgstr ""
 
 #: ../midori/main.c:958
-msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
-msgstr "Midori ist offenbar abgestürzt nachdem es das letzte Mal geöffnet wurde. Probieren Sie folgende Möglichkeiten falls dies vermehrt vorkommt."
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+"Midori ist offenbar abgestürzt nachdem es das letzte Mal geöffnet wurde. "
+"Probieren Sie folgende Möglichkeiten falls dies vermehrt vorkommt."
 
 #: ../midori/main.c:973
 msgid "Modify _preferences"
@@ -307,7 +313,6 @@ msgid "Toplevel folder"
 msgstr "Oberster Ordner"
 
 #: ../midori/midori-browser.c:864
-#, fuzzy
 msgid "Add to _Speed Dial"
 msgstr "Zu Schnell_wahl hinzufügen"
 
@@ -322,12 +327,12 @@ msgstr "Als _Internetanwendung starten"
 #: ../midori/midori-browser.c:986
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
-msgstr ""
+msgstr "Der freie Speichersplatz reicht nicht aus, um «%s» herunterzuladen."
 
 #: ../midori/midori-browser.c:990
 #, c-format
 msgid "The file needs %s but only %s are left."
-msgstr ""
+msgstr "Die Datei benötigt %s, aber nur %s sind übrig."
 
 #: ../midori/midori-browser.c:1047 ../midori/midori-browser.c:4786
 #: ../midori/midori-browser.c:4818
@@ -353,18 +358,16 @@ msgid "Save file"
 msgstr "Datei speichern"
 
 #: ../midori/midori-browser.c:1917 ../midori/midori-browser.c:1919
-#, fuzzy
 msgid "Some files are being downloaded"
-msgstr "Die Datei »<b>%s</b>« wurde heruntergeladen."
+msgstr "Einige Dateien werden gerade heruntergeladen."
 
 #: ../midori/midori-browser.c:1923
-#, fuzzy
 msgid "_Quit Midori"
-msgstr "Midori"
+msgstr "Midori _beenden"
 
 #: ../midori/midori-browser.c:1925
 msgid "The transfers will be cancelled if Midori quits."
-msgstr ""
+msgstr "Die Übertragungen werden abgebrochen wenn Midori beendet wird."
 
 #: ../midori/midori-browser.c:2386
 msgid "Open file"
@@ -514,8 +517,16 @@ msgid "A lightweight web browser."
 msgstr "Ein schlanker Internetbetrachter."
 
 #: ../midori/midori-browser.c:5160
-msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
-msgstr "Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU Lesser General Public License, wie von der Free Software Foundation veröffentlicht, weitergeben und/ oder modifizieren, entweder gemäß Version 2.1 der Lizenz oder (wahlweise) jeder späteren Version."
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
+msgstr ""
+"Dieses Programm ist freie Software. Sie können es unter den Bedingungen der "
+"GNU Lesser General Public License, wie von der Free Software Foundation "
+"veröffentlicht, weitergeben und/ oder modifizieren, entweder gemäß Version "
+"2.1 der Lizenz oder (wahlweise) jeder späteren Version."
 
 #: ../midori/midori-browser.c:5179
 msgid "translator-credits"
@@ -1394,7 +1405,8 @@ msgstr "Benachrichtigen bei Abschluss der Übertragung"
 
 #: ../midori/midori-websettings.c:709
 msgid "Whether to show a notification when a transfer has been completed"
-msgstr "Eine Benachrichtigung anzeigen wenn eine Übertragung abgeschlossen wurde"
+msgstr ""
+"Eine Benachrichtigung anzeigen wenn eine Übertragung abgeschlossen wurde"
 
 #: ../midori/midori-websettings.c:721
 msgid "Download Manager"
@@ -1666,8 +1678,13 @@ msgid "Preferred languages"
 msgstr "Bevorzugte Sprachen"
 
 #: ../midori/midori-websettings.c:1124
-msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr "Eine durch Kommas getrennte Liste von bevorzugten Sprachen, die zur Darstellung mehrsprachiger Interneiten benutzt wird, zum Beispiel »de«, »ru,nl« oder »en-us;q=1.0, fr-fr;q=0.667«"
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Eine durch Kommas getrennte Liste von bevorzugten Sprachen, die zur "
+"Darstellung mehrsprachiger Interneiten benutzt wird, zum Beispiel »de«, »ru,"
+"nl« oder »en-us;q=1.0, fr-fr;q=0.667«"
 
 #: ../midori/midori-websettings.c:1139
 msgid "Clear private data"
@@ -1835,20 +1852,19 @@ msgstr "Sind Sie sicher, dass Sie diese Verknüpfung löschen wollen?"
 
 #: ../midori/midori-view.c:3506
 msgid "Set number of columns"
-msgstr ""
+msgstr "Anzahl Spalten ändern"
 
 #: ../midori/midori-view.c:3507
 msgid "Enter number of columns:"
-msgstr ""
+msgstr "Anzahl an Spalten eingeben:"
 
 #: ../midori/midori-view.c:3508
 msgid "Set number of shortcuts"
-msgstr ""
+msgstr "Anzahl Verknüpfungen ändern"
 
 #: ../midori/midori-view.c:3509
-#, fuzzy
 msgid "Enter number of shortcuts:"
-msgstr "Ziel der Verknüpfung eingeben"
+msgstr "Anzahl an Verknüpfungen eingeben:"
 
 #: ../midori/midori-view.c:3535
 #, c-format
@@ -1989,8 +2005,12 @@ msgstr "Rechtschreibwörterbücher"
 
 #. i18n: The example should be adjusted to contain a good local default
 #: ../midori/midori-preferences.c:429
-msgid "A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""
-msgstr "Eine durch Kommas getrennte Liste von Sprachen, die für die Rechtschreibprüfung benutzt werden sollen, zum Beispiel »en_GB,de_DE«"
+msgid ""
+"A comma separated list of languages to be used for spell checking, for "
+"example \"en_GB,de_DE\""
+msgstr ""
+"Eine durch Kommas getrennte Liste von Sprachen, die für die "
+"Rechtschreibprüfung benutzt werden sollen, zum Beispiel »en_GB,de_DE«"
 
 #. Page "Interface"
 #: ../midori/midori-preferences.c:435
@@ -2105,9 +2125,8 @@ msgid "Netscape p_lugins"
 msgstr "Netscape-Module"
 
 #: ../midori/sokoke.c:1307
-#, fuzzy
 msgid "New _Folder"
-msgstr "Neuer Ordner"
+msgstr "Neuer _Ordner"
 
 #: ../panels/midori-bookmarks.c:111
 msgid "Bookmarks"
@@ -2134,14 +2153,12 @@ msgid "Console"
 msgstr "Konsole"
 
 #: ../panels/midori-console.c:361
-#, fuzzy
 msgid "Copy _All"
-msgstr "Alle einklappen"
+msgstr "_Alle kopieren"
 
 #: ../panels/midori-console.c:362
-#, fuzzy
 msgid "Copy All"
-msgstr "Alle einklappen"
+msgstr "Alle kopieren"
 
 #: ../panels/midori-extensions.c:91
 msgid "Extensions"
@@ -2152,8 +2169,11 @@ msgid "Erroneous clock time"
 msgstr "Fehlerhafte Uhrzeit"
 
 #: ../panels/midori-history.c:274
-msgid "The clock time lies in the past. Please check the current date and time."
-msgstr "Die Uhrzeit liegt in der Vergangenheit. Bitte überprüfen Sie das eingestellte Datum und die Uhrzeit."
+msgid ""
+"The clock time lies in the past. Please check the current date and time."
+msgstr ""
+"Die Uhrzeit liegt in der Vergangenheit. Bitte überprüfen Sie das "
+"eingestellte Datum und die Uhrzeit."
 
 #: ../panels/midori-history.c:286
 msgid "A week ago"
@@ -2265,8 +2285,13 @@ msgstr "Werbefilter einstellen"
 
 #: ../extensions/adblock.c:447
 #, c-format
-msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
-msgstr "Geben Sie die Adresse einer vorkonfigurierten Filterliste in das Textfeld ein und klicken Sie »Hinzufügen« um sie zur Liste hinzuzufügen. Weitere Listen finden Sie auf %s."
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
+msgstr ""
+"Geben Sie die Adresse einer vorkonfigurierten Filterliste in das Textfeld "
+"ein und klicken Sie »Hinzufügen« um sie zur Liste hinzuzufügen. Weitere "
+"Listen finden Sie auf %s."
 
 #: ../extensions/adblock.c:587
 msgid "Configure _Advertisement filters..."
@@ -2299,7 +2324,7 @@ msgstr "Werbung an Hand einer Filterliste blockieren"
 #: ../extensions/addons.c:122
 #, c-format
 msgid "Copy %s to the folder %s."
-msgstr ""
+msgstr "%2s in den Ordner %1s kopieren."
 
 #: ../extensions/addons.c:177
 msgid "Userscripts"
@@ -2310,13 +2335,13 @@ msgid "Userstyles"
 msgstr "Benutzerstile"
 
 #: ../extensions/addons.c:1085
-#, fuzzy, c-format
+#, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr "Die Konfiguration konnte nicht geladen werden. %s"
+msgstr "Die Konfiguration der Erweiterung »%s« konnte nicht geladen werden: %s\n"
 
 #: ../extensions/addons.c:1086 ../extensions/addons.c:1253
 msgid "User addons"
-msgstr ""
+msgstr "Benutzererweiterungen"
 
 #: ../extensions/addons.c:1210
 #, c-format
@@ -2325,7 +2350,7 @@ msgstr "Der Ordner »%s« kann nicht überwacht werden: %s"
 
 #: ../extensions/addons.c:1254
 msgid "Support for userscripts and userstyles"
-msgstr ""
+msgstr "Unterstützung für Benutzerskripte und -stile"
 
 #: ../extensions/colorful-tabs.c:204
 msgid "Colorful Tabs"
@@ -2345,8 +2370,12 @@ msgid "Delete All"
 msgstr "Alle löschen"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:114
-msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
-msgstr "Sichtbare Profildateien löschen. Wenn ein Filter gesetzt ist werden nur jene Einträge gelöscht, die auf den Filter passen"
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+"Sichtbare Profildateien löschen. Wenn ein Filter gesetzt ist werden nur jene "
+"Einträge gelöscht, die auf den Filter passen"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:129
 msgid "Expand All"
@@ -2366,7 +2395,8 @@ msgstr "Frage"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:589
 msgid "Only cookies which match the filter will be deleted."
-msgstr "Nur Profildateien, die auf den eingegebenen Filter passen, werden gelöscht."
+msgstr ""
+"Nur Profildateien, die auf den eingegebenen Filter passen, werden gelöscht."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:677
 msgid "At the end of the session"
@@ -2419,8 +2449,12 @@ msgid "_Collapse All"
 msgstr "Alle _einklappen"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1149
-msgid "Enter a filter string to show only cookies whose name or domain field match the entered filter"
-msgstr "Gib einen Filter ein, um nur Profildateien anzuzeigen, deren Name oder Domöne auf den eingegebenen Filter passt."
+msgid ""
+"Enter a filter string to show only cookies whose name or domain field match "
+"the entered filter"
+msgstr ""
+"Gib einen Filter ein, um nur Profildateien anzuzeigen, deren Name oder "
+"Domöne auf den eingegebenen Filter passt."
 
 #: ../extensions/cookie-manager/main.c:40
 msgid "_Cookie Manager"
@@ -2432,11 +2466,13 @@ msgstr "Profildateien auflisten, anzeigen und löschen"
 
 #: ../extensions/feed-panel/feed-atom.c:209
 msgid "Failed to find required Atom \"entry\" elements in XML data."
-msgstr "Die für Atom benötigten \"entry\"-Elemente wurden im XML nicht gefunden."
+msgstr ""
+"Die für Atom benötigten \"entry\"-Elemente wurden im XML nicht gefunden."
 
 #: ../extensions/feed-panel/feed-atom.c:315
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr "Die für Atom benötigten \"feed\"-Elemente wurden im XML nicht gefunden."
+msgstr ""
+"Die für Atom benötigten \"feed\"-Elemente wurden im XML nicht gefunden."
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:399
@@ -2478,7 +2514,8 @@ msgstr "XML-Quelle konnte nicht ausgelesen werden: %s"
 
 #: ../extensions/feed-panel/feed-rss.c:46
 msgid "Failed to find \"channel\" element in RSS XML data."
-msgstr "Die für Atom benötigten \"channel\"-Elemente wurden im XML nicht gefunden."
+msgstr ""
+"Die für Atom benötigten \"channel\"-Elemente wurden im XML nicht gefunden."
 
 #: ../extensions/feed-panel/feed-rss.c:51
 msgid "Unsupported RSS version found."
@@ -2490,7 +2527,8 @@ msgstr "Die für RSS benötigten \"item\"-Elemente wurden im XML nicht gefunden.
 
 #: ../extensions/feed-panel/feed-rss.c:248
 msgid "Failed to find required RSS \"channel\" elements in XML data."
-msgstr "Die für RSS benötigten \"channel\"-Elemente wurden im XML nicht gefunden."
+msgstr ""
+"Die für RSS benötigten \"channel\"-Elemente wurden im XML nicht gefunden."
 
 #: ../extensions/feed-panel/main.c:132
 msgid "Error"
@@ -2618,8 +2656,12 @@ msgid "Customize Toolbar"
 msgstr "Werkzeugleiste anpassen"
 
 #: ../extensions/toolbar-editor.c:405
-msgid "Select items to be displayed on the toolbar. Items can be reodered by drag and drop."
-msgstr "Wähle Elemente, die in der Werkzeugleiste erscheinen sollen. Elemente lassen sich durch Ziehen und Ablegen ordnen."
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reodered by drag "
+"and drop."
+msgstr ""
+"Wähle Elemente, die in der Werkzeugleiste erscheinen sollen. Elemente lassen "
+"sich durch Ziehen und Ablegen ordnen."
 
 #: ../extensions/toolbar-editor.c:421
 msgid "Available Items"
@@ -2651,8 +2693,11 @@ msgstr "HTTP-Kommunikation auf der Festplatte zwischenspeichern"
 #~ msgid "Open Image in New Wi_ndow"
 #~ msgstr "Bild in neuem Fe_nster öffnen"
 
-#~ msgid "Copy userscripts to the folder %s and copy userstyles to the folder %s."
-#~ msgstr "Kopieren Sie Benutzerskripte in den Ordner »%s« und Benutzerstile in den Ordner »%s«."
+#~ msgid ""
+#~ "Copy userscripts to the folder %s and copy userstyles to the folder %s."
+#~ msgstr ""
+#~ "Kopieren Sie Benutzerskripte in den Ordner »%s« und Benutzerstile in den "
+#~ "Ordner »%s«."
 
 #~ msgid "Failed to get current time: %s\n"
 #~ msgstr "Die aktuelle Uhrzeit konnte nicht ermittelt werden: %s\n"
