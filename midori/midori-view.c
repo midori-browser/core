@@ -3283,6 +3283,21 @@ midori_view_web_inspector_inspect_web_view_cb (gpointer       inspector,
 }
 
 static gboolean
+midori_view_web_inspector_show_window_cb (gpointer    inspector,
+                                          MidoriView* view)
+{
+    GtkWidget* inspector_view;
+    GtkWidget* window;
+
+    g_object_get (inspector, "web-view", &inspector_view, NULL);
+    window = gtk_widget_get_toplevel (inspector_view);
+    if (!window)
+        return FALSE;
+    gtk_window_present (GTK_WINDOW (window));
+    return TRUE;
+}
+
+static gboolean
 midori_view_web_inspector_attach_window_cb (gpointer    inspector,
                                             MidoriView* view)
 {
@@ -3413,6 +3428,8 @@ midori_view_construct_web_view (MidoriView* view)
     g_object_connect (inspector,
                       "signal::inspect-web-view",
                       midori_view_web_inspector_inspect_web_view_cb, view,
+                      "signal::show-window",
+                      midori_view_web_inspector_show_window_cb, view,
                       "signal::attach-window",
                       midori_view_web_inspector_attach_window_cb, view,
                       "signal::detach-window",
