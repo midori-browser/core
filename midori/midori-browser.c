@@ -2459,7 +2459,17 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
     if (browser->news_aggregator && *browser->news_aggregator)
         sokoke_spawn_program (browser->news_aggregator, uri, FALSE);
     else
-        sokoke_message_dialog (GTK_MESSAGE_INFO, _("New feed"), uri);
+    {
+        gchar* description = g_strdup_printf ("%s\n\n%s", uri,
+            _("To use the above URI open a news aggregator. "
+            "There is usually a menu or button \"New Subscription\", "
+            "\"New News Feed\" or similar.\n"
+            "Alternatively go to Preferences, Applications in Midori, "
+            "and select a News Aggregator. Next time you click the "
+            "news feed icon, it will be added automatically."));
+        sokoke_message_dialog (GTK_MESSAGE_INFO, _("New feed"), description);
+        g_free (description);
+    }
 }
 
 static void
