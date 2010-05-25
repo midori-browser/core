@@ -40,7 +40,6 @@ typedef struct
     MidoriExtension* extension;
     GtkWidget* panel;
     KatzeArray* feeds;
-    KatzeNet* net;
     GSList* parsers;
 
     guint source_id;
@@ -96,8 +95,6 @@ feed_deactivate_cb (MidoriExtension* extension,
             g_source_remove (priv->source_id);
         g_slist_foreach (priv->parsers, (GFunc)g_free, NULL);
         g_slist_free (priv->parsers);
-        if (priv->feeds)
-            g_object_unref (priv->net);
         if (priv->feeds)
             g_object_unref (priv->feeds);
         gtk_widget_destroy (priv->panel);
@@ -286,7 +283,7 @@ update_feed (FeedPrivate* priv,
         netpriv->extension = priv->extension;
         netpriv->feed = KATZE_ARRAY (feed);
 
-        katze_net_load_uri (priv->net,
+        katze_net_load_uri (NULL,
                             katze_item_get_uri (feed),
                             (KatzeNetStatusCb) feed_status_cb,
                             (KatzeNetTransferCb) feed_transfer_cb,
@@ -437,7 +434,6 @@ feed_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* addon;
     GtkActionGroup* action_group;
     GtkAction* action;
-    KatzeNet* net;
     KatzeArray* feeds;
     KatzeArray* feed;
     FeedPrivate* priv;
@@ -453,14 +449,12 @@ feed_app_add_browser_cb (MidoriApp*       app,
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
     g_object_unref (panel);
 
-    net = katze_net_new ();
     feeds = katze_array_new (KATZE_TYPE_ARRAY);
     feed_panel_add_feeds (FEED_PANEL (addon), KATZE_ITEM (feeds));
 
     priv->extension = extension;
     priv->browser = browser;
     priv->panel = addon;
-    priv->net = net;
     priv->feeds = feeds;
     priv->parsers = g_slist_prepend (priv->parsers, atom_init_parser ());
     priv->parsers = g_slist_prepend (priv->parsers, rss_init_parser ());

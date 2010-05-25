@@ -104,8 +104,6 @@ struct _MidoriBrowser
     KatzeArray* history;
     gboolean show_tabs;
 
-    KatzeNet* net;
-
     gboolean show_navigationbar;
     gboolean show_statusbar;
     gboolean speed_dial_in_new_tabs;
@@ -1100,7 +1098,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
             webkit_download_start (download);
         g_free (destination);
         #else
-        katze_net_load_uri (browser->net, uri, NULL,
+        katze_net_load_uri (NULL, uri, NULL,
             (KatzeNetTransferCb)midori_browser_save_transfer_cb, filename);
         #endif
 
@@ -3765,7 +3763,7 @@ _action_source_view_activate (GtkAction*     action,
         GtkWidget* source;
         GtkWidget* web_view;
 
-        source = midori_view_new (browser->net);
+        source = midori_view_new (NULL);
         midori_view_set_settings (MIDORI_VIEW (source), browser->settings);
         midori_view_set_uri (MIDORI_VIEW (source), "");
         web_view = midori_view_get_web_view (MIDORI_VIEW (source));
@@ -3800,7 +3798,7 @@ _action_source_view_activate (GtkAction*     action,
         g_free (filename);
         return;
     }
-    katze_net_load_uri (browser->net, uri, NULL,
+    katze_net_load_uri (NULL, uri, NULL,
         (KatzeNetTransferCb)midori_browser_source_transfer_cb, browser);
     g_free (text_editor);
 }
@@ -4903,7 +4901,7 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
         button = g_object_get_data (G_OBJECT (dialog), "cookies");
         if (gtk_toggle_button_get_active (button))
         {
-            SoupSession* session = katze_net_get_session (browser->net);
+            SoupSession* session = webkit_get_default_session ();
             SoupSessionFeature* jar = soup_session_get_feature (session,
                 SOUP_TYPE_COOKIE_JAR);
             GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
@@ -5449,7 +5447,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
 
         view = g_object_new (MIDORI_TYPE_VIEW,
                              "settings", browser->settings,
-                             "net", browser->net, NULL);
+                             NULL);
         midori_view_set_uri (MIDORI_VIEW (view), "");
         gtk_widget_show (view);
         g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
@@ -6233,8 +6231,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkWidget* scrolled;
     GtkWidget* icon;
 
-    browser->net = katze_net_new ();
-
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
     browser->bookmarks = NULL;
@@ -6789,8 +6785,6 @@ midori_browser_finalize (GObject* object)
     katze_object_assign (browser->trash, NULL);
     katze_object_assign (browser->search_engines, NULL);
     katze_object_assign (browser->history, NULL);
-
-    katze_object_assign (browser->net, NULL);
 
     katze_assign (browser->news_aggregator, NULL);
 
@@ -7509,7 +7503,6 @@ midori_browser_add_item (MidoriBrowser* browser,
     view = g_object_new (MIDORI_TYPE_VIEW,
                          "title", title,
                          "settings", browser->settings,
-                         "net", browser->net,
                          NULL);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
     gtk_widget_show (view);
@@ -7551,7 +7544,7 @@ midori_browser_add_uri (MidoriBrowser* browser,
     g_return_val_if_fail (uri != NULL, -1);
 
     view = g_object_new (MIDORI_TYPE_VIEW, "settings", browser->settings,
-                                           "net", browser->net, NULL);
+                         NULL);
     midori_view_set_uri (MIDORI_VIEW (view), uri);
     gtk_widget_show (view);
 

@@ -887,7 +887,7 @@ _midori_web_view_load_icon (MidoriView* view)
                 icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
         }
 
-        icon_file = katze_net_get_cached_path (view->net, icon_uri, "icons");
+        icon_file = katze_net_get_cached_path (NULL, icon_uri, "icons");
         if (g_hash_table_lookup_extended (view->memory,
                                           icon_file, NULL, (gpointer)&pixbuf))
         {
@@ -910,7 +910,7 @@ _midori_web_view_load_icon (MidoriView* view)
             priv->icon_uri = icon_uri;
             priv->view = view;
 
-            katze_net_load_uri (view->net, icon_uri,
+            katze_net_load_uri (NULL, icon_uri,
                 (KatzeNetStatusCb)katze_net_icon_status_cb,
                 (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
         }
@@ -2600,7 +2600,6 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
     else
     {
         new_view = g_object_new (MIDORI_TYPE_VIEW,
-            "net", view->net,
             "settings", view->settings,
             NULL);
         midori_view_construct_web_view (new_view);
@@ -2967,8 +2966,6 @@ midori_view_set_property (GObject*      object,
         break;
     case PROP_NET:
         katze_object_assign (view->net, g_value_dup_object (value));
-        if (!view->net)
-            view->net = katze_net_new ();
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3047,7 +3044,7 @@ midori_view_focus_in_event (GtkWidget*     widget,
 
 /**
  * midori_view_new:
- * @net: a #KatzeNet
+ * @net: a #KatzeNet, or %NULL
  *
  * Creates a new view.
  *
@@ -3056,9 +3053,7 @@ midori_view_focus_in_event (GtkWidget*     widget,
 GtkWidget*
 midori_view_new (KatzeNet* net)
 {
-    g_return_val_if_fail (!net || KATZE_IS_NET (net), NULL);
-
-    return g_object_new (MIDORI_TYPE_VIEW, "net", net, NULL);
+    return g_object_new (MIDORI_TYPE_VIEW, NULL);
 }
 
 static void
@@ -3986,7 +3981,7 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
 {
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
     GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
-        "net", view->net, "settings", view->settings, NULL);
+        "settings", view->settings, NULL);
     midori_view_set_uri (MIDORI_VIEW (new_view),
         midori_view_get_display_uri (view));
     gtk_widget_show (new_view);

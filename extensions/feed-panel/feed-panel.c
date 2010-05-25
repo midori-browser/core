@@ -30,7 +30,6 @@ struct _FeedPanel
     GtkWidget* webview;
     GtkWidget* delete;
     GdkPixbuf* pixbuf;
-    KatzeNet* net;
 };
 
 struct _FeedPanelClass
@@ -750,7 +749,6 @@ feed_panel_finalize (GObject* object)
     FeedPanel* panel = FEED_PANEL (object);
 
     g_object_unref (panel->pixbuf);
-    g_object_unref (panel->net);
 }
 
 static void
@@ -825,8 +823,6 @@ feed_panel_init (FeedPanel* panel)
     gtk_icon_set_unref (icon_set);
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
-
-    panel->net = katze_net_new ();
 
     model = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));

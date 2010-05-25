@@ -77,6 +77,8 @@ katze_net_finalize (GObject* object)
  * Instantiates a new #KatzeNet instance.
  *
  * Return value: a new #KatzeNet
+ *
+ * Deprecated: 0.2.7
  **/
 KatzeNet*
 katze_net_new (void)
@@ -102,14 +104,14 @@ katze_net_new (void)
  *
  * Return value: a session, or %NULL
  *
- * Since: 0.1.3
+ * Deprecated: 0.2.7: Use webkit_get_default_session ().
  **/
 gpointer
 katze_net_get_session (KatzeNet* net)
 {
     g_return_val_if_fail (KATZE_IS_NET (net), NULL);
 
-    return net->session;
+    return webkit_get_default_session ();
 }
 
 typedef struct
@@ -146,6 +148,9 @@ katze_net_get_cached_path (KatzeNet*    net,
     gchar* extension;
     gchar* cached_filename;
     gchar* cached_path;
+
+    if (!net)
+        net = katze_net_new ();
 
     if (subfolder)
         cache_path = g_build_filename (net->cache_path, subfolder, NULL);
@@ -301,7 +306,7 @@ katze_net_default_cb (KatzeNetPriv* priv)
 
 /**
  * katze_net_load_uri:
- * @net: a #KatzeNet
+ * @net: a #KatzeNet, or %NULL
  * @uri: an URI string
  * @status_cb: function to call for status information
  * @transfer_cb: function to call upon transfer
@@ -330,11 +335,13 @@ katze_net_load_uri (KatzeNet*          net,
     KatzeNetPriv* priv;
     SoupMessage* msg;
 
-    g_return_if_fail (KATZE_IS_NET (net));
     g_return_if_fail (uri != NULL);
 
     if (!status_cb && !transfer_cb)
         return;
+
+    if (net == NULL)
+        net = katze_net_new ();
 
     request = g_new0 (KatzeNetRequest, 1);
     request->uri = g_strdup (uri);
