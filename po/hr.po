@@ -1,20 +1,21 @@
-# Croatian translations for PACKAGE package.
+# Croatian translations for Midori package.
 # Copyright (C) 2010 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-#  <ikoli@yahoo.com>, 2010.
-# 
+# This file is distributed under the same license as the Midori package.
+#  Ivica Kolić<ikoli@yahoo.com>, 2010.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Midori\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-31 10:08+0000\n"
-"PO-Revision-Date: 2010-05-27 17:57+0200\n"
+"PO-Revision-Date: 2010-05-31 23:45+0200\n"
 "Last-Translator: Ivica Kolić <ikoli@yahoo.com>\n"
 "Language-Team: Croatian <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
@@ -48,13 +49,13 @@ msgstr ""
 #: ../midori/main.c:370 ../extensions/formhistory.c:446
 #, c-format
 msgid "Failed to open database: %s\n"
-msgstr "Neuspjelo otvaranje baze podataka:  %s\n"
+msgstr "Neuspjelo otvaranje baze podataka: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
 #: ../midori/main.c:425
 #, c-format
 msgid "Failed to remove old history items: %s\n"
-msgstr ""
+msgstr "Neuspjelo uklanjanje starih stavki povijesti:  %s\n"
 
 #: ../midori/main.c:445
 #, c-format
@@ -83,11 +84,14 @@ msgid "The session couldn't be saved. %s"
 msgstr "Sesija ne može biti spremljena  %s"
 
 #: ../midori/main.c:868
-msgid "No root certificate file is available. SSL certificates cannot be verified."
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
 msgstr ""
 
 #: ../midori/main.c:958
-msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
 msgstr ""
 
 #: ../midori/main.c:973
@@ -232,16 +236,16 @@ msgstr "Datoteka nije pronađena"
 #: ../midori/midori-array.c:462 ../midori/midori-array.c:485
 #: ../midori/midori-array.c:495
 msgid "Malformed document."
-msgstr ""
+msgstr "Deformirani dokument"
 
 #: ../midori/midori-array.c:504
 msgid "Unrecognized bookmark format."
-msgstr ""
+msgstr "Neprepoznati format zabilješke"
 
 #: ../midori/midori-array.c:718 ../midori/sokoke.c:1115
 #, c-format
 msgid "Writing failed."
-msgstr ""
+msgstr "Neuspjelo pisanje"
 
 #: ../midori/midori-browser.c:334 ../midori/midori-browser.c:5583
 #: ../midori/midori-browser.c:5589
@@ -255,7 +259,7 @@ msgstr "Prestani učitavati trenutnu stranicu"
 #: ../midori/midori-browser.c:458
 #, c-format
 msgid "%d%% loaded"
-msgstr ""
+msgstr "%d%% učitano"
 
 #: ../midori/midori-browser.c:496
 #, c-format
@@ -306,9 +310,8 @@ msgid "Toplevel folder"
 msgstr ""
 
 #: ../midori/midori-browser.c:862
-#, fuzzy
 msgid "Add to _Speed Dial"
-msgstr "Dodaj u Brzo_biranje"
+msgstr "Dodaj u _brzo biranje"
 
 #: ../midori/midori-browser.c:875
 msgid "Show in the tool_bar"
@@ -341,7 +344,7 @@ msgstr ""
 #: ../midori/midori-browser.c:1454
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
-msgstr ""
+msgstr "Datoteka '<b>%s</b>' je preuzeta."
 
 #: ../midori/midori-browser.c:1458
 msgid "Transfer completed"
@@ -353,16 +356,15 @@ msgstr "Spremi datoteku"
 
 #: ../midori/midori-browser.c:1915 ../midori/midori-browser.c:1917
 msgid "Some files are being downloaded"
-msgstr ""
+msgstr "Neke datoteke su preuzete"
 
 #: ../midori/midori-browser.c:1921
-#, fuzzy
 msgid "_Quit Midori"
-msgstr "Midori"
+msgstr "_Isključi Midori"
 
 #: ../midori/midori-browser.c:1923
 msgid "The transfers will be cancelled if Midori quits."
-msgstr ""
+msgstr "Prijenosi će biti odgođeni ako se Midori isključi"
 
 #: ../midori/midori-browser.c:2384
 msgid "Open file"
@@ -370,8 +372,11 @@ msgstr "Otvori datoteku"
 
 #: ../midori/midori-browser.c:2462
 msgid ""
-"To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
-"Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
+"To use the above URI open a news aggregator. There is usually a menu or "
+"button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News "
+"Aggregator. Next time you click the news feed icon, it will be added "
+"automatically."
 msgstr ""
 
 #: ../midori/midori-browser.c:2468 ../extensions/feed-panel/main.c:361
@@ -397,7 +402,7 @@ msgstr "Prazno"
 #: ../midori/sokoke.c:408 ../midori/sokoke.c:436 ../midori/sokoke.c:462
 #: ../midori/sokoke.c:476
 msgid "Could not run external program."
-msgstr "ne mogu pokrenuti vanjski program"
+msgstr "Ne mogu pokrenuti vanjski program"
 
 #: ../midori/midori-browser.c:4099 ../midori/midori-browser.c:6042
 #, c-format
@@ -412,12 +417,12 @@ msgstr "Otvori sve u _Karticama"
 #: ../midori/midori-browser.c:4439 ../panels/midori-bookmarks.c:785
 #: ../panels/midori-history.c:756 ../extensions/feed-panel/feed-panel.c:544
 msgid "Open in New _Tab"
-msgstr "Otvori u novoj_kartici"
+msgstr "Otvori u novoj _kartici"
 
 #: ../midori/midori-browser.c:4442 ../panels/midori-bookmarks.c:787
 #: ../panels/midori-history.c:758 ../extensions/feed-panel/feed-panel.c:546
 msgid "Open in New _Window"
-msgstr "Otvori u novom_prozoru"
+msgstr "Otvori u novom _prozoru"
 
 #: ../midori/midori-browser.c:4665
 msgid "Arora"
@@ -449,7 +454,7 @@ msgstr "_Uvezi zabilješke"
 
 #: ../midori/midori-browser.c:4704
 msgid "_Application:"
-msgstr "_Aplikacija"
+msgstr "_Program"
 
 #: ../midori/midori-browser.c:4731 ../midori/midori-browser.c:5757
 #: ../midori/midori-websettings.c:227 ../midori/midori-websettings.c:318
@@ -469,7 +474,7 @@ msgstr "Neuspjeli izvoz zabilješki"
 #: ../panels/midori-history.c:171
 #, c-format
 msgid "Failed to remove history item: %s\n"
-msgstr ""
+msgstr "Neuspjelo uklanjanje stavke povijesti: %s\n"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
 #: ../midori/midori-browser.c:5002
@@ -499,7 +504,7 @@ msgstr "'Flash' kolačići"
 
 #: ../midori/midori-browser.c:5047
 msgid "Website icons"
-msgstr ""
+msgstr "Website ikone"
 
 #: ../midori/midori-browser.c:5052 ../midori/sokoke.c:1305
 msgid "_Closed Tabs"
@@ -511,14 +516,18 @@ msgstr ""
 
 #: ../midori/midori-browser.c:5065
 msgid "Clear private data when _quitting Midori"
-msgstr ""
+msgstr "Očisti privatne podatke kad _isključuješ Midori"
 
 #: ../midori/midori-browser.c:5166
 msgid "A lightweight web browser."
 msgstr "Lagani web preglednik"
 
 #: ../midori/midori-browser.c:5168
-msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
 msgstr ""
 
 #: ../midori/midori-browser.c:5187
@@ -531,7 +540,7 @@ msgstr "_Datoteka"
 
 #: ../midori/midori-browser.c:5498 ../midori/sokoke.c:1306
 msgid "New _Window"
-msgstr "Novi_prozor"
+msgstr "Novi _prozor"
 
 #: ../midori/midori-browser.c:5499
 msgid "Open a new window"
@@ -559,7 +568,7 @@ msgstr "Spremi u datoteku"
 
 #: ../midori/midori-browser.c:5514
 msgid "Add to Speed _dial"
-msgstr "Dodaj u Brzo_biranje"
+msgstr "Dodaj u Brzo _biranje"
 
 #: ../midori/midori-browser.c:5515
 msgid "Add shortcut to speed dial"
@@ -773,7 +782,7 @@ msgstr "Otvori zadnju zatvorenu karticu"
 
 #: ../midori/midori-browser.c:5650
 msgid "Add a new _folder"
-msgstr "Dodaj novu_mapu"
+msgstr "Dodaj novu _mapu"
 
 #: ../midori/midori-browser.c:5651
 msgid "Add a new bookmark folder"
@@ -785,7 +794,7 @@ msgstr "_Izvezi zabilješke"
 
 #: ../midori/midori-browser.c:5659 ../midori/midori-searchaction.c:493
 msgid "_Manage Search Engines"
-msgstr ""
+msgstr "_Upravljaj tražilicama"
 
 #: ../midori/midori-browser.c:5660
 msgid "Add, edit and remove search engines..."
@@ -1040,12 +1049,12 @@ msgstr "Očisti sve"
 #: ../midori/midori-browser.c:7104
 #, c-format
 msgid "Unexpected setting '%s'"
-msgstr ""
+msgstr "Neočekivana postavka  '%s'"
 
 #: ../midori/midori-locationaction.c:377
 #, c-format
 msgid "Failed to select from history\n"
-msgstr ""
+msgstr "Neuspjeli odabir iz povijesti\n"
 
 #: ../midori/midori-locationaction.c:459
 #, c-format
@@ -1206,20 +1215,20 @@ msgstr "Zadnja sačuvana visina prozora"
 
 #: ../midori/midori-websettings.c:414
 msgid "Last panel position"
-msgstr "Zadnja pozicija panela"
+msgstr "Zadnja pozicija ploče"
 
 #: ../midori/midori-websettings.c:415
 msgid "The last saved panel position"
-msgstr "Zadnja spremljena pozicija panela"
+msgstr "Zadnja spremljena pozicija ploče"
 
 #. i18n: The internal index of the last opened panel
 #: ../midori/midori-websettings.c:424
 msgid "Last panel page"
-msgstr ""
+msgstr "zadnja stranica ploče"
 
 #: ../midori/midori-websettings.c:425
 msgid "The last saved panel page"
-msgstr ""
+msgstr "Zadnja spremljena stranica ploče"
 
 #: ../midori/midori-websettings.c:433
 msgid "Last Web search"
@@ -1255,7 +1264,7 @@ msgstr ""
 
 #: ../midori/midori-websettings.c:470
 msgid "Show Panel"
-msgstr "Pokaži panel"
+msgstr "Pokaži ploču"
 
 #: ../midori/midori-websettings.c:471
 msgid "Whether to show the panel"
@@ -1528,7 +1537,7 @@ msgstr ""
 
 #: ../midori/midori-websettings.c:884
 msgid "Enable HTML5 database support"
-msgstr ""
+msgstr "Omogući podršku za HTML5 bazu podataka"
 
 #: ../midori/midori-websettings.c:885
 msgid "Whether to enable HTML5 database support"
@@ -1536,7 +1545,7 @@ msgstr ""
 
 #: ../midori/midori-websettings.c:891
 msgid "Enable HTML5 local storage support"
-msgstr ""
+msgstr "Omogući podršku za HTML5 lokalnu pohranu"
 
 #: ../midori/midori-websettings.c:892
 msgid "Whether to enable HTML5 local storage support"
@@ -1636,7 +1645,7 @@ msgstr "HTTP Proxy poslužitelj"
 
 #: ../midori/midori-websettings.c:1058
 msgid "The proxy server used for HTTP connections"
-msgstr ""
+msgstr "Proxy poslužitelj korišten za HTTP spajanja"
 
 #: ../midori/midori-websettings.c:1073
 msgid "Detect proxy server automatically"
@@ -1668,7 +1677,9 @@ msgid "Preferred languages"
 msgstr ""
 
 #: ../midori/midori-websettings.c:1124
-msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
 msgstr ""
 
 #: ../midori/midori-websettings.c:1139
@@ -1702,7 +1713,7 @@ msgstr "Pokušaj ponovo"
 #: ../midori/midori-view.c:1283
 #, c-format
 msgid "Not found - %s"
-msgstr ""
+msgstr "NIje pronađeno -  %s"
 
 #: ../midori/midori-view.c:1520 ../midori/midori-view.c:2357
 #, c-format
@@ -1743,7 +1754,7 @@ msgstr "_Spremi odredište poveznice"
 
 #: ../midori/midori-view.c:2209 ../midori/midori-view.c:2274
 msgid "_Download Link destination"
-msgstr ""
+msgstr "_Preuzmi odredište poveznice"
 
 #: ../midori/midori-view.c:2213 ../midori/midori-view.c:2243
 #: ../midori/midori-view.c:2285
@@ -1802,7 +1813,7 @@ msgstr "Tip datoteke: '%s'"
 #: ../midori/midori-view.c:2683
 #, c-format
 msgid "File Type: %s ('%s')"
-msgstr ""
+msgstr "Tip datoteke: %s ('%s')"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
 #: ../midori/midori-view.c:2687
@@ -1837,20 +1848,19 @@ msgstr "jeste li sigurni da želite izbrisati ovaj prečac?"
 
 #: ../midori/midori-view.c:3518
 msgid "Set number of columns"
-msgstr ""
+msgstr "Postavi broj stupaca"
 
 #: ../midori/midori-view.c:3519
 msgid "Enter number of columns:"
-msgstr ""
+msgstr "Unesi broj stupaca"
 
 #: ../midori/midori-view.c:3520
 msgid "Set number of shortcuts"
-msgstr ""
+msgstr "Postavi broj prečaca"
 
 #: ../midori/midori-view.c:3521
-#, fuzzy
 msgid "Enter number of shortcuts:"
-msgstr "Unesi adresu prečaca"
+msgstr "Unesi broj prečaca"
 
 #: ../midori/midori-view.c:3547
 #, c-format
@@ -1860,7 +1870,7 @@ msgstr "Dokument ne može biti prikazan"
 #: ../midori/midori-view.c:3570
 #, c-format
 msgid "No documentation installed"
-msgstr ""
+msgstr "Dokumentacija nije instalirana"
 
 #: ../midori/midori-view.c:3820
 msgid "Blank page"
@@ -1897,7 +1907,7 @@ msgstr ""
 #. Page "General"
 #: ../midori/midori-preferences.c:298
 msgid "General"
-msgstr "Općenito"
+msgstr "Osnovno"
 
 #: ../midori/midori-preferences.c:299
 msgid "Startup"
@@ -1950,7 +1960,7 @@ msgstr "Najmanja veličina fonta"
 
 #: ../midori/midori-preferences.c:371
 msgid "The minimum font size used to display text"
-msgstr ""
+msgstr "Najmanja veličina fonta korištena za prikaz teksta"
 
 #. Page "Behavior"
 #: ../midori/midori-preferences.c:380
@@ -1991,7 +2001,9 @@ msgstr "Pravopisni rječnici"
 
 #. i18n: The example should be adjusted to contain a good local default
 #: ../midori/midori-preferences.c:429
-msgid "A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""
+msgid ""
+"A comma separated list of languages to be used for spell checking, for "
+"example \"en_GB,de_DE\""
 msgstr ""
 
 #. Page "Interface"
@@ -2048,11 +2060,11 @@ msgstr "Uredi tražilicu"
 
 #: ../midori/midori-searchaction.c:945
 msgid "_Name:"
-msgstr "_Ime"
+msgstr "_Ime:"
 
 #: ../midori/midori-searchaction.c:989
 msgid "_Icon:"
-msgstr "_Ikona"
+msgstr "_Ikona:"
 
 #: ../midori/midori-searchaction.c:1003
 msgid "_Token:"
@@ -2060,7 +2072,7 @@ msgstr ""
 
 #: ../midori/midori-searchaction.c:1234
 msgid "Manage Search Engines"
-msgstr ""
+msgstr "Upravljaj tražilicama"
 
 #: ../midori/midori-searchaction.c:1335
 msgid "Use as _default"
@@ -2107,9 +2119,8 @@ msgid "Netscape p_lugins"
 msgstr "Netscape p_riključci"
 
 #: ../midori/sokoke.c:1307
-#, fuzzy
 msgid "New _Folder"
-msgstr "Nova mapa"
+msgstr "Nova _mapa"
 
 #: ../panels/midori-bookmarks.c:111
 msgid "Bookmarks"
@@ -2137,11 +2148,11 @@ msgstr ""
 
 #: ../panels/midori-console.c:361
 msgid "Copy _All"
-msgstr ""
+msgstr "Kopiraj _sve"
 
 #: ../panels/midori-console.c:362
 msgid "Copy All"
-msgstr ""
+msgstr "Kopiraj sve"
 
 #: ../panels/midori-extensions.c:91
 msgid "Extensions"
@@ -2152,7 +2163,8 @@ msgid "Erroneous clock time"
 msgstr ""
 
 #: ../panels/midori-history.c:274
-msgid "The clock time lies in the past. Please check the current date and time."
+msgid ""
+"The clock time lies in the past. Please check the current date and time."
 msgstr ""
 
 #: ../panels/midori-history.c:286
@@ -2202,7 +2214,7 @@ msgstr "Otvori odredišni _direktorij"
 
 #: ../panels/midori-transfers.c:481
 msgid "Copy Link Loc_ation"
-msgstr ""
+msgstr "Kopiraj lokaciju po_veznice"
 
 #: ../katze/katze-http-auth.c:214
 msgid "Authentication Required"
@@ -2266,7 +2278,9 @@ msgstr ""
 
 #: ../extensions/adblock.c:447
 #, c-format
-msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
 msgstr ""
 
 #: ../extensions/adblock.c:587
@@ -2330,7 +2344,7 @@ msgstr ""
 
 #: ../extensions/colorful-tabs.c:204
 msgid "Colorful Tabs"
-msgstr ""
+msgstr "Obojane kartice"
 
 #: ../extensions/colorful-tabs.c:205
 msgid "Tint each tab distinctly"
@@ -2346,16 +2360,18 @@ msgid "Delete All"
 msgstr "Izbriši sve"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:114
-msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
 msgstr ""
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:129
 msgid "Expand All"
-msgstr ""
+msgstr "Proširi sve"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:136
 msgid "Collapse All"
-msgstr ""
+msgstr "Skupi sve"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:578
 msgid "Do you really want to delete all cookies?"
@@ -2407,14 +2423,16 @@ msgstr "Ime"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1083
 msgid "_Expand All"
-msgstr ""
+msgstr "_Proširi sve"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1091
 msgid "_Collapse All"
-msgstr ""
+msgstr "_Skupi sve"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1149
-msgid "Enter a filter string to show only cookies whose name or domain field match the entered filter"
+msgid ""
+"Enter a filter string to show only cookies whose name or domain field match "
+"the entered filter"
 msgstr ""
 
 #: ../extensions/cookie-manager/main.c:40
@@ -2550,7 +2568,7 @@ msgstr ""
 
 #: ../extensions/page-holder.c:178
 msgid "Keep one or multiple pages open in parallel to your tabs"
-msgstr ""
+msgstr "Držite jednu ili više stranica otvorenima paralelno sa vašim karticama"
 
 #: ../extensions/shortcuts.c:170
 msgid "Customize Keyboard shortcuts"
@@ -2598,7 +2616,7 @@ msgstr "K_artica ploče"
 
 #: ../extensions/tab-panel.c:626
 msgid "Show tabs in a vertical panel"
-msgstr ""
+msgstr "Pokaži kartice u okomitoj ploči"
 
 #: ../extensions/tab-switcher.c:395
 msgid "Tab History List"
@@ -2613,7 +2631,9 @@ msgid "Customize Toolbar"
 msgstr "Prilagodi alatnu traku"
 
 #: ../extensions/toolbar-editor.c:405
-msgid "Select items to be displayed on the toolbar. Items can be reodered by drag and drop."
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reodered by drag "
+"and drop."
 msgstr ""
 
 #: ../extensions/toolbar-editor.c:421
