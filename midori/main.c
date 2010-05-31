@@ -431,6 +431,18 @@ midori_history_terminate (sqlite3* db,
 #endif
 
 static void
+midori_session_add_delay (KatzeArray* session)
+{
+    KatzeItem* item;
+    gint i = 0;
+    while ((item = katze_array_get_nth_item (session, i++)))
+    {
+        if (katze_item_get_meta_integer (item, "delay") < 0)
+            katze_item_set_meta_integer (item, "delay", 1);
+    }
+}
+
+static void
 settings_notify_cb (MidoriWebSettings* settings,
                     GParamSpec*        pspec,
                     MidoriApp*         app)
@@ -1230,11 +1242,13 @@ midori_load_session (gpointer data)
     KatzeArray* _session = KATZE_ARRAY (data);
     MidoriBrowser* browser;
     MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
     gchar* config_file;
     KatzeArray* session;
     KatzeItem* item;
     guint i;
     gint64 current;
+    MidoriStartup load_on_startup;
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
@@ -1263,14 +1277,13 @@ midori_load_session (gpointer data)
     g_signal_connect_after (gtk_accel_map_get (), "changed",
         G_CALLBACK (accel_map_changed_cb), NULL);
 
+    g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
+
     if (katze_array_is_empty (_session))
     {
-        MidoriWebSettings* settings = katze_object_get_object (app, "settings");
-        MidoriStartup load_on_startup;
         gchar* homepage;
         item = katze_item_new ();
 
-        g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
         if (load_on_startup == MIDORI_STARTUP_BLANK_PAGE)
             katze_item_set_uri (item, "");
         else
@@ -1279,10 +1292,12 @@ midori_load_session (gpointer data)
             katze_item_set_uri (item, homepage);
             g_free (homepage);
         }
-        g_object_unref (settings);
         katze_array_add_item (_session, item);
         g_object_unref (item);
     }
+
+    if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES)
+        midori_session_add_delay (_session);
 
     session = midori_browser_get_proxy_array (browser);
     i = 0;
@@ -1299,6 +1314,8 @@ midori_load_session (gpointer data)
         item = katze_array_get_nth_item (_session, 0);
     if (!strcmp (katze_item_get_uri (item), ""))
         midori_browser_activate_action (browser, "Location");
+
+    g_object_unref (settings);
     g_object_unref (_session);
 
     katze_assign (config_file, build_config_filename ("session.xbel"));
@@ -1541,6 +1558,7 @@ main (int    argc,
     gchar* webapp;
     gchar* config;
     gboolean diagnostic_dialog;
+    gboolean back_from_crash;
     gboolean run;
     gchar* snapshot;
     gboolean execute;
@@ -1649,6 +1667,7 @@ main (int    argc,
     /* Parse cli options */
     webapp = NULL;
     config = NULL;
+    back_from_crash = FALSE;
     diagnostic_dialog = FALSE;
     run = FALSE;
     snapshot = NULL;
@@ -1926,7 +1945,7 @@ main (int    argc,
     _session = katze_array_new (KATZE_TYPE_ITEM);
     #if HAVE_LIBXML
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
-    if (load_on_startup == MIDORI_STARTUP_LAST_OPEN_PAGES)
+    if (load_on_startup >= MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, build_config_filename ("session.xbel"));
         error = NULL;
@@ -2026,6 +2045,7 @@ main (int    argc,
             uri_ready = midori_prepare_uri (uri);
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
+            katze_item_set_meta_integer (item, "delay", 0);
             katze_array_add_item (_session, item);
             uri = strtok (NULL, "|");
         }
@@ -2075,11 +2095,20 @@ main (int    argc,
     katze_assign (config_file, build_config_filename ("running"));
     if (g_access (config_file, F_OK) == 0)
     {
-        if (katze_object_get_boolean (settings, "show-crash-dialog"))
-            diagnostic_dialog = TRUE;
+        back_from_crash = TRUE;
     }
     else
         g_file_set_contents (config_file, "RUNNING", -1, NULL);
+
+    if (back_from_crash)
+    {
+        if (katze_object_get_int (settings, "load-on-startup")
+            >= MIDORI_STARTUP_LAST_OPEN_PAGES)
+            midori_session_add_delay (_session);
+
+        if (katze_object_get_boolean (settings, "show-crash-dialog"))
+            diagnostic_dialog = TRUE;
+    }
 
     if (diagnostic_dialog)
     {
@@ -2156,8 +2185,8 @@ main (int    argc,
         }
     }
 
-    if (katze_object_get_boolean (settings, "load-on-startup")
-        != MIDORI_STARTUP_LAST_OPEN_PAGES)
+    if (katze_object_get_int (settings, "load-on-startup")
+        < MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, build_config_filename ("session.xbel"));
         g_unlink (config_file);

@@ -60,11 +60,13 @@ midori_window_state_get_type (void) G_GNUC_CONST;
 #define MIDORI_TYPE_WINDOW_STATE \
     (midori_window_state_get_type ())
 
+/* values >= MIDORI_STARTUP_LAST_OPEN_PAGES mean session is saved */
 typedef enum
 {
-    MIDORI_STARTUP_BLANK_PAGE,
-    MIDORI_STARTUP_HOMEPAGE,
-    MIDORI_STARTUP_LAST_OPEN_PAGES
+    MIDORI_STARTUP_BLANK_PAGE, /* One blank tab or speed dial is opened */
+    MIDORI_STARTUP_HOMEPAGE, /* One homepage tab is opened */
+    MIDORI_STARTUP_LAST_OPEN_PAGES, /* The session is loaded and saved */
+    MIDORI_STARTUP_DELAYED_PAGES /* The session is saved, loading pages is delayed */
 } MidoriStartup;
 
 GType

@@ -3680,6 +3680,23 @@ midori_view_set_uri (MidoriView*  view,
                 katze_item_set_uri (view->item, uri);
             return;
         }
+        else if (g_str_has_prefix (uri, "pause:"))
+        {
+            gchar* title;
+
+            title = g_strdup_printf ("%s", view->title);
+            katze_assign (view->uri, g_strdup (&uri[6]));
+            midori_view_display_error (
+                view, view->uri, title,
+                _("Page loading delayed"),
+                _("Loading delayed either due to a recent crash or startup preferences."),
+                _("Load Page"),
+                NULL);
+            g_free (title);
+            g_object_notify (G_OBJECT (view), "uri");
+            if (view->item)
+                katze_item_set_uri (view->item, uri);
+        }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
             gboolean result;
