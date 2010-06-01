@@ -3391,7 +3391,7 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_window_object_cleared_cb, view,
                       "signal::create-web-view",
                       webkit_web_view_create_web_view_cb, view,
-                      "signal::mime-type-policy-decision-requested",
+                      "signal-after::mime-type-policy-decision-requested",
                       webkit_web_view_mime_type_decision_cb, view,
                       #if WEBKIT_CHECK_VERSION (1, 1, 3)
                       "signal::download-requested",
