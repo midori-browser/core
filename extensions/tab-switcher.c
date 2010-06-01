@@ -248,12 +248,19 @@ tab_selector_browser_add_tab_cb (MidoriBrowser      *browser,
                                  GtkWidget          *view,
                                  MidoriExtension    *extension)
 {
-    g_signal_connect (view, "key_press_event",
+    GtkWidget* web_view;
+    GList* list;
+
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    web_view = midori_view_get_web_view (MIDORI_VIEW(view));
+
+    g_signal_connect (web_view, "key_press_event",
             G_CALLBACK (tab_selector_handle_events), browser);
-    g_signal_connect (view, "key_release_event",
+    g_signal_connect (web_view, "key_release_event",
             G_CALLBACK (tab_selector_handle_events), browser);
 
-    GList *list = g_object_get_data(G_OBJECT(browser), "tab_selector_list");
+    list = g_object_get_data(G_OBJECT(browser), "tab_selector_list");
     list = g_list_append(list, view);
     g_object_set_data(G_OBJECT(browser), "tab_selector_list", list);
 }
