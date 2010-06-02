@@ -1226,7 +1226,7 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         g_regex_unref (reg_unsafe);
     }
 
-    if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 160, 107)))
+    if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 240, 160)))
     {
         GRegex* regex;
         gchar* replace;

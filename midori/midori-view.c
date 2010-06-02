@@ -3515,10 +3515,13 @@ midori_view_set_uri (MidoriView*  view,
                 "{enter_shortcut_address}", _("Enter shortcut address"),
                 "{enter_shortcut_name}", _("Enter shortcut title"),
                 "{are_you_sure}", _("Are you sure you want to delete this shortcut?"),
-                "{set_dial_width}", _("Set number of columns"),
-                "{enter_dial_width}", _("Enter number of columns:"),
-                "{set_shortcut_count}", _("Set number of shortcuts"),
-                "{enter_shortcut_count}", _("Enter number of shortcuts:"),  NULL);
+                "{set_dial_size}", _("Set number of columns and rows"),
+                "{enter_dial_width}", _("Enter number of columns and rows:"),
+                "{invalid_dial_size}", _("Invalid input for the size of the speed dial"),
+                "{set_thumb_size}", _("Thumb size:"),
+                "{set_thumb_small}", _("Small"),
+                "{set_thumb_normal}", _("Medium"),
+                "{set_thumb_big}", _("Big"),  NULL);
 
 
             midori_view_load_alternate_string (view,
@@ -5112,7 +5115,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     if (katze_object_get_enum (thumb_view, "load-status") != MIDORI_LOAD_FINISHED)
         return;
 
-    img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 160, 107);
+    img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 240, 160);
     gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, "compression", "7", NULL);
     encoded = g_base64_encode ((guchar *)file_content, sz );
 

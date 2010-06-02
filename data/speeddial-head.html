@@ -30,7 +30,7 @@
     }
 
     #content {
-        margin-top: 10px;
+        margin-top: 40px;
     }
 
     div.shortcut {
@@ -90,6 +90,11 @@
         text-decoration: none;
     }
 
+    div.shortcut a img {
+        width: 100%;
+        height: 100%;
+    }
+
     .waiter img {
         margin-top: 38px;
     }
@@ -142,23 +147,54 @@
     }
 
     div.config {
+        position: absolute;
+        top: 0px;
         padding: 12px;
         text-align: left;
     }
 
     div.config span {
         color: #ccc;
+        margin-right: 10px;
+        margin-right: 10px;
     }
 
-    div.config span:hover {
+    div.config span.config_option:hover {
         color: #999;
         cursor: pointer;
+    }
+
+    div.config span.config_label {
+        color: #ccc;
+        cursor: default;
+        margin-right: 0px;
+    }
+
+    div.config span.config_option {
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    div.osd {
+        top: 9px;
+        position: fixed;
+        width: 100%;
+        text-align: right;
+    }
+
+    div.osd span {
+        border: 1px solid #999;
+        background-color: #f5f5f5;
+        padding: 8px;
+        color: #999;
+        -webkit-border-bottom-left-radius: 10px;
+        visibility: hidden;
     }
     </style>
 
     <script type="text/javascript">
 
-    sc = JSON.decode ({json_data});
+    var sc = JSON.decode ({json_data});
 
     var encodeSafe = function (obj) {
         var str = JSON.encode (obj);
@@ -227,10 +263,9 @@
 
     var renameShortcut = function (id)
     {
-        var name = prompt ("{enter_shortcut_name}", "");
-        if (!name) return;
-
         var num = id.substr (1) - 1;
+        var name = prompt ("{enter_shortcut_name}", sc.shortcuts[num].title);
+        if (!name) return;
 
         $(id).getLast ().set ('html', name);
         sc.shortcuts[num].title = name;
@@ -266,10 +301,18 @@
     var buildSpeeddial = function ()
     {
         var width = 3;
+        var thumb = 160;
+
+        if (sc.thumb)
+        {
+            thumb = sc.thumb;
+            setThumbSize(thumb);
+        }
+
         if (sc.width)
         {
             width = sc.width;
-            $('wrap').style.width = (width * 220) + 'px';
+            $('wrap').style.width = (width * (thumb + 60)) + 'px';
         }
 
         sc.shortcuts.each (function (item, index, sc)
@@ -319,23 +362,39 @@
         });
     }
 
-    var setWidth = function ()
+    var setSize = function ()
     {
-        var width = prompt ("{enter_dial_width}", "");
-        if (!width || isNaN (width)) return;
+        var rows = Math.ceil (sc.shortcuts.length / sc.width);
+        var size = prompt ("{enter_dial_size}", sc.width + 'x' + rows);
 
-        sc.width = width;
+        if (!size) return;
 
-        $('content').empty ();
-        buildSpeeddial ();
+        var pos = size.indexOf('x');
 
-        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
-    }
+        if (pos <= 0)
+        {
+            alert ("{invalid_dial_size}");
+            return;
+        }
 
-    var setCount = function ()
-    {
-        var count = prompt ("{enter_shortcut_count}", "");
-        if (!count || isNaN (count)) return;
+        var cols = size.substr(0, pos);
+        rows = size.substr(pos+1);
+
+        if (isNaN (cols) || isNaN (rows) || cols == 0 || rows == 0)
+        {
+            alert ("{invalid_dial_size}");
+            return;
+        }
+
+        if (size.indexOf('.') >= 0)
+        {
+            alert ("{invalid_dial_size}");
+            return;
+        }
+
+        sc.width = cols;
+
+        var count = cols * rows;
 
         sc.shortcuts = sc.shortcuts.slice (0, count);
 
@@ -352,30 +411,99 @@
         console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
     }
 
+    var setThumbSize = function (size)
+    {
+        var i;
+        var rules = document.styleSheets[0].cssRules;
+
+        var width = 3;
+        if (sc.width)
+            width = sc.width;
+
+        var height = Math.round (size / 1.5);
+
+        $('wrap').style.width = (width * (size + 60)) + 'px';
+
+        for (i = 0; i < rules.length; i++)
+        {
+            switch (rules[i].selectorText)
+            {
+                case 'div.shortcut a':
+                    rules[i].style.width = size + 'px';
+                    rules[i].style.height = height + 'px';
+                    break;
+                case 'div.shortcut':
+                    rules[i].style.width = (size + 40) + 'px';
+                    rules[i].style.height = (height + 43) + 'px';
+                    break;
+                case '.cross':
+                    rules[i].style.marginLeft = (size + 20) + 'px';
+                    break;
+                case 'h1':
+                    rules[i].style.fontSize = (size / 4 + 10) + 'px';
+                    rules[i].style.height = (size / 4 - 10) + 'px';
+                    break;
+                case 'h4 span::before':
+                    rules[i].style.visibility = (size < 160) ? 'hidden' : 'visible';
+                    break;
+            }
+        }
+
+	if (sc.thumb != size)
+	{
+            sc.thumb = size;
+            console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
+	}
+    }
+
     window.addEvent ('domready', function () {
         buildSpeeddial ();
     });
 
+    var key_id = 's';
+    var key_timeout;
+
     document.onkeypress = function ()
     {
-        var id = $('s' + String.fromCharCode (event.which));
+        key_id = key_id + String.fromCharCode (event.which);
 
-        if ($(id))
+        clearTimeout (key_timeout);
+
+        $('dialing').innerText = key_id.substr(1);
+        $('dialing').style.visibility = 'visible';
+
+        if ($(key_id))
         {
-            if (getAction (id))
-                document.location = $(id).children[1];
-            return false;
+            if (key_id.substr(1) * 10 > sc.shortcuts.length)
+            {
+                if (getAction (key_id))
+                    document.location = $(key_id).children[1];
+                key_id = 's';
+            }
+            else
+                key_timeout = setTimeout ('if (getAction (key_id)) document.location = $(key_id).children[1]; key_id = \'s\'', 3000);
         }
+        else
+            key_id = 's';
 
-        return true
+        if (key_id.length <= 1)
+            $('dialing').style.visibility = 'hidden';
+
+        return false;
     }
 
     </script>
 </head>
 <body>
+    <div class="osd" >
+        <span id="dialing"></span>
+    </div>
     <div class="config">
-        <span onclick="javascript:setWidth()">{set_dial_width}</span>
-        <span onclick="javascript:setCount()">{set_shortcut_count}</span>
+        <span onclick="javascript:setSize()" class="config_option">{set_dial_size}</span>
+        <span class="config_label">{set_thumb_size}</span>
+        <span onclick="javascript:setThumbSize(80)" class="config_option">{set_thumb_small}</span>
+        <span onclick="javascript:setThumbSize(160)" class="config_option">{set_thumb_normal}</span>
+        <span onclick="javascript:setThumbSize(240)" class="config_option">{set_thumb_big}</span>
     </div>
     <div id="wrap">
         <div id="content">
