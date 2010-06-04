@@ -5115,6 +5115,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     if (katze_object_get_enum (thumb_view, "load-status") != MIDORI_LOAD_FINISHED)
         return;
 
+    gtk_widget_realize (midori_view_get_web_view (MIDORI_VIEW (thumb_view)));
     img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 240, 160);
     gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, "compression", "7", NULL);
     encoded = g_base64_encode ((guchar *)file_content, sz );
