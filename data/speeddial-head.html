@@ -210,6 +210,8 @@
 
         var url = prompt ("{enter_shortcut_address}", "http://");
         if (!url) return false;
+        if (url.indexOf ("://") == -1)
+            url = "http://" + url;
 
         var name = prompt ("{enter_shortcut_name}", "");
         if (!name) name = "";
