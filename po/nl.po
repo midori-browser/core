@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-06 04:08+0000\n"
+"POT-Creation-Date: 2010-06-05 10:08+0000\n"
 "PO-Revision-Date: 2008-11-10 02:02+0100\n"
 "Last-Translator: Vincent Tunru <projects@vinnl.nl>\n"
 "Language-Team: Dutch\n"
@@ -84,16 +84,15 @@ msgstr "De sessie kan niet worden opgeslagen. %s"
 
 #: ../midori/main.c:880
 msgid "No root certificate file is available. SSL certificates cannot be verified."
-msgstr ""
+msgstr "Geen root certificaatbestand aanwezig. SSL certificaten kunnen niet worden geverifieerd"
 
 #: ../midori/main.c:970
 msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
 msgstr "Midori schijnt te zijn gecrasht de laatste keer dat het werd geopend. Als dit herhaaldelijk gebeurt, probeer dan een van de volgende opties om het probleem op te lossen."
 
 #: ../midori/main.c:985
-#, fuzzy
 msgid "Modify _preferences"
-msgstr "Wijzigen _Preferences"
+msgstr "_Voorkeuren wijzigen"
 
 #: ../midori/main.c:989
 msgid "Reset the last _session"
@@ -122,9 +121,8 @@ msgid "Snapshot saved to: %s\n"
 msgstr "Snapshot opgeslagen in:%s\n"
 
 #: ../midori/main.c:1575
-#, fuzzy
 msgid "Run ADDRESS as a web application"
-msgstr "Run ADRES als een webapplicatie"
+msgstr "ADRES uitvoeren als een webapplicatie"
 
 #: ../midori/main.c:1575
 msgid "ADDRESS"
@@ -164,7 +162,7 @@ msgstr "Adressen"
 
 #: ../midori/main.c:1595
 msgid "Block URIs according to regular expression PATTERN"
-msgstr ""
+msgstr "Blokkeer URIs die overeenstemmen met reguliere expressie PATROON"
 
 #: ../midori/main.c:1595
 msgid "PATTERN"
@@ -173,11 +171,11 @@ msgstr "PATROON"
 #. i18n: CLI: Close tabs, clear private data, open starting page
 #: ../midori/main.c:1599
 msgid "Reset Midori after SECONDS seconds of inactivity"
-msgstr ""
+msgstr "Reset Midori na SECONDEN seconden van inactiviteit"
 
 #: ../midori/main.c:1599
 msgid "SECONDS"
-msgstr ""
+msgstr "SECONDEN"
 
 #: ../midori/main.c:1680
 msgid "[Addresses]"
@@ -192,18 +190,17 @@ msgid "Check for new versions at:"
 msgstr "Controleer op nieuwe versies op:"
 
 #: ../midori/main.c:1807
-#, fuzzy
 msgid "The specified configuration folder is invalid."
-msgstr "De instellingen kunnen niet worden opgeslagen. %s"
+msgstr "De gespecifieerde configuratiemap is ongeldig."
 
 #: ../midori/main.c:1855
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Midori is al actief maar reageert niet.\n"
 
 #: ../midori/main.c:1910
-#, fuzzy, c-format
+#, c-format
 msgid "The search engines couldn't be loaded. %s\n"
-msgstr "De zoekmachines kunnen niet opgeslagen worden. %s"
+msgstr "De zoekmachines kunnen niet worden geladen. %s\n"
 
 #: ../midori/main.c:1939
 #, c-format
@@ -225,9 +222,8 @@ msgid "The following errors occured:"
 msgstr "De volgende fouten hebben plaatsgevonden:"
 
 #: ../midori/main.c:2015
-#, fuzzy
 msgid "_Ignore"
-msgstr "_IGNORE"
+msgstr "_Negeren"
 
 #: ../midori/midori-array.c:428
 msgid "File not found."
@@ -262,9 +258,9 @@ msgid "%d%% loaded"
 msgstr "%d%% geladen"
 
 #: ../midori/midori-browser.c:496
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to update title: %s\n"
-msgstr "Kan item niet toevoegen aan geschiedenis: %s\n"
+msgstr "Kan titel niet aanpassen: %s\n"
 
 #: ../midori/midori-browser.c:510
 #, c-format
@@ -276,9 +272,8 @@ msgid "New folder"
 msgstr "Nieuwe map"
 
 #: ../midori/midori-browser.c:726
-#, fuzzy
 msgid "Edit folder"
-msgstr "Edit map"
+msgstr "Map wijzigen"
 
 #: ../midori/midori-browser.c:728
 msgid "New bookmark"
@@ -330,7 +325,7 @@ msgstr "Er is niet voldoende schijfruimte om \"%s\" te downloaden."
 #: ../midori/midori-browser.c:988
 #, c-format
 msgid "The file needs %s but only %s are left."
-msgstr ""
+msgstr "Het bestand heeft %s nodig maar slechts %s is beschikbaar."
 
 #: ../midori/midori-browser.c:1045 ../midori/midori-browser.c:4794
 #: ../midori/midori-browser.c:4826
@@ -352,23 +347,20 @@ msgid "Transfer completed"
 msgstr "Overdracht compleet"
 
 #: ../midori/midori-browser.c:1598
-#, fuzzy
 msgid "Save file"
-msgstr "Bestand opslaan als"
+msgstr "Bestand opslaan"
 
 #: ../midori/midori-browser.c:1915 ../midori/midori-browser.c:1917
-#, fuzzy
 msgid "Some files are being downloaded"
-msgstr "Het bestand <b>'%s'</b> is gedownload."
+msgstr "Sommige bestanden worden gedownload"
 
 #: ../midori/midori-browser.c:1921
-#, fuzzy
 msgid "_Quit Midori"
-msgstr "Midori"
+msgstr "Midori _afsluiten"
 
 #: ../midori/midori-browser.c:1923
 msgid "The transfers will be cancelled if Midori quits."
-msgstr ""
+msgstr "De bestandsoverdrachten zullen worden geannuleerd als Midori wordt afgesloten."
 
 #: ../midori/midori-browser.c:2384
 msgid "Open file"
@@ -379,9 +371,10 @@ msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
 "Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
 msgstr ""
+"Om de bovenstaande URI te openen heeft u een nieuwsaggregator nodig. Daar is meestal een menu of knop \"Nieuw abonnement\", \"Nieuwe nieuwsfeed\" of vergelijkbaar.\n"
+"Alternatief kan u gaan naar Voorkeuren, Toepassingen in Midori en een Nieuwsaggregator kiezen. De volgende keer dat u de nieuwsfeed aanklikt zal deze automatisch worden toegevoegd."
 
 #: ../midori/midori-browser.c:2468 ../extensions/feed-panel/main.c:361
-#, fuzzy
 msgid "New feed"
 msgstr "Nieuwe feed"
 
@@ -392,9 +385,9 @@ msgstr "Nieuwe bladwijzer toevoegen"
 
 #: ../midori/midori-browser.c:3084 ../panels/midori-history.c:332
 #: ../extensions/formhistory.c:461 ../extensions/formhistory.c:465
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to execute database statement: %s\n"
-msgstr "Kan database niet uitvoeren:% s \\ n"
+msgstr "Kan database statement niet uitvoeren: %s\n"
 
 #: ../midori/midori-browser.c:3164 ../midori/midori-searchaction.c:484
 msgid "Empty"
@@ -407,9 +400,9 @@ msgid "Could not run external program."
 msgstr "Kan externe applicatie niet uitvoeren."
 
 #: ../midori/midori-browser.c:4099 ../midori/midori-browser.c:6042
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to insert new history item: %s\n"
-msgstr "Kan item in geschiedenis niet verwijderen: %s\n"
+msgstr "Kan nieuw item in geschiedenis niet toevoegen: %s\n"
 
 #: ../midori/midori-browser.c:4432 ../panels/midori-bookmarks.c:779
 #: ../panels/midori-history.c:750
@@ -859,7 +852,6 @@ msgid "Show the documentation"
 msgstr "Documentatie weergeven"
 
 #: ../midori/midori-browser.c:5691
-#, fuzzy
 msgid "_Frequent Questions"
 msgstr "_Veelgestelde vragen"
 
@@ -1548,45 +1540,43 @@ msgstr "OF HTML5 database ondersteuning dient te worden geactiveerd"
 
 #: ../midori/midori-websettings.c:892
 msgid "Enable HTML5 local storage support"
-msgstr ""
+msgstr "HTML5 lokale opslagondersteuning activeren"
 
 #: ../midori/midori-websettings.c:893
 msgid "Whether to enable HTML5 local storage support"
-msgstr ""
+msgstr "Of HTML5 locale opslagondersteuning dient te worden geactiveerd"
 
 #: ../midori/midori-websettings.c:901
-#, fuzzy
 msgid "Enable offline web application cache"
-msgstr "Uitvoeren als _web toepassing"
+msgstr "Offline webtoepassingscache gebruiken"
 
 #: ../midori/midori-websettings.c:902
 msgid "Whether to enable offline web application cache"
-msgstr ""
+msgstr "Of offline webtoepassingscache dient te worden gebruikt"
 
 #: ../midori/midori-websettings.c:927
 msgid "Zoom Text and Images"
-msgstr ""
+msgstr "Tekst en afbeeldingen zoomen"
 
 #: ../midori/midori-websettings.c:928
-#, fuzzy
 msgid "Whether to zoom text and images"
-msgstr "Paneel weergeven"
+msgstr "Of tekst en afbeeldingen gezoomd dienen te worden"
 
 #: ../midori/midori-websettings.c:943
 msgid "Find inline while typing"
-msgstr ""
+msgstr "Zoeken tijdens typen"
 
 #: ../midori/midori-websettings.c:944
 msgid "Whether to automatically find inline while typing"
-msgstr ""
+msgstr "Of automatisch dient gezocht te worden tijdens het typen"
 
 #: ../midori/midori-websettings.c:959
 msgid "Kinetic scrolling"
-msgstr ""
+msgstr "Kinetisch schuiven"
 
 #: ../midori/midori-websettings.c:960
 msgid "Whether scrolling should kinetically move according to speed"
-msgstr ""
+msgstr "Of schuiven kinetisch dient te gebeuren volgens de snelheid"
 
 #: ../midori/midori-websettings.c:968
 msgid "Accept cookies"
@@ -1629,74 +1619,69 @@ msgid "The maximum number of days to save the history for"
 msgstr "Hoeveel dagen items in de geschiedenis bewaard moeten blijven"
 
 #: ../midori/midori-websettings.c:1030
-#, fuzzy
 msgid "Remember last downloaded files"
-msgstr "Laatst gedownloadede bestanden onthouden"
+msgstr "Laatst gedownloade bestanden onthouden"
 
 #: ../midori/midori-websettings.c:1031
-#, fuzzy
 msgid "Whether the last downloaded files are saved"
-msgstr "Laatst gedownloadede bestanden onthouden"
+msgstr "Of de laatst gedownloade bestanden onthouden dienen te worden"
 
 #: ../midori/midori-websettings.c:1048
 msgid "Proxy server"
-msgstr ""
+msgstr "Proxyserver"
 
 #: ../midori/midori-websettings.c:1049
 msgid "The type of proxy server to use"
-msgstr ""
+msgstr "De te gebruiken proxyserver"
 
 #: ../midori/midori-websettings.c:1058
-#, fuzzy
 msgid "HTTP Proxy Server"
-msgstr "HTTP proxy"
+msgstr "HTTP proxyserver"
 
 #: ../midori/midori-websettings.c:1059
-#, fuzzy
 msgid "The proxy server used for HTTP connections"
-msgstr "De gebruikte proxy voor HTTP-verbindingen"
+msgstr "De proxyserver voor HTTP-verbindingen gebruiken"
 
 #: ../midori/midori-websettings.c:1074
 msgid "Detect proxy server automatically"
-msgstr ""
+msgstr "De proxyserver automatisch detecteren"
 
 #: ../midori/midori-websettings.c:1075
 msgid "Whether to detect the proxy server automatically from the environment"
-msgstr ""
+msgstr "Of de proxyserver automatisch dient gedetecteerd te worden uit de omgeving"
 
 #. i18n: This refers to an application, not the 'user agent' string
 #: ../midori/midori-websettings.c:1091
 msgid "Identify as"
-msgstr ""
+msgstr "Identificeren als"
 
 #: ../midori/midori-websettings.c:1092
 msgid "What to identify as to web pages"
-msgstr ""
+msgstr "Hoe zich te identificeren naar webpagina's"
 
 #: ../midori/midori-websettings.c:1108
 msgid "Identification string"
-msgstr ""
+msgstr "Identificatiestring"
 
 #: ../midori/midori-websettings.c:1109
 msgid "The application identification string"
-msgstr ""
+msgstr "De indentificatiestring van de toepassing"
 
 #: ../midori/midori-websettings.c:1124
-#, fuzzy
 msgid "Preferred languages"
-msgstr "Voorkeurs-codering"
+msgstr "Voorkeurstalen"
 
 #: ../midori/midori-websettings.c:1125
 msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr ""
+msgstr "Een door komma's gescheiden lijst van voorkeurstalen om meertalige webpagina's in weer te geven, bijvoorbeeld \"de\", \"ru,nl\" of \"en-us;q=1.0, fr-fr;q=0.667\""
 
 #: ../midori/midori-websettings.c:1140
 msgid "Clear private data"
-msgstr ""
+msgstr "Privégegevens wissen"
 
 #: ../midori/midori-websettings.c:1141
 msgid "The private data selected for deletion"
-msgstr ""
+msgstr "De te verwijderen privégegevens"
 
 #. WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
 #. so reloading via Javascript works but not via API calls.
@@ -1706,60 +1691,55 @@ msgstr ""
 #: ../midori/midori-view.c:4564
 #, c-format
 msgid "Error - %s"
-msgstr ""
+msgstr "Fout - %s"
 
 #: ../midori/midori-view.c:1262
-#, fuzzy, c-format
+#, c-format
 msgid "The page '%s' couldn't be loaded."
-msgstr "Pictogram '%s' kan niet geladen worden"
+msgstr "De pagina '%s' kan niet worden geladen"
 
 #: ../midori/midori-view.c:1264
 msgid "Try again"
-msgstr ""
+msgstr "Probeer opnieuw"
 
 #. i18n: The title of the 404 - Not found error page
 #: ../midori/midori-view.c:1283
 #, c-format
 msgid "Not found - %s"
-msgstr ""
+msgstr "Niet gevonden - %s"
 
 #: ../midori/midori-view.c:1520 ../midori/midori-view.c:2357
 #, c-format
 msgid "Send a message to %s"
-msgstr ""
+msgstr "Stuur een bericht naar %s"
 
 #: ../midori/midori-view.c:2139 ../midori/midori-view.c:2519
 msgid "Inspect _Element"
-msgstr ""
+msgstr "_Element inspecteren"
 
 #: ../midori/midori-view.c:2191 ../midori/midori-view.c:2261
 msgid "Open Link in New _Tab"
 msgstr "Link in nieuw _tabblad openen"
 
 #: ../midori/midori-view.c:2195
-#, fuzzy
 msgid "Open Link in _Foreground Tab"
-msgstr "Link in nieuw _tabblad openen"
+msgstr "Link in nieuw tabblad op _voorgrond openen"
 
 #: ../midori/midori-view.c:2196
-#, fuzzy
 msgid "Open Link in _Background Tab"
-msgstr "Link in nieuw _tabblad openen"
+msgstr "Link in nieuw tabblad op _achtergrond openen"
 
 #: ../midori/midori-view.c:2199 ../midori/midori-view.c:2268
-#, fuzzy
 msgid "Open Link in New _Window"
-msgstr "In nieuw _venster openen"
+msgstr "Link in nieuw _venster openen"
 
 #: ../midori/midori-view.c:2202
-#, fuzzy
 msgid "Open Link as Web A_pplication"
-msgstr "Link in nieuw _tabblad openen"
+msgstr "Link als webt_oepassing openen"
 
 #: ../midori/midori-view.c:2205
-#, fuzzy
 msgid "Copy Link de_stination"
-msgstr "Locatie _opslaan"
+msgstr "Linkve_rwijzing kopiëren"
 
 #: ../midori/midori-view.c:2208 ../midori/midori-view.c:2280
 msgid "_Save Link destination"
@@ -1771,75 +1751,68 @@ msgstr "Locatie _downloaden"
 
 #: ../midori/midori-view.c:2213 ../midori/midori-view.c:2243
 #: ../midori/midori-view.c:2285
-#, fuzzy
 msgid "Download with Download _Manager"
-msgstr "Downloadbeheer"
+msgstr "Downloaden met Download_beheer"
 
 #: ../midori/midori-view.c:2222
-#, fuzzy
 msgid "Open _Image in New Tab"
-msgstr "In nieuw _tabblad openen"
+msgstr "Open _afbeelding in nieuw tabblad"
 
 #: ../midori/midori-view.c:2225
 msgid "Copy Image _Address"
-msgstr ""
+msgstr "_Adres van afbeelding kopiëren"
 
 #: ../midori/midori-view.c:2228
 msgid "Save I_mage"
-msgstr ""
+msgstr "A_fbeelding opslaan"
 
 #: ../midori/midori-view.c:2229
-#, fuzzy
 msgid "Download I_mage"
-msgstr "Downloadbeheer"
+msgstr "A_fbeelding downloaden"
 
 #: ../midori/midori-view.c:2236
 msgid "Copy Video _Address"
-msgstr ""
+msgstr "_Adres van video kopiëren"
 
 #: ../midori/midori-view.c:2239
-#, fuzzy
 msgid "Save _Video"
-msgstr "Bestand opslaan als"
+msgstr "_Video opslaan als"
 
 #: ../midori/midori-view.c:2239
-#, fuzzy
 msgid "Download _Video"
-msgstr "Downloadmap"
+msgstr "_Video downloaden"
 
 #: ../midori/midori-view.c:2302
 msgid "Search _with"
-msgstr ""
+msgstr "Zoeken _met"
 
 #: ../midori/midori-view.c:2337 ../midori/midori-view.c:2344
 msgid "_Search the Web"
-msgstr ""
+msgstr "_Zoek op internet"
 
 #: ../midori/midori-view.c:2365
-#, fuzzy
 msgid "Open Address in New _Tab"
-msgstr "In nieuw _tabblad openen"
+msgstr "Adres in nieuw _tabblad openen"
 
 #: ../midori/midori-view.c:2661
-#, fuzzy
 msgid "Open or download file"
-msgstr "Bestand openen"
+msgstr "Bestand openen of downloaden"
 
 #: ../midori/midori-view.c:2680
 #, c-format
 msgid "File Type: '%s'"
-msgstr ""
+msgstr "Bestandstype: '%s'"
 
 #: ../midori/midori-view.c:2683
 #, c-format
 msgid "File Type: %s ('%s')"
-msgstr ""
+msgstr "Bestandstype: %s ('%s')"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
 #: ../midori/midori-view.c:2687
-#, fuzzy, c-format
+#, c-format
 msgid "Open %s"
-msgstr "Bestand openen"
+msgstr "Openen %s"
 
 #: ../midori/midori-view.c:3231
 #, c-format
@@ -1848,15 +1821,15 @@ msgstr "Pagina analyseren - %s"
 
 #: ../midori/midori-view.c:3513
 msgid "Speed dial"
-msgstr ""
+msgstr "Snelkeuze"
 
 #: ../midori/midori-view.c:3514
 msgid "Click to add a shortcut"
-msgstr ""
+msgstr "Klik om een snelkeuze toe te voegen"
 
 #: ../midori/midori-view.c:3515
 msgid "Enter shortcut address"
-msgstr ""
+msgstr "Geef adres voor snelkeuze"
 
 #: ../midori/midori-view.c:3516
 msgid "Enter shortcut title"
