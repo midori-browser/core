@@ -7488,6 +7488,7 @@ gint
 midori_browser_add_item (MidoriBrowser* browser,
                          KatzeItem*     item)
 {
+    const gchar* uri;
     const gchar* title;
     GtkWidget* view;
     gint page;
@@ -7497,20 +7498,23 @@ midori_browser_add_item (MidoriBrowser* browser,
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
 
+    uri = katze_item_get_uri (item);
     title = katze_item_get_name (item);
     view = g_object_new (MIDORI_TYPE_VIEW,
                          "title", title,
                          "settings", browser->settings,
                          NULL);
-    if (katze_item_get_meta_integer (item, "delay") > 0)
+    /* Blank pages should not be delayed */
+    if (katze_item_get_meta_integer (item, "delay") > 0
+     && uri != NULL && strcmp (uri, "about:blank") != 0)
     {
         gchar* new_uri;
-        new_uri = g_strdup_printf ("pause:%s", katze_item_get_uri (item));
+        new_uri = g_strdup_printf ("pause:%s", uri);
         midori_view_set_uri (MIDORI_VIEW (view), new_uri);
         g_free (new_uri);
     }
     else
-        midori_view_set_uri (MIDORI_VIEW (view), katze_item_get_uri (item));
+        midori_view_set_uri (MIDORI_VIEW (view), uri);
 
     gtk_widget_show (view);
 
