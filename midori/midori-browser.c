@@ -269,17 +269,6 @@ _midori_browser_update_actions (MidoriBrowser* browser)
     }
 }
 
-static gboolean
-midori_browser_view_can_set_encoding (MidoriView* view)
-{
-    static GParamSpec* pspec = NULL;
-    if (G_UNLIKELY (!pspec))
-        pspec = g_object_class_find_property (
-        g_type_class_peek (WEBKIT_TYPE_WEB_VIEW), "custom-encoding");
-    /* Web views and zoom, source views can't, so zoom means encoding */
-    return pspec && midori_view_can_zoom_in (view);
-}
-
 static void
 _midori_browser_update_interface (MidoriBrowser* browser)
 {
@@ -313,8 +302,10 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "ZoomOut", midori_view_can_zoom_out (view));
     _action_set_sensitive (browser, "ZoomNormal",
         midori_view_get_zoom_level (view) != 1.0f);
+    #if WEBKIT_CHECK_VERSION (1, 1, 2)
     _action_set_sensitive (browser, "Encoding",
-        midori_browser_view_can_set_encoding (view));
+        midori_view_can_view_source (view));
+    #endif
     _action_set_sensitive (browser, "SourceView",
         midori_view_can_view_source (view));
     _action_set_sensitive (browser, "Find",
@@ -3625,8 +3616,9 @@ _action_view_encoding_activate (GtkAction*     action,
                                 GtkAction*     current,
                                 MidoriBrowser* browser)
 {
+    #if WEBKIT_CHECK_VERSION (1, 1, 2)
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (view && midori_browser_view_can_set_encoding (MIDORI_VIEW (view)))
+    if (view)
     {
         const gchar* name;
         GtkWidget* web_view;
@@ -3655,6 +3647,7 @@ _action_view_encoding_activate (GtkAction*     action,
             g_object_set (web_view, "custom-encoding", encoding, NULL);
         }
     }
+    #endif
 }
 
 static gchar*
@@ -6500,6 +6493,9 @@ midori_browser_init (MidoriBrowser* browser)
     #endif
     #if !WEBKIT_CHECK_VERSION (1, 1, 3)
     _action_set_visible (browser, "Transferbar", FALSE);
+    #endif
+    #if !WEBKIT_CHECK_VERSION (1, 1, 2)
+    _action_set_sensitive (browser, "Encoding", FALSE);
     #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_visible (browser, "LastSession", FALSE);
