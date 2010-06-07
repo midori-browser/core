@@ -3455,7 +3455,7 @@ midori_view_set_uri (MidoriView*  view,
     /* Treat "about:blank" and "" equally, see midori_view_is_blank(). */
     if (!uri || !strcmp (uri, "about:blank")) uri = "";
 
-    if (1)
+    if (g_getenv ("MIDORI_UNARMED") == NULL)
     {
         if (!view->web_view)
             midori_view_construct_web_view (view);
@@ -4674,6 +4674,9 @@ midori_view_get_previous_page (MidoriView* view)
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
+    if (!view->web_view)
+        return NULL;
+
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
@@ -4730,6 +4733,9 @@ midori_view_get_next_page (MidoriView* view)
     JSContextRef js_context;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+
+    if (!view->web_view)
+        return NULL;
 
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);

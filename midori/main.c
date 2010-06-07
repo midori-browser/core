@@ -1200,7 +1200,8 @@ midori_load_extensions (gpointer data)
     }
     g_strfreev (active_extensions);
 
-    g_idle_add (midori_load_netscape_plugins, app);
+    if (g_getenv ("MIDORI_UNARMED") == NULL)
+        g_idle_add (midori_load_netscape_plugins, app);
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)
