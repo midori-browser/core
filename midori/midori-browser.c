@@ -3367,12 +3367,6 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "Find" },
       #else
       { "Print" },
-      { "About" },
-      { NULL },
-      { "Menubar" },
-      { "Bookmarkbar" },
-      { "Panel" },
-      { "Statusbar" },
       { NULL },
       { "-" },
       { "ClearPrivateData" },
@@ -3381,6 +3375,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       #endif
       { "Fullscreen" },
       #endif
+      { "About" },
       { "Preferences" },
       #if HAVE_HILDON
       { "auto-load-images" },
