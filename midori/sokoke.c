@@ -1103,22 +1103,15 @@ sokoke_key_file_save_to_file (GKeyFile*    key_file,
                               GError**     error)
 {
     gchar* data;
-    FILE* fp;
+    gboolean success = FALSE;
 
     data = g_key_file_to_data (key_file, NULL, error);
     if (!data)
         return FALSE;
 
-    if (!(fp = fopen (filename, "w")))
-    {
-        *error = g_error_new (G_FILE_ERROR, G_FILE_ERROR_ACCES,
-                              _("Writing failed."));
-        return FALSE;
-    }
-    fputs (data, fp);
-    fclose (fp);
+    success = g_file_set_contents (filename, data, -1, error);
     g_free (data);
-    return TRUE;
+    return success;
 }
 
 void
