@@ -1035,6 +1035,7 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
+    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
 
     if (uri)
     {
