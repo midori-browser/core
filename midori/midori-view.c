@@ -4680,9 +4680,11 @@ midori_view_get_previous_page (MidoriView* view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
-        "(function (l) {"
+        "(function (g) {"
         "var ind = ['prev','←','«','&lt;'];"
         "var nind = ['next','→','»','&gt;'];"
+        "for (h in g) {"
+        "l = g[h];"
         "for (i in l)"
         "if (l[i].rel && (l[i].rel == ind[0]))"
         "return l[i].href;"
@@ -4708,10 +4710,12 @@ midori_view_get_previous_page (MidoriView* view)
         "}"
         "for (j in cand)"
         "for (i in l)"
-        "if (l[i].href && (l[i].href.indexOf (cand[j]) == 0))"
+        "if (cand[j].length && l[i].href && (l[i].href.indexOf (cand[j]) == 0))"
         "return l[i].href;"
+        "}"
         "return 0;"
-        "}) (document.getElementsByTagName ('a'));", NULL));
+        "}) ([document.getElementsByTagName ('link'),"
+        "document.getElementsByTagName ('a')]);", NULL));
     return uri && uri[0] != '0' ? uri : NULL;
 }
 
@@ -4740,9 +4744,11 @@ midori_view_get_next_page (MidoriView* view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
-        "(function (l) {"
+        "(function (g) {"
         "var ind = ['next','→','»','&gt;'];"
         "var nind = ['prev','←','«','&lt;'];"
+        "for (h in g) {"
+        "l = g[h];"
         "for (i in l)"
         "if (l[i].rel && (l[i].rel == ind[0]))"
         "return l[i].href;"
@@ -4768,10 +4774,12 @@ midori_view_get_next_page (MidoriView* view)
         "}"
         "for (j in cand)"
         "for (i in l)"
-        "if (l[i].href && (l[i].href.indexOf (cand[j]) == 0))"
+        "if (cand[j].length && l[i].href && (l[i].href.indexOf (cand[j]) == 0))"
         "return l[i].href;"
+        "}"
         "return 0;"
-        "}) (document.getElementsByTagName ('a'));", NULL));
+        "}) ([document.getElementsByTagName ('link'),"
+        "document.getElementsByTagName ('a')]);", NULL));
     return uri && uri[0] != '0' ? uri : NULL;
 }
 #if WEBKIT_CHECK_VERSION (1, 1, 5)
