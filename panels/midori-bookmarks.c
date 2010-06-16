@@ -531,14 +531,11 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
 {
     GtkTreeModel* model;
 
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
     if (bookmarks->array)
     {
         g_object_unref (bookmarks->array);
-        model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
         gtk_tree_store_clear (GTK_TREE_STORE (model));
-        #if HAVE_SQLITE
-        midori_bookmarks_read_from_db (bookmarks, GTK_TREE_STORE (model), NULL, "");
-        #endif
     }
     katze_assign (bookmarks->app, app);
     if (!app)
@@ -546,6 +543,10 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
 
     g_object_ref (app);
     bookmarks->array = katze_object_get_object (app, "bookmarks");
+
+    #if HAVE_SQLITE
+    midori_bookmarks_read_from_db (bookmarks, GTK_TREE_STORE (model), NULL, "");
+    #endif
 }
 
 static void
