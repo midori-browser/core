@@ -175,6 +175,17 @@ midori_browser_get_property (GObject*    object,
                              GValue*     value,
                              GParamSpec* pspec);
 
+#if HAVE_SQLITE
+void
+midori_bookmarks_insert_item_db (sqlite3*   db,
+                                 KatzeItem* item,
+                                 gchar*     folder);
+
+void
+midori_bookmarks_remove_item_from_db (sqlite3*   db,
+                                      KatzeItem* item);
+#endif
+
 static void
 midori_browser_new_history_item (MidoriBrowser* browser,
                                  KatzeItem**    item);
@@ -891,6 +902,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         gchar* selected;
         KatzeArray* folder;
+        #if HAVE_SQLITE
+        sqlite3* db;
+
+        db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
+        #endif
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
@@ -914,26 +930,15 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
         folder = browser->bookmarks;
         selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
-        if (strcmp (selected, _("Toplevel folder")))
-        {
-            guint i = 0;
-            KatzeItem* item;
-            while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
-                if (KATZE_IS_ARRAY (item))
-                    if (!g_strcmp0 (katze_item_get_name (item), selected))
-                    {
-                        folder = KATZE_ARRAY (item);
-                        break;
-                    }
-        }
+
+        #if HAVE_SQLITE
+        midori_bookmarks_remove_item_from_db (db, bookmark);
+        if (!strcmp (selected, _("Toplevel folder")))
+            midori_bookmarks_insert_item_db (db, bookmark, "");
+        else
+            midori_bookmarks_insert_item_db (db, bookmark, selected);
+        #endif
         g_free (selected);
-        if (folder != katze_item_get_parent (bookmark) && folder != browser->bookmarks)
-        {
-            katze_array_remove_item (katze_item_get_parent (bookmark), bookmark);
-            new_bookmark = TRUE;
-        }
-        if (new_bookmark)
-            katze_array_add_item (folder, bookmark);
     }
     gtk_widget_destroy (dialog);
 }

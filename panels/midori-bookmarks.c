@@ -131,7 +131,7 @@ midori_bookmarks_import_array_db (KatzeArray* array,
         if (KATZE_IS_ARRAY (list->data))
             midori_bookmarks_import_array_db (list->data, db);
         item = (KatzeItem*) list->data;
-        midori_bookmarks_insert_item_db (db, item);
+        midori_bookmarks_insert_item_db (db, item, NULL);
     }
 }
 
@@ -203,7 +203,8 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
 
 void
 midori_bookmarks_insert_item_db (sqlite3*   db,
-                                 KatzeItem* item)
+                                 KatzeItem* item,
+                                 gchar*     folder)
 {
     gchar* sqlcmd;
     char* errmsg = NULL;
@@ -215,7 +216,9 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
     else
         type = 0;
 
-    if (katze_item_get_name (katze_item_get_parent (item)))
+    if (folder)
+        parent = g_strdup (folder);
+    else if (katze_item_get_name (katze_item_get_parent (item)))
         parent = g_strdup (katze_item_get_name (katze_item_get_parent (item)));
     else
         parent = g_strdup ("");
@@ -238,22 +241,17 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
     sqlite3_free (sqlcmd);
 }
 
-static void
-midori_bookmarks_remove_item_from_db (MidoriBookmarks* bookmarks,
-                                      KatzeItem*       item)
+void
+midori_bookmarks_remove_item_from_db (sqlite3*   db,
+                                      KatzeItem* item)
 {
     gchar* sqlcmd;
-    sqlite3* db;
     char* errmsg = NULL;
-
-    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
 
     if (katze_item_get_uri (item))
         sqlcmd = sqlite3_mprintf (
-            "DELETE FROM bookmarks WHERE uri = '%q' AND"
-            " title = '%q'",
-            katze_item_get_uri (item),
-            katze_item_get_name (item));
+            "DELETE FROM bookmarks WHERE uri = '%q'",
+            katze_item_get_uri (item));
     else
        sqlcmd = sqlite3_mprintf (
             "DELETE FROM bookmarks WHERE folder = '%q'", katze_item_get_name (item));
@@ -264,7 +262,6 @@ midori_bookmarks_remove_item_from_db (MidoriBookmarks* bookmarks,
         sqlite3_free (errmsg);
     }
 
-    g_debug ("%s", sqlcmd);
     sqlite3_free (sqlcmd);
 }
 #endif
@@ -292,13 +289,12 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        is_separator = !KATZE_IS_ARRAY (item) && !katze_item_get_uri (item);
+        is_separator = item && !katze_item_get_uri (item);
         if (!is_separator)
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
             midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
         }
-
         g_object_unref (item);
     }
 }
@@ -309,6 +305,11 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
+    #if HAVE_SQLITE
+    sqlite3* db;
+
+    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
+    #endif
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (bookmarks->treeview),
                                            &model, &iter))
@@ -318,7 +319,7 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
         #if HAVE_SQLITE
-        midori_bookmarks_remove_item_from_db (bookmarks, item);
+        midori_bookmarks_remove_item_from_db (db, item);
         #endif
         gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
 
@@ -705,10 +706,14 @@ midori_bookmarks_delete_activate_cb (GtkWidget*       menuitem,
                                      MidoriBookmarks* bookmarks)
 {
     KatzeItem* item;
+    #if HAVE_SQLITE
+    sqlite3* db;
+    #endif
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     #if HAVE_SQLITE
-    midori_bookmarks_remove_item_from_db (bookmarks, item);
+    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
+    midori_bookmarks_remove_item_from_db (db, item);
     #endif
     /* FIXME: Refresh menu */
 }
