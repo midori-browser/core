@@ -474,6 +474,7 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
 
     g_object_ref (app);
     bookmarks->array = katze_object_get_object (app, "bookmarks");
+    g_object_set_data (G_OBJECT (bookmarks->array), "treeview", bookmarks->treeview);
 
     #if HAVE_SQLITE
     midori_bookmarks_read_from_db (bookmarks, GTK_TREE_STORE (model), NULL, "");
@@ -729,13 +730,19 @@ midori_bookmarks_delete_activate_cb (GtkWidget*       menuitem,
     #if HAVE_SQLITE
     sqlite3* db;
     #endif
+    GtkTreeModel* model;
+    GtkTreeIter iter;
 
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    #if HAVE_SQLITE
-    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
-    midori_bookmarks_remove_item_from_db (db, item);
-    #endif
-    /* FIXME: Refresh menu */
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (bookmarks->treeview),
+                                           &model, &iter))
+    {
+        item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+        #if HAVE_SQLITE
+        db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
+        midori_bookmarks_remove_item_from_db (db, item);
+        #endif
+        gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
+    }
 }
 
 static void
