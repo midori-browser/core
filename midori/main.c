@@ -428,6 +428,30 @@ midori_history_terminate (sqlite3* db,
     g_free (sqlcmd);
     sqlite3_close (db);
 }
+
+static sqlite3*
+midori_bookmarks_initialize (KatzeArray*  array,
+                             const gchar* filename,
+                             char**       errmsg)
+{
+    sqlite3* db;
+
+    if (sqlite3_open (filename, &db) != SQLITE_OK)
+    {
+        if (errmsg)
+            *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
+                                       sqlite3_errmsg (db));
+        sqlite3_close (db);
+        return NULL;
+    }
+
+    if (sqlite3_exec (db,
+                      "CREATE TABLE IF NOT EXISTS "
+                      "bookmarks (uri text, title text, folder text, type integer);",
+                      NULL, NULL, errmsg) != SQLITE_OK)
+        return NULL;
+    return db;
+}
 #endif
 
 static void
@@ -1924,24 +1948,19 @@ main (int    argc,
     midori_startup_timer ("Search read: \t%f");
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    #if HAVE_LIBXML
-    katze_assign (config_file, build_config_filename (BOOKMARK_FILE));
-    error = NULL;
-    if (!midori_array_from_file (bookmarks, config_file, "xbel", &error))
+    #if HAVE_SQLITE
+    katze_assign (config_file, build_config_filename ("bookmarks.db"));
+    errmsg = NULL;
+    if ((db = midori_bookmarks_initialize (bookmarks, config_file, &errmsg)) == NULL)
     {
-        if (error->code == G_FILE_ERROR_NOENT)
-        {
-            katze_assign (config_file,
-                sokoke_find_config_filename (NULL, "bookmarks.xbel"));
-            midori_array_from_file (bookmarks, config_file, "xbel", NULL);
-        }
-        else
-            g_string_append_printf (error_messages,
-                _("The bookmarks couldn't be loaded: %s\n"), error->message);
-        g_error_free (error);
+        g_string_append_printf (error_messages,
+            _("Bookmarks couldn't be loaded: %s\n"), errmsg);
+        g_free (errmsg);
     }
+    else
+        g_object_set_data (G_OBJECT (bookmarks), "db", db);
     #endif
-    midori_startup_timer ("Bkmarks read: \t%f");
+    midori_startup_timer ("Bookmarks read: \t%f");
 
     _session = katze_array_new (KATZE_TYPE_ITEM);
     #if HAVE_LIBXML
