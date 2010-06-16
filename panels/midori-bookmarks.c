@@ -274,7 +274,9 @@ midori_bookmarks_remove_item_from_db (sqlite3*   db,
             katze_item_get_uri (item));
     else
        sqlcmd = sqlite3_mprintf (
-            "DELETE FROM bookmarks WHERE folder = '%q'", katze_item_get_name (item));
+            "DELETE FROM bookmarks WHERE folder = '%q' OR title = '%q'",
+            katze_item_get_name (item),
+            katze_item_get_name (item));
 
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {

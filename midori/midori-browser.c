@@ -720,9 +720,16 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* combo_folder;
     GtkWidget* check_toolbar;
     GtkWidget* check_app;
+    #if HAVE_SQLITE
+    sqlite3* db;
+    #endif
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
+
+    #if HAVE_SQLITE
+    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
+    #endif
 
     if (is_folder)
         title = new_bookmark ? _("New folder") : _("Edit folder");
@@ -815,8 +822,12 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         GtkListStore* model;
         GtkCellRenderer* renderer;
-        KatzeItem* item;
+        #if HAVE_SQLITE
         guint i, n;
+        sqlite3_stmt* statement;
+        gint result;
+        const gchar* sqlcmd;
+        #endif
 
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 4);
@@ -833,22 +844,25 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, -1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), 0);
 
+        #if HAVE_SQLITE
         i = 0;
         n = 1;
-        while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
+        sqlcmd = "SELECT title from bookmarks where type=0";
+        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+        while ((result = sqlite3_step (statement)) == SQLITE_ROW)
         {
-            if (KATZE_IS_ARRAY (item) && item != bookmark)
-            {
-                const gchar* name = katze_item_get_name (item);
+                const unsigned char* name = sqlite3_column_text (statement, 0);
                 gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                     0, name, 1, PANGO_ELLIPSIZE_END, -1);
-                if (katze_item_get_parent (bookmark) == item)
-                    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), n);
+                /* FIXME: Not working */
+                /*if (katze_item_get_parent (bookmark) == item)
+                    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), n);*/
                 n++;
-            }
         }
         if (n < 2)
             gtk_widget_set_sensitive (combo_folder, FALSE);
+        #endif
+
         gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
@@ -902,11 +916,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         gchar* selected;
         KatzeArray* folder;
-        #if HAVE_SQLITE
-        sqlite3* db;
-
-        db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-        #endif
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
