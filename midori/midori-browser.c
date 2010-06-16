@@ -912,6 +912,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
         katze_item_set_text (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_desc)));
+        /* FIXME: Toolbar is not working?? */
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar))
             ? 1 : -1);

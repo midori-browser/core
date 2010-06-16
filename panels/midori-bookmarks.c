@@ -151,7 +151,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
 
     db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
 
-    sqlcmd = "SELECT uri, title, type from bookmarks where folder = ?"
+    sqlcmd = "SELECT uri, title, type, app, toolbar from bookmarks where folder = ?"
              " ORDER BY type DESC";
     result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
     sqlite3_bind_text (statement, 1, g_strdup(folder), -1, g_free);
@@ -162,6 +162,8 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     while ((result = sqlite3_step (statement)) == SQLITE_ROW)
     {
         gint type;
+        gint app;
+        gint toolbar;
         KatzeItem* item;
         const unsigned char* uri;
         const unsigned char* title;
@@ -169,9 +171,18 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
         uri = sqlite3_column_text (statement, 0);
         title = sqlite3_column_text (statement, 1);
         type = sqlite3_column_int64 (statement, 2);
+        app = sqlite3_column_int64 (statement, 3);
+        toolbar = sqlite3_column_int64 (statement, 4);
+
+
+        if (app == 0)
+            app = -1;
+        if (toolbar == 0)
+            toolbar = -1;
 
         item = katze_item_new ();
         katze_item_set_name (item, (gchar*)title);
+        katze_item_set_meta_integer (item, "toolbar", toolbar);
 
         /* type 0 -- folder, 1 -- entry */
         if (type == 0)
@@ -188,6 +199,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
                 continue;
 
             katze_item_set_uri (item, (gchar*)uri);
+            katze_item_set_meta_integer (item, "app", app);
             gtk_tree_store_insert_with_values (model, NULL, parent,
                 0, 0, item, -1);
         }
@@ -223,17 +235,25 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
     else
         parent = g_strdup ("");
 
+    if (katze_item_get_meta_integer (item, "toolbar") == -1)
+        katze_item_set_meta_integer (item, "toolbar", 0);
+
+    if (katze_item_get_meta_integer (item, "app") == -1)
+        katze_item_set_meta_integer (item, "app", 0);
+
     sqlcmd = sqlite3_mprintf (
-            "INSERT into bookmarks (uri, title, folder, type) values"
-            " ('%q', '%q', '%q', %u)",
+            "INSERT into bookmarks (uri, title, folder, type, toolbar, app) values"
+            " ('%q', '%q', '%q', %u, %u, %u)",
             katze_item_get_uri (item),
             katze_item_get_name (item),
             parent,
-            type);
+            type,
+            katze_item_get_meta_integer (item, "toolbar"),
+            katze_item_get_meta_integer (item, "app"));
 
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
-        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        g_printerr (_("Failed to add bookmark item: %s\n"), errmsg);
         sqlite3_free (errmsg);
     }
 
