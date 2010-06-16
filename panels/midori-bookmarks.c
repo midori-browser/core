@@ -289,6 +289,33 @@ midori_bookmarks_remove_item_from_db (sqlite3*   db,
 #endif
 
 static void
+midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
+                                 GtkTreePath*     path,
+                                 GtkTreeIter*     iter,
+                                 MidoriBookmarks* bookmarks)
+{
+    KatzeItem* parent_item;
+    KatzeItem* item;
+    GtkTreeIter parent;
+    sqlite3* db;
+    gchar* parent_name;
+
+    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
+    gtk_tree_model_get (model, iter, 0, &item, -1);
+
+    if (gtk_tree_model_iter_parent (model, &parent, iter))
+    {
+        gtk_tree_model_get (model, &parent , 0, &parent_item, -1);
+        parent_name = g_strdup (katze_item_get_name (parent_item));
+    }
+    else
+        parent_name = g_strdup ("");
+
+    midori_bookmarks_remove_item_from_db (db, item);
+    midori_bookmarks_insert_item_db (db, item, parent_name);
+}
+
+static void
 midori_bookmarks_add_clicked_cb (GtkWidget* toolitem)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
@@ -480,6 +507,9 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
 
     #if HAVE_SQLITE
     midori_bookmarks_read_from_db (bookmarks, GTK_TREE_STORE (model), NULL, "");
+    g_signal_connect_after (model, "row-changed",
+                            G_CALLBACK (midori_bookmarks_row_changed_cb),
+                            bookmarks);
     #endif
 }
 
@@ -925,6 +955,7 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
         (GtkTreeCellDataFunc)midori_bookmarks_treeview_render_text_cb,
         treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
+    gtk_tree_view_set_reorderable (GTK_TREE_VIEW (treeview), TRUE);
     g_object_unref (model);
     g_object_connect (treeview,
                       "signal::row-activated",
