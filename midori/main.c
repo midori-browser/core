@@ -452,6 +452,24 @@ midori_bookmarks_initialize (KatzeArray*  array,
         return NULL;
     return db;
 }
+
+static void
+midori_bookmarks_import (const gchar* filename,
+                         sqlite3*     db)
+{
+    KatzeArray* bookmarks;
+    GError* error = NULL;
+
+    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
+
+    if (!midori_array_from_file (bookmarks, filename, "xbel", &error))
+    {
+        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
+        g_error_free (error);
+        return;
+    }
+    midori_bookmarks_import_array_db (bookmarks, db);
+}
 #endif
 
 static void
@@ -521,105 +539,6 @@ midori_search_engines_modify_cb (KatzeArray* array,
         g_error_free (error);
     }
     g_free (config_file);
-}
-
-static void
-midori_bookmarks_notify_item_cb (KatzeArray* folder,
-                                 GParamSpec* pspec,
-                                 KatzeArray* bookmarks)
-{
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename (BOOKMARK_FILE);
-    error = NULL;
-    if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
-    {
-        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-}
-
-static void
-midori_bookmarks_add_item_cb (KatzeArray* folder,
-                              KatzeItem*  item,
-                              KatzeArray* bookmarks);
-
-static void
-midori_bookmarks_remove_item_cb (KatzeArray* folder,
-                                 GObject*    item,
-                                 KatzeArray* bookmarks);
-
-static void
-midori_bookmarks_connect_item (KatzeArray* folder,
-                               KatzeItem*  item,
-                               KatzeArray* bookmarks)
-{
-    if (KATZE_IS_ARRAY (item))
-    {
-        KatzeItem* child;
-        guint i = 0;
-        while ((child = katze_array_get_nth_item ((KatzeArray*)item, i++)))
-            midori_bookmarks_connect_item ((KatzeArray*)item, child, bookmarks);
-
-        g_signal_connect_after (item, "add-item",
-            G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
-        g_signal_connect_after (item, "remove-item",
-            G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
-    }
-
-    g_signal_connect_after (item, "notify",
-        G_CALLBACK (midori_bookmarks_notify_item_cb), bookmarks);
-}
-
-static void
-midori_bookmarks_add_item_cb (KatzeArray* folder,
-                              KatzeItem*  item,
-                              KatzeArray* bookmarks)
-{
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename (BOOKMARK_FILE);
-    error = NULL;
-    if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
-    {
-        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-
-    midori_bookmarks_connect_item (folder, item, bookmarks);
-}
-
-static void
-midori_bookmarks_remove_item_cb (KatzeArray* folder,
-                                 GObject*    item,
-                                 KatzeArray* bookmarks)
-{
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename (BOOKMARK_FILE);
-    error = NULL;
-    if (!midori_array_to_file (bookmarks, config_file, "xbel", &error))
-    {
-        g_warning (_("The bookmarks couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-
-    if (KATZE_IS_ARRAY (item))
-    {
-        g_signal_handlers_disconnect_by_func (item,
-            midori_bookmarks_add_item_cb, bookmarks);
-        g_signal_handlers_disconnect_by_func (item,
-            midori_bookmarks_remove_item_cb, bookmarks);
-    }
-
-    g_signal_handlers_disconnect_by_func (item,
-        midori_bookmarks_notify_item_cb, bookmarks);
 }
 
 static void
@@ -1958,7 +1877,16 @@ main (int    argc,
         g_free (errmsg);
     }
     else
+    {
+        gchar* old_bookmarks = build_config_filename (BOOKMARK_FILE);
+        if (g_access (old_bookmarks, F_OK) == 0)
+        {
+            midori_bookmarks_import (old_bookmarks, db);
+            g_unlink(old_bookmarks);
+        }
+        g_free (old_bookmarks);
         g_object_set_data (G_OBJECT (bookmarks), "db", db);
+    }
     #endif
     midori_startup_timer ("Bookmarks read: \t%f");
 
@@ -2088,16 +2016,6 @@ main (int    argc,
                 g_signal_connect_after (item, "notify",
                     G_CALLBACK (midori_search_engines_modify_cb), search_engines);
         }
-    }
-    katze_assign (config_file, build_config_filename (BOOKMARK_FILE));
-    /* Don't save bookmarks if they are not our own */
-    if (!g_path_is_absolute (BOOKMARK_FILE))
-    {
-        midori_bookmarks_connect_item (NULL, (KatzeItem*)bookmarks, bookmarks);
-        g_signal_connect_after (bookmarks, "add-item",
-            G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
-        g_signal_connect_after (bookmarks, "remove-item",
-            G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
     }
     katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
     g_signal_connect_after (trash, "add-item",
