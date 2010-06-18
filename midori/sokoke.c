@@ -1683,6 +1683,39 @@ sokoke_window_activate_key (GtkWindow*   window,
 }
 
 /**
+ * sokoke_gtk_action_count_modifiers:
+ * @action: a #GtkAction
+ *
+ * Counts the number of modifiers in the accelerator
+ * belonging to the action.
+ *
+ * Return value: the number of modifiers
+ **/
+guint
+sokoke_gtk_action_count_modifier (GtkAction* action)
+{
+    GtkAccelKey key;
+    gint mods, cmods = 0;
+    const gchar* accel_path;
+
+    g_return_val_if_fail (GTK_IS_ACTION (action), 0);
+
+    accel_path = gtk_action_get_accel_path (action);
+    if (accel_path)
+        if (gtk_accel_map_lookup_entry (accel_path, &key))
+        {
+            mods = key.accel_mods;
+            while (mods)
+            {
+                if (1 & mods >> 0)
+                    cmods++;
+                mods = mods >> 1;
+            }
+        }
+    return cmods;
+}
+
+/**
  * sokoke_file_chooser_dialog_new:
  * @title: a window title, or %NULL
  * @window: a parent #GtkWindow, or %NULL

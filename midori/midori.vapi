@@ -149,5 +149,10 @@ namespace Midori {
     public class WebSettings : WebKit.WebSettings {
         public WebSettings ();
     }
+
+    [CCode (cheader_filename = "midori/sokoke.h", lower_case_cprefix = "sokoke_")]
+    namespace Sokoke {
+        public static uint gtk_action_count_modifiers (Gtk.Action action);
+    }
 }
 

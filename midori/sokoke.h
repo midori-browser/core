@@ -227,6 +227,8 @@ sokoke_replace_variables                (const gchar* template,
 gboolean
 sokoke_window_activate_key              (GtkWindow*      window,
                                          GdkEventKey*    event);
+guint
+sokoke_gtk_action_count_modifiers       (GtkAction* action);
 
 GtkWidget*
 sokoke_file_chooser_dialog_new          (const gchar*         title,
