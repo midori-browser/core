@@ -174,12 +174,6 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
         app = sqlite3_column_int64 (statement, 3);
         toolbar = sqlite3_column_int64 (statement, 4);
 
-
-        if (app == 0)
-            app = -1;
-        if (toolbar == 0)
-            toolbar = -1;
-
         item = katze_item_new ();
         katze_item_set_name (item, (gchar*)title);
         katze_item_set_meta_integer (item, "toolbar", toolbar);
@@ -234,12 +228,6 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
         parent = g_strdup (katze_item_get_name (katze_item_get_parent (item)));
     else
         parent = g_strdup ("");
-
-    if (katze_item_get_meta_integer (item, "toolbar") == -1)
-        katze_item_set_meta_integer (item, "toolbar", 0);
-
-    if (katze_item_get_meta_integer (item, "app") == -1)
-        katze_item_set_meta_integer (item, "app", 0);
 
     sqlcmd = sqlite3_mprintf (
             "INSERT into bookmarks (uri, title, folder, type, toolbar, app) values"

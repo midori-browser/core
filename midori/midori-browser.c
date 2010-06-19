@@ -893,7 +893,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in the tool_bar"));
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_toolbar),
-        katze_item_get_meta_string (bookmark, "toolbar") != NULL);
+        katze_item_get_meta_integer (bookmark, "toolbar"));
     gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
@@ -908,7 +908,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         check_app = gtk_check_button_new_with_mnemonic (_("Run as _web application"));
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
-            katze_item_get_meta_string (bookmark, "app") != NULL);
+            katze_item_get_meta_integer (bookmark, "app"));
         gtk_box_pack_start (GTK_BOX (hbox), check_app, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
@@ -926,15 +926,13 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             gtk_entry_get_text (GTK_ENTRY (entry_desc)));
         /* FIXME: Toolbar is not working?? */
         katze_item_set_meta_integer (bookmark, "toolbar",
-            gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar))
-            ? 1 : -1);
+            gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
         if (!KATZE_IS_ARRAY (bookmark))
         {
             katze_item_set_uri (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
             katze_item_set_meta_integer (bookmark, "app",
-                gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app))
-                ? 1 : -1);
+                gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app)));
         }
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
