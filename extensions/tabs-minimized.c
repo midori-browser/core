@@ -18,6 +18,11 @@ tabs_minimized_app_add_browser_cb (MidoriApp*       app,
                                    MidoriExtension* extension);
 
 static void
+tabs_minimized_add_tab_cb (MidoriBrowser*   browser,
+                           MidoriView*      tab,
+                           MidoriExtension* extension);
+
+static void
 tabs_minimized_deactivate_cb (MidoriExtension* extension,
                               MidoriBrowser*   browser)
 {
@@ -27,10 +32,12 @@ tabs_minimized_deactivate_cb (MidoriExtension* extension,
         extension, tabs_minimized_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, tabs_minimized_app_add_browser_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, tabs_minimized_add_tab_cb, extension);
 }
 
 static void
-tabs_minimized_add_tab_cb (MidoriApp*       app,
+tabs_minimized_add_tab_cb (MidoriBrowser*   browser,
                            MidoriView*      tab,
                            MidoriExtension* extension)
 {
