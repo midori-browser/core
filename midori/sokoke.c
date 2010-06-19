@@ -1692,7 +1692,7 @@ sokoke_window_activate_key (GtkWindow*   window,
  * Return value: the number of modifiers
  **/
 guint
-sokoke_gtk_action_count_modifier (GtkAction* action)
+sokoke_gtk_action_count_modifiers (GtkAction* action)
 {
     GtkAccelKey key;
     gint mods, cmods = 0;
