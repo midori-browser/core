@@ -591,7 +591,7 @@ adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 }
 
-static gboolean
+static inline gboolean
 adblock_check_filter_options (GRegex*       regex,
                               const gchar*  opts,
                               const gchar*  req_uri,
@@ -607,7 +607,7 @@ adblock_check_filter_options (GRegex*       regex,
     return FALSE;
 }
 
-static gboolean
+static inline gboolean
 adblock_is_matched_by_pattern (const gchar*  req_uri,
                                const gchar*  page_uri)
 {
@@ -634,7 +634,7 @@ adblock_is_matched_by_pattern (const gchar*  req_uri,
     return FALSE;
 }
 
-static gboolean
+static inline gboolean
 adblock_is_matched_by_key (const gchar*  opts,
                            const gchar*  req_uri,
                            const gchar*  page_uri)
