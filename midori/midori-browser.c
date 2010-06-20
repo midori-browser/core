@@ -11,10 +11,6 @@
  See the file COPYING for the full license text.
 */
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
 #include "midori-browser.h"
 
 #include "midori-array.h"
@@ -24,6 +20,7 @@
 #include "midori-locationaction.h"
 #include "midori-searchaction.h"
 #include "midori-stock.h"
+#include "midori-findbar.h"
 #include "midori-transferbar.h"
 
 #include "gtkiconentry.h"
@@ -55,6 +52,10 @@
     #include <sqlite3.h>
 #endif
 
+#if HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
 struct _MidoriBrowser
 {
     #if HAVE_HILDON
@@ -78,11 +79,6 @@ struct _MidoriBrowser
     GtkWidget* inspector_view;
 
     GtkWidget* find;
-    GtkWidget* find_text;
-    GtkToolItem* find_case;
-    GtkToolItem* find_highlight;
-    GtkToolItem* find_close;
-    gboolean find_typing;
 
     GtkWidget* statusbar;
     GtkWidget* statusbar_contents;
@@ -212,9 +208,6 @@ midori_search_action_get_icon (KatzeItem*    item,
                                GtkWidget*    widget,
                                const gchar** icon_name);
 
-static void
-_midori_browser_find_done (MidoriBrowser* browser);
-
 static gboolean
 _action_menus_activate_item_alt (GtkAction*     action,
                                  KatzeItem*     item,
@@ -328,7 +321,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_can_find (view));
     _action_set_sensitive (browser, "FindPrevious",
         midori_view_can_find (view));
-    gtk_widget_set_sensitive (GTK_WIDGET (browser->find_highlight),
+    midori_findbar_set_can_find (MIDORI_FINDBAR (browser->find),
         midori_view_can_find (view));
 
     action = gtk_action_group_get_action (browser->action_group, "ReloadStop");
@@ -1521,41 +1514,7 @@ midori_view_search_text_cb (GtkWidget*     view,
                             gchar*         typing,
                             MidoriBrowser* browser)
 {
-    const gchar* text;
-    gboolean case_sensitive;
-    gboolean highlight;
-
-    if (typing)
-    {
-        gint position = -1;
-
-        browser->find_typing = TRUE;
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (
-            browser->find_highlight), TRUE);
-        gtk_widget_hide (GTK_WIDGET (browser->find_case));
-        gtk_widget_hide (GTK_WIDGET (browser->find_highlight));
-        gtk_widget_hide (GTK_WIDGET (browser->find_close));
-        if (!gtk_widget_get_visible (browser->find))
-            gtk_entry_set_text (GTK_ENTRY (browser->find_text), "");
-        gtk_widget_show (browser->find);
-        gtk_window_set_focus (GTK_WINDOW (browser), browser->find_text);
-        gtk_editable_insert_text (GTK_EDITABLE (browser->find_text), typing, -1, &position);
-        gtk_editable_set_position (GTK_EDITABLE (browser->find_text), -1);
-    }
-    if (gtk_widget_get_visible (browser->find) && !typing)
-    {
-        #if !HAVE_HILDON
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
-            GTK_ICON_ENTRY_PRIMARY, (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
-        #endif
-        text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
-        case_sensitive = gtk_toggle_tool_button_get_active (
-            GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
-        midori_view_mark_text_matches (MIDORI_VIEW (view), text, case_sensitive);
-        highlight = gtk_toggle_tool_button_get_active (
-            GTK_TOGGLE_TOOL_BUTTON (browser->find_highlight));
-        midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
-    }
+    midori_findbar_search_text (MIDORI_FINDBAR (browser->find), view, found, typing);
 }
 
 static gboolean
@@ -2526,125 +2485,21 @@ static void
 _action_find_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
-    if (gtk_widget_get_visible (browser->find))
-        _midori_browser_find_done (browser);
-    else
-    {
-        GtkWidget* view;
-        const gchar* text;
-
-        #if !HAVE_HILDON
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
-                                            GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FIND);
-        gtk_widget_show (GTK_WIDGET (browser->find_case));
-        #endif
-        gtk_widget_show (GTK_WIDGET (browser->find_highlight));
-        gtk_widget_show (GTK_WIDGET (browser->find_close));
-        view = midori_browser_get_current_tab (browser);
-        if ((text = midori_view_get_selected_text (MIDORI_VIEW (view))))
-            gtk_entry_set_text (GTK_ENTRY (browser->find_text), text);
-        gtk_widget_show (browser->find);
-    }
-
-    gtk_widget_grab_focus (GTK_WIDGET (browser->find_text));
-}
-
-static void
-_midori_browser_find (MidoriBrowser* browser,
-                      gboolean       forward)
-{
-    const gchar* text;
-    gboolean case_sensitive;
-    GtkWidget* view;
-
-    if (!(view = midori_browser_get_current_tab (browser)))
-        return;
-
-    text = gtk_entry_get_text (GTK_ENTRY (browser->find_text));
-    case_sensitive = gtk_toggle_tool_button_get_active (
-        GTK_TOGGLE_TOOL_BUTTON (browser->find_case));
-    midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
-}
-
-static void
-_midori_browser_find_done (MidoriBrowser* browser)
-{
-    GtkWidget* view = midori_browser_get_current_tab (browser);
-    midori_view_unmark_text_matches (MIDORI_VIEW (view));
-    gtk_widget_hide (browser->find);
-    browser->find_typing = FALSE;
-    gtk_window_set_focus (GTK_WINDOW (browser), view);
+    midori_findbar_invoke (MIDORI_FINDBAR (browser->find));
 }
 
 static void
 _action_find_next_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    _midori_browser_find (browser, TRUE);
-}
-
-static void
-midori_browser_find_text_changed_cb (GtkWidget*     entry,
-                                     MidoriBrowser* browser)
-{
-    if (browser->find_typing)
-    {
-        GtkWidget* view = midori_browser_get_current_tab (browser);
-        const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
-        midori_view_unmark_text_matches (MIDORI_VIEW (view));
-        if (g_utf8_strlen (text, -1) > 2)
-            _midori_browser_find (browser, TRUE);
-    }
-}
-
-static gboolean
-midori_browser_find_text_focus_out_event_cb (GtkWidget*     entry,
-                                             GdkEventFocus* event,
-                                             MidoriBrowser* browser)
-{
-    if (browser->find_typing)
-        _midori_browser_find_done (browser);
-    return FALSE;
+    midori_findbar_find (MIDORI_FINDBAR (browser->find), TRUE);
 }
 
 static void
 _action_find_previous_activate (GtkAction*     action,
                                 MidoriBrowser* browser)
 {
-    _midori_browser_find (browser, FALSE);
-}
-
-static void
-_find_highlight_toggled (GtkToggleToolButton* toolitem,
-                         MidoriBrowser*       browser)
-{
-    GtkWidget* view;
-    gboolean highlight;
-
-    view = midori_browser_get_current_tab (browser);
-    highlight = gtk_toggle_tool_button_get_active (toolitem);
-    midori_view_set_highlight_text_matches (MIDORI_VIEW (view), highlight);
-}
-
-static gboolean
-midori_browser_find_key_press_event_cb (GtkWidget*     toolbar,
-                                        GdkEventKey*   event,
-                                        MidoriBrowser* browser)
-{
-    if (event->keyval == GDK_Escape)
-    {
-        _midori_browser_find_done (browser);
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-static void
-midori_browser_find_button_close_clicked_cb (GtkWidget*     widget,
-                                             MidoriBrowser* browser)
-{
-    _midori_browser_find_done (browser);
+    midori_findbar_find (MIDORI_FINDBAR (browser->find), FALSE);
 }
 
 static void
@@ -5806,16 +5661,6 @@ midori_browser_realize_cb (GtkStyle*      style,
 }
 
 static void
-midori_browser_entry_clear_icon_released_cb (GtkIconEntry* entry,
-                                             gint          icon_pos,
-                                             gint          button,
-                                             gpointer      user_data)
-{
-    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
-        gtk_entry_set_text (GTK_ENTRY (entry), "");
-}
-
-static void
 midori_browser_new_history_item (MidoriBrowser* browser,
                                  KatzeItem**    item)
 {
@@ -6031,7 +5876,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkSettings* gtk_settings;
     GtkWidget* hpaned;
     GtkWidget* vpaned;
-    GtkToolItem* toolitem;
     GtkRcStyle* rcstyle;
     GtkWidget* label;
     GtkWidget* scrolled;
@@ -6435,87 +6279,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_container_add (GTK_CONTAINER (scrolled), browser->inspector_view);
 
     /* Incremental findbar */
-    browser->find = gtk_toolbar_new ();
-    gtk_widget_set_name (browser->find, "MidoriFindbar");
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->find), GTK_ICON_SIZE_MENU);
-    gtk_toolbar_set_style (GTK_TOOLBAR (browser->find), GTK_TOOLBAR_BOTH_HORIZ);
-    g_signal_connect (browser->find, "key-press-event",
-        G_CALLBACK (midori_browser_find_key_press_event_cb), browser);
-    toolitem = gtk_tool_item_new ();
-    gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
-    gtk_container_add (GTK_CONTAINER (toolitem),
-        /* i18n: A panel at the bottom, to search text in pages */
-        gtk_label_new_with_mnemonic (_("_Inline Find:")));
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
-    browser->find_text = gtk_icon_entry_new ();
-    #if !HAVE_HILDON
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
-                                        GTK_ICON_ENTRY_PRIMARY,
-                                        GTK_STOCK_FIND);
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (browser->find_text),
-                                        GTK_ICON_ENTRY_SECONDARY,
-                                        GTK_STOCK_CLEAR);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (browser->find_text),
-                                       GTK_ICON_ENTRY_SECONDARY, TRUE);
-    #endif
-    g_signal_connect (browser->find_text, "icon-release",
-        G_CALLBACK (midori_browser_entry_clear_icon_released_cb), NULL);
-    g_signal_connect (browser->find_text, "activate",
-        G_CALLBACK (_action_find_next_activate), browser);
-    g_signal_connect (browser->find_text, "changed",
-        G_CALLBACK (midori_browser_find_text_changed_cb), browser);
-    g_signal_connect (browser->find_text, "focus-out-event",
-        G_CALLBACK (midori_browser_find_text_focus_out_event_cb), browser);
-    toolitem = gtk_tool_item_new ();
-    gtk_container_add (GTK_CONTAINER (toolitem), browser->find_text);
-    gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
-    #if HAVE_HILDON
-    browser->find_case = gtk_toggle_tool_button_new ();
-    browser->find_highlight = gtk_toggle_tool_button_new ();
-    #else
-    toolitem = (GtkToolItem*)gtk_action_create_tool_item
-        (_action_by_name (browser, "FindPrevious"));
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Previous"));
-    gtk_tool_item_set_is_important (toolitem, TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
-    toolitem = (GtkToolItem*)gtk_action_create_tool_item
-        (_action_by_name (browser, "FindNext"));
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Next"));
-    gtk_tool_item_set_is_important (toolitem, TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
-    browser->find_case = gtk_toggle_tool_button_new_from_stock (
-        GTK_STOCK_SPELL_CHECK);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (browser->find_case), _("Match Case"));
-    gtk_tool_item_set_is_important (GTK_TOOL_ITEM (browser->find_case), TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), browser->find_case, -1);
-    browser->find_highlight = gtk_toggle_tool_button_new_from_stock (
-        GTK_STOCK_SELECT_ALL);
-    #endif
-    g_signal_connect (browser->find_highlight, "toggled",
-                      G_CALLBACK (_find_highlight_toggled), browser);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (browser->find_highlight),
-                               _("Highlight Matches"));
-    gtk_tool_item_set_is_important (GTK_TOOL_ITEM (browser->find_highlight), TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), browser->find_highlight, -1);
-    toolitem = gtk_separator_tool_item_new ();
-    gtk_separator_tool_item_set_draw (
-        GTK_SEPARATOR_TOOL_ITEM (toolitem), FALSE);
-    #if !HAVE_HILDON
-    gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-    #endif
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), toolitem, -1);
-    browser->find_close = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (browser->find_close),
-                               _("Close Findbar"));
-    g_signal_connect (browser->find_close, "clicked",
-        G_CALLBACK (midori_browser_find_button_close_clicked_cb), browser);
-    #if HAVE_OSX
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), browser->find_close, 0);
-    #else
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->find), browser->find_close, -1);
-    #endif
-    sokoke_container_show_children (GTK_CONTAINER (browser->find));
+    browser->find = g_object_new (MIDORI_TYPE_FINDBAR, NULL);
     #if HAVE_HILDON
     hildon_window_add_toolbar (HILDON_WINDOW (browser),
                                GTK_TOOLBAR (browser->find));
