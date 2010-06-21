@@ -1939,6 +1939,14 @@ midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
     sokoke_spawn_program (view->download_manager, view->link_uri, FALSE);
 }
 
+static void
+midori_view_tab_label_menu_window_new_cb (GtkWidget* menuitem,
+                                          GtkWidget* view)
+{
+    g_signal_emit (view, signals[NEW_WINDOW], 0,
+        midori_view_get_display_uri (MIDORI_VIEW (view)));
+}
+
 #if WEBKIT_CHECK_VERSION (1, 1, 17)
 static void
 midori_web_view_menu_inspect_element_activate_cb (GtkWidget*  widget,
@@ -2410,8 +2418,13 @@ midori_view_populate_popup (MidoriView* view,
 
         gtk_menu_shell_append (menu_shell, gtk_separator_menu_item_new ());
         menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "UndoTabClose"));
+            gtk_action_group_get_action (actions, "UndoTabClose"));
         gtk_menu_shell_append (menu_shell, menuitem);
+        menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
+        gtk_menu_item_set_label (GTK_MENU_ITEM (menuitem), _("Open in New _Window"));
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        g_signal_connect (menuitem, "activate",
+            G_CALLBACK (midori_view_tab_label_menu_window_new_cb), view);
 
         #if WEBKIT_CHECK_VERSION (1, 1, 15)
         /* if (webkit_web_view_get_main_frame (web_view) != frame_under_mouse)
@@ -4004,13 +4017,6 @@ midori_view_tab_label_menu_open_cb (GtkWidget* menuitem,
     midori_browser_set_current_tab (browser, view);
 }
 
-static void
-midori_view_tab_label_menu_window_new_cb (GtkWidget* menuitem,
-                                          GtkWidget* view)
-{
-    g_signal_emit (view, signals[NEW_WINDOW], 0,
-        midori_view_get_display_uri (MIDORI_VIEW (view)));
-}
 
 static void
 midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
@@ -4094,6 +4100,7 @@ midori_view_get_tab_menu (MidoriView* view)
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_open_cb), view);
     menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
+    gtk_menu_item_set_label (GTK_MENU_ITEM (menuitem), _("Open in New _Window"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_window_new_cb), view);
