@@ -712,6 +712,11 @@ midori_panel_action_activate_cb (GtkRadioAction* action,
      && gtk_radio_action_get_current_value (action)
      == katze_object_get_int (action, "value"))
         midori_panel_detach_page (panel, n);
+    else if (gtk_radio_action_get_current_value (action)
+     == katze_object_get_int (action, "value")
+     && gtk_widget_get_visible (GTK_WIDGET (panel))
+     && midori_panel_get_current_page (panel) == n)
+        gtk_widget_hide (GTK_WIDGET (panel));
     else
     {
         midori_panel_set_current_page (panel, n);
