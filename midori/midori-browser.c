@@ -3760,7 +3760,8 @@ _action_location_submit_uri (GtkAction*     action,
             g_printerr (_("Failed to insert new history item: %s\n"),
                         sqlite3_errmsg (db));
         sqlite3_reset (statement);
-        sqlite3_clear_bindings (statement);
+        if (sqlite3_step (statement) == SQLITE_DONE)
+            sqlite3_clear_bindings (statement);
         #endif
 
         g_free (keywords);
