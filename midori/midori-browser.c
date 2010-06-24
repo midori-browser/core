@@ -6367,11 +6367,7 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
     GtkSettings* gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     g_object_get (gtk_settings, "gtk-toolbar-icon-size", &icon_size, NULL);
     if (toolbar_style == MIDORI_TOOLBAR_DEFAULT && gtk_settings)
-    #ifdef G_OS_WIN32
-        gtk_toolbar_style = GTK_TOOLBAR_ICONS;
-    #else
         g_object_get (gtk_settings, "gtk-toolbar-style", &gtk_toolbar_style, NULL);
-    #endif
     else
     {
         switch (toolbar_style)
