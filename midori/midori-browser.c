@@ -917,7 +917,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
         katze_item_set_text (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_desc)));
-        /* FIXME: Toolbar is not working?? */
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
         if (!KATZE_IS_ARRAY (bookmark))
@@ -3653,11 +3652,6 @@ midori_browser_bookmark_homepage_button_press_cb (GtkToolItem*    button,
 }
 
 static void
-midori_browser_bookmarks_add_item_cb (KatzeArray* array,
-                                      KatzeItem*  item,
-                                      GtkWidget*  toolbar);
-
-static void
 _action_location_focus_in (GtkAction*     action,
                            MidoriBrowser* browser)
 {
@@ -4267,34 +4261,6 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
         action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (toolitem));
 
         return midori_browser_menu_middle_click_on_navigation_action (browser, action);
-    }
-    return FALSE;
-}
-
-static gboolean
-midori_browser_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
-                                                       GdkEventButton* event,
-                                                       MidoriBrowser*  browser)
-{
-    KatzeItem* item;
-    gint n;
-
-    if (event->button == 2)
-    {
-        item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
-        if (katze_item_get_uri (item))
-        {
-            n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-            _midori_browser_set_current_page_smartly (browser, n);
-
-            return TRUE;
-        }
-    }
-    else if (event->button == 3)
-    {
-        item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
-        midori_browser_bookmark_popup (toolitem, NULL, item, browser);
-        return TRUE;
     }
     return FALSE;
 }
@@ -5500,9 +5466,6 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
-    if (browser->bookmarks)
-        midori_browser_set_bookmarks (browser, NULL);
-
     if (G_UNLIKELY (browser->panel_timeout))
         g_source_remove (browser->panel_timeout);
     if (G_UNLIKELY (browser->alloc_timeout))
@@ -6205,7 +6168,6 @@ midori_browser_init (MidoriBrowser* browser)
         G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb), browser);
     g_signal_connect (gtk_bin_get_child (GTK_BIN (browser->homepage)), "button-press-event",
         G_CALLBACK (midori_browser_bookmark_homepage_button_press_cb), browser);
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), browser->homepage, -1);
     #if HAVE_HILDON
     hildon_window_add_toolbar (HILDON_WINDOW (browser),
                                GTK_TOOLBAR (browser->bookmarkbar));
@@ -6668,147 +6630,18 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     g_value_unset (&value);
 }
 
-static GtkWidget*
-midori_browser_toolitem_for_item (KatzeItem* item,
-                                  GtkWidget* toolbar)
-
-{
-    GList* children = gtk_container_get_children (GTK_CONTAINER (toolbar));
-    while (children != NULL)
-    {
-        void* toolitem = children->data;
-        void* found_item = g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
-
-        if (found_item == item)
-            return toolitem;
-        children = g_list_next (children);
-    }
-    return NULL;
-}
-
-static void
-midori_browser_bookmarks_remove_item_cb (KatzeArray* array,
-                                         KatzeItem*  removed_item,
-                                         GtkWidget*  toolbar)
-{
-    GtkWidget* toolitem = midori_browser_toolitem_for_item (removed_item, toolbar);
-    if (toolitem)
-        gtk_widget_destroy (toolitem);
-}
-
-static void
-midori_browser_bookmarks_meta_data_changed_toolbar_cb (KatzeItem*   item,
-                                                       const gchar* key,
-                                                       GtkWidget*   toolbar)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (toolbar);
-
-    if (katze_item_get_meta_string (item, "toolbar"))
-    {
-        GtkToolItem* toolitem;
-
-        if ((toolitem = (GtkToolItem*)midori_browser_toolitem_for_item (item, toolbar)))
-            return;
-
-        toolitem = katze_array_action_create_tool_item_for (
-            KATZE_ARRAY_ACTION (_action_by_name (browser, "Bookmarks")), item);
-        g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
-
-        if (KATZE_IS_ARRAY (item) || katze_item_get_uri (item))
-        {
-            GtkWidget* child = gtk_bin_get_child (GTK_BIN (toolitem));
-            g_signal_connect (child, "button-press-event",
-                G_CALLBACK (midori_browser_bookmarkbar_item_button_press_event_cb),
-                browser);
-            g_object_set_data (G_OBJECT (child), "KatzeItem", item);
-        }
-        else /* Separator */
-        {
-            gtk_tool_item_set_use_drag_window (toolitem, TRUE);
-            g_signal_connect (toolitem, "button-press-event",
-                G_CALLBACK (midori_browser_bookmarkbar_item_button_press_event_cb),
-                browser);
-        }
-        gtk_widget_show (GTK_WIDGET (toolitem));
-        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-    }
-    else
-    {
-        KatzeArray* array = katze_item_get_parent (item);
-        midori_browser_bookmarks_remove_item_cb (array, item, toolbar);
-    }
-}
-
-static void
-midori_browser_bookmarks_connect_item (KatzeArray* array,
-                                       KatzeItem*  item,
-                                       GtkWidget*  toolbar)
-{
-    if (KATZE_IS_ARRAY (item))
-    {
-        KatzeItem* child;
-        guint i = 0;
-        while ((child = katze_array_get_nth_item ((KatzeArray*)item, i++)))
-            midori_browser_bookmarks_connect_item ((KatzeArray*)item, child, toolbar);
-
-        g_signal_connect_after (item, "add-item",
-            G_CALLBACK (midori_browser_bookmarks_add_item_cb), toolbar);
-        g_signal_connect_after (item, "remove-item",
-            G_CALLBACK (midori_browser_bookmarks_remove_item_cb), toolbar);
-    }
-
-    if (katze_item_get_meta_string (item, "toolbar"))
-        midori_browser_bookmarks_meta_data_changed_toolbar_cb (item, "toolbar", toolbar);
-    g_signal_connect (item, "meta-data-changed::toolbar",
-        G_CALLBACK (midori_browser_bookmarks_meta_data_changed_toolbar_cb), toolbar);
-}
-
-static void
-midori_browser_bookmarks_add_item_cb (KatzeArray* array,
-                                      KatzeItem*  item,
-                                      GtkWidget*  toolbar)
-{
-    midori_browser_bookmarks_connect_item (array, item, toolbar);
-}
-
 static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
                               KatzeArray*    bookmarks)
 {
-    if (browser->bookmarks == bookmarks)
-        return;
-
-    if (browser->bookmarks)
+    if (!browser->bookmarks)
     {
-        g_signal_handlers_disconnect_by_func (
-            browser->bookmarks, midori_browser_bookmarks_add_item_cb, browser->bookmarkbar);
-        g_signal_handlers_disconnect_by_func (
-            browser->bookmarks, midori_browser_bookmarks_remove_item_cb, browser->bookmarkbar);
-        /* FIXME: Disconnect recursively */
-    }
-
-    if (bookmarks)
         g_object_ref (bookmarks);
-    katze_object_assign (browser->bookmarks, bookmarks);
+        katze_object_assign (browser->bookmarks, bookmarks);
+    }
 
     g_object_set (_action_by_name (browser, "Bookmarks"), "array",
                   browser->bookmarks, NULL);
-
-    _action_set_sensitive (browser, "BookmarkAdd", FALSE);
-    _action_set_sensitive (browser, "BookmarkFolderAdd", FALSE);
-
-    if (!browser->bookmarks)
-        return;
-
-    midori_browser_bookmarks_connect_item (NULL, (KatzeItem*)browser->bookmarks,
-                                           browser->bookmarkbar);
-    g_signal_connect (browser->bookmarks, "add-item",
-        G_CALLBACK (midori_browser_bookmarks_add_item_cb), browser->bookmarkbar);
-    g_signal_connect (browser->bookmarks, "remove-item",
-        G_CALLBACK (midori_browser_bookmarks_remove_item_cb), browser->bookmarkbar);
-
-    _action_set_sensitive (browser, "BookmarkAdd", TRUE);
-    _action_set_sensitive (browser, "BookmarkFolderAdd", TRUE);
 }
 
 static void
