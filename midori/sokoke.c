@@ -1455,17 +1455,27 @@ sokoke_find_config_filename (const gchar* folder,
     const gchar* const* config_dirs = g_get_system_config_dirs ();
     guint i = 0;
     const gchar* config_dir;
+    gchar* path;
 
     if (!folder)
         folder = "";
 
     while ((config_dir = config_dirs[i++]))
     {
-        gchar* path = g_build_filename (config_dir, PACKAGE_NAME, folder, filename, NULL);
+        path = g_build_filename (config_dir, PACKAGE_NAME, folder, filename, NULL);
         if (g_access (path, F_OK) == 0)
             return path;
         g_free (path);
     }
+
+    #ifdef G_OS_WIN32
+    config_dir = g_win32_get_package_installation_directory_of_module (NULL);
+    path = g_build_filename (config_dir, "etc", "xdg", PACKAGE_NAME, folder, filename, NULL);
+    if (g_access (path, F_OK) == 0)
+        return path;
+    g_free (path);
+    #endif
+
     return g_build_filename (SYSCONFDIR, "xdg", PACKAGE_NAME, folder, filename, NULL);
 }
 

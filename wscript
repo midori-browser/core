@@ -503,7 +503,15 @@ def build (bld):
         bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.css')
 
         # FIXME: Determine the library naming for other platforms
-        if Options.platform == 'linux':
+        if bld.env['platform'] == 'win32':
+            extensions = os.listdir ('data/extensions')
+            for extension in extensions:
+                folder = 'lib' + extension + '.dll'
+                source = 'data/extensions/' + extension +  '/config'
+                if os.path.exists (source):
+                    bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + \
+                                       '/extensions/' + folder, source)
+        elif Options.platform == 'linux':
             extensions = os.listdir ('data/extensions')
             for extension in extensions:
                 folder = 'lib' + extension + '.so'
