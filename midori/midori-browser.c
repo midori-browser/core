@@ -3517,23 +3517,12 @@ _action_navigation_activate (GtkAction*     action,
         midori_view_set_uri (view, uri);
         g_free (uri);
     }
-}
-
-static void
-_action_homepage_activate (GtkAction*     action,
-                           MidoriBrowser* browser)
-{
-    gchar* homepage;
-
-    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    else if (g_str_equal (name, "Homepage"))
     {
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
-        return;
+        g_object_get (browser->settings, "homepage", &uri, NULL);
+        midori_view_set_uri (view, uri);
+        g_free (uri);
     }
-
-    g_object_get (browser->settings, "homepage", &homepage, NULL);
-    midori_browser_set_current_uri (browser, homepage);
-    g_free (homepage);
 }
 
 static void
@@ -5197,7 +5186,7 @@ static const GtkActionEntry entries[] =
         N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "Homepage", STOCK_HOMEPAGE,
         NULL, "<Alt>Home",
-        N_("Go to your homepage"), G_CALLBACK (_action_homepage_activate) },
+        N_("Go to your homepage"), G_CALLBACK (_action_navigation_activate) },
     { "TrashEmpty", GTK_STOCK_CLEAR,
         N_("Empty Trash"), "",
         N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
