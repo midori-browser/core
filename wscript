@@ -124,8 +124,6 @@ def configure (conf):
         icons = 'no '
 
     if is_mingw (conf.env) or Options.platform == 'win32':
-        if not conf.find_program ('convert', var='CONVERT'):
-            Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
         conf.find_program ('windres', var='WINRC')
         conf.env['platform'] = 'win32'
 
@@ -146,9 +144,6 @@ def configure (conf):
         conf.env['staticlib_LINKFLAGS'] = []
 
         Utils.pprint ('BLUE', 'Mingw recognized, assuming cross compile.')
-
-    if conf.env['CONVERT'] and not conf.env['WINRC']:
-        Utils.pprint ('YELLOW', 'midori.ico won\'t be created')
 
     dirname_default ('LIBDIR', os.path.join (conf.env['PREFIX'], 'lib'))
     if conf.env['PREFIX'] == '/usr':
@@ -415,31 +410,6 @@ def write_linguas_file (self):
 write_linguas_file = feature ('intltool_po')(write_linguas_file)
 
 def build (bld):
-    def image_to_win32ico (task):
-        'Converts an image to a Win32 ico'
-
-        if not os.path.exists (bld.env['CONVERT']):
-            return 1
-
-        infile = task.inputs[0].abspath (task.env)
-        outfile = task.outputs[0].abspath (task.env)
-        command = bld.env['CONVERT'] + ' -background transparent \
-            -geometry 16x16 -extent 16x16 ' + \
-            infile + ' ' + outfile
-        if Utils.exec_command (command):
-            return 1
-
-        if task.chmod:
-            os.chmod (outfile, task.chmod)
-        return 0
-
-    if bld.env['WINRC']:
-        obj = bld.new_task_gen ('copy',
-            fun = image_to_win32ico,
-            source = 'icons/16x16/midori.png',
-            target = 'data/midori.ico',
-            before = 'cc')
-
     bld.add_group ()
 
     bld.add_subdirs ('midori icons')
