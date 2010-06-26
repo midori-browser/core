@@ -6499,13 +6499,13 @@ midori_bookmarkbar_insert_item (GtkWidget* toolbar,
     {
         GtkWidget* child = gtk_bin_get_child (GTK_BIN (toolitem));
         g_object_set_data (G_OBJECT (child), "KatzeItem", item);
+        g_signal_connect (child, "button-press-event",
+            G_CALLBACK (midori_bookmarkbar_item_button_press_event_cb),
+            browser);
     }
     else /* Separator */
         gtk_tool_item_set_use_drag_window (toolitem, TRUE);
 
-    g_signal_connect (toolitem, "button-press-event",
-        G_CALLBACK (midori_bookmarkbar_item_button_press_event_cb),
-        browser);
     gtk_widget_show (GTK_WIDGET (toolitem));
     gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
 }
