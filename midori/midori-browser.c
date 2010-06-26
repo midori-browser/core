@@ -3467,7 +3467,7 @@ _action_scroll_somewhere_activate (GtkAction*     action,
 
     if (g_str_equal (name, "ScrollLeft"))
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_VISUAL_POSITIONS, -1);
-    if (g_str_equal (name, "ScrollDown"))
+    else if (g_str_equal (name, "ScrollDown"))
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_DISPLAY_LINES, 1);
     else if (g_str_equal (name, "ScrollUp"))
         webkit_web_view_move_cursor (web_view, GTK_MOVEMENT_DISPLAY_LINES, -1);
@@ -3477,10 +3477,13 @@ _action_scroll_somewhere_activate (GtkAction*     action,
 #endif
 
 static void
-_action_back_activate (GtkAction*     action,
-                       MidoriBrowser* browser)
+_action_navigation_activate (GtkAction*     action,
+                             MidoriBrowser* browser)
 {
-    GtkWidget* view;
+    MidoriView* view;
+    GtkWidget* tab;
+    gchar* uri;
+    const gchar* name;
 
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
@@ -3488,66 +3491,30 @@ _action_back_activate (GtkAction*     action,
         return;
     }
 
-    view = midori_browser_get_current_tab (browser);
-    if (view)
-        midori_view_go_back (MIDORI_VIEW (view));
-}
-
-static void
-_action_forward_activate (GtkAction*     action,
-                          MidoriBrowser* browser)
-{
-    GtkWidget* view;
-
-    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
-    {
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
+    tab = midori_browser_get_current_tab (browser);
+    if (!tab)
         return;
-    }
 
-    view = midori_browser_get_current_tab (browser);
-    if (view)
-        midori_view_go_forward (MIDORI_VIEW (view));
-}
+    view = MIDORI_VIEW (tab);
 
-static void
-_action_previous_activate (GtkAction*     action,
-                           MidoriBrowser* browser)
-{
-    GtkWidget* view;
+    name = gtk_action_get_name (action);
 
-    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    if (g_str_equal (name, "Back"))
+        midori_view_go_back (view);
+    else if (g_str_equal (name, "Forward"))
+        midori_view_go_forward (view);
+    else if (g_str_equal (name, "Previous"))
     {
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
-        return;
-    }
-
-    view = midori_browser_get_current_tab (browser);
-    if (view)
-    {
-        gchar* uri = g_strdup (midori_view_get_previous_page (MIDORI_VIEW (view)));
-        midori_view_set_uri (MIDORI_VIEW (view), uri);
+        /* Duplicate here because the URI pointer might change */
+        uri = g_strdup (midori_view_get_previous_page (view));
+        midori_view_set_uri (view, uri);
         g_free (uri);
     }
-}
-
-static void
-_action_next_activate (GtkAction*     action,
-                       MidoriBrowser* browser)
-{
-    GtkWidget* view;
-
-    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    else if (g_str_equal (name, "Next"))
     {
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
-        return;
-    }
-
-    view = midori_browser_get_current_tab (browser);
-    if (view)
-    {
-        gchar* uri = g_strdup (midori_view_get_next_page (MIDORI_VIEW (view)));
-        midori_view_set_uri (MIDORI_VIEW (view), uri);
+        /* Duplicate here because the URI pointer might change */
+        uri = g_strdup (midori_view_get_next_page (view));
+        midori_view_set_uri (view, uri);
         g_free (uri);
     }
 }
@@ -5216,18 +5183,18 @@ static const GtkActionEntry entries[] =
     { "Go", NULL, N_("_Go") },
     { "Back", GTK_STOCK_GO_BACK,
         NULL, "<Alt>Left",
-        N_("Go back to the previous page"), G_CALLBACK (_action_back_activate) },
+        N_("Go back to the previous page"), G_CALLBACK (_action_navigation_activate) },
     { "Forward", GTK_STOCK_GO_FORWARD,
         NULL, "<Alt>Right",
-        N_("Go forward to the next page"), G_CALLBACK (_action_forward_activate) },
+        N_("Go forward to the next page"), G_CALLBACK (_action_navigation_activate) },
     { "Previous", GTK_STOCK_MEDIA_PREVIOUS,
         NULL, "<Ctrl>Left",
         /* i18n: Visit the previous logical page, ie. in a forum or blog */
-        N_("Go to the previous sub-page"), G_CALLBACK (_action_previous_activate) },
+        N_("Go to the previous sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "Next", GTK_STOCK_MEDIA_NEXT,
         NULL, "<Ctrl>Right",
         /* i18n: Visit the following logical page, ie. in a forum or blog */
-        N_("Go to the next sub-page"), G_CALLBACK (_action_next_activate) },
+        N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "Homepage", STOCK_HOMEPAGE,
         NULL, "<Alt>Home",
         N_("Go to your homepage"), G_CALLBACK (_action_homepage_activate) },
