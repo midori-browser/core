@@ -3232,31 +3232,20 @@ _action_reload_stop_activate (GtkAction*     action,
 }
 
 static void
-_action_zoom_in_activate (GtkAction*     action,
-                          MidoriBrowser* browser)
+_action_zoom_activate (GtkAction*     action,
+                       MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (view)
+    if (!view)
+        return;
+
+    if (g_str_equal (gtk_action_get_name (action), "ZoomIn"))
         midori_view_set_zoom_level (MIDORI_VIEW (view),
             midori_view_get_zoom_level (MIDORI_VIEW (view)) + 0.25f);
-}
-
-static void
-_action_zoom_out_activate (GtkAction*     action,
-                           MidoriBrowser* browser)
-{
-    GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (view)
+    else if (g_str_equal (gtk_action_get_name (action), "ZoomOut"))
         midori_view_set_zoom_level (MIDORI_VIEW (view),
             midori_view_get_zoom_level (MIDORI_VIEW (view)) - 0.25f);
-}
-
-static void
-_action_zoom_normal_activate (GtkAction*     action,
-                              MidoriBrowser* browser)
-{
-    GtkWidget* view = midori_browser_get_current_tab (browser);
-    if (view)
+    else
         midori_view_set_zoom_level (MIDORI_VIEW (view), 1.0f);
 }
 
@@ -5195,13 +5184,13 @@ static const GtkActionEntry entries[] =
         N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
     { "ZoomIn", GTK_STOCK_ZOOM_IN,
         NULL, "<Ctrl>plus",
-        N_("Increase the zoom level"), G_CALLBACK (_action_zoom_in_activate) },
+        N_("Increase the zoom level"), G_CALLBACK (_action_zoom_activate) },
     { "ZoomOut", GTK_STOCK_ZOOM_OUT,
         NULL, "<Ctrl>minus",
-        N_("Decrease the zoom level"), G_CALLBACK (_action_zoom_out_activate) },
+        N_("Decrease the zoom level"), G_CALLBACK (_action_zoom_activate) },
     { "ZoomNormal", GTK_STOCK_ZOOM_100,
         NULL, "<Ctrl>0",
-        N_("Reset the zoom level"), G_CALLBACK (_action_zoom_normal_activate) },
+        N_("Reset the zoom level"), G_CALLBACK (_action_zoom_activate) },
     { "Encoding", NULL, N_("_Encoding") },
     { "SourceView", NULL,
         N_("View So_urce"), "<Ctrl><Alt>U",
