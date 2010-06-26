@@ -337,14 +337,6 @@ midori_history_read_from_db (MidoriHistory* history,
 }
 
 static void
-midori_history_add_clicked_cb (GtkWidget* toolitem)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
-    /* FIXME: Take selected folder into account */
-    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
-}
-
-static void
 midori_history_delete_clicked_cb (GtkWidget*     toolitem,
                                   MidoriHistory* history)
 {
@@ -416,6 +408,21 @@ midori_history_cursor_or_row_changed_cb (GtkTreeView*   treeview,
 }
 #endif
 
+static void
+midori_history_bookmark_add_cb (GtkWidget*     menuitem,
+                                MidoriHistory* history)
+{
+    KatzeItem* item;
+
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
+    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+
+    if (KATZE_IS_ITEM (item) && katze_item_get_uri (item))
+        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
+    else
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
+}
+
 static GtkWidget*
 midori_history_get_toolbar (MidoriViewable* viewable)
 {
@@ -437,7 +444,7 @@ midori_history_get_toolbar (MidoriViewable* viewable)
                                      _("Bookmark the selected history item"));
         gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_history_add_clicked_cb), history);
+            G_CALLBACK (midori_history_bookmark_add_cb), history);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         history->bookmark = GTK_WIDGET (toolitem);
@@ -718,22 +725,6 @@ midori_history_open_in_window_activate_cb (GtkWidget*     menuitem,
     }
 }
 
-static void
-midori_history_bookmark_activate_cb (GtkWidget*     menuitem,
-                                     MidoriHistory* history)
-{
-    KatzeItem* item;
-    const gchar* uri;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    uri = katze_item_get_uri (item);
-
-    if (uri && *uri)
-    {
-        MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
-        midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
-    }
-}
 
 static void
 midori_history_popup (GtkWidget*      widget,
@@ -758,7 +749,7 @@ midori_history_popup (GtkWidget*      widget,
         midori_history_popup_item (menu, STOCK_WINDOW_NEW, _("Open in New _Window"),
             item, midori_history_open_in_window_activate_cb, history);
         midori_history_popup_item (menu, STOCK_BOOKMARK_ADD, NULL,
-            item, midori_history_bookmark_activate_cb, history);
+            item, midori_history_bookmark_add_cb, history);
     }
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);

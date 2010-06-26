@@ -956,20 +956,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_widget_destroy (dialog);
 }
 
-static void
-midori_view_add_bookmark_cb (GtkWidget*   menuitem,
-                             const gchar* uri,
-                             GtkWidget*   view)
-{
-    KatzeItem* item;
-    MidoriBrowser* browser;
-
-    item = katze_item_new ();
-    katze_item_set_uri (item, uri);
-    browser = midori_browser_get_for_widget (menuitem);
-    midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
-}
-
 #if WEBKIT_CHECK_VERSION (1, 1, 3)
 static gboolean
 midori_browser_prepare_download (MidoriBrowser*  browser,
@@ -1601,8 +1587,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       #endif
                       "signal::search-text",
                       midori_view_search_text_cb, browser,
-                      "signal::add-bookmark",
-                      midori_view_add_bookmark_cb, browser,
                       "signal::save-as",
                       midori_view_save_as_cb, browser,
                       "signal::add-speed-dial",
@@ -4269,14 +4253,10 @@ static void
 _action_bookmark_add_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
-    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
-}
-
-static void
-_action_bookmark_folder_add_activate (GtkAction*     action,
-                                      MidoriBrowser* browser)
-{
-    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE);
+    if (g_str_equal (gtk_action_get_name (action), "BookmarkFolderAdd"))
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE);
+    else
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
 }
 
 static void
@@ -5276,7 +5256,7 @@ static const GtkActionEntry entries[] =
         N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_add_activate) },
     { "BookmarkFolderAdd", NULL,
         N_("Add a new _folder"), "",
-        N_("Add a new bookmark folder"), G_CALLBACK (_action_bookmark_folder_add_activate) },
+        N_("Add a new bookmark folder"), G_CALLBACK (_action_bookmark_add_activate) },
     { "BookmarksImport", NULL,
         N_("_Import bookmarks"), "",
         NULL, G_CALLBACK (_action_bookmarks_import_activate) },

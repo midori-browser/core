@@ -309,7 +309,10 @@ midori_bookmarks_add_clicked_cb (GtkWidget* toolitem)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (toolitem);
     /* FIXME: Take selected folder into account */
-    midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
+    if (g_str_equal (gtk_widget_get_name (toolitem), "BookmarkFolderAdd"))
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, TRUE);
+    else
+        midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
 }
 
 static void
@@ -366,15 +369,6 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 }
 
 static void
-midori_bookmarks_folder_clicked_cb (GtkWidget* toolitem)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (toolitem));
-    /* FIXME: Take selected folder into account */
-    midori_browser_edit_bookmark_dialog_new (browser,
-                                             NULL, TRUE, TRUE);
-}
-
-static void
 midori_bookmarks_cursor_or_row_changed_cb (GtkTreeView*     treeview,
                                            MidoriBookmarks* bookmarks)
 {
@@ -419,6 +413,7 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         bookmarks->toolbar = toolbar;
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
+        gtk_widget_set_name (GTK_WIDGET (toolitem), "BookmarkAdd");
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                      _("Add a new bookmark"));
         gtk_tool_item_set_is_important (toolitem, TRUE);
@@ -448,10 +443,11 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
+        gtk_widget_set_name (GTK_WIDGET (toolitem), "BookmarkFolderAdd");
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                      _("Add a new folder"));
         g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_bookmarks_folder_clicked_cb), bookmarks);
+            G_CALLBACK (midori_bookmarks_add_clicked_cb), bookmarks);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
 

@@ -397,6 +397,15 @@ midori_view_class_init (MidoriViewClass* class)
         G_TYPE_BOOLEAN,
         G_TYPE_STRING);
 
+    /**
+     * MidoriView::add-bookmark:
+     * @view: the object on which the signal is emitted
+     * @uri: the bookmark URI
+     *
+     * Emitted when a bookmark is added.
+     *
+     * Deprecated: 0.2.7
+     */
     signals[ADD_BOOKMARK] = g_signal_new (
         "add-bookmark",
         G_TYPE_FROM_CLASS (class),
