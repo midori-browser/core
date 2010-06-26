@@ -6258,8 +6258,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gchar* toolbar_items;
     gint last_web_search;
     gboolean close_buttons_on_tabs;
-    GdkScreen* screen;
-    gint default_width, default_height;
     KatzeItem* item;
 
     g_free (browser->news_aggregator);
@@ -6293,18 +6291,24 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "news-aggregator", &browser->news_aggregator,
                   NULL);
 
-    screen = gtk_window_get_screen (GTK_WINDOW (browser));
-    default_width = gdk_screen_get_width (screen) / 1.7;
-    default_height = gdk_screen_get_height (screen) / 1.7;
-
     if (remember_last_window_size)
     {
         if (browser->last_window_width && browser->last_window_height)
             gtk_window_set_default_size (GTK_WINDOW (browser),
                 browser->last_window_width, browser->last_window_height);
         else
+        {
+            GdkScreen* screen;
+            GdkRectangle monitor;
+            gint default_width, default_height;
+
+            screen = gtk_window_get_screen (GTK_WINDOW (browser));
+            gdk_screen_get_monitor_geometry (screen, 0, &monitor);
+            default_width = monitor.width / 1.7;
+            default_height = monitor.height / 1.7;
             gtk_window_set_default_size (GTK_WINDOW (browser),
                                          default_width, default_height);
+        }
         switch (last_window_state)
         {
             case MIDORI_WINDOW_MINIMIZED:
