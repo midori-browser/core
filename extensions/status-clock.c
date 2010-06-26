@@ -173,7 +173,7 @@ MidoriExtension*
 extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
-        "name", _("Status clock"),
+        "name", _("Statusbar Clock"),
         "description", _("Display date and time in the statusbar"),
         "version", "0.1",
         "authors", "Arno Renevier <arno@renevier.net>",
