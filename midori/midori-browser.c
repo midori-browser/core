@@ -3476,7 +3476,7 @@ _action_scroll_somewhere_activate (GtkAction*     action,
 }
 #endif
 
-static void
+static gboolean
 _action_navigation_activate (GtkAction*     action,
                              MidoriBrowser* browser)
 {
@@ -3485,30 +3485,39 @@ _action_navigation_activate (GtkAction*     action,
     gchar* uri;
     const gchar* name;
 
+    g_assert (GTK_IS_ACTION (action));
+
     if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
     {
         g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
-        return;
+        return FALSE;
     }
 
     tab = midori_browser_get_current_tab (browser);
     if (!tab)
-        return;
+        return FALSE;
 
     view = MIDORI_VIEW (tab);
 
     name = gtk_action_get_name (action);
 
     if (g_str_equal (name, "Back"))
+    {
         midori_view_go_back (view);
+        return TRUE;
+    }
     else if (g_str_equal (name, "Forward"))
+    {
         midori_view_go_forward (view);
+        return TRUE;
+    }
     else if (g_str_equal (name, "Previous"))
     {
         /* Duplicate here because the URI pointer might change */
         uri = g_strdup (midori_view_get_previous_page (view));
         midori_view_set_uri (view, uri);
         g_free (uri);
+        return TRUE;
     }
     else if (g_str_equal (name, "Next"))
     {
@@ -3516,13 +3525,16 @@ _action_navigation_activate (GtkAction*     action,
         uri = g_strdup (midori_view_get_next_page (view));
         midori_view_set_uri (view, uri);
         g_free (uri);
+        return TRUE;
     }
     else if (g_str_equal (name, "Homepage"))
     {
         g_object_get (browser->settings, "homepage", &uri, NULL);
         midori_view_set_uri (view, uri);
         g_free (uri);
+        return TRUE;
     }
+    return FALSE;
 }
 
 static void
@@ -4064,119 +4076,6 @@ midori_browser_menu_button_press_event_cb (GtkWidget*      toolitem,
 }
 
 static gboolean
-midori_browser_menu_middle_click_on_navigation_action (MidoriBrowser* browser,
-                                                       GtkAction*     action)
-{
-    const gchar* name;
-    gchar* homepage;
-
-    g_return_val_if_fail (action != NULL, FALSE);
-
-    g_object_get (browser->settings, "homepage", &homepage, NULL);
-
-    name = gtk_action_get_name (action);
-
-    /* We use a trick here to implement middle click and prevent the default
-       "activate" callback from being invoked. We set "midori-middle-click"
-       as GObject data and check the value in the "activate" callback. */
-
-    if (g_str_equal (name, "Homepage"))
-    {
-        gint n;
-
-        n = midori_browser_add_uri (browser, homepage);
-        _midori_browser_set_current_page_smartly (browser, n);
-
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
-
-        return TRUE;
-    }
-    else if (g_str_equal (name, "Back"))
-    {
-        GtkWidget* view;
-        GtkWidget* page;
-        WebKitWebBackForwardList* back_forward_list;
-        WebKitWebHistoryItem* back_item;
-        const gchar* back_uri;
-        gint n;
-
-        page = midori_browser_get_current_tab (browser);
-        view = midori_view_get_web_view (MIDORI_VIEW (page));
-
-        back_forward_list =
-            webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
-
-        back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
-        back_uri = webkit_web_history_item_get_uri (back_item);
-
-        n = midori_browser_add_uri (browser, back_uri);
-        _midori_browser_set_current_page_smartly (browser, n);
-
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
-
-        return TRUE;
-    }
-    else if (g_str_equal (name, "Forward"))
-    {
-        GtkWidget *view;
-        GtkWidget *page;
-        WebKitWebBackForwardList *back_forward_list;
-        WebKitWebHistoryItem *forward_item;
-        const gchar *forward_uri;
-        gint n;
-
-        page = midori_browser_get_current_tab (browser);
-        view = midori_view_get_web_view (MIDORI_VIEW (page));
-
-        back_forward_list =
-            webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (view));
-
-        forward_item =
-            webkit_web_back_forward_list_get_forward_item (back_forward_list);
-        forward_uri = webkit_web_history_item_get_uri (forward_item);
-
-        n = midori_browser_add_uri (browser, forward_uri);
-        _midori_browser_set_current_page_smartly (browser, n);
-
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
-
-        return TRUE;
-    }
-    else if (g_str_equal (name, "Previous"))
-    {
-        GtkWidget *view;
-        gint n;
-
-        view = midori_browser_get_current_tab (browser);
-        n = midori_browser_add_uri (browser,
-            midori_view_get_previous_page (MIDORI_VIEW (view)));
-        _midori_browser_set_current_page_smartly (browser, n);
-
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
-
-        return TRUE;
-    }
-    else if (g_str_equal (name, "Next"))
-    {
-        GtkWidget *view;
-        gint n;
-
-        view = midori_browser_get_current_tab (browser);
-        n = midori_browser_add_uri (browser,
-            midori_view_get_next_page (MIDORI_VIEW (view)));
-        _midori_browser_set_current_page_smartly (browser, n);
-
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)1);
-
-        return TRUE;
-    }
-
-    g_free (homepage);
-
-    return FALSE;
-}
-
-static gboolean
 midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
                                                 GdkEventButton* event,
                                                 MidoriBrowser*  browser)
@@ -4187,7 +4086,7 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
 
         action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (toolitem));
 
-        return midori_browser_menu_middle_click_on_navigation_action (browser, action);
+        return _action_navigation_activate (action, browser);
     }
     return FALSE;
 }
@@ -6289,7 +6188,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
         GtkAction* action = gtk_activatable_get_related_action (
             GTK_ACTIVATABLE (parent));
 
-        return midori_browser_menu_middle_click_on_navigation_action (browser, action);
+        return _action_navigation_activate (action, browser);
     }
     else if (event->button == 3)
     {
