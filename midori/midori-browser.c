@@ -911,7 +911,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         gchar* selected;
-        KatzeArray* folder;
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
@@ -927,11 +926,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app)));
         }
 
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
-            if (!gtk_widget_get_visible (browser->bookmarkbar))
-                _action_set_active (browser, "Bookmarkbar", TRUE);
-
-        folder = browser->bookmarks;
         selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
 
         #if HAVE_SQLITE
@@ -950,6 +944,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         }
         else
             midori_bookmarks_insert_item_db (db, bookmark, selected);
+
+        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
+            if (!gtk_widget_get_visible (browser->bookmarkbar))
+                _action_set_active (browser, "Bookmarkbar", TRUE);
         #endif
         g_free (selected);
     }
