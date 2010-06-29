@@ -267,9 +267,29 @@ gboolean
 midori_transferbar_confirm_delete (MidoriTransferbar* transferbar)
 {
     GtkWidget* dialog = NULL;
+    GList* list;
     gboolean cancel = FALSE;
+    gboolean all_done = TRUE;
 
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    for (list = transferbar->infos; list != NULL; list = g_list_next (list))
+    {
+        TransferInfo* info = list->data;
+        WebKitDownloadStatus status = webkit_download_get_status (info->download);
+
+        if (status != WEBKIT_DOWNLOAD_STATUS_FINISHED
+         && status != WEBKIT_DOWNLOAD_STATUS_CANCELLED
+         && status != WEBKIT_DOWNLOAD_STATUS_ERROR)
+        {
+            all_done = FALSE;
+            break;
+        }
+    }
+
+    if (!all_done)
+    #else
     if (transferbar->infos || g_list_nth_data (transferbar->infos, 0))
+    #endif
     {
         GtkWidget* widget = gtk_widget_get_toplevel (GTK_WIDGET (transferbar));
         dialog = gtk_message_dialog_new (GTK_WINDOW (widget),
