@@ -70,7 +70,6 @@ struct _MidoriBrowser
     GtkWidget* throbber;
     GtkWidget* navigationbar;
     GtkWidget* bookmarkbar;
-    GtkToolItem* homepage;
 
     GtkWidget* panel;
     GtkWidget* notebook;
@@ -3559,17 +3558,6 @@ _action_location_active_changed (GtkAction*     action,
     }
 }
 
-static void
-midori_browser_bookmark_homepage_clicked_cb (GtkToolItem*   button,
-                                             MidoriBrowser* browser)
-{
-    gchar* homepage;
-    g_object_get (browser->settings, "homepage", &homepage, NULL);
-    midori_browser_set_current_uri (browser, homepage);
-    g_free (homepage);
-    gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
-}
-
 static gboolean
 midori_browser_bookmark_homepage_button_press_cb (GtkToolItem*    button,
                                                   GdkEventButton* event,
@@ -5983,13 +5971,6 @@ midori_browser_init (MidoriBrowser* browser)
                                GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->bookmarkbar),
                            GTK_TOOLBAR_BOTH_HORIZ);
-    browser->homepage = gtk_tool_button_new_from_stock (STOCK_HOMEPAGE);
-    gtk_tool_item_set_is_important (browser->homepage, TRUE);
-    gtk_widget_show (GTK_WIDGET (browser->homepage));
-    g_signal_connect (browser->homepage, "clicked",
-        G_CALLBACK (midori_browser_bookmark_homepage_clicked_cb), browser);
-    g_signal_connect (gtk_bin_get_child (GTK_BIN (browser->homepage)), "button-press-event",
-        G_CALLBACK (midori_browser_bookmark_homepage_button_press_cb), browser);
     #if HAVE_HILDON
     hildon_window_add_toolbar (HILDON_WINDOW (browser),
                                GTK_TOOLBAR (browser->bookmarkbar));
@@ -6371,9 +6352,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Transferbar", show_transferbar);
     #endif
     _action_set_active (browser, "Statusbar", browser->show_statusbar);
-
-    sokoke_widget_set_visible (GTK_WIDGET (browser->homepage),
-                               homepage && *homepage);
+    _action_set_visible (browser, "Homepage", homepage && *homepage);
 
     g_free (homepage);
     g_free (toolbar_items);
@@ -6429,8 +6408,10 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     else if (name == g_intern_string ("progress-in-location"))
         browser->progress_in_location = g_value_get_boolean (&value);
     else if (name == g_intern_string ("homepage"))
-        sokoke_widget_set_visible (GTK_WIDGET (browser->homepage),
+    {
+        _action_set_visible (browser, "Homepage",
             g_value_get_string (&value) && *g_value_get_string (&value));
+    }
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
         if (g_value_get_boolean (&value))
@@ -6517,13 +6498,18 @@ midori_bookmarkbar_insert_item (GtkWidget* toolbar,
 static void
 midori_bookmarkbar_populate (MidoriBrowser* browser)
 {
+    GtkWidget* homepage;
     sqlite3* db;
     gint result;
     const gchar* sqlcmd;
     sqlite3_stmt* statement;
 
-    /* FIXME: We need to insert copy of a homepage. */
-    gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar), browser->homepage, -1);
+    homepage = gtk_action_create_tool_item (_action_by_name (browser, "Homepage"));
+    gtk_tool_item_set_is_important (GTK_TOOL_ITEM (homepage), TRUE);
+    g_signal_connect (gtk_bin_get_child (GTK_BIN (homepage)), "button-press-event",
+        G_CALLBACK (midori_browser_bookmark_homepage_button_press_cb), browser);
+    gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar),
+                        (GtkToolItem*)homepage, -1);
 
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     if (!db)
