@@ -36,6 +36,8 @@ def add_image (bld, category, name):
             else:
                 Utils.pprint ('BLUE', "Optimized icons could not be created.")
                 break
+    bld.install_files ('${MDATADIR}/icons/hicolor/scalable/' + category,
+                       srcdir + '/icons/scalable/' + name + '.svg')
 
 add_image (bld, 'categories', 'extension')
 add_image (bld, 'apps', 'midori')
