@@ -2661,7 +2661,10 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
-        gboolean view_source = webkit_web_view_get_view_source_mode (WEBKIT_WEB_VIEW (web_view));
+        gboolean view_source = FALSE;
+        /* Dedicated source code views are always pseudo-blank pages */
+        if (midori_view_is_blank (view))
+            view_source = webkit_web_view_get_view_source_mode (WEBKIT_WEB_VIEW (web_view));
 
         /* Render raw XML, including news feeds, as source */
         if (!view_source && (!strcmp (mime_type, "application/xml")
