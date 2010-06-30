@@ -166,16 +166,19 @@ formhistory_update_main_hash (gchar* key,
     if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
     {
         gchar* rvalue = g_strdup_printf ("\"%s\"",value);
-        if (!g_regex_match_simple (rvalue, tmp,
+        gchar* patt = g_regex_escape_string (rvalue, -1);
+        if (!g_regex_match_simple (patt, tmp,
                                    G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
         {
             gchar* new_value = g_strdup_printf ("%s%s,", tmp, rvalue);
             g_hash_table_insert (global_keys, g_strdup (key), new_value);
             g_free (rvalue);
+            g_free (patt);
         }
         else
         {
             g_free (rvalue);
+            g_free (patt);
             return FALSE;
         }
     }
