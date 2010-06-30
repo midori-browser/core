@@ -295,7 +295,9 @@ FormSuggestions.prototype.requestSuggestions = function (oAutoSuggestControl /*:
 };
 
 function initSuggestions () {
-    var inputs = document.getElementsByTagName("input");
+    var inputs = document.getElementsByTagName ("input");
+    if (inputs.length == 0)
+        return false;
 
     for (i=0;i<inputs.length;i++)
     {
@@ -308,4 +310,5 @@ function initSuggestions () {
         if (inputs[i].type == "text" && autocomplete != "off")
             var smth = new AutoSuggestControl (inputs[i], new FormSuggestions (ename));
     }
+    return true;
 };
