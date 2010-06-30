@@ -176,7 +176,10 @@ midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
     if (GTK_IS_WINDOW (browser))
     {
         gchar* uri = katze_object_get_string (browser, "uri");
-        g_object_set (settings, "homepage", uri, NULL);
+        if (uri && *uri)
+            g_object_set (settings, "homepage", uri, NULL);
+        else
+            g_object_set (settings, "homepage", "about:blank", NULL);
         g_free (uri);
     }
 }
