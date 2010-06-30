@@ -109,10 +109,10 @@ namespace Midori {
         public View (GLib.Object net);
         public void set_uri (string uri);
         public bool is_blank ();
-        public string get_display_uri ();
-        public string get_display_title ();
-        public string get_icon_uri ();
-        public string get_link_uri ();
+        public unowned string get_display_uri ();
+        public unowned string get_display_title ();
+        public unowned string get_icon_uri ();
+        public unowned string get_link_uri ();
         public bool has_selection ();
         public string get_selected_text ();
         public Gtk.MenuItem get_proxy_menu_item ();
