@@ -1349,6 +1349,8 @@ adblock_deactivate_cb (MidoriExtension* extension,
         extension, adblock_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, adblock_app_add_browser_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, adblock_add_tab_cb, extension);
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
     katze_assign (blockcss, NULL);
