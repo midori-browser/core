@@ -162,6 +162,7 @@ formhistory_update_main_hash (gchar* key,
     if (length > MAXCHARS || length < MINCHARS)
         return FALSE;
 
+    formhistory_fixup_value (key);
     formhistory_fixup_value (value);
     if ((tmp = g_hash_table_lookup (global_keys, (gpointer)key)))
     {
