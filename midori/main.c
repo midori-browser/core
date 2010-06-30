@@ -1109,13 +1109,17 @@ midori_load_extensions (gpointer data)
                                                (gpointer) &extension_init))
                 {
                     extension = extension_init ();
-                    /* Signal that we want the extension to load and save */
-                    g_object_set_data_full (G_OBJECT (extension), "filename",
-                                            g_strdup (filename), g_free);
-                    if (midori_extension_is_prepared (extension))
-                        midori_extension_get_config_dir (extension);
+                    if (extension != NULL)
+                    {
+                        /* Signal that we want the extension to load and save */
+                        g_object_set_data_full (G_OBJECT (extension), "filename",
+                                                g_strdup (filename), g_free);
+                        if (midori_extension_is_prepared (extension))
+                            midori_extension_get_config_dir (extension);
+                    }
                 }
-                else
+
+                if (!extension)
                 {
                     extension = g_object_new (MIDORI_TYPE_EXTENSION,
                                               "name", filename,
