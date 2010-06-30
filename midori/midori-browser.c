@@ -1464,17 +1464,32 @@ midori_view_download_requested_cb (GtkWidget*      view,
             /* If the filename exists, choose a different name  */
             if (g_access (filename, F_OK) == 0)
             {
-                /* FIXME: Put the number in front of the extension */
-                gsize length = strlen (filename);
+                /* Put the number in front of the extension */
+                gchar* extension = strrchr (filename, '.');
+                gsize length = extension ? (gsize)(extension - filename) : strlen (filename);
                 do
                 {
                     if (g_ascii_isdigit (filename[length - 1]))
-                        filename[length - 1] += 1;
+                        filename[length - 1] += 1; /* FIXME: This will increment '9' to ':' */
                     else
                     {
-                        gchar* new_filename = g_strconcat (filename, "0", NULL);
+                        gchar* new_filename;
+                        if (extension)
+                        {
+                            /* Change the '.' to a '\0' to put the 0 in between */
+                            *extension++ = '\0';
+                            new_filename= g_strconcat (filename, "0.", extension, NULL);
+                        }
+                        else
+                            new_filename = g_strconcat (filename, "0", NULL);
                         katze_assign (filename, new_filename);
-                        length = strlen (filename);
+                        if (extension)
+                        {
+                            extension = strrchr (filename, '.');
+                            length = extension - filename;
+                        }
+                        else
+                            length = strlen (filename);
                     }
                 }
                 while (g_access (filename, F_OK) == 0);
