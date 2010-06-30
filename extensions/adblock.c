@@ -1059,6 +1059,8 @@ adblock_fixup_regexp (gchar* src)
         case '^':
             g_string_append (str, "");
             break;
+        case '+':
+            break;
         default:
             g_string_append_printf (str,"%c", *src);
             break;
@@ -1407,6 +1409,7 @@ test_adblock_parse (void)
     g_assert (!adblock_parse_line ("##"));
     g_assert (!adblock_parse_line ("["));
 
+    g_assert_cmpstr (adblock_parse_line ("+advert/"), ==, "advert/");
     g_assert_cmpstr (adblock_parse_line ("*foo"), ==, "foo");
     g_assert_cmpstr (adblock_parse_line ("f*oo"), ==, "f.*oo");
     g_assert_cmpstr (adblock_parse_line ("?foo"), ==, "\\?foo");
