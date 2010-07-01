@@ -885,7 +885,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
     check_toolbar = gtk_check_button_new_with_mnemonic (_("Show in the tool_bar"));
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_toolbar),
-        katze_item_get_meta_integer (bookmark, "toolbar"));
+        katze_item_get_meta_boolean (bookmark, "toolbar"));
     gtk_box_pack_start (GTK_BOX (hbox), check_toolbar, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
@@ -900,7 +900,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
         check_app = gtk_check_button_new_with_mnemonic (_("Run as _web application"));
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_app),
-            katze_item_get_meta_integer (bookmark, "app"));
+            katze_item_get_meta_boolean (bookmark, "app"));
         gtk_box_pack_start (GTK_BOX (hbox), check_app, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);
@@ -3991,9 +3991,9 @@ midori_browser_bookmark_edit_activate_cb (GtkWidget*     menuitem,
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
     uri = katze_item_get_uri (item);
 
-    if (KATZE_IS_ARRAY (item))
+    if (!uri)
         midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE);
-    else if (uri && *uri)
+    else
         midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
 }
 
@@ -4025,7 +4025,7 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    if (KATZE_IS_ARRAY (item))
+    if (!katze_item_get_uri (item))
         midori_browser_bookmark_popup_item (menu,
             STOCK_TAB_NEW, _("Open all in _Tabs"),
             item, midori_browser_bookmark_open_in_tab_activate_cb, browser);
@@ -6553,6 +6553,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
         item = katze_item_new ();
         katze_item_set_name (item, (gchar*)title);
+        katze_item_set_meta_integer (item, "toolbar", 1);
         if (uri)
         {
             katze_item_set_uri (item, (gchar*)uri);
