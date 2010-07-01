@@ -355,7 +355,7 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
         g_assert (!ITEM_IS_SEPARATOR (item));
 
         browser = midori_browser_get_for_widget (toolitem);
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, ITEM_IS_FOLDER (item));
 
         g_object_unref (item);
     }
@@ -750,7 +750,7 @@ midori_bookmarks_edit_activate_cb (GtkWidget*       menuitem,
     g_assert (!ITEM_IS_SEPARATOR (item));
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
+    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, ITEM_IS_FOLDER (item));
 }
 
 static void

@@ -788,7 +788,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_widget_show_all (hbox);
 
     entry_uri = NULL;
-    if (!KATZE_IS_ARRAY (bookmark))
+    if (!is_folder)
     {
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 4);
@@ -891,7 +891,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_widget_show_all (hbox);
 
     check_app = NULL;
-    if (!KATZE_IS_ARRAY (bookmark))
+    if (!is_folder)
     {
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 1);
@@ -917,7 +917,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             gtk_entry_get_text (GTK_ENTRY (entry_desc)));
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
-        if (!KATZE_IS_ARRAY (bookmark))
+        if (!is_folder)
         {
             katze_item_set_uri (bookmark,
                 gtk_entry_get_text (GTK_ENTRY (entry_uri)));
