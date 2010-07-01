@@ -118,6 +118,10 @@ gint64
 katze_item_get_meta_integer       (KatzeItem*      item,
                                    const gchar*    key);
 
+gboolean
+katze_item_get_meta_boolean       (KatzeItem*      item,
+                                   const gchar*    key);
+
 void
 katze_item_set_meta_integer       (KatzeItem*      item,
                                    const gchar*    key,

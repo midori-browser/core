@@ -596,6 +596,32 @@ katze_item_get_meta_integer (KatzeItem*   item,
 }
 
 /**
+ * katze_item_get_meta_boolean:
+ * @item: a #KatzeItem
+ * @key: the name of a boolean value
+ *
+ * The Value should be set with katze_item_set_meta_integer().
+ * If the value is set and not 0, %TRUE will be returned.
+ *
+ * Since: 0.2.7
+ **/
+gboolean
+katze_item_get_meta_boolean  (KatzeItem*   item,
+                              const gchar* key)
+{
+    const gchar* value;
+
+    g_return_val_if_fail (KATZE_IS_ITEM (item), FALSE);
+    g_return_val_if_fail (key != NULL, FALSE);
+
+    value = katze_item_get_meta_string (item, key);
+    if (value == NULL || value[0] == '0')
+        return FALSE;
+    else
+        return TRUE;
+}
+
+/**
  * katze_item_set_meta_integer:
  * @item: a #KatzeItem
  * @key: the name of an integer value
