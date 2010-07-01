@@ -631,9 +631,8 @@ midori_history_popup_item (GtkWidget*     menu,
         gtk_label_set_text_with_mnemonic (GTK_LABEL (gtk_bin_get_child (
         GTK_BIN (menuitem))), label);
     if (!strcmp (stock_id, GTK_STOCK_EDIT))
-        gtk_widget_set_sensitive (menuitem,
-            KATZE_IS_ARRAY (item) || uri != NULL);
-    else if (!KATZE_IS_ARRAY (item) && strcmp (stock_id, GTK_STOCK_DELETE))
+        gtk_widget_set_sensitive (menuitem, uri != NULL);
+    else if (katze_item_get_uri (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
     g_signal_connect (menuitem, "activate", G_CALLBACK (callback), history);
@@ -736,7 +735,7 @@ midori_history_popup (GtkWidget*      widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    if (KATZE_IS_ARRAY (item))
+    if (!katze_item_get_uri (item))
         midori_history_popup_item (menu,
             STOCK_TAB_NEW, _("Open all in _Tabs"),
             item, midori_history_open_in_tab_activate_cb, history);
