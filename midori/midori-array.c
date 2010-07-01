@@ -17,6 +17,7 @@
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
+#include <sqlite3.h>
 
 #if HAVE_LIBXML
     #include <libxml/parser.h>
@@ -751,4 +752,106 @@ midori_array_to_file (KatzeArray*  array,
         return midori_array_to_file_xbel (array, filename, error);
     g_critical ("Cannot write KatzeArray to unknown format '%s'.", format);
     return FALSE;
+}
+
+static void
+katze_item_set_value_from_column (sqlite3_stmt* stmt,
+                                  gint          column,
+                                  KatzeItem*    item)
+{
+    const gchar* name;
+
+    name = sqlite3_column_name (stmt, column);
+    g_return_if_fail (name != NULL);
+
+    if (g_str_equal (name, "uri"))
+    {
+        const unsigned char* uri;
+        uri = sqlite3_column_text (stmt, column);
+        if (uri && uri[0])
+            katze_item_set_uri (item, (gchar*)uri);
+    }
+    else if (g_str_equal (name, "title") || g_str_equal (name, "name"))
+    {
+        const unsigned char* title;
+        title = sqlite3_column_text (stmt, column);
+        katze_item_set_name (item, (gchar*)title);
+    }
+    else if (g_str_equal (name, "date"))
+    {
+        gint date;
+        date = sqlite3_column_int64 (stmt, column);
+        katze_item_set_added (item, date);
+    }
+    else if (g_str_equal (name, "day") || g_str_equal (name, "app")
+          || g_str_equal (name, "toolbar") || g_str_equal (name, "type"))
+    {
+        gint value;
+        value = sqlite3_column_int64 (stmt, column);
+        katze_item_set_meta_integer (item, name, value);
+    }
+    else
+        g_warn_if_reached ();
+}
+
+/**
+ * midori_array_from_statement:
+ * @stmt: prepared statement
+ *
+ * Stores the result in a #KatzeArray.
+ *
+ * Return value: a #KatzeArray on success, %NULL otherwise
+ *
+ * Since: 0.2.7
+ **/
+KatzeArray*
+katze_array_from_statement (sqlite3_stmt* stmt)
+{
+    KatzeArray *array;
+    gint result;
+    gint cols;
+
+    array = katze_array_new (KATZE_TYPE_ITEM);
+    cols = sqlite3_column_count (stmt);
+
+    while ((result = sqlite3_step (stmt)) == SQLITE_ROW)
+    {
+        gint i;
+        KatzeItem* item;
+
+        item = katze_item_new ();
+        for (i = 0; i < cols; i++)
+            katze_item_set_value_from_column (stmt, i, item);
+        katze_array_add_item (array, item);
+    }
+
+    sqlite3_clear_bindings (stmt);
+    sqlite3_reset (stmt);
+    return array;
+}
+
+/**
+ * midori_array_from_sqlite:
+ * @db: opened database handler
+ * @sqlcmd: SQL query
+ *
+ * Stores the result in a #KatzeArray.
+ *
+ * Return value: a #KatzeArray on success, %NULL otherwise
+ *
+ * Since: 0.2.7
+ **/
+
+KatzeArray*
+katze_array_from_sqlite (sqlite3*     db,
+                         const gchar* sqlcmd)
+{
+    sqlite3_stmt* stmt;
+    gint result;
+
+    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
+    if (result != SQLITE_OK)
+        return NULL;
+
+    return katze_array_from_statement (stmt);
 }

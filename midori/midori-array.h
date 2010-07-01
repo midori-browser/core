@@ -12,6 +12,7 @@
 #ifndef __MIDORI_ARRAY_H__
 #define __MIDORI_ARRAY_H__ 1
 
+#include <sqlite3.h>
 #include <katze/katze.h>
 
 gboolean
@@ -25,5 +26,12 @@ midori_array_to_file   (KatzeArray*  array,
                         const gchar* filename,
                         const gchar* format,
                         GError**     error);
+
+KatzeArray*
+katze_array_from_statement (sqlite3_stmt* stmt);
+
+KatzeArray*
+katze_array_from_sqlite (sqlite3*     db,
+                         const gchar* sqlcmd);
 
 #endif /* !__MIDORI_ARRAY_H__ */
