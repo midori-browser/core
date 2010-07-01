@@ -186,15 +186,6 @@ def configure (conf):
         unique = 'no '
     conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
 
-    if option_enabled ('sqlite'):
-        check_pkg ('sqlite3', '3.0', False, var='SQLITE')
-        sqlite = ['N/A','yes'][conf.env['HAVE_SQLITE'] == 1]
-        if sqlite != 'yes':
-            option_checkfatal ('sqlite', 'history database')
-    else:
-        sqlite = 'no '
-    conf.define ('HAVE_SQLITE', [0,1][sqlite == 'yes'])
-
     if option_enabled ('libnotify'):
         check_pkg ('libnotify', mandatory=False)
         libnotify = ['N/A','yes'][conf.env['HAVE_LIBNOTIFY'] == 1]
@@ -225,6 +216,8 @@ def configure (conf):
     check_pkg ('libsoup-2.4', '2.29.3', False, var='LIBSOUP_2_29_3')
     check_pkg ('libsoup-2.4', '2.29.91', False, var='LIBSOUP_2_29_91')
     check_pkg ('libxml-2.0', '2.6')
+    check_pkg ('sqlite3', '3.0', True, var='SQLITE')
+    conf.define ('HAVE_SQLITE', 1)
 
     if conf.env['HAVE_LIBSOUP_2_27_90']:
        idn = 'yes'
@@ -327,7 +320,6 @@ def configure (conf):
     print '''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
-        History:             %(sqlite)s (sqlite3)
         Notifications:       %(libnotify)s (libnotify)
 
         IDN support:         %(idn)s (libidn or libsoup 2.27.90)
@@ -376,7 +368,6 @@ def set_options (opt):
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group)
     add_enable_option ('libidn', 'international domain name support', group)
-    add_enable_option ('sqlite', 'history database support', group)
     add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)
