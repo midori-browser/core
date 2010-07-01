@@ -447,7 +447,7 @@ midori_bookmarks_initialize (KatzeArray*  array,
 
     if (sqlite3_exec (db,
                       "CREATE TABLE IF NOT EXISTS "
-                      "bookmarks (uri text, title text, folder text, type integer, "
+                      "bookmarks (uri text, title text, folder text, "
                       "desc text, app integer, toolbar integer);",
                       NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;

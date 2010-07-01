@@ -842,7 +842,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         #if HAVE_SQLITE
         i = 0;
         n = 1;
-        sqlcmd = "SELECT title from bookmarks where type=0";
+        sqlcmd = "SELECT title from bookmarks where uri=''";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
         while ((result = sqlite3_step (statement)) == SQLITE_ROW)
         {
@@ -6540,7 +6540,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
             subsqlcmd = g_strdup_printf ("SELECT uri, title, app FROM bookmarks WHERE "
                                          " folder = '%s'", katze_item_get_name (item));
-            subfolder = katze_array_from_sqlite (db, sqlcmd);
+            subfolder = katze_array_from_sqlite (db, subsqlcmd);
             katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
             midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
             g_free (subsqlcmd);
