@@ -768,7 +768,7 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
     {
         const unsigned char* uri;
         uri = sqlite3_column_text (stmt, column);
-        if (uri && uri[0])
+        if (uri && uri[0] && uri[0] != '(')
             katze_item_set_uri (item, (gchar*)uri);
     }
     else if (g_str_equal (name, "title") || g_str_equal (name, "name"))
