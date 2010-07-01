@@ -11,6 +11,7 @@
 
 #include "midori-bookmarks.h"
 
+#include "midori-array.h"
 #include "midori-app.h"
 #include "midori-browser.h"
 #include "midori-stock.h"
@@ -143,7 +144,6 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     sqlite3_stmt* statement;
     gint result;
     const gchar* sqlcmd;
-    KatzeArray* array;
 
     db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
 
@@ -155,42 +155,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     if (result != SQLITE_OK)
         return NULL;
 
-    array = katze_array_new (KATZE_TYPE_ITEM);
-
-    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
-    {
-        gint type;
-        gint app;
-        gint toolbar;
-        KatzeItem* item;
-        const unsigned char* uri;
-        const unsigned char* title;
-
-        uri = sqlite3_column_text (statement, 0);
-        title = sqlite3_column_text (statement, 1);
-        type = sqlite3_column_int64 (statement, 2);
-        app = sqlite3_column_int64 (statement, 3);
-        toolbar = sqlite3_column_int64 (statement, 4);
-
-        item = katze_item_new ();
-        katze_item_set_name (item, (gchar*)title);
-        katze_item_set_meta_integer (item, "toolbar", toolbar);
-
-        /* type 0 -- folder, 1 -- entry */
-        if (type == 1)
-        {
-            katze_item_set_uri (item, (gchar*)uri);
-            katze_item_set_meta_integer (item, "app", app);
-        }
-        katze_array_add_item (array, item);
-    }
-
-    if (result != SQLITE_DONE)
-        g_print (_("Failed to execute database statement: %s\n"),
-                 sqlite3_errmsg (db));
-
-    sqlite3_finalize (statement);
-    return array;
+    return katze_array_from_statement (statement);
 }
 
 static void

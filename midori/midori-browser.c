@@ -2728,39 +2728,27 @@ _action_history_populate_popup (GtkAction*     action,
                                 GtkMenu*       menu,
                                 MidoriBrowser* browser)
 {
-    #if HAVE_SQLITE
     sqlite3* db;
-    sqlite3_stmt* statement;
-    gint result;
     const gchar* sqlcmd;
+    KatzeArray* array;
+    KatzeItem* item;
+    gint i = 0;
 
     db = g_object_get_data (G_OBJECT (browser->history), "db");
     sqlcmd = "SELECT uri, title, date FROM history "
              "GROUP BY uri ORDER BY date ASC LIMIT 10";
-    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
-    if (result != SQLITE_OK)
-    {
-        g_print (_("Failed to execute database statement: %s\n"),
-                 sqlite3_errmsg (db));
-        return;
-    }
+    array = katze_array_from_sqlite (db, sqlcmd);
 
-    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+    while ((item = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
     {
-        const unsigned char* uri;
-        const unsigned char* title;
-        KatzeItem* item;
         GtkWidget* menuitem;
         GdkPixbuf* icon;
         GtkWidget* image;
+        const gchar* uri;
+        const gchar* title;
 
-        uri = sqlite3_column_text (statement, 0);
-        title = sqlite3_column_text (statement, 1);
-
-        item = katze_item_new ();
-        katze_item_set_uri (item, (gchar*)uri);
-        katze_item_set_name (item, (gchar*)title);
-
+        uri = katze_item_get_uri (item);
+        title = katze_item_get_name (item);
         menuitem = katze_image_menu_item_new_ellipsized ((gchar*)title);
         icon = katze_load_cached_icon ((gchar*)uri, GTK_WIDGET (browser));
         image = gtk_image_new_from_pixbuf (icon);
@@ -2783,9 +2771,8 @@ _action_history_populate_popup (GtkAction*     action,
             G_CALLBACK (midori_browser_menu_item_select_cb), browser);
         g_signal_connect (menuitem, "deselect",
             G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
+        i++;
     }
-    sqlite3_finalize (statement);
-    #endif
 }
 
 static void
@@ -6515,9 +6502,10 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 {
     GtkWidget* homepage;
     sqlite3* db;
-    gint result;
     const gchar* sqlcmd;
-    sqlite3_stmt* statement;
+    KatzeArray* array;
+    KatzeItem* item;
+    gint i;
 
     homepage = gtk_action_create_tool_item (_action_by_name (browser, "Homepage"));
     gtk_tool_item_set_is_important (GTK_TOOL_ITEM (homepage), TRUE);
@@ -6532,34 +6520,19 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
     sqlcmd = "SELECT uri, title, app FROM bookmarks WHERE "
              " toolbar = 1 ORDER BY type ASC";
-    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
-    if (result != SQLITE_OK)
+
+    array = katze_array_from_sqlite (db, sqlcmd);
+    if (!array)
     {
         _action_set_sensitive (browser, "BookmarkAdd", FALSE);
         _action_set_sensitive (browser, "BookmarkFolderAdd", FALSE);
         return;
     }
 
-    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+    while ((item = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
     {
-        gint app;
-        KatzeItem* item;
-        const unsigned char* uri;
-        const unsigned char* title;
-
-        uri = sqlite3_column_text (statement, 0);
-        title = sqlite3_column_text (statement, 1);
-        app = sqlite3_column_int64 (statement, 2);
-
-        item = katze_item_new ();
-        katze_item_set_name (item, (gchar*)title);
-        katze_item_set_meta_integer (item, "toolbar", 1);
-        if (uri)
-        {
-            katze_item_set_uri (item, (gchar*)uri);
-            katze_item_set_meta_integer (item, "app", app);
-        }
         midori_bookmarkbar_insert_item (browser->bookmarkbar, item);
+        i++;
     }
     _action_set_sensitive (browser, "BookmarkAdd", TRUE);
     _action_set_sensitive (browser, "BookmarkFolderAdd", TRUE);
