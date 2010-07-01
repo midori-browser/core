@@ -14,6 +14,7 @@
 #define __KATZE_UTILS_H__
 
 #include <gtk/gtk.h>
+#include "katze-array.h"
 
 G_BEGIN_DECLS
 
@@ -105,9 +106,14 @@ katze_pixbuf_new_from_buffer         (const guchar* buffer,
                                       GError**      error);
 
 gboolean
-katze_tree_view_get_selected_iter    (GtkTreeView*    treeview,
-                                      GtkTreeModel**  model,
-                                      GtkTreeIter*    iter);
+katze_tree_view_get_selected_iter    (GtkTreeView*   treeview,
+                                      GtkTreeModel** model,
+                                      GtkTreeIter*   iter);
+
+void
+katze_bookmark_populate_tree_view    (KatzeArray* array,
+                                      GtkTreeStore* model,
+                                      GtkTreeIter*  parent);
 
 gchar*
 katze_strip_mnemonics                (const gchar*    original);

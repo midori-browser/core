@@ -10,6 +10,7 @@
 */
 
 #include "katze-utils.h"
+#include "katze-array.h"
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
@@ -1121,6 +1122,35 @@ katze_tree_view_get_selected_iter (GtkTreeView*   treeview,
         if (gtk_tree_selection_get_selected (selection, model, iter))
             return TRUE;
     return FALSE;
+}
+
+void
+katze_bookmark_populate_tree_view (KatzeArray*   array,
+                                   GtkTreeStore* model,
+                                   GtkTreeIter*  parent)
+{
+    KatzeItem* child;
+    GtkTreeIter iter;
+    GtkTreeIter root_iter;
+    guint i = 0;
+
+    while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
+    {
+        if (KATZE_ITEM_IS_BOOKMARK (child))
+        {
+            gtk_tree_store_insert_with_values (model, NULL, parent,
+                                               0, 0, child, -1);
+        }
+        else
+        {
+            gtk_tree_store_insert_with_values (model, &root_iter, parent,
+                                               0, 0, child, -1);
+            /* That's an invisible dummy, so we always have an expander */
+            gtk_tree_store_insert_with_values (model, &iter, &root_iter,
+                                               0, 0, NULL, -1);
+        }
+        i++;
+    }
 }
 
 /**

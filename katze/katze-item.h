@@ -28,6 +28,9 @@ G_BEGIN_DECLS
     (G_TYPE_CHECK_CLASS_TYPE ((klass), KATZE_TYPE_ITEM))
 #define KATZE_ITEM_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS ((obj), KATZE_TYPE_ITEM, KatzeItemClass))
+#define KATZE_ITEM_IS_BOOKMARK(item) (item && katze_item_get_uri (item))
+#define KATZE_ITEM_IS_FOLDER(item) (item && !katze_item_get_uri (item))
+#define KATZE_ITEM_IS_SEPARATOR(item) (item == NULL)
 
 typedef struct _KatzeItem                KatzeItem;
 typedef struct _KatzeItemClass           KatzeItemClass;

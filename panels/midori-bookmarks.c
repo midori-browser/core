@@ -24,10 +24,6 @@
 
 #include <gdk/gdkkeysyms.h>
 
-#define ITEM_IS_BOOKMARK(item) (item && katze_item_get_uri (item))
-#define ITEM_IS_FOLDER(item) (item && !katze_item_get_uri (item))
-#define ITEM_IS_SEPARATOR(item) (item == NULL)
-
 void
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
@@ -204,29 +200,9 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
                                         const gchar*     folder)
 {
     KatzeArray* array;
-    KatzeItem* child;
-    GtkTreeIter iter;
-    GtkTreeIter root_iter;
-    guint i = 0;
 
     array = midori_bookmarks_read_from_db (bookmarks, folder);
-    while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
-    {
-        if (ITEM_IS_BOOKMARK (child))
-        {
-            gtk_tree_store_insert_with_values (model, NULL, parent,
-                                               0, 0, child, -1);
-        }
-        else
-        {
-            gtk_tree_store_insert_with_values (model, &root_iter, parent,
-                                               0, 0, child, -1);
-            /* That's an invisible dummy, so we always have an expander */
-            gtk_tree_store_insert_with_values (model, &iter, &root_iter,
-                                               0, 0, NULL, -1);
-        }
-        i++;
-    }
+    katze_bookmark_populate_tree_view (array, model, parent);
 }
 
 void
@@ -239,7 +215,7 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
     int type = 0;
     gchar* parent;
 
-    if (ITEM_IS_BOOKMARK (item))
+    if (KATZE_ITEM_IS_BOOKMARK (item))
         type = 1;
 
     if (folder)
@@ -279,7 +255,7 @@ midori_bookmarks_remove_item_from_db (sqlite3*   db,
     gchar* sqlcmd;
     char* errmsg = NULL;
 
-    if (ITEM_IS_BOOKMARK (item))
+    if (KATZE_ITEM_IS_BOOKMARK (item))
         sqlcmd = sqlite3_mprintf (
             "DELETE FROM bookmarks WHERE uri = '%q'",
             katze_item_get_uri (item));
@@ -352,10 +328,10 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        g_assert (!ITEM_IS_SEPARATOR (item));
+        g_assert (!KATZE_ITEM_IS_SEPARATOR (item));
 
         browser = midori_browser_get_for_widget (toolitem);
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, ITEM_IS_FOLDER (item));
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item));
 
         g_object_unref (item);
     }
@@ -404,7 +380,7 @@ midori_bookmarks_cursor_or_row_changed_cb (GtkTreeView*     treeview,
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        gtk_widget_set_sensitive (bookmarks->edit, !ITEM_IS_SEPARATOR (item));
+        gtk_widget_set_sensitive (bookmarks->edit, !KATZE_ITEM_IS_SEPARATOR (item));
         gtk_widget_set_sensitive (bookmarks->delete, TRUE);
 
         if (item != NULL)
@@ -568,10 +544,10 @@ midori_bookmarks_treeview_render_icon_cb (GtkTreeViewColumn* column,
 
     /* TODO: Would it be better to not do this on every redraw? */
     pixbuf = NULL;
-    if (ITEM_IS_FOLDER (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
         pixbuf = gtk_widget_render_icon (treeview, GTK_STOCK_DIRECTORY,
                                          GTK_ICON_SIZE_MENU, NULL);
-    else if (ITEM_IS_BOOKMARK (item))
+    else if (KATZE_ITEM_IS_BOOKMARK (item))
         pixbuf = katze_load_cached_icon (katze_item_get_uri (item), treeview);
     g_object_set (renderer, "pixbuf", pixbuf, NULL);
 
@@ -639,7 +615,7 @@ midori_bookmarks_popup_item (GtkWidget*       menu,
     const gchar* uri;
     GtkWidget* menuitem;
 
-    uri = ITEM_IS_BOOKMARK (item) ? katze_item_get_uri (item) : NULL;
+    uri = KATZE_ITEM_IS_BOOKMARK (item) ? katze_item_get_uri (item) : NULL;
 
     menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
     if (label)
@@ -647,8 +623,8 @@ midori_bookmarks_popup_item (GtkWidget*       menu,
         GTK_BIN (menuitem))), label);
     if (!strcmp (stock_id, GTK_STOCK_EDIT))
         gtk_widget_set_sensitive (menuitem,
-            !ITEM_IS_SEPARATOR (item));
-    else if (!ITEM_IS_FOLDER (item) && strcmp (stock_id, GTK_STOCK_DELETE))
+            !KATZE_ITEM_IS_SEPARATOR (item));
+    else if (!KATZE_ITEM_IS_FOLDER (item) && strcmp (stock_id, GTK_STOCK_DELETE))
         gtk_widget_set_sensitive (menuitem, uri != NULL);
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
     g_signal_connect (menuitem, "activate", G_CALLBACK (callback), bookmarks);
@@ -681,7 +657,7 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
     guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    if (ITEM_IS_FOLDER (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
     {
         KatzeItem* child;
         KatzeArray* array;
@@ -747,10 +723,10 @@ midori_bookmarks_edit_activate_cb (GtkWidget*       menuitem,
     MidoriBrowser* browser;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    g_assert (!ITEM_IS_SEPARATOR (item));
+    g_assert (!KATZE_ITEM_IS_SEPARATOR (item));
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, ITEM_IS_FOLDER (item));
+    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item));
 }
 
 static void
@@ -786,7 +762,7 @@ midori_bookmarks_popup (GtkWidget*       widget,
     GtkWidget* menuitem;
 
     menu = gtk_menu_new ();
-    if (ITEM_IS_FOLDER (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
         midori_bookmarks_popup_item (menu,
             STOCK_TAB_NEW, _("Open all in _Tabs"),
             item, midori_bookmarks_open_in_tab_activate_cb, bookmarks);
@@ -830,7 +806,7 @@ midori_bookmarks_button_release_event_cb (GtkWidget*       widget,
         if (event->button == 2)
         {
             const gchar* uri;
-            if (ITEM_IS_BOOKMARK (item) && (uri = katze_item_get_uri (item)) && *uri)
+            if (KATZE_ITEM_IS_BOOKMARK (item) && (uri = katze_item_get_uri (item)) && *uri)
             {
                 MidoriBrowser* browser;
                 gint n;
