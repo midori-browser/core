@@ -6531,7 +6531,20 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
     while ((item = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
     {
-        midori_bookmarkbar_insert_item (browser->bookmarkbar, item);
+        if (KATZE_ITEM_IS_BOOKMARK (item))
+            midori_bookmarkbar_insert_item (browser->bookmarkbar, item);
+        else
+        {
+            KatzeArray* subfolder;
+            gchar* subsqlcmd;
+
+            subsqlcmd = g_strdup_printf ("SELECT uri, title, app FROM bookmarks WHERE "
+                                         " folder = '%s'", katze_item_get_name (item));
+            subfolder = katze_array_from_sqlite (db, sqlcmd);
+            katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
+            midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
+            g_free (subsqlcmd);
+        }
         i++;
     }
     _action_set_sensitive (browser, "BookmarkAdd", TRUE);
