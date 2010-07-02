@@ -700,7 +700,7 @@ midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
 }
 
 /* Private function, used by MidoriBookmarks and MidoriHistory */
-/* static */ void
+/* static */ gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
                                          gboolean       new_bookmark,
@@ -720,12 +720,13 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* combo_folder;
     GtkWidget* check_toolbar;
     GtkWidget* check_app;
+    gboolean return_status = FALSE;
     #if HAVE_SQLITE
     sqlite3* db;
     #endif
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
-        return;
+        return FALSE;
 
     #if HAVE_SQLITE
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
@@ -954,8 +955,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 _action_set_active (browser, "Bookmarkbar", TRUE);
         #endif
         g_free (selected);
+        return_status = TRUE;
     }
     gtk_widget_destroy (dialog);
+    return return_status;
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 3)

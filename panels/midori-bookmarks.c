@@ -25,7 +25,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
-void
+gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          KatzeItem*     bookmark,
                                          gboolean       new_bookmark,
@@ -303,9 +303,12 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
 
         g_assert (!KATZE_ITEM_IS_SEPARATOR (item));
 
-        browser = midori_browser_get_for_widget (toolitem);
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item));
-
+        browser = midori_browser_get_for_widget (bookmarks->treeview);
+        if (midori_browser_edit_bookmark_dialog_new (
+            browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item)))
+        {
+            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
+        }
         g_object_unref (item);
     }
 }
@@ -696,43 +699,6 @@ midori_bookmarks_open_in_window_activate_cb (GtkWidget*       menuitem,
 }
 
 static void
-midori_bookmarks_edit_activate_cb (GtkWidget*       menuitem,
-                                   MidoriBookmarks* bookmarks)
-{
-    KatzeItem* item;
-    MidoriBrowser* browser;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    g_assert (!KATZE_ITEM_IS_SEPARATOR (item));
-
-    browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-    midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item));
-}
-
-static void
-midori_bookmarks_delete_activate_cb (GtkWidget*       menuitem,
-                                     MidoriBookmarks* bookmarks)
-{
-    KatzeItem* item;
-    #if HAVE_SQLITE
-    sqlite3* db;
-    #endif
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-
-    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (bookmarks->treeview),
-                                           &model, &iter))
-    {
-        item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-        #if HAVE_SQLITE
-        db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
-        midori_bookmarks_remove_item_from_db (db, item);
-        #endif
-        gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-    }
-}
-
-static void
 midori_bookmarks_popup (GtkWidget*       widget,
                         GdkEventButton*  event,
                         KatzeItem*       item,
@@ -759,9 +725,9 @@ midori_bookmarks_popup (GtkWidget*       widget,
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     midori_bookmarks_popup_item (menu, GTK_STOCK_EDIT, NULL,
-        item, midori_bookmarks_edit_activate_cb, bookmarks);
+        item, midori_bookmarks_edit_clicked_cb, bookmarks);
     midori_bookmarks_popup_item (menu, GTK_STOCK_DELETE, NULL,
-        item, midori_bookmarks_delete_activate_cb, bookmarks);
+        item, midori_bookmarks_delete_clicked_cb, bookmarks);
 
     katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
