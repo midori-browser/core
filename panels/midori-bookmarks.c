@@ -166,9 +166,15 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
                                         const gchar*     folder)
 {
     KatzeArray* array;
+    gint last;
+    GtkTreeIter child;
 
     array = midori_bookmarks_read_from_db (bookmarks, folder);
     katze_bookmark_populate_tree_view (array, model, parent);
+    /* Remove invisible dummy row */
+    last = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (model), parent);
+    gtk_tree_model_iter_nth_child (GTK_TREE_MODEL (model), &child, parent, last - 1);
+    gtk_tree_store_remove (model, &child);
 }
 
 void
