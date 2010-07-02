@@ -469,7 +469,7 @@ midori_bookmarks_import (const gchar* filename,
         g_error_free (error);
         return;
     }
-    midori_bookmarks_import_array_db (bookmarks, db);
+    midori_bookmarks_import_array_db (db, bookmarks, "");
 }
 #endif
 

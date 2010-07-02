@@ -118,8 +118,9 @@ midori_bookmarks_get_stock_id (MidoriViewable* viewable)
 
 #if HAVE_SQLITE
 void
-midori_bookmarks_import_array_db (KatzeArray* array,
-                                  sqlite3*    db)
+midori_bookmarks_import_array_db (sqlite3*     db,
+                                  KatzeArray*  array,
+                                  const gchar* folder)
 {
     GList* list = NULL;
     GList* bookmarks;
@@ -130,9 +131,9 @@ midori_bookmarks_import_array_db (KatzeArray* array,
         KatzeItem* item;
 
         if (KATZE_IS_ARRAY (list->data))
-            midori_bookmarks_import_array_db (list->data, db);
+            midori_bookmarks_import_array_db (db, list->data, folder);
         item = (KatzeItem*) list->data;
-        midori_bookmarks_insert_item_db (db, item, NULL);
+        midori_bookmarks_insert_item_db (db, item, folder);
     }
 }
 
@@ -171,9 +172,9 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
 }
 
 void
-midori_bookmarks_insert_item_db (sqlite3*   db,
-                                 KatzeItem* item,
-                                 gchar*     folder)
+midori_bookmarks_insert_item_db (sqlite3*     db,
+                                 KatzeItem*   item,
+                                 const gchar* folder)
 {
     gchar* sqlcmd;
     char* errmsg = NULL;

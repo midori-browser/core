@@ -172,6 +172,11 @@ midori_browser_get_property (GObject*    object,
 
 #if HAVE_SQLITE
 void
+midori_bookmarks_import_array_db (sqlite3*    db,
+                                  KatzeArray* array,
+                                  gchar*      folder);
+
+void
 midori_bookmarks_insert_item_db (sqlite3*   db,
                                  KatzeItem* item,
                                  gchar*     folder);
@@ -4122,6 +4127,9 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gint icon_width = 16;
     guint i;
     KatzeItem* item;
+    sqlite3* db;
+    const gchar* sqlcmd;
+    KatzeArray* bookmarkdirs;
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
@@ -4183,21 +4191,20 @@ _action_bookmarks_import_activate (GtkAction*     action,
     combobox_folder = GTK_COMBO_BOX (combo);
     gtk_combo_box_append_text (combobox_folder, _("Toplevel folder"));
     gtk_combo_box_set_active (combobox_folder, 0);
+
+    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
+    sqlcmd = "SELECT title from bookmarks where uri=''";
+    bookmarkdirs = katze_array_from_sqlite (db, sqlcmd);
     i = 0;
-    while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
+    while ((item = katze_array_get_nth_item (bookmarkdirs, i++)))
     {
-        if (KATZE_IS_ARRAY (item))
-        {
-            const gchar* name = katze_item_get_name (item);
-            if (name)
-                gtk_combo_box_append_text (combobox_folder, name);
-        }
+        const gchar* name = katze_item_get_name (item);
+        gtk_combo_box_append_text (combobox_folder, name);
     }
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
-    /* FIXME: Importing into a subfolder doesn't work */
-    gtk_widget_set_sensitive (combo, FALSE);
+    gtk_widget_set_sensitive (combo, TRUE);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
@@ -4205,26 +4212,14 @@ _action_bookmarks_import_activate (GtkAction*     action,
         GtkTreeIter iter;
         gchar* path;
         gchar* selected;
-        KatzeArray* folder;
         GError* error;
 
         gtk_combo_box_get_active_iter (combobox, &iter);
         gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &path, -1);
 
         selected = gtk_combo_box_get_active_text (combobox_folder);
-        folder = browser->bookmarks;
-        if (g_strcmp0 (selected, _("Toplevel folder")))
-        {
-            i = 0;
-            while ((item = katze_array_get_nth_item (browser->bookmarks, i++)))
-                if (KATZE_IS_ARRAY (item))
-                    if (!g_strcmp0 (katze_item_get_name (item), selected))
-                    {
-                        folder = KATZE_ARRAY (item);
-                        break;
-                    }
-        }
-        g_free (selected);
+        if (g_str_equal (selected, _("Toplevel folder")))
+            selected = g_strdup ("");
 
         gtk_widget_destroy (dialog);
         if (!path)
@@ -4239,13 +4234,15 @@ _action_bookmarks_import_activate (GtkAction*     action,
         }
 
         error = NULL;
-        if (path && !midori_array_from_file (folder, path, NULL, &error))
+        if (path && !midori_array_from_file (browser->bookmarks, path, NULL, &error))
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                 _("Failed to import bookmarks"), error ? error->message : "");
             if (error)
                 g_error_free (error);
         }
+        midori_bookmarks_import_array_db (db, browser->bookmarks, selected);
+        g_free (selected);
         g_free (path);
     }
     else

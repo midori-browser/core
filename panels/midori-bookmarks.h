@@ -47,17 +47,18 @@ midori_bookmarks_new                    (void);
 
 #if HAVE_SQLITE
 void
-midori_bookmarks_insert_item_db (sqlite3*   db,
-                                 KatzeItem* item,
-                                 gchar*     folder);
+midori_bookmarks_insert_item_db (sqlite3*     db,
+                                 KatzeItem*   item,
+                                 const gchar* folder);
 
 void
 midori_bookmarks_remove_item_from_db (sqlite3*   db,
                                       KatzeItem* item);
 
 void
-midori_bookmarks_import_array_db (KatzeArray* array,
-                                  sqlite3*    db);
+midori_bookmarks_import_array_db (sqlite3*       db,
+                                  KatzeArray*    array,
+                                  const gchar*   folder);
 #endif
 
 G_END_DECLS
