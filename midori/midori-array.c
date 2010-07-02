@@ -205,7 +205,7 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
         gchar* value;
 
         value = (gchar*)xmlGetProp (cur, (xmlChar*)"version");
-        if (!katze_str_equal (value, "1.0"))
+        if (!value || !katze_str_equal (value, "1.0"))
             g_warning ("XBEL version is not 1.0.");
         g_free (value);
 
