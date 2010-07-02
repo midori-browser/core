@@ -2855,7 +2855,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         uri_fixed = g_strdup (uri);
 
     /* FIXME: Use the same binary that is running right now */
-    if (katze_item_get_meta_integer (item, "app") != -1)
+    if (katze_item_get_meta_boolean (item, "app"))
         midori_browser_spawn_app (uri_fixed);
     else
     {
