@@ -566,13 +566,20 @@ midori_bookmarks_row_activated_cb (GtkTreeView*       treeview,
 
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
-        MidoriBrowser* browser;
-
         gtk_tree_model_get (model, &iter, 0, &item, -1);
+        if (KATZE_ITEM_IS_BOOKMARK (item))
+        {
+            MidoriBrowser* browser;
 
-        browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
-        midori_browser_open_bookmark (browser, item);
-
+            browser = midori_browser_get_for_widget (GTK_WIDGET (bookmarks));
+            midori_browser_open_bookmark (browser, item);
+            g_object_unref (item);
+            return;
+        }
+        if (gtk_tree_view_row_expanded (treeview, path))
+            gtk_tree_view_collapse_row (treeview, path);
+        else
+            gtk_tree_view_expand_row (treeview, path, FALSE);
         g_object_unref (item);
     }
 }

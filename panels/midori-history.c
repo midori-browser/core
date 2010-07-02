@@ -582,33 +582,34 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
 #if HAVE_SQLITE
 static void
 midori_history_row_activated_cb (GtkTreeView*       treeview,
-                                   GtkTreePath*       path,
-                                   GtkTreeViewColumn* column,
-                                   MidoriHistory*   history)
+                                 GtkTreePath*       path,
+                                 GtkTreeViewColumn* column,
+                                 MidoriHistory*     history)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
     KatzeItem* item;
-    const gchar* uri;
 
     model = gtk_tree_view_get_model (treeview);
 
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
         gtk_tree_model_get (model, &iter, 0, &item, -1);
-
-        if (!item)
-            return;
-
-        uri = katze_item_get_uri (item);
-        if (uri && *uri)
+        if (KATZE_ITEM_IS_BOOKMARK (item))
         {
             MidoriBrowser* browser;
+            const gchar* uri;
 
+            uri = katze_item_get_uri (item);
             browser = midori_browser_get_for_widget (GTK_WIDGET (history));
             midori_browser_set_current_uri (browser, uri);
+            g_object_unref (item);
+            return;
         }
-
+        if (gtk_tree_view_row_expanded (treeview, path))
+            gtk_tree_view_collapse_row (treeview, path);
+        else
+            gtk_tree_view_expand_row (treeview, path, FALSE);
         g_object_unref (item);
     }
 }
