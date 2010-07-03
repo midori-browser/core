@@ -12,6 +12,7 @@
 #include "midori-history.h"
 
 #include "midori-app.h"
+#include "midori-array.h"
 #include "midori-browser.h"
 #include "midori-stock.h"
 #include "midori-view.h"
@@ -667,12 +668,22 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
     guint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    if (KATZE_IS_ARRAY (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
     {
+        sqlite3* db;
+        gchar* sqlcmd;
         KatzeItem* child;
+        KatzeArray* array;
         guint i = 0;
 
-        while ((child = katze_array_get_nth_item (KATZE_ARRAY (item), i)))
+        db = g_object_get_data (G_OBJECT (history->array), "db");
+        sqlcmd = g_strdup_printf ("SELECT uri, title, date, day "
+                 "FROM history WHERE day = %d "
+                 "GROUP BY uri ORDER BY date ASC",
+                 (int)katze_item_get_added (item));
+        array = katze_array_from_sqlite (db, sqlcmd);
+        g_free (sqlcmd);
+        while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i++)))
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
@@ -686,7 +697,6 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
                     midori_browser_set_current_page (browser, n);
                 g_object_unref (settings);
             }
-            i++;
         }
     }
     else
