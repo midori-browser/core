@@ -6512,7 +6512,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
     if (!db)
         return;
 
-    sqlcmd = "SELECT uri, title, app FROM bookmarks WHERE "
+    sqlcmd = "SELECT uri, title, app, folder FROM bookmarks WHERE "
              " toolbar = 1 ORDER BY type ASC";
 
     array = katze_array_from_sqlite (db, sqlcmd);

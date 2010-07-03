@@ -790,6 +790,12 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         value = sqlite3_column_int64 (stmt, column);
         katze_item_set_meta_integer (item, name, value);
     }
+    else if (g_str_equal (name, "folder"))
+    {
+        const unsigned char* folder;
+        folder = sqlite3_column_text (stmt, column);
+        katze_item_set_meta_string (item, name, (gchar*)folder);
+    }
     else
         g_warn_if_reached ();
 }

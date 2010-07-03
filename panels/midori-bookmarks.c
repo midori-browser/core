@@ -148,7 +148,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
 
     db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
 
-    sqlcmd = "SELECT uri, title, type, app, toolbar from bookmarks where folder = ?"
+    sqlcmd = "SELECT uri, title, type, app, toolbar, folder from bookmarks where folder = ?"
              " ORDER BY type DESC";
     result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
     sqlite3_bind_text (statement, 1, g_strdup(folder), -1, g_free);
