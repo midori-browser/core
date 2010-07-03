@@ -855,9 +855,9 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 const unsigned char* name = sqlite3_column_text (statement, 0);
                 gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                     0, name, 1, PANGO_ELLIPSIZE_END, -1);
-                /* FIXME: Not working */
-                /*if (katze_item_get_parent (bookmark) == item)
-                    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), n);*/
+                if (!new_bookmark
+                    && g_str_equal (katze_item_get_meta_string (bookmark, "folder"), name))
+                    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), n);
                 n++;
         }
         if (n < 2)
