@@ -784,7 +784,7 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         katze_item_set_added (item, date);
     }
     else if (g_str_equal (name, "day") || g_str_equal (name, "app")
-          || g_str_equal (name, "toolbar") || g_str_equal (name, "type"))
+          || g_str_equal (name, "toolbar"))
     {
         gint value;
         value = sqlite3_column_int64 (stmt, column);
