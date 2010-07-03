@@ -3981,33 +3981,27 @@ midori_browser_bookmark_edit_activate_cb (GtkWidget*     menuitem,
                                           MidoriBrowser* browser)
 {
     KatzeItem* item;
-    const gchar* uri;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    uri = katze_item_get_uri (item);
 
-    if (!uri)
-        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE);
-    else
+    if (KATZE_ITEM_IS_BOOKMARK (item))
         midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, FALSE);
+    else
+        midori_browser_edit_bookmark_dialog_new (browser, item, FALSE, TRUE);
 }
 
 static void
 midori_browser_bookmark_delete_activate_cb (GtkWidget*     menuitem,
                                             MidoriBrowser* browser)
 {
+    sqlite3* db;
     KatzeItem* item;
-    const gchar* uri;
-    KatzeItem* parent;
 
+    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    uri = katze_item_get_uri (item);
 
-    /* FIXME: Even toplevel items should technically have a parent */
-    g_return_if_fail (katze_item_get_parent (item));
-
-    parent = katze_item_get_parent (item);
-    katze_array_remove_item (KATZE_ARRAY (parent), item);
+    midori_bookmarks_remove_item_from_db (db, item);
+    g_object_unref (item);
 }
 
 static void
