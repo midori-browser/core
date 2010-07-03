@@ -259,7 +259,6 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
                                  GtkTreeIter*     iter,
                                  MidoriBookmarks* bookmarks)
 {
-    KatzeItem* parent_item;
     KatzeItem* item;
     GtkTreeIter parent;
     sqlite3* db;
@@ -270,8 +269,17 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
 
     if (gtk_tree_model_iter_parent (model, &parent, iter))
     {
-        gtk_tree_model_get (model, &parent , 0, &parent_item, -1);
-        parent_name = g_strdup (katze_item_get_name (parent_item));
+        KatzeItem* new_parent;
+
+        gtk_tree_model_get (model, &parent, 0, &new_parent, -1);
+
+        /* Bookmarks must not be moved into non-folder items */
+        if (!KATZE_ITEM_IS_FOLDER (new_parent))
+            parent_name = g_strdup ("");
+        else
+            parent_name = g_strdup (katze_item_get_name (new_parent));
+
+        g_object_unref (new_parent);
     }
     else
         parent_name = g_strdup ("");
