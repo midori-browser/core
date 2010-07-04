@@ -117,6 +117,9 @@ const gchar*
 midori_browser_get_current_uri        (MidoriBrowser*     browser);
 
 void
+midori_browser_set_current_page_smartly (MidoriBrowser* browser,
+                                         gint           n);
+void
 midori_browser_set_current_page       (MidoriBrowser*     browser,
                                        gint               n);
 

@@ -425,9 +425,9 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
     }
 }
 
-static void
-_midori_browser_set_current_page_smartly (MidoriBrowser* browser,
-                                          gint           n)
+void
+midori_browser_set_current_page_smartly (MidoriBrowser* browser,
+                                         gint           n)
 {
     if (!katze_object_get_boolean (browser->settings,
         "open-tabs-in-the-background"))
@@ -2697,7 +2697,7 @@ _action_trash_activate_item_alt (GtkAction*     action,
 
         n = midori_browser_add_uri (browser, katze_item_get_uri (item));
 
-        _midori_browser_set_current_page_smartly (browser, n);
+        midori_browser_set_current_page_smartly (browser, n);
 
         katze_array_remove_item (browser->trash, item);
         _midori_browser_update_actions (browser);
@@ -3419,7 +3419,7 @@ midori_browser_bookmark_homepage_button_press_cb (GtkToolItem*    button,
         g_object_get (browser->settings, "homepage", &homepage, NULL);
         n = midori_browser_add_uri (browser, homepage);
         g_free (homepage);
-        _midori_browser_set_current_page_smartly (browser, n);
+        midori_browser_set_current_page_smartly (browser, n);
         return TRUE;
     }
 
@@ -3781,7 +3781,7 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
                 n = midori_browser_add_item (browser, child);
-                _midori_browser_set_current_page_smartly (browser, n);
+                midori_browser_set_current_page_smartly (browser, n);
             }
             i++;
         }
@@ -3791,7 +3791,7 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
         if ((uri = katze_item_get_uri (item)) && *uri)
         {
             n = midori_browser_add_item (browser, item);
-            _midori_browser_set_current_page_smartly (browser, n);
+            midori_browser_set_current_page_smartly (browser, n);
         }
     }
 }
@@ -6234,7 +6234,7 @@ midori_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
         if (katze_item_get_uri (item))
         {
             n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-            _midori_browser_set_current_page_smartly (browser, n);
+            midori_browser_set_current_page_smartly (browser, n);
 
             return TRUE;
         }
