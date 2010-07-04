@@ -171,7 +171,8 @@ private class HistoryList : Midori.Extension {
         Gtk.Action action;
 
         action = new Gtk.Action ("HistoryListNextTab",
-            "Next Tab (HistoryList)", "Next tab from history", null);
+            _("Next Tab (History List)"),
+            _("Next tab from history"), null);
         action.activate.connect ((a) => {
             this.walk (a, browser, typeof (TabWindow), 1);
         });
@@ -180,7 +181,8 @@ private class HistoryList : Midori.Extension {
         action.connect_accelerator ();
 
         action = new Gtk.Action ("HistoryListPreviousTab",
-            "Previous Tab (HistoryList)", "Previous tab from history", null);
+            _("Previous Tab (History List)"),
+            _("Previous tab from history"), null);
         action.activate.connect ((a) => {
             this.walk (a, browser, typeof (TabWindow), -1);
         });
@@ -240,8 +242,8 @@ private class HistoryList : Midori.Extension {
         app.add_browser.disconnect (browser_added);
     }
     internal HistoryList () {
-        GLib.Object (name: "History List",
-                     description: "Allows to switch tabs by choosing from a list sorted by last usage",
+        GLib.Object (name: _("History List"),
+                     description: _("Allows to switch tabs by choosing from a list sorted by last usage"),
                      version: "0.2",
                      authors: "André Stösel <Midori-Plugin@PyIT.de>");
         activate.connect (activated);

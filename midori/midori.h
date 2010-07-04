@@ -26,7 +26,7 @@
 #include "midori-websettings.h"
 
 /* For convenience, include localization header */
-#include <glib/gi18n.h>
+#include <glib/gi18n-lib.h>
 
 #define MIDORI_CHECK_VERSION(major, minor, micro) \
   (MIDORI_MAJOR_VERSION > (major) || \

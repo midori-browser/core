@@ -90,8 +90,8 @@ public class ExternalApplications : Midori.Extension {
         }
     }
     internal ExternalApplications () {
-        GLib.Object (name: "External Applications",
-                     description: "Associate URL schemes with external commands",
+        GLib.Object (name: _("External Applications"),
+                     description: _("Associate URL schemes with external commands"),
                      version: "0.1",
                      authors: "Christian Dywan <christian@twotoasts.de>");
         activate.connect (activated);

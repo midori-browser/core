@@ -282,7 +282,7 @@ def configure (conf):
     conf.define ('MIDORI_MICRO_VERSION', micro)
 
     conf.write_config_header ('config.h')
-    conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H')
+    conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H -include config.h'.split ())
     debug_level = Options.options.debug_level
     compiler = conf.env['CC_NAME']
     if debug_level != '' and compiler != 'gcc':
