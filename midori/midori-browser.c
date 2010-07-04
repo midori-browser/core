@@ -2562,7 +2562,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
 {
     static const gchar* actions[] = {
             "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Fullscreen", "Preferences", "Window", "Bookmarks",
+            "Fullscreen", "Preferences", "Window",
             "RecentlyVisited", "ReloadStop", "ZoomIn", "TabClose",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
             "Panel", "Trash", "Search", "BookmarkAdd", "Previous", "Next", NULL };
@@ -2791,54 +2791,6 @@ _action_history_activate_item (GtkAction*     action,
     midori_browser_set_current_uri (browser, katze_item_get_uri (item));
 }
 
-static void
-_action_bookmarks_populate_popup (GtkAction*     action,
-                                  GtkMenu*       menu,
-                                  MidoriBrowser* browser)
-{
-    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
-    guint i = 0;
-    GtkWidget* menuitem;
-
-    while ((menuitem = g_list_nth_data (children, i++)))
-    {
-        g_signal_connect (menuitem, "select",
-            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
-        g_signal_connect (menuitem, "deselect",
-            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
-    }
-    g_list_free (children);
-
-    menuitem = gtk_separator_menu_item_new ();
-    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-
-    if (katze_array_is_empty (browser->bookmarks))
-    {
-        menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
-        gtk_widget_set_sensitive (menuitem, FALSE);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        gtk_widget_show (menuitem);
-    }
-    menuitem = gtk_action_create_menu_item (
-        _action_by_name (browser, "BookmarksExport"));
-    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-    menuitem = gtk_action_create_menu_item (
-        _action_by_name (browser, "BookmarksImport"));
-    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-
-    menuitem = gtk_action_create_menu_item (
-        _action_by_name (browser, "BookmarkFolderAdd"));
-    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-    menuitem = gtk_action_create_menu_item (
-        _action_by_name (browser, "BookmarkAdd"));
-    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
-    gtk_widget_show (menuitem);
-}
-
 /* static */ void
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item)
@@ -2863,14 +2815,6 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
     }
     g_free (uri_fixed);
-}
-
-static void
-_action_bookmarks_activate_item (GtkAction*     action,
-                                 KatzeItem*     item,
-                                 MidoriBrowser* browser)
-{
-    midori_browser_open_bookmark (browser, item);
 }
 
 static void
@@ -5302,6 +5246,8 @@ static const gchar* ui_markup =
                 "<menuitem action='WindowClose'/>"
                 "<separator/>"
                 "<menuitem action='Print'/>"
+                "<menuitem action='BookmarksImport'/>"
+                "<menuitem action='BookmarksExport'/>"
                 "<separator/>"
                 "<menuitem action='Quit'/>"
             "</menu>"
@@ -5366,7 +5312,6 @@ static const gchar* ui_markup =
                 "<menuitem action='Trash'/>"
                 "<menuitem action='RecentlyVisited'/>"
             "</menu>"
-            "<menuitem action='Bookmarks'/>"
             "<menuitem action='Tools'/>"
             "<menuitem action='Window'/>"
             "<menu action='Help'>"
@@ -5386,8 +5331,6 @@ static const gchar* ui_markup =
             "<menuitem action='FindPrevious'/>"
             "<menuitem action='BookmarkAdd'/>"
             "<menuitem action='BookmarkFolderAdd'/>"
-            "<menuitem action='BookmarksImport'/>"
-            "<menuitem action='BookmarksExport'/>"
             "<menuitem action='ManageSearchEngines'/>"
             "<menuitem action='ClearPrivateData'/>"
             "<menuitem action='TabPrevious'/>"
@@ -5796,23 +5739,6 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_history_populate_popup, browser,
                       "signal::activate-item",
                       _action_history_activate_item, browser,
-                      "signal::activate-item-alt",
-                      _action_menus_activate_item_alt, browser,
-                      NULL);
-    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
-    g_object_unref (action);
-
-    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
-        "name", "Bookmarks",
-        "label", _("_Bookmarks"),
-        "stock-id", STOCK_BOOKMARKS,
-        "tooltip", _("Show the saved bookmarks"),
-        NULL);
-    g_object_connect (action,
-                      "signal::populate-popup",
-                      _action_bookmarks_populate_popup, browser,
-                      "signal::activate-item",
-                      _action_bookmarks_activate_item, browser,
                       "signal::activate-item-alt",
                       _action_menus_activate_item_alt, browser,
                       NULL);
@@ -6473,7 +6399,7 @@ midori_bookmarkbar_insert_item (GtkWidget* toolbar,
     MidoriBrowser* browser = midori_browser_get_for_widget (toolbar);
 
     toolitem = katze_array_action_create_tool_item_for (
-        KATZE_ARRAY_ACTION (_action_by_name (browser, "Bookmarks")), item);
+        KATZE_ARRAY_ACTION (_action_by_name (browser, "Tools")), item);
     g_object_set_data (G_OBJECT (toolitem), "KatzeItem", item);
 
     if (KATZE_IS_ITEM (item))
@@ -6586,9 +6512,6 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
         g_object_ref (bookmarks);
         katze_object_assign (browser->bookmarks, bookmarks);
     }
-
-    g_object_set (_action_by_name (browser, "Bookmarks"), "array",
-                  browser->bookmarks, NULL);
 
     settings = midori_browser_get_settings (browser);
     g_signal_connect (settings, "notify::show-bookmarkbar",
