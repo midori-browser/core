@@ -203,7 +203,8 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
     gtk_tree_model_get (GTK_TREE_MODEL (model), &child, 0, &item, -1);
     if (KATZE_ITEM_IS_SEPARATOR (item))
         gtk_tree_store_remove (model, &child);
-    g_object_unref (item);
+    else
+        g_object_unref (item);
 }
 
 void
