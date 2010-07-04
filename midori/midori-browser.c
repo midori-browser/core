@@ -212,12 +212,6 @@ midori_search_action_get_icon (KatzeItem*    item,
                                GtkWidget*    widget,
                                const gchar** icon_name);
 
-static gboolean
-_action_menus_activate_item_alt (GtkAction*     action,
-                                 KatzeItem*     item,
-                                 guint          button,
-                                 MidoriBrowser* browser);
-
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser);
 
@@ -2563,7 +2557,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
     static const gchar* actions[] = {
             "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
             "Fullscreen", "Preferences", "Window",
-            "RecentlyVisited", "ReloadStop", "ZoomIn", "TabClose",
+            "ReloadStop", "ZoomIn", "TabClose",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
             "Panel", "Trash", "Search", "BookmarkAdd", "Previous", "Next", NULL };
 
@@ -2714,83 +2708,6 @@ _action_trash_activate_item_alt (GtkAction*     action,
     return FALSE;
 }
 
-static void
-midori_browser_menu_item_activate_cb (GtkWidget*     menuitem,
-                                      MidoriBrowser* browser)
-{
-    KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    midori_browser_set_current_uri (browser, katze_item_get_uri (item));
-}
-
-static gboolean
-midori_browser_menu_item_button_press_cb (GtkWidget*      menuitem,
-                                          GdkEventButton* event,
-                                          MidoriBrowser*  browser)
-{
-    KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    return _action_menus_activate_item_alt (NULL, item, event->button, browser);
-}
-
-static void
-_action_history_populate_popup (GtkAction*     action,
-                                GtkMenu*       menu,
-                                MidoriBrowser* browser)
-{
-    sqlite3* db;
-    const gchar* sqlcmd;
-    KatzeArray* array;
-    KatzeItem* item;
-    gint i = 0;
-
-    db = g_object_get_data (G_OBJECT (browser->history), "db");
-    sqlcmd = "SELECT uri, title, date FROM history "
-             "GROUP BY uri ORDER BY date ASC LIMIT 10";
-    array = katze_array_from_sqlite (db, sqlcmd);
-
-    while ((item = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
-    {
-        GtkWidget* menuitem;
-        GdkPixbuf* icon;
-        GtkWidget* image;
-        const gchar* uri;
-        const gchar* title;
-
-        uri = katze_item_get_uri (item);
-        title = katze_item_get_name (item);
-        menuitem = katze_image_menu_item_new_ellipsized ((gchar*)title);
-        icon = katze_load_cached_icon ((gchar*)uri, GTK_WIDGET (browser));
-        image = gtk_image_new_from_pixbuf (icon);
-        g_object_unref (icon);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-        #if GTK_CHECK_VERSION (2, 16, 0)
-        gtk_image_menu_item_set_always_show_image (
-            GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
-        #endif
-        g_object_set_data_full (G_OBJECT (menuitem), "KatzeItem",
-                                item, (GDestroyNotify)g_object_unref);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-        gtk_widget_show (menuitem);
-
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_browser_menu_item_activate_cb), browser);
-        g_signal_connect (menuitem, "button-press-event",
-            G_CALLBACK (midori_browser_menu_item_button_press_cb), browser);
-        g_signal_connect (menuitem, "select",
-            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
-        g_signal_connect (menuitem, "deselect",
-            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
-        i++;
-    }
-}
-
-static void
-_action_history_activate_item (GtkAction*     action,
-                               KatzeItem*     item,
-                               MidoriBrowser* browser)
-{
-    midori_browser_set_current_uri (browser, katze_item_get_uri (item));
-}
-
 /* static */ void
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item)
@@ -2879,30 +2796,6 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
                                GdkEventButton* event,
                                KatzeItem*      item,
                                MidoriBrowser*  browser);
-
-static gboolean
-_action_menus_activate_item_alt (GtkAction*     action,
-                                 KatzeItem*     item,
-                                 guint          button,
-                                 MidoriBrowser* browser)
-{
-    if (button == 2)
-    {
-        gint n = midori_browser_add_uri (browser, katze_item_get_uri (item));
-        _midori_browser_set_current_page_smartly (browser, n);
-
-        return TRUE;
-    }
-    else if (button == 3)
-    {
-        GdkEvent* event = gtk_get_current_event ();
-        midori_browser_bookmark_popup (gtk_get_event_widget (event),
-            (GdkEventButton*)event, item, browser);
-        return TRUE;
-    }
-
-    return FALSE;
-}
 
 static void
 _action_window_populate_popup (GtkAction*     action,
@@ -5311,7 +5204,6 @@ static const gchar* ui_markup =
                 "<menuitem action='Location'/>"
                 "<menuitem action='Search'/>"
                 "<menuitem action='Trash'/>"
-                "<menuitem action='RecentlyVisited'/>"
             "</menu>"
             "<menuitem action='Tools'/>"
             "<menuitem action='Window'/>"
@@ -5412,16 +5304,6 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 }
 
 static void
-midori_browser_history_remove_item_cb (KatzeArray*    folder,
-                                       KatzeItem*     item,
-                                       MidoriBrowser* browser)
-{
-    GtkAction* action = _action_by_name (browser, "RecentlyVisited");
-    if ((KatzeArray*)item == katze_array_action_get_array (KATZE_ARRAY_ACTION (action)))
-        g_object_set (action, "array", NULL, NULL);
-}
-
-static void
 midori_browser_history_clear_cb (KatzeArray*    history,
                                  MidoriBrowser* browser)
 {
@@ -5446,16 +5328,11 @@ midori_browser_set_history (MidoriBrowser* browser,
     if (history)
         g_object_ref (history);
     katze_object_assign (browser->history, history);
-    g_object_set (_action_by_name (browser, "RecentlyVisited"),
-                  "array", history, NULL);
-
     midori_browser_history_clear_cb (history, browser);
 
     if (!history)
         return;
 
-    g_signal_connect (browser->history, "remove-item",
-        G_CALLBACK (midori_browser_history_remove_item_cb), browser);
     g_signal_connect (browser->history, "clear",
                       G_CALLBACK (midori_browser_history_clear_cb), browser);
 
@@ -5725,23 +5602,6 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_trash_activate_item, browser,
                       "signal::activate-item-alt",
                       _action_trash_activate_item_alt, browser,
-                      NULL);
-    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
-    g_object_unref (action);
-
-    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
-        "name", "RecentlyVisited",
-        "label", _("_Recently visited pages"),
-        "stock-id", STOCK_HISTORY,
-        "tooltip", _("Reopen pages that you visited earlier"),
-        NULL);
-    g_object_connect (action,
-                      "signal::populate-popup",
-                      _action_history_populate_popup, browser,
-                      "signal::activate-item",
-                      _action_history_activate_item, browser,
-                      "signal::activate-item-alt",
-                      _action_menus_activate_item_alt, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
