@@ -19,11 +19,14 @@
 #include "midori-viewable.h"
 
 #include "sokoke.h"
+#include "gtkiconentry.h"
 
 #include <glib/gi18n.h>
 #include <string.h>
 
 #include <gdk/gdkkeysyms.h>
+
+#define COMPLETION_DELAY 200
 
 gboolean
 midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
@@ -45,6 +48,9 @@ struct _MidoriBookmarks
     GtkWidget* treeview;
     MidoriApp* app;
     KatzeArray* array;
+
+    gint filter_timeout;
+    gchar* filter;
 };
 
 struct _MidoriBookmarksClass
@@ -139,7 +145,8 @@ midori_bookmarks_import_array_db (sqlite3*     db,
 
 static KatzeArray*
 midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
-                               const gchar*     folder)
+                               const gchar*     folder,
+                               const gchar*     keyword)
 {
     sqlite3* db;
     sqlite3_stmt* statement;
@@ -148,10 +155,25 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
 
     db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
 
-    sqlcmd = "SELECT uri, title, app, toolbar, folder from bookmarks where folder = ?"
-             " ORDER BY uri DESC";
-    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
-    sqlite3_bind_text (statement, 1, g_strdup(folder), -1, g_free);
+    if (keyword && *keyword)
+    {
+        gchar* filterstr;
+        sqlcmd = "SELECT uri, title, app, toolbar, folder from bookmarks where "
+                 " title like ? ORDER BY uri DESC";
+        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+        filterstr = g_strdup_printf ("%%%s%%", keyword);
+        sqlite3_bind_text (statement, 1, g_strdup (filterstr), -1, g_free);
+        g_free (filterstr);
+    }
+    else
+    {
+        if (!folder)
+            folder = "";
+        sqlcmd = "SELECT uri, title, app, toolbar, folder from bookmarks where "
+                 " folder = ? ORDER BY uri DESC";
+        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+        sqlite3_bind_text (statement, 1, g_strdup (folder), -1, g_free);
+    }
 
     if (result != SQLITE_OK)
         return NULL;
@@ -163,18 +185,25 @@ static void
 midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
                                         GtkTreeStore*    model,
                                         GtkTreeIter*     parent,
-                                        const gchar*     folder)
+                                        const gchar*     folder,
+                                        const gchar*     keyword)
 {
     KatzeArray* array;
     gint last;
+    KatzeItem* item;
     GtkTreeIter child;
 
-    array = midori_bookmarks_read_from_db (bookmarks, folder);
+    array = midori_bookmarks_read_from_db (bookmarks, folder, keyword);
     katze_bookmark_populate_tree_view (array, model, parent);
     /* Remove invisible dummy row */
     last = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (model), parent);
+    if (!last)
+        return;
     gtk_tree_model_iter_nth_child (GTK_TREE_MODEL (model), &child, parent, last - 1);
-    gtk_tree_store_remove (model, &child);
+    gtk_tree_model_get (GTK_TREE_MODEL (model), &child, 0, &item, -1);
+    if (KATZE_ITEM_IS_SEPARATOR (item))
+        gtk_tree_store_remove (model, &child);
+    g_object_unref (item);
 }
 
 void
@@ -474,7 +503,7 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
     g_object_set_data (G_OBJECT (bookmarks->array), "treeview", bookmarks->treeview);
 
     #if HAVE_SQLITE
-    midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model), NULL, "");
+    midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model), NULL, "", NULL);
     g_signal_connect_after (model, "row-changed",
                             G_CALLBACK (midori_bookmarks_row_changed_cb),
                             bookmarks);
@@ -659,7 +688,7 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
         KatzeArray* array;
         guint i = 0;
 
-        array = midori_bookmarks_read_from_db (bookmarks, katze_item_get_name (item));
+        array = midori_bookmarks_read_from_db (bookmarks, katze_item_get_name (item), NULL);
         g_return_if_fail (KATZE_IS_ARRAY (array));
         while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
         {
@@ -840,7 +869,7 @@ midori_bookmarks_row_expanded_cb (GtkTreeView*     treeview,
     gtk_tree_model_get (model, iter, 0, &item, -1);
     #if HAVE_SQLITE
     midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model),
-                                            iter, katze_item_get_name (item));
+                                            iter, katze_item_get_name (item), NULL);
     #endif
     g_object_unref (item);
 }
@@ -864,14 +893,75 @@ midori_bookmarks_row_collapsed_cb (GtkTreeView *treeview,
         0, 0, NULL, -1);
 }
 
+static gboolean
+midori_bookmarks_filter_timeout_cb (gpointer data)
+{
+    MidoriBookmarks* bookmarks = data;
+    GtkTreeModel* model;
+    GtkTreeStore* treestore;
+
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
+    treestore = GTK_TREE_STORE (model);
+
+    gtk_tree_store_clear (treestore);
+    midori_bookmarks_read_from_db_to_model (bookmarks,
+        treestore, NULL, NULL, bookmarks->filter);
+
+    return FALSE;
+}
+
+static void
+midori_bookmarks_filter_entry_changed_cb (GtkEntry*        entry,
+                                          MidoriBookmarks* bookmarks)
+{
+    if (bookmarks->filter_timeout)
+        g_source_remove (bookmarks->filter_timeout);
+    katze_assign (bookmarks->filter, g_strdup (gtk_entry_get_text (entry)));
+    bookmarks->filter_timeout = g_timeout_add (COMPLETION_DELAY,
+        midori_bookmarks_filter_timeout_cb, bookmarks);
+}
+
+static void
+midori_bookmarks_filter_entry_clear_cb (GtkEntry*        entry,
+                                        gint             icon_pos,
+                                        gint             button,
+                                        MidoriBookmarks* bookmarks)
+{
+    if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
+        gtk_entry_set_text (entry, "");
+}
+
 static void
 midori_bookmarks_init (MidoriBookmarks* bookmarks)
 {
+    GtkWidget* entry;
+    GtkWidget* box;
     GtkTreeStore* model;
     GtkWidget* treeview;
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
+
+    /* Create the filter entry */
+    entry = gtk_icon_entry_new ();
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+                                        GTK_ICON_ENTRY_PRIMARY,
+                                        GTK_STOCK_FIND);
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+                                        GTK_ICON_ENTRY_SECONDARY,
+                                        GTK_STOCK_CLEAR);
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
+        GTK_ICON_ENTRY_SECONDARY, TRUE);
+    g_signal_connect (entry, "icon-release",
+        G_CALLBACK (midori_bookmarks_filter_entry_clear_cb), bookmarks);
+    #if HAVE_SQLITE
+    g_signal_connect (entry, "changed",
+        G_CALLBACK (midori_bookmarks_filter_entry_changed_cb), bookmarks);
+    #endif
+    box = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 3);
+    gtk_widget_show_all (box);
+    gtk_box_pack_start (GTK_BOX (bookmarks), box, FALSE, FALSE, 5);
 
     /* Create the treeview */
     model = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
