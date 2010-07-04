@@ -376,37 +376,6 @@ midori_history_clear_clicked_cb (GtkWidget*     toolitem,
 
     midori_history_clear_db (history);
 }
-
-static void
-midori_history_cursor_or_row_changed_cb (GtkTreeView*   treeview,
-                                         MidoriHistory* history)
-{
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-    KatzeItem* item;
-
-    if (!history->bookmark)
-        return;
-
-    if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
-    {
-        gboolean is_page;
-
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-
-        is_page = item && katze_item_get_uri (item);
-        gtk_widget_set_sensitive (history->bookmark, is_page);
-        gtk_widget_set_sensitive (history->delete, TRUE);
-
-        if (item)
-            g_object_unref (item);
-    }
-    else
-    {
-        gtk_widget_set_sensitive (history->bookmark, FALSE);
-        gtk_widget_set_sensitive (history->delete, FALSE);
-    }
-}
 #endif
 
 static void
@@ -465,8 +434,6 @@ midori_history_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         history->clear = GTK_WIDGET (toolitem);
-        midori_history_cursor_or_row_changed_cb (
-            GTK_TREE_VIEW (history->treeview), history);
         g_signal_connect (history->bookmark, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &history->bookmark);
         g_signal_connect (history->delete, "destroy",
@@ -979,10 +946,6 @@ midori_history_init (MidoriHistory* history)
     g_object_connect (treeview,
                       "signal::row-activated",
                       midori_history_row_activated_cb, history,
-                      "signal::cursor-changed",
-                      midori_history_cursor_or_row_changed_cb, history,
-                      "signal::columns-changed",
-                      midori_history_cursor_or_row_changed_cb, history,
                       "signal::button-release-event",
                       midori_history_button_release_event_cb, history,
                       "signal::key-release-event",

@@ -383,34 +383,6 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
     }
 }
 
-static void
-midori_bookmarks_cursor_or_row_changed_cb (GtkTreeView*     treeview,
-                                           MidoriBookmarks* bookmarks)
-{
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-    KatzeItem* item;
-
-    if (!bookmarks->edit)
-        return;
-
-    if (katze_tree_view_get_selected_iter (treeview, &model, &iter))
-    {
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-
-        gtk_widget_set_sensitive (bookmarks->edit, !KATZE_ITEM_IS_SEPARATOR (item));
-        gtk_widget_set_sensitive (bookmarks->delete, TRUE);
-
-        if (item != NULL)
-            g_object_unref (item);
-    }
-    else
-    {
-        gtk_widget_set_sensitive (bookmarks->edit, FALSE);
-        gtk_widget_set_sensitive (bookmarks->delete, FALSE);
-    }
-}
-
 static GtkWidget*
 midori_bookmarks_get_toolbar (MidoriViewable* viewable)
 {
@@ -463,8 +435,6 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
 
-        midori_bookmarks_cursor_or_row_changed_cb (
-            GTK_TREE_VIEW (bookmarks->treeview), bookmarks);
         g_signal_connect (bookmarks->edit, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &bookmarks->edit);
         g_signal_connect (bookmarks->delete, "destroy",
@@ -984,10 +954,6 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     g_object_connect (treeview,
                       "signal::row-activated",
                       midori_bookmarks_row_activated_cb, bookmarks,
-                      "signal::cursor-changed",
-                      midori_bookmarks_cursor_or_row_changed_cb, bookmarks,
-                      "signal::columns-changed",
-                      midori_bookmarks_cursor_or_row_changed_cb, bookmarks,
                       "signal::button-release-event",
                       midori_bookmarks_button_release_event_cb, bookmarks,
                       "signal::key-release-event",
