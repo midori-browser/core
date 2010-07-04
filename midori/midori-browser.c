@@ -2975,6 +2975,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       #else
       { "Print" },
       { NULL },
+      { "Panel" },
       { "-" },
       { "ClearPrivateData" },
       #if WEBKIT_CHECK_VERSION (1, 1, 17)
