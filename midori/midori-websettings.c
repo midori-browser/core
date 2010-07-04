@@ -65,7 +65,6 @@ struct _MidoriWebSettings
     gboolean remember_last_visited_pages : 1;
     gboolean remember_last_downloaded_files : 1;
     MidoriProxy proxy_type : 2;
-    gboolean auto_detect_proxy : 1;
     MidoriIdentity identify_as : 3;
 
     gint last_window_width;
@@ -159,16 +158,13 @@ enum
     PROP_FIND_WHILE_TYPING,
     PROP_KINETIC_SCROLLING,
     PROP_ACCEPT_COOKIES,
-    PROP_ORIGINAL_COOKIES_ONLY,
     PROP_MAXIMUM_COOKIE_AGE,
 
-    PROP_REMEMBER_LAST_VISITED_PAGES,
     PROP_MAXIMUM_HISTORY_AGE,
     PROP_REMEMBER_LAST_DOWNLOADED_FILES,
 
     PROP_PROXY_TYPE,
     PROP_HTTP_PROXY,
-    PROP_AUTO_DETECT_PROXY,
     PROP_IDENTIFY_AS,
     PROP_USER_AGENT,
     PROP_PREFERRED_LANGUAGES,
@@ -971,22 +967,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_ACCEPT_COOKIES_ALL,
                                      flags));
 
-    /**
-     * MidoriWebSettings:original-cookies-only:
-     *
-     * Accept cookies from the original website only.
-     *
-     * Deprecated: 0.2.3: This value is not used.
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_ORIGINAL_COOKIES_ONLY,
-                                     g_param_spec_boolean (
-                                     "original-cookies-only",
-                                     _("Original cookies only"),
-                                     _("Accept cookies from the original website only"),
-                                     FALSE,
-                                     flags));
-
     g_object_class_install_property (gobject_class,
                                      PROP_MAXIMUM_COOKIE_AGE,
                                      g_param_spec_int (
@@ -996,23 +976,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      0, G_MAXINT, 30,
                                      flags));
 
-
-
-    /**
-    * MidoriWebSettings:remember-last-visited-pages:
-    *
-    * Whether the last visited pages are saved.
-    *
-    * Deprecated: 0.2.2
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_REMEMBER_LAST_VISITED_PAGES,
-                                     g_param_spec_boolean (
-                                     "remember-last-visited-pages",
-                                     _("Remember last visited pages"),
-                                     _("Whether the last visited pages are saved"),
-                                     TRUE,
-                                     flags));
 
     g_object_class_install_property (gobject_class,
                                      PROP_MAXIMUM_HISTORY_AGE,
@@ -1058,22 +1021,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("HTTP Proxy Server"),
                                      _("The proxy server used for HTTP connections"),
                                      NULL,
-                                     flags));
-
-    /**
-     * MidoriWebSettings:auto-detect-proxy:
-     *
-     * Whether to detect the proxy server automatically from the environment
-     *
-     * Deprecated: 0.2.5
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_AUTO_DETECT_PROXY,
-                                     g_param_spec_boolean (
-                                     "auto-detect-proxy",
-                                     _("Detect proxy server automatically"),
-        _("Whether to detect the proxy server automatically from the environment"),
-                                     TRUE,
                                      flags));
 
     /**
@@ -1184,7 +1131,6 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->open_popups_in_tabs = TRUE;
     web_settings->remember_last_downloaded_files = TRUE;
     web_settings->kinetic_scrolling = TRUE;
-    web_settings->auto_detect_proxy = TRUE;
 
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
@@ -1506,16 +1452,10 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_ACCEPT_COOKIES:
         web_settings->accept_cookies = g_value_get_enum (value);
         break;
-    case PROP_ORIGINAL_COOKIES_ONLY:
-        web_settings->original_cookies_only = g_value_get_boolean (value);
-        break;
     case PROP_MAXIMUM_COOKIE_AGE:
         web_settings->maximum_cookie_age = g_value_get_int (value);
         break;
 
-    case PROP_REMEMBER_LAST_VISITED_PAGES:
-        web_settings->remember_last_visited_pages = g_value_get_boolean (value);
-        break;
     case PROP_MAXIMUM_HISTORY_AGE:
         web_settings->maximum_history_age = g_value_get_int (value);
         break;
@@ -1525,16 +1465,9 @@ midori_web_settings_set_property (GObject*      object,
 
     case PROP_PROXY_TYPE:
         web_settings->proxy_type = g_value_get_enum (value);
-        web_settings->auto_detect_proxy =
-            web_settings->proxy_type == MIDORI_PROXY_AUTOMATIC
-            ? TRUE : FALSE;
-        g_object_notify (object, "auto-detect-proxy");
     break;
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
-        break;
-    case PROP_AUTO_DETECT_PROXY:
-        web_settings->auto_detect_proxy = g_value_get_boolean (value);
         break;
     case PROP_IDENTIFY_AS:
         web_settings->identify_as = g_value_get_enum (value);
@@ -1757,16 +1690,10 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_ACCEPT_COOKIES:
         g_value_set_enum (value, web_settings->accept_cookies);
         break;
-    case PROP_ORIGINAL_COOKIES_ONLY:
-        g_value_set_boolean (value, web_settings->original_cookies_only);
-        break;
     case PROP_MAXIMUM_COOKIE_AGE:
         g_value_set_int (value, web_settings->maximum_cookie_age);
         break;
 
-    case PROP_REMEMBER_LAST_VISITED_PAGES:
-        g_value_set_boolean (value, web_settings->remember_last_visited_pages);
-        break;
     case PROP_MAXIMUM_HISTORY_AGE:
         g_value_set_int (value, web_settings->maximum_history_age);
         break;
@@ -1779,9 +1706,6 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_HTTP_PROXY:
         g_value_set_string (value, web_settings->http_proxy);
-        break;
-    case PROP_AUTO_DETECT_PROXY:
-        g_value_set_boolean (value, web_settings->auto_detect_proxy);
         break;
     case PROP_IDENTIFY_AS:
         g_value_set_enum (value, web_settings->identify_as);

@@ -828,7 +828,7 @@ midori_soup_session_prepare (SoupSession*       session,
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
-    g_signal_connect (settings, "notify::auto-detect-proxy",
+    g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
 
     #if !WEBKIT_CHECK_VERSION (1, 1, 11)
