@@ -256,8 +256,10 @@ midori_transferbar_init (MidoriTransferbar* transferbar)
     transferbar->clear = gtk_tool_button_new_from_stock (GTK_STOCK_CLEAR);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (transferbar->clear), _("Clear All"));
     gtk_tool_item_set_is_important (transferbar->clear, TRUE);
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     g_signal_connect (transferbar->clear, "clicked",
         G_CALLBACK (midori_transferbar_clear_clicked_cb), transferbar);
+    #endif
     gtk_toolbar_insert (GTK_TOOLBAR (transferbar), transferbar->clear, -1);
 
     transferbar->infos = NULL;
@@ -267,11 +269,11 @@ gboolean
 midori_transferbar_confirm_delete (MidoriTransferbar* transferbar)
 {
     GtkWidget* dialog = NULL;
-    GList* list;
     gboolean cancel = FALSE;
+    #if WEBKIT_CHECK_VERSION (1, 1, 3)
+    GList* list;
     gboolean all_done = TRUE;
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     for (list = transferbar->infos; list != NULL; list = g_list_next (list))
     {
         TransferInfo* info = list->data;
