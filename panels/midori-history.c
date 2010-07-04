@@ -39,7 +39,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     #include <sqlite3.h>
 #endif
 
-#define COMPLETION_DELAY 150
+#define COMPLETION_DELAY 200
 
 struct _MidoriHistory
 {
@@ -940,9 +940,14 @@ midori_history_init (MidoriHistory* history)
     /* Create the filter entry */
     entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-        GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_CLEAR);
+                                        GTK_ICON_ENTRY_PRIMARY,
+                                        GTK_STOCK_FIND);
+    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
+                                        GTK_ICON_ENTRY_SECONDARY,
+                                        GTK_STOCK_CLEAR);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-        GTK_ICON_ENTRY_SECONDARY, TRUE);
+                                       GTK_ICON_ENTRY_SECONDARY,
+                                       TRUE);
     g_signal_connect (entry, "icon-release",
         G_CALLBACK (midori_history_filter_entry_clear_cb), history);
     #if HAVE_SQLITE
@@ -950,7 +955,6 @@ midori_history_init (MidoriHistory* history)
         G_CALLBACK (midori_history_filter_entry_changed_cb), history);
     #endif
     box = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Filter:")), FALSE, FALSE, 3);
     gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 3);
     gtk_widget_show_all (box);
     gtk_box_pack_start (GTK_BOX (history), box, FALSE, FALSE, 5);
