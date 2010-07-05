@@ -25,7 +25,7 @@
     #include <sqlite3.h>
 #endif
 
-#define COMPLETION_DELAY 150
+#define COMPLETION_DELAY 200
 #define MAX_ITEMS 25
 
 struct _MidoriLocationAction
