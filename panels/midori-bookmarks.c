@@ -214,6 +214,7 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
 {
     gchar* sqlcmd;
     char* errmsg = NULL;
+    KatzeItem* old_parent;
     gchar* parent;
     gchar* uri;
 
@@ -222,10 +223,12 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
     else
         uri = g_strdup ("");
 
-    if (folder)
+    /* Use folder, otherwise fallback to parent folder */
+    old_parent = katze_item_get_parent (item);
+    if (folder && *folder)
         parent = g_strdup (folder);
-    else if (katze_item_get_name (katze_item_get_parent (item)))
-        parent = g_strdup (katze_item_get_name (katze_item_get_parent (item)));
+    else if (old_parent && katze_item_get_name (old_parent))
+        parent = g_strdup (katze_item_get_name (old_parent));
     else
         parent = g_strdup ("");
 
