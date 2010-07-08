@@ -40,6 +40,9 @@
 #if !GTK_CHECK_VERSION (2, 16, 0)
     #define GTK_ACTIVATABLE GTK_WIDGET
     #define gtk_activatable_get_related_action gtk_widget_get_action
+    #define gtk_menu_item_set_label(menuitem, label) \
+        gtk_label_set_label (GTK_LABEL (GTK_BIN (menuitem)->child), \
+                             label ? label : "");
 #endif
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
