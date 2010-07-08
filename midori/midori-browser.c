@@ -4403,6 +4403,46 @@ _action_tab_current_activate (GtkAction*     action,
     gtk_widget_grab_focus (view);
 }
 
+static void
+_action_tab_minimize_activate (GtkAction*     action,
+                               MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    g_object_set (view, "minimized",
+                  !katze_object_get_boolean (view, "minimized"), NULL);
+}
+
+static void
+_action_tab_duplicate_activate (GtkAction*     action,
+                                MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    MidoriNewView where = MIDORI_NEW_VIEW_TAB;
+    GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
+        "settings", browser->settings, NULL);
+    midori_view_set_uri (MIDORI_VIEW (new_view),
+        midori_view_get_display_uri (MIDORI_VIEW (view)));
+    gtk_widget_show (new_view);
+    g_signal_emit_by_name (view, "new-view", new_view, where);
+}
+
+static void
+midori_browser_close_other_tabs_cb (GtkWidget* view,
+                                    gpointer   data)
+{
+    GtkWidget* remaining_view = data;
+    if (view != remaining_view)
+        gtk_widget_destroy (view);
+}
+
+static void
+_action_tab_close_other_activate (GtkAction*     action,
+                                  MidoriBrowser* browser)
+{
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    midori_browser_foreach (browser, midori_browser_close_other_tabs_cb, view);
+}
+
 static const gchar* credits_authors[] =
     { "Christian Dywan <christian@twotoasts.de>", NULL };
 static const gchar* credits_documenters[] =
@@ -4960,6 +5000,15 @@ static const GtkActionEntry entries[] =
     { "TabCurrent", NULL,
         N_("Focus _Current Tab"), "<Ctrl>Home",
         N_("Focus the current tab"), G_CALLBACK (_action_tab_current_activate) },
+    { "TabMinimize", NULL,
+        N_("Minimize _Current Tab"), "",
+        N_("Minimize the current tab"), G_CALLBACK (_action_tab_minimize_activate) },
+    { "TabDuplicate", NULL,
+        N_("_Duplicate Current Tab"), "",
+        N_("Duplicate the current tab"), G_CALLBACK (_action_tab_duplicate_activate) },
+    { "TabCloseOther", NULL,
+        N_("Close Ot_her Tabs"), "",
+        N_("Close all tabs except the current tab"), G_CALLBACK (_action_tab_close_other_activate) },
     { "LastSession", NULL,
         N_("Open last _session"), NULL,
         N_("Open the tabs saved in the last session"), NULL },
@@ -5238,6 +5287,9 @@ static const gchar* ui_markup =
             "<menuitem action='TabPrevious'/>"
             "<menuitem action='TabNext'/>"
             "<menuitem action='TabCurrent'/>"
+            "<menuitem action='TabMinimize'/>"
+            "<menuitem action='TabDuplicate'/>"
+            "<menuitem action='TabCloseOther'/>"
             "<menuitem action='LastSession'/>"
             "<menuitem action='UndoTabClose'/>"
             "<menuitem action='TrashEmpty'/>"
