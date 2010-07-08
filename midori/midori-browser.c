@@ -4164,8 +4164,17 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
 
             if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
             {
-                g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+                g_printerr (_("Failed to clear history: %s\n"), errmsg);
                 sqlite3_free (errmsg);
+            }
+            else
+            {
+                sqlcmd = "DELETE FROM search";
+                if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+                {
+                    g_printerr (_("Failed to clear search history: %s\n"), errmsg);
+                    sqlite3_free (errmsg);
+                }
             }
             clear_prefs |= MIDORI_CLEAR_HISTORY;
         }
