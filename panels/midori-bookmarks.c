@@ -232,12 +232,9 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
     else
         parent = g_strdup ("");
 
-    /* Workaround a sqlite3_mprintf error with
-       handling of katze_item_get_meta_integer(). */
-    /* FIXME: Need proper single quote escaping. */
-    sqlcmd = g_strdup_printf (
+    sqlcmd = sqlite3_mprintf (
             "INSERT into bookmarks (uri, title, folder, toolbar, app) values"
-            " ('%s', '%s', '%s', %d, %d)",
+            " ('%q', '%q', '%q', %d, %d)",
             uri,
             katze_item_get_name (item),
             parent,
@@ -252,7 +249,7 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
 
     g_free (uri);
     g_free (parent);
-    g_free (sqlcmd);
+    sqlite3_free (sqlcmd);
 }
 
 void
