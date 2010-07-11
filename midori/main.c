@@ -1701,10 +1701,28 @@ main (int    argc,
         gchar* tmp_uri = midori_prepare_uri (webapp);
         katze_assign (webapp, tmp_uri);
         midori_startup_timer ("Browser: \t%f");
-        settings = katze_object_get_object (browser, "settings");
+        if (config)
+        {
+            gchar* random_name;
+            gchar* app_name;
+
+            random_name = g_strdup_printf ("app%u", g_random_int ());
+            app_name = g_strconcat ("midori", "_", random_name, NULL);
+            app = g_object_new (MIDORI_TYPE_APP, "name", app_name, NULL);
+            g_free (random_name);
+            g_free (app_name);
+
+            config_file = build_config_filename ("config");
+            settings = settings_new_from_file (config_file, &extensions);
+            g_free (config_file);
+            g_strfreev (extensions);
+        }
+        else
+            settings = katze_object_get_object (browser, "settings");
         g_object_set (settings,
                       "show-menubar", FALSE,
                       "show-navigationbar", TRUE,
+                      "show-panel", FALSE,
                       "toolbar-items", "Back,Forward,ReloadStop,Location",
                       "homepage", NULL,
                       "show-statusbar", TRUE,
