@@ -1144,7 +1144,7 @@ midori_browser_speed_dial_get_next_free_slot (void)
     else
         g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 
-    regex = g_regex_new ("\"id\":\"(s[1-9])\",\"href\":\"#\"",
+    regex = g_regex_new ("\"id\":\"(s[0-9]{1,2})\",\"href\":\"#\"",
                          G_REGEX_MULTILINE, 0, NULL);
 
     if (g_regex_match (regex, speed_dial_body, 0, &match_info))
