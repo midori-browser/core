@@ -35,9 +35,9 @@ APPNAME = 'midori'
 VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
 
 try:
-    git = Utils.cmd_output (['git', 'rev-parse', '--short', 'HEAD'], silent=True)
+    git = Utils.cmd_output (['git', 'describe'], silent=True)
     if git:
-        VERSION = (VERSION + '-' + git).strip ()
+        VERSION = git
 except:
     pass
 
