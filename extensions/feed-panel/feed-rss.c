@@ -76,7 +76,7 @@ rss_update (FeedParser* fparser)
                 fparser->node = child;
                 newdate = feed_get_element_date (fparser);
                 fparser->node = node;
-                return (date != newdate);
+                return (date != newdate || date == 0);
             }
         }
         child = child->next;

@@ -100,8 +100,11 @@ feed_get_element_date (FeedParser* fparser)
         SoupDate* sdate;
 
         sdate = soup_date_new_from_string (content);
-        date = soup_date_to_time_t (sdate);
-        soup_date_free (sdate);
+        if (sdate)
+        {
+            date = soup_date_to_time_t (sdate);
+            soup_date_free (sdate);
+        }
         g_free (content);
     }
     return ((gint64)date);
