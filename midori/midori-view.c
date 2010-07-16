@@ -2903,7 +2903,7 @@ midori_view_init (MidoriView* view)
     /* Adjustments are not created initially, but overwritten later */
     view->scrolled_window = katze_scrolled_new (NULL, NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
-                                         GTK_SHADOW_ETCHED_OUT);
+                                         GTK_SHADOW_NONE);
     gtk_container_add (GTK_CONTAINER (view), view->scrolled_window);
 
     g_signal_connect (view->scrolled_window, "notify::hadjustment",
