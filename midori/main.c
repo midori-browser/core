@@ -1268,8 +1268,6 @@ midori_load_session (gpointer data)
     g_object_unref (_session);
 
     katze_assign (config_file, build_config_filename ("session.xbel"));
-    g_signal_connect_after (browser, "notify::uri",
-        G_CALLBACK (midori_browser_session_cb), session);
     g_signal_connect_after (browser, "add-tab",
         G_CALLBACK (midori_browser_session_cb), session);
     g_signal_connect_after (browser, "remove-tab",
