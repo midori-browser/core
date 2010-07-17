@@ -14,10 +14,7 @@
 
 #include "config.h"
 
-#if HAVE_SQLITE
-    #include <sqlite3.h>
-#endif
-
+#include <sqlite3.h>
 #include <gtk/gtk.h>
 #include <katze/katze.h>
 
@@ -45,7 +42,6 @@ midori_bookmarks_get_type               (void);
 GtkWidget*
 midori_bookmarks_new                    (void);
 
-#if HAVE_SQLITE
 void
 midori_bookmarks_insert_item_db (sqlite3*     db,
                                  KatzeItem*   item,
@@ -59,7 +55,6 @@ void
 midori_bookmarks_import_array_db (sqlite3*       db,
                                   KatzeArray*    array,
                                   const gchar*   folder);
-#endif
 
 G_END_DECLS
 

@@ -21,9 +21,7 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 
-#if HAVE_SQLITE
-    #include <sqlite3.h>
-#endif
+#include <sqlite3.h>
 
 #define COMPLETION_DELAY 200
 #define MAX_ITEMS 25
@@ -274,7 +272,6 @@ midori_location_action_create_model (void)
     return model;
 }
 
-#if HAVE_SQLITE
 static void
 midori_location_action_popup_position (GtkWidget* popup,
                                        GtkWidget* widget)
@@ -516,7 +513,6 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
     return FALSE;
 }
-#endif
 
 static void
 midori_location_action_popup_completion (MidoriLocationAction* action,
@@ -529,11 +525,9 @@ midori_location_action_popup_completion (MidoriLocationAction* action,
     action->entry = entry;
     g_signal_connect (entry, "destroy",
         G_CALLBACK (gtk_widget_destroyed), &action->entry);
-    #if HAVE_SQLITE
     action->completion_timeout = g_timeout_add (COMPLETION_DELAY,
         midori_location_action_popup_timeout_cb, action);
     /* TODO: Inline completion */
-    #endif
 }
 
 static void
@@ -633,17 +627,14 @@ midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
                                         MidoriLocationAction* location_action)
 {    gboolean show = FALSE;
 
-    #if HAVE_SQLITE
     sqlite3* db;
     const gchar* sqlcmd;
     sqlite3_stmt* statement;
     gint result;
-    #endif
 
     if (!GTK_IS_BUTTON (widget))
         return;
 
-    #if HAVE_SQLITE
     db = g_object_get_data (G_OBJECT (location_action->history), "db");
     sqlcmd = "SELECT uri FROM history LIMIT 1";
     sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
@@ -651,7 +642,6 @@ midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
     if (result == SQLITE_ROW)
         show = TRUE;
     sqlite3_finalize (statement);
-    #endif
     sokoke_widget_set_visible (widget, show);
     gtk_widget_set_size_request (widget, show ? -1 : 1, show ? -1 : 1);
 }
@@ -1171,7 +1161,6 @@ static void
 midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
                                        MidoriLocationAction* location_action)
 {
-    #if HAVE_SQLITE
     GtkListStore* store;
     gint result;
     const gchar* sqlcmd;
@@ -1217,7 +1206,6 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
     while (result == SQLITE_ROW);
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
-    #endif
 }
 
 static void

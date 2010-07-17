@@ -21,9 +21,7 @@
     #include <unistd.h>
 #endif
 
-#if HAVE_SQLITE
-    #include <sqlite3.h>
-#endif
+#include <sqlite3.h>
 
 static GHashTable* global_keys;
 static gchar* jsforms;
@@ -130,7 +128,6 @@ formhistory_update_database (gpointer     db,
                              const gchar* key,
                              const gchar* value)
 {
-    #if HAVE_SQLITE
     gchar* sqlcmd;
     gchar* errmsg;
     gint success;
@@ -146,7 +143,6 @@ formhistory_update_database (gpointer     db,
         g_free (errmsg);
         return;
     }
-    #endif
 }
 
 static gboolean
@@ -372,9 +368,7 @@ formhistory_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
-    #if HAVE_SQLITE
     sqlite3* db;
-    #endif
 
     g_signal_handlers_disconnect_by_func (
        browser, formhistory_add_tab_cb, extension);
@@ -389,13 +383,10 @@ formhistory_deactivate_cb (MidoriExtension* extension,
     if (global_keys)
         g_hash_table_destroy (global_keys);
 
-    #if HAVE_SQLITE
     if ((db = g_object_get_data (G_OBJECT (extension), "formhistory-db")))
         sqlite3_close (db);
-    #endif
 }
 
-#if HAVE_SQLITE
 static int
 formhistory_add_field (gpointer  data,
                        int       argc,
@@ -423,18 +414,15 @@ formhistory_add_field (gpointer  data,
     }
     return 0;
 }
-#endif
 
 static void
 formhistory_activate_cb (MidoriExtension* extension,
                          MidoriApp*       app)
 {
-    #if HAVE_SQLITE
     const gchar* config_dir;
     gchar* filename;
     sqlite3* db;
     char* errmsg = NULL, *errmsg2 = NULL;
-    #endif
     KatzeArray* browsers;
     MidoriBrowser* browser;
     guint i;
@@ -444,7 +432,6 @@ formhistory_activate_cb (MidoriExtension* extension,
                                (GDestroyNotify)g_free);
     if(!jsforms)
         formhistory_prepare_js ();
-    #if HAVE_SQLITE
     config_dir = midori_extension_get_config_dir (extension);
     katze_mkdir_with_parents (config_dir, 0700);
     filename = g_build_filename (config_dir, "forms.db", NULL);
@@ -475,7 +462,6 @@ formhistory_activate_cb (MidoriExtension* extension,
         }
         sqlite3_close (db);
     }
-    #endif
 
     browsers = katze_object_get_object (app, "browsers");
     i = 0;

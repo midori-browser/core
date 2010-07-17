@@ -33,10 +33,7 @@
 #include <string.h>
 #include <glib/gstdio.h>
 #include <webkit/webkit.h>
-
-#if HAVE_SQLITE
-    #include <sqlite3.h>
-#endif
+#include <sqlite3.h>
 
 #if ENABLE_NLS
     #include <libintl.h>
@@ -351,7 +348,6 @@ search_engines_save_to_file (KatzeArray*  search_engines,
     return saved;
 }
 
-#if HAVE_SQLITE
 static sqlite3*
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
@@ -471,7 +467,6 @@ midori_bookmarks_import (const gchar* filename,
     }
     midori_bookmarks_import_array_db (db, bookmarks, "");
 }
-#endif
 
 static void
 midori_session_add_delay (KatzeArray* session)
@@ -1561,11 +1556,9 @@ main (int    argc,
     gchar* uri;
     KatzeItem* item;
     gchar* uri_ready;
-    #if HAVE_SQLITE
     gchar* errmsg;
     sqlite3* db;
     gint max_history_age;
-    #endif
     gint clear_prefs = MIDORI_CLEAR_NONE;
     #ifdef G_ENABLE_DEBUG
         gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
@@ -1888,7 +1881,6 @@ main (int    argc,
     midori_startup_timer ("Search read: \t%f");
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("bookmarks.db"));
     errmsg = NULL;
     if ((db = midori_bookmarks_initialize (bookmarks, config_file, &errmsg)) == NULL)
@@ -1908,7 +1900,6 @@ main (int    argc,
         g_free (old_bookmarks);
         g_object_set_data (G_OBJECT (bookmarks), "db", db);
     }
-    #endif
     midori_startup_timer ("Bookmarks read: \t%f");
 
     _session = katze_array_new (KATZE_TYPE_ITEM);
@@ -1944,7 +1935,6 @@ main (int    argc,
 
     midori_startup_timer ("Trash read: \t%f");
     history = katze_array_new (KATZE_TYPE_ARRAY);
-    #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
 
     errmsg = NULL;
@@ -1955,7 +1945,6 @@ main (int    argc,
         g_free (errmsg);
     }
     g_object_set_data (G_OBJECT (history), "db", db);
-    #endif
     midori_startup_timer ("History read: \t%f");
 
     /* In case of errors */
@@ -2043,9 +2032,7 @@ main (int    argc,
         G_CALLBACK (midori_trash_add_item_cb), NULL);
     g_signal_connect_after (trash, "remove-item",
         G_CALLBACK (midori_trash_remove_item_cb), NULL);
-    #if HAVE_SQLITE
     katze_assign (config_file, build_config_filename ("history.db"));
-    #endif
 
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_object_set_data (G_OBJECT (app), "extensions", extensions);
@@ -2107,18 +2094,14 @@ main (int    argc,
     gtk_main ();
 
     settings = katze_object_get_object (app, "settings");
-    #if HAVE_SQLITE
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (db, max_history_age);
-    #endif
 
     /* Clear data on quit, according to the Clear private data dialog */
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
     if (clear_prefs & MIDORI_CLEAR_ON_QUIT)
     {
-        #if HAVE_SQLITE
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
-        #endif
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_COOKIES, "cookies.txt");
         if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
         {

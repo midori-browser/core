@@ -122,7 +122,6 @@ midori_bookmarks_get_stock_id (MidoriViewable* viewable)
     return STOCK_BOOKMARKS;
 }
 
-#if HAVE_SQLITE
 void
 midori_bookmarks_import_array_db (sqlite3*     db,
                                   KatzeArray*  array,
@@ -281,7 +280,6 @@ midori_bookmarks_remove_item_from_db (sqlite3*   db,
 
     sqlite3_free (sqlcmd);
 }
-#endif
 
 static void
 midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
@@ -362,12 +360,9 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    #if HAVE_SQLITE
     sqlite3* db;
 
     db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
-    #endif
-
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (bookmarks->treeview),
                                            &model, &iter))
     {
@@ -375,9 +370,7 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        #if HAVE_SQLITE
         midori_bookmarks_remove_item_from_db (db, item);
-        #endif
         gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
 
         g_object_unref (item);
@@ -473,12 +466,10 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
     bookmarks->array = katze_object_get_object (app, "bookmarks");
     g_object_set_data (G_OBJECT (bookmarks->array), "treeview", bookmarks->treeview);
 
-    #if HAVE_SQLITE
     midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model), NULL, "", NULL);
     g_signal_connect_after (model, "row-changed",
                             G_CALLBACK (midori_bookmarks_row_changed_cb),
                             bookmarks);
-    #endif
 }
 
 static void
@@ -830,10 +821,8 @@ midori_bookmarks_row_expanded_cb (GtkTreeView*     treeview,
 
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
     gtk_tree_model_get (model, iter, 0, &item, -1);
-    #if HAVE_SQLITE
     midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model),
                                             iter, katze_item_get_name (item), NULL);
-    #endif
     g_object_unref (item);
 }
 
@@ -917,10 +906,8 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
         GTK_ICON_ENTRY_SECONDARY, TRUE);
     g_signal_connect (entry, "icon-release",
         G_CALLBACK (midori_bookmarks_filter_entry_clear_cb), bookmarks);
-    #if HAVE_SQLITE
     g_signal_connect (entry, "changed",
         G_CALLBACK (midori_bookmarks_filter_entry_changed_cb), bookmarks);
-    #endif
     box = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 3);
     gtk_widget_show_all (box);

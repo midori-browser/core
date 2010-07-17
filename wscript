@@ -220,7 +220,6 @@ def configure (conf):
     check_pkg ('libsoup-2.4', '2.29.91', False, var='LIBSOUP_2_29_91')
     check_pkg ('libxml-2.0', '2.6')
     check_pkg ('sqlite3', '3.0', True, var='SQLITE')
-    conf.define ('HAVE_SQLITE', 1)
 
     if conf.env['HAVE_LIBSOUP_2_27_90']:
        idn = 'yes'

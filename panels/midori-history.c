@@ -34,10 +34,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                                          gboolean       is_folder);
 
 #include "config.h"
-
-#if HAVE_SQLITE
-    #include <sqlite3.h>
-#endif
+#include <sqlite3.h>
 
 #define COMPLETION_DELAY 200
 
@@ -126,7 +123,6 @@ midori_history_get_stock_id (MidoriViewable* viewable)
     return STOCK_HISTORY;
 }
 
-#if HAVE_SQLITE
 static void
 midori_history_clear_db (MidoriHistory* history)
 {
@@ -376,7 +372,6 @@ midori_history_clear_clicked_cb (GtkWidget*     toolitem,
 
     midori_history_clear_db (history);
 }
-#endif
 
 static void
 midori_history_bookmark_add_cb (GtkWidget*     menuitem,
@@ -401,14 +396,11 @@ midori_history_get_toolbar (MidoriViewable* viewable)
     if (!history->toolbar)
     {
         GtkWidget* toolbar;
-        #if HAVE_SQLITE
         GtkToolItem* toolitem;
-        #endif
 
         toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         history->toolbar = toolbar;
-        #if HAVE_SQLITE
         toolitem = gtk_tool_button_new_from_stock (STOCK_BOOKMARK_ADD);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                      _("Bookmark the selected history item"));
@@ -440,7 +432,6 @@ midori_history_get_toolbar (MidoriViewable* viewable)
             G_CALLBACK (gtk_widget_destroyed), &history->delete);
         g_signal_connect (history->clear, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &history->clear);
-        #endif
     }
 
     return history->toolbar;
@@ -474,10 +465,8 @@ midori_history_set_app (MidoriHistory* history,
 
     history->array = katze_object_get_object (app, "history");
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
-    #if HAVE_SQLITE
     if (history->array)
         midori_history_read_from_db (history, GTK_TREE_STORE (model), NULL, 0, NULL);
-    #endif
 }
 
 static void
@@ -547,7 +536,6 @@ midori_history_treeview_render_icon_cb (GtkTreeViewColumn* column,
     }
 }
 
-#if HAVE_SQLITE
 static void
 midori_history_row_activated_cb (GtkTreeView*       treeview,
                                  GtkTreePath*       path,
@@ -873,7 +861,7 @@ midori_history_filter_entry_changed_cb (GtkEntry*      entry,
         midori_history_filter_timeout_cb, history);
     katze_assign (history->filter, g_strdup (gtk_entry_get_text (entry)));
 }
-#endif
+
 static void
 midori_history_filter_entry_clear_cb (GtkEntry*      entry,
                                       gint           icon_pos,
@@ -909,10 +897,8 @@ midori_history_init (MidoriHistory* history)
                                        TRUE);
     g_signal_connect (entry, "icon-release",
         G_CALLBACK (midori_history_filter_entry_clear_cb), history);
-    #if HAVE_SQLITE
     g_signal_connect (entry, "changed",
         G_CALLBACK (midori_history_filter_entry_changed_cb), history);
-    #endif
     box = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 3);
     gtk_widget_show_all (box);
@@ -934,7 +920,6 @@ midori_history_init (MidoriHistory* history)
         "text", 1, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
     g_object_unref (model);
-    #if HAVE_SQLITE
     g_object_connect (treeview,
                       "signal::row-activated",
                       midori_history_row_activated_cb, history,
@@ -949,7 +934,6 @@ midori_history_init (MidoriHistory* history)
                       "signal::popup-menu",
                       midori_history_popup_menu_cb, history,
                       NULL);
-    #endif
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (history), treeview, TRUE, TRUE, 0);
     history->treeview = treeview;

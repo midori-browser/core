@@ -48,9 +48,7 @@
     #include <X11/Xatom.h>
 #endif
 
-#if HAVE_SQLITE
-    #include <sqlite3.h>
-#endif
+#include <sqlite3.h>
 
 #if HAVE_CONFIG_H
     #include <config.h>
@@ -170,7 +168,6 @@ midori_browser_get_property (GObject*    object,
                              GValue*     value,
                              GParamSpec* pspec);
 
-#if HAVE_SQLITE
 void
 midori_bookmarks_import_array_db (sqlite3*    db,
                                   KatzeArray* array,
@@ -184,7 +181,6 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
 void
 midori_bookmarks_remove_item_from_db (sqlite3*   db,
                                       KatzeItem* item);
-#endif
 
 static void
 midori_browser_new_history_item (MidoriBrowser* browser,
@@ -472,7 +468,6 @@ static void
 midori_browser_update_history_title (MidoriBrowser* browser,
                                      KatzeItem*     item)
 {
-    #if HAVE_SQLITE
     sqlite3* db;
     static sqlite3_stmt* stmt = NULL;
 
@@ -492,7 +487,6 @@ midori_browser_update_history_title (MidoriBrowser* browser,
         g_printerr (_("Failed to update title: %s\n"), sqlite3_errmsg (db));
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
-    #endif
 }
 
 static void
@@ -715,16 +709,12 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* check_toolbar;
     GtkWidget* check_app;
     gboolean return_status = FALSE;
-    #if HAVE_SQLITE
     sqlite3* db;
-    #endif
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return FALSE;
 
-    #if HAVE_SQLITE
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-    #endif
 
     if (is_folder)
         title = new_bookmark ? _("New folder") : _("Edit folder");
@@ -817,12 +807,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         GtkListStore* model;
         GtkCellRenderer* renderer;
-        #if HAVE_SQLITE
         guint i, n;
         sqlite3_stmt* statement;
         gint result;
         const gchar* sqlcmd;
-        #endif
 
         hbox = gtk_hbox_new (FALSE, 8);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 4);
@@ -839,7 +827,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, -1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), 0);
 
-        #if HAVE_SQLITE
         i = 0;
         n = 1;
         sqlcmd = "SELECT title from bookmarks where uri=''";
@@ -856,7 +843,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         }
         if (n < 2)
             gtk_widget_set_sensitive (combo_folder, FALSE);
-        #endif
 
         gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (content_area), hbox);
@@ -927,7 +913,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
         selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
 
-        #if HAVE_SQLITE
         midori_bookmarks_remove_item_from_db (db, bookmark);
         if (!strcmp (selected, _("Toplevel folder")))
         {
@@ -947,7 +932,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
             if (!gtk_widget_get_visible (browser->bookmarkbar))
                 _action_set_active (browser, "Bookmarkbar", TRUE);
-        #endif
         g_free (selected);
         return_status = TRUE;
     }
@@ -3481,12 +3465,10 @@ _action_location_submit_uri (GtkAction*     action,
         gchar** parts;
         gchar* keywords = NULL;
         const gchar* search_uri = NULL;
-        #if HAVE_SQLITE
         time_t now;
         gint64 day;
         sqlite3* db;
         static sqlite3_stmt* statement = NULL;
-        #endif
 
         /* Do we have a keyword and a string? */
         parts = g_strsplit (stripped_uri, " ", 2);
@@ -3510,7 +3492,6 @@ _action_location_submit_uri (GtkAction*     action,
         }
         new_uri = sokoke_search_uri (search_uri, keywords);
 
-        #if HAVE_SQLITE
         now = time (NULL);
         day = sokoke_time_t_to_julian (&now);
 
@@ -3531,7 +3512,6 @@ _action_location_submit_uri (GtkAction*     action,
         sqlite3_reset (statement);
         if (sqlite3_step (statement) == SQLITE_DONE)
             sqlite3_clear_bindings (statement);
-        #endif
 
         g_free (keywords);
     }
@@ -4151,7 +4131,6 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
 
         g_object_get (browser->settings, "clear-private-data", &saved_prefs, NULL);
 
-        #if HAVE_SQLITE
         button = g_object_get_data (G_OBJECT (dialog), "history");
         if (gtk_toggle_button_get_active (button))
         {
@@ -4178,7 +4157,6 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
             }
             clear_prefs |= MIDORI_CLEAR_HISTORY;
         }
-        #endif
         button = g_object_get_data (G_OBJECT (dialog), "cookies");
         if (gtk_toggle_button_get_active (button))
         {
@@ -4308,13 +4286,11 @@ _action_clear_private_data_activate (GtkAction*     action,
         vbox = gtk_vbox_new (TRUE, 4);
         alignment = gtk_alignment_new (0, 0, 1, 1);
         gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 6, 12, 0);
-        #if HAVE_SQLITE
         button = gtk_check_button_new_with_mnemonic (_("History"));
         if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "history", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        #endif
         button = gtk_check_button_new_with_mnemonic (_("Cookies"));
         if ((clear_prefs & MIDORI_CLEAR_COOKIES) == MIDORI_CLEAR_COOKIES)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
@@ -5333,16 +5309,13 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 {
     time_t now;
     gint64 day;
-    #if HAVE_SQLITE
     sqlite3* db;
     static sqlite3_stmt* stmt = NULL;
-    #endif
 
     now = time (NULL);
     katze_item_set_added (*item, now);
     day = sokoke_time_t_to_julian (&now);
 
-    #if HAVE_SQLITE
     db = g_object_get_data (G_OBJECT (browser->history), "db");
     if (!stmt)
     {
@@ -5361,7 +5334,6 @@ midori_browser_new_history_item (MidoriBrowser* browser,
                     sqlite3_errmsg (db));
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
-    #endif
 }
 
 static void

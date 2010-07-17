@@ -3658,7 +3658,6 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>libsoup</td><td>%s</td></tr>"
-                    "<tr><td>sqlite3</td><td>%s</td></tr>"
                     "<tr><td>libnotify</td><td>%s</td></tr>"
                     "<tr><td>libidn</td><td>%s</td></tr>"
                     "<tr><td>libunique</td><td>%s</td></tr>"
@@ -3680,7 +3679,6 @@ midori_view_set_uri (MidoriView*  view,
                     GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
                     glib_major_version, glib_minor_version, glib_micro_version,
                     LIBSOUP_VERSION,
-                    HAVE_SQLITE ? "Yes" : "No",
                     HAVE_LIBNOTIFY ? "Yes" : "No",
                     HAVE_LIBIDN ? "Yes" : "No",
                     HAVE_UNIQUE ? "Yes" : "No",
