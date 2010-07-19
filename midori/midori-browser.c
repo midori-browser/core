@@ -922,9 +922,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             midori_bookmarks_insert_item_db (db, bookmark, "");
             treeview = g_object_get_data (G_OBJECT (browser->bookmarks), "treeview");
             model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-            /* FIXME: We need to add item in the end of the list */
             gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
-                NULL, NULL, 999, 0, bookmark, -1);
+                NULL, NULL, G_MAXINT, 0, bookmark, -1);
         }
         else
             midori_bookmarks_insert_item_db (db, bookmark, selected);
