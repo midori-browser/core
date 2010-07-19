@@ -679,6 +679,15 @@ midori_browser_edit_bookmark_uri_changed_cb (GtkEntry*      entry,
 }
 
 static void
+midori_browser_edit_bookmark_title_changed_cb (GtkEntry*      entry,
+                                               GtkDialog*     dialog)
+{
+    const gchar* title = gtk_entry_get_text (entry);
+    gtk_dialog_set_response_sensitive (dialog, GTK_RESPONSE_ACCEPT,
+        title != NULL && title[0] != '\0');
+}
+
+static void
 midori_browser_edit_bookmark_add_speed_dial_cb (GtkWidget* button,
                                                 KatzeItem* bookmark)
 {
@@ -757,6 +766,10 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     gtk_entry_set_activates_default (GTK_ENTRY (entry_title), TRUE);
     value = katze_item_get_name (bookmark);
     gtk_entry_set_text (GTK_ENTRY (entry_title), value ? value : "");
+    midori_browser_edit_bookmark_title_changed_cb (GTK_ENTRY (entry_title),
+                                                   GTK_DIALOG (dialog));
+    g_signal_connect (entry_title, "changed",
+        G_CALLBACK (midori_browser_edit_bookmark_title_changed_cb), dialog);
     gtk_box_pack_start (GTK_BOX (hbox), entry_title, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
