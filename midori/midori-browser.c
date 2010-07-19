@@ -183,6 +183,12 @@ midori_bookmarks_remove_item_from_db (sqlite3*   db,
                                       KatzeItem* item);
 
 static void
+midori_bookmarkbar_populate (MidoriBrowser* browser);
+
+static void
+midori_bookmarkbar_clear (GtkWidget* toolbar);
+
+static void
 midori_browser_new_history_item (MidoriBrowser* browser,
                                  KatzeItem**    item);
 
@@ -947,6 +953,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         g_free (selected);
         return_status = TRUE;
     }
+    if (gtk_widget_get_visible (browser->bookmarkbar))
+        midori_bookmarkbar_populate (browser);
     gtk_widget_destroy (dialog);
     return return_status;
 }
@@ -6331,7 +6339,9 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
     const gchar* sqlcmd;
     KatzeArray* array;
     KatzeItem* item;
-    gint i;
+    gint i = 0;
+
+    midori_bookmarkbar_clear (browser->bookmarkbar);
 
     homepage = gtk_action_create_tool_item (_action_by_name (browser, "Homepage"));
     gtk_tool_item_set_is_important (GTK_TOOL_ITEM (homepage), TRUE);
@@ -6344,7 +6354,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
     if (!db)
         return;
 
-    sqlcmd = "SELECT uri, title, app, folder FROM bookmarks WHERE "
+    sqlcmd = "SELECT uri, title, app, folder, toolbar FROM bookmarks WHERE "
              " toolbar = 1 ORDER BY uri ASC";
 
     array = katze_array_from_sqlite (db, sqlcmd);
