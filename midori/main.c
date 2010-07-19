@@ -351,12 +351,14 @@ search_engines_save_to_file (KatzeArray*  search_engines,
 static sqlite3*
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
+                           const gchar* bookmarks_filename,
                            char**       errmsg)
 {
     sqlite3* db;
     gboolean has_day;
     sqlite3_stmt* stmt;
     gint result;
+    gchar* sql;
 
     has_day = FALSE;
 
@@ -401,6 +403,11 @@ midori_history_initialize (KatzeArray*  array,
                       "DROP TABLE backup;"
                       "COMMIT;",
                       NULL, NULL, errmsg);
+
+    sql = g_strdup_printf ("ATTACH DATABASE '%s' AS bookmarks", bookmarks_filename);
+    sqlite3_exec (db, sql, NULL, NULL, errmsg);
+    g_free (sql);
+
     return db;
 }
 
@@ -1546,6 +1553,7 @@ main (int    argc,
     gchar** extensions;
     MidoriWebSettings* settings;
     gchar* config_file;
+    gchar* bookmarks_file;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
     KatzeArray* bookmarks;
@@ -1881,9 +1889,9 @@ main (int    argc,
     midori_startup_timer ("Search read: \t%f");
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    katze_assign (config_file, build_config_filename ("bookmarks.db"));
+    bookmarks_file = build_config_filename ("bookmarks.db");
     errmsg = NULL;
-    if ((db = midori_bookmarks_initialize (bookmarks, config_file, &errmsg)) == NULL)
+    if ((db = midori_bookmarks_initialize (bookmarks, bookmarks_file, &errmsg)) == NULL)
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
@@ -1938,12 +1946,13 @@ main (int    argc,
     katze_assign (config_file, build_config_filename ("history.db"));
 
     errmsg = NULL;
-    if ((db = midori_history_initialize (history, config_file, &errmsg)) == NULL)
+    if ((db = midori_history_initialize (history, config_file, bookmarks_file ,&errmsg)) == NULL)
     {
         g_string_append_printf (error_messages,
             _("The history couldn't be loaded: %s\n"), errmsg);
         g_free (errmsg);
     }
+    g_free (bookmarks_file);
     g_object_set_data (G_OBJECT (history), "db", db);
     midori_startup_timer ("History read: \t%f");
 
