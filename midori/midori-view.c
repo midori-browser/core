@@ -1424,59 +1424,6 @@ midori_web_view_notify_icon_uri_cb (WebKitWebView* web_view,
 
 #if WEBKIT_CHECK_VERSION (1, 1, 4)
 static void
-webkit_web_view_notify_uri_cb (WebKitWebView* web_view,
-                               GParamSpec*    pspec,
-                               MidoriView*    view)
-{
-    #if 0
-    if (view->item)
-    {
-        /* Save back forward history as meta data. This is disabled
-          because we can't reliably restore these atm. */
-        WebKitWebView* web_view;
-        WebKitWebBackForwardList* list;
-        GList* back;
-        GList* forward;
-
-        web_view = WEBKIT_WEB_VIEW (view->web_view);
-        list = webkit_web_view_get_back_forward_list (web_view);
-        back = webkit_web_back_forward_list_get_back_list_with_limit (list, 5);
-        forward = webkit_web_back_forward_list_get_forward_list_with_limit (list, 5);
-        guint i;
-        WebKitWebHistoryItem* item;
-        gchar* key = g_strdup ("back0");
-
-        i = 0;
-        while ((item = g_list_nth_data (back, i++)))
-        {
-            katze_item_set_meta_string (view->item, key,
-                webkit_web_history_item_get_uri (item));
-            key[4] = 48 + i;
-        }
-
-        #if 0
-        key[0] = 'f';
-        key[1] = 'o';
-        key[2] = 'r';
-        key[3] = 'e';
-        key[4] = 48;
-        i = 0;
-        while ((item = g_list_nth_data (forward, i++)))
-        {
-            katze_item_set_meta_string (view->item, key,
-                webkit_web_history_item_get_uri (item));
-            key[4] = 48 + i;
-        }
-        #endif
-        g_free (key);
-    }
-    #endif
-
-    g_object_get (web_view, "uri", &view->uri, NULL);
-    g_object_notify (G_OBJECT (view), "uri");
-}
-
-static void
 webkit_web_view_notify_title_cb (WebKitWebView* web_view,
                                  GParamSpec*    pspec,
                                  MidoriView*    view)
@@ -1549,7 +1496,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     gboolean background;
 
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
-    link_uri = midori_view_get_link_uri (MIDORI_VIEW (view));
+    link_uri = midori_view_get_link_uri (view);
 
     switch (event->button)
     {
@@ -3388,8 +3335,6 @@ midori_view_construct_web_view (MidoriView* view)
                       midori_web_view_notify_icon_uri_cb, view,
                       #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 4)
-                      "signal::notify::uri",
-                      webkit_web_view_notify_uri_cb, view,
                       "signal::notify::title",
                       webkit_web_view_notify_title_cb, view,
                       #else
