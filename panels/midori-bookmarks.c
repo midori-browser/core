@@ -345,11 +345,8 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
         g_assert (!KATZE_ITEM_IS_SEPARATOR (item));
 
         browser = midori_browser_get_for_widget (bookmarks->treeview);
-        if (midori_browser_edit_bookmark_dialog_new (
-            browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item)))
-        {
-            gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-        }
+        midori_browser_edit_bookmark_dialog_new (
+            browser, item, FALSE, KATZE_ITEM_IS_FOLDER (item));
         g_object_unref (item);
     }
 }

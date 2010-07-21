@@ -915,6 +915,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         gchar* selected;
+        GtkTreeView* treeview;
+        GtkTreeModel* model;
+
+        if (!new_bookmark)
+            midori_bookmarks_remove_item_from_db (db, bookmark);
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
@@ -932,20 +937,18 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
         selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
 
-        midori_bookmarks_remove_item_from_db (db, bookmark);
         if (!strcmp (selected, _("Toplevel folder")))
-        {
-            GtkTreeView* treeview;
-            GtkTreeModel* model;
+            selected = g_strdup ("");
 
-            midori_bookmarks_insert_item_db (db, bookmark, "");
+        midori_bookmarks_insert_item_db (db, bookmark, selected);
+
+        if (new_bookmark)
+        {
             treeview = g_object_get_data (G_OBJECT (browser->bookmarks), "treeview");
             model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
             gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
                 NULL, NULL, G_MAXINT, 0, bookmark, -1);
         }
-        else
-            midori_bookmarks_insert_item_db (db, bookmark, selected);
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
             if (!gtk_widget_get_visible (browser->bookmarkbar))
