@@ -609,9 +609,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
     uri = midori_view_get_display_uri (view);
     title = midori_view_get_display_title (view);
     action = _action_by_name (browser, "Location");
-    if (browser->maximum_history_age)
-        midori_location_action_set_title_for_uri (
-        MIDORI_LOCATION_ACTION (action), title, uri);
+
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
         KatzeItem* item;
