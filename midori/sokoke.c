@@ -626,7 +626,7 @@ gchar* sokoke_search_uri (const gchar* uri,
     if (!uri)
         return g_strdup (keywords);
 
-    escaped = g_uri_escape_string (keywords, " :/", TRUE);
+    escaped = g_uri_escape_string (keywords, ":/", TRUE);
     if (strstr (uri, "%s"))
         search = g_strdup_printf (uri, escaped);
     else
