@@ -1006,54 +1006,15 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     g_return_if_fail (uri != NULL);
     katze_assign (view->uri, sokoke_format_uri_for_display (uri));
     katze_assign (view->icon_uri, NULL);
-    if (view->item)
-    {
-        #if 0
-        /* Load back forward history from meta data. WebKit does not seem to
-          respect the order of items, so the feature is unusable. */
-        if (!view->back_forward_set)
-        {
-            WebKitWebBackForwardList* list;
-            gchar* key;
-            guint i;
-            const gchar* data;
-            WebKitWebHistoryItem* item;
 
-            list = webkit_web_view_get_back_forward_list (web_view);
+    /* FIXME: Create a proxy item if we don't have one.
+     * We should either always create it, or not rely on it */
+    if (!view->item)
+        midori_view_get_proxy_item (view);
 
-            key = g_strdup ("back4");
-            for (i = 4; i > 0; i--)
-            {
-                key[4] = 48 + i;
-                if ((data = katze_item_get_meta_string (view->item, key)))
-                {
-                    item = webkit_web_history_item_new_with_data (data, NULL);
-                    webkit_web_back_forward_list_add_item (list, item);
-                    g_object_unref (item);
-                }
-            }
+    katze_item_set_uri (view->item, uri);
+    katze_item_set_added (view->item, time (NULL));
 
-            #if 0
-            key[0] = 'f';
-            key[1] = 'o';
-            key[2] = 'r';
-            key[3] = 'e';
-            for (i = 4; i > 0; i--)
-            {
-                key[4] = 48 + i;
-                item = webkit_web_history_item_new_with_data (data, NULL);
-                webkit_web_back_forward_list_add_item (list, item);
-                g_object_unref (item);
-            }
-            #endif
-            g_free (key);
-            view->back_forward_set = TRUE;
-        }
-        #endif
-
-        katze_item_set_uri (view->item, uri);
-        katze_item_set_added (view->item, time (NULL));
-    }
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
 
@@ -4396,18 +4357,11 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
 KatzeItem*
 midori_view_get_proxy_item (MidoriView* view)
 {
-    const gchar* uri;
-    const gchar* title;
-
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
     if (!view->item)
     {
         view->item = katze_item_new ();
-        uri = midori_view_get_display_uri (view);
-        katze_item_set_uri (view->item, uri);
-        title = midori_view_get_display_title (view);
-        katze_item_set_name (view->item, title);
         g_signal_connect (view->item, "meta-data-changed",
             G_CALLBACK (midori_view_item_meta_data_changed), view);
     }

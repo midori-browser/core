@@ -190,7 +190,7 @@ midori_bookmarkbar_clear (GtkWidget* toolbar);
 
 static void
 midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem**    item);
+                                 KatzeItem*     item);
 
 static void
 _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
@@ -611,25 +611,21 @@ midori_view_notify_title_cb (GtkWidget*     widget,
 
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
-        KatzeItem* item;
         KatzeItem* proxy;
-
         if (browser->history && browser->maximum_history_age)
         {
-            item = g_object_get_data (G_OBJECT (view), "history-item-added");
             proxy = midori_view_get_proxy_item (view);
-            if (item && katze_item_get_added (item) == katze_item_get_added (proxy))
+            if (katze_item_get_uri (proxy) &&
+                (katze_item_get_meta_integer (proxy, "process") == -1))
             {
-                katze_item_set_name (item, katze_item_get_name (proxy));
-                midori_browser_update_history_title (browser, item);
+                midori_browser_new_history_item (browser, proxy);
+                katze_item_set_meta_integer (proxy, "process", 1);
             }
-            else
+            else if (katze_item_get_name (proxy) &&
+                     (katze_item_get_meta_integer (proxy, "process") == 1))
             {
-                katze_object_assign (item, katze_item_copy (proxy));
-                midori_browser_new_history_item (browser, &item);
-                g_object_ref (item);
-                g_object_set_data_full (G_OBJECT (view), "history-item-added",
-                                        item, (GDestroyNotify)g_object_unref);
+                midori_browser_update_history_title (browser, proxy);
+                katze_item_set_meta_integer (proxy, "process", 2);
             }
         }
     }
@@ -5344,7 +5340,7 @@ midori_browser_realize_cb (GtkStyle*      style,
 
 static void
 midori_browser_new_history_item (MidoriBrowser* browser,
-                                 KatzeItem**    item)
+                                 KatzeItem*     item)
 {
     time_t now;
     gint64 day;
@@ -5352,7 +5348,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     static sqlite3_stmt* stmt = NULL;
 
     now = time (NULL);
-    katze_item_set_added (*item, now);
+    katze_item_set_added (item, now);
     day = sokoke_time_t_to_julian (&now);
 
     db = g_object_get_data (G_OBJECT (browser->history), "db");
@@ -5363,9 +5359,9 @@ midori_browser_new_history_item (MidoriBrowser* browser,
         sqlcmd = "INSERT INTO history (uri, title, date, day) VALUES (?,?,?,?)";
         sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
     }
-    sqlite3_bind_text (stmt, 1, katze_item_get_uri (*item), -1, 0);
-    sqlite3_bind_text (stmt, 2, katze_item_get_name (*item), -1, 0);
-    sqlite3_bind_int64 (stmt, 3, katze_item_get_added (*item));
+    sqlite3_bind_text (stmt, 1, katze_item_get_uri (item), -1, 0);
+    sqlite3_bind_text (stmt, 2, katze_item_get_name (item), -1, 0);
+    sqlite3_bind_int64 (stmt, 3, katze_item_get_added (item));
     sqlite3_bind_int64 (stmt, 4, day);
 
     if (sqlite3_step (stmt) != SQLITE_DONE)
