@@ -446,6 +446,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     style = gtk_widget_get_style (action->treeview);
     while (result == SQLITE_ROW)
     {
+        gchar* unescaped_uri;
         sqlite3_int64 type = sqlite3_column_int64 (stmt, 0);
         const unsigned char* uri = sqlite3_column_text (stmt, 1);
         const unsigned char* title = sqlite3_column_text (stmt, 2);
@@ -453,9 +454,13 @@ midori_location_action_popup_timeout_cb (gpointer data)
         if (!icon)
             icon = action->default_icon;
         if (type == 1 /* history_view */)
+        {
+            unescaped_uri = g_uri_unescape_string ((const char*)uri, "");
             gtk_list_store_insert_with_values (store, NULL, matches,
-                URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+                URI_COL, unescaped_uri, TITLE_COL, title, YALIGN_COL, 0.25,
                 FAVICON_COL, icon, -1);
+            g_free (unescaped_uri);
+        }
         else if (type == 2 /* search_view */)
         {
             gchar* search_title = g_strdup_printf (_("Search for %s"), title);
@@ -1443,7 +1448,7 @@ midori_location_action_set_uri (MidoriLocationAction* location_action,
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
 
-    katze_assign (location_action->uri, g_strdup (uri));
+    katze_assign (location_action->uri, g_uri_unescape_string (uri, ""));
 
     midori_location_action_set_text (location_action, uri);
 }
