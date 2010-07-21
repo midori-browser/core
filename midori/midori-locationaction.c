@@ -356,15 +356,17 @@ midori_location_action_popup_timeout_cb (gpointer data)
     {
         sqlite3* db;
         db = g_object_get_data (G_OBJECT (action->history), "db");
-        sqlcmd = "SELECT type, uri, title, count() AS ct FROM history_view "
-                 "WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "
-                 "UNION ALL "
-                 "SELECT type, replace(uri, '%s', title) AS uri, title, count() AS ct FROM search_view "
-                 "WHERE title LIKE ?1 GROUP BY uri "
-                 "UNION ALL "
-                 "SELECT '1' AS type, uri, title, '100' AS ct FROM bookmarks "
-                 "WHERE title LIKE ?1 AND uri !='' "
-                 "ORDER BY ct DESC LIMIT ?2";
+        sqlcmd = "SELECT type, uri, title FROM ("
+                 "  SELECT 1 AS type, uri, title, count() AS ct FROM history "
+                 "      WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "
+                 "  UNION ALL "
+                 "  SELECT 2 AS type, replace(uri, '%s', keywords) AS uri, "
+                 "      keywords AS title, count() AS ct FROM search "
+                 "      WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "
+                 "  UNION ALL "
+                 "  SELECT 1 AS type, uri, title, 50 AS ct FROM bookmarks "
+                 "      WHERE title LIKE ?1 OR uri LIKE ?1 AND uri !='' "
+                 ") GROUP BY uri ORDER BY ct DESC LIMIT ?2";
         sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
     }
     sqlite3_bind_text (stmt, 1, g_strdup_printf ("%%%s%%", action->key), -1, g_free);
