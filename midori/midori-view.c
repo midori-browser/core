@@ -657,8 +657,7 @@ midori_view_update_title (MidoriView* view)
     if (view->menu_item)
         gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
                             view->menu_item))), title);
-    if (view->item)
-        katze_item_set_name (view->item, title);
+    katze_item_set_name (view->item, title);
     #undef title
 }
 
@@ -667,8 +666,7 @@ midori_view_apply_icon (MidoriView*  view,
                         GdkPixbuf*   icon,
                         const gchar* icon_name)
 {
-    if (view->item)
-        katze_item_set_icon (view->item, icon_name);
+    katze_item_set_icon (view->item, icon_name);
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
 
@@ -1004,15 +1002,14 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     uri = webkit_web_frame_get_uri (web_frame);
     g_return_if_fail (uri != NULL);
-    katze_assign (view->uri, sokoke_format_uri_for_display (uri));
     katze_assign (view->icon_uri, NULL);
 
-    /* FIXME: Create a proxy item if we don't have one.
-     * We should either always create it, or not rely on it */
-    if (!view->item)
-        midori_view_get_proxy_item (view);
+    if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
+    {
+        katze_assign (view->uri, sokoke_format_uri_for_display (uri));
+        katze_item_set_uri (view->item, uri);
+    }
 
-    katze_item_set_uri (view->item, uri);
     katze_item_set_added (view->item, time (NULL));
 
     g_object_notify (G_OBJECT (view), "uri");
@@ -2736,8 +2733,7 @@ midori_view_hadjustment_notify_value_cb (GtkAdjustment* hadjustment,
                                          MidoriView*    view)
 {
     gint value = (gint)gtk_adjustment_get_value (hadjustment);
-    if (view->item)
-        katze_item_set_meta_integer (view->item, "scrollh", value);
+    katze_item_set_meta_integer (view->item, "scrollh", value);
 }
 
 static void
@@ -2757,8 +2753,7 @@ midori_view_vadjustment_notify_value_cb (GtkAdjustment* vadjustment,
                                          MidoriView*    view)
 {
     gint value = (gint)gtk_adjustment_get_value (vadjustment);
-    if (view->item)
-        katze_item_set_meta_integer (view->item, "scrollv", value);
+    katze_item_set_meta_integer (view->item, "scrollv", value);
 }
 
 static void
@@ -2801,7 +2796,8 @@ midori_view_init (MidoriView* view)
     view->selected_text = NULL;
     view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
 
-    view->item = NULL;
+    view->item = katze_item_new ();
+
     view->scrollh = view->scrollv = -2;
     view->back_forward_set = FALSE;
 
@@ -2814,6 +2810,8 @@ midori_view_init (MidoriView* view)
                                          GTK_SHADOW_NONE);
     gtk_container_add (GTK_CONTAINER (view), view->scrolled_window);
 
+    g_signal_connect (view->item, "meta-data-changed",
+        G_CALLBACK (midori_view_item_meta_data_changed), view);
     g_signal_connect (view->scrolled_window, "notify::hadjustment",
         G_CALLBACK (midori_view_notify_hadjustment_cb), view);
     g_signal_connect (view->scrolled_window, "notify::vadjustment",
@@ -2830,9 +2828,8 @@ midori_view_finalize (GObject* object)
     if (view->settings)
         g_signal_handlers_disconnect_by_func (view->settings,
             midori_view_settings_notify_cb, view);
-    if (view->item)
-        g_signal_handlers_disconnect_by_func (view->item,
-            midori_view_item_meta_data_changed, view);
+    g_signal_handlers_disconnect_by_func (view->item,
+        midori_view_item_meta_data_changed, view);
 
     if (view->thumb_view)
         gtk_widget_destroy (view->thumb_view);
@@ -2876,15 +2873,12 @@ midori_view_set_property (GObject*      object,
         break;
     case PROP_MINIMIZED:
         view->minimized = g_value_get_boolean (value);
-        if (view->item)
-        {
-            g_signal_handlers_block_by_func (view->item,
-                midori_view_item_meta_data_changed, view);
-            katze_item_set_meta_integer (view->item, "minimized",
-                                         view->minimized ? 1 : -1);
-            g_signal_handlers_unblock_by_func (view->item,
-                midori_view_item_meta_data_changed, view);
-        }
+        g_signal_handlers_block_by_func (view->item,
+            midori_view_item_meta_data_changed, view);
+        katze_item_set_meta_integer (view->item, "minimized",
+                                     view->minimized ? 1 : -1);
+        g_signal_handlers_unblock_by_func (view->item,
+            midori_view_item_meta_data_changed, view);
         if (view->tab_label)
             sokoke_widget_set_visible (view->tab_title, !view->minimized);
         break;
@@ -3405,6 +3399,7 @@ midori_view_set_uri (MidoriView*  view,
             gchar* filepath;
 
             katze_assign (view->uri, g_strdup (""));
+            katze_item_set_uri (view->item, "");
 
             filepath = sokoke_find_data_filename ("midori/res/speeddial-head.html");
             g_file_get_contents (filepath, &speed_dial_head, NULL, NULL);
@@ -3608,8 +3603,7 @@ midori_view_set_uri (MidoriView*  view,
                 WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
             g_free (data);
             g_object_notify (G_OBJECT (view), "uri");
-            if (view->item)
-                katze_item_set_uri (view->item, uri);
+            katze_item_set_uri (view->item, uri);
             return;
         }
         else if (g_str_has_prefix (uri, "pause:"))
@@ -3626,8 +3620,7 @@ midori_view_set_uri (MidoriView*  view,
                 NULL);
             g_free (title);
             g_object_notify (G_OBJECT (view), "uri");
-            if (view->item)
-                katze_item_set_uri (view->item, uri);
+            katze_item_set_uri (view->item, uri);
         }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
@@ -3651,8 +3644,7 @@ midori_view_set_uri (MidoriView*  view,
         {
             katze_assign (view->uri, sokoke_format_uri_for_display (uri));
             g_object_notify (G_OBJECT (view), "uri");
-            if (view->item)
-                katze_item_set_uri (view->item, uri);
+            katze_item_set_uri (view->item, uri);
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
@@ -4349,8 +4341,7 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
  * Retrieves a proxy item that can be used for bookmark storage as
  * well as session management.
  *
- * The item is created on the first call and will be updated to reflect
- * changes to the title and uri automatically.
+ * The item reflects changes to the title and uri automatically.
  *
  * Return value: the proxy #KatzeItem
  **/
@@ -4359,12 +4350,6 @@ midori_view_get_proxy_item (MidoriView* view)
 {
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    if (!view->item)
-    {
-        view->item = katze_item_new ();
-        g_signal_connect (view->item, "meta-data-changed",
-            G_CALLBACK (midori_view_item_meta_data_changed), view);
-    }
     return view->item;
 }
 
