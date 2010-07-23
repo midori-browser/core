@@ -157,7 +157,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     if (keyword && *keyword)
     {
         gchar* filterstr;
-        sqlcmd = "SELECT uri, title, app, toolbar, folder from bookmarks where "
+        sqlcmd = "SELECT uri, title, desc, app, toolbar, folder from bookmarks where "
                  " title like ? ORDER BY uri DESC";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
         filterstr = g_strdup_printf ("%%%s%%", keyword);
@@ -168,7 +168,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     {
         if (!folder)
             folder = "";
-        sqlcmd = "SELECT uri, title, app, toolbar, folder from bookmarks where "
+        sqlcmd = "SELECT uri, title, desc, app, toolbar, folder from bookmarks where "
                  " folder = ? ORDER BY uri DESC";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
         sqlite3_bind_text (statement, 1, g_strdup (folder), -1, g_free);
@@ -232,10 +232,11 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
         parent = g_strdup ("");
 
     sqlcmd = sqlite3_mprintf (
-            "INSERT into bookmarks (uri, title, folder, toolbar, app) values"
-            " ('%q', '%q', '%q', %d, %d)",
+            "INSERT into bookmarks (uri, title, desc, folder, toolbar, app) values"
+            " ('%q', '%q', '%q', '%q', %d, %d)",
             uri,
             katze_item_get_name (item),
+            katze_item_get_text (item),
             parent,
             katze_item_get_meta_boolean (item, "toolbar"),
             katze_item_get_meta_boolean (item, "app"));

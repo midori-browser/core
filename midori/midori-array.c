@@ -796,6 +796,12 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         folder = sqlite3_column_text (stmt, column);
         katze_item_set_meta_string (item, name, (gchar*)folder);
     }
+    else if (g_str_equal (name, "desc"))
+    {
+        const unsigned char* text;
+        text = sqlite3_column_text (stmt, column);
+        katze_item_set_text (item, (gchar*)text);
+    }
     else
         g_warn_if_reached ();
 }

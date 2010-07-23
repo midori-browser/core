@@ -6372,7 +6372,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
     if (!db)
         return;
 
-    sqlcmd = "SELECT uri, title, app, folder, toolbar FROM bookmarks WHERE "
+    sqlcmd = "SELECT uri, title, desc, app, folder, toolbar FROM bookmarks WHERE "
              " toolbar = 1 ORDER BY uri ASC";
 
     array = katze_array_from_sqlite (db, sqlcmd);
@@ -6392,7 +6392,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
             KatzeArray* subfolder;
             gchar* subsqlcmd;
 
-            subsqlcmd = g_strdup_printf ("SELECT uri, title, app FROM bookmarks WHERE "
+            subsqlcmd = g_strdup_printf ("SELECT uri, title, desc, app FROM bookmarks WHERE "
                                          " folder = '%s' and uri != ''", katze_item_get_name (item));
             subfolder = katze_array_from_sqlite (db, subsqlcmd);
             katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
