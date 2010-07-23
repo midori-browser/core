@@ -140,7 +140,7 @@ midori_history_format_date (KatzeItem *item)
     else if (age > 7 || age < 0)
     {
         strftime (token, sizeof (token), "%x", localtime ((time_t*)&day));
-        sdate = token;
+        sdate = g_strdup (token);
     }
     else if (age > 6)
         sdate = _("A week ago");
