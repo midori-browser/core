@@ -123,6 +123,35 @@ midori_bookmarks_get_stock_id (MidoriViewable* viewable)
 }
 
 void
+midori_bookmarks_export_array_db (sqlite3*     db,
+                                  KatzeArray*  array,
+                                  const gchar* folder)
+{
+    gchar* sqlcmd;
+    KatzeArray* root_array;
+    KatzeArray* subarray;
+    KatzeItem* item;
+    int i = 0;
+
+    sqlcmd = g_strdup_printf ("SELECT * FROM bookmarks where folder='%s'", folder);
+    root_array = katze_array_from_sqlite (db, sqlcmd);
+    g_free (sqlcmd);
+
+    while ((item = katze_array_get_nth_item (KATZE_ARRAY (root_array), i++)))
+    {
+        if (KATZE_ITEM_IS_FOLDER (item))
+        {
+            subarray = katze_array_new (KATZE_TYPE_ARRAY);
+            katze_item_set_name (KATZE_ITEM (subarray), katze_item_get_name (item));
+            midori_bookmarks_export_array_db (db, subarray, katze_item_get_name (item));
+            katze_array_add_item (array, subarray);
+        }
+        else
+            katze_array_add_item (array, item);
+    }
+}
+
+void
 midori_bookmarks_import_array_db (sqlite3*     db,
                                   KatzeArray*  array,
                                   const gchar* folder)

@@ -174,6 +174,11 @@ midori_bookmarks_import_array_db (sqlite3*    db,
                                   gchar*      folder);
 
 void
+midori_bookmarks_export_array_db (sqlite3*     db,
+                                  KatzeArray*  array,
+                                  const gchar* folder);
+
+void
 midori_bookmarks_insert_item_db (sqlite3*   db,
                                  KatzeItem* item,
                                  gchar*     folder);
@@ -4110,6 +4115,7 @@ _action_bookmarks_export_activate (GtkAction*     action,
     GtkWidget* file_dialog;
     gchar* path = NULL;
     GError* error;
+    sqlite3* db;
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
@@ -4126,6 +4132,8 @@ _action_bookmarks_export_activate (GtkAction*     action,
         return;
 
     error = NULL;
+    db = g_object_get_data (G_OBJECT (browser->history), "db");
+    midori_bookmarks_export_array_db (db, browser->bookmarks, "");
     if (!midori_array_to_file (browser->bookmarks, path, "xbel", &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
