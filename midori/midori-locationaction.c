@@ -455,7 +455,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
             icon = action->default_icon;
         if (type == 1 /* history_view */)
         {
-            unescaped_uri = g_uri_unescape_string ((const char*)uri, "");
+            unescaped_uri = sokoke_uri_unescape_string ((const char*)uri);
+
             gtk_list_store_insert_with_values (store, NULL, matches,
                 URI_COL, unescaped_uri, TITLE_COL, title, YALIGN_COL, 0.25,
                 FAVICON_COL, icon, -1);

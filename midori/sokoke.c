@@ -738,6 +738,22 @@ sokoke_magic_uri (const gchar* uri)
 }
 
 /**
+ * sokoke_uri_unescape_string:
+ * @uri: an URI string
+ *
+ * Unescape @uri if needed, and pass through '+'.
+ *
+ * Return value: a newly allocated URI
+ **/
+gchar*
+sokoke_uri_unescape_string (const gchar* uri)
+{
+    if (strchr (uri,'%'))
+        return g_uri_unescape_string (uri, "+");
+    return g_strdup (uri);
+}
+
+/**
  * sokoke_format_uri_for_display:
  * @uri: an URI string
  *
@@ -749,9 +765,10 @@ sokoke_magic_uri (const gchar* uri)
 gchar*
 sokoke_format_uri_for_display (const gchar* uri)
 {
+    gchar* unescaped;
     if (uri && g_str_has_prefix (uri, "http://"))
     {
-        gchar* unescaped = g_uri_unescape_string (uri, "+");
+        gchar* unescaped = sokoke_uri_unescape_string (uri);
         #ifdef HAVE_LIBSOUP_2_27_90
         gchar* path = NULL;
         gchar* hostname;

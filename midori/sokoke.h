@@ -114,6 +114,9 @@ gchar*
 sokoke_magic_uri                        (const gchar*    uri);
 
 gchar*
+sokoke_uri_unescape_string              (const gchar*    uri);
+
+gchar*
 sokoke_format_uri_for_display           (const gchar*    uri);
 
 void
