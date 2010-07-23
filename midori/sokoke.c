@@ -751,7 +751,7 @@ sokoke_format_uri_for_display (const gchar* uri)
 {
     if (uri && g_str_has_prefix (uri, "http://"))
     {
-        gchar* unescaped = g_uri_unescape_string (uri, " +");
+        gchar* unescaped = g_uri_unescape_string (uri, "+");
         #ifdef HAVE_LIBSOUP_2_27_90
         gchar* path = NULL;
         gchar* hostname;
