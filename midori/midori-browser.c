@@ -616,8 +616,10 @@ midori_view_notify_title_cb (GtkWidget*     widget,
         KatzeItem* proxy;
         if (browser->history && browser->maximum_history_age)
         {
+            const gchar* proxy_uri;
             proxy = midori_view_get_proxy_item (view);
-            if (katze_item_get_uri (proxy) &&
+            proxy_uri = katze_item_get_uri (proxy);
+            if (proxy_uri && *proxy_uri && proxy_uri[1] &&
                 (katze_item_get_meta_integer (proxy, "process") == -1))
             {
                 midori_browser_new_history_item (browser, proxy);
