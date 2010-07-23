@@ -397,7 +397,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
         if (text && *text)
         {
-            midori_location_action_set_uri (location_action, text);
+            midori_location_action_set_uri (location_action, browser->statusbar_text);
             midori_location_action_set_icon (location_action, NULL);
             midori_location_action_set_secondary_icon (location_action, NULL);
         }

@@ -1445,14 +1445,10 @@ void
 midori_location_action_set_uri (MidoriLocationAction* location_action,
                                 const gchar*          uri)
 {
-    gchar* escaped_uri;
-
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (uri != NULL);
 
-    escaped_uri = g_uri_unescape_string (uri, "");
-    midori_location_action_set_text (location_action, escaped_uri);
-    g_free (escaped_uri);
+    midori_location_action_set_text (location_action, uri);
 }
 
 /**
