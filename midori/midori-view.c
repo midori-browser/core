@@ -3602,8 +3602,8 @@ midori_view_set_uri (MidoriView*  view,
             webkit_web_view_load_html_string (
                 WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
             g_free (data);
-            g_object_notify (G_OBJECT (view), "uri");
             katze_item_set_uri (view->item, uri);
+            g_object_notify (G_OBJECT (view), "uri");
             return;
         }
         else if (g_str_has_prefix (uri, "pause:"))
@@ -3619,8 +3619,8 @@ midori_view_set_uri (MidoriView*  view,
                 _("Load Page"),
                 NULL);
             g_free (title);
-            g_object_notify (G_OBJECT (view), "uri");
             katze_item_set_uri (view->item, uri);
+            g_object_notify (G_OBJECT (view), "uri");
         }
         else if (g_str_has_prefix (uri, "javascript:"))
         {
@@ -3643,8 +3643,8 @@ midori_view_set_uri (MidoriView*  view,
         else
         {
             katze_assign (view->uri, sokoke_format_uri_for_display (uri));
-            g_object_notify (G_OBJECT (view), "uri");
             katze_item_set_uri (view->item, uri);
+            g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
     }
