@@ -625,16 +625,18 @@ midori_view_notify_title_cb (GtkWidget*     widget,
             proxy = midori_view_get_proxy_item (view);
             proxy_uri = katze_item_get_uri (proxy);
             if (proxy_uri && *proxy_uri && proxy_uri[1] &&
-                (katze_item_get_meta_integer (proxy, "process") == -1))
+                !g_str_has_prefix (proxy_uri, "about:") &&
+                (katze_item_get_meta_integer (proxy, "history-step") == -1))
             {
                 midori_browser_new_history_item (browser, proxy);
-                katze_item_set_meta_integer (proxy, "process", 1);
+                katze_item_set_meta_integer (proxy, "history-step", 1);
             }
             else if (katze_item_get_name (proxy) &&
-                     (katze_item_get_meta_integer (proxy, "process") == 1))
+                     !g_str_has_prefix (proxy_uri, "about:") &&
+                     (katze_item_get_meta_integer (proxy, "history-step") == 1))
             {
                 midori_browser_update_history_title (browser, proxy);
-                katze_item_set_meta_integer (proxy, "process", 2);
+                katze_item_set_meta_integer (proxy, "history-step", 2);
             }
         }
     }

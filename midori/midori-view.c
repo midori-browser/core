@@ -1011,6 +1011,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     }
 
     katze_item_set_added (view->item, time (NULL));
+    katze_item_set_meta_integer (view->item, "history-step", -1);
 
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
