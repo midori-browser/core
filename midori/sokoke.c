@@ -765,7 +765,6 @@ sokoke_uri_unescape_string (const gchar* uri)
 gchar*
 sokoke_format_uri_for_display (const gchar* uri)
 {
-    gchar* unescaped;
     if (uri && g_str_has_prefix (uri, "http://"))
     {
         gchar* unescaped = sokoke_uri_unescape_string (uri);
