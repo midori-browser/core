@@ -38,7 +38,6 @@ struct _MidoriPanel
     GtkWidget* toolbook;
     GtkWidget* notebook;
     GtkActionGroup* action_group;
-    GtkMenu*   menu;
 
     gboolean show_titles;
     gboolean show_controls;
@@ -63,7 +62,6 @@ enum
 
     PROP_SHADOW_TYPE,
     PROP_ACTION_GROUP,
-    PROP_MENU,
     PROP_PAGE,
     PROP_SHOW_TITLES,
     PROP_SHOW_CONTROLS,
@@ -163,24 +161,6 @@ midori_panel_class_init (MidoriPanelClass* class)
                                      "Action Group",
                                      "The action group the panel will add actions to",
                                      GTK_TYPE_ACTION_GROUP,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-    /**
-     * MidoriWebSettings:menu:
-     *
-     * This is the menu that holds the panel menu items.
-     *
-     * You shouldn't use this menu or add items.
-     *
-     * Deprecated: 0.1.9
-     */
-    g_object_class_install_property (gobject_class,
-                                     PROP_MENU,
-                                     g_param_spec_object (
-                                     "menu",
-                                     "Menu",
-                                     "Menu to hold panel items",
-                                     GTK_TYPE_MENU,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -508,9 +488,6 @@ midori_panel_set_property (GObject*      object,
     case PROP_ACTION_GROUP:
         katze_object_assign (panel->action_group, g_value_dup_object (value));
         break;
-    case PROP_MENU:
-        katze_object_assign (panel->menu, g_value_dup_object (value));
-        break;
     case PROP_PAGE:
         midori_panel_set_current_page (panel, g_value_get_int (value));
         break;
@@ -555,9 +532,6 @@ midori_panel_get_property (GObject*    object,
         break;
     case PROP_ACTION_GROUP:
         g_value_set_object (value, panel->action_group);
-        break;
-    case PROP_MENU:
-        g_value_set_object (value, panel->menu);
         break;
     case PROP_PAGE:
         g_value_set_int (value, midori_panel_get_current_page (panel));

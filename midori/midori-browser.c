@@ -5864,7 +5864,6 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (hpaned);
     browser->panel = g_object_new (MIDORI_TYPE_PANEL,
                                    "action-group", browser->action_group,
-                                   "menu", browser->menu_tools,
                                    NULL);
     g_object_connect (browser->panel,
         "signal::notify::page",
