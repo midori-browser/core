@@ -892,9 +892,10 @@ midori_history_init (MidoriHistory* history)
     gtk_box_pack_start (GTK_BOX (history), box, FALSE, FALSE, 5);
 
     /* Create the treeview */
-    model = gtk_tree_store_new (1, KATZE_TYPE_ITEM);
+    model = gtk_tree_store_new (2, KATZE_TYPE_ITEM, G_TYPE_STRING);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
     gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+    gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (treeview), 1);
     column = gtk_tree_view_column_new ();
     renderer_pixbuf = gtk_cell_renderer_pixbuf_new ();
     gtk_tree_view_column_pack_start (column, renderer_pixbuf, FALSE);
