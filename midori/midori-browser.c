@@ -5389,6 +5389,10 @@ midori_browser_new_history_item (MidoriBrowser* browser,
                     sqlite3_errmsg (db));
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
+
+    /* FIXME: Workaround for the lack of a database interface */
+    katze_array_add_item (browser->history, item);
+    katze_array_remove_item (browser->history, item);
 }
 
 static void

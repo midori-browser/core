@@ -409,6 +409,51 @@ midori_history_viewable_iface_init (MidoriViewableIface* iface)
 }
 
 static void
+midori_history_add_item_cb (KatzeArray*    array,
+                            KatzeItem*     item,
+                            MidoriHistory* history)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW (history->treeview);
+    GtkTreeModel* model = gtk_tree_view_get_model (treeview);
+    GtkTreeIter iter;
+    KatzeItem* today;
+    time_t current_time;
+
+    current_time = time (NULL);
+    if (gtk_tree_model_iter_children (model, &iter, NULL))
+    {
+        gint64 day;
+        gboolean has_today;
+
+        gtk_tree_model_get (model, &iter, 0, &today, -1);
+
+        day = katze_item_get_added (today);
+        has_today = sokoke_days_between ((time_t*)&day, &current_time) == 0;
+        g_object_unref (today);
+        if (has_today)
+        {
+            gchar* tooltip = g_markup_escape_text (katze_item_get_uri (item), -1);
+            KatzeItem* copy = katze_item_copy (item);
+            gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), NULL, &iter,
+                                               0, 0, copy, 1, tooltip, -1);
+            g_object_unref (copy);
+            g_free (tooltip);
+            return;
+        }
+    }
+
+    today = (KatzeItem*)katze_array_new (KATZE_TYPE_ITEM);
+    katze_item_set_added (today, current_time);
+    katze_item_set_meta_integer (today, "day",
+                                 sokoke_time_t_to_julian (&current_time));
+    gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), &iter, NULL,
+                                       0, 0, today, -1);
+    /* That's an invisible dummy, so we always have an expander */
+    gtk_tree_store_insert_with_values (GTK_TREE_STORE (model), NULL, &iter,
+                                       0, 0, NULL, -1);
+}
+
+static void
 midori_history_set_app (MidoriHistory* history,
                         MidoriApp*     app)
 {
@@ -416,7 +461,9 @@ midori_history_set_app (MidoriHistory* history,
 
     if (history->array)
     {
-        g_object_unref (history->array);
+        g_signal_handlers_disconnect_by_func (history->array,
+            midori_history_add_item_cb, history);
+        katze_object_assign (history->array, NULL);
         model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
         gtk_tree_store_clear (GTK_TREE_STORE (model));
     }
@@ -427,6 +474,8 @@ midori_history_set_app (MidoriHistory* history,
     g_object_ref (app);
 
     history->array = katze_object_get_object (app, "history");
+    g_signal_connect (history->array, "add-item",
+                      G_CALLBACK (midori_history_add_item_cb), history);
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
     if (history->array)
         midori_history_read_from_db_to_model (history, GTK_TREE_STORE (model), NULL, 0, NULL);
