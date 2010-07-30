@@ -5968,6 +5968,10 @@ midori_browser_dispose (GObject* object)
 
     /* We are done, the session mustn't change anymore */
     katze_object_assign (browser->proxy_array, NULL);
+    g_signal_handlers_disconnect_by_func (browser->settings,
+                                          midori_browser_settings_notify,
+                                          browser);
+    midori_browser_set_bookmarks (browser, NULL);
 
     G_OBJECT_CLASS (midori_browser_parent_class)->dispose (object);
 }
@@ -5977,14 +5981,9 @@ midori_browser_finalize (GObject* object)
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
 
-    g_signal_handlers_disconnect_by_func (browser->settings,
-                                          midori_browser_settings_notify,
-                                          browser);
-
     katze_assign (browser->statusbar_text, NULL);
 
     katze_object_assign (browser->settings, NULL);
-    katze_object_assign (browser->bookmarks, NULL);
     katze_object_assign (browser->trash, NULL);
     katze_object_assign (browser->search_engines, NULL);
     katze_object_assign (browser->history, NULL);
@@ -6448,16 +6447,15 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
 {
     MidoriWebSettings* settings;
 
+    settings = midori_browser_get_settings (browser);
+    g_signal_handlers_disconnect_by_func (settings,
+        midori_browser_show_bookmarkbar_notify_value_cb, browser);
+    katze_object_assign (browser->bookmarks, bookmarks);
+
     if (!bookmarks)
         return;
 
-    if (!browser->bookmarks)
-    {
-        g_object_ref (bookmarks);
-        katze_object_assign (browser->bookmarks, bookmarks);
-    }
-
-    settings = midori_browser_get_settings (browser);
+    g_object_ref (bookmarks);
     g_signal_connect (settings, "notify::show-bookmarkbar",
         G_CALLBACK (midori_browser_show_bookmarkbar_notify_value_cb), browser);
     g_object_notify (G_OBJECT (settings), "show-bookmarkbar");
