@@ -1259,7 +1259,7 @@ midori_load_session (gpointer data)
     midori_browser_set_current_page (browser, current);
     if (!(item = katze_array_get_nth_item (_session, current)))
         item = katze_array_get_nth_item (_session, 0);
-    if (!strcmp (katze_item_get_uri (item), ""))
+    if (!g_strcmp0 (katze_item_get_uri (item), ""))
         midori_browser_activate_action (browser, "Location");
 
     g_object_unref (settings);
