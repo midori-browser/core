@@ -210,6 +210,10 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
                                 GParamSpec*        pspec,
                                 MidoriBrowser*     browser);
 
+void
+midori_panel_set_toolbar_style (MidoriPanel*    panel,
+                                GtkToolbarStyle style);
+
 static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
                               KatzeArray*    bookmarks);
@@ -6026,6 +6030,8 @@ _midori_browser_set_toolbar_style (MidoriBrowser*     browser,
     gtk_toolbar_set_style (GTK_TOOLBAR (browser->navigationbar),
                            gtk_toolbar_style);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (browser->navigationbar), icon_size);
+    midori_panel_set_toolbar_style (MIDORI_PANEL (browser->panel),
+                                    gtk_toolbar_style);
 }
 
 static gboolean

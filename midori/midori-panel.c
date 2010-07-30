@@ -1150,3 +1150,14 @@ midori_panel_append_widget (MidoriPanel* panel,
                       G_CALLBACK (midori_panel_widget_destroy_cb), viewable);
     return midori_panel_append_page (panel, MIDORI_VIEWABLE (viewable));
 }
+
+/* Private function, used by MidoriBrowser */
+void
+midori_panel_set_toolbar_style (MidoriPanel*    panel,
+                                GtkToolbarStyle style)
+{
+    g_return_if_fail (MIDORI_IS_PANEL (panel));
+
+    gtk_toolbar_set_style (GTK_TOOLBAR (panel->toolbar), style);
+}
+
