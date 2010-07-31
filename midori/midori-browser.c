@@ -406,7 +406,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
         if (text && *text)
         {
-            midori_location_action_set_uri (location_action, browser->statusbar_text);
+            midori_location_action_set_text (location_action, browser->statusbar_text);
             midori_location_action_set_icon (location_action, NULL);
             midori_location_action_set_secondary_icon (location_action, NULL);
         }
@@ -421,7 +421,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                 else
                     midori_location_action_set_secondary_icon (
                         location_action, GTK_STOCK_JUMP_TO);
-                midori_location_action_set_uri (location_action,
+                midori_location_action_set_text (location_action,
                     midori_view_get_display_uri (MIDORI_VIEW (view)));
                 midori_location_action_set_icon (location_action,
                     midori_view_get_icon (MIDORI_VIEW (view)));
@@ -556,7 +556,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
     {
         if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
         {
-            midori_location_action_set_uri (
+            midori_location_action_set_text (
                 MIDORI_LOCATION_ACTION (action), uri);
             midori_location_action_set_secondary_icon (
                 MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
@@ -601,7 +601,7 @@ midori_view_notify_uri_cb (GtkWidget*     view,
     {
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
         GtkAction* action = _action_by_name (browser, "Location");
-        midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+        midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
     }
 }
 
@@ -3492,7 +3492,7 @@ _action_location_reset_uri (GtkAction*     action,
     const gchar* uri;
 
     uri = midori_browser_get_current_uri (browser);
-    midori_location_action_set_uri (MIDORI_LOCATION_ACTION (action), uri);
+    midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
 }
 
 

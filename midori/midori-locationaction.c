@@ -568,34 +568,6 @@ midori_location_action_entry_for_proxy (GtkWidget* proxy)
     return entry;
 }
 
-/**
- * midori_location_action_freeze:
- * @location_action: a #MidoriLocationAction
- *
- * Freezing of the action doesn't do anything.
- *
- * Deprecated: 0.2.3
- **/
-void
-midori_location_action_freeze (MidoriLocationAction* location_action)
-{
-    /* Nothing to do */
-}
-
-/**
- * midori_location_action_thaw:
- * @location_action: a #MidoriLocationAction
- *
- * Thawing of the action doesn't do anything.
- *
- * Deprecated: 0.2.3
- **/
-void
-midori_location_action_thaw (MidoriLocationAction* location_action)
-{
-    /* Nothing to do */
-}
-
 static void
 midori_location_action_init (MidoriLocationAction* location_action)
 {
@@ -1431,25 +1403,6 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
     }
 
     g_object_unref (icon);
-}
-
-/**
- * midori_location_action_set_uri:
- * @location_action: a #MidoriLocationAction
- * @uri: an URI string
- *
- * Sets the entry URI to @uri and, if applicable, updates the icon.
- *
- * Deprecated: 0.2.0
- **/
-void
-midori_location_action_set_uri (MidoriLocationAction* location_action,
-                                const gchar*          uri)
-{
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (uri != NULL);
-
-    midori_location_action_set_text (location_action, uri);
 }
 
 /**

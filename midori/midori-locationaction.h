@@ -36,12 +36,6 @@ typedef struct _MidoriLocationActionClass    MidoriLocationActionClass;
 GType
 midori_location_action_get_type             (void) G_GNUC_CONST;
 
-void
-midori_location_action_freeze              (MidoriLocationAction* location_action);
-
-void
-midori_location_action_thaw                (MidoriLocationAction* location_action);
-
 const gchar*
 midori_location_action_get_text             (MidoriLocationAction* location_action);
 
@@ -51,10 +45,6 @@ midori_location_action_set_text             (MidoriLocationAction* location_acti
 
 const gchar*
 midori_location_action_get_uri              (MidoriLocationAction* location_action);
-
-void
-midori_location_action_set_uri              (MidoriLocationAction* location_action,
-                                             const gchar*          uri);
 
 void
 midori_location_action_set_icon             (MidoriLocationAction* location_action,
