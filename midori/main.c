@@ -1698,19 +1698,21 @@ main (int    argc,
         midori_startup_timer ("Browser: \t%f");
         if (config)
         {
-            gchar* random_name;
-            gchar* app_name;
+            SoupSession* session;
+            SoupCookieJar* jar;
 
-            random_name = g_strdup_printf ("app%u", g_random_int ());
-            app_name = g_strconcat ("midori", "_", random_name, NULL);
-            app = g_object_new (MIDORI_TYPE_APP, "name", app_name, NULL);
-            g_free (random_name);
-            g_free (app_name);
-
-            config_file = build_config_filename ("config");
+            config_file = g_build_filename (config, "config", NULL);
             settings = settings_new_from_file (config_file, &extensions);
             g_free (config_file);
             g_strfreev (extensions);
+
+            session = webkit_get_default_session ();
+            config_file = g_build_filename (config, "cookies.txt", NULL);
+            jar = soup_cookie_jar_text_new (config_file, TRUE);
+            g_free (config_file);
+            soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
+            g_object_unref (jar);
+
         }
         else
             settings = katze_object_get_object (browser, "settings");
