@@ -37,7 +37,7 @@ VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
 try:
     git = Utils.cmd_output (['git', 'describe'], silent=True)
     if git:
-        VERSION = git
+        VERSION = git.strip ()
 except:
     pass
 
