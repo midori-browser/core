@@ -112,7 +112,10 @@ midori_transfers_button_clear_clicked_cb (GtkToolItem*    toolitem,
         status = webkit_download_get_status (download);
         if (status == WEBKIT_DOWNLOAD_STATUS_FINISHED
             || status == WEBKIT_DOWNLOAD_STATUS_CANCELLED)
+        {
             gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+            n--; /* Decrement n since we just removed it */
+        }
         g_object_unref (download);
         #endif
     }
