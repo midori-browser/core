@@ -97,7 +97,6 @@ struct _MidoriView
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
-    /* GtkWidget* tooltip_image; */
     GtkWidget* tab_icon;
     GtkWidget* tab_title;
     GtkWidget* tab_close;
@@ -650,9 +649,8 @@ midori_view_update_title (MidoriView* view)
                 soup_uri_free (uri);
         }
         gtk_label_set_text (GTK_LABEL (view->tab_title), title);
-        #if 1
+        gtk_widget_set_tooltip_text (view->tab_icon, title);
         gtk_widget_set_tooltip_text (view->tab_title, title);
-        #endif
     }
     if (view->menu_item)
         gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
@@ -4179,23 +4177,6 @@ midori_view_tab_label_parent_set (GtkWidget*  tab_label,
     }
 }
 
-#if 0
-static gboolean
-midori_view_tab_label_query_tooltip_cb (GtkWidget*  tab_label,
-                                        gint        x,
-                                        gint        y,
-                                        gboolean    keyboard,
-                                        GtkTooltip* tooltip,
-                                        MidoriView* view)
-{
-    if (view->speed_dial_in_new_tabs)
-        gtk_tooltip_set_icon (tooltip, midori_view_get_snapshot (view, -160, -107));
-    else
-        gtk_tooltip_set_text (tooltip, midori_view_get_display_title (view));
-    return TRUE;
-}
-#endif
-
 /**
  * midori_view_get_label_ellipsize:
  * @view: a #MidoriView
@@ -4296,11 +4277,6 @@ midori_view_get_proxy_tab_label (MidoriView* view)
             G_CALLBACK (midori_view_tab_close_clicked), view);
 
         view->tab_label = event_box;
-        #if 0
-        gtk_widget_set_has_tooltip (view->tab_label, TRUE);
-        g_signal_connect (view->tab_label, "query-tooltip",
-            G_CALLBACK (midori_view_tab_label_query_tooltip_cb), view);
-        #endif
         g_signal_connect (view->tab_icon, "destroy",
                           G_CALLBACK (gtk_widget_destroyed),
                           &view->tab_icon);
