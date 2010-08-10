@@ -2019,7 +2019,6 @@ main (int    argc,
     }
     }
 
-    katze_assign (config_file, build_config_filename ("search"));
     if (1)
     {
         g_signal_connect_after (search_engines, "add-item",
@@ -2034,12 +2033,10 @@ main (int    argc,
                     G_CALLBACK (midori_search_engines_modify_cb), search_engines);
         }
     }
-    katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
     g_signal_connect_after (trash, "add-item",
         G_CALLBACK (midori_trash_add_item_cb), NULL);
     g_signal_connect_after (trash, "remove-item",
         G_CALLBACK (midori_trash_remove_item_cb), NULL);
-    katze_assign (config_file, build_config_filename ("history.db"));
 
     katze_item_set_parent (KATZE_ITEM (_session), app);
     g_object_set_data (G_OBJECT (app), "extensions", extensions);
