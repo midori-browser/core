@@ -988,8 +988,8 @@ midori_history_finalize (GObject* object)
     if (history->app)
         g_object_unref (history->app);
 
-    /* FIXME: We don't unref items (last argument is FALSE) because
-       our reference counting is incorrect. */
+    g_signal_handlers_disconnect_by_func (history->array,
+        midori_history_add_item_cb, history);
     g_object_unref (history->array);
     katze_assign (history->filter, NULL);
 }
