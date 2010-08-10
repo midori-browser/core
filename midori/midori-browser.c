@@ -183,10 +183,6 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
                                  KatzeItem* item,
                                  gchar*     folder);
 
-void
-midori_bookmarks_remove_item_from_db (sqlite3*   db,
-                                      KatzeItem* item);
-
 static void
 midori_bookmarkbar_populate (MidoriBrowser* browser);
 
@@ -927,7 +923,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         GtkTreeModel* model;
 
         if (!new_bookmark)
-            midori_bookmarks_remove_item_from_db (db, bookmark);
+            katze_array_remove_item (browser->bookmarks, bookmark);
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
@@ -3862,14 +3858,10 @@ static void
 midori_browser_bookmark_delete_activate_cb (GtkWidget*     menuitem,
                                             MidoriBrowser* browser)
 {
-    sqlite3* db;
     KatzeItem* item;
 
-    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-
-    midori_bookmarks_remove_item_from_db (db, item);
-    g_object_unref (item);
+    katze_array_remove_item (browser->bookmarks, item);
 }
 
 static void
@@ -6368,6 +6360,15 @@ midori_bookmarkbar_insert_item (GtkWidget* toolbar,
 }
 
 static void
+midori_bookmarkbar_remove_item_cb (KatzeArray*    bookmarks,
+                                   KatzeItem*     item,
+                                   MidoriBrowser* browser)
+{
+    if (gtk_widget_get_visible (browser->bookmarkbar))
+        midori_bookmarkbar_populate (browser);
+}
+
+static void
 midori_bookmarkbar_populate (MidoriBrowser* browser)
 {
     GtkWidget* homepage;
@@ -6456,6 +6457,9 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
 {
     MidoriWebSettings* settings;
 
+    if (browser->bookmarks != NULL)
+        g_signal_handlers_disconnect_by_func (browser->bookmarks,
+            midori_bookmarkbar_remove_item_cb, browser);
     settings = midori_browser_get_settings (browser);
     g_signal_handlers_disconnect_by_func (settings,
         midori_browser_show_bookmarkbar_notify_value_cb, browser);
@@ -6468,6 +6472,8 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
     g_signal_connect (settings, "notify::show-bookmarkbar",
         G_CALLBACK (midori_browser_show_bookmarkbar_notify_value_cb), browser);
     g_object_notify (G_OBJECT (settings), "show-bookmarkbar");
+    g_signal_connect_after (bookmarks, "remove-item",
+        G_CALLBACK (midori_bookmarkbar_remove_item_cb), browser);
 }
 
 static void

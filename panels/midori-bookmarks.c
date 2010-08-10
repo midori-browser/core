@@ -281,34 +281,15 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
     sqlite3_free (sqlcmd);
 }
 
-void
-midori_bookmarks_remove_item_from_db (sqlite3*   db,
-                                      KatzeItem* item)
+static void
+midori_bookmarks_remove_item_cb (KatzeArray*      array,
+                                 KatzeItem*       item,
+                                 MidoriBookmarks* bookmarks)
 {
-    gchar* sqlcmd;
-    char* errmsg = NULL;
-
-    if (KATZE_ITEM_IS_BOOKMARK (item))
-        sqlcmd = sqlite3_mprintf (
-            "DELETE FROM bookmarks WHERE uri = '%q' "
-            " AND folder = '%q'",
-            katze_item_get_uri (item),
-            katze_item_get_meta_string (item, "folder"));
-
-    else
-       sqlcmd = sqlite3_mprintf (
-            "DELETE FROM bookmarks WHERE title = '%q'"
-            " AND folder = '%q'",
-            katze_item_get_name (item),
-            katze_item_get_meta_string (item, "folder"));
-
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-
-    sqlite3_free (sqlcmd);
+    GtkTreeModel* model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
+    gtk_tree_store_clear (GTK_TREE_STORE (model));
+    midori_bookmarks_read_from_db_to_model (bookmarks,
+        GTK_TREE_STORE (model), NULL, NULL, bookmarks->filter);
 }
 
 static void
@@ -342,7 +323,7 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
     else
         parent_name = g_strdup ("");
 
-    midori_bookmarks_remove_item_from_db (db, item);
+    katze_array_remove_item (bookmarks->array, item);
     midori_bookmarks_insert_item_db (db, item, parent_name);
 }
 
@@ -387,9 +368,7 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    sqlite3* db;
 
-    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (bookmarks->treeview),
                                            &model, &iter))
     {
@@ -397,9 +376,13 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
 
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
-        midori_bookmarks_remove_item_from_db (db, item);
+        /* Manually remove the iter and block clearing the treeview */
         gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
-
+        g_signal_handlers_block_by_func (bookmarks->array,
+            midori_bookmarks_remove_item_cb, bookmarks);
+        katze_array_remove_item (bookmarks->array, item);
+        g_signal_handlers_unblock_by_func (bookmarks->array,
+            midori_bookmarks_remove_item_cb, bookmarks);
         g_object_unref (item);
     }
 }
@@ -492,6 +475,8 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
     g_object_ref (app);
     bookmarks->array = katze_object_get_object (app, "bookmarks");
     g_object_set_data (G_OBJECT (bookmarks->array), "treeview", bookmarks->treeview);
+    g_signal_connect (bookmarks->array, "remove-item",
+                      G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
 
     midori_bookmarks_read_from_db_to_model (bookmarks, GTK_TREE_STORE (model), NULL, "", NULL);
     g_signal_connect_after (model, "row-changed",

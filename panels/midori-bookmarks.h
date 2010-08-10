@@ -48,10 +48,6 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
                                  const gchar* folder);
 
 void
-midori_bookmarks_remove_item_from_db (sqlite3*   db,
-                                      KatzeItem* item);
-
-void
 midori_bookmarks_import_array_db (sqlite3*       db,
                                   KatzeArray*    array,
                                   const gchar*   folder);

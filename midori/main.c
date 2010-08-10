@@ -428,6 +428,37 @@ midori_history_terminate (sqlite3* db,
     sqlite3_close (db);
 }
 
+static void
+midori_bookmarks_remove_item_cb (KatzeArray* array,
+                                 KatzeItem*  item,
+                                 sqlite3*    db)
+{
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+
+    if (KATZE_ITEM_IS_BOOKMARK (item))
+        sqlcmd = sqlite3_mprintf (
+            "DELETE FROM bookmarks WHERE uri = '%q' "
+            " AND folder = '%q'",
+            katze_item_get_uri (item),
+            katze_item_get_meta_string (item, "folder"));
+
+    else
+       sqlcmd = sqlite3_mprintf (
+            "DELETE FROM bookmarks WHERE title = '%q'"
+            " AND folder = '%q'",
+            katze_item_get_name (item),
+            katze_item_get_meta_string (item, "folder"));
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    sqlite3_free (sqlcmd);
+}
+
 static sqlite3*
 midori_bookmarks_initialize (KatzeArray*  array,
                              const gchar* filename,
@@ -450,6 +481,8 @@ midori_bookmarks_initialize (KatzeArray*  array,
                       "desc text, app integer, toolbar integer);",
                       NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
+    g_signal_connect (array, "remove-item",
+                      G_CALLBACK (midori_bookmarks_remove_item_cb), db);
     return db;
 }
 
