@@ -183,6 +183,10 @@ midori_bookmarks_insert_item_db (sqlite3*   db,
                                  KatzeItem* item,
                                  gchar*     folder);
 
+void
+midori_browser_open_bookmark (MidoriBrowser* browser,
+                              KatzeItem*     item);
+
 static void
 midori_bookmarkbar_populate (MidoriBrowser* browser);
 
@@ -2663,7 +2667,7 @@ midori_bookmarkbar_activate_item (GtkAction*     action,
                                   KatzeItem*     item,
                                   MidoriBrowser* browser)
 {
-    midori_browser_set_current_uri (browser, katze_item_get_uri (item));
+    midori_browser_open_bookmark (browser, item);
 }
 
 static gboolean
@@ -3778,14 +3782,8 @@ static void
 midori_browser_bookmark_open_activate_cb (GtkWidget*     menuitem,
                                           MidoriBrowser* browser)
 {
-    KatzeItem* item;
-    const gchar* uri;
-
-    item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-    uri = katze_item_get_uri (item);
-
-    if (uri && *uri)
-        midori_browser_set_current_uri (browser, uri);
+    KatzeItem* item = (KatzeItem*)g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
+    midori_browser_open_bookmark (browser, item);
 }
 
 static void
