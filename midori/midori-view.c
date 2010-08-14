@@ -1872,6 +1872,7 @@ midori_web_view_menu_inspect_element_activate_cb (GtkWidget*  widget,
     x = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "x"));
     y = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget), "y"));
     webkit_web_inspector_inspect_coordinates (inspector, x, y);
+    webkit_web_inspector_show (inspector);
 }
 #endif
 
