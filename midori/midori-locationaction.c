@@ -336,6 +336,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
     MidoriLocationAction* action = data;
     GtkTreeViewColumn* column;
     GtkListStore* store;
+    gchar* effective_key;
+    gint i;
     gint result;
     static sqlite3_stmt* stmt;
     const gchar* sqlcmd;
@@ -369,7 +371,16 @@ midori_location_action_popup_timeout_cb (gpointer data)
                  ") GROUP BY uri ORDER BY ct DESC LIMIT ?2";
         sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
     }
-    sqlite3_bind_text (stmt, 1, g_strdup_printf ("%%%s%%", action->key), -1, g_free);
+    effective_key = g_strdup_printf ("%%%s%%", action->key);
+    i = 0;
+    do
+    {
+        if (effective_key[i] == ' ')
+            effective_key[i] = '%';
+        i++;
+    }
+    while (effective_key[i] != '\0');
+    sqlite3_bind_text (stmt, 1, effective_key, -1, g_free);
     sqlite3_bind_int64 (stmt, 2, MAX_ITEMS);
 
     result = sqlite3_step (stmt);
@@ -1019,14 +1030,21 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gboolean style;
     gchar* desc;
     gchar* desc_uri;
+    gchar* desc_iter;
+    gchar* temp_iter;
     gchar* desc_title;
     const gchar* str;
     gchar* key;
+    gchar** keys;
+    gint key_idx;
     gchar* start;
     gchar* skey;
     gchar* temp;
+    gchar* temp_concat;
+    gchar* temp_markup;
     gchar** parts;
     size_t len;
+    size_t offset;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
         BACKGROUND_COL, &background, STYLE_COL, &style, -1);
@@ -1047,40 +1065,121 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         str = "";
 
     key = g_utf8_strdown (str, -1);
-    len = strlen (key);
+    keys = g_strsplit_set (key, " %", -1);
+    g_free (key);
 
     if (G_LIKELY (uri))
     {
-        temp = g_utf8_strdown (uri, -1);
-        if ((start = strstr (temp, key)) && (start - temp))
+        temp_iter = temp = g_utf8_strdown (uri, -1);
+        desc_iter = uri;
+        key_idx = 0;
+        key = keys[key_idx];
+        len = strlen (key);
+        offset = 0;
+        while ((start = strstr (temp_iter, key)) && start)
         {
-            skey = g_strndup (uri + (start - temp), len);
-            parts = g_strsplit (uri, skey, 2);
-            if (parts[0] && parts[1])
-                desc_uri = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                    parts[0], skey, parts[1]);
-            g_strfreev (parts);
-            g_free (skey);
+            if (len)
+            {
+                offset = (start - temp_iter);
+                skey = g_strndup (desc_iter + offset, len);
+                parts = g_strsplit (desc_iter, skey, 2);
+                if (parts[0] && parts[1])
+                {
+                    if (desc_uri)
+                    {
+                        temp_markup = g_markup_printf_escaped ("%s<b>%s</b>",
+                            parts[0], skey);
+                        temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
+                        g_free (temp_markup);
+                        katze_assign (desc_uri, temp_concat);
+                    }
+                    else
+                    {
+                        desc_uri = g_markup_printf_escaped ("%s<b>%s</b>",
+                            parts[0], skey);
+                    }
+                }
+                g_strfreev (parts);
+                g_free (skey);
+
+                offset += len;
+                temp_iter += offset;
+                desc_iter += offset;
+            }
+            key_idx++;
+            key = keys[key_idx];
+            if (key == NULL)
+                break;
+            len = strlen (key);
         }
-        if (!desc_uri)
+        if (key)
+            katze_assign (desc_uri, NULL);
+        if (desc_uri)
+        {
+            temp_markup = g_markup_escape_text (desc_iter, -1);
+            temp_concat = g_strconcat (desc_uri, temp_markup, NULL);
+            g_free (temp_markup);
+            katze_assign (desc_uri, temp_concat);
+        }
+        else
             desc_uri = g_markup_escape_text (uri, -1);
         g_free (temp);
     }
 
     if (G_LIKELY (title))
     {
-        temp = g_utf8_strdown (title, -1);
-        if ((start = strstr (temp, key)) && (start - temp))
+        temp_iter = temp = g_utf8_strdown (title, -1);
+        desc_iter = title;
+        key_idx = 0;
+        key = keys[key_idx];
+        len = strlen (key);
+        offset = 0;
+        while ((start = strstr (temp_iter, key)) && start)
         {
-            skey = g_strndup (title + (start - temp), len);
-            parts = g_strsplit (title, skey, 2);
-            if (parts[0] && parts[1])
-                desc_title = g_markup_printf_escaped ("%s<b>%s</b>%s",
-                    parts[0], skey, parts[1]);
-            g_strfreev (parts);
-            g_free (skey);
+            if (len)
+            {
+                offset = (start - temp_iter);
+                skey = g_strndup (desc_iter + offset, len);
+                parts = g_strsplit (desc_iter, skey, 2);
+                if (parts[0] && parts[1])
+                {
+                    if (desc_title)
+                    {
+                        temp_markup = g_markup_printf_escaped ("%s<b>%s</b>",
+                            parts[0], skey);
+                        temp_concat = g_strconcat (desc_title, temp_markup, NULL);
+                        g_free (temp_markup);
+                        katze_assign (desc_title, temp_concat);
+                    }
+                    else
+                    {
+                        desc_title = g_markup_printf_escaped ("%s<b>%s</b>",
+                            parts[0], skey);
+                    }
+                }
+                g_strfreev (parts);
+                g_free (skey);
+
+                offset += len;
+                temp_iter += offset;
+                desc_iter += offset;
+            }
+            key_idx++;
+            key = keys[key_idx];
+            if (key == NULL)
+                break;
+            len = strlen (key);
         }
-        if (!desc_title)
+        if (key)
+            katze_assign (desc_title, NULL);
+        if (desc_title)
+        {
+            temp_markup = g_markup_escape_text (desc_iter, -1);
+            temp_concat = g_strconcat (desc_title, temp_markup, NULL);
+            g_free (temp_markup);
+            katze_assign (desc_title, temp_concat);
+        }
+        else
             desc_title = g_markup_escape_text (title, -1);
         g_free (temp);
     }
@@ -1100,7 +1199,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 
     g_free (uri);
     g_free (title);
-    g_free (key);
+    g_strfreev (keys);
     g_free (desc);
 }
 
