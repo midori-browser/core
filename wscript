@@ -29,7 +29,7 @@ from Configure import find_program_impl
 
 major = 0
 minor = 2
-micro = 6
+micro = 7
 
 APPNAME = 'midori'
 VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
