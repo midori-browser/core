@@ -288,16 +288,11 @@ _midori_browser_update_actions (MidoriBrowser* browser)
 static void
 _midori_browser_update_interface (MidoriBrowser* browser)
 {
-    GtkWidget* widget;
-    MidoriView* view;
-    gboolean loading;
-    gboolean can_reload;
+    GtkWidget* widget = midori_browser_get_current_tab (browser);
+    MidoriView* view = MIDORI_VIEW (widget);
+    gboolean loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
+    gboolean can_reload = midori_view_can_reload (view);
     GtkAction* action;
-
-    widget = midori_browser_get_current_tab (browser);
-    view = MIDORI_VIEW (widget);
-    loading = midori_view_get_load_status (view) != MIDORI_LOAD_FINISHED;
-    can_reload = midori_view_can_reload (view);
 
     _action_set_sensitive (browser, "Reload", can_reload);
     _action_set_sensitive (browser, "Stop", can_reload && loading);
@@ -333,7 +328,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     midori_findbar_set_can_find (MIDORI_FINDBAR (browser->find),
         midori_view_can_find (view));
 
-    action = gtk_action_group_get_action (browser->action_group, "ReloadStop");
+    action = _action_by_name (browser, "ReloadStop");
     if (!loading)
     {
         g_object_set (action,
@@ -355,12 +350,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
             !gtk_widget_get_visible (browser->navigationbar) &&
             browser->progress_in_location)
             gtk_widget_show (browser->navigationbar);
-        if (browser->progress_in_location)
-        {
-            action = _action_by_name (browser, "Location");
-            midori_location_action_set_progress (MIDORI_LOCATION_ACTION (action),
-                midori_view_get_progress (view));
-        }
     }
 
     #if HAVE_HILDON
@@ -387,7 +376,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     }
     midori_location_action_set_security_hint (
         MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
-
 }
 
 static void
@@ -468,15 +456,14 @@ _midori_browser_update_progress (MidoriBrowser* browser,
         g_free (message);
         if (!browser->progress_in_location)
             progress = 0.0;
-        midori_location_action_set_progress (action, progress);
     }
     else
     {
         gtk_progress_bar_pulse (GTK_PROGRESS_BAR (browser->progressbar));
         gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
                                    NULL);
-        midori_location_action_set_progress (action, 0.0);
     }
+    midori_location_action_set_progress (action, progress);
 }
 
 static void
@@ -543,18 +530,19 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
                                    MidoriBrowser*  browser)
 {
     MidoriView* view = MIDORI_VIEW (widget);
+    MidoriLoadStatus load_status = midori_view_get_load_status (view);
     const gchar* uri;
     GtkAction* action;
 
     uri = midori_view_get_display_uri (view);
     action = _action_by_name (browser, "Location");
 
-    if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
+    if (load_status == MIDORI_LOAD_COMMITTED)
         midori_location_action_add_uri (MIDORI_LOCATION_ACTION (action), uri);
 
     if (widget == midori_browser_get_current_tab (browser))
     {
-        if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
+        if (load_status == MIDORI_LOAD_COMMITTED)
         {
             midori_location_action_set_text (
                 MIDORI_LOCATION_ACTION (action), uri);
@@ -613,12 +601,10 @@ midori_view_notify_title_cb (GtkWidget*     widget,
     MidoriView* view = MIDORI_VIEW (widget);
     const gchar* uri;
     const gchar* title;
-    GtkAction* action;
     gchar* window_title;
 
     uri = midori_view_get_display_uri (view);
     title = midori_view_get_display_title (view);
-    action = _action_by_name (browser, "Location");
 
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
     {
