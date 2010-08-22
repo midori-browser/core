@@ -1229,7 +1229,7 @@ addons_activate_cb (MidoriExtension* extension,
     addons_update_elements (extension, ADDONS_USER_STYLES);
     addons_monitor_directories (extension, ADDONS_USER_STYLES);
     addons_update_elements (extension, ADDONS_USER_SCRIPTS);
-    addons_monitor_directories (extension, ADDONS_USER_STYLES);
+    addons_monitor_directories (extension, ADDONS_USER_SCRIPTS);
 
     i = 0;
     while ((browser = katze_array_get_nth_item (browsers, i++)))
