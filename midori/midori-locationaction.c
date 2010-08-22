@@ -1043,7 +1043,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* temp_concat;
     gchar* temp_markup;
     gchar** parts;
-    size_t len;
     size_t offset;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri, TITLE_COL, &title,
@@ -1074,10 +1073,10 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         desc_iter = uri;
         key_idx = 0;
         key = keys[key_idx];
-        len = strlen (key);
         offset = 0;
-        while ((start = strstr (temp_iter, key)) && start)
+        while (key && (start = strstr (temp_iter, key)) && start)
         {
+            gsize len = strlen (key);
             if (len)
             {
                 offset = (start - temp_iter);
@@ -1110,7 +1109,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             key = keys[key_idx];
             if (key == NULL)
                 break;
-            len = strlen (key);
         }
         if (key)
             katze_assign (desc_uri, NULL);
@@ -1132,10 +1130,10 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
         desc_iter = title;
         key_idx = 0;
         key = keys[key_idx];
-        len = strlen (key);
         offset = 0;
-        while ((start = strstr (temp_iter, key)) && start)
+        while (key && (start = strstr (temp_iter, key)) && start)
         {
+            gsize len = strlen (key);
             if (len)
             {
                 offset = (start - temp_iter);
@@ -1168,7 +1166,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             key = keys[key_idx];
             if (key == NULL)
                 break;
-            len = strlen (key);
         }
         if (key)
             katze_assign (desc_title, NULL);
