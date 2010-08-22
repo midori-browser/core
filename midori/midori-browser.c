@@ -3426,26 +3426,6 @@ _action_location_active_changed (GtkAction*     action,
     }
 }
 
-static gboolean
-midori_browser_bookmark_homepage_button_press_cb (GtkToolItem*    button,
-                                                  GdkEventButton* event,
-                                                  MidoriBrowser*  browser)
-{
-    if (event->button == 2)
-    {
-        gchar* homepage;
-        guint n;
-
-        g_object_get (browser->settings, "homepage", &homepage, NULL);
-        n = midori_browser_add_uri (browser, homepage);
-        g_free (homepage);
-        midori_browser_set_current_page_smartly (browser, n);
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
 static void
 _action_location_focus_in (GtkAction*     action,
                            MidoriBrowser* browser)
@@ -6089,7 +6069,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
     gboolean show_panel, show_transferbar;
-    gchar* homepage;
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gint last_web_search;
@@ -6115,7 +6094,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-panel", &show_panel,
                   "show-transferbar", &show_transferbar,
                   "show-statusbar", &browser->show_statusbar,
-                  "homepage", &homepage,
                   "speed-dial-in-new-tabs", &browser->speed_dial_in_new_tabs,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
@@ -6207,9 +6185,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Transferbar", show_transferbar);
     #endif
     _action_set_active (browser, "Statusbar", browser->show_statusbar);
-    _action_set_visible (browser, "Homepage", homepage && *homepage);
 
-    g_free (homepage);
     g_free (toolbar_items);
 }
 
@@ -6262,11 +6238,6 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->speed_dial_in_new_tabs = g_value_get_boolean (&value);
     else if (name == g_intern_string ("progress-in-location"))
         browser->progress_in_location = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("homepage"))
-    {
-        _action_set_visible (browser, "Homepage",
-            g_value_get_string (&value) && *g_value_get_string (&value));
-    }
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
         if (g_value_get_boolean (&value))
@@ -6355,7 +6326,6 @@ midori_bookmarkbar_remove_item_cb (KatzeArray*    bookmarks,
 static void
 midori_bookmarkbar_populate (MidoriBrowser* browser)
 {
-    GtkWidget* homepage;
     sqlite3* db;
     const gchar* sqlcmd;
     KatzeArray* array;
@@ -6364,12 +6334,9 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
 
     midori_bookmarkbar_clear (browser->bookmarkbar);
 
-    homepage = gtk_action_create_tool_item (_action_by_name (browser, "Homepage"));
-    gtk_tool_item_set_is_important (GTK_TOOL_ITEM (homepage), TRUE);
-    g_signal_connect (gtk_bin_get_child (GTK_BIN (homepage)), "button-press-event",
-        G_CALLBACK (midori_browser_bookmark_homepage_button_press_cb), browser);
+    /* Use a dummy to ensure height of the toolbar */
     gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar),
-                        (GtkToolItem*)homepage, -1);
+                        gtk_separator_tool_item_new (), -1);
 
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     if (!db)
