@@ -358,7 +358,6 @@ addons_get_files (AddonsKind kind)
 {
     GSList* files;
     GDir* addon_dir;
-    GSList* list;
     GSList* directories;
     const gchar* filename;
     gchar* dirname;
@@ -375,7 +374,6 @@ addons_get_files (AddonsKind kind)
     files = NULL;
 
     directories = addons_get_directories (kind);
-    list = directories;
     while (directories)
     {
         dirname = directories->data;
@@ -395,7 +393,6 @@ addons_get_files (AddonsKind kind)
         directories = g_slist_next (directories);
     }
 
-    g_slist_free (list);
     g_free (file_extension);
 
     return files;
@@ -1179,7 +1176,6 @@ addons_monitor_directories (MidoriExtension* extension,
                             AddonsKind kind)
 {
     GSList* directories;
-    GSList* list;
     GError* error;
     GSList* monitors;
     GFileMonitor* monitor;
@@ -1190,7 +1186,6 @@ addons_monitor_directories (MidoriExtension* extension,
     monitors = g_object_get_data (G_OBJECT (extension), "monitors");
 
     directories = addons_get_directories (kind);
-    list = directories;
     while (directories)
     {
         directory = g_file_new_for_path (directories->data);
