@@ -498,6 +498,7 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     GtkCellRenderer* renderer_text;
     GtkWidget* panel;
     GtkWidget* toolbar;
+    gint i;
     /* GtkToolItem* toolitem; */
 
     g_object_set (browser, "show-tabs", FALSE, NULL);
@@ -564,8 +565,10 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
     gtk_widget_show (GTK_WIDGET (toolitem));
     gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1); */
 
-    midori_panel_append_widget (MIDORI_PANEL (panel), treeview,
-                                STOCK_TAB_PANEL, _("Tab Panel"), toolbar);
+    i = midori_panel_append_widget (MIDORI_PANEL (panel), treeview,
+                                    STOCK_TAB_PANEL, _("Tab Panel"), toolbar);
+    if (gtk_widget_get_visible (GTK_WIDGET (browser)))
+        midori_panel_set_current_page (MIDORI_PANEL (panel), i);
     g_object_unref (panel);
 
     midori_browser_foreach (browser,
