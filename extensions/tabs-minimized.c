@@ -76,8 +76,8 @@ MidoriExtension*
 extension_init (void)
 {
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
-        "name", _("Minimize new Tabs"),
-        "description", _("New tabs open minimized"),
+        "name", _("Only Icons on Tabs by default"),
+        "description", _("New tabs have no label by default"),
         "version", "0.1",
         "authors", "MonkeyOfDoom <pixelmonkey@ensellitis.com>",
         NULL);

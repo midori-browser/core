@@ -4017,7 +4017,7 @@ midori_view_get_tab_menu (MidoriView* view)
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_duplicate_tab_cb), view);
     menuitem = gtk_menu_item_new_with_mnemonic (
-        view->minimized ? _("_Restore Tab") : _("_Minimize Tab"));
+        view->minimized ? _("Show Tab _Label") : _("Show Tab _Icon Only"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_view_tab_label_menu_minimize_tab_cb), view);
