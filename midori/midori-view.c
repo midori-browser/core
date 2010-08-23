@@ -3644,6 +3644,7 @@ midori_view_set_uri (MidoriView*  view,
         {
             katze_assign (view->uri, sokoke_format_uri_for_display (uri));
             katze_item_set_uri (view->item, uri);
+            katze_item_set_meta_integer (view->item, "delay", -1);
             g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }
@@ -4454,6 +4455,7 @@ midori_view_reload (MidoriView* view,
         webkit_web_view_reload (WEBKIT_WEB_VIEW (view->web_view));
     else
         webkit_web_view_reload_bypass_cache (WEBKIT_WEB_VIEW (view->web_view));
+    katze_item_set_meta_integer (view->item, "delay", -1);
 
     g_free (title);
 }

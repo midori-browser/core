@@ -510,10 +510,7 @@ midori_session_add_delay (KatzeArray* session)
     KatzeItem* item;
     gint i = 0;
     while ((item = katze_array_get_nth_item (session, i++)))
-    {
-        if (katze_item_get_meta_integer (item, "delay") < 0)
-            katze_item_set_meta_integer (item, "delay", 1);
-    }
+        katze_item_set_meta_integer (item, "delay", 1);
 }
 
 static void
@@ -2043,7 +2040,6 @@ main (int    argc,
             uri_ready = midori_prepare_uri (uri);
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
-            katze_item_set_meta_integer (item, "delay", 0);
             katze_array_add_item (_session, item);
             uri = strtok (NULL, "|");
         }
@@ -2077,9 +2073,7 @@ main (int    argc,
        and deleted during normal runtime, but persists in case of a crash. */
     katze_assign (config_file, build_config_filename ("running"));
     if (g_access (config_file, F_OK) == 0)
-    {
         back_from_crash = TRUE;
-    }
     else
         g_file_set_contents (config_file, "RUNNING", -1, NULL);
 
