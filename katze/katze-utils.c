@@ -247,10 +247,14 @@ proxy_combo_box_changed_cb (GtkComboBox* button,
         }
         else if (value != custom_value && GTK_IS_ENTRY (child))
         {
+            g_signal_handlers_block_by_func (
+                button, proxy_combo_box_changed_cb, object);
             /* Force the combo to change the item again */
             gtk_widget_destroy (child);
             gtk_combo_box_set_active (button, value + 1);
             gtk_combo_box_set_active (button, value);
+            g_signal_handlers_unblock_by_func (
+                button, proxy_combo_box_changed_cb, object);
         }
     }
 
