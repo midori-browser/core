@@ -731,7 +731,7 @@ addons_update_elements (MidoriExtension* extension,
 
         gtk_list_store_append (liststore, &iter);
         gtk_list_store_set (liststore, &iter,
-                0, element, 1, 0, 2, "", -1);
+                0, element, 1, 0, 2, element->fullpath, -1);
 
         addon_files = g_slist_next (addon_files);
         elements = g_slist_prepend (elements, element);
@@ -777,6 +777,7 @@ addons_init (Addons* addons)
         (GtkTreeCellDataFunc)addons_treeview_render_text_cb,
         addons->treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (addons->treeview), column);
+    gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (addons->treeview), 2);
     g_signal_connect (addons->treeview, "row-activated",
                       G_CALLBACK (addons_treeview_row_activated_cb),
                       addons);
