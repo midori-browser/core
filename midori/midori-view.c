@@ -1053,7 +1053,6 @@ webkit_web_view_progress_changed_cb (WebKitWebView* web_view,
     g_object_notify (G_OBJECT (view), "progress");
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 6)
 #if WEBKIT_CHECK_VERSION (1, 1, 14)
 static void
 midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
@@ -1158,6 +1157,7 @@ midori_view_load_alternate_string (MidoriView*     view,
     #endif
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 6)
 static gboolean
 midori_view_display_error (MidoriView*     view,
                            const gchar*    uri,
@@ -3606,6 +3606,7 @@ midori_view_set_uri (MidoriView*  view,
             g_object_notify (G_OBJECT (view), "uri");
             return;
         }
+        #if WEBKIT_CHECK_VERSION (1, 1, 6)
         else if (g_str_has_prefix (uri, "pause:"))
         {
             gchar* title;
@@ -3622,6 +3623,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_uri (view->item, uri);
             g_object_notify (G_OBJECT (view), "uri");
         }
+        #endif
         else if (g_str_has_prefix (uri, "javascript:"))
         {
             gboolean result;
