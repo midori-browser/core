@@ -126,6 +126,65 @@ midori_addons_button_add_clicked_cb (GtkToolItem* toolitem,
     gtk_widget_destroy (dialog);
 }
 
+static void
+midori_addons_button_delete_clicked_cb (GtkWidget* toolitem,
+                                        Addons*    addons)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (addons->treeview),
+                                                          &model, &iter))
+    {
+        struct AddonElement* element;
+        gint delete_response;
+        GtkWidget* dialog;
+
+        gtk_tree_model_get (model, &iter, 0, &element, -1);
+        dialog = gtk_message_dialog_new (
+                GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
+                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                GTK_MESSAGE_QUESTION,
+                GTK_BUTTONS_YES_NO,
+                _("Do you really want to remove '%s'?\n\n"
+                  "The file '%s' will be permanently lost.\n"),
+                 element->displayname, element->fullpath);
+        delete_response = gtk_dialog_run (GTK_DIALOG (dialog));
+        gtk_widget_destroy (GTK_WIDGET (dialog));
+
+        if (delete_response == GTK_RESPONSE_YES)
+        {
+            GError* error = NULL;
+            GFile* file;
+            gboolean result;
+
+            file = g_file_new_for_path (element->fullpath);
+            result = g_file_delete (file, NULL, &error);
+
+            if (!result && error)
+            {
+                GtkWidget* msg_box;
+                msg_box = gtk_message_dialog_new (
+                    GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
+                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                    GTK_MESSAGE_ERROR,
+                    GTK_BUTTONS_OK,
+                    "%s", error->message);
+
+                    gtk_window_set_title (GTK_WINDOW (msg_box), _("Error"));
+                    gtk_dialog_run (GTK_DIALOG (msg_box));
+                    gtk_widget_destroy (msg_box);
+                    g_error_free (error);
+            }
+
+            if (result)
+                gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+
+            g_object_unref (file);
+        }
+    }
+}
+
 GtkWidget*
 addons_get_toolbar (MidoriViewable* viewable)
 {
@@ -157,7 +216,14 @@ addons_get_toolbar (MidoriViewable* viewable)
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_button_add_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_show (GTK_WIDGET (toolitem));
 
+        /* Delete button */
+        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DELETE);
+        gtk_tool_item_set_is_important (toolitem, TRUE);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_addons_button_delete_clicked_cb), viewable);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         ADDONS (viewable)->toolbar = toolbar;
 
