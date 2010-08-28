@@ -99,6 +99,7 @@ midori_addons_button_add_clicked_cb (GtkToolItem* toolitem,
     gchar* addons_type;
     gchar* path;
     GtkWidget* dialog;
+    GtkFileFilter* filter;
 
     if (addons->kind == ADDONS_USER_SCRIPTS)
     {
@@ -115,14 +116,95 @@ midori_addons_button_add_clicked_cb (GtkToolItem* toolitem,
     else
         g_assert_not_reached ();
 
-    dialog = gtk_message_dialog_new (
+    dialog = gtk_file_chooser_dialog_new (_("Choose file"),
         GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-        GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
-        _("Copy %s to the folder %s."), addons_type, path);
+        GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
+        GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+
+    gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER (dialog), TRUE);
+
+    filter = gtk_file_filter_new ();
+
+    if (addons->kind == ADDONS_USER_SCRIPTS)
+    {
+        gtk_file_filter_set_name (filter, _("Userscripts"));
+        gtk_file_filter_add_pattern (filter, "*.js");
+    }
+    else if (addons->kind == ADDONS_USER_STYLES)
+    {
+        gtk_file_filter_set_name (filter, _("Userstyles"));
+        gtk_file_filter_add_pattern (filter, "*.css");
+    }
+    else
+        g_assert_not_reached ();
+
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        GSList* files;
+
+        if (!g_file_test (path, G_FILE_TEST_EXISTS))
+            katze_mkdir_with_parents (path, 0700);
+
+        #if !GTK_CHECK_VERSION (2, 14, 0)
+        files = gtk_file_chooser_get_filenames (GTK_FILE_CHOOSER (dialog));
+        #else
+        files = gtk_file_chooser_get_files (GTK_FILE_CHOOSER (dialog));
+        #endif
+
+        while (files)
+        {
+            GFile* src_file;
+            GError* error = NULL;
+
+            #if !GTK_CHECK_VERSION (2, 14, 0)
+            src_file = g_file_new_for_path (files);
+            #else
+            src_file = files->data;
+            #endif
+
+            if (G_IS_FILE (src_file))
+            {
+                GFile* dest_file;
+                gchar* dest_file_path;
+
+                dest_file_path = g_build_path (G_DIR_SEPARATOR_S, path,
+                    g_file_get_basename (src_file), NULL);
+
+                dest_file = g_file_new_for_path (dest_file_path);
+
+                g_file_copy (src_file, dest_file,
+                    G_FILE_COPY_OVERWRITE | G_FILE_COPY_BACKUP,
+                    NULL, NULL, NULL, &error);
+
+                if (error)
+                {
+                    GtkWidget* msg_box;
+                    msg_box = gtk_message_dialog_new (
+                        GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
+                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                        GTK_MESSAGE_ERROR,
+                        GTK_BUTTONS_OK,
+                        "%s", error->message);
+
+                    gtk_window_set_title (GTK_WINDOW (msg_box), _("Error"));
+                    gtk_dialog_run (GTK_DIALOG (msg_box));
+                    gtk_widget_destroy (msg_box);
+                    g_error_free (error);
+                }
+
+                g_object_unref (src_file);
+                g_object_unref (dest_file);
+                g_free (dest_file_path);
+            }
+            files = g_slist_next (files);
+        }
+        g_slist_free (files);
+    }
+
     g_free (addons_type);
     g_free (path);
-    gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
 }
 
