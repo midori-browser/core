@@ -224,13 +224,24 @@ midori_addons_button_delete_clicked_cb (GtkWidget* toolitem,
 
         gtk_tree_model_get (model, &iter, 0, &element, -1);
         dialog = gtk_message_dialog_new (
-                GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
-                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                GTK_MESSAGE_QUESTION,
-                GTK_BUTTONS_YES_NO,
-                _("Do you really want to remove '%s'?\n\n"
-                  "The file '%s' will be permanently lost.\n"),
-                 element->displayname, element->fullpath);
+            GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (addons))),
+            GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_QUESTION,
+            GTK_BUTTONS_CANCEL,
+            _("Do you want to delete '%s'?"),
+            element->displayname);
+        gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_DELETE, GTK_RESPONSE_YES);
+
+        gtk_window_set_title (GTK_WINDOW (dialog),
+            addons->kind == ADDONS_USER_SCRIPTS
+            ? _("Delete user script")
+            : _("Delete user style"));
+
+        gtk_message_dialog_format_secondary_markup (
+            GTK_MESSAGE_DIALOG (dialog),
+            _("The file <b>%s</b> will be permanently deleted."),
+            element->fullpath);
+
         delete_response = gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (GTK_WIDGET (dialog));
 
