@@ -827,8 +827,9 @@ addons_update_elements (MidoriExtension* extension,
     if (liststore)
         gtk_list_store_clear (liststore);
     else
-        liststore = gtk_list_store_new (3, G_TYPE_POINTER,
+        liststore = gtk_list_store_new (4, G_TYPE_POINTER,
                                         G_TYPE_INT,
+                                        G_TYPE_STRING,
                                         G_TYPE_STRING);
 
     keyfile = g_key_file_new ();
@@ -842,6 +843,9 @@ addons_update_elements (MidoriExtension* extension,
     elements = NULL;
     while (addon_files)
     {
+        gchar* filename;
+        gchar* tooltip;
+
         fullpath = addon_files->data;
         element = g_new (struct AddonElement, 1);
         element->displayname = g_filename_display_basename (fullpath);
@@ -888,10 +892,22 @@ addons_update_elements (MidoriExtension* extension,
                 element->enabled = FALSE;
         }
 
+        filename = g_path_get_basename (element->fullpath);
+        if (element->description)
+        {
+            tooltip = g_strdup_printf ("%s\n\n%s",
+                                       filename, element->description);
+            g_free (filename);
+        }
+        else
+            tooltip = filename;
+
         gtk_list_store_append (liststore, &iter);
         gtk_list_store_set (liststore, &iter,
-                0, element, 1, 0, 2, element->fullpath, -1);
+                0, element, 1, 0, 2, element->fullpath,
+                3, tooltip, -1);
 
+        g_free (tooltip);
         addon_files = g_slist_next (addon_files);
         elements = g_slist_prepend (elements, element);
     }
@@ -936,7 +952,7 @@ addons_init (Addons* addons)
         (GtkTreeCellDataFunc)addons_treeview_render_text_cb,
         addons->treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (addons->treeview), column);
-    gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (addons->treeview), 2);
+    gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (addons->treeview), 3);
     g_signal_connect (addons->treeview, "row-activated",
                       G_CALLBACK (addons_treeview_row_activated_cb),
                       addons);
