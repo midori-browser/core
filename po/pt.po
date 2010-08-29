@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Midori 0.2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-29 16:08+0000\n"
+"POT-Creation-Date: 2010-08-29 22:08+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Sérgio Marques <smarquespt@gmail.com>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Country: PORTUGAL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-Language: Portuguese\n"
-"X-Poedit-Country: PORTUGAL\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
@@ -150,7 +150,7 @@ msgstr "Mostrar diálogo de diagnóstico"
 
 #: ../midori/main.c:1558
 msgid "Run the specified filename as javascript"
-msgstr "Executar o ficheiro especificado como argumento java"
+msgstr "Executar o ficheiro especificado como  'javascripts '"
 
 #: ../midori/main.c:1561
 msgid "Take a snapshot of the specified URI"
@@ -1471,11 +1471,11 @@ msgstr "Carregar e apresentar automaticamente as imagens "
 
 #: ../midori/midori-websettings.c:858 ../extensions/statusbar-features.c:100
 msgid "Enable scripts"
-msgstr "Activar argumentos"
+msgstr "Activar  'scripts '"
 
 #: ../midori/midori-websettings.c:859
 msgid "Enable embedded scripting languages"
-msgstr "Activar argumentos de linguagem incorporados"
+msgstr "Activar  'scripts ' de linguagem incorporados"
 
 #: ../midori/midori-websettings.c:866 ../extensions/statusbar-features.c:112
 msgid "Enable Netscape plugins"
@@ -2309,45 +2309,52 @@ msgstr "Bloqueador de publicidade"
 msgid "Block advertisements according to a filter list"
 msgstr "Bloquear publicidade de acordo com a lista "
 
-#: ../extensions/addons.c:130 ../extensions/addons.c:325
+#: ../extensions/addons.c:130 ../extensions/addons.c:336
 msgid "Userscripts"
 msgstr "Argumentos de Utilizador"
 
-#: ../extensions/addons.c:135 ../extensions/addons.c:327
+#: ../extensions/addons.c:135 ../extensions/addons.c:338
 msgid "Userstyles"
 msgstr "Estilos de utilizador"
 
-#: ../extensions/addons.c:191 ../extensions/addons.c:256
+#: ../extensions/addons.c:191 ../extensions/addons.c:267
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "Erro"
 
 #: ../extensions/addons.c:231
 #, c-format
-msgid ""
-"Do you really want to remove '%s'?\n"
-"\n"
-"The file '%s' will be permanently lost.\n"
-msgstr ""
-"Deseja realmente remover '%s'?\n"
-"\n"
-"O ficheiro '%s' será perdido para sempre.\n"
+msgid "Do you want to delete '%s'?"
+msgstr "Deseja realmente apagar  '%s'?"
 
-#: ../extensions/addons.c:1231
+#: ../extensions/addons.c:237
+msgid "Delete user script"
+msgstr "Apagar  'script ' de utilizador"
+
+#: ../extensions/addons.c:238
+msgid "Delete user style"
+msgstr "Apagar estilo de utilizador"
+
+#: ../extensions/addons.c:242
+#, c-format
+msgid "The file <b>%s</b> will be permanently deleted."
+msgstr "O ficheiro '<b>%s</b>'  será apagado permanentemente."
+
+#: ../extensions/addons.c:1258
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "A configuração da extensão '%s' não foi gravada: %s\n"
 
-#: ../extensions/addons.c:1232 ../extensions/addons.c:1397
+#: ../extensions/addons.c:1259 ../extensions/addons.c:1424
 msgid "User addons"
 msgstr "Extras de utilizador"
 
-#: ../extensions/addons.c:1354
+#: ../extensions/addons.c:1381
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Não é possível vigiar a pasta '%s': %s "
 
-#: ../extensions/addons.c:1398
+#: ../extensions/addons.c:1425
 msgid "Support for userscripts and userstyles"
 msgstr "Suporte a scripts e estilos de utilizador"
 
@@ -2725,6 +2732,15 @@ msgstr "Editar facilmente a barra de ferramentas"
 #: ../extensions/web-cache.c:465
 msgid "Cache HTTP communication on disk"
 msgstr "Pôr comunicações HTTP em cache"
+
+#~ msgid ""
+#~ "Do you really want to remove '%s'?\n"
+#~ "\n"
+#~ "The file '%s' will be permanently lost.\n"
+#~ msgstr ""
+#~ "Deseja realmente remover '%s'?\n"
+#~ "\n"
+#~ "O ficheiro '%s' será perdido para sempre.\n"
 
 #~ msgid "_Restore Tab"
 #~ msgstr "_Restaurar Separadores"
