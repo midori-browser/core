@@ -311,6 +311,36 @@ midori_addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
     }
 }
 
+static void
+midori_addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
+                                             Addons*    addons)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    gchar* folder;
+    gchar* folder_uri;
+
+    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (addons->treeview),
+                                            &model, &iter))
+    {
+        struct AddonElement* element;
+
+        gtk_tree_model_get (model, &iter, 0, &element, -1);
+        folder = g_path_get_dirname (element->fullpath);
+    }
+    else
+        folder = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+                               PACKAGE_NAME,
+                               addons->kind == ADDONS_USER_SCRIPTS
+                               ? "scripts" : "styles", NULL);
+    folder_uri = g_filename_to_uri (folder, NULL, NULL);
+    g_free (folder);
+
+    sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (addons->treeview)),
+                     folder_uri, gtk_get_current_event_time (), NULL);
+    g_free (folder_uri);
+}
+
 GtkWidget*
 addons_get_toolbar (MidoriViewable* viewable)
 {
@@ -343,6 +373,15 @@ addons_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                     _("Open selected addon in text editor"));
+        gtk_widget_show (GTK_WIDGET (toolitem));
+
+        /* Target folder button */
+        toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
+        g_signal_connect (toolitem, "clicked",
+            G_CALLBACK (midori_addons_open_target_folder_clicked_cb), viewable);
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
+                                    _("Open Target Folder"));
         gtk_widget_show (GTK_WIDGET (toolitem));
 
         /* Delete button */
