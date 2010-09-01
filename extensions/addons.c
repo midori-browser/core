@@ -322,17 +322,8 @@ addons_get_toolbar (MidoriViewable* viewable)
     if (!ADDONS (viewable)->toolbar)
     {
         toolbar = gtk_toolbar_new ();
-        gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
         toolitem = gtk_tool_item_new ();
-        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        gtk_widget_show (GTK_WIDGET (toolitem));
-
-        /* separator */
-        toolitem = gtk_separator_tool_item_new ();
-        gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem),
-                                          FALSE);
-        gtk_tool_item_set_expand (toolitem, TRUE);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
 
@@ -342,22 +333,26 @@ addons_get_toolbar (MidoriViewable* viewable)
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_button_add_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Add new addon"));
         gtk_widget_show (GTK_WIDGET (toolitem));
 
         /* Text editor button */
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_EDIT);
-        gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_open_in_editor_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
+                                    _("Open selected addon in text editor"));
         gtk_widget_show (GTK_WIDGET (toolitem));
 
         /* Delete button */
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DELETE);
-        gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_button_delete_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
+                                    _("Open target folder for selected addon"));
+        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Remove selected addon"));
         gtk_widget_show (GTK_WIDGET (toolitem));
         ADDONS (viewable)->toolbar = toolbar;
 
