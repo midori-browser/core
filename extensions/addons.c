@@ -1240,6 +1240,7 @@ addons_context_ready_cb (WebKitWebView*   web_view,
     GSList* scripts, *styles;
     struct AddonElement* script, *style;
     struct AddonsList* scripts_list, *styles_list;
+
     uri = katze_object_get_string (web_view, "uri");
     /* Don't run scripts or styles on blank or special pages */
     if (!(uri && *uri && strncmp (uri, "about:", 6)))
@@ -1277,6 +1278,7 @@ addons_context_ready_cb (WebKitWebView*   web_view,
             webkit_web_view_execute_script (web_view, style->script_content);
         styles = g_slist_next (styles);
     }
+    g_free (uri);
 }
 
 static void
