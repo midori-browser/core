@@ -482,7 +482,7 @@ midori_transfers_popup (GtkWidget*       widget,
         midori_transfers_open_folder_activate_cb, TRUE, transfers);
     midori_transfers_popup_menu_item (GTK_MENU (menu), GTK_STOCK_COPY,
         _("Copy Link Loc_ation"), download,
-        midori_transfers_copy_address_activate_cb, FALSE, transfers);
+        midori_transfers_copy_address_activate_cb, TRUE, transfers);
 
     katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
