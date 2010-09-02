@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Midori 0.2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-29 22:08+0000\n"
+"POT-Creation-Date: 2010-09-02 22:08+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Sérgio Marques <smarquespt@gmail.com>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Country: PORTUGAL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-Language: Portuguese\n"
+"X-Poedit-Country: PORTUGAL\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
@@ -2309,11 +2309,11 @@ msgstr "Bloqueador de publicidade"
 msgid "Block advertisements according to a filter list"
 msgstr "Bloquear publicidade de acordo com a lista "
 
-#: ../extensions/addons.c:130 ../extensions/addons.c:336
+#: ../extensions/addons.c:130 ../extensions/addons.c:490
 msgid "Userscripts"
 msgstr "Argumentos de Utilizador"
 
-#: ../extensions/addons.c:135 ../extensions/addons.c:338
+#: ../extensions/addons.c:135 ../extensions/addons.c:492
 msgid "Userstyles"
 msgstr "Estilos de utilizador"
 
@@ -2340,21 +2340,41 @@ msgstr "Apagar estilo de utilizador"
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "O ficheiro '<b>%s</b>'  será apagado permanentemente."
 
-#: ../extensions/addons.c:1258
+#: ../extensions/addons.c:377 ../extensions/addons.c:454
+msgid "Open in Text Editor"
+msgstr "Abrir no Editor de Texto"
+
+#: ../extensions/addons.c:379 ../extensions/addons.c:463
+msgid "Open Target Folder"
+msgstr "Abrir Pasta de Destino"
+
+#: ../extensions/addons.c:445
+msgid "Add new addon"
+msgstr "Adicionar novo extra"
+
+#: ../extensions/addons.c:472
+msgid "Open target folder for selected addon"
+msgstr "Abrir pasta de destino para o extra seleccionado"
+
+#: ../extensions/addons.c:473
+msgid "Remove selected addon"
+msgstr "Remover o extra seleccionado"
+
+#: ../extensions/addons.c:1420
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "A configuração da extensão '%s' não foi gravada: %s\n"
 
-#: ../extensions/addons.c:1259 ../extensions/addons.c:1424
+#: ../extensions/addons.c:1421 ../extensions/addons.c:1586
 msgid "User addons"
 msgstr "Extras de utilizador"
 
-#: ../extensions/addons.c:1381
+#: ../extensions/addons.c:1543
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Não é possível vigiar a pasta '%s': %s "
 
-#: ../extensions/addons.c:1425
+#: ../extensions/addons.c:1587
 msgid "Support for userscripts and userstyles"
 msgstr "Suporte a scripts e estilos de utilizador"
 
