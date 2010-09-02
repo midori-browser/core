@@ -1752,7 +1752,7 @@ main (int    argc,
                       "show-panel", FALSE,
                       "toolbar-items", "Back,Forward,ReloadStop,Location",
                       "homepage", NULL,
-                      "show-statusbar", TRUE,
+                      "show-statusbar", FALSE,
                       "enable-developer-extras", FALSE,
                       NULL);
         g_object_set (browser, "settings", settings, NULL);
