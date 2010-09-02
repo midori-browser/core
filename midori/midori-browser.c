@@ -4932,11 +4932,11 @@ static const GtkActionEntry entries[] =
         NULL, "<Alt>Right",
         N_("Go forward to the next page"), G_CALLBACK (_action_navigation_activate) },
     { "Previous", GTK_STOCK_MEDIA_PREVIOUS,
-        NULL, "<Ctrl>Left",
+        NULL, "<Alt><Shift>Left",
         /* i18n: Visit the previous logical page, ie. in a forum or blog */
         N_("Go to the previous sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "Next", GTK_STOCK_MEDIA_NEXT,
-        NULL, "<Ctrl>Right",
+        NULL, "<Alt><Shift>Right",
         /* i18n: Visit the following logical page, ie. in a forum or blog */
         N_("Go to the next sub-page"), G_CALLBACK (_action_navigation_activate) },
     { "Homepage", STOCK_HOMEPAGE,
