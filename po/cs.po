@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-28 16:08+0000\n"
+"POT-Creation-Date: 2010-09-05 10:09+0000\n"
 "PO-Revision-Date: 2010-05-04 08:08+0200\n"
 "Last-Translator: David Štancl <dstancl@dstancl.cz>\n"
 "Language-Team: Czech < >\n"
@@ -2306,45 +2306,72 @@ msgstr "Blokování reklamy"
 msgid "Block advertisements according to a filter list"
 msgstr "Blokuje reklamu podle filtrů"
 
-#: ../extensions/addons.c:130 ../extensions/addons.c:325
+#: ../extensions/addons.c:130 ../extensions/addons.c:490
 msgid "Userscripts"
 msgstr "Uživatelské skripty"
 
-#: ../extensions/addons.c:135 ../extensions/addons.c:327
+#: ../extensions/addons.c:135 ../extensions/addons.c:492
 msgid "Userstyles"
 msgstr "Uživatelské styly"
 
-#: ../extensions/addons.c:191 ../extensions/addons.c:256
+#: ../extensions/addons.c:191 ../extensions/addons.c:267
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "Chyba"
 
 #: ../extensions/addons.c:231
 #, c-format
-msgid ""
-"Do you really want to remove '%s'?\n"
-"\n"
-"The file '%s' will be permanently lost.\n"
-msgstr ""
-"Opravdu se má odstranit %s?\r\n"
-"\r\n"
-"Soubor '%s' bude odstraněn.\r\n"
+msgid "Do you want to delete '%s'?"
+msgstr "Chcete smazat %s?"
 
-#: ../extensions/addons.c:1231
+#: ../extensions/addons.c:237
+msgid "Delete user script"
+msgstr "Smazat uživatelský skript"
+
+#: ../extensions/addons.c:238
+msgid "Delete user style"
+msgstr "Smazat uživatelův styl"
+
+#: ../extensions/addons.c:242
+#, c-format
+msgid "The file <b>%s</b> will be permanently deleted."
+msgstr "Soubor <b>%s</b> bude smazán."
+
+#: ../extensions/addons.c:377 ../extensions/addons.c:454
+msgid "Open in Text Editor"
+msgstr "Otevřít v textovém editoru"
+
+#: ../extensions/addons.c:379 ../extensions/addons.c:463
+msgid "Open Target Folder"
+msgstr "Otevřít cílovou složku"
+
+#: ../extensions/addons.c:445
+msgid "Add new addon"
+msgstr "Přidat nový plugin"
+
+#: ../extensions/addons.c:472
+msgid "Open target folder for selected addon"
+msgstr "Otevřít cílový adresář vybraného pluginu"
+
+#: ../extensions/addons.c:473
+msgid "Remove selected addon"
+msgstr "Odstranit vybraný plugin"
+
+#: ../extensions/addons.c:1420
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Nastavení rozšíření '%s' nemůže být uloženo: %s\n"
 
-#: ../extensions/addons.c:1232 ../extensions/addons.c:1397
+#: ../extensions/addons.c:1421 ../extensions/addons.c:1586
 msgid "User addons"
 msgstr "Uživatelova rozšíření"
 
-#: ../extensions/addons.c:1354
+#: ../extensions/addons.c:1543
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Nemohu sledovat složku '%s': %s"
 
-#: ../extensions/addons.c:1398
+#: ../extensions/addons.c:1587
 msgid "Support for userscripts and userstyles"
 msgstr "Podpora pro userscripts a userstyles."
 
@@ -2722,6 +2749,15 @@ msgstr "Umožňuje jednoduše změnit lištu"
 #: ../extensions/web-cache.c:465
 msgid "Cache HTTP communication on disk"
 msgstr "Kešuje (ukládá) HTTP komunikaci na disk"
+
+#~ msgid ""
+#~ "Do you really want to remove '%s'?\n"
+#~ "\n"
+#~ "The file '%s' will be permanently lost.\n"
+#~ msgstr ""
+#~ "Opravdu se má odstranit %s?\r\n"
+#~ "\r\n"
+#~ "Soubor '%s' bude odstraněn.\r\n"
 
 #~ msgid "Copy %s to the folder %s."
 #~ msgstr "Kopíruje se %s do složky %s."
