@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-11 16:08+0000\n"
+"POT-Creation-Date: 2010-09-05 16:08+0000\n"
 "PO-Revision-Date: 2010-02-16 22:53+0100\n"
 "Last-Translator: Yarema aka Knedlyk <yupadmin@gmail.com>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
@@ -21,9 +21,9 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "Легкий переглядач Веб"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1302 ../midori/main.c:1632
-#: ../midori/main.c:1640 ../midori/main.c:1656
-#: ../midori/midori-websettings.c:310
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1328 ../midori/main.c:1657
+#: ../midori/main.c:1665 ../midori/main.c:1681
+#: ../midori/midori-websettings.c:312
 msgid "Midori"
 msgstr "Мідорі"
 
@@ -31,198 +31,204 @@ msgstr "Мідорі"
 msgid "Web Browser"
 msgstr "Переглядач Веб"
 
-#: ../midori/main.c:102
+#: ../midori/main.c:99
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити конфігурацію: %s\n"
 
-#: ../midori/main.c:151
+#: ../midori/main.c:148
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "Значення '%s' є неправильним для %s"
 
-#: ../midori/main.c:158 ../midori/main.c:244
+#: ../midori/main.c:155 ../midori/main.c:241
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Неправильне значення конфігурації '%s'"
 
-#: ../midori/main.c:370 ../midori/main.c:442 ../extensions/formhistory.c:453
+#: ../midori/main.c:368 ../midori/main.c:472 ../extensions/formhistory.c:440
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "Не вдалось відкрити базу даних: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:425
+#: ../midori/main.c:424
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "Невдача видалення старих об'єктів історії: %s\n"
 
-#: ../midori/main.c:468
+#: ../midori/main.c:455 ../panels/midori-history.c:169
+#: ../panels/midori-history.c:199
+#, c-format
+msgid "Failed to remove history item: %s\n"
+msgstr "Невдача при видаленні об'єкту історії: %s\n"
+
+#: ../midori/main.c:500
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Неможливо зберегти закладки. %s"
 
-#: ../midori/main.c:500
+#: ../midori/main.c:528
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Неможливо зберегти конфігурацію. %s"
 
-#: ../midori/main.c:538
+#: ../midori/main.c:566
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "Неможливо зберегти пошукові машини. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:558 ../midori/main.c:581
+#: ../midori/main.c:586 ../midori/main.c:609
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "Неможливо зберегти смітник. %s"
 
-#: ../midori/main.c:640 ../midori/main.c:880
+#: ../midori/main.c:668 ../midori/main.c:908
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Сесія не може бути збережена. %s"
 
-#: ../midori/main.c:824
+#: ../midori/main.c:852
 msgid "No root certificate file is available. SSL certificates cannot be verified."
 msgstr "Немає доступних кореневих сертифікатів. Сертифікати SSL неможливо перевірити. "
 
-#: ../midori/main.c:914
+#: ../midori/main.c:942
 msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
 msgstr "Схоже, що Мідорі зазнало краху останнього разу. Якщо це трапилося не вперше, то можливо якась з наступних опцій зможе посприяти вирішенню цієї проблеми."
 
-#: ../midori/main.c:929
+#: ../midori/main.c:957
 msgid "Modify _preferences"
 msgstr "Змінити _налаштування"
 
-#: ../midori/main.c:933
+#: ../midori/main.c:961
 msgid "Reset the last _session"
 msgstr "Скинути останню _сесію"
 
-#: ../midori/main.c:938
+#: ../midori/main.c:966
 msgid "Disable all _extensions"
 msgstr "Заборонити всі розширення"
 
-#: ../midori/main.c:1178 ../midori/main.c:1909
+#: ../midori/main.c:1206 ../midori/main.c:1952
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити сесію: %s\n"
 
-#: ../midori/main.c:1302
+#: ../midori/main.c:1328
 msgid "No filename specified"
 msgstr "Не вказано назви файлу"
 
-#: ../midori/main.c:1321
+#: ../midori/main.c:1347
 msgid "An unknown error occured."
 msgstr "Отримано невідому помилку."
 
-#: ../midori/main.c:1352
+#: ../midori/main.c:1378
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Знімок екрану збережено до: %s\n"
 
-#: ../midori/main.c:1524
+#: ../midori/main.c:1550
 msgid "Run ADDRESS as a web application"
 msgstr "Запустити АДРЕСУ як веб-додаток"
 
-#: ../midori/main.c:1524
+#: ../midori/main.c:1550
 msgid "ADDRESS"
 msgstr "АДРЕСА"
 
-#: ../midori/main.c:1527
+#: ../midori/main.c:1553
 msgid "Use FOLDER as configuration folder"
 msgstr "Використайте ТЕКУ як теку конфігурації"
 
-#: ../midori/main.c:1527
+#: ../midori/main.c:1553
 msgid "FOLDER"
 msgstr "ТЕКА"
 
-#: ../midori/main.c:1530
+#: ../midori/main.c:1556
 msgid "Show a diagnostic dialog"
 msgstr "Показати діалог діагностики"
 
-#: ../midori/main.c:1532
+#: ../midori/main.c:1558
 msgid "Run the specified filename as javascript"
 msgstr "Виконати визначений файл як джава-скрипт"
 
-#: ../midori/main.c:1535
+#: ../midori/main.c:1561
 msgid "Take a snapshot of the specified URI"
 msgstr "Зробити знімок вибраної сторінки/адреси"
 
-#: ../midori/main.c:1538
+#: ../midori/main.c:1564
 msgid "Execute the specified command"
 msgstr "Виконати вибрану комнаду"
 
-#: ../midori/main.c:1540
+#: ../midori/main.c:1566
 msgid "Display program version"
 msgstr "Відобразити версію програми"
 
-#: ../midori/main.c:1542
+#: ../midori/main.c:1568
 msgid "Addresses"
 msgstr "Адреси"
 
-#: ../midori/main.c:1544
+#: ../midori/main.c:1570
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Блокувати URI згідно з регулярним виразом PATTERN"
 
-#: ../midori/main.c:1544
+#: ../midori/main.c:1570
 msgid "PATTERN"
 msgstr "PATTERN"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1548
+#: ../midori/main.c:1574
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Зресетувати Midori після СЕКУНД неактивності"
 
-#: ../midori/main.c:1548
+#: ../midori/main.c:1574
 msgid "SECONDS"
 msgstr "СЕКУНД"
 
-#: ../midori/main.c:1629
+#: ../midori/main.c:1654
 msgid "[Addresses]"
 msgstr "[Адреси]"
 
-#: ../midori/main.c:1657
+#: ../midori/main.c:1682
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Будь ласка надсилайте звіти, коментарі, пропозиції і помилки до:"
 
-#: ../midori/main.c:1659
+#: ../midori/main.c:1684
 msgid "Check for new versions at:"
 msgstr "Перевірити на наявність нової версії на:"
 
-#: ../midori/main.c:1756
+#: ../midori/main.c:1801
 msgid "The specified configuration folder is invalid."
 msgstr "Це невластива тека конфігурації."
 
-#: ../midori/main.c:1804
+#: ../midori/main.c:1849
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Один із екземплярів програми Midori вже працює, але не відповідає на запити.\n"
 
-#: ../midori/main.c:1859
+#: ../midori/main.c:1904
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "Неможливо завантажити пошукову машину. %s\n"
 
-#: ../midori/main.c:1881
+#: ../midori/main.c:1925
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити закладки: %s\n"
 
-#: ../midori/main.c:1924
+#: ../midori/main.c:1967
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити смітник: %s\n"
 
-#: ../midori/main.c:1938
+#: ../midori/main.c:1980
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити історію: %s\n"
 
-#: ../midori/main.c:1952
+#: ../midori/main.c:1994
 msgid "The following errors occured:"
 msgstr "Отримано наступні помилки:"
 
-#: ../midori/main.c:1968
+#: ../midori/main.c:2010
 msgid "_Ignore"
 msgstr "_Ігнорувати"
 
@@ -243,104 +249,104 @@ msgstr "Нерозпізнаний формат закладки."
 msgid "Writing failed."
 msgstr "Невдача запису."
 
-#: ../midori/midori-browser.c:330 ../midori/midori-browser.c:4904
-#: ../midori/midori-browser.c:4910
+#: ../midori/midori-browser.c:336 ../midori/midori-browser.c:4889
+#: ../midori/midori-browser.c:4895
 msgid "Reload the current page"
 msgstr "Оновити поточну сторінку"
 
-#: ../midori/midori-browser.c:340 ../midori/midori-browser.c:4907
+#: ../midori/midori-browser.c:346 ../midori/midori-browser.c:4892
 msgid "Stop loading the current page"
 msgstr "Зупинити завантаження поточної сторінки"
 
-#: ../midori/midori-browser.c:454
+#: ../midori/midori-browser.c:453
 #, c-format
 msgid "%d%% loaded"
 msgstr "%d%% завантажено"
 
-#: ../midori/midori-browser.c:492
+#: ../midori/midori-browser.c:491
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "Невдача при оновленні назви: %s\n"
 
-#: ../midori/midori-browser.c:506
+#: ../midori/midori-browser.c:504
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "Несподівана дія '%s'."
 
-#: ../midori/midori-browser.c:730
+#: ../midori/midori-browser.c:729
 msgid "New folder"
 msgstr "Нова тека"
 
-#: ../midori/midori-browser.c:730
+#: ../midori/midori-browser.c:729
 msgid "Edit folder"
 msgstr "Редагувати теку"
 
-#: ../midori/midori-browser.c:732
+#: ../midori/midori-browser.c:731
 msgid "New bookmark"
 msgstr "Нова закладка"
 
-#: ../midori/midori-browser.c:732
+#: ../midori/midori-browser.c:731
 msgid "Edit bookmark"
 msgstr "Редагувати закладку"
 
-#: ../midori/midori-browser.c:763
+#: ../midori/midori-browser.c:762
 msgid "_Title:"
 msgstr "_Назва:"
 
-#: ../midori/midori-browser.c:776 ../midori/midori-searchaction.c:961
+#: ../midori/midori-browser.c:779 ../midori/midori-searchaction.c:961
 msgid "_Description:"
 msgstr "_Опис:"
 
-#: ../midori/midori-browser.c:795 ../midori/midori-searchaction.c:975
-#: ../extensions/feed-panel/main.c:373
+#: ../midori/midori-browser.c:798 ../midori/midori-searchaction.c:975
+#: ../extensions/feed-panel/main.c:377
 msgid "_Address:"
 msgstr "_Адреса:"
 
-#: ../midori/midori-browser.c:829 ../midori/midori-browser.c:4022
+#: ../midori/midori-browser.c:830 ../midori/midori-browser.c:4008
 msgid "_Folder:"
 msgstr "_Тека:"
 
-#: ../midori/midori-browser.c:839 ../midori/midori-browser.c:932
-#: ../midori/midori-browser.c:4027 ../midori/midori-browser.c:4056
+#: ../midori/midori-browser.c:840 ../midori/midori-browser.c:934
+#: ../midori/midori-browser.c:4013 ../midori/midori-browser.c:4042
 msgid "Toplevel folder"
 msgstr "Тека рівнем вище"
 
-#: ../midori/midori-browser.c:873
+#: ../midori/midori-browser.c:872
 msgid "Add to _Speed Dial"
 msgstr "Додати до шви_дкого виклику"
 
-#: ../midori/midori-browser.c:886
+#: ../midori/midori-browser.c:885
 msgid "Show in the tool_bar"
 msgstr "Показати в панелі інструментів"
 
-#: ../midori/midori-browser.c:901
+#: ../midori/midori-browser.c:900
 msgid "Run as _web application"
 msgstr "Запустити як веб-додаток"
 
-#: ../midori/midori-browser.c:978
+#: ../midori/midori-browser.c:979
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
 msgstr "Немає достатньо вільного місця для завантаження \"%s\"."
 
-#: ../midori/midori-browser.c:982
+#: ../midori/midori-browser.c:983
 #, c-format
 msgid "The file needs %s but only %s are left."
 msgstr "Файл потребує %s, але тільки %s залишилося. "
 
-#: ../midori/midori-browser.c:1039 ../midori/midori-browser.c:4064
-#: ../midori/midori-browser.c:4098
+#: ../midori/midori-browser.c:1040 ../midori/midori-browser.c:4050
+#: ../midori/midori-browser.c:4085
 msgid "Save file as"
 msgstr "Зберегти файл як"
 
-#: ../midori/midori-browser.c:1432
+#: ../midori/midori-browser.c:1433
 msgid "Save file"
 msgstr "Зберегти файл"
 
-#: ../midori/midori-browser.c:2149
+#: ../midori/midori-browser.c:2150
 msgid "Open file"
 msgstr "Відкрити файл"
 
-#: ../midori/midori-browser.c:2227
+#: ../midori/midori-browser.c:2228
 msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
 "Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
@@ -348,691 +354,691 @@ msgstr ""
 "Для використання посилання вище, відкрийте переглядач новин. Звичайно віе є в меню або під кнопкою \"Нова підписка\", \"Новий виток новин\" або щось подібне.\n"
 "Або Ви можете перейти до Налаштування, Програми в Мідорі, і виберіть Переглядач новин. Якщо наступного Ви натиснете на іконку витка новин, то вони будуть додані автоматично."
 
-#: ../midori/midori-browser.c:2233 ../extensions/feed-panel/main.c:361
+#: ../midori/midori-browser.c:2234 ../extensions/feed-panel/main.c:365
 msgid "New feed"
 msgstr "Нова стрічка новин"
 
-#: ../midori/midori-browser.c:2276 ../midori/midori-browser.c:4969
+#: ../midori/midori-browser.c:2277 ../midori/midori-browser.c:4954
 #: ../panels/midori-bookmarks.c:406
 msgid "Add a new bookmark"
 msgstr "Додати нову закладку"
 
-#: ../midori/midori-browser.c:3263 ../midori/sokoke.c:398
+#: ../midori/midori-browser.c:3283 ../midori/sokoke.c:398
 #: ../midori/sokoke.c:408 ../midori/sokoke.c:436 ../midori/sokoke.c:462
 #: ../midori/sokoke.c:476
 msgid "Could not run external program."
 msgstr "Неможливо запустити зовнішню програму."
 
-#: ../midori/midori-browser.c:3529 ../midori/midori-browser.c:5360
+#: ../midori/midori-browser.c:3526 ../midori/midori-browser.c:5344
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Неможливо вставити новий об'єкт історії: %s\n"
 
-#: ../midori/midori-browser.c:3857 ../panels/midori-bookmarks.c:721
-#: ../panels/midori-history.c:710
+#: ../midori/midori-browser.c:3843 ../panels/midori-bookmarks.c:721
+#: ../panels/midori-history.c:734
 msgid "Open all in _Tabs"
 msgstr "Відкрити все у в_кладках"
 
-#: ../midori/midori-browser.c:3864 ../panels/midori-bookmarks.c:727
-#: ../panels/midori-history.c:716 ../extensions/feed-panel/feed-panel.c:544
+#: ../midori/midori-browser.c:3850 ../panels/midori-bookmarks.c:727
+#: ../panels/midori-history.c:740 ../extensions/feed-panel/feed-panel.c:544
 msgid "Open in New _Tab"
 msgstr "Відкрити у новій _вкладці"
 
-#: ../midori/midori-browser.c:3867 ../midori/midori-view.c:2433
-#: ../midori/midori-view.c:4115 ../panels/midori-bookmarks.c:729
-#: ../panels/midori-history.c:718 ../extensions/feed-panel/feed-panel.c:546
+#: ../midori/midori-browser.c:3853 ../midori/midori-view.c:2338
+#: ../midori/midori-view.c:4014 ../panels/midori-bookmarks.c:729
+#: ../panels/midori-history.c:742 ../extensions/feed-panel/feed-panel.c:546
 msgid "Open in New _Window"
 msgstr "Відкрити у новому _вікні"
 
-#: ../midori/midori-browser.c:3945
+#: ../midori/midori-browser.c:3931
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:3946
+#: ../midori/midori-browser.c:3932
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:3947
+#: ../midori/midori-browser.c:3933
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:3948
+#: ../midori/midori-browser.c:3934
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:3949
+#: ../midori/midori-browser.c:3935
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:3973
+#: ../midori/midori-browser.c:3959
 msgid "Import bookmarks..."
 msgstr "Імпорт закладок..."
 
-#: ../midori/midori-browser.c:3976 ../midori/midori-browser.c:4974
+#: ../midori/midori-browser.c:3962 ../midori/midori-browser.c:4959
 msgid "_Import bookmarks"
 msgstr "_Імпорт закладок"
 
-#: ../midori/midori-browser.c:3987
+#: ../midori/midori-browser.c:3973
 msgid "_Application:"
 msgstr "_Програма:"
 
-#: ../midori/midori-browser.c:4014 ../midori/midori-browser.c:5087
-#: ../midori/midori-websettings.c:224 ../midori/midori-websettings.c:315
-#: ../katze/katze-utils.c:692
+#: ../midori/midori-browser.c:4000 ../midori/midori-browser.c:5072
+#: ../midori/midori-websettings.c:226 ../midori/midori-websettings.c:317
+#: ../katze/katze-utils.c:696
 msgid "Custom..."
 msgstr "Інша..."
 
-#: ../midori/midori-browser.c:4075
+#: ../midori/midori-browser.c:4061
 msgid "Failed to import bookmarks"
 msgstr "Не вдалося імпортувати закладки"
 
-#: ../midori/midori-browser.c:4113
+#: ../midori/midori-browser.c:4102
 msgid "Failed to export bookmarks"
 msgstr "Не вдалося експортувати закладки"
 
-#: ../midori/midori-browser.c:4167
+#: ../midori/midori-browser.c:4155
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "Невдача при очищенні історії: %s\n"
 
-#: ../midori/midori-browser.c:4175
+#: ../midori/midori-browser.c:4163
 #, c-format
 msgid "Failed to clear search history: %s\n"
 msgstr "Неможливо очистити історію пошуку: %s\n"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-browser.c:4283
+#: ../midori/midori-browser.c:4270
 msgid "Clear Private Data"
 msgstr "Очистити приватні дані"
 
-#: ../midori/midori-browser.c:4287
+#: ../midori/midori-browser.c:4274
 msgid "_Clear private data"
 msgstr "_Очистити приватні дані"
 
-#: ../midori/midori-browser.c:4301
+#: ../midori/midori-browser.c:4288
 msgid "Clear the following data:"
 msgstr "Очистити наступні дані:"
 
-#: ../midori/midori-browser.c:4312 ../midori/midori-preferences.c:533
-#: ../panels/midori-history.c:120
+#: ../midori/midori-browser.c:4298 ../midori/midori-preferences.c:533
+#: ../panels/midori-history.c:114
 msgid "History"
 msgstr "Історія"
 
-#: ../midori/midori-browser.c:4318
+#: ../midori/midori-browser.c:4303
 msgid "Cookies"
 msgstr "Тістечка"
 
-#: ../midori/midori-browser.c:4323
+#: ../midori/midori-browser.c:4308
 msgid "'Flash' Cookies"
 msgstr "'Очистити' тістечка"
 
-#: ../midori/midori-browser.c:4328
+#: ../midori/midori-browser.c:4313
 msgid "Website icons"
 msgstr "Значки веб-сторінок"
 
-#: ../midori/midori-browser.c:4333 ../midori/sokoke.c:1298
+#: ../midori/midori-browser.c:4318 ../midori/sokoke.c:1314
 msgid "_Closed Tabs"
 msgstr "_Закриті вкладки"
 
-#: ../midori/midori-browser.c:4338 ../extensions/web-cache.c:464
+#: ../midori/midori-browser.c:4323 ../extensions/web-cache.c:464
 msgid "Web Cache"
 msgstr "Веб-кеш"
 
-#: ../midori/midori-browser.c:4346
+#: ../midori/midori-browser.c:4331
 msgid "Clear private data when _quitting Midori"
 msgstr "Очистити приватні дані при _виході з Мідорі"
 
-#: ../midori/midori-browser.c:4487
+#: ../midori/midori-browser.c:4472
 msgid "A lightweight web browser."
 msgstr "Легкий переглядач Веб"
 
-#: ../midori/midori-browser.c:4489
+#: ../midori/midori-browser.c:4474
 msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
 msgstr "Ця бібліотека є вільним програмним забезпеченням; Ви можете розповсюджувати і/або модифікувати її згідно з GNU Lesser General Public License, яка опублікована Фундацією Вільного Програмного Забезпечення (Free Software Foundation), з версією 2.1 ліцензії, або (на Ваше побажання) будь-якою вищою версією."
 
-#: ../midori/midori-browser.c:4508
+#: ../midori/midori-browser.c:4493
 msgid "translator-credits"
 msgstr "Yarema aka Knedlyk <yupadmin@gmail.com>"
 
-#: ../midori/midori-browser.c:4817
+#: ../midori/midori-browser.c:4802
 msgid "_File"
 msgstr "_Файл"
 
-#: ../midori/midori-browser.c:4819 ../midori/sokoke.c:1299
+#: ../midori/midori-browser.c:4804 ../midori/sokoke.c:1315
 msgid "New _Window"
 msgstr "_Нове вікно"
 
-#: ../midori/midori-browser.c:4820
+#: ../midori/midori-browser.c:4805
 msgid "Open a new window"
 msgstr "Відкрити нове вікно"
 
-#: ../midori/midori-browser.c:4823
+#: ../midori/midori-browser.c:4808
 msgid "Open a new tab"
 msgstr "Відкрити нову вкладку"
 
-#: ../midori/midori-browser.c:4825
+#: ../midori/midori-browser.c:4810
 msgid "P_rivate Browsing"
 msgstr "_Режим приватності в Веб"
 
-#: ../midori/midori-browser.c:4826
+#: ../midori/midori-browser.c:4811
 msgid "Don't save any private data while browsing"
 msgstr "Не зберігати будь-яких даних під час перегляду Веб"
 
-#: ../midori/midori-browser.c:4830
+#: ../midori/midori-browser.c:4815
 msgid "Open a file"
 msgstr "Відкрити файл"
 
-#: ../midori/midori-browser.c:4833
+#: ../midori/midori-browser.c:4818
 msgid "Save to a file"
 msgstr "Зберегти в файл"
 
-#: ../midori/midori-browser.c:4835
+#: ../midori/midori-browser.c:4820
 msgid "Add to Speed _dial"
 msgstr "Додати до шви_дкого виклику"
 
-#: ../midori/midori-browser.c:4836
+#: ../midori/midori-browser.c:4821
 msgid "Add shortcut to speed dial"
 msgstr "Додати скорочення до швидкого виклику"
 
-#: ../midori/midori-browser.c:4838
+#: ../midori/midori-browser.c:4823
 msgid "Add Shortcut to the _desktop"
 msgstr "Додати скорочення до _стільниці"
 
-#: ../midori/midori-browser.c:4839
+#: ../midori/midori-browser.c:4824
 msgid "Add shortcut to the desktop"
 msgstr "Додати скорочення до стільниці"
 
-#: ../midori/midori-browser.c:4841
+#: ../midori/midori-browser.c:4826
 msgid "Subscribe to News _feed"
 msgstr "Підписатися на _стрічки новин"
 
-#: ../midori/midori-browser.c:4842
+#: ../midori/midori-browser.c:4827
 msgid "Subscribe to this news feed"
 msgstr "Підписатися на цю стрічку новин"
 
-#: ../midori/midori-browser.c:4847
+#: ../midori/midori-browser.c:4832
 msgid "_Close Tab"
 msgstr "_Закрити вкладку"
 
-#: ../midori/midori-browser.c:4848
+#: ../midori/midori-browser.c:4833
 msgid "Close the current tab"
 msgstr "Закрити поточну вкладку"
 
-#: ../midori/midori-browser.c:4850
+#: ../midori/midori-browser.c:4835
 msgid "C_lose Window"
 msgstr "З_акрити вікно"
 
-#: ../midori/midori-browser.c:4851
+#: ../midori/midori-browser.c:4836
 msgid "Close this window"
 msgstr "Закрити це вікно"
 
-#: ../midori/midori-browser.c:4854
+#: ../midori/midori-browser.c:4839
 msgid "Print the current page"
 msgstr "Надрукувати поточну сторінку"
 
-#: ../midori/midori-browser.c:4857
+#: ../midori/midori-browser.c:4842
 msgid "Quit the application"
 msgstr "Вийти з програми"
 
-#: ../midori/midori-browser.c:4859
+#: ../midori/midori-browser.c:4844
 msgid "_Edit"
 msgstr "_Редагувати"
 
-#: ../midori/midori-browser.c:4863
+#: ../midori/midori-browser.c:4848
 msgid "Undo the last modification"
 msgstr "Скасувати останню зміну"
 
-#: ../midori/midori-browser.c:4866
+#: ../midori/midori-browser.c:4851
 msgid "Redo the last modification"
 msgstr "Повернутися до останньої зміни"
 
-#: ../midori/midori-browser.c:4870
+#: ../midori/midori-browser.c:4855
 msgid "Cut the selected text"
 msgstr "Вирізати вибраний текст"
 
-#: ../midori/midori-browser.c:4873 ../midori/midori-browser.c:4876
+#: ../midori/midori-browser.c:4858 ../midori/midori-browser.c:4861
 msgid "Copy the selected text"
 msgstr "Копіювати вибраний текст"
 
-#: ../midori/midori-browser.c:4879
+#: ../midori/midori-browser.c:4864
 msgid "Paste text from the clipboard"
 msgstr "Вставити текст з буфера"
 
-#: ../midori/midori-browser.c:4882
+#: ../midori/midori-browser.c:4867
 msgid "Delete the selected text"
 msgstr "Видалити вибраний текст"
 
-#: ../midori/midori-browser.c:4885
+#: ../midori/midori-browser.c:4870
 msgid "Select all text"
 msgstr "Виділити весь текст"
 
-#: ../midori/midori-browser.c:4888
+#: ../midori/midori-browser.c:4873
 msgid "Find a word or phrase in the page"
 msgstr "Шукати слово чи фразу на сторінці"
 
-#: ../midori/midori-browser.c:4890
+#: ../midori/midori-browser.c:4875
 msgid "Find _Next"
 msgstr "Шукати _наступне"
 
-#: ../midori/midori-browser.c:4891
+#: ../midori/midori-browser.c:4876
 msgid "Find the next occurrence of a word or phrase"
 msgstr "Шукати наступне входження слова або фрази"
 
-#: ../midori/midori-browser.c:4893
+#: ../midori/midori-browser.c:4878
 msgid "Find _Previous"
 msgstr "Шукати _попереднє"
 
-#: ../midori/midori-browser.c:4894
+#: ../midori/midori-browser.c:4879
 msgid "Find the previous occurrence of a word or phrase"
 msgstr "Шукати попереднє входження слова або фрази"
 
-#: ../midori/midori-browser.c:4898
+#: ../midori/midori-browser.c:4883
 msgid "Configure the application preferences"
 msgstr "Налаштувати властивості програми"
 
-#: ../midori/midori-browser.c:4900
+#: ../midori/midori-browser.c:4885
 msgid "_View"
 msgstr "_Вигляд"
 
-#: ../midori/midori-browser.c:4901
+#: ../midori/midori-browser.c:4886
 msgid "_Toolbars"
 msgstr "Панелі _Інструментів"
 
-#: ../midori/midori-browser.c:4913
+#: ../midori/midori-browser.c:4898
 msgid "Increase the zoom level"
 msgstr "Збільшити розмір перегляду"
 
-#: ../midori/midori-browser.c:4916
+#: ../midori/midori-browser.c:4901
 msgid "Decrease the zoom level"
 msgstr "Зменшити розмір перегляду"
 
-#: ../midori/midori-browser.c:4919
+#: ../midori/midori-browser.c:4904
 msgid "Reset the zoom level"
 msgstr "Відновити розмір перегляду"
 
-#: ../midori/midori-browser.c:4920
+#: ../midori/midori-browser.c:4905
 msgid "_Encoding"
 msgstr "_Кодування"
 
-#: ../midori/midori-browser.c:4922
+#: ../midori/midori-browser.c:4907
 msgid "View So_urce"
 msgstr "Перегляд _коду"
 
-#: ../midori/midori-browser.c:4923
+#: ../midori/midori-browser.c:4908
 msgid "View the source code of the page"
 msgstr "Переглянути вихідний код сторінки"
 
-#: ../midori/midori-browser.c:4926
+#: ../midori/midori-browser.c:4911
 msgid "Toggle fullscreen view"
 msgstr "Перемкнути в повноекранний режим"
 
-#: ../midori/midori-browser.c:4929
+#: ../midori/midori-browser.c:4914
 msgid "Scroll _Left"
 msgstr "Прокрутити _ліворуч"
 
-#: ../midori/midori-browser.c:4930
+#: ../midori/midori-browser.c:4915
 msgid "Scroll to the left"
 msgstr "Прокрутити вліво"
 
-#: ../midori/midori-browser.c:4932
+#: ../midori/midori-browser.c:4917
 msgid "Scroll _Down"
 msgstr "Прокрутити в_низ"
 
-#: ../midori/midori-browser.c:4933
+#: ../midori/midori-browser.c:4918
 msgid "Scroll down"
 msgstr "Прокрутити вниз"
 
-#: ../midori/midori-browser.c:4935
+#: ../midori/midori-browser.c:4920
 msgid "Scroll _Up"
 msgstr "Прокрутити в_верх"
 
-#: ../midori/midori-browser.c:4936
+#: ../midori/midori-browser.c:4921
 msgid "Scroll up"
 msgstr "Прокрутити вверх"
 
-#: ../midori/midori-browser.c:4938
+#: ../midori/midori-browser.c:4923
 msgid "Scroll _Right"
 msgstr "Прокрутити _праворуч"
 
-#: ../midori/midori-browser.c:4939
+#: ../midori/midori-browser.c:4924
 msgid "Scroll to the right"
 msgstr "Прокрутити вправо"
 
-#: ../midori/midori-browser.c:4942
+#: ../midori/midori-browser.c:4927
 msgid "_Go"
 msgstr "_Перейти"
 
-#: ../midori/midori-browser.c:4945
+#: ../midori/midori-browser.c:4930
 msgid "Go back to the previous page"
 msgstr "Повернутись на попередню сторінку"
 
-#: ../midori/midori-browser.c:4948
+#: ../midori/midori-browser.c:4933
 msgid "Go forward to the next page"
 msgstr "Перейти до наступної сторінки"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:4952
+#: ../midori/midori-browser.c:4937
 msgid "Go to the previous sub-page"
 msgstr "Повернутись на попередню суб-сторінку"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:4956
+#: ../midori/midori-browser.c:4941
 msgid "Go to the next sub-page"
 msgstr "Перейти до наступної сторінки"
 
-#: ../midori/midori-browser.c:4959
+#: ../midori/midori-browser.c:4944
 msgid "Go to your homepage"
 msgstr "Перейти на домашню сторінку"
 
-#: ../midori/midori-browser.c:4961
+#: ../midori/midori-browser.c:4946
 msgid "Empty Trash"
 msgstr "Спорожнити смітник"
 
-#: ../midori/midori-browser.c:4962
+#: ../midori/midori-browser.c:4947
 msgid "Delete the contents of the trash"
 msgstr "Видалити вміст смітника"
 
-#: ../midori/midori-browser.c:4964
+#: ../midori/midori-browser.c:4949
 msgid "Undo _Close Tab"
 msgstr "Повернути закриту вкладку"
 
-#: ../midori/midori-browser.c:4965
+#: ../midori/midori-browser.c:4950
 msgid "Open the last closed tab"
 msgstr "Відкрити останню закриту вкладку"
 
-#: ../midori/midori-browser.c:4971
+#: ../midori/midori-browser.c:4956
 msgid "Add a new _folder"
 msgstr "Додати нову _теку"
 
-#: ../midori/midori-browser.c:4972
+#: ../midori/midori-browser.c:4957
 msgid "Add a new bookmark folder"
 msgstr "Додати нову теку закладок"
 
-#: ../midori/midori-browser.c:4977
+#: ../midori/midori-browser.c:4962
 msgid "_Export bookmarks"
 msgstr "_Експорт закладок"
 
-#: ../midori/midori-browser.c:4980 ../midori/midori-searchaction.c:493
+#: ../midori/midori-browser.c:4965 ../midori/midori-searchaction.c:493
 msgid "_Manage Search Engines"
 msgstr "_Налаштувати пошукові машини"
 
-#: ../midori/midori-browser.c:4981
+#: ../midori/midori-browser.c:4966
 msgid "Add, edit and remove search engines..."
 msgstr "Додати, редагувати чи видалити пошукові машини..."
 
-#: ../midori/midori-browser.c:4984
+#: ../midori/midori-browser.c:4969
 msgid "_Clear Private Data"
 msgstr "_Очистити приватні дані"
 
-#: ../midori/midori-browser.c:4985
+#: ../midori/midori-browser.c:4970
 msgid "Clear private data..."
 msgstr "Очистити приватні дані..."
 
-#: ../midori/midori-browser.c:4989
+#: ../midori/midori-browser.c:4974
 msgid "_Inspect Page"
 msgstr "Перевірити сторінку"
 
-#: ../midori/midori-browser.c:4990
+#: ../midori/midori-browser.c:4975
 msgid "Inspect page details and access developer tools..."
 msgstr "Перевірити сторінку і доступні знаряддя розробника"
 
-#: ../midori/midori-browser.c:4995
+#: ../midori/midori-browser.c:4980
 msgid "_Previous Tab"
 msgstr "_Попередня вкладка"
 
-#: ../midori/midori-browser.c:4996
+#: ../midori/midori-browser.c:4981
 msgid "Switch to the previous tab"
 msgstr "Перейти до попередньої вкладки"
 
-#: ../midori/midori-browser.c:4998
+#: ../midori/midori-browser.c:4983
 msgid "_Next Tab"
 msgstr "_Наступна вкладка"
 
-#: ../midori/midori-browser.c:4999
+#: ../midori/midori-browser.c:4984
 msgid "Switch to the next tab"
 msgstr "Перейти до наступної вкладки"
 
-#: ../midori/midori-browser.c:5001
+#: ../midori/midori-browser.c:4986
 msgid "Focus _Current Tab"
 msgstr "Фокусувати поточну вкладку"
 
-#: ../midori/midori-browser.c:5002
+#: ../midori/midori-browser.c:4987
 msgid "Focus the current tab"
 msgstr "Фокусувати поточну вкладку"
 
-#: ../midori/midori-browser.c:5004
+#: ../midori/midori-browser.c:4989
 msgid "Minimize _Current Tab"
 msgstr "Мінімізувати _поточну вкладку"
 
-#: ../midori/midori-browser.c:5005
+#: ../midori/midori-browser.c:4990
 msgid "Minimize the current tab"
 msgstr "Мінімізувати поточну вкладку"
 
-#: ../midori/midori-browser.c:5007
+#: ../midori/midori-browser.c:4992
 msgid "_Duplicate Current Tab"
 msgstr "_Дублювати поточну вкладку"
 
-#: ../midori/midori-browser.c:5008
+#: ../midori/midori-browser.c:4993
 msgid "Duplicate the current tab"
 msgstr "Дублювати поточну вкладку"
 
-#: ../midori/midori-browser.c:5010
+#: ../midori/midori-browser.c:4995
 msgid "Close Ot_her Tabs"
 msgstr "_Закрити інші вкладки"
 
-#: ../midori/midori-browser.c:5011
+#: ../midori/midori-browser.c:4996
 msgid "Close all tabs except the current tab"
 msgstr "Закрити всі вкладки окрім поточної вкладки"
 
-#: ../midori/midori-browser.c:5013
+#: ../midori/midori-browser.c:4998
 msgid "Open last _session"
 msgstr "Відкрити останню _сесію"
 
-#: ../midori/midori-browser.c:5014
+#: ../midori/midori-browser.c:4999
 msgid "Open the tabs saved in the last session"
 msgstr "Відкрити вкладки, що збережені під час останньої сесії"
 
-#: ../midori/midori-browser.c:5016
+#: ../midori/midori-browser.c:5001
 msgid "_Help"
 msgstr "_Допомога"
 
-#: ../midori/midori-browser.c:5018
+#: ../midori/midori-browser.c:5003
 msgid "_Contents"
 msgstr "_Зміст"
 
-#: ../midori/midori-browser.c:5019
+#: ../midori/midori-browser.c:5004
 msgid "Show the documentation"
 msgstr "Показати документацію"
 
-#: ../midori/midori-browser.c:5021
+#: ../midori/midori-browser.c:5006
 msgid "_Frequent Questions"
 msgstr "_Часті запитання"
 
-#: ../midori/midori-browser.c:5022
+#: ../midori/midori-browser.c:5007
 msgid "Show the Frequently Asked Questions"
 msgstr "Показати найуживаніші запитання (FAQ)"
 
-#: ../midori/midori-browser.c:5024
+#: ../midori/midori-browser.c:5009
 msgid "_Report a Bug"
 msgstr "П_овідомити про помилку"
 
-#: ../midori/midori-browser.c:5025
+#: ../midori/midori-browser.c:5010
 msgid "Open Midori's bug tracker"
 msgstr "Відкрити баг-трекер Мідорі"
 
-#: ../midori/midori-browser.c:5028
+#: ../midori/midori-browser.c:5013
 msgid "Show information about the program"
 msgstr "Відобразити інформацію про програму"
 
-#: ../midori/midori-browser.c:5036
+#: ../midori/midori-browser.c:5021
 msgid "_Menubar"
 msgstr "Панель _меню"
 
-#: ../midori/midori-browser.c:5037
+#: ../midori/midori-browser.c:5022
 msgid "Show menubar"
 msgstr "Показати панель меню"
 
-#: ../midori/midori-browser.c:5040
+#: ../midori/midori-browser.c:5025
 msgid "_Navigationbar"
 msgstr "Панель _навігації"
 
-#: ../midori/midori-browser.c:5041
+#: ../midori/midori-browser.c:5026
 msgid "Show navigationbar"
 msgstr "Показати панель навігації"
 
-#: ../midori/midori-browser.c:5044
+#: ../midori/midori-browser.c:5029
 msgid "Side_panel"
 msgstr "_Бічна панель"
 
-#: ../midori/midori-browser.c:5045
+#: ../midori/midori-browser.c:5030
 msgid "Show sidepanel"
 msgstr "Показати бічну панель"
 
-#: ../midori/midori-browser.c:5048
+#: ../midori/midori-browser.c:5033
 msgid "_Bookmarkbar"
 msgstr "Панель _закладок"
 
-#: ../midori/midori-browser.c:5049
+#: ../midori/midori-browser.c:5034
 msgid "Show bookmarkbar"
 msgstr "Показати панель закладок"
 
-#: ../midori/midori-browser.c:5052
+#: ../midori/midori-browser.c:5037
 msgid "_Transferbar"
 msgstr "Панель за_вантажень"
 
-#: ../midori/midori-browser.c:5053
+#: ../midori/midori-browser.c:5038
 msgid "Show transferbar"
 msgstr "Показати панель завантажень"
 
-#: ../midori/midori-browser.c:5056
+#: ../midori/midori-browser.c:5041
 msgid "_Statusbar"
 msgstr "Панель _стану"
 
-#: ../midori/midori-browser.c:5057
+#: ../midori/midori-browser.c:5042
 msgid "Show statusbar"
 msgstr "Показати панель стану"
 
-#: ../midori/midori-browser.c:5065
+#: ../midori/midori-browser.c:5050
 msgid "_Automatic"
 msgstr "_Автоматично"
 
-#: ../midori/midori-browser.c:5068 ../midori/midori-websettings.c:218
+#: ../midori/midori-browser.c:5053 ../midori/midori-websettings.c:220
 msgid "Chinese (BIG5)"
 msgstr "Китайська (BIG5)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5072
+#: ../midori/midori-browser.c:5057
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Японська (SHIFT_JIS)"
 
-#: ../midori/midori-browser.c:5075 ../midori/midori-websettings.c:220
+#: ../midori/midori-browser.c:5060 ../midori/midori-websettings.c:222
 msgid "Korean (EUC-KR)"
 msgstr "Корейська (EUC-KR)"
 
-#: ../midori/midori-browser.c:5078 ../midori/midori-websettings.c:221
+#: ../midori/midori-browser.c:5063 ../midori/midori-websettings.c:223
 msgid "Russian (KOI8-R)"
 msgstr "Російська (KOI8-R)"
 
-#: ../midori/midori-browser.c:5081 ../midori/midori-websettings.c:222
+#: ../midori/midori-browser.c:5066 ../midori/midori-websettings.c:224
 msgid "Unicode (UTF-8)"
 msgstr "Юнікод (UTF-8)"
 
-#: ../midori/midori-browser.c:5084 ../midori/midori-websettings.c:223
+#: ../midori/midori-browser.c:5069 ../midori/midori-websettings.c:225
 msgid "Western (ISO-8859-1)"
 msgstr "Західний (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5601
+#: ../midori/midori-browser.c:5588
 msgid "_Separator"
 msgstr "_Роздільник"
 
-#: ../midori/midori-browser.c:5608
+#: ../midori/midori-browser.c:5595
 msgid "_Location..."
 msgstr "_Адреса..."
 
-#: ../midori/midori-browser.c:5610
+#: ../midori/midori-browser.c:5597
 msgid "Open a particular location"
 msgstr "Відкрити певну адресу"
 
-#: ../midori/midori-browser.c:5634
+#: ../midori/midori-browser.c:5621
 msgid "_Web Search..."
 msgstr "_Пошук у Веб..."
 
-#: ../midori/midori-browser.c:5636
+#: ../midori/midori-browser.c:5623
 msgid "Run a web search"
 msgstr "Запустити пошук у Веб"
 
-#: ../midori/midori-browser.c:5657
+#: ../midori/midori-browser.c:5644
 msgid "Reopen a previously closed tab or window"
 msgstr "Знову відкрити закриту вкладку чи вікно"
 
-#: ../midori/midori-browser.c:5672
+#: ../midori/midori-browser.c:5659
 msgid "_Tools"
 msgstr "_Інструменти"
 
-#: ../midori/midori-browser.c:5685
+#: ../midori/midori-browser.c:5676
 msgid "_Window"
 msgstr "_Вікно"
 
-#: ../midori/midori-browser.c:5687
+#: ../midori/midori-browser.c:5678
 msgid "Show a list of all open tabs"
 msgstr "Показати список відкритих вкладок"
 
-#: ../midori/midori-browser.c:5701
+#: ../midori/midori-browser.c:5692
 msgid "_Menu"
 msgstr "_Меню"
 
-#: ../midori/midori-browser.c:5703
+#: ../midori/midori-browser.c:5694
 msgid "Menu"
 msgstr "Меню"
 
-#: ../midori/midori-browser.c:6280
+#: ../midori/midori-browser.c:6262
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "Несподівані властивості '%s'"
 
-#: ../midori/midori-locationaction.c:377
+#: ../midori/midori-locationaction.c:390
 #, c-format
 msgid "Failed to select from history\n"
 msgstr "Невдача при виборі з історії\n"
 
-#: ../midori/midori-locationaction.c:459
+#: ../midori/midori-locationaction.c:474
 #, c-format
 msgid "Search for %s"
 msgstr "Шукати %s"
 
-#: ../midori/midori-locationaction.c:482
+#: ../midori/midori-locationaction.c:497
 #, c-format
 msgid "Search with %s"
 msgstr "Шукати з %s"
 
-#: ../midori/midori-locationaction.c:1197
+#: ../midori/midori-locationaction.c:1307
 #, c-format
 msgid "Failed to execute database statement\n"
 msgstr "Не вдалось виконати запит бази даних\n"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1254
+#: ../midori/midori-locationaction.c:1363
 msgid "Paste and p_roceed"
 msgstr "Вставити і про_довжити"
 
-#: ../midori/midori-panel.c:432 ../midori/midori-panel.c:434
+#: ../midori/midori-panel.c:412 ../midori/midori-panel.c:414
 msgid "Detach chosen panel from the window"
 msgstr "Від’єднати вибрану панель від вікна"
 
-#: ../midori/midori-panel.c:444 ../midori/midori-panel.c:446
-#: ../midori/midori-panel.c:639 ../midori/midori-panel.c:642
+#: ../midori/midori-panel.c:424 ../midori/midori-panel.c:426
+#: ../midori/midori-panel.c:613 ../midori/midori-panel.c:616
 msgid "Align sidepanel to the right"
 msgstr "Рівняти бічну панель по правому краю"
 
-#: ../midori/midori-panel.c:456 ../midori/midori-panel.c:457
+#: ../midori/midori-panel.c:436 ../midori/midori-panel.c:437
 msgid "Close panel"
 msgstr "Закрити панель"
 
-#: ../midori/midori-panel.c:640 ../midori/midori-panel.c:643
+#: ../midori/midori-panel.c:614 ../midori/midori-panel.c:617
 msgid "Align sidepanel to the left"
 msgstr "Рівняти бічну панель по лівому краю"
 
-#: ../midori/midori-panel.c:797
+#: ../midori/midori-panel.c:771
 msgid "Hide operating controls"
 msgstr "Приховати панель _управління"
 
@@ -1048,562 +1054,562 @@ msgstr "Показати домашню сторінку"
 msgid "Show last open tabs"
 msgstr "Показати останньо відкриті вкладки"
 
-#: ../midori/midori-websettings.c:203
+#: ../midori/midori-websettings.c:204
 msgid "Show last tabs without loading"
 msgstr "Показати останні вкладки без завантаження"
 
-#: ../midori/midori-websettings.c:219
+#: ../midori/midori-websettings.c:221
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Японська (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:239
+#: ../midori/midori-websettings.c:241
 msgid "New tab"
 msgstr "Нова вкладка"
 
-#: ../midori/midori-websettings.c:240
+#: ../midori/midori-websettings.c:242
 msgid "New window"
 msgstr "Нове вікно"
 
-#: ../midori/midori-websettings.c:241
+#: ../midori/midori-websettings.c:243
 msgid "Current tab"
 msgstr "Поточна вкладка"
 
-#: ../midori/midori-websettings.c:256
+#: ../midori/midori-websettings.c:258
 msgid "Default"
 msgstr "Типово"
 
-#: ../midori/midori-websettings.c:257
+#: ../midori/midori-websettings.c:259
 msgid "Icons"
 msgstr "Значки"
 
-#: ../midori/midori-websettings.c:258
+#: ../midori/midori-websettings.c:260
 msgid "Small icons"
 msgstr "Маленькі значки"
 
-#: ../midori/midori-websettings.c:259
+#: ../midori/midori-websettings.c:261
 msgid "Text"
 msgstr "Текст"
 
-#: ../midori/midori-websettings.c:260
+#: ../midori/midori-websettings.c:262
 msgid "Icons and text"
 msgstr "Значки і текст"
 
-#: ../midori/midori-websettings.c:261
+#: ../midori/midori-websettings.c:263
 msgid "Text beside icons"
 msgstr "Текст за значками"
 
-#: ../midori/midori-websettings.c:276
+#: ../midori/midori-websettings.c:278
 msgid "Automatic (GNOME or environment)"
 msgstr "Автоматично (GNOME або змінні оточення)"
 
-#: ../midori/midori-websettings.c:277
+#: ../midori/midori-websettings.c:279
 msgid "HTTP proxy server"
 msgstr "Сервер HTTP проксі"
 
-#: ../midori/midori-websettings.c:278
+#: ../midori/midori-websettings.c:280
 msgid "No proxy server"
 msgstr "Немає сервера проксі"
 
-#: ../midori/midori-websettings.c:293
+#: ../midori/midori-websettings.c:295
 msgid "All cookies"
 msgstr "Всі тістечка"
 
-#: ../midori/midori-websettings.c:294
+#: ../midori/midori-websettings.c:296
 msgid "Session cookies"
 msgstr "Тістечка сесії"
 
-#: ../midori/midori-websettings.c:295 ../katze/katze-utils.c:668
+#: ../midori/midori-websettings.c:297 ../katze/katze-utils.c:672
 msgid "None"
 msgstr "Нічого"
 
-#: ../midori/midori-websettings.c:311
+#: ../midori/midori-websettings.c:313
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:312
+#: ../midori/midori-websettings.c:314
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:313
+#: ../midori/midori-websettings.c:315
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:314
+#: ../midori/midori-websettings.c:316
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:367
+#: ../midori/midori-websettings.c:369
 msgid "Remember last window size"
 msgstr "Запам'ятати останній розмір вікна"
 
-#: ../midori/midori-websettings.c:368
+#: ../midori/midori-websettings.c:370
 msgid "Whether to save the last window size"
 msgstr "Чи зберігати останній розмір вікна"
 
-#: ../midori/midori-websettings.c:376
+#: ../midori/midori-websettings.c:378
 msgid "Last window width"
 msgstr "Ширина останнього вікна"
 
-#: ../midori/midori-websettings.c:377
+#: ../midori/midori-websettings.c:379
 msgid "The last saved window width"
 msgstr "Остання збережена ширина вікна"
 
-#: ../midori/midori-websettings.c:385
+#: ../midori/midori-websettings.c:387
 msgid "Last window height"
 msgstr "Висота останнього вікна"
 
-#: ../midori/midori-websettings.c:386
+#: ../midori/midori-websettings.c:388
 msgid "The last saved window height"
 msgstr "Остання збережена висота вікна"
 
-#: ../midori/midori-websettings.c:411
+#: ../midori/midori-websettings.c:413
 msgid "Last panel position"
 msgstr "Остання позиція панелі"
 
-#: ../midori/midori-websettings.c:412
+#: ../midori/midori-websettings.c:414
 msgid "The last saved panel position"
 msgstr "Остання збережена позиція панелі"
 
 #. i18n: The internal index of the last opened panel
-#: ../midori/midori-websettings.c:421
+#: ../midori/midori-websettings.c:423
 msgid "Last panel page"
 msgstr "Остання сторінка панелі"
 
-#: ../midori/midori-websettings.c:422
+#: ../midori/midori-websettings.c:424
 msgid "The last saved panel page"
 msgstr "Остання збережена сторінка панелі"
 
-#: ../midori/midori-websettings.c:430
+#: ../midori/midori-websettings.c:432
 msgid "Last Web search"
 msgstr "Останній пошук у Веб"
 
-#: ../midori/midori-websettings.c:431
+#: ../midori/midori-websettings.c:433
 msgid "The last saved Web search"
 msgstr "Останній збережений пошук у Веб"
 
-#: ../midori/midori-websettings.c:440
+#: ../midori/midori-websettings.c:442
 msgid "Show Menubar"
 msgstr "Показати панель меню"
 
-#: ../midori/midori-websettings.c:441
+#: ../midori/midori-websettings.c:443
 msgid "Whether to show the menubar"
 msgstr "Чи показувати панель меню"
 
-#: ../midori/midori-websettings.c:449
+#: ../midori/midori-websettings.c:451
 msgid "Show Navigationbar"
 msgstr "Показати панель навігації"
 
-#: ../midori/midori-websettings.c:450
+#: ../midori/midori-websettings.c:452
 msgid "Whether to show the navigationbar"
 msgstr "Чи показувати панель навігації"
 
-#: ../midori/midori-websettings.c:458
+#: ../midori/midori-websettings.c:460
 msgid "Show Bookmarkbar"
 msgstr "Показати панель закладок"
 
-#: ../midori/midori-websettings.c:459
+#: ../midori/midori-websettings.c:461
 msgid "Whether to show the bookmarkbar"
 msgstr "Чи показувати панель закладок"
 
-#: ../midori/midori-websettings.c:467
+#: ../midori/midori-websettings.c:469
 msgid "Show Panel"
 msgstr "Показати панель"
 
-#: ../midori/midori-websettings.c:468
+#: ../midori/midori-websettings.c:470
 msgid "Whether to show the panel"
 msgstr "Чи показувати панель"
 
-#: ../midori/midori-websettings.c:483
+#: ../midori/midori-websettings.c:485
 msgid "Show Transferbar"
 msgstr "Показати панель завантажень"
 
-#: ../midori/midori-websettings.c:484
+#: ../midori/midori-websettings.c:486
 msgid "Whether to show the transferbar"
 msgstr "Чи показувати панель завантажень"
 
-#: ../midori/midori-websettings.c:492
+#: ../midori/midori-websettings.c:494
 msgid "Show Statusbar"
 msgstr "Показати панель стану"
 
-#: ../midori/midori-websettings.c:493
+#: ../midori/midori-websettings.c:495
 msgid "Whether to show the statusbar"
 msgstr "Чи показувати панель стану"
 
-#: ../midori/midori-websettings.c:502
+#: ../midori/midori-websettings.c:504
 msgid "Toolbar Style:"
 msgstr "Стиль панелі:"
 
-#: ../midori/midori-websettings.c:503
+#: ../midori/midori-websettings.c:505
 msgid "The style of the toolbar"
 msgstr "Стиль панелі"
 
-#: ../midori/midori-websettings.c:519
+#: ../midori/midori-websettings.c:521
 msgid "Show progress in location entry"
 msgstr "Показати поступ у рядку адреси"
 
-#: ../midori/midori-websettings.c:520
+#: ../midori/midori-websettings.c:522
 msgid "Whether to show loading progress in the location entry"
 msgstr "Чи показувати прогрес завантаження в рядку адреси"
 
-#: ../midori/midori-websettings.c:535
+#: ../midori/midori-websettings.c:537
 msgid "Search engines in location completion"
 msgstr "Доповнення рядка в вікні пошуку"
 
-#: ../midori/midori-websettings.c:536
+#: ../midori/midori-websettings.c:538
 msgid "Whether to show search engines in the location completion"
 msgstr "Чи автоматично доповнювати стрічку в рядку пошуку"
 
-#: ../midori/midori-websettings.c:544
+#: ../midori/midori-websettings.c:546
 msgid "Toolbar Items"
 msgstr "Об'єкти панелі інструментів"
 
-#: ../midori/midori-websettings.c:545
+#: ../midori/midori-websettings.c:547
 msgid "The items to show on the toolbar"
 msgstr "Об'єкти, що відображаються у панелі інструментів"
 
-#: ../midori/midori-websettings.c:553
+#: ../midori/midori-websettings.c:555
 msgid "Compact Sidepanel"
 msgstr "Компактна бічна панель"
 
-#: ../midori/midori-websettings.c:554
+#: ../midori/midori-websettings.c:556
 msgid "Whether to make the sidepanel compact"
 msgstr "Налаштування відображення компактної бічної панелі"
 
-#: ../midori/midori-websettings.c:569
+#: ../midori/midori-websettings.c:571
 msgid "Show operating controls of the panel"
 msgstr "Показати об’єкти налаштування панелі"
 
-#: ../midori/midori-websettings.c:570
+#: ../midori/midori-websettings.c:572
 msgid "Whether to show the operating controls of the panel"
 msgstr "Чи показувати пульт оправління панелі"
 
-#: ../midori/midori-websettings.c:585
+#: ../midori/midori-websettings.c:587
 msgid "Align sidepanel on the right"
 msgstr "Рівняти бічну панель по правому краю"
 
-#: ../midori/midori-websettings.c:586
+#: ../midori/midori-websettings.c:588
 msgid "Whether to align the sidepanel on the right"
 msgstr "Чи вирівнювати бічну панель по правому краю"
 
-#: ../midori/midori-websettings.c:601
+#: ../midori/midori-websettings.c:603
 msgid "Open panels in separate windows"
 msgstr "Відкривати панелі в нових вікнах"
 
-#: ../midori/midori-websettings.c:602
+#: ../midori/midori-websettings.c:604
 msgid "Whether to always open panels in separate windows"
 msgstr "Чи відкривати панелі в окремих вікнах"
 
-#: ../midori/midori-websettings.c:611
+#: ../midori/midori-websettings.c:613
 msgid "When Midori starts:"
 msgstr "Коли Мідорі стартує:"
 
-#: ../midori/midori-websettings.c:612
+#: ../midori/midori-websettings.c:614
 msgid "What to do when Midori starts"
 msgstr "Що завантажувати при старті"
 
-#: ../midori/midori-websettings.c:621
+#: ../midori/midori-websettings.c:623
 msgid "Homepage:"
 msgstr "Домашня сторінка:"
 
-#: ../midori/midori-websettings.c:622
+#: ../midori/midori-websettings.c:624
 msgid "The homepage"
 msgstr "Домашня сторінка"
 
-#: ../midori/midori-websettings.c:637
+#: ../midori/midori-websettings.c:639
 msgid "Show crash dialog"
 msgstr "Показати діалог краху"
 
-#: ../midori/midori-websettings.c:638
+#: ../midori/midori-websettings.c:640
 msgid "Show a dialog after Midori crashed"
 msgstr "Показати діалог, коли Мідорі зазнає краху"
 
 #. i18n: Speed dial, webpage shortcuts, named for the phone function
-#: ../midori/midori-websettings.c:654
+#: ../midori/midori-websettings.c:656
 msgid "Show speed dial in new tabs"
 msgstr "Показати швидкий виклик в новій вкладці"
 
-#: ../midori/midori-websettings.c:655
+#: ../midori/midori-websettings.c:657
 msgid "Show speed dial in newly opened tabs"
 msgstr "Показувати швидкий виклик в щойно відкритих вкладках"
 
-#: ../midori/midori-websettings.c:663
+#: ../midori/midori-websettings.c:665
 msgid "Save downloaded files to:"
 msgstr "Зберігати завантажені файли до:"
 
-#: ../midori/midori-websettings.c:664
+#: ../midori/midori-websettings.c:666
 msgid "The folder downloaded files are saved to"
 msgstr "Завантажені файли зберігати в теку"
 
-#: ../midori/midori-websettings.c:685
+#: ../midori/midori-websettings.c:687
 msgid "Ask for the destination folder"
 msgstr "Запитати про теку призначення"
 
-#: ../midori/midori-websettings.c:686
+#: ../midori/midori-websettings.c:688
 msgid "Whether to ask for the destination folder when downloading a file"
 msgstr "Чи запитувати про теку призначення при завантаженні файлу"
 
-#: ../midori/midori-websettings.c:705
+#: ../midori/midori-websettings.c:707
 msgid "Notify when a transfer has been completed"
 msgstr "Повідомити про закінчення завантаження"
 
-#: ../midori/midori-websettings.c:706
+#: ../midori/midori-websettings.c:708
 msgid "Whether to show a notification when a transfer has been completed"
 msgstr "Чи показувати повідомлення про завершення завантаження"
 
-#: ../midori/midori-websettings.c:718
+#: ../midori/midori-websettings.c:720
 msgid "Download Manager"
 msgstr "Менеджер завантажень"
 
-#: ../midori/midori-websettings.c:719
+#: ../midori/midori-websettings.c:721
 msgid "An external download manager"
 msgstr "Зовнішній менеджер завантажень"
 
-#: ../midori/midori-websettings.c:727
+#: ../midori/midori-websettings.c:729
 msgid "Text Editor"
 msgstr "Текстовий редактор"
 
-#: ../midori/midori-websettings.c:728
+#: ../midori/midori-websettings.c:730
 msgid "An external text editor"
 msgstr "Зовнішній текстовий редактор"
 
-#: ../midori/midori-websettings.c:743
+#: ../midori/midori-websettings.c:745
 msgid "News Aggregator"
 msgstr "Читалка новин"
 
-#: ../midori/midori-websettings.c:744
+#: ../midori/midori-websettings.c:746
 msgid "An external news aggregator"
 msgstr "Зовнішня читалка стрічок новин"
 
-#: ../midori/midori-websettings.c:752
+#: ../midori/midori-websettings.c:754
 msgid "Location entry Search"
 msgstr "Місце початку пошуку"
 
-#: ../midori/midori-websettings.c:753
+#: ../midori/midori-websettings.c:755
 msgid "The search to perform inside the location entry"
 msgstr "Здійснювати пошук всередині місця входження"
 
-#: ../midori/midori-websettings.c:761
+#: ../midori/midori-websettings.c:763
 msgid "Preferred Encoding"
 msgstr "Типове кодування"
 
-#: ../midori/midori-websettings.c:762
+#: ../midori/midori-websettings.c:764
 msgid "The preferred character encoding"
 msgstr "Типове кодування символів"
 
-#: ../midori/midori-websettings.c:772
+#: ../midori/midori-websettings.c:774
 msgid "Always Show Tabbar"
 msgstr "Завжди відображати панель вкладок"
 
-#: ../midori/midori-websettings.c:773
+#: ../midori/midori-websettings.c:775
 msgid "Always show the tabbar"
 msgstr "Завжди відображати панель вкладок"
 
-#: ../midori/midori-websettings.c:781
+#: ../midori/midori-websettings.c:783
 msgid "Close Buttons on Tabs"
 msgstr "Кнопки закриття на вкладках"
 
-#: ../midori/midori-websettings.c:782
+#: ../midori/midori-websettings.c:784
 msgid "Whether tabs have close buttons"
 msgstr "Чи матимуть вкладки кнопки закриття"
 
-#: ../midori/midori-websettings.c:790
+#: ../midori/midori-websettings.c:792
 msgid "Open new pages in:"
 msgstr "Відкривати нові сторінки в:"
 
-#: ../midori/midori-websettings.c:791
+#: ../midori/midori-websettings.c:793
 msgid "Where to open new pages"
 msgstr "Де відкривати нові сторінки"
 
-#: ../midori/midori-websettings.c:800
+#: ../midori/midori-websettings.c:802
 msgid "Open external pages in:"
 msgstr "Відкривати зовнішні сторінки в:"
 
-#: ../midori/midori-websettings.c:801
+#: ../midori/midori-websettings.c:803
 msgid "Where to open externally opened pages"
 msgstr "Де відкривати сторінки зовнішнього виклику"
 
-#: ../midori/midori-websettings.c:810
+#: ../midori/midori-websettings.c:812
 msgid "Middle click opens Selection"
 msgstr "Середня кнопка відкриває виділене"
 
-#: ../midori/midori-websettings.c:811
+#: ../midori/midori-websettings.c:813
 msgid "Load an address from the selection via middle click"
 msgstr "Завантажувати посилання URL з виділеного через клацання середньої кнопки"
 
-#: ../midori/midori-websettings.c:819
+#: ../midori/midori-websettings.c:821
 msgid "Open tabs in the background"
 msgstr "Відкривати вкладки в фоні"
 
-#: ../midori/midori-websettings.c:820
+#: ../midori/midori-websettings.c:822
 msgid "Whether to open new tabs in the background"
 msgstr "Чи відкривати нові вкладки в фоновому режимі"
 
-#: ../midori/midori-websettings.c:828
+#: ../midori/midori-websettings.c:830
 msgid "Open Tabs next to Current"
 msgstr "Відкривати вкладки у наступних після поточної"
 
-#: ../midori/midori-websettings.c:829
+#: ../midori/midori-websettings.c:831
 msgid "Whether to open new tabs next to the current tab or after the last one"
 msgstr "Чи відкривати нові вкладки у наступній за нею чи після останньої вкладки"
 
-#: ../midori/midori-websettings.c:837
+#: ../midori/midori-websettings.c:839
 msgid "Open popups in tabs"
 msgstr "Відкривати спливаючі вікна у вкладках"
 
-#: ../midori/midori-websettings.c:838
+#: ../midori/midori-websettings.c:840
 msgid "Whether to open popup windows in tabs"
 msgstr "Чи відкривати спливаючі вікна у вкладках"
 
-#: ../midori/midori-websettings.c:848 ../extensions/statusbar-features.c:88
+#: ../midori/midori-websettings.c:850 ../extensions/statusbar-features.c:88
 msgid "Load images automatically"
 msgstr "Автоматично завантажити зображення"
 
-#: ../midori/midori-websettings.c:849
+#: ../midori/midori-websettings.c:851
 msgid "Load and display images automatically"
 msgstr "Автоматично завантажити і показати зображення"
 
-#: ../midori/midori-websettings.c:856 ../extensions/statusbar-features.c:100
+#: ../midori/midori-websettings.c:858 ../extensions/statusbar-features.c:100
 msgid "Enable scripts"
 msgstr "Ввімкнути скрипти"
 
-#: ../midori/midori-websettings.c:857
+#: ../midori/midori-websettings.c:859
 msgid "Enable embedded scripting languages"
 msgstr "Ввімкнути вбудовані мови скриптів"
 
-#: ../midori/midori-websettings.c:864 ../extensions/statusbar-features.c:112
+#: ../midori/midori-websettings.c:866 ../extensions/statusbar-features.c:112
 msgid "Enable Netscape plugins"
 msgstr "Ввімкнути розширення Netscape"
 
-#: ../midori/midori-websettings.c:865
+#: ../midori/midori-websettings.c:867
 msgid "Enable embedded Netscape plugin objects"
 msgstr "Ввімкнути вбудовані об’єкти розширень Netscape"
 
-#: ../midori/midori-websettings.c:881
+#: ../midori/midori-websettings.c:883
 msgid "Enable HTML5 database support"
 msgstr "Ввімкнути підтримку баз даних HTML5"
 
-#: ../midori/midori-websettings.c:882
+#: ../midori/midori-websettings.c:884
 msgid "Whether to enable HTML5 database support"
 msgstr "Чи дозволити підтримку баз даних HTML5"
 
-#: ../midori/midori-websettings.c:888
+#: ../midori/midori-websettings.c:890
 msgid "Enable HTML5 local storage support"
 msgstr "Ввімкнути підтримку локального сховища HTML5"
 
-#: ../midori/midori-websettings.c:889
+#: ../midori/midori-websettings.c:891
 msgid "Whether to enable HTML5 local storage support"
 msgstr "Чи дозволити підтримку локального сховища HTML5"
 
-#: ../midori/midori-websettings.c:897
+#: ../midori/midori-websettings.c:899
 msgid "Enable offline web application cache"
 msgstr "Ввімкнути кеш веб переглядача при роботі поза мережею"
 
-#: ../midori/midori-websettings.c:898
+#: ../midori/midori-websettings.c:900
 msgid "Whether to enable offline web application cache"
 msgstr "Чи дозволити кеш веб переглядача при роботі поза мережею"
 
-#: ../midori/midori-websettings.c:923
+#: ../midori/midori-websettings.c:925
 msgid "Zoom Text and Images"
 msgstr "Збільшувати/зменшувати текст і зображення"
 
-#: ../midori/midori-websettings.c:924
+#: ../midori/midori-websettings.c:926
 msgid "Whether to zoom text and images"
 msgstr "Чи збільшувати/зменшувати текст і зображення"
 
-#: ../midori/midori-websettings.c:939
+#: ../midori/midori-websettings.c:941
 msgid "Find inline while typing"
 msgstr "Шукати під час вписування"
 
-#: ../midori/midori-websettings.c:940
+#: ../midori/midori-websettings.c:942
 msgid "Whether to automatically find inline while typing"
 msgstr "Чи автоматично шукати при вписуванні"
 
-#: ../midori/midori-websettings.c:955
+#: ../midori/midori-websettings.c:957
 msgid "Kinetic scrolling"
 msgstr "Кінетичне прокручування"
 
-#: ../midori/midori-websettings.c:956
+#: ../midori/midori-websettings.c:958
 msgid "Whether scrolling should kinetically move according to speed"
 msgstr "Чи прокручування повинно кінетично рухатися відповідно до швидкості"
 
-#: ../midori/midori-websettings.c:964
+#: ../midori/midori-websettings.c:966
 msgid "Accept cookies"
 msgstr "Приймати тістечка"
 
-#: ../midori/midori-websettings.c:965
+#: ../midori/midori-websettings.c:967
 msgid "What type of cookies to accept"
 msgstr "Тістечка якого типу приймати"
 
-#: ../midori/midori-websettings.c:974
+#: ../midori/midori-websettings.c:976
 msgid "Maximum cookie age"
 msgstr "Тривалість життя тістечка"
 
-#: ../midori/midori-websettings.c:975
+#: ../midori/midori-websettings.c:977
 msgid "The maximum number of days to save cookies for"
 msgstr "Максимальне число днів зберігання тістечок для"
 
-#: ../midori/midori-websettings.c:984
+#: ../midori/midori-websettings.c:986
 msgid "Maximum history age"
 msgstr "Тривалість життя історії"
 
-#: ../midori/midori-websettings.c:985
+#: ../midori/midori-websettings.c:987
 msgid "The maximum number of days to save the history for"
 msgstr "Максимальне число днів зберігання історії для"
 
-#: ../midori/midori-websettings.c:993
+#: ../midori/midori-websettings.c:995
 msgid "Remember last downloaded files"
 msgstr "Запам'ятовувати останні завантажені файли"
 
-#: ../midori/midori-websettings.c:994
+#: ../midori/midori-websettings.c:996
 msgid "Whether the last downloaded files are saved"
 msgstr "Чи зберігати останні завантажені файли"
 
-#: ../midori/midori-websettings.c:1011
+#: ../midori/midori-websettings.c:1013
 msgid "Proxy server"
 msgstr "Сервер проксі"
 
-#: ../midori/midori-websettings.c:1012
+#: ../midori/midori-websettings.c:1014
 msgid "The type of proxy server to use"
 msgstr "Тип проксі-сервера для використання"
 
-#: ../midori/midori-websettings.c:1021
+#: ../midori/midori-websettings.c:1023
 msgid "HTTP Proxy Server"
 msgstr "HTTP сервер проксі"
 
-#: ../midori/midori-websettings.c:1022
+#: ../midori/midori-websettings.c:1024
 msgid "The proxy server used for HTTP connections"
 msgstr "Проксі, що використовується для HTTP з'єднань"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:1038
+#: ../midori/midori-websettings.c:1040
 msgid "Identify as"
 msgstr "Ідентифікувати як"
 
-#: ../midori/midori-websettings.c:1039
+#: ../midori/midori-websettings.c:1041
 msgid "What to identify as to web pages"
 msgstr "Що ідентифікувати для веб-сторінок"
 
-#: ../midori/midori-websettings.c:1055
+#: ../midori/midori-websettings.c:1057
 msgid "Identification string"
 msgstr "Стрічка ідентифікації"
 
-#: ../midori/midori-websettings.c:1056
+#: ../midori/midori-websettings.c:1058
 msgid "The application identification string"
 msgstr "Стрічка ідентифікації програми"
 
-#: ../midori/midori-websettings.c:1071
+#: ../midori/midori-websettings.c:1073
 msgid "Preferred languages"
 msgstr "Типові мови"
 
-#: ../midori/midori-websettings.c:1072
+#: ../midori/midori-websettings.c:1074
 msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
 msgstr "Розділений комами список бажаних мов для відображання веб-сторінок, наприклад: \"uk\", \"uk,ru,nl\" або \"en_us;q=1.0, fr-fr;q=0.667\""
 
-#: ../midori/midori-websettings.c:1087
+#: ../midori/midori-websettings.c:1089
 msgid "Clear private data"
 msgstr "Очистити приватні дані"
 
-#: ../midori/midori-websettings.c:1088
+#: ../midori/midori-websettings.c:1090
 msgid "The private data selected for deletion"
 msgstr "Приватні дані, що вибрані для очищення"
 
@@ -1611,237 +1617,237 @@ msgstr "Приватні дані, що вибрані для очищення"
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:1270 ../midori/midori-view.c:4579
-#: ../midori/midori-view.c:4583
+#: ../midori/midori-view.c:1227 ../midori/midori-view.c:4442
+#: ../midori/midori-view.c:4446
 #, c-format
 msgid "Error - %s"
 msgstr "Помилка - %s"
 
-#: ../midori/midori-view.c:1271
+#: ../midori/midori-view.c:1228
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Сторінку '%s' неможливо завантажити."
 
-#: ../midori/midori-view.c:1273
+#: ../midori/midori-view.c:1230
 msgid "Try again"
 msgstr "Спробуйте знову"
 
 #. i18n: The title of the 404 - Not found error page
-#: ../midori/midori-view.c:1292
+#: ../midori/midori-view.c:1249
 #, c-format
 msgid "Not found - %s"
 msgstr "Не знайдено - %s"
 
-#: ../midori/midori-view.c:1529 ../midori/midori-view.c:2374
+#: ../midori/midori-view.c:1433 ../midori/midori-view.c:2279
 #, c-format
 msgid "Send a message to %s"
 msgstr "Послати повідомлення до %s"
 
-#: ../midori/midori-view.c:2156 ../midori/midori-view.c:2541
+#: ../midori/midori-view.c:2061 ../midori/midori-view.c:2446
 msgid "Inspect _Element"
 msgstr "Перевірити _елемент"
 
-#: ../midori/midori-view.c:2208 ../midori/midori-view.c:2278
+#: ../midori/midori-view.c:2113 ../midori/midori-view.c:2183
 msgid "Open Link in New _Tab"
 msgstr "Відкрити посилання у новій в_кладці"
 
-#: ../midori/midori-view.c:2212
+#: ../midori/midori-view.c:2117
 msgid "Open Link in _Foreground Tab"
 msgstr "Відкривати посилання у в_кладці переднього плану"
 
-#: ../midori/midori-view.c:2213
+#: ../midori/midori-view.c:2118
 msgid "Open Link in _Background Tab"
 msgstr "Відкрити посилання у фоновій в_кладці"
 
-#: ../midori/midori-view.c:2216 ../midori/midori-view.c:2285
+#: ../midori/midori-view.c:2121 ../midori/midori-view.c:2190
 msgid "Open Link in New _Window"
 msgstr "Відкрити посилання у новому _вікні"
 
-#: ../midori/midori-view.c:2219
+#: ../midori/midori-view.c:2124
 msgid "Open Link as Web A_pplication"
 msgstr "Відкрити посилання як веб-_додаток"
 
-#: ../midori/midori-view.c:2222
+#: ../midori/midori-view.c:2127
 msgid "Copy Link de_stination"
 msgstr "Копіювати поси_лання"
 
-#: ../midori/midori-view.c:2225 ../midori/midori-view.c:2297
+#: ../midori/midori-view.c:2130 ../midori/midori-view.c:2202
 msgid "_Save Link destination"
 msgstr "Збер_ігати віддаленні посилання"
 
-#: ../midori/midori-view.c:2226 ../midori/midori-view.c:2291
+#: ../midori/midori-view.c:2131 ../midori/midori-view.c:2196
 msgid "_Download Link destination"
 msgstr "За_вантажувати віддалені посилання"
 
-#: ../midori/midori-view.c:2230 ../midori/midori-view.c:2260
-#: ../midori/midori-view.c:2302
+#: ../midori/midori-view.c:2135 ../midori/midori-view.c:2165
+#: ../midori/midori-view.c:2207
 msgid "Download with Download _Manager"
 msgstr "Завантажувати в менеджері завантажень"
 
-#: ../midori/midori-view.c:2239
+#: ../midori/midori-view.c:2144
 msgid "Open _Image in New Tab"
 msgstr "Відкрити зображення у новій _вкладці"
 
-#: ../midori/midori-view.c:2242
+#: ../midori/midori-view.c:2147
 msgid "Copy Image _Address"
 msgstr "Копіювати адрес _зображення"
 
-#: ../midori/midori-view.c:2245
+#: ../midori/midori-view.c:2150
 msgid "Save I_mage"
 msgstr "Зберегти з_ображення"
 
-#: ../midori/midori-view.c:2246
+#: ../midori/midori-view.c:2151
 msgid "Download I_mage"
 msgstr "Завантажити _зображення"
 
-#: ../midori/midori-view.c:2253
+#: ../midori/midori-view.c:2158
 msgid "Copy Video _Address"
 msgstr "Скопіювати адресу _відео"
 
-#: ../midori/midori-view.c:2256
+#: ../midori/midori-view.c:2161
 msgid "Save _Video"
 msgstr "Зберегти _відео"
 
-#: ../midori/midori-view.c:2256
+#: ../midori/midori-view.c:2161
 msgid "Download _Video"
 msgstr "Завантажити _відео"
 
-#: ../midori/midori-view.c:2319
+#: ../midori/midori-view.c:2224
 msgid "Search _with"
 msgstr "Шукати _з"
 
-#: ../midori/midori-view.c:2354 ../midori/midori-view.c:2361
+#: ../midori/midori-view.c:2259 ../midori/midori-view.c:2266
 msgid "_Search the Web"
 msgstr "_Шукати Веб"
 
-#: ../midori/midori-view.c:2382
+#: ../midori/midori-view.c:2287
 msgid "Open Address in New _Tab"
 msgstr "Відкрити адресу у новій _вкладці"
 
-#: ../midori/midori-view.c:2686
+#: ../midori/midori-view.c:2591
 msgid "Open or download file"
 msgstr "Відкрити або завантажити файл"
 
-#: ../midori/midori-view.c:2705
+#: ../midori/midori-view.c:2610
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Тип файлу: '%s'"
 
-#: ../midori/midori-view.c:2708
+#: ../midori/midori-view.c:2613
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Тип файлу: %s ('%s')"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2712
+#: ../midori/midori-view.c:2617
 #, c-format
 msgid "Open %s"
 msgstr "Відкрити %s"
 
-#: ../midori/midori-view.c:3256
+#: ../midori/midori-view.c:3158
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Перевірка сторінки - %s"
 
-#: ../midori/midori-view.c:3538
+#: ../midori/midori-view.c:3439
 msgid "Speed dial"
 msgstr "Швидкий виклик"
 
-#: ../midori/midori-view.c:3539
+#: ../midori/midori-view.c:3440
 msgid "Click to add a shortcut"
 msgstr "Клікніть щоб додати скорочення"
 
-#: ../midori/midori-view.c:3540
+#: ../midori/midori-view.c:3441
 msgid "Enter shortcut address"
 msgstr "Введіть адресу скорочення"
 
-#: ../midori/midori-view.c:3541
+#: ../midori/midori-view.c:3442
 msgid "Enter shortcut title"
 msgstr "Введіть назву скорочення"
 
-#: ../midori/midori-view.c:3542
+#: ../midori/midori-view.c:3443
 msgid "Are you sure you want to delete this shortcut?"
 msgstr "Ви впевнені, що бажаєте видалити це скорочення?"
 
-#: ../midori/midori-view.c:3543
+#: ../midori/midori-view.c:3444
 msgid "Set number of columns and rows"
 msgstr "Встановити кількість колонок і рядків"
 
-#: ../midori/midori-view.c:3544
+#: ../midori/midori-view.c:3445
 msgid "Enter number of columns and rows:"
 msgstr "Введіть кількість колонок і рядків:"
 
-#: ../midori/midori-view.c:3545
+#: ../midori/midori-view.c:3446
 msgid "Invalid input for the size of the speed dial"
 msgstr "Неправильні дані для розміру швидкого виклику"
 
-#: ../midori/midori-view.c:3546
+#: ../midori/midori-view.c:3447
 msgid "Thumb size:"
 msgstr "Розмір значка:"
 
-#: ../midori/midori-view.c:3547
+#: ../midori/midori-view.c:3448
 msgid "Small"
 msgstr "Маленький"
 
-#: ../midori/midori-view.c:3548
+#: ../midori/midori-view.c:3449
 msgid "Medium"
 msgstr "Середній"
 
-#: ../midori/midori-view.c:3549
+#: ../midori/midori-view.c:3450
 msgid "Big"
 msgstr "Великий"
 
-#: ../midori/midori-view.c:3575
+#: ../midori/midori-view.c:3476
 #, c-format
 msgid "Document cannot be displayed"
 msgstr "Не можу відобразити документ"
 
-#: ../midori/midori-view.c:3598
+#: ../midori/midori-view.c:3499
 #, c-format
 msgid "No documentation installed"
 msgstr "Документація не заінстальована"
 
-#: ../midori/midori-view.c:3719
+#: ../midori/midori-view.c:3618
 msgid "Page loading delayed"
 msgstr "Завантаження сторінки затримане"
 
-#: ../midori/midori-view.c:3720
+#: ../midori/midori-view.c:3619
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr "Завантаження затримане або в зв’язку з останнім крахом або з налаштуваннями завантаження."
 
-#: ../midori/midori-view.c:3721
+#: ../midori/midori-view.c:3620
 msgid "Load Page"
 msgstr "Завантажити сторінку"
 
-#: ../midori/midori-view.c:3865
+#: ../midori/midori-view.c:3764
 msgid "Blank page"
 msgstr "Пуста сторінка"
 
-#: ../midori/midori-view.c:4119
+#: ../midori/midori-view.c:4018
 msgid "_Duplicate Tab"
 msgstr "_Дублювати вкладку"
 
-#: ../midori/midori-view.c:4124
-msgid "_Restore Tab"
-msgstr "_Відновити вкладку"
+#: ../midori/midori-view.c:4023
+msgid "Show Tab _Label"
+msgstr "Показати мітку _вкладки"
 
-#: ../midori/midori-view.c:4124
-msgid "_Minimize Tab"
-msgstr "_Мінімізувати вкладку"
+#: ../midori/midori-view.c:4023
+msgid "Show Tab _Icon Only"
+msgstr "Показати тільки _іконки вкладки"
 
-#: ../midori/midori-view.c:4130
+#: ../midori/midori-view.c:4029
 msgid "Close ot_her Tabs"
 msgstr "_Закрити інші вкладки"
 
-#: ../midori/midori-view.c:4816
+#: ../midori/midori-view.c:4680
 msgid "Print background images"
 msgstr "Відобразити зображення тла"
 
-#: ../midori/midori-view.c:4817
+#: ../midori/midori-view.c:4681
 msgid "Whether background images should be printed"
 msgstr "Чи відобразити зображення тла"
 
-#: ../midori/midori-view.c:4869 ../midori/midori-preferences.c:384
+#: ../midori/midori-view.c:4733 ../midori/midori-preferences.c:384
 msgid "Features"
 msgstr "Опції"
 
@@ -2021,51 +2027,51 @@ msgstr "Налаштувати пошукові машини"
 msgid "Use as _default"
 msgstr "Використовувати по _замовчуванню"
 
-#: ../midori/sokoke.c:1287
+#: ../midori/sokoke.c:1303
 msgid "_Bookmark"
 msgstr "_Закладка"
 
-#: ../midori/sokoke.c:1288
+#: ../midori/sokoke.c:1304
 msgid "_Bookmarks"
 msgstr "_Закладки"
 
-#: ../midori/sokoke.c:1289
+#: ../midori/sokoke.c:1305
 msgid "Add Boo_kmark"
 msgstr "_Додати закладку"
 
-#: ../midori/sokoke.c:1290
+#: ../midori/sokoke.c:1306
 msgid "_Console"
 msgstr "_Консоль"
 
-#: ../midori/sokoke.c:1291
+#: ../midori/sokoke.c:1307
 msgid "_Extensions"
 msgstr "_Розширення"
 
-#: ../midori/sokoke.c:1292
+#: ../midori/sokoke.c:1308
 msgid "_History"
 msgstr "_Історія"
 
-#: ../midori/sokoke.c:1293
+#: ../midori/sokoke.c:1309
 msgid "_Homepage"
 msgstr "Д_омашня сторінка"
 
-#: ../midori/sokoke.c:1294
+#: ../midori/sokoke.c:1310
 msgid "_Userscripts"
 msgstr "_Скрипти користувача"
 
-#: ../midori/sokoke.c:1295
+#: ../midori/sokoke.c:1311
 msgid "New _Tab"
 msgstr "Нова _вкладка"
 
-#: ../midori/sokoke.c:1296
+#: ../midori/sokoke.c:1312
 msgid "_Transfers"
 msgstr "_Завантаження"
 
-#: ../midori/sokoke.c:1297
+#: ../midori/sokoke.c:1313
 msgid "Netscape p_lugins"
 msgstr "Роз_ширення Netscape"
 
-#: ../midori/sokoke.c:1300
+#: ../midori/sokoke.c:1316
 msgid "New _Folder"
 msgstr "Нова _тека"
 
@@ -2094,7 +2100,7 @@ msgstr "Підсвітити збіги"
 msgid "Close Findbar"
 msgstr "Закрити панель пошуку"
 
-#: ../toolbars/midori-transferbar.c:88 ../panels/midori-transfers.c:270
+#: ../toolbars/midori-transferbar.c:88 ../panels/midori-transfers.c:273
 #, c-format
 msgid "%s of %s"
 msgstr "%s з %s"
@@ -2108,7 +2114,7 @@ msgstr "Файл '<b>%s</b>' завантажено."
 msgid "Transfer completed"
 msgstr "Передачу завершено"
 
-#: ../toolbars/midori-transferbar.c:257 ../panels/midori-transfers.c:141
+#: ../toolbars/midori-transferbar.c:257 ../panels/midori-transfers.c:144
 msgid "Clear All"
 msgstr "Очистити все"
 
@@ -2128,16 +2134,10 @@ msgstr "Всі завантаження буде скасовано, якщо в
 msgid "Bookmarks"
 msgstr "Закладки"
 
-#: ../panels/midori-bookmarks.c:249
+#: ../panels/midori-bookmarks.c:275
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
 msgstr "Не вдалося дадати закладку: %s\n"
-
-#: ../panels/midori-bookmarks.c:281 ../panels/midori-history.c:142
-#: ../panels/midori-history.c:172
-#, c-format
-msgid "Failed to remove history item: %s\n"
-msgstr "Невдача при видаленні об'єкту історії: %s\n"
 
 #: ../panels/midori-bookmarks.c:414
 msgid "Edit the selected bookmark"
@@ -2151,7 +2151,7 @@ msgstr "Видалити вибрану закладку"
 msgid "Add a new folder"
 msgstr "Додати нову теку"
 
-#: ../panels/midori-bookmarks.c:568
+#: ../panels/midori-bookmarks.c:568 ../panels/midori-history.c:569
 msgid "<i>Separator</i>"
 msgstr "<i>Роздільник</i>"
 
@@ -2171,19 +2171,11 @@ msgstr "Копіювати все"
 msgid "Extensions"
 msgstr "Розширення"
 
-#: ../panels/midori-history.c:274
-msgid "Erroneous clock time"
-msgstr "Неправильний час годинника"
-
-#: ../panels/midori-history.c:275
-msgid "The clock time lies in the past. Please check the current date and time."
-msgstr "Час годинника є в минулому. Перевірте поточні дату і час."
-
-#: ../panels/midori-history.c:287
+#: ../panels/midori-history.c:146
 msgid "A week ago"
 msgstr "Тижневої давності"
 
-#: ../panels/midori-history.c:289
+#: ../panels/midori-history.c:148
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
@@ -2191,41 +2183,35 @@ msgstr[0] "%d день тому"
 msgstr[1] "%d днів тому"
 msgstr[2] "%d днів тому"
 
-#: ../panels/midori-history.c:292
+#: ../panels/midori-history.c:151
 msgid "Today"
 msgstr "Сьогодні"
 
-#: ../panels/midori-history.c:294
+#: ../panels/midori-history.c:153
 msgid "Yesterday"
 msgstr "Вчора"
 
-#: ../panels/midori-history.c:333 ../extensions/formhistory.c:468
-#: ../extensions/formhistory.c:472
-#, c-format
-msgid "Failed to execute database statement: %s\n"
-msgstr "Не вдалось виконати запит бази даних: %s\n"
-
-#: ../panels/midori-history.c:371
+#: ../panels/midori-history.c:324
 msgid "Are you sure you want to remove all history items?"
 msgstr "Ви впевнені, що бажаєте видалити всі об'єкти з історії?"
 
-#: ../panels/midori-history.c:414
+#: ../panels/midori-history.c:369
 msgid "Bookmark the selected history item"
 msgstr "Додати в закладки вибраний об'єкт історії"
 
-#: ../panels/midori-history.c:423
+#: ../panels/midori-history.c:378
 msgid "Delete the selected history item"
 msgstr "Видалити вибраний об'єкт історії"
 
-#: ../panels/midori-history.c:431
+#: ../panels/midori-history.c:386
 msgid "Clear the entire history"
 msgstr "Очистити історію"
 
-#: ../panels/midori-transfers.c:478
+#: ../panels/midori-transfers.c:481
 msgid "Open Destination _Folder"
 msgstr "Відкрити теку при_значення"
 
-#: ../panels/midori-transfers.c:481
+#: ../panels/midori-transfers.c:484
 msgid "Copy Link Loc_ation"
 msgstr "Копіювати поси_лання"
 
@@ -2267,16 +2253,17 @@ msgstr "Значок '%s' не вдається завантажити"
 msgid "Animation frames are broken"
 msgstr "Кадри анімації пошкоджені"
 
-#: ../katze/katze-utils.c:499 ../katze/katze-utils.c:894
+#: ../katze/katze-utils.c:503 ../katze/katze-utils.c:898
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "Властивості '%s' неправильні для %s"
 
-#: ../katze/katze-utils.c:545 ../katze/katze-utils.c:574
+#: ../katze/katze-utils.c:549 ../katze/katze-utils.c:578
+#: ../extensions/addons.c:119
 msgid "Choose file"
 msgstr "Вибрати файл"
 
-#: ../katze/katze-utils.c:560
+#: ../katze/katze-utils.c:564
 msgid "Choose folder"
 msgstr "Вибрати теку"
 
@@ -2322,36 +2309,74 @@ msgstr "Блокіратор реклами"
 msgid "Block advertisements according to a filter list"
 msgstr "Блокувати рекламу використовуючи список фільтрів"
 
-#: ../extensions/addons.c:122
-#, c-format
-msgid "Copy %s to the folder %s."
-msgstr "Копіювання %s до каталогу %s."
-
-#: ../extensions/addons.c:177
+#: ../extensions/addons.c:130 ../extensions/addons.c:490
 msgid "Userscripts"
 msgstr "Скрипти користувача"
 
-#: ../extensions/addons.c:179
+#: ../extensions/addons.c:135 ../extensions/addons.c:492
 msgid "Userstyles"
 msgstr "Стилі користувача"
 
-#: ../extensions/addons.c:1085
+#: ../extensions/addons.c:191 ../extensions/addons.c:267
+#: ../extensions/feed-panel/main.c:129
+msgid "Error"
+msgstr "Помилка"
+
+#: ../extensions/addons.c:231
+#, c-format
+msgid "Do you want to delete '%s'?"
+msgstr "Ви впевнені, що бажаєте видалити '%s'?"
+
+#: ../extensions/addons.c:237
+msgid "Delete user script"
+msgstr "Видалити скрипт користувача"
+
+#: ../extensions/addons.c:238
+msgid "Delete user style"
+msgstr "Видалити стиль користувача"
+
+#: ../extensions/addons.c:242
+#, c-format
+msgid "The file <b>%s</b> will be permanently deleted."
+msgstr "Файл '<b>%s</b>' буде безповоротно вилучено."
+
+#: ../extensions/addons.c:377 ../extensions/addons.c:454
+msgid "Open in Text Editor"
+msgstr "Відкрити в текстовому редакторі"
+
+#: ../extensions/addons.c:379 ../extensions/addons.c:463
+msgid "Open Target Folder"
+msgstr "Відкрити теку призначення"
+
+#: ../extensions/addons.c:445
+msgid "Add new addon"
+msgstr "Додати новий додаток"
+
+#: ../extensions/addons.c:472
+msgid "Open target folder for selected addon"
+msgstr "Відкрити теку призначення для вибраного додатку"
+
+#: ../extensions/addons.c:473
+msgid "Remove selected addon"
+msgstr "Видалити вибраний додаток"
+
+#: ../extensions/addons.c:1420
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr ""
 "Неможливо зберегти конфігурацію розширення '%s':\r\n"
 "%s\n"
 
-#: ../extensions/addons.c:1086 ../extensions/addons.c:1253
+#: ../extensions/addons.c:1421 ../extensions/addons.c:1586
 msgid "User addons"
 msgstr "Додатки користувача"
 
-#: ../extensions/addons.c:1210
+#: ../extensions/addons.c:1543
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Не можу моніторувати теку '%s': %s"
 
-#: ../extensions/addons.c:1254
+#: ../extensions/addons.c:1587
 msgid "Support for userscripts and userstyles"
 msgstr "Підтримка користувацьких скриптів і стилів"
 
@@ -2513,17 +2538,17 @@ msgstr "Видалити стрічку новин"
 msgid "_Feeds"
 msgstr "Стрічки _новин"
 
-#: ../extensions/feed-panel/feed-parse.c:192
+#: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
 msgid "Failed to find root element in feed XML data."
 msgstr "Не можу знайти початковий елемент в даних XML стрічки новин."
 
-#: ../extensions/feed-panel/feed-parse.c:232
+#: ../extensions/feed-panel/feed-parse.c:235
 #, c-format
 msgid "Unsupported feed format."
 msgstr "Формат стрічки новин не підтримується."
 
-#: ../extensions/feed-panel/feed-parse.c:262
+#: ../extensions/feed-panel/feed-parse.c:265
 #, c-format
 msgid "Failed to parse XML feed: %s"
 msgstr "Не вдалось відкрити стрічку новин XML : %s"
@@ -2544,10 +2569,6 @@ msgstr "Не можу знайти вимаганий елемент RSS \"item\
 msgid "Failed to find required RSS \"channel\" elements in XML data."
 msgstr "Не можу знайти вимаганий елемент RSS \"channel\" в даних XML"
 
-#: ../extensions/feed-panel/main.c:129
-msgid "Error"
-msgstr "Помилка"
-
 #: ../extensions/feed-panel/main.c:131
 #, c-format
 msgid "Feed '%s' already exists"
@@ -2558,33 +2579,38 @@ msgstr "Стрічка новин '%s' вже існує"
 msgid "Error loading feed '%s'"
 msgstr "Помилка завантаження стрічки новин '%s'"
 
-#: ../extensions/feed-panel/main.c:516
+#: ../extensions/feed-panel/main.c:520
 msgid "Feed Panel"
 msgstr "Панель стрічок новин"
 
-#: ../extensions/feed-panel/main.c:517
+#: ../extensions/feed-panel/main.c:521
 msgid "Read Atom/ RSS feeds"
 msgstr "Читати Atom-/ RSS стрічки новин"
 
-#: ../extensions/formhistory.c:145
+#: ../extensions/formhistory.c:142
 #, c-format
 msgid "Failed to add form value: %s\n"
 msgstr "Невдача при додаванні з значенням: %s\n"
 
-#: ../extensions/formhistory.c:517
+#: ../extensions/formhistory.c:455 ../extensions/formhistory.c:459
+#, c-format
+msgid "Failed to execute database statement: %s\n"
+msgstr "Не вдалось виконати запит бази даних: %s\n"
+
+#: ../extensions/formhistory.c:503
 msgid "Stores history of entered form data"
 msgstr "Зберігає історію введених даних форм"
 
-#: ../extensions/formhistory.c:521
+#: ../extensions/formhistory.c:507
 #, c-format
 msgid "Not available: %s"
 msgstr "Недоступно: %s"
 
-#: ../extensions/formhistory.c:522
+#: ../extensions/formhistory.c:508
 msgid "Resource files not installed"
 msgstr "Файли русурсів не встановлені"
 
-#: ../extensions/formhistory.c:528
+#: ../extensions/formhistory.c:514
 msgid "Form history filler"
 msgstr "Заповнювач історії форм"
 
@@ -2677,25 +2703,25 @@ msgstr "Властивості панелі _стану"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Просте включання і виключання перемикання функцій на веб-сторінках"
 
-#: ../extensions/tab-panel.c:568 ../extensions/tab-panel.c:625
+#: ../extensions/tab-panel.c:569 ../extensions/tab-panel.c:628
 msgid "Tab Panel"
 msgstr "Панель вкладок"
 
-#: ../extensions/tab-panel.c:609
+#: ../extensions/tab-panel.c:612
 msgid "T_ab Panel"
 msgstr "Панель в_кладок"
 
-#: ../extensions/tab-panel.c:626
+#: ../extensions/tab-panel.c:629
 msgid "Show tabs in a vertical panel"
 msgstr "Показати вкладки у вертикальній панелі"
 
 #: ../extensions/tabs-minimized.c:79
-msgid "Minimize new Tabs"
-msgstr "Мінімізувати нові вкладки"
+msgid "Only Icons on Tabs by default"
+msgstr "По замовчуванню тільки іконки на вкладках "
 
 #: ../extensions/tabs-minimized.c:80
-msgid "New tabs open minimized"
-msgstr "Нові вкладки відкриваються мінімізованими"
+msgid "New tabs have no label by default"
+msgstr "Нові вкладки по замовчуванню не будуть мати міток"
 
 #: ../extensions/toolbar-editor.c:389
 msgid "Customize Toolbar"
@@ -2728,6 +2754,27 @@ msgstr "Легко редагувати формат панелі інструм
 #: ../extensions/web-cache.c:465
 msgid "Cache HTTP communication on disk"
 msgstr "Кешувати комунікацію HTTP на диск"
+
+#~ msgid "_Restore Tab"
+#~ msgstr "_Відновити вкладку"
+
+#~ msgid "_Minimize Tab"
+#~ msgstr "_Мінімізувати вкладку"
+
+#~ msgid "Erroneous clock time"
+#~ msgstr "Неправильний час годинника"
+
+#~ msgid "The clock time lies in the past. Please check the current date and time."
+#~ msgstr "Час годинника є в минулому. Перевірте поточні дату і час."
+
+#~ msgid "Copy %s to the folder %s."
+#~ msgstr "Копіювання %s до каталогу %s."
+
+#~ msgid "Minimize new Tabs"
+#~ msgstr "Мінімізувати нові вкладки"
+
+#~ msgid "New tabs open minimized"
+#~ msgstr "Нові вкладки відкриваються мінімізованими"
 
 #~ msgid "_Recently visited pages"
 #~ msgstr "_Останньо відвідані сторінки"
