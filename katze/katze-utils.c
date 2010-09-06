@@ -1526,6 +1526,7 @@ katze_load_cached_icon (const gchar* uri,
         g_free (checksum);
         path = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME,
                                  "icons", filename, NULL);
+        g_free (filename);
         if ((icon = gdk_pixbuf_new_from_file_at_size (path, 16, 16, NULL)))
         {
             g_free (path);
