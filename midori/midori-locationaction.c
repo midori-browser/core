@@ -1065,7 +1065,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     gchar* uri_escaped;
     gchar* uri;
     gchar* title;
-    GdkColor* background;
     gboolean style;
     gchar* desc;
     gchar* desc_uri;
@@ -1085,7 +1084,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     size_t offset;
 
     gtk_tree_model_get (model, iter, URI_COL, &uri_escaped, TITLE_COL, &title,
-        BACKGROUND_COL, &background, STYLE_COL, &style, -1);
+        STYLE_COL, &style, -1);
 
     if (style) /* A search engine action */
     {
