@@ -136,21 +136,21 @@ midori_history_format_date (KatzeItem *item)
 
     /* A negative age is a date in the future, the clock is probably off */
     if (age < -1)
-        ;
+        sdate = g_strdup ("");
     else if (age > 7 || age < 0)
     {
         strftime (token, sizeof (token), "%x", localtime ((time_t*)&day));
         sdate = g_strdup (token);
     }
     else if (age > 6)
-        sdate = _("A week ago");
+        sdate = g_strdup (_("A week ago"));
     else if (age > 1)
         sdate = g_strdup_printf (ngettext ("%d day ago",
             "%d days ago", (gint)age), (gint)age);
     else if (age == 0)
-        sdate = _("Today");
+        sdate = g_strdup (_("Today"));
     else
-        sdate = _("Yesterday");
+        sdate = g_strdup (_("Yesterday"));
     return sdate;
 }
 
@@ -563,8 +563,11 @@ midori_history_treeview_render_text_cb (GtkTreeViewColumn* column,
         g_object_set (renderer, "markup", NULL,
                       "text", katze_item_get_name (item), NULL);
     else if (KATZE_ITEM_IS_FOLDER (item))
-        g_object_set (renderer, "markup", NULL,
-                      "text", midori_history_format_date (item), NULL);
+    {
+        gchar* formatted = midori_history_format_date (item);
+        g_object_set (renderer, "markup", NULL, "text", formatted, NULL);
+        g_free (formatted);
+    }
     else
         g_object_set (renderer, "markup", _("<i>Separator</i>"), NULL);
 
