@@ -83,6 +83,19 @@ midori_findbar_entry_clear_icon_released_cb (GtkIconEntry* entry,
         gtk_entry_set_text (GTK_ENTRY (entry), "");
 }
 
+static gboolean
+midori_findbar_case_sensitive (MidoriFindbar* findbar)
+{
+    /* Smart case while typing: foo or fOO lowercase, Foo or FOO uppercase */
+    if (findbar->find_typing)
+    {
+        const gchar* text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
+        return g_unichar_isupper (g_utf8_get_char (text));
+    }
+    return gtk_toggle_tool_button_get_active (
+        GTK_TOGGLE_TOOL_BUTTON (findbar->find_case));
+}
+
 void
 midori_findbar_find (MidoriFindbar* findbar,
                      gboolean       forward)
@@ -96,8 +109,7 @@ midori_findbar_find (MidoriFindbar* findbar,
         return;
 
     text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
-    case_sensitive = gtk_toggle_tool_button_get_active (
-        GTK_TOGGLE_TOOL_BUTTON (findbar->find_case));
+    case_sensitive = midori_findbar_case_sensitive (findbar);
     midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
 }
 
@@ -315,8 +327,7 @@ midori_findbar_search_text (MidoriFindbar* findbar,
             GTK_ICON_ENTRY_PRIMARY, (found) ? GTK_STOCK_FIND : GTK_STOCK_STOP);
         #endif
         text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
-        case_sensitive = gtk_toggle_tool_button_get_active (
-            GTK_TOGGLE_TOOL_BUTTON (findbar->find_case));
+        case_sensitive = midori_findbar_case_sensitive (findbar);
         midori_view_mark_text_matches (MIDORI_VIEW (view), text, case_sensitive);
         highlight = gtk_toggle_tool_button_get_active (
             GTK_TOGGLE_TOOL_BUTTON (findbar->find_highlight));
