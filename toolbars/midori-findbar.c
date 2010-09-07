@@ -170,7 +170,7 @@ midori_findbar_text_changed_cb (GtkWidget*     entry,
         GtkWidget* view = midori_browser_get_current_tab (browser);
         const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
         midori_view_unmark_text_matches (MIDORI_VIEW (view));
-        if (g_utf8_strlen (text, -1) > 2)
+        if (g_utf8_strlen (text, -1) > 1)
             midori_findbar_find (findbar, TRUE);
     }
 }
