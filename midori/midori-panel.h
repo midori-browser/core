@@ -43,10 +43,6 @@ GtkWidget*
 midori_panel_new                    (void);
 
 void
-midori_panel_set_compact            (MidoriPanel*       panel,
-                                     gboolean           compact);
-
-void
 midori_panel_set_right_aligned      (MidoriPanel*       panel,
                                      gboolean           right_aligned);
 

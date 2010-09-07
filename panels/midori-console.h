@@ -42,9 +42,6 @@ midori_console_get_type               (void);
 GtkWidget*
 midori_console_new                    (void);
 
-GtkWidget*
-midori_console_get_toolbar            (MidoriViewable*      console);
-
 void
 midori_console_add                    (MidoriConsole*       console,
                                        const gchar*         message,

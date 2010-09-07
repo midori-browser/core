@@ -571,23 +571,6 @@ midori_panel_new (void)
 }
 
 /**
- * midori_panel_set_compact:
- * @compact: %TRUE if the panel should be compact
- *
- * Determines if the panel should be compact.
- *
- * Deprecated: 0.1.9
- **/
-void
-midori_panel_set_compact (MidoriPanel* panel,
-                          gboolean     compact)
-{
-    g_return_if_fail (MIDORI_IS_PANEL (panel));
-
-    g_object_set (panel, "show-titles", !compact, NULL);
-}
-
-/**
  * midori_panel_set_right_aligned:
  * @right_aligned: %TRUE if the panel should be aligned to the right
  *

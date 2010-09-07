@@ -59,6 +59,9 @@ midori_console_get_property (GObject*    object,
                              GValue*     value,
                              GParamSpec* pspec);
 
+static GtkWidget*
+midori_console_get_toolbar (MidoriViewable* console);
+
 static void
 midori_console_class_init (MidoriConsoleClass* class)
 {
@@ -327,22 +330,9 @@ midori_console_new (void)
     return GTK_WIDGET (console);
 }
 
-/**
- * midori_console_get_toolbar:
- * @console: a #MidoriConsole
- *
- * Retrieves the toolbar of the console. A new widget is created on
- * the first call of this function.
- *
- * Return value: a toolbar widget
- *
- * Deprecated: 0.1.2: Use midori_viewable_get_toolbar() instead.
- **/
-GtkWidget*
+static GtkWidget*
 midori_console_get_toolbar (MidoriViewable* console)
 {
-    g_return_val_if_fail (MIDORI_IS_CONSOLE (console), NULL);
-
     if (!MIDORI_CONSOLE (console)->toolbar)
     {
         GtkWidget* toolbar;
