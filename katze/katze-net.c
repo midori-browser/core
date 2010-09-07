@@ -71,16 +71,7 @@ katze_net_finalize (GObject* object)
     G_OBJECT_CLASS (katze_net_parent_class)->finalize (object);
 }
 
-/**
- * katze_net_new:
- *
- * Instantiates a new #KatzeNet instance.
- *
- * Return value: a new #KatzeNet
- *
- * Deprecated: 0.2.7
- **/
-KatzeNet*
+static KatzeNet*
 katze_net_new (void)
 {
     static KatzeNet* net = NULL;
@@ -95,23 +86,6 @@ katze_net_new (void)
         g_object_ref (net);
 
     return net;
-}
-
-/**
- * katze_net_get_session:
- *
- * Retrieves the session of the net.
- *
- * Return value: a session, or %NULL
- *
- * Deprecated: 0.2.7: Use webkit_get_default_session ().
- **/
-gpointer
-katze_net_get_session (KatzeNet* net)
-{
-    g_return_val_if_fail (KATZE_IS_NET (net), NULL);
-
-    return webkit_get_default_session ();
 }
 
 typedef struct
@@ -149,8 +123,7 @@ katze_net_get_cached_path (KatzeNet*    net,
     gchar* cached_filename;
     gchar* cached_path;
 
-    if (!net)
-        net = katze_net_new ();
+    net = katze_net_new ();
 
     if (subfolder)
         cache_path = g_build_filename (net->cache_path, subfolder, NULL);
@@ -207,26 +180,11 @@ katze_net_got_body_cb (SoupMessage*  msg,
                        KatzeNetPriv* priv)
 {
     KatzeNetRequest* request;
-    #if 0
-    gchar* filename;
-    FILE* fp;
-    #endif
 
     request = priv->request;
 
     if (msg->response_body->length > 0)
     {
-        #if 0
-        /* FIXME: Caching */
-        filename = katze_net_get_cached_path (net, request->uri, NULL);
-        if ((fp = fopen (filename, "wb")))
-        {
-            fwrite (msg->response_body->data,
-                    1, msg->response_body->length, fp);
-            fclose (fp);
-        }
-        g_free (filename);
-        #endif
         request->data = g_memdup (msg->response_body->data,
                                   msg->response_body->length);
         request->length = msg->response_body->length;
@@ -340,8 +298,7 @@ katze_net_load_uri (KatzeNet*          net,
     if (!status_cb && !transfer_cb)
         return;
 
-    if (net == NULL)
-        net = katze_net_new ();
+    net = katze_net_new ();
 
     request = g_new0 (KatzeNetRequest, 1);
     request->uri = g_strdup (uri);

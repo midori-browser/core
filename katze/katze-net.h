@@ -37,12 +37,6 @@ typedef struct _KatzeNetClass           KatzeNetClass;
 GType
 katze_net_get_type                       (void) G_GNUC_CONST;
 
-KatzeNet*
-katze_net_new                            (void);
-
-gpointer
-katze_net_get_session                    (KatzeNet*          net);
-
 typedef enum
 {
     KATZE_NET_VERIFIED,
