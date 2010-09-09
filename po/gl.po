@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori-0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-01 10:08+0000\n"
+"POT-Creation-Date: 2010-09-09 10:08+0000\n"
 "PO-Revision-Date: 2010-02-08 21:51+0100\n"
 "Last-Translator: Leandro Regueiro <leandro.regueiro@gmail.com>\n"
 "Language-Team: Galician <proxecto@trasno.net>\n"
@@ -380,18 +380,18 @@ msgid "Failed to insert new history item: %s\n"
 msgstr "Produciuse un erro ao inserir un novo elemento no historial: %s\n"
 
 #: ../midori/midori-browser.c:3843 ../panels/midori-bookmarks.c:721
-#: ../panels/midori-history.c:734
+#: ../panels/midori-history.c:737
 msgid "Open all in _Tabs"
 msgstr "Abrir todo en  _lapelas"
 
 #: ../midori/midori-browser.c:3850 ../panels/midori-bookmarks.c:727
-#: ../panels/midori-history.c:740 ../extensions/feed-panel/feed-panel.c:544
+#: ../panels/midori-history.c:743 ../extensions/feed-panel/feed-panel.c:544
 msgid "Open in New _Tab"
 msgstr "Abrir nunha nova _lapela"
 
 #: ../midori/midori-browser.c:3853 ../midori/midori-view.c:2338
 #: ../midori/midori-view.c:4014 ../panels/midori-bookmarks.c:729
-#: ../panels/midori-history.c:742 ../extensions/feed-panel/feed-panel.c:546
+#: ../panels/midori-history.c:745 ../extensions/feed-panel/feed-panel.c:546
 msgid "Open in New _Window"
 msgstr "Abrir nunha nova  _fiestra"
 
@@ -1020,13 +1020,13 @@ msgstr "Buscar %s"
 msgid "Search with %s"
 msgstr "Buscar con %s"
 
-#: ../midori/midori-locationaction.c:1307
+#: ../midori/midori-locationaction.c:1306
 #, c-format
 msgid "Failed to execute database statement\n"
 msgstr "Produciuse un erro ao executar a instrución de base de datos\n"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1363
+#: ../midori/midori-locationaction.c:1362
 msgid "Paste and p_roceed"
 msgstr "Pegar e _continuar"
 
@@ -1035,7 +1035,7 @@ msgid "Detach chosen panel from the window"
 msgstr "Separar o panel seleccionado da fiestra "
 
 #: ../midori/midori-panel.c:424 ../midori/midori-panel.c:426
-#: ../midori/midori-panel.c:613 ../midori/midori-panel.c:616
+#: ../midori/midori-panel.c:596 ../midori/midori-panel.c:599
 msgid "Align sidepanel to the right"
 msgstr "Aliñar o panel lateral á dereita"
 
@@ -1043,11 +1043,11 @@ msgstr "Aliñar o panel lateral á dereita"
 msgid "Close panel"
 msgstr "Pechar o panel"
 
-#: ../midori/midori-panel.c:614 ../midori/midori-panel.c:617
+#: ../midori/midori-panel.c:597 ../midori/midori-panel.c:600
 msgid "Align sidepanel to the left"
 msgstr "Aliñar o panel lateral á esquerda"
 
-#: ../midori/midori-panel.c:771
+#: ../midori/midori-panel.c:754
 msgid "Hide operating controls"
 msgstr "Ocultar os controis de operación"
 
@@ -2085,27 +2085,27 @@ msgid "New _Folder"
 msgstr "Cartafol _novo"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../toolbars/midori-findbar.c:201
+#: ../toolbars/midori-findbar.c:213
 msgid "_Inline Find:"
 msgstr "_Busca en liña:"
 
-#: ../toolbars/midori-findbar.c:233
+#: ../toolbars/midori-findbar.c:245
 msgid "Previous"
 msgstr "Anterior"
 
-#: ../toolbars/midori-findbar.c:239
+#: ../toolbars/midori-findbar.c:251
 msgid "Next"
 msgstr "Seguinte"
 
-#: ../toolbars/midori-findbar.c:243
+#: ../toolbars/midori-findbar.c:255
 msgid "Match Case"
 msgstr "Diferenciar maiúsculas de minúsculas"
 
-#: ../toolbars/midori-findbar.c:252
+#: ../toolbars/midori-findbar.c:264
 msgid "Highlight Matches"
 msgstr "Resaltar coincidencias"
 
-#: ../toolbars/midori-findbar.c:263
+#: ../toolbars/midori-findbar.c:275
 msgid "Close Findbar"
 msgstr "Pechar a barra de buscas"
 
@@ -2160,19 +2160,19 @@ msgstr "Borrar o marcador seleccionado"
 msgid "Add a new folder"
 msgstr "Engadir un cartafol novo"
 
-#: ../panels/midori-bookmarks.c:568 ../panels/midori-history.c:569
+#: ../panels/midori-bookmarks.c:568 ../panels/midori-history.c:572
 msgid "<i>Separator</i>"
 msgstr "<i>Separador</i>"
 
-#: ../panels/midori-console.c:87
+#: ../panels/midori-console.c:90
 msgid "Console"
 msgstr "Consola"
 
-#: ../panels/midori-console.c:361
+#: ../panels/midori-console.c:351
 msgid "Copy _All"
 msgstr "Copiar _todo"
 
-#: ../panels/midori-console.c:362
+#: ../panels/midori-console.c:352
 msgid "Copy All"
 msgstr "Copiar todo"
 
@@ -2317,11 +2317,11 @@ msgstr "Bloqueo de publicidade"
 msgid "Block advertisements according to a filter list"
 msgstr "Bloquear a publicidade de acordo cunha lista de filtros"
 
-#: ../extensions/addons.c:130 ../extensions/addons.c:377
+#: ../extensions/addons.c:130 ../extensions/addons.c:490
 msgid "Userscripts"
 msgstr "Scripts de usuario"
 
-#: ../extensions/addons.c:135 ../extensions/addons.c:379
+#: ../extensions/addons.c:135 ../extensions/addons.c:492
 msgid "Userstyles"
 msgstr "Estilos de usuario"
 
@@ -2348,21 +2348,41 @@ msgstr "Borrar estilo de usuario"
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "Borrouse de forma permanente o ficheiro <b>%s</b>."
 
-#: ../extensions/addons.c:1299
+#: ../extensions/addons.c:377 ../extensions/addons.c:454
+msgid "Open in Text Editor"
+msgstr "Abrir nun editor de texto"
+
+#: ../extensions/addons.c:379 ../extensions/addons.c:463
+msgid "Open Target Folder"
+msgstr "Abrir o cartafol de destino"
+
+#: ../extensions/addons.c:445
+msgid "Add new addon"
+msgstr "Engadir un novo complemento"
+
+#: ../extensions/addons.c:472
+msgid "Open target folder for selected addon"
+msgstr "Abrir o cartafol destino para o complemento seleccionado"
+
+#: ../extensions/addons.c:473
+msgid "Remove selected addon"
+msgstr "Eliminar o complemento seleccionado"
+
+#: ../extensions/addons.c:1420
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Non se puido gardar a configuración da extensión '%s': %s\n"
 
-#: ../extensions/addons.c:1300 ../extensions/addons.c:1465
+#: ../extensions/addons.c:1421 ../extensions/addons.c:1586
 msgid "User addons"
 msgstr "Complementos de usuario"
 
-#: ../extensions/addons.c:1422
+#: ../extensions/addons.c:1543
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Non se pode monitorizar o cartafol '%s': %s"
 
-#: ../extensions/addons.c:1466
+#: ../extensions/addons.c:1587
 msgid "Support for userscripts and userstyles"
 msgstr "Compatibilidade para scripts e estilos de usuario"
 
