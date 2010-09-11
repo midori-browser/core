@@ -479,6 +479,12 @@ katze_array_get_items (KatzeArray* array)
     return g_list_copy (array->items);
 }
 
+GList*
+katze_array_peek_items (KatzeArray* array)
+{
+    return array->items;
+}
+
 /**
  * katze_array_clear:
  * @array: a #KatzeArray

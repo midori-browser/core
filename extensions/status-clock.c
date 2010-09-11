@@ -131,10 +131,9 @@ clock_deactivate_cb (MidoriExtension* extension,
     KatzeArray* browsers;
     MidoriBrowser* browser;
     GtkWidget* label;
-    guint i = 0;
 
     browsers = katze_object_get_object (app, "browsers");
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
     {
         clock_browser_destroy_cb (browser, NULL);
         label = g_object_get_data (G_OBJECT (browser), "clock-label");
@@ -155,10 +154,9 @@ clock_activate_cb (MidoriExtension* extension,
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i = 0;
 
     browsers = katze_object_get_object (app, "browsers");
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         clock_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (clock_app_add_browser_cb), extension);

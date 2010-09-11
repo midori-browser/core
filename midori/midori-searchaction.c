@@ -436,7 +436,6 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
 {
     KatzeArray* search_engines;
     GtkWidget* menu;
-    guint i;
     GtkWidget* menuitem;
     KatzeItem* item;
     GdkPixbuf* icon;
@@ -447,10 +446,9 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
 
     search_engines = MIDORI_SEARCH_ACTION (action)->search_engines;
     menu = gtk_menu_new ();
-    i = 0;
-    if ((item = katze_array_get_nth_item (search_engines, i)))
+    if (!katze_array_is_empty (search_engines))
     {
-        do
+        KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
         {
             const gchar* icon_name;
 
@@ -477,7 +475,6 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
                 G_CALLBACK (midori_search_action_engine_activate_cb), action);
             gtk_widget_show (menuitem);
         }
-        while ((item = katze_array_get_nth_item (search_engines, ++i)));
     }
     else
     {
@@ -1304,7 +1301,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_box_pack_start (GTK_BOX (hbox), scrolled, TRUE, TRUE, 5);
     i = 0;
     if (search_action->search_engines)
-    while ((item = katze_array_get_nth_item (search_action->search_engines, i)))
+    KATZE_ARRAY_FOREACH_ITEM (item, search_action->search_engines)
         gtk_list_store_insert_with_values (GTK_LIST_STORE (liststore),
                                            NULL, i++, 0, item, -1);
     g_object_unref (liststore);

@@ -315,7 +315,6 @@ CookieManager *cookie_manager_new(MidoriExtension *extension, MidoriApp *app)
 {
 	CookieManager *cm;
 	CookieManagerPrivate *priv;
-	guint i;
 	KatzeArray *browsers;
 	MidoriBrowser *browser;
 
@@ -327,8 +326,7 @@ CookieManager *cookie_manager_new(MidoriExtension *extension, MidoriApp *app)
 
 	/* add the cookie manager panel page to existing browsers */
 	browsers = katze_object_get_object(app, "browsers");
-	i = 0;
-	while ((browser = katze_array_get_nth_item(browsers, i++)))
+	KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
 		cookie_manager_app_add_browser_cb(app, browser, cm);
 	g_object_unref(browsers);
 

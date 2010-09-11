@@ -157,18 +157,18 @@ feed_save_items (MidoriExtension* extension,
 {
     KatzeItem* item;
     gchar** sfeeds;
-    gint i;
-    gint n;
+    gint i, n;
 
     g_return_if_fail (KATZE_IS_ARRAY (feed));
 
     n = katze_array_get_length (feed);
     sfeeds = g_new (gchar*, n + 1);
 
-    for (i = 0; i < n; i++)
+    i = 0;
+    KATZE_ARRAY_FOREACH_ITEM (item, feed)
     {
-        item = katze_array_get_nth_item (feed, i);
         sfeeds[i] = (gchar*) katze_item_get_uri (KATZE_ITEM (item));
+        i++;
     }
     sfeeds[n] = NULL;
 
@@ -498,11 +498,9 @@ feed_activate_cb (MidoriExtension* extension,
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i;
 
     browsers = katze_object_get_object (app, "browsers");
-    i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         feed_app_add_browser_cb (app, browser, extension);
     g_object_unref (browsers);
 

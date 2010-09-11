@@ -271,7 +271,6 @@ feed_panel_disconnect_feed (FeedPanel*  panel,
                             KatzeArray* feed)
 {
     KatzeItem* item;
-    guint i;
 
     g_return_if_fail (KATZE_IS_ARRAY (feed));
 
@@ -282,8 +281,7 @@ feed_panel_disconnect_feed (FeedPanel*  panel,
     g_signal_handlers_disconnect_by_func (feed,
             feed_panel_move_item_cb, panel);
 
-    i = 0;
-    while ((item = katze_array_get_nth_item (feed, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, feed)
     {
         if (KATZE_IS_ARRAY (item))
             feed_panel_disconnect_feed (panel, KATZE_ARRAY (item));

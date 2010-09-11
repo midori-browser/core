@@ -80,6 +80,17 @@ katze_array_move_item              (KatzeArray*   array,
 GList*
 katze_array_get_items              (KatzeArray*   array);
 
+GList*
+katze_array_peek_items             (KatzeArray*   array);
+
+GList* kalistglobal;
+#define KATZE_ARRAY_FOREACH_ITEM(kaitem, kaarray) \
+    for (kalistglobal = katze_array_peek_items (kaarray), \
+         kaitem = kalistglobal ? kalistglobal->data : NULL; \
+         kalistglobal != NULL; \
+         kalistglobal = g_list_next (kalistglobal), \
+         kaitem = kalistglobal ? kalistglobal->data : NULL)
+
 void
 katze_array_clear                  (KatzeArray*   array);
 

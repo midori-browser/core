@@ -486,9 +486,9 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
     if (action->search_engines)
     {
-        gint i = 0;
         KatzeItem* item;
-        while ((item = katze_array_get_nth_item (action->search_engines, i)))
+        i = 0;
+        KATZE_ARRAY_FOREACH_ITEM (item, action->search_engines)
         {
             gchar* uri;
             gchar* title;

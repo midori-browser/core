@@ -1447,13 +1447,12 @@ addons_deactivate_cb (MidoriExtension* extension,
     KatzeArray* browsers;
     MidoriBrowser* browser;
     GSource* source;
-    guint i = 0;
 
     addons_disable_monitors (extension);
     addons_save_settings (NULL, extension);
 
     browsers = katze_object_get_object (app, "browsers");
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         addons_browser_destroy (browser, extension);
 
     source = g_object_get_data (G_OBJECT (extension), "monitor-timer");
@@ -1556,7 +1555,6 @@ addons_activate_cb (MidoriExtension* extension,
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i;
 
     browsers = katze_object_get_object (app, "browsers");
     addons_update_elements (extension, ADDONS_USER_STYLES);
@@ -1564,8 +1562,7 @@ addons_activate_cb (MidoriExtension* extension,
     addons_update_elements (extension, ADDONS_USER_SCRIPTS);
     addons_monitor_directories (extension, ADDONS_USER_SCRIPTS);
 
-    i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         addons_app_add_browser_cb (app, browser, extension);
     g_object_unref (browsers);
 

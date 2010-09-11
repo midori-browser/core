@@ -244,8 +244,7 @@ settings_save_to_file (MidoriWebSettings* settings,
 
     if (extensions)
     {
-        i = 0;
-        while ((extension = katze_array_get_nth_item (extensions, i++)))
+        KATZE_ARRAY_FOREACH_ITEM (extension, extensions)
             if (midori_extension_is_active (extension))
                 g_key_file_set_boolean (key_file, "extensions",
                     g_object_get_data (G_OBJECT (extension), "filename"), TRUE);
@@ -315,7 +314,7 @@ search_engines_save_to_file (KatzeArray*  search_engines,
                              GError**     error)
 {
     GKeyFile* key_file;
-    guint i, j, n_properties;
+    guint j, n_properties;
     KatzeItem* item;
     const gchar* name;
     GParamSpec** pspecs;
@@ -326,8 +325,7 @@ search_engines_save_to_file (KatzeArray*  search_engines,
     key_file = g_key_file_new ();
     pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (search_engines),
                                              &n_properties);
-    i = 0;
-    while ((item = katze_array_get_nth_item (search_engines, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
     {
         name = katze_item_get_name (item);
         for (j = 0; j < n_properties; j++)
@@ -508,8 +506,7 @@ static void
 midori_session_add_delay (KatzeArray* session)
 {
     KatzeItem* item;
-    gint i = 0;
-    while ((item = katze_array_get_nth_item (session, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, session)
         katze_item_set_meta_integer (item, "delay", 1);
 }
 
@@ -1196,9 +1193,8 @@ midori_browser_action_last_session_activate_cb (GtkAction*     action,
     GError* error = NULL;
     if (midori_array_from_file (old_session, config_file, "xbel", &error))
     {
-        guint i = 0;
         KatzeItem* item;
-        while ((item = katze_array_get_nth_item (old_session, i++)))
+        KATZE_ARRAY_FOREACH_ITEM (item, old_session)
             midori_browser_add_item (browser, item);
     }
     else
@@ -1223,7 +1219,6 @@ midori_load_session (gpointer data)
     gchar* config_file;
     KatzeArray* session;
     KatzeItem* item;
-    guint i;
     gint64 current;
     MidoriStartup load_on_startup;
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
@@ -1277,8 +1272,7 @@ midori_load_session (gpointer data)
         midori_session_add_delay (_session);
 
     session = midori_browser_get_proxy_array (browser);
-    i = 0;
-    while ((item = katze_array_get_nth_item (_session, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, _session)
     {
         g_object_set_data (G_OBJECT (item), "midori-view-append", (void*)1);
         midori_browser_add_item (browser, item);
@@ -2056,8 +2050,7 @@ main (int    argc,
             G_CALLBACK (midori_search_engines_modify_cb), search_engines);
         if (!katze_array_is_empty (search_engines))
         {
-            i = 0;
-            while ((item = katze_array_get_nth_item (search_engines, i++)))
+            KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
                 g_signal_connect_after (item, "notify",
                     G_CALLBACK (midori_search_engines_modify_cb), search_engines);
         }

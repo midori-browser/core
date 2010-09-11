@@ -281,14 +281,12 @@ mouse_gestures_activate_cb (MidoriExtension* extension,
 {
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i;
 
     gesture = mouse_gesture_new ();
     gesture->button = midori_extension_get_integer (extension, "button");
 
     browsers = katze_object_get_object (app, "browsers");
-    i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         mouse_gestures_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (mouse_gestures_app_add_browser_cb), extension);

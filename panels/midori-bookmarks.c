@@ -131,13 +131,12 @@ midori_bookmarks_export_array_db (sqlite3*     db,
     KatzeArray* root_array;
     KatzeArray* subarray;
     KatzeItem* item;
-    int i = 0;
 
     sqlcmd = g_strdup_printf ("SELECT * FROM bookmarks where folder='%s'", folder);
     root_array = katze_array_from_sqlite (db, sqlcmd);
     g_free (sqlcmd);
 
-    while ((item = katze_array_get_nth_item (KATZE_ARRAY (root_array), i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, root_array)
     {
         if (KATZE_ITEM_IS_FOLDER (item))
         {
@@ -156,17 +155,12 @@ midori_bookmarks_import_array_db (sqlite3*     db,
                                   KatzeArray*  array,
                                   const gchar* folder)
 {
-    GList* list = NULL;
-    GList* bookmarks;
+    KatzeItem* item;
 
-    bookmarks = katze_array_get_items ((KatzeArray*)array);
-    for (list = bookmarks; list != NULL; list = g_list_next (list))
+    KATZE_ARRAY_FOREACH_ITEM (item, array)
     {
-        KatzeItem* item;
-
-        if (KATZE_IS_ARRAY (list->data))
-            midori_bookmarks_import_array_db (db, list->data, folder);
-        item = (KatzeItem*) list->data;
+        if (KATZE_IS_ARRAY (item))
+            midori_bookmarks_import_array_db (db, KATZE_ARRAY (item), folder);
         midori_bookmarks_insert_item_db (db, item, folder);
     }
 }
@@ -660,11 +654,10 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
     {
         KatzeItem* child;
         KatzeArray* array;
-        guint i = 0;
 
         array = midori_bookmarks_read_from_db (bookmarks, katze_item_get_name (item), NULL);
         g_return_if_fail (KATZE_IS_ARRAY (array));
-        while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
+        KATZE_ARRAY_FOREACH_ITEM (child, array)
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
@@ -674,7 +667,6 @@ midori_bookmarks_open_in_tab_activate_cb (GtkWidget*       menuitem,
                 n = midori_browser_add_item (browser, child);
                 midori_browser_set_current_page_smartly (browser, n);
             }
-            i++;
         }
     }
     else if ((uri = katze_item_get_uri (item)) && *uri)

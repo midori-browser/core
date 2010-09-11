@@ -3764,16 +3764,14 @@ midori_browser_bookmark_open_in_tab_activate_cb (GtkWidget*     menuitem,
     if (KATZE_IS_ARRAY (item))
     {
         KatzeItem* child;
-        guint i = 0;
 
-        while ((child = katze_array_get_nth_item (KATZE_ARRAY (item), i)))
+        KATZE_ARRAY_FOREACH_ITEM (child, KATZE_ARRAY (item))
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
                 n = midori_browser_add_item (browser, child);
                 midori_browser_set_current_page_smartly (browser, n);
             }
-            i++;
         }
     }
     else
@@ -4016,8 +4014,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     sqlcmd = "SELECT title from bookmarks where uri=''";
     bookmarkdirs = katze_array_from_sqlite (db, sqlcmd);
-    i = 0;
-    while ((item = katze_array_get_nth_item (bookmarkdirs, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, bookmarkdirs)
     {
         const gchar* name = katze_item_get_name (item);
         gtk_combo_box_append_text (combobox_folder, name);
@@ -6145,16 +6142,13 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     if (browser->search_engines)
     {
-        guint i;
-
         item = katze_array_get_nth_item (browser->search_engines,
                                          last_web_search);
         if (item)
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
-        i = 0;
-        while ((item = katze_array_get_nth_item (browser->search_engines, i++)))
+        KATZE_ARRAY_FOREACH_ITEM (item, browser->search_engines)
             if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
             {
                 midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (
@@ -6330,7 +6324,6 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
     const gchar* sqlcmd;
     KatzeArray* array;
     KatzeItem* item;
-    gint i = 0;
 
     midori_bookmarkbar_clear (browser->bookmarkbar);
 
@@ -6353,7 +6346,7 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
         return;
     }
 
-    while ((item = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
+    KATZE_ARRAY_FOREACH_ITEM (item, array)
     {
         if (KATZE_ITEM_IS_BOOKMARK (item))
             midori_bookmarkbar_insert_item (browser->bookmarkbar, item);
@@ -6369,7 +6362,6 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
             midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
             g_free (subsqlcmd);
         }
-        i++;
     }
     _action_set_sensitive (browser, "BookmarkAdd", TRUE);
     _action_set_sensitive (browser, "BookmarkFolderAdd", TRUE);
@@ -6476,8 +6468,6 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_SEARCH_ENGINES:
     {
-        guint i;
-
         /* FIXME: Disconnect handlers */
         katze_object_assign (browser->search_engines, g_value_dup_object (value));
         if (katze_object_get_boolean (browser->settings,
@@ -6498,8 +6488,7 @@ midori_browser_set_property (GObject*      object,
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
-            i = 0;
-            while ((item = katze_array_get_nth_item (browser->search_engines, i++)))
+            KATZE_ARRAY_FOREACH_ITEM (item, browser->search_engines)
                 if (!g_strcmp0 (katze_item_get_uri (item), browser->location_entry_search))
                 {
                     midori_search_action_set_default_item (MIDORI_SEARCH_ACTION (

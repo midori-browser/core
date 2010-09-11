@@ -167,7 +167,6 @@ midori_extensions_set_property (GObject*      object,
     {
         KatzeArray* array;
         MidoriExtension* extension;
-        guint i;
 
         /* FIXME: Handle NULL and subsequent assignments */
         extensions->app = g_value_get_object (value);
@@ -175,8 +174,7 @@ midori_extensions_set_property (GObject*      object,
         g_signal_connect (array, "add-item",
             G_CALLBACK (midori_extensions_add_item_cb), extensions);
 
-        i = 0;
-        while ((extension = katze_array_get_nth_item (array, i++)))
+        KATZE_ARRAY_FOREACH_ITEM (extension, array)
             midori_extensions_add_item_cb (array, extension, extensions);
 
         /* Hide if there are no extensions at all */
@@ -379,10 +377,9 @@ midori_extensions_finalize (GObject* object)
 {
     MidoriExtensions* extensions = MIDORI_EXTENSIONS (object);
     KatzeArray* array = katze_object_get_object (extensions->app, "extensions");
-    guint i = 0;
     MidoriExtension* extension;
 
-    while ((extension = katze_array_get_nth_item (array, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (extension, array)
     {
         g_signal_handlers_disconnect_by_func (extension,
             midori_extensions_extension_activate_cb, extensions);

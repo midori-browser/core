@@ -425,7 +425,6 @@ formhistory_activate_cb (MidoriExtension* extension,
     char* errmsg = NULL, *errmsg2 = NULL;
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i;
 
     global_keys = g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify)g_free,
@@ -464,8 +463,7 @@ formhistory_activate_cb (MidoriExtension* extension,
     }
 
     browsers = katze_object_get_object (app, "browsers");
-    i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         formhistory_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (formhistory_app_add_browser_cb), extension);

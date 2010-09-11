@@ -589,7 +589,6 @@ string_append_item (GString*   string,
     metadata = katze_item_metadata_to_xbel (item);
     if (KATZE_IS_ARRAY (item))
     {
-        guint i = 0;
         KatzeItem* _item;
         KatzeArray* array = KATZE_ARRAY (item);
 
@@ -597,7 +596,7 @@ string_append_item (GString*   string,
         /* FIXME: " folded=\"no\" */
         string_append_xml_element (string, "title", katze_item_get_name (item));
         string_append_xml_element (string, "desc", katze_item_get_text (item));
-        while ((_item = katze_array_get_nth_item (array, i++)))
+        KATZE_ARRAY_FOREACH_ITEM (_item, array)
             string_append_item (string, _item);
         g_string_append (string, metadata);
         g_string_append (string, "</folder>\n");
@@ -679,7 +678,6 @@ katze_array_to_xbel (KatzeArray* array,
                      GError**    error)
 {
     gchar* metadata = katze_item_metadata_to_xbel (KATZE_ITEM (array));
-    guint i;
     KatzeItem* item;
 
     GString* markup = g_string_new (
@@ -693,8 +691,7 @@ katze_array_to_xbel (KatzeArray* array,
     string_append_xml_element (markup, "title", katze_item_get_name (KATZE_ITEM (array)));
     string_append_xml_element (markup, "desc", katze_item_get_text (KATZE_ITEM (array)));
     g_string_append (markup, metadata);
-    i = 0;
-    while ((item = katze_array_get_nth_item (array, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (item, array)
         string_append_item (markup, item);
     g_string_append (markup, "</xbel>\n");
 

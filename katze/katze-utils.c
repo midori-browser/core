@@ -1136,9 +1136,8 @@ katze_bookmark_populate_tree_view (KatzeArray*   array,
     KatzeItem* child;
     GtkTreeIter iter;
     GtkTreeIter root_iter;
-    guint i = 0;
 
-    while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i)))
+    KATZE_ARRAY_FOREACH_ITEM (child, array)
     {
         if (KATZE_ITEM_IS_BOOKMARK (child))
         {
@@ -1155,7 +1154,6 @@ katze_bookmark_populate_tree_view (KatzeArray*   array,
             gtk_tree_store_insert_with_values (model, &iter, &root_iter,
                                                0, 0, NULL, -1);
         }
-        i++;
     }
 }
 

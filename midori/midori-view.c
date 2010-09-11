@@ -2226,7 +2226,7 @@ midori_view_populate_popup (MidoriView* view,
             gtk_menu_shell_insert (menu_shell, menuitem, 1);
 
             search_engines = katze_object_get_object (window, "search-engines");
-            while ((item = katze_array_get_nth_item (search_engines, i++)))
+            KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
             {
                 GdkPixbuf* pixbuf;
                 const gchar* icon_name;
@@ -2246,11 +2246,12 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_image_menu_item_set_always_show_image (
                     GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
                 #endif
-                gtk_menu_shell_insert (GTK_MENU_SHELL (sub_menu), menuitem, i - 1);
+                gtk_menu_shell_insert (GTK_MENU_SHELL (sub_menu), menuitem, i);
                 g_object_set_data (G_OBJECT (menuitem), "search",
                                    (gchar*)katze_item_get_uri (item));
                 g_signal_connect (menuitem, "activate",
                     G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
+                i++;
             }
             g_object_unref (search_engines);
         }

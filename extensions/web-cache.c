@@ -438,7 +438,6 @@ web_cache_activate_cb (MidoriExtension* extension,
     const gchar* cache_path = midori_extension_get_string (extension, "path");
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    guint i;
     SoupSession* session = webkit_get_default_session ();
 
     katze_mkdir_with_parents (cache_path, 0700);
@@ -446,8 +445,7 @@ web_cache_activate_cb (MidoriExtension* extension,
                       G_CALLBACK (web_cache_session_request_queued_cb), extension);
 
     browsers = katze_object_get_object (app, "browsers");
-    i = 0;
-    while ((browser = katze_array_get_nth_item (browsers, i++)))
+    KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         web_cache_app_add_browser_cb (app, browser, extension);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (web_cache_app_add_browser_cb), extension);

@@ -668,7 +668,6 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
         gchar* sqlcmd;
         KatzeItem* child;
         KatzeArray* array;
-        guint i = 0;
 
         db = g_object_get_data (G_OBJECT (history->array), "db");
         sqlcmd = g_strdup_printf ("SELECT uri, title, date, day "
@@ -677,7 +676,7 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
                  (int)katze_item_get_added (item));
         array = katze_array_from_sqlite (db, sqlcmd);
         g_free (sqlcmd);
-        while ((child = katze_array_get_nth_item (KATZE_ARRAY (array), i++)))
+        KATZE_ARRAY_FOREACH_ITEM (child, KATZE_ARRAY (array))
         {
             if ((uri = katze_item_get_uri (child)) && *uri)
             {
