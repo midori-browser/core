@@ -1120,7 +1120,7 @@ midori_load_extensions (gpointer data)
                 GModule* module;
                 typedef MidoriExtension* (*extension_init_func)(void);
                 extension_init_func extension_init;
-                MidoriExtension* extension;
+                MidoriExtension* extension = NULL;
 
                 /* Ignore files which don't have the correct suffix */
                 if (!g_str_has_suffix (filename, G_MODULE_SUFFIX))
