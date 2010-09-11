@@ -339,7 +339,7 @@ secondary_icon_released_cb (GtkAction*     action,
                 MidoriPanel* panel = katze_object_get_object (priv->browser, "panel");
                 gint i = midori_panel_page_num (panel, priv->panel);
                 midori_panel_set_current_page (panel, i);
-                gtk_widget_show (panel);
+                gtk_widget_show (GTK_WIDGET (panel));
                 g_object_unref (panel);
                 feed_save_items (priv->extension, priv->feeds);
                 update_feed (priv, KATZE_ITEM (feed));
