@@ -545,7 +545,6 @@ midori_location_action_popup_completion (MidoriLocationAction* action,
         G_CALLBACK (gtk_widget_destroyed), &action->entry);
     action->completion_timeout = g_timeout_add (COMPLETION_DELAY,
         midori_location_action_popup_timeout_cb, action);
-    /* TODO: Inline completion */
 }
 
 static void

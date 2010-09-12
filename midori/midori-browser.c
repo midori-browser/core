@@ -2131,7 +2131,6 @@ _action_private_browsing_activate (GtkAction*     action,
     const gchar* uri = midori_browser_get_current_uri (browser);
     if (uri != NULL)
     {
-        /* FIXME: Use the same binary that is running right now */
         if (*uri != '\0')
             midori_browser_spawn_app (uri);
         else
@@ -2748,7 +2747,6 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
     if (!uri_fixed)
         uri_fixed = g_strdup (uri);
 
-    /* FIXME: Use the same binary that is running right now */
     if (katze_item_get_meta_boolean (item, "app"))
         midori_browser_spawn_app (uri_fixed);
     else
@@ -3225,7 +3223,6 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
                 fclose (fp);
                 if ((ret - request->length) != 0)
                 {
-                    /* FIXME: Show an error in the graphical interface */
                     g_warning ("Error writing to file %s "
                                "in midori_browser_source_transfer_cb()", filename);
                 }
@@ -3279,7 +3276,6 @@ _action_source_view_activate (GtkAction*     action,
         #else
         GError* error = NULL;
 
-        /* FIXME: Handling http transparently in the function would be nice */
         if (g_str_has_prefix (uri, "file://"))
         {
             if (!sokoke_show_uri_with_mime_type (gtk_widget_get_screen (view),
@@ -5577,7 +5573,6 @@ midori_browser_init (MidoriBrowser* browser)
     error = NULL;
     if (!gtk_ui_manager_add_ui_from_string (ui_manager, ui_markup, -1, &error))
     {
-        /* TODO: Should this be a message dialog? When does this happen? */
         g_message ("User interface couldn't be created: %s", error->message);
         g_error_free (error);
     }

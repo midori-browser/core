@@ -777,23 +777,18 @@ midori_app_set_property (GObject*      object,
         break;
     case PROP_SETTINGS:
         katze_object_assign (app->settings, g_value_dup_object (value));
-        /* FIXME: Propagate settings to all browsers */
         break;
     case PROP_BOOKMARKS:
         katze_object_assign (app->bookmarks, g_value_dup_object (value));
-        /* FIXME: Propagate bookmarks to all browsers */
         break;
     case PROP_TRASH:
         katze_object_assign (app->trash, g_value_dup_object (value));
-        /* FIXME: Propagate trash to all browsers */
         break;
     case PROP_SEARCH_ENGINES:
         katze_object_assign (app->search_engines, g_value_dup_object (value));
-        /* FIXME: Propagate search engines to all browsers */
         break;
     case PROP_HISTORY:
         katze_object_assign (app->history, g_value_dup_object (value));
-        /* FIXME: Propagate history to all browsers */
         break;
     case PROP_EXTENSIONS:
         katze_object_assign (app->extensions, g_value_dup_object (value));

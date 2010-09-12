@@ -420,7 +420,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
     FRAME_NEW (_("Spell Checking"));
-    /* FIXME: Provide a nice dictionary selection */
     button = katze_property_proxy (settings, "enable-spell-checking", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
     gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));

@@ -1669,7 +1669,6 @@ static void
 midori_web_view_menu_web_app_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
 {
-    /* FIXME: Use the same binary that is running right now */
     sokoke_spawn_program ("midori -a", view->link_uri, FALSE);
 }
 
