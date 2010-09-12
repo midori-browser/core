@@ -388,7 +388,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
 
     katze_assign (browser->statusbar_text, sokoke_format_uri_for_display (text));
 
-    if (!gtk_widget_get_visible (browser->statusbar) && !is_location)
+    if (!browser->show_statusbar && !is_location)
     {
         GtkAction* action = _action_by_name (browser, "Location");
         MidoriLocationAction* location_action = MIDORI_LOCATION_ACTION (action);
@@ -992,6 +992,11 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
     }
 
     webkit_download_set_destination_uri (download, uri);
+    if (!browser->show_statusbar && gtk_widget_get_visible (browser->transferbar))
+    {
+        _midori_browser_set_statusbar_text (browser, NULL);
+        gtk_widget_show (browser->statusbar);
+    }
     midori_transferbar_add_download_item (MIDORI_TRANSFERBAR (browser->transferbar), download);
     return TRUE;
 }
