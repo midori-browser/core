@@ -12,8 +12,6 @@
 #ifndef __MIDORI_VIEWABLE_H__
 #define __MIDORI_VIEWABLE_H__
 
-#include <gtk/gtk.h>
-
 #include <katze/katze.h>
 
 G_BEGIN_DECLS
@@ -44,20 +42,10 @@ struct _MidoriViewableIface
 
     GtkWidget*
     (*get_toolbar)            (MidoriViewable*             viewable);
-
-    /* Private data */
-    gpointer p;
 };
 
 GType
 midori_viewable_get_type               (void) G_GNUC_CONST;
-
-GtkWidget*
-midori_viewable_new_from_uri           (const gchar*           uri);
-
-void
-midori_viewable_register_protocol      (GType                  type,
-                                        const gchar*           protocol);
 
 const gchar*
 midori_viewable_get_stock_id           (MidoriViewable*        viewable);
