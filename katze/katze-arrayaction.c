@@ -49,6 +49,7 @@ enum
 enum
 {
     POPULATE_POPUP,
+    POPULATE_FOLDER,
     ACTIVATE_ITEM,
     ACTIVATE_ITEM_ALT,
     LAST_SIGNAL
@@ -103,6 +104,34 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        g_cclosure_marshal_VOID__OBJECT,
                                        G_TYPE_NONE, 1,
                                        GTK_TYPE_MENU);
+
+    /**
+     * KatzeArrayAction::populate-folder:
+     * @array: the object on which the signal is emitted
+     * @menu: the menu shell being opened
+     * @folder: the folder being opened
+     *
+     * A context menu is going to be opened for @folder,
+     * the provided @menu can be populated accordingly.
+     *
+     * Unlike "populate-popup" this signal is emitted for
+     * the toplevel folder and all subfolders.
+     *
+     * Return value: %TRUE if the event was handled. If %FALSE is returned,
+     *               the default "populate-popup" signal is emitted.
+     *
+     * Since: 0.2.8
+     **/
+
+    signals[POPULATE_FOLDER] = g_signal_new ("populate-folder",
+                                       G_TYPE_FROM_CLASS (class),
+                                       (GSignalFlags) (G_SIGNAL_RUN_LAST),
+                                       0,
+                                       0,
+                                       NULL,
+                                       midori_cclosure_marshal_BOOLEAN__OBJECT_OBJECT,
+                                       G_TYPE_BOOLEAN, 2,
+                                       GTK_TYPE_MENU_SHELL, KATZE_TYPE_ITEM);
 
     signals[ACTIVATE_ITEM] = g_signal_new ("activate-item",
                                        G_TYPE_FROM_CLASS (class),
@@ -291,10 +320,29 @@ static void
 katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
                                         KatzeArrayAction* array_action);
 
-static void
+/**
+ * katze_array_action_generate_menu:
+ * @array_action: a #KatzeArrayAction
+ * @folder: the folder to represent
+ * @menu: the menu shell to populate
+ * @proxy: the proxy, or alternatively a widget in the same window
+ *
+ * Generates menu items according to @folder, in the way they
+ * appear in automatically generated action proxies.
+ * The primary use is for implementing "populate-folder".
+ *
+ * It is worth noting that @folder can be any folder and can
+ * be generated dynamically if needed.
+ *
+ * The @proxy widget must be a related widget on the same screen,
+ * but doesn't have to be a proxy of the action.
+ *
+ * Since: 0.2.8
+ **/
+void
 katze_array_action_generate_menu (KatzeArrayAction* array_action,
                                   KatzeArray*       array,
-                                  GtkWidget*        menu,
+                                  GtkMenuShell*     menu,
                                   GtkWidget*        proxy)
 {
     gint i;
@@ -305,6 +353,9 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     GdkPixbuf* icon;
     GtkWidget* image;
     GtkWidget* submenu;
+
+    if (!KATZE_IS_ARRAY (array))
+        return;
 
     if (array_action->reversed)
     {
@@ -319,11 +370,11 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     while ((item = katze_array_get_nth_item (array, i += summand)))
     {
         /* FIXME: The menu item should reflect changes to the item  */
-        if (!KATZE_IS_ARRAY (item) && !katze_item_get_uri (item))
+        if (KATZE_ITEM_IS_SEPARATOR (item))
         {
             menuitem = gtk_separator_menu_item_new ();
             gtk_widget_show (menuitem);
-            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            gtk_menu_shell_append (menu, menuitem);
             continue;
         }
         menuitem = katze_image_menu_item_new_ellipsized (
@@ -332,7 +383,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
             image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
         else
         {
-            if (KATZE_IS_ARRAY (item))
+            if (KATZE_ITEM_IS_FOLDER (item))
                 icon = gtk_widget_render_icon (menuitem,
                     GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
             else
@@ -345,9 +396,9 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         gtk_image_menu_item_set_always_show_image (
             GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
         #endif
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        gtk_menu_shell_append (menu, menuitem);
         g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-        if (KATZE_IS_ARRAY (item))
+        if (KATZE_ITEM_IS_FOLDER (item))
         {
             submenu = gtk_menu_new ();
             gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
@@ -372,13 +423,15 @@ katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
 {
     GtkWidget* menu;
     KatzeArray* array;
+    gboolean handled;
 
     menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy));
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
 
     array = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
-    katze_array_action_generate_menu (array_action, array, menu, proxy);
+    katze_array_action_generate_menu (array_action, array, GTK_MENU_SHELL (menu), proxy);
+    g_signal_emit (array_action, signals[POPULATE_FOLDER], 0, menu, array, &handled);
 }
 
 static void
@@ -387,13 +440,18 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
 {
     GtkWidget* menu;
     KatzeArray* array;
+    gboolean handled = FALSE;
 
     if (GTK_IS_MENU_ITEM (proxy))
     {
         g_object_set_data (G_OBJECT (proxy), "KatzeItem", array_action->array);
         katze_array_action_menu_item_select_cb (proxy, array_action);
-        g_signal_emit (array_action, signals[POPULATE_POPUP], 0,
-            gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)));
+        g_signal_emit (array_action, signals[POPULATE_FOLDER], 0,
+                       gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)),
+                       array_action->array, &handled);
+        if (!handled)
+            g_signal_emit (array_action, signals[POPULATE_POPUP], 0,
+                gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)));
         return;
     }
 
@@ -408,11 +466,15 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
 
     if (!array)
         array = array_action->array;
-    katze_array_action_generate_menu (array_action, array, menu, proxy);
+    katze_array_action_generate_menu (array_action, array, GTK_MENU_SHELL (menu), proxy);
 
-    /* populate-popup should only affect the main proxy */
-    if (array == array_action->array)
-        g_signal_emit (array_action, signals[POPULATE_POPUP], 0, menu);
+    g_signal_emit (array_action, signals[POPULATE_FOLDER], 0, menu, array, &handled);
+    if (!handled)
+    {
+        /* populate-popup should only affect the main proxy */
+        if (array == array_action->array)
+            g_signal_emit (array_action, signals[POPULATE_POPUP], 0, menu);
+    }
 
     #if HAVE_HILDON
     /* Avoid a bug in GTK+ messing up the initial scrolling position */
@@ -497,7 +559,7 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
             gtk_tool_item_set_tooltip_text (toolitem,
                 katze_item_get_uri (item));
     }
-    else if (!KATZE_IS_ARRAY (item) && !strcmp (property, "uri"))
+    else if (KATZE_ITEM_IS_BOOKMARK (item) && !strcmp (property, "uri"))
     {
         icon = katze_load_cached_icon (katze_item_get_uri (item), GTK_WIDGET (toolitem));
         image = gtk_image_new_from_pixbuf (icon);
@@ -531,7 +593,7 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
         image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
     else
     {
-        if (KATZE_IS_ARRAY (item))
+        if (KATZE_ITEM_IS_FOLDER (item))
             icon = gtk_widget_render_icon (menuitem,
                 GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
         else
@@ -545,7 +607,7 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
         GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
     #endif
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
-    if (KATZE_IS_ARRAY (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
     {
         GtkWidget* submenu = gtk_menu_new ();
         gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
@@ -604,13 +666,13 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     uri = katze_item_get_uri (item);
     desc = katze_item_get_text (item);
 
-    if (!KATZE_IS_ARRAY (item) && !uri)
+    if (KATZE_ITEM_IS_SEPARATOR (item))
         return gtk_separator_tool_item_new ();
 
     toolitem = gtk_tool_button_new (NULL, "");
     g_signal_connect (toolitem, "create-menu-proxy",
         G_CALLBACK (katze_array_action_proxy_create_menu_proxy_cb), item);
-    if (KATZE_IS_ARRAY (item))
+    if (KATZE_ITEM_IS_FOLDER (item))
         icon = gtk_widget_render_icon (GTK_WIDGET (toolitem),
             GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
     else

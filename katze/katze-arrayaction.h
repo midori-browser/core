@@ -48,6 +48,12 @@ GtkToolItem*
 katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
                                          KatzeItem*        item);
 
+void
+katze_array_action_generate_menu        (KatzeArrayAction* array_action,
+                                         KatzeArray*       folder,
+                                         GtkMenuShell*     menu,
+                                         GtkWidget*        proxy);
+
 G_END_DECLS
 
 #endif /* __KATZE_ARRAY_ACTION_H__ */
