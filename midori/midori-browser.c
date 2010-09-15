@@ -2561,7 +2561,7 @@ midori_browser_get_toolbar_actions (MidoriBrowser* browser)
 {
     static const gchar* actions[] = {
             "WindowNew", "TabNew", "Open", "SaveAs", "Print", "Find",
-            "Fullscreen", "Preferences", "Window",
+            "Fullscreen", "Preferences", "Window", "Bookmarks",
             "ReloadStop", "ZoomIn", "TabClose",
             "ZoomOut", "Separator", "Back", "Forward", "Homepage",
             "Panel", "Trash", "Search", "BookmarkAdd", "Previous", "Next", NULL };
@@ -2819,6 +2819,45 @@ midori_browser_bookmark_popup (GtkWidget*      widget,
                                GdkEventButton* event,
                                KatzeItem*      item,
                                MidoriBrowser*  browser);
+
+static gboolean
+_action_bookmarks_populate_folder (GtkAction*     action,
+                                   GtkMenuShell*  menu,
+                                   KatzeArray*    folder,
+                                   MidoriBrowser* browser)
+{
+    const char* sqlcmd = "SELECT uri, title, app, folder "
+                         "FROM bookmarks WHERE folder = '%q' ORDER BY uri ASC";
+    sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
+    const gchar* folder_name;
+    char* sqlcmd_folder;
+    KatzeArray* bookmarks;
+    GtkWidget* menuitem;
+
+    if (!db)
+        return;
+
+    /* Clear items from dummy array here */
+    gtk_container_foreach (GTK_CONTAINER (menu),
+        (GtkCallback)(gtk_widget_destroy), NULL);
+
+    folder_name = katze_item_get_name (KATZE_ITEM (folder));
+    sqlcmd_folder = sqlite3_mprintf (sqlcmd, folder_name ? folder_name : "");
+    bookmarks = katze_array_from_sqlite (db, sqlcmd_folder);
+    sqlite3_free (sqlcmd_folder);
+    if (!bookmarks || katze_array_is_empty (bookmarks))
+    {
+        menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
+        gtk_widget_set_sensitive (menuitem, FALSE);
+        gtk_menu_shell_append (menu, menuitem);
+        gtk_widget_show (menuitem);
+        return TRUE;
+    }
+
+    katze_array_action_generate_menu (KATZE_ARRAY_ACTION (action), bookmarks,
+                                      menu, GTK_WIDGET (browser));
+    return TRUE;
+}
 
 static void
 _action_window_populate_popup (GtkAction*     action,
@@ -5246,6 +5285,7 @@ static const gchar* ui_markup =
                 "<menuitem action='Search'/>"
                 "<menuitem action='Trash'/>"
             "</menu>"
+            "<menuitem action='Bookmarks'/>"
             "<menuitem action='Tools'/>"
             "<menuitem action='Window'/>"
             "<menu action='Help'>"
@@ -5647,6 +5687,24 @@ midori_browser_init (MidoriBrowser* browser)
                       _action_trash_activate_item, browser,
                       "signal::activate-item-alt",
                       _action_trash_activate_item_alt, browser,
+                      NULL);
+    gtk_action_group_add_action_with_accel (browser->action_group, action, "");
+    g_object_unref (action);
+
+    action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
+        "name", "Bookmarks",
+        "label", _("_Bookmarks"),
+        "stock-id", STOCK_BOOKMARKS,
+        "tooltip", _("Show the saved bookmarks"),
+        "array", browser->proxy_array, /* Use a non-empty array here */
+        NULL);
+    g_object_connect (action,
+                      "signal::populate-folder",
+                      _action_bookmarks_populate_folder, browser,
+                      "signal::activate-item",
+                      midori_bookmarkbar_activate_item, browser,
+                      "signal::activate-item-alt",
+                      midori_bookmarkbar_activate_item_alt, browser,
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
