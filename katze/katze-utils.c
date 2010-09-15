@@ -1495,6 +1495,8 @@ katze_load_cached_icon (const gchar* uri,
 {
     GdkPixbuf* icon = NULL;
 
+    g_return_val_if_fail (uri != NULL, NULL);
+
     if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri,"https://"))
     {
         guint i;
