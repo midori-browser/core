@@ -139,13 +139,6 @@ GdkPixbuf*
 katze_load_cached_icon               (const gchar*    uri,
                                       GtkWidget*      widget);
 
-gchar*
-katze_collfold                       (const gchar*    str);
-
-gboolean
-katze_utf8_stristr                   (const gchar*    haystack,
-                                      const gchar*    needle);
-
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */
