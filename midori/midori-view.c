@@ -2526,9 +2526,8 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         new_view = view;
     else
     {
-        new_view = g_object_new (MIDORI_TYPE_VIEW,
-            "settings", view->settings,
-            NULL);
+        new_view = (MidoriView*)midori_view_new_with_uri (NULL, NULL,
+                                                          view->settings);
         midori_view_construct_web_view (new_view);
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
@@ -2971,11 +2970,13 @@ midori_view_focus_in_event (GtkWidget*     widget,
 
 /**
  * midori_view_new:
- * @net: a #KatzeNet, or %NULL
+ * @net: %NULL
  *
  * Creates a new view.
  *
  * Return value: a new #MidoriView
+ *
+ * Deprecated: 0.2.8: Use midori_view_new_with_uri() instead.
  **/
 GtkWidget*
 midori_view_new (KatzeNet* net)
@@ -3006,6 +3007,41 @@ _midori_view_update_settings (MidoriView* view)
         g_object_set (view->web_view,
                       "full-content-zoom", zoom_text_and_images, NULL);
     g_object_set (view->scrolled_window, "kinetic-scrolling", kinetic_scrolling, NULL);
+}
+
+/**
+ * midori_view_new_with_uri:
+ * @uri: an URI string, or %NULL
+ * @title: a title, or %NULL
+ * @settings: a #MidoriWebSettings, or %NULL
+ *
+ * Creates a new view with the specified parameters that
+ * is visible by default.
+ *
+ * Return value: a new #MidoriView
+ *
+ * Since: 0.2.8
+ **/
+GtkWidget*
+midori_view_new_with_uri (const gchar*       uri,
+                          const gchar*       title,
+                          MidoriWebSettings* settings)
+{
+    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, NULL);
+    view->title = g_strdup (title);
+    if (title != NULL)
+        midori_view_update_title (view);
+    if (settings)
+    {
+        view->settings = g_object_ref (settings);
+        _midori_view_update_settings (view);
+        g_signal_connect (settings, "notify",
+                          G_CALLBACK (midori_view_settings_notify_cb), view);
+    }
+    if (uri != NULL)
+        midori_view_set_uri (view, uri);
+    gtk_widget_show ((GtkWidget*)view);
+    return (GtkWidget*)view;
 }
 
 static void
@@ -3934,11 +3970,9 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
                                              MidoriView* view)
 {
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
-    GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
-        "settings", view->settings, NULL);
-    midori_view_set_uri (MIDORI_VIEW (new_view),
-        midori_view_get_display_uri (view));
-    gtk_widget_show (new_view);
+    GtkWidget* new_view = midori_view_new_with_uri (
+        midori_view_get_display_uri (view),
+        NULL, view->settings);
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
 }
 

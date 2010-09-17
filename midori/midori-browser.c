@@ -4431,11 +4431,9 @@ _action_tab_duplicate_activate (GtkAction*     action,
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
-    GtkWidget* new_view = g_object_new (MIDORI_TYPE_VIEW,
-        "settings", browser->settings, NULL);
-    midori_view_set_uri (MIDORI_VIEW (new_view),
-        midori_view_get_display_uri (MIDORI_VIEW (view)));
-    gtk_widget_show (new_view);
+    GtkWidget* new_view = midori_view_new_with_uri (
+        midori_view_get_display_uri (MIDORI_VIEW (view)),
+        NULL, browser->settings);
     g_signal_emit_by_name (view, "new-view", new_view, where);
 }
 
@@ -4777,13 +4775,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
     || */(event->type == GDK_BUTTON_PRESS && event->button == 2))
     {
         gint n;
-        GtkWidget* view;
-
-        view = g_object_new (MIDORI_TYPE_VIEW,
-                             "settings", browser->settings,
-                             NULL);
-        midori_view_set_uri (MIDORI_VIEW (view), "");
-        gtk_widget_show (view);
+        GtkWidget* view = midori_view_new_with_uri ("", NULL, browser->settings);
         g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
         n = midori_browser_add_tab (browser, view);
         midori_browser_set_current_page (browser, n);
@@ -6711,23 +6703,16 @@ midori_browser_add_item (MidoriBrowser* browser,
 
     uri = katze_item_get_uri (item);
     title = katze_item_get_name (item);
-    view = g_object_new (MIDORI_TYPE_VIEW,
-                         "title", title,
-                         "settings", browser->settings,
-                         NULL);
     /* Blank pages should not be delayed */
     if (katze_item_get_meta_integer (item, "delay") > 0
      && uri != NULL && strcmp (uri, "about:blank") != 0)
     {
-        gchar* new_uri;
-        new_uri = g_strdup_printf ("pause:%s", uri);
-        midori_view_set_uri (MIDORI_VIEW (view), new_uri);
+        gchar* new_uri = g_strdup_printf ("pause:%s", uri);
+        view = midori_view_new_with_uri (new_uri, title, browser->settings);
         g_free (new_uri);
     }
     else
-        midori_view_set_uri (MIDORI_VIEW (view), uri);
-
-    gtk_widget_show (view);
+        view = midori_view_new_with_uri (uri, title, browser->settings);
 
     /* FIXME: We should have public API for that */
     if (g_object_get_data (G_OBJECT (item), "midori-view-append"))
@@ -6765,11 +6750,7 @@ midori_browser_add_uri (MidoriBrowser* browser,
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (uri != NULL, -1);
 
-    view = g_object_new (MIDORI_TYPE_VIEW, "settings", browser->settings,
-                         NULL);
-    midori_view_set_uri (MIDORI_VIEW (view), uri);
-    gtk_widget_show (view);
-
+    view = midori_view_new_with_uri (uri, NULL, browser->settings);
     return midori_browser_add_tab (browser, view);
 }
 

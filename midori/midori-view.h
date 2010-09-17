@@ -80,6 +80,11 @@ midori_view_get_type                   (void) G_GNUC_CONST;
 GtkWidget*
 midori_view_new                        (KatzeNet*          net);
 
+GtkWidget*
+midori_view_new_with_uri               (const gchar*       uri,
+                                        const gchar*       title,
+                                        MidoriWebSettings* settings);
+
 void
 midori_view_set_settings               (MidoriView*        view,
                                         MidoriWebSettings* settings);
