@@ -2825,7 +2825,7 @@ _action_bookmarks_populate_folder (GtkAction*     action,
     GtkWidget* menuitem;
 
     if (!db)
-        return;
+        return FALSE;
 
     /* Clear items from dummy array here */
     gtk_container_foreach (GTK_CONTAINER (menu),
