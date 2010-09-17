@@ -133,6 +133,15 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
                                        G_TYPE_BOOLEAN, 2,
                                        GTK_TYPE_MENU_SHELL, KATZE_TYPE_ITEM);
 
+    /**
+     * KatzeArrayAction::activate-item:
+     * @array: the object on which the signal is emitted
+     * @item: the item being activated
+     *
+     * An item was clicked with the first button.
+     *
+     * Deprecated: 0.2.8: Use "activate-item-alt" instead.
+     **/
     signals[ACTIVATE_ITEM] = g_signal_new ("activate-item",
                                        G_TYPE_FROM_CLASS (class),
                                        (GSignalFlags) (G_SIGNAL_RUN_LAST),
@@ -149,8 +158,7 @@ katze_array_action_class_init (KatzeArrayActionClass* class)
      * @item: the item being activated
      * @button: the mouse button pressed
      *
-     * An item was clicked with a particular button. Use this if you need
-     * to handle middle or right clicks specially.
+     * An item was clicked, with the specified @button.
      *
      * Return value: %TRUE if the event was handled. If %FALSE is returned,
      *               the default "activate-item" signal is emitted.
@@ -287,11 +295,23 @@ katze_array_action_activate (GtkAction* action)
 }
 
 static void
+katze_array_action_activate_item (KatzeArrayAction* action,
+                                  KatzeItem*        item,
+                                  gint              button)
+{
+    gboolean handled = FALSE;
+    g_signal_emit (action, signals[ACTIVATE_ITEM_ALT], 0, item,
+                   button, &handled);
+    if (!handled)
+        g_signal_emit (action, signals[ACTIVATE_ITEM], 0, item);
+}
+
+static void
 katze_array_action_menu_activate_cb  (GtkWidget*        proxy,
                                       KatzeArrayAction* array_action)
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
-    g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, item);
+    katze_array_action_activate_item (array_action, item, 1);
 }
 
 static gboolean
@@ -300,13 +320,8 @@ katze_array_action_menu_button_press_cb (GtkWidget*        proxy,
                                          KatzeArrayAction* array_action)
 {
     KatzeItem* item = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
-    gboolean handled;
 
-    g_signal_emit (array_action, signals[ACTIVATE_ITEM_ALT], 0, item,
-        event->button, &handled);
-
-    if (!handled)
-        g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, item);
+    katze_array_action_activate_item (array_action, item, event->button);
 
     /* we need to block the 'activate' handler which would be called
      * otherwise as well */
@@ -458,7 +473,7 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeArray");
     if (KATZE_IS_ITEM (array) && katze_item_get_uri ((KatzeItem*)array))
     {
-        g_signal_emit (array_action, signals[ACTIVATE_ITEM], 0, array);
+        katze_array_action_activate_item (array_action, KATZE_ITEM (array), 1);
         return;
     }
 
