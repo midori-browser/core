@@ -16,9 +16,13 @@
 #include "katze-http-cookies.h"
 
 #include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
 #include <glib/gi18n.h>
 #include <libsoup/soup.h>
 #include <gtk/gtk.h>
+#include <glib/gstdio.h>
 
 struct _KatzeHttpCookies
 {
@@ -145,12 +149,12 @@ cookie_jar_load (SoupCookieJar* jar,
    Copyright (C) 2008 Xan Lopez <xan@gnome.org>
    Copyright (C) 2008 Dan Winship <danw@gnome.org>
    Copied from libSoup 2.24, coding style preserved */
-static void
+static gboolean
 write_cookie (FILE *out, SoupCookie *cookie)
 {
 	fseek (out, 0, SEEK_END);
 
-	fprintf (out, "%s%s\t%s\t%s\t%s\t%lu\t%s\t%s\n",
+	if (fprintf (out, "%s%s\t%s\t%s\t%s\t%lu\t%s\t%s\n",
 		 cookie->http_only ? "#HttpOnly_" : "",
 		 cookie->domain,
 		 *cookie->domain == '.' ? "TRUE" : "FALSE",
@@ -158,7 +162,9 @@ write_cookie (FILE *out, SoupCookie *cookie)
 		 cookie->secure ? "TRUE" : "FALSE",
 		 (gulong)soup_date_to_time_t (cookie->expires),
 		 cookie->name,
-		 cookie->value);
+		 cookie->value) < 0)
+            return FALSE;
+        return TRUE;
 }
 
 /* Cookie jar saving to Mozilla format
@@ -170,18 +176,21 @@ delete_cookie (const char *filename, SoupCookie *cookie)
 {
 	char *contents = NULL, *line, *p;
 	gsize length = 0;
+	gint fn = 0;
 	FILE *f;
+	gchar* temporary_filename = NULL;
 	SoupCookie *c;
 	time_t now = time (NULL);
 
 	if (!g_file_get_contents (filename, &contents, &length, NULL))
 		return;
 
-	f = fopen (filename, "w");
-	if (!f) {
-		g_free (contents);
-		return;
-	}
+	fn = g_file_open_tmp (NULL, &temporary_filename, NULL);
+	if (fn == -1)
+		goto failed;
+	f = fopen (temporary_filename, "w");
+	if (!f)
+		goto failed;
 
 	line = contents;
 	for (p = contents; *p; p++) {
@@ -200,12 +209,24 @@ delete_cookie (const char *filename, SoupCookie *cookie)
 	c = parse_cookie (line, now);
 	if (c) {
 		if (!soup_cookie_equal (cookie, c))
-			write_cookie (f, c);
+			if (!write_cookie (f, c))
+				goto failed;
 		soup_cookie_free (c);
 	}
 
+	if (!fclose (f))
+            goto failed;
+
 	g_free (contents);
-	fclose (f);
+        close (fn);
+        g_rename (temporary_filename, filename);
+        g_free (temporary_filename);
+        return;
+failed:
+        g_free (contents);
+        close (fn);
+        g_unlink (temporary_filename);
+        g_free (temporary_filename);
 }
 
 /* Cookie jar saving to Mozilla format
