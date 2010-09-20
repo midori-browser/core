@@ -1438,6 +1438,35 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
         g_object_set (view, "statusbar-text", link_uri, NULL);
 }
 
+static void
+midori_view_ensure_link_uri (MidoriView* view,
+                             gint        *x,
+                             gint        *y)
+{
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+    if (view->web_view && view->web_view->window)
+    {
+        gint ex, ey;
+        GdkEventButton event;
+
+        gdk_window_get_pointer (view->web_view->window, &ex, &ey, NULL);
+        if (x != NULL)
+            *x = ex;
+        if (y != NULL)
+            *y = ey;
+
+        event.x = ex;
+        event.y = ey;
+        katze_object_assign (view->hit_test, webkit_web_view_get_hit_test_result (
+                             WEBKIT_WEB_VIEW (view->web_view), &event));
+        katze_assign (view->link_uri,
+             katze_object_get_string (view->hit_test, "link-uri"));
+    }
+    #endif
+}
+
 #define MIDORI_KEYS_MODIFIER_MASK (GDK_SHIFT_MASK | GDK_CONTROL_MASK \
     | GDK_MOD1_MASK | GDK_META_MASK | GDK_SUPER_MASK | GDK_HYPER_MASK )
 
@@ -1453,6 +1482,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     gboolean background;
 
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
+    midori_view_ensure_link_uri (view, NULL, NULL);
     link_uri = midori_view_get_link_uri (view);
 
     switch (event->button)
@@ -1950,20 +1980,12 @@ midori_view_populate_popup (MidoriView* view,
 
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
     gint x, y;
-    GdkEventButton event;
     WebKitHitTestResultContext context;
     gboolean is_image;
     gboolean is_media;
 
-    gdk_window_get_pointer (view->web_view->window, &x, &y, NULL);
-    event.x = x;
-    event.y = y;
-    katze_object_assign (view->hit_test,
-        webkit_web_view_get_hit_test_result (web_view, &event));
+    midori_view_ensure_link_uri (view, &x, &y);
     context = katze_object_get_int (view->hit_test, "context");
-    /* Ensure view->link_uri is correct. */
-    katze_assign (view->link_uri,
-        katze_object_get_string (view->hit_test, "link-uri"));
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
     midori_view_has_selection (view);
