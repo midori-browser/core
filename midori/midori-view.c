@@ -4620,8 +4620,8 @@ midori_view_get_previous_page (MidoriView* view)
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
         "(function (g) {"
-        "var ind = ['prev','←','«','&lt;'];"
-        "var nind = ['next','→','»','&gt;'];"
+        "var ind = ['prev','←','&lt;'];"
+        "var nind = ['next','→','&gt;'];"
         "for (h in g) {"
         "l = g[h];"
         "for (i in l)"
@@ -4684,8 +4684,8 @@ midori_view_get_next_page (MidoriView* view)
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
         "(function (g) {"
-        "var ind = ['next','→','»','&gt;'];"
-        "var nind = ['prev','←','«','&lt;'];"
+        "var ind = ['next','→','&gt;'];"
+        "var nind = ['prev','←','&lt;'];"
         "for (h in g) {"
         "l = g[h];"
         "for (i in l)"
