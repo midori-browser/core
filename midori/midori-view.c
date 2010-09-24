@@ -2233,12 +2233,15 @@ midori_view_populate_popup (MidoriView* view,
     if (!view->link_uri && has_selection)
     {
         GtkWidget* window;
+        KatzeArray* search_engines = NULL;
 
         window = gtk_widget_get_toplevel (GTK_WIDGET (web_view));
         i = 0;
         if (katze_object_has_property (window, "search-engines"))
+            search_engines = katze_object_get_object (window, "search-engines");
+
+        if (search_engines != NULL)
         {
-            KatzeArray* search_engines;
             KatzeItem* item;
             GtkWidget* sub_menu = gtk_menu_new ();
 
@@ -2246,7 +2249,6 @@ midori_view_populate_popup (MidoriView* view,
             gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), sub_menu);
             gtk_menu_shell_insert (menu_shell, menuitem, 1);
 
-            search_engines = katze_object_get_object (window, "search-engines");
             KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
             {
                 GdkPixbuf* pixbuf;
