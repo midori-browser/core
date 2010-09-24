@@ -482,6 +482,8 @@ katze_array_get_items (KatzeArray* array)
 GList*
 katze_array_peek_items (KatzeArray* array)
 {
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
+
     return array->items;
 }
 
