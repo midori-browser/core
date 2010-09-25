@@ -65,6 +65,8 @@ enum {
 
 static guint signals[LAST_SIGNAL];
 
+GList* kalistglobal;
+
 static void
 katze_array_finalize (GObject* object);
 
