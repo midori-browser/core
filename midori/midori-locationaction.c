@@ -614,23 +614,25 @@ midori_location_action_finalize (GObject* object)
 static void
 midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
                                         MidoriLocationAction* location_action)
-{    gboolean show = FALSE;
-
-    sqlite3* db;
-    const gchar* sqlcmd;
-    sqlite3_stmt* statement;
+{
+    gboolean show = FALSE;
     gint result;
 
     if (!GTK_IS_BUTTON (widget))
         return;
 
-    db = g_object_get_data (G_OBJECT (location_action->history), "db");
-    sqlcmd = "SELECT uri FROM history LIMIT 1";
-    sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
-    result = sqlite3_step (statement);
-    if (result == SQLITE_ROW)
-        show = TRUE;
-    sqlite3_finalize (statement);
+    if (location_action->history != NULL)
+    {
+        sqlite3* db = g_object_get_data (G_OBJECT (location_action->history), "db");
+        const char* sqlcmd = "SELECT uri FROM history LIMIT 1";
+        sqlite3_stmt* statement;
+        sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+        result = sqlite3_step (statement);
+        if (result == SQLITE_ROW)
+            show = TRUE;
+        sqlite3_finalize (statement);
+    }
+
     sokoke_widget_set_visible (widget, show);
     gtk_widget_set_size_request (widget, show ? -1 : 1, show ? -1 : 1);
 }
@@ -639,9 +641,6 @@ static void
 midori_location_action_toggle_arrow (MidoriLocationAction* location_action)
 {
     GSList* proxies;
-
-    if (!location_action->history)
-        return;
 
     proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
     for (; proxies != NULL; proxies = g_slist_next (proxies))
@@ -981,7 +980,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         }
 
         parent = gtk_widget_get_parent (widget);
-        if (!katze_object_get_boolean (parent, "popup-shown"))
+        if (location_action->history != NULL
+         && !katze_object_get_boolean (parent, "popup-shown"))
             gtk_combo_box_popup (GTK_COMBO_BOX (parent));
         return TRUE;
     }
@@ -1283,7 +1283,7 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
     GtkListStore* store;
     gint result;
     const gchar* sqlcmd;
-    static sqlite3_stmt* stmt;
+    static sqlite3_stmt* stmt = NULL;
     gint matches;
 
     store = GTK_LIST_STORE (gtk_combo_box_get_model (combo_box));
@@ -1292,7 +1292,10 @@ midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
     if (!stmt)
     {
         sqlite3* db;
+
+        g_return_if_fail (location_action->history != NULL);
         db = g_object_get_data (G_OBJECT (location_action->history), "db");
+        g_return_if_fail (db != NULL);
         sqlcmd = "SELECT uri, title FROM history"
                  " GROUP BY uri ORDER BY count() DESC LIMIT ?";
         sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
@@ -1409,9 +1412,8 @@ midori_location_action_connect_proxy (GtkAction* action,
             renderer, midori_location_entry_render_text_cb, action, NULL);
 
         gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
-        if (location_action->history)
-            gtk_container_forall (GTK_CONTAINER (entry),
-                (GtkCallback)midori_location_action_toggle_arrow_cb, action);
+        gtk_container_forall (GTK_CONTAINER (entry),
+            (GtkCallback)midori_location_action_toggle_arrow_cb, action);
         g_signal_connect (entry, "changed",
             G_CALLBACK (midori_location_action_entry_changed_cb), action);
         g_signal_connect (entry, "popup",
