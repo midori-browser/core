@@ -104,6 +104,8 @@ katze_app_info_get_commandline (GAppInfo* info)
     #endif
     if (!exe)
         exe = g_app_info_get_executable (info);
+    if (!exe)
+        exe = g_app_info_get_name (info);
     return exe;
 }
 
