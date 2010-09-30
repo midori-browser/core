@@ -971,22 +971,42 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
         G_FILE_ATTRIBUTE_FILESYSTEM_FREE, NULL, &error);
     guint64 free_space = g_file_info_get_attribute_uint64 (info,
         G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
+    gchar* path = g_file_get_path (folder);
+    gboolean can_write = g_access (path, W_OK) == 0;
+    g_free (path);
     g_object_unref (file);
     g_object_unref (folder);
-    if (free_space < total_size)
+    if (free_space < total_size || !can_write)
     {
-        gchar* message = g_strdup_printf (
-            _("There is not enough free space to download \"%s\"."), &uri[7]);
-        gchar* total_size_string = g_format_size_for_display (total_size);
-        gchar* free_space_string = g_format_size_for_display (free_space);
-        gchar* detailed_message = g_strdup_printf (
-            _("The file needs %s but only %s are left."),
-              total_size_string, free_space_string);
+        gchar* message;
+        gchar* detailed_message;
+
+        if (!can_write)
+        {
+            message = g_strdup_printf (
+                _("The file \"%s\" can't be saved in this folder."), &uri[7]);
+            detailed_message = g_strdup_printf (
+                _("You don't have permission to write in this location."));
+        }
+        else if (free_space < total_size)
+        {
+            gchar* total_size_string = g_format_size_for_display (total_size);
+            gchar* free_space_string = g_format_size_for_display (free_space);
+            message = g_strdup_printf (
+                _("There is not enough free space to download \"%s\"."),
+                  &uri[7]);
+            detailed_message = g_strdup_printf (
+                _("The file needs %s but only %s are left."),
+                  total_size_string, free_space_string);
+            g_free (total_size_string);
+            g_free (free_space_string);
+        }
+        else
+            g_assert_not_reached ();
+
         sokoke_message_dialog (GTK_MESSAGE_ERROR, message, detailed_message);
         g_free (message);
         g_free (detailed_message);
-        g_free (total_size_string);
-        g_free (free_space_string);
         g_object_unref (download);
         return FALSE;
     }
