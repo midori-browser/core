@@ -569,6 +569,15 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (button, "changed",
         G_CALLBACK (midori_preferences_delete_cookies_changed_cb), settings);
     SPANNED_ADD (button);
+    {
+        gchar* markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
+            _("Cookies store login data, save games "
+              "or user profiles for advertisement purposes."));
+        label = gtk_label_new (NULL);
+        gtk_label_set_markup (GTK_LABEL (label), markup);
+        g_free (markup);
+    }
+    FILLED_ADD (label);
     #if WEBKIT_CHECK_VERSION (1, 1, 8)
     INDENTED_ADD (katze_property_proxy (settings, "enable-html5-database", NULL));
     SPANNED_ADD (katze_property_proxy (settings, "enable-html5-local-storage", NULL));
