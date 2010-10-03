@@ -592,6 +592,4 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     label = gtk_label_new (_("days"));
     SPANNED_ADD (label);
-    button = katze_property_proxy (settings, "remember-last-downloaded-files", NULL);
-    INDENTED_ADD (button);
 }

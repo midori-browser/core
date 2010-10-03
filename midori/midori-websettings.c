@@ -988,6 +988,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      0, G_MAXINT, 30,
                                      flags));
 
+    /**
+     * MidoriWebSettings:remember-last-downloaded-files:
+     *
+     * Whether the last downloaded files are saved.
+     *
+     * Deprecated: 0.2.9
+     **/
     g_object_class_install_property (gobject_class,
                                      PROP_REMEMBER_LAST_DOWNLOADED_FILES,
                                      g_param_spec_boolean (
