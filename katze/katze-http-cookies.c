@@ -258,7 +258,7 @@ cookie_jar_changed_cb (SoupCookieJar* jar,
         else if (accept_cookies == 1 /* MIDORI_ACCEPT_COOKIES_SESSION */
             && new_cookie->expires)
         {
-            soup_cookie_jar_delete_cookie (jar, new_cookie);
+            soup_cookie_set_max_age (new_cookie, -1);
         }
         else if (new_cookie->expires)
         {
