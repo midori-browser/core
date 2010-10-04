@@ -1586,10 +1586,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     KatzeItem* item;
     guint n;
 
-    GTK_WIDGET_SET_FLAGS (view, GTK_CAN_FOCUS);
-
+    gtk_widget_set_can_focus (view, TRUE);
     tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
-
     item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     g_object_ref (item);
     katze_array_add_item (browser->proxy_array, item);
@@ -5928,7 +5926,7 @@ midori_browser_init (MidoriBrowser* browser)
     scrolled = gtk_scrolled_window_new (NULL, NULL);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
                                     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus (scrolled, TRUE);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled),
                                          GTK_SHADOW_ETCHED_IN);
     gtk_box_pack_start (GTK_BOX (browser->inspector), scrolled, TRUE, TRUE, 0);

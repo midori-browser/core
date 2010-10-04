@@ -50,6 +50,8 @@
     #define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
     #define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE (widget)
     #define gtk_widget_get_sensitive(widget) GTK_WIDGET_IS_SENSITIVE (widget)
+    #define gtk_widget_set_can_focus(widget,flag) \
+        GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)

@@ -733,7 +733,7 @@ midori_panel_append_page (MidoriPanel*    panel,
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
                                         GTK_POLICY_AUTOMATIC,
                                         GTK_POLICY_AUTOMATIC);
-        GTK_WIDGET_SET_FLAGS (scrolled, GTK_CAN_FOCUS);
+        gtk_widget_set_can_focus (scrolled, TRUE);
         gtk_widget_show (scrolled);
         gobject_class = G_OBJECT_GET_CLASS (viewable);
         if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
