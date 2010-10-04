@@ -137,15 +137,6 @@ struct _KatzeScrolledPrivate
     gdouble vertical_speed;
     gdouble horizontal_deceleration;
     gdouble vertical_deceleration;
-
-    /* Internal scrollbars */
-    GdkWindow* vertical_scrollbar_window;
-    GdkWindow* horizontal_scrollbar_window;
-    gint vertical_scrollbar_size;
-    gint horizontal_scrollbar_size;
-    guint hide_scrollbars_timeout_id;
-    GdkGC* hilight_gc;
-    GdkGC* shadow_gc;
 };
 
 typedef struct _KatzeScrolledState KatzeScrolledState;
@@ -277,132 +268,6 @@ enable_hadjustment (KatzeScrolled* scrolled)
     g_signal_handlers_unblock_matched (priv->hadjustment, G_SIGNAL_MATCH_DATA, 0, 0, 0, 0, priv->viewport);
 }
 
-static gboolean
-on_expose_event (GtkWidget*      widget,
-                 GdkEventExpose* event,
-                 KatzeScrolled*  scrolled)
-{
-    KatzeScrolledPrivate* priv = scrolled->priv;
-    gboolean ret = FALSE;
-
-    if (gtk_widget_is_drawable (widget))
-    {
-        if (event->window == priv->horizontal_scrollbar_window)
-        {
-            if (priv->horizontal_scrollbar_size)
-            {
-                gdk_draw_line (event->window, priv->hilight_gc, 0, 0, priv->horizontal_scrollbar_size - 1, 0);
-                gdk_draw_line (event->window, priv->hilight_gc, 0, 1, 0, 9);
-                gdk_draw_line (event->window, priv->shadow_gc, priv->horizontal_scrollbar_size - 1, 1, priv->horizontal_scrollbar_size - 1, 9);
-                gdk_draw_line (event->window, priv->shadow_gc, 0, 9, priv->horizontal_scrollbar_size - 1, 9);
-            }
-
-            ret = TRUE;
-        }
-        else if (event->window == priv->vertical_scrollbar_window)
-        {
-            if (priv->vertical_scrollbar_size)
-            {
-                gdk_draw_line (event->window, priv->hilight_gc, 0, 0, 9, 0);
-                gdk_draw_line (event->window, priv->hilight_gc, 0, 1, 0, priv->vertical_scrollbar_size - 1);
-                gdk_draw_line (event->window, priv->shadow_gc, 9, 1, 9, priv->vertical_scrollbar_size - 1);
-                gdk_draw_line (event->window, priv->shadow_gc, 0, priv->vertical_scrollbar_size - 1, 9, priv->vertical_scrollbar_size - 1);
-            }
-
-            ret = TRUE;
-        }
-    }
-
-    return ret;
-}
-
-static gboolean
-adjust_scrollbar (KatzeScrolled* scrolled,
-                  GdkWindow*     scrollbar_window,
-                  GtkAdjustment* adjustment,
-                  gint*          previous_size,
-                  gboolean       horizontal)
-{
-    KatzeScrolledPrivate* priv = scrolled->priv;
-    GtkWidget* widget = GTK_WIDGET (scrolled);
-    gdouble page_size, upper, lower, value;
-    gint x, y;
-    gint size;
-    double position;
-    GtkAllocation allocation;
-    GtkWidget* window;
-
-    page_size = gtk_adjustment_get_page_size (adjustment);
-    upper = gtk_adjustment_get_upper (adjustment);
-    lower = gtk_adjustment_get_lower (adjustment);
-    value = gtk_adjustment_get_value (adjustment);
-
-    if (page_size >= upper - lower)
-    {
-        *previous_size = 0;
-        return FALSE;
-    }
-
-    gtk_widget_get_allocation (widget, &allocation);
-    size = page_size / (upper - lower)
-        * (horizontal ? allocation.height : allocation.width);
-    if (size != *previous_size)
-    {
-        *previous_size = size;
-        if (horizontal)
-        {
-            gdk_window_resize (scrollbar_window, 10, size);
-            gdk_window_clear (scrollbar_window);
-            gdk_draw_line (scrollbar_window, priv->hilight_gc, 0, 0, 9, 0);
-            gdk_draw_line (scrollbar_window, priv->hilight_gc, 0, 1, 0, size - 1);
-            gdk_draw_line (scrollbar_window, priv->shadow_gc, 9, 1, 9, size - 1);
-            gdk_draw_line (scrollbar_window, priv->shadow_gc, 0, size - 1, 9, size - 1);
-        }
-        else
-        {
-            gdk_window_resize (scrollbar_window, size, 10);
-            gdk_window_clear (scrollbar_window);
-            gdk_draw_line (scrollbar_window, priv->hilight_gc, 0, 0, size - 1, 0);
-            gdk_draw_line (scrollbar_window, priv->hilight_gc, 0, 1, 0, 9);
-            gdk_draw_line (scrollbar_window, priv->shadow_gc, size - 1, 1, size - 1, 9);
-            gdk_draw_line (scrollbar_window, priv->shadow_gc, 0, 9, size - 1, 9);
-        }
-    }
-
-    position = (value - lower) / (upper - lower);
-    window = gtk_widget_get_toplevel (widget);
-    if (horizontal)
-    {
-        gtk_widget_translate_coordinates (widget, window,
-            allocation.width - 20, position * allocation.height, &x, &y);
-        gdk_window_move (scrollbar_window, x, y);
-    }
-    else
-    {
-        gtk_widget_translate_coordinates (widget, window,
-            position * allocation.width, allocation.height - 20, &x, &y);
-        gdk_window_move (scrollbar_window, x, y);
-    }
-
-    return TRUE;
-}
-
-static gboolean
-hide_scrollbars_timeout (gpointer data)
-{
-    KatzeScrolled* scrolled = KATZE_SCROLLED (data);
-    KatzeScrolledPrivate* priv = scrolled->priv;
-
-    gdk_threads_enter ();
-    gdk_window_hide (priv->vertical_scrollbar_window);
-    gdk_window_hide (priv->horizontal_scrollbar_window);
-
-    priv->hide_scrollbars_timeout_id = 0;
-    gdk_threads_leave ();
-
-    return FALSE;
-}
-
 static gdouble
 calculate_timeout_scroll_values (gdouble  old_value,
                                  gdouble  upper_limit,
@@ -485,13 +350,6 @@ do_timeout_scroll (KatzeScrolled* scrolled)
     }
     else if (new_hvalue != hvalue)
         gtk_adjustment_set_value (hadjustment, new_hvalue);
-
-    adjust_scrollbar (scrolled, priv->horizontal_scrollbar_window,
-                     gtk_scrolled_window_get_hadjustment (gtk_scrolled),
-                     &priv->horizontal_scrollbar_size, FALSE);
-    adjust_scrollbar (scrolled, priv->vertical_scrollbar_window,
-                     gtk_scrolled_window_get_vadjustment (gtk_scrolled),
-                     &priv->vertical_scrollbar_size, TRUE);
 }
 
 static gboolean
@@ -510,10 +368,6 @@ timeout_scroll (gpointer data)
         priv->horizontal_speed > -priv->deceleration)
     {
         priv->scrolling_timeout_id = 0;
-        if (!priv->hide_scrollbars_timeout_id)
-            priv->hide_scrollbars_timeout_id = g_timeout_add (500,
-                hide_scrollbars_timeout, scrolled);
-
         ret = FALSE;
     }
     gdk_threads_leave ();
@@ -622,13 +476,6 @@ do_motion_scroll (KatzeScrolled* scrolled,
     priv->previous_y = y;
     priv->previous_x = x;
     priv->previous_time = timestamp;
-
-    adjust_scrollbar (scrolled, priv->horizontal_scrollbar_window,
-        gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled)),
-        &priv->horizontal_scrollbar_size, FALSE);
-    adjust_scrollbar (scrolled, priv->vertical_scrollbar_window,
-        gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled)),
-        &priv->vertical_scrollbar_size, TRUE);
 }
 
 static gboolean
@@ -681,32 +528,6 @@ button_press_event (GtkWidget*      widget,
         priv->start_time  = event->time;
     }
 
-    if (priv->scrolling_hints
-        && !gtk_widget_get_visible (gtk_scrolled_window_get_hscrollbar (
-                                    GTK_SCROLLED_WINDOW (scrolled)))
-        && adjust_scrollbar (scrolled, priv->horizontal_scrollbar_window,
-           gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (scrolled)),
-               &priv->horizontal_scrollbar_size, FALSE))
-    {
-        gdk_window_raise (priv->horizontal_scrollbar_window);
-        gdk_window_show (priv->horizontal_scrollbar_window);
-    }
-    if (priv->scrolling_hints
-        && !gtk_widget_get_visible (gtk_scrolled_window_get_vscrollbar (
-                                    GTK_SCROLLED_WINDOW (scrolled)))
-        && adjust_scrollbar (scrolled, priv->vertical_scrollbar_window,
-           gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (scrolled)),
-               &priv->vertical_scrollbar_size, TRUE))
-    {
-        gdk_window_raise (priv->vertical_scrollbar_window);
-        gdk_window_show (priv->vertical_scrollbar_window);
-    }
-    if (priv->hide_scrollbars_timeout_id)
-    {
-        g_source_remove (priv->hide_scrollbars_timeout_id);
-        priv->hide_scrollbars_timeout_id = 0;
-    }
-
     return FALSE;
 }
 
@@ -741,9 +562,6 @@ button_release_event (GtkWidget*      widget,
         priv->scrolling_timeout_id = g_timeout_add (priv->interval, timeout_scroll, scrolled);
 
         do_timeout_scroll (scrolled);
-    }
-    else if (!priv->hide_scrollbars_timeout_id) {
-        priv->hide_scrollbars_timeout_id = g_timeout_add (500, hide_scrollbars_timeout, scrolled);
     }
     priv->previous_x = x;
     priv->previous_y = y;
@@ -874,12 +692,10 @@ static void
 katze_scrolled_realize (GtkWidget* widget)
 {
     KatzeScrolled* scrolled = KATZE_SCROLLED (widget);
-    KatzeScrolledPrivate* priv = scrolled->priv;
     gboolean drag_scrolling;
     GtkPolicyType policy;
     GdkWindow* window;
     GdkWindowAttr attr;
-    GdkColor color;
 
     (*GTK_WIDGET_CLASS (katze_scrolled_parent_class)->realize) (widget);
 
@@ -896,25 +712,6 @@ katze_scrolled_realize (GtkWidget* widget)
     attr.wclass = GDK_INPUT_OUTPUT;
     attr.window_type = GDK_WINDOW_CHILD;
     attr.override_redirect = TRUE;
-    priv->vertical_scrollbar_window = gdk_window_new (window, &attr, 0);
-    priv->horizontal_scrollbar_window = gdk_window_new (window, &attr, 0);
-
-    gdk_window_set_user_data (priv->vertical_scrollbar_window, widget);
-    gdk_window_set_user_data (priv->horizontal_scrollbar_window, widget);
-    g_signal_connect (widget, "expose-event",
-                      G_CALLBACK (on_expose_event), scrolled);
-
-    color.red = color.green = color.blue = 0x9999;
-    gdk_rgb_find_color (gtk_widget_get_colormap (widget), &color);
-    gdk_window_set_background (priv->vertical_scrollbar_window, &color);
-    gdk_window_set_background (priv->horizontal_scrollbar_window, &color);
-
-    priv->hilight_gc = gdk_gc_new (window);
-    color.red = color.green = color.blue = 0xcccc;
-    gdk_gc_set_rgb_fg_color (priv->hilight_gc, &color);
-    priv->shadow_gc = gdk_gc_new (window);
-    color.red = color.green = color.blue = 0x6666;
-    gdk_gc_set_rgb_fg_color (priv->shadow_gc, &color);
 
     gtk_widget_set_realized (widget, TRUE);
 }
@@ -929,11 +726,6 @@ katze_scrolled_dispose (GObject* object)
     {
         g_source_remove (priv->scrolling_timeout_id);
         priv->scrolling_timeout_id = 0;
-    }
-    if (priv->hide_scrollbars_timeout_id)
-    {
-        g_source_remove (priv->hide_scrollbars_timeout_id);
-        priv->hide_scrollbars_timeout_id = 0;
     }
 
     (*G_OBJECT_CLASS (katze_scrolled_parent_class)->dispose) (object);
@@ -1133,14 +925,6 @@ katze_scrolled_set_drag_scrolling (KatzeScrolled* scrolled,
             g_source_remove (priv->scrolling_timeout_id);
             priv->scrolling_timeout_id = 0;
             priv->previous_time = 0;
-        }
-
-        gdk_window_hide (priv->vertical_scrollbar_window);
-        gdk_window_hide (priv->horizontal_scrollbar_window);
-        if (priv->hide_scrollbars_timeout_id)
-        {
-            g_source_remove (priv->hide_scrollbars_timeout_id);
-            priv->hide_scrollbars_timeout_id = 0;
         }
 
         priv->press_received = FALSE;
