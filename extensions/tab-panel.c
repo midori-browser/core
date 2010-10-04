@@ -462,7 +462,7 @@ tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
 {
     gboolean minimized = katze_object_get_boolean (view, "minimized");
 
-    if (!(GTK_OBJECT_FLAGS (browser) & GTK_IN_DESTRUCTION))
+    if (g_object_get_data (G_OBJECT (browser), "midori-browser-destroyed"))
         tab_panel_remove_view (browser, view, minimized);
 }
 
@@ -475,7 +475,7 @@ tab_panel_browser_notify_tab_cb (MidoriBrowser* browser,
     GtkTreeIter iter;
     GtkWidget* view;
 
-    if (GTK_OBJECT_FLAGS (browser) & GTK_IN_DESTRUCTION)
+    if (g_object_get_data (G_OBJECT (browser), "midori-browser-destroyed"))
         return;
 
     view = midori_browser_get_current_tab (browser);

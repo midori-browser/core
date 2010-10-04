@@ -5196,6 +5196,8 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
+    g_object_set_data (G_OBJECT (browser), "midori-browser-destroyed", (void*)1);
+
     if (G_UNLIKELY (browser->panel_timeout))
         g_source_remove (browser->panel_timeout);
     if (G_UNLIKELY (browser->alloc_timeout))
