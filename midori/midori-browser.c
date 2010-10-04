@@ -4708,7 +4708,7 @@ midori_panel_close_cb (MidoriPanel*   panel,
 
 static void
 gtk_notebook_switch_page_cb (GtkWidget*       notebook,
-                             GtkNotebookPage* page,
+                             gpointer         page,
                              guint            page_num,
                              MidoriBrowser*   browser)
 {
@@ -4727,7 +4727,7 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
 
 static void
 gtk_notebook_switch_page_after_cb (GtkWidget*       notebook,
-                                   GtkNotebookPage* page,
+                                   gpointer         page,
                                    guint            page_num,
                                    MidoriBrowser*   browser)
 {
