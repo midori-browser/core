@@ -29,8 +29,6 @@ struct _KatzeNet
 
     gchar* cache_path;
     guint cache_size;
-
-    SoupSession* session;
 };
 
 struct _KatzeNetClass
@@ -57,8 +55,6 @@ katze_net_init (KatzeNet* net)
 {
     net->cache_path = g_build_filename (g_get_user_cache_dir (),
                                         PACKAGE_NAME, NULL);
-
-    net->session = webkit_get_default_session ();
 }
 
 static void
@@ -90,7 +86,6 @@ katze_net_new (void)
 
 typedef struct
 {
-    KatzeNet* net;
     KatzeNetStatusCb status_cb;
     KatzeNetTransferCb transfer_cb;
     gpointer user_data;
@@ -151,9 +146,7 @@ static void
 katze_net_got_headers_cb (SoupMessage*  msg,
                           KatzeNetPriv* priv)
 {
-    KatzeNetRequest* request;
-
-    request = priv->request;
+    KatzeNetRequest* request = priv->request;
 
     switch (msg->status_code)
     {
@@ -171,7 +164,7 @@ katze_net_got_headers_cb (SoupMessage*  msg,
     {
         g_signal_handlers_disconnect_by_func (msg, katze_net_got_headers_cb, priv);
         g_signal_handlers_disconnect_by_func (msg, katze_net_got_body_cb, priv);
-        soup_session_cancel_message (priv->net->session, msg, 1);
+        soup_session_cancel_message (webkit_get_default_session (), msg, 1);
     }
 }
 
@@ -179,9 +172,7 @@ static void
 katze_net_got_body_cb (SoupMessage*  msg,
                        KatzeNetPriv* priv)
 {
-    KatzeNetRequest* request;
-
-    request = priv->request;
+    KatzeNetRequest* request = priv->request;
 
     if (msg->response_body->length > 0)
     {
@@ -203,48 +194,35 @@ katze_net_finished_cb (SoupMessage*  msg,
 static gboolean
 katze_net_local_cb (KatzeNetPriv* priv)
 {
-    KatzeNetRequest* request;
-    gchar* filename;
-    gchar* contents;
-    gsize length;
-
-    request = priv->request;
-    filename = g_filename_from_uri (request->uri, NULL, NULL);
+    KatzeNetRequest* request = priv->request;
+    gchar* filename = g_filename_from_uri (request->uri, NULL, NULL);
 
     if (!filename || g_access (filename, F_OK) != 0)
     {
         request->status = KATZE_NET_NOT_FOUND;
         if (priv->status_cb)
             priv->status_cb (request, priv->user_data);
-        katze_net_priv_free (priv);
-        return FALSE;
     }
-    request->status = KATZE_NET_VERIFIED;
-    if (priv->status_cb && !priv->status_cb (request, priv->user_data))
+    else if (!(priv->status_cb && !priv->status_cb (request, priv->user_data))
+           &&  priv->transfer_cb)
     {
-        katze_net_priv_free (priv);
-        return FALSE;
-    }
+        gchar* contents = NULL;
+        gsize length;
 
-    if (!priv->transfer_cb)
-    {
-        katze_net_priv_free (priv);
-        return FALSE;
-    }
-
-    contents = NULL;
-    if (!g_file_get_contents (filename, &contents, &length, NULL))
-    {
-        request->status = KATZE_NET_FAILED;
+        request->status = KATZE_NET_VERIFIED;
+        if (!g_file_get_contents (filename, &contents, &length, NULL))
+        {
+            request->status = KATZE_NET_FAILED;
+        }
+        else
+        {
+            request->status = KATZE_NET_DONE;
+            request->data = contents;
+            request->length = length;
+        }
         priv->transfer_cb (request, priv->user_data);
-        katze_net_priv_free (priv);
-        return FALSE;
     }
-
-    request->status = KATZE_NET_DONE;
-    request->data = contents;
-    request->length = length;
-    priv->transfer_cb (request, priv->user_data);
+    g_free (filename);
     katze_net_priv_free (priv);
     return FALSE;
 }
@@ -298,15 +276,12 @@ katze_net_load_uri (KatzeNet*          net,
     if (!status_cb && !transfer_cb)
         return;
 
-    net = katze_net_new ();
-
     request = g_new0 (KatzeNetRequest, 1);
     request->uri = g_strdup (uri);
     request->mime_type = NULL;
     request->data = NULL;
 
     priv = g_new0 (KatzeNetPriv, 1);
-    priv->net = net;
     priv->status_cb = status_cb;
     priv->transfer_cb = transfer_cb;
     priv->user_data = user_data;
@@ -323,16 +298,13 @@ katze_net_load_uri (KatzeNet*          net,
                 G_CALLBACK (katze_net_got_body_cb), priv);
         g_signal_connect (msg, "finished",
             G_CALLBACK (katze_net_finished_cb), priv);
-        soup_session_queue_message (net->session, msg, NULL, NULL);
+        soup_session_queue_message (webkit_get_default_session (), msg, NULL, NULL);
         return;
     }
 
     if (g_str_has_prefix (uri, "file://"))
-    {
         g_idle_add ((GSourceFunc)katze_net_local_cb, priv);
-        return;
-    }
-
-    g_idle_add ((GSourceFunc)katze_net_default_cb, priv);
+    else
+        g_idle_add ((GSourceFunc)katze_net_default_cb, priv);
 }
 
