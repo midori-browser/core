@@ -478,10 +478,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
     SPANNED_ADD (button);
-    label = katze_property_label (settings, "open-external-pages-in");
-    INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "open-external-pages-in", NULL);
-    SPANNED_ADD (button);
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "always-show-tabbar", NULL);
     INDENTED_ADD (button);
