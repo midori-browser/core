@@ -3273,11 +3273,10 @@ static gboolean
 midori_view_web_inspector_show_window_cb (gpointer    inspector,
                                           MidoriView* view)
 {
-    GtkWidget* inspector_view;
-    GtkWidget* window;
+    GtkWidget* inspector_view = katze_object_get_object (inspector, "web-view");
+    GtkWidget* window = gtk_widget_get_toplevel (inspector_view);
+    g_object_unref (inspector_view);
 
-    g_object_get (inspector, "web-view", &inspector_view, NULL);
-    window = gtk_widget_get_toplevel (inspector_view);
     if (!window)
         return FALSE;
     gtk_window_present (GTK_WINDOW (window));
@@ -3300,13 +3299,13 @@ midori_view_web_inspector_detach_window_cb (gpointer    inspector,
 {
     GtkWidget* inspector_view = katze_object_get_object (inspector, "web-view");
     GtkWidget* parent = gtk_widget_get_parent (inspector_view);
+    g_object_unref (inspector_view);
     if (GTK_IS_WINDOW (parent))
         return FALSE;
     gtk_widget_hide (parent);
     gtk_container_remove (GTK_CONTAINER (parent), inspector_view);
     midori_view_web_inspector_construct_window (inspector,
         WEBKIT_WEB_VIEW (view->web_view), inspector_view, view);
-    g_object_unref (inspector_view);
     return TRUE;
 }
 
