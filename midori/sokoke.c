@@ -1333,7 +1333,7 @@ sokoke_register_stock_items (void)
         gtk_icon_factory_add (factory, items[i].stock_id, icon_set);
         gtk_icon_set_unref (icon_set);
     }
-    gtk_stock_add ((GtkStockItem*)items, G_N_ELEMENTS (items));
+    gtk_stock_add_static ((GtkStockItem*)items, G_N_ELEMENTS (items));
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
 
