@@ -31,28 +31,7 @@ static void cm_activate_cb(MidoriExtension *extension, MidoriApp *app, gpointer 
 
 MidoriExtension *extension_init(void)
 {
-	MidoriExtension *extension;
-	GtkIconFactory *factory;
-	GtkIconSource *icon_source;
-	GtkIconSet *icon_set;
-	static GtkStockItem items[] =
-	{
-		{ STOCK_COOKIE_MANAGER, N_("_Cookie Manager"), 0, 0, NULL }
-	};
-
-	factory = gtk_icon_factory_new();
-	gtk_stock_add(items, G_N_ELEMENTS(items));
-	icon_set = gtk_icon_set_new();
-	icon_source = gtk_icon_source_new();
-	gtk_icon_source_set_icon_name(icon_source, GTK_STOCK_DIALOG_AUTHENTICATION);
-	gtk_icon_set_add_source(icon_set, icon_source);
-	gtk_icon_source_free(icon_source);
-	gtk_icon_factory_add(factory, STOCK_COOKIE_MANAGER, icon_set);
-	gtk_icon_set_unref(icon_set);
-	gtk_icon_factory_add_default(factory);
-	g_object_unref(factory);
-
-	extension = g_object_new(MIDORI_TYPE_EXTENSION,
+	MidoriExtension *extension = g_object_new(MIDORI_TYPE_EXTENSION,
 		"name", _("Cookie Manager"),
 		"description", _("List, view and delete cookies"),
 		"version", "0.2",

@@ -85,7 +85,7 @@ static const gchar *cookie_manager_page_get_label(MidoriViewable *viewable)
 
 static const gchar *cookie_manager_page_get_stock_id(MidoriViewable *viewable)
 {
-	return STOCK_COOKIE_MANAGER;
+	return GTK_STOCK_DIALOG_AUTHENTICATION;
 }
 
 
