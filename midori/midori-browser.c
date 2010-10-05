@@ -5325,6 +5325,7 @@ static const gchar* ui_markup =
             "<menuitem action='UndoTabClose'/>"
             "<menuitem action='TrashEmpty'/>"
             "<menuitem action='Preferences'/>"
+            "<menuitem action='InspectPage'/>"
             "</menu>"
         "</menubar>"
         "<toolbar name='toolbar_navigation'>"
