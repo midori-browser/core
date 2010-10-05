@@ -462,7 +462,7 @@ tab_panel_browser_remove_tab_cb (MidoriBrowser*   browser,
 {
     gboolean minimized = katze_object_get_boolean (view, "minimized");
 
-    if (g_object_get_data (G_OBJECT (browser), "midori-browser-destroyed"))
+    if (!g_object_get_data (G_OBJECT (browser), "midori-browser-destroyed"))
         tab_panel_remove_view (browser, view, minimized);
 }
 
