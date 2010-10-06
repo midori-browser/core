@@ -675,8 +675,8 @@ midori_browser_session_cb (MidoriBrowser* browser,
     if (!save_timeout)
     {
         g_object_ref (session);
-        save_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
-            (GSourceFunc)midori_session_save_timeout_cb, session, NULL);
+        save_timeout = g_timeout_add_seconds (5,
+            (GSourceFunc)midori_session_save_timeout_cb, session);
     }
 }
 
