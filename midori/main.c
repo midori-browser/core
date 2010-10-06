@@ -1004,14 +1004,10 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
 static gboolean
 midori_load_cookie_jar (gpointer data)
 {
-    MidoriWebSettings* settings = MIDORI_WEB_SETTINGS (data);
-    SoupSession* webkit_session;
-    SoupCookieJar* jar;
-
-    webkit_session = webkit_get_default_session ();
-    jar = soup_cookie_jar_new ();
-    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
-    midori_soup_session_prepare (webkit_session, jar, settings);
+    SoupSession* session = webkit_get_default_session ();
+    SoupCookieJar* jar = soup_cookie_jar_new ();
+    g_object_set_data (G_OBJECT (jar), "midori-settings", data);
+    midori_soup_session_prepare (session, jar, MIDORI_WEB_SETTINGS (data));
     g_object_unref (jar);
 
     return FALSE;
@@ -2114,6 +2110,9 @@ main (int    argc,
     settings = katze_object_get_object (app, "settings");
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (db, max_history_age);
+    /* Removing KatzeHttpCookies makes it save outstanding changes */
+    soup_session_remove_feature_by_type (webkit_get_default_session (),
+                                         KATZE_TYPE_HTTP_COOKIES);
 
     /* Clear data on quit, according to the Clear private data dialog */
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
