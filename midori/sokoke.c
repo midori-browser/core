@@ -443,16 +443,19 @@ sokoke_spawn_program (const gchar* command,
     {
         /* FIXME: Implement Hildon specific version */
         gchar* uri_format;
+        gchar* argument_quoted;
         gchar* command_ready;
         gchar** argv;
 
         if ((uri_format = strstr (command, "%u")))
             uri_format[1] = 's';
 
+        argument_quoted = g_shell_quote (argument);
         if (strstr (command, "%s"))
-            command_ready = g_strdup_printf (command, argument);
+            command_ready = g_strdup_printf (command, argument_quoted);
         else
-            command_ready = g_strconcat (command, " ", argument, NULL);
+            command_ready = g_strconcat (command, " ", argument_quoted, NULL);
+        g_free (argument_quoted);
 
         error = NULL;
         if (!g_shell_parse_argv (command_ready, NULL, &argv, &error))
