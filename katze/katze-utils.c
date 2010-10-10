@@ -474,6 +474,9 @@ g_icon_to_string (GIcon *icon)
  *     "custom-PROPERTY": the last value of an enumeration will be the "custom"
  *         value, where the user may enter text freely, which then updates
  *         the property PROPERTY instead. This applies only to enumerations.
+ *     Since 0.2.9 the following hints are also supported:
+ *     "languages": the widget will be particularly suitable for choosing
+ *         multiple language codes, ie. "de,en_GB".
  *
  * Any other values for @hint are silently ignored.
  *
@@ -740,6 +743,17 @@ katze_property_proxy (gpointer     object,
         g_object_get (object, property, &string, NULL);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
+        if (!(string && *string) && _hint == I_("languages"))
+        {
+            gchar* lang = g_strjoinv (",", (gchar**)g_get_language_names ());
+            if (g_str_has_suffix (lang, ",C"))
+            {
+                string = g_strndup (lang, strlen (lang) - 2);
+                g_free (lang);
+            }
+            else
+                string = lang;
+        }
         gtk_entry_set_text (GTK_ENTRY (widget), string ? string : "");
         g_signal_connect (widget, "activate",
                           G_CALLBACK (proxy_entry_activate_cb), object);
