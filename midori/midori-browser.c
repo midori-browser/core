@@ -2134,31 +2134,11 @@ _action_tab_new_activate (GtkAction*     action,
 }
 
 static void
-midori_browser_spawn_app (const gchar* uri)
-{
-    const gchar* executable = sokoke_get_argv (NULL)[0];
-    /* "midori"
-       "/usr/bin/midori"
-       "c:/Program Files/Midori/bin/midori.exe" */
-    gchar* quoted = g_shell_quote (executable);
-    gchar* command = g_strconcat (quoted, " -a", NULL);
-    g_free (quoted);
-    sokoke_spawn_program (command, uri, FALSE);
-    g_free (command);
-}
-
-static void
 _action_private_browsing_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
     const gchar* uri = midori_browser_get_current_uri (browser);
-    if (uri != NULL)
-    {
-        if (*uri != '\0')
-            midori_browser_spawn_app (uri);
-        else
-            midori_browser_spawn_app ("about:blank");
-    }
+    sokoke_spawn_app (uri && *uri ? uri : "about:blank");
 }
 
 static void
@@ -2761,7 +2741,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         uri_fixed = g_strdup (uri);
 
     if (katze_item_get_meta_boolean (item, "app"))
-        midori_browser_spawn_app (uri_fixed);
+        sokoke_spawn_app (uri_fixed);
     else
     {
         midori_browser_set_current_uri (browser, uri_fixed);

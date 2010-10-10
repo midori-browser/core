@@ -484,6 +484,20 @@ sokoke_spawn_program (const gchar* command,
     return TRUE;
 }
 
+void
+sokoke_spawn_app (const gchar* uri)
+{
+    const gchar* executable = sokoke_get_argv (NULL)[0];
+    /* "midori"
+       "/usr/bin/midori"
+       "c:/Program Files/Midori/bin/midori.exe" */
+    gchar* quoted = g_shell_quote (executable);
+    gchar* command = g_strconcat (quoted, " -a", NULL);
+    g_free (quoted);
+    sokoke_spawn_program (command, uri, FALSE);
+    g_free (command);
+}
+
 /**
  * sokoke_hostname_from_uri:
  * @uri: an URI string
