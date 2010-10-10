@@ -38,6 +38,8 @@
     #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
 #endif
 
+#define I_ g_intern_static_string
+
 static void
 proxy_toggle_button_toggled_cb (GtkToggleButton* button,
                                 GObject*         object)
@@ -510,7 +512,7 @@ katze_property_proxy (gpointer     object,
     type = G_PARAM_SPEC_TYPE (pspec);
     nick = g_param_spec_get_nick (pspec);
     _hint = g_intern_string (hint);
-    if (_hint == g_intern_string ("blurb"))
+    if (_hint == I_("blurb"))
         nick = g_param_spec_get_blurb (pspec);
     string = NULL;
     if (type == G_TYPE_PARAM_BOOLEAN)
@@ -519,7 +521,7 @@ katze_property_proxy (gpointer     object,
         gboolean toggled = katze_object_get_boolean (object, property);
 
         #ifdef HAVE_HILDON_2_2
-        if (_hint != g_intern_string ("toggle"))
+        if (_hint != I_("toggle"))
         {
             widget = hildon_check_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_AUTO_WIDTH);
             gtk_button_set_label (GTK_BUTTON (widget), gettext (nick));
@@ -529,7 +531,7 @@ katze_property_proxy (gpointer     object,
         #endif
         {
             widget = gtk_check_button_new ();
-            if (_hint == g_intern_string ("toggle"))
+            if (_hint == I_("toggle"))
                 gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (widget), FALSE);
             else
                 gtk_button_set_label (GTK_BUTTON (widget), gettext (nick));
@@ -544,7 +546,7 @@ katze_property_proxy (gpointer     object,
             G_CALLBACK (proxy_widget_boolean_destroy_cb), object);
         g_free (notify_property);
     }
-    else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("file"))
+    else if (type == G_TYPE_PARAM_STRING && _hint == I_("file"))
     {
         string = katze_object_get_string (object, property);
 
@@ -559,7 +561,7 @@ katze_property_proxy (gpointer     object,
             g_signal_connect (widget, "selection-changed",
                               G_CALLBACK (proxy_file_file_set_cb), object);
     }
-    else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("folder"))
+    else if (type == G_TYPE_PARAM_STRING && _hint == I_("folder"))
     {
         string = katze_object_get_string (object, property);
 
@@ -573,7 +575,7 @@ katze_property_proxy (gpointer     object,
             g_signal_connect (widget, "selection-changed",
                               G_CALLBACK (proxy_folder_file_set_cb), object);
     }
-    else if (type == G_TYPE_PARAM_STRING && _hint == g_intern_string ("uri"))
+    else if (type == G_TYPE_PARAM_STRING && _hint == I_("uri"))
     {
         string = katze_object_get_string (object, property);
 
@@ -592,14 +594,14 @@ katze_property_proxy (gpointer     object,
                               G_CALLBACK (proxy_uri_file_set_cb), object);
         #endif
     }
-    else if (type == G_TYPE_PARAM_STRING && (_hint == g_intern_string ("font")
-        || _hint == g_intern_string ("font-monospace")))
+    else if (type == G_TYPE_PARAM_STRING && (_hint == I_("font")
+        || _hint == I_("font-monospace")))
     {
         GtkComboBox* combo;
         gint n_families, i;
         PangoContext* context;
         PangoFontFamily** families;
-        gboolean monospace = _hint == g_intern_string ("font-monospace");
+        gboolean monospace = _hint == I_("font-monospace");
         string = katze_object_get_string (object, property);
 
         widget = gtk_combo_box_new_text ();
