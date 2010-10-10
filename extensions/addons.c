@@ -291,22 +291,23 @@ midori_addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
         MidoriWebSettings* settings;
         MidoriBrowser* browser;
         gchar* text_editor;
-        gchar* element_uri;
 
         browser = midori_browser_get_for_widget (GTK_WIDGET (addons->treeview));
         settings = katze_object_get_object (browser, "settings");
 
         gtk_tree_model_get (model, &iter, 0, &element, -1);
-        element_uri = g_filename_to_uri (element->fullpath, NULL, NULL);
 
         g_object_get (settings, "text-editor", &text_editor, NULL);
         if (text_editor && *text_editor)
-            sokoke_spawn_program (text_editor, element_uri, TRUE);
+            sokoke_spawn_program (text_editor, element->fullpath);
         else
+        {
+            gchar* element_uri = g_filename_to_uri (element->fullpath, NULL, NULL);
             sokoke_show_uri (NULL, element_uri,
                              gtk_get_current_event_time (), NULL);
+            g_free (element_uri);
+        }
 
-        g_free (element_uri);
         g_free (text_editor);
     }
 }

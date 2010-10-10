@@ -375,15 +375,14 @@ sokoke_show_uri (GdkScreen*   screen,
 
 gboolean
 sokoke_spawn_program (const gchar* command,
-                      const gchar* argument,
-                      gboolean     filename)
+                      const gchar* argument)
 {
     GError* error;
 
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
 
-    if (filename)
+    if (!g_strstr_len (argument, 8, "://"))
     {
         gboolean success;
 
@@ -494,7 +493,7 @@ sokoke_spawn_app (const gchar* uri)
     gchar* quoted = g_shell_quote (executable);
     gchar* command = g_strconcat (quoted, " -a", NULL);
     g_free (quoted);
-    sokoke_spawn_program (command, uri, FALSE);
+    sokoke_spawn_program (command, uri);
     g_free (command);
 }
 

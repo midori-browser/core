@@ -98,9 +98,8 @@ sokoke_show_uri                         (GdkScreen*      screen,
                                          GError**        error);
 
 gboolean
-sokoke_spawn_program                    (const gchar*    command,
-                                         const gchar*    argument,
-                                         gboolean        quote);
+sokoke_spawn_program                    (const gchar* command,
+                                         const gchar* argument);
 
 void
 sokoke_spawn_app                        (const gchar*    uri);

@@ -1791,7 +1791,7 @@ midori_web_view_menu_video_download_activate_cb (GtkWidget*  widget,
                                                  MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
-    sokoke_spawn_program (view->download_manager, uri, FALSE);
+    sokoke_spawn_program (view->download_manager, uri);
     g_free (uri);
 }
 #endif
@@ -1878,7 +1878,7 @@ static void
 midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
                                            MidoriView* view)
 {
-    sokoke_spawn_program (view->download_manager, view->link_uri, FALSE);
+    sokoke_spawn_program (view->download_manager, view->link_uri);
 }
 
 static void

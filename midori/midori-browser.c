@@ -2228,7 +2228,7 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
                                        const gchar*   uri)
 {
     if (browser->news_aggregator && *browser->news_aggregator)
-        sokoke_spawn_program (browser->news_aggregator, uri, FALSE);
+        sokoke_spawn_program (browser->news_aggregator, uri);
     else
     {
         gchar* description = g_strdup_printf ("%s\n\n%s", uri,
@@ -3262,7 +3262,7 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
                 g_object_get (browser->settings,
                     "text-editor", &text_editor, NULL);
                 if (text_editor && *text_editor)
-                    sokoke_spawn_program (text_editor, unique_filename, TRUE);
+                    sokoke_spawn_program (text_editor, unique_filename);
                 else
                     sokoke_show_uri (NULL, unique_filename,
                                      gtk_get_current_event_time (), NULL);
@@ -3326,7 +3326,7 @@ _action_source_view_activate (GtkAction*     action,
     if (g_str_has_prefix (uri, "file://"))
     {
         gchar* filename = g_filename_from_uri (uri, NULL, NULL);
-        sokoke_spawn_program (text_editor, filename, TRUE);
+        sokoke_spawn_program (text_editor, filename);
         g_free (filename);
         return;
     }
