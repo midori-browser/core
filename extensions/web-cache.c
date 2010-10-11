@@ -37,7 +37,8 @@ web_cache_get_cached_path (MidoriExtension* extension,
     gchar* cached_path;
 
     if (!cache_path)
-        cache_path = midori_extension_get_string (extension, "path");
+        cache_path = g_build_filename (g_get_user_cache_dir (),
+                                       PACKAGE_NAME, "web", NULL);
     checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri, -1);
     folder = g_strdup_printf ("%c%c", checksum[0], checksum[1]);
     sub_path = g_build_path (G_DIR_SEPARATOR_S, cache_path, folder, NULL);
@@ -456,18 +457,12 @@ web_cache_activate_cb (MidoriExtension* extension,
 MidoriExtension*
 extension_init (void)
 {
-    gchar* cache_path = g_build_filename (g_get_user_cache_dir (),
-                                          PACKAGE_NAME, "web", NULL);
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Web Cache"),
         "description", _("Cache HTTP communication on disk"),
         "version", "0.1",
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
-    midori_extension_install_string (extension, "path", cache_path);
-    midori_extension_install_integer (extension, "size", 50);
-
-    g_free (cache_path);
 
     g_signal_connect (extension, "activate",
         G_CALLBACK (web_cache_activate_cb), NULL);
