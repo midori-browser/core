@@ -108,6 +108,7 @@ struct _MidoriView
     GHashTable* memory;
 
     GtkWidget* scrolled_window;
+    GtkWidget* infobar_location;
 };
 
 struct _MidoriViewClass
@@ -1002,6 +1003,9 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     g_return_if_fail (uri != NULL);
     katze_assign (view->icon_uri, NULL);
 
+    if (view->infobar_location)
+        view->infobar_location = (gtk_widget_destroy (view->infobar_location), NULL);
+
     if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
     {
         katze_assign (view->uri, sokoke_format_uri_for_display (uri));
@@ -1131,6 +1135,101 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
             return;
         }
     }
+}
+#endif
+
+#if WEBKIT_CHECK_VERSION (1, 1, 23)
+static void
+midori_view_location_response_cb (GtkWidget*                       infobar,
+                                  gint                             response,
+                                  WebKitGeolocationPolicyDecision* decision)
+{
+    MidoriView* view = g_object_get_data (G_OBJECT (decision), "midori-view");
+    g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    if (response == GTK_RESPONSE_ACCEPT)
+        webkit_geolocation_policy_allow (decision);
+    else
+        webkit_geolocation_policy_deny (decision);
+    gtk_widget_destroy (infobar);
+}
+
+#define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
+
+#if !HAVE_GTK_INFO_BAR
+static void
+midori_view_location_button_cb (GtkWidget* button,
+                                WebKitGeolocationPolicyDecision* decision)
+{
+    GtkWidget* infobar = gtk_widget_get_parent (gtk_widget_get_parent (button));
+    const gchar* label = gtk_button_get_label (GTK_BUTTON (button));
+    gint response = g_str_equal (label, _("_Accept")) ? GTK_RESPONSE_ACCEPT : 0;
+    midori_view_location_response_cb (infobar, response, decision);
+}
+#endif
+
+static gboolean
+midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   web_view,
+                                              WebKitWebFrame*                  web_frame,
+                                              WebKitGeolocationPolicyDecision* decision,
+                                              MidoriView*                      view)
+{
+    const gchar* uri = webkit_web_frame_get_uri (web_frame);
+    gchar* path;
+    const gchar* hostname = sokoke_hostname_from_uri (uri, &path);
+    gchar* message;
+    GtkWidget* infobar;
+    GtkWidget* action_area;
+    #if !HAVE_GTK_INFO_BAR
+    GtkWidget* button;
+    #endif
+    GtkWidget* content_area;
+    GtkWidget* label;
+
+    if (!(hostname && *hostname))
+        hostname = uri;
+    message = g_strdup_printf (_("%s wants to know your location."), hostname);
+    label = gtk_label_new (message);
+
+    #if HAVE_GTK_INFO_BAR
+    infobar = gtk_info_bar_new_with_buttons (_("_Deny"), GTK_RESPONSE_REJECT,
+                                             _("_Allow"), GTK_RESPONSE_ACCEPT,
+                                             NULL);
+    gtk_info_bar_set_message_type (GTK_INFO_BAR (infobar), GTK_MESSAGE_QUESTION);
+    content_area = gtk_info_bar_get_content_area (GTK_INFO_BAR (infobar));
+    action_area = gtk_info_bar_get_action_area (GTK_INFO_BAR (infobar));
+    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_HORIZONTAL);
+    g_signal_connect (infobar, "response",
+                      G_CALLBACK (midori_view_location_response_cb), decision);
+    #else
+    infobar = gtk_hbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (infobar), 4);
+    content_area = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (infobar), content_area, TRUE, TRUE, 0);
+    action_area = gtk_hbox_new (TRUE, 0);
+    button = gtk_button_new_with_mnemonic (_("_Deny"));
+    g_signal_connect (button, "clicked",
+                      G_CALLBACK (midori_view_location_button_cb), decision);
+    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
+    button = gtk_button_new_with_mnemonic (_("_Accept"));
+    g_signal_connect (button, "clicked",
+                      G_CALLBACK (midori_view_location_button_cb), decision);
+    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
+
+    gtk_box_pack_start (GTK_BOX (infobar), action_area, FALSE, FALSE, 0);
+    #endif
+
+    gtk_container_add (GTK_CONTAINER (content_area), label);
+    gtk_widget_show_all (infobar);
+    gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
+    gtk_box_reorder_child (GTK_BOX (view), infobar, 0);
+
+    g_free (message);
+    view->infobar_location = infobar;
+    g_signal_connect (infobar, "destroy",
+                      G_CALLBACK (gtk_widget_destroyed), &view->infobar_location);
+    g_object_set_data (G_OBJECT (decision), "midori-view", view);
+    return TRUE;
 }
 #endif
 
@@ -2832,6 +2931,7 @@ midori_view_init (MidoriView* view)
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
     gtk_container_add (GTK_CONTAINER (view), view->scrolled_window);
+    view->infobar_location = NULL;
 
     g_signal_connect (view->item, "meta-data-changed",
         G_CALLBACK (midori_view_item_meta_data_changed), view);
@@ -3335,6 +3435,10 @@ midori_view_construct_web_view (MidoriView* view)
                       #if WEBKIT_CHECK_VERSION (1, 1, 14)
                       "signal::resource-request-starting",
                       midori_view_web_view_resource_request_cb, view,
+                      #endif
+                      #if WEBKIT_CHECK_VERSION (1, 1, 23)
+                      "signal::geolocation-policy-decision-requested",
+                      midori_view_web_view_geolocation_decision_cb, view,
                       #endif
                       "signal::load-started",
                       webkit_web_view_load_started_cb, view,
