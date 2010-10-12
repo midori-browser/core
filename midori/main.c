@@ -368,6 +368,12 @@ midori_history_initialize (KatzeArray*  array,
         return NULL;
     }
 
+    sqlite3_exec (db, "PRAGMA journal_mode = TRUNCATE;", NULL, NULL, errmsg);
+    if (*errmsg)
+    {
+        g_warning ("Failed to set journal mode: %s", *errmsg);
+        sqlite3_free (*errmsg);
+    }
     if (sqlite3_exec (db,
                       "CREATE TABLE IF NOT EXISTS "
                       "history (uri text, title text, date integer, day integer);"
