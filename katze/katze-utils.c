@@ -645,6 +645,8 @@ katze_property_proxy (gpointer     object,
         const gchar* app_type = &hint[12];
         GtkSettings* settings;
         gint icon_width = 16;
+        GtkTreeIter iter_none;
+        GAppInfo* info;
 
         settings = gtk_settings_get_for_screen (gdk_screen_get_default ());
         gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU,
@@ -669,14 +671,12 @@ katze_property_proxy (gpointer     object,
         if (!g_strcmp0 (string, ""))
             katze_assign (string, NULL);
 
-        if (apps)
-        {
-            GtkTreeIter iter_none;
-            gint i = 0;
-            GAppInfo* info;
+        gtk_list_store_insert_with_values (model, &iter_none, 0,
+            0, NULL, 1, NULL, 2, _("None"), 3, icon_width, -1);
 
-            gtk_list_store_insert_with_values (model, &iter_none, 0,
-                0, NULL, 1, NULL, 2, _("None"), 3, icon_width, -1);
+        if (apps != NULL)
+        {
+            gint i = 0;
 
             while ((info = g_list_nth_data (apps, i++)))
             {
@@ -696,7 +696,10 @@ katze_property_proxy (gpointer     object,
 
                 g_free (icon_name);
             }
+            g_list_free (apps);
+        }
 
+        {
             info = g_app_info_create_from_commandline ("",
                 "", G_APP_INFO_CREATE_NONE, NULL);
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
@@ -731,7 +734,6 @@ katze_property_proxy (gpointer     object,
                     gtk_combo_box_set_active_iter (combo, &iter_none);
             }
         }
-        g_list_free (apps);
         g_signal_connect (widget, "changed",
                           G_CALLBACK (proxy_combo_box_apps_changed_cb), object);
     }
