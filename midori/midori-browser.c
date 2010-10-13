@@ -6777,6 +6777,17 @@ midori_browser_activate_action (MidoriBrowser* browser,
     g_signal_emit (browser, signals[ACTIVATE_ACTION], 0, name);
 }
 
+void
+midori_browser_set_action_visible (MidoriBrowser* browser,
+                                   const gchar*   name,
+                                   gboolean       visible)
+{
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (name != NULL);
+
+    _action_set_visible (browser, name, visible);
+}
+
 /**
  * midori_browser_get_action_group:
  * @browser: a #MidoriBrowser

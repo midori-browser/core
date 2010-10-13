@@ -106,6 +106,11 @@ void
 midori_browser_activate_action        (MidoriBrowser*     browser,
                                        const gchar*       name);
 
+void
+midori_browser_set_action_visible     (MidoriBrowser*     browser,
+                                       const gchar*       name,
+                                       gboolean           visible);
+
 GtkActionGroup*
 midori_browser_get_action_group       (MidoriBrowser*     browser);
 
