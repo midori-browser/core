@@ -2138,7 +2138,7 @@ _action_private_browsing_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
     const gchar* uri = midori_browser_get_current_uri (browser);
-    sokoke_spawn_app (uri && *uri ? uri : "about:blank");
+    sokoke_spawn_app (uri && *uri ? uri : "about:blank", TRUE);
 }
 
 static void
@@ -2741,7 +2741,7 @@ midori_browser_open_bookmark (MidoriBrowser* browser,
         uri_fixed = g_strdup (uri);
 
     if (katze_item_get_meta_boolean (item, "app"))
-        sokoke_spawn_app (uri_fixed);
+        sokoke_spawn_app (uri_fixed, FALSE);
     else
     {
         midori_browser_set_current_uri (browser, uri_fixed);

@@ -1732,19 +1732,23 @@ main (int    argc,
             g_free (config_file);
             soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
             g_object_unref (jar);
-
         }
         else
+        {
             settings = katze_object_get_object (browser, "settings");
-        g_object_set (settings,
-                      "show-menubar", FALSE,
-                      "show-navigationbar", TRUE,
-                      "show-panel", FALSE,
-                      "toolbar-items", "Back,Forward,ReloadStop,Location",
-                      "homepage", NULL,
-                      "show-statusbar", FALSE,
-                      "enable-developer-extras", FALSE,
-                      NULL);
+            g_object_set (settings,
+                          "show-menubar", FALSE,
+                          "show-navigationbar", FALSE,
+                          "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
+                          "homepage", webapp,
+                          "show-statusbar", FALSE,
+                          "enable-developer-extras", FALSE,
+                          NULL);
+        }
+        g_object_set (settings, "show-panel", FALSE, NULL);
+        midori_browser_set_action_visible (browser, "Bookmarks", FALSE);
+        midori_browser_set_action_visible (browser, "Tools", FALSE);
+        midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
         midori_startup_timer ("Setup config: \t%f");
         g_object_unref (settings);

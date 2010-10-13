@@ -487,14 +487,20 @@ sokoke_spawn_program (const gchar* command,
 }
 
 void
-sokoke_spawn_app (const gchar* uri)
+sokoke_spawn_app (const gchar* uri,
+                  gboolean     inherit_config)
 {
     const gchar* executable = sokoke_get_argv (NULL)[0];
     /* "midori"
        "/usr/bin/midori"
        "c:/Program Files/Midori/bin/midori.exe" */
     gchar* quoted = g_shell_quote (executable);
-    gchar* command = g_strconcat (quoted, " -a", NULL);
+    gchar* command;
+    if (inherit_config)
+        command = g_strconcat (quoted, " -c ", sokoke_set_config_dir (NULL),
+                                       " -a", NULL);
+    else
+        command = g_strconcat (quoted, " -a", NULL);
     g_free (quoted);
     sokoke_spawn_program (command, uri);
     g_free (command);

@@ -1785,7 +1785,7 @@ static void
 midori_web_view_menu_web_app_activate_cb (GtkWidget*  widget,
                                           MidoriView* view)
 {
-    sokoke_spawn_app (view->link_uri);
+    sokoke_spawn_app (view->link_uri, FALSE);
 }
 
 static void
