@@ -503,7 +503,7 @@ sokoke_spawn_app (const gchar* uri)
 /**
  * sokoke_hostname_from_uri:
  * @uri: an URI string
- * @path: location of a string pointer
+ * @path: location of a string, or %NULL
  *
  * Returns the hostname of the specified URI.
  *
@@ -519,10 +519,15 @@ sokoke_hostname_from_uri (const gchar* uri,
 
     if ((hostname = strchr (uri, '/')))
     {
+        gchar* pathname;
         if (hostname[1] == '/')
             hostname += 2;
-        if ((*path = strchr (hostname, '/')))
-            return g_strndup (hostname, *path - hostname);
+        if ((pathname = strchr (hostname, '/')))
+        {
+            if (path != NULL)
+                *path = pathname;
+            return g_strndup (hostname, pathname - hostname);
+        }
         else
             return g_strdup (hostname);
     }
