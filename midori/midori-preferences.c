@@ -572,12 +572,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         g_free (markup);
     }
     FILLED_ADD (label);
-    #if WEBKIT_CHECK_VERSION (1, 1, 8)
-    INDENTED_ADD (katze_property_proxy (settings, "enable-html5-database", NULL));
-    SPANNED_ADD (katze_property_proxy (settings, "enable-html5-local-storage", NULL));
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 13)
     INDENTED_ADD (katze_property_proxy (settings, "enable-offline-web-application-cache", NULL));
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 1, 8)
+    SPANNED_ADD (katze_property_proxy (settings, "enable-html5-local-storage", NULL));
+    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
+    INDENTED_ADD (katze_property_proxy (settings, "enable-html5-database", NULL));
+    #endif
     #endif
     FRAME_NEW (_("History"));
     button = katze_property_label (settings, "maximum-history-age");

@@ -1882,6 +1882,9 @@ main (int    argc,
     error = NULL;
     settings = settings_new_from_file (config_file, &extensions);
     g_object_set (settings, "enable-developer-extras", TRUE, NULL);
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    g_object_set (settings, "enable-html5-database", TRUE, NULL);
+    #endif
     midori_startup_timer ("Config read: \t%f");
 
     /* Load accelerators */
