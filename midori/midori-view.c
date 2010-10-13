@@ -1125,35 +1125,132 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 }
 #endif
 
+#define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
+
+#if HAVE_GTK_INFO_BAR
+static void
+midori_view_infobar_response_cb (GtkWidget* infobar,
+                                 gint       response,
+                                 gpointer   data_object)
+{
+    void (*response_cb) (GtkWidget*, gint, gpointer);
+    response_cb = g_object_get_data (G_OBJECT (infobar), "midori-infobar-cb");
+    response_cb (infobar, response, data_object);
+    gtk_widget_destroy (infobar);
+}
+#else
+static void
+midori_view_info_bar_button_cb (GtkWidget* button,
+                                gpointer   data_object)
+{
+    GtkWidget* infobar = gtk_widget_get_parent (gtk_widget_get_parent (button));
+    gint response = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (button), "midori-infobar-response"));
+    void (*response_cb) (GtkWidget*, gint, gpointer);
+    response_cb = g_object_get_data (G_OBJECT (infobar), "midori-infobar-cb");
+    response_cb (infobar, response, data_object);
+    gtk_widget_destroy (infobar);
+}
+#endif
+
+static GtkWidget*
+midori_view_add_info_bar (MidoriView*    view,
+                          GtkMessageType message_type,
+                          const gchar*   message,
+                          const gchar*   button_text1,
+                          gint           response_id1,
+                          const gchar*   button_text2,
+                          gint           response_id2,
+                          GCallback      response_cb,
+                          gpointer       data_object)
+{
+    GtkWidget* infobar;
+    GtkWidget* action_area;
+    #if !HAVE_GTK_INFO_BAR
+    GtkWidget* button;
+    #endif
+    GtkWidget* content_area;
+
+    #if HAVE_GTK_INFO_BAR
+    infobar = gtk_info_bar_new_with_buttons (button_text1, response_id1,
+                                             button_text2, response_id2, NULL);
+    gtk_info_bar_set_message_type (GTK_INFO_BAR (infobar), message_type);
+    content_area = gtk_info_bar_get_content_area (GTK_INFO_BAR (infobar));
+    action_area = gtk_info_bar_get_action_area (GTK_INFO_BAR (infobar));
+    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_HORIZONTAL);
+    g_signal_connect (infobar, "response",
+                      G_CALLBACK (midori_view_infobar_response_cb), data_object);
+    #else
+    infobar = gtk_hbox_new (FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (infobar), 4);
+    content_area = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (infobar), content_area, TRUE, TRUE, 0);
+    action_area = gtk_hbox_new (TRUE, 4);
+    button = gtk_button_new_with_mnemonic (button_text1);
+    g_object_set_data (G_OBJECT (button), "midori-infobar-response",
+                       GINT_TO_POINTER (response_id1));
+    g_signal_connect (button, "clicked",
+                      G_CALLBACK (midori_view_info_bar_button_cb), data_object);
+    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
+    button = gtk_button_new_with_mnemonic (button_text2);
+    g_object_set_data (G_OBJECT (button), "midori-infobar-response",
+                       GINT_TO_POINTER (response_id2));
+    g_signal_connect (button, "clicked",
+                      G_CALLBACK (midori_view_info_bar_button_cb), data_object);
+    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (infobar), action_area, FALSE, FALSE, 0);
+    #endif
+
+    gtk_container_add (GTK_CONTAINER (content_area), gtk_label_new (message));
+    gtk_widget_show_all (infobar);
+    gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
+    gtk_box_reorder_child (GTK_BOX (view), infobar, 0);
+    g_object_set_data (G_OBJECT (infobar), "midori-infobar-cb", response_cb);
+    return infobar;
+}
+
+#if WEBKIT_CHECK_VERSION (1, 1, 14)
+static void
+midori_view_database_response_cb (GtkWidget*         infobar,
+                                  gint               response,
+                                  WebKitWebDatabase* database)
+{
+    if (response != GTK_RESPONSE_ACCEPT)
+    {
+        WebKitSecurityOrigin* origin = webkit_web_database_get_security_origin (database);
+        webkit_security_origin_set_web_database_quota (origin, 0);
+        webkit_web_database_remove (database);
+    }
+    /* TODO: Remember the decision */
+}
+
+static void
+midori_view_web_view_database_quota_exceeded_cb (WebKitWebView*     web_view,
+                                                 WebKitWebFrame*    web_frame,
+                                                 WebKitWebDatabase* database,
+                                                 MidoriView*        view)
+{
+    const gchar* uri = webkit_web_frame_get_uri (web_frame);
+    const gchar* hostname = sokoke_hostname_from_uri (uri, NULL);
+    gchar* message = g_strdup_printf (_("%s wants to save an HTML5 database."),
+                                      hostname && *hostname ? hostname : uri);
+    midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
+        _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
+        G_CALLBACK (midori_view_database_response_cb), database);
+    g_free (message);
+}
+#endif
+
 #if WEBKIT_CHECK_VERSION (1, 1, 23)
 static void
 midori_view_location_response_cb (GtkWidget*                       infobar,
                                   gint                             response,
                                   WebKitGeolocationPolicyDecision* decision)
 {
-    MidoriView* view = g_object_get_data (G_OBJECT (decision), "midori-view");
-    g_return_if_fail (MIDORI_IS_VIEW (view));
-
     if (response == GTK_RESPONSE_ACCEPT)
         webkit_geolocation_policy_allow (decision);
     else
         webkit_geolocation_policy_deny (decision);
-    gtk_widget_destroy (infobar);
 }
-
-#define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
-
-#if !HAVE_GTK_INFO_BAR
-static void
-midori_view_location_button_cb (GtkWidget* button,
-                                WebKitGeolocationPolicyDecision* decision)
-{
-    GtkWidget* infobar = gtk_widget_get_parent (gtk_widget_get_parent (button));
-    const gchar* label = gtk_button_get_label (GTK_BUTTON (button));
-    gint response = g_str_equal (label, _("_Accept")) ? GTK_RESPONSE_ACCEPT : 0;
-    midori_view_location_response_cb (infobar, response, decision);
-}
-#endif
 
 static gboolean
 midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   web_view,
@@ -1162,60 +1259,16 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
                                               MidoriView*                      view)
 {
     const gchar* uri = webkit_web_frame_get_uri (web_frame);
-    gchar* path;
-    const gchar* hostname = sokoke_hostname_from_uri (uri, &path);
-    gchar* message;
-    GtkWidget* infobar;
-    GtkWidget* action_area;
-    #if !HAVE_GTK_INFO_BAR
-    GtkWidget* button;
-    #endif
-    GtkWidget* content_area;
-    GtkWidget* label;
-
-    if (!(hostname && *hostname))
-        hostname = uri;
-    message = g_strdup_printf (_("%s wants to know your location."), hostname);
-    label = gtk_label_new (message);
-
-    #if HAVE_GTK_INFO_BAR
-    infobar = gtk_info_bar_new_with_buttons (_("_Deny"), GTK_RESPONSE_REJECT,
-                                             _("_Allow"), GTK_RESPONSE_ACCEPT,
-                                             NULL);
-    gtk_info_bar_set_message_type (GTK_INFO_BAR (infobar), GTK_MESSAGE_QUESTION);
-    content_area = gtk_info_bar_get_content_area (GTK_INFO_BAR (infobar));
-    action_area = gtk_info_bar_get_action_area (GTK_INFO_BAR (infobar));
-    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_HORIZONTAL);
-    g_signal_connect (infobar, "response",
-                      G_CALLBACK (midori_view_location_response_cb), decision);
-    #else
-    infobar = gtk_hbox_new (FALSE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (infobar), 4);
-    content_area = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (infobar), content_area, TRUE, TRUE, 0);
-    action_area = gtk_hbox_new (TRUE, 0);
-    button = gtk_button_new_with_mnemonic (_("_Deny"));
-    g_signal_connect (button, "clicked",
-                      G_CALLBACK (midori_view_location_button_cb), decision);
-    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
-    button = gtk_button_new_with_mnemonic (_("_Accept"));
-    g_signal_connect (button, "clicked",
-                      G_CALLBACK (midori_view_location_button_cb), decision);
-    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
-
-    gtk_box_pack_start (GTK_BOX (infobar), action_area, FALSE, FALSE, 0);
-    #endif
-
-    gtk_container_add (GTK_CONTAINER (content_area), label);
-    gtk_widget_show_all (infobar);
-    gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
-    gtk_box_reorder_child (GTK_BOX (view), infobar, 0);
-
+    const gchar* hostname = sokoke_hostname_from_uri (uri, NULL);
+    gchar* message = g_strdup_printf (_("%s wants to know your location."),
+                                     hostname && *hostname ? hostname : uri);
+    GtkWidget* infobar = midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
+        _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
+        G_CALLBACK (midori_view_location_response_cb), decision);
     g_free (message);
     view->infobar_location = infobar;
     g_signal_connect (infobar, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &view->infobar_location);
-    g_object_set_data (G_OBJECT (decision), "midori-view", view);
     return TRUE;
 }
 #endif
@@ -3414,6 +3467,10 @@ midori_view_construct_web_view (MidoriView* view)
                       #if WEBKIT_CHECK_VERSION (1, 1, 14)
                       "signal::resource-request-starting",
                       midori_view_web_view_resource_request_cb, view,
+                      #endif
+                      #if WEBKIT_CHECK_VERSION (1, 1, 14)
+                      "signal::database-quota-exceeded",
+                      midori_view_web_view_database_quota_exceeded_cb, view,
                       #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 23)
                       "signal::geolocation-policy-decision-requested",
