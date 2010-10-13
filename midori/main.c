@@ -1527,6 +1527,7 @@ main (int    argc,
     gboolean run;
     gchar* snapshot;
     gboolean execute;
+    gboolean help_execute;
     gboolean version;
     gchar** uris;
     gchar* block_uris;
@@ -1552,6 +1553,8 @@ main (int    argc,
        #endif
        { "execute", 'e', 0, G_OPTION_ARG_NONE, &execute,
        N_("Execute the specified command"), NULL },
+       { "help-execute", 0, 0, G_OPTION_ARG_NONE, &help_execute,
+       N_("List available commands to execute with -e/ --execute"), NULL },
        { "version", 'V', 0, G_OPTION_ARG_NONE, &version,
        N_("Display program version"), NULL },
        { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &uris,
@@ -1636,6 +1639,7 @@ main (int    argc,
     run = FALSE;
     snapshot = NULL;
     execute = FALSE;
+    help_execute = FALSE;
     version = FALSE;
     uris = NULL;
     block_uris = NULL;
@@ -1673,6 +1677,29 @@ main (int    argc,
           PACKAGE_BUGREPORT,
           _("Check for new versions at:")
         );
+        return 0;
+    }
+
+    if (help_execute)
+    {
+        MidoriBrowser* browser = midori_browser_new ();
+        GtkActionGroup* action_group = midori_browser_get_action_group (browser);
+        GList* actions = gtk_action_group_list_actions (action_group);
+        for (; actions; actions = g_list_next (actions))
+        {
+            GtkAction* action = actions->data;
+            const gchar* name = gtk_action_get_name (action);
+            const gchar* space = "                       ";
+            gchar* padding = g_strndup (space, strlen (space) - strlen (name));
+            gchar* label = katze_strip_mnemonics (gtk_action_get_label (action));
+            const gchar* tooltip = gtk_action_get_tooltip (action);
+            g_print ("%s%s%s%s%s\n", name, padding, label,
+                     tooltip ? ": " : "", tooltip ? tooltip : "");
+            g_free (padding);
+            g_free (label);
+        }
+        g_list_free (actions);
+        gtk_widget_destroy (GTK_WIDGET (browser));
         return 0;
     }
 
