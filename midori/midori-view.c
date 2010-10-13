@@ -103,10 +103,7 @@ struct _MidoriView
     KatzeItem* item;
     gint scrollh, scrollv;
     gboolean back_forward_set;
-
-    KatzeNet* net;
     GHashTable* memory;
-
     GtkWidget* scrolled_window;
     GtkWidget* infobar_location;
 };
@@ -187,8 +184,7 @@ enum
     PROP_ZOOM_LEVEL,
     PROP_NEWS_FEEDS,
     PROP_STATUSBAR_TEXT,
-    PROP_SETTINGS,
-    PROP_NET
+    PROP_SETTINGS
 };
 
 enum {
@@ -600,15 +596,6 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Settings",
                                      "The associated settings",
                                      MIDORI_TYPE_WEB_SETTINGS,
-                                     flags));
-
-    g_object_class_install_property (gobject_class,
-                                     PROP_NET,
-                                     g_param_spec_object (
-                                     "net",
-                                     "Net",
-                                     "The associated net",
-                                     KATZE_TYPE_NET,
                                      flags));
 }
 
@@ -2973,8 +2960,6 @@ midori_view_finalize (GObject* object)
     katze_assign (view->download_manager, NULL);
     katze_assign (view->news_aggregator, NULL);
 
-    katze_object_assign (view->net, NULL);
-
     G_OBJECT_CLASS (midori_view_parent_class)->finalize (object);
 }
 
@@ -3013,9 +2998,6 @@ midori_view_set_property (GObject*      object,
         break;
     case PROP_SETTINGS:
         midori_view_set_settings (view, g_value_get_object (value));
-        break;
-    case PROP_NET:
-        katze_object_assign (view->net, g_value_dup_object (value));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3068,9 +3050,6 @@ midori_view_get_property (GObject*    object,
         break;
     case PROP_SETTINGS:
         g_value_set_object (value, view->settings);
-        break;
-    case PROP_NET:
-        g_value_set_object (value, view->net);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -5233,7 +5212,7 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
 
     if (!view->thumb_view)
     {
-        view->thumb_view = midori_view_new (view->net);
+        view->thumb_view = midori_view_new_with_uri (NULL, NULL, NULL);
         gtk_container_add (GTK_CONTAINER (notebook), view->thumb_view);
         /* We use an empty label. It's not invisible but at least hard to spot. */
         label = gtk_event_box_new ();
