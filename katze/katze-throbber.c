@@ -855,13 +855,7 @@ static gboolean
 katze_throbber_expose_event (GtkWidget*      widget,
                              GdkEventExpose* event)
 {
-    gint ax, ay;
     KatzeThrobber* throbber = KATZE_THROBBER (widget);
-
-    #if HAVE_SPINNER
-    if (throbber->animated)
-        return GTK_WIDGET_CLASS (katze_throbber_parent_class)->expose_event (widget, event);
-    #endif
 
     if (G_UNLIKELY (!throbber->width || !throbber->height))
         return TRUE;
@@ -873,6 +867,9 @@ katze_throbber_expose_event (GtkWidget*      widget,
     if (!throbber->animated && (throbber->static_pixbuf
         || throbber->static_icon_name || throbber->static_stock_id))
     {
+        gint ax, ay;
+        cairo_t* cr;
+
         if (G_UNLIKELY (!throbber->static_pixbuf && throbber->static_icon_name))
         {
             icon_theme_changed (KATZE_THROBBER (widget));
@@ -902,13 +899,17 @@ katze_throbber_expose_event (GtkWidget*      widget,
 
         katze_throbber_aligned_coords (widget, &ax, &ay);
 
-        gdk_draw_pixbuf (event->window, NULL, throbber->static_pixbuf,
-                         0, 0, ax, ay,
-                         throbber->width, throbber->height,
-                         GDK_RGB_DITHER_NONE, 0, 0);
+        cr = gdk_cairo_create (gtk_widget_get_window (widget));
+        gdk_cairo_set_source_pixbuf (cr, throbber->static_pixbuf, ax, ay);
+        cairo_paint (cr);
+        cairo_destroy (cr);
     }
     else
     {
+        #if HAVE_SPINNER
+        if (throbber->animated)
+            return GTK_WIDGET_CLASS (katze_throbber_parent_class)->expose_event (widget, event);
+        #else
         gint cols, rows;
 
         if (G_UNLIKELY (throbber->icon_name && !throbber->pixbuf))
@@ -969,6 +970,7 @@ katze_throbber_expose_event (GtkWidget*      widget,
             g_object_notify (G_OBJECT (throbber), "pixbuf");
             g_object_thaw_notify (G_OBJECT (throbber));
         }
+        #endif
     }
 
     return TRUE;
