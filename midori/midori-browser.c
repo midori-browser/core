@@ -1297,6 +1297,8 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         }
         g_free (body_fname);
     }
+    g_free (uri);
+    g_free (slot_id);
 }
 
 
