@@ -872,9 +872,9 @@ _midori_web_view_load_icon (MidoriView* view)
                 i++;
             if (view->uri[i] == '/')
             {
-                icon_uri = g_strdup (view->uri);
-                icon_uri[i] = '\0';
-                icon_uri = g_strdup_printf ("%s/favicon.ico", icon_uri);
+                gchar* path = g_strndup (view->uri, i);
+                icon_uri = g_strdup_printf ("%s/favicon.ico", path);
+                g_free (path);
             }
             else
                 icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
