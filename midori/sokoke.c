@@ -247,6 +247,20 @@ sokoke_show_uri_with_mime_type (GdkScreen*   screen,
     return success;
 }
 
+static void
+sokoke_open_with_response_cb (GtkWidget* dialog,
+                              gint       response,
+                              GtkEntry*  entry)
+{
+    if (response == GTK_RESPONSE_ACCEPT)
+    {
+        const gchar* command = gtk_entry_get_text (entry);
+        const gchar* uri = g_object_get_data (G_OBJECT (dialog), "uri");
+        sokoke_spawn_program (command, uri);
+    }
+    gtk_widget_destroy (dialog);
+}
+
 /**
  * sokoke_show_uri:
  * @screen: a #GdkScreen, or %NULL
@@ -268,7 +282,6 @@ sokoke_show_uri (GdkScreen*   screen,
                  guint32      timestamp,
                  GError**     error)
 {
-
     #if HAVE_HILDON
     HildonURIAction* action = hildon_uri_get_default_action_by_uri (uri, NULL);
     return hildon_uri_open (uri, action, error);
@@ -281,9 +294,9 @@ sokoke_show_uri (GdkScreen*   screen,
     GFile *file;
     gchar *free_uri;
 
+    g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
     g_return_val_if_fail (uri != NULL, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
-    g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
 
     file = g_file_new_for_uri (uri);
     app_info = g_file_query_default_handler (file, NULL, error);
@@ -343,6 +356,11 @@ sokoke_show_uri (GdkScreen*   screen,
 
     const gchar* fallbacks [] = { "xdg-open", "exo-open", "gnome-open" };
     gsize i;
+    GtkWidget* dialog;
+    GtkWidget* box;
+    gchar* filename;
+    gchar* ms;
+    GtkWidget* entry;
 
     g_return_val_if_fail (GDK_IS_SCREEN (screen) || !screen, FALSE);
     g_return_val_if_fail (uri != NULL, FALSE);
@@ -369,7 +387,27 @@ sokoke_show_uri (GdkScreen*   screen,
             *error = NULL;
     }
 
-    return FALSE;
+    dialog = gtk_dialog_new_with_buttons (_("Open with"), NULL, 0,
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+    box = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+    filename = g_filename_from_uri (uri, NULL, NULL);
+    ms = g_strdup_printf (_("Choose an application or command to open \"%s\":"),
+                          filename);
+    gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ms), TRUE, FALSE, 4);
+    g_free (ms);
+    entry = gtk_entry_new ();
+    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+    gtk_box_pack_start (GTK_BOX (box), entry, TRUE, FALSE, 4);
+    g_signal_connect (dialog, "response",
+                      G_CALLBACK (sokoke_open_with_response_cb), entry);
+    g_object_set_data_full (G_OBJECT (dialog), "uri",
+                            filename, (GDestroyNotify)g_free);
+    gtk_widget_show_all (dialog);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
+    gtk_widget_grab_focus (entry);
+
+    return TRUE;
     #endif
 }
 
