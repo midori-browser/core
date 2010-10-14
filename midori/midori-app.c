@@ -1199,21 +1199,18 @@ midori_app_send_notification (MidoriApp*   app,
     #if HAVE_HILDON
     hildon_banner_show_information_with_markup (GTK_WIDGET (app->browser),
                                                 "midori", message);
-    #else
-    gboolean sent = FALSE;
-
-    #if HAVE_LIBNOTIFY
+    #elif HAVE_LIBNOTIFY
     if (notify_is_initted ())
     {
         NotifyNotification* note;
 
         note = notify_notification_new (title, message, "midori", NULL);
-        sent = notify_notification_show (note, NULL);
+        notify_notification_show (note, NULL);
         g_object_unref (note);
     }
     #else
     /* Fall back to the command line program "notify-send" */
-    if (!sent && app->program_notify_send)
+    if (app->program_notify_send)
     {
         gchar* msgq = g_shell_quote (message);
         gchar* titleq = g_shell_quote (title);
@@ -1226,6 +1223,5 @@ midori_app_send_notification (MidoriApp*   app,
         g_free (msgq);
         g_free (command);
     }
-    #endif
     #endif
 }
