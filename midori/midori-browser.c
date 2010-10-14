@@ -3196,16 +3196,14 @@ _action_view_encoding_activate (GtkAction*     action,
 static gchar*
 midori_browser_get_uri_extension (const gchar* uri)
 {
-    gchar* extension;
     gchar* slash;
     gchar* period;
     gchar* ext_end;
-    gchar* tmp = g_strdup (uri);
 
     /* Find the last slash in the URI and search for the last period
        *after* the last slash. This is not completely accurate
        but should cover most (simple) URIs */
-    slash = strrchr (tmp, '/');
+    slash = strrchr (uri, '/');
     /* Huh, URI without slashes? */
     if (!slash)
         return g_strdup ("");
@@ -3225,11 +3223,7 @@ midori_browser_get_uri_extension (const gchar* uri)
         ext_end++;
 
     *ext_end = 0;
-    extension = g_strdup (period);
-
-    g_free (tmp);
-
-    return extension;
+    return g_strdup (period);
 }
 
 static void
