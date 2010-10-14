@@ -436,12 +436,14 @@ static void
 web_cache_activate_cb (MidoriExtension* extension,
                        MidoriApp*       app)
 {
-    const gchar* cache_path = midori_extension_get_string (extension, "path");
+    gchar* cache_path = g_build_filename (g_get_user_cache_dir (),
+                                          PACKAGE_NAME, "web", NULL);
     KatzeArray* browsers;
     MidoriBrowser* browser;
     SoupSession* session = webkit_get_default_session ();
 
     katze_mkdir_with_parents (cache_path, 0700);
+    g_free (cache_path);
     g_signal_connect (session, "request-queued",
                       G_CALLBACK (web_cache_session_request_queued_cb), extension);
 
