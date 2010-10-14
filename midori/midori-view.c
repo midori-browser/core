@@ -5219,7 +5219,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     js = g_strdup_printf ("setThumbnail('%s','%s','%s');",
                           dom_id, encoded, thumb_view->uri);
     webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), js);
-    free (js);
+    g_free (js);
     g_object_unref (img);
 
     g_free (dom_id);
