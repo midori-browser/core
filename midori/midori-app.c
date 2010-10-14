@@ -535,7 +535,7 @@ midori_app_osso_rpc_handler_cb (const gchar* interface,
 #elif HAVE_UNIQUE
 static UniqueResponse
 midori_browser_message_received_cb (UniqueApp*         instance,
-                                    UniqueCommand      command,
+                                    gint               command,
                                     UniqueMessageData* message,
                                     guint              timestamp,
                                     MidoriApp*         app)
