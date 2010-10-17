@@ -261,4 +261,16 @@ gboolean
 sokoke_recursive_fork_protection        (const gchar*         uri,
                                          gboolean             set_uri);
 
+typedef struct
+{
+    gchar* name;
+    gchar* label;
+    GCallback clear;
+} SokokePrivacyItem;
+
+GList*
+sokoke_register_privacy_item (const gchar* name,
+                              const gchar* label,
+                              GCallback    clear);
+
 #endif /* !__SOKOKE_H__ */

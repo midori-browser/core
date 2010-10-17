@@ -87,6 +87,7 @@ struct _MidoriWebSettings
     gchar* ident_string;
 
     gint clear_private_data;
+    gchar* clear_data;
 };
 
 struct _MidoriWebSettingsClass
@@ -169,7 +170,8 @@ enum
     PROP_USER_AGENT,
     PROP_PREFERRED_LANGUAGES,
 
-    PROP_CLEAR_PRIVATE_DATA
+    PROP_CLEAR_PRIVATE_DATA,
+    PROP_CLEAR_DATA
 };
 
 GType
@@ -1085,7 +1087,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     /**
      * MidoriWebSettings:clear-private-data:
      *
-     * The private data selected for deletion.
+     * The core data selected for deletion.
      *
      * Since: 0.1.7
      */
@@ -1096,6 +1098,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Clear private data"),
                                      _("The private data selected for deletion"),
                                      0, G_MAXINT, 0,
+                                     flags));
+
+    /**
+     * MidoriWebSettings:clear-data:
+     *
+     * The data selected for deletion, including extensions.
+     *
+     * Since: 0.2.9
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_CLEAR_DATA,
+                                     g_param_spec_string (
+                                     "clear-data",
+                                     _("Clear data"),
+                                     _("The data selected for deletion"),
+                                     NULL,
                                      flags));
 
 }
@@ -1505,6 +1523,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_CLEAR_PRIVATE_DATA:
         web_settings->clear_private_data = g_value_get_int (value);
         break;
+    case PROP_CLEAR_DATA:
+        katze_assign (web_settings->clear_data, g_value_dup_string (value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1732,6 +1753,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_CLEAR_PRIVATE_DATA:
         g_value_set_int (value, web_settings->clear_private_data);
+        break;
+    case PROP_CLEAR_DATA:
+        g_value_set_string (value, web_settings->clear_data);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

@@ -4164,18 +4164,16 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
         GtkToggleButton* button;
         gint clear_prefs = MIDORI_CLEAR_NONE;
         gint saved_prefs = MIDORI_CLEAR_NONE;
-
+        GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
+        GString* clear_data = g_string_new (NULL);
         g_object_get (browser->settings, "clear-private-data", &saved_prefs, NULL);
 
         button = g_object_get_data (G_OBJECT (dialog), "history");
         if (gtk_toggle_button_get_active (button))
         {
-            const gchar* sqlcmd;
-            sqlite3* db;
+            const gchar* sqlcmd = "DELETE FROM history";
+            sqlite3* db = g_object_get_data (G_OBJECT (browser->history), "db");
             char* errmsg = NULL;
-
-            db = g_object_get_data (G_OBJECT (browser->history), "db");
-            sqlcmd = "DELETE FROM history";
 
             if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
             {
@@ -4193,66 +4191,32 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
             }
             clear_prefs |= MIDORI_CLEAR_HISTORY;
         }
-        button = g_object_get_data (G_OBJECT (dialog), "cookies");
-        if (gtk_toggle_button_get_active (button))
-        {
-            SoupSession* session = webkit_get_default_session ();
-            SoupSessionFeature* jar = soup_session_get_feature (session,
-                SOUP_TYPE_COOKIE_JAR);
-            GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
-            SoupCookie* cookie;
-            gsize i = 0;
-            while ((cookie = g_slist_nth_data (cookies, i++)))
-            {
-                soup_cookie_jar_delete_cookie (SOUP_COOKIE_JAR (jar), cookie);
-                soup_cookie_free (cookie);
-            }
-            g_slist_free (cookies);
-            clear_prefs |= MIDORI_CLEAR_COOKIES;
-        }
-        button = g_object_get_data (G_OBJECT (dialog), "flash-cookies");
-        if (gtk_toggle_button_get_active (button))
-        {
-            gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
-                                             "Flash_Player", NULL);
-            sokoke_remove_path (cache, TRUE);
-            g_free (cache);
-            clear_prefs |= MIDORI_CLEAR_FLASH_COOKIES;
-        }
-        button = g_object_get_data (G_OBJECT (dialog), "website-icons");
-        if (gtk_toggle_button_get_active (button))
-        {
-            gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                             PACKAGE_NAME, "icons", NULL);
-            sokoke_remove_path (cache, TRUE);
-            g_free (cache);
-            clear_prefs |= MIDORI_CLEAR_WEBSITE_ICONS;
-        }
         button = g_object_get_data (G_OBJECT (dialog), "trash");
-        if (gtk_toggle_button_get_active (button))
+        if (gtk_toggle_button_get_active (button) && browser->trash)
         {
-            if (browser->trash)
-            {
-                katze_array_clear (browser->trash);
-                _midori_browser_update_actions (browser);
-            }
+            katze_array_clear (browser->trash);
+            _midori_browser_update_actions (browser);
             clear_prefs |= MIDORI_CLEAR_TRASH;
         }
-        button = g_object_get_data (G_OBJECT (dialog), "web-cache");
-        if (gtk_toggle_button_get_active (button))
-        {
-            gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                             PACKAGE_NAME, "web", NULL);
-            sokoke_remove_path (cache, TRUE);
-            g_free (cache);
-            clear_prefs |= MIDORI_CLEAR_WEB_CACHE;
-        }
-
         if (clear_prefs != saved_prefs)
         {
             clear_prefs |= (saved_prefs & MIDORI_CLEAR_ON_QUIT);
             g_object_set (browser->settings, "clear-private-data", clear_prefs, NULL);
         }
+        for (; data_items != NULL; data_items = g_list_next (data_items))
+        {
+            SokokePrivacyItem* privacy = data_items->data;
+            button = g_object_get_data (G_OBJECT (dialog), privacy->name);
+            g_return_if_fail (button != NULL && GTK_IS_TOGGLE_BUTTON (button));
+            if (gtk_toggle_button_get_active (button))
+            {
+                privacy->clear ();
+                g_string_append (clear_data, privacy->name);
+                g_string_append_c (clear_data, ',');
+            }
+        }
+        g_object_set (browser->settings, "clear-data", clear_data->str, NULL);
+        g_string_free (clear_data, TRUE);
     }
     if (response_id != GTK_RESPONSE_DELETE_EVENT)
         gtk_widget_destroy (dialog);
@@ -4289,6 +4253,8 @@ _action_clear_private_data_activate (GtkAction*     action,
         GtkWidget* icon;
         GtkWidget* label;
         GtkWidget* button;
+        GList* data_items;
+        gchar* clear_data = katze_object_get_string (browser->settings, "clear-data");
 
         gint clear_prefs = MIDORI_CLEAR_NONE;
         g_object_get (browser->settings, "clear-private-data", &clear_prefs, NULL);
@@ -4327,31 +4293,23 @@ _action_clear_private_data_activate (GtkAction*     action,
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "history", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("Cookies"));
-        if ((clear_prefs & MIDORI_CLEAR_COOKIES) == MIDORI_CLEAR_COOKIES)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "cookies", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("'Flash' Cookies"));
-        if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "flash-cookies", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("Website icons"));
-        if ((clear_prefs & MIDORI_CLEAR_WEBSITE_ICONS) == MIDORI_CLEAR_WEBSITE_ICONS)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "website-icons", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         button = gtk_check_button_new_with_mnemonic (_("_Closed Tabs"));
         if ((clear_prefs & MIDORI_CLEAR_TRASH) == MIDORI_CLEAR_TRASH)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "trash", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("Web Cache"));
-        if ((clear_prefs & MIDORI_CLEAR_WEB_CACHE) == MIDORI_CLEAR_WEB_CACHE)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "web-cache", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+
+        data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
+        for (; data_items != NULL; data_items = g_list_next (data_items))
+        {
+            SokokePrivacyItem* privacy = data_items->data;
+            button = gtk_check_button_new_with_mnemonic (privacy->label);
+            gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
+            g_object_set_data (G_OBJECT (dialog), privacy->name, button);
+            if (clear_data && strstr (clear_data, privacy->name))
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+        }
+        g_free (clear_data);
         gtk_container_add (GTK_CONTAINER (alignment), vbox);
         gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
         gtk_box_pack_start (GTK_BOX (content_area), hbox, FALSE, FALSE, 0);

@@ -2022,3 +2022,37 @@ sokoke_accept_languages (const gchar* const * lang_names)
 
     return langs_str;
 }
+
+/**
+ * sokoke_register_privacy_item:
+ * @name: the name of the privacy item
+ * @label: a user visible, localized label
+ * @clear: a callback clearing data
+ *
+ * Registers an item to clear data, either via the
+ * Clear Private Data dialogue or when Midori quits.
+ *
+ * Return value: a #GList if all arguments are %NULL
+ **/
+GList*
+sokoke_register_privacy_item (const gchar* name,
+                              const gchar* label,
+                              GCallback    clear)
+{
+    static GList* items = NULL;
+    SokokePrivacyItem* item;
+
+    if (name == NULL && label == NULL && clear == NULL)
+        return items;
+
+    g_return_val_if_fail (name != NULL, NULL);
+    g_return_val_if_fail (label != NULL, NULL);
+    g_return_val_if_fail (clear != NULL, NULL);
+
+    item = g_new (SokokePrivacyItem, 1);
+    item->name = g_strdup (name);
+    item->label = g_strdup (label);
+    item->clear = clear;
+    items = g_list_append (items, item);
+    return NULL;
+}

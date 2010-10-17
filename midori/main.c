@@ -1516,6 +1516,44 @@ midori_setup_inactivity_reset (MidoriBrowser* browser,
     }
 }
 
+static void
+midori_clear_page_icons_cb (void)
+{
+    gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                     PACKAGE_NAME, "icons", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+}
+
+static void
+midori_clear_web_cookies_cb (void)
+{
+    SoupSession* session = webkit_get_default_session ();
+    SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
+    GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
+    for (; cookies != NULL; cookies = g_slist_next (cookies))
+    {
+        SoupCookie* cookie = cookies->data;
+        soup_cookie_set_max_age (cookie, 0);
+        soup_cookie_free (cookie);
+    }
+    g_slist_free (cookies);
+    /* Removing KatzeHttpCookies makes it save outstanding changes */
+    soup_session_remove_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
+    soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
+}
+
+#ifdef GDK_WINDOWING_X11
+static void
+midori_clear_flash_cookies_cb (void)
+{
+    gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
+                                     "Flash_Player", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+}
+#endif
+
 int
 main (int    argc,
       char** argv)
@@ -1734,6 +1772,15 @@ main (int    argc,
         g_free (filename);
         return 0;
     }
+    #endif
+
+    sokoke_register_privacy_item ("page-icons", _("Website icons"),
+        G_CALLBACK (midori_clear_page_icons_cb));
+    sokoke_register_privacy_item ("web-cookies", _("Cookies"),
+        G_CALLBACK (midori_clear_web_cookies_cb));
+    #ifdef GDK_WINDOWING_X11
+    sokoke_register_privacy_item ("flash-cookies", _("'Flash' Cookies"),
+        G_CALLBACK (midori_clear_flash_cookies_cb));
     #endif
 
     /* Web Application support */
@@ -2158,30 +2205,19 @@ main (int    argc,
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
     if (clear_prefs & MIDORI_CLEAR_ON_QUIT)
     {
+        GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
+        gchar* clear_data = katze_object_get_string (settings, "clear-data");
+
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
-        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_COOKIES, "cookies.txt");
-        if ((clear_prefs & MIDORI_CLEAR_FLASH_COOKIES) == MIDORI_CLEAR_FLASH_COOKIES)
-        {
-            gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
-                                             "Flash_Player", NULL);
-            sokoke_remove_path (cache, TRUE);
-            g_free (cache);
-        }
-        if ((clear_prefs & MIDORI_CLEAR_WEBSITE_ICONS) == MIDORI_CLEAR_WEBSITE_ICONS)
-        {
-            gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                             PACKAGE_NAME, "icons", NULL);
-            sokoke_remove_path (cache, TRUE);
-            g_free (cache);
-        }
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
-        if ((clear_prefs & MIDORI_CLEAR_WEB_CACHE) == MIDORI_CLEAR_WEB_CACHE)
+
+        for (; data_items != NULL; data_items = g_list_next (data_items))
         {
-            gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                             PACKAGE_NAME, "web", NULL);
-            sokoke_remove_path (cache, TRUE);
-            g_free (cache);
+            SokokePrivacyItem* privacy = data_items->data;
+            if (clear_data && strstr (clear_data, privacy->name))
+                privacy->clear ();
         }
+        g_free (clear_data);
     }
 
     if (katze_object_get_int (settings, "load-on-startup")
