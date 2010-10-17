@@ -4329,6 +4329,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         g_signal_connect (dialog, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &dialog);
         gtk_widget_show (dialog);
+        gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     }
     else
         gtk_window_present (GTK_WINDOW (dialog));
