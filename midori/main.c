@@ -1554,6 +1554,14 @@ midori_clear_flash_cookies_cb (void)
 }
 #endif
 
+#if WEBKIT_CHECK_VERSION (1, 1, 14)
+static void
+midori_clear_html5_databases_cb (void)
+{
+    webkit_remove_all_web_databases ();
+}
+#endif
+
 int
 main (int    argc,
       char** argv)
@@ -1781,6 +1789,10 @@ main (int    argc,
     #ifdef GDK_WINDOWING_X11
     sokoke_register_privacy_item ("flash-cookies", _("'Flash' Cookies"),
         G_CALLBACK (midori_clear_flash_cookies_cb));
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    sokoke_register_privacy_item ("html5-databases", _("HTML5 _Databases"),
+        G_CALLBACK (midori_clear_html5_databases_cb));
     #endif
 
     /* Web Application support */
