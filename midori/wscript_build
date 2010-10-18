@@ -2,6 +2,7 @@
 # WAF build script for midori
 # This file is licensed under the terms of the expat license, see the file EXPAT.
 
+import Options
 import platform
 
 progressive = True
@@ -30,8 +31,8 @@ if progressive:
 else:
     obj = bld.new_task_gen ('cc', 'program')
     obj.target = 'midori'
-    obj.includes = '.. ../katze . ../panels'
-    obj.find_sources_in_dirs ('../katze . ../panels')
+    obj.includes = '.. ../katze . ../panels ../toolbars'
+    obj.find_sources_in_dirs ('../katze . ../panels ../toolbars')
     obj.add_marshal_file ('marshal.list', 'midori_cclosure_marshal')
     obj.uselib = libs
     if bld.env['WINRC']:
