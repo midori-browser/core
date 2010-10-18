@@ -3337,10 +3337,10 @@ _action_fullscreen_activate (GtkAction*     action,
 {
     GdkWindowState state;
 
-    if (!GTK_WIDGET (browser)->window)
+    if (!gtk_widget_get_window (GTK_WIDGET (browser)))
         return;
 
-    state = gdk_window_get_state (GTK_WIDGET (browser)->window);
+    state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
     if (state & GDK_WINDOW_STATE_FULLSCREEN)
         gtk_window_unfullscreen (GTK_WINDOW (browser));
     else
@@ -4610,7 +4610,11 @@ midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
     GtkWidget* hpaned = gtk_widget_get_parent (browser->panel);
     GtkWidget* vpaned = gtk_widget_get_parent (browser->notebook);
     gint paned_position = gtk_paned_get_position (GTK_PANED (hpaned));
-    gint paned_size = hpaned->allocation.width;
+    GtkAllocation allocation;
+    gint paned_size;
+
+    gtk_widget_get_allocation (hpaned, &allocation);
+    paned_size = allocation.width;
 
     g_object_set (browser->settings, "right-align-sidepanel", right_aligned, NULL);
 
@@ -5083,22 +5087,24 @@ static gboolean
 midori_browser_alloc_timeout (MidoriBrowser* browser)
 {
     GtkWidget* widget = GTK_WIDGET (browser);
-    GdkWindowState state = gdk_window_get_state (widget->window);
+    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (widget));
 
     if (!(state &
         (GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)))
     {
-        if (widget->allocation.width != browser->last_window_width)
+        GtkAllocation allocation;
+        gtk_widget_get_allocation (widget, &allocation);
+        if (allocation.width != browser->last_window_width)
         {
-            browser->last_window_width = widget->allocation.width;
+            browser->last_window_width = allocation.width;
             g_object_set (browser->settings,
                 "last-window-width", browser->last_window_width, NULL);
         }
-        if (widget->allocation.height != browser->last_window_height)
+        if (allocation.height != browser->last_window_height)
         {
-            browser->last_window_height = widget->allocation.height;
+            browser->last_window_height = allocation.height;
             g_object_set (browser->settings,
-                "last-window-height", widget->allocation.height, NULL);
+                "last-window-height", allocation.height, NULL);
         }
     }
 
@@ -5276,7 +5282,7 @@ midori_browser_realize_cb (GtkStyle*      style,
     #ifdef HAVE_HILDON_2_2
     /* hildon_gtk_window_enable_zoom_keys */
     guint32 set = 1;
-    gdk_property_change (GTK_WIDGET (browser)->window,
+    gdk_property_change (gtk_widget_get_window (GTK_WIDGET (browser)),
                          gdk_atom_intern ("_HILDON_ZOOM_KEY_ATOM", FALSE),
                          gdk_x11_xatom_to_atom (XA_INTEGER),
                          32, GDK_PROP_MODE_REPLACE,

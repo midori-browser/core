@@ -54,6 +54,7 @@
     #define gtk_widget_get_sensitive(widget) GTK_WIDGET_IS_SENSITIVE (widget)
     #define gtk_widget_set_can_focus(widget,flag) \
         GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS)
+    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)

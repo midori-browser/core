@@ -276,19 +276,21 @@ static void
 midori_location_action_popup_position (GtkWidget* popup,
                                        GtkWidget* widget)
 {
+    GdkWindow* window = gtk_widget_get_window (widget);
     gint wx, wy;
     GtkRequisition menu_req;
     GtkRequisition widget_req;
     GdkScreen* screen;
     gint monitor_num;
     GdkRectangle monitor;
+    GtkAllocation allocation;
 
-    gdk_window_get_origin (widget->window, &wx, &wy);
+    gdk_window_get_origin (window, &wx, &wy);
     gtk_widget_size_request (popup, &menu_req);
     gtk_widget_size_request (widget, &widget_req);
 
     screen = gtk_widget_get_screen (widget);
-    monitor_num = gdk_screen_get_monitor_at_window (screen, widget->window);
+    monitor_num = gdk_screen_get_monitor_at_window (screen, window);
     gdk_screen_get_monitor_geometry (screen, monitor_num, &monitor);
 
     if (wy + widget_req.height + menu_req.height <= monitor.y + monitor.height
@@ -297,7 +299,8 @@ midori_location_action_popup_position (GtkWidget* popup,
     else
         wy -= menu_req.height;
     gtk_window_move (GTK_WINDOW (popup),  wx, wy);
-    gtk_window_resize (GTK_WINDOW (popup), widget->allocation.width, 1);
+    gtk_widget_get_allocation (widget, &allocation);
+    gtk_window_resize (GTK_WINDOW (popup), allocation.width, 1);
 }
 
 static gboolean

@@ -1585,12 +1585,12 @@ midori_view_ensure_link_uri (MidoriView* view,
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
-    if (view->web_view && view->web_view->window)
+    if (view->web_view && gtk_widget_get_window (view->web_view))
     {
         gint ex, ey;
         GdkEventButton event;
 
-        gdk_window_get_pointer (view->web_view->window, &ex, &ey, NULL);
+        gdk_window_get_pointer (gtk_widget_get_window (view->web_view), &ex, &ey, NULL);
         if (x != NULL)
             *x = ex;
         if (y != NULL)
@@ -2635,15 +2635,14 @@ midori_view_web_view_tap_and_hold_cb (GtkWidget*  web_view,
 
     /* Emulate a pointer motion above the tap position
       and a right click at the according position. */
-    gdk_window_get_pointer (web_view->window, &x, &y, NULL);
+    event.any.window = gtk_widget_get_window (web_view);
+    gdk_window_get_pointer (event.any.window, &x, &y, NULL);
     event.any.type = GDK_MOTION_NOTIFY;
-    event.any.window = web_view->window;
     event.motion.x = x;
     event.motion.y = y;
     g_signal_emit_by_name (web_view, "motion-notify-event", &event, &result);
 
     event.any.type = GDK_BUTTON_PRESS;
-    event.any.window = web_view->window;
     event.button.axes = NULL;
     event.button.x = x;
     event.button.y = y;
@@ -5090,6 +5089,8 @@ midori_view_get_snapshot (MidoriView* view,
                           gint        height)
 {
     GtkWidget* web_view;
+    GdkWindow* window;
+    GtkAllocation allocation;
     gboolean fast;
     gint x, y, w, h;
     GdkRectangle rect;
@@ -5101,12 +5102,14 @@ midori_view_get_snapshot (MidoriView* view,
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
     web_view = view->web_view;
-    g_return_val_if_fail (web_view->window, NULL);
+    window = gtk_widget_get_window (web_view);
+    g_return_val_if_fail (window != NULL, NULL);
 
-    x = web_view->allocation.x;
-    y = web_view->allocation.y;
-    w = web_view->allocation.width;
-    h = web_view->allocation.height;
+    gtk_widget_get_allocation (web_view, &allocation);
+    x = allocation.x;
+    y = allocation.y;
+    w = allocation.width;
+    h = allocation.height;
 
     /* If width and height are both negative, we try to render faster at
        the cost of correctness or beauty. Only a part of the page is
@@ -5126,15 +5129,14 @@ midori_view_get_snapshot (MidoriView* view,
     rect.width = w;
     rect.height = h;
 
-    pixmap = gdk_pixmap_new (web_view->window, w, h,
-        gdk_drawable_get_depth (web_view->window));
+    pixmap = gdk_pixmap_new (window, w, h, gdk_drawable_get_depth (window));
     event.expose.type = GDK_EXPOSE;
     event.expose.window = pixmap;
     event.expose.send_event = FALSE;
     event.expose.count = 0;
     event.expose.area.x = 0;
     event.expose.area.y = 0;
-    gdk_drawable_get_size (GDK_DRAWABLE (web_view->window),
+    gdk_drawable_get_size (GDK_DRAWABLE (window),
         &event.expose.area.width, &event.expose.area.height);
     event.expose.region = gdk_region_rectangle (&event.expose.area);
 
