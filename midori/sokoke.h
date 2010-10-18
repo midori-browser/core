@@ -35,6 +35,8 @@
 
 #if !GTK_CHECK_VERSION (2, 14, 0)
     #define gtk_dialog_get_content_area(dlg) dlg->vbox
+    #define gtk_dialog_get_action_area(dlg) dlg->action_area
+    #define gtk_widget_get_window(wdgt) wdgt->window
 #endif
 
 #if !GTK_CHECK_VERSION (2, 16, 0)

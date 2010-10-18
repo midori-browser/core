@@ -309,8 +309,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     if ((header = sokoke_xfce_header_new (icon_name,
         gtk_window_get_title (GTK_WINDOW (preferences)))))
     {
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (preferences)->vbox),
-            header, FALSE, FALSE, 0);
+        GtkWidget* vbox = gtk_dialog_get_content_area (GTK_DIALOG (preferences));
+        gtk_box_pack_start (GTK_BOX (vbox), header, FALSE, FALSE, 0);
         gtk_widget_show_all (header);
     }
     _preferences = KATZE_PREFERENCES (preferences);

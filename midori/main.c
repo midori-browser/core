@@ -923,6 +923,7 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
                                  KatzeArray*        _session)
 {
     GtkWidget* dialog;
+    GtkWidget* content_area;
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
     GtkWidget* box;
@@ -941,6 +942,7 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
           "to solve the problem."));
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     gtk_window_set_title (GTK_WINDOW (dialog), g_get_application_name ());
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     screen = gtk_widget_get_screen (dialog);
     if (screen)
     {
@@ -968,7 +970,7 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
         gtk_widget_set_sensitive (button, FALSE);
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (box);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), box);
+    gtk_container_add (GTK_CONTAINER (content_area), box);
     #ifdef HAVE_HILDON_2_2
     box = gtk_hbox_new (FALSE, 4);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), box, TRUE, FALSE, 4);
@@ -984,14 +986,12 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     {
         /* GtkLabel can't wrap the text properly. Until some day
            this works, we implement this hack to do it ourselves. */
-        GtkWidget* content_area;
         GtkWidget* hbox;
         GtkWidget* vbox;
         GtkWidget* label;
         GList* ch;
         GtkRequisition req;
 
-        content_area = GTK_DIALOG (dialog)->vbox;
         ch = gtk_container_get_children (GTK_CONTAINER (content_area));
         hbox = (GtkWidget*)g_list_nth_data (ch, 0);
         g_list_free (ch);

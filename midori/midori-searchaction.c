@@ -896,6 +896,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
 {
     GtkWidget* toplevel;
     GtkWidget* dialog;
+    GtkWidget* content_area;
     GtkSizeGroup* sizegroup;
     KatzeItem* item;
     GtkWidget* hbox;
@@ -919,8 +920,9 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
         NULL);
     gtk_window_set_icon_name (GTK_WINDOW (dialog),
         new_engine ? GTK_STOCK_ADD : GTK_STOCK_REMOVE);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (content_area), 5);
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     if (new_engine)
@@ -950,7 +952,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
         gtk_entry_set_text (GTK_ENTRY (entry_name),
             STR_NON_NULL (katze_item_get_name (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_name, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -964,7 +966,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
         gtk_entry_set_text (GTK_ENTRY (entry_description)
          , STR_NON_NULL (katze_item_get_text (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_description, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -978,7 +980,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
         gtk_entry_set_text (GTK_ENTRY (entry_uri)
          , STR_NON_NULL (katze_item_get_uri (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -992,7 +994,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
         gtk_entry_set_text (GTK_ENTRY (entry_icon)
          , STR_NON_NULL (katze_item_get_icon (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_icon, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -1006,7 +1008,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
         gtk_entry_set_text (GTK_ENTRY (entry_token)
          , STR_NON_NULL (katze_item_get_token (item)));
     gtk_box_pack_start (GTK_BOX (hbox), entry_token, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
@@ -1207,6 +1209,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     const gchar* dialog_title;
     GtkWidget* toplevel;
     GtkWidget* dialog;
+    GtkWidget* content_area;
     gint width, height;
     GtkWidget* xfce_heading;
     GtkWidget* hbox;
@@ -1244,6 +1247,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     g_signal_connect (dialog, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &search_action->dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     /* TODO: Implement some kind of help function */
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog),
                                        GTK_RESPONSE_HELP, FALSE);
@@ -1255,11 +1259,9 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
              We need mnemonics */
     if ((xfce_heading = sokoke_xfce_header_new (
         gtk_window_get_icon_name (GTK_WINDOW (dialog)), dialog_title)))
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox),
-                            xfce_heading, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (content_area), xfce_heading, FALSE, FALSE, 0);
     hbox = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox,
-                                 TRUE, TRUE, 12);
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, TRUE, TRUE, 12);
     liststore = gtk_list_store_new (1, KATZE_TYPE_ITEM);
     treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
     search_action->treeview = treeview;
@@ -1357,12 +1359,10 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     gtk_widget_set_sensitive (button, FALSE);
     /* g_signal_connect (button, "clicked",
         G_CALLBACK (midori_search_action_dialog_help_clicked_cb), dialog); */
-    gtk_box_pack_end (GTK_BOX (hbox),
-        button, FALSE, FALSE, 4);
-    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (dialog)->vbox),
-        hbox, FALSE, FALSE, 0);
+    gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 4);
+    gtk_box_pack_end (GTK_BOX (content_area),  hbox, FALSE, FALSE, 0);
     #endif
-    gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
+    gtk_widget_show_all (content_area);
 
     if (search_action->search_engines)
         g_object_connect (search_action->search_engines,
