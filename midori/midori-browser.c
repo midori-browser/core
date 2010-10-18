@@ -5504,7 +5504,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkWidget* hpaned;
     GtkWidget* vpaned;
     GtkRcStyle* rcstyle;
-    GtkWidget* label;
     GtkWidget* scrolled;
 
     browser->settings = midori_web_settings_new ();
@@ -5888,24 +5887,29 @@ midori_browser_init (MidoriBrowser* browser)
 
     /* Statusbar */
     browser->statusbar = gtk_statusbar_new ();
+    #if GTK_CHECK_VERSION (2, 20, 0)
+    browser->statusbar_contents =
+        gtk_statusbar_get_message_area (GTK_STATUSBAR (browser->statusbar));
+    #else
     /* Rearrange the statusbar packing. This is necessariy to keep
         themes happy while there is no support from GtkStatusbar. */
-    label = GTK_STATUSBAR (browser->statusbar)->label;
-    if (GTK_IS_BOX (gtk_widget_get_parent (label)))
-        browser->statusbar_contents = gtk_widget_get_parent (label);
+    forward = GTK_STATUSBAR (browser->statusbar)->label;
+    if (GTK_IS_BOX (gtk_widget_get_parent (forward)))
+        browser->statusbar_contents = gtk_widget_get_parent (forward);
     else
     {
         browser->statusbar_contents = gtk_hbox_new (FALSE, 4);
         gtk_widget_show (browser->statusbar_contents);
         g_object_ref (GTK_STATUSBAR (browser->statusbar)->label);
         gtk_container_remove (
-            GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame), label);
+            GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame), forward);
         gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
-            label, TRUE, TRUE, 0);
-        g_object_unref (label);
+            forward, TRUE, TRUE, 0);
+        g_object_unref (forward);
         gtk_container_add (GTK_CONTAINER (GTK_STATUSBAR (browser->statusbar)->frame),
                            browser->statusbar_contents);
     }
+    #endif
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
     browser->progressbar = gtk_progress_bar_new ();
