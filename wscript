@@ -159,6 +159,8 @@ def configure (conf):
         'MDATADIR')
     conf.undefine ('DATADIR')
     dirname_default ('DOCDIR', os.path.join (conf.env['MDATADIR'], 'doc'))
+    if not APPNAME in conf.env['DOCDIR']:
+        conf.env['DOCDIR'] += '/' + APPNAME
 
     if option_enabled ('apidocs'):
         conf.find_program ('gtkdoc-scan', var='GTKDOC_SCAN')
@@ -415,7 +417,7 @@ def build (bld):
     bld.add_group ()
 
     if bld.env['docs']:
-        bld.install_files ('${DOCDIR}/' + APPNAME + '/', \
+        bld.install_files ('${DOCDIR}/' + '/', \
             'AUTHORS COPYING ChangeLog EXPAT README')
 
     # Install default configuration
@@ -432,7 +434,7 @@ def build (bld):
             '../../../docs/user/midori.txt ' + 'midori.html'
         Utils.exec_command (command)
         os.chdir ('../../..')
-        bld.install_files ('${DOCDIR}/midori/user/', blddir + '/docs/user/midori.html')
+        bld.install_files ('${DOCDIR}/user/', blddir + '/docs/user/midori.html')
 
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
@@ -441,7 +443,7 @@ def build (bld):
 
     if bld.env['GTKDOC_SCAN'] and Options.commands['build']:
         bld.add_subdirs ('docs/api')
-        bld.install_files ('${DOCDIR}/midori/api/', blddir + '/docs/api/*')
+        bld.install_files ('${DOCDIR}/api/', blddir + '/docs/api/*')
 
     if not is_mingw (bld.env) and Options.platform != 'win32':
         if bld.env['HAVE_HILDON']:
