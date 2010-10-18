@@ -982,6 +982,7 @@ sokoke_xfce_header_new (const gchar* icon,
     if (sokoke_get_desktop () == SOKOKE_DESKTOP_XFCE)
     {
         GtkWidget* entry;
+        GtkStyle* style;
         gchar* markup;
         GtkWidget* xfce_heading;
         GtkWidget* hbox;
@@ -992,8 +993,9 @@ sokoke_xfce_header_new (const gchar* icon,
 
         xfce_heading = gtk_event_box_new ();
         entry = gtk_entry_new ();
+        style = gtk_widget_get_style (entry);
         gtk_widget_modify_bg (xfce_heading, GTK_STATE_NORMAL,
-            &entry->style->base[GTK_STATE_NORMAL]);
+            &style->base[GTK_STATE_NORMAL]);
         hbox = gtk_hbox_new (FALSE, 12);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
         if (icon)
@@ -1004,7 +1006,7 @@ sokoke_xfce_header_new (const gchar* icon,
         gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
         label = gtk_label_new (NULL);
         gtk_widget_modify_fg (label, GTK_STATE_NORMAL
-         , &entry->style->text[GTK_STATE_NORMAL]);
+         , &style->text[GTK_STATE_NORMAL]);
         markup = g_strdup_printf ("<span size='large' weight='bold'>%s</span>",
                                   title);
         gtk_label_set_markup (GTK_LABEL (label), markup);
