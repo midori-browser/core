@@ -239,6 +239,14 @@ midori_view_populate_popup             (MidoriView*        view,
                                         GtkWidget*         menu,
                                         gboolean           manual);
 
+GtkWidget*
+midori_view_add_info_bar               (MidoriView*        view,
+                                        GtkMessageType     message_type,
+                                        const gchar*       message,
+                                        GCallback          response_cb,
+                                        gpointer           user_data,
+                                        const gchar*       first_button_text,
+                                        ...);
 
 G_END_DECLS
 

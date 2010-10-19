@@ -105,7 +105,6 @@ struct _MidoriView
     gboolean back_forward_set;
     GHashTable* memory;
     GtkWidget* scrolled_window;
-    GtkWidget* infobar_location;
 };
 
 struct _MidoriViewClass
@@ -983,6 +982,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
                                    MidoriView*     view)
 {
     const gchar* uri;
+    GList* children;
 
     g_object_freeze_notify (G_OBJECT (view));
 
@@ -990,8 +990,10 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     g_return_if_fail (uri != NULL);
     katze_assign (view->icon_uri, NULL);
 
-    if (view->infobar_location)
-        view->infobar_location = (gtk_widget_destroy (view->infobar_location), NULL);
+    children = gtk_container_get_children (GTK_CONTAINER (view));
+    for (; children; children = g_list_next (children))
+        if (g_object_get_data (G_OBJECT (children->data), "midori-infobar-cb"))
+            gtk_widget_destroy (children->data);
 
     if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
     {
@@ -1152,54 +1154,81 @@ midori_view_info_bar_button_cb (GtkWidget* button,
 }
 #endif
 
-static GtkWidget*
+/**
+ * midori_view_add_info_bar
+ * @view: a #MidoriView
+ * @message_type: a #GtkMessageType
+ * @message: a message string
+ * @response_cb: a response callback
+ * @user_data: user data passed to the callback
+ * @first_button_text: button text or stock ID
+ * @...: first response ID, then more text - response ID pairs
+ *
+ * Adds an infobar (or equivalent) to the view. Activation of a
+ * button invokes the specified callback. The infobar is
+ * automatically destroyed if the location changes or reloads.
+ *
+ * Return value: an infobar widget
+ *
+ * Since: 0.2.9
+ **/
+GtkWidget*
 midori_view_add_info_bar (MidoriView*    view,
                           GtkMessageType message_type,
                           const gchar*   message,
-                          const gchar*   button_text1,
-                          gint           response_id1,
-                          const gchar*   button_text2,
-                          gint           response_id2,
                           GCallback      response_cb,
-                          gpointer       data_object)
+                          gpointer       data_object,
+                          const gchar*   first_button_text,
+                          ...)
 {
     GtkWidget* infobar;
     GtkWidget* action_area;
-    #if !HAVE_GTK_INFO_BAR
-    GtkWidget* button;
-    #endif
     GtkWidget* content_area;
+    va_list args;
+    const gchar* button_text;
+    va_start (args, first_button_text);
 
     #if HAVE_GTK_INFO_BAR
-    infobar = gtk_info_bar_new_with_buttons (button_text1, response_id1,
-                                             button_text2, response_id2, NULL);
+    infobar = gtk_info_bar_new ();
+    for (button_text = first_button_text; button_text;
+         button_text = va_arg (args, const gchar*))
+    {
+        gint response_id = va_arg (args, gint);
+        gtk_info_bar_add_button (GTK_INFO_BAR (infobar),
+                                 button_text, response_id);
+    }
     gtk_info_bar_set_message_type (GTK_INFO_BAR (infobar), message_type);
     content_area = gtk_info_bar_get_content_area (GTK_INFO_BAR (infobar));
     action_area = gtk_info_bar_get_action_area (GTK_INFO_BAR (infobar));
-    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_HORIZONTAL);
+    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area),
+                                    GTK_ORIENTATION_HORIZONTAL);
     g_signal_connect (infobar, "response",
-                      G_CALLBACK (midori_view_infobar_response_cb), data_object);
+        G_CALLBACK (midori_view_infobar_response_cb), data_object);
     #else
     infobar = gtk_hbox_new (FALSE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (infobar), 4);
+
     content_area = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (infobar), content_area, TRUE, TRUE, 0);
-    action_area = gtk_hbox_new (TRUE, 4);
-    button = gtk_button_new_with_mnemonic (button_text1);
-    g_object_set_data (G_OBJECT (button), "midori-infobar-response",
-                       GINT_TO_POINTER (response_id1));
-    g_signal_connect (button, "clicked",
-                      G_CALLBACK (midori_view_info_bar_button_cb), data_object);
-    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
-    button = gtk_button_new_with_mnemonic (button_text2);
-    g_object_set_data (G_OBJECT (button), "midori-infobar-response",
-                       GINT_TO_POINTER (response_id2));
-    g_signal_connect (button, "clicked",
-                      G_CALLBACK (midori_view_info_bar_button_cb), data_object);
-    gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
+    action_area = gtk_hbutton_box_new ();
+    for (button_text = first_button_text; button_text;
+         button_text = va_arg (args, const gchar*))
+    {
+        gint response_id = va_arg (args, gint);
+        GtkWidget* button = gtk_button_new_with_mnemonic (button_text);
+        g_object_set_data (G_OBJECT (button), "midori-infobar-response",
+                           GINT_TO_POINTER (response_id));
+        g_signal_connect (button, "clicked",
+            G_CALLBACK (midori_view_info_bar_button_cb), data_object);
+        gtk_box_pack_start (GTK_BOX (action_area), button, FALSE, FALSE, 0);
+        if (response_id == GTK_RESPONSE_HELP)
+            gtk_button_box_set_child_secondary (GTK_BUTTON_BOX (action_area),
+                                                button, TRUE);
+    }
     gtk_box_pack_start (GTK_BOX (infobar), action_area, FALSE, FALSE, 0);
     #endif
 
+    va_end (args);
     gtk_container_add (GTK_CONTAINER (content_area), gtk_label_new (message));
     gtk_widget_show_all (infobar);
     gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
@@ -1234,8 +1263,9 @@ midori_view_web_view_database_quota_exceeded_cb (WebKitWebView*     web_view,
     gchar* message = g_strdup_printf (_("%s wants to save an HTML5 database."),
                                       hostname && *hostname ? hostname : uri);
     midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
+        G_CALLBACK (midori_view_database_response_cb), database,
         _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
-        G_CALLBACK (midori_view_database_response_cb), database);
+        NULL);
     g_free (message);
 }
 #endif
@@ -1262,13 +1292,11 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
     const gchar* hostname = sokoke_hostname_from_uri (uri, NULL);
     gchar* message = g_strdup_printf (_("%s wants to know your location."),
                                      hostname && *hostname ? hostname : uri);
-    GtkWidget* infobar = midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
+    midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION,
+        message, G_CALLBACK (midori_view_location_response_cb), decision,
         _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
-        G_CALLBACK (midori_view_location_response_cb), decision);
+        NULL);
     g_free (message);
-    view->infobar_location = infobar;
-    g_signal_connect (infobar, "destroy",
-                      G_CALLBACK (gtk_widget_destroyed), &view->infobar_location);
     return TRUE;
 }
 #endif
@@ -2970,7 +2998,6 @@ midori_view_init (MidoriView* view)
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
     gtk_container_add (GTK_CONTAINER (view), view->scrolled_window);
-    view->infobar_location = NULL;
 
     g_signal_connect (view->item, "meta-data-changed",
         G_CALLBACK (midori_view_item_meta_data_changed), view);
