@@ -68,10 +68,11 @@ build_config_filename (const gchar* filename)
 }
 
 static MidoriWebSettings*
-settings_new_from_file (const gchar* filename,
-                        gchar***     extensions)
+settings_and_accels_new (const gchar* config,
+                         gchar***     extensions)
 {
     MidoriWebSettings* settings = midori_web_settings_new ();
+    gchar* config_file = g_build_filename (config, "config", NULL);
     GKeyFile* key_file = g_key_file_new ();
     GError* error = NULL;
     GObjectClass* class;
@@ -85,12 +86,12 @@ settings_new_from_file (const gchar* filename,
     gfloat number;
     gboolean boolean;
 
-    if (!g_key_file_load_from_file (key_file, filename,
-                                   G_KEY_FILE_KEEP_COMMENTS, &error))
+    if (!g_key_file_load_from_file (key_file, config_file,
+                                    G_KEY_FILE_KEEP_COMMENTS, &error))
     {
         if (error->code == G_FILE_ERROR_NOENT)
         {
-            gchar* config_file = sokoke_find_config_filename (NULL, "config");
+            katze_assign (config_file, sokoke_find_config_filename (NULL, "config"));
             g_key_file_load_from_file (key_file, config_file,
                                        G_KEY_FILE_KEEP_COMMENTS, NULL);
         }
@@ -158,6 +159,13 @@ settings_new_from_file (const gchar* filename,
     *extensions = g_key_file_get_keys (key_file, "extensions", NULL, NULL);
 
     g_key_file_free (key_file);
+
+    /* Load accelerators */
+    katze_assign (config_file, g_build_filename (config, "accels", NULL));
+    if (g_access (config_file, F_OK) != 0)
+        katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
+    gtk_accel_map_load (config_file);
+    g_free (config_file);
 
     return settings;
 }
@@ -304,6 +312,49 @@ search_engines_new_from_file (const gchar* filename,
     g_free (pspecs);
     g_strfreev (engines);
     g_key_file_free (key_file);
+    return search_engines;
+}
+
+static KatzeArray*
+search_engines_new_from_folder (const gchar* config_folder,
+                                GString*     error_messages)
+{
+    gchar* config_file = g_build_filename (config_folder, "search", NULL);
+    GError* error = NULL;
+    KatzeArray* search_engines;
+
+    search_engines = search_engines_new_from_file (config_file, &error);
+    /* We ignore for instance empty files */
+    if (error && (error->code == G_KEY_FILE_ERROR_PARSE
+        || error->code == G_FILE_ERROR_NOENT))
+    {
+        g_error_free (error);
+        error = NULL;
+    }
+    if (!error && katze_array_is_empty (search_engines))
+    {
+        g_object_unref (search_engines);
+        #ifdef G_OS_WIN32
+        gchar* dir = g_win32_get_package_installation_directory_of_module (NULL);
+        katze_assign (config_file,
+            g_build_filename (dir, "etc", "xdg", PACKAGE_NAME, "search", NULL));
+        g_free (dir);
+        search_engines = search_engines_new_from_file (config_file, NULL);
+        #else
+        katze_assign (config_file,
+            sokoke_find_config_filename (NULL, "search"));
+        search_engines = search_engines_new_from_file (config_file, NULL);
+        #endif
+    }
+    else if (error)
+    {
+        if (error->code != G_FILE_ERROR_NOENT && error_messages)
+            g_string_append_printf (error_messages,
+                _("The search engines couldn't be loaded. %s\n"),
+                error->message);
+        g_error_free (error);
+    }
+    g_free (config_file);
     return search_engines;
 }
 
@@ -1798,26 +1849,25 @@ main (int    argc,
     /* Web Application support */
     if (webapp)
     {
+        SoupSession* session = webkit_get_default_session ();
         MidoriBrowser* browser = midori_browser_new ();
         gchar* tmp_uri = midori_prepare_uri (webapp);
         katze_assign (webapp, tmp_uri);
         midori_startup_timer ("Browser: \t%f");
         if (config)
         {
-            SoupSession* session;
             SoupCookieJar* jar;
 
-            config_file = g_build_filename (config, "config", NULL);
-            settings = settings_new_from_file (config_file, &extensions);
-            g_free (config_file);
+            settings = settings_and_accels_new (config, &extensions);
             g_strfreev (extensions);
-
-            session = webkit_get_default_session ();
             config_file = g_build_filename (config, "cookies.txt", NULL);
             jar = soup_cookie_jar_text_new (config_file, TRUE);
             g_free (config_file);
             soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
             g_object_unref (jar);
+            search_engines = search_engines_new_from_folder (config, NULL);
+            g_object_set (browser, "search-engines", search_engines, NULL);
+            g_object_unref (search_engines);
         }
         else
         {
@@ -1851,15 +1901,11 @@ main (int    argc,
         midori_browser_activate_action (browser, "Location");
         if (execute)
         {
-            i = 0;
-            while (uris[i] != NULL)
-            {
+            for (i = 0; uris[i] != NULL; i++)
                 midori_browser_activate_action (browser, uris[i]);
-                i++;
-            }
         }
         if (block_uris)
-            g_signal_connect (webkit_get_default_session (), "request-queued",
+            g_signal_connect (session, "request-queued",
                 G_CALLBACK (midori_soup_session_block_uris_cb),
                 g_strdup (block_uris));
         midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
@@ -1937,57 +1983,16 @@ main (int    argc,
 
     /* Load configuration file */
     error_messages = g_string_new (NULL);
-    config_file = build_config_filename ("config");
     error = NULL;
-    settings = settings_new_from_file (config_file, &extensions);
+    settings = settings_and_accels_new (sokoke_set_config_dir (NULL), &extensions);
     g_object_set (settings, "enable-developer-extras", TRUE, NULL);
     #if WEBKIT_CHECK_VERSION (1, 1, 14)
     g_object_set (settings, "enable-html5-database", TRUE, NULL);
     #endif
-    midori_startup_timer ("Config read: \t%f");
-
-    /* Load accelerators */
-    katze_assign (config_file, build_config_filename ("accels"));
-    if (g_access (config_file, F_OK) != 0)
-        katze_assign (config_file, sokoke_find_config_filename (NULL, "accels"));
-    gtk_accel_map_load (config_file);
-    midori_startup_timer ("Accels read: \t%f");
+    midori_startup_timer ("Config and accels read: \t%f");
 
     /* Load search engines */
-    katze_assign (config_file, build_config_filename ("search"));
-    error = NULL;
-    search_engines = search_engines_new_from_file (config_file, &error);
-    /* We ignore for instance empty files */
-    if (error && (error->code == G_KEY_FILE_ERROR_PARSE
-        || error->code == G_FILE_ERROR_NOENT))
-    {
-        g_error_free (error);
-        error = NULL;
-    }
-    if (!error && katze_array_is_empty (search_engines))
-    {
-        #ifdef G_OS_WIN32
-        gchar* dir;
-
-        dir = g_win32_get_package_installation_directory_of_module (NULL);
-        katze_assign (config_file,
-            g_build_filename (dir, "etc", "xdg", PACKAGE_NAME, "search", NULL));
-        g_free (dir);
-        search_engines = search_engines_new_from_file (config_file, NULL);
-        #else
-        katze_assign (config_file,
-            sokoke_find_config_filename (NULL, "search"));
-        search_engines = search_engines_new_from_file (config_file, NULL);
-        #endif
-    }
-    else if (error)
-    {
-        if (error->code != G_FILE_ERROR_NOENT)
-            g_string_append_printf (error_messages,
-                _("The search engines couldn't be loaded. %s\n"),
-                error->message);
-        g_error_free (error);
-    }
+    search_engines = search_engines_new_from_folder (config, error_messages);
     /* Pick first search engine as default if not set */
     g_object_get (settings, "location-entry-search", &uri, NULL);
     if (!(uri && *uri) && !katze_array_is_empty (search_engines))
@@ -2021,6 +2026,7 @@ main (int    argc,
     }
     midori_startup_timer ("Bookmarks read: \t%f");
 
+    config_file = NULL;
     _session = katze_array_new (KATZE_TYPE_ITEM);
     #if HAVE_LIBXML
     g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
