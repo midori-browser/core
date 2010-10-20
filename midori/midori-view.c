@@ -949,7 +949,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                                              MidoriView*                view)
 {
     const gchar* uri = webkit_network_request_get_uri (request);
-    if (g_str_has_prefix (uri, "mailto:") || g_str_has_prefix (uri, "tel:"))
+    if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
     {
         if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
                              uri, GDK_CURRENT_TIME, NULL))
@@ -3861,9 +3861,7 @@ midori_view_set_uri (MidoriView*  view,
                 g_free (exception);
             }
         }
-        else if (g_str_has_prefix (uri, "mailto:")
-              || g_str_has_prefix (uri, "tel:")
-              || g_str_has_prefix (uri, "callto:"))
+        else if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
         {
             sokoke_show_uri (NULL, uri, GDK_CURRENT_TIME, NULL);
         }

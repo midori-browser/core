@@ -739,6 +739,23 @@ sokoke_resolve_hostname (const gchar* hostname)
     return host_resolved == 1 ? TRUE : FALSE;
 }
 
+gboolean
+sokoke_external_uri (const gchar* uri)
+{
+    gchar* scheme;
+    GAppInfo* info;
+
+    if (!uri || !strncmp (uri, "http", 4))
+        return FALSE;
+
+    scheme = g_uri_parse_scheme (uri);
+    info = g_app_info_get_default_for_uri_scheme (scheme);
+    g_free (scheme);
+    if (info)
+        g_object_unref (info);
+    return info != NULL;
+}
+
 /**
  * sokoke_magic_uri:
  * @uri: a string typed by a user
@@ -761,8 +778,7 @@ sokoke_magic_uri (const gchar* uri)
     /* Just return if it's a javascript: or mailto: uri */
     if (!strncmp (uri, "javascript:", 11)
      || !strncmp (uri, "mailto:", 7)
-     || !strncmp (uri, "tel:", 4)
-     || !strncmp (uri, "callto:", 7)
+     || sokoke_external_uri (uri)
      || !strncmp (uri, "data:", 5)
      || !strncmp (uri, "about:", 6))
         return g_strdup (uri);

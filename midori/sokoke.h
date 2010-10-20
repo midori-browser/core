@@ -118,6 +118,9 @@ sokoke_hostname_from_uri                (const gchar*    uri,
 gchar*
 sokoke_uri_to_ascii                     (const gchar*    uri);
 
+gboolean
+sokoke_external_uri                     (const gchar*    uri);
+
 gchar*
 sokoke_magic_uri                        (const gchar*    uri);
 
