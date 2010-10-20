@@ -517,7 +517,6 @@ static void
 addons_free_elements (GSList* elements)
 {
     struct AddonElement* element;
-    GSList* start = elements;
 
     while (elements)
     {
@@ -531,8 +530,6 @@ addons_free_elements (GSList* elements)
 
         elements = g_slist_next (elements);
     }
-
-    g_slist_free (start);
 }
 
 static void
@@ -708,6 +705,7 @@ addons_get_files (AddonsKind kind)
     }
 
     g_free (file_extension);
+    g_slist_free (directories);
 
     return files;
 }
@@ -952,7 +950,6 @@ addons_update_elements (MidoriExtension* extension,
                         AddonsKind       kind)
 {
     GSList* addon_files;
-    GSList* files_list;
     gchar* name;
     gchar* fullpath;
     struct AddonElement* element;
@@ -993,7 +990,6 @@ addons_update_elements (MidoriExtension* extension,
     g_key_file_load_from_file (keyfile, config_file, G_KEY_FILE_NONE, NULL);
 
     addon_files = addons_get_files (kind);
-    files_list = addon_files;
 
     elements = NULL;
     while (addon_files)
@@ -1066,7 +1062,6 @@ addons_update_elements (MidoriExtension* extension,
         addon_files = g_slist_next (addon_files);
         elements = g_slist_prepend (elements, element);
     }
-    g_slist_free (files_list);
     g_free (config_file);
     g_key_file_free (keyfile);
 
