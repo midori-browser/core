@@ -759,7 +759,7 @@ typedef struct
     MidoriView* view;
 } KatzeNetIconPriv;
 
-void
+static void
 katze_net_icon_priv_free (KatzeNetIconPriv* priv)
 {
     g_free (priv->icon_file);
@@ -767,7 +767,7 @@ katze_net_icon_priv_free (KatzeNetIconPriv* priv)
     g_free (priv);
 }
 
-gboolean
+static gboolean
 katze_net_icon_status_cb (KatzeNetRequest*  request,
                           KatzeNetIconPriv* priv)
 {
@@ -790,7 +790,7 @@ katze_net_icon_status_cb (KatzeNetRequest*  request,
     return TRUE;
 }
 
-void
+static void
 katze_net_icon_transfer_cb (KatzeNetRequest*  request,
                             KatzeNetIconPriv* priv)
 {
@@ -845,7 +845,6 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     midori_view_icon_cb (pixbuf_scaled, priv->view);
     katze_net_icon_priv_free (priv);
 }
-
 
 static void
 _midori_web_view_load_icon (MidoriView* view)
@@ -1011,7 +1010,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     if (!strncmp (uri, "https", 5))
     {
-#if WEBKIT_CHECK_VERSION (1, 1, 14) && defined (HAVE_LIBSOUP_2_29_91)
+        #if WEBKIT_CHECK_VERSION (1, 1, 14) && defined (HAVE_LIBSOUP_2_29_91)
         WebKitWebDataSource *source;
         WebKitNetworkRequest *request;
         SoupMessage *message;
@@ -1024,7 +1023,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
          && soup_message_get_flags (message) & SOUP_MESSAGE_CERTIFICATE_TRUSTED)
             view->security = MIDORI_SECURITY_TRUSTED;
         else
-#endif
+        #endif
             view->security = MIDORI_SECURITY_UNKNOWN;
     }
     else
@@ -2252,8 +2251,8 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_widget_show (menuitem);
                 g_object_set_data (G_OBJECT (menuitem), "x", GINT_TO_POINTER (x));
                 g_object_set_data (G_OBJECT (menuitem), "y", GINT_TO_POINTER (y));
-             }
-             #endif
+            }
+            #endif
         }
         return;
     }
@@ -2956,7 +2955,7 @@ midori_view_notify_vadjustment_cb (MidoriView* view,
     g_object_unref (vadjustment);
 }
 
-void
+static void
 katze_net_object_maybe_unref (gpointer object)
 {
     if (object)
@@ -3171,6 +3170,9 @@ _midori_view_update_settings (MidoriView* view)
 {
     gboolean zoom_text_and_images, kinetic_scrolling;
 
+    g_free (view->download_manager);
+    g_free (view->news_aggregator);
+
     g_object_get (view->settings,
         "speed-dial-in-new-tabs", &view->speed_dial_in_new_tabs,
         "download-manager", &view->download_manager,
@@ -3239,17 +3241,11 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
     if (name == g_intern_string ("speed-dial-in-new-tabs"))
-    {
         view->speed_dial_in_new_tabs = g_value_get_boolean (&value);
-    }
     else if (name == g_intern_string ("download-manager"))
-    {
         katze_assign (view->download_manager, g_value_dup_string (&value));
-    }
     else if (name == g_intern_string ("news-aggregator"))
-    {
         katze_assign (view->news_aggregator, g_value_dup_string (&value));
-    }
     else if (name == g_intern_string ("zoom-text-and-images"))
     {
         if (view->web_view)
@@ -3268,25 +3264,15 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                    view->close_buttons_on_tabs);
     }
     else if (name == g_intern_string ("open-new-pages-in"))
-    {
         view->open_new_pages_in = g_value_get_enum (&value);
-    }
     else if (name == g_intern_string ("ask-for-destination-folder"))
-    {
         view->ask_for_destination_folder = g_value_get_boolean (&value);
-    }
     else if (name == g_intern_string ("middle-click-opens-selection"))
-    {
         view->middle_click_opens_selection = g_value_get_boolean (&value);
-    }
     else if (name == g_intern_string ("open-tabs-in-the-background"))
-    {
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
-    }
     else if (name == g_intern_string ("find-while-typing"))
-    {
         view->find_while_typing = g_value_get_boolean (&value);
-    }
 
     g_value_unset (&value);
 }
@@ -3674,7 +3660,6 @@ midori_view_set_uri (MidoriView*  view,
                 "{set_thumb_normal}", _("Medium"),
                 "{set_thumb_big}", _("Big"),  NULL);
 
-
             midori_view_load_alternate_string (view,
                 data, res_root, "about:blank", NULL);
 
@@ -3934,7 +3919,6 @@ midori_view_get_icon_uri (MidoriView* view)
     return view->icon_uri;
 }
 
-
 /**
  * midori_view_get_display_uri:
  * @view: a #MidoriView
@@ -4150,7 +4134,6 @@ midori_view_tab_label_menu_open_cb (GtkWidget* menuitem,
     MidoriBrowser* browser = midori_browser_get_for_widget (view);
     midori_browser_set_current_tab (browser, view);
 }
-
 
 static void
 midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
@@ -4655,17 +4638,17 @@ midori_view_reload (MidoriView* view,
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-#if WEBKIT_CHECK_VERSION (1, 1, 14)
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
     title = NULL;
-#elif WEBKIT_CHECK_VERSION (1, 1, 6)
+    #elif WEBKIT_CHECK_VERSION (1, 1, 6)
     /* WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
        so reloading via Javascript works but not via API calls. */
     title = g_strdup_printf (_("Error - %s"), view->uri);
-#else
+    #else
     /* Error pages are special, we want to try loading the destination
        again, not the error page which isn't even a proper page */
     title = g_strdup_printf (_("Error - %s"), view->uri);
-#endif
+    #endif
     if (view->title && title && strstr (title, view->title))
         webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), view->uri);
     else if (!(view->uri && *view->uri && strncmp (view->uri, "about:", 6)))
@@ -4886,6 +4869,7 @@ midori_view_get_next_page (MidoriView* view)
         "document.getElementsByTagName ('a')]);", NULL));
     return uri && uri[0] != '0' ? uri : NULL;
 }
+
 #if WEBKIT_CHECK_VERSION (1, 1, 5)
 static GtkWidget*
 midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
@@ -4952,9 +4936,9 @@ midori_view_print (MidoriView* view)
     #if WEBKIT_CHECK_VERSION (1, 1, 5)
     operation = gtk_print_operation_new ();
     gtk_print_operation_set_custom_tab_label (operation, _("Features"));
-#if GTK_CHECK_VERSION (2, 18, 0)
+    #if GTK_CHECK_VERSION (2, 18, 0)
     gtk_print_operation_set_embed_page_setup (operation, TRUE);
-#endif
+    #endif
     g_signal_connect (operation, "create-custom-widget",
         G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
     g_signal_connect (operation, "custom-widget-apply",

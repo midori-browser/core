@@ -89,7 +89,7 @@ web_cache_save_headers (SoupMessage* msg,
       return TRUE;
 }
 
-GHashTable*
+static GHashTable*
 web_cache_get_headers (gchar* filename)
 {
     GHashTable* headers;
