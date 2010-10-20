@@ -47,6 +47,7 @@ violations = [
     ['asctime|ctime|getgrgid|getprgnam|getlogin \
      |getpwnam|getpwuid|gmtime|localtime \
      |rand|readdir|strtok|ttyname', 'Not thread-safe posix, use _r variant'],
+    ['while.*g_list_nth', 'Use g_list_next() instead of g_list_nth'],
 ]
 # No validation for strings, comments, includes
 omissions = [
