@@ -749,6 +749,9 @@ sokoke_external_uri (const gchar* uri)
         return FALSE;
 
     scheme = g_uri_parse_scheme (uri);
+    if (!scheme)
+        return FALSE;
+
     info = g_app_info_get_default_for_uri_scheme (scheme);
     g_free (scheme);
     if (info)
