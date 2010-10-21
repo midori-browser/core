@@ -745,7 +745,8 @@ sokoke_external_uri (const gchar* uri)
     gchar* scheme;
     GAppInfo* info;
 
-    if (!uri || !strncmp (uri, "http", 4))
+    if (!uri || !strncmp (uri, "http", 4)
+             || !strncmp (uri, "about:", 6))
         return FALSE;
 
     scheme = g_uri_parse_scheme (uri);
