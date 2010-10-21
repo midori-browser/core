@@ -95,16 +95,12 @@ typedef struct
 static void
 katze_net_priv_free (KatzeNetPriv* priv)
 {
-    KatzeNetRequest* request;
-
-    request = priv->request;
-
+    KatzeNetRequest* request = priv->request;
     g_free (request->uri);
     g_free (request->mime_type);
     g_free (request->data);
-
-    g_free (request);
-    g_free (priv);
+    g_slice_free (KatzeNetRequest, request);
+    g_slice_free (KatzeNetPriv, priv);
 }
 
 gchar*
@@ -276,12 +272,12 @@ katze_net_load_uri (KatzeNet*          net,
     if (!status_cb && !transfer_cb)
         return;
 
-    request = g_new0 (KatzeNetRequest, 1);
+    request = g_slice_new (KatzeNetRequest);
     request->uri = g_strdup (uri);
     request->mime_type = NULL;
     request->data = NULL;
 
-    priv = g_new0 (KatzeNetPriv, 1);
+    priv = g_slice_new (KatzeNetPriv);
     priv->status_cb = status_cb;
     priv->transfer_cb = transfer_cb;
     priv->user_data = user_data;

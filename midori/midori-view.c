@@ -764,7 +764,7 @@ katze_net_icon_priv_free (KatzeNetIconPriv* priv)
 {
     g_free (priv->icon_file);
     g_free (priv->icon_uri);
-    g_free (priv);
+    g_slice_free (KatzeNetIconPriv, priv);
 }
 
 static gboolean
@@ -896,7 +896,7 @@ _midori_web_view_load_icon (MidoriView* view)
         }
         else
         {
-            priv = g_new0 (KatzeNetIconPriv, 1);
+            priv = g_slice_new (KatzeNetIconPriv);
             priv->icon_file = icon_file;
             priv->icon_uri = icon_uri;
             priv->view = view;

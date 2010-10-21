@@ -103,8 +103,7 @@ authentication_message_got_headers_cb (SoupMessage*       msg,
 
         if (!g_hash_table_lookup (save->http_auth->logins, opaque_info))
         {
-            KatzeHttpAuthLogin* login;
-            login = g_new (KatzeHttpAuthLogin, 1);
+            KatzeHttpAuthLogin* login = g_slice_new (KatzeHttpAuthLogin);
             login->username = save->username;
             login->password = save->password;
             g_hash_table_insert (save->http_auth->logins, opaque_info, login);
@@ -130,7 +129,7 @@ authentication_message_got_headers_cb (SoupMessage*       msg,
     }
 
     /* FIXME g_object_unref (save->auth); */
-    /* FIXME g_free (save); */
+    /* FIXME g_slice_free (KatzeHttpAuthSave, save); */
     g_signal_handlers_disconnect_by_func (msg,
         authentication_message_got_headers_cb, save);
 }
@@ -164,7 +163,7 @@ authentication_dialog_response_cb (GtkWidget*         dialog,
         else
         {
             g_object_unref (save->auth);
-            g_free (save);
+            g_slice_free (KatzeHttpAuthSave, save);
         }
     }
 
@@ -280,7 +279,7 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     g_object_set_data (G_OBJECT (dialog), "session", session);
     g_object_set_data (G_OBJECT (dialog), "msg", msg);
 
-    save = g_new (KatzeHttpAuthSave, 1);
+    save = g_slice_new0 (KatzeHttpAuthSave);
     save->http_auth = http_auth;
     save->auth = g_object_ref (auth);
     g_signal_connect (dialog, "response",
@@ -366,7 +365,7 @@ katze_http_auth_login_free (KatzeHttpAuthLogin* login)
 {
     g_free (login->username);
     g_free (login->password);
-    g_free (login);
+    g_slice_free (KatzeHttpAuthLogin, login);
 }
 
 static void
@@ -389,12 +388,9 @@ katze_http_auth_set_filename (KatzeHttpAuth* http_auth,
             gchar** parts = g_strsplit (line, "\t", 3);
             if (parts && parts[0] && parts[1] && parts[2])
             {
-                KatzeHttpAuthLogin* login;
-                gint length;
-
-                login = g_new (KatzeHttpAuthLogin, 1);
+                gint length = strlen (parts[2]);
+                KatzeHttpAuthLogin* login = g_slice_new (KatzeHttpAuthLogin);
                 login->username = parts[1];
-                length = strlen (parts[2]);
                 if (parts[2][length - 1] == '\n')
                     length--;
                 login->password = g_strndup (parts[2], length);

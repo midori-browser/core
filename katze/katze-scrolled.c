@@ -203,7 +203,7 @@ katze_scrolled_event_handler_func (GdkEvent* event,
     EventHandlerData* data;
     gboolean stop_propagating;
 
-    state = g_new0 (KatzeScrolledState, 1);
+    state = g_slice_new (KatzeScrolledState);
     state->current_event_handler = g_list_first (event_handlers);
     if (state->current_event_handler)
     {
@@ -216,7 +216,7 @@ katze_scrolled_event_handler_func (GdkEvent* event,
     else
         gtk_main_do_event (event);
 
-    g_free (state);
+    g_slice_free (KatzeScrolledState, state);
 }
 
 static GdkWindow* current_gdk_window;

@@ -527,6 +527,7 @@ addons_free_elements (GSList* elements)
         g_free (element->script_content);
         g_slist_free (element->includes);
         g_slist_free (element->excludes);
+        g_slice_free (struct AddonElement, element);
 
         elements = g_slist_next (elements);
     }
@@ -998,7 +999,7 @@ addons_update_elements (MidoriExtension* extension,
         gchar* tooltip;
 
         fullpath = addon_files->data;
-        element = g_new (struct AddonElement, 1);
+        element = g_slice_new (struct AddonElement);
         element->displayname = g_filename_display_basename (fullpath);
         element->fullpath = fullpath;
         element->enabled = TRUE;
@@ -1065,9 +1066,8 @@ addons_update_elements (MidoriExtension* extension,
     g_free (config_file);
     g_key_file_free (keyfile);
 
-    if (addons_list)
-        g_free (addons_list);
-    addons_list = g_new (struct AddonsList, 1);
+    g_slice_free (struct AddonsList, addons_list);
+    addons_list = g_slice_new (struct AddonsList);
     addons_list->elements = elements;
     addons_list->liststore = liststore;
 

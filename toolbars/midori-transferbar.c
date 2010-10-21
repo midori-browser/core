@@ -55,7 +55,7 @@ midori_transferbar_info_free (gpointer data)
     transferbar->infos = g_list_remove (transferbar->infos, info);
     g_object_unref (info->download);
     gtk_widget_destroy (info->toolitem);
-    g_free (info);
+    g_slice_free (TransferInfo, info);
 
     if (!transferbar->infos || !g_list_nth_data (transferbar->infos, 0))
         gtk_widget_hide (GTK_WIDGET (transferbar->clear));
@@ -210,7 +210,7 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
     gtk_toolbar_insert (GTK_TOOLBAR (transferbar), toolitem, 0);
     gtk_widget_show (GTK_WIDGET (transferbar->clear));
 
-    info = g_new (TransferInfo, 1);
+    info = g_slice_new (TransferInfo);
     info->download = g_object_ref (download);
     info->button = button;
     info->toolitem = GTK_WIDGET (toolitem);
