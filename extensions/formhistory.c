@@ -539,6 +539,7 @@ extension_init (void)
         g_signal_connect (extension, "activate",
             G_CALLBACK (formhistory_activate_cb), NULL);
 
+    /* i18n: Data entered into web forms by the user */
     sokoke_register_privacy_item ("formhistory", _("_Form History"),
         G_CALLBACK (formhistory_clear_database_cb));
 
