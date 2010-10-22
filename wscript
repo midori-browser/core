@@ -10,7 +10,7 @@ try:
 except:
     WAFVERSION='1.0.0'
 if WAFVERSION[:3] != '1.5':
-    print 'Incompatible Waf, use 1.5'
+    print ('Incompatible Waf, use 1.5')
     sys.exit (1)
 
 import Build
@@ -322,7 +322,7 @@ def configure (conf):
         conf.env.append_value ('VALAFLAGS', '--enable-checking'.split ())
     elif debug_level == 'none':
         conf.env.append_value ('VALAFLAGS', '--disable-assert')
-    print '''
+    print ('''
         Localization:        %(nls)s (intltool)
         Icon optimizations:  %(icons)s (rsvg-convert)
         Notifications:       %(libnotify)s (libnotify)
@@ -330,7 +330,7 @@ def configure (conf):
         IDN support:         %(idn)s (libidn or libsoup 2.27.90)
         User documentation:  %(user_docs)s (docutils)
         API documentation:   %(api_docs)s (gtk-doc)
-        ''' % locals ()
+        ''' % locals ())
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
         Utils.pprint ('RED', 'unique 1.0.4 found, this version is erroneous.')
         Utils.pprint ('RED', 'Please use an older or newer version.')
@@ -568,7 +568,7 @@ def shutdown ():
                 size_old = 0
             subprocess.call (['intltool-update', '-p', '-g', APPNAME])
             size_new = os.stat (APPNAME + '.pot').st_size
-            if size_new <> size_old:
+            if size_new != size_old:
                 Utils.pprint ('YELLOW', "Updated po template.")
                 try:
                     command = 'intltool-update -r -g %s' % APPNAME
@@ -613,7 +613,7 @@ def shutdown ():
                 command += ' wine cmd /k "PATH=%PATH%;' + Build.bld.env['PREFIX'] + os.sep + 'bin' + ' && ' + APPNAME + '.exe"'
             else:
                 command += ' ' + relfolder + os.sep + APPNAME + os.sep + APPNAME
-            print command
+            print (command)
             Utils.exec_command (command)
-        except Exception, msg:
+        except Exception as msg:
             Utils.pprint ('RED', "Failed to run application: " + str (msg))
