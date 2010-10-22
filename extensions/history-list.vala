@@ -243,7 +243,7 @@ private class HistoryList : Midori.Extension {
     }
     internal HistoryList () {
         GLib.Object (name: _("History List"),
-                     description: _("Allows to switch tabs by choosing from a list sorted by last usage"),
+                     description: _("Switch tabs with Ctrl+Tab sorted by last usage"),
                      version: "0.2",
                      authors: "André Stösel <Midori-Plugin@PyIT.de>");
         activate.connect (activated);
