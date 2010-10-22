@@ -316,10 +316,10 @@ search_engines_new_from_file (const gchar* filename,
 }
 
 static KatzeArray*
-search_engines_new_from_folder (const gchar* config_folder,
+search_engines_new_from_folder (const gchar* config,
                                 GString*     error_messages)
 {
-    gchar* config_file = g_build_filename (config_folder, "search", NULL);
+    gchar* config_file = g_build_filename (config, "search", NULL);
     GError* error = NULL;
     KatzeArray* search_engines;
 
@@ -1940,7 +1940,7 @@ main (int    argc,
     }
     else
         app = midori_app_new ();
-    g_free (config);
+    katze_assign (config, (gchar*)sokoke_set_config_dir (NULL));
     midori_startup_timer ("App created: \t%f");
 
     /* FIXME: The app might be 'running' but actually showing a dialog
@@ -1979,12 +1979,11 @@ main (int    argc,
         return 1;
     }
 
-    katze_mkdir_with_parents (sokoke_set_config_dir (NULL), 0700);
-
+    katze_mkdir_with_parents (config, 0700);
     /* Load configuration file */
     error_messages = g_string_new (NULL);
     error = NULL;
-    settings = settings_and_accels_new (sokoke_set_config_dir (NULL), &extensions);
+    settings = settings_and_accels_new (config, &extensions);
     g_object_set (settings, "enable-developer-extras", TRUE, NULL);
     #if WEBKIT_CHECK_VERSION (1, 1, 14)
     g_object_set (settings, "enable-html5-database", TRUE, NULL);
@@ -2060,7 +2059,7 @@ main (int    argc,
 
     midori_startup_timer ("Trash read: \t%f");
     history = katze_array_new (KATZE_TYPE_ARRAY);
-    katze_assign (config_file, build_config_filename ("history.db"));
+    katze_assign (config_file, g_build_filename (config, "history.db", NULL));
 
     errmsg = NULL;
     if ((db = midori_history_initialize (history, config_file, bookmarks_file ,&errmsg)) == NULL)
@@ -2159,7 +2158,7 @@ main (int    argc,
     g_object_set_data (G_OBJECT (app), "extensions", extensions);
     /* We test for the presence of a dummy file which is created once
        and deleted during normal runtime, but persists in case of a crash. */
-    katze_assign (config_file, build_config_filename ("running"));
+    katze_assign (config_file, g_build_filename (config, "running", NULL));
     if (g_access (config_file, F_OK) == 0)
         back_from_crash = TRUE;
     else
