@@ -45,6 +45,7 @@ G_BEGIN_DECLS
     gtk_icon_entry_set_icon_from_pixbuf (GtkEntry*            entry,
                                          GtkEntryIconPosition position,
                                          GdkPixbuf*           pixbuf);
+    #define gtk_icon_entry_set_tooltip gtk_entry_set_icon_tooltip_text
     #define gtk_icon_entry_set_icon_highlight gtk_entry_set_icon_activatable
     #define gtk_icon_entry_set_progress_fraction gtk_entry_set_progress_fraction
 #else
