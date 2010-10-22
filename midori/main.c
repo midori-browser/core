@@ -59,12 +59,7 @@
 static gchar*
 build_config_filename (const gchar* filename)
 {
-    const gchar* path;
-
-    if (g_path_is_absolute (filename))
-        return g_strdup (filename);
-    path = sokoke_set_config_dir (NULL);
-    return g_build_filename (path, filename, NULL);
+    return g_build_filename (sokoke_set_config_dir (NULL), filename, NULL);
 }
 
 static MidoriWebSettings*
@@ -571,11 +566,8 @@ settings_notify_cb (MidoriWebSettings* settings,
                     GParamSpec*        pspec,
                     MidoriApp*         app)
 {
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename ("config");
-    error = NULL;
+    gchar* config_file = build_config_filename ("config");
+    GError* error = NULL;
     if (!settings_save_to_file (settings, app, config_file, &error))
     {
         g_warning (_("The configuration couldn't be saved. %s"), error->message);
@@ -609,11 +601,8 @@ midori_search_engines_modify_cb (KatzeArray* array,
                                  gpointer    item,
                                  KatzeArray* search_engines)
 {
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename ("search");
-    error = NULL;
+    gchar* config_file = build_config_filename ("search");
+    GError* error = NULL;
     if (!search_engines_save_to_file (search_engines, config_file, &error))
     {
         g_warning (_("The search engines couldn't be saved. %s"),
@@ -627,12 +616,9 @@ static void
 midori_trash_add_item_cb (KatzeArray* trash,
                           GObject*    item)
 {
-    gchar* config_file;
-    GError* error;
+    gchar* config_file = build_config_filename ("tabtrash.xbel");
+    GError* error = NULL;
     GObject* obsolete_item;
-
-    config_file = build_config_filename ("tabtrash.xbel");
-    error = NULL;
     if (!midori_array_to_file (trash, config_file, "xbel", &error))
     {
         /* i18n: Trash, or wastebin, containing closed tabs */
@@ -652,11 +638,8 @@ static void
 midori_trash_remove_item_cb (KatzeArray* trash,
                              GObject*    item)
 {
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename ("tabtrash.xbel");
-    error = NULL;
+    gchar* config_file = build_config_filename ("tabtrash.xbel");
+    GError* error = NULL;
     if (!midori_array_to_file (trash, config_file, "xbel", &error))
     {
         g_warning (_("The trash couldn't be saved. %s"), error->message);
@@ -706,11 +689,8 @@ static guint save_timeout = 0;
 static gboolean
 midori_session_save_timeout_cb (KatzeArray* session)
 {
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename ("session.xbel");
-    error = NULL;
+    gchar* config_file = build_config_filename ("session.xbel");
+    GError* error = NULL;
     if (!midori_array_to_file (session, config_file, "xbel", &error))
     {
         g_warning (_("The session couldn't be saved. %s"), error->message);
@@ -946,11 +926,8 @@ static void
 button_reset_session_clicked_cb (GtkWidget*  button,
                                  KatzeArray* session)
 {
-    gchar* config_file;
-    GError* error;
-
-    config_file = build_config_filename ("session.old.xbel");
-    error = NULL;
+    gchar* config_file = build_config_filename ("session.old.xbel");
+    GError* error = NULL;
     if (!midori_array_to_file (session, config_file, "xbel", &error))
     {
         g_warning (_("The session couldn't be saved. %s"), error->message);
@@ -2004,7 +1981,7 @@ main (int    argc,
     midori_startup_timer ("Search read: \t%f");
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    bookmarks_file = build_config_filename ("bookmarks.db");
+    bookmarks_file = g_build_filename (config, "bookmarks.db", NULL);
     errmsg = NULL;
     if ((db = midori_bookmarks_initialize (bookmarks, bookmarks_file, &errmsg)) == NULL)
     {
@@ -2014,7 +1991,11 @@ main (int    argc,
     }
     else
     {
-        gchar* old_bookmarks = build_config_filename (BOOKMARK_FILE);
+        gchar* old_bookmarks;
+        if (g_path_is_absolute (BOOKMARK_FILE))
+            old_bookmarks = g_strdup (BOOKMARK_FILE);
+        else
+            old_bookmarks = g_build_filename (config, BOOKMARK_FILE, NULL);
         if (g_access (old_bookmarks, F_OK) == 0)
         {
             midori_bookmarks_import (old_bookmarks, db);
@@ -2046,7 +2027,7 @@ main (int    argc,
 
     trash = katze_array_new (KATZE_TYPE_ITEM);
     #if HAVE_LIBXML
-    katze_assign (config_file, build_config_filename ("tabtrash.xbel"));
+    katze_assign (config_file, g_build_filename (config, "tabtrash.xbel", NULL));
     error = NULL;
     if (!midori_array_from_file (trash, config_file, "xbel", &error))
     {
@@ -2240,7 +2221,7 @@ main (int    argc,
     if (katze_object_get_int (settings, "load-on-startup")
         < MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
-        katze_assign (config_file, build_config_filename ("session.xbel"));
+        katze_assign (config_file, g_build_filename (config, "session.xbel", NULL));
         g_unlink (config_file);
     }
 

@@ -3598,7 +3598,7 @@ _action_location_secondary_icon_released (GtkAction*     action,
         if (midori_view_is_blank (MIDORI_VIEW (view)))
         {
             GtkClipboard* clipboard = gtk_clipboard_get_for_display (
-                gtk_widget_get_display (view), GDK_SELECTION_CLIPBOARD));
+                gtk_widget_get_display (view), GDK_SELECTION_CLIPBOARD);
             gchar* text = gtk_clipboard_wait_for_text (clipboard);
             if (text != NULL)
             {
