@@ -3594,7 +3594,19 @@ _action_location_secondary_icon_released (GtkAction*     action,
     {
         const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
         const gchar* feed;
-        if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
+        /* Clicking icon on blank is equal to Paste and Proceed */
+        if (midori_view_is_blank (MIDORI_VIEW (view)))
+        {
+            GtkClipboard* clipboard = gtk_clipboard_get_for_display (
+                gtk_widget_get_display (view), GDK_SELECTION_CLIPBOARD));
+            gchar* text = gtk_clipboard_wait_for_text (clipboard);
+            if (text != NULL)
+            {
+                _action_location_submit_uri (action, text, FALSE, browser);
+                g_free (text);
+            }
+        }
+        else if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
             _action_location_submit_uri (action, uri, FALSE, browser);
         else if ((feed = g_object_get_data (G_OBJECT (view), "news-feeds")))
         {
