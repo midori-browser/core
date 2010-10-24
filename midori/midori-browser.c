@@ -1397,7 +1397,10 @@ midori_view_new_window_cb (GtkWidget*     view,
 {
     MidoriBrowser* new_browser;
     g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
-    midori_browser_add_uri (new_browser, uri);
+    if (new_browser)
+        midori_browser_add_uri (new_browser, uri);
+    else /* No MidoriApp, so this is app or private mode */
+        sokoke_spawn_app (uri, TRUE);
 }
 
 static void
