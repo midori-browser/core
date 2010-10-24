@@ -1295,6 +1295,7 @@ sokoke_action_create_popup_menu_item (GtkAction* action)
     }
     gtk_widget_set_sensitive (menuitem, sensitive);
     sokoke_widget_set_visible (menuitem, visible);
+    gtk_widget_set_no_show_all (menuitem, TRUE);
     g_signal_connect_swapped (menuitem, "activate",
                               G_CALLBACK (gtk_action_activate), action);
 
