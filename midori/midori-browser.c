@@ -5774,6 +5774,12 @@ midori_browser_init (MidoriBrowser* browser)
     /* FIXME: Show once implemented */
     _action_set_visible (browser, "AddDesktopShortcut", FALSE);
 
+    _action_set_visible (browser, "Bookmarks", browser->bookmarks != NULL);
+    _action_set_visible (browser, "BookmarkAdd", browser->bookmarks != NULL);
+    _action_set_visible (browser, "BookmarksImport", browser->bookmarks != NULL);
+    _action_set_visible (browser, "BookmarksExport", browser->bookmarks != NULL);
+    _action_set_visible (browser, "Bookmarkbar", browser->bookmarks != NULL);
+
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
@@ -6422,6 +6428,20 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
     g_signal_handlers_disconnect_by_func (settings,
         midori_browser_show_bookmarkbar_notify_value_cb, browser);
     katze_object_assign (browser->bookmarks, bookmarks);
+
+    _action_set_visible (browser, "Bookmarks", bookmarks != NULL);
+    if (bookmarks != NULL)
+    {
+        /* FIXME: Proxies aren't shown propely. Why? */
+        GSList* proxies = gtk_action_get_proxies (
+            _action_by_name (browser, "Bookmarks"));
+        for (; proxies; proxies = g_slist_next (proxies))
+            gtk_widget_show (proxies->data);
+    }
+    _action_set_visible (browser, "BookmarkAdd", bookmarks != NULL);
+    _action_set_visible (browser, "BookmarksImport", bookmarks != NULL);
+    _action_set_visible (browser, "BookmarksExport", bookmarks != NULL);
+    _action_set_visible (browser, "Bookmarkbar", bookmarks != NULL);
 
     if (!bookmarks)
         return;

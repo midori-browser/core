@@ -1860,7 +1860,6 @@ main (int    argc,
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
         }
         g_object_set (settings, "show-panel", FALSE, NULL);
-        midori_browser_set_action_visible (browser, "Bookmarks", FALSE);
         midori_browser_set_action_visible (browser, "Tools", FALSE);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
