@@ -2601,10 +2601,6 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     GtkWidget* menu;
     GtkWidget* menuitem;
 
-    /* Unsupported trick used for web app mode */
-    if (g_object_get_data (G_OBJECT (browser), "locked"))
-        return FALSE;
-
     menu = gtk_menu_new ();
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Menubar"));

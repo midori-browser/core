@@ -1857,6 +1857,7 @@ main (int    argc,
                           "show-statusbar", FALSE,
                           "enable-developer-extras", FALSE,
                           NULL);
+            midori_browser_set_action_visible (browser, "Menubar", FALSE);
         }
         g_object_set (settings, "show-panel", FALSE, NULL);
         midori_browser_set_action_visible (browser, "Bookmarks", FALSE);
@@ -1869,7 +1870,6 @@ main (int    argc,
         g_signal_connect (browser, "notify::load-status",
             G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         midori_browser_add_uri (browser, webapp);
-        g_object_set_data (G_OBJECT (browser), "locked", (void*)1);
         g_signal_connect (browser, "quit",
             G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "destroy",
