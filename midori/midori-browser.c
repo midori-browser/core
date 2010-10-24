@@ -4036,7 +4036,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         g_free (path);
     }
     gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-        0, _("Custom..."), 1, NULL, 2, NULL, 3, icon_width, -1);
+        0, _("Import from a file"), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
@@ -4085,7 +4085,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         {
             GtkWidget* file_dialog;
 
-            file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
+            file_dialog = sokoke_file_chooser_dialog_new (_("Import from a file"),
                 GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_OPEN);
             if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
                 path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
