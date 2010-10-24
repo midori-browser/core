@@ -2603,7 +2603,8 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
         gtk_menu_shell_append (menu_shell, menuitem);
 
-        if (view->speed_dial_in_new_tabs && !midori_view_is_blank (view))
+        if (view->speed_dial_in_new_tabs && !midori_view_is_blank (view)
+         && strcmp ("/", sokoke_set_config_dir (NULL)))
         {
             menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "AddSpeedDial"));

@@ -1481,6 +1481,8 @@ sokoke_register_stock_items (void)
  *
  * Retrieves and/ or sets the base configuration folder.
  *
+ * "/" means no configuration is saved.
+ *
  * Return value: the configuration folder, or %NULL
  **/
 const gchar*
