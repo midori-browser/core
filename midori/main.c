@@ -1833,15 +1833,8 @@ main (int    argc,
         midori_startup_timer ("Browser: \t%f");
         if (config)
         {
-            SoupCookieJar* jar;
-
             settings = settings_and_accels_new (config, &extensions);
             g_strfreev (extensions);
-            config_file = g_build_filename (config, "cookies.txt", NULL);
-            jar = soup_cookie_jar_text_new (config_file, TRUE);
-            g_free (config_file);
-            soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
-            g_object_unref (jar);
             search_engines = search_engines_new_from_folder (config, NULL);
             g_object_set (browser, "search-engines", search_engines, NULL);
             g_object_unref (search_engines);
