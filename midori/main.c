@@ -1551,6 +1551,10 @@ midori_clear_page_icons_cb (void)
                                      PACKAGE_NAME, "icons", NULL);
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
+    cache = g_build_filename (g_get_user_data_dir (),
+                              "webkit", "icondatabase", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
 }
 
 static void
