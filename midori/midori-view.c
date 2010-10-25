@@ -94,6 +94,7 @@ struct _MidoriView
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
     gboolean find_while_typing;
+    gint find_links;
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
@@ -1030,6 +1031,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
         view->security = MIDORI_SECURITY_NONE;
     g_object_notify (G_OBJECT (view), "security");
 
+    view->find_links = -1;
     midori_view_update_load_status (view, MIDORI_LOAD_COMMITTED);
 
     g_object_thaw_notify (G_OBJECT (view));
@@ -1795,8 +1797,69 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                                MidoriView*    view)
 {
     guint character;
+    gint digit = g_ascii_digit_value (event->keyval);
 
-    if (event->keyval == '.' || event->keyval == '/' || event->keyval == GDK_KP_Divide)
+    /* Find links by number: . to show links, type number, Return to go */
+    if (event->keyval == '.'
+     || (view->find_links > -1 && (digit != -1 || event->keyval == GDK_Return)))
+    {
+        WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (web_view);
+        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+        gchar* result;
+
+        if (view->find_links == -1)
+        {
+            result = sokoke_js_script_eval (js_context,
+                "(function (aSelector, aRule) { "
+                " document.styleSheets[0].insertRule (aSelector + ' ' + aRule);"
+                " } )"
+                " ('.midoriHKD87346', '{ "
+                " z-index:500; font-size:x-small; -webkit-border-radius:0.3em;"
+                " background-color:white; border:1px solid gray; color: black;"
+                " padding:0 0.1em; position:absolute; }');"
+                "var links = document.getElementsByTagName ('a');"
+                "for (i in links) {"
+                "  var child = document.createElement ('span');"
+                "  child.setAttribute ('class', 'midoriHKD87346');"
+                "  child.appendChild (document.createTextNode (i));"
+                "  if (links[i].insertBefore)"
+                "    links[i].insertBefore (child); }",
+                NULL);
+            view->find_links = 0;
+        }
+        else if (digit != -1 || event->keyval == GDK_Return)
+        {
+            gchar* script;
+            if (event->keyval != GDK_Return)
+            {
+                if (view->find_links > -1)
+                    view->find_links *= 10;
+                view->find_links += digit;
+            }
+            script = g_strdup_printf (
+                "var links = document.getElementsByClassName ('midoriHKD87346');"
+                "var i = %d; var return_key = %d;"
+                "if (return_key || typeof links[i * 10] == 'undefined')"
+                "    location.href = links[i].parentNode.href;",
+                view->find_links, event->keyval == GDK_Return);
+            result = sokoke_js_script_eval (js_context, script, NULL);
+            g_free (script);
+        }
+        else
+        {
+            result = sokoke_js_script_eval (js_context,
+                "var links = document.getElementsByClassName ('midoriHKD87346');"
+                "for (var i = 0; i < links.length; i++) {"
+                "  links[i].style.visibility = 'hidden'; }",
+                NULL);
+            view->find_links = -1;
+        }
+        g_free (result);
+        return FALSE;
+    }
+
+    /* Find inline */
+    if (event->keyval == ',' || event->keyval == '/' || event->keyval == GDK_KP_Divide)
         character = '\0';
     else if (view->find_while_typing)
         character = gdk_unicode_to_keyval (event->keyval);
@@ -2983,6 +3046,7 @@ midori_view_init (MidoriView* view)
     view->link_uri = NULL;
     view->selected_text = NULL;
     view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
+    view->find_links = -1;
 
     view->item = katze_item_new ();
 
