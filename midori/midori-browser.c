@@ -3908,12 +3908,13 @@ midori_browser_menu_button_press_event_cb (GtkWidget*      toolitem,
                                            GdkEventButton* event,
                                            MidoriBrowser*  browser)
 {
+    if (event->button != 3)
+        return FALSE;
+
     /* GtkMenuBar catches button events on children with submenus,
        so we need to see if the actual widget is the menubar, and if
        it is an item, we forward it to the actual widget. */
-    toolitem = gtk_get_event_widget ((GdkEvent*)event);
-
-    if (GTK_IS_MENU_BAR (toolitem) && event->button == 3)
+    if ((GTK_IS_BOX (toolitem) || GTK_IS_MENU_BAR (toolitem)))
     {
         midori_browser_toolbar_popup_context_menu_cb (
             GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
@@ -3921,7 +3922,7 @@ midori_browser_menu_button_press_event_cb (GtkWidget*      toolitem,
             event->x, event->y, event->button, browser);
         return TRUE;
     }
-    else if (GTK_IS_MENU_ITEM (toolitem) && event->button == 3)
+    else if (GTK_IS_MENU_ITEM (toolitem))
     {
         gboolean handled;
         g_signal_emit_by_name (toolitem, "button-press-event", event, &handled);
