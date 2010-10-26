@@ -1799,6 +1799,8 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     guint character;
     gint digit = g_ascii_digit_value (event->keyval);
 
+    event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
+
     /* Find links by number: . to show links, type number, Return to go */
     if (event->keyval == '.'
      || (view->find_links > -1 && (digit != -1 || event->keyval == GDK_Return)))
@@ -1844,9 +1846,22 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 "if (return_key || typeof links[i * 10] == 'undefined') {"
                 "    for (var j = 0; j < links.length; j++)"
                 "        links[j].style.display = 'none !important';"
-                "    location.href = links[i].parentNode.href; }",
+                "    links[i].parentNode.href; }",
                 view->find_links, event->keyval == GDK_Return);
             result = sokoke_js_script_eval (js_context, script, NULL);
+            if (strcmp (result, "undefined"))
+            {
+                view->find_links = -1;
+                if (MIDORI_MOD_NEW_TAB (event->state))
+                {
+                    gboolean background = view->open_tabs_in_the_background;
+                    if (MIDORI_MOD_BACKGROUND (event->state))
+                        background = !background;
+                    g_signal_emit (view, signals[NEW_TAB], 0, result, background);
+                }
+                else
+                    midori_view_set_uri (view, result);
+            }
             g_free (script);
         }
         else
