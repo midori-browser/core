@@ -1839,8 +1839,10 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
             script = g_strdup_printf (
                 "var links = document.getElementsByClassName ('midoriHKD87346');"
                 "var i = %d; var return_key = %d;"
-                "if (return_key || typeof links[i * 10] == 'undefined')"
-                "    location.href = links[i].parentNode.href;",
+                "if (return_key || typeof links[i * 10] == 'undefined') {"
+                "    for (var j = 0; j < links.length; j++)"
+                "        links[j].style.display = 'none !important';"
+                "    location.href = links[i].parentNode.href; }",
                 view->find_links, event->keyval == GDK_Return);
             result = sokoke_js_script_eval (js_context, script, NULL);
             g_free (script);
@@ -1849,8 +1851,8 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         {
             result = sokoke_js_script_eval (js_context,
                 "var links = document.getElementsByClassName ('midoriHKD87346');"
-                "for (var i = 0; i < links.length; i++) {"
-                "  links[i].style.visibility = 'hidden'; }",
+                "for (var i = 0; i < links.length; i++)"
+                "  links[i].style.display = 'none !important';",
                 NULL);
             view->find_links = -1;
         }
