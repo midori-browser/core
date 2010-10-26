@@ -1812,8 +1812,12 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         if (view->find_links == -1)
         {
             result = sokoke_js_script_eval (js_context,
-                "(function (aSelector, aRule) { "
-                " document.styleSheets[0].insertRule (aSelector + ' ' + aRule);"
+                "(function (selector, rule) { "
+                " var style = document.createElement ('style');"
+                " style.setAttribute ('type', 'text/css');"
+                " var heads = document.getElementsByTagName ('head');"
+                " heads[0].appendChild (style);"
+                " document.styleSheets[0].insertRule (selector + ' ' + rule);"
                 " } )"
                 " ('.midoriHKD87346', '{ "
                 " font-size:small !important; font-weight:bold !important;"
