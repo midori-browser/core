@@ -259,7 +259,6 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
     gtk_size_group_add_widget (sizegroup, align);
     gtk_box_pack_start (GTK_BOX (hbox), align, TRUE, TRUE, 0);
     entry = gtk_entry_new ();
-    gtk_entry_set_max_length (GTK_ENTRY (entry), 32);
     if (login)
         gtk_entry_set_text (GTK_ENTRY (entry), login->password);
     gtk_entry_set_visibility (GTK_ENTRY (entry), FALSE);
