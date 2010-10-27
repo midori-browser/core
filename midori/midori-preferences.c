@@ -431,13 +431,9 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "open-panels-in-windows", NULL);
-    SPANNED_ADD (button);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
-    INDENTED_ADD (button);
-    #endif
-    button = katze_property_proxy (settings, "find-while-typing", NULL);
     SPANNED_ADD (button);
+    #endif
     button = katze_property_proxy (settings, "zoom-text-and-images", NULL);
     INDENTED_ADD (button);
     #if WEBKIT_CHECK_VERSION (1, 1, 11)
