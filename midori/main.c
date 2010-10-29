@@ -1513,12 +1513,22 @@ midori_inactivity_timeout (gpointer data)
         {
             guint i = 0;
             GtkWidget* view;
+            KatzeArray* history = katze_object_get_object (mit->browser, "history");
+            sqlite3* db;
+            KatzeArray* trash = katze_object_get_object (mit->browser, "trash");
+            GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
 
             while ((view = midori_browser_get_nth_tab (mit->browser, i++)))
                 gtk_widget_destroy (view);
             midori_browser_set_current_uri (mit->browser, mit->uri);
-            /* TODO: Re-run initial commands */
-
+            /* Clear all private data */
+            if (history && (db = g_object_get_data (G_OBJECT (history), "db")))
+                sqlite3_exec (db, "DELETE FROM history; DELETE FROM search",
+                              NULL, NULL, NULL);
+            if (trash != NULL)
+                katze_array_clear (trash);
+            for (; data_items != NULL; data_items = g_list_next (data_items))
+                ((SokokePrivacyItem*)(data_items->data))->clear ();
         }
     }
     #else
