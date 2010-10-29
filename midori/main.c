@@ -1581,8 +1581,11 @@ midori_clear_web_cookies_cb (void)
     }
     g_slist_free (cookies);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
-    soup_session_remove_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
-    soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
+    if (soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES))
+    {
+        soup_session_remove_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
+        soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
+    }
 }
 
 #ifdef GDK_WINDOWING_X11
