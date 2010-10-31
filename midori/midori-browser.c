@@ -5784,6 +5784,8 @@ midori_browser_init (MidoriBrowser* browser)
     _action_set_visible (browser, "BookmarksImport", browser->bookmarks != NULL);
     _action_set_visible (browser, "BookmarksExport", browser->bookmarks != NULL);
     _action_set_visible (browser, "Bookmarkbar", browser->bookmarks != NULL);
+    _action_set_visible (browser, "Trash", browser->trash != NULL);
+    _action_set_visible (browser, "UndoTabClose", browser->trash != NULL);
 
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
@@ -6504,6 +6506,8 @@ midori_browser_set_property (GObject*      object,
         g_object_set (_action_by_name (browser, "Trash"),
                       "array", browser->trash, "reversed", TRUE,
                       NULL);
+        _action_set_visible (browser, "Trash", browser->trash != NULL);
+        _action_set_visible (browser, "UndoTabClose", browser->trash != NULL);
         /* FIXME: Connect to updates */
         _midori_browser_update_actions (browser);
         break;
