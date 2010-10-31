@@ -615,6 +615,6 @@ def shutdown ():
                 command += ' ' + relfolder + os.sep + APPNAME + os.sep + APPNAME
             print (command)
             Utils.exec_command (command)
-        # except Exception as msg:
-        except Exception, msg:
+        except Exception:
+            msg = sys.exc_info()[1] # Python 2/3 compatibility
             Utils.pprint ('RED', "Failed to run application: " + str (msg))
