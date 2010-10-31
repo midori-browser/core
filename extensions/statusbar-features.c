@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -10,6 +10,7 @@
 */
 
 #include <midori/midori.h>
+#include <midori/sokoke.h>
 
 static void
 statusbar_features_app_add_browser_cb (MidoriApp*       app,
@@ -84,39 +85,32 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     g_object_set_data (G_OBJECT (button), "feature-label", _("Images"));
     image = gtk_image_new_from_stock (STOCK_IMAGE, GTK_ICON_SIZE_MENU);
     gtk_button_set_image (GTK_BUTTON (button), image);
-    #if GTK_CHECK_VERSION(2, 12, 0)
     gtk_widget_set_tooltip_text (button, _("Load images automatically"));
-    #endif
     statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
     g_signal_connect (toolbar, "notify::toolbar-style",
         G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    gtk_widget_show (button);
     button = katze_property_proxy (settings, "enable-scripts", "toggle");
     g_object_set_data (G_OBJECT (button), "feature-label", _("Scripts"));
     image = gtk_image_new_from_stock (STOCK_SCRIPTS, GTK_ICON_SIZE_MENU);
     gtk_button_set_image (GTK_BUTTON (button), image);
-    #if GTK_CHECK_VERSION(2, 12, 0)
     gtk_widget_set_tooltip_text (button, _("Enable scripts"));
-    #endif
     statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
     g_signal_connect (toolbar, "notify::toolbar-style",
         G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    gtk_widget_show (button);
     button = katze_property_proxy (settings, "enable-plugins", "toggle");
     g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
     image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
     gtk_button_set_image (GTK_BUTTON (button), image);
-    #if GTK_CHECK_VERSION(2, 12, 0)
     gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
-    #endif
     statusbar_features_toolbar_notify_toolbar_style_cb (toolbar, NULL, button);
     g_signal_connect (toolbar, "notify::toolbar-style",
         G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    gtk_widget_show (button);
-    gtk_widget_show (bbox);
+    button = katze_property_proxy (settings, "identify-as", NULL);
+    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+    gtk_widget_show_all (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
     g_object_unref (settings);
     g_object_unref (statusbar);
