@@ -561,7 +561,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     {
         gchar* markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
-            _("Cookies store login data, save games "
+            _("Cookies store login data, saved games, "
               "or user profiles for advertisement purposes."));
         label = gtk_label_new (NULL);
         gtk_label_set_markup (GTK_LABEL (label), markup);
