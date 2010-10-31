@@ -945,7 +945,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         }
 
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)))
-            if (!gtk_widget_get_visible (browser->bookmarkbar))
+            if (!gtk_widget_get_visible (browser->bookmarkbar)
+             && browser->bookmarks != NULL)
                 _action_set_active (browser, "Bookmarkbar", TRUE);
         g_free (selected);
         return_status = TRUE;
@@ -6198,7 +6199,8 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 
     _action_set_active (browser, "Menubar", show_menubar);
     _action_set_active (browser, "Navigationbar", browser->show_navigationbar);
-    _action_set_active (browser, "Bookmarkbar", show_bookmarkbar);
+    _action_set_active (browser, "Bookmarkbar", show_bookmarkbar
+                                             && browser->bookmarks != NULL);
     _action_set_active (browser, "Panel", show_panel);
     #if WEBKIT_CHECK_VERSION (1, 1, 3)
     _action_set_active (browser, "Transferbar", show_transferbar);
