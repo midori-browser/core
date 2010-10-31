@@ -746,6 +746,7 @@ sokoke_external_uri (const gchar* uri)
     GAppInfo* info;
 
     if (!uri || !strncmp (uri, "http", 4)
+             || !strncmp (uri, "file", 4)
              || !strncmp (uri, "about:", 6))
         return FALSE;
 
