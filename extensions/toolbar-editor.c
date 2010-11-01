@@ -119,9 +119,8 @@ static GSList *tb_editor_parse_active_items(MidoriBrowser *browser)
 	GSList *list = NULL;
 	MidoriWebSettings *settings;
 
-	settings = katze_object_get_object(browser, "settings");
+	settings = midori_browser_get_settings(browser);
 	g_object_get(settings, "toolbar-items", &items, NULL);
-	g_object_unref(settings);
 
 	names = g_strsplit(items ? items : "", ",", 0);
 	list = tb_editor_array_to_list((const gchar **) names);
@@ -356,9 +355,8 @@ static void tb_editor_update_toolbar(TBEditorWidget *tbw)
 
 	gtk_tree_model_foreach(GTK_TREE_MODEL(tbw->store_used), tb_editor_foreach_used, str);
 
-	settings = katze_object_get_object(tbw->browser, "settings");
+	settings = midori_browser_get_settings(tbw->browser);
 	g_object_set(settings, "toolbar-items", str->str, NULL);
-	g_object_unref(settings);
 
 	g_string_free(str, TRUE);
 }

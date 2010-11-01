@@ -293,7 +293,7 @@ midori_addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
         gchar* text_editor;
 
         browser = midori_browser_get_for_widget (GTK_WIDGET (addons->treeview));
-        settings = katze_object_get_object (browser, "settings");
+        settings = midori_browser_get_settings (browser);
 
         gtk_tree_model_get (model, &iter, 0, &element, -1);
 

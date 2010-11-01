@@ -396,7 +396,7 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
 {
     GtkWidget* notebook = katze_object_get_object (browser, "notebook");
     gint page = gtk_notebook_page_num (GTK_NOTEBOOK (notebook), view);
-    MidoriWebSettings* settings = katze_object_get_object (browser, "settings");
+    MidoriWebSettings* settings = midori_browser_get_settings (browser);
     gboolean minimized = katze_object_get_boolean (view, "minimized");
     GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
     const gchar* title = midori_view_get_display_title (MIDORI_VIEW (view));
@@ -444,7 +444,6 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
     }
 
     g_object_unref (notebook);
-    g_object_unref (settings);
 }
 
 static void

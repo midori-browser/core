@@ -4584,7 +4584,7 @@ midori_panel_notify_page_cb (MidoriPanel*   panel,
                              GParamSpec*    pspec,
                              MidoriBrowser* browser)
 {
-    gint page = katze_object_get_boolean (panel, "page");
+    gint page = midori_panel_get_current_page (panel);
     if (page > -1)
         g_object_set (browser->settings, "last-panel-page", page, NULL);
 }

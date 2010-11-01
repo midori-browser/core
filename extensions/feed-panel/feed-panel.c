@@ -334,15 +334,11 @@ feed_panel_row_activated_cb (GtkTreeView*       treeview,
             MidoriWebSettings* settings;
             MidoriBrowser* browser;
             gint n;
-
             browser = midori_browser_get_for_widget (GTK_WIDGET (panel));
             n = midori_browser_add_item (browser, item);
-
-            settings = katze_object_get_object (browser, "settings");
+            settings = midori_browser_get_settings (browser);
             if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
                 midori_browser_set_current_page (browser, n);
-            g_object_unref (settings);
-
         }
         g_object_unref (item);
     }
@@ -485,11 +481,9 @@ feed_panel_open_in_tab_activate_cb (GtkWidget* menuitem,
 
         browser = midori_browser_get_for_widget (GTK_WIDGET (panel));
         n = midori_browser_add_item (browser, item);
-
-        settings = katze_object_get_object (browser, "settings");
+        settings = midori_browser_get_settings (browser);
         if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
             midori_browser_set_current_page (browser, n);
-        g_object_unref (settings);
     }
 }
 
@@ -584,10 +578,9 @@ feed_panel_button_release_event_cb (GtkWidget*      widget,
                 browser = midori_browser_get_for_widget (GTK_WIDGET (panel));
                 n = midori_browser_add_item (browser, item);
 
-                settings = katze_object_get_object (browser, "settings");
+                settings = midori_browser_get_settings (browser);
                 if (!katze_object_get_boolean (settings, "open-tabs-in-the-background"))
                     midori_browser_set_current_page (browser, n);
-                g_object_unref (settings);
             }
         }
         else

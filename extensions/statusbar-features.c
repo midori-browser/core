@@ -79,7 +79,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
 
     statusbar = katze_object_get_object (browser, "statusbar");
     bbox = gtk_hbox_new (FALSE, 0);
-    settings = katze_object_get_object (browser, "settings");
+    settings = midori_browser_get_settings (browser);
     toolbar = katze_object_get_object (browser, "navigationbar");
     button = katze_property_proxy (settings, "auto-load-images", "toggle");
     g_object_set_data (G_OBJECT (button), "feature-label", _("Images"));
@@ -112,7 +112,6 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     gtk_widget_show_all (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
-    g_object_unref (settings);
     g_object_unref (statusbar);
 
     g_signal_connect (extension, "deactivate",

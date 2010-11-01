@@ -28,9 +28,8 @@ page_holder_notebook_append_view (GtkWidget* notebook)
 
     view = midori_view_new (NULL);
     browser = midori_browser_get_for_widget (notebook);
-    settings = katze_object_get_object (browser, "settings");
+    settings = midori_browser_get_settings (browser);
     midori_view_set_settings (MIDORI_VIEW (view), settings);
-    g_object_unref (settings);
     gtk_widget_show (view);
     label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
     return gtk_notebook_append_page (GTK_NOTEBOOK (notebook), view, label);

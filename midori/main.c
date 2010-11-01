@@ -134,7 +134,6 @@ settings_and_accels_new (const gchar* config,
             GEnumClass* enum_class = G_ENUM_CLASS (
                 g_type_class_peek (pspec->value_type));
             GEnumValue* enum_value;
-
             str = g_key_file_get_string (key_file, "settings", property, NULL);
             enum_value = g_enum_get_value_by_name (enum_class, str);
             if (enum_value)
@@ -142,9 +141,7 @@ settings_and_accels_new (const gchar* config,
             else
                 g_warning (_("Value '%s' is invalid for %s"),
                            str, property);
-
             g_free (str);
-            g_type_class_unref (enum_class);
         }
         else
             g_warning (_("Invalid configuration value '%s'"), property);
@@ -230,7 +227,7 @@ settings_save_to_file (MidoriWebSettings* settings,
         else if (type == G_TYPE_PARAM_ENUM)
         {
             GEnumClass* enum_class = G_ENUM_CLASS (
-                g_type_class_ref (pspec->value_type));
+                g_type_class_peek (pspec->value_type));
             gint integer;
             GEnumValue* enum_value;
             g_object_get (settings, property, &integer, NULL);
@@ -1858,7 +1855,7 @@ main (int    argc,
         }
         else
         {
-            settings = katze_object_get_object (browser, "settings");
+            settings = g_object_ref (midori_browser_get_settings (browser));
             g_object_set (settings,
                           "show-menubar", FALSE,
                           "show-navigationbar", FALSE,
