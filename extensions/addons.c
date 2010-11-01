@@ -821,11 +821,14 @@ css_metadata_from_file (const gchar* filename,
                      gchar* value = NULL;
                      if (g_str_has_prefix (parts[i], "url-prefix("))
                          value = g_strdup (parts[i] + strlen ("url-prefix("));
+                     else if (g_str_has_prefix (parts[i], "domain("))
+                         value = g_strdup (parts[i] + strlen ("domain("));
                      else if (g_str_has_prefix (parts[i], "url("))
                          value = g_strdup (parts[i] + strlen ("url("));
                     if (value)
                     {
                          guint j;
+                         gchar* domain;
 
                          if (value[0] != '\'' && value[0] != '"')
                          {
@@ -847,11 +850,17 @@ css_metadata_from_file (const gchar* filename,
                                  break;
                              j++;
                          }
-                         *includes = g_slist_prepend (*includes, g_strndup (value + 1, j - 1));
+                         domain = g_strndup (value + 1, j - 1);
+                         if (!strncmp ("http", domain, 4))
+                             *includes = g_slist_prepend (*includes, domain);
+                         else
+                         {
+                             *includes = g_slist_prepend (*includes,
+                                 g_strdup_printf ("http://*%s/*", domain));
+                             g_free (domain);
+                         }
                          g_free (value);
                     }
-
-                    /* FIXME: Recognize "domain" */
                     i++;
                  }
                  g_strfreev (parts);
