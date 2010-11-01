@@ -856,6 +856,7 @@ katze_throbber_expose_event (GtkWidget*      widget,
                              GdkEventExpose* event)
 {
     KatzeThrobber* throbber = KATZE_THROBBER (widget);
+    gint ax, ay;
 
     if (G_UNLIKELY (!throbber->width || !throbber->height))
         return TRUE;
@@ -867,7 +868,6 @@ katze_throbber_expose_event (GtkWidget*      widget,
     if (!throbber->animated && (throbber->static_pixbuf
         || throbber->static_icon_name || throbber->static_stock_id))
     {
-        gint ax, ay;
         cairo_t* cr;
 
         if (G_UNLIKELY (!throbber->static_pixbuf && throbber->static_icon_name))
