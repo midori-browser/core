@@ -6454,6 +6454,8 @@ midori_browser_set_bookmarks (MidoriBrowser* browser,
     if (!bookmarks)
         return;
 
+    if (katze_object_get_boolean (browser->settings, "show-bookmarkbar"))
+        _action_set_active (browser, "Bookmarkbar", TRUE);
     g_object_ref (bookmarks);
     g_signal_connect (settings, "notify::show-bookmarkbar",
         G_CALLBACK (midori_browser_show_bookmarkbar_notify_value_cb), browser);
