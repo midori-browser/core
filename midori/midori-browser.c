@@ -4514,8 +4514,8 @@ _action_help_link_activate (GtkAction*     action,
             uri = free_uri = g_filename_to_uri (path, NULL, NULL);
             if (g_access (path, F_OK) != 0)
             {
-                if (g_access (DOCDIR "/midori/user/midori.html", F_OK) == 0)
-                    uri = "file://" DOCDIR "/midori/user/midori.html";
+                if (g_access (DOCDIR "/user/midori.html", F_OK) == 0)
+                    uri = "file://" DOCDIR "/user/midori.html";
                 else
             #endif
                     uri = "error:nodocs share/doc/midori/user/midori.html";
@@ -4526,10 +4526,10 @@ _action_help_link_activate (GtkAction*     action,
         }
         #else
         #ifdef DOCDIR
-        uri = "file://" DOCDIR "/midori/user/midori.html";
-        if (g_access (DOCDIR "/midori/user/midori.html", F_OK) != 0)
+        uri = "file://" DOCDIR "/user/midori.html";
+        if (g_access (DOCDIR "/user/midori.html", F_OK) != 0)
         #endif
-            uri = "error:nodocs " DOCDIR "/midori/user/midori.html";
+            uri = "error:nodocs " DOCDIR "/user/midori.html";
         #endif
     }
     else if  (!strncmp ("HelpFAQ", action_name, 7))
