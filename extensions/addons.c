@@ -830,27 +830,11 @@ css_metadata_from_file (const gchar* filename,
                          guint j;
                          gchar* domain;
 
-                         if (value[0] != '\'' && value[0] != '"')
-                         {
-                             /* Wrong syntax, abort */
-                             g_free (value);
-                             g_strfreev (parts);
-                             g_free (line);
-                             g_io_channel_shutdown (channel, false, 0);
-                             g_slist_free (*includes);
-                             g_slist_free (*excludes);
-                             *includes = NULL;
-                             *excludes = NULL;
-                             return FALSE;
-                         }
                          j = 1;
-                         while (value[j] != '\0')
-                         {
-                             if (value[j] == value[0])
-                                 break;
-                             j++;
-                         }
-                         domain = g_strndup (value + 1, j - 1);
+                         while (value[j] != '\0' && value[j] != ')')
+                             ++j;
+
+                         domain = g_strndup (value, j);
                          if (!strncmp ("http", domain, 4))
                              *includes = g_slist_prepend (*includes, domain);
                          else
