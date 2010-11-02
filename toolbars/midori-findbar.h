@@ -43,6 +43,11 @@ midori_findbar_find                   (MidoriFindbar* findbar,
                                        gboolean       forward);
 
 void
+midori_findbar_find_text              (MidoriFindbar* findbar,
+                                       const gchar*   text,
+                                       gboolean       forward);
+
+void
 midori_findbar_set_can_find           (MidoriFindbar* findbar,
                                        gboolean       can_find);
 

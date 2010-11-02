@@ -97,20 +97,27 @@ midori_findbar_case_sensitive (MidoriFindbar* findbar)
 }
 
 void
-midori_findbar_find (MidoriFindbar* findbar,
-                     gboolean       forward)
+midori_findbar_find_text (MidoriFindbar* findbar,
+                          const gchar*   text,
+                          gboolean       forward)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (findbar));
-    const gchar* text;
     gboolean case_sensitive;
     GtkWidget* view;
 
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
 
-    text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
     case_sensitive = midori_findbar_case_sensitive (findbar);
     midori_view_search_text (MIDORI_VIEW (view), text, case_sensitive, forward);
+}
+
+void
+midori_findbar_find (MidoriFindbar* findbar,
+                     gboolean       forward)
+{
+    const gchar* text = gtk_entry_get_text (GTK_ENTRY (findbar->find_text));
+    midori_findbar_find_text (findbar, text, forward);
 }
 
 void
@@ -161,18 +168,26 @@ midori_findbar_button_close_clicked_cb (GtkWidget*     widget,
 }
 
 static void
-midori_findbar_text_changed_cb (GtkWidget*     entry,
-                                MidoriFindbar* findbar)
+midori_findbar_preedit_changed_cb (GtkWidget*     entry,
+                                   const gchar*   preedit,
+                                   MidoriFindbar* findbar)
 {
     if (findbar->find_typing)
     {
         MidoriBrowser* browser = midori_browser_get_for_widget (entry);
         GtkWidget* view = midori_browser_get_current_tab (browser);
-        const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
         midori_view_unmark_text_matches (MIDORI_VIEW (view));
-        if (g_utf8_strlen (text, -1) > 1)
-            midori_findbar_find (findbar, TRUE);
+        if (g_utf8_strlen (preedit, -1) > 1)
+            midori_findbar_find_text (findbar, preedit, TRUE);
     }
+}
+
+static void
+midori_findbar_text_changed_cb (GtkWidget*     entry,
+                                MidoriFindbar* findbar)
+{
+    const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
+    midori_findbar_preedit_changed_cb (entry, text, findbar);
 }
 
 static gboolean
@@ -227,6 +242,8 @@ midori_findbar_init (MidoriFindbar* findbar)
         G_CALLBACK (midori_findbar_entry_clear_icon_released_cb), NULL);
     g_signal_connect (findbar->find_text, "activate",
         G_CALLBACK (midori_findbar_next_activate_cb), findbar);
+    g_signal_connect (findbar->find_text, "preedit-changed",
+        G_CALLBACK (midori_findbar_preedit_changed_cb), findbar);
     g_signal_connect (findbar->find_text, "changed",
         G_CALLBACK (midori_findbar_text_changed_cb), findbar);
     g_signal_connect (findbar->find_text, "focus-out-event",
