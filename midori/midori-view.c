@@ -1805,7 +1805,8 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
 
     /* Find links by number: . to show links, type number, Return to go */
     if (event->keyval == '.'
-     || (view->find_links > -1 && (digit != -1 || event->keyval == GDK_Return)))
+     || (view->find_links > -1
+     && (digit != -1 || event->keyval == GDK_Return || event->keyval == GDK_Escape)))
     {
         WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (web_view);
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
