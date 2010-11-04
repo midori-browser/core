@@ -827,14 +827,15 @@ css_metadata_from_file (const gchar* filename,
                          value = g_strdup (parts[i] + strlen ("url("));
                     if (value)
                     {
-                         guint j;
+                         guint begin, end;
                          gchar* domain;
 
-                         j = 1;
-                         while (value[j] != '\0' && value[j] != ')')
-                             ++j;
+                         begin = value[0] == '"' || value[0] == '\'' ? 1 : 0;
+                         end = 1;
+                         while (value[end] != '\0' && value[end] != ')')
+                             ++end;
 
-                         domain = g_strndup (value, j);
+                         domain = g_strndup (value + begin, end - begin * 2);
                          if (!strncmp ("http", domain, 4))
                              *includes = g_slist_prepend (*includes, domain);
                          else
