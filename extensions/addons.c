@@ -794,6 +794,7 @@ css_metadata_from_file (const gchar* filename,
     GIOChannel* channel;
     gchar* line;
     gchar* rest_of_line;
+    gboolean line_has_meta;
 
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR | G_FILE_TEST_IS_SYMLINK))
         return FALSE;
@@ -802,21 +803,26 @@ css_metadata_from_file (const gchar* filename,
     if (!channel)
         return FALSE;
 
+    line_has_meta = FALSE;
     while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
            == G_IO_STATUS_NORMAL)
     {
-        if (g_str_has_prefix (line, "@-moz-document"))
+        if (g_str_has_prefix (line, "@-moz-document") || line_has_meta)
         { /* FIXME: We merely look for includes. We should honor blocks. */
              if (includes)
              {
                  gchar** parts;
                  guint i;
 
-                 rest_of_line = g_strdup (line + strlen ("@-moz-document"));
+                 if (g_str_has_prefix (line, "@-moz-document"))
+                     rest_of_line = g_strdup (line + strlen ("@-moz-document"));
+                 else
+                     rest_of_line = g_strdup (line);
+
                  rest_of_line = g_strstrip (rest_of_line);
                  parts = g_strsplit (rest_of_line, " ", 0);
                  i = 0;
-                 while (parts[i])
+                 while (parts[i] && (*parts[i] != '\0' && *parts[i] != '{'))
                  {
                      gchar* value = NULL;
                      if (g_str_has_prefix (parts[i], "url-prefix("))
@@ -830,6 +836,7 @@ css_metadata_from_file (const gchar* filename,
                          guint begin, end;
                          gchar* domain;
 
+                         line_has_meta = TRUE;
                          begin = value[0] == '"' || value[0] == '\'' ? 1 : 0;
                          end = 1;
                          while (value[end] != '\0' && value[end] != ')')
@@ -850,6 +857,7 @@ css_metadata_from_file (const gchar* filename,
                  }
                  g_strfreev (parts);
              }
+             line_has_meta  = g_str_has_suffix (rest_of_line, "{") ? FALSE : TRUE;
         }
         g_free (line);
     }
