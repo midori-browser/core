@@ -93,6 +93,191 @@ struct AddonsList
 };
 
 static void
+addons_install_response (GtkInfoBar* infobar,
+                         gint        response_id,
+                         MidoriView* view)
+{
+    if (response_id == GTK_RESPONSE_ACCEPT)
+    {
+        MidoriBrowser* browser;
+        const gchar* uri;
+
+        browser = midori_browser_get_for_widget (GTK_WIDGET (infobar));
+        uri = midori_view_get_display_uri (view);
+        if (uri && *uri)
+        {
+            gchar** split_uri;
+            gchar* path, *filename, *hostname, *dest_path, *temp_uri;
+            const gchar* folder;
+            WebKitNetworkRequest* request;
+            WebKitDownload* download;
+
+            split_uri = g_strsplit (uri, "/", -1);
+            hostname = split_uri[2];
+            temp_uri = NULL;
+            filename = NULL;
+            folder = NULL;
+
+            if (!g_strcmp0 (hostname, "userscripts.org"))
+            {
+                gchar* script_id;
+                const gchar* js_script;
+                WebKitWebView* web_view;
+                WebKitWebFrame* web_frame;
+
+                web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
+                web_frame = webkit_web_view_get_main_frame (web_view);
+
+                js_script = "document.getElementById('heading').childNodes[3].childNodes[1].innerHTML";
+                if (WEBKIT_IS_WEB_FRAME (web_frame))
+                {
+                    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+                    gchar* value = sokoke_js_script_eval (js_context, js_script, NULL);
+                    if (value && *value)
+                        filename = g_strdup_printf ("%s.user.js", value);
+                    g_free (value);
+                }
+
+                folder = "scripts";
+                script_id = split_uri[5];
+                /* rewrite uri to get source js */
+                temp_uri = g_strdup_printf ("http://%s/scripts/source/%s.user.js",
+                                            hostname, script_id);
+                uri = temp_uri;
+            }
+            else if (!g_strcmp0 (hostname, "userstyles.org"))
+            {
+                gchar* subpage;
+
+                folder = "styles";
+                if (g_str_has_suffix (uri, "/"))
+                    subpage = split_uri[6];
+                else
+                    subpage = split_uri[5];
+
+                if (!subpage)
+                {
+                    gchar* style_id;
+                    const gchar* js_script;
+                    WebKitWebView* web_view;
+                    WebKitWebFrame* web_frame;
+
+                    web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
+                    web_frame = webkit_web_view_get_main_frame (web_view);
+
+                    js_script = "document.getElementById('stylish-description').innerHTML;";
+                    if (WEBKIT_IS_WEB_FRAME (web_frame))
+                    {
+                        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+                        gchar* value = sokoke_js_script_eval (js_context, js_script, NULL);
+                        if (value && *value)
+                            filename = g_strdup_printf ("%s.css", value);
+                        g_free (value);
+                    }
+                    /* rewrite uri to get css */
+                    style_id = split_uri[4];
+                    temp_uri = g_strdup_printf ("http://%s/styles/%s.css", hostname, style_id);
+                    uri = temp_uri;
+                }
+            }
+
+            if (g_str_has_suffix (uri, ".user.js"))
+                folder = "scripts";
+            else if (g_str_has_suffix (uri, ".user.css"))
+                folder = "styles";
+            if (!filename)
+                filename = g_path_get_basename (uri);
+            path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+                                 PACKAGE_NAME, folder, filename, NULL);
+
+            request = webkit_network_request_new (uri);
+            download = webkit_download_new (request);
+            g_object_unref (request);
+
+            dest_path = g_filename_to_uri (path, NULL, NULL);
+            webkit_download_set_destination_uri (download, dest_path);
+            webkit_download_start (download);
+
+            g_free (filename);
+            g_free (path);
+            g_free (temp_uri);
+            g_free (dest_path);
+            g_strfreev (split_uri);
+        }
+    }
+    gtk_widget_destroy (GTK_WIDGET (infobar));
+}
+
+static void
+addons_uri_install (MidoriBrowser* browser,
+                    MidoriView*    view,
+                    AddonsKind     kind)
+{
+    const gchar* kind_name;
+    gchar* message, *button_text;
+
+    kind_name = ADDONS_USER_SCRIPTS ? "user script" : "user style";
+    message = g_strdup_printf (_("Currently viewed page appears to contain %s. Do you wish to install it?"),
+        kind_name);
+    button_text = g_strdup_printf (_("_Install %s"), kind_name);
+    midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
+        G_CALLBACK (addons_install_response), view,
+        button_text, GTK_RESPONSE_ACCEPT,
+        _("_Don't Install"), GTK_RESPONSE_CANCEL, NULL);
+
+    g_free (message);
+    g_free (button_text);
+}
+
+static void
+addons_notify_load_status_cb (MidoriBrowser*   browser,
+                              GParamSpec*      pspec,
+                              MidoriExtension* extension)
+{
+    const gchar* uri = midori_browser_get_current_uri (browser);
+
+    if (uri && *uri)
+    {
+       /* FIXME: addons_notify_load_status_cb should pass MidoriView* pointer */
+       GtkWidget* view = midori_browser_get_current_tab (browser);
+       if (midori_view_get_load_status (MIDORI_VIEW (view)) == MIDORI_LOAD_FINISHED)
+       {
+           /* casual sites goes by uri suffix */
+           if (g_str_has_suffix (uri, ".user.js"))
+               addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_SCRIPTS);
+           else if (g_str_has_suffix (uri, ".user.css"))
+               addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_STYLES);
+           else if (g_str_has_prefix (uri, "http://userscripts.org/scripts/"))
+           {
+               gchar** split_uri = g_strsplit (uri, "/", -1);
+               gchar* subpage = split_uri[4];
+
+               /* userscripts.org script main (with desc) and "source view" pages */
+               if (!g_strcmp0 (subpage, "show") || !g_strcmp0 (subpage, "review"))
+                   addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_SCRIPTS);
+
+               g_strfreev (split_uri);
+           }
+           else if (g_str_has_prefix (uri, "http://userstyles.org/styles/"))
+           {
+               gchar** split_uri = g_strsplit (uri, "/", -1);
+               gchar* subpage;
+
+               if (g_str_has_suffix (uri, "/"))
+                   subpage = split_uri[6];
+               else
+                   subpage = split_uri[5];
+               /* userstyles.org style main page with style description */
+               if (!subpage)
+                   addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_STYLES);
+
+               g_strfreev (split_uri);
+           }
+       }
+    }
+}
+
+static void
 midori_addons_button_add_clicked_cb (GtkToolItem* toolitem,
                                      Addons*      addons)
 {
@@ -1358,6 +1543,8 @@ addons_app_add_browser_cb (MidoriApp*       app,
           (GtkCallback)addons_add_tab_foreach_cb, extension);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (addons_add_tab_cb), extension);
+    g_signal_connect (browser, "notify::load-status",
+        G_CALLBACK (addons_notify_load_status_cb), extension);
     panel = katze_object_get_object (browser, "panel");
 
     scripts = addons_new (ADDONS_USER_SCRIPTS, extension);
