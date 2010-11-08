@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: midori 0.2.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-01 11:11+0000\n"
-"PO-Revision-Date: 2010-11-02 10:07+0100\n"
+"PO-Revision-Date: 2010-11-08 18:20+0100\n"
 "Last-Translator: Piotr Sokół <psokol@jabster.pl>\n"
-"Language-Team: pl <>\n"
+"Language-Team: Polish <>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : ((n%10>=2 && n%10<=4 && (n"
+"%100<10 || n%100>=20)) ? 1 : 2));\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
@@ -158,7 +158,7 @@ msgstr "KATALOG"
 
 #: ../midori/main.c:1638
 msgid "Show a diagnostic dialog"
-msgstr "Wyświetlanie okna diagnostycznego po wystąpieniu awarii"
+msgstr "Wyświetla okno diagnostyczne po wystąpieniu awarii"
 
 #: ../midori/main.c:1640
 msgid "Run the specified filename as javascript"
@@ -166,7 +166,7 @@ msgstr "Uruchamia określony plik jako skrypt javascript"
 
 #: ../midori/main.c:1643
 msgid "Take a snapshot of the specified URI"
-msgstr "Wykonuje migawkę podanego adresu URI"
+msgstr "Wykonuje zrzut danych z podanego adresu URI"
 
 #: ../midori/main.c:1646
 msgid "Execute the specified command"
@@ -174,7 +174,7 @@ msgstr "Wykonuje wprowadzone polecenie"
 
 #: ../midori/main.c:1648
 msgid "List available commands to execute with -e/ --execute"
-msgstr ""
+msgstr "Wypisuje polecenia dostępne z opcją -e/ --execute"
 
 #: ../midori/main.c:1650
 msgid "Display program version"
@@ -515,7 +515,7 @@ msgstr "Usunięcie danych podczas _kończenia programu"
 
 #: ../midori/midori-browser.c:4470
 msgid "A lightweight web browser."
-msgstr "Lekka przeglądarka internetowa"
+msgstr "Lekka przeglądarka internetowa."
 
 #: ../midori/midori-browser.c:4472
 msgid ""
@@ -557,7 +557,8 @@ msgstr "Tryb p_rywatny"
 
 #: ../midori/midori-browser.c:4807
 msgid "Don't save any private data while browsing"
-msgstr "Nie zapisuje żadnych prywatnych danych podczas przeglądania stron"
+msgstr ""
+"Otwiera sesję podczas, której program nie zapisuje żadnych prywatnych danych"
 
 #: ../midori/midori-browser.c:4811
 msgid "Open a file"
@@ -569,19 +570,19 @@ msgstr "Zapisuje stronę do pliku"
 
 #: ../midori/midori-browser.c:4816
 msgid "Add to Speed _dial"
-msgstr "Dodaj do strony _szybkiego wybierania"
+msgstr "Umieść na stronie _szybkiego wybierania"
 
 #: ../midori/midori-browser.c:4817
 msgid "Add shortcut to speed dial"
-msgstr "Dodaje odnośnik do strony szybkiego wybierania"
+msgstr "Tworzy odnośnik do strony na stronie szybkiego wybierania"
 
 #: ../midori/midori-browser.c:4819
 msgid "Add Shortcut to the _desktop"
-msgstr "Dodaj do strony _szybkiego wybierania"
+msgstr "Umieść odnośnik na _pulpicie"
 
 #: ../midori/midori-browser.c:4820
 msgid "Add shortcut to the desktop"
-msgstr "Dodaj do strony szybkiego wybierania"
+msgstr "Tworzy odnośnik do strony na pulpicie"
 
 #: ../midori/midori-browser.c:4822
 msgid "Subscribe to News _feed"
@@ -621,11 +622,11 @@ msgstr "_Edycja"
 
 #: ../midori/midori-browser.c:4844
 msgid "Undo the last modification"
-msgstr "Cofa ostatnie działanie"
+msgstr "Cofa ostatnią czynność"
 
 #: ../midori/midori-browser.c:4847
 msgid "Redo the last modification"
-msgstr "Powtarza ostatnie działanie"
+msgstr "Powtarza ostatnią czynność"
 
 #: ../midori/midori-browser.c:4851
 msgid "Cut the selected text"
@@ -689,7 +690,7 @@ msgstr "Zmniejsza rozmiar strony"
 
 #: ../midori/midori-browser.c:4900
 msgid "Reset the zoom level"
-msgstr "Przywraca pierwotny rozmiar strony"
+msgstr "Przywraca zwykły rozmiar strony"
 
 #: ../midori/midori-browser.c:4901
 msgid "_Encoding"
@@ -712,9 +713,8 @@ msgid "Scroll _Left"
 msgstr "Przewiń w _lewo"
 
 #: ../midori/midori-browser.c:4911
-#, fuzzy
 msgid "Scroll to the left"
-msgstr "Przełącz na następną kartę"
+msgstr "Przewija zawartość strony w lewo"
 
 #: ../midori/midori-browser.c:4913
 msgid "Scroll _Down"
@@ -722,7 +722,7 @@ msgstr "Przewiń w _dół"
 
 #: ../midori/midori-browser.c:4914
 msgid "Scroll down"
-msgstr ""
+msgstr "Przewija zawartość strony w dół"
 
 #: ../midori/midori-browser.c:4916
 msgid "Scroll _Up"
@@ -730,7 +730,7 @@ msgstr "Przewiń w _górę"
 
 #: ../midori/midori-browser.c:4917
 msgid "Scroll up"
-msgstr ""
+msgstr "Przewija zawartość strony w górę"
 
 #: ../midori/midori-browser.c:4919
 msgid "Scroll _Right"
@@ -738,7 +738,7 @@ msgstr "Przewiń w _prawo"
 
 #: ../midori/midori-browser.c:4920
 msgid "Scroll to the right"
-msgstr ""
+msgstr "Przewija zawartość strony w prawo"
 
 #: ../midori/midori-browser.c:4923
 msgid "_Go"
@@ -755,12 +755,12 @@ msgstr "Przechodzi do następnej odwiedzonej strony"
 #. i18n: Visit the previous logical page, ie. in a forum or blog
 #: ../midori/midori-browser.c:4933
 msgid "Go to the previous sub-page"
-msgstr "Przechodzi do poprzedniej strony podrzędnej"
+msgstr "Przechodzi do poprzedniej podstrony"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
 #: ../midori/midori-browser.c:4937
 msgid "Go to the next sub-page"
-msgstr "Przechodzi do następnej strony podrzędnej"
+msgstr "Przechodzi do następnej podstrony"
 
 #: ../midori/midori-browser.c:4940
 msgid "Go to your homepage"
@@ -776,11 +776,11 @@ msgstr "Czyści listę ostatnio zamkniętych kart i okien"
 
 #: ../midori/midori-browser.c:4945
 msgid "Undo _Close Tab"
-msgstr "Cofnij _zamknięcie karty"
+msgstr "Przywróć _zamkniętą kartę"
 
 #: ../midori/midori-browser.c:4946
 msgid "Open the last closed tab"
-msgstr "Otwórz ostatnio zamkniętą kartę"
+msgstr "Otwiera ostatnio zamkniętą kartę"
 
 #: ../midori/midori-browser.c:4952
 msgid "Add a new _folder"
@@ -788,7 +788,7 @@ msgstr "Utwórz _katalog"
 
 #: ../midori/midori-browser.c:4953
 msgid "Add a new bookmark folder"
-msgstr "Dodaj nowy katalog zakładek"
+msgstr "Dodaje nowy katalog zakładek"
 
 #: ../midori/midori-browser.c:4958
 msgid "_Export bookmarks"
@@ -826,7 +826,7 @@ msgstr "_Poprzednia karta"
 
 #: ../midori/midori-browser.c:4977
 msgid "Switch to the previous tab"
-msgstr "Przełącz na poprzednią kartę"
+msgstr "Przełącza do poprzedniej karty"
 
 #: ../midori/midori-browser.c:4979
 msgid "_Next Tab"
@@ -834,7 +834,7 @@ msgstr "_Następna karta"
 
 #: ../midori/midori-browser.c:4980
 msgid "Switch to the next tab"
-msgstr "Przełącz na następną kartę"
+msgstr "Przełącza do następnej kartę"
 
 #: ../midori/midori-browser.c:4982
 msgid "Focus _Current Tab"
@@ -867,9 +867,8 @@ msgid "Close Ot_her Tabs"
 msgstr "Zamknij pozo_stałe karty"
 
 #: ../midori/midori-browser.c:4992
-#, fuzzy
 msgid "Close all tabs except the current tab"
-msgstr "Zamyka bieżącą kartę"
+msgstr "Zamyka wszystkie karty z wyjątkiem bieżącej"
 
 #: ../midori/midori-browser.c:4994
 msgid "Open last _session"
@@ -1003,7 +1002,7 @@ msgstr "_Pasek położenia"
 
 #: ../midori/midori-browser.c:5597
 msgid "Open a particular location"
-msgstr "Otwiera wprowadzone położenie"
+msgstr "Przenosi kursor do paska położenia"
 
 #: ../midori/midori-browser.c:5621
 msgid "_Web Search..."
@@ -1339,9 +1338,8 @@ msgstr ""
 "Wyświetla wyszukiwarki na liście automatycznego uzupełniania paska adresu"
 
 #: ../midori/midori-websettings.c:548
-#, fuzzy
 msgid "Toolbar Items"
-msgstr "Paski _narzędziowe"
+msgstr "Elementy paska narzędziowego"
 
 #: ../midori/midori-websettings.c:549
 msgid "The items to show on the toolbar"
@@ -1929,13 +1927,13 @@ msgstr "Brak zainstalowanej dokumentacji"
 
 #: ../midori/midori-view.c:3915
 msgid "Page loading delayed"
-msgstr "Opóźniono wczytywanie strony"
+msgstr "Wstrzymano wczytywanie strony"
 
 #: ../midori/midori-view.c:3916
-#, fuzzy
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
-"Wczytywanie zostało opóźnione z powodu awarii lub preferencji uruchamiania."
+"Wczytywanie zostało wstrzymane z powodu ostatniej awarii lub niewłaściwych "
+"preferencji programu."
 
 #: ../midori/midori-view.c:3917
 msgid "Load Page"
@@ -2376,15 +2374,15 @@ msgstr "Uzyskanie dostępu do położenia, wymaga uwierzytelnienia:"
 
 #: ../katze/katze-http-auth.c:243
 msgid "Username"
-msgstr "Nazwa użytkownika"
+msgstr "Nazwa użytkownika:"
 
 #: ../katze/katze-http-auth.c:256
 msgid "Password"
-msgstr "Hasło"
+msgstr "Hasło:"
 
 #: ../katze/katze-http-auth.c:270
 msgid "_Remember password"
-msgstr "_Zapamiętaj hasło"
+msgstr "_Pamiętanie hasła"
 
 #: ../katze/katze-throbber.c:879
 #, fuzzy, c-format
@@ -2778,7 +2776,7 @@ msgstr "Później używana karta"
 #: ../extensions/history-list.vala:185
 #, fuzzy
 msgid "Previous tab from history"
-msgstr "Nie udało się wyczyścić historii: %s\n"
+msgstr "Przechodzi do poprzedniej karty z historii"
 
 #: ../extensions/history-list.vala:245
 msgid "History List"
