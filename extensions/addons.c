@@ -214,19 +214,29 @@ addons_uri_install (MidoriBrowser* browser,
                     AddonsKind     kind)
 {
     const gchar* kind_name;
-    gchar* message, *button_text;
+    const gchar* message;
+    const gchar* button_text;
 
-    kind_name = ADDONS_USER_SCRIPTS ? "user script" : "user style";
-    message = g_strdup_printf (_("Currently viewed page appears to contain %s. Do you wish to install it?"),
-        kind_name);
-    button_text = g_strdup_printf (_("_Install %s"), kind_name);
+    kind_name = kind == ADDONS_USER_SCRIPTS ? "user script" : "user style";
+    if (kind == ADDONS_USER_SCRIPTS)
+    {
+        /* i18n: An infobar shows up when viewing a script on userscripts.org */
+        message = _("This page appears to contain a user script. Do you wish to install it?");
+        button_text = _("_Install user script");
+    }
+    else if (kind == ADDONS_USER_STYLES)
+    {
+        /* i18n: An infobar shows up when viewing a style on userstyles.org */
+        message = _("This page appears to contain a user style. Do you wish to install it?");
+        button_text = _("_Install user style");
+    }
+    else
+        g_assert_not_reached ();
+
     midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
         G_CALLBACK (addons_install_response), view,
         button_text, GTK_RESPONSE_ACCEPT,
-        _("_Don't Install"), GTK_RESPONSE_CANCEL, NULL);
-
-    g_free (message);
-    g_free (button_text);
+        _("Don't install"), GTK_RESPONSE_CANCEL, NULL);
 }
 
 static void
