@@ -213,11 +213,9 @@ addons_uri_install (MidoriBrowser* browser,
                     MidoriView*    view,
                     AddonsKind     kind)
 {
-    const gchar* kind_name;
     const gchar* message;
     const gchar* button_text;
 
-    kind_name = kind == ADDONS_USER_SCRIPTS ? "user script" : "user style";
     if (kind == ADDONS_USER_SCRIPTS)
     {
         /* i18n: An infobar shows up when viewing a script on userscripts.org */
