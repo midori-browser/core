@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-09 05:12+0000\n"
+"POT-Creation-Date: 2010-11-10 11:12+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Sérgio Marques <smarquespt@gmail.com>\n"
 "Language-Team: Portuguese\n"
@@ -1032,7 +1032,7 @@ msgstr "A configuração da extensão \"%s\" não foi carregada: %s\n"
 
 #: ../midori/midori-extension.c:667 ../midori/midori-extension.c:764
 #: ../midori/midori-extension.c:861 ../midori/midori-extension.c:973
-#: ../extensions/addons.c:1605
+#: ../extensions/addons.c:1613
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "A configuração da extensão \"%s\" não foi gravada: %s\n"
@@ -2346,7 +2346,7 @@ msgid "Property '%s' is invalid for %s"
 msgstr "A propriedade \"%s\" é inválida para %s"
 
 #: ../katze/katze-utils.c:556 ../katze/katze-utils.c:585
-#: ../extensions/addons.c:304
+#: ../extensions/addons.c:312
 msgid "Choose file"
 msgstr "Escolha o ficheiro"
 
@@ -2396,81 +2396,89 @@ msgstr "Bloqueador de publicidade"
 msgid "Block advertisements according to a filter list"
 msgstr "Bloquear publicidade de acordo com a lista "
 
-#: ../extensions/addons.c:220
-#, c-format
-msgid "Currently viewed page appears to contain %s. Do you wish to install it?"
-msgstr "Parece que a página atual contém %s. Pretende instalar?"
-
+#. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:222
-#, c-format
-msgid "_Install %s"
-msgstr "_Instalar %s"
+msgid "This page appears to contain a user script. Do you wish to install it?"
+msgstr "Parece que a página contém um \"script\" de utilizador. Pretende instalar?"
 
-#: ../extensions/addons.c:226
-msgid "_Don't Install"
-msgstr "_Não instalar"
+#: ../extensions/addons.c:223
+msgid "_Install user script"
+msgstr "_Instalar \"script\" de utilizador"
 
-#: ../extensions/addons.c:315 ../extensions/addons.c:676
+#. i18n: An infobar shows up when viewing a style on userstyles.org
+#: ../extensions/addons.c:228
+msgid "This page appears to contain a user style. Do you wish to install it?"
+msgstr "Parece que a página contém um estilo de utilizador. Pretende instalar?"
+
+#: ../extensions/addons.c:229
+msgid "_Install user style"
+msgstr "_Instalar estilo de utilizador"
+
+#: ../extensions/addons.c:237
+msgid "Don't install"
+msgstr "Não instalar"
+
+#: ../extensions/addons.c:323 ../extensions/addons.c:684
 msgid "Userscripts"
 msgstr "\"Scripts\" de utilizador"
 
-#: ../extensions/addons.c:320 ../extensions/addons.c:678
+#: ../extensions/addons.c:328 ../extensions/addons.c:686
 msgid "Userstyles"
 msgstr "Estilos de utilizador"
 
-#: ../extensions/addons.c:376 ../extensions/addons.c:452
+#: ../extensions/addons.c:384 ../extensions/addons.c:460
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "Erro"
 
-#: ../extensions/addons.c:416
+#: ../extensions/addons.c:424
 #, c-format
 msgid "Do you want to delete '%s'?"
 msgstr "Deseja realmente apagar \"%s\"?"
 
-#: ../extensions/addons.c:422
+#: ../extensions/addons.c:430
 msgid "Delete user script"
 msgstr "Apagar \"script\" de utilizador"
 
-#: ../extensions/addons.c:423
+#: ../extensions/addons.c:431
 msgid "Delete user style"
 msgstr "Apagar estilo de utilizador"
 
-#: ../extensions/addons.c:427
+#: ../extensions/addons.c:435
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "O ficheiro \"<b>%s</b>\" será apagado permanentemente."
 
-#: ../extensions/addons.c:563 ../extensions/addons.c:640
+#: ../extensions/addons.c:571 ../extensions/addons.c:648
 msgid "Open in Text Editor"
 msgstr "Abrir no editor de texto"
 
-#: ../extensions/addons.c:565 ../extensions/addons.c:649
+#: ../extensions/addons.c:573 ../extensions/addons.c:657
 msgid "Open Target Folder"
 msgstr "Abrir pasta de destino"
 
-#: ../extensions/addons.c:631
+#: ../extensions/addons.c:639
 msgid "Add new addon"
 msgstr "Adicionar novo extra"
 
-#: ../extensions/addons.c:658
+#: ../extensions/addons.c:666
 msgid "Open target folder for selected addon"
 msgstr "Abrir pasta de destino para o extra selecionado"
 
-#: ../extensions/addons.c:659
+#: ../extensions/addons.c:667
 msgid "Remove selected addon"
 msgstr "Remover o extra selecionado"
 
-#: ../extensions/addons.c:1606 ../extensions/addons.c:1768
+#: ../extensions/addons.c:1614 ../extensions/addons.c:1776
 msgid "User addons"
 msgstr "Extras de utilizador"
 
-#: ../extensions/addons.c:1727
+#: ../extensions/addons.c:1735
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Não é possível vigiar a pasta \"%s\": %s "
 
-#: ../extensions/addons.c:1769
+#: ../extensions/addons.c:1777
 msgid "Support for userscripts and userstyles"
 msgstr "Suporte a \"scripts\" e estilos de utilizador"
 
