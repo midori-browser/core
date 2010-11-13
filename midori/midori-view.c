@@ -3051,6 +3051,16 @@ katze_net_object_maybe_unref (gpointer object)
         g_object_unref (object);
 }
 
+static GHashTable* midori_view_get_memory (void)
+{
+    static GHashTable* memory = NULL;
+    if (!memory)
+        memory = g_hash_table_new_full (g_str_hash, g_str_equal,
+            g_free, katze_net_object_maybe_unref);
+    return g_hash_table_ref (memory);
+
+}
+
 static void
 midori_view_init (MidoriView* view)
 {
@@ -3060,8 +3070,7 @@ midori_view_init (MidoriView* view)
     view->mime_type = g_strdup ("");
     view->icon = NULL;
     view->icon_uri = NULL;
-    view->memory = g_hash_table_new_full (g_str_hash, g_str_equal,
-        g_free, katze_net_object_maybe_unref);
+    view->memory = midori_view_get_memory ();
     view->progress = 0.0;
     view->load_status = MIDORI_LOAD_FINISHED;
     view->minimized = FALSE;
@@ -3110,13 +3119,22 @@ midori_view_finalize (GObject* object)
         midori_view_item_meta_data_changed, view);
 
     if (view->thumb_view)
+    {
         gtk_widget_destroy (view->thumb_view);
+        view->thumb_view = NULL;
+    }
 
     katze_assign (view->uri, NULL);
     katze_assign (view->title, NULL);
     katze_object_assign (view->icon, NULL);
     katze_assign (view->icon_uri, NULL);
-    g_hash_table_destroy (view->memory);
+
+    if (view->memory)
+    {
+        g_hash_table_unref (view->memory);
+        view->memory = NULL;
+    }
+
     katze_assign (view->statusbar_text, NULL);
     katze_assign (view->link_uri, NULL);
     katze_assign (view->selected_text, NULL);
