@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-09 20:38+0900\n"
-"PO-Revision-Date: 2010-11-08 12:14+0900\n"
+"POT-Creation-Date: 2010-11-17 13:41+0900\n"
+"PO-Revision-Date: 2010-11-10 13:55+0900\n"
 "Last-Translator: Kim Boram <Boramism@gmail.com>\n"
 "Language-Team: Kim Boram <boramism@gmail.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -429,7 +430,7 @@ msgid "Open in New _Tab"
 msgstr "새 탭에서 열기(_T)"
 
 #: ../midori/midori-browser.c:3893 ../midori/midori-view.c:2617
-#: ../midori/midori-view.c:4304 ../panels/midori-bookmarks.c:721
+#: ../midori/midori-view.c:4322 ../panels/midori-bookmarks.c:721
 #: ../panels/midori-history.c:744 ../extensions/feed-panel/feed-panel.c:538
 msgid "Open in New _Window"
 msgstr "새 창에서 열기(_W)"
@@ -1051,7 +1052,7 @@ msgstr "확장 기능 '%s'의 설정을 불러올 수 없습니다: %s\n"
 
 #: ../midori/midori-extension.c:667 ../midori/midori-extension.c:764
 #: ../midori/midori-extension.c:861 ../midori/midori-extension.c:973
-#: ../extensions/addons.c:1605
+#: ../extensions/addons.c:1613
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "확장 기능 '%s'의 설정을 저장할 수 없습니다: %s\n"
@@ -1715,8 +1716,8 @@ msgstr "%s이(가) 위치를 알고 싶어합니다."
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:1395 ../midori/midori-view.c:4732
-#: ../midori/midori-view.c:4736
+#: ../midori/midori-view.c:1395 ../midori/midori-view.c:4750
+#: ../midori/midori-view.c:4754
 #, c-format
 msgid "Error - %s"
 msgstr "오류 - %s"
@@ -1842,112 +1843,112 @@ msgstr "파일 종류: %s ('%s')"
 msgid "Open %s"
 msgstr "%s 열기"
 
-#: ../midori/midori-view.c:3452
+#: ../midori/midori-view.c:3470
 #, c-format
 msgid "Inspect page - %s"
 msgstr "페이지 살피기 - %s"
 
-#: ../midori/midori-view.c:3736
+#: ../midori/midori-view.c:3754
 msgid "Speed dial"
 msgstr "단축 번호"
 
-#: ../midori/midori-view.c:3737
+#: ../midori/midori-view.c:3755
 msgid "Click to add a shortcut"
 msgstr "바로 가기를 더하려면 누르십시오"
 
-#: ../midori/midori-view.c:3738
+#: ../midori/midori-view.c:3756
 msgid "Enter shortcut address"
 msgstr "바로 가기 주소 입력"
 
-#: ../midori/midori-view.c:3739
+#: ../midori/midori-view.c:3757
 msgid "Enter shortcut title"
 msgstr "바로 가기 제목 입력"
 
-#: ../midori/midori-view.c:3740
+#: ../midori/midori-view.c:3758
 msgid "Are you sure you want to delete this shortcut?"
 msgstr "이 바로 가기를 정말로 삭제하시겠습니까?"
 
-#: ../midori/midori-view.c:3741
+#: ../midori/midori-view.c:3759
 msgid "Set number of columns and rows"
 msgstr "행과 열 개수 설정,"
 
-#: ../midori/midori-view.c:3742
+#: ../midori/midori-view.c:3760
 msgid "Enter number of columns and rows:"
 msgstr "행과 열 개수를 입력하세요:"
 
-#: ../midori/midori-view.c:3743
+#: ../midori/midori-view.c:3761
 msgid "Invalid input for the size of the speed dial"
 msgstr "유효하지 않은 단축 번호 크기 입력"
 
-#: ../midori/midori-view.c:3744
+#: ../midori/midori-view.c:3762
 msgid "Thumb size:"
 msgstr "미리 보기 크기:"
 
-#: ../midori/midori-view.c:3745
+#: ../midori/midori-view.c:3763
 msgid "Small"
 msgstr "작게"
 
-#: ../midori/midori-view.c:3746
+#: ../midori/midori-view.c:3764
 msgid "Medium"
 msgstr "중간"
 
-#: ../midori/midori-view.c:3747
+#: ../midori/midori-view.c:3765
 msgid "Big"
 msgstr "크게"
 
-#: ../midori/midori-view.c:3772
+#: ../midori/midori-view.c:3790
 #, c-format
 msgid "Document cannot be displayed"
 msgstr "문서를 표시할 수 없습니다."
 
-#: ../midori/midori-view.c:3795
+#: ../midori/midori-view.c:3813
 #, c-format
 msgid "No documentation installed"
 msgstr "설치된 문서화 도구가 없습니다"
 
-#: ../midori/midori-view.c:3914
+#: ../midori/midori-view.c:3932
 msgid "Page loading delayed"
 msgstr "페이지 불러오기가 지연되었습니다."
 
-#: ../midori/midori-view.c:3915
+#: ../midori/midori-view.c:3933
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 "최근 발생한 충돌이나 기본 설정 내 시작 페이지 설정으로 인해 페이지 불러오기"
 "가 지연되었습니다."
 
-#: ../midori/midori-view.c:3916
+#: ../midori/midori-view.c:3934
 msgid "Load Page"
 msgstr "페이지 불러오기"
 
-#: ../midori/midori-view.c:4057
+#: ../midori/midori-view.c:4075
 msgid "Blank page"
 msgstr "빈 페이지"
 
-#: ../midori/midori-view.c:4308
+#: ../midori/midori-view.c:4326
 msgid "_Duplicate Tab"
 msgstr "탭 복제(_D)"
 
-#: ../midori/midori-view.c:4313
+#: ../midori/midori-view.c:4331
 msgid "Show Tab _Label"
 msgstr "탭 이름 보이기(_L)"
 
-#: ../midori/midori-view.c:4313
+#: ../midori/midori-view.c:4331
 msgid "Show Tab _Icon Only"
 msgstr "탭 아이콘만 보이기(_I)"
 
-#: ../midori/midori-view.c:4319
+#: ../midori/midori-view.c:4337
 msgid "Close ot_her Tabs"
 msgstr "다른 탭 닫기(_H)"
 
-#: ../midori/midori-view.c:4911
+#: ../midori/midori-view.c:4929
 msgid "Print background images"
 msgstr "배경 그림 인쇄"
 
-#: ../midori/midori-view.c:4912
+#: ../midori/midori-view.c:4930
 msgid "Whether background images should be printed"
 msgstr "배경 그림을 인쇄할 지 결정합니다"
 
-#: ../midori/midori-view.c:4964 ../midori/midori-preferences.c:412
+#: ../midori/midori-view.c:4982 ../midori/midori-preferences.c:412
 msgid "Features"
 msgstr "기능"
 
@@ -2376,7 +2377,7 @@ msgid "Property '%s' is invalid for %s"
 msgstr "속성 '%s'은(는) %s에 적당하지 않음"
 
 #: ../katze/katze-utils.c:556 ../katze/katze-utils.c:585
-#: ../extensions/addons.c:304
+#: ../extensions/addons.c:312
 msgid "Choose file"
 msgstr "파일 선택"
 
@@ -2430,83 +2431,89 @@ msgstr "광고 막기"
 msgid "Block advertisements according to a filter list"
 msgstr "필터 목록에 따라 광고를 막습니다"
 
-#: ../extensions/addons.c:220
-#, c-format
-msgid "Currently viewed page appears to contain %s. Do you wish to install it?"
-msgstr ""
-"지금 보고 있는 페이지는 %s을(를) 포함하고 있는 것으로 보입니다. 설치하시겠습"
-"니까?"
-
+#. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:222
-#, c-format
-msgid "_Install %s"
-msgstr "%s 설치(_I)"
+msgid "This page appears to contain a user script. Do you wish to install it?"
+msgstr "이 페이지는 사용자 스크립트를 포함하고 있습니다. 설치하시겠습니까?"
 
-#: ../extensions/addons.c:226
-msgid "_Don't Install"
-msgstr "설치 안 함(_D)"
+#: ../extensions/addons.c:223
+msgid "_Install user script"
+msgstr "사용자 스크립트 설치(_I)"
 
-#: ../extensions/addons.c:315 ../extensions/addons.c:676
+#. i18n: An infobar shows up when viewing a style on userstyles.org
+#: ../extensions/addons.c:228
+msgid "This page appears to contain a user style. Do you wish to install it?"
+msgstr "이 페이지는 사용자 스타일을 포함하고 있습니다. 설치하시겠습니까?"
+
+#: ../extensions/addons.c:229
+msgid "_Install user style"
+msgstr "사용자 스타일 설치(_I)"
+
+#: ../extensions/addons.c:237
+msgid "Don't install"
+msgstr "설치 안 함"
+
+#: ../extensions/addons.c:323 ../extensions/addons.c:684
 msgid "Userscripts"
 msgstr "사용자 스크립트"
 
-#: ../extensions/addons.c:320 ../extensions/addons.c:678
+#: ../extensions/addons.c:328 ../extensions/addons.c:686
 msgid "Userstyles"
 msgstr "사용자 스타일"
 
-#: ../extensions/addons.c:376 ../extensions/addons.c:452
+#: ../extensions/addons.c:384 ../extensions/addons.c:460
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "오류"
 
-#: ../extensions/addons.c:416
+#: ../extensions/addons.c:424
 #, c-format
 msgid "Do you want to delete '%s'?"
 msgstr "'%s'을(를) 삭제하시겠습니까?"
 
-#: ../extensions/addons.c:422
+#: ../extensions/addons.c:430
 msgid "Delete user script"
 msgstr "사용자 스크립트 삭제"
 
-#: ../extensions/addons.c:423
+#: ../extensions/addons.c:431
 msgid "Delete user style"
 msgstr "사용자 스타일 삭제"
 
-#: ../extensions/addons.c:427
+#: ../extensions/addons.c:435
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "파일 '<b>%s</b>'은(는) 영구적으로 삭제될 것입니다."
 
-#: ../extensions/addons.c:563 ../extensions/addons.c:640
+#: ../extensions/addons.c:571 ../extensions/addons.c:648
 msgid "Open in Text Editor"
 msgstr "텍스트 편집기로 열기"
 
-#: ../extensions/addons.c:565 ../extensions/addons.c:649
+#: ../extensions/addons.c:573 ../extensions/addons.c:657
 msgid "Open Target Folder"
 msgstr "대상 폴더 열기"
 
-#: ../extensions/addons.c:631
+#: ../extensions/addons.c:639
 msgid "Add new addon"
 msgstr "새 추가 기능 추가"
 
-#: ../extensions/addons.c:658
+#: ../extensions/addons.c:666
 msgid "Open target folder for selected addon"
 msgstr "선택한 추가 기능의 대상 폴더 열기"
 
-#: ../extensions/addons.c:659
+#: ../extensions/addons.c:667
 msgid "Remove selected addon"
 msgstr "선택한 추가 기능 제거"
 
-#: ../extensions/addons.c:1606 ../extensions/addons.c:1768
+#: ../extensions/addons.c:1614 ../extensions/addons.c:1776
 msgid "User addons"
 msgstr "사용자 추가 기능"
 
-#: ../extensions/addons.c:1727
+#: ../extensions/addons.c:1735
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "폴더 '%s'을(를) 감시할 수 없습니다: %s"
 
-#: ../extensions/addons.c:1769
+#: ../extensions/addons.c:1777
 msgid "Support for userscripts and userstyles"
 msgstr "사용자 스크립트와 사용자 스타일을 지원합니다."
 
