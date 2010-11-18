@@ -6714,10 +6714,12 @@ midori_browser_add_item (MidoriBrowser* browser,
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
 
     uri = katze_item_get_uri (item);
+    if (!uri)
+        uri = "about:blank";
     title = katze_item_get_name (item);
     /* Blank pages should not be delayed */
     if (katze_item_get_meta_integer (item, "delay") > 0
-     && uri != NULL && strcmp (uri, "about:blank") != 0)
+     && strcmp (uri, "about:blank") != 0)
     {
         gchar* new_uri = g_strdup_printf ("pause:%s", uri);
         view = midori_view_new_with_uri (new_uri, title, browser->settings);
