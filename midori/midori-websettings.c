@@ -1438,8 +1438,12 @@ midori_web_settings_set_property (GObject*      object,
                       g_value_get_boolean (value), NULL);
         break;
     case PROP_ENABLE_PLUGINS:
-        g_object_set (web_settings, "WebKitWebSettings::enable-plugins",
-                      g_value_get_boolean (value), NULL);
+        g_object_set (web_settings,
+            "WebKitWebSettings::enable-plugins", g_value_get_boolean (value),
+        #if WEBKIT_CHECK_VERSION (1, 1, 22)
+            "enable-java-applet", g_value_get_boolean (value),
+        #endif
+            NULL);
         break;
     case PROP_ENABLE_DEVELOPER_EXTRAS:
         g_object_set (web_settings, "WebKitWebSettings::enable-developer-extras",
