@@ -4348,9 +4348,9 @@ midori_view_get_tab_menu (MidoriView* view)
 }
 
 static gboolean
-midori_view_tab_label_button_release_event (GtkWidget*      tab_label,
-                                            GdkEventButton* event,
-                                            GtkWidget*      widget)
+midori_view_tab_label_button_press_event (GtkWidget*      tab_label,
+                                          GdkEventButton* event,
+                                          GtkWidget*      widget)
 {
     if (event->button == 2)
     {
@@ -4581,8 +4581,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         if (!view->close_buttons_on_tabs)
             gtk_widget_hide (view->tab_close);
 
-        g_signal_connect (event_box, "button-release-event",
-            G_CALLBACK (midori_view_tab_label_button_release_event), view);
+        g_signal_connect (event_box, "button-press-event",
+            G_CALLBACK (midori_view_tab_label_button_press_event), view);
         g_signal_connect (view->tab_close, "style-set",
             G_CALLBACK (midori_view_tab_icon_style_set_cb), NULL);
         g_signal_connect (view->tab_close, "clicked",
