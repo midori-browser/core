@@ -1354,6 +1354,8 @@ midori_web_app_browser_notify_load_status_cb (MidoriBrowser* browser,
     {
         GtkWidget* view = midori_browser_get_current_tab (browser);
         GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
+        if (midori_view_is_blank (MIDORI_VIEW (view)))
+            icon = NULL;
         gtk_window_set_icon (GTK_WINDOW (browser), icon);
     }
 }
