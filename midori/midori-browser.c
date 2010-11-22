@@ -5668,7 +5668,7 @@ midori_browser_init (MidoriBrowser* browser)
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "CompactMenu",
         "label", _("_Menu"),
-        "stock-id", STOCK_WEB_BROWSER,
+        "stock-id", GTK_STOCK_PROPERTIES,
         "tooltip", _("Menu"),
         "array", katze_array_new (KATZE_TYPE_ITEM),
         NULL);
