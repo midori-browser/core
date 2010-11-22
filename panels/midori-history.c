@@ -155,25 +155,6 @@ midori_history_format_date (KatzeItem *item)
 }
 
 static void
-midori_history_clear_db (MidoriHistory* history)
-{
-    gchar* sqlcmd;
-    sqlite3* db;
-    char* errmsg = NULL;
-
-    db = g_object_get_data (G_OBJECT (history->array), "db");
-    sqlcmd = sqlite3_mprintf ("DELETE FROM history");
-
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to remove history item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-
-    sqlite3_free (sqlcmd);
-}
-
-static void
 midori_history_remove_item_from_db (MidoriHistory* history,
                                     KatzeItem*     item)
 {
@@ -327,7 +308,7 @@ midori_history_clear_clicked_cb (GtkWidget*     toolitem,
     if (result != GTK_RESPONSE_YES)
         return;
 
-    midori_history_clear_db (history);
+    katze_array_clear (history->array);
 }
 
 static void
@@ -454,6 +435,14 @@ midori_history_add_item_cb (KatzeArray*    array,
 }
 
 static void
+midori_history_clear_cb (KatzeArray*    array,
+                         MidoriHistory* history)
+{
+    GtkTreeView* treeview = GTK_TREE_VIEW (history->treeview);
+    GtkTreeModel* model = gtk_tree_view_get_model (treeview);
+    gtk_tree_store_clear (GTK_TREE_STORE (model));
+}
+static void
 midori_history_set_app (MidoriHistory* history,
                         MidoriApp*     app)
 {
@@ -463,6 +452,8 @@ midori_history_set_app (MidoriHistory* history,
     {
         g_signal_handlers_disconnect_by_func (history->array,
             midori_history_add_item_cb, history);
+        g_signal_handlers_disconnect_by_func (history->array,
+            midori_history_clear_cb, history);
         katze_object_assign (history->array, NULL);
         model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
         gtk_tree_store_clear (GTK_TREE_STORE (model));
@@ -476,6 +467,8 @@ midori_history_set_app (MidoriHistory* history,
     history->array = katze_object_get_object (app, "history");
     g_signal_connect (history->array, "add-item",
                       G_CALLBACK (midori_history_add_item_cb), history);
+    g_signal_connect (history->array, "clear",
+                      G_CALLBACK (midori_history_clear_cb), history);
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (history->treeview));
     if (history->array)
         midori_history_read_from_db_to_model (history, GTK_TREE_STORE (model), NULL, 0, NULL);
@@ -992,6 +985,8 @@ midori_history_finalize (GObject* object)
 
     g_signal_handlers_disconnect_by_func (history->array,
         midori_history_add_item_cb, history);
+    g_signal_handlers_disconnect_by_func (history->array,
+        midori_history_clear_cb, history);
     g_object_unref (history->array);
     katze_assign (history->filter, NULL);
 }

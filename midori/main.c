@@ -388,7 +388,20 @@ search_engines_save_to_file (KatzeArray*  search_engines,
     return saved;
 }
 
-static sqlite3*
+static void
+midori_history_clear_cb (KatzeArray* array,
+                         sqlite3*    db)
+{
+    char* errmsg = NULL;
+    if (sqlite3_exec (db, "DELETE FROM history; DELETE FROM search",
+                      NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to clear history: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+}
+
+static gboolean
 midori_history_initialize (KatzeArray*  array,
                            const gchar* filename,
                            const gchar* bookmarks_filename,
@@ -408,7 +421,7 @@ midori_history_initialize (KatzeArray*  array,
             *errmsg = g_strdup_printf (_("Failed to open database: %s\n"),
                                        sqlite3_errmsg (db));
         sqlite3_close (db);
-        return NULL;
+        return FALSE;
     }
 
     sqlite3_exec (db, "PRAGMA journal_mode = TRUNCATE;", NULL, NULL, errmsg);
@@ -423,7 +436,7 @@ midori_history_initialize (KatzeArray*  array,
                       "CREATE TABLE IF NOT EXISTS "
                       "search (keywords text, uri text, day integer);",
                       NULL, NULL, errmsg) != SQLITE_OK)
-        return NULL;
+        return FALSE;
 
     sqlite3_prepare_v2 (db, "SELECT day FROM history LIMIT 1", -1, &stmt, NULL);
     result = sqlite3_step (stmt);
@@ -449,18 +462,20 @@ midori_history_initialize (KatzeArray*  array,
     sql = g_strdup_printf ("ATTACH DATABASE '%s' AS bookmarks", bookmarks_filename);
     sqlite3_exec (db, sql, NULL, NULL, errmsg);
     g_free (sql);
+    g_object_set_data (G_OBJECT (array), "db", db);
+    g_signal_connect (array, "clear",
+                      G_CALLBACK (midori_history_clear_cb), db);
 
-    return db;
+    return TRUE;
 }
 
 static void
-midori_history_terminate (sqlite3* db,
-                          gint     max_history_age)
+midori_history_terminate (KatzeArray* array,
+                          gint        max_history_age)
 {
-    gchar* sqlcmd;
+    sqlite3* db = g_object_get_data (G_OBJECT (array), "db");
     char* errmsg = NULL;
-
-    sqlcmd = g_strdup_printf (
+    gchar* sqlcmd = g_strdup_printf (
         "DELETE FROM history WHERE "
         "(julianday(date('now')) - julianday(date(date,'unixepoch')))"
         " >= %d", max_history_age);
@@ -1463,7 +1478,6 @@ midori_inactivity_timeout (gpointer data)
             guint i = 0;
             GtkWidget* view;
             KatzeArray* history = katze_object_get_object (mit->browser, "history");
-            sqlite3* db;
             KatzeArray* trash = katze_object_get_object (mit->browser, "trash");
             GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
 
@@ -1471,9 +1485,8 @@ midori_inactivity_timeout (gpointer data)
                 gtk_widget_destroy (view);
             midori_browser_set_current_uri (mit->browser, mit->uri);
             /* Clear all private data */
-            if (history && (db = g_object_get_data (G_OBJECT (history), "db")))
-                sqlite3_exec (db, "DELETE FROM history; DELETE FROM search",
-                              NULL, NULL, NULL);
+            if (history != NULL)
+                katze_array_clear (history);
             if (trash != NULL)
                 katze_array_clear (trash);
             for (; data_items != NULL; data_items = g_list_next (data_items))
@@ -2001,14 +2014,13 @@ main (int    argc,
     katze_assign (config_file, g_build_filename (config, "history.db", NULL));
 
     errmsg = NULL;
-    if ((db = midori_history_initialize (history, config_file, bookmarks_file ,&errmsg)) == NULL)
+    if (!midori_history_initialize (history, config_file, bookmarks_file, &errmsg))
     {
         g_string_append_printf (error_messages,
             _("The history couldn't be loaded: %s\n"), errmsg);
         g_free (errmsg);
     }
     g_free (bookmarks_file);
-    g_object_set_data (G_OBJECT (history), "db", db);
     midori_startup_timer ("History read: \t%f");
 
     /* In case of errors */
@@ -2152,7 +2164,7 @@ main (int    argc,
 
     settings = katze_object_get_object (app, "settings");
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
-    midori_history_terminate (db, max_history_age);
+    midori_history_terminate (history, max_history_age);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
     soup_session_remove_feature_by_type (webkit_get_default_session (),
                                          KATZE_TYPE_HTTP_COOKIES);

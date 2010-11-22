@@ -4184,24 +4184,7 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
         button = g_object_get_data (G_OBJECT (dialog), "history");
         if (gtk_toggle_button_get_active (button))
         {
-            const gchar* sqlcmd = "DELETE FROM history";
-            sqlite3* db = g_object_get_data (G_OBJECT (browser->history), "db");
-            char* errmsg = NULL;
-
-            if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-            {
-                g_printerr (_("Failed to clear history: %s\n"), errmsg);
-                sqlite3_free (errmsg);
-            }
-            else
-            {
-                sqlcmd = "DELETE FROM search";
-                if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-                {
-                    g_printerr (_("Failed to clear search history: %s\n"), errmsg);
-                    sqlite3_free (errmsg);
-                }
-            }
+            katze_array_clear (browser->history);
             clear_prefs |= MIDORI_CLEAR_HISTORY;
         }
         button = g_object_get_data (G_OBJECT (dialog), "trash");
