@@ -490,6 +490,51 @@ midori_history_terminate (KatzeArray* array,
 }
 
 static void
+midori_bookmarks_add_item_cb (KatzeArray* array,
+                              KatzeItem*  item,
+                              sqlite3*    db)
+{
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+    KatzeItem* old_parent;
+    const gchar* uri;
+    const gchar* folder = katze_item_get_meta_string (item, "folder");
+    const gchar* parent;
+
+    if (KATZE_ITEM_IS_BOOKMARK (item))
+        uri = katze_item_get_uri (item);
+    else
+        uri = "";
+
+    /* Use folder, otherwise fallback to parent folder */
+    old_parent = katze_item_get_parent (item);
+    if (folder && *folder)
+        parent = folder;
+    else if (old_parent && katze_item_get_name (old_parent))
+        parent = katze_item_get_name (old_parent);
+    else
+        parent = "";
+
+    sqlcmd = sqlite3_mprintf (
+            "INSERT into bookmarks (uri, title, desc, folder, toolbar, app) values"
+            " ('%q', '%q', '%q', '%q', %d, %d)",
+            uri,
+            katze_item_get_name (item),
+            katze_item_get_text (item),
+            parent,
+            katze_item_get_meta_boolean (item, "toolbar"),
+            katze_item_get_meta_boolean (item, "app"));
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to add bookmark item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    sqlite3_free (sqlcmd);
+}
+
+static void
 midori_bookmarks_remove_item_cb (KatzeArray* array,
                                  KatzeItem*  item,
                                  sqlite3*    db)
@@ -542,6 +587,8 @@ midori_bookmarks_initialize (KatzeArray*  array,
                       "desc text, app integer, toolbar integer);",
                       NULL, NULL, errmsg) != SQLITE_OK)
         return NULL;
+    g_signal_connect (array, "add-item",
+                      G_CALLBACK (midori_bookmarks_add_item_cb), db);
     g_signal_connect (array, "remove-item",
                       G_CALLBACK (midori_bookmarks_remove_item_cb), db);
     return db;
