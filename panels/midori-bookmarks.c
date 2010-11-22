@@ -777,23 +777,8 @@ midori_bookmarks_key_release_event_cb (GtkWidget*       widget,
                                        GdkEventKey*     event,
                                        MidoriBookmarks* bookmarks)
 {
-    GtkTreeModel* model;
-    GtkTreeIter iter;
-
-    if (event->keyval != GDK_Delete)
-        return FALSE;
-
-    if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
-    {
-        KatzeItem* item;
-        KatzeArray* parent;
-
-        gtk_tree_model_get (model, &iter, 0, &item, -1);
-        parent = katze_item_get_parent (item);
-        katze_array_remove_item (parent, item);
-
-        g_object_unref (item);
-    }
+    if (event->keyval == GDK_Delete)
+        midori_bookmarks_delete_clicked_cb (widget, bookmarks);
 
     return FALSE;
 }
