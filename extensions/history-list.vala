@@ -57,7 +57,6 @@ private class TabWindow : HistoryWindow {
         this.add (hbox);
 
         var sw = new Gtk.ScrolledWindow (null, null);
-        sw.set_size_request (320, 20);
         sw.set_policy (PolicyType.NEVER , PolicyType.AUTOMATIC);
         sw.set_shadow_type (ShadowType.ETCHED_IN);
         hbox.pack_start (sw, true, true, 0);
@@ -81,7 +80,6 @@ private class TabWindow : HistoryWindow {
                              TabTreeCells.TREE_CELL_POINTER, view);
         }
 
-        this.set_default_size (320, list.len > 10 ? 232 : (int) list.len * 23 + 2);
         this.treeview = new Gtk.TreeView.with_model (store);
         this.treeview.set_fixed_height_mode (true);
         sw.add (treeview);
@@ -95,6 +93,17 @@ private class TabWindow : HistoryWindow {
         this.treeview.insert_column_with_attributes (
             TabTreeCells.TREE_CELL_STRING, "Title",
             new CellRendererText (), "text", 1);
+
+        Requisition requisition;
+        int height;
+        int max_lines = 10;
+        this.treeview.size_request (out requisition);
+        if ((int)list.len > max_lines) {
+            height = requisition.height / (int)list.len * max_lines + 2;
+        } else {
+            height = requisition.height + 2;
+        }
+        sw.set_size_request (320, height);
 
         this.show_all ();
     }
