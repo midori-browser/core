@@ -1629,8 +1629,10 @@ midori_view_ensure_link_uri (MidoriView* view,
 
         event.x = ex;
         event.y = ey;
-        katze_object_assign (view->hit_test, webkit_web_view_get_hit_test_result (
-                             WEBKIT_WEB_VIEW (view->web_view), &event));
+        katze_object_assign (view->hit_test,
+            g_object_ref (
+            webkit_web_view_get_hit_test_result (
+            WEBKIT_WEB_VIEW (view->web_view), &event)));
         katze_assign (view->link_uri,
              katze_object_get_string (view->hit_test, "link-uri"));
     }
