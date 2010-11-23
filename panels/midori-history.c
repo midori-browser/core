@@ -212,11 +212,11 @@ midori_history_read_from_db (MidoriHistory* history,
         gchar* filterstr;
 
         sqlcmd = "SELECT * FROM ("
-                 "    SELECT uri, title, day FROM history"
+                 "    SELECT uri, title, day, date FROM history"
                  "    WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "
                  "UNION ALL "
                  "    SELECT replace (uri, '%s', keywords) AS uri, "
-                 "    keywords AS title, day FROM search "
+                 "    keywords AS title, day, 0 AS date FROM search "
                  "    WHERE uri LIKE ?1 OR keywords LIKE ?1 GROUP BY uri "
                  ") ORDER BY day ASC";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
