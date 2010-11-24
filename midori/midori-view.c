@@ -4926,30 +4926,13 @@ midori_view_print_create_custom_widget_cb (GtkPrintOperation* operation,
 
     box = gtk_vbox_new (FALSE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-    button = gtk_check_button_new ();
-    g_object_set_data (G_OBJECT (operation), "print-backgrounds", button);
+    button = katze_property_proxy (view->settings, "print-backgrounds", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Print background images"));
     gtk_widget_set_tooltip_text (button, _("Whether background images should be printed"));
-    if (katze_object_get_boolean (view->settings, "print-backgrounds"))
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
     gtk_widget_show_all (box);
 
     return box;
-}
-
-static void
-midori_view_print_custom_widget_apply_cb (GtkPrintOperation* operation,
-                                          GtkWidget*         widget,
-                                          MidoriView*        view)
-{
-    GtkWidget* button;
-
-    button = g_object_get_data (G_OBJECT (operation), "print-backgrounds");
-    g_object_set (view->settings,
-        "print-backgrounds",
-        gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)),
-        NULL);
 }
 #endif
 
@@ -4987,8 +4970,6 @@ midori_view_print (MidoriView* view)
     #endif
     g_signal_connect (operation, "create-custom-widget",
         G_CALLBACK (midori_view_print_create_custom_widget_cb), view);
-    g_signal_connect (operation, "custom-widget-apply",
-        G_CALLBACK (midori_view_print_custom_widget_apply_cb), view);
     error = NULL;
     webkit_web_frame_print_full (frame, operation,
         GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, &error);
