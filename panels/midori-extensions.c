@@ -357,6 +357,7 @@ midori_extensions_init (MidoriExtensions* extensions)
         G_CALLBACK (midori_extensions_cell_renderer_toggled_cb), extensions);
     gtk_tree_view_append_column (GTK_TREE_VIEW (extensions->treeview), column);
     column = gtk_tree_view_column_new ();
+    gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
