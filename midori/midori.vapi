@@ -45,31 +45,31 @@ namespace Midori {
         public unowned GLib.Object get_proxy_items ();
 
         [NoAccessorMethod]
-        public Gtk.MenuBar menubar { get; }
+        public Gtk.MenuBar menubar { owned get; }
         [NoAccessorMethod]
-        public Gtk.Toolbar navigationbar { get; }
+        public Gtk.Toolbar navigationbar { owned get; }
         [NoAccessorMethod]
-        public Gtk.Notebook notebook { get; }
+        public Gtk.Notebook notebook { owned get; }
         [NoAccessorMethod]
-        public Gtk.Widget panel { get; }
+        public Gtk.Widget panel { owned get; }
         [NoAccessorMethod]
-        public string uri { get; set; }
+        public string uri { owned get; set; }
         public Gtk.Widget? tab { get; set; }
         [NoAccessorMethod]
         public uint load_status { get; }
         [NoAccessorMethod]
-        public Gtk.Statusbar statusbar { get; }
+        public Gtk.Statusbar statusbar { owned get; }
         [NoAccessorMethod]
-        public string statusbar_text { get; set; }
+        public string statusbar_text { owned get; set; }
         public Midori.WebSettings settings { get; set; }
         [NoAccessorMethod]
-        public GLib.Object bookmarks { get; set; }
+        public GLib.Object bookmarks { owned get; set; }
         [NoAccessorMethod]
-        public GLib.Object trash { get; set; }
+        public GLib.Object trash { owned get; set; }
         [NoAccessorMethod]
-        public GLib.Object search_engines { get; set; }
+        public GLib.Object search_engines { owned get; set; }
         [NoAccessorMethod]
-        public GLib.Object history { get; set; }
+        public GLib.Object history { owned get; set; }
         [NoAccessorMethod]
         public bool show_tabs { get; set; }
 
