@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: midori master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-22 23:12+0000\n"
-"PO-Revision-Date: 2010-11-25 00:41+0800\n"
+"PO-Revision-Date: 2010-11-26 22:12+0800\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: chinese-l10n <chinese-l10n@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -408,12 +408,13 @@ msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
 "Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
 msgstr ""
+"若要使用上方的 URI，請開啟新聞匯流器。通常都會有個名為「新聞訂閱」、「新聞 Feed」等類似的選單或按鈕。\n"
+"或者前往 Midori 中「偏好設定」的「應用程式」內，並選取一個新聞匯流器。下一次您按下新聞饋流按鈕時，它就會被自動加入。"
 
 #: ../midori/midori-browser.c:2230
 #: ../extensions/feed-panel/main.c:365
-#, fuzzy
 msgid "New feed"
-msgstr "新資料夾"
+msgstr "新饋流"
 
 #: ../midori/midori-browser.c:2273
 #: ../midori/midori-browser.c:4916
@@ -602,11 +603,11 @@ msgstr "將捷徑加入至桌面"
 
 #: ../midori/midori-browser.c:4788
 msgid "Subscribe to News _feed"
-msgstr ""
+msgstr "訂閱新聞饋流(_F)"
 
 #: ../midori/midori-browser.c:4789
 msgid "Subscribe to this news feed"
-msgstr ""
+msgstr "訂閱此新聞饋流"
 
 #: ../midori/midori-browser.c:4794
 msgid "_Close Tab"
@@ -1132,9 +1133,8 @@ msgstr ""
 #: ../midori/midori-panel.c:426
 #: ../midori/midori-panel.c:596
 #: ../midori/midori-panel.c:599
-#, fuzzy
 msgid "Align sidepanel to the right"
-msgstr "側邊欄靠右對齊"
+msgstr "側面板靠右對齊"
 
 #: ../midori/midori-panel.c:436
 #: ../midori/midori-panel.c:437
@@ -1143,9 +1143,8 @@ msgstr "關閉側邊欄"
 
 #: ../midori/midori-panel.c:597
 #: ../midori/midori-panel.c:600
-#, fuzzy
 msgid "Align sidepanel to the left"
-msgstr "側邊欄靠右對齊"
+msgstr "側面板靠左對齊"
 
 #: ../midori/midori-panel.c:754
 msgid "Hide operating controls"
@@ -1490,7 +1489,7 @@ msgstr "外部文字編輯器"
 
 #: ../midori/midori-websettings.c:747
 msgid "News Aggregator"
-msgstr ""
+msgstr "新聞匯流器"
 
 #: ../midori/midori-websettings.c:748
 #, fuzzy
@@ -1824,9 +1823,8 @@ msgid "Open Link as Web A_pplication"
 msgstr "在開新視窗中開啟鏈結(_W)"
 
 #: ../midori/midori-view.c:2403
-#, fuzzy
 msgid "Copy Link de_stination"
-msgstr "儲存鏈結網址(_S)"
+msgstr "複製鏈結目的地(_S)"
 
 #: ../midori/midori-view.c:2406
 #: ../midori/midori-view.c:2478
@@ -1841,9 +1839,8 @@ msgstr "下載鏈結網址(_D)"
 #: ../midori/midori-view.c:2411
 #: ../midori/midori-view.c:2441
 #: ../midori/midori-view.c:2483
-#, fuzzy
 msgid "Download with Download _Manager"
-msgstr "下載管理員"
+msgstr "使用下載管理員下載(_M)"
 
 #: ../midori/midori-view.c:2420
 msgid "Open _Image in New Tab"
@@ -1928,9 +1925,8 @@ msgid "Enter shortcut title"
 msgstr "輸入捷徑標題"
 
 #: ../midori/midori-view.c:3758
-#, fuzzy
 msgid "Are you sure you want to delete this shortcut?"
-msgstr "確定要移除所有歷史項目？"
+msgstr "確定要刪除這個捷徑？"
 
 #: ../midori/midori-view.c:3759
 msgid "Set number of columns and rows"
@@ -2698,47 +2694,45 @@ msgstr ""
 
 #: ../extensions/feed-panel/feed-atom.c:315
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr ""
+msgstr "XML 資料內找不到請求的 Atom「feed」元素。"
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:392
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
-msgstr ""
+msgstr "上次更新：%s"
 
 #: ../extensions/feed-panel/feed-panel.c:661
-#, fuzzy
 msgid "Feeds"
-msgstr "特徵"
+msgstr "饋流"
 
 #: ../extensions/feed-panel/feed-panel.c:714
-#, fuzzy
 msgid "Add new feed"
-msgstr "加入新的資料夾"
+msgstr "加入新饋流"
 
 #: ../extensions/feed-panel/feed-panel.c:721
 msgid "Delete feed"
-msgstr ""
+msgstr "刪除饋流"
 
 #: ../extensions/feed-panel/feed-panel.c:803
 msgid "_Feeds"
-msgstr ""
+msgstr "饋流(_F)"
 
 #: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
 msgid "Failed to find root element in feed XML data."
-msgstr ""
+msgstr "於饋流 XML 資料內找不到根元素。"
 
 #: ../extensions/feed-panel/feed-parse.c:235
 #, c-format
 msgid "Unsupported feed format."
-msgstr ""
+msgstr "未支援的饋流格式。"
 
 #: ../extensions/feed-panel/feed-parse.c:265
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to parse XML feed: %s"
-msgstr "開啟資料庫時失敗：%s\n"
+msgstr "解析 XML 饋流失敗：%s"
 
 #: ../extensions/feed-panel/feed-rss.c:46
 msgid "Failed to find \"channel\" element in RSS XML data."
@@ -2759,21 +2753,20 @@ msgstr ""
 #: ../extensions/feed-panel/main.c:131
 #, c-format
 msgid "Feed '%s' already exists"
-msgstr ""
+msgstr "「%s」饋流已經存在"
 
 #: ../extensions/feed-panel/main.c:208
 #, c-format
 msgid "Error loading feed '%s'"
-msgstr ""
+msgstr "載入「%s」饋流時發生錯誤"
 
 #: ../extensions/feed-panel/main.c:518
-#, fuzzy
 msgid "Feed Panel"
-msgstr "顯示側邊欄"
+msgstr "饋流面板"
 
 #: ../extensions/feed-panel/main.c:519
 msgid "Read Atom/ RSS feeds"
-msgstr ""
+msgstr "閱讀 Atom/ RSS 饋流"
 
 #: ../extensions/formhistory.c:146
 #, c-format
