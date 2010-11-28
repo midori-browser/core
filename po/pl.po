@@ -7,10 +7,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.2.4\n"
+"Project-Id-Version: midori 0.2.9\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-01 11:11+0000\n"
-"PO-Revision-Date: 2010-11-08 18:20+0100\n"
+"PO-Revision-Date: 2010-11-28 13:00+0100\n"
 "Last-Translator: Piotr Sokół <psokol@jabster.pl>\n"
 "Language-Team: Polish <>\n"
 "MIME-Version: 1.0\n"
@@ -116,7 +116,7 @@ msgstr "Zmodyfikuj p_referencje"
 
 #: ../midori/main.c:988
 msgid "Reset the last _session"
-msgstr "Przywróć ostatnią _sesję"
+msgstr "Nie przywracaj ostatniej _sesji"
 
 #: ../midori/main.c:993
 msgid "Disable all _extensions"
@@ -142,7 +142,7 @@ msgstr "Kopia strony zapisana jako: %s\n"
 
 #: ../midori/main.c:1632
 msgid "Run ADDRESS as a web application"
-msgstr "Uruchamia ADRES jako aplikację internetową"
+msgstr "Uruchamia ADRES jako program sieciowy"
 
 #: ../midori/main.c:1632
 msgid "ADDRESS"
@@ -349,7 +349,7 @@ msgstr "Wyświetlanie na pasku _narzędziowym"
 
 #: ../midori/midori-browser.c:900
 msgid "Run as _web application"
-msgstr "Uruchamianie jako _aplikacja internetowa"
+msgstr "Uruchamianie jako program _sieciowy"
 
 #: ../midori/midori-browser.c:988
 #, c-format
@@ -849,18 +849,16 @@ msgid "Only show the Icon of the _Current Tab"
 msgstr "Ukryj etykietę _bieżącej karty"
 
 #: ../midori/midori-browser.c:4986
-#, fuzzy
 msgid "Only show the icon of the current tab"
-msgstr "Zamyka bieżącą kartę"
+msgstr "Wyświetla tylko ikonę bieżącej karty"
 
 #: ../midori/midori-browser.c:4988
 msgid "_Duplicate Current Tab"
 msgstr "_Powiel bieżącą kartę"
 
 #: ../midori/midori-browser.c:4989
-#, fuzzy
 msgid "Duplicate the current tab"
-msgstr "Zamyka bieżącą kartę"
+msgstr "Powiela bieżącą kartę"
 
 #: ../midori/midori-browser.c:4991
 msgid "Close Ot_her Tabs"
@@ -1002,7 +1000,7 @@ msgstr "_Pasek położenia"
 
 #: ../midori/midori-browser.c:5597
 msgid "Open a particular location"
-msgstr "Przenosi kursor do paska położenia"
+msgstr "Wprowadza określone położenie"
 
 #: ../midori/midori-browser.c:5621
 msgid "_Web Search..."
@@ -1057,14 +1055,14 @@ msgstr "Nie można wczytać ustawień wtyczki „%s”: %s\n"
 #: ../midori/midori-extension.c:667 ../midori/midori-extension.c:764
 #: ../midori/midori-extension.c:861 ../midori/midori-extension.c:973
 #: ../extensions/addons.c:1416
-#, fuzzy, c-format
+#, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr "Ustawienia nie mogą zostać zapisane. %s"
+msgstr "Nie można zapisać ustawień wtyczki „%s”: %s\n"
 
 #: ../midori/midori-locationaction.c:393
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to select from history\n"
-msgstr "Nie udało się wyczyścić historii: %s\n"
+msgstr "Nie udało się wybrać z historii\n"
 
 #: ../midori/midori-locationaction.c:477
 #, c-format
@@ -1077,9 +1075,9 @@ msgid "Search with %s"
 msgstr "Wyszukaj za pomocą %s"
 
 #: ../midori/midori-locationaction.c:1311
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to execute database statement\n"
-msgstr "Nie udało się wykonać zapytania: %s\n"
+msgstr "Nie udało się wykonać zapytania bazy danych\n"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
 #: ../midori/midori-locationaction.c:1367
@@ -1396,7 +1394,9 @@ msgstr "Wprowadza adres strony głównej przeglądarki"
 
 #: ../midori/midori-websettings.c:641
 msgid "Show crash dialog"
-msgstr "Wyświetlanie okna diagnostycznego po wystąpieniu awarii"
+msgstr ""
+"Wyświetlanie okna diagnostycznego\n"
+"po wystąpieniu awarii"
 
 #: ../midori/midori-websettings.c:642
 msgid "Show a dialog after Midori crashed"
@@ -1443,7 +1443,7 @@ msgstr "Menedżer pobierania:"
 
 #: ../midori/midori-websettings.c:723
 msgid "An external download manager"
-msgstr "Zewnętrzny menedżer pobierania"
+msgstr "Określa zewnętrzny menedżer pobierania"
 
 #: ../midori/midori-websettings.c:731
 msgid "Text Editor"
@@ -1451,7 +1451,7 @@ msgstr "Edytor tekstu:"
 
 #: ../midori/midori-websettings.c:732
 msgid "An external text editor"
-msgstr "Zewnętrzny edytor tekstu"
+msgstr "Określa zewnętrzny edytor tekstu"
 
 #: ../midori/midori-websettings.c:747
 msgid "News Aggregator"
@@ -1459,7 +1459,7 @@ msgstr "Czytnik wiadomości:"
 
 #: ../midori/midori-websettings.c:748
 msgid "An external news aggregator"
-msgstr "Zewnętrzny czytnik wiadomości"
+msgstr "Określa zewnętrzny czytnik wiadomości"
 
 #: ../midori/midori-websettings.c:756
 msgid "Location entry Search"
@@ -1573,7 +1573,7 @@ msgstr "Obsługa baz danych HTML5"
 
 #: ../midori/midori-websettings.c:886
 msgid "Whether to enable HTML5 database support"
-msgstr "Obsługuje bazy danych HTML5"
+msgstr "Przełącza obsługę baz danych HTML5"
 
 #: ../midori/midori-websettings.c:892
 msgid "Enable HTML5 local storage support"
@@ -1581,11 +1581,13 @@ msgstr "Obsługa lokalnego magazynu HTML5"
 
 #: ../midori/midori-websettings.c:893
 msgid "Whether to enable HTML5 local storage support"
-msgstr "Obsługuje lokalne magazyny HTML5"
+msgstr "Przełącza obsługę lokalnych magazynów HTML5"
 
 #: ../midori/midori-websettings.c:901
 msgid "Enable offline web application cache"
-msgstr "Pamięć podręczna programów internetowych w trybie offline"
+msgstr ""
+"Pamięć podręczna programów internetowych\n"
+"w trybie bez połączenia"
 
 #: ../midori/midori-websettings.c:902
 msgid "Whether to enable offline web application cache"
@@ -2401,7 +2403,7 @@ msgstr "Klatki animacji są uszkodzone"
 #: ../katze/katze-utils.c:510 ../katze/katze-utils.c:918
 #, c-format
 msgid "Property '%s' is invalid for %s"
-msgstr ""
+msgstr "Właściwość „%s” jest niepoprawna dla %s"
 
 #: ../katze/katze-utils.c:556 ../katze/katze-utils.c:585
 #: ../extensions/addons.c:119
