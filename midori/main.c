@@ -2017,7 +2017,7 @@ main (int    argc,
         if (g_access (old_bookmarks, F_OK) == 0)
         {
             midori_bookmarks_import (old_bookmarks, db);
-            g_unlink(old_bookmarks);
+            /* Leave old bookmarks around */
         }
         g_free (old_bookmarks);
         g_object_set_data (G_OBJECT (bookmarks), "db", db);
