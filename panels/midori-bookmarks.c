@@ -237,7 +237,7 @@ midori_bookmarks_add_item_cb (KatzeArray*      array,
 {
     GtkTreeModel* model;
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
-    if (!strcmp (katze_item_get_meta_string (item, "folder"), ""))
+    if (!g_strcmp0 (katze_item_get_meta_string (item, "folder"), ""))
         gtk_tree_store_insert_with_values (GTK_TREE_STORE (model),
                                            NULL, NULL, G_MAXINT, 0, item, -1);
     else
