@@ -74,15 +74,10 @@ static void
 _katze_array_add_item (KatzeArray* array,
                        gpointer    item)
 {
-    if (katze_array_is_a (array, G_TYPE_OBJECT))
-    {
-        GType type = G_OBJECT_TYPE (item);
-
-        /* g_return_if_fail (katze_array_is_a (array, type)); */
-        g_object_ref (item);
-        if (g_type_is_a (type, KATZE_TYPE_ITEM))
-            katze_item_set_parent (item, array);
-    }
+    GType type = G_OBJECT_TYPE (item);
+    g_object_ref (item);
+    if (g_type_is_a (type, KATZE_TYPE_ITEM))
+        katze_item_set_parent (item, array);
 
     array->items = g_list_append (array->items, item);
 }
@@ -93,12 +88,9 @@ _katze_array_remove_item (KatzeArray* array,
 {
     array->items = g_list_remove (array->items, item);
 
-    if (katze_array_is_a (array, G_TYPE_OBJECT))
-    {
-        if (KATZE_IS_ITEM (item))
-            katze_item_set_parent (item, NULL);
-        g_object_unref (item);
-    }
+    if (KATZE_IS_ITEM (item))
+        katze_item_set_parent (item, NULL);
+    g_object_unref (item);
 }
 
 static void
@@ -195,7 +187,7 @@ katze_array_class_init (KatzeArrayClass* class)
 static void
 katze_array_init (KatzeArray* array)
 {
-    array->type = G_TYPE_NONE;
+    array->type = G_TYPE_OBJECT;
     array->items = NULL;
 }
 
@@ -204,16 +196,12 @@ katze_array_finalize (GObject* object)
 {
     KatzeArray* array;
     guint i;
+    gpointer item;
 
     array = KATZE_ARRAY (object);
-    if (katze_array_is_a (array, G_TYPE_OBJECT))
-    {
-        gpointer item;
-        i = 0;
-        while ((item = g_list_nth_data (array->items, i++)))
-            g_object_unref (item);
-    }
-
+    i = 0;
+    while ((item = g_list_nth_data (array->items, i++)))
+        g_object_unref (item);
     g_list_free (array->items);
 
     G_OBJECT_CLASS (katze_array_parent_class)->finalize (object);
@@ -225,8 +213,6 @@ katze_array_finalize (GObject* object)
  *
  * Creates a new #KatzeArray for @type items.
  *
- * You may only add items of the given type or inherited
- * from it to this array *if* @type is an #GObject type.
  * The array will keep a reference on each object until
  * it is removed from the array.
  *
@@ -235,14 +221,17 @@ katze_array_finalize (GObject* object)
 KatzeArray*
 katze_array_new (GType type)
 {
-    KatzeArray* array = g_object_new (KATZE_TYPE_ARRAY, NULL);
+    KatzeArray* array;
+
+    g_return_val_if_fail (g_type_is_a (type, G_TYPE_OBJECT), NULL);
+
+    array = g_object_new (KATZE_TYPE_ARRAY, NULL);
     array->type = type;
 
     return array;
 }
 
 /**
- *
  * katze_array_is_a:
  * @array: a #KatzeArray
  * @is_a_type: type to compare with
@@ -371,9 +360,6 @@ katze_array_find_token (KatzeArray*  array,
     guint i;
     gpointer item;
 
-    if (!katze_array_is_a (array, G_TYPE_OBJECT))
-        return NULL;
-
     i = 0;
     while ((item = g_list_nth_data (array->items, i++)))
     {
@@ -409,9 +395,6 @@ katze_array_find_uri (KatzeArray*  array,
 {
     guint i;
     gpointer item;
-
-    if (!katze_array_is_a (array, G_TYPE_OBJECT))
-        return NULL;
 
     i = 0;
     while ((item = g_list_nth_data (array->items, i++)))
