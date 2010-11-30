@@ -3866,6 +3866,7 @@ midori_view_set_uri (MidoriView*  view,
                 data = g_strdup_printf (
                     "<html><head><title>about:version</title></head>"
                     "<body><h1>about:version</h1>"
+                    "<p>Version numbers in brackets show the version used at runtime.</p>"
                     "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>"
