@@ -281,19 +281,6 @@ katze_array_action_get_property (GObject*    object,
 static void
 katze_array_action_activate (GtkAction* action)
 {
-    GSList* proxies;
-
-    proxies = gtk_action_get_proxies (action);
-    if (!proxies)
-        return;
-
-    do
-    if (GTK_IS_TOOL_ITEM (proxies->data))
-    {
-
-    }
-    while ((proxies = g_slist_next (proxies)));
-
     if (GTK_ACTION_CLASS (katze_array_action_parent_class)->activate)
         GTK_ACTION_CLASS (katze_array_action_parent_class)->activate (action);
 }
