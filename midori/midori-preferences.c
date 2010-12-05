@@ -413,22 +413,16 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     INDENTED_ADD (button);
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
-    if (katze_widget_has_touchscreen_mode (parent ?
-        GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
-        button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
-    else
-    {
-        button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
-        gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
-        gtk_widget_set_tooltip_text (button, _("Enforce a video dot density of 96 DPI"));
-    }
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    button = katze_property_proxy (settings, "enable-spell-checking", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
+    gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
     #else
-    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
+    button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
+    gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));
+    gtk_widget_set_tooltip_text (button, _("Enforce a video dot density of 96 DPI"));
     #endif
     SPANNED_ADD (button);
-    #if !HAVE_HILDON
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "enable-plugins", NULL);
@@ -442,18 +436,20 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
     #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
-    FRAME_NEW (_("Spell Checking"));
-    button = katze_property_proxy (settings, "enable-spell-checking", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
-    gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
-    INDENTED_ADD (button);
-    entry = katze_property_proxy (settings, "spell-checking-languages", "languages");
-    /* i18n: The example should be adjusted to contain a good local default */
-    gtk_widget_set_tooltip_text (entry, _("A comma separated list of "
-       "languages to be used for spell checking, for example \"en_GB,de_DE\""));
-    SPANNED_ADD (entry);
+    button = NULL;
+    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
+    if (katze_widget_has_touchscreen_mode (parent ?
+        GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
+        button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
+    #else
+    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     #endif
+    if (button != NULL)
+        INDENTED_ADD (button);
+    button = katze_property_label (settings, "preferred-languages");
+    INDENTED_ADD (button);
+    entry = katze_property_proxy (settings, "preferred-languages", "languages");
+    SPANNED_ADD (entry);
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
@@ -521,10 +517,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     SPANNED_ADD (button);
-    label = katze_property_label (settings, "preferred-languages");
-    INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "preferred-languages", "languages");
-    SPANNED_ADD (entry);
 
     /* Page "Privacy" */
     PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));

@@ -1071,7 +1071,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     /**
     * MidoriWebSettings:preferred-languages:
     *
-    * A comma separated list of languages preferred for rendering multilingual webpages.
+    * A comma separated list of languages preferred for rendering multilingual
+    * webpages and spell checking.
     *
     * Since: 0.2.3
     */
@@ -1523,6 +1524,10 @@ midori_web_settings_set_property (GObject*      object,
         break;
     case PROP_PREFERRED_LANGUAGES:
         katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
+        #if WEBKIT_CHECK_VERSION (1, 1, 6)
+        g_object_set (web_settings, "spell-checking-languages",
+                      web_settings->http_accept_language, NULL);
+        #endif
         break;
     case PROP_CLEAR_PRIVATE_DATA:
         web_settings->clear_private_data = g_value_get_int (value);
