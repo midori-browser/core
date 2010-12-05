@@ -155,15 +155,17 @@ midori_bookmarks_import_array_db (sqlite3*     db,
                                   KatzeArray*  array,
                                   const gchar* folder)
 {
+    GList* list;
     KatzeItem* item;
 
-    KATZE_ARRAY_FOREACH_ITEM (item, array)
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
     {
         if (KATZE_IS_ARRAY (item))
             midori_bookmarks_import_array_db (db, KATZE_ARRAY (item), folder);
         katze_item_set_meta_string (item, "folder", folder);
         katze_array_add_item (array, item);
     }
+    g_list_free (list);
 }
 
 static KatzeArray*

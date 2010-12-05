@@ -84,12 +84,37 @@ GList*
 katze_array_peek_items             (KatzeArray*   array);
 
 extern GList* kalistglobal;
+/* KATZE_ARRAY_FOREACH_ITEM:
+ * @item: a #KatzeItem variable
+ * @array: a #KatzeArray to loop through
+ *
+ * Loops through all items of the array. The macro can
+ * be used like a for() loop.
+ * If the array is modified during the loop, you must
+ * use KATZE_ARRAY_FOREACH_ITEM_L instead.
+ * */
 #define KATZE_ARRAY_FOREACH_ITEM(kaitem, kaarray) \
     for (kalistglobal = katze_array_peek_items (kaarray), \
          kaitem = kalistglobal ? kalistglobal->data : NULL; \
          kalistglobal != NULL; \
          kalistglobal = g_list_next (kalistglobal), \
          kaitem = kalistglobal ? kalistglobal->data : NULL)
+
+/* KATZE_ARRAY_FOREACH_ITEM_L:
+ * @item: a #KatzeItem variable
+ * @array: a #KatzeArray to loop through
+ * @list: a #GList variable
+ *
+ * Loops through all items of the array. The list must be freed.
+ *
+ * Since: 0.3.0
+ * */
+#define KATZE_ARRAY_FOREACH_ITEM_L(kaitem, kaarray, kalist) \
+    for (kalist = katze_array_get_items (kaarray), \
+         kaitem = kalist ? kalist->data : NULL; \
+         kalist != NULL; \
+         kalist = g_list_next (kalist), \
+         kaitem = kalist ? kalist->data : NULL)
 
 void
 katze_array_clear                  (KatzeArray*   array);
