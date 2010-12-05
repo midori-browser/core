@@ -2904,9 +2904,8 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "WindowNew" },
       { "PrivateBrowsing" },
       { "Open" },
-      #if HAVE_HILDON
       { "Find" },
-      #else
+      #if !HAVE_HILDON
       { "Print" },
       { NULL },
       { "Panel" },
