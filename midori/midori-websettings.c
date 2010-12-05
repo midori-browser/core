@@ -547,7 +547,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "toolbar-items",
                                      _("Toolbar Items"),
                                      _("The items to show on the toolbar"),
-                                     "TabNew,Back,Forward,Next,ReloadStop,Location,Panel,Search,Trash",
+                                     "TabNew,Back,Forward,Next,ReloadStop,Location,Search,Trash",
                                      flags));
 
     g_object_class_install_property (gobject_class,
