@@ -1,6 +1,7 @@
 /*
  Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008-2010 Arno Renevier <arno@renevier.net>
+ Copyright (C) 2010 Paweł Forysiuk <tuxator@o2.pl>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -1066,7 +1067,8 @@ addons_get_element_content (gchar*     file_path,
                             gchar**    content)
 {
     gchar* file_content;
-    guint meta;
+    GString* content_chunks;
+    guint meta, comment;
     guint i, n;
 
     g_assert (kind == ADDONS_USER_SCRIPTS || kind == ADDONS_USER_STYLES);
@@ -1082,7 +1084,9 @@ addons_get_element_content (gchar*     file_path,
         else if (kind == ADDONS_USER_STYLES)
         {
             meta = 0;
+            comment = 0;
             n = strlen (file_content);
+            content_chunks = g_string_new_len (NULL, n);
             for (i = 0; i < n; i++)
             {
                 /* Replace line breaks with spaces */
@@ -1091,23 +1095,19 @@ addons_get_element_content (gchar*     file_path,
                 /* Change all single quotes to double quotes */
                 if (file_content[i] == '\'')
                     file_content[i] = '\"';
-                /* Turn metadata we inspected earlier into comments */
                 if (!meta && file_content[i] == '@')
                 {
-                    file_content[i] = '/';
                     meta++;
                 }
                 else if (meta == 1
                     && (file_content[i] == '-' || file_content[i] == 'n'))
                 {
-                    file_content[i] = '*';
                     meta++;
                 }
                 else if (meta == 2 && file_content[i] == '{')
                 {
-                    file_content[i - 1] = '*';
-                    file_content[i] = '/';
                     meta++;
+                    continue;
                 }
                 else if (meta == 3 && file_content[i] == '{')
                     meta++;
@@ -1115,9 +1115,32 @@ addons_get_element_content (gchar*     file_path,
                     meta--;
                 else if (meta == 3 && file_content[i] == '}')
                 {
-                    file_content[i] = ' ';
                     meta = 0;
+                    continue;
                 }
+
+                if (file_content[i] == '/' && file_content[i+1] == '*')
+                    comment++;
+                /* Check whether we have comment ending, merely '*' or '/' */
+                else if (comment == 2
+                    && file_content[i] == '*' && file_content[i+1] == '/')
+                {
+                    comment--;
+                }
+                else if (comment == 1
+                    && file_content[i-1] == '*' && file_content[i] == '/')
+                {
+                    comment--;
+                    continue;
+                }
+
+                /* Skip consecutive spaces */
+                if (file_content[i] == ' ' && file_content[i - 1] == ' ')
+                    continue;
+
+                /* Append actual data to string */
+                if ((meta == 0 || meta >= 3) && !comment)
+                    g_string_append_c (content_chunks, file_content[i]);
             }
 
             *content = g_strdup_printf (
@@ -1131,8 +1154,8 @@ addons_get_element_content (gchar*     file_path,
                 "else document.documentElement.insertBefore"
                 "(mystyle, document.documentElement.firstChild);"
                 "}, true);",
-                file_content);
-
+                content_chunks->str);
+            g_string_free (content_chunks, TRUE);
         }
         g_free (file_content);
         if (*content)
