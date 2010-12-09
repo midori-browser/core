@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: midori 0.2.9\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-01 11:11+0000\n"
-"PO-Revision-Date: 2010-12-05 17:58+0100\n"
+"PO-Revision-Date: 2010-12-09 11:46+0100\n"
 "Last-Translator: Piotr Sokół <psokol@jabster.pl>\n"
 "Language-Team: Polish <>\n"
 "MIME-Version: 1.0\n"
@@ -345,7 +345,7 @@ msgstr "Dodaj do strony _szybkiego wybierania"
 
 #: ../midori/midori-browser.c:885
 msgid "Show in the tool_bar"
-msgstr "Wyświetlanie na pasku _narzędziowym"
+msgstr "Wyświetlanie na pasku _zakładek"
 
 #: ../midori/midori-browser.c:900
 msgid "Run as _web application"
@@ -1175,7 +1175,7 @@ msgstr "Ustawienia środowiska"
 
 #: ../midori/midori-websettings.c:281
 msgid "HTTP proxy server"
-msgstr "Serwer pośredniczący HTTP"
+msgstr "HTTP"
 
 #: ../midori/midori-websettings.c:282
 msgid "No proxy server"
@@ -1261,7 +1261,7 @@ msgstr ""
 #: ../midori/midori-websettings.c:444
 #, fuzzy
 msgid "Show Menubar"
-msgstr "Wyświetlanie paska menu"
+msgstr "Przełącza widoczność paska zakładek"
 
 #: ../midori/midori-websettings.c:445
 #, fuzzy
@@ -1344,9 +1344,8 @@ msgid "The items to show on the toolbar"
 msgstr "Określa wygląd paska narzędziowego"
 
 #: ../midori/midori-websettings.c:557
-#, fuzzy
 msgid "Compact Sidepanel"
-msgstr "Panel _boczny"
+msgstr "Zwarty panel boczny"
 
 #: ../midori/midori-websettings.c:558
 msgid "Whether to make the sidepanel compact"
@@ -1716,9 +1715,9 @@ msgid "The data selected for deletion"
 msgstr ""
 
 #: ../midori/midori-view.c:1264
-#, fuzzy, c-format
+#, c-format
 msgid "%s wants to save an HTML5 database."
-msgstr "%s chce zapisać bazę danych HTML5."
+msgstr "Strona „%s” chce zapisać bazę danych HTML5."
 
 #: ../midori/midori-view.c:1268 ../midori/midori-view.c:1298
 msgid "_Deny"
@@ -1729,9 +1728,9 @@ msgid "_Allow"
 msgstr "_Zezwól"
 
 #: ../midori/midori-view.c:1294
-#, fuzzy, c-format
+#, c-format
 msgid "%s wants to know your location."
-msgstr "%s chce poznać położenie."
+msgstr "Strona „%s” chce poznać położenie użytkownika."
 
 #. WebKit 1.1.6 doesn't handle "alternate content" flawlessly,
 #. so reloading via Javascript works but not via API calls.
@@ -1950,9 +1949,8 @@ msgid "_Duplicate Tab"
 msgstr "_Powiel kartę"
 
 #: ../midori/midori-view.c:4314
-#, fuzzy
 msgid "Show Tab _Label"
-msgstr "Pokaż panel"
+msgstr "Wyświetl _etykietę karty"
 
 #: ../midori/midori-view.c:4314
 msgid "Show Tab _Icon Only"
@@ -2550,11 +2548,11 @@ msgstr "Usuwa wszystkie wyświetlone ciasteczka uwzględniając filtr"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:129
 msgid "Expand All"
-msgstr "Rozwiń wszystko"
+msgstr "Rozwija wszystkie gałęzie"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:136
 msgid "Collapse All"
-msgstr "Zwiń wszystko"
+msgstr "Zwija wszystkie gałęzie"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:578
 msgid "Do you really want to delete all cookies?"
@@ -2607,7 +2605,7 @@ msgid ""
 "<b>Cookies</b>: %d"
 msgstr ""
 "<b>Domena</b>: %s\n"
-"<b>Ilość ciasteczek:</b>: %d"
+"<b>Ilość ciasteczek</b>: %d"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1030
 msgid "Name"
@@ -2859,12 +2857,11 @@ msgstr ""
 
 #: ../extensions/tab-panel.c:569 ../extensions/tab-panel.c:626
 msgid "Tab Panel"
-msgstr "Karty panelu bocznego"
+msgstr "Panel kart"
 
 #: ../extensions/tab-panel.c:610
-#, fuzzy
 msgid "T_ab Panel"
-msgstr "Pokaż panel"
+msgstr "Panel _kart"
 
 #: ../extensions/tab-panel.c:627
 msgid "Show tabs in a vertical panel"
