@@ -681,6 +681,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
      * Note: Only since 0.2.0 is this value actually used.
      *
      * Since: 0.1.7
+     *
+     * Deprecated: 0.3.0
      */
     g_object_class_install_property (gobject_class,
                                      PROP_ASK_FOR_DESTINATION_FOLDER,
@@ -701,6 +703,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
      * Whether to show a notification when a transfer has been completed.
      *
      * Since: 0.1.7
+     *
+     * Deprecated: 0.3.0
      */
     g_object_class_install_property (gobject_class,
                                      PROP_NOTIFY_TRANSFER_COMPLETED,
