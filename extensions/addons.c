@@ -1135,7 +1135,8 @@ addons_get_element_content (gchar*     file_path,
                 }
 
                 /* Skip consecutive spaces */
-                if (file_content[i] == ' ' && file_content[i - 1] == ' ')
+                if (file_content[i] == ' '
+                 && i > 0 && file_content[i - 1] == ' ')
                     continue;
 
                 /* Append actual data to string */
