@@ -280,6 +280,20 @@ tab_panel_settings_notify_cb (MidoriWebSettings* settings,
 }
 
 static void
+tab_panel_toggle_toolbook (GtkWidget* toolbar)
+{
+        /* Hack to ensure correct toolbar visibility */
+        GtkWidget* toolbook = gtk_widget_get_parent (toolbar);
+        if (gtk_notebook_get_current_page (GTK_NOTEBOOK (toolbook))
+         == gtk_notebook_page_num (GTK_NOTEBOOK (toolbook), toolbar))
+        {
+            GList* items = gtk_container_get_children (GTK_CONTAINER (toolbar));
+            sokoke_widget_set_visible (toolbook, items != NULL);
+            g_list_free (items);
+        }
+}
+
+static void
 tab_panel_remove_view (MidoriBrowser* browser,
                        GtkWidget*     view,
                        gboolean       minimized)
@@ -287,7 +301,9 @@ tab_panel_remove_view (MidoriBrowser* browser,
     if (minimized)
     {
         GtkToolItem* toolitem = tab_panel_get_toolitem_for_view (view);
+        GtkWidget* toolbar = tab_panel_get_toolbar_for_browser (browser);
         gtk_widget_destroy (GTK_WIDGET (toolitem));
+        tab_panel_toggle_toolbook (toolbar);
     }
     else
     {
@@ -413,6 +429,7 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
         g_object_set_data (G_OBJECT (view), "tab-panel-ext-toolitem", toolitem);
         gtk_widget_show (GTK_WIDGET (toolitem));
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
+        tab_panel_toggle_toolbook (toolbar);
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (tab_panel_toolitem_clicked_cb), view);
         g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)), "button-press-event",
@@ -608,6 +625,7 @@ extension_init (void)
     {
         { STOCK_TAB_PANEL, N_("T_ab Panel"), 0, 0, NULL },
     };
+    MidoriExtension* extension;
 
     factory = gtk_icon_factory_new ();
     gtk_stock_add (items, G_N_ELEMENTS (items));
@@ -621,7 +639,7 @@ extension_init (void)
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
 
-    MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
+    extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Tab Panel"),
         "description", _("Show tabs in a vertical panel"),
         "version", "0.1",

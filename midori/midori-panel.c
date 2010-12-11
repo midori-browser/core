@@ -404,7 +404,6 @@ midori_panel_init (MidoriPanel* panel)
     gtk_notebook_set_show_border (GTK_NOTEBOOK (panel->toolbook), FALSE);
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (panel->toolbook), FALSE);
     gtk_box_pack_start (GTK_BOX (vbox), panel->toolbook, FALSE, FALSE, 0);
-    gtk_widget_show (panel->toolbook);
 
     /* Create the notebook */
     panel->notebook = gtk_notebook_new ();
@@ -870,8 +869,7 @@ midori_panel_set_current_page (MidoriPanel* panel,
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->toolbook), n);
         toolbar = gtk_notebook_get_nth_page (GTK_NOTEBOOK (panel->toolbook), n);
         items = gtk_container_get_children (GTK_CONTAINER (toolbar));
-        sokoke_widget_set_visible (panel->toolbook,
-            g_list_nth_data (items, 1) != NULL);
+        sokoke_widget_set_visible (panel->toolbook, items != NULL);
         g_list_free (items);
         gtk_notebook_set_current_page (GTK_NOTEBOOK (panel->notebook), n);
         label = midori_viewable_get_label (MIDORI_VIEWABLE (viewable));
