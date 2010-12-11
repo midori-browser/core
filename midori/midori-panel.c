@@ -30,7 +30,6 @@ struct _MidoriPanel
 
     GtkWidget* labelbar;
     GtkWidget* toolbar;
-    GtkToolItem* button_controls;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
     GtkWidget* toolbook;
@@ -192,6 +191,8 @@ midori_panel_class_init (MidoriPanelClass* class)
      * Whether to show operating controls.
      *
      * Since: 0.1.9
+     *
+     * Deprecated: 0.3.0
      */
     g_object_class_install_property (gobject_class,
                                      PROP_SHOW_CONTROLS,
@@ -450,12 +451,6 @@ midori_panel_set_property (GObject*      object,
         break;
     case PROP_SHOW_CONTROLS:
         panel->show_controls = g_value_get_boolean (value);
-        sokoke_widget_set_visible (panel->labelbar, panel->show_controls);
-        sokoke_widget_set_visible (panel->toolbar, panel->show_controls);
-        if (panel->button_controls)
-            gtk_toggle_tool_button_set_active (
-                GTK_TOGGLE_TOOL_BUTTON (panel->button_controls),
-                !panel->show_controls);
         break;
     case PROP_RIGHT_ALIGNED:
         midori_panel_set_right_aligned (panel, g_value_get_boolean (value));
@@ -619,16 +614,6 @@ midori_panel_action_activate_cb (GtkRadioAction* action,
     }
 }
 
-#if !HAVE_HILDON
-static void
-midori_panel_show_controls_toggled_cb (GtkWidget*   menuitem,
-                                       MidoriPanel* panel)
-{
-    if (panel->show_controls != !gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (menuitem)))
-        g_object_set (panel, "show-controls", !panel->show_controls, NULL);
-}
-#endif
-
 /**
  * midori_panel_append_page:
  * @panel: a #MidoriPanel
@@ -691,17 +676,6 @@ midori_panel_append_page (MidoriPanel*    panel,
     gtk_container_add (GTK_CONTAINER (panel->notebook), scrolled);
 
     toolbar = midori_viewable_get_toolbar (viewable);
-    #if !HAVE_HILDON
-    toolitem = gtk_toggle_tool_button_new_from_stock (GTK_STOCK_PROPERTIES);
-    gtk_tool_item_set_tooltip_text (toolitem, _("Hide operating controls"));
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (toolitem),
-        !panel->show_controls);
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (midori_panel_show_controls_toggled_cb), panel);
-    gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, 0);
-    gtk_widget_show (GTK_WIDGET (toolitem));
-    panel->button_controls = toolitem;
-    #endif
     gtk_widget_show (toolbar);
     gtk_container_add (GTK_CONTAINER (panel->toolbook), toolbar);
     g_signal_connect (viewable, "destroy",

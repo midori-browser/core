@@ -565,6 +565,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
      * Whether to show the operating controls of the panel.
      *
      * Since: 0.1.9
+     *
+     * Deprecated: 0.3.0
      */
     g_object_class_install_property (gobject_class,
                                      PROP_SHOW_PANEL_CONTROLS,
