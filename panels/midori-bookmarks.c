@@ -369,6 +369,7 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
 
         toolbar = gtk_toolbar_new ();
         gtk_toolbar_set_icon_size (GTK_TOOLBAR (toolbar), GTK_ICON_SIZE_BUTTON);
+        gtk_toolbar_set_show_arrow (GTK_TOOLBAR (toolbar), FALSE);
         bookmarks->toolbar = toolbar;
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
         gtk_widget_set_name (GTK_WIDGET (toolitem), "BookmarkAdd");
