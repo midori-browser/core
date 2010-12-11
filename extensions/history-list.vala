@@ -29,7 +29,7 @@ private abstract class HistoryWindow : Gtk.Window {
                      window_position: Gtk.WindowPosition.CENTER,
                      browser: browser);
     }
-    public void walk (int step) {
+    public virtual void walk (int step) {
         Gtk.TreePath? path;
         Gtk.TreeViewColumn? column;
 
@@ -50,22 +50,9 @@ private abstract class HistoryWindow : Gtk.Window {
 }
 
 private class TabWindow : HistoryWindow {
-    public TabWindow (Midori.Browser browser) {
-        base (browser);
-
-        var hbox = new Gtk.HBox (false, 1);
-        this.add (hbox);
-
-        var sw = new Gtk.ScrolledWindow (null, null);
-        sw.set_policy (PolicyType.NEVER , PolicyType.AUTOMATIC);
-        sw.set_shadow_type (ShadowType.ETCHED_IN);
-        hbox.pack_start (sw, true, true, 0);
-
-        var store = new Gtk.ListStore (TabTreeCells.TREE_CELL_COUNT,
-            typeof (Gdk.Pixbuf), typeof (string), typeof (void*));
-
-        Gtk.TreeIter iter;
-        unowned GLib.PtrArray list = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+    protected Gtk.HBox? hbox;
+    protected Gtk.VBox? vbox;
+    protected void store_append_row (GLib.PtrArray list, Gtk.ListStore store, out Gtk.TreeIter iter) {
         for (var i = list.len; i > 0; i--) {
             Midori.View view = list.index (i - 1) as Midori.View;
 
@@ -79,6 +66,33 @@ private class TabWindow : HistoryWindow {
                              TabTreeCells.TREE_CELL_STRING, title,
                              TabTreeCells.TREE_CELL_POINTER, view);
         }
+    }
+    protected virtual void insert_rows (Gtk.ListStore store) {
+        Gtk.TreeIter iter;
+        unowned GLib.PtrArray list = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+        unowned GLib.PtrArray list_new = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
+        store_append_row (list, store, out iter);
+        store_append_row (list_new, store, out iter);
+    }
+    public TabWindow (Midori.Browser browser) {
+        base (browser);
+
+        this.vbox = new Gtk.VBox (false, 1);
+        this.add (this.vbox);
+
+        this.hbox = new Gtk.HBox (false, 1);
+
+        var sw = new Gtk.ScrolledWindow (null, null);
+        sw.set_policy (PolicyType.NEVER , PolicyType.AUTOMATIC);
+        sw.set_shadow_type (ShadowType.ETCHED_IN);
+        this.hbox.pack_start (sw, true, true, 0);
+
+        var store = new Gtk.ListStore (TabTreeCells.TREE_CELL_COUNT,
+            typeof (Gdk.Pixbuf), typeof (string), typeof (void*));
+
+        this.insert_rows (store);
+
+        this.vbox.pack_start (this.hbox, true, true, 0);
 
         this.treeview = new Gtk.TreeView.with_model (store);
         this.treeview.set_fixed_height_mode (true);
@@ -98,8 +112,8 @@ private class TabWindow : HistoryWindow {
         int height;
         int max_lines = 10;
         this.treeview.size_request (out requisition);
-        if ((int)list.len > max_lines) {
-            height = requisition.height / (int)list.len * max_lines + 2;
+        if (store.length > max_lines) {
+            height = requisition.height / store.length * max_lines + 2;
         } else {
             height = requisition.height + 2;
         }
@@ -121,6 +135,31 @@ private class TabWindow : HistoryWindow {
         model.get_iter (out iter, path);
         model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
         this.browser.set ("tab", view);
+    }
+}
+
+private class NewTabWindow : TabWindow {
+    protected bool first_step = true;
+    protected override void insert_rows (Gtk.ListStore store) {
+        Gtk.TreeIter iter;
+        unowned GLib.PtrArray list = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
+        store_append_row (list, store, out iter);
+
+        if ((int)list.len == 0) {
+            var label = new Gtk.Label (_("There are no unvisited tabs"));
+            this.vbox.pack_start (label, true, true, 0);
+            unowned GLib.PtrArray list_old = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+            store_append_row (list_old, store, out iter);
+        }
+    }
+    public override void walk (int step) {
+        if (this.first_step == false || step != 1) {
+            base.walk (step);
+        }
+        this.first_step = false;
+    }
+    public NewTabWindow (Midori.Browser browser) {
+        base (browser);
     }
 }
 
@@ -167,6 +206,8 @@ private class HistoryList : Midori.Extension {
             */
             if (type == typeof (TabWindow)) {
                 this.history_window = new TabWindow (browser);
+            } else if (type == typeof (NewTabWindow)) {
+                this.history_window = new NewTabWindow (browser);
             }
         }
         var hw = this.history_window as HistoryWindow;
@@ -199,7 +240,29 @@ private class HistoryList : Midori.Extension {
         action.set_accel_group (acg);
         action.connect_accelerator ();
 
+        action = new Gtk.Action ("HistoryListNextNewTab",
+            _("Next new Tab (History List)"),
+            _("Next new tab from history"), null);
+        action.activate.connect ((a) => {
+            this.walk (a, browser, typeof (NewTabWindow), 1);
+        });
+        action_group.add_action_with_accel (action, "<Ctrl>1");
+        action.set_accel_group (acg);
+        action.connect_accelerator ();
+
+        action = new Gtk.Action ("HistoryListPreviousNewTab",
+            _("Previous new Tab (History List)"),
+            _("Previous new tab from history"), null);
+        action.activate.connect ((a) => {
+            this.walk (a, browser, typeof (NewTabWindow), -1);
+        });
+        action_group.add_action_with_accel (action, "<Ctrl>2");
+        action.set_accel_group (acg);
+        action.connect_accelerator ();
+
         browser.set_data<GLib.PtrArray*> ("history-list-tab-history",
+                                          new GLib.PtrArray ());
+        browser.set_data<GLib.PtrArray*> ("history-list-tab-history-new",
                                           new GLib.PtrArray ());
         foreach (var tab in browser.get_tabs ())
             tab_added (browser, tab);
@@ -223,12 +286,14 @@ private class HistoryList : Midori.Extension {
         browser.notify["tab"].disconnect (this.tab_changed);
     }
     void tab_added (Midori.Browser browser, Midori.View view) {
-        unowned GLib.PtrArray list = browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+        unowned GLib.PtrArray list = browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
         list.add (view);
     }
     void tab_removed (Midori.Browser browser, Midori.View view) {
         unowned GLib.PtrArray list = browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+        unowned GLib.PtrArray list_new = browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
         list.remove (view);
+        list_new.remove (view);
     }
     void tab_changed (GLib.Object window, GLib.ParamSpec pspec) {
         Midori.Browser browser = window as Midori.Browser;
@@ -236,7 +301,9 @@ private class HistoryList : Midori.Extension {
         browser.get ("tab", ref view);
 
         unowned GLib.PtrArray list = browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+        unowned GLib.PtrArray list_new = browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
         list.remove (view);
+        list_new.remove (view);
         list.add (view);
     }
     void activated (Midori.App app) {
