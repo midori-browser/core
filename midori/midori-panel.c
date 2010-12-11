@@ -30,8 +30,6 @@ struct _MidoriPanel
 
     GtkWidget* labelbar;
     GtkWidget* toolbar;
-    GtkToolItem* button_align;
-    GtkToolItem* button_detach;
     GtkToolItem* button_controls;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
@@ -210,6 +208,8 @@ midori_panel_class_init (MidoriPanelClass* class)
     * Whether to align the panel on the right.
     *
     * Since: 0.1.3
+    *
+    * Deprecated: 0.3.0
     */
     g_object_class_install_property (gobject_class,
                                      PROP_RIGHT_ALIGNED,
@@ -338,29 +338,9 @@ midori_panel_detach_page (MidoriPanel* panel,
     midori_panel_set_current_page (panel, n > 0 ? n - 1 : 0);
     toolitem = gtk_toolbar_get_nth_item (GTK_TOOLBAR (panel->toolbar),
                                          n > 0 ? n - 1 : 0);
-    if (!gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
-        gtk_widget_set_sensitive (GTK_WIDGET (panel->button_detach), FALSE);
     g_signal_connect (window, "delete-event",
         G_CALLBACK (midori_panel_detached_window_delete_event_cb), panel);
     gtk_widget_show (window);
-}
-
-static void
-midori_panel_button_detach_clicked_cb (GtkWidget*   toolbutton,
-                                       MidoriPanel* panel)
-{
-    /* FIXME: What happens when the browser is destroyed? */
-    /* FIXME: What about multiple browsers? */
-    /* FIXME: Should we remember if the child was detached? */
-    gint n = midori_panel_get_current_page (panel);
-    midori_panel_detach_page (panel, n);
-}
-
-static void
-midori_panel_button_align_clicked_cb (GtkWidget*   toolitem,
-                                      MidoriPanel* panel)
-{
-    midori_panel_set_right_aligned (panel, !panel->right_aligned);
 }
 
 static void
@@ -405,33 +385,6 @@ midori_panel_init (MidoriPanel* panel)
     gtk_container_add (GTK_CONTAINER (toolitem), panel->toolbar_label);
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
-    toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_FULLSCREEN);
-    gtk_widget_set_sensitive (GTK_WIDGET (toolitem), FALSE);
-    panel->button_detach = toolitem;
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem),
-        _("Detach chosen panel from the window"));
-    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem),
-        _("Detach chosen panel from the window"));
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (midori_panel_button_detach_clicked_cb), panel);
-    #if HAVE_OSX
-    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, 0);
-    #else
-    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
-    #endif
-    toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD);
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem),
-        _("Align sidepanel to the right"));
-    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem),
-        _("Align sidepanel to the right"));
-    g_signal_connect (toolitem, "clicked",
-        G_CALLBACK (midori_panel_button_align_clicked_cb), panel);
-    #if HAVE_OSX
-    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, 0);
-    #else
-    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
-    #endif
-    panel->button_align = toolitem;
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close panel"));
     gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), _("Close panel"));
@@ -589,15 +542,7 @@ midori_panel_set_right_aligned (MidoriPanel* panel,
     box = gtk_widget_get_parent (panel->toolbar);
     gtk_box_reorder_child (GTK_BOX (box), panel->toolbar,
         right_aligned ? -1 : 0);
-    gtk_tool_button_set_stock_id (GTK_TOOL_BUTTON (panel->button_align),
-        right_aligned ? GTK_STOCK_GO_BACK : GTK_STOCK_GO_FORWARD);
     panel->right_aligned = right_aligned;
-    gtk_tool_button_set_label (GTK_TOOL_BUTTON (panel->button_align),
-        !panel->right_aligned ? _("Align sidepanel to the right")
-            : _("Align sidepanel to the left"));
-    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (panel->button_align),
-        !panel->right_aligned ? _("Align sidepanel to the right")
-            : _("Align sidepanel to the left"));
     g_object_notify (G_OBJECT (panel), "right-aligned");
 }
 
@@ -643,9 +588,6 @@ midori_panel_construct_tool_item (MidoriPanel*    panel,
     gtk_toolbar_insert (GTK_TOOLBAR (panel->toolbar), GTK_TOOL_ITEM (toolitem), -1);
     g_signal_connect (viewable, "destroy",
                       G_CALLBACK (midori_panel_widget_destroy_cb), toolitem);
-
-    if (gtk_notebook_get_n_pages (GTK_NOTEBOOK (panel->notebook)))
-        gtk_widget_set_sensitive (GTK_WIDGET (panel->button_detach), TRUE);
 
     return GTK_TOOL_ITEM (toolitem);
 }
