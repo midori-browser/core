@@ -366,6 +366,8 @@
 
     var setSize = function ()
     {
+        if (typeof sc.width == 'undefined')
+            sc.width = 3;
         var rows = Math.ceil (sc.shortcuts.length / sc.width);
         var size = prompt ("{enter_dial_size}", sc.width + 'x' + rows);
 
