@@ -2201,13 +2201,45 @@ static void
 _action_add_desktop_shortcut_activate (GtkAction*     action,
                                        MidoriBrowser* browser)
 {
-    #if defined (GDK_WINDOWING_X11)
+    #if HAVE_HILDON
     /* TODO: Implement */
+    #elif defined (GDK_WINDOWING_X11)
+    GtkWidget* tab = midori_browser_get_current_tab (browser);
+    KatzeItem* item = midori_view_get_proxy_item (MIDORI_VIEW (tab));
+    const gchar* app_name = katze_item_get_name (item);
+    gchar* app_exec = g_strconcat ("midori -a ", katze_item_get_uri (item), NULL);
+    const gchar* icon_uri = midori_view_get_icon_uri (MIDORI_VIEW (tab));
+    gchar* app_icon;
+    GKeyFile* keyfile = g_key_file_new ();
+    gchar* filename = g_strconcat (app_name, ".desktop", NULL);
+    gchar* app_dir;
+    int i = 0;
+    while (filename[i] != '\0')
+    {
+        if (filename[i] == '/')
+            filename[i] = '_';
+        i++;
+    }
+    app_dir = g_build_filename (g_get_home_dir (), ".local", "share",
+                                "applications", filename, NULL);
+    app_icon = katze_net_get_cached_path (NULL, icon_uri, "icons");
+    if (!g_file_test (app_icon, G_FILE_TEST_EXISTS))
+        katze_assign (app_icon, g_strdup (STOCK_WEB_BROWSER));
+    g_key_file_set_string (keyfile, "Desktop Entry", "Version", "1.0");
+    g_key_file_set_string (keyfile, "Desktop Entry", "Type", "Application");
+    g_key_file_set_string (keyfile, "Desktop Entry", "Name", app_name);
+    g_key_file_set_string (keyfile, "Desktop Entry", "Exec", app_exec);
+    g_key_file_set_string (keyfile, "Desktop Entry", "TryExec", "midori");
+    g_key_file_set_string (keyfile, "Desktop Entry", "Icon", app_icon);
+    g_key_file_set_string (keyfile, "Desktop Entry", "Categories", "Network;");
+    sokoke_key_file_save_to_file (keyfile, app_dir, NULL);
+    g_free (app_dir);
+    g_free (filename);
+    g_free (app_exec);
+    g_key_file_free (keyfile);
     #elif defined(GDK_WINDOWING_QUARTZ)
     /* TODO: Implement */
     #elif defined (GDK_WINDOWING_WIN32)
-    /* TODO: Implement */
-    #elif HAVE_HILDON
     /* TODO: Implement */
     #endif
 }
@@ -4781,7 +4813,7 @@ static const GtkActionEntry entries[] =
         N_("Add to Speed _dial"), "<Ctrl>h",
         N_("Add shortcut to speed dial"), G_CALLBACK (_action_add_speed_dial_activate) },
     { "AddDesktopShortcut", NULL,
-        N_("Add Shortcut to the _desktop"), "<Ctrl>h",
+        N_("Add Shortcut to the _desktop"), "<Ctrl>j",
         N_("Add shortcut to the desktop"), G_CALLBACK (_action_add_desktop_shortcut_activate) },
     { "AddNewsFeed", NULL,
         N_("Subscribe to News _feed"), NULL,
@@ -5741,8 +5773,9 @@ midori_browser_init (MidoriBrowser* browser)
     #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_visible (browser, "LastSession", FALSE);
-    /* FIXME: Show once implemented */
+    #if !HAVE_HILDON && !defined (GDK_WINDOWING_X11)
     _action_set_visible (browser, "AddDesktopShortcut", FALSE);
+    #endif
 
     _action_set_visible (browser, "Bookmarks", browser->bookmarks != NULL);
     _action_set_visible (browser, "BookmarkAdd", browser->bookmarks != NULL);
