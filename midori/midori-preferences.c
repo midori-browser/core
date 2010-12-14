@@ -415,8 +415,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button);
     #if WEBKIT_CHECK_VERSION (1, 1, 6)
     button = katze_property_proxy (settings, "enable-spell-checking", NULL);
-    gtk_button_set_label (GTK_BUTTON (button), _("Enable Spell Checking"));
-    gtk_widget_set_tooltip_text (button, _("Enable spell checking while typing"));
     #else
     button = katze_property_proxy (settings, "enforce-96-dpi", NULL);
     gtk_button_set_label (GTK_BUTTON (button), _("Enforce 96 dots per inch"));

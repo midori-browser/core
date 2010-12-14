@@ -151,6 +151,7 @@ enum
     PROP_ENABLE_SCRIPTS,
     PROP_ENABLE_PLUGINS,
     PROP_ENABLE_DEVELOPER_EXTRAS,
+    PROP_ENABLE_SPELL_CHECKING,
     PROP_ENABLE_HTML5_DATABASE,
     PROP_ENABLE_HTML5_LOCAL_STORAGE,
     PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE,
@@ -884,6 +885,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Enable special extensions for developers",
                                      TRUE,
                                      flags));
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_SPELL_CHECKING,
+                                     g_param_spec_boolean ("enable-spell-checking",
+                                                           _("Enable Spell Checking"),
+                                                           _("Enable spell checking while typing"),
+                                                           TRUE,
+                                                           flags));
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 8)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_HTML5_DATABASE,
@@ -1456,6 +1466,12 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-developer-extras",
                       g_value_get_boolean (value), NULL);
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    case PROP_ENABLE_SPELL_CHECKING:
+        g_object_set (web_settings, "WebKitWebSettings::enable-spell-checking",
+                      g_value_get_boolean (value), NULL);
+        break;
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 8)
     case PROP_ENABLE_HTML5_DATABASE:
         g_object_set (web_settings, "WebKitWebSettings::enable-html5-database",
@@ -1701,6 +1717,12 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-developer-extras"));
         break;
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    case PROP_ENABLE_SPELL_CHECKING:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+                             "WebKitWebSettings::enable-spell-checking"));
+        break;
+    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 8)
     case PROP_ENABLE_HTML5_DATABASE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
