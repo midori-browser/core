@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 André Stösel <Midori-Plugin@PyIT.de>
+   Copyright (C) 2010 André Stösel <andre@stoesel.de>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -187,6 +187,13 @@ private class HistoryList : Midori.Extension {
         return false;
     }
     public void walk (Gtk.Action action, Browser browser, Type type, int step) {
+        Midori.View? view = null;
+        view = browser.get_data<Midori.View?> ("history-list-last-change");
+        if (view != null) {
+            this.tab_list_resort (browser, view);
+            browser.set_data<Midori.View?> ("history-list-last-change", null);
+        }
+
         if (this.history_window == null || this.history_window.get_type () != type) {
             if (this.history_window == null) {
                 this.modifier_count = Midori.Sokoke.gtk_action_count_modifiers (action);
@@ -264,6 +271,8 @@ private class HistoryList : Midori.Extension {
                                           new GLib.PtrArray ());
         browser.set_data<GLib.PtrArray*> ("history-list-tab-history-new",
                                           new GLib.PtrArray ());
+        browser.set_data<Midori.View?> ("history-list-last-change", null);
+
         foreach (var tab in browser.get_tabs ())
             tab_added (browser, tab);
         browser.add_tab.connect (tab_added);
@@ -271,7 +280,8 @@ private class HistoryList : Midori.Extension {
         browser.notify["tab"].connect (this.tab_changed);
     }
     void browser_removed (Midori.Browser browser) {
-        string[] callbacks = { "HistoryListNextTab", "HistoryListPreviousTab" };
+        string[] callbacks = { "HistoryListNextTab", "HistoryListPreviousTab",
+            "HistoryListNextNewTab", "HistoryListPreviousNewTab" };
 
         Gtk.ActionGroup action_group;
         action_group = browser.get_action_group ();
@@ -294,12 +304,28 @@ private class HistoryList : Midori.Extension {
         unowned GLib.PtrArray list_new = browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
         list.remove (view);
         list_new.remove (view);
+        browser.set_data<Midori.View?> ("history-list-last-change", null);
+
+        if ((int) list.len > 0 || (int) list_new.len > 0) {
+            var hw = new TabWindow (browser);
+            hw.make_update ();
+            hw.destroy ();
+        }
     }
     void tab_changed (GLib.Object window, GLib.ParamSpec pspec) {
         Midori.Browser browser = window as Midori.Browser;
         Midori.View view = null;
+        Midori.View last_view = null;
         browser.get ("tab", ref view);
 
+        last_view = browser.get_data<Midori.View?> ("history-list-last-change");
+
+        if (last_view != null) {
+            this.tab_list_resort (browser, last_view);
+        }
+        browser.set_data<Midori.View?> ("history-list-last-change", view);
+    }
+    void tab_list_resort (Midori.Browser browser, Midori.View view) {
         unowned GLib.PtrArray list = browser.get_data<GLib.PtrArray> ("history-list-tab-history");
         unowned GLib.PtrArray list_new = browser.get_data<GLib.PtrArray> ("history-list-tab-history-new");
         list.remove (view);
@@ -320,8 +346,8 @@ private class HistoryList : Midori.Extension {
     internal HistoryList () {
         GLib.Object (name: _("History List"),
                      description: _("Switch tabs with Ctrl+Tab sorted by last usage"),
-                     version: "0.2",
-                     authors: "André Stösel <Midori-Plugin@PyIT.de>");
+                     version: "0.3",
+                     authors: "André Stösel <andre@stoesel.de>");
         activate.connect (activated);
         deactivate.connect (deactivated);
     }
