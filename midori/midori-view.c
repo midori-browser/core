@@ -1805,6 +1805,12 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
 
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
 
+    /* Handle oddities in Russian keyboard layouts */
+    if (event->hardware_keycode == ';')
+        event->keyval = ',';
+    else if (event->hardware_keycode == '<')
+        event->keyval = '.';
+
     /* Find links by number: . to show links, type number, Return to go */
     if (event->keyval == '.'
      || (view->find_links > -1
