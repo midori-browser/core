@@ -471,6 +471,7 @@ midori_browser_update_history_title (MidoriBrowser* browser,
     g_return_if_fail (katze_item_get_uri (item) != NULL);
 
     db = g_object_get_data (G_OBJECT (browser->history), "db");
+    g_return_if_fail (db != NULL);
     if (!stmt)
     {
         const gchar* sqlcmd;
@@ -5327,6 +5328,7 @@ midori_browser_new_history_item (MidoriBrowser* browser,
     day = sokoke_time_t_to_julian (&now);
 
     db = g_object_get_data (G_OBJECT (browser->history), "db");
+    g_return_if_fail (db != NULL);
     if (!stmt)
     {
         const gchar* sqlcmd;
