@@ -1312,11 +1312,12 @@ midori_load_session (gpointer data)
         midori_browser_add_item (browser, item);
     }
     current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");
-    if (current < 0)
-        current = 0;
-    midori_browser_set_current_page (browser, current);
     if (!(item = katze_array_get_nth_item (_session, current)))
+    {
+        current = 0;
         item = katze_array_get_nth_item (_session, 0);
+    }
+    midori_browser_set_current_page (browser, current);
     if (!g_strcmp0 (katze_item_get_uri (item), ""))
         midori_browser_activate_action (browser, "Location");
 

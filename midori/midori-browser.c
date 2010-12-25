@@ -6876,7 +6876,13 @@ void
 midori_browser_set_current_page (MidoriBrowser* browser,
                                  gint           n)
 {
+    gint n_pages;
     GtkWidget* view;
+
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+
+    n_pages = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
+    g_return_if_fail (n < n_pages);
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
