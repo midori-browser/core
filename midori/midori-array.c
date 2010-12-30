@@ -295,17 +295,27 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
 
 static gboolean
 katze_array_from_opera_file (KatzeArray* array,
-                             FILE*       file)
+                             const gchar*  filename)
 {
-    gchar line[200];
-    gchar* partial_line = NULL;
+    gchar* line = NULL;
+    GIOChannel* channel = g_io_channel_new_file (filename, "r", 0);
     KatzeArray* folder = array;
     KatzeItem* item = NULL;
 
-    while (fgets (line, 200, file))
+    if (!channel)
+        return FALSE;
+
+    while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
+            == G_IO_STATUS_NORMAL)
     {
-        gboolean incomplete_line = (strlen (line) == 199);
         g_strstrip (line);
+        /* skip file header */
+        if (katze_str_equal (line, "Options: encoding = utf8, version=3")
+            || katze_str_equal (line, "Opera Hotlist version 2.0"))
+        {
+            item = NULL;
+            continue;
+        }
         if (line[0] == '\0')
         {
             item = NULL;
@@ -340,30 +350,7 @@ katze_array_from_opera_file (KatzeArray* array,
         }
         else if (item)
         {
-            gchar** parts;
-
-            /* Handle lines longer than 200 characters */
-            if (incomplete_line)
-            {
-                if (partial_line)
-                {
-                    gchar* chunk = g_strconcat (partial_line, line, NULL);
-                    katze_assign (partial_line, chunk);
-                }
-                else
-                    partial_line = g_strdup (line);
-                continue;
-            }
-
-            if (partial_line)
-            {
-                gchar* full_line = g_strconcat (partial_line, line, NULL);
-                katze_assign (partial_line, NULL);
-                parts = g_strsplit (full_line, "=", 2);
-                g_free (full_line);
-            }
-            else
-                parts = g_strsplit (line, "=", 2);
+            gchar** parts = g_strsplit (line, "=", 2);
 
             if (parts && parts[0] && parts[1])
             {
@@ -392,6 +379,8 @@ katze_array_from_opera_file (KatzeArray* array,
         else
             g_warning ("Unexpected property outside of element: %s", line);
     }
+    g_io_channel_shutdown (channel, FALSE, 0);
+    g_io_channel_unref (channel);
     return TRUE;
 }
 
@@ -454,7 +443,7 @@ midori_array_from_file (KatzeArray*  array,
                     verify++;
                 else if (verify == 2)
                 {
-                    if (!katze_array_from_opera_file (array, file))
+                    if (!katze_array_from_opera_file (array, filename))
                     {
                         /* Parsing failed */
                         fclose (file);
