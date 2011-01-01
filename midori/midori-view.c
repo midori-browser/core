@@ -2815,7 +2815,6 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
     {
         new_view = (MidoriView*)midori_view_new_with_title (NULL,
             view->settings, FALSE);
-        midori_view_construct_web_view (new_view);
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
     }
@@ -3112,6 +3111,8 @@ midori_view_init (MidoriView* view)
         G_CALLBACK (midori_view_notify_hadjustment_cb), view);
     g_signal_connect (view->scrolled_window, "notify::vadjustment",
         G_CALLBACK (midori_view_notify_vadjustment_cb), view);
+
+    midori_view_construct_web_view (view);
 }
 
 static void
@@ -3258,10 +3259,7 @@ midori_view_focus_in_event (GtkWidget*     widget,
 {
     MidoriView* view = MIDORI_VIEW (widget);
 
-    /* Always propagate focus to the child web view,
-     * create it if it's not there yet. */
-    if (!view->web_view)
-        midori_view_construct_web_view (view);
+    /* Always propagate focus to the child web view */
     gtk_widget_grab_focus (view->web_view);
     return TRUE;
 }
@@ -3715,9 +3713,6 @@ midori_view_set_uri (MidoriView*  view,
 
     if (g_getenv ("MIDORI_UNARMED") == NULL)
     {
-        if (!view->web_view)
-            midori_view_construct_web_view (view);
-
         if (view->speed_dial_in_new_tabs && !strcmp (uri, ""))
         {
             #if !WEBKIT_CHECK_VERSION (1, 1, 14)
