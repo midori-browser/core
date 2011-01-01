@@ -1861,10 +1861,11 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 "if (return_key || typeof links[i * 10] == 'undefined') {"
                 "    for (var j = 0; j < links.length; j++)"
                 "        links[j].style.display = 'none !important';"
-                "    links[i].parentNode.href; }",
+                "    if (typeof links[i] != 'undefined')"
+                "        links[i].parentNode.href; }",
                 view->find_links, event->keyval == GDK_Return);
             result = sokoke_js_script_eval (js_context, script, NULL);
-            if (strcmp (result, "undefined"))
+            if (result && strstr (result, "://"))
             {
                 view->find_links = -1;
                 if (MIDORI_MOD_NEW_TAB (event->state))
