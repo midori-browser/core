@@ -81,9 +81,9 @@ GtkWidget*
 midori_view_new                        (KatzeNet*          net);
 
 GtkWidget*
-midori_view_new_with_uri               (const gchar*       uri,
-                                        const gchar*       title,
-                                        MidoriWebSettings* settings);
+midori_view_new_with_title             (const gchar*       title,
+                                        MidoriWebSettings* settings,
+                                        gboolean           append);
 
 void
 midori_view_set_settings               (MidoriView*        view,

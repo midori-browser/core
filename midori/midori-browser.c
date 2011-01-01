@@ -4401,10 +4401,11 @@ _action_tab_duplicate_activate (GtkAction*     action,
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
-    GtkWidget* new_view = midori_view_new_with_uri (
-        midori_view_get_display_uri (MIDORI_VIEW (view)),
-        NULL, browser->settings);
+    GtkWidget* new_view = midori_view_new_with_title (
+        NULL, browser->settings, FALSE);
+    const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     g_signal_emit_by_name (view, "new-view", new_view, where);
+    midori_view_set_uri (MIDORI_VIEW (new_view), uri);
 }
 
 static void
@@ -4749,8 +4750,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
     || */(event->type == GDK_BUTTON_PRESS && event->button == 2))
     {
         gint n;
-        GtkWidget* view = midori_view_new_with_uri ("", NULL, browser->settings);
-        g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
+        GtkWidget* view = midori_view_new_with_title (NULL, browser->settings, TRUE);
         n = midori_browser_add_tab (browser, view);
         midori_browser_set_current_page (browser, n);
 
@@ -6717,22 +6717,21 @@ midori_browser_add_item (MidoriBrowser* browser,
     if (!uri)
         uri = "about:blank";
     title = katze_item_get_name (item);
+    view = midori_view_new_with_title (title, browser->settings,
+        g_object_get_data (G_OBJECT (item), "midori-view-append") ? TRUE : FALSE);
+    page = midori_browser_add_tab (browser, view);
+
     /* Blank pages should not be delayed */
     if (katze_item_get_meta_integer (item, "delay") > 0
      && strcmp (uri, "about:blank") != 0)
     {
         gchar* new_uri = g_strdup_printf ("pause:%s", uri);
-        view = midori_view_new_with_uri (new_uri, title, browser->settings);
+        midori_view_set_uri (MIDORI_VIEW (view), new_uri);
         g_free (new_uri);
     }
     else
-        view = midori_view_new_with_uri (uri, title, browser->settings);
+        midori_view_set_uri (MIDORI_VIEW (view), uri);
 
-    /* FIXME: We should have public API for that */
-    if (g_object_get_data (G_OBJECT (item), "midori-view-append"))
-        g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
-
-    page = midori_browser_add_tab (browser, view);
     proxy_item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     if ((keys = katze_item_get_meta_keys (item)))
     {
@@ -6760,12 +6759,15 @@ midori_browser_add_uri (MidoriBrowser* browser,
                         const gchar*   uri)
 {
     GtkWidget* view;
+    gint n;
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (uri != NULL, -1);
 
-    view = midori_view_new_with_uri (uri, NULL, browser->settings);
-    return midori_browser_add_tab (browser, view);
+    view = midori_view_new_with_title (NULL, browser->settings, FALSE);
+    n = midori_browser_add_tab (browser, view);
+    midori_view_set_uri (MIDORI_VIEW (view), uri);
+    return n;
 }
 
 /**

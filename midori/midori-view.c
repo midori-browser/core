@@ -2813,8 +2813,8 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         new_view = view;
     else
     {
-        new_view = (MidoriView*)midori_view_new_with_uri (NULL, NULL,
-                                                          view->settings);
+        new_view = (MidoriView*)midori_view_new_with_title (NULL,
+            view->settings, FALSE);
         midori_view_construct_web_view (new_view);
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
@@ -3274,7 +3274,7 @@ midori_view_focus_in_event (GtkWidget*     widget,
  *
  * Return value: a new #MidoriView
  *
- * Deprecated: 0.2.8: Use midori_view_new_with_uri() instead.
+ * Deprecated: 0.2.8: Use midori_view_new_with_title() instead.
  **/
 GtkWidget*
 midori_view_new (KatzeNet* net)
@@ -3311,22 +3311,23 @@ _midori_view_update_settings (MidoriView* view)
 }
 
 /**
- * midori_view_new_with_uri:
+ * midori_view_new_with_title:
  * @uri: an URI string, or %NULL
  * @title: a title, or %NULL
  * @settings: a #MidoriWebSettings, or %NULL
+ * @append: if %TRUE, the view should be appended
  *
  * Creates a new view with the specified parameters that
  * is visible by default.
  *
  * Return value: a new #MidoriView
  *
- * Since: 0.2.8
+ * Since: 0.3.0
  **/
 GtkWidget*
-midori_view_new_with_uri (const gchar*       uri,
-                          const gchar*       title,
-                          MidoriWebSettings* settings)
+midori_view_new_with_title (const gchar*       title,
+                            MidoriWebSettings* settings,
+                            gboolean           append)
 {
     MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, NULL);
     view->title = g_strdup (title);
@@ -3339,8 +3340,8 @@ midori_view_new_with_uri (const gchar*       uri,
         g_signal_connect (settings, "notify",
                           G_CALLBACK (midori_view_settings_notify_cb), view);
     }
-    if (uri != NULL)
-        midori_view_set_uri (view, uri);
+    if (append)
+        g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
     gtk_widget_show ((GtkWidget*)view);
     return (GtkWidget*)view;
 }
@@ -3692,6 +3693,10 @@ midori_view_construct_web_view (MidoriView* view)
  * @view: a #MidoriView
  *
  * Opens the specified URI in the view.
+ *
+ * Since 0.3.0 a warning is shown if the view is not yet
+ * contained in a browser. This is because extensions
+ * can't monitor page loading if that happens.
  **/
 void
 midori_view_set_uri (MidoriView*  view,
@@ -3700,6 +3705,10 @@ midori_view_set_uri (MidoriView*  view,
     gchar* data;
 
     g_return_if_fail (MIDORI_IS_VIEW (view));
+
+    if (!gtk_widget_get_parent (GTK_WIDGET (view)))
+        g_warning ("Calling %s() before adding the view to a browser. This "
+                   "breaks extensions that monitor page loading.", G_STRFUNC);
 
     /* Treat "about:blank" and "" equally, see midori_view_is_blank(). */
     if (!uri || !strcmp (uri, "about:blank")) uri = "";
@@ -4254,10 +4263,11 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
                                              MidoriView* view)
 {
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
-    GtkWidget* new_view = midori_view_new_with_uri (
-        midori_view_get_display_uri (view),
-        NULL, view->settings);
+    GtkWidget* new_view = midori_view_new_with_title (
+        NULL, view->settings, FALSE);
+    const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+    midori_view_set_uri (MIDORI_VIEW (new_view), uri);
 }
 
 static void
@@ -5315,7 +5325,7 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
 
     if (!view->thumb_view)
     {
-        view->thumb_view = midori_view_new_with_uri (NULL, NULL, NULL);
+        view->thumb_view = midori_view_new_with_title (NULL, NULL, FALSE);
         gtk_container_add (GTK_CONTAINER (notebook), view->thumb_view);
         /* We use an empty label. It's not invisible but at least hard to spot. */
         label = gtk_event_box_new ();
