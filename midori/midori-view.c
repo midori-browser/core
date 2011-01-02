@@ -1611,28 +1611,33 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
 static void
 midori_view_ensure_link_uri (MidoriView* view,
                              gint        *x,
-                             gint        *y)
+                             gint        *y,
+                             GdkEventButton* event)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
     #if WEBKIT_CHECK_VERSION (1, 1, 15)
     if (view->web_view && gtk_widget_get_window (view->web_view))
     {
-        gint ex, ey;
-        GdkEventButton event;
+        GdkEventButton ev;
 
-        gdk_window_get_pointer (gtk_widget_get_window (view->web_view), &ex, &ey, NULL);
+        if (!event) {
+            gint ex, ey;
+            event = &ev;
+            gdk_window_get_pointer (gtk_widget_get_window (view->web_view), &ex, &ey, NULL);
+            event->x = ex;
+            event->y = ey;
+        }
+
         if (x != NULL)
-            *x = ex;
+            *x = event->x;
         if (y != NULL)
-            *y = ey;
+            *y = event->y;
 
-        event.x = ex;
-        event.y = ey;
         katze_object_assign (view->hit_test,
             g_object_ref (
             webkit_web_view_get_hit_test_result (
-            WEBKIT_WEB_VIEW (view->web_view), &event)));
+            WEBKIT_WEB_VIEW (view->web_view), event)));
         katze_assign (view->link_uri,
              katze_object_get_string (view->hit_test, "link-uri"));
     }
@@ -1654,7 +1659,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     gboolean background;
 
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
-    midori_view_ensure_link_uri (view, NULL, NULL);
+    midori_view_ensure_link_uri (view, NULL, NULL, event);
     link_uri = midori_view_get_link_uri (view);
 
     switch (event->button)
@@ -2248,7 +2253,7 @@ midori_view_populate_popup (MidoriView* view,
     gboolean is_image;
     gboolean is_media;
 
-    midori_view_ensure_link_uri (view, &x, &y);
+    midori_view_ensure_link_uri (view, &x, &y, NULL);
     context = katze_object_get_int (view->hit_test, "context");
     has_selection = context & WEBKIT_HIT_TEST_RESULT_CONTEXT_SELECTION;
     /* Ensure view->selected_text */
