@@ -420,7 +420,8 @@ sokoke_spawn_program (const gchar* command,
     g_return_val_if_fail (command != NULL, FALSE);
     g_return_val_if_fail (argument != NULL, FALSE);
 
-    if (!g_strstr_len (argument, 8, "://"))
+    if (!g_strstr_len (argument, 8, "://")
+     && !g_str_has_prefix (argument, "about:"))
     {
         gboolean success;
 
