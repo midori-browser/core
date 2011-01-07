@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-03 05:14+0000\n"
+"POT-Creation-Date: 2011-01-07 17:15+0000\n"
 "PO-Revision-Date: 2010-12-22 21:45+0100\n"
 "Last-Translator: Ivica Kolić <ikoli@yahoo.com>\n"
 "Language-Team: Croatian <>\n"
@@ -355,7 +355,7 @@ msgstr "Pokreni kao _web aplikaciju"
 #: ../midori/midori-browser.c:972
 #, c-format
 msgid "The file \"%s\" can't be saved in this folder."
-msgstr ""
+msgstr "Datoteka \"%s\" ne može biti spremljena u ovoj mapi."
 
 #: ../midori/midori-browser.c:974
 #, c-format
@@ -403,9 +403,9 @@ msgstr "Dodaj novu zabilješku"
 msgid "Empty"
 msgstr "Prazno"
 
-#: ../midori/midori-browser.c:3328 ../midori/sokoke.c:435
-#: ../midori/sokoke.c:445 ../midori/sokoke.c:473 ../midori/sokoke.c:502
-#: ../midori/sokoke.c:516
+#: ../midori/midori-browser.c:3328 ../midori/sokoke.c:436
+#: ../midori/sokoke.c:446 ../midori/sokoke.c:474 ../midori/sokoke.c:503
+#: ../midori/sokoke.c:517
 msgid "Could not run external program."
 msgstr "Ne mogu pokrenuti vanjski program"
 
@@ -488,11 +488,11 @@ msgid "Clear the following data:"
 msgstr "Očisti slijedeće podatke:"
 
 #. i18n: Browsing history, visited web pages
-#: ../midori/midori-browser.c:4303 ../midori/sokoke.c:1397
+#: ../midori/midori-browser.c:4303 ../midori/sokoke.c:1398
 msgid "_History"
 msgstr "_Povijest"
 
-#: ../midori/midori-browser.c:4308 ../midori/sokoke.c:1403
+#: ../midori/midori-browser.c:4308 ../midori/sokoke.c:1404
 msgid "_Closed Tabs"
 msgstr "_Zatvorene kartice"
 
@@ -516,7 +516,7 @@ msgstr "Ivica Kolić (zvacet) <ikoli@yahoo.com>"
 msgid "_File"
 msgstr "_Datoteka"
 
-#: ../midori/midori-browser.c:4798 ../midori/sokoke.c:1404
+#: ../midori/midori-browser.c:4798 ../midori/sokoke.c:1405
 msgid "New _Window"
 msgstr "Novi _prozor"
 
@@ -988,7 +988,7 @@ msgstr "Pokreni web pretraživanje"
 msgid "Reopen a previously closed tab or window"
 msgstr "Ponovno otvori prethodno zatvorenu karticu ili prozor"
 
-#: ../midori/midori-browser.c:5656 ../midori/sokoke.c:1393
+#: ../midori/midori-browser.c:5656 ../midori/sokoke.c:1394
 msgid "_Bookmarks"
 msgstr "_Zabilješke"
 
@@ -1031,7 +1031,7 @@ msgstr "Konfiguracija proširenja '%s' ne može biti učitana: %s\n"
 #: ../extensions/addons.c:1637
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr ""
+msgstr "Konfiguracija proširenja '%s' ne može biti spremljena: %s\n"
 
 #: ../midori/midori-locationaction.c:393
 #, c-format
@@ -1679,8 +1679,8 @@ msgstr "%s želi znati vašu lokaciju."
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:1395 ../midori/midori-view.c:4770
-#: ../midori/midori-view.c:4774
+#: ../midori/midori-view.c:1395 ../midori/midori-view.c:4774
+#: ../midori/midori-view.c:4778
 #, c-format
 msgid "Error - %s"
 msgstr "Greška - %s"
@@ -1901,15 +1901,15 @@ msgstr "Prikaži samo _ikone kartice"
 msgid "Close ot_her Tabs"
 msgstr "Zatvori dr_uge kartice"
 
-#: ../midori/midori-view.c:4948
+#: ../midori/midori-view.c:4952
 msgid "Print background images"
 msgstr "Ispis pozadinskih slika"
 
-#: ../midori/midori-view.c:4949
+#: ../midori/midori-view.c:4953
 msgid "Whether background images should be printed"
 msgstr ""
 
-#: ../midori/midori-view.c:4985 ../midori/midori-preferences.c:412
+#: ../midori/midori-view.c:4989 ../midori/midori-preferences.c:412
 msgid "Features"
 msgstr "Obilježja"
 
@@ -1941,11 +1941,11 @@ msgstr "Postavke fonta"
 
 #: ../midori/midori-preferences.c:383
 msgid "Default Font Family"
-msgstr ""
+msgstr "Zadana obitelj fonta"
 
 #: ../midori/midori-preferences.c:386
 msgid "The default font family used to display text"
-msgstr ""
+msgstr "Zadana obitelj fonta koje se koristi za prikaz teksta"
 
 #: ../midori/midori-preferences.c:389
 msgid "The default font size used to display text"
@@ -2105,43 +2105,43 @@ msgstr "Otvori pomoću"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Izaberite program ili naredbu za otvaranje \"%s\":"
 
-#: ../midori/sokoke.c:1392
+#: ../midori/sokoke.c:1393
 msgid "_Bookmark"
 msgstr "_Zabilješka"
 
-#: ../midori/sokoke.c:1394
+#: ../midori/sokoke.c:1395
 msgid "Add Boo_kmark"
 msgstr "Dodaj za_bilješku"
 
-#: ../midori/sokoke.c:1395
+#: ../midori/sokoke.c:1396
 msgid "_Console"
 msgstr ""
 
-#: ../midori/sokoke.c:1396
+#: ../midori/sokoke.c:1397
 msgid "_Extensions"
 msgstr "_Proširenja"
 
-#: ../midori/sokoke.c:1398
+#: ../midori/sokoke.c:1399
 msgid "_Homepage"
 msgstr "_Početna stranica"
 
-#: ../midori/sokoke.c:1399
+#: ../midori/sokoke.c:1400
 msgid "_Userscripts"
 msgstr "_Korisničke skripte"
 
-#: ../midori/sokoke.c:1400
+#: ../midori/sokoke.c:1401
 msgid "New _Tab"
 msgstr "Nova _kartica"
 
-#: ../midori/sokoke.c:1401
+#: ../midori/sokoke.c:1402
 msgid "_Transfers"
 msgstr "_Prijenosi"
 
-#: ../midori/sokoke.c:1402
+#: ../midori/sokoke.c:1403
 msgid "Netscape p_lugins"
 msgstr "Netscape p_riključci"
 
-#: ../midori/sokoke.c:1405
+#: ../midori/sokoke.c:1406
 msgid "New _Folder"
 msgstr "Nova _mapa"
 
