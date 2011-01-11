@@ -20,7 +20,7 @@
    Names should match with epiphany and/ or xdg spec */
 
 #define STOCK_BOOKMARK           "stock_bookmark"
-#define STOCK_BOOKMARKS          "vcard"
+#define STOCK_BOOKMARKS          "user-bookmarks"
 #define STOCK_CONSOLE            "terminal"
 #define STOCK_EXTENSION          "extension"
 #define STOCK_EXTENSIONS         "extension"
