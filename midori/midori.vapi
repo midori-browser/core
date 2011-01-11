@@ -107,6 +107,8 @@ namespace Midori {
     public class View : Gtk.VBox {
         [CCode (type = "GtkWidget*")]
         public View (GLib.Object net);
+        public View.with_title (string? title=null, WebSettings? settings=null
+            , bool append=false);
         public void set_uri (string uri);
         public bool is_blank ();
         public unowned string get_display_uri ();

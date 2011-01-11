@@ -59,6 +59,10 @@ midori_view_item_meta_data_changed (KatzeItem*   item,
                                     const gchar* key,
                                     MidoriView*  view);
 
+static void
+_midori_view_set_settings (MidoriView*        view,
+                           MidoriWebSettings* settings);
+
 struct _MidoriView
 {
     GtkVBox parent_instance;
@@ -470,7 +474,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "Title",
                                      "The title of the currently loaded page",
                                      NULL,
-                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+                                     flags));
 
     /**
      * MidoriView:security:
@@ -600,8 +604,9 @@ midori_view_class_init (MidoriViewClass* class)
 }
 
 static void
-midori_view_update_title (MidoriView* view)
+midori_view_set_title (MidoriView* view, const gchar* title)
 {
+    katze_assign (view->title, g_strdup (title));
     #ifndef G_OS_WIN32
     /* If left-to-right text is combined with right-to-left text the default
        behaviour of Pango can result in awkwardly aligned text. For example
@@ -1555,8 +1560,7 @@ webkit_web_view_notify_title_cb (WebKitWebView* web_view,
                                  MidoriView*    view)
 {
     const gchar* title = webkit_web_view_get_title (web_view);
-    katze_assign (view->title, g_strdup (title));
-    midori_view_update_title (view);
+    midori_view_set_title (view, title);
     g_object_notify (G_OBJECT (view), "title");
 }
 #else
@@ -3177,8 +3181,7 @@ midori_view_set_property (GObject*      object,
     switch (prop_id)
     {
     case PROP_TITLE:
-        katze_assign (view->title, g_value_dup_string (value));
-        midori_view_update_title (view);
+        midori_view_set_title (view, g_value_get_string (value));
         break;
     case PROP_MINIMIZED:
         view->minimized = g_value_get_boolean (value);
@@ -3198,7 +3201,7 @@ midori_view_set_property (GObject*      object,
         katze_assign (view->statusbar_text, g_value_dup_string (value));
         break;
     case PROP_SETTINGS:
-        midori_view_set_settings (view, g_value_get_object (value));
+        _midori_view_set_settings (view, g_value_get_object (value));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3286,9 +3289,24 @@ midori_view_new (KatzeNet* net)
 }
 
 static void
-_midori_view_update_settings (MidoriView* view)
+_midori_view_set_settings (MidoriView*        view,
+                           MidoriWebSettings* settings)
 {
     gboolean zoom_text_and_images, kinetic_scrolling;
+
+    if (view->settings)
+        g_signal_handlers_disconnect_by_func (view->settings,
+            midori_view_settings_notify_cb, view);
+
+    katze_object_assign (view->settings, settings);
+    if (!settings)
+        return;
+
+    g_object_ref (settings);
+    g_signal_connect (settings, "notify",
+                      G_CALLBACK (midori_view_settings_notify_cb), view);
+
+    g_object_set (view->web_view, "settings", settings, NULL);
 
     g_free (view->download_manager);
     g_free (view->news_aggregator);
@@ -3332,17 +3350,9 @@ midori_view_new_with_title (const gchar*       title,
                             MidoriWebSettings* settings,
                             gboolean           append)
 {
-    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, NULL);
-    view->title = g_strdup (title);
-    if (title != NULL)
-        midori_view_update_title (view);
+    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, "title", title, NULL);
     if (settings)
-    {
-        view->settings = g_object_ref (settings);
-        _midori_view_update_settings (view);
-        g_signal_connect (settings, "notify",
-                          G_CALLBACK (midori_view_settings_notify_cb), view);
-    }
+        _midori_view_set_settings (view, settings);
     if (append)
         g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
     gtk_widget_show ((GtkWidget*)view);
@@ -3410,25 +3420,12 @@ midori_view_set_settings (MidoriView*        view,
                           MidoriWebSettings* settings)
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
-    g_return_if_fail (!settings || MIDORI_IS_WEB_SETTINGS (settings));
+    g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
 
     if (view->settings == settings)
         return;
 
-    if (view->settings)
-        g_signal_handlers_disconnect_by_func (view->settings,
-            midori_view_settings_notify_cb, view);
-
-    katze_object_assign (view->settings, settings);
-    if (settings)
-    {
-        g_object_ref (settings);
-        if (view->web_view)
-            g_object_set (view->web_view, "settings", settings, NULL);
-        _midori_view_update_settings (view);
-        g_signal_connect (settings, "notify",
-            G_CALLBACK (midori_view_settings_notify_cb), view);
-    }
+    _midori_view_set_settings (view, settings);
     g_object_notify (G_OBJECT (view), "settings");
 }
 
@@ -5340,7 +5337,7 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
     thumb_view = view->thumb_view;
     settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
         "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
-    midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
+    _midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
 
     g_object_set_data (G_OBJECT (thumb_view), "dom-id", dom_id);
     g_signal_connect (thumb_view, "notify::load-status",
