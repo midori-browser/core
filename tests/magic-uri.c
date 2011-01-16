@@ -161,8 +161,8 @@ static void
 magic_uri_search (void)
 {
     test_input ("sm midori", SM "midori");
-    test_input ("sm cats dogs", SM "cats dogs");
-    test_input ("se cats dogs", SM "cats dogs");
+    test_input ("sm cats dogs", SM "cats%20dogs");
+    test_input ("se cats dogs", SM "cats%20dogs");
     test_input ("dict midori", NULL);
     test_input ("cats", NULL);
     test_input ("cats dogs", NULL);
@@ -185,9 +185,9 @@ magic_uri_search (void)
     test_input ("de.po verbose", NULL);
     test_input ("verbose de.po", NULL);
     test_input ("g de.po verbose", NULL);
-    test_input ("sm de.po verbose", SM "de.po verbose");
+    test_input ("sm de.po verbose", SM "de.po%20verbose");
     test_input ("sm warning: configure /dev/net: virtual",
-                SM "warning: configure /dev/net: virtual");
+                SM "warning:%20configure%20/dev/net:%20virtual");
     test_input ("g \"ISO 9001:2000 certified\"", NULL);
     test_input ("g conference \"April 2, 7:00 am\"", NULL);
     test_input ("max@mustermann.de", NULL);
