@@ -459,7 +459,7 @@ midori_history_set_app (MidoriHistory* history,
         gtk_tree_store_clear (GTK_TREE_STORE (model));
     }
 
-    katze_assign (history->app, app);
+    katze_object_assign (history->app, app);
     if (!app)
         return;
     g_object_ref (app);

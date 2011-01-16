@@ -39,7 +39,9 @@ browser_create (void)
         if (g_strcmp0 (gtk_action_get_name (action), "WindowClose"))
             if (g_strcmp0 (gtk_action_get_name (action), "EncodingCustom"))
                 if (g_strcmp0 (gtk_action_get_name (action), "AddSpeedDial"))
-                    gtk_action_activate (action);
+                    if (g_strcmp0 (gtk_action_get_name (action), "PrivateBrowsing"))
+                        if (g_strcmp0 (gtk_action_get_name (action), "AddDesktopShortcut"))
+                            gtk_action_activate (action);
         actions = g_list_next (actions);
     }
     g_list_free (actions);

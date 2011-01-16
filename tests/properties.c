@@ -133,11 +133,14 @@ properties_object_get_set (GObject* object)
                     G_PARAM_SPEC_ENUM (pspec)->default_value, NULL);
                 for (k = enum_class->minimum; k < enum_class->maximum; k++)
                 {
-                    GEnumValue* enum_value = g_enum_get_value (enum_class, k);
+                    GEnumValue* enum_value;
+                    GEnumValue* enum_value_;
+
+                    enum_value = g_enum_get_value (enum_class, k);
                     if (!enum_value)
                         g_error ("%s.%s has no value %d",
                             G_OBJECT_TYPE_NAME (object), property, k);
-                    GEnumValue* enum_value_ = g_enum_get_value_by_name (enum_class,
+                    enum_value_ = g_enum_get_value_by_name (enum_class,
                         enum_value->value_name);
                     if (!enum_value)
                         g_error ("%s.%s has no value '%s'",
