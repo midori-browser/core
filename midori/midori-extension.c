@@ -566,7 +566,8 @@ midori_extension_get_config_dir (MidoriExtension* extension)
     if (!extension->priv->config_dir)
     {
         gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-        g_return_val_if_fail (filename != NULL, NULL);
+        if (!filename)
+            return "/";
         extension->priv->config_dir = g_build_filename (
             sokoke_set_config_dir (NULL), "extensions", filename, NULL);
     }
