@@ -237,6 +237,8 @@ main (int    argc,
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
     if (!g_thread_supported ()) g_thread_init (NULL);
+    soup_session_add_feature_by_type (webkit_get_default_session (),
+        SOUP_TYPE_COOKIE_JAR);
 
     g_test_add_func ("/extensions/create", extension_create);
     g_test_add_func ("/extensions/settings", extension_settings);
