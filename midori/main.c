@@ -494,44 +494,8 @@ midori_bookmarks_add_item_cb (KatzeArray* array,
                               KatzeItem*  item,
                               sqlite3*    db)
 {
-    gchar* sqlcmd;
-    char* errmsg = NULL;
-    KatzeItem* old_parent;
-    const gchar* uri;
-    const gchar* folder = katze_item_get_meta_string (item, "folder");
-    const gchar* parent;
-
-    if (KATZE_ITEM_IS_BOOKMARK (item))
-        uri = katze_item_get_uri (item);
-    else
-        uri = "";
-
-    /* Use folder, otherwise fallback to parent folder */
-    old_parent = katze_item_get_parent (item);
-    if (folder && *folder)
-        parent = folder;
-    else if (old_parent && katze_item_get_name (old_parent))
-        parent = katze_item_get_name (old_parent);
-    else
-        parent = "";
-
-    sqlcmd = sqlite3_mprintf (
-            "INSERT into bookmarks (uri, title, desc, folder, toolbar, app) values"
-            " ('%q', '%q', '%q', '%q', %d, %d)",
-            uri,
-            katze_item_get_name (item),
-            katze_item_get_text (item),
-            parent,
-            katze_item_get_meta_boolean (item, "toolbar"),
-            katze_item_get_meta_boolean (item, "app"));
-
-    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
-    {
-        g_printerr (_("Failed to add bookmark item: %s\n"), errmsg);
-        sqlite3_free (errmsg);
-    }
-
-    sqlite3_free (sqlcmd);
+    midori_bookmarks_insert_item_db (db, item,
+        katze_item_get_meta_string (item, "folder"));
 }
 
 static void

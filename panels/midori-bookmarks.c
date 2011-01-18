@@ -162,8 +162,7 @@ midori_bookmarks_import_array_db (sqlite3*     db,
     {
         if (KATZE_IS_ARRAY (item))
             midori_bookmarks_import_array_db (db, KATZE_ARRAY (item), folder);
-        katze_item_set_meta_string (item, "folder", folder);
-        katze_array_add_item (array, item);
+        midori_bookmarks_insert_item_db (db, item, folder);
     }
     g_list_free (list);
 }
@@ -230,6 +229,52 @@ midori_bookmarks_read_from_db_to_model (MidoriBookmarks* bookmarks,
         gtk_tree_store_remove (model, &child);
     else
         g_object_unref (item);
+}
+
+void
+midori_bookmarks_insert_item_db (sqlite3*     db,
+                                 KatzeItem*   item,
+                                const gchar* folder)
+{
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+    KatzeItem* old_parent;
+    gchar* parent;
+    gchar* uri;
+
+    if (KATZE_ITEM_IS_BOOKMARK (item))
+        uri = g_strdup (katze_item_get_uri (item));
+    else
+        uri = g_strdup ("");
+
+    /* Use folder, otherwise fallback to parent folder */
+    old_parent = katze_item_get_parent (item);
+    if (folder && *folder)
+        parent = g_strdup (folder);
+    else if (old_parent && katze_item_get_name (old_parent))
+        parent = g_strdup (katze_item_get_name (old_parent));
+    else
+        parent = g_strdup ("");
+
+    sqlcmd = sqlite3_mprintf (
+            "INSERT into bookmarks (uri, title, desc, folder, toolbar, app) values"
+            " ('%q', '%q', '%q', '%q', %d, %d)",
+            uri,
+            katze_item_get_name (item),
+            katze_item_get_text (item),
+            parent,
+            katze_item_get_meta_boolean (item, "toolbar"),
+            katze_item_get_meta_boolean (item, "app"));
+
+    if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
+    {
+        g_printerr (_("Failed to add bookmark item: %s\n"), errmsg);
+        sqlite3_free (errmsg);
+    }
+
+    g_free (uri);
+    g_free (parent);
+    sqlite3_free (sqlcmd);
 }
 
 static void
