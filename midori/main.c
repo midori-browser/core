@@ -494,6 +494,9 @@ midori_bookmarks_add_item_cb (KatzeArray* array,
                               KatzeItem*  item,
                               sqlite3*    db)
 {
+    g_return_if_fail (!katze_item_get_name (item)
+                   && !katze_item_get_uri (item));
+
     midori_bookmarks_insert_item_db (db, item,
         katze_item_get_meta_string (item, "folder"));
 }
