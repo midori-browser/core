@@ -4118,6 +4118,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
                 g_error_free (error);
         }
         midori_bookmarks_import_array_db (db, browser->bookmarks, selected);
+        katze_array_update (browser->bookmarks);
         g_free (selected);
         g_free (path);
     }

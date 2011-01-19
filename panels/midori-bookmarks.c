@@ -310,6 +310,17 @@ midori_bookmarks_remove_item_cb (KatzeArray*      array,
 }
 
 static void
+midori_bookmarks_update_cb (KatzeArray*      array,
+                            MidoriBookmarks* bookmarks)
+{
+    GtkTreeModel* model = gtk_tree_view_get_model (GTK_TREE_VIEW (bookmarks->treeview));
+    gtk_tree_store_clear (GTK_TREE_STORE (model));
+    midori_bookmarks_read_from_db_to_model (bookmarks,
+        GTK_TREE_STORE (model), NULL, NULL, bookmarks->filter);
+}
+
+
+static void
 midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
                                  GtkTreePath*     path,
                                  GtkTreeIter*     iter,
@@ -498,6 +509,8 @@ midori_bookmarks_set_app (MidoriBookmarks* bookmarks,
                       G_CALLBACK (midori_bookmarks_add_item_cb), bookmarks);
     g_signal_connect (bookmarks->array, "remove-item",
                       G_CALLBACK (midori_bookmarks_remove_item_cb), bookmarks);
+    g_signal_connect (bookmarks->array, "update",
+                      G_CALLBACK (midori_bookmarks_update_cb), bookmarks);
     g_signal_connect_after (model, "row-changed",
                             G_CALLBACK (midori_bookmarks_row_changed_cb),
                             bookmarks);

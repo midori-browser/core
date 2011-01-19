@@ -119,6 +119,9 @@ extern GList* kalistglobal;
 void
 katze_array_clear                  (KatzeArray*   array);
 
+void
+katze_array_update                 (KatzeArray*   array);
+
 G_END_DECLS
 
 #endif /* __KATZE_ARRAY_H__ */

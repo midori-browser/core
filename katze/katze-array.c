@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2011 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -50,6 +50,9 @@ struct _KatzeArrayClass
                                gint        index);
     void
     (*clear)                  (KatzeArray* array);
+
+    void
+    (*update)                 (KatzeArray* array);
 };
 
 G_DEFINE_TYPE (KatzeArray, katze_array, KATZE_TYPE_ITEM);
@@ -59,6 +62,7 @@ enum {
     REMOVE_ITEM,
     MOVE_ITEM,
     CLEAR,
+    UPDATE,
 
     LAST_SIGNAL
 };
@@ -170,6 +174,25 @@ katze_array_class_init (KatzeArrayClass* class)
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         G_STRUCT_OFFSET (KatzeArrayClass, clear),
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0);
+
+    /**
+     * KatzeArray::update:
+     * @array: the object on which the signal is emitted
+     *
+     * The array changed and any display widgets should
+     * be updated.
+     *
+     * Since: 0.3.0
+     **/
+    signals[UPDATE] = g_signal_new (
+        "update",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
         0,
         NULL,
         g_cclosure_marshal_VOID__VOID,
@@ -484,4 +507,21 @@ katze_array_clear (KatzeArray* array)
     g_return_if_fail (KATZE_IS_ARRAY (array));
 
     g_signal_emit (array, signals[CLEAR], 0);
+}
+
+/**
+ * katze_array_update:
+ * @array: a #KatzeArray
+ *
+ * Indicates that the array changed and any display
+ * widgets should be updated.
+ *
+ * Since: 0.3.0
+ **/
+void
+katze_array_update (KatzeArray* array)
+{
+    g_return_if_fail (KATZE_IS_ARRAY (array));
+
+    g_signal_emit (array, signals[UPDATE], 0);
 }
