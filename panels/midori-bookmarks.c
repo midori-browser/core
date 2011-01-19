@@ -242,8 +242,8 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
     gchar* parent;
     gchar* uri;
 
-    g_return_if_fail (katze_item_get_name (item)
-                   && katze_item_get_uri (item));
+    /* Bookmarks must have a name, import may produce invalid items */
+    g_return_if_fail (katze_item_get_name (item));
 
     if (KATZE_ITEM_IS_BOOKMARK (item))
         uri = g_strdup (katze_item_get_uri (item));
