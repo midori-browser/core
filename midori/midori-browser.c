@@ -2221,7 +2221,7 @@ _action_add_desktop_shortcut_activate (GtkAction*     action,
             filename[i] = '_';
         i++;
     }
-    app_dir = g_build_filename (g_get_home_dir (), ".local", "share",
+    app_dir = g_build_filename (g_get_user_data_dir (),
                                 "applications", filename, NULL);
     app_icon = katze_net_get_cached_path (NULL, icon_uri, "icons");
     if (!g_file_test (app_icon, G_FILE_TEST_EXISTS))
