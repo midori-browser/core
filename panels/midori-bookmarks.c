@@ -131,12 +131,13 @@ midori_bookmarks_export_array_db (sqlite3*     db,
     KatzeArray* root_array;
     KatzeArray* subarray;
     KatzeItem* item;
+    GList* list;
 
     sqlcmd = g_strdup_printf ("SELECT * FROM bookmarks where folder='%s'", folder);
     root_array = katze_array_from_sqlite (db, sqlcmd);
     g_free (sqlcmd);
 
-    KATZE_ARRAY_FOREACH_ITEM (item, root_array)
+    KATZE_ARRAY_FOREACH_ITEM_L (item, root_array, list)
     {
         if (KATZE_ITEM_IS_FOLDER (item))
         {
@@ -148,6 +149,7 @@ midori_bookmarks_export_array_db (sqlite3*     db,
         else
             katze_array_add_item (array, item);
     }
+    g_list_free (list);
 }
 
 void
