@@ -4134,6 +4134,7 @@ _action_bookmarks_export_activate (GtkAction*     action,
     gchar* path = NULL;
     GError* error;
     sqlite3* db;
+    KatzeArray* bookmarks;
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
@@ -4151,14 +4152,16 @@ _action_bookmarks_export_activate (GtkAction*     action,
 
     error = NULL;
     db = g_object_get_data (G_OBJECT (browser->history), "db");
-    midori_bookmarks_export_array_db (db, browser->bookmarks, "");
-    if (!midori_array_to_file (browser->bookmarks, path, "xbel", &error))
+    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
+    midori_bookmarks_export_array_db (db, bookmarks, "");
+    if (!midori_array_to_file (bookmarks, path, "xbel", &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
             _("Failed to export bookmarks"), error ? error->message : "");
         if (error)
             g_error_free (error);
     }
+    g_object_unref (bookmarks);
     g_free (path);
 }
 
