@@ -4004,6 +4004,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     gint icon_width = 16;
     guint i;
     KatzeItem* item;
+    KatzeArray* bookmarks;
     sqlite3* db;
     const gchar* sqlcmd;
     KatzeArray* bookmarkdirs;
@@ -4110,15 +4111,17 @@ _action_bookmarks_import_activate (GtkAction*     action,
         }
 
         error = NULL;
-        if (path && !midori_array_from_file (browser->bookmarks, path, NULL, &error))
+        bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
+        if (path && !midori_array_from_file (bookmarks, path, NULL, &error))
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                 _("Failed to import bookmarks"), error ? error->message : "");
             if (error)
                 g_error_free (error);
         }
-        midori_bookmarks_import_array_db (db, browser->bookmarks, selected);
+        midori_bookmarks_import_array_db (db, bookmarks, selected);
         katze_array_update (browser->bookmarks);
+        g_object_unref (bookmarks);
         g_free (selected);
         g_free (path);
     }
