@@ -403,20 +403,21 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
 /* static */ GdkPixbuf*
 midori_search_action_get_icon (KatzeItem*    item,
                                GtkWidget*    widget,
-                               const gchar** icon_name)
+                               const gchar** icon_name,
+                               gboolean      in_entry)
 {
     const gchar* icon;
+    GdkScreen* screen;
+    GtkIconTheme* icon_theme;
 
     if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
         return katze_load_cached_icon (icon, widget);
 
+
+    screen = gtk_widget_get_screen (widget);
+    icon_theme = gtk_icon_theme_get_for_screen (screen);
     if ((icon = katze_item_get_icon (item)) && *icon)
     {
-        GdkScreen* screen;
-        GtkIconTheme* icon_theme;
-
-        screen = gtk_widget_get_screen (widget);
-        icon_theme = gtk_icon_theme_get_for_screen (screen);
         if (gtk_icon_theme_has_icon (icon_theme, icon))
         {
             *icon_name = icon;
@@ -424,7 +425,12 @@ midori_search_action_get_icon (KatzeItem*    item,
         }
     }
 
-    *icon_name = GTK_STOCK_FILE;
+    if (in_entry && gtk_icon_theme_has_icon (icon_theme, "edit-find-option-symbolic"))
+        *icon_name = "edit-find-option-symbolic";
+    else if (gtk_icon_theme_has_icon (icon_theme, "edit-find-option"))
+        *icon_name = "edit-find-option";
+    else
+        *icon_name = "edit-find";
     return NULL;
 }
 
@@ -455,7 +461,7 @@ midori_search_action_icon_released_cb (GtkWidget*           entry,
             menuitem = gtk_image_menu_item_new_with_label (
                 katze_item_get_name (item));
             image = gtk_image_new ();
-            icon = midori_search_action_get_icon (item, entry, &icon_name);
+            icon = midori_search_action_get_icon (item, entry, &icon_name, FALSE);
             if (icon)
             {
                 gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
@@ -520,7 +526,7 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
         const gchar* icon_name;
 
         icon = midori_search_action_get_icon (search_action->current_item,
-                                              entry, &icon_name);
+                                              entry, &icon_name, TRUE);
         if (icon)
         {
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
@@ -825,7 +831,7 @@ midori_search_action_dialog_render_icon_cb (GtkTreeViewColumn* column,
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     search_action = g_object_get_data (G_OBJECT (treeview), "search-action");
-    if ((icon = midori_search_action_get_icon (item, treeview, &icon_name)))
+    if ((icon = midori_search_action_get_icon (item, treeview, &icon_name, FALSE)))
     {
         g_object_set (renderer, "pixbuf", icon, "yalign", 0.25, NULL);
         g_object_unref (icon);
