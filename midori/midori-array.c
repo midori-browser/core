@@ -294,6 +294,73 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
 }
 
 static gboolean
+katze_array_from_mozilla_file (KatzeArray*  array,
+                               const gchar* filename)
+{
+    gchar* line  = NULL;
+    GIOChannel* channel = g_io_channel_new_file (filename, "r", 0);
+    KatzeArray* folder  = array;
+    KatzeItem* item = NULL;
+
+    if (!channel)
+        return FALSE;
+
+    while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
+            == G_IO_STATUS_NORMAL)
+    {
+        g_strstrip (line);
+        /* parse lines with bookmarks data only, skip the rest */
+        if (!strncmp (line, "<D", 2) || !strncmp (line, "</D", 3))
+        {
+            gchar** element = g_strsplit_set (line, "<>", -1);
+            /* current item */
+            if (katze_str_equal (element[1], "DT"))
+            {
+                /* item is bookmark */
+                if (!strncmp (element[3], "A HREF", 6))
+                {
+                    gchar** parts = g_strsplit (line, "\"", -1);
+                    item = katze_item_new ();
+                    katze_array_add_item (folder, item);
+                    item->name = g_strdup (element[4]);
+                    item->uri = g_strdup (parts[1]);
+                    g_strfreev (parts);
+                }
+                /* item is folder */
+                if (!strncmp (element[3], "H3", 2))
+                {
+                    item = (KatzeItem*)katze_array_new (KATZE_TYPE_ARRAY);
+                    katze_array_add_item (folder, item);
+                    folder = (KatzeArray*)item;
+                    item->name = g_strdup (element[4]);
+                }
+            }
+            /* item description */
+            if (item && katze_str_equal (element[1], "DD"))
+            {
+                if (element[2])
+                    item->text = g_strdup (element[2]);
+                item = NULL;
+            }
+            /* end of current folder, level-up */
+            if (katze_str_equal (element[1], "/DL"))
+            {
+                if (folder != array)
+                    folder = katze_item_get_parent ((KatzeItem*)folder);
+                else
+                    g_warning ("A level-up although we are at the top level");
+                continue;
+            }
+            g_strfreev (element);
+        }
+        continue;
+    }
+    g_io_channel_shutdown (channel, FALSE, 0);
+    g_io_channel_unref (channel);
+    return TRUE;
+}
+
+static gboolean
 katze_array_from_opera_file (KatzeArray* array,
                              const gchar*  filename)
 {
@@ -421,6 +488,36 @@ midori_array_from_file (KatzeArray*  array,
 
     if (!format)
         format = "";
+
+    /* mozilla html */
+    if (!*format && g_str_has_suffix (filename, ".html"))
+    {
+        FILE* file;
+        if ((file = g_fopen (filename, "r")))
+        {
+            gchar line[50];
+            while (fgets (line, 50, file))
+            {
+                g_strstrip (line);
+                if (katze_str_equal (line, "<!DOCTYPE NETSCAPE-Bookmark-file-1>"))
+                {
+                    if (!katze_array_from_mozilla_file (array, filename))
+                    {
+                        /* Parsing failed */
+                        fclose (file);
+                        if (error)
+                            *error = g_error_new_literal (G_FILE_ERROR,
+                                    G_FILE_ERROR_FAILED, _("Malformed document."));
+                        return FALSE;
+                    }
+                    return TRUE;
+                }
+                else
+                    break;
+            }
+            fclose (file);
+        }
+    }
 
     /* Opera6 */
     if (katze_str_equal (format, "opera")
