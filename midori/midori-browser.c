@@ -4541,7 +4541,7 @@ _action_help_link_activate (GtkAction*     action,
     else if  (!strncmp ("HelpFAQ", action_name, 7))
         uri = "http://wiki.xfce.org/midori/faq";
     else if  (!strncmp ("HelpBugs", action_name, 8))
-        uri = "http://www.twotoasts.de/bugs/";
+        uri = PACKAGE_BUGREPORT;
     else
         uri = NULL;
 

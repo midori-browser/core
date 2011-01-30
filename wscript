@@ -277,7 +277,7 @@ def configure (conf):
 
     conf.define ('PACKAGE_VERSION', VERSION)
     conf.define ('PACKAGE_NAME', APPNAME)
-    conf.define ('PACKAGE_BUGREPORT', 'http://www.twotoasts.de/bugs')
+    conf.define ('PACKAGE_BUGREPORT', 'https://bugs.launchpad.net/midori')
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     conf.define ('MIDORI_MAJOR_VERSION', major)
