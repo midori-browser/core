@@ -4756,9 +4756,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
     if (/*(event->type == GDK_2BUTTON_PRESS && event->button == 1)
     || */(event->type == GDK_BUTTON_PRESS && event->button == 2))
     {
-        gint n;
-        GtkWidget* view = midori_view_new_with_title (NULL, browser->settings, TRUE);
-        n = midori_browser_add_tab (browser, view);
+        gint n = midori_browser_add_uri (browser, "");
         midori_browser_set_current_page (browser, n);
 
         return TRUE;
