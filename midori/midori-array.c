@@ -347,8 +347,6 @@ katze_array_from_netscape_file (KatzeArray* array,
             {
                 if (folder != array)
                     folder = katze_item_get_parent ((KatzeItem*)folder);
-                else
-                    g_warning ("A level-up although we are at the top level");
                 continue;
             }
             g_strfreev (element);
