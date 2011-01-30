@@ -262,7 +262,7 @@ addons_notify_load_status_cb (MidoriBrowser*   browser,
                gchar* subpage = split_uri[4];
 
                /* userscripts.org script main (with desc) and "source view" pages */
-               if (!g_strcmp0 (subpage, "show") || !g_strcmp0 (subpage, "review"))
+               if (!g_strcmp0 (subpage, "show") /* || !g_strcmp0 (subpage, "review") */)
                    addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_SCRIPTS);
 
                g_strfreev (split_uri);
