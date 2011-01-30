@@ -4054,7 +4054,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         g_free (path);
     }
     gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-        0, _("Import from a file"), 1, NULL, 2, NULL, 3, icon_width, -1);
+        0, _("Import from XBEL or HTML file"), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
