@@ -828,7 +828,7 @@ sokoke_magic_uri (const gchar* uri)
  * sokoke_uri_unescape_string:
  * @uri: an URI string
  *
- * Unescape @uri if needed, and pass through '+'.
+ * Unescape @uri if needed, and pass through '+' and '%20'.
  *
  * Return value: a newly allocated URI
  **/
@@ -836,7 +836,14 @@ gchar*
 sokoke_uri_unescape_string (const gchar* uri)
 {
     if (strchr (uri,'%'))
-        return g_uri_unescape_string (uri, "+");
+    {
+        /* Preserve %20 for pasting URLs into other windows */
+        gchar* unescaped = g_uri_unescape_string (uri, "+");
+        gchar* spaced = sokoke_replace_variables (unescaped, " ", "%20", NULL);
+        g_free (unescaped);
+        return spaced;
+    }
+
     return g_strdup (uri);
 }
 
