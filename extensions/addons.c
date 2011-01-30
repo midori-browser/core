@@ -94,7 +94,7 @@ struct AddonsList
 };
 
 static void
-addons_install_response (GtkInfoBar* infobar,
+addons_install_response (GtkWidget*  infobar,
                          gint        response_id,
                          MidoriView* view)
 {
