@@ -294,7 +294,7 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
 }
 
 static gboolean
-katze_array_from_mozilla_file (KatzeArray*  array,
+katze_array_from_netscape_file (KatzeArray* array,
                                const gchar* filename)
 {
     gchar* line  = NULL;
@@ -489,7 +489,7 @@ midori_array_from_file (KatzeArray*  array,
     if (!format)
         format = "";
 
-    /* mozilla html */
+    /* netscape html */
     if (!*format && g_str_has_suffix (filename, ".html"))
     {
         FILE* file;
@@ -501,7 +501,7 @@ midori_array_from_file (KatzeArray*  array,
                 g_strstrip (line);
                 if (katze_str_equal (line, "<!DOCTYPE NETSCAPE-Bookmark-file-1>"))
                 {
-                    if (!katze_array_from_mozilla_file (array, filename))
+                    if (!katze_array_from_netscape_file (array, filename))
                     {
                         /* Parsing failed */
                         fclose (file);
