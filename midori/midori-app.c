@@ -42,6 +42,9 @@
 
 #if HAVE_LIBNOTIFY
     #include <libnotify/notify.h>
+    #ifndef NOTIFY_CHECK_VERSION
+        #define NOTIFY_CHECK_VERSION(x,y,z) 0
+    #endif
 #endif
 
 struct _MidoriApp
@@ -1203,8 +1206,11 @@ midori_app_send_notification (MidoriApp*   app,
     if (notify_is_initted ())
     {
         NotifyNotification* note;
-
+        #if NOTIFY_CHECK_VERSION (0, 7, 0)
+        note = notify_notification_new (title, message, "midori");
+        #else
         note = notify_notification_new (title, message, "midori", NULL);
+        #endif
         notify_notification_show (note, NULL);
         g_object_unref (note);
     }
