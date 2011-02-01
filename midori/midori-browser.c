@@ -4134,6 +4134,8 @@ _action_bookmarks_export_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
     GtkWidget* file_dialog;
+    GtkFileFilter* filter;
+    const gchar* format;
     gchar* path = NULL;
     GError* error;
     sqlite3* db;
@@ -4146,6 +4148,16 @@ _action_bookmarks_export_activate (GtkAction*     action,
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
                                        "bookmarks.xbel");
+    filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (filter, _("XBEL Bookmarks"));
+    gtk_file_filter_add_mime_type (filter, "application/xml");
+    gtk_file_filter_add_pattern (filter, "*.xbel");
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (file_dialog), filter);
+    filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (filter, _("Netscape Bookmarks"));
+    gtk_file_filter_add_mime_type (filter, "text/html");
+    gtk_file_filter_add_pattern (filter, "*.html");
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (file_dialog), filter);
     if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
         path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
     gtk_widget_destroy (file_dialog);
@@ -4157,7 +4169,13 @@ _action_bookmarks_export_activate (GtkAction*     action,
     db = g_object_get_data (G_OBJECT (browser->history), "db");
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     midori_bookmarks_export_array_db (db, bookmarks, "");
-    if (!midori_array_to_file (bookmarks, path, "xbel", &error))
+    if (g_str_has_suffix (path, ".xbel"))
+        format = "xbel";
+    else if (g_str_has_suffix (path, ".html"))
+        format = "netscape";
+    else
+        g_assert_not_reached ();
+    if (!midori_array_to_file (bookmarks, path, format, &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
             _("Failed to export bookmarks"), error ? error->message : "");
