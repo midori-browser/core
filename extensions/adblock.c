@@ -753,7 +753,8 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     const char *page_uri;
 
     /* Never filter the main page itself */
-    if (web_frame == webkit_web_view_get_main_frame (web_view))
+    if (web_frame == webkit_web_view_get_main_frame (web_view)
+     && webkit_web_frame_get_load_status (web_frame) == WEBKIT_LOAD_PROVISIONAL)
         return;
 
     req_uri = webkit_network_request_get_uri (request);
