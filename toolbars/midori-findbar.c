@@ -69,6 +69,12 @@ midori_findbar_find_key_press_event_cb (MidoriFindbar* findbar,
         midori_findbar_done (findbar);
         return TRUE;
     }
+    else if (event->keyval == GDK_Return
+          && (event->state & GDK_SHIFT_MASK))
+    {
+        midori_findbar_find (findbar, FALSE);
+        return TRUE;
+    }
 
     return FALSE;
 }
