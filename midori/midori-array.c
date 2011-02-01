@@ -702,6 +702,48 @@ string_append_item (GString*   string,
     g_free (metadata);
 }
 
+static void
+string_append_netscape_item (GString*   string,
+                             KatzeItem* item)
+{
+    g_return_if_fail (KATZE_IS_ITEM (item));
+
+    if (KATZE_IS_ARRAY (item))
+    {
+        KatzeItem* _item;
+        KatzeArray* array = KATZE_ARRAY (item);
+        GList* list;
+
+        g_string_append (string, "\t<DT><H3 FOLDED ADD_DATE=\"\">");
+        g_string_append (string, katze_item_get_name (item));
+        g_string_append (string, "</H3>\n");
+        g_string_append (string, "\t<DL><P>\n");
+        KATZE_ARRAY_FOREACH_ITEM_L (_item, array, list)
+        {
+            g_string_append (string, "\t");
+            string_append_netscape_item (string, _item);
+        }
+        g_string_append (string, "\t</DL><P>\n");
+
+        g_list_free (list);
+    }
+    else if (katze_item_get_uri (item))
+    {
+        g_string_append (string, "\t<DT><A HREF=\"");
+        g_string_append (string, katze_item_get_uri (item));
+        g_string_append (string, "\" ADD_DATE=\"\" LAST_VISIT=\"\" LAST_MODIFIED=\"\">");
+        g_string_append (string, katze_item_get_name (item));
+        g_string_append (string, "</A>\n");
+
+        if (item->text && g_strcmp0 (item->text, ""))
+        {
+            g_string_append (string, "\t<DD>");
+            g_string_append (string, katze_item_get_text (item));
+            g_string_append (string, "\n");
+        }
+    }
+}
+
 static gchar*
 katze_item_metadata_to_xbel (KatzeItem* item)
 {
@@ -788,15 +830,48 @@ katze_array_to_xbel (KatzeArray* array,
     return g_string_free (markup, FALSE);
 }
 
+static gchar*
+katze_array_to_netscape_html (KatzeArray* array,
+                              GError**    error)
+{
+    KatzeItem* item;
+    GList* list;
+
+    /* The header, including the text, is the same as used in other browsers,
+       see http://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx */
+    GString* markup = g_string_new (
+        "<!DOCTYPE NETSCAPE-Bookmark-file-1>\n"
+        "<!--This is an automatically generated file.\n"
+        "It will be read and overwritten.\n"
+        "Do Not Edit! -->\n"
+        "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">\n"
+        "<Title>Bookmarks</Title>\n"
+        "<H1>Bookmarks</H1>\n"
+        "\n");
+    g_string_append (markup, "<DL><P>\n");
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+        string_append_netscape_item (markup, item);
+    g_string_append (markup, "</DL><P>\n");
+
+    g_list_free (list);
+    return g_string_free (markup, FALSE);
+}
+
 static gboolean
-midori_array_to_file_xbel (KatzeArray*  array,
-                           const gchar* filename,
-                           GError**     error)
+midori_array_to_file_format (KatzeArray*  array,
+                             const gchar* filename,
+                             const gchar* format,
+                             GError**     error)
 {
     gchar* data;
     FILE* fp;
 
-    if (!(data = katze_array_to_xbel (array, error)))
+    if (!g_strcmp0 (format, "xbel"))
+        data = katze_array_to_xbel (array, error);
+    if (!g_strcmp0 (format, "netscape"))
+        data = katze_array_to_netscape_html (array, error);
+
+    if (!data)
         return FALSE;
     if (!(fp = fopen (filename, "w")))
     {
@@ -833,8 +908,10 @@ midori_array_to_file (KatzeArray*  array,
     g_return_val_if_fail (filename, FALSE);
     g_return_val_if_fail (!error || !*error, FALSE);
 
-    if (!g_strcmp0 (format, "xbel"))
-        return midori_array_to_file_xbel (array, filename, error);
+    if (!g_strcmp0 (format, "xbel")
+    ||  !g_strcmp0 (format, "netscape"))
+        return midori_array_to_file_format (array, filename, format, error);
+
     g_critical ("Cannot write KatzeArray to unknown format '%s'.", format);
     return FALSE;
 }
