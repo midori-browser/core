@@ -3130,9 +3130,6 @@ _action_reload_stop_activate (GtkAction*     action,
 {
     gchar* stock_id;
     GtkWidget* view;
-    GdkModifierType state = (GdkModifierType)0;
-    gint x, y;
-    gboolean from_cache;
 
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
@@ -3142,9 +3139,19 @@ _action_reload_stop_activate (GtkAction*     action,
     /* Refresh or stop, depending on the stock id */
     if (!strcmp (stock_id, GTK_STOCK_REFRESH))
     {
-        gdk_window_get_pointer (NULL, &x, &y, &state);
-        from_cache = state & GDK_SHIFT_MASK;
-        midori_view_reload (MIDORI_VIEW (view), !from_cache);
+        GdkModifierType state = (GdkModifierType)0;
+        gint x, y;
+        gboolean from_cache = TRUE;
+
+        if (!strcmp (gtk_action_get_name (action), "ReloadUncached"))
+            from_cache = FALSE;
+        else
+        {
+            gdk_window_get_pointer (NULL, &x, &y, &state);
+            if (state & GDK_SHIFT_MASK)
+                from_cache = FALSE;
+        }
+        midori_view_reload (MIDORI_VIEW (view), from_cache);
     }
     else
         midori_view_stop_loading (MIDORI_VIEW (view));
@@ -4909,6 +4916,9 @@ static const GtkActionEntry entries[] =
     { "Reload", GTK_STOCK_REFRESH,
         NULL, "<Ctrl>r",
         N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
+    { "ReloadUncached", GTK_STOCK_REFRESH,
+        NULL, "<Ctrl><Shift>r",
+        N_("Reload page without caching"), G_CALLBACK (_action_reload_stop_activate) },
     { "Stop", GTK_STOCK_STOP,
         NULL, "Escape",
         N_("Stop loading the current page"), G_CALLBACK (_action_reload_stop_activate) },
@@ -5307,6 +5317,7 @@ static const gchar* ui_markup =
             "<menuitem action='TrashEmpty'/>"
             "<menuitem action='Preferences'/>"
             "<menuitem action='InspectPage'/>"
+            "<menuitem action='ReloadUncached'/>"
             "</menu>"
         "</menubar>"
         "<toolbar name='toolbar_navigation'>"
