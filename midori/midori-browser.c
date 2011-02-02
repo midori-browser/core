@@ -4497,10 +4497,9 @@ static void
 _action_about_activate (GtkAction*     action,
                         MidoriBrowser* browser)
 {
-    gchar* comments = g_strdup_printf ("GTK+ %d.%d.%d, WebKitGTK+ %d.%d.%d\n%s",
-        GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-        WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
-        _("A lightweight web browser."));
+    gchar* comments = g_strdup_printf ("%s\n%s",
+        _("A lightweight web browser."),
+        _("See about:version for version info."));
     const gchar* license =
     _("This library is free software; you can redistribute it and/or "
     "modify it under the terms of the GNU Lesser General Public "
