@@ -3962,7 +3962,8 @@ midori_view_set_uri (MidoriView*  view,
             result = midori_view_execute_script (view, &uri[11], &exception);
             if (!result)
             {
-                sokoke_message_dialog (GTK_MESSAGE_ERROR, "javascript:", exception);
+                sokoke_message_dialog (GTK_MESSAGE_ERROR, "javascript:",
+                                       exception, FALSE);
                 g_free (exception);
             }
         }

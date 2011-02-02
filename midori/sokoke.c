@@ -153,7 +153,8 @@ sokoke_message_dialog_response_cb (GtkWidget* dialog,
 void
 sokoke_message_dialog (GtkMessageType message_type,
                        const gchar*   short_message,
-                       const gchar*   detailed_message)
+                       const gchar*   detailed_message,
+                       gboolean       modal)
 {
     GtkWidget* dialog = gtk_message_dialog_new (
         NULL, 0, message_type,
@@ -165,9 +166,18 @@ sokoke_message_dialog (GtkMessageType message_type,
         "%s", short_message);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
                                               "%s", detailed_message);
-    g_signal_connect (dialog, "response",
-                      G_CALLBACK (sokoke_message_dialog_response_cb), NULL);
-    gtk_widget_show (dialog);
+    if (modal)
+    {
+        gtk_dialog_run (GTK_DIALOG (dialog));
+        gtk_widget_destroy (dialog);
+    }
+    else
+    {
+        g_signal_connect (dialog, "response",
+                          G_CALLBACK (sokoke_message_dialog_response_cb), NULL);
+        gtk_widget_show (dialog);
+    }
+
 }
 
 /**
@@ -434,7 +444,7 @@ sokoke_spawn_program (const gchar* command,
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                    _("Could not run external program."),
-                                   "Failed to initialize libosso");
+                                   "Failed to initialize libosso", FALSE);
             return FALSE;
         }
 
@@ -444,7 +454,7 @@ sokoke_spawn_program (const gchar* command,
             osso_deinitialize (osso);
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                    _("Could not run external program."),
-                                   "Failed to get dbus connection from osso context");
+                                   "Failed to get dbus connection from osso context", FALSE);
             return FALSE;
         }
 
@@ -472,7 +482,7 @@ sokoke_spawn_program (const gchar* command,
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                 _("Could not run external program."),
-                error ? error->message : "");
+                error ? error->message : "", FALSE);
             if (error)
                 g_error_free (error);
             return FALSE;
@@ -501,7 +511,7 @@ sokoke_spawn_program (const gchar* command,
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                    _("Could not run external program."),
-                                   error->message);
+                                   error->message, FALSE);
             g_error_free (error);
             g_free (command_ready);
             return FALSE;
@@ -515,7 +525,7 @@ sokoke_spawn_program (const gchar* command,
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
                                    _("Could not run external program."),
-                                   error->message);
+                                   error->message, FALSE);
             g_error_free (error);
         }
 

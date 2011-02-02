@@ -989,7 +989,7 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
         else
             g_assert_not_reached ();
 
-        sokoke_message_dialog (GTK_MESSAGE_ERROR, message, detailed_message);
+        sokoke_message_dialog (GTK_MESSAGE_ERROR, message, detailed_message, FALSE);
         g_free (message);
         g_free (detailed_message);
         g_object_unref (download);
@@ -2260,7 +2260,7 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
             "Alternatively go to Preferences, Applications in Midori, "
             "and select a News Aggregator. Next time you click the "
             "news feed icon, it will be added automatically."));
-        sokoke_message_dialog (GTK_MESSAGE_INFO, _("New feed"), description);
+        sokoke_message_dialog (GTK_MESSAGE_INFO, _("New feed"), description, FALSE);
         g_free (description);
     }
 }
@@ -3325,7 +3325,8 @@ _action_source_view_activate (GtkAction*     action,
             if (!sokoke_show_uri_with_mime_type (gtk_widget_get_screen (view),
                 uri, "text/plain", gtk_get_current_event_time (), &error))
                 sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                    _("Could not run external program."), error ? error->message : "");
+                    _("Could not run external program."),
+                    error ? error->message : "", FALSE);
             if (error)
                 g_error_free (error);
             g_free (text_editor);
@@ -4115,7 +4116,8 @@ _action_bookmarks_import_activate (GtkAction*     action,
         if (path && !midori_array_from_file (bookmarks, path, NULL, &error))
         {
             sokoke_message_dialog (GTK_MESSAGE_ERROR,
-                _("Failed to import bookmarks"), error ? error->message : "");
+                _("Failed to import bookmarks"),
+                error ? error->message : "", FALSE);
             if (error)
                 g_error_free (error);
         }
@@ -4144,6 +4146,7 @@ _action_bookmarks_export_activate (GtkAction*     action,
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
 
+wrong_format:
     file_dialog = sokoke_file_chooser_dialog_new (_("Save file as"),
         GTK_WINDOW (browser), GTK_FILE_CHOOSER_ACTION_SAVE);
     gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
@@ -4161,6 +4164,18 @@ _action_bookmarks_export_activate (GtkAction*     action,
     if (gtk_dialog_run (GTK_DIALOG (file_dialog)) == GTK_RESPONSE_OK)
         path = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_dialog));
     gtk_widget_destroy (file_dialog);
+    if (g_str_has_suffix (path, ".xbel"))
+        format = "xbel";
+    else if (g_str_has_suffix (path, ".html"))
+        format = "netscape";
+    else if (path != NULL)
+    {
+        sokoke_message_dialog (GTK_MESSAGE_ERROR,
+            _("Midori can only export to XBEL (*.xbel) and Netscape (*.html)"),
+            "", TRUE);
+        katze_assign (path, NULL);
+        goto wrong_format;
+    }
 
     if (path == NULL)
         return;
@@ -4169,16 +4184,10 @@ _action_bookmarks_export_activate (GtkAction*     action,
     db = g_object_get_data (G_OBJECT (browser->history), "db");
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     midori_bookmarks_export_array_db (db, bookmarks, "");
-    if (g_str_has_suffix (path, ".xbel"))
-        format = "xbel";
-    else if (g_str_has_suffix (path, ".html"))
-        format = "netscape";
-    else
-        g_assert_not_reached ();
     if (!midori_array_to_file (bookmarks, path, format, &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,
-            _("Failed to export bookmarks"), error ? error->message : "");
+            _("Failed to export bookmarks"), error ? error->message : "", FALSE);
         if (error)
             g_error_free (error);
     }

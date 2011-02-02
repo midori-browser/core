@@ -85,7 +85,8 @@ sokoke_js_script_eval                   (JSContextRef    js_context,
 void
 sokoke_message_dialog                   (GtkMessageType  message_type,
                                          const gchar*    short_message,
-                                         const gchar*    detailed_message);
+                                         const gchar*    detailed_message,
+                                         gboolean        modal);
 
 gboolean
 sokoke_show_uri_with_mime_type          (GdkScreen*      screen,
