@@ -107,14 +107,13 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (button);
-            MidoriWebSettings* settings = midori_browser_get_settings (browser);
 
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
             if (g_object_get_data (G_OBJECT (download), "open-download"))
                 gtk_button_clicked (GTK_BUTTON (button));
 
-            if (katze_object_get_boolean (settings, "notify-transfer-completed"))
+            if (1)
             {
                 const gchar* uri = webkit_download_get_destination_uri (download);
                 gchar* path = soup_uri_decode (uri);
