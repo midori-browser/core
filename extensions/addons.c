@@ -129,7 +129,7 @@ addons_install_response (GtkWidget*  infobar,
                 web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
                 web_frame = webkit_web_view_get_main_frame (web_view);
 
-                js_script = "document.getElementById('heading').childNodes[3].childNodes[1].innerHTML";
+                js_script = "document.getElementById('heading').childNodes[3].childNodes[1].textContent";
                 if (WEBKIT_IS_WEB_FRAME (web_frame))
                 {
                     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
@@ -262,7 +262,7 @@ addons_notify_load_status_cb (MidoriBrowser*   browser,
                gchar* subpage = split_uri[4];
 
                /* userscripts.org script main (with desc) and "source view" pages */
-               if (!g_strcmp0 (subpage, "show") /* || !g_strcmp0 (subpage, "review") */)
+               if (!g_strcmp0 (subpage, "show") || !g_strcmp0 (subpage, "review"))
                    addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_SCRIPTS);
 
                g_strfreev (split_uri);
