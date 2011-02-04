@@ -1722,7 +1722,10 @@ main (int    argc,
     /* libSoup uses threads, so we need to initialize threads. */
     if (!g_thread_supported ()) g_thread_init (NULL);
     sokoke_register_stock_items ();
-    g_set_application_name (_("Midori"));
+    if (webapp && config)
+        g_set_application_name (_("Midori (Private Browsing)"));
+    else
+        g_set_application_name (_("Midori"));
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)
