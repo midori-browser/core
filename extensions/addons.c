@@ -938,8 +938,8 @@ js_metadata_from_file (const gchar* filename,
         {
             if (g_str_has_prefix (line, "// ==/UserScript=="))
                 found_meta = FALSE;
-            else if (g_str_has_prefix (line, "// @require ") ||
-                g_str_has_prefix (line, "// @resource "))
+            else if (g_str_has_prefix (line, "// @require")
+                  || g_str_has_prefix (line, "// @resource"))
             {
                 /* We don't support these, so abort here */
                 g_free (line);
@@ -950,27 +950,29 @@ js_metadata_from_file (const gchar* filename,
                 *excludes = NULL;
                 return FALSE;
             }
-             else if (includes && g_str_has_prefix (line, "// @include "))
+             else if (includes && g_str_has_prefix (line, "// @include"))
             {
-                 rest_of_line = g_strdup (line + strlen ("// @include "));
+                 rest_of_line = g_strdup (line + strlen ("// @include"));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *includes = g_slist_prepend (*includes, rest_of_line);
             }
-             else if (excludes && g_str_has_prefix (line, "// @exclude "))
+             else if (excludes && g_str_has_prefix (line, "// @exclude"))
             {
-                 rest_of_line = g_strdup (line + strlen ("// @exclude "));
+                 rest_of_line = g_strdup (line + strlen ("// @exclude"));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *excludes = g_slist_prepend (*excludes, rest_of_line);
             }
-             else if (name && g_str_has_prefix (line, "// @name "))
+             else if (name && g_str_has_prefix (line, "// @name"))
             {
-                 rest_of_line = g_strdup (line + strlen ("// @name "));
+                 if (!strncmp (line, "// @namespace", 13))
+                     continue;
+                 rest_of_line = g_strdup (line + strlen ("// @name"));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *name = rest_of_line;
             }
-             else if (description && g_str_has_prefix (line, "// @description "))
+             else if (description && g_str_has_prefix (line, "// @description"))
             {
-                 rest_of_line = g_strdup (line + strlen ("// @description "));
+                 rest_of_line = g_strdup (line + strlen ("// @description"));
                  rest_of_line =  g_strstrip (rest_of_line);
                  *description = rest_of_line;
             }
