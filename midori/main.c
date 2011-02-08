@@ -1760,12 +1760,15 @@ main (int    argc,
             const gchar* name = gtk_action_get_name (action);
             const gchar* space = "                       ";
             gchar* padding = g_strndup (space, strlen (space) - strlen (name));
-            gchar* label = katze_strip_mnemonics (gtk_action_get_label (action));
-            const gchar* tooltip = gtk_action_get_tooltip (action);
-            g_print ("%s%s%s%s%s\n", name, padding, label,
+            gchar* label = katze_object_get_string (action, "label");
+            gchar* stripped = katze_strip_mnemonics (label);
+            gchar* tooltip = katze_object_get_string (action, "tooltip");
+            g_print ("%s%s%s%s%s\n", name, padding, stripped,
                      tooltip ? ": " : "", tooltip ? tooltip : "");
+            g_free (tooltip);
             g_free (padding);
             g_free (label);
+            g_free (stripped);
         }
         g_list_free (actions);
         gtk_widget_destroy (GTK_WIDGET (browser));
