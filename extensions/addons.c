@@ -108,7 +108,7 @@ addons_install_response (GtkWidget*  infobar,
         if (uri && *uri)
         {
             gchar** split_uri;
-            gchar* path, *filename, *hostname, *dest_path, *temp_uri;
+            gchar* path, *filename, *hostname, *dest_path, *temp_uri, *folder_path;
             const gchar* folder;
             WebKitNetworkRequest* request;
             WebKitDownload* download;
@@ -188,8 +188,12 @@ addons_install_response (GtkWidget*  infobar,
 
             if (!filename)
                 filename = g_path_get_basename (uri);
-            path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
-                                 PACKAGE_NAME, folder, filename, NULL);
+            folder_path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
+                                 PACKAGE_NAME, folder, NULL);
+
+            if (!g_file_test (folder_path, G_FILE_TEST_EXISTS))
+                katze_mkdir_with_parents (folder_path, 0700);
+            path = g_build_path (G_DIR_SEPARATOR_S, folder_path, filename, NULL);
 
             request = webkit_network_request_new (uri);
             download = webkit_download_new (request);
@@ -203,6 +207,7 @@ addons_install_response (GtkWidget*  infobar,
             g_free (path);
             g_free (temp_uri);
             g_free (dest_path);
+            g_free (folder_path);
             g_strfreev (split_uri);
         }
     }
