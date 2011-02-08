@@ -415,6 +415,7 @@ midori_addons_button_delete_clicked_cb (GtkWidget* toolitem,
         struct AddonElement* element;
         gint delete_response;
         GtkWidget* dialog;
+        gchar* markup;
 
         gtk_tree_model_get (model, &iter, 0, &element, -1);
         dialog = gtk_message_dialog_new (
@@ -431,10 +432,12 @@ midori_addons_button_delete_clicked_cb (GtkWidget* toolitem,
             ? _("Delete user script")
             : _("Delete user style"));
 
-        gtk_message_dialog_format_secondary_markup (
-            GTK_MESSAGE_DIALOG (dialog),
+        markup = g_markup_printf_escaped (
             _("The file <b>%s</b> will be permanently deleted."),
             element->fullpath);
+        gtk_message_dialog_format_secondary_markup (
+            GTK_MESSAGE_DIALOG (dialog), "%s", markup);
+        g_free (markup);
 
         delete_response = gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (GTK_WIDGET (dialog));
@@ -1265,13 +1268,11 @@ addons_update_elements (MidoriExtension* extension,
 
         filename = g_path_get_basename (element->fullpath);
         if (element->description)
-        {
-            tooltip = g_strdup_printf ("%s\n\n%s",
+            tooltip = g_markup_printf_escaped ("%s\n\n%s",
                                        filename, element->description);
-            g_free (filename);
-        }
         else
-            tooltip = filename;
+            tooltip = g_markup_escape_text (filename, -1);
+        g_free (filename);
 
         gtk_list_store_append (liststore, &iter);
         gtk_list_store_set (liststore, &iter,
