@@ -970,7 +970,16 @@ sokoke_get_desktop (void)
     static SokokeDesktop desktop = SOKOKE_DESKTOP_UNTESTED;
     if (G_UNLIKELY (desktop == SOKOKE_DESKTOP_UNTESTED))
     {
-        /* Are we running in Xfce? */
+        desktop = SOKOKE_DESKTOP_UNKNOWN;
+
+        /* Are we running in Xfce >= 4.8? */
+        if (!g_strcmp0 (g_getenv ("DESKTOP_SESSION"), "xfce"))
+        {
+            desktop = SOKOKE_DESKTOP_XFCE;
+        }
+        else
+        {
+        /* Are we running in Xfce <= 4.6? */
         GdkDisplay* display = gdk_display_get_default ();
         Display* xdisplay = GDK_DISPLAY_XDISPLAY (display);
         Window root_window = RootWindow (xdisplay, 0);
@@ -984,12 +993,12 @@ sokoke_get_desktop (void)
             save_mode_atom, 0, (~0L),
             False, AnyPropertyType, &actual_type, &actual_format,
             &n_items, &bytes, (unsigned char**)&value);
-        desktop = SOKOKE_DESKTOP_UNKNOWN;
         if (status == Success)
         {
             if (n_items == 6 && !strncmp (value, "xfce4", 6))
                 desktop = SOKOKE_DESKTOP_XFCE;
             XFree (value);
+        }
         }
     }
 
