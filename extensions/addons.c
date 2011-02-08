@@ -119,7 +119,11 @@ addons_install_response (GtkWidget*  infobar,
             filename = NULL;
             folder = NULL;
 
-            if (!g_strcmp0 (hostname, "userscripts.org"))
+            if (g_str_has_suffix (uri, ".user.js"))
+                folder = "scripts";
+            else if (g_str_has_suffix (uri, ".user.css"))
+                folder = "styles";
+            else if (!g_strcmp0 (hostname, "userscripts.org"))
             {
                 gchar* script_id;
                 const gchar* js_script;
@@ -182,10 +186,6 @@ addons_install_response (GtkWidget*  infobar,
                 }
             }
 
-            if (g_str_has_suffix (uri, ".user.js"))
-                folder = "scripts";
-            else if (g_str_has_suffix (uri, ".user.css"))
-                folder = "styles";
             if (!filename)
                 filename = g_path_get_basename (uri);
             path = g_build_path (G_DIR_SEPARATOR_S, g_get_user_data_dir (),
