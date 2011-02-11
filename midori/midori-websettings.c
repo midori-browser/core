@@ -440,7 +440,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "show-menubar",
                                      _("Show Menubar"),
                                      _("Whether to show the menubar"),
-                                     TRUE,
+                                     FALSE,
                                      flags));
 
     g_object_class_install_property (gobject_class,
@@ -544,7 +544,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "toolbar-items",
                                      _("Toolbar Items"),
                                      _("The items to show on the toolbar"),
-                                     "TabNew,Back,Forward,Next,ReloadStop,BookmarkAdd,Location,Search,Trash",
+                                     "TabNew,Back,Forward,Next,ReloadStop,BookmarkAdd,Location,Search,Trash,CompactMenu",
                                      flags));
 
     g_object_class_install_property (gobject_class,
