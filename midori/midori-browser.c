@@ -2948,6 +2948,8 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "InspectPage" },
       #endif
       { "Fullscreen" },
+      { "BookmarksImport"},
+      { "BookmarksExport"},
       #endif
       { "About" },
       { "Preferences" },
