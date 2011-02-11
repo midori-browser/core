@@ -886,6 +886,7 @@ midori_soup_session_prepare (SoupSession*       session,
     {
         "/etc/pki/tls/certs/ca-bundle.crt",
         "/etc/ssl/certs/ca-certificates.crt",
+        "/etc/ssl/certs/ca-bundle.crt",
         "/usr/local/share/certs/ca-root-nss.crt",
         NULL
     };
