@@ -937,6 +937,7 @@ js_metadata_from_file (const gchar* filename,
     while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
            == G_IO_STATUS_NORMAL)
     {
+        g_strstrip (line);
         if (g_str_has_prefix (line, "// ==UserScript=="))
             found_meta = TRUE;
         else if (found_meta)
@@ -1011,6 +1012,7 @@ css_metadata_from_file (const gchar* filename,
     while (g_io_channel_read_line (channel, &line, NULL, NULL, NULL)
            == G_IO_STATUS_NORMAL)
     {
+        g_strstrip (line);
         if (g_str_has_prefix (line, "@-moz-document") || line_has_meta)
         { /* FIXME: We merely look for includes. We should honor blocks. */
              if (includes)
