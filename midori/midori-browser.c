@@ -4854,8 +4854,13 @@ static const GtkActionEntry entries[] =
         N_("Add to Speed _dial"), "<Ctrl>h",
         N_("Add shortcut to speed dial"), G_CALLBACK (_action_add_speed_dial_activate) },
     { "AddDesktopShortcut", NULL,
+    #if HAVE_HILDON
         N_("Add Shortcut to the _desktop"), "<Ctrl>j",
         N_("Add shortcut to the desktop"), G_CALLBACK (_action_add_desktop_shortcut_activate) },
+    #else
+        N_("Create _Launcher"), "<Ctrl>j",
+        N_("Create a launcher"), G_CALLBACK (_action_add_desktop_shortcut_activate) },
+    #endif
     { "AddNewsFeed", NULL,
         N_("Subscribe to News _feed"), NULL,
         N_("Subscribe to this news feed"), G_CALLBACK (_action_add_news_feed_activate) },
