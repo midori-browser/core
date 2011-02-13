@@ -80,7 +80,6 @@ struct _MidoriBrowser
     GtkWidget* statusbar;
     GtkWidget* statusbar_contents;
     GtkWidget* transferbar;
-    GtkWidget* progressbar;
     gchar* statusbar_text;
 
     gint last_window_width, last_window_height;
@@ -100,7 +99,6 @@ struct _MidoriBrowser
     gboolean show_navigationbar;
     gboolean show_statusbar;
     gboolean speed_dial_in_new_tabs;
-    gboolean progress_in_location;
     guint maximum_history_age;
     gchar* location_entry_search;
     gchar* news_aggregator;
@@ -330,8 +328,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_REFRESH,
                       "tooltip", _("Reload the current page"),
                       "sensitive", can_reload, NULL);
-        gtk_widget_hide (browser->progressbar);
-        if (!browser->show_navigationbar && !browser->show_statusbar)
+        if (!browser->show_navigationbar)
             gtk_widget_hide (browser->navigationbar);
     }
     else
@@ -339,11 +336,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         g_object_set (action,
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
-        if (!browser->progress_in_location || !gtk_widget_get_visible (browser->navigationbar))
-            gtk_widget_show (browser->progressbar);
-        if (!gtk_widget_get_visible (browser->statusbar) &&
-            !gtk_widget_get_visible (browser->navigationbar) &&
-            browser->progress_in_location)
+        if (!gtk_widget_get_visible (browser->navigationbar))
             gtk_widget_show (browser->navigationbar);
     }
 
@@ -434,30 +427,12 @@ _midori_browser_update_progress (MidoriBrowser* browser,
 {
     MidoriLocationAction* action;
     gdouble progress;
-    gchar* message;
 
     action = MIDORI_LOCATION_ACTION (_action_by_name (browser, "Location"));
     progress = midori_view_get_progress (view);
     /* When we are finished, we don't want to *see* progress anymore */
     if (midori_view_get_load_status (view) == MIDORI_LOAD_FINISHED)
         progress = 0.0;
-    if (progress > 0.0)
-    {
-        gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (browser->progressbar),
-                                       progress);
-        message = g_strdup_printf (_("%d%% loaded"), (gint)(progress * 100));
-        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
-                                   message);
-        g_free (message);
-        if (!browser->progress_in_location)
-            progress = 0.0;
-    }
-    else
-    {
-        gtk_progress_bar_pulse (GTK_PROGRESS_BAR (browser->progressbar));
-        gtk_progress_bar_set_text (GTK_PROGRESS_BAR (browser->progressbar),
-                                   NULL);
-    }
     midori_location_action_set_progress (action, progress);
 }
 
@@ -5980,10 +5955,6 @@ midori_browser_init (MidoriBrowser* browser)
     #endif
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
-    browser->progressbar = gtk_progress_bar_new ();
-    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents),
-                        browser->progressbar, FALSE, FALSE, 3);
-
     browser->transferbar = g_object_new (MIDORI_TYPE_TRANSFERBAR, NULL);
     gtk_box_pack_start (GTK_BOX (browser->statusbar_contents), browser->transferbar, FALSE, FALSE, 3);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (browser->transferbar), FALSE);
@@ -6171,7 +6142,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "last-web-search", &last_web_search,
                   "location-entry-search", &browser->location_entry_search,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
-                  "progress-in-location", &browser->progress_in_location,
                   "maximum-history-age", &browser->maximum_history_age,
                   "news-aggregator", &browser->news_aggregator,
                   NULL);
@@ -6305,8 +6275,6 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_statusbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("speed-dial-in-new-tabs"))
         browser->speed_dial_in_new_tabs = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("progress-in-location"))
-        browser->progress_in_location = g_value_get_boolean (&value);
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
         if (g_value_get_boolean (&value))

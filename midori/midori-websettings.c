@@ -37,7 +37,6 @@ struct _MidoriWebSettings
     gboolean show_transferbar : 1;
     gboolean show_statusbar : 1;
     MidoriToolbarStyle toolbar_style : 3;
-    gboolean progress_in_location : 1;
     gboolean search_engines_in_completion : 1;
     gboolean compact_sidepanel : 1;
     gboolean show_panel_controls : 1;
@@ -115,7 +114,6 @@ enum
     PROP_SHOW_STATUSBAR,
 
     PROP_TOOLBAR_STYLE,
-    PROP_PROGRESS_IN_LOCATION,
     PROP_SEARCH_ENGINES_IN_COMPLETION,
     PROP_TOOLBAR_ITEMS,
     PROP_COMPACT_SIDEPANEL,
@@ -504,22 +502,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The style of the toolbar"),
                                      MIDORI_TYPE_TOOLBAR_STYLE,
                                      MIDORI_TOOLBAR_DEFAULT,
-                                     flags));
-
-    /**
-    * MidoriWebSettings:progress-in-location:
-    *
-    * Whether to show loading progress in the location entry.
-    *
-    * Since: 0.1.3
-    */
-    g_object_class_install_property (gobject_class,
-                                     PROP_PROGRESS_IN_LOCATION,
-                                     g_param_spec_boolean (
-                                     "progress-in-location",
-                                     _("Show progress in location entry"),
-                                     _("Whether to show loading progress in the location entry"),
-                                     TRUE,
                                      flags));
 
     /**
@@ -1288,9 +1270,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_TOOLBAR_STYLE:
         web_settings->toolbar_style = g_value_get_enum (value);
         break;
-    case PROP_PROGRESS_IN_LOCATION:
-        web_settings->progress_in_location = g_value_get_boolean (value);
-        break;
     case PROP_SEARCH_ENGINES_IN_COMPLETION:
         web_settings->search_engines_in_completion = g_value_get_boolean (value);
         break;
@@ -1559,9 +1538,6 @@ midori_web_settings_get_property (GObject*    object,
 
     case PROP_TOOLBAR_STYLE:
         g_value_set_enum (value, web_settings->toolbar_style);
-        break;
-    case PROP_PROGRESS_IN_LOCATION:
-        g_value_set_boolean (value, web_settings->progress_in_location);
         break;
     case PROP_SEARCH_ENGINES_IN_COMPLETION:
         g_value_set_boolean (value, web_settings->search_engines_in_completion);

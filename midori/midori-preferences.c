@@ -447,8 +447,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (katze_property_label (settings, "toolbar-style"));
     button = katze_property_proxy (settings, "toolbar-style", NULL);
     SPANNED_ADD (button);
-    button = katze_property_proxy (settings, "progress-in-location", NULL);
-    INDENTED_ADD (button);
     #endif
     FRAME_NEW (_("Browsing"));
     label = katze_property_label (settings, "open-new-pages-in");
