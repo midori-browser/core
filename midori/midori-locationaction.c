@@ -505,6 +505,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
             g_free (uri);
             g_free (title);
             i++;
+            if (i > 4)
+                break;
         }
         searches += i;
     }

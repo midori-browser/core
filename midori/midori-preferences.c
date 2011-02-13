@@ -449,8 +449,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     button = katze_property_proxy (settings, "progress-in-location", NULL);
     INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "search-engines-in-completion", NULL);
-    SPANNED_ADD (button);
     #endif
     FRAME_NEW (_("Browsing"));
     label = katze_property_label (settings, "open-new-pages-in");
