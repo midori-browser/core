@@ -972,11 +972,6 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
     }
 
     webkit_download_set_destination_uri (download, uri);
-    if (!browser->show_statusbar && gtk_widget_get_visible (browser->transferbar))
-    {
-        _midori_browser_set_statusbar_text (browser, NULL);
-        gtk_widget_show (browser->statusbar);
-    }
     midori_transferbar_add_download_item (MIDORI_TRANSFERBAR (browser->transferbar), download);
     return TRUE;
 }
@@ -2607,9 +2602,6 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
         _action_by_name (browser, "Bookmarkbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = sokoke_action_create_popup_menu_item (
-        _action_by_name (browser, "Transferbar"));
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 
@@ -3081,15 +3073,6 @@ _action_bookmarkbar_activate (GtkToggleAction* action,
     gboolean active = gtk_toggle_action_get_active (action);
     g_object_set (browser->settings, "show-bookmarkbar", active, NULL);
     sokoke_widget_set_visible (browser->bookmarkbar, active);
-}
-
-static void
-_action_transferbar_activate (GtkToggleAction* action,
-                              MidoriBrowser*   browser)
-{
-    gboolean active = gtk_toggle_action_get_active (action);
-    g_object_set (browser->settings, "show-transferbar", active, NULL);
-    sokoke_widget_set_visible (browser->transferbar, active);
 }
 
 static void
@@ -5047,10 +5030,6 @@ static const GtkToggleActionEntry toggle_entries[] =
         N_("_Bookmarkbar"), "",
         N_("Show bookmarkbar"), G_CALLBACK (_action_bookmarkbar_activate),
         FALSE },
-    { "Transferbar", NULL,
-        N_("_Transferbar"), "",
-        N_("Show transferbar"), G_CALLBACK (_action_transferbar_activate),
-        FALSE },
     { "Statusbar", NULL,
         N_("_Statusbar"), "",
         N_("Show statusbar"), G_CALLBACK (_action_statusbar_activate),
@@ -5231,7 +5210,6 @@ static const gchar* ui_markup =
                     "<menuitem action='Menubar'/>"
                     "<menuitem action='Navigationbar'/>"
                     "<menuitem action='Bookmarkbar'/>"
-                    "<menuitem action='Transferbar'/>"
                     "<menuitem action='Statusbar'/>"
                 "</menu>"
                 "<menuitem action='Panel'/>"
@@ -5788,9 +5766,6 @@ midori_browser_init (MidoriBrowser* browser)
     #if HAVE_HILDON
     _action_set_visible (browser, "Menubar", FALSE);
     #endif
-    #if !WEBKIT_CHECK_VERSION (1, 1, 3)
-    _action_set_visible (browser, "Transferbar", FALSE);
-    #endif
     #if !WEBKIT_CHECK_VERSION (1, 1, 2)
     _action_set_sensitive (browser, "Encoding", FALSE);
     #endif
@@ -6110,7 +6085,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean right_align_sidepanel, open_panels_in_windows;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
-    gboolean show_panel, show_transferbar;
+    gboolean show_panel;
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
     gint last_web_search;
@@ -6134,7 +6109,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-navigationbar", &browser->show_navigationbar,
                   "show-bookmarkbar", &show_bookmarkbar,
                   "show-panel", &show_panel,
-                  "show-transferbar", &show_transferbar,
                   "show-statusbar", &browser->show_statusbar,
                   "speed-dial-in-new-tabs", &browser->speed_dial_in_new_tabs,
                   "toolbar-style", &toolbar_style,
@@ -6220,9 +6194,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     _action_set_active (browser, "Bookmarkbar", show_bookmarkbar
                                              && browser->bookmarks != NULL);
     _action_set_active (browser, "Panel", show_panel);
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
-    _action_set_active (browser, "Transferbar", show_transferbar);
-    #endif
     _action_set_active (browser, "Statusbar", browser->show_statusbar);
 
     g_free (toolbar_items);

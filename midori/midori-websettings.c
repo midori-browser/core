@@ -474,6 +474,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
      * Whether to show the transferbar.
      *
      * Since: 0.1.5
+     *
+     * Deprecated: 0.3.1
      */
     g_object_class_install_property (gobject_class,
                                      PROP_SHOW_TRANSFERBAR,
@@ -510,6 +512,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     * Whether to show search engines in the location completion.
     *
     * Since: 0.1.6
+    *
+    * Deprecated: 0.3.1
     */
     g_object_class_install_property (gobject_class,
                                      PROP_SEARCH_ENGINES_IN_COMPLETION,
