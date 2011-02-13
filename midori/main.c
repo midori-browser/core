@@ -86,9 +86,16 @@ settings_and_accels_new (const gchar* config,
     {
         if (error->code == G_FILE_ERROR_NOENT)
         {
+            GError* inner_error = NULL;
             katze_assign (config_file, sokoke_find_config_filename (NULL, "config"));
             g_key_file_load_from_file (key_file, config_file,
-                                       G_KEY_FILE_KEEP_COMMENTS, NULL);
+                                       G_KEY_FILE_KEEP_COMMENTS, &inner_error);
+            if (inner_error != NULL)
+            {
+                printf (_("The configuration couldn't be loaded: %s\n"),
+                        inner_error->message);
+                g_error_free (inner_error);
+            }
         }
         else
             printf (_("The configuration couldn't be loaded: %s\n"),
