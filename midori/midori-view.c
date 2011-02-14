@@ -2832,6 +2832,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     gchar* description;
     #if GTK_CHECK_VERSION (2, 14, 0)
     GIcon* icon;
+    GtkIconInfo* icon_info;
     GtkWidget* image;
     #endif
     gchar* title;
@@ -2881,7 +2882,14 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     description = g_content_type_get_description (content_type);
     #if GTK_CHECK_VERSION (2, 14, 0)
     icon = g_content_type_get_icon (content_type);
-    image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_DIALOG);
+    icon_info = gtk_icon_theme_lookup_by_gicon (icon);
+    if (icon_info != NULL)
+    {
+        image = gtk_image_new_from_gicon (icon, GTK_ICON_SIZE_DIALOG);
+        gtk_icon_info_free (icon_info);
+    }
+    else
+        image = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_DIALOG);
     g_object_unref (icon);
     gtk_widget_show (image);
     gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG (dialog), image);
