@@ -715,7 +715,7 @@ string_append_netscape_item (GString*   string,
         GList* list;
 
         g_string_append (string, "\t<DT><H3 FOLDED ADD_DATE=\"\">");
-        g_string_append (string, katze_item_get_name (item));
+        string_append_escaped (string, katze_item_get_name (item));
         g_string_append (string, "</H3>\n");
         g_string_append (string, "\t<DL><P>\n");
         KATZE_ARRAY_FOREACH_ITEM_L (_item, array, list)
@@ -730,15 +730,15 @@ string_append_netscape_item (GString*   string,
     else if (katze_item_get_uri (item))
     {
         g_string_append (string, "\t<DT><A HREF=\"");
-        g_string_append (string, katze_item_get_uri (item));
+        string_append_escaped (string, katze_item_get_uri (item));
         g_string_append (string, "\" ADD_DATE=\"\" LAST_VISIT=\"\" LAST_MODIFIED=\"\">");
-        g_string_append (string, katze_item_get_name (item));
+        string_append_escaped (string, katze_item_get_name (item));
         g_string_append (string, "</A>\n");
 
         if (item->text && g_strcmp0 (item->text, ""))
         {
             g_string_append (string, "\t<DD>");
-            g_string_append (string, katze_item_get_text (item));
+            string_append_escaped (string, katze_item_get_text (item));
             g_string_append (string, "\n");
         }
     }
