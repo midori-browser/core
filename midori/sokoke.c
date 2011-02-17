@@ -401,7 +401,10 @@ sokoke_show_uri (GdkScreen*   screen,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
     box = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    filename = g_filename_from_uri (uri, NULL, NULL);
+    if (g_str_has_prefix (uri, "file:///"))
+        filename = g_filename_from_uri (uri, NULL, NULL);
+    else
+        filename = g_strdup (uri);
     ms = g_strdup_printf (_("Choose an application or command to open \"%s\":"),
                           filename);
     gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ms), TRUE, FALSE, 4);
