@@ -4573,15 +4573,18 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         align = gtk_alignment_new (1.0, 0.0, 0.0, 0.0);
         gtk_container_add (GTK_CONTAINER (align), view->tab_close);
 
-        #if HAVE_OSX
-        gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
-        gtk_box_pack_end (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (hbox), align, FALSE, FALSE, 0);
-        #else
-        gtk_box_pack_start (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
-        gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
-        gtk_box_pack_end (GTK_BOX (hbox), align, FALSE, FALSE, 0);
-        #endif
+        if (katze_object_get_boolean (view->settings, "close-buttons-left"))
+        {
+            gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
+            gtk_box_pack_end (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
+            gtk_box_pack_start (GTK_BOX (hbox), align, FALSE, FALSE, 0);
+        }
+        else
+        {
+            gtk_box_pack_start (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
+            gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
+            gtk_box_pack_end (GTK_BOX (hbox), align, FALSE, FALSE, 0);
+        }
         gtk_widget_show_all (GTK_WIDGET (event_box));
 
         if (view->minimized)
