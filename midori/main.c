@@ -600,8 +600,8 @@ settings_notify_cb (MidoriWebSettings* settings,
     gchar* config_file;
 
     /* Skip state related properties to avoid disk IO */
-    if (g_str_has_prefix (pspec->name, "last-window-")
-     || g_str_has_prefix (pspec->name, "last-panel-"))
+    if ((pspec && g_str_has_prefix (pspec->name, "last-window-"))
+     || (pspec && g_str_has_prefix (pspec->name, "last-panel-")))
         return;
 
     config_file = build_config_filename ("config");
