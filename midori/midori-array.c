@@ -293,6 +293,45 @@ katze_array_from_xmlDocPtr (KatzeArray* array,
     return TRUE;
 }
 
+static gchar*
+katze_unescape_html (const gchar* text)
+{
+    gchar* amp = g_strstr_len (text, -1, "&");
+
+    if (amp && *amp)
+    {
+        if  (!strncmp (amp, "&quot;", 6) || !strncmp (amp, "&amp;", 5)
+          || !strncmp (amp, "&lt;", 4)   || !strncmp (amp, "&gt;", 4)
+          || !strncmp (amp, "&apos;", 6))
+        {
+            guint i = 0;
+            gchar** parts = g_strsplit_set (text, "&;", -1);
+            GString *unescaped = g_string_new (NULL);
+
+            while (parts[i])
+            {
+                if (katze_str_equal ("quot", parts[i]))
+                    g_string_append (unescaped, "\"");
+                else if (katze_str_equal ("amp", parts[i]))
+                    g_string_append (unescaped, "&");
+                else if (katze_str_equal ("lt", parts[i]))
+                    g_string_append (unescaped, "<");
+                else if (katze_str_equal ("gt", parts[i]))
+                    g_string_append (unescaped, ">");
+                else if (katze_str_equal ("apos", parts[i]))
+                    g_string_append (unescaped, "'");
+                else
+                    g_string_append (unescaped, parts[i]);
+                i++;
+            }
+            g_strfreev (parts);
+
+            return g_string_free (unescaped, FALSE);
+        }
+    }
+    return g_strdup (text);
+}
+
 static gboolean
 katze_array_from_netscape_file (KatzeArray* array,
                                const gchar* filename)
@@ -322,8 +361,8 @@ katze_array_from_netscape_file (KatzeArray* array,
                     gchar** parts = g_strsplit (line, "\"", -1);
                     item = katze_item_new ();
                     katze_array_add_item (folder, item);
-                    item->name = g_strdup (element[4]);
-                    item->uri = g_strdup (parts[1]);
+                    item->name = katze_unescape_html (element[4]);
+                    item->uri = katze_unescape_html (parts[1]);
                     g_strfreev (parts);
                 }
                 /* item is folder */
@@ -332,14 +371,14 @@ katze_array_from_netscape_file (KatzeArray* array,
                     item = (KatzeItem*)katze_array_new (KATZE_TYPE_ARRAY);
                     katze_array_add_item (folder, item);
                     folder = (KatzeArray*)item;
-                    item->name = g_strdup (element[4]);
+                    item->name = katze_unescape_html (element[4]);
                 }
             }
             /* item description */
             if (item && katze_str_equal (element[1], "DD"))
             {
                 if (element[2])
-                    item->text = g_strdup (element[2]);
+                    item->text = katze_unescape_html (element[2]);
                 item = NULL;
             }
             /* end of current folder, level-up */
