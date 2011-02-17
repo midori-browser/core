@@ -596,8 +596,15 @@ settings_notify_cb (MidoriWebSettings* settings,
                     GParamSpec*        pspec,
                     MidoriApp*         app)
 {
-    gchar* config_file = build_config_filename ("config");
     GError* error = NULL;
+    gchar* config_file;
+
+    /* Skip state related properties to avoid disk IO */
+    if (g_str_has_prefix (pspec->name, "last-window-")
+     || g_str_has_prefix (pspec->name, "last-panel-"))
+        return;
+
+    config_file = build_config_filename ("config");
     if (!settings_save_to_file (settings, app, config_file, &error))
     {
         g_warning (_("The configuration couldn't be saved. %s"), error->message);
