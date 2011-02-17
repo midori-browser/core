@@ -1647,6 +1647,7 @@ main (int    argc,
     MidoriWebSettings* settings;
     gchar* config_file;
     gchar* bookmarks_file;
+    gboolean bookmarks_exist;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
     KatzeArray* bookmarks;
@@ -1980,6 +1981,7 @@ main (int    argc,
 
     bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
     bookmarks_file = g_build_filename (config, "bookmarks.db", NULL);
+    bookmarks_exist = g_access (bookmarks_file, F_OK) == 0;
     errmsg = NULL;
     if ((db = midori_bookmarks_initialize (bookmarks, bookmarks_file, &errmsg)) == NULL)
     {
@@ -1987,8 +1989,9 @@ main (int    argc,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
         g_free (errmsg);
     }
-    else
+    else if (!bookmarks_exist)
     {
+        /* Initial creation, import old bookmarks */
         gchar* old_bookmarks;
         if (g_path_is_absolute (BOOKMARK_FILE))
             old_bookmarks = g_strdup (BOOKMARK_FILE);
@@ -2000,8 +2003,8 @@ main (int    argc,
             /* Leave old bookmarks around */
         }
         g_free (old_bookmarks);
-        g_object_set_data (G_OBJECT (bookmarks), "db", db);
     }
+    g_object_set_data (G_OBJECT (bookmarks), "db", db);
     midori_startup_timer ("Bookmarks read: \t%f");
 
     config_file = NULL;
