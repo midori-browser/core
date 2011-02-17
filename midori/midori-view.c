@@ -3458,6 +3458,7 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
                                             MidoriView*    view)
 {
     gchar* title;
+    gchar* label;
     GtkWidget* window;
     GtkWidget* toplevel;
     GdkScreen* screen;
@@ -3466,10 +3467,12 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     GdkPixbuf* icon;
     GdkPixbuf* gray_icon;
 
-    title = g_strdup_printf (_("Inspect page - %s"), "");
+    label = g_strdup (midori_view_get_display_title (view));
+    title = g_strdup_printf (_("Inspect page - %s"), label);
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title (GTK_WINDOW (window), title);
     g_free (title);
+    g_free (label);
 
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
     if (gtk_widget_is_toplevel (toplevel))
