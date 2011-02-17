@@ -1352,6 +1352,7 @@ midori_view_display_error (MidoriView*     view,
         #endif
         gchar* res_root;
         gchar* stock_root;
+        gchar* title_escaped;
         gchar* result;
 
         #if WEBKIT_CHECK_VERSION (1, 1, 14)
@@ -1364,14 +1365,16 @@ midori_view_display_error (MidoriView*     view,
         stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
         #endif
 
+        title_escaped = g_markup_escape_text (title, -1);
         result = sokoke_replace_variables (template,
-            "{title}", title,
+            "{title}", title_escaped,
             "{message}", message,
             "{description}", description,
             "{tryagain}", try_again,
             "{res}", res_root,
             "{stock}", stock_root,
             NULL);
+        g_free (title_escaped);
         g_free (template);
 
         midori_view_load_alternate_string (view,
