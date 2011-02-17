@@ -243,6 +243,7 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
     KatzeItem* old_parent;
     gchar* parent;
     gchar* uri;
+    gchar* desc;
 
     /* Bookmarks must have a name, import may produce invalid items */
     g_return_if_fail (katze_item_get_name (item));
@@ -251,6 +252,11 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
         uri = g_strdup (katze_item_get_uri (item));
     else
         uri = g_strdup ("");
+
+    if (katze_item_get_text (item))
+        desc = g_strdup (katze_item_get_text (item));
+    else
+        desc = g_strdup ("");
 
     /* Use folder, otherwise fallback to parent folder */
     old_parent = katze_item_get_parent (item);
@@ -266,7 +272,7 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
             " ('%q', '%q', '%q', '%q', %d, %d)",
             uri,
             katze_item_get_name (item),
-            katze_item_get_text (item),
+            desc,
             parent,
             katze_item_get_meta_boolean (item, "toolbar"),
             katze_item_get_meta_boolean (item, "app"));
@@ -279,6 +285,7 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
 
     g_free (uri);
     g_free (parent);
+    g_free (desc);
     sqlite3_free (sqlcmd);
 }
 
