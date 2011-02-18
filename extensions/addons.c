@@ -215,8 +215,7 @@ addons_install_response (GtkWidget*  infobar,
 }
 
 static void
-addons_uri_install (MidoriBrowser* browser,
-                    MidoriView*    view,
+addons_uri_install (MidoriView*    view,
                     AddonsKind     kind)
 {
     const gchar* message;
@@ -244,23 +243,21 @@ addons_uri_install (MidoriBrowser* browser,
 }
 
 static void
-addons_notify_load_status_cb (MidoriBrowser*   browser,
+addons_notify_load_status_cb (MidoriView*      view,
                               GParamSpec*      pspec,
                               MidoriExtension* extension)
 {
-    const gchar* uri = midori_browser_get_current_uri (browser);
+    const gchar* uri = midori_view_get_display_uri (view);
 
     if (uri && *uri)
     {
-       /* FIXME: addons_notify_load_status_cb should pass MidoriView* pointer */
-       GtkWidget* view = midori_browser_get_current_tab (browser);
-       if (midori_view_get_load_status (MIDORI_VIEW (view)) == MIDORI_LOAD_FINISHED)
+       if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
        {
            /* casual sites goes by uri suffix */
            if (g_str_has_suffix (uri, ".user.js"))
-               addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_SCRIPTS);
+               addons_uri_install (view, ADDONS_USER_SCRIPTS);
            else if (g_str_has_suffix (uri, ".user.css"))
-               addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_STYLES);
+               addons_uri_install (view, ADDONS_USER_STYLES);
            else if (g_str_has_prefix (uri, "http://userscripts.org/scripts/"))
            {
                gchar** split_uri = g_strsplit (uri, "/", -1);
@@ -268,7 +265,7 @@ addons_notify_load_status_cb (MidoriBrowser*   browser,
 
                /* userscripts.org script main (with desc) and "source view" pages */
                if (!g_strcmp0 (subpage, "show") || !g_strcmp0 (subpage, "review"))
-                   addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_SCRIPTS);
+                   addons_uri_install (view, ADDONS_USER_SCRIPTS);
 
                g_strfreev (split_uri);
            }
@@ -283,7 +280,7 @@ addons_notify_load_status_cb (MidoriBrowser*   browser,
                    subpage = split_uri[5];
                /* userstyles.org style main page with style description */
                if (!subpage)
-                   addons_uri_install (browser, MIDORI_VIEW (view), ADDONS_USER_STYLES);
+                   addons_uri_install (view, ADDONS_USER_STYLES);
 
                g_strfreev (split_uri);
            }
@@ -1514,6 +1511,8 @@ addons_add_tab_cb (MidoriBrowser* browser,
     GtkWidget* web_view = midori_view_get_web_view (view);
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (addons_context_ready_cb), extension);
+    g_signal_connect (view, "notify::load-status",
+        G_CALLBACK (addons_notify_load_status_cb), extension);
 }
 
 static void
@@ -1585,8 +1584,6 @@ addons_app_add_browser_cb (MidoriApp*       app,
           (GtkCallback)addons_add_tab_foreach_cb, extension);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (addons_add_tab_cb), extension);
-    g_signal_connect (browser, "notify::load-status",
-        G_CALLBACK (addons_notify_load_status_cb), extension);
     panel = katze_object_get_object (browser, "panel");
 
     scripts = addons_new (ADDONS_USER_SCRIPTS, extension);
