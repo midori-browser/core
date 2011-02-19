@@ -3597,7 +3597,10 @@ _action_location_secondary_icon_released (GtkAction*     action,
             }
         }
         else if (gtk_window_get_focus (GTK_WINDOW (browser)) == widget)
-            _action_location_submit_uri (action, uri, FALSE, browser);
+        {
+            const gchar* text = gtk_entry_get_text (GTK_ENTRY (widget));
+            _action_location_submit_uri (action, text, FALSE, browser);
+        }
         else if ((feed = g_object_get_data (G_OBJECT (view), "news-feeds")))
         {
             KatzeArray* news_feeds;
