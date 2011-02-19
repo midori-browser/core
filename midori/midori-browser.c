@@ -1551,6 +1551,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     g_object_ref (item);
     katze_array_add_item (browser->proxy_array, item);
+    katze_array_move_item (browser->proxy_array, item,
+         gtk_notebook_get_current_page (notebook) + 1);
 
     g_object_connect (view,
                       "signal::notify::icon",
@@ -1596,11 +1598,16 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     if (!g_object_get_data (G_OBJECT (view), "midori-view-append") &&
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
-        n = gtk_notebook_get_current_page (notebook);
-        gtk_notebook_insert_page (notebook, view, tab_label, n + 1);
+        n = gtk_notebook_get_current_page (notebook) + 1;
+        gtk_notebook_insert_page (notebook, view, tab_label, n);
+        katze_array_move_item (browser->proxy_array, item, n);
     }
     else
+    {
         gtk_notebook_append_page (notebook, view, tab_label);
+        katze_array_move_item (browser->proxy_array, item,
+                               gtk_notebook_get_n_pages (notebook));
+    }
 
     gtk_notebook_set_tab_reorderable (notebook, view, TRUE);
     gtk_notebook_set_tab_detachable (notebook, view, TRUE);
