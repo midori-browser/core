@@ -1067,6 +1067,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 {
     MidoriLocationAction* action = data;
     gchar* uri_escaped;
+    gchar* uri_temp;
     gchar* uri;
     gchar* title;
     gboolean style;
@@ -1109,8 +1110,10 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     keys = g_strsplit_set (key, " %", -1);
     g_free (key);
 
-    uri = sokoke_uri_unescape_string (uri_escaped);
+    uri_temp = sokoke_uri_unescape_string (uri_escaped);
     g_free (uri_escaped);
+    uri = g_strescape (uri_temp, NULL);
+    g_free (uri_temp);
 
     if (G_LIKELY (uri))
     {
