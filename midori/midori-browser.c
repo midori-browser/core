@@ -4892,7 +4892,7 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>r",
         N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
     { "ReloadUncached", GTK_STOCK_REFRESH,
-        NULL, "<Ctrl><Shift>r",
+        N_("Reload page without caching"), "<Ctrl><Shift>r",
         N_("Reload page without caching"), G_CALLBACK (_action_reload_stop_activate) },
     { "Stop", GTK_STOCK_STOP,
         NULL, "Escape",

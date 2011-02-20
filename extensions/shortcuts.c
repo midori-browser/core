@@ -100,10 +100,16 @@ shortcuts_accel_cleared_cb (GtkCellRenderer* renderer,
 static gchar*
 shortcuts_label_for_action (GtkAction* action)
 {
+    const gchar* name = gtk_action_get_name (action);
     gchar* label;
     gchar* stripped;
 
-    if ((label = katze_object_get_string (action, "label")))
+    if (g_str_equal (name, "ReloadStop"))
+    {
+        label = NULL;
+        stripped = g_strdup (_("Reload page or stop loading"));
+    }
+    else if ((label = katze_object_get_string (action, "label")))
         stripped = katze_strip_mnemonics (label);
     else
     {
