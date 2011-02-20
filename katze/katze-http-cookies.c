@@ -178,7 +178,11 @@ katze_http_cookies_update_jar (KatzeHttpCookies* http_cookies)
     gchar* temporary_filename = NULL;
     GSList* cookies;
 
-    http_cookies->timeout = 0;
+    if (http_cookies->timeout > 0)
+    {
+        g_source_remove (http_cookies->timeout);
+        http_cookies->timeout = 0;
+    }
 
     temporary_filename = g_strconcat (http_cookies->filename, ".XXXXXX", NULL);
     if ((fn = g_mkstemp (temporary_filename)) == -1)
@@ -299,7 +303,7 @@ katze_http_cookies_detach (SoupSessionFeature* feature,
                            SoupSession*        session)
 {
     KatzeHttpCookies* http_cookies = (KatzeHttpCookies*)feature;
-    if (http_cookies->timeout)
+    if (http_cookies->timeout > 0)
         katze_http_cookies_update_jar (http_cookies);
     katze_assign (http_cookies->filename, NULL);
     katze_object_assign (http_cookies->jar, NULL);

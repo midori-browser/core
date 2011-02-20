@@ -1563,18 +1563,21 @@ midori_clear_web_cookies_cb (void)
     SoupSession* session = webkit_get_default_session ();
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
+    SoupSessionFeature* feature;
+
     for (; cookies != NULL; cookies = g_slist_next (cookies))
     {
         SoupCookie* cookie = cookies->data;
-        soup_cookie_set_max_age (cookie, 0);
-        soup_cookie_free (cookie);
+        soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookie);
     }
-    g_slist_free (cookies);
+    soup_cookies_free (cookies);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
-    if (soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES))
+    if ((feature = soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES)))
     {
-        soup_session_remove_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
-        soup_session_add_feature_by_type (session, KATZE_TYPE_HTTP_COOKIES);
+        g_object_ref (feature);
+        soup_session_remove_feature (session, feature);
+        soup_session_add_feature (session, feature);
+        g_object_unref (feature);
     }
 }
 
