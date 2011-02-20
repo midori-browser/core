@@ -433,6 +433,9 @@ _midori_browser_update_progress (MidoriBrowser* browser,
     /* When we are finished, we don't want to *see* progress anymore */
     if (midori_view_get_load_status (view) == MIDORI_LOAD_FINISHED)
         progress = 0.0;
+    /* When loading we want to see at minimum 10% progress */
+    else
+        progress = CLAMP (progress, 0.1, 1.0);
     midori_location_action_set_progress (action, progress);
 }
 
