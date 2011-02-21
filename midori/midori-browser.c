@@ -2928,6 +2928,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "BookmarksImport"},
       { "BookmarksExport"},
       #endif
+      { "HelpFAQ" },
       { "About" },
       { "Preferences" },
       #if HAVE_HILDON
