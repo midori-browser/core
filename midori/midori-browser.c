@@ -1554,8 +1554,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     g_object_ref (item);
     katze_array_add_item (browser->proxy_array, item);
-    katze_array_move_item (browser->proxy_array, item,
-         gtk_notebook_get_current_page (notebook) + 1);
 
     g_object_connect (view,
                       "signal::notify::icon",
