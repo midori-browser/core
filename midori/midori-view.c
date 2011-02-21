@@ -2414,7 +2414,7 @@ midori_view_populate_popup (MidoriView* view,
             _("Copy Link de_stination"), NULL,
             G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
         midori_view_insert_menu_item (menu_shell, -1,
-            _("_Save Link destination"), NULL,
+            NULL, GTK_STOCK_SAVE_AS,
             G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
         if (view->download_manager && *view->download_manager)
             midori_view_insert_menu_item (menu_shell, -1,
@@ -2478,13 +2478,15 @@ midori_view_populate_popup (MidoriView* view,
         #if WEBKIT_CHECK_VERSION (1, 1, 3)
         /* hack to localize menu item */
         label = gtk_bin_get_child (GTK_BIN (menuitem));
-        gtk_label_set_label (GTK_LABEL (label), _("_Download Link destination"));
+        GtkStockItem stock_item;
+        if (gtk_stock_lookup (GTK_STOCK_SAVE_AS, &stock_item))
+            gtk_label_set_label (GTK_LABEL (label), stock_item.label);
         #else
         /* hack to disable non-functional Download File */
         gtk_widget_hide (menuitem);
         gtk_widget_set_no_show_all (menuitem, TRUE);
         midori_view_insert_menu_item (menu_shell, 3,
-            _("_Save Link destination"), NULL,
+            NULL, GTK_STOCK_SAVE_AS,
             G_CALLBACK (midori_web_view_menu_save_as_activate_cb), widget);
         #endif
         if (view->download_manager && *view->download_manager)
