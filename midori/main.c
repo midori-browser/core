@@ -1288,6 +1288,7 @@ midori_load_session (gpointer data)
     KATZE_ARRAY_FOREACH_ITEM (item, _session)
     {
         g_object_set_data (G_OBJECT (item), "midori-view-append", (void*)1);
+        katze_item_set_meta_integer (item, "dont-write-history", 1);
         midori_browser_add_item (browser, item);
     }
     current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");

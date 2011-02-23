@@ -330,6 +330,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "sensitive", can_reload, NULL);
         if (!browser->show_navigationbar)
             gtk_widget_hide (browser->navigationbar);
+
+        katze_item_set_meta_integer (midori_view_get_proxy_item (view), "dont-write-history", 0);
     }
     else
     {
@@ -592,8 +594,11 @@ midori_view_notify_title_cb (GtkWidget*     widget,
                 !g_str_has_prefix (proxy_uri, "about:") &&
                 (katze_item_get_meta_integer (proxy, "history-step") == -1))
             {
-                midori_browser_new_history_item (browser, proxy);
-                katze_item_set_meta_integer (proxy, "history-step", 1);
+                if (!katze_item_get_meta_boolean (proxy, "dont-write-history"))
+                {
+                    midori_browser_new_history_item (browser, proxy);
+                    katze_item_set_meta_integer (proxy, "history-step", 1);
+                }
             }
             else if (katze_item_get_name (proxy) &&
                      !g_str_has_prefix (proxy_uri, "about:") &&
@@ -6716,6 +6721,12 @@ midori_browser_add_item (MidoriBrowser* browser,
     title = katze_item_get_name (item);
     view = midori_view_new_with_title (title, browser->settings,
         g_object_get_data (G_OBJECT (item), "midori-view-append") ? TRUE : FALSE);
+
+    proxy_item = midori_view_get_proxy_item (MIDORI_VIEW (view));
+
+    if (katze_item_get_meta_boolean (item, "dont-write-history"))
+        katze_item_set_meta_integer (proxy_item, "dont-write-history", 1);
+
     page = midori_browser_add_tab (browser, view);
 
     /* Blank pages should not be delayed */
