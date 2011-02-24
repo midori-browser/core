@@ -6731,7 +6731,8 @@ midori_browser_add_item (MidoriBrowser* browser,
 
     /* Blank pages should not be delayed */
     if (katze_item_get_meta_integer (item, "delay") > 0
-     && strcmp (uri, "about:blank") != 0)
+     && strcmp (uri, "about:blank") != 0
+     && strncmp (uri, "pause:", 6) != 0)
     {
         gchar* new_uri = g_strdup_printf ("pause:%s", uri);
         midori_view_set_uri (MIDORI_VIEW (view), new_uri);
