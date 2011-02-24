@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2008-2011 Christian Dywan <christian@twotoasts.de>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -11,6 +11,23 @@
 
 #include <midori/midori.h>
 #include <midori/sokoke.h>
+
+typedef struct
+{
+    const gchar* label;
+    gdouble level;
+} ZoomLevel;
+
+const ZoomLevel zoom_levels[] =
+{
+    { "200%", 2.0  },
+    { "175%", 1.75 },
+    { "150%", 1.5  },
+    { "125%", 1.25 },
+    { "100%", 1.0  },
+    { "50%" , 0.5  },
+    { "25%" , 0.25 }
+};
 
 static void
 statusbar_features_app_add_browser_cb (MidoriApp*       app,
@@ -45,6 +62,19 @@ statusbar_features_toolbar_notify_toolbar_style_cb (GtkWidget*  toolbar,
 }
 
 static void
+statusbar_features_browser_notify_tab_cb (MidoriBrowser* browser,
+                                          GParamSpec*    pspec,
+                                          GtkWidget*     combobox)
+{
+    MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
+    gchar* zoom_level_text = g_strdup_printf ("%d%%",
+        (gint)(midori_view_get_zoom_level (view) * 100));
+    gtk_entry_set_text (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (combobox))),
+        zoom_level_text);
+    g_free (zoom_level_text);
+}
+
+static void
 statusbar_features_deactivate_cb (MidoriExtension* extension,
                                   GtkWidget*       bbox)
 {
@@ -60,6 +90,19 @@ statusbar_features_deactivate_cb (MidoriExtension* extension,
         extension, statusbar_features_deactivate_cb, bbox);
     g_signal_handlers_disconnect_by_func (
         app, statusbar_features_app_add_browser_cb, extension);
+    g_signal_handlers_disconnect_matched (browser, G_SIGNAL_MATCH_FUNC,
+        0, -1, NULL, statusbar_features_browser_notify_tab_cb, NULL);
+}
+
+static void
+statusbar_features_zoom_level_changed_cb (GtkWidget*     combobox,
+                                          MidoriBrowser* browser)
+{
+    MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
+    GtkWidget* entry = gtk_bin_get_child (GTK_BIN (combobox));
+    const gchar* zoom_level_text = gtk_entry_get_text (GTK_ENTRY (entry));
+    gdouble zoom_level = g_ascii_strtod (zoom_level_text, NULL);
+    midori_view_set_zoom_level (view, zoom_level / 100.0);
 }
 
 static void
@@ -73,6 +116,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     GtkWidget* toolbar;
     GtkWidget* button;
     GtkWidget* image;
+    gsize i;
 
     /* FIXME: Monitor each view and modify its settings individually
               instead of merely replicating the global preferences. */
@@ -110,6 +154,15 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     button = katze_property_proxy (settings, "identify-as", NULL);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+    button = gtk_combo_box_entry_new_text ();
+    gtk_entry_set_width_chars (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (button))), 4);
+    for (i = 0; i < G_N_ELEMENTS (zoom_levels); i++)
+        gtk_combo_box_append_text (GTK_COMBO_BOX (button), zoom_levels[i].label);
+    gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+    g_signal_connect (button, "changed",
+        G_CALLBACK (statusbar_features_zoom_level_changed_cb), browser);
+    g_signal_connect (browser, "notify::tab",
+        G_CALLBACK (statusbar_features_browser_notify_tab_cb), button);
     gtk_widget_show_all (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
     g_object_unref (statusbar);
