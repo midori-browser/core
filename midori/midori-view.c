@@ -2642,13 +2642,6 @@ midori_view_populate_popup (MidoriView* view,
         } */
         #endif
 
-        if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
-        {
-            menuitem = sokoke_action_create_popup_menu_item (
-                gtk_action_group_get_action (actions, "Menubar"));
-            gtk_menu_shell_append (menu_shell, menuitem);
-        }
-
         #if !HAVE_HILDON
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "ZoomIn"));
@@ -2725,6 +2718,13 @@ midori_view_populate_popup (MidoriView* view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SourceView"));
         gtk_menu_shell_append (menu_shell, menuitem);
+
+        if (!g_object_get_data (G_OBJECT (browser), "midori-toolbars-visible"))
+        {
+            menuitem = sokoke_action_create_popup_menu_item (
+                gtk_action_group_get_action (actions, "Navigationbar"));
+            gtk_menu_shell_append (menu_shell, menuitem);
+        }
     }
 
     #if WEBKIT_CHECK_VERSION (1, 1, 17)
