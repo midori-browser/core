@@ -3914,6 +3914,45 @@ midori_view_set_uri (MidoriView*  view,
                 g_free (ident);
                 g_free (sys_name);
             }
+            else if (!strcmp (uri, "about:plugins"))
+            {
+                GtkWidget* web_view = webkit_web_view_new ();
+                WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+                JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+                /* This snippet joins the available plugins into a string like this:
+                   URI1|title1,URI2|title2 */
+                gchar* value = sokoke_js_script_eval (js_context,
+                    "function plugins (l) { var f = new Array (); for (i in l) "
+                    "{ var p = l[i].name + '|' + l[i].filename; "
+                    "if (f.indexOf (p) == -1) f.push (p); } return f; }"
+                    "plugins (navigator.plugins)", NULL);
+                gchar** items = g_strsplit (value, ",", 0);
+                guint i = 0;
+                GString* ns_plugins = g_string_new (
+                    "<html><head><title>about:plugins</title><head><body>");
+                if (items != NULL)
+                while (items[i] != NULL)
+                {
+                    gchar** parts = g_strsplit (items[i], "|", 2);
+                    if (parts && *parts && !g_str_equal (parts[1], "undefined"))
+                    {
+                        gchar* desc = parts[1];
+                        gsize j = 0;
+                        while (desc[j++])
+                            if (desc[j-1] == ';')
+                                desc[j-1] = '\n';
+                        g_string_append (ns_plugins, parts[0]);
+                        g_string_append (ns_plugins, " &nbsp; ");
+                        g_string_append (ns_plugins, desc);
+                        g_string_append (ns_plugins, "<br>");
+                    }
+                    g_strfreev (parts);
+                    i++;
+                }
+                g_string_append (ns_plugins, "</body>");
+                katze_assign (view->uri, g_strdup (uri));
+                data = g_string_free (ns_plugins, FALSE);
+            }
             else
             {
                 katze_assign (view->uri, g_strdup (uri));
