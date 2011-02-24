@@ -762,7 +762,7 @@ midori_app_quit_cb (MidoriBrowser* browser,
     g_unlink (config_file);
     g_free (config_file);
 
-    if (save_timeout && session)
+    if (session)
         midori_session_save_timeout_cb (session);
 }
 
