@@ -3929,7 +3929,8 @@ midori_view_set_uri (MidoriView*  view,
                 gchar** items = g_strsplit (value, ",", 0);
                 guint i = 0;
                 GString* ns_plugins = g_string_new (
-                    "<html><head><title>about:plugins</title><head><body>");
+                    "<html><head><title>about:plugins</title><head>"
+                    "<body><h1>about:plugins</h1>");
                 if (items != NULL)
                 while (items[i] != NULL)
                 {
@@ -3949,6 +3950,10 @@ midori_view_set_uri (MidoriView*  view,
                     g_strfreev (parts);
                     i++;
                 }
+                if (g_str_has_prefix (value, "undefined"))
+                    g_string_append (ns_plugins, "No plugins found");
+                g_strfreev (items);
+                g_free (value);
                 g_string_append (ns_plugins, "</body>");
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_string_free (ns_plugins, FALSE);
