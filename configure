@@ -38,6 +38,9 @@ cd $CUR_DIR
 checkPython()
 {
 	if [ -z "$PYTHON" ] ; then
+	    PYTHON=`which python2 2>/dev/null`
+	fi
+	if [ -z "$PYTHON" ] ; then
 	    PYTHON=`which python 2>/dev/null`
 	fi
 	printf "Checking for Python\t\t\t:  "
@@ -85,6 +88,7 @@ checkWAF()
 	else
 	  printf $GREEN"$WAF"$NORMAL"\n"
 	fi
+	WAF="$PYTHON $WAF"
 }
 
 # Generates a Makefile. Requires that $WAF is set.
