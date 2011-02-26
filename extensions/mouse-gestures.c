@@ -25,7 +25,7 @@ enum _MouseButton {
 struct MouseGestureNode {
     double x;
     double y;
-} MouseGestureNode_t;
+};
 
 struct _MouseGesture {
     MouseButton button;
@@ -38,7 +38,7 @@ struct _MouseGesture {
 #define DEVIANCE 20
 #define MINLENGTH 50
 
-MouseGesture *gesture;
+MouseGesture *gesture = NULL;
 
 void mouse_gesture_clear (MouseGesture *g)
 {
