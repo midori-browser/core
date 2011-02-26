@@ -3682,6 +3682,43 @@ midori_view_construct_web_view (MidoriView* view)
                       NULL);
 }
 
+static gchar* list_netscape_plugins ()
+{
+    GtkWidget* web_view = webkit_web_view_new ();
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+    /* This snippet joins the available plugins into a string like this:
+       URI1|title1,URI2|title2 */
+    gchar* value = sokoke_js_script_eval (js_context,
+        "function plugins (l) { var f = new Array (); for (i in l) "
+        "{ var p = l[i].name + '|' + l[i].filename; "
+        "if (f.indexOf (p) == -1) f.push (p); } return f; }"
+        "plugins (navigator.plugins)", NULL);
+    gchar** items = g_strsplit (value, ",", 0);
+    guint i = 0;
+    GString* ns_plugins = g_string_new (NULL);
+    if (items != NULL)
+        while (items[i] != NULL)
+        {
+            gchar** parts = g_strsplit (items[i], "|", 2);
+            if (parts && *parts && !g_str_equal (parts[1], "undefined"))
+            {
+                g_string_append (ns_plugins, "<tr><td>");
+                g_string_append (ns_plugins, parts[1]);
+                g_string_append (ns_plugins, "</td><td>");
+                g_string_append (ns_plugins, parts[0]);
+                g_string_append (ns_plugins, "</tr>");
+            }
+            g_strfreev (parts);
+            i++;
+        }
+        if (g_str_has_prefix (value, "undefined"))
+            g_string_append (ns_plugins, "<tr><td>No plugins found</td></tr>");
+        g_strfreev (items);
+        g_free (value);
+    return g_string_free (ns_plugins, FALSE);
+}
+
 /**
  * midori_view_set_uri:
  * @view: a #MidoriView
@@ -3842,6 +3879,7 @@ midori_view_set_uri (MidoriView*  view,
                 gchar** argument_vector = sokoke_get_argv (NULL);
                 gchar* command_line = g_strjoinv (" ", argument_vector);
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
+                gchar* netscape_plugins = list_netscape_plugins ();
                 #if defined (G_OS_WIN32)
                 gchar* sys_name = g_strdup ("Windows");
                 #else
@@ -3890,6 +3928,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Platform</td><td>%s</td></tr>"
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "</table>"
+                    "<h2>Netscape Plugins:</h2><table>%s</table>"
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
@@ -3909,55 +3948,13 @@ midori_view_set_uri (MidoriView*  view,
                     HAVE_LIBIDN ? "Yes" : "No",
                     HAVE_UNIQUE ? "Yes" : "No",
                     HAVE_HILDON ? "Yes" : "No",
-                    sys_name, ident);
+                    sys_name, ident,
+                    netscape_plugins);
                 g_free (command_line);
                 g_free (ident);
                 g_free (sys_name);
-            }
-            else if (!strcmp (uri, "about:plugins"))
-            {
-                GtkWidget* web_view = webkit_web_view_new ();
-                WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-                JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-                /* This snippet joins the available plugins into a string like this:
-                   URI1|title1,URI2|title2 */
-                gchar* value = sokoke_js_script_eval (js_context,
-                    "function plugins (l) { var f = new Array (); for (i in l) "
-                    "{ var p = l[i].name + '|' + l[i].filename; "
-                    "if (f.indexOf (p) == -1) f.push (p); } return f; }"
-                    "plugins (navigator.plugins)", NULL);
-                gchar** items = g_strsplit (value, ",", 0);
-                guint i = 0;
-                GString* ns_plugins = g_string_new (
-                    "<html><head><title>about:plugins</title><head>"
-                    "<body><h1>about:plugins</h1>");
-                if (items != NULL)
-                while (items[i] != NULL)
-                {
-                    gchar** parts = g_strsplit (items[i], "|", 2);
-                    if (parts && *parts && !g_str_equal (parts[1], "undefined"))
-                    {
-                        gchar* desc = parts[1];
-                        gsize j = 0;
-                        while (desc[j++])
-                            if (desc[j-1] == ';')
-                                desc[j-1] = '\n';
-                        g_string_append (ns_plugins, parts[0]);
-                        g_string_append (ns_plugins, " &nbsp; ");
-                        g_string_append (ns_plugins, desc);
-                        g_string_append (ns_plugins, "<br>");
-                    }
-                    g_strfreev (parts);
-                    i++;
-                }
-                if (g_str_has_prefix (value, "undefined"))
-                    g_string_append (ns_plugins, "No plugins found");
-                g_strfreev (items);
-                g_free (value);
-                g_string_append (ns_plugins, "</body>");
-                katze_assign (view->uri, g_strdup (uri));
-                data = g_string_free (ns_plugins, FALSE);
-            }
+                g_free (netscape_plugins);
+           }
             else
             {
                 katze_assign (view->uri, g_strdup (uri));
