@@ -1981,7 +1981,10 @@ static void
 midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
                                             MidoriView* view)
 {
-    midori_web_view_set_clipboard (widget, view->link_uri);
+    if (g_str_has_prefix (view->link_uri, "mailto:"))
+        midori_web_view_set_clipboard (widget, view->link_uri + 7);
+    else
+        midori_web_view_set_clipboard (widget, view->link_uri);
 }
 
 static void
