@@ -5422,12 +5422,11 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
         MidoriBrowser* browser;
         GtkWidget* view;
 
+        /* Switch to n-th tab. 9 and 0 go to the last tab. */
         n = keyval - GDK_0;
-        if (n == 0)
-            n = 10;
         browser = g_object_get_data (G_OBJECT (accel_group), "midori-browser");
         if ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook),
-                                          n - 1)))
+                                               n < 9 ? n - 1 : -1)))
             midori_browser_set_current_tab (browser, view);
     }
 }
