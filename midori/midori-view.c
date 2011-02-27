@@ -1557,6 +1557,15 @@ midori_web_view_notify_icon_uri_cb (WebKitWebView* web_view,
 
 #if WEBKIT_CHECK_VERSION (1, 1, 4)
 static void
+webkit_web_view_notify_uri_cb (WebKitWebView* web_view,
+                               GParamSpec*    pspec,
+                               MidoriView*    view)
+{
+    katze_assign (view->uri, g_strdup (webkit_web_view_get_uri (web_view)));
+    g_object_notify (G_OBJECT (view), "uri");
+}
+
+static void
 webkit_web_view_notify_title_cb (WebKitWebView* web_view,
                                  GParamSpec*    pspec,
                                  MidoriView*    view)
@@ -3613,6 +3622,8 @@ midori_view_construct_web_view (MidoriView* view)
                       midori_web_view_notify_icon_uri_cb, view,
                       #endif
                       #if WEBKIT_CHECK_VERSION (1, 1, 4)
+                      "signal::notify::uri",
+                      webkit_web_view_notify_uri_cb, view,
                       "signal::notify::title",
                       webkit_web_view_notify_title_cb, view,
                       #else

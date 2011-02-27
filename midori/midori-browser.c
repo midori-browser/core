@@ -557,15 +557,18 @@ midori_view_context_ready_cb (GtkWidget*     view,
 }
 
 static void
-midori_view_notify_uri_cb (GtkWidget*     view,
+midori_view_notify_uri_cb (GtkWidget*     widget,
                            GParamSpec*    pspec,
                            MidoriBrowser* browser)
 {
-    if (view == midori_browser_get_current_tab (browser))
+    if (widget == midori_browser_get_current_tab (browser))
     {
-        const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+        MidoriView* view = MIDORI_VIEW (widget);
+        const gchar* uri = midori_view_get_display_uri (view);
         GtkAction* action = _action_by_name (browser, "Location");
         midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
+        _action_set_sensitive (browser, "Back", midori_view_can_go_back (view));
+        _action_set_sensitive (browser, "Forward", midori_view_can_go_forward (view));
     }
 }
 
