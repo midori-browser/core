@@ -4748,10 +4748,7 @@ gtk_notebook_switch_page_after_cb (GtkWidget*       notebook,
     if (browser->proxy_array)
         katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current",
                                      midori_browser_get_current_page (browser));
-    g_object_freeze_notify (G_OBJECT (browser));
-    g_object_notify (G_OBJECT (browser), "uri");
     g_object_notify (G_OBJECT (browser), "tab");
-    g_object_thaw_notify (G_OBJECT (browser));
 
     _midori_browser_set_statusbar_text (browser, NULL);
     _midori_browser_update_interface (browser);
@@ -4766,11 +4763,7 @@ midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
 {
     KatzeItem* item = midori_view_get_proxy_item (view);
     katze_array_move_item (browser->proxy_array, item, page_num);
-
-    g_object_freeze_notify (G_OBJECT (browser));
-    g_object_notify (G_OBJECT (browser), "uri");
     g_object_notify (G_OBJECT (browser), "tab");
-    g_object_thaw_notify (G_OBJECT (browser));
 }
 
 static void
@@ -7033,6 +7026,11 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
         gtk_action_activate (_action_by_name (browser, "Location"));
     else
         gtk_widget_grab_focus (view);
+
+    g_object_freeze_notify (G_OBJECT (browser));
+    g_object_notify (G_OBJECT (browser), "uri");
+    g_object_notify (G_OBJECT (browser), "tab");
+    g_object_thaw_notify (G_OBJECT (browser));
 }
 
 /**
