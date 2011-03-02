@@ -4381,6 +4381,24 @@ _action_inspect_page_activate (GtkAction*     action,
 #endif
 
 static void
+_action_tab_move_backward_activate (GtkAction*     action,
+                                    MidoriBrowser* browser)
+{
+    gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
+    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, n - 1);
+}
+
+static void
+_action_tab_move_forward_activate (GtkAction*     action,
+                                   MidoriBrowser* browser)
+{
+    gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
+    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, n + 1);
+}
+
+static void
 _action_tab_previous_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
@@ -5037,6 +5055,10 @@ static const GtkActionEntry entries[] =
     { "TabNext", GTK_STOCK_GO_FORWARD,
         N_("_Next Tab"), "<Ctrl>Page_Down",
         N_("Switch to the next tab"), G_CALLBACK (_action_tab_next_activate) },
+    { "TabMoveBackward", NULL, N_("_Move Tab Backward"), "<Ctrl><Shift>Page_Up",
+       N_("Move tab behind the previous tab"), G_CALLBACK (_action_tab_move_backward_activate) },
+    { "TabMoveForward", NULL, N_("_Move Tab Forward"), "<Ctrl><Shift>Page_Down",
+       N_("Move tab in front of the next tab"), G_CALLBACK (_action_tab_move_forward_activate) },
     { "TabCurrent", NULL,
         N_("Focus _Current Tab"), "<Ctrl>Home",
         N_("Focus the current tab"), G_CALLBACK (_action_tab_current_activate) },
@@ -5315,6 +5337,8 @@ static const gchar* ui_markup =
         /* For accelerators to work all actions need to be used
            *somewhere* in the UI definition */
         "<menu action='Dummy'>"
+            "<menuitem action='TabMoveBackward'/>"
+            "<menuitem action='TabMoveForward'/>"
             "<menuitem action='ScrollLeft'/>"
             "<menuitem action='ScrollDown'/>"
             "<menuitem action='ScrollUp'/>"
