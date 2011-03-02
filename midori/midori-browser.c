@@ -4755,6 +4755,14 @@ midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
     g_object_thaw_notify (G_OBJECT (browser));
 }
 
+static void
+midori_browser_switch_tab_cb (GtkWidget*     menuitem,
+                              MidoriBrowser* browser)
+{
+    gint index = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menuitem), "index"));
+    midori_browser_set_current_page (browser, index);
+}
+
 static gboolean
 midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
                                                      GdkEventButton* event,
@@ -4773,6 +4781,36 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
         midori_browser_set_current_page (browser, n);
 
         return TRUE;
+    }
+    else if (event->type == GDK_BUTTON_PRESS && event->button == 3)
+    {
+        GtkWidget* menu = gtk_menu_new ();
+        GList* tabs = gtk_container_get_children (GTK_CONTAINER (notebook));
+        GtkWidget* menuitem = sokoke_action_create_popup_menu_item (
+            gtk_action_group_get_action (browser->action_group, "TabNew"));
+        gint i;
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        menuitem = sokoke_action_create_popup_menu_item (
+            gtk_action_group_get_action (browser->action_group, "UndoTabClose"));
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        menuitem = gtk_separator_menu_item_new ();
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+        for (; tabs != NULL; tabs = g_list_next (tabs))
+        {
+            const gchar* title = midori_view_get_display_title (tabs->data);
+            menuitem = katze_image_menu_item_new_ellipsized (title);
+            gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem),
+                gtk_image_new_from_pixbuf (midori_view_get_icon (tabs->data)));
+            gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+            g_object_set_data (G_OBJECT (menuitem), "index", GINT_TO_POINTER (i));
+            g_signal_connect (menuitem, "activate",
+                G_CALLBACK (midori_browser_switch_tab_cb), browser);
+            i++;
+        }
+        g_list_free (tabs);
+        gtk_widget_show_all (menu);
+        katze_widget_popup (GTK_WIDGET (notebook), GTK_MENU (menu), NULL,
+            event->button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
     }
 
     return FALSE;
