@@ -1866,28 +1866,29 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 NULL);
             view->find_links = 0;
         }
-        else if (digit != -1 || event->keyval == GDK_Return)
+        else if (digit != -1 && event->keyval != GDK_Return && event->keyval != GDK_Escape)
+        {
+            if (view->find_links > -1)
+                view->find_links *= 10;
+            view->find_links += digit;
+        }
+        else if (event->keyval == GDK_Escape)
+        {
+            view->find_links = 0;
+        }
+        else if (event->keyval == GDK_Return)
         {
             gchar* script;
-            if (event->keyval != GDK_Return)
-            {
-                if (view->find_links > -1)
-                    view->find_links *= 10;
-                view->find_links += digit;
-            }
             script = g_strdup_printf (
                 "var links = document.getElementsByClassName ('midoriHKD87346');"
                 "var i = %d; var return_key = %d;"
-                "if (return_key || typeof links[i * 10] == 'undefined') {"
-                "    for (var j = 0; j < links.length; j++)"
-                "        links[j].style.display = 'none !important';"
+                "if (return_key) {"
                 "    if (typeof links[i] != 'undefined')"
                 "        links[i].parentNode.href; }",
                 view->find_links, event->keyval == GDK_Return);
             result = sokoke_js_script_eval (js_context, script, NULL);
             if (result && strstr (result, "://"))
             {
-                view->find_links = -1;
                 if (MIDORI_MOD_NEW_TAB (event->state))
                 {
                     gboolean background = view->open_tabs_in_the_background;
@@ -1896,20 +1897,33 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                     g_signal_emit (view, signals[NEW_TAB], 0, result, background);
                 }
                 else
+                {
+                    gchar* dummy = sokoke_js_script_eval (js_context,
+                        "var links = document.getElementsByClassName ('midoriHKD87346');"
+                        "for (var i = links.length - 1; i >= 0; i--) {"
+                        "   var parent = links[i].parentNode;"
+                        "   parent.removeChild(links[i]); }",
+                        NULL);
+                    g_free (dummy);
+                    view->find_links = -1;
                     midori_view_set_uri (view, result);
+                }
             }
             g_free (script);
+            g_free (result);
+            view->find_links = 0;
         }
         else
         {
             result = sokoke_js_script_eval (js_context,
                 "var links = document.getElementsByClassName ('midoriHKD87346');"
-                "for (var i = 0; i < links.length; i++)"
-                "  links[i].style.display = 'none !important';",
+                "for (var i = links.length - 1; i >= 0; i--) {"
+                "   var parent = links[i].parentNode;"
+                "   parent.removeChild(links[i]); }",
                 NULL);
+            g_free (result);
             view->find_links = -1;
         }
-        g_free (result);
         return FALSE;
     }
 
