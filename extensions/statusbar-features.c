@@ -152,7 +152,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     g_signal_connect (toolbar, "notify::toolbar-style",
         G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    button = katze_property_proxy (settings, "identify-as", NULL);
+    button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     button = gtk_combo_box_entry_new_text ();
     gtk_entry_set_width_chars (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (button))), 4);
