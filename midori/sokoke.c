@@ -271,6 +271,34 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
     gtk_widget_destroy (dialog);
 }
 
+static GAppInfo*
+sokoke_default_for_uri (const gchar* uri,
+                        gchar**      scheme_ptr)
+{
+    gchar* scheme;
+    GAppInfo* info;
+
+    scheme = g_uri_parse_scheme (uri);
+    if (scheme_ptr != NULL)
+        *scheme_ptr = scheme;
+    if (!scheme)
+        return NULL;
+
+    info = g_app_info_get_default_for_uri_scheme (scheme);
+    #if !GLIB_CHECK_VERSION (2, 28, 0)
+    if (!info)
+    {
+        gchar* type = g_strdup_printf ("x-scheme-handler/%s", scheme);
+        info = g_app_info_get_default_for_type (type, FALSE);
+        g_free (type);
+    }
+    #endif
+    if (info != NULL && scheme_ptr != NULL)
+        g_free (scheme);
+    return info;
+
+}
+
 /**
  * sokoke_show_uri:
  * @screen: a #GdkScreen, or %NULL
@@ -281,6 +309,7 @@ sokoke_open_with_response_cb (GtkWidget* dialog,
  * Shows the specified URI with an appropriate application. This
  * supports xdg-open, exo-open and gnome-open as fallbacks if
  * GIO doesn't do the trick.
+ * x-scheme-handler is supported for GLib < 2.28 as of 0.3.3.
  *
  * On Maemo, hildon_uri_open() is used.
  *
@@ -364,6 +393,10 @@ sokoke_show_uri (GdkScreen*   screen,
 
     #else
 
+    #if !GLIB_CHECK_VERSION (2, 28, 0)
+    GAppInfo* info;
+    gchar* scheme;
+    #endif
     const gchar* fallbacks [] = { "xdg-open", "exo-open", "gnome-open" };
     gsize i;
     GtkWidget* dialog;
@@ -384,6 +417,25 @@ sokoke_show_uri (GdkScreen*   screen,
     #else
     if (g_app_info_launch_default_for_uri (uri, NULL, NULL))
         return TRUE;
+    #endif
+
+    #if !GLIB_CHECK_VERSION (2, 28, 0)
+    info = sokoke_default_for_uri (uri, &scheme);
+    if (info)
+    {
+        gchar* argument = g_strdup (&uri[scheme - uri]);
+        GList* uris = g_list_prepend (NULL, argument);
+        if (g_app_info_launch_uris (info, uris, NULL, NULL))
+        {
+            g_list_free (uris);
+            g_free (scheme);
+            g_object_unref (info);
+            return TRUE;
+        }
+        g_list_free (uris);
+        g_free (scheme);
+        g_object_unref (info);
+    }
     #endif
 
     for (i = 0; i < G_N_ELEMENTS (fallbacks); i++)
@@ -756,7 +808,6 @@ sokoke_resolve_hostname (const gchar* hostname)
 gboolean
 sokoke_external_uri (const gchar* uri)
 {
-    gchar* scheme;
     GAppInfo* info;
 
     if (!uri || !strncmp (uri, "http", 4)
@@ -764,12 +815,7 @@ sokoke_external_uri (const gchar* uri)
              || !strncmp (uri, "about:", 6))
         return FALSE;
 
-    scheme = g_uri_parse_scheme (uri);
-    if (!scheme)
-        return FALSE;
-
-    info = g_app_info_get_default_for_uri_scheme (scheme);
-    g_free (scheme);
+    info = sokoke_default_for_uri (uri, NULL);
     if (info)
         g_object_unref (info);
     return info != NULL;
