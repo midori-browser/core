@@ -383,6 +383,8 @@ katze_array_find_token (KatzeArray*  array,
     guint i;
     gpointer item;
 
+    g_return_val_if_fail (KATZE_IS_ARRAY (array), NULL);
+
     i = 0;
     while ((item = g_list_nth_data (array->items, i++)))
     {
