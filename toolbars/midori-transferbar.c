@@ -79,13 +79,32 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
     gchar* total;
     gchar* size_text;
     gchar* text;
+    gchar* transfer;
+    gdouble* last_time;
+    guint64* last_size;
+    gdouble time;
+    guint64 size;
 
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
         webkit_download_get_progress (download));
 
     current = g_format_size_for_display (webkit_download_get_current_size (download));
     total = g_format_size_for_display (webkit_download_get_total_size (download));
-    size_text = g_strdup_printf (_("%s of %s"), current, total);
+    last_time = g_object_get_data (G_OBJECT (download), "last-time");
+    last_size = g_object_get_data (G_OBJECT (download), "last-size");
+    time = webkit_download_get_elapsed_time (download);
+    size = webkit_download_get_current_size (download);
+    if (time != *last_time)
+        transfer = g_format_size_for_display ((size - *last_size) / (time - *last_time));
+    else
+        transfer = "?B";
+    /* i18n: Download tooltip, 4KB of 43MB, 130KB/s */
+    size_text = g_strdup_printf (_("%s of %s, %s/s"), current, total, transfer);
+    if (time - *last_time > 5.0)
+    {
+        *last_time = time;
+        *last_size = size;
+    }
     g_free (current);
     g_free (total);
     text = g_strdup_printf ("%s (%s)",
@@ -224,6 +243,8 @@ midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
         G_CALLBACK (midori_transferbar_download_notify_status_cb), info);
     g_signal_connect (button, "clicked",
         G_CALLBACK (midori_transferbar_download_button_clicked_cb), info);
+    g_object_set_data_full (G_OBJECT (download), "last-time", g_new0 (gdouble, 1), g_free);
+    g_object_set_data_full (G_OBJECT (download), "last-size", g_new0 (guint64, 1), g_free);
 }
 
 static void
