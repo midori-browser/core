@@ -4395,7 +4395,10 @@ _action_tab_move_forward_activate (GtkAction*     action,
 {
     gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
     GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
-    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, n + 1);
+    if (n == (gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1))
+        gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, 0);
+    else
+        gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, n + 1);
 }
 
 static void
