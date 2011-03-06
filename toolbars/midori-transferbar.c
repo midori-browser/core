@@ -97,7 +97,8 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
     if (time != *last_time)
         transfer = g_format_size_for_display ((size - *last_size) / (time - *last_time));
     else
-        transfer = g_strup ("?B");
+        /* i18n: Unknown number of bytes, used for transfer rate like ?B/s */
+        transfer = g_strdup (_("?B"));
     /* i18n: Download tooltip, 4KB of 43MB, 130KB/s */
     size_text = g_strdup_printf (_("%s of %s, %s/s"), current, total, transfer);
     if (time - *last_time > 5.0)
