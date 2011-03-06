@@ -3285,10 +3285,8 @@ static gboolean
 midori_view_focus_in_event (GtkWidget*     widget,
                             GdkEventFocus* event)
 {
-    MidoriView* view = MIDORI_VIEW (widget);
-
     /* Always propagate focus to the child web view */
-    gtk_widget_grab_focus (view->web_view);
+    gtk_widget_grab_focus (midori_view_get_web_view (MIDORI_VIEW (widget)));
     return TRUE;
 }
 

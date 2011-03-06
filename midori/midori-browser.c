@@ -1671,6 +1671,9 @@ midori_browser_key_press_event (GtkWidget*   widget,
     GtkWidgetClass* widget_class;
     guint clean_state;
 
+    if (gtk_window_get_focus (GTK_WINDOW (widget)) == NULL)
+        gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
+
     if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
         if (sokoke_window_activate_key (window, event))
             return TRUE;
