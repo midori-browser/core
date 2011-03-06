@@ -983,6 +983,7 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
     }
 
     webkit_download_set_destination_uri (download, uri);
+    g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     midori_transferbar_add_download_item (MIDORI_TRANSFERBAR (browser->transferbar), download);
     return TRUE;
 }
@@ -1416,7 +1417,6 @@ midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
-    g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     if (!webkit_download_get_destination_uri (download))
     {
         gchar* folder;
