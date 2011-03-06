@@ -1974,19 +1974,6 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
 
 #if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
-midori_web_view_set_clipboard (GtkWidget*   widget,
-                                      const gchar* text)
-{
-    GdkDisplay* display = gtk_widget_get_display (widget);
-    GtkClipboard* clipboard;
-
-    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
-    gtk_clipboard_set_text (clipboard, text, -1);
-    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
-    gtk_clipboard_set_text (clipboard, text, -1);
-}
-
-static void
 midori_web_view_menu_new_window_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
@@ -2005,9 +1992,9 @@ midori_web_view_menu_link_copy_activate_cb (GtkWidget*  widget,
                                             MidoriView* view)
 {
     if (g_str_has_prefix (view->link_uri, "mailto:"))
-        midori_web_view_set_clipboard (widget, view->link_uri + 7);
+        sokoke_widget_copy_clipboard (widget, view->link_uri + 7);
     else
-        midori_web_view_set_clipboard (widget, view->link_uri);
+        sokoke_widget_copy_clipboard (widget, view->link_uri);
 }
 
 static void
@@ -2037,7 +2024,7 @@ midori_web_view_menu_image_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
-    midori_web_view_set_clipboard (widget, uri);
+    sokoke_widget_copy_clipboard (widget, uri);
     g_free (uri);
 }
 
@@ -2060,7 +2047,7 @@ midori_web_view_menu_video_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
     gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
-    midori_web_view_set_clipboard (widget, uri);
+    sokoke_widget_copy_clipboard (widget, uri);
     g_free (uri);
 }
 
@@ -2153,7 +2140,7 @@ static void
 midori_web_view_menu_copy_activate_cb (GtkWidget*  widget,
                                        MidoriView* view)
 {
-    midori_web_view_set_clipboard (widget, view->selected_text);
+    sokoke_widget_copy_clipboard (widget, view->selected_text);
 }
 #endif
 

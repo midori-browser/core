@@ -2171,3 +2171,16 @@ sokoke_register_privacy_item (const gchar* name,
     items = g_list_append (items, item);
     return NULL;
 }
+
+void
+sokoke_widget_copy_clipboard (GtkWidget*   widget,
+                              const gchar* text)
+{
+    GdkDisplay* display = gtk_widget_get_display (widget);
+    GtkClipboard* clipboard;
+
+    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text (clipboard, text, -1);
+    clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
+    gtk_clipboard_set_text (clipboard, text, -1);
+}

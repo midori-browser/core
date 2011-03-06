@@ -2443,6 +2443,15 @@ _action_copy_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
+    /* Work around broken clipboard handling for the sake of the user */
+    if (WEBKIT_IS_WEB_VIEW (widget))
+    {
+        GtkWidget* scrolled = gtk_widget_get_parent (widget);
+        GtkWidget* view = gtk_widget_get_parent (scrolled);
+        const gchar* selected = midori_view_get_selected_text (MIDORI_VIEW (view));
+        sokoke_widget_copy_clipboard (widget, selected);
+        return;
+    }
     if (G_LIKELY (widget) && g_signal_lookup ("copy-clipboard", G_OBJECT_TYPE (widget)))
         g_signal_emit_by_name (widget, "copy-clipboard");
 }

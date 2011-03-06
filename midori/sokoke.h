@@ -280,4 +280,8 @@ sokoke_register_privacy_item (const gchar* name,
                               const gchar* label,
                               GCallback    clear);
 
+void
+sokoke_widget_copy_clipboard (GtkWidget*   widget,
+                              const gchar* text);
+
 #endif /* !__SOKOKE_H__ */
