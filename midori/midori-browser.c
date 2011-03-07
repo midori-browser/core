@@ -4781,6 +4781,16 @@ midori_browser_notebook_page_reordered_cb (GtkNotebook*   notebook,
     g_object_notify (G_OBJECT (browser), "tab");
 }
 
+static gboolean
+midori_browser_notebook_reorder_tab_cb (GtkNotebook*     notebook,
+                                        GtkDirectionType arg1,
+                                        gboolean         arg2,
+                                        gpointer         user_data)
+{
+    g_signal_stop_emission_by_name (notebook, "reorder-tab");
+    return TRUE;
+}
+
 static void
 midori_browser_switch_tab_cb (GtkWidget*     menuitem,
                               MidoriBrowser* browser)
@@ -5246,6 +5256,9 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
     /* Destroy panel first, so panels don't need special care */
     gtk_widget_destroy (browser->panel);
     /* Destroy tabs second, so child widgets don't need special care */
+    g_signal_handlers_disconnect_by_func (browser->notebook,
+                                          midori_browser_notebook_reorder_tab_cb,
+                                          NULL);
     gtk_container_foreach (GTK_CONTAINER (browser->notebook),
                            (GtkCallback) gtk_widget_destroy, NULL);
 }
@@ -5968,6 +5981,8 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect_after (browser->notebook, "button-press-event",
         G_CALLBACK (midori_browser_notebook_button_press_event_after_cb),
                       browser);
+    g_signal_connect (browser->notebook, "reorder-tab",
+                      G_CALLBACK (midori_browser_notebook_reorder_tab_cb), NULL);
     gtk_widget_show (browser->notebook);
 
     /* Inspector container */
