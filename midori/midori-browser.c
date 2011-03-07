@@ -136,6 +136,7 @@ enum
     NEW_WINDOW,
     ADD_TAB,
     REMOVE_TAB,
+    MOVE_TAB,
     ACTIVATE_ACTION,
     CONTEXT_READY,
     ADD_DOWNLOAD,
@@ -1753,6 +1754,28 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
         GTK_TYPE_WIDGET);
+
+    /**
+     * MidoriBrowser::move-tab:
+     * @browser: the object on which the signal is emitted
+     * @notebook: the notebook containing the tabs
+     * @cur_pos: the current position of the tab
+     * @new_pos: the new position of the tab
+     *
+     * Emitted when a tab is moved.
+     *
+     * Since: 0.3.3
+     */
+     signals[MOVE_TAB] = g_signal_new (
+        "move-tab",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        midori_cclosure_marshal_VOID__OBJECT_INT_INT,
+        G_TYPE_NONE, 3,
+        GTK_TYPE_NOTEBOOK, G_TYPE_INT, G_TYPE_INT);
 
     signals[ACTIVATE_ACTION] = g_signal_new (
         "activate-action",
@@ -4396,21 +4419,30 @@ static void
 _action_tab_move_backward_activate (GtkAction*     action,
                                     MidoriBrowser* browser)
 {
-    gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
-    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, n - 1);
+    gint new_pos;
+    gint cur_pos = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), cur_pos);
+    if (cur_pos > 0)
+        new_pos = cur_pos - 1;
+    else
+        new_pos = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1;
+    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, new_pos);
+    g_signal_emit (browser, signals[MOVE_TAB], 0, browser->notebook, cur_pos, new_pos);
 }
 
 static void
 _action_tab_move_forward_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
-    gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
-    if (n == (gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1))
-        gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, 0);
+    gint new_pos;
+    gint cur_pos = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
+    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), cur_pos);
+    if (cur_pos == (gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1))
+        new_pos = 0;
     else
-        gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, n + 1);
+        new_pos = cur_pos + 1;
+    gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, new_pos);
+    g_signal_emit (browser, signals[MOVE_TAB], 0, browser->notebook, cur_pos, new_pos);
 }
 
 static void

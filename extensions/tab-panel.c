@@ -38,6 +38,13 @@ static void
 tab_panel_browser_notify_tab_cb (MidoriBrowser* browser,
                                  GParamSpec*    pspec,
                                  GtkTreeView*   treeview);
+static void
+tab_panel_browser_move_tab_cb (MidoriBrowser* browser,
+                               GtkNotebook*   notebook,
+                               gint           cur_pos,
+                               gint           new_pos,
+                               gpointer       user_data);
+
 
 static void
 tab_panel_view_notify_minimized_cb (GtkWidget*       view,
@@ -124,6 +131,8 @@ tab_panel_deactivate_cb (MidoriExtension* extension,
         browser, tab_panel_view_notify_icon_cb, extension);
     g_signal_handlers_disconnect_by_func (
         browser, tab_panel_view_notify_title_cb, extension);
+    g_signal_handlers_disconnect_by_func (
+        browser, tab_panel_browser_move_tab_cb, NULL);
 
     gtk_widget_destroy (treeview);
 }
@@ -598,6 +607,8 @@ tab_panel_app_add_browser_cb (MidoriApp*       app,
         G_CALLBACK (tab_panel_browser_notify_tab_cb), treeview);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (tab_panel_deactivate_cb), treeview);
+    g_signal_connect (browser, "move-tab",
+        G_CALLBACK (tab_panel_browser_move_tab_cb), NULL);
 }
 
 static void
@@ -613,6 +624,33 @@ tab_panel_activate_cb (MidoriExtension* extension,
     g_object_unref (browsers);
     g_signal_connect (app, "add-browser",
         G_CALLBACK (tab_panel_app_add_browser_cb), extension);
+}
+
+static void
+tab_panel_browser_move_tab_cb (MidoriBrowser* browser,
+                               GtkNotebook*   notebook,
+                               gint           cur_pos,
+                               gint           new_pos,
+                               gpointer       user_data)
+{
+    GtkTreeIter cur, new;
+    gint last_page;
+    GtkTreeModel *model;
+
+    last_page = gtk_notebook_get_n_pages (notebook) - 1;
+    model = tab_panel_get_model_for_browser (browser);
+
+    gtk_tree_model_iter_nth_child (model, &cur, NULL, cur_pos);
+
+    if (cur_pos == 0 && new_pos == last_page)
+        gtk_tree_store_move_before (GTK_TREE_STORE (model), &cur, NULL);
+    else if (cur_pos == last_page && new_pos == 0)
+        gtk_tree_store_move_after (GTK_TREE_STORE (model), &cur, NULL);
+    else
+    {
+        gtk_tree_model_iter_nth_child (model, &new, NULL, new_pos);
+        gtk_tree_store_swap (GTK_TREE_STORE (model), &cur, &new);
+    }
 }
 
 MidoriExtension*
