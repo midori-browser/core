@@ -98,19 +98,6 @@ def configure (conf):
             sys.exit (1)
     conf.check_tool ('glib2')
 
-    if option_enabled ('userdocs'):
-        conf.find_program ('rst2html.py', var='RST2HTML')
-        # debian renames the executable, check that as well :(
-        if not conf.env['RST2HTML']:
-            conf.find_program ('rst2html', var='RST2HTML')
-        if conf.env['RST2HTML']:
-            user_docs = 'yes'
-        else:
-            option_checkfatal ('userdocs', 'user documentation')
-            user_docs = 'N/A'
-    else:
-        user_docs = 'no '
-
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
@@ -329,7 +316,6 @@ def configure (conf):
         Notifications:       %(libnotify)s (libnotify)
 
         IDN support:         %(idn)s (libidn or libsoup 2.27.90)
-        User documentation:  %(user_docs)s (docutils)
         API documentation:   %(api_docs)s (gtk-doc)
         ''' % locals ())
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
@@ -368,7 +354,6 @@ def set_options (opt):
     group.add_option ('--update-po', action='store_true', default=False,
         help='Update localization files', dest='update_po')
     add_enable_option ('docs', 'informational text files', group)
-    add_enable_option ('userdocs', 'user documentation', group)
     add_enable_option ('apidocs', 'API documentation', group, disable=True)
 
     group = opt.add_option_group ('Optional features', '')
@@ -419,23 +404,10 @@ def build (bld):
 
     if bld.env['docs']:
         bld.install_files ('${DOCDIR}/', \
-            'AUTHORS COPYING ChangeLog EXPAT README')
+            'AUTHORS COPYING ChangeLog EXPAT README data/faq.html data/faq.css')
 
     # Install default configuration
     bld.install_files ('${SYSCONFDIR}/xdg/' + APPNAME + '/', 'data/search')
-
-    if bld.env['RST2HTML']:
-        # FIXME: Build only if needed
-        Utils.check_dir (blddir)
-        Utils.check_dir (blddir + '/docs')
-        Utils.check_dir (blddir + '/docs/user')
-        os.chdir (blddir + '/docs/user')
-        command = bld.env['RST2HTML'] + ' -stg ' + \
-            '--stylesheet=../../../docs/user/midori.css ' + \
-            '../../../docs/user/midori.txt ' + 'midori.html'
-        Utils.exec_command (command)
-        os.chdir ('../../..')
-        bld.install_files ('${DOCDIR}/user/', blddir + '/docs/user/midori.html')
 
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')

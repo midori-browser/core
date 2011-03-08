@@ -3032,7 +3032,7 @@ midori_preferences_response_help_cb (GtkWidget*     preferences,
                                      MidoriBrowser* browser)
 {
     if (response == GTK_RESPONSE_HELP)
-        gtk_action_activate (_action_by_name (browser, "HelpContents"));
+        gtk_action_activate (_action_by_name (browser, "HelpFAQ"));
 }
 
 static void
@@ -4589,20 +4589,20 @@ _action_help_link_activate (GtkAction*     action,
     #endif
 
     action_name = gtk_action_get_name (action);
-    if  (!strncmp ("HelpContents", action_name, 12))
+    if  (!strncmp ("HelpFAQ", action_name, 7))
     {
         #ifdef G_OS_WIN32
         {
             #ifdef DOCDIR
-            gchar* path = sokoke_find_data_filename ("doc/midori/user/midori.html");
+            gchar* path = sokoke_find_data_filename ("doc/midori/faq.html");
             uri = free_uri = g_filename_to_uri (path, NULL, NULL);
             if (g_access (path, F_OK) != 0)
             {
-                if (g_access (DOCDIR "/user/midori.html", F_OK) == 0)
-                    uri = "file://" DOCDIR "/user/midori.html";
+                if (g_access (DOCDIR "/faq.html", F_OK) == 0)
+                    uri = "file://" DOCDIR "/faq.html";
                 else
             #endif
-                    uri = "error:nodocs share/doc/midori/user/midori.html";
+                    uri = "error:nodocs share/doc/midori/faq.html";
             #ifdef DOCDIR
             }
             g_free (path);
@@ -4610,14 +4610,12 @@ _action_help_link_activate (GtkAction*     action,
         }
         #else
         #ifdef DOCDIR
-        uri = "file://" DOCDIR "/user/midori.html";
-        if (g_access (DOCDIR "/user/midori.html", F_OK) != 0)
+        uri = "file://" DOCDIR "/faq.html";
+        if (g_access (DOCDIR "/faq.html", F_OK) != 0)
         #endif
-            uri = "error:nodocs " DOCDIR "/user/midori.html";
+            uri = "error:nodocs " DOCDIR "/faq.html";
         #endif
     }
-    else if  (!strncmp ("HelpFAQ", action_name, 7))
-        uri = "http://wiki.xfce.org/midori/faq";
     else if  (!strncmp ("HelpBugs", action_name, 8))
         uri = PACKAGE_BUGREPORT;
     else
@@ -5126,11 +5124,8 @@ static const GtkActionEntry entries[] =
         N_("Open the tabs saved in the last session"), NULL },
 
     { "Help", NULL, N_("_Help") },
-    { "HelpContents", GTK_STOCK_HELP,
-        N_("_Contents"), "F1",
-        N_("Show the documentation"), G_CALLBACK (_action_help_link_activate) },
-    { "HelpFAQ", NULL,
-        N_("_Frequent Questions"), NULL,
+    { "HelpFAQ", GTK_STOCK_HELP,
+        N_("_Frequent Questions"), "F1",
         N_("Show the Frequently Asked Questions"), G_CALLBACK (_action_help_link_activate) },
     { "HelpBugs", NULL,
         N_("_Report a Bug"), NULL,
@@ -5381,7 +5376,6 @@ static const gchar* ui_markup =
             "<menuitem action='Tools'/>"
             "<menuitem action='Window'/>"
             "<menu action='Help'>"
-                "<menuitem action='HelpContents'/>"
                 "<menuitem action='HelpFAQ'/>"
                 "<menuitem action='HelpBugs'/>"
                 "<separator/>"
