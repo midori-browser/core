@@ -82,7 +82,7 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
     gchar* transfer;
     gdouble* last_time;
     guint64* last_size;
-    gdouble time;
+    gdouble timestamp;
     guint64 size;
 
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
@@ -92,18 +92,18 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
     total = g_format_size_for_display (webkit_download_get_total_size (download));
     last_time = g_object_get_data (G_OBJECT (download), "last-time");
     last_size = g_object_get_data (G_OBJECT (download), "last-size");
-    time = webkit_download_get_elapsed_time (download);
+    timestamp = webkit_download_get_elapsed_time (download);
     size = webkit_download_get_current_size (download);
-    if (time != *last_time)
-        transfer = g_format_size_for_display ((size - *last_size) / (time - *last_time));
+    if (timestamp != *last_time)
+        transfer = g_format_size_for_display ((size - *last_size) / (timestamp - *last_time));
     else
         /* i18n: Unknown number of bytes, used for transfer rate like ?B/s */
         transfer = g_strdup (_("?B"));
     /* i18n: Download tooltip, 4KB of 43MB, 130KB/s */
     size_text = g_strdup_printf (_("%s of %s, %s/s"), current, total, transfer);
-    if (time - *last_time > 5.0)
+    if (timestamp - *last_time > 5.0)
     {
-        *last_time = time;
+        *last_time = timestamp;
         *last_size = size;
     }
     g_free (current);

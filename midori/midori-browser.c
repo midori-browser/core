@@ -4827,8 +4827,8 @@ static void
 midori_browser_switch_tab_cb (GtkWidget*     menuitem,
                               MidoriBrowser* browser)
 {
-    gint index = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menuitem), "index"));
-    midori_browser_set_current_page (browser, index);
+    gint page = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menuitem), "index"));
+    midori_browser_set_current_page (browser, page);
 }
 
 static gboolean
@@ -4856,7 +4856,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
         GList* tabs = gtk_container_get_children (GTK_CONTAINER (notebook));
         GtkWidget* menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (browser->action_group, "TabNew"));
-        gint i;
+        gint i = 0;
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
         menuitem = sokoke_action_create_popup_menu_item (
             gtk_action_group_get_action (browser->action_group, "UndoTabClose"));
