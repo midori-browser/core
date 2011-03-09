@@ -1078,6 +1078,15 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         webkit_network_request_set_uri (request, file_uri);
         g_free (file_uri);
     }
+    else if (g_str_has_prefix (uri, "thumb://"))
+    {
+        gchar* file_path = g_build_filename (g_get_user_cache_dir (), "midori", "thumbnails",
+                                             g_strdup (uri + 8), NULL);
+        gchar* file_uri =  g_filename_to_uri (file_path, NULL, NULL);
+        webkit_network_request_set_uri (request, file_uri);
+        g_free (file_uri);
+        g_free (file_path);
+    }
     else if (g_str_has_prefix (uri, "stock://"))
     {
         GdkPixbuf* pixbuf;
