@@ -1452,6 +1452,134 @@ signal_handler (int signal_id)
 #endif
 
 static void
+midori_speeddial_import_from_json (const gchar* json_file,
+                                   const gchar* speeddial_file)
+{
+    guint i = 0;
+    guint columns = 3;
+    guint slot_count = 0;
+    gchar* json_content;
+    gchar** parts;
+    GKeyFile* key_file = g_key_file_new ();
+
+    g_file_get_contents (json_file, &json_content, NULL, NULL);
+    parts = g_strsplit (json_content, ",", -1);
+    while (parts[i] != NULL)
+    {
+        gchar* key;
+        gchar* val;
+        gchar* slot;
+        gchar* dial_id;
+        gchar* uri;
+        gchar** values = g_strsplit (parts[i], "\"", -1);
+
+        if (*values[1])
+        {
+            if (!g_strcmp0 (values[1], "shortcuts"))
+            {
+                key = g_strdup (values[3]);
+                val = g_strdup (values[5]);
+            }
+            else if (!g_strcmp0 (values[1], "thumb"))
+            {
+                key = g_strdup (values[1]);
+                val = g_strdup (values[2]);
+            }
+            else
+            {
+                key = g_strdup (values[1]);
+                val = g_strdup (values[3]);
+            }
+
+            if (g_str_equal (key, "id"))
+            {
+                /* FIXME: leaked string */
+                slot = g_strdup (val);
+                dial_id = g_strdup_printf ("Dial %s", slot + 1);
+                slot_count++;
+            }
+            else if (g_str_equal (key, "href") && (*val && strncmp (val, "#", 1)))
+            {
+                uri = g_strdup (val);
+                g_key_file_set_value (key_file, dial_id, "name", slot);
+                g_key_file_set_value (key_file, dial_id, "uri", uri);
+            }
+            else if (g_str_equal (key, "img") && *val)
+            {
+                gsize sz;
+                gint state = 0;
+                guint save = 0;
+                gchar* checksum;
+                gchar* filename;
+                gchar* thumb_dir;
+                gchar* thumb_path;
+                gsize base64_size = strlen (val);
+                guchar* decoded = g_malloc0 ((base64_size * 3) / 4);
+
+                sz = g_base64_decode_step (g_strdup (val), base64_size,
+                                           decoded, &state, &save);
+                checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, slot, -1);
+                filename  = g_strdup_printf ("%s%s", checksum, ".png");
+                g_free (checksum);
+                thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
+                                          PACKAGE_NAME, "thumbnails", NULL);
+                if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
+                    katze_mkdir_with_parents (thumb_dir, 0700);
+                thumb_path = g_build_filename (thumb_dir, filename, NULL);
+                g_free (filename);
+                g_file_set_contents (thumb_path, (gchar*)decoded, sz, NULL);
+
+                g_free (decoded);
+                g_free (thumb_dir);
+                g_free (thumb_path);
+            }
+            else if (g_str_equal (key, "thumb"))
+            {
+                guint thumb_size;
+                gchar* thumb_size_type;
+
+                /* FIXME: leaked string */
+                thumb_size = atoi (g_strndup (val + 1, strlen (val) - 3));
+                if (thumb_size == 80)
+                    thumb_size_type = g_strdup ("SMALL");
+                else if (thumb_size == 160)
+                    thumb_size_type = g_strdup ("MEDIUM");
+                else if (thumb_size == 240)
+                    thumb_size_type = g_strdup ("BIG");
+                g_key_file_set_value (key_file, "settings", "size", thumb_size_type);
+
+                g_free (thumb_size_type);
+            }
+            else if (g_str_equal (key, "title") && *val)
+            {
+                g_key_file_set_value (key_file, dial_id, "name", slot);
+                g_key_file_set_value (key_file, dial_id, key, val + 3);
+            }
+            else if (g_str_equal (key, "width"))
+            {
+                columns = atoi (val);
+            }
+
+            i++;
+
+            g_free (key);
+            g_free (val);
+            g_strfreev (values);
+        }
+    }
+
+    g_key_file_set_integer (key_file, "settings", "columns", columns);
+    g_key_file_set_integer (key_file, "settings", "rows", slot_count / columns);
+
+    sokoke_key_file_save_to_file (key_file, speeddial_file, NULL);
+
+    g_strfreev (parts);
+    g_free (json_content);
+    g_key_file_free (key_file);
+}
+
+
+static void
 midori_soup_session_block_uris_cb (SoupSession* session,
                                    SoupMessage* msg,
                                    gchar*       blocked_uris)
@@ -1658,6 +1786,7 @@ main (int    argc,
     MidoriWebSettings* settings;
     gchar* config_file;
     gchar* bookmarks_file;
+    gchar* speeddial_file;
     gboolean bookmarks_exist;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
@@ -2063,6 +2192,15 @@ main (int    argc,
     }
     g_free (bookmarks_file);
     midori_startup_timer ("History read: \t%f");
+
+    speeddial_file = g_build_filename (config, "speeddial", NULL);
+    if (g_access (speeddial_file, F_OK) != 0)
+    {
+        gchar* json_file = g_build_filename (config, "speeddial.json", NULL);
+        midori_speeddial_import_from_json (json_file, speeddial_file);
+        g_free (json_file);
+    }
+    g_free (speeddial_file);
 
     /* In case of errors */
     if (error_messages->len)
