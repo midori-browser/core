@@ -1999,7 +1999,12 @@ main (int    argc,
                           NULL);
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
         }
-        g_object_set (settings, "show-panel", FALSE, NULL);
+        g_object_set (settings, "show-panel", FALSE,
+                      "last-window-state", MIDORI_WINDOW_NORMAL,
+                      #if WEBKIT_CHECK_VERSION (1, 1, 2)
+                      "enable-private-browsing", TRUE,
+                      #endif
+                      NULL);
         midori_browser_set_action_visible (browser, "Tools", FALSE);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
