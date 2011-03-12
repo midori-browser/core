@@ -866,7 +866,7 @@ _midori_web_view_load_icon (MidoriView* view)
     icon_uri = g_strdup (view->icon_uri);
 
     if ((icon_uri && g_str_has_prefix (icon_uri, "http"))
-        || g_str_has_prefix (view->uri, "http"))
+        || (view->uri && g_str_has_prefix (view->uri, "http")))
     {
         if (!icon_uri)
         {
