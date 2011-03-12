@@ -1463,8 +1463,8 @@ midori_speeddial_import_from_json (const gchar* json_file,
     GKeyFile* key_file = g_key_file_new ();
 
     g_file_get_contents (json_file, &json_content, NULL, NULL);
-    parts = g_strsplit (json_content, ",", -1);
-    while (parts[i] != NULL)
+    parts = g_strsplit (json_content ? json_content : "", ",", -1);
+    while (parts && parts[i] != NULL)
     {
         gchar* key;
         gchar* val;
