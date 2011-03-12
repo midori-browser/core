@@ -87,13 +87,20 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
 
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
         webkit_download_get_progress (download));
+    size = webkit_download_get_current_size (download);
+
+    if (size == webkit_download_get_total_size (download))
+    {
+        gtk_widget_set_tooltip_text (progress,
+            gtk_progress_bar_get_text (GTK_PROGRESS_BAR (progress)));
+        return;
+    }
 
     current = g_format_size_for_display (webkit_download_get_current_size (download));
     total = g_format_size_for_display (webkit_download_get_total_size (download));
     last_time = g_object_get_data (G_OBJECT (download), "last-time");
     last_size = g_object_get_data (G_OBJECT (download), "last-size");
     timestamp = webkit_download_get_elapsed_time (download);
-    size = webkit_download_get_current_size (download);
     if (timestamp != *last_time)
         transfer = g_format_size_for_display ((size - *last_size) / (timestamp - *last_time));
     else
