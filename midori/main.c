@@ -2347,6 +2347,8 @@ main (int    argc,
     gtk_main ();
 
     settings = katze_object_get_object (app, "settings");
+    settings_notify_cb (settings, NULL, app);
+
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (history, max_history_age);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
