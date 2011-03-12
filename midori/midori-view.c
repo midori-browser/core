@@ -4955,7 +4955,7 @@ midori_view_get_previous_page (MidoriView* view)
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
         "(function (l) { for (i in l) "
-        "if ((l[i].rel && l[i].rel == 'prev') "
+        "if ((l[i].rel && l[i].rel.toLowerCase () == 'prev') "
         " || (l[i].innerHTML"
         "  && l[i].innerHTML.toLowerCase ().indexOf ('prev') != -1)) "
         "{ return l[i].href; } return 0; })("
@@ -4989,7 +4989,7 @@ midori_view_get_next_page (MidoriView* view)
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
         "(function (l) { for (i in l) "
-        "if ((l[i].rel && l[i].rel == 'next') "
+        "if ((l[i].rel && l[i].rel.toLowerCase () == 'next') "
         " || (l[i].innerHTML"
         "  && l[i].innerHTML.toLowerCase ().indexOf ('next') != -1)) "
         "{ return l[i].href; } return 0; })("
