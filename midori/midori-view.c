@@ -2857,6 +2857,13 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     GtkWidget* dialog;
     gchar* content_type;
     gchar* description;
+    gchar* file_type;
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    WebKitWebDataSource* datasource;
+    WebKitNetworkRequest* original_request;
+    #endif
+    const gchar* original_uri;
+    gchar** fingerprint;
     #if GTK_CHECK_VERSION (2, 14, 0)
     GIcon* icon;
     GtkWidget* image;
@@ -2916,12 +2923,38 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     #endif
     g_free (content_type);
     if (g_strrstr (description, mime_type))
-        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-        _("File Type: '%s'"), mime_type);
+        file_type = g_strdup_printf (_("File Type: '%s'"), mime_type);
     else
-       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-       _("File Type: %s ('%s')"), description, mime_type);
+        file_type = g_strdup_printf (_("File Type: %s ('%s')"), description, mime_type);
     g_free (description);
+
+    /* Link Fingerprint */
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    /* We look at the original URI because redirection would lose the fragment */
+    datasource = webkit_web_frame_get_provisional_data_source (web_frame);
+    original_request = webkit_web_data_source_get_initial_request (datasource);
+    original_uri = webkit_network_request_get_uri (original_request);
+    #else
+    original_uri = webkit_network_request_get_uri (request);
+    #endif
+    fingerprint = g_strsplit (original_uri, "#!md5!", 2);
+    if (fingerprint && fingerprint[0] && fingerprint[1])
+        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+            "%s\n%s %s", file_type, _("MD5-Checksum:"), fingerprint[1]);
+    else
+    {
+        g_strfreev (fingerprint);
+        fingerprint = g_strsplit (original_uri, "#!sha1!", 2);
+        if (fingerprint && fingerprint[0] && fingerprint[1])
+            gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                "%s\n%s %s", file_type, _("SHA1-Checksum:"), fingerprint[1]);
+        else
+            gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                "%s", file_type);
+    }
+    g_strfreev (fingerprint);
+    g_free (file_type);
+
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
     /* i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz" */
     title = g_strdup_printf (_("Open %s"),
@@ -2989,6 +3022,16 @@ webkit_web_view_download_requested_cb (GtkWidget*      web_view,
                                        MidoriView*     view)
 {
     gboolean handled;
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    /* Propagate original URI to make it available when the download finishes */
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    WebKitWebDataSource* datasource = webkit_web_frame_get_provisional_data_source (web_frame);
+    WebKitNetworkRequest* original_request = webkit_web_data_source_get_initial_request (datasource);
+    const gchar* original_uri = webkit_network_request_get_uri (original_request);
+    WebKitNetworkRequest* request = webkit_download_get_network_request (download);
+    g_object_set_data_full (G_OBJECT (request), "midori-original-uri",
+                            g_strdup (original_uri), g_free);
+    #endif
     g_object_set_data (G_OBJECT (download), "open-download",
         g_object_get_data (G_OBJECT (view), "open-download"));
     g_object_set_data (G_OBJECT (download), "save-as-download",

@@ -137,6 +137,11 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (button);
+            #if WEBKIT_CHECK_VERSION (1, 1, 14)
+            WebKitNetworkRequest* request;
+            #endif
+            const gchar* original_uri;
+            gchar** fingerprint;
 
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
@@ -155,6 +160,53 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                                        _("Transfer completed"), msg);
                 g_free (msg);
             }
+
+            /* Link Fingerprint */
+            #if WEBKIT_CHECK_VERSION (1, 1, 14)
+            request = webkit_download_get_network_request (download);
+            original_uri = g_object_get_data (G_OBJECT (request), "midori-original-uri");
+            #else
+            original_uri = webkit_download_get_uri (download);
+            #endif
+            fingerprint = g_strsplit (original_uri, "#!md5!", 2);
+            if (fingerprint && fingerprint[0] && fingerprint[1])
+            {
+                gchar* filename = g_filename_from_uri (
+                    webkit_download_get_destination_uri (download), NULL, NULL);
+                gchar* contents;
+                gsize length;
+                gboolean y = g_file_get_contents (filename, &contents, &length, NULL);
+                gchar* checksum = g_compute_checksum_for_data (G_CHECKSUM_MD5,
+                    (guchar*)contents, length);
+                g_free (filename);
+                g_free (contents);
+                if (!y || !g_str_equal (fingerprint[1], checksum))
+                    gtk_image_set_from_stock (GTK_IMAGE (icon),
+                        GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
+                g_free (checksum);
+            }
+            else
+            {
+                gchar* filename = g_filename_from_uri (
+                    webkit_download_get_destination_uri (download), NULL, NULL);
+                g_strfreev (fingerprint);
+                fingerprint = g_strsplit (original_uri, "#!sha1!", 2);
+                if (fingerprint && fingerprint[0] && fingerprint[1])
+                {
+                    gchar* contents;
+                    gsize length;
+                    gboolean y = g_file_get_contents (filename, &contents, &length, NULL);
+                    gchar* checksum = g_compute_checksum_for_data (G_CHECKSUM_SHA1,
+                        (guchar*)contents, length);
+                    g_free (contents);
+                    if (!y || !g_str_equal (fingerprint[1], checksum))
+                        gtk_image_set_from_stock (GTK_IMAGE (icon),
+                            GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
+                    g_free (checksum);
+                }
+                g_free (filename);
+            }
+            g_strfreev (fingerprint);
             break;
         }
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
@@ -181,7 +233,19 @@ midori_transferbar_download_button_clicked_cb (GtkWidget*    button,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             const gchar* uri = webkit_download_get_destination_uri (download);
-            if (sokoke_show_uri (gtk_widget_get_screen (button),
+            GtkWidget* icon = gtk_button_get_image (GTK_BUTTON (button));
+            gchar* stock_id;
+            gtk_image_get_stock (GTK_IMAGE (icon), &stock_id, NULL);
+            if (g_str_equal (stock_id, GTK_STOCK_DIALOG_WARNING))
+            {
+                sokoke_message_dialog (GTK_MESSAGE_WARNING,
+                    _("The downloaded file is erroneous."),
+                    _("The checksum provided with the link did not match. " \
+                      "This means the file is probably incomplete or was " \
+                      "modified afterwards."),
+                    TRUE);
+            }
+            else if (sokoke_show_uri (gtk_widget_get_screen (button),
                 uri, gtk_get_current_event_time (), NULL))
                 gtk_widget_destroy (button);
             break;
