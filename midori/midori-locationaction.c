@@ -1795,8 +1795,6 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                                           MidoriSecurity        hint)
 {
     GSList* proxies;
-    GtkWidget* entry;
-    GtkWidget* child;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
@@ -1807,17 +1805,22 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
     {
         GdkColor bg_color = { 0, 1 };
         GdkColor fg_color = { 0, 1 };
-
-        entry = midori_location_action_entry_for_proxy (proxies->data);
-        child = gtk_bin_get_child (GTK_BIN (entry));
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
+        GtkWidget* child = gtk_bin_get_child (GTK_BIN (entry));
+        GdkScreen* screen = gtk_widget_get_screen (child);
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
         {
             gdk_color_parse ("#ef7070", &bg_color);
             gdk_color_parse ("#000", &fg_color);
             #if !HAVE_HILDON
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
-                GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INFO);
+            if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (child),
+                    GTK_ICON_ENTRY_SECONDARY, "lock-insecure");
+            else
+                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+                    GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INFO);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (child),
                 GTK_ICON_ENTRY_SECONDARY, _("Not verified"));
             #endif
@@ -1827,8 +1830,12 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             gdk_color_parse ("#fcf19a", &bg_color);
             gdk_color_parse ("#000", &fg_color);
             #if !HAVE_HILDON
-            gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
-                GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_DIALOG_AUTHENTICATION);
+            if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (child),
+                    GTK_ICON_ENTRY_SECONDARY, "lock-secure");
+            else
+                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+                    GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_DIALOG_AUTHENTICATION);
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (child),
                 GTK_ICON_ENTRY_SECONDARY, _("Verified and encrypted connection"));
             #endif
