@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: midori 0.3.0\n"
+"Project-Id-Version: midori 0.3.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-19 22:32+0100\n"
+"POT-Creation-Date: 2011-03-13 15:04+0100\n"
 "PO-Revision-Date: 2009-04-30 00:15+0100\n"
 "Last-Translator: Christian Dywan <christian@twotoasts.de>\n"
 "Language-Team: German <de@li.org>\n"
@@ -863,7 +863,23 @@ msgstr "_Nächster Reiter"
 msgid "Switch to the next tab"
 msgstr "Zum nächsten Reiter wechseln"
 
-#: ../midori/midori-browser.c:4990
+#: ../midori/midori-browser.c:5106
+msgid "Move Tab _Backward"
+msgstr "Reiter _zurück schieben"
+
+#: ../midori/midori-browser.c:5107
+msgid "Move tab behind the previous tab"
+msgstr "Reiter hinter den voherigen schieben"
+
+#: ../midori/midori-browser.c:5108
+msgid "_Move Tab Forward"
+msgstr "Reiter v_orwärts schieben"
+
+#: ../midori/midori-browser.c:5109
+msgid "Move tab in front of the next tab"
+msgstr "Reiter vor den nächsten schieben"
+
+#: ../midori/midori-browser.c:5111
 msgid "Focus _Current Tab"
 msgstr "_Aktuellen Reiter fokusieren"
 
@@ -907,15 +923,7 @@ msgstr "In der letzten Sitzung geöffnete Reiter öffnen"
 msgid "_Help"
 msgstr "_Hilfe"
 
-#: ../midori/midori-browser.c:5007
-msgid "_Contents"
-msgstr "_Inhalt"
-
-#: ../midori/midori-browser.c:5008
-msgid "Show the documentation"
-msgstr "Zeige die Dokumentation"
-
-#: ../midori/midori-browser.c:5010
+#: ../midori/midori-browser.c:5128
 msgid "_Frequent Questions"
 msgstr "_Häufige Fragen"
 
@@ -1761,12 +1769,8 @@ msgstr "Verweis als _Internetanwendung öffnen"
 msgid "Copy Link de_stination"
 msgstr "Verweisziel k_opieren"
 
-#: ../midori/midori-view.c:2417 ../midori/midori-view.c:2487
-msgid "_Save Link destination"
-msgstr "Verweisziel _speichern"
-
-#: ../midori/midori-view.c:2421 ../midori/midori-view.c:2450
-#: ../midori/midori-view.c:2492
+#: ../midori/midori-view.c:2443 ../midori/midori-view.c:2472
+#: ../midori/midori-view.c:2516
 msgid "Download with Download _Manager"
 msgstr "Mit Übertragungs_manager herunterladen"
 
@@ -1794,11 +1798,7 @@ msgstr "_Video speichern"
 msgid "Download _Video"
 msgstr "_Video herunterladen"
 
-#: ../midori/midori-view.c:2481
-msgid "_Download Link destination"
-msgstr "Verweisziel herunter_laden"
-
-#: ../midori/midori-view.c:2512
+#: ../midori/midori-view.c:2536
 msgid "Search _with"
 msgstr "Suchen _mit"
 
@@ -1823,6 +1823,14 @@ msgstr "Dateityp: »%s«"
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Dateityp: %s (»%s«)"
+
+#: ../midori/midori-view.c:2943
+msgid "MD5-Checksum:"
+msgstr "MD5-Prüfsumme:"
+
+#: ../midori/midori-view.c:2950
+msgid "SHA1-Checksum:"
+msgstr "SHA1-Prüfsumme:"
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
 #: ../midori/midori-view.c:2903
@@ -2202,10 +2210,16 @@ msgstr "Treffer hervorheben"
 msgid "Close Findbar"
 msgstr "Suchleiste schließen"
 
-#: ../toolbars/midori-transferbar.c:88 ../panels/midori-transfers.c:273
+#. i18n: Unknown number of bytes, used for transfer rate like ?B/s
+#: ../toolbars/midori-transferbar.c:108
+msgid "?B"
+msgstr "?B"
+
+#. i18n: Download tooltip, 4KB of 43MB, 130KB/s
+#: ../toolbars/midori-transferbar.c:110
 #, c-format
-msgid "%s of %s"
-msgstr "%s von %s"
+msgid "%s of %s, %s/s"
+msgstr "%s von %s, %s/s"
 
 #: ../toolbars/midori-transferbar.c:122
 #, c-format
@@ -2216,7 +2230,20 @@ msgstr "Die Datei »<b>%s</b>« wurde heruntergeladen."
 msgid "Transfer completed"
 msgstr "Übertragung abgeschlossen"
 
-#: ../toolbars/midori-transferbar.c:256 ../panels/midori-transfers.c:144
+#: ../toolbars/midori-transferbar.c:242
+msgid "The downloaded file is erroneous."
+msgstr "Die heruntergeladene Datei ist fehlerhaft."
+
+#: ../toolbars/midori-transferbar.c:243
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+"Die im Verweis enthaltene Prüfsumme stimmt nicht überein. Das bedeutet "
+"normalerweise, dass die Datei unvollständig ist oder im Nachhinein verändert "
+"wurde."
+
+#: ../toolbars/midori-transferbar.c:352 ../panels/midori-transfers.c:144
 msgid "Clear All"
 msgstr "Alle entfernen"
 
@@ -2295,6 +2322,11 @@ msgstr "Ausgewählten Verlaufseintrag löschen"
 #: ../panels/midori-history.c:367
 msgid "Clear the entire history"
 msgstr "Den gesamten Verlauf löschen"
+
+#: ../panels/midori-transfers.c:273
+#, c-format
+msgid "%s of %s"
+msgstr "%s von %s"
 
 #: ../panels/midori-transfers.c:481
 msgid "Open Destination _Folder"
@@ -2796,7 +2828,11 @@ msgstr "_Seitenhalter"
 msgid "Keep one or multiple pages open in parallel to your tabs"
 msgstr "Eine oder mehrere Seiten gleichzeitig mit den Reitern offen lassen."
 
-#: ../extensions/shortcuts.c:170
+#: ../extensions/shortcuts.c:110
+msgid "Reload page or stop loading"
+msgstr "Seite neu laden oder laden abbrechen"
+
+#: ../extensions/shortcuts.c:176
 msgid "Customize Keyboard shortcuts"
 msgstr "Tastaturkürzel anpassen"
 
@@ -2899,6 +2935,18 @@ msgstr "Zwischenspeicher"
 #: ../extensions/web-cache.c:473
 msgid "Cache HTTP communication on disk"
 msgstr "HTTP-Kommunikation auf der Festplatte zwischenspeichern"
+
+#~ msgid "_Contents"
+#~ msgstr "_Inhalt"
+
+#~ msgid "Show the documentation"
+#~ msgstr "Zeige die Dokumentation"
+
+#~ msgid "_Save Link destination"
+#~ msgstr "Verweisziel _speichern"
+
+#~ msgid "_Download Link destination"
+#~ msgstr "Verweisziel herunter_laden"
 
 #~ msgid "%d%% loaded"
 #~ msgstr "%d%% geladen"
