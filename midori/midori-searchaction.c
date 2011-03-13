@@ -1123,6 +1123,8 @@ midori_search_action_dialog_move_up_cb (GtkWidget*          widget,
 
             i = katze_array_get_item_index (search_engines, item);
             katze_array_move_item (search_engines, item, i - 1);
+            /* If the index of the current item has changed it needs to be reset */
+            g_object_notify (G_OBJECT (search_action), "current-item");
         }
         gtk_tree_path_free (path);
     }
@@ -1153,6 +1155,8 @@ midori_search_action_dialog_move_down_cb (GtkWidget*          widget,
 
             i = katze_array_get_item_index (search_engines, item);
             katze_array_move_item (search_engines, item, i + 1);
+            /* If the index of the current item has changed it needs to be reset */
+            g_object_notify (G_OBJECT (search_action), "current-item");
         }
     }
 }
