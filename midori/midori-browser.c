@@ -4876,7 +4876,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
         g_list_free (tabs);
         gtk_widget_show_all (menu);
         katze_widget_popup (GTK_WIDGET (notebook), GTK_MENU (menu), NULL,
-            event->button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
+            KATZE_MENU_POSITION_CURSOR);
     }
 
     return FALSE;
