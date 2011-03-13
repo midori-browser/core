@@ -1096,6 +1096,68 @@ midori_search_action_dialog_remove_cb (GtkWidget*          widget,
 }
 
 static void
+midori_search_action_dialog_move_up_cb (GtkWidget*          widget,
+                                        MidoriSearchAction* search_action)
+{
+    KatzeArray* search_engines;
+    GtkWidget* treeview;
+    GtkTreeSelection* selection;
+    GtkTreeModel* liststore;
+    GtkTreeIter iter, prev;
+    GtkTreePath* path;
+    KatzeItem* item;
+    gint i;
+
+    search_engines = search_action->search_engines;
+    treeview = search_action->treeview;
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+    if (gtk_tree_selection_get_selected (selection, &liststore, &iter))
+    {
+        path = gtk_tree_model_get_path (liststore, &iter);
+        if(gtk_tree_path_prev(path))
+        {
+            gtk_tree_model_get (liststore, &iter, 0, &item, -1);
+            gtk_tree_model_get_iter (liststore, &prev, path);
+            gtk_list_store_swap (GTK_LIST_STORE(liststore), &iter, &prev);
+
+            i = katze_array_get_item_index (search_engines, item);
+            katze_array_move_item (search_engines, item, i - 1);
+        }
+        gtk_tree_path_free (path);
+    }
+}
+
+static void
+midori_search_action_dialog_move_down_cb (GtkWidget*          widget,
+                                          MidoriSearchAction* search_action)
+{
+    KatzeArray* search_engines;
+    GtkWidget* treeview;
+    GtkTreeSelection* selection;
+    GtkTreeModel* liststore;
+    GtkTreeIter iter, next;
+    KatzeItem* item;
+    gint i;
+
+    search_engines = search_action->search_engines;
+    treeview = search_action->treeview;
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+    if (gtk_tree_selection_get_selected (selection, &liststore, &iter))
+    {
+        next = iter;
+        if (gtk_tree_model_iter_next (liststore, &next))
+        {
+            gtk_tree_model_get (liststore, &iter, 0, &item, -1);
+            gtk_list_store_swap (GTK_LIST_STORE(liststore), &iter, &next);
+
+            i = katze_array_get_item_index (search_engines, item);
+            katze_array_move_item (search_engines, item, i + 1);
+        }
+    }
+}
+
+static void
 midori_search_action_dialog_default_cb (GtkWidget*          widget,
                                         MidoriSearchAction* search_action)
 {
@@ -1349,10 +1411,12 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
     button = gtk_label_new (""); /* This is an invisible separator */
     gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 12);
     button = gtk_button_new_from_stock (GTK_STOCK_GO_DOWN);
-    gtk_widget_set_sensitive (button, FALSE);
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_search_action_dialog_move_down_cb), search_action);
     gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     button = gtk_button_new_from_stock (GTK_STOCK_GO_UP);
-    gtk_widget_set_sensitive (button, FALSE);
+    g_signal_connect (button, "clicked",
+        G_CALLBACK (midori_search_action_dialog_move_up_cb), search_action);
     gtk_box_pack_end (GTK_BOX (vbox), button, FALSE, FALSE, 0);
 
     #if HAVE_OSX

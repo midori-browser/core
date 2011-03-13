@@ -650,6 +650,15 @@ midori_search_engines_modify_cb (KatzeArray* array,
 }
 
 static void
+midori_search_engines_move_item_cb (KatzeArray* array,
+                                    gpointer    item,
+                                    gint        position,
+                                    KatzeArray* search_engines)
+{
+    midori_search_engines_modify_cb (array, item, search_engines);
+}
+
+static void
 midori_trash_add_item_cb (KatzeArray* trash,
                           GObject*    item)
 {
@@ -2282,6 +2291,8 @@ main (int    argc,
             KATZE_ARRAY_FOREACH_ITEM (item, search_engines)
                 g_signal_connect_after (item, "notify",
                     G_CALLBACK (midori_search_engines_modify_cb), search_engines);
+            g_signal_connect_after (search_engines, "move-item",
+                G_CALLBACK (midori_search_engines_move_item_cb), search_engines);
         }
     }
     g_signal_connect_after (trash, "add-item",
