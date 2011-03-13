@@ -30,6 +30,7 @@ struct _MidoriPanel
 
     GtkWidget* labelbar;
     GtkWidget* toolbar;
+    GtkToolItem* button_align;
     GtkWidget* toolbar_label;
     GtkWidget* frame;
     GtkWidget* toolbook;
@@ -209,8 +210,6 @@ midori_panel_class_init (MidoriPanelClass* class)
     * Whether to align the panel on the right.
     *
     * Since: 0.1.3
-    *
-    * Deprecated: 0.3.0
     */
     g_object_class_install_property (gobject_class,
                                      PROP_RIGHT_ALIGNED,
@@ -345,6 +344,13 @@ midori_panel_detach_page (MidoriPanel* panel,
 }
 
 static void
+midori_panel_button_align_clicked_cb (GtkWidget*   toolitem,
+                                      MidoriPanel* panel)
+{
+    midori_panel_set_right_aligned (panel, !panel->right_aligned);
+}
+
+static void
 midori_panel_destroy_cb (MidoriPanel* panel)
 {
     /* Destroy pages first, so they don't need special care */
@@ -386,6 +392,19 @@ midori_panel_init (MidoriPanel* panel)
     gtk_container_add (GTK_CONTAINER (toolitem), panel->toolbar_label);
     gtk_container_set_border_width (GTK_CONTAINER (toolitem), 6);
     gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
+    toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_GO_FORWARD);
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem),
+        _("Align sidepanel to the right"));
+    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem),
+        _("Align sidepanel to the right"));
+    g_signal_connect (toolitem, "clicked",
+        G_CALLBACK (midori_panel_button_align_clicked_cb), panel);
+    #if HAVE_OSX
+    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, 0);
+    #else
+    gtk_toolbar_insert (GTK_TOOLBAR (labelbar), toolitem, -1);
+    #endif
+    panel->button_align = toolitem;
     toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_CLOSE);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (toolitem), _("Close panel"));
     gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (toolitem), _("Close panel"));
@@ -536,7 +555,15 @@ midori_panel_set_right_aligned (MidoriPanel* panel,
     box = gtk_widget_get_parent (panel->toolbar);
     gtk_box_reorder_child (GTK_BOX (box), panel->toolbar,
         right_aligned ? -1 : 0);
+    gtk_tool_button_set_stock_id (GTK_TOOL_BUTTON (panel->button_align),
+        right_aligned ? GTK_STOCK_GO_BACK : GTK_STOCK_GO_FORWARD);
     panel->right_aligned = right_aligned;
+    gtk_tool_button_set_label (GTK_TOOL_BUTTON (panel->button_align),
+        !panel->right_aligned ? _("Align sidepanel to the right")
+            : _("Align sidepanel to the left"));
+    gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (panel->button_align),
+        !panel->right_aligned ? _("Align sidepanel to the right")
+            : _("Align sidepanel to the left"));
     g_object_notify (G_OBJECT (panel), "right-aligned");
 }
 
