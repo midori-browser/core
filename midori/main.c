@@ -929,6 +929,13 @@ midori_soup_session_prepare (SoupSession*       session,
                      "SSL certificates cannot be verified."));
     #endif
 
+    #if !WEBKIT_CHECK_VERSION (1, 3, 5)
+    /* See http://stevesouders.com/ua/index.php */
+    g_object_set (session, "max-conns", 60,
+                           "max-conns-per-host", 6,
+                           NULL);
+    #endif
+
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
