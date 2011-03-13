@@ -1467,6 +1467,7 @@ signal_handler (int signal_id)
 }
 #endif
 
+#if 0
 static void
 midori_speeddial_import_from_json (const gchar* json_file,
                                    const gchar* speeddial_file)
@@ -1593,7 +1594,7 @@ midori_speeddial_import_from_json (const gchar* json_file,
     g_free (json_content);
     g_key_file_free (key_file);
 }
-
+#endif
 
 static void
 midori_soup_session_block_uris_cb (SoupSession* session,
@@ -1802,7 +1803,9 @@ main (int    argc,
     MidoriWebSettings* settings;
     gchar* config_file;
     gchar* bookmarks_file;
+#if 0
     gchar* speeddial_file;
+#endif
     gboolean bookmarks_exist;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
@@ -2214,6 +2217,7 @@ main (int    argc,
     g_free (bookmarks_file);
     midori_startup_timer ("History read: \t%f");
 
+    #if 0
     speeddial_file = g_build_filename (config, "speeddial", NULL);
     if (g_access (speeddial_file, F_OK) != 0)
     {
@@ -2222,6 +2226,7 @@ main (int    argc,
         g_free (json_file);
     }
     g_free (speeddial_file);
+    #endif
 
     /* In case of errors */
     if (error_messages->len)
