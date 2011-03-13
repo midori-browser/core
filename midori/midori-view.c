@@ -4997,12 +4997,15 @@ midori_view_get_previous_page (MidoriView* view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
-        "(function (l) { for (i in l) "
+        "(function (tags) {"
+        "for (tag in tags) {"
+        "var l = document.getElementsByTagName (tag);"
+        "for (i in l) { "
         "if ((l[i].rel && l[i].rel.toLowerCase () == 'prev') "
         " || (l[i].innerHTML"
         "  && l[i].innerHTML.toLowerCase ().indexOf ('prev') != -1)) "
-        "{ return l[i].href; } return 0; })("
-        "document.getElementsByTagName ('a'));", NULL));
+        "{ return l[i].href; } } } return 0; })("
+        "{ link:'link', a:'a' });", NULL));
     return uri && uri[0] != '0' ? uri : NULL;
 }
 
@@ -5031,12 +5034,15 @@ midori_view_get_next_page (MidoriView* view)
     web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
-        "(function (l) { for (i in l) "
+        "(function (tags) {"
+        "for (tag in tags) {"
+        "var l = document.getElementsByTagName (tag);"
+        "for (i in l) { "
         "if ((l[i].rel && l[i].rel.toLowerCase () == 'next') "
         " || (l[i].innerHTML"
         "  && l[i].innerHTML.toLowerCase ().indexOf ('next') != -1)) "
-        "{ return l[i].href; } return 0; })("
-        "document.getElementsByTagName ('a'));", NULL));
+        "{ return l[i].href; } } } return 0; })("
+        "{ link:'link', a:'a' });", NULL));
     return uri && uri[0] != '0' ? uri : NULL;
 }
 
