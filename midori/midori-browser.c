@@ -6918,6 +6918,7 @@ midori_browser_set_action_visible (MidoriBrowser* browser,
     g_return_if_fail (name != NULL);
 
     _action_set_visible (browser, name, visible);
+    _action_set_sensitive (browser, name, visible);
 }
 
 /**
