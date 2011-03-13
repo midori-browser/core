@@ -1870,7 +1870,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 "  var child = document.createElement ('span');"
                 "  child.setAttribute ('class', 'midoriHKD87346');"
                 "  child.appendChild (document.createTextNode (i));"
-                "  if (links[i].insertBefore)"
+                "  if (links[i].insertBefore && links[i].href)"
                 "    links[i].insertBefore (child); }",
                 NULL);
             view->find_links = 0;
