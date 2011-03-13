@@ -5103,7 +5103,7 @@ static const GtkActionEntry entries[] =
     { "TabNext", GTK_STOCK_GO_FORWARD,
         N_("_Next Tab"), "<Ctrl>Page_Down",
         N_("Switch to the next tab"), G_CALLBACK (_action_tab_next_activate) },
-    { "TabMoveBackward", NULL, N_("_Move Tab Backward"), "<Ctrl><Shift>Page_Up",
+    { "TabMoveBackward", NULL, N_("Move Tab _Backward"), "<Ctrl><Shift>Page_Up",
        N_("Move tab behind the previous tab"), G_CALLBACK (_action_tab_move_backward_activate) },
     { "TabMoveForward", NULL, N_("_Move Tab Forward"), "<Ctrl><Shift>Page_Down",
        N_("Move tab in front of the next tab"), G_CALLBACK (_action_tab_move_forward_activate) },
