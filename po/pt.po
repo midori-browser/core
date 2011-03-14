@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-12 23:17+0000\n"
+"POT-Creation-Date: 2011-03-14 17:16+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Sérgio Marques <smarquespt@gmail.com>\n"
 "Language-Team: Portuguese\n"
@@ -22,8 +22,8 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "Navegador Web rápido"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1337 ../midori/main.c:1866
-#: ../midori/main.c:1877 ../midori/main.c:1893
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1353 ../midori/main.c:1894
+#: ../midori/main.c:1905 ../midori/main.c:1921
 #: ../midori/midori-websettings.c:311
 msgid "Midori"
 msgstr "Midori"
@@ -89,175 +89,179 @@ msgid "The search engines couldn't be saved. %s"
 msgstr "Os motores de pesquisa não foram gravados. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:662 ../midori/main.c:682
+#: ../midori/main.c:671 ../midori/main.c:691
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "O lixo não foi gravado. %s"
 
-#: ../midori/main.c:733 ../midori/main.c:972
+#: ../midori/main.c:742 ../midori/main.c:988
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "A sessão não foi gravada. %s"
 
-#: ../midori/main.c:919
+#: ../midori/main.c:928
 msgid "No root certificate file is available. SSL certificates cannot be verified."
 msgstr "Nenhum certificado disponível. Os certificados SSL não podem ser verificados."
 
-#: ../midori/main.c:1007
+#: ../midori/main.c:1023
 msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
 msgstr "O Midori encerrou inesperadamente na última vez que foi aberto. Se isto ocorrer novamente, tente uma das seguintes opções para resolver o problema."
 
-#: ../midori/main.c:1023
+#: ../midori/main.c:1039
 msgid "Modify _preferences"
 msgstr "Modificar _preferências"
 
-#: ../midori/main.c:1027
+#: ../midori/main.c:1043
 msgid "Reset the last _session"
 msgstr "Restaurar últi_ma sessão"
 
-#: ../midori/main.c:1032
+#: ../midori/main.c:1048
 msgid "Disable all _extensions"
 msgstr "Desativar todas as _extensões"
 
-#: ../midori/main.c:1215 ../midori/main.c:2167
+#: ../midori/main.c:1231 ../midori/main.c:2199
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "A sessão não foi carregada: %s\n"
 
-#: ../midori/main.c:1337
+#: ../midori/main.c:1353
 msgid "No filename specified"
 msgstr "Nenhum nome especificado"
 
-#: ../midori/main.c:1356
+#: ../midori/main.c:1372
 msgid "An unknown error occured."
 msgstr "Ocorreu um erro desconhecido."
 
-#: ../midori/main.c:1387
+#: ../midori/main.c:1403
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Captura gravada em: %s\n"
 
-#: ../midori/main.c:1754
+#: ../midori/main.c:1780
 msgid "Run ADDRESS as a web application"
 msgstr "Executar ENDEREÇO como aplicação web"
 
-#: ../midori/main.c:1754
+#: ../midori/main.c:1780
 msgid "ADDRESS"
 msgstr "ENDEREÇO"
 
-#: ../midori/main.c:1757
+#: ../midori/main.c:1783
 msgid "Use FOLDER as configuration folder"
 msgstr "Usar PASTA como pasta de configuração"
 
-#: ../midori/main.c:1757
+#: ../midori/main.c:1783
 msgid "FOLDER"
 msgstr "PASTA"
 
-#: ../midori/main.c:1760
+#: ../midori/main.c:1786
 msgid "Show a diagnostic dialog"
 msgstr "Mostrar janela de diagnóstico"
 
-#: ../midori/main.c:1762
+#: ../midori/main.c:1788
 msgid "Run the specified filename as javascript"
 msgstr "Executar o ficheiro como  \"javascript\""
 
-#: ../midori/main.c:1765
+#: ../midori/main.c:1791
 msgid "Take a snapshot of the specified URI"
 msgstr "Obter uma captura da URI especificada"
 
-#: ../midori/main.c:1768
+#: ../midori/main.c:1794
 msgid "Execute the specified command"
 msgstr "Executar o comando especificado"
 
-#: ../midori/main.c:1770
+#: ../midori/main.c:1796
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Lista dos comandos disponíveis para executar com -e/ --execute"
 
-#: ../midori/main.c:1772
+#: ../midori/main.c:1798
 msgid "Display program version"
 msgstr "Exibir versão do programa"
 
-#: ../midori/main.c:1774
+#: ../midori/main.c:1800
 msgid "Addresses"
 msgstr "Endereços "
 
-#: ../midori/main.c:1776
+#: ../midori/main.c:1802
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Bloquear URIs conforme a expressão PATTERN"
 
-#: ../midori/main.c:1776
+#: ../midori/main.c:1802
 msgid "PATTERN"
 msgstr "PATTERN"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1780
+#: ../midori/main.c:1806
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Repor Midori após SEGUNDOS segundos de inatividade"
 
-#: ../midori/main.c:1780
+#: ../midori/main.c:1806
 msgid "SECONDS"
 msgstr "SEGUNDOS"
 
-#: ../midori/main.c:1863
+#: ../midori/main.c:1891
 msgid "[Addresses]"
 msgstr "[Endereços]"
 
-#: ../midori/main.c:1875
+#: ../midori/main.c:1903
 msgid "Midori (Private Browsing)"
 msgstr "Midori (Navegação privada)"
 
-#: ../midori/main.c:1894
+#: ../midori/main.c:1922
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Por favor reporte comentários, sugestões e erros para:"
 
-#: ../midori/main.c:1896
+#: ../midori/main.c:1924
 msgid "Check for new versions at:"
 msgstr "Verificar por novas versões a:"
 
-#: ../midori/main.c:1960
+#: ../midori/main.c:1988
 msgid "Website icons"
 msgstr "Ícones de sítios web"
 
-#: ../midori/main.c:1962
+#: ../midori/main.c:1990
 msgid "Cookies"
 msgstr "\"Cookies\""
 
-#: ../midori/main.c:1965
+#: ../midori/main.c:1993
 msgid "'Flash' Cookies"
 msgstr "\"Cookies Flash\""
 
-#: ../midori/main.c:1969
+#: ../midori/main.c:1997
 msgid "HTML5 _Databases"
 msgstr "Bases de _dados HTML5"
 
-#: ../midori/main.c:2048
+#: ../midori/main.c:2001
+msgid "Offline Application Cache"
+msgstr "Cache de aplicação off-line"
+
+#: ../midori/main.c:2080
 msgid "The specified configuration folder is invalid."
 msgstr "A pasta de configuração especificada é inválida."
 
-#: ../midori/main.c:2096
+#: ../midori/main.c:2128
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Já está ativa uma instância de Midori mas que não está a responder.\n"
 
-#: ../midori/main.c:2134
+#: ../midori/main.c:2166
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Os marcadores não foram carregados: %s\n"
 
-#: ../midori/main.c:2182
+#: ../midori/main.c:2214
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "O lixo não foi carregado: %s\n"
 
-#: ../midori/main.c:2195
+#: ../midori/main.c:2227
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "O histórico não foi carregado: %s\n"
 
-#: ../midori/main.c:2217
+#: ../midori/main.c:2251
 msgid "The following errors occured:"
 msgstr "Ocorreram os seguintes erros:"
 
-#: ../midori/main.c:2233
+#: ../midori/main.c:2267
 msgid "_Ignore"
 msgstr "_Ignorar "
 
@@ -422,7 +426,7 @@ msgid "Open in New _Tab"
 msgstr "Abrir em novo _separador"
 
 #: ../midori/midori-browser.c:3931 ../midori/midori-view.c:2650
-#: ../midori/midori-view.c:4441 ../panels/midori-bookmarks.c:768
+#: ../midori/midori-view.c:4437 ../panels/midori-bookmarks.c:768
 #: ../panels/midori-history.c:737 ../extensions/feed-panel/feed-panel.c:538
 msgid "Open in New _Window"
 msgstr "Abrir em nova _janela"
@@ -1095,9 +1099,18 @@ msgstr "Não verificada"
 msgid "Verified and encrypted connection"
 msgstr "Ligação verificada e encriptada"
 
-#: ../midori/midori-panel.c:390 ../midori/midori-panel.c:391
+#: ../midori/midori-panel.c:397 ../midori/midori-panel.c:399
+#: ../midori/midori-panel.c:562 ../midori/midori-panel.c:565
+msgid "Align sidepanel to the right"
+msgstr "Alinhar painel lateral à direita"
+
+#: ../midori/midori-panel.c:409 ../midori/midori-panel.c:410
 msgid "Close panel"
 msgstr "Fechar painel"
+
+#: ../midori/midori-panel.c:563 ../midori/midori-panel.c:566
+msgid "Align sidepanel to the left"
+msgstr "Alinhar painel lateral à esquerda"
 
 #: ../midori/midori-websettings.c:199
 msgid "Show Blank page"
@@ -1684,8 +1697,8 @@ msgstr "%s pretende saber a sua localização."
 #. so reloading via Javascript works but not via API calls.
 #. Error pages are special, we want to try loading the destination
 #. again, not the error page which isn't even a proper page
-#: ../midori/midori-view.c:1411 ../midori/midori-view.c:4876
-#: ../midori/midori-view.c:4880
+#: ../midori/midori-view.c:1411 ../midori/midori-view.c:4872
+#: ../midori/midori-view.c:4876
 #, c-format
 msgid "Error - %s"
 msgstr "Erro - %s"
@@ -1874,47 +1887,47 @@ msgstr "Nenhuma documentação instalada"
 msgid "Version numbers in brackets show the version used at runtime."
 msgstr "Os números em parênteses mostram a versão utilizada."
 
-#: ../midori/midori-view.c:4049
+#: ../midori/midori-view.c:4046
 msgid "Page loading delayed"
 msgstr "Atualização de página atrasada"
 
-#: ../midori/midori-view.c:4050
+#: ../midori/midori-view.c:4047
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr "O atraso na atualização foi devido a um encerramento brusco ou às preferências de arranque."
 
-#: ../midori/midori-view.c:4051
+#: ../midori/midori-view.c:4048
 msgid "Load Page"
 msgstr "Carregar página"
 
-#: ../midori/midori-view.c:4193
+#: ../midori/midori-view.c:4189
 msgid "Blank page"
 msgstr "Página em branco"
 
-#: ../midori/midori-view.c:4445
+#: ../midori/midori-view.c:4441
 msgid "_Duplicate Tab"
 msgstr "_Duplicar separador"
 
-#: ../midori/midori-view.c:4450
+#: ../midori/midori-view.c:4446
 msgid "Show Tab _Label"
 msgstr "Mostrar _texto do separador"
 
-#: ../midori/midori-view.c:4450
+#: ../midori/midori-view.c:4446
 msgid "Show Tab _Icon Only"
 msgstr "Mostrar apenas o í_cone"
 
-#: ../midori/midori-view.c:4456
+#: ../midori/midori-view.c:4452
 msgid "Close ot_her Tabs"
 msgstr "Fec_har outros separadores"
 
-#: ../midori/midori-view.c:5054
+#: ../midori/midori-view.c:5056
 msgid "Print background images"
 msgstr "Imprimir imagens de fundo"
 
-#: ../midori/midori-view.c:5055
+#: ../midori/midori-view.c:5057
 msgid "Whether background images should be printed"
 msgstr "Marque se quiser imprimir as imagens de fundo"
 
-#: ../midori/midori-view.c:5091 ../midori/midori-preferences.c:403
+#: ../midori/midori-view.c:5093 ../midori/midori-preferences.c:403
 msgid "Features"
 msgstr "Funcionalidades"
 
@@ -2093,11 +2106,11 @@ msgstr "Í_cone:"
 msgid "_Token:"
 msgstr "\"_Token\":"
 
-#: ../midori/midori-searchaction.c:1240
+#: ../midori/midori-searchaction.c:1306
 msgid "Manage Search Engines"
 msgstr "Gerir motores de pesquisa"
 
-#: ../midori/midori-searchaction.c:1340
+#: ../midori/midori-searchaction.c:1406
 msgid "Use as _default"
 msgstr "Usar por _omissão"
 
