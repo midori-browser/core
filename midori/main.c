@@ -1745,6 +1745,15 @@ midori_clear_html5_databases_cb (void)
     webkit_remove_all_web_databases ();
 }
 #endif
+#if WEBKIT_CHECK_VERSION (1, 3, 13)
+static void
+midori_clear_offline_appcache_cb (void)
+{
+    /* Changing the size implies clearing the cache */
+    unsigned long long maximum = webkit_application_cache_get_maximum_size ();
+    webkit_application_cache_set_maximum_size (maximum - 1);
+}
+#endif
 
 int
 main (int    argc,
@@ -1987,6 +1996,10 @@ main (int    argc,
     #if WEBKIT_CHECK_VERSION (1, 1, 14)
     sokoke_register_privacy_item ("html5-databases", _("HTML5 _Databases"),
         G_CALLBACK (midori_clear_html5_databases_cb));
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 3, 13)
+    sokoke_register_privacy_item ("offline-appcache", _("Offline Application Cache"),
+        G_CALLBACK (midori_clear_offline_appcache_cb));
     #endif
 
     /* Web Application support */
