@@ -899,7 +899,7 @@ _midori_web_view_load_icon (MidoriView* view)
             g_free (icon_file);
             katze_assign (view->icon_uri, icon_uri);
         }
-        else
+        else if (!view->special)
         {
             priv = g_slice_new (KatzeNetIconPriv);
             priv->icon_file = icon_file;
@@ -4040,17 +4040,13 @@ midori_view_set_uri (MidoriView*  view,
         #if WEBKIT_CHECK_VERSION (1, 1, 6)
         else if (g_str_has_prefix (uri, "pause:"))
         {
-            gchar* title;
-
-            title = g_strdup_printf ("%s", view->title);
             katze_assign (view->uri, g_strdup (&uri[6]));
             midori_view_display_error (
-                view, view->uri, title,
+                view, view->uri, view->title,
                 _("Page loading delayed"),
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 _("Load Page"),
                 NULL);
-            g_free (title);
             katze_item_set_uri (view->item, uri);
             g_object_notify (G_OBJECT (view), "uri");
         }
