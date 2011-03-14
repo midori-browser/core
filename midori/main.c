@@ -2038,6 +2038,7 @@ main (int    argc,
                       #endif
                       NULL);
         midori_browser_set_action_visible (browser, "Tools", FALSE);
+        midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
         midori_startup_timer ("Setup config: \t%f");
