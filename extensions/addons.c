@@ -1258,6 +1258,12 @@ addons_update_elements (MidoriExtension* extension,
                 if (!addons_get_element_content (fullpath, kind,
                                                  &(element->script_content)))
                     element->broken = TRUE;
+            if (element->script_content)
+            {
+                gchar* use_gm = g_strrstr_len (element->script_content , -1, "GM_");
+                if (use_gm && *use_gm)
+                    element->broken = TRUE;
+            }
 
             if (g_key_file_get_integer (keyfile, "scripts", fullpath, NULL) & 1)
                 element->enabled = FALSE;
