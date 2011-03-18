@@ -401,6 +401,17 @@ midori_bookmarks_edit_clicked_cb (GtkWidget*       toolitem,
 }
 
 static void
+midori_bookmarks_toolbar_update (MidoriBookmarks *bookmarks)
+{
+    gboolean selected;
+
+    selected = katze_tree_view_get_selected_iter (
+        GTK_TREE_VIEW (bookmarks->treeview), NULL, NULL);
+    gtk_widget_set_sensitive (GTK_WIDGET (bookmarks->delete), selected);
+    gtk_widget_set_sensitive (GTK_WIDGET (bookmarks->edit), selected);
+}
+
+static void
 midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
                                     MidoriBookmarks* bookmarks)
 {
@@ -423,6 +434,7 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
             midori_bookmarks_remove_item_cb, bookmarks);
         g_object_unref (item);
     }
+    midori_bookmarks_toolbar_update (bookmarks);
 }
 
 static GtkWidget*
@@ -464,6 +476,7 @@ midori_bookmarks_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         bookmarks->delete = GTK_WIDGET (toolitem);
+        midori_bookmarks_toolbar_update (bookmarks);
         toolitem = gtk_separator_tool_item_new ();
         gtk_separator_tool_item_set_draw (GTK_SEPARATOR_TOOL_ITEM (toolitem), FALSE);
         gtk_tool_item_set_expand (toolitem, TRUE);
@@ -881,6 +894,13 @@ midori_bookmarks_row_collapsed_cb (GtkTreeView *treeview,
         0, 0, NULL, -1);
 }
 
+static void
+midori_bookmarks_cursor_changed_cb (GtkTreeView     *treeview,
+                                    MidoriBookmarks *bookmarks)
+{
+    midori_bookmarks_toolbar_update (bookmarks);
+}
+
 static gboolean
 midori_bookmarks_filter_timeout_cb (gpointer data)
 {
@@ -982,6 +1002,8 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
                       midori_bookmarks_row_expanded_cb, bookmarks,
                       "signal::row-collapsed",
                       midori_bookmarks_row_collapsed_cb, bookmarks,
+                      "signal::cursor_changed",
+                      midori_bookmarks_cursor_changed_cb, bookmarks,
                       NULL);
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (bookmarks), treeview, TRUE, TRUE, 0);
