@@ -3939,7 +3939,7 @@ midori_view_set_uri (MidoriView*  view,
                 g_free (title);
                 g_free (logo_uri);
             }
-            else if (!strcmp (uri, "about:version"))
+            else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
                 gchar** argument_vector = sokoke_get_argv (NULL);
                 gchar* command_line = g_strjoinv (" ", argument_vector);
