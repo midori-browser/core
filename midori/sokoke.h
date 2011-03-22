@@ -284,4 +284,7 @@ void
 sokoke_widget_copy_clipboard (GtkWidget*   widget,
                               const gchar* text);
 
+gchar*
+sokoke_build_thumbnail_path (const gchar* name);
+
 #endif /* !__SOKOKE_H__ */

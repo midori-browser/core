@@ -2184,3 +2184,21 @@ sokoke_widget_copy_clipboard (GtkWidget*   widget,
     clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
     gtk_clipboard_set_text (clipboard, text, -1);
 }
+
+gchar*
+sokoke_build_thumbnail_path (const gchar* name)
+{
+    gchar* path = NULL;
+    if (name != NULL)
+    {
+        gchar* checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, name, -1);
+        gchar* filename = g_strdup_printf ("%s.png", checksum);
+
+        path = g_build_filename (g_get_user_cache_dir (), "midori", "thumbnails",
+                                 filename, NULL);
+
+        g_free (filename);
+        g_free (checksum);
+    }
+    return path;
+}
