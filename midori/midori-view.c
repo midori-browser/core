@@ -5489,17 +5489,15 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
 }
 
 /**
- * midori_view_speed_dial_inject_thumb
+ * midori_view_speed_dial_get_thumb
  * @view: a #MidoriView
- * @filename: filename of the thumbnail
  * @dom_id: Id of the shortcut on speed_dial page in wich to inject content
  * @url: url of the shortcut
  */
 static void
-midori_view_speed_dial_inject_thumb (MidoriView* view,
-                                     gchar*      filename,
-                                     gchar*      dom_id,
-                                     gchar*      url)
+midori_view_speed_dial_get_thumb (MidoriView* view,
+                                  gchar*      dom_id,
+                                  gchar*      url)
 {
     GtkWidget* thumb_view;
     MidoriWebSettings* settings;
@@ -5620,7 +5618,7 @@ midori_view_speed_dial_save (MidoriView*  view,
         {
             g_key_file_set_string (key_file, dial_id, "uri", parts[2]);
             g_key_file_set_string (key_file, dial_id, "title", parts[3]);
-            midori_view_speed_dial_inject_thumb (view, NULL, parts[1], parts[2]);
+            midori_view_speed_dial_get_thumb (view, parts[1], parts[2]);
         }
         else if (g_str_equal (action, "rename"))
         {
