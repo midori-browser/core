@@ -5454,6 +5454,9 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     GdkPixbuf* img;
     gchar* file_path;
     gchar* dom_id;
+    MidoriBrowser* browser;
+    gint i;
+    GtkWidget* tab;
 
     if (midori_view_get_load_status (thumb_view) != MIDORI_LOAD_FINISHED)
         return;
@@ -5477,6 +5480,12 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     gtk_widget_destroy (GTK_WIDGET (thumb_view));
     view->thumb_view = NULL;
     #endif
+
+    browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    i = 0;
+    while ((tab = midori_browser_get_nth_tab (browser, i++)))
+        if (midori_view_is_blank (MIDORI_VIEW (tab)))
+            midori_view_reload (MIDORI_VIEW (tab), FALSE);
 }
 
 /**
@@ -5550,6 +5559,8 @@ midori_view_speed_dial_save (MidoriView*  view,
     GtkWidget* notebook;
     gchar* msg = g_strdup (message + 16);
     gchar** parts = g_strsplit (msg, " ", 4);
+    gint i;
+    GtkWidget* tab;
 
     g_object_get (browser, "notebook", &notebook, NULL);
     g_object_get (browser, "speed-dial", &key_file, NULL);
@@ -5621,6 +5632,11 @@ midori_view_speed_dial_save (MidoriView*  view,
 
     config_file = g_build_filename (sokoke_set_config_dir (NULL), "speeddial", NULL);
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
+
+    i = 0;
+    while ((tab = midori_browser_get_nth_tab (browser, i++)))
+        if (midori_view_is_blank (MIDORI_VIEW (tab)))
+            midori_view_reload (MIDORI_VIEW (tab), FALSE);
 
     g_free (msg);
     g_free (action);
