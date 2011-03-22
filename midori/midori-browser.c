@@ -99,7 +99,6 @@ struct _MidoriBrowser
 
     gboolean show_navigationbar;
     gboolean show_statusbar;
-    gboolean speed_dial_in_new_tabs;
     guint maximum_history_age;
     gchar* location_entry_search;
     gchar* news_aggregator;
@@ -300,7 +299,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_get_next_page (view) != NULL);
 
     gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
-        browser->speed_dial_in_new_tabs && !midori_view_is_blank (view));
+        !midori_view_is_blank (view));
     /* Currently views that don't support source, don't support
        saving either. If that changes, we need to think of something. */
     _action_set_sensitive (browser, "SaveAs", midori_view_can_view_source (view));
@@ -6172,7 +6171,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-bookmarkbar", &show_bookmarkbar,
                   "show-panel", &show_panel,
                   "show-statusbar", &browser->show_statusbar,
-                  "speed-dial-in-new-tabs", &browser->speed_dial_in_new_tabs,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
                   "last-web-search", &last_web_search,
@@ -6306,8 +6304,6 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_navigationbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("show-statusbar"))
         browser->show_statusbar = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("speed-dial-in-new-tabs"))
-        browser->speed_dial_in_new_tabs = g_value_get_boolean (&value);
     else if (name == g_intern_string ("search-engines-in-completion"))
     {
         if (g_value_get_boolean (&value))

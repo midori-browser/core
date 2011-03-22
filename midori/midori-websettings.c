@@ -636,6 +636,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
     * Show spee dial in newly opened tabs.
     *
     * Since: 0.1.7
+    *
+    * Deprecated: 0.3.4
     */
     g_object_class_install_property (gobject_class,
                                      PROP_SPEED_DIAL_IN_NEW_TABS,

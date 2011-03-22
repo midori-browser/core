@@ -89,7 +89,6 @@ struct _MidoriView
     GtkWidget* thumb_view;
     KatzeArray* news_feeds;
 
-    gboolean speed_dial_in_new_tabs;
     gchar* download_manager;
     gchar* news_aggregator;
     gboolean middle_click_opens_selection;
@@ -2713,7 +2712,7 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
         gtk_menu_shell_append (menu_shell, menuitem);
 
-        if (view->speed_dial_in_new_tabs && !midori_view_is_blank (view)
+        if (!midori_view_is_blank (view)
          && strcmp ("/", sokoke_set_config_dir (NULL)))
         {
             menuitem = sokoke_action_create_popup_menu_item (
@@ -3362,7 +3361,6 @@ _midori_view_set_settings (MidoriView*        view,
     g_free (view->news_aggregator);
 
     g_object_get (view->settings,
-        "speed-dial-in-new-tabs", &view->speed_dial_in_new_tabs,
         "download-manager", &view->download_manager,
         "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
@@ -3420,9 +3418,7 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_value_init (&value, pspec->value_type);
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
-    if (name == g_intern_string ("speed-dial-in-new-tabs"))
-        view->speed_dial_in_new_tabs = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("download-manager"))
+    if (name == g_intern_string ("download-manager"))
         katze_assign (view->download_manager, g_value_dup_string (&value));
     else if (name == g_intern_string ("news-aggregator"))
         katze_assign (view->news_aggregator, g_value_dup_string (&value));
@@ -3900,7 +3896,7 @@ midori_view_set_uri (MidoriView*  view,
 
     if (g_getenv ("MIDORI_UNARMED") == NULL)
     {
-        if (view->speed_dial_in_new_tabs && !strcmp (uri, ""))
+        if (!strcmp (uri, ""))
         {
             #if !WEBKIT_CHECK_VERSION (1, 1, 14)
             SoupServer* res_server;
