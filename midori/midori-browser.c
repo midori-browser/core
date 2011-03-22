@@ -1111,79 +1111,37 @@ midori_view_save_as_cb (GtkWidget*   menuitem,
 }
 
 static gchar*
-midori_browser_speed_dial_get_next_free_slot (void)
+midori_browser_speed_dial_get_next_free_slot (MidoriView* view)
 {
-    GRegex* regex;
-    GMatchInfo* match_info;
-    gchar* speed_dial_body;
-    gchar* body_fname;
-    gchar* slot_id = NULL;
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    GKeyFile* key_file;
+    guint cols, rows, slot = 1;
 
-    body_fname = g_build_filename (sokoke_set_config_dir (NULL),
-                                   "speeddial.json", NULL);
-
-    if (g_access (body_fname, F_OK) != 0)
+    g_object_get (browser, "speed-dial", &key_file, NULL);
+    rows = g_key_file_get_integer (key_file, "settings", "rows", NULL);
+    cols = g_key_file_get_integer (key_file, "settings", "columns", NULL);
+    while (slot <= cols * rows)
     {
-        gchar* filename = g_build_filename ("midori", "res", "speeddial.json", NULL);
-        gchar* filepath = sokoke_find_data_filename (filename);
-        g_free (filename);
-        if (g_file_get_contents (filepath, &speed_dial_body, NULL, NULL))
+        gchar* dial_id = g_strdup_printf ("Dial %d", slot);
+        if (!g_key_file_has_group (key_file, dial_id))
         {
-            g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
-
-            g_free (speed_dial_body);
+            g_free (dial_id);
+            return g_strdup_printf ("s%d", slot);
         }
-        g_free (filepath);
-        g_free (body_fname);
-        return g_strdup ("s1");
+        g_free (dial_id);
+        slot++;
     }
-    else
-        g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
-
-    regex = g_regex_new ("\"id\":\"(s[0-9]{1,2})\",\"href\":\"#\"",
-                         G_REGEX_MULTILINE, 0, NULL);
-
-    if (g_regex_match (regex, speed_dial_body, 0, &match_info))
-    {
-        slot_id = g_match_info_fetch (match_info, 1);
-        g_match_info_free (match_info);
-    }
-
-    if (!g_strcmp0 (slot_id, ""))
-        g_free (slot_id);
-
-    g_free (body_fname);
-    g_free (speed_dial_body);
-    g_free (regex);
-
-    return slot_id;
+    return NULL;
 }
 
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser)
 {
     GdkPixbuf* img;
-    gchar* replace_from;
-    gchar* replace_by;
-    gsize len;
-
     GtkWidget* view = midori_browser_get_current_tab (browser);
-
     gchar* uri = g_strdup (midori_view_get_display_uri (MIDORI_VIEW (view)));
     gchar* title = g_strdup (midori_view_get_display_title (MIDORI_VIEW (view)));
-    gchar* slot_id = midori_browser_speed_dial_get_next_free_slot ();
-
-    GRegex* reg_quotes = g_regex_new ("'", 0, 0, NULL);
-    GRegex* reg_others = g_regex_new ("[\\\"\\\\]", 0, 0, NULL);
-    gchar* temp_title = g_regex_replace_literal (reg_others, title,
-                                                 -1, 0, " ", 0, NULL);
-    g_free (title);
-    title = g_regex_replace_literal (reg_quotes, temp_title, -1, 0,
-                                     "\\\\'", 0, NULL);
-
-    g_free (temp_title);
-    g_regex_unref (reg_quotes);
-    g_regex_unref (reg_others);
+    gchar* slot_id = midori_browser_speed_dial_get_next_free_slot (MIDORI_VIEW (view));
 
     if (slot_id == NULL)
     {
@@ -1192,82 +1150,36 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         return;
     }
 
-    if ((len = g_utf8_strlen (title, -1)) > 15)
-    {
-        /**
-          * The case when a quote was escaped with a backslash and the
-          * backslash becomes the last character of the ellipsized string.
-          * This causes JSON parsing to fail.
-          * For example: "My Foo Bar \'b\..."
-          **/
-        GRegex* reg_unsafe = g_regex_new ("([\\\\]+\\.)", 0, 0, NULL);
-
-        gchar* temp;
-        gchar* ellipsized = g_malloc0 ( len + 1);
-
-        g_utf8_strncpy (ellipsized, title, 15);
-        g_free (title);
-
-        temp = g_strdup_printf ("%s...", ellipsized);
-        g_free  (ellipsized);
-
-        title = g_regex_replace_literal (reg_unsafe, temp, -1, 0, ".", 0, NULL);
-        g_free (temp);
-
-        g_regex_unref (reg_unsafe);
-    }
-
     if ((img = midori_view_get_snapshot (MIDORI_VIEW (view), 240, 160)))
     {
-        GRegex* regex;
-        gchar* replace;
-        gchar* file_content;
-        gchar* encoded;
-        gchar* speed_dial_body;
-        gchar* body_fname;
-        gsize sz;
+        gint i;
+        GKeyFile* key_file;
+        gchar* dial_id = g_strdup_printf ("Dial %s", slot_id + 1);
+        gchar* config_file = g_build_filename (sokoke_set_config_dir (NULL),
+                                               "speeddial", NULL);
+        gchar* file_path = sokoke_build_thumbnail_path (slot_id);
+        g_object_get (browser, "speed-dial", &key_file, NULL);
 
-        body_fname = g_build_filename (sokoke_set_config_dir (NULL),
-                                       "speeddial.json", NULL);
+        g_key_file_set_string (key_file, dial_id, "uri", uri);
+        g_key_file_set_string (key_file, dial_id, "title", title);
 
-        if (g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL))
-        {
-            gint i;
+        gdk_pixbuf_save (img, file_path, "png", NULL, "compression", "7", NULL);
+        sokoke_key_file_save_to_file (key_file, config_file, NULL);
 
-            gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, NULL);
-            encoded = g_base64_encode ((guchar *)file_content, sz);
+        i = 0;
+        while ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (
+                                                  browser->notebook), i++)))
+            if (midori_view_is_blank (MIDORI_VIEW (view)))
+                midori_view_reload (MIDORI_VIEW (view), FALSE);
 
-            replace_from = g_strdup_printf (
-                "\\{\"id\":\"%s\",\"href\":\"#\",\"title\":\"\",\"img\":\"\"\\}",
-                slot_id);
-            replace_by = g_strdup_printf (
-                "{\"id\":\"%s\",\"href\":\"%s\",\"title\":\"%s\",\"img\":\"%s\"}",
-                slot_id, uri, title, encoded);
 
-            regex = g_regex_new (replace_from, G_REGEX_MULTILINE, 0, NULL);
-            replace = g_regex_replace (regex, speed_dial_body, -1,
-                                       1, replace_by, 0, NULL);
-
-            g_file_set_contents (body_fname, replace, -1, NULL);
-
-            i = 0;
-            while ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (
-                                                      browser->notebook), i++)))
-                if (midori_view_is_blank (MIDORI_VIEW (view)))
-                    midori_view_reload (MIDORI_VIEW (view), FALSE);
-
-            g_object_unref (img);
-            g_regex_unref (regex);
-            g_free (encoded);
-            g_free (file_content);
-            g_free (speed_dial_body);
-            g_free (replace_from);
-            g_free (replace_by);
-            g_free (replace);
-        }
-        g_free (body_fname);
+        g_object_unref (img);
+        g_free (file_path);
+        g_free (config_file);
+        g_free (dial_id);
     }
     g_free (uri);
+    g_free (title);
     g_free (slot_id);
 }
 

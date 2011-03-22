@@ -108,6 +108,9 @@
         margin: 0px;
         padding: 5px 0px 0px;
         color: #222;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     div.clear {
@@ -194,14 +197,6 @@
 
     <script type="text/javascript">
 
-    var sc = JSON.decode ({json_data});
-
-    var encodeSafe = function (obj) {
-        var str = JSON.encode (obj);
-        str = str.replace (/\'/g, '\\\'');
-        return str;
-    }
-
     var getAction = function (id)
     {
         var a = $(id).getFirst ();
@@ -220,7 +215,6 @@
         a.getNext().set('text', name);
 
         var num = id.substr (1) - 1;
-        sc.shortcuts[num].title = name;
 
         a.empty();
         var im = new Element('img', { src: '{stock}/image-loading' });
@@ -228,51 +222,19 @@
         a.addClass ('waiter');
         a.grab (im);
 
-        getThumbnail (id, url);
+        console.log ("speed_dial-save-add " + id + " " + url + " " + name);
         return false;
-    }
-
-    var getThumbnail = function (id, url)
-    {
-        console.log ("speed_dial-get-thumbnail " + id + " " + url);
-        return false;
-    }
-
-    var setThumbnail = function (id, data, href)
-    {
-        var a = $(id).getFirst ();
-        var im = new Element ('img', { src: 'data:image/png;base64,' + data });
-
-        a.empty ().removeClass ('waiter').grab (im);
-        a.setProperty ('href', href);
-
-        var cross = new Element ('div', { 'html': '' });
-        cross.setProperty ('onclick', 'clearShortcut("' + id + '");');
-        cross.addClass ('cross');
-        cross.inject ($(id), 'top');
-
-        $(id).addClass ('activated');
-
-        var p = a.getNext ();
-        p.setProperty('onclick', 'javascript:renameShortcut("' + id + '");');
-
-        var num = id.substr (1) - 1;
-        sc.shortcuts[num].href = href;
-        sc.shortcuts[num].img = data;
-
-        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
     }
 
     var renameShortcut = function (id)
     {
         var num = id.substr (1) - 1;
-        var name = prompt ("{enter_shortcut_name}", sc.shortcuts[num].title);
+        var name = prompt ("{enter_shortcut_name}", $(id).getLast ().get ('html', name));
         if (!name) return;
 
         $(id).getLast ().set ('html', name);
-        sc.shortcuts[num].title = name;
 
-        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
+        console.log ("speed_dial-save-rename " + id + " " + name);
     }
 
     var clearShortcut = function (id)
@@ -292,84 +254,13 @@
         a.setProperty ('href', '#');
         p.empty ().removeProperty ('onclick');
 
-        num -= 1;
-        sc.shortcuts[num].href = "#";
-        sc.shortcuts[num].title = "";
-        sc.shortcuts[num].img = "";
-
-        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
-    }
-
-    var buildSpeeddial = function ()
-    {
-        var width = 3;
-        var thumb = 160;
-
-        if (sc.thumb)
-        {
-            thumb = sc.thumb;
-            setThumbSize(thumb);
-        }
-
-        if (sc.width)
-        {
-            width = sc.width;
-            $('wrap').style.width = (width * (thumb + 60)) + 'px';
-        }
-
-        sc.shortcuts.each (function (item, index, sc)
-        {
-            var cl = "shortcut";
-
-            if (index < width)
-                cl += " top";
-            if ((index % width) == (width - 1))
-                cl += " right";
-
-            var div = new Element ('div', {
-                'class': cl,
-                'id': item.id
-            });
-
-            var a = new Element ('a', {
-                'href': item.href,
-                'events': {
-                    'click': function () {
-                        return getAction (item.id);
-                    }
-                }
-            });
-
-            var p = new Element ('p', {
-                'text': item.title
-            });
-
-            if (item.href == "#")
-                a.set ('html', '<h1>' + item.id.substr (1) + '</h1><h4><span/></h4>');
-            else
-            {
-                div.addClass ('activated');
-                var im = new Element ('img', { src: 'data:image/png;base64,' + item.img });
-                var cross = new Element ('div', { 'html': '' });
-                cross.setProperty ('onclick', 'clearShortcut("' + item.id + '");');
-                cross.addClass ('cross');
-                cross.inject (div, 'top');
-                a.grab (im);
-                p.setProperty('onclick', 'javascript:renameShortcut("' + item.id + '");');
-            }
-
-            div.grab (a);
-            div.grab (p);
-            $('content').grab (div);
-        });
+        console.log ("speed_dial-save-delete " + id);
     }
 
     var setSize = function ()
     {
-        if (typeof sc.width == 'undefined')
-            sc.width = 3;
-        var rows = Math.ceil (sc.shortcuts.length / sc.width);
-        var size = prompt ("{enter_dial_size}", sc.width + 'x' + rows);
+
+        var size = prompt ("{enter_dial_size}", columns + 'x' + rows);
 
         if (!size) return;
 
@@ -396,23 +287,7 @@
             return;
         }
 
-        sc.width = cols;
-
-        var count = cols * rows;
-
-        sc.shortcuts = sc.shortcuts.slice (0, count);
-
-        var i = sc.shortcuts.length;
-        while (i < count)
-        {
-            i++;
-            sc.shortcuts.push ({"id" : "s" + i, "href" : "#", "title" : "", "img" : ""});
-        }
-
-        $('content').empty ();
-        buildSpeeddial ();
-
-        console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
+        console.log ("speed_dial-save-size " + cols  + " " + rows);
     }
 
     var setThumbSize = function (size)
@@ -420,10 +295,7 @@
         var i;
         var rules = document.styleSheets[0].cssRules;
 
-        var width = 3;
-        if (sc.width)
-            width = sc.width;
-
+        var width = columns;
         var height = Math.round (size / 1.5);
 
         $('wrap').style.width = (width * (size + 60)) + 'px';
@@ -452,17 +324,8 @@
                     break;
             }
         }
-
-	if (sc.thumb != size)
-	{
-            sc.thumb = size;
-            console.log ("speed_dial-save '" + encodeSafe (sc) + "'");
-	}
+        console.log ("speed_dial-save-thumbsize " + size);
     }
-
-    window.addEvent ('domready', function () {
-        buildSpeeddial ();
-    });
 
     var key_id = 's';
     var key_timeout;
@@ -511,8 +374,3 @@
     </div>
     <div id="wrap">
         <div id="content">
-        </div>
-    </div>
-</body>
-</html>
-

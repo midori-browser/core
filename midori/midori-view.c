@@ -234,12 +234,7 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
                                 MidoriView*        view);
 
 static void
-midori_view_speed_dial_get_thumb (GtkWidget*   web_view,
-                                 const gchar* message,
-                                 MidoriView*  view);
-
-static void
-midori_view_speed_dial_save (GtkWidget*   web_view,
+midori_view_speed_dial_save (MidoriView*   view,
                              const gchar* message);
 
 static void
@@ -3050,10 +3045,8 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* source_id,
                                     MidoriView*  view)
 {
-    if (!strncmp (message, "speed_dial-get-thumbnail", 22))
-        midori_view_speed_dial_get_thumb (web_view, message, view);
-    else if (!strncmp (message, "speed_dial-save", 13))
-        midori_view_speed_dial_save (web_view, message);
+    if (!strncmp (message, "speed_dial-save", 13))
+        midori_view_speed_dial_save (view, message);
     else
         g_signal_emit (view, signals[CONSOLE_MESSAGE], 0, message, line, source_id);
     return TRUE;
@@ -3784,6 +3777,102 @@ static gchar* list_netscape_plugins ()
     return g_string_free (ns_plugins, FALSE);
 }
 
+static gchar*
+prepare_speed_dial_html (MidoriView* view)
+{
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    GKeyFile* key_file;
+    GString* markup  = g_string_new (NULL);
+    guint rows, cols, slot = 1;
+    gchar* thumb_size_type;
+    guint thumb_size = 160;
+
+    g_object_get (browser, "speed-dial", &key_file, NULL);
+    if (!key_file)
+        return g_string_free (markup, FALSE);
+    rows = g_key_file_get_integer (key_file, "settings", "rows", NULL);
+    cols = g_key_file_get_integer (key_file, "settings", "columns", NULL);
+    thumb_size_type = g_key_file_get_string (key_file, "settings", "size", NULL);
+    if (thumb_size_type == NULL)
+        thumb_size_type = g_strdup ("MEDIUM");
+
+    if (g_str_equal (thumb_size_type, "SMALL"))
+        thumb_size = 80;
+    else if (g_str_equal (thumb_size_type, "MEDIUM"))
+        thumb_size = 160;
+    else if (g_str_equal (thumb_size_type, "BIG"))
+        thumb_size = 240;
+
+    g_free (thumb_size_type);
+
+    g_string_append_printf (markup,
+            "<script>var columns = %d; var rows = %d;"
+            "setThumbSize(%d);</script>\n",
+            cols, rows, thumb_size);
+
+    while (slot <= rows * cols)
+    {
+        gchar* position;
+        gchar* dial_entry = g_strdup_printf ("Dial %d", slot);
+        if (slot < cols)
+            position = g_strdup (" top");
+        else if (slot == cols)
+            position = g_strdup (" top right");
+        else if (slot > cols && slot % cols == 0)
+            position = g_strdup (" right");
+        else
+            position = g_strdup ("");
+
+        if (g_key_file_has_group (key_file, dial_entry))
+        {
+            gchar* slot_id = g_strdup_printf ("s%d", slot);
+            gchar* thumb_file = sokoke_build_thumbnail_path (slot_id);
+            gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
+            gchar* title = g_key_file_get_string (key_file, dial_entry, "title", NULL);
+            gsize sz;
+            gchar* encoded;
+            gchar* thumb_content;
+
+            g_file_get_contents (thumb_file, &thumb_content, &sz, NULL);
+            encoded = g_base64_encode ((guchar*)thumb_content, sz);
+            g_free  (thumb_file);
+            g_free (thumb_content);
+            g_free (slot_id);
+
+            g_string_append_printf (markup,
+                    "<div class=\"shortcut%s activated\" id=\"s%d\">\n"
+                    "<div onclick='javascript:clearShortcut(\"s%d\");' "
+                    "class='cross'></div>\n<a href=\"%s\">"
+                    "<img src=\"data:image/png;base64,%s\"></a>\n"
+                    "<p onclick='javascript:renameShortcut(\"s%d\");'>"
+                    "‪%s</p></div>\n",
+                    position, slot, slot, uri, encoded, slot, title);
+
+            g_free (uri);
+            g_free (title);
+        }
+        else
+        {
+            g_string_append_printf (markup,
+                    "<div class=\"shortcut%s\" id=\"s%d\">"
+                    "\n<a href=\"#\" onclick='javascript:return"
+                    " getAction(\"s%d\");'>"
+                    "<h1>%d</h1>\n<h4><span></span><h4>"
+                    "</a>\n<p></p></div>\n",
+                    position, slot, slot, slot);
+        }
+
+        slot++;
+        g_free (position);
+        g_free (dial_entry);
+    }
+    g_string_append_printf (markup,
+            "</div>\n</div>\n</body>\n</html>\n");
+
+    return g_string_free (markup, FALSE);
+}
+
+
 /**
  * midori_view_set_uri:
  * @view: a #MidoriView
@@ -3820,9 +3909,14 @@ midori_view_set_uri (MidoriView*  view,
             gchar* res_root;
             gchar* speed_dial_head;
             gchar* speed_dial_body;
-            gchar* body_fname;
             gchar* stock_root;
             gchar* filepath;
+            #ifdef G_ENABLE_DEBUG
+            GTimer* timer = NULL;
+
+            if (g_getenv ("MIDORI_STARTTIME") != NULL)
+                timer = g_timer_new ();
+            #endif
 
             katze_assign (view->uri, g_strdup (""));
             katze_item_set_uri (view->item, "");
@@ -3842,26 +3936,10 @@ midori_view_set_uri (MidoriView*  view,
             res_root = g_strdup_printf ("http://localhost:%d/res", port);
             stock_root = g_strdup_printf ("http://localhost:%d/stock", port);
             #endif
-            body_fname = g_build_filename (sokoke_set_config_dir (NULL),
-                                           "speeddial.json", NULL);
-
-            if (g_access (body_fname, F_OK) != 0)
-            {
-                filepath = sokoke_find_data_filename ("midori/res/speeddial.json");
-                if (g_file_get_contents (filepath,
-                                         &speed_dial_body, NULL, NULL))
-                    g_file_set_contents (body_fname, speed_dial_body, -1, NULL);
-                else
-                    speed_dial_body = g_strdup ("");
-                g_free (filepath);
-            }
-            else
-                g_file_get_contents (body_fname, &speed_dial_body, NULL, NULL);
 
             data = sokoke_replace_variables (speed_dial_head,
                 "{res}", res_root,
                 "{stock}", stock_root,
-                "{json_data}", speed_dial_body,
                 "{title}", _("Speed dial"),
                 "{click_to_add}", _("Click to add a shortcut"),
                 "{enter_shortcut_address}", _("Enter shortcut address"),
@@ -3875,6 +3953,17 @@ midori_view_set_uri (MidoriView*  view,
                 "{set_thumb_normal}", _("Medium"),
                 "{set_thumb_big}", _("Big"),  NULL);
 
+            #ifdef G_ENABLE_DEBUG
+            if (g_getenv ("MIDORI_STARTTIME") != NULL)
+            {
+                g_debug ("Speed Dial: \t%fs", g_timer_elapsed (timer, NULL));
+                g_timer_destroy (timer);
+            }
+            #endif
+
+            speed_dial_body = prepare_speed_dial_html (view);
+            data = g_strdup_printf ("%s\n%s", data, prepare_speed_dial_html (view));
+
             midori_view_load_alternate_string (view,
                 data, res_root, "about:blank", NULL);
 
@@ -3883,7 +3972,6 @@ midori_view_set_uri (MidoriView*  view,
             g_free (data);
             g_free (speed_dial_head);
             g_free (speed_dial_body);
-            g_free (body_fname);
         }
         /* This is not prefectly elegant, but creating
            special pages inline is the simplest solution. */
@@ -5364,31 +5452,22 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
                            MidoriView* view)
 {
     GdkPixbuf* img;
-    gchar* file_content;
-    gchar* encoded;
+    gchar* file_path;
     gchar* dom_id;
-    gchar* js;
-    gsize sz;
 
     if (midori_view_get_load_status (thumb_view) != MIDORI_LOAD_FINISHED)
         return;
 
     gtk_widget_realize (midori_view_get_web_view (MIDORI_VIEW (thumb_view)));
     img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 240, 160);
-    gdk_pixbuf_save_to_buffer (img, &file_content, &sz, "png", NULL, "compression", "7", NULL);
-    encoded = g_base64_encode ((guchar *)file_content, sz );
-
-    /* Call Javascript function to replace shortcut's content */
     dom_id = g_object_get_data (G_OBJECT (thumb_view), "dom-id");
-    js = g_strdup_printf ("setThumbnail('%s','%s','%s');",
-                          dom_id, encoded, thumb_view->uri);
-    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view->web_view), js);
-    g_free (js);
+    file_path  = sokoke_build_thumbnail_path (dom_id);
+    gdk_pixbuf_save (img, file_path, "png", NULL, "compression", "7", NULL);
+
     g_object_unref (img);
 
     g_free (dom_id);
-    g_free (encoded);
-    g_free (file_content);
+    g_free (file_path);
 
     g_signal_handlers_disconnect_by_func (
        thumb_view, thumb_view_load_status_cb, view);
@@ -5453,53 +5532,97 @@ midori_view_speed_dial_inject_thumb (MidoriView* view,
 }
 
 /**
- * midori_view_speed_dial_get_thumb
- * @web_view: a #WebkitView
- * @message: Console log data
- *
- * Load a thumbnail, and set the DOM
- *
- * message[0] == console message call
- * message[1] == shortcut id in the DOM
- * message[2] == shortcut uri
- *
- **/
-static void
-midori_view_speed_dial_get_thumb (GtkWidget*   web_view,
-                                  const gchar* message,
-                                  MidoriView*  view)
-{
-    gchar** t_data = g_strsplit (message," ", 4);
-
-    if (t_data[1] == NULL || t_data[2] == NULL )
-        return;
-
-    midori_view_speed_dial_inject_thumb (view, NULL,
-        g_strdup (t_data[1]), g_strdup (t_data[2]));
-    g_strfreev (t_data);
-}
-
-/**
  * midori_view_speed_dial_save
- * @web_view: a #WebkitView
+ * @view: a #MidoriView
+ * @message: message from JavaScript
  *
- * Save speed_dial DOM structure to body template
+ * Save speed_dial settings
  *
  **/
 static void
-midori_view_speed_dial_save (GtkWidget*   web_view,
+midori_view_speed_dial_save (MidoriView*  view,
                              const gchar* message)
 {
-    gchar* json = g_strdup (message + 15);
-    gchar* fname = g_build_filename (sokoke_set_config_dir (NULL),
-                                     "speeddial.json", NULL);
+    gchar* action;
+    gchar* config_file;
+    GKeyFile* key_file;
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    GtkWidget* notebook;
+    gchar* msg = g_strdup (message + 16);
+    gchar** parts = g_strsplit (msg, " ", 4);
 
-    GRegex* reg_double = g_regex_new ("\\\\\"", 0, 0, NULL);
-    gchar* safe = g_regex_replace_literal (reg_double, json, -1, 0, "\\\\\"", 0, NULL);
-    g_file_set_contents (fname, safe, -1, NULL);
+    g_object_get (browser, "notebook", &notebook, NULL);
+    g_object_get (browser, "speed-dial", &key_file, NULL);
+    action = parts[0];
 
-    g_free (fname);
-    g_free (json);
-    g_free (safe);
-    g_regex_unref (reg_double);
+    if (g_str_equal (action, "size"))
+    {
+        g_key_file_set_string (key_file, "settings", "rows", parts[2]);
+        g_key_file_set_string (key_file, "settings", "columns", parts[1]);
+    }
+    else if (g_str_equal (action, "thumbsize"))
+    {
+        gchar* saved_size;
+        gchar* thumb_size_type;
+        guint size = atoi (parts[1]);
+
+        if (size == 80)
+            thumb_size_type = g_strdup ("SMALL");
+        else if (size == 240)
+            thumb_size_type = g_strdup ("BIG");
+        else /* if (size == 160) */
+            thumb_size_type = g_strdup ("MEDIUM");
+
+        saved_size = g_key_file_get_string (key_file, "settings", "size", NULL);
+        if (saved_size != NULL && g_str_equal (saved_size, thumb_size_type))
+        {
+            g_free (action);
+            g_free (msg);
+            g_free (thumb_size_type);
+            g_free (saved_size);
+            return;
+        }
+
+        g_key_file_set_string (key_file, "settings", "size", thumb_size_type);
+        g_free (thumb_size_type);
+        g_free (saved_size);
+    }
+    else if (g_str_equal (action, "add") || g_str_equal (action, "rename")
+          || g_str_equal (action, "delete"))
+    {
+        gchar* tmp = g_strdup (parts[1] + 1);
+        guint slot_id = atoi (tmp);
+        gchar* dial_id = g_strdup_printf ("Dial %d", slot_id);
+        g_free (tmp);
+
+
+        if (g_str_equal (action, "delete"))
+        {
+            gchar* file_path = sokoke_build_thumbnail_path (parts[1]);
+
+            g_key_file_remove_group (key_file, dial_id, NULL);
+            g_unlink (file_path);
+
+            g_free (file_path);
+        }
+        else if (g_str_equal (action, "add"))
+        {
+            g_key_file_set_string (key_file, dial_id, "uri", parts[2]);
+            g_key_file_set_string (key_file, dial_id, "title", parts[3]);
+            midori_view_speed_dial_inject_thumb (view, NULL, parts[1], parts[2]);
+        }
+        else if (g_str_equal (action, "rename"))
+        {
+            g_key_file_set_string (key_file, dial_id, "title", parts[2]);
+        }
+
+        g_free (dial_id);
+    }
+
+    config_file = g_build_filename (sokoke_set_config_dir (NULL), "speeddial", NULL);
+    sokoke_key_file_save_to_file (key_file, config_file, NULL);
+
+    g_free (msg);
+    g_free (action);
+    g_free (config_file);
 }
