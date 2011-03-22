@@ -60,6 +60,7 @@ struct _MidoriApp
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
+    GKeyFile* speeddial;
     KatzeArray* extensions;
     KatzeArray* browsers;
 
@@ -97,6 +98,7 @@ enum
     PROP_TRASH,
     PROP_SEARCH_ENGINES,
     PROP_HISTORY,
+    PROP_SPEED_DIAL,
     PROP_EXTENSIONS,
     PROP_BROWSERS,
     PROP_BROWSER
@@ -149,6 +151,7 @@ midori_browser_new_window_cb (MidoriBrowser* browser,
                       "trash", app->trash,
                       "search-engines", app->search_engines,
                       "history", app->history,
+                      "speed-dial", app->speeddial,
                       NULL);
     else
         new_browser = midori_app_create_browser (app);
@@ -363,6 +366,23 @@ midori_app_class_init (MidoriAppClass* class)
                                      "Extensions",
                                      "The list of extensions",
                                      KATZE_TYPE_ARRAY,
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+
+
+    /**
+    * MidoriApp:speed-dial:
+    *
+    * The speed dial configuration file.
+    *
+    * Since: 0.3.4
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SPEED_DIAL,
+                                     g_param_spec_pointer (
+                                     "speed-dial",
+                                     "Speeddial",
+                                     "Pointer to key-value object with speed dial items",
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
     /**
@@ -717,6 +737,7 @@ midori_app_init (MidoriApp* app)
     app->trash = NULL;
     app->search_engines = NULL;
     app->history = NULL;
+    app->speeddial = NULL;
     app->extensions = NULL;
     app->browsers = katze_array_new (MIDORI_TYPE_BROWSER);
 
@@ -743,6 +764,7 @@ midori_app_finalize (GObject* object)
     katze_object_assign (app->trash, NULL);
     katze_object_assign (app->search_engines, NULL);
     katze_object_assign (app->history, NULL);
+    app->speeddial = NULL;
     katze_object_assign (app->extensions, NULL);
     katze_object_assign (app->browsers, NULL);
 
@@ -793,6 +815,9 @@ midori_app_set_property (GObject*      object,
     case PROP_HISTORY:
         katze_object_assign (app->history, g_value_dup_object (value));
         break;
+    case PROP_SPEED_DIAL:
+        app->speeddial = g_value_get_pointer (value);
+        break;
     case PROP_EXTENSIONS:
         katze_object_assign (app->extensions, g_value_dup_object (value));
         break;
@@ -829,6 +854,9 @@ midori_app_get_property (GObject*    object,
         break;
     case PROP_HISTORY:
         g_value_set_object (value, app->history);
+        break;
+    case PROP_SPEED_DIAL:
+        g_value_set_pointer (value, app->speeddial);
         break;
     case PROP_EXTENSIONS:
         g_value_set_object (value, app->extensions);
@@ -1122,6 +1150,7 @@ midori_app_create_browser (MidoriApp* app)
                          "trash", app->trash,
                          "search-engines", app->search_engines,
                          "history", app->history,
+                         "speed-dial", app->speeddial,
                          NULL);
 }
 

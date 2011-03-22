@@ -1467,19 +1467,28 @@ signal_handler (int signal_id)
 }
 #endif
 
-#if 0
-static void
-midori_speeddial_import_from_json (const gchar* json_file,
-                                   const gchar* speeddial_file)
+static GKeyFile*
+speeddial_new_from_file (const gchar* config,
+                         GError**     error)
 {
+
+    GKeyFile* key_file = g_key_file_new ();
+    gchar* config_file = g_build_filename (config, "speeddial", NULL);
     guint i = 0;
     guint columns = 3;
     guint slot_count = 0;
     gchar* json_content;
     gchar** parts;
-    GKeyFile* key_file = g_key_file_new ();
 
-    g_file_get_contents (json_file, &json_content, NULL, NULL);
+    if (g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, error))
+    {
+        g_free (config_file);
+        return key_file;
+    }
+
+    katze_assign (config_file, g_build_filename (config, "speeddial.json", NULL));
+    g_file_get_contents (config_file, &json_content, NULL, NULL);
+    g_free (config_file);
     parts = g_strsplit (json_content ? json_content : "", ",", -1);
     while (parts && parts[i] != NULL)
     {
@@ -1588,13 +1597,10 @@ midori_speeddial_import_from_json (const gchar* json_file,
     g_key_file_set_integer (key_file, "settings", "columns", columns);
     g_key_file_set_integer (key_file, "settings", "rows", slot_count / columns);
 
-    sokoke_key_file_save_to_file (key_file, speeddial_file, NULL);
-
     g_strfreev (parts);
     g_free (json_content);
-    g_key_file_free (key_file);
+    return key_file;
 }
-#endif
 
 static void
 midori_soup_session_block_uris_cb (SoupSession* session,
@@ -1812,9 +1818,7 @@ main (int    argc,
     MidoriWebSettings* settings;
     gchar* config_file;
     gchar* bookmarks_file;
-#if 0
-    gchar* speeddial_file;
-#endif
+    GKeyFile* speeddial;
     gboolean bookmarks_exist;
     MidoriStartup load_on_startup;
     KatzeArray* search_engines;
@@ -2231,16 +2235,7 @@ main (int    argc,
     g_free (bookmarks_file);
     midori_startup_timer ("History read: \t%f");
 
-    #if 0
-    speeddial_file = g_build_filename (config, "speeddial", NULL);
-    if (g_access (speeddial_file, F_OK) != 0)
-    {
-        gchar* json_file = g_build_filename (config, "speeddial.json", NULL);
-        midori_speeddial_import_from_json (json_file, speeddial_file);
-        g_free (json_file);
-    }
-    g_free (speeddial_file);
-    #endif
+    speeddial = speeddial_new_from_file (config, &error);
 
     /* In case of errors */
     if (error_messages->len)
@@ -2359,6 +2354,7 @@ main (int    argc,
                        "trash", trash,
                        "search-engines", search_engines,
                        "history", history,
+                       "speed-dial", speeddial,
                        NULL);
     g_object_unref (history);
     g_object_unref (search_engines);
@@ -2419,6 +2415,7 @@ main (int    argc,
     }
 
     g_object_unref (settings);
+    g_key_file_free (speeddial);
     g_object_unref (app);
     g_free (config_file);
     return 0;

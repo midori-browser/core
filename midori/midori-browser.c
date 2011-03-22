@@ -94,6 +94,7 @@ struct _MidoriBrowser
     KatzeArray* trash;
     KatzeArray* search_engines;
     KatzeArray* history;
+    GKeyFile* speeddial;
     gboolean show_tabs;
 
     gboolean show_navigationbar;
@@ -128,6 +129,7 @@ enum
     PROP_TRASH,
     PROP_SEARCH_ENGINES,
     PROP_HISTORY,
+    PROP_SPEED_DIAL,
     PROP_SHOW_TABS,
 };
 
@@ -2084,6 +2086,22 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      flags));
+
+    /**
+    * MidoriBrowser:speed-dial:
+    *
+    * The speed dial configuration file.
+    *
+    * Since: 0.3.4
+    */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SPEED_DIAL,
+                                     g_param_spec_pointer (
+                                     "speed-dial",
+                                     "Speeddial",
+                                     "Pointer to key-value object with speed dial items",
+                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
 
     /**
      * MidoriBrowser:show-tabs:
@@ -5651,6 +5669,7 @@ midori_browser_init (MidoriBrowser* browser)
     browser->bookmarks = NULL;
     browser->trash = NULL;
     browser->search_engines = NULL;
+    browser->speeddial = NULL;
 
     /* Setup the window metrics */
     g_signal_connect (browser, "realize",
@@ -6097,6 +6116,7 @@ midori_browser_finalize (GObject* object)
     katze_object_assign (browser->trash, NULL);
     katze_object_assign (browser->search_engines, NULL);
     katze_object_assign (browser->history, NULL);
+    browser->speeddial = NULL;
 
     katze_assign (browser->news_aggregator, NULL);
 
@@ -6663,6 +6683,9 @@ midori_browser_set_property (GObject*      object,
     case PROP_HISTORY:
         midori_browser_set_history (browser, g_value_get_object (value));
         break;
+    case PROP_SPEED_DIAL:
+        browser->speeddial = g_value_get_pointer (value);
+        break;
     case PROP_SHOW_TABS:
         browser->show_tabs = g_value_get_boolean (value);
         if (browser->show_tabs)
@@ -6737,6 +6760,9 @@ midori_browser_get_property (GObject*    object,
         break;
     case PROP_HISTORY:
         g_value_set_object (value, browser->history);
+        break;
+    case PROP_SPEED_DIAL:
+        g_value_set_pointer (value, browser->speeddial);
         break;
     case PROP_SHOW_TABS:
         g_value_set_boolean (value, browser->show_tabs);
