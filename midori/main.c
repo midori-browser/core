@@ -1494,8 +1494,8 @@ speeddial_new_from_file (const gchar* config,
     {
         gchar* key;
         gchar* val;
-        gchar* slot;
-        gchar* dial_id;
+        gchar* slot = NULL;
+        gchar* dial_id = NULL;
         gchar* uri;
         gchar** values = g_strsplit (parts[i], "\"", -1);
 
@@ -1568,10 +1568,10 @@ speeddial_new_from_file (const gchar* config,
                 thumb_size = atoi (g_strndup (val + 1, strlen (val) - 3));
                 if (thumb_size == 80)
                     thumb_size_type = g_strdup ("SMALL");
-                else if (thumb_size == 160)
-                    thumb_size_type = g_strdup ("MEDIUM");
                 else if (thumb_size == 240)
                     thumb_size_type = g_strdup ("BIG");
+                else /* if (thumb_size == 160) */
+                    thumb_size_type = g_strdup ("MEDIUM");
                 g_key_file_set_value (key_file, "settings", "size", thumb_size_type);
 
                 g_free (thumb_size_type);
