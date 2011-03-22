@@ -2021,6 +2021,8 @@ main (int    argc,
             search_engines = search_engines_new_from_folder (config, NULL);
             g_object_set (browser, "search-engines", search_engines, NULL);
             g_object_unref (search_engines);
+            speeddial = speeddial_new_from_file (config, &error);
+            g_object_set (browser, "speed-dial", speeddial, NULL);
         }
         else
         {
