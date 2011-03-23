@@ -95,7 +95,6 @@ struct _MidoriView
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
-    gboolean find_while_typing;
     gint find_links;
 
     GtkWidget* menu_item;
@@ -1933,8 +1932,6 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     /* Find inline */
     if (event->keyval == ',' || event->keyval == '/' || event->keyval == GDK_KP_Divide)
         character = '\0';
-    else if (view->find_while_typing)
-        character = gdk_unicode_to_keyval (event->keyval);
     else
         return FALSE;
 
@@ -3369,7 +3366,6 @@ _midori_view_set_settings (MidoriView*        view,
         "open-new-pages-in", &view->open_new_pages_in,
         "middle-click-opens-selection", &view->middle_click_opens_selection,
         "open-tabs-in-the-background", &view->open_tabs_in_the_background,
-        "find-while-typing", &view->find_while_typing,
         NULL);
 
     if (view->web_view)
@@ -3445,8 +3441,6 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         view->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (name == g_intern_string ("open-tabs-in-the-background"))
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("find-while-typing"))
-        view->find_while_typing = g_value_get_boolean (&value);
 
     g_value_unset (&value);
 }
