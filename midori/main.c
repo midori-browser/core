@@ -1594,8 +1594,9 @@ speeddial_new_from_file (const gchar* config,
         }
     }
 
+    /* Without JSON we save 3 columns and 0 rows, columns are initialised as 3 */
     g_key_file_set_integer (key_file, "settings", "columns", columns);
-    g_key_file_set_integer (key_file, "settings", "rows", slot_count / columns);
+    g_key_file_set_integer (key_file, "settings", "rows", slot_count / columns ? 0 : 3);
 
     g_strfreev (parts);
     g_free (json_content);
