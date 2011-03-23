@@ -3905,6 +3905,7 @@ midori_view_set_uri (MidoriView*  view,
             gchar* res_root;
             gchar* speed_dial_head;
             gchar* speed_dial_body;
+            gchar* speed_dial_markup;
             gchar* stock_root;
             gchar* filepath;
             #ifdef G_ENABLE_DEBUG
@@ -3958,16 +3959,17 @@ midori_view_set_uri (MidoriView*  view,
             #endif
 
             speed_dial_body = prepare_speed_dial_html (view);
-            data = g_strdup_printf ("%s\n%s", data, prepare_speed_dial_html (view));
+            speed_dial_markup = g_strdup_printf ("%s\n%s", data, speed_dial_body);
 
             midori_view_load_alternate_string (view,
-                data, res_root, "about:blank", NULL);
+                speed_dial_markup, res_root, "about:blank", NULL);
 
             g_free (res_root);
             g_free (stock_root);
             g_free (data);
             g_free (speed_dial_head);
             g_free (speed_dial_body);
+            g_free (speed_dial_markup);
         }
         /* This is not prefectly elegant, but creating
            special pages inline is the simplest solution. */
