@@ -4591,18 +4591,13 @@ midori_view_update_tab_title (GtkWidget* label,
                               gint       size,
                               gdouble    angle)
 {
-    gint width;
-
-    sokoke_widget_get_text_size (label, "M", &width, NULL);
     if (angle == 0.0 || angle == 360.0)
     {
-        gtk_widget_set_size_request (label, width * size, -1);
         if (gtk_label_get_ellipsize (GTK_LABEL (label)) != PANGO_ELLIPSIZE_START)
             gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
     }
     else
     {
-        gtk_widget_set_size_request (label, -1, width * size);
         gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_NONE);
     }
     gtk_label_set_angle (GTK_LABEL (label), angle);
@@ -4767,13 +4762,13 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         if (katze_object_get_boolean (view->settings, "close-buttons-left"))
         {
             gtk_box_pack_end (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
-            gtk_box_pack_end (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
+            gtk_box_pack_end (GTK_BOX (hbox), view->tab_title, TRUE, TRUE, 0);
             gtk_box_pack_start (GTK_BOX (hbox), align, FALSE, FALSE, 0);
         }
         else
         {
             gtk_box_pack_start (GTK_BOX (hbox), view->tab_icon, FALSE, FALSE, 0);
-            gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, FALSE, TRUE, 0);
+            gtk_box_pack_start (GTK_BOX (hbox), view->tab_title, TRUE, TRUE, 0);
             gtk_box_pack_end (GTK_BOX (hbox), align, FALSE, FALSE, 0);
         }
         gtk_widget_show_all (GTK_WIDGET (event_box));

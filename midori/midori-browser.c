@@ -1463,6 +1463,31 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
 }
 
 static void
+_midori_browser_update_notebook (MidoriBrowser* browser)
+{
+    guint i;
+    gint new_size = 0;
+    gint n = gtk_notebook_get_n_pages (GTK_NOTEBOOK(browser->notebook));
+    const gint max_size = 150;
+    const gint min_size = 32;
+    GtkAllocation notebook_size;
+
+    gtk_widget_get_allocation (browser->notebook, &notebook_size);
+    if (n > 0) new_size = notebook_size.width / n - 7;
+    if (new_size < min_size) new_size = min_size;
+    if (new_size > max_size) new_size = max_size;
+
+    for (i = 0; i < n; i++)
+    {
+        GtkWidget* view;
+        GtkWidget* label;
+        view = gtk_notebook_get_nth_page (GTK_NOTEBOOK(browser->notebook), i);
+        label = gtk_notebook_get_tab_label (GTK_NOTEBOOK(browser->notebook), view);
+        gtk_widget_set_size_request (label, new_size, -1);
+    }
+}
+
+static void
 _midori_browser_add_tab (MidoriBrowser* browser,
                          GtkWidget*     view)
 {
@@ -1540,6 +1565,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         G_CALLBACK (midori_browser_tab_destroy_cb), browser);
 
     _midori_browser_update_actions (browser);
+    _midori_browser_update_notebook (browser);
 }
 
 static void
@@ -1547,6 +1573,7 @@ _midori_browser_remove_tab (MidoriBrowser* browser,
                             GtkWidget*     view)
 {
     gtk_widget_destroy (view);
+    _midori_browser_update_notebook (browser);
 }
 
 /**
@@ -5200,6 +5227,14 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 }
 
 static void
+gtk_notebook_size_allocated_cb (GtkWidget*     widget,
+                                GdkRectangle*  allocation,
+                                MidoriBrowser* browser)
+{
+    _midori_browser_update_notebook (browser);
+}
+
+static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
     g_object_set_data (G_OBJECT (browser), "midori-browser-destroyed", (void*)1);
@@ -5214,6 +5249,9 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
     /* Destroy tabs second, so child widgets don't need special care */
     g_signal_handlers_disconnect_by_func (browser->notebook,
                                           midori_browser_notebook_reorder_tab_cb,
+                                          NULL);
+    g_signal_handlers_disconnect_by_func (browser->notebook,
+                                          gtk_notebook_size_allocated_cb,
                                           NULL);
     gtk_container_foreach (GTK_CONTAINER (browser->notebook),
                            (GtkCallback) gtk_widget_destroy, NULL);
@@ -5933,6 +5971,9 @@ midori_browser_init (MidoriBrowser* browser)
                             browser);
     g_signal_connect (browser->notebook, "page-reordered",
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),
+                      browser);
+    g_signal_connect (browser->notebook, "size-allocate",
+                      G_CALLBACK (gtk_notebook_size_allocated_cb),
                       browser);
     g_signal_connect_after (browser->notebook, "button-press-event",
         G_CALLBACK (midori_browser_notebook_button_press_event_after_cb),
