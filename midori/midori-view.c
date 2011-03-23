@@ -3829,10 +3829,17 @@ prepare_speed_dial_html (MidoriView* view)
             gchar* encoded;
             gchar* thumb_content;
 
-            g_file_get_contents (thumb_file, &thumb_content, &sz, NULL);
-            encoded = g_base64_encode ((guchar*)thumb_content, sz);
-            g_free  (thumb_file);
-            g_free (thumb_content);
+            if (g_access (thumb_file, F_OK) == 0)
+            {
+                g_file_get_contents (thumb_file, &thumb_content, &sz, NULL);
+                encoded = g_base64_encode ((guchar*)thumb_content, sz);
+                g_free (thumb_file);
+                g_free (thumb_content);
+            }
+            else
+            {
+                encoded = "";
+            }
             g_free (slot_id);
 
             g_string_append_printf (markup,
