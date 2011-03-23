@@ -1483,7 +1483,9 @@ _midori_browser_update_notebook (MidoriBrowser* browser)
         GtkWidget* label;
         view = gtk_notebook_get_nth_page (GTK_NOTEBOOK(browser->notebook), i);
         label = gtk_notebook_get_tab_label (GTK_NOTEBOOK(browser->notebook), view);
-        gtk_widget_set_size_request (label, new_size, -1);
+        /* Don't resize empty bin, which is used for thumbnail tabs */
+        if (GTK_IS_BIN (label) && gtk_bin_get_child (GTK_BIN (label)))
+            gtk_widget_set_size_request (label, new_size, -1);
     }
 }
 
