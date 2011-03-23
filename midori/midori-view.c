@@ -4704,6 +4704,32 @@ midori_view_get_label_ellipsize (MidoriView* view)
     return PANGO_ELLIPSIZE_END;
 }
 
+static void midori_view_tab_label_data_received (GtkWidget* widget,
+                                                 GdkDragContext* context,
+                                                 gint x,
+                                                 gint y,
+                                                 GtkSelectionData* data,
+                                                 guint ttype,
+                                                 guint timestamp,
+                                                 MidoriView* view)
+{
+    gchar **uri;
+    gchar* text;
+
+    uri = gtk_selection_data_get_uris (data);
+    if (uri != NULL)
+    {
+        midori_view_set_uri (view, uri[0]);
+        g_strfreev (uri);
+    }
+    else
+    {
+        text = gtk_selection_data_get_text (data);
+        midori_view_set_uri (view, text);
+        g_free (text);
+    }
+}
+
 /**
  * midori_view_get_proxy_tab_label:
  * @view: a #MidoriView
@@ -4795,6 +4821,13 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 
         g_signal_connect (view->tab_label, "parent-set",
                           G_CALLBACK (midori_view_tab_label_parent_set),
+                          view);
+        gtk_drag_dest_set (view->tab_label, GTK_DEST_DEFAULT_ALL, NULL,
+                           0, GDK_ACTION_COPY);
+        gtk_drag_dest_add_text_targets (view->tab_label);
+        gtk_drag_dest_add_uri_targets (view->tab_label);
+        g_signal_connect (view->tab_label, "drag-data-received",
+                          G_CALLBACK (midori_view_tab_label_data_received),
                           view);
     }
     return view->tab_label;
