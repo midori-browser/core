@@ -1478,6 +1478,8 @@ speeddial_new_from_file (const gchar* config,
     guint columns = 3;
     guint slot_count = 0;
     guint rows;
+    gchar* slot = NULL;
+    gchar* dial_id = NULL;
     gchar* json_content;
     gchar** parts;
 
@@ -1494,9 +1496,6 @@ speeddial_new_from_file (const gchar* config,
     {
         gchar* key;
         gchar* val;
-        gchar* slot = NULL;
-        gchar* dial_id = NULL;
-        gchar* uri;
         gchar** values = g_strsplit (parts[i], "\"", -1);
 
         if (*values[1])
@@ -1526,9 +1525,8 @@ speeddial_new_from_file (const gchar* config,
             }
             else if (g_str_equal (key, "href") && (*val && strncmp (val, "#", 1)))
             {
-                uri = g_strdup (val);
                 g_key_file_set_value (key_file, dial_id, "name", slot);
-                g_key_file_set_value (key_file, dial_id, "uri", uri);
+                g_key_file_set_value (key_file, dial_id, "uri", val);
             }
             else if (g_str_equal (key, "img") && *val)
             {
@@ -1597,6 +1595,8 @@ speeddial_new_from_file (const gchar* config,
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
 
     g_strfreev (parts);
+    g_free (dial_id);
+    g_free (slot);
     g_free (config_file);
     g_free (json_content);
     return key_file;
