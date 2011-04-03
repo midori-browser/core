@@ -3819,22 +3819,22 @@ prepare_speed_dial_html (MidoriView* view)
             gchar* thumb_file = sokoke_build_thumbnail_path (slot_id);
             gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
             gchar* title = g_key_file_get_string (key_file, dial_entry, "title", NULL);
-            gsize sz;
             gchar* encoded;
-            gchar* thumb_content;
 
             if (g_access (thumb_file, F_OK) == 0)
             {
+                gsize sz;
+                gchar* thumb_content;
                 g_file_get_contents (thumb_file, &thumb_content, &sz, NULL);
                 encoded = g_base64_encode ((guchar*)thumb_content, sz);
-                g_free (thumb_file);
                 g_free (thumb_content);
             }
             else
             {
-                encoded = "";
+                encoded = g_strdup ("");
             }
             g_free (slot_id);
+            g_free (thumb_file);
 
             g_string_append_printf (markup,
                     "<div class=\"shortcut%s activated\" id=\"s%d\">\n"
@@ -3847,6 +3847,7 @@ prepare_speed_dial_html (MidoriView* view)
 
             g_free (uri);
             g_free (title);
+            g_free (encoded);
         }
         else
         {
