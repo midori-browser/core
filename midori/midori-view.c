@@ -5582,13 +5582,11 @@ midori_view_speed_dial_save (MidoriView*  view,
     gchar* config_file;
     GKeyFile* key_file;
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    GtkWidget* notebook;
     gchar* msg = g_strdup (message + 16);
     gchar** parts = g_strsplit (msg, " ", 4);
     gint i;
     GtkWidget* tab;
 
-    g_object_get (browser, "notebook", &notebook, NULL);
     g_object_get (browser, "speed-dial", &key_file, NULL);
     action = parts[0];
 
