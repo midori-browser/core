@@ -1525,7 +1525,6 @@ speeddial_new_from_file (const gchar* config,
             }
             else if (g_str_equal (key, "href") && (*val && strncmp (val, "#", 1)))
             {
-                g_key_file_set_value (key_file, dial_id, "name", slot);
                 g_key_file_set_value (key_file, dial_id, "uri", val);
             }
             else if (g_str_equal (key, "img") && *val)
@@ -1555,9 +1554,10 @@ speeddial_new_from_file (const gchar* config,
             {
                 guint thumb_size;
                 gchar* thumb_size_type;
+                gchar* size_tmp = g_strndup (val + 1, strlen (val) - 3);
 
-                /* FIXME: leaked string */
-                thumb_size = atoi (g_strndup (val + 1, strlen (val) - 3));
+                thumb_size = atoi (size_tmp);
+                g_free (size_tmp);
                 if (thumb_size == 80)
                     thumb_size_type = g_strdup ("SMALL");
                 else if (thumb_size == 240)
@@ -1570,7 +1570,6 @@ speeddial_new_from_file (const gchar* config,
             }
             else if (g_str_equal (key, "title") && *val)
             {
-                g_key_file_set_value (key_file, dial_id, "name", slot);
                 g_key_file_set_value (key_file, dial_id, key, val + 3);
             }
             else if (g_str_equal (key, "width"))
