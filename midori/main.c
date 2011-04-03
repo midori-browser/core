@@ -1477,6 +1477,7 @@ speeddial_new_from_file (const gchar* config,
     guint i = 0;
     guint columns = 3;
     guint slot_count = 0;
+    guint rows;
     gchar* json_content;
     gchar** parts;
 
@@ -1594,9 +1595,10 @@ speeddial_new_from_file (const gchar* config,
         }
     }
 
-    /* Without JSON we save 3 columns and 0 rows, columns are initialised as 3 */
+    /* Default to 3 x 3 grid. Calculate rows here, columns is initialized as 3 */
+    rows = slot_count / columns > 3 ? slot_count / columns : 3;
     g_key_file_set_integer (key_file, "settings", "columns", columns);
-    g_key_file_set_integer (key_file, "settings", "rows", slot_count / columns ? 0 : 3);
+    g_key_file_set_integer (key_file, "settings", "rows", rows);
 
     g_strfreev (parts);
     g_free (json_content);
