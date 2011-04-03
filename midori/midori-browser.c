@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2011 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008 Dale Whittaker <dayul@users.sf.net>
  Copyright (C) 2009 Jérôme Geulfucci <jeromeg@xfce.org>
 
@@ -223,6 +223,9 @@ midori_browser_add_speed_dial (MidoriBrowser* browser);
 
 gboolean
 midori_transferbar_confirm_delete (MidoriTransferbar* transferbar);
+
+static void
+_midori_browser_update_notebook (MidoriBrowser* browser);
 
 #if WEBKIT_CHECK_VERSION (1, 1, 3)
 void
@@ -622,6 +625,21 @@ midori_view_notify_title_cb (GtkWidget*     widget,
         gtk_window_set_title (GTK_WINDOW (browser), window_title);
         g_free (window_title);
     }
+}
+
+static void
+midori_view_notify_minimized_cb (GtkWidget*     widget,
+                                 GParamSpec*    pspec,
+                                 MidoriBrowser* browser)
+{
+    if (katze_object_get_boolean (widget, "minimized"))
+    {
+        GtkNotebook* notebook = GTK_NOTEBOOK (browser->notebook);
+        GtkWidget* label = gtk_notebook_get_tab_label (notebook, widget);
+        gtk_widget_set_size_request (label, -1, -1);
+    }
+    else
+        _midori_browser_update_notebook (browser);
 }
 
 static void
@@ -1484,7 +1502,8 @@ _midori_browser_update_notebook (MidoriBrowser* browser)
         view = gtk_notebook_get_nth_page (GTK_NOTEBOOK(browser->notebook), i);
         label = gtk_notebook_get_tab_label (GTK_NOTEBOOK(browser->notebook), view);
         /* Don't resize empty bin, which is used for thumbnail tabs */
-        if (GTK_IS_BIN (label) && gtk_bin_get_child (GTK_BIN (label)))
+        if (GTK_IS_BIN (label) && gtk_bin_get_child (GTK_BIN (label))
+         && !katze_object_get_boolean (view, "minimized"))
             gtk_widget_set_size_request (label, new_size, -1);
     }
 }
@@ -1517,6 +1536,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_uri_cb, browser,
                       "signal::notify::title",
                       midori_view_notify_title_cb, browser,
+                      "signal::notify::minimized",
+                      midori_view_notify_minimized_cb, browser,
                       "signal::notify::zoom-level",
                       midori_view_notify_zoom_level_cb, browser,
                       "signal::notify::statusbar-text",
