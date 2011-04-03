@@ -313,14 +313,14 @@
 
         if ($(key_id))
         {
-            if (key_id.substr(1) * 10 > sc.shortcuts.length)
+            if (key_id.substr(1) > 9)
             {
                 if (getAction (key_id))
                     document.location = $(key_id).children[1];
                 key_id = 's';
             }
             else
-                key_timeout = setTimeout ('if (getAction (key_id)) document.location = $(key_id).children[1]; key_id = \'s\'', 3000);
+                key_timeout = setTimeout ('if (getAction (key_id)) document.location = $(key_id).children[1]; key_id = \'s\'', 1000);
         }
         else
             key_id = 's';
