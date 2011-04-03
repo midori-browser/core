@@ -95,10 +95,6 @@
         height: 100%;
     }
 
-    .waiter img {
-        margin-top: 38px;
-    }
-
     div.shortcut a:hover {
         border: 1px solid #999;
     }
@@ -211,24 +207,12 @@
         var name = prompt ("{enter_shortcut_name}", "");
         if (!name) name = "";
 
-        a.setProperty('href', url);
-        a.getNext().set('text', name);
-
-        var num = id.substr (1) - 1;
-
-        a.empty();
-        var im = new Element('img', { src: '{stock}/image-loading' });
-
-        a.addClass ('waiter');
-        a.grab (im);
-
         console.log ("speed_dial-save-add " + id + " " + url + " " + name);
         return false;
     }
 
     var renameShortcut = function (id)
     {
-        var num = id.substr (1) - 1;
         var name = prompt ("{enter_shortcut_name}", $(id).getLast ().get ('html', name));
         if (!name) return;
 
@@ -241,18 +225,6 @@
     {
         if(!confirm("{are_you_sure}"))
             return;
-
-        var num = id.substr (1);
-        var div = $(id);
-        var cross = div.getFirst ();
-        var a = cross.getNext ();
-        var p = a.getNext ();
-
-        cross.dispose ();
-        div.removeClass ('activated');
-        a.empty ().set ('html', '<h1>' + num + '</h1><h4><span/></h4>');
-        a.setProperty ('href', '#');
-        p.empty ().removeProperty ('onclick');
 
         console.log ("speed_dial-save-delete " + id);
     }
