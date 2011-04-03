@@ -1489,7 +1489,6 @@ speeddial_new_from_file (const gchar* config,
 
     katze_assign (config_file, g_build_filename (config, "speeddial.json", NULL));
     g_file_get_contents (config_file, &json_content, NULL, NULL);
-    g_free (config_file);
     parts = g_strsplit (json_content ? json_content : "", ",", -1);
     while (parts && parts[i] != NULL)
     {
@@ -1594,7 +1593,11 @@ speeddial_new_from_file (const gchar* config,
     g_key_file_set_integer (key_file, "settings", "columns", columns);
     g_key_file_set_integer (key_file, "settings", "rows", rows);
 
+    katze_assign (config_file, g_build_filename (config, "speeddial", NULL));
+    sokoke_key_file_save_to_file (key_file, config_file, NULL);
+
     g_strfreev (parts);
+    g_free (config_file);
     g_free (json_content);
     return key_file;
 }
