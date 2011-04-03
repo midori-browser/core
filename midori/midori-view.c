@@ -3855,7 +3855,7 @@ prepare_speed_dial_html (MidoriView* view)
                     "<div class=\"shortcut%s\" id=\"s%d\">"
                     "\n<a href=\"#\" onclick='javascript:return"
                     " getAction(\"s%d\");'>"
-                    "<h1>%d</h1>\n<h4><span></span><h4>"
+                    "<h1>%d</h1>\n<h4><span></span></h4>"
                     "</a>\n<p></p></div>\n",
                     position, slot, slot, slot);
         }
