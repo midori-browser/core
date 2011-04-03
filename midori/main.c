@@ -1536,8 +1536,6 @@ speeddial_new_from_file (const gchar* config,
                 gsize sz;
                 gint state = 0;
                 guint save = 0;
-                gchar* checksum;
-                gchar* filename;
                 gchar* thumb_dir;
                 gchar* thumb_path;
                 gsize base64_size = strlen (val);
@@ -1545,15 +1543,11 @@ speeddial_new_from_file (const gchar* config,
 
                 sz = g_base64_decode_step (g_strdup (val), base64_size,
                                            decoded, &state, &save);
-                checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, slot, -1);
-                filename  = g_strdup_printf ("%s%s", checksum, ".png");
-                g_free (checksum);
                 thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
                                           PACKAGE_NAME, "thumbnails", NULL);
                 if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
                     katze_mkdir_with_parents (thumb_dir, 0700);
-                thumb_path = g_build_filename (thumb_dir, filename, NULL);
-                g_free (filename);
+                thumb_path = sokoke_build_thumbnail_path (slot);
                 g_file_set_contents (thumb_path, (gchar*)decoded, sz, NULL);
 
                 g_free (decoded);
