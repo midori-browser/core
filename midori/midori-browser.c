@@ -4917,7 +4917,7 @@ static const GtkActionEntry entries[] =
         NULL, "<Ctrl>p",
         N_("Print the current page"), G_CALLBACK (_action_print_activate) },
     { "Quit", GTK_STOCK_QUIT,
-        NULL, "<Ctrl>q",
+        NULL, "<Ctrl><Shift>q",
         N_("Quit the application"), G_CALLBACK (_action_quit_activate) },
 
     { "Edit", NULL, N_("_Edit"), NULL, NULL, G_CALLBACK (_action_edit_activate) },
