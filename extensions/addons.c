@@ -1,7 +1,7 @@
 /*
  Copyright (C) 2008 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2008-2010 Arno Renevier <arno@renevier.net>
- Copyright (C) 2010 Paweł Forysiuk <tuxator@o2.pl>
+ Copyright (C) 2010-2011 Paweł Forysiuk <tuxator@o2.pl>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -152,15 +152,10 @@ addons_install_response (GtkWidget*  infobar,
             }
             else if (!g_strcmp0 (hostname, "userstyles.org"))
             {
-                gchar* subpage;
+                gchar* subpage = split_uri[4];
 
                 folder = "styles";
-                if (g_str_has_suffix (uri, "/"))
-                    subpage = split_uri[6];
-                else
-                    subpage = split_uri[5];
-
-                if (!subpage)
+                if ((subpage && *subpage) && g_ascii_isdigit (subpage[0]))
                 {
                     gchar* style_id;
                     const gchar* js_script;
@@ -278,14 +273,10 @@ addons_notify_load_status_cb (MidoriView*      view,
            else if (g_str_has_prefix (uri, "http://userstyles.org/styles/"))
            {
                gchar** split_uri = g_strsplit (uri, "/", -1);
-               gchar* subpage;
+               gchar* subpage = split_uri[4];
 
-               if (g_str_has_suffix (uri, "/"))
-                   subpage = split_uri[6];
-               else
-                   subpage = split_uri[5];
                /* userstyles.org style main page with style description */
-               if (!subpage)
+               if ((subpage && *subpage) && g_ascii_isdigit (subpage[0]))
                    addons_uri_install (view, ADDONS_USER_STYLES);
 
                g_strfreev (split_uri);
