@@ -100,11 +100,7 @@ addons_install_response (GtkWidget*  infobar,
 {
     if (response_id == GTK_RESPONSE_ACCEPT)
     {
-        MidoriBrowser* browser;
-        const gchar* uri;
-
-        browser = midori_browser_get_for_widget (GTK_WIDGET (infobar));
-        uri = midori_view_get_display_uri (view);
+        const gchar* uri = midori_view_get_display_uri (view);
         if (uri && *uri)
         {
             gchar** split_uri;
