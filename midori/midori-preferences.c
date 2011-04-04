@@ -440,11 +440,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
-    FRAME_NEW (_("Navigationbar"));
     #if !HAVE_HILDON
-    INDENTED_ADD (katze_property_label (settings, "toolbar-style"));
-    button = katze_property_proxy (settings, "toolbar-style", NULL);
-    SPANNED_ADD (button);
+    if (!g_getenv ("DESKTOP_SESSION"))
+    {
+        FRAME_NEW (_("Navigationbar"));
+        INDENTED_ADD (katze_property_label (settings, "toolbar-style"));
+        button = katze_property_proxy (settings, "toolbar-style", NULL);
+        SPANNED_ADD (button);
+    }
     #endif
     FRAME_NEW (_("Browsing"));
     label = katze_property_label (settings, "open-new-pages-in");
