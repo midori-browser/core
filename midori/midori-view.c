@@ -967,6 +967,8 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
                                              WebKitWebPolicyDecision*   decision,
                                              MidoriView*                view)
 {
+    JSContextRef js_context;
+    gchar* result;
     const gchar* uri = webkit_network_request_get_uri (request);
     if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
     {
@@ -978,6 +980,19 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         }
     }
     view->special = FALSE;
+
+    /* Remove link labels */
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    result = sokoke_js_script_eval (js_context,
+        "var links = document.getElementsByClassName ('midoriHKD87346');"
+        "if (links != undefined && links.length > 0) {"
+        "   for (var i = links.length - 1; i >= 0; i--) {"
+        "       var parent = links[i].parentNode;"
+        "       parent.removeChild(links[i]); } }",
+        NULL);
+    g_free (result);
+    view->find_links = -1;
+
     return FALSE;
 }
 
@@ -1927,17 +1942,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                     g_signal_emit (view, signals[NEW_TAB], 0, result, background);
                 }
                 else
-                {
-                    gchar* dummy = sokoke_js_script_eval (js_context,
-                        "var links = document.getElementsByClassName ('midoriHKD87346');"
-                        "for (var i = links.length - 1; i >= 0; i--) {"
-                        "   var parent = links[i].parentNode;"
-                        "   parent.removeChild(links[i]); }",
-                        NULL);
-                    g_free (dummy);
-                    view->find_links = -1;
                     midori_view_set_uri (view, result);
-                }
             }
             g_free (script);
             g_free (result);
