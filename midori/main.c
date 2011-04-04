@@ -1769,6 +1769,7 @@ main (int    argc,
 {
     gchar* webapp;
     gchar* config;
+    gboolean private;
     gboolean diagnostic_dialog;
     gboolean back_from_crash;
     gboolean run;
@@ -1790,6 +1791,8 @@ main (int    argc,
        { "config", 'c', 0, G_OPTION_ARG_FILENAME, &config,
        N_("Use FOLDER as configuration folder"), N_("FOLDER") },
        #endif
+       { "private", 'p', 0, G_OPTION_ARG_NONE, &private,
+       N_("Private browsing, no changes are saved"), NULL },
        { "diagnostic-dialog", 'd', 0, G_OPTION_ARG_NONE, &diagnostic_dialog,
        N_("Show a diagnostic dialog"), NULL },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
@@ -1883,6 +1886,7 @@ main (int    argc,
     /* Parse cli options */
     webapp = NULL;
     config = NULL;
+    private = FALSE;
     back_from_crash = FALSE;
     diagnostic_dialog = FALSE;
     run = FALSE;
@@ -1912,8 +1916,13 @@ main (int    argc,
         return 1;
     }
 
-    if (webapp && config)
+    /* Private browsing, window title, default config folder */
+    if (private)
+    {
         g_set_application_name (_("Midori (Private Browsing)"));
+        if (!config && !webapp)
+            config = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME, NULL);
+    }
     else
         g_set_application_name (_("Midori"));
 
@@ -2015,14 +2024,13 @@ main (int    argc,
         G_CALLBACK (midori_clear_offline_appcache_cb));
     #endif
 
-    /* Web Application support */
-    if (webapp)
+    /* Web Application or Private Browsing support */
+    if (webapp || private)
     {
         SoupSession* session = webkit_get_default_session ();
         MidoriBrowser* browser = midori_browser_new ();
-        gchar* tmp_uri = midori_prepare_uri (webapp);
-        katze_assign (webapp, tmp_uri);
         midori_startup_timer ("Browser: \t%f");
+
         if (config)
         {
             settings = settings_and_accels_new (config, &extensions);
@@ -2034,34 +2042,49 @@ main (int    argc,
             g_object_set (browser, "speed-dial", speeddial, NULL);
         }
         else
-        {
             settings = g_object_ref (midori_browser_get_settings (browser));
+
+        if (webapp)
+        {
+            gchar* tmp_uri = midori_prepare_uri (webapp);
             g_object_set (settings,
                           "show-menubar", FALSE,
                           "show-navigationbar", FALSE,
                           "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
-                          "homepage", webapp,
+                          "homepage", tmp_uri,
                           "show-statusbar", FALSE,
                           "enable-developer-extras", FALSE,
                           NULL);
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
+            midori_browser_add_uri (browser, tmp_uri);
+            g_free (tmp_uri);
+            /* Update window icon according to page */
+            g_signal_connect (browser, "notify::load-status",
+                G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         }
+
+        if (private)
+        {
+            #if WEBKIT_CHECK_VERSION (1, 1, 2)
+            g_object_set (settings, "enable-private-browsing", TRUE, NULL);
+            #endif
+            midori_browser_set_action_visible (browser, "Tools", FALSE);
+            midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
+        }
+
+        if (private || !config)
+        {
+            /* Disable saving by setting an unwritable folder */
+            sokoke_set_config_dir ("/");
+        }
+
         g_object_set (settings, "show-panel", FALSE,
                       "last-window-state", MIDORI_WINDOW_NORMAL,
-                      #if WEBKIT_CHECK_VERSION (1, 1, 2)
-                      "enable-private-browsing", TRUE,
-                      #endif
                       NULL);
-        midori_browser_set_action_visible (browser, "Tools", FALSE);
-        midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
         g_object_set (browser, "settings", settings, NULL);
         midori_startup_timer ("Setup config: \t%f");
         g_object_unref (settings);
-        sokoke_set_config_dir ("/");
-        g_signal_connect (browser, "notify::load-status",
-            G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
-        midori_browser_add_uri (browser, webapp);
         g_signal_connect (browser, "quit",
             G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "destroy",
@@ -2073,6 +2096,19 @@ main (int    argc,
             for (i = 0; uris[i] != NULL; i++)
                 midori_browser_activate_action (browser, uris[i]);
         }
+        else if (uris != NULL)
+        {
+            for (i = 0; uris[i] != NULL; i++)
+            {
+                gchar* new_uri = midori_prepare_uri (uris[i]);
+                midori_browser_add_uri (browser, new_uri);
+                g_free (new_uri);
+            }
+        }
+
+        if (midori_browser_get_current_uri (browser) == NULL)
+            midori_browser_add_uri (browser, "about:blank");
+
         if (block_uris)
             g_signal_connect (session, "request-queued",
                 G_CALLBACK (midori_soup_session_block_uris_cb),
@@ -2117,7 +2153,6 @@ main (int    argc,
             result = midori_app_send_command (app, uris);
         else if (uris)
         {
-            /* TODO: Open a tab per URI, seperated by pipes */
             /* Encode any IDN addresses because libUnique doesn't like them */
             i = 0;
             while (uris[i] != NULL)
