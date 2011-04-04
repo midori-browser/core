@@ -355,8 +355,6 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         SPANNED_ADD (button);
         #endif
     }
-    button = katze_property_proxy (settings, "show-crash-dialog", NULL);
-    INDENTED_ADD (button);
     FRAME_NEW (_("Transfers"));
     #if !HAVE_HILDON
     label = katze_property_label (settings, "download-folder");

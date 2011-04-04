@@ -1054,6 +1054,9 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     gtk_widget_show_all (box);
     gtk_container_add (GTK_CONTAINER (content_area), box);
+    button = katze_property_proxy (settings, "show-crash-dialog", NULL);
+    gtk_widget_show (button);
+    gtk_container_add (GTK_CONTAINER (content_area), button);
     #ifdef HAVE_HILDON_2_2
     box = gtk_hbox_new (FALSE, 4);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), box, TRUE, FALSE, 4);
