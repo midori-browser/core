@@ -1885,12 +1885,14 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 " border:1px solid gray; padding:0 0.1em !important;"
                 " position:absolute; display:inline !important; }');"
                 "var links = document.getElementsByTagName ('a');"
+                "var label_count = 0;"
                 "for (i in links) {"
-                "  var child = document.createElement ('span');"
-                "  child.setAttribute ('class', 'midoriHKD87346');"
-                "  child.appendChild (document.createTextNode (i));"
-                "  if (links[i].insertBefore && links[i].href)"
-                "    links[i].insertBefore (child); }",
+                "  if (links[i].insertBefore && links[i].href) { "
+                "    var child = document.createElement ('span');"
+                "    child.setAttribute ('class', 'midoriHKD87346');"
+                "    child.appendChild (document.createTextNode (label_count));"
+                "    links[i].insertBefore (child);"
+                "    label_count++; } }",
                 NULL);
             view->find_links = 0;
         }
