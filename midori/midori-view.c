@@ -991,6 +991,14 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
         "       parent.removeChild(links[i]); } }",
         NULL);
     g_free (result);
+    result = sokoke_js_script_eval (js_context,
+        "var links = document.getElementsByClassName ('midori_access_key_fc04de');"
+        "if (links != undefined && links.length > 0) {"
+        "   for (var i = links.length - 1; i >= 0; i--) {"
+        "       var parent = links[i].parentNode;"
+        "       parent.removeChild(links[i]); } }",
+        NULL);
+    g_free (result);
     view->find_links = -1;
 
     return FALSE;
@@ -1886,28 +1894,38 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
         if (view->find_links == -1)
         {
             result = sokoke_js_script_eval (js_context,
-                "(function (selector, rule) { "
+                " var style_func = (function (selector, rule) { "
                 " var style = document.createElement ('style');"
                 " style.setAttribute ('type', 'text/css');"
                 " var heads = document.getElementsByTagName ('head');"
                 " heads[0].appendChild (style);"
                 " document.styleSheets[0].insertRule (selector + ' ' + rule);"
-                " } )"
-                " ('.midoriHKD87346', '{ "
+                " } );"
+                " style_func ('.midoriHKD87346', '{ "
                 " font-size:small !important; font-weight:bold !important;"
                 " z-index:500; border-radius:0.3em; line-height:1 !important;"
                 " background: white !important; color: black !important;"
                 " border:1px solid gray; padding:0 0.1em !important;"
                 " position:absolute; display:inline !important; }');"
-                "var links = document.getElementsByTagName ('a');"
-                "var label_count = 0;"
-                "for (i in links) {"
-                "  if (links[i].insertBefore && links[i].href) { "
-                "    var child = document.createElement ('span');"
-                "    child.setAttribute ('class', 'midoriHKD87346');"
-                "    child.appendChild (document.createTextNode (label_count));"
-                "    links[i].insertBefore (child);"
-                "    label_count++; } }",
+                " style_func ('.midori_access_key_fc04de', '{ "
+                " font-size:small !important; font-weight:bold !important;"
+                " z-index:500; border-radius:0.3em; line-height:1 !important;"
+                " background: black !important; color: white !important;"
+                " border:1px solid gray; padding:0 0.1em 0.2em 0.1em !important;"
+                " position:absolute; display:inline !important; }');"
+                " var label_count = 0;"
+                " for (i in document.links) {"
+                "   if (document.links[i].href && document.links[i].insertBefore) {"
+                "       var child = document.createElement ('span');"
+                "       if (document.links[i].accessKey && isNaN (document.links[i].accessKey)) {"
+                "           child.setAttribute ('class', 'midori_access_key_fc04de');"
+                "           child.appendChild (document.createTextNode (document.links[i].accessKey));"
+                "       } else {"
+                "         child.setAttribute ('class', 'midoriHKD87346');"
+                "         child.appendChild (document.createTextNode (label_count));"
+                "         label_count++;"
+                "       }"
+                "       document.links[i].insertBefore (child); } }",
                 NULL);
             view->find_links = 0;
         }
@@ -1955,6 +1973,14 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 "for (var i = links.length - 1; i >= 0; i--) {"
                 "   var parent = links[i].parentNode;"
                 "   parent.removeChild(links[i]); }",
+                NULL);
+            g_free (result);
+            result = sokoke_js_script_eval (js_context,
+                "var links = document.getElementsByClassName ('midori_access_key_fc04de');"
+                "if (links != undefined && links.length > 0) {"
+                "   for (var i = links.length - 1; i >= 0; i--) {"
+                "       var parent = links[i].parentNode;"
+                "       parent.removeChild(links[i]); } }",
                 NULL);
             g_free (result);
             view->find_links = -1;
