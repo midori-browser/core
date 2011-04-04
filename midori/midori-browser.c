@@ -1249,6 +1249,17 @@ midori_view_attach_inspector_cb (GtkWidget*     view,
 }
 
 static void
+midori_view_detach_inspector_cb (GtkWidget*     view,
+                                 GtkWidget*     inspector_view,
+                                 MidoriBrowser* browser)
+{
+    GtkWidget* scrolled = gtk_widget_get_parent (GTK_WIDGET (inspector_view));
+    browser->inspector_view = gtk_viewport_new (NULL, NULL);
+    gtk_container_remove (GTK_CONTAINER (scrolled), GTK_WIDGET (inspector_view));
+    gtk_container_add (GTK_CONTAINER (scrolled), browser->inspector_view);
+}
+
+static void
 midori_browser_view_copy_history (GtkWidget* view_to,
                                   GtkWidget* view_from,
                                   gboolean   omit_last)
@@ -1546,6 +1557,8 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_activate_action_cb, browser,
                       "signal::attach-inspector",
                       midori_view_attach_inspector_cb, browser,
+                      "signal::detach-inspector",
+                      midori_view_detach_inspector_cb, browser,
                       "signal::new-tab",
                       midori_view_new_tab_cb, browser,
                       "signal::new-window",

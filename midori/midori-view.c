@@ -194,6 +194,7 @@ enum {
     CONSOLE_MESSAGE,
     CONTEXT_READY,
     ATTACH_INSPECTOR,
+    DETACH_INSPECTOR,
     NEW_TAB,
     NEW_WINDOW,
     NEW_VIEW,
@@ -280,6 +281,26 @@ midori_view_class_init (MidoriViewClass* class)
 
     signals[ATTACH_INSPECTOR] = g_signal_new (
         "attach-inspector",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GTK_TYPE_WIDGET);
+
+    /**
+     * MidoriView::detach-inspector:
+     * @view: the object on which the signal is emitted
+     *
+     * Emitted when an open inspector that was previously
+     * attached to the window is now detached again.
+     *
+     * Since: 0.3.4
+     */
+     signals[DETACH_INSPECTOR] = g_signal_new (
+        "detach-inspector",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         0,
@@ -3638,7 +3659,7 @@ midori_view_web_inspector_detach_window_cb (gpointer    inspector,
         return FALSE;
 
     gtk_widget_hide (parent);
-    gtk_container_remove (GTK_CONTAINER (parent), GTK_WIDGET (inspector_view));
+    g_signal_emit (view, signals[DETACH_INSPECTOR], 0, inspector_view);
     midori_view_web_inspector_construct_window (inspector,
         WEBKIT_WEB_VIEW (view->web_view), GTK_WIDGET (inspector_view), view);
     return TRUE;
