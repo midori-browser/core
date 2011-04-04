@@ -96,6 +96,7 @@ struct _MidoriView
     gboolean close_buttons_on_tabs;
     MidoriNewPage open_new_pages_in;
     gint find_links;
+    gint alerts;
 
     GtkWidget* menu_item;
     GtkWidget* tab_label;
@@ -1193,6 +1194,10 @@ midori_view_add_info_bar (MidoriView*    view,
     GtkWidget* content_area;
     va_list args;
     const gchar* button_text;
+
+    g_return_val_if_fail (message != NULL, NULL);
+    g_return_val_if_fail (response_cb != NULL, NULL);
+
     va_start (args, first_button_text);
 
     #if HAVE_GTK_INFO_BAR
@@ -3048,6 +3053,36 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
     return TRUE;
 }
 
+static void
+midori_view_script_response_cb (GtkWidget*  infobar,
+                                gint        response,
+                                MidoriView* view)
+{
+    view->alerts--;
+}
+
+static gboolean
+midori_view_web_view_script_alert_cb (GtkWidget*      web_view,
+                                      WebKitWebFrame* web_frame,
+                                      const gchar*    message,
+                                      MidoriView*     view)
+{
+    gchar* text;
+
+    /* Allow a maximum of 5 alerts */
+    if (view->alerts > 4)
+        return TRUE;
+
+    view->alerts++;
+    /* i18n: The text of an infobar for JavaScript alert messages */
+    text = g_strdup_printf ("JavaScript: %s", message);
+    midori_view_add_info_bar (view, GTK_MESSAGE_WARNING, text,
+        G_CALLBACK (midori_view_script_response_cb), view,
+        GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
+    g_free (text);
+    return TRUE;
+}
+
 #if WEBKIT_CHECK_VERSION (1, 1, 5)
 static gboolean
 midori_view_web_view_print_requested_cb (GtkWidget*      web_view,
@@ -3147,6 +3182,7 @@ midori_view_init (MidoriView* view)
     view->selected_text = NULL;
     view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
     view->find_links = -1;
+    view->alerts = 0;
 
     view->item = katze_item_new ();
 
@@ -3680,6 +3716,8 @@ midori_view_construct_web_view (MidoriView* view)
                       webkit_web_view_populate_popup_cb, view,
                       "signal::console-message",
                       webkit_web_view_console_message_cb, view,
+                      "signal::script-alert",
+                      midori_view_web_view_script_alert_cb, view,
                       "signal::window-object-cleared",
                       webkit_web_view_window_object_cleared_cb, view,
                       "signal::create-web-view",
