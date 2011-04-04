@@ -1905,6 +1905,13 @@ main (int    argc,
     /* libSoup uses threads, so we need to initialize threads. */
     if (!g_thread_supported ()) g_thread_init (NULL);
     sokoke_register_stock_items ();
+
+    if (config && !g_path_is_absolute (config))
+    {
+        g_critical (_("The specified configuration folder is invalid."));
+        return 1;
+    }
+
     if (webapp && config)
         g_set_application_name (_("Midori (Private Browsing)"));
     else
@@ -2084,11 +2091,6 @@ main (int    argc,
     if (run)
         return midori_run_script (uris ? *uris : NULL);
 
-    if (config && !g_path_is_absolute (config))
-    {
-        g_critical (_("The specified configuration folder is invalid."));
-        return 1;
-    }
     sokoke_set_config_dir (config);
     if (config)
     {
