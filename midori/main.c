@@ -1521,8 +1521,7 @@ speeddial_new_from_file (const gchar* config,
 
             if (g_str_equal (key, "id"))
             {
-                /* FIXME: leaked string */
-                slot = g_strdup (val);
+                katze_assign (slot, g_strdup (val));
                 dial_id = g_strdup_printf ("Dial %s", slot + 1);
                 slot_count++;
             }
