@@ -1175,10 +1175,15 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         gchar* config_file = g_build_filename (sokoke_set_config_dir (NULL),
                                                "speeddial", NULL);
         gchar* file_path = sokoke_build_thumbnail_path (slot_id);
+        gchar* thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
+                                         PACKAGE_NAME, "thumbnails", NULL);
         g_object_get (browser, "speed-dial", &key_file, NULL);
 
         g_key_file_set_string (key_file, dial_id, "uri", uri);
         g_key_file_set_string (key_file, dial_id, "title", title);
+
+        if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
+            katze_mkdir_with_parents (thumb_dir, 0700);
 
         gdk_pixbuf_save (img, file_path, "png", NULL, "compression", "7", NULL);
         sokoke_key_file_save_to_file (key_file, config_file, NULL);
@@ -1192,6 +1197,7 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
 
         g_object_unref (img);
         g_free (file_path);
+        g_free (thumb_dir);
         g_free (config_file);
         g_free (dial_id);
     }

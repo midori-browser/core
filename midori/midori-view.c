@@ -5573,6 +5573,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
 {
     GdkPixbuf* img;
     gchar* file_path;
+    gchar* thumb_dir;
     gchar* dom_id;
     MidoriBrowser* browser;
     gint i;
@@ -5585,12 +5586,19 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 240, 160);
     dom_id = g_object_get_data (G_OBJECT (thumb_view), "dom-id");
     file_path  = sokoke_build_thumbnail_path (dom_id);
+    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
+                              PACKAGE_NAME, "thumbnails", NULL);
+
+    if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
+        katze_mkdir_with_parents (thumb_dir, 0700);
+
     gdk_pixbuf_save (img, file_path, "png", NULL, "compression", "7", NULL);
 
     g_object_unref (img);
 
     g_free (dom_id);
     g_free (file_path);
+    g_free (thumb_dir);
 
     g_signal_handlers_disconnect_by_func (
        thumb_view, thumb_view_load_status_cb, view);
