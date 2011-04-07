@@ -5135,7 +5135,7 @@ static const GtkActionEntry entries[] =
         N_("_Frequent Questions"), "F1",
         N_("Show the Frequently Asked Questions"), G_CALLBACK (_action_help_link_activate) },
     { "HelpBugs", NULL,
-        N_("_Report a Bug"), NULL,
+        N_("_Report a Problem..."), NULL,
         N_("Open Midori's bug tracker"), G_CALLBACK (_action_help_link_activate) },
     { "About", GTK_STOCK_ABOUT,
         NULL, "",
