@@ -67,6 +67,10 @@ If you want to "dry run" without WebKitGTK+ rendering, try this:
 
 'MIDORI_UNARMED=1 _build_/default/midori/midori'
 
+To debug extensions you can specify the path:
+
+'export MIDORI_EXTENSION_PATH=_build_/default/extensions'
+
 For further information a tutorial for gdb and
 reading up on how you can install debugging
 symbols for libraries used by Midori are recommended.
