@@ -2975,6 +2975,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { NULL },
       #if !HAVE_HILDON
       { "HelpFAQ" },
+      { "HelpBugs"},
       #endif
       { "About" },
       { "Preferences" },
