@@ -1450,9 +1450,20 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
                                GError*         error,
                                MidoriView*     view)
 {
-    gchar* title = g_strdup_printf (_("Error - %s"), uri);
-    gchar* message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
-    gboolean result = midori_view_display_error (view, uri, title,
+    gchar* title;
+    gchar* message;
+    gboolean result;
+
+    switch (error->code)
+    {
+    case WEBKIT_PLUGIN_ERROR_WILL_HANDLE_LOAD:
+        /* A plugin will take over. That's expected, it's not fatal. */
+        return FALSE;
+    }
+
+    title = g_strdup_printf (_("Error - %s"), uri);
+    message = g_strdup_printf (_("The page '%s' couldn't be loaded."), uri);
+    result = midori_view_display_error (view, uri, title,
         message, error->message, _("Try again"), web_frame);
     g_free (message);
     g_free (title);
