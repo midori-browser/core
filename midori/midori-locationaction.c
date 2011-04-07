@@ -1840,6 +1840,9 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
                 GTK_ICON_ENTRY_SECONDARY, _("Verified and encrypted connection"));
             #endif
         }
+        else if (hint == MIDORI_SECURITY_NONE)
+            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (child),
+                GTK_ICON_ENTRY_SECONDARY, NULL);
 
         gtk_widget_modify_base (child, GTK_STATE_NORMAL,
             bg_color.red == 1 ? NULL : &bg_color);
