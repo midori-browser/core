@@ -2951,31 +2951,41 @@ _action_compact_menu_populate_popup (GtkAction*     action,
     static const GtkActionEntry actions[] = {
       { "TabNew" },
       { "WindowNew" },
-      { "PrivateBrowsing" },
+      { NULL },
       { "Open" },
       { "Find" },
       #if !HAVE_HILDON
       { "Print" },
-      { NULL },
-      { "Panel" },
-      { "-" },
-      { "ClearPrivateData" },
       #if WEBKIT_CHECK_VERSION (1, 1, 17)
       { "InspectPage" },
       #endif
-      { "Fullscreen" },
+      #endif
+      { NULL },
+      { "PrivateBrowsing" },
+      #if !HAVE_HILDON
+      { "ClearPrivateData" },
+      { NULL },
       { "BookmarksImport"},
       { "BookmarksExport"},
+      { NULL },
+      { "Fullscreen" },
+      { "Panel" },
+      { "-" },
       #endif
+      { NULL },
+      #if !HAVE_HILDON
       { "HelpFAQ" },
+      #endif
       { "About" },
       { "Preferences" },
       #if HAVE_HILDON
+      { NULL },
       { "auto-load-images" },
       { "enable-scripts" },
       { "enable-plugins" },
       #endif
     };
+
     guint i;
 
     for (i = 0; i < G_N_ELEMENTS (actions); i++)
