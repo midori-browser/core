@@ -2067,6 +2067,11 @@ main (int    argc,
             #if WEBKIT_CHECK_VERSION (1, 1, 2)
             g_object_set (settings, "enable-private-browsing", TRUE, NULL);
             #endif
+            /* Arguably DNS prefetching is or isn't a privacy concern. For the
+             * lack of more fine-grained control we'll go the safe route. */
+            #if WEBKIT_CHECK_VERSION (1, 3, 13)
+            g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
+            #endif
             midori_browser_set_action_visible (browser, "Tools", FALSE);
             midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
         }
