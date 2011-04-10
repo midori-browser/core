@@ -1483,6 +1483,7 @@ speeddial_new_from_file (const gchar* config,
     guint rows;
     gchar* slot = NULL;
     gchar* dial_id = NULL;
+    gchar* uri = NULL;
     gchar* json_content;
     gchar** parts;
 
@@ -1525,11 +1526,12 @@ speeddial_new_from_file (const gchar* config,
                 dial_id = g_strdup_printf ("Dial %s", slot + 1);
                 slot_count++;
             }
-            else if (g_str_equal (key, "href") && (*val && strncmp (val, "#", 1)))
+            else if (g_str_equal (key, "href"))
             {
-                g_key_file_set_value (key_file, dial_id, "uri", val);
+                katze_assign (uri, g_strdup (val));
+                g_key_file_set_value (key_file, dial_id, "uri", uri);
             }
-            else if (g_str_equal (key, "img") && *val)
+            else if (g_str_equal (key, "img") && (*val && strncmp (val, "#", 1)))
             {
                 gsize sz;
                 gint state = 0;
@@ -1545,7 +1547,7 @@ speeddial_new_from_file (const gchar* config,
                                           PACKAGE_NAME, "thumbnails", NULL);
                 if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
                     katze_mkdir_with_parents (thumb_dir, 0700);
-                thumb_path = sokoke_build_thumbnail_path (slot);
+                thumb_path = sokoke_build_thumbnail_path (uri);
                 g_file_set_contents (thumb_path, (gchar*)decoded, sz, NULL);
 
                 g_free (decoded);

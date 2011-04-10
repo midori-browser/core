@@ -1174,7 +1174,7 @@ midori_browser_add_speed_dial (MidoriBrowser* browser)
         gchar* dial_id = g_strdup_printf ("Dial %s", slot_id + 1);
         gchar* config_file = g_build_filename (sokoke_set_config_dir (NULL),
                                                "speeddial", NULL);
-        gchar* file_path = sokoke_build_thumbnail_path (slot_id);
+        gchar* file_path = sokoke_build_thumbnail_path (uri);
         gchar* thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
                                          PACKAGE_NAME, "thumbnails", NULL);
         g_object_get (browser, "speed-dial", &key_file, NULL);

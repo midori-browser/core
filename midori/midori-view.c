@@ -3919,9 +3919,9 @@ prepare_speed_dial_html (MidoriView* view)
         if (g_key_file_has_group (key_file, dial_entry))
         {
             gchar* slot_id = g_strdup_printf ("s%d", slot);
-            gchar* thumb_file = sokoke_build_thumbnail_path (slot_id);
             gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
             gchar* title = g_key_file_get_string (key_file, dial_entry, "title", NULL);
+            gchar* thumb_file = sokoke_build_thumbnail_path (uri);
             gchar* encoded;
 
             if (g_access (thumb_file, F_OK) == 0)
@@ -5585,7 +5585,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     GdkPixbuf* img;
     gchar* file_path;
     gchar* thumb_dir;
-    gchar* dom_id;
+    gchar* thumb_uri;
     MidoriBrowser* browser;
     gint i;
     GtkWidget* tab;
@@ -5595,8 +5595,8 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
 
     gtk_widget_realize (midori_view_get_web_view (MIDORI_VIEW (thumb_view)));
     img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 240, 160);
-    dom_id = g_object_get_data (G_OBJECT (thumb_view), "dom-id");
-    file_path  = sokoke_build_thumbnail_path (dom_id);
+    thumb_uri = g_object_get_data (G_OBJECT (thumb_view), "thumb-uri");
+    file_path  = sokoke_build_thumbnail_path (thumb_uri);
     thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
                               PACKAGE_NAME, "thumbnails", NULL);
 
@@ -5607,7 +5607,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
 
     g_object_unref (img);
 
-    g_free (dom_id);
+    g_free (thumb_uri);
     g_free (file_path);
     g_free (thumb_dir);
 
@@ -5671,7 +5671,7 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
         "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
     _midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
 
-    g_object_set_data (G_OBJECT (thumb_view), "dom-id", dom_id);
+    g_object_set_data (G_OBJECT (thumb_view), "thumb-uri", url);
     g_signal_connect (thumb_view, "notify::load-status",
         G_CALLBACK (thumb_view_load_status_cb), view);
     midori_view_set_uri (MIDORI_VIEW (thumb_view), url);
