@@ -1722,7 +1722,8 @@ midori_view_ensure_link_uri (MidoriView* view,
 }
 
 #define MIDORI_KEYS_MODIFIER_MASK (GDK_SHIFT_MASK | GDK_CONTROL_MASK \
-    | GDK_MOD1_MASK | GDK_META_MASK | GDK_SUPER_MASK | GDK_HYPER_MASK )
+    | GDK_MOD1_MASK | GDK_META_MASK | GDK_SUPER_MASK | GDK_HYPER_MASK \
+    | GDK_BUTTON1_MASK)
 
 static gboolean
 gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
