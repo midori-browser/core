@@ -3711,6 +3711,18 @@ midori_view_web_inspector_detach_window_cb (gpointer    inspector,
     return TRUE;
 }
 
+static gboolean
+midori_view_web_inspector_close_window_cb (gpointer    inspector,
+                                           MidoriView* view)
+{
+    WebKitWebView* inspector_view = webkit_web_inspector_get_web_view (inspector);
+    GtkWidget* scrolled = gtk_widget_get_parent (GTK_WIDGET (inspector_view));
+    if (!scrolled)
+        return FALSE;
+    gtk_widget_destroy (gtk_widget_get_parent (scrolled));
+    return TRUE;
+}
+
 static void
 midori_view_construct_web_view (MidoriView* view)
 {
@@ -3832,6 +3844,8 @@ midori_view_construct_web_view (MidoriView* view)
                       midori_view_web_inspector_attach_window_cb, view,
                       "signal::detach-window",
                       midori_view_web_inspector_detach_window_cb, view,
+                      "signal::close-window",
+                      midori_view_web_inspector_close_window_cb, view,
                       NULL);
 }
 
