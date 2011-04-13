@@ -5745,11 +5745,13 @@ midori_view_speed_dial_save (MidoriView*  view,
 
         if (g_str_equal (action, "delete"))
         {
-            gchar* file_path = sokoke_build_thumbnail_path (parts[1]);
+            gchar* uri = g_key_file_get_string (key_file, dial_id, "uri", NULL);
+            gchar* file_path = sokoke_build_thumbnail_path (uri);
 
             g_key_file_remove_group (key_file, dial_id, NULL);
             g_unlink (file_path);
 
+            g_free (uri);
             g_free (file_path);
         }
         else if (g_str_equal (action, "add"))
