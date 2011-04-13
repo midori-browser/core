@@ -1036,6 +1036,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     for (; children; children = g_list_next (children))
         if (g_object_get_data (G_OBJECT (children->data), "midori-infobar-cb"))
             gtk_widget_destroy (children->data);
+    view->alerts = 0;
 
     if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
     {
