@@ -983,19 +983,21 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     /* Remove link labels */
     js_context = webkit_web_frame_get_global_context (web_frame);
     result = sokoke_js_script_eval (js_context,
-        "var links = document.getElementsByClassName ('midoriHKD87346');"
+        "(function (links) {"
         "if (links != undefined && links.length > 0) {"
         "   for (var i = links.length - 1; i >= 0; i--) {"
         "       var parent = links[i].parentNode;"
-        "       parent.removeChild(links[i]); } }",
+        "       parent.removeChild(links[i]); } } }) ("
+        "document.getElementsByClassName ('midoriHKD87346'));",
         NULL);
     g_free (result);
     result = sokoke_js_script_eval (js_context,
-        "var links = document.getElementsByClassName ('midori_access_key_fc04de');"
+        "(function (links) {"
         "if (links != undefined && links.length > 0) {"
         "   for (var i = links.length - 1; i >= 0; i--) {"
         "       var parent = links[i].parentNode;"
-        "       parent.removeChild(links[i]); } }",
+        "       parent.removeChild(links[i]); } } }) ("
+        "document.getElementsByClassName ('midori_access_key_fc04de'));",
         NULL);
     g_free (result);
     view->find_links = -1;
@@ -5194,9 +5196,9 @@ midori_view_get_previous_page (MidoriView* view)
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
         "(function (tags) {"
-        "for (tag in tags) {"
+        "for (var tag in tags) {"
         "var l = document.getElementsByTagName (tag);"
-        "for (i in l) { "
+        "for (var i in l) { "
         "if ((l[i].rel && l[i].rel.toLowerCase () == 'prev') "
         " || (l[i].innerHTML"
         "  && l[i].innerHTML.toLowerCase ().indexOf ('prev') != -1)) "
@@ -5231,9 +5233,9 @@ midori_view_get_next_page (MidoriView* view)
     js_context = webkit_web_frame_get_global_context (web_frame);
     katze_assign (uri, sokoke_js_script_eval (js_context,
         "(function (tags) {"
-        "for (tag in tags) {"
+        "for (var tag in tags) {"
         "var l = document.getElementsByTagName (tag);"
-        "for (i in l) { "
+        "for (var i in l) { "
         "if ((l[i].rel && l[i].rel.toLowerCase () == 'next') "
         " || (l[i].innerHTML"
         "  && l[i].innerHTML.toLowerCase ().indexOf ('next') != -1)) "
