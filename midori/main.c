@@ -801,7 +801,10 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     katze_preferences_add_widget (preferences, button, "indented");
     #endif
     #endif
-    katze_preferences_add_group (preferences, _("History"));
+    #if HAVE_LIBSOUP_2_27_90
+    button = katze_property_proxy (settings, "strip-referer", NULL);
+    katze_preferences_add_widget (preferences, button, "indented");
+    #endif
     button = katze_property_label (settings, "maximum-history-age");
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "maximum-history-age", NULL);
@@ -996,6 +999,28 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
         g_free (languages);
     soup_message_headers_append (msg->request_headers, "Accept-Language", accpt);
     g_free (accpt);
+
+    #if HAVE_LIBSOUP_2_27_90
+    if (katze_object_get_boolean (settings, "strip-referer"))
+    {
+        const gchar* referer
+            = soup_message_headers_get_one (msg->request_headers, "Referer");
+        SoupURI* destination = soup_message_get_uri (msg);
+        if (referer && destination && !strstr (referer, destination->host))
+        {
+            SoupURI* stripped_uri = soup_uri_new (referer);
+            gchar* stripped_referer;
+            soup_uri_set_path (stripped_uri, NULL);
+            soup_uri_set_query (stripped_uri, NULL);
+            stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
+            soup_uri_free (stripped_uri);
+            g_message ("Referer stripped");
+            soup_message_headers_replace (msg->request_headers, "Referer",
+                                          stripped_referer);
+            g_free (stripped_referer);
+        }
+    }
+    #endif
 }
 
 static void
@@ -2195,6 +2220,7 @@ main (int    argc,
             #if WEBKIT_CHECK_VERSION (1, 3, 13)
             g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
             #endif
+            g_object_set (settings, "strip-referer", TRUE, NULL);
             midori_browser_set_action_visible (browser, "Tools", FALSE);
             midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
         }

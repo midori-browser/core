@@ -86,6 +86,7 @@ struct _MidoriWebSettings
 
     gint clear_private_data;
     gchar* clear_data;
+    gboolean strip_referer;
 };
 
 struct _MidoriWebSettingsClass
@@ -168,7 +169,8 @@ enum
     PROP_PREFERRED_LANGUAGES,
 
     PROP_CLEAR_PRIVATE_DATA,
-    PROP_CLEAR_DATA
+    PROP_CLEAR_DATA,
+    PROP_STRIP_REFERER
 };
 
 GType
@@ -1100,6 +1102,23 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The data selected for deletion"),
                                      NULL,
                                      flags));
+    /**
+     * MidoriWebSettings:strip-referer:
+     *
+     * Whether to strip referrer details sent to external sites.
+     *
+     * Since: 0.3.4
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_STRIP_REFERER,
+                                     g_param_spec_boolean (
+                                     "strip-referer",
+    /* i18n: Reworded: Shorten details propagated when going to another page */
+        _("Strip referrer details sent to external sites"),
+    /* i18n: Referer here is not a typo but a technical term */
+        _("Whether the \"Referer\" header should be shortened to the hostname"),
+                                     FALSE,
+                                     flags));
 
 }
 
@@ -1518,6 +1537,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_CLEAR_DATA:
         katze_assign (web_settings->clear_data, g_value_dup_string (value));
         break;
+    case PROP_STRIP_REFERER:
+        web_settings->strip_referer = g_value_get_boolean (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1748,6 +1770,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_CLEAR_DATA:
         g_value_set_string (value, web_settings->clear_data);
+        break;
+    case PROP_STRIP_REFERER:
+        g_value_set_boolean (value, web_settings->strip_referer);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
