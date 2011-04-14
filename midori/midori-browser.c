@@ -144,6 +144,7 @@ enum
     SEND_NOTIFICATION,
     POPULATE_TOOL_MENU,
     QUIT,
+    SHOW_PREFERENCES,
 
     LAST_SIGNAL
 };
@@ -1862,6 +1863,27 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__VOID,
         G_TYPE_NONE, 0);
 
+    /**
+     * MidoriBrowser::show-preferences:
+     * @browser: the object on which the signal is emitted
+     * @preferences: the #KatzePreferences to populate
+     *
+     * Emitted when a preference dialogue displayed, to allow
+     * adding of a new page, to be used sparingly.
+     *
+     * Since: 0.3.4
+     */
+    signals[SHOW_PREFERENCES] = g_signal_new (
+        "show-preferences",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        KATZE_TYPE_PREFERENCES);
+
     class->add_tab = _midori_browser_add_tab;
     class->remove_tab = _midori_browser_remove_tab;
     class->activate_action = _midori_browser_activate_action;
@@ -3056,6 +3078,7 @@ _action_preferences_activate (GtkAction*     action,
     if (!dialog)
     {
         dialog = midori_preferences_new (GTK_WINDOW (browser), browser->settings);
+        g_signal_emit (browser, signals[SHOW_PREFERENCES], 0, dialog);
         g_signal_connect (dialog, "response",
             G_CALLBACK (midori_preferences_response_help_cb), browser);
         g_signal_connect (dialog, "destroy",

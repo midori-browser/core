@@ -51,7 +51,7 @@ katze_preferences_get_type               (void) G_GNUC_CONST;
 GtkWidget*
 katze_preferences_new                    (GtkWindow*          parent);
 
-void
+GtkWidget*
 katze_preferences_add_category           (KatzePreferences* preferences,
                                           const gchar*      label,
                                           const gchar*      icon);

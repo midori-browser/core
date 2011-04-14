@@ -695,6 +695,24 @@ midori_trash_remove_item_cb (KatzeArray* trash,
 }
 
 static void
+midori_browser_show_preferences_cb (MidoriBrowser*    browser,
+                                    KatzePreferences* preferences,
+                                    MidoriApp*        app)
+{
+    GtkWidget* scrolled = katze_scrolled_new (NULL, NULL);
+    GtkWidget* addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
+    GList* children = gtk_container_get_children (GTK_CONTAINER (addon));
+    GtkWidget* page;
+    gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
+    g_list_free (children);
+    g_object_set (addon, "app", app, NULL);
+    gtk_widget_show (scrolled);
+    page = katze_preferences_add_category (preferences,
+                                           _("Extensions"), STOCK_EXTENSIONS);
+    gtk_box_pack_start (GTK_BOX (page), scrolled, TRUE, TRUE, 4);
+}
+
+static void
 midori_app_add_browser_cb (MidoriApp*     app,
                            MidoriBrowser* browser,
                            KatzeNet*      net)
@@ -722,10 +740,8 @@ midori_app_add_browser_cb (MidoriApp*     app,
     #endif
 
     /* Extensions */
-    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
-    gtk_widget_show (addon);
-    g_object_set (addon, "app", app, NULL);
-    midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
+    g_signal_connect (browser, "show-preferences",
+        G_CALLBACK (midori_browser_show_preferences_cb), app);
 
     g_object_unref (panel);
 }
