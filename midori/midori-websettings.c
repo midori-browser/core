@@ -662,6 +662,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
     #endif
 
+    /**
+    * MidoriWebSettings:download-manager:
+    *
+    * An external download manager that shows up in context menus.
+    *
+    * Deprecated: 0.3.4
+    */
     g_object_class_install_property (gobject_class,
                                      PROP_DOWNLOAD_MANAGER,
                                      g_param_spec_string (

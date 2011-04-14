@@ -89,7 +89,6 @@ struct _MidoriView
     GtkWidget* thumb_view;
     KatzeArray* news_feeds;
 
-    gchar* download_manager;
     gchar* news_aggregator;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
@@ -2136,15 +2135,6 @@ midori_web_view_menu_video_save_activate_cb (GtkWidget*  widget,
     g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
     g_free (uri);
 }
-
-static void
-midori_web_view_menu_video_download_activate_cb (GtkWidget*  widget,
-                                                 MidoriView* view)
-{
-    gchar* uri = katze_object_get_string (view->hit_test, "media-uri");
-    sokoke_spawn_program (view->download_manager, uri);
-    g_free (uri);
-}
 #endif
 
 static void
@@ -2224,13 +2214,6 @@ midori_web_view_menu_save_as_activate_cb (GtkWidget*  widget,
     g_signal_emit (view, signals[SAVE_AS], 0, view->link_uri);
 }
 #endif
-
-static void
-midori_web_view_menu_download_activate_cb (GtkWidget*  widget,
-                                           MidoriView* view)
-{
-    sokoke_spawn_program (view->download_manager, view->link_uri);
-}
 
 static void
 midori_view_tab_label_menu_window_new_cb (GtkWidget* menuitem,
@@ -2501,10 +2484,6 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             NULL, GTK_STOCK_SAVE_AS,
             G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
-        if (view->download_manager && *view->download_manager)
-            midori_view_insert_menu_item (menu_shell, -1,
-            _("Download with Download _Manager"), STOCK_TRANSFER,
-            G_CALLBACK (midori_web_view_menu_download_activate_cb), widget);
     }
 
     if (is_image)
@@ -2530,10 +2509,6 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             FALSE ? _("Save _Video") : _("Download _Video"), GTK_STOCK_SAVE,
             G_CALLBACK (midori_web_view_menu_video_save_activate_cb), widget);
-        if (view->download_manager && *view->download_manager)
-            midori_view_insert_menu_item (menu_shell, -1,
-            _("Download with Download _Manager"), STOCK_TRANSFER,
-            G_CALLBACK (midori_web_view_menu_video_download_activate_cb), widget);
     }
 
     if (has_selection)
@@ -2574,10 +2549,6 @@ midori_view_populate_popup (MidoriView* view,
             NULL, GTK_STOCK_SAVE_AS,
             G_CALLBACK (midori_web_view_menu_save_as_activate_cb), widget);
         #endif
-        if (view->download_manager && *view->download_manager)
-            midori_view_insert_menu_item (menu_shell, 4,
-            _("Download with Download _Manager"), STOCK_TRANSFER,
-            G_CALLBACK (midori_web_view_menu_download_activate_cb), widget);
     }
     #endif
 
@@ -3256,7 +3227,6 @@ midori_view_init (MidoriView* view)
     view->scrollh = view->scrollv = -2;
     view->back_forward_set = FALSE;
 
-    view->download_manager = NULL;
     view->news_aggregator = NULL;
     view->web_view = NULL;
     /* Adjustments are not created initially, but overwritten later */
@@ -3313,7 +3283,6 @@ midori_view_finalize (GObject* object)
     katze_object_assign (view->settings, NULL);
     katze_object_assign (view->item, NULL);
 
-    katze_assign (view->download_manager, NULL);
     katze_assign (view->news_aggregator, NULL);
 
     G_OBJECT_CLASS (midori_view_parent_class)->finalize (object);
@@ -3457,11 +3426,9 @@ _midori_view_set_settings (MidoriView*        view,
 
     g_object_set (view->web_view, "settings", settings, NULL);
 
-    g_free (view->download_manager);
     g_free (view->news_aggregator);
 
     g_object_get (view->settings,
-        "download-manager", &view->download_manager,
         "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
         "kinetic-scrolling", &kinetic_scrolling,
@@ -3517,9 +3484,7 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_value_init (&value, pspec->value_type);
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
-    if (name == g_intern_string ("download-manager"))
-        katze_assign (view->download_manager, g_value_dup_string (&value));
-    else if (name == g_intern_string ("news-aggregator"))
+    if (name == g_intern_string ("news-aggregator"))
         katze_assign (view->news_aggregator, g_value_dup_string (&value));
     else if (name == g_intern_string ("zoom-text-and-images"))
     {
