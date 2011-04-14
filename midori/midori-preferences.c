@@ -197,34 +197,6 @@ midori_preferences_notify_proxy_type_cb (MidoriWebSettings* settings,
 }
 #endif
 
-static void
-midori_preferences_delete_cookies_toggled_cb (GtkToggleButton*   button,
-                                              MidoriWebSettings* settings)
-{
-    gboolean toggled = gtk_toggle_button_get_active (button);
-    g_object_set (settings, "accept-cookies",
-        toggled ? MIDORI_ACCEPT_COOKIES_SESSION : MIDORI_ACCEPT_COOKIES_ALL, NULL);
-}
-
-static void
-midori_preferences_delete_cookies_changed_cb (GtkComboBox*       combo,
-                                              MidoriWebSettings* settings)
-{
-    gint active = gtk_combo_box_get_active (combo);
-    gint max_age;
-    switch (active)
-    {
-    case 0: max_age =   0; break;
-    case 1: max_age =   1; break;
-    case 2: max_age =   7; break;
-    case 3: max_age =  30; break;
-    case 4: max_age = 365; break;
-    default:
-        max_age = 30;
-    }
-    g_object_set (settings, "maximum-cookie-age", max_age, NULL);
-}
-
 #if HAVE_OSX
 static void
 midori_preferences_toolbutton_clicked_cb (GtkWidget* toolbutton,
@@ -496,63 +468,4 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     entry = katze_property_proxy (settings, "news-aggregator", "application-News");
     SPANNED_ADD (entry);
     #endif
-
-    /* Page "Privacy" */
-    PAGE_NEW (GTK_STOCK_INDEX, _("Privacy"));
-    FRAME_NEW (_("Web Cookies"));
-    button = gtk_check_button_new_with_mnemonic (_("Delete cookies when quitting Midori"));
-    INDENTED_ADD (button);
-    if (katze_object_get_enum (settings, "accept-cookies") == MIDORI_ACCEPT_COOKIES_SESSION)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-    g_signal_connect (button, "toggled",
-        G_CALLBACK (midori_preferences_delete_cookies_toggled_cb), settings);
-    button = gtk_combo_box_new_text ();
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 hour"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 day"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 week"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 month"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 year"));
-    {
-        gint max_age = katze_object_get_int (settings, "maximum-cookie-age");
-        guint active;
-        switch (max_age)
-        {
-        case   0: active = 0; break;
-        case   1: active = 1; break;
-        case   7: active = 2; break;
-        case  30: active = 3; break;
-        case 365: active = 4; break;
-        default:
-            active = 3;
-        }
-        gtk_combo_box_set_active (GTK_COMBO_BOX (button), active);
-    }
-    g_signal_connect (button, "changed",
-        G_CALLBACK (midori_preferences_delete_cookies_changed_cb), settings);
-    SPANNED_ADD (button);
-    {
-        gchar* markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
-            _("Cookies store login data, saved games, "
-              "or user profiles for advertisement purposes."));
-        label = gtk_label_new (NULL);
-        gtk_label_set_markup (GTK_LABEL (label), markup);
-        g_free (markup);
-    }
-    FILLED_ADD (label);
-    #if WEBKIT_CHECK_VERSION (1, 1, 13)
-    INDENTED_ADD (katze_property_proxy (settings, "enable-offline-web-application-cache", NULL));
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 8)
-    SPANNED_ADD (katze_property_proxy (settings, "enable-html5-local-storage", NULL));
-    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
-    INDENTED_ADD (katze_property_proxy (settings, "enable-html5-database", NULL));
-    #endif
-    #endif
-    FRAME_NEW (_("History"));
-    button = katze_property_label (settings, "maximum-history-age");
-    INDENTED_ADD (button);
-    button = katze_property_proxy (settings, "maximum-history-age", NULL);
-    SPANNED_ADD (button);
-    label = gtk_label_new (_("days"));
-    SPANNED_ADD (label);
 }
