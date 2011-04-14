@@ -1012,13 +1012,10 @@ midori_soup_session_debug (SoupSession* session)
     }
 }
 
-static void
-midori_soup_session_prepare (SoupSession*       session,
-                             SoupCookieJar*     cookie_jar,
-                             MidoriWebSettings* settings)
+static gboolean
+midori_load_soup_session (gpointer settings)
 {
-    SoupSessionFeature* feature;
-    gchar* config_file;
+    SoupSession* session = webkit_get_default_session ();
 
     #if WEBKIT_CHECK_VERSION (1, 1, 14) && defined (HAVE_LIBSOUP_2_29_91)
     const gchar* certificate_files[] =
@@ -1067,20 +1064,9 @@ midori_soup_session_prepare (SoupSession*       session,
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
 
-    config_file = build_config_filename ("logins");
-    feature = g_object_new (KATZE_TYPE_HTTP_AUTH, "filename", config_file, NULL);
-    g_free (config_file);
-    soup_session_add_feature (session, feature);
-    g_object_unref (feature);
     midori_soup_session_debug (session);
 
-    feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
-    config_file = build_config_filename ("cookies.txt");
-    g_object_set_data_full (G_OBJECT (feature), "filename",
-                            config_file, (GDestroyNotify)g_free);
-    soup_session_add_feature (session, SOUP_SESSION_FEATURE (cookie_jar));
-    soup_session_add_feature (session, feature);
-    g_object_unref (feature);
+    return FALSE;
 }
 
 static void
@@ -1210,13 +1196,32 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
 }
 
 static gboolean
-midori_load_cookie_jar (gpointer data)
+midori_load_soup_session_full (gpointer settings)
 {
     SoupSession* session = webkit_get_default_session ();
-    SoupCookieJar* jar = soup_cookie_jar_new ();
-    g_object_set_data (G_OBJECT (jar), "midori-settings", data);
-    midori_soup_session_prepare (session, jar, MIDORI_WEB_SETTINGS (data));
+    SoupCookieJar* jar;
+    gchar* config_file;
+    SoupSessionFeature* feature;
+
+    config_file = build_config_filename ("logins");
+    feature = g_object_new (KATZE_TYPE_HTTP_AUTH, "filename", config_file, NULL);
+    g_free (config_file);
+    soup_session_add_feature (session, feature);
+    g_object_unref (feature);
+
+    jar = soup_cookie_jar_new ();
+    g_object_set_data (G_OBJECT (jar), "midori-settings", settings);
+    soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
     g_object_unref (jar);
+
+    feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
+    config_file = build_config_filename ("cookies.txt");
+    g_object_set_data_full (G_OBJECT (feature), "filename",
+                            config_file, (GDestroyNotify)g_free);
+    soup_session_add_feature (session, feature);
+    g_object_unref (feature);
+
+    g_idle_add (midori_load_soup_session, settings);
 
     return FALSE;
 }
@@ -2236,6 +2241,7 @@ main (int    argc,
                 G_CALLBACK (midori_soup_session_block_uris_cb),
                 g_strdup (block_uris));
         midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
+        g_idle_add (midori_load_soup_session, settings);
         midori_startup_timer ("App created: \t%f");
         gtk_main ();
         return 0;
@@ -2528,7 +2534,7 @@ main (int    argc,
         G_CALLBACK (midori_app_add_browser_cb), NULL);
     midori_startup_timer ("App prepared: \t%f");
 
-    g_idle_add (midori_load_cookie_jar, settings);
+    g_idle_add (midori_load_soup_session_full, settings);
     g_idle_add (midori_load_extensions, app);
     g_idle_add (midori_load_session, _session);
 
