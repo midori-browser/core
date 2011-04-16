@@ -1228,6 +1228,8 @@ midori_load_soup_session_full (gpointer settings)
     gchar* config_file;
     SoupSessionFeature* feature;
 
+    midori_load_soup_session (settings);
+
     config_file = build_config_filename ("logins");
     feature = g_object_new (KATZE_TYPE_HTTP_AUTH, "filename", config_file, NULL);
     g_free (config_file);
@@ -1245,8 +1247,6 @@ midori_load_soup_session_full (gpointer settings)
                             config_file, (GDestroyNotify)g_free);
     soup_session_add_feature (session, feature);
     g_object_unref (feature);
-
-    g_idle_add (midori_load_soup_session, settings);
 
     return FALSE;
 }
@@ -2267,7 +2267,7 @@ main (int    argc,
                 G_CALLBACK (midori_soup_session_block_uris_cb),
                 g_strdup (block_uris));
         midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
-        g_idle_add (midori_load_soup_session, settings);
+        midori_load_soup_session (settings);
         midori_startup_timer ("App created: \t%f");
         gtk_main ();
         return 0;
