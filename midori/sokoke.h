@@ -17,8 +17,7 @@
 #define MIDORI_MOD_NEW_WINDOW(state) (state & GDK_SHIFT_MASK)
 #define MIDORI_MOD_NEW_TAB(state) (state & GDK_CONTROL_MASK)
 #define MIDORI_MOD_BACKGROUND(state) (state & GDK_SHIFT_MASK)
-#define MIDORI_MOD_SCROLL(state) (state & GDK_CONTROL_MASK) \
-                              || (state & GDK_BUTTON1_MASK)
+#define MIDORI_MOD_SCROLL(state) (state & GDK_CONTROL_MASK)
 
 #include <katze/katze.h>
 
