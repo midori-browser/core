@@ -2213,15 +2213,14 @@ main (int    argc,
 
         if (private)
         {
+            g_object_set (settings,
             #if WEBKIT_CHECK_VERSION (1, 1, 2)
-            g_object_set (settings, "enable-private-browsing", TRUE, NULL);
+                          "enable-private-browsing", TRUE,
             #endif
             /* Arguably DNS prefetching is or isn't a privacy concern. For the
              * lack of more fine-grained control we'll go the safe route. */
-            #if WEBKIT_CHECK_VERSION (1, 3, 13)
-            g_object_set (settings, "enable-dns-prefetching", FALSE, NULL);
-            #endif
-            g_object_set (settings, "strip-referer", TRUE, NULL);
+                          "enable-dns-prefetching", FALSE,
+                          "strip-referer", TRUE, NULL);
             midori_browser_set_action_visible (browser, "Tools", FALSE);
             midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
         }

@@ -19,10 +19,8 @@
 #define MIDORI_MOD_BACKGROUND(state) (state & GDK_SHIFT_MASK)
 #define MIDORI_MOD_SCROLL(state) (state & GDK_CONTROL_MASK)
 
-#include <katze/katze.h>
-
-#include <webkit/webkit.h>
 #include <JavaScriptCore/JavaScript.h>
+#include <midori/midori-websettings.h>
 
 #if !GLIB_CHECK_VERSION (2, 14, 0)
     #define G_PARAM_STATIC_STRINGS \
@@ -254,7 +252,8 @@ sokoke_file_chooser_dialog_new          (const gchar*         title,
                                          GtkFileChooserAction action);
 
 gboolean
-sokoke_prefetch_uri                     (const char*         uri,
+sokoke_prefetch_uri                     (MidoriWebSettings*  settings,
+                                         const char*         uri,
                                          SoupAddressCallback callback,
                                          gpointer            user_data);
 

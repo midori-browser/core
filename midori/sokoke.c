@@ -793,7 +793,7 @@ sokoke_resolve_hostname (const gchar* hostname)
     gint host_resolved = 0;
 
     uri = g_strconcat ("http://", hostname, NULL);
-    if (sokoke_prefetch_uri (uri, sokoke_resolve_hostname_cb,
+    if (sokoke_prefetch_uri (NULL, uri, sokoke_resolve_hostname_cb,
                              &host_resolved))
     {
         GTimer* timer = g_timer_new ();
@@ -1957,6 +1957,7 @@ sokoke_file_chooser_dialog_new (const gchar*         title,
 
 /**
  * sokoke_prefetch_uri:
+ * @settings: a #MidoriWebSettings instance, or %NULL
  * @uri: an URI string
  *
  * Attempts to prefetch the specified URI, that is
@@ -1965,7 +1966,8 @@ sokoke_file_chooser_dialog_new (const gchar*         title,
  * Return value: %TRUE on success
  **/
 gboolean
-sokoke_prefetch_uri (const char*         uri,
+sokoke_prefetch_uri (MidoriWebSettings*  settings,
+                     const char*         uri,
                      SoupAddressCallback callback,
                      gpointer            user_data)
 {
@@ -1977,6 +1979,10 @@ sokoke_prefetch_uri (const char*         uri,
 
     if (!uri)
         return FALSE;
+
+    if (settings && !katze_object_get_boolean (settings, "enable-dns-prefetching"))
+        return FALSE;
+
     s_uri = soup_uri_new (uri);
     if (!s_uri || !s_uri->host)
         return FALSE;

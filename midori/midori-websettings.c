@@ -86,6 +86,9 @@ struct _MidoriWebSettings
 
     gint clear_private_data;
     gchar* clear_data;
+    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
+    gboolean enable_dns_prefetching;
+    #endif
     gboolean strip_referer;
 };
 
@@ -170,6 +173,7 @@ enum
 
     PROP_CLEAR_PRIVATE_DATA,
     PROP_CLEAR_DATA,
+    PROP_ENABLE_DNS_PREFETCHING,
     PROP_STRIP_REFERER
 };
 
@@ -1102,6 +1106,24 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The data selected for deletion"),
                                      NULL,
                                      flags));
+    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
+    /**
+     * MidoriWebSettings:enable-dns-prefetching:
+     *
+     * Whether to resolve host names in advance.
+     *
+     * Since: 0.3.4
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_DNS_PREFETCHING,
+                                     g_param_spec_boolean (
+                                     "enable-dns-prefetching",
+        "Whether to resolve host names in advance",
+        "Whether host names on a website or in bookmarks should be prefetched",
+                                     TRUE,
+                                     flags));
+    #endif
+
     /**
      * MidoriWebSettings:strip-referer:
      *
@@ -1537,6 +1559,11 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_CLEAR_DATA:
         katze_assign (web_settings->clear_data, g_value_dup_string (value));
         break;
+    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
+    case PROP_ENABLE_DNS_PREFETCHING:
+        web_settings->enable_dns_prefetching = g_value_get_boolean (value);
+        break;
+    #endif
     case PROP_STRIP_REFERER:
         web_settings->strip_referer = g_value_get_boolean (value);
         break;
@@ -1771,6 +1798,11 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_CLEAR_DATA:
         g_value_set_string (value, web_settings->clear_data);
         break;
+    #if !WEBKIT_CHECK_VERSION (1, 3, 13)
+    case PROP_ENABLE_DNS_PREFETCHING:
+        g_value_set_boolean (value, web_settings->enable_dns_prefetching);
+        break;
+    #endif
     case PROP_STRIP_REFERER:
         g_value_set_boolean (value, web_settings->strip_referer);
         break;
