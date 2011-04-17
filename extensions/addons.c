@@ -661,8 +661,6 @@ addons_get_toolbar (MidoriViewable* viewable)
         g_signal_connect (toolitem, "clicked",
             G_CALLBACK (midori_addons_button_delete_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
-        gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
-                                    _("Open target folder for selected addon"));
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Remove selected addon"));
         gtk_widget_show (GTK_WIDGET (toolitem));
         ADDONS (viewable)->toolbar = toolbar;
