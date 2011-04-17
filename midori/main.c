@@ -2217,6 +2217,11 @@ main (int    argc,
             #if WEBKIT_CHECK_VERSION (1, 1, 2)
                           "enable-private-browsing", TRUE,
             #endif
+            #if WEBKIT_CHECK_VERSION (1, 1, 8)
+                          "enable-html5-database", FALSE,
+                          "enable-html5-local-storage", FALSE,
+                          "enable-offline-web-application-cache", FALSE,
+            #endif
             /* Arguably DNS prefetching is or isn't a privacy concern. For the
              * lack of more fine-grained control we'll go the safe route. */
                           "enable-dns-prefetching", FALSE,
