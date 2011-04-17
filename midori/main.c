@@ -1014,7 +1014,8 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
             soup_uri_set_query (stripped_uri, NULL);
             stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
             soup_uri_free (stripped_uri);
-            g_message ("Referer stripped");
+            if (g_getenv ("MIDORI_SOUP_DEBUG"))
+                g_message ("Referer stripped");
             soup_message_headers_replace (msg->request_headers, "Referer",
                                           stripped_referer);
             g_free (stripped_referer);
