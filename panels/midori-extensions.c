@@ -234,9 +234,14 @@ midori_extensions_treeview_render_icon_cb (GtkTreeViewColumn* column,
                                            GtkTreeIter*       iter,
                                            GtkWidget*         treeview)
 {
+    MidoriExtension* extension;
+    gtk_tree_model_get (model, iter, 0, &extension, -1);
+
     g_object_set (renderer, "stock-id", STOCK_EXTENSION,
                             "stock-size", GTK_ICON_SIZE_BUTTON,
+                            "sensitive", midori_extension_is_prepared (extension),
                             "xpad", 4, NULL);
+    g_object_unref (extension);
 }
 
 static void
