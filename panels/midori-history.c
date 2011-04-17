@@ -155,6 +155,16 @@ midori_history_format_date (KatzeItem *item)
 }
 
 static void
+midori_history_toolbar_update (MidoriHistory *history)
+{
+    gboolean selected;
+
+    selected = katze_tree_view_get_selected_iter (
+        GTK_TREE_VIEW (history->treeview), NULL, NULL);
+    gtk_widget_set_sensitive (GTK_WIDGET (history->delete), selected);
+}
+
+static void
 midori_history_remove_item_from_db (MidoriHistory* history,
                                     KatzeItem*     item)
 {
@@ -370,6 +380,7 @@ midori_history_get_toolbar (MidoriViewable* viewable)
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_show (GTK_WIDGET (toolitem));
         history->clear = GTK_WIDGET (toolitem);
+        midori_history_toolbar_update (history);
         g_signal_connect (history->bookmark, "destroy",
             G_CALLBACK (gtk_widget_destroyed), &history->bookmark);
         g_signal_connect (history->delete, "destroy",
@@ -903,6 +914,12 @@ midori_history_filter_entry_clear_cb (GtkEntry*      entry,
         gtk_entry_set_text (entry, "");
 }
 
+static void
+midori_history_selection_changed_cb (GtkTreeView*   treeview,
+                                     MidoriHistory* history)
+{
+    midori_history_toolbar_update (history);
+}
 
 static void
 midori_history_init (MidoriHistory* history)
@@ -914,6 +931,7 @@ midori_history_init (MidoriHistory* history)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
+    GtkTreeSelection* selection;
 
     /* Create the filter entry */
     entry = gtk_icon_entry_new ();
@@ -968,6 +986,10 @@ midori_history_init (MidoriHistory* history)
                       "signal::popup-menu",
                       midori_history_popup_menu_cb, history,
                       NULL);
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+    g_signal_connect_after (selection, "changed",
+                            G_CALLBACK (midori_history_selection_changed_cb),
+                            history);
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (history), treeview, TRUE, TRUE, 0);
     history->treeview = treeview;

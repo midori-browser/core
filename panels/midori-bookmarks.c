@@ -434,7 +434,6 @@ midori_bookmarks_delete_clicked_cb (GtkWidget*       toolitem,
             midori_bookmarks_remove_item_cb, bookmarks);
         g_object_unref (item);
     }
-    midori_bookmarks_toolbar_update (bookmarks);
 }
 
 static GtkWidget*
