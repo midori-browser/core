@@ -143,6 +143,7 @@ enum
     ADD_DOWNLOAD,
     SEND_NOTIFICATION,
     POPULATE_TOOL_MENU,
+    POPULATE_TOOLBAR_MENU,
     QUIT,
     SHOW_PREFERENCES,
 
@@ -1852,6 +1853,25 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1,
         GTK_TYPE_MENU);
+    /**
+     * MidoriBrowser::populate-toolbar-menu:
+     * @browser: the object on which the signal is emitted
+     * @menu: the #GtkMenu to populate
+     *
+     * Emitted when a toolbar menu is displayed on right-click.
+     *
+     * Since: 0.3.4
+     */
+    signals[POPULATE_TOOLBAR_MENU] = g_signal_new (
+        "populate-toolbar-menu",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__OBJECT,
+        G_TYPE_NONE, 1,
+        GTK_TYPE_MENU);
 
     signals[QUIT] = g_signal_new (
         "quit",
@@ -2675,6 +2695,8 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     menuitem = sokoke_action_create_popup_menu_item (
         _action_by_name (browser, "Statusbar"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+
+    g_signal_emit (browser, signals[POPULATE_TOOLBAR_MENU], 0, menu);
 
     katze_widget_popup (widget, GTK_MENU (menu), NULL,
         button == -1 ? KATZE_MENU_POSITION_LEFT : KATZE_MENU_POSITION_CURSOR);
