@@ -1132,6 +1132,11 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         GdkPixbuf* pixbuf;
         const gchar* icon_name = &uri[8] ? &uri[8] : "";
         gint icon_size = GTK_ICON_SIZE_MENU;
+        GdkScreen* screen = gtk_widget_get_screen (GTK_WIDGET (view));
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
+        gint real_icon_size;
+        GtkIconInfo* icon_info;
+        const gchar* icon_filename;
 
         if (g_ascii_isalpha (icon_name[0]))
             icon_size = strstr (icon_name, "dialog") ?
@@ -1152,6 +1157,30 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
                 }
         }
 
+        /* If available, load SVG icon as SVG markup */
+        icon_size = gtk_icon_size_lookup_for_settings (
+            gtk_widget_get_settings (GTK_WIDGET (view)),
+                icon_size, &real_icon_size, &real_icon_size);
+        icon_info = gtk_icon_theme_lookup_icon (icon_theme, icon_name,
+            real_icon_size, GTK_ICON_LOOKUP_FORCE_SVG);
+        icon_filename = icon_info ? gtk_icon_info_get_filename (icon_info) : NULL;
+        if (icon_filename && g_str_has_suffix (icon_filename, ".svg"))
+        {
+            gchar* buffer;
+            gsize buffer_size;
+            if (g_file_get_contents (icon_filename, &buffer, &buffer_size, NULL))
+            {
+                gchar* encoded = g_base64_encode ((guchar*)buffer, buffer_size);
+                gchar* data_uri = g_strconcat ("data:image/svg+xml;base64,", encoded, NULL);
+                g_free (buffer);
+                g_free (encoded);
+                webkit_network_request_set_uri (request, data_uri);
+                g_free (data_uri);
+                return;
+            }
+        }
+
+        /* Render icon as a PNG at the desired size */
         pixbuf = gtk_widget_render_icon (GTK_WIDGET (view), icon_name, icon_size, NULL);
         if (!pixbuf)
             pixbuf = gtk_widget_render_icon (GTK_WIDGET (view),
