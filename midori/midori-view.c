@@ -3878,7 +3878,29 @@ static gchar* list_netscape_plugins ()
             g_string_append (ns_plugins, "<tr><td>No plugins found</td></tr>");
         g_strfreev (items);
         g_free (value);
+    gtk_widget_destroy (web_view);
     return g_string_free (ns_plugins, FALSE);
+}
+
+static gchar*
+list_video_formats ()
+{
+    GtkWidget* web_view = webkit_web_view_new ();
+    WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+    gchar* value = sokoke_js_script_eval (js_context,
+        "var supported = function (format) { "
+        "var video = document.createElement('video');"
+        "return !!video.canPlayType && video.canPlayType (format) != 'no' };"
+        "'<tr><td>H264</td><td>' + "
+        "supported('video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"') + '</tr>' + "
+        "'<tr><td>Ogg Theora</td><td>' + "
+        "supported('video/ogg; codecs=\"theora, vorbis\"') + '</tr>' + "
+        "'<tr><td>WebM</td><td>' + "
+        "supported('video/webm; codecs=\"vp8, vorbis\"') + '</tr>'"
+        "", NULL);
+    gtk_widget_destroy (web_view);
+    return value;
 }
 
 static gchar*
@@ -4147,6 +4169,7 @@ midori_view_set_uri (MidoriView*  view,
                 gchar* command_line = g_strjoinv (" ", argument_vector);
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
                 gchar* netscape_plugins = list_netscape_plugins ();
+                gchar* video_formats = list_video_formats ();
                 #if defined (G_OS_WIN32)
                 gchar* sys_name = g_strdup ("Windows");
                 #else
@@ -4196,6 +4219,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "</table>"
                     "<h2>Netscape Plugins:</h2><table>%s</table>"
+                    "<h2>Video Formats:</h2><table>%s</table>"
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
@@ -4216,11 +4240,13 @@ midori_view_set_uri (MidoriView*  view,
                     HAVE_UNIQUE ? "Yes" : "No",
                     HAVE_HILDON ? "Yes" : "No",
                     sys_name, ident,
-                    netscape_plugins);
+                    netscape_plugins,
+                    video_formats);
                 g_free (command_line);
                 g_free (ident);
                 g_free (sys_name);
                 g_free (netscape_plugins);
+                g_free (video_formats);
            }
             else
             {
