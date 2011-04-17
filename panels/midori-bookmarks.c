@@ -895,8 +895,8 @@ midori_bookmarks_row_collapsed_cb (GtkTreeView *treeview,
 }
 
 static void
-midori_bookmarks_cursor_changed_cb (GtkTreeView     *treeview,
-                                    MidoriBookmarks *bookmarks)
+midori_bookmarks_selection_changed_cb (GtkTreeSelection *treeview,
+                                       MidoriBookmarks  *bookmarks)
 {
     midori_bookmarks_toolbar_update (bookmarks);
 }
@@ -949,6 +949,7 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
     GtkTreeViewColumn* column;
     GtkCellRenderer* renderer_pixbuf;
     GtkCellRenderer* renderer_text;
+    GtkTreeSelection* selection;
 
     /* Create the filter entry */
     entry = gtk_icon_entry_new ();
@@ -1002,9 +1003,11 @@ midori_bookmarks_init (MidoriBookmarks* bookmarks)
                       midori_bookmarks_row_expanded_cb, bookmarks,
                       "signal::row-collapsed",
                       midori_bookmarks_row_collapsed_cb, bookmarks,
-                      "signal::cursor_changed",
-                      midori_bookmarks_cursor_changed_cb, bookmarks,
                       NULL);
+    selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+    g_signal_connect_after (selection, "changed",
+                            G_CALLBACK (midori_bookmarks_selection_changed_cb),
+                            bookmarks);
     gtk_widget_show (treeview);
     gtk_box_pack_start (GTK_BOX (bookmarks), treeview, TRUE, TRUE, 0);
     bookmarks->treeview = treeview;
