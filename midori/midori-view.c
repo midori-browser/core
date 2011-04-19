@@ -3736,7 +3736,7 @@ midori_view_web_inspector_close_window_cb (gpointer    inspector,
     GtkWidget* scrolled = gtk_widget_get_parent (GTK_WIDGET (inspector_view));
     if (!scrolled)
         return FALSE;
-    gtk_widget_destroy (gtk_widget_get_parent (scrolled));
+    gtk_widget_hide (gtk_widget_get_parent (scrolled));
     return TRUE;
 }
 

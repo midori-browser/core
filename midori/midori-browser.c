@@ -1262,9 +1262,11 @@ midori_view_detach_inspector_cb (GtkWidget*     view,
                                  MidoriBrowser* browser)
 {
     GtkWidget* scrolled = gtk_widget_get_parent (GTK_WIDGET (inspector_view));
+    GtkWidget* paned = gtk_widget_get_parent (scrolled);
     browser->inspector_view = gtk_viewport_new (NULL, NULL);
     gtk_container_remove (GTK_CONTAINER (scrolled), GTK_WIDGET (inspector_view));
     gtk_container_add (GTK_CONTAINER (scrolled), browser->inspector_view);
+    gtk_widget_hide (paned);
 }
 
 static void
