@@ -4890,7 +4890,7 @@ static void midori_view_tab_label_data_received (GtkWidget* widget,
     }
     else
     {
-        text = gtk_selection_data_get_text (data);
+        text = (gchar*) gtk_selection_data_get_text (data);
         midori_view_set_uri (view, text);
         g_free (text);
     }
