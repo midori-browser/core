@@ -337,12 +337,15 @@ midori_view_class_init (MidoriViewClass* class)
      * @view: the object on which the signal is emitted
      * @new_view: a newly created view
      * @where: where to open the view
+     * @user_initiated: %TRUE if the user actively opened the new view
      *
      * Emitted when a new view is created. The value of
      * @where determines where to open the view according
      * to how it was opened and user preferences.
      *
      * Since: 0.1.2
+     *
+     * Since 0.3.4 a boolean argument was added.
      */
     signals[NEW_VIEW] = g_signal_new (
         "new-view",
@@ -351,10 +354,11 @@ midori_view_class_init (MidoriViewClass* class)
         0,
         0,
         NULL,
-        midori_cclosure_marshal_VOID__OBJECT_ENUM,
-        G_TYPE_NONE, 2,
+        midori_cclosure_marshal_VOID__OBJECT_ENUM_BOOLEAN,
+        G_TYPE_NONE, 3,
         MIDORI_TYPE_VIEW,
-        MIDORI_TYPE_NEW_VIEW);
+        MIDORI_TYPE_NEW_VIEW,
+        G_TYPE_BOOLEAN);
 
     /**
      * MidoriView::download-requested:
@@ -2885,7 +2889,7 @@ webkit_web_view_web_view_ready_cb (GtkWidget*  web_view,
         where = MIDORI_NEW_VIEW_WINDOW;
 
     gtk_widget_show (new_view);
-    g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+    g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, FALSE);
 
     return TRUE;
 }
@@ -4607,7 +4611,7 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
     GtkWidget* new_view = midori_view_new_with_title (
         NULL, view->settings, FALSE);
     const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where);
+    g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, TRUE);
     midori_view_set_uri (MIDORI_VIEW (new_view), uri);
 }
 

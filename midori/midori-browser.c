@@ -1325,6 +1325,7 @@ static void
 midori_view_new_view_cb (GtkWidget*     view,
                          GtkWidget*     new_view,
                          MidoriNewView  where,
+                         gboolean       user_initiated,
                          MidoriBrowser* browser)
 {
     midori_browser_view_copy_history (new_view, view, TRUE);
@@ -1340,6 +1341,22 @@ midori_view_new_view_cb (GtkWidget*     view,
         gint n = midori_browser_add_tab (browser, new_view);
         if (where != MIDORI_NEW_VIEW_BACKGROUND)
             midori_browser_set_current_page (browser, n);
+    }
+
+    if (!user_initiated)
+    {
+        GdkWindow* window = gtk_widget_get_window (GTK_WIDGET (browser));
+        GdkWindowState state = gdk_window_get_state (window);
+        if ((state | GDK_WINDOW_STATE_MAXIMIZED)
+         || (state | GDK_WINDOW_STATE_FULLSCREEN))
+        {
+            if (where == MIDORI_NEW_VIEW_WINDOW)
+                g_signal_emit (browser, signals[SEND_NOTIFICATION], 0,
+                    _("New Window"), _("A new window has been opened"));
+            else if (!browser->show_tabs)
+                g_signal_emit (browser, signals[SEND_NOTIFICATION], 0,
+                    _("New Tab"), _("A new tab has been opened"));
+        }
     }
 }
 
@@ -1817,7 +1834,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
      * @message: the message for the notification
      *
      * Emitted when a browser wants to display a notification message,
-     * e.g. when a download has been completed.
+     * e.g. when a download has been completed or a new tab was opened.
      *
      * Since: 0.1.7
      */
@@ -4544,7 +4561,7 @@ _action_tab_duplicate_activate (GtkAction*     action,
     GtkWidget* new_view = midori_view_new_with_title (
         NULL, browser->settings, FALSE);
     const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    g_signal_emit_by_name (view, "new-view", new_view, where);
+    g_signal_emit_by_name (view, "new-view", new_view, where, TRUE);
     midori_view_set_uri (MIDORI_VIEW (new_view), uri);
 }
 
