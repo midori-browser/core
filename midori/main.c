@@ -2070,6 +2070,8 @@ main (int    argc,
         g_set_application_name (_("Midori (Private Browsing)"));
         if (!config && !webapp)
             config = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME, NULL);
+        /* Mask the timezone, which can be read by Javascript */
+        g_setenv ("TZ", "UTC", TRUE);
     }
     else
         g_set_application_name (_("Midori"));
@@ -2214,6 +2216,7 @@ main (int    argc,
         if (private)
         {
             g_object_set (settings,
+                          "preferred-languages", "en",
             #if WEBKIT_CHECK_VERSION (1, 1, 2)
                           "enable-private-browsing", TRUE,
             #endif

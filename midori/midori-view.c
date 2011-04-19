@@ -3169,6 +3169,24 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
                                           JSObjectRef     js_window,
                                           MidoriView*     view)
 {
+    #if WEBKIT_CHECK_VERSION (1, 1, 2)
+    if (katze_object_get_boolean (view->settings, "enable-private-browsing"))
+    {
+        /* Mask language, architecture, no plugin list */
+        gchar* result = sokoke_js_script_eval (js_context,
+            "navigator = { 'appName': 'Netscape',"
+                          "'appCodeName': 'Mozilla',"
+                          "'appVersion': '5.0 (X11)',"
+                          "'userAgent': navigator.userAgent,"
+                          "'language': 'en-US',"
+                          "'platform': 'Linux i686',"
+                          "'cookieEnabled': true,"
+                          "'plugins': {'refresh': function () { } } };",
+            NULL);
+        g_free (result);
+    }
+    #endif
+
     g_signal_emit (view, signals[CONTEXT_READY], 0, js_context);
 }
 
