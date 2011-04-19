@@ -5213,6 +5213,9 @@ midori_view_go_back (MidoriView* view)
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
     webkit_web_view_go_back (WEBKIT_WEB_VIEW (view->web_view));
+    /* Force the speed dial to kick in if going back to a blank page */
+    if (midori_view_is_blank (view))
+        midori_view_set_uri (view, "");
 }
 
 /**
