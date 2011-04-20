@@ -286,4 +286,7 @@ sokoke_widget_copy_clipboard (GtkWidget*   widget,
 gchar*
 sokoke_build_thumbnail_path (const gchar* name);
 
+gchar*
+midori_download_prepare_tooltip_text (WebKitDownload* download);
+
 #endif /* !__SOKOKE_H__ */
