@@ -4596,14 +4596,6 @@ midori_view_get_proxy_menu_item (MidoriView* view)
 }
 
 static void
-midori_view_tab_label_menu_open_cb (GtkWidget* menuitem,
-                                    GtkWidget* view)
-{
-    MidoriBrowser* browser = midori_browser_get_for_widget (view);
-    midori_browser_set_current_tab (browser, view);
-}
-
-static void
 midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
                                              MidoriView* view)
 {
@@ -4679,10 +4671,6 @@ midori_view_get_tab_menu (MidoriView* view)
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    menuitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, NULL);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-    g_signal_connect (menuitem, "activate",
-        G_CALLBACK (midori_view_tab_label_menu_open_cb), view);
     menuitem = gtk_image_menu_item_new_from_stock (STOCK_WINDOW_NEW, NULL);
     gtk_menu_item_set_label (GTK_MENU_ITEM (menuitem), _("Open in New _Window"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
