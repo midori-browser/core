@@ -1271,6 +1271,7 @@ midori_view_add_info_bar (MidoriView*    view,
     GtkWidget* infobar;
     GtkWidget* action_area;
     GtkWidget* content_area;
+    GtkWidget* label;
     va_list args;
     const gchar* button_text;
 
@@ -1320,7 +1321,9 @@ midori_view_add_info_bar (MidoriView*    view,
     #endif
 
     va_end (args);
-    gtk_container_add (GTK_CONTAINER (content_area), gtk_label_new (message));
+    label = gtk_label_new (message);
+    gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+    gtk_container_add (GTK_CONTAINER (content_area), label);
     gtk_widget_show_all (infobar);
     gtk_box_pack_start (GTK_BOX (view), infobar, FALSE, FALSE, 0);
     gtk_box_reorder_child (GTK_BOX (view), infobar, 0);
