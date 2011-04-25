@@ -13,14 +13,23 @@
 #include <midori/midori.h>
 
 static void
-colorful_tabs_modify_fg (GtkWidget* child,
-                         GdkColor* color)
+colorful_tabs_modify_fg (GtkWidget* label,
+                         GdkColor*  color)
 {
-    if (GTK_IS_LABEL (child))
+    GtkWidget* box = gtk_bin_get_child (GTK_BIN (label));
+    GList* children = gtk_container_get_children (GTK_CONTAINER (box));
+    for (; children != NULL; children = g_list_next (children))
     {
-        gtk_widget_modify_fg (child, GTK_STATE_ACTIVE, color);
-        gtk_widget_modify_fg (child, GTK_STATE_NORMAL, color);
+        if (GTK_IS_LABEL (children->data))
+        {
+            gtk_widget_modify_fg (children->data, GTK_STATE_ACTIVE, color);
+            gtk_widget_modify_fg (children->data, GTK_STATE_NORMAL, color);
+            /* Also modify the label itself, for Tab Panel */
+            gtk_widget_modify_fg (label, GTK_STATE_NORMAL, color);
+            break;
+        }
     }
+    g_list_free (children);
 }
 
 static void
@@ -28,7 +37,6 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   GParamSpec*      pspec,
                                   MidoriExtension* extension)
 {
-    GtkWidget* box;
     GtkWidget* label;
     SoupURI* uri;
     gchar* colorstr;
@@ -82,14 +90,9 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
         else
             gdk_color_parse ("#000", &fgcolor);
 
-        box = gtk_bin_get_child (GTK_BIN (label));
-
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), TRUE);
 
-        gtk_container_foreach (GTK_CONTAINER (box),
-                               (GtkCallback) colorful_tabs_modify_fg,
-                               &fgcolor);
-
+        colorful_tabs_modify_fg (label, &fgcolor);
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, &color);
 
         if (color.red < 10000)
@@ -111,9 +114,7 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
     {
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
-        gtk_container_foreach (GTK_CONTAINER (gtk_bin_get_child (GTK_BIN (label))),
-                               (GtkCallback) colorful_tabs_modify_fg,
-                               NULL);
+        colorful_tabs_modify_fg (label, NULL);
     }
 }
 
@@ -153,9 +154,7 @@ colorful_tabs_deactivate_cb (MidoriExtension* extension,
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (label), FALSE);
         gtk_widget_modify_bg (label, GTK_STATE_NORMAL, NULL);
         gtk_widget_modify_bg (label, GTK_STATE_ACTIVE, NULL);
-        gtk_container_foreach (GTK_CONTAINER (gtk_bin_get_child (GTK_BIN (label))),
-                               (GtkCallback) colorful_tabs_modify_fg,
-                               NULL);
+        colorful_tabs_modify_fg (label, NULL);
         g_signal_handlers_disconnect_by_func (
             view, colorful_tabs_view_notify_uri_cb, extension);
     }
