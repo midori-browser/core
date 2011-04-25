@@ -623,7 +623,22 @@ midori_view_class_init (MidoriViewClass* class)
 static void
 midori_view_set_title (MidoriView* view, const gchar* title)
 {
+    const gchar* display_title;
+
+    if (!title)
+        return;
+
     katze_assign (view->title, g_strdup (title));
+
+    /* Render filename as title of patches */
+    if (title && (g_str_has_suffix (title, ".diff")
+               || g_str_has_suffix (title, ".patch")))
+    {
+        gchar* prefix = strrchr (title, '/');
+        if (prefix != NULL)
+            katze_assign (view->title, g_strdup (prefix + 1));
+    }
+
     #ifndef G_OS_WIN32
     /* If left-to-right text is combined with right-to-left text the default
        behaviour of Pango can result in awkwardly aligned text. For example
@@ -631,13 +646,14 @@ midori_view_set_title (MidoriView* view, const gchar* title)
        "hadess) | An era comes to an end - Midori) بستيان نوصر". So to prevent
        this we insert an LRE character before the title which indicates that
        we want left-to-right but retains the direction of right-to-left text. */
-    if (view->title && !g_str_has_prefix (view->title, "‪"))
+    if (title && !g_str_has_prefix (title, "‪"))
     {
         gchar* new_title = g_strconcat ("‪", view->title, NULL);
         katze_assign (view->title, new_title);
     }
     #endif
-    #define title midori_view_get_display_title (view)
+
+    display_title = midori_view_get_display_title (view);
     if (view->tab_label)
     {
         /* If the title starts with the presumed name of the website, we
@@ -651,22 +667,21 @@ midori_view_set_title (MidoriView* view, const gchar* title)
             while (name[i++])
                 if (name[i] == '.')
                     break;
-            if (!g_ascii_strncasecmp (title, name, i))
+            if (!g_ascii_strncasecmp (display_title, name, i))
                 gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_START);
             else
                 gtk_label_set_ellipsize (GTK_LABEL (view->tab_title), PANGO_ELLIPSIZE_END);
             if (uri)
                 soup_uri_free (uri);
         }
-        gtk_label_set_text (GTK_LABEL (view->tab_title), title);
-        gtk_widget_set_tooltip_text (view->tab_icon, title);
-        gtk_widget_set_tooltip_text (view->tab_title, title);
+        gtk_label_set_text (GTK_LABEL (view->tab_title), display_title);
+        gtk_widget_set_tooltip_text (view->tab_icon, display_title);
+        gtk_widget_set_tooltip_text (view->tab_title, display_title);
     }
     if (view->menu_item)
         gtk_label_set_text (GTK_LABEL (gtk_bin_get_child (GTK_BIN (
-                            view->menu_item))), title);
-    katze_item_set_name (view->item, title);
-    #undef title
+                            view->menu_item))), display_title);
+    katze_item_set_name (view->item, display_title);
 }
 
 static void
@@ -1579,8 +1594,6 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
 {
     g_object_freeze_notify (G_OBJECT (view));
 
-    /* TODO: Find a better condition than a finished load.
-      Apparently WEBKIT_LOAD_FIRST_VISUALLY_NON_EMPTY_LAYOUT is too early. */
     midori_view_apply_scroll_position (view);
 
     view->progress = 1.0;
@@ -1590,9 +1603,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     if (1)
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-        /* This snippet joins the available news feeds into a string like this:
-           URI1|title1,URI2|title2
-           FIXME: Ensure separators contained in the string can't break it */
+        /* Join news feeds into like this: URI1|title1,URI2|title2 */
         gchar* value = sokoke_js_script_eval (js_context,
         "(function (l) { var f = new Array (); for (i in l) "
         "{ var t = l[i].type; var r = l[i].rel; "
@@ -3874,8 +3885,7 @@ static gchar* list_netscape_plugins ()
     GtkWidget* web_view = webkit_web_view_new ();
     WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-    /* This snippet joins the available plugins into a string like this:
-       URI1|title1,URI2|title2 */
+    /* Joins available plugins like this: URI1|title1,URI2|title2 */
     gchar* value = sokoke_js_script_eval (js_context,
         "function plugins (l) { var f = new Array (); for (i in l) "
         "{ var p = l[i].name + '|' + l[i].filename; "
