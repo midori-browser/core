@@ -580,6 +580,23 @@ midori_view_notify_uri_cb (GtkWidget*     widget,
 }
 
 static void
+midori_browser_set_title (MidoriBrowser* browser,
+                          const gchar*   title)
+{
+    #if WEBKIT_CHECK_VERSION (1, 1, 2)
+    if (katze_object_get_boolean (browser->settings, "enable-private-browsing"))
+    {
+        gchar* window_title = g_strconcat (title, " - ",
+                                           g_get_application_name (), NULL);
+        gtk_window_set_title (GTK_WINDOW (browser), window_title);
+        g_free (window_title);
+    }
+    else
+    #endif
+        gtk_window_set_title (GTK_WINDOW (browser), title);
+}
+
+static void
 midori_view_notify_title_cb (GtkWidget*     widget,
                              GParamSpec*    pspec,
                              MidoriBrowser* browser)
@@ -587,7 +604,6 @@ midori_view_notify_title_cb (GtkWidget*     widget,
     MidoriView* view = MIDORI_VIEW (widget);
     const gchar* uri;
     const gchar* title;
-    gchar* window_title;
 
     uri = midori_view_get_display_uri (view);
     title = midori_view_get_display_title (view);
@@ -621,12 +637,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
     }
 
     if (widget == midori_browser_get_current_tab (browser))
-    {
-        window_title = g_strconcat (title, " - ",
-            g_get_application_name (), NULL);
-        gtk_window_set_title (GTK_WINDOW (browser), window_title);
-        g_free (window_title);
-    }
+        midori_browser_set_title (browser, title);
 }
 
 static void
@@ -4843,8 +4854,6 @@ gtk_notebook_switch_page_after_cb (GtkWidget*       notebook,
     MidoriView* view;
     const gchar* uri;
     GtkAction* action;
-    const gchar* title;
-    gchar* window_title;
 
     if (!(widget = midori_browser_get_current_tab (browser)))
         return;
@@ -4853,15 +4862,11 @@ gtk_notebook_switch_page_after_cb (GtkWidget*       notebook,
     uri = g_object_get_data (G_OBJECT (widget), "midori-browser-typed-text");
     if (!uri)
         uri = midori_view_get_display_uri (view);
+    midori_browser_set_title (browser, midori_view_get_display_title (view));
     action = _action_by_name (browser, "Location");
     midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
     midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
                                      midori_view_get_icon (view));
-
-    title = midori_view_get_display_title (view);
-    window_title = g_strconcat (title, " - ", g_get_application_name (), NULL);
-    gtk_window_set_title (GTK_WINDOW (browser), window_title);
-    g_free (window_title);
 
     if (browser->proxy_array)
         katze_item_set_meta_integer (KATZE_ITEM (browser->proxy_array), "current",
