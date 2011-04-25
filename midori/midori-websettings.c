@@ -778,6 +778,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      MIDORI_NEW_PAGE_TAB,
                                      flags));
 
+    /**
+     * MidoriWebSettings:open-external-pages-in:
+     *
+     * Where to open externally opened pages.
+     *
+     * Deprecated: 0.3.4
+     */
     g_object_class_install_property (gobject_class,
                                      PROP_OPEN_EXTERNAL_PAGES_IN,
                                      g_param_spec_enum (

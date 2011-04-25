@@ -473,7 +473,7 @@ midori_app_command_received (MidoriApp*   app,
             MidoriNewPage open_external_pages_in;
             gboolean first;
 
-            g_object_get (app->settings, "open-external-pages-in",
+            g_object_get (app->settings, "open-new-pages-in",
                           &open_external_pages_in, NULL);
             if (open_external_pages_in == MIDORI_NEW_PAGE_WINDOW)
             {
