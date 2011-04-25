@@ -1034,6 +1034,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
            we need to update the default search engine after editing it. */
         else if (item == midori_search_action_get_default_item (search_action))
             midori_search_action_set_default_item (search_action, item);
+        g_object_unref (item);
     }
     gtk_widget_destroy (dialog);
 }
@@ -1123,6 +1124,7 @@ midori_search_action_dialog_move_up_cb (GtkWidget*          widget,
 
             i = katze_array_get_item_index (search_engines, item);
             katze_array_move_item (search_engines, item, i - 1);
+            g_object_unref (item);
             /* If the index of the current item has changed it needs to be reset */
             g_object_notify (G_OBJECT (search_action), "current-item");
         }
@@ -1155,6 +1157,7 @@ midori_search_action_dialog_move_down_cb (GtkWidget*          widget,
 
             i = katze_array_get_item_index (search_engines, item);
             katze_array_move_item (search_engines, item, i + 1);
+            g_object_unref (item);
             /* If the index of the current item has changed it needs to be reset */
             g_object_notify (G_OBJECT (search_action), "current-item");
         }
@@ -1236,6 +1239,7 @@ midori_search_action_dialog_engines_remove_item_cb (KatzeArray* list,
         }
         else
             valid = gtk_tree_model_iter_next (liststore, &iter);
+        g_object_unref (found_item);
     }
 }
 

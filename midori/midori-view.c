@@ -1858,10 +1858,10 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                     new_uri = sokoke_magic_uri (uri);
                     if (!new_uri)
                     {
-                        gchar* search;
-                        g_object_get (view->settings, "location-entry-search",
-                                      &search, NULL);
+                        gchar* search = katze_object_get_string (
+                            view->settings, "location-entry-search");
                         new_uri = sokoke_search_uri (search, uri);
+                        g_free (search);
                     }
                     katze_assign (uri, new_uri);
                 }

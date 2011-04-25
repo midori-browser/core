@@ -249,7 +249,6 @@ static void
 _toggle_tabbar_smartly (MidoriBrowser* browser)
 {
     guint n;
-    gboolean always_show_tabbar;
 
     if (!browser->show_tabs)
         return;
@@ -257,9 +256,7 @@ _toggle_tabbar_smartly (MidoriBrowser* browser)
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
     if (n < 2)
     {
-        g_object_get (browser->settings, "always-show-tabbar",
-            &always_show_tabbar, NULL);
-        if (always_show_tabbar)
+        if (katze_object_get_boolean (browser->settings, "always-show-tabbar"))
             n++;
     }
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), n > 1);
@@ -3443,6 +3440,7 @@ _action_source_view_activate (GtkAction*     action,
         gchar* filename = g_filename_from_uri (uri, NULL, NULL);
         sokoke_spawn_program (text_editor, filename);
         g_free (filename);
+        g_free (text_editor);
         return;
     }
     katze_net_load_uri (NULL, uri, NULL,
@@ -6300,6 +6298,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean close_buttons_on_tabs;
     KatzeItem* item;
 
+    g_free (browser->location_entry_search);
     g_free (browser->news_aggregator);
 
     g_object_get (browser->settings,
@@ -6602,12 +6601,7 @@ midori_browser_show_bookmarkbar_notify_value_cb (MidoriWebSettings* settings,
                                                  GParamSpec*        pspec,
                                                  MidoriBrowser*     browser)
 {
-    gboolean show_bookmarkbar;
-
-    g_object_get (browser->settings, "show-bookmarkbar",
-                  &show_bookmarkbar, NULL);
-
-    if (!show_bookmarkbar)
+    if (!katze_object_get_boolean (browser->settings, "show-bookmarkbar"))
         midori_bookmarkbar_clear (browser->bookmarkbar);
     else
         midori_bookmarkbar_populate (browser);
