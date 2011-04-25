@@ -3562,20 +3562,6 @@ _action_location_activate (GtkAction*     action,
 }
 
 static void
-_action_location_active_changed (GtkAction*     action,
-                                 gint           idx,
-                                 MidoriBrowser* browser)
-{
-    const gchar* uri;
-
-    if (idx > -1)
-    {
-        uri = midori_location_action_get_uri (MIDORI_LOCATION_ACTION (action));
-        midori_browser_set_current_uri (browser, uri);
-    }
-}
-
-static void
 _action_location_focus_in (GtkAction*     action,
                            MidoriBrowser* browser)
 {
@@ -5815,8 +5801,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_object_connect (action,
                       "signal::activate",
                       _action_location_activate, browser,
-                      "signal::active-changed",
-                      _action_location_active_changed, browser,
                       "signal::focus-in",
                       _action_location_focus_in, browser,
                       "signal::focus-out",

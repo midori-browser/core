@@ -134,6 +134,14 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
     GObjectClass* gobject_class;
     GtkActionClass* action_class;
 
+    /**
+     * MidoriLocationAction:active-changed:
+     * @row: the active row
+     *
+     * The active-changed signal is emitted when the active row changes.
+     *
+     * Deprecated: 0.3.4
+     */
     signals[ACTIVE_CHANGED] = g_signal_new ("active-changed",
                                             G_TYPE_FROM_CLASS (class),
                                             (GSignalFlags) (G_SIGNAL_RUN_LAST),
@@ -254,12 +262,6 @@ midori_location_action_class_init (MidoriLocationActionClass* class)
                                      "The list of history items",
                                      KATZE_TYPE_ARRAY,
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-    /* We want location entries to have appears-as-list applied */
-    gtk_rc_parse_string ("style \"midori-location-entry-style\" {\n"
-                         "  GtkComboBox::appears-as-list = 1\n }\n"
-                         "widget \"*MidoriLocationEntry\" "
-                         "style \"midori-location-entry-style\"\n");
 }
 
 static GtkTreeModel*
@@ -615,47 +617,6 @@ midori_location_action_finalize (GObject* object)
 }
 
 static void
-midori_location_action_toggle_arrow_cb (GtkWidget*            widget,
-                                        MidoriLocationAction* location_action)
-{
-    gboolean show = FALSE;
-    gint result;
-
-    if (!GTK_IS_BUTTON (widget))
-        return;
-
-    if (location_action->history != NULL)
-    {
-        sqlite3* db = g_object_get_data (G_OBJECT (location_action->history), "db");
-        const char* sqlcmd = "SELECT uri FROM history LIMIT 1";
-        sqlite3_stmt* statement;
-        sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
-        result = sqlite3_step (statement);
-        if (result == SQLITE_ROW)
-            show = TRUE;
-        sqlite3_finalize (statement);
-    }
-
-    sokoke_widget_set_visible (widget, show);
-    gtk_widget_set_size_request (widget, show ? -1 : 1, show ? -1 : 1);
-}
-
-static void
-midori_location_action_toggle_arrow (MidoriLocationAction* location_action)
-{
-    GSList* proxies;
-
-    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
-    for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data))
-    {
-        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        gtk_container_forall (GTK_CONTAINER (entry),
-            (GtkCallback)midori_location_action_toggle_arrow_cb, location_action);
-    }
-}
-
-static void
 midori_location_action_set_property (GObject*      object,
                                      guint         prop_id,
                                      const GValue* value,
@@ -676,8 +637,6 @@ midori_location_action_set_property (GObject*      object,
     case PROP_HISTORY:
     {
         katze_assign (location_action->history, g_value_dup_object (value));
-
-        midori_location_action_toggle_arrow (location_action);
         break;
     }
     default:
@@ -738,7 +697,6 @@ midori_location_action_create_tool_item (GtkAction* action)
 {
     GtkWidget* toolitem;
     GtkWidget* alignment;
-    GtkWidget* location_entry;
     GtkWidget* entry;
     #if HAVE_HILDON
     HildonGtkInputMode mode;
@@ -750,10 +708,6 @@ midori_location_action_create_tool_item (GtkAction* action)
     alignment = gtk_alignment_new (0.0f, 0.5f, 1.0f, 0.1f);
     gtk_widget_show (alignment);
     gtk_container_add (GTK_CONTAINER (toolitem), alignment);
-    location_entry = gtk_combo_box_entry_new ();
-    gtk_widget_set_name (location_entry, "MidoriLocationEntry");
-    gtk_widget_show (location_entry);
-    gtk_container_add (GTK_CONTAINER (alignment), location_entry);
 
     #if HAVE_HILDON
     entry = gtk_entry_new ();
@@ -768,7 +722,7 @@ midori_location_action_create_tool_item (GtkAction* action)
          GTK_ICON_ENTRY_SECONDARY, TRUE);
     #endif
     gtk_widget_show (entry);
-    gtk_container_add (GTK_CONTAINER (location_entry), entry);
+    gtk_container_add (GTK_CONTAINER (alignment), entry);
 
     return toolitem;
 }
@@ -941,8 +895,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     case GDK_Up:
     case GDK_KP_Up:
     {
-        GtkWidget* parent;
-
         if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
             GtkTreeModel* model = location_action->completion_model;
@@ -982,10 +934,6 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             return TRUE;
         }
 
-        parent = gtk_widget_get_parent (widget);
-        if (location_action->history != NULL
-         && !katze_object_get_boolean (parent, "popup-shown"))
-            gtk_combo_box_popup (GTK_COMBO_BOX (parent));
         return TRUE;
     }
     default:
@@ -1247,96 +1195,6 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 }
 
 static void
-midori_location_action_entry_changed_cb (GtkComboBox*          combo_box,
-                                         MidoriLocationAction* location_action)
-{
-    GtkTreeIter iter;
-
-    if (gtk_combo_box_get_active_iter (combo_box, &iter))
-    {
-        GtkIconEntry* entry;
-
-        if ((entry = GTK_ICON_ENTRY (gtk_bin_get_child (GTK_BIN (combo_box)))))
-        {
-            GtkTreeModel* model;
-            gchar* uri;
-            #if !HAVE_HILDON
-            GdkPixbuf* pixbuf;
-            #endif
-
-            model = gtk_combo_box_get_model (combo_box);
-            gtk_tree_model_get (model, &iter, URI_COL, &uri, -1);
-
-            #if !HAVE_HILDON
-            gtk_tree_model_get (model, &iter, FAVICON_COL, &pixbuf, -1);
-            gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-                                                 GTK_ICON_ENTRY_PRIMARY, pixbuf);
-            g_object_unref (pixbuf);
-            #endif
-            katze_assign (location_action->text, uri);
-            katze_assign (location_action->uri, g_strdup (uri));
-
-            g_signal_emit (location_action, signals[ACTIVE_CHANGED], 0,
-                           gtk_combo_box_get_active (combo_box));
-        }
-    }
-}
-
-static void
-midori_location_action_entry_popup_cb (GtkComboBox*          combo_box,
-                                       MidoriLocationAction* location_action)
-{
-    GtkListStore* store;
-    gint result;
-    const gchar* sqlcmd;
-    static sqlite3_stmt* stmt = NULL;
-    gint matches;
-
-    store = GTK_LIST_STORE (gtk_combo_box_get_model (combo_box));
-    gtk_list_store_clear (store);
-
-    if (!stmt)
-    {
-        sqlite3* db;
-
-        g_return_if_fail (location_action->history != NULL);
-        db = g_object_get_data (G_OBJECT (location_action->history), "db");
-        g_return_if_fail (db != NULL);
-        sqlcmd = "SELECT uri, title FROM history"
-                 " GROUP BY uri ORDER BY count() DESC LIMIT ?";
-        sqlite3_prepare_v2 (db, sqlcmd, -1, &stmt, NULL);
-    }
-
-    sqlite3_bind_int64 (stmt, 1, MAX_ITEMS);
-    result = sqlite3_step (stmt);
-    if (result != SQLITE_ROW)
-    {
-        g_print (_("Failed to execute database statement\n"));
-        sqlite3_reset (stmt);
-        sqlite3_clear_bindings (stmt);
-        return;
-    }
-
-    matches = 0;
-    do
-    {
-        const unsigned char* uri = sqlite3_column_text (stmt, 0);
-        const unsigned char* title = sqlite3_column_text (stmt, 1);
-        GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
-        if (!icon)
-            icon = location_action->default_icon;
-        gtk_list_store_insert_with_values (store, NULL, matches,
-            URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
-            FAVICON_COL, icon, -1);
-        matches++;
-        result = sqlite3_step (stmt);
-    }
-    while (result == SQLITE_ROW);
-    sqlite3_reset (stmt);
-    sqlite3_clear_bindings (stmt);
-}
-
-static void
 midori_location_action_paste_proceed_cb (GtkWidget* menuitem,
                                          GtkWidget* location_action)
 {
@@ -1379,7 +1237,6 @@ midori_location_action_connect_proxy (GtkAction* action,
                                       GtkWidget* proxy)
 {
     MidoriLocationAction* location_action;
-    GtkCellRenderer* renderer;
 
     GTK_ACTION_CLASS (midori_location_action_parent_class)->connect_proxy (
         action, proxy);
@@ -1392,40 +1249,10 @@ midori_location_action_connect_proxy (GtkAction* action,
     if (GTK_IS_TOOL_ITEM (proxy))
     {
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxy);
-        GtkWidget* child = gtk_bin_get_child (GTK_BIN (entry));
-        GtkTreeModel* model = midori_location_action_create_model ();
-
-        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (child),
+        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (entry),
             MIDORI_LOCATION_ACTION (action)->progress);
-        gtk_combo_box_set_model (GTK_COMBO_BOX (entry), model);
-        #if GTK_CHECK_VERSION (2, 14, 0)
-        gtk_combo_box_set_button_sensitivity (GTK_COMBO_BOX (entry),
-            GTK_SENSITIVITY_ON);
-        #endif
-        gtk_combo_box_entry_set_text_column (
-            GTK_COMBO_BOX_ENTRY (entry), URI_COL);
-        gtk_cell_layout_clear (GTK_CELL_LAYOUT (entry));
 
-        /* Setup the renderer for the favicon */
-        renderer = gtk_cell_renderer_pixbuf_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (entry), renderer, FALSE);
-        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (entry), renderer,
-            "pixbuf", FAVICON_COL, "yalign", YALIGN_COL, NULL);
-        renderer = gtk_cell_renderer_text_new ();
-        g_object_set_data (G_OBJECT (renderer), "location-action", action);
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (entry), renderer, TRUE);
-        gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (entry),
-            renderer, midori_location_entry_render_text_cb, action, NULL);
-
-        gtk_combo_box_set_active (GTK_COMBO_BOX (entry), -1);
-        gtk_container_forall (GTK_CONTAINER (entry),
-            (GtkCallback)midori_location_action_toggle_arrow_cb, action);
-        g_signal_connect (entry, "changed",
-            G_CALLBACK (midori_location_action_entry_changed_cb), action);
-        g_signal_connect (entry, "popup",
-            G_CALLBACK (midori_location_action_entry_popup_cb), action);
-
-        g_object_connect (child,
+        g_object_connect (entry,
                       "signal::changed",
                       midori_location_action_changed_cb, action,
                       "signal::move-cursor",
@@ -1515,8 +1342,6 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
                                  const gchar*          text)
 {
     GSList* proxies;
-    GtkWidget* location_entry;
-    GtkWidget* entry;
     GdkPixbuf* icon;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
@@ -1536,9 +1361,7 @@ midori_location_action_set_text (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        location_entry = midori_location_action_entry_for_proxy (proxies->data);
-        entry = gtk_bin_get_child (GTK_BIN (location_entry));
-
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         gtk_entry_set_text (GTK_ENTRY (entry), text);
         #if !HAVE_HILDON
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
@@ -1565,8 +1388,6 @@ midori_location_action_set_icon (MidoriLocationAction* location_action,
 {
     #if !HAVE_HILDON
     GSList* proxies;
-    GtkWidget* location_entry;
-    GtkWidget* entry;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
     g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
@@ -1576,9 +1397,7 @@ midori_location_action_set_icon (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        location_entry = midori_location_action_entry_for_proxy (proxies->data);
-        entry = gtk_bin_get_child (GTK_BIN (location_entry));
-
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         if (icon)
             gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, icon);
@@ -1597,8 +1416,6 @@ midori_location_action_add_uri (MidoriLocationAction* location_action,
     g_return_if_fail (uri != NULL);
 
     katze_assign (location_action->uri, g_strdup (uri));
-
-    midori_location_action_toggle_arrow (location_action);
 }
 
 void
@@ -1609,8 +1426,6 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
 {
     #if !HAVE_HILDON
     GSList* proxies;
-    GtkWidget* location_entry;
-    GtkWidget* entry;
     #endif
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
@@ -1624,9 +1439,7 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        location_entry = midori_location_action_entry_for_proxy (proxies->data);
-        entry = gtk_bin_get_child (GTK_BIN (location_entry));
-
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
             GTK_ICON_ENTRY_PRIMARY, icon);
     }
@@ -1640,8 +1453,6 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
 {
     #if !HAVE_HILDON
     GSList* proxies;
-    GtkWidget* location_entry;
-    GtkWidget* entry;
     #endif
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
@@ -1654,9 +1465,7 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        location_entry = midori_location_action_entry_for_proxy (proxies->data);
-        entry = gtk_bin_get_child (GTK_BIN (location_entry));
-
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
             GTK_ICON_ENTRY_PRIMARY, icon);
     }
@@ -1706,8 +1515,6 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
                                      gdouble               progress)
 {
     GSList* proxies;
-    GtkWidget* entry;
-    GtkWidget* child;
 
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 
@@ -1718,10 +1525,8 @@ midori_location_action_set_progress (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        entry = midori_location_action_entry_for_proxy (proxies->data);
-        child = gtk_bin_get_child (GTK_BIN (entry));
-
-        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (child),
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
+        gtk_icon_entry_set_progress_fraction (GTK_ICON_ENTRY (entry),
                                               location_action->progress);
     }
 }
@@ -1732,8 +1537,6 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
 {
     #if !HAVE_HILDON
     GSList* proxies;
-    GtkWidget* entry;
-    GtkWidget* child;
     #endif
     GtkStockItem stock_item;
 
@@ -1748,10 +1551,8 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        entry = midori_location_action_entry_for_proxy (proxies->data);
-        child = gtk_bin_get_child (GTK_BIN (entry));
-
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
+        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
             GTK_ICON_ENTRY_SECONDARY, stock_id);
     }
     #endif
@@ -1776,8 +1577,6 @@ void
 midori_location_action_clear (MidoriLocationAction* location_action)
 {
     g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-
-    midori_location_action_toggle_arrow (location_action);
 }
 
 /**
@@ -1806,8 +1605,7 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         GdkColor bg_color = { 0, 1 };
         GdkColor fg_color = { 0, 1 };
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        GtkWidget* child = gtk_bin_get_child (GTK_BIN (entry));
-        GdkScreen* screen = gtk_widget_get_screen (child);
+        GdkScreen* screen = gtk_widget_get_screen (entry);
         GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
@@ -1816,12 +1614,12 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             gdk_color_parse ("#000", &fg_color);
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (child),
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, "lock-insecure");
             else
-                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_INFO);
-            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (child),
+            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_SECONDARY, _("Not verified"));
             #endif
         }
@@ -1831,22 +1629,22 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             gdk_color_parse ("#000", &fg_color);
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
-                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (child),
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, "lock-secure");
             else
-                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (child),
+                gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, GTK_STOCK_DIALOG_AUTHENTICATION);
-            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (child),
+            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_SECONDARY, _("Verified and encrypted connection"));
             #endif
         }
         else if (hint == MIDORI_SECURITY_NONE)
-            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (child),
+            gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_SECONDARY, NULL);
 
-        gtk_widget_modify_base (child, GTK_STATE_NORMAL,
+        gtk_widget_modify_base (entry, GTK_STATE_NORMAL,
             bg_color.red == 1 ? NULL : &bg_color);
-        gtk_widget_modify_text (child, GTK_STATE_NORMAL,
+        gtk_widget_modify_text (entry, GTK_STATE_NORMAL,
             bg_color.red == 1 ? NULL : &fg_color);
     }
 }
