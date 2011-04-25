@@ -1063,8 +1063,19 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
 
     if (G_LIKELY (uri))
     {
-        temp_iter = temp = g_utf8_strdown (uri, -1);
-        desc_iter = uri;
+        /* Strip URI scheme and www. for display to reduce visual noise */
+        gchar* stripped_uri = uri;
+        if (g_str_has_prefix (uri, "http://"))
+            stripped_uri = &uri[7];
+        else if (g_str_has_prefix (uri, "https://"))
+            stripped_uri = &uri[8];
+        else if (g_str_has_prefix (uri, "file://"))
+            stripped_uri = &uri[7];
+        if (g_str_has_prefix (stripped_uri, "www."))
+            stripped_uri = &stripped_uri[4];
+
+        temp_iter = temp = g_utf8_strdown (stripped_uri, -1);
+        desc_iter = stripped_uri;
         key_idx = 0;
         key = keys[key_idx];
         offset = 0;
@@ -1114,7 +1125,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
             katze_assign (desc_uri, temp_concat);
         }
         else
-            desc_uri = g_markup_escape_text (uri, -1);
+            desc_uri = g_markup_escape_text (stripped_uri, -1);
         g_free (temp);
     }
 
