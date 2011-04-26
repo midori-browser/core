@@ -2988,6 +2988,10 @@ _action_window_populate_popup (GtkAction*     action,
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
     menuitem = gtk_action_create_menu_item (
+        _action_by_name (browser, "NextView"));
+    gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
+    gtk_widget_show (menuitem);
+    menuitem = gtk_action_create_menu_item (
         _action_by_name (browser, "TabNext"));
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
     gtk_widget_show (menuitem);
@@ -4541,6 +4545,13 @@ _action_tab_current_activate (GtkAction*     action,
 }
 
 static void
+_action_next_view_activate (GtkAction*     action,
+                              MidoriBrowser* browser)
+{
+    gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
+}
+
+static void
 _action_tab_minimize_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
@@ -4727,6 +4738,26 @@ midori_panel_notify_position_cb (GObject*       hpaned,
     if (!browser->panel_timeout)
         browser->panel_timeout = g_timeout_add_full (G_PRIORITY_LOW, 5000,
             (GSourceFunc)midori_browser_panel_timeout, hpaned, NULL);
+}
+
+static gboolean
+midori_panel_cycle_child_focus_cb (GtkWidget*     hpaned,
+                                   gboolean       reversed,
+                                   MidoriBrowser* browser)
+{
+    /* Default cycle goes between all GtkPaned widgets.
+       If focus is in the panel, focus the location as if it's a paned.
+       If nothing is focussed, simply go to the location.
+       Be sure to suppress the default because the signal can recurse. */
+    GtkWidget* focus = gtk_window_get_focus (GTK_WINDOW (browser));
+    if (gtk_widget_get_ancestor (focus, MIDORI_TYPE_PANEL)
+     || !gtk_widget_get_ancestor (focus, GTK_TYPE_PANED))
+    {
+        g_signal_stop_emission_by_name (hpaned, "cycle-child-focus");
+        gtk_action_activate (_action_by_name (browser, "Location"));
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static void
@@ -5172,6 +5203,9 @@ static const GtkActionEntry entries[] =
     { "TabCurrent", NULL,
         N_("Focus _Current Tab"), "<Ctrl>Home",
         N_("Focus the current tab"), G_CALLBACK (_action_tab_current_activate) },
+    { "NextView", NULL,
+        N_("Focus _Next view"), "F6",
+        N_("Cycle focus between views"), G_CALLBACK (_action_next_view_activate) },
     { "TabMinimize", NULL,
         N_("Only show the Icon of the _Current Tab"), "",
         N_("Only show the icon of the current tab"), G_CALLBACK (_action_tab_minimize_activate) },
@@ -5471,6 +5505,7 @@ static const gchar* ui_markup =
             "<menuitem action='TabPrevious'/>"
             "<menuitem action='TabNext'/>"
             "<menuitem action='TabCurrent'/>"
+            "<menuitem action='NextView'/>"
             "<menuitem action='TabMinimize'/>"
             "<menuitem action='TabDuplicate'/>"
             "<menuitem action='TabCloseOther'/>"
@@ -6035,6 +6070,9 @@ midori_browser_init (MidoriBrowser* browser)
     hpaned = gtk_hpaned_new ();
     g_signal_connect (hpaned, "notify::position",
                       G_CALLBACK (midori_panel_notify_position_cb),
+                      browser);
+    g_signal_connect (hpaned, "cycle-child-focus",
+                      G_CALLBACK (midori_panel_cycle_child_focus_cb),
                       browser);
     gtk_box_pack_start (GTK_BOX (vbox), hpaned, TRUE, TRUE, 0);
     gtk_widget_show (hpaned);
