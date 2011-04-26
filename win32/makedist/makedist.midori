@@ -1,0 +1,96 @@
+#! /bin/sh
+
+# Copyright (C) 2010-2011 Peter de Ridder <peter@xfce.org>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# See the file COPYING for the full license text.
+
+# a bit of configuration
+root_dir=$MINGW_PREFIX
+script_dir=$PWD
+
+# create temporary working directory
+temp_dir=`mktemp -d`
+
+# generate unique filename
+ARCHIVE=midori$1-`date +%Y%m%d%H%M`.zip
+
+echo -n "Creating $ARCHIVE ."
+
+# create destination folder
+mkdir $temp_dir/midori$1
+
+echo -n .
+
+# auto generate dll list, only of existing files
+pushd $root_dir/bin > /dev/null
+$script_dir/dll-recursive.sh midori*.exe gspawn-*-helper*.exe libhunspell*.dll > $temp_dir/midori.exe.lst
+files=`ls | cat - $temp_dir/midori.exe.lst | sort | uniq -d`
+rm $temp_dir/midori.exe.lst
+popd > /dev/null
+
+echo -n .
+
+# copy auto generate dll list
+pushd $root_dir/bin > /dev/null
+mkdir $temp_dir/midori$1/bin
+cp $files $temp_dir/midori$1/bin
+popd > /dev/null
+
+echo -n .
+
+# copy etc
+pushd $root_dir > /dev/null
+find etc "(" -name "*midori*" -o -name "gtkrc" ")" -prune -exec mkdir -p $temp_dir/midori$1/{} ";" -exec rmdir --ignore-fail-on-non-empty $temp_dir/midori$1/{} ";" -exec cp -r {} $temp_dir/midori$1/{} ";"
+popd > /dev/null
+
+echo -n .
+
+# copy lib
+pushd $root_dir > /dev/null
+find lib "(" -path "lib/midori/*" -o -path "lib/gtk-2.0/*" -o -path "lib/enchant/*" -o -path "lib/engines/*" ")" -a -name "*.dll" -prune -exec mkdir -p $temp_dir/midori$1/{} ";" -exec rmdir --ignore-fail-on-non-empty $temp_dir/midori$1/{} ";" -exec cp -r {} $temp_dir/midori$1/{} ";"
+popd > /dev/null
+
+echo -n .
+
+# copy share
+pushd $root_dir > /dev/null
+find share "(" -name "*midori*" -o -name "icons" -o -name "MS-Windows" -o -name "mime" ")" -prune -exec mkdir -p $temp_dir/midori$1/{} ";" -exec rmdir --ignore-fail-on-non-empty $temp_dir/midori$1/{} ";" -exec cp -r {} $temp_dir/midori$1/{} ";"
+
+# copy locales for gtk
+# so we have translated stock items, file dialogs
+
+find share "(" -name "midori.mo" ")" >  locale.list
+mkdir -p $temp_dir/midori$1/share/locale/
+for LOCALE in $(cat locale.list); do
+	 LOCALE=$(echo $LOCALE|awk -F/ '{print $3}')
+	 cp /usr/share/locale/$LOCALE/LC_MESSAGES/gtk20.mo $temp_dir/midori$1/share/locale/$LOCALE/LC_MESSAGES/
+done
+rm locale.list
+popd > /dev/null
+
+echo -n .
+
+# copy doc files to root
+cp $temp_dir/midori$1/share/doc/midori/{COPYING,AUTHORS} $temp_dir/midori$1
+
+echo -n .
+
+ARCHIVE=`pwd`/$ARCHIVE
+
+# store as tar.bz2 file
+pushd $temp_dir > /dev/null
+zip -rq $ARCHIVE midori$1
+popd > /dev/null
+
+echo -n .
+
+# remove working directory
+rm -r $temp_dir
+
+echo " ready"
+
