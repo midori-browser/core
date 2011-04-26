@@ -1680,8 +1680,25 @@ midori_browser_key_press_event (GtkWidget*   widget,
                                 GdkEventKey* event)
 {
     GtkWindow* window = GTK_WINDOW (widget);
+    MidoriBrowser* browser = MIDORI_BROWSER (widget);
     GtkWidgetClass* widget_class;
     guint clean_state;
+
+    /* Interpret Ctrl(+Shift)+Tab as tab switching for compatibility */
+    if (midori_browser_get_nth_tab (browser, 1) != NULL
+     && event->keyval == GDK_Tab
+     && (event->state & GDK_CONTROL_MASK))
+    {
+        gtk_action_activate (_action_by_name (browser, "TabNext"));
+        return TRUE;
+    }
+    else if (event->keyval == GDK_ISO_Left_Tab
+     && (event->state & GDK_CONTROL_MASK)
+     && (event->state & GDK_SHIFT_MASK))
+    {
+        gtk_action_activate (_action_by_name (browser, "TabPrevious"));
+        return TRUE;
+    }
 
     if (gtk_window_get_focus (GTK_WINDOW (widget)) == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
@@ -5740,6 +5757,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkUIManager* ui_manager;
     GtkAccelGroup* accel_group;
     guint i;
+    GClosure* accel_closure;
     GError* error;
     GtkAction* action;
     #if !HAVE_HILDON
@@ -5797,16 +5815,16 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
 
     g_object_set_data (G_OBJECT (accel_group), "midori-browser", browser);
+    accel_closure = g_cclosure_new (G_CALLBACK (
+        midori_browser_accel_switch_tab_activate_cb), browser, NULL);
     for (i = 0; i < 10; i++)
     {
         gchar* accel_path = g_strdup_printf ("<Manual>/Browser/SwitchTab%d", i);
-        GClosure* closure = g_cclosure_new (
-            G_CALLBACK (midori_browser_accel_switch_tab_activate_cb),
-            browser, NULL);
         gtk_accel_map_add_entry (accel_path, GDK_0 + i, GDK_MOD1_MASK);
-        gtk_accel_group_connect_by_path (accel_group, accel_path, closure);
+        gtk_accel_group_connect_by_path (accel_group, accel_path, accel_closure);
         g_free (accel_path);
     }
+    g_closure_unref (accel_closure);
 
     error = NULL;
     if (!gtk_ui_manager_add_ui_from_string (ui_manager, ui_markup, -1, &error))
