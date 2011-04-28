@@ -2547,8 +2547,10 @@ main (int    argc,
     if (diagnostic_dialog)
     {
         GtkWidget* dialog = midori_create_diagnostic_dialog (settings, _session);
-        gtk_dialog_run (GTK_DIALOG (dialog));
+        gint response = gtk_dialog_run (GTK_DIALOG (dialog));
         gtk_widget_destroy (dialog);
+        if (response == GTK_RESPONSE_DELETE_EVENT)
+            return 0;
     }
     midori_startup_timer ("Signal setup: \t%f");
 
