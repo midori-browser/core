@@ -9,7 +9,7 @@
 #
 # See the file COPYING for the full license text.
 
-export MINGW_PREFIX=/usr/i686-pc-mingw32/sys-root/mingw
+export MINGW_PREFIX=~/dev/mingw/ming32
 export PATH=$MINGW_PREFIX/bin:$PATH
 export PKG_CONFIG_PATH=$MINGW_PREFIX/lib/pkgconfig
 export PKG_CONFIG_LIBDIR=
