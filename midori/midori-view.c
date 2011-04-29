@@ -626,7 +626,7 @@ midori_view_set_title (MidoriView* view, const gchar* title)
     const gchar* display_title;
 
     if (!title)
-        return;
+        title = view->uri;
 
     katze_assign (view->title, g_strdup (title));
 
