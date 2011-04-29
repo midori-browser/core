@@ -894,6 +894,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
     case GDK_KP_Down:
     case GDK_Up:
     case GDK_KP_Up:
+    case GDK_Tab:
+    case GDK_ISO_Left_Tab:
     {
         if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
@@ -903,7 +905,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             GtkTreeIter iter;
             gint selected = location_action->completion_index;
 
-            if (event->keyval == GDK_Down || event->keyval == GDK_KP_Down)
+            if (event->keyval == GDK_Down || event->keyval == GDK_KP_Down
+             || event->keyval == GDK_Tab  || event->keyval == GDK_ISO_Left_Tab)
                 selected = MIN (selected + 1, matches -1);
             else if (event->keyval == GDK_Up || event->keyval == GDK_KP_Up)
             {
@@ -916,6 +919,8 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                 selected = MIN (selected + 14, matches -1);
             else if (event->keyval == GDK_Page_Up)
                 selected = MAX (selected - 14, 0);
+            else
+                g_assert_not_reached ();
 
             path = gtk_tree_path_new_from_indices (selected, -1);
             gtk_tree_view_set_cursor (GTK_TREE_VIEW (location_action->treeview),
@@ -934,6 +939,9 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             return TRUE;
         }
 
+        /* Allow Tab to handle focus if the popup is closed */
+        if (event->keyval == GDK_Tab  || event->keyval == GDK_ISO_Left_Tab)
+            return FALSE;
         return TRUE;
     }
     default:
