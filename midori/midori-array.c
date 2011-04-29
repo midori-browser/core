@@ -703,12 +703,10 @@ static void
 string_append_item (GString*   string,
                     KatzeItem* item)
 {
-    gchar* markup;
     gchar* metadata;
 
     g_return_if_fail (KATZE_IS_ITEM (item));
 
-    markup = NULL;
     metadata = katze_item_metadata_to_xbel (item);
     if (KATZE_IS_ARRAY (item))
     {

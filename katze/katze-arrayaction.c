@@ -551,7 +551,6 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
                                    GParamSpec*  pspec,
                                    GtkToolItem* toolitem)
 {
-    KatzeArrayAction* array_action;
     const gchar* property;
     const gchar* title;
     const gchar* desc;
@@ -561,8 +560,6 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     if (!G_IS_PARAM_SPEC_STRING (pspec))
         return;
 
-    array_action = (KatzeArrayAction*)g_object_get_data (
-        G_OBJECT (toolitem), "KatzeArrayAction");
     property = g_param_spec_get_name (pspec);
     if (!strcmp (property, "name"))
     {

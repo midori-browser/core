@@ -1221,10 +1221,10 @@ adblock_frame_add_private (const gchar* line,
     if (strchr (data[0], ','))
     {
         gchar** domains;
-        gint max, i;
+        gint i;
 
         domains = g_strsplit (data[0], ",", -1);
-        for (max = i = 0; domains[i]; i++)
+        for (i = 0; domains[i]; i++)
         {
             new_blockcss = g_strdup_printf ("%s;\nsites['%s']+=',%s'",
                 blockcssprivate, g_strstrip (domains[i]), data[1]);

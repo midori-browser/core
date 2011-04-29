@@ -311,13 +311,12 @@ do_timeout_scroll (KatzeScrolled* scrolled)
     GtkScrolledWindow* gtk_scrolled = GTK_SCROLLED_WINDOW (scrolled);
     GtkAdjustment* hadjustment;
     GtkAdjustment* vadjustment;
-    gdouble hpage_size, hupper, hlower, hvalue, new_hvalue;
-    gdouble vpage_size, vupper, vlower, vvalue, new_vvalue;
+    gdouble hpage_size, hupper, hvalue, new_hvalue;
+    gdouble vpage_size, vupper, vvalue, new_vvalue;
 
     hadjustment = gtk_scrolled_window_get_hadjustment (gtk_scrolled);
     hpage_size = gtk_adjustment_get_page_size (hadjustment);
     hupper = gtk_adjustment_get_upper (hadjustment);
-    hlower = gtk_adjustment_get_lower (hadjustment);
     hvalue = gtk_adjustment_get_value (hadjustment);
     new_hvalue = calculate_timeout_scroll_values (hvalue,
         hupper - hpage_size,
@@ -329,7 +328,6 @@ do_timeout_scroll (KatzeScrolled* scrolled)
     vadjustment = gtk_scrolled_window_get_vadjustment (gtk_scrolled);
     vpage_size = gtk_adjustment_get_page_size (vadjustment);
     vupper = gtk_adjustment_get_upper (vadjustment);
-    vlower = gtk_adjustment_get_lower (vadjustment);
     vvalue = gtk_adjustment_get_value (vadjustment);
     new_vvalue = calculate_timeout_scroll_values (vvalue,
         vupper - vpage_size,

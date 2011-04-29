@@ -1536,12 +1536,11 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
 {
     GError* error;
     GtkPrintOperation* operation = gtk_print_operation_new ();
-    GtkPrintOperationAction action = GTK_PRINT_OPERATION_ACTION_EXPORT;
-    GtkPrintOperationResult result;
 
     gtk_print_operation_set_export_filename (operation, filename);
     error = NULL;
-    result = webkit_web_frame_print_full (web_frame, operation, action, &error);
+    webkit_web_frame_print_full (web_frame, operation,
+        GTK_PRINT_OPERATION_ACTION_EXPORT, &error);
 
     if (error != NULL)
     {

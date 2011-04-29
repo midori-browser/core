@@ -430,10 +430,7 @@ feed_panel_popup_item (GtkWidget*     menu,
                        gpointer       callback,
                        FeedPanel*     panel)
 {
-    const gchar* uri;
     GtkWidget* menuitem;
-
-    uri = katze_item_get_uri (item);
 
     menuitem = gtk_image_menu_item_new_from_stock (stock_id, NULL);
     if (label)

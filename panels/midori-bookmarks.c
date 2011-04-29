@@ -337,10 +337,8 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
 {
     KatzeItem* item;
     GtkTreeIter parent;
-    sqlite3* db;
     gchar* parent_name;
 
-    db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     if (gtk_tree_model_iter_parent (model, &parent, iter))

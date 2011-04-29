@@ -599,10 +599,8 @@ midori_view_notify_title_cb (GtkWidget*     widget,
                              MidoriBrowser* browser)
 {
     MidoriView* view = MIDORI_VIEW (widget);
-    const gchar* uri;
     const gchar* title;
 
-    uri = midori_view_get_display_uri (view);
     title = midori_view_get_display_title (view);
 
     if (midori_view_get_load_status (view) == MIDORI_LOAD_COMMITTED)
@@ -832,7 +830,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     {
         GtkListStore* model;
         GtkCellRenderer* renderer;
-        guint i, n;
+        guint n;
         sqlite3_stmt* statement;
         gint result;
         const gchar* sqlcmd;
@@ -852,7 +850,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
             0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, -1);
         gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), 0);
 
-        i = 0;
         n = 1;
         sqlcmd = "SELECT title from bookmarks where uri=''";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
@@ -1496,12 +1493,10 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
                                MidoriBrowser* browser)
 {
     KatzeItem* item;
-    const gchar* uri;
 
     if (browser->proxy_array && MIDORI_IS_VIEW (widget))
     {
         item = midori_view_get_proxy_item (MIDORI_VIEW (widget));
-        uri = katze_item_get_uri (item);
         if (browser->trash && !midori_view_is_blank (MIDORI_VIEW (widget)))
             katze_array_add_item (browser->trash, item);
         katze_array_remove_item (browser->proxy_array, item);
@@ -4401,7 +4396,6 @@ _action_clear_private_data_activate (GtkAction*     action,
     {
         GtkWidget* content_area;
         GdkScreen* screen;
-        GtkIconTheme* icon_theme;
         GtkSizeGroup* sizegroup;
         GtkWidget* hbox;
         GtkWidget* alignment;
@@ -4426,7 +4420,6 @@ _action_clear_private_data_activate (GtkAction*     action,
         screen = gtk_widget_get_screen (GTK_WIDGET (browser));
         if (screen)
         {
-            icon_theme = gtk_icon_theme_get_for_screen (screen);
             gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_CLEAR);
         }
         sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
@@ -5617,9 +5610,6 @@ static void
 midori_browser_set_history (MidoriBrowser* browser,
                             KatzeArray*    history)
 {
-    time_t now;
-    gint64 day;
-
     if (browser->history == history)
         return;
 
@@ -5637,9 +5627,6 @@ midori_browser_set_history (MidoriBrowser* browser,
 
     g_signal_connect (browser->history, "clear",
                       G_CALLBACK (midori_browser_history_clear_cb), browser);
-
-    now = time (NULL);
-    day = sokoke_time_t_to_julian (&now);
 
     g_object_set (_action_by_name (browser, "Location"), "history",
                   browser->history, NULL);
