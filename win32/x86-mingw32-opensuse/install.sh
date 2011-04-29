@@ -56,13 +56,29 @@ do
   pushd $BUILD_PATH
   # extract rpm
   rpm2cpio $DOWNLOAD_PATH/$line | cpio -i -d
-  # convert pkgconfig files
-  if [ -d $BUILD_PATH/usr/i686-pc-mingw32/sys-root/mingw/lib/pkgconfig ]
+
+  if [ -d $BUILD_PATH/usr/i686-pc-ming32/sys-root/mingw ]
   then
-    sed -i -e 's@^prefix=.*@prefix='$INSTALL_PATH'@' -e 's@/usr/i686-pc-mingw32/sys-root/mingw@${prefix}@' $BUILD_PATH/usr/i686-pc-mingw32/sys-root/mingw/lib/pkgconfig/*.pc
+    # convert pkgconfig files
+    if [ -d $BUILD_PATH/usr/i686-pc-mingw32/sys-root/mingw/lib/pkgconfig ]
+    then
+      sed -i -e 's@^prefix=.*@prefix='$INSTALL_PATH'@' -e 's@/usr/i686-pc-mingw32/sys-root/mingw@${prefix}@' $BUILD_PATH/usr/i686-pc-mingw32/sys-root/mingw/lib/pkgconfig/*.pc
+    fi
+    # install the package
+    cp -rf $BUILD_PATH/usr/i686-pc-mingw32/sys-root/mingw/* $INSTALL_PATH/
   fi
-  # install the package
-  cp -rf $BUILD_PATH/usr/i686-pc-mingw32/sys-root/mingw/* $INSTALL_PATH/
+
+  if [ -d $BUILD_PATH/usr/i686-w64-mingw32/sys-root/mingw ]
+  then
+    # convert pkgconfig files
+    if [ -d $BUILD_PATH/usr/i686-w64=mingw32/sys-root/mingw/lib/pkgconfig ]
+    then
+      sed -i -e 's@^prefix=.*@prefix='$INSTALL_PATH'@' -e 's@/usr/i686-w64-mingw32/sys-root/mingw@${prefix}@' $BUILD_PATH/usr/i686-w64-mingw32/sys-root/mingw/lib/pkgconfig/*.pc
+    fi
+    # install the package
+    cp -rf $BUILD_PATH/usr/i686-w64-mingw32/sys-root/mingw/* $INSTALL_PATH/
+  fi
+
   # remove the extracted file
   rm -rf $BUILD_PATH/usr
   popd
