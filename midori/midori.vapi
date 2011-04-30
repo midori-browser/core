@@ -39,6 +39,8 @@ namespace Midori {
         public int add_uri (string uri);
         public unowned View get_nth_tab (int n);
         public GLib.List<weak View> get_tabs ();
+        public void block_action (Gtk.Action action);
+        public void unblock_action (Gtk.Action action);
         public unowned Gtk.ActionGroup get_action_group ();
         public unowned Browser get_for_widget (Gtk.Widget widget);
         public unowned string[] get_toolbar_actions ();

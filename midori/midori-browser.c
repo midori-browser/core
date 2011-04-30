@@ -7058,6 +7058,69 @@ midori_browser_set_action_visible (MidoriBrowser* browser,
 }
 
 /**
+ * midori_browser_block_action:
+ * @browser: a #MidoriBrowser
+ * @name: the action to be blocked
+ *
+ * Blocks built-in behavior of the specified action without
+ * disabling it, which gives you a chance to connect your
+ * own signal handling.
+ * Call midori_browser_unblock_action() to undo the effect.
+ *
+ * Since: 0.3.4
+ **/
+void
+midori_browser_block_action (MidoriBrowser* browser,
+                             GtkAction*     action)
+{
+    const gchar* name;
+    guint i;
+
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (GTK_IS_ACTION (action));
+
+    name = gtk_action_get_name (action);
+    for (i = 0; i < entries_n; i++)
+        if (g_str_equal (entries[i].name, name))
+        {
+            g_signal_handlers_block_by_func (action, entries[i].callback, browser);
+            return;
+        }
+    g_critical ("%s: Action \"%s\" can't be blocked.", G_STRFUNC, name);
+}
+
+/**
+ * midori_browser_unblock_action:
+ * @browser: a #MidoriBrowser
+ * @name: the action to be unblocked
+ *
+ * Restores built-in behavior of the specified action after
+ * previously blocking it with midori_browser_block_action().
+ *
+ * Since: 0.3.4
+ **/
+void
+midori_browser_unblock_action (MidoriBrowser* browser,
+                               GtkAction*     action)
+{
+    const gchar* name;
+    guint i;
+
+    g_return_if_fail (MIDORI_IS_BROWSER (browser));
+    g_return_if_fail (GTK_IS_ACTION (action));
+
+    name = gtk_action_get_name (action);
+    for (i = 0; i < entries_n; i++)
+        if (g_str_equal (entries[i].name, name))
+        {
+            g_signal_handlers_unblock_by_func (action, entries[i].callback, browser);
+            return;
+        }
+    g_critical ("%s: Action \"%s\" can't be unblocked.", G_STRFUNC, name);
+}
+
+
+/**
  * midori_browser_get_action_group:
  * @browser: a #MidoriBrowser
  *
