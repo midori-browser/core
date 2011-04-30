@@ -140,9 +140,9 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
             #if WEBKIT_CHECK_VERSION (1, 1, 14)
             request = webkit_download_get_network_request (download);
             original_uri = g_object_get_data (G_OBJECT (request), "midori-original-uri");
-            #else
-            original_uri = webkit_download_get_uri (download);
+            if (!original_uri)
             #endif
+                original_uri = webkit_download_get_uri (download);
             fingerprint = g_strsplit (original_uri, "#!md5!", 2);
             if (fingerprint && fingerprint[0] && fingerprint[1])
             {
