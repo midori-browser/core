@@ -4221,13 +4221,6 @@ midori_view_set_uri (MidoriView*  view,
                     #define WEBKIT_USER_AGENT_MAJOR_VERSION 532
                     #define WEBKIT_USER_AGENT_MINOR_VERSION 1
                 #endif
-                #if defined (HAVE_LIBSOUP_2_29_3)
-                    #define LIBSOUP_VERSION "2.29.3"
-                #elif defined (HAVE_LIBSOUP_2_27_90)
-                    #define LIBSOUP_VERSION "2.27.90"
-                #else
-                    #define LIBSOUP_VERSION "2.25.2"
-                #endif
                 #ifdef G_ENABLE_DEBUG
                     #define DEBUGGING " (Debug)"
                 #else
