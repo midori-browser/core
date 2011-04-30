@@ -377,8 +377,8 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                                     const gchar*   text)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
-    gboolean is_location = widget ?
-        GTK_IS_COMBO_BOX (gtk_widget_get_parent (widget)) : FALSE;
+    gboolean is_location = widget && GTK_IS_ENTRY (widget)
+        && GTK_IS_ALIGNMENT (gtk_widget_get_parent (widget));
 
     katze_assign (browser->statusbar_text, sokoke_format_uri_for_display (text));
 
