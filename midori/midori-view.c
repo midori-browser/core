@@ -1127,7 +1127,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 
     if (g_str_has_prefix (uri, "res://"))
     {
-        gchar* filename = g_build_filename ("midori/res", &uri[5], NULL);
+        gchar* filename = g_build_filename ("midori", "res", &uri[6], NULL);
         gchar* filepath = sokoke_find_data_filename (filename);
         gchar* file_uri;
 
