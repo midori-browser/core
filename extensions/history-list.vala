@@ -221,31 +221,24 @@ private class HistoryList : Midori.Extension {
         hw.walk (step);
     }
     void browser_added (Midori.Browser browser) {
+        ulong sidTabNext, sidTabPrevious;
         var acg = new Gtk.AccelGroup ();
         browser.add_accel_group (acg);
         var action_group = browser.get_action_group ();
 
         Gtk.Action action;
 
-        action = new Gtk.Action ("HistoryListNextTab",
-            _("Next Tab (History List)"),
-            _("Next tab from history"), null);
-        action.activate.connect ((a) => {
+        action = action_group.get_action ("TabNext");
+        browser.block_action (action);
+        sidTabNext = action.activate.connect ((a) => {
             this.walk (a, browser, typeof (TabWindow), 1);
         });
-        action_group.add_action_with_accel (action, "<Ctrl>Tab");
-        action.set_accel_group (acg);
-        action.connect_accelerator ();
 
-        action = new Gtk.Action ("HistoryListPreviousTab",
-            _("Previous Tab (History List)"),
-            _("Previous tab from history"), null);
-        action.activate.connect ((a) => {
+        action = action_group.get_action ("TabPrevious");
+        browser.block_action (action);
+        sidTabPrevious = action.activate.connect ((a) => {
             this.walk (a, browser, typeof (TabWindow), -1);
         });
-        action_group.add_action_with_accel (action, "<Ctrl><Shift>Tab");
-        action.set_accel_group (acg);
-        action.connect_accelerator ();
 
         action = new Gtk.Action ("HistoryListNextNewTab",
             _("Next new Tab (History List)"),
@@ -267,6 +260,9 @@ private class HistoryList : Midori.Extension {
         action.set_accel_group (acg);
         action.connect_accelerator ();
 
+        browser.set_data<ulong> ("history-list-sid-tab-next", sidTabNext);
+        browser.set_data<ulong> ("history-list-sid-tab-previous", sidTabPrevious);
+
         browser.set_data<GLib.PtrArray*> ("history-list-tab-history",
                                           new GLib.PtrArray ());
         browser.set_data<GLib.PtrArray*> ("history-list-tab-history-new",
@@ -280,13 +276,24 @@ private class HistoryList : Midori.Extension {
         browser.notify["tab"].connect (this.tab_changed);
     }
     void browser_removed (Midori.Browser browser) {
-        string[] callbacks = { "HistoryListNextTab", "HistoryListPreviousTab",
-            "HistoryListNextNewTab", "HistoryListPreviousNewTab" };
+        string[] callbacks = { "HistoryListNextNewTab", "HistoryListPreviousNewTab" };
+        ulong sidTabNext, sidTabPrevious;
+        sidTabNext = browser.get_data<ulong> ("history-list-sid-tab-next");
+        sidTabPrevious = browser.get_data<ulong> ("history-list-sid-tab-previous");
 
+        Gtk.Action action;
         Gtk.ActionGroup action_group;
         action_group = browser.get_action_group ();
+
+        action = action_group.get_action ("TabNext");
+        action.disconnect (sidTabNext);
+        browser.unblock_action (action);
+        action = action_group.get_action ("TabPrevious");
+        action.disconnect (sidTabPrevious);
+        browser.unblock_action (action);
+
         for (int i = 0; i < callbacks.length; i++) {
-            Gtk.Action action = action_group.get_action (callbacks[i]);
+            action = action_group.get_action (callbacks[i]);
             if (action != null)
                 action_group.remove_action (action);
         }
