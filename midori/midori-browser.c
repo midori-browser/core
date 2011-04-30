@@ -3464,6 +3464,16 @@ _action_source_view_activate (GtkAction*     action,
     g_free (text_editor);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 1, 6)
+static void
+_action_caret_browsing_activate (GtkAction*     action,
+                                 MidoriBrowser* browser)
+{
+    g_object_set (browser->settings, "enable-caret-browsing",
+        !katze_object_get_boolean (browser->settings, "enable-caret-browsing"), NULL);
+}
+#endif
+
 static void
 _action_fullscreen_activate (GtkAction*     action,
                              MidoriBrowser* browser)
@@ -5130,6 +5140,11 @@ static const GtkActionEntry entries[] =
     { "SourceView", NULL,
         N_("View So_urce"), "<Ctrl><Alt>U",
         N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
+    #if WEBKIT_CHECK_VERSION (1, 1, 6)
+    { "CaretBrowsing", NULL,
+        N_("Ca_ret Browsing"), "F7",
+        N_("Toggle text cursor navigation"), G_CALLBACK (_action_caret_browsing_activate) },
+    #endif
     { "Fullscreen", GTK_STOCK_FULLSCREEN,
         NULL, "F11",
         N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
@@ -5525,6 +5540,9 @@ static const gchar* ui_markup =
             "<menuitem action='Preferences'/>"
             "<menuitem action='InspectPage'/>"
             "<menuitem action='ReloadUncached'/>"
+            #if WEBKIT_CHECK_VERSION (1, 1, 6)
+            "<menuitem action='CaretBrowsing'/>"
+            #endif
             "</menu>"
         "</menubar>"
         "<toolbar name='toolbar_navigation'>"
