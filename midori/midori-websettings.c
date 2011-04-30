@@ -958,6 +958,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      TRUE,
                                      flags));
 
+    /**
+     * MidoriWebSettings:accept-cookies:
+     *
+     * What type of cookies to accept.
+     *
+     * Deprecated: 0.3.4
+     **/
     g_object_class_install_property (gobject_class,
                                      PROP_ACCEPT_COOKIES,
                                      g_param_spec_enum (

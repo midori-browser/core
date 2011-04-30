@@ -236,7 +236,6 @@ katze_http_cookies_jar_changed_cb (SoupCookieJar*    jar,
                                    KatzeHttpCookies* http_cookies)
 {
     GObject* settings;
-    guint accept_cookies;
 
     if (old_cookie)
         soup_cookie_set_max_age (old_cookie, 0);
@@ -244,17 +243,7 @@ katze_http_cookies_jar_changed_cb (SoupCookieJar*    jar,
     if (new_cookie)
     {
         settings = g_object_get_data (G_OBJECT (jar), "midori-settings");
-        accept_cookies = katze_object_get_enum (settings, "accept-cookies");
-        if (accept_cookies == 2 /* MIDORI_ACCEPT_COOKIES_NONE */)
-        {
-            soup_cookie_set_max_age (new_cookie, 0);
-        }
-        else if (accept_cookies == 1 /* MIDORI_ACCEPT_COOKIES_SESSION */
-            && new_cookie->expires)
-        {
-            soup_cookie_set_max_age (new_cookie, -1);
-        }
-        else if (new_cookie->expires)
+        if (new_cookie->expires)
         {
             gint age = katze_object_get_int (settings, "maximum-cookie-age");
             if (age > 0)

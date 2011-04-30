@@ -713,15 +713,6 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
 }
 
 static void
-midori_preferences_delete_cookies_toggled_cb (GtkToggleButton*   button,
-                                              MidoriWebSettings* settings)
-{
-    gboolean toggled = gtk_toggle_button_get_active (button);
-    g_object_set (settings, "accept-cookies",
-        toggled ? MIDORI_ACCEPT_COOKIES_SESSION : MIDORI_ACCEPT_COOKIES_ALL, NULL);
-}
-
-static void
 midori_preferences_delete_cookies_changed_cb (GtkComboBox*       combo,
                                               MidoriWebSettings* settings)
 {
@@ -754,12 +745,8 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
 
     katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
     katze_preferences_add_group (preferences, _("Web Cookies"));
-    button = gtk_check_button_new_with_mnemonic (_("Delete cookies when quitting Midori"));
+    button = katze_property_label (settings, "maximum-cookie-age");
     katze_preferences_add_widget (preferences, button, "indented");
-    if (katze_object_get_enum (settings, "accept-cookies") == MIDORI_ACCEPT_COOKIES_SESSION)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-    g_signal_connect (button, "toggled",
-        G_CALLBACK (midori_preferences_delete_cookies_toggled_cb), settings);
     button = gtk_combo_box_new_text ();
     gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 hour"));
     gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 day"));
