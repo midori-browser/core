@@ -1287,7 +1287,7 @@ generate_ident_string (MidoriIdentity identify_as)
             appname, platform, os, lang, webcore_major, webcore_minor);
     case MIDORI_IDENT_SAFARI:
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
-            "AppleWebKit/%d+ (KHTML, like Gecko) Safari/%d.%d+ %s",
+            "AppleWebKit/%d+ (KHTML, like Gecko) Version/5.0 Safari/%d.%d+ %s",
             platform, os, lang, webcore_major, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_IPHONE:
         return g_strdup_printf ("Mozilla/5.0 (iPhone; U; %s; %s) "
