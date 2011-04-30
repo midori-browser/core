@@ -1528,17 +1528,16 @@ webkit_web_frame_load_done_cb (WebKitWebFrame* web_frame,
                                gboolean        success,
                                MidoriView*     view)
 {
-    gchar* title;
-    gchar* data;
-    gchar* logo_path;
-    gchar* logo_uri;
-
     if (!success)
     {
+        gchar* title;
+        gchar* data;
+        gchar* logo_path;
+        gchar* logo_uri;
         /* i18n: The title of the 404 - Not found error page */
         title = g_strdup_printf (_("Not found - %s"), view->uri);
         katze_assign (view->title, title);
-        logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
+        logo_path = sokoke_find_data_filename ("midori/res/logo-shade.png");
         logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
         g_free (logo_path);
         data = g_strdup_printf (
