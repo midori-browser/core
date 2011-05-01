@@ -14,6 +14,7 @@
 #include "sokoke.h"
 
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <string.h>
 
 #if HAVE_CONFIG_H
@@ -48,7 +49,7 @@ struct _MidoriWebSettings
     MidoriPreferredEncoding preferred_encoding : 3;
     gboolean always_show_tabbar : 1;
     gboolean close_buttons_on_tabs : 1;
-    gboolean close_buttons_left : 1;
+    gint close_buttons_left;
     MidoriNewPage open_new_pages_in : 2;
     MidoriNewPage open_external_pages_in : 2;
     gboolean middle_click_opens_selection : 1;
@@ -764,12 +765,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "close-buttons-left",
                                      "Close buttons on the left",
                                      "Whether to show close buttons on the left side",
-                                     #if HAVE_OSX
-                                     TRUE,
-                                     #else
                                      FALSE,
-                                     #endif
-                                     flags));
+                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
 
     g_object_class_install_property (gobject_class,
@@ -1461,9 +1458,6 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_CLOSE_BUTTONS_ON_TABS:
         web_settings->close_buttons_on_tabs = g_value_get_boolean (value);
         break;
-    case PROP_CLOSE_BUTTONS_LEFT:
-        web_settings->close_buttons_left = g_value_get_boolean (value);
-        break;
     case PROP_OPEN_NEW_PAGES_IN:
         web_settings->open_new_pages_in = g_value_get_enum (value);
         break;
@@ -1724,7 +1718,40 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, web_settings->close_buttons_on_tabs);
         break;
     case PROP_CLOSE_BUTTONS_LEFT:
-        g_value_set_boolean (value, web_settings->close_buttons_left);
+        #if HAVE_OSX
+        g_value_set_boolean (value, TRUE);
+        #else
+        if (!web_settings->close_buttons_left)
+        {
+            /* Look for close button in layout specified in index.theme */
+            GdkScreen* screen = gdk_screen_get_default ();
+            GtkSettings* settings = gtk_settings_get_for_screen (screen);
+            gchar* theme = katze_object_get_string (settings, "gtk-theme-name");
+            gchar* folder = gtk_rc_get_theme_dir ();
+            gchar* filename = g_build_filename (folder, theme, "index.theme", NULL);
+            g_free (folder);
+            web_settings->close_buttons_left = 1;
+            if (g_access (filename, F_OK) != 0)
+                katze_assign (filename,
+                   g_build_filename (g_get_home_dir (), ".themes",
+                                     theme, "index.theme", NULL));
+            g_free (theme);
+            if (g_access (filename, F_OK) == 0)
+            {
+                GKeyFile* keyfile = g_key_file_new ();
+                gchar* button_layout;
+                g_key_file_load_from_file (keyfile, filename, 0, NULL);
+                button_layout = g_key_file_get_string (keyfile,
+                    "X-GNOME-Metatheme", "ButtonLayout", NULL);
+                if (button_layout && strstr (button_layout, "close:"))
+                    web_settings->close_buttons_left = 2;
+                g_free (button_layout);
+                g_key_file_free (keyfile);
+            }
+            g_free (filename);
+        }
+        g_value_set_boolean (value, web_settings->close_buttons_left == 2);
+        #endif
         break;
     case PROP_OPEN_NEW_PAGES_IN:
         g_value_set_enum (value, web_settings->open_new_pages_in);
