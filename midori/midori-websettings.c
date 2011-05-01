@@ -81,6 +81,9 @@ struct _MidoriWebSettings
     gchar* news_aggregator;
     gchar* location_entry_search;
     gchar* http_proxy;
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    gint maximum_cache_size;
+    #endif
     gchar* http_accept_language;
     gchar* ident_string;
 
@@ -167,6 +170,7 @@ enum
 
     PROP_PROXY_TYPE,
     PROP_HTTP_PROXY,
+    PROP_MAXIMUM_CACHE_SIZE,
     PROP_IDENTIFY_AS,
     PROP_USER_AGENT,
     PROP_PREFERRED_LANGUAGES,
@@ -1038,6 +1042,24 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      NULL,
                                      flags));
 
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    /**
+     * MidoriWebSettings:maximum-cache-size:
+     *
+     * The maximum size of cached pages on disk.
+     *
+     * Since: 0.3.4
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_MAXIMUM_CACHE_SIZE,
+                                     g_param_spec_int (
+                                     "maximum-cache-size",
+                                     _("Web Cache"),
+                                     _("The maximum size of cached pages on disk"),
+                                     0, G_MAXINT, 100,
+                                     flags));
+    #endif
+
     /**
     * MidoriWebSettings:identify-as:
     *
@@ -1538,6 +1560,11 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
         break;
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    case PROP_MAXIMUM_CACHE_SIZE:
+        web_settings->maximum_cache_size = g_value_get_int (value);
+        break;
+    #endif
     case PROP_IDENTIFY_AS:
         web_settings->identify_as = g_value_get_enum (value);
         if (web_settings->identify_as != MIDORI_IDENT_CUSTOM)
@@ -1791,6 +1818,11 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_HTTP_PROXY:
         g_value_set_string (value, web_settings->http_proxy);
         break;
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    case PROP_MAXIMUM_CACHE_SIZE:
+        g_value_set_int (value, web_settings->maximum_cache_size);
+        break;
+    #endif
     case PROP_IDENTIFY_AS:
         g_value_set_enum (value, web_settings->identify_as);
         break;

@@ -34,6 +34,11 @@
 #include <webkit/webkit.h>
 #include <sqlite3.h>
 
+#if WEBKIT_CHECK_VERSION (1, 3, 11)
+    #define LIBSOUP_USE_UNSTABLE_REQUEST_API
+    #include <libsoup/soup-cache.h>
+#endif
+
 #if ENABLE_NLS
     #include <libintl.h>
     #include <locale.h>
@@ -1236,6 +1241,17 @@ midori_load_soup_session_full (gpointer settings)
     soup_session_add_feature (session, feature);
     g_object_unref (feature);
 
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    config_file = g_build_filename (g_get_user_cache_dir (),
+                                    PACKAGE_NAME, "web", NULL);
+    feature = SOUP_SESSION_FEATURE (soup_cache_new (config_file, 0));
+    g_free (config_file);
+    soup_session_add_feature (session, feature);
+    soup_cache_set_max_size (SOUP_CACHE (feature),
+        katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
+    soup_cache_load (SOUP_CACHE (feature));
+    #endif
+
     return FALSE;
 }
 
@@ -1315,6 +1331,10 @@ midori_load_extensions (gpointer data)
 
                 if (!extension)
                 {
+                    /* No extension, no error: not available, not shown */
+                    if (g_module_error () == NULL)
+                        continue;
+
                     extension = g_object_new (MIDORI_TYPE_EXTENSION,
                                               "name", filename,
                                               "description", g_module_error (),
@@ -1887,6 +1907,21 @@ midori_clear_html5_databases_cb (void)
     webkit_remove_all_web_databases ();
 }
 #endif
+
+#if WEBKIT_CHECK_VERSION (1, 3, 11)
+static void
+midori_clear_web_cache_cb (void)
+{
+    SoupSession* session = webkit_get_default_session ();
+    SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
+    gchar* path = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "web", NULL);
+    soup_cache_clear (SOUP_CACHE (feature));
+    soup_cache_flush (SOUP_CACHE (feature));
+    sokoke_remove_path (path, TRUE);
+    g_free (path);
+}
+#endif
+
 #if WEBKIT_CHECK_VERSION (1, 3, 13)
 static void
 midori_clear_offline_appcache_cb (void)
@@ -2154,6 +2189,10 @@ main (int    argc,
     #if WEBKIT_CHECK_VERSION (1, 1, 14)
     sokoke_register_privacy_item ("html5-databases", _("HTML5 _Databases"),
         G_CALLBACK (midori_clear_html5_databases_cb));
+    #endif
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    sokoke_register_privacy_item ("web-cache", _("Web Cache"),
+        G_CALLBACK (midori_clear_web_cache_cb));
     #endif
     #if WEBKIT_CHECK_VERSION (1, 3, 13)
     sokoke_register_privacy_item ("offline-appcache", _("Offline Application Cache"),

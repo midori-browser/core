@@ -435,10 +435,18 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
     SPANNED_ADD (button);
+
+    /* Page "Applications" */
     #if !HAVE_HILDON
+    PAGE_NEW (GTK_STOCK_CONVERT, _("Applications"));
+    FRAME_NEW (_("External applications"));
     label = katze_property_label (settings, "text-editor");
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "text-editor", "application-text/plain");
+    SPANNED_ADD (entry);
+    label = katze_property_label (settings, "news-aggregator");
+    INDENTED_ADD (label);
+    entry = katze_property_proxy (settings, "news-aggregator", "application-News");
     SPANNED_ADD (entry);
     #endif
 
@@ -458,14 +466,16 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     #endif
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    label = katze_property_label (settings, "maximum-cache-size");
+    INDENTED_ADD (label);
+    button = katze_property_proxy (settings, "maximum-cache-size", NULL);
+    SPANNED_ADD (button);
+    label = gtk_label_new (_("MB"));
+    SPANNED_ADD (label);
+    #endif
     label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     SPANNED_ADD (button);
-    #if !HAVE_HILDON
-    label = katze_property_label (settings, "news-aggregator");
-    INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "news-aggregator", "application-News");
-    SPANNED_ADD (entry);
-    #endif
 }

@@ -89,7 +89,6 @@ struct _MidoriView
     GtkWidget* thumb_view;
     KatzeArray* news_feeds;
 
-    gchar* news_aggregator;
     gboolean middle_click_opens_selection;
     gboolean open_tabs_in_the_background;
     gboolean close_buttons_on_tabs;
@@ -3292,7 +3291,6 @@ midori_view_init (MidoriView* view)
     view->scrollh = view->scrollv = -2;
     view->back_forward_set = FALSE;
 
-    view->news_aggregator = NULL;
     view->web_view = NULL;
     /* Adjustments are not created initially, but overwritten later */
     view->scrolled_window = katze_scrolled_new (NULL, NULL);
@@ -3347,8 +3345,6 @@ midori_view_finalize (GObject* object)
 
     katze_object_assign (view->settings, NULL);
     katze_object_assign (view->item, NULL);
-
-    katze_assign (view->news_aggregator, NULL);
 
     G_OBJECT_CLASS (midori_view_parent_class)->finalize (object);
 }
@@ -3491,10 +3487,7 @@ _midori_view_set_settings (MidoriView*        view,
 
     g_object_set (view->web_view, "settings", settings, NULL);
 
-    g_free (view->news_aggregator);
-
     g_object_get (view->settings,
-        "news-aggregator", &view->news_aggregator,
         "zoom-text-and-images", &zoom_text_and_images,
         "kinetic-scrolling", &kinetic_scrolling,
         "close-buttons-on-tabs", &view->close_buttons_on_tabs,
@@ -3549,9 +3542,7 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
     g_value_init (&value, pspec->value_type);
     g_object_get_property (G_OBJECT (view->settings), name, &value);
 
-    if (name == g_intern_string ("news-aggregator"))
-        katze_assign (view->news_aggregator, g_value_dup_string (&value));
-    else if (name == g_intern_string ("zoom-text-and-images"))
+    if (name == g_intern_string ("zoom-text-and-images"))
     {
         if (view->web_view)
             g_object_set (view->web_view, "full-content-zoom",

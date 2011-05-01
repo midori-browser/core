@@ -21,6 +21,8 @@
     #include <unistd.h>
 #endif
 
+#if !WEBKIT_CHECK_VERSION (1, 3, 11)
+
 #define MAXLENGTH 1024 * 1024
 
 static gchar*
@@ -464,10 +466,14 @@ web_cache_clear_cache_cb (void)
 {
     sokoke_remove_path (web_cache_get_cache_dir (), TRUE);
 }
+#endif
 
 MidoriExtension*
 extension_init (void)
 {
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    return NULL;
+    #else
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Web Cache"),
         "description", _("Cache HTTP communication on disk"),
@@ -482,4 +488,5 @@ extension_init (void)
         G_CALLBACK (web_cache_clear_cache_cb));
 
     return extension;
+    #endif
 }
