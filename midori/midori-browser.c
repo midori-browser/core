@@ -2341,7 +2341,14 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
                                        const gchar*   uri)
 {
     if (browser->news_aggregator && *browser->news_aggregator)
-        sokoke_spawn_program (browser->news_aggregator, uri);
+    {
+        /* Special-case Liferea because a helper script may be required */
+        if (g_str_equal (browser->news_aggregator, "liferea")
+         && g_find_program_in_path ("liferea-add-feed"))
+            sokoke_spawn_program ("liferea-add-feed", uri);
+        else
+            sokoke_spawn_program (browser->news_aggregator, uri);
+    }
     else
     {
         gchar* description = g_strdup_printf ("%s\n\n%s", uri,
