@@ -1222,7 +1222,7 @@ midori_web_settings_finalize (GObject* object)
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
 }
 
-#if defined (G_OS_UNIX) && !HAVE_OSX
+#if (!HAVE_OSX && defined (G_OS_UNIX)) || defined (G_OS_WIN32)
 static gchar*
 get_sys_name (void)
 {
@@ -1230,11 +1230,15 @@ get_sys_name (void)
 
     if (!sys_name)
     {
+        #ifdef G_OS_WIN32
+        sys_name = g_strdup_printf ("NT %d.0", g_win32_get_windows_version ());
+        #else
         struct utsname name;
         if (uname (&name) != -1)
             sys_name = g_strdup(name.sysname);
         else
-            sys_name = "Unix";
+            sys_name = "Linux";
+        #endif
     }
     return sys_name;
 }
@@ -1245,28 +1249,24 @@ generate_ident_string (MidoriIdentity identify_as)
 {
     const gchar* platform =
     #if HAVE_HILDON
-    "Maemo"
-    #elif defined (GDK_WINDOWING_X11)
-    "X11";
-    #elif defined(GDK_WINDOWING_WIN32)
+    "Maemo;"
+    #elif defined (G_OS_WIN32)
     "Windows";
     #elif defined(GDK_WINDOWING_QUARTZ)
-    "Macintosh";
+    "Macintosh;";
     #elif defined(GDK_WINDOWING_DIRECTFB)
-    "DirectFB";
+    "DirectFB;";
     #else
-    "Unknown";
+    "X11;";
     #endif
 
     const gchar* os =
     #if HAVE_OSX
     "Mac OS X";
-    #elif defined (G_OS_UNIX)
+    #elif defined (G_OS_UNIX) || defined (G_OS_WIN32)
     get_sys_name ();
-    #elif defined (G_OS_WIN32)
-    "Windows";
     #else
-    "Unknown";
+    "Linux";
     #endif
 
     const gchar* appname = "Midori/"
@@ -1285,24 +1285,21 @@ generate_ident_string (MidoriIdentity identify_as)
     switch (identify_as)
     {
     case MIDORI_IDENT_MIDORI:
-        return g_strdup_printf ("Mozilla/5.0 (%s; %s) AppleWebKit/%d.%d+ %s",
+        return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d+ %s",
             platform, os, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_SAFARI:
-        return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
+        return g_strdup_printf ("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; %s) "
             "AppleWebKit/%d+ (KHTML, like Gecko) Version/5.0 Safari/%d.%d+ %s",
-            platform, os, lang, webcore_major, webcore_major, webcore_minor, appname);
+            lang, webcore_major, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_IPHONE:
-        return g_strdup_printf ("Mozilla/5.0 (iPhone; U; %s; %s) "
-            "AppleWebKit/532+ (KHTML, like Gecko) Version/3.0 Mobile/1A538b "
-            "Safari/419.3 %s",
-                                os, lang, appname);
+        return g_strdup_printf ("Mozilla/5.0 (iPhone; U; CPU like Mac OS X; %s) "
+            "AppleWebKit/532+ (KHTML, like Gecko) Version/3.0 Mobile/1A538b Safari/419.3 %s",
+                                lang, appname);
     case MIDORI_IDENT_FIREFOX:
-        return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s; rv:1.9.0.2) "
-            "Gecko/2008092313 Firefox/3.8 %s",
-                                platform, os, lang, appname);
+        return g_strdup_printf ("Mozilla/5.0 (%s %s; rv:2.0.1) Gecko/20100101 Firefox/4.0.1 %s",
+                                platform, os, appname);
     case MIDORI_IDENT_EXPLORER:
-        return g_strdup_printf ("Mozilla/4.0 (compatible; "
-            "MSIE 6.0; Windows NT 5.1; %s) %s",
+        return g_strdup_printf ("Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; %s) %s",
                                 lang, appname);
     default:
         return g_strdup_printf ("%s", appname);
