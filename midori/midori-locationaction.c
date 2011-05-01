@@ -468,7 +468,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
         const unsigned char* title = sqlite3_column_text (stmt, 2);
         GdkPixbuf* icon = katze_load_cached_icon ((gchar*)uri, NULL);
         if (!icon)
-            icon = action->default_icon;
+            icon = g_object_ref (action->default_icon);
         if (type == 1 /* history_view */)
         {
             gtk_list_store_insert_with_values (store, NULL, matches,
@@ -483,6 +483,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
                 STYLE_COL, 1, FAVICON_COL, icon, -1);
             g_free (search_title);
         }
+        if (icon != NULL)
+            g_object_unref (icon);
 
         matches++;
         result = sqlite3_step (stmt);
@@ -509,6 +511,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
                 STYLE_COL, 1, FAVICON_COL, icon, -1);
             g_free (uri);
             g_free (title);
+            if (icon != NULL)
+                g_object_unref (icon);
             i++;
         }
         searches += i;
