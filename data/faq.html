@@ -6,8 +6,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki" />
-<meta name="robots" content="noindex,nofollow" />
-<meta name="date" content="2011-03-08T14:48:25+0100" />
+<meta name="robots" content="index,follow" />
+<meta name="date" content="2011-04-25T16:56:20+0200" />
 <meta name="keywords" content="midori,faq" />
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki" />
 <link rel="start" href="/" />
@@ -19,9 +19,9 @@
 <link rel="canonical" href="http://wiki.xfce.org/midori/faq" />
 <link rel="stylesheet" type="text/css" href="faq.css" />
 <script type="text/javascript" ><!--//--><![CDATA[//><!--
-var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
+var NS='midori';var SIG=' --- //[[christian@twotoasts.de|Christian Dywan]] 2011/05/02 00:39//';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 //--><!]]></script>
-<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1299220652" ></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1304238868" ></script>
 </head>
 <body>
 <div class="dokuwiki export">
@@ -40,11 +40,12 @@ var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 </li>
 <li class="level1"><div class="li"><span class="li"><a href="#features" class="toc">Features</a></span></div>
 <ul class="toc">
-<li class="level2"><div class="li"><span class="li"><a href="#web_applicationsprivate_browsing" class="toc">Web Applications/ Private Browsing</a></span></div></li>
-<li class="level2"><div class="li"><span class="li"><a href="#download_managers" class="toc">Download Managers</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#web_applications" class="toc">Web Applications</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#private_browsing" class="toc">Private Browsing</a></span></div></li>
 <li class="level2"><div class="li"><span class="li"><a href="#proxy_servers" class="toc">Proxy servers</a></span></div></li>
 <li class="level2"><div class="li"><span class="li"><a href="#using_the_keyboard" class="toc">Using the Keyboard</a></span></div>
 <ul class="toc">
+<li class="level3"><div class="li"><span class="li"><a href="#hjkl" class="toc">HJKL</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#following_links" class="toc">Following Links</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#toggling_between_pages" class="toc">Toggling between pages</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#customizing_keyboard_shortcuts" class="toc">Customizing keyboard shortcuts</a></span></div></li>
@@ -287,6 +288,8 @@ You need to have GStreamer plugins installed which implement the codecs.
 </li>
 <li class="level1"><div class="li"> For Youtube or Vimeo, you need WebKitGTK+ 1.1.20 or newer.</div>
 </li>
+<li class="level1"><div class="li"> You can <a href="http://ie.microsoft.com/testdrive/Graphics/VideoFormatSupport/Default.html" class="urlextern" title="http://ie.microsoft.com/testdrive/Graphics/VideoFormatSupport/Default.html"  rel="nofollow">test your installed codecs here</a>..</div>
+</li>
 </ol>
 
 </div>
@@ -471,13 +474,13 @@ Note that incomplete .desktop files will silently fail and it will look as if it
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Common problems" [1213-8887] -->
+<!-- EDIT4 SECTION "Common problems" [1213-9012] -->
 <h1 class="sectionedit5"><a name="features" id="features">Features</a></h1>
 <div class="level1">
 
 </div>
-<!-- EDIT5 SECTION "Features" [8888-8910] -->
-<h2 class="sectionedit6"><a name="web_applicationsprivate_browsing" id="web_applicationsprivate_browsing">Web Applications/ Private Browsing</a></h2>
+<!-- EDIT5 SECTION "Features" [9013-9035] -->
+<h2 class="sectionedit6"><a name="web_applications" id="web_applications">Web Applications</a></h2>
 <div class="level2">
 
 <p>
@@ -486,8 +489,6 @@ There are two closely related features to open websites as dedicated windows of 
 
 </p>
 <ol>
-<li class="level1"><div class="li"> File (or Globe button) → Private Browsing</div>
-</li>
 <li class="level1"><div class="li"> Right-click a hyperlink → Open as Web Application</div>
 </li>
 <li class="level1"><div class="li"> Add or Edit a bookmark → [x] Run as web application</div>
@@ -500,65 +501,35 @@ There are two closely related features to open websites as dedicated windows of 
    You can also add options such as ‘-e Fullscreen’, ‘-e Navigationbar’ or ‘-e Statusbar’ (as of Midori 0.2.9 ‘midori –help-execute will list all available commands’)
 </p>
 
+</div>
+<!-- EDIT6 SECTION "Web Applications" [9036-9552] -->
+<h2 class="sectionedit7"><a name="private_browsing" id="private_browsing">Private Browsing</a></h2>
+<div class="level2">
+<ol>
+<li class="level1"><div class="li"> File menu/ App Menu button → Private Browsing</div>
+</li>
+</ol>
+
 <p>
-A window like this is always a separate process, so crashes don&#039;t affect the normal browser session. No sensitive data such as cookies, history or bookmarks are stored. No extensions are loaded. Panels are not available.
+
+A private window is a separate process, so crashes don&#039;t affect the normal browser session. No sensitive data such as cookies, history or bookmarks are stored. No extensions are loaded. Panels are not available.
 </p>
 
 <p>
 As of Midori 0.2.9 Private Browsing uses preferences, cookies, keyboard shortcuts and search engines from the normal session, but it won&#039;t save any changes. This behaviour can be emulated from the command line with ”-a” and ”-c”.
 </p>
 
-</div>
-<!-- EDIT6 SECTION "Web Applications/ Private Browsing" [8911-9946] -->
-<h2 class="sectionedit7"><a name="download_managers" id="download_managers">Download Managers</a></h2>
-<div class="level2">
+<p>
+As of Midori 0.3.4 the –private command line switch opens a private browsing instance with normal preferences, cookies, shortcuts and search engines. But no changes will be saved.
+<acronym title="Domain Name System">DNS</acronym> prefetching is disabled in this mode, also referrers are stripped down to the hostname when navigating between different websites.
+</p>
 
 <p>
-
-Midori can start downloads with an external download manager. To use that feature, open up the “Preferences” dialog, click the “Applications” tab, insert the name of a program executable or shell script in the “Download Manager” input box, right-click a link, and click “Download with Download Manager”. There is a list of download managers on <a href="http://en.wikipedia.org/wiki/Comparison_of_download_managers" class="urlextern" title="http://en.wikipedia.org/wiki/Comparison_of_download_managers"  rel="nofollow">Wikipedia</a>.
+The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-
-<h4><a name="admiral" id="admiral">Admiral</a></h4>
-<div class="level4">
-
-<p>
-<a href="http://bbs.archlinux.org/viewtopic.php?id=73504" class="urlextern" title="http://bbs.archlinux.org/viewtopic.php?id=73504"  rel="nofollow">Admiral</a> is a shell script that utilizes <a href="http://aria2.sourceforge.net/" class="urlextern" title="http://aria2.sourceforge.net/"  rel="nofollow">aria2</a>, <a href="http://freshmeat.net/projects/zenity" class="urlextern" title="http://freshmeat.net/projects/zenity"  rel="nofollow">Zenity</a>, and <a href="http://linuxappfinder.com/package/libnotify-bin" class="urlextern" title="http://linuxappfinder.com/package/libnotify-bin"  rel="nofollow">libnotify-bin</a>. Admiral allows you to choose the directory to which you wish download a file with a <acronym title="Graphical User Interface">GUI</acronym> dialog, sends a desktop notification if the download fails and when starting and finishing the download, and logs failures.
-</p>
-
-</div>
-
-<h4><a name="aria2" id="aria2">Aria2</a></h4>
-<div class="level4">
-
-<p>
-
-<a href="http://aria2.sourceforge.net/" class="urlextern" title="http://aria2.sourceforge.net/"  rel="nofollow">aria2</a> is a lightweight  multi-protocol &amp; multi-source, cross platform download  utility operated in command-line. It supports <acronym title="Hyper Text Transfer Protocol">HTTP</acronym>/HTTPS, <acronym title="File Transfer Protocol">FTP</acronym>, BitTorrent and Metalink. aria2 has built-in <acronym title="Extensible Markup Language">XML</acronym>-<acronym title="Remote Procedure Call">RPC</acronym> interface. You can manipulate aria2 via <acronym title="Extensible Markup Language">XML</acronym>-<acronym title="Remote Procedure Call">RPC</acronym> interface. 
-</p>
-
-</div>
-
-<h4><a name="uget_former_urlgfe" id="uget_former_urlgfe">Uget (former Urlgfe)</a></h4>
-<div class="level4">
-
-<p>
-
-<a href="http://urlget.sourceforge.net/" class="urlextern" title="http://urlget.sourceforge.net/"  rel="nofollow">UGet</a> is a cross platform download manager. It can watch the clipboard to offer download dialogues automatically and it can be configured to pass through files, such as torrents, to the appropriate handler.
-</p>
-
-</div>
-
-<h4><a name="gget" id="gget">GGet</a></h4>
-<div class="level4">
-
-<p>
-
-<a href="http://live.gnome.org/GGet" class="urlextern" title="http://live.gnome.org/GGet"  rel="nofollow">GGet</a> is a download manager primarily for the GNOME desktop, but it also works in other unix/ GTk+ environments.
-</p>
-
-</div>
-<!-- EDIT7 SECTION "Download Managers" [9947-11615] -->
+<!-- EDIT7 SECTION "Private Browsing" [9553-10476] -->
 <h2 class="sectionedit8"><a name="proxy_servers" id="proxy_servers">Proxy servers</a></h2>
 <div class="level2">
 
@@ -572,12 +543,10 @@ To use Midori with a proxy server, there are two options:
 
 </p>
 <ol>
-<li class="level1"><div class="li"> WebKit is built with libcurl. Define an environment variable http_proxy and set it to your proxy server like so:</div>
+<li class="level1"><div class="li"> WebKit is built with libcurl. Define an environment variable http_proxy and set it to your proxy server like so:<pre class="code">  export http_proxy = 234.22.154.11:8000</pre>
+</div>
 </li>
-</ol>
-<pre class="code">export http_proxy = 234.22.154.11:8000</pre>
-<ol>
-<li class="level1"><div class="li"> 2. WebKit is built with libsoup. Midori &gt;= 0.1.2, is built with libsoup. Try to open some web page. Now open the preferences, and you should see a Network tab with a &#039;Proxy server&#039; field.</div>
+<li class="level1"><div class="li"> WebKit is built with libsoup. Midori &gt;= 0.1.2, is built with libsoup. Try to open some web page. Now open the preferences, and you should see a Network tab with a &#039;Proxy server&#039; field.</div>
 </li>
 </ol>
 
@@ -626,13 +595,32 @@ Mousehole is a scriptable proxy server written in Ruby.
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Proxy servers" [11616-12858] -->
+<!-- EDIT8 SECTION "Proxy servers" [10477-11727] -->
 <h2 class="sectionedit9"><a name="using_the_keyboard" id="using_the_keyboard">Using the Keyboard</a></h2>
 <div class="level2">
 
 </div>
-<!-- EDIT9 SECTION "Using the Keyboard" [12859-12890] -->
-<h3 class="sectionedit10"><a name="following_links" id="following_links">Following Links</a></h3>
+<!-- EDIT9 SECTION "Using the Keyboard" [11728-11759] -->
+<h3 class="sectionedit10"><a name="hjkl" id="hjkl">HJKL</a></h3>
+<div class="level3">
+
+<p>
+
+You can use the Vim-like key bindings [hjkl] to navigate a page.  h=left j=down k=up l=right  In a picture:
+
+</p>
+<pre class="code">	       k
+	   h     l
+	     j</pre>
+
+<p>
+
+You can also use the arrow keys to do the same.
+</p>
+
+</div>
+<!-- EDIT10 SECTION "HJKL" [11760-11967] -->
+<h3 class="sectionedit11"><a name="following_links" id="following_links">Following Links</a></h3>
 <div class="level3">
 
 <p>
@@ -645,8 +633,8 @@ With hints enabled, type the link number, and press Enter to open the link in th
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Following Links" [12891-13222] -->
-<h3 class="sectionedit11"><a name="toggling_between_pages" id="toggling_between_pages">Toggling between pages</a></h3>
+<!-- EDIT11 SECTION "Following Links" [11968-12299] -->
+<h3 class="sectionedit12"><a name="toggling_between_pages" id="toggling_between_pages">Toggling between pages</a></h3>
 <div class="level3">
 
 <p>
@@ -655,8 +643,8 @@ Enable the History List extension Tools → Extensions. Now you can conveniently
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Toggling between pages" [13223-13382] -->
-<h3 class="sectionedit12"><a name="customizing_keyboard_shortcuts" id="customizing_keyboard_shortcuts">Customizing keyboard shortcuts</a></h3>
+<!-- EDIT12 SECTION "Toggling between pages" [12300-12459] -->
+<h3 class="sectionedit13"><a name="customizing_keyboard_shortcuts" id="customizing_keyboard_shortcuts">Customizing keyboard shortcuts</a></h3>
 <div class="level3">
 
 <p>
@@ -666,8 +654,8 @@ Enable the Shortcuts extension Tools → Extensions. To edit a keybinding Tools 
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Customizing keyboard shortcuts" [13383-13531] -->
-<h2 class="sectionedit13"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h2>
+<!-- EDIT13 SECTION "Customizing keyboard shortcuts" [12460-12608] -->
+<h2 class="sectionedit14"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h2>
 <div class="level2">
 
 <p>
@@ -703,8 +691,8 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Mouse Gestures" [13532-14263] -->
-<h2 class="sectionedit14"><a name="spell_check" id="spell_check">Spell check</a></h2>
+<!-- EDIT14 SECTION "Mouse Gestures" [12609-13340] -->
+<h2 class="sectionedit15"><a name="spell_check" id="spell_check">Spell check</a></h2>
 <div class="level2">
 
 <p>
@@ -718,8 +706,8 @@ Now while typing any errors should get underlined in red. To get suggestions, hi
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Spell check" [14264-14557] -->
-<h2 class="sectionedit15"><a name="user_scripts" id="user_scripts">User scripts</a></h2>
+<!-- EDIT15 SECTION "Spell check" [13341-13634] -->
+<h2 class="sectionedit16"><a name="user_scripts" id="user_scripts">User scripts</a></h2>
 <div class="level2">
 
 </div>
@@ -739,15 +727,33 @@ UserScripts are scripts applied on some, or on all web pages. They can modify  p
 
 <p>
 
-First, you need to find some scripts (or write your own). You can find some at <a href="http://userscripts.org/" class="urlextern" title="http://userscripts.org/"  rel="nofollow">userscripts.org</a>. As explained previously, a lot of scripts work, while others do not work.
+First enable the “User Addons” extension. It will show up as a “User Scripts” panel (and it also provides “User Styles”).
 </p>
 
 <p>
-To install a userscript, you have to download the script as a file, and put it in the following directory <strong>~/.local/share/midori/scripts</strong> (you may need to create that directory if it does not exist). Midori will automatically see and use it, which you can also see in the user scripts panel.
+Now you need to find some scripts. You can find some at <a href="http://userscripts.org/" class="urlextern" title="http://userscripts.org/"  rel="nofollow">userscripts.org</a>. Most scripts work fine, some may be written specifically for other browsers.
 </p>
 
 <p>
-Note, if the script is only shown as source code on the page, you first have to create a new text file in a text editor, copy the source code into the new file, and save it as my-user-script.js where ”.js” is the extension.
+If you have Midori 0.3.0 or newer, you will be offered to install scripts as soon as you see them on the page.
+</p>
+
+<p>
+To manually install a userscript, you have to download the script as a file, and put it in the folder <strong>~/.local/share/midori/scripts</strong>. You need to create that folder if it doesn&#039;t exist yet. Midori will automatically see and use it, which you can also see in the user scripts panel.
+</p>
+
+<p>
+If the script is only shown as source code on the page, you first have to create a new text file in a text editor, copy the source code into the new file, and save it as my-user-script.js where ”.js” is the extension.
+</p>
+
+</div>
+
+<h4><a name="compatibility_with_greasemonkey" id="compatibility_with_greasemonkey">Compatibility with GreaseMonkey</a></h4>
+<div class="level4">
+
+<p>
+
+As previously mentioned, Midori can use most scripts you will find. Midori supports Greasemonkey&#039;s <em>@include</em> and <em>@exclude</em> metadata so that scripts are only loaded on appropriate pages. Midori doesn&#039;t support advanced metadata, such as @require and @resource, so user scripts can&#039;t define dependencies on other scripts - most of the time this isn&#039;t a problem. Midori also does not support <a href="http://wiki.greasespot.net/API_reference" class="urlextern" title="http://wiki.greasespot.net/API_reference"  rel="nofollow">Greasemonkey API</a>. Scripts must also be compatible with Webkit, since Midori is based on WebKit. A Greasemonkey script that makes use of functionality of Gecko/ Firefox will not work in Midori.
 </p>
 
 </div>
@@ -771,8 +777,8 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT15 SECTION "User scripts" [14558-16243] -->
-<h2 class="sectionedit16"><a name="user_styles" id="user_styles">User styles</a></h2>
+<!-- EDIT16 SECTION "User scripts" [13635-16195] -->
+<h2 class="sectionedit17"><a name="user_styles" id="user_styles">User styles</a></h2>
 <div class="level2">
 
 </div>
@@ -842,6 +848,6 @@ Customize as needed:
         }</pre>
 
 </div>
-<!-- EDIT16 SECTION "User styles" [16244-] --></div>
+<!-- EDIT17 SECTION "User styles" [16196-] --></div>
 </body>
 </html>
