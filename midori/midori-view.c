@@ -17,6 +17,7 @@
 #include "midori-view.h"
 #include "midori-stock.h"
 #include "midori-browser.h"
+#include "midori-searchaction.h"
 
 #include "marshal.h"
 #include "sokoke.h"
@@ -45,11 +46,6 @@ webkit_web_view_get_selected_text (WebKitWebView* web_view);
 void
 webkit_web_frame_print (WebKitWebFrame* web_frame);
 #endif
-
-GdkPixbuf*
-midori_search_action_get_icon (KatzeItem*    item,
-                               GtkWidget*    widget,
-                               const gchar** icon_name);
 
 static void
 midori_view_construct_web_view (MidoriView* view);
@@ -2624,7 +2620,7 @@ midori_view_populate_popup (MidoriView* view,
 
                 menuitem = gtk_image_menu_item_new_with_mnemonic (katze_item_get_name (item));
                 pixbuf = midori_search_action_get_icon (item,
-                    GTK_WIDGET (web_view), &icon_name);
+                    GTK_WIDGET (web_view), &icon_name, FALSE);
                 if (pixbuf)
                 {
                     icon = gtk_image_new_from_pixbuf (pixbuf);

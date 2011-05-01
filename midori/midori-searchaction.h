@@ -59,6 +59,12 @@ midori_search_action_set_current_item      (MidoriSearchAction* search_action,
 KatzeItem*
 midori_search_action_get_default_item      (MidoriSearchAction* search_action);
 
+GdkPixbuf*
+midori_search_action_get_icon              (KatzeItem*          item,
+                                            GtkWidget*          widget,
+                                            const gchar** icon_name,
+                                            gboolean      in_entry);
+
 void
 midori_search_action_set_default_item      (MidoriSearchAction* search_action,
                                             KatzeItem*          item);

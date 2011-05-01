@@ -399,8 +399,7 @@ midori_search_action_manage_activate_cb (GtkWidget*          menuitem,
         gtk_widget_show (dialog);
 }
 
-/* Private function, used by MidoriView */
-/* static */ GdkPixbuf*
+GdkPixbuf*
 midori_search_action_get_icon (KatzeItem*    item,
                                GtkWidget*    widget,
                                const gchar** icon_name,

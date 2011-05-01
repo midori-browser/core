@@ -215,11 +215,6 @@ static void
 midori_browser_set_bookmarks (MidoriBrowser* browser,
                               KatzeArray*    bookmarks);
 
-GdkPixbuf*
-midori_search_action_get_icon (KatzeItem*    item,
-                               GtkWidget*    widget,
-                               const gchar** icon_name);
-
 static void
 midori_browser_add_speed_dial (MidoriBrowser* browser);
 
