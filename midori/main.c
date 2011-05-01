@@ -1727,7 +1727,7 @@ speeddial_new_from_file (const gchar* config,
             }
             else if (g_str_equal (key, "title") && *val)
             {
-                g_key_file_set_value (key_file, dial_id, key, val + 3);
+                g_key_file_set_value (key_file, dial_id, key, val);
             }
             else if (g_str_equal (key, "width"))
             {
