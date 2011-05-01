@@ -1720,6 +1720,8 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_CLOSE_BUTTONS_LEFT:
         #if HAVE_OSX
         g_value_set_boolean (value, TRUE);
+        #elif defined (G_OS_WIN32)
+        g_value_set_boolean (value, FALSE);
         #else
         if (!web_settings->close_buttons_left)
         {
