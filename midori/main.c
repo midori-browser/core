@@ -748,7 +748,7 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     guint active;
     gchar* markup;
 
-    katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
+    GtkWidget* page_content = katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
     katze_preferences_add_group (preferences, _("Web Cookies"));
     button = katze_property_label (settings, "maximum-cookie-age");
     katze_preferences_add_widget (preferences, button, "indented");
@@ -778,9 +778,18 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
         _("Cookies store login data, saved games, "
           "or user profiles for advertisement purposes."));
     label = gtk_label_new (NULL);
+    gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
     gtk_label_set_markup (GTK_LABEL (label), markup);
     g_free (markup);
     katze_preferences_add_widget (preferences, label, "filled");
+    if (1)
+    {
+        /* GtkLabel can't wrap the text properly. Until some day
+           this works, we implement this hack to do it ourselves. */
+        GtkRequisition req;
+        gtk_widget_size_request (page_content, &req);
+        gtk_widget_set_size_request (label, req.width * 0.99, -1);
+    }
     #if WEBKIT_CHECK_VERSION (1, 1, 13)
     button = katze_property_proxy (settings, "enable-offline-web-application-cache", NULL);
     katze_preferences_add_widget (preferences, button, "indented");
