@@ -17,6 +17,10 @@
 #include <glib/gstdio.h>
 #include <string.h>
 
+#if HAVE_UNISTD_H
+    #include <unistd.h>
+#endif
+
 #if HAVE_CONFIG_H
     #include <config.h>
 #endif
