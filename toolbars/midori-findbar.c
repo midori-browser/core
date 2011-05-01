@@ -178,14 +178,11 @@ midori_findbar_preedit_changed_cb (GtkWidget*     entry,
                                    const gchar*   preedit,
                                    MidoriFindbar* findbar)
 {
-    if (findbar->find_typing)
-    {
-        MidoriBrowser* browser = midori_browser_get_for_widget (entry);
-        GtkWidget* view = midori_browser_get_current_tab (browser);
-        midori_view_unmark_text_matches (MIDORI_VIEW (view));
-        if (g_utf8_strlen (preedit, -1) > 1)
-            midori_findbar_find_text (findbar, preedit, TRUE);
-    }
+    MidoriBrowser* browser = midori_browser_get_for_widget (entry);
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    midori_view_unmark_text_matches (MIDORI_VIEW (view));
+    if (g_utf8_strlen (preedit, -1) > 1)
+        midori_findbar_find_text (findbar, preedit, TRUE);
 }
 
 static void
