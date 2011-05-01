@@ -1244,7 +1244,9 @@ static gchar*
 generate_ident_string (MidoriIdentity identify_as)
 {
     const gchar* platform =
-    #ifdef GDK_WINDOWING_X11
+    #if HAVE_HILDON
+    "Maemo"
+    #elif defined (GDK_WINDOWING_X11)
     "X11";
     #elif defined(GDK_WINDOWING_WIN32)
     "Windows";
@@ -1283,8 +1285,8 @@ generate_ident_string (MidoriIdentity identify_as)
     switch (identify_as)
     {
     case MIDORI_IDENT_MIDORI:
-        return g_strdup_printf ("%s (%s; %s; U; %s) WebKit/%d.%d+",
-            appname, platform, os, lang, webcore_major, webcore_minor);
+        return g_strdup_printf ("Mozilla/5.0 (%s; %s) AppleWebKit/%d.%d+ %s",
+            platform, os, webcore_major, webcore_minor, appname);
     case MIDORI_IDENT_SAFARI:
         return g_strdup_printf ("Mozilla/5.0 (%s; U; %s; %s) "
             "AppleWebKit/%d+ (KHTML, like Gecko) Version/5.0 Safari/%d.%d+ %s",
