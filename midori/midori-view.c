@@ -4144,7 +4144,7 @@ midori_view_set_uri (MidoriView*  view,
 
                 katze_assign (view->uri, g_strdup (&uri[16]));
                 title = g_strdup_printf (_("Document cannot be displayed"));
-                logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
+                logo_path = sokoke_find_data_filename ("midori/res/logo-shade.png");
                 logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
                 g_free (logo_path);
                 data = g_strdup_printf (
@@ -4167,7 +4167,7 @@ midori_view_set_uri (MidoriView*  view,
 
                 katze_assign (view->uri, g_strdup (&uri[13]));
                 title = g_strdup_printf (_("No documentation installed"));
-                logo_path = sokoke_find_data_filename ("midori/logo-shade.png");
+                logo_path = sokoke_find_data_filename ("midori/res/logo-shade.png");
                 logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
                 g_free (logo_path);
                 data = g_strdup_printf (
@@ -4267,7 +4267,7 @@ midori_view_set_uri (MidoriView*  view,
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head><body><h1>%s</h1>"
-                    "<img src=\"file://" MDATADIR "/midori/logo-shade.png\" "
+                    "<img src=\"file://" MDATADIR "/midori/res/logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "</body></html>", view->uri, view->uri);
             }
