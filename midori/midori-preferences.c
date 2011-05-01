@@ -410,7 +410,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
 
     /* Page "Interface" */
-    PAGE_NEW (GTK_STOCK_CONVERT, _("Interface"));
+    PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
     #if !HAVE_HILDON
     if (!g_getenv ("DESKTOP_SESSION"))
     {
@@ -420,7 +420,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         SPANNED_ADD (button);
     }
     #endif
-    FRAME_NEW (_("Browsing"));
+    FRAME_NEW (_("Interface"));
     label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
