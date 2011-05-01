@@ -299,8 +299,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #define SPANNED_ADD(__widget) \
      katze_preferences_add_widget (_preferences, __widget, "spanned")
     /* Page "General" */
-    PAGE_NEW (GTK_STOCK_HOME, _("General"));
-    FRAME_NEW (_("Startup"));
+    PAGE_NEW (GTK_STOCK_HOME, _("Startup"));
+    FRAME_NEW (NULL);
     label = katze_property_label (settings, "load-on-startup");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "load-on-startup", NULL);
@@ -328,17 +328,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         SPANNED_ADD (button);
         #endif
     }
-    FRAME_NEW (_("Transfers"));
-    #if !HAVE_HILDON
-    label = katze_property_label (settings, "download-folder");
-    INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "download-folder", "folder");
-    SPANNED_ADD (button);
-    #endif
 
     /* Page "Appearance" */
     PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Appearance"));
-    FRAME_NEW (_("Font settings"));
+    FRAME_NEW (NULL);
     #if !HAVE_HILDON
     label = gtk_label_new (_("Default Font Family"));
     INDENTED_ADD (label);
@@ -369,7 +362,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Behavior" */
     PAGE_NEW (GTK_STOCK_SELECT_COLOR, _("Behavior"));
-    FRAME_NEW (_("Features"));
+    FRAME_NEW (NULL);
     #if !HAVE_HILDON
     button = katze_property_proxy (settings, "auto-load-images", NULL);
     INDENTED_ADD (button);
@@ -408,19 +401,25 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button);
     entry = katze_property_proxy (settings, "preferred-languages", "languages");
     SPANNED_ADD (entry);
+    #if !HAVE_HILDON
+    label = katze_property_label (settings, "download-folder");
+    INDENTED_ADD (label);
+    button = katze_property_proxy (settings, "download-folder", "folder");
+    SPANNED_ADD (button);
+    #endif
 
     /* Page "Interface" */
     PAGE_NEW (GTK_STOCK_CONVERT, _("Browsing"));
     #if !HAVE_HILDON
     if (!g_getenv ("DESKTOP_SESSION"))
     {
-        FRAME_NEW (_("Navigationbar"));
+        FRAME_NEW (NULL);
         INDENTED_ADD (katze_property_label (settings, "toolbar-style"));
         button = katze_property_proxy (settings, "toolbar-style", NULL);
         SPANNED_ADD (button);
     }
     #endif
-    FRAME_NEW (_("Interface"));
+    FRAME_NEW (NULL);
     label = katze_property_label (settings, "open-new-pages-in");
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "open-new-pages-in", NULL);
@@ -439,7 +438,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     /* Page "Applications" */
     #if !HAVE_HILDON
     PAGE_NEW (GTK_STOCK_CONVERT, _("Applications"));
-    FRAME_NEW (_("External applications"));
+    FRAME_NEW (NULL);
     label = katze_property_label (settings, "text-editor");
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "text-editor", "application-text/plain");
@@ -452,7 +451,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
 
     /* Page "Network" */
     PAGE_NEW (GTK_STOCK_NETWORK, _("Network"));
-    FRAME_NEW (_("Network"));
+    FRAME_NEW (NULL);
     #if !HAVE_HILDON
     label = katze_property_label (settings, "proxy-type");
     INDENTED_ADD (label);

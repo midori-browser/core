@@ -335,11 +335,13 @@ katze_hig_frame_new (const gchar* title)
 /**
  * katze_preferences_add_group:
  * @preferences: a #KatzePreferences instance
- * @label: a group label
+ * @label: a group label, or %NULL
  *
  * Adds a new group with the specified label to the dialog.
  *
  * Since: 0.2.1
+ *
+ * Since 0.3.4 you can pass %NULL to hide the label.
  **/
 void
 katze_preferences_add_group (KatzePreferences* preferences,
@@ -349,11 +351,11 @@ katze_preferences_add_group (KatzePreferences* preferences,
     KatzePreferencesPrivate* priv;
 
     g_return_if_fail (KATZE_IS_PREFERENCES (preferences));
-    g_return_if_fail (label != NULL);
 
     priv = preferences->priv;
     priv->sizegroup2 = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-    priv->frame = katze_hig_frame_new (label);
+    priv->frame = label ? katze_hig_frame_new (label) :
+        g_object_new (GTK_TYPE_FRAME, "shadow-type", GTK_SHADOW_NONE, NULL);
     gtk_container_set_border_width (GTK_CONTAINER (priv->frame), 4);
     gtk_box_pack_start (GTK_BOX (priv->page), priv->frame, FALSE, FALSE, 0);
     priv->box = gtk_vbox_new (FALSE, 4);

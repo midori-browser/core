@@ -749,7 +749,7 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     gchar* markup;
 
     katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
-    katze_preferences_add_group (preferences, _("Web Cookies"));
+    katze_preferences_add_group (preferences, NULL);
     button = katze_property_label (settings, "maximum-cookie-age");
     katze_preferences_add_widget (preferences, button, "indented");
     button = gtk_combo_box_new_text ();
