@@ -1254,7 +1254,9 @@ get_sys_name (void)
     if (!sys_name)
     {
         #ifdef G_OS_WIN32
-        sys_name = g_strdup_printf ("NT %d.0", g_win32_get_windows_version ());
+        /* 6.1 Win7, 60. Vista, 5.1 XP and 5 Win2k */
+        guint version = g_win32_get_windows_version ();
+        sys_name = g_strdup_printf ("NT %d.%d", LOBYTE (version), HIBYTE (version));
         #else
         struct utsname name;
         if (uname (&name) != -1)
