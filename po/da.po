@@ -2189,22 +2189,22 @@ msgstr "Ny __mappe"
 #, c-format
 msgid "%d hour"
 msgid_plural "%d hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d time"
+msgstr[1] "%d timer"
 
 #: ../midori/sokoke.c:2235
 #, c-format
 msgid "%d minute"
 msgid_plural "%d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d minut"
+msgstr[1] "%d minutter"
 
 #: ../midori/sokoke.c:2236
 #, c-format
 msgid "%d second"
 msgid_plural "%d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d sekund"
+msgstr[1] "%d sekunder"
 
 #. i18n: Download tooltip (size): 4KB of 43MB
 #: ../midori/sokoke.c:2244 ../panels/midori-transfers.c:273
@@ -2219,15 +2219,15 @@ msgstr ""
 
 #. i18n: Download tooltip (transfer rate): (130KB/s)
 #: ../midori/sokoke.c:2256
-#, c-format
+#, c-format, fuzzy
 msgid " (%s/s)"
-msgstr ""
+msgstr " (%s/s)"
 
 #. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
 #: ../midori/sokoke.c:2273
 #, c-format
 msgid " - %s remaining"
-msgstr ""
+msgstr " - %s tilbage"
 
 #. i18n: A panel at the bottom, to search text in pages
 #: ../toolbars/midori-findbar.c:231
@@ -2264,9 +2264,8 @@ msgid "Transfer completed"
 msgstr "Overførsel gennemført"
 
 #: ../toolbars/midori-transferbar.c:217
-#, fuzzy
 msgid "The downloaded file is erroneous."
-msgstr "Gem hentede filer til:"
+msgstr "Den hentede fil indeholder fejl."
 
 #: ../toolbars/midori-transferbar.c:218
 msgid "The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."
@@ -2464,9 +2463,8 @@ msgid "This page appears to contain a user script. Do you wish to install it?"
 msgstr ""
 
 #: ../extensions/addons.c:219
-#, fuzzy
 msgid "_Install user script"
-msgstr "Slet brugerskript"
+msgstr "_Installér brugerskript"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
 #: ../extensions/addons.c:224
