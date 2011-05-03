@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 André Stösel <andre@stoesel.de>
+   Copyright (C) 2010-2011 André Stösel <andre@stoesel.de>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -164,6 +164,7 @@ private class NewTabWindow : TabWindow {
 }
 
 private class HistoryList : Midori.Extension {
+    protected uint escKeyval;
     protected uint modifier_count;
     protected HistoryWindow? history_window;
     protected ulong[] tmp_sig_ids = new ulong[2];
@@ -176,13 +177,17 @@ private class HistoryList : Midori.Extension {
     public bool key_release (Gdk.EventKey event_key, Browser browser) {
         if (event_key.is_modifier > 0) {
             this.modifier_count--;
+        }
+        if (this.modifier_count == 0 || event_key.keyval == this.escKeyval) {
+            browser.disconnect (this.tmp_sig_ids[0]);
+            browser.disconnect (this.tmp_sig_ids[1]);
             if (this.modifier_count == 0) {
-                browser.disconnect (this.tmp_sig_ids[0]);
-                browser.disconnect (this.tmp_sig_ids[1]);
                 this.history_window.make_update ();
-                this.history_window.destroy ();
-                this.history_window = null;
+            } else {
+                this.modifier_count = 0;
             }
+            this.history_window.destroy ();
+            this.history_window = null;
         }
         return false;
     }
@@ -357,6 +362,9 @@ private class HistoryList : Midori.Extension {
                      authors: "André Stösel <andre@stoesel.de>");
         activate.connect (activated);
         deactivate.connect (deactivated);
+    }
+    construct {
+        this.escKeyval = Gdk.keyval_from_name ("Escape");
     }
 }
 
