@@ -412,6 +412,8 @@ midori_search_action_get_icon (KatzeItem*    item,
     if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
         return katze_load_cached_icon (icon, widget);
 
+    if (icon_name == NULL)
+        return NULL;
 
     screen = gtk_widget_get_screen (widget);
     icon_theme = gtk_icon_theme_get_for_screen (screen);
