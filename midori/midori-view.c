@@ -3970,7 +3970,8 @@ prepare_speed_dial_html (MidoriView* view)
         else
             position = g_strdup ("");
 
-        if (g_key_file_has_group (key_file, dial_entry))
+        if (g_key_file_has_group (key_file, dial_entry)
+        && g_strcmp0 (g_key_file_get_string (key_file, dial_entry, "uri", NULL), "#"))
         {
             gchar* slot_id = g_strdup_printf ("s%d", slot);
             gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
