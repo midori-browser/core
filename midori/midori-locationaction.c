@@ -926,7 +926,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                 selected = MIN (selected + 14, matches -1);
             else if (event->keyval == GDK_Page_Up)
                 selected = MAX (selected - 14, 0);
-            else
+            else if (event->keyval != GDK_KP_Delete && event->keyval != GDK_Delete)
                 g_assert_not_reached ();
 
             path = gtk_tree_path_new_from_indices (selected, -1);
