@@ -37,8 +37,6 @@
         float: left;
         border: 1px solid #ccc;
         position: relative;
-        width: 200px;
-        height: 150px;
         margin: 20px 20px 0px 0px;
         background-color: #fff;
         -webkit-border-radius: 10px;
@@ -57,7 +55,6 @@
         font-size: 50px;
         font-weight: bold;
         margin: 0px;
-        height: 30px;
         padding: 10px 0px 0px 0px;
         display: block;
     }
@@ -82,8 +79,6 @@
     div.shortcut a {
         border: 1px solid #ccc;
         display: block;
-        width: 160px;
-        height: 107px;
         margin: 15px auto 0px;
         background-color: #fafafa;
         color: #aaa;
@@ -121,7 +116,6 @@
         height: 16px;
         width: 16px;
         margin-bottom: -17px;
-        margin-left: 180px;
         margin-top: 2px;
         background: url({stock}/1/gtk-close) 98% 70% no-repeat;
         cursor: pointer;
@@ -264,38 +258,6 @@
 
     var setThumbSize = function (size)
     {
-        var i;
-        var rules = document.styleSheets[0].cssRules;
-
-        var width = columns;
-        var height = Math.round (size / 1.5);
-
-        $('wrap').style.width = (width * (size + 60)) + 'px';
-
-        for (i = 0; i < rules.length; i++)
-        {
-            switch (rules[i].selectorText)
-            {
-                case 'div.shortcut a':
-                    rules[i].style.width = size + 'px';
-                    rules[i].style.height = height + 'px';
-                    break;
-                case 'div.shortcut':
-                    rules[i].style.width = (size + 40) + 'px';
-                    rules[i].style.height = (height + 43) + 'px';
-                    break;
-                case '.cross':
-                    rules[i].style.marginLeft = (size + 20) + 'px';
-                    break;
-                case 'h1':
-                    rules[i].style.fontSize = (size / 4 + 10) + 'px';
-                    rules[i].style.height = (size / 4 - 10) + 'px';
-                    break;
-                case 'h4 span::before':
-                    rules[i].style.visibility = (size < 160) ? 'hidden' : 'visible';
-                    break;
-            }
-        }
         console.log ("speed_dial-save-thumbsize " + size);
     }
 

@@ -3953,9 +3953,34 @@ prepare_speed_dial_html (MidoriView* view)
     g_free (thumb_size_type);
 
     g_string_append_printf (markup,
-            "<script>var columns = %d; var rows = %d;"
-            "setThumbSize(%d);</script>\n",
-            cols, rows, thumb_size);
+        "<script>var columns = %d; var rows = %d;"
+        "setThumbSize(%d);</script>\n",
+        cols, rows, thumb_size);
+
+    g_string_append_printf (markup,
+        "<style type=\"text/css\">"
+        "#content div.shortcut { width: %dpx; height: %dpx; }\n"
+        "#content div.shortcut a { width: %dpx; height: %dpx; }\n"
+        "#content div.shortcut .cross { margin-left: %dpx; }\n"
+        "#content div.shortcut h1 { font-size: %dpx; height: %dpx; }\n"
+        "#wrap { width: %dpx; }\n"
+        "#content h4 span:before { visibility: %s; }\n</style>",
+        thumb_size + 40, (int)((thumb_size / 1.5) + 43),
+        thumb_size, (int)(thumb_size / 1.5),
+        thumb_size + 20,
+        (int)((thumb_size / 4) + 10), (int)((thumb_size / 4) - 10),
+        cols * (thumb_size + 60),
+        thumb_size < 160 ? "hidden" : "visible");
+
+    if (!katze_object_get_boolean (view->settings, "enable-scripts"))
+    {
+        g_string_append (markup,
+            "<style type=\"text/css\">"
+            "#content h4 span:before { visibility: hidden; }\n"
+            "div.config { visibility: hidden; }\n"
+            ".cross { visibility:hidden; }\n"
+            ".activated p { background-image: none; }</style>");
+    }
 
     while (slot <= rows * cols)
     {
