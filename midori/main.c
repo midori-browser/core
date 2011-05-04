@@ -1631,14 +1631,13 @@ speeddial_new_from_file (const gchar* config,
     GKeyFile* key_file = g_key_file_new ();
     gchar* config_file = g_build_filename (config, "speeddial", NULL);
     guint i = 0;
-    guint columns = 3;
-    guint slot_count = 0;
-    guint rows;
-    gchar* slot = NULL;
-    gchar* dial_id = NULL;
-    gchar* uri = NULL;
     gchar* json_content;
-    gchar** parts;
+    gsize json_length;
+    GString* script;
+    JSGlobalContextRef js_context;
+    gchar* keyfile;
+    gchar* thumb_dir;
+    gchar** tiles;
 
     if (g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, error))
     {
@@ -1647,114 +1646,62 @@ speeddial_new_from_file (const gchar* config,
     }
 
     katze_assign (config_file, g_build_filename (config, "speeddial.json", NULL));
-    g_file_get_contents (config_file, &json_content, NULL, NULL);
-    parts = g_strsplit (json_content ? json_content : "", ",", -1);
-    while (parts && parts[i] != NULL)
+    g_file_get_contents (config_file, &json_content, &json_length, NULL);
+    script = g_string_sized_new (json_length);
+    g_string_append (script, "var json = JSON.parse (");
+    g_string_append_len (script, json_content, json_length);
+    g_string_append (script, "); "
+        "var keyfile = '';"
+        "for (i in json['shortcuts']) {"
+        "var tile = json['shortcuts'][i];"
+        "keyfile += '[Dial ' + tile['id'].substring (1) + ']\\n'"
+        "        +  'uri=' + tile['href'] + '\\n'"
+        "        +  'img=' + tile['img'] + '\\n'"
+        "        +  'title=' + tile['title'] + '\\n\\n';"
+        "} "
+        "var columns = json['width'] ? json['width'] : 3;"
+        "var rows = json['shortcuts'].length / columns;"
+        "keyfile += '[settings]\\n'"
+        "        +  'columns=' + columns + '\\n'"
+        "        +  'rows=' + (rows > 3 ? rows : 3) + '\\n\\n';"
+        "keyfile;");
+    g_free (json_content);
+    js_context = JSGlobalContextCreateInGroup (NULL, NULL);
+    keyfile = sokoke_js_script_eval (js_context, script->str, NULL);
+    JSGlobalContextRelease (js_context);
+    g_string_free (script, TRUE);
+    g_key_file_load_from_data (key_file, keyfile, -1, 0, NULL);
+    g_free (keyfile);
+    tiles = g_key_file_get_groups (key_file, NULL);
+    thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
+                              PACKAGE_NAME, "thumbnails", NULL);
+    if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
+        katze_mkdir_with_parents (thumb_dir, 0700);
+    g_free (thumb_dir);
+
+    while (tiles[i] != NULL)
     {
-        gchar* key;
-        gchar* val;
-        gchar** values = g_strsplit (parts[i], "\"", -1);
-
-        if (*values[1])
+        gsize sz;
+        gchar* uri = g_key_file_get_string (key_file, tiles[i], "uri", NULL);
+        gchar* img = g_key_file_get_string (key_file, tiles[i], "img", NULL);
+        if (img != NULL && (uri && *uri && *uri != '#'))
         {
-            if (!g_strcmp0 (values[1], "shortcuts"))
-            {
-                key = g_strdup (values[3]);
-                val = g_strdup (values[5]);
-            }
-            else if (!g_strcmp0 (values[1], "thumb"))
-            {
-                key = g_strdup (values[1]);
-                val = g_strdup (values[2]);
-            }
-            else
-            {
-                key = g_strdup (values[1]);
-                val = g_strdup (values[3]);
-            }
-
-            if (g_str_equal (key, "id"))
-            {
-                katze_assign (slot, g_strdup (val));
-                dial_id = g_strdup_printf ("Dial %s", slot + 1);
-                slot_count++;
-            }
-            else if (g_str_equal (key, "href"))
-            {
-                katze_assign (uri, g_strdup (val));
-                g_key_file_set_value (key_file, dial_id, "uri", uri);
-            }
-            else if (g_str_equal (key, "img") && (*val && strncmp (val, "#", 1)))
-            {
-                gsize sz;
-                gint state = 0;
-                guint save = 0;
-                gchar* thumb_dir;
-                gchar* thumb_path;
-                gsize base64_size = strlen (val);
-                guchar* decoded = g_malloc0 ((base64_size * 3) / 4);
-
-                sz = g_base64_decode_step (g_strdup (val), base64_size,
-                                           decoded, &state, &save);
-                thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
-                                          PACKAGE_NAME, "thumbnails", NULL);
-                if (!g_file_test (thumb_dir, G_FILE_TEST_EXISTS))
-                    katze_mkdir_with_parents (thumb_dir, 0700);
-                thumb_path = sokoke_build_thumbnail_path (uri);
-                g_file_set_contents (thumb_path, (gchar*)decoded, sz, NULL);
-
-                g_free (decoded);
-                g_free (thumb_dir);
-                g_free (thumb_path);
-            }
-            else if (g_str_equal (key, "thumb"))
-            {
-                guint thumb_size;
-                gchar* thumb_size_type;
-                gchar* size_tmp = g_strndup (val + 1, strlen (val) - 3);
-
-                thumb_size = atoi (size_tmp);
-                g_free (size_tmp);
-                if (thumb_size == 80)
-                    thumb_size_type = g_strdup ("SMALL");
-                else if (thumb_size == 240)
-                    thumb_size_type = g_strdup ("BIG");
-                else /* if (thumb_size == 160) */
-                    thumb_size_type = g_strdup ("MEDIUM");
-                g_key_file_set_value (key_file, "settings", "size", thumb_size_type);
-
-                g_free (thumb_size_type);
-            }
-            else if (g_str_equal (key, "title") && *val)
-            {
-                g_key_file_set_value (key_file, dial_id, key, val);
-            }
-            else if (g_str_equal (key, "width"))
-            {
-                columns = atoi (val);
-            }
-
-            i++;
-
-            g_free (key);
-            g_free (val);
-            g_strfreev (values);
+            guchar* decoded = g_base64_decode (img, &sz);
+            gchar* thumb_path = sokoke_build_thumbnail_path (uri);
+            g_file_set_contents (thumb_path, (gchar*)decoded, sz, NULL);
+            g_free (thumb_path);
+            g_free (decoded);
         }
+        g_free (img);
+        g_free (uri);
+        g_key_file_remove_key (key_file, tiles[i], "img", NULL);
+        i++;
     }
-
-    /* Default to 3 x 3 grid. Calculate rows here, columns is initialized as 3 */
-    rows = slot_count / columns > 3 ? slot_count / columns : 3;
-    g_key_file_set_integer (key_file, "settings", "columns", columns);
-    g_key_file_set_integer (key_file, "settings", "rows", rows);
+    g_strfreev (tiles);
 
     katze_assign (config_file, g_build_filename (config, "speeddial", NULL));
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
-
-    g_strfreev (parts);
-    g_free (dial_id);
-    g_free (slot);
     g_free (config_file);
-    g_free (json_content);
     return key_file;
 }
 
