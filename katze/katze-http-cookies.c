@@ -276,10 +276,11 @@ katze_http_cookies_attach (SoupSessionFeature* feature,
                            SoupSession*        session)
 {
     KatzeHttpCookies* http_cookies = (KatzeHttpCookies*)feature;
+    const gchar* filename = g_object_get_data (G_OBJECT (feature), "filename");
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     g_return_if_fail (jar != NULL);
-    http_cookies->filename = g_object_get_data (G_OBJECT (feature), "filename");
-    g_return_if_fail (http_cookies->filename != NULL);
+    g_return_if_fail (filename != NULL);
+    katze_assign (http_cookies->filename, g_strdup (filename));
     http_cookies->jar = g_object_ref (jar);
     cookie_jar_load (http_cookies->jar, http_cookies->filename);
     g_signal_connect (jar, "changed",
