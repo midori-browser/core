@@ -3991,22 +3991,21 @@ prepare_speed_dial_html (MidoriView* view)
 
     while (slot <= rows * cols)
     {
-        gchar* position;
         gchar* dial_entry = g_strdup_printf ("Dial %d", slot);
+        gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
+        const gchar* position;
         if (slot < cols)
-            position = g_strdup (" top");
+            position = " top";
         else if (slot == cols)
-            position = g_strdup (" top right");
+            position = " top right";
         else if (slot > cols && slot % cols == 0)
-            position = g_strdup (" right");
+            position = " right";
         else
-            position = g_strdup ("");
+            position = "";
 
-        if (g_key_file_has_group (key_file, dial_entry)
-        && g_strcmp0 (g_key_file_get_string (key_file, dial_entry, "uri", NULL), "#"))
+        if (uri && *uri && *uri != '#')
         {
             gchar* slot_id = g_strdup_printf ("s%d", slot);
-            gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
             gchar* title = g_key_file_get_string (key_file, dial_entry, "title", NULL);
             gchar* thumb_file = sokoke_build_thumbnail_path (uri);
             gchar* encoded;
@@ -4035,7 +4034,6 @@ prepare_speed_dial_html (MidoriView* view)
                     "‪%s</p></div>\n",
                     position, slot, slot, uri, encoded, slot, title);
 
-            g_free (uri);
             g_free (title);
             g_free (encoded);
         }
@@ -4051,8 +4049,8 @@ prepare_speed_dial_html (MidoriView* view)
         }
 
         slot++;
-        g_free (position);
         g_free (dial_entry);
+        g_free (uri);
     }
     g_string_append_printf (markup,
             "</div>\n</div>\n</body>\n</html>\n");
