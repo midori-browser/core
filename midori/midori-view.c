@@ -1179,7 +1179,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
         }
 
         /* If available, load SVG icon as SVG markup */
-        icon_size = gtk_icon_size_lookup_for_settings (
+        gtk_icon_size_lookup_for_settings (
             gtk_widget_get_settings (GTK_WIDGET (view)),
                 icon_size, &real_icon_size, &real_icon_size);
         icon_info = gtk_icon_theme_lookup_icon (icon_theme, icon_name,
