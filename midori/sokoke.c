@@ -812,6 +812,7 @@ sokoke_external_uri (const gchar* uri)
 
     if (!uri || !strncmp (uri, "http", 4)
              || !strncmp (uri, "file", 4)
+             || !strncmp (uri, "geo", 3)
              || !strncmp (uri, "about:", 6))
         return FALSE;
 
@@ -850,6 +851,33 @@ sokoke_magic_uri (const gchar* uri)
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);
+    /* Parse geo URI geo:48.202778,16.368472;crs=wgs84;u=40 as a location */
+    if (!strncmp (uri, "geo:", 4))
+    {
+        gchar* comma;
+        gchar* semicolon;
+        gchar* latitude;
+        gchar* longitude;
+        gchar* geo;
+
+        comma = strchr (&uri[4], ',');
+        /* geo:latitude,longitude[,altitude][;u=u][;crs=crs] */
+        if (!(comma && *comma))
+            return g_strdup (uri);
+        semicolon = strchr (comma + 1, ';');
+        if (!semicolon)
+            semicolon = strchr (comma + 1, ',');
+        latitude = g_strndup (&uri[4], comma - &uri[4]);
+        if (semicolon)
+            longitude = g_strndup (comma + 1, semicolon - comma - 1);
+        else
+            longitude = g_strdup (comma + 1);
+        geo = g_strdup_printf ("http://www.openstreetmap.org/?mlat=%s&mlon=%s",
+            latitude, longitude);
+        g_free (latitude);
+        g_free (longitude);
+        return geo;
+    }
     /* Do we have a protocol? */
     if (g_strstr_len (uri, 8, "://"))
         return sokoke_idn_to_punycode (g_strdup (uri));

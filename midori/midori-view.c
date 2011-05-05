@@ -983,7 +983,14 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     JSContextRef js_context;
     gchar* result;
     const gchar* uri = webkit_network_request_get_uri (request);
-    if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
+    if (g_str_has_prefix (uri, "geo:"))
+    {
+        gchar* new_uri = sokoke_magic_uri (uri);
+        midori_view_set_uri (view, new_uri);
+        g_free (new_uri);
+        return TRUE;
+    }
+    else if (g_str_has_prefix (uri, "mailto:") || sokoke_external_uri (uri))
     {
         if (sokoke_show_uri (gtk_widget_get_screen (GTK_WIDGET (web_view)),
                              uri, GDK_CURRENT_TIME, NULL))
