@@ -4040,12 +4040,12 @@ prepare_speed_dial_html (MidoriView* view)
         else
         {
             g_string_append_printf (markup,
-                    "<div class=\"shortcut%s\" id=\"s%d\">"
-                    "\n<a href=\"#\" onclick='javascript:return"
-                    " getAction(\"s%d\");'>"
-                    "<h1>%d</h1>\n<h4><span></span></h4>"
-                    "</a>\n<p></p></div>\n",
-                    position, slot, slot, slot);
+                "<div class=\"shortcut%s\" id=\"s%d\">", position, slot);
+            if (katze_object_get_boolean (view->settings, "enable-scripts"))
+                g_string_append_printf (markup,
+                    "<a href=\"#\" onclick='javascript:return getAction(\"s%d\");'>"
+                    "<img src=\"stock://6/gtk-add\"></a>", slot);
+            g_string_append_printf (markup, "</div>");
         }
 
         slot++;
