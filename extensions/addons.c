@@ -869,9 +869,11 @@ addons_get_files (AddonsKind kind)
     g_assert (kind == ADDONS_USER_SCRIPTS || kind == ADDONS_USER_STYLES);
 
     if (kind == ADDONS_USER_SCRIPTS)
-        file_extension = g_strdup (".js");
+        file_extension = ".js";
     else if (kind == ADDONS_USER_STYLES)
-        file_extension = g_strdup (".css");
+        file_extension = ".css";
+    else
+        g_assert_not_reached ();
 
     files = NULL;
 
@@ -895,7 +897,6 @@ addons_get_files (AddonsKind kind)
         directories = g_slist_next (directories);
     }
 
-    g_free (file_extension);
     g_slist_free (directories);
 
     return files;
@@ -1014,6 +1015,8 @@ css_metadata_from_file (const gchar* filename,
                      rest_of_line = g_strdup (line);
 
                  rest_of_line = g_strstrip (rest_of_line);
+                 line_has_meta  = g_str_has_suffix (rest_of_line, "{") ? FALSE : TRUE;
+
                  parts = g_strsplit (rest_of_line, " ", 0);
                  i = 0;
                  while (parts[i] && (*parts[i] != '\0' && *parts[i] != '{'))
@@ -1050,8 +1053,10 @@ css_metadata_from_file (const gchar* filename,
                     i++;
                  }
                  g_strfreev (parts);
+                 g_free (rest_of_line);
              }
-             line_has_meta  = g_str_has_suffix (rest_of_line, "{") ? FALSE : TRUE;
+             else
+                 line_has_meta = FALSE;
         }
         g_free (line);
     }
