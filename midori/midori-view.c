@@ -1514,6 +1514,9 @@ webkit_web_view_load_error_cb (WebKitWebView*  web_view,
     case WEBKIT_PLUGIN_ERROR_WILL_HANDLE_LOAD:
         /* A plugin will take over. That's expected, it's not fatal. */
         return FALSE;
+    case WEBKIT_NETWORK_ERROR_CANCELLED:
+        /* Mostly initiated by JS redirects. */
+        return FALSE;
     }
 
     title = g_strdup_printf (_("Error - %s"), uri);
