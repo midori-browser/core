@@ -1708,6 +1708,13 @@ midori_browser_key_press_event (GtkWidget*   widget,
     if (event->state && gtk_window_propagate_key_event (window, event))
         return TRUE;
 
+    /* Interpret Backspace as going back for compatibility */
+    if (event->keyval == GDK_BackSpace)
+    {
+        gtk_action_activate (_action_by_name (browser, "Back"));
+        return TRUE;
+    }
+
     widget_class = g_type_class_peek_static (g_type_parent (GTK_TYPE_WINDOW));
     return widget_class->key_press_event (widget, event);
 }
