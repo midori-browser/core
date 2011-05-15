@@ -7,7 +7,7 @@
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki" />
 <meta name="robots" content="index,follow" />
-<meta name="date" content="2011-04-25T16:56:20+0200" />
+<meta name="date" content="2011-05-05T22:28:18+0200" />
 <meta name="keywords" content="midori,faq" />
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki" />
 <link rel="start" href="/" />
@@ -19,9 +19,9 @@
 <link rel="canonical" href="http://wiki.xfce.org/midori/faq" />
 <link rel="stylesheet" type="text/css" href="faq.css" />
 <script type="text/javascript" ><!--//--><![CDATA[//><!--
-var NS='midori';var SIG=' --- //[[christian@twotoasts.de|Christian Dywan]] 2011/05/02 00:39//';var JSINFO = {"id":"midori:faq","namespace":"midori"};
+var NS='midori';var SIG=' --- //[[christian@twotoasts.de|Christian Dywan]] 2011/05/16 01:12//';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 //--><!]]></script>
-<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1304238868" ></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1305397590" ></script>
 </head>
 <body>
 <div class="dokuwiki export">
@@ -47,7 +47,7 @@ var NS='midori';var SIG=' --- //[[christian@twotoasts.de|Christian Dywan]] 2011/
 <ul class="toc">
 <li class="level3"><div class="li"><span class="li"><a href="#hjkl" class="toc">HJKL</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#following_links" class="toc">Following Links</a></span></div></li>
-<li class="level3"><div class="li"><span class="li"><a href="#toggling_between_pages" class="toc">Toggling between pages</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#use_ctrl_shift_tab_to_switch_between_pages" class="toc">Use Ctrl(+Shift)+Tab to switch between pages</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#customizing_keyboard_shortcuts" class="toc">Customizing keyboard shortcuts</a></span></div></li>
 </ul>
 </li>
@@ -140,7 +140,22 @@ Midori and all delivered artwork are licensed under the LGPL2.
 
 <p>
 
-Because they discriminate against your browser. Go to Preferences &gt; Network &gt; Identify As, and choose Safari. 
+Some websites discriminate against your browser.
+</p>
+
+<p>
+If you have Midori older than 0.3.5, go to Preferences &gt; Network &gt; Identify As, and choose Custom. Paste this into the entry:
+</p>
+
+<p>
+Mozilla/5.0 (X11; Linux) AppleWebKit/531.2+ Midori/0.3
+</p>
+
+<p>
+If this doesn&#039;t do the trick, try choosing Safari or Firefox.
+</p>
+
+<p>
 Many other websites use similar means of detecting the browser.
 </p>
 
@@ -154,7 +169,7 @@ Ideally Google would follow <a href="http://code.google.com/p/doctype/wiki/Artic
 <div class="level4">
 
 <p>
-The set of themed icons Midori can use is very limited. For instance icons for a new tab or the throbber are not guaranteed to be available. To fix this, install a Freedesktop.org <acronym title="specification">spec</acronym> compliant icon theme, such as Tango or Gnome, or one that is compatible with these.
+The set of themed icons Midori can use is very limited. For instance icons for a new tab or the throbber are not guaranteed to be available. To fix this, install a Freedesktop.org <acronym title="specification">spec</acronym> compliant icon theme, such as Elementary, Faenza, Buuf or GNOME.
 </p>
 
 </div>
@@ -235,30 +250,6 @@ That&#039;s a problem with WebKit. You can work around it to some extent if you 
 
 </div>
 
-<h4><a name="javascript_popup_windows" id="javascript_popup_windows">Javascript Popup windows</a></h4>
-<div class="level4">
-
-<p>
-
-By default, Midori blocks all popup windows that openen on their own. With WebKitGTK+ 1.1.11 or higher, you can use a hidden setting to enable these windows.
-
-</p>
-<ol>
-<li class="level1"><div class="li"> Quit Midori</div>
-</li>
-<li class="level1"><div class="li"> Open the file ~/.config/midori/config</div>
-</li>
-<li class="level1"><div class="li"> Add a line “javascript-can-open-windows-automatically=true”</div>
-</li>
-</ol>
-
-<p>
-
-There is also a preference in the git version as of 2010-03-23.
-</p>
-
-</div>
-
 <h4><a name="scroll_with_middle_mouse_button" id="scroll_with_middle_mouse_button">Scroll with middle mouse button</a></h4>
 <div class="level4">
 
@@ -289,6 +280,8 @@ You need to have GStreamer plugins installed which implement the codecs.
 <li class="level1"><div class="li"> For Youtube or Vimeo, you need WebKitGTK+ 1.1.20 or newer.</div>
 </li>
 <li class="level1"><div class="li"> You can <a href="http://ie.microsoft.com/testdrive/Graphics/VideoFormatSupport/Default.html" class="urlextern" title="http://ie.microsoft.com/testdrive/Graphics/VideoFormatSupport/Default.html"  rel="nofollow">test your installed codecs here</a>..</div>
+</li>
+<li class="level1"><div class="li"> Since Midori 0.3.5 you can look at “about:version” to see which video codecs you have installed.</div>
 </li>
 </ol>
 
@@ -381,7 +374,7 @@ Since Midori 0.3.2 you can use Ctrl+Shift+R.
 
 <p>
 
-Right-click the tab label, and click &#039;Minimize&#039;.
+Right-click the tab label, and click &#039;Minimize&#039; or &#039;Show Tab Icon Only&#039; (Midori 0.3.5 or older).
 </p>
 
 </div>
@@ -474,12 +467,12 @@ Note that incomplete .desktop files will silently fail and it will look as if it
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Common problems" [1213-9012] -->
+<!-- EDIT4 SECTION "Common problems" [1213-8946] -->
 <h1 class="sectionedit5"><a name="features" id="features">Features</a></h1>
 <div class="level1">
 
 </div>
-<!-- EDIT5 SECTION "Features" [9013-9035] -->
+<!-- EDIT5 SECTION "Features" [8947-8969] -->
 <h2 class="sectionedit6"><a name="web_applications" id="web_applications">Web Applications</a></h2>
 <div class="level2">
 
@@ -502,7 +495,7 @@ There are two closely related features to open websites as dedicated windows of 
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Web Applications" [9036-9552] -->
+<!-- EDIT6 SECTION "Web Applications" [8970-9486] -->
 <h2 class="sectionedit7"><a name="private_browsing" id="private_browsing">Private Browsing</a></h2>
 <div class="level2">
 <ol>
@@ -529,7 +522,7 @@ The same options available to -a/ –app can be used for private browsing mode.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Private Browsing" [9553-10476] -->
+<!-- EDIT7 SECTION "Private Browsing" [9487-10410] -->
 <h2 class="sectionedit8"><a name="proxy_servers" id="proxy_servers">Proxy servers</a></h2>
 <div class="level2">
 
@@ -537,18 +530,6 @@ The same options available to -a/ –app can be used for private browsing mode.
 
 By running a local proxy you can modify web content even before it has reached Midori. That allows you to do things similar to what user scripts and user styles provide and even others that neither is suitable for.
 </p>
-
-<p>
-To use Midori with a proxy server, there are two options:
-
-</p>
-<ol>
-<li class="level1"><div class="li"> WebKit is built with libcurl. Define an environment variable http_proxy and set it to your proxy server like so:<pre class="code">  export http_proxy = 234.22.154.11:8000</pre>
-</div>
-</li>
-<li class="level1"><div class="li"> WebKit is built with libsoup. Midori &gt;= 0.1.2, is built with libsoup. Try to open some web page. Now open the preferences, and you should see a Network tab with a &#039;Proxy server&#039; field.</div>
-</li>
-</ol>
 
 </div>
 
@@ -595,12 +576,12 @@ Mousehole is a scriptable proxy server written in Ruby.
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Proxy servers" [10477-11727] -->
+<!-- EDIT8 SECTION "Proxy servers" [10411-11241] -->
 <h2 class="sectionedit9"><a name="using_the_keyboard" id="using_the_keyboard">Using the Keyboard</a></h2>
 <div class="level2">
 
 </div>
-<!-- EDIT9 SECTION "Using the Keyboard" [11728-11759] -->
+<!-- EDIT9 SECTION "Using the Keyboard" [11242-11273] -->
 <h3 class="sectionedit10"><a name="hjkl" id="hjkl">HJKL</a></h3>
 <div class="level3">
 
@@ -619,7 +600,7 @@ You can also use the arrow keys to do the same.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "HJKL" [11760-11967] -->
+<!-- EDIT10 SECTION "HJKL" [11274-11481] -->
 <h3 class="sectionedit11"><a name="following_links" id="following_links">Following Links</a></h3>
 <div class="level3">
 
@@ -633,17 +614,21 @@ With hints enabled, type the link number, and press Enter to open the link in th
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Following Links" [11968-12299] -->
-<h3 class="sectionedit12"><a name="toggling_between_pages" id="toggling_between_pages">Toggling between pages</a></h3>
+<!-- EDIT11 SECTION "Following Links" [11482-11813] -->
+<h3 class="sectionedit12"><a name="use_ctrl_shift_tab_to_switch_between_pages" id="use_ctrl_shift_tab_to_switch_between_pages">Use Ctrl(+Shift)+Tab to switch between pages</a></h3>
 <div class="level3">
 
 <p>
 
-Enable the History List extension Tools → Extensions. Now you can conveniently toggle between any two pages with Ctrl-Tab.
+Since Midori 0.3.5 Ctrl+Tab is supported by default.
+</p>
+
+<p>
+In older versions you can enable the History List extension under Tools → Extensions.
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Toggling between pages" [12300-12459] -->
+<!-- EDIT12 SECTION "Use Ctrl(+Shift)+Tab to switch between pages" [11814-12012] -->
 <h3 class="sectionedit13"><a name="customizing_keyboard_shortcuts" id="customizing_keyboard_shortcuts">Customizing keyboard shortcuts</a></h3>
 <div class="level3">
 
@@ -654,17 +639,13 @@ Enable the Shortcuts extension Tools → Extensions. To edit a keybinding Tools 
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Customizing keyboard shortcuts" [12460-12608] -->
+<!-- EDIT13 SECTION "Customizing keyboard shortcuts" [12013-12161] -->
 <h2 class="sectionedit14"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h2>
 <div class="level2">
 
 <p>
 
-Midori has a Mouse Gestures extension (since git 2009-01-21).
-</p>
-
-<p>
-As of 0.2.5 the right button initiates gestures.
+By default the right mouse button initiates gestures.
 </p>
 
 <p>
@@ -691,14 +672,14 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Mouse Gestures" [12609-13340] -->
+<!-- EDIT14 SECTION "Mouse Gestures" [12162-12835] -->
 <h2 class="sectionedit15"><a name="spell_check" id="spell_check">Spell check</a></h2>
 <div class="level2">
 
 <p>
 
 First enable spell checking:
-Edit→Preferences→Behavior and Check off “Enable Spell Checking”.
+Edit→Preferences→Behavior and check “Enable Spell Checking”.
 </p>
 
 <p>
@@ -706,7 +687,7 @@ Now while typing any errors should get underlined in red. To get suggestions, hi
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Spell check" [13341-13634] -->
+<!-- EDIT15 SECTION "Spell check" [12836-13125] -->
 <h2 class="sectionedit16"><a name="user_scripts" id="user_scripts">User scripts</a></h2>
 <div class="level2">
 
@@ -777,7 +758,7 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 </p>
 
 </div>
-<!-- EDIT16 SECTION "User scripts" [13635-16195] -->
+<!-- EDIT16 SECTION "User scripts" [13126-15686] -->
 <h2 class="sectionedit17"><a name="user_styles" id="user_styles">User styles</a></h2>
 <div class="level2">
 
@@ -848,6 +829,6 @@ Customize as needed:
         }</pre>
 
 </div>
-<!-- EDIT17 SECTION "User styles" [16196-] --></div>
+<!-- EDIT17 SECTION "User styles" [15687-] --></div>
 </body>
 </html>
