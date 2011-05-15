@@ -159,17 +159,9 @@ midori_preferences_new (GtkWindow*         parent,
     return GTK_WIDGET (preferences);
 }
 
-#if GTK_CHECK_VERSION (2, 16, 0)
-static void
-midori_preferences_homepage_icon_press_cb (GtkWidget*           button,
-                                           GtkEntryIconPosition position,
-                                           GdkEvent*            event,
-                                           MidoriWebSettings*   settings)
-#else
 static void
 midori_preferences_homepage_current_clicked_cb (GtkWidget*         button,
                                                 MidoriWebSettings* settings)
-#endif
 {
     GtkWidget* preferences = gtk_widget_get_toplevel (button);
     GtkWidget* browser = katze_object_get_object (preferences, "transient-for");
@@ -311,22 +303,16 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (entry);
     if (parent && katze_object_has_property (parent, "uri"))
     {
-        #if GTK_CHECK_VERSION (2, 16, 0)
-        gtk_entry_set_icon_from_stock (GTK_ENTRY (entry),
-            GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_JUMP_TO);
-        gtk_entry_set_icon_tooltip_text (GTK_ENTRY (entry),
-            GTK_ENTRY_ICON_SECONDARY, _("Use current page as homepage"));
-        g_signal_connect (entry, "icon-press",
-            G_CALLBACK (midori_preferences_homepage_icon_press_cb), settings);
+        #if 0
+        button = gtk_button_new_with_mnemonic (_("Use _current page"));
         #else
-        button = gtk_button_new ();
-        label = gtk_image_new_from_stock (GTK_STOCK_JUMP_TO, GTK_ICON_SIZE_BUTTON);
-        gtk_button_set_image (GTK_BUTTON (button), label);
-        gtk_widget_set_tooltip_text (button, _("Use current page as homepage"));
+        label = gtk_label_new (NULL);
+        INDENTED_ADD (label);
+        button = gtk_button_new_with_label (_("Use current page as homepage"));
+        #endif
         g_signal_connect (button, "clicked",
             G_CALLBACK (midori_preferences_homepage_current_clicked_cb), settings);
         SPANNED_ADD (button);
-        #endif
     }
 
     /* Page "Appearance" */
