@@ -1173,7 +1173,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean (
                                      "strip-referer",
     /* i18n: Reworded: Shorten details propagated when going to another page */
-        _("Strip referrer details sent to external sites"),
+        _("Strip referrer details sent to websites"),
     /* i18n: Referer here is not a typo but a technical term */
         _("Whether the \"Referer\" header should be shortened to the hostname"),
                                      FALSE,
