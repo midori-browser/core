@@ -320,6 +320,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     FRAME_NEW (NULL);
     #if !HAVE_HILDON
     label = gtk_label_new (_("Default Font Family"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "default-font-family", "font");
     gtk_widget_set_tooltip_text (button, _("The default font family used to display text"));
@@ -328,6 +329,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_tooltip_text (entry, _("The default font size used to display text"));
     SPANNED_ADD (entry);
     label = gtk_label_new (_("Fixed-width Font Family"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "monospace-font-family", "font-monospace");
     gtk_widget_set_tooltip_text (button, _("The font family used to display fixed-width text"));
@@ -336,6 +338,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_tooltip_text (entry, _("The font size used to display fixed-width text"));
     SPANNED_ADD (entry);
     label = gtk_label_new (_("Minimum Font Size"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "minimum-font-size", NULL);
     gtk_widget_set_tooltip_text (entry, _("The minimum font size used to display text"));
@@ -442,6 +445,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "proxy-type", NULL);
     SPANNED_ADD (button);
     label = gtk_label_new (_("Hostname"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "http-proxy", NULL);
     SPANNED_ADD (entry);
@@ -455,6 +459,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "maximum-cache-size", NULL);
     SPANNED_ADD (button);
     label = gtk_label_new (_("MB"));
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     SPANNED_ADD (label);
     #endif
     label = katze_property_label (settings, "identify-as");
