@@ -101,6 +101,7 @@ struct _MidoriBrowser
     gboolean show_statusbar;
     guint maximum_history_age;
     gchar* location_entry_search;
+    guint last_web_search;
     gchar* news_aggregator;
 };
 
@@ -3797,13 +3798,11 @@ _action_search_submit (GtkAction*     action,
                        gboolean       new_tab,
                        MidoriBrowser* browser)
 {
-    guint last_web_search;
     KatzeItem* item;
     const gchar* url;
     gchar* search;
 
-    g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
-    item = katze_array_get_nth_item (browser->search_engines, last_web_search);
+    item = katze_array_get_nth_item (browser->search_engines, browser->last_web_search);
     if (item)
         url = katze_item_get_uri (item);
     else /* The location entry search is our fallback */
@@ -3862,6 +3861,7 @@ _action_search_notify_current_item (GtkAction*     action,
         idx = 0;
 
     g_object_set (browser->settings, "last-web-search", idx, NULL);
+    browser->last_web_search = idx;
 }
 
 static void
@@ -6352,7 +6352,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     gboolean show_panel;
     MidoriToolbarStyle toolbar_style;
     gchar* toolbar_items;
-    gint last_web_search;
     gboolean close_buttons_on_tabs;
     KatzeItem* item;
 
@@ -6377,7 +6376,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "show-statusbar", &browser->show_statusbar,
                   "toolbar-style", &toolbar_style,
                   "toolbar-items", &toolbar_items,
-                  "last-web-search", &last_web_search,
                   "location-entry-search", &browser->location_entry_search,
                   "close-buttons-on-tabs", &close_buttons_on_tabs,
                   "maximum-history-age", &browser->maximum_history_age,
@@ -6425,7 +6423,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     if (browser->search_engines)
     {
         item = katze_array_get_nth_item (browser->search_engines,
-                                         last_web_search);
+                                         browser->last_web_search);
         if (item)
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
@@ -6713,7 +6711,6 @@ midori_browser_set_property (GObject*      object,
                              GParamSpec*   pspec)
 {
     MidoriBrowser* browser = MIDORI_BROWSER (object);
-    guint last_web_search;
     KatzeItem* item;
 
     switch (prop_id)
@@ -6772,8 +6769,8 @@ midori_browser_set_property (GObject*      object,
 
         if (browser->search_engines)
         {
-            g_object_get (browser->settings, "last-web-search", &last_web_search, NULL);
-            item = katze_array_get_nth_item (browser->search_engines, last_web_search);
+            g_object_get (browser->settings, "last-web-search", &browser->last_web_search, NULL);
+            item = katze_array_get_nth_item (browser->search_engines, browser->last_web_search);
             midori_search_action_set_current_item (MIDORI_SEARCH_ACTION (
                 _action_by_name (browser, "Search")), item);
 
