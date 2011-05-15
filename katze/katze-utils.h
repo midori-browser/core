@@ -139,6 +139,9 @@ GdkPixbuf*
 katze_load_cached_icon               (const gchar*    uri,
                                       GtkWidget*      widget);
 
+GtkWidget*
+katze_uri_entry_new                  (GtkWidget*      other_widget);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */

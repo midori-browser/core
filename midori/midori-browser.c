@@ -671,19 +671,6 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
 }
 
 static void
-midori_browser_edit_bookmark_uri_changed_cb (GtkEntry*      entry,
-                                             GtkDialog*     dialog)
-{
-    const gchar* uri = gtk_entry_get_text (entry);
-    gtk_dialog_set_response_sensitive (dialog, GTK_RESPONSE_ACCEPT,
-        uri && (g_str_has_prefix (uri, "http://")
-        || g_str_has_prefix (uri, "https://")
-        || g_str_has_prefix (uri, "file://")
-        || g_str_has_prefix (uri, "data:")
-        || g_str_has_prefix (uri, "javascript:")));
-}
-
-static void
 midori_browser_edit_bookmark_title_changed_cb (GtkEntry*      entry,
                                                GtkDialog*     dialog)
 {
@@ -803,7 +790,12 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         label = gtk_label_new_with_mnemonic (_("_Address:"));
         gtk_size_group_add_widget (sizegroup, label);
         gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-        entry_uri = gtk_entry_new ();
+        entry_uri = katze_uri_entry_new (
+        #if GTK_CHECK_VERSION (2, 20, 0)
+            gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT));
+        #else
+            NULL);
+        #endif
         #if HAVE_HILDON
         HildonGtkInputMode mode = hildon_gtk_entry_get_input_mode (GTK_ENTRY (entry_uri));
         mode &= ~HILDON_GTK_INPUT_MODE_AUTOCAP;
@@ -811,10 +803,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         #endif
         gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
         gtk_entry_set_text (GTK_ENTRY (entry_uri), katze_item_get_uri (bookmark));
-        midori_browser_edit_bookmark_uri_changed_cb (GTK_ENTRY (entry_uri),
-                                                     GTK_DIALOG (dialog));
-        g_signal_connect (entry_uri, "changed",
-            G_CALLBACK (midori_browser_edit_bookmark_uri_changed_cb), dialog);
         gtk_box_pack_start (GTK_BOX (hbox), entry_uri, TRUE, TRUE, 0);
         gtk_container_add (GTK_CONTAINER (content_area), hbox);
         gtk_widget_show_all (hbox);

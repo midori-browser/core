@@ -299,7 +299,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     SPANNED_ADD (button);
     label = katze_property_label (settings, "homepage");
     INDENTED_ADD (label);
-    entry = katze_property_proxy (settings, "homepage", NULL);
+    entry = katze_property_proxy (settings, "homepage", "address");
     SPANNED_ADD (entry);
     if (parent && katze_object_has_property (parent, "uri"))
     {

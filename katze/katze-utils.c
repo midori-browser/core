@@ -477,6 +477,9 @@ g_icon_to_string (GIcon *icon)
  *     Since 0.2.9 the following hints are also supported:
  *     "languages": the widget will be particularly suitable for choosing
  *         multiple language codes, ie. "de,en_GB".
+ *     Since 0.3.6 the following hints are also supported:
+ *     "address": the widget will be particularly suitable for typing
+ *         a valid URI or IP address and highlight errors.
  *
  * Any other values for @hint are silently ignored.
  *
@@ -741,7 +744,10 @@ katze_property_proxy (gpointer     object,
     {
         gchar* notify_property;
 
-        widget = gtk_entry_new ();
+        if (_hint == I_("address"))
+            widget = katze_uri_entry_new (NULL);
+        else
+            widget = gtk_entry_new ();
         g_object_get (object, property, &string, NULL);
         if (!string)
             string = g_strdup (G_PARAM_SPEC_STRING (pspec)->default_value);
@@ -1557,5 +1563,57 @@ katze_load_cached_icon (const gchar* uri,
 
     return icon || !widget ? icon : gtk_widget_render_icon (widget,
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
+}
+
+static void
+katze_uri_entry_changed_cb (GtkWidget* entry,
+                            GtkWidget* other_widget)
+{
+    const gchar* uri = gtk_entry_get_text (GTK_ENTRY (entry));
+    gboolean valid = g_str_has_prefix (uri, "http://")
+                  || g_str_has_prefix (uri, "https://")
+                  || g_str_has_prefix (uri, "file://")
+                  || g_str_has_prefix (uri, "data:")
+                  || g_str_has_prefix (uri, "about:")
+                  || g_str_has_prefix (uri, "javascript:");
+    if (*uri && !valid)
+    {
+        GdkColor bg_color = { 0 };
+        GdkColor fg_color = { 0 };
+        gdk_color_parse ("#ef7070", &bg_color);
+        gdk_color_parse ("#000", &fg_color);
+        gtk_widget_modify_base (entry, GTK_STATE_NORMAL, &bg_color);
+        gtk_widget_modify_text (entry, GTK_STATE_NORMAL, &fg_color);
+    }
+    else
+    {
+        gtk_widget_modify_base (entry, GTK_STATE_NORMAL, NULL);
+        gtk_widget_modify_text (entry, GTK_STATE_NORMAL, NULL);
+    }
+
+    if (other_widget != NULL)
+        gtk_widget_set_sensitive (other_widget, *uri && valid);
+}
+
+/**
+ * katze_uri_entry_new:
+ * @other_widget: a #GtkWidget, or %NULL
+ *
+ * Creates an entry that validates the typed URI.
+ *
+ * If @other_widget is given, it will become insensitive if
+ * the input is not a valid URI.
+ *
+ * Returns: a #GtkEntry
+ *
+ * Since: 0.3.6
+ */
+GtkWidget*
+katze_uri_entry_new (GtkWidget* other_widget)
+{
+    GtkWidget* entry = gtk_entry_new ();
+    g_signal_connect (entry, "changed",
+        G_CALLBACK (katze_uri_entry_changed_cb), other_widget);
+    return entry;
 }
 
