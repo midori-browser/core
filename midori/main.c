@@ -797,6 +797,7 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     button = katze_property_proxy (settings, "strip-referer", NULL);
     katze_preferences_add_widget (preferences, button, "indented");
     #endif
+    katze_preferences_add_group (preferences, NULL);
     button = katze_property_label (settings, "maximum-history-age");
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "maximum-history-age", NULL);
