@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.3.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-01 18:05+0200\n"
+"POT-Creation-Date: 2011-05-15 11:36+0200\n"
 "PO-Revision-Date: 2009-04-30 00:15+0100\n"
 "Last-Translator: Christian Dywan <christian@twotoasts.de>\n"
 "Language-Team: German <de@li.org>\n"
@@ -101,10 +101,6 @@ msgstr "Erweiterungen"
 #: ../midori/main.c:751
 msgid "Privacy"
 msgstr "Privatsphäre"
-
-#: ../midori/main.c:752
-msgid "Web Cookies"
-msgstr "Benutzerprofile"
 
 #: ../midori/main.c:756
 msgid "Delete old cookies after 1 hour"
@@ -2056,32 +2052,24 @@ msgid "Features"
 msgstr "Inhalte"
 
 #. Page "General"
-#: ../midori/midori-preferences.c:302
-msgid "General"
-msgstr "Allgemein"
-
-#: ../midori/midori-preferences.c:303
+#: ../midori/midori-preferences.c:294
 msgid "Startup"
 msgstr "Programmstart"
 
-#: ../midori/midori-preferences.c:318 ../midori/midori-preferences.c:325
+#: ../midori/midori-preferences.c:307
+msgid "Use _current page"
+msgstr "_Aktuelle Seite benutzen"
+
+#: ../midori/midori-preferences.c:311
 msgid "Use current page as homepage"
 msgstr "Aktuelle Seite als Startseite benutzen"
-
-#: ../midori/midori-preferences.c:331 ../panels/midori-transfers.c:87
-msgid "Transfers"
-msgstr "Übertragungen"
 
 #. Page "Appearance"
 #: ../midori/midori-preferences.c:340
 msgid "Appearance"
 msgstr "Erscheinungsbild"
 
-#: ../midori/midori-preferences.c:341
-msgid "Font settings"
-msgstr "Schrifteinstellungen"
-
-#: ../midori/midori-preferences.c:343
+#: ../midori/midori-preferences.c:322
 msgid "Default Font Family"
 msgstr "Standardschriftart"
 
@@ -2138,22 +2126,6 @@ msgstr "Skripte können selbstständig neue Fenster öffnen"
 #: ../midori/midori-preferences.c:413
 msgid "Browsing"
 msgstr "Navigation"
-
-#: ../midori/midori-preferences.c:417
-msgid "Navigationbar"
-msgstr "Navigationsleiste"
-
-#: ../midori/midori-preferences.c:423
-msgid "Interface"
-msgstr "Oberfläche"
-
-#: ../midori/midori-preferences.c:441
-msgid "Applications"
-msgstr "Anwendungen"
-
-#: ../midori/midori-preferences.c:442
-msgid "External applications"
-msgstr "Externe Anwendungen"
 
 #. Page "Network"
 #: ../midori/midori-preferences.c:454 ../midori/midori-preferences.c:455
@@ -2287,7 +2259,7 @@ msgstr " (%s/s)"
 #: ../midori/sokoke.c:2273
 #, c-format
 msgid " - %s remaining"
-msgstr ""
+msgstr " - %s verbleibend"
 
 #. i18n: A panel at the bottom, to search text in pages
 #: ../toolbars/midori-findbar.c:231
@@ -2415,6 +2387,10 @@ msgstr "Ausgewählten Verlaufseintrag löschen"
 #: ../panels/midori-history.c:377
 msgid "Clear the entire history"
 msgstr "Den gesamten Verlauf löschen"
+
+#: ../panels/midori-transfers.c:87
+msgid "Transfers"
+msgstr "Übertragungen"
 
 #: ../panels/midori-transfers.c:481
 msgid "Open Destination _Folder"
@@ -2990,6 +2966,27 @@ msgstr "Werkzeugleisten leicht anpassen"
 #: ../extensions/web-cache.c:479
 msgid "Cache HTTP communication on disk"
 msgstr "HTTP-Kommunikation auf der Festplatte zwischenspeichern"
+
+#~ msgid "Web Cookies"
+#~ msgstr "Benutzerprofile"
+
+#~ msgid "General"
+#~ msgstr "Allgemein"
+
+#~ msgid "Font settings"
+#~ msgstr "Schrifteinstellungen"
+
+#~ msgid "Navigationbar"
+#~ msgstr "Navigationsleiste"
+
+#~ msgid "Interface"
+#~ msgstr "Oberfläche"
+
+#~ msgid "Applications"
+#~ msgstr "Anwendungen"
+
+#~ msgid "External applications"
+#~ msgstr "Externe Anwendungen"
 
 #~ msgid "Delete cookies when quitting Midori"
 #~ msgstr "Cookies beim Beenden von Midori löschen"
