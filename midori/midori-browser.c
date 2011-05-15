@@ -1678,6 +1678,12 @@ midori_browser_key_press_event (GtkWidget*   widget,
         gtk_action_activate (_action_by_name (browser, "TabPrevious"));
         return TRUE;
     }
+    /* Interpret F5 as reloading for compatibility */
+    else if (event->keyval == GDK_F5)
+    {
+        gtk_action_activate (_action_by_name (browser, "Reload"));
+        return TRUE;
+    }
 
     if (gtk_window_get_focus (GTK_WINDOW (widget)) == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
