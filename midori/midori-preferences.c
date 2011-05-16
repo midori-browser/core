@@ -316,7 +316,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     }
 
     /* Page "Appearance" */
-    PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Appearance"));
+    PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Fonts"));
     FRAME_NEW (NULL);
     #if !HAVE_HILDON
     label = gtk_label_new (_("Default Font Family"));
