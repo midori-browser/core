@@ -718,25 +718,6 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
 }
 
 static void
-midori_preferences_delete_cookies_changed_cb (GtkComboBox*       combo,
-                                              MidoriWebSettings* settings)
-{
-    gint active = gtk_combo_box_get_active (combo);
-    gint max_age;
-    switch (active)
-    {
-    case 0: max_age =   0; break;
-    case 1: max_age =   1; break;
-    case 2: max_age =   7; break;
-    case 3: max_age =  30; break;
-    case 4: max_age = 365; break;
-    default:
-        max_age = 30;
-    }
-    g_object_set (settings, "maximum-cookie-age", max_age, NULL);
-}
-
-static void
 midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
                                        KatzePreferences* preferences,
                                        MidoriApp*        app)
@@ -744,34 +725,13 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     MidoriWebSettings* settings = midori_browser_get_settings (browser);
     GtkWidget* button;
     GtkWidget* label;
-    gint max_age = katze_object_get_int (settings, "maximum-cookie-age");
-    guint active;
     gchar* markup;
 
     katze_preferences_add_category (preferences, _("Privacy"), GTK_STOCK_INDEX);
     katze_preferences_add_group (preferences, NULL);
     button = katze_property_label (settings, "maximum-cookie-age");
     katze_preferences_add_widget (preferences, button, "indented");
-    button = gtk_combo_box_new_text ();
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 hour"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 day"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 week"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 month"));
-    gtk_combo_box_append_text (GTK_COMBO_BOX (button), _("Delete old cookies after 1 year"));
-
-    switch (max_age)
-    {
-    case   0: active = 0; break;
-    case   1: active = 1; break;
-    case   7: active = 2; break;
-    case  30: active = 3; break;
-    case 365: active = 4; break;
-    default:
-        active = 3;
-    }
-    gtk_combo_box_set_active (GTK_COMBO_BOX (button), active);
-    g_signal_connect (button, "changed",
-        G_CALLBACK (midori_preferences_delete_cookies_changed_cb), settings);
+    button = katze_property_proxy (settings, "maximum-cookie-age", "days");
     katze_preferences_add_widget (preferences, button, "spanned");
 
     markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
@@ -797,13 +757,11 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     button = katze_property_proxy (settings, "strip-referer", NULL);
     katze_preferences_add_widget (preferences, button, "indented");
     #endif
-    katze_preferences_add_group (preferences, NULL);
+    katze_preferences_add_widget (preferences, gtk_label_new (NULL), "indented");
     button = katze_property_label (settings, "maximum-history-age");
     katze_preferences_add_widget (preferences, button, "indented");
-    button = katze_property_proxy (settings, "maximum-history-age", NULL);
+    button = katze_property_proxy (settings, "maximum-history-age", "days");
     katze_preferences_add_widget (preferences, button, "spanned");
-    label = gtk_label_new (_("days"));
-    katze_preferences_add_widget (preferences, label, "spanned");
 }
 
 static void

@@ -190,6 +190,26 @@ proxy_entry_focus_out_event_cb (GtkEntry*      entry,
 }
 
 static void
+proxy_days_changed_cb (GtkComboBox* combo,
+                       GObject*     object)
+{
+    gint active = gtk_combo_box_get_active (combo);
+    const gchar* property = g_object_get_data (G_OBJECT (combo), "property");
+    gint max_age;
+    switch (active)
+    {
+    case 0: max_age =   0; break;
+    case 1: max_age =   1; break;
+    case 2: max_age =   7; break;
+    case 3: max_age =  30; break;
+    case 4: max_age = 365; break;
+    default:
+        max_age = 30;
+    }
+    g_object_set (object, property, max_age, NULL);
+}
+
+static void
 proxy_spin_button_changed_cb (GtkSpinButton* button,
                               GObject*       object)
 {
@@ -480,6 +500,9 @@ g_icon_to_string (GIcon *icon)
  *     Since 0.3.6 the following hints are also supported:
  *     "address": the widget will be particularly suitable for typing
  *         a valid URI or IP address and highlight errors.
+ *     Since 0.3.7 the following hints are also supported:
+ *     "days": the widget will be particularly suitable for choosing
+ *         a period of time in days.
  *
  * Any other values for @hint are silently ignored.
  *
@@ -787,6 +810,30 @@ katze_property_proxy (gpointer     object,
         gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
         g_signal_connect (widget, "value-changed",
                           G_CALLBACK (proxy_spin_button_changed_cb), object);
+    }
+    else if (type == G_TYPE_PARAM_INT && _hint == I_("days"))
+    {
+        gint value = katze_object_get_int (object, property);
+        gint active;
+        widget = gtk_combo_box_new_text ();
+        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 hour"));
+        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 day"));
+        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 week"));
+        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 month"));
+        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 year"));
+        switch (value)
+        {
+        case   0: active = 0; break;
+        case   1: active = 1; break;
+        case   7: active = 2; break;
+        case  30: active = 3; break;
+        case 365: active = 4; break;
+        default:
+            active = 3;
+        }
+        gtk_combo_box_set_active (GTK_COMBO_BOX (widget), active);
+        g_signal_connect (widget, "changed",
+            G_CALLBACK (proxy_days_changed_cb), object);
     }
     else if (type == G_TYPE_PARAM_INT)
     {

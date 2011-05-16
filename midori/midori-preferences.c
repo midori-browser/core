@@ -425,7 +425,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     button = katze_property_proxy (settings, "open-tabs-in-the-background", NULL);
     SPANNED_ADD (button);
     #if !HAVE_HILDON
-    FRAME_NEW (NULL);
+    INDENTED_ADD (gtk_label_new (NULL));
     label = katze_property_label (settings, "text-editor");
     INDENTED_ADD (label);
     entry = katze_property_proxy (settings, "text-editor", "application-text/plain");

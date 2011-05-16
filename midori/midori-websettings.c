@@ -828,7 +828,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_MAXIMUM_COOKIE_AGE,
                                      g_param_spec_int (
                                      "maximum-cookie-age",
-                                     _("Maximum cookie age"),
+                                     _("Delete old Cookies after:"),
                                      _("The maximum number of days to save cookies for"),
                                      0, G_MAXINT, 30,
                                      flags));
@@ -838,7 +838,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      PROP_MAXIMUM_HISTORY_AGE,
                                      g_param_spec_int (
                                      "maximum-history-age",
-                                     _("Maximum history age"),
+                                     _("Delete pages from history after:"),
                                      _("The maximum number of days to save the history for"),
                                      0, G_MAXINT, 30,
                                      flags));
