@@ -319,7 +319,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     PAGE_NEW (GTK_STOCK_SELECT_FONT, _("Fonts"));
     FRAME_NEW (NULL);
     #if !HAVE_HILDON
-    label = gtk_label_new (_("Default Font Family"));
+    label = gtk_label_new (_("Proportional Font Family"));
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
     INDENTED_ADD (label);
     button = katze_property_proxy (settings, "default-font-family", "font");
