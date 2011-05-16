@@ -967,7 +967,12 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     label = gtk_label_new_with_mnemonic (_("_Address:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    entry_uri = gtk_entry_new ();
+    entry_uri = katze_uri_entry_new (
+    #if GTK_CHECK_VERSION (2, 20, 0)
+        gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT));
+    #else
+        NULL);
+    #endif
     gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
     if (!new_engine)
         gtk_entry_set_text (GTK_ENTRY (entry_uri)
