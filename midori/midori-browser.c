@@ -4807,19 +4807,6 @@ midori_panel_notify_show_titles_cb (MidoriPanel*   panel,
 }
 
 static void
-midori_panel_notify_show_controls_cb (MidoriPanel*   panel,
-                                      GParamSpec*    pspec,
-                                      MidoriBrowser* browser)
-{
-    gboolean show_controls = katze_object_get_boolean (panel, "show-controls");
-    g_signal_handlers_block_by_func (browser->settings,
-        midori_browser_settings_notify, browser);
-    g_object_set (browser->settings, "show-panel-controls", show_controls, NULL);
-    g_signal_handlers_unblock_by_func (browser->settings,
-        midori_browser_settings_notify, browser);
-}
-
-static void
 midori_panel_notify_right_aligned_cb (MidoriPanel*   panel,
                                       GParamSpec*    pspec,
                                       MidoriBrowser* browser)
@@ -6110,8 +6097,6 @@ midori_browser_init (MidoriBrowser* browser)
         midori_panel_notify_page_cb, browser,
         "signal::notify::show-titles",
         midori_panel_notify_show_titles_cb, browser,
-        "signal::notify::show-controls",
-        midori_panel_notify_show_controls_cb, browser,
         "signal::notify::right-aligned",
         midori_panel_notify_right_aligned_cb, browser,
         "signal::close",
@@ -6351,7 +6336,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
 {
     gboolean remember_last_window_size;
     MidoriWindowState last_window_state;
-    gboolean compact_sidepanel, show_panel_controls;
+    gboolean compact_sidepanel;
     gboolean right_align_sidepanel, open_panels_in_windows;
     gint last_panel_position, last_panel_page;
     gboolean show_menubar, show_bookmarkbar;
@@ -6370,7 +6355,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "last-window-height", &browser->last_window_height,
                   "last-window-state", &last_window_state,
                   "compact-sidepanel", &compact_sidepanel,
-                  "show-panel-controls", &show_panel_controls,
                   "right-align-sidepanel", &right_align_sidepanel,
                   "open-panels-in-windows", &open_panels_in_windows,
                   "last-panel-position", &last_panel_position,
@@ -6444,7 +6428,6 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
 
     g_object_set (browser->panel, "show-titles", !compact_sidepanel,
-        "show-controls", show_panel_controls,
         "right-aligned", right_align_sidepanel,
         "open-panels-in-windows", open_panels_in_windows, NULL);
     gtk_paned_set_position (GTK_PANED (gtk_widget_get_parent (browser->panel)),
@@ -6492,15 +6475,6 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         g_signal_handlers_unblock_by_func (browser->panel,
             midori_panel_notify_show_titles_cb, browser);
     }
-    else if (name == g_intern_string ("show-panel-controls"))
-    {
-        g_signal_handlers_block_by_func (browser->panel,
-            midori_panel_notify_show_controls_cb, browser);
-        g_object_set (browser->panel, "show-controls",
-                      g_value_get_boolean (&value), NULL);
-        g_signal_handlers_unblock_by_func (browser->panel,
-            midori_panel_notify_show_controls_cb, browser);
-    }
     else if (name == g_intern_string ("open-panels-in-windows"))
         g_object_set (browser->panel, "open-panels-in-windows",
                       g_value_get_boolean (&value), NULL);
@@ -6512,15 +6486,6 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         browser->show_navigationbar = g_value_get_boolean (&value);
     else if (name == g_intern_string ("show-statusbar"))
         browser->show_statusbar = g_value_get_boolean (&value);
-    else if (name == g_intern_string ("search-engines-in-completion"))
-    {
-        if (g_value_get_boolean (&value))
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), browser->search_engines);
-        else
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), NULL);
-    }
     else if (name == g_intern_string ("location-entry-search"))
     {
         katze_assign (browser->location_entry_search, g_value_dup_string (&value));
@@ -6762,13 +6727,8 @@ midori_browser_set_property (GObject*      object,
     {
         /* FIXME: Disconnect handlers */
         katze_object_assign (browser->search_engines, g_value_dup_object (value));
-        if (katze_object_get_boolean (browser->settings,
-                                      "search-engines-in-completion"))
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), browser->search_engines);
-        else
-            midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
-                _action_by_name (browser, "Location")), NULL);
+        midori_location_action_set_search_engines (MIDORI_LOCATION_ACTION (
+            _action_by_name (browser, "Location")), browser->search_engines);
         midori_search_action_set_search_engines (MIDORI_SEARCH_ACTION (
             _action_by_name (browser, "Search")), browser->search_engines);
         /* FIXME: Connect to updates */

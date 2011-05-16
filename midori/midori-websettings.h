@@ -138,19 +138,6 @@ midori_proxy_get_type (void) G_GNUC_CONST;
 
 typedef enum
 {
-    MIDORI_ACCEPT_COOKIES_ALL,
-    MIDORI_ACCEPT_COOKIES_SESSION,
-    MIDORI_ACCEPT_COOKIES_NONE
-} MidoriAcceptCookies;
-
-GType
-midori_accept_cookies_get_type (void) G_GNUC_CONST;
-
-#define MIDORI_TYPE_ACCEPT_COOKIES \
-    (midori_accept_cookies_get_type ())
-
-typedef enum
-{
     MIDORI_IDENT_MIDORI,
     MIDORI_IDENT_SAFARI,
     MIDORI_IDENT_IPHONE,
