@@ -6491,7 +6491,7 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         katze_assign (browser->location_entry_search, g_value_dup_string (&value));
     }
     else if (name == g_intern_string ("maximum-history-age"))
-        browser->maximum_history_age = g_value_get_boolean (&value);
+        browser->maximum_history_age = g_value_get_int (&value);
     else if (name == g_intern_string ("news-aggregator"))
     {
         katze_assign (browser->news_aggregator, g_value_dup_string (&value));
