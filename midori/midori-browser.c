@@ -579,8 +579,7 @@ midori_browser_set_title (MidoriBrowser* browser,
     #if WEBKIT_CHECK_VERSION (1, 1, 2)
     if (katze_object_get_boolean (browser->settings, "enable-private-browsing"))
     {
-        gchar* window_title = g_strconcat (title, " - ",
-                                           g_get_application_name (), NULL);
+        gchar* window_title = g_strdup_printf (_("%s (Private Browsing)"), title);
         gtk_window_set_title (GTK_WINDOW (browser), window_title);
         g_free (window_title);
     }
@@ -5785,7 +5784,6 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (midori_browser_destroy_cb), NULL);
     gtk_window_set_role (GTK_WINDOW (browser), "browser");
     gtk_window_set_icon_name (GTK_WINDOW (browser), "web-browser");
-    gtk_window_set_title (GTK_WINDOW (browser), g_get_application_name ());
     vbox = gtk_vbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (browser), vbox);
     gtk_widget_show (vbox);

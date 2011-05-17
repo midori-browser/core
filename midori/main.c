@@ -1994,7 +1994,6 @@ main (int    argc,
     /* Private browsing, window title, default config folder */
     if (private)
     {
-        g_set_application_name (_("Private Browsing"));
         if (!config && !webapp)
             config = g_build_filename (g_get_user_config_dir (), PACKAGE_NAME, NULL);
         /* Mask the timezone, which can be read by Javascript */
