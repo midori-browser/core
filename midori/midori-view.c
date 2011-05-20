@@ -1479,6 +1479,7 @@ midori_view_display_error (MidoriView*     view,
             "{tryagain}", try_again,
             "{res}", res_root,
             "{stock}", stock_root,
+            "{uri}", uri,
             NULL);
         g_free (title_escaped);
         g_free (template);
