@@ -1605,7 +1605,12 @@ speeddial_new_from_file (const gchar* config,
     }
 
     katze_assign (config_file, g_build_filename (config, "speeddial.json", NULL));
-    g_file_get_contents (config_file, &json_content, &json_length, NULL);
+    if (!g_file_get_contents (config_file, &json_content, &json_length, NULL))
+    {
+        katze_assign (json_content, g_strdup ("'{}'"));
+        json_length = strlen ("'{}'");
+    }
+
     script = g_string_sized_new (json_length);
     g_string_append (script, "var json = JSON.parse (");
     g_string_append_len (script, json_content, json_length);
@@ -1619,7 +1624,7 @@ speeddial_new_from_file (const gchar* config,
         "        +  'title=' + tile['title'] + '\\n\\n';"
         "} "
         "var columns = json['width'] ? json['width'] : 3;"
-        "var rows = json['shortcuts'].length / columns;"
+        "var rows = json['shortcuts'] ? json['shortcuts'].length / columns : 0;"
         "keyfile += '[settings]\\n'"
         "        +  'columns=' + columns + '\\n'"
         "        +  'rows=' + (rows > 3 ? rows : 3) + '\\n\\n';"
