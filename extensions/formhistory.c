@@ -21,12 +21,6 @@
     #include <unistd.h>
 #endif
 
-#ifdef G_OS_WIN32
-    #define LIBPREFIX ""
-#else
-    #define LIBPREFIX "lib"
-#endif
-
 static GHashTable* global_keys;
 static gchar* jsforms;
 
@@ -491,21 +485,6 @@ formhistory_activate_cb (MidoriExtension* extension,
 </html> */
 #endif
 
-static void
-formhistory_clear_database_cb (void)
-{
-    gchar* filename = g_build_filename (sokoke_set_config_dir (NULL),
-        "extensions", LIBPREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL);
-    sqlite3* db;
-    if (sqlite3_open (filename, &db) == SQLITE_OK)
-    {
-        sqlite3_exec (db, "DELETE FROM forms", NULL, NULL, NULL);
-        sqlite3_close (db);
-    }
-    g_free (filename);
-
-}
-
 MidoriExtension*
 extension_init (void)
 {
@@ -538,10 +517,6 @@ extension_init (void)
     if (should_init)
         g_signal_connect (extension, "activate",
             G_CALLBACK (formhistory_activate_cb), NULL);
-
-    /* i18n: Data entered into web forms by the user */
-    sokoke_register_privacy_item ("formhistory", _("_Form History"),
-        G_CALLBACK (formhistory_clear_database_cb));
 
     return extension;
 }

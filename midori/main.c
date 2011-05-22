@@ -61,6 +61,12 @@
     #include <gdk/gdkx.h>
 #endif
 
+#ifdef G_OS_WIN32
+    #define LIBPREFIX ""
+#else
+    #define LIBPREFIX "lib"
+#endif
+
 static gchar*
 build_config_filename (const gchar* filename)
 {
@@ -1811,6 +1817,23 @@ midori_clear_flash_cookies_cb (void)
 }
 #endif
 
+static void
+midori_clear_saved_logins_cb (void)
+{
+    sqlite3* db;
+    gchar* path = g_build_filename (sokoke_set_config_dir (NULL), "logins", NULL);
+    g_unlink (path);
+    /* Form History database, written by the extension */
+    katze_assign (path, g_build_filename (sokoke_set_config_dir (NULL),
+        "extensions", LIBPREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL));
+    if (sqlite3_open (path, &db) == SQLITE_OK)
+    {
+        sqlite3_exec (db, "DELETE FROM forms", NULL, NULL, NULL);
+        sqlite3_close (db);
+    }
+    g_free (path);
+}
+
 #if WEBKIT_CHECK_VERSION (1, 1, 14)
 static void
 midori_clear_html5_databases_cb (void)
@@ -2090,6 +2113,9 @@ main (int    argc,
 
     sokoke_register_privacy_item ("page-icons", _("Website icons"),
         G_CALLBACK (midori_clear_page_icons_cb));
+    /* i18n: Logins and passwords in websites and web forms */
+    sokoke_register_privacy_item ("formhistory", _("Saved logins and _passwords"),
+        G_CALLBACK (midori_clear_saved_logins_cb));
     sokoke_register_privacy_item ("web-cookies", _("Cookies"),
         G_CALLBACK (midori_clear_web_cookies_cb));
     #ifdef GDK_WINDOWING_X11
