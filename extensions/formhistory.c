@@ -27,24 +27,30 @@ static gchar* jsforms;
 static gboolean
 formhistory_prepare_js ()
 {
-   gchar* data_name;
    gchar* data_path;
    gchar* autosuggest;
    gchar* style;
    guint i;
    gchar* file;
 
-   data_name = g_build_filename (PACKAGE_NAME, "res", NULL);
-   data_path = sokoke_find_data_filename (data_name);
-   g_free (data_name);
-   file = g_build_filename (data_path, G_DIR_SEPARATOR_S, "autosuggestcontrol.js",NULL);
+   data_path = g_build_filename (PACKAGE_NAME, "res", "autosuggestcontrol.js", NULL);
+   file = sokoke_find_data_filename (data_path);
    if (!g_file_get_contents (file, &autosuggest, NULL, NULL))
+   {
+       g_free (data_path);
+       g_free (file);
        return FALSE;
+   }
    g_strchomp (autosuggest);
 
-   file = g_build_filename (data_path, G_DIR_SEPARATOR_S, "autosuggestcontrol.css",NULL);
-   if(!g_file_get_contents (file, &style, NULL, NULL))
+   katze_assign (data_path, g_build_filename (PACKAGE_NAME, "res", "autosuggestcontrol.css", NULL));
+   katze_assign (file, sokoke_find_data_filename (data_path));
+   if (!g_file_get_contents (file, &style, NULL, NULL))
+   {
+       g_free (data_path);
+       g_free (file);
        return FALSE;
+   }
    g_strchomp (style);
    i = 0;
    while (style[i])
