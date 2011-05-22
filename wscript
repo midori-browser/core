@@ -203,7 +203,7 @@ def configure (conf):
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
-    check_pkg ('webkit-1.0', '1.1.1', args=args)
+    check_pkg ('webkit-1.0', '1.1.4', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     check_pkg ('libsoup-2.4', '2.27.90', False, var='LIBSOUP_2_27_90')

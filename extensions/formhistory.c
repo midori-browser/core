@@ -185,7 +185,6 @@ formhistory_update_main_hash (gchar* key,
     return TRUE;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 4)
 static gboolean
 formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebFrame*            web_frame,
@@ -245,50 +244,6 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
     }
     return FALSE;
 }
-#else
-static void
-formhistory_feed_keys (GHashTable* keys,
-                       gpointer    db)
-{
-    GHashTableIter iter;
-    gchar* key;
-    gchar* value;
-
-    g_hash_table_iter_init (&iter, keys);
-    while (g_hash_table_iter_next (&iter, (gpointer)&key, (gpointer)&value))
-    {
-        if (formhistory_update_main_hash (key, value))
-            formhistory_update_database (db, key, value);
-    }
-}
-
-static void
-formhistory_session_request_queued_cb (SoupSession*     session,
-                                       SoupMessage*     msg,
-                                       MidoriExtension* extension)
-{
-    gchar* method = katze_object_get_string (msg, "method");
-    if (method && !strncmp (method, "POST", 4))
-    {
-        SoupMessageBody* body = msg->request_body;
-        if (soup_message_body_get_accumulate (body))
-        {
-            SoupBuffer* buffer;
-            GHashTable* keys;
-            gpointer db;
-
-            buffer = soup_message_body_flatten (body);
-            keys = soup_form_decode (body->data);
-
-            db = g_object_get_data (G_OBJECT (extension), "formhistory-db");
-            formhistory_feed_keys (keys, db);
-            soup_buffer_free (buffer);
-            g_hash_table_destroy (keys);
-        }
-    }
-    g_free (method);
-}
-#endif
 
 static void
 formhistory_window_object_cleared_cb (WebKitWebView*  web_view,
@@ -310,13 +265,8 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
     GtkWidget* web_view = midori_view_get_web_view (view);
     g_signal_connect (web_view, "window-object-cleared",
             G_CALLBACK (formhistory_window_object_cleared_cb), NULL);
-    #if WEBKIT_CHECK_VERSION (1, 1, 4)
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (formhistory_navigation_decision_cb), extension);
-    #else
-    g_signal_connect (webkit_get_default_session (), "request-queued",
-        G_CALLBACK (formhistory_session_request_queued_cb), extension);
-    #endif
 }
 
 static void
@@ -352,13 +302,8 @@ formhistory_deactivate_tabs (MidoriView*      view,
     GtkWidget* web_view = midori_view_get_web_view (view);
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_window_object_cleared_cb, NULL);
-    #if WEBKIT_CHECK_VERSION (1, 1, 4)
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_navigation_decision_cb, extension);
-    #else
-    g_signal_handlers_disconnect_by_func (
-       webkit_get_default_session (), formhistory_session_request_queued_cb, extension);
-    #endif
 }
 
 static void
