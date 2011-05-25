@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-21 22:18+0000\n"
+"POT-Creation-Date: 2011-05-25 16:17+0000\n"
 "PO-Revision-Date: 2010-02-16 22:53+0100\n"
 "Last-Translator: Yarema aka Knedlyk <yupadmin@gmail.com>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
@@ -21,8 +21,8 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "Легкий переглядач Веб"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1469 ../midori/main.c:1984
-#: ../midori/main.c:2008 ../midori/main.c:2024
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1475 ../midori/main.c:2009
+#: ../midori/main.c:2033 ../midori/main.c:2049
 #: ../midori/midori-websettings.c:293
 msgid "Midori"
 msgstr "Мідорі"
@@ -31,253 +31,258 @@ msgstr "Мідорі"
 msgid "Web Browser"
 msgstr "Переглядач Веб"
 
-#: ../midori/main.c:100 ../midori/main.c:106
+#: ../midori/main.c:106 ../midori/main.c:112
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити конфігурацію: %s\n"
 
-#: ../midori/main.c:154
+#: ../midori/main.c:160
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "Значення '%s' є неправильним для %s"
 
-#: ../midori/main.c:159 ../midori/main.c:252
+#: ../midori/main.c:165 ../midori/main.c:258
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Неправильне значення конфігурації '%s'"
 
-#: ../midori/main.c:357
+#: ../midori/main.c:363
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "Неможливо завантажити пошукову машину. %s\n"
 
-#: ../midori/main.c:411
+#: ../midori/main.c:417
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "Невдача при очищенні історії: %s\n"
 
-#: ../midori/main.c:433 ../midori/main.c:554 ../extensions/formhistory.c:443
+#: ../midori/main.c:439 ../midori/main.c:560 ../extensions/formhistory.c:388
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "Не вдалось відкрити базу даних: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:497
+#: ../midori/main.c:503
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "Невдача видалення старих об'єктів історії: %s\n"
 
-#: ../midori/main.c:537 ../panels/midori-history.c:190
+#: ../midori/main.c:543 ../panels/midori-history.c:190
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Невдача при видаленні об'єкту історії: %s\n"
 
-#: ../midori/main.c:584
+#: ../midori/main.c:590
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Неможливо зберегти закладки. %s"
 
-#: ../midori/main.c:615
+#: ../midori/main.c:621
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Неможливо зберегти конфігурацію. %s"
 
-#: ../midori/main.c:650
+#: ../midori/main.c:656
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "Неможливо зберегти пошукові машини. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:676 ../midori/main.c:696
+#: ../midori/main.c:682 ../midori/main.c:702
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "Неможливо зберегти смітник. %s"
 
-#: ../midori/main.c:716 ../panels/midori-extensions.c:91
+#: ../midori/main.c:722 ../panels/midori-extensions.c:91
 msgid "Extensions"
 msgstr "Розширення"
 
-#: ../midori/main.c:730
+#: ../midori/main.c:736
 msgid "Privacy"
 msgstr "Приватність"
 
-#: ../midori/main.c:738
+#: ../midori/main.c:744
 msgid "Cookies store login data, saved games, or user profiles for advertisement purposes."
 msgstr "Тістечка зберігають дані входу, зберігають ігри або профілі користувачів для рекламних цілей."
 
-#: ../midori/main.c:812 ../midori/main.c:1067
+#: ../midori/main.c:818 ../midori/main.c:1073
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Сесія не може бути збережена. %s"
 
-#: ../midori/main.c:1018
+#: ../midori/main.c:1024
 msgid "No root certificate file is available. SSL certificates cannot be verified."
 msgstr "Немає доступних кореневих сертифікатів. Сертифікати SSL неможливо перевірити. "
 
-#: ../midori/main.c:1102
+#: ../midori/main.c:1108
 msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
 msgstr "Схоже, що Мідорі зазнало краху останнього разу. Якщо це трапилося не вперше, то можливо якась з наступних опцій зможе посприяти вирішенню цієї проблеми."
 
-#: ../midori/main.c:1118
+#: ../midori/main.c:1124
 msgid "Modify _preferences"
 msgstr "Змінити _налаштування"
 
-#: ../midori/main.c:1122
+#: ../midori/main.c:1128
 msgid "Reset the last _session"
 msgstr "Скинути останню _сесію"
 
-#: ../midori/main.c:1127
+#: ../midori/main.c:1133
 msgid "Disable all _extensions"
 msgstr "Заборонити всі розширення"
 
-#: ../midori/main.c:1347 ../midori/main.c:2342
+#: ../midori/main.c:1353 ../midori/main.c:2370
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити сесію: %s\n"
 
-#: ../midori/main.c:1469
+#: ../midori/main.c:1475
 msgid "No filename specified"
 msgstr "Не вказано назви файлу"
 
-#: ../midori/main.c:1488
+#: ../midori/main.c:1494
 msgid "An unknown error occured."
 msgstr "Отримано невідому помилку."
 
-#: ../midori/main.c:1518
+#: ../midori/main.c:1524
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Знімок екрану збережено до: %s\n"
 
-#: ../midori/main.c:1869
+#: ../midori/main.c:1894
 msgid "Run ADDRESS as a web application"
 msgstr "Запустити АДРЕСУ як веб-додаток"
 
-#: ../midori/main.c:1869
+#: ../midori/main.c:1894
 msgid "ADDRESS"
 msgstr "АДРЕСА"
 
-#: ../midori/main.c:1872
+#: ../midori/main.c:1897
 msgid "Use FOLDER as configuration folder"
 msgstr "Використайте ТЕКУ як теку конфігурації"
 
-#: ../midori/main.c:1872
+#: ../midori/main.c:1897
 msgid "FOLDER"
 msgstr "ТЕКА"
 
-#: ../midori/main.c:1875
+#: ../midori/main.c:1900
 msgid "Private browsing, no changes are saved"
 msgstr "Захищений перегляд, жодні зміни не записуються"
 
-#: ../midori/main.c:1877
+#: ../midori/main.c:1902
 msgid "Show a diagnostic dialog"
 msgstr "Показати діалог діагностики"
 
-#: ../midori/main.c:1879
+#: ../midori/main.c:1904
 msgid "Run the specified filename as javascript"
 msgstr "Виконати визначений файл як джава-скрипт"
 
-#: ../midori/main.c:1882
+#: ../midori/main.c:1907
 msgid "Take a snapshot of the specified URI"
 msgstr "Зробити знімок вибраної сторінки/адреси"
 
-#: ../midori/main.c:1885
+#: ../midori/main.c:1910
 msgid "Execute the specified command"
 msgstr "Виконати вибрану комнаду"
 
-#: ../midori/main.c:1887
+#: ../midori/main.c:1912
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Список можливих команд для запуску з -e/ --execute"
 
-#: ../midori/main.c:1889
+#: ../midori/main.c:1914
 msgid "Display program version"
 msgstr "Відобразити версію програми"
 
-#: ../midori/main.c:1891
+#: ../midori/main.c:1916
 msgid "Addresses"
 msgstr "Адреси"
 
-#: ../midori/main.c:1893
+#: ../midori/main.c:1918
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Блокувати URI згідно з регулярним виразом PATTERN"
 
-#: ../midori/main.c:1893
+#: ../midori/main.c:1918
 msgid "PATTERN"
 msgstr "PATTERN"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1897
+#: ../midori/main.c:1922
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Зресетувати Midori після СЕКУНД неактивності"
 
-#: ../midori/main.c:1897
+#: ../midori/main.c:1922
 msgid "SECONDS"
 msgstr "СЕКУНД"
 
-#: ../midori/main.c:1981
+#: ../midori/main.c:2006
 msgid "[Addresses]"
 msgstr "[Адреси]"
 
-#: ../midori/main.c:1995
+#: ../midori/main.c:2020
 msgid "The specified configuration folder is invalid."
 msgstr "Це невластива тека конфігурації."
 
-#: ../midori/main.c:2025
+#: ../midori/main.c:2050
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Будь ласка надсилайте звіти, коментарі, пропозиції і помилки до:"
 
-#: ../midori/main.c:2027
+#: ../midori/main.c:2052
 msgid "Check for new versions at:"
 msgstr "Перевірити на наявність нової версії на:"
 
-#: ../midori/main.c:2091
+#: ../midori/main.c:2116
 msgid "Website icons"
 msgstr "Значки веб-сторінок"
 
-#: ../midori/main.c:2093
+#. i18n: Logins and passwords in websites and web forms
+#: ../midori/main.c:2119
+msgid "Saved logins and _passwords"
+msgstr "Збережені логіни і _паролі"
+
+#: ../midori/main.c:2121
 msgid "Cookies"
 msgstr "Тістечка"
 
-#: ../midori/main.c:2096
+#: ../midori/main.c:2124
 msgid "'Flash' Cookies"
 msgstr "'Очистити' тістечка"
 
-#: ../midori/main.c:2100
+#: ../midori/main.c:2128
 msgid "HTML5 _Databases"
 msgstr "_Бази даних HTML5"
 
-#: ../midori/main.c:2104 ../midori/midori-websettings.c:884
+#: ../midori/main.c:2132 ../midori/midori-websettings.c:884
 #: ../extensions/web-cache.c:478 ../extensions/web-cache.c:487
 msgid "Web Cache"
 msgstr "Веб-кеш"
 
-#: ../midori/main.c:2108
+#: ../midori/main.c:2136
 msgid "Offline Application Cache"
 msgstr "Кеш програми при праці без мережі"
 
-#: ../midori/main.c:2271
+#: ../midori/main.c:2299
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Один із екземплярів програми Midori вже працює, але не відповідає на запити.\n"
 
-#: ../midori/main.c:2309
+#: ../midori/main.c:2337
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити закладки: %s\n"
 
-#: ../midori/main.c:2357
+#: ../midori/main.c:2385
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити смітник: %s\n"
 
-#: ../midori/main.c:2370
+#: ../midori/main.c:2398
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Неможливо завантажити історію: %s\n"
 
-#: ../midori/main.c:2385
+#: ../midori/main.c:2413
 msgid "The following errors occured:"
 msgstr "Отримано наступні помилки:"
 
-#: ../midori/main.c:2401
+#: ../midori/main.c:2429
 msgid "_Ignore"
 msgstr "_Ігнорувати"
 
@@ -2673,32 +2678,27 @@ msgstr "Читати Atom-/ RSS стрічки новин"
 msgid "Failed to add form value: %s\n"
 msgstr "Невдача при додаванні з значенням: %s\n"
 
-#: ../extensions/formhistory.c:458 ../extensions/formhistory.c:462
+#: ../extensions/formhistory.c:403 ../extensions/formhistory.c:407
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Не вдалось виконати запит бази даних: %s\n"
 
-#: ../extensions/formhistory.c:520
+#: ../extensions/formhistory.c:450
 msgid "Stores history of entered form data"
 msgstr "Зберігає історію введених даних форм"
 
-#: ../extensions/formhistory.c:524
+#: ../extensions/formhistory.c:454
 #, c-format
 msgid "Not available: %s"
 msgstr "Недоступно: %s"
 
-#: ../extensions/formhistory.c:525
+#: ../extensions/formhistory.c:455
 msgid "Resource files not installed"
 msgstr "Файли русурсів не встановлені"
 
-#: ../extensions/formhistory.c:531
+#: ../extensions/formhistory.c:461
 msgid "Form history filler"
 msgstr "Заповнювач історії форм"
-
-#. i18n: Data entered into web forms by the user
-#: ../extensions/formhistory.c:543
-msgid "_Form History"
-msgstr "Сформувати _історію"
 
 #: ../extensions/history-list.vala:149
 msgid "There are no unvisited tabs"
@@ -2839,6 +2839,9 @@ msgstr "Легко редагувати формат панелі інструм
 #: ../extensions/web-cache.c:479
 msgid "Cache HTTP communication on disk"
 msgstr "Кешувати комунікацію HTTP на диск"
+
+#~ msgid "_Form History"
+#~ msgstr "Сформувати _історію"
 
 #~ msgid "Delete old cookies after 1 hour"
 #~ msgstr "Вилучити старі тістечка через 1 годину"
