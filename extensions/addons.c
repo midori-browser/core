@@ -843,7 +843,7 @@ addons_get_directories (AddonsKind kind)
     {
         path = g_build_path (G_DIR_SEPARATOR_S, *datadirs,
                              PACKAGE_NAME, folder_name, NULL);
-        if (g_access (path, X_OK) == 0)
+        if (g_slist_find (directories, path) == NULL && g_access (path, X_OK) == 0)
             directories = g_slist_prepend (directories, path);
         else
             g_free (path);
@@ -888,7 +888,8 @@ addons_get_files (AddonsKind kind)
                 if (g_str_has_suffix (filename, file_extension))
                 {
                     fullname = g_build_filename (dirname, filename, NULL);
-                    files = g_slist_prepend (files, fullname);
+                    if (g_slist_find (files, fullname) == NULL)
+                        files = g_slist_prepend (files, fullname);
                 }
             }
             g_dir_close (addon_dir);
