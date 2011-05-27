@@ -147,9 +147,8 @@ midori_findbar_invoke (MidoriFindbar* findbar)
         if ((text = midori_view_get_selected_text (MIDORI_VIEW (view))))
             gtk_entry_set_text (GTK_ENTRY (findbar->find_text), text);
         gtk_widget_show (GTK_WIDGET (findbar));
+        gtk_widget_grab_focus (GTK_WIDGET (findbar->find_text));
     }
-
-    gtk_widget_grab_focus (GTK_WIDGET (findbar->find_text));
 }
 
 static void
