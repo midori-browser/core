@@ -704,7 +704,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     GtkWidget* label;
     const gchar* value;
     GtkWidget* entry_title;
-    GtkWidget* entry_desc;
     GtkWidget* entry_uri;
     GtkWidget* combo_folder;
     GtkWidget* check_toolbar;
@@ -763,22 +762,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
     g_signal_connect (entry_title, "changed",
         G_CALLBACK (midori_browser_edit_bookmark_title_changed_cb), dialog);
     gtk_box_pack_start (GTK_BOX (hbox), entry_title, TRUE, TRUE, 0);
-    gtk_container_add (GTK_CONTAINER (content_area), hbox);
-    gtk_widget_show_all (hbox);
-
-    hbox = gtk_hbox_new (FALSE, 8);
-    gtk_container_set_border_width (GTK_CONTAINER (hbox), 4);
-    label = gtk_label_new_with_mnemonic (_("_Description:"));
-    gtk_size_group_add_widget (sizegroup, label);
-    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    entry_desc = gtk_entry_new ();
-    gtk_entry_set_activates_default (GTK_ENTRY (entry_desc), TRUE);
-    if (bookmark)
-    {
-        value = katze_item_get_text (bookmark);
-        gtk_entry_set_text (GTK_ENTRY (entry_desc), value ? value : "");
-    }
-    gtk_box_pack_start (GTK_BOX (hbox), entry_desc, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
@@ -907,8 +890,6 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
         katze_item_set_name (bookmark,
             gtk_entry_get_text (GTK_ENTRY (entry_title)));
-        katze_item_set_text (bookmark,
-            gtk_entry_get_text (GTK_ENTRY (entry_desc)));
         katze_item_set_meta_integer (bookmark, "toolbar",
             gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_toolbar)));
         if (!is_folder)
