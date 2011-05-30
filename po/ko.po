@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-25 04:17+0000\n"
+"POT-Creation-Date: 2011-05-30 10:17+0000\n"
 "PO-Revision-Date: 2011-05-16 13:07+0900\n"
 "Last-Translator: Kim Boram <Boramism@gmail.com>\n"
 "Language-Team: Kim Boram <boramism@gmail.com>\n"
@@ -22,8 +22,8 @@ msgstr ""
 msgid "Lightweight web browser"
 msgstr "가벼운 웹 브라우저"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1475 ../midori/main.c:2009
-#: ../midori/main.c:2033 ../midori/main.c:2049
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:1475 ../midori/main.c:2054
+#: ../midori/main.c:2078 ../midori/main.c:2094
 #: ../midori/midori-websettings.c:293
 msgid "Midori"
 msgstr "미도리"
@@ -131,7 +131,7 @@ msgstr "마지막 세션 초기화(_S)"
 msgid "Disable all _extensions"
 msgstr "모든 확장 기능 비 활성화(_E)"
 
-#: ../midori/main.c:1353 ../midori/main.c:2370
+#: ../midori/main.c:1353 ../midori/main.c:2420
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "세션을 열 수 없습니다: %s\n"
@@ -149,141 +149,149 @@ msgstr "알 수 없는 오류가 발생했습니다."
 msgid "Snapshot saved to: %s\n"
 msgstr "스냅샷이 다음에 저장되었습니다: %s\n"
 
-#: ../midori/main.c:1894
+#: ../midori/main.c:1936
 msgid "Run ADDRESS as a web application"
 msgstr "[주소]를 웹 응용 프로그램으로 실행"
 
-#: ../midori/main.c:1894
+#: ../midori/main.c:1936
 msgid "ADDRESS"
 msgstr "[주소]"
 
-#: ../midori/main.c:1897
+#: ../midori/main.c:1939
 msgid "Use FOLDER as configuration folder"
 msgstr "[폴더]를 설정 폴더로 사용"
 
-#: ../midori/main.c:1897
+#: ../midori/main.c:1939
 msgid "FOLDER"
 msgstr "[폴더]"
 
-#: ../midori/main.c:1900
+#: ../midori/main.c:1942
 msgid "Private browsing, no changes are saved"
 msgstr "개인 정보 보호 모드, 바뀐 사항을 저장하지 않습니다."
 
-#: ../midori/main.c:1902
+#: ../midori/main.c:1944
 msgid "Show a diagnostic dialog"
 msgstr "진단 대화 상자 보기"
 
-#: ../midori/main.c:1904
+#: ../midori/main.c:1946
 msgid "Run the specified filename as javascript"
 msgstr "특정한 파일 이름을 자바 스크립트로 실행"
 
-#: ../midori/main.c:1907
+#: ../midori/main.c:1949
 msgid "Take a snapshot of the specified URI"
 msgstr "지정한 주소의 스냅샷 저장"
 
-#: ../midori/main.c:1910
+#: ../midori/main.c:1952
 msgid "Execute the specified command"
 msgstr "실행할 특정 명령어"
 
-#: ../midori/main.c:1912
+#: ../midori/main.c:1954
 msgid "List available commands to execute with -e/ --execute"
 msgstr "-e/ --execute와 함께 실행하시면 실행 가능한 명령어의 목록을 표시합니다"
 
-#: ../midori/main.c:1914
+#: ../midori/main.c:1956
 msgid "Display program version"
 msgstr "프로그램의 버전 표시"
 
-#: ../midori/main.c:1916
+#: ../midori/main.c:1958
 msgid "Addresses"
 msgstr "주소"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:1960
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "정규 표현 패턴에 따라 주소를 막기"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:1960
 msgid "PATTERN"
 msgstr "[패턴]"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1922
+#: ../midori/main.c:1964
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "수 초 이상 활동이 없을 경우 미도리 초기화"
 
-#: ../midori/main.c:1922
+#: ../midori/main.c:1964
 msgid "SECONDS"
 msgstr "[초]"
 
-#: ../midori/main.c:2006
+#: ../midori/main.c:1967
+msgid "Redirects console warnings to the specified FILENAME"
+msgstr "콘솔 경고를 지정한 파일로 전송합니다."
+
+#: ../midori/main.c:1967
+msgid "FILENAME"
+msgstr "[파일 이름]"
+
+#: ../midori/main.c:2051
 msgid "[Addresses]"
 msgstr "[주소]"
 
-#: ../midori/main.c:2020
+#: ../midori/main.c:2065
 msgid "The specified configuration folder is invalid."
 msgstr "지정된 설정 폴더가 유효하지 않습니다."
 
-#: ../midori/main.c:2050
+#: ../midori/main.c:2095
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "코멘트, 제안, 버그 등을 이곳에 보고해 주십시오:"
 
-#: ../midori/main.c:2052
+#: ../midori/main.c:2097
 msgid "Check for new versions at:"
 msgstr "다음에서 새 버전 검색:"
 
-#: ../midori/main.c:2116
+#: ../midori/main.c:2166
 msgid "Website icons"
 msgstr "웹 사이트 아이콘"
 
 #. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2119
+#: ../midori/main.c:2169
 msgid "Saved logins and _passwords"
 msgstr "저장한 사용자 이름과 암호(_P)"
 
-#: ../midori/main.c:2121
+#: ../midori/main.c:2171
 msgid "Cookies"
 msgstr "쿠키"
 
-#: ../midori/main.c:2124
+#: ../midori/main.c:2174
 msgid "'Flash' Cookies"
 msgstr "'플래시' 쿠키"
 
-#: ../midori/main.c:2128
+#: ../midori/main.c:2178
 msgid "HTML5 _Databases"
 msgstr "HTML5 데이터 베이스(_D)"
 
-#: ../midori/main.c:2132 ../midori/midori-websettings.c:884
+#: ../midori/main.c:2182 ../midori/midori-websettings.c:884
 #: ../extensions/web-cache.c:478 ../extensions/web-cache.c:487
 msgid "Web Cache"
 msgstr "웹 캐시"
 
-#: ../midori/main.c:2136
+#: ../midori/main.c:2186
 msgid "Offline Application Cache"
 msgstr "오프라인 웹 응용 프로그램 캐시"
 
-#: ../midori/main.c:2299
+#: ../midori/main.c:2349
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "미도리가 이미 실행되어 있지만 응답을 하지 않고 있습니다.\n"
 
-#: ../midori/main.c:2337
+#: ../midori/main.c:2387
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "책갈피를 읽어올 수 없습니다: %s\n"
 
-#: ../midori/main.c:2385
+#: ../midori/main.c:2435
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "휴지통을 열 수 없습니다: %s\n"
 
-#: ../midori/main.c:2398
+#: ../midori/main.c:2448
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "기록을 열 수 없습니다: %s\n"
 
-#: ../midori/main.c:2413
+#: ../midori/main.c:2463
 msgid "The following errors occured:"
 msgstr "다음의 오류가 발생했습니다:"
 
-#: ../midori/main.c:2429
+#: ../midori/main.c:2479
 msgid "_Ignore"
 msgstr "무시(_I)"
 
@@ -1134,7 +1142,7 @@ msgstr "확장 기능 '%s'의 설정을 불러올 수 없습니다: %s\n"
 
 #: ../midori/midori-extension.c:668 ../midori/midori-extension.c:765
 #: ../midori/midori-extension.c:862 ../midori/midori-extension.c:974
-#: ../extensions/addons.c:1641
+#: ../extensions/addons.c:1642
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "확장 기능 '%s'의 설정을 저장할 수 없습니다: %s\n"
@@ -2139,27 +2147,27 @@ msgid " - %s remaining"
 msgstr "- %s 남음"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../toolbars/midori-findbar.c:231
+#: ../toolbars/midori-findbar.c:230
 msgid "_Inline Find:"
 msgstr "바로 찾기(_I):"
 
-#: ../toolbars/midori-findbar.c:265
+#: ../toolbars/midori-findbar.c:264
 msgid "Previous"
 msgstr "이전"
 
-#: ../toolbars/midori-findbar.c:271
+#: ../toolbars/midori-findbar.c:270
 msgid "Next"
 msgstr "다음"
 
-#: ../toolbars/midori-findbar.c:275
+#: ../toolbars/midori-findbar.c:274
 msgid "Match Case"
 msgstr "대소문자 일치"
 
-#: ../toolbars/midori-findbar.c:284
+#: ../toolbars/midori-findbar.c:283
 msgid "Highlight Matches"
 msgstr "일치하는 단어 강조 표시"
 
-#: ../toolbars/midori-findbar.c:295
+#: ../toolbars/midori-findbar.c:294
 msgid "Close Findbar"
 msgstr "찾기 줄 닫기"
 
@@ -2458,16 +2466,16 @@ msgstr "새 추가 기능 추가"
 msgid "Remove selected addon"
 msgstr "선택한 추가 기능 제거"
 
-#: ../extensions/addons.c:1642 ../extensions/addons.c:1804
+#: ../extensions/addons.c:1643 ../extensions/addons.c:1805
 msgid "User addons"
 msgstr "사용자 추가 기능"
 
-#: ../extensions/addons.c:1763
+#: ../extensions/addons.c:1764
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "폴더 '%s'을(를) 감시할 수 없습니다: %s"
 
-#: ../extensions/addons.c:1805
+#: ../extensions/addons.c:1806
 msgid "Support for userscripts and userstyles"
 msgstr "사용자 스크립트와 사용자 스타일을 지원합니다."
 
