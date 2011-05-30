@@ -330,8 +330,9 @@ def set_options (opt):
         if group == None:
             group = opt
         option_ = option.replace ('-', '_')
-        group.add_option ('--enable-' + option, action='store_true',
-            default=False, help='Enable ' + desc, dest='enable_' + option_)
+        group.add_option ('--enable-' + option, action='store_true', default=False,
+            help='Enable ' + desc + ' [Default: ' + str (not disable) + ']',
+            dest='enable_' + option_)
         group.add_option ('--disable-' + option, action='store_true',
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
