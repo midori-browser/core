@@ -36,6 +36,10 @@
     #include <unistd.h>
 #endif
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #ifdef HAVE_HILDON_2_2
     #include <dbus/dbus.h>
     #include <mce/mode-names.h>
@@ -1005,6 +1009,12 @@ midori_browser_save_transfer_cb (KatzeNetRequest* request,
 }
 #endif
 
+static gchar*
+midori_browser_save_source (const gchar* uri,
+                            const gchar* data,
+                            const size_t len,
+                            const gchar* outfile);
+
 static void
 midori_browser_save_uri (MidoriBrowser* browser,
                          const gchar*   uri)
@@ -1060,7 +1070,13 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        GtkWidget* view;
+        GtkWidget* web_view;
+        WebKitWebDataSource *data_source;
+        WebKitWebFrame *frame;
+        const GString *data;
+        #else
         WebKitNetworkRequest* request;
         WebKitDownload* download;
         gchar* destination;
@@ -1068,7 +1084,14 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
         folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
-        #if WEBKIT_CHECK_VERSION (1, 1, 3)
+        #if WEBKIT_CHECK_VERSION (1, 1, 14)
+        view = midori_browser_get_current_tab (browser);
+        web_view = midori_view_get_web_view (MIDORI_VIEW (view));
+        frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+        data_source = webkit_web_frame_get_data_source (frame);
+        data = webkit_web_data_source_get_data (data_source);
+        midori_browser_save_source (uri, data->str, data->len, filename);
+        #else
         request = webkit_network_request_new (uri);
         download = webkit_download_new (request);
         g_object_unref (request);
@@ -1076,9 +1099,6 @@ midori_browser_save_uri (MidoriBrowser* browser,
         if (midori_browser_prepare_download (browser, download, destination))
             webkit_download_start (download);
         g_free (destination);
-        #else
-        katze_net_load_uri (NULL, uri, NULL,
-            (KatzeNetTransferCb)midori_browser_save_transfer_cb, filename);
         #endif
 
         g_free (last_dir);
@@ -3345,7 +3365,8 @@ midori_browser_get_uri_extension (const gchar* uri)
 static gchar*
 midori_browser_save_source (const gchar* uri,
                             const gchar* data,
-                            const size_t len)
+                            const size_t len,
+                            const gchar* outfile)
 {
     gchar* filename;
     gchar* extension;
@@ -3357,11 +3378,21 @@ midori_browser_save_source (const gchar* uri,
     if (!data)
         return NULL;
 
-    extension = midori_browser_get_uri_extension (uri);
-    filename = g_strdup_printf ("%uXXXXXX%s",
-                                    g_str_hash (uri), extension);
-    g_free (extension);
-    if (((fd = g_file_open_tmp (filename, &unique_filename, NULL)) != -1))
+    if (!outfile)
+    {
+        extension = midori_browser_get_uri_extension (uri);
+        filename = g_strdup_printf ("%uXXXXXX%s",
+                                        g_str_hash (uri), extension);
+        g_free (extension);
+        fd = g_file_open_tmp (filename, &unique_filename, NULL);
+    }
+    else
+    {
+        filename = g_strdup (outfile);
+        fd = g_open (filename, O_WRONLY|O_CREAT, 0644);
+    }
+
+    if (fd != -1)
     {
         if ((fp = fdopen (fd, "w")))
         {
@@ -3388,7 +3419,7 @@ midori_browser_source_transfer_cb (KatzeNetRequest* request,
     gchar* text_editor;
     gchar* filename;
 
-    filename = midori_browser_save_source (request->uri, request->data, request->length);
+    filename = midori_browser_save_source (request->uri, request->data, request->length, NULL);
     if (filename)
     {
         g_object_get (browser->settings,
@@ -3467,7 +3498,7 @@ _action_source_view_activate (GtkAction*     action,
         frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
         data_source = webkit_web_frame_get_data_source (frame);
         data = webkit_web_data_source_get_data (data_source);
-        filename = midori_browser_save_source (uri, data->str, data->len);
+        filename = midori_browser_save_source (uri, data->str, data->len, NULL);
     }
 
     if (filename)
