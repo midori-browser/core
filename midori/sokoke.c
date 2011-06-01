@@ -1722,6 +1722,16 @@ sokoke_find_data_filename (const gchar* filename)
     const gchar* data_dir;
     gchar* path;
 
+    #ifdef G_OS_WIN32
+    gchar* install_path = g_win32_get_package_installation_directory_of_module (NULL);
+    path = g_build_filename (install_path, "share", filename, NULL);
+    g_free (install_path);
+    if (g_access (path, F_OK) == 0)
+        return path;
+
+    g_free (path);
+    #endif
+
     path = g_build_filename (g_get_user_data_dir (), filename, NULL);
     if (g_access (path, F_OK) == 0)
         return path;
