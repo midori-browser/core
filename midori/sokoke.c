@@ -926,6 +926,8 @@ sokoke_uri_unescape_string (const gchar* uri)
     {
         /* Preserve %20 for pasting URLs into other windows */
         gchar* unescaped = g_uri_unescape_string (uri, "+");
+        if (!unescaped)
+            return g_strdup (uri);
         gchar* spaced = sokoke_replace_variables (unescaped, " ", "%20", NULL);
         g_free (unescaped);
         return spaced;
