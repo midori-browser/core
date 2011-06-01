@@ -41,6 +41,7 @@
 
 static GHashTable* pattern;
 static GHashTable* keys;
+static GHashTable* urlcache;
 static gchar* blockcss = NULL;
 static gchar* blockcssprivate = NULL;
 static gchar* blockscript = NULL;
@@ -92,6 +93,9 @@ adblock_init_db ()
     keys = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_regex_unref);
+    urlcache = g_hash_table_new_full (g_str_hash, g_str_equal,
+                   (GDestroyNotify)g_free,
+                   (GDestroyNotify)g_free);
     katze_assign (blockcss, g_strdup ("z-non-exist"));
     katze_assign (blockcssprivate, g_strdup (""));
 }
@@ -683,11 +687,27 @@ adblock_is_matched (const gchar*  opts,
                     const gchar*  req_uri,
                     const gchar*  page_uri)
 {
+    gboolean foundbykey;
+    gboolean foundbypattern;
+    gchar* value;
 
-    if (adblock_is_matched_by_key (opts, req_uri, page_uri) == TRUE)
+    if ((value = g_hash_table_lookup (urlcache, req_uri)))
+    {
+        if (value[0] == '0')
+            return FALSE;
+        else
+            return TRUE;
+    }
+
+    foundbykey = adblock_is_matched_by_key (opts, req_uri, page_uri);
+    foundbypattern = adblock_is_matched_by_pattern (req_uri, page_uri);
+    if (foundbykey == TRUE || foundbypattern == TRUE)
+    {
+        g_hash_table_insert (urlcache, g_strdup (req_uri), g_strdup("1"));
         return TRUE;
-    else
-        return adblock_is_matched_by_pattern (req_uri, page_uri);
+    }
+    g_hash_table_insert (urlcache, g_strdup (req_uri), g_strdup("0"));
+    return FALSE;
 }
 
 #if HAVE_WEBKIT_RESOURCE_REQUEST
@@ -1362,6 +1382,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
     katze_assign (blockcss, NULL);
     katze_assign (blockcssprivate, NULL);
     g_hash_table_destroy (pattern);
+    g_hash_table_destroy (urlcache);
 }
 
 static void
