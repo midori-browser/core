@@ -10,7 +10,7 @@
 # See the file COPYING for the full license text.
 
 # config variables
-REPO_URL=http://download.opensuse.org/repositories/windows:/mingw:/win32/openSUSE_11.2
+REPO_URL=http://download.opensuse.org/repositories/windows:/mingw:/win32/openSUSE_11.4
 REPO_ARCH=noarch
 DOWNLOAD_PATH=~/dev/mingw/packages/opensuse
 BUILD_PATH=~/tmp/opensuse
