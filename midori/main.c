@@ -1876,6 +1876,7 @@ midori_log_to_file (const gchar*   log_domain,
 {
     FILE* logfile = fopen ((const char*)user_data, "a");
     gchar* level_name = "";
+    time_t timestamp = time (NULL);
 
     switch (log_level)
     {
@@ -1904,7 +1905,7 @@ midori_log_to_file (const gchar*   log_domain,
             break;
     }
 
-    fprintf (logfile, "%s %s: %s\n",
+    fprintf (logfile, "%s%s-%s **: %s\n", asctime (localtime (&timestamp)),
         log_domain ? log_domain : "Midori", level_name, message);
     fclose (logfile);
 }
