@@ -3342,58 +3342,76 @@ midori_browser_get_uri_extension (const gchar* uri)
     return g_strdup (period);
 }
 
-static void
-midori_browser_source_transfer_cb (KatzeNetRequest* request,
-                                   MidoriBrowser*   browser)
+static gchar*
+midori_browser_save_source (const gchar* uri,
+                            const gchar* data,
+                            const size_t len)
 {
     gchar* filename;
     gchar* extension;
     gchar* unique_filename;
-    gchar* text_editor;
     gint fd;
     FILE* fp;
     size_t ret;
 
-    if (request->data)
-    {
-        extension = midori_browser_get_uri_extension (request->uri);
-        filename = g_strdup_printf ("%uXXXXXX%s",
-                                    g_str_hash (request->uri), extension);
-        g_free (extension);
-        if (((fd = g_file_open_tmp (filename, &unique_filename, NULL)) != -1))
-        {
-            if ((fp = fdopen (fd, "w")))
-            {
-                ret = fwrite (request->data, 1, request->length, fp);
-                fclose (fp);
-                if ((ret - request->length) != 0)
-                {
-                    g_warning ("Error writing to file %s "
-                               "in midori_browser_source_transfer_cb()", filename);
-                }
-                g_object_get (browser->settings,
-                    "text-editor", &text_editor, NULL);
-                if (text_editor && *text_editor)
-                    sokoke_spawn_program (text_editor, unique_filename);
-                else
-                    sokoke_show_uri (NULL, unique_filename,
-                                     gtk_get_current_event_time (), NULL);
+    if (!data)
+        return NULL;
 
+    extension = midori_browser_get_uri_extension (uri);
+    filename = g_strdup_printf ("%uXXXXXX%s",
+                                    g_str_hash (uri), extension);
+    g_free (extension);
+    if (((fd = g_file_open_tmp (filename, &unique_filename, NULL)) != -1))
+    {
+        if ((fp = fdopen (fd, "w")))
+        {
+            ret = fwrite (data, 1, len, fp);
+            fclose (fp);
+            if ((ret - len) != 0)
+            {
+                g_warning ("Error writing to file %s "
+                           "in midori_browser_source_transfer_cb()", unique_filename);
                 g_free (unique_filename);
-                g_free (text_editor);
             }
-            close (fd);
         }
-        g_free (filename);
+        close (fd);
     }
+    g_free (filename);
+    return unique_filename;
 }
+
+#if !WEBKIT_CHECK_VERSION (1, 1, 14)
+static void
+midori_browser_source_transfer_cb (KatzeNetRequest* request,
+                                   MidoriBrowser*   browser)
+{
+    gchar* text_editor;
+    gchar* filename;
+
+    filename = midori_browser_save_source (request->uri, request->data, request->length);
+    if (filename)
+    {
+        g_object_get (browser->settings,
+                      "text-editor", &text_editor, NULL);
+        if (text_editor && *text_editor)
+            sokoke_spawn_program (text_editor, filename);
+        else
+            sokoke_show_uri (NULL, filename,
+                             gtk_get_current_event_time (), NULL);
+        g_free (text_editor);
+    }
+    g_free (filename);
+}
+#endif
 
 static void
 _action_source_view_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
     GtkWidget* view;
+    GtkWidget* web_view;
     gchar* text_editor;
+    gchar* filename = NULL;
     const gchar* uri;
 
     if (!(view = midori_browser_get_current_tab (browser)))
@@ -3436,15 +3454,31 @@ _action_source_view_activate (GtkAction*     action,
     }
 
     if (g_str_has_prefix (uri, "file://"))
+        filename = g_filename_from_uri (uri, NULL, NULL);
+
+    #if WEBKIT_CHECK_VERSION (1, 1, 14)
+    else
     {
-        gchar* filename = g_filename_from_uri (uri, NULL, NULL);
+        WebKitWebDataSource *data_source;
+        WebKitWebFrame *frame;
+        const GString *data;
+
+        web_view = midori_view_get_web_view (MIDORI_VIEW (view));
+        frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+        data_source = webkit_web_frame_get_data_source (frame);
+        data = webkit_web_data_source_get_data (data_source);
+        filename = midori_browser_save_source (uri, data->str, data->len);
+    }
+
+    if (filename)
+    {
         sokoke_spawn_program (text_editor, filename);
         g_free (filename);
-        g_free (text_editor);
-        return;
     }
+    #else
     katze_net_load_uri (NULL, uri, NULL,
         (KatzeNetTransferCb)midori_browser_source_transfer_cb, browser);
+    #endif
     g_free (text_editor);
 }
 
