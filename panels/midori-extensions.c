@@ -16,6 +16,8 @@
 #include "midori-stock.h"
 #include "midori-viewable.h"
 
+#include "midori-extensions-column.c"
+
 #include "sokoke.h"
 #include <glib/gi18n.h>
 
@@ -245,6 +247,23 @@ midori_extensions_treeview_render_icon_cb (GtkTreeViewColumn* column,
 }
 
 static void
+midori_extensions_treeview_render_preferences_cb (GtkTreeViewColumn* column,
+                                                  GtkCellRenderer*   renderer,
+                                                  GtkTreeModel*      model,
+                                                  GtkTreeIter*       iter,
+                                                  GtkWidget*         treeview)
+{
+    MidoriExtension* extension;
+    gtk_tree_model_get (model, iter, 0, &extension, -1);
+
+    g_object_set (renderer, "stock-id", GTK_STOCK_PREFERENCES,
+                            "stock-size", GTK_ICON_SIZE_BUTTON,
+                            "visible", midori_extension_has_preferences (extension),
+                            "xpad", 4, NULL);
+    g_object_unref (extension);
+}
+
+static void
 midori_extensions_treeview_render_text_cb (GtkTreeViewColumn* column,
                                            GtkCellRenderer*   renderer,
                                            GtkTreeModel*      model,
@@ -352,6 +371,56 @@ midori_extensions_tree_sort_func (GtkTreeModel* model,
 }
 
 static void
+midori_extensions_treeview_column_preference_clicked_cb (GtkWidget*   widget,
+                                                         GtkTreeView* treeview,
+                                                         GtkTreePath* path)
+{
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+
+    model = gtk_tree_view_get_model (treeview);
+    if (gtk_tree_model_get_iter (model, &iter, path))
+    {
+        MidoriExtension* extension;
+
+        gtk_tree_model_get (model, &iter, 0, &extension, -1);
+        g_signal_emit_by_name (extension, "open-preferences");
+        g_object_unref (extension);
+    }
+
+}
+
+static gboolean
+midori_extensions_treeview_button_pressed_cb (GtkWidget*      view,
+                                              GdkEventButton* bevent,
+                                              gpointer        data)
+{
+    gboolean ret = FALSE;
+    GtkTreePath* path;
+    GtkTreeViewColumn* column;
+    guint signal_id;
+
+    if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view),
+                bevent->x, bevent->y, &path, &column, NULL, NULL))
+    {
+        if (path != NULL)
+        {
+            if (MIDORI_IS_EXTENSIONS_COUMN (column))
+            {
+                signal_id = g_signal_lookup ("row-clicked", G_OBJECT_TYPE (column));
+
+                if (signal_id && g_signal_has_handler_pending (column, signal_id, 0, FALSE)) {
+                    g_signal_emit (column, signal_id, 0, GTK_TREE_VIEW (view), path);
+                    ret = TRUE;
+                }
+            }
+            gtk_tree_path_free (path);
+        }
+    }
+    return ret;
+}
+
+static void
 midori_extensions_init (MidoriExtensions* extensions)
 {
     /* Create the treeview */
@@ -359,8 +428,13 @@ midori_extensions_init (MidoriExtensions* extensions)
     GtkCellRenderer* renderer_icon;
     GtkCellRenderer* renderer_text;
     GtkCellRenderer* renderer_toggle;
+    GtkCellRenderer* renderer_preferences;
     GtkListStore* liststore = gtk_list_store_new (1, G_TYPE_OBJECT);
     extensions->treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (liststore));
+    g_object_connect (extensions->treeview,
+        "signal::button-press-event",
+        midori_extensions_treeview_button_pressed_cb, NULL,
+        NULL);
     gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (liststore),
         0, GTK_SORT_ASCENDING);
     gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (liststore),
@@ -386,8 +460,22 @@ midori_extensions_init (MidoriExtensions* extensions)
     gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     renderer_text = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (column, renderer_text, FALSE);
+    gtk_tree_view_column_set_expand (column, TRUE);
     gtk_tree_view_column_set_cell_data_func (column, renderer_text,
         (GtkTreeCellDataFunc)midori_extensions_treeview_render_text_cb,
+        extensions->treeview, NULL);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (extensions->treeview), column);
+    column = GTK_TREE_VIEW_COLUMN (midori_extensions_coumn_new ());
+    g_signal_connect (column,
+        "row-clicked",
+        G_CALLBACK (midori_extensions_treeview_column_preference_clicked_cb),
+        NULL);
+    renderer_preferences = gtk_cell_renderer_pixbuf_new ();
+    gtk_tree_view_column_pack_start (column, renderer_preferences, FALSE);
+    gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_fixed_width (column, 30);
+    gtk_tree_view_column_set_cell_data_func (column, renderer_preferences,
+        (GtkTreeCellDataFunc)midori_extensions_treeview_render_preferences_cb,
         extensions->treeview, NULL);
     gtk_tree_view_append_column (GTK_TREE_VIEW (extensions->treeview), column);
     g_object_unref (liststore);

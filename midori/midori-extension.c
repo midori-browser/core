@@ -29,6 +29,7 @@ struct _MidoriExtensionPrivate
     gchar* version;
     gchar* authors;
     gchar* website;
+    gboolean preferences;
 
     MidoriApp* app;
     gint active;
@@ -131,12 +132,14 @@ enum
     PROP_DESCRIPTION,
     PROP_VERSION,
     PROP_AUTHORS,
-    PROP_WEBSITE
+    PROP_WEBSITE,
+    PROP_PREFERENCES
 };
 
 enum {
     ACTIVATE,
     DEACTIVATE,
+    OPEN_PREFERENCES,
 
     LAST_SIGNAL
 };
@@ -177,6 +180,24 @@ midori_extension_class_init (MidoriExtensionClass* class)
 
     signals[DEACTIVATE] = g_signal_new (
         "deactivate",
+        G_TYPE_FROM_CLASS (class),
+        (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
+        0,
+        0,
+        NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0,
+        G_TYPE_NONE);
+
+    /**
+     * MidoriExtension::open-preferences:
+     *
+     * The preferences of the extension should be opened.
+     *
+     * Since: 0.4.0
+     */
+     signals[OPEN_PREFERENCES] = g_signal_new (
+        "open-preferences",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
         0,
@@ -243,6 +264,22 @@ midori_extension_class_init (MidoriExtensionClass* class)
                                      "Website",
                                      "The website of the extension",
                                      NULL,
+                                     flags));
+
+    /**
+     * MidoriExtension:preferences:
+     *
+     * True if the extension can handle the preferences signal.
+     *
+     * Since: 0.4.0
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_PREFERENCES,
+                                     g_param_spec_boolean (
+                                     "preferences",
+                                     "Preferences",
+                                     "True if the extension can handle the preferences signal.",
+                                     FALSE,
                                      flags));
 
     g_type_class_add_private (class, sizeof (MidoriExtensionPrivate));
@@ -409,6 +446,9 @@ midori_extension_set_property (GObject*      object,
     case PROP_WEBSITE:
         katze_assign (extension->priv->website, g_value_dup_string (value));
         break;
+    case PROP_PREFERENCES:
+        extension->priv->preferences = g_value_get_boolean (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -440,6 +480,9 @@ midori_extension_get_property (GObject*    object,
     case PROP_WEBSITE:
         g_value_set_string (value, extension->priv->website);
         break;
+    case PROP_PREFERENCES:
+        g_value_set_boolean (value, extension->priv->preferences);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -464,6 +507,25 @@ midori_extension_is_prepared (MidoriExtension* extension)
     if (extension->priv->name && extension->priv->description
         && extension->priv->version && extension->priv->authors
         && g_signal_has_handler_pending (extension, signals[ACTIVATE], 0, FALSE))
+        return TRUE;
+    return FALSE;
+}
+
+/**
+ * midori_extension_has_preferences:
+ * @extension: a #MidoriExtension
+ *
+ * Determines if @extension has preferences.
+ *
+ * Return value: %TRUE if @extension has preferences
+ **/
+gboolean
+midori_extension_has_preferences (MidoriExtension* extension)
+{
+    g_return_val_if_fail (MIDORI_IS_EXTENSION (extension), FALSE);
+
+    if (extension->priv->preferences
+        && g_signal_has_handler_pending (extension, signals[OPEN_PREFERENCES], 0, FALSE))
         return TRUE;
     return FALSE;
 }
