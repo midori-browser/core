@@ -2452,6 +2452,7 @@ main (int    argc,
     g_free (bookmarks_file);
     midori_startup_timer ("History read: \t%f");
 
+    error = NULL;
     speeddial = speeddial_new_from_file (config, &error);
 
     /* In case of errors */
