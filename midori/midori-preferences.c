@@ -369,7 +369,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
     button = NULL;
-    #if WEBKIT_CHECK_VERSION (1, 1, 15) || HAVE_HILDON
+    #if HAVE_HILDON
     if (katze_widget_has_touchscreen_mode (parent ?
         GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
         button = katze_property_proxy (settings, "kinetic-scrolling", NULL);

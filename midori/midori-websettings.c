@@ -747,7 +747,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            _("Whether to enable HTML5 local storage support"),
                                                            FALSE,
                                                            flags));
-    #if WEBKIT_CHECK_VERSION (1, 1, 13)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE,
                                      g_param_spec_boolean ("enable-offline-web-application-cache",
@@ -755,7 +754,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            _("Whether to enable offline web application cache"),
                                                            FALSE,
                                                            flags));
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_PAGE_CACHE,
@@ -1565,12 +1563,10 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-html5-local-storage"));
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 13)
     case PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-offline-web-application-cache"));
         break;
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,

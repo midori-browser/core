@@ -978,7 +978,7 @@ midori_load_soup_session (gpointer settings)
 {
     SoupSession* session = webkit_get_default_session ();
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 14) && defined (HAVE_LIBSOUP_2_29_91)
+    #if defined (HAVE_LIBSOUP_2_29_91)
     const gchar* certificate_files[] =
     {
         "/etc/pki/tls/certs/ca-bundle.crt",
@@ -2139,10 +2139,8 @@ main (int    argc,
     sokoke_register_privacy_item ("flash-cookies", _("'Flash' Cookies"),
         G_CALLBACK (midori_clear_flash_cookies_cb));
     #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 14)
     sokoke_register_privacy_item ("html5-databases", _("HTML5 _Databases"),
         G_CALLBACK (midori_clear_html5_databases_cb));
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     sokoke_register_privacy_item ("web-cache", _("Web Cache"),
         G_CALLBACK (midori_clear_web_cache_cb));
@@ -2320,9 +2318,7 @@ main (int    argc,
     error = NULL;
     settings = settings_and_accels_new (config, &extensions);
     g_object_set (settings, "enable-developer-extras", TRUE, NULL);
-    #if WEBKIT_CHECK_VERSION (1, 1, 14)
     g_object_set (settings, "enable-html5-database", TRUE, NULL);
-    #endif
     midori_startup_timer ("Config and accels read: \t%f");
 
     /* Load search engines */

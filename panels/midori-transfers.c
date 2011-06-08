@@ -103,7 +103,6 @@ midori_transfers_button_clear_clicked_cb (GtkToolItem*    toolitem,
     gint n = 0;
     while ((gtk_tree_model_iter_nth_child (model, &iter, NULL, n++)))
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 3)
         WebKitDownload* download;
         WebKitDownloadStatus status;
 
@@ -117,7 +116,6 @@ midori_transfers_button_clear_clicked_cb (GtkToolItem*    toolitem,
             n--; /* Decrement n since we just removed it */
         }
         g_object_unref (download);
-        #endif
     }
 }
 
@@ -161,7 +159,6 @@ midori_transfers_viewable_iface_init (MidoriViewableIface* iface)
     iface->get_toolbar = midori_transfers_get_toolbar;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 midori_transfers_download_notify_progress_cb (WebKitDownload*  download,
                                               GParamSpec*      pspec,
@@ -198,7 +195,6 @@ midori_transfers_browser_add_download_cb (MidoriBrowser*   browser,
     g_signal_connect (download, "notify::status",
         G_CALLBACK (midori_transfers_download_notify_status_cb), transfers);
 }
-#endif
 
 static void
 midori_transfers_set_property (GObject*      object,
@@ -257,7 +253,6 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
                                           GtkTreeIter*       iter,
                                           GtkWidget*         treeview)
 {
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     WebKitDownload* download;
     gchar* current;
     gchar* total;
@@ -286,7 +281,6 @@ midori_transfers_treeview_render_text_cb (GtkTreeViewColumn* column,
                   "xpad", 1, "ypad", 6, NULL);
     g_free (text);
     g_object_unref (download);
-    #endif
 }
 
 static void
@@ -296,7 +290,6 @@ midori_transfers_treeview_render_button_cb (GtkTreeViewColumn* column,
                                             GtkTreeIter*       iter,
                                             GtkWidget*         treeview)
 {
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     WebKitDownload* download;
     const gchar* stock_id;
 
@@ -317,7 +310,6 @@ midori_transfers_treeview_render_button_cb (GtkTreeViewColumn* column,
                   "stock-size", GTK_ICON_SIZE_MENU, NULL);
 
     g_object_unref (download);
-    #endif
 }
 
 static void
@@ -330,7 +322,6 @@ midori_transfers_treeview_row_activated_cb (GtkTreeView*       treeview,
     GtkTreeIter iter;
     if (gtk_tree_model_get_iter (model, &iter, path))
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 3)
         WebKitDownload* download;
 
         gtk_tree_model_get (model, &iter, 1, &download, -1);
@@ -355,7 +346,6 @@ midori_transfers_treeview_row_activated_cb (GtkTreeView*       treeview,
                 break;
         }
         g_object_unref (download);
-        #endif
     }
 }
 
@@ -363,7 +353,6 @@ static void
 midori_transfers_hierarchy_changed_cb (MidoriTransfers* transfers,
                                        GtkWidget*       old_parent)
 {
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (transfers));
     if (MIDORI_IS_BROWSER (browser))
         g_signal_connect (browser, "add-download",
@@ -371,10 +360,8 @@ midori_transfers_hierarchy_changed_cb (MidoriTransfers* transfers,
     if (old_parent)
         g_signal_handlers_disconnect_by_func (old_parent,
             midori_transfers_browser_add_download_cb, transfers);
-    #endif
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 3)
 static GtkWidget*
 midori_transfers_popup_menu_item (GtkMenu*         menu,
                                   const gchar*     stock_id,
@@ -486,7 +473,6 @@ midori_transfers_popup (GtkWidget*       widget,
 
     katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
-#endif
 
 static gboolean
 midori_transfers_popup_menu_cb (GtkWidget*       widget,
@@ -497,7 +483,6 @@ midori_transfers_popup_menu_cb (GtkWidget*       widget,
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 3)
         WebKitDownload* download;
 
         gtk_tree_model_get (model, &iter, 1, &download, -1);
@@ -505,7 +490,6 @@ midori_transfers_popup_menu_cb (GtkWidget*       widget,
         midori_transfers_popup (widget, NULL, download, transfers);
         g_object_unref (download);
         return TRUE;
-        #endif
     }
     return FALSE;
 }
@@ -523,7 +507,6 @@ midori_transfers_button_release_event_cb (GtkWidget*      widget,
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))
     {
-        #if WEBKIT_CHECK_VERSION (1, 1, 3)
         WebKitDownload* download;
 
         gtk_tree_model_get (model, &iter, 1, &download, -1);
@@ -531,7 +514,6 @@ midori_transfers_button_release_event_cb (GtkWidget*      widget,
         midori_transfers_popup (widget, NULL, download, transfers);
         g_object_unref (download);
         return TRUE;
-        #endif
     }
     return FALSE;
 }

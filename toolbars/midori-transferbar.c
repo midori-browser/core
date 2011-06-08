@@ -37,7 +37,6 @@ midori_transferbar_class_init (MidoriTransferbarClass* class)
     /* Nothing to do */
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 3)
 typedef struct
 {
     WebKitDownload* download;
@@ -112,9 +111,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
         case WEBKIT_DOWNLOAD_STATUS_FINISHED:
         {
             MidoriBrowser* browser = midori_browser_get_for_widget (button);
-            #if WEBKIT_CHECK_VERSION (1, 1, 14)
             WebKitNetworkRequest* request;
-            #endif
             const gchar* original_uri;
             gchar** fingerprint;
 
@@ -137,11 +134,9 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
             }
 
             /* Link Fingerprint */
-            #if WEBKIT_CHECK_VERSION (1, 1, 14)
             request = webkit_download_get_network_request (download);
             original_uri = g_object_get_data (G_OBJECT (request), "midori-original-uri");
             if (!original_uri)
-            #endif
                 original_uri = webkit_download_get_uri (download);
             fingerprint = g_strsplit (original_uri, "#!md5!", 2);
             if (fingerprint && fingerprint[0] && fingerprint[1])
@@ -315,7 +310,6 @@ midori_transferbar_clear_clicked_cb (GtkWidget*         button,
         }
     }
 }
-#endif
 
 static void
 midori_transferbar_init (MidoriTransferbar* transferbar)
@@ -326,10 +320,8 @@ midori_transferbar_init (MidoriTransferbar* transferbar)
     transferbar->clear = gtk_tool_button_new_from_stock (GTK_STOCK_CLEAR);
     gtk_tool_button_set_label (GTK_TOOL_BUTTON (transferbar->clear), _("Clear All"));
     gtk_tool_item_set_is_important (transferbar->clear, TRUE);
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     g_signal_connect (transferbar->clear, "clicked",
         G_CALLBACK (midori_transferbar_clear_clicked_cb), transferbar);
-    #endif
     gtk_toolbar_insert (GTK_TOOLBAR (transferbar), transferbar->clear, -1);
 
     transferbar->infos = NULL;
@@ -340,7 +332,6 @@ midori_transferbar_confirm_delete (MidoriTransferbar* transferbar)
 {
     GtkWidget* dialog = NULL;
     gboolean cancel = FALSE;
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     GList* list;
     gboolean all_done = TRUE;
 
@@ -359,9 +350,6 @@ midori_transferbar_confirm_delete (MidoriTransferbar* transferbar)
     }
 
     if (!all_done)
-    #else
-    if (transferbar->infos || g_list_nth_data (transferbar->infos, 0))
-    #endif
     {
         GtkWidget* widget = gtk_widget_get_toplevel (GTK_WIDGET (transferbar));
         dialog = gtk_message_dialog_new (GTK_WINDOW (widget),

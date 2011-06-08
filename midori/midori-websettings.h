@@ -66,9 +66,7 @@ typedef enum
     MIDORI_STARTUP_BLANK_PAGE, /* One blank tab or speed dial is opened */
     MIDORI_STARTUP_HOMEPAGE, /* One homepage tab is opened */
     MIDORI_STARTUP_LAST_OPEN_PAGES, /* The session is loaded and saved */
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
     MIDORI_STARTUP_DELAYED_PAGES /* The session is saved, loading pages is delayed */
-    #endif
 } MidoriStartup;
 
 GType
