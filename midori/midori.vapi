@@ -93,6 +93,18 @@ namespace Midori {
         public Extension ();
         public unowned Midori.App get_app ();
 
+        public void install_boolean (string name, bool default_value);
+        public void install_integer (string name, int default_value);
+        public void install_string (string name, string default_value);
+
+        public bool get_boolean (string name);
+        public int get_integer (string name);
+        public unowned string get_string (string name);
+
+        public void set_boolean (string name, bool value);
+        public void set_integer (string name, int value);
+        public void set_string (string name, string value);
+
         [NoAccessorMethod]
         public string name { get; set; }
         [NoAccessorMethod]
