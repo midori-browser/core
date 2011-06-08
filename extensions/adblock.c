@@ -1157,7 +1157,7 @@ adblock_compile_regexp (GHashTable* tbl,
     }
 }
 
-static gchar*
+static inline gchar*
 adblock_add_url_pattern (gchar* prefix,
                          gchar* type,
                          gchar* line)
@@ -1196,7 +1196,7 @@ adblock_add_url_pattern (gchar* prefix,
     return format_patt;
 }
 
-static void
+static inline void
 adblock_frame_add (gchar* line)
 {
     const gchar* separator = " , ";
@@ -1214,7 +1214,7 @@ adblock_frame_add (gchar* line)
     g_string_append (blockcss, line);
 }
 
-static void
+static inline void
 adblock_frame_add_private (const gchar* line,
                            const gchar* sep)
 {
