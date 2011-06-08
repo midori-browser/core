@@ -42,8 +42,8 @@
 static GHashTable* pattern;
 static GHashTable* keys;
 static GHashTable* urlcache;
-static gchar* blockcss = NULL;
-static gchar* blockcssprivate = NULL;
+static GString* blockcss;
+static GString* blockcssprivate;
 static gchar* blockscript = NULL;
 #ifdef G_ENABLE_DEBUG
 static guint debug;
@@ -96,8 +96,12 @@ adblock_init_db ()
     urlcache = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_free);
-    katze_assign (blockcss, g_strdup ("z-non-exist"));
-    katze_assign (blockcssprivate, g_strdup (""));
+    if (blockcss && blockcss->len > 0)
+        g_string_free (blockcss, TRUE);
+    if (blockcssprivate && blockcssprivate->len > 0)
+        g_string_free (blockcssprivate, TRUE);
+    blockcss = g_string_new ("z-non-exist");
+    blockcssprivate = g_string_new ("");
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 2)
@@ -110,7 +114,7 @@ adblock_download_notify_status_cb (WebKitDownload* download,
         return;
 
     adblock_parse_file (path);
-    katze_assign (blockscript, adblock_build_js (blockcss, blockcssprivate));
+    katze_assign (blockscript, adblock_build_js (blockcss->str, blockcssprivate->str));
     g_free (path);
     /* g_object_unref (download); */
 }
@@ -193,7 +197,7 @@ adblock_reload_rules (MidoriExtension* extension,
     }
     g_strfreev (filters);
 
-    katze_assign (blockscript, adblock_build_js (blockcss, blockcssprivate));
+    katze_assign (blockscript, adblock_build_js (blockcss->str, blockcssprivate->str));
 }
 
 static void
@@ -1205,7 +1209,7 @@ adblock_add_url_pattern (gchar* format,
 static void
 adblock_frame_add (gchar* line)
 {
-    gchar* new_blockcss;
+    const gchar* separator = " , ";
 
     (void)*line++;
     (void)*line++;
@@ -1216,15 +1220,14 @@ adblock_frame_add (gchar* line)
     {
         return;
     }
-    new_blockcss = g_strdup_printf ("%s, %s", blockcss, line);
-    katze_assign (blockcss, new_blockcss);
+    g_string_append (blockcss, separator);
+    g_string_append (blockcss, line);
 }
 
 static void
 adblock_frame_add_private (const gchar* line,
                            const gchar* sep)
 {
-    gchar* new_blockcss;
     gchar** data;
     data = g_strsplit (line, sep, 2);
 
@@ -1246,17 +1249,15 @@ adblock_frame_add_private (const gchar* line,
         domains = g_strsplit (data[0], ",", -1);
         for (i = 0; domains[i]; i++)
         {
-            new_blockcss = g_strdup_printf ("%s;\nsites['%s']+=',%s'",
-                blockcssprivate, g_strstrip (domains[i]), data[1]);
-            katze_assign (blockcssprivate, new_blockcss);
+            g_string_append_printf (blockcssprivate, ";sites['%s']+=',%s'",
+                g_strstrip (domains[i]), data[1]);
         }
         g_strfreev (domains);
     }
     else
     {
-        new_blockcss = g_strdup_printf ("%s;\nsites['%s']+=',%s'",
-            blockcssprivate, data[0], data[1]);
-        katze_assign (blockcssprivate, new_blockcss);
+        g_string_append_printf (blockcssprivate, ";sites['%s']+=',%s'",
+            data[0], data[1]);
     }
     g_strfreev (data);
 }
@@ -1379,8 +1380,11 @@ adblock_deactivate_cb (MidoriExtension* extension,
         browser, adblock_add_tab_cb, extension);
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
-    katze_assign (blockcss, NULL);
-    katze_assign (blockcssprivate, NULL);
+    if (blockcss)
+        g_string_free (blockcss, TRUE);
+    if (blockcssprivate)
+        g_string_free (blockcssprivate, TRUE);
+    blockcssprivate = blockcss = NULL;
     g_hash_table_destroy (pattern);
     g_hash_table_destroy (urlcache);
 }
