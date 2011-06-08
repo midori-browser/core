@@ -1050,7 +1050,8 @@ midori_browser_save_uri (MidoriBrowser* browser,
         frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
         data_source = webkit_web_frame_get_data_source (frame);
         data = webkit_web_data_source_get_data (data_source);
-        midori_browser_save_source (uri, data->str, data->len, filename);
+        if (data)
+            midori_browser_save_source (uri, data->str, data->len, filename);
 
         g_free (last_dir);
         last_dir = folder;
@@ -3300,8 +3301,6 @@ midori_browser_save_source (const gchar* uri,
                             const size_t len,
                             const gchar* outfile)
 {
-    gchar* filename;
-    gchar* extension;
     gchar* unique_filename;
     gint fd;
     FILE* fp;
@@ -3312,16 +3311,20 @@ midori_browser_save_source (const gchar* uri,
 
     if (!outfile)
     {
+        gchar* filename;
+        gchar* extension;
+
         extension = midori_browser_get_uri_extension (uri);
         filename = g_strdup_printf ("%uXXXXXX%s",
                                         g_str_hash (uri), extension);
         g_free (extension);
         fd = g_file_open_tmp (filename, &unique_filename, NULL);
+        g_free (filename);
     }
     else
     {
-        filename = g_strdup (outfile);
-        fd = g_open (filename, O_WRONLY|O_CREAT, 0644);
+        unique_filename = g_strdup (outfile);
+        fd = g_open (unique_filename, O_WRONLY|O_CREAT, 0644);
     }
 
     if (fd != -1)
@@ -3334,12 +3337,11 @@ midori_browser_save_source (const gchar* uri,
             {
                 g_warning ("Error writing to file %s "
                            "in midori_browser_source_transfer_cb()", unique_filename);
-                g_free (unique_filename);
+                katze_assign (unique_filename, NULL);
             }
         }
         close (fd);
     }
-    g_free (filename);
     return unique_filename;
 }
 
@@ -3347,6 +3349,9 @@ static void
 _action_source_view_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
+    WebKitWebDataSource *data_source;
+    WebKitWebFrame *frame;
+    const GString *data;
     GtkWidget* view;
     GtkWidget* web_view;
     gchar* text_editor;
@@ -3358,40 +3363,34 @@ _action_source_view_activate (GtkAction*     action,
 
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
     uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+    web_view = midori_view_get_web_view (MIDORI_VIEW (view));
+    frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    data_source = webkit_web_frame_get_data_source (frame);
+    data = webkit_web_data_source_get_data (data_source);
+    if (data)
+        filename = midori_browser_save_source (uri, data->str, data->len, NULL);
+
+    if (!filename)
+        return;
 
     if (!(text_editor && *text_editor))
     {
         GtkWidget* source;
         GtkWidget* web_view;
+        gchar* source_uri;
+
+        source_uri = g_filename_to_uri (filename, NULL, NULL);
+        g_free (filename);
 
         source = midori_view_new (NULL);
         midori_view_set_settings (MIDORI_VIEW (source), browser->settings);
         web_view = midori_view_get_web_view (MIDORI_VIEW (source));
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), TRUE);
-        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), uri);
+        webkit_web_view_load_uri (WEBKIT_WEB_VIEW (web_view), source_uri);
         gtk_widget_show (source);
         midori_browser_add_tab (browser, source);
-        g_free (text_editor);
-        return;
     }
-
-    if (g_str_has_prefix (uri, "file://"))
-        filename = g_filename_from_uri (uri, NULL, NULL);
-
     else
-    {
-        WebKitWebDataSource *data_source;
-        WebKitWebFrame *frame;
-        const GString *data;
-
-        web_view = midori_view_get_web_view (MIDORI_VIEW (view));
-        frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-        data_source = webkit_web_frame_get_data_source (frame);
-        data = webkit_web_data_source_get_data (data_source);
-        filename = midori_browser_save_source (uri, data->str, data->len, NULL);
-    }
-
-    if (filename)
     {
         sokoke_spawn_program (text_editor, filename);
         g_free (filename);
