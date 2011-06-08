@@ -88,14 +88,12 @@ def configure (conf):
         return dirvalue
 
     conf.check_tool ('compiler_cc')
-    if option_enabled ('vala'):
-        if find_program_impl (conf.env, 'valac'):
-            conf.check_tool ('vala')
-        else:
-            conf.check_message ('program', 'valac', False, False)
-            Utils.pprint ('RED', 'Vala is required for some extensions.')
-            Utils.pprint ('RED', 'Pass --disable-vala to not build with Vala.')
-            sys.exit (1)
+    if find_program_impl (conf.env, 'valac'):
+        conf.check_tool ('vala')
+    else:
+        conf.check_message ('program', 'valac', False, False)
+        Utils.pprint ('RED', 'Vala is requird to build Midori.')
+        sys.exit (1)
     conf.check_tool ('glib2')
 
     if option_enabled ('nls'):
@@ -360,7 +358,6 @@ def set_options (opt):
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group)
-    add_enable_option ('vala', 'Vala support', group)
     add_enable_option ('libidn', 'international domain name support', group)
     add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('addons', 'building of extensions', group)
