@@ -950,7 +950,6 @@ adblock_load_finished_cb (WebKitWebView  *web_view,
                           WebKitWebFrame *web_frame,
                           gpointer        user_data)
 {
-    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     GList* uris = g_object_get_data (G_OBJECT (web_view), "blocked-uris");
     gchar* script;
     GList* li;
@@ -960,7 +959,6 @@ adblock_load_finished_cb (WebKitWebView  *web_view,
 
     script = adblock_prepare_urihider_js (uris);
     webkit_web_view_execute_script (web_view, script);
-    sokoke_js_script_eval (js_context, script, NULL);
     li = NULL;
     for (li = uris; li != NULL; li = g_list_next (li))
         uris = g_list_remove (uris, li->data);
@@ -975,7 +973,7 @@ adblock_window_object_cleared_cb (WebKitWebView*  web_view,
                                   JSContextRef    js_context,
                                   JSObjectRef     js_window)
 {
-    webkit_web_view_execute_script (web_view, blockscript);
+    g_free (sokoke_js_script_eval (js_context, blockscript, NULL));
 }
 
 static void
