@@ -747,18 +747,10 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     gtk_label_set_markup (GTK_LABEL (label), markup);
     g_free (markup);
     katze_preferences_add_widget (preferences, label, "filled");
-    #if WEBKIT_CHECK_VERSION (1, 1, 13)
     button = katze_property_proxy (settings, "enable-offline-web-application-cache", NULL);
     katze_preferences_add_widget (preferences, button, "indented");
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 8)
     button = katze_property_proxy (settings, "enable-html5-local-storage", NULL);
     katze_preferences_add_widget (preferences, button, "spanned");
-    #if !WEBKIT_CHECK_VERSION (1, 1, 14)
-    button = katze_property_proxy (settings, "enable-html5-database", NULL);
-    katze_preferences_add_widget (preferences, button, "indented");
-    #endif
-    #endif
     #if HAVE_LIBSOUP_2_27_90
     button = katze_property_proxy (settings, "strip-referer", NULL);
     katze_preferences_add_widget (preferences, button, "indented");
@@ -791,11 +783,9 @@ midori_app_add_browser_cb (MidoriApp*     app,
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Transfers */
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     addon = g_object_new (MIDORI_TYPE_TRANSFERS, "app", app, NULL);
     gtk_widget_show (addon);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
-    #endif
 
     /* Extensions */
     g_signal_connect (browser, "show-preferences",
@@ -918,18 +908,6 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         midori_soup_session_set_proxy_uri (session, NULL);
 }
 
-#if !WEBKIT_CHECK_VERSION (1, 1, 11)
-static void
-soup_session_settings_notify_ident_string_cb (MidoriWebSettings* settings,
-                                              GParamSpec*        pspec,
-                                              SoupSession*       session)
-{
-    gchar* ident_string = katze_object_get_string (settings, "user-agent");
-    g_object_set (session, "user-agent", ident_string, NULL);
-    g_free (ident_string);
-}
-#endif
-
 static void
 midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
@@ -1037,12 +1015,6 @@ midori_load_soup_session (gpointer settings)
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
-
-    #if !WEBKIT_CHECK_VERSION (1, 1, 11)
-    soup_session_settings_notify_ident_string_cb (settings, NULL, session);
-    g_signal_connect (settings, "notify::user-agent",
-        G_CALLBACK (soup_session_settings_notify_ident_string_cb), session);
-    #endif
 
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
@@ -1500,7 +1472,6 @@ midori_run_script (const gchar* filename)
     return 1;
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 6)
 static void
 snapshot_load_finished_cb (GtkWidget*      web_view,
                            WebKitWebFrame* web_frame,
@@ -1524,7 +1495,6 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
     g_print (_("Snapshot saved to: %s\n"), filename);
     gtk_main_quit ();
 }
-#endif
 
 static void
 midori_web_app_browser_notify_load_status_cb (MidoriBrowser* browser,
@@ -1836,13 +1806,11 @@ midori_clear_saved_logins_cb (void)
     g_free (path);
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 14)
 static void
 midori_clear_html5_databases_cb (void)
 {
     webkit_remove_all_web_databases ();
 }
-#endif
 
 #if WEBKIT_CHECK_VERSION (1, 3, 11)
 static void
@@ -1945,10 +1913,8 @@ main (int    argc,
        N_("Show a diagnostic dialog"), NULL },
        { "run", 'r', 0, G_OPTION_ARG_NONE, &run,
        N_("Run the specified filename as javascript"), NULL },
-       #if WEBKIT_CHECK_VERSION (1, 1, 6)
        { "snapshot", 's', 0, G_OPTION_ARG_STRING, &snapshot,
        N_("Take a snapshot of the specified URI"), NULL },
-       #endif
        { "execute", 'e', 0, G_OPTION_ARG_NONE, &execute,
        N_("Execute the specified command"), NULL },
        { "help-execute", 0, 0, G_OPTION_ARG_NONE, &help_execute,
@@ -2126,7 +2092,6 @@ main (int    argc,
         return 0;
     }
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
     if (snapshot)
     {
         gchar* filename;
@@ -2157,7 +2122,6 @@ main (int    argc,
         g_free (filename);
         return 0;
     }
-    #endif
 
     if (logfile)
     {
@@ -2231,14 +2195,10 @@ main (int    argc,
         {
             g_object_set (settings,
                           "preferred-languages", "en",
-            #if WEBKIT_CHECK_VERSION (1, 1, 2)
                           "enable-private-browsing", TRUE,
-            #endif
-            #if WEBKIT_CHECK_VERSION (1, 1, 8)
                           "enable-html5-database", FALSE,
                           "enable-html5-local-storage", FALSE,
                           "enable-offline-web-application-cache", FALSE,
-            #endif
             /* Arguably DNS prefetching is or isn't a privacy concern. For the
              * lack of more fine-grained control we'll go the safe route. */
                           "enable-dns-prefetching", FALSE,

@@ -198,9 +198,7 @@ midori_startup_get_type (void)
          { MIDORI_STARTUP_BLANK_PAGE, "MIDORI_STARTUP_BLANK_PAGE", N_("Show Speed Dial") },
          { MIDORI_STARTUP_HOMEPAGE, "MIDORI_STARTUP_HOMEPAGE", N_("Show Homepage") },
          { MIDORI_STARTUP_LAST_OPEN_PAGES, "MIDORI_STARTUP_LAST_OPEN_PAGES", N_("Show last open tabs") },
-         #if WEBKIT_CHECK_VERSION (1, 1, 6)
          { MIDORI_STARTUP_DELAYED_PAGES, "MIDORI_STARTUP_DELAYED_PAGES", N_("Show last tabs without loading") },
-         #endif
          { 0, NULL, NULL }
         };
         type = g_enum_register_static ("MidoriStartup", values);
@@ -565,11 +563,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Save downloaded files to:"),
                                      _("The folder downloaded files are saved to"),
                                      midori_get_download_dir (),
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
                                      flags));
-    #else
-                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-    #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_TEXT_EDITOR,
@@ -732,7 +726,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Enable special extensions for developers",
                                      TRUE,
                                      flags));
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_SPELL_CHECKING,
                                      g_param_spec_boolean ("enable-spell-checking",
@@ -740,8 +733,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            _("Enable spell checking while typing"),
                                                            TRUE,
                                                            flags));
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 8)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_HTML5_DATABASE,
                                      g_param_spec_boolean ("enable-html5-database",
@@ -756,7 +747,6 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            _("Whether to enable HTML5 local storage support"),
                                                            FALSE,
                                                            flags));
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 13)
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE,
@@ -1308,13 +1298,10 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-developer-extras",
                       g_value_get_boolean (value), NULL);
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
     case PROP_ENABLE_SPELL_CHECKING:
         g_object_set (web_settings, "WebKitWebSettings::enable-spell-checking",
                       g_value_get_boolean (value), NULL);
         break;
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 8)
     case PROP_ENABLE_HTML5_DATABASE:
         g_object_set (web_settings, "WebKitWebSettings::enable-html5-database",
                       g_value_get_boolean (value), NULL);
@@ -1323,13 +1310,10 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-html5-local-storage",
                       g_value_get_boolean (value), NULL);
         break;
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 13)
     case PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE:
         g_object_set (web_settings, "WebKitWebSettings::enable-offline-web-application-cache",
                       g_value_get_boolean (value), NULL);
         break;
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 18)
     case PROP_ENABLE_PAGE_CACHE:
         g_object_set (web_settings, "WebKitWebSettings::enable-page-cache",
@@ -1370,27 +1354,19 @@ midori_web_settings_set_property (GObject*      object,
         {
             gchar* string = generate_ident_string (web_settings->identify_as);
             katze_assign (web_settings->ident_string, string);
-            #if WEBKIT_CHECK_VERSION (1, 1, 11)
             g_object_set (web_settings, "user-agent", string, NULL);
-            #else
-            g_object_notify (object, "user-agent");
-            #endif
         }
         break;
     case PROP_USER_AGENT:
         if (web_settings->identify_as == MIDORI_IDENT_CUSTOM)
             katze_assign (web_settings->ident_string, g_value_dup_string (value));
-        #if WEBKIT_CHECK_VERSION (1, 1, 11)
         g_object_set (web_settings, "WebKitWebSettings::user-agent",
                                     web_settings->ident_string, NULL);
-        #endif
         break;
     case PROP_PREFERRED_LANGUAGES:
         katze_assign (web_settings->http_accept_language, g_value_dup_string (value));
-        #if WEBKIT_CHECK_VERSION (1, 1, 6)
         g_object_set (web_settings, "spell-checking-languages",
                       web_settings->http_accept_language, NULL);
-        #endif
         break;
     case PROP_CLEAR_PRIVATE_DATA:
         web_settings->clear_private_data = g_value_get_int (value);
@@ -1577,13 +1553,10 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-developer-extras"));
         break;
-    #if WEBKIT_CHECK_VERSION (1, 1, 6)
     case PROP_ENABLE_SPELL_CHECKING:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-spell-checking"));
         break;
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 1, 8)
     case PROP_ENABLE_HTML5_DATABASE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-html5-database"));
@@ -1592,7 +1565,6 @@ midori_web_settings_get_property (GObject*    object,
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
                              "WebKitWebSettings::enable-html5-local-storage"));
         break;
-    #endif
     #if WEBKIT_CHECK_VERSION (1, 1, 13)
     case PROP_ENABLE_OFFLINE_WEB_APPLICATION_CACHE:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
