@@ -720,10 +720,7 @@ static gchar*
 adblock_prepare_urihider_js (GList* uris)
 {
     GList* li = NULL;
-    gchar* out;
-    gchar* cmd = g_strdup ("");
-    gchar* tmp;
-    const char *js =
+    GString* js = g_string_new (
         "(function() {"
         "function getElementsByAttribute (strTagName, strAttributeName, arrAttributeValue) {"
         "    var arrElements = document.getElementsByTagName (strTagName);"
@@ -749,20 +746,14 @@ adblock_prepare_urihider_js (GList* uris)
         "        oElements[i].style.height = '0';"
         "    }"
         "};"
-        "var uris=new Array ();"
-        "%s"
-        "hideElementBySrc (uris);"
-        "})();";
+        "var uris=new Array ();");
 
     for (li = uris; li != NULL; li = g_list_next (li))
-    {
-        tmp = g_strdup_printf ("uris.push ('%s');%s", (gchar*)li->data, cmd);
-        katze_assign (cmd, tmp);
-    }
-    out = g_strdup_printf (js, cmd);
-    g_free (cmd);
+        g_string_append_printf (js, "uris.push ('%s');", (gchar*)li->data);
 
-    return out;
+    g_string_append (js, "hideElementBySrc (uris);})();");
+
+    return g_string_free (js, FALSE);
 }
 
 static void
