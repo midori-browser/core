@@ -82,7 +82,8 @@ adblock_build_js (const gchar* style,
 }
 
 static gchar *
-adblock_fixup_regexp (gchar* src);
+adblock_fixup_regexp (const gchar* prefix,
+                      gchar*       src);
 
 static void
 adblock_init_db ()
@@ -652,7 +653,7 @@ adblock_is_matched_by_key (const gchar*  opts,
     int pos = 0;
     GList* regex_bl = NULL;
 
-    uri = adblock_fixup_regexp ((gchar*)req_uri);
+    uri = adblock_fixup_regexp ("", (gchar*)req_uri);
     len = strlen (uri);
     for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--)
     {
@@ -1050,7 +1051,8 @@ adblock_app_add_browser_cb (MidoriApp*       app,
 }
 
 static gchar *
-adblock_fixup_regexp (gchar* src)
+adblock_fixup_regexp (const gchar* prefix,
+                      gchar*       src)
 {
     gchar* dst;
     GString* str;
@@ -1059,7 +1061,7 @@ adblock_fixup_regexp (gchar* src)
     if (!src)
         return NULL;
 
-    str = g_string_new ("");
+    str = g_string_new (prefix);
 
     /* lets strip first .* */
     if (src[0] == '*')
@@ -1167,42 +1169,41 @@ adblock_compile_regexp (GHashTable* tbl,
 }
 
 static gchar*
-adblock_add_url_pattern (gchar* format,
+adblock_add_url_pattern (gchar* prefix,
                          gchar* type,
                          gchar* line)
 {
     gchar** data;
     gchar* patt;
-    gchar* fixed_patt;
     gchar* format_patt;
     gchar* opts;
 
+    g_test_timer_start ();
     data = g_strsplit (line, "$", -1);
     if (data && data[0] && data[1] && data[2])
     {
-        patt = g_strdup_printf ("%s%s", data[0], data[1]);
-        opts = g_strdup_printf ("type=%s,regexp=%s,%s", type, patt, data[2]);
+        patt = g_strconcat (data[0], data[1], NULL);
+        opts = g_strdup_printf ("t=%s,r=%s,%s", type, patt, data[2]);
+        g_strfreev (data);
     }
     else if (data && data[0] && data[1])
     {
-        patt = g_strdup (data[0]);
-        opts = g_strdup_printf ("type=%s,regexp=%s,%s", type, patt, data[1]);
+        patt = data[0];
+        opts = g_strdup_printf ("t=%s,r=%s,%s", type, patt, data[1]);
+        g_free (data[1]);
     }
     else
     {
-        patt = g_strdup (data[0]);
-        opts = g_strdup_printf ("type=%s,regexp=%s", type, patt);
+        patt = data[0];
+        opts = g_strdup_printf ("t=%s,r=%s", type, patt);
     }
 
-    fixed_patt = adblock_fixup_regexp (patt);
-    format_patt =  g_strdup_printf (format, fixed_patt);
+    format_patt = adblock_fixup_regexp (prefix, patt);
 
     adblock_debug ("got: %s opts %s", format_patt, opts);
     adblock_compile_regexp (pattern, keys, format_patt, opts);
 
-    g_strfreev (data);
     g_free (patt);
-    g_free (fixed_patt);
     return format_patt;
 }
 
@@ -1306,14 +1307,14 @@ adblock_parse_line (gchar* line)
     {
         (void)*line++;
         (void)*line++;
-        return adblock_add_url_pattern ("%s", "fulluri", line);
+        return adblock_add_url_pattern ("", "fulluri", line);
     }
     if (line[0] == '|')
     {
         (void)*line++;
-        return adblock_add_url_pattern ("^%s", "fulluri", line);
+        return adblock_add_url_pattern ("^", "fulluri", line);
     }
-    return adblock_add_url_pattern ("%s", "uri", line);
+    return adblock_add_url_pattern ("", "uri", line);
 }
 
 static gboolean
