@@ -2356,15 +2356,6 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, 0,
             _("_Search the Web"), GTK_STOCK_FIND,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
-        items = gtk_container_get_children (GTK_CONTAINER (menu));
-        menuitem = (GtkWidget*)g_list_nth_data (items, 0);
-        /* hack to localize menu item */
-        label = gtk_bin_get_child (GTK_BIN (menuitem));
-        gtk_label_set_label (GTK_LABEL (label), _("_Search the Web"));
-        /* hack to implement Search the Web */
-        g_signal_connect (menuitem, "activate",
-            G_CALLBACK (midori_web_view_menu_search_web_activate_cb), view);
-        g_list_free (items);
 
         g_strstrip (view->selected_text);
         if (view->selected_text && !strchr (view->selected_text, ' ')
