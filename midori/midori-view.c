@@ -4744,9 +4744,7 @@ midori_view_reload (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (view->title)
-        webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), view->uri);
-    else if (!(view->uri && *view->uri && strncmp (view->uri, "about:", 6)))
+    if (!(view->uri && *view->uri && strncmp (view->uri, "about:", 6)))
     {
         gchar* uri = g_strdup (view->uri);
         midori_view_set_uri (view, uri);
