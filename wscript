@@ -88,13 +88,7 @@ def configure (conf):
         return dirvalue
 
     conf.check_tool ('compiler_cc')
-    if find_program_impl (conf.env, 'valac'):
-        conf.check_tool ('vala')
-    else:
-        conf.check_message ('program', 'valac', False, False)
-        Utils.pprint ('RED', 'Vala is requird to build Midori.')
-        sys.exit (1)
-    conf.check_tool ('glib2')
+    conf.check_tool ('vala')
 
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
