@@ -89,6 +89,7 @@ def configure (conf):
 
     conf.check_tool ('compiler_cc')
     conf.check_tool ('vala')
+    conf.check_tool ('glib2')
 
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
