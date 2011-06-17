@@ -3402,7 +3402,6 @@ midori_view_web_inspector_close_window_cb (gpointer    inspector,
 static void
 midori_view_construct_web_view (MidoriView* view)
 {
-    WebKitWebFrame* web_frame;
     gpointer inspector;
 
     g_return_if_fail (!view->web_view);
@@ -3411,7 +3410,6 @@ midori_view_construct_web_view (MidoriView* view)
 
     /* Load something to avoid a bug where WebKit might not set a main frame */
     webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), "");
-    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
 
     #if HAVE_HILDON
     gtk_widget_tap_and_hold_setup (view->web_view, NULL, NULL, 0);
