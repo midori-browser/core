@@ -1021,39 +1021,35 @@ adblock_fixup_regexp (const gchar* prefix,
         {
         case '*':
             g_string_append (str, ".*");
+            len += 2;
             break;
         /*case '.':
             g_string_append (str, "\\.");
             break;*/
         case '?':
             g_string_append (str, "\\?");
+            len += 2;
             break;
         case '|':
-            g_string_append (str, "");
-            break;
         /* FIXME: We actually need to match :[0-9]+ or '/'. Sign means
            "here could be port number or nothing". So bla.com^ will match
            bla.com/ or bla.com:8080/ but not bla.com.au/ */
         case '^':
-            g_string_append (str, "");
-            break;
         case '+':
             break;
         default:
             g_string_append_printf (str,"%c", *src);
+            len++;
             break;
         }
         src++;
-        len++;
     }
     while (*src);
 
     dst = g_string_free (str, FALSE);
     /* We dont need .* in the end of url. Thats stupid */
     if (dst && dst[len-1] == '*' && dst[len-2] == '.')
-    {
         dst[len-2] = '\0';
-    }
     return dst;
 }
 
