@@ -1191,6 +1191,14 @@ adblock_add_url_pattern (gchar* prefix,
         opts = g_strdup_printf ("t=%s,r=%s", type, patt);
     }
 
+    if (g_regex_match_simple ("subdocument", opts,
+                              G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
+    {
+        g_free (patt);
+        g_free (opts);
+        return NULL;
+    }
+
     format_patt = adblock_fixup_regexp (prefix, patt);
 
     adblock_debug ("got: %s opts %s", format_patt, opts);
