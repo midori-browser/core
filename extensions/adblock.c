@@ -20,8 +20,6 @@
     #include <unistd.h>
 #endif
 
-#define HAVE_WEBKIT_RESOURCE_REQUEST WEBKIT_CHECK_VERSION (1, 1, 14)
-
 #define SIGNATURE_SIZE 8
 #define USE_PATTERN_MATCHING 1
 #define CUSTOM_LIST_NAME "custom.list"
@@ -715,7 +713,6 @@ adblock_is_matched (const gchar*  opts,
     return FALSE;
 }
 
-#if HAVE_WEBKIT_RESOURCE_REQUEST
 static gchar*
 adblock_prepare_urihider_js (GList* uris)
 {
@@ -809,39 +806,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     #endif
 
 }
-#else
-static void
-adblock_session_request_queued_cb (SoupSession* session,
-                                   SoupMessage* msg)
-{
-    SoupURI* soup_uri;
-    gchar* req_uri;
-    gchar* page_uri;
 
-    if (msg->method && !strncmp (msg->method, "POST", 4))
-        return;
-
-    soup_uri = soup_message_get_uri (msg);
-    req_uri = soup_uri_to_string (soup_uri, FALSE);
-
-    page_uri = NULL; /* FIXME */
-
-    if (!page_uri || !strcmp (page_uri, "about:blank"))
-        page_uri = req_uri;
-
-    if (adblock_is_matched (NULL, req_uri, page_uri))
-    {
-        soup_uri = soup_uri_new ("http://.invalid");
-        soup_message_set_uri (msg, soup_uri);
-        soup_uri_free (soup_uri);
-        g_free (req_uri);
-        return;
-    }
-    g_free (req_uri);
-}
-#endif
-
-#if WEBKIT_CHECK_VERSION (1, 1, 15)
 static void
 adblock_custom_block_image_cb (GtkWidget*       widget,
                                MidoriExtension* extension)
@@ -942,9 +907,7 @@ adblock_populate_popup_cb (WebKitWebView*   web_view,
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (adblock_custom_block_image_cb), extension);
 }
-#endif
 
-#if HAVE_WEBKIT_RESOURCE_REQUEST
 static void
 adblock_load_finished_cb (WebKitWebView  *web_view,
                           WebKitWebFrame *web_frame,
@@ -965,7 +928,6 @@ adblock_load_finished_cb (WebKitWebView  *web_view,
     g_free (script);
     g_object_set_data (G_OBJECT (web_view), "blocked-uris", uris);
 }
-#endif
 
 static void
 adblock_window_object_cleared_cb (WebKitWebView*  web_view,
@@ -982,22 +944,17 @@ adblock_add_tab_cb (MidoriBrowser*   browser,
                     MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
     GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
-    #endif
 
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (adblock_window_object_cleared_cb), 0);
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
+
     g_signal_connect_after (web_view, "populate-popup",
         G_CALLBACK (adblock_populate_popup_cb), extension);
-    #endif
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_connect (web_view, "resource-request-starting",
         G_CALLBACK (adblock_resource_request_starting_cb), image);
     g_signal_connect (web_view, "load-finished",
         G_CALLBACK (adblock_load_finished_cb), image);
-    #endif
 }
 
 static void
@@ -1344,24 +1301,18 @@ adblock_deactivate_tabs (MidoriView*      view,
                          MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
     GtkWidget* image = g_object_get_data (G_OBJECT (browser), "status-image");
-    #endif
 
     g_signal_handlers_disconnect_by_func (
        browser, adblock_add_tab_cb, extension);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_window_object_cleared_cb, 0);
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_populate_popup_cb, extension);
-    #endif
-    #if HAVE_WEBKIT_RESOURCE_REQUEST
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_resource_request_starting_cb, image);
     g_signal_handlers_disconnect_by_func (
        web_view, adblock_load_finished_cb, image);
-    #endif
 }
 
 static void
@@ -1370,12 +1321,6 @@ adblock_deactivate_cb (MidoriExtension* extension,
 {
     MidoriApp* app = midori_extension_get_app (extension);
 
-    #if !HAVE_WEBKIT_RESOURCE_REQUEST
-    g_signal_handlers_disconnect_matched (webkit_get_default_session (),
-        G_SIGNAL_MATCH_FUNC,
-        g_signal_lookup ("request-queued", SOUP_TYPE_SESSION), 0,
-        NULL, adblock_session_request_queued_cb, NULL);
-    #endif
     g_signal_handlers_disconnect_by_func (
         browser, adblock_browser_populate_tool_menu_cb, extension);
     g_signal_handlers_disconnect_by_func (
@@ -1404,12 +1349,6 @@ adblock_activate_cb (MidoriExtension* extension,
     #endif
     KatzeArray* browsers;
     MidoriBrowser* browser;
-    #if !HAVE_WEBKIT_RESOURCE_REQUEST
-    SoupSession* session = webkit_get_default_session ();
-
-    g_signal_connect (session, "request-queued",
-                      G_CALLBACK (adblock_session_request_queued_cb), NULL);
-    #endif
 
     #ifdef G_ENABLE_DEBUG
     debug_mode = g_getenv ("MIDORI_ADBLOCK");
