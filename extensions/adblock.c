@@ -1045,7 +1045,7 @@ adblock_fixup_regexp (const gchar* prefix,
 {
     gchar* dst;
     GString* str;
-    int len;
+    int len = 0;
 
     if (!src)
         return NULL;
@@ -1087,13 +1087,12 @@ adblock_fixup_regexp (const gchar* prefix,
             break;
         }
         src++;
+        len++;
     }
     while (*src);
 
-    dst = g_strdup (str->str);
-    g_string_free (str, TRUE);
+    dst = g_string_free (str, FALSE);
     /* We dont need .* in the end of url. Thats stupid */
-    len = strlen (dst);
     if (dst && dst[len-1] == '*' && dst[len-2] == '.')
     {
         dst[len-2] = '\0';
@@ -1111,6 +1110,9 @@ adblock_compile_regexp (GHashTable* tbl,
     GError* error = NULL;
     int pos = 0;
     gchar *sig;
+
+    if (!patt)
+        return;
 
     /* TODO: Play with optimization flags */
     regex = g_regex_new (patt, G_REGEX_OPTIMIZE,
@@ -1167,15 +1169,17 @@ adblock_add_url_pattern (gchar* prefix,
     gchar* format_patt;
     gchar* opts;
 
-    g_test_timer_start ();
     data = g_strsplit (line, "$", -1);
-    if (data && data[0] && data[1] && data[2])
+    if (!data || !data[0])
+        return NULL;
+
+    if (data[1] && data[2])
     {
         patt = g_strconcat (data[0], data[1], NULL);
         opts = g_strdup_printf ("t=%s,r=%s,%s", type, patt, data[2]);
         g_strfreev (data);
     }
-    else if (data && data[0] && data[1])
+    else if (data[1])
     {
         patt = data[0];
         opts = g_strdup_printf ("t=%s,r=%s,%s", type, patt, data[1]);
@@ -1266,6 +1270,10 @@ adblock_parse_line (gchar* line)
         return NULL;
     /* FIXME: No support for [include] and [exclude] tags */
     if (line[0] == '[')
+        return NULL;
+
+    /* Skip garbage */
+    if (line[0] == ' ' || !line[0])
         return NULL;
 
     /* Got CSS block hider */
