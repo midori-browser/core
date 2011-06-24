@@ -62,11 +62,13 @@ namespace HistoryList {
         }
 
         public abstract void make_update ();
+        public abstract void clean_up ();
     }
 
     private class TabWindow : HistoryWindow {
         protected Gtk.HBox? hbox;
         protected Gtk.VBox? vbox;
+        protected bool is_dirty = false;
 
         protected void store_append_row (GLib.PtrArray list, Gtk.ListStore store, out Gtk.TreeIter iter) {
             for (var i = list.len; i > 0; i--) {
@@ -141,6 +143,8 @@ namespace HistoryList {
         }
 
         public override void make_update () {
+            this.is_dirty = true;
+
             Gtk.TreePath? path;
             Gtk.TreeViewColumn? column;
 
@@ -155,9 +159,25 @@ namespace HistoryList {
             model.get (iter, TabTreeCells.TREE_CELL_POINTER, out view);
             this.browser.set ("tab", view);
         }
+
+        public override void clean_up () {
+            if(this.is_dirty) {
+                Gtk.TreePath? path;
+                Gtk.TreeViewColumn? column;
+
+                this.treeview.get_cursor (out path, out column);
+
+                path = new Gtk.TreePath.from_indices (0);
+                this.treeview.set_cursor (path, column, false);
+
+                this.make_update ();
+                this.is_dirty = false;
+            }
+        }
     }
 
     private class NewTabWindow : TabWindow {
+        protected bool old_tabs = false;
         protected bool first_step = true;
 
         protected override void insert_rows (Gtk.ListStore store) {
@@ -166,6 +186,7 @@ namespace HistoryList {
             store_append_row (list, store, out iter);
 
             if ((int)list.len == 0) {
+                this.old_tabs = true;
                 var label = new Gtk.Label (_("There are no unvisited tabs"));
                 this.vbox.pack_start (label, true, true, 0);
                 unowned GLib.PtrArray list_old = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
@@ -178,6 +199,18 @@ namespace HistoryList {
                 base.walk (step);
             }
             this.first_step = false;
+        }
+
+        public override void clean_up () {
+            if(this.is_dirty) {
+                if(this.old_tabs) {
+                    base.clean_up ();
+                } else {
+                    unowned GLib.PtrArray list = this.browser.get_data<GLib.PtrArray> ("history-list-tab-history");
+                    Midori.View view = list.index (list.len - 1) as Midori.View;
+                    this.browser.set ("tab", view);
+                }
+            }
         }
 
         public NewTabWindow (Midori.Browser browser) {
@@ -273,13 +306,14 @@ namespace HistoryList {
     }
 
     private class Manager : Midori.Extension {
-        public signal  void preferences_changed ();
+        public signal void preferences_changed ();
 
         protected uint escKeyval;
         protected uint modifier_count;
         protected int closing_behavior;
         protected HistoryWindow? history_window;
         protected ulong[] tmp_sig_ids = new ulong[2];
+        protected bool ignoreNextChange = false;
 
         public void preferences_changed_cb () {
             this.closing_behavior = this.get_integer ("TabClosingBehavior");
@@ -303,6 +337,7 @@ namespace HistoryList {
                     this.history_window.make_update ();
                 } else {
                     this.modifier_count = 0;
+                    this.history_window.clean_up ();
                 }
                 this.history_window.destroy ();
                 this.history_window = null;
@@ -345,6 +380,13 @@ namespace HistoryList {
             hw.walk (step);
         }
 
+        public void special_function (Gtk.Action action, Browser browser) {
+            if (this.history_window != null) {
+                this.ignoreNextChange = true;
+                this.history_window.make_update ();
+            }
+        }
+
         void browser_added (Midori.Browser browser) {
             ulong sidTabNext, sidTabPrevious;
             var acg = new Gtk.AccelGroup ();
@@ -385,6 +427,16 @@ namespace HistoryList {
             action.set_accel_group (acg);
             action.connect_accelerator ();
 
+            action = new Gtk.Action ("HistoryListSpecialFunction",
+                _("Display tab in background (History List)"),
+                _("Display the current selected tab in background"), null);
+            action.activate.connect ((a) => {
+                this.special_function (a, browser);
+            });
+            action_group.add_action_with_accel (action, "<Ctrl>3");
+            action.set_accel_group (acg);
+            action.connect_accelerator ();
+
             browser.set_data<ulong> ("history-list-sid-tab-next", sidTabNext);
             browser.set_data<ulong> ("history-list-sid-tab-previous", sidTabPrevious);
 
@@ -402,7 +454,8 @@ namespace HistoryList {
         }
 
         void browser_removed (Midori.Browser browser) {
-            string[] callbacks = { "HistoryListNextNewTab", "HistoryListPreviousNewTab" };
+            string[] callbacks = { "HistoryListNextNewTab", "HistoryListPreviousNewTab",
+                                   "HistoryListSpecialFunction" };
             ulong sidTabNext, sidTabPrevious;
             sidTabNext = browser.get_data<ulong> ("history-list-sid-tab-next");
             sidTabPrevious = browser.get_data<ulong> ("history-list-sid-tab-previous");
@@ -456,17 +509,21 @@ namespace HistoryList {
         }
 
         void tab_changed (GLib.Object window, GLib.ParamSpec pspec) {
-            Midori.Browser browser = window as Midori.Browser;
-            Midori.View view = null;
-            Midori.View last_view = null;
-            browser.get ("tab", ref view);
+            if(this.ignoreNextChange) {
+                this.ignoreNextChange = false;
+            } else {
+                Midori.Browser browser = window as Midori.Browser;
+                Midori.View view = null;
+                Midori.View last_view = null;
+                browser.get ("tab", ref view);
 
-            last_view = browser.get_data<Midori.View?> ("history-list-last-change");
+                last_view = browser.get_data<Midori.View?> ("history-list-last-change");
 
-            if (last_view != null) {
-                this.tab_list_resort (browser, last_view);
+                if (last_view != null) {
+                    this.tab_list_resort (browser, last_view);
+                }
+                browser.set_data<Midori.View?> ("history-list-last-change", view);
             }
-            browser.set_data<Midori.View?> ("history-list-last-change", view);
         }
 
         void tab_list_resort (Midori.Browser browser, Midori.View view) {
