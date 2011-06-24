@@ -200,10 +200,6 @@ adblock_reload_rules (MidoriExtension* extension,
 }
 
 static void
-adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
-                                       GtkWidget*       menu,
-                                       MidoriExtension* extension);
-static void
 adblock_preferences_render_tick_cb (GtkTreeViewColumn* column,
                                     GtkCellRenderer*   renderer,
                                     GtkTreeModel*      model,
@@ -568,8 +564,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
 }
 
 static void
-adblock_menu_configure_filters_activate_cb (GtkWidget*       menuitem,
-                                            MidoriExtension* extension)
+adblock_open_preferences_cb (MidoriExtension* extension)
 {
     static GtkWidget* dialog = NULL;
 
@@ -582,20 +577,6 @@ adblock_menu_configure_filters_activate_cb (GtkWidget*       menuitem,
     }
     else
         gtk_window_present (GTK_WINDOW (dialog));
-}
-
-static void
-adblock_browser_populate_tool_menu_cb (MidoriBrowser*   browser,
-                                       GtkWidget*       menu,
-                                       MidoriExtension* extension)
-{
-    GtkWidget* menuitem;
-
-    menuitem = gtk_menu_item_new_with_mnemonic (_("Configure _Advertisement filters..."));
-    g_signal_connect (menuitem, "activate",
-        G_CALLBACK (adblock_menu_configure_filters_activate_cb), extension);
-    gtk_widget_show (menuitem);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 }
 
 static inline gboolean
@@ -989,8 +970,8 @@ adblock_app_add_browser_cb (MidoriApp*       app,
           (GtkCallback)adblock_add_tab_foreach_cb, extension);
     g_signal_connect (browser, "add-tab",
         G_CALLBACK (adblock_add_tab_cb), extension);
-    g_signal_connect (browser, "populate-tool-menu",
-        G_CALLBACK (adblock_browser_populate_tool_menu_cb), extension);
+    g_signal_connect (extension, "open-preferences",
+        G_CALLBACK (adblock_open_preferences_cb), extension);
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (adblock_deactivate_cb), browser);
     g_object_unref (statusbar);
@@ -1318,7 +1299,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
     MidoriApp* app = midori_extension_get_app (extension);
 
     g_signal_handlers_disconnect_by_func (
-        browser, adblock_browser_populate_tool_menu_cb, extension);
+        browser, adblock_open_preferences_cb, extension);
     g_signal_handlers_disconnect_by_func (
         extension, adblock_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
