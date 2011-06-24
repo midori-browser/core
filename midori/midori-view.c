@@ -3555,14 +3555,53 @@ prepare_speed_dial_html (MidoriView* view)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     GKeyFile* key_file;
-    GString* markup  = g_string_new (NULL);
+    GString* markup = NULL;
     guint rows, cols, slot = 1;
     gchar* thumb_size_type;
+    gchar* speed_dial_head;
+    gchar* file_path;
+    gchar* file_name;
     guint thumb_size = 160;
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
     if (!key_file)
         return g_string_free (markup, FALSE);
+
+    file_name = g_build_filename ("midori", "res", "speeddial-head.html", NULL);
+    file_path = sokoke_find_data_filename (file_name);
+    g_free (file_name);
+
+    if (g_access (file_path, F_OK) == 0
+     && g_file_get_contents (file_path, &speed_dial_head, NULL, NULL))
+    {
+        gchar* header = sokoke_replace_variables (speed_dial_head,
+            "{res}", "res:/",
+            "{stock}", "stock:/",
+            "{title}", _("Speed Dial"),
+            "{click_to_add}", _("Click to add a shortcut"),
+            "{enter_shortcut_address}", _("Enter shortcut address"),
+            "{enter_shortcut_name}", _("Enter shortcut title"),
+            "{are_you_sure}", _("Are you sure you want to delete this shortcut?"),
+            "{set_dial_size}", _("Set number of columns and rows"),
+            "{enter_dial_size}", _("Enter number of columns and rows:"),
+            "{invalid_dial_size}", _("Invalid input for the size of the speed dial"),
+            "{set_thumb_size}", _("Thumb size:"),
+            "{set_thumb_small}", _("Small"),
+            "{set_thumb_normal}", _("Medium"),
+            "{set_thumb_big}", _("Big"),  NULL);
+
+        markup = g_string_new (header);
+
+        g_free (speed_dial_head);
+        g_free (file_path);
+        g_free (header);
+    }
+    else
+    {
+        g_free (file_path);
+        return g_strdup ("");
+    }
+
     rows = g_key_file_get_integer (key_file, "settings", "rows", NULL);
     cols = g_key_file_get_integer (key_file, "settings", "columns", NULL);
     thumb_size_type = g_key_file_get_string (key_file, "settings", "size", NULL);
@@ -3707,12 +3746,6 @@ midori_view_set_uri (MidoriView*  view,
     {
         if (!strcmp (uri, ""))
         {
-            gchar* res_root;
-            gchar* speed_dial_head;
-            gchar* speed_dial_body;
-            gchar* speed_dial_markup;
-            gchar* stock_root;
-            gchar* filepath;
             #ifdef G_ENABLE_DEBUG
             GTimer* timer = NULL;
 
@@ -3723,30 +3756,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_assign (view->uri, g_strdup (""));
             katze_item_set_uri (view->item, "");
 
-            filepath = sokoke_find_data_filename ("midori/res/speeddial-head.html");
-            g_file_get_contents (filepath, &speed_dial_head, NULL, NULL);
-            g_free (filepath);
-            if (G_UNLIKELY (!speed_dial_head))
-                speed_dial_head = g_strdup ("");
-
-            res_root = g_strdup ("res:/");
-            stock_root = g_strdup ("stock:/");
-
-            data = sokoke_replace_variables (speed_dial_head,
-                "{res}", res_root,
-                "{stock}", stock_root,
-                "{title}", _("Speed Dial"),
-                "{click_to_add}", _("Click to add a shortcut"),
-                "{enter_shortcut_address}", _("Enter shortcut address"),
-                "{enter_shortcut_name}", _("Enter shortcut title"),
-                "{are_you_sure}", _("Are you sure you want to delete this shortcut?"),
-                "{set_dial_size}", _("Set number of columns and rows"),
-                "{enter_dial_size}", _("Enter number of columns and rows:"),
-                "{invalid_dial_size}", _("Invalid input for the size of the speed dial"),
-                "{set_thumb_size}", _("Thumb size:"),
-                "{set_thumb_small}", _("Small"),
-                "{set_thumb_normal}", _("Medium"),
-                "{set_thumb_big}", _("Big"),  NULL);
+            data = prepare_speed_dial_html (view);
 
             #ifdef G_ENABLE_DEBUG
             if (g_getenv ("MIDORI_STARTTIME") != NULL)
@@ -3755,19 +3765,9 @@ midori_view_set_uri (MidoriView*  view,
                 g_timer_destroy (timer);
             }
             #endif
-
-            speed_dial_body = prepare_speed_dial_html (view);
-            speed_dial_markup = g_strdup_printf ("%s\n%s", data, speed_dial_body);
-
             midori_view_load_alternate_string (view,
-                speed_dial_markup, res_root, "about:blank", NULL);
-
-            g_free (res_root);
-            g_free (stock_root);
+                data, "res:/", "about:blank", NULL);
             g_free (data);
-            g_free (speed_dial_head);
-            g_free (speed_dial_body);
-            g_free (speed_dial_markup);
         }
         /* This is not prefectly elegant, but creating
            special pages inline is the simplest solution. */
