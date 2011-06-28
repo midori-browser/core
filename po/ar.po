@@ -14,8 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Arabic\n"
 "X-Poedit-Country: MOROCCO\n"
+"X-Poedit-Language: Arabic\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
@@ -173,7 +173,6 @@ msgid "Show a diagnostic dialog"
 msgstr "يظهر حوار التشخيص"
 
 #: ../midori/main.c:1915
-#, fuzzy
 msgid "Run the specified filename as javascript"
 msgstr "تشغيل ملف جافا سكريبت على النحو المحدد"
 
@@ -198,7 +197,6 @@ msgid "Addresses"
 msgstr "عناوين"
 
 #: ../midori/main.c:1927
-#, fuzzy
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "كتلة محددات وفقا للنمط التعبير العادي"
 
@@ -208,7 +206,6 @@ msgstr "نموذج"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
 #: ../midori/main.c:1931
-#, fuzzy
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "إعادة ميدوري ثانية بعد ثوان من الخمول"
 
@@ -217,7 +214,6 @@ msgid "SECONDS"
 msgstr "ثواني"
 
 #: ../midori/main.c:1934
-#, fuzzy
 msgid "Redirects console warnings to the specified FILENAME"
 msgstr "الموجهات التحذيرات حدة لتحديد FILENAME"
 
@@ -230,7 +226,6 @@ msgid "[Addresses]"
 msgstr "ٍِ[عناوينٍ]"
 
 #: ../midori/main.c:2032
-#, fuzzy
 msgid "The specified configuration folder is invalid."
 msgstr "تكوين المجلد المحدد غير صالح."
 
@@ -269,9 +264,8 @@ msgid "Web Cache"
 msgstr "ملفات الوب المؤقتة"
 
 #: ../midori/main.c:2149
-#, fuzzy
 msgid "Offline Application Cache"
-msgstr "حاليا التطبيق الكاش"
+msgstr "ذاكرة التطبيقات بدون اتصال"
 
 #: ../midori/main.c:2308
 msgid "An instance of Midori is already running but not responding.\n"
@@ -385,49 +379,47 @@ msgstr "أظهر في شريط الأدوات"
 
 #: ../midori/midori-browser.c:873
 msgid "Run as _web application"
-msgstr ""
+msgstr "تشغيل كتطبيق انترنت"
 
 #: ../midori/midori-browser.c:946
 #, c-format
 msgid "The file \"%s\" can't be saved in this folder."
-msgstr ""
+msgstr "الملف \"%s\" لا يمكن حفظها في هذا المجلد."
 
 #: ../midori/midori-browser.c:948
 #, c-format
 msgid "You don't have permission to write in this location."
-msgstr ""
+msgstr "ليس لديك إذن الكتابة في هذا الموقع."
 
 #: ../midori/midori-browser.c:955
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
-msgstr ""
+msgstr "لا توجد مساحة حرة كافية لتحميل \"%s\"."
 
 #: ../midori/midori-browser.c:958
 #, c-format
 msgid "The file needs %s but only %s are left."
-msgstr ""
+msgstr "الملف يحتاجج %s ولكن فقط %s مساحة حرة."
 
 #: ../midori/midori-browser.c:1000 ../midori/midori-browser.c:4195
 msgid "Save file as"
 msgstr "حفظ الملف في"
 
 #: ../midori/midori-browser.c:1298
-#, fuzzy
 msgid "New Window"
-msgstr "_نافذة جديدة"
+msgstr "نافذة جديدة"
 
 #: ../midori/midori-browser.c:1298
 msgid "A new window has been opened"
-msgstr ""
+msgstr "تم فتح نافذة جديدة"
 
 #: ../midori/midori-browser.c:1301
-#, fuzzy
 msgid "New Tab"
-msgstr "تب_ويب جديد"
+msgstr "تبويب جديد"
 
 #: ../midori/midori-browser.c:1301
 msgid "A new tab has been opened"
-msgstr ""
+msgstr "تم فتح علامة تبويب جديدة"
 
 #: ../midori/midori-browser.c:1338
 msgid "Save file"
@@ -459,7 +451,7 @@ msgstr "فارغ"
 #: ../midori/midori-browser.c:3614 ../midori/midori-browser.c:5511
 #, c-format
 msgid "Failed to insert new history item: %s\n"
-msgstr ""
+msgstr "فشل في إدراج التاريخ : %s\n"
 
 #: ../midori/midori-browser.c:3944 ../panels/midori-bookmarks.c:770
 #: ../panels/midori-history.c:740
@@ -510,9 +502,8 @@ msgid "_Application:"
 msgstr "_تطبيق:"
 
 #: ../midori/midori-browser.c:4103
-#, fuzzy
 msgid "Import from XBEL or HTML file"
-msgstr "إستراد من ملف"
+msgstr "استيراد من ملف HTML أو XBEL"
 
 #: ../midori/midori-browser.c:4152
 msgid "Import from a file"
@@ -523,18 +514,16 @@ msgid "Failed to import bookmarks"
 msgstr "فشل إستراد العلامات"
 
 #: ../midori/midori-browser.c:4200
-#, fuzzy
 msgid "XBEL Bookmarks"
-msgstr "العلامات"
+msgstr "العلامات XBEL"
 
 #: ../midori/midori-browser.c:4205
-#, fuzzy
 msgid "Netscape Bookmarks"
-msgstr "علامة حديدة"
+msgstr "نتسكيب المفضلة"
 
 #: ../midori/midori-browser.c:4219
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
-msgstr ""
+msgstr "يمكن لميدوري  التصدير فقط  XBEL (*.xbel) ونتسكيب (*.html)"
 
 #: ../midori/midori-browser.c:4235
 msgid "Failed to export bookmarks"
@@ -564,7 +553,7 @@ msgstr "التبويبات المغ_لقة"
 
 #: ../midori/midori-browser.c:4405
 msgid "Clear private data when _quitting Midori"
-msgstr ""
+msgstr "مسح البيانات الخاصة عند الخروج من ميدوري"
 
 #: ../midori/midori-browser.c:4579
 msgid "A lightweight web browser."
@@ -572,11 +561,11 @@ msgstr "متصفح الويب الخفيف"
 
 #: ../midori/midori-browser.c:4580
 msgid "See about:version for version info."
-msgstr ""
+msgstr "انظر حول : لمعلومات نسخة الإصدار."
 
 #: ../midori/midori-browser.c:4582
 msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
-msgstr ""
+msgstr "هذه المكتبة هي برمجيات حرة ، ويمكنك إعادة توزيعه و / أو تعديله تحت شروط رخصة جنو العمومية الصغرى كما نشرت من قبل مؤسسة البرمجيات الحرة ؛ إما الإصدار 2.1 من الرخصة ، أو (باختيارك) أي إصدار لاحق."
 
 #: ../midori/midori-browser.c:4601
 msgid "translator-credits"
@@ -599,13 +588,12 @@ msgid "Open a new tab"
 msgstr "فتح تبويب جديد"
 
 #: ../midori/midori-browser.c:4953
-#, fuzzy
 msgid "New P_rivate Browsing Window"
-msgstr "تصفح ال_خفي"
+msgstr "نافذة تصفح جديدة خاصة"
 
 #: ../midori/midori-browser.c:4954
 msgid "Don't save any private data while browsing"
-msgstr ""
+msgstr "لا تقم بحفظ أي بيانات خاصة أثناء التصفح"
 
 #: ../midori/midori-browser.c:4958
 msgid "Open a file"
@@ -613,7 +601,7 @@ msgstr "فتح ملف"
 
 #: ../midori/midori-browser.c:4960
 msgid "_Save Page As..."
-msgstr ""
+msgstr "حفظ الصفحة باسم..."
 
 #: ../midori/midori-browser.c:4961
 msgid "Save to a file"
@@ -625,31 +613,31 @@ msgstr "أضف إلى _الحوار السريع"
 
 #: ../midori/midori-browser.c:4964
 msgid "Add shortcut to speed dial"
-msgstr ""
+msgstr "إضافة اختصار لسرعة الاتصال الهاتفي"
 
 #: ../midori/midori-browser.c:4967
 msgid "Add Shortcut to the _desktop"
-msgstr ""
+msgstr "إضافة إلى اختصار سطح المكتب"
 
 #: ../midori/midori-browser.c:4968
 msgid "Add shortcut to the desktop"
-msgstr ""
+msgstr "إضافة اختصار إلى سطح المكتب"
 
 #: ../midori/midori-browser.c:4970
 msgid "Create _Launcher"
-msgstr ""
+msgstr "إنشاء مطلق"
 
 #: ../midori/midori-browser.c:4971
 msgid "Create a launcher"
-msgstr ""
+msgstr "إنشاء مطلق"
 
 #: ../midori/midori-browser.c:4974
 msgid "Subscribe to News _feed"
-msgstr ""
+msgstr "الاشتراك في مصدر أخبار"
 
 #: ../midori/midori-browser.c:4975
 msgid "Subscribe to this news feed"
-msgstr ""
+msgstr "اشترك في هذا المصدر الإخباري"
 
 #: ../midori/midori-browser.c:4980
 msgid "_Close Tab"
@@ -657,7 +645,7 @@ msgstr "غل_ق التبويب"
 
 #: ../midori/midori-browser.c:4981
 msgid "Close the current tab"
-msgstr ""
+msgstr "إغلاق علامة التبويب الحالية"
 
 #: ../midori/midori-browser.c:4983
 msgid "C_lose Window"
@@ -672,14 +660,12 @@ msgid "Print the current page"
 msgstr "اطبع الصفحة الحالية"
 
 #: ../midori/midori-browser.c:4989
-#, fuzzy
 msgid "Close a_ll Windows"
-msgstr "_غلق التافذة"
+msgstr "إغلاق جميع  النوافذ"
 
 #: ../midori/midori-browser.c:4990
-#, fuzzy
 msgid "Close all open windows"
-msgstr "غلق هذه التافذة"
+msgstr "إغلاق جميع النوافذ المفتوحة"
 
 #: ../midori/midori-browser.c:4992
 msgid "_Edit"
@@ -707,20 +693,19 @@ msgstr "ألصق النص من الحافظة"
 
 #: ../midori/midori-browser.c:5010
 msgid "Delete the selected text"
-msgstr ""
+msgstr "حذف النص المحدد"
 
 #: ../midori/midori-browser.c:5013
 msgid "Select all text"
 msgstr "حدد كل النص"
 
 #: ../midori/midori-browser.c:5015
-#, fuzzy
 msgid "_Find..."
-msgstr "مو_قع..."
+msgstr "العثور على..."
 
 #: ../midori/midori-browser.c:5016
 msgid "Find a word or phrase in the page"
-msgstr ""
+msgstr "العثور على كلمة أو عبارة في الصفحة"
 
 #: ../midori/midori-browser.c:5018
 msgid "Find _Next"
@@ -728,7 +713,7 @@ msgstr "_عثور على التالي"
 
 #: ../midori/midori-browser.c:5019
 msgid "Find the next occurrence of a word or phrase"
-msgstr ""
+msgstr "العثور على التكرار التالي للكلمة أو جملة"
 
 #: ../midori/midori-browser.c:5021
 msgid "Find _Previous"
@@ -736,11 +721,11 @@ msgstr "عث_ور على السابق"
 
 #: ../midori/midori-browser.c:5022
 msgid "Find the previous occurrence of a word or phrase"
-msgstr ""
+msgstr "العثور على التكرار السابقة من كلمة أو عبارة"
 
 #: ../midori/midori-browser.c:5026
 msgid "Configure the application preferences"
-msgstr ""
+msgstr "تكوين تفضيلات التطبيق"
 
 #: ../midori/midori-browser.c:5028
 msgid "_View"
@@ -752,15 +737,15 @@ msgstr "شريط ال_أدوات"
 
 #: ../midori/midori-browser.c:5034 ../midori/midori-browser.c:5035
 msgid "Reload page without caching"
-msgstr ""
+msgstr "تحديث الصفحة دون التخزين المؤقت"
 
 #: ../midori/midori-browser.c:5044
 msgid "Increase the zoom level"
-msgstr ""
+msgstr "زيادة مستوى التكبير"
 
 #: ../midori/midori-browser.c:5047
 msgid "Decrease the zoom level"
-msgstr ""
+msgstr "انخفاض مستوى التكبير"
 
 #: ../midori/midori-browser.c:5050
 msgid "Reset the zoom level"
@@ -779,21 +764,20 @@ msgid "View the source code of the page"
 msgstr "اعرض النص المصدري لهذه الصفحة"
 
 #: ../midori/midori-browser.c:5056
-#, fuzzy
 msgid "Ca_ret Browsing"
-msgstr "تصفح ال_خفي"
+msgstr "إنشاء تصفح"
 
 #: ../midori/midori-browser.c:5057
 msgid "Toggle text cursor navigation"
-msgstr ""
+msgstr "مسمار النص عند الاتنقل بالمؤشر"
 
 #: ../midori/midori-browser.c:5060
 msgid "Toggle fullscreen view"
-msgstr ""
+msgstr "تبديل لعرض ملء الشاشة"
 
 #: ../midori/midori-browser.c:5062
 msgid "Scroll _Left"
-msgstr ""
+msgstr "انتقل لليسار"
 
 #: ../midori/midori-browser.c:5063
 msgid "Scroll to the left"
