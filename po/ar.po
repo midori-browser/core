@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-26 04:18+0000\n"
+"POT-Creation-Date: 2011-06-28 10:19+0000\n"
 "PO-Revision-Date: 2010-12-29 18:05-0000\n"
 "Last-Translator: كريم أولاد الشلحة <herr.linux88@gmail.com>\n"
 "Language-Team: Arabic <herr.linux88@gmail.com>\n"
@@ -173,8 +173,9 @@ msgid "Show a diagnostic dialog"
 msgstr "يظهر حوار التشخيص"
 
 #: ../midori/main.c:1915
+#, fuzzy
 msgid "Run the specified filename as javascript"
-msgstr ""
+msgstr "تشغيل ملف جافا سكريبت على النحو المحدد"
 
 #: ../midori/main.c:1917
 msgid "Take a snapshot of the specified URI"
@@ -186,7 +187,7 @@ msgstr "تنفيذ الأمر المحدد"
 
 #: ../midori/main.c:1921
 msgid "List available commands to execute with -e/ --execute"
-msgstr ""
+msgstr "قائمة الأوامر المتوفرة لتنفيذ مع -e/ --execute"
 
 #: ../midori/main.c:1923
 msgid "Display program version"
@@ -197,8 +198,9 @@ msgid "Addresses"
 msgstr "عناوين"
 
 #: ../midori/main.c:1927
+#, fuzzy
 msgid "Block URIs according to regular expression PATTERN"
-msgstr ""
+msgstr "كتلة محددات وفقا للنمط التعبير العادي"
 
 #: ../midori/main.c:1927
 msgid "PATTERN"
@@ -206,16 +208,18 @@ msgstr "نموذج"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
 #: ../midori/main.c:1931
+#, fuzzy
 msgid "Reset Midori after SECONDS seconds of inactivity"
-msgstr ""
+msgstr "إعادة ميدوري ثانية بعد ثوان من الخمول"
 
 #: ../midori/main.c:1931
 msgid "SECONDS"
 msgstr "ثواني"
 
 #: ../midori/main.c:1934
+#, fuzzy
 msgid "Redirects console warnings to the specified FILENAME"
-msgstr ""
+msgstr "الموجهات التحذيرات حدة لتحديد FILENAME"
 
 #: ../midori/main.c:1934
 msgid "FILENAME"
@@ -226,12 +230,13 @@ msgid "[Addresses]"
 msgstr "ٍِ[عناوينٍ]"
 
 #: ../midori/main.c:2032
+#, fuzzy
 msgid "The specified configuration folder is invalid."
-msgstr ""
+msgstr "تكوين المجلد المحدد غير صالح."
 
 #: ../midori/main.c:2062
 msgid "Please report comments, suggestions and bugs to:"
-msgstr ""
+msgstr "الرجاء الإبلاغ عن التعليقات والاقتراحات والعلل إلى :"
 
 #: ../midori/main.c:2064
 msgid "Check for new versions at:"
@@ -264,31 +269,32 @@ msgid "Web Cache"
 msgstr "ملفات الوب المؤقتة"
 
 #: ../midori/main.c:2149
+#, fuzzy
 msgid "Offline Application Cache"
-msgstr ""
+msgstr "حاليا التطبيق الكاش"
 
 #: ../midori/main.c:2308
 msgid "An instance of Midori is already running but not responding.\n"
-msgstr ""
+msgstr "ميدوري مثيل قيد التشغيل بالفعل ولكن لا يستجيب.\n"
 
 #: ../midori/main.c:2344
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
-msgstr ""
+msgstr "لا يمكن تحميل العلامات: %s\n"
 
 #: ../midori/main.c:2392
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr ""
+msgstr "لا يمكن  تحميل المهلملات: %s\n"
 
 #: ../midori/main.c:2405
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr ""
+msgstr "لا يمكن  التاريخ: %s\n"
 
 #: ../midori/main.c:2421
 msgid "The following errors occured:"
-msgstr ""
+msgstr "حدثت الأخطاء التالية :"
 
 #: ../midori/main.c:2437
 msgid "_Ignore"
@@ -305,7 +311,7 @@ msgstr "وثيقة مشوهة."
 
 #: ../midori/midori-array.c:628
 msgid "Unrecognized bookmark format."
-msgstr ""
+msgstr "علامات غير معتمدة الصيغة"
 
 #: ../midori/midori-array.c:916
 msgid "Writing failed."
@@ -314,26 +320,26 @@ msgstr "فشل الكتابة."
 #: ../midori/midori-browser.c:329 ../midori/midori-browser.c:5032
 #: ../midori/midori-browser.c:5041
 msgid "Reload the current page"
-msgstr ""
+msgstr "تحديث الصفحة الحالية"
 
 #: ../midori/midori-browser.c:340 ../midori/midori-browser.c:5038
 msgid "Stop loading the current page"
-msgstr ""
+msgstr "إيقاف تحميل الصفحة الحالية"
 
 #: ../midori/midori-browser.c:467
 #, c-format
 msgid "Failed to update title: %s\n"
-msgstr ""
+msgstr "فشل تحديث عنوان: %s\n"
 
 #: ../midori/midori-browser.c:480
 #, c-format
 msgid "Unexpected action '%s'."
-msgstr ""
+msgstr "حدث غير متوقع'%s'."
 
 #: ../midori/midori-browser.c:581
-#, fuzzy, c-format
+#, c-format
 msgid "%s (Private Browsing)"
-msgstr "تصفح ال_خفي"
+msgstr "%s (التصفح الخاص)"
 
 #: ../midori/midori-browser.c:718
 msgid "New folder"
@@ -367,7 +373,7 @@ msgstr "_مجلد:"
 #: ../midori/midori-browser.c:814 ../midori/midori-browser.c:902
 #: ../midori/midori-browser.c:4116 ../midori/midori-browser.c:4144
 msgid "Toplevel folder"
-msgstr ""
+msgstr "مجلد المستوي عالي"
 
 #: ../midori/midori-browser.c:845
 msgid "Add to _Speed Dial"
