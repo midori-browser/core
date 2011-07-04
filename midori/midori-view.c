@@ -5391,7 +5391,10 @@ midori_view_speed_dial_save (MidoriView*  view,
         }
         else if (g_str_equal (action, "rename"))
         {
-            g_key_file_set_string (key_file, dial_id, "title", parts[2]);
+            guint offset = strlen (parts[0]) + strlen (parts[1]) + 2;
+            gchar* title = g_strdup (msg + offset);
+            g_key_file_set_string (key_file, dial_id, "title", title);
+            g_free (title);
         }
 
         g_free (dial_id);
