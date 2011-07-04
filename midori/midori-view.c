@@ -862,7 +862,7 @@ midori_view_web_view_navigation_decision_cb (WebKitWebView*             web_view
     JSContextRef js_context;
     gchar* result;
     const gchar* uri = webkit_network_request_get_uri (request);
-    if (g_str_has_prefix (uri, "geo:"))
+    if (g_str_has_prefix (uri, "geo:") && strstr (uri, ","))
     {
         gchar* new_uri = sokoke_magic_uri (uri);
         midori_view_set_uri (view, new_uri);
