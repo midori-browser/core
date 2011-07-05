@@ -678,8 +678,6 @@ static gboolean
 adblock_is_matched (const gchar*  req_uri,
                     const gchar*  page_uri)
 {
-    gboolean foundbykey;
-    gboolean foundbypattern;
     gchar* value;
 
     if ((value = g_hash_table_lookup (urlcache, req_uri)))
@@ -690,9 +688,13 @@ adblock_is_matched (const gchar*  req_uri,
             return TRUE;
     }
 
-    foundbykey = adblock_is_matched_by_key (req_uri, page_uri);
-    foundbypattern = adblock_is_matched_by_pattern (req_uri, page_uri);
-    if (foundbykey == TRUE || foundbypattern == TRUE)
+    if (adblock_is_matched_by_key (req_uri, page_uri))
+    {
+        g_hash_table_insert (urlcache, g_strdup (req_uri), g_strdup("1"));
+        return TRUE;
+    }
+
+    if (adblock_is_matched_by_pattern (req_uri, page_uri))
     {
         g_hash_table_insert (urlcache, g_strdup (req_uri), g_strdup("1"));
         return TRUE;
