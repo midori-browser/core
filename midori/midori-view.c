@@ -1875,10 +1875,10 @@ gtk_widget_scroll_event_cb (WebKitWebView*  web_view,
     {
         if (event->direction == GDK_SCROLL_DOWN)
             midori_view_set_zoom_level (view,
-                midori_view_get_zoom_level (view) - 0.25f);
+                midori_view_get_zoom_level (view) - 0.10f);
         else if(event->direction == GDK_SCROLL_UP)
             midori_view_set_zoom_level (view,
-                midori_view_get_zoom_level (view) + 0.25f);
+                midori_view_get_zoom_level (view) + 0.10f);
         return TRUE;
     }
     else
