@@ -1625,6 +1625,13 @@ midori_browser_key_press_event (GtkWidget*   widget,
         gtk_action_activate (_action_by_name (browser, "TabPrevious"));
         return TRUE;
     }
+    /* Interpret Ctrl+= as Zoom In for compatibility */
+    else if ((event->keyval == GDK_KP_Equal || event->keyval == GDK_equal)
+          && (event->state & GDK_CONTROL_MASK))
+    {
+        midori_browser_activate_action (browser, "ZoomIn");
+        return TRUE;
+    }
     /* Interpret F5 as reloading for compatibility */
     else if (event->keyval == GDK_F5)
     {
