@@ -9,15 +9,60 @@
 #
 # See the file COPYING for the full license text.
 
+# script: makedist.midori [version tag]
+#
+# This script creates an archive containing all required files for
+# midori on windows.  The midori version is inserted in the name of
+# the archive and appended to the name of the root directory in the
+# archive.
+# The name of the archive is contructed as follows:
+# midori<version tag>-<timestamp>.extension
+# The archive contains a root directory named:
+# midori<version tag>
+
 # a bit of configuration
 root_dir=$MINGW_PREFIX
-script_dir=$PWD
 
 # create temporary working directory
 temp_dir=`mktemp -d`
 
+# check if we can use 7zip
+have_7zip=`which 7za`
+
 # generate unique filename
-ARCHIVE=midori$1-`date +%Y%m%d%H%M`.zip
+if [ "$have_7zip" != ""  ]; then
+    ARCHIVE=midori$1-`date +%Y%m%d%H%M`.7z
+else
+    ARCHIVE=midori$1-`date +%Y%m%d%H%M`.zip
+fi
+
+# function: dll-recursive <list of exe and dll files ...>
+#
+# recursively search all dll dependencies of the input files.
+# The resulting list of dll files including the input files is
+# printed to stdout.
+dll_recursive ()
+{
+  temp_file_new=`mktemp`
+  temp_file_old=`mktemp`
+
+  while [ "$1" ]
+  do
+    echo $1 >> $temp_file_new
+    shift
+  done
+
+  while [ "x`sha1sum - < $temp_file_new`" != "x`sha1sum - < $temp_file_old`" ]
+  do
+    files=`cat $temp_file_new $temp_file_old | sort | uniq -u`
+    cp $temp_file_new $temp_file_old
+    strings $files 2> /dev/null | grep \\.dll | cat - $temp_file_old | sort | uniq > $temp_file_new
+  done
+
+  cat $temp_file_new
+
+  rm $temp_file_new $temp_file_old
+}
 
 echo -n "Creating $ARCHIVE ."
 
@@ -28,7 +73,7 @@ echo -n .
 
 # auto generate dll list, only of existing files
 pushd $root_dir/bin > /dev/null
-$script_dir/dll-recursive.sh midori*.exe gspawn-*-helper*.exe libhunspell*.dll > $temp_dir/midori.exe.lst
+dll_recursive midori*.exe gspawn-*-helper*.exe libhunspell*.dll > $temp_dir/midori.exe.lst
 files=`ls | cat - $temp_dir/midori.exe.lst | sort | uniq -d`
 rm $temp_dir/midori.exe.lst
 popd > /dev/null
@@ -82,9 +127,13 @@ echo -n .
 
 ARCHIVE=`pwd`/$ARCHIVE
 
-# store as tar.bz2 file
+# store as zip/7z file
 pushd $temp_dir > /dev/null
-zip -rq $ARCHIVE midori$1
+if [ "$have_7zip" != "" ]; then
+    7za a -m0=lzma -mx=9 $ARCHIVE midori$1
+else
+    zip -rq $ARCHIVE midori$1
+fi
 popd > /dev/null
 
 echo -n .
