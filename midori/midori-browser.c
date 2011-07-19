@@ -1657,8 +1657,14 @@ midori_browser_key_press_event (GtkWidget*   widget,
     if (event->state && gtk_window_propagate_key_event (window, event))
         return TRUE;
 
-    /* Interpret Backspace as going back for compatibility */
-    if (event->keyval == GDK_BackSpace)
+    /* Interpret (Shift+)Backspace as going back (forward) for compatibility */
+    if ((event->keyval == GDK_BackSpace)
+     && (event->state & GDK_SHIFT_MASK))
+    {
+        gtk_action_activate (_action_by_name (browser, "Forward"));
+        return TRUE;
+    }
+    else if (event->keyval == GDK_BackSpace)
     {
         gtk_action_activate (_action_by_name (browser, "Back"));
         return TRUE;
