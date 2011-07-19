@@ -2385,6 +2385,11 @@ _action_tab_close_activate (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     GtkWidget* widget = midori_browser_get_current_tab (browser);
+    if (gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1) == NULL &&
+        midori_view_is_blank (MIDORI_VIEW (widget)))
+    {
+        return;
+    }
     gtk_widget_destroy (widget);
 }
 
