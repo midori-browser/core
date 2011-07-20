@@ -368,16 +368,12 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     gtk_button_set_label (GTK_BUTTON (button), _("Allow scripts to open popups"));
     gtk_widget_set_tooltip_text (button, _("Whether scripts are allowed to open popup windows automatically"));
     SPANNED_ADD (button);
-    button = NULL;
-    #if HAVE_HILDON
     if (katze_widget_has_touchscreen_mode (parent ?
         GTK_WIDGET (parent) : GTK_WIDGET (preferences)))
         button = katze_property_proxy (settings, "kinetic-scrolling", NULL);
-    #else
-    button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
-    #endif
-    if (button != NULL)
-        INDENTED_ADD (button);
+    else
+        button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
+    INDENTED_ADD (button);
     FRAME_NEW (NULL);
     button = katze_property_label (settings, "preferred-languages");
     INDENTED_ADD (button);
