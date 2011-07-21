@@ -588,12 +588,29 @@ static void
 midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
                                   MidoriPanel* panel)
 {
-    gint i = gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook),
+    gint n_pages;
+    gchar* action_name;
+    GtkAction* action;
+    gint i;
+
+    i = gtk_notebook_page_num (GTK_NOTEBOOK (panel->notebook),
                 g_object_get_data (G_OBJECT (viewable), "parent"));
     if (i > -1)
         gtk_notebook_remove_page (GTK_NOTEBOOK (panel->notebook), i);
     g_signal_handlers_disconnect_by_func (
         viewable, midori_panel_viewable_destroy_cb, panel);
+
+    n_pages = midori_panel_get_n_pages (panel);
+    if (n_pages > 0)
+        midori_panel_set_current_page (panel, (n_pages-1 > i) ? i : n_pages - 1);
+
+    action_name = g_strconcat ("PanelPage",
+        midori_viewable_get_stock_id (MIDORI_VIEWABLE (viewable)), NULL);
+    action = gtk_action_group_get_action (panel->action_group, action_name);
+    g_free (action_name);
+
+    gtk_action_group_remove_action (panel->action_group, action);
+    g_object_unref (G_OBJECT (action));
 }
 
 static GtkToolItem*
