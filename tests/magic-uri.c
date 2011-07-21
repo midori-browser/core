@@ -258,18 +258,18 @@ magic_uri_format (void)
 static void
 magic_uri_prefetch (void)
 {
-    g_assert (!sokoke_prefetch_uri (NULL, NULL, NULL));
-    g_assert (sokoke_prefetch_uri ("http://google.com", NULL, NULL));
-    g_assert (sokoke_prefetch_uri ("http://google.com", NULL, NULL));
-    g_assert (sokoke_prefetch_uri ("http://googlecom", NULL, NULL));
-    g_assert (sokoke_prefetch_uri ("http://1kino.com", NULL, NULL));
-    g_assert (sokoke_prefetch_uri ("http://", NULL, NULL));
-    g_assert (!sokoke_prefetch_uri ("http:/", NULL, NULL));
-    g_assert (!sokoke_prefetch_uri ("http", NULL, NULL));
-    g_assert (!sokoke_prefetch_uri ("ftp://ftphost.org", NULL, NULL));
-    g_assert (!sokoke_prefetch_uri ("http://10.0.0.1", NULL, NULL));
-    g_assert (!sokoke_prefetch_uri ("about:blank", NULL, NULL));
-    g_assert (!sokoke_prefetch_uri ("javascript: alert()", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, NULL, NULL, NULL));
+    g_assert (sokoke_prefetch_uri (NULL, "http://google.com", NULL, NULL));
+    g_assert (sokoke_prefetch_uri (NULL, "http://google.com", NULL, NULL));
+    g_assert (sokoke_prefetch_uri (NULL, "http://googlecom", NULL, NULL));
+    g_assert (sokoke_prefetch_uri (NULL, "http://1kino.com", NULL, NULL));
+    g_assert (sokoke_prefetch_uri (NULL, "http://", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, "http:/", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, "http", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, "ftp://ftphost.org", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, "http://10.0.0.1", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, "about:blank", NULL, NULL));
+    g_assert (!sokoke_prefetch_uri (NULL, "javascript: alert()", NULL, NULL));
 }
 
 int
