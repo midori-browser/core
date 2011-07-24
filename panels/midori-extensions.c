@@ -259,6 +259,7 @@ midori_extensions_treeview_render_preferences_cb (GtkTreeViewColumn* column,
     g_object_set (renderer, "stock-id", GTK_STOCK_PREFERENCES,
                             "stock-size", GTK_ICON_SIZE_BUTTON,
                             "visible", midori_extension_has_preferences (extension),
+                            "sensitive", midori_extension_is_active (extension),
                             "xpad", 4, NULL);
     g_object_unref (extension);
 }
@@ -384,7 +385,8 @@ midori_extensions_treeview_column_preference_clicked_cb (GtkWidget*   widget,
         MidoriExtension* extension;
 
         gtk_tree_model_get (model, &iter, 0, &extension, -1);
-        g_signal_emit_by_name (extension, "open-preferences");
+        if (midori_extension_is_active (extension))
+            g_signal_emit_by_name (extension, "open-preferences");
         g_object_unref (extension);
     }
 
