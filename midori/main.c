@@ -2571,6 +2571,7 @@ main (int    argc,
         GList* data_items = sokoke_register_privacy_item (NULL, NULL, NULL);
         gchar* clear_data = katze_object_get_string (settings, "clear-data");
 
+        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_SESSION, "session.xbel");
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
 

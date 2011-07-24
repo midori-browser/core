@@ -44,6 +44,7 @@ enum
     MIDORI_CLEAR_TRASH = 16,
     MIDORI_CLEAR_ON_QUIT = 32,
     MIDORI_CLEAR_WEB_CACHE = 64, /* deprecated */
+    MIDORI_CLEAR_SESSION = 128,
 };
 
 typedef enum

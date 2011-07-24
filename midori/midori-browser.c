@@ -4293,6 +4293,15 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
         GString* clear_data = g_string_new (NULL);
         g_object_get (browser->settings, "clear-private-data", &saved_prefs, NULL);
 
+        button = g_object_get_data (G_OBJECT (dialog), "session");
+        if (gtk_toggle_button_get_active (button))
+        {
+            GList* tabs = gtk_container_get_children (GTK_CONTAINER (browser->notebook));
+            for (; tabs != NULL; tabs = g_list_next (tabs))
+                gtk_widget_destroy (tabs->data);
+            g_list_free (tabs);
+            clear_prefs |= MIDORI_CLEAR_SESSION;
+        }
         button = g_object_get_data (G_OBJECT (dialog), "history");
         if (gtk_toggle_button_get_active (button))
         {
@@ -4394,6 +4403,11 @@ _action_clear_private_data_activate (GtkAction*     action,
         vbox = gtk_vbox_new (TRUE, 4);
         alignment = gtk_alignment_new (0, 0, 1, 1);
         gtk_alignment_set_padding (GTK_ALIGNMENT (alignment), 0, 6, 12, 0);
+        button = gtk_check_button_new_with_mnemonic (_("Last open _tabs"));
+        if ((clear_prefs & MIDORI_CLEAR_SESSION) == MIDORI_CLEAR_SESSION)
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+        g_object_set_data (G_OBJECT (dialog), "session", button);
+        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
         /* i18n: Browsing history, visited web pages */
         button = gtk_check_button_new_with_mnemonic (_("_History"));
         if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
