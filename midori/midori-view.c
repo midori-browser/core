@@ -3943,9 +3943,12 @@ midori_view_set_uri (MidoriView*  view,
 gboolean
 midori_view_is_blank (MidoriView*  view)
 {
+    const gchar* uri;
+
     g_return_val_if_fail (MIDORI_IS_VIEW (view), TRUE);
 
-    return midori_view_get_display_uri (view)[0] == '\0';
+    uri = midori_view_get_display_uri (view);
+    return uri[0] == '\0' || g_str_has_prefix (uri, "about:");
 }
 
 /**
