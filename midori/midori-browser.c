@@ -6819,6 +6819,10 @@ midori_browser_add_tab (MidoriBrowser* browser,
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (GTK_IS_WIDGET (view), -1);
 
+    if (!g_object_get_data (G_OBJECT (webkit_get_default_session ()),
+                            "midori-session-initialized"))
+        g_critical ("midori_load_soup_session was not called!");
+
     g_signal_emit (browser, signals[ADD_TAB], 0, view);
     return gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
 }

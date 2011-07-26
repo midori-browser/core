@@ -1021,6 +1021,8 @@ midori_load_soup_session (gpointer settings)
 
     midori_soup_session_debug (session);
 
+    g_object_set_data (G_OBJECT (session), "midori-session-initialized", (void*)1);
+
     return FALSE;
 }
 
@@ -2170,25 +2172,6 @@ main (int    argc,
         else
             settings = g_object_ref (midori_browser_get_settings (browser));
 
-        if (webapp)
-        {
-            gchar* tmp_uri = midori_prepare_uri (webapp);
-            g_object_set (settings,
-                          "show-menubar", FALSE,
-                          "show-navigationbar", FALSE,
-                          "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
-                          "homepage", tmp_uri,
-                          "show-statusbar", FALSE,
-                          "enable-developer-extras", FALSE,
-                          NULL);
-            midori_browser_set_action_visible (browser, "Menubar", FALSE);
-            midori_browser_add_uri (browser, tmp_uri);
-            g_free (tmp_uri);
-            /* Update window icon according to page */
-            g_signal_connect (browser, "notify::load-status",
-                G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
-        }
-
         if (private)
         {
             g_object_set (settings,
@@ -2211,7 +2194,32 @@ main (int    argc,
             sokoke_set_config_dir ("/");
         }
 
-        g_object_set (settings, "show-panel", FALSE,
+        midori_load_soup_session (settings);
+        if (block_uris)
+            g_signal_connect (session, "request-queued",
+                G_CALLBACK (midori_soup_session_block_uris_cb),
+                g_strdup (block_uris));
+
+        if (webapp)
+        {
+            gchar* tmp_uri = midori_prepare_uri (webapp);
+            g_object_set (settings,
+                          "show-menubar", FALSE,
+                          "show-navigationbar", FALSE,
+                          "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
+                          "homepage", tmp_uri,
+                          "show-statusbar", FALSE,
+                          "enable-developer-extras", FALSE,
+                          NULL);
+            midori_browser_set_action_visible (browser, "Menubar", FALSE);
+            midori_browser_add_uri (browser, tmp_uri);
+            g_free (tmp_uri);
+            /* Update window icon according to page */
+            g_signal_connect (browser, "notify::load-status",
+                G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
+        }
+
+       g_object_set (settings, "show-panel", FALSE,
                       "last-window-state", MIDORI_WINDOW_NORMAL,
                       NULL);
         midori_browser_set_action_visible (browser, "Panel", FALSE);
@@ -2242,12 +2250,7 @@ main (int    argc,
         if (midori_browser_get_current_uri (browser) == NULL)
             midori_browser_add_uri (browser, "about:blank");
 
-        if (block_uris)
-            g_signal_connect (session, "request-queued",
-                G_CALLBACK (midori_soup_session_block_uris_cb),
-                g_strdup (block_uris));
         midori_setup_inactivity_reset (browser, inactivity_reset, webapp);
-        midori_load_soup_session (settings);
         midori_startup_timer ("App created: \t%f");
         gtk_main ();
         return 0;
