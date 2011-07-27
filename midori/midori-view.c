@@ -1207,6 +1207,7 @@ midori_view_add_info_bar (MidoriView*    view,
 
     va_end (args);
     label = gtk_label_new (message);
+    gtk_label_set_selectable (GTK_LABEL (label), TRUE);
     gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
     gtk_container_add (GTK_CONTAINER (content_area), label);
     gtk_widget_show_all (infobar);
