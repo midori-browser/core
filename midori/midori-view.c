@@ -3566,7 +3566,7 @@ prepare_speed_dial_html (MidoriView* view)
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
     if (!key_file)
-        return g_string_free (markup, FALSE);
+        return g_strdup ("");
 
     file_name = g_build_filename ("midori", "res", "speeddial-head.html", NULL);
     file_path = sokoke_find_data_filename (file_name);
