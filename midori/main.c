@@ -599,7 +599,10 @@ midori_session_add_delay (KatzeArray* session)
 {
     KatzeItem* item;
     KATZE_ARRAY_FOREACH_ITEM (item, session)
-        katze_item_set_meta_integer (item, "delay", 1);
+    {
+        if (katze_item_get_meta_integer (item, "delay") == -1)
+            katze_item_set_meta_integer (item, "delay", 1);
+    }
 }
 
 static void
@@ -2470,6 +2473,8 @@ main (int    argc,
             uri_ready = midori_prepare_uri (uri);
             katze_item_set_uri (item, uri_ready);
             g_free (uri_ready);
+            /* Never delay command line arguments */
+            katze_item_set_meta_integer (item, "delay", 0);
             katze_array_add_item (_session, item);
             uri = strtok (NULL, "|");
         }
