@@ -1609,6 +1609,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
     MidoriBrowser* browser = MIDORI_BROWSER (widget);
     GtkWidgetClass* widget_class;
     guint clean_state;
+    GtkWidget* focus;
 
     /* Interpret Ctrl(+Shift)+Tab as tab switching for compatibility */
     if (midori_browser_get_nth_tab (browser, 1) != NULL
@@ -1639,8 +1640,31 @@ midori_browser_key_press_event (GtkWidget*   widget,
         return TRUE;
     }
 
-    if (gtk_window_get_focus (GTK_WINDOW (widget)) == NULL)
+    focus = gtk_window_get_focus (GTK_WINDOW (widget));
+    if (focus == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
+    else if (G_OBJECT_TYPE (focus) == WEBKIT_TYPE_WEB_VIEW
+          && event->keyval == GDK_space
+          && !webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (focus))
+          && !webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (focus)))
+    {
+        /* Space at the bottom of the page: Go to next page */
+        GtkScrolledWindow* scrolled = GTK_SCROLLED_WINDOW (gtk_widget_get_parent (focus));
+        MidoriView* view = MIDORI_VIEW (gtk_widget_get_parent (GTK_WIDGET (scrolled)));
+        GtkAdjustment* vadjust = gtk_scrolled_window_get_vadjustment (scrolled);
+        if (gtk_adjustment_get_value (vadjust)
+         == (gtk_adjustment_get_upper (vadjust) - gtk_adjustment_get_page_size (vadjust)))
+        {
+            /* Duplicate here because the URI pointer might change */
+            gchar* uri = g_strdup (midori_view_get_next_page (view));
+            if (uri != NULL)
+            {
+                midori_view_set_uri (view, uri);
+                g_free (uri);
+                return TRUE;
+            }
+        }
+    }
 
     if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
         if (sokoke_window_activate_key (window, event))
