@@ -3899,7 +3899,7 @@ midori_view_set_uri (MidoriView*  view,
         {
             katze_assign (view->uri, g_strdup (&uri[6]));
             midori_view_display_error (
-                view, view->uri, view->title,
+                view, view->uri, view->title ? view->title : view->uri,
                 _("Page loading delayed"),
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 _("Load Page"),
