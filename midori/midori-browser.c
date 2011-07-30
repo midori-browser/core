@@ -714,6 +714,9 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
 
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
 
+    if (!db)
+        return FALSE;
+
     if (is_folder)
         title = new_bookmark ? _("New folder") : _("Edit folder");
     else

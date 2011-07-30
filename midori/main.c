@@ -426,12 +426,10 @@ midori_history_initialize (KatzeArray*  array,
                            char**       errmsg)
 {
     sqlite3* db;
-    gboolean has_day;
+    gboolean has_day = FALSE;
     sqlite3_stmt* stmt;
     gint result;
     gchar* sql;
-
-    has_day = FALSE;
 
     if (sqlite3_open (filename, &db) != SQLITE_OK)
     {
@@ -2348,7 +2346,7 @@ main (int    argc,
     {
         g_string_append_printf (error_messages,
             _("Bookmarks couldn't be loaded: %s\n"), errmsg);
-        g_free (errmsg);
+        errmsg = NULL;
     }
     else if (!bookmarks_exist)
     {
@@ -2409,7 +2407,7 @@ main (int    argc,
     {
         g_string_append_printf (error_messages,
             _("The history couldn't be loaded: %s\n"), errmsg);
-        g_free (errmsg);
+        errmsg = NULL;
     }
     g_free (bookmarks_file);
     midori_startup_timer ("History read: \t%f");

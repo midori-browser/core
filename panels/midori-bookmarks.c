@@ -133,6 +133,9 @@ midori_bookmarks_export_array_db (sqlite3*     db,
     KatzeItem* item;
     GList* list;
 
+    if (!db)
+        return;
+
     sqlcmd = g_strdup_printf ("SELECT * FROM bookmarks where folder='%s'", folder);
     root_array = katze_array_from_sqlite (db, sqlcmd);
     g_free (sqlcmd);
@@ -160,6 +163,9 @@ midori_bookmarks_import_array_db (sqlite3*     db,
     GList* list;
     KatzeItem* item;
 
+    if (!db)
+        return;
+
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
     {
         if (KATZE_IS_ARRAY (item))
@@ -180,6 +186,9 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     const gchar* sqlcmd;
 
     db = g_object_get_data (G_OBJECT (bookmarks->array), "db");
+
+    if (!db)
+        return katze_array_new (KATZE_TYPE_ITEM);
 
     if (keyword && *keyword)
     {
@@ -202,7 +211,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
     }
 
     if (result != SQLITE_OK)
-        return NULL;
+        return katze_array_new (KATZE_TYPE_ITEM);
 
     return katze_array_from_statement (statement);
 }
@@ -247,6 +256,9 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
 
     /* Bookmarks must have a name, import may produce invalid items */
     g_return_if_fail (katze_item_get_name (item));
+
+    if (!db)
+        return;
 
     if (KATZE_ITEM_IS_BOOKMARK (item))
         uri = g_strdup (katze_item_get_uri (item));

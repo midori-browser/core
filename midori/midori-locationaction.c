@@ -364,6 +364,10 @@ midori_location_action_popup_timeout_cb (gpointer data)
     {
         sqlite3* db;
         db = g_object_get_data (G_OBJECT (action->history), "db");
+
+        if (!db)
+            return FALSE;
+
         sqlcmd = "SELECT type, uri, title FROM ("
                  "  SELECT 1 AS type, uri, title, count() AS ct FROM history "
                  "      WHERE uri LIKE ?1 OR title LIKE ?1 GROUP BY uri "

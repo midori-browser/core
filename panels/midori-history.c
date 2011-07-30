@@ -174,6 +174,9 @@ midori_history_remove_item_from_db (MidoriHistory* history,
 
     db = g_object_get_data (G_OBJECT (history->array), "db");
 
+    if (!db)
+        return;
+
     if (KATZE_ITEM_IS_BOOKMARK (item))
         sqlcmd = sqlite3_mprintf (
             "DELETE FROM history WHERE uri = '%q' AND"
@@ -217,6 +220,9 @@ midori_history_read_from_db (MidoriHistory* history,
 
     db = g_object_get_data (G_OBJECT (history->array), "db");
 
+    if (!db)
+        return katze_array_new (KATZE_TYPE_ITEM);
+
     if (filter && *filter)
     {
         gchar* filterstr;
@@ -249,7 +255,7 @@ midori_history_read_from_db (MidoriHistory* history,
     }
 
     if (result != SQLITE_OK)
-        return NULL;
+        return katze_array_new (KATZE_TYPE_ITEM);
 
     return katze_array_from_statement (statement);
 }
@@ -327,7 +333,7 @@ midori_history_bookmark_add_cb (GtkWidget*     menuitem,
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
-    KatzeItem* item;
+    KatzeItem* item = NULL;
 
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (history));
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (history->treeview),
@@ -335,11 +341,12 @@ midori_history_bookmark_add_cb (GtkWidget*     menuitem,
         gtk_tree_model_get (model, &iter, 0, &item, -1);
 
     if (KATZE_IS_ITEM (item) && katze_item_get_uri (item))
+    {
         midori_browser_edit_bookmark_dialog_new (browser, item, TRUE, FALSE);
+        g_object_unref (item);
+    }
     else
         midori_browser_edit_bookmark_dialog_new (browser, NULL, TRUE, FALSE);
-
-    g_object_unref (item);
 }
 
 static GtkWidget*
@@ -674,6 +681,10 @@ midori_history_open_in_tab_activate_cb (GtkWidget*     menuitem,
         KatzeArray* array;
 
         db = g_object_get_data (G_OBJECT (history->array), "db");
+
+        if (!db)
+            return;
+
         sqlcmd = g_strdup_printf ("SELECT uri, title, date, day "
                  "FROM history WHERE day = %d "
                  "GROUP BY uri ORDER BY date ASC",
