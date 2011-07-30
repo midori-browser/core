@@ -1038,22 +1038,6 @@ button_modify_preferences_clicked_cb (GtkWidget*         button,
 }
 
 static void
-button_reset_session_clicked_cb (GtkWidget*  button,
-                                 KatzeArray* session)
-{
-    gchar* config_file = build_config_filename ("session.old.xbel");
-    GError* error = NULL;
-    if (!midori_array_to_file (session, config_file, "xbel", &error))
-    {
-        g_warning (_("The session couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-    katze_array_clear (session);
-    gtk_widget_set_sensitive (button, FALSE);
-}
-
-static void
 button_disable_extensions_clicked_cb (GtkWidget* button,
                                       MidoriApp* app)
 {
@@ -1061,25 +1045,23 @@ button_disable_extensions_clicked_cb (GtkWidget* button,
     gtk_widget_set_sensitive (button, FALSE);
 }
 
-static GtkWidget*
-midori_create_diagnostic_dialog (MidoriWebSettings* settings,
-                                 KatzeArray*        _session)
+static MidoriStartup
+midori_show_diagnostic_dialog (MidoriWebSettings* settings,
+                               KatzeArray*        _session)
 {
     GtkWidget* dialog;
     GtkWidget* content_area;
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
+    GtkWidget* align;
     GtkWidget* box;
     GtkWidget* button;
     MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
+    MidoriStartup load_on_startup = katze_object_get_enum (settings, "load-on-startup");
+    gint response;
 
     dialog = gtk_message_dialog_new (
-        NULL, 0, GTK_MESSAGE_WARNING,
-        #ifdef HAVE_HILDON_2_2
-        GTK_BUTTONS_NONE,
-        #else
-        GTK_BUTTONS_OK,
-        #endif
+        NULL, 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_NONE,
         _("Midori seems to have crashed the last time it was opened. "
           "If this happened repeatedly, try one of the following options "
           "to solve the problem."));
@@ -1095,15 +1077,13 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
         else
             gtk_window_set_icon_name (GTK_WINDOW (dialog), "web-browser");
     }
+    align = gtk_alignment_new (0.5, 0.5, 0.5, 0.5);
+    gtk_container_add (GTK_CONTAINER (content_area), align);
     box = gtk_hbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (align), box);
     button = gtk_button_new_with_mnemonic (_("Modify _preferences"));
     g_signal_connect (button, "clicked",
         G_CALLBACK (button_modify_preferences_clicked_cb), settings);
-    gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
-    button = gtk_button_new_with_mnemonic (_("Reset the last _session"));
-    g_signal_connect (button, "clicked",
-        G_CALLBACK (button_reset_session_clicked_cb), _session);
-    gtk_widget_set_sensitive (button, !katze_array_is_empty (_session));
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
     button = gtk_button_new_with_mnemonic (_("Disable all _extensions"));
     if (g_object_get_data (G_OBJECT (app), "extensions"))
@@ -1112,22 +1092,19 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
     else
         gtk_widget_set_sensitive (button, FALSE);
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 4);
-    gtk_widget_show_all (box);
-    gtk_container_add (GTK_CONTAINER (content_area), box);
+    gtk_widget_show_all (align);
     button = katze_property_proxy (settings, "show-crash-dialog", NULL);
     gtk_widget_show (button);
     gtk_container_add (GTK_CONTAINER (content_area), button);
-    #ifdef HAVE_HILDON_2_2
-    box = gtk_hbox_new (FALSE, 4);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), box, TRUE, FALSE, 4);
-    button = hildon_gtk_button_new (HILDON_SIZE_FINGER_HEIGHT | HILDON_SIZE_HALFSCREEN_WIDTH);
-    gtk_button_set_label (GTK_BUTTON (button), GTK_STOCK_OK);
-    gtk_button_set_use_stock (GTK_BUTTON (button), TRUE);
-    g_signal_connect_swapped (button, "clicked",
-        G_CALLBACK (gtk_widget_destroy), dialog);
-    gtk_box_pack_start (GTK_BOX (box), button, TRUE, FALSE, 4);
-    gtk_widget_show_all (box);
-    #endif
+    gtk_container_set_focus_child (GTK_CONTAINER (dialog), gtk_dialog_get_action_area (GTK_DIALOG (dialog)));
+    gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+        _("Discard old tabs"), MIDORI_STARTUP_BLANK_PAGE,
+        _("Show last tabs without loading"), MIDORI_STARTUP_DELAYED_PAGES,
+        _("Show last open tabs"), MIDORI_STARTUP_LAST_OPEN_PAGES,
+        NULL);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog),
+        load_on_startup == MIDORI_STARTUP_HOMEPAGE
+        ? MIDORI_STARTUP_BLANK_PAGE : load_on_startup);
     if (1)
     {
         /* GtkLabel can't wrap the text properly. Until some day
@@ -1150,7 +1127,14 @@ midori_create_diagnostic_dialog (MidoriWebSettings* settings,
         gtk_widget_size_request (content_area, &req);
         gtk_widget_set_size_request (label, req.width * 0.9, -1);
     }
-    return dialog;
+
+    response = gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+    if (response == GTK_RESPONSE_DELETE_EVENT)
+        response = G_MAXINT;
+    else if (response == MIDORI_STARTUP_BLANK_PAGE)
+        katze_array_clear (_session);
+    return response;
 }
 
 static gboolean
@@ -1342,11 +1326,11 @@ midori_load_session (gpointer data)
     MidoriBrowser* browser;
     MidoriApp* app = katze_item_get_parent (KATZE_ITEM (_session));
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
+    MidoriStartup load_on_startup;
     gchar* config_file;
     KatzeArray* session;
     KatzeItem* item;
     gint64 current;
-    MidoriStartup load_on_startup;
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
@@ -1375,8 +1359,7 @@ midori_load_session (gpointer data)
     g_signal_connect_after (gtk_accel_map_get (), "changed",
         G_CALLBACK (accel_map_changed_cb), NULL);
 
-    g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
-
+    load_on_startup = (MidoriStartup)g_object_get_data (G_OBJECT (settings), "load-on-startup");
     if (katze_array_is_empty (_session))
     {
         gchar* homepage;
@@ -2368,8 +2351,8 @@ main (int    argc,
 
     config_file = NULL;
     _session = katze_array_new (KATZE_TYPE_ITEM);
+    load_on_startup = katze_object_get_enum (settings, "load-on-startup");
     #if HAVE_LIBXML
-    g_object_get (settings, "load-on-startup", &load_on_startup, NULL);
     if (load_on_startup >= MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, build_config_filename ("session.xbel"));
@@ -2511,24 +2494,16 @@ main (int    argc,
     else
         g_file_set_contents (config_file, "RUNNING", -1, NULL);
 
-    if (back_from_crash)
-    {
-        if (katze_object_get_int (settings, "load-on-startup")
-            >= MIDORI_STARTUP_LAST_OPEN_PAGES)
-            midori_session_add_delay (_session);
-
-        if (katze_object_get_boolean (settings, "show-crash-dialog"))
-            diagnostic_dialog = TRUE;
-    }
+    if (back_from_crash && katze_object_get_boolean (settings, "show-crash-dialog"))
+        diagnostic_dialog = TRUE;
 
     if (diagnostic_dialog)
     {
-        GtkWidget* dialog = midori_create_diagnostic_dialog (settings, _session);
-        gint response = gtk_dialog_run (GTK_DIALOG (dialog));
-        gtk_widget_destroy (dialog);
-        if (response == GTK_RESPONSE_DELETE_EVENT)
+        load_on_startup = midori_show_diagnostic_dialog (settings, _session);
+        if (load_on_startup == G_MAXINT)
             return 0;
     }
+    g_object_set_data (G_OBJECT (settings), "load-on-startup", GINT_TO_POINTER (load_on_startup));
     midori_startup_timer ("Signal setup: \t%f");
 
     g_object_set (app, "settings", settings,
@@ -2590,8 +2565,8 @@ main (int    argc,
         g_free (clear_data);
     }
 
-    if (katze_object_get_int (settings, "load-on-startup")
-        < MIDORI_STARTUP_LAST_OPEN_PAGES)
+    load_on_startup = katze_object_get_int (settings, "load-on-startup");
+    if (load_on_startup < MIDORI_STARTUP_LAST_OPEN_PAGES)
     {
         katze_assign (config_file, g_build_filename (config, "session.xbel", NULL));
         g_unlink (config_file);
