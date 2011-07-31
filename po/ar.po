@@ -14,8 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Country: MOROCCO\n"
 "X-Poedit-Language: Arabic\n"
+"X-Poedit-Country: MOROCCO\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
@@ -1882,8 +1882,9 @@ msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr ""
 
 #: ../midori/midori-view.c:3905
+#, fuzzy
 msgid "Load Page"
-msgstr ""
+msgstr "تحميل الصفحة"
 
 #: ../midori/midori-view.c:4048
 msgid "Blank page"
@@ -1923,24 +1924,21 @@ msgid "Startup"
 msgstr "بدء التشغيل"
 
 #: ../midori/midori-preferences.c:307
-#, fuzzy
 msgid "Use _current page"
-msgstr "اطبع الصفحة الحالية"
+msgstr "استخدام الصفحة الحالية"
 
 #: ../midori/midori-preferences.c:311
 msgid "Use current page as homepage"
-msgstr ""
+msgstr "استخدام الصفحة الحالية كصفحة بداية"
 
 #. Page "Appearance"
 #: ../midori/midori-preferences.c:319
-#, fuzzy
 msgid "Fonts"
-msgstr "أيقونات "
+msgstr "الخطوط"
 
 #: ../midori/midori-preferences.c:322
-#, fuzzy
 msgid "Proportional Font Family"
-msgstr "عائلة الخطوط الغفتراضية"
+msgstr ""
 
 #: ../midori/midori-preferences.c:326
 msgid "The default font family used to display text"
@@ -2323,30 +2321,28 @@ msgstr "لا شيء"
 
 #: ../katze/katze-utils.c:819
 msgid "1 hour"
-msgstr ""
+msgstr "1 ساعة"
 
 #: ../katze/katze-utils.c:820
-#, fuzzy
 msgid "1 day"
-msgstr "أيّام"
+msgstr "1 يوم"
 
 #: ../katze/katze-utils.c:821
-#, fuzzy
 msgid "1 week"
-msgstr "قبل أسبوع"
+msgstr "1 أسبوع"
 
 #: ../katze/katze-utils.c:822
 msgid "1 month"
-msgstr ""
+msgstr "1 شهر"
 
 #: ../katze/katze-utils.c:823
 msgid "1 year"
-msgstr ""
+msgstr "1 سنة"
 
 #: ../katze/katze-preferences.c:95 ../extensions/history-list.vala:228
 #, c-format
 msgid "Preferences for %s"
-msgstr ""
+msgstr "تفضيلات ل %s"
 
 #: ../extensions/adblock.c:422
 msgid "Configure Advertisement filters"
@@ -2436,23 +2432,23 @@ msgstr ""
 
 #: ../extensions/addons.c:570 ../extensions/addons.c:647
 msgid "Open in Text Editor"
-msgstr ""
+msgstr "فتح في محرر نص"
 
 #: ../extensions/addons.c:572 ../extensions/addons.c:656
 msgid "Open Target Folder"
-msgstr ""
+msgstr "فتح مجلد الهدف"
 
 #: ../extensions/addons.c:638
 msgid "Add new addon"
-msgstr ""
+msgstr "إضافة ملحق جديد"
 
 #: ../extensions/addons.c:664
 msgid "Remove selected addon"
-msgstr ""
+msgstr "إزالة الملحقات المختارة"
 
 #: ../extensions/addons.c:1643 ../extensions/addons.c:1805
 msgid "User addons"
-msgstr ""
+msgstr "إضافات المستخدم"
 
 #: ../extensions/addons.c:1764
 #, c-format
@@ -2461,15 +2457,15 @@ msgstr ""
 
 #: ../extensions/addons.c:1806
 msgid "Support for userscripts and userstyles"
-msgstr ""
+msgstr "دعم البرامج النصية وأنماط المستخدم"
 
 #: ../extensions/colorful-tabs.c:201
 msgid "Colorful Tabs"
-msgstr ""
+msgstr "الألسنة الملونة"
 
 #: ../extensions/colorful-tabs.c:202
 msgid "Tint each tab distinctly"
-msgstr ""
+msgstr "لون كل علامة تبويب"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:82
 #: ../extensions/cookie-manager/main.c:35
@@ -2482,7 +2478,7 @@ msgstr "حذف الكل"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:114
 msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
-msgstr ""
+msgstr "حذف جميع ملفات تعريف الارتباط. إذا تم تعيين عامل تصفية ، يتم حذف فقط تلك الملفات التي تطابق عامل التصفية."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:129
 msgid "Expand All"
@@ -2494,7 +2490,7 @@ msgstr "طوي الكل"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:578
 msgid "Do you really want to delete all cookies?"
-msgstr ""
+msgstr "هل تريد حذف جميع ملفات تعريف الارتباط؟"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:580
 msgid "Question"
@@ -2502,11 +2498,11 @@ msgstr "سؤال"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:589
 msgid "Only cookies which match the filter will be deleted."
-msgstr ""
+msgstr "سيتم حذف الكوكيز التي تطابق عامل التصفية."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:677
 msgid "At the end of the session"
-msgstr ""
+msgstr "في نهاية الدورة"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:680
 #, c-format
@@ -2556,15 +2552,15 @@ msgstr ""
 
 #: ../extensions/cookie-manager/main.c:36
 msgid "List, view and delete cookies"
-msgstr ""
+msgstr "القائمة ، عرض وحذف الكوكيز"
 
 #: ../extensions/copy-tabs.c:39
 msgid "Copy Tab _Addresses"
-msgstr ""
+msgstr "نسخ عناواين التبويب"
 
 #: ../extensions/copy-tabs.c:96
 msgid "Copy Addresses of Tabs"
-msgstr ""
+msgstr " نسخة من عناوين علامات الجدولة"
 
 #: ../extensions/copy-tabs.c:97
 msgid "Copy the addresses of all tabs to the clipboard"
@@ -2662,7 +2658,7 @@ msgstr ""
 
 #: ../extensions/formhistory.c:450
 msgid "Stores history of entered form data"
-msgstr ""
+msgstr "تخزين تاريخ بيانات الدخول"
 
 #: ../extensions/formhistory.c:454
 #, c-format
@@ -2679,46 +2675,46 @@ msgstr "ترشيح صيغة التاريخ"
 
 #: ../extensions/history-list.vala:190
 msgid "There are no unvisited tabs"
-msgstr ""
+msgstr "لا توجد تبويبات لم تسبق زيارتها"
 
 #: ../extensions/history-list.vala:228
-#, fuzzy, c-format
+#, c-format
 msgid "History-List"
-msgstr "السجل"
+msgstr "قائمة التاريخ"
 
 #: ../extensions/history-list.vala:267
 msgid "Tab closing behavior"
-msgstr ""
+msgstr "سلوك إغلاق التبويب"
 
 #: ../extensions/history-list.vala:275
 msgid "Do nothing"
-msgstr ""
+msgstr "لا تفعل شيئا"
 
 #: ../extensions/history-list.vala:281
-#, fuzzy
 msgid "Switch to last view tab"
-msgstr "التحول إلى التبويب التالي"
+msgstr "التحول إلى التبويب الأخير"
 
 #: ../extensions/history-list.vala:287
-#, fuzzy
 msgid "Switch to newest tab"
-msgstr "التحول إلى التبويب التالي"
+msgstr "التحول إلى احدث تبويب"
 
 #: ../extensions/history-list.vala:411
+#, fuzzy
 msgid "Next new Tab (History List)"
-msgstr ""
+msgstr "علامة التبويب الجديدة القادمة (قائمة التاريخ)"
 
 #: ../extensions/history-list.vala:412
 msgid "Next new tab from history"
-msgstr ""
+msgstr "التبويب الجديد من التاريخ"
 
 #: ../extensions/history-list.vala:421
 msgid "Previous new Tab (History List)"
 msgstr ""
 
 #: ../extensions/history-list.vala:422
+#, fuzzy
 msgid "Previous new tab from history"
-msgstr ""
+msgstr "علامة تبويب جديدة من التاريخ السابق"
 
 #: ../extensions/history-list.vala:431
 msgid "Display tab in background (History List)"
@@ -2726,7 +2722,7 @@ msgstr ""
 
 #: ../extensions/history-list.vala:432
 msgid "Display the current selected tab in background"
-msgstr ""
+msgstr "عرض علامة التبويب الحالية المحددة في الخلفية"
 
 #: ../extensions/history-list.vala:557
 msgid "History List"
@@ -2734,23 +2730,23 @@ msgstr "السجل"
 
 #: ../extensions/history-list.vala:558
 msgid "Move to the last used tab when switching or closing tabs"
-msgstr ""
+msgstr "الانتقال إلى علامة التبويب الأخيرة عند إغلاق علامات التبويب"
 
 #: ../extensions/mouse-gestures.c:301
 msgid "Mouse Gestures"
-msgstr ""
+msgstr "إيماءات الفأرة"
 
 #: ../extensions/mouse-gestures.c:302
 msgid "Control Midori by moving the mouse"
-msgstr ""
+msgstr "تحكم بميدوري عن طريق تحريك الفأرة"
 
 #: ../extensions/shortcuts.c:110
 msgid "Reload page or stop loading"
-msgstr ""
+msgstr "تحديث الصفحة أو إيقاف تحميل"
 
 #: ../extensions/shortcuts.c:176
 msgid "Customize Keyboard shortcuts"
-msgstr ""
+msgstr "تخصيص اختصارات لوحة المفاتيح"
 
 #: ../extensions/shortcuts.c:282
 msgid "Customize Sh_ortcuts..."
@@ -2766,11 +2762,11 @@ msgstr "عرض وتحرير إختصار لوحة المفاتيح"
 
 #: ../extensions/status-clock.c:174
 msgid "Statusbar Clock"
-msgstr ""
+msgstr "شريط حالة الساعة"
 
 #: ../extensions/status-clock.c:175
 msgid "Display date and time in the statusbar"
-msgstr ""
+msgstr "عرض التاريخ والوقت في شريط الحالة"
 
 #: ../extensions/statusbar-features.c:129
 msgid "Images"
@@ -2786,11 +2782,11 @@ msgstr "Netscape ملحقات"
 
 #: ../extensions/statusbar-features.c:193
 msgid "Statusbar Features"
-msgstr ""
+msgstr "سمات شريط الحالة"
 
 #: ../extensions/statusbar-features.c:194
 msgid "Easily toggle features on web pages on and off"
-msgstr ""
+msgstr "تبديل ملامح بسهولة على صفحات الويب تشغيل وإيقاف"
 
 #: ../extensions/tab-panel.c:597 ../extensions/tab-panel.c:684
 msgid "Tab Panel"
@@ -2802,15 +2798,15 @@ msgstr "_لوحة التبويب"
 
 #: ../extensions/tab-panel.c:685
 msgid "Show tabs in a vertical panel"
-msgstr ""
+msgstr "عرض علامات التبويب في لوحة عمودية"
 
 #: ../extensions/tabs-minimized.c:77
 msgid "Only Icons on Tabs by default"
-msgstr ""
+msgstr "فقط الرموز على علامات افتراضيا"
 
 #: ../extensions/tabs-minimized.c:78
 msgid "New tabs have no label by default"
-msgstr ""
+msgstr "علامات التبويب الجديدة ليس لها تسمية افتراضيا"
 
 #: ../extensions/toolbar-editor.c:391
 msgid "Customize Toolbar"
@@ -2818,7 +2814,7 @@ msgstr "تخصيص شريط الأدوات"
 
 #: ../extensions/toolbar-editor.c:407
 msgid "Select items to be displayed on the toolbar. Items can be reodered by drag and drop."
-msgstr ""
+msgstr "تحديد عناصر ليتم عرضها على شريط الأدوات. يمكن ترتيب العناصر عن طريق السحب والإفلات."
 
 #: ../extensions/toolbar-editor.c:423
 msgid "Available Items"
@@ -2833,9 +2829,8 @@ msgid "Customize _Toolbar..."
 msgstr "ت_خصيص شريط الادوات"
 
 #: ../extensions/toolbar-editor.c:595
-#, fuzzy
 msgid "_Customize..."
-msgstr "مخصص..."
+msgstr "تخصيص..."
 
 #: ../extensions/toolbar-editor.c:625
 msgid "Toolbar Editor"
