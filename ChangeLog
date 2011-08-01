@@ -1,5 +1,29 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.0:
+ + Provide buttons to choose how to startup after crash
+ + Fix crash on corrupted datbase
+ + Never delay URIs given as command line arguments
+ + Space at the bottom of the page: Go to next page
+ + Initialize session in app/ private before adding URIs
+ + Add 'Last open tabs' option to Clear Private Data
+ + Show kinetic scrolling option regardless of Hildon
+ + Interpret Shift+Backspace as going forward
+ + Advertise SVG images as a supported MIME type
+ + Zoom in steps of 10% and support Ctr+=
+ + Fix a crasher on invalid geo: links
+ + Integrate Adblock and History List options in list
+ + Skip empty lines, ignore subdocument rules in Adblock
+ + Respect VALAC at configuration time
+ + URL cache, faster JS generator, inline parsing in Adblock
+ + Reuse source of webview instead of redownloading
+ + Remove the description field from bookmark dialog
+ + Add --log-file/ -l switch to log to a file
+ + Pass through javascript: URIS from the command line
+ + Tab and Window items in Unity Quicklist
+ + Adjust the preferences dialog
+ + Require WebKitGTK+ 1.1.17 and Vala 0.10
+
 v0.3.6:
  + Track selected search engine per window
  + Improve preference dialogue size and alignments

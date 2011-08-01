@@ -500,7 +500,7 @@ g_icon_to_string (GIcon *icon)
  *     Since 0.3.6 the following hints are also supported:
  *     "address": the widget will be particularly suitable for typing
  *         a valid URI or IP address and highlight errors.
- *     Since 0.3.7 the following hints are also supported:
+ *     Since 0.4.0 the following hints are also supported:
  *     "days": the widget will be particularly suitable for choosing
  *         a period of time in days.
  *
