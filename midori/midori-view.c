@@ -3898,10 +3898,11 @@ midori_view_set_uri (MidoriView*  view,
                     "<body><h1>%s</h1>"
                     "<img src=\"%s\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
-                    "<p />There is no documentation installed at %s."
+                    "<p />There is no documentation installed at %s. "
                     "You may want to ask your distribution or "
                     "package maintainer for it or if this a custom build "
-                    "verify that the build is setup properly."
+                    "verify that the build is setup properly. "
+                    "<a href=\"http://wiki.xfce.org/midori/faq\">View the FAQ online</a>"
                     "</body></html>",
                     title, title, logo_uri, view->uri);
                 g_free (title);
