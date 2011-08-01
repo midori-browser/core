@@ -770,6 +770,100 @@ midori_view_update_icon (MidoriView* view,
     midori_view_apply_icon (view, icon, NULL);
 }
 
+typedef struct
+{
+    gchar* icon_file;
+    gchar* icon_uri;
+    MidoriView* view;
+} KatzeNetIconPriv;
+
+static void
+katze_net_icon_priv_free (KatzeNetIconPriv* priv)
+{
+    g_free (priv->icon_file);
+    g_free (priv->icon_uri);
+    g_slice_free (KatzeNetIconPriv, priv);
+}
+
+static gboolean
+katze_net_icon_status_cb (KatzeNetRequest*  request,
+                          KatzeNetIconPriv* priv)
+{
+    switch (request->status)
+    {
+        case KATZE_NET_VERIFIED:
+            if (request->mime_type && strncmp (request->mime_type, "image/", 6))
+            {
+                katze_net_icon_priv_free (priv);
+                return FALSE;
+            }
+            break;
+        case KATZE_NET_MOVED:
+            break;
+        default:
+            katze_net_icon_priv_free (priv);
+            return FALSE;
+    }
+    return TRUE;
+}
+
+static void
+katze_net_icon_transfer_cb (KatzeNetRequest*  request,
+                            KatzeNetIconPriv* priv)
+{
+    GdkPixbuf* pixbuf;
+    FILE* fp;
+    GdkPixbuf* pixbuf_scaled;
+    gint icon_width, icon_height;
+    size_t ret;
+    GtkSettings* settings;
+
+    if (request->status == KATZE_NET_MOVED)
+        return;
+
+    pixbuf = NULL;
+    if (request->data)
+    {
+        if ((fp = fopen (priv->icon_file, "wb")))
+        {
+            ret  = fwrite (request->data, 1, request->length, fp);
+            fclose (fp);
+            if ((ret - request->length != 0))
+            {
+                g_warning ("Error writing to file %s "
+                           "in  katze_net_icon_transfer_cb()", priv->icon_file);
+            }
+            pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
+        }
+        else
+            pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
+                            request->length, request->mime_type, NULL);
+
+        if (pixbuf)
+            g_object_ref (pixbuf);
+
+        g_hash_table_insert (priv->view->memory,
+                g_strdup (priv->icon_file), pixbuf);
+    }
+
+    if (!pixbuf)
+    {
+        midori_view_update_icon (priv->view, NULL);
+        katze_net_icon_priv_free (priv);
+        return;
+    }
+
+    settings = gtk_widget_get_settings (priv->view->web_view);
+    gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
+    pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height, GDK_INTERP_BILINEAR);
+
+    g_object_unref (pixbuf);
+
+    katze_assign (priv->view->icon_uri, g_strdup (priv->icon_uri));
+    midori_view_update_icon (priv->view, pixbuf_scaled);
+    katze_net_icon_priv_free (priv);
+}
+
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
@@ -816,6 +910,19 @@ _midori_web_view_load_icon (MidoriView* view)
         {
             g_free (icon_file);
             katze_assign (view->icon_uri, icon_uri);
+        }
+        else if (!view->special)
+        {
+            KatzeNetIconPriv* priv;
+
+            priv = g_slice_new (KatzeNetIconPriv);
+            priv->icon_file = icon_file;
+            priv->icon_uri = icon_uri;
+            priv->view = view;
+
+            katze_net_load_uri (NULL, icon_uri,
+                (KatzeNetStatusCb)katze_net_icon_status_cb,
+                (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
         }
     }
 
