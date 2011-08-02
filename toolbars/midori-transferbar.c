@@ -150,7 +150,8 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                     (guchar*)contents, length);
                 g_free (filename);
                 g_free (contents);
-                if (!y || !g_str_equal (fingerprint[1], checksum))
+                /* Checksums are case-insensitive */
+                if (!y || g_ascii_strcasecmp (fingerprint[1], checksum) != 0)
                     gtk_image_set_from_stock (GTK_IMAGE (icon),
                         GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
                 g_free (checksum);
@@ -169,7 +170,8 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                     gchar* checksum = g_compute_checksum_for_data (G_CHECKSUM_SHA1,
                         (guchar*)contents, length);
                     g_free (contents);
-                    if (!y || !g_str_equal (fingerprint[1], checksum))
+                    /* Checksums are case-insensitive */
+                    if (!y || g_ascii_strcasecmp (fingerprint[1], checksum) != 0)
                         gtk_image_set_from_stock (GTK_IMAGE (icon),
                             GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
                     g_free (checksum);
