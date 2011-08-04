@@ -291,6 +291,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #define SPANNED_ADD(__widget) \
      katze_preferences_add_widget (_preferences, __widget, "spanned")
     /* Page "General" */
+    if (sokoke_is_app_or_private ())
+    {
     PAGE_NEW (GTK_STOCK_HOME, _("Startup"));
     FRAME_NEW (NULL);
     label = katze_property_label (settings, "load-on-startup");
@@ -313,6 +315,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
         g_signal_connect (button, "clicked",
             G_CALLBACK (midori_preferences_homepage_current_clicked_cb), settings);
         SPANNED_ADD (button);
+    }
     }
 
     /* Page "Appearance" */

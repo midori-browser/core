@@ -1625,6 +1625,12 @@ sokoke_set_config_dir (const gchar* new_config_dir)
     return config_dir;
 }
 
+gboolean
+sokoke_is_app_or_private (void)
+{
+    return strcmp ("/", sokoke_set_config_dir (NULL));
+}
+
 /**
  * sokoke_remove_path:
  * @path: an absolute path

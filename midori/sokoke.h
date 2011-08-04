@@ -218,6 +218,9 @@ const gchar*
 sokoke_set_config_dir                   (const gchar*    new_config_dir);
 
 gboolean
+sokoke_is_app_or_private                (void);
+
+gboolean
 sokoke_remove_path                      (const gchar*    path,
                                          gboolean        ignore_errors);
 
