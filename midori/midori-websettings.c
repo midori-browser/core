@@ -715,8 +715,13 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "enable-plugins",
                                      _("Enable Netscape plugins"),
                                      _("Enable embedded Netscape plugin objects"),
+    #ifdef G_OS_WIN32
+                                     FALSE,
+                                     G_PARAM_READABLE));
+    #else
                                      TRUE,
                                      flags));
+    #endif
     /* Override properties to override defaults */
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_DEVELOPER_EXTRAS,
