@@ -364,7 +364,10 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     {
         gchar* enchant_path = sokoke_find_lib_path ("enchant");
         if (enchant_path == NULL)
+        {
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), FALSE);
             gtk_widget_set_sensitive (button, FALSE);
+        }
         else
             g_free (enchant_path);
     }
