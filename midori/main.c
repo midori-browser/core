@@ -711,10 +711,24 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
                                     KatzePreferences* preferences,
                                     MidoriApp*        app)
 {
-    GtkWidget* scrolled = katze_scrolled_new (NULL, NULL);
-    GtkWidget* addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
-    GList* children = gtk_container_get_children (GTK_CONTAINER (addon));
+    KatzeArray* array;
+    GtkWidget* scrolled;
+    GtkWidget* addon;
+    GList* children;
     GtkWidget* page;
+
+    /* Hide if there are no extensions at all */
+    array = katze_object_get_object (app, "extensions");
+    if (!katze_array_get_nth_item (array, 0))
+    {
+        g_object_unref (array);
+        return;
+    }
+    g_object_unref (array);
+
+    scrolled = katze_scrolled_new (NULL, NULL);
+    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
+    children = gtk_container_get_children (GTK_CONTAINER (addon));
     gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
     g_list_free (children);
     g_object_set (addon, "app", app, NULL);

@@ -178,10 +178,7 @@ midori_extensions_set_property (GObject*      object,
 
         KATZE_ARRAY_FOREACH_ITEM (extension, array)
             midori_extensions_add_item_cb (array, extension, extensions);
-
-        /* Hide if there are no extensions at all */
-        if (!katze_array_get_nth_item (array, 0))
-            gtk_widget_hide (GTK_WIDGET (object));
+        g_object_unref (array);
     }
         break;
     default:
