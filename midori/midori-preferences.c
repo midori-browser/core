@@ -357,6 +357,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "enable-spell-checking", NULL);
     SPANNED_ADD (button);
+    /* Disable spell check option if there are no enchant modules */
+    {
+        gchar* enchant_path = sokoke_find_lib_path ("enchant");
+        if (enchant_path == NULL)
+            gtk_widget_set_sensitive (button, FALSE);
+        else
+            g_free (enchant_path);
+    }
     button = katze_property_proxy (settings, "enable-scripts", NULL);
     INDENTED_ADD (button);
     button = katze_property_proxy (settings, "enable-plugins", NULL);

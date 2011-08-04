@@ -226,6 +226,9 @@ sokoke_find_config_filename             (const gchar*    folder,
                                          const gchar*    filename);
 
 gchar*
+sokoke_find_lib_path                    (const gchar*    folder);
+
+gchar*
 sokoke_find_data_filename               (const gchar*    filename);
 
 gchar**

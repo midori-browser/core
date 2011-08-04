@@ -1706,6 +1706,31 @@ sokoke_find_config_filename (const gchar* folder,
 }
 
 /**
+ * sokoke_find_lib_path:
+ * @folder: the lib subfolder
+ *
+ * Looks for the specified folder in the lib directories.
+ *
+ * Return value: a newly allocated full path, or %NULL
+ **/
+gchar* sokoke_find_lib_path (const gchar* folder)
+{
+    #ifdef G_OS_WIN32
+    gchar* path = g_win32_get_package_installation_directory_of_module (NULL);
+    gchar* lib_path = g_build_filename (path, "lib", folder ? folder : "", NULL);
+    g_free (path);
+    if (g_access (lib_path, F_OK) == 0)
+        return lib_path;
+    #else
+    gchar* lib_path = g_build_filename (LIBDIR, folder ? folder : "", NULL);
+    if (g_access (lib_path, F_OK) == 0)
+        return lib_path;
+    #endif
+
+    return NULL;
+}
+
+/**
  * sokoke_find_data_filename:
  * @filename: a filename or relative path
  *

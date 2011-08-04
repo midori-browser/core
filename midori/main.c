@@ -1197,27 +1197,11 @@ midori_load_extensions (gpointer data)
     g_object_set (app, "extensions", extensions, NULL);
     if (g_module_supported ())
     {
-        /* FIXME: Read extensions from system data dirs */
         gchar* extension_path;
         GDir* extension_dir;
 
         if (!(extension_path = g_strdup (g_getenv ("MIDORI_EXTENSION_PATH"))))
-        {
-            #ifdef G_OS_WIN32
-            {
-                gchar *path = g_win32_get_package_installation_directory_of_module (NULL);
-                extension_path = g_build_filename (path, "lib", PACKAGE_NAME, NULL);
-                g_free (path);
-                if (g_access (extension_path, F_OK) != 0)
-                {
-                    g_free (extension_path);
-                    extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
-                }
-            }
-            #else
-            extension_path = g_build_filename (LIBDIR, PACKAGE_NAME, NULL);
-            #endif
-        }
+            extension_path = sokoke_find_lib_path (PACKAGE_NAME);
         extension_dir = g_dir_open (extension_path, 0, NULL);
         if (extension_dir != NULL)
         {
