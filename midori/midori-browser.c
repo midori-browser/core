@@ -3499,14 +3499,20 @@ _action_navigation_activate (GtkAction*     action,
     GtkWidget* tab;
     gchar* uri;
     const gchar* name;
+    gboolean middle_click;
 
     g_assert (GTK_IS_ACTION (action));
 
-    if (g_object_get_data (G_OBJECT (action), "midori-middle-click"))
+    if (GPOINTER_TO_INT (g_object_get_data (G_OBJECT (action),
+                                            "midori-middle-click")))
     {
-        g_object_set_data (G_OBJECT (action), "midori-middle-click", (void*)0);
-        return FALSE;
+        middle_click = TRUE;
+        g_object_set_data (G_OBJECT (action),
+                           "midori-middle-click",
+                           GINT_TO_POINTER(0));
     }
+    else
+        middle_click = FALSE;
 
     tab = midori_browser_get_current_tab (browser);
     if (!tab)
@@ -3518,19 +3524,69 @@ _action_navigation_activate (GtkAction*     action,
 
     if (g_str_equal (name, "Back"))
     {
-        midori_view_go_back (view);
+        if (middle_click)
+        {
+            GtkWidget* web_view;
+            WebKitWebBackForwardList* back_forward_list;
+            WebKitWebHistoryItem* back_item;
+            const gchar* back_uri;
+            gint n;
+
+            web_view = midori_view_get_web_view (view);
+
+            back_forward_list =
+                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (web_view));
+            back_item = webkit_web_back_forward_list_get_back_item (back_forward_list);
+            back_uri = webkit_web_history_item_get_uri (back_item);
+
+            n = midori_browser_add_uri (browser, back_uri);
+            midori_browser_set_current_page_smartly (browser, n);
+        }
+        else
+            midori_view_go_back (view);
+
         return TRUE;
     }
     else if (g_str_equal (name, "Forward"))
     {
-        midori_view_go_forward (view);
+        if (middle_click)
+        {
+            GtkWidget* web_view;
+            WebKitWebBackForwardList* back_forward_list;
+            WebKitWebHistoryItem* forward_item;
+            const gchar* forward_uri;
+            gint n;
+
+            web_view = midori_view_get_web_view (view);
+
+            back_forward_list =
+                webkit_web_view_get_back_forward_list (WEBKIT_WEB_VIEW (web_view));
+            forward_item = webkit_web_back_forward_list_get_forward_item (back_forward_list);
+            forward_uri = webkit_web_history_item_get_uri (forward_item);
+
+            n = midori_browser_add_uri (browser, forward_uri);
+            midori_browser_set_current_page_smartly (browser, n);
+        }
+        else
+          midori_view_go_forward (view);
+
         return TRUE;
     }
     else if (g_str_equal (name, "Previous"))
     {
         /* Duplicate here because the URI pointer might change */
         uri = g_strdup (midori_view_get_previous_page (view));
-        midori_view_set_uri (view, uri);
+
+        if (middle_click)
+        {
+            gint n;
+
+            n = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_page_smartly (browser, n);
+        }
+        else
+            midori_view_set_uri (view, uri);
+
         g_free (uri);
         return TRUE;
     }
@@ -3538,14 +3594,34 @@ _action_navigation_activate (GtkAction*     action,
     {
         /* Duplicate here because the URI pointer might change */
         uri = g_strdup (midori_view_get_next_page (view));
-        midori_view_set_uri (view, uri);
+
+        if (middle_click)
+        {
+            gint n;
+
+            n = midori_browser_add_uri (browser, uri);
+            midori_browser_set_current_page_smartly (browser, n);
+        }
+        else
+            midori_view_set_uri (view, uri);
+
         g_free (uri);
         return TRUE;
     }
     else if (g_str_equal (name, "Homepage"))
     {
         g_object_get (browser->settings, "homepage", &uri, NULL);
-        midori_view_set_uri (view, uri);
+
+        if (middle_click)
+        {
+          gint n;
+
+          n = midori_browser_add_uri (browser, uri);
+          midori_browser_set_current_page_smartly (browser, n);
+        }
+        else
+            midori_view_set_uri (view, uri);
+
         g_free (uri);
         return TRUE;
     }
@@ -4048,6 +4124,7 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
         GtkAction* action;
 
         action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (toolitem));
+        g_object_set_data (G_OBJECT (action), "midori-middle-click", GINT_TO_POINTER (1));
 
         return _action_navigation_activate (action, browser);
     }
@@ -6242,6 +6319,10 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_activatable_get_related_action (
             GTK_ACTIVATABLE (parent));
+
+        g_object_set_data (G_OBJECT (action),
+                           "midori-middle-click",
+                           GINT_TO_POINTER (1));
 
         return _action_navigation_activate (action, browser);
     }
