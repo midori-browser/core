@@ -198,6 +198,8 @@ enum {
 
 static guint signals[LAST_SIGNAL];
 
+static gchar* speeddial_markup = NULL;
+
 static void
 midori_view_finalize (GObject* object);
 
@@ -3744,15 +3746,12 @@ prepare_speed_dial_html (MidoriView* view)
         cols * (thumb_size + 60),
         thumb_size < 160 ? "hidden" : "visible");
 
-    if (!katze_object_get_boolean (view->settings, "enable-scripts"))
-    {
-        g_string_append (markup,
-            "<style type=\"text/css\">"
-            "#content h4 span:before { visibility: hidden; }\n"
-            "div.config { visibility: hidden; }\n"
-            ".cross { visibility:hidden; }\n"
-            ".activated p { background-image: none; }</style>");
-    }
+    g_string_append (markup,
+        "<noscript><style type=\"text/css\">"
+        "#content h4 span:before { visibility: hidden; }\n"
+        "div.config { visibility: hidden; }\n"
+        ".cross { visibility:hidden; }\n"
+        ".activated p { background-image: none; }</style></noscript>");
 
     while (slot <= rows * cols)
     {
@@ -3863,9 +3862,11 @@ midori_view_set_uri (MidoriView*  view,
             katze_assign (view->uri, g_strdup (""));
             katze_item_set_uri (view->item, "");
 
-            data = prepare_speed_dial_html (view);
+            if (speeddial_markup == NULL);
+                speeddial_markup = prepare_speed_dial_html (view);
+
             midori_view_load_alternate_string (view,
-                data, "res:/", "about:blank", NULL);
+                speeddial_markup, "res:/", "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (g_getenv ("MIDORI_STARTTIME") != NULL)
@@ -3874,7 +3875,6 @@ midori_view_set_uri (MidoriView*  view,
                 g_timer_destroy (timer);
             }
             #endif
-            g_free (data);
         }
         /* This is not prefectly elegant, but creating
            special pages inline is the simplest solution. */
@@ -5513,6 +5513,7 @@ midori_view_speed_dial_save (MidoriView*  view,
 
     config_file = g_build_filename (sokoke_set_config_dir (NULL), "speeddial", NULL);
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
+    katze_assign (speeddial_markup, prepare_speed_dial_html (view));
 
     i = 0;
     while ((tab = midori_browser_get_nth_tab (browser, i++)))
