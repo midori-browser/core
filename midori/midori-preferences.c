@@ -22,6 +22,11 @@
 #include <glib/gi18n.h>
 #include <libsoup/soup.h>
 
+#if WEBKIT_CHECK_VERSION (1, 3, 11)
+    #define LIBSOUP_USE_UNSTABLE_REQUEST_API
+    #include <libsoup/soup-cache.h>
+#endif
+
 #if HAVE_LIBNOTIFY
     #include <libnotify/notify.h>
 #endif
@@ -456,13 +461,16 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     #endif
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
-    label = katze_property_label (settings, "maximum-cache-size");
-    INDENTED_ADD (label);
-    button = katze_property_proxy (settings, "maximum-cache-size", NULL);
-    SPANNED_ADD (button);
-    label = gtk_label_new (_("MB"));
-    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-    SPANNED_ADD (label);
+    if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))
+    {
+        label = katze_property_label (settings, "maximum-cache-size");
+        INDENTED_ADD (label);
+        button = katze_property_proxy (settings, "maximum-cache-size", NULL);
+        SPANNED_ADD (button);
+        label = gtk_label_new (_("MB"));
+        gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+        SPANNED_ADD (label);
+    }
     #endif
     label = katze_property_label (settings, "identify-as");
     INDENTED_ADD (label);
