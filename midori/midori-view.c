@@ -3864,6 +3864,8 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_uri (view->item, "");
 
             data = prepare_speed_dial_html (view);
+            midori_view_load_alternate_string (view,
+                data, "res:/", "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (g_getenv ("MIDORI_STARTTIME") != NULL)
@@ -3872,8 +3874,6 @@ midori_view_set_uri (MidoriView*  view,
                 g_timer_destroy (timer);
             }
             #endif
-            midori_view_load_alternate_string (view,
-                data, "res:/", "about:blank", NULL);
             g_free (data);
         }
         /* This is not prefectly elegant, but creating
