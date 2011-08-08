@@ -2156,6 +2156,10 @@ main (int    argc,
 
         if (private)
         {
+            /* In-memory trash for re-opening closed tabs */
+            trash = katze_array_new (KATZE_TYPE_ITEM);
+            g_object_set (browser, "trash", trash, NULL);
+
             g_object_set (settings,
                           "preferred-languages", "en",
                           "enable-private-browsing", TRUE,
