@@ -1391,7 +1391,6 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
 static void
 midori_view_load_alternate_string (MidoriView*     view,
                                    const gchar*    data,
-                                   const gchar*    res_root,
                                    const gchar*    uri,
                                    WebKitWebFrame* web_frame)
 {
@@ -1441,7 +1440,7 @@ midori_view_display_error (MidoriView*     view,
         g_free (template);
 
         midori_view_load_alternate_string (view,
-            result, res_root, uri, web_frame);
+            result, uri, web_frame);
 
         g_free (res_root);
         g_free (stock_root);
@@ -3866,7 +3865,7 @@ midori_view_set_uri (MidoriView*  view,
                 speeddial_markup = prepare_speed_dial_html (view);
 
             midori_view_load_alternate_string (view,
-                speeddial_markup, "res:/", "about:blank", NULL);
+                speeddial_markup, "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (g_getenv ("MIDORI_STARTTIME") != NULL)
