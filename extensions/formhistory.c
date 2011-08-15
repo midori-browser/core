@@ -24,6 +24,11 @@
 static GHashTable* global_keys;
 static gchar* jsforms;
 
+
+static void
+formhistory_toggle_state_cb (GtkAction*     action,
+                             MidoriBrowser* browser);
+
 static gboolean
 formhistory_prepare_js ()
 {
@@ -292,10 +297,29 @@ formhistory_app_add_browser_cb (MidoriApp*       app,
                                 MidoriBrowser*   browser,
                                 MidoriExtension* extension)
 {
-    midori_browser_foreach (browser,
-        (GtkCallback)formhistory_add_tab_foreach_cb, extension);
-    g_signal_connect (browser, "add-tab",
-        G_CALLBACK (formhistory_add_tab_cb), extension);
+    GtkAccelGroup* acg = gtk_accel_group_new ();
+    GtkActionGroup* action_group = midori_browser_get_action_group (browser);
+    GtkAction* action = gtk_action_new ("FormHistoryToggleState",
+        _("Toggle form history state"),
+        _("Activate or deactivate form history for the current tab."), NULL);
+    gtk_window_add_accel_group (GTK_WINDOW (browser), acg);
+
+    g_object_set_data (G_OBJECT (browser), "FormHistoryExtension", extension);
+
+    g_signal_connect (action, "activate",
+        G_CALLBACK (formhistory_toggle_state_cb), browser);
+
+    gtk_action_group_add_action_with_accel (action_group, action, "<Ctrl><Shift>F");
+    gtk_action_set_accel_group (action, acg);
+    gtk_action_connect_accelerator (action);
+
+    if (midori_extension_get_boolean (extension, "always-load"))
+    {
+        midori_browser_foreach (browser,
+            (GtkCallback)formhistory_add_tab_foreach_cb, extension);
+        g_signal_connect (browser, "add-tab",
+            G_CALLBACK (formhistory_add_tab_cb), extension);
+    }
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (formhistory_deactivate_cb), browser);
 }
@@ -314,10 +338,13 @@ formhistory_deactivate_tabs (MidoriView*      view,
 
 static void
 formhistory_deactivate_cb (MidoriExtension* extension,
-                       MidoriBrowser*   browser)
+                           MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
     sqlite3* db;
+
+    GtkActionGroup* action_group = midori_browser_get_action_group (browser);
+    GtkAction* action;
 
     g_signal_handlers_disconnect_by_func (
        browser, formhistory_add_tab_cb, extension);
@@ -327,6 +354,14 @@ formhistory_deactivate_cb (MidoriExtension* extension,
         app, formhistory_app_add_browser_cb, extension);
     midori_browser_foreach (browser,
         (GtkCallback)formhistory_deactivate_tabs, extension);
+
+    g_object_set_data (G_OBJECT (browser), "FormHistoryExtension", NULL);
+    action = gtk_action_group_get_action ( action_group, "FormHistoryToggleState");
+    if (action != NULL)
+    {
+        gtk_action_group_remove_action (action_group, action);
+        g_object_unref (action);
+    }
 
     katze_assign (jsforms, NULL);
     if (global_keys)
@@ -420,6 +455,97 @@ formhistory_activate_cb (MidoriExtension* extension,
     g_object_unref (browsers);
 }
 
+static void
+formhistory_preferences_response_cb (GtkWidget*       dialog,
+                                     gint             response_id,
+                                     MidoriExtension* extension)
+{
+    GtkWidget* checkbox;
+    gboolean old_state;
+    gboolean new_state;
+    MidoriApp* app;
+    KatzeArray* browsers;
+    MidoriBrowser* browser;
+
+    if (response_id == GTK_RESPONSE_APPLY)
+    {
+        checkbox = g_object_get_data (G_OBJECT (dialog), "always-load-checkbox");
+        new_state = !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (checkbox));
+        old_state = midori_extension_get_boolean (extension, "always-load");
+
+        if (old_state != new_state)
+        {
+            midori_extension_set_boolean (extension, "always-load", new_state);
+
+            app = midori_extension_get_app (extension);
+            browsers = katze_object_get_object (app, "browsers");
+            KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
+            {
+                midori_browser_foreach (browser,
+                    (GtkCallback)formhistory_deactivate_tabs, extension);
+                g_signal_handlers_disconnect_by_func (
+                    browser, formhistory_add_tab_cb, extension);
+
+                if (new_state)
+                {
+                    midori_browser_foreach (browser,
+                        (GtkCallback)formhistory_add_tab_foreach_cb, extension);
+                    g_signal_connect (browser, "add-tab",
+                        G_CALLBACK (formhistory_add_tab_cb), extension);
+                }
+            }
+        }
+    }
+    gtk_widget_destroy (dialog);
+}
+
+static void
+formhistory_preferences_cb (MidoriExtension* extension)
+{
+    GtkWidget* dialog;
+    GtkWidget* content_area;
+    GtkWidget* checkbox;
+
+    dialog = gtk_dialog_new ();
+
+    gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+
+    gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+    gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_APPLY, GTK_RESPONSE_APPLY);
+
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+    checkbox = gtk_check_button_new_with_label (_("only activate form history via hotkey (Ctrl+Shift+F) per tab"));
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbox),
+        !midori_extension_get_boolean (extension, "always-load"));
+    g_object_set_data (G_OBJECT (dialog), "always-load-checkbox", checkbox);
+    gtk_container_add (GTK_CONTAINER (content_area), checkbox);
+
+    g_signal_connect (dialog,
+            "response",
+            G_CALLBACK (formhistory_preferences_response_cb),
+            extension);
+    gtk_widget_show_all (dialog);
+}
+
+static void
+formhistory_toggle_state_cb (GtkAction*     action,
+                             MidoriBrowser* browser)
+{
+    MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
+    MidoriExtension* extension = g_object_get_data (G_OBJECT (browser), "FormHistoryExtension");
+    GtkWidget* web_view = midori_view_get_web_view (view);
+
+    if (g_signal_handler_find (web_view, G_SIGNAL_MATCH_FUNC,
+        g_signal_lookup ("window-object-cleared", MIDORI_TYPE_VIEW), 0, NULL,
+        formhistory_window_object_cleared_cb, extension))
+    {
+        formhistory_deactivate_tabs (view, browser, extension);
+    } else {
+        formhistory_add_tab_cb (browser, view, extension);
+    }
+}
+
+
 #if G_ENABLE_DEBUG
 /*
 <html>
@@ -463,11 +589,18 @@ extension_init (void)
         "version", ver,
         "authors", "Alexander V. Butenko <a.butenka@gmail.com>",
         NULL);
+
+    midori_extension_install_boolean (extension, "always-load", TRUE);
+
     g_free (desc);
 
     if (should_init)
+    {
         g_signal_connect (extension, "activate",
             G_CALLBACK (formhistory_activate_cb), NULL);
+        g_signal_connect (extension, "open-preferences",
+            G_CALLBACK (formhistory_preferences_cb), NULL);
+    }
 
     return extension;
 }
