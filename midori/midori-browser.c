@@ -2347,12 +2347,22 @@ midori_browser_subscribe_to_news_feed (MidoriBrowser* browser,
 {
     if (browser->news_aggregator && *browser->news_aggregator)
     {
+        /* Thunderbird only accepts feed://, Liferea doesn't mind */
+        gchar* feed = g_strdup (uri);
+        if (g_str_has_prefix (feed, "http://"))
+        {
+            feed[0] = 'f';
+            feed[1] = 'e';
+            feed[2] = 'e';
+            feed[3] = 'd';
+        }
         /* Special-case Liferea because a helper script may be required */
         if (g_str_equal (browser->news_aggregator, "liferea")
          && g_find_program_in_path ("liferea-add-feed"))
-            sokoke_spawn_program ("liferea-add-feed", uri);
+            sokoke_spawn_program ("liferea-add-feed", feed);
         else
-            sokoke_spawn_program (browser->news_aggregator, uri);
+            sokoke_spawn_program (browser->news_aggregator, feed);
+        g_free (feed);
     }
     else
     {
