@@ -90,6 +90,7 @@ struct _MidoriWebSettings
     gboolean enable_dns_prefetching;
     #endif
     gboolean strip_referer;
+    gboolean flash_window_on_bg_tabs;
 };
 
 struct _MidoriWebSettingsClass
@@ -140,6 +141,7 @@ enum
     PROP_OPEN_TABS_IN_THE_BACKGROUND,
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
+    PROP_FLASH_WINDOW_ON_BG_TABS,
 
     PROP_AUTO_LOAD_IMAGES,
     PROP_ENABLE_SCRIPTS,
@@ -167,7 +169,7 @@ enum
     PROP_CLEAR_PRIVATE_DATA,
     PROP_CLEAR_DATA,
     PROP_ENABLE_DNS_PREFETCHING,
-    PROP_STRIP_REFERER
+    PROP_STRIP_REFERER,
 };
 
 GType
@@ -768,6 +770,14 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            TRUE,
                                                            flags));
     #endif
+    g_object_class_install_property (gobject_class,
+                                     PROP_OPEN_TABS_IN_THE_BACKGROUND,
+                                     g_param_spec_boolean (
+                                     "flash-window-on-new-bg-tabs",
+                                     _("Flash window on background tabs"),
+                                     _("Flash the browser window if a new tab was opened in the background"),
+                                     FALSE,
+                                     flags));
 
     /**
      * MidoriWebSettings:zoom-text-and-images:
@@ -1385,6 +1395,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_STRIP_REFERER:
         web_settings->strip_referer = g_value_get_boolean (value);
         break;
+    case PROP_FLASH_WINDOW_ON_BG_TABS:
+        web_settings->flash_window_on_bg_tabs = g_value_get_boolean (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1633,6 +1646,9 @@ midori_web_settings_get_property (GObject*    object,
     #endif
     case PROP_STRIP_REFERER:
         g_value_set_boolean (value, web_settings->strip_referer);
+        break;
+    case PROP_FLASH_WINDOW_ON_BG_TABS:
+        g_value_set_boolean (value, web_settings->flash_window_on_bg_tabs);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

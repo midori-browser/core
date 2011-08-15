@@ -1240,6 +1240,23 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     }
 }
 
+static gint
+midori_browser_notify_new_tab_timeout_cb (MidoriBrowser *browser)
+{
+    gtk_window_set_opacity (GTK_WINDOW (browser), 1);
+    return 0;
+}
+
+static void
+midori_browser_notify_new_tab (MidoriBrowser *browser)
+{
+    if (katze_object_get_boolean (browser->settings, "flash-window-on-new-bg-tabs"))
+    {
+        gtk_window_set_opacity (GTK_WINDOW (browser), 0.8);
+        gtk_timeout_add (100, (GtkFunction) midori_browser_notify_new_tab_timeout_cb, browser);
+    }
+}
+
 static void
 midori_view_new_tab_cb (GtkWidget*     view,
                         const gchar*   uri,
@@ -1252,6 +1269,8 @@ midori_view_new_tab_cb (GtkWidget*     view,
 
     if (!background)
         midori_browser_set_current_page (browser, n);
+    else
+        midori_browser_notify_new_tab (browser);
 }
 
 static void
@@ -1287,6 +1306,8 @@ midori_view_new_view_cb (GtkWidget*     view,
         gint n = midori_browser_add_tab (browser, new_view);
         if (where != MIDORI_NEW_VIEW_BACKGROUND)
             midori_browser_set_current_page (browser, n);
+        else
+            midori_browser_notify_new_tab (browser);
     }
 
     if (!user_initiated)

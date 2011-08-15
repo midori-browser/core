@@ -393,6 +393,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     else
         button = katze_property_proxy (settings, "middle-click-opens-selection", NULL);
     INDENTED_ADD (button);
+    button = katze_property_proxy (settings, "flash-window-on-new-bg-tabs", NULL);
+    SPANNED_ADD (button);
     FRAME_NEW (NULL);
     button = katze_property_label (settings, "preferred-languages");
     INDENTED_ADD (button);
