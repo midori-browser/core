@@ -157,7 +157,6 @@ static void
 web_cache_set_content_type (SoupMessage* msg,
                             SoupBuffer*  buffer)
 {
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
     gchar* sniffed_type;
     SoupContentSniffer* sniffer = soup_content_sniffer_new ();
     if ((sniffed_type = soup_content_sniffer_sniff (sniffer, msg, buffer, NULL)))
@@ -171,7 +170,6 @@ web_cache_set_content_type (SoupMessage* msg,
             msg->response_headers, "Content-Type");
         g_signal_emit_by_name (msg, "content-sniffed", content_type, NULL);
     }
-    #endif
 }
 
 static void
@@ -390,7 +388,6 @@ web_cache_session_request_queued_cb (SoupSession*     session,
     g_free (uri);
 }
 
-#if WEBKIT_CHECK_VERSION (1, 1, 3)
 static void
 web_cache_add_download_cb (MidoriBrowser*   browser,
                            WebKitDownload*  download,
@@ -402,7 +399,6 @@ web_cache_add_download_cb (MidoriBrowser*   browser,
         g_object_set_data (G_OBJECT (msg), "midori-web-cache-download",
                            (gpointer)0xdeadbeef);
 }
-#endif
 
 static void
 web_cache_deactivate_cb (MidoriExtension* extension,
@@ -413,10 +409,8 @@ web_cache_app_add_browser_cb (MidoriApp*       app,
                               MidoriBrowser*   browser,
                               MidoriExtension* extension)
 {
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     g_signal_connect (browser, "add-download",
         G_CALLBACK (web_cache_add_download_cb), extension);
-    #endif
     g_signal_connect (extension, "deactivate",
         G_CALLBACK (web_cache_deactivate_cb), browser);
 }
@@ -434,10 +428,8 @@ web_cache_deactivate_cb (MidoriExtension* extension,
         extension, web_cache_deactivate_cb, browser);
     g_signal_handlers_disconnect_by_func (
         app, web_cache_app_add_browser_cb, extension);
-    #if WEBKIT_CHECK_VERSION (1, 1, 3)
     g_signal_handlers_disconnect_by_func (
         browser, web_cache_add_download_cb, extension);
-    #endif
 }
 
 static void

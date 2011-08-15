@@ -241,10 +241,8 @@ addons_notify_load_status_cb (MidoriView*      view,
     const gchar* uri = midori_view_get_display_uri (view);
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
 
-    #if WEBKIT_CHECK_VERSION (1, 1, 14)
     if (webkit_web_view_get_view_source_mode (web_view))
         return;
-    #endif
 
     if (uri && *uri)
     {

@@ -69,9 +69,7 @@ struct _MidoriView
     MidoriLoadStatus load_status;
     gboolean minimized;
     gchar* statusbar_text;
-    #if WEBKIT_CHECK_VERSION (1, 1, 15)
     WebKitHitTestResult* hit_test;
-    #endif
     gchar* link_uri;
     gboolean has_selection;
     gchar* selected_text;
