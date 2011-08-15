@@ -62,15 +62,15 @@ description {
 </head>
 <body>
     <div id="container">
-        <img id="logo" src="{res}/logo-shade.png" />
-        <img id="icon" src="{stock}/gtk-dialog-error" />
+        <img id="logo" src="res://logo-shade.png" />
+        <img id="icon" src="stock://gtk-dialog-error" />
         <div id="main">
             <h1>{title}</h1>
             <p id="message">{message}</p>
             <p id="description">{description}</p>
             <form method="GET" action="{uri}">
                 <button type="submit" onclick="location.reload(); return false;">
-                    <img src="{stock}/gtk-refresh"/>
+                    <img src="stock://gtk-refresh"/>
                     <span>{tryagain}</span>
                 </button>
             </form>

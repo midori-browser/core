@@ -1418,13 +1418,8 @@ midori_view_display_error (MidoriView*     view,
     g_free (template_file);
     if (g_file_get_contents (path, &template, NULL, NULL))
     {
-        gchar* res_root;
-        gchar* stock_root;
         gchar* title_escaped;
         gchar* result;
-
-        res_root = g_strdup ("res:/");
-        stock_root = g_strdup ("stock:/");
 
         title_escaped = g_markup_escape_text (title, -1);
         result = sokoke_replace_variables (template,
@@ -1432,8 +1427,6 @@ midori_view_display_error (MidoriView*     view,
             "{message}", message,
             "{description}", description,
             "{tryagain}", try_again,
-            "{res}", res_root,
-            "{stock}", stock_root,
             "{uri}", uri,
             NULL);
         g_free (title_escaped);
@@ -1442,8 +1435,6 @@ midori_view_display_error (MidoriView*     view,
         midori_view_load_alternate_string (view,
             result, uri, web_frame);
 
-        g_free (res_root);
-        g_free (stock_root);
         g_free (result);
         g_free (path);
 
@@ -3683,8 +3674,6 @@ prepare_speed_dial_html (MidoriView* view)
      && g_file_get_contents (file_path, &speed_dial_head, NULL, NULL))
     {
         gchar* header = sokoke_replace_variables (speed_dial_head,
-            "{res}", "res:/",
-            "{stock}", "stock:/",
             "{title}", _("Speed Dial"),
             "{click_to_add}", _("Click to add a shortcut"),
             "{enter_shortcut_address}", _("Enter shortcut address"),
@@ -3883,18 +3872,13 @@ midori_view_set_uri (MidoriView*  view,
             if (!strncmp (uri, "error:nodocs ", 13))
             {
                 gchar* title;
-                gchar* logo_path;
-                gchar* logo_uri;
 
                 katze_assign (view->uri, g_strdup (&uri[13]));
                 title = g_strdup_printf (_("No documentation installed"));
-                logo_path = sokoke_find_data_filename ("midori/res/logo-shade.png");
-                logo_uri = g_filename_to_uri (logo_path, NULL, NULL);
-                g_free (logo_path);
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head>"
                     "<body><h1>%s</h1>"
-                    "<img src=\"%s\" "
+                    "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<p />There is no documentation installed at %s. "
                     "You may want to ask your distribution or "
@@ -3902,9 +3886,8 @@ midori_view_set_uri (MidoriView*  view,
                     "verify that the build is setup properly. "
                     "<a href=\"http://wiki.xfce.org/midori/faq\">View the FAQ online</a>"
                     "</body></html>",
-                    title, title, logo_uri, view->uri);
+                    title, title, view->uri);
                 g_free (title);
-                g_free (logo_uri);
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
@@ -3989,7 +3972,7 @@ midori_view_set_uri (MidoriView*  view,
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_strdup_printf (
                     "<html><head><title>%s</title></head><body><h1>%s</h1>"
-                    "<img src=\"file://" MDATADIR "/midori/res/logo-shade.png\" "
+                    "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "</body></html>", view->uri, view->uri);
             }
