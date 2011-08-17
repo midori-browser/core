@@ -205,7 +205,7 @@ midori_bookmarks_read_from_db (MidoriBookmarks* bookmarks,
         if (!folder)
             folder = "";
         sqlcmd = "SELECT uri, title, desc, app, toolbar, folder from bookmarks where "
-                 " folder = ? ORDER BY uri DESC";
+                 " folder = ? ORDER BY title DESC";
         result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
         sqlite3_bind_text (statement, 1, g_strdup (folder), -1, g_free);
     }
