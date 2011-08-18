@@ -4513,13 +4513,16 @@ midori_view_tab_label_parent_set (GtkWidget*  tab_label,
 
         if (old_angle != angle)
         {
+            GtkWidget* align;
+
             if (angle == 0.0)
                 box = gtk_hbox_new (FALSE, 1);
             else
                 box = gtk_vbox_new (FALSE, 1);
             gtk_box_repack (GTK_BOX (box), view->tab_icon);
             gtk_box_repack (GTK_BOX (box), view->tab_title);
-            gtk_box_repack (GTK_BOX (box), view->tab_close);
+            align = gtk_widget_get_parent (view->tab_close);
+            gtk_box_repack (GTK_BOX (box), align);
 
             gtk_container_remove (GTK_CONTAINER (tab_label),
                 gtk_bin_get_child (GTK_BIN (tab_label)));
