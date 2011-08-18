@@ -601,8 +601,12 @@ sokoke_spawn_app (const gchar* uri,
     gchar* quoted = g_shell_quote (executable);
     gchar* command;
     if (private)
-        command = g_strconcat (quoted, " -c ", sokoke_set_config_dir (NULL),
+    {
+        gchar* quoted_config = g_shell_quote (sokoke_set_config_dir (NULL));
+        command = g_strconcat (quoted, " -c ", quoted_config,
                                        " -p", NULL);
+        g_free (quoted_config);
+    }
     else
         command = g_strconcat (quoted, " -a", NULL);
     g_free (quoted);
