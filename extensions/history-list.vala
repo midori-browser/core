@@ -278,7 +278,7 @@ namespace HistoryList {
                 active_iter = iter;
 
             model.append (out iter);
-            model.set (iter, TabClosingBehaviorModel.TEXT, _("Switch to last view tab"),
+            model.set (iter, TabClosingBehaviorModel.TEXT, _("Switch to last viewed tab"),
                              TabClosingBehaviorModel.VALUE, TabClosingBehavior.LAST);
             if (TabClosingBehavior.LAST == tab_closing_behavior)
                 active_iter = iter;
