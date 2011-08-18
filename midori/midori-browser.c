@@ -5015,6 +5015,26 @@ midori_browser_notebook_reorder_tab_cb (GtkNotebook*     notebook,
     return TRUE;
 }
 
+static GtkWidget*
+midori_browser_notebook_create_window_cb (GtkNotebook*   notebook,
+                                          MidoriView*    view,
+                                          gint           x,
+                                          gint           y,
+                                          MidoriBrowser* browser)
+{
+    MidoriBrowser* new_browser;
+    g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
+    if (new_browser)
+    {
+        GtkWidget* new_notebook = katze_object_get_object (new_browser, "notebook");
+        g_object_unref (new_notebook);
+        gtk_window_move (GTK_WINDOW (browser), x, y);
+        return new_notebook;
+    }
+    else /* No MidoriApp, so this is app or private mode */
+        return NULL;
+}
+
 static void
 midori_browser_switch_tab_cb (GtkWidget*     menuitem,
                               MidoriBrowser* browser)
@@ -6208,6 +6228,8 @@ midori_browser_init (MidoriBrowser* browser)
                       browser);
     g_signal_connect (browser->notebook, "reorder-tab",
                       G_CALLBACK (midori_browser_notebook_reorder_tab_cb), NULL);
+    g_signal_connect (browser->notebook, "create-window",
+                      G_CALLBACK (midori_browser_notebook_create_window_cb), browser);
     gtk_widget_show (browser->notebook);
 
     /* Inspector container */
