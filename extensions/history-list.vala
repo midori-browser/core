@@ -115,18 +115,17 @@ namespace HistoryList {
             this.vbox.pack_start (this.hbox, true, true, 0);
 
             this.treeview = new Gtk.TreeView.with_model (store);
-            this.treeview.set_fixed_height_mode (true);
             sw.add (treeview);
 
             this.treeview.set_model (store);
             this.treeview.set ("headers-visible", false);
 
             this.treeview.insert_column_with_attributes (
-                TabTreeCells.TREE_CELL_PIXBUF, "Icon",
-                new CellRendererPixbuf (), "pixbuf", 0);
+                -1, "Icon",
+                new CellRendererPixbuf (), "pixbuf", TabTreeCells.TREE_CELL_PIXBUF);
             this.treeview.insert_column_with_attributes (
-                TabTreeCells.TREE_CELL_STRING, "Title",
-                new CellRendererText (), "text", 1);
+                -1, "Title",
+                new CellRendererText (), "text", TabTreeCells.TREE_CELL_STRING);
 
             Requisition requisition;
             int height;
