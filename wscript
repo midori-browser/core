@@ -412,7 +412,9 @@ def build (bld):
         bld.add_subdirs ('docs/api')
         bld.install_files ('${DOCDIR}/api/', blddir + '/docs/api/*')
 
-    if not is_mingw (bld.env) and Options.platform != 'win32':
+    for desktop in [APPNAME + '.desktop', APPNAME + '-private.desktop']:
+        if is_mingw (bld.env) or Options.platform == 'win32':
+            break
         if bld.env['HAVE_HILDON']:
             appdir = '${MDATADIR}/applications/hildon'
             bld.install_files ('${MDATADIR}/dbus-1/services',
@@ -421,14 +423,13 @@ def build (bld):
             appdir = '${MDATADIR}/applications'
         if bld.env['INTLTOOL']:
             obj = bld.new_task_gen ('intltool_in')
-            obj.source = 'data/' + APPNAME + '.desktop.in'
+            obj.source = 'data/' + desktop + '.in'
             obj.install_path = appdir
             obj.flags  = ['-d', '-c']
-            bld.install_files (appdir, 'data/' + APPNAME + '.desktop')
+            bld.install_files (appdir, 'data/' + desktop)
         else:
             folder = os.path.abspath (blddir + '/default/data')
             Utils.check_dir (folder)
-            desktop = APPNAME + '.desktop'
             pre = open ('data/' + desktop + '.in')
             after = open (folder + '/' + desktop, 'w')
             try:
