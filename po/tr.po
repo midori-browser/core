@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-18 22:19+0000\n"
+"POT-Creation-Date: 2011-09-12 22:19+0000\n"
 "PO-Revision-Date: 2010-05-10 09:45+0300\n"
 "Last-Translator: Ayhan YALÇINSOY <ayhanyalcinsoy@gmail.com>\n"
 "Language-Team: Turkish <kde-i18n-doc@kde.org,xfce-i18n@xfce.org>\n"
@@ -1575,7 +1575,7 @@ msgstr "Çevrim dışı web uygulama önbelleği açık/kapalı"
 #: ../midori/midori-websettings.c:777
 #, fuzzy
 msgid "Flash window on background tabs"
-msgstr "Bağlantıyı _Arka Alan Sekmede Aç"
+msgstr "Flash penceresi arka plan sekmeler"
 
 #: ../midori/midori-websettings.c:778
 #, fuzzy
@@ -2139,27 +2139,27 @@ msgid " - %s remaining"
 msgstr "-%s kalan"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../toolbars/midori-findbar.c:230
+#: ../toolbars/midori-findbar.c:246
 msgid "_Inline Find:"
 msgstr "Sat_ıriçi Bul:"
 
-#: ../toolbars/midori-findbar.c:264
+#: ../toolbars/midori-findbar.c:276
 msgid "Previous"
 msgstr "Önceki Sekme"
 
-#: ../toolbars/midori-findbar.c:270
+#: ../toolbars/midori-findbar.c:282
 msgid "Next"
 msgstr "Sonraki"
 
-#: ../toolbars/midori-findbar.c:274
+#: ../toolbars/midori-findbar.c:286
 msgid "Match Case"
 msgstr "Büyük - Küçük Harf Duyarlı"
 
-#: ../toolbars/midori-findbar.c:283
+#: ../toolbars/midori-findbar.c:295
 msgid "Highlight Matches"
 msgstr "Eşleşenleri Vurgula"
 
-#: ../toolbars/midori-findbar.c:294
+#: ../toolbars/midori-findbar.c:306
 msgid "Close Findbar"
 msgstr "Arama Çubuğunu Kapat"
 
@@ -2348,7 +2348,7 @@ msgstr "1 ay"
 msgid "1 year"
 msgstr "1 yıl"
 
-#: ../katze/katze-preferences.c:95 ../extensions/history-list.vala:228
+#: ../katze/katze-preferences.c:95 ../extensions/history-list.vala:227
 #, c-format
 msgid "Preferences for %s"
 msgstr "%s için tercihler"
@@ -2671,11 +2671,11 @@ msgstr "Biçim değeri ekleme hatası: %s\n"
 #: ../extensions/formhistory.c:303
 #, fuzzy
 msgid "Toggle form history state"
-msgstr "Şu süreden eski sayfaları geçmişten sil:"
+msgstr "Form geçmişi durumunu değiştir."
 
 #: ../extensions/formhistory.c:304
 msgid "Activate or deactivate form history for the current tab."
-msgstr ""
+msgstr "Geçerli sekme için form geçmişi etkinleştirin veya devre dışı bırakın."
 
 #: ../extensions/formhistory.c:438 ../extensions/formhistory.c:442
 #, c-format
@@ -2684,7 +2684,7 @@ msgstr "Veri tabanı ifadesi çalışma hatası: %s\n"
 
 #: ../extensions/formhistory.c:517
 msgid "only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr ""
+msgstr "her sekme için form geçmişini sadece kısayol tuşu (Ctrl + Shift + F) ile etkinleştir"
 
 #: ../extensions/formhistory.c:576
 msgid "Stores history of entered form data"
@@ -2703,60 +2703,60 @@ msgstr "Kaynak dosyalar yüklenmedi"
 msgid "Form history filler"
 msgstr "Tarih doldurucu biçimi"
 
-#: ../extensions/history-list.vala:190
+#: ../extensions/history-list.vala:189
 msgid "There are no unvisited tabs"
 msgstr "Ziyaret edilmemiş sekme bulunmuyor"
 
-#: ../extensions/history-list.vala:228
+#: ../extensions/history-list.vala:227
 #, c-format
 msgid "History-List"
 msgstr "Geçmiş-Listesi"
 
-#: ../extensions/history-list.vala:267
+#: ../extensions/history-list.vala:266
 msgid "Tab closing behavior"
 msgstr "Sekme kapatma davranışı"
 
-#: ../extensions/history-list.vala:275
+#: ../extensions/history-list.vala:274
 msgid "Do nothing"
 msgstr "Hiçbirş ey yapma"
 
-#: ../extensions/history-list.vala:281
+#: ../extensions/history-list.vala:280
 msgid "Switch to last viewed tab"
 msgstr "Son bakılan sekmeye geç"
 
-#: ../extensions/history-list.vala:287
+#: ../extensions/history-list.vala:286
 msgid "Switch to newest tab"
 msgstr "En yeni sekmeye geç"
 
-#: ../extensions/history-list.vala:411
+#: ../extensions/history-list.vala:410
 msgid "Next new Tab (History List)"
 msgstr "Bir sonraki yeni Sekme (Geçmiş Listesi)"
 
-#: ../extensions/history-list.vala:412
+#: ../extensions/history-list.vala:411
 msgid "Next new tab from history"
 msgstr "Geçmişten bir sonraki yeni sekme"
 
-#: ../extensions/history-list.vala:421
+#: ../extensions/history-list.vala:420
 msgid "Previous new Tab (History List)"
 msgstr "Bir önceki yeni Sekme (Geçmiş Listesi)"
 
-#: ../extensions/history-list.vala:422
+#: ../extensions/history-list.vala:421
 msgid "Previous new tab from history"
 msgstr "Geçmişten bir önceki yeni sekme"
 
-#: ../extensions/history-list.vala:431
+#: ../extensions/history-list.vala:430
 msgid "Display tab in background (History List)"
 msgstr "Sekmeyi arkaplanda göster Geçmiş Listesi()"
 
-#: ../extensions/history-list.vala:432
+#: ../extensions/history-list.vala:431
 msgid "Display the current selected tab in background"
 msgstr "Yeni seçilen sekmeyi arkaplanda göster"
 
-#: ../extensions/history-list.vala:557
+#: ../extensions/history-list.vala:556
 msgid "History List"
 msgstr "Geçmiş Listesi"
 
-#: ../extensions/history-list.vala:558
+#: ../extensions/history-list.vala:557
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr "Sekmeleri kapatırken veya değiştirirken son kullanılan sekmeye taşı"
 
