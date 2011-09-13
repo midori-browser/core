@@ -752,6 +752,11 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     const gchar* req_uri;
     const char *page_uri;
 
+    page_uri = webkit_web_view_get_uri (web_view);
+    /* Skip checks on about: pages */
+    if (!(page_uri && *page_uri) || !strncmp (page_uri, "about:", 6))
+        return;
+
     /* Never filter the main page itself */
     if (web_frame == webkit_web_view_get_main_frame (web_view)
      && webkit_web_frame_get_load_status (web_frame) == WEBKIT_LOAD_PROVISIONAL)
@@ -774,10 +779,6 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         return;
     if (msg->method && !strncmp (msg->method, "POST", 4))
         return;
-
-    page_uri = webkit_web_view_get_uri (web_view);
-    if (!page_uri || !strcmp (page_uri, "about:blank"))
-        page_uri = req_uri;
 
     #ifdef G_ENABLE_DEBUG
     if (debug == 2)
@@ -925,6 +926,13 @@ adblock_window_object_cleared_cb (WebKitWebView*  web_view,
                                   JSContextRef    js_context,
                                   JSObjectRef     js_window)
 {
+    const char *page_uri;
+
+    page_uri = webkit_web_view_get_uri (web_view);
+    /* Don't add adblock css into speeddial and about: pages */
+    if (!(page_uri && *page_uri) || !strncmp (page_uri, "about:", 6))
+        return;
+
     g_free (sokoke_js_script_eval (js_context, blockscript, NULL));
 }
 
