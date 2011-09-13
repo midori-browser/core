@@ -1212,11 +1212,12 @@ midori_load_extensions (gpointer data)
     if (g_module_supported ())
     {
         gchar* extension_path;
-        GDir* extension_dir;
+        GDir* extension_dir = NULL;
 
         if (!(extension_path = g_strdup (g_getenv ("MIDORI_EXTENSION_PATH"))))
             extension_path = sokoke_find_lib_path (PACKAGE_NAME);
-        extension_dir = g_dir_open (extension_path, 0, NULL);
+        if (extension_path != NULL)
+            extension_dir = g_dir_open (extension_path, 0, NULL);
         if (extension_dir != NULL)
         {
             const gchar* filename;
