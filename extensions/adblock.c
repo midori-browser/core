@@ -763,6 +763,11 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         return;
     if (!strncmp (req_uri, "data", 4) || !strncmp (req_uri, "file", 4))
         return;
+    if (!strncmp (req_uri, "stock", 5) || !strncmp (req_uri, "res", 3))
+        return;
+
+    if (g_str_has_suffix (req_uri, "favicon.ico"))
+        return;
 
     msg = webkit_network_request_get_message (request);
     if (!msg)
