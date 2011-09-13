@@ -280,8 +280,8 @@ addons_notify_load_status_cb (MidoriView*      view,
 }
 
 static void
-midori_addons_button_add_clicked_cb (GtkToolItem* toolitem,
-                                     Addons*      addons)
+addons_button_add_clicked_cb (GtkToolItem* toolitem,
+                              Addons*      addons)
 {
     gchar* addons_type;
     gchar* path;
@@ -396,8 +396,8 @@ midori_addons_button_add_clicked_cb (GtkToolItem* toolitem,
 }
 
 static void
-midori_addons_button_delete_clicked_cb (GtkWidget* toolitem,
-                                        Addons*    addons)
+addons_button_delete_clicked_cb (GtkWidget* toolitem,
+                                 Addons*    addons)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -468,8 +468,8 @@ midori_addons_button_delete_clicked_cb (GtkWidget* toolitem,
     }
 }
 static void
-midori_addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
-                                         Addons*    addons)
+addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
+                                  Addons*    addons)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -503,8 +503,8 @@ midori_addons_open_in_editor_clicked_cb (GtkWidget* toolitem,
 }
 
 static void
-midori_addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
-                                             Addons*    addons)
+addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
+                                      Addons*    addons)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -533,12 +533,12 @@ midori_addons_open_target_folder_clicked_cb (GtkWidget* toolitem,
 }
 
 static void
-midori_addons_popup_item (GtkMenu*             menu,
-                          const gchar*         stock_id,
-                          const gchar*         label,
-                          struct AddonElement* element,
-                          gpointer             callback,
-                          Addons*              addons)
+addons_popup_item (GtkMenu*             menu,
+                   const gchar*         stock_id,
+                   const gchar*         label,
+                   struct AddonElement* element,
+                   gpointer             callback,
+                   Addons*              addons)
 {
     GtkWidget* menuitem;
 
@@ -557,26 +557,26 @@ midori_addons_popup_item (GtkMenu*             menu,
 }
 
 static void
-midori_addons_popup (GtkWidget*           widget,
-                     GdkEventButton*      event,
-                     struct AddonElement* element,
-                     Addons*              addons)
+addons_popup (GtkWidget*           widget,
+              GdkEventButton*      event,
+              struct AddonElement* element,
+              Addons*              addons)
 {
     GtkWidget* menu;
 
     menu = gtk_menu_new ();
-    midori_addons_popup_item (GTK_MENU (menu), GTK_STOCK_EDIT, _("Open in Text Editor"),
-        element, midori_addons_open_in_editor_clicked_cb, addons);
-    midori_addons_popup_item (GTK_MENU (menu), GTK_STOCK_OPEN, _("Open Target Folder"),
-        element, midori_addons_open_target_folder_clicked_cb, addons);
-    midori_addons_popup_item (GTK_MENU (menu), GTK_STOCK_DELETE, NULL,
-         element, midori_addons_button_delete_clicked_cb, addons);
+    addons_popup_item (GTK_MENU (menu), GTK_STOCK_EDIT, _("Open in Text Editor"),
+        element, addons_open_in_editor_clicked_cb, addons);
+    addons_popup_item (GTK_MENU (menu), GTK_STOCK_OPEN, _("Open Target Folder"),
+        element, addons_open_target_folder_clicked_cb, addons);
+    addons_popup_item (GTK_MENU (menu), GTK_STOCK_DELETE, NULL,
+         element, addons_button_delete_clicked_cb, addons);
    katze_widget_popup (widget, GTK_MENU (menu), event, KATZE_MENU_POSITION_CURSOR);
 }
 
 static gboolean
-midori_addons_popup_menu_cb (GtkWidget *widget,
-                             Addons*    addons)
+addons_popup_menu_cb (GtkWidget *widget,
+                      Addons*    addons)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -585,16 +585,16 @@ midori_addons_popup_menu_cb (GtkWidget *widget,
     {
         struct AddonElement* element;
         gtk_tree_model_get (model, &iter, 0, &element, -1);
-        midori_addons_popup (widget, NULL, element, addons);
+        addons_popup (widget, NULL, element, addons);
         return TRUE;
     }
     return FALSE;
 }
 
 static gboolean
-midori_addons_button_release_event_cb (GtkWidget*       widget,
-                                       GdkEventButton*  event,
-                                       Addons*          addons)
+addons_button_release_event_cb (GtkWidget*       widget,
+                                GdkEventButton*  event,
+                                Addons*          addons)
 {
     GtkTreeModel* model;
     GtkTreeIter iter;
@@ -605,7 +605,7 @@ midori_addons_button_release_event_cb (GtkWidget*       widget,
     {
         struct AddonElement* element;
         gtk_tree_model_get (model, &iter, 0, &element, -1);
-        midori_addons_popup (widget, NULL, element, addons);
+        addons_popup (widget, NULL, element, addons);
         return TRUE;
     }
     return FALSE;
@@ -631,7 +631,7 @@ addons_get_toolbar (MidoriViewable* viewable)
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_ADD);
         gtk_tool_item_set_is_important (toolitem, TRUE);
         g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_addons_button_add_clicked_cb), viewable);
+            G_CALLBACK (addons_button_add_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Add new addon"));
         gtk_widget_show (GTK_WIDGET (toolitem));
@@ -639,7 +639,7 @@ addons_get_toolbar (MidoriViewable* viewable)
         /* Text editor button */
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_EDIT);
         g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_addons_open_in_editor_clicked_cb), viewable);
+            G_CALLBACK (addons_open_in_editor_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                     _("Open in Text Editor"));
@@ -648,7 +648,7 @@ addons_get_toolbar (MidoriViewable* viewable)
         /* Target folder button */
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DIRECTORY);
         g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_addons_open_target_folder_clicked_cb), viewable);
+            G_CALLBACK (addons_open_target_folder_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem),
                                     _("Open Target Folder"));
@@ -657,7 +657,7 @@ addons_get_toolbar (MidoriViewable* viewable)
         /* Delete button */
         toolitem = gtk_tool_button_new_from_stock (GTK_STOCK_DELETE);
         g_signal_connect (toolitem, "clicked",
-            G_CALLBACK (midori_addons_button_delete_clicked_cb), viewable);
+            G_CALLBACK (addons_button_delete_clicked_cb), viewable);
         gtk_toolbar_insert (GTK_TOOLBAR (toolbar), toolitem, -1);
         gtk_widget_set_tooltip_text (GTK_WIDGET (toolitem), _("Remove selected addon"));
         gtk_widget_show (GTK_WIDGET (toolitem));
@@ -1328,10 +1328,10 @@ addons_init (Addons* addons)
                       G_CALLBACK (addons_treeview_row_activated_cb),
                       addons);
     g_signal_connect (addons->treeview, "button-release-event",
-                      G_CALLBACK (midori_addons_button_release_event_cb),
+                      G_CALLBACK (addons_button_release_event_cb),
                       addons);
     g_signal_connect (addons->treeview, "popup-menu",
-                      G_CALLBACK (midori_addons_popup_menu_cb),
+                      G_CALLBACK (addons_popup_menu_cb),
                       addons);
     gtk_widget_show (addons->treeview);
     gtk_box_pack_start (GTK_BOX (addons), addons->treeview, TRUE, TRUE, 0);
