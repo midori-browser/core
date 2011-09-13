@@ -3755,7 +3755,6 @@ prepare_speed_dial_html (MidoriView* view)
 
         if (uri && *uri && *uri != '#')
         {
-            gchar* slot_id = g_strdup_printf ("s%d", slot);
             gchar* title = g_key_file_get_string (key_file, dial_entry, "title", NULL);
             gchar* thumb_file = sokoke_build_thumbnail_path (uri);
             gchar* encoded;
@@ -3772,7 +3771,6 @@ prepare_speed_dial_html (MidoriView* view)
             {
                 encoded = g_strdup ("");
             }
-            g_free (slot_id);
             g_free (thumb_file);
 
             g_string_append_printf (markup,
