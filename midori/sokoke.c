@@ -1732,9 +1732,23 @@ gchar* sokoke_find_lib_path (const gchar* folder)
     if (g_access (lib_path, F_OK) == 0)
         return lib_path;
     #else
-    gchar* lib_path = g_build_filename (LIBDIR, folder ? folder : "", NULL);
-    if (g_access (lib_path, F_OK) == 0)
-        return lib_path;
+    const gchar* lib_dirs[] =
+    {
+        LIBDIR,
+        "/usr/local/lib",
+        "/usr/lib",
+        NULL
+    };
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (lib_dirs); i++)
+    {
+        gchar* lib_path = g_build_filename (lib_dirs[i], folder ? folder : "", NULL);
+        if (g_access (lib_path, F_OK) == 0)
+            return lib_path;
+        else
+            g_free (lib_path);
+    }
     #endif
 
     return NULL;
