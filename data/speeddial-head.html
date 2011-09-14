@@ -8,8 +8,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>{title}</title>
-    <script type="text/javascript" src="res://mootools.js"></script>
-
     <style>
     html, body, #content {
         margin: 0px;
@@ -189,8 +187,8 @@
 
     var getAction = function (id)
     {
-        var a = $(id).getFirst ();
-        if (a.getProperty ('href') != "#" )
+        var host = document.getElementById(id).childNodes[3].host;
+        if (host)
             return true;
 
         var url = prompt ("{enter_shortcut_address}", "http://");
@@ -207,10 +205,10 @@
 
     var renameShortcut = function (id)
     {
-        var name = prompt ("{enter_shortcut_name}", $(id).getLast ().get ('html', name));
-        if (!name) return;
+        var old_name = document.getElementById(id).childNodes[5].textContent;
 
-        $(id).getLast ().set ('html', name);
+        var name = prompt ("{enter_shortcut_name}", old_name);
+        if (!name) return;
 
         console.log ("speed_dial-save-rename " + id + " " + name);
     }
@@ -270,25 +268,26 @@
 
         clearTimeout (key_timeout);
 
-        $('dialing').innerText = key_id.substr(1);
-        $('dialing').style.visibility = 'visible';
+        document.getElementById('dialing').innerText = key_id.substr(1);
+        document.getElementById('dialing').style.visibility = 'visible';
 
-        if ($(key_id))
+        var div = document.getElementById(key_id);
+        if (div)
         {
             if (key_id.substr(1) > 9)
             {
                 if (getAction (key_id))
-                    document.location = $(key_id).children[1];
+                    document.location = div.childNodes[3].href;
                 key_id = 's';
             }
             else
-                key_timeout = setTimeout ('if (getAction (key_id)) document.location = $(key_id).children[1]; key_id = \'s\'', 1000);
+                key_timeout = setTimeout ('if (getAction (key_id)) document.location = document.getElementById(key_id).childNodes[3].href; key_id = \'s\'', 1000);
         }
         else
             key_id = 's';
 
         if (key_id.length <= 1)
-            $('dialing').style.visibility = 'hidden';
+            document.getElementById('dialing').style.visibility = 'hidden';
 
         return false;
     }

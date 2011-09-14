@@ -460,7 +460,6 @@ def build (bld):
 
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/error.html')
     bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
-    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/mootools.js')
 
     if bld.env['addons']:
         bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
