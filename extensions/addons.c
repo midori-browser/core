@@ -1458,6 +1458,10 @@ addons_context_ready_cb (WebKitWebView*   web_view,
     struct AddonElement* script, *style;
     struct AddonsList* scripts_list, *styles_list;
 
+    /* Not a main frame! Abort */
+    if (web_frame != webkit_web_view_get_main_frame (web_view))
+        return;
+
     uri = katze_object_get_string (web_view, "uri");
     /* Don't run scripts or styles on blank or special pages */
     if (!(uri && *uri) || !strncmp (uri, "about:", 6))
