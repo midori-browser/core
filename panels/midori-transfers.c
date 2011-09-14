@@ -442,7 +442,7 @@ midori_transfers_copy_address_activate_cb (GtkWidget*       menuitem,
     download = g_object_get_data (G_OBJECT (menuitem), "WebKitDownload");
     g_return_if_fail (download != NULL);
 
-    uri = webkit_download_get_destination_uri (download);
+    uri = webkit_download_get_uri (download);
     clipboard = gtk_clipboard_get_for_display (
         gtk_widget_get_display (GTK_WIDGET (menuitem)),
         GDK_SELECTION_CLIPBOARD);
