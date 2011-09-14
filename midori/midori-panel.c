@@ -13,6 +13,8 @@
 
 #include "midori-view.h"
 
+#include "midori-browser.h"
+
 #include "marshal.h"
 #include "sokoke.h"
 
@@ -588,6 +590,7 @@ static void
 midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
                                   MidoriPanel* panel)
 {
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (panel));
     gint n_pages;
     gchar* action_name;
     GtkAction* action;
@@ -601,7 +604,7 @@ midori_panel_viewable_destroy_cb (GtkWidget*   viewable,
         viewable, midori_panel_viewable_destroy_cb, panel);
 
     n_pages = midori_panel_get_n_pages (panel);
-    if (n_pages > 0)
+    if (n_pages > 0 && browser && !g_object_get_data (G_OBJECT (browser), "midori-browser-destroyed"))
         midori_panel_set_current_page (panel, (n_pages-1 > i) ? i : n_pages - 1);
 
     action_name = g_strconcat ("PanelPage",
