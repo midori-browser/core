@@ -1460,7 +1460,7 @@ addons_context_ready_cb (WebKitWebView*   web_view,
 
     uri = katze_object_get_string (web_view, "uri");
     /* Don't run scripts or styles on blank or special pages */
-    if (!(uri && *uri && strncmp (uri, "about:", 6)))
+    if (!(uri && *uri) || !strncmp (uri, "about:", 6))
     {
         g_free (uri);
         return;
