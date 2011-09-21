@@ -69,6 +69,9 @@ struct _Addons
 static void
 addons_iface_init (MidoriViewableIface* iface);
 
+static gchar*
+addons_convert_to_simple_regexp (const gchar* pattern);
+
 G_DEFINE_TYPE_WITH_CODE (Addons, addons, GTK_TYPE_VBOX,
                          G_IMPLEMENT_INTERFACE (MIDORI_TYPE_VIEWABLE,
                              addons_iface_init));
@@ -946,15 +949,19 @@ js_metadata_from_file (const gchar* filename,
             }
              else if (includes && g_str_has_prefix (line, "// @include"))
             {
+                 gchar* re = NULL;
                  rest_of_line = g_strdup (line + strlen ("// @include"));
                  rest_of_line =  g_strstrip (rest_of_line);
-                 *includes = g_slist_prepend (*includes, rest_of_line);
+                 re = addons_convert_to_simple_regexp (rest_of_line);
+                 *includes = g_slist_prepend (*includes, re);
             }
              else if (excludes && g_str_has_prefix (line, "// @exclude"))
             {
+                 gchar* re = NULL;
                  rest_of_line = g_strdup (line + strlen ("// @exclude"));
                  rest_of_line =  g_strstrip (rest_of_line);
-                 *excludes = g_slist_prepend (*excludes, rest_of_line);
+                 re = addons_convert_to_simple_regexp (rest_of_line);
+                 *excludes = g_slist_prepend (*excludes, re);
             }
              else if (name && g_str_has_prefix (line, "// @name"))
             {
@@ -1031,6 +1038,8 @@ css_metadata_from_file (const gchar* filename,
                     {
                          guint begin, end;
                          gchar* domain;
+                         gchar* tmp_domain;
+                         gchar* re = NULL;
 
                          line_has_meta = TRUE;
                          begin = value[0] == '"' || value[0] == '\'' ? 1 : 0;
@@ -1039,15 +1048,15 @@ css_metadata_from_file (const gchar* filename,
                              ++end;
 
                          domain = g_strndup (value + begin, end - begin * 2);
-                         if (!strncmp ("http", domain, 4))
-                             *includes = g_slist_prepend (*includes, domain);
+                         if (strncmp ("http", domain, 4))
+                             tmp_domain = g_strdup_printf ("http://*%s/*", domain);
                          else
-                         {
-                             *includes = g_slist_prepend (*includes,
-                                 g_strdup_printf ("http://*%s/*", domain));
-                             g_free (domain);
-                         }
+                             tmp_domain = domain;
+
+                         re = addons_convert_to_simple_regexp (tmp_domain);
+                         *includes = g_slist_prepend (*includes, re);
                          g_free (value);
+                         g_free (domain);
                     }
                     i++;
                  }
@@ -1405,9 +1414,7 @@ addons_may_run (const gchar* uri,
     list = *includes;
     while (list)
     {
-        gchar* re = addons_convert_to_simple_regexp (list->data);
-        gboolean matched = g_regex_match_simple (re, uri, 0, 0);
-        g_free (re);
+        gboolean matched = g_regex_match_simple (list->data, uri, 0, 0);
         if (matched)
         {
             match = TRUE;
@@ -1421,9 +1428,7 @@ addons_may_run (const gchar* uri,
     list = *excludes;
     while (list)
     {
-        gchar* re = addons_convert_to_simple_regexp (list->data);
-        gboolean matched = g_regex_match_simple (re, uri, 0, 0);
-        g_free (re);
+        gboolean matched = g_regex_match_simple (list->data, uri, 0, 0);
         if (matched)
         {
             match = FALSE;
