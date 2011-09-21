@@ -500,8 +500,25 @@ midori_app_command_received (MidoriApp*   app,
                         first = FALSE;
                     }
                     else
-                        midori_browser_set_current_page (browser,
-                            midori_browser_add_uri (browser, fixed_uri));
+                    {
+                        /* Switch to already open tab if possible */
+                        guint i = 0;
+                        GtkWidget* tab;
+                        gboolean found = FALSE;
+                        while ((tab = midori_browser_get_nth_tab (browser, i++)))
+                            if (g_str_equal (
+                                midori_view_get_display_uri (MIDORI_VIEW (tab)),
+                                fixed_uri))
+                            {
+                                found = TRUE;
+                                break;
+                            }
+                        if (found)
+                            midori_browser_set_current_tab (browser, tab);
+                        else
+                            midori_browser_set_current_page (browser,
+                                midori_browser_add_uri (browser, fixed_uri));
+                    }
                 }
                 g_free (fixed_uri);
                 uris++;
