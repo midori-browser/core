@@ -2544,9 +2544,6 @@ main (int    argc,
 
     g_object_get (settings, "maximum-history-age", &max_history_age, NULL);
     midori_history_terminate (history, max_history_age);
-    /* Removing KatzeHttpCookies makes it save outstanding changes */
-    soup_session_remove_feature_by_type (webkit_get_default_session (),
-                                         KATZE_TYPE_HTTP_COOKIES);
 
     /* Clear data on quit, according to the Clear private data dialog */
     g_object_get (settings, "clear-private-data", &clear_prefs, NULL);
@@ -2567,6 +2564,10 @@ main (int    argc,
         }
         g_free (clear_data);
     }
+
+    /* Removing KatzeHttpCookies makes it save outstanding changes */
+    soup_session_remove_feature_by_type (webkit_get_default_session (),
+                                         KATZE_TYPE_HTTP_COOKIES);
 
     load_on_startup = katze_object_get_int (settings, "load-on-startup");
     if (load_on_startup < MIDORI_STARTUP_LAST_OPEN_PAGES)
