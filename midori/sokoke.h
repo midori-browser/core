@@ -13,12 +13,6 @@
 #ifndef __SOKOKE_H__
 #define __SOKOKE_H__ 1
 
-/* Common behavior modifiers */
-#define MIDORI_MOD_NEW_WINDOW(state) (state & GDK_SHIFT_MASK)
-#define MIDORI_MOD_NEW_TAB(state) (state & GDK_CONTROL_MASK)
-#define MIDORI_MOD_BACKGROUND(state) (state & GDK_SHIFT_MASK)
-#define MIDORI_MOD_SCROLL(state) (state & GDK_CONTROL_MASK)
-
 #include <JavaScriptCore/JavaScript.h>
 #include <midori/midori-websettings.h>
 

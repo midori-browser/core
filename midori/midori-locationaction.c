@@ -17,6 +17,7 @@
 #include "sokoke.h"
 #include "midori-browser.h"
 #include "midori-searchaction.h"
+#include "midori-platform.h"
 
 #include <string.h>
 #include <glib/gi18n.h>

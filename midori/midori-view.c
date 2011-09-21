@@ -18,6 +18,7 @@
 #include "midori-stock.h"
 #include "midori-browser.h"
 #include "midori-searchaction.h"
+#include "midori-platform.h"
 
 #include "marshal.h"
 #include "sokoke.h"
@@ -4405,7 +4406,7 @@ midori_view_tab_label_button_press_event (GtkWidget*      tab_label,
         gtk_widget_destroy (widget);
         return TRUE;
     }
-    else if (event->button == 3)
+    else if (MIDORI_EVENT_CONTEXT_MENU (event))
     {
         /* Show a context menu on right click */
         GtkWidget* menu = midori_view_get_tab_menu (MIDORI_VIEW (widget));

@@ -933,7 +933,7 @@ static gboolean  cm_tree_popup_menu_cb(GtkWidget *widget, CookieManagerPage *cmp
 static gboolean cm_tree_button_release_event_cb(GtkWidget *widget, GdkEventButton *ev,
 												CookieManagerPage *cmp)
 {
-	if (ev->button == 3)
+	if (MIDORI_EVENT_CONTEXT_MENU(ev))
 	{
 		cm_tree_show_popup_menu(widget, ev, cmp);
 		return TRUE;

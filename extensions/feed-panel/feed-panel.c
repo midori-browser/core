@@ -622,7 +622,7 @@ webview_button_press_event_cb (GtkWidget*      widget,
                                GdkEventButton* event)
 {
     /* Disable the popup menu */
-    return (event->button == 3);
+    return MIDORI_EVENT_CONTEXT_MENU (event);
 }
 
 static gboolean

@@ -14,6 +14,7 @@
 #include "gtkiconentry.h"
 #include "marshal.h"
 #include "sokoke.h"
+#include "midori-platform.h"
 
 #include <string.h>
 #include <glib/gi18n.h>

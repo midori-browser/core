@@ -24,6 +24,7 @@
 #include "midori-view.h"
 #include "midori-viewable.h"
 #include "midori-websettings.h"
+#include "midori-platform.h"
 
 /* For convenience, include localization header */
 #include <glib/gi18n-lib.h>

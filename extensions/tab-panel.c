@@ -406,7 +406,7 @@ tab_panel_toolitem_button_press_event_cb (GtkToolItem*    toolitem,
                                           GdkEventButton* event,
                                           GtkWidget*      view)
 {
-    if (event->button == 3)
+    if (MIDORI_EVENT_CONTEXT_MENU (event))
     {
         tab_panel_popup (GTK_WIDGET (toolitem), event, view);
         return TRUE;

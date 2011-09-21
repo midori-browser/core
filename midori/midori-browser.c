@@ -22,6 +22,7 @@
 #include "midori-stock.h"
 #include "midori-findbar.h"
 #include "midori-transferbar.h"
+#include "midori-platform.h"
 
 #include "gtkiconentry.h"
 #include "marshal.h"
@@ -5062,7 +5063,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
 
         return TRUE;
     }
-    else if (event->type == GDK_BUTTON_PRESS && event->button == 3)
+    else if (event->type == GDK_BUTTON_PRESS && MIDORI_EVENT_CONTEXT_MENU (event))
     {
         GtkWidget* menu = gtk_menu_new ();
         GList* tabs = gtk_container_get_children (GTK_CONTAINER (notebook));
@@ -6379,7 +6380,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
 
         return _action_navigation_activate (action, browser);
     }
-    else if (event->button == 3)
+    else if (MIDORI_EVENT_CONTEXT_MENU (event))
     {
         midori_browser_toolbar_popup_context_menu_cb (
             GTK_IS_BIN (toolitem) && gtk_bin_get_child (GTK_BIN (toolitem)) ?
@@ -6621,7 +6622,7 @@ midori_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
             return TRUE;
         }
     }
-    else if (event->button == 3)
+    else if (MIDORI_EVENT_CONTEXT_MENU (event))
     {
         midori_browser_bookmark_popup (toolitem, NULL, item, browser);
         return TRUE;
