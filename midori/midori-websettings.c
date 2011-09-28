@@ -771,7 +771,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                                            flags));
     #endif
     g_object_class_install_property (gobject_class,
-                                     PROP_OPEN_TABS_IN_THE_BACKGROUND,
+                                     PROP_FLASH_WINDOW_ON_BG_TABS,
                                      g_param_spec_boolean (
                                      "flash-window-on-new-bg-tabs",
                                      _("Flash window on background tabs"),
