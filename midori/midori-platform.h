@@ -29,4 +29,9 @@
         (evt->button == 3)
 #endif
 
+#define MIDORI_EVENT_NEW_TAB(evt) \
+    ((((GdkEventButton*)evt)->button == 1 \
+     && MIDORI_MOD_NEW_TAB(((GdkEventButton*)evt)->state)) \
+    || (((GdkEventButton*)evt)->button == 2))
+
 #endif /* !__MIDORI_PLATFORM_H__ */

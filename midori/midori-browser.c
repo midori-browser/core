@@ -2799,14 +2799,14 @@ midori_bookmarkbar_activate_item_alt (GtkAction*     action,
                                       guint          button,
                                       MidoriBrowser* browser)
 {
-    if (button == 1)
-    {
-        midori_browser_open_bookmark (browser, item);
-    }
-    else if (button == 2)
+    if (MIDORI_EVENT_NEW_TAB (gtk_get_current_event ()))
     {
         gint n = midori_browser_add_uri (browser, katze_item_get_uri (item));
         midori_browser_set_current_page_smartly (browser, n);
+    }
+    else if (button == 1)
+    {
+        midori_browser_open_bookmark (browser, item);
     }
 
     return TRUE;
@@ -2845,17 +2845,17 @@ _action_trash_activate_item_alt (GtkAction*     action,
                                  guint          button,
                                  MidoriBrowser* browser)
 {
-    if (button == 1)
-    {
-        guint n = midori_browser_add_item (browser, item);
-        midori_browser_set_current_page (browser, n);
-        katze_array_remove_item (browser->trash, item);
-        _midori_browser_update_actions (browser);
-    }
-    else if (button == 2)
+    if (MIDORI_EVENT_NEW_TAB (gtk_get_current_event ()))
     {
         gint n = midori_browser_add_item (browser, item);
         midori_browser_set_current_page_smartly (browser, n);
+        katze_array_remove_item (browser->trash, item);
+        _midori_browser_update_actions (browser);
+    }
+    else if (button == 1)
+    {
+        guint n = midori_browser_add_item (browser, item);
+        midori_browser_set_current_page (browser, n);
         katze_array_remove_item (browser->trash, item);
         _midori_browser_update_actions (browser);
     }
@@ -4151,7 +4151,7 @@ midori_browser_menu_item_middle_click_event_cb (GtkWidget*      toolitem,
                                                 GdkEventButton* event,
                                                 MidoriBrowser*  browser)
 {
-    if (event->button == 2)
+    if (MIDORI_EVENT_NEW_TAB (event))
     {
         GtkAction* action;
 
@@ -5056,7 +5056,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
 
     /* Open a new tab on double click or middle mouse click */
     if (/*(event->type == GDK_2BUTTON_PRESS && event->button == 1)
-    || */(event->type == GDK_BUTTON_PRESS && event->button == 2))
+    || */(event->type == GDK_BUTTON_PRESS && MIDORI_EVENT_NEW_TAB (event)))
     {
         gint n = midori_browser_add_uri (browser, "");
         midori_browser_set_current_page (browser, n);
@@ -6368,7 +6368,7 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
                                                    GdkEventButton* event,
                                                    MidoriBrowser*  browser)
 {
-    if (event->button == 2)
+    if (MIDORI_EVENT_NEW_TAB (event))
     {
         GtkWidget* parent = gtk_widget_get_parent (toolitem);
         GtkAction* action = gtk_activatable_get_related_action (
@@ -6613,7 +6613,7 @@ midori_bookmarkbar_item_button_press_event_cb (GtkWidget*      toolitem,
     gint n;
 
     item = (KatzeItem*)g_object_get_data (G_OBJECT (toolitem), "KatzeItem");
-    if (event->button == 2)
+    if (MIDORI_EVENT_NEW_TAB (event))
     {
         if (KATZE_ITEM_IS_BOOKMARK (item))
         {
