@@ -1822,6 +1822,18 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
 }
 
 static gboolean
+midori_view_inspector_window_key_press_event_cb (GtkWidget*   window,
+                                                 GdkEventKey* event,
+                                                 gpointer     user_data)
+{
+    /* Close window on Ctrl+W */
+    if (event->keyval == 'w' && (event->state & GDK_CONTROL_MASK))
+        gtk_widget_destroy (window);
+
+    return FALSE;
+}
+
+static gboolean
 gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                                GdkEventKey*   event,
                                MidoriView*    view)
@@ -3421,6 +3433,9 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
         gtk_window_set_icon_name (GTK_WINDOW (window), "midori");
     gtk_container_add (GTK_CONTAINER (window), inspector_view);
     gtk_widget_show_all (window);
+
+    g_signal_connect (window, "key-press-event",
+        G_CALLBACK (midori_view_inspector_window_key_press_event_cb), NULL);
 
     /* FIXME: Update window title with URI */
 }
