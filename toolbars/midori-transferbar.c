@@ -76,19 +76,9 @@ midori_transferbar_download_notify_progress_cb (WebKitDownload* download,
 {
     gchar* tooltip;
     gchar* text;
-    guint64 size;
 
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (progress),
         webkit_download_get_progress (download));
-    size = webkit_download_get_current_size (download);
-
-    if (size == webkit_download_get_total_size (download))
-    {
-        gtk_widget_set_tooltip_text (progress,
-            gtk_progress_bar_get_text (GTK_PROGRESS_BAR (progress)));
-        return;
-    }
-
     tooltip = midori_download_prepare_tooltip_text (download);
     text = g_strdup_printf ("%s\n%s",
         gtk_progress_bar_get_text (GTK_PROGRESS_BAR (progress)), tooltip);
@@ -114,6 +104,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
             WebKitNetworkRequest* request;
             const gchar* original_uri;
             gchar** fingerprint;
+            gboolean verified = TRUE;
 
             icon = gtk_image_new_from_stock (GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU);
             gtk_button_set_image (GTK_BUTTON (button), icon);
@@ -152,8 +143,7 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                 g_free (contents);
                 /* Checksums are case-insensitive */
                 if (!y || g_ascii_strcasecmp (fingerprint[1], checksum) != 0)
-                    gtk_image_set_from_stock (GTK_IMAGE (icon),
-                        GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
+                    verified = FALSE;
                 g_free (checksum);
             }
             else
@@ -172,13 +162,18 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
                     g_free (contents);
                     /* Checksums are case-insensitive */
                     if (!y || g_ascii_strcasecmp (fingerprint[1], checksum) != 0)
-                        gtk_image_set_from_stock (GTK_IMAGE (icon),
-                            GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
+                        verified = FALSE;
                     g_free (checksum);
                 }
                 g_free (filename);
             }
             g_strfreev (fingerprint);
+            if (verified)
+                gtk_recent_manager_add_item (gtk_recent_manager_get_default (),
+                    webkit_download_get_destination_uri (download));
+            else
+                gtk_image_set_from_stock (GTK_IMAGE (icon),
+                    GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
             break;
         }
         case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
