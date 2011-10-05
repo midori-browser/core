@@ -197,6 +197,9 @@ def configure (conf):
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
     check_pkg ('webkit-1.0', '1.1.17', args=args)
+    webkit_version = conf.check_cfg (modversion='webkit-1.0').split ('.')
+    if int(webkit_version[0]) >= 1 and int(webkit_version[1]) >= 5 and int(webkit_version[2]) >= 1:
+        check_pkg ('javascriptcoregtk-1.0', '1.1.17', args=args)
     check_pkg ('libsoup-2.4', '2.25.2')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     check_pkg ('libsoup-2.4', '2.27.90', False, var='LIBSOUP_2_27_90')
