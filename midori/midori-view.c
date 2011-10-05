@@ -39,7 +39,7 @@
     #include <sys/utsname.h>
 #endif
 
-#if !WEBKIT_CHECK_VERSION (1, 5, 1)
+#if !WEBKIT_CHECK_VERSION (1, 4, 3)
 /* This is unstable API, so we need to declare it */
 gchar*
 webkit_web_view_get_selected_text (WebKitWebView* web_view);
@@ -4184,7 +4184,7 @@ midori_view_get_link_uri (MidoriView* view)
 gboolean
 midori_view_has_selection (MidoriView* view)
 {
-#if WEBKIT_CHECK_VERSION (1, 5, 1)
+#if WEBKIT_CHECK_VERSION (1, 4, 3)
     WebKitDOMDocument* doc;
     WebKitDOMDOMWindow* window;
     WebKitDOMDOMSelection* selection;
@@ -4194,7 +4194,7 @@ midori_view_has_selection (MidoriView* view)
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
 
-#if WEBKIT_CHECK_VERSION (1, 5, 1)
+#if WEBKIT_CHECK_VERSION (1, 4, 3)
     doc = webkit_web_view_get_dom_document (WEBKIT_WEB_VIEW (view->web_view));
     window = webkit_dom_document_get_default_view (doc);
     selection = webkit_dom_dom_window_get_selection (window);
