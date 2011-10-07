@@ -5365,8 +5365,7 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     gchar* thumb_dir;
     gchar* thumb_uri;
     MidoriBrowser* browser;
-    gint i;
-    GtkWidget* tab;
+    GKeyFile* key_file;
 
     if (midori_view_get_load_status (thumb_view) != MIDORI_LOAD_FINISHED)
         return;
@@ -5399,10 +5398,8 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
     #endif
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
-    i = 0;
-    while ((tab = midori_browser_get_nth_tab (browser, i++)))
-        if (midori_view_is_blank (MIDORI_VIEW (tab)))
-            midori_view_reload (MIDORI_VIEW (tab), FALSE);
+    g_object_get (browser, "speed-dial", &key_file, NULL);
+    midori_view_save_speed_dial_config (view, key_file);
 }
 
 /**
@@ -5468,13 +5465,10 @@ midori_view_speed_dial_save (MidoriView*  view,
                              const gchar* message)
 {
     gchar* action;
-    gchar* config_file;
     GKeyFile* key_file;
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     gchar* msg = g_strdup (message + 16);
     gchar** parts = g_strsplit (msg, " ", 4);
-    gint i;
-    GtkWidget* tab;
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
     action = parts[0];
@@ -5548,16 +5542,29 @@ midori_view_speed_dial_save (MidoriView*  view,
         g_free (dial_id);
     }
 
+    midori_view_save_speed_dial_config (view, key_file);
+
+    g_free (msg);
+    g_free (action);
+}
+
+void
+midori_view_save_speed_dial_config (MidoriView* view,
+                                    GKeyFile*   key_file)
+{
+    gchar* config_file;
+    guint i = 0;
+    MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
+    GtkWidget* tab;
+
     config_file = g_build_filename (sokoke_set_config_dir (NULL), "speeddial", NULL);
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
+    g_free (config_file);
+
     katze_assign (speeddial_markup, prepare_speed_dial_html (view));
 
-    i = 0;
     while ((tab = midori_browser_get_nth_tab (browser, i++)))
         if (midori_view_is_blank (MIDORI_VIEW (tab)))
             midori_view_reload (MIDORI_VIEW (tab), FALSE);
 
-    g_free (msg);
-    g_free (action);
-    g_free (config_file);
 }

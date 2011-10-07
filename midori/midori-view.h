@@ -248,6 +248,10 @@ midori_view_add_info_bar               (MidoriView*        view,
                                         const gchar*       first_button_text,
                                         ...);
 
+void
+midori_view_save_speed_dial_config     (MidoriView*        view,
+                                        GKeyFile*          key_file);
+
 G_END_DECLS
 
 #endif /* __MIDORI_VIEW_H__ */
