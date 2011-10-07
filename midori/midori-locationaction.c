@@ -12,6 +12,7 @@
 
 #include "midori-locationaction.h"
 
+#include "gtk3-compat.h"
 #include "gtkiconentry.h"
 #include "marshal.h"
 #include "sokoke.h"
@@ -806,15 +807,14 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
 
     switch (event->keyval)
     {
-    case GDK_ISO_Enter:
-    case GDK_KP_Enter:
-    case GDK_Return:
+    case GDK_KEY_ISO_Enter:
+    case GDK_KEY_KP_Enter:
+    case GDK_KEY_Return:
         is_enter = TRUE;
-    case GDK_Left:
-    case GDK_KP_Left:
-    case GDK_Right:
-    case GDK_KP_Right:
-
+    case GDK_KEY_Left:
+    case GDK_KEY_KP_Left:
+    case GDK_KEY_Right:
+    case GDK_KEY_KP_Right:
         if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
             GtkTreeModel* model = location_action->completion_model;
@@ -842,7 +842,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
                 g_signal_emit (action, signals[SUBMIT_URI], 0, text,
                                MIDORI_MOD_NEW_TAB (event->state));
         break;
-    case GDK_Escape:
+    case GDK_KEY_Escape:
     {
         if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
@@ -856,12 +856,12 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         /* Return FALSE to allow Escape to stop loading */
         return FALSE;
     }
-    case GDK_Page_Up:
-    case GDK_Page_Down:
+    case GDK_KEY_Page_Up:
+    case GDK_KEY_Page_Down:
         if (!(location_action->popup && gtk_widget_get_visible (location_action->popup)))
             return TRUE;
-    case GDK_Delete:
-    case GDK_KP_Delete:
+    case GDK_KEY_Delete:
+    case GDK_KEY_KP_Delete:
     {
         gint selected = location_action->completion_index;
         GtkTreeModel* model = location_action->completion_model;
@@ -902,12 +902,12 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         else
             break;
     }
-    case GDK_Down:
-    case GDK_KP_Down:
-    case GDK_Up:
-    case GDK_KP_Up:
-    case GDK_Tab:
-    case GDK_ISO_Left_Tab:
+    case GDK_KEY_Down:
+    case GDK_KEY_KP_Down:
+    case GDK_KEY_Up:
+    case GDK_KEY_KP_Up:
+    case GDK_KEY_Tab:
+    case GDK_KEY_ISO_Left_Tab:
     {
         if (location_action->popup && gtk_widget_get_visible (location_action->popup))
         {
@@ -917,21 +917,21 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
             GtkTreeIter iter;
             gint selected = location_action->completion_index;
 
-            if (event->keyval == GDK_Down || event->keyval == GDK_KP_Down
-             || event->keyval == GDK_Tab  || event->keyval == GDK_ISO_Left_Tab)
+            if (event->keyval == GDK_KEY_Down || event->keyval == GDK_KEY_KP_Down
+             || event->keyval == GDK_KEY_Tab  || event->keyval == GDK_KEY_ISO_Left_Tab)
                 selected = MIN (selected + 1, matches -1);
-            else if (event->keyval == GDK_Up || event->keyval == GDK_KP_Up)
+            else if (event->keyval == GDK_KEY_Up || event->keyval == GDK_KEY_KP_Up)
             {
                 if (selected == -1)
                     selected = matches - 1;
                 else
                     selected = MAX (selected - 1, 0);
             }
-            else if (event->keyval == GDK_Page_Down)
+            else if (event->keyval == GDK_KEY_Page_Down)
                 selected = MIN (selected + 14, matches -1);
-            else if (event->keyval == GDK_Page_Up)
+            else if (event->keyval == GDK_KEY_Page_Up)
                 selected = MAX (selected - 14, 0);
-            else if (event->keyval != GDK_KP_Delete && event->keyval != GDK_Delete)
+            else if (event->keyval != GDK_KEY_KP_Delete && event->keyval != GDK_KEY_Delete)
                 g_assert_not_reached ();
 
             path = gtk_tree_path_new_from_indices (selected, -1);
@@ -952,7 +952,7 @@ midori_location_action_key_press_event_cb (GtkEntry*    entry,
         }
 
         /* Allow Tab to handle focus if the popup is closed */
-        if (event->keyval == GDK_Tab  || event->keyval == GDK_ISO_Left_Tab)
+        if (event->keyval == GDK_KEY_Tab  || event->keyval == GDK_KEY_ISO_Left_Tab)
             return FALSE;
         return TRUE;
     }

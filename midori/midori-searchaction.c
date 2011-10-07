@@ -11,6 +11,7 @@
 
 #include "midori-searchaction.h"
 
+#include "gtk3-compat.h"
 #include "gtkiconentry.h"
 #include "marshal.h"
 #include "sokoke.h"
@@ -347,19 +348,19 @@ midori_search_action_key_press_event_cb (GtkWidget*          entry,
 
     switch (event->keyval)
     {
-    case GDK_ISO_Enter:
-    case GDK_KP_Enter:
-    case GDK_Return:
+    case GDK_KEY_ISO_Enter:
+    case GDK_KEY_KP_Enter:
+    case GDK_KEY_Return:
         text = gtk_entry_get_text (GTK_ENTRY (entry));
         g_signal_emit (search_action, signals[SUBMIT], 0, text,
                        MIDORI_MOD_NEW_TAB (event->state));
         search_action->last_proxy = entry;
         return TRUE;
-    case GDK_Up:
+    case GDK_KEY_Up:
         if (MIDORI_MOD_SCROLL (event->state))
             _midori_search_action_move_index (search_action, - 1);
         return TRUE;
-    case GDK_Down:
+    case GDK_KEY_Down:
         if (MIDORI_MOD_SCROLL (event->state))
             _midori_search_action_move_index (search_action, + 1);
         return TRUE;
@@ -908,7 +909,11 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     dialog = gtk_dialog_new_with_buttons (
         new_engine ? _("Add search engine") : _("Edit search engine"),
         toplevel ? GTK_WINDOW (toplevel) : NULL,
+#if GTK_CHECK_VERSION(3,0,0)
+        GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_engine ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
         NULL);
@@ -1303,7 +1308,11 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         gtk_widget_get_toplevel (search_action->last_proxy) : NULL;
     dialog = gtk_dialog_new_with_buttons (dialog_title,
         toplevel ? GTK_WINDOW (toplevel) : NULL,
+#if GTK_CHECK_VERSION(3,0,0)
+        GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
         #if !HAVE_OSX
         #if !HAVE_HILDON
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,

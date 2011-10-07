@@ -10,6 +10,7 @@
 */
 
 #include "midori-history.h"
+#include "gtk3-compat.h"
 
 #include "midori-app.h"
 #include "midori-array.h"
@@ -821,7 +822,7 @@ midori_history_key_release_event_cb (GtkWidget*     widget,
     GtkTreeModel* model;
     GtkTreeIter iter;
 
-    if (event->keyval != GDK_Delete)
+    if (event->keyval != GDK_KEY_Delete)
         return FALSE;
 
     if (katze_tree_view_get_selected_iter (GTK_TREE_VIEW (widget), &model, &iter))

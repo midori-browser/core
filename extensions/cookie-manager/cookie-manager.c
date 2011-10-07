@@ -114,7 +114,7 @@ static void cookie_manager_panel_pages_foreach(gpointer ptr, gpointer data)
 }
 
 
-static void cookie_manager_page_destroy_cb(GtkObject *page, CookieManager *cm)
+static void cookie_manager_page_destroy_cb(GObject *page, CookieManager *cm)
 {
 	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
 

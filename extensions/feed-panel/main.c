@@ -363,13 +363,21 @@ panel_add_feed_cb (FeedPanel*   panel,
 
     dialog = gtk_dialog_new_with_buttons (
             _("New feed"), GTK_WINDOW (priv->browser),
+#if GTK_CHECK_VERSION(3,0,0)
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT,
             NULL);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_ADD);
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_container_set_border_width (GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG (dialog))), 5);
+#else
     gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
+#endif
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -381,7 +389,11 @@ panel_add_feed_cb (FeedPanel*   panel,
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     gtk_entry_set_text (GTK_ENTRY (entry), "");
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_container_add (GTK_CONTAINER(gtk_dialog_get_content_area (GTK_DIALOG (dialog))), hbox);
+#else
     gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+#endif
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);

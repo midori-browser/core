@@ -14,6 +14,7 @@
 
 #include <midori/midori.h>
 #include <midori/gtkiconentry.h>
+#include "katze/gtk3-compat.h"
 #include <webkit/webkit.h>
 #include <time.h>
 
@@ -944,7 +945,7 @@ static gboolean cm_tree_button_release_event_cb(GtkWidget *widget, GdkEventButto
 
 static gboolean cm_tree_key_press_cb(GtkWidget *widget, GdkEventKey *event, CookieManagerPage *cmp)
 {
-	if (event->keyval == GDK_Delete && !
+	if (event->keyval == GDK_KEY_Delete && !
 		(event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK)))
 	{
 		cm_delete_item(cmp);

@@ -9,6 +9,8 @@
  See the file COPYING for the full license text.
 */
 
+#include "gtk3-compat.h"
+
 #include "katze-utils.h"
 #include "katze-array.h"
 
@@ -85,10 +87,10 @@ proxy_uri_file_set_cb (GtkFileChooser* button,
 }
 
 static void
-proxy_combo_box_text_changed_cb (GtkComboBox* button,
-                                 GObject*     object)
+proxy_combo_box_text_changed_cb (GtkComboBoxText* button,
+                                 GObject*         object)
 {
-    gchar* text = gtk_combo_box_get_active_text (button);
+    gchar* text = gtk_combo_box_text_get_active_text (button);
     const gchar* property = g_object_get_data (G_OBJECT (button), "property");
     g_object_set (object, property, text, NULL);
     g_free (text);
@@ -633,7 +635,7 @@ katze_property_proxy (gpointer     object,
         gboolean monospace = _hint == I_("font-monospace");
         string = katze_object_get_string (object, property);
 
-        widget = gtk_combo_box_new_text ();
+        widget = gtk_combo_box_text_new ();
         combo = GTK_COMBO_BOX (widget);
         context = gtk_widget_get_pango_context (widget);
         pango_context_list_families (context, &families, &n_families);
@@ -650,7 +652,7 @@ katze_property_proxy (gpointer     object,
                 const gchar* font = pango_font_family_get_name (families[i]);
                 if (monospace != pango_font_family_is_monospace (families[i]))
                     continue;
-                gtk_combo_box_append_text (combo, font);
+                gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), font);
                 if (!g_ascii_strcasecmp (font, string))
                     gtk_combo_box_set_active (combo, j);
                 j++;
@@ -815,12 +817,12 @@ katze_property_proxy (gpointer     object,
     {
         gint value = katze_object_get_int (object, property);
         gint active;
-        widget = gtk_combo_box_new_text ();
-        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 hour"));
-        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 day"));
-        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 week"));
-        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 month"));
-        gtk_combo_box_append_text (GTK_COMBO_BOX (widget), _("1 year"));
+        widget = gtk_combo_box_text_new ();
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("1 hour"));
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("1 day"));
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("1 week"));
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("1 month"));
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("1 year"));
         switch (value)
         {
         case   0: active = 0; break;
@@ -874,7 +876,7 @@ katze_property_proxy (gpointer     object,
         hildon_picker_button_set_selector (HILDON_PICKER_BUTTON (widget),
                                            HILDON_TOUCH_SELECTOR (selector));
         #else
-        widget = gtk_combo_box_new_text ();
+        widget = gtk_combo_box_text_new ();
         #endif
         for (i = 0; i < enum_class->n_values; i++)
         {
@@ -882,7 +884,7 @@ katze_property_proxy (gpointer     object,
             #ifdef HAVE_HILDON_2_2
             hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (selector), label);
             #else
-            gtk_combo_box_append_text (GTK_COMBO_BOX (widget), label);
+            gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), label);
             #endif
         }
         #ifdef HAVE_HILDON_2_2

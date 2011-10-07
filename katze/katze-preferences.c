@@ -97,7 +97,9 @@ katze_preferences_init (KatzePreferences* preferences)
     g_object_set (preferences,
                   "icon-name", GTK_STOCK_PREFERENCES,
                   "title", dialog_title,
+#if !GTK_CHECK_VERSION (3, 0, 0)
                   "has-separator", FALSE,
+#endif
                   NULL);
     g_free (dialog_title);
 

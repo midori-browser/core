@@ -54,8 +54,9 @@ namespace HistoryList {
 
             var model = this.treeview.get_model () as Gtk.ListStore;
 
-            while (new_index < 0 || new_index >= model.length)
-                new_index = new_index < 0 ? model.length + new_index : new_index - model.length;
+            int length = model.iter_n_children(null);
+            while (new_index < 0 || new_index >= length)
+                new_index = new_index < 0 ? length + new_index : new_index - length;
 
             path = new Gtk.TreePath.from_indices (new_index);
             this.treeview.set_cursor (path, column, false);
@@ -130,9 +131,16 @@ namespace HistoryList {
             Requisition requisition;
             int height;
             int max_lines = 10;
+#if HAVE_GTK3
+            requisition = Requisition();
+            get_preferred_width(out requisition.width, null);
+            get_preferred_height(out requisition.height, null);
+#else
             this.treeview.size_request (out requisition);
-            if (store.length > max_lines) {
-                height = requisition.height / store.length * max_lines + 2;
+#endif
+            int length = store.iter_n_children(null);
+            if (length > max_lines) {
+                height = requisition.height / length * max_lines + 2;
             } else {
                 height = requisition.height + 2;
             }
@@ -225,7 +233,9 @@ namespace HistoryList {
             this.hl_manager = manager;
 
             this.title = _("Preferences for %s").printf( _("History-List"));
+#if !HAVE_GTK3
             this.has_separator = false;
+#endif
             this.border_width = 5;
             this.set_modal (true);
             this.set_default_size (350, 100);
@@ -295,7 +305,11 @@ namespace HistoryList {
 
             table.attach_defaults (this.closing_behavior, 1, 2, 0, 1);
 
+#if HAVE_GTK3
+            (get_content_area() as Gtk.Box).pack_start (table, false, true, 0);
+#else
             this.vbox.pack_start (table, false, true, 0);
+#endif
 
             this.add_button (Gtk.STOCK_CANCEL, ResponseType.CANCEL);
             this.add_button (Gtk.STOCK_APPLY, ResponseType.APPLY);

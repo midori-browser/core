@@ -10,6 +10,7 @@
 */
 
 #include "midori-bookmarks.h"
+#include "gtk3-compat.h"
 
 #include "midori-array.h"
 #include "midori-app.h"
@@ -846,7 +847,7 @@ midori_bookmarks_key_release_event_cb (GtkWidget*       widget,
                                        GdkEventKey*     event,
                                        MidoriBookmarks* bookmarks)
 {
-    if (event->keyval == GDK_Delete)
+    if (event->keyval == GDK_KEY_Delete)
         midori_bookmarks_delete_clicked_cb (widget, bookmarks);
 
     return FALSE;

@@ -709,9 +709,11 @@ midori_panel_append_page (MidoriPanel*    panel,
         gtk_widget_set_can_focus (scrolled, TRUE);
         gtk_widget_show (scrolled);
         gobject_class = G_OBJECT_GET_CLASS (viewable);
+#if !GTK_CHECK_VERSION(3,0,0) /* TODO */
         if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
             widget = (GtkWidget*)viewable;
         else
+#endif
         {
             widget = gtk_viewport_new (NULL, NULL);
             gtk_widget_show (widget);

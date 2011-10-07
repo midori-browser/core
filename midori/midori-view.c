@@ -14,6 +14,7 @@
     #include <config.h>
 #endif
 
+#include "gtk3-compat.h"
 #include "midori-view.h"
 #include "midori-stock.h"
 #include "midori-browser.h"
@@ -1852,7 +1853,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     /* Find links by number: . to show links, type number, Return to go */
     if (event->keyval == '.'
      || (view->find_links > -1
-     && (digit != -1 || event->keyval == GDK_Return || event->keyval == GDK_Escape)))
+     && (digit != -1 || event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_Escape)))
     {
         WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (web_view);
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
@@ -1896,17 +1897,17 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 NULL);
             view->find_links = 0;
         }
-        else if (digit != -1 && event->keyval != GDK_Return && event->keyval != GDK_Escape)
+        else if (digit != -1 && event->keyval != GDK_KEY_Return && event->keyval != GDK_KEY_Escape)
         {
             if (view->find_links > -1)
                 view->find_links *= 10;
             view->find_links += digit;
         }
-        else if (event->keyval == GDK_Escape)
+        else if (event->keyval == GDK_KEY_Escape)
         {
             view->find_links = 0;
         }
-        else if (event->keyval == GDK_Return)
+        else if (event->keyval == GDK_KEY_Return)
         {
             gchar* script;
             script = g_strdup_printf (
@@ -1915,7 +1916,8 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 "if (return_key) {"
                 "    if (typeof links[i] != 'undefined')"
                 "        links[i].parentNode.href; }",
-                view->find_links, event->keyval == GDK_Return);
+                view->find_links, event->keyval == GDK_KEY_Return
+                );
             result = sokoke_js_script_eval (js_context, script, NULL);
             if (result && strstr (result, "://"))
             {
@@ -1956,7 +1958,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     }
 
     /* Find inline */
-    if (event->keyval == ',' || event->keyval == '/' || event->keyval == GDK_KP_Divide)
+    if (event->keyval == ',' || event->keyval == '/' || event->keyval == GDK_KEY_KP_Divide)
         character = '\0';
     else
         return FALSE;
@@ -4518,7 +4520,11 @@ gtk_box_repack (GtkBox*    box,
 
 static void
 midori_view_tab_label_parent_set (GtkWidget*  tab_label,
+#if GTK_CHECK_VERSION(3,0,0)
+                                  GObject*  old_parent,
+#else
                                   GtkObject*  old_parent,
+#endif
                                   MidoriView* view)
 {
     GtkWidget* parent;
@@ -5238,10 +5244,12 @@ midori_view_get_snapshot (MidoriView* view,
     gboolean fast;
     gint x, y, w, h;
     GdkRectangle rect;
+    #if !GTK_CHECK_VERSION (3, 0, 0)
     GdkPixmap* pixmap;
     GdkEvent event;
     gboolean result;
     GdkColormap* colormap;
+    #endif
     GdkPixbuf* pixbuf;
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
@@ -5268,6 +5276,12 @@ midori_view_get_snapshot (MidoriView* view,
         fast = TRUE;
     }
 
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    cairo_t* cr = gdk_cairo_create (window);
+    gtk_widget_draw (web_view, cr);
+    pixbuf = NULL; /* TODO */
+    cairo_destroy (cr);
+    #else
     rect.x = x;
     rect.y = y;
     rect.width = w;
@@ -5290,6 +5304,7 @@ midori_view_get_snapshot (MidoriView* view,
     pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colormap, 0, 0,
                                            0, 0, rect.width, rect.height);
     g_object_unref (pixmap);
+    #endif
 
     if (width || height)
     {

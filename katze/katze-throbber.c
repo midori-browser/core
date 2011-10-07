@@ -92,11 +92,25 @@ katze_throbber_get_property (GObject* object,
                              GParamSpec* pspec);
 
 static void
+#if GTK_CHECK_VERSION (3, 0, 0)
+katze_throbber_destroy (GtkWidget* object);
+#else
 katze_throbber_destroy (GtkObject* object);
+#endif
 
 static void
 katze_throbber_realize (GtkWidget* widget);
 
+#if GTK_CHECK_VERSION (3, 0, 0)
+static void
+katze_throbber_get_preferred_height (GtkWidget *widget,
+                               gint      *minimal_width,
+                               gint      *natural_width);
+static void
+katze_throbber_get_preferred_width (GtkWidget *widget,
+                               gint      *minimal_width,
+                               gint      *natural_width);
+#endif
 static void
 katze_throbber_unrealize (GtkWidget* widget);
 
@@ -120,7 +134,11 @@ katze_throbber_size_request (GtkWidget*      widget,
 
 static gboolean
 katze_throbber_expose_event (GtkWidget*      widget,
+#if GTK_CHECK_VERSION (3, 0, 0)
+                             cairo_t* cr);
+#else
                              GdkEventExpose* event);
+#endif
 
 static void
 icon_theme_changed (KatzeThrobber* throbber);
@@ -137,7 +155,9 @@ static void
 katze_throbber_class_init (KatzeThrobberClass* class)
 {
     GObjectClass* gobject_class;
+#if !GTK_CHECK_VERSION (3, 0, 0)
     GtkObjectClass* object_class;
+#endif
     GtkWidgetClass* widget_class;
     GParamFlags flags = G_PARAM_READWRITE | G_PARAM_CONSTRUCT;
 
@@ -146,19 +166,30 @@ katze_throbber_class_init (KatzeThrobberClass* class)
     gobject_class->set_property = katze_throbber_set_property;
     gobject_class->get_property = katze_throbber_get_property;
 
+    widget_class = GTK_WIDGET_CLASS (class);
+#if GTK_CHECK_VERSION (3, 0, 0)
+    widget_class->destroy = katze_throbber_destroy;
+#else
     object_class = GTK_OBJECT_CLASS (class);
     object_class->destroy = katze_throbber_destroy;
-
-    widget_class = GTK_WIDGET_CLASS (class);
+#endif
     widget_class->realize = katze_throbber_realize;
     widget_class->unrealize = katze_throbber_unrealize;
     widget_class->map = katze_throbber_map;
     widget_class->unmap = katze_throbber_unmap;
     widget_class->style_set = katze_throbber_style_set;
     widget_class->screen_changed = katze_throbber_screen_changed;
+#if GTK_CHECK_VERSION (3, 0, 0)
+    widget_class->get_preferred_width= katze_throbber_get_preferred_width;
+    widget_class->get_preferred_height= katze_throbber_get_preferred_height;
+#else
     widget_class->size_request = katze_throbber_size_request;
+#endif
+#if GTK_CHECK_VERSION (3, 0, 0)
+    widget_class->draw = katze_throbber_expose_event;
+#else
     widget_class->expose_event = katze_throbber_expose_event;
-
+#endif
     g_object_class_install_property (gobject_class,
                                      PROP_ICON_SIZE,
                                      g_param_spec_int (
@@ -246,7 +277,11 @@ katze_throbber_dispose (GObject* object)
 }
 
 static void
+#if GTK_CHECK_VERSION (3, 0, 0)
+katze_throbber_destroy (GtkWidget* object)
+#else
 katze_throbber_destroy (GtkObject* object)
+#endif
 {
     KatzeThrobber* throbber = KATZE_THROBBER (object);
 
@@ -255,8 +290,11 @@ katze_throbber_destroy (GtkObject* object)
     katze_assign (throbber->static_icon_name, NULL);
     katze_object_assign (throbber->static_pixbuf, NULL);
     katze_assign (throbber->static_stock_id, NULL);
-
+#if GTK_CHECK_VERSION (3, 0, 0)
+    GTK_WIDGET_CLASS (katze_throbber_parent_class)->destroy (object);
+#else
     GTK_OBJECT_CLASS (katze_throbber_parent_class)->destroy (object);
+#endif
 }
 
 static void
@@ -817,10 +855,37 @@ katze_throbber_size_request (GtkWidget*      widget,
 
     requisition->width = throbber->width;
     requisition->height = throbber->height;
-
+#if !GTK_CHECK_VERSION (3, 0, 0)
     GTK_WIDGET_CLASS (katze_throbber_parent_class)->size_request (widget,
                                                                   requisition);
+#endif
 }
+
+#if GTK_CHECK_VERSION (3, 0, 0)
+static void
+katze_throbber_get_preferred_height (GtkWidget *widget,
+                                     gint      *minimal_width,
+                                     gint      *natural_width)
+{
+    GtkRequisition requisition;
+
+    katze_throbber_size_request (widget, &requisition);
+
+    *minimal_width = *natural_width = requisition.height;
+}
+
+static void
+katze_throbber_get_preferred_width (GtkWidget *widget,
+                                    gint      *minimal_width,
+                                    gint      *natural_width)
+{
+    GtkRequisition requisition;
+
+    katze_throbber_size_request (widget, &requisition);
+
+    *minimal_width = *natural_width = requisition.width;
+}
+#endif
 
 static void
 katze_throbber_aligned_coords (GtkWidget* widget,
@@ -853,7 +918,11 @@ katze_throbber_aligned_coords (GtkWidget* widget,
 
 static gboolean
 katze_throbber_expose_event (GtkWidget*      widget,
+#if GTK_CHECK_VERSION (3, 0, 0)
+                             cairo_t* cr)
+#else
                              GdkEventExpose* event)
+#endif
 {
     KatzeThrobber* throbber = KATZE_THROBBER (widget);
     gint ax, ay;
@@ -868,8 +937,9 @@ katze_throbber_expose_event (GtkWidget*      widget,
     if (!throbber->animated && (throbber->static_pixbuf
         || throbber->static_icon_name || throbber->static_stock_id))
     {
+#if !GTK_CHECK_VERSION (3, 0, 0)
         cairo_t* cr;
-
+#endif
         if (G_UNLIKELY (!throbber->static_pixbuf && throbber->static_icon_name))
         {
             icon_theme_changed (KATZE_THROBBER (widget));
@@ -899,16 +969,24 @@ katze_throbber_expose_event (GtkWidget*      widget,
 
         katze_throbber_aligned_coords (widget, &ax, &ay);
 
+#if !GTK_CHECK_VERSION (3, 0, 0)
         cr = gdk_cairo_create (gtk_widget_get_window (widget));
+#endif
         gdk_cairo_set_source_pixbuf (cr, throbber->static_pixbuf, ax, ay);
         cairo_paint (cr);
+#if !GTK_CHECK_VERSION (3, 0, 0)
         cairo_destroy (cr);
+#endif
     }
     else
     {
         #if HAVE_SPINNER
         if (throbber->animated)
+#if GTK_CHECK_VERSION (3, 0, 0)
+            return GTK_WIDGET_CLASS (katze_throbber_parent_class)->draw (widget, cr);
+#else
             return GTK_WIDGET_CLASS (katze_throbber_parent_class)->expose_event (widget, event);
+#endif
         #else
         gint cols, rows;
 

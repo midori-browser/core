@@ -164,7 +164,7 @@ def configure (conf):
             atleast_version=version, mandatory=mandatory)
         return conf.env['HAVE_' + var]
 
-    if option_enabled ('unique'):
+    if option_enabled ('unique') and not option_enabled('gtk3'):
         check_pkg ('unique-1.0', '0.9', False)
         unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
         if unique != 'yes':
@@ -195,8 +195,18 @@ def configure (conf):
         conf.check (header_name='X11/extensions/scrnsaver.h',
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
-    check_pkg ('gtk+-2.0', '2.10.0', var='GTK', args=args)
-    check_pkg ('webkit-1.0', '1.1.17', args=args)
+    if option_enabled ('gtk3'):
+        check_pkg ('gtk+-3.0', '3.0.0', var='GTK', mandatory=False)
+        check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
+        if not conf.env['HAVE_GTK'] or not conf.env['HAVE_WEBKIT']:
+            Utils.pprint ('RED', 'GTK+3 was not found.\n' \
+                'Pass --disable-gtk3 to build without GTK+3.')
+            sys.exit (1)
+        conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
+    else:
+        check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
+        check_pkg ('webkit-1.0', '1.1.17', args=args)
+    conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
     webkit_version = conf.check_cfg (modversion='webkit-1.0').split ('.')
     if int(webkit_version[0]) >= 1 and int(webkit_version[1]) >= 5 and int(webkit_version[2]) >= 1:
         check_pkg ('javascriptcoregtk-1.0', '1.1.17', args=args)
@@ -361,6 +371,7 @@ def set_options (opt):
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
+    add_enable_option ('gtk3', 'gtk3 and webkitgtk3 support')
 
     # Provided for compatibility
     opt.add_option ('--build', help='Ignored')

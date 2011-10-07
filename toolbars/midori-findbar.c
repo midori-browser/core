@@ -10,6 +10,7 @@
 */
 
 #include "midori-findbar.h"
+#include "gtk3-compat.h"
 
 #include "midori-browser.h"
 #include "gtkiconentry.h"
@@ -81,12 +82,12 @@ static gboolean
 midori_findbar_find_key_press_event_cb (MidoriFindbar* findbar,
                                         GdkEventKey*   event)
 {
-    if (event->keyval == GDK_Escape)
+    if (event->keyval == GDK_KEY_Escape)
     {
         midori_findbar_done (findbar);
         return TRUE;
     }
-    else if (event->keyval == GDK_Return
+    else if (event->keyval == GDK_KEY_Return
           && (event->state & GDK_SHIFT_MASK))
     {
         midori_findbar_find (findbar, FALSE);

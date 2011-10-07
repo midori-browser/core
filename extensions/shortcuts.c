@@ -166,6 +166,7 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     GList* actions;
     guint i;
     GtkAction* action;
+    GtkWidget* dialog_vbox;
     #if HAVE_OSX
     GtkWidget* icon;
     #endif
@@ -175,7 +176,11 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
 
     dialog_title = _("Customize Keyboard shortcuts");
     dialog = gtk_dialog_new_with_buttons (dialog_title, GTK_WINDOW (browser),
+#if GTK_CHECK_VERSION(3,0,0)
+        GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
         #if !HAVE_OSX
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif
@@ -187,12 +192,19 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
     gtk_window_set_default_size (GTK_WINDOW (dialog), width * 52, height * 24);
     g_signal_connect (dialog, "response",
                       G_CALLBACK (shortcuts_preferences_response_cb), NULL);
+
+#if GTK_CHECK_VERSION(3,0,0)
+    dialog_vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+#else
+    dialog_vbox = GTK_DIALOG (dialog)->vbox;
+#endif
     if ((xfce_heading = sokoke_xfce_header_new (
         gtk_window_get_icon_name (GTK_WINDOW (dialog)), dialog_title)))
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox),
+        gtk_box_pack_start (GTK_BOX (dialog_vbox),
                             xfce_heading, FALSE, FALSE, 0);
     hbox = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox,
+
+    gtk_box_pack_start (GTK_BOX (dialog_vbox), hbox,
                                  TRUE, TRUE, 12);
     liststore = gtk_list_store_new (7,
         G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_BOOLEAN,
@@ -248,7 +260,11 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
                                           0, GTK_SORT_ASCENDING);
     g_object_unref (model);
 
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_show_all (gtk_dialog_get_content_area(GTK_DIALOG (dialog)));
+#else
     gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
+#endif
 
     g_object_unref (browser);
 

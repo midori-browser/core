@@ -11,6 +11,8 @@
  See the file COPYING for the full license text.
 */
 
+#include "gtk3-compat.h"
+
 #include "midori-browser.h"
 
 #include "midori-array.h"
@@ -724,7 +726,11 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         title = new_bookmark ? _("New bookmark") : _("Edit bookmark");
     dialog = gtk_dialog_new_with_buttons (
         title, GTK_WINDOW (browser),
+#if GTK_CHECK_VERSION(3,0,0)
+        GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
         NULL);
@@ -902,7 +908,8 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app)));
         }
 
-        selected = gtk_combo_box_get_active_text (GTK_COMBO_BOX (combo_folder));
+        selected = gtk_combo_box_text_get_active_text (
+            GTK_COMBO_BOX_TEXT (combo_folder));
         if (!strcmp (selected, _("Toplevel folder")))
             katze_assign (selected, g_strdup (""));
         katze_item_set_meta_string (bookmark, "folder", selected);
@@ -1638,13 +1645,13 @@ midori_browser_key_press_event (GtkWidget*   widget,
 
     /* Interpret Ctrl(+Shift)+Tab as tab switching for compatibility */
     if (midori_browser_get_nth_tab (browser, 1) != NULL
-     && event->keyval == GDK_Tab
+     && event->keyval == GDK_KEY_Tab
      && (event->state & GDK_CONTROL_MASK))
     {
         gtk_action_activate (_action_by_name (browser, "TabNext"));
         return TRUE;
     }
-    else if (event->keyval == GDK_ISO_Left_Tab
+    else if (event->keyval == GDK_KEY_ISO_Left_Tab
      && (event->state & GDK_CONTROL_MASK)
      && (event->state & GDK_SHIFT_MASK))
     {
@@ -1652,14 +1659,14 @@ midori_browser_key_press_event (GtkWidget*   widget,
         return TRUE;
     }
     /* Interpret Ctrl+= as Zoom In for compatibility */
-    else if ((event->keyval == GDK_KP_Equal || event->keyval == GDK_equal)
+    else if ((event->keyval == GDK_KEY_KP_Equal || event->keyval == GDK_KEY_equal)
           && (event->state & GDK_CONTROL_MASK))
     {
         midori_browser_activate_action (browser, "ZoomIn");
         return TRUE;
     }
     /* Interpret F5 as reloading for compatibility */
-    else if (event->keyval == GDK_F5)
+    else if (event->keyval == GDK_KEY_F5)
     {
         gtk_action_activate (_action_by_name (browser, "Reload"));
         return TRUE;
@@ -1669,7 +1676,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
     if (focus == NULL)
         gtk_widget_grab_focus (midori_browser_get_current_tab (MIDORI_BROWSER (widget)));
     else if (G_OBJECT_TYPE (focus) == WEBKIT_TYPE_WEB_VIEW
-          && event->keyval == GDK_space
+          && event->keyval == GDK_KEY_space
           && !webkit_web_view_can_cut_clipboard (WEBKIT_WEB_VIEW (focus))
           && !webkit_web_view_can_paste_clipboard (WEBKIT_WEB_VIEW (focus)))
     {
@@ -1707,13 +1714,13 @@ midori_browser_key_press_event (GtkWidget*   widget,
         return TRUE;
 
     /* Interpret (Shift+)Backspace as going back (forward) for compatibility */
-    if ((event->keyval == GDK_BackSpace)
+    if ((event->keyval == GDK_KEY_BackSpace)
      && (event->state & GDK_SHIFT_MASK))
     {
         gtk_action_activate (_action_by_name (browser, "Forward"));
         return TRUE;
     }
-    else if (event->keyval == GDK_BackSpace)
+    else if (event->keyval == GDK_KEY_BackSpace)
     {
         gtk_action_activate (_action_by_name (browser, "Back"));
         return TRUE;
@@ -4214,7 +4221,11 @@ _action_bookmarks_import_activate (GtkAction*     action,
 
     dialog = gtk_dialog_new_with_buttons (
         _("Import bookmarks..."), GTK_WINDOW (browser),
+#if GTK_CHECK_VERSION(3,0,0)
+        GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         _("_Import bookmarks"), GTK_RESPONSE_ACCEPT,
         NULL);
@@ -4265,9 +4276,10 @@ _action_bookmarks_import_activate (GtkAction*     action,
     label = gtk_label_new_with_mnemonic (_("_Folder:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    combo = gtk_combo_box_new_text ();
+    combo = gtk_combo_box_text_new ();
     combobox_folder = GTK_COMBO_BOX (combo);
-    gtk_combo_box_append_text (combobox_folder, _("Toplevel folder"));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox_folder),
+                                    _("Toplevel folder"));
     gtk_combo_box_set_active (combobox_folder, 0);
 
     db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
@@ -4276,7 +4288,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     KATZE_ARRAY_FOREACH_ITEM (item, bookmarkdirs)
     {
         const gchar* name = katze_item_get_name (item);
-        gtk_combo_box_append_text (combobox_folder, name);
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox_folder), name);
     }
     gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
@@ -4294,7 +4306,8 @@ _action_bookmarks_import_activate (GtkAction*     action,
         gtk_combo_box_get_active_iter (combobox, &iter);
         gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &path, -1);
 
-        selected = gtk_combo_box_get_active_text (combobox_folder);
+        selected = gtk_combo_box_text_get_active_text (
+            GTK_COMBO_BOX_TEXT (combobox_folder));
         if (g_str_equal (selected, _("Toplevel folder")))
             selected = g_strdup ("");
 
@@ -4514,7 +4527,11 @@ _action_clear_private_data_activate (GtkAction*     action,
         /* i18n: Dialog: Clear Private Data, in the Tools menu */
         dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
             GTK_WINDOW (browser),
-            GTK_DIALOG_NO_SEPARATOR | GTK_DIALOG_DESTROY_WITH_PARENT,
+#if GTK_CHECK_VERSION(3,0,0)
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+#else
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+#endif
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
@@ -4712,6 +4729,7 @@ static const gchar* credits_documenters[] =
 static const gchar* credits_artists[] =
     { "Nancy Runge <nancy@twotoasts.de>", NULL };
 
+#if !GTK_CHECK_VERSION (3, 0, 0)
 static void
 _action_about_activate_link (GtkAboutDialog* about,
                              const gchar*    uri,
@@ -4738,6 +4756,7 @@ _action_about_activate_email (GtkAboutDialog* about,
     sokoke_show_uri (NULL, newuri ? newuri : uri, GDK_CURRENT_TIME, NULL);
     g_free (newuri);
 }
+#endif
 
 static void
 _action_about_activate (GtkAction*     action,
@@ -4752,8 +4771,10 @@ _action_about_activate (GtkAction*     action,
     "License as published by the Free Software Foundation; either "
     "version 2.1 of the License, or (at your option) any later version.");
 
+#if !GTK_CHECK_VERSION (3, 0, 0)
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
+#endif
     gtk_show_about_dialog (GTK_WINDOW (browser),
         "logo-icon-name", gtk_window_get_icon_name (GTK_WINDOW (browser)),
         "name", PACKAGE_NAME,
@@ -5049,8 +5070,10 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
                                                      GdkEventButton* event,
                                                      MidoriBrowser*  browser)
 {
+#if !GTK_CHECK_VERSION(3,0,0) /* TODO */
     if (event->window != notebook->event_window)
         return FALSE;
+#endif
 
     /* FIXME: Handle double click only when it wasn't handled by GtkNotebook */
 
@@ -5755,7 +5778,7 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
         GtkWidget* view;
 
         /* Switch to n-th tab. 9 and 0 go to the last tab. */
-        n = keyval - GDK_0;
+        n = keyval - GDK_KEY_0;
         browser = g_object_get_data (G_OBJECT (accel_group), "midori-browser");
         if ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook),
                                                n < 9 ? n - 1 : -1)))
@@ -5914,7 +5937,7 @@ midori_browser_init (MidoriBrowser* browser)
     for (i = 0; i < 10; i++)
     {
         gchar* accel_path = g_strdup_printf ("<Manual>/Browser/SwitchTab%d", i);
-        gtk_accel_map_add_entry (accel_path, GDK_0 + i, GDK_MOD1_MASK);
+        gtk_accel_map_add_entry (accel_path, GDK_KEY_0 + i, GDK_MOD1_MASK);
         gtk_accel_group_connect_by_path (accel_group, accel_path, accel_closure);
         g_free (accel_path);
     }
@@ -6130,6 +6153,9 @@ midori_browser_init (MidoriBrowser* browser)
     /* Create the navigationbar */
     browser->navigationbar = gtk_ui_manager_get_widget (
         ui_manager, "/toolbar_navigation");
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_style_context_add_class(gtk_widget_get_style_context(browser->navigationbar), "primary-toolbar");
+#endif
     /* FIXME: Settings should be connected with screen changes */
     gtk_settings = gtk_widget_get_settings (GTK_WIDGET (browser));
     if (gtk_settings)

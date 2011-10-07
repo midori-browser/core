@@ -274,6 +274,7 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 										gint x, gint y, GtkSelectionData *data, guint info,
 										guint ltime, TBEditorWidget *tbw)
 {
+#if !GTK_CHECK_VERSION(3,0,0) /* TODO */
 	GtkTreeView *tree = GTK_TREE_VIEW(widget);
 	gboolean del = FALSE;
 
@@ -331,6 +332,7 @@ static void tb_editor_drag_data_rcvd_cb(GtkWidget *widget, GdkDragContext *conte
 	tbw->drag_source = NULL; /* reset the value just to be sure */
 	tb_editor_free_path(tbw);
 	gtk_drag_finish(context, TRUE, del, ltime);
+#endif
 }
 
 
@@ -392,7 +394,11 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 				GTK_WINDOW(parent),
 				GTK_DIALOG_DESTROY_WITH_PARENT,
 				GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
+#if !GTK_CHECK_VERSION(3,0,0)
 	vbox = (GTK_DIALOG(dialog))->vbox;
+#else
+	vbox = GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
+#endif
 	gtk_box_set_spacing(GTK_BOX(vbox), 6);
 	gtk_widget_set_name(dialog, "GeanyDialog");
 	gtk_window_set_default_size(GTK_WINDOW(dialog), -1, 400);
