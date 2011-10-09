@@ -58,6 +58,11 @@ static void
 _midori_view_set_settings (MidoriView*        view,
                            MidoriWebSettings* settings);
 
+static GdkPixbuf*
+midori_view_web_view_get_snapshot (GtkWidget* web_view,
+                                   gint       width,
+                                   gint       height);
+
 struct _MidoriView
 {
     GtkVBox parent_instance;
@@ -79,7 +84,6 @@ struct _MidoriView
     gchar* selected_text;
     MidoriWebSettings* settings;
     GtkWidget* web_view;
-    GtkWidget* thumb_view;
     KatzeArray* news_feeds;
 
     gboolean middle_click_opens_selection;
@@ -201,6 +205,7 @@ enum {
 static guint signals[LAST_SIGNAL];
 
 static gchar* speeddial_markup = NULL;
+static GtkWidget* thumb_view = NULL;
 
 static void
 midori_view_finalize (GObject* object);
@@ -1211,6 +1216,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 }
 
 #define HAVE_GTK_INFO_BAR GTK_CHECK_VERSION (2, 18, 0)
+#define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)
 
 #if HAVE_GTK_INFO_BAR
 static void
@@ -3080,12 +3086,6 @@ midori_view_finalize (GObject* object)
             midori_view_settings_notify_cb, view);
     g_signal_handlers_disconnect_by_func (view->item,
         midori_view_item_meta_data_changed, view);
-
-    if (view->thumb_view)
-    {
-        gtk_widget_destroy (view->thumb_view);
-        view->thumb_view = NULL;
-    }
 
     katze_assign (view->uri, NULL);
     katze_assign (view->title, NULL);
@@ -5238,7 +5238,15 @@ midori_view_get_snapshot (MidoriView* view,
                           gint        width,
                           gint        height)
 {
-    GtkWidget* web_view;
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
+    return midori_view_web_view_get_snapshot ((GtkWidget*)view->web_view, width, height);
+}
+
+static GdkPixbuf*
+midori_view_web_view_get_snapshot (GtkWidget* web_view,
+                                   gint       width,
+                                   gint       height)
+{
     GdkWindow* window;
     GtkAllocation allocation;
     gboolean fast;
@@ -5252,8 +5260,7 @@ midori_view_get_snapshot (MidoriView* view,
     #endif
     GdkPixbuf* pixbuf;
 
-    g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
-    web_view = view->web_view;
+    g_return_val_if_fail (WEBKIT_IS_WEB_VIEW (web_view), NULL);
     window = gtk_widget_get_window (web_view);
     g_return_val_if_fail (window != NULL, NULL);
 
@@ -5356,22 +5363,32 @@ midori_view_get_security (MidoriView* view)
 }
 
 static void
-thumb_view_load_status_cb (MidoriView* thumb_view,
-                           GParamSpec* pspec,
-                           MidoriView* view)
+thumb_view_load_status_cb (WebKitWebView* thumb_view_,
+                           GParamSpec*    pspec,
+                           MidoriView*    view)
 {
     GdkPixbuf* img;
+    #if HAVE_OFFSCREEN
+    GdkPixbuf* pixbuf_scaled;
+    #endif
     gchar* file_path;
     gchar* thumb_dir;
     gchar* thumb_uri;
     MidoriBrowser* browser;
     GKeyFile* key_file;
 
-    if (midori_view_get_load_status (thumb_view) != MIDORI_LOAD_FINISHED)
+    if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
         return;
 
-    gtk_widget_realize (midori_view_get_web_view (MIDORI_VIEW (thumb_view)));
-    img = midori_view_get_snapshot (MIDORI_VIEW (thumb_view), 240, 160);
+    #if HAVE_OFFSCREEN
+    img = gtk_offscreen_window_get_pixbuf (GTK_OFFSCREEN_WINDOW (
+        gtk_widget_get_parent (GTK_WIDGET (thumb_view))));
+    pixbuf_scaled = gdk_pixbuf_scale_simple (img, 240, 160, GDK_INTERP_TILES);
+    katze_object_assign (img, pixbuf_scaled);
+    #else
+    gtk_widget_realize (thumb_view);
+    img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
+    #endif
     thumb_uri = g_object_get_data (G_OBJECT (thumb_view), "thumb-uri");
     file_path  = sokoke_build_thumbnail_path (thumb_uri);
     thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
@@ -5392,9 +5409,9 @@ thumb_view_load_status_cb (MidoriView* thumb_view,
        thumb_view, thumb_view_load_status_cb, view);
 
     /* Destroying the view here may trigger a WebKitGTK+ 1.1.14 bug */
-    #if !WEBKIT_CHECK_VERSION (1, 1, 14) || WEBKIT_CHECK_VERSION (1, 1, 15)
+    #if 0
     gtk_widget_destroy (GTK_WIDGET (thumb_view));
-    view->thumb_view = NULL;
+    thumb_view = NULL;
     #endif
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
@@ -5413,9 +5430,9 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
                                   gchar*      dom_id,
                                   gchar*      url)
 {
-    GtkWidget* thumb_view;
-    MidoriWebSettings* settings;
+    WebKitWebSettings* settings;
     GtkWidget* browser;
+    #if !HAVE_OFFSCREEN
     GtkWidget* notebook;
     GtkWidget* label;
 
@@ -5430,26 +5447,43 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
     notebook = katze_object_get_object (browser, "notebook");
     if (!notebook)
         return;
+    #endif
 
-    if (!view->thumb_view)
+    if (!thumb_view)
     {
-        view->thumb_view = midori_view_new_with_title (NULL, NULL, FALSE);
-        gtk_container_add (GTK_CONTAINER (notebook), view->thumb_view);
+        thumb_view = webkit_web_view_new ();
+        #if HAVE_OFFSCREEN
+        browser = gtk_offscreen_window_new ();
+        gtk_container_add (GTK_CONTAINER (browser), thumb_view);
+        gtk_widget_set_size_request (thumb_view, 800, 600);
+        gtk_widget_show_all (browser);
+        #else
+        gtk_container_add (GTK_CONTAINER (notebook), thumb_view);
+        g_signal_connect (thumb_view, "destroy",
+                          G_CALLBACK (gtk_widget_destroyed),
+                          &thumb_view);
         /* We use an empty label. It's not invisible but at least hard to spot. */
         label = gtk_event_box_new ();
-        gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), view->thumb_view, label);
-        gtk_widget_show (view->thumb_view);
+        gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), thumb_view, label);
+        #endif
+        gtk_widget_show (thumb_view);
     }
+    #if !HAVE_OFFSCREEN
     g_object_unref (notebook);
-    thumb_view = view->thumb_view;
-    settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
-        "enable-plugins", FALSE, "auto-load-images", TRUE, NULL);
-    _midori_view_set_settings (MIDORI_VIEW (thumb_view), settings);
+    #endif
+    settings = g_object_new (WEBKIT_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
+        "enable-plugins", FALSE, "auto-load-images", TRUE,
+        "enable-html5-database", FALSE, "enable-html5-local-storage", FALSE,
+    #if WEBKIT_CHECK_VERSION (1, 1, 22)
+        "enable-java-applet", FALSE,
+    #endif
+        NULL);
+    webkit_web_view_set_settings (WEBKIT_WEB_VIEW (thumb_view), settings);
 
     g_object_set_data (G_OBJECT (thumb_view), "thumb-uri", url);
     g_signal_connect (thumb_view, "notify::load-status",
         G_CALLBACK (thumb_view_load_status_cb), view);
-    midori_view_set_uri (MIDORI_VIEW (thumb_view), url);
+    webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view), url);
 }
 
 /**
