@@ -40,6 +40,7 @@
     #define GDK_KEY_B GDK_B
     #define GDK_KEY_H GDK_H
     #define GDK_KEY_J GDK_J
+    #define GDK_KEY_Return GDK_Return
 #endif
 
 #endif
