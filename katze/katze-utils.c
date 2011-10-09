@@ -496,7 +496,7 @@ g_icon_to_string (GIcon *icon)
  *     "custom-PROPERTY": the last value of an enumeration will be the "custom"
  *         value, where the user may enter text freely, which then updates
  *         the property PROPERTY instead. This applies only to enumerations.
- *         Since 0.4.2 mnemonics are automatically stripped.
+ *         Since 0.4.1 mnemonics are automatically stripped.
  *     Since 0.2.9 the following hints are also supported:
  *     "languages": the widget will be particularly suitable for choosing
  *         multiple language codes, ie. "de,en_GB".
