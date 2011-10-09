@@ -290,7 +290,8 @@ midori_identity_get_type (void)
     if (!type)
     {
         static const GEnumValue values[] = {
-         { MIDORI_IDENT_MIDORI, "MIDORI_IDENT_MIDORI", N_("Midori") },
+         { MIDORI_IDENT_MIDORI, "MIDORI_IDENT_MIDORI", N_("_Automatic") },
+         { MIDORI_IDENT_GENUINE, "MIDORI_IDENT_GENUINE", N_("Midori") },
          { MIDORI_IDENT_SAFARI, "MIDORI_IDENT_SAFARI", N_("Safari") },
          { MIDORI_IDENT_IPHONE, "MIDORI_IDENT_IPHONE", N_("iPhone") },
          { MIDORI_IDENT_FIREFOX, "MIDORI_IDENT_FIREFOX", N_("Firefox") },
@@ -1096,7 +1097,8 @@ get_sys_name (void)
 #endif
 
 static gchar*
-generate_ident_string (MidoriIdentity identify_as)
+generate_ident_string (MidoriWebSettings* web_settings,
+                       MidoriIdentity     identify_as)
 {
     const gchar* platform =
     #if HAVE_HILDON
@@ -1133,12 +1135,19 @@ generate_ident_string (MidoriIdentity identify_as)
     const int webcore_major = WEBKIT_USER_AGENT_MAJOR_VERSION;
     const int webcore_minor = WEBKIT_USER_AGENT_MINOR_VERSION;
 
+    #if WEBKIT_CHECK_VERSION (1, 1, 18)
+    g_object_set (web_settings, "enable-site-specific-quirks",
+        identify_as != MIDORI_IDENT_GENUINE, NULL);
+    #endif
+
     switch (identify_as)
     {
-    case MIDORI_IDENT_MIDORI:
+    case MIDORI_IDENT_GENUINE:
         return g_strdup_printf ("Mozilla/5.0 (%s %s) AppleWebKit/%d.%d+ %s",
             platform, os, webcore_major, webcore_minor, appname);
+    case MIDORI_IDENT_MIDORI:
     case MIDORI_IDENT_SAFARI:
+        g_object_set (web_settings, "enable-site-specific-quirks", TRUE, NULL);
         return g_strdup_printf ("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; %s) "
             "AppleWebKit/%d+ (KHTML, like Gecko) Version/5.0 Safari/%d.%d+ %s",
             lang, webcore_major, webcore_major, webcore_minor, appname);
@@ -1365,7 +1374,7 @@ midori_web_settings_set_property (GObject*      object,
         web_settings->identify_as = g_value_get_enum (value);
         if (web_settings->identify_as != MIDORI_IDENT_CUSTOM)
         {
-            gchar* string = generate_ident_string (web_settings->identify_as);
+            gchar* string = generate_ident_string (web_settings, web_settings->identify_as);
             katze_assign (web_settings->ident_string, string);
             g_object_set (web_settings, "user-agent", string, NULL);
         }
@@ -1625,7 +1634,7 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_USER_AGENT:
         if (!g_strcmp0 (web_settings->ident_string, ""))
         {
-            gchar* string = generate_ident_string (web_settings->identify_as);
+            gchar* string = generate_ident_string (web_settings, web_settings->identify_as);
             katze_assign (web_settings->ident_string, string);
         }
         g_value_set_string (value, web_settings->ident_string);

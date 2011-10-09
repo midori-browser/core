@@ -137,7 +137,8 @@ midori_proxy_get_type (void) G_GNUC_CONST;
 
 typedef enum
 {
-    MIDORI_IDENT_MIDORI,
+    MIDORI_IDENT_MIDORI /* Automatic */,
+    MIDORI_IDENT_GENUINE /* Midori */,
     MIDORI_IDENT_SAFARI,
     MIDORI_IDENT_IPHONE,
     MIDORI_IDENT_FIREFOX,

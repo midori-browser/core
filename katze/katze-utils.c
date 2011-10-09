@@ -496,6 +496,7 @@ g_icon_to_string (GIcon *icon)
  *     "custom-PROPERTY": the last value of an enumeration will be the "custom"
  *         value, where the user may enter text freely, which then updates
  *         the property PROPERTY instead. This applies only to enumerations.
+ *         Since 0.4.2 mnemonics are automatically stripped.
  *     Since 0.2.9 the following hints are also supported:
  *     "languages": the widget will be particularly suitable for choosing
  *         multiple language codes, ie. "de,en_GB".
@@ -880,12 +881,14 @@ katze_property_proxy (gpointer     object,
         #endif
         for (i = 0; i < enum_class->n_values; i++)
         {
-            const gchar* label = gettext (enum_class->values[i].value_nick);
+            const gchar* raw_label = gettext (enum_class->values[i].value_nick);
+            gchar* label = katze_strip_mnemonics (raw_label);
             #ifdef HAVE_HILDON_2_2
             hildon_touch_selector_append_text (HILDON_TOUCH_SELECTOR (selector), label);
             #else
             gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), label);
             #endif
+            g_free (label);
         }
         #ifdef HAVE_HILDON_2_2
         hildon_touch_selector_set_active (HILDON_TOUCH_SELECTOR (selector), 0, value);
