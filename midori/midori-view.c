@@ -3674,11 +3674,11 @@ prepare_speed_dial_html (MidoriView* view)
     GKeyFile* key_file;
     GString* markup = NULL;
     guint rows, cols, slot = 1;
-    gchar* thumb_size_type;
+    guint slot_count = 1, i, grid_index = 3, slot_size;
     gchar* speed_dial_head;
     gchar* file_path;
     gchar* file_name;
-    guint thumb_size = 160;
+    gchar** groups;
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
     if (!key_file)
@@ -3700,10 +3700,7 @@ prepare_speed_dial_html (MidoriView* view)
             "{set_dial_size}", _("Set number of columns and rows"),
             "{enter_dial_size}", _("Enter number of columns and rows:"),
             "{invalid_dial_size}", _("Invalid input for the size of the speed dial"),
-            "{set_thumb_size}", _("Thumb size:"),
-            "{set_thumb_small}", _("Small"),
-            "{set_thumb_normal}", _("Medium"),
-            "{set_thumb_big}", _("Big"),  NULL);
+            NULL);
 
         markup = g_string_new (header);
 
@@ -3719,59 +3716,31 @@ prepare_speed_dial_html (MidoriView* view)
 
     rows = g_key_file_get_integer (key_file, "settings", "rows", NULL);
     cols = g_key_file_get_integer (key_file, "settings", "columns", NULL);
-    thumb_size_type = g_key_file_get_string (key_file, "settings", "size", NULL);
-    if (thumb_size_type == NULL)
-        thumb_size_type = g_strdup ("MEDIUM");
 
-    if (g_str_equal (thumb_size_type, "SMALL"))
-        thumb_size = 80;
-    else if (g_str_equal (thumb_size_type, "MEDIUM"))
-        thumb_size = 160;
-    else if (g_str_equal (thumb_size_type, "BIG"))
-        thumb_size = 240;
-
-    g_free (thumb_size_type);
+    groups = g_key_file_get_groups (key_file, NULL);
+    for (i = 0; groups[i]; i++)
+    {
+        if (g_key_file_has_key (key_file, groups[i], "uri", NULL))
+	    slot_count++;
+    }
 
     g_string_append_printf (markup,
-        "<script>var columns = %d; var rows = %d;"
-        "setThumbSize(%d);</script>\n",
-        cols, rows, thumb_size);
+        "<script>var columns=%d; var rows=%d;</script>", cols, rows);
 
-    g_string_append_printf (markup,
-        "<style type=\"text/css\">"
-        "#content div.shortcut { width: %dpx; height: %dpx; }\n"
-        "#content div.shortcut a { width: %dpx; height: %dpx; }\n"
-        "#content div.shortcut .cross { margin-left: %dpx; }\n"
-        "#content div.shortcut h1 { font-size: %dpx; height: %dpx; }\n"
-        "#wrap { width: %dpx; }\n"
-        "#content h4 span:before { visibility: %s; }\n</style>",
-        thumb_size + 40, (int)((thumb_size / 1.5) + 43),
-        thumb_size, (int)(thumb_size / 1.5),
-        thumb_size + 20,
-        (int)((thumb_size / 4) + 10), (int)((thumb_size / 4) - 10),
-        cols * (thumb_size + 60),
-        thumb_size < 160 ? "hidden" : "visible");
+    /* try to guess the best X by X grid  size */
+    while ((grid_index * grid_index) < slot_count)
+        grid_index++;
 
-    g_string_append (markup,
-        "<noscript><style type=\"text/css\">"
-        "#content h4 span:before { visibility: hidden; }\n"
-        "div.config { visibility: hidden; }\n"
-        ".cross { visibility:hidden; }\n"
-        ".activated p { background-image: none; }</style></noscript>");
+   /* percent width size of one slot */
+   slot_size = (100 / grid_index);
+   g_string_append_printf (markup,
+        "<style> div.shortcut { height: %d%%; width: %d%%; }</style>\n",
+        slot_size + 1, slot_size - 4);
 
-    while (slot <= rows * cols)
+    while (slot <= slot_count)
     {
         gchar* dial_entry = g_strdup_printf ("Dial %d", slot);
         gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
-        const gchar* position;
-        if (slot < cols)
-            position = " top";
-        else if (slot == cols)
-            position = " top right";
-        else if (slot > cols && slot % cols == 0)
-            position = " right";
-        else
-            position = "";
 
         if (uri && *uri && *uri != '#')
         {
@@ -3794,13 +3763,13 @@ prepare_speed_dial_html (MidoriView* view)
             g_free (thumb_file);
 
             g_string_append_printf (markup,
-                    "<div class=\"shortcut%s activated\" id=\"s%d\">\n"
-                    "<div onclick='javascript:clearShortcut(\"s%d\");' "
-                    "class='cross'></div>\n<a href=\"%s\">"
-                    "<img src=\"data:image/png;base64,%s\"></a>\n"
-                    "<p onclick='javascript:renameShortcut(\"s%d\");'>"
-                    "‪%s</p></div>\n",
-                    position, slot, slot, uri, encoded, slot, title);
+                "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview\">"
+                "<a href=\"%s\"><img style=\"width: 100%%;\" "
+                "src=\"data:image/png;base64,%s\"></a><a class=\"cross\" "
+                "href=\"#\" onclick='javascript:clearShortcut(\"s%d\");' ></a>"
+                "</div><div class=\"title\" "
+                "onclick='javascript:renameShortcut(\"s%d\");'>%s</div></div>\n",
+                slot, uri, encoded, slot, slot, title);
 
             g_free (title);
             g_free (encoded);
@@ -3808,12 +3777,11 @@ prepare_speed_dial_html (MidoriView* view)
         else
         {
             g_string_append_printf (markup,
-                    "<div class=\"shortcut%s\" id=\"s%d\">"
-                    "\n<a href=\"#\" onclick='javascript:return"
-                    " getAction(\"s%d\");'>"
-                    "<h1>%d</h1>\n<h4><span></span></h4>"
-                    "</a>\n<p></p></div>\n",
-                    position, slot, slot, slot);
+                "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview new\">"
+                "<a class=\"add\" href=\"#\" onclick='javascript:return "
+                " getAction(\"s%d\");'></a></div>"
+                "<div class=\"title\">%s</div></div>\n",
+                slot, slot, _("Click to add a shortcut"));
         }
 
         slot++;
@@ -3821,7 +3789,7 @@ prepare_speed_dial_html (MidoriView* view)
         g_free (uri);
     }
     g_string_append_printf (markup,
-            "</div>\n</div>\n</body>\n</html>\n");
+            "</div>\n</body>\n</html>\n");
 
     return g_string_free (markup, FALSE);
 }

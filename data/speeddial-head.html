@@ -4,166 +4,81 @@
  This file is licensed under the terms of the expat license, see the file EXPAT.
 -->
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>{title}</title>
     <style>
-    html, body, #content {
-        margin: 0px;
-        padding: 0px
+    * {
+        margin: 0;
+        padding: 0;
+        cursor: default;
+        font-size: 13px;
+        color: #4d4d4d;
     }
 
-    body {
-        text-align: center;
-        background-color: #fefefe;
+    html, body {
         font-family: sans-serif;
-    }
-
-    #wrap {
-        width: 660px;
-        height: 500px;
-        margin: 0px auto;
-        text-align: center;
+        width: 100%;
+        height: 100%;
+        outline: 0;
     }
 
     #content {
-        margin-top: 40px;
+        width: 100%;
+        height: 95%;
+        margin: 0 auto;
+        padding: 0;
     }
 
     div.shortcut {
+        width: 25%;
+        height: 33%;
         float: left;
-        border: 1px solid #ccc;
-        position: relative;
-        margin: 20px 20px 0px 0px;
-        background-color: #fff;
-        -webkit-border-radius: 10px;
     }
 
-    div.right {
-        margin-right: 0px;
-        margin-left: 0px;
+    div.shortcut .preview {
+        width: 70%;
+        height: 60%;
+        margin: 20% auto;
+        -webkit-box-shadow: 0 1px 6px rgba(0,0,0,.25), 0 0 2px #fff inset;
+        box-shadow: 0 1px 6px rgba(0,0,0,.25), 0 0 2px #fff inset;
+        background-image: -webkit-gradient(
+            linear, center top, center bottom,
+            from(#f6f6f6), to(#e3e3e3));
+        border: 1px solid #bebebe;
+        border-bottom-color: #a0a0a0;
     }
 
-    div.top {
-        margin-top: 0px;
-    }
-
-    h1 {
-        font-size: 50px;
-        font-weight: bold;
-        margin: 0px;
-        padding: 10px 0px 0px 0px;
+    div.shortcut .preview.new .add {
         display: block;
-    }
-
-    h4 {
-        font-size: 11px;
-        font-weight: bold
-        margin: 10px 0px 0px 0px;
-        padding: 10px 5px 0px;
-        display: block;
-    }
-
-    h4 span:before {
-        content: "{click_to_add}";
-        font-size: 11px;
-    }
-
-    h4 span {
-        font-size: 11px;
-    }
-
-    div.shortcut a {
-        border: 1px solid #ccc;
-        display: block;
-        margin: 15px auto 0px;
-        background-color: #fafafa;
-        color: #aaa;
-        text-decoration: none;
-    }
-
-    div.shortcut a img {
-        width: 100%;
         height: 100%;
+        width: 50%;
+        margin: 0 auto;
+        cursor: pointer;
     }
 
-    div.shortcut a:hover {
-        border: 1px solid #999;
-    }
-
-    div.shortcut p {
-        font-size: 12px;
-        margin: 0px;
-        padding: 5px 0px 0px;
-        color: #222;
+    .title {
+        text-align: center;
+        margin-top: -12%;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-    }
-
-    div.clear {
-        clear: both;
-    }
-
-    div.activated {
-        background-color: #f5f5f5;
+        cursor: text;
     }
 
     .cross {
-        height: 16px;
-        width: 16px;
-        margin-bottom: -17px;
-        margin-top: 2px;
-        background: url(stock://1/gtk-close) 98% 70% no-repeat;
-        cursor: pointer;
-        z-index: -4;
-        opacity: 0.6;
-    }
-
-    .cross:hover {
-        opacity: 1;
-    }
-
-    .activated p {
-        cursor: text;
-        background: url(stock://1/gtk-edit) 98% 70% no-repeat;
-        opacity: 0.6;
-        color: rgba(0,0,0,1);
-    }
-
-    .activated p:hover {
-        opacity: 1;
-        color: rgba(0,0,0,0.5);
-    }
-
-    div.config {
-        position: absolute;
-        top: 0px;
-        padding: 12px;
-        text-align: left;
-    }
-
-    div.config span {
-        color: #ccc;
-        margin-right: 10px;
-        margin-right: 10px;
-    }
-
-    div.config span.config_option:hover {
-        color: #999;
+        display: block;
+        width: 27px;
+        height: 27px;
+        top: -14px;
+        left: -14px;
+        background: url(res://close.png);
+        position: relative;
         cursor: pointer;
     }
 
-    div.config span.config_label {
-        color: #ccc;
-        cursor: default;
-        margin-right: 0px;
-    }
-
-    div.config span.config_option {
-        margin-left: 0px;
-        margin-right: 0px;
+    .box.added {
+        display:none;
     }
 
     div.osd {
@@ -187,7 +102,7 @@
 
     var getAction = function (id)
     {
-        var host = document.getElementById(id).childNodes[3].host;
+        var host = document.getElementById(id).childNodes[0].childNodes[0].host;
         if (host)
             return true;
 
@@ -205,7 +120,7 @@
 
     var renameShortcut = function (id)
     {
-        var old_name = document.getElementById(id).childNodes[5].textContent;
+        var old_name = document.getElementById(id).childNodes[1].textContent;
 
         var name = prompt ("{enter_shortcut_name}", old_name);
         if (!name) return;
@@ -219,44 +134,6 @@
             return;
 
         console.log ("speed_dial-save-delete " + id);
-    }
-
-    var setSize = function ()
-    {
-
-        var size = prompt ("{enter_dial_size}", columns + 'x' + rows);
-
-        if (!size) return;
-
-        var pos = size.indexOf('x');
-
-        if (pos <= 0)
-        {
-            alert ("{invalid_dial_size}");
-            return;
-        }
-
-        var cols = size.substr(0, pos);
-        rows = size.substr(pos+1);
-
-        if (isNaN (cols) || isNaN (rows) || cols == 0 || rows == 0)
-        {
-            alert ("{invalid_dial_size}");
-            return;
-        }
-
-        if (size.indexOf('.') >= 0)
-        {
-            alert ("{invalid_dial_size}");
-            return;
-        }
-
-        console.log ("speed_dial-save-size " + cols  + " " + rows);
-    }
-
-    var setThumbSize = function (size)
-    {
-        console.log ("speed_dial-save-thumbsize " + size);
     }
 
     var key_id = 's';
@@ -277,11 +154,11 @@
             if (key_id.substr(1) > 9)
             {
                 if (getAction (key_id))
-                    document.location = div.childNodes[3].href;
+                    document.location = div.childNodes[0].childNodes[0].href;
                 key_id = 's';
             }
             else
-                key_timeout = setTimeout ('if (getAction (key_id)) document.location = document.getElementById(key_id).childNodes[3].href; key_id = \'s\'', 1000);
+                key_timeout = setTimeout ('if (getAction (key_id)) document.location = document.getElementById(key_id).childNodes[0].childNodes[0].href; key_id = \'s\'', 1000);
         }
         else
             key_id = 's';
@@ -298,12 +175,4 @@
     <div class="osd" >
         <span id="dialing"></span>
     </div>
-    <div class="config">
-        <span onclick="javascript:setSize()" class="config_option">{set_dial_size}</span>
-        <span class="config_label">{set_thumb_size}</span>
-        <span onclick="javascript:setThumbSize(80)" class="config_option">{set_thumb_small}</span>
-        <span onclick="javascript:setThumbSize(160)" class="config_option">{set_thumb_normal}</span>
-        <span onclick="javascript:setThumbSize(240)" class="config_option">{set_thumb_big}</span>
-    </div>
-    <div id="wrap">
-        <div id="content">
+    <div id="content">
