@@ -371,7 +371,7 @@ def set_options (opt):
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())
-    add_enable_option ('gtk3', 'gtk3 and webkitgtk3 support')
+    add_enable_option ('gtk3', 'GTK+3 and WebKitGTK+3 support', group, disable=True)
 
     # Provided for compatibility
     opt.add_option ('--build', help='Ignored')
