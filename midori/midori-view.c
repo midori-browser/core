@@ -756,27 +756,29 @@ midori_view_update_icon (MidoriView* view,
 
     if (!((parts = g_strsplit (view->mime_type, "/", 2)) && (*parts && parts[1])))
     {
-        g_strfreev (parts);
         /* This is a hack to have a Find icon in the location while the
            blank page has a File icon. */
         icon = gtk_widget_render_icon (GTK_WIDGET (view),
             GTK_STOCK_FIND, GTK_ICON_SIZE_MENU, NULL);
         midori_view_apply_icon (view, icon, GTK_STOCK_FILE);
-        return;
+        goto free_parts;
     }
 
     if (midori_view_mime_icon (view, theme, "%s-%s", *parts, parts[1]))
-        return;
+        goto free_parts;
     if (midori_view_mime_icon (view, theme, "gnome-mime-%s-%s", *parts, parts[1]))
-        return;
+        goto free_parts;
     if (midori_view_mime_icon (view, theme, "%s-x-generic", *parts, NULL))
-        return;
+        goto free_parts;
     if (midori_view_mime_icon (view, theme, "gnome-mime-%s-x-generic", *parts, NULL))
-        return;
+        goto free_parts;
 
     icon = gtk_widget_render_icon (GTK_WIDGET (view),
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
     midori_view_apply_icon (view, icon, NULL);
+
+free_parts:
+    g_strfreev (parts);
 }
 
 typedef struct
