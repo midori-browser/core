@@ -3771,12 +3771,10 @@ prepare_speed_dial_html (MidoriView* view)
 
             g_string_append_printf (markup,
                 "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview\">"
-                "<a href=\"%s\"><img style=\"width: 100%%;\" "
-                "src=\"data:image/png;base64,%s\"></a><a class=\"cross\" "
-                "href=\"#\" onclick='javascript:clearShortcut(\"s%d\");' ></a>"
-                "</div><div class=\"title\" "
-                "onclick='javascript:renameShortcut(\"s%d\");'>%s</div></div>\n",
-                slot, uri, encoded, slot, slot, title);
+                "<a class=\"cross\" href=\"#\" onclick='clearShortcut(\"s%d\");'></a>"
+                "<a href=\"%s\"><img src=\"data:image/png;base64,%s\"></a>"
+                "</div><div class=\"title\" onclick='renameShortcut(\"s%d\");'>%s</div></div>\n",
+                slot, slot, uri, encoded, slot, title);
 
             g_free (title);
             g_free (encoded);
@@ -3785,9 +3783,8 @@ prepare_speed_dial_html (MidoriView* view)
         {
             g_string_append_printf (markup,
                 "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview new\">"
-                "<a class=\"add\" href=\"#\" onclick='javascript:return "
-                " getAction(\"s%d\");'></a></div>"
-                "<div class=\"title\">%s</div></div>\n",
+                "<a class=\"add\" href=\"#\" onclick='return getAction(\"s%d\");'></a>"
+                "</div><div class=\"title\">%s</div></div>\n",
                 slot, slot, _("Click to add a shortcut"));
         }
 
