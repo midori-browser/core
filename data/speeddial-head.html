@@ -127,10 +127,7 @@
         if (url.indexOf ("://") == -1)
             url = "http://" + url;
 
-        var name = prompt ("{enter_shortcut_name}", "");
-        if (!name) name = "";
-
-        console.log ("speed_dial-save-add " + id + " " + url + " " + name);
+        console.log ("speed_dial-save-add " + id + " " + url + " ");
         return false;
     }
 

@@ -5346,8 +5346,10 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     gchar* file_path;
     gchar* thumb_dir;
     gchar* thumb_uri;
+    gchar* thumb_slot;
     MidoriBrowser* browser;
     GKeyFile* key_file;
+    const gchar* title;
 
     if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
         return;
@@ -5373,7 +5375,6 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
 
     g_object_unref (img);
 
-    g_free (thumb_uri);
     g_free (file_path);
     g_free (thumb_dir);
 
@@ -5388,6 +5389,10 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
 
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     g_object_get (browser, "speed-dial", &key_file, NULL);
+    thumb_slot = g_object_get_data (G_OBJECT (thumb_view), "thumb-slot");
+    title = webkit_web_view_get_title (WEBKIT_WEB_VIEW (thumb_view));
+    g_key_file_set_string (key_file, thumb_slot, "title",
+        title ? title : thumb_uri);
     midori_view_save_speed_dial_config (view, key_file);
 }
 
@@ -5399,7 +5404,7 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
  */
 static void
 midori_view_speed_dial_get_thumb (MidoriView* view,
-                                  gchar*      dom_id,
+                                  gchar*      dial_id,
                                   gchar*      url)
 {
     WebKitWebSettings* settings;
@@ -5452,7 +5457,10 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
         NULL);
     webkit_web_view_set_settings (WEBKIT_WEB_VIEW (thumb_view), settings);
 
-    g_object_set_data (G_OBJECT (thumb_view), "thumb-uri", url);
+    g_object_set_data_full (G_OBJECT (thumb_view), "thumb-uri",
+                            g_strdup (url), (GDestroyNotify)g_free);
+    g_object_set_data_full (G_OBJECT (thumb_view), "thumb-slot",
+                            g_strdup (dial_id), (GDestroyNotify)g_free);
     g_signal_connect (thumb_view, "notify::load-status",
         G_CALLBACK (thumb_view_load_status_cb), view);
     webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view), url);
@@ -5534,8 +5542,7 @@ midori_view_speed_dial_save (MidoriView*  view,
         else if (g_str_equal (action, "add"))
         {
             g_key_file_set_string (key_file, dial_id, "uri", parts[2]);
-            g_key_file_set_string (key_file, dial_id, "title", parts[3]);
-            midori_view_speed_dial_get_thumb (view, parts[1], parts[2]);
+            midori_view_speed_dial_get_thumb (view, dial_id, parts[2]);
         }
         else if (g_str_equal (action, "rename"))
         {
