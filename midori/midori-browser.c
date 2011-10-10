@@ -2229,7 +2229,9 @@ static void
 _action_open_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
+    #if !GTK_CHECK_VERSION (3, 1, 10)
     static gchar* last_dir = NULL;
+    #endif
     gchar* uri = NULL;
     gboolean folder_set = FALSE;
     GtkWidget* dialog;
@@ -2260,8 +2262,10 @@ _action_open_activate (GtkAction*     action,
          }
      }
 
+     #if !GTK_CHECK_VERSION (3, 1, 10)
      if (!folder_set && last_dir && *last_dir)
          gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), last_dir);
+     #endif
 
      if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
      {
@@ -2270,10 +2274,11 @@ _action_open_activate (GtkAction*     action,
          folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
          uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (dialog));
          midori_browser_set_current_uri (browser, uri);
-
-         g_free (last_dir);
-         last_dir = folder;
          g_free (uri);
+
+         #if !GTK_CHECK_VERSION (3, 1, 10)
+         katze_assign (last_dir, folder);
+         #endif
      }
     gtk_widget_destroy (dialog);
 }
