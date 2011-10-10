@@ -2154,8 +2154,6 @@ main (int    argc,
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     sokoke_register_privacy_item ("web-cache", _("Web Cache"),
         G_CALLBACK (midori_clear_web_cache_cb));
-    #endif
-    #if WEBKIT_CHECK_VERSION (1, 3, 13)
     sokoke_register_privacy_item ("offline-appcache", _("Offline Application Cache"),
         G_CALLBACK (midori_clear_offline_appcache_cb));
     #endif
@@ -2194,7 +2192,9 @@ main (int    argc,
                           "enable-offline-web-application-cache", FALSE,
             /* Arguably DNS prefetching is or isn't a privacy concern. For the
              * lack of more fine-grained control we'll go the safe route. */
+            #if WEBKIT_CHECK_VERSION (1, 3, 11)
                           "enable-dns-prefetching", FALSE,
+            #endif
                           "strip-referer", TRUE, NULL);
             midori_browser_set_action_visible (browser, "Tools", FALSE);
             midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
