@@ -1158,6 +1158,8 @@ midori_load_soup_session_full (gpointer settings)
     SoupCookieJar* jar;
     gchar* config_file;
     SoupSessionFeature* feature;
+    gboolean have_new_cookies;
+    SoupSessionFeature* feature_import;
 
     midori_load_soup_session (settings);
 
@@ -1172,12 +1174,27 @@ midori_load_soup_session_full (gpointer settings)
     soup_session_add_feature (session, SOUP_SESSION_FEATURE (jar));
     g_object_unref (jar);
 
-    feature = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
-    config_file = build_config_filename ("cookies.txt");
+    katze_assign (config_file, build_config_filename ("cookies.db"));
+    have_new_cookies = g_access (config_file, F_OK) == 0;
+    feature = g_object_new (KATZE_TYPE_HTTP_COOKIES_SQLITE, NULL);
     g_object_set_data_full (G_OBJECT (feature), "filename",
                             config_file, (GDestroyNotify)g_free);
     soup_session_add_feature (session, feature);
     g_object_unref (feature);
+
+    if (!have_new_cookies)
+    {
+        katze_assign (config_file, build_config_filename ("cookies.txt"));
+        if (g_access (config_file, F_OK) == 0)
+        {
+            g_message ("Importing cookies from txt to sqlite3");
+            feature_import = g_object_new (KATZE_TYPE_HTTP_COOKIES, NULL);
+            g_object_set_data_full (G_OBJECT (feature_import), "filename",
+                                    config_file, (GDestroyNotify)g_free);
+            soup_session_add_feature (session, SOUP_SESSION_FEATURE (feature_import));
+            soup_session_remove_feature (session, SOUP_SESSION_FEATURE (feature_import));
+        }
+    }
 
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     config_file = g_build_filename (g_get_user_cache_dir (),

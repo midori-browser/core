@@ -14,6 +14,7 @@
 
 #include "katze-http-auth.h"
 #include "katze-http-cookies.h"
+#include "katze-http-cookies-sqlite.h"
 #include "katze-throbber.h"
 #include "katze-utils.h"
 #include "katze-item.h"
