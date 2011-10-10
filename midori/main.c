@@ -1165,7 +1165,6 @@ midori_load_soup_session_full (gpointer settings)
 
     config_file = build_config_filename ("logins");
     feature = g_object_new (KATZE_TYPE_HTTP_AUTH, "filename", config_file, NULL);
-    g_free (config_file);
     soup_session_add_feature (session, feature);
     g_object_unref (feature);
 
@@ -1197,15 +1196,15 @@ midori_load_soup_session_full (gpointer settings)
     }
 
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
-    config_file = g_build_filename (g_get_user_cache_dir (),
-                                    PACKAGE_NAME, "web", NULL);
+    katze_assign (config_file, g_build_filename (g_get_user_cache_dir (),
+                                                 PACKAGE_NAME, "web", NULL));
     feature = SOUP_SESSION_FEATURE (soup_cache_new (config_file, 0));
-    g_free (config_file);
     soup_session_add_feature (session, feature);
     soup_cache_set_max_size (SOUP_CACHE (feature),
         katze_object_get_int (settings, "maximum-cache-size") * 1024 * 1024);
     soup_cache_load (SOUP_CACHE (feature));
     #endif
+    g_free (config_file);
 
     return FALSE;
 }
