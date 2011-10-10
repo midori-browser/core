@@ -2230,8 +2230,8 @@ midori_download_prepare_tooltip_text (WebKitDownload* download)
     minutes_str = g_strdup_printf (ngettext ("%d minute", "%d minutes", minutes_left), minutes_left);
     seconds_str = g_strdup_printf (ngettext ("%d second", "%d seconds", seconds_left), seconds_left);
 
-    current = g_format_size_for_display (current_size);
-    total = g_format_size_for_display (total_size);
+    current = g_format_size (current_size);
+    total = g_format_size (total_size);
     last_time = g_object_get_data (G_OBJECT (download), "last-time");
     last_size = g_object_get_data (G_OBJECT (download), "last-size");
 
@@ -2241,7 +2241,7 @@ midori_download_prepare_tooltip_text (WebKitDownload* download)
     g_free (total);
 
     if (time_elapsed != *last_time)
-        download_speed = g_format_size_for_display (
+        download_speed = g_format_size (
                 (current_size - *last_size) / (time_elapsed - *last_time));
     else
         /* i18n: Unknown number of bytes, used for transfer rate like ?B/s */

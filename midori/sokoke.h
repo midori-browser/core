@@ -25,6 +25,10 @@
     #define g_content_type_from_mime_type(mtp) g_strdup (mtp)
 #endif
 
+#if !GLIB_CHECK_VERSION (2, 30, 0)
+    #define g_format_size(sz) g_format_size_for_display ((goffset)sz)
+#endif
+
 #if !GTK_CHECK_VERSION (2, 14, 0)
     #define gtk_dialog_get_content_area(dlg) dlg->vbox
     #define gtk_dialog_get_action_area(dlg) dlg->action_area

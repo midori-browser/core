@@ -960,8 +960,8 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
         }
         else if (free_space < total_size)
         {
-            gchar* total_size_string = g_format_size_for_display (total_size);
-            gchar* free_space_string = g_format_size_for_display (free_space);
+            gchar* total_size_string = g_format_size (total_size);
+            gchar* free_space_string = g_format_size (free_space);
             message = g_strdup_printf (
                 _("There is not enough free space to download \"%s\"."),
                   &uri[7]);
