@@ -753,6 +753,8 @@ midori_view_update_icon (MidoriView* view,
     if (!((screen = gtk_widget_get_screen (GTK_WIDGET (view)))
         && (theme = gtk_icon_theme_get_for_screen (screen))))
         return;
+    if (view->mime_type == NULL)
+        return;
 
     if (!((parts = g_strsplit (view->mime_type, "/", 2)) && (*parts && parts[1])))
     {
@@ -1541,7 +1543,10 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         guint i = 0;
         gchar* default_uri = NULL;
 
-        katze_array_clear (view->news_feeds);
+        if (view->news_feeds != NULL)
+            katze_array_clear (view->news_feeds);
+        else
+            view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
         if (items != NULL)
         while (items[i] != NULL)
         {
@@ -3039,7 +3044,7 @@ midori_view_init (MidoriView* view)
     view->uri = NULL;
     view->title = NULL;
     view->security = MIDORI_SECURITY_NONE;
-    view->mime_type = g_strdup ("");
+    view->mime_type = NULL;
     view->icon = NULL;
     view->icon_uri = NULL;
     view->memory = midori_view_get_memory ();
@@ -3050,7 +3055,7 @@ midori_view_init (MidoriView* view)
     view->hit_test = NULL;
     view->link_uri = NULL;
     view->selected_text = NULL;
-    view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
+    view->news_feeds = NULL;
     view->find_links = -1;
     view->alerts = 0;
 
@@ -4783,7 +4788,7 @@ midori_view_can_zoom_in (MidoriView* view)
 
     return view->web_view != NULL
         && (katze_object_get_boolean (view->settings, "zoom-text-and-images")
-        || !g_str_has_prefix (view->mime_type, "image/"));
+        || !g_str_has_prefix (view->mime_type ? view->mime_type : "", "image/"));
 }
 
 gboolean
@@ -4793,7 +4798,7 @@ midori_view_can_zoom_out (MidoriView* view)
 
     return view->web_view != NULL
         && (katze_object_get_boolean (view->settings, "zoom-text-and-images")
-        || !g_str_has_prefix (view->mime_type, "image/"));
+        || !g_str_has_prefix (view->mime_type ? view->mime_type : "", "image/"));
 }
 
 gboolean
@@ -4805,7 +4810,7 @@ midori_view_can_view_source (MidoriView* view)
 
     g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
 
-    if (midori_view_is_blank (view))
+    if (midori_view_is_blank (view) || view->mime_type == NULL)
         return FALSE;
 
     content_type = g_content_type_from_mime_type (view->mime_type);
