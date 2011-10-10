@@ -80,7 +80,7 @@ adblock_build_js (const gchar* style,
         style);
 }
 
-static gchar *
+static GString*
 adblock_fixup_regexp (const gchar* prefix,
                       gchar*       src);
 
@@ -653,9 +653,12 @@ adblock_is_matched_by_key (const gchar*  req_uri,
     gint len;
     int pos = 0;
     GList* regex_bl = NULL;
+    GString* guri;
 
-    uri = adblock_fixup_regexp ("", (gchar*)req_uri);
-    len = strlen (uri);
+    guri = adblock_fixup_regexp ("", (gchar*)req_uri);
+    uri = guri->str;
+    len = guri->len;
+
     for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--)
     {
         gchar* sig = g_strndup (uri + pos, SIGNATURE_SIZE);
@@ -686,7 +689,7 @@ adblock_is_matched_by_key (const gchar*  req_uri,
         }
         g_free (sig);
     }
-    g_free (uri);
+    g_string_free (guri, TRUE);
     g_list_free (regex_bl);
     return FALSE;
 }
@@ -1031,11 +1034,10 @@ adblock_app_add_browser_cb (MidoriApp*       app,
     g_object_unref (statusbar);
 }
 
-static gchar *
+static GString*
 adblock_fixup_regexp (const gchar* prefix,
                       gchar*       src)
 {
-    gchar* dst;
     GString* str;
     int len = 0;
 
@@ -1056,14 +1058,12 @@ adblock_fixup_regexp (const gchar* prefix,
         {
         case '*':
             g_string_append (str, ".*");
-            len += 2;
             break;
         /*case '.':
             g_string_append (str, "\\.");
             break;*/
         case '?':
             g_string_append (str, "\\?");
-            len += 2;
             break;
         case '|':
         /* FIXME: We actually need to match :[0-9]+ or '/'. Sign means
@@ -1074,31 +1074,36 @@ adblock_fixup_regexp (const gchar* prefix,
             break;
         default:
             g_string_append_printf (str,"%c", *src);
-            len++;
             break;
         }
         src++;
     }
     while (*src);
 
-    dst = g_string_free (str, FALSE);
+    len = str->len;
     /* We dont need .* in the end of url. Thats stupid */
-    if (dst && dst[len-1] == '*' && dst[len-2] == '.')
-        dst[len-2] = '\0';
-    return dst;
+    if (str->str && str->str[len-1] == '*' && str->str[len-2] == '.')
+        g_string_erase (str, len-2, 2);
+
+    return str;
 }
 
-static void
-adblock_compile_regexp (gchar* patt,
-                        gchar* opts)
+static gboolean
+adblock_compile_regexp (GString* gpatt,
+                        gchar*   opts)
 {
     GRegex* regex;
     GError* error = NULL;
     int pos = 0;
     gchar *sig;
+    gchar *patt;
+    int len;
 
-    if (!patt)
-        return;
+    if (!gpatt)
+        return FALSE;
+
+    patt = gpatt->str;
+    len = gpatt->len;
 
     /* TODO: Play with optimization flags */
     regex = g_regex_new (patt, G_REGEX_OPTIMIZE,
@@ -1107,12 +1112,11 @@ adblock_compile_regexp (gchar* patt,
     {
         g_warning ("%s: %s", G_STRFUNC, error->message);
         g_error_free (error);
-        return;
+        return TRUE;
     }
 
     if (!g_regex_match_simple ("^/.*[\\^\\$\\*].*/$", patt, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY))
     {
-        int len = strlen (patt);
         int signature_count = 0;
 
         for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--) {
@@ -1138,7 +1142,11 @@ adblock_compile_regexp (gchar* patt,
             }
         }
         if (signature_count > 1 && g_hash_table_lookup (pattern, patt))
+        {
             g_hash_table_steal (pattern, patt);
+            return TRUE;
+        }
+        return FALSE;
     }
     else
     {
@@ -1146,6 +1154,7 @@ adblock_compile_regexp (gchar* patt,
         /* Pattern is a regexp chars */
         g_hash_table_insert (pattern, patt, regex);
         g_hash_table_insert (optslist, patt, g_strdup (opts));
+        return FALSE;
     }
 }
 
@@ -1156,8 +1165,9 @@ adblock_add_url_pattern (gchar* prefix,
 {
     gchar** data;
     gchar* patt;
-    gchar* format_patt;
+    GString* format_patt;
     gchar* opts;
+    gboolean should_free;
 
     data = g_strsplit (line, "$", -1);
     if (!data || !data[0])
@@ -1191,12 +1201,17 @@ adblock_add_url_pattern (gchar* prefix,
 
     format_patt = adblock_fixup_regexp (prefix, patt);
 
-    adblock_debug ("got: %s opts %s", format_patt, opts);
-    adblock_compile_regexp (format_patt, opts);
+    adblock_debug ("got: %s opts %s", format_patt->str, opts);
+    should_free = adblock_compile_regexp (format_patt, opts);
 
     g_free (opts);
     g_free (patt);
-    return format_patt;
+
+    #if G_ENABLE_DEBUG
+    return g_string_free (format_patt, FALSE);
+    #else
+    return g_string_free (format_patt, should_free);
+    #endif
 }
 
 static inline void
