@@ -1457,11 +1457,19 @@ midori_run_script (const gchar* filename)
     return 1;
 }
 
+#define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)
+
 static void
 snapshot_load_finished_cb (GtkWidget*      web_view,
                            WebKitWebFrame* web_frame,
                            gchar*          filename)
 {
+    #if HAVE_OFFSCREEN
+    GdkPixbuf* pixbuf = gtk_offscreen_window_get_pixbuf (GTK_OFFSCREEN_WINDOW (
+        gtk_widget_get_parent (web_view)));
+    gdk_pixbuf_save (pixbuf, filename, "png", NULL, "compression", "7", NULL);
+    g_object_unref (pixbuf);
+    #else
     GError* error;
     GtkPrintOperation* operation = gtk_print_operation_new ();
 
@@ -1477,6 +1485,7 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
     }
 
     g_object_unref (operation);
+    #endif
     g_print (_("Snapshot saved to: %s\n"), filename);
     gtk_main_quit ();
 }
@@ -2082,8 +2091,14 @@ main (int    argc,
         gchar* filename;
         gint fd;
         GtkWidget* web_view;
+        #if HAVE_OFFSCREEN
+        GtkWidget* offscreen;
+        GdkScreen* screen;
 
+        fd = g_file_open_tmp ("snapshot-XXXXXX.png", &filename, &error);
+        #else
         fd = g_file_open_tmp ("snapshot-XXXXXX.pdf", &filename, &error);
+        #endif
         close (fd);
 
         error = NULL;
@@ -2100,6 +2115,16 @@ main (int    argc,
         }
 
         web_view = webkit_web_view_new ();
+        #if HAVE_OFFSCREEN
+        offscreen = gtk_offscreen_window_new ();
+        gtk_container_add (GTK_CONTAINER (offscreen), web_view);
+        if ((screen = gdk_screen_get_default ()))
+            gtk_widget_set_size_request (web_view,
+                gdk_screen_get_width (screen), gdk_screen_get_height (screen));
+        else
+            gtk_widget_set_size_request (web_view, 800, 600);
+        gtk_widget_show_all (offscreen);
+        #endif
         g_signal_connect (web_view, "load-finished",
             G_CALLBACK (snapshot_load_finished_cb), filename);
         webkit_web_view_open (WEBKIT_WEB_VIEW (web_view), snapshot);
