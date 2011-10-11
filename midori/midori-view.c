@@ -2609,7 +2609,7 @@ midori_view_populate_popup (MidoriView* view,
                 gtk_action_group_get_action (actions, "BookmarkAdd"));
         gtk_menu_shell_append (menu_shell, menuitem);
 
-        if (!midori_view_is_blank (view) && sokoke_is_app_or_private ())
+        if (!midori_view_is_blank (view) && !sokoke_is_app_or_private ())
         {
             menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "AddSpeedDial"));
@@ -3332,6 +3332,12 @@ midori_view_settings_notify_cb (MidoriWebSettings* settings,
         view->middle_click_opens_selection = g_value_get_boolean (&value);
     else if (name == g_intern_string ("open-tabs-in-the-background"))
         view->open_tabs_in_the_background = g_value_get_boolean (&value);
+    else if (name == g_intern_string ("enable-scripts"))
+    {
+        /* Speed dial is only editable with scripts, so regenerate it */
+        if (midori_view_is_blank (view))
+            midori_view_reload (view, FALSE);
+    }
 
     g_value_unset (&value);
 }
@@ -3740,8 +3746,12 @@ prepare_speed_dial_html (MidoriView* view)
 
    /* percent width size of one slot */
    slot_size = (100 / grid_index);
+   /* No editing in private/ app mode or without scripts */
    g_string_append_printf (markup,
+        "%s<style>.cross { display:none }</style>%s"
         "<style> div.shortcut { height: %d%%; width: %d%%; }</style>\n",
+        sokoke_is_app_or_private () ? "" : "<noscript>",
+        sokoke_is_app_or_private () ? "" : "</noscript>",
         slot_size + 1, slot_size - 4);
 
     while (slot <= slot_count)

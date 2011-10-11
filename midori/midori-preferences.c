@@ -296,7 +296,7 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     #define SPANNED_ADD(__widget) \
      katze_preferences_add_widget (_preferences, __widget, "spanned")
     /* Page "General" */
-    if (sokoke_is_app_or_private ())
+    if (!sokoke_is_app_or_private ())
     {
     PAGE_NEW (GTK_STOCK_HOME, _("Startup"));
     FRAME_NEW (NULL);

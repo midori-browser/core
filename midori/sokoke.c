@@ -1633,7 +1633,7 @@ sokoke_set_config_dir (const gchar* new_config_dir)
 gboolean
 sokoke_is_app_or_private (void)
 {
-    return strcmp ("/", sokoke_set_config_dir (NULL));
+    return !strcmp ("/", sokoke_set_config_dir (NULL));
 }
 
 /**
