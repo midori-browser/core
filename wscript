@@ -472,8 +472,8 @@ def build (bld):
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 
-    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/error.html')
-    bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/speeddial-head.html')
+    for res_file in ['error.html', 'speeddial-head.html', 'close.png']:
+        bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/' + res_file)
 
     if bld.env['addons']:
         bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
