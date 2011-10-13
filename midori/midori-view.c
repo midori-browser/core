@@ -3754,6 +3754,10 @@ prepare_speed_dial_html (MidoriView* view)
         sokoke_is_app_or_private () ? "" : "</noscript>",
         slot_size + 1, slot_size - 4);
 
+    if (katze_object_get_boolean (view->settings, "close-buttons-left"))
+        g_string_append_printf (markup,
+            "<style>.cross { left: -14px }</style>");
+
     while (slot <= slot_count)
     {
         gchar* dial_entry = g_strdup_printf ("Dial %d", slot);
