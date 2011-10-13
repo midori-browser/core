@@ -6503,6 +6503,9 @@ _midori_browser_update_settings (MidoriBrowser* browser)
                   "news-aggregator", &browser->news_aggregator,
                   NULL);
 
+    midori_findbar_set_close_button_left (MIDORI_FINDBAR (browser->find),
+        katze_object_get_boolean (browser->settings, "close-buttons-left"));
+
     if (remember_last_window_size)
     {
         if (browser->last_window_width && browser->last_window_height)
@@ -6626,6 +6629,11 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     else if (name == g_intern_string ("news-aggregator"))
     {
         katze_assign (browser->news_aggregator, g_value_dup_string (&value));
+    }
+    else if (name == g_intern_string ("close-buttons-left"))
+    {
+        midori_findbar_set_close_button_left (MIDORI_FINDBAR (browser->find),
+                                              g_value_get_boolean (&value));
     }
     else if (!g_object_class_find_property (G_OBJECT_GET_CLASS (web_settings),
                                              name))

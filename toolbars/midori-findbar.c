@@ -324,11 +324,7 @@ midori_findbar_init (MidoriFindbar* findbar)
                                _("Close Findbar"));
     g_signal_connect (findbar->find_close, "clicked",
         G_CALLBACK (midori_findbar_button_close_clicked_cb), findbar);
-    #if HAVE_OSX
-    gtk_toolbar_insert (GTK_TOOLBAR (findbar), findbar->find_close, 0);
-    #else
     gtk_toolbar_insert (GTK_TOOLBAR (findbar), findbar->find_close, -1);
-    #endif
     sokoke_container_show_children (GTK_CONTAINER (findbar));
 }
 
@@ -382,4 +378,15 @@ midori_findbar_search_text (MidoriFindbar* findbar,
     }
 }
 
+void
+midori_findbar_set_close_button_left (MidoriFindbar* findbar,
+                                      gboolean       close_button_left)
+{
+    g_object_ref (findbar->find_close);
+    gtk_container_remove (GTK_CONTAINER (findbar),
+                          GTK_WIDGET (findbar->find_close));
+    gtk_toolbar_insert (GTK_TOOLBAR (findbar), findbar->find_close,
+        close_button_left ? 0 : -1);
+    g_object_unref (findbar->find_close);
+}
 

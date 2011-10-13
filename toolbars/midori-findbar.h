@@ -57,6 +57,10 @@ midori_findbar_search_text            (MidoriFindbar* findbar,
                                        gboolean       found,
                                        gchar*         typing);
 
+void
+midori_findbar_set_close_button_left  (MidoriFindbar* findbar,
+                                       gboolean       close_button_left);
+
 G_END_DECLS
 
 #endif /* __MIDORI_FINDBAR_H__ */
