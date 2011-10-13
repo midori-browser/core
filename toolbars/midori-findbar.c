@@ -112,15 +112,12 @@ static void
 midori_findbar_entry_clear_icon_released_cb (GtkIconEntry* entry,
                                              gint          icon_pos,
                                              gint          button,
-                                             gpointer      user_data)
+                                             MidoriFindbar*findbar)
 {
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
     {
         gtk_entry_set_text (GTK_ENTRY (entry), "");
-        #if !HAVE_HILDON
-        gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                                            GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FIND);
-        #endif
+        midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, "edit-find");
     }
 }
 
@@ -271,7 +268,7 @@ midori_findbar_init (MidoriFindbar* findbar)
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (findbar->find_text),
                                        GTK_ICON_ENTRY_SECONDARY, TRUE);
     g_signal_connect (findbar->find_text, "icon-release",
-        G_CALLBACK (midori_findbar_entry_clear_icon_released_cb), NULL);
+        G_CALLBACK (midori_findbar_entry_clear_icon_released_cb), findbar);
     g_signal_connect (findbar->find_text, "activate",
         G_CALLBACK (midori_findbar_next_activate_cb), findbar);
     g_signal_connect (findbar->find_text, "preedit-changed",
