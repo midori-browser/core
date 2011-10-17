@@ -645,20 +645,6 @@ sokoke_hostname_from_uri (const gchar* uri,
 }
 
 /**
- * sokoke_hostname_to_ascii:
- * @uri: an URI string
- *
- * The specified hostname is encoded if it is not ASCII.
- *
- * Return value: a newly allocated hostname
- **/
-static gchar*
-sokoke_hostname_to_ascii (const gchar* hostname)
-{
-    return g_hostname_to_ascii (hostname);
-}
-
-/**
  * sokoke_uri_to_ascii:
  * @uri: an URI string
  *
@@ -690,7 +676,7 @@ sokoke_uri_to_ascii (const gchar* uri)
     }
 
     hostname = sokoke_hostname_from_uri (uri, &path);
-    encoded = sokoke_hostname_to_ascii (hostname);
+    encoded = g_hostname_to_ascii (hostname);
 
     if (encoded)
     {
@@ -864,7 +850,7 @@ sokoke_magic_uri (const gchar* uri)
     if (!strchr (uri, ' ') &&
         ((search = strchr (uri, ':')) || (search = strchr (uri, '@'))) &&
         search[0] && !g_ascii_isalpha (search[1]))
-        return sokoke_idn_to_punycode (g_strconcat ("http://", uri, NULL));
+        return g_strconcat ("http://", uri, NULL);
     if ((!strcmp (uri, "localhost") || strchr (uri, '/'))
       && sokoke_resolve_hostname (uri))
         return g_strconcat ("http://", uri, NULL);
@@ -878,7 +864,7 @@ sokoke_magic_uri (const gchar* uri)
                 {
                     search = g_strconcat ("http://", uri, NULL);
                     g_strfreev (parts);
-                   return sokoke_idn_to_punycode (search);
+                   return search;
                 }
         }
         g_strfreev (parts);
@@ -1933,11 +1919,7 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     if (!s_uri || !s_uri->host)
         return FALSE;
 
-    #if GLIB_CHECK_VERSION (2, 22, 0)
     if (g_hostname_is_ip_address (s_uri->host))
-    #else
-    if (g_ascii_isdigit (s_uri->host[0]) && g_strstr_len (s_uri->host, 4, "."))
-    #endif
     {
         soup_uri_free (s_uri);
         return FALSE;

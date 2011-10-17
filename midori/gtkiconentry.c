@@ -1419,8 +1419,6 @@ icon_theme_changed (GtkIconEntry *entry)
 
 	  gtk_icon_entry_set_icon_from_icon_name (entry, i, priv->icons[i].icon_name);
 	}
-
-      #if GLIB_CHECK_VERSION (2, 16, 0)
       else if (priv->icons[i].storage_type == _GTK_IMAGE_GICON)
 	{
 	  g_object_unref (priv->icons[i].pixbuf);
@@ -1428,7 +1426,6 @@ icon_theme_changed (GtkIconEntry *entry)
 
 	  gtk_icon_entry_set_icon_from_gicon (entry, i, priv->icons[i].gicon);
 	}
-      #endif
     }
 
   gtk_widget_queue_draw (GTK_WIDGET (entry));

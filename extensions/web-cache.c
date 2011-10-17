@@ -330,14 +330,8 @@ web_cache_mesage_got_headers_cb (SoupMessage* msg,
         if (!web_cache_save_headers (msg, filename))
             return;
 
-        #if GLIB_CHECK_VERSION (2, 20, 0)
         ostream = (GOutputStream*)g_file_append_to (file,
             G_FILE_CREATE_PRIVATE | G_FILE_CREATE_REPLACE_DESTINATION, NULL, NULL);
-        #else
-        g_unlink (filename);
-        ostream = (GOutputStream*)g_file_append_to (file,
-            G_FILE_CREATE_PRIVATE, NULL, NULL);
-        #endif
         g_object_unref (file);
 
         if (!ostream)

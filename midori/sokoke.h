@@ -16,15 +16,6 @@
 #include <JavaScriptCore/JavaScript.h>
 #include <midori/midori-websettings.h>
 
-#if !GLIB_CHECK_VERSION (2, 14, 0)
-    #define G_PARAM_STATIC_STRINGS \
-    (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
-#endif
-
-#if !GLIB_CHECK_VERSION (2, 18, 0)
-    #define g_content_type_from_mime_type(mtp) g_strdup (mtp)
-#endif
-
 #if !GLIB_CHECK_VERSION (2, 30, 0)
     #define g_format_size(sz) g_format_size_for_display ((goffset)sz)
 #endif

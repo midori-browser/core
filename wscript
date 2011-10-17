@@ -185,7 +185,7 @@ def configure (conf):
     conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
-    check_pkg ('gio-2.0', '2.16.0')
+    check_pkg ('gio-2.0', '2.22.0')
     args = ''
     if Options.platform == 'win32':
         args = '--define-variable=target=win32'
