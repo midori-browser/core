@@ -1091,12 +1091,19 @@ midori_browser_speed_dial_get_next_free_slot (MidoriView* view)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     GKeyFile* key_file;
-    guint cols, rows, slot = 1;
+    guint slot_count = 0, slot = 1, i;
+    gchar** groups;
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
-    rows = g_key_file_get_integer (key_file, "settings", "rows", NULL);
-    cols = g_key_file_get_integer (key_file, "settings", "columns", NULL);
-    while (slot <= cols * rows)
+
+    groups = g_key_file_get_groups (key_file, NULL);
+    for (i = 0; groups[i]; i++)
+    {
+        if (g_key_file_has_key (key_file, groups[i], "uri", NULL))
+            slot_count++;
+    }
+
+    while (slot <= slot_count)
     {
         gchar* dial_id = g_strdup_printf ("Dial %d", slot);
         if (!g_key_file_has_group (key_file, dial_id))
@@ -1107,7 +1114,7 @@ midori_browser_speed_dial_get_next_free_slot (MidoriView* view)
         g_free (dial_id);
         slot++;
     }
-    return NULL;
+    return g_strdup_printf ("s%d", slot_count + 1);
 }
 
 static void

@@ -3686,7 +3686,7 @@ prepare_speed_dial_html (MidoriView* view)
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     GKeyFile* key_file;
     GString* markup = NULL;
-    guint rows, cols, slot = 1;
+    guint slot = 1;
     guint slot_count = 1, i, grid_index = 3, slot_size;
     gchar* speed_dial_head;
     gchar* file_path;
@@ -3708,11 +3708,7 @@ prepare_speed_dial_html (MidoriView* view)
             "{title}", _("Speed Dial"),
             "{click_to_add}", _("Click to add a shortcut"),
             "{enter_shortcut_address}", _("Enter shortcut address"),
-            "{enter_shortcut_name}", _("Enter shortcut title"),
             "{are_you_sure}", _("Are you sure you want to delete this shortcut?"),
-            "{set_dial_size}", _("Set number of columns and rows"),
-            "{enter_dial_size}", _("Enter number of columns and rows:"),
-            "{invalid_dial_size}", _("Invalid input for the size of the speed dial"),
             NULL);
 
         markup = g_string_new (header);
@@ -3727,18 +3723,12 @@ prepare_speed_dial_html (MidoriView* view)
         return g_strdup ("");
     }
 
-    rows = g_key_file_get_integer (key_file, "settings", "rows", NULL);
-    cols = g_key_file_get_integer (key_file, "settings", "columns", NULL);
-
     groups = g_key_file_get_groups (key_file, NULL);
     for (i = 0; groups[i]; i++)
     {
         if (g_key_file_has_key (key_file, groups[i], "uri", NULL))
 	    slot_count++;
     }
-
-    g_string_append_printf (markup,
-        "<script>var columns=%d; var rows=%d;</script>", cols, rows);
 
     /* try to guess the best X by X grid  size */
     while ((grid_index * grid_index) < slot_count)
@@ -5495,12 +5485,7 @@ midori_view_speed_dial_save (MidoriView*  view,
     g_object_get (browser, "speed-dial", &key_file, NULL);
     action = parts[0];
 
-    if (g_str_equal (action, "size"))
-    {
-        g_key_file_set_string (key_file, "settings", "rows", parts[2]);
-        g_key_file_set_string (key_file, "settings", "columns", parts[1]);
-    }
-    else if (g_str_equal (action, "thumbsize"))
+    if (g_str_equal (action, "thumbsize"))
     {
         gchar* saved_size;
         gchar* thumb_size_type;
