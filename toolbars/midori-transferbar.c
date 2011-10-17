@@ -169,8 +169,11 @@ midori_transferbar_download_notify_status_cb (WebKitDownload* download,
             }
             g_strfreev (fingerprint);
             if (verified)
-                gtk_recent_manager_add_item (gtk_recent_manager_get_default (),
-                    webkit_download_get_destination_uri (download));
+            {
+                if (!sokoke_is_app_or_private ())
+                    gtk_recent_manager_add_item (gtk_recent_manager_get_default (),
+                        webkit_download_get_destination_uri (download));
+            }
             else
                 gtk_image_set_from_stock (GTK_IMAGE (icon),
                     GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU);
