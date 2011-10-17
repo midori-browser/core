@@ -590,12 +590,11 @@ extension_init (void)
         "authors", "Alexander V. Butenko <a.butenka@gmail.com>",
         NULL);
 
-    midori_extension_install_boolean (extension, "always-load", TRUE);
-
     g_free (desc);
 
     if (should_init)
     {
+        midori_extension_install_boolean (extension, "always-load", TRUE);
         g_signal_connect (extension, "activate",
             G_CALLBACK (formhistory_activate_cb), NULL);
         g_signal_connect (extension, "open-preferences",
