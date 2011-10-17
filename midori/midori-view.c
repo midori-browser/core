@@ -3910,10 +3910,6 @@ midori_view_set_uri (MidoriView*  view,
                 #endif
 
                 katze_assign (view->uri, g_strdup (uri));
-                #ifndef WEBKIT_USER_AGENT_MAJOR_VERSION
-                    #define WEBKIT_USER_AGENT_MAJOR_VERSION 532
-                    #define WEBKIT_USER_AGENT_MINOR_VERSION 1
-                #endif
                 #ifdef G_ENABLE_DEBUG
                     #define DEBUGGING " (Debug)"
                 #else
@@ -3933,7 +3929,6 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>libsoup</td><td>%s</td></tr>"
                     "<tr><td>libnotify</td><td>%s</td></tr>"
-                    "<tr><td>libidn</td><td>%s</td></tr>"
                     "<tr><td>libunique</td><td>%s</td></tr>"
                     "<tr><td>libhildon</td><td>%s</td></tr>"
                     "<tr><td>Platform</td><td>%s</td></tr>"
@@ -3957,7 +3952,6 @@ midori_view_set_uri (MidoriView*  view,
                     glib_major_version, glib_minor_version, glib_micro_version,
                     LIBSOUP_VERSION,
                     HAVE_LIBNOTIFY ? "Yes" : "No",
-                    HAVE_LIBIDN ? "Yes" : "No",
                     HAVE_UNIQUE ? "Yes" : "No",
                     HAVE_HILDON ? "Yes" : "No",
                     sys_name, ident,

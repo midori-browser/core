@@ -766,10 +766,8 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "enable-html5-local-storage", NULL);
     katze_preferences_add_widget (preferences, button, "spanned");
-    #if HAVE_LIBSOUP_2_27_90
     button = katze_property_proxy (settings, "strip-referer", NULL);
     katze_preferences_add_widget (preferences, button, "indented");
-    #endif
     katze_preferences_add_widget (preferences, gtk_label_new (NULL), "indented");
     button = katze_property_label (settings, "maximum-history-age");
     katze_preferences_add_widget (preferences, button, "indented");
@@ -950,7 +948,6 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
     soup_message_headers_append (msg->request_headers, "Accept-Language", accpt);
     g_free (accpt);
 
-    #if HAVE_LIBSOUP_2_27_90
     if (katze_object_get_boolean (settings, "strip-referer"))
     {
         const gchar* referer
@@ -971,7 +968,6 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
             g_free (stripped_referer);
         }
     }
-    #endif
 }
 
 static void

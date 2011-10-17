@@ -1128,10 +1128,6 @@ generate_ident_string (MidoriWebSettings* web_settings,
 
     const gchar* lang = pango_language_to_string (gtk_get_default_language ());
 
-    #ifndef WEBKIT_USER_AGENT_MAJOR_VERSION
-        #define WEBKIT_USER_AGENT_MAJOR_VERSION 532
-        #define WEBKIT_USER_AGENT_MINOR_VERSION 1
-    #endif
     const int webcore_major = WEBKIT_USER_AGENT_MAJOR_VERSION;
     const int webcore_minor = WEBKIT_USER_AGENT_MINOR_VERSION;
 

@@ -210,27 +210,14 @@ def configure (conf):
     webkit_version = conf.check_cfg (modversion='webkit-1.0').split ('.')
     if int(webkit_version[0]) >= 1 and int(webkit_version[1]) >= 5 and int(webkit_version[2]) >= 1:
         check_pkg ('javascriptcoregtk-1.0', '1.1.17', args=args)
-    check_pkg ('libsoup-2.4', '2.25.2')
+    check_pkg ('libsoup-2.4', '2.27.90')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
-    check_pkg ('libsoup-2.4', '2.27.90', False, var='LIBSOUP_2_27_90')
+    conf.define ('HAVE_LIBSOUP_2_27_90', 1)
     check_pkg ('libsoup-2.4', '2.29.3', False, var='LIBSOUP_2_29_3')
     check_pkg ('libsoup-2.4', '2.29.91', False, var='LIBSOUP_2_29_91')
     conf.define ('LIBSOUP_VERSION', conf.check_cfg (modversion='libsoup-2.4'))
     check_pkg ('libxml-2.0', '2.6')
     check_pkg ('sqlite3', '3.0', True, var='SQLITE')
-
-    if conf.env['HAVE_LIBSOUP_2_27_90']:
-       idn = 'yes'
-       conf.define ('HAVE_LIBIDN', 0)
-    else:
-        if option_enabled ('libidn'):
-            check_pkg ('libidn', '1.0', False)
-            idn = ['N/A','yes'][conf.env['HAVE_LIBIDN'] == 1]
-            if idn != 'yes':
-                option_checkfatal ('libidn', 'international domain names')
-        else:
-            idn = 'no '
-        conf.define ('HAVE_LIBIDN', [0,1][idn == 'yes'])
 
     if option_enabled ('hildon'):
         if check_pkg ('hildon-1', mandatory=False, var='HILDON'):
@@ -322,7 +309,6 @@ def configure (conf):
         Icon optimizations:  %(icons)s (rsvg-convert)
         Notifications:       %(libnotify)s (libnotify)
 
-        IDN support:         %(idn)s (libidn or libsoup 2.27.90)
         API documentation:   %(api_docs)s (gtk-doc)
         ''' % locals ())
     if unique == 'yes' and conf.check_cfg (modversion='unique-1.0') == '1.0.4':
@@ -366,7 +352,6 @@ def set_options (opt):
 
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group)
-    add_enable_option ('libidn', 'international domain name support', group)
     add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)

@@ -35,12 +35,6 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 
-#if HAVE_LIBIDN
-    #include <stringprep.h>
-    #include <punycode.h>
-    #include <idna.h>
-#endif
-
 #ifdef HAVE_HILDON_FM
     #include <hildon/hildon-file-chooser-dialog.h>
 #endif
@@ -656,30 +650,12 @@ sokoke_hostname_from_uri (const gchar* uri,
  *
  * The specified hostname is encoded if it is not ASCII.
  *
- * If no IDN support is available at compile time,
- * the hostname will be returned unaltered.
- *
  * Return value: a newly allocated hostname
  **/
 static gchar*
 sokoke_hostname_to_ascii (const gchar* hostname)
 {
-    #ifdef HAVE_LIBSOUP_2_27_90
     return g_hostname_to_ascii (hostname);
-    #elif HAVE_LIBIDN
-    uint32_t* q;
-    char* encoded;
-    int rc;
-
-    if ((q = stringprep_utf8_to_ucs4 (hostname, -1, NULL)))
-    {
-        rc = idna_to_ascii_4z (q, &encoded, IDNA_ALLOW_UNASSIGNED);
-        free (q);
-        if (rc == IDNA_SUCCESS)
-            return encoded;
-    }
-    #endif
-    return g_strdup (hostname);
 }
 
 /**
@@ -730,13 +706,7 @@ sokoke_uri_to_ascii (const gchar* uri)
 static gchar*
 sokoke_idn_to_punycode (gchar* uri)
 {
-    #if HAVE_LIBIDN
-    gchar* result = sokoke_uri_to_ascii (uri);
-    g_free (uri);
-    return result;
-    #else
     return uri;
-    #endif
 }
 
 /**
@@ -956,7 +926,6 @@ sokoke_format_uri_for_display (const gchar* uri)
     if (uri && g_str_has_prefix (uri, "http://"))
     {
         gchar* unescaped = sokoke_uri_unescape_string (uri);
-        #ifdef HAVE_LIBSOUP_2_27_90
         gchar* path = NULL;
         gchar* hostname;
         gchar* decoded;
@@ -982,24 +951,6 @@ sokoke_format_uri_for_display (const gchar* uri)
         }
         g_free (hostname);
         return unescaped;
-        #elif HAVE_LIBIDN
-        gchar* decoded;
-
-        if (!unescaped)
-            return g_strdup (uri);
-        else if (!g_utf8_validate (unescaped, -1, NULL))
-        {
-            g_free (unescaped);
-            return g_strdup (uri);
-        }
-
-        if (!idna_to_unicode_8z8z (unescaped, &decoded, 0) == IDNA_SUCCESS)
-            return unescaped;
-        g_free (unescaped);
-        return decoded;
-        #else
-        return unescaped;
-        #endif
     }
     return g_strdup (uri);
 }
