@@ -228,6 +228,35 @@ midori_transferbar_download_button_clicked_cb (GtkWidget*    button,
 }
 
 void
+midori_transferbar_check_size (GtkWidget* statusbar,
+                               MidoriTransferbar* transferbar)
+{
+  GtkWidget* window;
+  GtkRequisition req;
+  gint reqwidth, winwidth;
+  gtk_widget_size_request (statusbar, &req);
+  reqwidth = req.width;
+  window = gtk_widget_get_toplevel (GTK_WIDGET(transferbar));
+  gtk_window_get_size (GTK_WINDOW(window), &winwidth, NULL);
+
+  if (reqwidth > winwidth)
+  {
+    GList* list;
+    for (list = transferbar->infos; list != NULL; list = g_list_next (list))
+    {
+      TransferInfo* info = list->data;
+      WebKitDownloadStatus status = webkit_download_get_status (info->download);
+      if (status == WEBKIT_DOWNLOAD_STATUS_ERROR
+       || status == WEBKIT_DOWNLOAD_STATUS_CANCELLED
+       || status == WEBKIT_DOWNLOAD_STATUS_FINISHED)
+      {
+          gtk_widget_destroy (info->button);
+      }
+    }
+  }
+}
+
+void
 midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
                                       WebKitDownload*    download)
 {

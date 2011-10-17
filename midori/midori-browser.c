@@ -235,6 +235,9 @@ _midori_browser_update_notebook (MidoriBrowser* browser);
 void
 midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
                                       WebKitDownload*    download);
+void
+midori_transferbar_check_size (GtkWidget*         statusbar,
+                               MidoriTransferbar* transferbar);
 
 #define _action_by_name(brwsr, nme) \
     gtk_action_group_get_action (brwsr->action_group, nme)
@@ -984,6 +987,8 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
     webkit_download_set_destination_uri (download, uri);
     g_signal_emit (browser, signals[ADD_DOWNLOAD], 0, download);
     midori_transferbar_add_download_item (MIDORI_TRANSFERBAR (browser->transferbar), download);
+    midori_transferbar_check_size (browser->statusbar,
+        MIDORI_TRANSFERBAR (browser->transferbar));
     return TRUE;
 }
 
