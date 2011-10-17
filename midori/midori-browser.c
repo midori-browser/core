@@ -3074,6 +3074,9 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { "PrivateBrowsing" },
       #if !HAVE_HILDON
       { "ClearPrivateData" },
+      #if defined (GDK_WINDOWING_X11)
+      { "AddDesktopShortcut" },
+      #endif
       { NULL },
       { "BookmarksImport"},
       { "BookmarksExport"},
