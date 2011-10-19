@@ -626,6 +626,9 @@ midori_view_set_title (MidoriView* view, const gchar* title)
 
     if (!title)
         title = view->uri;
+    /* Work-around libSoup not setting a proper directory title */
+    else if (!strcmp (title, "OMG!") && g_str_has_prefix (view->uri, "file://"))
+        title = view->uri;
 
     katze_assign (view->title, g_strdup (title));
 
