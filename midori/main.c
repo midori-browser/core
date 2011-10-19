@@ -995,7 +995,8 @@ midori_load_soup_session (gpointer settings)
         "/etc/pki/tls/certs/ca-bundle.crt",
         "/etc/ssl/certs/ca-certificates.crt",
         "/etc/ssl/certs/ca-bundle.crt",
-        "/usr/local/share/certs/ca-root-nss.crt",
+        "/usr/local/share/certs/ca-root-nss.crt", /* FreeBSD */
+        "/var/lib/ca-certificates/ca-bundle.pem", /* openSUSE */
         NULL
     };
     guint i;
