@@ -1433,43 +1433,6 @@ midori_load_session (gpointer data)
     return FALSE;
 }
 
-static gint
-midori_run_script (const gchar* filename)
-{
-    gchar* exception;
-    gchar* script;
-    GError* error;
-
-    if (!(filename))
-    {
-        g_print ("%s - %s\n", _("Midori"), _("No filename specified"));
-        return 1;
-    }
-
-    error = NULL;
-    if (g_file_get_contents (filename, &script, NULL, &error))
-    {
-        JSGlobalContextRef js_context = JSGlobalContextCreateInGroup (NULL, NULL);
-        if (sokoke_js_script_eval (js_context, script, &exception))
-            exception = NULL;
-        g_free (script);
-        JSGlobalContextRelease (js_context);
-    }
-    else if (error)
-    {
-        exception = g_strdup (error->message);
-        g_error_free (error);
-    }
-    else
-        exception = g_strdup (_("An unknown error occured."));
-
-    if (!exception)
-        return 0;
-
-    g_print ("%s - Exception: %s\n", filename, exception);
-    return 1;
-}
-
 #define HAVE_OFFSCREEN GTK_CHECK_VERSION (2, 20, 0)
 
 static void
@@ -1516,6 +1479,20 @@ midori_web_app_browser_notify_load_status_cb (MidoriBrowser* browser,
             icon = NULL;
         gtk_window_set_icon (GTK_WINDOW (browser), icon);
     }
+}
+
+static MidoriBrowser*
+midori_web_app_browser_new_window_cb (MidoriBrowser* browser,
+                                      MidoriBrowser* new_browser,
+                                      gpointer       user_data)
+{
+    if (new_browser == NULL)
+        new_browser = midori_browser_new ();
+    g_object_set (new_browser,
+        "settings", midori_browser_get_settings (browser),
+        NULL);
+    gtk_widget_show (GTK_WIDGET (new_browser));
+    return new_browser;
 }
 
 static void
@@ -2172,10 +2149,18 @@ main (int    argc,
     #endif
 
     /* Web Application or Private Browsing support */
-    if (webapp || private)
+    if (webapp || private || run)
     {
         SoupSession* session = webkit_get_default_session ();
         MidoriBrowser* browser = midori_browser_new ();
+        /* Update window icon according to page */
+        g_signal_connect (browser, "notify::load-status",
+            G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
+        g_signal_connect (browser, "new-window",
+            G_CALLBACK (midori_web_app_browser_new_window_cb), NULL);
+        g_object_set_data (G_OBJECT (webkit_get_default_session ()),
+                           "pass-through-console", (void*)1);
+
         midori_startup_timer ("Browser: \t%f");
 
         if (config)
@@ -2225,23 +2210,59 @@ main (int    argc,
                 G_CALLBACK (midori_soup_session_block_uris_cb),
                 g_strdup (block_uris));
 
+        if (run)
+        {
+            gchar* script = NULL;
+            error = NULL;
+
+            if (g_file_get_contents (uris ? *uris : NULL, &script, NULL, &error))
+            {
+                #if 0 /* HAVE_OFFSCREEN */
+                GtkWidget* offscreen = gtk_offscreen_window_new ();
+                #endif
+                gchar* msg = NULL;
+                GtkWidget* view = midori_view_new_with_title (NULL, settings, FALSE);
+                g_object_set (settings, "open-new-pages-in", MIDORI_NEW_PAGE_WINDOW, NULL);
+                midori_browser_add_tab (browser, view);
+                #if 0 /* HAVE_OFFSCREEN */
+                gtk_container_add (GTK_CONTAINER (offscreen), GTK_WIDGET (browser));
+                gtk_widget_show_all (offscreen);
+                #else
+                gtk_widget_show_all (GTK_WIDGET (browser));
+                gtk_widget_hide (GTK_WIDGET (browser));
+                #endif
+                midori_view_execute_script (MIDORI_VIEW (view), script, &msg);
+                if (msg != NULL)
+                {
+                    g_error ("%s\n", msg);
+                    g_free (msg);
+                }
+            }
+            else if (error != NULL)
+            {
+                g_error ("%s\n", error->message);
+                g_error_free (error);
+            }
+            else
+                g_error ("%s\n", _("An unknown error occured"));
+            g_free (script);
+        }
+
         if (webapp)
         {
             gchar* tmp_uri = midori_prepare_uri (webapp);
+            midori_browser_set_action_visible (browser, "Menubar", FALSE);
+            midori_browser_add_uri (browser, tmp_uri);
+            g_object_set (settings, "homepage", tmp_uri, NULL);
+            g_free (tmp_uri);
+
             g_object_set (settings,
                           "show-menubar", FALSE,
                           "show-navigationbar", FALSE,
                           "toolbar-items", "Back,Forward,ReloadStop,Location,Homepage",
-                          "homepage", tmp_uri,
                           "show-statusbar", FALSE,
                           "enable-developer-extras", FALSE,
                           NULL);
-            midori_browser_set_action_visible (browser, "Menubar", FALSE);
-            midori_browser_add_uri (browser, tmp_uri);
-            g_free (tmp_uri);
-            /* Update window icon according to page */
-            g_signal_connect (browser, "notify::load-status",
-                G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         }
 
        g_object_set (settings, "show-panel", FALSE,
@@ -2255,8 +2276,11 @@ main (int    argc,
             G_CALLBACK (gtk_main_quit), NULL);
         g_signal_connect (browser, "destroy",
             G_CALLBACK (gtk_main_quit), NULL);
-        gtk_widget_show (GTK_WIDGET (browser));
-        midori_browser_activate_action (browser, "Location");
+        if (!run)
+        {
+            gtk_widget_show (GTK_WIDGET (browser));
+            midori_browser_activate_action (browser, "Location");
+        }
         if (execute)
         {
             for (i = 0; uris[i] != NULL; i++)
@@ -2284,10 +2308,6 @@ main (int    argc,
     /* FIXME: Inactivity reset is only supported for app mode */
     if (inactivity_reset > 0)
         g_error ("--inactivity-reset is currently only supported with --app.");
-
-    /* Standalone javascript support */
-    if (run)
-        return midori_run_script (uris ? *uris : NULL);
 
     sokoke_set_config_dir (config);
     if (config)

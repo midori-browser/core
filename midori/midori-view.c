@@ -2909,6 +2909,10 @@ webkit_web_view_console_message_cb (GtkWidget*   web_view,
                                     const gchar* source_id,
                                     MidoriView*  view)
 {
+    if (g_object_get_data (G_OBJECT (webkit_get_default_session ()),
+                           "pass-through-console"))
+        return FALSE;
+
     if (!strncmp (message, "speed_dial-save", 13))
         midori_view_speed_dial_save (view, message);
     else
