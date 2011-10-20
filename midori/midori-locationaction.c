@@ -731,6 +731,9 @@ midori_location_action_create_tool_item (GtkAction* action)
     entry = gtk_icon_entry_new ();
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_PRIMARY, GTK_STOCK_FILE);
+    /* Work-around icon being activatable by default */
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
+         GTK_ICON_ENTRY_PRIMARY, FALSE);
     gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
          GTK_ICON_ENTRY_SECONDARY, TRUE);
     #endif
