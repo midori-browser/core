@@ -18,26 +18,6 @@
 #include "katze-scrolled.h"
 #include "katze-utils.h"
 
-#if !GTK_CHECK_VERSION (2, 14, 0)
-    #define gtk_adjustment_get_page_size(adj) adj->page_size
-    #define gtk_adjustment_get_upper(adj) adj->upper
-    #define gtk_adjustment_get_lower(adj) adj->lower
-    #define gtk_adjustment_get_value(adj) adj->value
-    #define gtk_widget_get_window(wdgt) wdgt->window
-#endif
-#if !GTK_CHECK_VERSION (2, 18, 0)
-    #define gtk_widget_set_window(wdgt, wndw) wdgt->window = wndw
-    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
-    #define gtk_widget_is_drawable GTK_WIDGET_DRAWABLE
-    #define gtk_widget_get_drawable GTK_WIDGET_VISIBLE
-    #define gtk_widget_get_visible(wdgt) GTK_WIDGET_VISIBLE (wdgt)
-#endif
-#if !GTK_CHECK_VERSION (2, 19, 6)
-    #define gtk_widget_set_realized(wdgt, real) \
-        if (real) GTK_WIDGET_SET_FLAGS (wdgt, GTK_REALIZED); \
-        else GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_REALIZED)
-#endif
-
 #define DEFAULT_INTERVAL 50
 #define DEFAULT_DECELERATION 0.7
 #define DEFAULT_DRAGGING_STOPPED_DELAY 100

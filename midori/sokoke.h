@@ -15,54 +15,7 @@
 
 #include <JavaScriptCore/JavaScript.h>
 #include <midori/midori-websettings.h>
-
-#if !GLIB_CHECK_VERSION (2, 30, 0)
-    #define g_format_size(sz) g_format_size_for_display ((goffset)sz)
-#endif
-
-#if !GTK_CHECK_VERSION (2, 14, 0)
-    #define gtk_dialog_get_content_area(dlg) dlg->vbox
-    #define gtk_dialog_get_action_area(dlg) dlg->action_area
-    #define gtk_widget_get_window(wdgt) wdgt->window
-#endif
-
-#if !GTK_CHECK_VERSION (2, 16, 0)
-    #define GTK_ACTIVATABLE GTK_WIDGET
-    #define gtk_activatable_get_related_action gtk_widget_get_action
-    #define gtk_menu_item_set_label(menuitem, label) \
-        gtk_label_set_label (GTK_LABEL (GTK_BIN (menuitem)->child), \
-                             label ? label : "");
-#endif
-
-#if !GTK_CHECK_VERSION (2, 18, 0)
-    #define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL (widget)
-    #define gtk_widget_has_focus(widget) GTK_WIDGET_HAS_FOCUS (widget)
-    #define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE (widget)
-    #define gtk_widget_get_sensitive(widget) GTK_WIDGET_IS_SENSITIVE (widget)
-    #define gtk_widget_set_can_focus(widget,flag) \
-        GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS)
-    #define gtk_widget_get_allocation(wdgt, alloc) *alloc = wdgt->allocation
-#endif
-
-#if !GTK_CHECK_VERSION (2, 20, 0)
-    #define gtk_widget_get_realized(widget) GTK_WIDGET_REALIZED (widget)
-#endif
-
-#if !GTK_CHECK_VERSION(2, 12, 0)
-
-void
-gtk_widget_set_has_tooltip             (GtkWidget*         widget,
-                                        gboolean           has_tooltip);
-
-void
-gtk_widget_set_tooltip_text            (GtkWidget*         widget,
-                                        const gchar*       text);
-
-void
-gtk_tool_item_set_tooltip_text         (GtkToolItem*       toolitem,
-                                        const gchar*       text);
-
-#endif
+#include <katze/gtk3-compat.h>
 
 gchar*
 sokoke_js_script_eval                   (JSContextRef    js_context,
