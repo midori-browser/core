@@ -120,8 +120,8 @@
 
     var getAction = function (id)
     {
-        var host = document.getElementById(id).childNodes[0].childNodes[0].host;
-        if (host)
+        var s = document.getElementById(id).childNodes[0];
+        if (s.className == 'preview')
             return true;
 
         var url = prompt ("{enter_shortcut_address}", "http://");
@@ -169,11 +169,11 @@
             if (key_id.substr(1) > 9)
             {
                 if (getAction (key_id))
-                    document.location = div.childNodes[0].childNodes[0].href;
+                    document.location = div.childNodes[0].childNodes[1].href;
                 key_id = 's';
             }
             else
-                key_timeout = setTimeout ('if (getAction (key_id)) document.location = document.getElementById(key_id).childNodes[0].childNodes[0].href; key_id = \'s\'', 1000);
+                key_timeout = setTimeout ('if (getAction (key_id)) document.location = document.getElementById(key_id).childNodes[0].childNodes[1].href; key_id = \'s\'', 1000);
         }
         else
             key_id = 's';
