@@ -196,6 +196,15 @@ def configure (conf):
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     if option_enabled ('gtk3'):
+        if option_enabled ('addons') and ( not ( \
+             conf.env['VALAC_VERSION'] >= 0 \
+         and conf.env['VALAC_VERSION'][1] >= 13 \
+         and conf.env['VALAC_VERSION'][2] >= 2)):
+            Utils.pprint ('RED', 'Vala 0.13.2 or later is required ' \
+                'to build with GTK+ 3 and extensions.\n' \
+                'Pass --disable-addons to build without extensions.\n' \
+                'Pass --disable-gtk3 to build with extensions and GTK+ 2.')
+            sys.exit (1)
         check_pkg ('gtk+-3.0', '3.0.0', var='GTK', mandatory=False)
         check_pkg ('webkitgtk-3.0', '1.1.17', var='WEBKIT', mandatory=False)
         if not conf.env['HAVE_GTK'] or not conf.env['HAVE_WEBKIT']:
