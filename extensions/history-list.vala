@@ -233,9 +233,8 @@ namespace HistoryList {
             this.hl_manager = manager;
 
             this.title = _("Preferences for %s").printf( _("History-List"));
-#if !HAVE_GTK3
-            this.has_separator = false;
-#endif
+            if (this.get_class ().find_property ("has-separator") != null)
+                this.set ("has-separator", false);
             this.border_width = 5;
             this.set_modal (true);
             this.set_default_size (350, 100);
