@@ -13,6 +13,7 @@
 
 #include "katze-utils.h"
 #include "katze-array.h"
+#include "midori-core.h"
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
@@ -1518,12 +1519,7 @@ katze_uri_entry_changed_cb (GtkWidget* entry,
                             GtkWidget* other_widget)
 {
     const gchar* uri = gtk_entry_get_text (GTK_ENTRY (entry));
-    gboolean valid = g_str_has_prefix (uri, "http://")
-                  || g_str_has_prefix (uri, "https://")
-                  || g_str_has_prefix (uri, "file://")
-                  || g_str_has_prefix (uri, "data:")
-                  || g_str_has_prefix (uri, "about:")
-                  || g_str_has_prefix (uri, "javascript:");
+    gboolean valid = midori_uri_is_location (uri);
     if (*uri && !valid)
     {
         GdkColor bg_color = { 0 };
@@ -1540,7 +1536,7 @@ katze_uri_entry_changed_cb (GtkWidget* entry,
     }
 
     if (other_widget != NULL)
-        gtk_widget_set_sensitive (other_widget, *uri && valid);
+        gtk_widget_set_sensitive (other_widget, valid);
 }
 
 /**

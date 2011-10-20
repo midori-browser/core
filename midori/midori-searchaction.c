@@ -16,6 +16,7 @@
 #include "marshal.h"
 #include "sokoke.h"
 #include "midori-platform.h"
+#include "midori-core.h"
 
 #include <string.h>
 #include <glib/gi18n.h>
@@ -407,11 +408,11 @@ midori_search_action_get_icon (KatzeItem*    item,
                                const gchar** icon_name,
                                gboolean      in_entry)
 {
-    const gchar* icon;
+    const gchar* icon = katze_item_get_uri (item);
     GdkScreen* screen;
     GtkIconTheme* icon_theme;
 
-    if ((icon = katze_item_get_uri (item)) && (g_strstr_len (icon, 8, "://")))
+    if (midori_uri_is_resource (icon))
         return katze_load_cached_icon (icon, widget);
 
     if (icon_name == NULL)

@@ -25,6 +25,7 @@
 #include "midori-findbar.h"
 #include "midori-transferbar.h"
 #include "midori-platform.h"
+#include "midori-core.h"
 
 #include "gtkiconentry.h"
 #include "marshal.h"
@@ -382,7 +383,7 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
     gboolean is_location = widget && GTK_IS_ENTRY (widget)
         && GTK_IS_ALIGNMENT (gtk_widget_get_parent (widget));
 
-    katze_assign (browser->statusbar_text, sokoke_format_uri_for_display (text));
+    katze_assign (browser->statusbar_text, midori_uri_format_for_display (text));
 
     if (!browser->show_statusbar && !is_location)
     {
@@ -611,7 +612,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
             proxy = midori_view_get_proxy_item (view);
             proxy_uri = katze_item_get_uri (proxy);
             if (proxy_uri && *proxy_uri && proxy_uri[1] &&
-                !g_str_has_prefix (proxy_uri, "about:") &&
+                !midori_uri_is_blank (proxy_uri) &&
                 (katze_item_get_meta_integer (proxy, "history-step") == -1))
             {
                 if (!katze_item_get_meta_boolean (proxy, "dont-write-history"))
@@ -621,7 +622,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
                 }
             }
             else if (katze_item_get_name (proxy) &&
-                     !g_str_has_prefix (proxy_uri, "about:") &&
+                     !midori_uri_is_blank (proxy_uri) &&
                      (katze_item_get_meta_integer (proxy, "history-step") == 1))
             {
                 midori_browser_update_history_title (browser, proxy);
@@ -3788,7 +3789,7 @@ _action_location_submit_uri (GtkAction*     action,
             keywords = stripped_uri;
             search_uri = browser->location_entry_search;
         }
-        new_uri = sokoke_search_uri (search_uri, keywords);
+        new_uri = midori_uri_for_search (search_uri, keywords);
 
         if (browser->history != NULL)
         {
@@ -3937,7 +3938,7 @@ _action_search_submit (GtkAction*     action,
     else /* The location entry search is our fallback */
         url = browser->location_entry_search;
 
-    search = sokoke_search_uri (url, keywords);
+    search = midori_uri_for_search (url, keywords);
 
     if (new_tab)
         midori_browser_add_uri (browser, search);
@@ -3967,7 +3968,7 @@ _action_search_activate (GtkAction*     action,
 
     /* Load default search engine in current tab */
     uri = browser->location_entry_search;
-    search = sokoke_search_uri (uri ? uri : "", "");
+    search = midori_uri_for_search (uri ? uri : "", "");
     midori_browser_set_current_uri (browser, search);
     gtk_widget_grab_focus (midori_browser_get_current_tab (browser));
     g_free (search);
@@ -7140,7 +7141,7 @@ midori_browser_add_item (MidoriBrowser* browser,
 
     /* Blank pages should not be delayed */
     if (katze_item_get_meta_integer (item, "delay") > 0
-     && strcmp (uri, "about:blank") != 0
+     && !midori_uri_is_blank (uri)
      && strncmp (uri, "pause:", 6) != 0)
     {
         gchar* new_uri = g_strdup_printf ("pause:%s", uri);

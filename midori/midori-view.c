@@ -20,6 +20,7 @@
 #include "midori-browser.h"
 #include "midori-searchaction.h"
 #include "midori-platform.h"
+#include "midori-core.h"
 
 #include "marshal.h"
 #include "sokoke.h"
@@ -1064,7 +1065,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
 
     if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
     {
-        katze_assign (view->uri, sokoke_format_uri_for_display (uri));
+        katze_assign (view->uri, midori_uri_format_for_display (uri));
         katze_item_set_uri (view->item, uri);
     }
 
@@ -1362,7 +1363,7 @@ midori_view_web_view_database_quota_exceeded_cb (WebKitWebView*     web_view,
                                                  MidoriView*        view)
 {
     const gchar* uri = webkit_web_frame_get_uri (web_frame);
-    const gchar* hostname = sokoke_hostname_from_uri (uri, NULL);
+    const gchar* hostname = midori_uri_parse (uri, NULL);
     gchar* message = g_strdup_printf (_("%s wants to save an HTML5 database."),
                                       hostname && *hostname ? hostname : uri);
     midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
@@ -1391,7 +1392,7 @@ midori_view_web_view_geolocation_decision_cb (WebKitWebView*                   w
                                               MidoriView*                      view)
 {
     const gchar* uri = webkit_web_frame_get_uri (web_frame);
-    const gchar* hostname = sokoke_hostname_from_uri (uri, NULL);
+    const gchar* hostname = midori_uri_parse (uri, NULL);
     gchar* message = g_strdup_printf (_("%s wants to know your location."),
                                      hostname && *hostname ? hostname : uri);
     midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION,
@@ -1774,12 +1775,12 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                     {
                         gchar* search = katze_object_get_string (
                             view->settings, "location-entry-search");
-                        new_uri = sokoke_search_uri (search, uri);
+                        new_uri = midori_uri_for_search (search, uri);
                         g_free (search);
                     }
                     katze_assign (uri, new_uri);
                 }
-                else if (!strstr (uri, "://"))
+                else if (!midori_uri_is_location (uri))
                 {
                     g_free (uri);
                     return FALSE;
@@ -1935,7 +1936,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 view->find_links, event->keyval == GDK_KEY_Return
                 );
             result = sokoke_js_script_eval (js_context, script, NULL);
-            if (result && strstr (result, "://"))
+            if (midori_uri_is_location (result))
             {
                 if (MIDORI_MOD_NEW_TAB (event->state))
                 {
@@ -2157,7 +2158,7 @@ midori_web_view_menu_search_web_activate_cb (GtkWidget*  widget,
     else
         g_object_get (view->settings, "location-entry-search",
                       &search, NULL);
-    uri = sokoke_search_uri (search, view->selected_text);
+    uri = midori_uri_for_search (search, view->selected_text);
     g_free (search);
 
     g_signal_emit (view, signals[NEW_TAB], 0, uri,
@@ -2489,10 +2490,9 @@ midori_view_populate_popup (MidoriView* view,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
 
         g_strstrip (view->selected_text);
-        if (view->selected_text && !strchr (view->selected_text, ' ')
-            && (strchr (view->selected_text, '.') || g_strstr_len (view->selected_text, 9, "://")))
+        if (midori_uri_is_valid (view->selected_text))
         {
-            if (strchr (view->selected_text, '@'))
+            if (midori_uri_is_email (view->selected_text))
             {
                 gchar* text = g_strdup_printf (_("Send a message to %s"), view->selected_text);
                 menuitem = midori_view_insert_menu_item (menu_shell, -1,
@@ -3866,7 +3866,7 @@ midori_view_set_uri (MidoriView*  view,
         }
         /* This is not prefectly elegant, but creating
            special pages inline is the simplest solution. */
-        else if (g_str_has_prefix (uri, "error:") || g_str_has_prefix (uri, "about:"))
+        else if (g_str_has_prefix (uri, "error:") || midori_uri_is_blank (uri))
         {
             data = NULL;
             if (!strncmp (uri, "error:nodocs ", 13))
@@ -4009,7 +4009,7 @@ midori_view_set_uri (MidoriView*  view,
         }
         else
         {
-            katze_assign (view->uri, sokoke_format_uri_for_display (uri));
+            katze_assign (view->uri, midori_uri_format_for_display (uri));
             katze_item_set_uri (view->item, uri);
             katze_item_set_meta_integer (view->item, "delay", -1);
             g_object_notify (G_OBJECT (view), "uri");
@@ -4027,12 +4027,9 @@ midori_view_set_uri (MidoriView*  view,
 gboolean
 midori_view_is_blank (MidoriView*  view)
 {
-    const gchar* uri;
-
     g_return_val_if_fail (MIDORI_IS_VIEW (view), TRUE);
 
-    uri = midori_view_get_display_uri (view);
-    return uri[0] == '\0' || g_str_has_prefix (uri, "about:");
+    return midori_uri_is_blank (midori_view_get_display_uri (view));
 }
 
 /**

@@ -12,13 +12,13 @@
 
 #include "midori-locationaction.h"
 
-#include "gtk3-compat.h"
 #include "gtkiconentry.h"
 #include "marshal.h"
 #include "sokoke.h"
 #include "midori-browser.h"
 #include "midori-searchaction.h"
 #include "midori-platform.h"
+#include <midori/midori-core.h>
 
 #include <string.h>
 #include <glib/gi18n.h>
@@ -508,7 +508,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
             gchar* title;
             GdkPixbuf* icon;
 
-            uri = sokoke_search_uri (katze_item_get_uri (item), action->key);
+            uri = midori_uri_for_search (katze_item_get_uri (item), action->key);
             title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
             icon = midori_search_action_get_icon (item, action->treeview, NULL, FALSE);
             gtk_list_store_insert_with_values (store, NULL, matches + i,
@@ -1079,7 +1079,7 @@ midori_location_entry_render_text_cb (GtkCellLayout*   layout,
     keys = g_strsplit_set (key, " %", -1);
     g_free (key);
 
-    uri_temp = sokoke_uri_unescape_string (uri_escaped);
+    uri_temp = midori_uri_unescape (uri_escaped);
     g_free (uri_escaped);
     uri = g_strescape (uri_temp, NULL);
     g_free (uri_temp);

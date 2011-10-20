@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2009 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2007-2011 Christian Dywan <christian@twotoasts.de>
  Copyright (C) 2009 Dale Whittaker <dayul@users.sf.net>
  Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
 
@@ -18,6 +18,7 @@
 #endif
 
 #include "midori-stock.h"
+#include "midori-core.h"
 
 #if HAVE_UNISTD_H
     #include <unistd.h>
@@ -570,124 +571,6 @@ sokoke_spawn_app (const gchar* uri,
     g_free (command);
 }
 
-/**
- * sokoke_hostname_from_uri:
- * @uri: an URI string
- * @path: location of a string, or %NULL
- *
- * Returns the hostname of the specified URI.
- *
- * If there is a path, it is stored in @path.
- *
- * Return value: a newly allocated hostname
- **/
-gchar*
-sokoke_hostname_from_uri (const gchar* uri,
-                          gchar**      path)
-{
-    gchar* hostname;
-
-    if ((hostname = strchr (uri, '/')))
-    {
-        gchar* pathname;
-        if (hostname[1] == '/')
-            hostname += 2;
-        if ((pathname = strchr (hostname, '/')))
-        {
-            if (path != NULL)
-                *path = pathname;
-            return g_strndup (hostname, pathname - hostname);
-        }
-        else
-            return g_strdup (hostname);
-    }
-
-    return g_strdup (uri);
-}
-
-/**
- * sokoke_uri_to_ascii:
- * @uri: an URI string
- *
- * The specified URI is parsed and the hostname
- * part of it is encoded if it is not ASCII.
- *
- * If no IDN support is available at compile time,
- * the URI will be returned unaltered.
- *
- * Return value: a newly allocated URI
- **/
-gchar*
-sokoke_uri_to_ascii (const gchar* uri)
-{
-    gchar* proto = NULL;
-    gchar* path = NULL;
-    gchar* hostname;
-    gchar* encoded;
-
-    if (strchr (uri, '/') && (proto = strchr (uri, ':')))
-    {
-        gulong offset;
-        gchar* buffer;
-
-        offset = g_utf8_pointer_to_offset (uri, proto);
-        buffer = g_malloc0 (offset + 1);
-        g_utf8_strncpy (buffer, uri, offset);
-        proto = buffer;
-    }
-
-    hostname = sokoke_hostname_from_uri (uri, &path);
-    encoded = g_hostname_to_ascii (hostname);
-
-    if (encoded)
-    {
-        gchar* res = g_strconcat (proto ? proto : "", proto ? "://" : "",
-                                  encoded, path, NULL);
-        g_free (encoded);
-        return res;
-    }
-    g_free (hostname);
-    return g_strdup (uri);
-}
-
-static gchar*
-sokoke_idn_to_punycode (gchar* uri)
-{
-    return uri;
-}
-
-/**
- * sokoke_search_uri:
- * @uri: a search URI with or without %s
- * @keywords: keywords
- *
- * Takes a search engine URI and inserts the specified
- * keywords. The @keywords are percent encoded. If the
- * search URI contains a %s they keywords are inserted
- * in that place, otherwise appended to the URI.
- *
- * Return value: a newly allocated search URI
- **/
-gchar* sokoke_search_uri (const gchar* uri,
-                          const gchar* keywords)
-{
-    gchar* escaped;
-    gchar* search;
-
-    g_return_val_if_fail (keywords != NULL, NULL);
-
-    if (!uri)
-        return g_strdup (keywords);
-
-    escaped = g_uri_escape_string (keywords, ":/", TRUE);
-    if (strstr (uri, "%s"))
-        search = g_strdup_printf (uri, escaped);
-    else
-        search = g_strconcat (uri, escaped, NULL);
-    g_free (escaped);
-    return search;
-}
-
 static void
 sokoke_resolve_hostname_cb (SoupAddress *address,
                             guint        status,
@@ -763,13 +646,6 @@ sokoke_magic_uri (const gchar* uri)
 
     g_return_val_if_fail (uri, NULL);
 
-    /* Just return if it's a javascript: or mailto: uri */
-    if (!strncmp (uri, "javascript:", 11)
-     || !strncmp (uri, "mailto:", 7)
-     || sokoke_external_uri (uri)
-     || !strncmp (uri, "data:", 5)
-     || !strncmp (uri, "about:", 6))
-        return g_strdup (uri);
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
         return g_strconcat ("file://", uri, NULL);
@@ -800,12 +676,9 @@ sokoke_magic_uri (const gchar* uri)
         g_free (longitude);
         return geo;
     }
-    /* Do we have a protocol? */
-    if (g_strstr_len (uri, 8, "://"))
-        return sokoke_idn_to_punycode (g_strdup (uri));
-
-    /* Do we have an IP address? */
-    if (g_ascii_isdigit (uri[0]) && g_strstr_len (uri, 4, "."))
+    if (midori_uri_is_location (uri) || sokoke_external_uri (uri))
+        return g_strdup (uri);
+    if (midori_uri_is_ip_address (uri))
         return g_strconcat ("http://", uri, NULL);
     search = NULL;
     if (!strchr (uri, ' ') &&
@@ -831,75 +704,6 @@ sokoke_magic_uri (const gchar* uri)
         g_strfreev (parts);
     }
     return NULL;
-}
-
-/**
- * sokoke_uri_unescape_string:
- * @uri: an URI string
- *
- * Unescape @uri if needed, and pass through '+' and '%20'.
- *
- * Return value: a newly allocated URI
- **/
-gchar*
-sokoke_uri_unescape_string (const gchar* uri)
-{
-    if (strchr (uri,'%') || strchr (uri, ' '))
-    {
-        /* Preserve %20 for pasting URLs into other windows */
-        gchar* unescaped = g_uri_unescape_string (uri, "+");
-        if (!unescaped)
-            return g_strdup (uri);
-        gchar* spaced = sokoke_replace_variables (unescaped, " ", "%20", NULL);
-        g_free (unescaped);
-        return spaced;
-    }
-
-    return g_strdup (uri);
-}
-
-/**
- * sokoke_format_uri_for_display:
- * @uri: an URI string
- *
- * Formats an URI for display, for instance by converting
- * percent encoded characters and by decoding punycode.
- *
- * Return value: a newly allocated URI
- **/
-gchar*
-sokoke_format_uri_for_display (const gchar* uri)
-{
-    if (uri && g_str_has_prefix (uri, "http://"))
-    {
-        gchar* unescaped = sokoke_uri_unescape_string (uri);
-        gchar* path = NULL;
-        gchar* hostname;
-        gchar* decoded;
-
-        if (!unescaped)
-            return g_strdup (uri);
-        else if (!g_utf8_validate (unescaped, -1, NULL))
-        {
-            g_free (unescaped);
-            return g_strdup (uri);
-        }
-
-        hostname = sokoke_hostname_from_uri (unescaped, &path);
-        decoded = g_hostname_to_unicode (hostname);
-
-        if (decoded)
-        {
-            gchar* result = g_strconcat ("http://", decoded, path, NULL);
-            g_free (unescaped);
-            g_free (decoded);
-            g_free (hostname);
-            return result;
-        }
-        g_free (hostname);
-        return unescaped;
-    }
-    return g_strdup (uri);
 }
 
 void

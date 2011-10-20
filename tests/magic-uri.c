@@ -15,6 +15,7 @@
 #endif
 
 #include "sokoke.h"
+#include <midori/midori-core.h>
 
 #define SM "http://www.searchmash.com/search/"
 
@@ -76,7 +77,7 @@ test_input (const gchar* input,
         }
         g_strfreev (parts);
 
-        uri = keywords ? sokoke_search_uri (search_uri, keywords) : NULL;
+        uri = keywords ? midori_uri_for_search (search_uri, keywords) : NULL;
 
         g_free (keywords);
     }
@@ -134,7 +135,7 @@ magic_uri_idn (void)
 
     for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
-        gchar* result = sokoke_uri_to_ascii (items[i].before);
+        gchar* result = midori_uri_to_ascii (items[i].before);
         const gchar* after = items[i].after ? items[i].after : items[i].before;
         sokoke_assert_str_equal (items[i].before, result, after);
         g_free (result);
@@ -236,7 +237,7 @@ magic_uri_format (void)
 
     for (i = 0; i < G_N_ELEMENTS (items); i++)
     {
-        gchar* result = sokoke_format_uri_for_display (items[i].before);
+        gchar* result = midori_uri_format_for_display (items[i].before);
         const gchar* after = items[i].after ? items[i].after : items[i].before;
         sokoke_assert_str_equal (items[i].before, result, after);
         g_free (result);

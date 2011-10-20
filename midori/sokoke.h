@@ -49,27 +49,11 @@ void
 sokoke_spawn_app                        (const gchar*    uri,
                                          gboolean        inherit_config);
 
-gchar* sokoke_search_uri                (const gchar*    uri,
-                                         const gchar*    keywords);
-
-gchar*
-sokoke_hostname_from_uri                (const gchar*    uri,
-                                         gchar**         path);
-
-gchar*
-sokoke_uri_to_ascii                     (const gchar*    uri);
-
 gboolean
 sokoke_external_uri                     (const gchar*    uri);
 
 gchar*
 sokoke_magic_uri                        (const gchar*    uri);
-
-gchar*
-sokoke_uri_unescape_string              (const gchar*    uri);
-
-gchar*
-sokoke_format_uri_for_display           (const gchar*    uri);
 
 void
 sokoke_combo_box_add_strings            (GtkComboBox*    combobox,

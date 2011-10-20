@@ -1,0 +1,126 @@
+/*
+ Copyright (C) 2011 Christian Dywan <christian@twotoasts.de>
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ See the file COPYING for the full license text.
+*/
+
+namespace GLib {
+    extern static string hostname_to_unicode (string hostname);
+    extern static string hostname_to_ascii (string hostname);
+}
+
+namespace Midori {
+    public class URI : Object {
+        public static string parse (string? uri, out string path) {
+            /* path may be null.
+               If there's no hostname, the original URI is returned */
+            if (uri == null)
+                return uri;
+            unowned string? hostname = uri.chr (-1, '/');
+            if (hostname == null || hostname[1] != '/')
+                return uri;
+            hostname = hostname.offset (2);
+            if (&path != null) {
+                if ((path = hostname.chr (-1, '/')) != null)
+                    return hostname.split ("/")[0];
+            }
+            return hostname;
+        }
+        public static string to_ascii (string uri) {
+            /* Convert hostname to ASCII. */
+            string? proto = null;
+            if (uri.chr (-1, '/') != null && uri.chr (-1, ':') != null)
+                proto = uri.split ("://")[0];
+            string? path = null;
+            string hostname = parse (uri, out path);
+            string encoded = hostname_to_ascii (hostname);
+            if (encoded != null) {
+                return (proto ?? "")
+                     + (proto != null ? "://" : "")
+                     + encoded + path;
+            }
+            return uri;
+        }
+        public static string unescape (string uri) {
+            /* Unescape, pass through + and %20 */
+            if (uri.chr (-1, '%') != null || uri.chr (-1, ' ') != null) {
+                /* Preserve %20 for pasting URLs into other windows */
+                string? unescaped = GLib.Uri.unescape_string (uri, "+");
+                if (unescaped == null)
+                    return uri;
+                return unescaped.replace (" ", "%20");
+            }
+            return uri;
+        }
+        public static string format_for_display (string? uri) {
+            /* Percent-decode and decode puniycode for user display */
+            if (uri != null && uri.has_prefix ("http://")) {
+                string unescaped = unescape (uri);
+                if (unescaped == null)
+                    return uri;
+                else if (!unescaped.validate ())
+                    return uri;
+                string path;
+                string hostname = parse (unescaped, out path);
+                string decoded = hostname_to_unicode (hostname);
+                if (decoded != null)
+                    return "http://" + decoded + path;
+                return unescaped;
+            }
+            return uri;
+        }
+        public static string for_search (string? uri, string keywords) {
+            /* Take a search engine URI and insert specified keywords.
+               Keywords are percent-encoded. If the uri contains a %s
+               the keywords are inserted there, otherwise appended. */
+            if (uri == null)
+                return keywords;
+            string escaped = GLib.Uri.escape_string (keywords, ":/", true);
+            if (uri.str ("%s") != null)
+                return uri.printf (escaped);
+            return uri + escaped;
+        }
+        public static bool is_blank (string? uri) {
+            return !(uri != null && uri != "" && !uri.has_prefix ("about:"));
+        }
+        public static bool is_resource (string? uri) {
+            return uri != null
+              && (uri.has_prefix ("http://")
+               || (uri.has_prefix ("data:") && uri.chr (-1, ';') != null)
+               || uri.has_prefix ("https://"));
+        }
+        public static bool is_location (string? uri) {
+            /* file:// is not considered a location for security reasons */
+            return uri != null
+             && ((uri.str ("://") != null && uri.chr (-1, ' ') == null)
+              || uri.has_prefix ("about:")
+              || (uri.has_prefix ("data:") && uri.chr (-1, ';') != null)
+              || (uri.has_prefix ("geo:") && uri.chr (-1, ',') != null)
+              || uri.has_prefix ("javascript:"));
+        }
+        public static bool is_email (string? uri) {
+            return uri != null
+             && (uri.chr (-1, '@') != null || uri.has_prefix ("mailto:"))
+            /* :// and @ together would mean login credentials */
+             && uri.str ("://") == null;
+        }
+        public static bool is_ip_address (string? uri) {
+            /* Quick check for IPv4 or IPv6, no validation.
+               FIXME: Schemes are not handled
+               hostname_is_ip_address () is not used because
+               we'd have to separate the path from the URI first. */
+            return uri != null && uri[0].isdigit ()
+             && (uri.chr (4, '.') != null || uri.chr (4, ':') != null);
+        }
+        public static bool is_valid (string? uri) {
+            return uri != null
+             && uri.chr (-1, ' ') == null
+             && (URI.is_location (uri) || uri.chr (-1, '.') != null);
+        }
+    }
+}

@@ -20,6 +20,7 @@
 #include "midori-extensions.h"
 #include "midori-history.h"
 #include "midori-transfers.h"
+#include <midori/midori-core.h>
 
 #include "sokoke.h"
 
@@ -1406,7 +1407,7 @@ midori_load_session (gpointer data)
         item = katze_array_get_nth_item (_session, 0);
     }
     midori_browser_set_current_page (browser, current);
-    if (!g_strcmp0 (katze_item_get_uri (item), ""))
+    if (midori_uri_is_blank (katze_item_get_uri (item)))
         midori_browser_activate_action (browser, "Location");
 
     g_object_unref (settings);
@@ -1528,9 +1529,9 @@ midori_prepare_uri (const gchar *uri)
 
     uri_ready = sokoke_magic_uri (uri);
     if (uri_ready)
-        return sokoke_uri_to_ascii (uri_ready);
+        return midori_uri_to_ascii (uri_ready);
 
-    return sokoke_uri_to_ascii (uri);
+    return midori_uri_to_ascii (uri);
 }
 
 #ifdef HAVE_SIGNAL_H
