@@ -4210,6 +4210,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
         { ".opera/bookmarks.adr", N_("Opera"), "opera" },
         { ".kde/share/apps/konqueror/bookmarks.xml", N_("Konqueror"), "konqueror" },
         { ".gnome2/epiphany/bookmarks.rdf", N_("Epiphany"), "epiphany" },
+        { ".mozilla/firefox/*/bookmarks.html", N_("Firefox (%s)"), "firefox" },
     };
 
     GtkWidget* dialog;
@@ -4270,14 +4271,52 @@ _action_bookmarks_import_activate (GtkAction*     action,
                                        GTK_ICON_SIZE_MENU, &icon_width, NULL);
     for (i = 0; i < G_N_ELEMENTS (bookmark_clients); i++)
     {
-        gchar* path = g_build_filename (g_get_home_dir (),
-                                        bookmark_clients[i].path, NULL);
+        const gchar* location = bookmark_clients[i].path;
+        const gchar* client = bookmark_clients[i].name;
+        gchar* path;
+
+        /* Interpret * as 'any folder' */
+        if (strchr (location, '*') != NULL)
+        {
+            gchar** parts = g_strsplit (location, "*", 2);
+            GDir* dir;
+            path = g_build_filename (g_get_home_dir (), parts[0], NULL);
+            if ((dir = g_dir_open (path, 0, NULL)))
+            {
+                const gchar* name;
+                while ((name = g_dir_read_name (dir)))
+                {
+                    gchar* file = g_build_filename (path, name, parts[1], NULL);
+                    if (g_access (file, F_OK) == 0)
+                    {
+                        /* If name is XYZ.Name, we use Name only */
+                        gchar* real_name = strchr (name, '.');
+                        gchar* display = strstr (_(client), "%s")
+                            ? g_strdup_printf (_(client),
+                                  real_name ? real_name + 1 : name)
+                            : g_strdup (_(client));
+                        gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+                            0, display, 1, bookmark_clients[i].icon,
+                            2, path, 3, icon_width, -1);
+                        g_free (display);
+                    }
+                    g_free (file);
+                }
+                g_dir_close (dir);
+            }
+            g_free (path);
+            g_strfreev (parts);
+            continue;
+        }
+
+        path = g_build_filename (g_get_home_dir (), path, NULL);
         if (g_access (path, F_OK) == 0)
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                0, _(bookmark_clients[i].name), 1, bookmark_clients[i].icon,
+                0, _(client), 1, bookmark_clients[i].icon,
                 2, path, 3, icon_width, -1);
         g_free (path);
     }
+
     gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
         0, _("Import from XBEL or HTML file"), 1, NULL, 2, NULL, 3, icon_width, -1);
     gtk_combo_box_set_active (combobox, 0);
