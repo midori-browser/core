@@ -674,6 +674,67 @@ midori_view_notify_statusbar_text_cb (GtkWidget*     view,
     }
 }
 
+static GtkWidget*
+midori_bookmark_folder_button_new (KatzeArray*  array,
+                                   gboolean     new_bookmark,
+                                   const gchar* selected)
+{
+    GtkListStore* model;
+    GtkWidget* combo;
+    GtkCellRenderer* renderer;
+    guint n;
+    sqlite3* db;
+    sqlite3_stmt* statement;
+    gint result;
+    const gchar* sqlcmd = "SELECT title from bookmarks where uri=''";
+
+    model = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_INT);
+    combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
+    renderer = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo), renderer, TRUE);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "text", 0);
+    gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo), renderer, "ellipsize", 1);
+    gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+        0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, -1);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
+
+    db = g_object_get_data (G_OBJECT (array), "db");
+    g_return_val_if_fail (db != NULL, NULL);
+    n = 1;
+    result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
+    while ((result = sqlite3_step (statement)) == SQLITE_ROW)
+    {
+        const unsigned char* name = sqlite3_column_text (statement, 0);
+        gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
+            0, name, 1, PANGO_ELLIPSIZE_END, -1);
+        if (!new_bookmark && !g_strcmp0 (selected, (gchar*)name))
+            gtk_combo_box_set_active (GTK_COMBO_BOX (combo), n);
+        n++;
+    }
+    if (n < 2)
+        gtk_widget_set_sensitive (combo, FALSE);
+    return combo;
+}
+
+static gchar*
+midori_bookmark_folder_button_get_active (GtkWidget* combo)
+{
+    gchar* selected = NULL;
+    GtkTreeIter iter;
+
+    g_return_val_if_fail (GTK_IS_COMBO_BOX (combo), NULL);
+
+    if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (combo), &iter))
+    {
+        GtkTreeModel* model = gtk_combo_box_get_model (GTK_COMBO_BOX (combo));
+        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0, &selected, -1);
+        if (g_str_equal (selected, _("Toplevel folder")))
+            katze_assign (selected, g_strdup (""));
+    }
+
+    return selected;
+}
+
 static void
 midori_browser_edit_bookmark_title_changed_cb (GtkEntry*      entry,
                                                GtkDialog*     dialog)
@@ -802,51 +863,16 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         gtk_widget_show_all (hbox);
     }
 
-    combo_folder = NULL;
-    if (1)
-    {
-        GtkListStore* model;
-        GtkCellRenderer* renderer;
-        guint n;
-        sqlite3_stmt* statement;
-        gint result;
-        const gchar* sqlcmd;
-
-        hbox = gtk_hbox_new (FALSE, 8);
-        gtk_container_set_border_width (GTK_CONTAINER (hbox), 4);
-        label = gtk_label_new_with_mnemonic (_("_Folder:"));
-        gtk_size_group_add_widget (sizegroup, label);
-        gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-        model = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_INT);
-        combo_folder = gtk_combo_box_new_with_model (GTK_TREE_MODEL (model));
-        renderer = gtk_cell_renderer_text_new ();
-        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo_folder), renderer, TRUE);
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo_folder), renderer, "text", 0);
-        gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (combo_folder), renderer, "ellipsize", 1);
-        gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-            0, _("Toplevel folder"), 1, PANGO_ELLIPSIZE_END, -1);
-        gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), 0);
-
-        n = 1;
-        sqlcmd = "SELECT title from bookmarks where uri=''";
-        result = sqlite3_prepare_v2 (db, sqlcmd, -1, &statement, NULL);
-        while ((result = sqlite3_step (statement)) == SQLITE_ROW)
-        {
-                const unsigned char* name = sqlite3_column_text (statement, 0);
-                gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
-                    0, name, 1, PANGO_ELLIPSIZE_END, -1);
-                if (!new_bookmark && katze_item_get_meta_string (bookmark, "folder")
-                    && g_str_equal (katze_item_get_meta_string (bookmark, "folder"), name))
-                    gtk_combo_box_set_active (GTK_COMBO_BOX (combo_folder), n);
-                n++;
-        }
-        if (n < 2)
-            gtk_widget_set_sensitive (combo_folder, FALSE);
-
-        gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
-        gtk_container_add (GTK_CONTAINER (content_area), hbox);
-        gtk_widget_show_all (hbox);
-    }
+    hbox = gtk_hbox_new (FALSE, 8);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 4);
+    label = gtk_label_new_with_mnemonic (_("_Folder:"));
+    gtk_size_group_add_widget (sizegroup, label);
+    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+    combo_folder = midori_bookmark_folder_button_new (browser->bookmarks,
+        new_bookmark, katze_item_get_meta_string (bookmark, "folder"));
+    gtk_box_pack_start (GTK_BOX (hbox), combo_folder, TRUE, TRUE, 0);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+    gtk_widget_show_all (hbox);
 
     if (new_bookmark && !is_folder)
     {
@@ -911,10 +937,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
                 gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_app)));
         }
 
-        selected = gtk_combo_box_text_get_active_text (
-            GTK_COMBO_BOX_TEXT (combo_folder));
-        if (!strcmp (selected, _("Toplevel folder")))
-            katze_assign (selected, g_strdup (""));
+        selected = midori_bookmark_folder_button_get_active (combo_folder);
         katze_item_set_meta_string (bookmark, "folder", selected);
         katze_array_add_item (browser->bookmarks, bookmark);
 
@@ -4222,14 +4245,10 @@ _action_bookmarks_import_activate (GtkAction*     action,
     GtkComboBox* combobox;
     GtkListStore* model;
     GtkCellRenderer* renderer;
-    GtkComboBox* combobox_folder;
+    GtkWidget* combobox_folder;
     gint icon_width = 16;
     guint i;
-    KatzeItem* item;
     KatzeArray* bookmarks;
-    sqlite3* db;
-    const gchar* sqlcmd;
-    KatzeArray* bookmarkdirs;
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
@@ -4273,7 +4292,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
     {
         const gchar* location = bookmark_clients[i].path;
         const gchar* client = bookmark_clients[i].name;
-        gchar* path;
+        gchar* path = NULL;
 
         /* Interpret * as 'any folder' */
         if (strchr (location, '*') != NULL)
@@ -4329,40 +4348,24 @@ _action_bookmarks_import_activate (GtkAction*     action,
     label = gtk_label_new_with_mnemonic (_("_Folder:"));
     gtk_size_group_add_widget (sizegroup, label);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-    combo = gtk_combo_box_text_new ();
-    combobox_folder = GTK_COMBO_BOX (combo);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox_folder),
-                                    _("Toplevel folder"));
-    gtk_combo_box_set_active (combobox_folder, 0);
-
-    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-    sqlcmd = "SELECT title from bookmarks where uri=''";
-    bookmarkdirs = katze_array_from_sqlite (db, sqlcmd);
-    KATZE_ARRAY_FOREACH_ITEM (item, bookmarkdirs)
-    {
-        const gchar* name = katze_item_get_name (item);
-        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox_folder), name);
-    }
-    gtk_box_pack_start (GTK_BOX (hbox), combo, TRUE, TRUE, 0);
+    combobox_folder = midori_bookmark_folder_button_new (browser->bookmarks,
+                                                         FALSE, NULL);
+    gtk_box_pack_start (GTK_BOX (hbox), combobox_folder, TRUE, TRUE, 0);
     gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
-    gtk_widget_set_sensitive (combo, TRUE);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         GtkTreeIter iter;
-        gchar* path;
-        gchar* selected;
+        gchar* path = NULL;
+        gchar* selected = NULL;
         GError* error;
+        sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
 
-        gtk_combo_box_get_active_iter (combobox, &iter);
-        gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &path, -1);
-
-        selected = gtk_combo_box_text_get_active_text (
-            GTK_COMBO_BOX_TEXT (combobox_folder));
-        if (g_str_equal (selected, _("Toplevel folder")))
-            selected = g_strdup ("");
+        if (gtk_combo_box_get_active_iter (combobox, &iter))
+            gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &path, -1);
+        selected = midori_bookmark_folder_button_get_active (combobox_folder);
 
         gtk_widget_destroy (dialog);
         if (!path)
