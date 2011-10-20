@@ -3715,6 +3715,7 @@ prepare_speed_dial_html (MidoriView* view)
             "{title}", _("Speed Dial"),
             "{click_to_add}", _("Click to add a shortcut"),
             "{enter_shortcut_address}", _("Enter shortcut address"),
+            "{enter_shortcut_name}", _("Enter shortcut title"),
             "{are_you_sure}", _("Are you sure you want to delete this shortcut?"),
             NULL);
 
