@@ -294,7 +294,16 @@ midori_extension_activate_cb (MidoriExtension* extension,
             if (error->code == G_FILE_ERROR_NOENT)
             {
                 gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
-                gchar* folder = g_strconcat ("extensions/", filename, NULL);
+                gchar* folder;
+                if (g_str_has_prefix (filename, "lib"))
+                    filename = &filename[strlen ("len")];
+                if (g_str_has_suffix (filename, G_MODULE_SUFFIX))
+                    filename = g_strndup (filename,
+                        strlen (filename) - strlen ("." G_MODULE_SUFFIX));
+                else
+                    filename = g_strdup (filename);
+                folder = g_strconcat ("extensions/", filename, NULL);
+                g_free (filename);
                 katze_assign (config_file,
                     sokoke_find_config_filename (folder, "config"));
                 g_free (folder);
