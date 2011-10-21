@@ -4443,6 +4443,7 @@ midori_view_tab_close_clicked (GtkWidget* tab_close,
     gtk_widget_destroy (widget);
 }
 
+#if !GTK_CHECK_VERSION (3, 0, 0)
 static void
 midori_view_tab_icon_style_set_cb (GtkWidget* tab_close,
                                    GtkStyle*  previous_style)
@@ -4451,6 +4452,7 @@ midori_view_tab_icon_style_set_cb (GtkWidget* tab_close,
     gtk_widget_size_request (gtk_bin_get_child (GTK_BIN (tab_close)), &size);
     gtk_widget_set_size_request (tab_close, size.width, size.height);
 }
+#endif
 
 static void
 midori_view_update_tab_title (GtkWidget* label,
@@ -4625,7 +4627,28 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 {
     GtkWidget* event_box;
     GtkWidget* hbox;
-    GtkRcStyle* rcstyle;
+    static const gchar style_fixup[] =
+    #if GTK_CHECK_VERSION (3, 0, 0)
+        "* {\n"
+        "-GtkButton-default-border : 0;\n"
+        "-GtkButton-default-outside-border : 0;\n"
+        "-GtkButton-inner-border: 0;\n"
+        "-GtkWidget-focus-line-width : 0;\n"
+        "-GtkWidget-focus-padding : 0;\n"
+        "padding: 0;\n"
+        "}";
+    GtkStyleContext* context;
+    GtkCssProvider* css_provider;
+    #else
+        "style \"midori-close-button-style\"\n"
+        "{\n"
+        "GtkWidget::focus-padding = 0\n"
+        "GtkWidget::focus-line-width = 0\n"
+        "xthickness = 0\n"
+        "ythickness = 0\n"
+        "}\n"
+        "widget \"*.midori-close-button\" style \"midori-close-button-style\"";
+    #endif
     GtkWidget* image;
     GtkWidget* align;
 
@@ -4639,6 +4662,7 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 
         view->tab_title = gtk_label_new (midori_view_get_display_title (view));
         gtk_misc_set_alignment (GTK_MISC (view->tab_title), 0.0, 0.5);
+        gtk_misc_set_padding (GTK_MISC (view->tab_title), 0, 0);
 
         event_box = gtk_event_box_new ();
         gtk_event_box_set_visible_window (GTK_EVENT_BOX (event_box), FALSE);
@@ -4649,13 +4673,21 @@ midori_view_get_proxy_tab_label (MidoriView* view)
         view->tab_close = gtk_button_new ();
         gtk_button_set_relief (GTK_BUTTON (view->tab_close), GTK_RELIEF_NONE);
         gtk_button_set_focus_on_click (GTK_BUTTON (view->tab_close), FALSE);
-        rcstyle = gtk_rc_style_new ();
-        rcstyle->xthickness = rcstyle->ythickness = 0;
-        gtk_widget_modify_style (view->tab_close, rcstyle);
-        g_object_unref (rcstyle);
+        #if GTK_CHECK_VERSION (3, 0, 0)
+        context = gtk_widget_get_style_context (view->tab_close);
+        css_provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_data (css_provider, style_fixup, -1, NULL);
+        gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (css_provider),
+                                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        #else
+        gtk_rc_parse_string (style_fixup);
+        gtk_widget_set_name (view->tab_close, "midori-close-button");
+        g_signal_connect (view->tab_close, "style-set",
+            G_CALLBACK (midori_view_tab_icon_style_set_cb), NULL);
+        #endif
         image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
         gtk_container_add (GTK_CONTAINER (view->tab_close), image);
-        align = gtk_alignment_new (1.0, 0.0, 0.0, 0.0);
+        align = gtk_alignment_new (1.0, 0.5, 0.0, 0.0);
         gtk_container_add (GTK_CONTAINER (align), view->tab_close);
 
         if (katze_object_get_boolean (view->settings, "close-buttons-left"))
@@ -4679,8 +4711,6 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 
         g_signal_connect (event_box, "button-press-event",
             G_CALLBACK (midori_view_tab_label_button_press_event), view);
-        g_signal_connect (view->tab_close, "style-set",
-            G_CALLBACK (midori_view_tab_icon_style_set_cb), NULL);
         g_signal_connect (view->tab_close, "clicked",
             G_CALLBACK (midori_view_tab_close_clicked), view);
 
