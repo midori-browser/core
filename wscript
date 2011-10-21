@@ -164,6 +164,15 @@ def configure (conf):
             atleast_version=version, mandatory=mandatory)
         return conf.env['HAVE_' + var]
 
+    def check_version (given_version, major, minor, micro):
+        if '.' in given_version:
+            given_major, given_minor, given_micro = given_version.split ('.')
+        else:
+            given_major, given_minor, given_micro = given_version
+        return int(given_major) >  major or \
+               int(given_major) == major and int(given_minor) >  minor or \
+               int(given_major) == major and int(given_minor) == minor and int(given_micro) >= micro
+
     if option_enabled ('unique') and not option_enabled('gtk3'):
         check_pkg ('unique-1.0', '0.9', False)
         unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
@@ -196,10 +205,7 @@ def configure (conf):
                     includes='/usr/X11R6/include', mandatory=False)
         conf.check (lib='Xss', libpath='/usr/X11R6/lib', mandatory=False)
     if option_enabled ('gtk3'):
-        if option_enabled ('addons') and ( not ( \
-             conf.env['VALAC_VERSION'] >= 0 \
-         and conf.env['VALAC_VERSION'][1] >= 13 \
-         and conf.env['VALAC_VERSION'][2] >= 2)):
+        if option_enabled ('addons') and not check_version (conf.env['VALAC_VERSION'], 0, 13, 2):
             Utils.pprint ('RED', 'Vala 0.13.2 or later is required ' \
                 'to build with GTK+ 3 and extensions.\n' \
                 'Pass --disable-addons to build without extensions.\n' \
@@ -211,14 +217,15 @@ def configure (conf):
             Utils.pprint ('RED', 'GTK+3 was not found.\n' \
                 'Pass --disable-gtk3 to build without GTK+3.')
             sys.exit (1)
+        if check_version (conf.check_cfg (modversion='webkitgtk-3.0'), 1, 5, 1):
+            check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
     else:
         check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
         check_pkg ('webkit-1.0', '1.1.17', args=args)
+        if check_version (conf.check_cfg (modversion='webkit-1.0'), 1, 5, 1):
+            check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
     conf.env['HAVE_GTK3'] = option_enabled ('gtk3')
-    webkit_version = conf.check_cfg (modversion='webkit-1.0').split ('.')
-    if int(webkit_version[0]) >= 1 and int(webkit_version[1]) >= 5 and int(webkit_version[2]) >= 1:
-        check_pkg ('javascriptcoregtk-1.0', '1.1.17', args=args)
     check_pkg ('libsoup-2.4', '2.27.90')
     conf.define ('HAVE_LIBSOUP_2_25_2', 1)
     conf.define ('HAVE_LIBSOUP_2_27_90', 1)
