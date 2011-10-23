@@ -58,7 +58,7 @@ struct _MidoriWebSettings
     gboolean zoom_text_and_images : 1;
     gboolean find_while_typing : 1;
     gboolean kinetic_scrolling : 1;
-    gboolean original_cookies_only : 1;
+    gboolean first_party_cookies_only : 1;
     gboolean remember_last_visited_pages : 1;
     MidoriProxy proxy_type : 2;
     MidoriIdentity identify_as : 3;
@@ -156,6 +156,7 @@ enum
     PROP_FIND_WHILE_TYPING,
     PROP_KINETIC_SCROLLING,
     PROP_MAXIMUM_COOKIE_AGE,
+    PROP_FIRST_PARTY_COOKIES_ONLY,
 
     PROP_MAXIMUM_HISTORY_AGE,
 
@@ -837,6 +838,28 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      0, G_MAXINT, 30,
                                      flags));
 
+    /**
+     * MidoriWebSettings:first-party-cookies-only:
+     *
+     * Whether only first party cookies should be accepted.
+     * WebKitGTK+ 1.1.21 is required for this to work.
+     *
+     * Since: 0.4.2
+     */
+     g_object_class_install_property (gobject_class,
+                                     PROP_FIRST_PARTY_COOKIES_ONLY,
+                                     g_param_spec_boolean (
+                                     "first-party-cookies-only",
+                                     _("Only accept Cookies from sites you visit"),
+                                     _("Block cookies sent by third-party websites"),
+    #ifdef HAVE_LIBSOUP_2_29_91
+                                     TRUE,
+        g_object_class_find_property (gobject_class, /* WebKitGTK+ >= 1.1.21 */
+            "enable-file-access-from-file-uris") ? flags : G_PARAM_READABLE));
+    #else
+                                     FALSE,
+                                     G_PARAM_READABLE));
+    #endif
 
     g_object_class_install_property (gobject_class,
                                      PROP_MAXIMUM_HISTORY_AGE,
@@ -1350,6 +1373,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_MAXIMUM_COOKIE_AGE:
         web_settings->maximum_cookie_age = g_value_get_int (value);
         break;
+    case PROP_FIRST_PARTY_COOKIES_ONLY:
+        web_settings->first_party_cookies_only = g_value_get_boolean (value);
+        break;
 
     case PROP_MAXIMUM_HISTORY_AGE:
         web_settings->maximum_history_age = g_value_get_int (value);
@@ -1607,6 +1633,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_MAXIMUM_COOKIE_AGE:
         g_value_set_int (value, web_settings->maximum_cookie_age);
+        break;
+    case PROP_FIRST_PARTY_COOKIES_ONLY:
+        g_value_set_boolean (value, web_settings->first_party_cookies_only);
         break;
 
     case PROP_MAXIMUM_HISTORY_AGE:

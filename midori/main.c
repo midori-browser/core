@@ -755,6 +755,10 @@ midori_browser_privacy_preferences_cb (MidoriBrowser*    browser,
     katze_preferences_add_widget (preferences, button, "indented");
     button = katze_property_proxy (settings, "maximum-cookie-age", "days");
     katze_preferences_add_widget (preferences, button, "spanned");
+    #ifdef HAVE_LIBSOUP_2_29_91
+    button = katze_property_proxy (settings, "first-party-cookies-only", NULL);
+    katze_preferences_add_widget (preferences, button, "filled");
+    #endif
 
     markup = g_strdup_printf ("<span size=\"smaller\">%s</span>",
         _("Cookies store login data, saved games, "
@@ -922,6 +926,20 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
         midori_soup_session_set_proxy_uri (session, NULL);
 }
 
+#ifdef HAVE_LIBSOUP_2_29_91
+static void
+soup_session_settings_notify_first_party_cb (MidoriWebSettings* settings,
+                                             GParamSpec*        pspec,
+                                             SoupSession*       session)
+{
+    void* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
+    gboolean yes = katze_object_get_boolean (settings, "first-party-cookies-only");
+    g_object_set (jar, "accept-policy",
+        yes ? SOUP_COOKIE_JAR_ACCEPT_NO_THIRD_PARTY
+            : SOUP_COOKIE_JAR_ACCEPT_ALWAYS, NULL);
+}
+#endif
+
 static void
 midori_soup_session_settings_accept_language_cb (SoupSession*       session,
                                                  SoupMessage*       msg,
@@ -1028,6 +1046,12 @@ midori_load_soup_session (gpointer settings)
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);
+    #ifdef HAVE_LIBSOUP_2_29_91
+    if (g_object_class_find_property (G_OBJECT_GET_CLASS (settings),
+        "enable-file-access-from-file-uris")) /* WebKitGTK+ >= 1.1.21 */
+        g_signal_connect (settings, "notify::first-party-cookies-only",
+            G_CALLBACK (soup_session_settings_notify_first_party_cb), session);
+    #endif
 
     g_signal_connect (session, "request-queued",
         G_CALLBACK (midori_soup_session_settings_accept_language_cb), settings);
@@ -2186,6 +2210,9 @@ main (int    argc,
             g_object_set (settings,
                           "preferred-languages", "en",
                           "enable-private-browsing", TRUE,
+            #ifdef HAVE_LIBSOUP_2_29_91
+                          "first-party-cookies-only", TRUE,
+            #endif
                           "enable-html5-database", FALSE,
                           "enable-html5-local-storage", FALSE,
                           "enable-offline-web-application-cache", FALSE,
