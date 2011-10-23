@@ -4317,7 +4317,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
                             : g_strdup (_(client));
                         gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                             0, display, 1, bookmark_clients[i].icon,
-                            2, path, 3, icon_width, -1);
+                            2, file, 3, icon_width, -1);
                         g_free (display);
                     }
                     g_free (file);
@@ -4329,7 +4329,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
             continue;
         }
 
-        path = g_build_filename (g_get_home_dir (), path, NULL);
+        path = g_build_filename (g_get_home_dir (), location, NULL);
         if (g_access (path, F_OK) == 0)
             gtk_list_store_insert_with_values (model, NULL, G_MAXINT,
                 0, _(client), 1, bookmark_clients[i].icon,
