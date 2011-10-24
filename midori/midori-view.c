@@ -4969,6 +4969,37 @@ midori_view_go_forward (MidoriView* view)
     webkit_web_view_go_forward (WEBKIT_WEB_VIEW (view->web_view));
 }
 
+static gchar*
+midori_view_get_related_page (MidoriView*  view,
+                              const gchar* rel,
+                              const gchar* local)
+{
+    gchar* script;
+    static gchar* uri = NULL;
+    WebKitWebFrame* web_frame;
+    JSContextRef js_context;
+
+    if (!view->web_view)
+        return NULL;
+
+    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    script = g_strdup_printf (
+        "(function (tags) {"
+        "for (var tag in tags) {"
+        "var l = document.getElementsByTagName (tag);"
+        "for (var i in l) { "
+        "if ((l[i].rel && l[i].rel.toLowerCase () == '%s') "
+        " || (l[i].innerHTML"
+        "  && (l[i].innerHTML.toLowerCase ().indexOf ('%s') != -1 "
+        "   || l[i].innerHTML.toLowerCase ().indexOf ('%s') != -1)))"
+        "{ return l[i].href; } } } return 0; })("
+        "{ link:'link', a:'a' });", rel, rel, local);
+    katze_assign (uri, sokoke_js_script_eval (js_context, script, NULL));
+    g_free (script);
+    return uri && uri[0] != '0' ? uri : NULL;
+}
+
 /**
  * midori_view_get_previous_page
  * @view: a #MidoriView
@@ -4982,28 +5013,10 @@ midori_view_go_forward (MidoriView* view)
 const gchar*
 midori_view_get_previous_page (MidoriView* view)
 {
-    static gchar* uri = NULL;
-    WebKitWebFrame* web_frame;
-    JSContextRef js_context;
-
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    if (!view->web_view)
-        return NULL;
-
-    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-    js_context = webkit_web_frame_get_global_context (web_frame);
-    katze_assign (uri, sokoke_js_script_eval (js_context,
-        "(function (tags) {"
-        "for (var tag in tags) {"
-        "var l = document.getElementsByTagName (tag);"
-        "for (var i in l) { "
-        "if ((l[i].rel && l[i].rel.toLowerCase () == 'prev') "
-        " || (l[i].innerHTML"
-        "  && l[i].innerHTML.toLowerCase ().indexOf ('prev') != -1)) "
-        "{ return l[i].href; } } } return 0; })("
-        "{ link:'link', a:'a' });", NULL));
-    return uri && uri[0] != '0' ? uri : NULL;
+    /* i18n: word stem of "previous page" type links, case is not important */
+    return midori_view_get_related_page (view, "prev", _("previous"));
 }
 
 /**
@@ -5019,28 +5032,10 @@ midori_view_get_previous_page (MidoriView* view)
 const gchar*
 midori_view_get_next_page (MidoriView* view)
 {
-    static gchar* uri = NULL;
-    WebKitWebFrame* web_frame;
-    JSContextRef js_context;
-
     g_return_val_if_fail (MIDORI_IS_VIEW (view), NULL);
 
-    if (!view->web_view)
-        return NULL;
-
-    web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
-    js_context = webkit_web_frame_get_global_context (web_frame);
-    katze_assign (uri, sokoke_js_script_eval (js_context,
-        "(function (tags) {"
-        "for (var tag in tags) {"
-        "var l = document.getElementsByTagName (tag);"
-        "for (var i in l) { "
-        "if ((l[i].rel && l[i].rel.toLowerCase () == 'next') "
-        " || (l[i].innerHTML"
-        "  && l[i].innerHTML.toLowerCase ().indexOf ('next') != -1)) "
-        "{ return l[i].href; } } } return 0; })("
-        "{ link:'link', a:'a' });", NULL));
-    return uri && uri[0] != '0' ? uri : NULL;
+    /* i18n: word stem of "next page" type links, case is not important */
+    return midori_view_get_related_page (view, "next", _("next"));
 }
 
 static GtkWidget*
