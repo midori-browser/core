@@ -3704,7 +3704,8 @@ prepare_speed_dial_html (MidoriView* view)
     if (!key_file)
         return g_strdup ("");
 
-    file_name = g_build_filename ("midori", "res", "speeddial-head.html", NULL);
+    file_name = g_build_filename ("midori", "res",
+        "speeddial-head-" MIDORI_VERSION ".html", NULL);
     file_path = sokoke_find_data_filename (file_name);
     g_free (file_name);
 

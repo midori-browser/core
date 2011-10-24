@@ -32,13 +32,13 @@ minor = 4
 micro = 1
 
 APPNAME = 'midori'
-VERSION = str (major) + '.' + str (minor) + '.' + str (micro)
+VERSION = VERSION_FULL = str (major) + '.' + str (minor) + '.' + str (micro)
 
 try:
     if os.path.isdir ('.git'):
         git = Utils.cmd_output (['git', 'describe'], silent=True)
         if git:
-            VERSION = git.strip ()
+            VERSION_FULL = git.strip ()
 except:
     pass
 
@@ -272,11 +272,12 @@ def configure (conf):
     else:
         conf.check (header_name='signal.h')
 
-    conf.define ('PACKAGE_VERSION', VERSION)
+    conf.define ('PACKAGE_VERSION', VERSION_FULL)
     conf.define ('PACKAGE_NAME', APPNAME)
     conf.define ('PACKAGE_BUGREPORT', 'https://bugs.launchpad.net/midori')
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
+    conf.define ('MIDORI_VERSION', VERSION)
     conf.define ('MIDORI_MAJOR_VERSION', major)
     conf.define ('MIDORI_MINOR_VERSION', minor)
     conf.define ('MIDORI_MICRO_VERSION', micro)
@@ -476,8 +477,11 @@ def build (bld):
         else:
             Utils.pprint ('BLUE', "logo-shade could not be rasterized.")
 
-    for res_file in ['error.html', 'speeddial-head.html', 'close.png']:
+    for res_file in ['error.html', 'close.png']:
         bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/' + res_file)
+    bld.install_as ( \
+        '${MDATADIR}/' + APPNAME + '/res/speeddial-head-%s.html' % VERSION, \
+        'data/speeddial-head.html')
 
     if bld.env['addons']:
         bld.install_files ('${MDATADIR}/' + APPNAME + '/res', 'data/autosuggestcontrol.js')
