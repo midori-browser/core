@@ -918,9 +918,12 @@ soup_session_settings_notify_http_proxy_cb (MidoriWebSettings* settings,
     }
     else if (proxy_type == MIDORI_PROXY_HTTP)
     {
-        gchar* http_proxy = katze_object_get_string (settings, "http-proxy");
-        midori_soup_session_set_proxy_uri (session, http_proxy);
-        g_free (http_proxy);
+        gchar* proxy = katze_object_get_string (settings, "http-proxy");
+        GString *http_proxy = g_string_new (proxy);
+        g_string_append_printf (http_proxy, ":%d", katze_object_get_int (settings, "http-proxy-port"));
+        midori_soup_session_set_proxy_uri (session, http_proxy->str);
+        g_string_free (http_proxy, TRUE);
+        g_free (proxy);
     }
     else
         midori_soup_session_set_proxy_uri (session, NULL);

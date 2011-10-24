@@ -461,6 +461,14 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     g_signal_connect (settings, "notify::proxy-type",
         G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
     midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
+    label = katze_property_label (settings, "http-proxy-port");
+    gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+    INDENTED_ADD (label);
+    entry = katze_property_proxy (settings, "http-proxy-port", NULL);
+    SPANNED_ADD (entry);
+    g_signal_connect (settings, "notify::proxy-type",
+        G_CALLBACK (midori_preferences_notify_proxy_type_cb), entry);
+    midori_preferences_notify_proxy_type_cb (settings, NULL, entry);
     #endif
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     if (soup_session_get_feature (webkit_get_default_session (), SOUP_TYPE_CACHE))

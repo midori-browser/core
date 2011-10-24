@@ -78,6 +78,7 @@ struct _MidoriWebSettings
     gchar* news_aggregator;
     gchar* location_entry_search;
     gchar* http_proxy;
+    gint http_proxy_port;
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     gint maximum_cache_size;
     #endif
@@ -162,6 +163,7 @@ enum
 
     PROP_PROXY_TYPE,
     PROP_HTTP_PROXY,
+    PROP_HTTP_PROXY_PORT,
     PROP_MAXIMUM_CACHE_SIZE,
     PROP_IDENTIFY_AS,
     PROP_USER_AGENT,
@@ -896,6 +898,23 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      NULL,
                                      flags));
 
+    /**
+     * MidoriWebSettings:http-proxy-port:
+     *
+     * The proxy server port used for HTTP connections
+     *
+     * Since: 0.4.2
+     */
+     g_object_class_install_property (gobject_class,
+                                     PROP_HTTP_PROXY_PORT,
+                                     g_param_spec_int (
+                                     "http-proxy-port",
+                                     _("Port"),
+                                     _("The proxy server port used for HTTP connections"),
+                                     1, 65535, 8080,
+                                     flags
+                                     ));
+
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     /**
      * MidoriWebSettings:maximum-cache-size:
@@ -1387,6 +1406,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_HTTP_PROXY:
         katze_assign (web_settings->http_proxy, g_value_dup_string (value));
         break;
+    case PROP_HTTP_PROXY_PORT:
+        web_settings->http_proxy_port = g_value_get_int (value);
+        break;
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     case PROP_MAXIMUM_CACHE_SIZE:
         web_settings->maximum_cache_size = g_value_get_int (value);
@@ -1647,6 +1669,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_HTTP_PROXY:
         g_value_set_string (value, web_settings->http_proxy);
+        break;
+    case PROP_HTTP_PROXY_PORT:
+        g_value_set_int (value, web_settings->http_proxy_port);
         break;
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     case PROP_MAXIMUM_CACHE_SIZE:
