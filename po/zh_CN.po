@@ -3,26 +3,27 @@
 # This file is distributed under the same license as the midori package.
 # Stanley Zhang <yatzhang@gmail.com>, 2009.
 # Hunt Xu <mhuntxu@gmail.com>, 2009, 2010, 2011.
+# Chipong Luo <chipong_l@yahoo.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-20 22:11+0000\n"
+"POT-Creation-Date: 2011-10-24 22:11+0000\n"
 "PO-Revision-Date: 2011-02-15 21:26+0800\n"
-"Last-Translator: Hunt Xu <huntxu@live.cn>\n"
+"Last-Translator: Chipong Luo <chipong_l@yahoo.com>\n"
 "Language-Team: Simplified Chinese <xfce-i18n@xfce.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Lightweight web browser"
 msgstr "轻量级网页浏览器"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:2005 ../midori/main.c:2029
-#: ../midori/main.c:2045 ../midori/midori-websettings.c:294
+#: ../data/midori.desktop.in.h:2 ../midori/main.c:2030 ../midori/main.c:2054
+#: ../midori/main.c:2070 ../midori/midori-websettings.c:295
 msgid "Midori"
 msgstr "Midori 浏览器"
 
@@ -30,288 +31,288 @@ msgstr "Midori 浏览器"
 msgid "Web Browser"
 msgstr "网页浏览器"
 
-#: ../midori/main.c:106 ../midori/main.c:112
+#: ../midori/main.c:107 ../midori/main.c:113
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
-msgstr "无法载入配置: %s\n"
+msgstr "无法载入配置：%s\n"
 
-#: ../midori/main.c:160
+#: ../midori/main.c:161
 #, c-format
 msgid "Value '%s' is invalid for %s"
-msgstr "值 ‘%s‘ 在 %s 中无效"
+msgstr "值 ‘%s’ 对 %s 无效"
 
-#: ../midori/main.c:165 ../midori/main.c:258
+#: ../midori/main.c:166 ../midori/main.c:259
 #, c-format
 msgid "Invalid configuration value '%s'"
-msgstr "无效的配置值 ’%s‘"
+msgstr "无效的配置值 ‘%s’"
 
-#: ../midori/main.c:363
+#: ../midori/main.c:364
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "无法载入搜索引擎。%s\n"
 
-#: ../midori/main.c:417
+#: ../midori/main.c:418
 #, c-format
 msgid "Failed to clear history: %s\n"
-msgstr "清除历史数据失败: %s\n"
+msgstr "无法清除历史数据：%s\n"
 
-#: ../midori/main.c:437 ../midori/main.c:558 ../extensions/formhistory.c:423
+#: ../midori/main.c:438 ../midori/main.c:559 ../extensions/formhistory.c:423
 #, c-format
 msgid "Failed to open database: %s\n"
-msgstr "打开数据库失败: %s\n"
+msgstr "无法打开数据库：%s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:501
+#: ../midori/main.c:502
 #, c-format
 msgid "Failed to remove old history items: %s\n"
-msgstr "移除旧的历史项目失败: %s\n"
+msgstr "无法移除旧的历史项目：%s\n"
 
-#: ../midori/main.c:541 ../panels/midori-history.c:194
+#: ../midori/main.c:542 ../panels/midori-history.c:194
 #, c-format
 msgid "Failed to remove history item: %s\n"
-msgstr "移除历史项目失败: %s\n"
+msgstr "无法移除历史项目：%s\n"
 
-#: ../midori/main.c:588
+#: ../midori/main.c:589
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "无法保存书签。%s"
 
-#: ../midori/main.c:622
+#: ../midori/main.c:623
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "无法保存配置。%s"
 
-#: ../midori/main.c:657
+#: ../midori/main.c:658
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "无法保存搜索引擎。%s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:683 ../midori/main.c:703
+#: ../midori/main.c:684 ../midori/main.c:704
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "回收站无法保存。%s"
 
-#: ../midori/main.c:737 ../panels/midori-extensions.c:93
+#: ../midori/main.c:738 ../panels/midori-extensions.c:92
 msgid "Extensions"
 msgstr "扩展"
 
-#: ../midori/main.c:751
+#: ../midori/main.c:752
 msgid "Privacy"
 msgstr "隐私"
 
-#: ../midori/main.c:759
+#: ../midori/main.c:764
 msgid ""
 "Cookies store login data, saved games, or user profiles for advertisement "
 "purposes."
-msgstr "Cookie 保存了登录数据、游戏状态或者与广告目的相关的资料。"
+msgstr "cookie 保存了登录数据、游戏状态或用于广告目的用户分布信息。"
 
-#: ../midori/main.c:821
+#: ../midori/main.c:826
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "无法保存会话。%s"
 
-#: ../midori/main.c:1014
+#: ../midori/main.c:1033
 msgid ""
 "No root certificate file is available. SSL certificates cannot be verified."
 msgstr "无有效的根证书文件。无法验证 SSL 证书。"
 
-#: ../midori/main.c:1076
+#: ../midori/main.c:1101
 msgid ""
 "Midori seems to have crashed the last time it was opened. If this happened "
 "repeatedly, try one of the following options to solve the problem."
 msgstr ""
-"Midori 浏览器在上次运行时好像崩溃了。如果这种情况反复出现，请尝试下面的某种方"
-"法来解决此问题。"
+"Midori 浏览器在上次运行时好像崩溃了。如果这种情况反复出现，尝试下面的"
+"某种方法来解决此问题。"
 
-#: ../midori/main.c:1095
+#: ../midori/main.c:1120
 msgid "Modify _preferences"
 msgstr "修改首选项(_P)"
 
-#: ../midori/main.c:1099
+#: ../midori/main.c:1124
 msgid "Disable all _extensions"
 msgstr "禁用所有扩展(_E)"
 
-#: ../midori/main.c:1112
+#: ../midori/main.c:1137
 msgid "Discard old tabs"
-msgstr ""
+msgstr "舍弃旧标签"
 
-#: ../midori/main.c:1113 ../midori/midori-websettings.c:203
+#: ../midori/main.c:1138 ../midori/midori-websettings.c:204
 msgid "Show last tabs without loading"
 msgstr "显示上次打开的标签但不载入"
 
-#: ../midori/main.c:1114 ../midori/midori-websettings.c:202
+#: ../midori/main.c:1139 ../midori/midori-websettings.c:203
 msgid "Show last open tabs"
 msgstr "显示上次打开的标签"
 
-#: ../midori/main.c:1324 ../midori/main.c:2425
+#: ../midori/main.c:1349 ../midori/main.c:2453
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
-msgstr "无法载入会话: %s\n"
+msgstr "无法载入会话：%s\n"
 
-#: ../midori/main.c:1465
+#: ../midori/main.c:1490
 #, c-format
 msgid "Snapshot saved to: %s\n"
-msgstr "截图保存至: %s\n"
+msgstr "截图保存至：%s\n"
 
-#: ../midori/main.c:1889
+#: ../midori/main.c:1914
 msgid "Run ADDRESS as a web application"
 msgstr "将 ADDRESS 作为网络程序运行"
 
-#: ../midori/main.c:1889
+#: ../midori/main.c:1914
 msgid "ADDRESS"
 msgstr "ADDRESS"
 
-#: ../midori/main.c:1892
+#: ../midori/main.c:1917
 msgid "Use FOLDER as configuration folder"
 msgstr "使用 FOLDER 作为配置文件夹"
 
-#: ../midori/main.c:1892
+#: ../midori/main.c:1917
 msgid "FOLDER"
 msgstr "FOLDER"
 
-#: ../midori/main.c:1895
+#: ../midori/main.c:1920
 msgid "Private browsing, no changes are saved"
 msgstr "隐私浏览方式，未保存任何更改"
 
-#: ../midori/main.c:1897
+#: ../midori/main.c:1922
 msgid "Show a diagnostic dialog"
 msgstr "显示诊断对话框"
 
-#: ../midori/main.c:1899
+#: ../midori/main.c:1924
 msgid "Run the specified filename as javascript"
 msgstr "将指定的文件当作 javascript 执行"
 
-#: ../midori/main.c:1901
+#: ../midori/main.c:1926
 msgid "Take a snapshot of the specified URI"
 msgstr "对指定 URI 截图"
 
-#: ../midori/main.c:1903
+#: ../midori/main.c:1928
 msgid "Execute the specified command"
 msgstr "执行指定命令"
 
-#: ../midori/main.c:1905
+#: ../midori/main.c:1930
 msgid "List available commands to execute with -e/ --execute"
 msgstr "列出可以使用 -e/ --execute 执行的命令"
 
-#: ../midori/main.c:1907
+#: ../midori/main.c:1932
 msgid "Display program version"
 msgstr "显示程序版本"
 
-#: ../midori/main.c:1909
+#: ../midori/main.c:1934
 msgid "Addresses"
 msgstr "地址"
 
-#: ../midori/main.c:1911
+#: ../midori/main.c:1936
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "按正则表达式 PATTERN 屏蔽 URI"
 
-#: ../midori/main.c:1911
+#: ../midori/main.c:1936
 msgid "PATTERN"
 msgstr "PATTERN"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1915
+#: ../midori/main.c:1940
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "在 SECONDS 秒后无响应则重置 Midori 浏览器"
 
-#: ../midori/main.c:1915
+#: ../midori/main.c:1940
 msgid "SECONDS"
 msgstr "SECONDS"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:1943
 msgid "Redirects console warnings to the specified FILENAME"
 msgstr "重定向控制台警告信息至指定的 FILENAME"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:1943
 msgid "FILENAME"
 msgstr "FILENAME"
 
-#: ../midori/main.c:2002
+#: ../midori/main.c:2027
 msgid "[Addresses]"
 msgstr "[地址]"
 
-#: ../midori/main.c:2016
+#: ../midori/main.c:2041
 msgid "The specified configuration folder is invalid."
 msgstr "指定的配置文件夹无效。"
 
-#: ../midori/main.c:2046
+#: ../midori/main.c:2071
 msgid "Please report comments, suggestions and bugs to:"
-msgstr "请将意见、建议和缺陷报告至:"
+msgstr "请将意见、建议和缺陷报告至："
 
-#: ../midori/main.c:2048
+#: ../midori/main.c:2073
 msgid "Check for new versions at:"
-msgstr "在此查找新的版本:"
+msgstr "在此查找新版本："
 
-#: ../midori/main.c:2131
+#: ../midori/main.c:2156
 msgid "Website icons"
 msgstr "网站图标"
 
 #. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2134
+#: ../midori/main.c:2159
 msgid "Saved logins and _passwords"
 msgstr "已保存的用户名和密码"
 
-#: ../midori/main.c:2136
+#: ../midori/main.c:2161
 msgid "Cookies"
-msgstr "Cookie"
+msgstr "cookie"
 
-#: ../midori/main.c:2139
+#: ../midori/main.c:2164
 msgid "'Flash' Cookies"
-msgstr "‘Flash’ Cookie"
+msgstr "‘动画’ cookie"
 
-#: ../midori/main.c:2142
+#: ../midori/main.c:2167
 msgid "HTML5 _Databases"
 msgstr "HTML5 数据库(_D)"
 
-#: ../midori/main.c:2145 ../midori/midori-websettings.c:888
+#: ../midori/main.c:2170 ../midori/midori-websettings.c:911
 #: ../extensions/web-cache.c:464 ../extensions/web-cache.c:473
 msgid "Web Cache"
 msgstr "网页缓存"
 
-#: ../midori/main.c:2147
+#: ../midori/main.c:2172
 msgid "Offline Application Cache"
 msgstr "离线应用程序缓存"
 
-#: ../midori/main.c:2247
+#: ../midori/main.c:2275
 msgid "An unknown error occured"
-msgstr "发生了一个未知的错误"
+msgstr "发生了一个未知错误"
 
-#: ../midori/main.c:2356
+#: ../midori/main.c:2384
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "已经有一个 Midori 实例在运行，但是无法响应。\n"
 
-#: ../midori/main.c:2392
+#: ../midori/main.c:2420
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
-msgstr "无法载入书签: %s\n"
+msgstr "无法载入书签：%s\n"
 
-#: ../midori/main.c:2440
+#: ../midori/main.c:2468
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr "无法载入回收站: %s\n"
+msgstr "无法载入回收站：%s\n"
 
-#: ../midori/main.c:2453
+#: ../midori/main.c:2481
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr "无法载入历史记录: %s\n"
+msgstr "无法载入历史记录：%s\n"
 
-#: ../midori/main.c:2469
+#: ../midori/main.c:2497
 msgid "The following errors occured:"
 msgstr "发生了以下错误："
 
-#: ../midori/main.c:2485
+#: ../midori/main.c:2513
 msgid "_Ignore"
 msgstr "忽略(_I)"
 
 #: ../midori/midori-array.c:522
 msgid "File not found."
-msgstr "没有找到文件。"
+msgstr "未找到文件。"
 
 #: ../midori/midori-array.c:547 ../midori/midori-array.c:586
 #: ../midori/midori-array.c:609 ../midori/midori-array.c:619
 msgid "Malformed document."
-msgstr "异常的文档。"
+msgstr "异常文档。"
 
 #: ../midori/midori-array.c:628
 msgid "Unrecognized bookmark format."
@@ -319,126 +320,126 @@ msgstr "无法识别的书签格式。"
 
 #: ../midori/midori-array.c:916
 msgid "Writing failed."
-msgstr "写入失败。"
+msgstr "无法写入。"
 
-#: ../midori/midori-browser.c:335 ../midori/midori-browser.c:5299
-#: ../midori/midori-browser.c:5308
+#: ../midori/midori-browser.c:336 ../midori/midori-browser.c:5300
+#: ../midori/midori-browser.c:5309
 msgid "Reload the current page"
 msgstr "重新载入当前页面"
 
-#: ../midori/midori-browser.c:346 ../midori/midori-browser.c:5305
+#: ../midori/midori-browser.c:347 ../midori/midori-browser.c:5306
 msgid "Stop loading the current page"
 msgstr "停止载入当前页面"
 
-#: ../midori/midori-browser.c:473
+#: ../midori/midori-browser.c:474
 #, c-format
 msgid "Failed to update title: %s\n"
-msgstr "更新标题失败: %s\n"
+msgstr "无法更新标题：%s\n"
 
-#: ../midori/midori-browser.c:486
+#: ../midori/midori-browser.c:487
 #, c-format
 msgid "Unexpected action '%s'."
-msgstr "意外的动作 '%s'。"
+msgstr "意外的动作 ‘%s’。"
 
-#: ../midori/midori-browser.c:587
+#: ../midori/midori-browser.c:588
 #, c-format
 msgid "%s (Private Browsing)"
 msgstr "%s (隐私浏览方式)"
 
-#: ../midori/midori-browser.c:698 ../midori/midori-browser.c:731
+#: ../midori/midori-browser.c:699 ../midori/midori-browser.c:732
 msgid "Toplevel folder"
 msgstr "最上层文件夹"
 
-#: ../midori/midori-browser.c:788
+#: ../midori/midori-browser.c:789
 msgid "New folder"
 msgstr "新建文件夹"
 
-#: ../midori/midori-browser.c:788
+#: ../midori/midori-browser.c:789
 msgid "Edit folder"
 msgstr "编辑文件夹"
 
-#: ../midori/midori-browser.c:790
+#: ../midori/midori-browser.c:791
 msgid "New bookmark"
 msgstr "新建书签"
 
-#: ../midori/midori-browser.c:790
+#: ../midori/midori-browser.c:791
 msgid "Edit bookmark"
 msgstr "编辑书签"
 
-#: ../midori/midori-browser.c:825
+#: ../midori/midori-browser.c:826
 msgid "_Title:"
-msgstr "标题(_T):"
+msgstr "标题(_T)："
 
-#: ../midori/midori-browser.c:845 ../midori/midori-searchaction.c:973
+#: ../midori/midori-browser.c:846 ../midori/midori-searchaction.c:974
 #: ../extensions/feed-panel/main.c:385
 msgid "_Address:"
-msgstr "地址(_A):"
+msgstr "地址(_A)："
 
-#: ../midori/midori-browser.c:868 ../midori/midori-browser.c:4348
+#: ../midori/midori-browser.c:869 ../midori/midori-browser.c:4349
 msgid "_Folder:"
-msgstr "文件夹(_F):"
+msgstr "文件夹(_F)："
 
-#: ../midori/midori-browser.c:884
+#: ../midori/midori-browser.c:885
 msgid "Add to _Speed Dial"
 msgstr "添加到快速拨号(_S)"
 
-#: ../midori/midori-browser.c:897
+#: ../midori/midori-browser.c:898
 msgid "Show in the tool_bar"
 msgstr "在工具栏中显示(_B)"
 
-#: ../midori/midori-browser.c:912
+#: ../midori/midori-browser.c:913
 msgid "Run as _web application"
-msgstr "作为 web 程序运行(_W)"
+msgstr "作为网络应用程序运行(_W)"
 
-#: ../midori/midori-browser.c:983
+#: ../midori/midori-browser.c:984
 #, c-format
 msgid "The file \"%s\" can't be saved in this folder."
-msgstr "无法保存文件 “%s“ 至该文件夹。"
+msgstr "“%s“ 文件无法在此文件夹中保存。"
 
-#: ../midori/midori-browser.c:985
+#: ../midori/midori-browser.c:986
 #, c-format
 msgid "You don't have permission to write in this location."
 msgstr "您没有权限在此位置写。"
 
-#: ../midori/midori-browser.c:992
+#: ../midori/midori-browser.c:993
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
 msgstr "可用空间不足，无法下载 “%s”。"
 
-#: ../midori/midori-browser.c:995
+#: ../midori/midori-browser.c:996
 #, c-format
 msgid "The file needs %s but only %s are left."
 msgstr "该文件需要 %s 但只剩余 %s。"
 
-#: ../midori/midori-browser.c:1039 ../midori/midori-browser.c:4418
+#: ../midori/midori-browser.c:1040 ../midori/midori-browser.c:4419
 msgid "Save file as"
 msgstr "文件另存为"
 
-#: ../midori/midori-browser.c:1355
+#: ../midori/midori-browser.c:1356
 msgid "New Window"
 msgstr "新建窗口"
 
-#: ../midori/midori-browser.c:1355
+#: ../midori/midori-browser.c:1356
 msgid "A new window has been opened"
 msgstr "打开了一个新窗口"
 
-#: ../midori/midori-browser.c:1358
+#: ../midori/midori-browser.c:1359
 msgid "New Tab"
 msgstr "新建标签"
 
-#: ../midori/midori-browser.c:1358
+#: ../midori/midori-browser.c:1359
 msgid "A new tab has been opened"
 msgstr "已打开一个新标签"
 
-#: ../midori/midori-browser.c:1395
+#: ../midori/midori-browser.c:1396
 msgid "Save file"
 msgstr "保存文件"
 
-#: ../midori/midori-browser.c:2278
+#: ../midori/midori-browser.c:2279
 msgid "Open file"
 msgstr "打开文件"
 
-#: ../midori/midori-browser.c:2408
+#: ../midori/midori-browser.c:2409
 msgid ""
 "To use the above URI open a news aggregator. There is usually a menu or "
 "button \"New Subscription\", \"New News Feed\" or similar.\n"
@@ -446,710 +447,711 @@ msgid ""
 "Aggregator. Next time you click the news feed icon, it will be added "
 "automatically."
 msgstr ""
-"要使用上面的 URI 打开一个新闻聚合。通常都有名为 “新订阅” 、 “新新闻订阅” 或者"
-"类似的菜单项或者按钮。\n"
-"首选项是 Midori 的一个程序，您也可以进入其中选择一个新闻聚合。当您再次点击新"
-"闻订阅的图标时，该订阅将自动被添加。"
+"要使用上面的 URI 打开一个新闻聚合。通常都有名为 “新订阅”、 “新新闻订阅” "
+"或者类似的菜单或者按钮。\n"
+"首选项是 Midori 的一个程序，您也可以进入其中选择一个新闻聚合。当您再次点击"
+"新闻订阅的图标时，该订阅将自动被添加。"
 
-#: ../midori/midori-browser.c:2414 ../extensions/feed-panel/main.c:365
+#: ../midori/midori-browser.c:2415 ../extensions/feed-panel/main.c:365
 msgid "New feed"
 msgstr "新建订阅"
 
-#: ../midori/midori-browser.c:2457 ../midori/midori-browser.c:5368
+#: ../midori/midori-browser.c:2458 ../midori/midori-browser.c:5369
 #: ../panels/midori-bookmarks.c:467
 msgid "Add a new bookmark"
 msgstr "添加新书签"
 
-#: ../midori/midori-browser.c:3020 ../midori/midori-searchaction.c:490
+#: ../midori/midori-browser.c:3021 ../midori/midori-searchaction.c:491
 msgid "Empty"
 msgstr "清空"
 
-#: ../midori/midori-browser.c:3811 ../midori/midori-browser.c:5778
+#: ../midori/midori-browser.c:3812 ../midori/midori-browser.c:5779
 #, c-format
 msgid "Failed to insert new history item: %s\n"
-msgstr "插入新历史项目失败: %s\n"
+msgstr "无法插入新历史项目：%s\n"
 
-#: ../midori/midori-browser.c:4141 ../panels/midori-bookmarks.c:783
+#: ../midori/midori-browser.c:4142 ../panels/midori-bookmarks.c:783
 #: ../panels/midori-history.c:752
 msgid "Open all in _Tabs"
 msgstr "全部在标签中打开(_T)"
 
-#: ../midori/midori-browser.c:4148 ../panels/midori-bookmarks.c:789
+#: ../midori/midori-browser.c:4149 ../panels/midori-bookmarks.c:789
 #: ../panels/midori-history.c:758 ../extensions/feed-panel/feed-panel.c:533
 msgid "Open in New _Tab"
 msgstr "在新标签中打开(_T)"
 
-#: ../midori/midori-browser.c:4151 ../midori/midori-view.c:2556
-#: ../midori/midori-view.c:4390 ../panels/midori-bookmarks.c:791
+#: ../midori/midori-browser.c:4152 ../midori/midori-view.c:2556
+#: ../midori/midori-view.c:4387 ../panels/midori-bookmarks.c:791
 #: ../panels/midori-history.c:760 ../extensions/feed-panel/feed-panel.c:535
 msgid "Open in New _Window"
 msgstr "在新窗口中打开(_W)"
 
-#: ../midori/midori-browser.c:4231
+#: ../midori/midori-browser.c:4232
 msgid "Arora"
 msgstr "Arora 浏览器"
 
-#: ../midori/midori-browser.c:4232
+#: ../midori/midori-browser.c:4233
 msgid "Kazehakase"
 msgstr "Kazehakase 浏览器"
 
-#: ../midori/midori-browser.c:4233
+#: ../midori/midori-browser.c:4234
 msgid "Opera"
 msgstr "Opera 浏览器"
 
-#: ../midori/midori-browser.c:4234
+#: ../midori/midori-browser.c:4235
 msgid "Konqueror"
 msgstr "Konqueror 浏览器"
 
-#: ../midori/midori-browser.c:4235
+#: ../midori/midori-browser.c:4236
 msgid "Epiphany"
 msgstr "Epiphany 浏览器"
 
-#: ../midori/midori-browser.c:4236
+#: ../midori/midori-browser.c:4237
 #, c-format
 msgid "Firefox (%s)"
-msgstr "Firefox (%s)"
+msgstr "Firefox 浏览器(%s)"
 
-#: ../midori/midori-browser.c:4257
+#: ../midori/midori-browser.c:4258
 msgid "Import bookmarks..."
 msgstr "导入书签..."
 
-#: ../midori/midori-browser.c:4264 ../midori/midori-browser.c:5373
+#: ../midori/midori-browser.c:4265 ../midori/midori-browser.c:5374
 msgid "_Import bookmarks"
 msgstr "导入书签(_I)"
 
-#: ../midori/midori-browser.c:4275
+#: ../midori/midori-browser.c:4276
 msgid "_Application:"
-msgstr "应用程序(_A):"
+msgstr "应用程序(_A)："
 
-#: ../midori/midori-browser.c:4340
+#: ../midori/midori-browser.c:4341
 msgid "Import from XBEL or HTML file"
 msgstr "从 XBEL 或 HTML 文件中导入"
 
-#: ../midori/midori-browser.c:4375
+#: ../midori/midori-browser.c:4376
 msgid "Import from a file"
 msgstr "从文件中导入"
 
-#: ../midori/midori-browser.c:4387
+#: ../midori/midori-browser.c:4388
 msgid "Failed to import bookmarks"
-msgstr "导入书签失败"
+msgstr "无法导入书签"
 
-#: ../midori/midori-browser.c:4423
+#: ../midori/midori-browser.c:4424
 msgid "XBEL Bookmarks"
 msgstr "XBEL 书签"
 
-#: ../midori/midori-browser.c:4428
+#: ../midori/midori-browser.c:4429
 msgid "Netscape Bookmarks"
 msgstr "Netscape 书签"
 
-#: ../midori/midori-browser.c:4442
+#: ../midori/midori-browser.c:4443
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
 msgstr "Midori 浏览器只能导出为 XBEL(*.xbel) 和 Netscape(*.html)"
 
-#: ../midori/midori-browser.c:4458
+#: ../midori/midori-browser.c:4459
 msgid "Failed to export bookmarks"
-msgstr "导出书签失败"
+msgstr "无法导出书签"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-browser.c:4584
+#: ../midori/midori-browser.c:4585
 msgid "Clear Private Data"
 msgstr "清除隐私数据"
 
-#: ../midori/midori-browser.c:4592
+#: ../midori/midori-browser.c:4593
 msgid "_Clear private data"
 msgstr "清除隐私数据(_C)"
 
-#: ../midori/midori-browser.c:4605
+#: ../midori/midori-browser.c:4606
 msgid "Clear the following data:"
-msgstr "清除以下的数据:"
+msgstr "清除以下数据："
 
-#: ../midori/midori-browser.c:4615
+#: ../midori/midori-browser.c:4616
 msgid "Last open _tabs"
 msgstr "显示上次打开的标签(_T)"
 
 #. i18n: Browsing history, visited web pages
-#: ../midori/midori-browser.c:4621 ../midori/sokoke.c:1419
+#: ../midori/midori-browser.c:4622 ../midori/sokoke.c:1223
 msgid "_History"
 msgstr "历史(_H)"
 
-#: ../midori/midori-browser.c:4626 ../midori/sokoke.c:1425
+#: ../midori/midori-browser.c:4627 ../midori/sokoke.c:1229
 msgid "_Closed Tabs"
-msgstr "关闭的标签(_C)"
+msgstr "已关闭标签(_C)"
 
-#: ../midori/midori-browser.c:4646
+#: ../midori/midori-browser.c:4647
 msgid "Clear private data when _quitting Midori"
-msgstr "退出 Midori 时清除隐私数据(_Q)"
+msgstr "退出 Midori 浏览器时清除隐私数据(_Q)"
 
-#: ../midori/midori-browser.c:4822
+#: ../midori/midori-browser.c:4823
 msgid "A lightweight web browser."
 msgstr "轻量级的网络浏览器。"
 
-#: ../midori/midori-browser.c:4823
+#: ../midori/midori-browser.c:4824
 msgid "See about:version for version info."
 msgstr "查看 about:version 获取版本信息。"
 
-#: ../midori/midori-browser.c:4825
+#: ../midori/midori-browser.c:4826
 msgid ""
 "This library is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Lesser General Public License as published by the "
 "Free Software Foundation; either version 2.1 of the License, or (at your "
 "option) any later version."
 msgstr ""
-"本软件库是自由软件；您可以在自由软件基金会发布的 GNU 宽通用公共许可协议(LGPL)"
-"条款的约束下再分发和/或对其进行修改；依据协议的 2.1 版本或者（由您自行选择）"
+"本软件库是自由软件；您可以在自由软件基金会发布的 GNU 宽通用公共许可协议"
+"条款的约束下再分发和/或对其进行修改；依据协议的 2.1 版本或者(由您选择)"
 "更高的版本。"
 
-#: ../midori/midori-browser.c:4846
+#: ../midori/midori-browser.c:4847
 msgid "translator-credits"
 msgstr ""
 "张翼 <yatzhang@gmail.com>, 2009.\n"
-"Hunt Xu <mhuntxu@gmail.com>, 2009, 2010."
+"Hunt Xu <mhuntxu@gmail.com>, 2009, 2010, 2011.\n"
+"Chipong Luo <chipong_l@yahoo.com>, 2011."
 
-#: ../midori/midori-browser.c:5212
+#: ../midori/midori-browser.c:5213
 msgid "_File"
 msgstr "文件(_F)"
 
-#: ../midori/midori-browser.c:5214 ../midori/sokoke.c:1426
+#: ../midori/midori-browser.c:5215 ../midori/sokoke.c:1230
 msgid "New _Window"
 msgstr "新建窗口(_W)"
 
-#: ../midori/midori-browser.c:5215
+#: ../midori/midori-browser.c:5216
 msgid "Open a new window"
-msgstr "打开一个新窗口"
+msgstr "打开新窗口"
 
-#: ../midori/midori-browser.c:5218
+#: ../midori/midori-browser.c:5219
 msgid "Open a new tab"
-msgstr "打开一个新标签"
+msgstr "打开新标签"
 
-#: ../midori/midori-browser.c:5220
+#: ../midori/midori-browser.c:5221
 msgid "New P_rivate Browsing Window"
 msgstr "新建隐私浏览窗口(_R)"
 
-#: ../midori/midori-browser.c:5221
+#: ../midori/midori-browser.c:5222
 msgid "Don't save any private data while browsing"
 msgstr "在浏览时不保存任何隐私数据"
 
-#: ../midori/midori-browser.c:5225
+#: ../midori/midori-browser.c:5226
 msgid "Open a file"
 msgstr "打开文件"
 
-#: ../midori/midori-browser.c:5227
-msgid "_Save Page As..."
-msgstr "页面另存为..."
-
 #: ../midori/midori-browser.c:5228
-msgid "Save to a file"
-msgstr "保存到文件"
+msgid "_Save Page As..."
+msgstr "页面另存为(_S)..."
 
-#: ../midori/midori-browser.c:5230
+#: ../midori/midori-browser.c:5229
+msgid "Save to a file"
+msgstr "保存至文件"
+
+#: ../midori/midori-browser.c:5231
 msgid "Add to Speed _dial"
 msgstr "添加到快速拨号(_D)"
 
-#: ../midori/midori-browser.c:5231
+#: ../midori/midori-browser.c:5232
 msgid "Add shortcut to speed dial"
 msgstr "添加快捷方式到快速拨号"
 
-#: ../midori/midori-browser.c:5234
+#: ../midori/midori-browser.c:5235
 msgid "Add Shortcut to the _desktop"
 msgstr "添加快捷方式到桌面(_D)"
 
-#: ../midori/midori-browser.c:5235
+#: ../midori/midori-browser.c:5236
 msgid "Add shortcut to the desktop"
 msgstr "添加快捷方式到桌面"
 
-#: ../midori/midori-browser.c:5237
+#: ../midori/midori-browser.c:5238
 msgid "Create _Launcher"
 msgstr "创建启动器(_L)"
 
-#: ../midori/midori-browser.c:5238
+#: ../midori/midori-browser.c:5239
 msgid "Create a launcher"
-msgstr "创建一个启动器"
+msgstr "创建启动器"
 
-#: ../midori/midori-browser.c:5241
+#: ../midori/midori-browser.c:5242
 msgid "Subscribe to News _feed"
 msgstr "添加到新闻订阅(_F)"
 
-#: ../midori/midori-browser.c:5242
+#: ../midori/midori-browser.c:5243
 msgid "Subscribe to this news feed"
 msgstr "添加到此新闻订阅"
 
-#: ../midori/midori-browser.c:5247
+#: ../midori/midori-browser.c:5248
 msgid "_Close Tab"
 msgstr "关闭标签(_C)"
 
-#: ../midori/midori-browser.c:5248
+#: ../midori/midori-browser.c:5249
 msgid "Close the current tab"
 msgstr "关闭当前标签"
 
-#: ../midori/midori-browser.c:5250
+#: ../midori/midori-browser.c:5251
 msgid "C_lose Window"
 msgstr "关闭窗口(_L)"
 
-#: ../midori/midori-browser.c:5251
+#: ../midori/midori-browser.c:5252
 msgid "Close this window"
 msgstr "关闭本窗口"
 
-#: ../midori/midori-browser.c:5254
+#: ../midori/midori-browser.c:5255
 msgid "Print the current page"
 msgstr "打印当前页"
 
-#: ../midori/midori-browser.c:5256
-msgid "Close a_ll Windows"
-msgstr "关闭所有窗口"
-
 #: ../midori/midori-browser.c:5257
-msgid "Close all open windows"
-msgstr "关闭所有已打开窗口"
+msgid "Close a_ll Windows"
+msgstr "关闭所有窗口(_L)"
 
-#: ../midori/midori-browser.c:5259
+#: ../midori/midori-browser.c:5258
+msgid "Close all open windows"
+msgstr "关闭所有已打开的窗口"
+
+#: ../midori/midori-browser.c:5260
 msgid "_Edit"
 msgstr "编辑(_E)"
 
-#: ../midori/midori-browser.c:5262
+#: ../midori/midori-browser.c:5263
 msgid "Undo the last modification"
 msgstr "撤销上次修改"
 
-#: ../midori/midori-browser.c:5265
+#: ../midori/midori-browser.c:5266
 msgid "Redo the last modification"
-msgstr "恢复上个修改"
+msgstr "重做上个修改"
 
-#: ../midori/midori-browser.c:5268
+#: ../midori/midori-browser.c:5269
 msgid "Cut the selected text"
 msgstr "剪切选中的文本"
 
-#: ../midori/midori-browser.c:5271
+#: ../midori/midori-browser.c:5272
 msgid "Copy the selected text"
 msgstr "复制选中的文本"
 
-#: ../midori/midori-browser.c:5274
+#: ../midori/midori-browser.c:5275
 msgid "Paste text from the clipboard"
-msgstr "从剪贴板粘贴"
+msgstr "从剪贴板粘贴文本"
 
-#: ../midori/midori-browser.c:5277
+#: ../midori/midori-browser.c:5278
 msgid "Delete the selected text"
 msgstr "删除选中的文本"
 
-#: ../midori/midori-browser.c:5280
+#: ../midori/midori-browser.c:5281
 msgid "Select all text"
-msgstr "选中全部文本"
-
-#: ../midori/midori-browser.c:5282
-msgid "_Find..."
-msgstr "查找..."
+msgstr "选中所有文本"
 
 #: ../midori/midori-browser.c:5283
+msgid "_Find..."
+msgstr "查找(_F)..."
+
+#: ../midori/midori-browser.c:5284
 msgid "Find a word or phrase in the page"
 msgstr "在页面中查找字词或短语"
 
-#: ../midori/midori-browser.c:5285
+#: ../midori/midori-browser.c:5286
 msgid "Find _Next"
 msgstr "查找下一个(_N)"
 
-#: ../midori/midori-browser.c:5286
+#: ../midori/midori-browser.c:5287
 msgid "Find the next occurrence of a word or phrase"
-msgstr "查找该词或短语出现的下个地方"
+msgstr "查找该词或短语出现的下一个地方"
 
-#: ../midori/midori-browser.c:5288
+#: ../midori/midori-browser.c:5289
 msgid "Find _Previous"
 msgstr "查找上一个(_P)"
 
-#: ../midori/midori-browser.c:5289
+#: ../midori/midori-browser.c:5290
 msgid "Find the previous occurrence of a word or phrase"
-msgstr "查找该词或短语出现的上个地方"
+msgstr "查找该词或短语出现的上一个地方"
 
-#: ../midori/midori-browser.c:5293
+#: ../midori/midori-browser.c:5294
 msgid "Configure the application preferences"
 msgstr "配置应用程序首选项"
 
-#: ../midori/midori-browser.c:5295
+#: ../midori/midori-browser.c:5296
 msgid "_View"
 msgstr "视图(_V)"
 
-#: ../midori/midori-browser.c:5296
+#: ../midori/midori-browser.c:5297
 msgid "_Toolbars"
 msgstr "工具栏(_T)"
 
-#: ../midori/midori-browser.c:5301 ../midori/midori-browser.c:5302
+#: ../midori/midori-browser.c:5302 ../midori/midori-browser.c:5303
 msgid "Reload page without caching"
-msgstr "直接重载页面而不缓存"
+msgstr "重载页面而不缓存"
 
-#: ../midori/midori-browser.c:5311
+#: ../midori/midori-browser.c:5312
 msgid "Increase the zoom level"
 msgstr "增加缩放等级"
 
-#: ../midori/midori-browser.c:5314
+#: ../midori/midori-browser.c:5315
 msgid "Decrease the zoom level"
 msgstr "减小缩放等级"
 
-#: ../midori/midori-browser.c:5317
-msgid "Reset the zoom level"
-msgstr "恢复缩放等级"
-
 #: ../midori/midori-browser.c:5318
+msgid "Reset the zoom level"
+msgstr "重置缩放等级"
+
+#: ../midori/midori-browser.c:5319
 msgid "_Encoding"
 msgstr "编码(_E)"
 
-#: ../midori/midori-browser.c:5320
+#: ../midori/midori-browser.c:5321
 msgid "View So_urce"
 msgstr "查看源码(_U)"
 
-#: ../midori/midori-browser.c:5321
+#: ../midori/midori-browser.c:5322
 msgid "View the source code of the page"
 msgstr "查看页面源码"
 
-#: ../midori/midori-browser.c:5323
-msgid "Ca_ret Browsing"
-msgstr "光标浏览"
-
 #: ../midori/midori-browser.c:5324
+msgid "Ca_ret Browsing"
+msgstr "光标浏览(_R)"
+
+#: ../midori/midori-browser.c:5325
 msgid "Toggle text cursor navigation"
-msgstr "光标导航切换"
+msgstr "光标导航切换文本"
 
-#: ../midori/midori-browser.c:5327
+#: ../midori/midori-browser.c:5328
 msgid "Toggle fullscreen view"
-msgstr "全屏切换"
+msgstr "全屏切换视图"
 
-#: ../midori/midori-browser.c:5329
+#: ../midori/midori-browser.c:5330
 msgid "Scroll _Left"
 msgstr "向左滚动(_L)"
 
-#: ../midori/midori-browser.c:5330
+#: ../midori/midori-browser.c:5331
 msgid "Scroll to the left"
 msgstr "向左滚动"
 
-#: ../midori/midori-browser.c:5332
+#: ../midori/midori-browser.c:5333
 msgid "Scroll _Down"
 msgstr "向下滚动(_D)"
 
-#: ../midori/midori-browser.c:5333
+#: ../midori/midori-browser.c:5334
 msgid "Scroll down"
 msgstr "向下滚动"
 
-#: ../midori/midori-browser.c:5335
+#: ../midori/midori-browser.c:5336
 msgid "Scroll _Up"
 msgstr "向上滚动(_U)"
 
-#: ../midori/midori-browser.c:5336
+#: ../midori/midori-browser.c:5337
 msgid "Scroll up"
 msgstr "向上滚动"
 
-#: ../midori/midori-browser.c:5338
+#: ../midori/midori-browser.c:5339
 msgid "Scroll _Right"
 msgstr "向右滚动(_R)"
 
-#: ../midori/midori-browser.c:5339
+#: ../midori/midori-browser.c:5340
 msgid "Scroll to the right"
 msgstr "向右滚动"
 
-#: ../midori/midori-browser.c:5341
+#: ../midori/midori-browser.c:5342
 msgid "_Go"
 msgstr "前进(_G)"
 
-#: ../midori/midori-browser.c:5344
+#: ../midori/midori-browser.c:5345
 msgid "Go back to the previous page"
-msgstr "返回上一页"
+msgstr "返回上一页面"
 
-#: ../midori/midori-browser.c:5347
+#: ../midori/midori-browser.c:5348
 msgid "Go forward to the next page"
-msgstr "转到下一页"
+msgstr "进入下一页面"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5351
+#: ../midori/midori-browser.c:5352
 msgid "Go to the previous sub-page"
-msgstr "返回上一个子页"
+msgstr "返回上一个子页面"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5355
+#: ../midori/midori-browser.c:5356
 msgid "Go to the next sub-page"
-msgstr "转到下一个子页"
+msgstr "转到下一个子页面"
 
-#: ../midori/midori-browser.c:5358
+#: ../midori/midori-browser.c:5359
 msgid "Go to your homepage"
 msgstr "回到主页"
 
-#: ../midori/midori-browser.c:5360
+#: ../midori/midori-browser.c:5361
 msgid "Empty Trash"
 msgstr "清空回收站"
 
-#: ../midori/midori-browser.c:5361
+#: ../midori/midori-browser.c:5362
 msgid "Delete the contents of the trash"
 msgstr "删除回收站中的内容"
 
-#: ../midori/midori-browser.c:5363
+#: ../midori/midori-browser.c:5364
 msgid "Undo _Close Tab"
 msgstr "撤销关闭标签(_C)"
 
-#: ../midori/midori-browser.c:5364
+#: ../midori/midori-browser.c:5365
 msgid "Open the last closed tab"
 msgstr "打开上次关闭的标签"
 
-#: ../midori/midori-browser.c:5370
+#: ../midori/midori-browser.c:5371
 msgid "Add a new _folder"
 msgstr "添加新文件夹(_F)"
 
-#: ../midori/midori-browser.c:5371
+#: ../midori/midori-browser.c:5372
 msgid "Add a new bookmark folder"
 msgstr "添加一个新书签文件夹"
 
-#: ../midori/midori-browser.c:5376
+#: ../midori/midori-browser.c:5377
 msgid "_Export bookmarks"
 msgstr "导出书签(_E)"
 
-#: ../midori/midori-browser.c:5379 ../midori/midori-searchaction.c:499
+#: ../midori/midori-browser.c:5380 ../midori/midori-searchaction.c:500
 msgid "_Manage Search Engines"
 msgstr "管理搜索引擎(_M)"
 
-#: ../midori/midori-browser.c:5380
+#: ../midori/midori-browser.c:5381
 msgid "Add, edit and remove search engines..."
 msgstr "添加、编辑和移除搜索引擎..."
 
-#: ../midori/midori-browser.c:5383
+#: ../midori/midori-browser.c:5384
 msgid "_Clear Private Data"
 msgstr "清除隐私数据(_C)"
 
-#: ../midori/midori-browser.c:5384
+#: ../midori/midori-browser.c:5385
 msgid "Clear private data..."
 msgstr "清除隐私数据..."
 
-#: ../midori/midori-browser.c:5387
+#: ../midori/midori-browser.c:5388
 msgid "_Inspect Page"
 msgstr "检查页面(_I)"
 
-#: ../midori/midori-browser.c:5388
+#: ../midori/midori-browser.c:5389
 msgid "Inspect page details and access developer tools..."
 msgstr "检查页面详细信息并使用开发者工具..."
 
-#: ../midori/midori-browser.c:5392
+#: ../midori/midori-browser.c:5393
 msgid "_Previous Tab"
 msgstr "上一个标签(_P)"
 
-#: ../midori/midori-browser.c:5393
+#: ../midori/midori-browser.c:5394
 msgid "Switch to the previous tab"
 msgstr "转到上一个标签"
 
-#: ../midori/midori-browser.c:5395
+#: ../midori/midori-browser.c:5396
 msgid "_Next Tab"
 msgstr "下一个标签(_N)"
 
-#: ../midori/midori-browser.c:5396
+#: ../midori/midori-browser.c:5397
 msgid "Switch to the next tab"
 msgstr "转到下一个标签"
 
-#: ../midori/midori-browser.c:5397
+#: ../midori/midori-browser.c:5398
 msgid "Move Tab _Backward"
 msgstr "向后移动标签"
 
-#: ../midori/midori-browser.c:5398
+#: ../midori/midori-browser.c:5399
 msgid "Move tab behind the previous tab"
 msgstr "在上一个标签后移动标签"
 
-#: ../midori/midori-browser.c:5399
+#: ../midori/midori-browser.c:5400
 msgid "_Move Tab Forward"
 msgstr "向前移动标签"
 
-#: ../midori/midori-browser.c:5400
+#: ../midori/midori-browser.c:5401
 msgid "Move tab in front of the next tab"
 msgstr "在下一个标签前移动标签"
 
-#: ../midori/midori-browser.c:5402
+#: ../midori/midori-browser.c:5403
 msgid "Focus _Current Tab"
 msgstr "聚焦当前标签(_C)"
 
-#: ../midori/midori-browser.c:5403
+#: ../midori/midori-browser.c:5404
 msgid "Focus the current tab"
 msgstr "聚焦当前标签"
 
-#: ../midori/midori-browser.c:5405
-msgid "Focus _Next view"
-msgstr "聚焦下一个视图"
-
 #: ../midori/midori-browser.c:5406
+msgid "Focus _Next view"
+msgstr "聚焦下一个视图(_N)"
+
+#: ../midori/midori-browser.c:5407
 msgid "Cycle focus between views"
 msgstr "在不同视图间循环聚焦"
 
-#: ../midori/midori-browser.c:5408
+#: ../midori/midori-browser.c:5409
 msgid "Only show the Icon of the _Current Tab"
 msgstr "仅显示当前标签的图标(_C)"
 
-#: ../midori/midori-browser.c:5409
+#: ../midori/midori-browser.c:5410
 msgid "Only show the icon of the current tab"
 msgstr "仅显示当前标签的图标"
 
-#: ../midori/midori-browser.c:5411
+#: ../midori/midori-browser.c:5412
 msgid "_Duplicate Current Tab"
 msgstr "复制当前标签(_D)"
 
-#: ../midori/midori-browser.c:5412
+#: ../midori/midori-browser.c:5413
 msgid "Duplicate the current tab"
 msgstr "复制当前标签"
 
-#: ../midori/midori-browser.c:5414
+#: ../midori/midori-browser.c:5415
 msgid "Close Ot_her Tabs"
 msgstr "关闭其它标签(_H)"
 
-#: ../midori/midori-browser.c:5415
+#: ../midori/midori-browser.c:5416
 msgid "Close all tabs except the current tab"
-msgstr "关闭其它标签，只保留当前标签"
+msgstr "关闭所有标签，只保留当前标签"
 
-#: ../midori/midori-browser.c:5417
+#: ../midori/midori-browser.c:5418
 msgid "Open last _session"
 msgstr "打开上次会话(_S)"
 
-#: ../midori/midori-browser.c:5418
+#: ../midori/midori-browser.c:5419
 msgid "Open the tabs saved in the last session"
 msgstr "打开上次会话时保存的标签"
 
-#: ../midori/midori-browser.c:5420
+#: ../midori/midori-browser.c:5421
 msgid "_Help"
 msgstr "帮助(_H)"
 
-#: ../midori/midori-browser.c:5422
+#: ../midori/midori-browser.c:5423
 msgid "_Frequent Questions"
 msgstr "常见问题(_F)"
 
-#: ../midori/midori-browser.c:5423
+#: ../midori/midori-browser.c:5424
 msgid "Show the Frequently Asked Questions"
-msgstr "显示常见问题"
+msgstr "显示常问的问题"
 
-#: ../midori/midori-browser.c:5425
+#: ../midori/midori-browser.c:5426
 msgid "_Report a Problem..."
 msgstr "报告问题"
 
-#: ../midori/midori-browser.c:5426
+#: ../midori/midori-browser.c:5427
 msgid "Open Midori's bug tracker"
 msgstr "打开 Midori 浏览器的缺陷追踪系统"
 
-#: ../midori/midori-browser.c:5429
+#: ../midori/midori-browser.c:5430
 msgid "Show information about the program"
-msgstr "显示此程序的信息"
+msgstr "显示此程序相关信息"
 
-#: ../midori/midori-browser.c:5437
+#: ../midori/midori-browser.c:5438
 msgid "_Menubar"
 msgstr "菜单栏(_M)"
 
-#: ../midori/midori-browser.c:5438
+#: ../midori/midori-browser.c:5439
 msgid "Show menubar"
 msgstr "显示菜单栏"
 
-#: ../midori/midori-browser.c:5441
+#: ../midori/midori-browser.c:5442
 msgid "_Navigationbar"
 msgstr "导航栏(_N)"
 
-#: ../midori/midori-browser.c:5442
+#: ../midori/midori-browser.c:5443
 msgid "Show navigationbar"
 msgstr "显示导航栏"
 
-#: ../midori/midori-browser.c:5445
+#: ../midori/midori-browser.c:5446
 msgid "Side_panel"
 msgstr "侧边栏(_P)"
 
-#: ../midori/midori-browser.c:5446
+#: ../midori/midori-browser.c:5447
 msgid "Show sidepanel"
 msgstr "显示侧边栏"
 
-#: ../midori/midori-browser.c:5449
+#: ../midori/midori-browser.c:5450
 msgid "_Bookmarkbar"
 msgstr "书签栏(_B)"
 
-#: ../midori/midori-browser.c:5450
+#: ../midori/midori-browser.c:5451
 msgid "Show bookmarkbar"
 msgstr "显示书签栏"
 
-#: ../midori/midori-browser.c:5453
+#: ../midori/midori-browser.c:5454
 msgid "_Statusbar"
 msgstr "状态栏(_S)"
 
-#: ../midori/midori-browser.c:5454
+#: ../midori/midori-browser.c:5455
 msgid "Show statusbar"
 msgstr "显示状态栏"
 
-#: ../midori/midori-browser.c:5462 ../midori/midori-websettings.c:293
+#: ../midori/midori-browser.c:5463 ../midori/midori-websettings.c:294
 msgid "_Automatic"
 msgstr "自动(_A)"
 
-#: ../midori/midori-browser.c:5465 ../midori/midori-websettings.c:218
+#: ../midori/midori-browser.c:5466 ../midori/midori-websettings.c:219
 msgid "Chinese (BIG5)"
-msgstr "中文 (BIG5)"
+msgstr "中文(BIG5)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5469
+#: ../midori/midori-browser.c:5470
 msgid "Japanese (SHIFT__JIS)"
-msgstr "日语 (SHIFT__JIS)"
+msgstr "日语(SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5472 ../midori/midori-websettings.c:220
+#: ../midori/midori-browser.c:5473 ../midori/midori-websettings.c:221
 msgid "Korean (EUC-KR)"
-msgstr "朝鲜语 (EUC-KR)"
+msgstr "韩语(EUC-KR)"
 
-#: ../midori/midori-browser.c:5475 ../midori/midori-websettings.c:221
+#: ../midori/midori-browser.c:5476 ../midori/midori-websettings.c:222
 msgid "Russian (KOI8-R)"
-msgstr "俄语 (KOI8-R)"
+msgstr "俄语(KOI8-R)"
 
-#: ../midori/midori-browser.c:5478 ../midori/midori-websettings.c:222
+#: ../midori/midori-browser.c:5479 ../midori/midori-websettings.c:223
 msgid "Unicode (UTF-8)"
-msgstr "Unicode (UTF-8)"
+msgstr "Unicode(UTF-8)"
 
-#: ../midori/midori-browser.c:5481 ../midori/midori-websettings.c:223
+#: ../midori/midori-browser.c:5482 ../midori/midori-websettings.c:224
 msgid "Western (ISO-8859-1)"
-msgstr "西方语言 (ISO-8859-1)"
+msgstr "西方语言(ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5484 ../midori/midori-websettings.c:224
-#: ../midori/midori-websettings.c:299 ../katze/katze-utils.c:634
+#: ../midori/midori-browser.c:5485 ../midori/midori-websettings.c:225
+#: ../midori/midori-websettings.c:300 ../katze/katze-utils.c:635
 msgid "Custom..."
 msgstr "自定义..."
 
-#: ../midori/midori-browser.c:6014
+#: ../midori/midori-browser.c:6015
 msgid "_Separator"
 msgstr "分割符(_S)"
 
-#: ../midori/midori-browser.c:6021
+#: ../midori/midori-browser.c:6022
 msgid "_Location..."
 msgstr "位置(_L)..."
 
-#: ../midori/midori-browser.c:6023
+#: ../midori/midori-browser.c:6024
 msgid "Open a particular location"
-msgstr "打开一个特定位置"
+msgstr "打开特定位置"
 
-#: ../midori/midori-browser.c:6045
+#: ../midori/midori-browser.c:6046
 msgid "_Web Search..."
 msgstr "网络搜索(_W)..."
 
-#: ../midori/midori-browser.c:6047
+#: ../midori/midori-browser.c:6048
 msgid "Run a web search"
 msgstr "运行网络搜索"
 
-#: ../midori/midori-browser.c:6068
+#: ../midori/midori-browser.c:6069
 msgid "Reopen a previously closed tab or window"
 msgstr "重新打开先前关闭的标签或窗口"
 
-#: ../midori/midori-browser.c:6081 ../midori/sokoke.c:1415
+#: ../midori/midori-browser.c:6082 ../midori/sokoke.c:1219
 msgid "_Bookmarks"
 msgstr "书签(_B)"
 
-#: ../midori/midori-browser.c:6083
+#: ../midori/midori-browser.c:6084
 msgid "Show the saved bookmarks"
 msgstr "显示已保存的书签"
 
-#: ../midori/midori-browser.c:6097
+#: ../midori/midori-browser.c:6098
 msgid "_Tools"
 msgstr "工具(_T)"
 
-#: ../midori/midori-browser.c:6112
+#: ../midori/midori-browser.c:6113
 msgid "_Window"
 msgstr "窗口(_W)"
 
-#: ../midori/midori-browser.c:6114
+#: ../midori/midori-browser.c:6115
 msgid "Show a list of all open tabs"
 msgstr "显示所有已打开标签的列表"
 
-#: ../midori/midori-browser.c:6128
+#: ../midori/midori-browser.c:6129
 msgid "_Menu"
 msgstr "菜单(_M)"
 
-#: ../midori/midori-browser.c:6130
+#: ../midori/midori-browser.c:6131
 msgid "Menu"
 msgstr "菜单"
 
-#: ../midori/midori-browser.c:6697
+#: ../midori/midori-browser.c:6698
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "意外的设置 ‘%s’"
@@ -1157,19 +1159,19 @@ msgstr "意外的设置 ‘%s’"
 #: ../midori/midori-extension.c:314
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
-msgstr "无法载入扩展 ‘%s’ 的配置: %s\n"
+msgstr "无法载入扩展 ‘%s’ 的配置：%s\n"
 
 #: ../midori/midori-extension.c:712 ../midori/midori-extension.c:809
 #: ../midori/midori-extension.c:906 ../midori/midori-extension.c:1018
 #: ../extensions/addons.c:1649
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr "无法保存扩展 ‘%s’ 的配置: %s\n"
+msgstr "无法保存扩展 ‘%s’ 的配置：%s\n"
 
 #: ../midori/midori-locationaction.c:402
 #, c-format
 msgid "Failed to select from history\n"
-msgstr "无法从历史记录中选择\n"
+msgstr "无法从历史中选择\n"
 
 #: ../midori/midori-locationaction.c:486
 #, c-format
@@ -1179,7 +1181,7 @@ msgstr "搜索 %s"
 #: ../midori/midori-locationaction.c:512
 #, c-format
 msgid "Search with %s"
-msgstr "使用 %s 搜索"
+msgstr "用 %s 搜索"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
 #: ../midori/midori-locationaction.c:1262
@@ -1207,604 +1209,612 @@ msgstr "关闭侧边栏"
 msgid "Align sidepanel to the left"
 msgstr "侧边栏在左"
 
-#: ../midori/midori-websettings.c:200
+#: ../midori/midori-websettings.c:201
 msgid "Show Speed Dial"
 msgstr "显示快速拨号"
 
-#: ../midori/midori-websettings.c:201
+#: ../midori/midori-websettings.c:202
 msgid "Show Homepage"
 msgstr "显示主页"
 
-#: ../midori/midori-websettings.c:219
+#: ../midori/midori-websettings.c:220
 msgid "Japanese (SHIFT_JIS)"
-msgstr "日语 (SHIFT_JIS)"
+msgstr "日语(SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:239
+#: ../midori/midori-websettings.c:240
 msgid "New tab"
 msgstr "新建标签"
 
-#: ../midori/midori-websettings.c:240
+#: ../midori/midori-websettings.c:241
 msgid "New window"
 msgstr "新建窗口"
 
-#: ../midori/midori-websettings.c:241
+#: ../midori/midori-websettings.c:242
 msgid "Current tab"
 msgstr "当前标签"
 
-#: ../midori/midori-websettings.c:256
+#: ../midori/midori-websettings.c:257
 msgid "Default"
 msgstr "默认"
 
-#: ../midori/midori-websettings.c:257
+#: ../midori/midori-websettings.c:258
 msgid "Icons"
 msgstr "图标"
 
-#: ../midori/midori-websettings.c:258
+#: ../midori/midori-websettings.c:259
 msgid "Small icons"
 msgstr "小图标"
 
-#: ../midori/midori-websettings.c:259
+#: ../midori/midori-websettings.c:260
 msgid "Text"
 msgstr "文本"
 
-#: ../midori/midori-websettings.c:260
+#: ../midori/midori-websettings.c:261
 msgid "Icons and text"
 msgstr "图标和文本"
 
-#: ../midori/midori-websettings.c:261
+#: ../midori/midori-websettings.c:262
 msgid "Text beside icons"
 msgstr "文本在图标旁"
 
-#: ../midori/midori-websettings.c:276
-msgid "Automatic (GNOME or environment)"
-msgstr "自动(GNOME 或其他桌面环境)"
-
 #: ../midori/midori-websettings.c:277
+msgid "Automatic (GNOME or environment)"
+msgstr "自动(GNOME 或其它环境)"
+
+#: ../midori/midori-websettings.c:278
 msgid "HTTP proxy server"
 msgstr "HTTP 代理服务器"
 
-#: ../midori/midori-websettings.c:278
+#: ../midori/midori-websettings.c:279
 msgid "No proxy server"
 msgstr "不使用代理服务器"
 
-#: ../midori/midori-websettings.c:295
-msgid "Safari"
-msgstr "Safari"
-
 #: ../midori/midori-websettings.c:296
-msgid "iPhone"
-msgstr "iPhone"
+msgid "Safari"
+msgstr "Safari 浏览器"
 
 #: ../midori/midori-websettings.c:297
-msgid "Firefox"
-msgstr "Firefox"
+msgid "iPhone"
+msgstr "iPhone 手机"
 
 #: ../midori/midori-websettings.c:298
-msgid "Internet Explorer"
-msgstr "Internet Explorer"
+msgid "Firefox"
+msgstr "Firefox 浏览器"
 
-#: ../midori/midori-websettings.c:351
+#: ../midori/midori-websettings.c:299
+msgid "Internet Explorer"
+msgstr "IE 浏览器"
+
+#: ../midori/midori-websettings.c:352
 msgid "Remember last window size"
 msgstr "记住上次窗口的大小"
 
-#: ../midori/midori-websettings.c:352
+#: ../midori/midori-websettings.c:353
 msgid "Whether to save the last window size"
 msgstr "是否保存上次窗口的大小"
 
-#: ../midori/midori-websettings.c:360
-msgid "Last window width"
-msgstr "上次窗口的宽度"
-
 #: ../midori/midori-websettings.c:361
+msgid "Last window width"
+msgstr "上次窗口宽度"
+
+#: ../midori/midori-websettings.c:362
 msgid "The last saved window width"
 msgstr "上次保存的窗口宽度"
 
-#: ../midori/midori-websettings.c:369
-msgid "Last window height"
-msgstr "上次窗口的高度"
-
 #: ../midori/midori-websettings.c:370
+msgid "Last window height"
+msgstr "上次窗口高度"
+
+#: ../midori/midori-websettings.c:371
 msgid "The last saved window height"
 msgstr "上次保存的窗口高度"
 
-#: ../midori/midori-websettings.c:395
-msgid "Last panel position"
-msgstr "上次侧边栏的位置"
-
 #: ../midori/midori-websettings.c:396
+msgid "Last panel position"
+msgstr "上次侧边栏位置"
+
+#: ../midori/midori-websettings.c:397
 msgid "The last saved panel position"
 msgstr "上次保存的侧边栏位置"
 
 #. i18n: The internal index of the last opened panel
-#: ../midori/midori-websettings.c:405
-msgid "Last panel page"
-msgstr "上次侧边栏的页面"
-
 #: ../midori/midori-websettings.c:406
+msgid "Last panel page"
+msgstr "上次侧边栏页面"
+
+#: ../midori/midori-websettings.c:407
 msgid "The last saved panel page"
 msgstr "上次保存的侧边栏页面"
 
-#: ../midori/midori-websettings.c:414
-msgid "Last Web search"
-msgstr "上次使用的网络搜索"
-
 #: ../midori/midori-websettings.c:415
+msgid "Last Web search"
+msgstr "上次网络搜索"
+
+#: ../midori/midori-websettings.c:416
 msgid "The last saved Web search"
 msgstr "上次保存的网络搜索"
 
-#: ../midori/midori-websettings.c:424
+#: ../midori/midori-websettings.c:425
 msgid "Show Menubar"
 msgstr "显示菜单栏"
 
-#: ../midori/midori-websettings.c:425
+#: ../midori/midori-websettings.c:426
 msgid "Whether to show the menubar"
 msgstr "是否显示菜单栏"
 
-#: ../midori/midori-websettings.c:433
+#: ../midori/midori-websettings.c:434
 msgid "Show Navigationbar"
 msgstr "显示导航栏"
 
-#: ../midori/midori-websettings.c:434
+#: ../midori/midori-websettings.c:435
 msgid "Whether to show the navigationbar"
 msgstr "是否显示导航栏"
 
-#: ../midori/midori-websettings.c:442
+#: ../midori/midori-websettings.c:443
 msgid "Show Bookmarkbar"
 msgstr "显示书签栏"
 
-#: ../midori/midori-websettings.c:443
+#: ../midori/midori-websettings.c:444
 msgid "Whether to show the bookmarkbar"
 msgstr "是否显示书签栏"
 
-#: ../midori/midori-websettings.c:451
+#: ../midori/midori-websettings.c:452
 msgid "Show Panel"
 msgstr "显示侧边栏"
 
-#: ../midori/midori-websettings.c:452
+#: ../midori/midori-websettings.c:453
 msgid "Whether to show the panel"
 msgstr "是否显示侧边栏"
 
-#: ../midori/midori-websettings.c:460
+#: ../midori/midori-websettings.c:461
 msgid "Show Statusbar"
 msgstr "显示状态栏"
 
-#: ../midori/midori-websettings.c:461
+#: ../midori/midori-websettings.c:462
 msgid "Whether to show the statusbar"
 msgstr "是否显示状态栏"
 
-#: ../midori/midori-websettings.c:470
+#: ../midori/midori-websettings.c:471
 msgid "Toolbar Style:"
 msgstr "工具栏样式："
 
-#: ../midori/midori-websettings.c:471
+#: ../midori/midori-websettings.c:472
 msgid "The style of the toolbar"
-msgstr "工具栏的样式"
+msgstr "工具栏样式"
 
-#: ../midori/midori-websettings.c:480
+#: ../midori/midori-websettings.c:481
 msgid "Toolbar Items"
 msgstr "工具栏项目"
 
-#: ../midori/midori-websettings.c:481
+#: ../midori/midori-websettings.c:482
 msgid "The items to show on the toolbar"
 msgstr "在工具栏中显示的项目"
 
-#: ../midori/midori-websettings.c:489
+#: ../midori/midori-websettings.c:490
 msgid "Compact Sidepanel"
 msgstr "紧凑侧边栏"
 
-#: ../midori/midori-websettings.c:490
+#: ../midori/midori-websettings.c:491
 msgid "Whether to make the sidepanel compact"
 msgstr "是否紧凑显示侧边栏"
 
-#: ../midori/midori-websettings.c:505
+#: ../midori/midori-websettings.c:506
 msgid "Align sidepanel on the right"
 msgstr "侧边栏在右"
 
-#: ../midori/midori-websettings.c:506
+#: ../midori/midori-websettings.c:507
 msgid "Whether to align the sidepanel on the right"
 msgstr "是否让侧边栏在右"
 
-#: ../midori/midori-websettings.c:521
+#: ../midori/midori-websettings.c:522
 msgid "Open panels in separate windows"
 msgstr "在单独窗口中打开侧边栏"
 
-#: ../midori/midori-websettings.c:522
+#: ../midori/midori-websettings.c:523
 msgid "Whether to always open panels in separate windows"
 msgstr "是否总是在单独窗口中打开侧边栏"
 
-#: ../midori/midori-websettings.c:531
-msgid "When Midori starts:"
-msgstr "当 Midori 浏览器启动时："
-
 #: ../midori/midori-websettings.c:532
+msgid "When Midori starts:"
+msgstr "Midori 浏览器启动时："
+
+#: ../midori/midori-websettings.c:533
 msgid "What to do when Midori starts"
 msgstr "Midori 浏览器启动时做什么"
 
-#: ../midori/midori-websettings.c:541
+#: ../midori/midori-websettings.c:542
 msgid "Homepage:"
 msgstr "主页："
 
-#: ../midori/midori-websettings.c:542
+#: ../midori/midori-websettings.c:543
 msgid "The homepage"
 msgstr "主页"
 
-#: ../midori/midori-websettings.c:557
+#: ../midori/midori-websettings.c:558
 msgid "Show crash dialog"
 msgstr "显示崩溃对话框"
 
-#: ../midori/midori-websettings.c:558
+#: ../midori/midori-websettings.c:559
 msgid "Show a dialog after Midori crashed"
-msgstr "当 Midori 浏览器崩溃后显示对话框"
+msgstr "Midori 浏览器崩溃后显示对话框"
 
-#: ../midori/midori-websettings.c:566
+#: ../midori/midori-websettings.c:567
 msgid "Save downloaded files to:"
 msgstr "保存下载的文件至："
 
-#: ../midori/midori-websettings.c:567
+#: ../midori/midori-websettings.c:568
 msgid "The folder downloaded files are saved to"
-msgstr "下载的文件将保存在此文件夹下"
+msgstr "在此文件夹下保存下载的文件"
 
-#: ../midori/midori-websettings.c:575
+#: ../midori/midori-websettings.c:576
 msgid "Text Editor"
 msgstr "文本编辑器"
 
-#: ../midori/midori-websettings.c:576
+#: ../midori/midori-websettings.c:577
 msgid "An external text editor"
 msgstr "外部的文本编辑器"
 
-#: ../midori/midori-websettings.c:591
+#: ../midori/midori-websettings.c:592
 msgid "News Aggregator"
 msgstr "新闻聚合器"
 
-#: ../midori/midori-websettings.c:592
+#: ../midori/midori-websettings.c:593
 msgid "An external news aggregator"
-msgstr "外部的新闻聚合查看器"
-
-#: ../midori/midori-websettings.c:600
-msgid "Location entry Search"
-msgstr "地址栏搜索"
+msgstr "外部新闻聚合器"
 
 #: ../midori/midori-websettings.c:601
-msgid "The search to perform inside the location entry"
-msgstr "在地址栏中执行的搜索"
+msgid "Location entry Search"
+msgstr "位置栏搜索"
 
-#: ../midori/midori-websettings.c:609
+#: ../midori/midori-websettings.c:602
+msgid "The search to perform inside the location entry"
+msgstr "在位置栏中执行的搜索"
+
+#: ../midori/midori-websettings.c:610
 msgid "Preferred Encoding"
 msgstr "首选编码"
 
-#: ../midori/midori-websettings.c:610
+#: ../midori/midori-websettings.c:611
 msgid "The preferred character encoding"
-msgstr "首选的字符编码集"
+msgstr "首选的字符编码"
 
-#: ../midori/midori-websettings.c:620
+#: ../midori/midori-websettings.c:621
 msgid "Always Show Tabbar"
 msgstr "总是显示标签栏"
 
-#: ../midori/midori-websettings.c:621
+#: ../midori/midori-websettings.c:622
 msgid "Always show the tabbar"
 msgstr "总是显示标签栏"
 
-#: ../midori/midori-websettings.c:629
-msgid "Close Buttons on Tabs"
-msgstr "在标签上显示关闭按钮"
-
 #: ../midori/midori-websettings.c:630
-msgid "Whether tabs have close buttons"
-msgstr "是否在标签上显示关闭按钮"
+msgid "Close Buttons on Tabs"
+msgstr "关闭按钮位于标签上"
 
-#: ../midori/midori-websettings.c:655
+#: ../midori/midori-websettings.c:631
+msgid "Whether tabs have close buttons"
+msgstr "标签上是否有关闭按钮"
+
+#: ../midori/midori-websettings.c:656
 msgid "Open new pages in:"
 msgstr "新页面打开在："
 
-#: ../midori/midori-websettings.c:656
+#: ../midori/midori-websettings.c:657
 msgid "Where to open new pages"
-msgstr "在哪里打开新的页面"
-
-#: ../midori/midori-websettings.c:665
-msgid "Middle click opens Selection"
-msgstr "鼠标中键打开选中地址"
+msgstr "在哪里打开新页面"
 
 #: ../midori/midori-websettings.c:666
-msgid "Load an address from the selection via middle click"
-msgstr "用鼠标中键单击打开选中地址"
+msgid "Middle click opens Selection"
+msgstr "中键点击打开选择器"
 
-#: ../midori/midori-websettings.c:674
-msgid "Open tabs in the background"
-msgstr "在后台打开新标签"
+#: ../midori/midori-websettings.c:667
+msgid "Load an address from the selection via middle click"
+msgstr "由中键点击从选择器中载入地址"
 
 #: ../midori/midori-websettings.c:675
+msgid "Open tabs in the background"
+msgstr "在后台打开标签"
+
+#: ../midori/midori-websettings.c:676
 msgid "Whether to open new tabs in the background"
 msgstr "是否在后台打开新标签"
 
-#: ../midori/midori-websettings.c:683
-msgid "Open Tabs next to Current"
-msgstr "在当前标签后打开新标签"
-
 #: ../midori/midori-websettings.c:684
+msgid "Open Tabs next to Current"
+msgstr "在当前标签后打开标签"
+
+#: ../midori/midori-websettings.c:685
 msgid "Whether to open new tabs next to the current tab or after the last one"
 msgstr "在当前标签后的标签还是上一个标签后打开新标签"
 
-#: ../midori/midori-websettings.c:692
-msgid "Open popups in tabs"
-msgstr "在新标签中打开弹出窗口"
-
 #: ../midori/midori-websettings.c:693
+msgid "Open popups in tabs"
+msgstr "在标签中打开弹出窗口"
+
+#: ../midori/midori-websettings.c:694
 msgid "Whether to open popup windows in tabs"
 msgstr "是否在新标签中打开弹出窗口"
 
-#: ../midori/midori-websettings.c:703 ../extensions/statusbar-features.c:132
+#: ../midori/midori-websettings.c:704 ../extensions/statusbar-features.c:132
 msgid "Load images automatically"
-msgstr "自动载入图像"
+msgstr "自动载入图片"
 
-#: ../midori/midori-websettings.c:704
+#: ../midori/midori-websettings.c:705
 msgid "Load and display images automatically"
-msgstr "自动载入和显示图像"
+msgstr "自动载入并显示图片"
 
-#: ../midori/midori-websettings.c:711 ../extensions/statusbar-features.c:141
+#: ../midori/midori-websettings.c:712 ../extensions/statusbar-features.c:141
 msgid "Enable scripts"
 msgstr "启用脚本"
 
-#: ../midori/midori-websettings.c:712
+#: ../midori/midori-websettings.c:713
 msgid "Enable embedded scripting languages"
 msgstr "启用嵌入的脚本语言"
 
-#: ../midori/midori-websettings.c:719 ../extensions/statusbar-features.c:150
+#: ../midori/midori-websettings.c:720 ../extensions/statusbar-features.c:150
 msgid "Enable Netscape plugins"
 msgstr "启用 Netscape 插件"
 
-#: ../midori/midori-websettings.c:720
+#: ../midori/midori-websettings.c:721
 msgid "Enable embedded Netscape plugin objects"
 msgstr "启用嵌入的 Netscape 插件对象"
 
-#: ../midori/midori-websettings.c:740
+#: ../midori/midori-websettings.c:741
 msgid "Enable Spell Checking"
 msgstr "启用拼写检查"
 
-#: ../midori/midori-websettings.c:741
+#: ../midori/midori-websettings.c:742
 msgid "Enable spell checking while typing"
 msgstr "输入时启用拼写检查"
 
-#: ../midori/midori-websettings.c:747
+#: ../midori/midori-websettings.c:748
 msgid "Enable HTML5 database support"
 msgstr "启用 HTML5 数据库支持"
 
-#: ../midori/midori-websettings.c:748
+#: ../midori/midori-websettings.c:749
 msgid "Whether to enable HTML5 database support"
 msgstr "是否启用 HTML5 数据库支持"
 
-#: ../midori/midori-websettings.c:754
+#: ../midori/midori-websettings.c:755
 msgid "Enable HTML5 local storage support"
 msgstr "启用 HTML5 本地存储支持"
 
-#: ../midori/midori-websettings.c:755
+#: ../midori/midori-websettings.c:756
 msgid "Whether to enable HTML5 local storage support"
 msgstr "是否启用 HTML5 本地存储支持"
 
-#: ../midori/midori-websettings.c:761
+#: ../midori/midori-websettings.c:762
 msgid "Enable offline web application cache"
 msgstr "启用离线网络应用程序缓存"
 
-#: ../midori/midori-websettings.c:762
+#: ../midori/midori-websettings.c:763
 msgid "Whether to enable offline web application cache"
 msgstr "是否启用离线网络应用程序缓存"
 
-#: ../midori/midori-websettings.c:778
-msgid "Flash window on background tabs"
-msgstr ""
-
 #: ../midori/midori-websettings.c:779
-msgid "Flash the browser window if a new tab was opened in the background"
-msgstr ""
+msgid "Flash window on background tabs"
+msgstr "在后台标签的窗口闪烁"
 
-#: ../midori/midori-websettings.c:794
-msgid "Zoom Text and Images"
-msgstr "缩放文字和图像"
+#: ../midori/midori-websettings.c:780
+msgid "Flash the browser window if a new tab was opened in the background"
+msgstr "如果新标签在后台打开则此浏览器窗口闪烁"
 
 #: ../midori/midori-websettings.c:795
-msgid "Whether to zoom text and images"
-msgstr "是否缩放文字和图像"
+msgid "Zoom Text and Images"
+msgstr "缩放文本和图片"
 
-#: ../midori/midori-websettings.c:810
+#: ../midori/midori-websettings.c:796
+msgid "Whether to zoom text and images"
+msgstr "是否缩放文本和图片"
+
+#: ../midori/midori-websettings.c:811
 msgid "Find inline while typing"
 msgstr "输入时在文中查找"
 
-#: ../midori/midori-websettings.c:811
+#: ../midori/midori-websettings.c:812
 msgid "Whether to automatically find inline while typing"
-msgstr "是否在输入时在文中查找"
+msgstr "是否在输入时在文中自动查找"
 
-#: ../midori/midori-websettings.c:826
+#: ../midori/midori-websettings.c:827
 msgid "Kinetic scrolling"
 msgstr "动态滚动"
 
-#: ../midori/midori-websettings.c:827
+#: ../midori/midori-websettings.c:828
 msgid "Whether scrolling should kinetically move according to speed"
-msgstr "是否按鼠标滚动速度动态地滚动页面"
+msgstr "滚动是否按速度动态地移动"
 
-#: ../midori/midori-websettings.c:835
+#: ../midori/midori-websettings.c:836
 msgid "Delete old Cookies after:"
 msgstr "删除此时间之后的旧 cookie："
 
-#: ../midori/midori-websettings.c:836
+#: ../midori/midori-websettings.c:837
 msgid "The maximum number of days to save cookies for"
-msgstr "最长 Cookie 保存天数"
+msgstr "最长 cookie保存天数"
 
-#: ../midori/midori-websettings.c:845
+#: ../midori/midori-websettings.c:853
+msgid "Only accept Cookies from sites you visit"
+msgstr "只接受您访问的站点的 cookie"
+
+#: ../midori/midori-websettings.c:854
+msgid "Block cookies sent by third-party websites"
+msgstr "屏蔽第三方站点发送的 cookie"
+
+#: ../midori/midori-websettings.c:868
 msgid "Delete pages from history after:"
-msgstr "删除此历史记录之后的页面："
+msgstr "删除此历史之后的页面："
 
-#: ../midori/midori-websettings.c:846
+#: ../midori/midori-websettings.c:869
 msgid "The maximum number of days to save the history for"
-msgstr "最长历史记录保存天数"
+msgstr "最长历史保存天数"
 
-#: ../midori/midori-websettings.c:861
+#: ../midori/midori-websettings.c:884
 msgid "Proxy server"
 msgstr "代理服务器"
 
-#: ../midori/midori-websettings.c:862
+#: ../midori/midori-websettings.c:885
 msgid "The type of proxy server to use"
 msgstr "使用的代理服务器类型"
 
-#: ../midori/midori-websettings.c:871
+#: ../midori/midori-websettings.c:894
 msgid "HTTP Proxy Server"
 msgstr "HTTP 代理服务器"
 
-#: ../midori/midori-websettings.c:872
+#: ../midori/midori-websettings.c:895
 msgid "The proxy server used for HTTP connections"
 msgstr "HTTP 连接所使用的代理服务器"
 
-#: ../midori/midori-websettings.c:889
+#: ../midori/midori-websettings.c:912
 msgid "The maximum size of cached pages on disk"
-msgstr "最大磁盘缓存页面大小"
+msgstr "磁盘上缓存页面最大值"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:906
+#: ../midori/midori-websettings.c:929
 msgid "Identify as"
 msgstr "识别为"
 
-#: ../midori/midori-websettings.c:907
+#: ../midori/midori-websettings.c:930
 msgid "What to identify as to web pages"
-msgstr "让页面识别为何种浏览器"
+msgstr "让网页识别为何种浏览器"
 
-#: ../midori/midori-websettings.c:923
+#: ../midori/midori-websettings.c:946
 msgid "Identification string"
 msgstr "识别字符串"
 
-#: ../midori/midori-websettings.c:924
+#: ../midori/midori-websettings.c:947
 msgid "The application identification string"
 msgstr "应用程序识别字符串"
 
-#: ../midori/midori-websettings.c:940
+#: ../midori/midori-websettings.c:963
 msgid "Preferred languages"
 msgstr "首选语言"
 
-#: ../midori/midori-websettings.c:941
+#: ../midori/midori-websettings.c:964
 msgid ""
 "A comma separated list of languages preferred for rendering multilingual "
 "webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
 msgstr ""
-"一个由逗号分隔的用以显示多语言网页的首选语言列表，例如 “de”，“ru,nl” 或者 "
-"”en-us;q=1.0, fr-fr;q=0.667“"
+"一个由逗号分隔的用以显示多语言网页的首选语言列表，例如 “de”，“ru,nl” 或 "
+"“en-us;q=1.0, fr-fr;q=0.667”"
 
-#: ../midori/midori-websettings.c:956
+#: ../midori/midori-websettings.c:979
 msgid "Clear private data"
 msgstr "清除隐私数据"
 
-#: ../midori/midori-websettings.c:957
+#: ../midori/midori-websettings.c:980
 msgid "The private data selected for deletion"
-msgstr "要删除的已选中的隐私数据"
+msgstr "选中的要删除的隐私数据"
 
-#: ../midori/midori-websettings.c:972
+#: ../midori/midori-websettings.c:995
 msgid "Clear data"
 msgstr "清除数据"
 
-#: ../midori/midori-websettings.c:973
+#: ../midori/midori-websettings.c:996
 msgid "The data selected for deletion"
-msgstr "要删除的已选中的数据"
+msgstr "选中的要删除的数据"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-websettings.c:1006
+#: ../midori/midori-websettings.c:1029
 msgid "Strip referrer details sent to websites"
-msgstr "剥离发送至外部站点的详细提交信息"
+msgstr "剥离发送至站点的详细提交信息"
 
 #. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-websettings.c:1008
+#: ../midori/midori-websettings.c:1031
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
-msgstr "“Referer” 头文件是否缩短为主机名"
+msgstr "“提交信息” 头文件是否缩短为主机名"
 
-#: ../midori/midori-view.c:1366
+#: ../midori/midori-view.c:1367
 #, c-format
 msgid "%s wants to save an HTML5 database."
 msgstr "%s 需要保存一个 HTML5 数据库。"
 
-#: ../midori/midori-view.c:1370 ../midori/midori-view.c:1399
+#: ../midori/midori-view.c:1371 ../midori/midori-view.c:1400
 msgid "_Deny"
 msgstr "拒绝(_D)"
 
-#: ../midori/midori-view.c:1370 ../midori/midori-view.c:1399
+#: ../midori/midori-view.c:1371 ../midori/midori-view.c:1400
 msgid "_Allow"
 msgstr "允许(_A)"
 
-#: ../midori/midori-view.c:1395
+#: ../midori/midori-view.c:1396
 #, c-format
 msgid "%s wants to know your location."
-msgstr "%s 要获得您的地址。"
-
-#: ../midori/midori-view.c:1484
-#, c-format
-msgid "Error - %s"
-msgstr "错误-%s"
+msgstr "%s 要获知您的位置。"
 
 #: ../midori/midori-view.c:1485
+#, c-format
+msgid "Error - %s"
+msgstr "错误 - %s"
+
+#: ../midori/midori-view.c:1486
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "无法载入 ‘%s’ 页面。"
 
-#: ../midori/midori-view.c:1487
+#: ../midori/midori-view.c:1488
 msgid "Try again"
 msgstr "重试"
 
-#: ../midori/midori-view.c:1649 ../midori/midori-view.c:2497
+#: ../midori/midori-view.c:1650 ../midori/midori-view.c:2497
 #, c-format
 msgid "Send a message to %s"
-msgstr "发送消息至 %s"
+msgstr "向 %s 发送消息"
 
-#: ../midori/midori-view.c:2336 ../midori/midori-view.c:2650
+#: ../midori/midori-view.c:2337 ../midori/midori-view.c:2650
 msgid "Inspect _Element"
 msgstr "检查元素(_E)"
 
-#: ../midori/midori-view.c:2386
+#: ../midori/midori-view.c:2387
 msgid "Open Link in New _Tab"
 msgstr "在新标签中打开链接(_T)"
 
-#: ../midori/midori-view.c:2390
+#: ../midori/midori-view.c:2391
 msgid "Open Link in _Foreground Tab"
 msgstr "在前台标签中打开链接(_F)"
 
-#: ../midori/midori-view.c:2391
+#: ../midori/midori-view.c:2392
 msgid "Open Link in _Background Tab"
 msgstr "在后台标签中打开链接(_B)"
 
-#: ../midori/midori-view.c:2394
+#: ../midori/midori-view.c:2395
 msgid "Open Link in New _Window"
 msgstr "在新窗口中打开链接(_W)"
 
-#: ../midori/midori-view.c:2397
+#: ../midori/midori-view.c:2398
 msgid "Open Link as Web A_pplication"
 msgstr "将链接作为网络应用程序打开(_P)"
 
-#: ../midori/midori-view.c:2400
+#: ../midori/midori-view.c:2401
 msgid "Copy Link de_stination"
 msgstr "复制链接目的地(_S)"
 
-#: ../midori/midori-view.c:2412
+#: ../midori/midori-view.c:2413
 msgid "Open _Image in New Tab"
-msgstr "在新标签中打开图像(_I)"
+msgstr "在新标签中打开图片(_I)"
 
-#: ../midori/midori-view.c:2415
+#: ../midori/midori-view.c:2416
 msgid "Copy Image _Address"
 msgstr "复制图片地址(_A)"
 
-#: ../midori/midori-view.c:2418
+#: ../midori/midori-view.c:2419
 msgid "Save I_mage"
 msgstr "保存图片(_M)"
 
-#: ../midori/midori-view.c:2425
+#: ../midori/midori-view.c:2426
 msgid "Copy Video _Address"
 msgstr "复制视频地址(_A)"
 
-#: ../midori/midori-view.c:2428
+#: ../midori/midori-view.c:2429
 msgid "Save _Video"
 msgstr "保存视频(_V)"
 
-#: ../midori/midori-view.c:2428
+#: ../midori/midori-view.c:2429
 msgid "Download _Video"
 msgstr "下载视频(_V)"
 
-#: ../midori/midori-view.c:2454
+#: ../midori/midori-view.c:2455
 msgid "Search _with"
 msgstr "搜索方式(_W)"
 
-#: ../midori/midori-view.c:2488
+#: ../midori/midori-view.c:2489
 msgid "_Search the Web"
 msgstr "搜索网络(_S)"
 
@@ -1819,20 +1829,20 @@ msgstr "打开或下载文件"
 #: ../midori/midori-view.c:2808
 #, c-format
 msgid "File Type: '%s'"
-msgstr "文件类型: ‘%s’"
+msgstr "文件类型：‘%s’"
 
 #: ../midori/midori-view.c:2810
 #, c-format
 msgid "File Type: %s ('%s')"
-msgstr "文件类型: %s (‘%s’)"
+msgstr "文件类型：%s(‘%s’)"
 
 #: ../midori/midori-view.c:2821
 msgid "MD5-Checksum:"
-msgstr "MD5 校验值"
+msgstr "MD5 校验值："
 
 #: ../midori/midori-view.c:2828
 msgid "SHA1-Checksum:"
-msgstr "SHA1 校验值"
+msgstr "SHA1 校验值："
 
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
 #: ../midori/midori-view.c:2838
@@ -1843,7 +1853,7 @@ msgstr "打开 %s"
 #: ../midori/midori-view.c:3423
 #, c-format
 msgid "Inspect page - %s"
-msgstr "检查页面-%s"
+msgstr "检查页面 - %s"
 
 #: ../midori/midori-view.c:3715
 msgid "Speed Dial"
@@ -1863,7 +1873,7 @@ msgstr "输入快捷方式标题"
 
 #: ../midori/midori-view.c:3719
 msgid "Are you sure you want to delete this shortcut?"
-msgstr "确实要删除此快捷方式吗？"
+msgstr "您确定要删除此快捷方式吗？"
 
 #: ../midori/midori-view.c:3877
 #, c-format
@@ -1872,7 +1882,7 @@ msgstr "文档没有安装"
 
 #: ../midori/midori-view.c:3938
 msgid "Version numbers in brackets show the version used at runtime."
-msgstr "在括号中的版本号显示运行时环境的版本。"
+msgstr "在括号中的版本号显示运行时的版本。"
 
 #: ../midori/midori-view.c:3986
 msgid "Page loading delayed"
@@ -1886,35 +1896,35 @@ msgstr "由于最近的程序崩溃或启动首选项设定，载入页面发生
 msgid "Load Page"
 msgstr "载入页面"
 
-#: ../midori/midori-view.c:4131
+#: ../midori/midori-view.c:4128
 msgid "Blank page"
-msgstr "空白页"
+msgstr "空白页面"
 
-#: ../midori/midori-view.c:4394
+#: ../midori/midori-view.c:4391
 msgid "_Duplicate Tab"
 msgstr "复制标签(_D)"
 
-#: ../midori/midori-view.c:4399
+#: ../midori/midori-view.c:4396
 msgid "Show Tab _Label"
-msgstr "显示标签名称(_L)"
+msgstr "显示标签标记(_L)"
 
-#: ../midori/midori-view.c:4399
+#: ../midori/midori-view.c:4396
 msgid "Show Tab _Icon Only"
 msgstr "仅显示标签图标(_I)"
 
-#: ../midori/midori-view.c:4405
+#: ../midori/midori-view.c:4402
 msgid "Close ot_her Tabs"
 msgstr "关闭其它标签(_H)"
 
-#: ../midori/midori-view.c:5029
+#: ../midori/midori-view.c:5056
 msgid "Print background images"
-msgstr "打印背景图片"
+msgstr "列印背景图片"
 
-#: ../midori/midori-view.c:5030
+#: ../midori/midori-view.c:5057
 msgid "Whether background images should be printed"
-msgstr "是否打印页面的背景图片"
+msgstr "是否列印页面的背景图片"
 
-#: ../midori/midori-view.c:5062
+#: ../midori/midori-view.c:5089
 msgid "Features"
 msgstr "功能"
 
@@ -1941,11 +1951,11 @@ msgstr "合适的字体族"
 
 #: ../midori/midori-preferences.c:334
 msgid "The default font family used to display text"
-msgstr "默认的显示文本的字体族"
+msgstr "用来显示文本的默认字体族"
 
 #: ../midori/midori-preferences.c:337
 msgid "The default font size used to display text"
-msgstr "默认的显示文本的字体大小"
+msgstr "用来显示文本的默认字体大小"
 
 #: ../midori/midori-preferences.c:339
 msgid "Fixed-width Font Family"
@@ -1953,11 +1963,11 @@ msgstr "等宽字体族"
 
 #: ../midori/midori-preferences.c:343
 msgid "The font family used to display fixed-width text"
-msgstr "显示等宽文本的字体族"
+msgstr "用来显示等宽文本的字体族"
 
 #: ../midori/midori-preferences.c:346
 msgid "The font size used to display fixed-width text"
-msgstr "显示等宽文本的字体大小"
+msgstr "用来显示等宽文本的字体大小"
 
 #: ../midori/midori-preferences.c:348
 msgid "Minimum Font Size"
@@ -1965,7 +1975,7 @@ msgstr "最小字体大小"
 
 #: ../midori/midori-preferences.c:352
 msgid "The minimum font size used to display text"
-msgstr "显示文本的最小字体大小"
+msgstr "用来显示文本的最小字体大小"
 
 #. Page "Behavior"
 #: ../midori/midori-preferences.c:361
@@ -1996,139 +2006,139 @@ msgstr "主机名"
 
 #: ../midori/midori-preferences.c:472
 msgid "MB"
-msgstr "MB"
+msgstr "兆字节"
 
-#: ../midori/midori-searchaction.c:910
+#: ../midori/midori-searchaction.c:911
 msgid "Add search engine"
 msgstr "添加搜索引擎"
 
-#: ../midori/midori-searchaction.c:910
+#: ../midori/midori-searchaction.c:911
 msgid "Edit search engine"
 msgstr "编辑搜索引擎"
 
-#: ../midori/midori-searchaction.c:943
+#: ../midori/midori-searchaction.c:944
 msgid "_Name:"
-msgstr "名称(_N):"
+msgstr "名称(_N)："
 
-#: ../midori/midori-searchaction.c:959
+#: ../midori/midori-searchaction.c:960
 msgid "_Description:"
-msgstr "描述(_D):"
+msgstr "描述(_D)："
 
-#: ../midori/midori-searchaction.c:992
+#: ../midori/midori-searchaction.c:993
 msgid "_Icon:"
-msgstr "图标(_I):"
+msgstr "图标(_I)："
 
-#: ../midori/midori-searchaction.c:1006
+#: ../midori/midori-searchaction.c:1007
 msgid "_Token:"
-msgstr "标记(_T):"
+msgstr "标记(_T)："
 
-#: ../midori/midori-searchaction.c:1306
+#: ../midori/midori-searchaction.c:1307
 msgid "Manage Search Engines"
 msgstr "管理搜索引擎"
 
-#: ../midori/midori-searchaction.c:1410
+#: ../midori/midori-searchaction.c:1411
 msgid "Use as _default"
-msgstr "作为默认(_D)"
+msgstr "用作默认(_D)"
 
-#: ../midori/sokoke.c:408
+#: ../midori/sokoke.c:409
 msgid "Open with"
 msgstr "打开方式"
 
-#: ../midori/sokoke.c:416
+#: ../midori/sokoke.c:417
 #, c-format
 msgid "Choose an application or command to open \"%s\":"
-msgstr "选择打开 “%s” 的程序或命令:"
+msgstr "选择打开 “%s” 的程序或命令："
 
-#: ../midori/sokoke.c:457 ../midori/sokoke.c:467 ../midori/sokoke.c:495
-#: ../midori/sokoke.c:524 ../midori/sokoke.c:538
+#: ../midori/sokoke.c:458 ../midori/sokoke.c:468 ../midori/sokoke.c:496
+#: ../midori/sokoke.c:525 ../midori/sokoke.c:539
 msgid "Could not run external program."
 msgstr "无法运行外部程序。"
 
-#: ../midori/sokoke.c:1414
+#: ../midori/sokoke.c:1218
 msgid "_Bookmark"
 msgstr "书签(_B)"
 
-#: ../midori/sokoke.c:1416
+#: ../midori/sokoke.c:1220
 msgid "Add Boo_kmark"
 msgstr "添加书签(_K)"
 
-#: ../midori/sokoke.c:1417
+#: ../midori/sokoke.c:1221
 msgid "_Console"
 msgstr "控制台(_C)"
 
-#: ../midori/sokoke.c:1418
+#: ../midori/sokoke.c:1222
 msgid "_Extensions"
 msgstr "扩展(_E)"
 
-#: ../midori/sokoke.c:1420
+#: ../midori/sokoke.c:1224
 msgid "_Homepage"
 msgstr "主页(_H)"
 
-#: ../midori/sokoke.c:1421
+#: ../midori/sokoke.c:1225
 msgid "_Userscripts"
 msgstr "用户脚本(_U)"
 
-#: ../midori/sokoke.c:1422
+#: ../midori/sokoke.c:1226
 msgid "New _Tab"
 msgstr "新建标签(_T)"
 
-#: ../midori/sokoke.c:1423
+#: ../midori/sokoke.c:1227
 msgid "_Transfers"
 msgstr "传输(_T)"
 
-#: ../midori/sokoke.c:1424
+#: ../midori/sokoke.c:1228
 msgid "Netscape p_lugins"
 msgstr "Netscape 插件(_L)"
 
-#: ../midori/sokoke.c:1427
+#: ../midori/sokoke.c:1231
 msgid "New _Folder"
-msgstr "新文件夹(_F)"
+msgstr "新建文件夹(_F)"
 
-#: ../midori/sokoke.c:2123
+#: ../midori/sokoke.c:1927
 #, c-format
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] "%d 小时"
 
-#: ../midori/sokoke.c:2124
+#: ../midori/sokoke.c:1928
 #, c-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d 分钟"
 
-#: ../midori/sokoke.c:2125
+#: ../midori/sokoke.c:1929
 #, c-format
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d 秒"
 
 #. i18n: Download tooltip (size): 4KB of 43MB
-#: ../midori/sokoke.c:2133 ../panels/midori-transfers.c:268
+#: ../midori/sokoke.c:1937 ../panels/midori-transfers.c:268
 #, c-format
 msgid "%s of %s"
 msgstr "%2$s 中的 %1$s"
 
 #. i18n: Unknown number of bytes, used for transfer rate like ?B/s
-#: ../midori/sokoke.c:2142
+#: ../midori/sokoke.c:1946
 msgid "?B"
 msgstr "?B"
 
 #. i18n: Download tooltip (transfer rate): (130KB/s)
-#: ../midori/sokoke.c:2145
+#: ../midori/sokoke.c:1949
 #, c-format
 msgid " (%s/s)"
 msgstr " (%s/s)"
 
 #. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
-#: ../midori/sokoke.c:2162
+#: ../midori/sokoke.c:1966
 #, c-format
 msgid " - %s remaining"
-msgstr "剩余-%s "
+msgstr "剩余 -%s"
 
 #. i18n: A panel at the bottom, to search text in pages
 #: ../toolbars/midori-findbar.c:264
 msgid "_Inline Find:"
-msgstr "在文中查找(_I):"
+msgstr "在文中查找(_I)："
 
 #: ../toolbars/midori-findbar.c:291
 msgid "Previous"
@@ -2140,11 +2150,11 @@ msgstr "下一个"
 
 #: ../toolbars/midori-findbar.c:301
 msgid "Match Case"
-msgstr "区分大小写"
+msgstr "匹配大小写"
 
 #: ../toolbars/midori-findbar.c:310
 msgid "Highlight Matches"
-msgstr "高亮显示匹配"
+msgstr "高亮显示匹配者"
 
 #: ../toolbars/midori-findbar.c:321
 msgid "Close Findbar"
@@ -2184,7 +2194,7 @@ msgstr "退出 Midori 浏览器(_Q)"
 
 #: ../toolbars/midori-transferbar.c:395
 msgid "The transfers will be cancelled if Midori quits."
-msgstr "如果退出 Midori 浏览器，正在执行的下载将被取消。"
+msgstr "如果退出 Midori 浏览器，将取消传输。"
 
 #: ../panels/midori-bookmarks.c:117
 msgid "Bookmarks"
@@ -2193,7 +2203,7 @@ msgstr "书签"
 #: ../panels/midori-bookmarks.c:295
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
-msgstr "添加书签项目失败: %s\n"
+msgstr "无法添加书签项目：%s\n"
 
 #: ../panels/midori-bookmarks.c:475
 msgid "Edit the selected bookmark"
@@ -2217,13 +2227,13 @@ msgstr "历史"
 
 #: ../panels/midori-history.c:147
 msgid "A week ago"
-msgstr "一周以前"
+msgstr "一周前"
 
 #: ../panels/midori-history.c:149
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
-msgstr[0] "%d 天以前"
+msgstr[0] "%d 天前"
 
 #: ../panels/midori-history.c:152
 msgid "Today"
@@ -2235,7 +2245,7 @@ msgstr "昨天"
 
 #: ../panels/midori-history.c:322
 msgid "Are you sure you want to remove all history items?"
-msgstr "确认移除所有的历史项目吗？"
+msgstr "您确定要移除所有的历史项目吗？"
 
 #: ../panels/midori-history.c:368
 msgid "Bookmark the selected history item"
@@ -2283,7 +2293,7 @@ msgstr "密码"
 
 #: ../katze/katze-http-auth.c:274
 msgid "_Remember password"
-msgstr "保存密码(_R)"
+msgstr "记住密码(_R)"
 
 #: ../katze/katze-throbber.c:942
 #, c-format
@@ -2293,54 +2303,54 @@ msgstr "无法载入已命名图标 ‘%s’"
 #: ../katze/katze-throbber.c:955
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
-msgstr "无法载入备用图标 ‘%s’ "
+msgstr "无法载入备用图标 ‘%s’"
 
 #: ../katze/katze-throbber.c:1035
 msgid "Animation frames are broken"
 msgstr "动画帧损坏"
 
-#: ../katze/katze-utils.c:438 ../katze/katze-utils.c:872
+#: ../katze/katze-utils.c:439 ../katze/katze-utils.c:873
 #, c-format
 msgid "Property '%s' is invalid for %s"
-msgstr "属性 ‘%s’ 在 ‘%s’ 中无效"
+msgstr "属性 ‘%s’ 对 ‘%s’ 无效"
 
-#: ../katze/katze-utils.c:484 ../katze/katze-utils.c:513
+#: ../katze/katze-utils.c:485 ../katze/katze-utils.c:514
 #: ../extensions/addons.c:309
 msgid "Choose file"
 msgstr "选择文件"
 
-#: ../katze/katze-utils.c:499
+#: ../katze/katze-utils.c:500
 msgid "Choose folder"
 msgstr "选择文件夹"
 
-#: ../katze/katze-utils.c:603
+#: ../katze/katze-utils.c:604
 msgid "None"
 msgstr "无"
 
-#: ../katze/katze-utils.c:718
+#: ../katze/katze-utils.c:719
 msgid "1 hour"
 msgstr "一小时"
 
-#: ../katze/katze-utils.c:719
+#: ../katze/katze-utils.c:720
 msgid "1 day"
 msgstr "一天"
 
-#: ../katze/katze-utils.c:720
+#: ../katze/katze-utils.c:721
 msgid "1 week"
 msgstr "一周"
 
-#: ../katze/katze-utils.c:721
+#: ../katze/katze-utils.c:722
 msgid "1 month"
 msgstr "一月"
 
-#: ../katze/katze-utils.c:722
+#: ../katze/katze-utils.c:723
 msgid "1 year"
 msgstr "一年"
 
 #: ../katze/katze-preferences.c:91 ../extensions/history-list.vala:235
 #, c-format
 msgid "Preferences for %s"
-msgstr "%s 的首选项"
+msgstr "%s 首选项"
 
 #: ../extensions/adblock.c:418
 msgid "Configure Advertisement filters"
@@ -2352,8 +2362,8 @@ msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
 "\"Add\" to add it to the list. You can find more lists at %s."
 msgstr ""
-"在文本输入框中输入预设的过滤器列表的地址，然后点击 “添加” 加入此列表。您可以"
-"在 %s 找到更多列表。"
+"在文本输入框中输入预配置的过滤器列表的地址，然后点击 “添加” 将它加入"
+"此列表。您可以在 %s 找到更多列表。"
 
 #: ../extensions/adblock.c:843
 msgid "Edit rule"
@@ -2361,11 +2371,11 @@ msgstr "编辑规则"
 
 #: ../extensions/adblock.c:864
 msgid "_Rule:"
-msgstr "规则(_R):"
+msgstr "规则(_R)："
 
 #: ../extensions/adblock.c:926
 msgid "Bl_ock image"
-msgstr "屏蔽图像(_O)"
+msgstr "屏蔽图片(_O)"
 
 #: ../extensions/adblock.c:931
 msgid "Bl_ock link"
@@ -2373,25 +2383,25 @@ msgstr "屏蔽链接(_O)"
 
 #: ../extensions/adblock.c:1518
 msgid "Advertisement blocker"
-msgstr "广告拦截器"
+msgstr "广告屏蔽器"
 
 #: ../extensions/adblock.c:1519
 msgid "Block advertisements according to a filter list"
-msgstr "使用过滤列表拦截广告"
+msgstr "按过滤列表屏蔽广告"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:221
 msgid "This page appears to contain a user script. Do you wish to install it?"
-msgstr "此页面包含一个用户脚本。您要安装吗？"
+msgstr "此页面看来包含一个用户脚本。您要安装它吗？"
 
 #: ../extensions/addons.c:222
 msgid "_Install user script"
-msgstr "安装用户脚本"
+msgstr "安装用户脚本(_I)"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
 #: ../extensions/addons.c:227
 msgid "This page appears to contain a user style. Do you wish to install it?"
-msgstr "此页面似乎含有一个用户样式。您想要安装吗？"
+msgstr "此页面看来包含一个用户样式。您想要安装它吗？"
 
 #: ../extensions/addons.c:228
 msgid "_Install user style"
@@ -2417,7 +2427,7 @@ msgstr "错误"
 #: ../extensions/addons.c:422
 #, c-format
 msgid "Do you want to delete '%s'?"
-msgstr "确实要删除 ‘%s’ 吗？"
+msgstr "您要删除 ‘%s’ 吗？"
 
 #: ../extensions/addons.c:428
 msgid "Delete user script"
@@ -2455,11 +2465,11 @@ msgstr "用户插件"
 #: ../extensions/addons.c:1771
 #, c-format
 msgid "Can't monitor folder '%s': %s"
-msgstr "无法监视 “%s” 文件夹：%s"
+msgstr "无法监视 ‘%s’ 文件夹：%s"
 
 #: ../extensions/addons.c:1813
 msgid "Support for userscripts and userstyles"
-msgstr "支持用户脚本及样式"
+msgstr "支持用户脚本和用户样式"
 
 #: ../extensions/colorful-tabs.c:201
 msgid "Colorful Tabs"
@@ -2472,7 +2482,7 @@ msgstr "用不同颜色区分标签"
 #: ../extensions/cookie-manager/cookie-manager-page.c:83
 #: ../extensions/cookie-manager/main.c:35
 msgid "Cookie Manager"
-msgstr "Cookie 管理器"
+msgstr "cookie 管理器"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:113
 msgid "Delete All"
@@ -2483,20 +2493,20 @@ msgid ""
 "Deletes all shown cookies. If a filter is set, only those cookies are "
 "deleted which match the filter."
 msgstr ""
-"删除显示的全部 Cookie 。如果已设置了一个过滤器，则只删除与过滤器匹配的 "
-"Cookie 。"
+"删除已显示的所有 cookie。如果已设置了一个过滤器，则只删除与过滤器匹配"
+"的 cookie。"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:130
 msgid "Expand All"
-msgstr "展开全部"
+msgstr "全部展开"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:137
 msgid "Collapse All"
-msgstr "折叠全部"
+msgstr "全部折叠"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:579
 msgid "Do you really want to delete all cookies?"
-msgstr "确实要删除全部 Cookie 吗？"
+msgstr "您真的要删除所有 cookie 吗？"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:581
 msgid "Question"
@@ -2504,7 +2514,7 @@ msgstr "问题"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:590
 msgid "Only cookies which match the filter will be deleted."
-msgstr "只删除与过滤器匹配的 Cookie "
+msgstr "只删除与过滤器匹配的 cookie。"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:678
 msgid "At the end of the session"
@@ -2520,12 +2530,12 @@ msgid ""
 "<b>Secure</b>: %s\n"
 "<b>Expires</b>: %s"
 msgstr ""
-"<b>主机</b>: %s\n"
-"<b>名称</b>: %s\n"
-"<b>值</b>: %s\n"
-"<b>路径</b>: %s\n"
-"<b>安全</b>: %s\n"
-"<b>有效期</b>: %s"
+"<b>主机</b>：%s\n"
+"<b>名称</b>：%s\n"
+"<b>值</b>：%s\n"
+"<b>路径</b>：%s\n"
+"<b>安全</b>：%s\n"
+"<b>有效期</b>：%s"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:687
 msgid "Yes"
@@ -2541,8 +2551,8 @@ msgid ""
 "<b>Domain</b>: %s\n"
 "<b>Cookies</b>: %d"
 msgstr ""
-"<b>域</b>: %s\n"
-"<b>Cookie</b>: %d"
+"<b>域</b>：%s\n"
+"<b>cookie</b>：%d"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1031
 msgid "Name"
@@ -2550,25 +2560,25 @@ msgstr "名称"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1084
 msgid "_Expand All"
-msgstr "展开全部(_E)"
+msgstr "全部展开(_E)"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1092
 msgid "_Collapse All"
-msgstr "折叠全部(_C)"
+msgstr "全部折叠(_C)"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1145
 msgid "Filter:"
-msgstr "过滤器(_F)："
+msgstr "过滤器："
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1150
 msgid ""
 "Enter a filter string to show only cookies whose name or domain field match "
 "the entered filter"
-msgstr "输入过滤器字符串，则只显示与输入的过滤器名称或域匹配的 Cookie"
+msgstr "输入过滤器字符串只显示与输入的过滤器名称或域匹配的 cookie"
 
 #: ../extensions/cookie-manager/main.c:36
 msgid "List, view and delete cookies"
-msgstr "列出、查看和删除 Cookie"
+msgstr "列出、查看和删除 cookie"
 
 #: ../extensions/copy-tabs.c:39
 msgid "Copy Tab _Addresses"
@@ -2576,7 +2586,7 @@ msgstr "复制标签地址(_A)"
 
 #: ../extensions/copy-tabs.c:96
 msgid "Copy Addresses of Tabs"
-msgstr "复制标签的地址"
+msgstr "复制标签地址"
 
 #: ../extensions/copy-tabs.c:97
 msgid "Copy the addresses of all tabs to the clipboard"
@@ -2584,18 +2594,18 @@ msgstr "将所有标签的地址复制至剪贴板"
 
 #: ../extensions/feed-panel/feed-atom.c:209
 msgid "Failed to find required Atom \"entry\" elements in XML data."
-msgstr "在 XML 数据中查找所需的 Atom “条目” 元素失败。"
+msgstr "无法在 XML 数据中查找所需的 Atom “条目” 元素。"
 
 #: ../extensions/feed-panel/feed-atom.c:315
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr "查找所需的 XML 数据中的 Atom \"订阅\" 元素失败。"
+msgstr "无法在 XML 数据中查找所需的 Atom “订阅” 元素。"
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:392
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
-msgstr "最后更新： %s。"
+msgstr "最后更新：%s。"
 
 #: ../extensions/feed-panel/feed-panel.c:658
 msgid "Feeds"
@@ -2616,7 +2626,7 @@ msgstr "订阅(_F)"
 #: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
 msgid "Failed to find root element in feed XML data."
-msgstr "在订阅 XML 数据中查找根元素失败。"
+msgstr "无法在订阅 XML 数据中查找根元素。"
 
 #: ../extensions/feed-panel/feed-parse.c:235
 #, c-format
@@ -2626,23 +2636,23 @@ msgstr "不支持的订阅格式。"
 #: ../extensions/feed-panel/feed-parse.c:265
 #, c-format
 msgid "Failed to parse XML feed: %s"
-msgstr "解析 XML 订阅失败： %s"
+msgstr "无法解析 XML 订阅：%s"
 
 #: ../extensions/feed-panel/feed-rss.c:46
 msgid "Failed to find \"channel\" element in RSS XML data."
-msgstr "查找 RSS XML 数据中的 “频道” 元素失败。"
+msgstr "无法在 RSS XML 数据中查找 “频道” 元素。"
 
 #: ../extensions/feed-panel/feed-rss.c:51
 msgid "Unsupported RSS version found."
-msgstr "不支持的 RSS 版本。"
+msgstr "找到了不支持的 RSS 版本。"
 
 #: ../extensions/feed-panel/feed-rss.c:148
 msgid "Failed to find required RSS \"item\" elements in XML data."
-msgstr "在 XML 数据中查找所需的 RSS “项目” 元素失败。"
+msgstr "无法在 XML 数据中查找所需的 RSS “项目” 元素。"
 
 #: ../extensions/feed-panel/feed-rss.c:248
 msgid "Failed to find required RSS \"channel\" elements in XML data."
-msgstr "在 XML 数据中查找所需的 RSS “频道” 元素失败。"
+msgstr "无法在 XML 数据中查找所需的 RSS “频道” 元素。"
 
 #: ../extensions/feed-panel/main.c:131
 #, c-format
@@ -2665,33 +2675,33 @@ msgstr "阅读 Atom/RSS 订阅"
 #: ../extensions/formhistory.c:151
 #, c-format
 msgid "Failed to add form value: %s\n"
-msgstr "添加表单值失败: %s\n"
+msgstr "无法添加表单值：%s\n"
 
 #: ../extensions/formhistory.c:303
 msgid "Toggle form history state"
-msgstr ""
+msgstr "切换表单历史状态"
 
 #: ../extensions/formhistory.c:304
 msgid "Activate or deactivate form history for the current tab."
-msgstr ""
+msgstr "为当前标签激活或冻结表单历史。"
 
 #: ../extensions/formhistory.c:438 ../extensions/formhistory.c:442
 #, c-format
 msgid "Failed to execute database statement: %s\n"
-msgstr "执行数据库语句失败: %s\n"
+msgstr "无法执行数据库语句：%s\n"
 
 #: ../extensions/formhistory.c:517
 msgid "only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr ""
+msgstr "只通过热键(Ctrl + Shift + F)在每个标签上激活表单历史"
 
 #: ../extensions/formhistory.c:576
 msgid "Stores history of entered form data"
-msgstr "保存表单数据历史"
+msgstr "存储输入的表单数据历史"
 
 #: ../extensions/formhistory.c:580
 #, c-format
 msgid "Not available: %s"
-msgstr "%s 不可用"
+msgstr "不可用：%s"
 
 #: ../extensions/formhistory.c:581
 msgid "Resource files not installed"
@@ -2699,7 +2709,7 @@ msgstr "源文件没有安装"
 
 #: ../extensions/formhistory.c:587
 msgid "Form history filler"
-msgstr "表单历史填料"
+msgstr "表单历史填写器"
 
 #: ../extensions/history-list.vala:197
 msgid "There are no unvisited tabs"
@@ -2708,7 +2718,7 @@ msgstr "没有未浏览的标签"
 #: ../extensions/history-list.vala:235
 #, c-format
 msgid "History-List"
-msgstr "History-List"
+msgstr "历史列表"
 
 #: ../extensions/history-list.vala:275
 msgid "Tab closing behavior"
@@ -2720,7 +2730,7 @@ msgstr "不做"
 
 #: ../extensions/history-list.vala:289
 msgid "Switch to last viewed tab"
-msgstr "切换到最近查看的标签"
+msgstr "切换到上次查看的标签"
 
 #: ../extensions/history-list.vala:295
 msgid "Switch to newest tab"
@@ -2736,7 +2746,7 @@ msgstr "历史中的下一个新标签"
 
 #: ../extensions/history-list.vala:433
 msgid "Previous new Tab (History List)"
-msgstr "上一个新标签 (历史列表)"
+msgstr "上一个新标签(历史列表)"
 
 #: ../extensions/history-list.vala:434
 msgid "Previous new tab from history"
@@ -2756,7 +2766,7 @@ msgstr "历史列表"
 
 #: ../extensions/history-list.vala:570
 msgid "Move to the last used tab when switching or closing tabs"
-msgstr "切换或关闭标签时移到上一个使用的标签"
+msgstr "切换或关闭标签时移到上次使用的标签"
 
 #: ../extensions/mouse-gestures.c:301
 msgid "Mouse Gestures"
@@ -2764,11 +2774,11 @@ msgstr "鼠标手势"
 
 #: ../extensions/mouse-gestures.c:302
 msgid "Control Midori by moving the mouse"
-msgstr "用鼠标移动控制 Midori 浏览器"
+msgstr "用移动鼠标控制 Midori 浏览器"
 
 #: ../extensions/shortcuts.c:110
 msgid "Reload page or stop loading"
-msgstr "重新载入页面或停止载入"
+msgstr "重载页面或停止载入"
 
 #: ../extensions/shortcuts.c:177
 msgid "Customize Keyboard shortcuts"
@@ -2792,11 +2802,11 @@ msgstr "状态栏时钟"
 
 #: ../extensions/status-clock.c:175
 msgid "Display date and time in the statusbar"
-msgstr "在状态栏显示日期和时间"
+msgstr "在状态栏中显示日期和时间"
 
 #: ../extensions/statusbar-features.c:129
 msgid "Images"
-msgstr "图像"
+msgstr "图片"
 
 #: ../extensions/statusbar-features.c:138
 msgid "Scripts"
@@ -2832,7 +2842,7 @@ msgstr "默认仅在标签上显示图标"
 
 #: ../extensions/tabs-minimized.c:78
 msgid "New tabs have no label by default"
-msgstr "新标签默认没有标签名"
+msgstr "新标签默认没有标记"
 
 #: ../extensions/toolbar-editor.c:393
 msgid "Customize Toolbar"
@@ -2842,7 +2852,7 @@ msgstr "自定义工具栏"
 msgid ""
 "Select items to be displayed on the toolbar. Items can be reodered by drag "
 "and drop."
-msgstr "选择在工具栏上显示的项目，可以拖动各项目调整顺序。"
+msgstr "选择在工具栏上要显示的项目。可以拖动各项目调整顺序。"
 
 #: ../extensions/toolbar-editor.c:429
 msgid "Available Items"
@@ -2850,15 +2860,15 @@ msgstr "可用的项目"
 
 #: ../extensions/toolbar-editor.c:450
 msgid "Displayed Items"
-msgstr "显示的项目"
+msgstr "已显示项目"
 
 #: ../extensions/toolbar-editor.c:585
 msgid "Customize _Toolbar..."
-msgstr "自定义工具栏(_T)"
+msgstr "自定义工具栏(_T)..."
 
 #: ../extensions/toolbar-editor.c:601
 msgid "_Customize..."
-msgstr "自定义..."
+msgstr "自定义(_C)..."
 
 #: ../extensions/toolbar-editor.c:631
 msgid "Toolbar Editor"
@@ -2871,48 +2881,3 @@ msgstr "轻松地编辑工具栏布局"
 #: ../extensions/web-cache.c:465
 msgid "Cache HTTP communication on disk"
 msgstr "在磁盘上缓存 HTTP 通讯"
-
-#~ msgid "Reset the last _session"
-#~ msgstr "重置上次的会话(_S)"
-
-#~ msgid "No filename specified"
-#~ msgstr "没有指定文件名"
-
-#~ msgid "Set number of columns and rows"
-#~ msgstr "设置列数和行数"
-
-#~ msgid "Enter number of columns and rows:"
-#~ msgstr "输入列数和行数："
-
-#~ msgid "Invalid input for the size of the speed dial"
-#~ msgstr "输入的快速拨号大小无效"
-
-#~ msgid "Thumb size:"
-#~ msgstr "缩略图大小:"
-
-#~ msgid "Small"
-#~ msgstr "小"
-
-#~ msgid "Medium"
-#~ msgstr "中"
-
-#~ msgid "Big"
-#~ msgstr "大"
-
-#~ msgid "Not found - %s"
-#~ msgstr "没有找到-%s"
-
-#~ msgid "Document cannot be displayed"
-#~ msgstr "文档无法显示"
-
-#~ msgid "Enforce 96 dots per inch"
-#~ msgstr "强制每英寸 96 点"
-
-#~ msgid "Enforce a video dot density of 96 DPI"
-#~ msgstr "强制视频点密度为 96 DPI"
-
-#~ msgid "Configure _Advertisement filters..."
-#~ msgstr "配置广告过滤器(_A)..."
-
-#~ msgid "Switch tabs with Ctrl+Tab sorted by last usage"
-#~ msgstr "按上次用法用 Ctrl+Tab 切换标签"
