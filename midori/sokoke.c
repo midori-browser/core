@@ -1217,7 +1217,7 @@ sokoke_register_stock_items (void)
 
         { STOCK_BOOKMARK,       N_("_Bookmark"), 0, 0, GTK_STOCK_FILE },
         { STOCK_BOOKMARKS,      N_("_Bookmarks"), GDK_CONTROL_MASK | GDK_SHIFT_MASK, GDK_KEY_B, GTK_STOCK_DIRECTORY },
-        { STOCK_BOOKMARK_ADD,   N_("Add Boo_kmark"), 0, 0, GTK_STOCK_ADD },
+        { STOCK_BOOKMARK_ADD,   N_("Add Boo_kmark"), 0, 0, "stock_add-bookmark" },
         { STOCK_CONSOLE,        N_("_Console"), 0, 0, GTK_STOCK_DIALOG_WARNING },
         { STOCK_EXTENSIONS,     N_("_Extensions"), 0, 0, GTK_STOCK_CONVERT },
         { STOCK_HISTORY,        N_("_History"), GDK_CONTROL_MASK | GDK_SHIFT_MASK, GDK_KEY_H, GTK_STOCK_SORT_ASCENDING },
