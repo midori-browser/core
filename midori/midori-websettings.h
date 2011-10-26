@@ -41,7 +41,7 @@ enum
     MIDORI_CLEAR_COOKIES = 2, /* deprecated */
     MIDORI_CLEAR_FLASH_COOKIES = 4, /* deprecated */
     MIDORI_CLEAR_WEBSITE_ICONS = 8, /* deprecated */
-    MIDORI_CLEAR_TRASH = 16,
+    MIDORI_CLEAR_TRASH = 16, /* deprecated */
     MIDORI_CLEAR_ON_QUIT = 32,
     MIDORI_CLEAR_WEB_CACHE = 64, /* deprecated */
     MIDORI_CLEAR_SESSION = 128,

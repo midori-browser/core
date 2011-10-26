@@ -4512,14 +4512,10 @@ midori_browser_clear_private_data_response_cb (GtkWidget*     dialog,
         if (gtk_toggle_button_get_active (button))
         {
             katze_array_clear (browser->history);
-            clear_prefs |= MIDORI_CLEAR_HISTORY;
-        }
-        button = g_object_get_data (G_OBJECT (dialog), "trash");
-        if (gtk_toggle_button_get_active (button) && browser->trash)
-        {
             katze_array_clear (browser->trash);
             _midori_browser_update_actions (browser);
-            clear_prefs |= MIDORI_CLEAR_TRASH;
+            clear_prefs |= MIDORI_CLEAR_HISTORY;
+            clear_prefs |= MIDORI_CLEAR_TRASH; /* For backward-compatibility */
         }
         if (clear_prefs != saved_prefs)
         {
@@ -4618,16 +4614,11 @@ _action_clear_private_data_activate (GtkAction*     action,
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "session", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        /* i18n: Browsing history, visited web pages */
+        /* i18n: Browsing history, visited web pages, closed tabs */
         button = gtk_check_button_new_with_mnemonic (_("_History"));
         if ((clear_prefs & MIDORI_CLEAR_HISTORY) == MIDORI_CLEAR_HISTORY)
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
         g_object_set_data (G_OBJECT (dialog), "history", button);
-        gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
-        button = gtk_check_button_new_with_mnemonic (_("_Closed Tabs"));
-        if ((clear_prefs & MIDORI_CLEAR_TRASH) == MIDORI_CLEAR_TRASH)
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-        g_object_set_data (G_OBJECT (dialog), "trash", button);
         gtk_box_pack_start (GTK_BOX (vbox), button, TRUE, TRUE, 0);
 
         data_items = sokoke_register_privacy_item (NULL, NULL, NULL);

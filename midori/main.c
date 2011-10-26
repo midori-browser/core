@@ -2643,7 +2643,7 @@ main (int    argc,
 
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_SESSION, "session.xbel");
         midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "history.db");
-        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_TRASH, "tabtrash.xbel");
+        midori_remove_config_file (clear_prefs, MIDORI_CLEAR_HISTORY, "tabtrash.xbel");
 
         for (; data_items != NULL; data_items = g_list_next (data_items))
         {
