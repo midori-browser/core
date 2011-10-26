@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2008-2010 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2011 Peter Hatina <phatina@redhat.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -92,6 +93,7 @@ struct _MidoriWebSettings
     #endif
     gboolean strip_referer;
     gboolean flash_window_on_bg_tabs;
+    GHashTable* user_stylesheets;
 };
 
 struct _MidoriWebSettingsClass
@@ -1090,6 +1092,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->http_proxy = NULL;
     web_settings->open_popups_in_tabs = TRUE;
     web_settings->kinetic_scrolling = TRUE;
+    web_settings->user_stylesheets = NULL;
 
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
@@ -1110,6 +1113,8 @@ midori_web_settings_finalize (GObject* object)
     katze_assign (web_settings->location_entry_search, NULL);
     katze_assign (web_settings->http_proxy, NULL);
     katze_assign (web_settings->ident_string, NULL);
+    if (web_settings->user_stylesheets != NULL)
+        g_hash_table_destroy (web_settings->user_stylesheets);
 
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
 }
@@ -1732,3 +1737,74 @@ midori_web_settings_new (void)
 
     return web_settings;
 }
+
+static void
+midori_web_settings_process_stylesheets (MidoriWebSettings* settings)
+{
+    GHashTableIter it;
+    GString* css = g_string_new ("");
+    gchar* base64;
+    gchar* encoded;
+    gpointer key;
+    gpointer value;
+
+    g_hash_table_iter_init (&it, settings->user_stylesheets);
+    while (g_hash_table_iter_next (&it, &key, &value))
+        g_string_append_printf (css, "%s\n", (const gchar*) value);
+
+    /* data: uri prefix from Source/WebCore/page/Page.cpp:700 in WebKit */
+    encoded = g_base64_encode ((guchar*)css->str, css->len);
+    base64 = g_strdup_printf ("data:text/css;charset=utf-8;base64,%s", encoded);
+    g_object_set (settings, "user-stylesheet-uri", base64, NULL);
+
+    g_free (encoded);
+    g_free (base64);
+    g_string_free (css, TRUE);
+}
+
+/**
+ * midori_web_settings_add_style:
+ * @rule_id: a string identifier
+ * @style: a CSS stylesheet
+ *
+ * Adds or replaces a custom stylesheet.
+ *
+ * Since: 0.4.2
+ **/
+void
+midori_web_settings_add_style (MidoriWebSettings* settings,
+                               gchar*             rule_id,
+                               gchar*             style)
+{
+    g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
+    g_return_if_fail (rule_id != NULL);
+    g_return_if_fail (style != NULL);
+
+    if (settings->user_stylesheets == NULL)
+        settings->user_stylesheets = g_hash_table_new (g_str_hash, NULL);
+    g_hash_table_insert (settings->user_stylesheets, rule_id, style);
+    midori_web_settings_process_stylesheets (settings);
+}
+
+/**
+ * midori_web_settings_remove_style:
+ * @rule_id: the string identifier used previously
+ *
+ * Removes a stylesheet from midori settings.
+ *
+ * Since: 0.4.2
+ **/
+void
+midori_web_settings_remove_style (MidoriWebSettings* settings,
+                                  const gchar*       rule_id)
+{
+    g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
+    g_return_if_fail (rule_id != NULL);
+
+    if (settings->user_stylesheets != NULL)
+    {
+        g_hash_table_remove (settings->user_stylesheets, rule_id);
+        midori_web_settings_process_stylesheets (settings);
+    }
+}
+

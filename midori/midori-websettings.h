@@ -158,6 +158,15 @@ midori_web_settings_get_type               (void) G_GNUC_CONST;
 MidoriWebSettings*
 midori_web_settings_new                    (void);
 
+void
+midori_web_settings_add_style              (MidoriWebSettings* settings,
+                                            gchar*             rule_id,
+                                            gchar*             style);
+
+void
+midori_web_settings_remove_style           (MidoriWebSettings* settings,
+                                            const gchar*       rule_id);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_SETTINGS_H__ */
