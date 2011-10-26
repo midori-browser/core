@@ -1076,6 +1076,7 @@ css_metadata_from_file (const gchar* filename,
 static gboolean
 addons_get_element_content (gchar*     file_path,
                             AddonsKind kind,
+                            gboolean   has_metadata,
                             gchar**    content)
 {
     gchar* file_content;
@@ -1156,6 +1157,8 @@ addons_get_element_content (gchar*     file_path,
                     g_string_append_c (content_chunks, file_content[i]);
             }
 
+            if (has_metadata)
+            {
             *content = g_strdup_printf (
                 "window.addEventListener ('DOMContentLoaded',"
                 "function () {"
@@ -1169,6 +1172,12 @@ addons_get_element_content (gchar*     file_path,
                 "}, true);",
                 content_chunks->str);
             g_string_free (content_chunks, TRUE);
+            }
+            else
+            {
+                *content = content_chunks->str;
+                g_string_free (content_chunks, FALSE);
+            }
         }
         g_free (file_content);
         if (*content)
@@ -1252,7 +1261,7 @@ addons_update_elements (MidoriExtension* extension,
                 katze_assign (element->displayname, name);
 
             if (!element->broken)
-                if (!addons_get_element_content (fullpath, kind,
+                if (!addons_get_element_content (fullpath, kind, FALSE,
                                                  &(element->script_content)))
                     element->broken = TRUE;
 
@@ -1268,6 +1277,7 @@ addons_update_elements (MidoriExtension* extension,
 
             if (!element->broken)
                 if (!addons_get_element_content (fullpath, kind,
+                    element->includes || element->excludes,
                                                  &(element->script_content)))
                     element->broken = TRUE;
 
@@ -1550,6 +1560,41 @@ addons_browser_destroy (MidoriBrowser*   browser,
     gtk_widget_destroy (styles);
 }
 
+static char*
+addons_generate_global_stylesheet (MidoriExtension* extension)
+{
+    GSList* styles;
+    struct AddonElement* style;
+    struct AddonsList* styles_list;
+    GString* style_string = g_string_new ("");
+
+    styles_list = g_object_get_data (G_OBJECT (extension), "styles-list");
+    styles = styles_list->elements;
+    while (styles != NULL)
+    {
+        style = styles->data;
+        if (style->enabled &&
+           !(style->includes || style->excludes || style->broken))
+        {
+            style_string = g_string_append (style_string, style->script_content);
+        }
+        styles = g_slist_next (styles);
+    }
+
+    return g_string_free (style_string, FALSE);
+}
+
+static void
+addons_apply_global_stylesheet (MidoriExtension* extension)
+{
+    MidoriApp* app = midori_extension_get_app (extension);
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
+    gchar* data = addons_generate_global_stylesheet (extension);
+    midori_web_settings_add_style (settings, "addons", data);
+    g_free (data);
+    g_object_unref (settings);
+}
+
 GtkWidget*
 addons_new (AddonsKind kind, MidoriExtension* extension)
 {
@@ -1571,6 +1616,10 @@ addons_new (AddonsKind kind, MidoriExtension* extension)
     gtk_tree_view_set_model (GTK_TREE_VIEW (ADDONS(addons)->treeview),
                              GTK_TREE_MODEL (liststore));
     gtk_widget_queue_draw (GTK_WIDGET (ADDONS(addons)->treeview));
+
+    if (kind == ADDONS_USER_STYLES)
+        g_signal_connect_swapped (liststore, "row-changed",
+            G_CALLBACK (addons_apply_global_stylesheet), extension);
 
     return addons;
 }
@@ -1672,12 +1721,14 @@ static void
 addons_deactivate_cb (MidoriExtension* extension,
                       MidoriApp*   app)
 {
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
     KatzeArray* browsers;
     MidoriBrowser* browser;
     GSource* source;
 
     addons_disable_monitors (extension);
     addons_save_settings (NULL, extension);
+    midori_web_settings_remove_style (settings, "addons");
 
     browsers = katze_object_get_object (app, "browsers");
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
@@ -1695,6 +1746,7 @@ addons_deactivate_cb (MidoriExtension* extension,
           extension, addons_deactivate_cb, app);
 
     g_object_unref (browsers);
+    g_object_unref (settings);
 }
 
 static gboolean
@@ -1781,6 +1833,7 @@ static void
 addons_activate_cb (MidoriExtension* extension,
                     MidoriApp*       app)
 {
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
     KatzeArray* browsers;
     MidoriBrowser* browser;
 
@@ -1789,10 +1842,12 @@ addons_activate_cb (MidoriExtension* extension,
     addons_monitor_directories (extension, ADDONS_USER_STYLES);
     addons_update_elements (extension, ADDONS_USER_SCRIPTS);
     addons_monitor_directories (extension, ADDONS_USER_SCRIPTS);
+    midori_web_settings_remove_style (settings, "addons");
 
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         addons_app_add_browser_cb (app, browser, extension);
     g_object_unref (browsers);
+    g_object_unref (settings);
 
     g_signal_connect (app, "add-browser",
         G_CALLBACK (addons_app_add_browser_cb), extension);
