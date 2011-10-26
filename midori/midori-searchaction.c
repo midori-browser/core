@@ -910,11 +910,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     dialog = gtk_dialog_new_with_buttons (
         new_engine ? _("Add search engine") : _("Edit search engine"),
         toplevel ? GTK_WINDOW (toplevel) : NULL,
-#if GTK_CHECK_VERSION(3,0,0)
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_engine ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
         NULL);
@@ -1309,11 +1305,7 @@ midori_search_action_get_dialog (MidoriSearchAction* search_action)
         gtk_widget_get_toplevel (search_action->last_proxy) : NULL;
     dialog = gtk_dialog_new_with_buttons (dialog_title,
         toplevel ? GTK_WINDOW (toplevel) : NULL,
-#if GTK_CHECK_VERSION(3,0,0)
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
         #if !HAVE_OSX
         #if !HAVE_HILDON
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,

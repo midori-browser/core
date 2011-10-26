@@ -394,6 +394,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     GtkWidget* browser;
     const gchar* dialog_title;
     GtkWidget* dialog;
+    GtkWidget* content_area;
     gint width, height;
     GtkWidget* xfce_heading;
     GtkWidget* hbox;
@@ -417,11 +418,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
 
     dialog_title = _("Configure Advertisement filters");
     dialog = gtk_dialog_new_with_buttons (dialog_title, GTK_WINDOW (browser),
-#if GTK_CHECK_VERSION(3,0,0)
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
         #if !HAVE_OSX
         #if !HAVE_HILDON
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
@@ -429,6 +426,7 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif
         NULL);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     g_signal_connect (dialog, "destroy",
                       G_CALLBACK (gtk_widget_destroyed), &dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
@@ -442,19 +440,9 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     /* TODO: We need mnemonics */
     if ((xfce_heading = sokoke_xfce_header_new (
         gtk_window_get_icon_name (GTK_WINDOW (dialog)), dialog_title)))
-#if GTK_CHECK_VERSION(3,0,0)
-        gtk_box_pack_start (gtk_dialog_get_content_area (GTK_DIALOG (dialog)),
-                            xfce_heading, FALSE, FALSE, 0);
+        gtk_box_pack_start (GTK_BOX (content_area), xfce_heading, FALSE, FALSE, 0);
     hbox = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (gtk_dialog_get_content_area (GTK_DIALOG (dialog)), hbox,
-                                 TRUE, TRUE, 12);
-#else
-        gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox),
-                            xfce_heading, FALSE, FALSE, 0);
-    hbox = gtk_hbox_new (FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), hbox,
-                                 TRUE, TRUE, 12);
-#endif
+    gtk_box_pack_start (GTK_BOX (content_area), hbox, TRUE, TRUE, 12);
     vbox = gtk_vbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 4);
     button = gtk_label_new (NULL);
@@ -565,19 +553,10 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
         G_CALLBACK (adblock_preferences_help_clicked_cb), dialog); */
     gtk_box_pack_end (GTK_BOX (hbox),
         button, FALSE, FALSE, 4);
-#if GTK_CHECK_VERSION(3,0,0)
-    gtk_box_pack_end (gtk_dialog_get_content_area(GTK_DIALOG (dialog)),
+    gtk_box_pack_end (GTK_BOX (content_area),
         hbox, FALSE, FALSE, 0);
-#else
-    gtk_box_pack_end (GTK_BOX (GTK_DIALOG (dialog)->vbox),
-        hbox, FALSE, FALSE, 0);
-#endif
     #endif
-#if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_show_all (gtk_dialog_get_content_area(GTK_DIALOG (dialog)));
-#else
-    gtk_widget_show_all (GTK_DIALOG (dialog)->vbox);
-#endif
+    gtk_widget_show_all (content_area);
 
     g_object_unref (browser);
 
@@ -831,6 +810,7 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
     MidoriApp* app;
     GtkWidget* browser;
     GtkWidget* dialog;
+    GtkWidget* content_area;
     GtkSizeGroup* sizegroup;
     GtkWidget* hbox;
     GtkWidget* label;
@@ -842,21 +822,14 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
 
     title = _("Edit rule");
     dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (browser),
-#if GTK_CHECK_VERSION(3,0,0)
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT,
             NULL);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_ADD);
     gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-#if GTK_CHECK_VERSION(3,0,0)
-    gtk_container_set_border_width (gtk_dialog_get_content_area (GTK_DIALOG (dialog)), 5);
-#else
-    gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), 5);
-#endif
+    gtk_container_set_border_width (GTK_CONTAINER (content_area), 5);
     sizegroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
     hbox = gtk_hbox_new (FALSE, 8);
@@ -869,11 +842,7 @@ adblock_custom_block_image_cb (GtkWidget*       widget,
     gtk_entry_set_text (GTK_ENTRY (entry),
                         g_object_get_data (G_OBJECT (widget), "uri"));
     gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
-#if GTK_CHECK_VERSION(3,0,0)
-    gtk_container_add (gtk_dialog_get_content_area (GTK_DIALOG (dialog)), hbox);
-#else
-    gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
-#endif
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
     gtk_widget_show_all (hbox);
 
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
@@ -911,11 +880,7 @@ adblock_populate_popup_cb (WebKitWebView*   web_view,
     WebKitHitTestResultContext context;
     WebKitHitTestResult* hit_test;
 
-#if GTK_CHECK_VERSION(3,0,0)
     gdk_window_get_pointer (gtk_widget_get_window(GTK_WIDGET (web_view)), &x, &y, NULL);
-#else
-    gdk_window_get_pointer (GTK_WIDGET (web_view)->window, &x, &y, NULL);
-#endif
     event.x = x;
     event.y = y;
     hit_test = webkit_web_view_get_hit_test_result (web_view, &event);

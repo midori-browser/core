@@ -14,15 +14,12 @@
 #endif
 
 #include "katze-http-auth.h"
+#include "gtk3-compat.h"
 
 #include <libsoup/soup.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
-
-#if !GTK_CHECK_VERSION (2, 14, 0)
-    #define gtk_dialog_get_content_area(dialog) dialog->vbox
-#endif
 
 struct _KatzeHttpAuth
 {
@@ -212,11 +209,7 @@ katze_http_auth_session_authenticate_cb (SoupSession*   session,
 
     dialog = gtk_dialog_new_with_buttons (_("Authentication Required"),
         NULL,
-#if GTK_CHECK_VERSION(3,0,0)
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         GTK_STOCK_OK, GTK_RESPONSE_OK,
         NULL);

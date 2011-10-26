@@ -15,7 +15,6 @@
 
 #include <midori/midori.h>
 #include <midori/sokoke.h>
-#include <glib.h>
 #include <glib/gstdio.h>
 
 #include "config.h"

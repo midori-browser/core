@@ -791,11 +791,7 @@ midori_browser_edit_bookmark_dialog_new (MidoriBrowser* browser,
         title = new_bookmark ? _("New bookmark") : _("Edit bookmark");
     dialog = gtk_dialog_new_with_buttons (
         title, GTK_WINDOW (browser),
-#if GTK_CHECK_VERSION(3,0,0)
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         new_bookmark ? GTK_STOCK_ADD : GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
         NULL);
@@ -4263,11 +4259,7 @@ _action_bookmarks_import_activate (GtkAction*     action,
 
     dialog = gtk_dialog_new_with_buttons (
         _("Import bookmarks..."), GTK_WINDOW (browser),
-#if GTK_CHECK_VERSION(3,0,0)
-        GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
         GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         _("_Import bookmarks"), GTK_RESPONSE_ACCEPT,
         NULL);
@@ -4587,11 +4579,7 @@ _action_clear_private_data_activate (GtkAction*     action,
         /* i18n: Dialog: Clear Private Data, in the Tools menu */
         dialog = gtk_dialog_new_with_buttons (_("Clear Private Data"),
             GTK_WINDOW (browser),
-#if GTK_CHECK_VERSION(3,0,0)
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-#else
             GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
-#endif
             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
             _("_Clear private data"), GTK_RESPONSE_ACCEPT, NULL);
         content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));

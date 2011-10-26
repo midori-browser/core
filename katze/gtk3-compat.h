@@ -58,6 +58,10 @@ G_BEGIN_DECLS
         else GTK_WIDGET_UNSET_FLAGS (wdgt, GTK_REALIZED)
 #endif
 
+#if GTK_CHECK_VERSION (3, 0, 0)
+    #define GTK_DIALOG_NO_SEPARATOR 0
+#endif
+
 #if !GTK_CHECK_VERSION(2, 12, 0)
 
 void
