@@ -1519,11 +1519,18 @@ _midori_browser_update_notebook (MidoriBrowser* browser)
     gint new_size = 0;
     gint n = gtk_notebook_get_n_pages (GTK_NOTEBOOK(browser->notebook));
     const gint max_size = 150;
-    const gint min_size = 32;
+    gint min_size;
+    gint icon_size = 16;
     GtkAllocation notebook_size;
 
     gtk_widget_get_allocation (browser->notebook, &notebook_size);
     if (n > 0) new_size = notebook_size.width / n - 7;
+
+    gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (browser->notebook),
+                                       GTK_ICON_SIZE_MENU, &icon_size, NULL);
+    min_size = icon_size;
+    if (katze_object_get_boolean (browser->settings, "close-buttons-on-tabs"))
+        min_size += icon_size;
     if (new_size < min_size) new_size = min_size;
     if (new_size > max_size) new_size = max_size;
 
