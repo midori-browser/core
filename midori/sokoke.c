@@ -1879,9 +1879,9 @@ sokoke_widget_copy_clipboard (GtkWidget*   widget,
     GtkClipboard* clipboard;
 
     clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_CLIPBOARD);
-    gtk_clipboard_set_text (clipboard, text, -1);
+    gtk_clipboard_set_text (clipboard, text ? text : "", -1);
     clipboard = gtk_clipboard_get_for_display (display, GDK_SELECTION_PRIMARY);
-    gtk_clipboard_set_text (clipboard, text, -1);
+    gtk_clipboard_set_text (clipboard, text ? text : "", -1);
 }
 
 gchar*
