@@ -92,6 +92,7 @@ struct _MidoriWebSettings
     gboolean enable_dns_prefetching;
     #endif
     gboolean strip_referer;
+    gboolean enforce_font_family;
     gboolean flash_window_on_bg_tabs;
     GHashTable* user_stylesheets;
 };
@@ -175,6 +176,7 @@ enum
     PROP_CLEAR_DATA,
     PROP_ENABLE_DNS_PREFETCHING,
     PROP_STRIP_REFERER,
+    PROP_ENFORCE_FONT_FAMILY,
 };
 
 GType
@@ -1052,7 +1054,21 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         _("Whether the \"Referer\" header should be shortened to the hostname"),
                                      FALSE,
                                      flags));
-
+    /**
+     * MidoriWebSettings:enforc-font-family:
+     *
+     * Whether to enforce user font preferences with an internal stylesheet.
+     *
+     * Since: 0.4.2
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENFORCE_FONT_FAMILY,
+                                     g_param_spec_boolean (
+                                     "enforce-font-family",
+                                     _("Always use my font choices"),
+                                     _("Override fonts picked by websites with user preferences"),
+                                     FALSE,
+                                     flags));
 }
 
 static void
@@ -1453,6 +1469,20 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_STRIP_REFERER:
         web_settings->strip_referer = g_value_get_boolean (value);
         break;
+    case PROP_ENFORCE_FONT_FAMILY:
+        if ((web_settings->enforce_font_family = g_value_get_boolean (value)))
+        {
+            gchar* font_family = katze_object_get_string (web_settings,
+                                                          "default-font-family");
+            gchar* css = g_strdup_printf ("* { font-family: %s !important; }",
+                                          font_family);
+            midori_web_settings_add_style (web_settings, "enforce-font-family", css);
+            g_free (font_family);
+            g_free (css);
+        }
+        else
+            midori_web_settings_remove_style (web_settings, "enforce-font-family");
+        break;
     case PROP_FLASH_WINDOW_ON_BG_TABS:
         web_settings->flash_window_on_bg_tabs = g_value_get_boolean (value);
         break;
@@ -1710,6 +1740,9 @@ midori_web_settings_get_property (GObject*    object,
     #endif
     case PROP_STRIP_REFERER:
         g_value_set_boolean (value, web_settings->strip_referer);
+        break;
+    case PROP_ENFORCE_FONT_FAMILY:
+        g_value_set_boolean (value, web_settings->enforce_font_family);
         break;
     case PROP_FLASH_WINDOW_ON_BG_TABS:
         g_value_set_boolean (value, web_settings->flash_window_on_bg_tabs);

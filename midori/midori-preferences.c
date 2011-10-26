@@ -351,6 +351,8 @@ midori_preferences_set_settings (MidoriPreferences* preferences,
     entry = katze_property_proxy (settings, "minimum-font-size", NULL);
     gtk_widget_set_tooltip_text (entry, _("The minimum font size used to display text"));
     SPANNED_ADD (entry);
+    button = katze_property_proxy (settings, "enforce-font-family", NULL);
+    INDENTED_ADD (button);
     #endif
     label = katze_property_label (settings, "preferred-encoding");
     INDENTED_ADD (label);
