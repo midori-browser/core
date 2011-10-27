@@ -1851,18 +1851,21 @@ addons_activate_cb (MidoriExtension* extension,
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
     KatzeArray* browsers;
     MidoriBrowser* browser;
+    gchar* data;
 
     browsers = katze_object_get_object (app, "browsers");
     addons_update_elements (extension, ADDONS_USER_STYLES);
     addons_monitor_directories (extension, ADDONS_USER_STYLES);
     addons_update_elements (extension, ADDONS_USER_SCRIPTS);
     addons_monitor_directories (extension, ADDONS_USER_SCRIPTS);
-    midori_web_settings_remove_style (settings, "addons");
+    data = addons_generate_global_stylesheet (extension);
+    midori_web_settings_add_style (settings, "addons", data);
 
     KATZE_ARRAY_FOREACH_ITEM (browser, browsers)
         addons_app_add_browser_cb (app, browser, extension);
     g_object_unref (browsers);
     g_object_unref (settings);
+    g_free (data);
 
     g_signal_connect (app, "add-browser",
         G_CALLBACK (addons_app_add_browser_cb), extension);
