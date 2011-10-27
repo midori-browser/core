@@ -5516,35 +5516,8 @@ midori_view_speed_dial_save (MidoriView*  view,
     g_object_get (browser, "speed-dial", &key_file, NULL);
     action = parts[0];
 
-    if (g_str_equal (action, "thumbsize"))
-    {
-        gchar* saved_size;
-        gchar* thumb_size_type;
-        guint size = atoi (parts[1]);
-
-        if (size == 80)
-            thumb_size_type = g_strdup ("SMALL");
-        else if (size == 240)
-            thumb_size_type = g_strdup ("BIG");
-        else /* if (size == 160) */
-            thumb_size_type = g_strdup ("MEDIUM");
-
-        saved_size = g_key_file_get_string (key_file, "settings", "size", NULL);
-        if (saved_size != NULL && g_str_equal (saved_size, thumb_size_type))
-        {
-            g_free (action);
-            g_free (msg);
-            g_free (thumb_size_type);
-            g_free (saved_size);
-            return;
-        }
-
-        g_key_file_set_string (key_file, "settings", "size", thumb_size_type);
-        g_free (thumb_size_type);
-        g_free (saved_size);
-    }
-    else if (g_str_equal (action, "add") || g_str_equal (action, "rename")
-          || g_str_equal (action, "delete"))
+    if (g_str_equal (action, "add") || g_str_equal (action, "rename")
+    ||  g_str_equal (action, "delete"))
     {
         gchar* tmp = g_strdup (parts[1] + 1);
         guint slot_id = atoi (tmp);
