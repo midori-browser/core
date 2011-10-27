@@ -1102,6 +1102,13 @@ notify_default_encoding_cb (GObject*    object,
 }
 
 static void
+notify_default_font_family_cb (GObject*    object,
+                               GParamSpec* pspec)
+{
+    if (katze_object_get_boolean (object, "enforce-font-family"))
+        g_object_set (object, "enforce-font-family", TRUE, NULL);
+}
+static void
 midori_web_settings_init (MidoriWebSettings* web_settings)
 {
     web_settings->download_folder = g_strdup (midori_get_download_dir ());
@@ -1112,6 +1119,8 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
 
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
+    g_signal_connect (web_settings, "notify::default-font-family",
+                      G_CALLBACK (notify_default_font_family_cb), NULL);
 }
 
 static void
