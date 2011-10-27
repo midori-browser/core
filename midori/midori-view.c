@@ -3787,7 +3787,7 @@ prepare_speed_dial_html (MidoriView* view)
                 "<a class=\"cross\" href=\"#\" onclick='clearShortcut(\"s%d\");'></a>"
                 "<a href=\"%s\"><img src=\"data:image/png;base64,%s\"></a>"
                 "</div><div class=\"title\" onclick='renameShortcut(\"s%d\");'>%s</div></div>\n",
-                slot, slot, uri, encoded, slot, title);
+                slot, slot, uri, encoded, slot, title ? title : "");
 
             g_free (title);
             g_free (encoded);
