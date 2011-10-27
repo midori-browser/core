@@ -160,8 +160,8 @@ midori_web_settings_new                    (void);
 
 void
 midori_web_settings_add_style              (MidoriWebSettings* settings,
-                                            gchar*             rule_id,
-                                            gchar*             style);
+                                            const gchar*       rule_id,
+                                            const gchar*       style);
 
 void
 midori_web_settings_remove_style           (MidoriWebSettings* settings,

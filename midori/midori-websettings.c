@@ -1806,7 +1806,7 @@ midori_web_settings_process_stylesheets (MidoriWebSettings* settings)
 
 /**
  * midori_web_settings_add_style:
- * @rule_id: a string identifier
+ * @rule_id: a static string identifier
  * @style: a CSS stylesheet
  *
  * Adds or replaces a custom stylesheet.
@@ -1815,16 +1815,17 @@ midori_web_settings_process_stylesheets (MidoriWebSettings* settings)
  **/
 void
 midori_web_settings_add_style (MidoriWebSettings* settings,
-                               gchar*             rule_id,
-                               gchar*             style)
+                               const gchar*       rule_id,
+                               const gchar*       style)
 {
     g_return_if_fail (MIDORI_IS_WEB_SETTINGS (settings));
     g_return_if_fail (rule_id != NULL);
     g_return_if_fail (style != NULL);
 
     if (settings->user_stylesheets == NULL)
-        settings->user_stylesheets = g_hash_table_new (g_str_hash, NULL);
-    g_hash_table_insert (settings->user_stylesheets, rule_id, style);
+        settings->user_stylesheets = g_hash_table_new_full (g_str_hash, NULL,
+        NULL, g_free);
+    g_hash_table_insert (settings->user_stylesheets, (gchar*)rule_id, g_strdup (style));
     midori_web_settings_process_stylesheets (settings);
 }
 
