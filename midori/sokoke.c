@@ -1546,38 +1546,28 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     #define MAXHOSTS 50
     static gchar* hosts = NULL;
     static gint host_count = G_MAXINT;
-
-    SoupURI* s_uri;
-
-    if (!uri)
-        return FALSE;
+    gchar* hostname;
 
     if (settings && !katze_object_get_boolean (settings, "enable-dns-prefetching"))
         return FALSE;
 
-    s_uri = soup_uri_new (uri);
-    if (!s_uri || !s_uri->host)
-        return FALSE;
-
-    if (g_hostname_is_ip_address (s_uri->host))
+    if (!(hostname = midori_uri_parse (uri, NULL))
+     || !strcmp (hostname, uri)
+     || g_hostname_is_ip_address (hostname)
+     || !midori_uri_is_http (uri))
     {
-        soup_uri_free (s_uri);
-        return FALSE;
-    }
-    if (!g_str_has_prefix (uri, "http"))
-    {
-        soup_uri_free (s_uri);
+        g_free (hostname);
         return FALSE;
     }
 
     if (!hosts ||
-        !g_regex_match_simple (s_uri->host, hosts,
+        !g_regex_match_simple (hostname, hosts,
                                G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
     {
         SoupAddress* address;
         gchar* new_hosts;
 
-        address = soup_address_new (s_uri->host, SOUP_ADDRESS_ANY_PORT);
+        address = soup_address_new (hostname, SOUP_ADDRESS_ANY_PORT);
         soup_address_resolve_async (address, 0, 0, callback, user_data);
         g_object_unref (address);
 
@@ -1587,12 +1577,12 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
             host_count = 0;
         }
         host_count++;
-        new_hosts = g_strdup_printf ("%s|%s", hosts, s_uri->host);
+        new_hosts = g_strdup_printf ("%s|%s", hosts, hostname);
         katze_assign (hosts, new_hosts);
     }
     else if (callback)
         callback (NULL, SOUP_STATUS_OK, user_data);
-    soup_uri_free (s_uri);
+    g_free (hostname);
     return TRUE;
 }
 
