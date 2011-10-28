@@ -4175,7 +4175,8 @@ midori_view_has_selection (MidoriView* view)
     doc = webkit_web_view_get_dom_document (WEBKIT_WEB_VIEW (view->web_view));
     window = webkit_dom_document_get_default_view (doc);
     selection = webkit_dom_dom_window_get_selection (window);
-    if (selection == NULL)
+    if (selection == NULL
+     || webkit_dom_dom_selection_get_range_count (selection) == 0)
         return FALSE;
 
     range = webkit_dom_dom_selection_get_range_at (selection, 0, NULL);
