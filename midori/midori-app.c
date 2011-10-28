@@ -14,11 +14,17 @@
 #endif
 
 #include "midori-app.h"
+#include "midori-stock.h"
 #include "sokoke.h"
 
 #include <string.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+
+#if ENABLE_NLS
+    #include <libintl.h>
+    #include <locale.h>
+#endif
 
 #if HAVE_HILDON
     #include <libosso.h>
@@ -1277,3 +1283,151 @@ midori_app_send_notification (MidoriApp*   app,
     }
     #endif
 }
+
+/**
+ * midori_app_init:
+ *
+ * Saves the argument vector, initializes threading and registers
+ * several custom stock items and prepares localization.
+ *
+ * Since: 0.4.2
+ **/
+void
+midori_app_setup (gchar** argument_vector)
+{
+    GtkIconSource* icon_source;
+    GtkIconSet* icon_set;
+    GtkIconFactory* factory;
+    gsize i;
+
+    typedef struct
+    {
+        const gchar* stock_id;
+        const gchar* label;
+        GdkModifierType modifier;
+        guint keyval;
+        const gchar* fallback;
+    } FatStockItem;
+    static FatStockItem items[] =
+    {
+        { STOCK_EXTENSION, NULL, 0, 0, GTK_STOCK_CONVERT },
+        { STOCK_IMAGE, NULL, 0, 0, GTK_STOCK_ORIENTATION_PORTRAIT },
+        { STOCK_WEB_BROWSER, NULL, 0, 0, "gnome-web-browser" },
+        { STOCK_NEWS_FEED, NULL, 0, 0, GTK_STOCK_INDEX },
+        { STOCK_SCRIPT, NULL, 0, 0, GTK_STOCK_EXECUTE },
+        { STOCK_STYLE, NULL, 0, 0, GTK_STOCK_SELECT_COLOR },
+        { STOCK_TRANSFER, NULL, 0, 0, GTK_STOCK_SAVE },
+
+        { STOCK_BOOKMARK,       N_("_Bookmark"), 0, 0, GTK_STOCK_FILE },
+        { STOCK_BOOKMARKS,      N_("_Bookmarks"), GDK_CONTROL_MASK | GDK_SHIFT_MASK, GDK_KEY_B, GTK_STOCK_DIRECTORY },
+        { STOCK_BOOKMARK_ADD,   N_("Add Boo_kmark"), 0, 0, "stock_add-bookmark" },
+        { STOCK_CONSOLE,        N_("_Console"), 0, 0, GTK_STOCK_DIALOG_WARNING },
+        { STOCK_EXTENSIONS,     N_("_Extensions"), 0, 0, GTK_STOCK_CONVERT },
+        { STOCK_HISTORY,        N_("_History"), GDK_CONTROL_MASK | GDK_SHIFT_MASK, GDK_KEY_H, GTK_STOCK_SORT_ASCENDING },
+        { STOCK_HOMEPAGE,       N_("_Homepage"), 0, 0, GTK_STOCK_HOME },
+        { STOCK_SCRIPTS,        N_("_Userscripts"), 0, 0, GTK_STOCK_EXECUTE },
+        { STOCK_TAB_NEW,        N_("New _Tab"), 0, 0, GTK_STOCK_ADD },
+        { STOCK_TRANSFERS,      N_("_Transfers"), GDK_CONTROL_MASK | GDK_SHIFT_MASK, GDK_KEY_J, GTK_STOCK_SAVE },
+        { STOCK_PLUGINS,        N_("Netscape p_lugins"), 0, 0, GTK_STOCK_CONVERT },
+        { STOCK_USER_TRASH,     N_("_Closed Tabs"), 0, 0, "gtk-undo-ltr" },
+        { STOCK_WINDOW_NEW,     N_("New _Window"), 0, 0, GTK_STOCK_ADD },
+        { GTK_STOCK_DIRECTORY,  N_("New _Folder"), 0, 0, NULL },
+    };
+
+    /* Preserve argument vector */
+    sokoke_get_argv (argument_vector);
+
+    /* libSoup uses threads, therefore if WebKit is built with libSoup
+     * or Midori is using it, we need to initialize threads. */
+    if (!g_thread_supported ()) g_thread_init (NULL);
+
+    #if ENABLE_NLS
+    setlocale (LC_ALL, "");
+    if (g_getenv ("MIDORI_NLSPATH"))
+        bindtextdomain (GETTEXT_PACKAGE, g_getenv ("MIDORI_NLSPATH"));
+    else
+    #ifdef G_OS_WIN32
+    {
+        gchar* path = sokoke_find_data_filename ("locale");
+        bindtextdomain (GETTEXT_PACKAGE, path);
+        g_free (path);
+    }
+    #else
+        bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+    #endif
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+    #endif
+
+    g_type_init ();
+    factory = gtk_icon_factory_new ();
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
+    {
+        icon_set = gtk_icon_set_new ();
+        icon_source = gtk_icon_source_new ();
+        if (items[i].fallback)
+        {
+            gtk_icon_source_set_icon_name (icon_source, items[i].fallback);
+            items[i].fallback = NULL;
+            gtk_icon_set_add_source (icon_set, icon_source);
+        }
+        gtk_icon_source_set_icon_name (icon_source, items[i].stock_id);
+        gtk_icon_set_add_source (icon_set, icon_source);
+        gtk_icon_source_free (icon_source);
+        gtk_icon_factory_add (factory, items[i].stock_id, icon_set);
+        gtk_icon_set_unref (icon_set);
+    }
+    gtk_stock_add_static ((GtkStockItem*)items, G_N_ELEMENTS (items));
+    gtk_icon_factory_add_default (factory);
+    g_object_unref (factory);
+
+    #if HAVE_HILDON
+    /* Maemo doesn't theme stock icons. So we map platform icons
+        to stock icons. These are all monochrome toolbar icons. */
+    typedef struct
+    {
+        const gchar* stock_id;
+        const gchar* icon_name;
+    } CompatItem;
+    static CompatItem compat_items[] =
+    {
+        { GTK_STOCK_ADD,        "general_add" },
+        { GTK_STOCK_BOLD,       "general_bold" },
+        { GTK_STOCK_CLOSE,      "general_close_b" },
+        { GTK_STOCK_DELETE,     "general_delete" },
+        { GTK_STOCK_DIRECTORY,  "general_toolbar_folder" },
+        { GTK_STOCK_FIND,       "general_search" },
+        { GTK_STOCK_FULLSCREEN, "general_fullsize_b" },
+        { GTK_STOCK_GO_BACK,    "general_back" },
+        { GTK_STOCK_GO_FORWARD, "general_forward" },
+        { GTK_STOCK_GO_UP,      "filemanager_folder_up" },
+        { GTK_STOCK_GOTO_FIRST, "pdf_viewer_first_page" },
+        { GTK_STOCK_GOTO_LAST,  "pdf_viewer_last_page" },
+        { GTK_STOCK_INFO,       "general_information" },
+        { GTK_STOCK_ITALIC,     "general_italic" },
+        { GTK_STOCK_JUMP_TO,    "general_move_to_folder" },
+        { GTK_STOCK_PREFERENCES,"general_settings" },
+        { GTK_STOCK_REFRESH,    "general_refresh" },
+        { GTK_STOCK_SAVE,       "notes_save" },
+        { GTK_STOCK_STOP,       "general_stop" },
+        { GTK_STOCK_UNDERLINE,  "notes_underline" },
+        { GTK_STOCK_ZOOM_IN,    "pdf_zoomin" },
+        { GTK_STOCK_ZOOM_OUT,   "pdf_zoomout" },
+    };
+
+    factory = gtk_icon_factory_new ();
+    for (i = 0; i < G_N_ELEMENTS (compat_items); i++)
+    {
+        icon_set = gtk_icon_set_new ();
+        icon_source = gtk_icon_source_new ();
+        gtk_icon_source_set_icon_name (icon_source, compat_items[i].icon_name);
+        gtk_icon_set_add_source (icon_set, icon_source);
+        gtk_icon_source_free (icon_source);
+        gtk_icon_factory_add (factory, compat_items[i].stock_id, icon_set);
+        gtk_icon_set_unref (icon_set);
+    }
+    gtk_icon_factory_add_default (factory);
+    g_object_unref (factory);
+    #endif
+}
+

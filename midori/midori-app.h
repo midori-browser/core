@@ -79,6 +79,9 @@ midori_app_send_notification      (MidoriApp*         app,
                                    const gchar*       title,
                                    const gchar*       message);
 
+void
+midori_app_setup                  (gchar**            argument_vector);
+
 G_END_DECLS
 
 #endif /* __MIDORI_APP_H__ */

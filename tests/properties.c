@@ -193,12 +193,9 @@ int
 main (int    argc,
       char** argv)
 {
-    /* libSoup uses threads, therefore if WebKit is built with libSoup
-       or Midori is using it, we need to initialize threads. */
-    if (!g_thread_supported ()) g_thread_init (NULL);
+    midori_app_setup (argv);
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
-    sokoke_register_stock_items ();
 
     g_test_add_data_func ("/properties/app",
         (gconstpointer)MIDORI_TYPE_APP, properties_type_test);

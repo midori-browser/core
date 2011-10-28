@@ -40,11 +40,6 @@
     #include <libsoup/soup-cache.h>
 #endif
 
-#if ENABLE_NLS
-    #include <libintl.h>
-    #include <locale.h>
-#endif
-
 #ifdef HAVE_SIGNAL_H
     #include <signal.h>
 #endif
@@ -1975,24 +1970,6 @@ main (int    argc,
         #define midori_startup_timer(tmrmsg)
     #endif
 
-    #if ENABLE_NLS
-    setlocale (LC_ALL, "");
-    if (g_getenv ("MIDORI_NLSPATH"))
-        bindtextdomain (GETTEXT_PACKAGE, g_getenv ("MIDORI_NLSPATH"));
-    else
-    #ifdef G_OS_WIN32
-    {
-        gchar* path = sokoke_find_data_filename ("locale");
-        bindtextdomain (GETTEXT_PACKAGE, path);
-        g_free (path);
-    }
-    #else
-        bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
-    #endif
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-    #endif
-
     #ifdef HAVE_SIGNAL_H
     #ifdef SIGHUP
     signal (SIGHUP, &signal_handler);
@@ -2008,8 +1985,7 @@ main (int    argc,
     #endif
     #endif
 
-    /* Preserve argument vector */
-    sokoke_get_argv (argv);
+    midori_app_setup (argv);
 
     /* Parse cli options */
     webapp = NULL;
@@ -2034,10 +2010,6 @@ main (int    argc,
         g_error_free (error);
         return 1;
     }
-
-    /* libSoup uses threads, so we need to initialize threads. */
-    if (!g_thread_supported ()) g_thread_init (NULL);
-    sokoke_register_stock_items ();
 
     if (config && !g_path_is_absolute (config))
     {

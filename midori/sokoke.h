@@ -137,9 +137,6 @@ gint
 sokoke_days_between                     (const time_t*   day1,
                                          const time_t*   day2);
 
-void
-sokoke_register_stock_items             (void);
-
 const gchar*
 sokoke_set_config_dir                   (const gchar*    new_config_dir);
 
