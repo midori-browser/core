@@ -129,6 +129,7 @@ addons_install_response (GtkWidget*  infobar,
                     const gchar* js_script;
                     WebKitWebView* web_view;
                     WebKitWebFrame* web_frame;
+                    gchar** script_id;
 
                     js_script = "document.getElementById('heading').childNodes[3].childNodes[1].textContent";
                     web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
@@ -144,8 +145,10 @@ addons_install_response (GtkWidget*  infobar,
                     }
 
                     /* rewrite uri to get source js */
+                    script_id = g_strsplit (subpage + 1, "/", 2);
                     temp_uri = g_strdup_printf ("http://%s/scripts/source/%s.user.js",
-                                                hostname, subpage + 1);
+                                                hostname, script_id[0]);
+                    g_strfreev (script_id);
                     uri = temp_uri;
                     folder = "scripts";
                 }
