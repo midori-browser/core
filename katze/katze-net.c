@@ -18,6 +18,7 @@
 #endif
 
 #include "katze-net.h"
+#include "midori-core.h"
 
 #include <glib/gstdio.h>
 #include <libsoup/soup.h>
@@ -283,7 +284,7 @@ katze_net_load_uri (KatzeNet*          net,
     priv->user_data = user_data;
     priv->request = request;
 
-    if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri, "https://"))
+    if (midori_uri_is_http (uri))
     {
         msg = soup_message_new ("GET", uri);
         if (status_cb)

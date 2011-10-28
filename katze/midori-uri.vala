@@ -88,11 +88,14 @@ namespace Midori {
         public static bool is_blank (string? uri) {
             return !(uri != null && uri != "" && !uri.has_prefix ("about:"));
         }
+        public static bool is_http (string? uri) {
+            return uri != null
+             && (uri.has_prefix ("http://") || uri.has_prefix ("https://"));
+        }
         public static bool is_resource (string? uri) {
             return uri != null
-              && (uri.has_prefix ("http://")
-               || (uri.has_prefix ("data:") && uri.chr (-1, ';') != null)
-               || uri.has_prefix ("https://"));
+              && (is_http (uri)
+               || (uri.has_prefix ("data:") && uri.chr (-1, ';') != null));
         }
         public static bool is_location (string? uri) {
             /* file:// is not considered a location for security reasons */

@@ -894,8 +894,7 @@ _midori_web_view_load_icon (MidoriView* view)
     pixbuf = NULL;
     icon_uri = g_strdup (view->icon_uri);
 
-    if ((icon_uri && g_str_has_prefix (icon_uri, "http"))
-        || (view->uri && g_str_has_prefix (view->uri, "http")))
+    if (midori_uri_is_http (icon_uri) || midori_uri_is_http (view->uri))
     {
         if (!icon_uri)
         {

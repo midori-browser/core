@@ -354,7 +354,7 @@ web_cache_session_request_queued_cb (SoupSession*     session,
     SoupURI* soup_uri = soup_message_get_uri (msg);
     gchar* uri = soup_uri_to_string (soup_uri, FALSE);
 
-    if (uri && g_str_has_prefix (uri, "http") && !g_strcmp0 (msg->method, "GET"))
+    if (midori_uri_is_http (uri) && !g_strcmp0 (msg->method, "GET"))
     {
         gchar* filename = web_cache_get_cached_path (extension, uri);
         GHashTable* cache_headers;

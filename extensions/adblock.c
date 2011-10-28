@@ -248,7 +248,7 @@ adblock_preferences_renderer_toggle_toggled_cb (GtkCellRendererToggle* renderer,
             ADBLOCK_FILTER_SET (filter, TRUE);
             if (gtk_cell_renderer_toggle_get_active (renderer))
             {
-                if (!strncmp (filter, "http", 4))
+                if (midori_uri_is_http (filter))
                 {
                     gchar* filename = adblock_get_filename_for_uri (filter);
                     g_unlink (filename);
@@ -757,7 +757,7 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
 
     page_uri = webkit_web_view_get_uri (web_view);
     /* Skip checks on about: pages */
-    if (!(page_uri && *page_uri) || !strncmp (page_uri, "about:", 6))
+    if (midori_uri_is_blank (page_uri))
         return;
 
     /* Never filter the main page itself */
@@ -935,7 +935,7 @@ adblock_window_object_cleared_cb (WebKitWebView*  web_view,
 
     page_uri = webkit_web_view_get_uri (web_view);
     /* Don't add adblock css into speeddial and about: pages */
-    if (!(page_uri && *page_uri) || !strncmp (page_uri, "about:", 6))
+    if (midori_uri_is_blank (page_uri))
         return;
 
     g_free (sokoke_js_script_eval (js_context, blockscript, NULL));

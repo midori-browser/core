@@ -1472,7 +1472,7 @@ katze_load_cached_icon (const gchar* uri,
 
     g_return_val_if_fail (uri != NULL, NULL);
 
-    if (g_str_has_prefix (uri, "http://") || g_str_has_prefix (uri,"https://"))
+    if (midori_uri_is_http (uri))
     {
         guint i;
         gchar* icon_uri;

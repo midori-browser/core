@@ -38,7 +38,7 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
                                   MidoriExtension* extension)
 {
     GtkWidget* label;
-    SoupURI* uri;
+    gchar* hostname;
     gchar* colorstr;
     GdkColor color;
     GdkColor fgcolor;
@@ -46,8 +46,8 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
 
     label = midori_view_get_proxy_tab_label (view);
 
-    if ((uri = soup_uri_new (midori_view_get_display_uri (view)))
-      && uri->host && (katze_object_get_enum (view, "load-status") == MIDORI_LOAD_FINISHED))
+    if ((hostname = midori_uri_parse (midori_view_get_display_uri (view), NULL))
+      && katze_object_get_enum (view, "load-status") == MIDORI_LOAD_FINISHED)
     {
         icon = midori_view_get_icon (view);
 
@@ -65,13 +65,13 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
         }
         else
         {
-            gchar* hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, uri->host, 1);
+            gchar* hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, hostname, 1);
             colorstr = g_strndup (hash, 6 + 1);
             g_free (hash);
             colorstr[0] = '#';
             gdk_color_parse (colorstr, &color);
         }
-        soup_uri_free (uri);
+        g_free (hostname);
 
         if ((color.red   < 35000)
          && (color.green < 35000)

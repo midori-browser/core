@@ -870,7 +870,7 @@ midori_soup_session_set_proxy_uri (SoupSession* session,
     SoupURI* proxy_uri;
 
     /* soup_uri_new expects a non-NULL string with a protocol */
-    if (uri && g_str_has_prefix (uri, "http://"))
+    if (midori_uri_is_http (uri))
         proxy_uri = soup_uri_new (uri);
     else if (uri && *uri)
     {
