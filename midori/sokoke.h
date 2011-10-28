@@ -148,7 +148,8 @@ gchar*
 sokoke_find_lib_path                    (const gchar*    folder);
 
 gchar*
-sokoke_find_data_filename               (const gchar*    filename);
+sokoke_find_data_filename               (const gchar*    filename,
+                                         gboolean        res);
 
 gchar**
 sokoke_get_argv                         (gchar**         argument_vector);

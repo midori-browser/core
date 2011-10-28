@@ -1130,12 +1130,8 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
 
     if (g_str_has_prefix (uri, "res://"))
     {
-        gchar* filename = g_build_filename ("midori", "res", &uri[6], NULL);
-        gchar* filepath = sokoke_find_data_filename (filename);
-        gchar* file_uri;
-
-        g_free (filename);
-        file_uri = g_filename_to_uri (filepath, NULL, NULL);
+        gchar* filepath = sokoke_find_data_filename (&uri[6], TRUE);
+        gchar* file_uri = g_filename_to_uri (filepath, NULL, NULL);
         g_free (filepath);
         webkit_network_request_set_uri (request, file_uri);
         g_free (file_uri);
@@ -1426,11 +1422,9 @@ midori_view_display_error (MidoriView*     view,
                            const gchar*    try_again,
                            WebKitWebFrame* web_frame)
 {
-    gchar* template_file = g_build_filename ("midori", "res", "error.html", NULL);
-    gchar* path = sokoke_find_data_filename (template_file);
+    gchar* path = sokoke_find_data_filename ("error.html", TRUE);
     gchar* template;
 
-    g_free (template_file);
     if (g_file_get_contents (path, &template, NULL, NULL))
     {
         gchar* title_escaped;
@@ -3696,19 +3690,13 @@ prepare_speed_dial_html (MidoriView* view)
     guint slot_count = 1, i, grid_index = 3, slot_size;
     gchar* speed_dial_head;
     gchar* file_path;
-    gchar* file_name;
     gchar** groups;
 
     g_object_get (browser, "speed-dial", &key_file, NULL);
-    if (!key_file)
-        return g_strdup ("");
+    file_path = sokoke_find_data_filename ("speeddial-head-" MIDORI_VERSION ".html", TRUE);
 
-    file_name = g_build_filename ("midori", "res",
-        "speeddial-head-" MIDORI_VERSION ".html", NULL);
-    file_path = sokoke_find_data_filename (file_name);
-    g_free (file_name);
-
-    if (g_access (file_path, F_OK) == 0
+    if (key_file != NULL
+     && g_access (file_path, F_OK) == 0
      && g_file_get_contents (file_path, &speed_dial_head, NULL, NULL))
     {
         gchar* header = sokoke_replace_variables (speed_dial_head,

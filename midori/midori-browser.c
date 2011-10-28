@@ -4853,7 +4853,7 @@ _action_help_link_activate (GtkAction*     action,
         #ifdef G_OS_WIN32
         {
             #ifdef DOCDIR
-            gchar* path = sokoke_find_data_filename ("doc/midori/faq.html");
+            gchar* path = sokoke_find_data_filename ("doc/midori/faq.html", FALSE);
             uri = free_uri = g_filename_to_uri (path, NULL, NULL);
             if (g_access (path, F_OK) != 0)
             {

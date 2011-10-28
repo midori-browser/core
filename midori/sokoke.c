@@ -1342,8 +1342,11 @@ gchar* sokoke_find_lib_path (const gchar* folder)
  * Return value: a newly allocated full path
  **/
 gchar*
-sokoke_find_data_filename (const gchar* filename)
+sokoke_find_data_filename (const gchar* filename,
+                           gboolean     res)
 {
+    const gchar* res1 = res ? PACKAGE_NAME : "";
+    const gchar* res2 = res ? "res" : "";
     const gchar* const* data_dirs = g_get_system_data_dirs ();
     guint i = 0;
     const gchar* data_dir;
@@ -1351,7 +1354,7 @@ sokoke_find_data_filename (const gchar* filename)
 
     #ifdef G_OS_WIN32
     gchar* install_path = g_win32_get_package_installation_directory_of_module (NULL);
-    path = g_build_filename (install_path, "share", filename, NULL);
+    path = g_build_filename (install_path, "share", res1, res2, filename, NULL);
     g_free (install_path);
     if (g_access (path, F_OK) == 0)
         return path;
@@ -1359,19 +1362,19 @@ sokoke_find_data_filename (const gchar* filename)
     g_free (path);
     #endif
 
-    path = g_build_filename (g_get_user_data_dir (), filename, NULL);
+    path = g_build_filename (g_get_user_data_dir (), res1, res2, filename, NULL);
     if (g_access (path, F_OK) == 0)
         return path;
     g_free (path);
 
     while ((data_dir = data_dirs[i++]))
     {
-        path = g_build_filename (data_dir, filename, NULL);
+        path = g_build_filename (data_dir, res1, res2, filename, NULL);
         if (g_access (path, F_OK) == 0)
             return path;
         g_free (path);
     }
-    return g_build_filename (MDATADIR, filename, NULL);
+    return g_build_filename (MDATADIR, res1, res2, filename, NULL);
 }
 
 /**

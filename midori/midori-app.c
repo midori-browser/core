@@ -1348,7 +1348,7 @@ midori_app_setup (gchar** argument_vector)
     else
     #ifdef G_OS_WIN32
     {
-        gchar* path = sokoke_find_data_filename ("locale");
+        gchar* path = sokoke_find_data_filename ("locale", FALSE);
         bindtextdomain (GETTEXT_PACKAGE, path);
         g_free (path);
     }

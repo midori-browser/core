@@ -32,27 +32,22 @@ formhistory_toggle_state_cb (GtkAction*     action,
 static gboolean
 formhistory_prepare_js ()
 {
-   gchar* data_path;
    gchar* autosuggest;
    gchar* style;
    guint i;
    gchar* file;
 
-   data_path = g_build_filename (PACKAGE_NAME, "res", "autosuggestcontrol.js", NULL);
-   file = sokoke_find_data_filename (data_path);
+   file = sokoke_find_data_filename ("autosuggestcontrol.js", TRUE);
    if (!g_file_get_contents (file, &autosuggest, NULL, NULL))
    {
-       g_free (data_path);
        g_free (file);
        return FALSE;
    }
    g_strchomp (autosuggest);
 
-   katze_assign (data_path, g_build_filename (PACKAGE_NAME, "res", "autosuggestcontrol.css", NULL));
-   katze_assign (file, sokoke_find_data_filename (data_path));
+   katze_assign (file, sokoke_find_data_filename ("autosuggestcontrol.css", TRUE));
    if (!g_file_get_contents (file, &style, NULL, NULL))
    {
-       g_free (data_path);
        g_free (file);
        return FALSE;
    }
@@ -83,7 +78,6 @@ formhistory_prepare_js ()
         autosuggest,
         style);
    g_strstrip (jsforms);
-   g_free (data_path);
    g_free (file);
    g_free (style);
    g_free (autosuggest);
