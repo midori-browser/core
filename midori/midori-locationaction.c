@@ -291,6 +291,15 @@ midori_location_action_popup_position (GtkWidget* popup,
     GtkAllocation allocation;
 
     gdk_window_get_origin (window, &wx, &wy);
+
+    if (!gtk_widget_get_has_window (widget))
+    {
+        GtkAllocation alloc;
+        gtk_widget_get_allocation (widget, &alloc);
+        wx += alloc.x;
+        wy += alloc.y;
+    }
+
     gtk_widget_size_request (popup, &menu_req);
     gtk_widget_size_request (widget, &widget_req);
 
