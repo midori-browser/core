@@ -732,13 +732,6 @@ void sokoke_widget_set_visible (GtkWidget* widget, gboolean visible)
         gtk_widget_hide (widget);
 }
 
-void
-sokoke_container_show_children (GtkContainer* container)
-{
-    /* Show every child but not the container itself */
-    gtk_container_foreach (container, (GtkCallback)(gtk_widget_show_all), NULL);
-}
-
 typedef enum
 {
     SOKOKE_DESKTOP_UNTESTED,

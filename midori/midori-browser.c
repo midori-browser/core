@@ -3909,7 +3909,8 @@ _action_location_secondary_icon_released (GtkAction*     action,
                         G_CALLBACK (midori_browser_news_feed_clicked_cb), browser);
                     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
                 }
-                sokoke_container_show_children (GTK_CONTAINER (menu));
+                gtk_container_foreach (GTK_CONTAINER (menu),
+                                       (GtkCallback)(gtk_widget_show_all), NULL);
                 katze_widget_popup (widget, GTK_MENU (menu), NULL,
                                     KATZE_MENU_POSITION_RIGHT);
             }

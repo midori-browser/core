@@ -322,7 +322,8 @@ midori_findbar_init (MidoriFindbar* findbar)
     g_signal_connect (findbar->find_close, "clicked",
         G_CALLBACK (midori_findbar_button_close_clicked_cb), findbar);
     gtk_toolbar_insert (GTK_TOOLBAR (findbar), findbar->find_close, -1);
-    sokoke_container_show_children (GTK_CONTAINER (findbar));
+    gtk_container_foreach (GTK_CONTAINER (findbar),
+                           (GtkCallback)(gtk_widget_show_all), NULL);
 }
 
 void

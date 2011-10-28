@@ -64,9 +64,6 @@ void
 sokoke_widget_set_visible               (GtkWidget*      widget,
                                          gboolean        visible);
 
-void
-sokoke_container_show_children          (GtkContainer*   container);
-
 GtkWidget*
 sokoke_xfce_header_new                  (const gchar*    icon,
                                          const gchar*    title);
