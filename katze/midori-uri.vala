@@ -22,7 +22,8 @@ namespace Midori {
             if (uri == null)
                 return uri;
             unowned string? hostname = uri.chr (-1, '/');
-            if (hostname == null || hostname[1] != '/')
+            if (hostname == null || hostname[1] != '/'
+             || hostname.chr (-1, ' ') != null)
                 return uri;
             hostname = hostname.offset (2);
             if (&path != null) {
