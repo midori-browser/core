@@ -105,14 +105,13 @@ addons_install_response (GtkWidget*  infobar,
         const gchar* uri = midori_view_get_display_uri (view);
         if (uri && *uri)
         {
-            gchar** split_uri;
-            gchar* path, *filename, *hostname, *dest_path, *temp_uri, *folder_path;
+            gchar* hostname, *path;
+            gchar* dest_uri, *filename, *dest_path, *temp_uri, *folder_path;
             const gchar* folder;
             WebKitNetworkRequest* request;
             WebKitDownload* download;
 
-            split_uri = g_strsplit (uri, "/", -1);
-            hostname = split_uri[2];
+            hostname = midori_uri_parse (uri, &path);
             temp_uri = NULL;
             filename = NULL;
             folder = NULL;
@@ -121,49 +120,50 @@ addons_install_response (GtkWidget*  infobar,
                 folder = "scripts";
             else if (g_str_has_suffix (uri, ".user.css"))
                 folder = "styles";
-            else if (!g_strcmp0 (hostname, "userscripts.org"))
+            else if (!strcmp (hostname, "userscripts.org"))
             {
-                gchar* script_id;
-                const gchar* js_script;
-                WebKitWebView* web_view;
-                WebKitWebFrame* web_frame;
-
-                web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
-                web_frame = webkit_web_view_get_main_frame (web_view);
-
-                js_script = "document.getElementById('heading').childNodes[3].childNodes[1].textContent";
-                if (WEBKIT_IS_WEB_FRAME (web_frame))
+                /* http://userscripts.org/scripts/ACTION/SCRIPT_ID/NAME */
+                gchar* subpage = strchr (strchr (path + 1, '/') + 1, '/');
+                if (subpage && subpage[0] == '/' && g_ascii_isdigit (subpage[1]))
                 {
-                    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-                    gchar* value = sokoke_js_script_eval (js_context, js_script, NULL);
-                    if (value && *value)
-                        filename = g_strdup_printf ("%s.user.js", value);
-                    g_free (value);
-                }
-
-                folder = "scripts";
-                script_id = split_uri[5];
-                /* rewrite uri to get source js */
-                temp_uri = g_strdup_printf ("http://%s/scripts/source/%s.user.js",
-                                            hostname, script_id);
-                uri = temp_uri;
-            }
-            else if (!g_strcmp0 (hostname, "userstyles.org"))
-            {
-                gchar* subpage = split_uri[4];
-
-                folder = "styles";
-                if ((subpage && *subpage) && g_ascii_isdigit (subpage[0]))
-                {
-                    gchar* style_id;
                     const gchar* js_script;
                     WebKitWebView* web_view;
                     WebKitWebFrame* web_frame;
 
+                    js_script = "document.getElementById('heading').childNodes[3].childNodes[1].textContent";
                     web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
                     web_frame = webkit_web_view_get_main_frame (web_view);
 
+                    if (WEBKIT_IS_WEB_FRAME (web_frame))
+                    {
+                        JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
+                        gchar* value = sokoke_js_script_eval (js_context, js_script, NULL);
+                        if (value && *value)
+                            filename = g_strdup_printf ("%s.user.js", value);
+                        g_free (value);
+                    }
+
+                    /* rewrite uri to get source js */
+                    temp_uri = g_strdup_printf ("http://%s/scripts/source/%s.user.js",
+                                                hostname, subpage + 1);
+                    uri = temp_uri;
+                    folder = "scripts";
+                }
+            }
+            else if (!strcmp (hostname, "userstyles.org"))
+            {
+                /* http://userstyles.org/styles/STYLE_ID/NAME */
+                gchar* subpage = strchr (path + 1, '/');
+                if (subpage && subpage[0] == '/' && g_ascii_isdigit (subpage[1]))
+                {
+                    const gchar* js_script;
+                    WebKitWebView* web_view;
+                    WebKitWebFrame* web_frame;
+
                     js_script = "document.getElementById('stylish-description').innerHTML;";
+                    web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
+                    web_frame = webkit_web_view_get_main_frame (web_view);
+
                     if (WEBKIT_IS_WEB_FRAME (web_frame))
                     {
                         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
@@ -173,9 +173,9 @@ addons_install_response (GtkWidget*  infobar,
                         g_free (value);
                     }
                     /* rewrite uri to get css */
-                    style_id = split_uri[4];
-                    temp_uri = g_strdup_printf ("http://%s/styles/%s.css", hostname, style_id);
+                    temp_uri = g_strdup_printf ("http://%s/styles/%s.css", hostname, subpage + 1);
                     uri = temp_uri;
+                    folder = "styles";
                 }
             }
 
@@ -186,22 +186,22 @@ addons_install_response (GtkWidget*  infobar,
 
             if (!g_file_test (folder_path, G_FILE_TEST_EXISTS))
                 katze_mkdir_with_parents (folder_path, 0700);
-            path = g_build_path (G_DIR_SEPARATOR_S, folder_path, filename, NULL);
+            dest_path = g_build_path (G_DIR_SEPARATOR_S, folder_path, filename, NULL);
 
             request = webkit_network_request_new (uri);
             download = webkit_download_new (request);
             g_object_unref (request);
 
-            dest_path = g_filename_to_uri (path, NULL, NULL);
-            webkit_download_set_destination_uri (download, dest_path);
+            dest_uri = g_filename_to_uri (dest_path, NULL, NULL);
+            webkit_download_set_destination_uri (download, dest_uri);
             webkit_download_start (download);
 
             g_free (filename);
-            g_free (path);
+            g_free (dest_uri);
             g_free (temp_uri);
             g_free (dest_path);
             g_free (folder_path);
-            g_strfreev (split_uri);
+            g_free (hostname);
         }
     }
     gtk_widget_destroy (GTK_WIDGET (infobar));
@@ -255,27 +255,26 @@ addons_notify_load_status_cb (MidoriView*      view,
                addons_uri_install (view, ADDONS_USER_SCRIPTS);
            else if (g_str_has_suffix (uri, ".user.css"))
                addons_uri_install (view, ADDONS_USER_STYLES);
-           else if (g_str_has_prefix (uri, "http://userscripts.org/scripts/"))
+           else
            {
-               gchar** split_uri = g_strsplit (uri, "/", -1);
-               gchar* subpage = split_uri[4];
-
-               /* userscripts.org script main (with desc) and "source view" pages */
-               if (!g_strcmp0 (subpage, "show") || !g_strcmp0 (subpage, "review"))
+               gchar* path;
+               gchar* hostname = midori_uri_parse (uri, &path);
+               if (!strcmp (hostname, "userscripts.org")
+                && (g_str_has_prefix (path, "/scripts/show/")
+                 || g_str_has_prefix (path, "/scripts/review/")))
+               {
+                   /* Main (with desc) and "source view" pages */
                    addons_uri_install (view, ADDONS_USER_SCRIPTS);
-
-               g_strfreev (split_uri);
-           }
-           else if (g_str_has_prefix (uri, "http://userstyles.org/styles/"))
-           {
-               gchar** split_uri = g_strsplit (uri, "/", -1);
-               gchar* subpage = split_uri[4];
-
-               /* userstyles.org style main page with style description */
-               if ((subpage && *subpage) && g_ascii_isdigit (subpage[0]))
-                   addons_uri_install (view, ADDONS_USER_STYLES);
-
-               g_strfreev (split_uri);
+               }
+               else if (!strcmp (hostname, "userstyles.org")
+                && g_str_has_prefix (path, "/styles/"))
+               {
+                   gchar* subpage = strchr (path + 1, '/');
+                   /* Main page with style description */
+                   if (subpage && subpage[0] == '/' && g_ascii_isdigit (subpage[1]))
+                       addons_uri_install (view, ADDONS_USER_STYLES);
+               }
+               g_free (hostname);
            }
        }
     }
