@@ -69,10 +69,6 @@ sokoke_xfce_header_new                  (const gchar*    icon,
                                          const gchar*    title);
 
 void
-sokoke_widget_set_pango_font_style      (GtkWidget*      widget,
-                                         PangoStyle      style);
-
-void
 sokoke_entry_set_default_text           (GtkEntry*       entry,
                                          const gchar*    default_text);
 

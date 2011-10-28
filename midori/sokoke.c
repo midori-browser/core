@@ -853,7 +853,7 @@ sokoke_xfce_header_new (const gchar* icon,
     return NULL;
 }
 
-void
+static void
 sokoke_widget_set_pango_font_style (GtkWidget* widget,
                                     PangoStyle style)
 {
