@@ -64,6 +64,11 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
                                    gint       width,
                                    gint       height);
 
+static void
+midori_view_speed_dial_get_thumb (MidoriView* view,
+                                  gchar*      dial_id,
+                                  gchar*      url);
+
 struct _MidoriView
 {
     GtkVBox parent_instance;
@@ -207,6 +212,7 @@ static guint signals[LAST_SIGNAL];
 
 static gchar* speeddial_markup = NULL;
 static GtkWidget* thumb_view = NULL;
+static GList* thumb_queue = NULL;
 
 static void
 midori_view_finalize (GObject* object);
@@ -3766,6 +3772,7 @@ prepare_speed_dial_html (MidoriView* view)
             else
             {
                 encoded = g_strdup ("");
+                midori_view_speed_dial_get_thumb (view, dial_entry, uri);
             }
             g_free (thumb_file);
 
@@ -5362,14 +5369,19 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     #endif
     gchar* file_path;
     gchar* thumb_dir;
-    gchar* thumb_uri;
-    gchar* thumb_slot;
+    gchar* spec;
+    gchar* url;
+    gchar* dial_id;
     MidoriBrowser* browser;
     GKeyFile* key_file;
     const gchar* title;
 
     if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
         return;
+
+    spec = g_object_get_data (G_OBJECT (thumb_view), "spec");
+    url = strstr (spec, "|") + 1;
+    dial_id = g_strndup (spec, url - spec - 1);
 
     #if HAVE_OFFSCREEN
     img = gtk_offscreen_window_get_pixbuf (GTK_OFFSCREEN_WINDOW (
@@ -5380,8 +5392,7 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     gtk_widget_realize (thumb_view);
     img = midori_view_web_view_get_snapshot (thumb_view, 240, 160);
     #endif
-    thumb_uri = g_object_get_data (G_OBJECT (thumb_view), "thumb-uri");
-    file_path  = sokoke_build_thumbnail_path (thumb_uri);
+    file_path  = sokoke_build_thumbnail_path (url);
     thumb_dir = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (),
                               PACKAGE_NAME, "thumbnails", NULL);
 
@@ -5395,22 +5406,23 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
     g_free (file_path);
     g_free (thumb_dir);
 
-    g_signal_handlers_disconnect_by_func (
-       thumb_view, thumb_view_load_status_cb, view);
-
-    /* Destroying the view here may trigger a WebKitGTK+ 1.1.14 bug */
-    #if 0
-    gtk_widget_destroy (GTK_WIDGET (thumb_view));
-    thumb_view = NULL;
-    #endif
-
     browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     g_object_get (browser, "speed-dial", &key_file, NULL);
-    thumb_slot = g_object_get_data (G_OBJECT (thumb_view), "thumb-slot");
     title = webkit_web_view_get_title (WEBKIT_WEB_VIEW (thumb_view));
-    g_key_file_set_string (key_file, thumb_slot, "title",
-        title ? title : thumb_uri);
+    g_key_file_set_string (key_file, dial_id, "title", title ? title : url);
     midori_view_save_speed_dial_config (view, key_file);
+
+    thumb_queue = g_list_remove (thumb_queue, spec);
+    if (thumb_queue != NULL)
+    {
+        g_object_set_data_full (G_OBJECT (thumb_view), "spec",
+                                thumb_queue->data, (GDestroyNotify)g_free);
+        webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view),
+                              strstr (thumb_queue->data, "|") + 1);
+    }
+    else
+        g_signal_handlers_disconnect_by_func (
+            thumb_view, thumb_view_load_status_cb, view);
 }
 
 /**
@@ -5446,6 +5458,15 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
     if (!thumb_view)
     {
         thumb_view = webkit_web_view_new ();
+        settings = g_object_new (WEBKIT_TYPE_WEB_SETTINGS,
+            "enable-scripts", FALSE,
+            "enable-plugins", FALSE, "auto-load-images", TRUE,
+            "enable-html5-database", FALSE, "enable-html5-local-storage", FALSE,
+        #if WEBKIT_CHECK_VERSION (1, 1, 22)
+            "enable-java-applet", FALSE,
+        #endif
+            NULL);
+        webkit_web_view_set_settings (WEBKIT_WEB_VIEW (thumb_view), settings);
         #if HAVE_OFFSCREEN
         browser = gtk_offscreen_window_new ();
         gtk_container_add (GTK_CONTAINER (browser), thumb_view);
@@ -5459,25 +5480,19 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
         /* We use an empty label. It's not invisible but at least hard to spot. */
         label = gtk_event_box_new ();
         gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook), thumb_view, label);
-        #endif
         gtk_widget_show (thumb_view);
+        #endif
     }
     #if !HAVE_OFFSCREEN
     g_object_unref (notebook);
     #endif
-    settings = g_object_new (WEBKIT_TYPE_WEB_SETTINGS, "enable-scripts", FALSE,
-        "enable-plugins", FALSE, "auto-load-images", TRUE,
-        "enable-html5-database", FALSE, "enable-html5-local-storage", FALSE,
-    #if WEBKIT_CHECK_VERSION (1, 1, 22)
-        "enable-java-applet", FALSE,
-    #endif
-        NULL);
-    webkit_web_view_set_settings (WEBKIT_WEB_VIEW (thumb_view), settings);
 
-    g_object_set_data_full (G_OBJECT (thumb_view), "thumb-uri",
-                            g_strdup (url), (GDestroyNotify)g_free);
-    g_object_set_data_full (G_OBJECT (thumb_view), "thumb-slot",
-                            g_strdup (dial_id), (GDestroyNotify)g_free);
+    thumb_queue = g_list_append (thumb_queue, g_strconcat (dial_id, "|", url, NULL));
+    if (g_list_nth_data (thumb_queue, 1) != NULL)
+        return;
+
+    g_object_set_data_full (G_OBJECT (thumb_view), "spec",
+                            thumb_queue->data, (GDestroyNotify)g_free);
     g_signal_connect (thumb_view, "notify::load-status",
         G_CALLBACK (thumb_view_load_status_cb), view);
     webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view), url);
