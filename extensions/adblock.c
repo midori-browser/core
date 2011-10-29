@@ -766,21 +766,12 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
         return;
 
     req_uri = webkit_network_request_get_uri (request);
-
-    if (!req_uri)
-        return;
-    if (!strncmp (req_uri, "data", 4) || !strncmp (req_uri, "file", 4))
-        return;
-    if (!strncmp (req_uri, "stock", 5) || !strncmp (req_uri, "res", 3))
-        return;
-
-    if (g_str_has_suffix (req_uri, "favicon.ico"))
+    if (!midori_uri_is_http (req_uri)
+     || g_str_has_suffix (req_uri, "favicon.ico"))
         return;
 
     msg = webkit_network_request_get_message (request);
-    if (!msg)
-        return;
-    if (msg->method && !strncmp (msg->method, "POST", 4))
+    if (!(msg && !g_strcmp0 (msg->method, "GET")))
         return;
 
     #ifdef G_ENABLE_DEBUG
