@@ -129,7 +129,6 @@ addons_install_response (GtkWidget*  infobar,
                     const gchar* js_script;
                     WebKitWebView* web_view;
                     WebKitWebFrame* web_frame;
-                    gchar** script_id;
 
                     js_script = "document.getElementById('heading').childNodes[3].childNodes[1].textContent";
                     web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
@@ -145,10 +144,8 @@ addons_install_response (GtkWidget*  infobar,
                     }
 
                     /* rewrite uri to get source js */
-                    script_id = g_strsplit (subpage + 1, "/", 2);
                     temp_uri = g_strdup_printf ("http://%s/scripts/source/%s.user.js",
-                                                hostname, script_id[0]);
-                    g_strfreev (script_id);
+                                                hostname, subpage + 1);
                     uri = temp_uri;
                     folder = "scripts";
                 }
@@ -162,6 +159,7 @@ addons_install_response (GtkWidget*  infobar,
                     const gchar* js_script;
                     WebKitWebView* web_view;
                     WebKitWebFrame* web_frame;
+                    gchar** style_id;
 
                     js_script = "document.getElementById('stylish-description').innerHTML;";
                     web_view = WEBKIT_WEB_VIEW (midori_view_get_web_view (view));
@@ -176,7 +174,9 @@ addons_install_response (GtkWidget*  infobar,
                         g_free (value);
                     }
                     /* rewrite uri to get css */
-                    temp_uri = g_strdup_printf ("http://%s/styles/%s.css", hostname, subpage + 1);
+                    style_id = g_strsplit (subpage + 1, "/", 2);
+                    temp_uri = g_strdup_printf ("http://%s/styles/%s.css", hostname, style_id[0]);
+                    g_strfreev (style_id);
                     uri = temp_uri;
                     folder = "styles";
                 }
