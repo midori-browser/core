@@ -2558,7 +2558,9 @@ main (int    argc,
     else
         g_file_set_contents (config_file, "RUNNING", -1, NULL);
 
-    if (back_from_crash && katze_object_get_boolean (settings, "show-crash-dialog"))
+    if (back_from_crash
+     && katze_object_get_boolean (settings, "show-crash-dialog")
+     && !katze_array_is_empty (_session))
         diagnostic_dialog = TRUE;
 
     if (diagnostic_dialog)
