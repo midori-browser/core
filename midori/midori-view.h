@@ -18,18 +18,11 @@
 
 G_BEGIN_DECLS
 
-typedef enum
-{
-    MIDORI_LOAD_PROVISIONAL,
-    MIDORI_LOAD_COMMITTED,
-    MIDORI_LOAD_FINISHED
-} MidoriLoadStatus;
-
-GType
-midori_load_status_get_type (void) G_GNUC_CONST;
-
-#define MIDORI_TYPE_LOAD_STATUS \
-    (midori_load_status_get_type ())
+#define MIDORI_LOAD_PROVISIONAL WEBKIT_LOAD_PROVISIONAL
+#define MIDORI_LOAD_COMMITTED WEBKIT_LOAD_COMMITTED
+#define MIDORI_LOAD_FINISHED WEBKIT_LOAD_FINISHED
+#define MidoriLoadStatus WebKitLoadStatus
+#define MIDORI_TYPE_LOAD_STATUS WEBKIT_TYPE_LOAD_STATUS
 
 typedef enum
 {

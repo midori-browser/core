@@ -119,24 +119,6 @@ struct _MidoriViewClass
 G_DEFINE_TYPE (MidoriView, midori_view, GTK_TYPE_VBOX);
 
 GType
-midori_load_status_get_type (void)
-{
-    static GType type = 0;
-    static const GEnumValue values[] = {
-     { MIDORI_LOAD_PROVISIONAL, "MIDORI_LOAD_PROVISIONAL", "Load Provisional" },
-     { MIDORI_LOAD_COMMITTED, "MIDORI_LOAD_COMMITTED", "Load Committed" },
-     { MIDORI_LOAD_FINISHED, "MIDORI_LOAD_FINISHED", "Load Finished" },
-     { 0, NULL, NULL }
-    };
-
-    if (type)
-        return type;
-
-    type = g_enum_register_static ("MidoriLoadStatus", values);
-    return type;
-}
-
-GType
 midori_new_view_get_type (void)
 {
     static GType type = 0;
@@ -3373,7 +3355,8 @@ midori_view_set_settings (MidoriView*        view,
  * midori_view_load_status:
  * @web_view: a #MidoriView
  *
- * Determines the current loading status of a view.
+ * Determines the current loading status of a view. There is no
+ * error state, unlike webkit_web_view_get_load_status().
  *
  * Return value: the current #MidoriLoadStatus
  **/
