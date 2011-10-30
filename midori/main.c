@@ -609,6 +609,7 @@ settings_notify_cb (MidoriWebSettings* settings,
 
     /* Skip state related properties to avoid disk IO */
     if ((pspec && g_str_has_prefix (pspec->name, "last-window-"))
+     || (pspec && g_str_has_prefix (pspec->name, "user-stylesheet-uri"))
      || (pspec && g_str_has_prefix (pspec->name, "last-panel-")))
         return;
 

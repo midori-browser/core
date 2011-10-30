@@ -94,6 +94,7 @@ struct _MidoriWebSettings
     gboolean strip_referer;
     gboolean enforce_font_family;
     gboolean flash_window_on_bg_tabs;
+    gchar* user_stylesheet_uri;
     GHashTable* user_stylesheets;
 };
 
@@ -177,6 +178,7 @@ enum
     PROP_ENABLE_DNS_PREFETCHING,
     PROP_STRIP_REFERER,
     PROP_ENFORCE_FONT_FAMILY,
+    PROP_USER_STYLESHEET_URI,
 };
 
 GType
@@ -1069,6 +1071,15 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Override fonts picked by websites with user preferences"),
                                      FALSE,
                                      flags));
+
+    g_object_class_install_property (gobject_class,
+                                     PROP_USER_STYLESHEET_URI,
+                                     g_param_spec_string (
+                                     "user-stylesheet-uri",
+                                     "User stylesheet URI",
+                                     "Load stylesheets from a local URI",
+                                     NULL,
+                                     flags));
 }
 
 static void
@@ -1115,6 +1126,7 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->http_proxy = NULL;
     web_settings->open_popups_in_tabs = TRUE;
     web_settings->kinetic_scrolling = TRUE;
+    web_settings->user_stylesheet_uri = NULL;
     web_settings->user_stylesheets = NULL;
 
     g_signal_connect (web_settings, "notify::default-encoding",
@@ -1138,6 +1150,7 @@ midori_web_settings_finalize (GObject* object)
     katze_assign (web_settings->location_entry_search, NULL);
     katze_assign (web_settings->http_proxy, NULL);
     katze_assign (web_settings->ident_string, NULL);
+    katze_assign (web_settings->user_stylesheet_uri, NULL);
     if (web_settings->user_stylesheets != NULL)
         g_hash_table_destroy (web_settings->user_stylesheets);
 
@@ -1495,6 +1508,17 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_FLASH_WINDOW_ON_BG_TABS:
         web_settings->flash_window_on_bg_tabs = g_value_get_boolean (value);
         break;
+    case PROP_USER_STYLESHEET_URI:
+        if ((web_settings->user_stylesheet_uri = g_value_dup_string (value)))
+        {
+            gchar* css = g_strdup_printf ("@import url(\"%s\"\n);",
+                                          web_settings->user_stylesheet_uri);
+            midori_web_settings_add_style (web_settings, "user-stylesheet-uri", css);
+            g_free (css);
+        }
+        else
+            midori_web_settings_remove_style (web_settings, "user-stylesheet-uri");
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1756,6 +1780,9 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_FLASH_WINDOW_ON_BG_TABS:
         g_value_set_boolean (value, web_settings->flash_window_on_bg_tabs);
         break;
+    case PROP_USER_STYLESHEET_URI:
+        g_value_set_string (value, web_settings->user_stylesheet_uri);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1797,7 +1824,7 @@ midori_web_settings_process_stylesheets (MidoriWebSettings* settings)
     /* data: uri prefix from Source/WebCore/page/Page.cpp:700 in WebKit */
     encoded = g_base64_encode ((guchar*)css->str, css->len);
     base64 = g_strdup_printf ("data:text/css;charset=utf-8;base64,%s", encoded);
-    g_object_set (settings, "user-stylesheet-uri", base64, NULL);
+    g_object_set (settings, "WebKitWebSettings::user-stylesheet-uri", base64, NULL);
 
     g_free (encoded);
     g_free (base64);
