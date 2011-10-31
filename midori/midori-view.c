@@ -3655,11 +3655,11 @@ list_video_formats ()
         "var supported = function (format) { "
         "var video = document.createElement('video');"
         "return !!video.canPlayType && video.canPlayType (format) != 'no' };"
-        "' H264 ' + "
+        "' H264: ' + "
         "supported('video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"') + "
-        "' Ogg Theora ' + "
+        "' Ogg Theora: ' + "
         "supported('video/ogg; codecs=\"theora, vorbis\"') + "
-        "' WebM ' + "
+        "' WebM: ' + "
         "supported('video/webm; codecs=\"vp8, vorbis\"')"
         "", NULL);
     gtk_widget_destroy (web_view);
