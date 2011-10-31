@@ -11,13 +11,11 @@
 
 #include "midori-searchaction.h"
 
-#include "gtk3-compat.h"
-#include "gtkiconentry.h"
 #include "marshal.h"
-#include "sokoke.h"
 #include "midori-platform.h"
 #include "midori-core.h"
 
+#include "config.h"
 #include <string.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>

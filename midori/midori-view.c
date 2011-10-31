@@ -10,20 +10,13 @@
  See the file COPYING for the full license text.
 */
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include "gtk3-compat.h"
 #include "midori-view.h"
-#include "midori-stock.h"
 #include "midori-browser.h"
 #include "midori-searchaction.h"
 #include "midori-platform.h"
 #include "midori-core.h"
 
 #include "marshal.h"
-#include "sokoke.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -33,10 +26,10 @@
 #include <gdk/gdkkeysyms.h>
 #include <webkit/webkit.h>
 
+#include <config.h>
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
-
 #ifndef G_OS_WIN32
     #include <sys/utsname.h>
 #endif

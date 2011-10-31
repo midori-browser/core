@@ -12,11 +12,9 @@
 #define MINCHARS 2
 
 #include <midori/midori.h>
+#include <glib/gstdio.h>
 
 #include "config.h"
-#include "midori/sokoke.h"
-
-#include <glib/gstdio.h>
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif

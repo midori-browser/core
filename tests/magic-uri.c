@@ -10,11 +10,6 @@
  See the file COPYING for the full license text.
 */
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include "sokoke.h"
 #include <midori/midori.h>
 
 #define SM "http://www.searchmash.com/search/"

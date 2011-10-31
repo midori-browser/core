@@ -12,11 +12,8 @@
 #ifndef __SYLPH_SOCKET_H__
 #define __SYLPH_SOCKET_H__
 
-#if HAVE_CONFIG_H
-#  include "config.h"
-#endif
-
 #include <glib.h>
+#include "config.h"
 #if HAVE_NETDB_H
 #  include <netdb.h>
 #endif

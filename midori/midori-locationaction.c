@@ -12,14 +12,13 @@
 
 #include "midori-locationaction.h"
 
-#include "gtkiconentry.h"
 #include "marshal.h"
-#include "sokoke.h"
 #include "midori-browser.h"
 #include "midori-searchaction.h"
 #include "midori-platform.h"
 #include <midori/midori-core.h>
 
+#include "config.h"
 #include <string.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>

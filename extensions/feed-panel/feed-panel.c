@@ -12,12 +12,7 @@
 #include "feed-panel.h"
 
 #include <midori/midori.h>
-#include <midori/sokoke.h>
 #include <time.h>
-
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
 
 #define STOCK_FEED_PANEL "feed-panel"
 

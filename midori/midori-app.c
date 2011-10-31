@@ -14,8 +14,7 @@
 #endif
 
 #include "midori-app.h"
-#include "midori-stock.h"
-#include "sokoke.h"
+#include "midori-platform.h"
 
 #include <string.h>
 #include <gtk/gtk.h>

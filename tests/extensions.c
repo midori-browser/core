@@ -9,10 +9,6 @@
  See the file COPYING for the full license text.
 */
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
 #include "midori.h"
 
 const gpointer magic = (gpointer)0xdeadbeef;

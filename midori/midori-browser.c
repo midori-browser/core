@@ -11,8 +11,6 @@
  See the file COPYING for the full license text.
 */
 
-#include "gtk3-compat.h"
-
 #include "midori-browser.h"
 
 #include "midori-array.h"
@@ -21,21 +19,19 @@
 #include "midori-panel.h"
 #include "midori-locationaction.h"
 #include "midori-searchaction.h"
-#include "midori-stock.h"
 #include "midori-findbar.h"
 #include "midori-transferbar.h"
 #include "midori-platform.h"
 #include "midori-core.h"
 
-#include "gtkiconentry.h"
 #include "marshal.h"
-#include "sokoke.h"
 
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 #include <gdk/gdkkeysyms.h>
-#include <gtk/gtk.h>
 #include <string.h>
+
+#include <config.h>
 #ifdef HAVE_UNISTD_H
     #include <unistd.h>
 #endif
@@ -57,10 +53,6 @@
 #endif
 
 #include <sqlite3.h>
-
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
 
 struct _MidoriBrowser
 {

@@ -12,12 +12,8 @@
 
 #include "midori-extension.h"
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
 #include <katze/katze.h>
-#include "sokoke.h"
+#include "midori-platform.h"
 #include <glib/gi18n.h>
 
 G_DEFINE_TYPE (MidoriExtension, midori_extension, G_TYPE_OBJECT);
@@ -295,8 +291,8 @@ midori_extension_activate_cb (MidoriExtension* extension,
             {
                 gchar* filename = g_object_get_data (G_OBJECT (extension), "filename");
                 gchar* folder;
-                if (g_str_has_prefix (filename, "lib"))
-                    filename = &filename[strlen ("len")];
+                if (g_str_has_prefix (filename, MIDORI_MODULE_PREFIX))
+                    filename = &filename[strlen (MIDORI_MODULE_PREFIX)];
                 if (g_str_has_suffix (filename, G_MODULE_SUFFIX))
                     filename = g_strndup (filename,
                         strlen (filename) - strlen ("." G_MODULE_SUFFIX));

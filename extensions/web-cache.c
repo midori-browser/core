@@ -11,12 +11,10 @@
 */
 
 #include <midori/midori.h>
-
-#include <midori/sokoke.h>
-#include "config.h"
-
 #include <glib/gstdio.h>
 #include <stdlib.h>
+
+#include "config.h"
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif

@@ -12,7 +12,10 @@
 #ifndef __MIDORI_PLATFORM_H__
 #define __MIDORI_PLATFORM_H__ 1
 
-#include <gtk/gtk.h>
+#include "midori/midori-stock.h"
+#include "katze/gtk3-compat.h"
+#include "midori/gtkiconentry.h"
+#include "midori/sokoke.h"
 
 /* Common behavior modifiers */
 #define MIDORI_MOD_NEW_WINDOW(state) (state & GDK_SHIFT_MASK)
@@ -33,5 +36,12 @@
     ((((GdkEventButton*)evt)->button == 1 \
      && MIDORI_MOD_NEW_TAB(((GdkEventButton*)evt)->state)) \
     || (((GdkEventButton*)evt)->button == 2))
+
+#ifndef G_OS_WIN32
+    #define MIDORI_MODULE_PREFIX "lib"
+#else
+    #define MIDORI_MODULE_PREFIX ""
+#endif
+
 
 #endif /* !__MIDORI_PLATFORM_H__ */

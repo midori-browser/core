@@ -11,7 +11,6 @@
 
 #include <midori/midori.h>
 
-#include <midori/sokoke.h>
 #include "config.h"
 
 static void

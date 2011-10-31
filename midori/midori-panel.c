@@ -11,17 +11,15 @@
 
 #include "midori-panel.h"
 
+#include "midori-browser.h"
+#include "midori-platform.h"
 #include "midori-view.h"
 
-#include "midori-browser.h"
-
 #include "marshal.h"
-#include "sokoke.h"
 
 #include <glib/gi18n.h>
 
 #include "config.h"
-
 #ifdef HAVE_HILDON_2_2
     #include <hildon/hildon.h>
 #endif

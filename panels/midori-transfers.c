@@ -13,10 +13,9 @@
 
 #include "midori-app.h"
 #include "midori-browser.h"
-#include "midori-stock.h"
+#include "midori-platform.h"
 #include "midori-view.h"
 
-#include "sokoke.h"
 #include <glib/gi18n.h>
 
 struct _MidoriTransfers

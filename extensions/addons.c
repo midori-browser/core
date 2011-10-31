@@ -14,11 +14,9 @@
 /* This extensions add support for user addons: userscripts and userstyles */
 
 #include <midori/midori.h>
-#include <midori/sokoke.h>
 #include <glib/gstdio.h>
 
 #include "config.h"
-
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif

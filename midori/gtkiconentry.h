@@ -21,10 +21,6 @@
 #ifndef __GTK_ICON_ENTRY_H__
 #define __GTK_ICON_ENTRY_H__
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
 #include <gio/gio.h>
 #include <gtk/gtk.h>
 

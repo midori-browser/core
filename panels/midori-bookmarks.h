@@ -12,8 +12,6 @@
 #ifndef __MIDORI_BOOKMARKS_H__
 #define __MIDORI_BOOKMARKS_H__
 
-#include "config.h"
-
 #include <sqlite3.h>
 #include <gtk/gtk.h>
 #include <katze/katze.h>

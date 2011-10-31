@@ -10,7 +10,6 @@
 */
 
 #include <midori/midori.h>
-#include <midori/sokoke.h>
 
 static void
 copy_tabs_apply_cb (GtkWidget*     menuitem,

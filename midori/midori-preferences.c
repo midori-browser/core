@@ -11,12 +11,7 @@
 
 #include "midori-preferences.h"
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include "sokoke.h"
-#include "midori-stock.h"
+#include "midori-platform.h"
 
 #include <string.h>
 #include <glib/gi18n.h>
@@ -27,6 +22,7 @@
     #include <libsoup/soup-cache.h>
 #endif
 
+#include <config.h>
 #if HAVE_LIBNOTIFY
     #include <libnotify/notify.h>
 #endif

@@ -13,11 +13,10 @@
 
 #include "midori-app.h"
 #include "midori-extension.h"
-#include "midori-stock.h"
+#include "midori-platform.h"
 #include "midori-viewable.h"
 #include "midori-core.h"
 
-#include "sokoke.h"
 #include <glib/gi18n.h>
 
 struct _MidoriExtensions

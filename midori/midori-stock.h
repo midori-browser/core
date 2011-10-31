@@ -12,8 +12,6 @@
 #ifndef __MIDORI_STOCK_H__
 #define __MIDORI_STOCK_H__ 1
 
-#include <gtk/gtk.h>
-
 /* Custom stock items
 
    We should distribute these

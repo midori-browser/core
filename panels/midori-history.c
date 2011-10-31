@@ -10,21 +10,16 @@
 */
 
 #include "midori-history.h"
-#include "gtk3-compat.h"
 
 #include "midori-app.h"
 #include "midori-array.h"
 #include "midori-browser.h"
-#include "midori-stock.h"
+#include "midori-platform.h"
 #include "midori-view.h"
 #include "midori-viewable.h"
 
-#include "sokoke.h"
-#include "gtkiconentry.h"
-
 #include <glib/gi18n.h>
 #include <string.h>
-
 #include <gdk/gdkkeysyms.h>
 
 #define COMPLETION_DELAY 200

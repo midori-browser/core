@@ -10,20 +10,19 @@
  See the file COPYING for the full license text.
 */
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include "midori.h"
+#include "midori-app.h"
 #include "midori-array.h"
 #include "midori-bookmarks.h"
+#include "midori-extension.h"
 #include "midori-extensions.h"
 #include "midori-history.h"
 #include "midori-transfers.h"
+#include "midori-panel.h"
+#include "midori-platform.h"
+#include "midori-preferences.h"
 #include <midori/midori-core.h>
 
-#include "sokoke.h"
-
+#include <config.h>
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
@@ -32,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib/gstdio.h>
+#include <glib/gi18n-lib.h>
 #include <webkit/webkit.h>
 #include <sqlite3.h>
 
@@ -55,12 +55,6 @@
     #include <X11/Xutil.h>
     #include <X11/extensions/scrnsaver.h>
     #include <gdk/gdkx.h>
-#endif
-
-#ifdef G_OS_WIN32
-    #define LIBPREFIX ""
-#else
-    #define LIBPREFIX "lib"
 #endif
 
 static gchar*
@@ -1805,7 +1799,7 @@ midori_clear_saved_logins_cb (void)
     g_unlink (path);
     /* Form History database, written by the extension */
     katze_assign (path, g_build_filename (sokoke_set_config_dir (NULL),
-        "extensions", LIBPREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL));
+        "extensions", MIDORI_MODULE_PREFIX "formhistory." G_MODULE_SUFFIX, "forms.db", NULL));
     if (sqlite3_open (path, &db) == SQLITE_OK)
     {
         sqlite3_exec (db, "DELETE FROM forms", NULL, NULL, NULL);

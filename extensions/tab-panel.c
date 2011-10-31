@@ -10,7 +10,6 @@
 */
 
 #include <midori/midori.h>
-#include <midori/sokoke.h>
 
 #define STOCK_TAB_PANEL "tab-panel"
 

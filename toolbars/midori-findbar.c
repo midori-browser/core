@@ -10,19 +10,15 @@
 */
 
 #include "midori-findbar.h"
-#include "gtk3-compat.h"
 
 #include "midori-browser.h"
-#include "gtkiconentry.h"
-#include "sokoke.h"
+#include "midori-platform.h"
 
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if HAVE_CONFIG_H
-    #include "config.h"
-#endif
+#include "config.h"
 
 struct _MidoriFindbar
 {

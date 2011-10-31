@@ -13,13 +13,10 @@
 
 #include "sokoke.h"
 
-#if HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include "midori-stock.h"
 #include "midori-core.h"
+#include "midori-platform.h"
 
+#include <config.h>
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif

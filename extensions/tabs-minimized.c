@@ -10,7 +10,6 @@
 */
 
 #include <midori/midori.h>
-#include <midori/sokoke.h>
 
 static void
 tabs_minimized_app_add_browser_cb (MidoriApp*       app,

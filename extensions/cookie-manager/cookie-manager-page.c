@@ -9,12 +9,9 @@
  See the file COPYING for the full license text.
 */
 
-#include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
 #include <midori/midori.h>
-#include <midori/gtkiconentry.h>
-#include "katze/gtk3-compat.h"
 #include <webkit/webkit.h>
 #include <time.h>
 
