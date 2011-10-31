@@ -3866,8 +3866,9 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
-                gchar** argument_vector = sokoke_get_argv (NULL);
-                gchar* command_line = g_strjoinv (" ", argument_vector);
+                gchar* arguments = g_strjoinv (" ", sokoke_get_argv (NULL));
+                gchar* command_line = sokoke_replace_variables (
+                    arguments, g_get_home_dir (), "~", NULL);
                 gchar* architecture, *platform;
                 const gchar* sys_name = midori_web_settings_get_system_name (
                     &architecture, &platform);
@@ -3916,6 +3917,7 @@ midori_view_set_uri (MidoriView*  view,
                     platform, sys_name, architecture ? architecture : "", ident,
                     video_formats, netscape_plugins);
                 g_free (command_line);
+                g_free (arguments);
                 g_free (ident);
                 g_free (netscape_plugins);
                 g_free (video_formats);
