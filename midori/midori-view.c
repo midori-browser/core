@@ -3662,12 +3662,12 @@ list_video_formats ()
         "var supported = function (format) { "
         "var video = document.createElement('video');"
         "return !!video.canPlayType && video.canPlayType (format) != 'no' };"
-        "'<tr><td>H264</td><td>' + "
-        "supported('video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"') + '</tr>' + "
-        "'<tr><td>Ogg Theora</td><td>' + "
-        "supported('video/ogg; codecs=\"theora, vorbis\"') + '</tr>' + "
-        "'<tr><td>WebM</td><td>' + "
-        "supported('video/webm; codecs=\"vp8, vorbis\"') + '</tr>'"
+        "' H264 ' + "
+        "supported('video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"') + "
+        "' Ogg Theora ' + "
+        "supported('video/ogg; codecs=\"theora, vorbis\"') + "
+        "' WebM ' + "
+        "supported('video/webm; codecs=\"vp8, vorbis\"')"
         "", NULL);
     gtk_widget_destroy (web_view);
     return value;
@@ -3875,26 +3875,14 @@ midori_view_set_uri (MidoriView*  view,
             {
                 gchar** argument_vector = sokoke_get_argv (NULL);
                 gchar* command_line = g_strjoinv (" ", argument_vector);
+                gchar* architecture, *platform;
+                const gchar* sys_name = midori_web_settings_get_system_name (
+                    &architecture, &platform);
                 gchar* ident = katze_object_get_string (view->settings, "user-agent");
                 gchar* netscape_plugins = list_netscape_plugins ();
                 gchar* video_formats = list_video_formats ();
-                #if defined (G_OS_WIN32)
-                gchar* sys_name = g_strdup ("Windows");
-                #else
-                gchar* sys_name;
-                struct utsname name;
-                if (uname (&name) != -1)
-                    sys_name = g_strdup_printf ("%s %s", name.sysname, name.machine);
-                else
-                    sys_name = g_strdup ("Unix");
-                #endif
 
                 katze_assign (view->uri, g_strdup (uri));
-                #ifdef G_ENABLE_DEBUG
-                    #define DEBUGGING " (Debug)"
-                #else
-                    #define DEBUGGING ""
-                #endif
                 data = g_strdup_printf (
                     "<html><head><title>about:version</title></head>"
                     "<body><h1>about:version</h1>"
@@ -3902,8 +3890,8 @@ midori_view_set_uri (MidoriView*  view,
                     "<img src=\"res://logo-shade.png\" "
                     "style=\"position: absolute; right: 15px; bottom: 15px; z-index: -9;\">"
                     "<table>"
-                    "<tr><td>Command line</td><td>%s</td></tr>"
-                    "<tr><td>Midori</td><td>" PACKAGE_VERSION "%s</td></tr>"
+                    "<tr><td>Command&nbsp;line</td><td>%s</td></tr>"
+                    "<tr><td>Midori</td><td>%s</td></tr>"
                     "<tr><td>WebKitGTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
@@ -3911,18 +3899,16 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>libnotify</td><td>%s</td></tr>"
                     "<tr><td>libunique</td><td>%s</td></tr>"
                     "<tr><td>libhildon</td><td>%s</td></tr>"
-                    "<tr><td>Platform</td><td>%s</td></tr>"
+                    "<tr><td>Platform</td><td>%s %s %s</td></tr>"
                     "<tr><td>Identification</td><td>%s</td></tr>"
+                    "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>"
                     "</table>"
                     "<h2>Netscape Plugins:</h2><table>%s</table>"
-                    "<h2>Video Formats:</h2><table>%s</table>"
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
-                    DEBUGGING,
-                    WEBKIT_MAJOR_VERSION,
-                    WEBKIT_MINOR_VERSION,
-                    WEBKIT_MICRO_VERSION,
+                    PACKAGE_VERSION,
+                    WEBKIT_MAJOR_VERSION, WEBKIT_MINOR_VERSION, WEBKIT_MICRO_VERSION,
                     webkit_major_version (),
                     webkit_minor_version (),
                     webkit_micro_version (),
@@ -3931,15 +3917,13 @@ midori_view_set_uri (MidoriView*  view,
                     GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
                     glib_major_version, glib_minor_version, glib_micro_version,
                     LIBSOUP_VERSION,
-                    HAVE_LIBNOTIFY ? "Yes" : "No",
-                    HAVE_UNIQUE ? "Yes" : "No",
+                    LIBNOTIFY_VERSION,
+                    UNIQUE_VERSION,
                     HAVE_HILDON ? "Yes" : "No",
-                    sys_name, ident,
-                    netscape_plugins,
-                    video_formats);
+                    platform, sys_name, architecture ? architecture : "", ident,
+                    video_formats, netscape_plugins);
                 g_free (command_line);
                 g_free (ident);
-                g_free (sys_name);
                 g_free (netscape_plugins);
                 g_free (video_formats);
            }

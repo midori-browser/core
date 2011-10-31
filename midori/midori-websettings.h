@@ -167,6 +167,10 @@ void
 midori_web_settings_remove_style           (MidoriWebSettings* settings,
                                             const gchar*       rule_id);
 
+const gchar*
+midori_web_settings_get_system_name        (gchar**            architecture,
+                                            gchar**            platform);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_SETTINGS_H__ */

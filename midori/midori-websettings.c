@@ -1159,9 +1159,10 @@ midori_web_settings_finalize (GObject* object)
 
 #if (!HAVE_OSX && defined (G_OS_UNIX)) || defined (G_OS_WIN32)
 static gchar*
-get_sys_name (void)
+get_sys_name (gchar** architecture)
 {
     static gchar* sys_name = NULL;
+    static gchar* sys_architecture = NULL;
 
     if (!sys_name)
     {
@@ -1172,20 +1173,42 @@ get_sys_name (void)
         #else
         struct utsname name;
         if (uname (&name) != -1)
-            sys_name = g_strdup(name.sysname);
+        {
+            sys_name = g_strdup (name.sysname);
+            sys_architecture = g_strdup (name.machine);
+        }
         else
             sys_name = "Linux";
         #endif
     }
+
+    if (architecture != NULL)
+        *architecture = sys_architecture;
     return sys_name;
 }
 #endif
 
-static gchar*
-generate_ident_string (MidoriWebSettings* web_settings,
-                       MidoriIdentity     identify_as)
+/**
+ * midori_web_settings_get_system_name:
+ * @architecture: location of a string, or %NULL
+ * @platform: location of a string, or %NULL
+ *
+ * Determines the system name, architecture and platform.
+ * @architecturce can have a %NULL value.
+ *
+ * Returns: a string
+ *
+ * Since: 0.4.2
+ **/
+const gchar*
+midori_web_settings_get_system_name (gchar** architecture,
+                                     gchar** platform)
 {
-    const gchar* platform =
+    if (architecture != NULL)
+        *architecture = NULL;
+
+    if (platform != NULL)
+        *platform =
     #if HAVE_HILDON
     "Maemo;"
     #elif defined (G_OS_WIN32)
@@ -1198,20 +1221,27 @@ generate_ident_string (MidoriWebSettings* web_settings,
     "X11;";
     #endif
 
-    const gchar* os =
+    return
     #if HAVE_OSX
     "Mac OS X";
     #elif defined (G_OS_UNIX) || defined (G_OS_WIN32)
-    get_sys_name ();
+    get_sys_name (architecture);
     #else
     "Linux";
     #endif
+}
 
+static gchar*
+generate_ident_string (MidoriWebSettings* web_settings,
+                       MidoriIdentity     identify_as)
+{
     const gchar* appname = "Midori/"
         G_STRINGIFY (MIDORI_MAJOR_VERSION) "."
         G_STRINGIFY (MIDORI_MINOR_VERSION);
 
     const gchar* lang = pango_language_to_string (gtk_get_default_language ());
+    gchar* platform;
+    const gchar* os = midori_web_settings_get_system_name (NULL, &platform);
 
     const int webcore_major = WEBKIT_USER_AGENT_MAJOR_VERSION;
     const int webcore_minor = WEBKIT_USER_AGENT_MINOR_VERSION;

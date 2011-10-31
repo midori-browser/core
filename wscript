@@ -178,8 +178,12 @@ def configure (conf):
         unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
         if unique != 'yes':
             option_checkfatal ('unique', 'single instance')
+            conf.define ('UNIQUE_VERSION', 'No')
+        else:
+            conf.define ('UNIQUE_VERSION', conf.check_cfg (modversion='unique-1.0'))
     else:
         unique = 'no '
+        conf.define ('UNIQUE_VERSION', 'No')
     conf.define ('HAVE_UNIQUE', [0,1][unique == 'yes'])
 
     if option_enabled ('libnotify'):
@@ -187,8 +191,12 @@ def configure (conf):
         libnotify = ['N/A','yes'][conf.env['HAVE_LIBNOTIFY'] == 1]
         if libnotify != 'yes':
             option_checkfatal ('libnotify', 'notifications')
+            conf.define ('LIBNOTIFY_VERSION', 'No')
+        else:
+            conf.define ('LIBNOTIFY_VERSION', conf.check_cfg (modversion='libnotify'))
     else:
         libnotify = 'no '
+        conf.define ('LIBNOTIFY_VERSION', 'No')
     conf.define ('HAVE_LIBNOTIFY', [0,1][libnotify == 'yes'])
 
     conf.check (lib='m', mandatory=True)
@@ -272,7 +280,6 @@ def configure (conf):
     else:
         conf.check (header_name='signal.h')
 
-    conf.define ('PACKAGE_VERSION', VERSION_FULL)
     conf.define ('PACKAGE_NAME', APPNAME)
     conf.define ('PACKAGE_BUGREPORT', 'https://bugs.launchpad.net/midori')
     conf.define ('GETTEXT_PACKAGE', APPNAME)
@@ -282,7 +289,6 @@ def configure (conf):
     conf.define ('MIDORI_MINOR_VERSION', minor)
     conf.define ('MIDORI_MICRO_VERSION', micro)
 
-    conf.write_config_header ('config.h')
     conf.env.append_value ('CCFLAGS', '-DHAVE_CONFIG_H -include config.h'.split ())
     debug_level = Options.options.debug_level
     compiler = conf.env['CC_NAME']
@@ -291,6 +297,13 @@ def configure (conf):
         sys.exit (1)
     elif debug_level == '':
         debug_level = 'debug'
+
+    if debug_level == 'full':
+        conf.define ('PACKAGE_VERSION', '%s (debug)' % VERSION_FULL)
+    else:
+        conf.define ('PACKAGE_VERSION', VERSION_FULL)
+    conf.write_config_header ('config.h')
+
     if compiler == 'gcc':
         if debug_level == 'none':
             if 'CCFLAGS' in os.environ:
