@@ -1046,17 +1046,10 @@ midori_browser_save_uri (MidoriBrowser* browser,
             g_free (filename);
         }
 
-        /* Try to provide a good default filename */
-        filename = g_filename_from_uri (uri, NULL, NULL);
-        if (!filename && (last_slash = g_strrstr (uri, "/")))
-        {
-            if (last_slash[0] == '/')
-                last_slash++;
-            filename = g_strdup (last_slash);
-        }
-        else
-            filename = g_strdup (uri);
-        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), filename);
+        /* Try to provide a good default filename, UTF-8 encoded */
+        filename = soup_uri_decode (uri);
+        last_slash = g_strrstr (filename, "/") + 1;
+        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), last_slash);
         g_free (filename);
     }
 
