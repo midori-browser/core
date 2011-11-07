@@ -126,5 +126,31 @@ namespace Midori {
              && uri.chr (-1, ' ') == null
              && (URI.is_location (uri) || uri.chr (-1, '.') != null);
         }
+        public static GLib.ChecksumType get_fingerprint (string uri,
+            out string checksum, out string label) {
+
+            /* http://foo.bar/baz/spam.eggs#!algo!123456 */
+            unowned string delimiter = "#!md5!";
+            unowned string display = _("MD5-Checksum:");
+            GLib.ChecksumType type = GLib.ChecksumType.MD5;
+            unowned string? fragment = uri.str (delimiter);
+            if (fragment == null) {
+                delimiter = "#!sha1!";
+                display = _("SHA1-Checksum:");
+                type = GLib.ChecksumType.SHA1;
+                fragment = uri.str (delimiter);
+            }
+            if (fragment == null) {
+                type = (GLib.ChecksumType)int.MAX;
+                display = null;
+            }
+
+            if (&checksum != null)
+                checksum = fragment != null
+                    ? fragment.offset (delimiter.length) : null;
+            if (&label != null)
+                label = display;
+            return type;
+        }
     }
 }

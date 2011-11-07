@@ -209,6 +209,22 @@ magic_uri_performance (void)
 }
 
 static void
+magic_uri_fingerprint (void)
+{
+    const gchar* uri;
+    uri = "http://midori-0.4.1.tar.bz2#!md5!33dde203cd71ae2b1d2adcc7f5739f65";
+    g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_CHECKSUM_MD5);
+    uri = "http://midori-0.4.1.tar.bz2#!md5!33DDE203CD71AE2B1D2ADCC7F5739F65";
+    g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_CHECKSUM_MD5);
+    uri = "http://midori-0.4.1.tar.bz2#!sha1!0c499459b1049feabf86dce89f49020139a9efd9";
+    g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_CHECKSUM_SHA1);
+    uri = "http://midori-0.4.1.tar.bz2#!sha256!123456";
+    g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_MAXINT);
+    uri = "http://midori-0.4.1.tar.bz2#abcdefg";
+    g_assert_cmpint (midori_uri_get_fingerprint (uri, NULL, NULL), ==, G_MAXINT);
+}
+
+static void
 magic_uri_format (void)
 {
     typedef struct
@@ -269,6 +285,7 @@ main (int    argc,
     g_test_add_func ("/magic-uri/search", magic_uri_search);
     g_test_add_func ("/magic-uri/pseudo", magic_uri_pseudo);
     g_test_add_func ("/magic-uri/performance", magic_uri_performance);
+    g_test_add_func ("/magic-uri/fingerprint", magic_uri_fingerprint);
     g_test_add_func ("/magic-uri/format", magic_uri_format);
     g_test_add_func ("/magic-uri/prefetch", magic_uri_prefetch);
 

@@ -2729,7 +2729,8 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     WebKitWebDataSource* datasource;
     WebKitNetworkRequest* original_request;
     const gchar* original_uri;
-    gchar** fingerprint;
+    gchar* fingerprint;
+    gchar* fplabel;
     #if GTK_CHECK_VERSION (2, 14, 0)
     GIcon* icon;
     GtkWidget* image;
@@ -2793,22 +2794,11 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     datasource = webkit_web_frame_get_provisional_data_source (web_frame);
     original_request = webkit_web_data_source_get_initial_request (datasource);
     original_uri = webkit_network_request_get_uri (original_request);
-    fingerprint = g_strsplit (original_uri, "#!md5!", 2);
-    if (fingerprint && fingerprint[0] && fingerprint[1])
-        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-            "%s\n%s %s", file_type, _("MD5-Checksum:"), fingerprint[1]);
-    else
-    {
-        g_strfreev (fingerprint);
-        fingerprint = g_strsplit (original_uri, "#!sha1!", 2);
-        if (fingerprint && fingerprint[0] && fingerprint[1])
-            gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-                "%s\n%s %s", file_type, _("SHA1-Checksum:"), fingerprint[1]);
-        else
-            gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-                "%s", file_type);
-    }
-    g_strfreev (fingerprint);
+    midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
+    gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+        "%s\n%s %s", file_type, fplabel ? fplabel : "", fingerprint ? fingerprint : "");
+    g_free (fingerprint);
+    g_free (fplabel);
     g_free (file_type);
 
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
