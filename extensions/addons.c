@@ -1781,13 +1781,19 @@ addons_directory_monitor_changed (GFileMonitor*     monitor,
                                   GFileMonitorEvent flags,
                                   MidoriExtension*  extension)
 {
-    char* basename;
+    GFileInfo* info;
     GSource* source;
 
-    basename = g_file_get_basename (child);
-    if (g_str_has_prefix (basename, ".") ||
-        g_str_has_suffix (basename, "~")) /* Hidden or temporary files */
-        return;
+    info = g_file_query_info (child,
+        "standard::is-hidden,standard::is-backup", 0, NULL, NULL);
+    if (info != NULL)
+    {
+        gboolean hidden = g_file_info_get_is_hidden (info)
+                       || g_file_info_get_is_backup (info);
+        g_object_unref (info);
+        if (hidden)
+            return;
+    }
 
     /* We receive a lot of change events, so we use a timeout to trigger
        elements update only once */
