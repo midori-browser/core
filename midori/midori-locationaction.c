@@ -1683,7 +1683,7 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         }
         else if (hint == MIDORI_SECURITY_TRUSTED)
         {
-            gdk_color_parse ("#fcf19a", &bg_color);
+            gdk_color_parse ("#d1eeb9", &bg_color);
             gdk_color_parse ("#000", &fg_color);
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
