@@ -398,10 +398,8 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
             g_object_unref (icon);
         }
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-        #if GTK_CHECK_VERSION (2, 16, 0)
         gtk_image_menu_item_set_always_show_image (
             GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
-        #endif
         gtk_menu_shell_append (menu, menuitem);
         g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
         if (KATZE_ITEM_IS_FOLDER (item))
@@ -622,10 +620,8 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
         g_object_unref (icon);
     }
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
-    #if GTK_CHECK_VERSION (2, 16, 0)
     gtk_image_menu_item_set_always_show_image (
         GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
-    #endif
     g_object_set_data (G_OBJECT (menuitem), "KatzeItem", item);
     if (KATZE_ITEM_IS_FOLDER (item))
     {

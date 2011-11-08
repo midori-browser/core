@@ -2450,10 +2450,8 @@ midori_view_populate_popup (MidoriView* view,
                 else
                     icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
                 gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), icon);
-                #if GTK_CHECK_VERSION (2, 16, 0)
                 gtk_image_menu_item_set_always_show_image (
                     GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
-                #endif
                 gtk_menu_shell_insert (GTK_MENU_SHELL (sub_menu), menuitem, i);
                 g_object_set_data (G_OBJECT (menuitem), "search",
                                    (gchar*)katze_item_get_uri (item));

@@ -31,6 +31,7 @@ G_BEGIN_DECLS
     #define gtk_menu_item_set_label(menuitem, label) \
         gtk_label_set_label (GTK_LABEL (GTK_BIN (menuitem)->child), \
                              label ? label : "");
+    #define gtk_image_menu_item_set_always_show_image(menuitem, yesno) ()
 #endif
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
