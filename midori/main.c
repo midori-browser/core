@@ -202,6 +202,19 @@ settings_save_to_file (MidoriWebSettings* settings,
         {
             gchar* string;
             const gchar* def_string = G_PARAM_SPEC_STRING (pspec)->default_value;
+            if (!strcmp (property, "user-stylesheet-uri"))
+            {
+                const gchar* user_stylesheet_uri = g_object_get_data (G_OBJECT (settings), property);
+                if (user_stylesheet_uri)
+                {
+                    g_key_file_set_string (key_file, "settings", property,
+                        user_stylesheet_uri);
+                }
+                else
+                    g_key_file_remove_key (key_file, "settings", property, NULL);
+                continue;
+            }
+
             g_object_get (settings, property, &string, NULL);
             if (!string)
                 string = g_strdup ("");
