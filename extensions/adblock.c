@@ -69,7 +69,6 @@ adblock_build_js (const gchar* private)
         "           public += ', .'+sites[i];"
         "           break;"
         "   }}"
-        "   public += ' {display: none !important}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
         "   mystyle.setAttribute('id', 'madblock');"
@@ -1304,6 +1303,7 @@ adblock_parse_file (gchar* path)
     {
         while (fgets (line, 2000, file))
             adblock_parse_line (line);
+        g_string_append (blockcss, "{display: none !important}\n");
         fclose (file);
         return TRUE;
     }
