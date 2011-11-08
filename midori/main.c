@@ -2308,17 +2308,6 @@ main (int    argc,
         g_error ("--inactivity-reset is currently only supported with --app.");
 
     sokoke_set_config_dir (config);
-    if (config)
-    {
-        gchar* name_hash;
-        gchar* app_name;
-        name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
-        app_name = g_strconcat ("midori", "_", name_hash, NULL);
-        g_free (name_hash);
-        app = g_object_new (MIDORI_TYPE_APP, "name", app_name, NULL);
-        g_free (app_name);
-    }
-    else
         app = midori_app_new ();
     katze_assign (config, (gchar*)sokoke_set_config_dir (NULL));
     midori_startup_timer ("App created: \t%f");

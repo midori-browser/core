@@ -674,8 +674,7 @@ midori_app_io_channel_watch_cb (GIOChannel*  channel,
 #endif
 
 static MidoriAppInstance
-midori_app_create_instance (MidoriApp*   app,
-                            const gchar* name)
+midori_app_create_instance (MidoriApp* app)
 {
     MidoriAppInstance instance;
 
@@ -711,8 +710,15 @@ midori_app_create_instance (MidoriApp*   app,
     GIOChannel* channel;
     #endif
 
-    if (!name)
-        name = "midori";
+    if (!app->name)
+    {
+        const gchar* config = sokoke_set_config_dir (NULL);
+        gchar* name_hash;
+        name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
+        app->name = g_strconcat ("midori", "_", name_hash, NULL);
+        g_free (name_hash);
+        g_object_notify (G_OBJECT (app), "name");
+    }
 
     if (!(display = gdk_display_get_default ()))
         return MidoriAppInstanceNull;
@@ -723,7 +729,7 @@ midori_app_create_instance (MidoriApp*   app,
         if (display_name[i] == ':' || display_name[i] == '.'
          || display_name[i] == '\\')
             display_name[i] = '_';
-    instance_name = g_strdup_printf ("de.twotoasts.%s_%s", name, display_name);
+    instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app->name, display_name);
 
     #if HAVE_UNIQUE
     instance = unique_app_new (instance_name, NULL);
@@ -900,8 +906,6 @@ midori_app_get_property (GObject*    object,
  *
  * Instantiates a new #MidoriApp singleton.
  *
- * Subsequent calls will ref the initial instance.
- *
  * Return value: a new #MidoriApp
  **/
 MidoriApp*
@@ -931,7 +935,7 @@ midori_app_instance_is_running (MidoriApp* app)
     g_return_val_if_fail (MIDORI_IS_APP (app), FALSE);
 
     if (app->instance == MidoriAppInstanceNull)
-        app->instance = midori_app_create_instance (app, app->name);
+        app->instance = midori_app_create_instance (app);
 
     #if HAVE_HILDON
     /* FIXME: Determine if application is running already */
@@ -1284,7 +1288,7 @@ midori_app_send_notification (MidoriApp*   app,
 }
 
 /**
- * midori_app_init:
+ * midori_app_setup:
  *
  * Saves the argument vector, initializes threading and registers
  * several custom stock items and prepares localization.
