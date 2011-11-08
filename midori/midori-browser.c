@@ -2792,37 +2792,6 @@ midori_browser_toolbar_popup_context_menu_cb (GtkWidget*     widget,
     return TRUE;
 }
 
-static void
-midori_browser_menu_item_select_cb (GtkWidget*     menuitem,
-                                    MidoriBrowser* browser)
-{
-    GtkAction* action;
-    gchar* tooltip;
-
-    action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (menuitem));
-    tooltip = action ? katze_object_get_string (action, "tooltip") : NULL;
-    if (!tooltip)
-    {
-        /* This is undocumented object data, used by KatzeArrayAction. */
-        KatzeItem* item = g_object_get_data (G_OBJECT (menuitem), "KatzeItem");
-        if (item)
-        {
-            tooltip = g_strdup (katze_item_get_uri (item));
-            sokoke_prefetch_uri (midori_browser_get_settings (browser),
-                                 tooltip, NULL, NULL);
-        }
-    }
-    _midori_browser_set_statusbar_text (browser, tooltip);
-    g_free (tooltip);
-}
-
-static void
-midori_browser_menu_item_deselect_cb (GtkWidget*     menuitem,
-                                      MidoriBrowser* browser)
-{
-    _midori_browser_set_statusbar_text (browser, NULL);
-}
-
 static gboolean
 midori_bookmarkbar_activate_item_alt (GtkAction*     action,
                                       KatzeItem*     item,
@@ -2847,18 +2816,7 @@ _action_trash_populate_popup (GtkAction*     action,
                               GtkMenu*       menu,
                               MidoriBrowser* browser)
 {
-    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
-    guint i = 0;
     GtkWidget* menuitem;
-
-    while ((menuitem = g_list_nth_data (children, i++)))
-    {
-        g_signal_connect (menuitem, "select",
-            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
-        g_signal_connect (menuitem, "deselect",
-            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
-    }
-    g_list_free (children);
 
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
@@ -3023,18 +2981,7 @@ _action_window_populate_popup (GtkAction*     action,
                                GtkMenu*       menu,
                                MidoriBrowser* browser)
 {
-    GList* children = gtk_container_get_children (GTK_CONTAINER (menu));
-    guint i = 0;
     GtkWidget* menuitem;
-
-    while ((menuitem = g_list_nth_data (children, i++)))
-    {
-        g_signal_connect (menuitem, "select",
-            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
-        g_signal_connect (menuitem, "deselect",
-            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
-    }
-    g_list_free (children);
 
     menuitem = gtk_separator_menu_item_new ();
     gtk_menu_shell_prepend (GTK_MENU_SHELL (menu), menuitem);
@@ -3512,6 +3459,7 @@ static void
 _action_caret_browsing_activate (GtkAction*     action,
                                  MidoriBrowser* browser)
 {
+    _("Toggle text cursor navigation");
     g_object_set (browser->settings, "enable-caret-browsing",
         !katze_object_get_boolean (browser->settings, "enable-caret-browsing"), NULL);
 }
@@ -5191,8 +5139,7 @@ static const GtkActionEntry entries[] =
         N_("Open a new tab"), G_CALLBACK (_action_tab_new_activate) },
     { "PrivateBrowsing", NULL,
         N_("New P_rivate Browsing Window"), "<Ctrl><Shift>n",
-        N_("Don't save any private data while browsing"),
-        G_CALLBACK (_action_private_browsing_activate), },
+        NULL, G_CALLBACK (_action_private_browsing_activate), },
     { "Open", GTK_STOCK_OPEN,
         NULL, "<Ctrl>o",
         N_("Open a file"), G_CALLBACK (_action_open_activate) },
@@ -5201,18 +5148,17 @@ static const GtkActionEntry entries[] =
         N_("Save to a file"), G_CALLBACK (_action_save_as_activate) },
     { "AddSpeedDial", NULL,
         N_("Add to Speed _dial"), "<Ctrl>h",
-        N_("Add shortcut to speed dial"), G_CALLBACK (_action_add_speed_dial_activate) },
+        NULL, G_CALLBACK (_action_add_speed_dial_activate) },
     { "AddDesktopShortcut", NULL,
     #if HAVE_HILDON
         N_("Add Shortcut to the _desktop"), "<Ctrl>j",
-        N_("Add shortcut to the desktop"), G_CALLBACK (_action_add_desktop_shortcut_activate) },
     #else
         N_("Create _Launcher"), "<Ctrl>j",
-        N_("Create a launcher"), G_CALLBACK (_action_add_desktop_shortcut_activate) },
     #endif
+        NULL, G_CALLBACK (_action_add_desktop_shortcut_activate) },
     { "AddNewsFeed", NULL,
         N_("Subscribe to News _feed"), NULL,
-        N_("Subscribe to this news feed"), G_CALLBACK (_action_add_news_feed_activate) },
+        NULL, G_CALLBACK (_action_add_news_feed_activate) },
     { "CompactAdd", GTK_STOCK_ADD,
         NULL, NULL,
         NULL, G_CALLBACK (_action_compact_add_activate) },
@@ -5221,46 +5167,45 @@ static const GtkActionEntry entries[] =
         N_("Close the current tab"), G_CALLBACK (_action_tab_close_activate) },
     { "WindowClose", NULL,
         N_("C_lose Window"), "<Ctrl><Shift>w",
-        N_("Close this window"), G_CALLBACK (_action_window_close_activate) },
+        NULL, G_CALLBACK (_action_window_close_activate) },
     { "Print", GTK_STOCK_PRINT,
         NULL, "<Ctrl>p",
         N_("Print the current page"), G_CALLBACK (_action_print_activate) },
     { "Quit", GTK_STOCK_QUIT,
         N_("Close a_ll Windows"), "<Ctrl><Shift>q",
-        N_("Close all open windows"), G_CALLBACK (_action_quit_activate) },
+        NULL, G_CALLBACK (_action_quit_activate) },
 
     { "Edit", NULL, N_("_Edit"), NULL, NULL, G_CALLBACK (_action_edit_activate) },
     { "Undo", GTK_STOCK_UNDO,
         NULL, "<Ctrl>z",
-        N_("Undo the last modification"), G_CALLBACK (_action_undo_activate) },
+        NULL, G_CALLBACK (_action_undo_activate) },
     { "Redo", GTK_STOCK_REDO,
         NULL, "<Ctrl><Shift>z",
-        N_("Redo the last modification"), G_CALLBACK (_action_redo_activate) },
+        NULL, G_CALLBACK (_action_redo_activate) },
     { "Cut", GTK_STOCK_CUT,
         NULL, "<Ctrl>x",
-        N_("Cut the selected text"), G_CALLBACK (_action_cut_activate) },
+        NULL, G_CALLBACK (_action_cut_activate) },
     { "Copy", GTK_STOCK_COPY,
         NULL, "<Ctrl>c",
-        N_("Copy the selected text"), G_CALLBACK (_action_copy_activate) },
+        NULL, G_CALLBACK (_action_copy_activate) },
     { "Paste", GTK_STOCK_PASTE,
         NULL, "<Ctrl>v",
-        N_("Paste text from the clipboard"), G_CALLBACK (_action_paste_activate) },
+        NULL, G_CALLBACK (_action_paste_activate) },
     { "Delete", GTK_STOCK_DELETE,
         NULL, NULL,
-        N_("Delete the selected text"), G_CALLBACK (_action_delete_activate) },
+        NULL, G_CALLBACK (_action_delete_activate) },
     { "SelectAll", GTK_STOCK_SELECT_ALL,
         NULL, "<Ctrl>a",
-        N_("Select all text"), G_CALLBACK (_action_select_all_activate) },
+        NULL, G_CALLBACK (_action_select_all_activate) },
     { "Find", GTK_STOCK_FIND,
         N_("_Find..."), "<Ctrl>f",
         N_("Find a word or phrase in the page"), G_CALLBACK (_action_find_activate) },
     { "FindNext", GTK_STOCK_GO_FORWARD,
         N_("Find _Next"), "<Ctrl>g",
-        N_("Find the next occurrence of a word or phrase"), G_CALLBACK (_action_find_next_activate) },
+        NULL, G_CALLBACK (_action_find_next_activate) },
     { "FindPrevious", GTK_STOCK_GO_BACK,
         N_("Find _Previous"), "<Ctrl><Shift>g",
-        N_("Find the previous occurrence of a word or phrase"),
-        G_CALLBACK (_action_find_previous_activate) },
+        NULL, G_CALLBACK (_action_find_previous_activate) },
     { "Preferences", GTK_STOCK_PREFERENCES,
         NULL, "<Ctrl><Alt>p",
         N_("Configure the application preferences"), G_CALLBACK (_action_preferences_activate) },
@@ -5272,7 +5217,7 @@ static const GtkActionEntry entries[] =
         N_("Reload the current page"), G_CALLBACK (_action_reload_stop_activate) },
     { "ReloadUncached", GTK_STOCK_REFRESH,
         N_("Reload page without caching"), "<Ctrl><Shift>r",
-        N_("Reload page without caching"), G_CALLBACK (_action_reload_stop_activate) },
+        NULL, G_CALLBACK (_action_reload_stop_activate) },
     { "Stop", GTK_STOCK_STOP,
         NULL, "Escape",
         N_("Stop loading the current page"), G_CALLBACK (_action_reload_stop_activate) },
@@ -5287,29 +5232,29 @@ static const GtkActionEntry entries[] =
         N_("Decrease the zoom level"), G_CALLBACK (_action_zoom_activate) },
     { "ZoomNormal", GTK_STOCK_ZOOM_100,
         NULL, "<Ctrl>0",
-        N_("Reset the zoom level"), G_CALLBACK (_action_zoom_activate) },
+        NULL, G_CALLBACK (_action_zoom_activate) },
     { "Encoding", NULL, N_("_Encoding") },
     { "SourceView", NULL,
         N_("View So_urce"), "<Ctrl><Alt>U",
-        N_("View the source code of the page"), G_CALLBACK (_action_source_view_activate) },
+        NULL, G_CALLBACK (_action_source_view_activate) },
     { "CaretBrowsing", NULL,
         N_("Ca_ret Browsing"), "F7",
-        N_("Toggle text cursor navigation"), G_CALLBACK (_action_caret_browsing_activate) },
+        NULL, G_CALLBACK (_action_caret_browsing_activate) },
     { "Fullscreen", GTK_STOCK_FULLSCREEN,
         NULL, "F11",
         N_("Toggle fullscreen view"), G_CALLBACK (_action_fullscreen_activate) },
     { "ScrollLeft", NULL,
         N_("Scroll _Left"), "h",
-        N_("Scroll to the left"), G_CALLBACK (_action_scroll_somewhere_activate) },
+        NULL, G_CALLBACK (_action_scroll_somewhere_activate) },
     { "ScrollDown", NULL,
         N_("Scroll _Down"), "j",
-        N_("Scroll down"), G_CALLBACK (_action_scroll_somewhere_activate) },
+        NULL, G_CALLBACK (_action_scroll_somewhere_activate) },
     { "ScrollUp", NULL,
         N_("Scroll _Up"), "k",
-        N_("Scroll up"), G_CALLBACK (_action_scroll_somewhere_activate) },
+        NULL, G_CALLBACK (_action_scroll_somewhere_activate) },
     { "ScrollRight", NULL,
         N_("Scroll _Right"), "l",
-        N_("Scroll to the right"), G_CALLBACK (_action_scroll_somewhere_activate) },
+        NULL, G_CALLBACK (_action_scroll_somewhere_activate) },
 
     { "Go", NULL, N_("_Go") },
     { "Back", GTK_STOCK_GO_BACK,
@@ -5331,17 +5276,17 @@ static const GtkActionEntry entries[] =
         N_("Go to your homepage"), G_CALLBACK (_action_navigation_activate) },
     { "TrashEmpty", GTK_STOCK_CLEAR,
         N_("Empty Trash"), "",
-        N_("Delete the contents of the trash"), G_CALLBACK (_action_trash_empty_activate) },
+        NULL, G_CALLBACK (_action_trash_empty_activate) },
     { "UndoTabClose", GTK_STOCK_UNDELETE,
         N_("Undo _Close Tab"), "<Ctrl><Shift>t",
-        N_("Open the last closed tab"), G_CALLBACK (_action_undo_tab_close_activate) },
+        NULL, G_CALLBACK (_action_undo_tab_close_activate) },
 
     { "BookmarkAdd", STOCK_BOOKMARK_ADD,
         NULL, "<Ctrl>d",
         N_("Add a new bookmark"), G_CALLBACK (_action_bookmark_add_activate) },
     { "BookmarkFolderAdd", NULL,
         N_("Add a new _folder"), "",
-        N_("Add a new bookmark folder"), G_CALLBACK (_action_bookmark_add_activate) },
+        NULL, G_CALLBACK (_action_bookmark_add_activate) },
     { "BookmarksImport", NULL,
         N_("_Import bookmarks"), "",
         NULL, G_CALLBACK (_action_bookmarks_import_activate) },
@@ -5350,56 +5295,53 @@ static const GtkActionEntry entries[] =
         NULL, G_CALLBACK (_action_bookmarks_export_activate) },
     { "ManageSearchEngines", GTK_STOCK_PROPERTIES,
         N_("_Manage Search Engines"), "<Ctrl><Alt>s",
-        N_("Add, edit and remove search engines..."),
-        G_CALLBACK (_action_manage_search_engines_activate) },
+        NULL, G_CALLBACK (_action_manage_search_engines_activate) },
     { "ClearPrivateData", NULL,
         N_("_Clear Private Data"), "<Ctrl><Shift>Delete",
-        N_("Clear private data..."),
-        G_CALLBACK (_action_clear_private_data_activate) },
+        NULL, G_CALLBACK (_action_clear_private_data_activate) },
     { "InspectPage", NULL,
         N_("_Inspect Page"), "<Ctrl><Shift>i",
-        N_("Inspect page details and access developer tools..."),
-        G_CALLBACK (_action_inspect_page_activate) },
+        NULL, G_CALLBACK (_action_inspect_page_activate) },
 
     { "TabPrevious", GTK_STOCK_GO_BACK,
         N_("_Previous Tab"), "<Ctrl>Page_Up",
-        N_("Switch to the previous tab"), G_CALLBACK (_action_tab_previous_activate) },
+        NULL, G_CALLBACK (_action_tab_previous_activate) },
     { "TabNext", GTK_STOCK_GO_FORWARD,
         N_("_Next Tab"), "<Ctrl>Page_Down",
-        N_("Switch to the next tab"), G_CALLBACK (_action_tab_next_activate) },
+        NULL, G_CALLBACK (_action_tab_next_activate) },
     { "TabMoveBackward", NULL, N_("Move Tab _Backward"), "<Ctrl><Shift>Page_Up",
-       N_("Move tab behind the previous tab"), G_CALLBACK (_action_tab_move_backward_activate) },
+       NULL, G_CALLBACK (_action_tab_move_backward_activate) },
     { "TabMoveForward", NULL, N_("_Move Tab Forward"), "<Ctrl><Shift>Page_Down",
-       N_("Move tab in front of the next tab"), G_CALLBACK (_action_tab_move_forward_activate) },
+       NULL, G_CALLBACK (_action_tab_move_forward_activate) },
     { "TabCurrent", NULL,
         N_("Focus _Current Tab"), "<Ctrl>Home",
-        N_("Focus the current tab"), G_CALLBACK (_action_tab_current_activate) },
+        NULL, G_CALLBACK (_action_tab_current_activate) },
     { "NextView", NULL,
         N_("Focus _Next view"), "F6",
-        N_("Cycle focus between views"), G_CALLBACK (_action_next_view_activate) },
+        NULL, G_CALLBACK (_action_next_view_activate) },
     { "TabMinimize", NULL,
         N_("Only show the Icon of the _Current Tab"), "",
-        N_("Only show the icon of the current tab"), G_CALLBACK (_action_tab_minimize_activate) },
+        NULL, G_CALLBACK (_action_tab_minimize_activate) },
     { "TabDuplicate", NULL,
         N_("_Duplicate Current Tab"), "",
-        N_("Duplicate the current tab"), G_CALLBACK (_action_tab_duplicate_activate) },
+        NULL, G_CALLBACK (_action_tab_duplicate_activate) },
     { "TabCloseOther", NULL,
         N_("Close Ot_her Tabs"), "",
-        N_("Close all tabs except the current tab"), G_CALLBACK (_action_tab_close_other_activate) },
+        NULL, G_CALLBACK (_action_tab_close_other_activate) },
     { "LastSession", NULL,
         N_("Open last _session"), NULL,
-        N_("Open the tabs saved in the last session"), NULL },
+        NULL, NULL },
 
     { "Help", NULL, N_("_Help") },
     { "HelpFAQ", GTK_STOCK_HELP,
         N_("_Frequent Questions"), "F1",
-        N_("Show the Frequently Asked Questions"), G_CALLBACK (_action_help_link_activate) },
+        NULL, G_CALLBACK (_action_help_link_activate) },
     { "HelpBugs", NULL,
         N_("_Report a Problem..."), NULL,
-        N_("Open Midori's bug tracker"), G_CALLBACK (_action_help_link_activate) },
+        NULL, G_CALLBACK (_action_help_link_activate) },
     { "About", GTK_STOCK_ABOUT,
         NULL, "",
-        N_("Show information about the program"), G_CALLBACK (_action_about_activate) },
+        NULL, G_CALLBACK (_action_about_activate) },
     { "Dummy", NULL, "Dummy" },
 };
 static const guint entries_n = G_N_ELEMENTS (entries);
@@ -5408,23 +5350,23 @@ static const GtkToggleActionEntry toggle_entries[] =
 {
     { "Menubar", NULL,
         N_("_Menubar"), "",
-        N_("Show menubar"), G_CALLBACK (_action_menubar_activate),
+        NULL, G_CALLBACK (_action_menubar_activate),
         FALSE },
     { "Navigationbar", NULL,
         N_("_Navigationbar"), "",
-        N_("Show navigationbar"), G_CALLBACK (_action_navigationbar_activate),
+        NULL, G_CALLBACK (_action_navigationbar_activate),
         FALSE },
     { "Panel", GTK_STOCK_INDENT,
         N_("Side_panel"), "F9",
-        N_("Show sidepanel"), G_CALLBACK (_action_panel_activate),
+        N_("Sidepanel"), G_CALLBACK (_action_panel_activate),
         FALSE },
     { "Bookmarkbar", NULL,
         N_("_Bookmarkbar"), "",
-        N_("Show bookmarkbar"), G_CALLBACK (_action_bookmarkbar_activate),
+        NULL, G_CALLBACK (_action_bookmarkbar_activate),
         FALSE },
     { "Statusbar", NULL,
         N_("_Statusbar"), "",
-        N_("Show statusbar"), G_CALLBACK (_action_statusbar_activate),
+        NULL, G_CALLBACK (_action_statusbar_activate),
         FALSE },
 };
 static const guint toggle_entries_n = G_N_ELEMENTS (toggle_entries);
@@ -5815,36 +5757,6 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
     }
 }
 
-static void
-midori_browser_ui_manager_connect_proxy_cb (GtkUIManager*  ui_manager,
-                                            GtkAction*     action,
-                                            GtkWidget*     proxy,
-                                            MidoriBrowser* browser)
-{
-    if (GTK_IS_MENU_ITEM (proxy))
-    {
-        g_signal_connect (proxy, "select",
-            G_CALLBACK (midori_browser_menu_item_select_cb), browser);
-        g_signal_connect (proxy, "deselect",
-            G_CALLBACK (midori_browser_menu_item_deselect_cb), browser);
-    }
-}
-
-static void
-midori_browser_ui_manager_disconnect_proxy_cb (GtkUIManager*  ui_manager,
-                                               GtkAction*     action,
-                                               GtkWidget*     proxy,
-                                               MidoriBrowser* browser)
-{
-    if (GTK_IS_MENU_ITEM (proxy))
-    {
-        g_signal_handlers_disconnect_by_func (proxy,
-            midori_browser_menu_item_select_cb, browser);
-        g_signal_handlers_disconnect_by_func (proxy,
-            midori_browser_menu_item_deselect_cb, browser);
-    }
-}
-
 #ifdef HAVE_HILDON_2_2
 static void
 midori_browser_set_portrait_mode (MidoriBrowser* browser,
@@ -5952,10 +5864,6 @@ midori_browser_init (MidoriBrowser* browser)
         encoding_entries, encoding_entries_n, 0,
         G_CALLBACK (_action_view_encoding_activate), browser);
     ui_manager = gtk_ui_manager_new ();
-    g_signal_connect (ui_manager, "connect-proxy",
-        G_CALLBACK (midori_browser_ui_manager_connect_proxy_cb), browser);
-    g_signal_connect (ui_manager, "disconnect-proxy",
-        G_CALLBACK (midori_browser_ui_manager_disconnect_proxy_cb), browser);
     accel_group = gtk_ui_manager_get_accel_group (ui_manager);
     gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
     gtk_ui_manager_insert_action_group (ui_manager, browser->action_group, 0);
