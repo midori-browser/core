@@ -517,7 +517,7 @@ extension_init (void)
     extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Feed Panel"),
         "description", _("Read Atom/ RSS feeds"),
-        "version", "0.1",
+        "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Dale Whittaker <dayul@users.sf.net>",
         NULL);
 

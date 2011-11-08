@@ -201,7 +201,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Colorful Tabs"),
         "description", _("Tint each tab distinctly"),
-        "version", "0.5",
+        "version", "0.5" MIDORI_VERSION_SUFFIX,
         "authors", "Christian Dywan <christian@twotoasts.de>, Samuel Creshal <creshal@arcor.de>",
         NULL);
 

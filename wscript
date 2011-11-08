@@ -33,12 +33,14 @@ micro = 1
 
 APPNAME = 'midori'
 VERSION = VERSION_FULL = str (major) + '.' + str (minor) + '.' + str (micro)
+VERSION_SUFFIX = ' (%s)' % VERSION
 
 try:
     if os.path.isdir ('.git'):
         git = Utils.cmd_output (['git', 'describe'], silent=True)
         if git:
             VERSION_FULL = git.strip ()
+            VERSION_SUFFIX = VERSION_FULL.replace (VERSION, '')
 except:
     pass
 
@@ -300,8 +302,10 @@ def configure (conf):
 
     if debug_level == 'full':
         conf.define ('PACKAGE_VERSION', '%s (debug)' % VERSION_FULL)
+        conf.env.append_value ('CCFLAGS', '-DMIDORI_VERSION_SUFFIX="%s (debug)"' % VERSION_SUFFIX)
     else:
         conf.define ('PACKAGE_VERSION', VERSION_FULL)
+        conf.env.append_value ('CCFLAGS', '-DMIDORI_VERSION_SUFFIX="%s"' % VERSION_SUFFIX)
     conf.write_config_header ('config.h')
 
     if compiler == 'gcc':

@@ -3,6 +3,8 @@
 
 [CCode (cprefix = "Midori", lower_case_cprefix = "midori_")]
 namespace Midori {
+    public const string VERSION_SUFFIX;
+
     [CCode (cheader_filename = "midori/midori.h")]
     public class App : GLib.Object {
         public App ();

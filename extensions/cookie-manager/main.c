@@ -34,7 +34,7 @@ MidoriExtension *extension_init(void)
 	MidoriExtension *extension = g_object_new(MIDORI_TYPE_EXTENSION,
 		"name", _("Cookie Manager"),
 		"description", _("List, view and delete cookies"),
-		"version", "0.2",
+		"version", "0.2" MIDORI_VERSION_SUFFIX,
 		"authors", "Enrico Tröger <enrico(dot)troeger(at)uvena(dot)de>",
 		NULL);
 

@@ -1483,7 +1483,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Advertisement blocker"),
         "description", _("Block advertisements according to a filter list"),
-        "version", "0.5",
+        "version", "0.5" MIDORI_VERSION_SUFFIX,
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
     midori_extension_install_string_list (extension, "filters", NULL, G_MAXSIZE);

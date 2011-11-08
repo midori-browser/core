@@ -321,7 +321,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Shortcuts"),
         "description", _("View and edit keyboard shortcuts"),
-        "version", "0.1",
+        "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
 

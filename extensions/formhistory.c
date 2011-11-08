@@ -564,7 +564,7 @@ extension_init (void)
 
     if (formhistory_prepare_js ())
     {
-        ver = "1.0";
+        ver = "1.0" MIDORI_VERSION_SUFFIX;
         desc = g_strdup (_("Stores history of entered form data"));
     }
     else

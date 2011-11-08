@@ -568,7 +568,7 @@ namespace HistoryList {
         internal Manager () {
             GLib.Object (name: _("History List"),
                          description: _("Move to the last used tab when switching or closing tabs"),
-                         version: "0.4",
+                         version: "0.4" + Midori.VERSION_SUFFIX,
                          authors: "André Stösel <andre@stoesel.de>");
 
             this.install_integer ("TabClosingBehavior", TabClosingBehavior.LAST);

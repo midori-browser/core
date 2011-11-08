@@ -300,7 +300,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Mouse Gestures"),
         "description", _("Control Midori by moving the mouse"),
-        "version", "0.1",
+        "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "Matthias Kruk <mkruk@matthiaskruk.de>", NULL);
     midori_extension_install_integer (extension, "button", MOUSE_BUTTON_RIGHT);
 

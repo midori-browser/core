@@ -94,7 +94,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Copy Addresses of Tabs"),
         "description", _("Copy the addresses of all tabs to the clipboard"),
-        "version", "0.1",
+        "version", "0.1" MIDORI_VERSION_SUFFIX,
         "authors", "MonkeyOfDoom <pixelmonkey@ensellitis.com>",
         NULL);
 

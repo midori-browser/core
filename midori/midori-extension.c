@@ -425,8 +425,21 @@ midori_extension_set_property (GObject*      object,
         katze_assign (extension->priv->description, g_value_dup_string (value));
         break;
     case PROP_VERSION:
-        katze_assign (extension->priv->version, g_value_dup_string (value));
+    {
+        /* Don't show version suffix if it matches the running Midori */
+        const gchar* version = g_value_get_string (value);
+        if (g_str_has_suffix (version, MIDORI_VERSION_SUFFIX))
+            katze_assign (extension->priv->version,
+                g_strndup (version,
+                           strlen (version) - strlen (MIDORI_VERSION_SUFFIX)));
+        /* No version suffix at all, must be 0.4.1 or 0.4.1 git */
+        else if (!strchr (version, '-') && !strchr (version, '('))
+            katze_assign (extension->priv->version,
+                g_strconcat (version, " (0.4.1)", NULL));
+        else
+            katze_assign (extension->priv->version, g_strdup (version));
         break;
+    }
     case PROP_AUTHORS:
         katze_assign (extension->priv->authors, g_value_dup_string (value));
         break;

@@ -630,7 +630,7 @@ MidoriExtension *extension_init(void)
 	MidoriExtension* extension = g_object_new(MIDORI_TYPE_EXTENSION,
 		"name", _("Toolbar Editor"),
 		"description", _("Easily edit the toolbar layout"),
-		"version", "0.1",
+		"version", "0.1" MIDORI_VERSION_SUFFIX,
 		"authors", "Enrico Tröger <enrico(dot)troeger(at)uvena(dot)de>",
 		NULL);
 
