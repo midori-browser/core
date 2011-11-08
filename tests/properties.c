@@ -189,6 +189,8 @@ main (int    argc,
       char** argv)
 {
     midori_app_setup (argv);
+    g_object_set_data (G_OBJECT (webkit_get_default_session ()),
+                       "midori-session-initialized", (void*)1);
     g_test_init (&argc, &argv, NULL);
     gtk_init_check (&argc, &argv);
 
