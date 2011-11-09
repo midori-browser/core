@@ -1070,28 +1070,6 @@ css_metadata_from_file (const gchar* filename,
     g_io_channel_shutdown (channel, false, 0);
     g_io_channel_unref (channel);
 
-    if (*includes != NULL)
-    {
-        /* Styles may have a whitelist even though it is as good as none.
-           It's more efficient if we avoid that. */
-        GSList* list = *includes;
-        gboolean effectively_empty = TRUE;
-        while (list != NULL)
-        {
-            if (!g_str_has_suffix (list->data, "://"))
-            {
-                effectively_empty = FALSE;
-                break;
-            }
-            list = g_slist_next (list);
-        }
-        if (effectively_empty)
-        {
-            g_slist_free (list);
-            *includes = NULL;
-        }
-    }
-
     return TRUE;
 }
 
