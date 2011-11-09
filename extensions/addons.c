@@ -1020,19 +1020,19 @@ css_metadata_from_file (const gchar* filename,
                      rest_of_line = g_strdup (line);
 
                  rest_of_line = g_strstrip (rest_of_line);
-                 line_has_meta  = g_str_has_suffix (rest_of_line, "{") ? FALSE : TRUE;
+                 line_has_meta  = !g_str_has_suffix (rest_of_line, "{");
 
-                 parts = g_strsplit (rest_of_line, " ", 0);
+                 parts = g_strsplit_set (rest_of_line, " ,", 0);
                  i = 0;
-                 while (parts[i] && (*parts[i] != '\0' && *parts[i] != '{'))
+                 while (parts[i] && *parts[i] != '{')
                  {
                      gchar* value = NULL;
                      if (g_str_has_prefix (parts[i], "url-prefix("))
-                         value = g_strdup (parts[i] + strlen ("url-prefix("));
+                        value = &parts[i][strlen ("url-prefix(")];
                      else if (g_str_has_prefix (parts[i], "domain("))
-                         value = g_strdup (parts[i] + strlen ("domain("));
+                        value = &parts[i][strlen ("domain(")];
                      else if (g_str_has_prefix (parts[i], "url("))
-                         value = g_strdup (parts[i] + strlen ("url("));
+                        value = &parts[i][strlen ("url(")];
                     if (value)
                     {
                          guint begin, end;
@@ -1054,7 +1054,6 @@ css_metadata_from_file (const gchar* filename,
 
                          re = addons_convert_to_simple_regexp (tmp_domain);
                          *includes = g_slist_prepend (*includes, re);
-                         g_free (value);
                          g_free (domain);
                     }
                     i++;
