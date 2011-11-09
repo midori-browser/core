@@ -327,9 +327,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_REFRESH,
                       "tooltip", _("Reload the current page"),
                       "sensitive", can_reload, NULL);
-        if (!browser->show_navigationbar)
-            gtk_widget_hide (browser->navigationbar);
-
         katze_item_set_meta_integer (midori_view_get_proxy_item (view), "dont-write-history", 0);
     }
     else
@@ -337,8 +334,6 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         g_object_set (action,
                       "stock-id", GTK_STOCK_STOP,
                       "tooltip", _("Stop loading the current page"), NULL);
-        if (!gtk_widget_get_visible (browser->navigationbar))
-            gtk_widget_show (browser->navigationbar);
     }
 
     #if HAVE_HILDON
