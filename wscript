@@ -175,14 +175,16 @@ def configure (conf):
                int(given_major) == major and int(given_minor) >  minor or \
                int(given_major) == major and int(given_minor) == minor and int(given_micro) >= micro
 
-    if option_enabled ('unique') and not option_enabled('gtk3'):
-        check_pkg ('unique-1.0', '0.9', False)
+    if option_enabled ('unique'):
+        if option_enabled('gtk3'): unique_pkg = 'unique-3.0'
+        else: unique_pkg = 'unique-1.0'
+        check_pkg (unique_pkg, '0.9', False)
         unique = ['N/A', 'yes'][conf.env['HAVE_UNIQUE'] == 1]
         if unique != 'yes':
             option_checkfatal ('unique', 'single instance')
             conf.define ('UNIQUE_VERSION', 'No')
         else:
-            conf.define ('UNIQUE_VERSION', conf.check_cfg (modversion='unique-1.0'))
+            conf.define ('UNIQUE_VERSION', conf.check_cfg (modversion=unique_pkg))
     else:
         unique = 'no '
         conf.define ('UNIQUE_VERSION', 'No')
