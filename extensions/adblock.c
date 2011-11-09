@@ -63,12 +63,13 @@ adblock_build_js (const gchar* private)
         "       return;"
         "   var URL = location.href;"
         "   var sites = new Array(); %s;"
-        "   var public = '';"
+        "   var public = '.madblockplaceholder ';"
         "   for (var i in sites) {"
         "       if (URL.indexOf(i) != -1 && sites[i] ){"
         "           public += ', .'+sites[i];"
         "           break;"
         "   }}"
+        "   public += ' {display: none !important}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
         "   mystyle.setAttribute('id', 'madblock');"
@@ -112,6 +113,8 @@ adblock_download_notify_status_cb (WebKitDownload*  download,
                                    MidoriExtension* extension)
 {
     gchar* path;
+    MidoriApp* app;
+    MidoriWebSettings* settings;
 
     if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_FINISHED)
         return;
@@ -120,8 +123,9 @@ adblock_download_notify_status_cb (WebKitDownload*  download,
     adblock_parse_file (path);
     g_free (path);
 
-    MidoriApp* app = midori_extension_get_app (extension);
-    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
+    app = midori_extension_get_app (extension);
+    settings = katze_object_get_object (app, "settings");
+    g_string_append (blockcss, " {display: none !important}\n");
     midori_web_settings_add_style (settings, "adblock-blockcss", blockcss->str);
     katze_assign (blockscript, adblock_build_js (blockcssprivate->str));
     g_object_unref (settings);
@@ -160,6 +164,8 @@ adblock_reload_rules (MidoriExtension* extension,
     gchar* custom_list;
     gchar** filters;
     guint i = 0;
+    MidoriApp* app = midori_extension_get_app (extension);
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 
     adblock_init_db ();
 
@@ -200,9 +206,8 @@ adblock_reload_rules (MidoriExtension* extension,
         }
     }
     g_strfreev (filters);
+    g_string_append (blockcss, " {display: none !important}\n");
 
-    MidoriApp* app = midori_extension_get_app (extension);
-    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
     katze_assign (blockscript, adblock_build_js (blockcssprivate->str));
     midori_web_settings_add_style (settings, "adblock-blockcss", blockcss->str);
     g_object_unref (settings);
@@ -1303,7 +1308,6 @@ adblock_parse_file (gchar* path)
     {
         while (fgets (line, 2000, file))
             adblock_parse_line (line);
-        g_string_append (blockcss, "{display: none !important}\n");
         fclose (file);
         return TRUE;
     }
@@ -1335,6 +1339,7 @@ adblock_deactivate_cb (MidoriExtension* extension,
                        MidoriBrowser*   browser)
 {
     MidoriApp* app = midori_extension_get_app (extension);
+    MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 
     g_signal_handlers_disconnect_by_func (
         browser, adblock_open_preferences_cb, extension);
@@ -1350,10 +1355,13 @@ adblock_deactivate_cb (MidoriExtension* extension,
         g_string_free (blockcss, TRUE);
     if (blockcssprivate)
         g_string_free (blockcssprivate, TRUE);
+
+    midori_web_settings_remove_style (settings, "adblock-blockcss");
     blockcssprivate = blockcss = NULL;
     g_hash_table_destroy (pattern);
     g_hash_table_destroy (optslist);
     g_hash_table_destroy (urlcache);
+    g_object_unref (settings);
 }
 
 static void
