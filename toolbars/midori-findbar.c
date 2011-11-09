@@ -248,6 +248,10 @@ midori_findbar_init (MidoriFindbar* findbar)
     GtkToolItem* toolitem;
 
     gtk_widget_set_name (GTK_WIDGET (findbar), "MidoriFindbar");
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    gtk_style_context_add_class (
+        gtk_widget_get_style_context (GTK_WIDGET (findbar)), "bottom-toolbar");
+    #endif
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (findbar), GTK_ICON_SIZE_MENU);
     gtk_toolbar_set_style (GTK_TOOLBAR (findbar), GTK_TOOLBAR_BOTH_HORIZ);
     g_signal_connect (findbar, "key-press-event",
