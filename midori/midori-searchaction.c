@@ -536,7 +536,7 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
         else
             gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_PRIMARY, icon_name);
-        sokoke_entry_set_default_text (GTK_ENTRY (entry),
+        gtk_entry_set_placeholder_text (GTK_ENTRY (entry),
             katze_item_get_name (search_action->current_item));
     }
     else
@@ -544,7 +544,7 @@ midori_search_action_set_entry_icon (MidoriSearchAction* search_action,
         gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                                             GTK_ICON_ENTRY_PRIMARY,
                                             GTK_STOCK_FIND);
-        sokoke_entry_set_default_text (GTK_ENTRY (entry), "");
+        gtk_entry_set_placeholder_text (GTK_ENTRY (entry), "");
     }
 }
 
