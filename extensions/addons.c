@@ -1047,7 +1047,8 @@ css_metadata_from_file (const gchar* filename,
                              ++end;
 
                          domain = g_strndup (value + begin, end - begin * 2);
-                         if (strncmp ("http", domain, 4))
+                         if (!midori_uri_is_location (domain)
+                          && !g_str_has_prefix (domain, "file://"))
                              tmp_domain = g_strdup_printf ("http://*%s/*", domain);
                          else
                              tmp_domain = domain;
