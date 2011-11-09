@@ -1028,19 +1028,3 @@ midori_bookmarks_finalize (GObject* object)
         g_object_unref (bookmarks->app);
 }
 
-/**
- * midori_bookmarks_new:
- *
- * Creates a new empty bookmarks.
- *
- * Return value: a new #MidoriBookmarks
- *
- * Since: 0.1.3
- **/
-GtkWidget*
-midori_bookmarks_new (void)
-{
-    MidoriBookmarks* bookmarks = g_object_new (MIDORI_TYPE_BOOKMARKS, NULL);
-
-    return GTK_WIDGET (bookmarks);
-}

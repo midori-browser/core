@@ -730,13 +730,11 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
     }
     g_object_unref (array);
 
-    scrolled = katze_scrolled_new (NULL, NULL);
-    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, NULL);
+    scrolled = g_object_new (KATZE_TYPE_SCROLLED, "visible", TRUE, NULL);
+    addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
     children = gtk_container_get_children (GTK_CONTAINER (addon));
     gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
     g_list_free (children);
-    g_object_set (addon, "app", app, NULL);
-    gtk_widget_show (scrolled);
     page = katze_preferences_add_category (preferences,
                                            _("Extensions"), STOCK_EXTENSIONS);
     gtk_box_pack_start (GTK_BOX (page), scrolled, TRUE, TRUE, 4);
@@ -793,19 +791,13 @@ midori_app_add_browser_cb (MidoriApp*     app,
 
     panel = katze_object_get_object (browser, "panel");
 
-    /* Bookmarks */
-    addon = g_object_new (MIDORI_TYPE_BOOKMARKS, "app", app, NULL);
-    gtk_widget_show (addon);
+    addon = g_object_new (MIDORI_TYPE_BOOKMARKS, "app", app, "visible", TRUE, NULL);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
-    /* History */
-    addon = g_object_new (MIDORI_TYPE_HISTORY, "app", app, NULL);
-    gtk_widget_show (addon);
+    addon = g_object_new (MIDORI_TYPE_HISTORY, "app", app, "visible", TRUE, NULL);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
-    /* Transfers */
-    addon = g_object_new (MIDORI_TYPE_TRANSFERS, "app", app, NULL);
-    gtk_widget_show (addon);
+    addon = g_object_new (MIDORI_TYPE_TRANSFERS, "app", app, "visible", TRUE, NULL);
     midori_panel_append_page (MIDORI_PANEL (panel), MIDORI_VIEWABLE (addon));
 
     /* Extensions */

@@ -5701,34 +5701,18 @@ midori_browser_new_history_item (MidoriBrowser* browser,
 }
 
 static void
-midori_browser_history_clear_cb (KatzeArray*    history,
-                                 MidoriBrowser* browser)
-{
-    GtkAction* location_action = _action_by_name (browser, "Location");
-    midori_location_action_clear (MIDORI_LOCATION_ACTION (location_action));
-}
-
-static void
 midori_browser_set_history (MidoriBrowser* browser,
                             KatzeArray*    history)
 {
     if (browser->history == history)
         return;
 
-    if (browser->history)
-        g_signal_handlers_disconnect_by_func (browser->history,
-                                              midori_browser_history_clear_cb,
-                                              browser);
     if (history)
         g_object_ref (history);
     katze_object_assign (browser->history, history);
-    midori_browser_history_clear_cb (history, browser);
 
     if (!history)
         return;
-
-    g_signal_connect (browser->history, "clear",
-                      G_CALLBACK (midori_browser_history_clear_cb), browser);
 
     g_object_set (_action_by_name (browser, "Location"), "history",
                   browser->history, NULL);

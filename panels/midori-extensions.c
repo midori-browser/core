@@ -504,20 +504,3 @@ midori_extensions_finalize (GObject* object)
     g_object_unref (array);
 }
 
-/**
- * midori_extensions_new:
- *
- * Creates a new empty extensions.
- *
- * Return value: a new #MidoriExtensions
- *
- * Since: 0.1.2
- **/
-GtkWidget*
-midori_extensions_new (void)
-{
-    MidoriExtensions* extensions = g_object_new (MIDORI_TYPE_EXTENSIONS,
-                                                 NULL);
-
-    return GTK_WIDGET (extensions);
-}

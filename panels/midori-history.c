@@ -1021,19 +1021,3 @@ midori_history_finalize (GObject* object)
     katze_assign (history->filter, NULL);
 }
 
-/**
- * midori_history_new:
- *
- * Creates a new empty history.
- *
- * Return value: a new #MidoriHistory
- *
- * Since: 0.1.3
- **/
-GtkWidget*
-midori_history_new (void)
-{
-    MidoriHistory* history = g_object_new (MIDORI_TYPE_HISTORY, NULL);
-
-    return GTK_WIDGET (history);
-}

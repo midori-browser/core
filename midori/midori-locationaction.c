@@ -1530,14 +1530,6 @@ midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
     #endif
 }
 
-void
-midori_location_action_set_title_for_uri (MidoriLocationAction* location_action,
-                                          const gchar*          title,
-                                          const gchar*          uri)
-{
-    /* Nothing to do */
-}
-
 /**
  * midori_location_action_set_search_engines:
  * @location_action: a #MidoriLocationAction
@@ -1614,27 +1606,6 @@ midori_location_action_set_secondary_icon (MidoriLocationAction* location_action
             GTK_ICON_ENTRY_SECONDARY, stock_id);
     }
     #endif
-}
-
-/**
- * midori_location_action_delete_item_from_uri:
- * @location_action: a #MidoriLocationAction
- * @uri: a string
- *
- * Finds the item from the list matching @uri
- * and removes it if it is the last instance.
- **/
-void
-midori_location_action_delete_item_from_uri (MidoriLocationAction* location_action,
-                                             const gchar*          uri)
-{
-    /* Nothing to do */
-}
-
-void
-midori_location_action_clear (MidoriLocationAction* location_action)
-{
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
 }
 
 /**

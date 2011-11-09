@@ -561,19 +561,3 @@ midori_transfers_init (MidoriTransfers* transfers)
         G_CALLBACK (midori_transfers_hierarchy_changed_cb), NULL);
 }
 
-/**
- * midori_transfers_new:
- *
- * Creates a new empty transfers.
- *
- * Return value: a new #MidoriTransfers
- *
- * Since 0.1.5
- **/
-GtkWidget*
-midori_transfers_new (void)
-{
-    MidoriTransfers* transfers = g_object_new (MIDORI_TYPE_TRANSFERS, NULL);
-
-    return GTK_WIDGET (transfers);
-}
