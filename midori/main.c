@@ -731,6 +731,8 @@ midori_browser_show_preferences_cb (MidoriBrowser*    browser,
     g_object_unref (array);
 
     scrolled = g_object_new (KATZE_TYPE_SCROLLED, "visible", TRUE, NULL);
+    /* For lack of a better way of keeping descriptions visible */
+    g_object_set (scrolled, "hscrollbar-policy", GTK_POLICY_NEVER, NULL);
     addon = g_object_new (MIDORI_TYPE_EXTENSIONS, "app", app, NULL);
     children = gtk_container_get_children (GTK_CONTAINER (addon));
     gtk_widget_reparent (g_list_nth_data (children, 0), scrolled);
