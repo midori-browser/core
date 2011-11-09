@@ -726,8 +726,7 @@ midori_app_create_instance (MidoriApp* app)
     display_name = g_strdup (gdk_display_get_name (display));
     n = strlen (display_name);
     for (i = 0; i < n; i++)
-        if (display_name[i] == ':' || display_name[i] == '.'
-         || display_name[i] == '\\')
+        if (strchr (":.\\/", display_name[i]))
             display_name[i] = '_';
     instance_name = g_strdup_printf ("de.twotoasts.%s_%s", app->name, display_name);
 
