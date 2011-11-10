@@ -3710,6 +3710,12 @@ prepare_speed_dial_html (MidoriView* view)
         sokoke_is_app_or_private () ? "" : "</noscript>",
         slot_size + 1, slot_size - 4);
 
+   /* Combined width of slots should always be less than 100%.
+    * Use half of the remaining percentage as a margin size */
+   g_string_append_printf (markup,
+        "<style> body { overflow:hidden } #content { margin-left: %d%%; }</style>",
+        (100 - ((slot_size - 4) * grid_index)) / 2);
+
     if (katze_object_get_boolean (view->settings, "close-buttons-left"))
         g_string_append_printf (markup,
             "<style>.cross { left: -14px }</style>");
