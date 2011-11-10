@@ -3651,7 +3651,8 @@ list_video_formats ()
 }
 
 static gchar*
-prepare_speed_dial_html (MidoriView* view)
+prepare_speed_dial_html (MidoriView* view,
+                         gboolean    load_missing)
 {
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     GKeyFile* key_file;
@@ -3742,7 +3743,8 @@ prepare_speed_dial_html (MidoriView* view)
             else
             {
                 encoded = g_strdup ("");
-                midori_view_speed_dial_get_thumb (view, dial_entry, uri);
+                if (load_missing)
+                    midori_view_speed_dial_get_thumb (view, dial_entry, uri);
             }
             g_free (thumb_file);
 
@@ -3816,7 +3818,7 @@ midori_view_set_uri (MidoriView*  view,
             katze_item_set_uri (view->item, "");
 
             if (speeddial_markup == NULL)
-                speeddial_markup = prepare_speed_dial_html (view);
+                speeddial_markup = prepare_speed_dial_html (view, TRUE);
 
             midori_view_load_alternate_string (view,
                 speeddial_markup, "about:blank", NULL);
@@ -5530,7 +5532,7 @@ midori_view_save_speed_dial_config (MidoriView* view,
     sokoke_key_file_save_to_file (key_file, config_file, NULL);
     g_free (config_file);
 
-    katze_assign (speeddial_markup, prepare_speed_dial_html (view));
+    katze_assign (speeddial_markup, prepare_speed_dial_html (view, FALSE));
 
     while ((tab = midori_browser_get_nth_tab (browser, i++)))
         if (midori_view_is_blank (MIDORI_VIEW (tab)))
