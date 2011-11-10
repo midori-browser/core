@@ -62,9 +62,6 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
                                   gchar*      dial_id,
                                   gchar*      url);
 
-static void
-midori_view_speed_dial_thumb_apply (MidoriView* view);
-
 struct _MidoriView
 {
     GtkVBox parent_instance;
@@ -191,7 +188,6 @@ static guint signals[LAST_SIGNAL];
 static gchar* speeddial_markup = NULL;
 static GtkWidget* thumb_view = NULL;
 static GList* thumb_queue = NULL;
-static guint thumb_timeout = 0;
 
 static void
 midori_view_finalize (GObject* object);
@@ -5317,22 +5313,6 @@ thumb_view_load_status_cb (WebKitWebView* thumb_view_,
                            GParamSpec*    pspec,
                            MidoriView*    view)
 {
-    if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
-        return;
-
-    midori_view_speed_dial_thumb_apply (view);
-}
-
-static void
-midori_view_speed_dial_thumb_timeout (MidoriView* view)
-{
-    webkit_web_view_stop_loading (WEBKIT_WEB_VIEW (thumb_view));
-    midori_view_speed_dial_thumb_apply (view);
-}
-
-static void
-midori_view_speed_dial_thumb_apply (MidoriView* view)
-{
     GdkPixbuf* img;
     #if HAVE_OFFSCREEN
     GdkPixbuf* pixbuf_scaled;
@@ -5346,8 +5326,8 @@ midori_view_speed_dial_thumb_apply (MidoriView* view)
     GKeyFile* key_file;
     const gchar* title;
 
-    if (thumb_timeout > 0)
-        g_source_remove (thumb_timeout);
+    if (webkit_web_view_get_load_status (thumb_view_) != WEBKIT_LOAD_FINISHED)
+        return;
 
     spec = g_object_get_data (G_OBJECT (thumb_view), "spec");
     url = strstr (spec, "|") + 1;
@@ -5385,10 +5365,6 @@ midori_view_speed_dial_thumb_apply (MidoriView* view)
     thumb_queue = g_list_remove (thumb_queue, spec);
     if (thumb_queue != NULL)
     {
-        /* At best wait 5 seconds for a single thumbnail to load */
-        thumb_timeout = g_timeout_add_seconds (5,
-            (GSourceFunc)midori_view_speed_dial_thumb_timeout, view);
-
         g_object_set_data_full (G_OBJECT (thumb_view), "spec",
                                 thumb_queue->data, (GDestroyNotify)g_free);
         webkit_web_view_open (WEBKIT_WEB_VIEW (thumb_view),
@@ -5397,14 +5373,6 @@ midori_view_speed_dial_thumb_apply (MidoriView* view)
     else
         g_signal_handlers_disconnect_by_func (
             thumb_view, thumb_view_load_status_cb, view);
-}
-
-static gint
-midori_view_speed_dial_thumb_cf (gconstpointer spec1,
-                                 gconstpointer spec2)
-{
-    /* Compare URL without dial id */
-    return strcmp (strstr (spec1, "|") + 1, strstr (spec2, "|") + 1);
 }
 
 /**
@@ -5420,7 +5388,6 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
 {
     WebKitWebSettings* settings;
     GtkWidget* browser;
-    gchar* spec;
     #if !HAVE_OFFSCREEN
     GtkWidget* notebook;
     GtkWidget* label;
@@ -5470,22 +5437,9 @@ midori_view_speed_dial_get_thumb (MidoriView* view,
     g_object_unref (notebook);
     #endif
 
-    spec = g_strconcat (dial_id, "|", url, NULL);
-    /* If spec is already queued, there's nothing to be done */
-    if (g_list_find_custom (thumb_queue, spec, midori_view_speed_dial_thumb_cf))
-    {
-        g_free (spec);
-        return;
-    }
-    thumb_queue = g_list_append (thumb_queue, spec);
+    thumb_queue = g_list_append (thumb_queue, g_strconcat (dial_id, "|", url, NULL));
     if (g_list_nth_data (thumb_queue, 1) != NULL)
         return;
-
-    /* At best wait 5 seconds for a single thumbnail to load */
-    if (thumb_timeout > 0)
-        g_source_remove (thumb_timeout);
-    thumb_timeout = g_timeout_add_seconds (5,
-        (GSourceFunc)midori_view_speed_dial_thumb_timeout, view);
 
     g_object_set_data_full (G_OBJECT (thumb_view), "spec",
                             thumb_queue->data, (GDestroyNotify)g_free);
