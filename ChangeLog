@@ -1,5 +1,37 @@
 This file is licensed under the terms of the expat license, see the file EXPAT.
 
+v0.4.2:
+ + Improve -moz-document parsing in user stylesheets
+ + Render verified secure sites in green, not yellow
+ + Version details for extensions built against a different release
+ + More detailed and more condensed about:version output
+ + Refresh missing speed dial thumbnails automatically
+ + Use faster global CSS mechanism for adblock and addons
+ + Show crash dialog only if there's a session
+ + Don't complete on a leading space or search token
+ + Support user stylesheets on about: and file:// locations
+ + Implement 'Always use my font choices' preferences
+ + Allow smaller tabs when close buttons are disabled
+ + Merge 'Closed Tabs' with 'History' in Clear Private Data
+ + Correctly use user-home and bookmark-new icon names
+ + Use versioned file speeddial-head-0.4.2.html
+ + Split proxy server preference into host and port
+ + Support localized 'next' and 'previous' links
+ + Implement 'Only accept cookies cookies from sites you visit'
+ + Fix crash in Add/ Import Bookmark feature
+ + Fix size of tabs with GTK+ 3
+ + Detect existing Firefox profiles for bookmark import
+ + Work-around "omg!" in local directory browsing
+ + Rework '--run' feature to allow window.open() and console.info()
+ + Automatically clear finnished downloads from the transferbar
+ + Add 'Create desktop shortcut' to the app menu
+ + Require GLib 2.22 and libSoup 2.27.90
+ + Don't register recent files in private browsing mode
+ + Findbar and speed dial honor close button position
+ + Use sqlite3-based backend for cookie storage
+ + Make '--snapshot' create png images with GTK+ 2.20
+ + Automatically resizing, embossed speed dial, close on hover
+
 v0.4.1:
  + Experimental, unfinnished GTK+ 3 support
  + 'Automatic' identification with quirks
