@@ -6,8 +6,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>midori:faq</title>
 <meta name="generator" content="DokuWiki"/>
-<meta name="robots" content="index,follow"/>
-<meta name="date" content="2011-05-05T22:28:18+0200"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="date" content="2011-11-08T02:51:30+0100"/>
 <meta name="keywords" content="midori,faq"/>
 <link rel="search" type="application/opensearchdescription+xml" href="/lib/exe/opensearch.php" title="Xfce Wiki"/>
 <link rel="start" href="/"/>
@@ -19,9 +19,9 @@
 <link rel="canonical" href="http://wiki.xfce.org/midori/faq"/>
 <link rel="stylesheet" type="text/css" href="faq.css" />
 <script type="text/javascript"><!--//--><![CDATA[//><!--
-var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
+var NS='midori';var SIG=' --- //[[christian@twotoasts.de|Christian Dywan]] 2011/11/11 00:07//';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 //--><!]]></script>
-<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1306663866"></script>
+<script type="text/javascript" charset="utf-8" src="/lib/exe/js.php?tseed=1316333533"></script>
 </head>
 <body>
 <div class="dokuwiki export">
@@ -49,6 +49,7 @@ var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 <li class="level3"><div class="li"><span class="li"><a href="#following_links" class="toc">Following Links</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#use_ctrl_shift_tab_to_switch_between_pages" class="toc">Use Ctrl(+Shift)+Tab to switch between pages</a></span></div></li>
 <li class="level3"><div class="li"><span class="li"><a href="#customizing_keyboard_shortcuts" class="toc">Customizing keyboard shortcuts</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#using_find" class="toc">Using Find</a></span></div></li>
 </ul>
 </li>
 <li class="level2"><div class="li"><span class="li"><a href="#mouse_gestures" class="toc">Mouse Gestures</a></span></div></li>
@@ -64,7 +65,6 @@ var NS='midori';var JSINFO = {"id":"midori:faq","namespace":"midori"};
 <div class="level1">
 
 <p>
-
 <strong>This document is licensed under the <acronym title="GNU Lesser General Public License">LGPL</acronym> 2.1.</strong>
 </p>
 
@@ -128,7 +128,6 @@ Midori is basically very portable and should run on all platforms that its depen
 
 <p>
 Midori and all delivered artwork are licensed under the LGPL2.
-
 </p>
 
 </div>
@@ -142,7 +141,6 @@ Midori and all delivered artwork are licensed under the LGPL2.
 <div class="level4">
 
 <p>
-
 Some websites discriminate against your browser.
 </p>
 
@@ -186,20 +184,17 @@ If you don&#039;t have a desktop application that takes care of Gtk settings or 
 
 <p>
 Use Tango as a fallback for your icon theme:
-
 </p>
 <pre class="code">gtk-icon-theme-name = &quot;MySuperFancyTheme&quot;
 gtk-fallback-icon-theme = &quot;Tango&quot;</pre>
 
 <p>
 Use a smaller toolbar:
-
 </p>
 <pre class="code">gtk-toolbar-icon-size = GTK_ICON_SIZE_SMALL_TOOLBAR</pre>
 
 <p>
 Enable changing hotkeys while hovering menu items:
-
 </p>
 <pre class="code">gtk-can-change-accels = 1</pre>
 
@@ -236,7 +231,6 @@ You can either run that above line and run Midori in the same terminal afterward
 <div class="level4">
 
 <p>
-
 Try searching for a package named nspluginwrapper or similar in your distribution repositories. It implements plugins in their own process so they can&#039;t drag down the whole browser.
 </p>
 
@@ -246,7 +240,6 @@ Try searching for a package named nspluginwrapper or similar in your distributio
 <div class="level4">
 
 <p>
-
 That&#039;s a problem with WebKit. You can work around it to some extent if you start Midori like so:
 </p>
 <pre class="code bash"><span class="kw3">export</span> <span class="re2">WEBKIT_IGNORE_SSL_ERRORS</span>=<span class="st0">&quot;1&quot;</span> midori</pre>
@@ -257,7 +250,6 @@ That&#039;s a problem with WebKit. You can work around it to some extent if you 
 <div class="level4">
 
 <p>
-
 <a href="http://ubuntuforums.org/showthread.php?t=478418" class="urlextern" title="http://ubuntuforums.org/showthread.php?t=478418"  rel="nofollow">http://ubuntuforums.org/showthread.php?t=478418</a>
 </p>
 
@@ -267,9 +259,7 @@ That&#039;s a problem with WebKit. You can work around it to some extent if you 
 <div class="level4">
 
 <p>
-
 You need to have GStreamer plugins installed which implement the codecs.
-
 </p>
 <ol>
 <li class="level1"><div class="li"> You need gstreamer0.10-pulse if you&#039;re using PulseAudio.</div>
@@ -294,7 +284,6 @@ You need to have GStreamer plugins installed which implement the codecs.
 <div class="level4">
 
 <p>
-
 Java is supported in WebKitGTK+ since 1.1.22. If you need Java, you need to upgrade to at least that version. Sun/ Oracle Java as well as IcedTea are known to work. Distribution specific setup might be required, such as setting LD_LIBRARY_PATH to include the location of libxul.so and making a symbolic link for libnpjp2.so to /usr/lib/mozilla.
 </p>
 
@@ -308,9 +297,7 @@ icedtea6 version 1.8 and above has been known to crash midori.  If this is the c
 <div class="level4">
 
 <p>
-
 Currently only <acronym title="Hyper Text Transfer Protocol">HTTP</acronym> proxy servers are supported directly. A way to use SOCKS on Unix is to use tsocks with <acronym title="Secure Shell">SSH</acronym> as follows:
-
 </p>
 <ol>
 <li class="level1"><div class="li"> Install &#039;tsocks&#039;</div>
@@ -340,7 +327,6 @@ server_port = 5555</pre>
 <div class="level4">
 
 <p>
-
 In the menubar, go to View → Toolbars → Menubar, voilà the menubar is gone and a new icon appears at the right end of the toolbar. Click the icon to access functionality that otherwise sits in the menubar.
 Midori 0.3.2 disables the menubar by default.
 </p>
@@ -351,7 +337,6 @@ Midori 0.3.2 disables the menubar by default.
 <div class="level4">
 
 <p>
-
 Midori tries to make a smart guess on whether you are searching for something or typing a valid address by hand. Yet there are ambiguous cases so it fails.
 </p>
 
@@ -365,7 +350,6 @@ Try using &#039;g&#039; in front of the search terms, like &#039;g Ms.Marple&#03
 <div class="level4">
 
 <p>
-
 Hold the Shift key while clicking Refresh in the toolbar (this works in Chromium, Mozilla, Opera and Safari, too).
 Since Midori 0.3.2 you can use Ctrl+Shift+R.
 </p>
@@ -376,7 +360,6 @@ Since Midori 0.3.2 you can use Ctrl+Shift+R.
 <div class="level4">
 
 <p>
-
 Right-click the tab label, and click &#039;Minimize&#039; or &#039;Show Tab Icon Only&#039; (Midori 0.3.5 or older).
 </p>
 
@@ -386,7 +369,6 @@ Right-click the tab label, and click &#039;Minimize&#039; or &#039;Show Tab Icon
 <div class="level4">
 
 <p>
-
 You need to set Preferences &gt; Network &gt; Identify As to Firefox.
 </p>
 
@@ -396,7 +378,6 @@ You need to set Preferences &gt; Network &gt; Identify As to Firefox.
 <div class="level4">
 
 <p>
-
 Place the following in ~/.mutt/mailcap or ~/.mailcap:
 </p>
 <pre class="code">text/html; midori -a &#039;%s&#039;; test=test -n &quot;$DISPLAY&quot;; nametemplate=%s.html</pre>
@@ -422,9 +403,7 @@ Place the following in ~/.mutt/mailcap or ~/.mailcap:
 <div class="level4">
 
 <p>
-
 Midori opens files with GIO, and falls back to xdg-open, exo-open or gnome-open if these are available. All of this relies on freedesktop.org <acronym title="Multipurpose Internet Mail Extension">MIME</acronym> configuration. To tweak this there are multiple options:
-
 </p>
 <ol>
 <li class="level1"><div class="li"> Use &#039;Open With&#039; with a graphical file manager</div>
@@ -436,7 +415,6 @@ Midori opens files with GIO, and falls back to xdg-open, exo-open or gnome-open 
 </ol>
 
 <p>
-
 xdg-open knows how to handle GNOME, KDE and Xfce.
 LXDE is unfortunately not supported yet, see <a href="https://bugs.freedesktop.org/show_bug.cgi?id=26058" class="urlextern" title="https://bugs.freedesktop.org/show_bug.cgi?id=26058"  rel="nofollow">https://bugs.freedesktop.org/show_bug.cgi?id=26058</a>
 </p>
@@ -447,25 +425,20 @@ LXDE is unfortunately not supported yet, see <a href="https://bugs.freedesktop.o
 <div class="level4">
 
 <p>
-
 As of git 2011-03-05 02:40:00 UTC and Midori 0.3.3 you can
 </p>
 
 <p>
 Add a line to ~/.local/share/applications/mimeapps.list:
-
 </p>
 <pre class="code">  x-scheme-handler/magnet=transmission-gtk.desktop</pre>
 
 <p>
-
 Or install an application which advertises the scheme like so:
-
 </p>
 <pre class="code">  MimeType=x-scheme-handler/magnet;</pre>
 
 <p>
-
 Note that incomplete .desktop files will silently fail and it will look as if it doesn&#039;t exist.
 </p>
 
@@ -480,9 +453,7 @@ Note that incomplete .desktop files will silently fail and it will look as if it
 <div class="level2">
 
 <p>
-
 There are two closely related features to open websites as dedicated windows of their own. You can do the following to use them:
-
 </p>
 <ol>
 <li class="level1"><div class="li"> Right-click a hyperlink → Open as Web Application</div>
@@ -507,7 +478,6 @@ There are two closely related features to open websites as dedicated windows of 
 </ol>
 
 <p>
-
 A private window is a separate process, so crashes don&#039;t affect the normal browser session. No sensitive data such as cookies, history or bookmarks are stored. No extensions are loaded. Panels are not available.
 </p>
 
@@ -530,7 +500,6 @@ The same options available to -a/ –app can be used for private browsing mode.
 <div class="level2">
 
 <p>
-
 By running a local proxy you can modify web content even before it has reached Midori. That allows you to do things similar to what user scripts and user styles provide and even others that neither is suitable for.
 </p>
 
@@ -540,7 +509,6 @@ By running a local proxy you can modify web content even before it has reached M
 <div class="level4">
 
 <p>
-
 Privoxy is a non-caching web proxy with filter capabilites and particular support for blocking advertisements before even loading them.
 </p>
 
@@ -554,7 +522,6 @@ Privoxy is a non-caching web proxy with filter capabilites and particular suppor
 <div class="level4">
 
 <p>
-
 Mousehole is a scriptable proxy server written in Ruby.
 </p>
 
@@ -568,7 +535,6 @@ Mousehole is a scriptable proxy server written in Ruby.
 <div class="level4">
 
 <p>
-
  Polipo is a caching web proxy (a web cache) designed to be used by one
  person or a small group of people. It is similar in spirit to WWWOFFLE, but
  the implementation techniques are more like the ones used by Squid.
@@ -589,16 +555,13 @@ Mousehole is a scriptable proxy server written in Ruby.
 <div class="level3">
 
 <p>
-
 You can use the Vim-like key bindings [hjkl] to navigate a page.  h=left j=down k=up l=right  In a picture:
-
 </p>
 <pre class="code">	       k
 	   h     l
 	     j</pre>
 
 <p>
-
 You can also use the arrow keys to do the same.
 </p>
 
@@ -608,7 +571,6 @@ You can also use the arrow keys to do the same.
 <div class="level3">
 
 <p>
-
 To enable Hints in Midori [similar to those vimperator provides in Firefox], press .
 </p>
 
@@ -622,7 +584,6 @@ With hints enabled, type the link number, and press Enter to open the link in th
 <div class="level3">
 
 <p>
-
 Since Midori 0.3.5 Ctrl+Tab is supported by default.
 </p>
 
@@ -636,24 +597,46 @@ In older versions you can enable the History List extension under Tools → Exte
 <div class="level3">
 
 <p>
-
 Enable the Shortcuts extension Tools → Extensions. To edit a keybinding Tools → Customize Shortcuts…
-
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Customizing keyboard shortcuts" [12013-12161] -->
-<h2 class="sectionedit14"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h2>
+<!-- EDIT13 SECTION "Customizing keyboard shortcuts" [12013-12162] -->
+<h3 class="sectionedit14"><a name="using_find" id="using_find">Using Find</a></h3>
+<div class="level3">
+
+<p>
+Default shortcuts for Find are:
+</p>
+
+<p>
+Find:         Ctrl+f ”/” and ”,”<br/>
+
+FindNext:     Ctrl+g<br/>
+
+FindPrevious: Shift+Ctrl+g<br/>
+
+</p>
+
+<p>
+Dismissing Find:
+</p>
+
+<p>
+When using Ctrl+f to bring up Find, use Ctrl+f again or ESC. When using ”/” or ”,” to bring up Find, the previous works here as well and by simply moving focus away from the Find box. For example: a Tab or a mouse click anywhere[besides links of course].
+</p>
+
+</div>
+<!-- EDIT14 SECTION "Using Find" [12163-12579] -->
+<h2 class="sectionedit15"><a name="mouse_gestures" id="mouse_gestures">Mouse Gestures</a></h2>
 <div class="level2">
 
 <p>
-
 By default the right mouse button initiates gestures.
 </p>
 
 <p>
 You can change the button using a hidden option:
-
 </p>
 <ol>
 <li class="level1"><div class="li"> Create a text file ~/.config/midori/extensions/libmouse-gestures.so/config .</div>
@@ -665,7 +648,6 @@ You can change the button using a hidden option:
   button=2</pre>
 
 <p>
-
 For a quick and dirty overview of the gestures in the current release take a look at the <a href="http://www.matthiaskruk.de/midori/mouse-gestures.pdf" class="urlextern" title="http://www.matthiaskruk.de/midori/mouse-gestures.pdf"  rel="nofollow">preliminary manual</a>.
 Further information is available at the <a href="http://www.matthiaskruk.de/midori" class="urlextern" title="http://www.matthiaskruk.de/midori"  rel="nofollow">MGX website</a>.
 </p>
@@ -675,12 +657,11 @@ Additionally, there are programs allowing mouse gestures system-wide, for exampl
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Mouse Gestures" [12162-12835] -->
-<h2 class="sectionedit15"><a name="spell_check" id="spell_check">Spell check</a></h2>
+<!-- EDIT15 SECTION "Mouse Gestures" [12580-13253] -->
+<h2 class="sectionedit16"><a name="spell_check" id="spell_check">Spell check</a></h2>
 <div class="level2">
 
 <p>
-
 First enable spell checking:
 Edit→Preferences→Behavior and check “Enable Spell Checking”.
 </p>
@@ -690,8 +671,8 @@ Now while typing any errors should get underlined in red. To get suggestions, hi
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Spell check" [12836-13125] -->
-<h2 class="sectionedit16"><a name="user_scripts" id="user_scripts">User scripts</a></h2>
+<!-- EDIT16 SECTION "Spell check" [13254-13543] -->
+<h2 class="sectionedit17"><a name="user_scripts" id="user_scripts">User scripts</a></h2>
 <div class="level2">
 
 </div>
@@ -700,7 +681,6 @@ Now while typing any errors should get underlined in red. To get suggestions, hi
 <div class="level4">
 
 <p>
-
 UserScripts are scripts applied on some, or on all web pages. They can modify  pages locally to add or alter functionality. That includes fixing bugs in web pages. User scripts are also available in other browsers, in the form of <a href="http://www.greasespot.net" class="urlextern" title="http://www.greasespot.net"  rel="nofollow">Mozilla&#039;s Greasemonkey</a> or <a href="http://www.opera.com/support/tutorials/userjs/" class="urlextern" title="http://www.opera.com/support/tutorials/userjs/"  rel="nofollow">Opera&#039;s User JavaScript</a>.
 </p>
 
@@ -710,7 +690,6 @@ UserScripts are scripts applied on some, or on all web pages. They can modify  p
 <div class="level4">
 
 <p>
-
 First enable the “User Addons” extension. It will show up as a “User Scripts” panel (and it also provides “User Styles”).
 </p>
 
@@ -736,7 +715,6 @@ If the script is only shown as source code on the page, you first have to create
 <div class="level4">
 
 <p>
-
 As previously mentioned, Midori can use most scripts you will find. Midori supports Greasemonkey&#039;s <em>@include</em> and <em>@exclude</em> metadata so that scripts are only loaded on appropriate pages. Midori doesn&#039;t support advanced metadata, such as @require and @resource, so user scripts can&#039;t define dependencies on other scripts - most of the time this isn&#039;t a problem. Midori also does not support <a href="http://wiki.greasespot.net/API_reference" class="urlextern" title="http://wiki.greasespot.net/API_reference"  rel="nofollow">Greasemonkey API</a>. Scripts must also be compatible with Webkit, since Midori is based on WebKit. A Greasemonkey script that makes use of functionality of Gecko/ Firefox will not work in Midori.
 </p>
 
@@ -746,7 +724,6 @@ As previously mentioned, Midori can use most scripts you will find. Midori suppo
 <div class="level4">
 
 <p>
-
 You can use <a href="http://userscripts.org/scripts/show/45343" class="urlextern" title="http://userscripts.org/scripts/show/45343"  rel="nofollow">BlockFlash2</a> as a user script which replaces all Flash elements with a button that says “Play Flash”.
 </p>
 
@@ -756,13 +733,12 @@ You can use <a href="http://userscripts.org/scripts/show/45343" class="urlextern
 <div class="level4">
 
 <p>
-
 You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wannabe.html" class="urlextern" title="http://rightfootin.blogspot.com/2009/04/flashblock-wannabe.html"  rel="nofollow">FlashBlock WannaBe</a> as a user script in order to replace Flash elements with placeholders and load them on click. The script is pretty advanced compared to most Flash blockers found on the web.
 </p>
 
 </div>
-<!-- EDIT16 SECTION "User scripts" [13126-15686] -->
-<h2 class="sectionedit17"><a name="user_styles" id="user_styles">User styles</a></h2>
+<!-- EDIT17 SECTION "User scripts" [13544-16104] -->
+<h2 class="sectionedit18"><a name="user_styles" id="user_styles">User styles</a></h2>
 <div class="level2">
 
 </div>
@@ -771,7 +747,6 @@ You can also use <a href="http://rightfootin.blogspot.com/2009/04/flashblock-wan
 <div class="level4">
 
 <p>
-
 User styles are <acronym title="Cascading Style Sheets">CSS</acronym> Cascading Style sheets that are loaded locally and applied on top of web pages, similar to User scripts, in order to add or alter functionality and also fix bugs.
 </p>
 
@@ -781,7 +756,6 @@ User styles are <acronym title="Cascading Style Sheets">CSS</acronym> Cascading 
 <div class="level4">
 
 <p>
-
 First, you need to find some styles (or write your own). You can find some at <a href="http://userstyles.org/" class="urlextern" title="http://userstyles.org/"  rel="nofollow">userstyles.org</a>. Many styles may or may not work, depending on whether the author decided to use browser specific features.
 </p>
 
@@ -799,7 +773,6 @@ Note, if the style is only shown as source code on the page, you first have to c
 <div class="level4">
 
 <p>
-
 Open up the Preferences and use the file chooser button beside User Stylesheet to choose a style sheet file. The style sheet will from now on be applied to all sites automatically.
 </p>
 
@@ -809,7 +782,6 @@ Open up the Preferences and use the file chooser button beside User Stylesheet t
 <div class="level4">
 
 <p>
-
 This user css is used to display the corresponding url when a link is hovered. This is similar to what chromium/chrome provides when hovering over a link, shown on the bottom left of the page. Add the following to <strong>~/.local/share/midori/styles</strong>, then restart Midori and make sure that it is enabled Tools → Userstyles.
 </p>
 
@@ -832,6 +804,6 @@ Customize as needed:
         }</pre>
 
 </div>
-<!-- EDIT17 SECTION "User styles" [15687-] --></div>
+<!-- EDIT18 SECTION "User styles" [16105-] --></div>
 </body>
 </html>
