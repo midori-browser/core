@@ -3470,9 +3470,34 @@ _action_fullscreen_activate (GtkAction*     action,
 
     state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
     if (state & GDK_WINDOW_STATE_FULLSCREEN)
+    {
+        if (katze_object_get_boolean (G_OBJECT (browser->settings), "show-panel"))
+            gtk_widget_show (browser->panel);
+
+        if (katze_object_get_boolean (G_OBJECT (browser->settings), "show-bookmarkbar"))
+            gtk_widget_show (browser->bookmarkbar);
+
+        if (browser->show_navigationbar)
+            gtk_widget_show (browser->navigationbar);
+
+        if (browser->show_statusbar)
+            gtk_widget_show (browser->statusbar);
+
+        if (browser->show_tabs)
+            gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), TRUE);
+
         gtk_window_unfullscreen (GTK_WINDOW (browser));
+    }
     else
+    {
+        gtk_widget_hide (browser->panel);
+        gtk_widget_hide (browser->bookmarkbar);
+        gtk_widget_hide (browser->navigationbar);
+        gtk_widget_hide (browser->statusbar);
+        gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), FALSE);
+
         gtk_window_fullscreen (GTK_WINDOW (browser));
+    }
 }
 
 static void
@@ -3657,8 +3682,9 @@ _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
+    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
 
-    if (!browser->show_navigationbar)
+    if (!browser->show_navigationbar || state & GDK_WINDOW_STATE_FULLSCREEN)
         gtk_widget_hide (browser->navigationbar);
 
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
@@ -3945,8 +3971,13 @@ static void
 _action_search_focus_out (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    if (gtk_widget_get_visible (browser->statusbar) && !browser->show_navigationbar)
+    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
+    if ((gtk_widget_get_visible (browser->statusbar)
+            && !browser->show_navigationbar)
+            || (state & GDK_WINDOW_STATE_FULLSCREEN))
+    {
         gtk_widget_hide (browser->navigationbar);
+    }
 }
 
 static void

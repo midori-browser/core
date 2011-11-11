@@ -2625,6 +2625,17 @@ midori_view_populate_popup (MidoriView* view,
         g_object_set_data (G_OBJECT (menuitem), "y", GINT_TO_POINTER (y));
     }
 
+    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
+    if (state & GDK_WINDOW_STATE_FULLSCREEN)
+    {
+        menuitem = sokoke_action_create_popup_menu_item (
+            gtk_action_group_get_action (actions, "Fullscreen"));
+
+        gtk_image_menu_item_set_use_stock (GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
+        gtk_menu_item_set_label (GTK_MENU_ITEM (menuitem), GTK_STOCK_LEAVE_FULLSCREEN);
+        gtk_menu_shell_append (menu_shell, menuitem);
+    }
+
     gtk_widget_show_all (menu);
 }
 
