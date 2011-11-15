@@ -37,7 +37,13 @@
 #elif HAVE_UNIQUE
     typedef gpointer MidoriAppInstance;
     #define MidoriAppInstanceNull NULL
+    #if defined(G_DISABLE_DEPRECATED) && !defined(G_CONST_RETURN)
+        #define G_CONST_RETURN
+    #endif
     #include <unique/unique.h>
+    #ifdef G_DISABLE_DEPRECATED
+        #undef G_CONST_RETUTN
+    #endif
     #define MIDORI_UNIQUE_COMMAND 1
 #else
     typedef gint MidoriAppInstance;
