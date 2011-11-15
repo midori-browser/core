@@ -4732,7 +4732,7 @@ static const gchar* credits_documenters[] =
 static const gchar* credits_artists[] =
     { "Nancy Runge <nancy@twotoasts.de>", NULL };
 
-#if !GTK_CHECK_VERSION (3, 0, 0)
+#if !GTK_CHECK_VERSION (2, 24, 0)
 static void
 _action_about_activate_link (GtkAboutDialog* about,
                              const gchar*    uri,
@@ -4774,7 +4774,7 @@ _action_about_activate (GtkAction*     action,
     "License as published by the Free Software Foundation; either "
     "version 2.1 of the License, or (at your option) any later version.");
 
-#if !GTK_CHECK_VERSION (3, 0, 0)
+#if !GTK_CHECK_VERSION (2, 24, 0)
     gtk_about_dialog_set_email_hook (_action_about_activate_email, NULL, NULL);
     gtk_about_dialog_set_url_hook (_action_about_activate_link, browser, NULL);
 #endif
