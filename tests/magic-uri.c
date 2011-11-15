@@ -91,6 +91,8 @@ magic_uri_uri (void)
     test_input ("example.com", "http://example.com");
     test_input ("www.google..com", "http://www.google..com");
     test_input ("/home/user/midori.html", "file:///home/user/midori.html");
+    test_input ("http://www.google.com/search?q=query test",
+                "http://www.google.com/search?q=query test");
     if (sokoke_resolve_hostname ("localhost"))
     {
         test_input ("localhost", "http://localhost");

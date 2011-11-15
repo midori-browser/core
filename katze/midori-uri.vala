@@ -102,6 +102,7 @@ namespace Midori {
             /* file:// is not considered a location for security reasons */
             return uri != null
              && ((uri.str ("://") != null && uri.chr (-1, ' ') == null)
+              || is_http (uri)
               || uri.has_prefix ("about:")
               || (uri.has_prefix ("data:") && uri.chr (-1, ';') != null)
               || (uri.has_prefix ("geo:") && uri.chr (-1, ',') != null)
