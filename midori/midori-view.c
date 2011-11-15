@@ -2953,6 +2953,8 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
                           "'language': 'en-US',"
                           "'platform': 'Linux i686',"
                           "'cookieEnabled': true,"
+                          "'javaEnabled': function () { return true; },"
+                          "'mimeTypes': {},"
                           "'plugins': {'refresh': function () { } } };",
             NULL);
         g_free (result);
