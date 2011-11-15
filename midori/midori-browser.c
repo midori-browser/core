@@ -19,6 +19,7 @@
 #include "midori-panel.h"
 #include "midori-locationaction.h"
 #include "midori-searchaction.h"
+#include "midori-panedaction.h"
 #include "midori-findbar.h"
 #include "midori-transferbar.h"
 #include "midori-platform.h"
@@ -2715,6 +2716,20 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
     items = g_string_free (toolbar_items, FALSE);
     g_object_set (browser->settings, "toolbar-items", items, NULL);
     g_free (items);
+}
+
+static void
+_midori_browser_save_search_item (MidoriBrowser* browser)
+{
+    MidoriPanedAction* paned_action = MIDORI_PANED_ACTION (_action_by_name (browser, "LocationSearch"));
+    GtkWidget* search = midori_paned_action_get_child_by_name (paned_action, "Search");
+    GtkAllocation allocation;
+    MidoriWebSettings* settings = browser->settings;
+    if (!search)
+        return;
+
+    gtk_widget_get_allocation (search, &allocation);
+    g_object_set (settings, "search-width", allocation.width, NULL);
 }
 
 /**
@@ -5523,6 +5538,8 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
     if (G_UNLIKELY (browser->alloc_timeout))
         g_source_remove (browser->alloc_timeout);
 
+    _midori_browser_save_search_item (browser);
+
     /* Destroy panel first, so panels don't need special care */
     gtk_widget_destroy (browser->panel);
     /* Destroy tabs second, so child widgets don't need special care */
@@ -5953,6 +5970,12 @@ midori_browser_init (MidoriBrowser* browser)
         action, "<Ctrl>K");
     g_object_unref (action);
 
+    action = g_object_new (MIDORI_TYPE_PANED_ACTION,
+        "name", "LocationSearch",
+        NULL);
+    gtk_action_group_add_action (browser->action_group, action);
+    g_object_unref (action);
+
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Trash",
         "stock-id", STOCK_USER_TRASH,
@@ -6377,18 +6400,73 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
     gchar** name;
     GtkAction* action;
     GtkWidget* toolitem;
+    const char* token_location = g_intern_static_string ("Location");
+    const char* token_search = g_intern_static_string ("Search");
+    const char* token_dontcare = g_intern_static_string ("Dontcare");
+    const char* token_current = token_dontcare;
+    const char* token_last = token_dontcare;
 
     gtk_container_foreach (GTK_CONTAINER (browser->navigationbar),
         (GtkCallback)gtk_widget_destroy, NULL);
 
     names = g_strsplit (items ? items : "", ",", 0);
     name = names;
-    while (*name)
+    for (; *name; ++name)
     {
         action = _action_by_name (browser, *name);
         if (action)
         {
-            toolitem = gtk_action_create_tool_item (action);
+            token_last = token_current;
+
+            /* Decide, what kind of token (item) we got now */
+            if (name && !g_strcmp0 (*name, "Location"))
+                token_current = token_location;
+            else if (name && !g_strcmp0 (*name, "Search"))
+                token_current = token_search;
+            else
+                token_current = token_dontcare;
+
+            if ((token_current == token_location || token_current == token_search) &&
+                 (token_last == token_location || token_last == token_search))
+            {
+                GtkWidget* toolitem_first = gtk_action_create_tool_item (
+                    _action_by_name (browser, token_last));
+                GtkWidget* toolitem_second = gtk_action_create_tool_item (
+                    _action_by_name (browser, token_current));
+                MidoriPanedAction* paned_action = MIDORI_PANED_ACTION (
+                    _action_by_name (browser, "LocationSearch"));
+                MidoriWebSettings* midori_settings = browser->settings;
+                midori_paned_action_set_child1 (paned_action, toolitem_first, token_last,
+                    token_last == token_search ? FALSE : TRUE, TRUE);
+                midori_paned_action_set_child2 (paned_action, toolitem_second, token_current,
+                    token_current == token_search ? FALSE : TRUE, TRUE);
+
+                gtk_widget_set_size_request (
+                    token_last == token_search ? toolitem_first : toolitem_second,
+                    katze_object_get_int ((gpointer) midori_settings,
+                    "search-width"),
+                    -1);
+
+                toolitem = gtk_action_create_tool_item (GTK_ACTION (paned_action));
+                token_current = token_dontcare;
+                token_last = token_dontcare;
+            }
+            else if (token_current == token_dontcare && token_last != token_dontcare)
+            {
+                /* There was a location or search item, but was not followed by
+                   the other one, that form a couple */
+                gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+                    GTK_TOOL_ITEM (gtk_action_create_tool_item (
+                    _action_by_name (browser, token_last))),
+                    -1);
+
+                toolitem = gtk_action_create_tool_item (action);
+            }
+            else if (token_current != token_dontcare && token_last == token_dontcare)
+                continue;
+            else
+                toolitem = gtk_action_create_tool_item (action);
+
             if (gtk_bin_get_child (GTK_BIN (toolitem)))
                 g_signal_connect (gtk_bin_get_child (GTK_BIN (toolitem)),
                     "button-press-event",
@@ -6405,9 +6483,17 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
             gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
                                 GTK_TOOL_ITEM (toolitem), -1);
         }
-        name++;
     }
     g_strfreev (names);
+
+    /* There was a last item, which could have formed a couple, but
+       there is no item left, we add that last item to toolbar as is */
+    if (token_current != token_dontcare)
+    {
+        gtk_toolbar_insert (GTK_TOOLBAR (browser->navigationbar),
+            GTK_TOOL_ITEM (gtk_action_create_tool_item (
+            _action_by_name (browser, token_current))), -1);
+    }
 }
 
 static void

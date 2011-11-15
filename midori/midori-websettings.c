@@ -67,6 +67,7 @@ struct _MidoriWebSettings
     gint last_web_search;
     gint maximum_cookie_age;
     gint maximum_history_age;
+    gint search_width;
 
     gchar* toolbar_items;
     gchar* homepage;
@@ -176,6 +177,8 @@ enum
     PROP_STRIP_REFERER,
     PROP_ENFORCE_FONT_FAMILY,
     PROP_USER_STYLESHEET_URI,
+
+    PROP_SEARCH_WIDTH,
 };
 
 GType
@@ -1077,6 +1080,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Load stylesheets from a local URI",
                                      NULL,
                                      flags));
+
+    /**
+     * MidoriWebSettings:search-entry-width:
+     *
+     * Search action width in pixels
+     *
+     * Since: 0.4.3
+     **/
+    g_object_class_install_property (gobject_class,
+                                     PROP_SEARCH_WIDTH,
+                                     g_param_spec_int (
+                                     "search-width",
+                                     "Search action width",
+                                     "Search action width in pixels",
+                                     10, G_MAXINT, 200,
+                                     flags));
 }
 
 static void
@@ -1565,6 +1584,9 @@ midori_web_settings_set_property (GObject*      object,
             midori_web_settings_process_stylesheets (web_settings, new_len - old_len);
         }
         break;
+    case PROP_SEARCH_WIDTH:
+        web_settings->search_width = g_value_get_int (value);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -1829,6 +1851,9 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_USER_STYLESHEET_URI:
         g_value_take_string (value, katze_object_get_string (web_settings,
             "WebKitWebSettings::user-stylesheet-uri"));
+        break;
+    case PROP_SEARCH_WIDTH:
+        g_value_set_int (value, web_settings->search_width);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
