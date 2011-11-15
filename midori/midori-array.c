@@ -905,10 +905,9 @@ midori_array_to_file_format (KatzeArray*  array,
 
     if (!g_strcmp0 (format, "xbel"))
         data = katze_array_to_xbel (array, error);
-    if (!g_strcmp0 (format, "netscape"))
+    else if (!g_strcmp0 (format, "netscape"))
         data = katze_array_to_netscape_html (array, error);
-
-    if (!data)
+    else
         return FALSE;
     if (!(fp = fopen (filename, "w")))
     {
