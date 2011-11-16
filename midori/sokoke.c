@@ -703,23 +703,6 @@ sokoke_magic_uri (const gchar* uri)
     return NULL;
 }
 
-void
-sokoke_combo_box_add_strings (GtkComboBox* combobox,
-                              const gchar* label_first, ...)
-{
-    const gchar* label;
-
-    /* Add a number of strings to a combobox, terminated with NULL
-       This works only for text comboboxes */
-    va_list args;
-    va_start (args, label_first);
-
-    for (label = label_first; label; label = va_arg (args, const gchar*))
-        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combobox), label);
-
-    va_end (args);
-}
-
 void sokoke_widget_set_visible (GtkWidget* widget, gboolean visible)
 {
     /* Show or hide the widget */

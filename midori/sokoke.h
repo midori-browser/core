@@ -56,11 +56,6 @@ gchar*
 sokoke_magic_uri                        (const gchar*    uri);
 
 void
-sokoke_combo_box_add_strings            (GtkComboBox*    combobox,
-                                         const gchar*    label_first,
-                                         ...);
-
-void
 sokoke_widget_set_visible               (GtkWidget*      widget,
                                          gboolean        visible);
 
