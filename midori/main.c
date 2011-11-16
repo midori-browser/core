@@ -615,10 +615,7 @@ settings_notify_cb (MidoriWebSettings* settings,
     gchar* config_file;
 
     /* Skip state related properties to avoid disk IO */
-    if ((pspec && g_str_has_prefix (pspec->name, "last-window-"))
-     || (pspec && g_str_has_prefix (pspec->name, "user-stylesheet-uri"))
-     || (pspec && g_str_equal (pspec->name, "search-width"))
-     || (pspec && g_str_has_prefix (pspec->name, "last-panel-")))
+    if (pspec && pspec->flags & MIDORI_PARAM_DELAY_SAVING)
         return;
 
     config_file = build_config_filename ("config");

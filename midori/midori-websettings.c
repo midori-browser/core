@@ -369,7 +369,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Last window width"),
                                      _("The last saved window width"),
                                      0, G_MAXINT, 0,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LAST_WINDOW_HEIGHT,
@@ -378,7 +378,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Last window height"),
                                      _("The last saved window height"),
                                      0, G_MAXINT, 0,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
     /**
     * MidoriWebSettings:last-window-state:
@@ -395,7 +395,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "The last saved window state",
                                      MIDORI_TYPE_WINDOW_STATE,
                                      MIDORI_WINDOW_NORMAL,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LAST_PANEL_POSITION,
@@ -404,7 +404,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Last panel position"),
                                      _("The last saved panel position"),
                                      0, G_MAXINT, 0,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LAST_PANEL_PAGE,
@@ -414,7 +414,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Last panel page"),
                                      _("The last saved panel page"),
                                      0, G_MAXINT, 0,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
     g_object_class_install_property (gobject_class,
                                      PROP_LAST_WEB_SEARCH,
@@ -1079,7 +1079,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "User stylesheet URI",
                                      "Load stylesheets from a local URI",
                                      NULL,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 
     /**
      * MidoriWebSettings:search-entry-width:
@@ -1095,7 +1095,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "Search action width",
                                      "Search action width in pixels",
                                      10, G_MAXINT, 200,
-                                     flags));
+                                     flags | MIDORI_PARAM_DELAY_SAVING));
 }
 
 static void
