@@ -321,7 +321,7 @@ midori_app_class_init (MidoriAppClass* class)
                                      "name",
                                      "Name",
                                      "The name of the instance",
-                                     "midori",
+                                     NULL,
                                      G_PARAM_CONSTRUCT_ONLY |
                                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
