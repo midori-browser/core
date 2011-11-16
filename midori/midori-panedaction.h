@@ -59,6 +59,12 @@ GtkWidget*
 midori_paned_action_get_child_by_name              (MidoriPanedAction* paned_action,
                                                     const gchar* name);
 
+const gchar*
+midori_paned_action_get_child1_name                (MidoriPanedAction* paned_action);
+
+const gchar*
+midori_paned_action_get_child2_name                (MidoriPanedAction* paned_action);
+
 G_END_DECLS
 
 #endif // __MIDORI_PANED_ACTION_H__

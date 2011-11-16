@@ -2709,27 +2709,24 @@ _midori_browser_save_toolbar_items (MidoriBrowser* browser)
         g_warn_if_fail (action != NULL);
         if (action)
         {
-            g_string_append (toolbar_items, gtk_action_get_name (action));
-            g_string_append (toolbar_items, ",");
+            const char* action_name = gtk_action_get_name (action);
+            if (g_str_equal (action_name, "LocationSearch"))
+            {
+                MidoriPanedAction* paned_action = MIDORI_PANED_ACTION (action);
+                g_string_append_printf (toolbar_items, "%s,%s,",
+                    midori_paned_action_get_child1_name (paned_action),
+                    midori_paned_action_get_child2_name (paned_action));
+            }
+            else
+            {
+                g_string_append (toolbar_items, action_name);
+                g_string_append (toolbar_items, ",");
+            }
         }
     }
     items = g_string_free (toolbar_items, FALSE);
     g_object_set (browser->settings, "toolbar-items", items, NULL);
     g_free (items);
-}
-
-static void
-_midori_browser_save_search_item (MidoriBrowser* browser)
-{
-    MidoriPanedAction* paned_action = MIDORI_PANED_ACTION (_action_by_name (browser, "LocationSearch"));
-    GtkWidget* search = midori_paned_action_get_child_by_name (paned_action, "Search");
-    GtkAllocation allocation;
-    MidoriWebSettings* settings = browser->settings;
-    if (!search)
-        return;
-
-    gtk_widget_get_allocation (search, &allocation);
-    g_object_set (settings, "search-width", allocation.width, NULL);
 }
 
 /**
@@ -5538,8 +5535,6 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
     if (G_UNLIKELY (browser->alloc_timeout))
         g_source_remove (browser->alloc_timeout);
 
-    _midori_browser_save_search_item (browser);
-
     /* Destroy panel first, so panels don't need special care */
     gtk_widget_destroy (browser->panel);
     /* Destroy tabs second, so child widgets don't need special care */
@@ -6393,6 +6388,16 @@ midori_browser_toolbar_item_button_press_event_cb (GtkWidget*      toolitem,
 }
 
 static void
+_midori_browser_search_item_allocate_cb (GtkWidget* widget,
+                                         GdkRectangle* allocation,
+                                         gpointer user_data)
+{
+    MidoriBrowser* browser = MIDORI_BROWSER (user_data);
+    MidoriWebSettings* settings = browser->settings;
+    g_object_set (settings, "search-width", allocation->width, NULL);
+}
+
+static void
 _midori_browser_set_toolbar_items (MidoriBrowser* browser,
                                    const gchar*   items)
 {
@@ -6440,6 +6445,8 @@ _midori_browser_set_toolbar_items (MidoriBrowser* browser,
                     token_last == token_search ? FALSE : TRUE, TRUE);
                 midori_paned_action_set_child2 (paned_action, toolitem_second, token_current,
                     token_current == token_search ? FALSE : TRUE, TRUE);
+                g_signal_connect (G_OBJECT (token_current == token_search ? toolitem_second : toolitem_first),
+                    "size-allocate", G_CALLBACK (_midori_browser_search_item_allocate_cb), (gpointer) browser);
 
                 gtk_widget_set_size_request (
                     token_last == token_search ? toolitem_first : toolitem_second,

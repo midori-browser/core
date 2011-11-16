@@ -197,3 +197,31 @@ midori_paned_action_get_child_by_name (MidoriPanedAction* paned_action,
 
     return NULL;
 }
+
+/**
+ * midori_paned_action_get_child1_name:
+ * @paned_action a #MidoriPanedAction
+ *
+ * Returns: The name of the first child
+ **/
+const gchar*
+midori_paned_action_get_child1_name (MidoriPanedAction* paned_action)
+{
+    g_return_val_if_fail (MIDORI_IS_PANED_ACTION (paned_action), NULL);
+
+    return paned_action->child1.name;
+}
+
+/**
+ * midori_paned_action_get_child2_name:
+ * @paned_action a #MidoriPanedAction
+ *
+ * Returns: The name of the second child
+ **/
+const gchar*
+midori_paned_action_get_child2_name (MidoriPanedAction* paned_action)
+{
+    g_return_val_if_fail (MIDORI_IS_PANED_ACTION (paned_action), NULL);
+
+    return paned_action->child2.name;
+}
