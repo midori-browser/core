@@ -1551,10 +1551,15 @@ midori_web_settings_set_property (GObject*      object,
         {
             gchar* font_family = katze_object_get_string (web_settings,
                                                           "default-font-family");
-            gchar* css = g_strdup_printf ("* { font-family: %s !important; }",
-                                          font_family);
+            gchar* monospace = katze_object_get_string (web_settings,
+                                                        "monospace-font-family");
+            gchar* css = g_strdup_printf ("body * { font-family: %s !important; } \
+                code, code *, pre, pre *, blockquote, blockquote *, \
+                input, textarea { font-family: %s !important; }",
+                                          font_family, monospace);
             midori_web_settings_add_style (web_settings, "enforce-font-family", css);
             g_free (font_family);
+            g_free (monospace);
             g_free (css);
         }
         else
