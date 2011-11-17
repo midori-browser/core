@@ -1145,6 +1145,12 @@ midori_web_settings_init (MidoriWebSettings* web_settings)
     web_settings->user_stylesheet_uri = web_settings->user_stylesheet_uri_cached = NULL;
     web_settings->user_stylesheets = NULL;
 
+    #if WEBKIT_CHECK_VERSION (1, 2, 6) && !WEBKIT_CHECK_VERSION (1, 2, 8)
+    /* Shadows are very slow with WebKitGTK+ 1.2.7 */
+    midori_web_settings_add_style (web_settings, "box-shadow-workaround",
+        "* { -webkit-box-shadow: none !important; }");
+    #endif
+
     g_signal_connect (web_settings, "notify::default-encoding",
                       G_CALLBACK (notify_default_encoding_cb), NULL);
     g_signal_connect (web_settings, "notify::default-font-family",
