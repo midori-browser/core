@@ -34,13 +34,15 @@
         width: 100%;
         height: 100%;
         outline: 0;
+        background: #E1E1E1;
     }
 
     #content {
-        width: 100%;
-        height: 95%;
+        width: 96%;
+        height: 85%;
         margin: 0 auto;
-        padding: 0;
+        padding-top: 5%;
+        padding-left: 2%;
     }
 
     div.shortcut {
@@ -50,23 +52,25 @@
     }
 
     div.shortcut .preview {
-        width: 70%;
-        height: 60%;
-        margin: 20% auto;
-        -webkit-box-shadow: 0 1px 6px rgba(0,0,0,.25), 0 0 2px #fff inset;
-        box-shadow: 0 1px 6px rgba(0,0,0,.25), 0 0 2px #fff inset;
+        width: 85%;
+        height: 75%;
+        margin: auto;
+        -webkit-box-shadow: 0 4px 18px rgba(0,0,0,.3), 0 0 2px #fff inset;
+        box-shadow: 0 4px 18px rgba(0,0,0,.3), 0 0 2px #fff inset;
         background-image: -webkit-gradient(
             linear, center top, center bottom,
             from(#f6f6f6), to(#e3e3e3));
-        border: 1px solid #bebebe;
+        border: 1px solid #bcbcbc;
         border-bottom-color: #a0a0a0;
         position: relative;
+        -webkit-border-radius: 3px;
     }
 
     div.shortcut .preview img {
         width: 100%;
-        height: 98%;
+        height: 100%;
         cursor: pointer;
+        -webkit-border-radius: 3px;
     }
 
     div.shortcut .preview.new .add {
@@ -79,11 +83,12 @@
 
     .title {
         text-align: center;
-        margin-top: -17%;
+        margin: 8px;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
         cursor: text;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.5);
     }
 
     .cross {
