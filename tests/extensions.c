@@ -168,6 +168,8 @@ extension_activate (gconstpointer data)
 {
     MidoriApp* app = midori_app_new ();
     MidoriExtension* extension = MIDORI_EXTENSION (data);
+    if (extension == NULL)
+        return;
     g_object_set (app, "settings", midori_web_settings_new (), NULL);
     g_signal_emit_by_name (extension, "activate", app);
     midori_extension_deactivate (extension);
