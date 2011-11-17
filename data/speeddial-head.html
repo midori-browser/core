@@ -10,6 +10,17 @@
   <head>
     <title>{title}</title>
     <style>
+
+    /* Animations */
+
+    @-webkit-keyframes popin {
+        0%   { opacity: 0.0; -webkit-transform: scale(0.00); }
+        75%  { opacity: 0.5; -webkit-transform: scale(1.15); }
+        100% { opacity: 1.0; -webkit-transform: scale(1.00); }
+    }
+
+    /* Styles */
+
     * {
         margin: 0;
         padding: 0;
@@ -84,15 +95,12 @@
         background: url(res://close.png);
         position: absolute;
         cursor: pointer;
-        visibility: hidden;
         opacity: 0;
-        -webkit-transition: opacity 0.15s;
     }
 
     div.shortcut .preview:hover .cross {
-        visibility: visible;
+        -webkit-animation: popin 250ms ease-in-out;
         opacity: 1;
-        -webkit-transition-delay: 0.5s;
     }
 
     .box.added {
