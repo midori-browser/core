@@ -412,7 +412,9 @@ formhistory_activate_cb (MidoriExtension* extension,
     filename = g_build_filename (config_dir, "forms.db", NULL);
     if (sqlite3_open (filename, &db) != SQLITE_OK)
     {
-        g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
+        /* If the folder is /, this is a test run, thus no error */
+        if (!g_str_equal (midori_extension_get_config_dir (extension), "/"))
+            g_warning (_("Failed to open database: %s\n"), sqlite3_errmsg (db));
         sqlite3_close (db);
     }
     g_free (filename);
