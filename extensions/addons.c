@@ -1861,6 +1861,47 @@ addons_activate_cb (MidoriExtension* extension,
         G_CALLBACK (addons_deactivate_cb), app);
 }
 
+#ifdef G_ENABLE_DEBUG
+static void
+test_addons_simple_regexp (void)
+{
+    typedef struct
+    {
+        const gchar* before;
+        const gchar* after;
+    } RegexItem;
+    guint i;
+
+    static const RegexItem items[] = {
+    { "*", "^.*" },
+    { "http://", "^http://" },
+    { "https://", "^https://" },
+    { "about:blank", "^about:blank" },
+    { "file://", "^file://" },
+    { "ftp://", "^ftp://" },
+    { "https://bugzilla.mozilla.org/", "^https://bugzilla\\.mozilla\\.org/" },
+    { "http://92.48.103.52/fantasy3/*", "^http://92\\.48\\.103\\.52/fantasy3/.*" },
+    { "http://www.rpg.co.uk/fantasy/*", "^http://www\\.rpg\\.co\\.uk/fantasy/.*" },
+    { "http://cookpad.com/recipe/*", "^http://cookpad\\.com/recipe/.*" },
+    { "https://*/*post_bug.cgi", "^https://.*/.*post_bug\\.cgi" },
+    };
+
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
+    {
+        gchar* result = addons_convert_to_simple_regexp (items[i].before);
+        const gchar* after = items[i].after ? items[i].after : items[i].before;
+        katze_assert_str_equal (items[i].before, result, after);
+        g_free (result);
+    }
+}
+
+void
+extension_test (void)
+{
+    g_test_add_func ("/extensions/addons/simple_regexp", test_addons_simple_regexp);
+}
+#endif
+
 MidoriExtension*
 extension_init (void)
 {

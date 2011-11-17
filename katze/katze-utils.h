@@ -142,6 +142,11 @@ katze_load_cached_icon               (const gchar*    uri,
 GtkWidget*
 katze_uri_entry_new                  (GtkWidget*      other_widget);
 
+void
+katze_assert_str_equal               (const gchar*    input,
+                                      const gchar*    result,
+                                      const gchar*    expected);
+
 G_END_DECLS
 
 #endif /* __KATZE_UTILS_H__ */

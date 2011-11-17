@@ -15,20 +15,6 @@
 #define SM "http://www.searchmash.com/search/"
 
 static void
-sokoke_assert_str_equal (const gchar* input,
-                         const gchar* result,
-                         const gchar* expected)
-{
-    if (g_strcmp0 (result, expected))
-    {
-        g_error ("Input: %s\nExpected: %s\nResult: %s",
-                 input ? input : "NULL",
-                 expected ? expected : "NULL",
-                 result ? result : "NULL");
-    }
-}
-
-static void
 test_input (const gchar* input,
             const gchar* expected)
 {
@@ -76,7 +62,7 @@ test_input (const gchar* input,
 
         g_free (keywords);
     }
-    sokoke_assert_str_equal (input, uri, expected);
+    katze_assert_str_equal (input, uri, expected);
     g_free (uri);
 }
 
@@ -134,7 +120,7 @@ magic_uri_idn (void)
     {
         gchar* result = midori_uri_to_ascii (items[i].before);
         const gchar* after = items[i].after ? items[i].after : items[i].before;
-        sokoke_assert_str_equal (items[i].before, result, after);
+        katze_assert_str_equal (items[i].before, result, after);
         g_free (result);
     }
 
@@ -252,7 +238,7 @@ magic_uri_format (void)
     {
         gchar* result = midori_uri_format_for_display (items[i].before);
         const gchar* after = items[i].after ? items[i].after : items[i].before;
-        sokoke_assert_str_equal (items[i].before, result, after);
+        katze_assert_str_equal (items[i].before, result, after);
         g_free (result);
     }
 }

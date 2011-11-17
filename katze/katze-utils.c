@@ -1561,3 +1561,27 @@ katze_uri_entry_new (GtkWidget* other_widget)
     return entry;
 }
 
+/**
+ * katze_assert_str_equal:
+ * @input: a string
+ * @result: a string
+ * @expected: a string
+ *
+ * Compares the two strings for equality, with verbose errors.
+ *
+ * Since: 0.4.3
+ */
+void
+katze_assert_str_equal (const gchar* input,
+                        const gchar* result,
+                        const gchar* expected)
+{
+    if (g_strcmp0 (result, expected))
+    {
+        g_error ("Input: %s\nExpected: %s\nResult: %s",
+                 input ? input : "NULL",
+                 expected ? expected : "NULL",
+                 result ? result : "NULL");
+    }
+}
+
