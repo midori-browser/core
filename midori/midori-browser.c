@@ -3370,9 +3370,6 @@ midori_browser_save_source (const gchar* uri,
     FILE* fp;
     size_t ret;
 
-    if (!data)
-        return NULL;
-
     if (!outfile)
     {
         gchar* filename;
@@ -3380,7 +3377,7 @@ midori_browser_save_source (const gchar* uri,
 
         extension = midori_browser_get_uri_extension (uri);
         filename = g_strdup_printf ("%uXXXXXX%s",
-                                        g_str_hash (uri), extension);
+            g_str_hash (uri), extension && *extension ? extension : ".htm");
         g_free (extension);
         fd = g_file_open_tmp (filename, &unique_filename, NULL);
         g_free (filename);
@@ -3431,12 +3428,10 @@ _action_source_view_activate (GtkAction*     action,
     frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
     data_source = webkit_web_frame_get_data_source (frame);
     data = webkit_web_data_source_get_data (data_source);
-    if (data)
-        filename = midori_browser_save_source (uri, data->str, data->len, NULL);
-
-    if (!filename)
+    if (!data)
         return;
 
+    filename = midori_browser_save_source (uri, data, NULL, view);
     if (!(text_editor && *text_editor))
     {
         GtkWidget* source;
