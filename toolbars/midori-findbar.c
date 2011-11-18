@@ -158,7 +158,7 @@ void
 midori_findbar_invoke (MidoriFindbar* findbar)
 {
     if (gtk_widget_get_visible (GTK_WIDGET (findbar)))
-        midori_findbar_done (findbar);
+        gtk_widget_grab_focus (GTK_WIDGET (findbar->find_text));
     else
     {
         MidoriBrowser* browser = midori_browser_get_for_widget (findbar->find_text);
