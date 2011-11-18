@@ -69,6 +69,9 @@ test_input (const gchar* input,
 static void
 magic_uri_uri (void)
 {
+    const gchar* uri;
+    gchar* path;
+
     test_input ("ftp://ftp.mozilla.org", "ftp://ftp.mozilla.org");
     test_input ("ftp://ftp.mozilla.org/pub", "ftp://ftp.mozilla.org/pub");
     test_input ("http://www.example.com", "http://www.example.com");
@@ -93,6 +96,20 @@ magic_uri_uri (void)
     test_input ("foo:123@bar.baz", "http://foo:123@bar.baz");
     /* test_input ("foo:f1o2o3@bar.baz", "http://f1o2o3:foo@bar.baz"); */
     /* test_input ("foo:foo@bar.baz", "http://foo:foo@bar.baz"); */
+
+    uri = "http://bugs.launchpad.net/midori";
+    g_assert_cmpstr ("bugs.launchpad.net", ==, midori_uri_parse_hostname (uri, NULL));
+    uri = "https://bugs.launchpad.net/midori";
+    g_assert_cmpstr ("bugs.launchpad.net", ==, midori_uri_parse_hostname (uri, NULL));
+    g_assert_cmpstr ("bugs.launchpad.net", ==, midori_uri_parse_hostname (uri, &path));
+    g_assert_cmpstr ("/midori", ==, path);
+    uri = "http://айкидо.ru/users/kotyata";
+    g_assert_cmpstr ("айкидо.ru", ==, midori_uri_parse_hostname (uri, &path));
+    g_assert_cmpstr ("/users/kotyata", ==, path);
+    uri = "invalid:/uri.like/thing";
+    g_assert_cmpstr (NULL, ==, midori_uri_parse_hostname (uri, NULL));
+    uri = "invalid-uri.like:thing";
+    g_assert_cmpstr (NULL, ==, midori_uri_parse_hostname (uri, NULL));
 }
 
 static void

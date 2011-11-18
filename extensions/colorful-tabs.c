@@ -47,7 +47,7 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
     label = midori_view_get_proxy_tab_label (view);
 
     if (!midori_uri_is_blank (midori_view_get_display_uri (view))
-      && (hostname = midori_uri_parse (midori_view_get_display_uri (view), NULL))
+      && (hostname = midori_uri_parse_hostname (midori_view_get_display_uri (view), NULL))
       && katze_object_get_enum (view, "load-status") == MIDORI_LOAD_FINISHED)
     {
         icon = midori_view_get_icon (view);

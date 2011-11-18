@@ -109,7 +109,7 @@ addons_install_response (GtkWidget*  infobar,
             WebKitNetworkRequest* request;
             WebKitDownload* download;
 
-            hostname = midori_uri_parse (uri, &path);
+            hostname = midori_uri_parse_hostname (uri, &path);
             temp_uri = NULL;
             filename = NULL;
             folder = NULL;
@@ -259,7 +259,7 @@ addons_notify_load_status_cb (MidoriView*      view,
            else
            {
                gchar* path;
-               gchar* hostname = midori_uri_parse (uri, &path);
+               gchar* hostname = midori_uri_parse_hostname (uri, &path);
                if (!strcmp (hostname, "userscripts.org")
                 && (g_str_has_prefix (path, "/scripts/show/")
                  || g_str_has_prefix (path, "/scripts/review/")))

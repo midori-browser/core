@@ -16,15 +16,14 @@ namespace GLib {
 
 namespace Midori {
     public class URI : Object {
-        public static string parse (string? uri, out string path) {
-            /* path may be null.
-               If there's no hostname, the original URI is returned */
+        public static string? parse_hostname (string? uri, out string path) {
+            /* path may be null. */
             if (uri == null)
                 return uri;
             unowned string? hostname = uri.chr (-1, '/');
             if (hostname == null || hostname[1] != '/'
              || hostname.chr (-1, ' ') != null)
-                return uri;
+                return null;
             hostname = hostname.offset (2);
             if (&path != null) {
                 if ((path = hostname.chr (-1, '/')) != null)
@@ -38,7 +37,7 @@ namespace Midori {
             if (uri.chr (-1, '/') != null && uri.chr (-1, ':') != null)
                 proto = uri.split ("://")[0];
             string? path = null;
-            string hostname = parse (uri, out path);
+            string? hostname = parse_hostname (uri, out path) ?? uri;
             string encoded = hostname_to_ascii (hostname);
             if (encoded != null) {
                 return (proto ?? "")
@@ -67,7 +66,7 @@ namespace Midori {
                 else if (!unescaped.validate ())
                     return uri;
                 string path;
-                string hostname = parse (unescaped, out path);
+                string hostname = parse_hostname (unescaped, out path);
                 string decoded = hostname_to_unicode (hostname);
                 if (decoded != null)
                     return "http://" + decoded + path;

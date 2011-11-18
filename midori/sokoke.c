@@ -1433,8 +1433,7 @@ sokoke_prefetch_uri (MidoriWebSettings*  settings,
     if (settings && !katze_object_get_boolean (settings, "enable-dns-prefetching"))
         return FALSE;
 
-    if (!(hostname = midori_uri_parse (uri, NULL))
-     || !strcmp (hostname, uri)
+    if (!(hostname = midori_uri_parse_hostname (uri, NULL))
      || g_hostname_is_ip_address (hostname)
      || !midori_uri_is_http (uri))
     {
