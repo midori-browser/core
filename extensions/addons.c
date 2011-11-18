@@ -118,7 +118,7 @@ addons_install_response (GtkWidget*  infobar,
                 folder = "scripts";
             else if (g_str_has_suffix (uri, ".user.css"))
                 folder = "styles";
-            else if (!strcmp (hostname, "userscripts.org"))
+            else if (!g_strcmp0 (hostname, "userscripts.org"))
             {
                 /* http://userscripts.org/scripts/ACTION/SCRIPT_ID/NAME */
                 gchar* subpage = strchr (strchr (path + 1, '/') + 1, '/');
@@ -148,7 +148,7 @@ addons_install_response (GtkWidget*  infobar,
                     folder = "scripts";
                 }
             }
-            else if (!strcmp (hostname, "userstyles.org"))
+            else if (!g_strcmp0 (hostname, "userstyles.org"))
             {
                 /* http://userstyles.org/styles/STYLE_ID/NAME */
                 gchar* subpage = strchr (path + 1, '/');
@@ -260,14 +260,14 @@ addons_notify_load_status_cb (MidoriView*      view,
            {
                gchar* path;
                gchar* hostname = midori_uri_parse_hostname (uri, &path);
-               if (!strcmp (hostname, "userscripts.org")
+               if (!g_strcmp0 (hostname, "userscripts.org")
                 && (g_str_has_prefix (path, "/scripts/show/")
                  || g_str_has_prefix (path, "/scripts/review/")))
                {
                    /* Main (with desc) and "source view" pages */
                    addons_uri_install (view, ADDONS_USER_SCRIPTS);
                }
-               else if (!strcmp (hostname, "userstyles.org")
+               else if (!g_strcmp0 (hostname, "userstyles.org")
                 && g_str_has_prefix (path, "/styles/"))
                {
                    gchar* subpage = strchr (path + 1, '/');
