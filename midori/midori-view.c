@@ -3741,7 +3741,7 @@ prepare_speed_dial_html (MidoriView* view,
         gchar* dial_entry = g_strdup_printf ("Dial %d", slot);
         gchar* uri = g_key_file_get_string (key_file, dial_entry, "uri", NULL);
 
-        if (uri && strstr (uri, "://") != NULL)
+        if (uri && *uri && *uri != '#')
         {
             gchar* title = g_key_file_get_string (key_file, dial_entry, "title", NULL);
             gchar* thumb_file = sokoke_build_thumbnail_path (uri);
@@ -3773,7 +3773,7 @@ prepare_speed_dial_html (MidoriView* view,
             g_free (title);
             g_free (encoded);
         }
-        else if (slot == slot_count)
+        else
         {
             g_string_append_printf (markup,
                 "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview new\">"
