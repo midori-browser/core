@@ -3672,7 +3672,6 @@ prepare_speed_dial_html (MidoriView* view,
     MidoriBrowser* browser = midori_browser_get_for_widget (GTK_WIDGET (view));
     GKeyFile* key_file;
     GString* markup = NULL;
-    guint slot = 1;
     guint slot_count = 1, i, grid_index = 3, slot_size;
     gchar* speed_dial_head;
     gchar* file_path;
@@ -3744,6 +3743,7 @@ prepare_speed_dial_html (MidoriView* view,
             gchar* title = g_key_file_get_string (key_file, groups[i], "title", NULL);
             gchar* thumb_file = sokoke_build_thumbnail_path (uri);
             gchar* encoded;
+            guint slot = atoi (groups[i] + strlen ("Dial "));
 
             if (g_access (thumb_file, F_OK) == 0)
             {
@@ -3761,7 +3761,6 @@ prepare_speed_dial_html (MidoriView* view,
             }
             g_free (thumb_file);
 
-            slot = atoi (groups[i] + strlen ("Dial "));
             g_string_append_printf (markup,
                 "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview\">"
                 "<a class=\"cross\" href=\"#\" onclick='clearShortcut(\"s%d\");'></a>"
@@ -3772,10 +3771,9 @@ prepare_speed_dial_html (MidoriView* view,
             g_free (title);
             g_free (encoded);
         }
-        else
+        else if (strcmp (groups[i], "settings"))
             g_key_file_remove_group (key_file, groups[i], NULL);
 
-        slot++;
         g_free (uri);
     }
     g_strfreev (groups);
@@ -3784,7 +3782,7 @@ prepare_speed_dial_html (MidoriView* view,
         "<div class=\"shortcut\" id=\"s%d\"><div class=\"preview new\">"
         "<a class=\"add\" href=\"#\" onclick='return getAction(\"s%d\");'></a>"
         "</div><div class=\"title\">%s</div></div>\n",
-        slot, slot, _("Click to add a shortcut"));
+        slot_count + 1, slot_count + 1, _("Click to add a shortcut"));
     g_string_append_printf (markup,
             "</div>\n</body>\n</html>\n");
 
