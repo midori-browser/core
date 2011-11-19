@@ -3431,7 +3431,7 @@ _action_source_view_activate (GtkAction*     action,
     if (!data)
         return;
 
-    filename = midori_browser_save_source (uri, data, NULL, view);
+    filename = midori_browser_save_source (uri, data->str, data->len, NULL);
     if (!(text_editor && *text_editor))
     {
         GtkWidget* source;
