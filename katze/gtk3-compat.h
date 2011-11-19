@@ -6,6 +6,15 @@
 
 G_BEGIN_DECLS
 
+#if GTK_CHECK_VERSION (3, 2, 0)
+    #define GTK_TYPE_VBOX GTK_TYPE_BOX
+    #define GtkVBox GtkBox
+    #define GtkVBoxClass GtkBoxClass
+    #define GTK_TYPE_HBOX GTK_TYPE_BOX
+    #define GtkHBox GtkBox
+    #define GtkHBoxClass GtkBoxClass
+#endif
+
 #if !GLIB_CHECK_VERSION (2, 32, 0)
     #define G_SOURCE_REMOVE   FALSE
     #define G_SOURCE_CONTINUE TRUE
