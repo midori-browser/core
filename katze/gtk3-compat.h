@@ -10,9 +10,15 @@ G_BEGIN_DECLS
     #define GTK_TYPE_VBOX GTK_TYPE_BOX
     #define GtkVBox GtkBox
     #define GtkVBoxClass GtkBoxClass
+    #define gtk_vbox_new(hmg,spc) g_object_new (GTK_TYPE_BOX, \
+        "homogeneous", hmg, "spacing", spc, \
+        "orientation", GTK_ORIENTATION_VERTICAL, NULL)
     #define GTK_TYPE_HBOX GTK_TYPE_BOX
     #define GtkHBox GtkBox
     #define GtkHBoxClass GtkBoxClass
+    #define gtk_hbox_new(hmg,spc) g_object_new (GTK_TYPE_BOX, \
+        "homogeneous", hmg, "spacing", spc, \
+        "orientation", GTK_ORIENTATION_HORIZONTAL, NULL)
 #endif
 
 #if !GLIB_CHECK_VERSION (2, 32, 0)

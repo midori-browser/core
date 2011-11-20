@@ -685,7 +685,9 @@ midori_panel_append_page (MidoriPanel*    panel,
                           MidoriViewable* viewable)
 {
     GtkWidget* scrolled;
+    #if !GTK_CHECK_VERSION (3, 0, 0)
     GObjectClass* gobject_class;
+    #endif
     GtkWidget* widget;
     GtkWidget* toolbar;
     GtkToolItem* toolitem;
@@ -695,6 +697,12 @@ midori_panel_append_page (MidoriPanel*    panel,
 
     g_return_val_if_fail (MIDORI_IS_PANEL (panel), -1);
     g_return_val_if_fail (MIDORI_IS_VIEWABLE (viewable), -1);
+
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    if (GTK_IS_ORIENTABLE (viewable))
+        gtk_orientable_set_orientation (GTK_ORIENTABLE (viewable),
+                                        GTK_ORIENTATION_VERTICAL);
+    #endif
 
     if (GTK_IS_SCROLLED_WINDOW (viewable))
         scrolled = (GtkWidget*)viewable;
@@ -706,12 +714,14 @@ midori_panel_append_page (MidoriPanel*    panel,
                                         GTK_POLICY_AUTOMATIC);
         gtk_widget_set_can_focus (scrolled, TRUE);
         gtk_widget_show (scrolled);
+        #if GTK_CHECK_VERSION (3, 0, 0)
+        if (GTK_IS_SCROLLABLE (viewable))
+        #else
         gobject_class = G_OBJECT_GET_CLASS (viewable);
-#if !GTK_CHECK_VERSION(3,0,0) /* TODO */
         if (GTK_WIDGET_CLASS (gobject_class)->set_scroll_adjustments_signal)
+        #endif
             widget = (GtkWidget*)viewable;
         else
-#endif
         {
             widget = gtk_viewport_new (NULL, NULL);
             gtk_widget_show (widget);

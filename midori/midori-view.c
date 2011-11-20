@@ -3048,12 +3048,16 @@ midori_view_init (MidoriView* view)
     view->scrollh = view->scrollv = -2;
     view->back_forward_set = FALSE;
 
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    gtk_orientable_set_orientation (GTK_ORIENTABLE (view), GTK_ORIENTATION_VERTICAL);
+    #endif
+
     view->web_view = NULL;
     /* Adjustments are not created initially, but overwritten later */
     view->scrolled_window = katze_scrolled_new (NULL, NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (view->scrolled_window),
                                          GTK_SHADOW_NONE);
-    gtk_container_add (GTK_CONTAINER (view), view->scrolled_window);
+    gtk_box_pack_start (GTK_BOX (view), view->scrolled_window, TRUE, TRUE, 0);
 
     g_signal_connect (view->item, "meta-data-changed",
         G_CALLBACK (midori_view_item_meta_data_changed), view);
