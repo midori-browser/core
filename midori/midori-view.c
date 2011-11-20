@@ -5217,22 +5217,23 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
                                    gint       width,
                                    gint       height)
 {
-    GdkWindow* window;
     GtkAllocation allocation;
     gboolean fast;
     gint x, y, w, h;
     GdkRectangle rect;
     #if !GTK_CHECK_VERSION (3, 0, 0)
+    GdkWindow* window;
     GdkPixmap* pixmap;
     GdkEvent event;
     gboolean result;
     GdkColormap* colormap;
+    #else
+    cairo_surface_t* surface;
+    cairo_t* cr;
     #endif
     GdkPixbuf* pixbuf;
 
     g_return_val_if_fail (WEBKIT_IS_WEB_VIEW (web_view), NULL);
-    window = gtk_widget_get_window (web_view);
-    g_return_val_if_fail (window != NULL, NULL);
 
     gtk_widget_get_allocation (web_view, &allocation);
     x = allocation.x;
@@ -5254,15 +5255,23 @@ midori_view_web_view_get_snapshot (GtkWidget* web_view,
     }
 
     #if GTK_CHECK_VERSION (3, 0, 0)
-    cairo_t* cr = gdk_cairo_create (window);
+    surface = cairo_image_surface_create (CAIRO_FORMAT_RGB24,
+                                          allocation.width, allocation.height);
+    cr = cairo_create (surface);
+    cairo_rectangle (cr, x, y, width, height);
+    cairo_clip (cr);
     gtk_widget_draw (web_view, cr);
-    pixbuf = NULL; /* TODO */
+    pixbuf = gdk_pixbuf_get_from_surface (surface, x, y, width, height);
+    cairo_surface_destroy (surface);
     cairo_destroy (cr);
     #else
     rect.x = x;
     rect.y = y;
     rect.width = w;
     rect.height = h;
+
+    window = gtk_widget_get_window (web_view);
+    g_return_val_if_fail (window != NULL, NULL);
 
     pixmap = gdk_pixmap_new (window, w, h, gdk_drawable_get_depth (window));
     event.expose.type = GDK_EXPOSE;
