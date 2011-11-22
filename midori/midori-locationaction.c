@@ -1274,6 +1274,8 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     MidoriBrowser* browser = midori_browser_get_for_widget (entry);
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     GtkWidget* menuitem;
+    GtkClipboard* clipboard = gtk_clipboard_get_for_display (
+        gtk_widget_get_display (entry),GDK_SELECTION_CLIPBOARD);
 
     menuitem = gtk_separator_menu_item_new ();
     gtk_widget_show (menuitem);
@@ -1288,6 +1290,8 @@ midori_location_action_populate_popup_cb (GtkWidget*            entry,
     gtk_menu_shell_insert (menu, menuitem, 3);
     g_signal_connect (menuitem, "activate",
         G_CALLBACK (midori_location_action_paste_proceed_cb), location_action);
+    if (!gtk_clipboard_wait_is_text_available (clipboard))
+        gtk_widget_set_sensitive (menuitem, FALSE);
 }
 
 static void
