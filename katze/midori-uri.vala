@@ -31,6 +31,10 @@ namespace Midori {
             }
             return hostname;
         }
+        /* Deprecated: 0.4.3 */
+        public static string parse (string uri, out string path) {
+            return parse_hostname (uri, out path) ?? uri;
+        }
         public static string to_ascii (string uri) {
             /* Convert hostname to ASCII. */
             string? proto = null;
