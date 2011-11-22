@@ -2951,26 +2951,20 @@ _action_bookmarks_populate_folder (GtkAction*     action,
                                    KatzeArray*    folder,
                                    MidoriBrowser* browser)
 {
-    const char* sqlcmd = "SELECT uri, title, app, folder "
-                         "FROM bookmarks WHERE folder = '%q' ORDER BY uri ASC";
-    sqlite3* db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
     const gchar* folder_name;
-    char* sqlcmd_folder;
     KatzeArray* bookmarks;
     GtkWidget* menuitem;
 
-    if (!db)
+    folder_name = katze_item_get_name (KATZE_ITEM (folder));
+    if (!(bookmarks = midori_array_query (browser->bookmarks,
+          "uri, title, app, folder", "folder = '%q'", folder_name)))
         return FALSE;
 
     /* Clear items from dummy array here */
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
 
-    folder_name = katze_item_get_name (KATZE_ITEM (folder));
-    sqlcmd_folder = sqlite3_mprintf (sqlcmd, folder_name ? folder_name : "");
-    bookmarks = katze_array_from_sqlite (db, sqlcmd_folder);
-    sqlite3_free (sqlcmd_folder);
-    if (!bookmarks || katze_array_is_empty (bookmarks))
+    if (katze_array_is_empty (bookmarks))
     {
         menuitem = gtk_image_menu_item_new_with_label (_("Empty"));
         gtk_widget_set_sensitive (menuitem, FALSE);
@@ -6741,8 +6735,6 @@ midori_bookmarkbar_remove_item_cb (KatzeArray*    bookmarks,
 static void
 midori_bookmarkbar_populate (MidoriBrowser* browser)
 {
-    sqlite3* db;
-    const gchar* sqlcmd;
     KatzeArray* array;
     KatzeItem* item;
 
@@ -6752,14 +6744,8 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
     gtk_toolbar_insert (GTK_TOOLBAR (browser->bookmarkbar),
                         gtk_separator_tool_item_new (), -1);
 
-    db = g_object_get_data (G_OBJECT (browser->bookmarks), "db");
-    if (!db)
-        return;
-
-    sqlcmd = "SELECT uri, title, desc, app, folder, toolbar FROM bookmarks WHERE "
-             " toolbar = 1 ORDER BY uri ASC";
-
-    array = katze_array_from_sqlite (db, sqlcmd);
+    array = midori_array_query (browser->bookmarks,
+        "uri, title, desc, app, folder, toolbar", "toolbar = 1", NULL);
     if (!array)
     {
         _action_set_sensitive (browser, "BookmarkAdd", FALSE);
@@ -6773,15 +6759,10 @@ midori_bookmarkbar_populate (MidoriBrowser* browser)
             midori_bookmarkbar_insert_item (browser->bookmarkbar, item);
         else
         {
-            KatzeArray* subfolder;
-            gchar* subsqlcmd;
-
-            subsqlcmd = g_strdup_printf ("SELECT uri, title, desc, app FROM bookmarks WHERE "
-                                         " folder = '%s' and uri != ''", katze_item_get_name (item));
-            subfolder = katze_array_from_sqlite (db, subsqlcmd);
+            KatzeArray* subfolder = midori_array_query (browser->bookmarks,
+                "uri, title, desc, app", "folder = '%q' AND uri != ''", katze_item_get_name (item));
             katze_item_set_name (KATZE_ITEM (subfolder), katze_item_get_name (item));
             midori_bookmarkbar_insert_item (browser->bookmarkbar, KATZE_ITEM (subfolder));
-            g_free (subsqlcmd);
         }
     }
     _action_set_sensitive (browser, "BookmarkAdd", TRUE);

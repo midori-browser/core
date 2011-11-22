@@ -31,6 +31,12 @@ KatzeArray*
 katze_array_from_statement (sqlite3_stmt* stmt);
 
 KatzeArray*
+midori_array_query     (KatzeArray*  array,
+                        const gchar* fields,
+                        const gchar* condition,
+                        const gchar* value);
+
+KatzeArray*
 katze_array_from_sqlite (sqlite3*     db,
                          const gchar* sqlcmd);
 

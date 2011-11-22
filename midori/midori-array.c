@@ -1065,3 +1065,49 @@ katze_array_from_sqlite (sqlite3*     db,
 
     return katze_array_from_statement (stmt);
 }
+
+/**
+ * midori_array_query:
+ * @array: the main bookmark array
+ * @fields: comma separated list of fields
+ * @condition: condition, like "folder = '%q'"
+ * @value: a value to be inserted if @condition contains %q
+ *
+ * Stores the result in a #KatzeArray.
+ *
+ * Return value: a #KatzeArray on success, %NULL otherwise
+ *
+ * Since: 0.4.3
+ **/
+KatzeArray*
+midori_array_query (KatzeArray*  bookmarks,
+                    const gchar* fields,
+                    const gchar* condition,
+                    const gchar* value)
+{
+    sqlite3* db;
+    gchar* sqlcmd;
+    char* sqlcmd_value;
+    KatzeArray* array;
+
+    g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), NULL);
+    g_return_val_if_fail (fields, NULL);
+    g_return_val_if_fail (condition, NULL);
+    db = g_object_get_data (G_OBJECT (bookmarks), "db");
+    if (db == NULL)
+        return NULL;
+
+    sqlcmd = g_strdup_printf ("SELECT %s FROM bookmarks WHERE %s "
+                              "ORDER BY title DESC", fields, condition);
+    if (strstr (condition, "%q"))
+    {
+        sqlcmd_value = sqlite3_mprintf (sqlcmd, value ? value : "");
+        array = katze_array_from_sqlite (db, sqlcmd_value);
+        sqlite3_free (sqlcmd_value);
+    }
+    else
+        array = katze_array_from_sqlite (db, sqlcmd);
+    g_free (sqlcmd);
+    return array;
+}
+
