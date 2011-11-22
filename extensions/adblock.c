@@ -344,7 +344,8 @@ static void
 adblock_preferences_add_clicked_cb (GtkWidget*    button,
                                     GtkTreeModel* model)
 {
-    GtkEntry* entry = g_object_get_data (G_OBJECT (button), "entry");
+    GtkEntry* entry = GTK_IS_ENTRY (button)
+        ? button : g_object_get_data (G_OBJECT (button), "entry");
     gtk_list_store_insert_with_values (GTK_LIST_STORE (model),
         NULL, 0, 0, gtk_entry_get_text (entry), -1);
     gtk_entry_set_text (entry, "");
@@ -533,6 +534,8 @@ adblock_get_preferences_dialog (MidoriExtension* extension)
     button = gtk_button_new_from_stock (GTK_STOCK_ADD);
     g_object_set_data (G_OBJECT (button), "entry", entry);
     g_signal_connect (button, "clicked",
+        G_CALLBACK (adblock_preferences_add_clicked_cb), liststore);
+    g_signal_connect (entry, "activate",
         G_CALLBACK (adblock_preferences_add_clicked_cb), liststore);
     gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
     button = gtk_button_new_from_stock (GTK_STOCK_EDIT);
