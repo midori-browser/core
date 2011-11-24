@@ -21,6 +21,12 @@ then
   UPDATE=yes
 fi
 
+which xmlgrep 2> /dev/null && HAVE_XMLGREP=1 || HAVE_XMLGREP=0
+if [[ "$HAVE_XMLGREP" == "0" ]]; then
+    echo -e "\nPlease install xmlclitools http://robur.slu.se/jensl/xmlclitools\n"
+    exit
+fi
+
 # create download and build directory
 mkdir -p $DOWNLOAD_PATH
 mkdir -p $BUILD_PATH
