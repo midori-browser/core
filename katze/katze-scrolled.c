@@ -466,14 +466,12 @@ button_press_event (GtkWidget*      widget,
     gint y;
     GdkModifierType mask;
 
-    if (!priv->drag_scrolling)
-        return FALSE;
-
-    if (event->button != 1)
+    if (!priv->drag_scrolling || event->button != 1)
         return FALSE;
 
     priv->press_received = TRUE;
-
+    gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
+                            &x, &y, &mask);
     if (event->time - priv->previous_time < priv->dragging_stopped_delay &&
         gtk_drag_check_threshold (widget, priv->previous_x, priv->previous_y, x, y))
     {
@@ -482,8 +480,6 @@ button_press_event (GtkWidget*      widget,
             g_source_remove (priv->scrolling_timeout_id);
             priv->scrolling_timeout_id = 0;
         }
-        gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
-                                &x, &y, &mask);
         /* do_motion_scroll (scrolled, widget, x, y, event->time); */
     }
     else
@@ -499,8 +495,6 @@ button_press_event (GtkWidget*      widget,
             priv->dragged = FALSE;
             priv->previous_time = event->time;
         }
-        gdk_window_get_pointer (gtk_widget_get_window (GTK_WIDGET (scrolled)),
-                                &x, &y, &mask);
         priv->start_x = priv->previous_x = priv->farest_x = x;
         priv->start_y = priv->previous_y = priv->farest_y = y;
         priv->start_time  = event->time;
