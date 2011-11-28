@@ -1152,11 +1152,11 @@ adblock_add_url_pattern (gchar* prefix,
     if (g_regex_match_simple ("subdocument", opts,
                               G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
     {
-        g_strfreev (data);
         if (data[1] && data[2])
             g_free (patt);
         if (data[1])
             g_free (opts);
+        g_strfreev (data);
         return NULL;
     }
 
@@ -1165,11 +1165,11 @@ adblock_add_url_pattern (gchar* prefix,
     adblock_debug ("got: %s opts %s", format_patt->str, opts);
     should_free = adblock_compile_regexp (format_patt, opts);
 
-    g_strfreev (data);
     if (data[1] && data[2])
         g_free (patt);
     if (data[1])
         g_free (opts);
+    g_strfreev (data);
 
     return g_string_free (format_patt, should_free);
 }
