@@ -194,7 +194,11 @@ sokoke_show_uri_with_mime_type (GdkScreen*   screen,
     g_free (content_type);
     files = g_list_prepend (NULL, file);
     #if GTK_CHECK_VERSION (2, 14, 0)
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    context = gdk_display_get_app_launch_context (gdk_screen_get_display (screen));
+    #else
     context = gdk_app_launch_context_new ();
+    #endif
     gdk_app_launch_context_set_screen (context, screen);
     gdk_app_launch_context_set_timestamp (context, timestamp);
     #else
