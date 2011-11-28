@@ -9,6 +9,12 @@
  See the file COPYING for the full license text.
 */
 
+/* When cross-compiling assume at least WinXP */
+#ifdef _WIN32
+    #define _WIN32_WINNT 0x0501
+    #include <unistd.h>
+#endif
+
 #if HAVE_CONFIG_H
     #include <config.h>
 #endif
@@ -1436,6 +1442,29 @@ midori_app_setup (gchar** argument_vector)
     }
     gtk_icon_factory_add_default (factory);
     g_object_unref (factory);
+    #endif
+
+    /* Print messages to stdout on Win32 console, cf. AbiWord
+     * http://svn.abisource.com/abiword/trunk/src/wp/main/win/Win32Main.cpp */
+    #ifdef _WIN32
+    if (fileno (stdout) != -1
+    && _get_osfhandle (fileno (stdout)) != -1)
+    {
+        /* stdout is already being redirected to a file */
+    }
+    else
+    {
+        typedef BOOL (WINAPI *AttachConsole_t) (DWORD);
+        AttachConsole_t p_AttachConsole =
+            (AttachConsole_t) GetProcAddress (GetModuleHandle ("kernel32.dll"), "AttachConsole");
+        if (p_AttachConsole != NULL && p_AttachConsole (ATTACH_PARENT_PROCESS))
+        {
+            freopen ("CONOUT$", "w", stdout);
+            dup2 (fileno (stdout), 1);
+            freopen ("CONOUT$", "w", stderr);
+            dup2 (fileno (stderr), 2);
+        }
+    }
     #endif
 }
 
