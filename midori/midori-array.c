@@ -967,19 +967,19 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
         const unsigned char* uri;
         uri = sqlite3_column_text (stmt, column);
         if (uri && uri[0] && uri[0] != '(')
-            katze_item_set_uri (item, (gchar*)uri);
+            item->uri = g_strdup ((gchar*)uri);
     }
     else if (g_str_equal (name, "title") || g_str_equal (name, "name"))
     {
         const unsigned char* title;
         title = sqlite3_column_text (stmt, column);
-        katze_item_set_name (item, (gchar*)title);
+        item->name = g_strdup ((gchar*)title);
     }
     else if (g_str_equal (name, "date"))
     {
         gint date;
         date = sqlite3_column_int64 (stmt, column);
-        katze_item_set_added (item, date);
+        item->added = date;
     }
     else if (g_str_equal (name, "day") || g_str_equal (name, "app")
           || g_str_equal (name, "toolbar"))
@@ -998,7 +998,7 @@ katze_item_set_value_from_column (sqlite3_stmt* stmt,
     {
         const unsigned char* text;
         text = sqlite3_column_text (stmt, column);
-        katze_item_set_text (item, (gchar*)text);
+        item->text =  g_strdup ((gchar*)text);
     }
     else
         g_warn_if_reached ();
