@@ -1128,31 +1128,35 @@ adblock_add_url_pattern (gchar* prefix,
 
     data = g_strsplit (line, "$", -1);
     if (!data || !data[0])
+    {
+        g_strfreev (data);
         return NULL;
+    }
 
     if (data[1] && data[2])
     {
         patt = g_strconcat (data[0], data[1], NULL);
         opts = g_strconcat (type, ",", data[2], NULL);
-        g_strfreev (data);
     }
     else if (data[1])
     {
         patt = data[0];
         opts = g_strconcat (type, ",", data[1], NULL);
-        g_free (data[1]);
     }
     else
     {
         patt = data[0];
-        opts = g_strdup (type);
+        opts = type;
     }
 
     if (g_regex_match_simple ("subdocument", opts,
                               G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
     {
-        g_free (patt);
-        g_free (opts);
+        g_strfreev (data);
+        if (data[1] && data[2])
+            g_free (patt);
+        if (data[1])
+            g_free (opts);
         return NULL;
     }
 
@@ -1161,14 +1165,13 @@ adblock_add_url_pattern (gchar* prefix,
     adblock_debug ("got: %s opts %s", format_patt->str, opts);
     should_free = adblock_compile_regexp (format_patt, opts);
 
-    g_free (opts);
-    g_free (patt);
+    g_strfreev (data);
+    if (data[1] && data[2])
+        g_free (patt);
+    if (data[1])
+        g_free (opts);
 
-    #if G_ENABLE_DEBUG
-    return g_string_free (format_patt, FALSE);
-    #else
     return g_string_free (format_patt, should_free);
-    #endif
 }
 
 static inline void
