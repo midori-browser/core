@@ -596,29 +596,35 @@ adblock_open_preferences_cb (MidoriExtension* extension)
         gtk_window_present (GTK_WINDOW (dialog));
 }
 
-static inline gboolean
-adblock_check_filter_options (GRegex*       regex,
-                              const gchar*  opts,
-                              const gchar*  req_uri,
-                              const gchar*  page_uri)
+static inline gint
+adblock_check_rule (GRegex*      regex,
+                    const gchar* patt,
+                    const gchar* req_uri,
+                    const gchar* page_uri)
 {
-    if (g_regex_match_simple (",third-party", opts,
+    gchar* opts;
+
+    if (!g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
+        return FALSE;
+
+    opts = g_hash_table_lookup (optslist, patt);
+    if (opts && g_regex_match_simple (",third-party", opts,
                               G_REGEX_CASELESS, G_REGEX_MATCH_NOTEMPTY))
     {
         if (page_uri && g_regex_match_full (regex, page_uri, -1, 0, 0, NULL, NULL))
-            return TRUE;
+            return FALSE;
     }
     /* TODO: Domain opt check */
-    return FALSE;
+    adblock_debug ("blocked by pattern regexp=%s -- %s", g_regex_get_pattern (regex), req_uri);
+    return TRUE;
 }
 
 static inline gboolean
-adblock_is_matched_by_pattern (const gchar*  req_uri,
-                               const gchar*  page_uri)
+adblock_is_matched_by_pattern (const gchar* req_uri,
+                               const gchar* page_uri)
 {
     GHashTableIter iter;
     gpointer patt, regex;
-    gchar* opts;
 
     if (USE_PATTERN_MATCHING == 0)
         return FALSE;
@@ -626,31 +632,24 @@ adblock_is_matched_by_pattern (const gchar*  req_uri,
     g_hash_table_iter_init (&iter, pattern);
     while (g_hash_table_iter_next (&iter, &patt, &regex))
     {
-        if (g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
-        {
-            opts = g_hash_table_lookup (optslist, patt);
-            if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri) == TRUE)
-                return FALSE;
-            else
-            {
-                adblock_debug ("blocked by pattern regexp=%s -- %s", g_regex_get_pattern (regex), req_uri);
-                return TRUE;
-            }
-        }
+        if (adblock_check_rule (regex, patt, req_uri, page_uri))
+            return TRUE;
     }
     return FALSE;
 }
 
 static inline gboolean
-adblock_is_matched_by_key (const gchar*  req_uri,
-                           const gchar*  page_uri)
+adblock_is_matched_by_key (const gchar* req_uri,
+                           const gchar* page_uri)
 {
     gchar* uri;
     gint len;
     int pos = 0;
     GList* regex_bl = NULL;
     GString* guri;
+    gboolean ret = FALSE;
 
+    /* Signatures are made on pattern, so we need to convert url to a pattern as well */
     guri = adblock_fixup_regexp ("", (gchar*)req_uri);
     uri = guri->str;
     len = guri->len;
@@ -659,35 +658,23 @@ adblock_is_matched_by_key (const gchar*  req_uri,
     {
         gchar* sig = g_strndup (uri + pos, SIGNATURE_SIZE);
         GRegex* regex = g_hash_table_lookup (keys, sig);
-        gchar* opts;
 
-        if (regex && !g_list_find (regex_bl, regex))
+        /* Dont check if regex is already blacklisted */
+        if (!regex || g_list_find (regex_bl, regex))
         {
-            if (g_regex_match_full (regex, req_uri, -1, 0, 0, NULL, NULL))
-            {
-                opts = g_hash_table_lookup (optslist, sig);
-                g_free (sig);
-                if (opts && adblock_check_filter_options (regex, opts, req_uri, page_uri))
-                {
-                    g_free (uri);
-                    g_list_free (regex_bl);
-                    return FALSE;
-                }
-                else
-                {
-                    adblock_debug ("blocked by regexp=%s -- %s", g_regex_get_pattern (regex), uri);
-                    g_free (uri);
-                    g_list_free (regex_bl);
-                    return TRUE;
-                }
-            }
-            regex_bl = g_list_prepend (regex_bl, regex);
+            g_free (sig);
+            continue;
         }
+        ret = adblock_check_rule (regex, sig, req_uri, page_uri);
         g_free (sig);
+        if (!ret)
+            regex_bl = g_list_prepend (regex_bl, regex);
+        else
+            break;
     }
     g_string_free (guri, TRUE);
     g_list_free (regex_bl);
-    return FALSE;
+    return ret;
 }
 
 static gboolean
