@@ -1237,9 +1237,7 @@ midori_load_extensions (gpointer data)
     KatzeArray* extensions;
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
-    GTimer* timer;
-    if (startup_timer)
-        timer = g_timer_new ();
+    GTimer* timer = startup_timer ? g_timer_new () : NULL;
     #endif
 
     /* Load extensions */
@@ -1323,7 +1321,7 @@ midori_load_extensions (gpointer data)
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)
-        g_debug ("Extensions:\t%f", g_test_timer_elapsed ());
+        g_debug ("Extensions:\t%f", g_timer_elapsed (timer, NULL));
     #endif
 
     return FALSE;
@@ -1369,9 +1367,7 @@ midori_load_session (gpointer data)
     gchar** command = g_object_get_data (G_OBJECT (app), "execute-command");
     #ifdef G_ENABLE_DEBUG
     gboolean startup_timer = g_getenv ("MIDORI_STARTTIME") != NULL;
-    GTimer* timer;
-    if (startup_timer)
-        timer = g_timer_new ();
+    GTimer* timer = startup_timer ? g_timer_new () : NULL;
     #endif
 
     browser = midori_app_create_browser (app);
@@ -1450,7 +1446,7 @@ midori_load_session (gpointer data)
 
     #ifdef G_ENABLE_DEBUG
     if (startup_timer)
-        g_debug ("Session setup:\t%f", g_test_timer_elapsed ());
+        g_debug ("Session setup:\t%f", g_timer_elapsed (timer, NULL));
     #endif
 
     return FALSE;
@@ -2027,11 +2023,6 @@ main (int    argc,
     }
     else
         g_set_application_name (_("Midori"));
-
-    #ifdef G_ENABLE_DEBUG
-    if (startup_timer)
-        g_test_timer_start ();
-    #endif
 
     if (version)
     {
