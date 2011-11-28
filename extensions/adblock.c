@@ -648,6 +648,7 @@ adblock_is_matched_by_key (const gchar* req_uri,
     GList* regex_bl = NULL;
     GString* guri;
     gboolean ret = FALSE;
+    gchar sig[SIGNATURE_SIZE + 1];
 
     /* Signatures are made on pattern, so we need to convert url to a pattern as well */
     guri = adblock_fixup_regexp ("", (gchar*)req_uri);
@@ -656,21 +657,17 @@ adblock_is_matched_by_key (const gchar* req_uri,
 
     for (pos = len - SIGNATURE_SIZE; pos >= 0; pos--)
     {
-        gchar* sig = g_strndup (uri + pos, SIGNATURE_SIZE);
-        GRegex* regex = g_hash_table_lookup (keys, sig);
+        GRegex* regex;
+        strncpy (sig, uri + pos, SIGNATURE_SIZE);
+        regex = g_hash_table_lookup (keys, sig);
 
         /* Dont check if regex is already blacklisted */
         if (!regex || g_list_find (regex_bl, regex))
-        {
-            g_free (sig);
             continue;
-        }
         ret = adblock_check_rule (regex, sig, req_uri, page_uri);
-        g_free (sig);
         if (!ret)
-            regex_bl = g_list_prepend (regex_bl, regex);
-        else
             break;
+        regex_bl = g_list_prepend (regex_bl, regex);
     }
     g_string_free (guri, TRUE);
     g_list_free (regex_bl);
