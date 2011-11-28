@@ -1365,7 +1365,7 @@ addons_convert_to_simple_regexp (const gchar* pattern)
     gchar c;
 
     len = strlen (pattern);
-    dest = g_malloc0 (len * 2 + 1);
+    dest = g_malloc0 (len * 2 + 2);
     dest[0] = '^';
     pos = 1;
 
