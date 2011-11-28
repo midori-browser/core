@@ -19,6 +19,15 @@ G_BEGIN_DECLS
     #define gtk_hbox_new(hmg,spc) g_object_new (GTK_TYPE_BOX, \
         "homogeneous", hmg, "spacing", spc, \
         "orientation", GTK_ORIENTATION_HORIZONTAL, NULL)
+    #define gtk_hseparator_new() g_object_new (GTK_TYPE_SEPARATOR, NULL)
+    #define gtk_hpaned_new() g_object_new (GTK_TYPE_PANED, NULL)
+    #define gtk_vpaned_new() g_object_new (GTK_TYPE_PANED, \
+        "orientation", GTK_ORIENTATION_VERTICAL, NULL)
+    /* FIXME */
+    #define gtk_widget_render_icon(wdgt, stk, sz, dtl) \
+        gtk_widget_render_icon_pixbuf(wdgt, stk, sz)
+    #define gtk_widget_size_request(wdgt, req) \
+        gtk_widget_get_preferred_size(wdgt, req, NULL)
 #endif
 
 #if !GLIB_CHECK_VERSION (2, 32, 0)

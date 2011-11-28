@@ -2206,6 +2206,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
                                      TRUE,
                                      flags));
 
+    #if !GTK_CHECK_VERSION (3, 0, 0)
     /* Add 2px space between tool buttons */
     gtk_rc_parse_string (
         "style \"tool-button-style\"\n {\n"
@@ -2214,6 +2215,7 @@ midori_browser_class_init (MidoriBrowserClass* class)
         "style \"tool-button-style\"\n"
         "widget \"MidoriBrowser.*.MidoriFindbar.Gtk*ToolButton\" "
         "style \"tool-button-style\"\n");
+    #endif
 }
 
 static void
@@ -6062,7 +6064,13 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_widget_show (browser->throbber);
     gtk_container_add (GTK_CONTAINER (menuitem), browser->throbber);
     gtk_widget_set_sensitive (menuitem, FALSE);
+    #if GTK_CHECK_VERSION (3, 2, 0)
+    /* FIXME: Doesn't work */
+    gtk_widget_set_hexpand (menuitem, TRUE);
+    gtk_widget_set_halign (menuitem, GTK_ALIGN_END);
+    #else
     gtk_menu_item_set_right_justified (GTK_MENU_ITEM (menuitem), TRUE);
+    #endif
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
     #endif
     browser->menu_tools = gtk_menu_new ();

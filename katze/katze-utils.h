@@ -15,6 +15,7 @@
 
 #include <gtk/gtk.h>
 #include "katze-array.h"
+#include "gtk3-compat.h"
 
 G_BEGIN_DECLS
 
