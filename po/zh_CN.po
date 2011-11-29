@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-25 10:42+0000\n"
+"POT-Creation-Date: 2011-11-25 15:26+0000\n"
 "PO-Revision-Date: 2011-02-15 21:26+0800\n"
 "Last-Translator: Chipong Luo <chipong_l@yahoo.com>\n"
 "Language-Team: Chinese (simplified) <xfce-i18n@xfce.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../data/midori.desktop.in.h:1
@@ -201,7 +201,7 @@ msgstr "将指定的文件名作为 javascript 运行"
 
 #: ../midori/main.c:1924
 msgid "Take a snapshot of the specified URI"
-msgstr "对指定统一资源标志符截图"
+msgstr "对指定 URI 截图"
 
 #: ../midori/main.c:1926
 msgid "Execute the specified command"
@@ -221,7 +221,7 @@ msgstr "地址"
 
 #: ../midori/main.c:1934
 msgid "Block URIs according to regular expression PATTERN"
-msgstr "按正则表达式匹配规则屏蔽统一资源标志符"
+msgstr "按正则表达式匹配规则屏蔽 URI"
 
 #: ../midori/main.c:1934
 msgid "PATTERN"
@@ -520,10 +520,10 @@ msgid ""
 "Aggregator. Next time you click the news feed icon, it will be added "
 "automatically."
 msgstr ""
-"要使用上面的统一资源标志符打开一个新闻聚合器。通常都有名为 “新建订阅”、 “新建"
+"要使用上面的 URI 打开一个新闻聚合器。通常都有名为 “新建订阅”、 “新建"
 "新闻源” 或类似的菜单或按钮。\n"
-"您也可以进入首选项，Midori 浏览器中的应用程序，并选择一个新闻聚合器。下次您点"
-"击新闻源图标时，它将被自动添加。"
+"您也可以进入首选项，Midori 浏览器中的应用程序，并选择一个新闻聚合器。"
+"下次您点击新闻源图标时，它将被自动添加。"
 
 #: ../midori/midori-browser.c:2400 ../extensions/feed-panel/main.c:365
 msgid "New feed"
@@ -967,7 +967,7 @@ msgstr "俄语(KOI8-R)"
 
 #: ../midori/midori-browser.c:5421 ../midori/midori-websettings.c:231
 msgid "Unicode (UTF-8)"
-msgstr "统一编码(UTF-8)"
+msgstr "Unicode(UTF-8)"
 
 #: ../midori/midori-browser.c:5424 ../midori/midori-websettings.c:232
 msgid "Western (ISO-8859-1)"
@@ -2446,11 +2446,11 @@ msgstr "将所有标签的地址复制至剪贴板"
 
 #: ../extensions/feed-panel/feed-atom.c:209
 msgid "Failed to find required Atom \"entry\" elements in XML data."
-msgstr "无法在可扩展标记语言数据中查找所需的原子 “条目” 元素。"
+msgstr "无法在 XML 数据中查找所需的 Atom “条目” 元素。"
 
 #: ../extensions/feed-panel/feed-atom.c:315
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr "无法在可扩展标记语言数据中查找所需的原子 “源” 元素。"
+msgstr "无法在 XML 数据中查找所需的 Atom “源” 元素。"
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:387
@@ -2478,7 +2478,7 @@ msgstr "源(_F)"
 #: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
 msgid "Failed to find root element in feed XML data."
-msgstr "无法在源可扩展标记语言数据中查找根元素。"
+msgstr "无法在源 XML 数据中查找根元素。"
 
 #: ../extensions/feed-panel/feed-parse.c:235
 #, c-format
@@ -2488,23 +2488,23 @@ msgstr "不支持的源格式。"
 #: ../extensions/feed-panel/feed-parse.c:265
 #, c-format
 msgid "Failed to parse XML feed: %s"
-msgstr "无法解析可扩展标记语言源：%s"
+msgstr "无法解析 XML 源：%s"
 
 #: ../extensions/feed-panel/feed-rss.c:46
 msgid "Failed to find \"channel\" element in RSS XML data."
-msgstr "无法在聚合内容可扩展标记语言数据中查找 “频道” 元素。"
+msgstr "无法在 RSS XML 数据中查找 “频道” 元素。"
 
 #: ../extensions/feed-panel/feed-rss.c:51
 msgid "Unsupported RSS version found."
-msgstr "找到了不支持的聚合内容版本。"
+msgstr "找到了不支持的 RSS 版本。"
 
 #: ../extensions/feed-panel/feed-rss.c:148
 msgid "Failed to find required RSS \"item\" elements in XML data."
-msgstr "无法在可扩展标记语言数据中查找所需的聚合内容 “项目” 元素。"
+msgstr "无法在 XML 数据中查找所需的 RSS “项目” 元素。"
 
 #: ../extensions/feed-panel/feed-rss.c:248
 msgid "Failed to find required RSS \"channel\" elements in XML data."
-msgstr "无法在可扩展标记语言数据中查找所需的聚合内容 “频道” 元素。"
+msgstr "无法在 XML 数据中查找所需的 RSS “频道” 元素。"
 
 #: ../extensions/feed-panel/main.c:131
 #, c-format
@@ -2522,7 +2522,7 @@ msgstr "源面板"
 
 #: ../extensions/feed-panel/main.c:519
 msgid "Read Atom/ RSS feeds"
-msgstr "阅读原子/聚合内容源"
+msgstr "阅读 Atom/RSS 源"
 
 #: ../extensions/formhistory.c:143
 #, c-format
