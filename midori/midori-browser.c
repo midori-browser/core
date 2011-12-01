@@ -243,22 +243,26 @@ midori_transferbar_check_size (GtkWidget*         statusbar,
     gtk_toggle_action_set_active (GTK_TOGGLE_ACTION ( \
     _action_by_name (brwsr, nme)), actv);
 
-static void
-_toggle_tabbar_smartly (MidoriBrowser* browser)
+static gboolean
+midori_browser_is_fullscreen (MidoriBrowser* browser)
 {
-    guint n;
+    GdkWindow* window = gtk_widget_get_window (GTK_WIDGET (browser));
+    GdkWindowState state = window ? gdk_window_get_state (window) : 0;
+    return state & GDK_WINDOW_STATE_FULLSCREEN;
+}
 
-    if (!browser->show_tabs)
-        return;
+static void
+_toggle_tabbar_smartly (MidoriBrowser* browser,
+                        gboolean       ignore_fullscreen)
+{
+    gboolean show_tabs =
+        browser->show_tabs
+     && (!midori_browser_is_fullscreen (browser) || ignore_fullscreen)
+     && (gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1)
+      || katze_object_get_boolean (browser->settings, "always-show-tabbar"));
 
-    n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    if (n < 2)
-    {
-        if (katze_object_get_boolean (browser->settings, "always-show-tabbar"))
-            n++;
-    }
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), n > 1);
-    gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), n > 1);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), show_tabs);
+    gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), show_tabs);
 }
 
 static void
@@ -267,7 +271,7 @@ _midori_browser_update_actions (MidoriBrowser* browser)
     guint n;
     gboolean trash_empty;
 
-    _toggle_tabbar_smartly (browser);
+    _toggle_tabbar_smartly (browser, FALSE);
     n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
     _action_set_sensitive (browser, "TabPrevious", n > 1);
     _action_set_sensitive (browser, "TabNext", n > 1);
@@ -3484,9 +3488,7 @@ _action_fullscreen_activate (GtkAction*     action,
 
         if (browser->show_statusbar)
             gtk_widget_show (browser->statusbar);
-
-        if (browser->show_tabs)
-            gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), TRUE);
+        _toggle_tabbar_smartly (browser, TRUE);
 
         gtk_window_unfullscreen (GTK_WINDOW (browser));
     }
@@ -3684,9 +3686,8 @@ _action_location_focus_out (GtkAction*     action,
                             MidoriBrowser* browser)
 {
     GtkWidget* view = midori_browser_get_current_tab (browser);
-    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
 
-    if (!browser->show_navigationbar || state & GDK_WINDOW_STATE_FULLSCREEN)
+    if (!browser->show_navigationbar || midori_browser_is_fullscreen (browser))
         gtk_widget_hide (browser->navigationbar);
 
     if (g_object_get_data (G_OBJECT (view), "news-feeds"))
@@ -3973,10 +3974,9 @@ static void
 _action_search_focus_out (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
     if ((gtk_widget_get_visible (browser->statusbar)
             && !browser->show_navigationbar)
-            || (state & GDK_WINDOW_STATE_FULLSCREEN))
+            || midori_browser_is_fullscreen (browser))
     {
         gtk_widget_hide (browser->navigationbar);
     }
@@ -6577,7 +6577,7 @@ _midori_browser_update_settings (MidoriBrowser* browser)
     }
 
     _midori_browser_set_toolbar_style (browser, toolbar_style);
-    _toggle_tabbar_smartly (browser);
+    _toggle_tabbar_smartly (browser, FALSE);
     _midori_browser_set_toolbar_items (browser, toolbar_items);
 
     if (browser->search_engines)
@@ -6649,7 +6649,7 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         g_object_set (browser->panel, "open-panels-in-windows",
                       g_value_get_boolean (&value), NULL);
     else if (name == g_intern_string ("always-show-tabbar"))
-        _toggle_tabbar_smartly (browser);
+        _toggle_tabbar_smartly (browser, FALSE);
     else if (name == g_intern_string ("show-menubar"))
         sokoke_widget_set_visible (browser->menubar, g_value_get_boolean (&value));
     else if (name == g_intern_string ("show-navigationbar"))
@@ -6920,13 +6920,7 @@ midori_browser_set_property (GObject*      object,
         break;
     case PROP_SHOW_TABS:
         browser->show_tabs = g_value_get_boolean (value);
-        if (browser->show_tabs)
-            _toggle_tabbar_smartly (browser);
-        else
-        {
-            gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), FALSE);
-            gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), FALSE);
-        }
+        _toggle_tabbar_smartly (browser, FALSE);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
