@@ -673,23 +673,12 @@ midori_search_engines_move_item_cb (KatzeArray* array,
 }
 
 static void
-midori_trash_add_item_cb (KatzeArray* trash,
-                          GObject*    item)
+midori_trash_add_item_no_save_cb (KatzeArray* trash,
+                                  GObject*    item)
 {
-    gchar* config_file = build_config_filename ("tabtrash.xbel");
-    GError* error = NULL;
-    GObject* obsolete_item;
-    if (!midori_array_to_file (trash, config_file, "xbel", &error))
-    {
-        /* i18n: Trash, or wastebin, containing closed tabs */
-        g_warning (_("The trash couldn't be saved. %s"), error->message);
-        g_error_free (error);
-    }
-    g_free (config_file);
-
     if (katze_array_get_nth_item (trash, 10))
     {
-        obsolete_item = katze_array_get_nth_item (trash, 0);
+        KatzeItem* obsolete_item = katze_array_get_nth_item (trash, 0);
         katze_array_remove_item (trash, obsolete_item);
     }
 }
@@ -700,12 +689,21 @@ midori_trash_remove_item_cb (KatzeArray* trash,
 {
     gchar* config_file = build_config_filename ("tabtrash.xbel");
     GError* error = NULL;
+    midori_trash_add_item_no_save_cb (trash, item);
     if (!midori_array_to_file (trash, config_file, "xbel", &error))
     {
+        /* i18n: Trash, or wastebin, containing closed tabs */
         g_warning (_("The trash couldn't be saved. %s"), error->message);
         g_error_free (error);
     }
     g_free (config_file);
+}
+
+static void
+midori_trash_add_item_cb (KatzeArray* trash,
+                          GObject*    item)
+{
+    midori_trash_remove_item_cb (trash, item);
 }
 
 static void
@@ -2171,6 +2169,8 @@ main (int    argc,
         {
             /* In-memory trash for re-opening closed tabs */
             trash = katze_array_new (KATZE_TYPE_ITEM);
+            g_signal_connect_after (trash, "add-item",
+              G_CALLBACK (midori_trash_add_item_no_save_cb), NULL);
             g_object_set (browser, "trash", trash, NULL);
 
             g_object_set (settings,
