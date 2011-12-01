@@ -754,7 +754,6 @@ katze_array_action_connect_proxy (GtkAction* action,
         g_signal_connect (proxy, "select",
             G_CALLBACK (katze_array_action_proxy_clicked_cb), action);
     }
-    gtk_widget_set_sensitive (proxy, KATZE_ARRAY_ACTION (action)->array != NULL);
 }
 
 static void
