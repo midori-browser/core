@@ -1468,7 +1468,6 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
         if (browser->trash && !midori_view_is_blank (MIDORI_VIEW (widget)))
             katze_array_add_item (browser->trash, item);
         katze_array_remove_item (browser->proxy_array, item);
-        g_object_unref (item);
     }
 
     _midori_browser_update_actions (browser);
@@ -1536,7 +1535,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     gtk_widget_set_can_focus (view, TRUE);
     tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
     item = midori_view_get_proxy_item (MIDORI_VIEW (view));
-    g_object_ref (item);
     katze_array_add_item (browser->proxy_array, item);
 
     g_object_connect (view,
@@ -2845,17 +2843,17 @@ _action_trash_activate_item_alt (GtkAction*     action,
 {
     if (MIDORI_EVENT_NEW_TAB (gtk_get_current_event ()))
     {
-        gint n = midori_browser_add_item (browser, item);
-        midori_browser_set_current_page_smartly (browser, n);
+        guint n;
         katze_array_remove_item (browser->trash, item);
-        _midori_browser_update_actions (browser);
+        n = midori_browser_add_item (browser, item);
+        midori_browser_set_current_page_smartly (browser, n);
     }
     else if (button == 1)
     {
-        guint n = midori_browser_add_item (browser, item);
-        midori_browser_set_current_page (browser, n);
+        guint n;
         katze_array_remove_item (browser->trash, item);
-        _midori_browser_update_actions (browser);
+        n = midori_browser_add_item (browser, item);
+        midori_browser_set_current_page (browser, n);
     }
 
     return TRUE;
@@ -5141,10 +5139,9 @@ _action_undo_tab_close_activate (GtkAction*     action,
     /* Reopen the most recent trash item */
     last = katze_array_get_length (browser->trash) - 1;
     item = katze_array_get_nth_item (browser->trash, last);
+    katze_array_remove_item (browser->trash, item);
     n = midori_browser_add_item (browser, item);
     midori_browser_set_current_page (browser, n);
-    katze_array_remove_item (browser->trash, item);
-    _midori_browser_update_actions (browser);
 }
 
 static void
