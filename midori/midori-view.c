@@ -3898,6 +3898,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>GTK+</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>libsoup</td><td>%s</td></tr>"
+                    "<tr><td>cairo</td><td>%s (%s)</td></tr>"
                     "<tr><td>libnotify</td><td>%s</td></tr>"
                     "<tr><td>libunique</td><td>%s</td></tr>"
                     "<tr><td>libhildon</td><td>%s</td></tr>"
@@ -3919,6 +3920,7 @@ midori_view_set_uri (MidoriView*  view,
                     GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
                     glib_major_version, glib_minor_version, glib_micro_version,
                     LIBSOUP_VERSION,
+                    CAIRO_VERSION_STRING, cairo_version_string (),
                     LIBNOTIFY_VERSION,
                     UNIQUE_VERSION,
                     HAVE_HILDON ? "Yes" : "No",
