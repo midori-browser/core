@@ -230,7 +230,7 @@ def configure (conf):
                 'Pass --disable-gtk3 to build without GTK+3.')
             sys.exit (1)
         if check_version (conf.check_cfg (modversion='webkitgtk-3.0'), 1, 5, 1):
-            check_pkg ('javascriptcoregtk-1.0', '1.5.1', args=args)
+            check_pkg ('javascriptcoregtk-3.0', '1.5.1', args=args)
         conf.env.append_value ('VALAFLAGS', '-D HAVE_GTK3')
     else:
         check_pkg ('gtk+-2.0', '2.10.0', var='GTK')
