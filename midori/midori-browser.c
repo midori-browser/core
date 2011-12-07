@@ -250,34 +250,33 @@ midori_browser_is_fullscreen (MidoriBrowser* browser)
     return state & GDK_WINDOW_STATE_FULLSCREEN;
 }
 
-static void
+static gboolean
 _toggle_tabbar_smartly (MidoriBrowser* browser,
                         gboolean       ignore_fullscreen)
 {
+    gboolean has_tabs =
+        gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1) != NULL;
     gboolean show_tabs =
         browser->show_tabs
      && (!midori_browser_is_fullscreen (browser) || ignore_fullscreen)
-     && (gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1)
+     && (has_tabs
       || katze_object_get_boolean (browser->settings, "always-show-tabbar"));
 
     gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), show_tabs);
     gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), show_tabs);
+    return has_tabs;
 }
 
 static void
 _midori_browser_update_actions (MidoriBrowser* browser)
 {
-    guint n;
-    gboolean trash_empty;
-
-    _toggle_tabbar_smartly (browser, FALSE);
-    n = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    _action_set_sensitive (browser, "TabPrevious", n > 1);
-    _action_set_sensitive (browser, "TabNext", n > 1);
+    gboolean has_tabs = _toggle_tabbar_smartly (browser, FALSE);
+    _action_set_sensitive (browser, "TabPrevious", has_tabs);
+    _action_set_sensitive (browser, "TabNext", has_tabs);
 
     if (browser->trash)
     {
-        trash_empty = katze_array_is_empty (browser->trash);
+        gboolean trash_empty = katze_array_is_empty (browser->trash);
         _action_set_sensitive (browser, "UndoTabClose", !trash_empty);
         _action_set_sensitive (browser, "Trash", !trash_empty);
     }
@@ -1577,15 +1576,11 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
         n = gtk_notebook_get_current_page (notebook) + 1;
-        gtk_notebook_insert_page (notebook, view, tab_label, n);
-        katze_array_move_item (browser->proxy_array, item, n);
     }
     else
-    {
-        gtk_notebook_append_page (notebook, view, tab_label);
-        katze_array_move_item (browser->proxy_array, item,
-                               gtk_notebook_get_n_pages (notebook));
-    }
+        n = -1;
+    gtk_notebook_insert_page (notebook, view, tab_label, n);
+    katze_array_move_item (browser->proxy_array, item, n);
 
     gtk_notebook_set_tab_reorderable (notebook, view, TRUE);
     gtk_notebook_set_tab_detachable (notebook, view, TRUE);
