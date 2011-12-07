@@ -2817,6 +2817,19 @@ _action_trash_populate_popup (GtkAction*     action,
     gtk_widget_show (menuitem);
 }
 
+static gint
+midori_browser_restore_tab (MidoriBrowser* browser,
+                            KatzeItem*     item)
+{
+    gint n;
+
+    g_object_ref (item);
+    katze_array_remove_item (browser->trash, item);
+    n = midori_browser_add_item (browser, item);
+    g_object_unref (item);
+    return n;
+}
+
 static gboolean
 _action_trash_activate_item_alt (GtkAction*     action,
                                  KatzeItem*     item,
@@ -2825,17 +2838,13 @@ _action_trash_activate_item_alt (GtkAction*     action,
 {
     if (MIDORI_EVENT_NEW_TAB (gtk_get_current_event ()))
     {
-        guint n;
-        katze_array_remove_item (browser->trash, item);
-        n = midori_browser_add_item (browser, item);
-        midori_browser_set_current_page_smartly (browser, n);
+        midori_browser_set_current_page_smartly (browser,
+            midori_browser_restore_tab (browser, item));
     }
     else if (button == 1)
     {
-        guint n;
-        katze_array_remove_item (browser->trash, item);
-        n = midori_browser_add_item (browser, item);
-        midori_browser_set_current_page (browser, n);
+        midori_browser_set_current_page (browser,
+            midori_browser_restore_tab (browser, item));
     }
 
     return TRUE;
@@ -5107,7 +5116,6 @@ _action_undo_tab_close_activate (GtkAction*     action,
 {
     guint last;
     KatzeItem* item;
-    guint n;
 
     if (!browser->trash)
         return;
@@ -5115,9 +5123,8 @@ _action_undo_tab_close_activate (GtkAction*     action,
     /* Reopen the most recent trash item */
     last = katze_array_get_length (browser->trash) - 1;
     item = katze_array_get_nth_item (browser->trash, last);
-    katze_array_remove_item (browser->trash, item);
-    n = midori_browser_add_item (browser, item);
-    midori_browser_set_current_page (browser, n);
+    midori_browser_set_current_page (browser,
+        midori_browser_restore_tab (browser, item));
 }
 
 static void
