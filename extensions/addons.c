@@ -1471,6 +1471,11 @@ addons_context_ready_cb (WebKitWebView*   web_view,
     GSList* scripts, *styles;
     struct AddonElement* script, *style;
     struct AddonsList* scripts_list, *styles_list;
+    const gchar* page_uri;
+
+    page_uri = webkit_web_frame_get_uri (web_frame);
+    if (!midori_uri_is_http (page_uri))
+        return;
 
     /* Not a main frame! Abort */
     if (web_frame != webkit_web_view_get_main_frame (web_view))

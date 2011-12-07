@@ -255,6 +255,12 @@ formhistory_window_object_cleared_cb (WebKitWebView*  web_view,
                                       JSObjectRef     js_window)
 {
     gchar* script;
+    const gchar* page_uri;
+
+    page_uri = webkit_web_frame_get_uri (web_frame);
+    if (!midori_uri_is_http (page_uri))
+        return;
+
     script = formhistory_build_js ();
     sokoke_js_script_eval (js_context, script, NULL);
     g_free (script);

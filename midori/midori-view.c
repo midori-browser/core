@@ -2944,6 +2944,12 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
                                           JSObjectRef     js_window,
                                           MidoriView*     view)
 {
+    const gchar* page_uri;
+
+    page_uri = webkit_web_frame_get_uri (web_frame);
+    if (!midori_uri_is_http (page_uri))
+        return;
+
     if (katze_object_get_boolean (view->settings, "enable-private-browsing"))
     {
         /* Mask language, architecture, no plugin list */

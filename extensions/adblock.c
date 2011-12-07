@@ -926,9 +926,9 @@ adblock_window_object_cleared_cb (WebKitWebView*  web_view,
 {
     const char *page_uri;
 
-    page_uri = webkit_web_view_get_uri (web_view);
+    page_uri = webkit_web_frame_get_uri (web_frame);
     /* Don't add adblock css into speeddial and about: pages */
-    if (midori_uri_is_blank (page_uri))
+    if (!midori_uri_is_http (page_uri))
         return;
 
     g_free (sokoke_js_script_eval (js_context, blockscript, NULL));
