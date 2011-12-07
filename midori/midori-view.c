@@ -3961,9 +3961,10 @@ midori_view_set_uri (MidoriView*  view,
             g_object_notify (G_OBJECT (view), "uri");
             return;
         }
-        else if (g_str_has_prefix (uri, "pause:"))
+        else if (katze_item_get_meta_integer (view->item, "delay") > 0)
         {
-            katze_assign (view->uri, g_strdup (&uri[6]));
+            katze_assign (view->uri, g_strdup (uri));
+            katze_item_set_meta_integer (view->item, "delay", -1);
             midori_view_display_error (
                 view, view->uri, view->title ? view->title : view->uri,
                 _("Page loading delayed"),
@@ -3994,7 +3995,6 @@ midori_view_set_uri (MidoriView*  view,
         {
             katze_assign (view->uri, midori_uri_format_for_display (uri));
             katze_item_set_uri (view->item, uri);
-            katze_item_set_meta_integer (view->item, "delay", -1);
             g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }

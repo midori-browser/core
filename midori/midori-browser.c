@@ -7063,19 +7063,7 @@ midori_browser_add_item (MidoriBrowser* browser,
     view = midori_view_new_with_item (item, browser->settings,
         g_object_get_data (G_OBJECT (item), "midori-view-append") ? TRUE : FALSE);
     page = midori_browser_add_tab (browser, view);
-
-    /* Blank pages should not be delayed */
-    if (katze_item_get_meta_integer (item, "delay") > 0
-     && !midori_uri_is_blank (uri)
-     && strncmp (uri, "pause:", 6) != 0)
-    {
-        gchar* new_uri = g_strdup_printf ("pause:%s", uri);
-        midori_view_set_uri (MIDORI_VIEW (view), new_uri);
-        g_free (new_uri);
-    }
-    else
-        midori_view_set_uri (MIDORI_VIEW (view), uri);
-
+    midori_view_set_uri (MIDORI_VIEW (view), uri);
     return page;
 }
 
