@@ -3841,7 +3841,6 @@ midori_view_set_uri (MidoriView*  view,
             #endif
 
             katze_assign (view->uri, g_strdup (""));
-            katze_item_set_uri (view->item, "");
 
             if (speeddial_markup == NULL)
                 speeddial_markup = prepare_speed_dial_html (view, TRUE);
@@ -3955,9 +3954,9 @@ midori_view_set_uri (MidoriView*  view,
             webkit_web_view_load_html_string (
                 WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
             g_free (data);
-            katze_item_set_uri (view->item, uri);
+            if (strcmp (view->item->uri, view->uri))
+                katze_item_set_uri (view->item, view->uri);
             g_object_notify (G_OBJECT (view), "uri");
-            return;
         }
         else if (katze_item_get_meta_integer (view->item, "delay") > 0)
         {
@@ -3969,7 +3968,8 @@ midori_view_set_uri (MidoriView*  view,
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 _("Load Page"),
                 NULL);
-            katze_item_set_uri (view->item, uri);
+            if (strcmp (view->item->uri, uri))
+                katze_item_set_uri (view->item, uri);
             g_object_notify (G_OBJECT (view), "uri");
         }
         else if (g_str_has_prefix (uri, "javascript:"))
@@ -3992,7 +3992,8 @@ midori_view_set_uri (MidoriView*  view,
         else
         {
             katze_assign (view->uri, midori_uri_format_for_display (uri));
-            katze_item_set_uri (view->item, uri);
+            if (strcmp (view->item->uri, view->uri))
+                katze_item_set_uri (view->item, view->uri);
             g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
         }

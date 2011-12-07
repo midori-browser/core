@@ -7080,16 +7080,14 @@ gint
 midori_browser_add_uri (MidoriBrowser* browser,
                         const gchar*   uri)
 {
-    GtkWidget* view;
-    gint n;
+    KatzeItem* item;
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (uri != NULL, -1);
 
-    view = midori_view_new_with_title (NULL, browser->settings, FALSE);
-    n = midori_browser_add_tab (browser, view);
-    midori_view_set_uri (MIDORI_VIEW (view), uri);
-    return n;
+    item = katze_item_new ();
+    item->uri = g_strdup (uri);
+    return midori_browser_add_item (browser, item);
 }
 
 /**
