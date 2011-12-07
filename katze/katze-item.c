@@ -707,6 +707,8 @@ katze_item_set_parent (KatzeItem* item,
  * Note that subclass specific features will only
  * be preserved if the class implements it.
  *
+ * Since 0.4.3 meta data is copied.
+ *
  * Return value: a new #KatzeItem
  *
  * Since: 0.1.3
@@ -715,6 +717,9 @@ KatzeItem*
 katze_item_copy (KatzeItem* item)
 {
     KatzeItem* copy;
+    GHashTableIter iter;
+    const gchar* key;
+    const gchar* value;
     KatzeItemClass* class;
 
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
@@ -727,6 +732,15 @@ katze_item_copy (KatzeItem* item)
         "added", item->added,
         "parent", item->parent,
         NULL);
+
+    g_hash_table_iter_init (&iter, item->metadata);
+    while (g_hash_table_iter_next (&iter, (void*)&key, (void*)&value))
+    {
+        if (g_str_has_prefix (key, "midori:"))
+            key = &key[7];
+        g_hash_table_insert (copy->metadata, g_strdup (key), g_strdup (value));
+    }
+
     class = KATZE_ITEM_GET_CLASS (item);
     return class->copy ? class->copy (copy) : copy;
 }

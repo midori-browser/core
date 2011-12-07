@@ -3251,7 +3251,6 @@ _midori_view_set_settings (MidoriView*        view,
 
 /**
  * midori_view_new_with_title:
- * @uri: an URI string, or %NULL
  * @title: a title, or %NULL
  * @settings: a #MidoriWebSettings, or %NULL
  * @append: if %TRUE, the view should be appended
@@ -3268,11 +3267,35 @@ midori_view_new_with_title (const gchar*       title,
                             MidoriWebSettings* settings,
                             gboolean           append)
 {
-    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, "title", title, NULL);
+    KatzeItem* item = katze_item_new ();
+    item->name = g_strdup (title);
+    return midori_view_new_with_item (item, settings, append);
+}
+
+/**
+ * midori_view_new_with_item:
+ * @item: a #KatzeItem, or %NULL
+ * @settings: a #MidoriWebSettings, or %NULL
+ * @append: if %TRUE, the view should be appended
+ *
+ * Creates a new view from an item that is visible by default.
+ *
+ * Return value: a new #MidoriView
+ *
+ * Since: 0.4.3
+ **/
+GtkWidget*
+midori_view_new_with_item (KatzeItem*         item,
+                           MidoriWebSettings* settings,
+                           gboolean           append)
+{
+    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, NULL);
     if (settings)
         _midori_view_set_settings (view, settings);
     if (append)
         g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
+    if (item)
+        katze_object_assign (view->item, katze_item_copy (item));
     gtk_widget_show ((GtkWidget*)view);
     return (GtkWidget*)view;
 }
@@ -3808,12 +3831,9 @@ midori_view_set_uri (MidoriView*  view,
         g_warning ("Calling %s() before adding the view to a browser. This "
                    "breaks extensions that monitor page loading.", G_STRFUNC);
 
-    /* Treat "about:blank" and "" equally, see midori_view_is_blank(). */
-    if (!uri || !strcmp (uri, "about:blank")) uri = "";
-
     if (g_getenv ("MIDORI_UNARMED") == NULL)
     {
-        if (!strcmp (uri, ""))
+        if (!uri || !strcmp (uri, "") || !strcmp (uri, "about:blank"))
         {
             #ifdef G_ENABLE_DEBUG
             GTimer* timer = NULL;
@@ -4073,8 +4093,6 @@ midori_view_get_display_uri (MidoriView* view)
  * Retrieves a string that is suitable for displaying
  * as a title. Most of the time this will be the title
  * or the current URI.
- *
- * An empty page is represented as "about:blank".
  *
  * You can assume that the string is not %NULL.
  *
@@ -4841,7 +4859,7 @@ midori_view_reload (MidoriView* view,
 {
     g_return_if_fail (MIDORI_IS_VIEW (view));
 
-    if (!(view->uri && *view->uri && strncmp (view->uri, "about:", 6)))
+    if (midori_uri_is_blank (view->uri))
     {
         gchar* uri = g_strdup (view->uri);
         midori_view_set_uri (view, uri);

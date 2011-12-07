@@ -78,6 +78,11 @@ midori_view_new_with_title             (const gchar*       title,
                                         MidoriWebSettings* settings,
                                         gboolean           append);
 
+GtkWidget*
+midori_view_new_with_item              (KatzeItem*         item,
+                                        MidoriWebSettings* settings,
+                                        gboolean           append);
+
 void
 midori_view_set_settings               (MidoriView*        view,
                                         MidoriWebSettings* settings);

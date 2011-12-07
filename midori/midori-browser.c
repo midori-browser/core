@@ -3418,12 +3418,10 @@ _action_source_view_activate (GtkAction*     action,
         source_uri = g_filename_to_uri (filename, NULL, NULL);
         g_free (filename);
 
-        source = midori_view_new (NULL);
-        midori_view_set_settings (MIDORI_VIEW (source), browser->settings);
+        source = midori_view_new_with_title (NULL, browser->settings, FALSE);
         source_view = midori_view_get_web_view (MIDORI_VIEW (source));
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (source_view), TRUE);
         webkit_web_view_load_uri (WEBKIT_WEB_VIEW (source_view), source_uri);
-        gtk_widget_show (source);
         midori_browser_add_tab (browser, source);
     }
     else
@@ -7053,27 +7051,15 @@ midori_browser_add_item (MidoriBrowser* browser,
                          KatzeItem*     item)
 {
     const gchar* uri;
-    const gchar* title;
     GtkWidget* view;
     gint page;
-    KatzeItem* proxy_item;
-    GList* keys;
 
     g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
     g_return_val_if_fail (KATZE_IS_ITEM (item), -1);
 
     uri = katze_item_get_uri (item);
-    if (!uri)
-        uri = "about:blank";
-    title = katze_item_get_name (item);
-    view = midori_view_new_with_title (title, browser->settings,
+    view = midori_view_new_with_item (item, browser->settings,
         g_object_get_data (G_OBJECT (item), "midori-view-append") ? TRUE : FALSE);
-
-    proxy_item = midori_view_get_proxy_item (MIDORI_VIEW (view));
-
-    if (katze_item_get_meta_boolean (item, "dont-write-history"))
-        katze_item_set_meta_integer (proxy_item, "dont-write-history", 1);
-
     page = midori_browser_add_tab (browser, view);
 
     /* Blank pages should not be delayed */
@@ -7088,16 +7074,6 @@ midori_browser_add_item (MidoriBrowser* browser,
     else
         midori_view_set_uri (MIDORI_VIEW (view), uri);
 
-    proxy_item = midori_view_get_proxy_item (MIDORI_VIEW (view));
-    if ((keys = katze_item_get_meta_keys (item)))
-    {
-        guint i = 0;
-        const gchar* key;
-        while ((key = g_list_nth_data (keys, i++)))
-            katze_item_set_meta_string (proxy_item, key,
-                katze_item_get_meta_string (item, key));
-        g_list_free (keys);
-    }
     return page;
 }
 
