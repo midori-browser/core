@@ -141,7 +141,6 @@ enum
     REMOVE_TAB,
     MOVE_TAB,
     ACTIVATE_ACTION,
-    CONTEXT_READY,
     ADD_DOWNLOAD,
     SEND_NOTIFICATION,
     POPULATE_TOOL_MENU,
@@ -545,14 +544,6 @@ midori_view_notify_progress_cb (GtkWidget*     view,
 {
     if (view == midori_browser_get_current_tab (browser))
         _midori_browser_update_progress (browser, MIDORI_VIEW (view));
-}
-
-static void
-midori_view_context_ready_cb (GtkWidget*     view,
-                              JSContextRef   js_context,
-                              MidoriBrowser* browser)
-{
-    g_signal_emit (browser, signals[CONTEXT_READY], 0, js_context);
 }
 
 static void
@@ -1548,8 +1539,6 @@ _midori_browser_add_tab (MidoriBrowser* browser,
                       midori_view_notify_load_status_cb, browser,
                       "signal::notify::progress",
                       midori_view_notify_progress_cb, browser,
-                      "signal::context-ready",
-                      midori_view_context_ready_cb, browser,
                       "signal::notify::uri",
                       midori_view_notify_uri_cb, browser,
                       "signal::notify::title",
@@ -1835,17 +1824,6 @@ midori_browser_class_init (MidoriBrowserClass* class)
         g_cclosure_marshal_VOID__STRING,
         G_TYPE_NONE, 1,
         G_TYPE_STRING);
-
-    signals[CONTEXT_READY] = g_signal_new (
-        "context-ready",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        0,
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__POINTER,
-        G_TYPE_NONE, 1,
-        G_TYPE_POINTER);
 
     /**
      * MidoriBrowser::add-download:

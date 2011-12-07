@@ -168,7 +168,6 @@ enum
 enum {
     ACTIVATE_ACTION,
     CONSOLE_MESSAGE,
-    CONTEXT_READY,
     ATTACH_INSPECTOR,
     DETACH_INSPECTOR,
     NEW_TAB,
@@ -247,17 +246,6 @@ midori_view_class_init (MidoriViewClass* class)
         G_TYPE_STRING,
         G_TYPE_INT,
         G_TYPE_STRING);
-
-    signals[CONTEXT_READY] = g_signal_new (
-        "context-ready",
-        G_TYPE_FROM_CLASS (class),
-        (GSignalFlags)(G_SIGNAL_RUN_LAST),
-        0,
-        0,
-        NULL,
-        g_cclosure_marshal_VOID__POINTER,
-        G_TYPE_NONE, 1,
-        G_TYPE_POINTER);
 
     signals[ATTACH_INSPECTOR] = g_signal_new (
         "attach-inspector",
@@ -2967,8 +2955,6 @@ webkit_web_view_window_object_cleared_cb (GtkWidget*      web_view,
             NULL);
         g_free (result);
     }
-
-    g_signal_emit (view, signals[CONTEXT_READY], 0, js_context);
 }
 
 static void
