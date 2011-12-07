@@ -61,14 +61,21 @@ adblock_build_js (const gchar* private)
         "function () {"
         "   if (document.getElementById('madblock'))"
         "       return;"
-        "   var URL = location.href;"
+            // Get just domain name from URL
+        "   var URL = location.href.match(/:\\/\\/(.[^/]+)/)[1];"
         "   var sites = new Array(); %s;"
         "   var public = '.madblockplaceholder ';"
-        "   for (var i in sites) {"
-        "       if (URL.indexOf(i) != -1 && sites[i] ){"
-        "           public += ', .'+sites[i];"
-        "           break;"
-        "   }}"
+            // Split domain into subdomain parts
+        "   var subdomains = URL.split ('.');"
+        "   var hostname = subdomains [subdomains.length - 1];"
+        "   var i = subdomains.length - 2;"
+            // Check if any of subdomains do have blocking rules
+        "   while (i >= 0) {"
+        "       hostname = subdomains [i] + '.' + hostname;"
+        "       if (sites [hostname])"
+        "           public += ', ' + sites [hostname];"
+        "       i--;"
+        "   }"
         "   public += ' {display: none !important}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
@@ -1218,8 +1225,17 @@ adblock_frame_add_private (const gchar* line,
         domains = g_strsplit (data[0], ",", -1);
         for (i = 0; domains[i]; i++)
         {
+            gchar* domain;
+
+            domain = domains[i];
+            /* Ignore Firefox-specific option */
+            if (!g_strcmp0 (domain, "~pregecko2"))
+                continue;
+            /* strip ~ from domain */
+            if (domain[0] == '~')
+                domain++;
             g_string_append_printf (blockcssprivate, ";sites['%s']+=',%s'",
-                g_strstrip (domains[i]), data[1]);
+                g_strstrip (domain), data[1]);
         }
         g_strfreev (domains);
     }
