@@ -3269,14 +3269,15 @@ midori_view_new_with_title (const gchar*       title,
 {
     KatzeItem* item = katze_item_new ();
     item->name = g_strdup (title);
-    return midori_view_new_with_item (item, settings, append);
+    if (append)
+        katze_item_set_meta_integer (item, "append", 1);
+    return midori_view_new_with_item (item, settings);
 }
 
 /**
  * midori_view_new_with_item:
  * @item: a #KatzeItem, or %NULL
  * @settings: a #MidoriWebSettings, or %NULL
- * @append: if %TRUE, the view should be appended
  *
  * Creates a new view from an item that is visible by default.
  *
@@ -3286,14 +3287,11 @@ midori_view_new_with_title (const gchar*       title,
  **/
 GtkWidget*
 midori_view_new_with_item (KatzeItem*         item,
-                           MidoriWebSettings* settings,
-                           gboolean           append)
+                           MidoriWebSettings* settings)
 {
     MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, NULL);
     if (settings)
         _midori_view_set_settings (view, settings);
-    if (append)
-        g_object_set_data (G_OBJECT (view), "midori-view-append", (void*)1);
     if (item)
         katze_object_assign (view->item, katze_item_copy (item));
     gtk_widget_show ((GtkWidget*)view);

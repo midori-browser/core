@@ -1398,7 +1398,7 @@ midori_load_session (gpointer data)
     session = midori_browser_get_proxy_array (browser);
     KATZE_ARRAY_FOREACH_ITEM (item, _session)
     {
-        g_object_set_data (G_OBJECT (item), "midori-view-append", (void*)1);
+        katze_item_set_meta_integer (item, "append", 1);
         katze_item_set_meta_integer (item, "dont-write-history", 1);
         if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES
          && katze_item_get_meta_integer (item, "delay") == -1)
