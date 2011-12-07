@@ -596,17 +596,6 @@ midori_bookmarks_import (const gchar* filename,
 }
 
 static void
-midori_session_add_delay (KatzeArray* session)
-{
-    KatzeItem* item;
-    KATZE_ARRAY_FOREACH_ITEM (item, session)
-    {
-        if (katze_item_get_meta_integer (item, "delay") == -1)
-            katze_item_set_meta_integer (item, "delay", 1);
-    }
-}
-
-static void
 settings_notify_cb (MidoriWebSettings* settings,
                     GParamSpec*        pspec,
                     MidoriApp*         app)
@@ -1406,14 +1395,14 @@ midori_load_session (gpointer data)
         g_object_unref (item);
     }
 
-    if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES)
-        midori_session_add_delay (_session);
-
     session = midori_browser_get_proxy_array (browser);
     KATZE_ARRAY_FOREACH_ITEM (item, _session)
     {
         g_object_set_data (G_OBJECT (item), "midori-view-append", (void*)1);
         katze_item_set_meta_integer (item, "dont-write-history", 1);
+        if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES
+         && katze_item_get_meta_integer (item, "delay") == -1)
+            katze_item_set_meta_integer (item, "delay", 1);
         midori_browser_add_item (browser, item);
     }
     current = katze_item_get_meta_integer (KATZE_ITEM (_session), "current");
