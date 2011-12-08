@@ -5800,6 +5800,56 @@ midori_browser_mce_filter_cb (DBusConnection* connection,
 #endif
 
 static void
+midori_browser_add_actions (MidoriBrowser* browser)
+{
+    /* 0,053 versus 0,002 compared to gtk_action_group_add_ API */
+    guint i;
+    GSList* group = NULL;
+    for (i = 0; i < G_N_ELEMENTS (entries); i++)
+    {
+        GtkActionEntry entry = entries[i];
+        GtkAction* action = gtk_action_new (entry.name,
+            _(entry.label), _(entry.tooltip), entry.stock_id);
+        if (entry.callback)
+            g_signal_connect (action, "activate", entry.callback, browser);
+        gtk_action_group_add_action_with_accel (browser->action_group,
+            GTK_ACTION (action), entry.accelerator);
+    }
+    for (i = 0; i < G_N_ELEMENTS (toggle_entries); i++)
+    {
+        GtkToggleActionEntry entry = toggle_entries[i];
+        GtkToggleAction* action = gtk_toggle_action_new (entry.name,
+            _(entry.label), _(entry.tooltip), entry.stock_id);
+        if (entry.is_active)
+            gtk_toggle_action_set_active (action, TRUE);
+        if (entry.callback)
+            g_signal_connect (action, "activate", entry.callback, browser);
+        gtk_action_group_add_action_with_accel (browser->action_group,
+            GTK_ACTION (action), entry.accelerator);
+    }
+    for (i = 0; i < G_N_ELEMENTS (encoding_entries); i++)
+    {
+        GtkRadioActionEntry entry = encoding_entries[i];
+        GtkRadioAction* action = gtk_radio_action_new (entry.name,
+            _(entry.label), _(entry.tooltip), entry.stock_id, entry.value);
+        if (i == 0)
+        {
+            group = gtk_radio_action_get_group (action);
+            gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
+            g_signal_connect (action, "changed",
+                G_CALLBACK (_action_view_encoding_activate), browser);
+        }
+        else
+        {
+            gtk_radio_action_set_group (action, group);
+            group = gtk_radio_action_get_group (action);
+        }
+        gtk_action_group_add_action_with_accel (browser->action_group,
+            GTK_ACTION (action), entry.accelerator);
+    }
+}
+
+static void
 midori_browser_init (MidoriBrowser* browser)
 {
     GtkWidget* vbox;
@@ -5846,13 +5896,7 @@ midori_browser_init (MidoriBrowser* browser)
     /* Let us see some ui manager magic */
     browser->action_group = gtk_action_group_new ("Browser");
     gtk_action_group_set_translation_domain (browser->action_group, GETTEXT_PACKAGE);
-    gtk_action_group_add_actions (browser->action_group,
-                                  entries, entries_n, browser);
-    gtk_action_group_add_toggle_actions (browser->action_group,
-        toggle_entries, toggle_entries_n, browser);
-    gtk_action_group_add_radio_actions (browser->action_group,
-        encoding_entries, encoding_entries_n, 0,
-        G_CALLBACK (_action_view_encoding_activate), browser);
+    midori_browser_add_actions (browser);
     ui_manager = gtk_ui_manager_new ();
     accel_group = gtk_ui_manager_get_accel_group (ui_manager);
     gtk_window_add_accel_group (GTK_WINDOW (browser), accel_group);
