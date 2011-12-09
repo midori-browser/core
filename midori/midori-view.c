@@ -2701,8 +2701,7 @@ webkit_web_view_create_web_view_cb (GtkWidget*      web_view,
         new_view = view;
     else
     {
-        new_view = (MidoriView*)midori_view_new_with_title (NULL,
-            view->settings, FALSE);
+        new_view = (MidoriView*)midori_view_new_with_item (NULL, view->settings);
         g_signal_connect (new_view->web_view, "web-view-ready",
                           G_CALLBACK (webkit_web_view_web_view_ready_cb), view);
     }
@@ -3206,7 +3205,7 @@ midori_view_focus_in_event (GtkWidget*     widget,
  *
  * Return value: a new #MidoriView
  *
- * Deprecated: 0.2.8: Use midori_view_new_with_title() instead.
+ * Deprecated: 0.2.8: Use midori_view_new_with_item() instead.
  **/
 GtkWidget*
 midori_view_new (KatzeNet* net)
@@ -3261,6 +3260,7 @@ _midori_view_set_settings (MidoriView*        view,
  * Return value: a new #MidoriView
  *
  * Since: 0.3.0
+ * Deprecated: 0.4.3
  **/
 GtkWidget*
 midori_view_new_with_title (const gchar*       title,
@@ -4293,11 +4293,9 @@ midori_view_tab_label_menu_duplicate_tab_cb (GtkWidget*  menuitem,
                                              MidoriView* view)
 {
     MidoriNewView where = MIDORI_NEW_VIEW_TAB;
-    GtkWidget* new_view = midori_view_new_with_title (
-        NULL, view->settings, FALSE);
-    const gchar* uri = midori_view_get_display_uri (MIDORI_VIEW (view));
+    GtkWidget* new_view = midori_view_new_with_item (view->item, view->settings);
     g_signal_emit (view, signals[NEW_VIEW], 0, new_view, where, TRUE);
-    midori_view_set_uri (MIDORI_VIEW (new_view), uri);
+    midori_view_set_uri (MIDORI_VIEW (new_view), view->uri);
 }
 
 static void

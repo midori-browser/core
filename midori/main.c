@@ -2204,7 +2204,7 @@ main (int    argc,
                 GtkWidget* offscreen = gtk_offscreen_window_new ();
                 #endif
                 gchar* msg = NULL;
-                GtkWidget* view = midori_view_new_with_title (NULL, settings, FALSE);
+                GtkWidget* view = midori_view_new_with_item (NULL, settings);
                 g_object_set (settings, "open-new-pages-in", MIDORI_NEW_PAGE_WINDOW, NULL);
                 midori_browser_add_tab (browser, view);
                 #if 0 /* HAVE_OFFSCREEN */
