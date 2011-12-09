@@ -7315,20 +7315,23 @@ void
 midori_browser_set_current_page (MidoriBrowser* browser,
                                  gint           n)
 {
-    gint n_pages;
     GtkWidget* view;
 
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
 
-    n_pages = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
-    g_return_if_fail (n < n_pages);
+    view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
+    g_return_if_fail (view != NULL);
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
-    view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
     if (midori_view_is_blank (MIDORI_VIEW (view)))
         gtk_action_activate (_action_by_name (browser, "Location"));
     else
         gtk_widget_grab_focus (view);
+
+    g_object_freeze_notify (G_OBJECT (browser));
+    g_object_notify (G_OBJECT (browser), "uri");
+    g_object_notify (G_OBJECT (browser), "tab");
+    g_object_thaw_notify (G_OBJECT (browser));
 }
 
 /**
@@ -7392,16 +7395,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
     g_return_if_fail (GTK_IS_WIDGET (view));
 
     n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
-    if (midori_view_is_blank (MIDORI_VIEW (view)))
-        gtk_action_activate (_action_by_name (browser, "Location"));
-    else
-        gtk_widget_grab_focus (view);
-
-    g_object_freeze_notify (G_OBJECT (browser));
-    g_object_notify (G_OBJECT (browser), "uri");
-    g_object_notify (G_OBJECT (browser), "tab");
-    g_object_thaw_notify (G_OBJECT (browser));
+    midori_browser_set_current_page (browser, n);
 }
 
 /**
