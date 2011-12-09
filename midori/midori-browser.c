@@ -85,6 +85,7 @@ struct _MidoriBrowser
 
     gint last_window_width, last_window_height;
     guint alloc_timeout;
+    guint notebook_alloc_timeout;
     guint panel_timeout;
 
     gint clear_private_data;
@@ -223,7 +224,9 @@ gboolean
 midori_transferbar_confirm_delete (MidoriTransferbar* transferbar);
 
 static void
-_midori_browser_update_notebook (MidoriBrowser* browser);
+midori_browser_notebook_size_allocate_cb (GtkWidget*     notebook,
+                                          GdkRectangle*  allocation,
+                                          MidoriBrowser* browser);
 
 void
 midori_transferbar_add_download_item (MidoriTransferbar* transferbar,
@@ -593,8 +596,7 @@ midori_view_notify_title_cb (GtkWidget*     widget,
             const gchar* proxy_uri;
             proxy = midori_view_get_proxy_item (view);
             proxy_uri = katze_item_get_uri (proxy);
-            if (proxy_uri && *proxy_uri && proxy_uri[1] &&
-                !midori_uri_is_blank (proxy_uri) &&
+            if (!midori_uri_is_blank (proxy_uri) &&
                 (katze_item_get_meta_integer (proxy, "history-step") == -1))
             {
                 if (!katze_item_get_meta_boolean (proxy, "dont-write-history"))
@@ -629,7 +631,7 @@ midori_view_notify_minimized_cb (GtkWidget*     widget,
         gtk_widget_set_size_request (label, -1, -1);
     }
     else
-        _midori_browser_update_notebook (browser);
+        midori_browser_notebook_size_allocate_cb (NULL, NULL, browser);
 }
 
 static void
@@ -1482,8 +1484,8 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     return FALSE;
 }
 
-static void
-_midori_browser_update_notebook (MidoriBrowser* browser)
+static gboolean
+midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
 {
     guint i;
     gint new_size = 0;
@@ -1515,6 +1517,21 @@ _midori_browser_update_notebook (MidoriBrowser* browser)
          && !katze_object_get_boolean (view, "minimized"))
             gtk_widget_set_size_request (label, new_size, -1);
     }
+
+    browser->notebook_alloc_timeout = 0;
+    return FALSE;
+}
+
+static void
+midori_browser_notebook_size_allocate_cb (GtkWidget*     widget,
+                                          GdkRectangle*  allocation,
+                                          MidoriBrowser* browser)
+{
+    if (browser->notebook_alloc_timeout > 0)
+        return;
+
+    browser->notebook_alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 2500,
+        (GSourceFunc)midori_browser_notebook_alloc_timeout, browser, NULL);
 }
 
 static void
@@ -1591,7 +1608,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         G_CALLBACK (midori_browser_tab_destroy_cb), browser);
 
     _midori_browser_update_actions (browser);
-    _midori_browser_update_notebook (browser);
+    midori_browser_notebook_size_allocate_cb (browser->notebook, NULL, browser);
 }
 
 static void
@@ -1599,7 +1616,7 @@ _midori_browser_remove_tab (MidoriBrowser* browser,
                             GtkWidget*     view)
 {
     gtk_widget_destroy (view);
-    _midori_browser_update_notebook (browser);
+    midori_browser_notebook_size_allocate_cb (browser->notebook, NULL, browser);
 }
 
 /**
@@ -5486,14 +5503,6 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 }
 
 static void
-gtk_notebook_size_allocated_cb (GtkWidget*     widget,
-                                GdkRectangle*  allocation,
-                                MidoriBrowser* browser)
-{
-    _midori_browser_update_notebook (browser);
-}
-
-static void
 midori_browser_destroy_cb (MidoriBrowser* browser)
 {
     g_object_set_data (G_OBJECT (browser), "midori-browser-destroyed", (void*)1);
@@ -5510,8 +5519,8 @@ midori_browser_destroy_cb (MidoriBrowser* browser)
                                           midori_browser_notebook_reorder_tab_cb,
                                           NULL);
     g_signal_handlers_disconnect_by_func (browser->notebook,
-                                          gtk_notebook_size_allocated_cb,
-                                          NULL);
+                                          midori_browser_notebook_size_allocate_cb,
+                                          browser);
     gtk_container_foreach (GTK_CONTAINER (browser->notebook),
                            (GtkCallback) gtk_widget_destroy, NULL);
 }
@@ -6235,7 +6244,7 @@ midori_browser_init (MidoriBrowser* browser)
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),
                       browser);
     g_signal_connect (browser->notebook, "size-allocate",
-                      G_CALLBACK (gtk_notebook_size_allocated_cb),
+                      G_CALLBACK (midori_browser_notebook_size_allocate_cb),
                       browser);
     g_signal_connect_after (browser->notebook, "button-press-event",
         G_CALLBACK (midori_browser_notebook_button_press_event_after_cb),
