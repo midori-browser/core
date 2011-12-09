@@ -101,27 +101,22 @@ formhistory_fixup_value (char* value)
 static gchar*
 formhistory_build_js ()
 {
-    gchar* suggestions = g_strdup ("");
+    GString* suggestions;
     GHashTableIter iter;
     gpointer key, value;
-    gchar* script;
 
+    suggestions = g_string_new (
+        "function FormSuggestions(eid) { "
+        "arr = new Array();");
     g_hash_table_iter_init (&iter, global_keys);
     while (g_hash_table_iter_next (&iter, &key, &value))
     {
-       gchar* _suggestions = g_strdup_printf ("%s arr[\"%s\"] = [%s]; ",
-                                              suggestions, (char*)key, (char*)value);
-       katze_assign (suggestions, _suggestions);
+        g_string_append_printf (suggestions, " arr[\"%s\"] = [%s]; ",
+                                (gchar*)key, (gchar*)value);
     }
-    script = g_strdup_printf ("function FormSuggestions(eid) { "
-                              "arr = new Array();"
-                              "%s"
-                              "this.suggestions = arr[eid]; }"
-                              "%s",
-                              suggestions,
-                              jsforms);
-    g_free (suggestions);
-    return script;
+    g_string_append (suggestions, "this.suggestions = arr[eid]; }");
+    g_string_append (suggestions, jsforms);
+    return g_string_free (suggestions, FALSE);
 }
 
 static void
