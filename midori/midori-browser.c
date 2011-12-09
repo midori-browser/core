@@ -1593,11 +1593,11 @@ _midori_browser_add_tab (MidoriBrowser* browser,
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
         n = gtk_notebook_get_current_page (notebook) + 1;
+        katze_array_move_item (browser->proxy_array, item, n);
     }
     else
         n = -1;
     gtk_notebook_insert_page (notebook, view, tab_label, n);
-    katze_array_move_item (browser->proxy_array, item, n);
     katze_item_set_meta_integer (item, "append", 0);
 
     gtk_notebook_set_tab_reorderable (notebook, view, TRUE);
