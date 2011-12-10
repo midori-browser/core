@@ -1487,13 +1487,13 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
 static gboolean
 midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
 {
-    guint i;
     gint new_size = 0;
     gint n = gtk_notebook_get_n_pages (GTK_NOTEBOOK(browser->notebook));
     const gint max_size = 150;
     gint min_size;
     gint icon_size = 16;
     GtkAllocation notebook_size;
+    GList* children;
 
     gtk_widget_get_allocation (browser->notebook, &notebook_size);
     if (n > 0) new_size = notebook_size.width / n - 7;
@@ -1506,11 +1506,11 @@ midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
     if (new_size < min_size) new_size = min_size;
     if (new_size > max_size) new_size = max_size;
 
-    for (i = 0; i < n; i++)
+    children = gtk_container_get_children (GTK_CONTAINER (browser->notebook));
+    for (; children; children = g_list_next (children))
     {
-        GtkWidget* view;
+        GtkWidget* view = children->data;
         GtkWidget* label;
-        view = gtk_notebook_get_nth_page (GTK_NOTEBOOK(browser->notebook), i);
         label = gtk_notebook_get_tab_label (GTK_NOTEBOOK(browser->notebook), view);
         /* Don't resize empty bin, which is used for thumbnail tabs */
         if (GTK_IS_BIN (label) && gtk_bin_get_child (GTK_BIN (label))
