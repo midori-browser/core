@@ -18,13 +18,6 @@
 #include "cookie-manager.h"
 #include "cookie-manager-page.h"
 
-
-typedef struct _CookieManagerPagePrivate			CookieManagerPagePrivate;
-
-#define COOKIE_MANAGER_PAGE_GET_PRIVATE(obj)		(G_TYPE_INSTANCE_GET_PRIVATE((obj),\
-			COOKIE_MANAGER_PAGE_TYPE, CookieManagerPagePrivate))
-
-
 #define CM_EMPTY_LABEL_TEXT "\n\n\n\n\n\n"
 
 
@@ -89,7 +82,7 @@ static const gchar *cookie_manager_page_get_stock_id(MidoriViewable *viewable)
 
 static void cm_create_toolbar(CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 	GtkWidget *toolbar;
 	GtkToolItem *toolitem;
 
@@ -141,7 +134,8 @@ static void cm_create_toolbar(CookieManagerPage *cmp)
 
 static GtkWidget *cookie_manager_page_get_toolbar(MidoriViewable *viewable)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(viewable);
+	CookieManagerPage *cmp = COOKIE_MANAGER_PAGE(viewable);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	return priv->toolbar;
 }
@@ -157,7 +151,7 @@ static void cookie_manager_page_viewable_iface_init(MidoriViewableIface* iface)
 
 static void cookie_manager_page_pre_cookies_change_cb(CookieManager *cm, CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	g_object_ref(priv->filter);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), NULL);
@@ -167,7 +161,7 @@ static void cookie_manager_page_pre_cookies_change_cb(CookieManager *cm, CookieM
 static void cookie_manager_page_cookies_changed_cb(CookieManager *cm, CookieManagerPage *cmp)
 {
 	const gchar *filter_text;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), GTK_TREE_MODEL(priv->filter));
 	g_object_unref(priv->filter);
@@ -185,7 +179,7 @@ static void cookie_manager_page_cookies_changed_cb(CookieManager *cm, CookieMana
 static void cookie_manager_page_filter_changed_cb(CookieManager *cm, const gchar *text,
 												  CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	priv->ignore_changed_filter = TRUE;
 	gtk_entry_set_text(GTK_ENTRY(priv->filter_entry), text);
@@ -195,7 +189,8 @@ static void cookie_manager_page_filter_changed_cb(CookieManager *cm, const gchar
 
 static void cookie_manager_page_finalize(GObject *object)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(object);
+	CookieManagerPage *cmp = COOKIE_MANAGER_PAGE(object);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	gtk_widget_destroy(priv->popup_menu);
 
@@ -213,7 +208,8 @@ static void cookie_manager_page_finalize(GObject *object)
 static void cookie_manager_page_set_property(GObject *object, guint prop_id, const GValue *value,
 											 GParamSpec *pspec)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(object);
+	CookieManagerPage *cmp = COOKIE_MANAGER_PAGE(object);
+	CookieManagerPagePrivate *priv = cmp->priv;
 	switch (prop_id)
 	{
 		case PROP_STORE:
@@ -288,7 +284,7 @@ static void cookie_manager_page_class_init(CookieManagerPageClass *klass)
 
 static void cm_set_button_sensitiveness(CookieManagerPage *cmp, gboolean set)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 	gboolean expand_set = (gtk_tree_model_iter_n_children(priv->filter, NULL) > 0);
 	guint i, len;
 
@@ -328,7 +324,7 @@ static gint cm_list_length(GList *list)
 
 static void cm_tree_popup_collapse_activate_cb(GtkMenuItem *item, CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	gtk_tree_view_collapse_all(GTK_TREE_VIEW(priv->treeview));
 }
@@ -336,7 +332,7 @@ static void cm_tree_popup_collapse_activate_cb(GtkMenuItem *item, CookieManagerP
 
 static void cm_tree_popup_expand_activate_cb(GtkMenuItem *item, CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(priv->treeview));
 }
@@ -345,7 +341,7 @@ static void cm_tree_popup_expand_activate_cb(GtkMenuItem *item, CookieManagerPag
 static void cm_store_remove(CookieManagerPage *cmp, GtkTreeIter *iter_model)
 {
 	GtkTreeIter iter_store;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	gtk_tree_model_filter_convert_iter_to_child_iter(
 		GTK_TREE_MODEL_FILTER(priv->filter), &iter_store, iter_model);
@@ -356,7 +352,7 @@ static void cm_store_remove(CookieManagerPage *cmp, GtkTreeIter *iter_model)
 static void cm_delete_cookie(CookieManagerPage *cmp, GtkTreeModel *model, GtkTreeIter *child)
 {
 	SoupCookie *cookie;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	gtk_tree_model_get(model, child, COOKIE_MANAGER_COL_COOKIE, &cookie, -1);
 
@@ -403,7 +399,7 @@ static gboolean cm_try_to_select(CMPathWalkFunc path_func, GtkTreeSelection *sel
 /* select an item after deletion */
 static void cm_select_path(CookieManagerPage *cmp, GtkTreeModel *model, GtkTreePath *path)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 	GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
 	CMPathWalkFunc path_funcs[] = {
 		(CMPathWalkFunc) gtk_tree_path_prev, (CMPathWalkFunc) gtk_tree_path_up,
@@ -432,7 +428,7 @@ static void cm_delete_item(CookieManagerPage *cmp)
 	GtkTreeSelection *selection;
 	GList *rows, *row;
 	GList *refs = NULL;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
@@ -528,7 +524,7 @@ static void cm_button_delete_clicked_cb(GtkToolButton *button, CookieManagerPage
 
 static void cm_delete_all_cookies_real(CookieManagerPage *cmp)
 {
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(priv->treeview));
 	GtkTreeIter iter, iter_store, child;
 	GtkTreePath *path_first, *path;
@@ -567,7 +563,7 @@ static void cm_button_delete_all_clicked_cb(GtkToolButton *button, CookieManager
 	GtkWidget *dialog;
 	const gchar *filter_text;
 	MidoriBrowser *toplevel = midori_browser_get_for_widget(GTK_WIDGET(button));
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	dialog = gtk_message_dialog_new(GTK_WINDOW(toplevel),
 		GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -608,7 +604,7 @@ static void cm_tree_drag_data_get_cb(GtkWidget *widget, GdkDragContext *drag_con
 	GtkTreeSelection *selection;
 	GtkTreeModel *model;
 	GList *rows;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
@@ -772,7 +768,7 @@ static void cm_filter_tree(CookieManagerPage *cmp, const gchar *filter_text)
 	gint i, n;
 	gchar *name;
 	gchar *domain;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	model = GTK_TREE_MODEL(priv->store);
 	if (! gtk_tree_model_get_iter_first(model, &iter))
@@ -811,7 +807,7 @@ static void cm_filter_tree(CookieManagerPage *cmp, const gchar *filter_text)
 static void cm_filter_entry_changed_cb(GtkEditable *editable, CookieManagerPage *cmp)
 {
 	const gchar *text;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	if (priv->ignore_changed_filter)
 		return;
@@ -845,7 +841,7 @@ static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieMana
 	gboolean delete_possible = TRUE;
 	guint rows_len;
 	SoupCookie *cookie;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	rows = gtk_tree_selection_get_selected_rows(selection, &model);
 	rows_len = cm_list_length(rows);
@@ -904,7 +900,7 @@ static void cm_tree_selection_changed_cb(GtkTreeSelection *selection, CookieMana
 static void cm_tree_show_popup_menu(GtkWidget *widget, GdkEventButton *event, CookieManagerPage *cmp)
 {
 	gint button, event_time;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	if (event != NULL)
 	{
@@ -1019,7 +1015,7 @@ static GtkWidget *cm_tree_prepare(CookieManagerPage *cmp)
 	GtkWidget *item;
 	GtkWidget *menu;
 	GtkWidget *treeview;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(cmp);
+	CookieManagerPagePrivate *priv = cmp->priv;
 
 	treeview = priv->treeview = gtk_tree_view_new();
 
@@ -1106,10 +1102,11 @@ static void cookie_manager_page_init(CookieManagerPage *self)
 	GtkWidget *filter_hbox;
 	GtkWidget *filter_label;
 	GtkWidget *treeview;
-	CookieManagerPagePrivate *priv = COOKIE_MANAGER_PAGE_GET_PRIVATE(self);
+	CookieManagerPagePrivate *priv;
 
-	priv->parent = NULL;
-	priv->store = NULL;
+	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
+	    COOKIE_MANAGER_PAGE_TYPE, CookieManagerPagePrivate);
+	priv = self->priv;
 	priv->ignore_changed_filter = FALSE;
 
 	cm_create_toolbar(self);

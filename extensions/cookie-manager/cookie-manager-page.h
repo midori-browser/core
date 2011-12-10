@@ -26,10 +26,12 @@ G_BEGIN_DECLS
 
 typedef struct _CookieManagerPage				CookieManagerPage;
 typedef struct _CookieManagerPageClass			CookieManagerPageClass;
+typedef struct _CookieManagerPagePrivate			CookieManagerPagePrivate;
 
 struct _CookieManagerPage
 {
 	GtkVBox parent;
+	CookieManagerPagePrivate* priv;
 };
 
 struct _CookieManagerPageClass

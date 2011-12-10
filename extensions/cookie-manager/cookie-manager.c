@@ -18,12 +18,10 @@
 
 typedef struct _CookieManagerPrivate			CookieManagerPrivate;
 
-#define COOKIE_MANAGER_GET_PRIVATE(obj)		(G_TYPE_INSTANCE_GET_PRIVATE((obj),\
-			COOKIE_MANAGER_TYPE, CookieManagerPrivate))
-
 struct _CookieManager
 {
 	GObject parent;
+	CookieManagerPrivate* priv;
 };
 
 struct _CookieManagerClass
@@ -116,7 +114,7 @@ static void cookie_manager_panel_pages_foreach(gpointer ptr, gpointer data)
 
 static void cookie_manager_page_destroy_cb(GObject *page, CookieManager *cm)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	priv->panel_pages = g_slist_remove(priv->panel_pages, page);
 }
@@ -127,7 +125,7 @@ static void cookie_manager_app_add_browser_cb(MidoriApp *app, MidoriBrowser *bro
 {
 	MidoriPanel *panel;
 	GtkWidget *page;
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	panel = katze_object_get_object(browser, "panel");
 
@@ -144,7 +142,7 @@ static void cookie_manager_app_add_browser_cb(MidoriApp *app, MidoriBrowser *bro
 
 static void cookie_manager_free_cookie_list(CookieManager *cm)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	if (priv->cookies != NULL)
 	{
@@ -165,7 +163,7 @@ static void cookie_manager_refresh_store(CookieManager *cm)
 	GtkTreeIter iter;
 	GtkTreeIter *parent_iter;
 	SoupCookie *cookie;
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	g_signal_emit(cm, signals[PRE_COOKIES_CHANGE], 0);
 
@@ -213,7 +211,7 @@ static void cookie_manager_refresh_store(CookieManager *cm)
 
 static gboolean cookie_manager_delayed_refresh(CookieManager *cm)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	cookie_manager_refresh_store(cm);
 	priv->timer_id = 0;
@@ -225,7 +223,7 @@ static gboolean cookie_manager_delayed_refresh(CookieManager *cm)
 static void cookie_manager_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, SoupCookie *new,
 							  CookieManager *cm)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	if (priv->ignore_changed_count > 0)
 	{
@@ -243,7 +241,7 @@ static void cookie_manager_jar_changed_cb(SoupCookieJar *jar, SoupCookie *old, S
 static void cookie_manager_finalize(GObject *object)
 {
 	CookieManager *cm = COOKIE_MANAGER(object);
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	g_signal_handlers_disconnect_by_func(priv->app, cookie_manager_app_add_browser_cb, cm);
 	g_signal_handlers_disconnect_by_func(priv->jar, cookie_manager_jar_changed_cb, cm);
@@ -267,11 +265,12 @@ static void cookie_manager_finalize(GObject *object)
 
 static void cookie_manager_init(CookieManager *self)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(self);
+	CookieManagerPrivate *priv;
 	SoupSession *session;
 
-	priv->filter_text = NULL;
-	priv->panel_pages = NULL;
+	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
+	    COOKIE_MANAGER_TYPE, CookieManagerPrivate);
+	priv = self->priv;
 	/* create the main store */
 	priv->store = gtk_tree_store_new(COOKIE_MANAGER_N_COLUMNS,
 		G_TYPE_STRING, SOUP_TYPE_COOKIE, G_TYPE_BOOLEAN);
@@ -289,7 +288,7 @@ static void cookie_manager_init(CookieManager *self)
 
 void cookie_manager_update_filter(CookieManager *cm, const gchar *text)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	katze_assign(priv->filter_text, g_strdup(text));
 
@@ -299,7 +298,7 @@ void cookie_manager_update_filter(CookieManager *cm, const gchar *text)
 
 void cookie_manager_delete_cookie(CookieManager *cm, SoupCookie *cookie)
 {
-	CookieManagerPrivate *priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	CookieManagerPrivate *priv = cm->priv;
 
 	if (cookie != NULL)
 	{
@@ -320,7 +319,7 @@ CookieManager *cookie_manager_new(MidoriExtension *extension, MidoriApp *app)
 
 	cm = g_object_new(COOKIE_MANAGER_TYPE, NULL);
 
-	priv = COOKIE_MANAGER_GET_PRIVATE(cm);
+	priv = cm->priv;
 	priv->app = app;
 	priv->extension = extension;
 
