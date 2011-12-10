@@ -6686,11 +6686,32 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
     else if (name == g_intern_string ("always-show-tabbar"))
         _toggle_tabbar_smartly (browser, FALSE);
     else if (name == g_intern_string ("show-menubar"))
+    {
         sokoke_widget_set_visible (browser->menubar, g_value_get_boolean (&value));
+        gtk_toggle_action_set_active (
+            GTK_TOGGLE_ACTION (_action_by_name (browser, "Menubar")),
+            g_value_get_boolean (&value));
+    }
     else if (name == g_intern_string ("show-navigationbar"))
+    {
         browser->show_navigationbar = g_value_get_boolean (&value);
+        gtk_toggle_action_set_active (
+            GTK_TOGGLE_ACTION (_action_by_name (browser, "Navigationbar")),
+            g_value_get_boolean (&value));
+    }
+    else if (name == g_intern_string ("show-bookmarkbar"))
+    {
+        gtk_toggle_action_set_active (
+            GTK_TOGGLE_ACTION (_action_by_name (browser, "Bookmarkbar")),
+            g_value_get_boolean (&value));
+    }
     else if (name == g_intern_string ("show-statusbar"))
+    {
         browser->show_statusbar = g_value_get_boolean (&value);
+        gtk_toggle_action_set_active (
+            GTK_TOGGLE_ACTION (_action_by_name (browser, "Statusbar")),
+            g_value_get_boolean (&value));
+    }
     else if (name == g_intern_string ("location-entry-search"))
     {
         katze_assign (browser->location_entry_search, g_value_dup_string (&value));
