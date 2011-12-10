@@ -1527,10 +1527,13 @@ midori_browser_notebook_size_allocate_cb (GtkWidget*     widget,
                                           GdkRectangle*  allocation,
                                           MidoriBrowser* browser)
 {
-    if (browser->notebook_alloc_timeout > 0)
+    if (!gtk_notebook_get_show_tabs (GTK_NOTEBOOK (browser->notebook)))
         return;
 
-    browser->notebook_alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 2500,
+    if (browser->notebook_alloc_timeout > 0)
+        g_source_remove (browser->notebook_alloc_timeout);
+
+    browser->notebook_alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 250,
         (GSourceFunc)midori_browser_notebook_alloc_timeout, browser, NULL);
 }
 
