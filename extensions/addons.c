@@ -1474,7 +1474,7 @@ addons_context_ready_cb (WebKitWebView*   web_view,
     const gchar* page_uri;
 
     page_uri = webkit_web_frame_get_uri (web_frame);
-    if (!midori_uri_is_http (page_uri))
+    if (!midori_uri_is_http (page_uri) && !midori_uri_is_blank (page_uri))
         return;
 
     /* Not a main frame! Abort */
