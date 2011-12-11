@@ -3289,7 +3289,9 @@ GtkWidget*
 midori_view_new_with_item (KatzeItem*         item,
                            MidoriWebSettings* settings)
 {
-    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW, NULL);
+    MidoriView* view = g_object_new (MIDORI_TYPE_VIEW,
+                                     "title", item ? item->name : NULL,
+                                     NULL);
     if (settings)
         _midori_view_set_settings (view, settings);
     if (item)
@@ -3840,7 +3842,7 @@ midori_view_set_uri (MidoriView*  view,
                 timer = g_timer_new ();
             #endif
 
-            katze_assign (view->uri, g_strdup (""));
+            katze_assign (view->uri, NULL);
 
             if (speeddial_markup == NULL)
                 speeddial_markup = prepare_speed_dial_html (view, TRUE);
@@ -3954,7 +3956,7 @@ midori_view_set_uri (MidoriView*  view,
             webkit_web_view_load_html_string (
                 WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
             g_free (data);
-            if (strcmp (view->item->uri, view->uri))
+            if (g_strcmp0 (view->item->uri, view->uri))
                 katze_item_set_uri (view->item, view->uri);
             g_object_notify (G_OBJECT (view), "uri");
         }
@@ -3968,7 +3970,7 @@ midori_view_set_uri (MidoriView*  view,
                 _("Loading delayed either due to a recent crash or startup preferences."),
                 _("Load Page"),
                 NULL);
-            if (strcmp (view->item->uri, uri))
+            if (g_strcmp0 (view->item->uri, uri))
                 katze_item_set_uri (view->item, uri);
             g_object_notify (G_OBJECT (view), "uri");
         }
@@ -3992,7 +3994,7 @@ midori_view_set_uri (MidoriView*  view,
         else
         {
             katze_assign (view->uri, midori_uri_format_for_display (uri));
-            if (strcmp (view->item->uri, view->uri))
+            if (g_strcmp0 (view->item->uri, view->uri))
                 katze_item_set_uri (view->item, view->uri);
             g_object_notify (G_OBJECT (view), "uri");
             webkit_web_view_open (WEBKIT_WEB_VIEW (view->web_view), uri);
