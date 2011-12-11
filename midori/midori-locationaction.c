@@ -1635,16 +1635,16 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
-        GdkColor bg_color = { 0, 1 };
-        GdkColor fg_color = { 0, 1 };
+        const gchar* bg_color = NULL;
+        const gchar* fg_color = NULL;
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         GdkScreen* screen = gtk_widget_get_screen (entry);
         GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
         {
-            gdk_color_parse ("#ef7070", &bg_color);
-            gdk_color_parse ("#000", &fg_color);
+            bg_color = "#ef7070";
+            fg_color = "#000";
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
@@ -1658,8 +1658,8 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         }
         else if (hint == MIDORI_SECURITY_TRUSTED)
         {
-            gdk_color_parse ("#d1eeb9", &bg_color);
-            gdk_color_parse ("#000", &fg_color);
+            bg_color = "#d1eeb9";
+            fg_color = "#000";
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
@@ -1675,9 +1675,22 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             gtk_icon_entry_set_tooltip (GTK_ICON_ENTRY (entry),
                 GTK_ICON_ENTRY_SECONDARY, NULL);
 
-        gtk_widget_modify_base (entry, GTK_STATE_NORMAL,
-            bg_color.red == 1 ? NULL : &bg_color);
-        gtk_widget_modify_text (entry, GTK_STATE_NORMAL,
-            bg_color.red == 1 ? NULL : &fg_color);
+        {
+        #if GTK_CHECK_VERSION (3, 0, 0)
+        GdkRGBA color = { 0 };
+        if (bg_color) gdk_rgba_parse (&color, bg_color);
+        gtk_widget_override_background_color (entry,
+            GTK_STATE_FLAG_NORMAL, bg_color ? &color : NULL);
+        if (fg_color) gdk_rgba_parse (&color, fg_color);
+        gtk_widget_override_color (entry,
+            GTK_STATE_FLAG_NORMAL, fg_color ? &color : NULL);
+        #else
+        GdkColor color = { 0 };
+        if (bg_color) gdk_color_parse (bg_color, &color);
+        gtk_widget_modify_base (entry, GTK_STATE_NORMAL, bg_color ? &color : NULL);
+        if (fg_color) gdk_color_parse (fg_color, &color);
+        gtk_widget_modify_fg (entry, GTK_STATE_NORMAL, fg_color ? &color : NULL);
+        #endif
+        }
     }
 }
