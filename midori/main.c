@@ -993,7 +993,12 @@ midori_load_soup_session (gpointer settings)
 {
     SoupSession* session = webkit_get_default_session ();
 
-    #if defined (HAVE_LIBSOUP_2_29_91)
+    #if defined (HAVE_LIBSOUP_2_37_1)
+    g_object_set (session,
+                  "ssl-use-system-ca-file", TRUE,
+                  "ssl-strict", FALSE,
+                  NULL);
+    #elif defined (HAVE_LIBSOUP_2_29_91)
     const gchar* certificate_files[] =
     {
         "/etc/pki/tls/certs/ca-bundle.crt",
