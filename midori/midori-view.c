@@ -1951,8 +1951,8 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
     if (!webkit_web_view_can_cut_clipboard (web_view)
         && !webkit_web_view_can_paste_clipboard (web_view))
     {
-        gchar* text = character ? g_strdup_printf ("%c", character) : g_strdup ("");
-        g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text);
+        gchar* text = character ? g_strdup_printf ("%c", character) : NULL;
+        g_signal_emit (view, signals[SEARCH_TEXT], 0, TRUE, text ? text : "");
         g_free (text);
         return TRUE;
     }
@@ -3720,7 +3720,7 @@ prepare_speed_dial_html (MidoriView* view,
     else
     {
         g_free (file_path);
-        return g_strdup ("");
+        return NULL;
     }
 
     groups = g_key_file_get_groups (key_file, NULL);
@@ -3774,7 +3774,7 @@ prepare_speed_dial_html (MidoriView* view,
             }
             else
             {
-                encoded = g_strdup ("");
+                encoded = NULL;
                 if (load_missing)
                     midori_view_speed_dial_get_thumb (view, groups[i], uri);
             }
@@ -3785,7 +3785,7 @@ prepare_speed_dial_html (MidoriView* view,
                 "<a class=\"cross\" href=\"#\" onclick='clearShortcut(\"s%d\");'></a>"
                 "<a href=\"%s\"><img src=\"data:image/png;base64,%s\"></a>"
                 "</div><div class=\"title\" onclick='renameShortcut(\"s%d\");'>%s</div></div>\n",
-                slot, slot, uri, encoded, slot, title ? title : "");
+                slot, slot, uri, encoded ? encoded : "", slot, title ? title : "");
 
             g_free (title);
             g_free (encoded);
@@ -3848,7 +3848,7 @@ midori_view_set_uri (MidoriView*  view,
                 speeddial_markup = prepare_speed_dial_html (view, TRUE);
 
             midori_view_load_alternate_string (view,
-                speeddial_markup, "about:blank", NULL);
+                speeddial_markup ? speeddial_markup : "", "about:blank", NULL);
 
             #ifdef G_ENABLE_DEBUG
             if (g_getenv ("MIDORI_STARTTIME") != NULL)
@@ -3960,7 +3960,7 @@ midori_view_set_uri (MidoriView*  view,
                 katze_item_set_uri (view->item, view->uri);
             g_object_notify (G_OBJECT (view), "uri");
         }
-        else if (katze_item_get_meta_integer (view->item, "delay") > 0)
+        else if (katze_item_get_meta_boolean (view->item, "delay"))
         {
             katze_assign (view->uri, g_strdup (uri));
             katze_item_set_meta_integer (view->item, "delay", -1);

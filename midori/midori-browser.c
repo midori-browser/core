@@ -3341,17 +3341,17 @@ midori_browser_get_uri_extension (const gchar* uri)
     slash = strrchr (uri, '/');
     /* Huh, URI without slashes? */
     if (!slash)
-        return g_strdup ("");
+        return NULL;
 
     ext_end = period = strrchr (slash, '.');
     if (!period)
-       return g_strdup ("");
+       return NULL;
 
     /* Skip the period */
     ext_end++;
     /* If *ext_end is 0 here, the URI ended with a period, so skip */
     if (!*ext_end)
-       return g_strdup ("");
+       return NULL;
 
     /* Find the end of the extension */
     while (*ext_end && g_ascii_isalnum (*ext_end))
@@ -5489,7 +5489,7 @@ midori_browser_size_allocate_cb (MidoriBrowser* browser,
 {
     GtkWidget* widget = GTK_WIDGET (browser);
 
-    if (gtk_widget_get_realized (widget) && !browser->alloc_timeout)
+    if (!browser->alloc_timeout && gtk_widget_get_realized (widget))
     {
         gpointer last_page;
 

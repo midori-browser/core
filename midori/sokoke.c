@@ -1701,7 +1701,7 @@ midori_download_prepare_tooltip_text (WebKitDownload* download)
 
     if (time_estimated > 0)
     {
-        gchar* eta;
+        gchar* eta = NULL;
         if (hours_left > 0)
             eta = g_strdup_printf ("%s, %s", hours_str, minutes_str);
         else if (minutes_left >= 10)
@@ -1710,11 +1710,12 @@ midori_download_prepare_tooltip_text (WebKitDownload* download)
             eta = g_strdup_printf ("%s, %s", minutes_str, seconds_str);
         else if (seconds_left > 0)
             eta = g_strdup_printf ("%s", seconds_str);
-        else
-            eta = g_strdup ("");
-        /* i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning */
-        g_string_append_printf (tooltip, _(" - %s remaining"), eta);
-        g_free (eta);
+        if (eta != NULL)
+        {
+            /* i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning */
+            g_string_append_printf (tooltip, _(" - %s remaining"), eta);
+            g_free (eta);
+        }
     }
 
     g_free (hours_str);

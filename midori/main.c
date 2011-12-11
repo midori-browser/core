@@ -216,12 +216,10 @@ settings_save_to_file (MidoriWebSettings* settings,
             }
 
             g_object_get (settings, property, &string, NULL);
-            if (!string)
-                string = g_strdup ("");
             if (!def_string)
                 def_string = "";
-            if (strcmp (string, def_string))
-                g_key_file_set_string (key_file, "settings", property, string);
+            if (strcmp (string ? string : "", def_string))
+                g_key_file_set_string (key_file, "settings", property, string ? string : "");
             g_free (string);
         }
         else if (type == G_TYPE_PARAM_INT)
@@ -1405,8 +1403,7 @@ midori_load_session (gpointer data)
     {
         katze_item_set_meta_integer (item, "append", 1);
         katze_item_set_meta_integer (item, "dont-write-history", 1);
-        if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES
-         && katze_item_get_meta_integer (item, "delay") == -1)
+        if (load_on_startup == MIDORI_STARTUP_DELAYED_PAGES)
             katze_item_set_meta_integer (item, "delay", 1);
         midori_browser_add_item (browser, item);
     }

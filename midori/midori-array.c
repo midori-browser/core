@@ -796,7 +796,7 @@ katze_item_metadata_to_xbel (KatzeItem* item)
     const gchar* value;
 
     if (!keys)
-        return g_strdup ("");
+        return NULL;
 
     markup = g_string_new ("<info>\n<metadata");
     markdown = g_string_new (NULL);
@@ -856,7 +856,7 @@ katze_array_to_xbel (KatzeArray* array,
         ">\n");
     string_append_xml_element (markup, "title", katze_item_get_name (KATZE_ITEM (array)));
     string_append_xml_element (markup, "desc", katze_item_get_text (KATZE_ITEM (array)));
-    g_string_append (markup, metadata);
+    g_string_append (markup, metadata ? metadata : "");
     KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
         string_append_item (markup, item);
     g_string_append (markup, "</xbel>\n");

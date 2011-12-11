@@ -216,9 +216,9 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
     gchar* sqlcmd;
     char* errmsg = NULL;
     KatzeItem* old_parent;
-    gchar* parent;
-    gchar* uri;
-    gchar* desc;
+    const gchar* parent;
+    const gchar* uri = NULL;
+    const gchar* desc = NULL;
 
     /* Bookmarks must have a name, import may produce invalid items */
     g_return_if_fail (katze_item_get_name (item));
@@ -227,30 +227,26 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
         return;
 
     if (KATZE_ITEM_IS_BOOKMARK (item))
-        uri = g_strdup (katze_item_get_uri (item));
-    else
-        uri = g_strdup ("");
+        uri = katze_item_get_uri (item);
 
     if (katze_item_get_text (item))
-        desc = g_strdup (katze_item_get_text (item));
-    else
-        desc = g_strdup ("");
+        desc = katze_item_get_text (item);
 
     /* Use folder, otherwise fallback to parent folder */
     old_parent = katze_item_get_parent (item);
     if (folder && *folder)
-        parent = g_strdup (folder);
+        parent = folder;
     else if (old_parent && katze_item_get_name (old_parent))
-        parent = g_strdup (katze_item_get_name (old_parent));
+        parent = katze_item_get_name (old_parent);
     else
-        parent = g_strdup ("");
+        parent = "";
 
     sqlcmd = sqlite3_mprintf (
             "INSERT into bookmarks (uri, title, desc, folder, toolbar, app) values"
             " ('%q', '%q', '%q', '%q', %d, %d)",
-            uri,
+            uri ? uri : "",
             katze_item_get_name (item),
-            desc,
+            desc ? desc : "",
             parent,
             katze_item_get_meta_boolean (item, "toolbar"),
             katze_item_get_meta_boolean (item, "app"));
@@ -261,9 +257,6 @@ midori_bookmarks_insert_item_db (sqlite3*     db,
         sqlite3_free (errmsg);
     }
 
-    g_free (uri);
-    g_free (parent);
-    g_free (desc);
     sqlite3_free (sqlcmd);
 }
 
@@ -315,30 +308,31 @@ midori_bookmarks_row_changed_cb (GtkTreeModel*    model,
 {
     KatzeItem* item;
     GtkTreeIter parent;
-    gchar* parent_name;
+    KatzeItem* new_parent = NULL;
+    const gchar* parent_name;
 
     gtk_tree_model_get (model, iter, 0, &item, -1);
 
     if (gtk_tree_model_iter_parent (model, &parent, iter))
     {
-        KatzeItem* new_parent;
-
         gtk_tree_model_get (model, &parent, 0, &new_parent, -1);
 
         /* Bookmarks must not be moved into non-folder items */
         if (!KATZE_ITEM_IS_FOLDER (new_parent))
-            parent_name = g_strdup ("");
+            parent_name = "";
         else
-            parent_name = g_strdup (katze_item_get_name (new_parent));
-
-        g_object_unref (new_parent);
+            parent_name = katze_item_get_name (new_parent);
     }
     else
-        parent_name = g_strdup ("");
+        parent_name = "";
 
     katze_array_remove_item (bookmarks->array, item);
     katze_item_set_meta_string (item, "folder", parent_name);
     katze_array_add_item (bookmarks->array, item);
+
+    g_object_unref (item);
+    if (new_parent)
+        g_object_unref (new_parent);
 }
 
 static void
