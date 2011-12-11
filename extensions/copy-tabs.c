@@ -15,19 +15,19 @@ static void
 copy_tabs_apply_cb (GtkWidget*     menuitem,
                     MidoriBrowser* browser)
 {
-    guint i = 0;
-    GtkWidget* view;
-    gchar* text = g_strdup ("");
+    GList* children;
+    GString* text = g_string_sized_new (256);
     GtkClipboard* clipboard = gtk_widget_get_clipboard (menuitem,
                                                         GDK_SELECTION_CLIPBOARD);
 
-    while ((view = midori_browser_get_nth_tab (browser, i++)))
+    children = midori_browser_get_tabs (MIDORI_BROWSER (browser));
+    for (; children; children = g_list_next (children))
     {
-        gchar* new_text = g_strconcat (text,
-            midori_view_get_display_uri (MIDORI_VIEW (view)), "\n", NULL);
-        katze_assign (text, new_text);
+        g_string_append (text, midori_view_get_display_uri (children->data));
+        g_string_append_c (text, '\n');
     }
-    gtk_clipboard_set_text (clipboard, text, -1);
+    gtk_clipboard_set_text (clipboard, text->str, -1);
+    g_string_free (text, TRUE);
 }
 
 static void
