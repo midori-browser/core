@@ -1524,7 +1524,7 @@ midori_prepare_uri (const gchar *uri)
     if (g_path_is_absolute (uri))
         return g_filename_to_uri (uri, NULL, NULL);
     else if (g_str_has_prefix(uri, "javascript:"))
-        return g_strdup (uri);
+        return NULL;
     else if (g_file_test (uri, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
     {
         gchar* current_dir = g_get_current_dir ();
@@ -1534,11 +1534,7 @@ midori_prepare_uri (const gchar *uri)
         return uri_ready;
     }
 
-    uri_ready = sokoke_magic_uri (uri);
-    if (uri_ready)
-        return midori_uri_to_ascii (uri_ready);
-
-    return midori_uri_to_ascii (uri);
+    return sokoke_magic_uri (uri);
 }
 
 #ifdef HAVE_SIGNAL_H
@@ -2237,7 +2233,7 @@ main (int    argc,
         {
             gchar* tmp_uri = midori_prepare_uri (webapp);
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
-            midori_browser_add_uri (browser, tmp_uri);
+            midori_browser_add_uri (browser, tmp_uri ? tmp_uri : webapp);
             g_object_set (settings, "homepage", tmp_uri, NULL);
             g_free (tmp_uri);
 
@@ -2314,7 +2310,10 @@ main (int    argc,
             while (uris[i] != NULL)
             {
                 gchar* new_uri = midori_prepare_uri (uris[i]);
-                katze_assign (uris[i], new_uri);
+                gchar* escaped_uri = g_uri_escape_string (
+                    new_uri ? new_uri : uris[i], NULL, FALSE);
+                g_free (new_uri);
+                katze_assign (uris[i], escaped_uri);
                 i++;
             }
             result = midori_app_instance_send_uris (app, uris);
@@ -2487,7 +2486,7 @@ main (int    argc,
         {
             item = katze_item_new ();
             uri_ready = midori_prepare_uri (uri);
-            katze_item_set_uri (item, uri_ready);
+            katze_item_set_uri (item, uri_ready ? uri_ready : uri);
             g_free (uri_ready);
             /* Never delay command line arguments */
             katze_item_set_meta_integer (item, "delay", 0);

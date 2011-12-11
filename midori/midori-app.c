@@ -506,9 +506,7 @@ midori_app_command_received (MidoriApp*   app,
             first = (open_external_pages_in == MIDORI_NEW_PAGE_CURRENT);
             while (*uris)
             {
-                gchar* fixed_uri = sokoke_magic_uri (*uris);
-                if (!fixed_uri)
-                    fixed_uri = g_strdup (*uris);
+                gchar* fixed_uri = g_uri_unescape_string (*uris, NULL);
                 if (sokoke_recursive_fork_protection (fixed_uri, FALSE))
                 {
                     if (first)
