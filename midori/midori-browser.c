@@ -333,7 +333,8 @@ _midori_browser_update_interface (MidoriBrowser* browser)
                       "stock-id", GTK_STOCK_REFRESH,
                       "tooltip", _("Reload the current page"),
                       "sensitive", can_reload, NULL);
-        katze_item_set_meta_integer (midori_view_get_proxy_item (view), "dont-write-history", 0);
+        katze_item_set_meta_integer (midori_view_get_proxy_item (view),
+                                     "dont-write-history", -1);
     }
     else
     {
@@ -1601,7 +1602,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     else
         n = -1;
     gtk_notebook_insert_page (notebook, view, tab_label, n);
-    katze_item_set_meta_integer (item, "append", 0);
+    katze_item_set_meta_integer (item, "append", -1);
 
     gtk_notebook_set_tab_reorderable (notebook, view, TRUE);
     gtk_notebook_set_tab_detachable (notebook, view, TRUE);
