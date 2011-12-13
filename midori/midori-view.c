@@ -854,17 +854,16 @@ static void
 _midori_web_view_load_icon (MidoriView* view)
 {
     GdkPixbuf* pixbuf;
-    gchar* icon_uri;
     gchar* icon_file;
     gint icon_width, icon_height;
     GdkPixbuf* pixbuf_scaled;
     GtkSettings* settings;
 
     pixbuf = NULL;
-    icon_uri = g_strdup (view->icon_uri);
 
-    if (midori_uri_is_http (icon_uri) || midori_uri_is_http (view->uri))
+    if (midori_uri_is_http (view->icon_uri) || midori_uri_is_http (view->uri))
     {
+        gchar* icon_uri = g_strdup (view->icon_uri);
         if (!icon_uri)
         {
             guint i = 8;
