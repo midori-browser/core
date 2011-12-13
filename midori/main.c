@@ -2233,6 +2233,7 @@ main (int    argc,
         {
             gchar* tmp_uri = midori_prepare_uri (webapp);
             midori_browser_set_action_visible (browser, "Menubar", FALSE);
+            midori_browser_set_action_visible (browser, "CompactMenu", FALSE);
             midori_browser_add_uri (browser, tmp_uri ? tmp_uri : webapp);
             g_object_set (settings, "homepage", tmp_uri, NULL);
             g_free (tmp_uri);
