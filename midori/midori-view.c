@@ -2587,10 +2587,6 @@ midori_view_populate_popup (MidoriView* view,
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SaveAs"));
         gtk_menu_shell_append (menu_shell, menuitem);
-        /* Currently views that don't support source, don't support
-           saving either. If that changes, we need to think of something. */
-        if (!midori_view_can_view_source (view))
-            gtk_widget_set_sensitive (menuitem, FALSE);
         menuitem = sokoke_action_create_popup_menu_item (
                 gtk_action_group_get_action (actions, "SourceView"));
         gtk_menu_shell_append (menu_shell, menuitem);
@@ -4833,6 +4829,43 @@ midori_view_can_view_source (MidoriView* view)
     g_free (content_type);
     g_free (text_type);
     return is_text;
+}
+
+/**
+ * midori_view_can_save:
+ * @view: a #MidoriView
+ *
+ * Determines if the view can be saved to disk.
+ *
+ * Return value: %TRUE if the website or image can be saved
+ *
+ * Since: 0.4.3
+ **/
+gboolean
+midori_view_can_save (MidoriView* view)
+{
+    GtkWidget* web_view;
+    WebKitWebDataSource *data_source;
+    WebKitWebFrame *frame;
+    const GString *data;
+
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), FALSE);
+
+    if (midori_view_is_blank (view) || view->mime_type == NULL)
+        return FALSE;
+
+    web_view = midori_view_get_web_view (view);
+    if (webkit_web_view_get_view_source_mode (WEBKIT_WEB_VIEW (web_view)))
+        return FALSE;
+
+    frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
+    data_source = webkit_web_frame_get_data_source (frame);
+    data = webkit_web_data_source_get_data (data_source);
+
+    if (data != NULL)
+        return TRUE;
+
+    return FALSE;
 }
 
 #define can_do(what) \

@@ -305,9 +305,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
 
     gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
         !midori_view_is_blank (view));
-    /* Currently views that don't support source, don't support
-       saving either. If that changes, we need to think of something. */
-    _action_set_sensitive (browser, "SaveAs", midori_view_can_view_source (view));
+    _action_set_sensitive (browser, "SaveAs", midori_view_can_save (view));
     _action_set_sensitive (browser, "Print", midori_view_can_print (view));
     _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
     _action_set_sensitive (browser, "ZoomOut", midori_view_can_zoom_out (view));

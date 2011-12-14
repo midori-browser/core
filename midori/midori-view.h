@@ -195,6 +195,9 @@ gboolean
 midori_view_can_view_source            (MidoriView*        view);
 
 gboolean
+midori_view_can_save                   (MidoriView*        view);
+
+gboolean
 midori_view_can_find                   (MidoriView*        view);
 
 void
