@@ -3294,7 +3294,11 @@ midori_view_new_with_item (KatzeItem*         item,
     if (settings)
         _midori_view_set_settings (view, settings);
     if (item)
+    {
         katze_object_assign (view->item, katze_item_copy (item));
+        view->minimized = katze_item_get_meta_string (
+            view->item, "minimized") != NULL;
+    }
     gtk_widget_show ((GtkWidget*)view);
     return (GtkWidget*)view;
 }
