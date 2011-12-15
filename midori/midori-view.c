@@ -3842,6 +3842,7 @@ midori_view_set_uri (MidoriView*  view,
             #endif
 
             katze_assign (view->uri, NULL);
+            katze_assign (view->mime_type, g_strdup ("text/html"));
 
             if (speeddial_markup == NULL)
                 speeddial_markup = prepare_speed_dial_html (view, TRUE);
