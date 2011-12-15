@@ -1013,6 +1013,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     for (; children; children = g_list_next (children))
         if (g_object_get_data (G_OBJECT (children->data), "midori-infobar-cb"))
             gtk_widget_destroy (children->data);
+    g_list_free (children);
     view->alerts = 0;
 
     if (g_strcmp0 (uri, katze_item_get_uri (view->item)))
@@ -1383,11 +1384,14 @@ midori_view_display_error (MidoriView*     view,
     if (g_file_get_contents (path, &template, NULL, NULL))
     {
         gchar* title_escaped;
+        const gchar* icon;
         gchar* result;
 
         title_escaped = g_markup_escape_text (title, -1);
+        icon = katze_item_get_icon (view->item);
         result = sokoke_replace_variables (template,
             "{title}", title_escaped,
+            "{icon}", icon ? icon : "",
             "{message}", message,
             "{description}", description,
             "{tryagain}", try_again,
