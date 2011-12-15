@@ -667,7 +667,7 @@ midori_view_apply_icon (MidoriView*  view,
 
     if (view->tab_icon)
     {
-        if (icon_name)
+        if (icon_name && !strchr (icon_name, '/'))
             katze_throbber_set_static_icon_name (KATZE_THROBBER (view->tab_icon),
                                                  icon_name);
         else
@@ -677,7 +677,7 @@ midori_view_apply_icon (MidoriView*  view,
     if (view->menu_item)
     {
         GtkWidget* image;
-        if (icon_name)
+        if (icon_name && !strchr (icon_name, '/'))
             image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
         else
             image = gtk_image_new_from_pixbuf (view->icon);
@@ -719,7 +719,7 @@ midori_view_update_icon (MidoriView* view,
 
     if (icon)
     {
-        midori_view_apply_icon (view, icon, NULL);
+        midori_view_apply_icon (view, icon, view->icon_uri);
         return;
     }
 

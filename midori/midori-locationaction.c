@@ -1689,7 +1689,7 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         if (bg_color) gdk_color_parse (bg_color, &color);
         gtk_widget_modify_base (entry, GTK_STATE_NORMAL, bg_color ? &color : NULL);
         if (fg_color) gdk_color_parse (fg_color, &color);
-        gtk_widget_modify_fg (entry, GTK_STATE_NORMAL, fg_color ? &color : NULL);
+        gtk_widget_modify_text (entry, GTK_STATE_NORMAL, fg_color ? &color : NULL);
         #endif
         }
     }
