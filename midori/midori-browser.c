@@ -85,7 +85,7 @@ struct _MidoriBrowser
 
     gint last_window_width, last_window_height;
     guint alloc_timeout;
-    guint notebook_alloc_timeout;
+    gint last_tab_size;
     guint panel_timeout;
 
     gint clear_private_data;
@@ -1483,8 +1483,9 @@ midori_browser_tab_destroy_cb (GtkWidget*     widget,
     return FALSE;
 }
 
-static gboolean
-midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
+static void
+midori_browser_notebook_resize (MidoriBrowser* browser,
+                                GdkRectangle*  allocation)
 {
     gint new_size = 0;
     gint n = gtk_notebook_get_n_pages (GTK_NOTEBOOK(browser->notebook));
@@ -1494,8 +1495,13 @@ midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
     GtkAllocation notebook_size;
     GList* children;
 
-    gtk_widget_get_allocation (browser->notebook, &notebook_size);
-    if (n > 0) new_size = notebook_size.width / n - 7;
+    g_return_if_fail (n > 0);
+
+    if (allocation != NULL)
+        notebook_size.width = allocation->width;
+    else
+        gtk_widget_get_allocation (browser->notebook, &notebook_size);
+    new_size = notebook_size.width / n - 7;
 
     gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (browser->notebook),
                                        GTK_ICON_SIZE_MENU, &icon_size, NULL);
@@ -1504,6 +1510,11 @@ midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
         min_size += icon_size;
     if (new_size < min_size) new_size = min_size;
     if (new_size > max_size) new_size = max_size;
+
+    if (new_size > browser->last_tab_size - 3
+     && new_size < browser->last_tab_size + 3)
+        return;
+    browser->last_tab_size = new_size;
 
     children = gtk_container_get_children (GTK_CONTAINER (browser->notebook));
     for (; children; children = g_list_next (children))
@@ -1516,9 +1527,6 @@ midori_browser_notebook_alloc_timeout (MidoriBrowser* browser)
          && !katze_object_get_boolean (view, "minimized"))
             gtk_widget_set_size_request (label, new_size, -1);
     }
-
-    browser->notebook_alloc_timeout = 0;
-    return FALSE;
 }
 
 static void
@@ -1529,11 +1537,7 @@ midori_browser_notebook_size_allocate_cb (GtkWidget*     widget,
     if (!gtk_notebook_get_show_tabs (GTK_NOTEBOOK (browser->notebook)))
         return;
 
-    if (browser->notebook_alloc_timeout > 0)
-        g_source_remove (browser->notebook_alloc_timeout);
-
-    browser->notebook_alloc_timeout = g_timeout_add_full (G_PRIORITY_LOW, 250,
-        (GSourceFunc)midori_browser_notebook_alloc_timeout, browser, NULL);
+    midori_browser_notebook_resize (browser, allocation);
 }
 
 static void
@@ -1547,6 +1551,10 @@ _midori_browser_add_tab (MidoriBrowser* browser,
 
     gtk_widget_set_can_focus (view, TRUE);
     tab_label = midori_view_get_proxy_tab_label (MIDORI_VIEW (view));
+    /* Don't resize empty bin, which is used for thumbnail tabs */
+    if (GTK_IS_BIN (tab_label) && gtk_bin_get_child (GTK_BIN (tab_label))
+     && !katze_object_get_boolean (view, "minimized"))
+        gtk_widget_set_size_request (tab_label, browser->last_tab_size, -1);
     item = midori_view_get_proxy_item (MIDORI_VIEW (view));
     katze_array_add_item (browser->proxy_array, item);
 
