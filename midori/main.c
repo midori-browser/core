@@ -2177,6 +2177,11 @@ main (int    argc,
                           "strip-referer", TRUE, NULL);
             midori_browser_set_action_visible (browser, "Tools", FALSE);
             midori_browser_set_action_visible (browser, "ClearPrivateData", FALSE);
+            #if GTK_CHECK_VERSION (2, 22, 0)
+            g_object_set (gtk_widget_get_settings (GTK_WIDGET (browser)),
+                          "gtk-application-prefer-dark-theme", TRUE,
+                          NULL);
+            #endif
         }
 
         if (private || !config)
