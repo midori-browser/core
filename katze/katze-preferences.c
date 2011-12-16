@@ -102,6 +102,14 @@ katze_preferences_init (KatzePreferences* preferences)
     #if !HAVE_OSX
     gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         GTK_STOCK_HELP, GTK_RESPONSE_HELP,
+        NULL);
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    gtk_style_context_add_class (gtk_widget_get_style_context (
+        gtk_dialog_get_widget_for_response (GTK_DIALOG (preferences),
+            GTK_RESPONSE_HELP)), "help_button");
+    #endif
+
+    gtk_dialog_add_buttons (GTK_DIALOG (preferences),
         #if HAVE_HILDON
         GTK_STOCK_SAVE, GTK_RESPONSE_APPLY,
         #else
