@@ -3929,7 +3929,7 @@ midori_view_set_uri (MidoriView*  view,
                     "vertical-align:top;width:25%;margin-right:1%\"");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i],
-                       " style=\"color:silver;background-color:black\"");
+                       " style=\"-webkit-appearance:none !important\"");
                 g_string_append (demo, "</div>");
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_string_free (demo, FALSE);
