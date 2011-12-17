@@ -3889,6 +3889,51 @@ midori_view_set_uri (MidoriView*  view,
                     title, title, view->uri);
                 g_free (title);
             }
+            else if (!strcmp (uri, "about:widgets"))
+            {
+                static const gchar* widgets[] = {
+                    "<input value=\"demo\"%s>",
+                    "<p><input type=\"password\" value=\"demo\"%s>",
+                    "<p><input type=\"checkbox\" value=\"demo\"%s> demo",
+                    "<p><input type=\"radio\" value=\"demo\"%s> demo",
+                    "<p><select%s><option>foo bar</option><option selected>spam eggs</option>",
+                    "<p><input type=\"file\"%s>",
+                    "<input type=\"button\" value=\"demo\"%s>",
+                    "<p><input type=\"email\" value=\"user@localhost.com\"%s>",
+                    "<input type=\"url\" value=\"http://www.example.com\"%s>",
+                    "<input type=\"tel\" value=\"+1 234 567 890\" pattern=\"^[0+][1-9 /-]*$\"%s>",
+                    "<input type=\"number\" min=1 max=9 step=1 value=\"4\"%s>",
+                    "<input type=\"range\" min=1 max=9 step=1 value=\"4\"%s>",
+                    "<input type=\"date\" min=1990-01-01 max=2010-01-01%s>",
+                    "<input type=\"search\" placeholder=\"demo\"%s>",
+                    "<textarea%s>Lorem ipsum doloret sit amet...</textarea>",
+                    "<input type=\"color\" value=\"#d1eeb9\"%s>",
+                    "<progress min=1 max=9 value=4 %s>",
+                    "<keygen type=\"rsa\" challenge=\"235ldahlae983dadfar\"%s>"
+                    "<input type=\"reset\"%s>",
+                    "<input type=\"submit\"%s>",
+                };
+                guint i;
+                GString* demo = g_string_new ("<html><head><title>");
+                g_string_append_printf (demo,
+                    "%s</title></head><body><h1>%s</h1>", uri, uri);
+                g_string_append (demo, "<div style=\"display:inline-block;"
+                    "vertical-align:top;width:25%;margin-right:1%\"");
+                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
+                    g_string_append_printf (demo, widgets[i], "");
+                g_string_append (demo, "</div><div style=\"display:inline-block;"
+                    "vertical-align:top;width:25%;margin-right:1%\"");
+                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
+                    g_string_append_printf (demo, widgets[i], " disabled");
+                g_string_append (demo, "</div><div style=\"display:inline-block;"
+                    "vertical-align:top;width:25%;margin-right:1%\"");
+                for (i = 0; i < G_N_ELEMENTS (widgets); i++)
+                    g_string_append_printf (demo, widgets[i],
+                       " style=\"color:silver;background-color:black\"");
+                g_string_append (demo, "</div>");
+                katze_assign (view->uri, g_strdup (uri));
+                data = g_string_free (demo, FALSE);
+            }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
                 gchar* arguments = g_strjoinv (" ", sokoke_get_argv (NULL));
