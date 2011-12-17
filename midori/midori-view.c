@@ -3914,22 +3914,22 @@ midori_view_set_uri (MidoriView*  view,
                     "<input type=\"submit\"%s>",
                 };
                 guint i;
-                GString* demo = g_string_new ("<html><head><title>");
+                GString* demo = g_string_new ("<html><head><style>"
+                    ".fallback, .fallback::-webkit-file-upload-button { "
+                    "-webkit-appearance: none !important }"
+                    ".column { display:inline-block; vertical-align:top;"
+                    "width:25%;margin-right:1% }</style><title>");
                 g_string_append_printf (demo,
                     "%s</title></head><body><h1>%s</h1>", uri, uri);
-                g_string_append (demo, "<div style=\"display:inline-block;"
-                    "vertical-align:top;width:25%;margin-right:1%\"");
+                g_string_append (demo, "<div class=\"column\"");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i], "");
-                g_string_append (demo, "</div><div style=\"display:inline-block;"
-                    "vertical-align:top;width:25%;margin-right:1%\"");
+                g_string_append (demo, "</div><div class=\"column\"");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i], " disabled");
-                g_string_append (demo, "</div><div style=\"display:inline-block;"
-                    "vertical-align:top;width:25%;margin-right:1%\"");
+                g_string_append (demo, "</div><div class=\"column\"");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
-                    g_string_append_printf (demo, widgets[i],
-                       " style=\"-webkit-appearance:none !important\"");
+                    g_string_append_printf (demo, widgets[i], " class=\"fallback\"");
                 g_string_append (demo, "</div>");
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_string_free (demo, FALSE);
