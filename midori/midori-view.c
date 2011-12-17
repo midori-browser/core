@@ -3908,9 +3908,9 @@ midori_view_set_uri (MidoriView*  view,
                     "<input type=\"search\" placeholder=\"demo\"%s>",
                     "<textarea%s>Lorem ipsum doloret sit amet...</textarea>",
                     "<input type=\"color\" value=\"#d1eeb9\"%s>",
-                    "<progress min=1 max=9 value=4 %s>",
-                    "<keygen type=\"rsa\" challenge=\"235ldahlae983dadfar\"%s>"
-                    "<input type=\"reset\"%s>",
+                    "<progress min=1 max=9 value=4 %s></progress>",
+                    "<keygen type=\"rsa\" challenge=\"235ldahlae983dadfar\"%s>",
+                    "<p><input type=\"reset\"%s>",
                     "<input type=\"submit\"%s>",
                 };
                 guint i;
