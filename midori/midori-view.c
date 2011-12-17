@@ -703,6 +703,7 @@ midori_view_mime_icon (MidoriView*   view,
         return FALSE;
     }
 
+    g_object_ref (icon);
     midori_view_apply_icon (view, icon, icon_name);
     g_free (icon_name);
     return TRUE;
@@ -818,11 +819,17 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
                 g_warning ("Error writing to file %s "
                            "in  katze_net_icon_transfer_cb()", priv->icon_file);
             }
+            pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
         }
-        pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
+        else
+            pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
                             request->length, request->mime_type, NULL);
+
+        if (pixbuf)
+            g_object_ref (pixbuf);
+
         g_hash_table_insert (priv->view->memory,
-                             g_strdup (priv->icon_uri), g_object_ref (pixbuf));
+                g_strdup (priv->icon_file), pixbuf);
     }
 
     if (!pixbuf)
@@ -835,8 +842,10 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     settings = gtk_widget_get_settings (priv->view->web_view);
     gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height, GDK_INTERP_BILINEAR);
+
     g_object_unref (pixbuf);
 
+    katze_assign (priv->view->icon_uri, g_strdup (priv->icon_uri));
     midori_view_update_icon (priv->view, pixbuf_scaled);
     katze_net_icon_priv_free (priv);
 }
@@ -854,7 +863,8 @@ _midori_web_view_load_icon (MidoriView* view)
 
     if (midori_uri_is_http (view->icon_uri) || midori_uri_is_http (view->uri))
     {
-        if (!view->icon_uri)
+        gchar* icon_uri = g_strdup (view->icon_uri);
+        if (!icon_uri)
         {
             guint i = 8;
             while (view->uri[i] != '\0' && view->uri[i] != '/')
@@ -862,22 +872,28 @@ _midori_web_view_load_icon (MidoriView* view)
             if (view->uri[i] == '/')
             {
                 gchar* path = g_strndup (view->uri, i);
-                view->icon_uri = g_strdup_printf ("%s/favicon.ico", path);
+                icon_uri = g_strdup_printf ("%s/favicon.ico", path);
                 g_free (path);
             }
             else
-                view->icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
+                icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
         }
 
-        if ((pixbuf = g_hash_table_lookup (view->memory, view->icon_uri)))
-            goto process_pixbuf;
-
-        icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons");
-        if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
+        icon_file = katze_net_get_cached_path (NULL, icon_uri, "icons");
+        if (g_hash_table_lookup_extended (view->memory,
+                                          icon_file, NULL, (gpointer)&pixbuf))
         {
-            g_hash_table_insert (view->memory,
-                                 g_strdup (view->icon_uri), g_object_ref (pixbuf));
             g_free (icon_file);
+            if (pixbuf)
+            {
+                g_object_ref (pixbuf);
+                katze_assign (view->icon_uri, icon_uri);
+            }
+        }
+        else if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
+        {
+            g_free (icon_file);
+            katze_assign (view->icon_uri, icon_uri);
         }
         else if (!view->special)
         {
@@ -885,16 +901,15 @@ _midori_web_view_load_icon (MidoriView* view)
 
             priv = g_slice_new (KatzeNetIconPriv);
             priv->icon_file = icon_file;
-            priv->icon_uri = g_strdup (view->icon_uri);
+            priv->icon_uri = icon_uri;
             priv->view = view;
 
-            katze_net_load_uri (NULL, priv->icon_uri,
+            katze_net_load_uri (NULL, icon_uri,
                 (KatzeNetStatusCb)katze_net_icon_status_cb,
                 (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
         }
     }
 
-process_pixbuf:
     if (pixbuf)
     {
         settings = gtk_widget_get_settings (view->web_view);
