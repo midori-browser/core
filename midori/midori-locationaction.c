@@ -763,6 +763,30 @@ midori_location_action_create_tool_item (GtkAction* action)
     gtk_widget_show (entry);
     gtk_container_add (GTK_CONTAINER (alignment), entry);
 
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    {
+    static const gchar default_style[] =
+        ".security_unknown {\n"
+        "background-image: none;\n"
+        "background-color: #ef7070;\n"
+        "color: #000;\n"
+        "}\n"
+        ".security_trusted {\n"
+        "background-image: none;\n"
+        "background-color: #d1eeb9;\n"
+        "color: #000;\n"
+        "}\n";
+    GtkCssProvider* css_provider;
+    GtkStyleContext* context;
+
+    css_provider = gtk_css_provider_new ();
+    context = gtk_widget_get_style_context (entry);
+    gtk_css_provider_load_from_data (css_provider, default_style, -1, NULL);
+    gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (css_provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+    }
+    #endif
+
     return toolitem;
 }
 
@@ -1677,13 +1701,22 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
 
         {
         #if GTK_CHECK_VERSION (3, 0, 0)
-        GdkRGBA color = { 0 };
-        if (bg_color) gdk_rgba_parse (&color, bg_color);
-        gtk_widget_override_background_color (entry,
-            GTK_STATE_FLAG_NORMAL, bg_color ? &color : NULL);
-        if (fg_color) gdk_rgba_parse (&color, fg_color);
-        gtk_widget_override_color (entry,
-            GTK_STATE_FLAG_NORMAL, fg_color ? &color : NULL);
+        GtkStyleContext* context = gtk_widget_get_style_context (entry);
+        if (hint == MIDORI_SECURITY_UNKNOWN)
+        {
+            gtk_style_context_add_class (context, "security_unknown");
+            gtk_style_context_remove_class (context, "security_trusted");
+        }
+        else if (hint == MIDORI_SECURITY_TRUSTED)
+        {
+            gtk_style_context_add_class (context, "security_trusted");
+            gtk_style_context_remove_class (context, "security_unknown");
+        }
+        else if (hint == MIDORI_SECURITY_NONE)
+        {
+            gtk_style_context_remove_class (context, "security_unknown");
+            gtk_style_context_remove_class (context, "security_trusted");
+        }
         #else
         GdkColor color = { 0 };
         if (bg_color) gdk_color_parse (bg_color, &color);
