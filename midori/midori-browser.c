@@ -3476,6 +3476,7 @@ _action_fullscreen_activate (GtkAction*     action,
         gtk_widget_hide (browser->navigationbar);
         gtk_widget_hide (browser->statusbar);
         gtk_notebook_set_show_tabs (GTK_NOTEBOOK (browser->notebook), FALSE);
+        gtk_notebook_set_show_border (GTK_NOTEBOOK (browser->notebook), FALSE);
 
         gtk_window_fullscreen (GTK_WINDOW (browser));
     }
