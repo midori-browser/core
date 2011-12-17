@@ -3433,6 +3433,8 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
         width = gdk_screen_get_width (screen) / 1.7;
         height = gdk_screen_get_height (screen) / 1.7;
         gtk_window_set_default_size (GTK_WINDOW (window), width, height);
+        /* 700x100 is the approximate useful minimum dimensions */
+        gtk_widget_set_size_request (inspector_view, 700, 100);
     }
 
     /* Attempt to make a gray version of the icon on the fly */
