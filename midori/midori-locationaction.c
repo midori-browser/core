@@ -1670,7 +1670,10 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             bg_color = "#ef7070";
             fg_color = "#000";
             #if !HAVE_HILDON
-            if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
+            if (gtk_icon_theme_has_icon (icon_theme, "channel-insecure-symbolic"))
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
+                    GTK_ICON_ENTRY_SECONDARY, "channel-insecure-symbolic");
+            else if (gtk_icon_theme_has_icon (icon_theme, "lock-insecure"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, "lock-insecure");
             else
@@ -1685,7 +1688,10 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
             bg_color = "#d1eeb9";
             fg_color = "#000";
             #if !HAVE_HILDON
-            if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
+            if (gtk_icon_theme_has_icon (icon_theme, "channel-secure-symbolic"))
+                gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
+                    GTK_ICON_ENTRY_SECONDARY, "channel-secure-symbolic");
+            else if (gtk_icon_theme_has_icon (icon_theme, "lock-secure"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
                     GTK_ICON_ENTRY_SECONDARY, "lock-secure");
             else
