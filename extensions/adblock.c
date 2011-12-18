@@ -39,9 +39,8 @@ static GHashTable* pattern;
 static GHashTable* keys;
 static GHashTable* optslist;
 static GHashTable* urlcache;
+static GHashTable* blockcssprivate;
 static GString* blockcss;
-static GString* blockcssprivate;
-static gchar* blockscript = NULL;
 #ifdef G_ENABLE_DEBUG
 static guint debug;
 #endif
@@ -54,37 +53,77 @@ adblock_reload_rules (MidoriExtension* extension,
                       gboolean         custom_only);
 
 static gchar*
-adblock_build_js (const gchar* private)
+adblock_build_js (const gchar* uri)
 {
-    return g_strdup_printf (
+    const gchar* domain;
+    const gchar* block;
+    GString* subdomain;
+    GString* code;
+    int cnt = 0, blockscnt = 0;
+    gchar** subdomains;
+    SoupURI* suri;
+
+    code = g_string_new (
         "window.addEventListener ('DOMContentLoaded',"
         "function () {"
         "   if (document.getElementById('madblock'))"
         "       return;"
-            // Get just domain name from URL
-        "   var URL = location.href.match(/:\\/\\/(.[^/]+)/)[1];"
-        "   var sites = new Array(); %s;"
-        "   var public = '.madblockplaceholder ';"
-            // Split domain into subdomain parts
-        "   var subdomains = URL.split ('.');"
-        "   var hostname = subdomains [subdomains.length - 1];"
-        "   var i = subdomains.length - 2;"
-            // Check if any of subdomains do have blocking rules
-        "   while (i >= 0) {"
-        "       hostname = subdomains [i] + '.' + hostname;"
-        "       if (sites [hostname])"
-        "           public += ', ' + sites [hostname];"
-        "       i--;"
-        "   }"
-        "   public += ' {display: none !important}';"
+        "   public = '");
+
+    suri = soup_uri_new (uri);
+    if (!suri)
+        return NULL;
+
+    domain = soup_uri_get_host (suri);
+    subdomains = g_strsplit (domain, ".", -1);
+    if (!subdomains)
+    {
+        soup_uri_free (suri);
+        g_string_free (code, TRUE);
+        return NULL;
+    }
+
+    while (subdomains[cnt] != NULL)
+        cnt++;
+    cnt--;
+
+    subdomain = g_string_new (subdomains [cnt]);
+    g_string_prepend_c (subdomain, '.');
+    cnt--;
+    while  (cnt >= 0)
+    {
+        g_string_prepend (subdomain, subdomains[cnt]);
+        /* g_debug ("checking %s", subdomain->str); */
+        if ((block = g_hash_table_lookup (blockcssprivate, subdomain->str)))
+        {
+            /* g_debug ("found"); */
+            g_string_append (code, block);
+            g_string_append_c (code, ',');
+            blockscnt++;
+        }
+        g_string_prepend_c (subdomain, '.');
+        cnt--;
+    }
+    g_string_free (subdomain, TRUE);
+    g_strfreev (subdomains);
+    soup_uri_free (suri);
+
+    if (blockscnt == 0)
+    {
+        g_string_free (code, TRUE);
+        return NULL;
+    }
+
+    g_string_append (code,
+        "   zz-non-existent {display: none !important}';"
         "   var mystyle = document.createElement('style');"
         "   mystyle.setAttribute('type', 'text/css');"
         "   mystyle.setAttribute('id', 'madblock');"
         "   mystyle.appendChild(document.createTextNode(public));"
         "   var head = document.getElementsByTagName('head')[0];"
         "   if (head) head.appendChild(mystyle);"
-        "}, true);",
-        private);
+        "}, true);");
+    return g_string_free (code, FALSE);
 }
 
 static GString*
@@ -106,12 +145,13 @@ adblock_init_db ()
     urlcache = g_hash_table_new_full (g_str_hash, g_str_equal,
                    (GDestroyNotify)g_free,
                    (GDestroyNotify)g_free);
+    blockcssprivate = g_hash_table_new_full (g_str_hash, g_str_equal,
+                   (GDestroyNotify)g_free,
+                   (GDestroyNotify)g_free);
+
     if (blockcss && blockcss->len > 0)
         g_string_free (blockcss, TRUE);
-    if (blockcssprivate && blockcssprivate->len > 0)
-        g_string_free (blockcssprivate, TRUE);
     blockcss = g_string_new ("z-non-exist");
-    blockcssprivate = g_string_new ("");
 }
 
 static void
@@ -134,7 +174,6 @@ adblock_download_notify_status_cb (WebKitDownload*  download,
     settings = katze_object_get_object (app, "settings");
     g_string_append (blockcss, " {display: none !important}\n");
     midori_web_settings_add_style (settings, "adblock-blockcss", blockcss->str);
-    katze_assign (blockscript, adblock_build_js (blockcssprivate->str));
     g_object_unref (settings);
 }
 
@@ -174,7 +213,9 @@ adblock_reload_rules (MidoriExtension* extension,
     MidoriApp* app = midori_extension_get_app (extension);
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 
+    /* g_test_timer_start (); */
     adblock_init_db ();
+    /* g_debug ("match: %f%s", g_test_timer_elapsed (), "seconds"); */
 
     custom_list = g_build_filename (midori_extension_get_config_dir (extension),
                                     CUSTOM_LIST_NAME, NULL);
@@ -215,7 +256,6 @@ adblock_reload_rules (MidoriExtension* extension,
     g_strfreev (filters);
     g_string_append (blockcss, " {display: none !important}\n");
 
-    katze_assign (blockscript, adblock_build_js (blockcssprivate->str));
     midori_web_settings_add_style (settings, "adblock-blockcss", blockcss->str);
     g_object_unref (settings);
 }
@@ -622,7 +662,9 @@ adblock_check_rule (GRegex*      regex,
             return FALSE;
     }
     /* TODO: Domain opt check */
+    #ifdef G_ENABLE_DEBUG
     adblock_debug ("blocked by pattern regexp=%s -- %s", g_regex_get_pattern (regex), req_uri);
+    #endif
     return TRUE;
 }
 
@@ -932,13 +974,19 @@ adblock_window_object_cleared_cb (WebKitWebView*  web_view,
                                   JSObjectRef     js_window)
 {
     const char *page_uri;
+    gchar* script;
 
     page_uri = webkit_web_frame_get_uri (web_frame);
     /* Don't add adblock css into speeddial and about: pages */
     if (!midori_uri_is_http (page_uri))
         return;
 
-    g_free (sokoke_js_script_eval (js_context, blockscript, NULL));
+    script = adblock_build_js (page_uri);
+    if (!script)
+        return;
+
+    g_free (sokoke_js_script_eval (js_context, script, NULL));
+    g_free (script);
 }
 
 static void
@@ -1089,7 +1137,9 @@ adblock_compile_regexp (GString* gpatt,
             if (!g_regex_match_simple ("[\\*]", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
                 !g_hash_table_lookup (keys, sig))
             {
+                #ifdef G_ENABLE_DEBUG
                 adblock_debug ("sig: %s %s", sig, patt);
+                #endif
                 g_hash_table_insert (keys, sig, regex);
                 g_hash_table_insert (optslist, sig, g_strdup (opts));
                 signature_count++;
@@ -1099,7 +1149,9 @@ adblock_compile_regexp (GString* gpatt,
                 if (g_regex_match_simple ("^\\*", sig, G_REGEX_UNGREEDY, G_REGEX_MATCH_NOTEMPTY) &&
                     !g_hash_table_lookup (pattern, patt))
                 {
+                    #ifdef G_ENABLE_DEBUG
                     adblock_debug ("patt2: %s %s", sig, patt);
+                    #endif
                     g_hash_table_insert (pattern, patt, regex);
                     g_hash_table_insert (optslist, patt, g_strdup (opts));
                 }
@@ -1115,7 +1167,9 @@ adblock_compile_regexp (GString* gpatt,
     }
     else
     {
+        #ifdef G_ENABLE_DEBUG
         adblock_debug ("patt: %s%s", patt, "");
+        #endif
         /* Pattern is a regexp chars */
         g_hash_table_insert (pattern, patt, regex);
         g_hash_table_insert (optslist, patt, g_strdup (opts));
@@ -1170,7 +1224,9 @@ adblock_add_url_pattern (gchar* prefix,
 
     format_patt = adblock_fixup_regexp (prefix, patt);
 
+    #ifdef G_ENABLE_DEBUG
     adblock_debug ("got: %s opts %s", format_patt->str, opts);
+    #endif
     should_free = adblock_compile_regexp (format_patt, opts);
 
     if (data[1] && data[2])
@@ -1198,6 +1254,22 @@ adblock_frame_add (gchar* line)
     }
     g_string_append (blockcss, separator);
     g_string_append (blockcss, line);
+}
+
+static inline void
+adblock_update_css_hash (gchar* domain,
+                         gchar* value)
+{
+    const gchar* olddata;
+    gchar* newdata;
+
+    if ((olddata = g_hash_table_lookup (blockcssprivate, domain)))
+    {
+        newdata = g_strconcat (olddata, " , ", value, NULL);
+        g_hash_table_replace (blockcssprivate, g_strdup (domain), newdata);
+    }
+    else
+        g_hash_table_insert (blockcssprivate, g_strdup (domain), g_strdup (value));
 }
 
 static inline void
@@ -1234,15 +1306,13 @@ adblock_frame_add_private (const gchar* line,
             /* strip ~ from domain */
             if (domain[0] == '~')
                 domain++;
-            g_string_append_printf (blockcssprivate, ";sites['%s']+=',%s'",
-                g_strstrip (domain), data[1]);
+            adblock_update_css_hash (g_strstrip (domain), data[1]);
         }
         g_strfreev (domains);
     }
     else
     {
-        g_string_append_printf (blockcssprivate, ";sites['%s']+=',%s'",
-            data[0], data[1]);
+        adblock_update_css_hash (data[0], data[1]);
     }
     g_strfreev (data);
 }
@@ -1311,13 +1381,16 @@ adblock_parse_file (gchar* path)
     FILE* file;
     gchar line[2000];
 
+    /* G_ENABLE_DEBUG g_test_timer_start (); */
     if ((file = g_fopen (path, "r")))
     {
         while (fgets (line, 2000, file))
             adblock_parse_line (line);
         fclose (file);
+        /* g_debug ("match: %f%s %s", g_test_timer_elapsed (), "seconds", path); */
         return TRUE;
     }
+    /* g_debug ("match: %f%s %s", g_test_timer_elapsed (), "seconds", path); */
     return FALSE;
 }
 
@@ -1360,14 +1433,13 @@ adblock_deactivate_cb (MidoriExtension* extension,
 
     if (blockcss)
         g_string_free (blockcss, TRUE);
-    if (blockcssprivate)
-        g_string_free (blockcssprivate, TRUE);
 
     midori_web_settings_remove_style (settings, "adblock-blockcss");
-    blockcssprivate = blockcss = NULL;
+    blockcss = NULL;
     g_hash_table_destroy (pattern);
     g_hash_table_destroy (optslist);
     g_hash_table_destroy (urlcache);
+    g_hash_table_destroy (blockcssprivate);
     g_object_unref (settings);
 }
 
