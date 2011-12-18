@@ -3849,6 +3849,7 @@ midori_view_set_uri (MidoriView*  view,
 
             katze_assign (view->uri, NULL);
             katze_assign (view->mime_type, g_strdup ("text/html"));
+            katze_item_set_meta_integer (view->item, "delay", -1);
 
             if (speeddial_markup == NULL)
                 speeddial_markup = prepare_speed_dial_html (view, TRUE);
@@ -4007,6 +4008,7 @@ midori_view_set_uri (MidoriView*  view,
             webkit_web_view_load_html_string (
                 WEBKIT_WEB_VIEW (view->web_view), data, view->uri);
             g_free (data);
+            katze_item_set_meta_integer (view->item, "delay", -1);
             if (g_strcmp0 (view->item->uri, view->uri))
                 katze_item_set_uri (view->item, view->uri);
             g_object_notify (G_OBJECT (view), "uri");
