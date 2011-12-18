@@ -5602,7 +5602,7 @@ midori_view_speed_dial_save (MidoriView*  view,
     action = parts[0];
 
     if (g_str_equal (action, "add") || g_str_equal (action, "rename")
-    ||  g_str_equal (action, "delete"))
+    ||  g_str_equal (action, "delete") || g_str_equal (action, "swap"))
     {
         gchar* tmp = g_strdup (parts[1] + 1);
         guint slot_id = atoi (tmp);
@@ -5632,6 +5632,30 @@ midori_view_speed_dial_save (MidoriView*  view,
             gchar* title = g_strdup (msg + offset);
             g_key_file_set_string (key_file, dial_id, "title", title);
             g_free (title);
+        }
+        else if (g_str_equal (action, "swap"))
+        {
+            gchar* tmp1 = g_strdup (parts[2] + 1);
+            guint slot2_id = atoi (tmp1);
+            gchar* dial2_id = g_strdup_printf ("Dial %d", slot2_id);
+            gchar* uri, *uri2, *title, *title2;
+            g_free (tmp1);
+
+            uri = g_key_file_get_string (key_file, dial_id, "uri", NULL);
+            title = g_key_file_get_string (key_file, dial_id, "title", NULL);
+            uri2 = g_key_file_get_string (key_file, dial2_id, "uri", NULL);
+            title2 = g_key_file_get_string (key_file, dial2_id, "title", NULL);
+
+            g_key_file_set_string (key_file, dial_id, "uri", uri2);
+            g_key_file_set_string (key_file, dial2_id, "uri", uri);
+            g_key_file_set_string (key_file, dial_id, "title", title2);
+            g_key_file_set_string (key_file, dial2_id, "title", title);
+
+            g_free (uri);
+            g_free (uri2);
+            g_free (title);
+            g_free (title2);
+            g_free (dial2_id);
         }
 
         g_free (dial_id);

@@ -196,6 +196,110 @@
         return false;
     }
 
+    var firstNode, secondNode;
+    var cursor;
+    var dial = document.getElementsByClassName("shortcut");
+
+    var click = function (ev) {
+        ev.preventDefault();
+        var ele = ev.target;
+        cursor = ele.style.cursor;
+        ele.style.cursor = 'move';
+
+        var eparent;
+
+        if (ele.nodeName == 'IMG')
+            eparent = ele.parentNode.parentNode.parentNode;
+        if (ele.className == 'title')
+            eparent = ele.parentNode;
+        if (ele.className == 'shortcut')
+            eparent = ele;
+        if (eparent != undefined) {
+            eparent.style.outline = '1px dotted black';
+            eparent.style.backgroundColor = '#eef';
+            firstNode = eparent.id;
+        }
+        out();
+        remove();
+    };
+
+    var remove  = function () {
+        document.RemoveEventListener('click', click, false);
+        document.RemoveEventListener('mouseout', out, false);
+    };
+
+    var up = function (ev) {
+        ele = ev.target;
+        var eparent;
+
+        if (ele.nodeName == 'IMG')
+            eparent = ele.parentNode.parentNode.parentNode;
+        if (ele.className == 'title')
+            eparent = ele.parentNode;
+        if (ele.className == 'shortcut')
+            eparent = ele;
+
+        ele.style.cursor = cursor;
+        secondNode = eparent.id;
+
+        /* ommit just mere clicking the dial */
+        if (firstNode != secondNode && firstNode != undefined)
+            swap();
+    };
+
+    var over = function (ev) {
+        var ele = ev.target;
+        var eparent;
+
+        if (ele.nodeName == 'IMG')
+            eparent = ele.parentNode.parentNode.parentNode;
+        if (ele.className == 'title')
+            eparent = ele.parentNode;
+        if (ele.className == 'shortcut')
+            eparent = ele;
+
+        if (firstNode != undefined)
+        {
+            eparent.style.outline = '1px dotted black';
+            eparent.style.backgroundColor = '#eef';
+            for (var i = 0; i <= dial.length; i++) {
+                if (eparent.id != firstNode.id && dial[i].id != eparent.id) {
+                    dial[i].style.outline = '0px';
+                    dial[i].style.backgroundColor = '#eee';
+                }
+            }
+        }
+        ele.style.cursor = cursor;
+    }
+    var out = function (ev) {
+         var ele = ev.target;
+         var eparent;
+
+        if (ele.nodeName == 'IMG')
+            eparent = ele.parentNode.parentNode.parentNode;
+        if (ele.className == 'title')
+            eparent = ele.parentNode;
+        if (ele.className == 'shortcut')
+            eparent = ele;
+        if (firstNode != undefined) {
+            for (var i = 0; i <= dial.length; i++) {
+                if (eparent.id != firstNode.id && dial[i].id != eparent.id) {
+                    dial[i].style.outline = '0px';
+                    dial[i].backgroundColor = '#eee';
+                }
+            }
+        }
+        ele.style.cursor = cursor;
+    }
+
+    function swap () {
+        console.log ("speed_dial-save-swap " + firstNode + " " + secondNode);
+    };
+
+    document.addEventListener('mousedown', click, false);
+    document.addEventListener('mouseup', up, false);
+    document.addEventListener('mouseover', over, false);
+    document.addEventListener('mouseout', out, false);
     </script>
 </head>
 <body>
