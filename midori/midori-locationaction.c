@@ -518,8 +518,12 @@ midori_location_action_popup_timeout_cb (gpointer data)
         matches++;
         result = sqlite3_step (stmt);
     }
-    sqlite3_reset (stmt);
-    sqlite3_clear_bindings (stmt);
+
+    if (stmt)
+    {
+        sqlite3_reset (stmt);
+        sqlite3_clear_bindings (stmt);
+    }
 
     if (action->search_engines)
     {
