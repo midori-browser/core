@@ -527,17 +527,22 @@ katze_item_set_meta_data_value (KatzeItem*   item,
  * Return value: a string, or %NULL
  *
  * Since: 0.1.8
+ *
+ * Since 0.4.4 "" is treated like %NULL.
  **/
 const gchar*
 katze_item_get_meta_string (KatzeItem*   item,
                             const gchar* key)
 {
+    const gchar* value;
+
     g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
     g_return_val_if_fail (key != NULL, NULL);
 
     if (g_str_has_prefix (key, "midori:"))
         key = &key[7];
-    return g_hash_table_lookup (item->metadata, key);
+    value = g_hash_table_lookup (item->metadata, key);
+    return value && *value ? value : NULL;
 }
 
 /**
