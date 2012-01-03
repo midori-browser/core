@@ -1067,28 +1067,32 @@ katze_array_from_sqlite (sqlite3*     db,
 }
 
 /**
- * midori_array_query:
+ * midori_array_query_recursive:
  * @array: the main bookmark array
  * @fields: comma separated list of fields
  * @condition: condition, like "folder = '%q'"
  * @value: a value to be inserted if @condition contains %q
+ * @recursive: if %TRUE include children
  *
  * Stores the result in a #KatzeArray.
  *
  * Return value: a #KatzeArray on success, %NULL otherwise
  *
- * Since: 0.4.3
+ * Since: 0.4.4
  **/
 KatzeArray*
-midori_array_query (KatzeArray*  bookmarks,
-                    const gchar* fields,
-                    const gchar* condition,
-                    const gchar* value)
+midori_array_query_recursive (KatzeArray*  bookmarks,
+                              const gchar* fields,
+                              const gchar* condition,
+                              const gchar* value,
+                              gboolean     recursive)
 {
     sqlite3* db;
     gchar* sqlcmd;
     char* sqlcmd_value;
     KatzeArray* array;
+    KatzeItem* item;
+    GList* list;
 
     g_return_val_if_fail (KATZE_IS_ARRAY (bookmarks), NULL);
     g_return_val_if_fail (fields, NULL);
@@ -1108,6 +1112,47 @@ midori_array_query (KatzeArray*  bookmarks,
     else
         array = katze_array_from_sqlite (db, sqlcmd);
     g_free (sqlcmd);
+
+    if (!recursive)
+        return array;
+
+    KATZE_ARRAY_FOREACH_ITEM_L (item, array, list)
+    {
+        if (KATZE_ITEM_IS_FOLDER (item))
+        {
+            KatzeArray* subarray = midori_array_query_recursive (bookmarks,
+                fields, "folder='%q'", item->name, TRUE);
+            katze_item_set_name (KATZE_ITEM (subarray), item->name);
+            katze_array_add_item (array, subarray);
+        }
+        else
+            katze_array_add_item (array, item);
+    }
+    g_list_free (list);
     return array;
+}
+
+/**
+ * midori_array_query:
+ * @array: the main bookmark array
+ * @fields: comma separated list of fields
+ * @condition: condition, like "folder = '%q'"
+ * @value: a value to be inserted if @condition contains %q
+ *
+ * Stores the result in a #KatzeArray.
+ *
+ * Return value: a #KatzeArray on success, %NULL otherwise
+ *
+ * Since: 0.4.3
+ *
+ * Deprecated: 0.4.4: Use midori_array_query_recursive() instead.
+ **/
+KatzeArray*
+midori_array_query (KatzeArray*  bookmarks,
+                    const gchar* fields,
+                    const gchar* condition,
+                    const gchar* value)
+{
+    return midori_array_query_recursive (bookmarks, fields, condition, value, FALSE);
 }
 

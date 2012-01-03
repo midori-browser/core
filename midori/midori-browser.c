@@ -178,11 +178,6 @@ midori_bookmarks_import_array_db (sqlite3*    db,
                                   gchar*      folder);
 
 void
-midori_bookmarks_export_array_db (sqlite3*     db,
-                                  KatzeArray*  array,
-                                  const gchar* folder);
-
-void
 midori_browser_open_bookmark (MidoriBrowser* browser,
                               KatzeItem*     item);
 
@@ -4348,7 +4343,6 @@ _action_bookmarks_export_activate (GtkAction*     action,
     const gchar* format;
     gchar* path = NULL;
     GError* error;
-    sqlite3* db;
     KatzeArray* bookmarks;
 
     if (!browser->bookmarks || !gtk_widget_get_visible (GTK_WIDGET (browser)))
@@ -4389,9 +4383,8 @@ wrong_format:
         return;
 
     error = NULL;
-    db = g_object_get_data (G_OBJECT (browser->history), "db");
-    bookmarks = katze_array_new (KATZE_TYPE_ARRAY);
-    midori_bookmarks_export_array_db (db, bookmarks, "");
+    bookmarks = midori_array_query_recursive (browser->bookmarks,
+        "*", "folder='%q'", "", TRUE);
     if (!midori_array_to_file (bookmarks, path, format, &error))
     {
         sokoke_message_dialog (GTK_MESSAGE_ERROR,

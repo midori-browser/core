@@ -37,6 +37,13 @@ midori_array_query     (KatzeArray*  array,
                         const gchar* value);
 
 KatzeArray*
+midori_array_query_recursive (KatzeArray*  array,
+                              const gchar* fields,
+                              const gchar* condition,
+                              const gchar* value,
+                              gboolean     recursive);
+
+KatzeArray*
 katze_array_from_sqlite (sqlite3*     db,
                          const gchar* sqlcmd);
 
