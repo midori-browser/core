@@ -3903,6 +3903,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<p><input type=\"radio\" value=\"demo\"%s> demo",
                     "<p><select%s><option>foo bar</option><option selected>spam eggs</option>",
                     "<p><input type=\"file\"%s>",
+                    "<p><input type=\"file\" multiple%s>",
                     "<input type=\"button\" value=\"demo\"%s>",
                     "<p><input type=\"email\" value=\"user@localhost.com\"%s>",
                     "<input type=\"url\" value=\"http://www.example.com\"%s>",
@@ -3920,7 +3921,8 @@ midori_view_set_uri (MidoriView*  view,
                 };
                 guint i;
                 GString* demo = g_string_new ("<html><head><style>"
-                    ".fallback, .fallback::-webkit-file-upload-button { "
+                    ".fallback::-webkit-slider-thumb,"
+                    ".fallback, .fallback::-webkit-file-upload-button {"
                     "-webkit-appearance: none !important }"
                     ".column { display:inline-block; vertical-align:top;"
                     "width:25%;margin-right:1% }</style><title>");
