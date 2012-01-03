@@ -145,6 +145,7 @@ enum
     PROP_OPEN_TABS_NEXT_TO_CURRENT,
     PROP_OPEN_POPUPS_IN_TABS,
     PROP_FLASH_WINDOW_ON_BG_TABS,
+    PROP_ENABLE_WEBGL,
 
     PROP_AUTO_LOAD_IMAGES,
     PROP_ENABLE_SCRIPTS,
@@ -787,6 +788,16 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("Flash window on background tabs"),
                                      _("Flash the browser window if a new tab was opened in the background"),
                                      FALSE,
+                                     flags));
+    if (g_object_class_find_property (gobject_class, "enable-webgl"))
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_WEBGL,
+                                     g_param_spec_boolean (
+                                     "enable-webgl",
+                                     _("Enable WebGL support"),
+                                     _("Allow websites to use OpenGL rendering"),
+        /* Enable by default for git builds */
+        !g_str_equal (PACKAGE_VERSION, MIDORI_VERSION),
                                      flags));
 
     /**
@@ -1574,6 +1585,10 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_FLASH_WINDOW_ON_BG_TABS:
         web_settings->flash_window_on_bg_tabs = g_value_get_boolean (value);
         break;
+    case PROP_ENABLE_WEBGL:
+        g_object_set (web_settings, "WebKitWebSettings::enable-webgl",
+                      g_value_get_boolean (value), NULL);
+        break;
     case PROP_USER_STYLESHEET_URI:
         {
             gint old_len = web_settings->user_stylesheet_uri_cached
@@ -1858,6 +1873,10 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_FLASH_WINDOW_ON_BG_TABS:
         g_value_set_boolean (value, web_settings->flash_window_on_bg_tabs);
+        break;
+    case PROP_ENABLE_WEBGL:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+            "WebKitWebSettings::enable-webgl"));
         break;
     case PROP_USER_STYLESHEET_URI:
         g_value_take_string (value, katze_object_get_string (web_settings,
