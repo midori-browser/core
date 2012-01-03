@@ -62,6 +62,9 @@ def is_mingw (env):
         return cc.find ('mingw') != -1# or cc.find ('wine') != -1
     return False
 
+def is_win32 (env):
+    return is_mingw (env) or Options.platform == 'win32'
+
 # Compile Win32 res files to (resource) object files
 def rc_file(self, node):
     rctask = self.create_task ('winrc')
@@ -109,7 +112,7 @@ def configure (conf):
     else:
         icons = 'no '
 
-    if is_mingw (conf.env) or Options.platform == 'win32':
+    if is_win32 (conf.env):
         conf.find_program ('windres', var='WINRC')
         conf.env['platform'] = 'win32'
 
@@ -391,7 +394,7 @@ def set_options (opt):
     add_enable_option ('apidocs', 'API documentation', group, disable=True)
 
     group = opt.add_option_group ('Optional features', '')
-    add_enable_option ('unique', 'single instance support', group)
+    add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
     add_enable_option ('libnotify', 'notification support', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)
@@ -452,7 +455,7 @@ def build (bld):
         bld.install_files ('${DOCDIR}/api/', blddir + '/docs/api/*')
 
     for desktop in [APPNAME + '.desktop', APPNAME + '-private.desktop']:
-        if is_mingw (bld.env) or Options.platform == 'win32':
+        if is_win32 (bld.env):
             break
         if bld.env['HAVE_HILDON']:
             appdir = '${MDATADIR}/applications/hildon'
