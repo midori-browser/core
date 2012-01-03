@@ -958,16 +958,19 @@ midori_soup_session_settings_accept_language_cb (SoupSession*       session,
         if (referer && destination && !strstr (referer, destination->host))
         {
             SoupURI* stripped_uri = soup_uri_new (referer);
-            gchar* stripped_referer;
-            soup_uri_set_path (stripped_uri, NULL);
-            soup_uri_set_query (stripped_uri, NULL);
-            stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
-            soup_uri_free (stripped_uri);
-            if (g_getenv ("MIDORI_SOUP_DEBUG"))
-                g_message ("Referer stripped");
-            soup_message_headers_replace (msg->request_headers, "Referer",
-                                          stripped_referer);
-            g_free (stripped_referer);
+            if (stripped_uri != NULL)
+            {
+                gchar* stripped_referer;
+                soup_uri_set_path (stripped_uri, NULL);
+                soup_uri_set_query (stripped_uri, NULL);
+                stripped_referer = soup_uri_to_string (stripped_uri, FALSE);
+                soup_uri_free (stripped_uri);
+                if (g_getenv ("MIDORI_SOUP_DEBUG"))
+                    g_message ("Referer %s stripped to %s", referer, stripped_referer);
+                soup_message_headers_replace (msg->request_headers, "Referer",
+                                              stripped_referer);
+                g_free (stripped_referer);
+            }
         }
     }
 }
