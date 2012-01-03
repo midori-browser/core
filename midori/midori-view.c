@@ -3410,21 +3410,21 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
                                             MidoriView*    view)
 {
     gchar* title;
-    gchar* label;
+    const gchar* label;
     GtkWidget* window;
     GtkWidget* toplevel;
     GdkScreen* screen;
     gint width, height;
+    const gchar* icon_name;
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;
     GdkPixbuf* gray_icon;
 
-    label = g_strdup (midori_view_get_display_title (view));
+    label = midori_view_get_display_title (view);
     title = g_strdup_printf (_("Inspect page - %s"), label);
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title (GTK_WINDOW (window), title);
     g_free (title);
-    g_free (label);
 
     toplevel = gtk_widget_get_toplevel (GTK_WIDGET (view));
     if (gtk_widget_is_toplevel (toplevel))
@@ -3438,9 +3438,10 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     }
 
     /* Attempt to make a gray version of the icon on the fly */
+    icon_name = gtk_window_get_icon_name (GTK_WINDOW (toplevel));
     icon_theme = gtk_icon_theme_get_for_screen (
         gtk_widget_get_screen (GTK_WIDGET (view)));
-    icon = gtk_icon_theme_load_icon (icon_theme, "midori", 32,
+    icon = gtk_icon_theme_load_icon (icon_theme, icon_name, 32,
         GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
     if (icon)
     {
@@ -3454,7 +3455,7 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
         g_object_unref (icon);
     }
     else
-        gtk_window_set_icon_name (GTK_WINDOW (window), "midori");
+        gtk_window_set_icon_name (GTK_WINDOW (window), icon_name);
     #if GTK_CHECK_VERSION (3, 4, 0)
     gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
     #endif
