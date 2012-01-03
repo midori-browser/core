@@ -3455,6 +3455,9 @@ midori_view_web_inspector_construct_window (gpointer       inspector,
     }
     else
         gtk_window_set_icon_name (GTK_WINDOW (window), "midori");
+    #if GTK_CHECK_VERSION (3, 4, 0)
+    gtk_window_set_hide_titlebar_when_maximized (GTK_WINDOW (window), TRUE);
+    #endif
     gtk_container_add (GTK_CONTAINER (window), inspector_view);
     gtk_widget_show_all (window);
 
