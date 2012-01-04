@@ -972,6 +972,7 @@ midori_search_action_get_editor (MidoriSearchAction* search_action,
     #else
         NULL);
     #endif
+    g_object_set_data (G_OBJECT (entry_uri), "allow_%s", (void*)1);
     gtk_entry_set_activates_default (GTK_ENTRY (entry_uri), TRUE);
     if (!new_engine)
         gtk_entry_set_text (GTK_ENTRY (entry_uri)
