@@ -126,6 +126,11 @@
         -webkit-border-bottom-left-radius: 10px;
         visibility: hidden;
     }
+
+    .selected {
+        outline: 1px dotted black;
+        background-color: #eef;
+    }
     </style>
 
     <script type="text/javascript">
@@ -200,23 +205,25 @@
     var cursor;
     var dial = document.getElementsByClassName("shortcut");
 
+    var get_dial_div = function (ele) {
+        var dial_div;
+        if (ele.nodeName == 'IMG')
+            dial_div = ele.parentNode.parentNode.parentNode;
+        if (ele.className == 'title')
+            dial_div = ele.parentNode;
+        if (ele.className.indexOf ('shortcut') != -1)
+            dial_dir = ele;
+        return dial_div;
+    }
     var click = function (ev) {
         ev.preventDefault();
         var ele = ev.target;
         cursor = ele.style.cursor;
         ele.style.cursor = 'move';
 
-        var eparent;
-
-        if (ele.nodeName == 'IMG')
-            eparent = ele.parentNode.parentNode.parentNode;
-        if (ele.className == 'title')
-            eparent = ele.parentNode;
-        if (ele.className == 'shortcut')
-            eparent = ele;
+        var eparent = get_dial_div (ele);
         if (eparent != undefined) {
-            eparent.style.outline = '1px dotted black';
-            eparent.style.backgroundColor = '#eef';
+            eparent.className = 'shortcut selected';
             firstNode = eparent.id;
         }
         out();
@@ -230,14 +237,7 @@
 
     var up = function (ev) {
         ele = ev.target;
-        var eparent;
-
-        if (ele.nodeName == 'IMG')
-            eparent = ele.parentNode.parentNode.parentNode;
-        if (ele.className == 'title')
-            eparent = ele.parentNode;
-        if (ele.className == 'shortcut')
-            eparent = ele;
+        var eparent = get_dial_div (ele);
 
         ele.style.cursor = cursor;
         secondNode = eparent.id;
@@ -249,43 +249,26 @@
 
     var over = function (ev) {
         var ele = ev.target;
-        var eparent;
-
-        if (ele.nodeName == 'IMG')
-            eparent = ele.parentNode.parentNode.parentNode;
-        if (ele.className == 'title')
-            eparent = ele.parentNode;
-        if (ele.className == 'shortcut')
-            eparent = ele;
+        var eparent = get_dial_div (ele);
 
         if (firstNode != undefined)
         {
-            eparent.style.outline = '1px dotted black';
-            eparent.style.backgroundColor = '#eef';
+            eparent.className = 'shortcut selected';
             for (var i = 0; i <= dial.length; i++) {
                 if (eparent.id != firstNode.id && dial[i].id != eparent.id) {
-                    dial[i].style.outline = '0px';
-                    dial[i].style.backgroundColor = '#eee';
+                    dial[i].className = 'shortcut';
                 }
             }
         }
         ele.style.cursor = cursor;
     }
     var out = function (ev) {
-         var ele = ev.target;
-         var eparent;
-
-        if (ele.nodeName == 'IMG')
-            eparent = ele.parentNode.parentNode.parentNode;
-        if (ele.className == 'title')
-            eparent = ele.parentNode;
-        if (ele.className == 'shortcut')
-            eparent = ele;
+        var ele = ev.target;
+        var eparent = get_dial_div (ev);
         if (firstNode != undefined) {
             for (var i = 0; i <= dial.length; i++) {
                 if (eparent.id != firstNode.id && dial[i].id != eparent.id) {
-                    dial[i].style.outline = '0px';
-                    dial[i].backgroundColor = '#eee';
+                    dial[i].className = 'shortcut';
                 }
             }
         }
