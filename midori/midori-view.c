@@ -1679,6 +1679,11 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 1:
         if (!link_uri)
             return FALSE;
+
+        /* Always open Javascript links in current tab */
+        if (g_str_has_prefix (link_uri, "javascript:"))
+            return FALSE;
+
         if (MIDORI_MOD_NEW_TAB (event->state))
         {
             /* Open link in new tab */
@@ -1698,6 +1703,10 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 2:
         if (link_uri)
         {
+            /* Always open Javascript links in current tab */
+            if (g_str_has_prefix (link_uri, "javascript:"))
+                return FALSE;
+
             /* Open link in new tab */
             background = view->open_tabs_in_the_background;
             if (MIDORI_MOD_BACKGROUND (event->state))
@@ -2350,6 +2359,9 @@ midori_view_populate_popup (MidoriView* view,
     }
     if (view->link_uri)
     {
+        /* No opening in tab, window or app for Javascript links */
+        if (!g_str_has_prefix (view->link_uri, "javascript:"))
+        {
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Tab"), STOCK_TAB_NEW,
             G_CALLBACK (midori_web_view_menu_new_tab_activate_cb), widget);
@@ -2364,12 +2376,19 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link as Web A_pplication"), NULL,
             G_CALLBACK (midori_web_view_menu_web_app_activate_cb), widget);
+        }
+
         midori_view_insert_menu_item (menu_shell, -1,
             _("Copy Link de_stination"), NULL,
             G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
+
+        /* No saving for Javascript links */
+        if (!g_str_has_prefix (view->link_uri, "javascript:"))
+        {
         midori_view_insert_menu_item (menu_shell, -1,
             NULL, GTK_STOCK_SAVE_AS,
             G_CALLBACK (midori_web_view_menu_save_activate_cb), widget);
+        }
     }
 
     if (is_image)
