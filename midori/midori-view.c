@@ -863,8 +863,7 @@ _midori_web_view_load_icon (MidoriView* view)
 
     if (midori_uri_is_http (view->icon_uri) || midori_uri_is_http (view->uri))
     {
-        gchar* icon_uri = g_strdup (view->icon_uri);
-        if (!icon_uri)
+        if (!view->icon_uri)
         {
             guint i = 8;
             while (view->uri[i] != '\0' && view->uri[i] != '/')
@@ -872,28 +871,24 @@ _midori_web_view_load_icon (MidoriView* view)
             if (view->uri[i] == '/')
             {
                 gchar* path = g_strndup (view->uri, i);
-                icon_uri = g_strdup_printf ("%s/favicon.ico", path);
+                view->icon_uri = g_strdup_printf ("%s/favicon.ico", path);
                 g_free (path);
             }
             else
-                icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
+                view->icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
         }
 
-        icon_file = katze_net_get_cached_path (NULL, icon_uri, "icons");
+        icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons");
         if (g_hash_table_lookup_extended (view->memory,
                                           icon_file, NULL, (gpointer)&pixbuf))
         {
             g_free (icon_file);
             if (pixbuf)
-            {
                 g_object_ref (pixbuf);
-                katze_assign (view->icon_uri, icon_uri);
-            }
         }
         else if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
         {
             g_free (icon_file);
-            katze_assign (view->icon_uri, icon_uri);
         }
         else if (!view->special)
         {
@@ -901,10 +896,10 @@ _midori_web_view_load_icon (MidoriView* view)
 
             priv = g_slice_new (KatzeNetIconPriv);
             priv->icon_file = icon_file;
-            priv->icon_uri = icon_uri;
+            priv->icon_uri = g_strdup (view->icon_uri);
             priv->view = view;
 
-            katze_net_load_uri (NULL, icon_uri,
+            katze_net_load_uri (NULL, priv->icon_uri,
                 (KatzeNetStatusCb)katze_net_icon_status_cb,
                 (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
         }
