@@ -1622,6 +1622,13 @@ webkit_web_view_hovering_over_link_cb (WebKitWebView* web_view,
         g_object_set (view, "statusbar-text", link_uri, NULL);
 }
 
+static gboolean
+midori_view_always_same_tab (const gchar* uri)
+{
+    /* No opening in tab, window or app for Javascript or mailto links */
+    return g_str_has_prefix (uri, "javascript:") || midori_uri_is_email (uri);
+}
+
 static void
 midori_view_ensure_link_uri (MidoriView* view,
                              gint        *x,
@@ -1680,8 +1687,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
         if (!link_uri)
             return FALSE;
 
-        /* Always open Javascript links in current tab */
-        if (g_str_has_prefix (link_uri, "javascript:"))
+        if (midori_view_always_same_tab (link_uri))
             return FALSE;
 
         if (MIDORI_MOD_NEW_TAB (event->state))
@@ -1703,8 +1709,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     case 2:
         if (link_uri)
         {
-            /* Always open Javascript links in current tab */
-            if (g_str_has_prefix (link_uri, "javascript:"))
+            if (midori_view_always_same_tab (link_uri))
                 return FALSE;
 
             /* Open link in new tab */
@@ -2359,8 +2364,7 @@ midori_view_populate_popup (MidoriView* view,
     }
     if (view->link_uri)
     {
-        /* No opening in tab, window or app for Javascript links */
-        if (!g_str_has_prefix (view->link_uri, "javascript:"))
+        if (!midori_view_always_same_tab (view->link_uri))
         {
         midori_view_insert_menu_item (menu_shell, -1,
             _("Open Link in New _Tab"), STOCK_TAB_NEW,
@@ -2382,8 +2386,7 @@ midori_view_populate_popup (MidoriView* view,
             _("Copy Link de_stination"), NULL,
             G_CALLBACK (midori_web_view_menu_link_copy_activate_cb), widget);
 
-        /* No saving for Javascript links */
-        if (!g_str_has_prefix (view->link_uri, "javascript:"))
+        if (!midori_view_always_same_tab (view->link_uri))
         {
         midori_view_insert_menu_item (menu_shell, -1,
             NULL, GTK_STOCK_SAVE_AS,
