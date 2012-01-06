@@ -35,12 +35,12 @@
     #define adblock_debug(dmsg, darg1, darg2) /* nothing */
 #endif
 
-static GHashTable* pattern;
-static GHashTable* keys;
-static GHashTable* optslist;
-static GHashTable* urlcache;
-static GHashTable* blockcssprivate;
-static GString* blockcss;
+static GHashTable* pattern = NULL;
+static GHashTable* keys = NULL;
+static GHashTable* optslist = NULL;
+static GHashTable* urlcache = NULL;
+static GHashTable* blockcssprivate = NULL;
+static GString* blockcss = NULL;
 #ifdef G_ENABLE_DEBUG
 static guint debug;
 #endif
@@ -93,10 +93,8 @@ adblock_build_js (const gchar* uri)
     while  (cnt >= 0)
     {
         g_string_prepend (subdomain, subdomains[cnt]);
-        /* g_debug ("checking %s", subdomain->str); */
         if ((block = g_hash_table_lookup (blockcssprivate, subdomain->str)))
         {
-            /* g_debug ("found"); */
             g_string_append (code, block);
             g_string_append_c (code, ',');
             blockscnt++;
@@ -131,6 +129,23 @@ adblock_fixup_regexp (const gchar* prefix,
                       gchar*       src);
 
 static void
+adblock_destroy_db ()
+{
+    if (blockcss)
+        g_string_free (blockcss, TRUE);
+    blockcss = NULL;
+
+    g_hash_table_destroy (pattern);
+    pattern = NULL;
+    g_hash_table_destroy (optslist);
+    optslist = NULL;
+    g_hash_table_destroy (urlcache);
+    urlcache = NULL;
+    g_hash_table_destroy (blockcssprivate);
+    blockcssprivate = NULL;
+}
+
+static void
 adblock_init_db ()
 {
     pattern = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -159,22 +174,9 @@ adblock_download_notify_status_cb (WebKitDownload*  download,
                                    GParamSpec*      pspec,
                                    MidoriExtension* extension)
 {
-    gchar* path;
-    MidoriApp* app;
-    MidoriWebSettings* settings;
-
     if (webkit_download_get_status (download) != WEBKIT_DOWNLOAD_STATUS_FINISHED)
         return;
-
-    path = g_filename_from_uri (webkit_download_get_destination_uri (download), NULL, NULL);
-    adblock_parse_file (path);
-    g_free (path);
-
-    app = midori_extension_get_app (extension);
-    settings = katze_object_get_object (app, "settings");
-    g_string_append (blockcss, " {display: none !important}\n");
-    midori_web_settings_add_style (settings, "adblock-blockcss", blockcss->str);
-    g_object_unref (settings);
+    adblock_reload_rules (extension, FALSE);
 }
 
 static gchar*
@@ -213,9 +215,9 @@ adblock_reload_rules (MidoriExtension* extension,
     MidoriApp* app = midori_extension_get_app (extension);
     MidoriWebSettings* settings = katze_object_get_object (app, "settings");
 
-    /* g_test_timer_start (); */
+    if (pattern)
+        adblock_destroy_db ();
     adblock_init_db ();
-    /* g_debug ("match: %f%s", g_test_timer_elapsed (), "seconds"); */
 
     custom_list = g_build_filename (midori_extension_get_config_dir (extension),
                                     CUSTOM_LIST_NAME, NULL);
@@ -1381,16 +1383,13 @@ adblock_parse_file (gchar* path)
     FILE* file;
     gchar line[2000];
 
-    /* G_ENABLE_DEBUG g_test_timer_start (); */
     if ((file = g_fopen (path, "r")))
     {
         while (fgets (line, 2000, file))
             adblock_parse_line (line);
         fclose (file);
-        /* g_debug ("match: %f%s %s", g_test_timer_elapsed (), "seconds", path); */
         return TRUE;
     }
-    /* g_debug ("match: %f%s %s", g_test_timer_elapsed (), "seconds", path); */
     return FALSE;
 }
 
@@ -1431,15 +1430,8 @@ adblock_deactivate_cb (MidoriExtension* extension,
         browser, adblock_add_tab_cb, extension);
     midori_browser_foreach (browser, (GtkCallback)adblock_deactivate_tabs, browser);
 
-    if (blockcss)
-        g_string_free (blockcss, TRUE);
-
+    adblock_destroy_db ();
     midori_web_settings_remove_style (settings, "adblock-blockcss");
-    blockcss = NULL;
-    g_hash_table_destroy (pattern);
-    g_hash_table_destroy (optslist);
-    g_hash_table_destroy (urlcache);
-    g_hash_table_destroy (blockcssprivate);
     g_object_unref (settings);
 }
 
