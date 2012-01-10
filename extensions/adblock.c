@@ -81,7 +81,6 @@ adblock_build_js (const gchar* uri)
     while (cnt >= 0)
     {
         g_string_prepend (subdomain, subdomains[cnt]);
-        /* g_debug ("processing %s", subdomain->str); */
         if ((style = g_hash_table_lookup (blockcssprivate, subdomain->str)))
         {
             g_string_append (code, style);
@@ -796,11 +795,6 @@ adblock_resource_request_starting_cb (WebKitWebView*         web_view,
     page_uri = webkit_web_view_get_uri (web_view);
     /* Skip checks on about: pages */
     if (midori_uri_is_blank (page_uri))
-        return;
-
-    /* Never filter the main page itself */
-    if (web_frame == webkit_web_view_get_main_frame (web_view)
-     && webkit_web_frame_get_load_status (web_frame) == WEBKIT_LOAD_PROVISIONAL)
         return;
 
     req_uri = webkit_network_request_get_uri (request);
