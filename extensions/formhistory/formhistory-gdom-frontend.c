@@ -116,8 +116,7 @@ finish:
 }
 
 static void
-formhistory_reposition_popup (FormHistoryPriv* priv,
-                              GtkWidget*       widget)
+formhistory_reposition_popup (FormHistoryPriv* priv)
 {
     WebKitDOMDocument* element_document;
     WebKitDOMNodeList* frames;
@@ -127,8 +126,9 @@ formhistory_reposition_popup (FormHistoryPriv* priv,
     glong x = 0, y = 0;
     glong height;
 
+    GtkWidget* toplevel = gtk_widget_get_toplevel (GTK_WIDGET (priv->root));
     /* Position of a root window */
-    window = gtk_widget_get_window (widget);
+    window = gtk_widget_get_window (toplevel);
     gdk_window_get_position (window, &rx, &ry);
 
     /* Postion of webview in root window */
@@ -142,8 +142,13 @@ formhistory_reposition_popup (FormHistoryPriv* priv,
     /* Add height as menu should start under editbox, now on top of it */
     g_object_get (priv->element, "client-height", &height, NULL);
     y += height + 1;
-
     gtk_window_move (GTK_WINDOW (priv->popup),  rx + wx + x, ry +wy + y);
+
+    /* Window configuration */
+    gtk_window_set_screen (GTK_WINDOW (priv->popup),
+                           gtk_widget_get_screen (GTK_WIDGET (priv->root)));
+    /* FIXME: If Midori window is small, popup doesn't show up */
+    gtk_window_set_transient_for (GTK_WINDOW (priv->popup), GTK_WINDOW (toplevel));
     gtk_tree_view_columns_autosize (GTK_TREE_VIEW (priv->treeview));
     /* FIXME: Adjust size according to treeview width and some reasonable height */
     gtk_window_resize (GTK_WINDOW (priv->popup), 50, 80);
@@ -210,13 +215,7 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
 
     if (gtk_widget_get_visible (priv->popup))
         return;
-
-    GtkWidget* toplevel = gtk_widget_get_toplevel (GTK_WIDGET (priv->root));
-    gtk_window_set_screen (GTK_WINDOW (priv->popup),
-                           gtk_widget_get_screen (GTK_WIDGET (priv->root)));
-    /* FIXME: If Midori window is small, popup doesn't show up */
-    gtk_window_set_transient_for (GTK_WINDOW (priv->popup), GTK_WINDOW (toplevel));
-    formhistory_reposition_popup (priv, toplevel);
+    formhistory_reposition_popup (priv);
     gtk_widget_show_all (priv->popup);
     gtk_widget_grab_focus (priv->treeview);
 }
