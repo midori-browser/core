@@ -67,32 +67,25 @@ formhistory_suggestion_selected_cb (GtkWidget*       treeview,
 }
 
 static void
-get_absolute_offset_for_element (WebKitDOMElement* element,
-                                 glong*            x,
-                                 glong*            y,
-                                 gboolean          mainframe)
+get_absolute_offset_for_element (WebKitDOMElement*  element,
+                                 WebKitDOMDocument* element_document,
+                                 WebKitDOMNodeList* frames,
+                                 glong*             x,
+                                 glong*             y,
+                                 gboolean           ismainframe)
 {
     WebKitDOMElement* offset_parent;
-    WebKitDOMDocument* element_document;
-    gint offset_top = 0, offset_left = 0;
-    gboolean ismainframe = FALSE;
-    WebKitDOMNodeList* frames;
-    WebKitDOMDocument* fdoc;
-    int i;
+    gint i, offset_top = 0, offset_left = 0;
 
-    frames = g_object_get_data (G_OBJECT (element), "framelist");
-    element_document = g_object_get_data (G_OBJECT (element), "doc");
     g_object_get (element, "offset-left", &offset_left,
                            "offset-top", &offset_top,
                            "offset-parent", &offset_parent,
                            NULL);
     *x += offset_left;
     *y += offset_top;
-
     /* To avoid deadlock check only first element of the mainframe parent */
-    if (mainframe == TRUE)
+    if (ismainframe == TRUE)
         return;
-
     if (offset_parent)
         goto finish;
 
@@ -101,13 +94,13 @@ get_absolute_offset_for_element (WebKitDOMElement* element,
        and get its offsets */
     for (i = 0; i < webkit_dom_node_list_get_length (frames); i++)
     {
+        WebKitDOMDocument *fdoc;
         WebKitDOMNode *frame = webkit_dom_node_list_item (frames, i);
 
         if (WEBKIT_DOM_IS_HTML_IFRAME_ELEMENT (frame))
             fdoc = webkit_dom_html_iframe_element_get_content_document (WEBKIT_DOM_HTML_IFRAME_ELEMENT (frame));
         else
             fdoc = webkit_dom_html_frame_element_get_content_document (WEBKIT_DOM_HTML_FRAME_ELEMENT (frame));
-
         if (fdoc == element_document)
         {
             offset_parent = WEBKIT_DOM_ELEMENT (frame);
@@ -117,20 +110,17 @@ get_absolute_offset_for_element (WebKitDOMElement* element,
             break;
         }
     }
-    if (!offset_parent)
-        return;
 finish:
-    /* Copy set properties to parents as they dont have them set */
-    /* FIXME: Seems we need to drop them afterwards to save some memory? */
-    g_object_set_data (G_OBJECT (offset_parent), "doc", element_document);
-    g_object_set_data (G_OBJECT (offset_parent), "framelist", frames);
-    get_absolute_offset_for_element (offset_parent, x, y, ismainframe);
+    if (offset_parent)
+        get_absolute_offset_for_element (offset_parent, element_document, frames, x, y, ismainframe);
 }
 
 static void
 formhistory_reposition_popup (FormHistoryPriv* priv,
                               GtkWidget*       widget)
 {
+    WebKitDOMDocument* element_document;
+    WebKitDOMNodeList* frames;
     GdkWindow* window;
     gint rx, ry;
     gint wx, wy;
@@ -146,7 +136,9 @@ formhistory_reposition_popup (FormHistoryPriv* priv,
     gdk_window_get_position (window, &wx, &wy);
 
     /* Position of editbox on the webview */
-    get_absolute_offset_for_element (priv->element, &x, &y, FALSE);
+    frames = g_object_get_data (G_OBJECT (priv->element), "framelist");
+    element_document = g_object_get_data (G_OBJECT (priv->element), "doc");
+    get_absolute_offset_for_element (priv->element, element_document, frames, &x, &y, FALSE);
     /* Add height as menu should start under editbox, now on top of it */
     g_object_get (priv->element, "client-height", &height, NULL);
     y += height + 1;
