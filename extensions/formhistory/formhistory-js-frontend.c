@@ -127,15 +127,6 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
 }
 
 void
-formhistory_suggestions_hide_cb (WebKitDOMElement* element,
-                                 WebKitDOMEvent*   dom_event,
-                                 FormHistoryPriv*  priv)
-{
-    /* Unused in JS frontend */
-    return;
-}
-
-void
 formhistory_private_destroy (FormHistoryPriv *priv)
 {
     if (priv->db)

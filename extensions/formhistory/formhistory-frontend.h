@@ -27,7 +27,7 @@
 typedef struct
 {
     sqlite3* db;
-    #if FORMHISTORY_USE_GDOM
+    #ifdef FORMHISTORY_USE_GDOM
     WebKitDOMElement* element;
     int completion_timeout;
     GtkTreeModel* completion_model;
@@ -55,9 +55,11 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
                                JSContextRef     js_context,
                                MidoriExtension* extension);
 
+#ifdef FORMHISTORY_USE_GDOM
 void
 formhistory_suggestions_hide_cb (WebKitDOMElement* element,
                                  WebKitDOMEvent*   dom_event,
                                  FormHistoryPriv*  priv);
+#endif
 
 #endif
