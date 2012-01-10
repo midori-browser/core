@@ -84,6 +84,9 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
     FormHistoryPriv* priv;
     static sqlite3_stmt* stmt;
     const char* sqlcmd;
+    const unsigned char* key;
+    const unsigned char* value;
+
     gint result, pos;
 
     priv = g_object_get_data (G_OBJECT (extension), "priv");
@@ -111,8 +114,8 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
     while (result == SQLITE_ROW)
     {
         pos++;
-        const unsigned char* value = sqlite3_column_text (stmt, 0);
-        const unsigned char* key = sqlite3_column_text (stmt, 1);
+        value = sqlite3_column_text (stmt, 0);
+        key = sqlite3_column_text (stmt, 1);
         if (value)
         {
             g_string_append_printf (suggestions, " arr[\"%s\"] = [\"%s\"]; ",

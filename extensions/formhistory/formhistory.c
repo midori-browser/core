@@ -52,6 +52,10 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebPolicyDecision*   decision,
                                     MidoriExtension*           extension)
 {
+    FormHistoryPriv* priv;
+    JSContextRef js_context;
+    gchar* value;
+
     /* The script returns form data in the form "field_name|,|value|,|field_type".
        We are handling only input fields with 'text' or 'password' type.
        The field separator is "|||" */
@@ -75,9 +79,9 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
     if (webkit_web_navigation_action_get_reason (action) != WEBKIT_WEB_NAVIGATION_REASON_FORM_SUBMITTED)
         return FALSE;
 
-    FormHistoryPriv* priv = g_object_get_data (G_OBJECT (extension), "priv");
-    JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-    gchar* value = sokoke_js_script_eval (js_context, script, NULL);
+    priv = g_object_get_data (G_OBJECT (extension), "priv");
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    value = sokoke_js_script_eval (js_context, script, NULL);
 
     formhistory_suggestions_hide_cb (NULL, NULL, priv);
     if (value && *value)
@@ -130,8 +134,6 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
                         MidoriView*      view,
                         MidoriExtension* extension)
 {
-    g_return_if_fail (MIDORI_IS_VIEW (view));
-    g_return_if_fail (MIDORI_IS_EXTENSION (extension));
     GtkWidget* web_view = midori_view_get_web_view (view);
 
     g_signal_connect (web_view, "window-object-cleared",
@@ -144,7 +146,6 @@ static void
 formhistory_add_tab_foreach_cb (MidoriView*      view,
                                 MidoriExtension* extension)
 {
-    g_return_if_fail (MIDORI_IS_VIEW (view));
     formhistory_add_tab_cb (NULL, view, extension);
 }
 
@@ -153,9 +154,6 @@ formhistory_app_add_browser_cb (MidoriApp*       app,
                                 MidoriBrowser*   browser,
                                 MidoriExtension* extension)
 {
-    g_return_if_fail (MIDORI_IS_APP (app));
-    g_return_if_fail (MIDORI_IS_BROWSER (browser));
-    g_return_if_fail (MIDORI_IS_EXTENSION (extension));
 
     GtkAccelGroup* acg = gtk_accel_group_new ();
     GtkActionGroup* action_group = midori_browser_get_action_group (browser);
@@ -188,8 +186,6 @@ static void
 formhistory_deactivate_tab (MidoriView*      view,
                             MidoriExtension* extension)
 {
-    g_return_if_fail (MIDORI_IS_VIEW (view));
-    g_return_if_fail (MIDORI_IS_EXTENSION (extension));
     GtkWidget* web_view = midori_view_get_web_view (view);
 
     g_signal_handlers_disconnect_by_func (
