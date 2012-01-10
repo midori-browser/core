@@ -237,6 +237,7 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
     glong key;
     GtkTreePath* path;
     const gchar* keyword;
+    gint matches;
 
     /* FIXME: Priv is still set after module is disabled */
     if (!priv)
@@ -245,17 +246,12 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
     if (priv->completion_timeout > 0)
         g_source_remove (priv->completion_timeout);
 
-    g_object_get (element, "value", &keyword, NULL);
     priv->element = element;
 
     key = webkit_dom_ui_event_get_key_code (WEBKIT_DOM_UI_EVENT (dom_event));
-
     /* Ignore some control chars */
     if (key < 20 && key != 8)
         return;
-
-    gint matches = gtk_tree_model_iter_n_children (priv->completion_model, NULL);
-
     switch (key)
     {
         /* ESC key*/
@@ -276,27 +272,29 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
         case 38:
         /* Down key */
         case 40:
-            if (gtk_widget_get_visible (priv->popup))
-            {
-                if (key == 38)
-                {
-                    if (priv->selection_index == -1)
-                        priv->selection_index = matches - 1;
-                    else
-                        priv->selection_index = MAX (priv->selection_index - 1, 1);
-                }
-                else
-                {
-                    priv->selection_index = MIN (priv->selection_index + 1, matches -1);
-                }
 
-                path = gtk_tree_path_new_from_indices (priv->selection_index, -1);
-                gtk_tree_view_set_cursor (GTK_TREE_VIEW (priv->treeview), path, NULL, FALSE);
-                formhistory_suggestion_set (path, priv);
-                gtk_tree_path_free (path);
+            if (!gtk_widget_get_visible (priv->popup))
+            {
+                formhistory_suggestions_show (priv);
+                return;
+            }
+            matches = gtk_tree_model_iter_n_children (priv->completion_model, NULL);
+            if (key == 38)
+            {
+                if (priv->selection_index == -1)
+                    priv->selection_index = matches - 1;
+                else
+                    priv->selection_index = MAX (priv->selection_index - 1, 1);
             }
             else
-                formhistory_suggestions_show (priv);
+            {
+                priv->selection_index = MIN (priv->selection_index + 1, matches -1);
+            }
+
+            path = gtk_tree_path_new_from_indices (priv->selection_index, -1);
+            gtk_tree_view_set_cursor (GTK_TREE_VIEW (priv->treeview), path, NULL, FALSE);
+            formhistory_suggestion_set (path, priv);
+            gtk_tree_path_free (path);
             return;
             break;
         /* PgUp, PgDn, Ins */
@@ -306,6 +304,7 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
             break;
     }
 
+    g_object_get (element, "value", &keyword, NULL);
     if (!(keyword && *keyword && *keyword != ' '))
     {
         formhistory_suggestions_hide_cb (element, dom_event, priv);
