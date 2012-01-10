@@ -272,16 +272,18 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
             matches = gtk_tree_model_iter_n_children (priv->completion_model, NULL);
             if (key == 38)
             {
-                if (priv->selection_index == -1)
+                if (priv->selection_index <= 0)
                     priv->selection_index = matches - 1;
                 else
-                    priv->selection_index = MAX (priv->selection_index - 1, 1);
+                    priv->selection_index = MAX (priv->selection_index - 1, 0);
             }
             else
             {
-                priv->selection_index = MIN (priv->selection_index + 1, matches -1);
+                if (priv->selection_index == matches - 1)
+                    priv->selection_index = 0;
+                else
+                    priv->selection_index = MIN (priv->selection_index + 1, matches -1);
             }
-
             path = gtk_tree_path_new_from_indices (priv->selection_index, -1);
             gtk_tree_view_set_cursor (GTK_TREE_VIEW (priv->treeview), path, NULL, FALSE);
             formhistory_suggestion_set (path, priv);

@@ -35,7 +35,7 @@ typedef struct
     GtkWidget* popup;
     GtkWidget* root;
     gchar* oldkeyword;
-    guint selection_index;
+    glong selection_index;
     #else
     gchar* jsforms;
     #endif
