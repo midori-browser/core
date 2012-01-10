@@ -148,7 +148,6 @@ formhistory_reposition_popup (FormHistoryPriv* priv)
 
     /* Window configuration */
     gtk_window_set_screen (GTK_WINDOW (priv->popup), gtk_widget_get_screen (view));
-    /* FIXME: If Midori window is small, popup doesn't show up */
     gtk_window_set_transient_for (GTK_WINDOW (priv->popup), GTK_WINDOW (toplevel));
     gtk_tree_view_columns_autosize (GTK_TREE_VIEW (priv->treeview));
     /* FIXME: Adjust size according to treeview width and some reasonable height */
@@ -212,13 +211,12 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
     }
     sqlite3_reset (stmt);
     sqlite3_clear_bindings (stmt);
-    gtk_widget_grab_focus (priv->treeview);
 
-    if (gtk_widget_get_visible (priv->popup))
-        return;
-    formhistory_reposition_popup (priv);
-    gtk_widget_show_all (priv->popup);
-    gtk_widget_grab_focus (priv->treeview);
+    if (!gtk_widget_get_visible (priv->popup))
+    {
+        formhistory_reposition_popup (priv);
+        gtk_widget_show_all (priv->popup);
+    }
 }
 
 static void
