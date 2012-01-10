@@ -722,12 +722,16 @@ midori_app_create_instance (MidoriApp* app)
 
     if (!app->name)
     {
+        #if HAVE_UNIQUE
         const gchar* config = sokoke_set_config_dir (NULL);
         gchar* name_hash;
         name_hash = g_compute_checksum_for_string (G_CHECKSUM_MD5, config, -1);
         app->name = g_strconcat ("midori", "_", name_hash, NULL);
         g_free (name_hash);
         g_object_notify (G_OBJECT (app), "name");
+        #else
+        app->name = g_strdup (PACKAGE_NAME);
+        #endif
     }
 
     if (!(display = gdk_display_get_default ()))
