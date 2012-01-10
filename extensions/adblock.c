@@ -1,6 +1,6 @@
 /*
- Copyright (C) 2009-2010 Christian Dywan <christian@twotoasts.de>
- Copyright (C) 2009 Alexander Butenko <a.butenka@gmail.com>
+ Copyright (C) 2009-2012 Christian Dywan <christian@twotoasts.de>
+ Copyright (C) 2009-2012 Alexander Butenko <a.butenka@gmail.com>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -9,7 +9,6 @@
 
  See the file COPYING for the full license text.
 */
-
 #include <midori/midori.h>
 #include <glib/gstdio.h>
 
@@ -55,13 +54,18 @@ adblock_reload_rules (MidoriExtension* extension,
 static gchar*
 adblock_build_js (const gchar* uri)
 {
-    const gchar* domain;
-    const gchar* block;
+    gchar* domain;
+    const gchar* style;
     GString* subdomain;
     GString* code;
     int cnt = 0, blockscnt = 0;
     gchar** subdomains;
-    SoupURI* suri;
+
+    domain = midori_uri_parse_hostname (uri, NULL);
+    subdomains = g_strsplit (domain, ".", -1);
+    g_free (domain);
+    if (!subdomains)
+        return NULL;
 
     code = g_string_new (
         "window.addEventListener ('DOMContentLoaded',"
@@ -70,32 +74,17 @@ adblock_build_js (const gchar* uri)
         "       return;"
         "   public = '");
 
-    suri = soup_uri_new (uri);
-    if (!suri)
-        return NULL;
-
-    domain = soup_uri_get_host (suri);
-    subdomains = g_strsplit (domain, ".", -1);
-    if (!subdomains)
-    {
-        soup_uri_free (suri);
-        g_string_free (code, TRUE);
-        return NULL;
-    }
-
-    while (subdomains[cnt] != NULL)
-        cnt++;
-    cnt--;
-
+    cnt = g_strv_length (subdomains) - 1;
     subdomain = g_string_new (subdomains [cnt]);
     g_string_prepend_c (subdomain, '.');
     cnt--;
-    while  (cnt >= 0)
+    while (cnt >= 0)
     {
         g_string_prepend (subdomain, subdomains[cnt]);
-        if ((block = g_hash_table_lookup (blockcssprivate, subdomain->str)))
+        /* g_debug ("processing %s", subdomain->str); */
+        if ((style = g_hash_table_lookup (blockcssprivate, subdomain->str)))
         {
-            g_string_append (code, block);
+            g_string_append (code, style);
             g_string_append_c (code, ',');
             blockscnt++;
         }
@@ -104,13 +93,9 @@ adblock_build_js (const gchar* uri)
     }
     g_string_free (subdomain, TRUE);
     g_strfreev (subdomains);
-    soup_uri_free (suri);
 
     if (blockscnt == 0)
-    {
-        g_string_free (code, TRUE);
-        return NULL;
-    }
+        return g_string_free (code, TRUE);
 
     g_string_append (code,
         "   zz-non-existent {display: none !important}';"
@@ -1562,7 +1547,7 @@ extension_init (void)
     MidoriExtension* extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Advertisement blocker"),
         "description", _("Block advertisements according to a filter list"),
-        "version", "0.5" MIDORI_VERSION_SUFFIX,
+        "version", "0.6" MIDORI_VERSION_SUFFIX,
         "authors", "Christian Dywan <christian@twotoasts.de>",
         NULL);
     midori_extension_install_string_list (extension, "filters", NULL, G_MAXSIZE);
