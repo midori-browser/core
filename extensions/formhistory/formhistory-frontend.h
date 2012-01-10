@@ -33,7 +33,6 @@ typedef struct
     GtkTreeModel* completion_model;
     GtkWidget* treeview;
     GtkWidget* popup;
-    GtkWidget* root;
     gchar* oldkeyword;
     glong selection_index;
     #else

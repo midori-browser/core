@@ -120,19 +120,21 @@ formhistory_reposition_popup (FormHistoryPriv* priv)
 {
     WebKitDOMDocument* element_document;
     WebKitDOMNodeList* frames;
+    GtkWidget* view;
     GdkWindow* window;
     gint rx, ry;
     gint wx, wy;
     glong x = 0, y = 0;
     glong height;
 
-    GtkWidget* toplevel = gtk_widget_get_toplevel (GTK_WIDGET (priv->root));
+    view = g_object_get_data (G_OBJECT (priv->element), "webview");
+    GtkWidget* toplevel = gtk_widget_get_toplevel (view);
     /* Position of a root window */
     window = gtk_widget_get_window (toplevel);
     gdk_window_get_position (window, &rx, &ry);
 
     /* Postion of webview in root window */
-    window = gtk_widget_get_window (priv->root);
+    window = gtk_widget_get_window (view);
     gdk_window_get_position (window, &wx, &wy);
 
     /* Position of editbox on the webview */
@@ -145,8 +147,7 @@ formhistory_reposition_popup (FormHistoryPriv* priv)
     gtk_window_move (GTK_WINDOW (priv->popup),  rx + wx + x, ry +wy + y);
 
     /* Window configuration */
-    gtk_window_set_screen (GTK_WINDOW (priv->popup),
-                           gtk_widget_get_screen (GTK_WIDGET (priv->root)));
+    gtk_window_set_screen (GTK_WINDOW (priv->popup), gtk_widget_get_screen (view));
     /* FIXME: If Midori window is small, popup doesn't show up */
     gtk_window_set_transient_for (GTK_WINDOW (priv->popup), GTK_WINDOW (toplevel));
     gtk_tree_view_columns_autosize (GTK_TREE_VIEW (priv->treeview));
@@ -321,6 +322,7 @@ formhistory_DOMContentLoaded_cb (WebKitDOMElement* window,
     WebKitDOMDocument* doc;
     WebKitDOMNodeList* inputs;
     WebKitDOMNodeList* frames;
+    GtkWidget* web_view;
 
     if (WEBKIT_DOM_IS_DOCUMENT (window))
         doc = WEBKIT_DOM_DOCUMENT (window);
@@ -328,6 +330,7 @@ formhistory_DOMContentLoaded_cb (WebKitDOMElement* window,
         doc = webkit_dom_dom_window_get_document (WEBKIT_DOM_DOM_WINDOW (window));
     inputs = webkit_dom_document_query_selector_all (doc, "input[type='text']", NULL);
     frames = g_object_get_data (G_OBJECT (window), "framelist");
+    web_view = g_object_get_data (G_OBJECT (window), "webview");
 
     for (i = 0; i < webkit_dom_node_list_get_length (inputs); i++)
     {
@@ -339,6 +342,7 @@ formhistory_DOMContentLoaded_cb (WebKitDOMElement* window,
             continue;
 
         g_object_set_data (G_OBJECT (element), "doc", doc);
+        g_object_set_data (G_OBJECT (element), "webview", web_view);
         g_object_set_data (G_OBJECT (element), "framelist", frames);
         /* Add dblclick? */
         webkit_dom_event_target_add_event_listener (
@@ -362,10 +366,10 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
     int i;
 
     FormHistoryPriv* priv = g_object_get_data (G_OBJECT (extension), "priv");
-    priv->root = (GtkWidget*)web_view;
     doc = webkit_web_view_get_dom_document (web_view);
     frames = webkit_dom_document_query_selector_all (doc, "iframe, frame", NULL);
     g_object_set_data (G_OBJECT (doc), "framelist", frames);
+    g_object_set_data (G_OBJECT (doc), "webview", web_view);
     /* Connect to DOMContentLoaded of the main frame */
     webkit_dom_event_target_add_event_listener(
                       WEBKIT_DOM_EVENT_TARGET (doc), "DOMContentLoaded",
@@ -383,6 +387,7 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
         else
             framewin = webkit_dom_html_frame_element_get_content_window (WEBKIT_DOM_HTML_FRAME_ELEMENT (frame));
         g_object_set_data (G_OBJECT (framewin), "framelist", frames);
+        g_object_set_data (G_OBJECT (framewin), "webview", (GtkWidget*)web_view);
         webkit_dom_event_target_add_event_listener (
                       WEBKIT_DOM_EVENT_TARGET (framewin), "DOMContentLoaded",
                       G_CALLBACK (formhistory_DOMContentLoaded_cb), false,
