@@ -65,6 +65,31 @@ formhistory_suggestion_selected_cb (GtkWidget*       treeview,
     }
     return FALSE;
 }
+static void
+formhistory_suggestion_remove (GtkTreePath*     path,
+                               FormHistoryPriv* priv)
+{
+    GtkTreeIter iter;
+    gchar* sqlcmd;
+    char* errmsg = NULL;
+    gchar* name;
+    gchar* value;
+
+    if (!gtk_tree_model_get_iter (priv->completion_model, &iter, path))
+        return;
+
+    if (!priv->db)
+        return;
+
+    gtk_tree_model_get (priv->completion_model, &iter, 0, &value, -1);
+    g_object_get (priv->element, "name", &name, NULL);
+    gtk_list_store_remove (GTK_LIST_STORE (priv->completion_model), &iter);
+
+    sqlcmd = sqlite3_mprintf ("DELETE FROM forms WHERE field = '%q' AND value = '%q'",
+                              name, value);
+    sqlite3_exec (priv->db, sqlcmd, NULL, NULL, &errmsg);
+    sqlite3_free (sqlcmd);
+}
 
 static void
 get_absolute_offset_for_element (WebKitDOMElement*  element,
@@ -257,7 +282,8 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
             formhistory_suggestions_hide_cb (element, dom_event, priv);
             return;
             break;
-        /*FIXME: Del to delete entry */
+        /* Del key */
+        case 46:
         /* Up key */
         case 38:
         /* Down key */
@@ -276,16 +302,34 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
                 else
                     priv->selection_index = MAX (priv->selection_index - 1, 0);
             }
-            else
+            else if (key == 40)
             {
                 if (priv->selection_index == matches - 1)
                     priv->selection_index = 0;
                 else
                     priv->selection_index = MIN (priv->selection_index + 1, matches -1);
             }
+            if (priv->selection_index == -1)
+            {
+                /* No element is selected */
+                return;
+            }
+
             path = gtk_tree_path_new_from_indices (priv->selection_index, -1);
-            gtk_tree_view_set_cursor (GTK_TREE_VIEW (priv->treeview), path, NULL, FALSE);
-            formhistory_suggestion_set (path, priv);
+            if (key == 46)
+            {
+                g_object_set (element, "value", priv->oldkeyword, NULL);
+                formhistory_suggestion_remove (path, priv);
+                matches--;
+            }
+
+            if (matches == 0)
+                formhistory_suggestions_hide_cb (element, dom_event, priv);
+            else
+            {
+                gtk_tree_view_set_cursor (GTK_TREE_VIEW (priv->treeview), path, NULL, FALSE);
+                formhistory_suggestion_set (path, priv);
+            }
             gtk_tree_path_free (path);
             return;
             break;
@@ -391,6 +435,7 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
                       G_CALLBACK (formhistory_DOMContentLoaded_cb), false,
                       priv);
     }
+    formhistory_suggestions_hide_cb (NULL, NULL, priv);
 }
 
 void
