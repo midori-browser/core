@@ -264,9 +264,6 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
     priv->element = element;
 
     key = webkit_dom_ui_event_get_key_code (WEBKIT_DOM_UI_EVENT (dom_event));
-    /* Ignore some control chars */
-    if (key < 20 && key != 8)
-        return;
     switch (key)
     {
         /* ESC key*/
@@ -337,6 +334,12 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
         case 33:
         case 34:
         case 45:
+        /* Shift, Ctrl, Alt, Tab*/
+        case 16:
+        case 17:
+        case 18:
+        case 9:
+            return;
             break;
     }
 
