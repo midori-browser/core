@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Midori 0.2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-09 20:36+0000\n"
-"PO-Revision-Date: 2012-01-11 13:53+0300\n"
+"PO-Revision-Date: 2012-01-12 11:14+0300\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: גזר\n"
 "Language: he\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Virtaal 0.7.0\n"
+"X-Generator: Virtaal 0.7.1\n"
 
 #: ../data/midori.desktop.in.h:1
 msgid "Internet;WWW;Explorer"
@@ -148,7 +148,7 @@ msgstr "עריכת ה_העדפות"
 
 #: ../midori/main.c:1115
 msgid "Disable all _extensions"
-msgstr "נטרל את כל ה_הרחבות"
+msgstr "נטרול כל ה_הרחבות"
 
 #: ../midori/main.c:1128
 msgid "Discard old tabs"
@@ -190,11 +190,11 @@ msgstr "FOLDER"
 
 #: ../midori/main.c:1902
 msgid "Private browsing, no changes are saved"
-msgstr "גלישה פרטית, השינויים לא נשמרים"
+msgstr "Private browsing, no changes are saved"
 
 #: ../midori/main.c:1904
 msgid "Show a diagnostic dialog"
-msgstr "הצגת חלון ניתוח"
+msgstr "Show a diagnostic dialog"
 
 #: ../midori/main.c:1906
 msgid "Run the specified filename as javascript"
@@ -210,7 +210,7 @@ msgstr "Execute the specified command"
 
 #: ../midori/main.c:1912
 msgid "List available commands to execute with -e/ --execute"
-msgstr ""
+msgstr "List available commands to execute with -e/ --execute"
 
 #: ../midori/main.c:1914
 msgid "Display program version"
@@ -222,28 +222,28 @@ msgstr "כתובות"
 
 #: ../midori/main.c:1918
 msgid "Block URIs according to regular expression PATTERN"
-msgstr ""
+msgstr "Block URIs according to regular expression PATTERN"
 
 #: ../midori/main.c:1918
 msgid "PATTERN"
-msgstr ""
+msgstr "PATTERN"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
 #: ../midori/main.c:1922
 msgid "Reset Midori after SECONDS seconds of inactivity"
-msgstr ""
+msgstr "Reset Midori after SECONDS seconds of inactivity"
 
 #: ../midori/main.c:1922
 msgid "SECONDS"
-msgstr ""
+msgstr "SECONDS"
 
 #: ../midori/main.c:1925
 msgid "Redirects console warnings to the specified FILENAME"
-msgstr ""
+msgstr "Redirects console warnings to the specified FILENAME"
 
 #: ../midori/main.c:1925
 msgid "FILENAME"
-msgstr ""
+msgstr "FILENAME"
 
 #: ../midori/main.c:1990
 msgid "[Addresses]"
@@ -268,7 +268,7 @@ msgstr "אייקונים של אתרים"
 #. i18n: Logins and passwords in websites and web forms
 #: ../midori/main.c:2113
 msgid "Saved logins and _passwords"
-msgstr ""
+msgstr "פרטי גישה וססמאות ש_נשמרו"
 
 #: ../midori/main.c:2115
 msgid "Cookies"
@@ -504,7 +504,7 @@ msgstr "לשונית חדשה"
 #: ../midori/midori-browser.c:1326
 #, fuzzy
 msgid "A new tab has been opened"
-msgstr "להודיעה לי כאשר הורדה מסתיימת"
+msgstr "לשונית חדשה נפתחה"
 
 #: ../midori/midori-browser.c:1363
 msgid "Save file"
@@ -1006,7 +1006,7 @@ msgstr "פתח מחדש לשונית או חלון שנסגרו קודם לכן"
 
 #: ../midori/midori-browser.c:5989
 msgid "Show the saved bookmarks"
-msgstr "הצג את הסימניות השמורות"
+msgstr "הצגת הסימניות השמורות"
 
 #: ../midori/midori-browser.c:6003
 msgid "_Tools"
@@ -1034,16 +1034,16 @@ msgid "Unexpected setting '%s'"
 msgstr "הגדרה לא צפויה '%s'"
 
 #: ../midori/midori-extension.c:310
-#, fuzzy, c-format
+#, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
-msgstr "ההגדרות לא ניתנות לטעינה: %s\n"
+msgstr "לא ניתן לטעון את הגדרות ההרחבה '%s':‏ %s\n"
 
 #: ../midori/midori-extension.c:721 ../midori/midori-extension.c:818
 #: ../midori/midori-extension.c:915 ../midori/midori-extension.c:1027
 #: ../extensions/addons.c:1695
-#, fuzzy, c-format
+#, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr "ההגדרות לא ניתנות לשמירה. %s"
+msgstr "לא ניתן לשמור את הגדרות ההרחבה '%s':‏ %s\n"
 
 #: ../midori/midori-locationaction.c:425
 #, c-format
@@ -1063,7 +1063,7 @@ msgstr "חיפוש בעזרת %s"
 #. i18n: Right-click on Location, Open an URL from the clipboard
 #: ../midori/midori-locationaction.c:1315
 msgid "Paste and p_roceed"
-msgstr "ה_דבקה והעברה"
+msgstr "ה_דבקה ומעבר"
 
 #: ../midori/midori-locationaction.c:1687
 msgid "Not verified"
@@ -1075,18 +1075,16 @@ msgstr "חיבור מאומת ומוצפן"
 
 #: ../midori/midori-panel.c:397 ../midori/midori-panel.c:399
 #: ../midori/midori-panel.c:562 ../midori/midori-panel.c:565
-#, fuzzy
 msgid "Align sidepanel to the right"
-msgstr "יישר סרגל צד לימין"
+msgstr "יישור סרגל הצד לימין"
 
 #: ../midori/midori-panel.c:409 ../midori/midori-panel.c:410
 msgid "Close panel"
 msgstr "סגירת הסרגל"
 
 #: ../midori/midori-panel.c:563 ../midori/midori-panel.c:566
-#, fuzzy
 msgid "Align sidepanel to the left"
-msgstr "יישר סרגל צד לימין"
+msgstr "יישור סרגל הצד לשמאל"
 
 #: ../midori/midori-websettings.c:210
 msgid "Show Speed Dial"
@@ -1606,14 +1604,12 @@ msgid "The private data selected for deletion"
 msgstr "המידע האישי שנבחר למחיקה"
 
 #: ../midori/midori-websettings.c:1031
-#, fuzzy
 msgid "Clear data"
-msgstr "נקה נתונים אישיים"
+msgstr "מחיקת נתונים אישיים"
 
 #: ../midori/midori-websettings.c:1032
-#, fuzzy
 msgid "The data selected for deletion"
-msgstr "המידע האישי שנבחר למחיקה"
+msgstr "הנתונים שנבחרו למחיקה"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
 #: ../midori/midori-websettings.c:1065
@@ -1627,7 +1623,7 @@ msgstr ""
 
 #: ../midori/midori-websettings.c:1081
 msgid "Always use my font choices"
-msgstr ""
+msgstr "תמיד להשתמש בבחירות הגופן שלי"
 
 #: ../midori/midori-websettings.c:1082
 msgid "Override fonts picked by websites with user preferences"
@@ -1801,7 +1797,7 @@ msgstr ""
 
 #: ../midori/midori-view.c:4047
 msgid "Load Page"
-msgstr ""
+msgstr "טעינת העמוד"
 
 #: ../midori/midori-view.c:4186
 msgid "Blank page"
@@ -1809,7 +1805,7 @@ msgstr "דף ריק"
 
 #: ../midori/midori-view.c:4448
 msgid "_Duplicate Tab"
-msgstr "_שכפל לשונית"
+msgstr "ש_כפול לשונית"
 
 #: ../midori/midori-view.c:4453
 #, fuzzy
@@ -1821,20 +1817,18 @@ msgid "Show Tab _Icon Only"
 msgstr ""
 
 #: ../midori/midori-view.c:4459
-#, fuzzy
 msgid "Close ot_her Tabs"
-msgstr "לשוניות _שנסגרו"
+msgstr "סגירת _שאר הלשוניות"
 
 #. i18n: word stem of "previous page" type links, case is not important
 #: ../midori/midori-view.c:5113
-#, fuzzy
 msgid "previous"
 msgstr "הקודם"
 
 #. i18n: word stem of "next page" type links, case is not important
 #: ../midori/midori-view.c:5132
 msgid "next"
-msgstr ""
+msgstr "הבא"
 
 #: ../midori/midori-view.c:5145
 msgid "Print background images"
@@ -1969,7 +1963,7 @@ msgstr "פתיחה באמצעות"
 #: ../midori/sokoke.c:418
 #, c-format
 msgid "Choose an application or command to open \"%s\":"
-msgstr ""
+msgstr "נא לבחור ביישום או בפקודה לפתיחת \"%s\":"
 
 #: ../midori/sokoke.c:459 ../midori/sokoke.c:469 ../midori/sokoke.c:497
 #: ../midori/sokoke.c:526 ../midori/sokoke.c:540
@@ -2247,11 +2241,10 @@ msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
 "\"Add\" to add it to the list. You can find more lists at %s."
 msgstr ""
-"הכנס את הכתובת של רשימת מסננים מוגדרת מראש ולחץ על \"הוסף\". ניתן למצוא "
+"יש להזין את כתובת רשימת המסננים שהוגדרה מראש וללחוץ על \"הוספה\". ניתן למצוא "
 "רשימות נוספות בכתובת %s."
 
 #: ../extensions/adblock.c:867
-#, fuzzy
 msgid "Edit rule"
 msgstr "עריכת הכלל"
 
@@ -2278,21 +2271,20 @@ msgstr "חסימת פרסומות בעזרת רשימת מסננים"
 #. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:221
 msgid "This page appears to contain a user script. Do you wish to install it?"
-msgstr ""
+msgstr "מסתבר כי דף זה מכיל סקריפט משתמש. האם ברצונך להתקין אותו?"
 
 #: ../extensions/addons.c:222
-#, fuzzy
 msgid "_Install user script"
-msgstr "הפעל תסריטים"
+msgstr "הת_קנת סקריפט משתמש"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
 #: ../extensions/addons.c:227
 msgid "This page appears to contain a user style. Do you wish to install it?"
-msgstr ""
+msgstr "מסתבר כי דף זה מכיל סגנון משתמש. האם ברצונך להתקין אותו?"
 
 #: ../extensions/addons.c:228
 msgid "_Install user style"
-msgstr ""
+msgstr "הת_קנת סגנון משתמש"
 
 #: ../extensions/addons.c:236
 msgid "Don't install"
@@ -2300,7 +2292,7 @@ msgstr "לא להתקין"
 
 #: ../extensions/addons.c:319 ../extensions/addons.c:681
 msgid "Userscripts"
-msgstr "תסריטי משתמש"
+msgstr "סקריפטים מצד המשתמש"
 
 #: ../extensions/addons.c:324 ../extensions/addons.c:683
 msgid "Userstyles"
@@ -2312,14 +2304,13 @@ msgid "Error"
 msgstr "שגיאה"
 
 #: ../extensions/addons.c:421
-#, fuzzy, c-format
+#, c-format
 msgid "Do you want to delete '%s'?"
-msgstr "האם באמת ברצונך למחוק את כל העוגיות?"
+msgstr "האם ברצונך למחוק את '%s'?"
 
 #: ../extensions/addons.c:427
-#, fuzzy
 msgid "Delete user script"
-msgstr "תסריטי משתמש"
+msgstr "מחיקת סקריפט מצד המשתמש"
 
 #: ../extensions/addons.c:428
 #, fuzzy
