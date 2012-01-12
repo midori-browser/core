@@ -3027,6 +3027,7 @@ _action_compact_menu_populate_popup (GtkAction*     action,
       { NULL },
       { "Fullscreen" },
       { "Panel" },
+      { "Bookmarkbar" },
       { "-" },
       #endif
       { NULL },
