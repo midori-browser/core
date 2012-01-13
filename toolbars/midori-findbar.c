@@ -112,7 +112,6 @@ midori_findbar_entry_clear_icon_released_cb (GtkIconEntry* entry,
 {
     if (icon_pos == GTK_ICON_ENTRY_SECONDARY)
     {
-        gtk_entry_set_text (GTK_ENTRY (entry), "");
         midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, "edit-find");
     }
 }
@@ -265,8 +264,7 @@ midori_findbar_init (MidoriFindbar* findbar)
     gtk_toolbar_insert (GTK_TOOLBAR (findbar), toolitem, -1);
     findbar->find_text = gtk_icon_entry_new ();
     midori_findbar_set_icon (findbar, GTK_ICON_ENTRY_PRIMARY, "edit-find");
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (findbar->find_text),
-                                       GTK_ICON_ENTRY_SECONDARY, TRUE);
+    sokoke_entry_set_clear_button_visible (GTK_ENTRY (findbar->find_text), TRUE);
     g_signal_connect (findbar->find_text, "icon-release",
         G_CALLBACK (midori_findbar_entry_clear_icon_released_cb), findbar);
     g_signal_connect (findbar->find_text, "activate",

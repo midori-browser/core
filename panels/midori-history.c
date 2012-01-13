@@ -945,12 +945,7 @@ midori_history_init (MidoriHistory* history)
     gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
                                         GTK_ICON_ENTRY_PRIMARY,
                                         GTK_STOCK_FIND);
-    gtk_icon_entry_set_icon_from_stock (GTK_ICON_ENTRY (entry),
-                                        GTK_ICON_ENTRY_SECONDARY,
-                                        GTK_STOCK_CLEAR);
-    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
-                                       GTK_ICON_ENTRY_SECONDARY,
-                                       TRUE);
+    sokoke_entry_set_clear_button_visible (GTK_ENTRY (entry), TRUE);
     g_signal_connect (entry, "icon-release",
         G_CALLBACK (midori_history_filter_entry_clear_cb), history);
     g_signal_connect (entry, "changed",
