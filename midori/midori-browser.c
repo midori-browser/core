@@ -1346,12 +1346,111 @@ midori_view_download_save_as_response_cb (GtkWidget*      dialog,
     gtk_widget_hide (dialog);
 }
 
+static void
+midori_browser_download_status_cb (WebKitDownload*  download,
+                                   GParamSpec*      pspec,
+                                   gpointer         user_data)
+{
+    const gchar* uri = webkit_download_get_destination_uri (download);
+    switch (webkit_download_get_status (download))
+    {
+        case WEBKIT_DOWNLOAD_STATUS_FINISHED:
+            if (!g_app_info_launch_default_for_uri (uri, NULL, NULL))
+            {
+                sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                    _("Error opening the image!"),
+                    _("Can not open selected image in a default viewer."), FALSE);
+            }
+            break;
+        case WEBKIT_DOWNLOAD_STATUS_ERROR:
+            webkit_download_cancel (download);
+            sokoke_message_dialog (GTK_MESSAGE_ERROR,
+                _("Error downloading the image!"),
+                _("Can not downlaod selected image."), FALSE);
+            break;
+        case WEBKIT_DOWNLOAD_STATUS_CREATED:
+        case WEBKIT_DOWNLOAD_STATUS_STARTED:
+        case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
+            break;
+    }
+}
+
+static gchar*
+midori_browser_download_prepare_filename (gchar* filename)
+{
+    if (g_file_test (filename, G_FILE_TEST_EXISTS))
+    {
+        int i = 1;
+        const gchar* dot_pos;
+        const gchar* last_separator;
+        gchar* serial;
+        GString* tmp_filename;
+        gssize position;
+
+        last_separator = strrchr (filename, G_DIR_SEPARATOR);
+        dot_pos = strrchr ((last_separator) ? last_separator : filename, '.');
+        position = dot_pos ? (dot_pos - filename) : (gssize) strlen (filename);
+        tmp_filename = g_string_new (NULL);
+
+        do
+        {
+            serial = g_strdup_printf ("-%d", i++);
+            g_string_assign (tmp_filename, filename);
+            g_string_insert (tmp_filename, position, serial);
+            g_free (serial);
+        } while (g_file_test (tmp_filename->str, G_FILE_TEST_EXISTS));
+
+        g_free (filename);
+        filename = g_string_free (tmp_filename, FALSE);
+    }
+    return filename;
+}
+
+static gchar*
+midori_browser_download_prepare_destination_uri (WebKitDownload* download)
+{
+    GFile* file_source;
+    gchar* file_basename;
+    gchar* download_dir;
+    gchar* destination_uri;
+    gchar* destination_filename;
+    gchar* midori_tmp_dir;
+
+    file_source = g_file_new_for_uri (webkit_download_get_uri (download));
+    file_basename = g_file_get_basename (file_source);
+    midori_tmp_dir = g_strconcat ("midori-", g_get_user_name (), NULL);
+    download_dir = g_build_filename (g_get_tmp_dir (), midori_tmp_dir, NULL);
+    destination_filename = g_build_filename (download_dir, file_basename, NULL);
+    destination_filename = midori_browser_download_prepare_filename (destination_filename);
+    destination_uri = g_filename_to_uri (destination_filename, NULL, NULL);
+
+    if (!g_file_test (download_dir, G_FILE_TEST_EXISTS))
+        katze_mkdir_with_parents (download_dir, 0700);
+
+    g_free (file_basename);
+    g_free (download_dir);
+    g_free (destination_filename);
+    g_free (midori_tmp_dir);
+    g_object_unref (file_source);
+
+    return destination_uri;
+}
+
 static gboolean
 midori_view_download_requested_cb (GtkWidget*      view,
                                    WebKitDownload* download,
                                    MidoriBrowser*  browser)
 {
-    if (!webkit_download_get_destination_uri (download))
+    if (g_object_get_data (G_OBJECT (download), "open-in-viewer"))
+    {
+        gchar* destination_uri = midori_browser_download_prepare_destination_uri (download);
+        midori_browser_prepare_download (browser, download, destination_uri);
+        g_signal_connect (download, "notify::status",
+            G_CALLBACK (midori_browser_download_status_cb), (gpointer) browser);
+        webkit_download_start (download);
+        g_free (destination_uri);
+    }
+    else if (!webkit_download_get_destination_uri (download))
     {
         gchar* folder;
         if (g_object_get_data (G_OBJECT (download), "save-as-download"))

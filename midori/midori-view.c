@@ -2063,6 +2063,20 @@ midori_web_view_menu_image_save_activate_cb (GtkWidget*  widget,
 }
 
 static void
+midori_web_view_open_picture_cb (GtkWidget* widget,
+                                 MidoriView* view)
+{
+    gchar* uri = katze_object_get_string (view->hit_test, "image-uri");
+    WebKitNetworkRequest* request = webkit_network_request_new (uri);
+    WebKitDownload* download = webkit_download_new (request);
+    gboolean handled;
+    g_object_unref (request);
+    g_object_set_data (G_OBJECT (download), "open-in-viewer", (void*)0xdeadbeef);
+    g_signal_emit (view, signals[DOWNLOAD_REQUESTED], 0, download, &handled);
+    g_free (uri);
+}
+
+static void
 midori_web_view_menu_video_copy_activate_cb (GtkWidget*  widget,
                                              MidoriView* view)
 {
@@ -2402,6 +2416,9 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, -1,
             _("Save I_mage"), GTK_STOCK_SAVE,
             G_CALLBACK (midori_web_view_menu_image_save_activate_cb), widget);
+        midori_view_insert_menu_item (menu_shell, -1,
+            _("Open in Image _Viewer"), GTK_STOCK_OPEN,
+            G_CALLBACK (midori_web_view_open_picture_cb), widget);
     }
 
     if (is_media)
