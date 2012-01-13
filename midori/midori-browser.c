@@ -3450,6 +3450,9 @@ _action_fullscreen_activate (GtkAction*     action,
     state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
     if (state & GDK_WINDOW_STATE_FULLSCREEN)
     {
+        if (katze_object_get_boolean (G_OBJECT (browser->settings), "show-menubar"))
+            gtk_widget_show (browser->menubar);
+
         if (katze_object_get_boolean (G_OBJECT (browser->settings), "show-panel"))
             gtk_widget_show (browser->panel);
 
@@ -3467,6 +3470,7 @@ _action_fullscreen_activate (GtkAction*     action,
     }
     else
     {
+        gtk_widget_hide (browser->menubar);
         gtk_widget_hide (browser->panel);
         gtk_widget_hide (browser->bookmarkbar);
         gtk_widget_hide (browser->navigationbar);
@@ -5410,19 +5414,6 @@ midori_browser_window_state_event_cb (MidoriBrowser*       browser,
     else if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
         window_state = MIDORI_WINDOW_FULLSCREEN;
     g_object_set (browser->settings, "last-window-state", window_state, NULL);
-
-    if (event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
-    {
-        if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
-        {
-            gtk_widget_hide (browser->menubar);
-        }
-        else
-        {
-            if (katze_object_get_boolean (browser->settings, "show-menubar"))
-                gtk_widget_show (browser->menubar);
-        }
-    }
 }
 
 static gboolean
