@@ -1731,3 +1731,55 @@ midori_download_prepare_tooltip_text (WebKitDownload* download)
     return g_string_free (tooltip, FALSE);
 }
 
+static void
+sokoke_entry_changed_cb (GtkEditable* editable,
+                         GtkEntry*    entry)
+{
+    const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
+    gboolean visible = text && *text;
+    gtk_icon_entry_set_icon_from_stock (
+        GTK_ICON_ENTRY (entry),
+        GTK_ICON_ENTRY_SECONDARY,
+        visible ? GTK_STOCK_CLEAR : NULL);
+}
+
+static void
+sokoke_entry_icon_released_cb (GtkEntry*            entry,
+                               GtkIconEntryPosition icon_pos,
+                               GdkEvent*            event,
+                               gpointer             user_data)
+{
+    if (icon_pos != GTK_ICON_ENTRY_SECONDARY)
+        return;
+
+    gtk_entry_set_text (entry, "");
+    gtk_widget_grab_focus (GTK_WIDGET (entry));
+}
+
+void
+sokoke_entry_set_clear_button_visible (GtkEntry* entry,
+                                       gboolean  visible)
+{
+    g_return_if_fail (GTK_IS_ENTRY (entry));
+
+    gtk_icon_entry_set_icon_highlight (GTK_ICON_ENTRY (entry),
+        GTK_ICON_ENTRY_SECONDARY, TRUE);
+    if (visible)
+    {
+        g_object_connect (entry,
+            "signal::icon-release",
+            G_CALLBACK (sokoke_entry_icon_released_cb), NULL,
+            "signal::changed",
+            G_CALLBACK (sokoke_entry_changed_cb), entry, NULL);
+        g_signal_emit_by_name (G_OBJECT (entry), "changed");
+    }
+    else
+    {
+        g_object_disconnect (entry,
+            "any_signal::icon-release",
+            G_CALLBACK (sokoke_entry_icon_released_cb), NULL,
+            "any_signal::changed",
+            G_CALLBACK (sokoke_entry_changed_cb), entry, NULL);
+    }
+}
+
