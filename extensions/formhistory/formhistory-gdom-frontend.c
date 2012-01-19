@@ -380,9 +380,9 @@ formhistory_DOMContentLoaded_cb (WebKitDOMElement* window,
     for (i = 0; i < webkit_dom_node_list_get_length (inputs); i++)
     {
         WebKitDOMNode* element = webkit_dom_node_list_item (inputs, i);
-        #if WEBKIT_CHECK_VERSION (1, 7, 4)
+        #if WEBKIT_CHECK_VERSION (1, 6, 1)
         gchar* autocomplete = webkit_dom_html_input_element_get_autocomplete (
-            WebKitDOMHTMLInputElement (element));
+            WEBKIT_DOM_HTML_INPUT_ELEMENT (element));
         gboolean off = !g_strcmp0 (autocomplete, "off");
         g_free (autocomplete);
         if (off)
