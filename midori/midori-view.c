@@ -3962,13 +3962,13 @@ midori_view_set_uri (MidoriView*  view,
                     "width:25%;margin-right:1% }</style><title>");
                 g_string_append_printf (demo,
                     "%s</title></head><body><h1>%s</h1>", uri, uri);
-                g_string_append (demo, "<div class=\"column\"");
+                g_string_append (demo, "<div class=\"column\">");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i], "");
-                g_string_append (demo, "</div><div class=\"column\"");
+                g_string_append (demo, "</div><div class=\"column\">");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i], " disabled");
-                g_string_append (demo, "</div><div class=\"column\"");
+                g_string_append (demo, "</div><div class=\"column\">");
                 for (i = 0; i < G_N_ELEMENTS (widgets); i++)
                     g_string_append_printf (demo, widgets[i], " class=\"fallback\"");
                 g_string_append (demo, "</div>");
