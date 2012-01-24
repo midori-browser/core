@@ -534,7 +534,7 @@ midori_view_notify_load_status_cb (GtkWidget*      widget,
         /* This is a hack to ensure that the address entry is focussed
            with speed dial open. */
         if (midori_view_is_blank (view))
-            gtk_action_activate (_action_by_name (browser, "Location"));
+            midori_browser_activate_action (browser, "Location");
     }
 
     g_object_notify (G_OBJECT (browser), "load-status");
@@ -1187,7 +1187,7 @@ midori_view_activate_action_cb (GtkWidget*     view,
                                 const gchar*   action,
                                 MidoriBrowser* browser)
 {
-    _midori_browser_activate_action (browser, action);
+    midori_browser_activate_action (browser, action);
 }
 
 static void
@@ -1737,14 +1737,14 @@ midori_browser_key_press_event (GtkWidget*   widget,
      && event->keyval == GDK_KEY_Tab
      && (event->state & GDK_CONTROL_MASK))
     {
-        gtk_action_activate (_action_by_name (browser, "TabNext"));
+        midori_browser_activate_action (browser, "TabNext");
         return TRUE;
     }
     else if (event->keyval == GDK_KEY_ISO_Left_Tab
      && (event->state & GDK_CONTROL_MASK)
      && (event->state & GDK_SHIFT_MASK))
     {
-        gtk_action_activate (_action_by_name (browser, "TabPrevious"));
+        midori_browser_activate_action (browser, "TabPrevious");
         return TRUE;
     }
     /* Interpret Ctrl+= as Zoom In for compatibility */
@@ -1757,7 +1757,7 @@ midori_browser_key_press_event (GtkWidget*   widget,
     /* Interpret F5 as reloading for compatibility */
     else if (event->keyval == GDK_KEY_F5)
     {
-        gtk_action_activate (_action_by_name (browser, "Reload"));
+        midori_browser_activate_action (browser, "Reload");
         return TRUE;
     }
 
@@ -1806,12 +1806,12 @@ midori_browser_key_press_event (GtkWidget*   widget,
     if ((event->keyval == GDK_KEY_BackSpace)
      && (event->state & GDK_SHIFT_MASK))
     {
-        gtk_action_activate (_action_by_name (browser, "Forward"));
+        midori_browser_activate_action (browser, "Forward");
         return TRUE;
     }
     else if (event->keyval == GDK_KEY_BackSpace)
     {
-        gtk_action_activate (_action_by_name (browser, "Back"));
+        midori_browser_activate_action (browser, "Back");
         return TRUE;
     }
 
@@ -3169,7 +3169,7 @@ midori_preferences_response_help_cb (GtkWidget*     preferences,
                                      MidoriBrowser* browser)
 {
     if (response == GTK_RESPONSE_HELP)
-        gtk_action_activate (_action_by_name (browser, "HelpFAQ"));
+        midori_browser_activate_action (browser, "HelpFAQ");
 }
 
 static void
@@ -4941,7 +4941,7 @@ midori_panel_cycle_child_focus_cb (GtkWidget*     hpaned,
      || !gtk_widget_get_ancestor (focus, GTK_TYPE_PANED))
     {
         g_signal_stop_emission_by_name (hpaned, "cycle-child-focus");
-        gtk_action_activate (_action_by_name (browser, "Location"));
+        midori_browser_activate_action (browser, "Location");
         return TRUE;
     }
     return FALSE;
@@ -5971,7 +5971,7 @@ midori_browser_init (MidoriBrowser* browser)
     }
 
     /* Hide the 'Dummy' which only holds otherwise unused actions */
-    g_object_set (_action_by_name (browser, "Dummy"), "visible", FALSE, NULL);
+    _action_set_visible (browser, "Dummy", FALSE);
 
     action = g_object_new (KATZE_TYPE_SEPARATOR_ACTION,
         "name", "Separator",
@@ -6112,6 +6112,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
     gtk_widget_hide (browser->menubar);
     #if HAVE_HILDON
+    _action_set_visible (browser, "Menubar", FALSE);
     #if HILDON_CHECK_VERSION (2, 2, 0)
     browser->menubar = hildon_app_menu_new ();
     _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
@@ -6165,9 +6166,6 @@ midori_browser_init (MidoriBrowser* browser)
     g_signal_connect (forward, "button-press-event",
         G_CALLBACK (midori_browser_menu_item_middle_click_event_cb), browser);
 
-    #if HAVE_HILDON
-    _action_set_visible (browser, "Menubar", FALSE);
-    #endif
     _action_set_sensitive (browser, "EncodingCustom", FALSE);
     _action_set_visible (browser, "LastSession", FALSE);
     #if !HAVE_HILDON && !defined (GDK_WINDOWING_X11)
@@ -7396,7 +7394,7 @@ midori_browser_set_current_page (MidoriBrowser* browser,
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
     if (midori_view_is_blank (MIDORI_VIEW (view)))
-        gtk_action_activate (_action_by_name (browser, "Location"));
+        midori_browser_activate_action (browser, "Location");
     else
         gtk_widget_grab_focus (view);
 
