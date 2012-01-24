@@ -298,8 +298,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     _action_set_sensitive (browser, "Next",
         midori_view_get_next_page (view) != NULL);
 
-    gtk_action_set_visible (_action_by_name (browser, "AddSpeedDial"),
-        !midori_view_is_blank (view));
+    _action_set_visible (browser, "AddSpeedDial", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "SaveAs", midori_view_can_save (view));
     _action_set_sensitive (browser, "Print", midori_view_can_print (view));
     _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
@@ -350,13 +349,13 @@ _midori_browser_update_interface (MidoriBrowser* browser)
     {
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), STOCK_NEWS_FEED);
-        gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), TRUE);
+        _action_set_sensitive (browser, "AddNewsFeed", TRUE);
     }
     else
     {
         midori_location_action_set_secondary_icon (
             MIDORI_LOCATION_ACTION (action), GTK_STOCK_JUMP_TO);
-        gtk_action_set_sensitive (_action_by_name (browser, "AddNewsFeed"), FALSE);
+        _action_set_sensitive (browser, "AddNewsFeed", FALSE);
     }
     midori_location_action_set_security_hint (
         MIDORI_LOCATION_ACTION (action), midori_view_get_security (view));
@@ -6729,29 +6728,21 @@ midori_browser_settings_notify (MidoriWebSettings* web_settings,
         _toggle_tabbar_smartly (browser, FALSE);
     else if (name == g_intern_string ("show-menubar"))
     {
-        gtk_toggle_action_set_active (
-            GTK_TOGGLE_ACTION (_action_by_name (browser, "Menubar")),
-            g_value_get_boolean (&value));
+        _action_set_active (browser, "Menubar", g_value_get_boolean (&value));
     }
     else if (name == g_intern_string ("show-navigationbar"))
     {
         browser->show_navigationbar = g_value_get_boolean (&value);
-        gtk_toggle_action_set_active (
-            GTK_TOGGLE_ACTION (_action_by_name (browser, "Navigationbar")),
-            g_value_get_boolean (&value));
+        _action_set_active (browser, "Navigationbar", g_value_get_boolean (&value));
     }
     else if (name == g_intern_string ("show-bookmarkbar"))
     {
-        gtk_toggle_action_set_active (
-            GTK_TOGGLE_ACTION (_action_by_name (browser, "Bookmarkbar")),
-            g_value_get_boolean (&value));
+        _action_set_active (browser, "Bookmarkbar", g_value_get_boolean (&value));
     }
     else if (name == g_intern_string ("show-statusbar"))
     {
         browser->show_statusbar = g_value_get_boolean (&value);
-        gtk_toggle_action_set_active (
-            GTK_TOGGLE_ACTION (_action_by_name (browser, "Statusbar")),
-            g_value_get_boolean (&value));
+        _action_set_active (browser, "Statusbar", g_value_get_boolean (&value));
     }
     else if (name == g_intern_string ("location-entry-search"))
     {
