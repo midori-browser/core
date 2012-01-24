@@ -484,17 +484,12 @@ midori_view_notify_icon_cb (MidoriView*    view,
                             GParamSpec*    pspec,
                             MidoriBrowser* browser)
 {
-    const gchar* uri;
     GtkAction* action;
 
     if (midori_browser_get_current_tab (browser) != (GtkWidget*)view)
         return;
 
-    uri = midori_view_get_display_uri (view);
     action = _action_by_name (browser, "Location");
-    if (browser->maximum_history_age)
-        midori_location_action_set_icon_for_uri (
-        MIDORI_LOCATION_ACTION (action), midori_view_get_icon (view), uri);
     midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
                                      midori_view_get_icon (view));
     if (sokoke_is_app_or_private ())

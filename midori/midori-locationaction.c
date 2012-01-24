@@ -1536,30 +1536,22 @@ midori_location_action_add_item (MidoriLocationAction* location_action,
     #endif
 }
 
+/**
+ * midori_location_action_set_icon_for_uri:
+ * @location_action: a #MidoriLocationAction
+ * @icon: a #GdkPixbuf
+ * @uri: an URI string
+ *
+ * Sets the icon for the specified URI.
+ *
+ * Deprecated: 0.4.4
+ **/
 void
 midori_location_action_set_icon_for_uri (MidoriLocationAction* location_action,
                                          GdkPixbuf*            icon,
                                          const gchar*          uri)
 {
-    #if !HAVE_HILDON
-    GSList* proxies;
-    #endif
-
-    g_return_if_fail (MIDORI_IS_LOCATION_ACTION (location_action));
-    g_return_if_fail (!icon || GDK_IS_PIXBUF (icon));
-    g_return_if_fail (uri != NULL);
-
-    #if !HAVE_HILDON
-    proxies = gtk_action_get_proxies (GTK_ACTION (location_action));
-
-    for (; proxies != NULL; proxies = g_slist_next (proxies))
-    if (GTK_IS_TOOL_ITEM (proxies->data))
-    {
-        GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
-        gtk_icon_entry_set_icon_from_pixbuf (GTK_ICON_ENTRY (entry),
-            GTK_ICON_ENTRY_PRIMARY, icon);
-    }
-    #endif
+    midori_location_action_set_icon (location_action, icon);
 }
 
 /**
