@@ -1477,21 +1477,6 @@ snapshot_load_finished_cb (GtkWidget*      web_view,
     gtk_main_quit ();
 }
 
-static void
-midori_web_app_browser_notify_load_status_cb (MidoriBrowser* browser,
-                                              GParamSpec*    pspec,
-                                              gpointer       data)
-{
-    if (katze_object_get_enum (browser, "load-status") != MIDORI_LOAD_PROVISIONAL)
-    {
-        GtkWidget* view = midori_browser_get_current_tab (browser);
-        GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
-        if (midori_view_is_blank (MIDORI_VIEW (view)))
-            icon = NULL;
-        gtk_window_set_icon (GTK_WINDOW (browser), icon);
-    }
-}
-
 static MidoriBrowser*
 midori_web_app_browser_new_window_cb (MidoriBrowser* browser,
                                       MidoriBrowser* new_browser,
@@ -2132,9 +2117,6 @@ main (int    argc,
     {
         SoupSession* session = webkit_get_default_session ();
         MidoriBrowser* browser = midori_browser_new ();
-        /* Update window icon according to page */
-        g_signal_connect (browser, "notify::load-status",
-            G_CALLBACK (midori_web_app_browser_notify_load_status_cb), NULL);
         g_signal_connect (browser, "new-window",
             G_CALLBACK (midori_web_app_browser_new_window_cb), NULL);
         g_object_set_data (G_OBJECT (webkit_get_default_session ()),
