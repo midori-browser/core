@@ -1089,7 +1089,7 @@ midori_view_web_view_resource_request_cb (WebKitWebView*         web_view,
     const gchar* uri = webkit_network_request_get_uri (request);
 
     /* Only apply custom URIs to special pages for security purposes */
-    if (!view->special)
+    if (!view->special && !midori_view_is_blank (view))
         return;
 
     if (g_str_has_prefix (uri, "res://"))
@@ -3979,10 +3979,15 @@ midori_view_set_uri (MidoriView*  view,
             {
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_strdup_printf (
-                    "<html><head><title>%s</title></head>"
-                    "<body><h1>%s</h1>"
+                    "<html><head><title>%s</title>"
+                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
+                    "</head><body><div id=\"container\">"
+                    "<img id=\"logo\" src=\"res://logo-shade.png\">"
+                    "<img id=\"icon\" src=\"stock://gtk-dialog-info\">"
+                    "<div id=\"main\"><h1>%s</h1>"
                     "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li></ul>"
-                    "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>",
+                    "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>"
+                    "</div><br style=\"clear: both\"></div></body></html>",
                     _("Private Browsing"), _("Private Browsing"),
                     _("Midori doesn't store any personal data:"),
                     _("No History or web cookies are being saved."),
