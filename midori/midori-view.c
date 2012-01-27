@@ -3975,6 +3975,25 @@ midori_view_set_uri (MidoriView*  view,
                 katze_assign (view->uri, g_strdup (uri));
                 data = g_string_free (demo, FALSE);
             }
+            else if (!strcmp (uri, "about:private"))
+            {
+                katze_assign (view->uri, g_strdup (uri));
+                data = g_strdup_printf (
+                    "<html><head><title>%s</title></head>"
+                    "<body><h1>%s</h1>"
+                    "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li></ul>"
+                    "<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>",
+                    _("Private Browsing"), _("Private Browsing"),
+                    _("Midori doesn't store any personal data:"),
+                    _("No History or web cookies are being saved."),
+                    _("HTML5 storage, local database and application caches are disabled."),
+                    _("Extensions are disabled."),
+                    _("Midori prevents websites from tracking the user:"),
+                    _("Referrer URLs are stripped down to the hostname."),
+                    _("DNS prefetching is disabled."),
+                    _("The language and timezone are not revealed to websites."),
+                    _("Flash and other Netscape plugins cannot be listed by websites."));
+            }
             else if (!strcmp (uri, "about:") || !strcmp (uri, "about:version"))
             {
                 gchar* arguments = g_strjoinv (" ", sokoke_get_argv (NULL));

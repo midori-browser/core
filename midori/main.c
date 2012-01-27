@@ -2268,6 +2268,10 @@ main (int    argc,
             }
         }
 
+        /* Informative text for private browsing unless we have a URI */
+        if (private && webapp == NULL && uris == NULL)
+            midori_browser_add_uri (browser, "about:private");
+
         if (midori_browser_get_current_uri (browser) == NULL)
             midori_browser_add_uri (browser, "about:blank");
 

@@ -2306,7 +2306,7 @@ _action_private_browsing_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
     const gchar* uri = midori_browser_get_current_uri (browser);
-    sokoke_spawn_app (uri && *uri ? uri : "about:blank", TRUE);
+    sokoke_spawn_app ("", TRUE);
 }
 
 static void
