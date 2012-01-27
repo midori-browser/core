@@ -3744,10 +3744,14 @@ static void
 _action_location_reset_uri (GtkAction*     action,
                             MidoriBrowser* browser)
 {
-    const gchar* uri;
-
-    uri = midori_browser_get_current_uri (browser);
-    midori_location_action_set_text (MIDORI_LOCATION_ACTION (action), uri);
+    GtkWidget* view;
+    if ((view = midori_browser_get_current_tab (browser)))
+    {
+        midori_location_action_set_text (MIDORI_LOCATION_ACTION (action),
+            midori_view_get_display_uri (MIDORI_VIEW (view)));
+        midori_location_action_set_icon (MIDORI_LOCATION_ACTION (action),
+            midori_view_get_icon (MIDORI_VIEW (view)));
+    }
 }
 
 
