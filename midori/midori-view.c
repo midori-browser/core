@@ -3977,7 +3977,7 @@ midori_view_set_uri (MidoriView*  view,
             }
             else if (!strcmp (uri, "about:private"))
             {
-                katze_assign (view->uri, g_strdup (uri));
+                katze_assign (view->uri, g_strdup (""));
                 data = g_strdup_printf (
                     "<html><head><title>%s</title>"
                     "<link rel=\"stylesheet\" type=\"text/css\" href=\"res://about.css\">"
@@ -3990,9 +3990,9 @@ midori_view_set_uri (MidoriView*  view,
                     "</div><br style=\"clear: both\"></div></body></html>",
                     _("Private Browsing"), _("Private Browsing"),
                     _("Midori doesn't store any personal data:"),
-                    _("No History or web cookies are being saved."),
-                    _("HTML5 storage, local database and application caches are disabled."),
+                    _("No history or web cookies are being saved."),
                     _("Extensions are disabled."),
+                    _("HTML5 storage, local database and application caches are disabled."),
                     _("Midori prevents websites from tracking the user:"),
                     _("Referrer URLs are stripped down to the hostname."),
                     _("DNS prefetching is disabled."),
