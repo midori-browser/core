@@ -1,0 +1,57 @@
+/*
+ about: page style template for Midori.
+ This file is licensed under the terms of the expat license, see the file EXPAT.
+ */
+body {
+   background-color: #eee;
+   margin: 0;
+   padding: 0;
+}
+
+#container {
+   background: #f6fff3;
+   min-width: 70%;
+   max-width: 70%;
+   margin: 2em auto 1em;
+   padding: 1em;
+   border: 0.2em solid #9acb7f;
+   -webkit-border-radius: 1em;
+}
+
+icon {
+   float: left;
+   padding-left: 1%;
+   padding-top: 1%;
+}
+
+#main {
+   float: right;
+   width: 90%;
+}
+
+h1 {
+   font-size: 1.4em;
+   font-weight: bold;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+#logo {
+  position: absolute; right: 15px; bottom: 15px;
+  z-index: -1;
+}
+
+button span,
+button img {
+    vertical-align: middle;
+    padding: 2px 1px;
+}
+
+message {
+   font-size: 1.1em;
+}
+
+description {
+   font-size: 1em;
+}
