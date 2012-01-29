@@ -7,299 +7,380 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midori\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-27 22:19+0000\n"
+"POT-Creation-Date: 2012-01-29 00:15+0000\n"
 "PO-Revision-Date: 2011-03-12 16:27+0700\n"
 "Last-Translator: Andhika Padmawan <andhika.padmawan@gmail.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../data/midori.desktop.in.h:1
-msgid "Lightweight web browser"
-msgstr "Peramban web ringan"
+msgid "Browse the Web"
+msgstr "Ramban Web"
 
-#: ../data/midori.desktop.in.h:2 ../midori/main.c:1431 ../midori/main.c:2005
-#: ../midori/main.c:2029 ../midori/main.c:2045
-#: ../midori/midori-websettings.c:293
+#: ../data/midori.desktop.in.h:2
+msgid "Internet;WWW;Explorer"
+msgstr "Internet;WWW;Explorer"
+
+#: ../data/midori.desktop.in.h:3 ../midori/main.c:1978 ../midori/main.c:1998
+#: ../midori/main.c:2009 ../midori/midori-websettings.c:304
 msgid "Midori"
 msgstr "Midori"
 
-#: ../data/midori.desktop.in.h:3
+#: ../data/midori.desktop.in.h:4
 msgid "Web Browser"
 msgstr "Peramban Web"
 
-#: ../midori/main.c:106 ../midori/main.c:112
+#: ../data/midori-private.desktop.in.h:1
+msgid "Midori Private Browsing"
+msgstr "Midori Meramban Privat"
+
+#: ../data/midori-private.desktop.in.h:2
+msgid "Open a new private browsing window"
+msgstr "Buka jendela meramban privat baru"
+
+#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3991
+msgid "Private Browsing"
+msgstr "Meramban Privat"
+
+#: ../midori/main.c:96 ../midori/main.c:102
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
 msgstr "Konfigurasi tak dapat dimuat: %s\n"
 
-#: ../midori/main.c:160
+#: ../midori/main.c:150
 #, c-format
 msgid "Value '%s' is invalid for %s"
 msgstr "Nilai '%s' hanya sah untuk %s"
 
-#: ../midori/main.c:165 ../midori/main.c:258
+#: ../midori/main.c:155 ../midori/main.c:259
 #, c-format
 msgid "Invalid configuration value '%s'"
 msgstr "Nilai konfigurasi '%s' tidak sah"
 
-#: ../midori/main.c:363
+#: ../midori/main.c:364
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
 msgstr "Mesin pencari tak dapat dimuat. %s\n"
 
-#: ../midori/main.c:417
+#: ../midori/main.c:418
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "Gagal membersihkan riwayat: %s\n"
 
-#: ../midori/main.c:437 ../midori/main.c:558 ../extensions/formhistory.c:423
+#: ../midori/main.c:438 ../midori/main.c:559
+#: ../extensions/formhistory/formhistory.c:249
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "Gagal membuka basis data: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:501
+#: ../midori/main.c:502
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "Gagal menghapus item riwayat lama: %s\n"
 
-#: ../midori/main.c:541 ../panels/midori-history.c:193
+#: ../midori/main.c:542 ../panels/midori-history.c:189
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Gagal menghapus item riwayat: %s\n"
 
-#: ../midori/main.c:588
+#: ../midori/main.c:589
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
 msgstr "Bookmark tak dapat disimpan. %s"
 
-#: ../midori/main.c:622
+#: ../midori/main.c:611
 #, c-format
 msgid "The configuration couldn't be saved. %s"
 msgstr "Konfigurasi tak dapat disimpan. %s"
 
-#: ../midori/main.c:657
+#: ../midori/main.c:646
 #, c-format
 msgid "The search engines couldn't be saved. %s"
 msgstr "Mesin pencari tak dapat disimpan. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:683 ../midori/main.c:703
+#: ../midori/main.c:683
 #, c-format
 msgid "The trash couldn't be saved. %s"
 msgstr "Kotak sampah tak dapat disimpan. %s"
 
-#: ../midori/main.c:737 ../panels/midori-extensions.c:93
+#: ../midori/main.c:724 ../panels/midori-extensions.c:91
 msgid "Extensions"
 msgstr "Ekstensi"
 
-#: ../midori/main.c:751
+#: ../midori/main.c:738
 msgid "Privacy"
 msgstr "Privasi"
 
-#: ../midori/main.c:759
-msgid "Cookies store login data, saved games, or user profiles for advertisement purposes."
-msgstr "Kuki menyimpan data log masuk, permainan yang disimpan, atau profil pengguna untuk kepentingan iklan."
+#: ../midori/main.c:750
+msgid ""
+"Cookies store login data, saved games, or user profiles for advertisement "
+"purposes."
+msgstr ""
+"Kuki menyimpan data log masuk, permainan yang disimpan, atau profil pengguna "
+"untuk kepentingan iklan."
 
-#: ../midori/main.c:823
+#: ../midori/main.c:806
 #, c-format
 msgid "The session couldn't be saved. %s"
 msgstr "Sesi tak dapat disimpan. %s"
 
-#: ../midori/main.c:1017
-msgid "No root certificate file is available. SSL certificates cannot be verified."
-msgstr "Tak ada sertifikat root yang tersedia. Sertifikat SSL tak dapat diverifikasi."
+#: ../midori/main.c:1024
+msgid ""
+"No root certificate file is available. SSL certificates cannot be verified."
+msgstr ""
+"Tak ada sertifikat root yang tersedia. Sertifikat SSL tak dapat diverifikasi."
 
-#: ../midori/main.c:1079
-msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
-msgstr "Midori kelihatannya telah macet saat terakhir kali dibuka. Jika hal ini terjadi berulang kali, coba salah satu opsi berikut untuk memecahkan masalah tersebut."
+#: ../midori/main.c:1092
+msgid ""
+"Midori seems to have crashed the last time it was opened. If this happened "
+"repeatedly, try one of the following options to solve the problem."
+msgstr ""
+"Midori kelihatannya telah macet saat terakhir kali dibuka. Jika hal ini "
+"terjadi berulang kali, coba salah satu opsi berikut untuk memecahkan masalah "
+"tersebut."
 
-#: ../midori/main.c:1098
+#: ../midori/main.c:1111
 msgid "Modify _preferences"
 msgstr "Ubah _pengaturan"
 
-#: ../midori/main.c:1102
+#: ../midori/main.c:1115
 msgid "Disable all _extensions"
 msgstr "Nonaktifkan semua _ekstensi"
 
-#: ../midori/main.c:1115
+#: ../midori/main.c:1128
 msgid "Discard old tabs"
 msgstr "Abaikan tab lama"
 
-#: ../midori/main.c:1116 ../midori/midori-websettings.c:203
+#: ../midori/main.c:1129 ../midori/midori-websettings.c:213
 msgid "Show last tabs without loading"
 msgstr "Tampilkan tab terakhir tanpa memuat"
 
-#: ../midori/main.c:1117 ../midori/midori-websettings.c:202
+#: ../midori/main.c:1130 ../midori/midori-websettings.c:212
 msgid "Show last open tabs"
 msgstr "Tampilkan tab yang terakhir terbuka"
 
-#: ../midori/main.c:1310 ../midori/main.c:2366
+#: ../midori/main.c:1338 ../midori/main.c:2393
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
 msgstr "Sesi tak dapat dimuat: %s\n"
 
-#: ../midori/main.c:1431
-msgid "No filename specified"
-msgstr "Tak ada nama berkas yang ditentukan"
-
-#: ../midori/main.c:1450
-msgid "An unknown error occured."
-msgstr "Galat tak diketahui terjadi."
-
-#: ../midori/main.c:1479
+#: ../midori/main.c:1476
 #, c-format
 msgid "Snapshot saved to: %s\n"
 msgstr "Cuplikan layar disimpan ke: %s\n"
 
-#: ../midori/main.c:1889
+#: ../midori/main.c:1881
 msgid "Run ADDRESS as a web application"
 msgstr "Jalankan ALAMAT sebagai sebuah aplikasi web"
 
-#: ../midori/main.c:1889
+#: ../midori/main.c:1881
 msgid "ADDRESS"
 msgstr "ALAMAT"
 
-#: ../midori/main.c:1892
+#: ../midori/main.c:1884
 msgid "Use FOLDER as configuration folder"
 msgstr "Gunakan FOLDER sebagai folder konfigurasi"
 
-#: ../midori/main.c:1892
+#: ../midori/main.c:1884
 msgid "FOLDER"
 msgstr "FOLDER"
 
-#: ../midori/main.c:1895
+#: ../midori/main.c:1887
 msgid "Private browsing, no changes are saved"
 msgstr "Meramban privat, tak ada perubahan yang disimpan"
 
-#: ../midori/main.c:1897
+#: ../midori/main.c:1889
 msgid "Show a diagnostic dialog"
 msgstr "Tampilkan dialog diagnosis"
 
-#: ../midori/main.c:1899
+#: ../midori/main.c:1891
 msgid "Run the specified filename as javascript"
 msgstr "Jalankan nama berkas yang ditentukan sebagai javascript"
 
-#: ../midori/main.c:1901
+#: ../midori/main.c:1893
 msgid "Take a snapshot of the specified URI"
 msgstr "Ambil cuplikan layar dari URI yang ditentukan"
 
-#: ../midori/main.c:1903
+#: ../midori/main.c:1895
 msgid "Execute the specified command"
 msgstr "Eksekusi perintah yang ditentukan"
 
-#: ../midori/main.c:1905
+#: ../midori/main.c:1897
 msgid "List available commands to execute with -e/ --execute"
 msgstr "Senarai perintah tersedia yang dijalankan dengan -e/ --execute"
 
-#: ../midori/main.c:1907
+#: ../midori/main.c:1899
 msgid "Display program version"
 msgstr "Tampilkan versi program"
 
-#: ../midori/main.c:1909
+#: ../midori/main.c:1901
 msgid "Addresses"
 msgstr "Alamat"
 
-#: ../midori/main.c:1911
+#: ../midori/main.c:1903
 msgid "Block URIs according to regular expression PATTERN"
 msgstr "Blok URI berdasarkan POLA ekspresi reguler"
 
-#: ../midori/main.c:1911
+#: ../midori/main.c:1903
 msgid "PATTERN"
 msgstr "POLA"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1915
+#: ../midori/main.c:1907
 msgid "Reset Midori after SECONDS seconds of inactivity"
 msgstr "Atur ulang Midori setelah DETIK detik tidak aktif"
 
-#: ../midori/main.c:1915
+#: ../midori/main.c:1907
 msgid "SECONDS"
 msgstr "DETIK"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:1910
 msgid "Redirects console warnings to the specified FILENAME"
 msgstr "Mengalihkan peringatan konsol ke NAMABERKAS yang ditentukan"
 
-#: ../midori/main.c:1918
+#: ../midori/main.c:1910
 msgid "FILENAME"
 msgstr "NAMABERKAS"
 
-#: ../midori/main.c:2002
+#: ../midori/main.c:1975
 msgid "[Addresses]"
 msgstr "[Alamat]"
 
-#: ../midori/main.c:2016
+#: ../midori/main.c:1985
 msgid "The specified configuration folder is invalid."
 msgstr "Folder konfigurasi yang ditentukan tidak valid."
 
-#: ../midori/main.c:2046
+#: ../midori/main.c:2010
 msgid "Please report comments, suggestions and bugs to:"
 msgstr "Silakan laporkan komentar, saran dan kutu ke:"
 
-#: ../midori/main.c:2048
+#: ../midori/main.c:2012
 msgid "Check for new versions at:"
 msgstr "Cek versi baru di:"
 
-#: ../midori/main.c:2115
+#: ../midori/main.c:2095
 msgid "Website icons"
 msgstr "Ikon situs web"
 
 #. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2118
+#: ../midori/main.c:2098
 msgid "Saved logins and _passwords"
 msgstr "Log masuk dan _sandi tersimpan"
 
-#: ../midori/main.c:2120
+#: ../midori/main.c:2100
 msgid "Cookies"
 msgstr "Kuki"
 
-#: ../midori/main.c:2123
+#: ../midori/main.c:2103
 msgid "'Flash' Cookies"
 msgstr "Kuki 'Flash'"
 
-#: ../midori/main.c:2126
+#: ../midori/main.c:2106
 msgid "HTML5 _Databases"
 msgstr "Basis _Data HTML5"
 
-#: ../midori/main.c:2129 ../midori/midori-websettings.c:887
-#: ../extensions/web-cache.c:470 ../extensions/web-cache.c:479
+#: ../midori/main.c:2109 ../midori/midori-websettings.c:947
+#: ../extensions/web-cache.c:462 ../extensions/web-cache.c:471
 msgid "Web Cache"
 msgstr "Tembolok Web"
 
-#: ../midori/main.c:2133
+#: ../midori/main.c:2111
 msgid "Offline Application Cache"
 msgstr "Tembolok Aplikasi Luring"
 
-#: ../midori/main.c:2297
+#: ../midori/main.c:2218
+msgid "An unknown error occured"
+msgstr "Galat tak diketahui terjadi"
+
+#: ../midori/main.c:2324
 msgid "An instance of Midori is already running but not responding.\n"
 msgstr "Sebuah instansi Midori telah berjalan namun tidak merespon.\n"
 
-#: ../midori/main.c:2333
+#: ../midori/main.c:2360
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
 msgstr "Penanda tak dapat dimuat: %s\n"
 
-#: ../midori/main.c:2381
+#: ../midori/main.c:2408
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
 msgstr "Kotak sampah tak dapat dimuat: %s\n"
 
-#: ../midori/main.c:2394
+#: ../midori/main.c:2421
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
 msgstr "Riwayat tak dapat dimuat: %s\n"
 
-#: ../midori/main.c:2410
+#: ../midori/main.c:2437
 msgid "The following errors occured:"
 msgstr "Galat berikut terjadi:"
 
-#: ../midori/main.c:2426
+#: ../midori/main.c:2453
 msgid "_Ignore"
 msgstr "_Abaikan"
+
+#: ../midori/midori-app.c:1331
+msgid "_Bookmark"
+msgstr "B_ookmark"
+
+#: ../midori/midori-app.c:1332 ../midori/midori-browser.c:6049
+msgid "_Bookmarks"
+msgstr "B_ookmark"
+
+#: ../midori/midori-app.c:1333
+msgid "Add Boo_kmark"
+msgstr "Tambah P_enanda"
+
+#: ../midori/midori-app.c:1334
+msgid "_Console"
+msgstr "_Konsol"
+
+#: ../midori/midori-app.c:1335
+msgid "_Extensions"
+msgstr "_Ekstensi"
+
+#. i18n: Browsing history, visited web pages, closed tabs
+#: ../midori/midori-app.c:1336 ../midori/midori-browser.c:4619
+msgid "_History"
+msgstr "_Riwayat"
+
+#: ../midori/midori-app.c:1337
+msgid "_Homepage"
+msgstr "_Beranda"
+
+#: ../midori/midori-app.c:1338
+msgid "_Userscripts"
+msgstr "_Skrip pengguna"
+
+#: ../midori/midori-app.c:1339
+msgid "New _Tab"
+msgstr "Tab _Baru"
+
+#: ../midori/midori-app.c:1340
+msgid "_Transfers"
+msgstr "_Transfer"
+
+#: ../midori/midori-app.c:1341
+msgid "Netscape p_lugins"
+msgstr "P_lugin Netscape"
+
+#: ../midori/midori-app.c:1342
+msgid "_Closed Tabs"
+msgstr "_Tab Tertutup"
+
+#: ../midori/midori-app.c:1343 ../midori/midori-browser.c:5206
+msgid "New _Window"
+msgstr "Jendela _Baru"
+
+#: ../midori/midori-app.c:1344
+msgid "New _Folder"
+msgstr "_Folder Baru"
 
 #: ../midori/midori-array.c:522
 msgid "File not found."
@@ -314,862 +395,699 @@ msgstr "Dokumen salah bentuk."
 msgid "Unrecognized bookmark format."
 msgstr "Format penanda tak dikenal."
 
-#: ../midori/midori-array.c:916
+#: ../midori/midori-array.c:915
 msgid "Writing failed."
 msgstr "Penulisan gagal."
 
-#: ../midori/midori-browser.c:329 ../midori/midori-browser.c:5219
-#: ../midori/midori-browser.c:5228
+#: ../midori/midori-browser.c:326 ../midori/midori-browser.c:5288
+#: ../midori/midori-browser.c:5297
 msgid "Reload the current page"
 msgstr "Muat ulang halaman ini"
 
-#: ../midori/midori-browser.c:340 ../midori/midori-browser.c:5225
+#: ../midori/midori-browser.c:335 ../midori/midori-browser.c:5294
 msgid "Stop loading the current page"
 msgstr "Stop memuat halaman ini"
 
-#: ../midori/midori-browser.c:467
+#: ../midori/midori-browser.c:465
 #, c-format
 msgid "Failed to update title: %s\n"
 msgstr "Gagal memutakhirkan judul: %s\n"
 
-#: ../midori/midori-browser.c:480
+#: ../midori/midori-browser.c:478
 #, c-format
 msgid "Unexpected action '%s'."
 msgstr "Aksi tak diharapkan '%s'."
 
-#: ../midori/midori-browser.c:581
+#: ../midori/midori-browser.c:568
 #, c-format
 msgid "%s (Private Browsing)"
 msgstr "%s (Meramban Privat)"
 
-#: ../midori/midori-browser.c:721
+#: ../midori/midori-browser.c:678 ../midori/midori-browser.c:711
+msgid "Toplevel folder"
+msgstr "Folder level atas"
+
+#: ../midori/midori-browser.c:768
 msgid "New folder"
 msgstr "Folder baru"
 
-#: ../midori/midori-browser.c:721
+#: ../midori/midori-browser.c:768
 msgid "Edit folder"
 msgstr "Sunting folder"
 
-#: ../midori/midori-browser.c:723
+#: ../midori/midori-browser.c:770
 msgid "New bookmark"
 msgstr "Penanda baru"
 
-#: ../midori/midori-browser.c:723
+#: ../midori/midori-browser.c:770
 msgid "Edit bookmark"
 msgstr "Sunting penanda"
 
-#: ../midori/midori-browser.c:754
+#: ../midori/midori-browser.c:801
 msgid "_Title:"
 msgstr "_Judul:"
 
-#: ../midori/midori-browser.c:774 ../midori/midori-searchaction.c:967
+#: ../midori/midori-browser.c:821 ../midori/midori-searchaction.c:967
 #: ../extensions/feed-panel/main.c:377
 msgid "_Address:"
 msgstr "_Alamat"
 
-#: ../midori/midori-browser.c:807 ../midori/midori-browser.c:4264
+#: ../midori/midori-browser.c:844 ../midori/midori-browser.c:4356
 msgid "_Folder:"
 msgstr "_Folder:"
 
-#: ../midori/midori-browser.c:817 ../midori/midori-browser.c:905
-#: ../midori/midori-browser.c:4269 ../midori/midori-browser.c:4297
-msgid "Toplevel folder"
-msgstr "Folder level atas"
-
-#: ../midori/midori-browser.c:848
+#: ../midori/midori-browser.c:860
 msgid "Add to _Speed Dial"
 msgstr "Tambah ke Panggil _Cepat"
 
-#: ../midori/midori-browser.c:861
+#: ../midori/midori-browser.c:873
 msgid "Show in the tool_bar"
 msgstr "Tampilkan di _batang alat"
 
-#: ../midori/midori-browser.c:876
+#: ../midori/midori-browser.c:888
 msgid "Run as _web application"
 msgstr "Jalankan sebagai aplikasi _web"
 
-#: ../midori/midori-browser.c:949
+#: ../midori/midori-browser.c:959
 #, c-format
 msgid "The file \"%s\" can't be saved in this folder."
 msgstr "Berkas \"%s\" tak dapat disimpan di folder ini."
 
-#: ../midori/midori-browser.c:951
+#: ../midori/midori-browser.c:961
 #, c-format
 msgid "You don't have permission to write in this location."
 msgstr "Anda tidak mempunyai hak akses untuk menulis di lokasi ini."
 
-#: ../midori/midori-browser.c:958
+#: ../midori/midori-browser.c:968
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
 msgstr "Tidak cukup ruang kosong untuk mengunduh \"%s\"."
 
-#: ../midori/midori-browser.c:961
+#: ../midori/midori-browser.c:971
 #, c-format
 msgid "The file needs %s but only %s are left."
 msgstr "Berkas memerlukan %s tapi hanya %s yang tersisa."
 
-#: ../midori/midori-browser.c:1003 ../midori/midori-browser.c:4348
+#: ../midori/midori-browser.c:1015 ../midori/midori-browser.c:4425
 msgid "Save file as"
 msgstr "Simpan berkas sebagai"
 
-#: ../midori/midori-browser.c:1322
+#: ../midori/midori-browser.c:1324
 msgid "New Window"
 msgstr "Jendela Baru"
 
-#: ../midori/midori-browser.c:1322
+#: ../midori/midori-browser.c:1324
 msgid "A new window has been opened"
 msgstr "Sebuah jendela baru telah dibuka"
 
-#: ../midori/midori-browser.c:1325
+#: ../midori/midori-browser.c:1327
 msgid "New Tab"
 msgstr "Tab Baru"
 
-#: ../midori/midori-browser.c:1325
+#: ../midori/midori-browser.c:1327
 msgid "A new tab has been opened"
 msgstr "Sebuah tab baru telah dibuka"
 
 #: ../midori/midori-browser.c:1362
+msgid "Error opening the image!"
+msgstr "Galat membuka gambar!"
+
+#: ../midori/midori-browser.c:1363
+msgid "Can not open selected image in a default viewer."
+msgstr "Tak dapat membuka gambar terpilih di penampil standar."
+
+#: ../midori/midori-browser.c:1369
+msgid "Error downloading the image!"
+msgstr "Gagal mengunduh gambar!"
+
+#: ../midori/midori-browser.c:1370
+msgid "Can not downlaod selected image."
+msgstr "Tak dapat mengunduh gambar terpilih."
+
+#: ../midori/midori-browser.c:1473
 msgid "Save file"
 msgstr "Simpan berkas"
 
-#: ../midori/midori-browser.c:2243
+#: ../midori/midori-browser.c:2327
 msgid "Open file"
 msgstr "Buka berkas"
 
-#: ../midori/midori-browser.c:2370
+#: ../midori/midori-browser.c:2458
 msgid ""
-"To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
-"Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
+"To use the above URI open a news aggregator. There is usually a menu or "
+"button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News "
+"Aggregator. Next time you click the news feed icon, it will be added "
+"automatically."
 msgstr ""
-"Untuk menggunakan URI membuka agregator berita. Biasanya ada menu atau tombol \"Pelanggan Baru\", \"Umpan Berita Baru\" atau sejenisnya.\n"
-"Sebagai alternatif pergi ke Pengaturan, Aplikasi di Midori, lalu pilih Agregator Berita. Lain kali anda klik ikon umpan berita, maka umpan akan ditambahkan secara otomatis."
+"Untuk menggunakan URI membuka agregator berita. Biasanya ada menu atau "
+"tombol \"Pelanggan Baru\", \"Umpan Berita Baru\" atau sejenisnya.\n"
+"Sebagai alternatif pergi ke Pengaturan, Aplikasi di Midori, lalu pilih "
+"Agregator Berita. Lain kali anda klik ikon umpan berita, maka umpan akan "
+"ditambahkan secara otomatis."
 
-#: ../midori/midori-browser.c:2376 ../extensions/feed-panel/main.c:365
+#: ../midori/midori-browser.c:2464 ../extensions/feed-panel/main.c:365
 msgid "New feed"
 msgstr "Umpan baru"
 
-#: ../midori/midori-browser.c:2419 ../midori/midori-browser.c:5288
-#: ../panels/midori-bookmarks.c:466
+#: ../midori/midori-browser.c:2507 ../midori/midori-browser.c:5357
+#: ../panels/midori-bookmarks.c:426
 msgid "Add a new bookmark"
 msgstr "Tambah penanda baru"
 
-#: ../midori/midori-browser.c:2978 ../midori/midori-searchaction.c:488
+#: ../midori/midori-browser.c:3004 ../midori/midori-searchaction.c:488
 msgid "Empty"
 msgstr "Kosong"
 
-#: ../midori/midori-browser.c:3766 ../midori/midori-browser.c:5698
+#: ../midori/midori-browser.c:3500
+msgid "Toggle text cursor navigation"
+msgstr "Ubah navigasi kursor teks"
+
+#: ../midori/midori-browser.c:3818 ../midori/midori-browser.c:5743
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Gagal memasukkan item riwayat baru: %s\n"
 
-#: ../midori/midori-browser.c:4096 ../panels/midori-bookmarks.c:782
-#: ../panels/midori-history.c:751
+#: ../midori/midori-browser.c:4153 ../panels/midori-bookmarks.c:742
+#: ../panels/midori-history.c:747
 msgid "Open all in _Tabs"
 msgstr "Buka semua di _Tab"
 
-#: ../midori/midori-browser.c:4103 ../panels/midori-bookmarks.c:788
-#: ../panels/midori-history.c:757 ../extensions/feed-panel/feed-panel.c:533
+#: ../midori/midori-browser.c:4160 ../panels/midori-bookmarks.c:748
+#: ../panels/midori-history.c:753 ../extensions/feed-panel/feed-panel.c:528
 msgid "Open in New _Tab"
 msgstr "Buka di _Tab Baru"
 
-#: ../midori/midori-browser.c:4106 ../midori/midori-view.c:2523
-#: ../midori/midori-view.c:4371 ../panels/midori-bookmarks.c:790
-#: ../panels/midori-history.c:759 ../extensions/feed-panel/feed-panel.c:535
+#: ../midori/midori-browser.c:4163 ../midori/midori-view.c:2555
+#: ../midori/midori-view.c:4485 ../panels/midori-bookmarks.c:750
+#: ../panels/midori-history.c:755 ../extensions/feed-panel/feed-panel.c:530
 msgid "Open in New _Window"
 msgstr "Buka di _Jendela Baru"
 
-#: ../midori/midori-browser.c:4186
+#: ../midori/midori-browser.c:4243
 msgid "Arora"
 msgstr "Arora"
 
-#: ../midori/midori-browser.c:4187
+#: ../midori/midori-browser.c:4244
 msgid "Kazehakase"
 msgstr "Kazehakase"
 
-#: ../midori/midori-browser.c:4188
+#: ../midori/midori-browser.c:4245
 msgid "Opera"
 msgstr "Opera"
 
-#: ../midori/midori-browser.c:4189
+#: ../midori/midori-browser.c:4246
 msgid "Konqueror"
 msgstr "Konqueror"
 
-#: ../midori/midori-browser.c:4190
+#: ../midori/midori-browser.c:4247
 msgid "Epiphany"
 msgstr "Epiphany"
 
-#: ../midori/midori-browser.c:4215
+#: ../midori/midori-browser.c:4248
+#, c-format
+msgid "Firefox (%s)"
+msgstr "Firefox (%s)"
+
+#: ../midori/midori-browser.c:4269
 msgid "Import bookmarks..."
 msgstr "Impor penanda..."
 
-#: ../midori/midori-browser.c:4218 ../midori/midori-browser.c:5293
+#: ../midori/midori-browser.c:4272 ../midori/midori-browser.c:5362
 msgid "_Import bookmarks"
 msgstr "_Impor penanda"
 
-#: ../midori/midori-browser.c:4229
+#: ../midori/midori-browser.c:4283
 msgid "_Application:"
 msgstr "_Aplikasi:"
 
-#: ../midori/midori-browser.c:4256
+#: ../midori/midori-browser.c:4348
 msgid "Import from XBEL or HTML file"
 msgstr "Impor dari berkas XBEL atau HTML"
 
-#: ../midori/midori-browser.c:4305
+#: ../midori/midori-browser.c:4383
 msgid "Import from a file"
 msgstr "Impor dari berkas"
 
-#: ../midori/midori-browser.c:4317
+#: ../midori/midori-browser.c:4395
 msgid "Failed to import bookmarks"
 msgstr "Gagal mengimpor penanda"
 
-#: ../midori/midori-browser.c:4353
+#: ../midori/midori-browser.c:4430
 msgid "XBEL Bookmarks"
 msgstr "Penanda XBEL"
 
-#: ../midori/midori-browser.c:4358
+#: ../midori/midori-browser.c:4435
 msgid "Netscape Bookmarks"
 msgstr "Penanda Netscape"
 
-#: ../midori/midori-browser.c:4372
+#: ../midori/midori-browser.c:4449
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
 msgstr "Midori hanya dapat mengekspor ke XBEL (*.xbel) dan Netscape (*.html)"
 
-#: ../midori/midori-browser.c:4388
+#: ../midori/midori-browser.c:4464
 msgid "Failed to export bookmarks"
 msgstr "Gagal mengekspor penanda"
 
 #. i18n: Dialog: Clear Private Data, in the Tools menu
-#: ../midori/midori-browser.c:4514
+#: ../midori/midori-browser.c:4586
 msgid "Clear Private Data"
 msgstr "Hapus Data Pribadi"
 
-#: ../midori/midori-browser.c:4518
+#: ../midori/midori-browser.c:4590
 msgid "_Clear private data"
 msgstr "_Hapus data pribadi"
 
-#: ../midori/midori-browser.c:4531
+#: ../midori/midori-browser.c:4603
 msgid "Clear the following data:"
 msgstr "Hapus data berikut:"
 
-#: ../midori/midori-browser.c:4541
+#: ../midori/midori-browser.c:4613
 msgid "Last open _tabs"
 msgstr "Tab terakhir dibuka"
 
-#. i18n: Browsing history, visited web pages
-#: ../midori/midori-browser.c:4547 ../midori/sokoke.c:1520
-msgid "_History"
-msgstr "_Riwayat"
-
-#: ../midori/midori-browser.c:4552 ../midori/sokoke.c:1526
-msgid "_Closed Tabs"
-msgstr "_Tab Tertutup"
-
-#: ../midori/midori-browser.c:4572
+#: ../midori/midori-browser.c:4639
 msgid "Clear private data when _quitting Midori"
 msgstr "Hapus data pribadi ketika _keluar Midori"
 
-#: ../midori/midori-browser.c:4746
+#: ../midori/midori-browser.c:4815
 msgid "A lightweight web browser."
 msgstr "Peramban web ringan."
 
-#: ../midori/midori-browser.c:4747
+#: ../midori/midori-browser.c:4816
 msgid "See about:version for version info."
 msgstr "Lihaat tentang:versi untuk info versi."
 
-#: ../midori/midori-browser.c:4749
-msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
-msgstr "Pustaka ini adalah peranti bebas; anda dapat mendistribusikan ulang dan/atau memodifikasinya di bawah GNU Lesser General Public License yang dipublikasikan oleh Free Software Foundation; baik versi 2.1 dari Lisensi, atau (menurut pilihan anda) versi apapun setelahnya."
+#: ../midori/midori-browser.c:4818
+msgid ""
+"This library is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Lesser General Public License as published by the "
+"Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version."
+msgstr ""
+"Pustaka ini adalah peranti bebas; anda dapat mendistribusikan ulang dan/atau "
+"memodifikasinya di bawah GNU Lesser General Public License yang "
+"dipublikasikan oleh Free Software Foundation; baik versi 2.1 dari Lisensi, "
+"atau (menurut pilihan anda) versi apapun setelahnya."
 
-#: ../midori/midori-browser.c:4768
+#: ../midori/midori-browser.c:4839
 msgid "translator-credits"
 msgstr "Andhika Padmawan <andhika.padmawan@gmail.com>"
 
-#: ../midori/midori-browser.c:5132
+#: ../midori/midori-browser.c:5204
 msgid "_File"
 msgstr "_Berkas"
 
-#: ../midori/midori-browser.c:5134 ../midori/sokoke.c:1527
-msgid "New _Window"
-msgstr "Jendela _Baru"
-
-#: ../midori/midori-browser.c:5135
+#: ../midori/midori-browser.c:5207
 msgid "Open a new window"
 msgstr "Buka di jendela baru"
 
-#: ../midori/midori-browser.c:5138
+#: ../midori/midori-browser.c:5210
 msgid "Open a new tab"
 msgstr "Buka di tab baru"
 
-#: ../midori/midori-browser.c:5140
+#: ../midori/midori-browser.c:5212
 msgid "New P_rivate Browsing Window"
 msgstr "Jendela Meramban P_rivat Baru"
 
-#: ../midori/midori-browser.c:5141
-msgid "Don't save any private data while browsing"
-msgstr "Jangan simpan data privat ketika meramban"
-
-#: ../midori/midori-browser.c:5145
+#: ../midori/midori-browser.c:5216
 msgid "Open a file"
 msgstr "Buka berkas"
 
-#: ../midori/midori-browser.c:5147
+#: ../midori/midori-browser.c:5218
 msgid "_Save Page As..."
 msgstr "_Simpan Halaman Sebagai..."
 
-#: ../midori/midori-browser.c:5148
+#: ../midori/midori-browser.c:5219
 msgid "Save to a file"
 msgstr "Simpan ke berkas"
 
-#: ../midori/midori-browser.c:5150
+#: ../midori/midori-browser.c:5221
 msgid "Add to Speed _dial"
 msgstr "Tambah ke Panggil _cepat"
 
-#: ../midori/midori-browser.c:5151
-msgid "Add shortcut to speed dial"
-msgstr "Tambah jalan pintas ke panggil cepat"
-
-#: ../midori/midori-browser.c:5154
+#: ../midori/midori-browser.c:5225
 msgid "Add Shortcut to the _desktop"
 msgstr "Tambah jalan pintas ke _desktop"
 
-#: ../midori/midori-browser.c:5155
-msgid "Add shortcut to the desktop"
-msgstr "Tambah jalan pintas ke desktop"
-
-#: ../midori/midori-browser.c:5157
+#: ../midori/midori-browser.c:5227
 msgid "Create _Launcher"
 msgstr "Buat _Peluncur"
 
-#: ../midori/midori-browser.c:5158
-msgid "Create a launcher"
-msgstr "Buat sebuah peluncur"
-
-#: ../midori/midori-browser.c:5161
+#: ../midori/midori-browser.c:5231
 msgid "Subscribe to News _feed"
 msgstr "Berlangganan ke umpan _berita"
 
-#: ../midori/midori-browser.c:5162
-msgid "Subscribe to this news feed"
-msgstr "Berlangganan ke umpan berita ini"
-
-#: ../midori/midori-browser.c:5167
+#: ../midori/midori-browser.c:5237
 msgid "_Close Tab"
 msgstr "_Tutup Tab"
 
-#: ../midori/midori-browser.c:5168
+#: ../midori/midori-browser.c:5238
 msgid "Close the current tab"
 msgstr "Tutup tab saat ini"
 
-#: ../midori/midori-browser.c:5170
+#: ../midori/midori-browser.c:5240
 msgid "C_lose Window"
 msgstr "T_utup Jendela"
 
-#: ../midori/midori-browser.c:5171
-msgid "Close this window"
-msgstr "Tutup jendela ini"
-
-#: ../midori/midori-browser.c:5174
+#: ../midori/midori-browser.c:5244
 msgid "Print the current page"
 msgstr "Cetak halaman saat ini"
 
-#: ../midori/midori-browser.c:5176
+#: ../midori/midori-browser.c:5246
 msgid "Close a_ll Windows"
 msgstr "T_utup semua Jendela"
 
-#: ../midori/midori-browser.c:5177
-msgid "Close all open windows"
-msgstr "Tutup semua jendela yang terbuka"
-
-#: ../midori/midori-browser.c:5179
+#: ../midori/midori-browser.c:5249
 msgid "_Edit"
 msgstr "_Sunting"
 
-#: ../midori/midori-browser.c:5182
-msgid "Undo the last modification"
-msgstr "Tak jadi modifikasi terakhir"
-
-#: ../midori/midori-browser.c:5185
-msgid "Redo the last modification"
-msgstr "Jadi lagi modifikasi terakhir"
-
-#: ../midori/midori-browser.c:5188
-msgid "Cut the selected text"
-msgstr "Potong teks terpilih"
-
-#: ../midori/midori-browser.c:5191
-msgid "Copy the selected text"
-msgstr "Salin teks terpilih"
-
-#: ../midori/midori-browser.c:5194
-msgid "Paste text from the clipboard"
-msgstr "Tempel teks dari papan klip"
-
-#: ../midori/midori-browser.c:5197
-msgid "Delete the selected text"
-msgstr "Hapus teks terpilih"
-
-#: ../midori/midori-browser.c:5200
-msgid "Select all text"
-msgstr "Pilih semua teks"
-
-#: ../midori/midori-browser.c:5202
+#: ../midori/midori-browser.c:5272
 msgid "_Find..."
 msgstr "_Cari..."
 
-#: ../midori/midori-browser.c:5203
+#: ../midori/midori-browser.c:5273
 msgid "Find a word or phrase in the page"
 msgstr "Cari kata atau frasa di halaman"
 
-#: ../midori/midori-browser.c:5205
+#: ../midori/midori-browser.c:5275
 msgid "Find _Next"
 msgstr "Cari _Berikutnya"
 
-#: ../midori/midori-browser.c:5206
-msgid "Find the next occurrence of a word or phrase"
-msgstr "Cari kejadian berikutnya dari kata atau frasa"
-
-#: ../midori/midori-browser.c:5208
+#: ../midori/midori-browser.c:5278
 msgid "Find _Previous"
 msgstr "Cari _Sebelumnya"
 
-#: ../midori/midori-browser.c:5209
-msgid "Find the previous occurrence of a word or phrase"
-msgstr "Cari kejadian sebelumnya dari kata atau frasa"
-
-#: ../midori/midori-browser.c:5213
+#: ../midori/midori-browser.c:5282
 msgid "Configure the application preferences"
 msgstr "Konfigurasi pilihan aplikasi"
 
-#: ../midori/midori-browser.c:5215
+#: ../midori/midori-browser.c:5284
 msgid "_View"
 msgstr "_Tampilan"
 
-#: ../midori/midori-browser.c:5216
+#: ../midori/midori-browser.c:5285
 msgid "_Toolbars"
 msgstr "_Batang Alat"
 
-#: ../midori/midori-browser.c:5221 ../midori/midori-browser.c:5222
+#: ../midori/midori-browser.c:5290
 msgid "Reload page without caching"
 msgstr "Muat ulang halaman tanpa menyimpan tembolok"
 
-#: ../midori/midori-browser.c:5231
+#: ../midori/midori-browser.c:5300
 msgid "Increase the zoom level"
 msgstr "Naikkan level pembesaran"
 
-#: ../midori/midori-browser.c:5234
+#: ../midori/midori-browser.c:5303
 msgid "Decrease the zoom level"
 msgstr "Turunkan level pembesaran"
 
-#: ../midori/midori-browser.c:5237
-msgid "Reset the zoom level"
-msgstr "Reset level pembesaran"
-
-#: ../midori/midori-browser.c:5238
+#: ../midori/midori-browser.c:5307
 msgid "_Encoding"
 msgstr "_Penyandian"
 
-#: ../midori/midori-browser.c:5240
+#: ../midori/midori-browser.c:5309
 msgid "View So_urce"
 msgstr "Tampilkan S_umber"
 
-#: ../midori/midori-browser.c:5241
-msgid "View the source code of the page"
-msgstr "Tampilkan kode program dari halaman"
-
-#: ../midori/midori-browser.c:5243
+#: ../midori/midori-browser.c:5312
 msgid "Ca_ret Browsing"
 msgstr "Meramban Ca_ret"
 
-#: ../midori/midori-browser.c:5244
-msgid "Toggle text cursor navigation"
-msgstr "Ubah navigasi kursor teks"
-
-#: ../midori/midori-browser.c:5247
+#: ../midori/midori-browser.c:5316
 msgid "Toggle fullscreen view"
 msgstr "Aktifkan tampilan layar penuh"
 
-#: ../midori/midori-browser.c:5249
+#: ../midori/midori-browser.c:5318
 msgid "Scroll _Left"
 msgstr "Gulung _Kiri"
 
-#: ../midori/midori-browser.c:5250
-msgid "Scroll to the left"
-msgstr "Gulung ke kiri"
-
-#: ../midori/midori-browser.c:5252
+#: ../midori/midori-browser.c:5321
 msgid "Scroll _Down"
 msgstr "Gulung _Bawah"
 
-#: ../midori/midori-browser.c:5253
-msgid "Scroll down"
-msgstr "Gulung bawah"
-
-#: ../midori/midori-browser.c:5255
+#: ../midori/midori-browser.c:5324
 msgid "Scroll _Up"
 msgstr "Gulung _Atas"
 
-#: ../midori/midori-browser.c:5256
-msgid "Scroll up"
-msgstr "Gulung atas"
-
-#: ../midori/midori-browser.c:5258
+#: ../midori/midori-browser.c:5327
 msgid "Scroll _Right"
 msgstr "_Gulung Kanan"
 
-#: ../midori/midori-browser.c:5259
-msgid "Scroll to the right"
-msgstr "Gulung ke kanan"
-
-#: ../midori/midori-browser.c:5261
+#: ../midori/midori-browser.c:5330
 msgid "_Go"
 msgstr "_Ke"
 
-#: ../midori/midori-browser.c:5264
+#: ../midori/midori-browser.c:5333
 msgid "Go back to the previous page"
 msgstr "Mundur ke halaman sebelumnya"
 
-#: ../midori/midori-browser.c:5267
+#: ../midori/midori-browser.c:5336
 msgid "Go forward to the next page"
 msgstr "Maju ke halaman berikutnya"
 
 #. i18n: Visit the previous logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5271
+#: ../midori/midori-browser.c:5340
 msgid "Go to the previous sub-page"
 msgstr "Maju ke sub-halaman sebelumnya"
 
 #. i18n: Visit the following logical page, ie. in a forum or blog
-#: ../midori/midori-browser.c:5275
+#: ../midori/midori-browser.c:5344
 msgid "Go to the next sub-page"
 msgstr "Maju ke sub-halaman berikutnya"
 
-#: ../midori/midori-browser.c:5278
+#: ../midori/midori-browser.c:5347
 msgid "Go to your homepage"
 msgstr "Ke laman anda"
 
-#: ../midori/midori-browser.c:5280
+#: ../midori/midori-browser.c:5349
 msgid "Empty Trash"
 msgstr "Kosongkan Tempat Sampah"
 
-#: ../midori/midori-browser.c:5281
-msgid "Delete the contents of the trash"
-msgstr "Hapus isi tempat sampah"
-
-#: ../midori/midori-browser.c:5283
+#: ../midori/midori-browser.c:5352
 msgid "Undo _Close Tab"
 msgstr "Tak _Jadi Tutup Tab"
 
-#: ../midori/midori-browser.c:5284
-msgid "Open the last closed tab"
-msgstr "Buka tab yang terakhir ditutup"
-
-#: ../midori/midori-browser.c:5290
+#: ../midori/midori-browser.c:5359
 msgid "Add a new _folder"
 msgstr "Tambah sebuah _folder baru"
 
-#: ../midori/midori-browser.c:5291
-msgid "Add a new bookmark folder"
-msgstr "Tambah sebuah folder penanda baru"
-
-#: ../midori/midori-browser.c:5296
+#: ../midori/midori-browser.c:5365
 msgid "_Export bookmarks"
 msgstr "_Ekspor penanda"
 
-#: ../midori/midori-browser.c:5299 ../midori/midori-searchaction.c:497
+#: ../midori/midori-browser.c:5368 ../midori/midori-searchaction.c:497
 msgid "_Manage Search Engines"
 msgstr "_Atur Mesin Pencari"
 
-#: ../midori/midori-browser.c:5300
-msgid "Add, edit and remove search engines..."
-msgstr "Tambah, sunting dan hapus mesin pencari..."
-
-#: ../midori/midori-browser.c:5303
+#: ../midori/midori-browser.c:5371
 msgid "_Clear Private Data"
 msgstr "_Hapus Data Pribadi"
 
-#: ../midori/midori-browser.c:5304
-msgid "Clear private data..."
-msgstr "Hapus data pribadi..."
-
-#: ../midori/midori-browser.c:5307
+#: ../midori/midori-browser.c:5374
 msgid "_Inspect Page"
 msgstr "_Inspeksi Halaman"
 
-#: ../midori/midori-browser.c:5308
-msgid "Inspect page details and access developer tools..."
-msgstr "Inspeksi detail halaman dan akses alat pengembang..."
-
-#: ../midori/midori-browser.c:5312
+#: ../midori/midori-browser.c:5378
 msgid "_Previous Tab"
 msgstr "_Tab Sebelumnya"
 
-#: ../midori/midori-browser.c:5313
-msgid "Switch to the previous tab"
-msgstr "Pindah ke tab sebelumnya"
-
-#: ../midori/midori-browser.c:5315
+#: ../midori/midori-browser.c:5381
 msgid "_Next Tab"
 msgstr "Tab _Berikutnya"
 
-#: ../midori/midori-browser.c:5316
-msgid "Switch to the next tab"
-msgstr "Pindah ke tab berikutnya"
-
-#: ../midori/midori-browser.c:5317
+#: ../midori/midori-browser.c:5383
 msgid "Move Tab _Backward"
 msgstr "_Geser Tab ke Belakang"
 
-#: ../midori/midori-browser.c:5318
-msgid "Move tab behind the previous tab"
-msgstr "Pindah tab ke belakang tab sebelumnya"
-
-#: ../midori/midori-browser.c:5319
+#: ../midori/midori-browser.c:5385
 msgid "_Move Tab Forward"
 msgstr "_Geser Tab ke Depan"
 
-#: ../midori/midori-browser.c:5320
-msgid "Move tab in front of the next tab"
-msgstr "Pindah tab ke depan tab berikutnya"
-
-#: ../midori/midori-browser.c:5322
+#: ../midori/midori-browser.c:5388
 msgid "Focus _Current Tab"
 msgstr "Fokus _Tab Saat Ini"
 
-#: ../midori/midori-browser.c:5323
-msgid "Focus the current tab"
-msgstr "Fokus tab saat ini"
-
-#: ../midori/midori-browser.c:5325
+#: ../midori/midori-browser.c:5391
 msgid "Focus _Next view"
 msgstr "Tampilan Fokus _Berikutnya"
 
-#: ../midori/midori-browser.c:5326
-msgid "Cycle focus between views"
-msgstr "Daur fokus di antara tampilan"
-
-#: ../midori/midori-browser.c:5328
+#: ../midori/midori-browser.c:5394
 msgid "Only show the Icon of the _Current Tab"
 msgstr "Hanya tampilkan Ikon dari Tab _Terkini"
 
-#: ../midori/midori-browser.c:5329
-msgid "Only show the icon of the current tab"
-msgstr "Hanya tampilkan ikon dari tab saat ini"
-
-#: ../midori/midori-browser.c:5331
+#: ../midori/midori-browser.c:5397
 msgid "_Duplicate Current Tab"
 msgstr "_Duplikasi Tab Saat Ini"
 
-#: ../midori/midori-browser.c:5332
-msgid "Duplicate the current tab"
-msgstr "Duplikasi tab saat ini"
-
-#: ../midori/midori-browser.c:5334
+#: ../midori/midori-browser.c:5400
 msgid "Close Ot_her Tabs"
 msgstr "_Tutup Tab Lainnya"
 
-#: ../midori/midori-browser.c:5335
-msgid "Close all tabs except the current tab"
-msgstr "Tutup semua tab kecuali tab saat ini"
-
-#: ../midori/midori-browser.c:5337
+#: ../midori/midori-browser.c:5403
 msgid "Open last _session"
 msgstr "Buka _sesi terakhir"
 
-#: ../midori/midori-browser.c:5338
-msgid "Open the tabs saved in the last session"
-msgstr "Buka tab yang tersimpan di sesi terakhir"
-
-#: ../midori/midori-browser.c:5340
+#: ../midori/midori-browser.c:5406
 msgid "_Help"
 msgstr "Ba_ntuan"
 
-#: ../midori/midori-browser.c:5342
+#: ../midori/midori-browser.c:5408
 msgid "_Frequent Questions"
 msgstr "_Pertanyaan Sering Ditanyakan"
 
-#: ../midori/midori-browser.c:5343
-msgid "Show the Frequently Asked Questions"
-msgstr "Tampilkan Pertanyaan Acapkali Diajukan"
-
-#: ../midori/midori-browser.c:5345
+#: ../midori/midori-browser.c:5411
 msgid "_Report a Problem..."
 msgstr "_Laporkan Masalah..."
 
-#: ../midori/midori-browser.c:5346
-msgid "Open Midori's bug tracker"
-msgstr "Buka pelacak kutu Midori"
-
-#: ../midori/midori-browser.c:5349
-msgid "Show information about the program"
-msgstr "Tampilkan informasi tentang program"
-
-#: ../midori/midori-browser.c:5357
+#: ../midori/midori-browser.c:5423
 msgid "_Menubar"
 msgstr "_Batang menu"
 
-#: ../midori/midori-browser.c:5358
-msgid "Show menubar"
-msgstr "Tampilkan batang menu"
-
-#: ../midori/midori-browser.c:5361
+#: ../midori/midori-browser.c:5427
 msgid "_Navigationbar"
 msgstr "Batang _navigasi"
 
-#: ../midori/midori-browser.c:5362
-msgid "Show navigationbar"
-msgstr "Tampilkan batang navigasi"
-
-#: ../midori/midori-browser.c:5365
+#: ../midori/midori-browser.c:5431
 msgid "Side_panel"
 msgstr "Panel _sisi"
 
-#: ../midori/midori-browser.c:5366
-msgid "Show sidepanel"
-msgstr "Tampilkan panel sisi"
+#: ../midori/midori-browser.c:5432
+msgid "Sidepanel"
+msgstr "Panel sisi"
 
-#: ../midori/midori-browser.c:5369
+#: ../midori/midori-browser.c:5435
 msgid "_Bookmarkbar"
 msgstr "Batang _penanda"
 
-#: ../midori/midori-browser.c:5370
-msgid "Show bookmarkbar"
-msgstr "Tampilkan batang penanda"
-
-#: ../midori/midori-browser.c:5373
+#: ../midori/midori-browser.c:5439
 msgid "_Statusbar"
 msgstr "Batang stat_us"
 
-#: ../midori/midori-browser.c:5374
-msgid "Show statusbar"
-msgstr "Tampilkan batang status"
-
-#: ../midori/midori-browser.c:5382
+#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:303
 msgid "_Automatic"
 msgstr "_Otomatis"
 
-#: ../midori/midori-browser.c:5385 ../midori/midori-websettings.c:218
+#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:228
 msgid "Chinese (BIG5)"
 msgstr "China (BIG5)"
 
 #. i18n: A double underscore "__" is used to prevent the mnemonic
-#: ../midori/midori-browser.c:5389
+#: ../midori/midori-browser.c:5455
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Jepang (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5392 ../midori/midori-websettings.c:220
+#: ../midori/midori-browser.c:5458 ../midori/midori-websettings.c:230
 msgid "Korean (EUC-KR)"
 msgstr "Korea (EUC-KR)"
 
-#: ../midori/midori-browser.c:5395 ../midori/midori-websettings.c:221
+#: ../midori/midori-browser.c:5461 ../midori/midori-websettings.c:231
 msgid "Russian (KOI8-R)"
 msgstr "Rusia (KOI8-R)"
 
-#: ../midori/midori-browser.c:5398 ../midori/midori-websettings.c:222
+#: ../midori/midori-browser.c:5464 ../midori/midori-websettings.c:232
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5401 ../midori/midori-websettings.c:223
+#: ../midori/midori-browser.c:5467 ../midori/midori-websettings.c:233
 msgid "Western (ISO-8859-1)"
 msgstr "Barat (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5404 ../midori/midori-websettings.c:224
-#: ../midori/midori-websettings.c:298 ../katze/katze-utils.c:732
+#: ../midori/midori-browser.c:5470 ../midori/midori-websettings.c:234
+#: ../midori/midori-websettings.c:309 ../katze/katze-utils.c:635
 msgid "Custom..."
 msgstr "Suai..."
 
-#: ../midori/midori-browser.c:5934
+#: ../midori/midori-browser.c:5976
 msgid "_Separator"
 msgstr "_Pemisah"
 
-#: ../midori/midori-browser.c:5941
+#: ../midori/midori-browser.c:5983
 msgid "_Location..."
 msgstr "_Lokasi..."
 
-#: ../midori/midori-browser.c:5943
+#: ../midori/midori-browser.c:5985
 msgid "Open a particular location"
 msgstr "Buka lokasi khusus"
 
-#: ../midori/midori-browser.c:5965
+#: ../midori/midori-browser.c:6007
 msgid "_Web Search..."
 msgstr "Penelusuran _Web..."
 
-#: ../midori/midori-browser.c:5967
+#: ../midori/midori-browser.c:6009
 msgid "Run a web search"
 msgstr "Jalankan penelusuran web"
 
-#: ../midori/midori-browser.c:5988
+#: ../midori/midori-browser.c:6036
 msgid "Reopen a previously closed tab or window"
 msgstr "Buka kembali tab atau jendela yang sebelumnya tertutup"
 
-#: ../midori/midori-browser.c:6001 ../midori/sokoke.c:1516
-msgid "_Bookmarks"
-msgstr "B_ookmark"
-
-#: ../midori/midori-browser.c:6003
+#: ../midori/midori-browser.c:6051
 msgid "Show the saved bookmarks"
 msgstr "Tampilkan penanda tersimpan"
 
-#: ../midori/midori-browser.c:6017
+#: ../midori/midori-browser.c:6065
 msgid "_Tools"
 msgstr "_Alat"
 
-#: ../midori/midori-browser.c:6032
+#: ../midori/midori-browser.c:6080
 msgid "_Window"
 msgstr "_Jendela"
 
-#: ../midori/midori-browser.c:6034
+#: ../midori/midori-browser.c:6082
 msgid "Show a list of all open tabs"
 msgstr "Tampilkan senarai semua tab yang terbuka"
 
-#: ../midori/midori-browser.c:6048
+#: ../midori/midori-browser.c:6096
 msgid "_Menu"
 msgstr "_Menu"
 
-#: ../midori/midori-browser.c:6050
+#: ../midori/midori-browser.c:6098
 msgid "Menu"
 msgstr "Menu"
 
-#: ../midori/midori-browser.c:6602
+#: ../midori/midori-browser.c:6768
 #, c-format
 msgid "Unexpected setting '%s'"
 msgstr "Pengaturan tak diharapkan '%s'"
 
-#: ../midori/midori-extension.c:305
+#: ../midori/midori-extension.c:310
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
 msgstr "Konfigurasi dari ekstensi '%s' tak dapat dimuat: %s\n"
 
-#: ../midori/midori-extension.c:703 ../midori/midori-extension.c:800
-#: ../midori/midori-extension.c:897 ../midori/midori-extension.c:1009
-#: ../extensions/addons.c:1640
+#: ../midori/midori-extension.c:721 ../midori/midori-extension.c:818
+#: ../midori/midori-extension.c:915 ../midori/midori-extension.c:1027
+#: ../extensions/addons.c:1695
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
 msgstr "Konfigurasi dari ekstensi '%s' tak dapat disimpan: %s\n"
 
-#: ../midori/midori-locationaction.c:400
+#: ../midori/midori-locationaction.c:425
 #, c-format
 msgid "Failed to select from history\n"
 msgstr "Gagal memilih dari riwayat\n"
 
-#: ../midori/midori-locationaction.c:484
+#: ../midori/midori-locationaction.c:509
 #, c-format
 msgid "Search for %s"
 msgstr "Mencari %s"
 
-#: ../midori/midori-locationaction.c:510
+#: ../midori/midori-locationaction.c:539
 #, c-format
 msgid "Search with %s"
 msgstr "Cari %s"
 
 #. i18n: Right-click on Location, Open an URL from the clipboard
-#: ../midori/midori-locationaction.c:1258
+#: ../midori/midori-locationaction.c:1315
 msgid "Paste and p_roceed"
 msgstr "Tempel dan l_anjutkan"
 
-#: ../midori/midori-locationaction.c:1653
+#: ../midori/midori-locationaction.c:1679
 msgid "Not verified"
 msgstr "Tidak diverifikasi"
 
-#: ../midori/midori-locationaction.c:1668
+#: ../midori/midori-locationaction.c:1697
 msgid "Verified and encrypted connection"
 msgstr "Koneksi terverifikasi dan terenkripsi"
 
@@ -1186,818 +1104,872 @@ msgstr "Tutup panel"
 msgid "Align sidepanel to the left"
 msgstr "Ratakan panel sisi ke kiri"
 
-#: ../midori/midori-websettings.c:200
+#: ../midori/midori-websettings.c:210
 msgid "Show Speed Dial"
 msgstr "Tampilkan Panggil cepat"
 
-#: ../midori/midori-websettings.c:201
+#: ../midori/midori-websettings.c:211
 msgid "Show Homepage"
 msgstr "Tampilkan Beranda"
 
-#: ../midori/midori-websettings.c:219
+#: ../midori/midori-websettings.c:229
 msgid "Japanese (SHIFT_JIS)"
 msgstr "Jepang (SHIFT_JIS)"
 
-#: ../midori/midori-websettings.c:239
+#: ../midori/midori-websettings.c:249
 msgid "New tab"
 msgstr "Tab baru"
 
-#: ../midori/midori-websettings.c:240
+#: ../midori/midori-websettings.c:250
 msgid "New window"
 msgstr "Jendela baru"
 
-#: ../midori/midori-websettings.c:241
+#: ../midori/midori-websettings.c:251
 msgid "Current tab"
 msgstr "Tab saat ini"
 
-#: ../midori/midori-websettings.c:256
+#: ../midori/midori-websettings.c:266
 msgid "Default"
 msgstr "Standar"
 
-#: ../midori/midori-websettings.c:257
+#: ../midori/midori-websettings.c:267
 msgid "Icons"
 msgstr "Ikon"
 
-#: ../midori/midori-websettings.c:258
+#: ../midori/midori-websettings.c:268
 msgid "Small icons"
 msgstr "Ikon kecil"
 
-#: ../midori/midori-websettings.c:259
+#: ../midori/midori-websettings.c:269
 msgid "Text"
 msgstr "Teks"
 
-#: ../midori/midori-websettings.c:260
+#: ../midori/midori-websettings.c:270
 msgid "Icons and text"
 msgstr "Ikon dan teks"
 
-#: ../midori/midori-websettings.c:261
+#: ../midori/midori-websettings.c:271
 msgid "Text beside icons"
 msgstr "Teks di samping ikon"
 
-#: ../midori/midori-websettings.c:276
+#: ../midori/midori-websettings.c:286
 msgid "Automatic (GNOME or environment)"
 msgstr "Otomatis (GNOME atau lingkungan)"
 
-#: ../midori/midori-websettings.c:277
+#: ../midori/midori-websettings.c:287
 msgid "HTTP proxy server"
 msgstr "Server proxy HTTP"
 
-#: ../midori/midori-websettings.c:278
+#: ../midori/midori-websettings.c:288
 msgid "No proxy server"
 msgstr "Tak ada server proxy"
 
-#: ../midori/midori-websettings.c:294
+#: ../midori/midori-websettings.c:305
 msgid "Safari"
 msgstr "Safari"
 
-#: ../midori/midori-websettings.c:295
+#: ../midori/midori-websettings.c:306
 msgid "iPhone"
 msgstr "iPhone"
 
-#: ../midori/midori-websettings.c:296
+#: ../midori/midori-websettings.c:307
 msgid "Firefox"
 msgstr "Firefox"
 
-#: ../midori/midori-websettings.c:297
+#: ../midori/midori-websettings.c:308
 msgid "Internet Explorer"
 msgstr "Internet Explorer"
 
-#: ../midori/midori-websettings.c:350
+#: ../midori/midori-websettings.c:361
 msgid "Remember last window size"
 msgstr "Ingat ukuran jendela terakhir"
 
-#: ../midori/midori-websettings.c:351
+#: ../midori/midori-websettings.c:362
 msgid "Whether to save the last window size"
 msgstr "Apakah ingin menyimpan ukuran jendela yang terakhir tersimpan"
 
-#: ../midori/midori-websettings.c:359
+#: ../midori/midori-websettings.c:370
 msgid "Last window width"
 msgstr "Lebar jendela terakhir"
 
-#: ../midori/midori-websettings.c:360
+#: ../midori/midori-websettings.c:371
 msgid "The last saved window width"
 msgstr "Lebar jendela terakhir tersimpan"
 
-#: ../midori/midori-websettings.c:368
+#: ../midori/midori-websettings.c:379
 msgid "Last window height"
 msgstr "Tinggi jendela terakhir"
 
-#: ../midori/midori-websettings.c:369
+#: ../midori/midori-websettings.c:380
 msgid "The last saved window height"
 msgstr "Tinggi jendela terakhir tersimpan"
 
-#: ../midori/midori-websettings.c:394
+#: ../midori/midori-websettings.c:405
 msgid "Last panel position"
 msgstr "Posisi panel terakhir"
 
-#: ../midori/midori-websettings.c:395
+#: ../midori/midori-websettings.c:406
 msgid "The last saved panel position"
 msgstr "Posisi panel terakhir tersimpan"
 
 #. i18n: The internal index of the last opened panel
-#: ../midori/midori-websettings.c:404
+#: ../midori/midori-websettings.c:415
 msgid "Last panel page"
 msgstr "Halaman panel terakhir"
 
-#: ../midori/midori-websettings.c:405
+#: ../midori/midori-websettings.c:416
 msgid "The last saved panel page"
 msgstr "Halaman panel terakhir tersimpan"
 
-#: ../midori/midori-websettings.c:413
+#: ../midori/midori-websettings.c:424
 msgid "Last Web search"
 msgstr "Penelusuran Web terakhir"
 
-#: ../midori/midori-websettings.c:414
+#: ../midori/midori-websettings.c:425
 msgid "The last saved Web search"
 msgstr "Penelusuran Web terakhir tersimpan"
 
-#: ../midori/midori-websettings.c:423
+#: ../midori/midori-websettings.c:434
 msgid "Show Menubar"
 msgstr "Tampilkan Batang Menu"
 
-#: ../midori/midori-websettings.c:424
+#: ../midori/midori-websettings.c:435
 msgid "Whether to show the menubar"
 msgstr "Apakah ingin menampilkan batang menu"
 
-#: ../midori/midori-websettings.c:432
+#: ../midori/midori-websettings.c:443
 msgid "Show Navigationbar"
 msgstr "Tampilkan Batang Navigasi"
 
-#: ../midori/midori-websettings.c:433
+#: ../midori/midori-websettings.c:444
 msgid "Whether to show the navigationbar"
 msgstr "Apakah ingin menampilkan batang navigasi"
 
-#: ../midori/midori-websettings.c:441
+#: ../midori/midori-websettings.c:452
 msgid "Show Bookmarkbar"
 msgstr "Tampilkan Batang Penanda"
 
-#: ../midori/midori-websettings.c:442
+#: ../midori/midori-websettings.c:453
 msgid "Whether to show the bookmarkbar"
 msgstr "Apakah ingin menampilkan batang penanda"
 
-#: ../midori/midori-websettings.c:450
+#: ../midori/midori-websettings.c:461
 msgid "Show Panel"
 msgstr "Tampilkan Panel"
 
-#: ../midori/midori-websettings.c:451
+#: ../midori/midori-websettings.c:462
 msgid "Whether to show the panel"
 msgstr "Apakah ingin menampilkan panel"
 
-#: ../midori/midori-websettings.c:459
+#: ../midori/midori-websettings.c:470
 msgid "Show Statusbar"
 msgstr "Tampilkan Batang Status"
 
-#: ../midori/midori-websettings.c:460
+#: ../midori/midori-websettings.c:471
 msgid "Whether to show the statusbar"
 msgstr "Apakah ingin menampilkan batang status"
 
-#: ../midori/midori-websettings.c:469
+#: ../midori/midori-websettings.c:480
 msgid "Toolbar Style:"
 msgstr "Gaya Batang Alat:"
 
-#: ../midori/midori-websettings.c:470
+#: ../midori/midori-websettings.c:481
 msgid "The style of the toolbar"
 msgstr "Gaya dari batang alat"
 
-#: ../midori/midori-websettings.c:479
+#: ../midori/midori-websettings.c:490
 msgid "Toolbar Items"
 msgstr "Item Batang Alat"
 
-#: ../midori/midori-websettings.c:480
+#: ../midori/midori-websettings.c:491
 msgid "The items to show on the toolbar"
 msgstr "Item yang akan ditampilkan di batang alat"
 
-#: ../midori/midori-websettings.c:488
+#: ../midori/midori-websettings.c:499
 msgid "Compact Sidepanel"
 msgstr "Panel Sisi Kompak"
 
-#: ../midori/midori-websettings.c:489
+#: ../midori/midori-websettings.c:500
 msgid "Whether to make the sidepanel compact"
 msgstr "Apakah ingin membuat panel sisi kompak"
 
-#: ../midori/midori-websettings.c:504
+#: ../midori/midori-websettings.c:515
 msgid "Align sidepanel on the right"
 msgstr "Ratakan panel sisi di kanan"
 
-#: ../midori/midori-websettings.c:505
+#: ../midori/midori-websettings.c:516
 msgid "Whether to align the sidepanel on the right"
 msgstr "Apakah ingin meratakan panel sisi di sebelah kanan"
 
-#: ../midori/midori-websettings.c:520
+#: ../midori/midori-websettings.c:531
 msgid "Open panels in separate windows"
 msgstr "Buka panel di jendela yang terpisah"
 
-#: ../midori/midori-websettings.c:521
+#: ../midori/midori-websettings.c:532
 msgid "Whether to always open panels in separate windows"
 msgstr "Apakah ingin selalu membuka panel jendela yang terpisah"
 
-#: ../midori/midori-websettings.c:530
+#: ../midori/midori-websettings.c:541
 msgid "When Midori starts:"
 msgstr "Jika Midori dijalankan:"
 
-#: ../midori/midori-websettings.c:531
+#: ../midori/midori-websettings.c:542
 msgid "What to do when Midori starts"
 msgstr "Apa yang akan dilakukan saat Midori dijalankan"
 
-#: ../midori/midori-websettings.c:540
+#: ../midori/midori-websettings.c:551
 msgid "Homepage:"
 msgstr "Beranda:"
 
-#: ../midori/midori-websettings.c:541
+#: ../midori/midori-websettings.c:552
 msgid "The homepage"
 msgstr "Laman"
 
-#: ../midori/midori-websettings.c:556
+#: ../midori/midori-websettings.c:567
 msgid "Show crash dialog"
 msgstr "Tampilkan dialog macet"
 
-#: ../midori/midori-websettings.c:557
+#: ../midori/midori-websettings.c:568
 msgid "Show a dialog after Midori crashed"
 msgstr "Tampilkan sebuah dialog setelah Midori macet"
 
-#: ../midori/midori-websettings.c:565
+#: ../midori/midori-websettings.c:576
 msgid "Save downloaded files to:"
 msgstr "Simpan berkas yang diunduh ke:"
 
-#: ../midori/midori-websettings.c:566
+#: ../midori/midori-websettings.c:577
 msgid "The folder downloaded files are saved to"
 msgstr "Folder berkas terunduh disimpan di"
 
-#: ../midori/midori-websettings.c:574
+#: ../midori/midori-websettings.c:585
 msgid "Text Editor"
 msgstr "Penyunting Teks"
 
-#: ../midori/midori-websettings.c:575
+#: ../midori/midori-websettings.c:586
 msgid "An external text editor"
 msgstr "Penyunting teks eksternal"
 
-#: ../midori/midori-websettings.c:590
+#: ../midori/midori-websettings.c:601
 msgid "News Aggregator"
 msgstr "Agregator Berita"
 
-#: ../midori/midori-websettings.c:591
+#: ../midori/midori-websettings.c:602
 msgid "An external news aggregator"
 msgstr "Sebuah agregator berita eksternal"
 
-#: ../midori/midori-websettings.c:599
+#: ../midori/midori-websettings.c:610
 msgid "Location entry Search"
 msgstr "Pencari entri lokasi"
 
-#: ../midori/midori-websettings.c:600
+#: ../midori/midori-websettings.c:611
 msgid "The search to perform inside the location entry"
 msgstr "Pencarian yang dilakukan di dalam entri lokasi"
 
-#: ../midori/midori-websettings.c:608
+#: ../midori/midori-websettings.c:619
 msgid "Preferred Encoding"
 msgstr "Penyandian Kesukaan"
 
-#: ../midori/midori-websettings.c:609
+#: ../midori/midori-websettings.c:620
 msgid "The preferred character encoding"
 msgstr "Penyandian karakter kesukaan"
 
-#: ../midori/midori-websettings.c:619
+#: ../midori/midori-websettings.c:630
 msgid "Always Show Tabbar"
 msgstr "Selalu Tampilkan Batang Tab"
 
-#: ../midori/midori-websettings.c:620
+#: ../midori/midori-websettings.c:631
 msgid "Always show the tabbar"
 msgstr "Selalu tampilkan batang tab"
 
-#: ../midori/midori-websettings.c:628
+#: ../midori/midori-websettings.c:639
 msgid "Close Buttons on Tabs"
 msgstr "Tutup Tombol di Tab"
 
-#: ../midori/midori-websettings.c:629
+#: ../midori/midori-websettings.c:640
 msgid "Whether tabs have close buttons"
 msgstr "Apakah tab memiliki tombol tutup"
 
-#: ../midori/midori-websettings.c:654
+#: ../midori/midori-websettings.c:665
 msgid "Open new pages in:"
 msgstr "Buka halaman baru di:"
 
-#: ../midori/midori-websettings.c:655
+#: ../midori/midori-websettings.c:666
 msgid "Where to open new pages"
 msgstr "Dimana membuka halaman baru"
 
-#: ../midori/midori-websettings.c:664
+#: ../midori/midori-websettings.c:675
 msgid "Middle click opens Selection"
 msgstr "Klik Tengah Membuka Pilihan"
 
-#: ../midori/midori-websettings.c:665
+#: ../midori/midori-websettings.c:676
 msgid "Load an address from the selection via middle click"
 msgstr "Muat sebuah alamat dari pilihan via klik tengah"
 
-#: ../midori/midori-websettings.c:673
+#: ../midori/midori-websettings.c:684
 msgid "Open tabs in the background"
 msgstr "Buka Tab di Latar Belakang"
 
-#: ../midori/midori-websettings.c:674
+#: ../midori/midori-websettings.c:685
 msgid "Whether to open new tabs in the background"
 msgstr "Apakah ingin membuka tab baru di latar belakang"
 
-#: ../midori/midori-websettings.c:682
+#: ../midori/midori-websettings.c:693
 msgid "Open Tabs next to Current"
 msgstr "Buka Tab di Samping Saat Ini"
 
-#: ../midori/midori-websettings.c:683
+#: ../midori/midori-websettings.c:694
 msgid "Whether to open new tabs next to the current tab or after the last one"
-msgstr "Apakah ingin membuka tab baru di sebelah tab saat ini atau setelah tab terakhir"
+msgstr ""
+"Apakah ingin membuka tab baru di sebelah tab saat ini atau setelah tab "
+"terakhir"
 
-#: ../midori/midori-websettings.c:691
+#: ../midori/midori-websettings.c:702
 msgid "Open popups in tabs"
 msgstr "Buka popup di tab"
 
-#: ../midori/midori-websettings.c:692
+#: ../midori/midori-websettings.c:703
 msgid "Whether to open popup windows in tabs"
 msgstr "Apakah ingin membuka jendela popup di tab"
 
-#: ../midori/midori-websettings.c:702 ../extensions/statusbar-features.c:132
+#: ../midori/midori-websettings.c:713 ../extensions/statusbar-features.c:131
 msgid "Load images automatically"
 msgstr "Muat gambar secara otomatis"
 
-#: ../midori/midori-websettings.c:703
+#: ../midori/midori-websettings.c:714
 msgid "Load and display images automatically"
 msgstr "Muat dan tampilkan gambar secara otomatis"
 
-#: ../midori/midori-websettings.c:710 ../extensions/statusbar-features.c:141
+#: ../midori/midori-websettings.c:721 ../extensions/statusbar-features.c:140
 msgid "Enable scripts"
 msgstr "Aktifkan skrip"
 
-#: ../midori/midori-websettings.c:711
+#: ../midori/midori-websettings.c:722
 msgid "Enable embedded scripting languages"
 msgstr "Aktifkan bahasa skrip terbenam"
 
-#: ../midori/midori-websettings.c:718 ../extensions/statusbar-features.c:150
+#: ../midori/midori-websettings.c:729 ../extensions/statusbar-features.c:149
 msgid "Enable Netscape plugins"
 msgstr "Aktifkan plugin Netscape"
 
-#: ../midori/midori-websettings.c:719
+#: ../midori/midori-websettings.c:730
 msgid "Enable embedded Netscape plugin objects"
 msgstr "Aktifkan objek plugin Netscape terbenam"
 
-#: ../midori/midori-websettings.c:739
+#: ../midori/midori-websettings.c:750
 msgid "Enable Spell Checking"
 msgstr "Aktifkan Pemeriksa Ejaan"
 
-#: ../midori/midori-websettings.c:740
+#: ../midori/midori-websettings.c:751
 msgid "Enable spell checking while typing"
 msgstr "Aktifkan pemeriksa ejaan ketika mengetik"
 
-#: ../midori/midori-websettings.c:746
+#: ../midori/midori-websettings.c:757
 msgid "Enable HTML5 database support"
 msgstr "Aktifkan dukungan basis data HTML5"
 
-#: ../midori/midori-websettings.c:747
+#: ../midori/midori-websettings.c:758
 msgid "Whether to enable HTML5 database support"
 msgstr "Apakah akan mengaktifkan dukungan basis data HTML5"
 
-#: ../midori/midori-websettings.c:753
+#: ../midori/midori-websettings.c:764
 msgid "Enable HTML5 local storage support"
 msgstr "Aktifkan dukungan penyimpanan lokal HTML5"
 
-#: ../midori/midori-websettings.c:754
+#: ../midori/midori-websettings.c:765
 msgid "Whether to enable HTML5 local storage support"
 msgstr "Apakah akan mengaktifkan dukungan penyimpanan lokal HTML5"
 
-#: ../midori/midori-websettings.c:760
+#: ../midori/midori-websettings.c:771
 msgid "Enable offline web application cache"
 msgstr "Aktifkan tembolok aplikasi web luring"
 
-#: ../midori/midori-websettings.c:761
+#: ../midori/midori-websettings.c:772
 msgid "Whether to enable offline web application cache"
 msgstr "Apakah akan mengaktifkan tembolok aplikasi web luring"
 
-#: ../midori/midori-websettings.c:777
+#: ../midori/midori-websettings.c:788
 msgid "Flash window on background tabs"
 msgstr "Kedipkan jendela yang membuka tab di latar belakang"
 
-#: ../midori/midori-websettings.c:778
+#: ../midori/midori-websettings.c:789
 msgid "Flash the browser window if a new tab was opened in the background"
 msgstr "Kedipkan jendela peramban jika tab baru dibuka di latar belakang"
 
-#: ../midori/midori-websettings.c:793
+#: ../midori/midori-websettings.c:797
+msgid "Enable WebGL support"
+msgstr "Aktifkan dukungan WebGL"
+
+#: ../midori/midori-websettings.c:798
+msgid "Allow websites to use OpenGL rendering"
+msgstr "Izinkan situs web untuk menggunakan sesuaian OpenGL"
+
+#: ../midori/midori-websettings.c:814
 msgid "Zoom Text and Images"
 msgstr "Pembesaran Teks dan Gambar"
 
-#: ../midori/midori-websettings.c:794
+#: ../midori/midori-websettings.c:815
 msgid "Whether to zoom text and images"
 msgstr "Apakah ingin memperbesar teks dan gambar"
 
-#: ../midori/midori-websettings.c:809
+#: ../midori/midori-websettings.c:830
 msgid "Find inline while typing"
 msgstr "Cari dalam baris ketika mengetik"
 
-#: ../midori/midori-websettings.c:810
+#: ../midori/midori-websettings.c:831
 msgid "Whether to automatically find inline while typing"
 msgstr "Apakah akan secara otomatis mencari dalam baris ketika mengetik"
 
-#: ../midori/midori-websettings.c:825
+#: ../midori/midori-websettings.c:846
 msgid "Kinetic scrolling"
 msgstr "Menggulung kinetis"
 
-#: ../midori/midori-websettings.c:826
+#: ../midori/midori-websettings.c:847
 msgid "Whether scrolling should kinetically move according to speed"
 msgstr "Apakah menggulung harus bergeser secara kinetis tergantung kecepatan"
 
-#: ../midori/midori-websettings.c:834
+#: ../midori/midori-websettings.c:855
 msgid "Delete old Cookies after:"
 msgstr "Hapus kuki lama setelah:"
 
-#: ../midori/midori-websettings.c:835
+#: ../midori/midori-websettings.c:856
 msgid "The maximum number of days to save cookies for"
 msgstr "Jumlah maksimum hari untuk menyimpan kuki"
 
-#: ../midori/midori-websettings.c:844
+#: ../midori/midori-websettings.c:872
+msgid "Only accept Cookies from sites you visit"
+msgstr "Hanya terima kuki dari situs yang anda kunjungi"
+
+#: ../midori/midori-websettings.c:873
+msgid "Block cookies sent by third-party websites"
+msgstr "Blok kuki yang dikirim dari situs web pihak ketiga"
+
+#: ../midori/midori-websettings.c:887
 msgid "Delete pages from history after:"
 msgstr "Hapus halaman dari riwayat setelah:"
 
-#: ../midori/midori-websettings.c:845
+#: ../midori/midori-websettings.c:888
 msgid "The maximum number of days to save the history for"
 msgstr "Jumlah maksimum hari untuk tetap menyimpan riwayat"
 
-#: ../midori/midori-websettings.c:860
+#: ../midori/midori-websettings.c:903
 msgid "Proxy server"
 msgstr "Server proxy"
 
-#: ../midori/midori-websettings.c:861
+#: ../midori/midori-websettings.c:904
 msgid "The type of proxy server to use"
 msgstr "Tipe server proxy yang akan digunakan"
 
-#: ../midori/midori-websettings.c:870
+#: ../midori/midori-websettings.c:913
 msgid "HTTP Proxy Server"
 msgstr "Server Proxy HTTP"
 
-#: ../midori/midori-websettings.c:871
+#: ../midori/midori-websettings.c:914
 msgid "The proxy server used for HTTP connections"
 msgstr "Proxy server yang digunakan untuk koneksi HTTP"
 
-#: ../midori/midori-websettings.c:888
+#: ../midori/midori-websettings.c:929
+msgid "Port"
+msgstr "Pangkalan"
+
+#: ../midori/midori-websettings.c:930
+msgid "The proxy server port used for HTTP connections"
+msgstr "Proxy server yang digunakan untuk koneksi HTTP"
+
+#: ../midori/midori-websettings.c:948
 msgid "The maximum size of cached pages on disk"
 msgstr "Ukuran maksimum dari halaman tembolok di cakram"
 
 #. i18n: This refers to an application, not the 'user agent' string
-#: ../midori/midori-websettings.c:905
+#: ../midori/midori-websettings.c:965
 msgid "Identify as"
 msgstr "Identifikasi sebagai"
 
-#: ../midori/midori-websettings.c:906
+#: ../midori/midori-websettings.c:966
 msgid "What to identify as to web pages"
 msgstr "Apa yang diidentifikasi sebagai halaman web"
 
-#: ../midori/midori-websettings.c:922
+#: ../midori/midori-websettings.c:982
 msgid "Identification string"
 msgstr "Tali identifikasi"
 
-#: ../midori/midori-websettings.c:923
+#: ../midori/midori-websettings.c:983
 msgid "The application identification string"
 msgstr "Tali identifikasi aplikasi"
 
-#: ../midori/midori-websettings.c:939
+#: ../midori/midori-websettings.c:999
 msgid "Preferred languages"
 msgstr "Penyandian kesukaan"
 
-#: ../midori/midori-websettings.c:940
-msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr "Senarai yang dipisahkan koma dari bahasa yang dipilih untuk merender halaman web multibahasa, misalnya \"de\", \"ru,nl\" atau \"en-us;q=1.0, fr-fr;q=0.667\""
+#: ../midori/midori-websettings.c:1000
+msgid ""
+"A comma separated list of languages preferred for rendering multilingual "
+"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr ""
+"Senarai yang dipisahkan koma dari bahasa yang dipilih untuk merender halaman "
+"web multibahasa, misalnya \"de\", \"ru,nl\" atau \"en-us;q=1.0, fr-fr;"
+"q=0.667\""
 
-#: ../midori/midori-websettings.c:955
+#: ../midori/midori-websettings.c:1015
 msgid "Clear private data"
 msgstr "Hapus data pribadi"
 
-#: ../midori/midori-websettings.c:956
+#: ../midori/midori-websettings.c:1016
 msgid "The private data selected for deletion"
 msgstr "Data pribadi yang dipilih untuk dihapus"
 
-#: ../midori/midori-websettings.c:971
+#: ../midori/midori-websettings.c:1031
 msgid "Clear data"
 msgstr "Hapus data"
 
-#: ../midori/midori-websettings.c:972
+#: ../midori/midori-websettings.c:1032
 msgid "The data selected for deletion"
 msgstr "Data terpilih untuk dihapus"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
-#: ../midori/midori-websettings.c:1005
+#: ../midori/midori-websettings.c:1065
 msgid "Strip referrer details sent to websites"
 msgstr "Hapus detail rujukan yang dikirim ke situs web"
 
 #. i18n: Referer here is not a typo but a technical term
-#: ../midori/midori-websettings.c:1007
+#: ../midori/midori-websettings.c:1067
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
 msgstr "Apakah tajuk \"Rujukan\" harus dipendekkan ke nama host"
 
-#: ../midori/midori-view.c:1349
+#: ../midori/midori-websettings.c:1081
+msgid "Always use my font choices"
+msgstr "Selalu gunakan fonta pilihan saya"
+
+#: ../midori/midori-websettings.c:1082
+msgid "Override fonts picked by websites with user preferences"
+msgstr "Timpa fonta yang dipilih oleh situs web dengan pengaturan pengguna"
+
+#: ../midori/midori-view.c:1326
 #, c-format
 msgid "%s wants to save an HTML5 database."
 msgstr "%s ingin menyimpan basis data HTML5."
 
-#: ../midori/midori-view.c:1353 ../midori/midori-view.c:1382
+#: ../midori/midori-view.c:1330 ../midori/midori-view.c:1360
 msgid "_Deny"
 msgstr "_Tolak"
 
-#: ../midori/midori-view.c:1353 ../midori/midori-view.c:1382
+#: ../midori/midori-view.c:1330 ../midori/midori-view.c:1360
 msgid "_Allow"
 msgstr "_Izinkan"
 
-#: ../midori/midori-view.c:1378
+#: ../midori/midori-view.c:1356
 #, c-format
 msgid "%s wants to know your location."
 msgstr "%s ingin mengetahui lokasi anda."
 
-#: ../midori/midori-view.c:1467
+#: ../midori/midori-view.c:1447
 #, c-format
 msgid "Error - %s"
 msgstr "Galat - %s"
 
-#: ../midori/midori-view.c:1468
+#: ../midori/midori-view.c:1448
 #, c-format
 msgid "The page '%s' couldn't be loaded."
 msgstr "Halaman bernama '%s' tak dapat dimuat"
 
-#: ../midori/midori-view.c:1470
+#: ../midori/midori-view.c:1450
 msgid "Try again"
 msgstr "Coba lagi"
 
-#: ../midori/midori-view.c:1629 ../midori/midori-view.c:2464
+#: ../midori/midori-view.c:1612 ../midori/midori-view.c:2496
 #, c-format
 msgid "Send a message to %s"
 msgstr "Kirim sebuah pesan ke %s"
 
-#: ../midori/midori-view.c:2303 ../midori/midori-view.c:2617
+#: ../midori/midori-view.c:2327 ../midori/midori-view.c:2645
 msgid "Inspect _Element"
 msgstr "Inspeksi _Elemen"
 
-#: ../midori/midori-view.c:2353
+#: ../midori/midori-view.c:2379
 msgid "Open Link in New _Tab"
 msgstr "Buka Taut di _Tab Baru"
 
-#: ../midori/midori-view.c:2357
+#: ../midori/midori-view.c:2383
 msgid "Open Link in _Foreground Tab"
 msgstr "Buka Tautan di _Tab Depan"
 
-#: ../midori/midori-view.c:2358
+#: ../midori/midori-view.c:2384
 msgid "Open Link in _Background Tab"
 msgstr "Buka Tautan di _Tab Belakang"
 
-#: ../midori/midori-view.c:2361
+#: ../midori/midori-view.c:2387
 msgid "Open Link in New _Window"
 msgstr "Buka Tautan di _Jendela Baru"
 
-#: ../midori/midori-view.c:2364
+#: ../midori/midori-view.c:2390
 msgid "Open Link as Web A_pplication"
 msgstr "Buka Tautan Sebagai A_plikasi Web"
 
-#: ../midori/midori-view.c:2367
+#: ../midori/midori-view.c:2395
 msgid "Copy Link de_stination"
 msgstr "Salin Tu_juan Tautan"
 
-#: ../midori/midori-view.c:2379
+#: ../midori/midori-view.c:2411
 msgid "Open _Image in New Tab"
 msgstr "Buka Gambar di _Tab Baru"
 
-#: ../midori/midori-view.c:2382
+#: ../midori/midori-view.c:2414
 msgid "Copy Image _Address"
 msgstr "Salin _Alamat Gambar"
 
-#: ../midori/midori-view.c:2385
+#: ../midori/midori-view.c:2417
 msgid "Save I_mage"
 msgstr "Simpan Ga_mbar"
 
-#: ../midori/midori-view.c:2392
+#: ../midori/midori-view.c:2420
+msgid "Open in Image _Viewer"
+msgstr "Buka di _Penampil Gambar"
+
+#: ../midori/midori-view.c:2427
 msgid "Copy Video _Address"
 msgstr "Salin _Alamat Video"
 
-#: ../midori/midori-view.c:2395
+#: ../midori/midori-view.c:2430
 msgid "Save _Video"
 msgstr "Simpan _Video"
 
-#: ../midori/midori-view.c:2395
+#: ../midori/midori-view.c:2430
 msgid "Download _Video"
 msgstr "Unduh _Video"
 
-#: ../midori/midori-view.c:2421
+#: ../midori/midori-view.c:2456
 msgid "Search _with"
 msgstr "Cari _dengan"
 
-#: ../midori/midori-view.c:2455
+#: ../midori/midori-view.c:2488
 msgid "_Search the Web"
 msgstr "_Cari web"
 
-#: ../midori/midori-view.c:2472
+#: ../midori/midori-view.c:2504
 msgid "Open Address in New _Tab"
 msgstr "Buka Alamat di _Tab Baru"
 
-#: ../midori/midori-view.c:2756
+#: ../midori/midori-view.c:2795
 msgid "Open or download file"
 msgstr "Buka atau unduh berkas"
 
-#: ../midori/midori-view.c:2775
+#: ../midori/midori-view.c:2814
 #, c-format
 msgid "File Type: '%s'"
 msgstr "Tipe Berkas: '%s'"
 
-#: ../midori/midori-view.c:2777
+#: ../midori/midori-view.c:2816
 #, c-format
 msgid "File Type: %s ('%s')"
 msgstr "Tipe Berkas: %s ('%s')"
 
-#: ../midori/midori-view.c:2788
-msgid "MD5-Checksum:"
-msgstr "MD5-Checksum:"
-
-#: ../midori/midori-view.c:2795
-msgid "SHA1-Checksum:"
-msgstr "SHA1-Checksum:"
-
 #. i18n: A file open dialog title, ie. "Open http://fila.com/manual.tgz"
-#: ../midori/midori-view.c:2805
+#: ../midori/midori-view.c:2833
 #, c-format
 msgid "Open %s"
 msgstr "Buka %s"
 
-#: ../midori/midori-view.c:3386
+#: ../midori/midori-view.c:3458
 #, c-format
 msgid "Inspect page - %s"
 msgstr "Periksa halaman - %s"
 
-#: ../midori/midori-view.c:3675
+#: ../midori/midori-view.c:3750
 msgid "Speed Dial"
 msgstr "Panggil cepat"
 
-#: ../midori/midori-view.c:3676
+#: ../midori/midori-view.c:3751 ../midori/midori-view.c:3847
 msgid "Click to add a shortcut"
 msgstr "Klik untuk menambah jalan pintas"
 
-#: ../midori/midori-view.c:3677
+#: ../midori/midori-view.c:3752
 msgid "Enter shortcut address"
 msgstr "Masukkan alamat jalan pintas"
 
-#: ../midori/midori-view.c:3678
+#: ../midori/midori-view.c:3753
 msgid "Enter shortcut title"
 msgstr "Masukkan judul jalan pintas"
 
-#: ../midori/midori-view.c:3679
+#: ../midori/midori-view.c:3754
 msgid "Are you sure you want to delete this shortcut?"
 msgstr "Anda yakin ingin menghapus jalan pintas ini?"
 
-#: ../midori/midori-view.c:3680
-msgid "Set number of columns and rows"
-msgstr "Atur jumlah kolom dan baris"
-
-#: ../midori/midori-view.c:3681
-msgid "Enter number of columns and rows:"
-msgstr "Masukkan jumlah kolom dan baris:"
-
-#: ../midori/midori-view.c:3682
-msgid "Invalid input for the size of the speed dial"
-msgstr "Masukan tidak valid untuk ukuran panggil cepat"
-
-#: ../midori/midori-view.c:3683
-msgid "Thumb size:"
-msgstr "Ukuran miniatur:"
-
-#: ../midori/midori-view.c:3684
-msgid "Small"
-msgstr "Kecil"
-
-#: ../midori/midori-view.c:3685
-msgid "Medium"
-msgstr "Sedang"
-
-#: ../midori/midori-view.c:3686
-msgid "Big"
-msgstr "Besar"
-
-#: ../midori/midori-view.c:3875
+#: ../midori/midori-view.c:3916
 #, c-format
 msgid "No documentation installed"
 msgstr "Tak ada dokumentasi yang terinstal"
 
-#: ../midori/midori-view.c:3941
-msgid "Version numbers in brackets show the version used at runtime."
-msgstr "Nomor versi dalam kurung menunjukkan versi yang digunakan dalam runtime."
+#: ../midori/midori-view.c:3992
+msgid "Midori doesn't store any personal data:"
+msgstr "Midori tidak menyimpan data pribadi apapun:"
 
-#: ../midori/midori-view.c:3990
+#: ../midori/midori-view.c:3993
+msgid "No history or web cookies are being saved."
+msgstr "Tak ada riwayat atau kuki web yang disimpan."
+
+#: ../midori/midori-view.c:3994
+msgid "Extensions are disabled."
+msgstr "Ekstensi dinonaktifkan."
+
+#: ../midori/midori-view.c:3995
+msgid "HTML5 storage, local database and application caches are disabled."
+msgstr "Penyimpanan HTML5, basis data lokal dan tembolok aplikasi dinonaktifkan."
+
+#: ../midori/midori-view.c:3996
+msgid "Midori prevents websites from tracking the user:"
+msgstr "Midori mencegah situs web melacak pengguna:"
+
+#: ../midori/midori-view.c:3997
+msgid "Referrer URLs are stripped down to the hostname."
+msgstr "Perujuk URL dicopot dari nama host."
+
+#: ../midori/midori-view.c:3998
+msgid "DNS prefetching is disabled."
+msgstr "Praambil DNS dinonaktifkan."
+
+#: ../midori/midori-view.c:3999
+msgid "The language and timezone are not revealed to websites."
+msgstr "Bahasa dan zona waktu tidak diberikan ke situs web."
+
+#: ../midori/midori-view.c:4000
+msgid "Flash and other Netscape plugins cannot be listed by websites."
+msgstr "Flash dan plugin Netscape lainnya tidak bisa ditampilkan oleh situs web."
+
+#: ../midori/midori-view.c:4038
+msgid "Version numbers in brackets show the version used at runtime."
+msgstr ""
+"Nomor versi dalam kurung menunjukkan versi yang digunakan dalam runtime."
+
+#: ../midori/midori-view.c:4086
 msgid "Page loading delayed"
 msgstr "Memuat halaman ditunda"
 
-#: ../midori/midori-view.c:3991
+#: ../midori/midori-view.c:4087
 msgid "Loading delayed either due to a recent crash or startup preferences."
 msgstr "Memuat ditunda karena macet yang baru terjadi atau pengaturan awal."
 
-#: ../midori/midori-view.c:3992
+#: ../midori/midori-view.c:4088
 msgid "Load Page"
 msgstr "Memuat Halaman"
 
-#: ../midori/midori-view.c:4135
+#: ../midori/midori-view.c:4227
 msgid "Blank page"
 msgstr "Halaman kosong"
 
-#: ../midori/midori-view.c:4375
+#: ../midori/midori-view.c:4489
 msgid "_Duplicate Tab"
 msgstr "_Duplikasi Tab"
 
-#: ../midori/midori-view.c:4380
+#: ../midori/midori-view.c:4494
 msgid "Show Tab _Label"
 msgstr "Tampilkan _Label Tab"
 
-#: ../midori/midori-view.c:4380
+#: ../midori/midori-view.c:4494
 msgid "Show Tab _Icon Only"
 msgstr "Hanya Tampilkan _Ikon Tab"
 
-#: ../midori/midori-view.c:4386
+#: ../midori/midori-view.c:4500
 msgid "Close ot_her Tabs"
 msgstr "Tutup Tab _Lainnya"
 
-#: ../midori/midori-view.c:5006
+#. i18n: word stem of "previous page" type links, case is not important
+#: ../midori/midori-view.c:5154
+msgid "previous"
+msgstr "sebelumnya"
+
+#. i18n: word stem of "next page" type links, case is not important
+#: ../midori/midori-view.c:5173
+msgid "next"
+msgstr "berikutnya"
+
+#: ../midori/midori-view.c:5186
 msgid "Print background images"
 msgstr "Cetak gambar latar belakang"
 
-#: ../midori/midori-view.c:5007
+#: ../midori/midori-view.c:5187
 msgid "Whether background images should be printed"
 msgstr "Apakah gambar latar belakang harus dicetak"
 
-#: ../midori/midori-view.c:5039
+#: ../midori/midori-view.c:5219
 msgid "Features"
 msgstr "Fitur"
 
-#: ../midori/midori-preferences.c:301
+#: ../midori/midori-preferences.c:297
 msgid "Startup"
 msgstr "Mulai"
 
-#: ../midori/midori-preferences.c:314
+#: ../midori/midori-preferences.c:310
 msgid "Use _current page"
 msgstr "Gunakan _halaman saat ini"
 
-#: ../midori/midori-preferences.c:318
+#: ../midori/midori-preferences.c:314
 msgid "Use current page as homepage"
 msgstr "Gunakan halaman saat ini sebagai beranda"
 
 #. Page "Appearance"
-#: ../midori/midori-preferences.c:327
+#: ../midori/midori-preferences.c:323
 msgid "Fonts"
 msgstr "Fonta"
 
-#: ../midori/midori-preferences.c:330
+#: ../midori/midori-preferences.c:326
 msgid "Proportional Font Family"
 msgstr "Keluarga Fonta Proporsional"
 
-#: ../midori/midori-preferences.c:334
+#: ../midori/midori-preferences.c:330
 msgid "The default font family used to display text"
 msgstr "Keluarga fonta standar yang digunakan untuk menampilkan teks"
 
-#: ../midori/midori-preferences.c:337
+#: ../midori/midori-preferences.c:333
 msgid "The default font size used to display text"
 msgstr "Ukuran fonta standar yang digunakan untuk menampilkan teks"
 
-#: ../midori/midori-preferences.c:339
+#: ../midori/midori-preferences.c:335
 msgid "Fixed-width Font Family"
 msgstr "Keluarga Fonta Sesuai Lebar"
 
-#: ../midori/midori-preferences.c:343
+#: ../midori/midori-preferences.c:339
 msgid "The font family used to display fixed-width text"
 msgstr "Keluarga fonta yang digunakan untuk menampilkan teks sesuai lebar"
 
-#: ../midori/midori-preferences.c:346
+#: ../midori/midori-preferences.c:342
 msgid "The font size used to display fixed-width text"
 msgstr "Ukuran fonta yang digunakan untuk menampilkan teks sesuai lebar"
 
-#: ../midori/midori-preferences.c:348
+#: ../midori/midori-preferences.c:344
 msgid "Minimum Font Size"
 msgstr "Ukuran Fonta Minimum"
 
-#: ../midori/midori-preferences.c:352
+#: ../midori/midori-preferences.c:348
 msgid "The minimum font size used to display text"
 msgstr "Ukuran fonta minimum yang digunakan untuk menampilkan teks"
 
 #. Page "Behavior"
-#: ../midori/midori-preferences.c:361
+#: ../midori/midori-preferences.c:359
 msgid "Behavior"
 msgstr "Perilaku"
 
-#: ../midori/midori-preferences.c:387
+#: ../midori/midori-preferences.c:385
 msgid "Allow scripts to open popups"
 msgstr "Izinkan skrip untuk membuka popup"
 
-#: ../midori/midori-preferences.c:388
+#: ../midori/midori-preferences.c:386
 msgid "Whether scripts are allowed to open popup windows automatically"
 msgstr "Apakah skrip diizinkan untuk membuka popup jendela secara otomatis"
 
 #. Page "Interface"
-#: ../midori/midori-preferences.c:411
+#: ../midori/midori-preferences.c:416
 msgid "Browsing"
 msgstr "Meramban"
 
 #. Page "Network"
-#: ../midori/midori-preferences.c:449
+#: ../midori/midori-preferences.c:454
 msgid "Network"
 msgstr "Jaringan"
 
-#: ../midori/midori-preferences.c:456
+#: ../midori/midori-preferences.c:461
 msgid "Hostname"
 msgstr "Nama Host"
 
-#: ../midori/midori-preferences.c:472
+#: ../midori/midori-preferences.c:485
 msgid "MB"
 msgstr "MB"
 
@@ -2017,255 +1989,219 @@ msgstr "_Nama:"
 msgid "_Description:"
 msgstr "_Keterangan:"
 
-#: ../midori/midori-searchaction.c:986
+#: ../midori/midori-searchaction.c:987
 msgid "_Icon:"
 msgstr "_Ikon:"
 
-#: ../midori/midori-searchaction.c:1000
+#: ../midori/midori-searchaction.c:1001
 msgid "_Token:"
 msgstr "_Token:"
 
-#: ../midori/midori-searchaction.c:1300
+#: ../midori/midori-searchaction.c:1301
 msgid "Manage Search Engines"
 msgstr "Atur Mesin Pencari"
 
-#: ../midori/midori-searchaction.c:1400
+#: ../midori/midori-searchaction.c:1401
 msgid "Use as _default"
 msgstr "Gunakan sebagai stan_dar"
 
-#: ../midori/sokoke.c:452
+#: ../midori/sokoke.c:410
 msgid "Open with"
 msgstr "Buka dengan"
 
-#: ../midori/sokoke.c:460
+#: ../midori/sokoke.c:418
 #, c-format
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Pilih sebuah aplikasi atau perintah untuk membuka \"%s\":"
 
-#: ../midori/sokoke.c:501 ../midori/sokoke.c:511 ../midori/sokoke.c:539
-#: ../midori/sokoke.c:568 ../midori/sokoke.c:582
+#: ../midori/sokoke.c:459 ../midori/sokoke.c:469 ../midori/sokoke.c:497
+#: ../midori/sokoke.c:526 ../midori/sokoke.c:540
 msgid "Could not run external program."
 msgstr "Tak dapat menjalankan program eksternal."
 
-#: ../midori/sokoke.c:1515
-msgid "_Bookmark"
-msgstr "B_ookmark"
-
-#: ../midori/sokoke.c:1517
-msgid "Add Boo_kmark"
-msgstr "Tambah P_enanda"
-
-#: ../midori/sokoke.c:1518
-msgid "_Console"
-msgstr "_Konsol"
-
-#: ../midori/sokoke.c:1519
-msgid "_Extensions"
-msgstr "_Ekstensi"
-
-#: ../midori/sokoke.c:1521
-msgid "_Homepage"
-msgstr "_Beranda"
-
-#: ../midori/sokoke.c:1522
-msgid "_Userscripts"
-msgstr "_Skrip pengguna"
-
-#: ../midori/sokoke.c:1523
-msgid "New _Tab"
-msgstr "Tab _Baru"
-
-#: ../midori/sokoke.c:1524
-msgid "_Transfers"
-msgstr "_Transfer"
-
-#: ../midori/sokoke.c:1525
-msgid "Netscape p_lugins"
-msgstr "P_lugin Netscape"
-
-#: ../midori/sokoke.c:1528
-msgid "New _Folder"
-msgstr "_Folder Baru"
-
-#: ../midori/sokoke.c:2214
+#: ../midori/sokoke.c:1677
 #, c-format
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] "%d jam"
 
-#: ../midori/sokoke.c:2215
+#: ../midori/sokoke.c:1678
 #, c-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d menit"
 
-#: ../midori/sokoke.c:2216
+#: ../midori/sokoke.c:1679
 #, c-format
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d detik"
 
 #. i18n: Download tooltip (size): 4KB of 43MB
-#: ../midori/sokoke.c:2224 ../panels/midori-transfers.c:268
+#: ../midori/sokoke.c:1687 ../panels/midori-transfers.c:267
 #, c-format
 msgid "%s of %s"
 msgstr "%s dari %s"
 
 #. i18n: Unknown number of bytes, used for transfer rate like ?B/s
-#: ../midori/sokoke.c:2233
+#: ../midori/sokoke.c:1696
 msgid "?B"
 msgstr "?B"
 
 #. i18n: Download tooltip (transfer rate): (130KB/s)
-#: ../midori/sokoke.c:2236
+#: ../midori/sokoke.c:1699
 #, c-format
 msgid " (%s/s)"
 msgstr " (%s/s)"
 
 #. i18n: Download tooltip (estimated time) : - 1 hour, 5 minutes remaning
-#: ../midori/sokoke.c:2253
+#: ../midori/sokoke.c:1716
 #, c-format
 msgid " - %s remaining"
 msgstr " - %s tersisa"
 
 #. i18n: A panel at the bottom, to search text in pages
-#: ../toolbars/midori-findbar.c:230
+#: ../toolbars/midori-findbar.c:263
 msgid "_Inline Find:"
 msgstr "_Cari Dalam Baris:"
 
-#: ../toolbars/midori-findbar.c:264
+#: ../toolbars/midori-findbar.c:289
 msgid "Previous"
 msgstr "Sebelumnya"
 
-#: ../toolbars/midori-findbar.c:270
+#: ../toolbars/midori-findbar.c:295
 msgid "Next"
 msgstr "Berikutnya"
 
-#: ../toolbars/midori-findbar.c:274
+#: ../toolbars/midori-findbar.c:299
 msgid "Match Case"
 msgstr "Cocokkan Huruf"
 
-#: ../toolbars/midori-findbar.c:283
+#: ../toolbars/midori-findbar.c:308
 msgid "Highlight Matches"
 msgstr "Sorot Kecocokan"
 
-#: ../toolbars/midori-findbar.c:294
+#: ../toolbars/midori-findbar.c:319
 msgid "Close Findbar"
 msgstr "Tutup batang cari"
 
-#: ../toolbars/midori-transferbar.c:129
+#: ../toolbars/midori-transferbar.c:122
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
 msgstr "Berkas '<b>%s</b>' telah diunduh."
 
-#: ../toolbars/midori-transferbar.c:132
+#: ../toolbars/midori-transferbar.c:125
 msgid "Transfer completed"
 msgstr "Transfer selesai"
 
-#: ../toolbars/midori-transferbar.c:214
+#: ../toolbars/midori-transferbar.c:193
 msgid "The downloaded file is erroneous."
 msgstr "Berkas yang diunduh galat."
 
-#: ../toolbars/midori-transferbar.c:215
-msgid "The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."
-msgstr "Checksum yang disediakan oleh tautan tidak cocok. Hal ini mungkin berarti berkas tidak lengkap atau dimodifikasi setelahnya."
+#: ../toolbars/midori-transferbar.c:194
+msgid ""
+"The checksum provided with the link did not match. This means the file is "
+"probably incomplete or was modified afterwards."
+msgstr ""
+"Checksum yang disediakan oleh tautan tidak cocok. Hal ini mungkin berarti "
+"berkas tidak lengkap atau dimodifikasi setelahnya."
 
-#: ../toolbars/midori-transferbar.c:323 ../panels/midori-transfers.c:142
+#: ../toolbars/midori-transferbar.c:331 ../panels/midori-transfers.c:141
 msgid "Clear All"
 msgstr "Bersihkan Semua"
 
-#: ../toolbars/midori-transferbar.c:360 ../toolbars/midori-transferbar.c:362
+#: ../toolbars/midori-transferbar.c:368 ../toolbars/midori-transferbar.c:370
 msgid "Some files are being downloaded"
 msgstr "Beberapa berkas sedang diunduh"
 
-#: ../toolbars/midori-transferbar.c:366
+#: ../toolbars/midori-transferbar.c:374
 msgid "_Quit Midori"
 msgstr "_Keluar Midori"
 
-#: ../toolbars/midori-transferbar.c:368
+#: ../toolbars/midori-transferbar.c:376
 msgid "The transfers will be cancelled if Midori quits."
 msgstr "Transfer akan dibatalkan jika Midori keluar."
 
-#: ../panels/midori-bookmarks.c:116
+#: ../panels/midori-bookmarks.c:113
 msgid "Bookmarks"
 msgstr "Penanda"
 
-#: ../panels/midori-bookmarks.c:294
+#: ../panels/midori-bookmarks.c:256
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
 msgstr "Gagal menambah item penanda: %s\n"
 
-#: ../panels/midori-bookmarks.c:474
+#: ../panels/midori-bookmarks.c:434
 msgid "Edit the selected bookmark"
 msgstr "Sunting penanda terpilih"
 
-#: ../panels/midori-bookmarks.c:482
+#: ../panels/midori-bookmarks.c:442
 msgid "Delete the selected bookmark"
 msgstr "Hapus penanda terpilih"
 
-#: ../panels/midori-bookmarks.c:497
+#: ../panels/midori-bookmarks.c:457
 msgid "Add a new folder"
 msgstr "Tambah folder baru"
 
-#: ../panels/midori-bookmarks.c:631 ../panels/midori-history.c:583
+#: ../panels/midori-bookmarks.c:591 ../panels/midori-history.c:579
 msgid "<i>Separator</i>"
 msgstr "<i>Pemisah</i>"
 
-#: ../panels/midori-history.c:114
+#: ../panels/midori-history.c:110
 msgid "History"
 msgstr "Riwayat"
 
-#: ../panels/midori-history.c:146
+#: ../panels/midori-history.c:142
 msgid "A week ago"
 msgstr "Seminggu yang lalu"
 
-#: ../panels/midori-history.c:148
+#: ../panels/midori-history.c:144
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d hari yang lalu"
 
-#: ../panels/midori-history.c:151
+#: ../panels/midori-history.c:147
 msgid "Today"
 msgstr "Hari Ini"
 
-#: ../panels/midori-history.c:153
+#: ../panels/midori-history.c:149
 msgid "Yesterday"
 msgstr "Kemarin"
 
-#: ../panels/midori-history.c:321
+#: ../panels/midori-history.c:317
 msgid "Are you sure you want to remove all history items?"
 msgstr "Anda yakin ingin menghapus semua item riwayat?"
 
-#: ../panels/midori-history.c:367
+#: ../panels/midori-history.c:363
 msgid "Bookmark the selected history item"
 msgstr "Bookmark item riwayat terpilih"
 
-#: ../panels/midori-history.c:376
+#: ../panels/midori-history.c:372
 msgid "Delete the selected history item"
 msgstr "Hapus item riwayat terpilih"
 
-#: ../panels/midori-history.c:384
+#: ../panels/midori-history.c:380
 msgid "Clear the entire history"
 msgstr "Bersihkan seluruh riwayat"
 
-#: ../panels/midori-transfers.c:87
+#: ../panels/midori-transfers.c:86
 msgid "Transfers"
 msgstr "Transfer"
 
-#: ../panels/midori-transfers.c:468
+#: ../panels/midori-transfers.c:467
 msgid "Open Destination _Folder"
 msgstr "Buka _Folder Tujuan"
 
-#: ../panels/midori-transfers.c:471
+#: ../panels/midori-transfers.c:470
 msgid "Copy Link Loc_ation"
 msgstr "Salin Tautan Lok_asi"
 
-#: ../katze/katze-http-auth.c:213
+#: ../katze/katze-http-auth.c:210
 msgid "Authentication Required"
 msgstr "Otentikasi Diperlukan"
 
-#: ../katze/katze-http-auth.c:229
+#: ../katze/katze-http-auth.c:226
 msgid ""
 "A username and a password are required\n"
 "to open this location:"
@@ -2273,236 +2209,248 @@ msgstr ""
 "Sebuah nama pengguna dan sebuah sandi diperlukan\n"
 "untuk membuka lokasi ini:"
 
-#: ../katze/katze-http-auth.c:243
+#: ../katze/katze-http-auth.c:240
 msgid "Username"
 msgstr "Nama Pengguna"
 
-#: ../katze/katze-http-auth.c:256
+#: ../katze/katze-http-auth.c:253
 msgid "Password"
 msgstr "Sandi"
 
-#: ../katze/katze-http-auth.c:270
+#: ../katze/katze-http-auth.c:267
 msgid "_Remember password"
 msgstr "_Ingat sandi"
 
-#: ../katze/katze-throbber.c:879
+#: ../katze/katze-throbber.c:948
 #, c-format
 msgid "Named icon '%s' couldn't be loaded"
 msgstr "Ikon bernama '%s' tak dapat dimuat"
 
-#: ../katze/katze-throbber.c:892
+#: ../katze/katze-throbber.c:961
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
 msgstr "Stok ikon '%s' tak dapat dimuat"
 
-#: ../katze/katze-throbber.c:964
+#: ../katze/katze-throbber.c:1041
 msgid "Animation frames are broken"
 msgstr "Bingkai animasi rusak"
 
-#: ../katze/katze-utils.c:536 ../katze/katze-utils.c:971
+#: ../katze/katze-utils.c:439 ../katze/katze-utils.c:873
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "Properti '%s' tidak sah untuk %s"
 
-#: ../katze/katze-utils.c:582 ../katze/katze-utils.c:611
-#: ../extensions/addons.c:306
+#: ../katze/katze-utils.c:485 ../katze/katze-utils.c:514
+#: ../extensions/addons.c:308
 msgid "Choose file"
 msgstr "Pilih berkas"
 
-#: ../katze/katze-utils.c:597
+#: ../katze/katze-utils.c:500
 msgid "Choose folder"
 msgstr "Pilih folder"
 
-#: ../katze/katze-utils.c:701
+#: ../katze/katze-utils.c:604
 msgid "None"
 msgstr "Tak ada"
 
-#: ../katze/katze-utils.c:819
+#: ../katze/katze-utils.c:719
 msgid "1 hour"
 msgstr "1 jam"
 
-#: ../katze/katze-utils.c:820
+#: ../katze/katze-utils.c:720
 msgid "1 day"
 msgstr "1 hari"
 
-#: ../katze/katze-utils.c:821
+#: ../katze/katze-utils.c:721
 msgid "1 week"
 msgstr "1 minggu"
 
-#: ../katze/katze-utils.c:822
+#: ../katze/katze-utils.c:722
 msgid "1 month"
 msgstr "1 bulan"
 
-#: ../katze/katze-utils.c:823
+#: ../katze/katze-utils.c:723
 msgid "1 year"
 msgstr "1 tahun"
 
-#: ../katze/katze-preferences.c:95 ../extensions/history-list.vala:228
+#: ../katze/katze-preferences.c:91 ../extensions/history-list.vala:235
 #, c-format
 msgid "Preferences for %s"
 msgstr "Pengaturan untuk %s"
 
-#: ../extensions/adblock.c:418
+#: ../extensions/adblock.c:467
 msgid "Configure Advertisement filters"
 msgstr "Atur filter Iklan"
 
-#: ../extensions/adblock.c:450
+#: ../extensions/adblock.c:498
 #, c-format
-msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
-msgstr "Masukkan alamat dari senarai filter yang telah dikonfigurasikan sebelumnya dalam entri teks dan klik \"Tambah\" untuk menambahkannya ke senarai. Anda dapat menemukan lebih banyak senarai di %s."
+msgid ""
+"Type the address of a preconfigured filter list in the text entry and click "
+"\"Add\" to add it to the list. You can find more lists at %s."
+msgstr ""
+"Masukkan alamat dari senarai filter yang telah dikonfigurasikan sebelumnya "
+"dalam entri teks dan klik \"Tambah\" untuk menambahkannya ke senarai. Anda "
+"dapat menemukan lebih banyak senarai di %s."
 
-#: ../extensions/adblock.c:813
+#: ../extensions/adblock.c:846
 msgid "Edit rule"
 msgstr "Sunting aturan"
 
-#: ../extensions/adblock.c:826
+#: ../extensions/adblock.c:860
 msgid "_Rule:"
 msgstr "_Aturan:"
 
-#: ../extensions/adblock.c:880
+#: ../extensions/adblock.c:914
 msgid "Bl_ock image"
 msgstr "Bl_ok gambar"
 
-#: ../extensions/adblock.c:885
+#: ../extensions/adblock.c:919
 msgid "Bl_ock link"
 msgstr "Bl_ok tautan"
 
-#: ../extensions/adblock.c:1453
+#: ../extensions/adblock.c:1542
 msgid "Advertisement blocker"
 msgstr "Pemblokir Iklan"
 
-#: ../extensions/adblock.c:1454
+#: ../extensions/adblock.c:1543
 msgid "Block advertisements according to a filter list"
 msgstr "Blok iklan berdasarkan sebuah senarai filter"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
-#: ../extensions/addons.c:218
+#: ../extensions/addons.c:221
 msgid "This page appears to contain a user script. Do you wish to install it?"
-msgstr "Halaman ini sepertinya berisi sebuah skrip pengguna. Anda ingin menginstalnya?"
+msgstr ""
+"Halaman ini sepertinya berisi sebuah skrip pengguna. Anda ingin "
+"menginstalnya?"
 
-#: ../extensions/addons.c:219
+#: ../extensions/addons.c:222
 msgid "_Install user script"
 msgstr "_Instal skrip pengguna"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
-#: ../extensions/addons.c:224
+#: ../extensions/addons.c:227
 msgid "This page appears to contain a user style. Do you wish to install it?"
-msgstr "Halaman ini sepertinya berisi sebuah gaya pengguna. Anda ingin menginstalnya?"
+msgstr ""
+"Halaman ini sepertinya berisi sebuah gaya pengguna. Anda ingin menginstalnya?"
 
-#: ../extensions/addons.c:225
+#: ../extensions/addons.c:228
 msgid "_Install user style"
 msgstr "_Instal gaya pengguna"
 
-#: ../extensions/addons.c:233
+#: ../extensions/addons.c:236
 msgid "Don't install"
 msgstr "Jangan instal"
 
-#: ../extensions/addons.c:317 ../extensions/addons.c:679
+#: ../extensions/addons.c:319 ../extensions/addons.c:681
 msgid "Userscripts"
 msgstr "Skrip pengguna"
 
-#: ../extensions/addons.c:322 ../extensions/addons.c:681
+#: ../extensions/addons.c:324 ../extensions/addons.c:683
 msgid "Userstyles"
 msgstr "Gaya pengguna"
 
-#: ../extensions/addons.c:378 ../extensions/addons.c:457
+#: ../extensions/addons.c:380 ../extensions/addons.c:459
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "Galat"
 
-#: ../extensions/addons.c:419
+#: ../extensions/addons.c:421
 #, c-format
 msgid "Do you want to delete '%s'?"
 msgstr "Anda ingin menghapus '%s'?"
 
-#: ../extensions/addons.c:425
+#: ../extensions/addons.c:427
 msgid "Delete user script"
 msgstr "Hapys skrip pengguna"
 
-#: ../extensions/addons.c:426
+#: ../extensions/addons.c:428
 msgid "Delete user style"
 msgstr "Hapus gaya pengguna"
 
-#: ../extensions/addons.c:429
+#: ../extensions/addons.c:431
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "Berkas '<b>%s</b>' akan secara permanen dihapus."
 
-#: ../extensions/addons.c:568 ../extensions/addons.c:645
+#: ../extensions/addons.c:570 ../extensions/addons.c:647
 msgid "Open in Text Editor"
 msgstr "Buka di Penyunting Teks"
 
-#: ../extensions/addons.c:570 ../extensions/addons.c:654
+#: ../extensions/addons.c:572 ../extensions/addons.c:656
 msgid "Open Target Folder"
 msgstr "Buka Folder Tujuan"
 
-#: ../extensions/addons.c:636
+#: ../extensions/addons.c:638
 msgid "Add new addon"
 msgstr "Tambah pengaya baru"
 
-#: ../extensions/addons.c:662
+#: ../extensions/addons.c:664
 msgid "Remove selected addon"
 msgstr "Hapus pengaya terpilih"
 
-#: ../extensions/addons.c:1641 ../extensions/addons.c:1803
+#: ../extensions/addons.c:1696 ../extensions/addons.c:1914
 msgid "User addons"
 msgstr "Pengaya pengguna"
 
-#: ../extensions/addons.c:1762
+#: ../extensions/addons.c:1826
 #, c-format
 msgid "Can't monitor folder '%s': %s"
 msgstr "Tak dapat memonitor folder '%s': %s"
 
-#: ../extensions/addons.c:1804
+#: ../extensions/addons.c:1915
 msgid "Support for userscripts and userstyles"
 msgstr "Dukungan untuk skrip pengguna dan gaya pengguna"
 
-#: ../extensions/colorful-tabs.c:201
+#: ../extensions/colorful-tabs.c:202
 msgid "Colorful Tabs"
 msgstr "Tab Penuh Warna"
 
-#: ../extensions/colorful-tabs.c:202
+#: ../extensions/colorful-tabs.c:203
 msgid "Tint each tab distinctly"
 msgstr "Warnai tiap tab dengan jelas"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:82
+#: ../extensions/cookie-manager/cookie-manager-page.c:73
 #: ../extensions/cookie-manager/main.c:35
 msgid "Cookie Manager"
 msgstr "Manajer Kuki"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:112
+#: ../extensions/cookie-manager/cookie-manager-page.c:103
 msgid "Delete All"
 msgstr "Hapus Semua"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:114
-msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
-msgstr "Hapus semua kuki yang ditampilkan. Jika sebuah filter diatur, hanya kuki yang cocok dengan filter yang dihapus."
+#: ../extensions/cookie-manager/cookie-manager-page.c:105
+msgid ""
+"Deletes all shown cookies. If a filter is set, only those cookies are "
+"deleted which match the filter."
+msgstr ""
+"Hapus semua kuki yang ditampilkan. Jika sebuah filter diatur, hanya kuki "
+"yang cocok dengan filter yang dihapus."
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:129
+#: ../extensions/cookie-manager/cookie-manager-page.c:120
 msgid "Expand All"
 msgstr "Perluas Semua"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:136
+#: ../extensions/cookie-manager/cookie-manager-page.c:127
 msgid "Collapse All"
 msgstr "Perkecil Semua"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:578
+#: ../extensions/cookie-manager/cookie-manager-page.c:572
 msgid "Do you really want to delete all cookies?"
 msgstr "Anda yakin ingin menghapus semua kuki?"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:580
+#: ../extensions/cookie-manager/cookie-manager-page.c:574
 msgid "Question"
 msgstr "Pertanyaan"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:589
+#: ../extensions/cookie-manager/cookie-manager-page.c:583
 msgid "Only cookies which match the filter will be deleted."
 msgstr "Hanya kuki yang cocok dengan filter yang akan dihapus."
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:677
+#: ../extensions/cookie-manager/cookie-manager-page.c:671
 msgid "At the end of the session"
 msgstr "Di akhir sesi"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:680
+#: ../extensions/cookie-manager/cookie-manager-page.c:674
 #, c-format
 msgid ""
 "<b>Host</b>: %s\n"
@@ -2519,15 +2467,15 @@ msgstr ""
 "<b>Keamanan</b>: %s\n"
 "<b>Kadaluwarsa</b>: %s"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:686
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
 msgid "Yes"
 msgstr "Ya"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:686
+#: ../extensions/cookie-manager/cookie-manager-page.c:680
 msgid "No"
 msgstr "Tidak"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:700
+#: ../extensions/cookie-manager/cookie-manager-page.c:694
 #, c-format
 msgid ""
 "<b>Domain</b>: %s\n"
@@ -2536,39 +2484,43 @@ msgstr ""
 "<b>Ranah</b>: %s\n"
 "<b>Kuki</b>: %d"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1030
+#: ../extensions/cookie-manager/cookie-manager-page.c:1024
 msgid "Name"
 msgstr "Nama"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1083
+#: ../extensions/cookie-manager/cookie-manager-page.c:1077
 msgid "_Expand All"
 msgstr "_Perluas Semua"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1091
+#: ../extensions/cookie-manager/cookie-manager-page.c:1085
 msgid "_Collapse All"
 msgstr "P_erkecil Semua"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1144
+#: ../extensions/cookie-manager/cookie-manager-page.c:1139
 msgid "Filter:"
 msgstr "Filter:"
 
-#: ../extensions/cookie-manager/cookie-manager-page.c:1149
-msgid "Enter a filter string to show only cookies whose name or domain field match the entered filter"
-msgstr "Masukkan sebuah tali filter untuk menampilkan hanya kuki yang nama atau daerah ranahnya cocok dengan filter yang dimasukkan"
+#: ../extensions/cookie-manager/cookie-manager-page.c:1144
+msgid ""
+"Enter a filter string to show only cookies whose name or domain field match "
+"the entered filter"
+msgstr ""
+"Masukkan sebuah tali filter untuk menampilkan hanya kuki yang nama atau "
+"daerah ranahnya cocok dengan filter yang dimasukkan"
 
 #: ../extensions/cookie-manager/main.c:36
 msgid "List, view and delete cookies"
 msgstr "Senarai, tampilan dan hapus kuki"
 
-#: ../extensions/copy-tabs.c:39
+#: ../extensions/copy-tabs.c:38
 msgid "Copy Tab _Addresses"
 msgstr "Salin _Alamat Tab"
 
-#: ../extensions/copy-tabs.c:96
+#: ../extensions/copy-tabs.c:95
 msgid "Copy Addresses of Tabs"
 msgstr "Salin Alamat Tab"
 
-#: ../extensions/copy-tabs.c:97
+#: ../extensions/copy-tabs.c:96
 msgid "Copy the addresses of all tabs to the clipboard"
 msgstr "Salin alamat semua tab ke papan klip"
 
@@ -2581,25 +2533,25 @@ msgid "Failed to find required Atom \"feed\" elements in XML data."
 msgstr "Gagal untuk mencari elemen Atom \"umpan\" yang diperlukan di data XML."
 
 #. i18n: The local date a feed was last updated
-#: ../extensions/feed-panel/feed-panel.c:392
+#: ../extensions/feed-panel/feed-panel.c:387
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
 msgstr "Terakhir dimutakhirkan: %s."
 
-#: ../extensions/feed-panel/feed-panel.c:658
+#: ../extensions/feed-panel/feed-panel.c:653
 msgid "Feeds"
 msgstr "Umpan"
 
-#: ../extensions/feed-panel/feed-panel.c:711
+#: ../extensions/feed-panel/feed-panel.c:706
 msgid "Add new feed"
 msgstr "Tambah umpan baru"
 
-#: ../extensions/feed-panel/feed-panel.c:718
+#: ../extensions/feed-panel/feed-panel.c:713
 msgid "Delete feed"
 msgstr "Hapus umpan"
 
-#: ../extensions/feed-panel/feed-panel.c:800
+#: ../extensions/feed-panel/feed-panel.c:795
 msgid "_Feeds"
 msgstr "_Umpan"
 
@@ -2652,99 +2604,99 @@ msgstr "Panel Umpan"
 msgid "Read Atom/ RSS feeds"
 msgstr "Baca umpan Atom/ RSS"
 
-#: ../extensions/formhistory.c:151
+#: ../extensions/formhistory/formhistory.c:41
 #, c-format
 msgid "Failed to add form value: %s\n"
 msgstr "Gagal menambah nilai bentuk: %s\n"
 
-#: ../extensions/formhistory.c:303
+#: ../extensions/formhistory/formhistory.c:161
 msgid "Toggle form history state"
 msgstr "Ubah status formulir riwayat"
 
-#: ../extensions/formhistory.c:304
+#: ../extensions/formhistory/formhistory.c:162
 msgid "Activate or deactivate form history for the current tab."
 msgstr "Ubah status aktif formulir riwayat untuk tab ini."
 
-#: ../extensions/formhistory.c:438 ../extensions/formhistory.c:442
+#: ../extensions/formhistory/formhistory.c:263
+#: ../extensions/formhistory/formhistory.c:267
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Gagal mengeksekusi pernyataan basis data: %s\n"
 
-#: ../extensions/formhistory.c:517
+#: ../extensions/formhistory/formhistory.c:343
 msgid "only activate form history via hotkey (Ctrl+Shift+F) per tab"
-msgstr "Hanya aktifkan formulir riwayat melalui tombol pintas (Ctrl+Shift+F) pada tiap-tiap tab"
+msgstr ""
+"Hanya aktifkan formulir riwayat melalui tombol pintas (Ctrl+Shift+F) pada "
+"tiap-tiap tab"
 
-#: ../extensions/formhistory.c:576
+#: ../extensions/formhistory/formhistory.c:399
 msgid "Stores history of entered form data"
 msgstr "Simpan riwayat dari data bentuk yang dimasukkan"
 
-#: ../extensions/formhistory.c:580
-#, c-format
-msgid "Not available: %s"
-msgstr "Tidak tersedia: %s"
-
-#: ../extensions/formhistory.c:581
-msgid "Resource files not installed"
-msgstr "Berkas sumber daya tak terinstal"
-
-#: ../extensions/formhistory.c:587
+#: ../extensions/formhistory/formhistory.c:402
 msgid "Form history filler"
 msgstr "Formulir pengisi riwayat"
 
-#: ../extensions/history-list.vala:190
+#: ../extensions/formhistory/formhistory-gdom-frontend.c:219
+#: ../extensions/formhistory/formhistory-js-frontend.c:106
+#, c-format
+msgid "Failed to select suggestions\n"
+msgstr "Gagal memilih saran\n"
+
+#: ../extensions/history-list.vala:197
 msgid "There are no unvisited tabs"
 msgstr "Tidak ada tab yang belum dikunjungi"
 
-#: ../extensions/history-list.vala:228
+#: ../extensions/history-list.vala:235
 #, c-format
 msgid "History-List"
 msgstr "Senarai-Riwayat"
 
-#: ../extensions/history-list.vala:267
+#: ../extensions/history-list.vala:275
 msgid "Tab closing behavior"
 msgstr "Perilaku menutup tab"
 
-#: ../extensions/history-list.vala:275
+#: ../extensions/history-list.vala:283
 msgid "Do nothing"
 msgstr "Jangan lakukan apapun"
 
-#: ../extensions/history-list.vala:281
+#: ../extensions/history-list.vala:289
 msgid "Switch to last viewed tab"
 msgstr "Pindah ke tab terakhir yang ditampilkan"
 
-#: ../extensions/history-list.vala:287
+#: ../extensions/history-list.vala:295
 msgid "Switch to newest tab"
 msgstr "Pindah ke tab terbaru"
 
-#: ../extensions/history-list.vala:411
+#: ../extensions/history-list.vala:423
 msgid "Next new Tab (History List)"
 msgstr "Tab baru Berikutnya (Senarai Riwayat)"
 
-#: ../extensions/history-list.vala:412
+#: ../extensions/history-list.vala:424
 msgid "Next new tab from history"
 msgstr "Tab baru berikutnya dari riwayat"
 
-#: ../extensions/history-list.vala:421
+#: ../extensions/history-list.vala:433
 msgid "Previous new Tab (History List)"
 msgstr "Tab baru Sebelumnya (Senarai Riwayat)"
 
-#: ../extensions/history-list.vala:422
+#: ../extensions/history-list.vala:434
 msgid "Previous new tab from history"
 msgstr "Tab baru sebelumnya dari riwayat"
 
-#: ../extensions/history-list.vala:431
+#: ../extensions/history-list.vala:443
 msgid "Display tab in background (History List)"
 msgstr "Tampilkan tab di latar belakang (Senarai Riwayat)"
 
-#: ../extensions/history-list.vala:432
+#: ../extensions/history-list.vala:444
 msgid "Display the current selected tab in background"
 msgstr "Tampilkan tab terpilih saat ini di latar belakang"
 
-#: ../extensions/history-list.vala:557
+#: ../extensions/history-list.vala:569
 msgid "History List"
 msgstr "Senarai Riwayat"
 
-#: ../extensions/history-list.vala:558
+#: ../extensions/history-list.vala:570
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr "Pindah ke tab terakhir digunakan ketika berpindah atau menutup tab"
 
@@ -2756,7 +2708,7 @@ msgstr "Gerak Tetikus"
 msgid "Control Midori by moving the mouse"
 msgstr "Kendalikan Midori dengan menggerakkan tetikus"
 
-#: ../extensions/shortcuts.c:110
+#: ../extensions/shortcuts.c:109
 msgid "Reload page or stop loading"
 msgstr "Muat ulang halamat atau stop memuat"
 
@@ -2764,15 +2716,15 @@ msgstr "Muat ulang halamat atau stop memuat"
 msgid "Customize Keyboard shortcuts"
 msgstr "Sesuaikan jalan pintas Papan Ketik"
 
-#: ../extensions/shortcuts.c:282
+#: ../extensions/shortcuts.c:285
 msgid "Customize Sh_ortcuts..."
 msgstr "Sesuaikan J_alan Pintas..."
 
-#: ../extensions/shortcuts.c:319
+#: ../extensions/shortcuts.c:322
 msgid "Shortcuts"
 msgstr "Jalan Pintas"
 
-#: ../extensions/shortcuts.c:320
+#: ../extensions/shortcuts.c:323
 msgid "View and edit keyboard shortcuts"
 msgstr "Tampilkan dan sunting jalan pintas papan ketik"
 
@@ -2784,81 +2736,262 @@ msgstr "Jam Batang Status"
 msgid "Display date and time in the statusbar"
 msgstr "Tampilkan tanggal dan waktu di batang status"
 
-#: ../extensions/statusbar-features.c:129
+#: ../extensions/statusbar-features.c:128
 msgid "Images"
 msgstr "Gambar"
 
-#: ../extensions/statusbar-features.c:138
+#: ../extensions/statusbar-features.c:137
 msgid "Scripts"
 msgstr "Skrip"
 
-#: ../extensions/statusbar-features.c:147
+#: ../extensions/statusbar-features.c:146
 msgid "Netscape plugins"
 msgstr "Plugin Netscape"
 
-#: ../extensions/statusbar-features.c:193
+#: ../extensions/statusbar-features.c:192
 msgid "Statusbar Features"
 msgstr "Fitur Batang Status"
 
-#: ../extensions/statusbar-features.c:194
+#: ../extensions/statusbar-features.c:193
 msgid "Easily toggle features on web pages on and off"
 msgstr "Matikan atau hidupkan dengan mudah fitur-fitur di halaman web"
 
-#: ../extensions/tab-panel.c:597 ../extensions/tab-panel.c:684
+#: ../extensions/tab-panel.c:596 ../extensions/tab-panel.c:683
 msgid "Tab Panel"
 msgstr "Panel Tab"
 
-#: ../extensions/tab-panel.c:667
+#: ../extensions/tab-panel.c:666
 msgid "T_ab Panel"
 msgstr "Panel T_ab"
 
-#: ../extensions/tab-panel.c:685
+#: ../extensions/tab-panel.c:684
 msgid "Show tabs in a vertical panel"
 msgstr "Tampilkan tab di sebuah panel vertikal"
 
-#: ../extensions/tabs-minimized.c:77
+#: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
 msgstr "Hanya Ikon di Tab sebagai standar"
 
-#: ../extensions/tabs-minimized.c:78
+#: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
 msgstr "Tab baru tidak mempunyai label sebagai standar"
 
-#: ../extensions/toolbar-editor.c:391
+#: ../extensions/toolbar-editor.c:393
 msgid "Customize Toolbar"
 msgstr "Sesuaikan Batang Alat"
 
-#: ../extensions/toolbar-editor.c:407
-msgid "Select items to be displayed on the toolbar. Items can be reodered by drag and drop."
-msgstr "Pilih item yang akan ditampilkan di batang alat. Item dapat diubah urutannya dengan seret dan taruh."
+#: ../extensions/toolbar-editor.c:413
+msgid ""
+"Select items to be displayed on the toolbar. Items can be reodered by drag "
+"and drop."
+msgstr ""
+"Pilih item yang akan ditampilkan di batang alat. Item dapat diubah urutannya "
+"dengan seret dan taruh."
 
-#: ../extensions/toolbar-editor.c:423
+#: ../extensions/toolbar-editor.c:429
 msgid "Available Items"
 msgstr "Item Tersedia"
 
-#: ../extensions/toolbar-editor.c:444
+#: ../extensions/toolbar-editor.c:450
 msgid "Displayed Items"
 msgstr "Item Ditampilkan"
 
-#: ../extensions/toolbar-editor.c:579
+#: ../extensions/toolbar-editor.c:585
 msgid "Customize _Toolbar..."
 msgstr "Sesuaikan _Batang Alat..."
 
-#: ../extensions/toolbar-editor.c:595
+#: ../extensions/toolbar-editor.c:601
 msgid "_Customize..."
 msgstr "_Sesuaikan..."
 
-#: ../extensions/toolbar-editor.c:625
+#: ../extensions/toolbar-editor.c:631
 msgid "Toolbar Editor"
 msgstr "Penyunting Batang Alat"
 
-#: ../extensions/toolbar-editor.c:626
+#: ../extensions/toolbar-editor.c:632
 msgid "Easily edit the toolbar layout"
 msgstr "Sunting tata letak batang alat dengan mudah"
 
-#: ../extensions/web-cache.c:471
+#: ../extensions/web-cache.c:463
 msgid "Cache HTTP communication on disk"
 msgstr "Tembolok komunikasi HTTP di cakram"
+
+#~ msgid "Lightweight web browser"
+#~ msgstr "Peramban web ringan"
+
+#~ msgid "No filename specified"
+#~ msgstr "Tak ada nama berkas yang ditentukan"
+
+#~ msgid "Don't save any private data while browsing"
+#~ msgstr "Jangan simpan data privat ketika meramban"
+
+#~ msgid "Add shortcut to speed dial"
+#~ msgstr "Tambah jalan pintas ke panggil cepat"
+
+#~ msgid "Add shortcut to the desktop"
+#~ msgstr "Tambah jalan pintas ke desktop"
+
+#~ msgid "Create a launcher"
+#~ msgstr "Buat sebuah peluncur"
+
+#~ msgid "Subscribe to this news feed"
+#~ msgstr "Berlangganan ke umpan berita ini"
+
+#~ msgid "Close this window"
+#~ msgstr "Tutup jendela ini"
+
+#~ msgid "Close all open windows"
+#~ msgstr "Tutup semua jendela yang terbuka"
+
+#~ msgid "Undo the last modification"
+#~ msgstr "Tak jadi modifikasi terakhir"
+
+#~ msgid "Redo the last modification"
+#~ msgstr "Jadi lagi modifikasi terakhir"
+
+#~ msgid "Cut the selected text"
+#~ msgstr "Potong teks terpilih"
+
+#~ msgid "Copy the selected text"
+#~ msgstr "Salin teks terpilih"
+
+#~ msgid "Paste text from the clipboard"
+#~ msgstr "Tempel teks dari papan klip"
+
+#~ msgid "Delete the selected text"
+#~ msgstr "Hapus teks terpilih"
+
+#~ msgid "Select all text"
+#~ msgstr "Pilih semua teks"
+
+#~ msgid "Find the next occurrence of a word or phrase"
+#~ msgstr "Cari kejadian berikutnya dari kata atau frasa"
+
+#~ msgid "Find the previous occurrence of a word or phrase"
+#~ msgstr "Cari kejadian sebelumnya dari kata atau frasa"
+
+#~ msgid "Reset the zoom level"
+#~ msgstr "Reset level pembesaran"
+
+#~ msgid "View the source code of the page"
+#~ msgstr "Tampilkan kode program dari halaman"
+
+#~ msgid "Scroll to the left"
+#~ msgstr "Gulung ke kiri"
+
+#~ msgid "Scroll down"
+#~ msgstr "Gulung bawah"
+
+#~ msgid "Scroll up"
+#~ msgstr "Gulung atas"
+
+#~ msgid "Scroll to the right"
+#~ msgstr "Gulung ke kanan"
+
+#~ msgid "Delete the contents of the trash"
+#~ msgstr "Hapus isi tempat sampah"
+
+#~ msgid "Open the last closed tab"
+#~ msgstr "Buka tab yang terakhir ditutup"
+
+#~ msgid "Add a new bookmark folder"
+#~ msgstr "Tambah sebuah folder penanda baru"
+
+#~ msgid "Add, edit and remove search engines..."
+#~ msgstr "Tambah, sunting dan hapus mesin pencari..."
+
+#~ msgid "Clear private data..."
+#~ msgstr "Hapus data pribadi..."
+
+#~ msgid "Inspect page details and access developer tools..."
+#~ msgstr "Inspeksi detail halaman dan akses alat pengembang..."
+
+#~ msgid "Switch to the previous tab"
+#~ msgstr "Pindah ke tab sebelumnya"
+
+#~ msgid "Switch to the next tab"
+#~ msgstr "Pindah ke tab berikutnya"
+
+#~ msgid "Move tab behind the previous tab"
+#~ msgstr "Pindah tab ke belakang tab sebelumnya"
+
+#~ msgid "Move tab in front of the next tab"
+#~ msgstr "Pindah tab ke depan tab berikutnya"
+
+#~ msgid "Focus the current tab"
+#~ msgstr "Fokus tab saat ini"
+
+#~ msgid "Cycle focus between views"
+#~ msgstr "Daur fokus di antara tampilan"
+
+#~ msgid "Only show the icon of the current tab"
+#~ msgstr "Hanya tampilkan ikon dari tab saat ini"
+
+#~ msgid "Duplicate the current tab"
+#~ msgstr "Duplikasi tab saat ini"
+
+#~ msgid "Close all tabs except the current tab"
+#~ msgstr "Tutup semua tab kecuali tab saat ini"
+
+#~ msgid "Open the tabs saved in the last session"
+#~ msgstr "Buka tab yang tersimpan di sesi terakhir"
+
+#~ msgid "Show the Frequently Asked Questions"
+#~ msgstr "Tampilkan Pertanyaan Acapkali Diajukan"
+
+#~ msgid "Open Midori's bug tracker"
+#~ msgstr "Buka pelacak kutu Midori"
+
+#~ msgid "Show information about the program"
+#~ msgstr "Tampilkan informasi tentang program"
+
+#~ msgid "Show menubar"
+#~ msgstr "Tampilkan batang menu"
+
+#~ msgid "Show navigationbar"
+#~ msgstr "Tampilkan batang navigasi"
+
+#~ msgid "Show sidepanel"
+#~ msgstr "Tampilkan panel sisi"
+
+#~ msgid "Show bookmarkbar"
+#~ msgstr "Tampilkan batang penanda"
+
+#~ msgid "Show statusbar"
+#~ msgstr "Tampilkan batang status"
+
+#~ msgid "MD5-Checksum:"
+#~ msgstr "MD5-Checksum:"
+
+#~ msgid "SHA1-Checksum:"
+#~ msgstr "SHA1-Checksum:"
+
+#~ msgid "Set number of columns and rows"
+#~ msgstr "Atur jumlah kolom dan baris"
+
+#~ msgid "Enter number of columns and rows:"
+#~ msgstr "Masukkan jumlah kolom dan baris:"
+
+#~ msgid "Invalid input for the size of the speed dial"
+#~ msgstr "Masukan tidak valid untuk ukuran panggil cepat"
+
+#~ msgid "Thumb size:"
+#~ msgstr "Ukuran miniatur:"
+
+#~ msgid "Small"
+#~ msgstr "Kecil"
+
+#~ msgid "Medium"
+#~ msgstr "Sedang"
+
+#~ msgid "Big"
+#~ msgstr "Besar"
+
+#~ msgid "Not available: %s"
+#~ msgstr "Tidak tersedia: %s"
+
+#~ msgid "Resource files not installed"
+#~ msgstr "Berkas sumber daya tak terinstal"
 
 #~ msgid "Reset the last _session"
 #~ msgstr "Atur ulang _sesi terakhir"
@@ -2879,10 +3012,9 @@ msgstr "Tembolok komunikasi HTTP di cakram"
 #~ msgstr "Atur filter _Iklan..."
 
 #~ msgid "Switch tabs with Ctrl+Tab sorted by last usage"
-#~ msgstr "Ganti tab menggunakan Ctrl+Tab yang diurutkan berdasarkan penggunaan terakhir"
-
-#~ msgid "Midori (Private Browsing)"
-#~ msgstr "Midori (Meramban Privat)"
+#~ msgstr ""
+#~ "Ganti tab menggunakan Ctrl+Tab yang diurutkan berdasarkan penggunaan "
+#~ "terakhir"
 
 #~ msgid "Quit the application"
 #~ msgstr "Keluar aplikasi"
@@ -3074,13 +3206,12 @@ msgstr "Tembolok komunikasi HTTP di cakram"
 #~ msgstr "Apakah akan menanyakan folder tujuan ketika mengunduh sebuah berkas"
 
 #~ msgid "Whether to show a notification when a transfer has been completed"
-#~ msgstr "Apakah akan menampilkan sebuah notifikasi ketika sebuah transfer telah selesai"
+#~ msgstr ""
+#~ "Apakah akan menampilkan sebuah notifikasi ketika sebuah transfer telah "
+#~ "selesai"
 
 #~ msgid "Original cookies only"
 #~ msgstr "Hanya kuki asli"
-
-#~ msgid "Accept cookies from the original website only"
-#~ msgstr "Terima kuki hanya dari situs web asli"
 
 #~ msgid "Remember last visited pages"
 #~ msgstr "Ingat halaman terakhir dikunjungi"
@@ -3097,7 +3228,8 @@ msgstr "Tembolok komunikasi HTTP di cakram"
 #~ msgid "Detect proxy server automatically"
 #~ msgstr "Deteksi server proxy secara otomatis"
 
-#~ msgid "Whether to detect the proxy server automatically from the environment"
+#~ msgid ""
+#~ "Whether to detect the proxy server automatically from the environment"
 #~ msgstr "Apakah akan mendeteksi server proxy secara otomatis dari lingkungan"
 
 #~ msgid "Cache size"
@@ -3148,8 +3280,12 @@ msgstr "Tembolok komunikasi HTTP di cakram"
 #~ msgid "Spell Checking"
 #~ msgstr "Pemeriksa Ejaan"
 
-#~ msgid "A comma separated list of languages to be used for spell checking, for example \"en_GB,de_DE\""
-#~ msgstr "Senarai dipisahkan koma dari bahasa yang akan digunakan untuk pemeriksa ejaan, misalnya \"en_GB,de_DE\""
+#~ msgid ""
+#~ "A comma separated list of languages to be used for spell checking, for "
+#~ "example \"en_GB,de_DE\""
+#~ msgstr ""
+#~ "Senarai dipisahkan koma dari bahasa yang akan digunakan untuk pemeriksa "
+#~ "ejaan, misalnya \"en_GB,de_DE\""
 
 #~ msgid "User_styles"
 #~ msgstr "Ga_ya pengguna"
