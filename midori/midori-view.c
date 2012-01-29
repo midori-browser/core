@@ -79,6 +79,7 @@ struct _MidoriView
     gchar* statusbar_text;
     WebKitHitTestResult* hit_test;
     gchar* link_uri;
+    gboolean button_press_handled;
     gboolean has_selection;
     gchar* selected_text;
     MidoriWebSettings* settings;
@@ -1662,9 +1663,9 @@ midori_view_ensure_link_uri (MidoriView* view,
     | GDK_MOD1_MASK | GDK_META_MASK | GDK_SUPER_MASK | GDK_HYPER_MASK )
 
 static gboolean
-gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
-                                  GdkEventButton* event,
-                                  MidoriView*     view)
+midori_view_web_view_button_press_event_cb (WebKitWebView*  web_view,
+                                            GdkEventButton* event,
+                                            MidoriView*     view)
 {
     GtkClipboard* clipboard;
     gchar* uri;
@@ -1675,6 +1676,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     event->state = event->state & MIDORI_KEYS_MODIFIER_MASK;
     midori_view_ensure_link_uri (view, NULL, NULL, event);
     link_uri = midori_view_get_link_uri (view);
+    view->button_press_handled = FALSE;
 
     switch (event->button)
     {
@@ -1692,12 +1694,14 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             if (MIDORI_MOD_BACKGROUND (event->state))
                 background = !background;
             g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
+            view->button_press_handled = TRUE;
             return TRUE;
         }
         else if (MIDORI_MOD_NEW_WINDOW (event->state))
         {
             /* Open link in new window */
             g_signal_emit (view, signals[NEW_WINDOW], 0, link_uri);
+            view->button_press_handled = TRUE;
             return TRUE;
         }
         break;
@@ -1712,6 +1716,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             if (MIDORI_MOD_BACKGROUND (event->state))
                 background = !background;
             g_signal_emit (view, signals[NEW_TAB], 0, link_uri, background);
+            view->button_press_handled = TRUE;
             return TRUE;
         }
         else if (MIDORI_MOD_SCROLL (event->state))
@@ -1775,6 +1780,7 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
                     gtk_widget_grab_focus (GTK_WIDGET (view));
                 }
                 g_free (uri);
+                view->button_press_handled = TRUE;
                 return TRUE;
             }
         }
@@ -1787,14 +1793,17 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
             midori_view_populate_popup (view, menu, TRUE);
             katze_widget_popup (GTK_WIDGET (web_view), GTK_MENU (menu), event,
                                 KATZE_MENU_POSITION_CURSOR);
+            view->button_press_handled = TRUE;
             return TRUE;
         }
         break;
     case 8:
         midori_view_go_back (view);
+        view->button_press_handled = TRUE;
         return TRUE;
     case 9:
         midori_view_go_forward (view);
+        view->button_press_handled = TRUE;
         return TRUE;
     /*
      * On some fancier mice the scroll wheel can be used to scroll horizontally.
@@ -1804,8 +1813,8 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
      * accidentally being interpreted as first button clicks.
      */
     case 11:
-        return TRUE;
     case 12:
+        view->button_press_handled = TRUE;
         return TRUE;
     }
 
@@ -1813,6 +1822,17 @@ gtk_widget_button_press_event_cb (WebKitWebView*  web_view,
     g_signal_emit_by_name (view, "event", event, &background);
 
     return FALSE;
+}
+
+static gboolean
+midori_view_web_view_button_release_event_cb (WebKitWebView*  web_view,
+                                              GdkEventButton* event,
+                                              MidoriView*     view)
+{
+    gboolean button_press_handled = view->button_press_handled;
+    view->button_press_handled = FALSE;
+
+    return button_press_handled;
 }
 
 static gboolean
@@ -3619,7 +3639,9 @@ midori_view_construct_web_view (MidoriView* view)
                       "signal::hovering-over-link",
                       webkit_web_view_hovering_over_link_cb, view,
                       "signal::button-press-event",
-                      gtk_widget_button_press_event_cb, view,
+                      midori_view_web_view_button_press_event_cb, view,
+                      "signal::button-release-event",
+                      midori_view_web_view_button_release_event_cb, view,
                       "signal-after::key-press-event",
                       gtk_widget_key_press_event_cb, view,
                       "signal::scroll-event",
