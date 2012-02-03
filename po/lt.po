@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: midori 0.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-02 14:27+0000\n"
-"PO-Revision-Date: 2012-02-02 17:07+0200\n"
+"PO-Revision-Date: 2012-02-03 09:11+0200\n"
 "Last-Translator: Algimantas Margevičius <margevicius.algimantas@gmail.com>\n"
 "Language-Team: Lietuvių <>\n"
 "Language: \n"
@@ -1881,7 +1881,7 @@ msgstr "ankstesnis"
 #. i18n: word stem of "next page" type links, case is not important
 #: ../midori/midori-view.c:5195
 msgid "next"
-msgstr ""
+msgstr "sekantis"
 
 #: ../midori/midori-view.c:5208
 msgid "Print background images"
@@ -1901,7 +1901,7 @@ msgstr "Paleistis"
 
 #: ../midori/midori-preferences.c:310
 msgid "Use _current page"
-msgstr ""
+msgstr "Naudoti _dabartinį puslapį"
 
 #: ../midori/midori-preferences.c:314
 msgid "Use current page as homepage"
@@ -1973,7 +1973,7 @@ msgstr "Pagrindinio kompiuterio vardas"
 
 #: ../midori/midori-preferences.c:485
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: ../midori/midori-searchaction.c:908
 msgid "Add search engine"
@@ -2014,7 +2014,7 @@ msgstr "Atverti su"
 #: ../midori/sokoke.c:418
 #, c-format
 msgid "Choose an application or command to open \"%s\":"
-msgstr ""
+msgstr "Pasirinkite programą ar komandą „%s“ atvėrimui:"
 
 #: ../midori/sokoke.c:459 ../midori/sokoke.c:469 ../midori/sokoke.c:497
 #: ../midori/sokoke.c:526 ../midori/sokoke.c:540
@@ -2091,12 +2091,12 @@ msgstr "Paryškinti surastus"
 
 #: ../toolbars/midori-findbar.c:319
 msgid "Close Findbar"
-msgstr ""
+msgstr "Užverti paieškos juostą"
 
 #: ../toolbars/midori-transferbar.c:122
 #, c-format
 msgid "The file '<b>%s</b>' has been downloaded."
-msgstr ""
+msgstr "Failas „<b>%s</b>“ parsiųstas."
 
 #: ../toolbars/midori-transferbar.c:125
 msgid "Transfer completed"
@@ -2104,13 +2104,15 @@ msgstr "Siuntimas baigtas"
 
 #: ../toolbars/midori-transferbar.c:193
 msgid "The downloaded file is erroneous."
-msgstr ""
+msgstr "Parsiųstas failas yra klaidingas."
 
 #: ../toolbars/midori-transferbar.c:194
 msgid ""
 "The checksum provided with the link did not match. This means the file is "
 "probably incomplete or was modified afterwards."
 msgstr ""
+"Kontrolinė suma kurią suteikė nuoroda nesutampa. Tai reiškia jog failas "
+"nepilnas arba buvo pakeistas po to."
 
 #: ../toolbars/midori-transferbar.c:331 ../panels/midori-transfers.c:141
 msgid "Clear All"
@@ -2118,7 +2120,7 @@ msgstr "Išvalyti visus"
 
 #: ../toolbars/midori-transferbar.c:368 ../toolbars/midori-transferbar.c:370
 msgid "Some files are being downloaded"
-msgstr ""
+msgstr "Kai kurie failai parsiunčiami"
 
 #: ../toolbars/midori-transferbar.c:374
 msgid "_Quit Midori"
@@ -2151,7 +2153,7 @@ msgstr "Pridėti naują aplanką"
 
 #: ../panels/midori-bookmarks.c:591 ../panels/midori-history.c:579
 msgid "<i>Separator</i>"
-msgstr ""
+msgstr "<i>Skirtukas</i>"
 
 #: ../panels/midori-history.c:110
 msgid "History"
@@ -2199,7 +2201,7 @@ msgstr "Siuntimai"
 
 #: ../panels/midori-transfers.c:467
 msgid "Open Destination _Folder"
-msgstr ""
+msgstr "Atverti paskirties _aplanką"
 
 #: ../panels/midori-transfers.c:470
 msgid "Copy Link Loc_ation"
@@ -2214,6 +2216,8 @@ msgid ""
 "A username and a password are required\n"
 "to open this location:"
 msgstr ""
+"Šiai vietai atverti reikia naudotojo vardo\n"
+"ir slaptažodžio:"
 
 #: ../katze/katze-http-auth.c:240
 msgid "Username"
@@ -2230,21 +2234,21 @@ msgstr "P_risiminti slaptažodį"
 #: ../katze/katze-throbber.c:948
 #, c-format
 msgid "Named icon '%s' couldn't be loaded"
-msgstr ""
+msgstr "Pavadintos piktogramos „%s“ įkelti nepavyko"
 
 #: ../katze/katze-throbber.c:961
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
-msgstr ""
+msgstr "Piktogramos „%s“ įkelti nepavyko"
 
 #: ../katze/katze-throbber.c:1041
 msgid "Animation frames are broken"
-msgstr ""
+msgstr "Animuoti kadrai sugadinti"
 
 #: ../katze/katze-utils.c:439 ../katze/katze-utils.c:873
 #, c-format
 msgid "Property '%s' is invalid for %s"
-msgstr ""
+msgstr "Savybė „%s“ netinka %s"
 
 #: ../katze/katze-utils.c:485 ../katze/katze-utils.c:514
 #: ../extensions/addons.c:308
@@ -2286,7 +2290,7 @@ msgstr "%s nustatymai"
 
 #: ../extensions/adblock.c:467
 msgid "Configure Advertisement filters"
-msgstr ""
+msgstr "Konfigūruoti reklamų filtrus"
 
 #: ../extensions/adblock.c:498
 #, c-format
@@ -2294,10 +2298,12 @@ msgid ""
 "Type the address of a preconfigured filter list in the text entry and click "
 "\"Add\" to add it to the list. You can find more lists at %s."
 msgstr ""
+"Įveskite sukonfigūruoto filtrų sąrašo adresą ir spauskite „Pridėti“ norėdami "
+"pridėti į sąrašą. Daugiau sąrašų galite rasti %s."
 
 #: ../extensions/adblock.c:846
 msgid "Edit rule"
-msgstr ""
+msgstr "Keisti taisyklę"
 
 #: ../extensions/adblock.c:860
 msgid "_Rule:"
@@ -2305,49 +2311,49 @@ msgstr "_Taisyklė:"
 
 #: ../extensions/adblock.c:914
 msgid "Bl_ock image"
-msgstr ""
+msgstr "B_lokuoti paveikslėlį"
 
 #: ../extensions/adblock.c:919
 msgid "Bl_ock link"
-msgstr ""
+msgstr "_Blokuoti nuorodą"
 
 #: ../extensions/adblock.c:1542
 msgid "Advertisement blocker"
-msgstr ""
+msgstr "Reklamų blokavimas"
 
 #: ../extensions/adblock.c:1543
 msgid "Block advertisements according to a filter list"
-msgstr ""
+msgstr "Blokuoti reklamas remiantis filtrų sąrašu"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:221
 msgid "This page appears to contain a user script. Do you wish to install it?"
-msgstr ""
+msgstr "Šis puslapis turėtų turėti naudotojo scenarijų. Ar norite įdiegti jį?"
 
 #: ../extensions/addons.c:222
 msgid "_Install user script"
-msgstr ""
+msgstr "Įdiegti naudotojo _scenarijų"
 
 #. i18n: An infobar shows up when viewing a style on userstyles.org
 #: ../extensions/addons.c:227
 msgid "This page appears to contain a user style. Do you wish to install it?"
-msgstr ""
+msgstr "Šis puslapis turėtų turėti naudotojo stilių. Ar norite įdiegti jį?"
 
 #: ../extensions/addons.c:228
 msgid "_Install user style"
-msgstr ""
+msgstr "_Įdiegti naudotojo stilių"
 
 #: ../extensions/addons.c:236
 msgid "Don't install"
-msgstr ""
+msgstr "Nediegti"
 
 #: ../extensions/addons.c:319 ../extensions/addons.c:681
 msgid "Userscripts"
-msgstr ""
+msgstr "Naudotojo scenarijai"
 
 #: ../extensions/addons.c:324 ../extensions/addons.c:683
 msgid "Userstyles"
-msgstr ""
+msgstr "Naudotojo stiliai"
 
 #: ../extensions/addons.c:380 ../extensions/addons.c:459
 #: ../extensions/feed-panel/main.c:129
@@ -2357,57 +2363,57 @@ msgstr "Klaida"
 #: ../extensions/addons.c:421
 #, c-format
 msgid "Do you want to delete '%s'?"
-msgstr ""
+msgstr "Ar norite ištrinti „%s“?"
 
 #: ../extensions/addons.c:427
 msgid "Delete user script"
-msgstr ""
+msgstr "Ištrinti naudotojo scenarijų"
 
 #: ../extensions/addons.c:428
 msgid "Delete user style"
-msgstr ""
+msgstr "Ištrinti naudotojo stilių"
 
 #: ../extensions/addons.c:431
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
-msgstr ""
+msgstr "Failas <b>%s</b> bus ištrintas visam laikui."
 
 #: ../extensions/addons.c:570 ../extensions/addons.c:647
 msgid "Open in Text Editor"
-msgstr ""
+msgstr "Atverti teksto redaktoriuje"
 
 #: ../extensions/addons.c:572 ../extensions/addons.c:656
 msgid "Open Target Folder"
-msgstr ""
+msgstr "Atverti paskirties aplankką"
 
 #: ../extensions/addons.c:638
 msgid "Add new addon"
-msgstr ""
+msgstr "Pridėti naują papildinį"
 
 #: ../extensions/addons.c:664
 msgid "Remove selected addon"
-msgstr ""
+msgstr "Pašalinti pasirinktą papildinį"
 
 #: ../extensions/addons.c:1696 ../extensions/addons.c:1914
 msgid "User addons"
-msgstr ""
+msgstr "Naudotojo papildiniai"
 
 #: ../extensions/addons.c:1826
 #, c-format
 msgid "Can't monitor folder '%s': %s"
-msgstr ""
+msgstr "Negaliu stebėti aplanko „%s“: %s"
 
 #: ../extensions/addons.c:1915
 msgid "Support for userscripts and userstyles"
-msgstr ""
+msgstr "Naudotojo stilių ir naudotojo scenarijų palaikymas"
 
 #: ../extensions/colorful-tabs.c:202
 msgid "Colorful Tabs"
-msgstr ""
+msgstr "Spalvotos kortelės"
 
 #: ../extensions/colorful-tabs.c:203
 msgid "Tint each tab distinctly"
-msgstr ""
+msgstr "Kiekvienos kortelės atspalvį keisti aiškiai"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:73
 #: ../extensions/cookie-manager/main.c:35
@@ -2444,11 +2450,11 @@ msgstr "Klausimas"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:583
 msgid "Only cookies which match the filter will be deleted."
-msgstr ""
+msgstr "Bus ištrinti tik tie slapukai kurie atitiks filtrą."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:671
 msgid "At the end of the session"
-msgstr ""
+msgstr "Seanso pabaigoje"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:674
 #, c-format
@@ -2460,6 +2466,12 @@ msgid ""
 "<b>Secure</b>: %s\n"
 "<b>Expires</b>: %s"
 msgstr ""
+"<b>Mazgas</b>: %s\n"
+"<b>Pavadinimas</b>: %s\n"
+"<b>Vertė</b>: %s\n"
+"<b>Kelias</b>: %s\n"
+"<b>Saugumas</b>: %s\n"
+"<b>Baigiasi</b>: %s"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:680
 msgid "Yes"
@@ -2475,6 +2487,8 @@ msgid ""
 "<b>Domain</b>: %s\n"
 "<b>Cookies</b>: %d"
 msgstr ""
+"<b>Domenas</b>: %s\n"
+"<b>Slapukai</b>: %d"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1024
 msgid "Name"
@@ -2497,37 +2511,39 @@ msgid ""
 "Enter a filter string to show only cookies whose name or domain field match "
 "the entered filter"
 msgstr ""
+"Įveskite filtravimo frazę, pagal kurią bus rodomi tik laukeliai kurie "
+"atitiks įvestą filtrą"
 
 #: ../extensions/cookie-manager/main.c:36
 msgid "List, view and delete cookies"
-msgstr ""
+msgstr "Parodyti ir ištrinti slapukus"
 
 #: ../extensions/copy-tabs.c:38
 msgid "Copy Tab _Addresses"
-msgstr ""
+msgstr "Kopijuoti kortelių _adresus"
 
 #: ../extensions/copy-tabs.c:95
 msgid "Copy Addresses of Tabs"
-msgstr ""
+msgstr "Kopijuoti kortelių adresus"
 
 #: ../extensions/copy-tabs.c:96
 msgid "Copy the addresses of all tabs to the clipboard"
-msgstr ""
+msgstr "Kopijuoti visų kortelių adresus į iškarpinę"
 
 #: ../extensions/feed-panel/feed-atom.c:209
 msgid "Failed to find required Atom \"entry\" elements in XML data."
-msgstr ""
+msgstr "XML duomenyse nepavyko rasti Atom „entry“ elementų."
 
 #: ../extensions/feed-panel/feed-atom.c:315
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr ""
+msgstr "XML duomenyse nepavyko rasti Atom „feed“ elementų."
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:387
 #, c-format
 msgctxt "Feed"
 msgid "Last updated: %s."
-msgstr ""
+msgstr "Paskutinis atnaujinimas: %s."
 
 #: ../extensions/feed-panel/feed-panel.c:653
 msgid "Feeds"
@@ -2548,43 +2564,43 @@ msgstr "_Kanalai"
 #: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
 msgid "Failed to find root element in feed XML data."
-msgstr ""
+msgstr "Kanalo XML duomenyse nepavyko rasti šakninio elemento."
 
 #: ../extensions/feed-panel/feed-parse.c:235
 #, c-format
 msgid "Unsupported feed format."
-msgstr ""
+msgstr "Kanalo formatas nepalaikomas."
 
 #: ../extensions/feed-panel/feed-parse.c:265
 #, c-format
 msgid "Failed to parse XML feed: %s"
-msgstr ""
+msgstr "Nepavyko apdoroti XML kanalo: %s"
 
 #: ../extensions/feed-panel/feed-rss.c:46
 msgid "Failed to find \"channel\" element in RSS XML data."
-msgstr ""
+msgstr "RSS XML duomenų „channel“ elementas nerastas."
 
 #: ../extensions/feed-panel/feed-rss.c:51
 msgid "Unsupported RSS version found."
-msgstr ""
+msgstr "Rastas nepalaikoma RSS versija."
 
 #: ../extensions/feed-panel/feed-rss.c:148
 msgid "Failed to find required RSS \"item\" elements in XML data."
-msgstr ""
+msgstr "Nepavyko rasti reikiamo RSS „item“ XML duomenų elemento."
 
 #: ../extensions/feed-panel/feed-rss.c:248
 msgid "Failed to find required RSS \"channel\" elements in XML data."
-msgstr ""
+msgstr "Nepavyko rasti reikiamo RSS „channel“ XML duomenų elemento."
 
 #: ../extensions/feed-panel/main.c:131
 #, c-format
 msgid "Feed '%s' already exists"
-msgstr ""
+msgstr "Kanalas „%s“ jau yra"
 
 #: ../extensions/feed-panel/main.c:208
 #, c-format
 msgid "Error loading feed '%s'"
-msgstr ""
+msgstr "Klaida įkraunant kanalą „%s“"
 
 #: ../extensions/feed-panel/main.c:518
 msgid "Feed Panel"
@@ -2592,26 +2608,26 @@ msgstr "Kanalų skydelis"
 
 #: ../extensions/feed-panel/main.c:519
 msgid "Read Atom/ RSS feeds"
-msgstr ""
+msgstr "Skaityti Atom/RSS kanalus"
 
 #: ../extensions/formhistory/formhistory.c:41
 #, c-format
 msgid "Failed to add form value: %s\n"
-msgstr ""
+msgstr "Nepavyko pridėti formos reikšmės: %s\n"
 
 #: ../extensions/formhistory/formhistory.c:161
 msgid "Toggle form history state"
-msgstr ""
+msgstr "Perjungti formų istorijos būseną"
 
 #: ../extensions/formhistory/formhistory.c:162
 msgid "Activate or deactivate form history for the current tab."
-msgstr ""
+msgstr "Aktyvuoti ar deaktyvuoti formų istoriją dabartinei kortelei."
 
 #: ../extensions/formhistory/formhistory.c:263
 #: ../extensions/formhistory/formhistory.c:267
 #, c-format
 msgid "Failed to execute database statement: %s\n"
-msgstr ""
+msgstr "Nepavyko įvykdyti duomenų bazės sakinio: %s\n"
 
 #: ../extensions/formhistory/formhistory.c:343
 msgid "only activate form history via hotkey (Ctrl+Shift+F) per tab"
@@ -2619,30 +2635,30 @@ msgstr ""
 
 #: ../extensions/formhistory/formhistory.c:399
 msgid "Stores history of entered form data"
-msgstr ""
+msgstr "Saugo įvestų duomenų istoriją"
 
 #: ../extensions/formhistory/formhistory.c:402
 msgid "Form history filler"
-msgstr ""
+msgstr "Formų istorijos pildytojas"
 
 #: ../extensions/formhistory/formhistory-gdom-frontend.c:219
 #: ../extensions/formhistory/formhistory-js-frontend.c:106
 #, c-format
 msgid "Failed to select suggestions\n"
-msgstr ""
+msgstr "Nepavyko pasirinkti pasiūlymų\n"
 
 #: ../extensions/history-list.vala:197
 msgid "There are no unvisited tabs"
-msgstr ""
+msgstr "Nėra neaplankytų kortelių"
 
 #: ../extensions/history-list.vala:235
 #, c-format
 msgid "History-List"
-msgstr ""
+msgstr "Istorijos sąrašas"
 
 #: ../extensions/history-list.vala:275
 msgid "Tab closing behavior"
-msgstr ""
+msgstr "Kortelės užvėrimo elgsena"
 
 #: ../extensions/history-list.vala:283
 msgid "Do nothing"
@@ -2650,43 +2666,44 @@ msgstr "Nieko nedaryti"
 
 #: ../extensions/history-list.vala:289
 msgid "Switch to last viewed tab"
-msgstr ""
+msgstr "Persijungti į paskutinę žiūrėtą kortelę"
 
 #: ../extensions/history-list.vala:295
 msgid "Switch to newest tab"
-msgstr ""
+msgstr "Persijungti į naujausią kortelę"
 
 #: ../extensions/history-list.vala:423
 msgid "Next new Tab (History List)"
-msgstr ""
+msgstr "Sekanti nauja kortelė iš istorijos (Istorijos sąrašas)"
 
 #: ../extensions/history-list.vala:424
 msgid "Next new tab from history"
-msgstr ""
+msgstr "Sekanti nauja kortelė iš istorijos"
 
 #: ../extensions/history-list.vala:433
 msgid "Previous new Tab (History List)"
-msgstr ""
+msgstr "Ankstesnė nauja kortelė iš istorijos (Istorijos sąrašas)"
 
 #: ../extensions/history-list.vala:434
 msgid "Previous new tab from history"
-msgstr ""
+msgstr "Ankstesnė nauja kortelė iš istorijos"
 
 #: ../extensions/history-list.vala:443
 msgid "Display tab in background (History List)"
-msgstr ""
+msgstr "Kortelę rodyti fone (Istorijos sąrašas)"
 
 #: ../extensions/history-list.vala:444
 msgid "Display the current selected tab in background"
-msgstr ""
+msgstr "Rodyti dabartinę pasirinktą kortelę fone"
 
 #: ../extensions/history-list.vala:569
 msgid "History List"
-msgstr ""
+msgstr "Istorijos sąrašas"
 
 #: ../extensions/history-list.vala:570
 msgid "Move to the last used tab when switching or closing tabs"
 msgstr ""
+"Perjungiant ar užveriant korteles, perkelti į paskutinę naudotą kortelę"
 
 #: ../extensions/mouse-gestures.c:301
 msgid "Mouse Gestures"
@@ -2694,19 +2711,19 @@ msgstr "Pelės gestai"
 
 #: ../extensions/mouse-gestures.c:302
 msgid "Control Midori by moving the mouse"
-msgstr ""
+msgstr "Valdykite Midori stumdami pelę"
 
 #: ../extensions/shortcuts.c:109
 msgid "Reload page or stop loading"
-msgstr ""
+msgstr "Perkrauti puslapį arba sustabdyti krovimą"
 
 #: ../extensions/shortcuts.c:176
 msgid "Customize Keyboard shortcuts"
-msgstr ""
+msgstr "Derinti klaviatūros susiejimus"
 
 #: ../extensions/shortcuts.c:285
 msgid "Customize Sh_ortcuts..."
-msgstr ""
+msgstr "Derinti _susiejimus..."
 
 #: ../extensions/shortcuts.c:322
 msgid "Shortcuts"
@@ -2714,15 +2731,15 @@ msgstr "Susiejimai"
 
 #: ../extensions/shortcuts.c:323
 msgid "View and edit keyboard shortcuts"
-msgstr ""
+msgstr "Rodyti ir keisti klaviatūros susiejimus"
 
 #: ../extensions/status-clock.c:174
 msgid "Statusbar Clock"
-msgstr ""
+msgstr "Būsenos juostos laikrodis"
 
 #: ../extensions/status-clock.c:175
 msgid "Display date and time in the statusbar"
-msgstr ""
+msgstr "Būsenos juostoje rodyti datą ir laiką"
 
 #: ../extensions/statusbar-features.c:128
 msgid "Images"
@@ -2738,66 +2755,68 @@ msgstr "Netscape papildiniai"
 
 #: ../extensions/statusbar-features.c:192
 msgid "Statusbar Features"
-msgstr ""
+msgstr "Būsenos juostos galimybės"
 
 #: ../extensions/statusbar-features.c:193
 msgid "Easily toggle features on web pages on and off"
-msgstr ""
+msgstr "Interneto puslapiuose lengvai įjunkite ar išjunkite galimybes"
 
 #: ../extensions/tab-panel.c:596 ../extensions/tab-panel.c:683
 msgid "Tab Panel"
-msgstr ""
+msgstr "Kortelių skydelis"
 
 #: ../extensions/tab-panel.c:666
 msgid "T_ab Panel"
-msgstr ""
+msgstr "_Kortelių skydelis"
 
 #: ../extensions/tab-panel.c:684
 msgid "Show tabs in a vertical panel"
-msgstr ""
+msgstr "Korteles rodo vertikaliame skydelyje"
 
 #: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
-msgstr ""
+msgstr "Pagal nutylėjimą ant kortelių tik piktogramos"
 
 #: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
-msgstr ""
+msgstr "Pagal nutylėjimą kortelės neturi etikečių"
 
 #: ../extensions/toolbar-editor.c:393
 msgid "Customize Toolbar"
-msgstr ""
+msgstr "Įrankių juostos derinimas"
 
 #: ../extensions/toolbar-editor.c:413
 msgid ""
 "Select items to be displayed on the toolbar. Items can be reodered by drag "
 "and drop."
 msgstr ""
+"Pasirinkite kurie elementai bus rodomi įrankių juostoje. Elementai gali būti "
+"sukeisti vietomis tiesiog juos velkant."
 
 #: ../extensions/toolbar-editor.c:429
 msgid "Available Items"
-msgstr ""
+msgstr "Prieinami elementai"
 
 #: ../extensions/toolbar-editor.c:450
 msgid "Displayed Items"
-msgstr ""
+msgstr "Rodomi elementai"
 
 #: ../extensions/toolbar-editor.c:585
 msgid "Customize _Toolbar..."
-msgstr ""
+msgstr "Įrankių juostos _derinimas"
 
 #: ../extensions/toolbar-editor.c:601
 msgid "_Customize..."
-msgstr "_Pasirinktinis ..."
+msgstr "_Derinti..."
 
 #: ../extensions/toolbar-editor.c:631
 msgid "Toolbar Editor"
-msgstr ""
+msgstr "Įrankinės redaktorius"
 
 #: ../extensions/toolbar-editor.c:632
 msgid "Easily edit the toolbar layout"
-msgstr ""
+msgstr "Lengvai pakeiskite įrankinės išdėstymą"
 
 #: ../extensions/web-cache.c:463
 msgid "Cache HTTP communication on disk"
-msgstr ""
+msgstr "Podėlio HTTP bendravimas su disku"
