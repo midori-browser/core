@@ -97,6 +97,7 @@ echo -n .
 # auto generate dll list, only of existing files
 pushd $root_dir/bin > /dev/null
 dll_recursive midori*.exe gspawn-*-helper*.exe libhunspell*.dll > $temp_dir/midori.exe.lst
+dll_recursive ../lib/gio/modules/*.dll >> $temp_dir/midori.exe.lst
 files=`ls | cat - $temp_dir/midori.exe.lst | sort | uniq -d`
 rm $temp_dir/midori.exe.lst
 popd > /dev/null
@@ -123,6 +124,7 @@ grab_files lib gtk-2.0
 grab_files lib engines
 
 grab_files lib enchant
+grab_files lib gio
 
 echo -n .
 
