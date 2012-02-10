@@ -1190,6 +1190,16 @@ katze_strip_mnemonics (const gchar* original)
   return result;
 }
 
+const gchar*
+katze_skip_whitespace (const gchar* str)
+{
+    if (str == NULL)
+        return NULL;
+    while (*str == ' ' || *str == '\t' || *str == '\n')
+        str++;
+    return str;
+}
+
 /**
  * katze_object_has_property:
  * @object: a #GObject

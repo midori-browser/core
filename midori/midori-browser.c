@@ -2305,7 +2305,6 @@ static void
 _action_private_browsing_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
-    const gchar* uri = midori_browser_get_current_uri (browser);
     sokoke_spawn_app ("", TRUE);
 }
 
@@ -3757,44 +3756,34 @@ _action_location_reset_uri (GtkAction*     action,
 }
 
 
-
 static void
 _action_location_submit_uri (GtkAction*     action,
                              const gchar*   uri,
                              gboolean       new_tab,
                              MidoriBrowser* browser)
 {
-    gchar* stripped_uri;
     gchar* new_uri;
     gint n;
 
-    stripped_uri = g_strdup (uri);
-    g_strstrip (stripped_uri);
-    new_uri = sokoke_magic_uri (stripped_uri);
+    uri = katze_skip_whitespace (uri);
+    new_uri = sokoke_magic_uri (uri);
     if (!new_uri)
     {
-        gchar** parts;
-        gchar* keywords = NULL;
+        const gchar* keywords = NULL;
         const gchar* search_uri = NULL;
+        KatzeItem* item;
 
         /* Do we have a keyword and a string? */
-        parts = g_strsplit (stripped_uri, " ", 2);
-        if (parts[0] && browser->search_engines)
+        if (browser->search_engines
+         && (item = katze_array_find_token (browser->search_engines, uri)))
         {
-            KatzeItem* item;
-            if ((item = katze_array_find_token (browser->search_engines, parts[0])))
-            {
-                keywords = g_strdup (parts[1] ? parts[1] : "");
-                search_uri = katze_item_get_uri (item);
-            }
+            keywords = strchr (uri, ' ') + 1;
+            search_uri = katze_item_get_uri (item);
         }
-        g_strfreev (parts);
 
-        if (keywords)
-            g_free (stripped_uri);
-        else
+        if (keywords == NULL)
         {
-            keywords = stripped_uri;
+            keywords = uri;
             search_uri = browser->location_entry_search;
         }
         new_uri = midori_uri_for_search (search_uri, keywords);
@@ -3823,11 +3812,7 @@ _action_location_submit_uri (GtkAction*     action,
             if (sqlite3_step (statement) == SQLITE_DONE)
                 sqlite3_clear_bindings (statement);
         }
-
-        g_free (keywords);
     }
-    else
-        g_free (stripped_uri);
 
     if (new_tab)
     {

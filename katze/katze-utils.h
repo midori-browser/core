@@ -101,6 +101,9 @@ katze_bookmark_populate_tree_view    (KatzeArray* array,
 gchar*
 katze_strip_mnemonics                (const gchar*    original);
 
+const gchar*
+katze_skip_whitespace                (const gchar*    str);
+
 gboolean
 katze_object_has_property            (gpointer     object,
                                       const gchar* property);
