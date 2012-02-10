@@ -1,6 +1,7 @@
 #! /bin/sh
 
 # Copyright (C) 2010-2011 Peter de Ridder <peter@xfce.org>
+# Copyright (C) 2012 Paweł Forysiuk <tuxator@o2.pl>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -73,6 +74,18 @@ dll_recursive ()
   rm $temp_file_new $temp_file_old
 }
 
+grab_files ()
+{
+   local dir="$1"
+   pushd $root_dir > /dev/null
+   shift
+   while [ "$1" ]; do
+       find $dir "(" -name "$1" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
+       shift
+   done
+   popd > /dev/null
+}
+
 echo -n "Creating $ARCHIVE ."
 
 # create destination folder
@@ -99,22 +112,25 @@ popd > /dev/null
 echo -n .
 
 # copy etc
-pushd $root_dir > /dev/null
-find etc "(" -name "*midori*" -o -name "gtkrc" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
-popd > /dev/null
+grab_files etc midori
+grab_files etc gtkrc
 
 echo -n .
 
 # copy lib
-pushd $root_dir > /dev/null
-find lib "(" -path "lib/midori/*" -o -path "lib/gtk-2.0/*" -o -path "lib/enchant/*" -o -path "lib/engines/*" ")" -a -name "*.dll" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
-popd > /dev/null
+grab_files lib midori
+grab_files lib gtk-2.0
+grab_files lib engines
+
+grab_files lib enchant
 
 echo -n .
 
 # copy share
-pushd $root_dir > /dev/null
-find share "(" -name "*midori*" -o -name "icons" -o -name "MS-Windows" -o -name "mime" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
+grab_files share midori
+grab_files share icons
+grab_files share MS-Windows
+grab_files share mime
 
 # copy locales for gtk
 # so we have translated stock items, file dialogs
