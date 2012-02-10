@@ -2656,6 +2656,7 @@ _action_copy_activate (GtkAction*     action,
                        MidoriBrowser* browser)
 {
     GtkWidget* widget = gtk_window_get_focus (GTK_WINDOW (browser));
+#if !WEBKIT_CHECK_VERSION (1, 4, 3)
     /* Work around broken clipboard handling for the sake of the user */
     if (WEBKIT_IS_WEB_VIEW (widget))
     {
@@ -2665,6 +2666,7 @@ _action_copy_activate (GtkAction*     action,
         sokoke_widget_copy_clipboard (widget, selected);
         return;
     }
+#endif
     if (G_LIKELY (widget) && g_signal_lookup ("copy-clipboard", G_OBJECT_TYPE (widget)))
         g_signal_emit_by_name (widget, "copy-clipboard");
 }
