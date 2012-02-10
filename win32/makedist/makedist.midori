@@ -130,7 +130,7 @@ ARCHIVE=`pwd`/$ARCHIVE
 # store as zip/7z file
 pushd $temp_dir > /dev/null
 if [ "$have_7zip" != "" ]; then
-    7za a -m0=lzma -mx=9 $ARCHIVE midori$1
+    7za a -m0=lzma $ARCHIVE midori$1
 else
     zip -rq $ARCHIVE midori$1
 fi
