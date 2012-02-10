@@ -34,11 +34,15 @@ temp_dir=`mktemp -d`
 # check if we can use 7zip
 have_7zip=`which 7za`
 
+if [ "$1" != "" ]; then
+   version_tag=$1
+fi
+
 # generate unique filename
 if [ "$have_7zip" != ""  ]; then
-    ARCHIVE=midori$1-`date +%Y%m%d%H%M`.7z
+    ARCHIVE=midori$version_tag-`date +%Y%m%d%H%M`.7z
 else
-    ARCHIVE=midori$1-`date +%Y%m%d%H%M`.zip
+    ARCHIVE=midori$version_tag-`date +%Y%m%d%H%M`.zip
 fi
 
 # function: dll-recursive <list of exe and dll files ...>
@@ -72,7 +76,8 @@ dll_recursive ()
 echo -n "Creating $ARCHIVE ."
 
 # create destination folder
-mkdir $temp_dir/midori$1
+workdir=$temp_dir/midori$version_tag
+mkdir $workdir
 
 echo -n .
 
@@ -87,38 +92,38 @@ echo -n .
 
 # copy auto generate dll list
 pushd $root_dir/bin > /dev/null
-mkdir $temp_dir/midori$1/bin
-cp $files $temp_dir/midori$1/bin
+mkdir $workdir/bin
+cp $files $workdir/bin
 popd > /dev/null
 
 echo -n .
 
 # copy etc
 pushd $root_dir > /dev/null
-find etc "(" -name "*midori*" -o -name "gtkrc" ")" -prune -exec mkdir -p $temp_dir/midori$1/{} ";" -exec rmdir --ignore-fail-on-non-empty $temp_dir/midori$1/{} ";" -exec cp -r {} $temp_dir/midori$1/{} ";"
+find etc "(" -name "*midori*" -o -name "gtkrc" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
 popd > /dev/null
 
 echo -n .
 
 # copy lib
 pushd $root_dir > /dev/null
-find lib "(" -path "lib/midori/*" -o -path "lib/gtk-2.0/*" -o -path "lib/enchant/*" -o -path "lib/engines/*" ")" -a -name "*.dll" -prune -exec mkdir -p $temp_dir/midori$1/{} ";" -exec rmdir --ignore-fail-on-non-empty $temp_dir/midori$1/{} ";" -exec cp -r {} $temp_dir/midori$1/{} ";"
+find lib "(" -path "lib/midori/*" -o -path "lib/gtk-2.0/*" -o -path "lib/enchant/*" -o -path "lib/engines/*" ")" -a -name "*.dll" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
 popd > /dev/null
 
 echo -n .
 
 # copy share
 pushd $root_dir > /dev/null
-find share "(" -name "*midori*" -o -name "icons" -o -name "MS-Windows" -o -name "mime" ")" -prune -exec mkdir -p $temp_dir/midori$1/{} ";" -exec rmdir --ignore-fail-on-non-empty $temp_dir/midori$1/{} ";" -exec cp -r {} $temp_dir/midori$1/{} ";"
+find share "(" -name "*midori*" -o -name "icons" -o -name "MS-Windows" -o -name "mime" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
 
 # copy locales for gtk
 # so we have translated stock items, file dialogs
 
 find share "(" -name "midori.mo" ")" >  locale.list
-mkdir -p $temp_dir/midori$1/share/locale/
+mkdir -p $workdir/share/locale/
 for LOCALE in $(cat locale.list); do
 	 LOCALE=$(echo $LOCALE|awk -F/ '{print $3}')
-	 cp /usr/share/locale/$LOCALE/LC_MESSAGES/gtk20.mo $temp_dir/midori$1/share/locale/$LOCALE/LC_MESSAGES/
+	 cp /usr/share/locale/$LOCALE/LC_MESSAGES/gtk20.mo $workdir/share/locale/$LOCALE/LC_MESSAGES/
 done
 rm locale.list
 popd > /dev/null
@@ -126,7 +131,7 @@ popd > /dev/null
 echo -n .
 
 # copy doc files to root
-cp $temp_dir/midori$1/share/doc/midori/{COPYING,AUTHORS} $temp_dir/midori$1
+cp $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
 
 echo -n .
 
@@ -135,9 +140,9 @@ ARCHIVE=`pwd`/$ARCHIVE
 # store as zip/7z file
 pushd $temp_dir > /dev/null
 if [ "$have_7zip" != "" ]; then
-    7za a -m0=lzma $ARCHIVE midori$1
+    7za a -m0=lzma $ARCHIVE midori$version_tag
 else
-    zip -rq $ARCHIVE midori$1
+    zip -rq $ARCHIVE midori$version_tag
 fi
 popd > /dev/null
 
