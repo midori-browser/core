@@ -126,6 +126,9 @@ grab_files lib engines
 grab_files lib enchant
 grab_files lib gio
 
+# Fedora ships on-demand pango modules, check just in case
+grab_files lib pango
+
 echo -n .
 
 # copy share
