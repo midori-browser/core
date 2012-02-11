@@ -711,20 +711,14 @@ midori_view_mime_icon (MidoriView*   view,
 }
 
 static void
-midori_view_update_icon (MidoriView* view,
-                         GdkPixbuf*  icon)
+midori_view_unset_icon (MidoriView* view)
 {
     GdkScreen* screen;
     GtkIconTheme* theme;
     gchar** parts = NULL;
+    GdkPixbuf* icon;
 
-    if (icon)
-    {
-        midori_view_apply_icon (view, icon, view->icon_uri);
-        return;
-    }
-
-    if (!((screen = gtk_widget_get_screen (GTK_WIDGET (view)))
+    if (!((screen = gtk_widget_get_screen (view->web_view))
         && (theme = gtk_icon_theme_get_for_screen (screen))))
         return;
     if (view->mime_type == NULL)
@@ -812,24 +806,17 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
 
     }
 
-    if (pixbuf)
+    if (!pixbuf)
     {
-        g_object_ref (pixbuf);
-        g_hash_table_insert (view->memory, g_strdup (view->icon_uri), pixbuf);
-    }
-    else
-    {
-        midori_view_update_icon (view, NULL);
+        midori_view_unset_icon (view);
         return;
     }
 
+    g_hash_table_insert (view->memory, g_strdup (view->icon_uri), pixbuf);
     settings = gtk_widget_get_settings (view->web_view);
     gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height, GDK_INTERP_BILINEAR);
-
-    g_object_unref (pixbuf);
-
-    midori_view_update_icon (view, pixbuf_scaled);
+    midori_view_apply_icon (view, pixbuf_scaled, view->icon_uri);
 }
 
 static void
@@ -892,9 +879,8 @@ _midori_web_view_load_icon (MidoriView* view)
             icon_height, GDK_INTERP_BILINEAR);
         g_object_unref (pixbuf);
         pixbuf = pixbuf_scaled;
+        midori_view_apply_icon (view, pixbuf, view->icon_uri);
     }
-
-    midori_view_update_icon (view, pixbuf);
 }
 
 static void
@@ -1016,7 +1002,7 @@ webkit_web_view_load_committed_cb (WebKitWebView*  web_view,
     g_object_notify (G_OBJECT (view), "uri");
     g_object_set (view, "title", NULL, NULL);
 
-    midori_view_update_icon (view, NULL);
+    midori_view_unset_icon (view);
 
     if (!strncmp (uri, "https", 5))
     {
@@ -2783,7 +2769,7 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         webkit_web_view_set_view_source_mode (WEBKIT_WEB_VIEW (web_view), view_source);
 
         katze_assign (view->mime_type, g_strdup (mime_type));
-        midori_view_update_icon (view, NULL);
+        midori_view_unset_icon (view);
         g_object_notify (G_OBJECT (view), "mime-type");
 
         return FALSE;
