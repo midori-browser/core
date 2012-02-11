@@ -757,38 +757,21 @@ free_parts:
     g_strfreev (parts);
 }
 
-typedef struct
-{
-    gchar* icon_file;
-    gchar* icon_uri;
-    MidoriView* view;
-} KatzeNetIconPriv;
-
-static void
-katze_net_icon_priv_free (KatzeNetIconPriv* priv)
-{
-    g_free (priv->icon_file);
-    g_free (priv->icon_uri);
-    g_slice_free (KatzeNetIconPriv, priv);
-}
-
 static gboolean
 katze_net_icon_status_cb (KatzeNetRequest*  request,
-                          KatzeNetIconPriv* priv)
+                          MidoriView*       view)
 {
     switch (request->status)
     {
         case KATZE_NET_VERIFIED:
             if (request->mime_type && strncmp (request->mime_type, "image/", 6))
             {
-                katze_net_icon_priv_free (priv);
                 return FALSE;
             }
             break;
         case KATZE_NET_MOVED:
             break;
         default:
-            katze_net_icon_priv_free (priv);
             return FALSE;
     }
     return TRUE;
@@ -796,7 +779,7 @@ katze_net_icon_status_cb (KatzeNetRequest*  request,
 
 static void
 katze_net_icon_transfer_cb (KatzeNetRequest*  request,
-                            KatzeNetIconPriv* priv)
+                            MidoriView*       view)
 {
     GdkPixbuf* pixbuf;
     FILE* fp;
@@ -811,59 +794,58 @@ katze_net_icon_transfer_cb (KatzeNetRequest*  request,
     pixbuf = NULL;
     if (request->data)
     {
-        if ((fp = fopen (priv->icon_file, "wb")))
+        gchar* icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons");
+        if ((fp = fopen (icon_file, "wb")))
         {
             ret  = fwrite (request->data, 1, request->length, fp);
             fclose (fp);
             if ((ret - request->length != 0))
             {
                 g_warning ("Error writing to file %s "
-                           "in  katze_net_icon_transfer_cb()", priv->icon_file);
+                           "in  katze_net_icon_transfer_cb()", icon_file);
             }
-            pixbuf = gdk_pixbuf_new_from_file (priv->icon_file, NULL);
         }
-        else
-            pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
+        g_free (icon_file);
+
+        pixbuf = katze_pixbuf_new_from_buffer ((guchar*)request->data,
                             request->length, request->mime_type, NULL);
 
-        if (pixbuf)
-            g_object_ref (pixbuf);
-
-        g_hash_table_insert (priv->view->memory,
-                g_strdup (priv->icon_file), pixbuf);
     }
 
-    if (!pixbuf)
+    if (pixbuf)
     {
-        midori_view_update_icon (priv->view, NULL);
-        katze_net_icon_priv_free (priv);
+        g_object_ref (pixbuf);
+        g_hash_table_insert (view->memory, g_strdup (view->icon_uri), pixbuf);
+    }
+    else
+    {
+        midori_view_update_icon (view, NULL);
         return;
     }
 
-    settings = gtk_widget_get_settings (priv->view->web_view);
+    settings = gtk_widget_get_settings (view->web_view);
     gtk_icon_size_lookup_for_settings (settings, GTK_ICON_SIZE_MENU, &icon_width, &icon_height);
     pixbuf_scaled = gdk_pixbuf_scale_simple (pixbuf, icon_width, icon_height, GDK_INTERP_BILINEAR);
 
     g_object_unref (pixbuf);
 
-    katze_assign (priv->view->icon_uri, g_strdup (priv->icon_uri));
-    midori_view_update_icon (priv->view, pixbuf_scaled);
-    katze_net_icon_priv_free (priv);
+    midori_view_update_icon (view, pixbuf_scaled);
 }
 
 static void
 _midori_web_view_load_icon (MidoriView* view)
 {
-    GdkPixbuf* pixbuf;
-    gchar* icon_file;
+    GdkPixbuf* pixbuf = NULL;
     gint icon_width, icon_height;
     GdkPixbuf* pixbuf_scaled;
     GtkSettings* settings;
 
-    pixbuf = NULL;
+    if (!midori_uri_is_http (view->icon_uri))
+        katze_assign (view->icon_uri, NULL);
 
-    if (midori_uri_is_http (view->icon_uri) || midori_uri_is_http (view->uri))
+    if (midori_uri_is_http (view->uri) || g_str_has_prefix (view->uri, "file://"))
     {
+        gchar* icon_file = NULL;
         if (!view->icon_uri)
         {
             guint i = 8;
@@ -879,31 +861,26 @@ _midori_web_view_load_icon (MidoriView* view)
                 view->icon_uri = g_strdup_printf ("%s/favicon.ico", view->uri);
         }
 
-        icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons");
         if (g_hash_table_lookup_extended (view->memory,
-                                          icon_file, NULL, (gpointer)&pixbuf))
+                                          view->icon_uri, NULL, (gpointer)&pixbuf))
         {
-            g_free (icon_file);
-            if (pixbuf)
-                g_object_ref (pixbuf);
+            g_warn_if_fail (pixbuf != NULL);
+            g_object_ref (pixbuf);
         }
-        else if ((pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
+        else if ((icon_file = katze_net_get_cached_path (NULL, view->icon_uri, "icons")) &&
+                 (pixbuf = gdk_pixbuf_new_from_file (icon_file, NULL)))
         {
-            g_free (icon_file);
+            g_hash_table_insert (view->memory,
+                g_strdup (view->icon_uri), g_object_ref (pixbuf));
         }
         else if (!view->special)
         {
-            KatzeNetIconPriv* priv;
-
-            priv = g_slice_new (KatzeNetIconPriv);
-            priv->icon_file = icon_file;
-            priv->icon_uri = g_strdup (view->icon_uri);
-            priv->view = view;
-
-            katze_net_load_uri (NULL, priv->icon_uri,
+            katze_net_load_uri (NULL, view->icon_uri,
                 (KatzeNetStatusCb)katze_net_icon_status_cb,
-                (KatzeNetTransferCb)katze_net_icon_transfer_cb, priv);
+                (KatzeNetTransferCb)katze_net_icon_transfer_cb, view);
         }
+
+        g_free (icon_file);
     }
 
     if (pixbuf)
@@ -1544,7 +1521,9 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         g_object_notify (G_OBJECT (view), "load-status");
     }
 
+    #if !WEBKIT_CHECK_VERSION (1, 4, 3)
     _midori_web_view_load_icon (view);
+    #endif
 
     g_object_thaw_notify (G_OBJECT (view));
 }
