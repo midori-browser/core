@@ -495,8 +495,8 @@ katze_throbber_set_animated (KatzeThrobber*  throbber,
                          (GSourceFunc)katze_throbber_timeout,
                          throbber,
                          (GDestroyNotify)katze_throbber_timeout_destroy);
-    gtk_widget_queue_draw (GTK_WIDGET (throbber));
     #endif
+    gtk_widget_queue_draw (GTK_WIDGET (throbber));
 
     g_object_notify (G_OBJECT (throbber), "animated");
 }
