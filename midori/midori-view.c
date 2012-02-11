@@ -493,7 +493,7 @@ midori_view_class_init (MidoriViewClass* class)
                                      "mime-type",
                                      "MIME Type",
                                      "The MIME type of the currently loaded page",
-                                     "text/html",
+                                     NULL,
                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property (gobject_class,
@@ -721,15 +721,13 @@ midori_view_unset_icon (MidoriView* view)
     if (!((screen = gtk_widget_get_screen (view->web_view))
         && (theme = gtk_icon_theme_get_for_screen (screen))))
         return;
-    if (view->mime_type == NULL)
-        return;
 
-    if (!((parts = g_strsplit (view->mime_type, "/", 2)) && (*parts && parts[1])))
+    if (!(view->mime_type
+       && (parts = g_strsplit (view->mime_type, "/", 2))
+       && (*parts && parts[1])))
     {
-        /* This is a hack to have a Find icon in the location while the
-           blank page has a File icon. */
-        icon = gtk_widget_render_icon (GTK_WIDGET (view),
-            GTK_STOCK_FIND, GTK_ICON_SIZE_MENU, NULL);
+        icon = gtk_widget_render_icon (view->web_view,
+            GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
         midori_view_apply_icon (view, icon, GTK_STOCK_FILE);
         goto free_parts;
     }
@@ -743,9 +741,9 @@ midori_view_unset_icon (MidoriView* view)
     if (midori_view_mime_icon (view, theme, "gnome-mime-%s-x-generic", *parts, NULL))
         goto free_parts;
 
-    icon = gtk_widget_render_icon (GTK_WIDGET (view),
+    icon = gtk_widget_render_icon (view->web_view,
         GTK_STOCK_FILE, GTK_ICON_SIZE_MENU, NULL);
-    midori_view_apply_icon (view, icon, NULL);
+    midori_view_apply_icon (view, icon, GTK_STOCK_FILE);
 
 free_parts:
     g_strfreev (parts);
@@ -3873,7 +3871,7 @@ midori_view_set_uri (MidoriView*  view,
             #endif
 
             katze_assign (view->uri, NULL);
-            katze_assign (view->mime_type, g_strdup ("text/html"));
+            katze_assign (view->mime_type, NULL);
             katze_item_set_meta_integer (view->item, "delay", -1);
 
             if (speeddial_markup == NULL)
