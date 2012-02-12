@@ -19,9 +19,9 @@ typedef struct
 } FormhistoryPasswordEntry;
 
 gchar*
-formhistory_encrypt (const gchar* input, unsigned char* key);
+formhistory_encrypt (const gchar* input, const gchar* key);
 
 gchar*
-formhistory_decrypt (const gchar* b64input, unsigned char* key);
+formhistory_decrypt (const gchar* b64input, const char* key);
 
 #endif

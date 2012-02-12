@@ -79,11 +79,9 @@ formhistory_check_master_password (GtkWidget*       parent,
     const gchar* title;
     static int alive;
     gboolean ret = FALSE;
-    unsigned char* master_password;
 
-    master_password = priv->master_password;
     /* Password is set */
-    if (master_password[0] && master_password[1])
+    if (priv->master_password && *priv->master_password)
         return TRUE;
 
     /* Other prompt is active */
@@ -130,8 +128,8 @@ formhistory_check_master_password (GtkWidget*       parent,
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
         /* FIXME: add password verification */
-        memset (&master_password[0], '\0', MAXPASSSIZE);
-        strcpy ((char*)master_password, gtk_entry_get_text (GTK_ENTRY (entry)));
+        katze_assign (priv->master_password,
+            g_strdup (gtk_entry_get_text (GTK_ENTRY (entry))));
         ret = TRUE;
     }
     else
@@ -513,7 +511,7 @@ formhistory_activate_cb (MidoriExtension* extension,
     FormHistoryPriv* priv;
 
     priv = formhistory_private_new ();
-    strcpy ((char*)priv->master_password, "");
+    priv->master_password = NULL;
     priv->master_password_canceled = 0;
     priv->password_manager_enabled = 1;
     formhistory_construct_popup_gui (priv);

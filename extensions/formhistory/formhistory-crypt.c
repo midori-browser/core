@@ -20,7 +20,7 @@ const char *iv ="12345678";
 
 gchar*
 formhistory_encrypt (const gchar*   input,
-                     unsigned char* key)
+                     const gchar*   key)
 {
     int outlen=0, auxlen=0;
     EVP_CIPHER_CTX ctx;
@@ -34,7 +34,7 @@ formhistory_encrypt (const gchar*   input,
     memset (&buff[0], '\0', BUF_SIZE);
 
     EVP_CIPHER_CTX_init (&ctx);
-    EVP_EncryptInit (&ctx, EVP_bf_cbc (), key, (unsigned char*)iv);
+    EVP_EncryptInit (&ctx, EVP_bf_cbc (), (unsigned char*)key, (unsigned char*)iv);
 
     if (EVP_EncryptUpdate (&ctx, (uc*)&buff, &outlen, (uc*)input, inputSize) != 1)
         return NULL;
@@ -48,7 +48,7 @@ formhistory_encrypt (const gchar*   input,
 
 gchar*
 formhistory_decrypt (const gchar*   b64input,
-                     unsigned char* key)
+                     const gchar*   key)
 {
     int outlen=0, auxlen=0;
     EVP_CIPHER_CTX ctx;
@@ -63,7 +63,7 @@ formhistory_decrypt (const gchar*   b64input,
     memset (&buff, 0, BUF_SIZE);
 
     EVP_CIPHER_CTX_init (& ctx);
-    EVP_DecryptInit (& ctx, EVP_bf_cbc(), key, (uc*)iv);
+    EVP_DecryptInit (& ctx, EVP_bf_cbc(), (unsigned char*)key, (uc*)iv);
 
     if (EVP_DecryptUpdate (& ctx, (uc*)&buff, &outlen, (uc*)input, inputSize) != 1)
         return NULL;

@@ -39,7 +39,7 @@ typedef struct
     #else
     gchar* jsforms;
     #endif
-    unsigned char master_password [MAXPASSSIZE];
+    gchar* master_password;
     int master_password_canceled;
     int password_manager_enabled;
 } FormHistoryPriv;
