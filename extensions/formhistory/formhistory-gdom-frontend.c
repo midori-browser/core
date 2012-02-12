@@ -179,22 +179,22 @@ formhistory_reposition_popup (FormHistoryPriv* priv)
     gtk_window_resize (GTK_WINDOW (priv->popup), 50, 80);
 }
 
-static void
+static gboolean
 formhistory_suggestions_show (FormHistoryPriv* priv)
 {
     GtkListStore* store;
     static sqlite3_stmt* stmt;
-    const gchar* value;
-    const gchar* name;
+    gchar* value, * name;
     const char* sqlcmd;
     gint result;
-
-    g_source_remove (priv->completion_timeout);
+    gchar* likedvalue;
+    int pos = 0;
 
     g_object_get (priv->element,
                   "name", &name,
                   "value", &value,
                   NULL);
+
     katze_assign (priv->oldkeyword, g_strdup (value));
     if (!priv->popup)
         formhistory_construct_popup_gui (priv);
@@ -202,13 +202,13 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
     if (!stmt)
     {
         if (!priv->db)
-            return;
+            goto free_data;
 
         sqlcmd = "SELECT DISTINCT value FROM forms WHERE field = ?1 and value like ?2";
         sqlite3_prepare_v2 (priv->db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
     }
 
-    gchar* likedvalue = g_strdup_printf ("%s%%", value);
+    likedvalue = g_strdup_printf ("%s%%", value);
     sqlite3_bind_text (stmt, 1, name, -1, NULL);
     sqlite3_bind_text (stmt, 2, likedvalue, -1, g_free);
     result = sqlite3_step (stmt);
@@ -220,12 +220,11 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
         sqlite3_reset (stmt);
         sqlite3_clear_bindings (stmt);
         formhistory_suggestions_hide_cb (NULL, NULL, priv);
-        return;
+        goto free_data;
     }
 
     store = GTK_LIST_STORE (priv->completion_model);
     gtk_list_store_clear (store);
-    int pos = 0;
 
     while (result == SQLITE_ROW)
     {
@@ -242,6 +241,11 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
         formhistory_reposition_popup (priv);
         gtk_widget_show_all (priv->popup);
     }
+
+free_data:
+    g_free (name);
+    g_free (value);
+    return FALSE;
 }
 
 static void
@@ -452,12 +456,10 @@ formhistory_private_destroy (FormHistoryPriv *priv)
         sqlite3_close (priv->db);
         priv->db = NULL;
     }
-    if (priv->oldkeyword)
-        g_free (priv->oldkeyword);
+    katze_assign (priv->oldkeyword, NULL);
     gtk_widget_destroy (priv->popup);
     priv->popup = NULL;
     g_slice_free (FormHistoryPriv, priv);
-    priv = NULL;
 }
 
 gboolean
