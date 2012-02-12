@@ -9,14 +9,9 @@
 */
 #define MAXCHARS 60
 #define MINCHARS 2
-#define MAXPASSSIZE 64
 #define GTK_RESPONSE_IGNORE 99
 #include "formhistory-frontend.h"
 #include "formhistory-crypt.h"
-
-unsigned char master_password [MAXPASSSIZE] = {};
-int master_password_canceled = 0;
-int password_manager_enabled = 1;
 
 static void
 formhistory_toggle_state_cb (GtkAction*     action,
@@ -72,7 +67,8 @@ formhistory_get_login_data (gpointer     db,
 }
 
 static gboolean
-formhistory_check_master_password (GtkWidget *parent)
+formhistory_check_master_password (GtkWidget*       parent,
+                                   FormHistoryPriv* priv)
 {
     GtkWidget* dialog;
     GtkWidget* content_area;
@@ -83,7 +79,9 @@ formhistory_check_master_password (GtkWidget *parent)
     const gchar* title;
     static int alive;
     gboolean ret = FALSE;
+    unsigned char* master_password;
 
+    master_password = priv->master_password;
     /* Password is set */
     if (master_password[0] && master_password[1])
         return TRUE;
@@ -93,7 +91,7 @@ formhistory_check_master_password (GtkWidget *parent)
         return FALSE;
 
     /* Prompt was cancelled */
-    if (master_password_canceled == 1)
+    if (priv->master_password_canceled == 1)
         return FALSE;
 
     alive = 1;
@@ -137,7 +135,7 @@ formhistory_check_master_password (GtkWidget *parent)
         ret = TRUE;
     }
     else
-        master_password_canceled = 1;
+        priv->master_password_canceled = 1;
 
     gtk_widget_destroy (dialog);
     alive = 0;
@@ -155,13 +153,13 @@ formhistory_remember_password_response (GtkWidget*                infobar,
     if (response_id == GTK_RESPONSE_IGNORE)
         goto cleanup;
 
-    if (formhistory_check_master_password (NULL))
+    if (formhistory_check_master_password (NULL, entry->priv))
     {
         if (response_id != GTK_RESPONSE_ACCEPT)
             katze_assign (entry->form_data, g_strdup ("never"));
 
-        encrypted_form = formhistory_encrypt (entry->form_data, master_password);
-        formhistory_update_database (entry->db, entry->domain, "MidoriPasswordManager", encrypted_form);
+        encrypted_form = formhistory_encrypt (entry->form_data, entry->priv->master_password);
+        formhistory_update_database (entry->priv->db, entry->domain, "MidoriPasswordManager", encrypted_form);
 
         g_free (encrypted_form);
     }
@@ -232,7 +230,7 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                     gchar* data;
                     gchar* domain;
 
-                    if (!password_manager_enabled)
+                    if (!priv->password_manager_enabled)
                         break;
 
                     domain = midori_uri_parse_hostname (webkit_web_frame_get_uri (web_frame), NULL);
@@ -247,7 +245,7 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                     /* Domain and form data are freed from infopanel callback*/
                     entry->form_data = g_strdup (value);
                     entry->domain = domain;
-                    entry->db = priv->db;
+                    entry->priv = priv;
                     g_object_set_data (G_OBJECT (web_view), "FormHistoryPasswordEntry", entry);
                 }
                 #endif
@@ -269,6 +267,7 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
                                       MidoriExtension* extension)
 {
     const gchar* page_uri;
+    FormHistoryPriv* priv;
     FormhistoryPasswordEntry* entry;
     GtkWidget* view;
 
@@ -282,7 +281,8 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
     formhistory_setup_suggestions (web_view, js_context, extension);
 
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
-    if (!password_manager_enabled)
+    priv = g_object_get_data (G_OBJECT (extension), "priv");
+    if (!priv->password_manager_enabled)
         return;
 
     entry = g_object_get_data (G_OBJECT (web_view), "FormHistoryPasswordEntry");
@@ -304,6 +304,7 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
 #if WEBKIT_CHECK_VERSION (1, 3, 8)
 static void
 formhistory_fill_login_data (JSContextRef js_context,
+                             FormHistoryPriv* priv,
                              const gchar* data)
 {
     gchar* decrypted_data = NULL;
@@ -315,10 +316,10 @@ formhistory_fill_login_data (JSContextRef js_context,
     if (!strncmp (data, "never", 5))
         return;
 
-    if (!formhistory_check_master_password (NULL))
+    if (!formhistory_check_master_password (NULL, priv))
         return;
 
-    if (!(decrypted_data = formhistory_decrypt (data, master_password)))
+    if (!(decrypted_data = formhistory_decrypt (data, priv->master_password)))
         return;
 
     script = g_string_new ("");
@@ -377,7 +378,7 @@ formhistory_frame_loaded_cb (WebKitWebView*   web_view,
 
     if (!data)
         return;
-    formhistory_fill_login_data (js_context, data);
+    formhistory_fill_login_data (js_context, priv, data);
     g_free (data);
 }
 #endif
@@ -392,14 +393,16 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
                         MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
+    FormHistoryPriv* priv;
 
+    priv = g_object_get_data (G_OBJECT (extension), "priv");
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (formhistory_window_object_cleared_cb), extension);
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (formhistory_navigation_decision_cb), extension);
 
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
-    if (!password_manager_enabled)
+    if (!priv->password_manager_enabled)
         return;
     g_signal_connect (web_view, "onload-event",
         G_CALLBACK (formhistory_frame_loaded_cb), extension);
@@ -451,13 +454,15 @@ formhistory_deactivate_tab (MidoriView*      view,
                             MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
+    FormHistoryPriv* priv;
 
+    priv = g_object_get_data (G_OBJECT (extension), "priv");
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_window_object_cleared_cb, extension);
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_navigation_decision_cb, extension);
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
-    if (!password_manager_enabled)
+    if (!priv->password_manager_enabled)
         return;
 
     g_signal_handlers_disconnect_by_func (
@@ -508,6 +513,9 @@ formhistory_activate_cb (MidoriExtension* extension,
     FormHistoryPriv* priv;
 
     priv = formhistory_private_new ();
+    strcpy ((char*)priv->master_password, "");
+    priv->master_password_canceled = 0;
+    priv->password_manager_enabled = 1;
     formhistory_construct_popup_gui (priv);
 
     config_dir = midori_extension_get_config_dir (extension);

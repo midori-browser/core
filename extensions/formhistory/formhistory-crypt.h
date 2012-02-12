@@ -13,9 +13,9 @@
 
 typedef struct
 {
-    sqlite3* db;
     gchar* domain;
     gchar* form_data;
+    FormHistoryPriv* priv;
 } FormhistoryPasswordEntry;
 
 gchar*

@@ -23,6 +23,7 @@
 #else
     #define FORMHISTORY_USE_JS 1
 #endif
+#define MAXPASSSIZE 64
 
 typedef struct
 {
@@ -38,6 +39,9 @@ typedef struct
     #else
     gchar* jsforms;
     #endif
+    unsigned char master_password [MAXPASSSIZE];
+    int master_password_canceled;
+    int password_manager_enabled;
 } FormHistoryPriv;
 
 FormHistoryPriv*
