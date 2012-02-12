@@ -9,7 +9,14 @@
 */
 #define MAXCHARS 60
 #define MINCHARS 2
+#define MAXPASSSIZE 64
+#define GTK_RESPONSE_IGNORE 99
 #include "formhistory-frontend.h"
+#include "formhistory-crypt.h"
+
+unsigned char master_password [MAXPASSSIZE] = {};
+int master_password_canceled = 0;
+int password_manager_enabled = 1;
 
 static void
 formhistory_toggle_state_cb (GtkAction*     action,
@@ -17,23 +24,20 @@ formhistory_toggle_state_cb (GtkAction*     action,
 
 static void
 formhistory_update_database (gpointer     db,
+                             const gchar* host,
                              const gchar* key,
                              const gchar* value)
 {
     gchar* sqlcmd;
     gchar* errmsg;
     gint success;
-    guint length;
 
     if (!(value && *value))
-        return;
-    length = strlen (value);
-    if (length > MAXCHARS || length < MINCHARS)
         return;
 
     sqlcmd = sqlite3_mprintf ("INSERT INTO forms VALUES"
                               "('%q', '%q', '%q')",
-                              NULL, key, value);
+                              host, key, value);
     success = sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg);
     sqlite3_free (sqlcmd);
     if (success != SQLITE_OK)
@@ -44,6 +48,131 @@ formhistory_update_database (gpointer     db,
     }
 }
 
+static gchar*
+formhistory_get_login_data (gpointer     db,
+                            const gchar* domain)
+{
+    static sqlite3_stmt* stmt;
+    const char* sqlcmd;
+    gint result;
+    gchar* value = NULL;
+
+    if (!stmt)
+    {
+        sqlcmd = "SELECT value FROM forms WHERE domain = ?1 and field = 'MidoriPasswordManager' limit 1";
+        sqlite3_prepare_v2 (db, sqlcmd, strlen (sqlcmd) + 1, &stmt, NULL);
+    }
+    sqlite3_bind_text (stmt, 1, domain, -1, NULL);
+    result = sqlite3_step (stmt);
+    if (result == SQLITE_ROW)
+        value = g_strdup ((gchar*)sqlite3_column_text (stmt, 0));
+    sqlite3_reset (stmt);
+    sqlite3_clear_bindings (stmt);
+    return value;
+}
+
+static gboolean
+formhistory_check_master_password (GtkWidget *parent)
+{
+    GtkWidget* dialog;
+    GtkWidget* content_area;
+    GtkWidget* hbox;
+    GtkWidget* image;
+    GtkWidget* label;
+    GtkWidget* entry;
+    const gchar* title;
+    static int alive;
+    gboolean ret = FALSE;
+
+    /* Password is set */
+    if (master_password[0] && master_password[1])
+        return TRUE;
+
+    /* Other prompt is active */
+    if (alive == 1)
+        return FALSE;
+
+    /* Prompt was cancelled */
+    if (master_password_canceled == 1)
+        return FALSE;
+
+    alive = 1;
+    title = _("Form history");
+    dialog = gtk_dialog_new_with_buttons (title, GTK_WINDOW (parent),
+            GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+            GTK_STOCK_OK, GTK_RESPONSE_OK,
+            NULL);
+    content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+    gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_DIALOG_AUTHENTICATION);
+    gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (content_area), 5);
+
+    hbox = gtk_hbox_new (FALSE, 8);
+    gtk_container_set_border_width (GTK_CONTAINER (hbox), 5);
+    image = gtk_image_new_from_stock (GTK_STOCK_DIALOG_AUTHENTICATION,
+                                      GTK_ICON_SIZE_DIALOG);
+    gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
+
+    label = gtk_label_new (_("Master password required\n"
+                             "to open password database"));
+    gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
+    gtk_container_add (GTK_CONTAINER (content_area), hbox);
+
+    entry = gtk_entry_new ();
+    g_object_set (entry, "truncate-multiline", TRUE, NULL);
+    gtk_entry_set_visibility(GTK_ENTRY (entry),FALSE);
+    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+    gtk_container_add (GTK_CONTAINER (content_area), entry);
+
+    gtk_widget_show_all (entry);
+    gtk_widget_show_all (hbox);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+    {
+        /* FIXME: add password verification */
+        memset (&master_password[0], '\0', MAXPASSSIZE);
+        strcpy ((char*)master_password, gtk_entry_get_text (GTK_ENTRY (entry)));
+        ret = TRUE;
+    }
+    else
+        master_password_canceled = 1;
+
+    gtk_widget_destroy (dialog);
+    alive = 0;
+
+    return ret;
+}
+
+static void
+formhistory_remember_password_response (GtkWidget*                infobar,
+                                        gint                      response_id,
+                                        FormhistoryPasswordEntry* entry)
+{
+    gchar* encrypted_form;
+
+    if (response_id == GTK_RESPONSE_IGNORE)
+        goto cleanup;
+
+    if (formhistory_check_master_password (NULL))
+    {
+        if (response_id != GTK_RESPONSE_ACCEPT)
+            katze_assign (entry->form_data, g_strdup ("never"));
+
+        encrypted_form = formhistory_encrypt (entry->form_data, master_password);
+        formhistory_update_database (entry->db, entry->domain, "MidoriPasswordManager", encrypted_form);
+
+        g_free (encrypted_form);
+    }
+
+cleanup:
+    g_free (entry->form_data);
+    g_free (entry->domain);
+    g_slice_free (FormhistoryPasswordEntry, entry);
+    gtk_widget_destroy (infobar);
+}
+
 static gboolean
 formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebFrame*            web_frame,
@@ -52,6 +181,7 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebPolicyDecision*   decision,
                                     MidoriExtension*           extension)
 {
+    FormhistoryPasswordEntry* entry;
     FormHistoryPriv* priv;
     JSContextRef js_context;
     gchar* value;
@@ -62,14 +192,15 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
     const gchar* script = "function dumpForm (inputs) {"
                  "  var out = '';"
                  "  for (i=0;i<inputs.length;i++) {"
-                 "    if (inputs[i].getAttribute('autocomplete') == 'off')"
+                 "    if (inputs[i].getAttribute('autocomplete') == 'off' && "
+                 "        inputs[i].type == 'text')"
                  "        continue;"
                  "    if (inputs[i].value && (inputs[i].type == 'text' || inputs[i].type == 'password')) {"
                  "        var ename = inputs[i].getAttribute('name');"
                  "        var eid = inputs[i].getAttribute('id');"
-                 "        if (!ename && eid)"
-                 "            ename=eid;"
-                 "        out += ename+'|,|'+inputs[i].value +'|,|'+inputs[i].type +'|||';"
+                 "        if (!eid && ename)"
+                 "            eid=ename;"
+                 "        out += eid+'|,|'+inputs[i].value +'|,|'+inputs[i].type +'|||';"
                  "    }"
                  "  }"
                  "  return out;"
@@ -93,9 +224,33 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
             gchar** parts = g_strsplit (inputs[i], "|,|", 3);
             if (parts && parts[0] && parts[1] && parts[2])
             {
-                /* FIXME: We need to handle passwords */
                 if (strcmp (parts[2], "password"))
-                    formhistory_update_database (priv->db, parts[0], parts[1]);
+                    formhistory_update_database (priv->db, NULL, parts[0], parts[1]);
+                #if WEBKIT_CHECK_VERSION (1, 3, 8)
+                else
+                {
+                    gchar* data;
+                    gchar* domain;
+
+                    if (!password_manager_enabled)
+                        break;
+
+                    domain = midori_uri_parse_hostname (webkit_web_frame_get_uri (web_frame), NULL);
+                    data = formhistory_get_login_data (priv->db, domain);
+                    if (data)
+                    {
+                        g_free (data);
+                        g_free (domain);
+                        break;
+                    }
+                    entry = g_slice_new (FormhistoryPasswordEntry);
+                    /* Domain and form data are freed from infopanel callback*/
+                    entry->form_data = g_strdup (value);
+                    entry->domain = domain;
+                    entry->db = priv->db;
+                    g_object_set_data (G_OBJECT (web_view), "FormHistoryPasswordEntry", entry);
+                }
+                #endif
             }
             g_strfreev (parts);
             i++;
@@ -114,6 +269,8 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
                                       MidoriExtension* extension)
 {
     const gchar* page_uri;
+    FormhistoryPasswordEntry* entry;
+    GtkWidget* view;
 
     page_uri = webkit_web_frame_get_uri (web_frame);
     if (!page_uri)
@@ -123,7 +280,107 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
         return;
 
     formhistory_setup_suggestions (web_view, js_context, extension);
+
+    #if WEBKIT_CHECK_VERSION (1, 3, 8)
+    if (!password_manager_enabled)
+        return;
+
+    entry = g_object_get_data (G_OBJECT (web_view), "FormHistoryPasswordEntry");
+    if (entry)
+    {
+        const gchar* message = _("Remember password on this page?");
+        view = midori_browser_get_current_tab (midori_app_get_browser (
+                                               midori_extension_get_app (extension)));
+        midori_view_add_info_bar (MIDORI_VIEW (view), GTK_MESSAGE_QUESTION, message,
+                                  G_CALLBACK (formhistory_remember_password_response), entry,
+                                  _("Remember"), GTK_RESPONSE_ACCEPT,
+                                  _("Not now"), GTK_RESPONSE_IGNORE,
+                                  _("Never for this page"), GTK_RESPONSE_CANCEL, NULL);
+        g_object_set_data (G_OBJECT (web_view), "FormHistoryPasswordEntry", NULL);
+    }
+    #endif
 }
+
+#if WEBKIT_CHECK_VERSION (1, 3, 8)
+static void
+formhistory_fill_login_data (JSContextRef js_context,
+                             const gchar* data)
+{
+    gchar* decrypted_data = NULL;
+    guint i = 0;
+    GString *script;
+    gchar** inputs;
+
+    /* Handle case that user dont want to store password */
+    if (!strncmp (data, "never", 5))
+        return;
+
+    if (!formhistory_check_master_password (NULL))
+        return;
+
+    if (!(decrypted_data = formhistory_decrypt (data, master_password)))
+        return;
+
+    script = g_string_new ("");
+    inputs = g_strsplit (decrypted_data, "|||", 0);
+    while (inputs[i] != NULL)
+    {
+        gchar** parts = g_strsplit (inputs[i], "|,|", 3);
+        if (parts && parts[0] && parts[1] && parts[2])
+        {
+            g_string_append_printf (script, "node = null;"
+                                            "node = document.getElementById ('%s');"
+                                            "if (!node) { node = document.getElementsByName ('%s')[0]; }"
+                                            "if (node && node.type == '%s') { node.value = '%s'; }",
+                                            parts[0], parts[0], parts[2], parts[1]);
+        }
+        g_strfreev (parts);
+        i++;
+    }
+    g_free (decrypted_data);
+    g_strfreev (inputs);
+    g_free (sokoke_js_script_eval (js_context, script->str, NULL));
+    g_string_free (script, TRUE);
+}
+
+static void
+formhistory_frame_loaded_cb (WebKitWebView*   web_view,
+                             WebKitWebFrame*  web_frame,
+                             MidoriExtension* extension)
+{
+    const gchar* page_uri;
+    const gchar* count_request;
+    FormHistoryPriv* priv;
+    JSContextRef js_context;
+    gchar* data;
+    gchar* domain;
+    gchar* count;
+
+    page_uri = webkit_web_frame_get_uri (web_frame);
+    if (!page_uri)
+        return;
+
+    count_request = "document.querySelectorAll('input[type=password]').length";
+    js_context = webkit_web_frame_get_global_context (web_frame);
+    count = sokoke_js_script_eval (js_context, count_request, NULL);
+    if (count && count[0] == '0')
+    {
+        g_free (count);
+        return;
+    }
+    g_free (count);
+
+    priv = g_object_get_data (G_OBJECT (extension), "priv");
+    domain = midori_uri_parse_hostname (webkit_web_frame_get_uri (web_frame), NULL);
+    data = formhistory_get_login_data (priv->db, domain);
+    g_free (domain);
+
+    if (!data)
+        return;
+    formhistory_fill_login_data (js_context, data);
+    g_free (data);
+}
+#endif
 
 static void
 formhistory_deactivate_cb (MidoriExtension* extension,
@@ -140,6 +397,13 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
         G_CALLBACK (formhistory_window_object_cleared_cb), extension);
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (formhistory_navigation_decision_cb), extension);
+
+    #if WEBKIT_CHECK_VERSION (1, 3, 8)
+    if (!password_manager_enabled)
+        return;
+    g_signal_connect (web_view, "onload-event",
+        G_CALLBACK (formhistory_frame_loaded_cb), extension);
+    #endif
 }
 
 static void
@@ -192,6 +456,13 @@ formhistory_deactivate_tab (MidoriView*      view,
        web_view, formhistory_window_object_cleared_cb, extension);
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_navigation_decision_cb, extension);
+    #if WEBKIT_CHECK_VERSION (1, 3, 8)
+    if (!password_manager_enabled)
+        return;
+
+    g_signal_handlers_disconnect_by_func (
+       web_view, formhistory_frame_loaded_cb, extension);
+    #endif
 }
 
 static void
@@ -214,7 +485,7 @@ formhistory_deactivate_cb (MidoriExtension* extension,
         (GtkCallback)formhistory_deactivate_tab, extension);
 
     g_object_set_data (G_OBJECT (browser), "FormHistoryExtension", NULL);
-    action = gtk_action_group_get_action ( action_group, "FormHistoryToggleState");
+    action = gtk_action_group_get_action (action_group, "FormHistoryToggleState");
     if (action != NULL)
     {
         gtk_action_group_remove_action (action_group, action);
@@ -340,11 +611,12 @@ formhistory_preferences_cb (MidoriExtension* extension)
     gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_APPLY, GTK_RESPONSE_APPLY);
 
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    checkbox = gtk_check_button_new_with_label (_("only activate form history via hotkey (Ctrl+Shift+F) per tab"));
+    checkbox = gtk_check_button_new_with_label (_("Only activate form history via hotkey (Ctrl+Shift+F) per tab"));
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbox),
         !midori_extension_get_boolean (extension, "always-load"));
     g_object_set_data (G_OBJECT (dialog), "always-load-checkbox", checkbox);
     gtk_container_add (GTK_CONTAINER (content_area), checkbox);
+    /* FIXME: Add pref to disable password manager */
 
     g_signal_connect (dialog,
             "response",
@@ -366,46 +638,23 @@ formhistory_toggle_state_cb (GtkAction*     action,
         formhistory_window_object_cleared_cb, extension))
     {
         formhistory_deactivate_tab (view, extension);
-    } else {
-        formhistory_add_tab_cb (browser, view, extension);
     }
+    else
+        formhistory_add_tab_cb (browser, view, extension);
 }
-
-
-#if G_ENABLE_DEBUG
-/*
-<html>
-    <head>
-        <title>autosuggest testcase</title>
-    </head>
-    <body>
-        <form method=post>
-        <p><input type="text" id="txt1" /></p>
-        <p><input type="text" name="txt2" /></p>
-        <input type=submit>
-        </form>
-    </body>
-</html> */
-#endif
 
 MidoriExtension*
 extension_init (void)
 {
-    const gchar* ver;
-    gchar* desc;
     MidoriExtension* extension;
 
-    ver = "2.0" MIDORI_VERSION_SUFFIX;
-    desc = g_strdup (_("Stores history of entered form data"));
 
     extension = g_object_new (MIDORI_TYPE_EXTENSION,
         "name", _("Form history filler"),
-        "description", desc,
-        "version", ver,
+        "description", _("Stores history of entered form data"),
+        "version", "2.0" MIDORI_VERSION_SUFFIX,
         "authors", "Alexander V. Butenko <a.butenka@gmail.com>",
         NULL);
-
-    g_free (desc);
 
     midori_extension_install_boolean (extension, "always-load", TRUE);
     g_signal_connect (extension, "activate",
