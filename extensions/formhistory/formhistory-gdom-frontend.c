@@ -278,6 +278,8 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
         case 37:
         /* Right key*/
         case 39:
+        /* Enter key*/
+        case 13:
             if (key == 27)
                 g_object_set (element, "value", priv->oldkeyword, NULL);
             formhistory_suggestions_hide_cb (element, dom_event, priv);
@@ -338,10 +340,11 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
         case 33:
         case 34:
         case 45:
-        /* Shift, Ctrl, Alt, Tab*/
+        /* Shift, Ctrl, Alt, Tab, Caps Lock*/
         case 16:
         case 17:
         case 18:
+        case 20:
         case 9:
             return;
             break;
