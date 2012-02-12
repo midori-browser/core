@@ -162,6 +162,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
         G_CALLBACK (statusbar_features_zoom_level_changed_cb), browser);
     g_signal_connect (browser, "notify::tab",
         G_CALLBACK (statusbar_features_browser_notify_tab_cb), button);
+    statusbar_features_zoom_level_changed_cb (button, browser);
     gtk_widget_show_all (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
     g_object_unref (statusbar);
