@@ -259,8 +259,8 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
     gint matches;
 
     /* FIXME: Priv is still set after module is disabled */
-    if (!priv)
-        return;
+    g_return_if_fail (priv);
+    g_return_if_fail (priv->element);
 
     if (priv->completion_timeout > 0)
         g_source_remove (priv->completion_timeout);
