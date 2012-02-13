@@ -418,6 +418,46 @@ katze_item_set_icon (KatzeItem*   item,
 }
 
 /**
+ * katze_item_get_image:
+ * @item: a #KatzeItem
+ *
+ * Retrieves a #GtkImage fit to display @item.
+ *
+ * Return value: the icon of the item
+ *
+ * Since: 0.4.4
+ **/
+GtkWidget*
+katze_item_get_image (KatzeItem* item)
+{
+    GtkWidget* image;
+    GdkPixbuf* pixbuf;
+    const gchar* icon;
+
+    g_return_val_if_fail (KATZE_IS_ITEM (item), NULL);
+
+    if (KATZE_ITEM_IS_FOLDER (item))
+        image = gtk_image_new_from_stock (GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU);
+    else if ((pixbuf = g_object_get_data (G_OBJECT (item), "pixbuf")))
+        image = gtk_image_new_from_pixbuf (pixbuf);
+    else if ((icon = katze_item_get_icon (item)) && !strchr (icon, '/'))
+        image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
+    else
+    {
+        if (!(pixbuf = katze_load_cached_icon (icon, NULL)))
+            pixbuf = katze_load_cached_icon (item->uri, NULL);
+        if (pixbuf)
+        {
+            image = gtk_image_new_from_pixbuf (pixbuf);
+            g_object_unref (pixbuf);
+        }
+        else
+            image = gtk_image_new_from_stock (GTK_STOCK_FILE, GTK_ICON_SIZE_MENU);
+    }
+    return image;
+}
+
+/**
  * katze_item_get_token:
  * @item: a #KatzeItem
  *

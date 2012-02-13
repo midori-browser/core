@@ -355,8 +355,6 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     gint summand;
     KatzeItem* item;
     GtkWidget* menuitem;
-    const gchar* icon_name;
-    GdkPixbuf* icon;
     GtkWidget* image;
     GtkWidget* submenu;
 
@@ -385,18 +383,7 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         }
         menuitem = katze_image_menu_item_new_ellipsized (
             katze_item_get_name (item));
-        if ((icon_name = katze_item_get_icon (item)) && *icon_name)
-            image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
-        else
-        {
-            if (KATZE_ITEM_IS_FOLDER (item))
-                icon = gtk_widget_render_icon (menuitem,
-                    GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-            else
-                icon = katze_load_cached_icon (katze_item_get_uri (item), proxy);
-            image = gtk_image_new_from_pixbuf (icon);
-            g_object_unref (icon);
-        }
+        image = katze_item_get_image (item);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
         gtk_image_menu_item_set_always_show_image (
             GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
@@ -552,7 +539,6 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     const gchar* property;
     const gchar* title;
     const gchar* desc;
-    GdkPixbuf* icon;
     GtkWidget* image;
 
     if (!G_IS_PARAM_SPEC_STRING (pspec))
@@ -579,16 +565,13 @@ katze_array_action_item_notify_cb (KatzeItem*   item,
     }
     else if (KATZE_ITEM_IS_BOOKMARK (item) && !strcmp (property, "uri"))
     {
-        icon = katze_load_cached_icon (katze_item_get_uri (item), GTK_WIDGET (toolitem));
-        image = gtk_image_new_from_pixbuf (icon);
-        g_object_unref (icon);
+        image = katze_item_get_image (item);
         gtk_widget_show (image);
         gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     }
     else if (!strcmp (property, "icon"))
     {
-        image = gtk_image_new_from_icon_name (katze_item_get_icon (item),
-                                              GTK_ICON_SIZE_MENU);
+        image = katze_item_get_image (item);
         gtk_widget_show (image);
         gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     }
@@ -600,25 +583,12 @@ katze_array_action_proxy_create_menu_proxy_cb (GtkWidget* proxy,
 {
     KatzeArrayAction* array_action;
     GtkWidget* menuitem;
-    const gchar* icon_name;
     GtkWidget* image;
-    GdkPixbuf* icon;
 
     array_action = g_object_get_data (G_OBJECT (proxy), "KatzeArrayAction");
     menuitem = katze_image_menu_item_new_ellipsized (
         katze_item_get_name (item));
-    if ((icon_name = katze_item_get_icon (item)) && *icon_name)
-        image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
-    else
-    {
-        if (KATZE_ITEM_IS_FOLDER (item))
-            icon = gtk_widget_render_icon (menuitem,
-                GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-        else
-            icon = katze_load_cached_icon (katze_item_get_uri (item), proxy);
-        image = gtk_image_new_from_pixbuf (icon);
-        g_object_unref (icon);
-    }
+    image = katze_item_get_image (item);
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menuitem), image);
     gtk_image_menu_item_set_always_show_image (
         GTK_IMAGE_MENU_ITEM (menuitem), TRUE);
@@ -674,7 +644,6 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
     const gchar* uri;
     const gchar* desc;
     GtkToolItem* toolitem;
-    GdkPixbuf* icon;
     GtkWidget* image;
     GtkWidget* label;
 
@@ -686,20 +655,12 @@ katze_array_action_create_tool_item_for (KatzeArrayAction* array_action,
         return gtk_separator_tool_item_new ();
 
     if (KATZE_ITEM_IS_FOLDER (item))
-    {
         toolitem = gtk_toggle_tool_button_new ();
-        icon = gtk_widget_render_icon (GTK_WIDGET (toolitem),
-            GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU, NULL);
-    }
     else
-    {
         toolitem = gtk_tool_button_new (NULL, "");
-        icon = katze_load_cached_icon (uri, GTK_WIDGET (toolitem));
-    }
     g_signal_connect (toolitem, "create-menu-proxy",
         G_CALLBACK (katze_array_action_proxy_create_menu_proxy_cb), item);
-    image = gtk_image_new_from_pixbuf (icon);
-    g_object_unref (icon);
+    image = katze_item_get_image (item);
     gtk_widget_show (image);
     gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (toolitem), image);
     label = gtk_label_new (NULL);

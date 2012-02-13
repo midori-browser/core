@@ -12,7 +12,7 @@
 #ifndef __KATZE_ITEM_H__
 #define __KATZE_ITEM_H__
 
-#include <glib-object.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -90,6 +90,9 @@ katze_item_get_icon               (KatzeItem*      item);
 void
 katze_item_set_icon               (KatzeItem*      item,
                                    const gchar*    icon);
+
+GtkWidget*
+katze_item_get_image              (KatzeItem*      item);
 
 const gchar*
 katze_item_get_token              (KatzeItem*      item);

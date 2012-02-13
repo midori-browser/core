@@ -663,6 +663,9 @@ midori_view_apply_icon (MidoriView*  view,
                         const gchar* icon_name)
 {
     katze_item_set_icon (view->item, icon_name);
+    /* katze_item_get_image knows about this pixbuf */
+    g_object_set_data_full (G_OBJECT (view->item), "pixbuf", g_object_ref (icon),
+                            (GDestroyNotify)g_object_unref);
     katze_object_assign (view->icon, icon);
     g_object_notify (G_OBJECT (view), "icon");
 
@@ -677,11 +680,7 @@ midori_view_apply_icon (MidoriView*  view,
     }
     if (view->menu_item)
     {
-        GtkWidget* image;
-        if (icon_name && !strchr (icon_name, '/'))
-            image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
-        else
-            image = gtk_image_new_from_pixbuf (view->icon);
+        GtkWidget* image = katze_item_get_image (view->item);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (view->menu_item), image);
     }
 }
