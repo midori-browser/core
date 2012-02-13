@@ -190,6 +190,8 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
     gchar* likedvalue;
     int pos = 0;
 
+    g_return_if_fail (priv->element);
+
     g_object_get (priv->element,
                   "name", &name,
                   "value", &value,
@@ -260,12 +262,12 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
 
     /* FIXME: Priv is still set after module is disabled */
     g_return_if_fail (priv);
-    g_return_if_fail (priv->element);
+    g_return_if_fail (element);
 
     if (priv->completion_timeout > 0)
         g_source_remove (priv->completion_timeout);
 
-    priv->element = element;
+    katze_object_assign (priv->element, g_object_ref (element));
 
     key = webkit_dom_ui_event_get_key_code (WEBKIT_DOM_UI_EVENT (dom_event));
     switch (key)
@@ -354,15 +356,17 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
     if (!(keyword && *keyword && *keyword != ' '))
     {
         formhistory_suggestions_hide_cb (element, dom_event, priv);
-        return;
+        goto free_data;
     }
 
     /* If the same keyword is submitted there's no need to regenerate suggestions */
     if (gtk_widget_get_visible (priv->popup) &&
         !g_strcmp0 (keyword, priv->oldkeyword))
-        return;
+        goto free_data;
     priv->completion_timeout = g_timeout_add (COMPLETION_DELAY,
                                (GSourceFunc)formhistory_suggestions_show, priv);
+free_data:
+    g_free (keyword);
 }
 
 static void
@@ -462,6 +466,7 @@ formhistory_private_destroy (FormHistoryPriv *priv)
     katze_assign (priv->oldkeyword, NULL);
     gtk_widget_destroy (priv->popup);
     priv->popup = NULL;
+    katze_object_assign (priv->element, NULL);
     g_slice_free (FormHistoryPriv, priv);
 }
 
