@@ -102,7 +102,8 @@ get_absolute_offset_for_element (WebKitDOMElement*  element,
                                  gboolean           ismainframe)
 {
     WebKitDOMElement* offset_parent;
-    gint i, offset_top = 0, offset_left = 0;
+    gint offset_top = 0, offset_left = 0;
+    gulong i;
 
     g_object_get (element, "offset-left", &offset_left,
                            "offset-top", &offset_top,
@@ -149,13 +150,14 @@ formhistory_reposition_popup (FormHistoryPriv* priv)
     WebKitDOMNodeList* frames;
     GtkWidget* view;
     GdkWindow* window;
+    GtkWidget* toplevel;
     gint rx, ry;
     gint wx, wy;
     glong x = 0, y = 0;
     glong height;
 
     view = g_object_get_data (G_OBJECT (priv->element), "webview");
-    GtkWidget* toplevel = gtk_widget_get_toplevel (view);
+    toplevel = gtk_widget_get_toplevel (view);
     /* Position of a root window */
     window = gtk_widget_get_window (toplevel);
     gdk_window_get_position (window, &rx, &ry);
@@ -192,7 +194,7 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
     gchar* likedvalue;
     int pos = 0;
 
-    g_return_if_fail (priv->element);
+    g_return_val_if_fail (priv->element, FALSE);
 
     g_object_get (priv->element,
                   "name", &name,
@@ -232,8 +234,8 @@ formhistory_suggestions_show (FormHistoryPriv* priv)
 
     while (result == SQLITE_ROW)
     {
-        pos++;
         const unsigned char* text = sqlite3_column_text (stmt, 0);
+        pos++;
         gtk_list_store_insert_with_values (store, NULL, pos, 0, text, -1);
         result = sqlite3_step (stmt);
     }
@@ -259,7 +261,7 @@ formhistory_editbox_key_pressed_cb (WebKitDOMElement* element,
 {
     glong key;
     GtkTreePath* path;
-    const gchar* keyword;
+    gchar* keyword;
     gint matches;
 
     /* FIXME: Priv is still set after module is disabled */
@@ -376,7 +378,7 @@ formhistory_DOMContentLoaded_cb (WebKitDOMElement* window,
                                  WebKitDOMEvent*   dom_event,
                                  FormHistoryPriv*  priv)
 {
-    int i;
+    gulong i;
     WebKitDOMDocument* doc;
     WebKitDOMNodeList* inputs;
     WebKitDOMNodeList* frames;
@@ -424,7 +426,7 @@ formhistory_setup_suggestions (WebKitWebView*   web_view,
 {
     WebKitDOMDocument* doc;
     WebKitDOMNodeList* frames;
-    int i;
+    gulong i;
 
     FormHistoryPriv* priv = g_object_get_data (G_OBJECT (extension), "priv");
     doc = webkit_web_view_get_dom_document (web_view);
