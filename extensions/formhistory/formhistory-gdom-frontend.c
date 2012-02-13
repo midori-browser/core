@@ -87,6 +87,8 @@ formhistory_suggestion_remove (GtkTreePath*     path,
 
     sqlcmd = sqlite3_mprintf ("DELETE FROM forms WHERE field = '%q' AND value = '%q'",
                               name, value);
+    g_free (name);
+    g_free (value);
     sqlite3_exec (priv->db, sqlcmd, NULL, NULL, &errmsg);
     sqlite3_free (sqlcmd);
 }
