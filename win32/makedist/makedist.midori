@@ -116,6 +116,12 @@ echo -n .
 grab_files etc midori
 grab_files etc gtkrc
 
+# If modules are not compiled we need a list of them
+grab_files etc pango
+# Freetype is preferred font backend
+# copy configuration, otherwise webkit will crash
+grab_files etc fonts
+
 echo -n .
 
 # copy lib
