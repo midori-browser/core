@@ -65,7 +65,7 @@ dll_recursive ()
   while [ "x`sha1sum - < $temp_file_new`" != "x`sha1sum - < $temp_file_old`" ]
   do
     files=`cat $temp_file_new $temp_file_old | sort | uniq -u`
-    cp $temp_file_new $temp_file_old
+    cp -L $temp_file_new $temp_file_old
     strings $files 2> /dev/null | grep \\.dll | cat - $temp_file_old | sort | uniq > $temp_file_new
   done
 
@@ -80,7 +80,7 @@ grab_files ()
    pushd $root_dir > /dev/null
    shift
    while [ "$1" ]; do
-       find $dir "(" -name "$1" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -r {} $workdir/{} ";"
+       find $dir "(" -name "$1" ")" -prune -exec mkdir -p $workdir/{} ";" -exec rmdir --ignore-fail-on-non-empty $workdir/{} ";" -exec cp -Lr {} $workdir/{} ";"
        shift
    done
    popd > /dev/null
@@ -107,7 +107,7 @@ echo -n .
 # copy auto generate dll list
 pushd $root_dir/bin > /dev/null
 mkdir $workdir/bin
-cp $files $workdir/bin
+cp -L $files $workdir/bin
 popd > /dev/null
 
 echo -n .
@@ -161,7 +161,7 @@ popd > /dev/null
 echo -n .
 
 # copy doc files to root
-cp $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
+cp -L $workdir/share/doc/midori/{COPYING,AUTHORS} $workdir
 
 echo -n .
 
