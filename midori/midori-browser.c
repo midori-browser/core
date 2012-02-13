@@ -2305,7 +2305,7 @@ static void
 _action_private_browsing_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
-    sokoke_spawn_app ("", TRUE);
+    sokoke_spawn_app ("about:private", TRUE);
 }
 
 static void
