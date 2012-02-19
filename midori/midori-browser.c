@@ -5088,7 +5088,7 @@ midori_browser_notebook_create_window_cb (GtkNotebook*   notebook,
     {
         GtkWidget* new_notebook = katze_object_get_object (new_browser, "notebook");
         g_object_unref (new_notebook);
-        gtk_window_move (GTK_WINDOW (browser), x, y);
+        gtk_window_move (GTK_WINDOW (new_browser), x, y);
         return new_notebook;
     }
     else /* No MidoriApp, so this is app or private mode */
