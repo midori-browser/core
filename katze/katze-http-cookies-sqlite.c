@@ -84,15 +84,13 @@ try_create_table (sqlite3 *db)
 
 static void
 exec_query_with_try_create_table (sqlite3*    db,
-                                  const char* sql,
-                                  int         (*callback)(void*,int,char**,char**),
-                                  void        *argument)
+                                  const char* sql)
 {
     char *error = NULL;
     gboolean try_create = TRUE;
 
 try_exec:
-    if (sqlite3_exec (db, sql, callback, argument, &error)) {
+    if (sqlite3_exec (db, sql, NULL, NULL, &error)) {
         if (try_create) {
             try_create = FALSE;
             try_create_table (db);
@@ -104,45 +102,6 @@ try_exec:
             sqlite3_free (error);
         }
     }
-}
-
-static int
-callback (void *data, int argc, char **argv, char **colname)
-{
-    SoupCookie *cookie = NULL;
-    SoupCookieJar *jar = SOUP_COOKIE_JAR (data);
-
-    char *name, *value, *host, *path;
-    gint64 expire_time;
-    time_t now;
-    int max_age;
-    gboolean http_only = FALSE, secure = FALSE;
-
-    now = time (NULL);
-
-    name = argv[COL_NAME];
-    value = argv[COL_VALUE];
-    host = argv[COL_HOST];
-    path = argv[COL_PATH];
-    expire_time = g_ascii_strtoull (argv[COL_EXPIRY], NULL, 10);
-
-    if (now >= expire_time)
-        return 0;
-    max_age = (expire_time - now <= G_MAXINT ? expire_time - now : G_MAXINT);
-
-    http_only = (g_strcmp0 (argv[COL_HTTP_ONLY], "1") == 0);
-    secure = (g_strcmp0 (argv[COL_SECURE], "1") == 0);
-
-    cookie = soup_cookie_new (name, value, host, path, max_age);
-
-    if (secure)
-        soup_cookie_set_secure (cookie, TRUE);
-    if (http_only)
-        soup_cookie_set_http_only (cookie, TRUE);
-
-    soup_cookie_jar_add_cookie (jar, cookie);
-
-    return 0;
 }
 
 /* Follows sqlite3 convention; returns TRUE on error */
@@ -157,10 +116,16 @@ katze_http_cookies_sqlite_open_db (KatzeHttpCookiesSqlite* http_cookies)
         return TRUE;
     }
 
-    if (sqlite3_exec (http_cookies->db, "PRAGMA synchronous = OFF; PRAGMA secure_delete = 1;", NULL, NULL, &error)) {
+    if (sqlite3_exec (http_cookies->db, "PRAGMA secure_delete = 1;",
+        NULL, NULL, &error)) {
         g_warning ("Failed to execute query: %s", error);
         sqlite3_free (error);
     }
+
+    sqlite3_exec (http_cookies->db,
+        "PRAGMA count_changes = OFF; PRAGMA synchronous = OFF;"
+        "PRAGMA temp_store = MEMORY; PRAGMA journal_mode = TRUNCATE;",
+        NULL, NULL, &error);
 
     return FALSE;
 }
@@ -168,12 +133,68 @@ katze_http_cookies_sqlite_open_db (KatzeHttpCookiesSqlite* http_cookies)
 static void
 katze_http_cookies_sqlite_load (KatzeHttpCookiesSqlite* http_cookies)
 {
+    const char *name, *value, *host, *path;
+    sqlite3_stmt* stmt;
+    SoupCookie *cookie = NULL;
+    gint64 expire_time;
+    time_t now;
+    int max_age;
+    gboolean http_only = FALSE, secure = FALSE;
+    char *query;
+    int result;
+
     if (http_cookies->db == NULL) {
         if (katze_http_cookies_sqlite_open_db (http_cookies))
             return;
     }
 
-    exec_query_with_try_create_table (http_cookies->db, QUERY_ALL, callback, http_cookies->jar);
+    sqlite3_prepare_v2 (http_cookies->db, QUERY_ALL, strlen (QUERY_ALL) + 1, &stmt, NULL);
+    result = sqlite3_step (stmt);
+    if (result != SQLITE_ROW)
+    {
+        if (result == SQLITE_ERROR)
+            g_print (_("Failed to load cookies\n"));
+        sqlite3_reset (stmt);
+        return;
+    }
+
+    while (result == SQLITE_ROW)
+    {
+        now = time (NULL);
+        name = (const char*)sqlite3_column_text (stmt, COL_NAME);
+        value = (const char*)sqlite3_column_text (stmt, COL_VALUE);
+        host = (const char*)sqlite3_column_text (stmt, COL_HOST);
+        path = (const char*)sqlite3_column_text (stmt, COL_PATH);
+        expire_time = sqlite3_column_int64 (stmt,COL_EXPIRY);
+        secure = sqlite3_column_int (stmt, COL_SECURE);
+        http_only = sqlite3_column_int (stmt, COL_HTTP_ONLY);
+
+        if (now >= expire_time)
+        {
+            /* Cookie expired, remove it from database */
+            query = sqlite3_mprintf (QUERY_DELETE, name, host);
+            exec_query_with_try_create_table (http_cookies->db, query);
+            sqlite3_free (query);
+            result = sqlite3_step (stmt);
+            continue;
+        }
+        max_age = (expire_time - now <= G_MAXINT ? expire_time - now : G_MAXINT);
+        cookie = soup_cookie_new (name, value, host, path, max_age);
+
+        if (secure)
+            soup_cookie_set_secure (cookie, TRUE);
+        if (http_only)
+            soup_cookie_set_http_only (cookie, TRUE);
+
+        soup_cookie_jar_add_cookie (http_cookies->jar, cookie);
+        result = sqlite3_step (stmt);
+    }
+
+    if (stmt)
+    {
+        sqlite3_reset (stmt);
+        sqlite3_clear_bindings (stmt);
+    }
 }
 static void
 katze_http_cookies_sqlite_jar_changed_cb (SoupCookieJar*    jar,
@@ -220,7 +241,7 @@ katze_http_cookies_sqlite_jar_changed_cb (SoupCookieJar*    jar,
         query = sqlite3_mprintf (QUERY_DELETE,
                      old_cookie->name,
                      old_cookie->domain);
-        exec_query_with_try_create_table (http_cookies->db, query, NULL, NULL);
+        exec_query_with_try_create_table (http_cookies->db, query);
         sqlite3_free (query);
     }
 
@@ -234,7 +255,7 @@ katze_http_cookies_sqlite_jar_changed_cb (SoupCookieJar*    jar,
                      expires,
                      new_cookie->secure,
                      new_cookie->http_only);
-        exec_query_with_try_create_table (http_cookies->db, query, NULL, NULL);
+        exec_query_with_try_create_table (http_cookies->db, query);
         sqlite3_free (query);
     }
 }
