@@ -27,7 +27,7 @@
 #include <sqlite3.h>
 
 #define QUERY_ALL "SELECT id, name, value, host, path, expiry, lastAccessed, isSecure, isHttpOnly FROM moz_cookies;"
-#define CREATE_TABLE "CREATE TABLE moz_cookies (id INTEGER PRIMARY KEY, name TEXT, value TEXT, host TEXT, path TEXT,expiry INTEGER, lastAccessed INTEGER, isSecure INTEGER, isHttpOnly INTEGER)"
+#define CREATE_TABLE "CREATE TABLE IF NOT EXISTS moz_cookies (id INTEGER PRIMARY KEY, name TEXT, value TEXT, host TEXT, path TEXT,expiry INTEGER, lastAccessed INTEGER, isSecure INTEGER, isHttpOnly INTEGER)"
 #define QUERY_INSERT "INSERT INTO moz_cookies VALUES(NULL, %Q, %Q, %Q, %Q, %d, NULL, %d, %d);"
 #define QUERY_DELETE "DELETE FROM moz_cookies WHERE name=%Q AND host=%Q;"
 
@@ -71,39 +71,6 @@ G_DEFINE_TYPE_WITH_CODE (KatzeHttpCookiesSqlite, katze_http_cookies_sqlite, G_TY
    Copyright (C) 2009 Collabora Ltd.
    Mostly copied from libSoup 2.30, coding style retained */
 
-static void
-try_create_table (sqlite3 *db)
-{
-    char *error = NULL;
-
-    if (sqlite3_exec (db, CREATE_TABLE, NULL, NULL, &error)) {
-        g_warning ("Failed to execute query: %s", error);
-        sqlite3_free (error);
-    }
-}
-
-static void
-exec_query_with_try_create_table (sqlite3*    db,
-                                  const char* sql)
-{
-    char *error = NULL;
-    gboolean try_create = TRUE;
-
-try_exec:
-    if (sqlite3_exec (db, sql, NULL, NULL, &error)) {
-        if (try_create) {
-            try_create = FALSE;
-            try_create_table (db);
-            sqlite3_free (error);
-            error = NULL;
-            goto try_exec;
-        } else {
-            g_warning ("Failed to execute query: %s", error);
-            sqlite3_free (error);
-        }
-    }
-}
-
 /* Follows sqlite3 convention; returns TRUE on error */
 static gboolean
 katze_http_cookies_sqlite_open_db (KatzeHttpCookiesSqlite* http_cookies)
@@ -114,6 +81,11 @@ katze_http_cookies_sqlite_open_db (KatzeHttpCookiesSqlite* http_cookies)
         sqlite3_close (http_cookies->db);
         g_warning ("Can't open %s", http_cookies->filename);
         return TRUE;
+    }
+
+    if (sqlite3_exec (http_cookies->db, CREATE_TABLE, NULL, NULL, &error)) {
+        g_warning ("Failed to execute query: %s", error);
+        sqlite3_free (error);
     }
 
     if (sqlite3_exec (http_cookies->db, "PRAGMA secure_delete = 1;",
@@ -173,7 +145,7 @@ katze_http_cookies_sqlite_load (KatzeHttpCookiesSqlite* http_cookies)
         {
             /* Cookie expired, remove it from database */
             query = sqlite3_mprintf (QUERY_DELETE, name, host);
-            exec_query_with_try_create_table (http_cookies->db, query);
+            sqlite3_exec (http_cookies->db, QUERY_DELETE, NULL, NULL, NULL);
             sqlite3_free (query);
             result = sqlite3_step (stmt);
             continue;
@@ -241,7 +213,7 @@ katze_http_cookies_sqlite_jar_changed_cb (SoupCookieJar*    jar,
         query = sqlite3_mprintf (QUERY_DELETE,
                      old_cookie->name,
                      old_cookie->domain);
-        exec_query_with_try_create_table (http_cookies->db, query);
+        sqlite3_exec (http_cookies->db, query, NULL, NULL, NULL);
         sqlite3_free (query);
     }
 
@@ -255,7 +227,7 @@ katze_http_cookies_sqlite_jar_changed_cb (SoupCookieJar*    jar,
                      expires,
                      new_cookie->secure,
                      new_cookie->http_only);
-        exec_query_with_try_create_table (http_cookies->db, query);
+        sqlite3_exec (http_cookies->db, query, NULL, NULL, NULL);
         sqlite3_free (query);
     }
 }
