@@ -11,7 +11,6 @@
 #define MINCHARS 2
 #define GTK_RESPONSE_IGNORE 99
 #include "formhistory-frontend.h"
-#include "formhistory-crypt.h"
 
 static void
 formhistory_toggle_state_cb (GtkAction*     action,
@@ -141,6 +140,14 @@ formhistory_check_master_password (GtkWidget*       parent,
     return ret;
 }
 
+static gchar*
+formhistory_encrypt (const gchar* data,
+                     const gchar* password)
+{
+    /* TODO: Implement persistent storage/ keyring support */
+    return NULL;
+}
+
 static void
 formhistory_remember_password_response (GtkWidget*                infobar,
                                         gint                      response_id,
@@ -156,9 +163,9 @@ formhistory_remember_password_response (GtkWidget*                infobar,
         if (response_id != GTK_RESPONSE_ACCEPT)
             katze_assign (entry->form_data, g_strdup ("never"));
 
-        encrypted_form = formhistory_encrypt (entry->form_data, entry->priv->master_password);
+        if ((encrypted_form = formhistory_encrypt (entry->form_data,
+            entry->priv->master_password)))
         formhistory_update_database (entry->priv->db, entry->domain, "MidoriPasswordManager", encrypted_form);
-
         g_free (encrypted_form);
     }
 
@@ -177,7 +184,6 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                                     WebKitWebPolicyDecision*   decision,
                                     MidoriExtension*           extension)
 {
-    FormhistoryPasswordEntry* entry;
     FormHistoryPriv* priv;
     JSContextRef js_context;
     gchar* value;
@@ -227,9 +233,9 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                 {
                     gchar* data;
                     gchar* domain;
-
-                    if (!priv->password_manager_enabled)
-                        break;
+                    #if 0
+                    FormhistoryPasswordEntry* entry;
+                    #endif
 
                     domain = midori_uri_parse_hostname (webkit_web_frame_get_uri (web_frame), NULL);
                     data = formhistory_get_login_data (priv->db, domain);
@@ -239,12 +245,14 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
                         g_free (domain);
                         break;
                     }
+                    #if 0
                     entry = g_slice_new (FormhistoryPasswordEntry);
                     /* Domain and form data are freed from infopanel callback*/
                     entry->form_data = g_strdup (value);
                     entry->domain = domain;
                     entry->priv = priv;
                     g_object_set_data (G_OBJECT (web_view), "FormHistoryPasswordEntry", entry);
+                    #endif
                 }
                 #endif
             }
@@ -265,7 +273,6 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
                                       MidoriExtension* extension)
 {
     const gchar* page_uri;
-    FormHistoryPriv* priv;
     FormhistoryPasswordEntry* entry;
     GtkWidget* view;
 
@@ -279,10 +286,6 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
     formhistory_setup_suggestions (web_view, js_context, extension);
 
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
-    priv = g_object_get_data (G_OBJECT (extension), "priv");
-    if (!priv->password_manager_enabled)
-        return;
-
     entry = g_object_get_data (G_OBJECT (web_view), "FormHistoryPasswordEntry");
     if (entry)
     {
@@ -300,6 +303,14 @@ formhistory_window_object_cleared_cb (WebKitWebView*   web_view,
 }
 
 #if WEBKIT_CHECK_VERSION (1, 3, 8)
+static gchar*
+formhistory_decrypt (const gchar* data,
+                     const gchar* password)
+{
+    /* TODO: Implement persistent storage/ keyring support */
+    return NULL;
+}
+
 static void
 formhistory_fill_login_data (JSContextRef js_context,
                              FormHistoryPriv* priv,
@@ -314,8 +325,10 @@ formhistory_fill_login_data (JSContextRef js_context,
     if (!strncmp (data, "never", 5))
         return;
 
+    #if 0
     if (!formhistory_check_master_password (NULL, priv))
         return;
+    #endif
 
     if (!(decrypted_data = formhistory_decrypt (data, priv->master_password)))
         return;
@@ -391,17 +404,13 @@ formhistory_add_tab_cb (MidoriBrowser*   browser,
                         MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
-    FormHistoryPriv* priv;
 
-    priv = g_object_get_data (G_OBJECT (extension), "priv");
     g_signal_connect (web_view, "window-object-cleared",
         G_CALLBACK (formhistory_window_object_cleared_cb), extension);
     g_signal_connect (web_view, "navigation-policy-decision-requested",
         G_CALLBACK (formhistory_navigation_decision_cb), extension);
 
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
-    if (!priv->password_manager_enabled)
-        return;
     g_signal_connect (web_view, "onload-event",
         G_CALLBACK (formhistory_frame_loaded_cb), extension);
     #endif
@@ -452,17 +461,12 @@ formhistory_deactivate_tab (MidoriView*      view,
                             MidoriExtension* extension)
 {
     GtkWidget* web_view = midori_view_get_web_view (view);
-    FormHistoryPriv* priv;
 
-    priv = g_object_get_data (G_OBJECT (extension), "priv");
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_window_object_cleared_cb, extension);
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_navigation_decision_cb, extension);
     #if WEBKIT_CHECK_VERSION (1, 3, 8)
-    if (!priv->password_manager_enabled)
-        return;
-
     g_signal_handlers_disconnect_by_func (
        web_view, formhistory_frame_loaded_cb, extension);
     #endif
@@ -513,7 +517,6 @@ formhistory_activate_cb (MidoriExtension* extension,
     priv = formhistory_private_new ();
     priv->master_password = NULL;
     priv->master_password_canceled = 0;
-    priv->password_manager_enabled = 1;
     formhistory_construct_popup_gui (priv);
 
     config_dir = midori_extension_get_config_dir (extension);

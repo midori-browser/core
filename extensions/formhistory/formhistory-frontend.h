@@ -41,8 +41,14 @@ typedef struct
     #endif
     gchar* master_password;
     int master_password_canceled;
-    int password_manager_enabled;
 } FormHistoryPriv;
+
+typedef struct
+{
+    gchar* domain;
+    gchar* form_data;
+    FormHistoryPriv* priv;
+} FormhistoryPasswordEntry;
 
 FormHistoryPriv*
 formhistory_private_new ();
