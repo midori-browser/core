@@ -531,6 +531,10 @@ formhistory_activate_cb (MidoriExtension* extension,
                            "forms (domain text, field text, value text)",
                            NULL, NULL, &errmsg) == SQLITE_OK))
     {
+        sqlite3_exec (db,
+            /* "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY" */
+            "PRAGMA count_changes = OFF; PRAGMA journal_mode = TRUNCATE;",
+            NULL, NULL, &errmsg);
         priv->db = db;
     }
     else

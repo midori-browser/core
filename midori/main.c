@@ -441,7 +441,10 @@ midori_history_initialize (KatzeArray*  array,
         return FALSE;
     }
 
-    sqlite3_exec (db, "PRAGMA journal_mode = TRUNCATE;", NULL, NULL, errmsg);
+    sqlite3_exec (db,
+        /* "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY" */
+        "PRAGMA count_changes = OFF; PRAGMA journal_mode = TRUNCATE;",
+        NULL, NULL, errmsg);
     if (*errmsg)
     {
         g_warning ("Failed to set journal mode: %s", *errmsg);
