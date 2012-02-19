@@ -275,8 +275,6 @@ def configure (conf):
     if not conf.env['HAVE_UNIQUE']:
         if Options.platform == 'win32':
             conf.check (lib='ws2_32')
-        check_pkg ('openssl', mandatory=False)
-        conf.define ('USE_SSL', [0,1][conf.env['HAVE_OPENSSL'] == 1])
         conf.define ('HAVE_NETDB_H', [0,1][conf.check (header_name='netdb.h')])
         conf.check (header_name='sys/wait.h')
         conf.check (header_name='sys/select.h')

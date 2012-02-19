@@ -54,9 +54,6 @@
 #endif
 
 #include "socket.h"
-#if USE_SSL
-#  include <openssl/ssl.h>
-#endif
 
 #ifdef G_ENABLE_DEBUG
 #  define debug_print g_debug
@@ -562,10 +559,6 @@ gboolean sock_has_read_data(SockInfo *sock)
 #ifdef G_OS_WIN32
 	gulong val;
 
-#if USE_SSL
-	if (sock->ssl)
-		return TRUE;
-#endif
 	if (ioctlsocket(sock->sock, FIONREAD, &val) < 0) {
 		g_warning("sock_has_read_data(): ioctlsocket() failed: %d\n",
 			  WSAGetLastError());
@@ -594,22 +587,6 @@ static gboolean sock_check(GSource *source)
 	struct timeval timeout = {0, 0};
 	fd_set fds;
 	GIOCondition condition = sock->condition;
-
-#if USE_SSL
-	if (sock->ssl) {
-		if (condition & G_IO_IN) {
-			if (SSL_pending(sock->ssl) > 0)
-				return TRUE;
-			if (SSL_want_write(sock->ssl))
-				condition |= G_IO_OUT;
-		}
-
-		if (condition & G_IO_OUT) {
-			if (SSL_want_read(sock->ssl))
-				condition |= G_IO_IN;
-		}
-	}
-#endif
 
 	FD_ZERO(&fds);
 	FD_SET(sock->sock, &fds);
@@ -647,19 +624,6 @@ guint sock_add_watch(SockInfo *sock, GIOCondition condition, SockFunc func,
 	sock->callback = func;
 	sock->condition = condition;
 	sock->data = data;
-
-#if USE_SSL
-	if (sock->ssl) {
-		GSource *source;
-
-		source = g_source_new(&sock_watch_funcs, sizeof(SockSource));
-		((SockSource *)source)->sock = sock;
-		g_source_set_priority(source, G_PRIORITY_DEFAULT);
-		g_source_set_can_recurse(source, FALSE);
-		return g_source_attach(source, NULL);
-	}
-#endif
-
 	return g_io_add_watch(sock->sock_ch, condition, sock_watch_cb, sock);
 }
 
@@ -1375,10 +1339,6 @@ gint sock_read(SockInfo *sock, gchar *buf, gint len)
 {
 	g_return_val_if_fail(sock != NULL, -1);
 
-#if USE_SSL
-	if (sock->ssl)
-		return ssl_read(sock->ssl, buf, len);
-#endif
 	return fd_read(sock->sock, buf, len);
 }
 
@@ -1394,44 +1354,10 @@ gint fd_read(gint fd, gchar *buf, gint len)
 #endif
 }
 
-#if USE_SSL
-gint ssl_read(SSL *ssl, gchar *buf, gint len)
-{
-	gint err, ret;
-
-	if (SSL_pending(ssl) == 0) {
-		if (fd_check_io(SSL_get_rfd(ssl), G_IO_IN) < 0)
-			return -1;
-	}
-
-	ret = SSL_read(ssl, buf, len);
-
-	switch ((err = SSL_get_error(ssl, ret))) {
-	case SSL_ERROR_NONE:
-		return ret;
-	case SSL_ERROR_WANT_READ:
-	case SSL_ERROR_WANT_WRITE:
-		errno = EAGAIN;
-		return -1;
-	case SSL_ERROR_ZERO_RETURN:
-		return 0;
-	default:
-		g_warning("SSL_read() returned error %d, ret = %d\n", err, ret);
-		if (ret == 0)
-			return 0;
-		return -1;
-	}
-}
-#endif
-
 gint sock_write(SockInfo *sock, const gchar *buf, gint len)
 {
 	g_return_val_if_fail(sock != NULL, -1);
 
-#if USE_SSL
-	if (sock->ssl)
-		return ssl_write(sock->ssl, buf, len);
-#endif
 	return fd_write(sock->sock, buf, len);
 }
 
@@ -1459,34 +1385,10 @@ gint fd_write(gint fd, const gchar *buf, gint len)
 #endif
 }
 
-#if USE_SSL
-gint ssl_write(SSL *ssl, const gchar *buf, gint len)
-{
-	gint ret;
-
-	ret = SSL_write(ssl, buf, len);
-
-	switch (SSL_get_error(ssl, ret)) {
-	case SSL_ERROR_NONE:
-		return ret;
-	case SSL_ERROR_WANT_READ:
-	case SSL_ERROR_WANT_WRITE:
-		errno = EAGAIN;
-		return -1;
-	default:
-		return -1;
-	}
-}
-#endif
-
 gint sock_write_all(SockInfo *sock, const gchar *buf, gint len)
 {
 	g_return_val_if_fail(sock != NULL, -1);
 
-#if USE_SSL
-	if (sock->ssl)
-		return ssl_write_all(sock->ssl, buf, len);
-#endif
 	return fd_write_all(sock->sock, buf, len);
 }
 
@@ -1505,24 +1407,6 @@ gint fd_write_all(gint fd, const gchar *buf, gint len)
 
 	return wrlen;
 }
-
-#if USE_SSL
-gint ssl_write_all(SSL *ssl, const gchar *buf, gint len)
-{
-	gint n, wrlen = 0;
-
-	while (len) {
-		n = ssl_write(ssl, buf, len);
-		if (n <= 0)
-			return -1;
-		len -= n;
-		wrlen += n;
-		buf += n;
-	}
-
-	return wrlen;
-}
-#endif
 
 gint fd_recv(gint fd, gchar *buf, gint len, gint flags)
 {
@@ -1570,38 +1454,10 @@ gint fd_gets(gint fd, gchar *buf, gint len)
 	return bp - buf;
 }
 
-#if USE_SSL
-gint ssl_gets(SSL *ssl, gchar *buf, gint len)
-{
-	gchar *newline, *bp = buf;
-	gint n;
-
-	if (--len < 1)
-		return -1;
-	do {
-		if ((n = ssl_peek(ssl, bp, len)) <= 0)
-			return -1;
-		if ((newline = memchr(bp, '\n', n)) != NULL)
-			n = newline - bp + 1;
-		if ((n = ssl_read(ssl, bp, n)) < 0)
-			return -1;
-		bp += n;
-		len -= n;
-	} while (!newline && len);
-
-	*bp = '\0';
-	return bp - buf;
-}
-#endif
-
 gint sock_gets(SockInfo *sock, gchar *buf, gint len)
 {
 	g_return_val_if_fail(sock != NULL, -1);
 
-#if USE_SSL
-	if (sock->ssl)
-		return ssl_gets(sock->ssl, buf, len);
-#endif
 	return fd_gets(sock->sock, buf, len);
 }
 
@@ -1630,42 +1486,11 @@ gint fd_getline(gint fd, gchar **line)
 		return (gint)size;
 }
 
-#if USE_SSL
-gint ssl_getline(SSL *ssl, gchar **line)
-{
-	gchar buf[BUFFSIZE];
-	gchar *str = NULL;
-	gint len;
-	gulong size = 0;
-	gulong cur_offset = 0;
-
-	while ((len = ssl_gets(ssl, buf, sizeof(buf))) > 0) {
-		size += len;
-		str = g_realloc(str, size + 1);
-		memcpy(str + cur_offset, buf, len + 1);
-		cur_offset += len;
-		if (buf[len - 1] == '\n')
-			break;
-	}
-
-	*line = str;
-
-	if (!str)
-		return -1;
-	else
-		return (gint)size;
-}
-#endif
-
 gint sock_getline(SockInfo *sock, gchar **line)
 {
 	g_return_val_if_fail(sock != NULL, -1);
 	g_return_val_if_fail(line != NULL, -1);
 
-#if USE_SSL
-	if (sock->ssl)
-		return ssl_getline(sock->ssl, line);
-#endif
 	return fd_getline(sock->sock, line);
 }
 
@@ -1679,44 +1504,10 @@ gint sock_puts(SockInfo *sock, const gchar *buf)
 }
 
 /* peek at the socket data without actually reading it */
-#if USE_SSL
-gint ssl_peek(SSL *ssl, gchar *buf, gint len)
-{
-	gint err, ret;
-
-	if (SSL_pending(ssl) == 0) {
-		if (fd_check_io(SSL_get_rfd(ssl), G_IO_IN) < 0)
-			return -1;
-	}
-
-	ret = SSL_peek(ssl, buf, len);
-
-	switch ((err = SSL_get_error(ssl, ret))) {
-	case SSL_ERROR_NONE:
-		return ret;
-	case SSL_ERROR_WANT_READ:
-	case SSL_ERROR_WANT_WRITE:
-		errno = EAGAIN;
-		return -1;
-	case SSL_ERROR_ZERO_RETURN:
-		return 0;
-	default:
-		g_warning("SSL_peek() returned error %d, ret = %d\n", err, ret);
-		if (ret == 0)
-			return 0;
-		return -1;
-	}
-}
-#endif
-
 gint sock_peek(SockInfo *sock, gchar *buf, gint len)
 {
 	g_return_val_if_fail(sock != NULL, -1);
 
-#if USE_SSL
-	if (sock->ssl)
-		return ssl_peek(sock->ssl, buf, len);
-#endif
 	return fd_recv(sock->sock, buf, len, MSG_PEEK);
 }
 
@@ -1726,11 +1517,6 @@ gint sock_close(SockInfo *sock)
 
 	if (!sock)
 		return 0;
-
-#if USE_SSL
-	if (sock->ssl)
-		ssl_done_socket(sock);
-#endif
 
 	if (sock->sock_ch) {
 		g_io_channel_shutdown(sock->sock_ch, FALSE, NULL);
@@ -1758,14 +1544,5 @@ gint fd_close(gint fd)
 	return close(fd);
 #endif
 }
-
-#if USE_SSL
-void ssl_done_socket(SockInfo *sockinfo)
-{
-	if (sockinfo->ssl) {
-		SSL_free(sockinfo->ssl);
-	}
-}
-#endif
 
 #endif

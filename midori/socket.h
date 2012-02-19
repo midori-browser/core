@@ -20,10 +20,6 @@
 
 typedef struct _SockInfo	SockInfo;
 
-#if USE_SSL
-#  include <openssl/ssl.h>
-#endif
-
 typedef enum
 {
 	CONN_READY,
@@ -42,11 +38,6 @@ typedef gboolean (*SockFunc)		(SockInfo	*sock,
 struct _SockInfo
 {
 	gint sock;
-#if USE_SSL
-	SSL *ssl;
-#else
-	gpointer ssl;
-#endif
 	GIOChannel *sock_ch;
 
 	gchar *hostname;
@@ -110,16 +101,5 @@ gint fd_write_all	(gint sock, const gchar *buf, gint len);
 gint fd_gets		(gint sock, gchar *buf, gint len);
 gint fd_getline		(gint sock, gchar **line);
 gint fd_close		(gint sock);
-
-/* Functions for SSL */
-#if USE_SSL
-gint ssl_read		(SSL *ssl, gchar *buf, gint len);
-gint ssl_write		(SSL *ssl, const gchar *buf, gint len);
-gint ssl_write_all	(SSL *ssl, const gchar *buf, gint len);
-gint ssl_gets		(SSL *ssl, gchar *buf, gint len);
-gint ssl_getline	(SSL *ssl, gchar **line);
-gint ssl_peek		(SSL *ssl, gchar *buf, gint len);
-void ssl_done_socket	(SockInfo	*sockinfo);
-#endif
 
 #endif /* __SYLPH_SOCKET_H__ */
