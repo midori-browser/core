@@ -180,8 +180,6 @@ shortcuts_get_preferences_dialog (MidoriExtension* extension)
         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
         #endif
         NULL);
-    g_signal_connect (dialog, "destroy",
-                      G_CALLBACK (gtk_widget_destroyed), &dialog);
     gtk_window_set_icon_name (GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
     sokoke_widget_get_text_size (dialog, "M", &width, &height);
     gtk_window_set_default_size (GTK_WINDOW (dialog), width * 52, height * 24);
