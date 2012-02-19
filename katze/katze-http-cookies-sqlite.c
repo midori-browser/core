@@ -123,8 +123,8 @@ katze_http_cookies_sqlite_open_db (KatzeHttpCookiesSqlite* http_cookies)
     }
 
     sqlite3_exec (http_cookies->db,
-        "PRAGMA count_changes = OFF; PRAGMA synchronous = OFF;"
-        "PRAGMA temp_store = MEMORY; PRAGMA journal_mode = TRUNCATE;",
+        /* "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY" */
+        "PRAGMA count_changes = OFF; PRAGMA journal_mode = TRUNCATE;",
         NULL, NULL, &error);
 
     return FALSE;
