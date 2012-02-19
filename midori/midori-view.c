@@ -5008,6 +5008,23 @@ midori_view_get_uri_extension (const gchar* uri)
     return g_strdup (period);
 }
 
+static const gchar*
+midori_view_fallback_extension (MidoriView* view,
+                                const gchar* extension)
+{
+    if (!view->mime_type)
+        extension = "";
+    if (extension && *extension)
+        return extension;
+    if (strstr (view->mime_type, "css"))
+        return ".css";
+    if (strstr (view->mime_type, "javascript"))
+        return ".js";
+    if (strstr (view->mime_type, "html"))
+        return ".htm";
+    return "";
+}
+
 /**
  * midori_view_save_source:
  * @view: a #MidoriView
@@ -5044,7 +5061,7 @@ midori_view_save_source (MidoriView* view,
     {
         gchar* extension = midori_view_get_uri_extension (uri);
         gchar* filename = g_strdup_printf ("%uXXXXXX%s",
-            g_str_hash (uri), extension && *extension ? extension : ".htm");
+            g_str_hash (uri), midori_view_fallback_extension (view, extension));
         g_free (extension);
         fd = g_file_open_tmp (filename, &unique_filename, NULL);
         g_free (filename);
