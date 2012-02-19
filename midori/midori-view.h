@@ -197,6 +197,11 @@ midori_view_can_view_source            (MidoriView*        view);
 gboolean
 midori_view_can_save                   (MidoriView*        view);
 
+gchar*
+midori_view_save_source                (MidoriView*        view,
+                                        const gchar*       uri,
+                                        const gchar*       outfile);
+
 gboolean
 midori_view_can_find                   (MidoriView*        view);
 

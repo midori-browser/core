@@ -37,10 +37,6 @@
     #include <unistd.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 #ifdef HAVE_HILDON_2_2
     #include <dbus/dbus.h>
     #include <mce/mode-names.h>
@@ -991,14 +987,9 @@ midori_browser_prepare_download (MidoriBrowser*  browser,
     return TRUE;
 }
 
-static gchar*
-midori_browser_save_source (const gchar* uri,
-                            const gchar* data,
-                            const size_t len,
-                            const gchar* outfile);
-
 static void
 midori_browser_save_uri (MidoriBrowser* browser,
+                         MidoriView*    view,
                          const gchar*   uri)
 {
     static gchar* last_dir = NULL;
@@ -1007,7 +998,6 @@ midori_browser_save_uri (MidoriBrowser* browser,
     gchar* filename;
     gchar* dirname;
     gchar* last_slash;
-    gchar* folder;
 
     if (!gtk_widget_get_visible (GTK_WIDGET (browser)))
         return;
@@ -1045,24 +1035,11 @@ midori_browser_save_uri (MidoriBrowser* browser,
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
-        GtkWidget* view;
-        GtkWidget* web_view;
-        WebKitWebDataSource *data_source;
-        WebKitWebFrame *frame;
-        const GString *data;
-
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-        folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
-        view = midori_browser_get_current_tab (browser);
-        web_view = midori_view_get_web_view (MIDORI_VIEW (view));
-        frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-        data_source = webkit_web_frame_get_data_source (frame);
-        data = webkit_web_data_source_get_data (data_source);
-        if (data)
-            midori_browser_save_source (uri, data->str, data->len, filename);
+        midori_view_save_source (view, uri, filename);
 
-        g_free (last_dir);
-        last_dir = folder;
+        katze_assign (last_dir,
+            gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog)));
     }
     gtk_widget_destroy (dialog);
 }
@@ -1072,10 +1049,8 @@ midori_view_save_as_cb (GtkWidget*   menuitem,
                         const gchar* uri,
                         GtkWidget*   view)
 {
-    MidoriBrowser* browser;
-
-    browser = midori_browser_get_for_widget (menuitem);
-    midori_browser_save_uri (browser, uri);
+    MidoriBrowser* browser = midori_browser_get_for_widget (view);
+    midori_browser_save_uri (browser, MIDORI_VIEW (view), uri);
 }
 
 static gchar*
@@ -2371,7 +2346,8 @@ static void
 _action_save_as_activate (GtkAction*     action,
                           MidoriBrowser* browser)
 {
-    midori_browser_save_uri (browser, midori_browser_get_current_uri (browser));
+    GtkWidget* view = midori_browser_get_current_tab (browser);
+    midori_browser_save_uri (browser, MIDORI_VIEW (view), NULL);
 }
 
 static void
@@ -3365,112 +3341,19 @@ _action_view_encoding_activate (GtkAction*     action,
     }
 }
 
-static gchar*
-midori_browser_get_uri_extension (const gchar* uri)
-{
-    gchar* slash;
-    gchar* period;
-    gchar* ext_end;
-
-    /* Find the last slash in the URI and search for the last period
-       *after* the last slash. This is not completely accurate
-       but should cover most (simple) URIs */
-    slash = strrchr (uri, '/');
-    /* Huh, URI without slashes? */
-    if (!slash)
-        return NULL;
-
-    ext_end = period = strrchr (slash, '.');
-    if (!period)
-       return NULL;
-
-    /* Skip the period */
-    ext_end++;
-    /* If *ext_end is 0 here, the URI ended with a period, so skip */
-    if (!*ext_end)
-       return NULL;
-
-    /* Find the end of the extension */
-    while (*ext_end && g_ascii_isalnum (*ext_end))
-        ext_end++;
-
-    *ext_end = 0;
-    return g_strdup (period);
-}
-
-static gchar*
-midori_browser_save_source (const gchar* uri,
-                            const gchar* data,
-                            const size_t len,
-                            const gchar* outfile)
-{
-    gchar* unique_filename;
-    gint fd;
-    FILE* fp;
-    size_t ret;
-
-    if (!outfile)
-    {
-        gchar* filename;
-        gchar* extension;
-
-        extension = midori_browser_get_uri_extension (uri);
-        filename = g_strdup_printf ("%uXXXXXX%s",
-            g_str_hash (uri), extension && *extension ? extension : ".htm");
-        g_free (extension);
-        fd = g_file_open_tmp (filename, &unique_filename, NULL);
-        g_free (filename);
-    }
-    else
-    {
-        unique_filename = g_strdup (outfile);
-        fd = g_open (unique_filename, O_WRONLY|O_CREAT, 0644);
-    }
-
-    if (fd != -1)
-    {
-        if ((fp = fdopen (fd, "w")))
-        {
-            ret = fwrite (data, 1, len, fp);
-            fclose (fp);
-            if ((ret - len) != 0)
-            {
-                g_warning ("Error writing to file %s "
-                           "in midori_browser_source_transfer_cb()", unique_filename);
-                katze_assign (unique_filename, NULL);
-            }
-        }
-        close (fd);
-    }
-    return unique_filename;
-}
-
 static void
 _action_source_view_activate (GtkAction*     action,
                               MidoriBrowser* browser)
 {
-    WebKitWebDataSource *data_source;
-    WebKitWebFrame *frame;
-    const GString *data;
     GtkWidget* view;
-    GtkWidget* web_view;
     gchar* text_editor;
     gchar* filename = NULL;
-    const gchar* uri;
 
     if (!(view = midori_browser_get_current_tab (browser)))
         return;
 
+    filename = midori_view_save_source (MIDORI_VIEW (view), NULL, NULL);
     g_object_get (browser->settings, "text-editor", &text_editor, NULL);
-    uri = midori_view_get_display_uri (MIDORI_VIEW (view));
-    web_view = midori_view_get_web_view (MIDORI_VIEW (view));
-    frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
-    data_source = webkit_web_frame_get_data_source (frame);
-    data = webkit_web_data_source_get_data (data_source);
-    if (!data)
-        return;
-
-    filename = midori_browser_save_source (uri, data->str, data->len, NULL);
     if (!(text_editor && *text_editor))
     {
         GtkWidget* source;

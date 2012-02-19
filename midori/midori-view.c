@@ -30,6 +30,11 @@
 #if HAVE_UNISTD_H
     #include <unistd.h>
 #endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #ifndef G_OS_WIN32
     #include <sys/utsname.h>
 #endif
@@ -4968,6 +4973,104 @@ midori_view_can_save (MidoriView* view)
         return TRUE;
 
     return FALSE;
+}
+
+static gchar*
+midori_view_get_uri_extension (const gchar* uri)
+{
+    gchar* slash;
+    gchar* period;
+    gchar* ext_end;
+
+    /* Find the last slash in the URI and search for the last period
+       *after* the last slash. This is not completely accurate
+       but should cover most (simple) URIs */
+    slash = strrchr (uri, '/');
+    /* Huh, URI without slashes? */
+    if (!slash)
+        return NULL;
+
+    ext_end = period = strrchr (slash, '.');
+    if (!period)
+       return NULL;
+
+    /* Skip the period */
+    ext_end++;
+    /* If *ext_end is 0 here, the URI ended with a period, so skip */
+    if (!*ext_end)
+       return NULL;
+
+    /* Find the end of the extension */
+    while (*ext_end && g_ascii_isalnum (*ext_end))
+        ext_end++;
+
+    *ext_end = 0;
+    return g_strdup (period);
+}
+
+/**
+ * midori_view_save_source:
+ * @view: a #MidoriView
+ * @uri: an alternative destination URI, or %NULL
+ * @outfile: a destination filename, or %NULL
+ *
+ * Saves the data in the view to disk.
+ *
+ * Return value: the destination filename
+ *
+ * Since: 0.4.4
+ **/
+gchar*
+midori_view_save_source (MidoriView* view,
+                         const gchar* uri,
+                         const gchar* outfile)
+{
+    WebKitWebFrame *frame;
+    WebKitWebDataSource *data_source;
+    const GString *data;
+    gchar* unique_filename;
+    gint fd;
+    FILE* fp;
+    size_t ret;
+
+    frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (view->web_view));
+    data_source = webkit_web_frame_get_data_source (frame);
+    data = webkit_web_data_source_get_data (data_source);
+
+    if (uri == NULL)
+        uri = midori_view_get_display_uri (view);
+
+    if (!outfile)
+    {
+        gchar* extension = midori_view_get_uri_extension (uri);
+        gchar* filename = g_strdup_printf ("%uXXXXXX%s",
+            g_str_hash (uri), extension && *extension ? extension : ".htm");
+        g_free (extension);
+        fd = g_file_open_tmp (filename, &unique_filename, NULL);
+        g_free (filename);
+    }
+    else
+    {
+        unique_filename = g_strdup (outfile);
+        fd = g_open (unique_filename, O_WRONLY|O_CREAT, 0644);
+    }
+
+    if (fd != -1)
+    {
+        if ((fp = fdopen (fd, "w")))
+        {
+            ret = fwrite (data->str, 1, data->len, fp);
+            fclose (fp);
+            if ((ret - data->len) != 0)
+            {
+                g_warning ("Error writing to file %s "
+                           "in midori_browser_source_transfer_cb()", unique_filename);
+                katze_assign (unique_filename, NULL);
+            }
+        }
+        close (fd);
+    }
+    return unique_filename;
 }
 
 #define can_do(what) \
