@@ -531,14 +531,14 @@ midori_bookmarks_remove_item_cb (KatzeArray* array,
             "DELETE FROM bookmarks WHERE uri = '%q' "
             " AND folder = '%q'",
             katze_item_get_uri (item),
-            katze_item_get_meta_string (item, "folder"));
+            katze_str_non_null (katze_item_get_meta_string (item, "folder")));
 
     else
        sqlcmd = sqlite3_mprintf (
             "DELETE FROM bookmarks WHERE title = '%q'"
             " AND folder = '%q'",
             katze_item_get_name (item),
-            katze_item_get_meta_string (item, "folder"));
+            katze_str_non_null (katze_item_get_meta_string (item, "folder")));
 
     if (sqlite3_exec (db, sqlcmd, NULL, NULL, &errmsg) != SQLITE_OK)
     {
