@@ -27,9 +27,9 @@ sokoke_on_entry_focus_in_event (GtkEntry*      entry,
         g_object_get_data (G_OBJECT (entry), "sokoke_has_default"));
     if (has_default)
     {
-        gtk_entry_set_text (entry, "");
         g_object_set_data (G_OBJECT (entry), "sokoke_has_default",
                            GINT_TO_POINTER (0));
+        gtk_entry_set_text (entry, "");
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
                                             PANGO_STYLE_NORMAL);
     }
@@ -46,9 +46,9 @@ sokoke_on_entry_focus_out_event (GtkEntry*      entry,
     {
         const gchar* default_text = (const gchar*)g_object_get_data (
             G_OBJECT (entry), "sokoke_default_text");
-        gtk_entry_set_text (entry, default_text);
         g_object_set_data (G_OBJECT (entry),
                            "sokoke_has_default", GINT_TO_POINTER (1));
+        gtk_entry_set_text (entry, default_text);
         sokoke_widget_set_pango_font_style (GTK_WIDGET (entry),
                                             PANGO_STYLE_ITALIC);
     }
@@ -73,6 +73,9 @@ gtk_entry_set_placeholder_text (GtkEntry*    entry,
     /* Note: The default text initially overwrites any previous text */
     gchar* old_value = g_object_get_data (G_OBJECT (entry),
                                           "sokoke_default_text");
+    g_object_set_data (G_OBJECT (entry), "sokoke_default_text",
+                       (gpointer)default_text);
+
     if (!old_value)
     {
         g_object_set_data (G_OBJECT (entry), "sokoke_has_default",
@@ -98,8 +101,12 @@ gtk_entry_set_placeholder_text (GtkEntry*    entry,
                                                 PANGO_STYLE_ITALIC);
         }
     }
-    g_object_set_data (G_OBJECT (entry), "sokoke_default_text",
-                       (gpointer)default_text);
+}
+
+const gchar*
+gtk_entry_get_placeholder_text (GtkEntry* entry)
+{
+    return g_object_get_data (G_OBJECT (entry), "sokoke_default_text");
 }
 #endif
 

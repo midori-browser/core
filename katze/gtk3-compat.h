@@ -89,8 +89,10 @@ G_BEGIN_DECLS
 
 #if !GTK_CHECK_VERSION (3, 2, 0) && defined (HAVE_HILDON_2_2)
     #define gtk_entry_set_placeholder_text hildon_gtk_entry_set_placeholder_text
+    #define gtk_entry_get_placeholder_text hildon_gtk_entry_get_placeholder_text
 #elif !GTK_CHECK_VERSION (3, 2, 0)
-    #define gtk_entry_set_placeholder_text sokoke_entry_set_default_text
+    void gtk_entry_set_placeholder_text (GtkEntry* entry, const gchar* text);
+    const gchar* gtk_entry_get_placeholder_text (GtkEntry* entry);
 #endif
 
 #if !GTK_CHECK_VERSION(2, 12, 0)

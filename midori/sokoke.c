@@ -1731,16 +1731,38 @@ midori_download_prepare_tooltip_text (WebKitDownload* download)
     return g_string_free (tooltip, FALSE);
 }
 
+static gboolean
+sokoke_entry_has_placeholder_text (GtkEntry* entry)
+{
+    const gchar* text = gtk_entry_get_text (entry);
+    const gchar* hint = gtk_entry_get_placeholder_text (entry);
+    if (!gtk_widget_has_focus (GTK_WIDGET (entry))
+     && hint != NULL
+     && (text == NULL || !strcmp (text, hint)))
+        return TRUE;
+    return FALSE;
+}
+
 static void
 sokoke_entry_changed_cb (GtkEditable* editable,
                          GtkEntry*    entry)
 {
-    const gchar* text = gtk_entry_get_text (GTK_ENTRY (entry));
-    gboolean visible = text && *text;
+    const gchar* text = gtk_entry_get_text (entry);
+    gboolean visible = text && *text
+      && ! sokoke_entry_has_placeholder_text (entry);
     gtk_icon_entry_set_icon_from_stock (
         GTK_ICON_ENTRY (entry),
         GTK_ICON_ENTRY_SECONDARY,
         visible ? GTK_STOCK_CLEAR : NULL);
+}
+
+static gboolean
+sokoke_entry_focus_out_event_cb (GtkEditable*   editable,
+                                 GdkEventFocus* event,
+                                 GtkEntry*      entry)
+{
+    sokoke_entry_changed_cb (editable, entry);
+    return FALSE;
 }
 
 static void
@@ -1769,17 +1791,27 @@ sokoke_entry_set_clear_button_visible (GtkEntry* entry,
         g_object_connect (entry,
             "signal::icon-release",
             G_CALLBACK (sokoke_entry_icon_released_cb), NULL,
+            "signal::focus-in-event",
+            G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
+            "signal::focus-out-event",
+            G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
             "signal::changed",
             G_CALLBACK (sokoke_entry_changed_cb), entry, NULL);
-        g_signal_emit_by_name (G_OBJECT (entry), "changed");
+        sokoke_entry_changed_cb ((GtkEditable*)entry, entry);
     }
     else
     {
         g_object_disconnect (entry,
             "any_signal::icon-release",
             G_CALLBACK (sokoke_entry_icon_released_cb), NULL,
+            "any_signal::focus-in-event",
+            G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
+            "any_signal::focus-out-event",
+            G_CALLBACK (sokoke_entry_focus_out_event_cb), entry,
             "any_signal::changed",
             G_CALLBACK (sokoke_entry_changed_cb), entry, NULL);
+        gtk_icon_entry_set_icon_from_stock (
+            GTK_ICON_ENTRY (entry), GTK_ICON_ENTRY_SECONDARY, NULL);
     }
 }
 
