@@ -1655,16 +1655,20 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
     for (; proxies != NULL; proxies = g_slist_next (proxies))
     if (GTK_IS_TOOL_ITEM (proxies->data))
     {
+        #if !GTK_CHECK_VERSION (3, 0, 0)
         const gchar* bg_color = NULL;
         const gchar* fg_color = NULL;
+        #endif
         GtkWidget* entry = midori_location_action_entry_for_proxy (proxies->data);
         GdkScreen* screen = gtk_widget_get_screen (entry);
         GtkIconTheme* icon_theme = gtk_icon_theme_get_for_screen (screen);
 
         if (hint == MIDORI_SECURITY_UNKNOWN)
         {
+            #if !GTK_CHECK_VERSION (3, 0, 0)
             bg_color = "#ef7070";
             fg_color = "#000";
+            #endif
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "channel-insecure-symbolic"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
@@ -1681,8 +1685,10 @@ midori_location_action_set_security_hint (MidoriLocationAction* location_action,
         }
         else if (hint == MIDORI_SECURITY_TRUSTED)
         {
+            #if !GTK_CHECK_VERSION (3, 0, 0)
             bg_color = "#d1eeb9";
             fg_color = "#000";
+            #endif
             #if !HAVE_HILDON
             if (gtk_icon_theme_has_icon (icon_theme, "channel-secure-symbolic"))
                 gtk_icon_entry_set_icon_from_icon_name (GTK_ICON_ENTRY (entry),
