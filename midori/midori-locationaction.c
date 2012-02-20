@@ -496,6 +496,8 @@ midori_location_action_popup_timeout_cb (gpointer data)
 
         popup = gtk_window_new (GTK_WINDOW_POPUP);
         gtk_window_set_type_hint (GTK_WINDOW (popup), GDK_WINDOW_TYPE_HINT_COMBO);
+        /* Window managers may ignore programmatic resize without this */
+        gtk_window_set_resizable (GTK_WINDOW (popup), FALSE);
         popup_frame = gtk_frame_new (NULL);
         gtk_frame_set_shadow_type (GTK_FRAME (popup_frame), GTK_SHADOW_ETCHED_IN);
         gtk_container_add (GTK_CONTAINER (popup), popup_frame);
