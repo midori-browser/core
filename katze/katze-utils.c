@@ -910,21 +910,29 @@ katze_widget_popup_position_menu (GtkMenu*  menu,
     GtkRequisition widget_req;
     KatzePopupInfo* info = user_data;
     GtkWidget* widget = info->widget;
+    GdkWindow* window = gtk_widget_get_window (widget);
     gint widget_height;
 
-    gtk_widget_get_allocation (widget, &allocation);
+    if (!window)
+        return;
+
+    #if !GTK_CHECK_VERSION (3, 0, 0)
+    if (GTK_IS_ENTRY (widget))
+        window = gdk_window_get_parent (window);
+    #endif
 
     /* Retrieve size and position of both widget and menu */
-    if (!gtk_widget_get_has_window (widget))
-    {
-        gdk_window_get_position (gtk_widget_get_window (widget), &wx, &wy);
-        wx += allocation.x;
-        wy += allocation.y;
-    }
-    else
-        gdk_window_get_origin (gtk_widget_get_window (widget), &wx, &wy);
+    gtk_widget_get_allocation (widget, &allocation);
+    gdk_window_get_origin (window, &wx, &wy);
+    wx += allocation.x;
+    wy += allocation.y;
+    #if GTK_CHECK_VERSION (3, 0, 0)
+    gtk_widget_get_preferred_size (GTK_WIDGET (menu), &menu_req, NULL);
+    gtk_widget_get_preferred_size (widget, &widget_req, NULL);
+    #else
     gtk_widget_size_request (GTK_WIDGET (menu), &menu_req);
     gtk_widget_size_request (widget, &widget_req);
+    #endif
     menu_width = menu_req.width;
     widget_height = widget_req.height; /* Better than allocation.height */
 
