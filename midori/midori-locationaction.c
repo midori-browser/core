@@ -562,9 +562,11 @@ midori_location_action_popup_timeout_cb (gpointer data)
         else if (type == 2 /* search_view */)
         {
             gchar* search_title = g_strdup_printf (_("Search for %s"), title);
+            gchar* search_desc = g_strdup_printf ("%s\n%s", search_title, uri);
             gtk_list_store_insert_with_values (store, NULL, matches,
-                URI_COL, uri, TITLE_COL, search_title, YALIGN_COL, 0.25,
+                URI_COL, uri, TITLE_COL, search_desc, YALIGN_COL, 0.25,
                 STYLE_COL, 1, FAVICON_COL, icon, -1);
+            g_free (search_desc);
             g_free (search_title);
         }
         if (icon != NULL)
@@ -588,17 +590,22 @@ midori_location_action_popup_timeout_cb (gpointer data)
         {
             gchar* uri;
             gchar* title;
+            const gchar* text;
+            gchar* desc;
             GdkPixbuf* icon;
 
             uri = midori_uri_for_search (katze_item_get_uri (item), action->key);
             title = g_strdup_printf (_("Search with %s"), katze_item_get_name (item));
+            text = katze_item_get_text (item);
+            desc = g_strdup_printf ("%s\n%s", title, text ? text : uri);
             icon = midori_search_action_get_icon (item, action->treeview, NULL, FALSE);
             gtk_list_store_insert_with_values (store, NULL, matches + i,
-                URI_COL, uri, TITLE_COL, title, YALIGN_COL, 0.25,
+                URI_COL, uri, TITLE_COL, desc, YALIGN_COL, 0.25,
                 BACKGROUND_COL, style ? &style->bg[GTK_STATE_NORMAL] : NULL,
                 STYLE_COL, 1, FAVICON_COL, icon, -1);
             g_free (uri);
             g_free (title);
+            g_free (desc);
             if (icon != NULL)
                 g_object_unref (icon);
             i++;
