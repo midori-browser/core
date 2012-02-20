@@ -418,20 +418,14 @@ midori_location_action_popup_timeout_cb (gpointer data)
         return FALSE;
 
     /* No completion when typing a search token */
-    if (action->search_engines != NULL)
+    if (action->search_engines
+     && katze_array_find_token (action->search_engines, action->key))
     {
-        gchar** parts = g_strsplit (action->key, " ", 2);
-        if (parts && *parts && parts[1]
-                  && katze_array_find_token (action->search_engines, *parts))
-        {
-            g_strfreev (parts);
-            midori_location_action_popdown_completion (action);
-            return FALSE;
-        }
-        g_strfreev (parts);
+        midori_location_action_popdown_completion (action);
+        return FALSE;
     }
 
-    /* Empaty string or starting with a space means: no completion */
+    /* Empty string or starting with a space means: no completion */
     if (!(action->key && *action->key && *action->key != ' '))
     {
         midori_location_action_popdown_completion (action);
