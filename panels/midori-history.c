@@ -116,18 +116,59 @@ midori_history_get_stock_id (MidoriViewable* viewable)
     return STOCK_HISTORY;
 }
 
+#if !GLIB_CHECK_VERSION (2, 26, 0)
+static gint
+sokoke_days_between (const time_t* day1,
+                     const time_t* day2)
+{
+    GDate* date1;
+    GDate* date2;
+    gint age;
+
+    date1 = g_date_new ();
+    date2 = g_date_new ();
+
+    g_date_set_time_t (date1, *day1);
+    g_date_set_time_t (date2, *day2);
+
+    age = g_date_days_between (date1, date2);
+
+    g_date_free (date1);
+    g_date_free (date2);
+
+    return age;
+}
+#endif
+
 static gchar*
 midori_history_format_date (KatzeItem *item)
 {
-    gint age;
-    gint64 day;
-    gchar token[50];
+    gint64 day = katze_item_get_added (item);
     gchar* sdate;
+    gint age;
+    #if GLIB_CHECK_VERSION (2, 26, 0)
+    GDateTime* now = g_date_time_new_now_local ();
+    GDateTime* then = g_date_time_new_from_unix_local (day);
+    if (g_date_time_get_day_of_month (then) == g_date_time_get_day_of_month (now))
+        sdate = g_strdup (_("Today"));
+    else if (g_date_time_get_day_of_year (then) == g_date_time_get_day_of_year (now) - 1)
+        sdate = g_strdup (_("Yesterday"));
+    else
+    {
+        age = g_date_time_get_day_of_year (now) - g_date_time_get_day_of_year (then);
+        if (age < 7)
+            sdate = g_strdup_printf (ngettext ("%d day ago",
+                "%d days ago", (gint)age), (gint)age);
+        else if (age == 7)
+            sdate = g_strdup (_("A week ago"));
+        else
+            sdate = g_date_time_format (then, "%x");
+    }
+    #else
+    gchar token[50];
     time_t current_time;
 
     current_time = time (NULL);
-    day = katze_item_get_added (item);
-
     age = sokoke_days_between ((time_t*)&day, &current_time);
 
     /* A negative age is a date in the future, the clock is probably off */
@@ -147,6 +188,7 @@ midori_history_format_date (KatzeItem *item)
         sdate = g_strdup (_("Today"));
     else
         sdate = g_strdup (_("Yesterday"));
+    #endif
     return sdate;
 }
 
@@ -412,9 +454,8 @@ midori_history_add_item_cb (KatzeArray*    array,
     GtkTreeModel* model = gtk_tree_view_get_model (treeview);
     GtkTreeIter iter;
     KatzeItem* today;
-    time_t current_time;
+    time_t current_time = time (NULL);
 
-    current_time = time (NULL);
     if (gtk_tree_model_iter_children (model, &iter, NULL))
     {
         gint64 day;
@@ -423,7 +464,14 @@ midori_history_add_item_cb (KatzeArray*    array,
         gtk_tree_model_get (model, &iter, 0, &today, -1);
 
         day = katze_item_get_added (today);
+        #if GLIB_CHECK_VERSION (2, 26, 0)
+        has_today = g_date_time_get_day_of_month (
+            g_date_time_new_from_unix_local (day))
+         == g_date_time_get_day_of_month (
+            g_date_time_new_from_unix_local (current_time));
+        #else
         has_today = sokoke_days_between ((time_t*)&day, &current_time) == 0;
+        #endif
         g_object_unref (today);
         if (has_today)
         {

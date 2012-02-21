@@ -121,10 +121,6 @@ sokoke_action_create_popup_menu_item    (GtkAction*      action);
 gint64
 sokoke_time_t_to_julian                 (const time_t*   timestamp);
 
-gint
-sokoke_days_between                     (const time_t*   day1,
-                                         const time_t*   day2);
-
 const gchar*
 sokoke_set_config_dir                   (const gchar*    new_config_dir);
 
