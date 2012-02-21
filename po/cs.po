@@ -2,19 +2,20 @@
 # Copyright (C) 2008 THE midori'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the home package.
 # David Stancl <dstancl@dstancl.cz> 2009
-# 
+# Michal Varady <miko.vaji@gmail.com> 2011-2012
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: midori 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-14 04:51+0000\n"
-"PO-Revision-Date: 2010-05-04 08:08+0200\n"
-"Last-Translator: David Štancl <dstancl@dstancl.cz>\n"
+"POT-Creation-Date: 2012-02-19 19:03+0000\n"
+"PO-Revision-Date: 2012-02-21 00:59+0100\n"
+"Last-Translator: Michal Várady <miko.vaji@gmail.com>\n"
 "Language-Team: Czech < >\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: UTF-8\n"
-"Language: \n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Poedit-Language: Czech\n"
 "X-Poedit-Country: CZECH REPUBLIC\n"
@@ -27,8 +28,11 @@ msgstr "Prohlížet internet"
 msgid "Internet;WWW;Explorer"
 msgstr "Internet;WWW;Explorer"
 
-#: ../data/midori.desktop.in.h:3 ../midori/main.c:1978 ../midori/main.c:1998
-#: ../midori/main.c:2009 ../midori/midori-websettings.c:304
+#: ../data/midori.desktop.in.h:3
+#: ../midori/main.c:1981
+#: ../midori/main.c:2001
+#: ../midori/main.c:2012
+#: ../midori/midori-websettings.c:304
 msgid "Midori"
 msgstr "Midori"
 
@@ -44,286 +48,286 @@ msgstr "Midori - soukromé prohlížení"
 msgid "Open a new private browsing window"
 msgstr "Nové okno soukromého prohlížení"
 
-#: ../data/midori-private.desktop.in.h:3 ../midori/midori-view.c:3975
+#: ../data/midori-private.desktop.in.h:3
+#: ../midori/midori-view.c:3975
 msgid "Private Browsing"
 msgstr "Soukromé prohlížení"
 
-#: ../midori/main.c:96 ../midori/main.c:102
+#: ../midori/main.c:96
+#: ../midori/main.c:102
 #, c-format
 msgid "The configuration couldn't be loaded: %s\n"
-msgstr "Konfigurace nemůže být načtena: %s\n"
+msgstr "Konfiguraci nelze načíst: %s\n"
 
 #: ../midori/main.c:150
 #, c-format
 msgid "Value '%s' is invalid for %s"
-msgstr "Hodnota '%s' je pro %s špatná"
+msgstr "Hodnota '%s' je pro %s neplatná"
 
-#: ../midori/main.c:155 ../midori/main.c:259
+#: ../midori/main.c:155
+#: ../midori/main.c:259
 #, c-format
 msgid "Invalid configuration value '%s'"
-msgstr "Nesprávná hodnota '%s' v konfiguraci"
+msgstr "Neplatná hodnota '%s' konfigurace"
 
 #: ../midori/main.c:364
 #, c-format
 msgid "The search engines couldn't be loaded. %s\n"
-msgstr "Vyhledávací nástroje nemohou být načteny.%s\n"
+msgstr "Vyhledávací nástroje nelze načíst.%s\n"
 
 #: ../midori/main.c:418
 #, c-format
 msgid "Failed to clear history: %s\n"
 msgstr "Nepodařilo se smazat historii: %s\n"
 
-#: ../midori/main.c:438 ../midori/main.c:559
+#: ../midori/main.c:438
+#: ../midori/main.c:562
 #: ../extensions/formhistory/formhistory.c:526
 #, c-format
 msgid "Failed to open database: %s\n"
 msgstr "Nepodařilo se otevřít databázi: %s\n"
 
 #. i18n: Couldn't remove items that are older than n days
-#: ../midori/main.c:502
+#: ../midori/main.c:505
 #, c-format
 msgid "Failed to remove old history items: %s\n"
 msgstr "Nepodařilo se odstranit staré položky historie: %s\n"
 
-#: ../midori/main.c:542 ../panels/midori-history.c:189
+#: ../midori/main.c:545
+#: ../panels/midori-history.c:189
 #, c-format
 msgid "Failed to remove history item: %s\n"
 msgstr "Nepodařilo se odstranit položku historie: %s\n"
 
-#: ../midori/main.c:589
+#: ../midori/main.c:592
 #, c-format
 msgid "The bookmarks couldn't be saved. %s"
-msgstr "Záložky nemohou být uloženy. %s"
+msgstr "Záložky nelze uložit. %s"
 
-#: ../midori/main.c:611
+#: ../midori/main.c:614
 #, c-format
 msgid "The configuration couldn't be saved. %s"
-msgstr "Konfigurace nemůže být uložena. %s"
+msgstr "Konfiguraci nelze uložit. %s"
 
-#: ../midori/main.c:646
+#: ../midori/main.c:649
 #, c-format
 msgid "The search engines couldn't be saved. %s"
-msgstr "Vyhledávací nástroj nemůže být uložen. %s"
+msgstr "Vyhledávací nástroj nelze uložit. %s"
 
 #. i18n: Trash, or wastebin, containing closed tabs
-#: ../midori/main.c:683
+#: ../midori/main.c:686
 #, c-format
 msgid "The trash couldn't be saved. %s"
-msgstr "Seznam zavřených karet nemůže být uložen. %s"
+msgstr "Seznam zavřených karet nelze uložit. %s"
 
-#: ../midori/main.c:724 ../panels/midori-extensions.c:91
+#: ../midori/main.c:727
+#: ../panels/midori-extensions.c:91
 msgid "Extensions"
 msgstr "Rozšíření"
 
-#: ../midori/main.c:738
+#: ../midori/main.c:741
 msgid "Privacy"
 msgstr "Soukromí"
 
-#: ../midori/main.c:750
-msgid ""
-"Cookies store login data, saved games, or user profiles for advertisement "
-"purposes."
-msgstr ""
-"V cookies se ukládají přihlašovací údaje, stavy her nebo uživatelská data "
-"pro reklamu."
+#: ../midori/main.c:753
+msgid "Cookies store login data, saved games, or user profiles for advertisement purposes."
+msgstr "V cookies se ukládají přihlašovací údaje, stavy her nebo uživatelská data pro reklamní účely."
 
-#: ../midori/main.c:806
+#: ../midori/main.c:809
 #, c-format
 msgid "The session couldn't be saved. %s"
-msgstr "Sezení nemůže být uloženo. %s"
+msgstr "Relaci nelze uložit. %s"
 
-#: ../midori/main.c:1024
-msgid ""
-"No root certificate file is available. SSL certificates cannot be verified."
-msgstr ""
-"Nejsou k dispozici žádné kořenové certifikáty. SSL certifikáty nemohou být "
-"ověřovány."
+#: ../midori/main.c:1027
+msgid "No root certificate file is available. SSL certificates cannot be verified."
+msgstr "Nejsou k dispozici žádné kořenové certifikáty. SSL certifikáty nelze ověřit."
 
-#: ../midori/main.c:1092
-msgid ""
-"Midori seems to have crashed the last time it was opened. If this happened "
-"repeatedly, try one of the following options to solve the problem."
-msgstr ""
-"Zdá se, že Midori nebylo naposledy řádně ukončeno. Jestliže se to stává "
-"opakovaně, pro odstranění problému zkuste následující možnosti."
+#: ../midori/main.c:1095
+msgid "Midori seems to have crashed the last time it was opened. If this happened repeatedly, try one of the following options to solve the problem."
+msgstr "Aplikace Midori zřejmě minule nebyla řádně ukončena. V případě opakujících se potíží použijte k jejich odstranění následující možnosti."
 
-#: ../midori/main.c:1111
+#: ../midori/main.c:1114
 msgid "Modify _preferences"
 msgstr "Změnit _nastavení"
 
-#: ../midori/main.c:1115
+#: ../midori/main.c:1118
 msgid "Disable all _extensions"
 msgstr "Zakázat všechna _rozšíření"
 
-#: ../midori/main.c:1128
+#: ../midori/main.c:1131
 msgid "Discard old tabs"
-msgstr "Bez otevření karet"
+msgstr "Zahodit staré karty"
 
-#: ../midori/main.c:1129 ../midori/midori-websettings.c:213
+#: ../midori/main.c:1132
+#: ../midori/midori-websettings.c:213
 msgid "Show last tabs without loading"
 msgstr "zobrazit naposledy otevřené karty bez načtení"
 
-#: ../midori/main.c:1130 ../midori/midori-websettings.c:212
+#: ../midori/main.c:1133
+#: ../midori/midori-websettings.c:212
 msgid "Show last open tabs"
 msgstr "zobrazit naposledy otevřené karty"
 
-#: ../midori/main.c:1338 ../midori/main.c:2393
+#: ../midori/main.c:1341
+#: ../midori/main.c:2396
 #, c-format
 msgid "The session couldn't be loaded: %s\n"
-msgstr "Sezení nemůže být načteno: %s\n"
+msgstr "Relaci nelze načíst: %s\n"
 
-#: ../midori/main.c:1476
+#: ../midori/main.c:1479
 #, c-format
 msgid "Snapshot saved to: %s\n"
-msgstr "Snímek uložen do %s\n"
+msgstr "Snímek uložen do: %s\n"
 
-#: ../midori/main.c:1881
+#: ../midori/main.c:1884
 msgid "Run ADDRESS as a web application"
-msgstr "Spustit ADRESA jako webovou aplikaci"
+msgstr "Spustit řetězec ADRESA jako webovou aplikaci"
 
-#: ../midori/main.c:1881
+#: ../midori/main.c:1884
 msgid "ADDRESS"
 msgstr "ADRESA"
 
-#: ../midori/main.c:1884
+#: ../midori/main.c:1887
 msgid "Use FOLDER as configuration folder"
-msgstr "Použít SLOŽKA jako místo pro uložení konfigurace"
+msgstr "Použít řetězec SLOŽKA jako složku konfigurace"
 
-#: ../midori/main.c:1884
+#: ../midori/main.c:1887
 msgid "FOLDER"
 msgstr "SLOŽKA"
 
-#: ../midori/main.c:1887
+#: ../midori/main.c:1890
 msgid "Private browsing, no changes are saved"
-msgstr "Soukromé prohlížení, nic se neukládá"
+msgstr "Soukromé prohlížení, bez uložení změn"
 
-#: ../midori/main.c:1889
+#: ../midori/main.c:1892
 msgid "Show a diagnostic dialog"
-msgstr "Zobrazit dialog po pádu"
+msgstr "Zobrazit diagnostické dialogové okno"
 
-#: ../midori/main.c:1891
+#: ../midori/main.c:1894
 msgid "Run the specified filename as javascript"
-msgstr "Spustit jako javascript"
+msgstr "Spustit zadaný soubor jako javascript"
 
-#: ../midori/main.c:1893
+#: ../midori/main.c:1896
 msgid "Take a snapshot of the specified URI"
-msgstr "Získat snímek požadovaného URI"
+msgstr "Získat snímek zadané adresy URI"
 
-#: ../midori/main.c:1895
+#: ../midori/main.c:1898
 msgid "Execute the specified command"
-msgstr "Spustit vybraný příkaz"
+msgstr "Spustit zadaný příkaz"
 
-#: ../midori/main.c:1897
+#: ../midori/main.c:1900
 msgid "List available commands to execute with -e/ --execute"
-msgstr "Seznam možných programů použitelných s parametrem -e / --execute"
+msgstr "Seznam dostupných příkazů spustitelných s parametrem -e / --execute"
 
-#: ../midori/main.c:1899
+#: ../midori/main.c:1902
 msgid "Display program version"
 msgstr "Zobrazit verzi programu"
 
-#: ../midori/main.c:1901
+#: ../midori/main.c:1904
 msgid "Addresses"
 msgstr "Adresy"
 
-#: ../midori/main.c:1903
+#: ../midori/main.c:1906
 msgid "Block URIs according to regular expression PATTERN"
-msgstr "Blokovat adresy (URI) pomocí regulárního výrazu REGVÝRAZ"
+msgstr "Blokovat adresy URI pomocí regulárního výrazu REGVÝRAZ"
 
-#: ../midori/main.c:1903
+#: ../midori/main.c:1906
 msgid "PATTERN"
 msgstr "REGVÝRAZ"
 
 #. i18n: CLI: Close tabs, clear private data, open starting page
-#: ../midori/main.c:1907
+#: ../midori/main.c:1910
 msgid "Reset Midori after SECONDS seconds of inactivity"
-msgstr "Restartovat Midori po VTEŘINY vteřin neaktivity"
-
-#: ../midori/main.c:1907
-msgid "SECONDS"
-msgstr "VTEŘINY"
+msgstr "Restartovat aplikaci Midori po SEKUNDY sekund neaktivity"
 
 #: ../midori/main.c:1910
+msgid "SECONDS"
+msgstr "SEKUNDY"
+
+#: ../midori/main.c:1913
 msgid "Redirects console warnings to the specified FILENAME"
 msgstr "Přesměruje varování z konzoly do souboru SOUBOR"
 
-#: ../midori/main.c:1910
+#: ../midori/main.c:1913
 msgid "FILENAME"
 msgstr "SOUBOR"
 
-#: ../midori/main.c:1975
+#: ../midori/main.c:1978
 msgid "[Addresses]"
 msgstr "[Adresy]"
 
-#: ../midori/main.c:1985
+#: ../midori/main.c:1988
 msgid "The specified configuration folder is invalid."
-msgstr "Vybraný konfigurační adresář je neplatný."
+msgstr "Vybraná složka konfigurace je neplatná."
 
-#: ../midori/main.c:2010
+#: ../midori/main.c:2013
 msgid "Please report comments, suggestions and bugs to:"
-msgstr "Komentáře, požadavky a chyby posílejte na:"
+msgstr "Komentáře, požadavky a hlášení o chybách posílejte na:"
 
-#: ../midori/main.c:2012
+#: ../midori/main.c:2015
 msgid "Check for new versions at:"
-msgstr "Zkontrolujte, zda není nová verze na "
+msgstr "Zjistěte dostupnost nové verze na:"
 
-#: ../midori/main.c:2095
+#: ../midori/main.c:2098
 msgid "Website icons"
-msgstr "Ikony stránek"
+msgstr "Ikony webových stránek"
 
 #. i18n: Logins and passwords in websites and web forms
-#: ../midori/main.c:2098
+#: ../midori/main.c:2101
 msgid "Saved logins and _passwords"
 msgstr "Uložené _přihlašovací údaje"
 
-#: ../midori/main.c:2100
+#: ../midori/main.c:2103
 msgid "Cookies"
 msgstr "cookies"
 
-#: ../midori/main.c:2103
-msgid "'Flash' Cookies"
-msgstr "cookies z flashe"
-
 #: ../midori/main.c:2106
+msgid "'Flash' Cookies"
+msgstr "cookies modulu Flash"
+
+#: ../midori/main.c:2109
 msgid "HTML5 _Databases"
-msgstr "HTML5 _databáze"
+msgstr "_Databáze HTML5 "
 
-#: ../midori/main.c:2109 ../midori/midori-websettings.c:947
-#: ../extensions/web-cache.c:462 ../extensions/web-cache.c:471
+#: ../midori/main.c:2112
+#: ../midori/midori-websettings.c:947
+#: ../extensions/web-cache.c:462
+#: ../extensions/web-cache.c:471
 msgid "Web Cache"
-msgstr "Keš stránek"
+msgstr "Mezipaměť stránek"
 
-#: ../midori/main.c:2111
+#: ../midori/main.c:2114
 msgid "Offline Application Cache"
-msgstr "Cache pro offline aplikace"
+msgstr "Mezipaměť pro offline aplikace"
 
-#: ../midori/main.c:2218
+#: ../midori/main.c:2221
 msgid "An unknown error occured"
-msgstr "Nastala neznámá chyba."
+msgstr "Došlo k neznámé chybě"
 
-#: ../midori/main.c:2324
+#: ../midori/main.c:2327
 msgid "An instance of Midori is already running but not responding.\n"
-msgstr "Midori sice již běží, ale neodpovídá.\n"
+msgstr "Instance aplikace Midori je již spuštěna, ale neodpovídá.\n"
 
-#: ../midori/main.c:2360
+#: ../midori/main.c:2363
 #, c-format
 msgid "Bookmarks couldn't be loaded: %s\n"
-msgstr "Záložky nemohou být načteny: %s\n"
+msgstr "Záložky nelze načíst: %s\n"
 
-#: ../midori/main.c:2408
+#: ../midori/main.c:2411
 #, c-format
 msgid "The trash couldn't be loaded: %s\n"
-msgstr "Zavřené karty nemohou být načteny: %s\n"
+msgstr "Zavřené karty nelze načíst: %s\n"
 
-#: ../midori/main.c:2421
+#: ../midori/main.c:2424
 #, c-format
 msgid "The history couldn't be loaded: %s\n"
-msgstr "Historie nemůže být načtena: %s\n"
+msgstr "Historii nelze načíst: %s\n"
 
-#: ../midori/main.c:2437
+#: ../midori/main.c:2440
 msgid "The following errors occured:"
 msgstr "Došlo k následujícím chybám:"
 
-#: ../midori/main.c:2453
+#: ../midori/main.c:2456
 msgid "_Ignore"
 msgstr "_Ignorovat"
 
@@ -331,7 +335,8 @@ msgstr "_Ignorovat"
 msgid "_Bookmark"
 msgstr "_Záložky"
 
-#: ../midori/midori-app.c:1332 ../midori/midori-browser.c:6036
+#: ../midori/midori-app.c:1332
+#: ../midori/midori-browser.c:6036
 msgid "_Bookmarks"
 msgstr "_Záložky"
 
@@ -348,7 +353,8 @@ msgid "_Extensions"
 msgstr "_Rozšíření"
 
 #. i18n: Browsing history, visited web pages, closed tabs
-#: ../midori/midori-app.c:1336 ../midori/midori-browser.c:4606
+#: ../midori/midori-app.c:1336
+#: ../midori/midori-browser.c:4606
 msgid "_History"
 msgstr "_Historie"
 
@@ -370,13 +376,14 @@ msgstr "_Přenosy"
 
 #: ../midori/midori-app.c:1341
 msgid "Netscape p_lugins"
-msgstr "Netscape p_luginy"
+msgstr "Zásuvné moduly ap_likace Netscape"
 
 #: ../midori/midori-app.c:1342
 msgid "_Closed Tabs"
 msgstr "_Zavřené karty"
 
-#: ../midori/midori-app.c:1343 ../midori/midori-browser.c:5193
+#: ../midori/midori-app.c:1343
+#: ../midori/midori-browser.c:5193
 msgid "New _Window"
 msgstr "Nové _okno"
 
@@ -388,8 +395,10 @@ msgstr "Nová _složka"
 msgid "File not found."
 msgstr "Soubor nebyl nalezen."
 
-#: ../midori/midori-array.c:547 ../midori/midori-array.c:586
-#: ../midori/midori-array.c:609 ../midori/midori-array.c:619
+#: ../midori/midori-array.c:547
+#: ../midori/midori-array.c:586
+#: ../midori/midori-array.c:609
+#: ../midori/midori-array.c:619
 msgid "Malformed document."
 msgstr "Nesprávný formát dokumentu."
 
@@ -399,21 +408,23 @@ msgstr "Neznámý formát záložek."
 
 #: ../midori/midori-array.c:915
 msgid "Writing failed."
-msgstr "Nepodařilo se zapsat."
+msgstr "Zápis se nezdařil."
 
-#: ../midori/midori-browser.c:326 ../midori/midori-browser.c:5275
+#: ../midori/midori-browser.c:326
+#: ../midori/midori-browser.c:5275
 #: ../midori/midori-browser.c:5284
 msgid "Reload the current page"
-msgstr "Znovu načíst stránku"
+msgstr "Znovu načíst tuto stránku"
 
-#: ../midori/midori-browser.c:335 ../midori/midori-browser.c:5281
+#: ../midori/midori-browser.c:335
+#: ../midori/midori-browser.c:5281
 msgid "Stop loading the current page"
-msgstr "Zastavit načítání stránky"
+msgstr "Zastavit načítání této stránky"
 
 #: ../midori/midori-browser.c:465
 #, c-format
 msgid "Failed to update title: %s\n"
-msgstr "Nepodařilo se zaktualizovat titulek: %s\n"
+msgstr "Nepodařilo se aktualizovat titulek: %s\n"
 
 #: ../midori/midori-browser.c:478
 #, c-format
@@ -425,17 +436,18 @@ msgstr "Neočekávaná akce '%s'."
 msgid "%s (Private Browsing)"
 msgstr "%s (Soukromé prohlížení)"
 
-#: ../midori/midori-browser.c:678 ../midori/midori-browser.c:711
+#: ../midori/midori-browser.c:678
+#: ../midori/midori-browser.c:711
 msgid "Toplevel folder"
-msgstr "Hlavní adresář"
+msgstr "Složka nejvyšší úrovně"
 
 #: ../midori/midori-browser.c:768
 msgid "New folder"
-msgstr "Nový adresář"
+msgstr "Nová složka"
 
 #: ../midori/midori-browser.c:768
 msgid "Edit folder"
-msgstr "Upravit adresář"
+msgstr "Upravit složku"
 
 #: ../midori/midori-browser.c:770
 msgid "New bookmark"
@@ -449,14 +461,16 @@ msgstr "Upravit záložku"
 msgid "_Title:"
 msgstr "_Nadpis:"
 
-#: ../midori/midori-browser.c:821 ../midori/midori-searchaction.c:967
+#: ../midori/midori-browser.c:821
+#: ../midori/midori-searchaction.c:961
 #: ../extensions/feed-panel/main.c:377
 msgid "_Address:"
 msgstr "_Adresa:"
 
-#: ../midori/midori-browser.c:844 ../midori/midori-browser.c:4343
+#: ../midori/midori-browser.c:844
+#: ../midori/midori-browser.c:4343
 msgid "_Folder:"
-msgstr "_Adresář:"
+msgstr "Složk_a:"
 
 #: ../midori/midori-browser.c:860
 msgid "Add to _Speed Dial"
@@ -464,7 +478,7 @@ msgstr "Přidat do rychlého _přístupu"
 
 #: ../midori/midori-browser.c:873
 msgid "Show in the tool_bar"
-msgstr "Zobrazit v _nástrojové liště"
+msgstr "Zobrazit v panelu _nástrojů"
 
 #: ../midori/midori-browser.c:888
 msgid "Run as _web application"
@@ -473,24 +487,25 @@ msgstr "Spustit jako _webovou aplikaci"
 #: ../midori/midori-browser.c:959
 #, c-format
 msgid "The file \"%s\" can't be saved in this folder."
-msgstr "Soubor \"%s\" nemůže být do této složky uložen."
+msgstr "Soubor \"%s\" nelze uložit do této složky."
 
 #: ../midori/midori-browser.c:961
 #, c-format
 msgid "You don't have permission to write in this location."
-msgstr "Nemáte oprávnění k zápisu."
+msgstr "Nemáte oprávnění k zápisu do tohoto umístění."
 
 #: ../midori/midori-browser.c:968
 #, c-format
 msgid "There is not enough free space to download \"%s\"."
-msgstr "Není dost místa pro stažení \"%s\"."
+msgstr "Ke stažení \"%s\" není k dispozici dostatek místa."
 
 #: ../midori/midori-browser.c:971
 #, c-format
 msgid "The file needs %s but only %s are left."
-msgstr "Požadováno je %s, ale k dispozici jen %s."
+msgstr "Požaduje se %s, ale k dispozici je pouze %s."
 
-#: ../midori/midori-browser.c:1015 ../midori/midori-browser.c:4412
+#: ../midori/midori-browser.c:1015
+#: ../midori/midori-browser.c:4412
 msgid "Save file as"
 msgstr "Uložit soubor jako"
 
@@ -516,11 +531,11 @@ msgstr "Chyba při otevírání obrázku!"
 
 #: ../midori/midori-browser.c:1363
 msgid "Can not open selected image in a default viewer."
-msgstr "Nelze otevřít vybraný obrázek v prohlížeči obrázků."
+msgstr "Vybraný obrázek nelze otevřít ve výchozím prohlížeči obrázků."
 
 #: ../midori/midori-browser.c:1369
 msgid "Error downloading the image!"
-msgstr "Chyba při stahování obrázku!"
+msgstr "Chyba při stahování obrázku."
 
 #: ../midori/midori-browser.c:1370
 msgid "Can not downlaod selected image."
@@ -536,28 +551,23 @@ msgstr "Otevřít soubor"
 
 #: ../midori/midori-browser.c:2457
 msgid ""
-"To use the above URI open a news aggregator. There is usually a menu or "
-"button \"New Subscription\", \"New News Feed\" or similar.\n"
-"Alternatively go to Preferences, Applications in Midori, and select a News "
-"Aggregator. Next time you click the news feed icon, it will be added "
-"automatically."
-msgstr ""
-"Když použijete výše uvedenou adresu, otevře se agregátor zpráv (čtečka RSS). "
-"Obvykle je v něm položka menu nebo tlačítko \"Nový kanál\" (nebo s podobným "
-"názvem). Další možností je změna nastavení Midori (Upravit -> Nastavení -> "
-"záložka Aplikace, položka Čtečka RSS). Příští kliknutí na ikonu RSS přidá "
-"kanál přímo do čtečky."
+"To use the above URI open a news aggregator. There is usually a menu or button \"New Subscription\", \"New News Feed\" or similar.\n"
+"Alternatively go to Preferences, Applications in Midori, and select a News Aggregator. Next time you click the news feed icon, it will be added automatically."
+msgstr "Použijete-li výše uvedenou adresu URI, otevře se agregátor zpráv (čtečka RSS). Obvykle se v něm nachází položka nabídky nebo tlačítko \"Nový kanál\" (nebo s podobným názvem). Další možností je změna nastavení aplikace Midori (Upravit -> Nastavení -> záložka Aplikace, položka Čtečka RSS). Dalším kliknutím na ikonu RSS přidáte kanál přímo do čtečky."
 
-#: ../midori/midori-browser.c:2463 ../extensions/feed-panel/main.c:365
+#: ../midori/midori-browser.c:2463
+#: ../extensions/feed-panel/main.c:365
 msgid "New feed"
 msgstr "Nový kanál"
 
-#: ../midori/midori-browser.c:2506 ../midori/midori-browser.c:5344
+#: ../midori/midori-browser.c:2506
+#: ../midori/midori-browser.c:5344
 #: ../panels/midori-bookmarks.c:426
 msgid "Add a new bookmark"
 msgstr "Přidat novou záložku"
 
-#: ../midori/midori-browser.c:3005 ../midori/midori-searchaction.c:488
+#: ../midori/midori-browser.c:3005
+#: ../midori/midori-searchaction.c:488
 msgid "Empty"
 msgstr "Prázdné"
 
@@ -565,24 +575,31 @@ msgstr "Prázdné"
 msgid "Toggle text cursor navigation"
 msgstr "Přepíná navigaci pomocí kurzoru"
 
-#: ../midori/midori-browser.c:3809 ../midori/midori-browser.c:5730
+#: ../midori/midori-browser.c:3809
+#: ../midori/midori-browser.c:5730
 #, c-format
 msgid "Failed to insert new history item: %s\n"
 msgstr "Nepodařilo se vložit novou položku historie: %s\n"
 
-#: ../midori/midori-browser.c:4140 ../panels/midori-bookmarks.c:742
+#: ../midori/midori-browser.c:4140
+#: ../panels/midori-bookmarks.c:742
 #: ../panels/midori-history.c:747
 msgid "Open all in _Tabs"
 msgstr "Otevřít všechny v _kartách"
 
-#: ../midori/midori-browser.c:4147 ../panels/midori-bookmarks.c:748
-#: ../panels/midori-history.c:753 ../extensions/feed-panel/feed-panel.c:528
+#: ../midori/midori-browser.c:4147
+#: ../panels/midori-bookmarks.c:748
+#: ../panels/midori-history.c:753
+#: ../extensions/feed-panel/feed-panel.c:528
 msgid "Open in New _Tab"
 msgstr "Otevřít v nové _kartě"
 
-#: ../midori/midori-browser.c:4150 ../midori/midori-view.c:2537
-#: ../midori/midori-view.c:4469 ../panels/midori-bookmarks.c:750
-#: ../panels/midori-history.c:755 ../extensions/feed-panel/feed-panel.c:530
+#: ../midori/midori-browser.c:4150
+#: ../midori/midori-view.c:2537
+#: ../midori/midori-view.c:4469
+#: ../panels/midori-bookmarks.c:750
+#: ../panels/midori-history.c:755
+#: ../extensions/feed-panel/feed-panel.c:530
 msgid "Open in New _Window"
 msgstr "Otevřít v novém _okně"
 
@@ -615,7 +632,8 @@ msgstr "Firefox (%s)"
 msgid "Import bookmarks..."
 msgstr "Importovat záložky..."
 
-#: ../midori/midori-browser.c:4259 ../midori/midori-browser.c:5349
+#: ../midori/midori-browser.c:4259
+#: ../midori/midori-browser.c:5349
 msgid "_Import bookmarks"
 msgstr "_Importovat záložky"
 
@@ -641,13 +659,11 @@ msgstr "Záložky ve formátu XBEL"
 
 #: ../midori/midori-browser.c:4422
 msgid "Netscape Bookmarks"
-msgstr "Záložky z Netscape"
+msgstr "Záložky z aplikace Netscape"
 
 #: ../midori/midori-browser.c:4436
 msgid "Midori can only export to XBEL (*.xbel) and Netscape (*.html)"
-msgstr ""
-"Z Midori lze exportovat záložky pouze ve formátech XBEL (*.xbel) a Netscape "
-"(*.html)"
+msgstr "Z aplikace Midori lze exportovat záložky pouze ve formátech XBEL (*.xbel) a Netscape (*.html)"
 
 #: ../midori/midori-browser.c:4451
 msgid "Failed to export bookmarks"
@@ -672,7 +688,7 @@ msgstr "Naposledy otevřené _karty"
 
 #: ../midori/midori-browser.c:4626
 msgid "Clear private data when _quitting Midori"
-msgstr "_Vymazat osobní data při ukončení Midori"
+msgstr "_Vymazat osobní data při ukončení aplikace Midori"
 
 #: ../midori/midori-browser.c:4802
 msgid "A lightweight web browser."
@@ -683,19 +699,14 @@ msgid "See about:version for version info."
 msgstr "about:version zobrazí informace o verzi"
 
 #: ../midori/midori-browser.c:4805
-msgid ""
-"This library is free software; you can redistribute it and/or modify it "
-"under the terms of the GNU Lesser General Public License as published by the "
-"Free Software Foundation; either version 2.1 of the License, or (at your "
-"option) any later version."
-msgstr ""
-"Tato knihovna je svobodný software; můžete ji distribuovat anebo měnit podle "
-"práv GNU Lesser General Public License jak byla publikována Free Software "
-"Foundation; ať už verze 2.1, nebo (podle uvážení) jakékoliv pozdější verze."
+msgid "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version."
+msgstr "Tato knihovna je svobodný software; můžete ji distribuovat anebo měnit podle práv GNU Lesser General Public License jak byla publikována Free Software Foundation; ať už verze 2.1, nebo (podle uvážení) jakékoliv pozdější verze."
 
 #: ../midori/midori-browser.c:4826
 msgid "translator-credits"
-msgstr "David Štancl <dstancl@dstancl.cz>"
+msgstr ""
+"David Štancl <dstancl@dstancl.cz>\n"
+"Michal Várady <miko.vaji@gmail.com>"
 
 #: ../midori/midori-browser.c:5191
 msgid "_File"
@@ -739,7 +750,7 @@ msgstr "Vytvořit _spouštěč"
 
 #: ../midori/midori-browser.c:5218
 msgid "Subscribe to News _feed"
-msgstr "Přidat _kanál"
+msgstr "Přihlásit se k odběru _kanálu"
 
 #: ../midori/midori-browser.c:5224
 msgid "_Close Tab"
@@ -755,7 +766,7 @@ msgstr "Za_vřít okno"
 
 #: ../midori/midori-browser.c:5231
 msgid "Print the current page"
-msgstr "Vytisknout aktuální stránku"
+msgstr "Vytisknout tuto stránku"
 
 #: ../midori/midori-browser.c:5233
 msgid "Close a_ll Windows"
@@ -791,11 +802,11 @@ msgstr "_Zobrazit"
 
 #: ../midori/midori-browser.c:5272
 msgid "_Toolbars"
-msgstr "_Lišty"
+msgstr "Pane_ly nástrojů"
 
 #: ../midori/midori-browser.c:5277
 msgid "Reload page without caching"
-msgstr "Znovu načíst stránku bez použití keše"
+msgstr "Znovu načíst stránku bez použití mezipaměti"
 
 #: ../midori/midori-browser.c:5287
 msgid "Increase the zoom level"
@@ -823,19 +834,19 @@ msgstr "Přepnout zobrazení na celou obrazovku"
 
 #: ../midori/midori-browser.c:5305
 msgid "Scroll _Left"
-msgstr "Rolovat v_levo"
+msgstr "Posunout v_levo"
 
 #: ../midori/midori-browser.c:5308
 msgid "Scroll _Down"
-msgstr "Rolovat _dolů"
+msgstr "Posunout _dolů"
 
 #: ../midori/midori-browser.c:5311
 msgid "Scroll _Up"
-msgstr "Rolovat nahor_u"
+msgstr "Posunout nahor_u"
 
 #: ../midori/midori-browser.c:5314
 msgid "Scroll _Right"
-msgstr "Rolovat vp_ravo"
+msgstr "Posunout vp_ravo"
 
 #: ../midori/midori-browser.c:5317
 msgid "_Go"
@@ -869,7 +880,7 @@ msgstr "Vyprázdnit seznam zavřených karet"
 
 #: ../midori/midori-browser.c:5339
 msgid "Undo _Close Tab"
-msgstr "Vrátit _zavření karty"
+msgstr "_Znovu otevřít zavřenou kartu"
 
 #: ../midori/midori-browser.c:5346
 msgid "Add a new _folder"
@@ -879,7 +890,8 @@ msgstr "Přidat novou _složku"
 msgid "_Export bookmarks"
 msgstr "_Exportovat záložky"
 
-#: ../midori/midori-browser.c:5355 ../midori/midori-searchaction.c:497
+#: ../midori/midori-browser.c:5355
+#: ../midori/midori-searchaction.c:497
 msgid "_Manage Search Engines"
 msgstr "Nastavit _vyhledávací nástroje"
 
@@ -909,7 +921,7 @@ msgstr "Přesunout kartu v_před"
 
 #: ../midori/midori-browser.c:5375
 msgid "Focus _Current Tab"
-msgstr "Jít na _domovskou stránku"
+msgstr "_přepnout kurzor na tuto kartu"
 
 #: ../midori/midori-browser.c:5378
 msgid "Focus _Next view"
@@ -929,7 +941,7 @@ msgstr "_Zavřít ostatní karty"
 
 #: ../midori/midori-browser.c:5390
 msgid "Open last _session"
-msgstr "Otevřít poslední _sezení"
+msgstr "Otevřít poslední _relaci"
 
 #: ../midori/midori-browser.c:5393
 msgid "_Help"
@@ -949,29 +961,31 @@ msgstr "_Nabídka"
 
 #: ../midori/midori-browser.c:5414
 msgid "_Navigationbar"
-msgstr "_Navigační lišta"
+msgstr "_Navigační panel"
 
 #: ../midori/midori-browser.c:5418
 msgid "Side_panel"
-msgstr "Boční _panel"
+msgstr "Postranní _panel"
 
 #: ../midori/midori-browser.c:5419
 msgid "Sidepanel"
-msgstr "Boční panel"
+msgstr "Postranní panel"
 
 #: ../midori/midori-browser.c:5422
 msgid "_Bookmarkbar"
-msgstr "Lišta _záložek"
+msgstr "Panel _záložek"
 
 #: ../midori/midori-browser.c:5426
 msgid "_Statusbar"
-msgstr "_Stavová lišta"
+msgstr "_Stavový panel"
 
-#: ../midori/midori-browser.c:5435 ../midori/midori-websettings.c:303
+#: ../midori/midori-browser.c:5435
+#: ../midori/midori-websettings.c:303
 msgid "_Automatic"
 msgstr "_Automatické"
 
-#: ../midori/midori-browser.c:5438 ../midori/midori-websettings.c:228
+#: ../midori/midori-browser.c:5438
+#: ../midori/midori-websettings.c:228
 msgid "Chinese (BIG5)"
 msgstr "Čínské (BIG5)"
 
@@ -980,24 +994,30 @@ msgstr "Čínské (BIG5)"
 msgid "Japanese (SHIFT__JIS)"
 msgstr "Japonské (SHIFT__JIS)"
 
-#: ../midori/midori-browser.c:5445 ../midori/midori-websettings.c:230
+#: ../midori/midori-browser.c:5445
+#: ../midori/midori-websettings.c:230
 msgid "Korean (EUC-KR)"
 msgstr "Korejské (EUC-KR)"
 
-#: ../midori/midori-browser.c:5448 ../midori/midori-websettings.c:231
+#: ../midori/midori-browser.c:5448
+#: ../midori/midori-websettings.c:231
 msgid "Russian (KOI8-R)"
 msgstr "Ruské (KOI8-R)"
 
-#: ../midori/midori-browser.c:5451 ../midori/midori-websettings.c:232
+#: ../midori/midori-browser.c:5451
+#: ../midori/midori-websettings.c:232
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#: ../midori/midori-browser.c:5454 ../midori/midori-websettings.c:233
+#: ../midori/midori-browser.c:5454
+#: ../midori/midori-websettings.c:233
 msgid "Western (ISO-8859-1)"
 msgstr "Západní (ISO-8859-1)"
 
-#: ../midori/midori-browser.c:5457 ../midori/midori-websettings.c:234
-#: ../midori/midori-websettings.c:309 ../katze/katze-utils.c:635
+#: ../midori/midori-browser.c:5457
+#: ../midori/midori-websettings.c:234
+#: ../midori/midori-websettings.c:309
+#: ../katze/katze-utils.c:635
 msgid "Custom..."
 msgstr "Vlastní..."
 
@@ -1011,7 +1031,7 @@ msgstr "U_místění..."
 
 #: ../midori/midori-browser.c:5972
 msgid "Open a particular location"
-msgstr "Otevřít umístění"
+msgstr "Otevřít konkrétní umístění"
 
 #: ../midori/midori-browser.c:5994
 msgid "_Web Search..."
@@ -1057,14 +1077,16 @@ msgstr "Neočekávané nastavení '%s'"
 #: ../midori/midori-extension.c:310
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be loaded: %s\n"
-msgstr "Nastavení rozšíření '%s' nemůže být načteno: %s\n"
+msgstr "Nastavení rozšíření '%s' nelze načíst: %s\n"
 
-#: ../midori/midori-extension.c:721 ../midori/midori-extension.c:818
-#: ../midori/midori-extension.c:915 ../midori/midori-extension.c:1027
+#: ../midori/midori-extension.c:721
+#: ../midori/midori-extension.c:818
+#: ../midori/midori-extension.c:915
+#: ../midori/midori-extension.c:1027
 #: ../extensions/addons.c:1695
 #, c-format
 msgid "The configuration of the extension '%s' couldn't be saved: %s\n"
-msgstr "Nastavení rozšíření '%s' nemůže být uloženo: %s\n"
+msgstr "Nastavení rozšíření '%s' nelze uložit: %s\n"
 
 #: ../midori/midori-locationaction.c:425
 #, c-format
@@ -1092,20 +1114,24 @@ msgstr "Neověřené spojení"
 
 #: ../midori/midori-locationaction.c:1697
 msgid "Verified and encrypted connection"
-msgstr "Ověřené a kódované spojení"
+msgstr "Ověřené a šifrované spojení"
 
-#: ../midori/midori-panel.c:397 ../midori/midori-panel.c:399
-#: ../midori/midori-panel.c:562 ../midori/midori-panel.c:565
+#: ../midori/midori-panel.c:397
+#: ../midori/midori-panel.c:399
+#: ../midori/midori-panel.c:562
+#: ../midori/midori-panel.c:565
 msgid "Align sidepanel to the right"
-msgstr "Umístit boční panel vpravo"
+msgstr "Umístit postranní panel vpravo"
 
-#: ../midori/midori-panel.c:409 ../midori/midori-panel.c:410
+#: ../midori/midori-panel.c:409
+#: ../midori/midori-panel.c:410
 msgid "Close panel"
 msgstr "Zavřít panel"
 
-#: ../midori/midori-panel.c:563 ../midori/midori-panel.c:566
+#: ../midori/midori-panel.c:563
+#: ../midori/midori-panel.c:566
 msgid "Align sidepanel to the left"
-msgstr "Umístit boční panel vlevo"
+msgstr "Umístit postranní panel vlevo"
 
 #: ../midori/midori-websettings.c:210
 msgid "Show Speed Dial"
@@ -1161,11 +1187,11 @@ msgstr "automaticky (GNOME, nebo jiné prostředí)"
 
 #: ../midori/midori-websettings.c:287
 msgid "HTTP proxy server"
-msgstr "HTTP proxy server"
+msgstr "server proxy HTTP"
 
 #: ../midori/midori-websettings.c:288
 msgid "No proxy server"
-msgstr "žádný"
+msgstr "žádný server proxy"
 
 #: ../midori/midori-websettings.c:305
 msgid "Safari"
@@ -1189,11 +1215,11 @@ msgstr "Pamatovat si velikost okna"
 
 #: ../midori/midori-websettings.c:362
 msgid "Whether to save the last window size"
-msgstr "Ukládat rozměry okna?"
+msgstr "Určuje, zda se budou ukládat rozměry okna"
 
 #: ../midori/midori-websettings.c:370
 msgid "Last window width"
-msgstr "Šířka okna"
+msgstr "Poslední šířka okna"
 
 #: ../midori/midori-websettings.c:371
 msgid "The last saved window width"
@@ -1201,7 +1227,7 @@ msgstr "Naposledy uložená šířka okna"
 
 #: ../midori/midori-websettings.c:379
 msgid "Last window height"
-msgstr "Výška okna"
+msgstr "Poslední výška okna"
 
 #: ../midori/midori-websettings.c:380
 msgid "The last saved window height"
@@ -1213,40 +1239,40 @@ msgstr "Poslední pozice panelu"
 
 #: ../midori/midori-websettings.c:406
 msgid "The last saved panel position"
-msgstr "Uložená poslední pozice panelu"
+msgstr "Naposledy uložená pozice panelu"
 
 #. i18n: The internal index of the last opened panel
 #: ../midori/midori-websettings.c:415
 msgid "Last panel page"
-msgstr "Poslední otevřená stránka"
+msgstr "Poslední stránka panelu"
 
 #: ../midori/midori-websettings.c:416
 msgid "The last saved panel page"
-msgstr "Uložená stránka"
+msgstr "Naposledy uložená stránka panelu"
 
 #: ../midori/midori-websettings.c:424
 msgid "Last Web search"
-msgstr "Rychlé hledání na webu"
+msgstr "Poslední hledání na webu"
 
 #: ../midori/midori-websettings.c:425
 msgid "The last saved Web search"
-msgstr "Uložené poslední vyhledávání na webu"
+msgstr "Poslední uložené vyhledávání na webu"
 
 #: ../midori/midori-websettings.c:434
 msgid "Show Menubar"
-msgstr "Zobrazit nabídku"
+msgstr "Zobrazit panel nabídky"
 
 #: ../midori/midori-websettings.c:435
 msgid "Whether to show the menubar"
-msgstr "Zobrazit nabídku?"
+msgstr "Určuje, zda se bude zobrazovat panel nabídky"
 
 #: ../midori/midori-websettings.c:443
 msgid "Show Navigationbar"
-msgstr "Zobrazit vyhledávání"
+msgstr "Zobrazit panel vyhledávání"
 
 #: ../midori/midori-websettings.c:444
 msgid "Whether to show the navigationbar"
-msgstr "Zobrazit lištu vyhledávání?"
+msgstr "Určuje, zda se bude zobrazovat panel vyhledávání"
 
 #: ../midori/midori-websettings.c:452
 msgid "Show Bookmarkbar"
@@ -1254,7 +1280,7 @@ msgstr "Zobrazit záložky"
 
 #: ../midori/midori-websettings.c:453
 msgid "Whether to show the bookmarkbar"
-msgstr "Zobrazit lištu se záložkami?"
+msgstr "Určuje, zda se bude zobrazovat panel záložek"
 
 #: ../midori/midori-websettings.c:461
 msgid "Show Panel"
@@ -1262,7 +1288,7 @@ msgstr "Zobrazit panel"
 
 #: ../midori/midori-websettings.c:462
 msgid "Whether to show the panel"
-msgstr "Zobrazit panel?"
+msgstr "Určuje, zda se bude zobrazovat panel"
 
 #: ../midori/midori-websettings.c:470
 msgid "Show Statusbar"
@@ -1270,55 +1296,55 @@ msgstr "Zobrazit stavový řádek"
 
 #: ../midori/midori-websettings.c:471
 msgid "Whether to show the statusbar"
-msgstr "Zobrazit stavový řádek?"
+msgstr "Určuje, zda se bude zobrazovat panel stavu"
 
 #: ../midori/midori-websettings.c:480
 msgid "Toolbar Style:"
-msgstr "Styl lišty:"
+msgstr "Styl panelu nástrojů:"
 
 #: ../midori/midori-websettings.c:481
 msgid "The style of the toolbar"
-msgstr "Nastaví styl lišty (zobrazení textu a ikon)."
+msgstr "Styl panelu nástrojů"
 
 #: ../midori/midori-websettings.c:490
 msgid "Toolbar Items"
-msgstr "Položky nástrojové lišty"
+msgstr "Položky panelu nástrojů"
 
 #: ../midori/midori-websettings.c:491
 msgid "The items to show on the toolbar"
-msgstr "Položky, které se budou zobrazovat na nástrojové liště"
+msgstr "Položky zobrazované na panelu nástrojů"
 
 #: ../midori/midori-websettings.c:499
 msgid "Compact Sidepanel"
-msgstr "Kompaktní boční panel"
+msgstr "Kompaktní postranní panel"
 
 #: ../midori/midori-websettings.c:500
 msgid "Whether to make the sidepanel compact"
-msgstr "Má se zobrazit boční panel kompaktně?"
+msgstr "Určuje, zda bude postranní panel zobrazen ve zjednodušené podobě"
 
 #: ../midori/midori-websettings.c:515
 msgid "Align sidepanel on the right"
-msgstr "Umístit boční panel vpravo"
+msgstr "Umístit postranní panel vpravo"
 
 #: ../midori/midori-websettings.c:516
 msgid "Whether to align the sidepanel on the right"
-msgstr "Přesunout boční panel na opačnou stranu"
+msgstr "Určuje, zda bude postranní panel umístěn napravo"
 
 #: ../midori/midori-websettings.c:531
 msgid "Open panels in separate windows"
-msgstr "Otvírat panely v samostatných oknech"
+msgstr "Otevírat panely v samostatných oknech"
 
 #: ../midori/midori-websettings.c:532
 msgid "Whether to always open panels in separate windows"
-msgstr "Zda vždy otevřít panel v samostatné okno"
+msgstr "Určuje, zda se budou panely vždy otevírat v samostatných oknech"
 
 #: ../midori/midori-websettings.c:541
 msgid "When Midori starts:"
-msgstr "Když Midori nastartuje:"
+msgstr "Po spuštění aplikace Midori:"
 
 #: ../midori/midori-websettings.c:542
 msgid "What to do when Midori starts"
-msgstr "Co udělat, když je Midori spuštěno"
+msgstr "Co se stane po spuštění aplikace Midori"
 
 #: ../midori/midori-websettings.c:551
 msgid "Homepage:"
@@ -1334,7 +1360,7 @@ msgstr "Zobrazit dialog po pádu"
 
 #: ../midori/midori-websettings.c:568
 msgid "Show a dialog after Midori crashed"
-msgstr "Zobrazit dialog po pádu Midori"
+msgstr "Zobrazit dialog po pádu aplikace Midori"
 
 #: ../midori/midori-websettings.c:576
 msgid "Save downloaded files to:"
@@ -1342,7 +1368,7 @@ msgstr "Ukládat stažené soubory do:"
 
 #: ../midori/midori-websettings.c:577
 msgid "The folder downloaded files are saved to"
-msgstr "Kam se budou ukládat stažené soubory"
+msgstr "Složka, do níž se budou ukládat stažené soubory"
 
 #: ../midori/midori-websettings.c:585
 msgid "Text Editor"
@@ -1370,19 +1396,19 @@ msgstr "Vyhledávání použité v řádku s adresou"
 
 #: ../midori/midori-websettings.c:619
 msgid "Preferred Encoding"
-msgstr "Preferované kódování"
+msgstr "Upřednostňované kódování"
 
 #: ../midori/midori-websettings.c:620
 msgid "The preferred character encoding"
-msgstr "Preferované kódování stránek"
+msgstr "Upřednostňované kódování stránek"
 
 #: ../midori/midori-websettings.c:630
 msgid "Always Show Tabbar"
-msgstr "Vždy zobrazovat karty"
+msgstr "Vždy zobrazit panel karet"
 
 #: ../midori/midori-websettings.c:631
 msgid "Always show the tabbar"
-msgstr "Zobrazit karty, i když je jen jedna?"
+msgstr "Vždy zobrazit panel karet"
 
 #: ../midori/midori-websettings.c:639
 msgid "Close Buttons on Tabs"
@@ -1390,7 +1416,7 @@ msgstr "Ikona zavření karty"
 
 #: ../midori/midori-websettings.c:640
 msgid "Whether tabs have close buttons"
-msgstr "Zobrazovat ikonu pro zavření karty?"
+msgstr "Určuje, zda budou na kartách přítomna tlačítka pro jejich zavření"
 
 #: ../midori/midori-websettings.c:665
 msgid "Open new pages in:"
@@ -1402,11 +1428,11 @@ msgstr "Kde se budou otevírat nové stránky"
 
 #: ../midori/midori-websettings.c:675
 msgid "Middle click opens Selection"
-msgstr "Kliknutím prostř. tlačítka otevřít vybraný text"
+msgstr "Kliknutí prostředního tlačítka otevře vybraný text"
 
 #: ../midori/midori-websettings.c:676
 msgid "Load an address from the selection via middle click"
-msgstr "Prostřední tlačítko myši otevře adresu, která je ve vybraném textu"
+msgstr "Prostřední tlačítko myši otevře adresu obsaženou ve vybraném textu"
 
 #: ../midori/midori-websettings.c:684
 msgid "Open tabs in the background"
@@ -1414,7 +1440,7 @@ msgstr "Otevírat karty na pozadí"
 
 #: ../midori/midori-websettings.c:685
 msgid "Whether to open new tabs in the background"
-msgstr "Karty se otevírají na pozadí"
+msgstr "Určuje, zda se budou nové karty otevírat na pozadí"
 
 #: ../midori/midori-websettings.c:693
 msgid "Open Tabs next to Current"
@@ -1422,7 +1448,7 @@ msgstr "Otevřít kartu vedle aktivní"
 
 #: ../midori/midori-websettings.c:694
 msgid "Whether to open new tabs next to the current tab or after the last one"
-msgstr "Nová karta se otevře vedle aktivní"
+msgstr "Určuje, zda se budou nové karty otevírat vedle aktivní nebo vedle poslední karty"
 
 #: ../midori/midori-websettings.c:702
 msgid "Open popups in tabs"
@@ -1430,9 +1456,10 @@ msgstr "Otevírat vyskakovací okna v kartách"
 
 #: ../midori/midori-websettings.c:703
 msgid "Whether to open popup windows in tabs"
-msgstr "Vyskakovací okno se otevře v nové kartě"
+msgstr "Určuje, zda se vyskakovací okno otevře v kartě"
 
-#: ../midori/midori-websettings.c:713 ../extensions/statusbar-features.c:131
+#: ../midori/midori-websettings.c:713
+#: ../extensions/statusbar-features.c:131
 msgid "Load images automatically"
 msgstr "Automaticky načítat obrázky"
 
@@ -1440,7 +1467,8 @@ msgstr "Automaticky načítat obrázky"
 msgid "Load and display images automatically"
 msgstr "Automaticky načítat a zobrazovat obrázky"
 
-#: ../midori/midori-websettings.c:721 ../extensions/statusbar-features.c:140
+#: ../midori/midori-websettings.c:721
+#: ../extensions/statusbar-features.c:140
 msgid "Enable scripts"
 msgstr "Povolit skripty"
 
@@ -1448,13 +1476,14 @@ msgstr "Povolit skripty"
 msgid "Enable embedded scripting languages"
 msgstr "Povolit vložené skriptové jazyky"
 
-#: ../midori/midori-websettings.c:729 ../extensions/statusbar-features.c:149
+#: ../midori/midori-websettings.c:729
+#: ../extensions/statusbar-features.c:149
 msgid "Enable Netscape plugins"
-msgstr "Povolit pluginy z Netscape (Mozilly)"
+msgstr "Povolit zásuvné moduly aplikace Netscape"
 
 #: ../midori/midori-websettings.c:730
 msgid "Enable embedded Netscape plugin objects"
-msgstr "Povolit pluginové objekty prohlížeče Netscape (Mozilla)"
+msgstr "Povolit objekty zásuvných modulů aplikace Netscape"
 
 #: ../midori/midori-websettings.c:750
 msgid "Enable Spell Checking"
@@ -1466,11 +1495,11 @@ msgstr "Povolit kontrolu pravopisu při psaní"
 
 #: ../midori/midori-websettings.c:757
 msgid "Enable HTML5 database support"
-msgstr "Povolit HTML5 databázi"
+msgstr "Povolit podporu databází HTML5"
 
 #: ../midori/midori-websettings.c:758
 msgid "Whether to enable HTML5 database support"
-msgstr "Zda povolit HTML5 databázi"
+msgstr "Určuje, zda bude povolena podpora databází v jazyku HTML5"
 
 #: ../midori/midori-websettings.c:764
 msgid "Enable HTML5 local storage support"
@@ -1478,23 +1507,23 @@ msgstr "Povolit místní úložiště pro HTML5"
 
 #: ../midori/midori-websettings.c:765
 msgid "Whether to enable HTML5 local storage support"
-msgstr "Zda povolit místní úložiště dat pro HTML5"
+msgstr "Určuje, zda budou povolena místní úložiště v jazyku HTML5"
 
 #: ../midori/midori-websettings.c:771
 msgid "Enable offline web application cache"
-msgstr "Povolit cache pro offline aplikace"
+msgstr "Povolit mezipaměť pro offline aplikace"
 
 #: ../midori/midori-websettings.c:772
 msgid "Whether to enable offline web application cache"
-msgstr "Zda povolit používání cache pro offline aplikace"
+msgstr "Určuje, zda bude povoleno používání mezipaměti pro offline aplikace"
 
 #: ../midori/midori-websettings.c:788
 msgid "Flash window on background tabs"
-msgstr "Bliknout oknem při otevření karty na pozadí"
+msgstr "Blikání okna při otevření karty na pozadí"
 
 #: ../midori/midori-websettings.c:789
 msgid "Flash the browser window if a new tab was opened in the background"
-msgstr "Okno prohlížeče blikne při otevření karty na pozadí"
+msgstr "Okno prohlížeče blikne při otevření nové karty na pozadí"
 
 #: ../midori/midori-websettings.c:797
 msgid "Enable WebGL support"
@@ -1502,7 +1531,7 @@ msgstr "Povolit podporu WebGL"
 
 #: ../midori/midori-websettings.c:798
 msgid "Allow websites to use OpenGL rendering"
-msgstr "Stránky mohou použít pro renderování  OpenGL"
+msgstr "Umožnit webovým stránkám použití vykreslování pomocí knihovny OpenGL"
 
 #: ../midori/midori-websettings.c:814
 msgid "Zoom Text and Images"
@@ -1510,7 +1539,7 @@ msgstr "Zvětšovat text i obrázky"
 
 #: ../midori/midori-websettings.c:815
 msgid "Whether to zoom text and images"
-msgstr "Při přibližování zvětšovat text i obrázky?"
+msgstr "Určuje, zda se bude měnit velikost textu i obrázků"
 
 #: ../midori/midori-websettings.c:830
 msgid "Find inline while typing"
@@ -1518,15 +1547,15 @@ msgstr "Hledat při psaní"
 
 #: ../midori/midori-websettings.c:831
 msgid "Whether to automatically find inline while typing"
-msgstr "Při psaní hledat text?"
+msgstr "Určuje, zda se v textu bude automaticky vyhledávat během psaní"
 
 #: ../midori/midori-websettings.c:846
 msgid "Kinetic scrolling"
-msgstr "Kinetické rolování"
+msgstr "Kinetické posouvání"
 
 #: ../midori/midori-websettings.c:847
 msgid "Whether scrolling should kinetically move according to speed"
-msgstr "Zda naklápěním zařízení rolovat"
+msgstr "Určuje, zda bude posouvání ovlivněno rychloistí"
 
 #: ../midori/midori-websettings.c:855
 msgid "Delete old Cookies after:"
@@ -1538,7 +1567,7 @@ msgstr "Maximální počet dní, po které jsou cookies platná."
 
 #: ../midori/midori-websettings.c:872
 msgid "Only accept Cookies from sites you visit"
-msgstr "Přijímat cookies jen z navštívených stránek"
+msgstr "Přijímat cookies pouze z navštívených stránek"
 
 #: ../midori/midori-websettings.c:873
 msgid "Block cookies sent by third-party websites"
@@ -1550,24 +1579,23 @@ msgstr "Smazat stránky z historie po:"
 
 #: ../midori/midori-websettings.c:888
 msgid "The maximum number of days to save the history for"
-msgstr ""
-"Maximální počet dní, po které se bude uchovávat historie navštívených stránek"
+msgstr "Maximální počet dní, po které se bude uchovávat historie navštívených stránek"
 
 #: ../midori/midori-websettings.c:903
 msgid "Proxy server"
-msgstr "Proxy server"
+msgstr "Server proxy"
 
 #: ../midori/midori-websettings.c:904
 msgid "The type of proxy server to use"
-msgstr "Jaký typ proxy serveru chcete použít"
+msgstr "Jaký typ serveru proxy chcete použít"
 
 #: ../midori/midori-websettings.c:913
 msgid "HTTP Proxy Server"
-msgstr "HTTP proxy server"
+msgstr "Serverproxy HTTP"
 
 #: ../midori/midori-websettings.c:914
 msgid "The proxy server used for HTTP connections"
-msgstr "Proxy server, který bude použit pro HTTP spojení"
+msgstr "Server proxy, který bude použit pro spojení HTTP"
 
 #: ../midori/midori-websettings.c:929
 msgid "Port"
@@ -1575,11 +1603,11 @@ msgstr "Port"
 
 #: ../midori/midori-websettings.c:930
 msgid "The proxy server port used for HTTP connections"
-msgstr "Proxy server, který bude použit pro HTTP spojení"
+msgstr "Port serveru proxy, který bude použit pro spojení HTTP"
 
 #: ../midori/midori-websettings.c:948
 msgid "The maximum size of cached pages on disk"
-msgstr "Maximální velikost diskové keše"
+msgstr "Maximální velikost diskové mezipaměti stránek"
 
 #. i18n: This refers to an application, not the 'user agent' string
 #: ../midori/midori-websettings.c:965
@@ -1588,7 +1616,7 @@ msgstr "Hlásit se jako"
 
 #: ../midori/midori-websettings.c:966
 msgid "What to identify as to web pages"
-msgstr "Jak se hlásit webovým stránkám"
+msgstr "Určuje, jak se bude aplikace identifikovat webovým stránkám"
 
 #: ../midori/midori-websettings.c:982
 msgid "Identification string"
@@ -1600,45 +1628,41 @@ msgstr "Identifikační řetězec aplikace"
 
 #: ../midori/midori-websettings.c:999
 msgid "Preferred languages"
-msgstr "Preferované jazyky"
+msgstr "Upřednostňované jazyky"
 
 #: ../midori/midori-websettings.c:1000
-msgid ""
-"A comma separated list of languages preferred for rendering multilingual "
-"webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
-msgstr ""
-"Čárkou oddělený seznam jazyků pro vícejazyčné weby, např. \"cs\", \"cs,en\", "
-"nebo \"cs-cs;q=1.0, en-en;q=0.667\""
+msgid "A comma separated list of languages preferred for rendering multilingual webpages, for example \"de\", \"ru,nl\" or \"en-us;q=1.0, fr-fr;q=0.667\""
+msgstr "Čárkou oddělený seznam jazyků pro vícejazyčné weby, např. \"cs\", \"cs,en\", nebo \"cs-cs;q=1.0, en-en;q=0.667\""
 
 #: ../midori/midori-websettings.c:1015
 msgid "Clear private data"
-msgstr "_Vymazat osobní data"
+msgstr "Vymazat osobní údaje"
 
 #: ../midori/midori-websettings.c:1016
 msgid "The private data selected for deletion"
-msgstr "Osobní data byla označena ke smazání"
+msgstr "Osobní údaje byly označeny ke smazání"
 
 #: ../midori/midori-websettings.c:1031
 msgid "Clear data"
-msgstr "Vymazat data"
+msgstr "Vymazat údaje"
 
 #: ../midori/midori-websettings.c:1032
 msgid "The data selected for deletion"
-msgstr "Data, která budou vymazána"
+msgstr "Údaje označené pro vymazání"
 
 #. i18n: Reworded: Shorten details propagated when going to another page
 #: ../midori/midori-websettings.c:1065
 msgid "Strip referrer details sent to websites"
-msgstr "Odstranit detaily z referrer při odesílání"
+msgstr "Odstranit detaily o referující adrese při odesílání"
 
 #. i18n: Referer here is not a typo but a technical term
 #: ../midori/midori-websettings.c:1067
 msgid "Whether the \"Referer\" header should be shortened to the hostname"
-msgstr "Zda zkrátit položku \"Referer\" v hlavičce jen na název webu"
+msgstr "Určuje, zda bude referenční hlavička \"Referer\" zkrácena na pouhý název hostitele"
 
 #: ../midori/midori-websettings.c:1081
 msgid "Always use my font choices"
-msgstr "Vždy použít vybraná písma"
+msgstr "Vždy použít mnou zvolená písma"
 
 #: ../midori/midori-websettings.c:1082
 msgid "Override fonts picked by websites with user preferences"
@@ -1647,20 +1671,22 @@ msgstr "Vybraná písma se použijí vždy bez ohledu na požadavky stránky"
 #: ../midori/midori-view.c:1287
 #, c-format
 msgid "%s wants to save an HTML5 database."
-msgstr "%s požaduje uložit data do HTML5 databáze."
+msgstr "%s chce uložit data do databáze HTML5."
 
-#: ../midori/midori-view.c:1291 ../midori/midori-view.c:1321
+#: ../midori/midori-view.c:1291
+#: ../midori/midori-view.c:1321
 msgid "_Deny"
 msgstr "_Zakázat"
 
-#: ../midori/midori-view.c:1291 ../midori/midori-view.c:1321
+#: ../midori/midori-view.c:1291
+#: ../midori/midori-view.c:1321
 msgid "_Allow"
 msgstr "_Povolit"
 
 #: ../midori/midori-view.c:1317
 #, c-format
 msgid "%s wants to know your location."
-msgstr "%s požaduje zjistit vaši polohu."
+msgstr "%s chce zjistit vaši polohu."
 
 #: ../midori/midori-view.c:1408
 #, c-format
@@ -1670,18 +1696,20 @@ msgstr "Chyba - %s"
 #: ../midori/midori-view.c:1409
 #, c-format
 msgid "The page '%s' couldn't be loaded."
-msgstr "Stránka '%s' nemůže být načtena."
+msgstr "Stránku '%s' nelze načíst."
 
 #: ../midori/midori-view.c:1411
 msgid "Try again"
 msgstr "Zkusit znovu"
 
-#: ../midori/midori-view.c:1575 ../midori/midori-view.c:2478
+#: ../midori/midori-view.c:1575
+#: ../midori/midori-view.c:2478
 #, c-format
 msgid "Send a message to %s"
-msgstr "Poslat %s zprávu"
+msgstr "Poslat zprávu pro %s"
 
-#: ../midori/midori-view.c:2309 ../midori/midori-view.c:2627
+#: ../midori/midori-view.c:2309
+#: ../midori/midori-view.c:2627
 msgid "Inspect _Element"
 msgstr "Prozkoumat _prvek"
 
@@ -1778,9 +1806,10 @@ msgstr "Prohlížení stránky - %s"
 msgid "Speed Dial"
 msgstr "Rychlý přístup"
 
-#: ../midori/midori-view.c:3735 ../midori/midori-view.c:3831
+#: ../midori/midori-view.c:3735
+#: ../midori/midori-view.c:3831
 msgid "Click to add a shortcut"
-msgstr "Záložku přidáte kliknutím"
+msgstr "Kliknutím přidáte záložku "
 
 #: ../midori/midori-view.c:3736
 msgid "Enter shortcut address"
@@ -1801,31 +1830,31 @@ msgstr "Dokumentace není nainstalována"
 
 #: ../midori/midori-view.c:3976
 msgid "Midori doesn't store any personal data:"
-msgstr "Midori neukládá žádná osobní data:"
+msgstr "Aplikace Midori neukládá žádné osobní údaje:"
 
 #: ../midori/midori-view.c:3977
 msgid "No history or web cookies are being saved."
-msgstr "Neukládá se ani historie, ani cookies."
+msgstr "Neukládá se historie, ani cookies."
 
 #: ../midori/midori-view.c:3978
 msgid "Extensions are disabled."
-msgstr "Rozšíření vypnuta."
+msgstr "Rozšíření jsou zakázána."
 
 #: ../midori/midori-view.c:3979
 msgid "HTML5 storage, local database and application caches are disabled."
-msgstr "Zakázáno úložiště HTML5, lokální databáze a aplikační cache."
+msgstr "Zakázáno úložiště HTML5, lokální databáze a aplikační mezipaměťi."
 
 #: ../midori/midori-view.c:3980
 msgid "Midori prevents websites from tracking the user:"
-msgstr "Midori odmítá sledování uživatele ze stránek:"
+msgstr "Aplikace Midori zabraňuje webovým stránkám sledovat uživatele:"
 
 #: ../midori/midori-view.c:3981
 msgid "Referrer URLs are stripped down to the hostname."
-msgstr "Z URL jsou odříznuty údaje o odkazech (referrer)."
+msgstr "Adresy URL referentů jsou zkráceny na pouhý název hostitele."
 
 #: ../midori/midori-view.c:3982
 msgid "DNS prefetching is disabled."
-msgstr "Přednačítání DNS záznamů vypnuto."
+msgstr "Přednačítání DNS záznamů je zakázáno."
 
 #: ../midori/midori-view.c:3983
 msgid "The language and timezone are not revealed to websites."
@@ -1833,7 +1862,7 @@ msgstr "Stránkám nejsou poskytovány údaje o jazyku a časovém pásmu."
 
 #: ../midori/midori-view.c:3984
 msgid "Flash and other Netscape plugins cannot be listed by websites."
-msgstr "Stránky nemohou získat seznam pluginů."
+msgstr "Stránky nemohou získat seznam zásuvných modulů Flash ani modulů aplikace Netscape."
 
 #: ../midori/midori-view.c:4022
 msgid "Version numbers in brackets show the version used at runtime."
@@ -1845,9 +1874,7 @@ msgstr "Načítání stránky pozdrženo"
 
 #: ../midori/midori-view.c:4071
 msgid "Loading delayed either due to a recent crash or startup preferences."
-msgstr ""
-"Načtení stránky bylo pozdrženo kvůli pádu aplikace, nebo protože je to tak "
-"nastaveno."
+msgstr "Načtení stránky bylo pozdrženo kvůli nedávnému pádu aplikace, nebo kvůli nastavení po spuštění."
 
 #: ../midori/midori-view.c:4072
 msgid "Load Page"
@@ -1889,7 +1916,7 @@ msgstr "Tisknout obrázky na pozadí"
 
 #: ../midori/midori-view.c:5171
 msgid "Whether background images should be printed"
-msgstr "Mají být obrázky na pozadí tištěny?"
+msgstr "Určuje, zda se vytisknou obrázky na pozadí"
 
 #: ../midori/midori-view.c:5203
 msgid "Features"
@@ -1901,7 +1928,7 @@ msgstr "Při spuštění"
 
 #: ../midori/midori-preferences.c:310
 msgid "Use _current page"
-msgstr "Použít _aktivní stránku"
+msgstr "Použít _stávající stránku"
 
 #: ../midori/midori-preferences.c:314
 msgid "Use current page as homepage"
@@ -1918,31 +1945,31 @@ msgstr "Proporcionální písmo"
 
 #: ../midori/midori-preferences.c:330
 msgid "The default font family used to display text"
-msgstr "Výchozí font pro zobrazení textu"
+msgstr "Výchozí písmo pro zobrazení textu"
 
 #: ../midori/midori-preferences.c:333
 msgid "The default font size used to display text"
-msgstr "Velikost textu"
+msgstr "Výchozí velikost písma pro zobrazení textu"
 
 #: ../midori/midori-preferences.c:335
 msgid "Fixed-width Font Family"
-msgstr "Výchozí font písma se stejnou šířkou"
+msgstr "Neproporcionální písmo"
 
 #: ../midori/midori-preferences.c:339
 msgid "The font family used to display fixed-width text"
-msgstr "Font použitý při zobrazování písma se stejnou šířkou písmen"
+msgstr "Písmo pro zobrazení textu se stejnou šířkou písmen"
 
 #: ../midori/midori-preferences.c:342
 msgid "The font size used to display fixed-width text"
-msgstr "Font použitý při zobrazování písma se stejnou šířkou písmen"
+msgstr "Velikost písma pro zobrazení textu se stejnou šířkou písmen"
 
 #: ../midori/midori-preferences.c:344
 msgid "Minimum Font Size"
-msgstr "Minimální velikost textu"
+msgstr "Minimální velikost písma"
 
 #: ../midori/midori-preferences.c:348
 msgid "The minimum font size used to display text"
-msgstr "Minimální velikost textu, která se použije pro zobrazení"
+msgstr "Minimální velikost fontu použitého pro zobrazení"
 
 #. Page "Behavior"
 #: ../midori/midori-preferences.c:359
@@ -1955,8 +1982,7 @@ msgstr "Povolit skriptům otevírat vyskakovací okna"
 
 #: ../midori/midori-preferences.c:386
 msgid "Whether scripts are allowed to open popup windows automatically"
-msgstr ""
-"Jestli skripty (JavaScript) mohou otevírat vyskakovací okna (popup okna)"
+msgstr "Určuje, zda bude skriptům povoleno automaticky otevírat vyskakovací okna"
 
 #. Page "Interface"
 #: ../midori/midori-preferences.c:416
@@ -1970,41 +1996,41 @@ msgstr "Síť"
 
 #: ../midori/midori-preferences.c:461
 msgid "Hostname"
-msgstr "Počítač"
+msgstr "Název hostitele"
 
 #: ../midori/midori-preferences.c:485
 msgid "MB"
 msgstr "MB"
 
-#: ../midori/midori-searchaction.c:908
+#: ../midori/midori-searchaction.c:902
 msgid "Add search engine"
 msgstr "Přidat vyhledávací nástroj"
 
-#: ../midori/midori-searchaction.c:908
+#: ../midori/midori-searchaction.c:902
 msgid "Edit search engine"
 msgstr "Upravit vyhledávací nástroj"
 
-#: ../midori/midori-searchaction.c:937
+#: ../midori/midori-searchaction.c:931
 msgid "_Name:"
 msgstr "_Název:"
 
-#: ../midori/midori-searchaction.c:953
+#: ../midori/midori-searchaction.c:947
 msgid "_Description:"
 msgstr "_Popis:"
 
-#: ../midori/midori-searchaction.c:987
+#: ../midori/midori-searchaction.c:981
 msgid "_Icon:"
 msgstr "_Ikona:"
 
-#: ../midori/midori-searchaction.c:1001
+#: ../midori/midori-searchaction.c:995
 msgid "_Token:"
 msgstr "_Zkratka:"
 
-#: ../midori/midori-searchaction.c:1301
+#: ../midori/midori-searchaction.c:1295
 msgid "Manage Search Engines"
-msgstr "Upravit vyhledávací nástroje"
+msgstr "Spravovat vyhledávací nástroje"
 
-#: ../midori/midori-searchaction.c:1401
+#: ../midori/midori-searchaction.c:1395
 msgid "Use as _default"
 msgstr "Použít jako _výchozí"
 
@@ -2017,10 +2043,13 @@ msgstr "Otevřít s"
 msgid "Choose an application or command to open \"%s\":"
 msgstr "Vyberte aplikaci, nebo příkaz k otevření \"%s\":"
 
-#: ../midori/sokoke.c:459 ../midori/sokoke.c:469 ../midori/sokoke.c:497
-#: ../midori/sokoke.c:526 ../midori/sokoke.c:540
+#: ../midori/sokoke.c:459
+#: ../midori/sokoke.c:469
+#: ../midori/sokoke.c:497
+#: ../midori/sokoke.c:526
+#: ../midori/sokoke.c:540
 msgid "Could not run external program."
-msgstr "Nemohu spustit externí program."
+msgstr "Nelze spustit externí program."
 
 #: ../midori/sokoke.c:1677
 #, c-format
@@ -2042,12 +2071,13 @@ msgstr[2] "%d minut"
 #, c-format
 msgid "%d second"
 msgid_plural "%d seconds"
-msgstr[0] "%d vteřina"
-msgstr[1] "%d vteřiny"
-msgstr[2] "%d vteřin"
+msgstr[0] "%d sekunda"
+msgstr[1] "%d sekundy"
+msgstr[2] "%d sekund"
 
 #. i18n: Download tooltip (size): 4KB of 43MB
-#: ../midori/sokoke.c:1687 ../panels/midori-transfers.c:267
+#: ../midori/sokoke.c:1687
+#: ../panels/midori-transfers.c:267
 #, c-format
 msgid "%s of %s"
 msgstr "%s z %s"
@@ -2084,7 +2114,7 @@ msgstr "Následující"
 
 #: ../toolbars/midori-findbar.c:299
 msgid "Match Case"
-msgstr "Rozlišovat velikost"
+msgstr "Rozlišovat velikost písmen"
 
 #: ../toolbars/midori-findbar.c:308
 msgid "Highlight Matches"
@@ -2092,7 +2122,7 @@ msgstr "Zvýraznit nalezené"
 
 #: ../toolbars/midori-findbar.c:319
 msgid "Close Findbar"
-msgstr "Zavřít vyhledávací lištu"
+msgstr "Zavřít panel hledání"
 
 #: ../toolbars/midori-transferbar.c:122
 #, c-format
@@ -2108,29 +2138,26 @@ msgid "The downloaded file is erroneous."
 msgstr "Stažený soubor obsahuje chyby."
 
 #: ../toolbars/midori-transferbar.c:194
-msgid ""
-"The checksum provided with the link did not match. This means the file is "
-"probably incomplete or was modified afterwards."
-msgstr ""
-"Kontrolní součet není shodný s tím, který byl přiložen ke stahovanému "
-"souboru. To znamená, že stažený soubor pravděpodobně není celý nebo byl "
-"změněn."
+msgid "The checksum provided with the link did not match. This means the file is probably incomplete or was modified afterwards."
+msgstr "Kontrolní součet poskytovaný ke stahovanému souboru se neshoduje. To znamená, že stažený soubor pravděpodobně není celý nebo byl pozměněn."
 
-#: ../toolbars/midori-transferbar.c:331 ../panels/midori-transfers.c:141
+#: ../toolbars/midori-transferbar.c:331
+#: ../panels/midori-transfers.c:141
 msgid "Clear All"
 msgstr "Smazat vše"
 
-#: ../toolbars/midori-transferbar.c:368 ../toolbars/midori-transferbar.c:370
+#: ../toolbars/midori-transferbar.c:368
+#: ../toolbars/midori-transferbar.c:370
 msgid "Some files are being downloaded"
-msgstr "Ještě se stahují nějaké soubory."
+msgstr "Některé soubory se stále stahují"
 
 #: ../toolbars/midori-transferbar.c:374
 msgid "_Quit Midori"
-msgstr "U_končit Midori"
+msgstr "U_končit aplikaci Midori"
 
 #: ../toolbars/midori-transferbar.c:376
 msgid "The transfers will be cancelled if Midori quits."
-msgstr "Jestliže bude Midori ukončeno, stahování se stornuje."
+msgstr "Pokud bude aplikace Midori ukončena, stahování se stornuje."
 
 #: ../panels/midori-bookmarks.c:113
 msgid "Bookmarks"
@@ -2139,7 +2166,7 @@ msgstr "Záložky"
 #: ../panels/midori-bookmarks.c:256
 #, c-format
 msgid "Failed to add bookmark item: %s\n"
-msgstr "Záložku se nepodařilo přidat: %s\n"
+msgstr "Přidání záložky se nezdařilo: %s\n"
 
 #: ../panels/midori-bookmarks.c:434
 msgid "Edit the selected bookmark"
@@ -2151,9 +2178,10 @@ msgstr "Smazat vybranou záložku"
 
 #: ../panels/midori-bookmarks.c:457
 msgid "Add a new folder"
-msgstr "Přidat složku"
+msgstr "Přidat novou složku"
 
-#: ../panels/midori-bookmarks.c:591 ../panels/midori-history.c:579
+#: ../panels/midori-bookmarks.c:591
+#: ../panels/midori-history.c:579
 msgid "<i>Separator</i>"
 msgstr "<i>Oddělovač</i>"
 
@@ -2169,7 +2197,7 @@ msgstr "Před týdnem"
 #, c-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
-msgstr[0] "Před %d dny"
+msgstr[0] "Před %d dnem"
 msgstr[1] "Před %d dny"
 msgstr[2] "Před %d dny"
 
@@ -2187,7 +2215,7 @@ msgstr "Opravdu chcete smazat všechny položky historie?"
 
 #: ../panels/midori-history.c:363
 msgid "Bookmark the selected history item"
-msgstr "Zazáložkovat vybranou položku historie"
+msgstr "Uložit vybranou položku historie do záložek"
 
 #: ../panels/midori-history.c:372
 msgid "Delete the selected history item"
@@ -2207,7 +2235,7 @@ msgstr "Otevřít cílovou _složku"
 
 #: ../panels/midori-transfers.c:470
 msgid "Copy Link Loc_ation"
-msgstr "Kopírovat umís_tění"
+msgstr "Kopírovat umís_tění odkazu"
 
 #: ../katze/katze-http-auth.c:210
 msgid "Authentication Required"
@@ -2217,11 +2245,13 @@ msgstr "Vyžadována autentikace"
 msgid ""
 "A username and a password are required\n"
 "to open this location:"
-msgstr "Pro otevření je vyžadováno jméno a heslo:"
+msgstr ""
+"Pro otevření tohoto umístění je vyžadováno\n"
+"jméno a heslo:"
 
 #: ../katze/katze-http-auth.c:240
 msgid "Username"
-msgstr "Jméno"
+msgstr "Jméno uživatele"
 
 #: ../katze/katze-http-auth.c:253
 msgid "Password"
@@ -2234,30 +2264,32 @@ msgstr "Zapamatovat si _heslo"
 #: ../katze/katze-throbber.c:948
 #, c-format
 msgid "Named icon '%s' couldn't be loaded"
-msgstr "Ikona '%s' nemůže být načtena"
+msgstr "Ikonu '%s' nelze načíst"
 
 #: ../katze/katze-throbber.c:961
 #, c-format
 msgid "Stock icon '%s' couldn't be loaded"
-msgstr "Uložená ikona '%s' nemůže být načtena"
+msgstr "Uloženou ikonu '%s' nelze načíst"
 
 #: ../katze/katze-throbber.c:1041
 msgid "Animation frames are broken"
 msgstr "Snímky animace jsou porušené"
 
-#: ../katze/katze-utils.c:439 ../katze/katze-utils.c:873
+#: ../katze/katze-utils.c:439
+#: ../katze/katze-utils.c:873
 #, c-format
 msgid "Property '%s' is invalid for %s"
 msgstr "Vlastnost '%s' je pro %s neplatná"
 
-#: ../katze/katze-utils.c:485 ../katze/katze-utils.c:514
+#: ../katze/katze-utils.c:485
+#: ../katze/katze-utils.c:514
 #: ../extensions/addons.c:308
 msgid "Choose file"
-msgstr "Vybrat soubor"
+msgstr "Zvolit soubor"
 
 #: ../katze/katze-utils.c:500
 msgid "Choose folder"
-msgstr "Vybrat adresář"
+msgstr "Zvolit složku"
 
 #: ../katze/katze-utils.c:604
 msgid "None"
@@ -2283,7 +2315,8 @@ msgstr "1 měsíci"
 msgid "1 year"
 msgstr "1 roce"
 
-#: ../katze/katze-preferences.c:91 ../extensions/history-list.vala:235
+#: ../katze/katze-preferences.c:91
+#: ../extensions/history-list.vala:235
 #, c-format
 msgid "Preferences for %s"
 msgstr "Nastavení pro %s"
@@ -2294,13 +2327,8 @@ msgstr "Nastavení filtrů blokování reklamy"
 
 #: ../extensions/adblock.c:498
 #, c-format
-msgid ""
-"Type the address of a preconfigured filter list in the text entry and click "
-"\"Add\" to add it to the list. You can find more lists at %s."
-msgstr ""
-"Vložte adresu předem připravených filtrů do textového pole a kliknutím na "
-"\"Přidat\" ji přidáte do seznamu. Více připravených filtrů naleznete na "
-"adrese %s."
+msgid "Type the address of a preconfigured filter list in the text entry and click \"Add\" to add it to the list. You can find more lists at %s."
+msgstr "Vložte adresu předem připravených filtrů do textového pole a kliknutím na tlačítko \"Přidat\" ji přidáte do seznamu. Více připravených filtrů naleznete na adrese %s."
 
 #: ../extensions/adblock.c:846
 msgid "Edit rule"
@@ -2324,14 +2352,12 @@ msgstr "Blokování reklamy"
 
 #: ../extensions/adblock.c:1543
 msgid "Block advertisements according to a filter list"
-msgstr "Blokuje reklamu podle filtrů"
+msgstr "Blokuvat reklamu podle seznamu filtrů"
 
 #. i18n: An infobar shows up when viewing a script on userscripts.org
 #: ../extensions/addons.c:221
 msgid "This page appears to contain a user script. Do you wish to install it?"
-msgstr ""
-"Vypadá to, že na právě prohlížené stránce je uživatelský skript. Má se "
-"spustit jeho instalace?"
+msgstr "Tato stránka obsahuje uživatelský skript. Chcete jej nainstalovat?"
 
 #: ../extensions/addons.c:222
 msgid "_Install user script"
@@ -2340,9 +2366,7 @@ msgstr "_Instalovat uživatelský skript"
 #. i18n: An infobar shows up when viewing a style on userstyles.org
 #: ../extensions/addons.c:227
 msgid "This page appears to contain a user style. Do you wish to install it?"
-msgstr ""
-"Vypadá to, že na právě prohlížené stránce je uživatelský styl. Má se spustit "
-"jeho instalace?"
+msgstr "Tato stránka obsahuje uživatelský styl. Chcete jej nainstalovat?"
 
 #: ../extensions/addons.c:228
 msgid "_Install user style"
@@ -2352,15 +2376,18 @@ msgstr "_Instalovat uživatelský styl"
 msgid "Don't install"
 msgstr "Neinstalovat"
 
-#: ../extensions/addons.c:319 ../extensions/addons.c:681
+#: ../extensions/addons.c:319
+#: ../extensions/addons.c:681
 msgid "Userscripts"
 msgstr "Uživatelské skripty"
 
-#: ../extensions/addons.c:324 ../extensions/addons.c:683
+#: ../extensions/addons.c:324
+#: ../extensions/addons.c:683
 msgid "Userstyles"
 msgstr "Uživatelské styly"
 
-#: ../extensions/addons.c:380 ../extensions/addons.c:459
+#: ../extensions/addons.c:380
+#: ../extensions/addons.c:459
 #: ../extensions/feed-panel/main.c:129
 msgid "Error"
 msgstr "Chyba"
@@ -2376,45 +2403,48 @@ msgstr "Smazat uživatelský skript"
 
 #: ../extensions/addons.c:428
 msgid "Delete user style"
-msgstr "Smazat uživatelův styl"
+msgstr "Smazat uživatelský styl"
 
 #: ../extensions/addons.c:431
 #, c-format
 msgid "The file <b>%s</b> will be permanently deleted."
 msgstr "Soubor <b>%s</b> bude smazán."
 
-#: ../extensions/addons.c:570 ../extensions/addons.c:647
+#: ../extensions/addons.c:570
+#: ../extensions/addons.c:647
 msgid "Open in Text Editor"
 msgstr "Otevřít v textovém editoru"
 
-#: ../extensions/addons.c:572 ../extensions/addons.c:656
+#: ../extensions/addons.c:572
+#: ../extensions/addons.c:656
 msgid "Open Target Folder"
 msgstr "Otevřít cílovou složku"
 
 #: ../extensions/addons.c:638
 msgid "Add new addon"
-msgstr "Přidat nový plugin"
+msgstr "Přidat nový zásuvný přídavek"
 
 #: ../extensions/addons.c:664
 msgid "Remove selected addon"
-msgstr "Odstranit vybraný plugin"
+msgstr "Odstranit vybraný přídavek"
 
-#: ../extensions/addons.c:1696 ../extensions/addons.c:1914
+#: ../extensions/addons.c:1696
+#: ../extensions/addons.c:1914
 msgid "User addons"
-msgstr "Uživatelova rozšíření"
+msgstr "Uživatelské přídavky"
 
 #: ../extensions/addons.c:1826
 #, c-format
 msgid "Can't monitor folder '%s': %s"
-msgstr "Nemohu sledovat složku '%s': %s"
+msgstr "Nelze sledovat složku '%s': %s"
 
 #: ../extensions/addons.c:1915
 msgid "Support for userscripts and userstyles"
-msgstr "Podpora pro userscripts a userstyles."
+msgstr "Podpora uživatelských skriptů a stylů."
 
 #: ../extensions/colorful-tabs.c:202
 msgid "Colorful Tabs"
-msgstr "Obarvené karty"
+msgstr "Barevné karty"
 
 #: ../extensions/colorful-tabs.c:203
 msgid "Tint each tab distinctly"
@@ -2430,12 +2460,8 @@ msgid "Delete All"
 msgstr "Smazat vše"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:105
-msgid ""
-"Deletes all shown cookies. If a filter is set, only those cookies are "
-"deleted which match the filter."
-msgstr ""
-"Smaže všechna zobrazená cookies. Jestliže je zapnut filtr, jsou smazána jen "
-"ta cookies, která odpovídají."
+msgid "Deletes all shown cookies. If a filter is set, only those cookies are deleted which match the filter."
+msgstr "Smaže všechna zobrazená cookies. Jestliže je zapnut filtr, jsou smazána jen ta cookies, která odpovídají."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:120
 msgid "Expand All"
@@ -2459,7 +2485,7 @@ msgstr "Budou smazána cookies, která odpovídají filtračnímu řetězci."
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:671
 msgid "At the end of the session"
-msgstr "Na konci sezení"
+msgstr "Na konci relace"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:674
 #, c-format
@@ -2512,16 +2538,12 @@ msgid "Filter:"
 msgstr "Filtr:"
 
 #: ../extensions/cookie-manager/cookie-manager-page.c:1144
-msgid ""
-"Enter a filter string to show only cookies whose name or domain field match "
-"the entered filter"
-msgstr ""
-"Vložte řetězec, podle kterého se budou cookies filtrovat. Filtruje se podle "
-"názvu nebo domény"
+msgid "Enter a filter string to show only cookies whose name or domain field match the entered filter"
+msgstr "Vložte řetězec, podle kterého se budou cookies filtrovat. Filtruje se podle názvu nebo domény"
 
 #: ../extensions/cookie-manager/main.c:36
 msgid "List, view and delete cookies"
-msgstr "Seznam, detaily a mazání cookies"
+msgstr "Seznam, prohlížení a mazání cookies"
 
 #: ../extensions/copy-tabs.c:38
 msgid "Copy Tab _Addresses"
@@ -2533,15 +2555,15 @@ msgstr "Zkopírovat adresy z karet"
 
 #: ../extensions/copy-tabs.c:96
 msgid "Copy the addresses of all tabs to the clipboard"
-msgstr "Zkopíruje adresy všech karet do schránky"
+msgstr "Zkopíruje do schránky adresy ze všech karet"
 
 #: ../extensions/feed-panel/feed-atom.c:209
 msgid "Failed to find required Atom \"entry\" elements in XML data."
-msgstr "Chyba při hledání vyžadované položky \"entry\" v XML datech."
+msgstr "Chyba při hledání vyžadované položky \"entry\" v datech XML."
 
 #: ../extensions/feed-panel/feed-atom.c:315
 msgid "Failed to find required Atom \"feed\" elements in XML data."
-msgstr "Chyba při hledání vyžadované položky \"feed\" v XML datech."
+msgstr "Chyba při hledání vyžadované položky \"feed\" v datech XML."
 
 #. i18n: The local date a feed was last updated
 #: ../extensions/feed-panel/feed-panel.c:387
@@ -2569,7 +2591,7 @@ msgstr "_Kanály"
 #: ../extensions/feed-panel/feed-parse.c:195
 #, c-format
 msgid "Failed to find root element in feed XML data."
-msgstr "Chyba při hledání kořenového elementu v XML datech."
+msgstr "Nalezení kořenového elementu v datech XML se nezdařilo."
 
 #: ../extensions/feed-panel/feed-parse.c:235
 #, c-format
@@ -2579,11 +2601,11 @@ msgstr "Nepodporovaný formát kanálu."
 #: ../extensions/feed-panel/feed-parse.c:265
 #, c-format
 msgid "Failed to parse XML feed: %s"
-msgstr "Nepodařilo se načíst XML kanál: %s"
+msgstr "Nepodařilo se zpracovat kanál XML: %s"
 
 #: ../extensions/feed-panel/feed-rss.c:46
 msgid "Failed to find \"channel\" element in RSS XML data."
-msgstr "Nepodařilo se najít element \"channel\" v RSS XML datech."
+msgstr "Nepodařilo se najít element \"channel\" v datech RSS XML."
 
 #: ../extensions/feed-panel/feed-rss.c:51
 msgid "Unsupported RSS version found."
@@ -2591,16 +2613,16 @@ msgstr "Nepodporovaná verze RSS."
 
 #: ../extensions/feed-panel/feed-rss.c:148
 msgid "Failed to find required RSS \"item\" elements in XML data."
-msgstr "Nepodařilo se najít požadovaný element \"item\" v XML datech."
+msgstr "Nepodařilo se najít požadovaný element RSS \"item\" v datech XML."
 
 #: ../extensions/feed-panel/feed-rss.c:248
 msgid "Failed to find required RSS \"channel\" elements in XML data."
-msgstr "Nepodařilo se najít požadovaný element \"channel\" v XML datech."
+msgstr "Nepodařilo se najít požadovaný element RSS \"channel\" v datech XML."
 
 #: ../extensions/feed-panel/main.c:131
 #, c-format
 msgid "Feed '%s' already exists"
-msgstr "Kanál '%s' byl již přidán"
+msgstr "Kanál '%s' již existuje"
 
 #: ../extensions/feed-panel/main.c:208
 #, c-format
@@ -2622,15 +2644,15 @@ msgstr "Nepodařilo se přidat položku formuláře: %s\n"
 
 #: ../extensions/formhistory/formhistory.c:96
 msgid "Form history"
-msgstr "Formulářová historie"
+msgstr "Historie formuláře"
 
 #: ../extensions/formhistory/formhistory.c:113
 msgid ""
 "Master password required\n"
 "to open password database"
 msgstr ""
-"Pro otevření je zapotřebí\n"
-"zadat hlavní heslo"
+"Pro otevření databáze hesel je\n"
+"zapotřebí zadat hlavní heslo"
 
 #: ../extensions/formhistory/formhistory.c:289
 msgid "Remember password on this page?"
@@ -2646,33 +2668,33 @@ msgstr "Nyní ne"
 
 #: ../extensions/formhistory/formhistory.c:296
 msgid "Never for this page"
-msgstr "Nikdy"
+msgstr "Nikdy pro tuto stránku"
 
 #: ../extensions/formhistory/formhistory.c:426
 msgid "Toggle form history state"
-msgstr "Přepnout stav pamatování formulářových dat"
+msgstr "Přepnout stav historie formulářových dat"
 
 #: ../extensions/formhistory/formhistory.c:427
 msgid "Activate or deactivate form history for the current tab."
-msgstr "Zapnout, nebo vypnout pamatování formulářových dat pro aktivní kartu"
+msgstr "Zapnout, nebo vypnout historii formulářových dat pro aktivní kartu"
 
-#: ../extensions/formhistory/formhistory.c:540
 #: ../extensions/formhistory/formhistory.c:544
+#: ../extensions/formhistory/formhistory.c:548
 #, c-format
 msgid "Failed to execute database statement: %s\n"
 msgstr "Nepodařilo se spustit databázový příkaz: %s\n"
 
-#: ../extensions/formhistory/formhistory.c:620
+#: ../extensions/formhistory/formhistory.c:624
 msgid "Only activate form history via hotkey (Ctrl+Shift+F) per tab"
 msgstr "Pamatování formulářové historie zapnout pomocí kláves (Ctrl+Shitf+F)"
 
-#: ../extensions/formhistory/formhistory.c:659
+#: ../extensions/formhistory/formhistory.c:663
 msgid "Form history filler"
 msgstr "Ukládání hodnot ve formuláři"
 
-#: ../extensions/formhistory/formhistory.c:660
+#: ../extensions/formhistory/formhistory.c:664
 msgid "Stores history of entered form data"
-msgstr "Ukládat historii hodnot vložených do formuláře"
+msgstr "Ukládá historii dat vložených do formulářů"
 
 #: ../extensions/formhistory/formhistory-gdom-frontend.c:225
 #: ../extensions/formhistory/formhistory-js-frontend.c:106
@@ -2699,11 +2721,11 @@ msgstr "nedělat nic"
 
 #: ../extensions/history-list.vala:289
 msgid "Switch to last viewed tab"
-msgstr "Přepnout na poslední prohlíženou kartu"
+msgstr "přepnout na poslední prohlíženou kartu"
 
 #: ../extensions/history-list.vala:295
 msgid "Switch to newest tab"
-msgstr "přepnout na naposledy přidanou"
+msgstr "přepnout na naposledy přidanou kartu"
 
 #: ../extensions/history-list.vala:423
 msgid "Next new Tab (History List)"
@@ -2715,7 +2737,7 @@ msgstr "Zvolí další novou kartu z historie"
 
 #: ../extensions/history-list.vala:433
 msgid "Previous new Tab (History List)"
-msgstr "Předchozí nová karta (v historii)"
+msgstr "Předchozí nová karta (v seznamu historie)"
 
 #: ../extensions/history-list.vala:434
 msgid "Previous new tab from history"
@@ -2723,15 +2745,15 @@ msgstr "Zvolí předchozí novou kartu z historie"
 
 #: ../extensions/history-list.vala:443
 msgid "Display tab in background (History List)"
-msgstr "Zobrazit kartu na pozadí (Historie)"
+msgstr "Zobrazit kartu na pozadí (Seznam historie)"
 
 #: ../extensions/history-list.vala:444
 msgid "Display the current selected tab in background"
-msgstr "Zobrazí vybranou kartu na pozadí (nepřepne na ni)"
+msgstr "Zobrazí vybranou kartu na pozadí"
 
 #: ../extensions/history-list.vala:569
 msgid "History List"
-msgstr "Historie"
+msgstr "Seznam historie"
 
 #: ../extensions/history-list.vala:570
 msgid "Move to the last used tab when switching or closing tabs"
@@ -2743,7 +2765,7 @@ msgstr "Gesta myší"
 
 #: ../extensions/mouse-gestures.c:302
 msgid "Control Midori by moving the mouse"
-msgstr "Ovládat Midori pomocí myši"
+msgstr "Ovládat aplikaci Midori pomocí myši"
 
 #: ../extensions/shortcuts.c:109
 msgid "Reload page or stop loading"
@@ -2751,17 +2773,17 @@ msgstr "Znovu načíst stránku, nebo načítání zastavit"
 
 #: ../extensions/shortcuts.c:176
 msgid "Customize Keyboard shortcuts"
-msgstr "Nastavení klávesových zkratek"
+msgstr "Přizpůsobení klávesových zkratek"
 
-#: ../extensions/shortcuts.c:285
+#: ../extensions/shortcuts.c:283
 msgid "Customize Sh_ortcuts..."
-msgstr "Nastavení klávesových _zkratek..."
+msgstr "Přizpůsobení klávesových _zkratek..."
 
-#: ../extensions/shortcuts.c:322
+#: ../extensions/shortcuts.c:320
 msgid "Shortcuts"
-msgstr "Zkratky"
+msgstr "Klávesové zkratky"
 
-#: ../extensions/shortcuts.c:323
+#: ../extensions/shortcuts.c:321
 msgid "View and edit keyboard shortcuts"
 msgstr "Zobrazí a umožní změnu klávesových zkratek"
 
@@ -2783,7 +2805,7 @@ msgstr "Uživatelské skripty"
 
 #: ../extensions/statusbar-features.c:146
 msgid "Netscape plugins"
-msgstr "Netscape pluginy"
+msgstr "Zásuvné moduly aplikace Netscape"
 
 #: ../extensions/statusbar-features.c:193
 msgid "Statusbar Features"
@@ -2793,7 +2815,8 @@ msgstr "Rozšíření stavové lišty"
 msgid "Easily toggle features on web pages on and off"
 msgstr "Jednoduše zapíná a vypíná rozšíření webových stránek"
 
-#: ../extensions/tab-panel.c:596 ../extensions/tab-panel.c:683
+#: ../extensions/tab-panel.c:596
+#: ../extensions/tab-panel.c:683
 msgid "Tab Panel"
 msgstr "Panel karet"
 
@@ -2803,26 +2826,23 @@ msgstr "Panel _karet"
 
 #: ../extensions/tab-panel.c:684
 msgid "Show tabs in a vertical panel"
-msgstr "Zobrazí karty ve vertikálním panelu"
+msgstr "Zobrazí karty ve svislém panelu"
 
 #: ../extensions/tabs-minimized.c:76
 msgid "Only Icons on Tabs by default"
-msgstr "Na kartách zobrazovat jen ikony"
+msgstr "Ve výchozím stavu na kartách zobrazovat pouze ikony "
 
 #: ../extensions/tabs-minimized.c:77
 msgid "New tabs have no label by default"
-msgstr "Nové karty nebudou mít popisek"
+msgstr "Nové karty nebudou mít ve výchozím stavu popisek"
 
 #: ../extensions/toolbar-editor.c:393
 msgid "Customize Toolbar"
-msgstr "Upravit lištu"
+msgstr "Upravit panel nástrojů"
 
 #: ../extensions/toolbar-editor.c:413
-msgid ""
-"Select items to be displayed on the toolbar. Items can be reodered by drag "
-"and drop."
-msgstr ""
-"Vybrané položky se zobrazí na liště. Změnu pořadí provedete přetažením."
+msgid "Select items to be displayed on the toolbar. Items can be reodered by drag and drop."
+msgstr "Vybrané položky se zobrazí na panelu nástrojů. Změnu pořadí položek provedete přetažením."
 
 #: ../extensions/toolbar-editor.c:429
 msgid "Available Items"
@@ -2834,7 +2854,7 @@ msgstr "Zobrazené položky"
 
 #: ../extensions/toolbar-editor.c:585
 msgid "Customize _Toolbar..."
-msgstr "Upravit _lištu..."
+msgstr "Upravit pane_l nástrojů..."
 
 #: ../extensions/toolbar-editor.c:601
 msgid "_Customize..."
@@ -2842,15 +2862,15 @@ msgstr "_Vlastní..."
 
 #: ../extensions/toolbar-editor.c:631
 msgid "Toolbar Editor"
-msgstr "Editor lišty"
+msgstr "Editor panelu nástrojů"
 
 #: ../extensions/toolbar-editor.c:632
 msgid "Easily edit the toolbar layout"
-msgstr "Umožňuje jednoduše změnit lištu"
+msgstr "Umožňuje jednoduše změnit rozvržení panelu nástrojů"
 
 #: ../extensions/web-cache.c:463
 msgid "Cache HTTP communication on disk"
-msgstr "Kešuje (ukládá) HTTP komunikaci na disk"
+msgstr "Ukládá komunikaci HTTP do diskové mezipaměti"
 
 #~ msgid "Lightweight web browser"
 #~ msgstr "Odlehčený prohlížeč"
