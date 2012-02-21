@@ -408,21 +408,39 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     }
 }
 
-static void
-katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
-                                        KatzeArrayAction* array_action)
+static gboolean
+katze_array_action_menu_item_need_update (KatzeArrayAction* array_action,
+                                          GtkWidget*        proxy)
 {
     GtkWidget* menu;
     KatzeArray* array;
+    gint last_array_update, last_proxy_update;
     gboolean handled;
+
+    array = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
+    /* last-update is set on all arrays; consider public API */
+    last_array_update = GPOINTER_TO_INT (
+        g_object_get_data (G_OBJECT (array), "last-update"));
+    last_proxy_update = GPOINTER_TO_INT (
+        g_object_get_data (G_OBJECT (proxy), "last-update"));
+    if (last_proxy_update >= last_array_update)
+        return FALSE;
 
     menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy));
     gtk_container_foreach (GTK_CONTAINER (menu),
         (GtkCallback)(gtk_widget_destroy), NULL);
-
-    array = g_object_get_data (G_OBJECT (proxy), "KatzeItem");
     katze_array_action_generate_menu (array_action, array, GTK_MENU_SHELL (menu), proxy);
     g_signal_emit (array_action, signals[POPULATE_FOLDER], 0, menu, array, &handled);
+    g_object_set_data (G_OBJECT (proxy), "last-update",
+                       GINT_TO_POINTER (time (NULL)));
+    return TRUE;
+}
+
+static void
+katze_array_action_menu_item_select_cb (GtkWidget*        proxy,
+                                        KatzeArrayAction* array_action)
+{
+    katze_array_action_menu_item_need_update (array_action, proxy);
 }
 
 static void
@@ -448,13 +466,15 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     if (GTK_IS_MENU_ITEM (proxy))
     {
         g_object_set_data (G_OBJECT (proxy), "KatzeItem", array_action->array);
-        katze_array_action_menu_item_select_cb (proxy, array_action);
-        g_signal_emit (array_action, signals[POPULATE_FOLDER], 0,
-                       gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)),
-                       array_action->array, &handled);
-        if (!handled)
-            g_signal_emit (array_action, signals[POPULATE_POPUP], 0,
-                gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)));
+        if (katze_array_action_menu_item_need_update (array_action, proxy))
+        {
+            g_signal_emit (array_action, signals[POPULATE_FOLDER], 0,
+                           gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)),
+                           array_action->array, &handled);
+            if (!handled)
+                g_signal_emit (array_action, signals[POPULATE_POPUP], 0,
+                    gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)));
+        }
         return;
     }
 
@@ -711,8 +731,9 @@ katze_array_action_connect_proxy (GtkAction* action,
     else if (GTK_IS_MENU_ITEM (proxy))
     {
         gtk_menu_item_set_submenu (GTK_MENU_ITEM (proxy), gtk_menu_new ());
-        /* FIXME: 'select' doesn't cover all ways of selection */
         g_signal_connect (proxy, "select",
+            G_CALLBACK (katze_array_action_proxy_clicked_cb), action);
+        g_signal_connect (proxy, "activate",
             G_CALLBACK (katze_array_action_proxy_clicked_cb), action);
     }
 }

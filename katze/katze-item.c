@@ -315,6 +315,8 @@ katze_item_set_name (KatzeItem*   item,
     g_return_if_fail (KATZE_IS_ITEM (item));
 
     katze_assign (item->name, g_strdup (name));
+    if (item->parent)
+        katze_array_update ((KatzeArray*)item->parent);
     g_object_notify (G_OBJECT (item), "name");
 }
 
@@ -414,6 +416,8 @@ katze_item_set_icon (KatzeItem*   item,
     g_return_if_fail (KATZE_IS_ITEM (item));
 
     katze_item_set_meta_string (item, "icon", icon);
+    if (item->parent)
+        katze_array_update ((KatzeArray*)item->parent);
     g_object_notify (G_OBJECT (item), "icon");
 }
 

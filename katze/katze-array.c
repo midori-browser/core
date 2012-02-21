@@ -84,6 +84,8 @@ _katze_array_add_item (KatzeArray* array,
         katze_item_set_parent (item, array);
 
     array->items = g_list_append (array->items, item);
+    g_object_set_data (G_OBJECT (array), "last-update",
+                       GINT_TO_POINTER (time (NULL)));
 }
 
 static void
@@ -95,6 +97,8 @@ _katze_array_remove_item (KatzeArray* array,
     if (KATZE_IS_ITEM (item))
         katze_item_set_parent (item, NULL);
     g_object_unref (item);
+    g_object_set_data (G_OBJECT (array), "last-update",
+                       GINT_TO_POINTER (time (NULL)));
 }
 
 static void
@@ -104,6 +108,8 @@ _katze_array_move_item (KatzeArray* array,
 {
     array->items = g_list_remove (array->items, item);
     array->items = g_list_insert (array->items, item, position);
+    g_object_set_data (G_OBJECT (array), "last-update",
+                       GINT_TO_POINTER (time (NULL)));
 }
 
 static void
@@ -115,6 +121,15 @@ _katze_array_clear (KatzeArray* array)
         g_signal_emit (array, signals[REMOVE_ITEM], 0, item);
     g_list_free (array->items);
     array->items = NULL;
+    g_object_set_data (G_OBJECT (array), "last-update",
+                       GINT_TO_POINTER (time (NULL)));
+}
+
+static void
+_katze_array_update (KatzeArray* array)
+{
+    g_object_set_data (G_OBJECT (array), "last-update",
+                       GINT_TO_POINTER (time (NULL)));
 }
 
 static void
@@ -192,7 +207,7 @@ katze_array_class_init (KatzeArrayClass* class)
         "update",
         G_TYPE_FROM_CLASS (class),
         (GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
-        0,
+        G_STRUCT_OFFSET (KatzeArrayClass, update),
         0,
         NULL,
         g_cclosure_marshal_VOID__VOID,
@@ -205,6 +220,7 @@ katze_array_class_init (KatzeArrayClass* class)
     class->remove_item = _katze_array_remove_item;
     class->move_item = _katze_array_move_item;
     class->clear = _katze_array_clear;
+    class->update = _katze_array_update;
 }
 
 static void
