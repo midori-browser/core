@@ -48,11 +48,10 @@ colorful_tabs_view_notify_uri_cb (MidoriView*      view,
 
     if (!midori_uri_is_blank (midori_view_get_display_uri (view))
       && (hostname = midori_uri_parse_hostname (midori_view_get_display_uri (view), NULL))
-      && katze_object_get_enum (view, "load-status") == MIDORI_LOAD_FINISHED)
+      && midori_view_get_icon_uri (view) != NULL)
     {
         icon = midori_view_get_icon (view);
-
-        if (midori_view_get_icon_uri (view) != NULL)
+        if (icon != NULL)
         {
             GdkPixbuf* newpix;
             guchar* pixels;
