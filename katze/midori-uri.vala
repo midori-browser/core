@@ -85,6 +85,9 @@ namespace Midori {
             if (uri == null)
                 return keywords;
             string escaped = GLib.Uri.escape_string (keywords, ":/", true);
+            /* Allow DuckDuckGo to distinguish Midori and in turn share revenue */
+            if (uri == "https://duckduckgo.com/?q=%s")
+                return "https://duckduckgo.com/?q=%s&t=midori".printf (escaped);
             if (uri.str ("%s") != null)
                 return uri.printf (escaped);
             return uri + escaped;
