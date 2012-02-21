@@ -444,7 +444,7 @@ katze_item_get_image (KatzeItem* item)
         image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
     else
     {
-        if (!(pixbuf = katze_load_cached_icon (icon, NULL)))
+        if (!(icon && (pixbuf = katze_load_cached_icon (icon, NULL))))
             pixbuf = katze_load_cached_icon (item->uri, NULL);
         if (pixbuf)
         {
