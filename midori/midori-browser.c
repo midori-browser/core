@@ -61,7 +61,6 @@ struct _MidoriBrowser
 
     GtkActionGroup* action_group;
     GtkWidget* menubar;
-    GtkWidget* menu_tools;
     GtkWidget* throbber;
     GtkWidget* navigationbar;
     GtkWidget* bookmarkbar;
@@ -3166,6 +3165,19 @@ _action_preferences_activate (GtkAction*     action,
         gtk_window_present (GTK_WINDOW (dialog));
 }
 
+static gboolean
+midori_browser_has_native_menubar (void)
+{
+    #if HAVE_HILDON
+    return TRUE;
+    #else
+    static const gchar* ubuntu_menuproxy = NULL;
+    if (ubuntu_menuproxy == NULL)
+        ubuntu_menuproxy = g_getenv ("UBUNTU_MENUPROXY");
+    return ubuntu_menuproxy && strstr (ubuntu_menuproxy, ".so") != NULL;
+    #endif
+}
+
 static void
 _action_menubar_activate (GtkToggleAction* menubar_action,
                           MidoriBrowser*   browser)
@@ -3175,6 +3187,9 @@ _action_menubar_activate (GtkToggleAction* menubar_action,
     GString* toolbar_items;
     GList* children;
     gchar* items;
+
+    if (midori_browser_has_native_menubar ())
+        active = FALSE;
 
     toolbar_items = g_string_new (NULL);
     children = gtk_container_get_children (GTK_CONTAINER (browser->navigationbar));
@@ -4969,8 +4984,7 @@ midori_browser_notebook_create_window_cb (GtkNotebook*   notebook,
     g_signal_emit (browser, signals[NEW_WINDOW], 0, NULL, &new_browser);
     if (new_browser)
     {
-        GtkWidget* new_notebook = katze_object_get_object (new_browser, "notebook");
-        g_object_unref (new_notebook);
+        GtkWidget* new_notebook = new_browser->notebook;
         gtk_window_move (GTK_WINDOW (new_browser), x, y);
         return new_notebook;
     }
@@ -5979,8 +5993,8 @@ midori_browser_init (MidoriBrowser* browser)
     browser->menubar = gtk_ui_manager_get_widget (ui_manager, "/menubar");
     gtk_box_pack_start (GTK_BOX (vbox), browser->menubar, FALSE, FALSE, 0);
     gtk_widget_hide (browser->menubar);
+    _action_set_visible (browser, "Menubar", !midori_browser_has_native_menubar ());
     #if HAVE_HILDON
-    _action_set_visible (browser, "Menubar", FALSE);
     #if HILDON_CHECK_VERSION (2, 2, 0)
     browser->menubar = hildon_app_menu_new ();
     _action_compact_menu_populate_popup (NULL, browser->menubar, browser);
@@ -6011,7 +6025,6 @@ midori_browser_init (MidoriBrowser* browser)
     #endif
     gtk_menu_shell_append (GTK_MENU_SHELL (browser->menubar), menuitem);
     #endif
-    browser->menu_tools = gtk_menu_new ();
 
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (
         gtk_ui_manager_get_widget (ui_manager, "/menubar/File/WindowNew")), NULL);
