@@ -5798,6 +5798,7 @@ midori_browser_init (MidoriBrowser* browser)
     GtkWidget* vpaned;
     GtkRcStyle* rcstyle;
     GtkWidget* scrolled;
+    KatzeArray* dummy_array;
 
     browser->settings = midori_web_settings_new ();
     browser->proxy_array = katze_array_new (KATZE_TYPE_ARRAY);
@@ -5928,12 +5929,14 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
 
+    dummy_array = katze_array_new (KATZE_TYPE_ARRAY);
+    katze_array_update (dummy_array);
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Bookmarks",
         "label", _("_Bookmarks"),
         "stock-id", STOCK_BOOKMARKS,
         "tooltip", _("Show the saved bookmarks"),
-        "array", browser->proxy_array, /* Use a non-empty array here */
+        "array", dummy_array /* updated, unique */,
         NULL);
     g_object_connect (action,
                       "signal::populate-folder",
@@ -5943,12 +5946,15 @@ midori_browser_init (MidoriBrowser* browser)
                       NULL);
     gtk_action_group_add_action_with_accel (browser->action_group, action, "");
     g_object_unref (action);
+    g_object_unref (dummy_array);
 
+    dummy_array = katze_array_new (KATZE_TYPE_ITEM);
+    katze_array_update (dummy_array);
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Tools",
         "label", _("_Tools"),
         "stock-id", GTK_STOCK_PREFERENCES,
-        "array", katze_array_new (KATZE_TYPE_ITEM),
+        "array", dummy_array /* updated, unique */,
         NULL);
     g_object_connect (action,
                       "signal::populate-popup",
@@ -5958,6 +5964,7 @@ midori_browser_init (MidoriBrowser* browser)
                       NULL);
     gtk_action_group_add_action (browser->action_group, action);
     g_object_unref (action);
+    g_object_unref (dummy_array);
 
     action = g_object_new (KATZE_TYPE_ARRAY_ACTION,
         "name", "Window",
