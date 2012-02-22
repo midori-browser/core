@@ -435,7 +435,7 @@ katze_array_action_menu_item_need_update (KatzeArrayAction* array_action,
         g_object_get_data (G_OBJECT (array), "last-update"));
     last_proxy_update = GPOINTER_TO_INT (
         g_object_get_data (G_OBJECT (proxy), "last-update"));
-    if (last_proxy_update >= last_array_update)
+    if (last_proxy_update > last_array_update)
         return FALSE;
 
     menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy));
