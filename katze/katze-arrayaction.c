@@ -358,6 +358,13 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
     GtkWidget* image;
     GtkWidget* submenu;
 
+    g_return_if_fail (KATZE_IS_ARRAY_ACTION (array_action));
+    g_return_if_fail (KATZE_IS_ITEM (array));
+    g_return_if_fail (GTK_IS_MENU_SHELL (menu));
+    g_return_if_fail (GTK_IS_TOOL_ITEM (proxy)
+                   || GTK_IS_MENU_ITEM (proxy)
+                   || GTK_IS_WINDOW (proxy));
+
     if (!KATZE_IS_ARRAY (array))
         return;
 
@@ -393,7 +400,12 @@ katze_array_action_generate_menu (KatzeArrayAction* array_action,
         {
             submenu = gtk_menu_new ();
             gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), submenu);
+            /* Make sure menu appears to contain items */
+            gtk_menu_shell_append (GTK_MENU_SHELL (submenu),
+                gtk_separator_menu_item_new ());
             g_signal_connect (menuitem, "select",
+                G_CALLBACK (katze_array_action_menu_item_select_cb), array_action);
+            g_signal_connect (menuitem, "activate",
                 G_CALLBACK (katze_array_action_menu_item_select_cb), array_action);
         }
         else
@@ -463,14 +475,14 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
     KatzeArray* array;
     gboolean handled = FALSE;
 
+    array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeItem");
     if (GTK_IS_MENU_ITEM (proxy))
     {
-        g_object_set_data (G_OBJECT (proxy), "KatzeItem", array_action->array);
         if (katze_array_action_menu_item_need_update (array_action, proxy))
         {
             g_signal_emit (array_action, signals[POPULATE_FOLDER], 0,
                            gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)),
-                           array_action->array, &handled);
+                           array, &handled);
             if (!handled)
                 g_signal_emit (array_action, signals[POPULATE_POPUP], 0,
                     gtk_menu_item_get_submenu (GTK_MENU_ITEM (proxy)));
@@ -478,7 +490,6 @@ katze_array_action_proxy_clicked_cb (GtkWidget*        proxy,
         return;
     }
 
-    array = (KatzeArray*)g_object_get_data (G_OBJECT (proxy), "KatzeArray");
     if (KATZE_IS_ITEM (array) && katze_item_get_uri ((KatzeItem*)array))
     {
         katze_array_action_activate_item (array_action, KATZE_ITEM (array), 1);
@@ -720,6 +731,9 @@ static void
 katze_array_action_connect_proxy (GtkAction* action,
                                   GtkWidget* proxy)
 {
+    KatzeArrayAction* array_action = KATZE_ARRAY_ACTION (action);
+    g_object_set_data (G_OBJECT (proxy), "KatzeItem", array_action->array);
+
     GTK_ACTION_CLASS (katze_array_action_parent_class)->connect_proxy (
         action, proxy);
 
