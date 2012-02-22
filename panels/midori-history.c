@@ -149,21 +149,21 @@ midori_history_format_date (KatzeItem *item)
     #if GLIB_CHECK_VERSION (2, 26, 0)
     GDateTime* now = g_date_time_new_now_local ();
     GDateTime* then = g_date_time_new_from_unix_local (day);
-    if (g_date_time_get_day_of_month (then) == g_date_time_get_day_of_month (now))
+    age = g_date_time_get_day_of_year (now) - g_date_time_get_day_of_year (then);
+    if (g_date_time_get_year (now) != g_date_time_get_year (then))
+        age = 999;
+
+    if (age == 0)
         sdate = g_strdup (_("Today"));
-    else if (g_date_time_get_day_of_year (then) == g_date_time_get_day_of_year (now) - 1)
+    else if (age == 1)
         sdate = g_strdup (_("Yesterday"));
+    else if (age < 7)
+        sdate = g_strdup_printf (ngettext ("%d day ago",
+            "%d days ago", (gint)age), (gint)age);
+    else if (age == 7)
+        sdate = g_strdup (_("A week ago"));
     else
-    {
-        age = g_date_time_get_day_of_year (now) - g_date_time_get_day_of_year (then);
-        if (age < 7)
-            sdate = g_strdup_printf (ngettext ("%d day ago",
-                "%d days ago", (gint)age), (gint)age);
-        else if (age == 7)
-            sdate = g_strdup (_("A week ago"));
-        else
-            sdate = g_date_time_format (then, "%x");
-    }
+        sdate = g_date_time_format (then, "%x");
     #else
     gchar token[50];
     time_t current_time;
@@ -468,6 +468,10 @@ midori_history_add_item_cb (KatzeArray*    array,
         has_today = g_date_time_get_day_of_month (
             g_date_time_new_from_unix_local (day))
          == g_date_time_get_day_of_month (
+            g_date_time_new_from_unix_local (current_time))
+        && g_date_time_get_day_of_year (
+            g_date_time_new_from_unix_local (day))
+         == g_date_time_get_day_of_year (
             g_date_time_new_from_unix_local (current_time));
         #else
         has_today = sokoke_days_between ((time_t*)&day, &current_time) == 0;
