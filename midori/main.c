@@ -2000,6 +2000,9 @@ main (int    argc,
     else
         g_set_application_name (_("Midori"));
 
+    /* Versioned prgname to override menuproxy blacklist */
+    g_set_prgname (PACKAGE_NAME "4");
+
     if (version)
     {
         g_print (
