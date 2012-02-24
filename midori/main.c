@@ -1721,31 +1721,17 @@ midori_setup_inactivity_reset (MidoriBrowser* browser,
 }
 
 static void
-midori_clear_page_icons_cb (void)
-{
-    gchar* cache = g_build_filename (g_get_user_cache_dir (),
-                                     PACKAGE_NAME, "icons", NULL);
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    cache = g_build_filename (g_get_user_data_dir (),
-                              "webkit", "icondatabase", NULL);
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-}
-
-static void
 midori_clear_web_cookies_cb (void)
 {
     SoupSession* session = webkit_get_default_session ();
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
     SoupSessionFeature* feature;
+    gchar* cache;
 
+    /* HTTP Cookies/ Web Cookies */
     for (; cookies != NULL; cookies = g_slist_next (cookies))
-    {
-        SoupCookie* cookie = cookies->data;
-        soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookie);
-    }
+        soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookies->data);
     soup_cookies_free (cookies);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
     if ((feature = soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES)))
@@ -1755,18 +1741,24 @@ midori_clear_web_cookies_cb (void)
         soup_session_add_feature (session, feature);
         g_object_unref (feature);
     }
-}
 
-#ifdef GDK_WINDOWING_X11
-static void
-midori_clear_flash_cookies_cb (void)
-{
-    gchar* cache = g_build_filename (g_get_home_dir (), ".macromedia",
-                                     "Flash_Player", NULL);
+    /* Local shared objects/ Flash cookies */
+    #ifdef GDK_WINDOWING_X11
+    cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
+    #endif
+
+    /* HTML5 databases */
+    webkit_remove_all_web_databases ();
+
+    /* HTML5 offline application caches */
+    #if WEBKIT_CHECK_VERSION (1, 3, 13)
+    /* Changing the size implies clearing the cache */
+    webkit_application_cache_set_maximum_size (
+        webkit_application_cache_get_maximum_size () - 1);
+    #endif
 }
-#endif
 
 static void
 midori_clear_saved_logins_cb (void)
@@ -1786,34 +1778,29 @@ midori_clear_saved_logins_cb (void)
 }
 
 static void
-midori_clear_html5_databases_cb (void)
-{
-    webkit_remove_all_web_databases ();
-}
-
-#if WEBKIT_CHECK_VERSION (1, 3, 11)
-static void
 midori_clear_web_cache_cb (void)
 {
+    gchar* cache = g_build_filename (g_get_user_cache_dir (),
+                                     PACKAGE_NAME, "icons", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+    cache = g_build_filename (g_get_user_data_dir (),
+                              "webkit", "icondatabase", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+
+    #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    {
     SoupSession* session = webkit_get_default_session ();
     SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
-    gchar* path = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "web", NULL);
+    cache = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "web", NULL);
     soup_cache_clear (SOUP_CACHE (feature));
     soup_cache_flush (SOUP_CACHE (feature));
-    sokoke_remove_path (path, TRUE);
-    g_free (path);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+    }
+    #endif
 }
-#endif
-
-#if WEBKIT_CHECK_VERSION (1, 3, 13)
-static void
-midori_clear_offline_appcache_cb (void)
-{
-    /* Changing the size implies clearing the cache */
-    unsigned long long maximum = webkit_application_cache_get_maximum_size ();
-    webkit_application_cache_set_maximum_size (maximum - 1);
-}
-#endif
 
 static void
 midori_log_to_file (const gchar*   log_domain,
@@ -2098,24 +2085,17 @@ main (int    argc,
         g_log_set_default_handler (midori_log_to_file, (gpointer)logfile);
     }
 
-    sokoke_register_privacy_item ("page-icons", _("Website icons"),
-        G_CALLBACK (midori_clear_page_icons_cb));
     /* i18n: Logins and passwords in websites and web forms */
     sokoke_register_privacy_item ("formhistory", _("Saved logins and _passwords"),
         G_CALLBACK (midori_clear_saved_logins_cb));
-    sokoke_register_privacy_item ("web-cookies", _("Cookies"),
+    sokoke_register_privacy_item ("web-cookies", _("Cookies and Website data"),
         G_CALLBACK (midori_clear_web_cookies_cb));
-    #ifdef GDK_WINDOWING_X11
-    sokoke_register_privacy_item ("flash-cookies", _("'Flash' Cookies"),
-        G_CALLBACK (midori_clear_flash_cookies_cb));
-    #endif
-    sokoke_register_privacy_item ("html5-databases", _("HTML5 _Databases"),
-        G_CALLBACK (midori_clear_html5_databases_cb));
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
     sokoke_register_privacy_item ("web-cache", _("Web Cache"),
         G_CALLBACK (midori_clear_web_cache_cb));
-    sokoke_register_privacy_item ("offline-appcache", _("Offline Application Cache"),
-        G_CALLBACK (midori_clear_offline_appcache_cb));
+    #else
+    sokoke_register_privacy_item ("page-icons", _("Website icons"),
+        G_CALLBACK (midori_clear_web_cache_cb));
     #endif
 
     /* Web Application or Private Browsing support */
