@@ -1747,6 +1747,15 @@ midori_clear_web_cookies_cb (void)
     cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
+    #elif defined(GDK_WINDOWING_WIN32)
+    cache = g_build_filename (g_get_user_data_dir (), "Macromedia", "Flash Player", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+    #elif defined(GDK_WINDOWING_QUARTZ)
+    cache = g_build_filename (g_get_home_dir (), "Library", "Preferences",
+                              "Macromedia", "Flash Player", NULL);
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
     #endif
 
     /* HTML5 databases */
