@@ -13,6 +13,7 @@
 #include "midori-websettings.h"
 
 #include "sokoke.h"
+#include <midori/midori-core.h> /* Vala API */
 
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
@@ -85,6 +86,7 @@ struct _MidoriWebSettings
 
     gint clear_private_data;
     gchar* clear_data;
+    gchar* site_data_rules;
     #if !WEBKIT_CHECK_VERSION (1, 3, 13)
     gboolean enable_dns_prefetching;
     #endif
@@ -174,6 +176,7 @@ enum
 
     PROP_CLEAR_PRIVATE_DATA,
     PROP_CLEAR_DATA,
+    PROP_SITE_DATA_RULES,
     PROP_ENABLE_DNS_PREFETCHING,
     PROP_STRIP_REFERER,
     PROP_ENFORCE_FONT_FAMILY,
@@ -1027,6 +1030,22 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      _("The data selected for deletion"),
                                      NULL,
                                      flags));
+    /**
+     * MidoriWebSettings:site-data-rules:
+     *
+     * Rules for accepting, denying and preserving cookies and other data.
+     * See midori_web_settings_get_site_data_policy() for details.
+     *
+     * Since: 0.4.4
+     */
+    g_object_class_install_property (gobject_class,
+                                     PROP_SITE_DATA_RULES,
+                                     g_param_spec_string (
+                                     "site-data-rules",
+        "Rules for accepting, denying and preserving cookies and other data",
+        "Cookies, HTML5 databases, local storage and application cache blocking",
+                                     NULL,
+                                     flags));
     #if !WEBKIT_CHECK_VERSION (1, 3, 13)
     /**
      * MidoriWebSettings:enable-dns-prefetching:
@@ -1204,6 +1223,45 @@ midori_web_settings_has_plugin_support (void)
     return g_getenv ("MIDORI_UNARMED") == NULL
         && g_strcmp0 (g_getenv ("MOZ_PLUGIN_PATH"), "/");
     #endif
+}
+
+/**
+ * midori_web_settings_get_site_data_policy:
+ *
+ * Tests if @uri may store site data.
+ *
+ * Returns: a #MidoriSiteDataPolicy
+ *
+ * Since: 0.4.4
+ **/
+MidoriSiteDataPolicy
+midori_web_settings_get_site_data_policy (MidoriWebSettings* settings,
+                                          const gchar*       uri)
+{
+    /*
+     * Values prefixed with "-" are always blocked
+     * Values prefixed with "+" are always accepted
+     * Values prefixed with "!" are not cleared in Clear Private Data
+     * FIXME: "*" is a wildcard
+     * FIXME: indicate type of storage the rule applies to
+     * FIXME: support matching of the whole URI
+     **/
+    MidoriSiteDataPolicy policy = MIDORI_SITE_DATA_UNDETERMINED;
+    gchar* hostname = midori_uri_parse_hostname (uri, NULL);
+    const gchar* match = strstr (settings->site_data_rules, hostname ? hostname : uri);
+    if (match != NULL && match != settings->site_data_rules)
+    {
+        const gchar* prefix = match - 1;
+        if (*prefix == '-')
+            policy = MIDORI_SITE_DATA_BLOCK;
+        else if (*prefix == '+')
+            policy = MIDORI_SITE_DATA_ACCEPT;
+        else if (*prefix == '!')
+            policy = MIDORI_SITE_DATA_PRESERVE;
+        else
+            g_warning ("%s: Matched with no prefix '%s'", G_STRFUNC, match);
+    }
+    return policy;
 }
 
 #if (!HAVE_OSX && defined (G_OS_UNIX)) || defined (G_OS_WIN32)
@@ -1570,6 +1628,9 @@ midori_web_settings_set_property (GObject*      object,
     case PROP_CLEAR_DATA:
         katze_assign (web_settings->clear_data, g_value_dup_string (value));
         break;
+    case PROP_SITE_DATA_RULES:
+        katze_assign (web_settings->site_data_rules, g_value_dup_string (value));
+        break;
     #if !WEBKIT_CHECK_VERSION (1, 3, 13)
     case PROP_ENABLE_DNS_PREFETCHING:
         web_settings->enable_dns_prefetching = g_value_get_boolean (value);
@@ -1874,6 +1935,9 @@ midori_web_settings_get_property (GObject*    object,
         break;
     case PROP_CLEAR_DATA:
         g_value_set_string (value, web_settings->clear_data);
+        break;
+    case PROP_SITE_DATA_RULES:
+        g_value_set_string (value, web_settings->site_data_rules);
         break;
     #if !WEBKIT_CHECK_VERSION (1, 3, 13)
     case PROP_ENABLE_DNS_PREFETCHING:

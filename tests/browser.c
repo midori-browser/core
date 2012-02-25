@@ -94,6 +94,38 @@ browser_tooltips (void)
         g_error ("Tooltip errors");
 }
 
+static void
+browser_site_data (void)
+{
+    typedef struct
+    {
+        const gchar* url;
+        MidoriSiteDataPolicy policy;
+    } PolicyItem;
+
+    static const PolicyItem items[] = {
+    { "google.com", MIDORI_SITE_DATA_BLOCK },
+    { "facebook.com", MIDORI_SITE_DATA_BLOCK },
+    { "bugzilla.gnome.org", MIDORI_SITE_DATA_PRESERVE },
+    { "bugs.launchpad.net", MIDORI_SITE_DATA_ACCEPT },
+    };
+
+    const gchar* rules = "-google.com,-facebook.com,!bugzilla.gnome.org,+bugs.launchpad.net";
+    MidoriWebSettings* settings = g_object_new (MIDORI_TYPE_WEB_SETTINGS,
+        "site-data-rules", rules, NULL);
+
+    guint i;
+    for (i = 0; i < G_N_ELEMENTS (items); i++)
+    {
+        MidoriSiteDataPolicy policy = midori_web_settings_get_site_data_policy (
+            settings, items[i].url);
+        if (policy != items[i].policy)
+            g_error ("Match '%s' yields %d but %d expected",
+                     items[i].url, policy, items[i].policy);
+    }
+    g_object_unref (settings);
+}
+
 int
 main (int    argc,
       char** argv)
@@ -106,6 +138,7 @@ main (int    argc,
 
     g_test_add_func ("/browser/create", browser_create);
     g_test_add_func ("/browser/tooltips", browser_tooltips);
+    g_test_add_func ("/browser/site_data", browser_site_data);
 
     return g_test_run ();
 }

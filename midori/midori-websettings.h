@@ -176,6 +176,18 @@ midori_web_settings_get_system_name        (gchar**            architecture,
 gboolean
 midori_web_settings_has_plugin_support     (void);
 
+typedef enum
+{
+    MIDORI_SITE_DATA_UNDETERMINED,
+    MIDORI_SITE_DATA_BLOCK,
+    MIDORI_SITE_DATA_ACCEPT,
+    MIDORI_SITE_DATA_PRESERVE,
+} MidoriSiteDataPolicy;
+
+MidoriSiteDataPolicy
+midori_web_settings_get_site_data_policy   (MidoriWebSettings* settings,
+                                            const gchar*       uri);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_SETTINGS_H__ */
