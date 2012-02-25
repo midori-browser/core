@@ -1288,15 +1288,32 @@ midori_view_web_view_database_quota_exceeded_cb (WebKitWebView*     web_view,
                                                  MidoriView*        view)
 {
     const gchar* uri = webkit_web_frame_get_uri (web_frame);
-    gchar* hostname = midori_uri_parse_hostname (uri, NULL);
-    gchar* message = g_strdup_printf (_("%s wants to save an HTML5 database."),
-                                      hostname && *hostname ? hostname : uri);
-    midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
-        G_CALLBACK (midori_view_database_response_cb), database,
-        _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
-        NULL);
-    g_free (hostname);
-    g_free (message);
+    MidoriSiteDataPolicy policy = midori_web_settings_get_site_data_policy (view->settings, uri);
+
+    switch (policy)
+    {
+    case MIDORI_SITE_DATA_BLOCK:
+    {
+        WebKitSecurityOrigin* origin = webkit_web_database_get_security_origin (database);
+        webkit_security_origin_set_web_database_quota (origin, 0);
+        webkit_web_database_remove (database);
+    }
+    case MIDORI_SITE_DATA_ACCEPT:
+    case MIDORI_SITE_DATA_PRESERVE:
+        return;
+    case MIDORI_SITE_DATA_UNDETERMINED:
+    {
+        gchar* hostname = midori_uri_parse_hostname (uri, NULL);
+        gchar* message = g_strdup_printf (_("%s wants to save an HTML5 database."),
+                                          hostname && *hostname ? hostname : uri);
+        midori_view_add_info_bar (view, GTK_MESSAGE_QUESTION, message,
+            G_CALLBACK (midori_view_database_response_cb), database,
+            _("_Deny"), GTK_RESPONSE_REJECT, _("_Allow"), GTK_RESPONSE_ACCEPT,
+            NULL);
+        g_free (hostname);
+        g_free (message);
+    }
+    }
 }
 
 #if WEBKIT_CHECK_VERSION (1, 1, 23)
