@@ -66,11 +66,14 @@ statusbar_features_browser_notify_tab_cb (MidoriBrowser* browser,
                                           GtkWidget*     combobox)
 {
     MidoriView* view = MIDORI_VIEW (midori_browser_get_current_tab (browser));
-    gchar* zoom_level_text = g_strdup_printf ("%d%%",
-        (gint)(midori_view_get_zoom_level (view) * 100));
-    gtk_entry_set_text (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (combobox))),
-        zoom_level_text);
-    g_free (zoom_level_text);
+    gchar* text;
+
+    if (view == NULL)
+        return;
+
+    text = g_strdup_printf ("%d%%", (gint)(midori_view_get_zoom_level (view) * 100));
+    gtk_entry_set_text (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (combobox))), text);
+    g_free (text);
 }
 
 static void
@@ -146,7 +149,6 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     {
         button = katze_property_proxy (settings, "enable-plugins", "toggle");
         g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
-    }
     image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
     gtk_button_set_image (GTK_BUTTON (button), image);
     gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));
@@ -154,6 +156,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     g_signal_connect (toolbar, "notify::toolbar-style",
         G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
+    }
     button = katze_property_proxy (settings, "identify-as", "custom-user-agent");
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
     button = gtk_combo_box_text_new_with_entry ();
@@ -165,7 +168,7 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
         G_CALLBACK (statusbar_features_zoom_level_changed_cb), browser);
     g_signal_connect (browser, "notify::tab",
         G_CALLBACK (statusbar_features_browser_notify_tab_cb), button);
-    statusbar_features_zoom_level_changed_cb (button, browser);
+    statusbar_features_browser_notify_tab_cb (browser, NULL, button);
     gtk_widget_show_all (bbox);
     gtk_box_pack_start (GTK_BOX (statusbar), bbox, FALSE, FALSE, 3);
     g_object_unref (statusbar);
