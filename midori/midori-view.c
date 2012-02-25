@@ -3710,13 +3710,14 @@ list_video_formats ()
     gchar* value = sokoke_js_script_eval (js_context,
         "var supported = function (format) { "
         "var video = document.createElement('video');"
-        "return !!video.canPlayType && video.canPlayType (format) != 'no' };"
-        "' H264: ' + "
-        "supported('video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"') + "
-        "' Ogg Theora: ' + "
-        "supported('video/ogg; codecs=\"theora, vorbis\"') + "
-        "' WebM: ' + "
-        "supported('video/webm; codecs=\"vp8, vorbis\"')"
+        "return !!video.canPlayType && video.canPlayType (format) != 'no' "
+        "? 'x' : '&nbsp;&nbsp;'; };"
+        "' H264 [' +"
+        "supported('video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"') + ']' + "
+        "' &nbsp; Ogg Theora [' + "
+        "supported('video/ogg; codecs=\"theora, vorbis\"') + ']' + "
+        "' &nbsp; WebM [' + "
+        "supported('video/webm; codecs=\"vp8, vorbis\"') + ']' "
         "", NULL);
     gtk_widget_destroy (web_view);
     return value;
