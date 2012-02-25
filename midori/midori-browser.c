@@ -3284,13 +3284,14 @@ _action_reload_stop_activate (GtkAction*     action,
     {
         GdkModifierType state = (GdkModifierType)0;
         gint x, y;
+        GdkWindow* window;
         gboolean from_cache = TRUE;
 
         if (!strcmp (gtk_action_get_name (action), "ReloadUncached"))
             from_cache = FALSE;
-        else
+        else if ((window = gtk_widget_get_window (GTK_WIDGET (browser))))
         {
-            gdk_window_get_pointer (NULL, &x, &y, &state);
+            gdk_window_get_pointer (window, &x, &y, &state);
             if (state & GDK_SHIFT_MASK)
                 from_cache = FALSE;
         }
