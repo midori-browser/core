@@ -4805,6 +4805,8 @@ midori_view_get_proxy_tab_label (MidoriView* view)
 
         g_signal_connect (event_box, "button-press-event",
             G_CALLBACK (midori_view_tab_label_button_press_event), view);
+        g_signal_connect (view->tab_close, "button-press-event",
+            G_CALLBACK (midori_view_tab_label_button_press_event), view);
         g_signal_connect (view->tab_close, "clicked",
             G_CALLBACK (midori_view_tab_close_clicked), view);
 
