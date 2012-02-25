@@ -6,7 +6,7 @@
 
 G_BEGIN_DECLS
 
-#if GTK_CHECK_VERSION (3, 2, 0)
+#if GTK_CHECK_VERSION (3, 2, 0) && defined (GTK_DISABLE_DEPRECATED)
     #define GTK_TYPE_VBOX GTK_TYPE_BOX
     #define GtkVBox GtkBox
     #define GtkVBoxClass GtkBoxClass

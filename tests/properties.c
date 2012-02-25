@@ -154,13 +154,13 @@ properties_object_get_set (GObject* object)
 static void
 properties_object_test (gconstpointer object)
 {
-    if (GTK_IS_OBJECT (object))
+    if (GTK_IS_WIDGET (object))
         g_object_ref_sink ((GObject*)object);
 
     properties_object_get_set ((GObject*)object);
 
-    if (GTK_IS_OBJECT (object))
-        gtk_object_destroy (GTK_OBJECT (object));
+    if (GTK_IS_WIDGET (object))
+        gtk_widget_destroy (GTK_WIDGET (object));
     g_object_unref ((GObject*)object);
 }
 
