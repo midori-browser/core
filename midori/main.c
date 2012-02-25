@@ -996,6 +996,7 @@ static gboolean
 midori_load_soup_session (gpointer settings)
 {
     SoupSession* session = webkit_get_default_session ();
+    g_object_set_data (G_OBJECT (session), "midori-settings", settings);
 
     #if defined (HAVE_LIBSOUP_2_37_1)
     g_object_set (session,
@@ -1724,6 +1725,7 @@ static void
 midori_clear_web_cookies_cb (void)
 {
     SoupSession* session = webkit_get_default_session ();
+    MidoriWebSettings* settings = g_object_get_data (G_OBJECT (session), "midori-settings");
     SoupSessionFeature* jar = soup_session_get_feature (session, SOUP_TYPE_COOKIE_JAR);
     GSList* cookies = soup_cookie_jar_all_cookies (SOUP_COOKIE_JAR (jar));
     SoupSessionFeature* feature;
@@ -1731,7 +1733,13 @@ midori_clear_web_cookies_cb (void)
 
     /* HTTP Cookies/ Web Cookies */
     for (; cookies != NULL; cookies = g_slist_next (cookies))
+    {
+        const gchar* domain = ((SoupCookie*)cookies->data)->domain;
+        if (midori_web_settings_get_site_data_policy (settings, domain)
+         == MIDORI_SITE_DATA_PRESERVE)
+            continue;
         soup_cookie_jar_delete_cookie ((SoupCookieJar*)jar, cookies->data);
+    }
     soup_cookies_free (cookies);
     /* Removing KatzeHttpCookies makes it save outstanding changes */
     if ((feature = soup_session_get_feature (session, KATZE_TYPE_HTTP_COOKIES)))
