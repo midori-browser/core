@@ -4023,8 +4023,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>libsoup</td><td>%s</td></tr>"
                     "<tr><td>cairo</td><td>%s (%s)</td></tr>"
                     "<tr><td>libnotify</td><td>%s</td></tr>"
-                    "<tr><td>libunique</td><td>%s</td></tr>"
-                    "<tr><td>libhildon</td><td>%s</td></tr>"
+                    "<tr><td>single instance</td><td>%s</td></tr>"
                     "<tr><td>Platform</td><td>%s %s %s</td></tr>"
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>"
@@ -4045,8 +4044,15 @@ midori_view_set_uri (MidoriView*  view,
                     LIBSOUP_VERSION,
                     CAIRO_VERSION_STRING, cairo_version_string (),
                     LIBNOTIFY_VERSION,
-                    UNIQUE_VERSION,
-                    HAVE_HILDON ? "Yes" : "No",
+                    #ifdef HAVE_HILDON_2_2
+                    "Hildon 2.2",
+                    #elif HAVE_HILDON
+                    "Hildon",
+                    #elif HAVE_UNIQUE
+                    "libunique " UNIQUE_VERSION,
+                    #else
+                    "Sockets",
+                    #endif
                     platform, sys_name, architecture ? architecture : "", ident,
                     video_formats, netscape_plugins);
                 g_free (command_line);
