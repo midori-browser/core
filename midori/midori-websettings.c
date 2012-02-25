@@ -728,13 +728,8 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      "enable-plugins",
                                      _("Enable Netscape plugins"),
                                      _("Enable embedded Netscape plugin objects"),
-    #ifdef G_OS_WIN32
-                                     FALSE,
-                                     G_PARAM_READABLE));
-    #else
-                                     TRUE,
-                                     flags));
-    #endif
+                                     midori_web_settings_has_plugin_support (),
+        midori_web_settings_has_plugin_support () ? flags : G_PARAM_READABLE));
     /* Override properties to override defaults */
     g_object_class_install_property (gobject_class,
                                      PROP_ENABLE_DEVELOPER_EXTRAS,
@@ -1189,6 +1184,26 @@ midori_web_settings_finalize (GObject* object)
         g_hash_table_destroy (web_settings->user_stylesheets);
 
     G_OBJECT_CLASS (midori_web_settings_parent_class)->finalize (object);
+}
+
+/**
+ * midori_web_settings_has_plugin_support:
+ *
+ * Determines if Netscape plugins are supported.
+ *
+ * Returns: %TRUE if Netscape plugins can be used
+ *
+ * Since: 0.4.4
+ **/
+gboolean
+midori_web_settings_has_plugin_support (void)
+{
+    #ifdef G_OS_WIN32
+    return FALSE;
+    #else
+    return g_getenv ("MIDORI_UNARMED") == NULL
+        && g_strcmp0 (g_getenv ("MOZ_PLUGIN_PATH"), "/");
+    #endif
 }
 
 #if (!HAVE_OSX && defined (G_OS_UNIX)) || defined (G_OS_WIN32)

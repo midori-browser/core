@@ -173,6 +173,9 @@ const gchar*
 midori_web_settings_get_system_name        (gchar**            architecture,
                                             gchar**            platform);
 
+gboolean
+midori_web_settings_has_plugin_support     (void);
+
 G_END_DECLS
 
 #endif /* __MIDORI_WEB_SETTINGS_H__ */

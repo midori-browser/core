@@ -1743,6 +1743,8 @@ midori_clear_web_cookies_cb (void)
     }
 
     /* Local shared objects/ Flash cookies */
+    if (midori_web_settings_has_plugin_support ())
+    {
     #ifdef GDK_WINDOWING_X11
     cache = g_build_filename (g_get_home_dir (), ".macromedia", "Flash_Player", NULL);
     sokoke_remove_path (cache, TRUE);
@@ -1757,6 +1759,7 @@ midori_clear_web_cookies_cb (void)
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
     #endif
+    }
 
     /* HTML5 databases */
     webkit_remove_all_web_databases ();

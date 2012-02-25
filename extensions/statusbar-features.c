@@ -142,8 +142,11 @@ statusbar_features_app_add_browser_cb (MidoriApp*       app,
     g_signal_connect (toolbar, "notify::toolbar-style",
         G_CALLBACK (statusbar_features_toolbar_notify_toolbar_style_cb), button);
     gtk_box_pack_start (GTK_BOX (bbox), button, FALSE, FALSE, 2);
-    button = katze_property_proxy (settings, "enable-plugins", "toggle");
-    g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
+    if (midori_web_settings_has_plugin_support ())
+    {
+        button = katze_property_proxy (settings, "enable-plugins", "toggle");
+        g_object_set_data (G_OBJECT (button), "feature-label", _("Netscape plugins"));
+    }
     image = gtk_image_new_from_stock (STOCK_PLUGINS, GTK_ICON_SIZE_MENU);
     gtk_button_set_image (GTK_BUTTON (button), image);
     gtk_widget_set_tooltip_text (button, _("Enable Netscape plugins"));

@@ -3660,6 +3660,8 @@ midori_view_construct_web_view (MidoriView* view)
 
 static gchar* list_netscape_plugins ()
 {
+    if (midori_web_settings_has_plugin_support ())
+    {
     GtkWidget* web_view = webkit_web_view_new ();
     WebKitWebFrame* web_frame = webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view));
     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
@@ -3671,7 +3673,7 @@ static gchar* list_netscape_plugins ()
         "plugins (navigator.plugins)", NULL);
     gchar** items = g_strsplit (value, ",", 0);
     guint i = 0;
-    GString* ns_plugins = g_string_new (NULL);
+    GString* ns_plugins = g_string_new ("<h2>Netscape Plugins:</h2><table>");
     if (items != NULL)
         while (items[i] != NULL)
         {
@@ -3689,10 +3691,14 @@ static gchar* list_netscape_plugins ()
         }
         if (g_str_has_prefix (value, "undefined"))
             g_string_append (ns_plugins, "<tr><td>No plugins found</td></tr>");
+        g_string_append (ns_plugins, "</table>");
         g_strfreev (items);
         g_free (value);
     gtk_widget_destroy (web_view);
     return g_string_free (ns_plugins, FALSE);
+    }
+    else
+        return g_strdup ("");
 }
 
 static gchar*
@@ -4022,7 +4028,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Identification</td><td>%s</td></tr>"
                     "<tr><td>Video&nbsp;Formats</td><td>%s</td></tr>"
                     "</table>"
-                    "<h2>Netscape Plugins:</h2><table>%s</table>"
+                    "%s"
                     "</body></html>",
                     _("Version numbers in brackets show the version used at runtime."),
                     command_line,
