@@ -156,15 +156,17 @@ grab_files share midori
 grab_files share icons
 grab_files share MS-Windows
 grab_files share mime
+grab_files share midori.mo
 
 grab_files share webkitgtk-1.0
 
 # copy locales for gtk
 # so we have translated stock items, file dialogs
 
+pushd $root_dir > /dev/null
 find share "(" -name "midori.mo" ")" >  $temp_dir/locale.list
 mkdir -p $workdir/share/locale/
-for LOCALE in $(cat locale.list); do
+for LOCALE in $(cat $temp_dir/locale.list); do
 	 LOCALE=$(echo $LOCALE|awk -F/ '{print $3}')
 	 cp /usr/share/locale/$LOCALE/LC_MESSAGES/gtk20.mo $workdir/share/locale/$LOCALE/LC_MESSAGES/
 done
