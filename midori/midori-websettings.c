@@ -1238,6 +1238,15 @@ MidoriSiteDataPolicy
 midori_web_settings_get_site_data_policy (MidoriWebSettings* settings,
                                           const gchar*       uri)
 {
+    MidoriSiteDataPolicy policy = MIDORI_SITE_DATA_UNDETERMINED;
+    gchar* hostname;
+    const gchar* match;
+
+    g_return_val_if_fail (MIDORI_IS_WEB_SETTINGS (settings), policy);
+
+    if (!(settings->site_data_rules && *settings->site_data_rules))
+        return policy;
+
     /*
      * Values prefixed with "-" are always blocked
      * Values prefixed with "+" are always accepted
@@ -1246,9 +1255,8 @@ midori_web_settings_get_site_data_policy (MidoriWebSettings* settings,
      * FIXME: indicate type of storage the rule applies to
      * FIXME: support matching of the whole URI
      **/
-    MidoriSiteDataPolicy policy = MIDORI_SITE_DATA_UNDETERMINED;
-    gchar* hostname = midori_uri_parse_hostname (uri, NULL);
-    const gchar* match = strstr (settings->site_data_rules, hostname ? hostname : uri);
+    hostname = midori_uri_parse_hostname (uri, NULL);
+    match = strstr (settings->site_data_rules, hostname ? hostname : uri);
     if (match != NULL && match != settings->site_data_rules)
     {
         const gchar* prefix = match - 1;
