@@ -119,10 +119,6 @@ mkdir $workdir/bin
 cp -L $files $workdir/bin
 popd > /dev/null
 
-if [ "$DEBUG_BUILD" == "" ];then
-    find -iname *.debug -exec rm {} \;
-fi
-
 echo -n .
 
 # copy etc
@@ -159,6 +155,12 @@ grab_files share mime
 grab_files share midori.mo
 
 grab_files share webkitgtk-1.0
+
+if [ "$DEBUG_BUILD" == "" ];then
+    pushd $workdir > /dev/null
+    find -iname *.debug -exec rm {} \;
+    popd > /dev/null
+fi
 
 # copy locales for gtk
 # so we have translated stock items, file dialogs
