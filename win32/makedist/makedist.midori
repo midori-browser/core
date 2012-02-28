@@ -173,6 +173,16 @@ for LOCALE in $(cat $temp_dir/locale.list); do
 	 cp /usr/share/locale/$LOCALE/LC_MESSAGES/gtk20.mo $workdir/share/locale/$LOCALE/LC_MESSAGES/
 done
 rm $temp_dir/locale.list
+
+# Use small icons and tango icons
+gtk_etc_dir="$workdir/etc/gtk-2.0/"
+mkdir -p $gtk_etc_dir
+cat > $gtk_etc_dir/gtkrc << _EOF
+gtk-theme-name = "MS-Windows"
+gtk-fallback-icon-theme = "Tango"
+gtk-toolbar-style = GTK_TOOLBAR_ICONS
+_EOF
+
 popd > /dev/null
 
 echo -n .
