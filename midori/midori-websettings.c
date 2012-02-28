@@ -1269,6 +1269,7 @@ midori_web_settings_get_site_data_policy (MidoriWebSettings* settings,
         else
             g_warning ("%s: Matched with no prefix '%s'", G_STRFUNC, match);
     }
+    g_free (hostname);
     return policy;
 }
 
