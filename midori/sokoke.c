@@ -684,7 +684,7 @@ sokoke_magic_uri (const gchar* uri)
     search = NULL;
     if (!strchr (uri, ' ') &&
         ((search = strchr (uri, ':')) || (search = strchr (uri, '@'))) &&
-        search[0] && !g_ascii_isalpha (search[1]))
+        search[0] && g_ascii_isdigit (search[1]))
         return g_strconcat ("http://", uri, NULL);
     if ((!strcmp (uri, "localhost") || strchr (uri, '/'))
       && sokoke_resolve_hostname (uri))

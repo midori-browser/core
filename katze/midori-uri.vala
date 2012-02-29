@@ -125,8 +125,17 @@ namespace Midori {
                FIXME: Schemes are not handled
                hostname_is_ip_address () is not used because
                we'd have to separate the path from the URI first. */
-            return uri != null && uri[0].isdigit ()
-             && (uri.chr (4, '.') != null || uri.chr (4, ':') != null);
+            if (uri == null)
+                return false;
+            /* IPv4 */
+            if (uri[0].isdigit () && (uri.chr (4, '.') != null))
+                return true;
+            /* IPv6 */
+            if (uri[0].isalnum () && uri[1].isalnum ()
+             && uri[2].isalnum () && uri[3].isalnum () && uri[4] == ':'
+             && (uri[5] == ':' || uri[5].isalnum ()))
+                return true;
+            return false;
         }
         public static bool is_valid (string? uri) {
             return uri != null
