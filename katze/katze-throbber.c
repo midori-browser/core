@@ -97,12 +97,12 @@ katze_throbber_realize (GtkWidget* widget);
 #if GTK_CHECK_VERSION (3, 0, 0)
 static void
 katze_throbber_get_preferred_height (GtkWidget *widget,
-                               gint      *minimal_width,
-                               gint      *natural_width);
+                                     gint      *minimal_height,
+                                     gint      *natural_height);
 static void
 katze_throbber_get_preferred_width (GtkWidget *widget,
-                               gint      *minimal_width,
-                               gint      *natural_width);
+                                     gint      *minimal_width,
+                                     gint      *natural_width);
 #endif
 static void
 katze_throbber_unrealize (GtkWidget* widget);
@@ -857,14 +857,14 @@ katze_throbber_size_request (GtkWidget*      widget,
 #if GTK_CHECK_VERSION (3, 0, 0)
 static void
 katze_throbber_get_preferred_height (GtkWidget *widget,
-                                     gint      *minimal_width,
-                                     gint      *natural_width)
+                                     gint      *minimal_height,
+                                     gint      *natural_height)
 {
     GtkRequisition requisition;
 
     katze_throbber_size_request (widget, &requisition);
 
-    *minimal_width = *natural_width = requisition.height;
+    *minimal_height = *natural_height = requisition.width;
 }
 
 static void
