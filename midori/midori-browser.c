@@ -3676,7 +3676,11 @@ _action_location_submit_uri (GtkAction*     action,
         if (browser->search_engines
          && (item = katze_array_find_token (browser->search_engines, uri)))
         {
-            keywords = strchr (uri, ' ') + 1;
+            keywords = strchr (uri, ' ');
+            if (keywords != NULL)
+                keywords++;
+            else
+                keywords = "";
             search_uri = katze_item_get_uri (item);
         }
 

@@ -41,26 +41,22 @@ test_input (const gchar* input,
     uri = sokoke_magic_uri (input);
     if (!uri)
     {
-        gchar** parts;
-        gchar* keywords = NULL;
+        const gchar* keywords = NULL;
         const gchar* search_uri = NULL;
+        KatzeItem* item;
 
         /* Do we have a keyword and a string? */
-        parts = g_strsplit (input, " ", 2);
-        if (parts[0])
+        if ((item = katze_array_find_token (search_engines, input)))
         {
-            KatzeItem* item;
-            if ((item = katze_array_find_token (search_engines, parts[0])))
-            {
-                keywords = g_strdup (parts[1] ? parts[1] : "");
-                search_uri = katze_item_get_uri (item);
-            }
+            keywords = strchr (input, ' ');
+            if (keywords != NULL)
+                keywords++;
+            else
+                keywords = "";
+            search_uri = katze_item_get_uri (item);
         }
-        g_strfreev (parts);
 
-        uri = keywords ? midori_uri_for_search (search_uri, keywords) : NULL;
-
-        g_free (keywords);
+        uri = search_uri ? midori_uri_for_search (search_uri, keywords) : NULL;
     }
     katze_assert_str_equal (input, uri, expected);
     g_free (uri);
