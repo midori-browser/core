@@ -148,6 +148,7 @@ enum
     PROP_OPEN_POPUPS_IN_TABS,
     PROP_FLASH_WINDOW_ON_BG_TABS,
     PROP_ENABLE_WEBGL,
+    PROP_ENABLE_FULLSCREEN,
 
     PROP_AUTO_LOAD_IMAGES,
     PROP_ENABLE_SCRIPTS,
@@ -797,6 +798,16 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
         /* Enable by default for git builds */
         !g_str_equal (PACKAGE_VERSION, MIDORI_VERSION),
                                      flags));
+    if (g_object_class_find_property (gobject_class, "enable-fullscreen"))
+    g_object_class_install_property (gobject_class,
+                                     PROP_ENABLE_FULLSCREEN,
+                                     g_param_spec_boolean (
+                                     "enable-fullscreen",
+                                     "Enable Fullscreen",
+                                     "Allow experimental fullscreen API",
+                                     TRUE,
+                                     flags));
+
 
     /**
      * MidoriWebSettings:zoom-text-and-images:
@@ -1674,6 +1685,10 @@ midori_web_settings_set_property (GObject*      object,
         g_object_set (web_settings, "WebKitWebSettings::enable-webgl",
                       g_value_get_boolean (value), NULL);
         break;
+    case PROP_ENABLE_FULLSCREEN:
+        g_object_set (web_settings, "WebKitWebSettings::enable-fullscreen",
+                      g_value_get_boolean (value), NULL);
+        break;
     case PROP_USER_STYLESHEET_URI:
         {
             gint old_len = web_settings->user_stylesheet_uri_cached
@@ -1965,6 +1980,10 @@ midori_web_settings_get_property (GObject*    object,
     case PROP_ENABLE_WEBGL:
         g_value_set_boolean (value, katze_object_get_boolean (web_settings,
             "WebKitWebSettings::enable-webgl"));
+        break;
+    case PROP_ENABLE_FULLSCREEN:
+        g_value_set_boolean (value, katze_object_get_boolean (web_settings,
+            "WebKitWebSettings::enable-fullscreen"));
         break;
     case PROP_USER_STYLESHEET_URI:
         g_value_take_string (value, katze_object_get_string (web_settings,
