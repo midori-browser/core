@@ -864,7 +864,7 @@ katze_throbber_get_preferred_height (GtkWidget *widget,
 
     katze_throbber_size_request (widget, &requisition);
 
-    *minimal_height = *natural_height = requisition.width;
+    *minimal_height = *natural_height = requisition.height;
 }
 
 static void
