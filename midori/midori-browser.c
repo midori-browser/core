@@ -6236,7 +6236,7 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_box_pack_start (GTK_BOX (vbox), browser->statusbar, FALSE, FALSE, 0);
 
     browser->transferbar = g_object_new (MIDORI_TYPE_TRANSFERBAR, NULL);
-    gtk_box_pack_start (GTK_BOX (browser->statusbar_contents), browser->transferbar, FALSE, FALSE, 3);
+    gtk_box_pack_end (GTK_BOX (browser->statusbar_contents), browser->transferbar, FALSE, FALSE, 3);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (browser->transferbar), FALSE);
     gtk_widget_show (browser->transferbar);
 
