@@ -1521,20 +1521,18 @@ midori_browser_notebook_resize (MidoriBrowser* browser,
                                 GdkRectangle*  allocation)
 {
     gint new_size = 0;
-    gint n = gtk_notebook_get_n_pages (GTK_NOTEBOOK(browser->notebook));
+    gint n = MAX (1, gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)));
     const gint max_size = 150;
     gint min_size;
     gint icon_size = 16;
     GtkAllocation notebook_size;
     GList* children;
 
-    g_return_if_fail (n > 0);
-
     if (allocation != NULL)
         notebook_size.width = allocation->width;
     else
         gtk_widget_get_allocation (browser->notebook, &notebook_size);
-    new_size = notebook_size.width / n - 7;
+    new_size = notebook_size.width / n;
 
     gtk_icon_size_lookup_for_settings (gtk_widget_get_settings (browser->notebook),
                                        GTK_ICON_SIZE_MENU, &icon_size, NULL);
