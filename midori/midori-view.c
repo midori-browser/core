@@ -1474,52 +1474,65 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
     g_object_notify (G_OBJECT (view), "progress");
     midori_view_update_load_status (view, MIDORI_LOAD_FINISHED);
 
-    if (1)
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-        /* Join news feeds into like this: URI1|title1,URI2|title2 */
+        /* Icon: URI, News Feed: $URI|title */
         gchar* value = sokoke_js_script_eval (js_context,
         "(function (l) { var f = new Array (); for (i in l) "
         "{ var t = l[i].type; var r = l[i].rel; "
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
-        "f.push (l[i].href + '|' + l[i].title);"
+        "f.push ('$' + l[i].href + '|' + l[i].title);"
         #if !WEBKIT_CHECK_VERSION (1, 1, 18)
         "else if (r && r.indexOf ('icon') != -1) f.push (l[i].href); "
         #endif
         "} return f; })("
         "document.getElementsByTagName ('link'));", NULL);
+
         gchar** items = g_strsplit (value, ",", 0);
-        guint i = 0;
+        gchar** current_item = items;
         gchar* default_uri = NULL;
 
         if (view->news_feeds != NULL)
             katze_array_clear (view->news_feeds);
         else
             view->news_feeds = katze_array_new (KATZE_TYPE_ITEM);
-        if (items != NULL)
-        while (items[i] != NULL)
+
+        while (current_item && *current_item)
         {
-            gchar** parts = g_strsplit (items[i], "|", 2);
-            if (parts == NULL)
-                ;
-            else if (*parts && parts[1])
+            const gchar* uri_and_title = *current_item;
+            if (uri_and_title[0] == '$')
             {
-                KatzeItem* item = g_object_new (KATZE_TYPE_ITEM,
-                    "uri", parts[0], "name", parts[1], NULL);
+                const gchar* title;
+                gchar* uri;
+                KatzeItem* item;
+
+                uri_and_title++;
+                if (uri_and_title == NULL)
+                    continue;
+                title = strchr (uri_and_title, '|');
+                if (title == NULL)
+                    continue;
+                title++;
+
+                uri = g_strndup (uri_and_title, title - 1 - uri_and_title);
+                item = g_object_new (KATZE_TYPE_ITEM,
+                    "uri", uri, "name", title, NULL);
                 katze_array_add_item (view->news_feeds, item);
                 g_object_unref (item);
                 if (!default_uri)
-                    default_uri = g_strdup (parts[0]);
+                    default_uri = uri;
+                else
+                    g_free (uri);
             }
             #if !WEBKIT_CHECK_VERSION (1, 1, 18)
             else
-                katze_assign (view->icon_uri, g_strdup (*parts));
+                katze_assign (view->icon_uri, g_strdup (uri_and_title));
             #endif
 
-            g_strfreev (parts);
-            i++;
+            current_item++;
         }
         g_strfreev (items);
+
         g_object_set_data_full (G_OBJECT (view), "news-feeds", default_uri, g_free);
         g_free (value);
         /* Ensure load-status is notified again, whether it changed or not */
