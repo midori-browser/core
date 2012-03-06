@@ -374,8 +374,6 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
         {
             midori_location_action_set_text (location_action, browser->statusbar_text);
             midori_location_action_set_icon (location_action, NULL);
-            if (sokoke_is_app_or_private ())
-                gtk_window_set_icon (GTK_WINDOW (browser), NULL);
             midori_location_action_set_secondary_icon (location_action, NULL);
         }
         else
@@ -393,9 +391,6 @@ _midori_browser_set_statusbar_text (MidoriBrowser* browser,
                     midori_view_get_display_uri (MIDORI_VIEW (view)));
                 midori_location_action_set_icon (location_action,
                     midori_view_get_icon (MIDORI_VIEW (view)));
-                if (sokoke_is_app_or_private ())
-                    gtk_window_set_icon (GTK_WINDOW (browser),
-                        midori_view_get_icon (MIDORI_VIEW (view)));
             }
         }
     }
