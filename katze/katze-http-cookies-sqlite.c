@@ -95,7 +95,8 @@ katze_http_cookies_sqlite_open_db (KatzeHttpCookiesSqlite* http_cookies)
     }
 
     sqlite3_exec (http_cookies->db,
-        /* "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY" */
+        /* Arguably cookies are like a cache, so performance over integrity */
+        "PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY;"
         "PRAGMA count_changes = OFF; PRAGMA journal_mode = TRUNCATE;",
         NULL, NULL, &error);
 
