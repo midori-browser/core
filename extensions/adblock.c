@@ -1301,12 +1301,10 @@ adblock_frame_add_private (const gchar* line,
 static gchar*
 adblock_parse_line (gchar* line)
 {
-    if (!line)
+    /* Skip invalid, empty and comment lines */
+    if (!(line && line[0] != ' ' && line[0] != '!' && line[0]))
         return NULL;
-    g_strchomp (line);
-    /* Ignore comments and new lines */
-    if (line[0] == '!')
-        return NULL;
+
     /* FIXME: No support for whitelisting */
     if (line[0] == '@' && line[1] == '@')
         return NULL;
@@ -1314,9 +1312,7 @@ adblock_parse_line (gchar* line)
     if (line[0] == '[')
         return NULL;
 
-    /* Skip garbage */
-    if (line[0] == ' ' || !line[0])
-        return NULL;
+    g_strchomp (line);
 
     /* Got CSS block hider */
     if (line[0] == '#' && line[1] == '#' )
@@ -1334,13 +1330,13 @@ adblock_parse_line (gchar* line)
         adblock_frame_add_private (line, "##");
         return NULL;
     }
-
     /* Got per domain CSS hider rule. Workaround */
     if (strchr (line, '#'))
     {
         adblock_frame_add_private (line, "#");
         return NULL;
     }
+
     /* Got URL blocker rule */
     if (line[0] == '|' && line[1] == '|' )
     {
