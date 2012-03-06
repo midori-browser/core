@@ -394,11 +394,7 @@ static TBEditorWidget *tb_editor_create_dialog(MidoriBrowser *parent)
 				GTK_WINDOW(parent),
 				GTK_DIALOG_DESTROY_WITH_PARENT,
 				GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
-#if !GTK_CHECK_VERSION(3,0,0)
-	vbox = (GTK_DIALOG(dialog))->vbox;
-#else
-	vbox = GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
-#endif
+	vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	gtk_box_set_spacing(GTK_BOX(vbox), 6);
 	gtk_widget_set_name(dialog, "GeanyDialog");
 	gtk_window_set_default_size(GTK_WINDOW(dialog), -1, 400);

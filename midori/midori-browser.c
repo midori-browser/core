@@ -5799,7 +5799,6 @@ midori_browser_init (MidoriBrowser* browser)
     GtkSettings* gtk_settings;
     GtkWidget* hpaned;
     GtkWidget* vpaned;
-    GtkRcStyle* rcstyle;
     GtkWidget* scrolled;
     KatzeArray* dummy_array;
 
@@ -6156,11 +6155,15 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_paned_pack2 (GTK_PANED (hpaned), vpaned, TRUE, FALSE);
     gtk_widget_show (vpaned);
     browser->notebook = gtk_notebook_new ();
+    #if !GTK_CHECK_VERSION (3, 0, 0)
+    {
     /* Remove the inner border between scrollbars and the window border */
-    rcstyle = gtk_rc_style_new ();
+    GtkRcStyle* rcstyle = gtk_rc_style_new ();
     rcstyle->xthickness = 0;
     gtk_widget_modify_style (browser->notebook, rcstyle);
     g_object_unref (rcstyle);
+    }
+    #endif
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
     gtk_paned_pack1 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
     g_signal_connect (browser->notebook, "switch-page",

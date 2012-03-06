@@ -64,13 +64,15 @@ sokoke_js_script_eval (JSContextRef js_context,
 {
     gchar* value;
     JSStringRef js_value_string;
+    JSStringRef js_script;
+    JSValueRef js_exception = NULL;
+    JSValueRef js_value;
 
     g_return_val_if_fail (js_context, FALSE);
     g_return_val_if_fail (script, FALSE);
 
-    JSStringRef js_script = JSStringCreateWithUTF8CString (script);
-    JSValueRef js_exception = NULL;
-    JSValueRef js_value = JSEvaluateScript (js_context, js_script,
+    js_script = JSStringCreateWithUTF8CString (script);
+    js_value = JSEvaluateScript (js_context, js_script,
         JSContextGetGlobalObject (js_context), NULL, 0, &js_exception);
     JSStringRelease (js_script);
 
@@ -793,7 +795,6 @@ sokoke_xfce_header_new (const gchar* icon,
     if (sokoke_get_desktop () == SOKOKE_DESKTOP_XFCE)
     {
         GtkWidget* entry;
-        GtkStyle* style;
         gchar* markup;
         GtkWidget* xfce_heading;
         GtkWidget* hbox;
@@ -804,9 +805,7 @@ sokoke_xfce_header_new (const gchar* icon,
 
         xfce_heading = gtk_event_box_new ();
         entry = gtk_entry_new ();
-        style = gtk_widget_get_style (entry);
-        gtk_widget_modify_bg (xfce_heading, GTK_STATE_NORMAL,
-            &style->base[GTK_STATE_NORMAL]);
+
         hbox = gtk_hbox_new (FALSE, 12);
         gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
         if (icon)
@@ -816,8 +815,6 @@ sokoke_xfce_header_new (const gchar* icon,
                 GTK_ICON_SIZE_DIALOG);
         gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
         label = gtk_label_new (NULL);
-        gtk_widget_modify_fg (label, GTK_STATE_NORMAL
-         , &style->text[GTK_STATE_NORMAL]);
         markup = g_strdup_printf ("<span size='large' weight='bold'>%s</span>",
                                   title);
         gtk_label_set_markup (GTK_LABEL (label), markup);
@@ -825,6 +822,16 @@ sokoke_xfce_header_new (const gchar* icon,
         gtk_container_add (GTK_CONTAINER (xfce_heading), hbox);
         g_free (markup);
         gtk_widget_destroy (entry);
+
+        #if !GTK_CHECK_VERSION (3, 0, 0)
+        {
+        GtkStyle* style = gtk_widget_get_style (entry);
+        gtk_widget_modify_bg (xfce_heading, GTK_STATE_NORMAL,
+            &style->base[GTK_STATE_NORMAL]);
+        gtk_widget_modify_fg (label, GTK_STATE_NORMAL
+         , &style->text[GTK_STATE_NORMAL]);
+        }
+        #endif
 
         vbox = gtk_vbox_new (FALSE, 0);
         gtk_box_pack_start (GTK_BOX (vbox), xfce_heading, FALSE, FALSE, 0);

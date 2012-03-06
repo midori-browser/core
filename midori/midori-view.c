@@ -2264,6 +2264,7 @@ midori_view_populate_popup (MidoriView* view,
     WebKitWebView* web_view = WEBKIT_WEB_VIEW (view->web_view);
     GtkWidget* widget = GTK_WIDGET (view);
     MidoriBrowser* browser = midori_browser_get_for_widget (widget);
+    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
     GtkActionGroup* actions = midori_browser_get_action_group (browser);
     GtkMenuShell* menu_shell = GTK_MENU_SHELL (menu);
     GtkWidget* menuitem;
@@ -2665,7 +2666,6 @@ midori_view_populate_popup (MidoriView* view,
         g_object_set_data (G_OBJECT (menuitem), "y", GINT_TO_POINTER (y));
     }
 
-    GdkWindowState state = gdk_window_get_state (gtk_widget_get_window (GTK_WIDGET (browser)));
     if (state & GDK_WINDOW_STATE_FULLSCREEN)
     {
         menuitem = sokoke_action_create_popup_menu_item (

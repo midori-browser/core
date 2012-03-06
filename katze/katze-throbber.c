@@ -902,6 +902,7 @@ katze_throbber_aligned_coords (GtkWidget* widget,
     #endif
 
     #if GTK_CHECK_VERSION (3, 0, 0)
+    allocation.x = allocation.y = 0;
     allocation.width = gtk_widget_get_allocated_width (widget);
     allocation.height = gtk_widget_get_allocated_height (widget);
     gtk_widget_get_preferred_size (widget, &requisition, NULL);

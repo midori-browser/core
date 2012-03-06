@@ -1349,7 +1349,9 @@ midori_app_setup (gchar** argument_vector)
 
     /* libSoup uses threads, therefore if WebKit is built with libSoup
      * or Midori is using it, we need to initialize threads. */
+    #if !GLIB_CHECK_VERSION (2, 32, 0)
     if (!g_thread_supported ()) g_thread_init (NULL);
+    #endif
 
     #if ENABLE_NLS
     setlocale (LC_ALL, "");

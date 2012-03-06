@@ -996,7 +996,6 @@ static gboolean
 midori_load_soup_session (gpointer settings)
 {
     SoupSession* session = webkit_get_default_session ();
-    g_object_set_data (G_OBJECT (session), "midori-settings", settings);
 
     #if defined (HAVE_LIBSOUP_2_37_1)
     g_object_set (session,
@@ -1036,6 +1035,7 @@ midori_load_soup_session (gpointer settings)
                            NULL);
     #endif
 
+    g_object_set_data (G_OBJECT (session), "midori-settings", settings);
     soup_session_settings_notify_http_proxy_cb (settings, NULL, session);
     g_signal_connect (settings, "notify::http-proxy",
         G_CALLBACK (soup_session_settings_notify_http_proxy_cb), session);

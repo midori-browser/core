@@ -840,7 +840,8 @@ feed_panel_init (FeedPanel* panel)
 
     webview = webkit_web_view_new ();
 #if GTK_CHECK_VERSION(3,0,0)
-    font_desc = gtk_style_context_get_font(gtk_widget_get_style_context(treeview), GTK_STATE_FLAG_NORMAL);
+    font_desc = (PangoFontDescription*)gtk_style_context_get_font (
+        gtk_widget_get_style_context (treeview), GTK_STATE_FLAG_NORMAL);
 #else
     font_desc = treeview->style->font_desc;
 #endif
