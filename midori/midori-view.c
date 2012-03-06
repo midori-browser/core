@@ -2770,6 +2770,8 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     gchar* content_type;
     gchar* description;
     gchar* file_type;
+    gchar* file_name;
+    WebKitDownload *download;
     WebKitWebDataSource* datasource;
     WebKitNetworkRequest* original_request;
     const gchar* original_uri;
@@ -2833,6 +2835,11 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
         file_type = g_strdup_printf (_("File Type: %s ('%s')"), description, mime_type);
     g_free (description);
 
+    download = webkit_download_new (request);
+    file_name = g_strdup_printf (_("File Name: %s"),
+            webkit_download_get_suggested_filename (download));
+    g_object_unref (download);
+
     /* Link Fingerprint */
     /* We look at the original URI because redirection would lose the fragment */
     datasource = webkit_web_frame_get_provisional_data_source (web_frame);
@@ -2840,9 +2847,10 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     original_uri = webkit_network_request_get_uri (original_request);
     midori_uri_get_fingerprint (original_uri, &fingerprint, &fplabel);
     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-        "%s\n%s %s", file_type, fplabel ? fplabel : "", fingerprint ? fingerprint : "");
+        "%s\n%s\n%s %s", file_name, file_type, fplabel ? fplabel : "", fingerprint ? fingerprint : "");
     g_free (fingerprint);
     g_free (fplabel);
+    g_free (file_name);
     g_free (file_type);
 
     gtk_window_set_skip_taskbar_hint (GTK_WINDOW (dialog), FALSE);
