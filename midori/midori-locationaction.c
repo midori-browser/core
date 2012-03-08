@@ -319,7 +319,6 @@ midori_location_action_popup_position (MidoriLocationAction* action,
         NULL, NULL, NULL, NULL, &height);
     gtk_widget_style_get (action->treeview, "vertical-separator", &sep, NULL);
     height += sep;
-    gtk_widget_realize (action->treeview);
 
     /* Constrain to screen/ window size */
     screen = gtk_widget_get_screen (widget);
@@ -538,6 +537,7 @@ midori_location_action_popup_timeout_cb (gpointer data)
     gtk_list_store_clear (store);
 
     matches = searches = 0;
+    gtk_widget_realize (action->treeview);
     style = gtk_widget_get_style (action->treeview);
     while (result == SQLITE_ROW)
     {
