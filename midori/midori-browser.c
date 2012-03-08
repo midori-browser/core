@@ -4896,10 +4896,10 @@ midori_panel_close_cb (MidoriPanel*   panel,
 }
 
 static void
-gtk_notebook_switch_page_cb (GtkWidget*       notebook,
-                             gpointer         page,
-                             guint            page_num,
-                             MidoriBrowser*   browser)
+midori_browser_notebook_switch_page_cb (GtkWidget*       notebook,
+                                        gpointer         page,
+                                        guint            page_num,
+                                        MidoriBrowser*   browser)
 {
     GtkWidget* widget;
     GtkAction* action;
@@ -4915,10 +4915,10 @@ gtk_notebook_switch_page_cb (GtkWidget*       notebook,
 }
 
 static void
-gtk_notebook_switch_page_after_cb (GtkWidget*       notebook,
-                                   gpointer         page,
-                                   guint            page_num,
-                                   MidoriBrowser*   browser)
+midori_browser_notebook_switch_page_after_cb (GtkWidget*       notebook,
+                                              gpointer         page,
+                                              guint            page_num,
+                                              MidoriBrowser*   browser)
 {
     GtkWidget* widget;
     MidoriView* view;
@@ -4991,8 +4991,8 @@ midori_browser_notebook_create_window_cb (GtkNotebook*   notebook,
 }
 
 static void
-midori_browser_switch_tab_cb (GtkWidget*     menuitem,
-                              MidoriBrowser* browser)
+midori_browser_menu_item_switch_tab_cb (GtkWidget*     menuitem,
+                                        MidoriBrowser* browser)
 {
     gint page = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menuitem), "index"));
     midori_browser_set_current_page (browser, page);
@@ -5041,7 +5041,7 @@ midori_browser_notebook_button_press_event_after_cb (GtkNotebook*    notebook,
             gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
             g_object_set_data (G_OBJECT (menuitem), "index", GINT_TO_POINTER (i));
             g_signal_connect (menuitem, "activate",
-                G_CALLBACK (midori_browser_switch_tab_cb), browser);
+                G_CALLBACK (midori_browser_menu_item_switch_tab_cb), browser);
             i++;
         }
         g_list_free (tabs);
@@ -6162,10 +6162,10 @@ midori_browser_init (MidoriBrowser* browser)
     gtk_notebook_set_scrollable (GTK_NOTEBOOK (browser->notebook), TRUE);
     gtk_paned_pack1 (GTK_PANED (vpaned), browser->notebook, FALSE, FALSE);
     g_signal_connect (browser->notebook, "switch-page",
-                      G_CALLBACK (gtk_notebook_switch_page_cb),
+                      G_CALLBACK (midori_browser_notebook_switch_page_cb),
                       browser);
     g_signal_connect_after (browser->notebook, "switch-page",
-                            G_CALLBACK (gtk_notebook_switch_page_after_cb),
+                            G_CALLBACK (midori_browser_notebook_switch_page_after_cb),
                             browser);
     g_signal_connect (browser->notebook, "page-reordered",
                       G_CALLBACK (midori_browser_notebook_page_reordered_cb),
