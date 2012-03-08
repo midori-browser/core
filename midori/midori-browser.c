@@ -1211,11 +1211,11 @@ midori_browser_view_copy_history (GtkWidget* view_to,
     }
 }
 
-static gint
+static gboolean
 midori_browser_notify_new_tab_timeout_cb (MidoriBrowser *browser)
 {
     gtk_window_set_opacity (GTK_WINDOW (browser), 1);
-    return 0;
+    return G_SOURCE_REMOVE;
 }
 
 static void
