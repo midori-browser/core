@@ -651,7 +651,7 @@ sokoke_magic_uri (const gchar* uri)
 
     /* Add file:// if we have a local path */
     if (g_path_is_absolute (uri))
-        return g_strconcat ("file://", uri, NULL);
+        return g_filename_to_uri (uri, NULL, NULL);
     /* Parse geo URI geo:48.202778,16.368472;crs=wgs84;u=40 as a location */
     if (!strncmp (uri, "geo:", 4))
     {
