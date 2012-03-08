@@ -1795,29 +1795,32 @@ midori_clear_saved_logins_cb (void)
     g_free (path);
 }
 
+#if WEBKIT_CHECK_VERSION (1, 3, 11)
 static void
 midori_clear_web_cache_cb (void)
 {
+    SoupSession* session = webkit_get_default_session ();
+    SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
+    gchar* cache = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "web", NULL);
+    soup_cache_clear (SOUP_CACHE (feature));
+    soup_cache_flush (SOUP_CACHE (feature));
+    sokoke_remove_path (cache, TRUE);
+    g_free (cache);
+}
+#endif
+
+static void
+midori_clear_page_icons_cb (void)
+{
     gchar* cache = g_build_filename (g_get_user_cache_dir (),
                                      PACKAGE_NAME, "icons", NULL);
+    /* FIXME: Exclude search engine icons */
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
     cache = g_build_filename (g_get_user_data_dir (),
                               "webkit", "icondatabase", NULL);
     sokoke_remove_path (cache, TRUE);
     g_free (cache);
-
-    #if WEBKIT_CHECK_VERSION (1, 3, 11)
-    {
-    SoupSession* session = webkit_get_default_session ();
-    SoupSessionFeature* feature = soup_session_get_feature (session, SOUP_TYPE_CACHE);
-    cache = g_build_filename (g_get_user_cache_dir (), PACKAGE_NAME, "web", NULL);
-    soup_cache_clear (SOUP_CACHE (feature));
-    soup_cache_flush (SOUP_CACHE (feature));
-    sokoke_remove_path (cache, TRUE);
-    g_free (cache);
-    }
-    #endif
 }
 
 static void
@@ -2109,12 +2112,12 @@ main (int    argc,
     sokoke_register_privacy_item ("web-cookies", _("Cookies and Website data"),
         G_CALLBACK (midori_clear_web_cookies_cb));
     #if WEBKIT_CHECK_VERSION (1, 3, 11)
+    /* TODO: Preserve page icons of search engines and merge privacy items */
     sokoke_register_privacy_item ("web-cache", _("Web Cache"),
         G_CALLBACK (midori_clear_web_cache_cb));
-    #else
-    sokoke_register_privacy_item ("page-icons", _("Website icons"),
-        G_CALLBACK (midori_clear_web_cache_cb));
     #endif
+    sokoke_register_privacy_item ("page-icons", _("Website icons"),
+        G_CALLBACK (midori_clear_page_icons_cb));
 
     /* Web Application or Private Browsing support */
     if (webapp || private || run)
