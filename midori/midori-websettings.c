@@ -344,6 +344,21 @@ midori_get_download_dir (void)
     }
     return g_get_home_dir ();
 }
+static gboolean
+midori_web_settings_low_memory_profile ()
+{
+    gchar* contents;
+    const gchar* total;
+    if (!g_file_get_contents ("/proc/meminfo", &contents, NULL, NULL))
+        return FALSE;
+    if (contents && (total = strstr (contents, "MemTotal:")) && *total)
+    {
+        const gchar* value = katze_skip_whitespace (total + 9);
+        gdouble mem_total = g_ascii_strtoll (value, NULL, 0);
+        return mem_total / 1024.0 < 352 + 1;
+    }
+    return FALSE;
+}
 
 static void
 midori_web_settings_class_init (MidoriWebSettingsClass* class)
@@ -777,7 +792,7 @@ midori_web_settings_class_init (MidoriWebSettingsClass* class)
                                      g_param_spec_boolean ("enable-page-cache",
                                                            "Enable page cache",
                                                            "Whether the page cache should be used",
-                                                           TRUE,
+        !midori_web_settings_low_memory_profile (),
                                                            flags));
     #endif
     g_object_class_install_property (gobject_class,
