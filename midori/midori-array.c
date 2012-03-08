@@ -1125,8 +1125,6 @@ midori_array_query_recursive (KatzeArray*  bookmarks,
             katze_item_set_name (KATZE_ITEM (subarray), item->name);
             katze_array_add_item (array, subarray);
         }
-        else
-            katze_array_add_item (array, item);
     }
     g_list_free (list);
     return array;
