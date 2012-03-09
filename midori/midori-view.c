@@ -2786,9 +2786,6 @@ webkit_web_view_mime_type_decision_cb (GtkWidget*               web_view,
     GtkIconTheme* icon_theme;
     gint response;
 
-    if (web_frame != webkit_web_view_get_main_frame (WEBKIT_WEB_VIEW (web_view)))
-        return FALSE;
-
     if (webkit_web_view_can_show_mime_type (WEBKIT_WEB_VIEW (web_view), mime_type))
     {
         gboolean view_source = FALSE;
