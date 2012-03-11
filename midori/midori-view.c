@@ -1488,6 +1488,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         "} return f; })("
         "document.getElementsByTagName ('link'));", NULL);
 
+        /* FIXME: If URI or title contains , parsing will break */
         gchar** items = g_strsplit (value, ",", 0);
         gchar** current_item = items;
         gchar* default_uri = NULL;
@@ -1511,7 +1512,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                     continue;
                 title = strchr (uri_and_title, '|');
                 if (title == NULL)
-                    continue;
+                    goto news_feeds_continue;
                 title++;
 
                 uri = g_strndup (uri_and_title, title - 1 - uri_and_title);
@@ -1529,6 +1530,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                 katze_assign (view->icon_uri, g_strdup (uri_and_title));
             #endif
 
+            news_feeds_continue:
             current_item++;
         }
         g_strfreev (items);
