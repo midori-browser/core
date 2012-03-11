@@ -1572,7 +1572,7 @@ speeddial_new_from_file (const gchar* config,
     g_string_append_len (script, json_content, json_length);
     g_string_append (script, "); "
         "var keyfile = '';"
-        "for (i in json['shortcuts']) {"
+        "for (var i in json['shortcuts']) {"
         "var tile = json['shortcuts'][i];"
         "keyfile += '[Dial ' + tile['id'].substring (1) + ']\\n'"
         "        +  'uri=' + tile['href'] + '\\n'"

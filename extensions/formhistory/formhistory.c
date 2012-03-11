@@ -193,7 +193,7 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
        The field separator is "|||" */
     const gchar* script = "function dumpForm (inputs) {"
                  "  var out = '';"
-                 "  for (i=0;i<inputs.length;i++) {"
+                 "  for (var i = 0; i < inputs.length; i++) {"
                  "    if (inputs[i].getAttribute('autocomplete') == 'off' && "
                  "        inputs[i].type == 'text')"
                  "        continue;"

@@ -1478,7 +1478,7 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
         /* Icon: URI, News Feed: $URI|title */
         gchar* value = sokoke_js_script_eval (js_context,
-        "(function (l) { var f = new Array (); for (i in l) "
+        "(function (l) { var f = new Array (); for (var i in l) "
         "{ var t = l[i].type; var r = l[i].rel; "
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
         "f.push ('$' + l[i].href + '|' + l[i].title);"
@@ -1894,7 +1894,7 @@ gtk_widget_key_press_event_cb (WebKitWebView* web_view,
                 " border:1px solid gray; padding:0 0.1em 0.2em 0.1em !important;"
                 " position:absolute; display:inline !important; }');"
                 " var label_count = 0;"
-                " for (i in document.links) {"
+                " for (var i in document.links) {"
                 "   if (document.links[i].href && document.links[i].insertBefore) {"
                 "       var child = document.createElement ('span');"
                 "       if (document.links[i].accessKey && isNaN (document.links[i].accessKey)) {"
@@ -3704,7 +3704,7 @@ static gchar* list_netscape_plugins ()
     JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
     /* Joins available plugins like this: URI1|title1,URI2|title2 */
     gchar* value = sokoke_js_script_eval (js_context,
-        "function plugins (l) { var f = new Array (); for (i in l) "
+        "function plugins (l) { var f = new Array (); for (var i in l) "
         "{ var p = l[i].name + '|' + l[i].filename; "
         "if (f.indexOf (p) == -1) f.push (p); } return f; }"
         "plugins (navigator.plugins)", NULL);
