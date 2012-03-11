@@ -216,7 +216,9 @@ formhistory_navigation_decision_cb (WebKitWebView*             web_view,
     js_context = webkit_web_frame_get_global_context (web_frame);
     value = sokoke_js_script_eval (js_context, script, NULL);
 
+#ifdef FORMHISTORY_USE_GDOM
     formhistory_suggestions_hide_cb (NULL, NULL, priv);
+#endif
     if (value && *value)
     {
         gchar** inputs = g_strsplit (value, "|||", 0);
