@@ -1284,7 +1284,7 @@ adblock_frame_add_private (const gchar* line,
             /* Ignore Firefox-specific option */
             if (!g_strcmp0 (domain, "~pregecko2"))
                 continue;
-            /* strip ~ from domain */
+            /* FIXME: ~ should negate match */
             if (domain[0] == '~')
                 domain++;
             adblock_update_css_hash (g_strstrip (domain), data[1]);
@@ -1301,6 +1301,88 @@ adblock_frame_add_private (const gchar* line,
 static gchar*
 adblock_parse_line (gchar* line)
 {
+    /*
+     * AdblockPlus rule reference based on http://adblockplus.org/en/filters
+     * Block URL:
+     *   http://example.com/ads/banner123.gif
+     *   http://example.com/ads/banner*.gif
+     *   http://example.com/ads/*
+     * Partial match for "ad":
+     *   *ad*
+     *   ad
+     * Block example.com/annoyingflash.swf but not example.com/swf/:
+     *   swf|
+     * Block bad.example/banner.gif but not good.example/analyze?http://bad.example:
+     *   |http://baddomain.example/
+     * Block http(s) example.com but not badexample.com or good.example/analyze?http://bad.example:
+     *   ||example.com/banner.gif
+     * Block example.com/ and example.com:8000/ but not example.com.ar/:
+     *   http://example.com^
+     * A ^ matches anything that isn't A-Za-z0-0_-.%
+     * Block example.com:8000/foo.bar?a=12&b=%D1%82%D0%B5:
+     *   ^example.com^
+     *   ^%D1%82%D0%B5^
+     *   ^foo.bar^
+     * TODO: ^ is partially supported by Midori
+     * Block banner123 and banner321 with a regex:
+     *   /banner\d+/
+     * Never block URIs with "advice":
+     *   @@advice
+     * No blocking at all:
+     *   @@http://example.com
+     *   @@|http://example.com
+     * TODO: @@ is currently ignored by Midori.
+     * Element hiding by class:
+     *   ##textad
+     *   ##div.textad
+     * Element hiding by id:
+     *   ##div#sponsorad
+     *   ##*#sponsorad
+     * Match example.com/ and something.example.com/ but not example.org/
+     *   example.com##*.sponsor
+     * Match multiple domains:
+     *   domain1.example,domain2.example,domain3.example##*.sponsor
+     * Match on any domain but "example.com":
+     *  ~example.com##*.sponsor
+     * Match on "example.com" except "foo.example.com":
+     *   example.com,~foo.example.com##*.sponsor
+     * By design rules only apply to full domain names:
+     *   "domain" is NOT equal to "domain.example,domain.test."
+     * In Firefox rules can apply to browser UI:
+     *   browser##menuitem#javascriptConsole will hide the Console menuitem
+     * Hide tables with width attribute 80%:
+     *   ##table[width="80%"]
+     * Hide all div with title attribute containing "adv":
+     *   ##div[title*="adv"]
+     * Hide div with title starting with "adv" and ending with "ert":
+     *   ##div[title^="adv"][title$="ert"]
+     * Match tables with width attribute 80% and bgcolor attribute white:
+     *   table[width="80%"][bgcolor="white"]
+     * TODO: [] is currently ignored by Midori
+     * Hide anything following div with class "adheader":
+     *   ##div.adheader + *
+     * Old CSS element hiding syntax, officially deprecated:
+     *   #div(id=foo)
+     * Match anything but "example.com"
+     *   ~example.com##*.sponsor
+     * TODO: ~ is currently ignored by Midori
+     * Match "example.com" domain except "foo.example.com":
+     *   example.com,~foo.example.com##*.sponsor
+     * ! Comment
+     * Supported options after a trailing $:
+     *   domain,third-party,~pregecko2
+     * Official options (not all supported by Midori):
+     *   script,image,stylesheet,object,xmlhttprequest,object-subrequest,
+     *   subdocument,document,elemhide,popup,third-party,sitekey,match-case
+     *   collapse,donottrack,pregecko2
+     * Deprecated:
+     *   background,xbl,ping,dtd
+     * Inverse options:
+     *   ~script,~image,~stylesheet,~object,~xmlhttprequest,~collapse,
+     *   ~object-subrequest,~subdocument,~document,~elemhide,~third-party,
+     *   ~pregecko2
+     **/
+
     /* Skip invalid, empty and comment lines */
     if (!(line && line[0] != ' ' && line[0] != '!' && line[0]))
         return NULL;
