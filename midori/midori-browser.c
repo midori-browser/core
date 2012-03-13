@@ -5105,9 +5105,9 @@ static const GtkActionEntry entries[] =
         NULL, G_CALLBACK (_action_add_speed_dial_activate) },
     { "AddDesktopShortcut", NULL,
     #if HAVE_HILDON
-        N_("Add Shortcut to the _desktop"), "<Ctrl>j",
+        N_("Add Shortcut to the _desktop"), "",
     #else
-        N_("Create _Launcher"), "<Ctrl>j",
+        N_("Create _Launcher"), "",
     #endif
         NULL, G_CALLBACK (_action_add_desktop_shortcut_activate) },
     { "AddNewsFeed", NULL,
@@ -5319,7 +5319,7 @@ static const GtkToggleActionEntry toggle_entries[] =
         NULL, G_CALLBACK (_action_bookmarkbar_activate),
         FALSE },
     { "Statusbar", NULL,
-        N_("_Statusbar"), "",
+        N_("_Statusbar"), "<Ctrl>j",
         NULL, G_CALLBACK (_action_statusbar_activate),
         FALSE },
 };
