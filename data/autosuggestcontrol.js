@@ -186,10 +186,10 @@ AutoSuggestControl.prototype.init = function () {
     };
 
     //assign onblur event handler (hides suggestions)
-    this.textbox.onblur =
-    this.textbox.onclick = function () {
-        oThis.hideSuggestions();
-    };
+    if (!this.textbox.onblur)
+      this.textbox.onblur = function () { oThis.hideSuggestions(); };
+    if (!this.textbox.onclick)
+      this.textbox.onclick = function () { oThis.hideSuggestions(); };
 
     //create the suggestions dropdown
     this.createDropDown();
@@ -299,7 +299,7 @@ function initSuggestions () {
     if (inputs.length == 0)
         return false;
 
-    for (i=0;i<inputs.length;i++)
+    for (var i=0;i<inputs.length;i++)
     {
         var ename = inputs[i].getAttribute("name");
         var eid = inputs[i].getAttribute("id");
