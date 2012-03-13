@@ -1476,12 +1476,14 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
 
     {
         JSContextRef js_context = webkit_web_frame_get_global_context (web_frame);
-        /* Icon: URI, News Feed: $URI|title */
+        /* Icon: URI, News Feed: $URI|title, Search: :URI|title */
         gchar* value = sokoke_js_script_eval (js_context,
         "(function (l) { var f = new Array (); for (var i in l) "
         "{ var t = l[i].type; var r = l[i].rel; "
         "if (t && (t.indexOf ('rss') != -1 || t.indexOf ('atom') != -1)) "
         "f.push ('$' + l[i].href + '|' + l[i].title);"
+        "else if (r == 'search' && t == 'application/opensearchdescription+xml') "
+        "f.push (':' + l[i].href + '|' + l[i].title); "
         #if !WEBKIT_CHECK_VERSION (1, 1, 18)
         "else if (r && r.indexOf ('icon') != -1) f.push (l[i].href); "
         #endif
@@ -1524,6 +1526,22 @@ webkit_web_view_load_finished_cb (WebKitWebView*  web_view,
                     default_uri = uri;
                 else
                     g_free (uri);
+            }
+            else if (uri_and_title[0] == ':')
+            {
+                const gchar* title;
+
+                uri_and_title++;
+                if (uri_and_title == NULL)
+                    continue;
+                title = strchr (uri_and_title, '|');
+                if (title == NULL)
+                    goto news_feeds_continue;
+                title++;
+                /* TODO: Parse search engine XML
+                midori_view_add_info_bar (view, GTK_MESSAGE_INFO, title,
+                    G_CALLBACK (midori_view_open_search_response_cb), view,
+                    _("_Save Search engine"), GTK_RESPONSE_ACCEPT, NULL); */
             }
             #if !WEBKIT_CHECK_VERSION (1, 1, 18)
             else
