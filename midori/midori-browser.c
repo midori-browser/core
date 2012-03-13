@@ -294,6 +294,7 @@ _midori_browser_update_interface (MidoriBrowser* browser)
         midori_view_get_next_page (view) != NULL);
 
     _action_set_visible (browser, "AddSpeedDial", !midori_view_is_blank (view));
+    _action_set_visible (browser, "BookmarkAdd", !midori_view_is_blank (view));
     _action_set_sensitive (browser, "SaveAs", midori_view_can_save (view));
     _action_set_sensitive (browser, "Print", midori_view_can_print (view));
     _action_set_sensitive (browser, "ZoomIn", midori_view_can_zoom_in (view));
