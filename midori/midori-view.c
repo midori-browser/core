@@ -2525,6 +2525,7 @@ midori_view_populate_popup (MidoriView* view,
         midori_view_insert_menu_item (menu_shell, 0,
             _("_Search the Web"), GTK_STOCK_FIND,
             G_CALLBACK (midori_web_view_menu_search_web_activate_cb), widget);
+        /* FIXME: choose 3 most frequently */
 
         g_strstrip (view->selected_text);
         if (midori_uri_is_valid (view->selected_text))
