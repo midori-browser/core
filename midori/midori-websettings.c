@@ -347,6 +347,13 @@ midori_get_download_dir (void)
 static gboolean
 midori_web_settings_low_memory_profile ()
 {
+#ifdef _WIN32
+    /* See http://msdn.microsoft.com/en-us/library/windows/desktop/aa366589(v=vs.85).aspx */
+    MEMORYSTATUSEX mem;
+    mem.dwLength = sizeof (mem);
+    if (GlobalMemoryStatusEx (&mem))
+        return mem.ullTotalPhys / 1024 / 1024 < 352;
+#else
     gchar* contents;
     const gchar* total;
     if (!g_file_get_contents ("/proc/meminfo", &contents, NULL, NULL))
@@ -357,6 +364,7 @@ midori_web_settings_low_memory_profile ()
         gdouble mem_total = g_ascii_strtoll (value, NULL, 0);
         return mem_total / 1024.0 < 352 + 1;
     }
+#endif
     return FALSE;
 }
 
