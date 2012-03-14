@@ -206,6 +206,20 @@ def configure (conf):
         conf.define ('LIBNOTIFY_VERSION', 'No')
     conf.define ('HAVE_LIBNOTIFY', [0,1][libnotify == 'yes'])
 
+    if option_enabled ('granite'):
+        if option_enabled('gtk3'):
+            option_checkfatal ('granite', 'granite requires --enable-gtk3')
+        check_pkg ('granite', '0.1', False)
+        granite = ['N/A', 'yes'][conf.env['HAVE_GRANITE'] == 1]
+        if granite != 'yes':
+            option_checkfatal ('granite', 'new notebook, pop-overs')
+            conf.define ('GRANITE_VERSION', 'No')
+        else:
+            conf.define ('GRANITE_VERSION', conf.check_cfg (modversion='granite'))
+    else:
+        granite = 'no '
+        conf.define ('GRANITE_VERSION', 'No')
+
     conf.check (lib='m', mandatory=True)
     check_pkg ('gmodule-2.0', '2.8.0', False)
     check_pkg ('gthread-2.0', '2.8.0', False)
@@ -394,6 +408,7 @@ def set_options (opt):
     group = opt.add_option_group ('Optional features', '')
     add_enable_option ('unique', 'single instance support', group, disable=is_win32 (os.environ))
     add_enable_option ('libnotify', 'notification support', group)
+    add_enable_option ('granite', 'new notebook, pop-overs', group)
     add_enable_option ('addons', 'building of extensions', group)
     add_enable_option ('tests', 'building of tests', group, disable=True)
     add_enable_option ('hildon', 'Maemo integration', group, disable=not is_maemo ())

@@ -4078,6 +4078,7 @@ midori_view_set_uri (MidoriView*  view,
                     "<tr><td>Glib</td><td>%d.%d.%d (%d.%d.%d)</td></tr>"
                     "<tr><td>libsoup</td><td>%s</td></tr>"
                     "<tr><td>cairo</td><td>%s (%s)</td></tr>"
+                    "<tr><td>granite</td><td>%s</td></tr>"
                     "<tr><td>libnotify</td><td>%s</td></tr>"
                     "<tr><td>single instance</td><td>%s</td></tr>"
                     "<tr><td>Platform</td><td>%s %s %s</td></tr>"
@@ -4099,6 +4100,7 @@ midori_view_set_uri (MidoriView*  view,
                     glib_major_version, glib_minor_version, glib_micro_version,
                     LIBSOUP_VERSION,
                     CAIRO_VERSION_STRING, cairo_version_string (),
+                    GRANITE_VERSION,
                     LIBNOTIFY_VERSION,
                     #ifdef HAVE_HILDON_2_2
                     "Hildon 2.2",

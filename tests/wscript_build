@@ -35,6 +35,6 @@ for test in tests:
     obj.source = source
     obj.vapi_dirs = '../midori'
     obj.packages = 'glib-2.0 gio-2.0 gtk+-2.0 libsoup-2.4 webkit-1.0 midori'
-    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML'
+    obj.uselib = 'UNIQUE LIBSOUP GIO GTK SQLITE WEBKIT LIBXML GRANITE'
     obj.uselib_local = 'midori-core'
     obj.unit_test = 1
