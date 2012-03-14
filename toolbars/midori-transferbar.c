@@ -377,7 +377,7 @@ midori_transferbar_confirm_delete (MidoriTransferbar* transferbar)
     }
     if (dialog != NULL)
     {
-        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_CANCEL)
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) != GTK_RESPONSE_ACCEPT)
             cancel = TRUE;
         gtk_widget_destroy (dialog);
     }
