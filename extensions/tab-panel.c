@@ -419,8 +419,7 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
                               GtkWidget*       view,
                               MidoriExtension* extension)
 {
-    GtkWidget* notebook = katze_object_get_object (browser, "notebook");
-    gint page = gtk_notebook_page_num (GTK_NOTEBOOK (notebook), view);
+    gint page = midori_browser_page_num (browser, view);
     MidoriWebSettings* settings = midori_browser_get_settings (browser);
     gboolean minimized = katze_object_get_boolean (view, "minimized");
     GdkPixbuf* icon = midori_view_get_icon (MIDORI_VIEW (view));
@@ -468,8 +467,6 @@ tab_panel_browser_add_tab_cb (MidoriBrowser*   browser,
         g_signal_connect (view, "notify::title",
             G_CALLBACK (tab_panel_view_notify_title_cb), extension);
     }
-
-    g_object_unref (notebook);
 }
 
 static void

@@ -152,6 +152,10 @@ GtkWidget*
 midori_browser_get_current_tab        (MidoriBrowser*     browser);
 #define midori_browser_get_tab midori_browser_get_current_tab
 
+gint
+midori_browser_page_num               (MidoriBrowser*     browser,
+                                       GtkWidget*         view);
+
 GList*
 midori_browser_get_tabs               (MidoriBrowser*     browser);
 

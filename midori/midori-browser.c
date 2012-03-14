@@ -1629,7 +1629,7 @@ _midori_browser_add_tab (MidoriBrowser* browser,
     if (!katze_item_get_meta_boolean (item, "append") &&
         katze_object_get_boolean (browser->settings, "open-tabs-next-to-current"))
     {
-        n = gtk_notebook_get_current_page (notebook) + 1;
+        n = midori_browser_get_current_page (browser) + 1;
         katze_array_move_item (browser->proxy_array, item, n);
     }
     else
@@ -2506,7 +2506,7 @@ _action_tab_close_activate (GtkAction*     action,
 {
     GtkWidget* widget = midori_browser_get_current_tab (browser);
     gboolean last_tab =
-        gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), 1) == NULL;
+        midori_browser_get_nth_tab (browser, 1) == NULL;
     if (last_tab && sokoke_is_app_or_private ())
     {
         gtk_widget_destroy (GTK_WIDGET (browser));
@@ -3027,9 +3027,9 @@ _action_window_activate_item_alt (GtkAction*     action,
     for (i = 0; i < n; i++)
     {
         GtkWidget* view;
-        view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), i);
+        view = midori_browser_get_nth_tab (browser, i);
         if (midori_view_get_proxy_item (MIDORI_VIEW (view)) == item)
-            gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), i);
+            midori_browser_set_current_page (browser, i);
     }
 }
 
@@ -4552,17 +4552,23 @@ _action_inspect_page_activate (GtkAction*     action,
     webkit_web_inspector_show (inspector);
 }
 
+static gint
+midori_browser_get_n_pages (MidoriBrowser* browser)
+{
+    return gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook));
+}
+
 static void
 _action_tab_move_backward_activate (GtkAction*     action,
                                     MidoriBrowser* browser)
 {
     gint new_pos;
-    gint cur_pos = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), cur_pos);
+    gint cur_pos = midori_browser_get_current_page (browser);
+    GtkWidget* widget = midori_browser_get_nth_tab (browser, cur_pos);
     if (cur_pos > 0)
         new_pos = cur_pos - 1;
     else
-        new_pos = gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1;
+        new_pos = midori_browser_get_n_pages (browser) - 1;
     gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, new_pos);
     g_signal_emit (browser, signals[MOVE_TAB], 0, browser->notebook, cur_pos, new_pos);
 }
@@ -4572,22 +4578,26 @@ _action_tab_move_forward_activate (GtkAction*     action,
                                    MidoriBrowser* browser)
 {
     gint new_pos;
-    gint cur_pos = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    GtkWidget* widget = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), cur_pos);
-    if (cur_pos == (gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1))
+    gint cur_pos = midori_browser_get_current_page (browser);
+    GtkWidget* widget = midori_browser_get_nth_tab (browser, cur_pos);
+    if (cur_pos == (midori_browser_get_n_pages (browser) - 1))
         new_pos = 0;
     else
         new_pos = cur_pos + 1;
+    #ifdef HAVE_GRANITE
+    /* FIXME */
+    #else
     gtk_notebook_reorder_child (GTK_NOTEBOOK (browser->notebook), widget, new_pos);
     g_signal_emit (browser, signals[MOVE_TAB], 0, browser->notebook, cur_pos, new_pos);
+    #endif
 }
 
 static void
 _action_tab_previous_activate (GtkAction*     action,
                                MidoriBrowser* browser)
 {
-    gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n - 1);
+    gint n = midori_browser_get_current_page (browser);
+    midori_browser_set_current_page (browser, n - 1);
 }
 
 static void
@@ -4595,10 +4605,10 @@ _action_tab_next_activate (GtkAction*     action,
                            MidoriBrowser* browser)
 {
     /* Advance one tab or jump to the first one if we are at the last one */
-    gint n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
-    if (n == gtk_notebook_get_n_pages (GTK_NOTEBOOK (browser->notebook)) - 1)
+    gint n = midori_browser_get_current_page (browser);
+    if (n == midori_browser_get_n_pages (browser) - 1)
         n = -1;
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n + 1);
+    midori_browser_set_current_page (browser, n + 1);
 }
 
 static void
@@ -5668,8 +5678,7 @@ midori_browser_accel_switch_tab_activate_cb (GtkAccelGroup*  accel_group,
         /* Switch to n-th tab. 9 and 0 go to the last tab. */
         n = keyval - GDK_KEY_0;
         browser = g_object_get_data (G_OBJECT (accel_group), "midori-browser");
-        if ((view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook),
-                                               n < 9 ? n - 1 : -1)))
+        if ((view = midori_browser_get_nth_tab (browser, n < 9 ? n - 1 : -1)))
             midori_browser_set_current_tab (browser, view);
     }
 }
@@ -7029,6 +7038,29 @@ midori_browser_add_tab (MidoriBrowser* browser,
         g_critical ("midori_load_soup_session was not called!");
 
     g_signal_emit (browser, signals[ADD_TAB], 0, view);
+    return midori_browser_page_num (browser, view);
+}
+
+/**
+ * midori_browser_page_num:
+ * @browser: a #MidoriBrowser
+ * @widget: a widget in the browser
+ *
+ * Retrieves the position of @widget in the browser.
+ *
+ * If there is no page present at all, -1 is returned.
+ *
+ * Return value: the index of the widget, or -1
+ *
+ * Since: 0.4.5
+ **/
+gint
+midori_browser_page_num (MidoriBrowser* browser,
+                         GtkWidget*     view)
+{
+    g_return_val_if_fail (MIDORI_IS_BROWSER (browser), -1);
+    g_return_val_if_fail (MIDORI_IS_VIEW (view), -1);
+
     return gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
 }
 
@@ -7276,7 +7308,7 @@ midori_browser_set_current_page (MidoriBrowser* browser,
 
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
 
-    view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
+    view = midori_browser_get_nth_tab (browser, n);
     g_return_if_fail (view != NULL);
 
     gtk_notebook_set_current_page (GTK_NOTEBOOK (browser->notebook), n);
@@ -7351,7 +7383,7 @@ midori_browser_set_current_tab (MidoriBrowser* browser,
     g_return_if_fail (MIDORI_IS_BROWSER (browser));
     g_return_if_fail (GTK_IS_WIDGET (view));
 
-    n = gtk_notebook_page_num (GTK_NOTEBOOK (browser->notebook), view);
+    n = midori_browser_page_num (browser, view);
     midori_browser_set_current_page (browser, n);
 }
 
@@ -7378,7 +7410,7 @@ midori_browser_get_current_tab (MidoriBrowser* browser)
 
     n = gtk_notebook_get_current_page (GTK_NOTEBOOK (browser->notebook));
     if (n >= 0)
-        return gtk_notebook_get_nth_page (GTK_NOTEBOOK (browser->notebook), n);
+        return midori_browser_get_nth_tab (browser, n);
     else
         return NULL;
 }
